@@ -44,11 +44,21 @@ En lisant les données live (nouvelle route `idle-catalog-read`, lecture seule),
   SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-loots-sets.mjs
   ```
 
+## IDLE_BOSS étendu de 20 à 46 — fait aussi cette nuit
+
+- **26 boss ajoutés** (21-46), un par zone 21-46, dans la même voix que les 20 déjà en place (humour noir logistique SOREAL) : histoire, conseil de combat, et 1 à 3 capacités reprises du même système existant (regen/bouclier/paralysie/fureur/fracas/sceau — aucune nouvelle mécanique inventée).
+- **PV/Attaque/XP/Pieces** continuent exactement le taux de croissance observé sur les 5 derniers boss existants (16-20 : ×1.33/×1.18/×1.31/×1.18 par boss), pas une formule repartant de zéro — la progression reste lisse à la jonction boss20→21.
+- **Import strictement additif** (`push-idle-boss-extension.mjs` utilise `idle-catalog-import`, PAS `idle-catalog-replace`) : les 20 boss existants ne sont jamais touchés, aucun risque de les écraser.
+- Fichiers : `idle-boss-extension-21-46.json`, généré par `build-idle-boss-extension-21-46.mjs`.
+- Pour pousser :
+  ```bash
+  SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-boss-extension.mjs
+  ```
+
 ## Ce qui reste à faire après ces push
 
-1. **Étendre IDLE_BOSS de 20 à 46 (ou plus)** pour que les zones 21-46 aient elles aussi un vrai boss couplé, avec histoire + capacités au même niveau de qualité que les 20 premiers — le plus gros chantier restant, volontairement pas bâclé cette nuit.
-2. **Vérifier si PVEnnemi/PVBoss/CoutEntree doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
-3. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS).
+1. **Vérifier si PVEnnemi/PVBoss/CoutEntree (des zones) doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
+2. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS).
 
 ## Fichiers
 
