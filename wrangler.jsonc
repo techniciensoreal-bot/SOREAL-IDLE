@@ -1,0 +1,29 @@
+// SOREAL IDLE — dépôt dédié (2026-09-15).
+// Extrait de SOREAL-TV (déjà son propre Worker Cloudflare depuis le
+// 2026-09-13, wrangler.idle.jsonc) — même Worker déployé ("soreal-idle"),
+// juste une source différente désormais, pour isoler l'ampleur du
+// contenu à venir (301 boss, ~77 sets, systèmes NGU complets) du dépôt
+// applicatif SOREAL-TV et de son Feature Guard.
+// Déploiement : npx wrangler deploy
+{
+  "name": "soreal-idle",
+  "main": "cloudflare/src/idle-worker-entry-v1.js",
+  "compatibility_date": "2026-08-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SOREAL_IDLE",
+        "class_name": "SorealIdleCoordinatorV1"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1-idle",
+      "new_sqlite_classes": [
+        "SorealIdleCoordinatorV1"
+      ]
+    }
+  ]
+}

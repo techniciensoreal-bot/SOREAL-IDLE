@@ -1,0 +1,3439 @@
+import {
+  createIdleAdventureStateV47,
+  normalizeIdleAdventureStateV47,
+  applyIdleAdventureActionV47,
+  idleAdventureSnapshotV47,
+  idleAdventureEquipmentStatsV47,
+  idleAdventureBoostV1,
+  idleAdventureAddItemV1
+} from "./idle-adventure-v47.js";
+import {
+  bigFromLog10V1,
+  bigToNumberV1
+} from "./idle-big-number-v1.js";
+import {
+  IDLE_PERKS_CATALOG_V1,
+  idlePerkByIdV1,
+  idlePerkNextCostV1,
+  perkBonusesV1
+} from "./idle-perks-v1.js";
+import {
+  IDLE_SELLOUT_SHOP_CATALOG_V1,
+  idleSelloutShopItemV1,
+  idleSelloutShopNextCostV1,
+  idleSelloutShopBuyV1
+} from "./idle-sellout-shop-v1.js";
+import {
+  IDLE_QUIRKS_CATALOG_V1,
+  idleQuirkByIdV1,
+  idleQuirkNextCostV1,
+  quirkBonusesV1
+} from "./idle-quirks-v1.js";
+import {
+  IDLE_WISHES_CATALOG_V1,
+  wishBonusesV1
+} from "./idle-wishes-v1.js";
+
+/*
+ * SOREAL IDLE — early game NGU parity engine.
+ *
+ * Scope: Normal difficulty from a fresh save through the first Titan / first NGU layer.
+ * This file intentionally does not migrate the previous experimental meta-progression.
+ * Old SOREAL IDLE saves are disposable while the game is still in private development.
+ *
+ * The UI may translate names to the SOREAL universe. The progression rules stay NGU-like.
+ */
+
+export const IDLE_NGU_META_VERSION = "META-V47-EARLYGAME-NGU";
+export const IDLE_NGU_SAVE_SCHEMA = 47;
+
+const RESOURCE_KEYS = Object.freeze(["energy", "magic", "r3"]);
+
+// NGU Spend EXP base purchases. Values are base-stat increments per purchase,
+// not UI-derived multipliers. Keeping them here makes APP/TV consume one table.
+export const IDLE_NGU_RESOURCE_PURCHASES = Object.freeze({
+  energy: Object.freeze({
+    speed: Object.freeze({ cost: 2, gain: 0.1, hardCap: 50 }),
+    power: Object.freeze({ cost: 15, gain: 0.1, hardCap: 1e18 }),
+    cap: Object.freeze({ cost: 40, gain: 10000, hardCap: 9e18 }),
+    bars: Object.freeze({ cost: 80, gain: 1, hardCap: 1e18 })
+  }),
+  magic: Object.freeze({
+    speed: Object.freeze({ cost: 3, gain: 0.1, hardCap: 50 }),
+    power: Object.freeze({ cost: 45, gain: 0.1, hardCap: 1e18 }),
+    cap: Object.freeze({ cost: 120, gain: 10000, hardCap: 9e18 }),
+    bars: Object.freeze({ cost: 240, gain: 1, hardCap: 1e18 })
+  })
+});
+const EARLY_GAME_MAX_OFFLINE_SECONDS = 30 * 24 * 3600;
+const MIN_REBIRTH_SECONDS = 180;
+/*
+ * Wiki NGU (page "Wishes", section "Important Math") : "Wishes have a hard
+ * cap of 4 hours, after which putting more resources into it will not
+ * speed up the process." — plancher de temps par niveau, quel que soit le
+ * débit de ressources. (Le wiki mentionne aussi une réduction à 3h via
+ * Perks/Quirks ; non implémentée ici, aucune Perk/Quirk Normal de
+ * SOREAL IDLE ne la fournit actuellement — idle-perks-v1.js/idle-quirks-
+ * v1.js n'incluent que les entrées Normal, et "Minimum Wish Time
+ * Reduction I/II" est Evil-only sur le wiki.)
+ */
+const WISH_MIN_LEVEL_SECONDS = 4 * 3600;
+
+function num(v, d = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : d;
+}
+function int(v, d = 0) {
+  return Math.floor(num(v, d));
+}
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, num(v, min)));
+}
+function clone(v) {
+  return JSON.parse(JSON.stringify(v));
+}
+function nowMs(v) {
+  return Math.max(0, int(v, Date.now()));
+}
+/*
+ * Mission NGU (2026-09-08) : ces deux fonctions écrêtaient auparavant tout
+ * résultat à [1e-300, 1e300] via un plafond arbitraire sur le logarithme
+ * (±690). Deux chaînes de multiplicateurs produisant "en vrai" 1e400 et
+ * 1e900 devenaient alors STRICTEMENT IDENTIQUES (toutes deux 1e300) — pas
+ * juste plafonnées, mais rendues indiscernables l'une de l'autre. NGU Idle
+ * en Sadistique/fin de partie dépasse couramment 1e300 ; NUMBER (et tout ce
+ * qui le multiplie, ex. attackMultiplier plus bas) ne pouvait donc pas être
+ * correct passé le tout début de partie.
+ *
+ * Correctif minimal et rétrocompatible : la représentation interne passe
+ * par idle-big-number-v1.js (mantisse/exposant, sans plafond arbitraire),
+ * mais la signature et le type de retour restent un Number JS classique —
+ * aucun appelant existant n'a besoin de changer. La vraie limite désormais
+ * est celle d'un double IEEE 754 (~1.7977e308) : au-delà, le résultat
+ * devient honnêtement Infinity (qui reste correctement ORDONNÉ par rapport
+ * à toute valeur finie plus petite), au lieu d'un plafond arbitraire qui
+ * mentait sur la magnitude réelle.
+ *
+ * Propager la représentation grand nombre plus loin en aval (jusqu'à
+ * attackMultiplier/defenseMultiplier et aux stats de combat qui en
+ * découlent) reste un chantier séparé, nécessaire avant que le contenu
+ * Évil/Sadistique/fin de partie puisse être validé numériquement — ne pas
+ * supposer que ce correctif seul couvre toute la chaîne aval.
+ *
+ * Note de précision : Math.exp(Math.log(b)*e) reste la voie DIRECTE tant
+ * que le résultat est représentable sans dépassement — elle est gardée
+ * inchangée pour ne pas introduire de dérive flottante sur les valeurs
+ * early-game déjà verrouillées par des tests existants (ex. safePow(2,10)
+ * doit rester exactement 1024, pas 1023.9999999999993). Le détour par
+ * idle-big-number-v1.js n'intervient QUE quand le résultat direct
+ * dépasserait ce que Math.exp peut représenter — c'est précisément la zone
+ * où l'ancien code se trompait.
+ */
+const SAFE_EXP_LOG_LIMIT = 700; // Math.exp(~709.78) est la vraie limite double ; marge de sécurité.
+export function safePow(base, exp) {
+  const b = Math.max(1e-300, num(base, 1));
+  const e = num(exp, 0);
+  const log = Math.log(b) * e;
+  if (Math.abs(log) <= SAFE_EXP_LOG_LIMIT) return Math.exp(log);
+  return bigToNumberV1(bigFromLog10V1(log / Math.LN10, 1));
+}
+export function safeProduct(values) {
+  let log = 0;
+  for (const value of values) {
+    const v = Math.max(1e-300, num(value, 1));
+    log += Math.log(v);
+  }
+  if (Math.abs(log) <= SAFE_EXP_LOG_LIMIT) return Math.exp(log);
+  return bigToNumberV1(bigFromLog10V1(log / Math.LN10, 1));
+}
+
+export const IDLE_NGU_EARLY_GAME_TIMELINE = Object.freeze([
+  { boss: 4, id: "adventure", name: "Adventure + Inventory" },
+  { boss: 17, id: "augmentations", name: "Augmentations" },
+  { boss: 30, id: "timeMachine", name: "Time Machine" },
+  { boss: 37, id: "magic", name: "Magic + Blood Magic" },
+  { boss: 58, id: "challenges", name: "Challenges" },
+  { boss: 58, id: "titans", name: "Premier Titan" }
+]);
+
+export const IDLE_NGU_NORMAL_CHALLENGES = Object.freeze([
+  Object.freeze({id:"basic",name:"Basic Challenge",max:5,targetBoss:58,targetStep:0,implemented:true,reward:{experience:1500,ap:2500},unlock:{bosses:58},restriction:"resetNumber"}),
+  Object.freeze({id:"noAugmentations",name:"No Augs Challenge",max:5,targetBoss:59,targetStep:0,implemented:true,reward:{experience:5000,ap:10000},unlock:{bosses:75},restriction:"noAugmentations"}),
+  Object.freeze({id:"twentyFourHours",name:"24 Hour Challenge",max:10,targetBoss:58,targetStep:26,implemented:false,reward:{experience:400,ap:5000},unlock:{basicUnder24h:true},restriction:"offlineDisabled"}),
+  Object.freeze({id:"hundredLevels",name:"100 Levels Challenge",max:5,targetBoss:58,targetStep:0,implemented:false,reward:{experience:500,ap:1500},unlock:{nguLevels:10},restriction:"hundredLevels"}),
+  Object.freeze({id:"noEquipment",name:"No Equipment Challenge",max:5,targetBoss:66,targetStep:0,implemented:true,reward:{experience:4000,ap:3000},unlock:{grbSet:true},restriction:"noEquipment"}),
+  Object.freeze({id:"troll",name:"Troll Challenge",max:7,targetBoss:69,targetStep:15,implemented:false,reward:{experience:5000,ap:10000},unlock:{titan:"t2"},restriction:"troll"}),
+  Object.freeze({id:"noRebirth",name:"No Rebirth Challenge",max:10,targetBoss:40,targetStep:5,implemented:true,reward:{experience:10000,ap:25000},unlock:{titan:"t3"},restriction:"noRebirth"}),
+  Object.freeze({id:"laserSword",name:"Laser Sword Challenge",max:20,targetBoss:0,targetStep:0,implemented:false,reward:{experience:3000,ap:3000},unlock:{laserSword:true},restriction:"laserSword"}),
+  Object.freeze({id:"blind",name:"Blind Challenge",max:10,targetBoss:58,targetStep:10,implemented:false,reward:{experience:2500,ap:3000},unlock:{titan:"t4"},restriction:"blind"}),
+  Object.freeze({id:"noNgu",name:"No NGU Challenge",max:10,targetBoss:58,targetStep:10,implemented:true,reward:{experience:3000,ap:3000},unlock:{nguLevels:10000},restriction:"noNgu"}),
+  Object.freeze({id:"noTimeMachine",name:"No Time Machine Challenge",max:10,targetBoss:58,targetStep:15,implemented:true,reward:{experience:2000,ap:2000},unlock:{diggers:true},restriction:"noTimeMachine"})
+]);
+
+function challengePermanentBonuses(state){
+  const c=state?.challenge?.completions||{};
+  const basic=Math.max(0,int(c.basic,0));
+  const noAugs=Math.max(0,int(c.noAugmentations,0));
+  const noEquipment=Math.max(0,int(c.noEquipment,0));
+  const noRebirth=Math.max(0,int(c.noRebirth,0));
+  const noNgu=Math.max(0,int(c.noNgu,0));
+  const noTimeMachine=Math.max(0,int(c.noTimeMachine,0));
+  return {
+    adventureStatsMultiplier:1+basic*0.05+(basic>0?0.10:0),
+    boostRecycleChance:clamp(basic*0.10,0,1),
+    augmentationPowerMultiplier:1+noAugs*0.25,
+    augmentationSpeedMultiplier:noAugs>0?1.10:1,
+    augmentationCostMultiplier:noAugs>=5?0.5:1,
+    inventorySlots:noEquipment*8+(noEquipment>=5?10:0),
+    autoBoost:noEquipment>0,
+    autoMergeTimeMultiplier:Math.max(0.5,1-noEquipment*0.10),
+    titanRespawnReductionMs:noRebirth*15*60*1000,
+    titanLootLevelBonus:noRebirth>0?1:0,
+    nguSpeedMultiplier:1+noNgu*0.05,
+    timeMachineGoldMultiplier:1+noTimeMachine,
+    diggerGlobalMultiplier:noTimeMachine>0?1.05:1,
+    diggerSlotBonus:noTimeMachine>=5?1:0
+  };
+}
+
+export function idleNguChallengeBonuses(raw){
+  const state=raw&&raw.version===IDLE_NGU_META_VERSION?raw:normalizeIdleNguState(raw);
+  return challengePermanentBonuses(state);
+}
+
+/*
+ * Normal-difficulty NGU augmentation table.
+ * Times are the level-1 base times with 1000 Energy and 1 Energy Power.
+ */
+export const IDLE_NGU_AUGMENTATIONS = Object.freeze([
+  {
+    id: "scissors",
+    name: "Safety Scissors",
+    unlockBoss: 17,
+    baseMultiplier: 1,
+    exponent: 1,
+    baseGold: 1e4,
+    baseSeconds: 400,
+    upgrade: {
+      id: "dangerScissors",
+      name: "Danger Scissors",
+      unlockBoss: 37,
+      baseGold: 1e7,
+      baseSeconds: 400
+    }
+  },
+  {
+    id: "milk",
+    name: "Milk Infusion",
+    unlockBoss: 18,
+    baseMultiplier: 25,
+    exponent: 1.1,
+    baseGold: 2e5,
+    baseSeconds: 6800,
+    upgrade: {
+      id: "drinkMilk",
+      name: "Drinking The Milk Too",
+      unlockBoss: 40,
+      baseGold: 5e8,
+      baseSeconds: 4800
+    }
+  },
+  {
+    id: "cannon",
+    name: "Cannon Implant",
+    unlockBoss: 20,
+    baseMultiplier: 625,
+    exponent: 1.2,
+    baseGold: 4e6,
+    baseSeconds: 115600,
+    upgrade: {
+      id: "missileLauncher",
+      name: "Missile Launcher",
+      unlockBoss: 44,
+      baseGold: 2.5e10,
+      baseSeconds: 57600
+    }
+  },
+  {
+    id: "minigun",
+    name: "Shoulder Mounted Minigun",
+    unlockBoss: 24,
+    baseMultiplier: 15625,
+    exponent: 1.3,
+    baseGold: 8e7,
+    baseSeconds: 1965200,
+    upgrade: {
+      id: "actualAmmo",
+      name: "Actual Ammunition",
+      unlockBoss: 46,
+      baseGold: 1.25e12,
+      baseSeconds: 691200
+    }
+  },
+  {
+    id: "buster",
+    name: "Energy Buster",
+    unlockBoss: 28,
+    baseMultiplier: 390625,
+    exponent: 1.4,
+    baseGold: 1.6e9,
+    baseSeconds: 33408400,
+    upgrade: {
+      id: "chargeShot",
+      name: "Charge Shot",
+      unlockBoss: 48,
+      baseGold: 6.25e13,
+      baseSeconds: 8294400
+    }
+  },
+  {
+    id: "exoskeleton",
+    name: "Advanced Exoskeleton",
+    unlockBoss: 56,
+    baseMultiplier: 976563000,
+    exponent: 1.5,
+    baseGold: 1.8e16,
+    baseSeconds: 46771760000,
+    upgrade: {
+      id: "energyShield",
+      name: "Energy Shield",
+      unlockBoss: 56,
+      baseGold: 3.125e18,
+      baseSeconds: 6635520000
+    }
+  },
+  {
+    id: "laserSword",
+    name: "Laser Sword",
+    unlockBoss: 68,
+    baseMultiplier: 2.441e12,
+    exponent: 1.6,
+    baseGold: 2.3e19,
+    baseSeconds: 65480464000000,
+    upgrade: {
+      id: "quadLaser",
+      name: "Quadruple Sided Laser Sword",
+      unlockBoss: 68,
+      baseGold: 1.5625e20,
+      baseSeconds: 5308416000000
+    }
+  }
+]);
+
+export const IDLE_NGU_BLOOD_RITUALS = Object.freeze([
+  { id: "tack", name: "Poke Yourself with a Tack", blood: 1, gold: 3e7, baseSeconds: 2000 },
+  { id: "papercuts", name: "Fifty Papercuts", blood: 50, gold: 1e10, baseSeconds: 20000 },
+  { id: "hickey", name: "A Big-Ass Hickey", blood: 2000, gold: 2e12, baseSeconds: 200000 },
+  { id: "barbedWire", name: "Eat a bowl of Barbed Wire", blood: 60000, gold: 4e14, baseSeconds: 2000000 },
+  { id: "bloodBank", name: "Grand Theft Blood Bank", blood: 1.2e6, gold: 8e16, baseSeconds: 20000000 },
+  { id: "decapitation", name: "Self Decapitation", blood: 1.8e7, gold: 1.6e19, baseSeconds: 200000000 },
+  { id: "woodchipper", name: "Hug a Woodchipper", blood: 2.5e8, gold: 3.2e21, baseSeconds: 2000000000 },
+  {
+    id: "insideOut",
+    name: "Turn Yourself Inside Out",
+    blood: 3.2e9,
+    gold: 6.4e23,
+    baseSeconds: 20000000000,
+    unlockFlag: "trollChallenge6"
+  }
+]);
+
+export const IDLE_NGU_YGG_FRUITS = Object.freeze([
+  {id:"gold",name:"Fruit of Gold",resource:"energy",activationCost:100000,baseSeeds:1,tierCost:1,effect:"gold"},
+  {id:"powerAlpha",name:"Fruit of Power α",resource:"energy",activationCost:200000,baseSeeds:1,tierCost:10,effect:"powerAlpha"},
+  {id:"adventure",name:"Fruit of Adventure",resource:"energy",activationCost:200000,baseSeeds:1,tierCost:25,effect:"adventure"},
+  {id:"knowledge",name:"Fruit of Knowledge",resource:"energy",activationCost:1000000,baseSeeds:1,tierCost:40,effect:"experience"},
+  {id:"pomegranate",name:"Pomegranate",resource:"magic",activationCost:300000,baseSeeds:5,tierCost:60,effect:"seeds"},
+  {id:"luck",name:"Fruit of Luck",resource:"energy",activationCost:5000000,baseSeeds:1,tierCost:100,effect:"luck"},
+  {id:"powerBeta",name:"Fruit of Power β",resource:"magic",activationCost:3000000,baseSeeds:1,tierCost:150,effect:"powerBeta"},
+  {id:"arbitrariness",name:"Fruit of Arbitrariness",resource:"energy",activationCost:20000000,baseSeeds:3,tierCost:170,effect:"ap"},
+  {id:"numbers",name:"Fruit of Numbers",resource:"magic",activationCost:10000000,baseSeeds:3,tierCost:200,effect:"numbers"},
+  {id:"rage",name:"Fruit of Rage",resource:"energy",activationCost:500000000,baseSeeds:5,tierCost:2000,effect:"pp"}
+]);
+
+export const IDLE_NGU_DIGGERS = Object.freeze([
+  {id:"drop",name:"Drop Chance Digger",unlockCost:1e16,drain:1e12,growth:1.5,cap:1657,effect:"drop"},
+  {id:"wandoos",name:"Wandoos Digger",unlockCost:1e16,drain:1e12,growth:1.5,cap:1657,effect:"wandoos"},
+  {id:"stats",name:"Stat Digger",unlockCost:1e16,drain:1e12,growth:1.5,cap:1657,effect:"stats"},
+  {id:"adventure",name:"Adventure Digger",unlockCost:1e16,drain:1e12,growth:1.5,cap:1657,effect:"adventure"},
+  {id:"energyNgu",name:"Energy NGU Digger",unlockCost:1e19,drain:1e15,growth:1.75,cap:1188,effect:"energyNgu"},
+  {id:"magicNgu",name:"Magic NGU Digger",unlockCost:1e19,drain:1e15,growth:1.75,cap:1188,effect:"magicNgu"},
+  {id:"energyBeard",name:"Energy Beard Digger",unlockCost:1e22,drain:1e18,growth:1.75,cap:1176,effect:"energyBeard"},
+  {id:"magicBeard",name:"Magic Beard Digger",unlockCost:1e22,drain:1e18,growth:1.75,cap:1176,effect:"magicBeard"},
+  {id:"pp",name:"PP Digger",unlockCost:1e25,drain:1e21,growth:1.75,cap:1164,effect:"pp"},
+  {id:"daycare",name:"Daycare Digger",unlockCost:1e25,drain:1e21,growth:1.75,cap:1164,effect:"daycare"},
+  {id:"blood",name:"Blood Digger",unlockCost:1e28,drain:1e24,growth:1.75,cap:1151,effect:"blood"},
+  {id:"experience",name:"EXP Digger",unlockCost:1e28,drain:1e24,growth:1.75,cap:1151,effect:"experience"}
+]);
+
+
+export const IDLE_NGU_TRACKS = Object.freeze({
+  advancedTraining: [
+    { id: "power", name: "Adventure Power", effect: "Adventure Attack" },
+    { id: "toughness", name: "Adventure Toughness", effect: "Adventure Defense" },
+    { id: "block", name: "Block Damage", effect: "Adventure Block" },
+    { id: "wandoosEnergy", name: "Wandoos Energy Dump", effect: "Wandoos Energy" },
+    { id: "wandoosMagic", name: "Wandoos Magic Dump", effect: "Wandoos Magic" }
+  ],
+  wandoos: [
+    { id: "energy", name: "Wandoos Energy", effect: "Attack/Defense" },
+    { id: "magic", name: "Wandoos Magic", effect: "Attack/Defense" }
+  ],
+  ngu: [
+    { id: "attack", name: "NGU Power", effect: "Attack" },
+    { id: "defense", name: "NGU Toughness", effect: "Defense" },
+    { id: "adventure", name: "NGU Adventure", effect: "Adventure Stats" },
+    { id: "drop", name: "NGU Drop", effect: "Drop Chance" },
+    { id: "respawn", name: "NGU Respawn", effect: "Adventure Respawn" },
+    { id: "experience", name: "NGU EXP", effect: "EXP Gain" },
+    { id: "pp", name: "NGU PP", effect: "PP Gain" },
+    { id: "quest", name: "NGU Questing", effect: "Questing" },
+    { id: "daycare", name: "NGU Daycare", effect: "Daycare" }
+  ],
+  beards: [
+    { id: "attack", name: "Fu Manchu", effect: "Attack/Defense", resource: "magic", speedDivider: 1e7, beardRole: "attackDefense" },
+    { id: "drop", name: "Neckbeard", effect: "Drop Chance", resource: "energy", speedDivider: 3e7, beardRole: "drop" },
+    { id: "defense", name: "Reverse Beard", effect: "NUMBER", resource: "magic", speedDivider: 3e7, beardRole: "number" },
+    { id: "ngu", name: "Beard Cage", effect: "NGU Speed", resource: "energy", speedDivider: 1e8, beardRole: "ngu" },
+    { id: "pp", name: "LadyBeard", effect: "Wandoos Speed", resource: "magic", speedDivider: 1e8, beardRole: "wandoos" },
+    { id: "adventure", name: "BEARd", effect: "Adventure Stats", resource: "energy", speedDivider: 3e8, beardRole: "adventure" },
+    { id: "gold", name: "Golden Beard", effect: "Gold Production", resource: "magic", speedDivider: 3e8, beardRole: "gold", unlockTroll: 7 }
+  ],
+  /*
+   * Correctif 2026-09-14 (audit fidélité wiki NGU, mission IDLE — Hacks) :
+   * la liste précédente (Combat/Adventure/PP/EXP/NGU/Time Machine/Wishes/
+   * QP/Daycare/Cards/Blood Magic/Yggdrasil/Gold/Respawn/Titan Rewards)
+   * n'était PAS le vrai catalogue des 15 Hacks du wiki NGU (page "Hacks",
+   * table "The Hacks") — près de la moitié de ces entrées (Cards, Yggdrasil,
+   * Gold, Respawn, Titan Rewards) n'existent pas comme Hacks dans le jeu
+   * réel, et plusieurs vrais Hacks manquaient entièrement (Drop Chance,
+   * Augment Speed, Energy/Magic NGU Speed séparés, QP Gain, Number, le
+   * "Hack Hack" qui boost la vitesse des Hacks elle-même). Remplacé par les
+   * 15 vraies entrées, avec leur Effect/Level, Milestone Bonus, Levels par
+   * milestone (Normal, i.e. avant réduction Perks/Quirks/Wishes) et Base
+   * Speed Divider réels — mêmes colonnes que la table du wiki.
+   */
+  hacks: [
+    { id: "attackDefense", name: "Attack/Defense Hack", effect: "Attack/Defense", effectPerLevelPct: 2.5, milestoneBonusPct: 102.5, levelsPerMilestone: 10, speedDivider: 1e8 },
+    { id: "adventureStats", name: "Adventure Hack", effect: "Adventure Stats", effectPerLevelPct: 0.1, milestoneBonusPct: 102, levelsPerMilestone: 50, speedDivider: 2e8 },
+    { id: "timeMachineSpeed", name: "Time Machine Hack", effect: "Time Machine Speed", effectPerLevelPct: 0.2, milestoneBonusPct: 102, levelsPerMilestone: 50, speedDivider: 4e8 },
+    { id: "dropChance", name: "Drop Chance Hack", effect: "Drop Chance", effectPerLevelPct: 0.25, milestoneBonusPct: 103, levelsPerMilestone: 40, speedDivider: 4e8 },
+    { id: "augmentSpeed", name: "Augment Speed Hack", effect: "Augment Speed", effectPerLevelPct: 0.2, milestoneBonusPct: 101, levelsPerMilestone: 20, speedDivider: 8e8 },
+    { id: "energyNguSpeed", name: "Energy NGU Speed Hack", effect: "Energy NGU Speed", effectPerLevelPct: 0.1, milestoneBonusPct: 101.5, levelsPerMilestone: 30, speedDivider: 2e9 },
+    { id: "magicNguSpeed", name: "Magic NGU Speed Hack", effect: "Magic NGU Speed", effectPerLevelPct: 0.1, milestoneBonusPct: 101.5, levelsPerMilestone: 30, speedDivider: 2e9 },
+    { id: "bloodGain", name: "Blood Hack", effect: "Blood Gain", effectPerLevelPct: 0.1, milestoneBonusPct: 104, levelsPerMilestone: 50, speedDivider: 4e9 },
+    { id: "qpGain", name: "QP Hack", effect: "QP Gain", effectPerLevelPct: 0.05, milestoneBonusPct: 100.8, levelsPerMilestone: 50, speedDivider: 8e9 },
+    { id: "daycare", name: "Daycare Hack", effect: "Daycare", effectPerLevelPct: 0.02, milestoneBonusPct: 100.5, levelsPerMilestone: 45, speedDivider: 2e10 },
+    { id: "exp", name: "EXP Hack", effect: "EXP", effectPerLevelPct: 0.025, milestoneBonusPct: 101, levelsPerMilestone: 75, speedDivider: 4e10 },
+    { id: "number", name: "Number Hack", effect: "NUMBER", effectPerLevelPct: 5, milestoneBonusPct: 104, levelsPerMilestone: 40, speedDivider: 8e10 },
+    { id: "pp", name: "PP Hack", effect: "PP", effectPerLevelPct: 0.05, milestoneBonusPct: 100.5, levelsPerMilestone: 25, speedDivider: 2e11 },
+    { id: "hackHack", name: "Hack Hack", effect: "Hack Speed", effectPerLevelPct: 0.05, milestoneBonusPct: 110, levelsPerMilestone: 100, speedDivider: 2e11 },
+    { id: "wish", name: "Wish Hack", effect: "Wishes", effectPerLevelPct: 0.01, milestoneBonusPct: 100.5, levelsPerMilestone: 50, speedDivider: 1e13 }
+  ],
+  /*
+   * Correctif 2026-09-14 (audit fidélité wiki NGU, mission IDLE — Wishes) :
+   * la liste précédente (adventure/drop/respawn/bank/hacks/ngu/cards/
+   * titans/daycare/quest) était 10 pistes génériques inventées, sans aucun
+   * rapport avec le vrai catalogue du wiki NGU (page "Wishes", Page 1 à
+   * Page 11 de cet article) — 231 vrais souhaits nommés individuellement
+   * (id 0-230, voir idle-wishes-v1.js), chacun avec son propre nombre de
+   * niveaux et son propre Speed Divider. Remplacé par le vrai catalogue ;
+   * la vraie formule de progression (multiplicative, exposant 0.17, plancher
+   * 4h) est implémentée par advanceWishTrack() plus bas dans ce fichier.
+   *
+   * `id` est converti en chaîne ici (contrairement à IDLE_WISHES_CATALOG_V1,
+   * qui garde l'index wiki numérique pour wishBonusesV1/idleWishByIdV1) car
+   * selectTrack()/advanceTrackSystem comparent activeTrack via
+   * String(payload.track) === track.id — toutes les autres pistes
+   * (beards/hacks/ngu/...) utilisent déjà des id chaîne pour cette raison ;
+   * un id numérique y casserait silencieusement la sélection de piste dès
+   * qu'un souhait autre que l'id 0 serait choisi.
+   */
+  wishes: IDLE_WISHES_CATALOG_V1.map(w => ({ ...w, id: String(w.id) }))
+});
+
+export const IDLE_NGU_SYSTEMS = Object.freeze([
+  { id: "achievements", name: "Achievements", icon: "🏆", kind: "permanent", resources: [], unlock: {} },
+  { id: "dailySpin", name: "Daily Spin", icon: "🎡", kind: "daily", resources: [], unlock: { system: "moneyPit" } },
+  { id: "augmentations", name: "Augmentations", icon: "🦾", kind: "run", resources: ["energy"], unlock: {bosses:17} },
+  { id: "advancedTraining", name: "Advanced Training", icon: "🏋️", kind: "run", resources: ["energy"], unlock: { basicTrainingComplete: true } },
+  { id: "timeMachine", name: "Time Machine", icon: "⏱️", kind: "run", resources: ["energy", "magic"], unlock: {bosses:30} },
+  { id: "bloodMagic", name: "Blood Magic", icon: "🩸", kind: "run", resources: ["magic"], unlock: {bosses:37} },
+  { id: "wandoos", name: "Wandoos", icon: "💻", kind: "run", resources: ["energy", "magic"], unlock: {item:"wandoos98"} },
+  { id: "ngu", name: "NGU", icon: "♾️", kind: "permanent", resources: ["energy", "magic"], unlock: {item:"aNumber"} },
+  { id: "yggdrasil", name: "Yggdrasil", icon: "🌱", kind: "growth", resources: ["energy"], unlock: {item:"giantSeed"} },
+  { id: "moneyPit", name: "Money Pit", icon: "🕳️", kind: "utility", resources: [], unlock: { gold: 100000 } },
+  { id: "diggers", name: "Gold Diggers", icon: "⛏️", kind: "permanent", resources: [], unlock: {item:"scrapPaper"} },
+  { id: "beards", name: "Beards", icon: "🧔", kind: "hybrid", resources: ["energy", "magic"], unlock: {item:"uugHair"} },
+  { id: "tower", name: "ITOPOD", icon: "🏢", kind: "infinite", resources: [], unlock: {item:"pissedOffKey"} },
+  { id: "perks", name: "Perks", icon: "⭐", kind: "permanent", resources: [], unlock: { system: "tower" } },
+  { id: "challenges", name: "Challenges", icon: "🏁", kind: "challenge", resources: [], unlock: {bosses:58} },
+  { id: "titans", name: "Titans", icon: "👹", kind: "cooldown", resources: [], unlock: {bosses:58} },
+  { id: "macguffins", name: "MacGuffins", icon: "🧩", kind: "permanent", resources: ["energy"], unlock: { flag: "walderpFinalDefeated" } },
+  { id: "daycare", name: "Item Daycare", icon: "🛠️", kind: "growth", resources: [], unlock: { flag: "daycareSlotPurchased" } },
+  { id: "infinityCube", name: "Infinity Cube", icon: "🧊", kind: "permanent", resources: [], unlock: { flag: "tutorialCubeMaxed" } },
+  { id: "questing", name: "Questing", icon: "📋", kind: "quest", resources: [], unlock: {item:"heroicSigil"} },
+  { id: "quirks", name: "Quirks", icon: "📚", kind: "permanent", resources: [], unlock: { system: "questing" } },
+  { id: "hacks", name: "Hacks", icon: "🧪", kind: "permanent", resources: ["r3"], unlock: {item:"incriminatingEvidence"} },
+  { id: "wishes", name: "Wishes", icon: "🌠", kind: "permanent", resources: ["energy", "magic", "r3"], unlock: {item:"severedUnicornHead"} },
+  { id: "cards", name: "Cards", icon: "🃏", kind: "cards", resources: [], unlock: {item:"stillBeatingHeart"} },
+  { id: "cooking", name: "Cooking", icon: "🍲", kind: "daily", resources: [], unlock: { flag: "itHungersDefeated" } }
+]);
+
+function defaultResource(resource = "energy") {
+  const key=String(resource||"energy");
+  const cap=key === "energy" ? 500 : 100;
+  return {
+    speed: 1,
+    power: 1,
+    cap,
+    bars: 1,
+    /*
+     * Norman (2026-09-15) : "dans NGU IDLE, quand on commence une
+     * nouvelle partie, le compte d'énergie est à 250 et on doit générer
+     * les 250 restants pour atteindre 500." Cette fonction n'alimente que
+     * baseState() (la toute première création d'une partie) — jamais la
+     * Renaissance, qui remet chaque ressource à 0 via sa propre logique
+     * (applyRebirthResetV56_, inchangée). Un nouveau joueur démarrait
+     * jusqu'ici à l'énergie PLEINE (cap), jamais à la moitié comme dans
+     * le vrai NGU.
+     */
+    current: key === "energy" ? cap / 2 : 0,
+    fillProgress: 0,
+    generatedThisRun: 0,
+    spentExp: 0
+  };
+}
+
+function baseSystemState(def) {
+  return {
+    id: def.id,
+    unlocked: false,
+    active: false,
+    level: 0,
+    tempLevel: 0,
+    permanentLevel: 0,
+    progress: 0,
+    allocation: { energy: 0, magic: 0, r3: 0 },
+    data: {}
+  };
+}
+
+function createTrackState(def) {
+  const tracks = IDLE_NGU_TRACKS[def.id] || [];
+  if (!tracks.length) return {};
+  const out = {};
+  for (const track of tracks) {
+    out[track.id] = { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 };
+  }
+  return {
+    tracks: out,
+    activeTrack: tracks[0].id
+  };
+}
+
+function createAugmentationData() {
+  const pairs = {};
+  for (const def of IDLE_NGU_AUGMENTATIONS) {
+    pairs[def.id] = {
+      level: 0,
+      progress: 0,
+      upgradeLevel: 0,
+      upgradeProgress: 0
+    };
+  }
+  return { pairs, activePair: "scissors", trainUpgrade: false };
+}
+
+function createTimeMachineData() {
+  return {
+    speedLevel: 0,
+    speedProgress: 0,
+    goldLevel: 0,
+    goldProgress: 0,
+    bestGoldThisRun: 0,
+    highestBossEver: 0,
+    producedThisRun: 0
+  };
+}
+
+function createBloodMagicData() {
+  const rituals = {};
+  for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
+    rituals[ritual.id] = { level: 0, progress: 0, completions: 0 };
+  }
+  return {
+    rituals,
+    activeRitual: "tack",
+    spells: {
+      numberBoost: 1,
+      ironPill: 0,
+      counterfeitGold: 1,
+      counterfeitGoldBloodSpent: 0,
+      bloodSpaghetti: 1,
+      bloodSpaghettiBloodSpent: 0
+    }
+  };
+}
+
+
+function createYggdrasilData() {
+  return {
+    fruits:Object.fromEntries(IDLE_NGU_YGG_FRUITS.map(f=>[
+      f.id,
+      {tier:0,active:false,growthHours:0,firstHarvestThisRun:true}
+    ])),
+    reserved:{energy:0,magic:0},
+    runPowerAlphaValue:0,
+    runPowerBetaActive:false,
+    runNumbersActive:false,
+    permanent:{
+      adventurePower:0,
+      adventureToughness:0,
+      adventureHp:0,
+      adventureRegen:0,
+      luckDropPct:0,
+      powerBetaValue:0,
+      numbersValue:0
+    }
+  };
+}
+
+function createDiggersData() {
+  return {
+    slots:1,
+    diggers:Object.fromEntries(IDLE_NGU_DIGGERS.map(d=>[
+      d.id,
+      {maxLevel:0,runLevel:0,active:false}
+    ]))
+  };
+}
+
+function createRebirthState(now) {
+  return {
+    number: 1,
+    nextNumber: 1,
+    lastNumber: 1,
+    lastBosses: 0,
+    lastRunSeconds: 0,
+    hasPreviousRun: false,
+    minimumRebirthSeconds: MIN_REBIRTH_SECONDS,
+    canRebirth: false,
+    preview: {},
+    updatedAt: now
+  };
+}
+
+function baseState(now) {
+  const systems = {};
+  for (const def of IDLE_NGU_SYSTEMS) {
+    const s = baseSystemState(def);
+    s.data = createTrackState(def);
+    if (def.id === "augmentations") s.data = createAugmentationData();
+    if (def.id === "timeMachine") s.data = createTimeMachineData();
+    if (def.id === "bloodMagic") s.data = createBloodMagicData();
+    if (def.id === "yggdrasil") s.data = createYggdrasilData();
+    if (def.id === "diggers") s.data = createDiggersData();
+    if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0 };
+    if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0 };
+    if (def.id === "titans") s.data = { nextAt: 0, kills: 0, firstTitanDefeated: false };
+    systems[def.id] = s;
+  }
+
+  return {
+    version: IDLE_NGU_META_VERSION,
+    saveSchema: IDLE_NGU_SAVE_SCHEMA,
+    resourceModelVersion: 52,
+    updatedAt: now,
+    runStartedAt: now,
+    difficulty: "normal",
+    difficultyPeaks: { normal: 0, difficile: 0, extreme: 0 },
+    adventure: createIdleAdventureStateV47(),
+    resources: {
+      energy: defaultResource("energy"),
+      magic: defaultResource("magic"),
+      r3: defaultResource("r3")
+    },
+    currencies: {
+      experience: 0,
+      pp: 0,
+      qp: 0,
+      gold: 0,
+      blood: 0,
+      seeds: 0,
+      mayo: 0,
+      ap: 0
+    },
+    records: {
+      highestBoss: 0,
+      highestZone: 1,
+      setsCompleted: 0,
+      totalRebirths: 0,
+      highestGoldDrop: 0
+    },
+    rebirth: createRebirthState(now),
+    systems,
+    challenge: {
+      active: "",
+      completions: Object.fromEntries(IDLE_NGU_NORMAL_CHALLENGES.map(def=>[def.id,0])),
+      startedAt: 0,
+      bestMs: {}
+    },
+    bank: {
+      advancedTraining: 0,
+      timeMachineSpeed: 0,
+      timeMachineGold: 0,
+      beards: 0
+    },
+    /*
+     * 4G's Sellout Shop (audit 2026-09-13) — achats permanents, jamais
+     * réinitialisés par un Rebirth (comme l'AP elle-même, confirmée
+     * persistante au Rebirth par le wiki NGU, page Rebirths).
+     */
+    selloutShop: {
+      purchases: {}
+    },
+    bonuses: {
+      cards: { attack: 0, adventure: 0, drop: 0, xp: 0, ngu: 0, hacks: 0, wishes: 0 },
+      ironPill: 0,
+      cubePower: 0,
+      cubeToughness: 0,
+      cookingExp: 0
+    }
+  };
+}
+
+function unlockSatisfied(def, ctx, state) {
+  const u = def.unlock || {};
+  if (num(ctx.bosses, 0) < num(u.bosses, 0)) return false;
+  if (num(ctx.rebirths, 0) < num(u.rebirths, 0)) return false;
+  if (num(ctx.sets, 0) < num(u.sets, 0)) return false;
+  if (u.basicTrainingComplete && !ctx.basicTrainingComplete) return false;
+  if (u.gold && num(state.currencies.gold, 0) < num(u.gold, 0) && num(ctx.gold, 0) < num(u.gold, 0)) return false;
+  if (u.system && !state.systems[u.system]?.unlocked) return false;
+  if (u.item) {
+    const itemFlags = Object.assign(
+      {},
+      state.adventure?.unlockItems || {},
+      ctx.unlockItems || {}
+    );
+    const consumedMap = {
+      aNumber: "ngu",
+      giantSeed: "yggdrasil",
+      scrapPaper: "diggers",
+      uugHair: "beards",
+      pissedOffKey: "tower",
+      wandoos98: "wandoos"
+    };
+    const consumedFlag = consumedMap[u.item] || "";
+    // NGU consumables unlock their system only after being used. Merely
+    // obtaining A Number / Giant Seed / Scrap Paper / etc. is not enough.
+    if (consumedFlag) {
+      const consumed = Boolean(
+        state.adventure?.unlockFlags?.[consumedFlag] ||
+        ctx.unlockFlags?.[consumedFlag]
+      );
+      if (!consumed) return false;
+    } else if (!itemFlags[u.item]) {
+      return false;
+    }
+  }
+  if (u.flag && !(ctx.unlockFlags?.[u.flag] || state.adventure?.unlockFlags?.[u.flag])) return false;
+  return true;
+}
+
+function normalizeResource(raw, resource = "energy") {
+  const fallback=defaultResource(resource);
+  const src = raw && typeof raw === "object" ? raw : {};
+  const cap=clamp(num(src.cap, fallback.cap), resource === "energy" ? 500 : 100, 9e18);
+  return {
+    speed: clamp(num(src.speed, fallback.speed), 0.1, 50),
+    power: clamp(num(src.power, fallback.power), 1, 1e18),
+    cap,
+    bars: clamp(num(src.bars, fallback.bars), 1, 1e18),
+    current: clamp(num(src.current, fallback.current), 0, cap),
+    fillProgress: clamp(num(src.fillProgress, 0), 0, 0.999999999999),
+    generatedThisRun: Math.max(0, num(src.generatedThisRun, 0)),
+    spentExp: Math.max(0, num(src.spentExp, fallback.spentExp))
+  };
+}
+
+function normalizeTracks(def, rawData) {
+  const created = createTrackState(def);
+  if (!created.tracks) return rawData && typeof rawData === "object" ? clone(rawData) : {};
+  const source = rawData && typeof rawData === "object" ? rawData : {};
+  const out = createTrackState(def);
+  for (const track of IDLE_NGU_TRACKS[def.id] || []) {
+    const src = source.tracks?.[track.id] || {};
+    out.tracks[track.id] = {
+      level: Math.max(0, num(src.level, 0)),
+      tempLevel: Math.max(0, num(src.tempLevel, 0)),
+      permanentLevel: Math.max(0, num(src.permanentLevel, 0)),
+      progress: Math.max(0, num(src.progress, 0))
+    };
+  }
+  if ((IDLE_NGU_TRACKS[def.id] || []).some(t => t.id === source.activeTrack)) {
+    out.activeTrack = source.activeTrack;
+  }
+  return out;
+}
+
+function normalizeSystem(def, raw) {
+  const s = baseSystemState(def);
+  const src = raw && typeof raw === "object" ? raw : {};
+  s.unlocked = Boolean(src.unlocked);
+  s.active = Boolean(src.active);
+  s.level = Math.max(0, num(src.level, 0));
+  s.tempLevel = Math.max(0, num(src.tempLevel, 0));
+  s.permanentLevel = Math.max(0, num(src.permanentLevel, 0));
+  s.progress = Math.max(0, num(src.progress, 0));
+  s.allocation = Object.assign({ energy: 0, magic: 0, r3: 0 }, src.allocation || {});
+  for (const key of RESOURCE_KEYS) s.allocation[key] = Math.max(0, num(s.allocation[key], 0));
+
+  if (def.id === "augmentations") {
+    s.data = createAugmentationData();
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    for (const aug of IDLE_NGU_AUGMENTATIONS) {
+      const a = data.pairs?.[aug.id] || {};
+      s.data.pairs[aug.id] = {
+        level: Math.max(0, int(a.level, 0)),
+        progress: Math.max(0, num(a.progress, 0)),
+        upgradeLevel: Math.max(0, int(a.upgradeLevel, 0)),
+        upgradeProgress: Math.max(0, num(a.upgradeProgress, 0))
+      };
+    }
+    if (IDLE_NGU_AUGMENTATIONS.some(a => a.id === data.activePair)) s.data.activePair = data.activePair;
+    s.data.trainUpgrade = Boolean(data.trainUpgrade);
+  } else if (def.id === "timeMachine") {
+    s.data = Object.assign(createTimeMachineData(), src.data || {});
+    for (const key of ["speedLevel", "speedProgress", "goldLevel", "goldProgress", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
+      s.data[key] = Math.max(0, num(s.data[key], 0));
+    }
+  } else if (def.id === "bloodMagic") {
+    s.data = createBloodMagicData();
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
+      const r = data.rituals?.[ritual.id] || {};
+      s.data.rituals[ritual.id] = {
+        level: Math.max(0, int(r.level, 0)),
+        progress: Math.max(0, num(r.progress, 0)),
+        completions: Math.max(0, int(r.completions, 0))
+      };
+    }
+    if (IDLE_NGU_BLOOD_RITUALS.some(r => r.id === data.activeRitual)) s.data.activeRitual = data.activeRitual;
+    s.data.spells = Object.assign(createBloodMagicData().spells, data.spells || {});
+  } else if (def.id === "yggdrasil") {
+    s.data = createYggdrasilData();
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    for (const fruit of IDLE_NGU_YGG_FRUITS) {
+      const rawFruit = data.fruits?.[fruit.id] || {};
+      s.data.fruits[fruit.id] = {
+        tier:clamp(int(rawFruit.tier,0),0,24),
+        active:Boolean(rawFruit.active),
+        growthHours:Math.max(0,num(rawFruit.growthHours,0)),
+        firstHarvestThisRun:rawFruit.firstHarvestThisRun !== false
+      };
+    }
+    s.data.reserved = {
+      energy:Math.max(0,num(data.reserved?.energy,0)),
+      magic:Math.max(0,num(data.reserved?.magic,0))
+    };
+    s.data.runPowerAlphaValue=Math.max(0,num(data.runPowerAlphaValue,0));
+    s.data.runPowerBetaActive=Boolean(data.runPowerBetaActive);
+    s.data.runNumbersActive=Boolean(data.runNumbersActive);
+    s.data.permanent=Object.assign(createYggdrasilData().permanent,data.permanent||{});
+    for(const k of Object.keys(s.data.permanent))s.data.permanent[k]=Math.max(0,num(s.data.permanent[k],0));
+  } else if (def.id === "diggers") {
+    s.data = createDiggersData();
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    s.data.slots=Math.max(1,int(data.slots,1));
+    for(const defDigger of IDLE_NGU_DIGGERS){
+      const rawDigger=data.diggers?.[defDigger.id]||{};
+      s.data.diggers[defDigger.id]={
+        maxLevel:clamp(int(rawDigger.maxLevel,0),0,defDigger.cap),
+        runLevel:clamp(int(rawDigger.runLevel,0),0,defDigger.cap),
+        active:Boolean(rawDigger.active)
+      };
+      s.data.diggers[defDigger.id].runLevel=Math.min(
+        s.data.diggers[defDigger.id].runLevel,
+        s.data.diggers[defDigger.id].maxLevel
+      );
+    }
+  } else if (def.id === "moneyPit") {
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    s.data = {
+      tossesThisRun: Math.max(0, int(data.tossesThisRun, 0)),
+      nextAt: Math.max(0, num(data.nextAt, 0)),
+      lastTossAt: Math.max(0, num(data.lastTossAt, 0)),
+      totalGoldTossed: Math.max(0, num(data.totalGoldTossed, 0))
+    };
+  } else if (def.id === "dailySpin") {
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    s.data = {
+      readyAt: Math.max(0, num(data.readyAt, 0)),
+      totalSpins: Math.max(0, int(data.totalSpins, s.level))
+    };
+  } else if (def.id === "perks") {
+    /*
+     * Real per-perk levels (IDLE_PERKS_CATALOG_V1), keyed by numeric id —
+     * replaces the previous single shared counter. s.level is kept as the
+     * SUM of purchased levels across every perk, purely for back-compat
+     * with anything still reading the generic system.level field (e.g.
+     * unlock checks, legacy save display) — buyPerkV1 is the only writer
+     * of s.data.levels itself.
+     */
+    const rawLevels = src.data && typeof src.data === "object" ? src.data.levels : null;
+    const levels = {};
+    for (const perk of IDLE_PERKS_CATALOG_V1) {
+      const v = Math.max(0, Math.min(perk.cap, int(rawLevels?.[perk.id], 0)));
+      if (v > 0) levels[perk.id] = v;
+    }
+    s.data = { levels };
+    s.level = Object.values(levels).reduce((sum, v) => sum + v, 0);
+  } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
+    s.data = normalizeTracks(def, src.data);
+  } else {
+    s.data = src.data && typeof src.data === "object" ? clone(src.data) : {};
+  }
+
+  return s;
+}
+
+function migrateLegacyTrackV47_(target, raw) {
+  if (!target || !raw || typeof raw !== "object") return;
+  target.level = Math.max(0, num(raw.level, target.level || 0));
+  target.tempLevel = Math.max(0, num(raw.tempLevel, target.tempLevel || 0));
+  target.permanentLevel = Math.max(0, num(raw.permanentLevel, target.permanentLevel || 0));
+  target.progress = Math.max(0, num(raw.progress, target.progress || 0));
+}
+
+function legacyRunLevelsV47_(rawSystem) {
+  const s = rawSystem && typeof rawSystem === "object" ? rawSystem : {};
+  const tracks = s.data && s.data.tracks && typeof s.data.tracks === "object"
+    ? Object.values(s.data.tracks)
+    : [];
+  const fromTracks = tracks.reduce(
+    (sum, track) => sum + Math.max(0, num(track?.tempLevel, 0)) + Math.max(0, num(track?.level, 0)),
+    0
+  );
+  return Math.max(0, fromTracks, num(s.tempLevel, 0), num(s.level, 0));
+}
+
+function migrateLegacyMetaToV47(raw, now) {
+  const src = raw && typeof raw === "object" && !Array.isArray(raw) ? clone(raw) : {};
+  const state = baseState(now);
+  if (!Object.keys(src).length) return state;
+
+  state.updatedAt = Math.max(0, num(src.updatedAt, now));
+  state.runStartedAt = Math.max(0, num(src.runStartedAt, now));
+  state.difficulty = ["normal", "difficile", "extreme"].includes(src.difficulty) ? src.difficulty : "normal";
+  state.difficultyPeaks = Object.assign(state.difficultyPeaks, src.difficultyPeaks || {});
+
+  state.resources = {
+    energy: normalizeResource(src.resources?.energy,"energy"),
+    magic: normalizeResource(src.resources?.magic,"magic"),
+    r3: normalizeResource(src.resources?.r3,"r3")
+  };
+
+  state.currencies = Object.assign(state.currencies, src.currencies || {});
+  for (const key of Object.keys(state.currencies)) state.currencies[key] = Math.max(0, num(state.currencies[key], 0));
+
+  state.records = Object.assign(state.records, src.records || {});
+  for (const key of Object.keys(state.records)) state.records[key] = Math.max(0, num(state.records[key], 0));
+
+  state.challenge = Object.assign(state.challenge, src.challenge || {});
+  state.challenge.completions = Object.assign(
+    baseState(now).challenge.completions,
+    src.challenge?.completions || {}
+  );
+  state.challenge.bestMs = Object.assign({},src.challenge?.bestMs || {});
+
+  state.bank.advancedTraining = Math.max(0, num(src.bank?.advancedTraining, 0));
+  state.bank.timeMachineSpeed = Math.max(0, num(src.bank?.timeMachineSpeed, src.bank?.timeMachine || 0));
+  state.bank.timeMachineGold = Math.max(0, num(src.bank?.timeMachineGold, 0));
+  state.bank.beards = Math.max(0, num(src.bank?.beards, 0));
+
+  /*
+   * 4G's Sellout Shop : purchases est un compteur par objet du catalogue,
+   * jamais négatif, jamais au-delà du plafond réel de l'objet (défensif
+   * contre un ancien état corrompu ou un catalogue réduit entre deux
+   * versions).
+   */
+  {
+    const rawPurchases = src.selloutShop?.purchases && typeof src.selloutShop.purchases === "object" ? src.selloutShop.purchases : {};
+    const purchases = {};
+    for (const item of IDLE_SELLOUT_SHOP_CATALOG_V1) {
+      const n = Math.max(0, int(rawPurchases[item.id], 0));
+      purchases[item.id] = item.max != null ? Math.min(item.max, n) : n;
+    }
+    state.selloutShop = { purchases };
+  }
+
+  state.bonuses = Object.assign(state.bonuses, src.bonuses || {});
+  state.bonuses.cards = Object.assign(baseState(now).bonuses.cards, src.bonuses?.cards || {});
+  if (src.rebirth && typeof src.rebirth === "object") state.rebirth = clone(src.rebirth);
+  if (src.adventure && typeof src.adventure === "object") state.adventure = clone(src.adventure);
+
+  const oldSystems = src.systems && typeof src.systems === "object" ? src.systems : {};
+  for (const def of IDLE_NGU_SYSTEMS) {
+    const old = oldSystems[def.id];
+    if (!old || typeof old !== "object") continue;
+    const target = state.systems[def.id];
+    target.unlocked = Boolean(old.unlocked);
+    target.active = Boolean(old.active);
+    target.level = Math.max(0, num(old.level, 0));
+    target.tempLevel = Math.max(0, num(old.tempLevel, 0));
+    target.permanentLevel = Math.max(0, num(old.permanentLevel, 0));
+    target.progress = Math.max(0, num(old.progress, 0));
+
+    for (const resource of RESOURCE_KEYS) {
+      const legacyPercent = clamp(num(old.allocation?.[resource], 0), 0, 100);
+      target.allocation[resource] = state.resources[resource].cap * legacyPercent / 100;
+    }
+
+    if (target.data?.tracks) {
+      const oldTracks = old.data?.tracks && typeof old.data.tracks === "object" ? old.data.tracks : {};
+      for (const [trackId, trackState] of Object.entries(target.data.tracks)) {
+        migrateLegacyTrackV47_(trackState, oldTracks[trackId]);
+      }
+      if (def.id === "advancedTraining" && oldTracks.wandoos && target.data.tracks.wandoosEnergy) {
+        migrateLegacyTrackV47_(target.data.tracks.wandoosEnergy, oldTracks.wandoos);
+      }
+      if (old.data?.activeTrack && target.data.tracks[old.data.activeTrack]) {
+        target.data.activeTrack = old.data.activeTrack;
+      }
+    } else if (def.id === "augmentations") {
+      if (old.data?.pairs && typeof old.data.pairs === "object") {
+        for (const aug of IDLE_NGU_AUGMENTATIONS) {
+          const p = old.data.pairs[aug.id];
+          if (!p) continue;
+          target.data.pairs[aug.id] = Object.assign(target.data.pairs[aug.id], p);
+        }
+        if (target.data.pairs[old.data.activePair]) target.data.activePair = old.data.activePair;
+        target.data.trainUpgrade = Boolean(old.data.trainUpgrade);
+      } else {
+        target.data.pairs.scissors.level = Math.floor(legacyRunLevelsV47_(old));
+      }
+    } else if (def.id === "timeMachine") {
+      if (old.data && (old.data.speedLevel != null || old.data.goldLevel != null)) {
+        target.data = Object.assign(target.data, old.data);
+      } else {
+        target.data.speedLevel = Math.floor(legacyRunLevelsV47_(old));
+        target.data.bestGoldThisRun = Math.max(0, num(src.records?.highestGoldDrop, 0));
+        target.data.highestBossEver = Math.max(0, num(src.records?.highestBoss, 0));
+      }
+    } else if (def.id === "bloodMagic") {
+      if (old.data?.rituals && typeof old.data.rituals === "object") {
+        for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
+          const r = old.data.rituals[ritual.id];
+          if (r) target.data.rituals[ritual.id] = Object.assign(target.data.rituals[ritual.id], r);
+        }
+        if (target.data.rituals[old.data.activeRitual]) target.data.activeRitual = old.data.activeRitual;
+        target.data.spells = Object.assign(target.data.spells, old.data.spells || {});
+      } else {
+        const levels = Math.floor(legacyRunLevelsV47_(old));
+        target.data.rituals.tack.level = levels;
+        target.data.rituals.tack.completions = levels;
+      }
+    } else if (def.id === "yggdrasil" && old.data?.fruits) {
+      target.data = Object.assign(target.data, old.data);
+    } else if (def.id === "diggers" && old.data?.diggers) {
+      target.data = Object.assign(target.data, old.data);
+    } else if (!target.data?.tracks && old.data && typeof old.data === "object") {
+      target.data = Object.assign(target.data || {}, old.data);
+    }
+  }
+
+  state.migration = {
+    fromVersion: String(src.version || "legacy"),
+    fromSchema: Math.max(0, int(src.saveSchema, 0)),
+    migratedAt: now
+  };
+  return state;
+}
+
+/*
+ * V47 save rule: migrate compatible NGU progress forward without reviving
+ * obsolete player-level / Renaissance / Essence mechanics. Migration is
+ * one-way and idempotent: once normalized, the save is native schema 47.
+ */
+export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
+  const t = nowMs(now);
+  const isV47 = raw && raw.version === IDLE_NGU_META_VERSION && raw.saveSchema === IDLE_NGU_SAVE_SCHEMA;
+  const source = isV47 ? clone(raw) : migrateLegacyMetaToV47(raw, t);
+  const state = Object.assign(baseState(t), source);
+
+  state.version = IDLE_NGU_META_VERSION;
+  state.saveSchema = IDLE_NGU_SAVE_SCHEMA;
+  const previousResourceModelVersion=Math.max(0,int(source.resourceModelVersion,0));
+  state.resourceModelVersion = 52;
+  state.updatedAt = Math.max(0, num(source.updatedAt, t));
+  state.runStartedAt = Math.max(0, num(source.runStartedAt, t));
+  state.adventure = normalizeIdleAdventureStateV47(source.adventure);
+
+  state.resources = {
+    energy: normalizeResource(source.resources?.energy,"energy"),
+    magic: normalizeResource(source.resources?.magic,"magic"),
+    r3: normalizeResource(source.resources?.r3,"r3")
+  };
+
+  state.currencies = Object.assign(baseState(t).currencies, source.currencies || {});
+  for (const k of Object.keys(state.currencies)) state.currencies[k] = Math.max(0, num(state.currencies[k], 0));
+
+  state.records = Object.assign(baseState(t).records, source.records || {});
+  for (const k of Object.keys(state.records)) state.records[k] = Math.max(0, num(state.records[k], 0));
+
+  state.challenge = Object.assign(baseState(t).challenge, source.challenge || {});
+  state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
+  state.bank = Object.assign(baseState(t).bank, source.bank || {});
+  state.bonuses = Object.assign(baseState(t).bonuses, source.bonuses || {});
+  state.bonuses.cards = Object.assign(baseState(t).bonuses.cards, source.bonuses?.cards || {});
+
+  const systems = {};
+  for (const def of IDLE_NGU_SYSTEMS) systems[def.id] = normalizeSystem(def, source.systems?.[def.id]);
+  state.systems = systems;
+
+  // V51 migration: older V47/V50 saves had no persisted free-resource pool.
+  // The legacy row is consulted once when available, then metaNgu owns it.
+  if(previousResourceModelVersion < 51){
+    const energyHeldByMeta=totalAllocated(state,"energy");
+    const energyHeldExternally=externalResourceAllocation(context,"energy");
+    const legacyEnergy=Number(context.legacyEnergyIdle);
+    state.resources.energy.current=Number.isFinite(legacyEnergy)
+      ? clamp(legacyEnergy,0,Math.max(0,state.resources.energy.cap-energyHeldByMeta-energyHeldExternally))
+      : Math.max(0,state.resources.energy.cap-energyHeldByMeta-energyHeldExternally);
+    state.resources.energy.fillProgress=0;
+    state.resources.energy.generatedThisRun=0;
+
+    const legacyMagic=Number(context.legacyMagicIdle);
+    state.resources.magic.current=Number.isFinite(legacyMagic)
+      ? clamp(legacyMagic,0,Math.max(0,state.resources.magic.cap-totalAllocated(state,"magic")))
+      : 0;
+    state.resources.magic.fillProgress=0;
+    state.resources.magic.generatedThisRun=0;
+  }
+
+  // V52 removes the old Yggdrasil reservation/refund model. Existing active
+  // fruit reservations are converted once into actually spent idle resource.
+  if(previousResourceModelVersion < 52 && state.systems.yggdrasil?.data?.reserved){
+    for(const resource of ["energy","magic"]){
+      const reserved=Math.max(0,num(state.systems.yggdrasil.data.reserved[resource],0));
+      if(reserved>0 && state.resources[resource]){
+        state.resources[resource].current=Math.max(0,num(state.resources[resource].current,0)-reserved);
+      }
+      state.systems.yggdrasil.data.reserved[resource]=0;
+    }
+  }
+
+  const bosses = Math.max(0, int(context.bosses, 0));
+  const zone = Math.max(1, int(context.zone, 1));
+  const sets = Math.max(0, int(context.sets, 0));
+  const rebirths = Math.max(0, int(context.rebirths, state.records.totalRebirths));
+
+  state.records.highestBoss = Math.max(state.records.highestBoss, bosses);
+  state.records.highestZone = Math.max(state.records.highestZone, zone);
+  state.records.setsCompleted = Math.max(state.records.setsCompleted, sets);
+  state.records.totalRebirths = Math.max(state.records.totalRebirths, rebirths);
+  state.records.highestGoldDrop = Math.max(state.records.highestGoldDrop, num(context.bestGold, 0));
+
+  const tm = state.systems.timeMachine;
+  tm.data.bestGoldThisRun = Math.max(tm.data.bestGoldThisRun, num(context.bestGold, 0));
+  tm.data.highestBossEver = Math.max(tm.data.highestBossEver, state.records.highestBoss);
+
+  for (const def of IDLE_NGU_SYSTEMS) {
+    if (unlockSatisfied(def, context, state)) state.systems[def.id].unlocked = true;
+  }
+
+  state.systems.achievements.unlocked = true;
+  reconcileResourceCurrents(state,context);
+  state.difficulty = "normal";
+  state.difficultyPeaks = Object.assign({ normal: 0, difficile: 0, extreme: 0 }, source.difficultyPeaks || {});
+  state.difficultyPeaks.normal = Math.max(num(state.difficultyPeaks.normal, 0), bosses);
+
+  state.rebirth = normalizeRebirthState(source.rebirth, state.runStartedAt, t);
+  state.rebirth = refreshRebirthState(state, context, t);
+  return state;
+}
+
+function normalizeRebirthState(raw, runStartedAt, now) {
+  const out = Object.assign(createRebirthState(now), raw && typeof raw === "object" ? raw : {});
+  for (const k of ["number", "nextNumber", "lastNumber"]) out[k] = Math.max(1e-300, num(out[k], 1));
+  out.lastBosses = Math.max(0, int(out.lastBosses, 0));
+  out.lastRunSeconds = Math.max(0, num(out.lastRunSeconds, 0));
+  out.hasPreviousRun = Boolean(out.hasPreviousRun);
+  out.minimumRebirthSeconds = MIN_REBIRTH_SECONDS;
+  out.updatedAt = now;
+  if (!Number.isFinite(Number(runStartedAt))) out.canRebirth = false;
+  return out;
+}
+
+export function idleNguRebirthTimeFactor(seconds) {
+  const minutes = Math.max(0, num(seconds, 0)) / 60;
+  if (minutes < 2) return Math.max(1e-300, minutes / 1989672960);
+  if (minutes < 3) return minutes / 31088640;
+  if (minutes < 4) return minutes / 971520;
+  if (minutes < 5) return minutes / 122880;
+  if (minutes < 7) return minutes / 30720;
+  if (minutes < 10) return minutes / 7680;
+  if (minutes < 12) return minutes / 1920;
+  if (minutes < 15) return minutes / 480;
+  if (minutes < 30) return minutes / 240;
+  if (minutes < 60) return minutes / 120;
+  return 1 + minutes / (60 * 24 * 2);
+}
+
+export function calculateIdleNguNextNumber(input = {}) {
+  const bosses = Math.max(0, int(input.bosses, 0));
+  const lastBosses = Math.max(0, int(input.lastBosses, 0));
+  const runSeconds = Math.max(0, num(input.runSeconds, 0));
+  const lastRunSeconds = Math.max(0, num(input.lastRunSeconds, 0));
+  const hasPreviousRun = Boolean(input.hasPreviousRun);
+  const base = input.difficulty === "extreme" ? 1.2 : input.difficulty === "difficile" ? 1.5 : 2;
+
+  const currentBossFactor = safePow(base, bosses);
+  const priorBossFactor = hasPreviousRun ? safePow(base, lastBosses) : 1;
+  const currentTimeFactor = idleNguRebirthTimeFactor(runSeconds);
+  const priorTimeFactor = hasPreviousRun ? idleNguRebirthTimeFactor(lastRunSeconds) : 1;
+  const trainingFactor = Math.max(1, Math.floor(1 + Math.max(0, num(input.attackTrainingLevels, 0)) / 10000));
+  const bloodMagicBonus = Math.max(1, num(input.bloodMagicBonus, 1));
+  const nguNumberBonus = Math.max(1, num(input.nguNumberBonus, 1));
+  const beardNumberBonus = Math.max(1, num(input.beardNumberBonus, 1));
+  const yggNumberBonus = Math.max(1, num(input.yggNumberBonus, 1));
+  const macguffinNumberBonus = Math.max(1, num(input.macguffinNumberBonus, 1));
+  const hacksNumberBonus = Math.max(1, num(input.hacksNumberBonus, 1));
+
+  return {
+    nextNumber: safeProduct([
+      currentBossFactor,
+      priorBossFactor,
+      currentTimeFactor,
+      priorTimeFactor,
+      trainingFactor,
+      bloodMagicBonus,
+      nguNumberBonus,
+      beardNumberBonus,
+      yggNumberBonus,
+      macguffinNumberBonus,
+      hacksNumberBonus
+    ]),
+    canRebirth: runSeconds >= MIN_REBIRTH_SECONDS,
+    minimumRebirthSeconds: MIN_REBIRTH_SECONDS,
+    factors: {
+      currentBossFactor,
+      priorBossFactor,
+      currentTimeFactor,
+      priorTimeFactor,
+      trainingFactor,
+      bloodMagicBonus,
+      nguNumberBonus,
+      beardNumberBonus,
+      yggNumberBonus,
+      macguffinNumberBonus,
+      hacksNumberBonus
+    }
+  };
+}
+
+function totalTrackLevel(system, trackId) {
+  const t = system?.data?.tracks?.[trackId];
+  if (!t) return 0;
+  return Math.max(0, num(t.level, 0) + num(t.tempLevel, 0) + num(t.permanentLevel, 0));
+}
+
+function bloodNumberMultiplier(state) {
+  return Math.max(1, num(state.systems.bloodMagic?.data?.spells?.numberBoost, 1));
+}
+
+function refreshRebirthState(state, context, now) {
+  const runSeconds = Math.max(0, (now - state.runStartedAt) / 1000);
+  const rb = normalizeRebirthState(state.rebirth, state.runStartedAt, now);
+  const preview = calculateIdleNguNextNumber({
+    difficulty: "normal",
+    bosses: context.bosses,
+    lastBosses: rb.lastBosses,
+    runSeconds,
+    lastRunSeconds: rb.lastRunSeconds,
+    hasPreviousRun: rb.hasPreviousRun,
+    attackTrainingLevels: context.attackTrainingLevels,
+    bloodMagicBonus: bloodNumberMultiplier(state),
+    nguNumberBonus: 1 + Math.log10(1 + totalTrackLevel(state.systems.ngu, "attack")) * 0.01,
+    beardNumberBonus: beardBonusMultiplier(state, "number"),
+    yggNumberBonus: 1,
+    macguffinNumberBonus: 1,
+    hacksNumberBonus: 1
+  });
+  rb.nextNumber = preview.nextNumber;
+  rb.canRebirth = preview.canRebirth;
+  rb.preview = preview.factors;
+  rb.updatedAt = now;
+  return rb;
+}
+
+function resourceThroughput(state, resource) {
+  const r = state.resources[resource] || defaultResource(resource);
+  return Math.max(1, r.power) * Math.max(1, r.bars);
+}
+
+function allocatedFraction(state, systemId, resource) {
+  const s = state.systems[systemId];
+  const cap = Math.max(1, state.resources[resource]?.cap || 1);
+  return clamp(num(s?.allocation?.[resource], 0) / cap, 0, 1);
+}
+
+function totalAllocated(state, resource, exceptId = "") {
+  let total = 0;
+  for (const def of IDLE_NGU_SYSTEMS) {
+    if (def.id === exceptId) continue;
+    total += Math.max(0, num(state.systems[def.id]?.allocation?.[resource], 0));
+  }
+  return total;
+}
+
+function externalResourceAllocation(context, resource) {
+  const generic=Math.max(0,num(context?.externalResourceAllocations?.[resource],0));
+  const basicTraining=resource === "energy"
+    ? Math.max(0,num(context?.basicTrainingEnergyAllocation,0))
+    : 0;
+  return generic+basicTraining;
+}
+
+function resourceCapacityForCurrent(state,resource,context={}){
+  const cap=Math.max(0,num(state.resources?.[resource]?.cap,0));
+  return Math.max(0,cap-totalAllocated(state,resource)-externalResourceAllocation(context,resource));
+}
+
+function reconcileResourceCurrents(state,context={}){
+  for(const resource of RESOURCE_KEYS){
+    const r=state.resources[resource];
+    if(!r)continue;
+    r.current=clamp(num(r.current,0),0,resourceCapacityForCurrent(state,resource,context));
+    r.fillProgress=clamp(num(r.fillProgress,0),0,0.999999999999);
+    r.generatedThisRun=Math.max(0,num(r.generatedThisRun,0));
+  }
+}
+
+export function idleNguResourceGenerationPerSecond(raw,resource){
+  if(!RESOURCE_KEYS.includes(resource))throw new Error("RESSOURCE_INVALIDE");
+  const state=raw&&raw.version===IDLE_NGU_META_VERSION?raw:normalizeIdleNguState(raw||{});
+  if(resource==="r3")return 0;
+  if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
+  const r=state.resources[resource]||defaultResource(resource);
+  const speed=clamp(num(r.speed,1),0.1,50);
+  const ticksPerFill=Math.max(1,Math.ceil(50/speed));
+  const fillsPerSecond=50/ticksPerFill;
+  return fillsPerSecond*Math.max(1,num(r.bars,1));
+}
+
+function advanceGeneratedResources(state,seconds,context={}){
+  if(seconds<=0)return;
+  for(const resource of ["energy","magic"]){
+    if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)continue;
+    const r=state.resources[resource];
+    const capacity=resourceCapacityForCurrent(state,resource,context);
+    if(capacity<=r.current+1e-12)continue;
+    const perSecond=idleNguResourceGenerationPerSecond(state,resource);
+    const bars=Math.max(1,num(r.bars,1));
+    const fillsPerSecond=perSecond/bars;
+    const fillTotal=Math.max(0,num(r.fillProgress,0))+fillsPerSecond*seconds;
+    const fullFills=Math.floor(fillTotal+1e-12);
+    r.fillProgress=clamp(fillTotal-fullFills,0,0.999999999999);
+    if(fullFills<=0)continue;
+    const possibleGain=fullFills*bars;
+    const gain=Math.min(possibleGain,Math.max(0,capacity-r.current));
+    r.current+=gain;
+    r.generatedThisRun+=gain;
+    if(gain+1e-12<possibleGain)r.fillProgress=0;
+  }
+}
+
+export function idleNguResourceBudget(raw, resource, context = {}) {
+  if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
+  const state = raw && raw.version === IDLE_NGU_META_VERSION
+    ? raw
+    : normalizeIdleNguState(raw, context, raw?.updatedAt || Date.now());
+  const cap=Math.max(0,num(state.resources?.[resource]?.cap,0));
+  const allocated=Math.max(0,totalAllocated(state,resource));
+  const reservedExternal=externalResourceAllocation(context,resource);
+  const current=clamp(num(state.resources?.[resource]?.current,0),0,Math.max(0,cap-allocated-reservedExternal));
+  return {
+    cap,
+    current,
+    allocated,
+    reservedExternal,
+    available:current,
+    freeCapacity:Math.max(0,cap-current-allocated-reservedExternal),
+    totalHeld:Math.min(cap,current+allocated+reservedExternal)
+  };
+}
+
+function setAllocation(state, id, resource, value, context = {}) {
+  const def = IDLE_NGU_SYSTEMS.find(x => x.id === id);
+  const s = state.systems[id];
+  if (!def || !s || !s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if(state.challenge?.active==="noAugmentations"&&id==="augmentations")throw new Error("DEFI_SANS_AUGMENTATIONS");
+  if (!def.resources.includes(resource)) throw new Error("RESSOURCE_INCOMPATIBLE");
+  if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  const r=state.resources[resource];
+  const cap = Math.max(0, r?.cap || 0);
+  const previous=Math.max(0,num(s.allocation[resource],0));
+  const usedElsewhere = totalAllocated(state, resource, id) + externalResourceAllocation(context,resource);
+  const maxByCapacity=Math.max(0,cap-usedElsewhere);
+  const maxByOwned=Math.max(0,previous+num(r.current,0));
+  const target=clamp(value,0,Math.min(maxByCapacity,maxByOwned));
+  const delta=target-previous;
+  s.allocation[resource]=target;
+  r.current=clamp(num(r.current,0)-delta,0,Math.max(0,cap-usedElsewhere-target));
+}
+
+function reclaimAllocatedResource(state,resource,context={}){
+  if(resource!=="energy"&&resource!=="magic")throw new Error("RESSOURCE_INVALIDE");
+  if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)throw new Error("MAGIC_VERROUILLEE");
+  let released=0;
+  for(const def of IDLE_NGU_SYSTEMS){
+    const s=state.systems[def.id];
+    if(!s?.allocation)continue;
+    const amount=Math.max(0,num(s.allocation[resource],0));
+    if(amount<=0)continue;
+    released+=amount;
+    s.allocation[resource]=0;
+  }
+  const r=state.resources[resource];
+  r.current=clamp(
+    num(r.current,0)+released,
+    0,
+    Math.max(0,num(r.cap,0)-externalResourceAllocation(context,resource))
+  );
+  return {resource,released,current:r.current};
+}
+
+function augmentationPair(state) {
+  const system = state.systems.augmentations;
+  return IDLE_NGU_AUGMENTATIONS.find(x => x.id === system.data.activePair) || IDLE_NGU_AUGMENTATIONS[0];
+}
+
+function augmentationGoldCost(state,def,level,upgrade=false) {
+  const n=Math.max(1,int(level,0)+1);
+  const base=upgrade?def.upgrade.baseGold*n*n:def.baseGold*n;
+  return base*challengePermanentBonuses(state).augmentationCostMultiplier;
+}
+
+function augmentationSecondsForNextLevel(state, def, upgrade = false) {
+  const allocation = Math.max(0, num(state.systems.augmentations.allocation.energy, 0));
+  if (allocation <= 0) return Infinity;
+  const power = Math.max(1, state.resources.energy.power);
+  const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
+  const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
+  return base * 1000 / Math.max(1e-12, allocation * power * challengeSpeed);
+}
+
+function advanceAugmentations(state, seconds, context) {
+  const s = state.systems.augmentations;
+  if (!s.unlocked || seconds <= 0) return;
+  const def = augmentationPair(state);
+  if (num(context.bosses, 0) < def.unlockBoss) return;
+  const pair = s.data.pairs[def.id];
+  const upgrade = Boolean(s.data.trainUpgrade);
+  if (upgrade && num(context.bosses, 0) < def.upgrade.unlockBoss) return;
+
+  /*
+   * Audit 2026-09-13 (Norman) : "le menu augmentation ne possède pas de
+   * barres qui montent comme dans basic training." Cause racine trouvée
+   * en creusant plus loin que le seul manque de barre côté client : la
+   * vérification d'Or se faisait AVANT toute accumulation de progression
+   * — sans assez d'Or, pair.progress restait bloquée à 0 pour TOUJOURS,
+   * quel que soit le temps écoulé. Un joueur à court d'Or (fréquent :
+   * chaque niveau consomme tout l'Or accumulé) voyait donc une barre
+   * réellement figée, pas juste absente. Corrigé pour accumuler la
+   * progression indépendamment de l'Or (le temps investi ne doit jamais
+   * être perdu), et ne vérifier l'Or qu'au moment de VALIDER le niveau
+   * (barre pleine) — si l'Or manque alors, la barre plafonne à 100% et
+   * attend, elle ne se vide jamais toute seule.
+   */
+  let remaining = seconds;
+  let guard = 0;
+  while (remaining > 0 && guard++ < 10000) {
+    const level = upgrade ? pair.upgradeLevel : pair.level;
+    const needed = augmentationSecondsForNextLevel(state, def, upgrade);
+    if (!Number.isFinite(needed)) break;
+    const progressKey = upgrade ? "upgradeProgress" : "progress";
+    const missing = Math.max(0, needed - pair[progressKey]);
+
+    if (remaining + 1e-9 < missing) {
+      pair[progressKey] += remaining;
+      remaining = 0;
+      break;
+    }
+
+    const cost = augmentationGoldCost(state,def,level,upgrade);
+    if (state.currencies.gold + 1e-9 < cost) {
+      pair[progressKey] = needed;
+      remaining = 0;
+      break;
+    }
+
+    remaining -= missing;
+    pair[progressKey] = 0;
+    state.currencies.gold -= cost;
+    if (upgrade) pair.upgradeLevel += 1;
+    else pair.level += 1;
+  }
+
+  s.level = Object.values(s.data.pairs).reduce((sum, p) => sum + p.level + p.upgradeLevel, 0);
+  s.tempLevel = s.level;
+}
+
+export function idleNguAugmentationMultiplier(raw) {
+  const state = raw && raw.version === IDLE_NGU_META_VERSION ? raw : normalizeIdleNguState(raw);
+  if(state.challenge?.active==="noAugmentations")return 1;
+  let additive = 0;
+  const pairs = state.systems.augmentations.data.pairs;
+  for (const def of IDLE_NGU_AUGMENTATIONS) {
+    const p = pairs[def.id];
+    if (!p || p.level <= 0) continue;
+    const augment = def.baseMultiplier * safePow(p.level, def.exponent);
+    const upgrade = 1 + safePow(p.upgradeLevel, 2);
+    additive += augment * upgrade;
+  }
+  const challengePower=challengePermanentBonuses(state).augmentationPowerMultiplier;
+  return Math.max(1,1+additive*challengePower);
+}
+
+function beardTrackUnlocked(state, trackDef) {
+  if (!trackDef) return false;
+  const required = Math.max(0, int(trackDef.unlockTroll, 0));
+  return int(state.challenge?.completions?.troll, 0) >= required;
+}
+
+function advanceBeardTrack(state, system, trackDef, track, seconds) {
+  if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
+
+  const resource = trackDef.resource || "energy";
+  const r = state.resources[resource] || defaultResource(resource);
+  const diggers = diggerBonuses(state);
+  const diggerSpeed = resource === "magic"
+    ? Math.max(1, num(diggers.magicBeard, 1))
+    : Math.max(1, num(diggers.energyBeard, 1));
+
+  // V49 starts with NGU's first Beard slot only, therefore the
+  // Beards_SameResource divisor is 1 until a later unlock adds more slots.
+  const baseRate =
+    Math.max(1, num(r.bars, 1)) *
+    Math.sqrt(Math.max(1, num(r.power, 1))) *
+    diggerSpeed /
+    Math.max(1, num(trackDef.speedDivider, 1e8));
+
+  if (baseRate <= 0) return;
+
+  let level = Math.max(0, int(track.tempLevel, 0));
+  let progress = clamp(track.progress, 0, 0.999999999);
+  let remaining = Math.max(0, num(seconds, 0));
+
+  // Finish the current level first. NGU caps Beard growth at 50 levels/s.
+  const currentDuration = Math.max(1 / 50, (level + 1) / baseRate);
+  const currentRemaining = (1 - progress) * currentDuration;
+  if (remaining + 1e-12 < currentRemaining) {
+    track.progress = progress + remaining / currentDuration;
+    return;
+  }
+
+  remaining = Math.max(0, remaining - currentRemaining);
+  level += 1;
+  progress = 0;
+
+  // Levels with (level + 1) <= baseRate / 50 are hard-capped at 50/s.
+  const lastCappedLevel = Math.max(level - 1, Math.floor(baseRate / 50) - 1);
+  if (lastCappedLevel >= level && remaining > 0) {
+    const cappedCount = Math.min(
+      lastCappedLevel - level + 1,
+      Math.floor((remaining + 1e-12) * 50)
+    );
+    level += cappedCount;
+    remaining = Math.max(0, remaining - cappedCount / 50);
+  }
+
+  // Past the hard cap, durations form an arithmetic series:
+  // (level+1)/baseRate, (level+2)/baseRate, ...
+  if (remaining > 0) {
+    const firstCost = level + 1;
+    const budget = remaining * baseRate;
+    const discriminant = Math.max(
+      0,
+      (2 * firstCost - 1) ** 2 + 8 * budget
+    );
+    let full = Math.max(
+      0,
+      Math.floor((-(2 * firstCost - 1) + Math.sqrt(discriminant)) / 2)
+    );
+    const spent = full * (2 * firstCost + full - 1) / 2;
+    if (full > 0) {
+      level += full;
+      remaining = Math.max(0, remaining - spent / baseRate);
+    }
+
+    const nextDuration = Math.max(1 / 50, (level + 1) / baseRate);
+    progress = clamp(remaining / nextDuration, 0, 0.999999999);
+  }
+
+  track.tempLevel = level;
+  track.progress = progress;
+}
+
+/*
+ * Wiki NGU (page "Hacks", section "Important Math") : "A Hack's time[1] to
+ * level up" = BaseSpeedDivider × 1.0078^level × (level+1) / (R3 alloué ×
+ * R3 power), en ticks à 50/s. Contrairement aux Beards, pas de palier
+ * "fill" à 50 niveaux/s : la courbe ralentit en continu (facteur
+ * géométrique 1.0078^level), donc chaque niveau suivant coûte strictement
+ * plus de temps que le précédent — une boucle par niveau reste bornée
+ * (plafonnée ici par sécurité, jamais atteinte en pratique vu la vitesse
+ * de croissance des BaseSpeedDivider, de 1e8 à 1e13).
+ */
+function advanceHackTrack(state, system, trackDef, track, seconds) {
+  if (!system.unlocked || seconds <= 0) return;
+  const throughput = Math.max(0, num(system.allocation.r3, 0)) * resourceThroughput(state, "r3");
+  if (throughput <= 0) return;
+
+  let level = Math.max(0, int(track.level, 0));
+  let progress = clamp(num(track.progress, 0), 0, 0.999999999);
+  let remaining = Math.max(0, num(seconds, 0));
+  const divider = Math.max(1, num(trackDef.speedDivider, 1e8));
+
+  let iterations = 0;
+  while (remaining > 1e-9 && iterations < 100000) {
+    iterations++;
+    const ticksNeeded = divider * Math.pow(1.0078, level) * (level + 1);
+    const secondsNeeded = ticksNeeded / 50 / throughput;
+    if (!Number.isFinite(secondsNeeded) || secondsNeeded <= 0) break;
+    const remainingForLevel = (1 - progress) * secondsNeeded;
+    if (remaining + 1e-12 < remainingForLevel) {
+      progress += remaining / secondsNeeded;
+      remaining = 0;
+    } else {
+      remaining -= remainingForLevel;
+      level += 1;
+      progress = 0;
+    }
+  }
+
+  track.level = level;
+  track.progress = progress;
+}
+
+/*
+ * Wiki NGU (page "Wishes", section "Important Math") : "(EngPower x
+ * EngAllocated x MagPower x MagAllocated x Res3Power x Res3Allocated)^0.17
+ * / (SpeedDivider x (level+1))" — lu comme une VITESSE (le wiki précise
+ * "doubling any single resource only increases wish speed by about
+ * ~12.5%", cohérent avec 2^0.17 ≈ 1.125), donc le temps par niveau est
+ * l'inverse : SpeedDivider x (level+1) / numérateur^0.17, plafonné en bas
+ * à WISH_MIN_LEVEL_SECONDS (4h, cap dur du wiki — plus de ressources ne
+ * réduit jamais sous ce plancher). "EngAllocated"/"MagAllocated"/
+ * "Res3Allocated" correspondent à system.allocation[energy|magic|r3], déjà
+ * modélisées ainsi pour toutes les autres pistes de ce fichier — la
+ * ressource doit être allouée sur LES TROIS pour progresser ("you must
+ * allocate some of all 3 resources to it"). Les souhaits "+X% Wish Speed"
+ * (voir idle-wishes-v1.js, wishSpeedPct) accélèrent ce taux multiplicativement,
+ * comme leur texte l'indique — appliqués APRÈS le plancher de 4h pour
+ * rester fidèles au wiki ("hard cap... putting more resources into it will
+ * not speed up the process", qui ne mentionne aucune exception pour les
+ * boosts de vitesse eux-mêmes).
+ */
+function advanceWishTrack(state, system, trackDef, track, seconds) {
+  if (!system.unlocked || seconds <= 0) return;
+  if (Math.max(0, int(track.level, 0)) >= Math.max(0, int(trackDef.levels, 0))) return;
+
+  const engAlloc = Math.max(0, num(system.allocation.energy, 0));
+  const magAlloc = Math.max(0, num(system.allocation.magic, 0));
+  const r3Alloc = Math.max(0, num(system.allocation.r3, 0));
+  if (engAlloc <= 0 || magAlloc <= 0 || r3Alloc <= 0) return;
+
+  const engPower = Math.max(1, num(state.resources.energy?.power, 1));
+  const magPower = Math.max(1, num(state.resources.magic?.power, 1));
+  const r3Power = Math.max(1, num(state.resources.r3?.power, 1));
+  const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
+  const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier);
+
+  let level = Math.max(0, int(track.level, 0));
+  let progress = clamp(num(track.progress, 0), 0, 0.999999999);
+  let remaining = Math.max(0, num(seconds, 0));
+  const maxLevel = Math.max(0, int(trackDef.levels, 0));
+
+  let iterations = 0;
+  while (remaining > 1e-9 && level < maxLevel && iterations < 100000) {
+    iterations++;
+    const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / speedMultiplier;
+    const secondsNeeded = Number.isFinite(rawSeconds) ? Math.max(WISH_MIN_LEVEL_SECONDS, rawSeconds) : Infinity;
+    if (!Number.isFinite(secondsNeeded) || secondsNeeded <= 0) break;
+    const remainingForLevel = (1 - progress) * secondsNeeded;
+    if (remaining + 1e-12 < remainingForLevel) {
+      progress += remaining / secondsNeeded;
+      remaining = 0;
+    } else {
+      remaining -= remainingForLevel;
+      level += 1;
+      progress = 0;
+    }
+  }
+
+  track.level = level;
+  track.progress = level >= maxLevel ? 0 : progress;
+}
+
+function advanceTrackSystem(state, def, seconds) {
+  const s = state.systems[def.id];
+  if (!s.unlocked || seconds <= 0) return;
+  const tracks = IDLE_NGU_TRACKS[def.id] || [];
+  if (!tracks.length) return;
+  const active = s.data.activeTrack || tracks[0].id;
+  const trackDef = tracks.find(x => x.id === active) || tracks[0];
+  const t = s.data.tracks[active];
+  if (!t) return;
+
+  if (def.id === "beards") {
+    advanceBeardTrack(state, s, trackDef, t, seconds);
+    s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
+    s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
+    s.permanentLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.permanentLevel, 0);
+    return;
+  }
+
+  if (def.id === "hacks") {
+    advanceHackTrack(state, s, trackDef, t, seconds);
+    s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
+    return;
+  }
+
+  if (def.id === "wishes") {
+    advanceWishTrack(state, s, trackDef, t, seconds);
+    s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
+    return;
+  }
+
+  let throughput = 0;
+  for (const resource of def.resources) {
+    const alloc = Math.max(0, num(s.allocation[resource], 0));
+    /*
+     * Wiki NGU (page "Energy", section Uses > Advanced Training : "Energy
+     * power affects it only by a Sqrt(Energy Power)" ; page "Advanced
+     * Training" : "your Energy Power is only as effective as it's square
+     * root... Energy cap is not affected and works at full effectiveness")
+     * — l'Advanced Training est la SEULE piste où la Puissance compte en
+     * racine carrée ; Wandoos/NGU/Wishes gardent leur Puissance à taux
+     * plein (non touché ici).
+     */
+    const r = state.resources[resource] || defaultResource(resource);
+    const power = def.id === "advancedTraining"
+      ? Math.sqrt(Math.max(1, r.power))
+      : Math.max(1, r.power);
+    throughput += alloc * power * Math.max(1, r.bars);
+  }
+  if (throughput <= 0) return;
+
+  const divisor =
+    def.id === "advancedTraining" ? 25000 :
+    def.id === "wandoos" ? 120000 :
+    def.id === "ngu" ? 300000 :
+    100000;
+
+  t.progress += (throughput / divisor) * seconds;
+  const gain = Math.floor(t.progress);
+  if (gain > 0) {
+    t.progress -= gain;
+    if (def.kind === "run" || def.kind === "hybrid") t.tempLevel += gain;
+    else t.level += gain;
+  }
+
+  s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
+  s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
+  s.permanentLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.permanentLevel, 0);
+}
+
+function tmLevelSeconds(state, resource) {
+  const alloc = Math.max(0, num(state.systems.timeMachine.allocation[resource], 0));
+  if (alloc <= 0) return Infinity;
+  const power = Math.max(1, state.resources[resource].power);
+  return 1000 / Math.max(1e-12, alloc * power);
+}
+
+function advanceTimeMachine(state, seconds) {
+  const s = state.systems.timeMachine;
+  if (!s.unlocked || seconds <= 0) return;
+  const d = s.data;
+
+  const energyStep = tmLevelSeconds(state, "energy");
+  if (Number.isFinite(energyStep)) {
+    d.speedProgress += seconds;
+    const levels = Math.floor(d.speedProgress / energyStep);
+    if (levels > 0) {
+      d.speedProgress -= levels * energyStep;
+      d.speedLevel += levels;
+    }
+  }
+
+  if (state.systems.bloodMagic.unlocked) {
+    const magicStep = tmLevelSeconds(state, "magic");
+    if (Number.isFinite(magicStep)) {
+      d.goldProgress += seconds;
+      const levels = Math.floor(d.goldProgress / magicStep);
+      if (levels > 0) {
+        d.goldProgress -= levels * magicStep;
+        d.goldLevel += levels;
+      }
+    }
+  }
+
+  const gps = idleNguTimeMachineGoldPerSecond(state);
+  const gain = gps * seconds;
+  state.currencies.gold += gain;
+  d.producedThisRun += gain;
+  s.level = Math.floor(d.speedLevel + d.goldLevel);
+  s.tempLevel = s.level;
+}
+
+export function idleNguTimeMachineGrossGoldPerSecond(raw) {
+  const state = raw && raw.version === IDLE_NGU_META_VERSION ? raw : normalizeIdleNguState(raw);
+  const d = state.systems.timeMachine.data;
+  if (!state.systems.timeMachine.unlocked) return 0;
+  if(state.challenge?.active==="noTimeMachine")return 0;
+
+  const goldPerBar = Math.max(0, num(d.bestGoldThisRun, 0));
+  if (goldPerBar <= 0) return 0;
+
+  // Wiki NGU (page "Broken Time Machine", section "Gold multipliers") :
+  // "Highest Boss - 27 = Gold Multiplier (max of 274x)" — un multiplicateur
+  // linéaire (boss-27), plafonné à 274x (atteint au boss 301), pas la
+  // formule 1+boss/10 utilisée précédemment (qui sous-évaluait ce bonus
+  // d'un facteur ~7 dès les premiers boss et ne plafonnait jamais).
+  const highestBossMultiplier = Math.max(1, Math.min(274, num(d.highestBossEver, 0) - 27));
+  const speedLevel = Math.max(0, num(d.speedLevel, 0));
+  const barsPerSecond = speedLevel < 50 ? Math.min(50, 1 + speedLevel) : 50 * (1 + (speedLevel - 49));
+  const goldMultiplier = 1 + Math.max(0, num(d.goldLevel, 0));
+  const counterfeit = Math.max(1, num(state.systems.bloodMagic.data.spells.counterfeitGold, 1));
+
+  const beardGold = beardBonusMultiplier(state, "gold");
+  const challengeGold=challengePermanentBonuses(state).timeMachineGoldMultiplier;
+  return goldPerBar * highestBossMultiplier * barsPerSecond * goldMultiplier * counterfeit * beardGold * challengeGold;
+}
+
+export function idleNguTimeMachineGoldPerSecond(raw) {
+  const state = raw && raw.version === IDLE_NGU_META_VERSION ? raw : normalizeIdleNguState(raw);
+  return Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state)-diggerDrainTotal(state));
+}
+
+function ritualUnlocked(ritual, context) {
+  if (!ritual.unlockFlag) return true;
+  return Boolean(context.unlockFlags?.[ritual.unlockFlag]);
+}
+
+function advanceBloodMagic(state, seconds, context) {
+  const s = state.systems.bloodMagic;
+  if (!s.unlocked || seconds <= 0) return;
+  const ritual = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
+  if (!ritualUnlocked(ritual, context)) return;
+  const rs = s.data.rituals[ritual.id];
+
+  const magic = Math.max(0, num(s.allocation.magic, 0));
+  const power = Math.max(1, state.resources.magic.power);
+  if (magic <= 0) return;
+
+  const secondsPerCompletion = ritual.baseSeconds * 1000 / Math.max(1e-12, magic * power);
+  rs.progress += seconds;
+  let completions = Math.floor(rs.progress / secondsPerCompletion);
+  if (completions <= 0) return;
+
+  const affordable = Math.floor(state.currencies.gold / ritual.gold);
+  completions = Math.min(completions, affordable, 1000000);
+  if (completions <= 0) return;
+
+  rs.progress -= completions * secondsPerCompletion;
+  rs.completions += completions;
+  rs.level += completions;
+  state.currencies.gold -= completions * ritual.gold;
+  state.currencies.blood += completions * ritual.blood;
+  s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
+  s.tempLevel = s.level;
+}
+
+/*
+ * Sang minimum par sort (wiki NGU, page Blood Magic, colonne "Minimum
+ * Blood Required", consultée le 2026-09-14) — jamais vérifié avant ce
+ * round, seul un `blood <= 0` générique était appliqué.
+ */
+const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
+  numberBoost: 1,
+  ironPill: 100,
+  bloodSpaghetti: 10000,
+  counterfeitGold: 1000000
+});
+
+/*
+ * Sources (wiki NGU, pages Blood Magic et NUMBER, consultées le
+ * 2026-09-14) :
+ * - Blood NUMBER Boost : page Blood Magic — "Each blood adds 1 to the
+ *   NUMBER multiplier" ; confirmé par la page NUMBER, table des
+ *   facteurs de Rebirth — "blood magic bonus: the amount of blood cast
+ *   into the NUMBER spell this rebirth + 1." C'est donc un cumul
+ *   ADDITIF du sang dépensé sur ce sort durant le Rebirth en cours, pas
+ *   une composition multiplicative lancer après lancer. L'ancienne
+ *   formule (1 + blood^0.2/10) n'avait aucune source wiki et sous-
+ *   évaluait massivement le bonus réel dès que le sang dépensé dépasse
+ *   quelques unités.
+ * - Blood Spaghetti (Drop Chance) : formule wiki exacte
+ *   (log2(Blood/10 000) + 1)%, où Blood est le total de sang sacrifié à
+ *   CE sort durant ce Rebirth (donc aussi cumulatif, pas juste le
+ *   dernier lancer). L'ancienne formule (1 + log10(1+blood)/20) était
+ *   inventée, ET son résultat n'était même jamais lu par
+ *   dropMultiplier plus bas dans ce fichier — un vrai bug "effet
+ *   calculé mais jamais appliqué", câblé pour la première fois ici.
+ * - Counterfeit Gold (bonus GPS) : formule wiki exacte
+ *   (log2(Blood/1 000 000) + 1)² %, même principe cumulatif. L'ancienne
+ *   formule (1 + log10(1+blood)/10) était inventée (log10 au lieu de
+ *   log2, pas de mise au carré, mauvais diviseur).
+ * - Iron Pill : formule Blood^0.25 déjà correcte dans son exposant,
+ *   mais la conversion "/100" en bonus multiplicatif sur
+ *   adventureMultiplier est une décision d'architecture antérieure à
+ *   tout audit wiki (présente depuis la toute première version du
+ *   fichier, commit aa744cd4) — le wiki décrit un gain de stat ABSOLU
+ *   (Power/Toughness += Blood^0.25), pas un pourcentage. La corriger
+ *   proprement demanderait de revoir le pipeline de calcul des stats
+ *   d'Aventure (hors scope meta-progression de ce round, et hors des
+ *   fichiers Adventure déjà couverts par des rounds précédents) ;
+ *   laissée telle quelle, documentée honnêtement plutôt que remplacée
+ *   par une autre conversion tout aussi inventée.
+ */
+function castBloodSpell(state, spell) {
+  const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
+  if (minimum === undefined) throw new Error("SORT_SANG_INVALIDE");
+  const blood = Math.floor(state.currencies.blood);
+  if (blood < minimum) throw new Error("SANG_INSUFFISANT");
+  const spells = state.systems.bloodMagic.data.spells;
+
+  if (spell === "numberBoost") {
+    spells.numberBoost = Math.max(1, spells.numberBoost) + blood;
+    state.currencies.blood = 0;
+    return { spell, spent: blood, multiplier: spells.numberBoost };
+  }
+  if (spell === "ironPill") {
+    const gain = Math.pow(blood, 0.25) / 100;
+    spells.ironPill += gain;
+    state.bonuses.ironPill += gain;
+    state.currencies.blood = 0;
+    return { spell, spent: blood, gain };
+  }
+  if (spell === "counterfeitGold") {
+    spells.counterfeitGoldBloodSpent = Math.max(0, num(spells.counterfeitGoldBloodSpent, 0)) + blood;
+    const pct = Math.pow(Math.log2(spells.counterfeitGoldBloodSpent / 1000000) + 1, 2);
+    spells.counterfeitGold = Math.max(1, 1 + pct / 100);
+    state.currencies.blood = 0;
+    return { spell, spent: blood, multiplier: spells.counterfeitGold };
+  }
+  if (spell === "bloodSpaghetti") {
+    spells.bloodSpaghettiBloodSpent = Math.max(0, num(spells.bloodSpaghettiBloodSpent, 0)) + blood;
+    const pct = Math.log2(spells.bloodSpaghettiBloodSpent / 10000) + 1;
+    spells.bloodSpaghetti = Math.max(1, 1 + pct / 100);
+    state.currencies.blood = 0;
+    return { spell, spent: blood, multiplier: spells.bloodSpaghetti };
+  }
+  throw new Error("SORT_SANG_INVALIDE");
+}
+
+function advanceMoneyPitAndDaily(state, now) {
+  const pit = state.systems.moneyPit;
+  if (pit.unlocked && state.systems.dailySpin) state.systems.dailySpin.unlocked = true;
+  const spin = state.systems.dailySpin;
+  if (spin.unlocked && !spin.data.readyAt) spin.data.readyAt = now;
+}
+
+function yggMaxTier(state) {
+  return int(state.challenge.completions.troll,0)>=3 ? 24 : 10;
+}
+
+function yggFreeResource(state, resource) {
+  return Math.max(0,num(state.resources[resource]?.current,0));
+}
+
+function yggTierUpgradeCost(fruit, targetTier) {
+  const t=Math.max(1,int(targetTier,1));
+  return Math.max(1,int(fruit.tierCost,1)*t*t);
+}
+
+function upgradeYggFruit(state, fruitId) {
+  const s=state.systems.yggdrasil;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=IDLE_NGU_YGG_FRUITS.find(x=>x.id===fruitId);
+  const f=s.data.fruits[fruitId];
+  if(!def||!f)throw new Error("FRUIT_INVALIDE");
+  const maxTier=yggMaxTier(state);
+  if(f.tier>=maxTier)throw new Error("FRUIT_TIER_MAX");
+  const target=f.tier+1;
+  const cost=yggTierUpgradeCost(def,target);
+  if(state.currencies.seeds<cost)throw new Error("GRAINES_INSUFFISANTES");
+  state.currencies.seeds-=cost;
+  f.tier=target;
+  return {fruit:fruitId,tier:f.tier,cost,maxTier};
+}
+
+function activateYggFruit(state, fruitId) {
+  const s=state.systems.yggdrasil;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=IDLE_NGU_YGG_FRUITS.find(x=>x.id===fruitId);
+  const f=s.data.fruits[fruitId];
+  if(!def||!f)throw new Error("FRUIT_INVALIDE");
+  if(f.tier<=0)throw new Error("FRUIT_VERROUILLE");
+  if(f.active)return {fruit:fruitId,active:true};
+  if(yggFreeResource(state,def.resource)<def.activationCost)throw new Error("RESSOURCE_YGG_INSUFFISANTE");
+  state.resources[def.resource].current=Math.max(
+    0,
+    num(state.resources[def.resource].current,0)-def.activationCost
+  );
+  s.data.reserved[def.resource]=0;
+  f.active=true;
+  f.growthHours=0;
+  return {
+    fruit:fruitId,
+    active:true,
+    cost:def.activationCost,
+    resource:def.resource,
+    remaining:state.resources[def.resource].current
+  };
+}
+
+function releaseYggFruit(state,def,f){
+  // The activation cost was spent from idle Energy/Magic. Eating/harvesting
+  // never refunds it; regeneration is the only way to recover that resource.
+  state.systems.yggdrasil.data.reserved[def.resource]=0;
+  f.active=false;
+  f.growthHours=0;
+}
+
+/*
+ * Wiki NGU, page Yggdrasil, section "Nerdy Formulas" > "Seed Gains"
+ * (consultée le 2026-09-14) : ⌈⌈T^1.5⌉ x Poop x (1+EquipSeedGain) x
+ * NGUYgg x QuirkSeeds x PerkSeeds x BaseSeedReward x FirstHarvest x
+ * HarvestBonus⌉. Poop, EquipSeedGain et NGUYgg n'ont aucune implémentation
+ * dans SOREAL IDLE (pas de système Poop, pas d'équipement "Seed Gain",
+ * pas de piste NGU Yggdrasil) et restent donc à 1/0 par défaut — gap
+ * honnête, pas une valeur inventée. PerkSeeds (Perk "I Want Your Seeds
+ * ;)") et QuirkSeeds (Quirk "The Beast's Seed ;)") existent bel et bien
+ * dans les catalogues idle-perks-v1.js / idle-quirks-v1.js et étaient
+ * déjà calculés par idleNguBonuses() (seedYieldMultiplierFromPerks/
+ * Quirks) mais jamais lus par cette fonction — un bonus réel, acheté,
+ * jamais appliqué. Idem pour FirstHarvest (Perk "The First Harvest's
+ * The Best") : le flag f.firstHarvestThisRun était déjà suivi (mis à
+ * false après usage, remis à true au Rebirth) mais son bonus n'était
+ * jamais consommé. Les deux sont câblés ici pour la première fois.
+ */
+function yggSeedGain(def,tier,harvest,seedYieldMultiplier=1,firstHarvestMultiplier=1){
+  const unit=Math.ceil(Math.pow(Math.max(1,tier),1.5));
+  return Math.ceil(unit*Math.max(1,def.baseSeeds)*(harvest?2:1)*seedYieldMultiplier*firstHarvestMultiplier);
+}
+
+function useYggFruit(state,fruitId,mode="eat"){
+  const s=state.systems.yggdrasil;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=IDLE_NGU_YGG_FRUITS.find(x=>x.id===fruitId);
+  const f=s.data.fruits[fruitId];
+  if(!def||!f)throw new Error("FRUIT_INVALIDE");
+  if(!f.active||f.growthHours<1)throw new Error("FRUIT_PAS_PRET");
+  const grownTier=Math.max(1,Math.min(f.tier,Math.floor(f.growthHours)));
+  const harvest=mode==="harvest";
+  const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
+  const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier;
+  const firstHarvestMultiplier=f.firstHarvestThisRun?perkBonuses.firstHarvestMultiplier:1;
+  const seedGain=yggSeedGain(def,grownTier,harvest||def.id==="pomegranate",seedYieldMultiplier,firstHarvestMultiplier);
+  state.currencies.seeds+=seedGain;
+  const factor=Math.ceil(Math.pow(grownTier,1.5));
+  const result={fruit:fruitId,mode:harvest?"harvest":"eat",tier:grownTier,seeds:seedGain};
+
+  if(!harvest){
+    if(def.effect==="gold"){
+      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*factor*30*60;
+      state.currencies.gold+=gold;
+      result.gold=gold;
+    }else if(def.effect==="powerAlpha"){
+      s.data.runPowerAlphaValue+=factor;
+      result.runPowerAlphaValue=s.data.runPowerAlphaValue;
+    }else if(def.effect==="adventure"){
+      const baseToughness=Math.max(1,num(state.adventure?.permanent?.adventureToughness,1));
+      const gain=Math.floor(factor*Math.pow(baseToughness,0.2));
+      s.data.permanent.adventurePower+=gain;
+      s.data.permanent.adventureToughness+=gain;
+      s.data.permanent.adventureHp+=gain*3;
+      s.data.permanent.adventureRegen+=gain*0.03;
+      result.adventureGain=gain;
+    }else if(def.effect==="experience"){
+      const exp=Math.max(1,factor*10);
+      state.currencies.experience+=exp;
+      result.experience=exp;
+    }else if(def.effect==="luck"){
+      const drop=factor*0.01;
+      s.data.permanent.luckDropPct+=drop;
+      result.dropPct=drop;
+    }else if(def.effect==="powerBeta"){
+      s.data.permanent.powerBetaValue+=factor;
+      s.data.runPowerBetaActive=true;
+      result.powerBeta=s.data.permanent.powerBetaValue;
+    }else if(def.effect==="numbers"){
+      s.data.permanent.numbersValue+=factor;
+      s.data.runNumbersActive=true;
+      result.numbers=s.data.permanent.numbersValue;
+    }else if(def.effect==="ap"){
+      const ap=factor;
+      state.currencies.ap+=ap;
+      result.ap=ap;
+    }else if(def.effect==="pp"){
+      const pp=Math.max(1,Math.floor(factor/2));
+      state.currencies.pp+=pp;
+      result.pp=pp;
+    }
+  }
+  f.firstHarvestThisRun=false;
+  releaseYggFruit(state,def,f);
+  return result;
+}
+
+function advanceYggdrasil(state,seconds){
+  const s=state.systems.yggdrasil;
+  if(!s?.unlocked||seconds<=0)return;
+  for(const def of IDLE_NGU_YGG_FRUITS){
+    const f=s.data.fruits[def.id];
+    if(!f.active||f.tier<=0)continue;
+    f.growthHours=Math.min(f.tier,Math.max(0,num(f.growthHours,0))+seconds/3600);
+  }
+}
+
+/*
+ * Wiki NGU (page Gold Diggers, section "Global Digger Bonus", consultée
+ * le 2026-09-14) : formule strictement ADDITIVE —
+ * "0.05%*(Total Digger Levels) + (No TM Challenge Bonus) + (Party (set)
+ * Bonus)". Le bonus du Défi "No Time Machine" (+5 points de % dès le
+ * palier 1) doit s'ADDITIONNER au pourcentage de niveaux avant le
+ * +100% final, pas se MULTIPLIER par-dessus. L'ancienne formule
+ * calculait (1+levelPct/100)*1.05, ce qui composait les deux termes au
+ * lieu de les additionner comme l'exige le wiki — un écart croissant
+ * avec le nombre de niveaux de Diggers. Le "Party (set) Bonus" (Party
+ * Set, un objet d'équipement d'Aventure) n'a aucune implémentation
+ * dans SOREAL IDLE et reste donc à 0 — gap honnête, hors scope
+ * meta-progression (les fichiers Adventure sont déjà couverts par
+ * d'autres rounds).
+ */
+function diggerGlobalBonus(state){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)return 1;
+  const total=Object.values(s.data.diggers).reduce((a,d)=>a+Math.max(0,int(d.maxLevel,0)),0);
+  const levelPct=total<=500 ? total*0.05 : 25+0.05*Math.pow(total-500,0.7);
+  const challengePct=(challengePermanentBonuses(state).diggerGlobalMultiplier-1)*100;
+  return 1+(levelPct+challengePct)/100;
+}
+
+function diggerDefinition(id){
+  return IDLE_NGU_DIGGERS.find(x=>x.id===id);
+}
+
+function diggerCostAtLevel(def,level){
+  const target=Math.max(1,int(level,1));
+  return def.unlockCost*Math.pow(def.growth,target-1);
+}
+
+function diggerDrainAtLevel(def,level){
+  const l=Math.max(0,int(level,0));
+  if(l<=0)return 0;
+  return def.drain*Math.pow(def.growth,l-1);
+}
+
+function diggerDrainTotal(state){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)return 0;
+  let total=0;
+  for(const def of IDLE_NGU_DIGGERS){
+    const d=s.data.diggers[def.id];
+    if(d.active&&d.runLevel>0)total+=diggerDrainAtLevel(def,d.runLevel);
+  }
+  return total;
+}
+
+function diggerActiveCount(state){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)return 0;
+  return Object.values(s.data.diggers).filter(d=>d.active&&d.runLevel>0).length;
+}
+
+function availableDiggerSlots(state){
+  const extra=Math.max(0,int(state.adventure?.setRewards?.diggerSlot,0));
+  const challengeExtra=challengePermanentBonuses(state).diggerSlotBonus;
+  return Math.max(1,int(state.systems.diggers?.data?.slots,1)+extra+challengeExtra);
+}
+
+function upgradeDigger(state,id){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=diggerDefinition(id),d=s.data.diggers[id];
+  if(!def||!d)throw new Error("DIGGER_INVALIDE");
+  if(d.maxLevel>=def.cap)throw new Error("DIGGER_MAX");
+  const cost=diggerCostAtLevel(def,d.maxLevel+1);
+  if(state.currencies.gold<cost)throw new Error("OR_INSUFFISANT");
+  state.currencies.gold-=cost;
+  d.maxLevel+=1;
+  if(d.runLevel===0)d.runLevel=1;
+  return {digger:id,maxLevel:d.maxLevel,cost};
+}
+
+function setDiggerLevel(state,id,level){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=diggerDefinition(id),d=s.data.diggers[id];
+  if(!def||!d)throw new Error("DIGGER_INVALIDE");
+  const target=clamp(int(level,0),0,d.maxLevel);
+  const wasActive=d.active;
+  d.runLevel=target;
+  if(target===0)d.active=false;
+  if(wasActive&&target>0){
+    const gross=idleNguTimeMachineGrossGoldPerSecond(state);
+    if(diggerDrainTotal(state)>gross){d.active=false;throw new Error("GPS_INSUFFISANT");}
+  }
+  return {digger:id,runLevel:d.runLevel,active:d.active};
+}
+
+function toggleDigger(state,id,active){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=diggerDefinition(id),d=s.data.diggers[id];
+  if(!def||!d)throw new Error("DIGGER_INVALIDE");
+  const target=active===undefined?!d.active:Boolean(active);
+  if(!target){d.active=false;return{digger:id,active:false};}
+  if(d.maxLevel<=0||d.runLevel<=0)throw new Error("DIGGER_NON_ACHETE");
+  if(!d.active&&diggerActiveCount(state)>=availableDiggerSlots(state))throw new Error("AUCUN_SLOT_DIGGER");
+  d.active=true;
+  const gross=idleNguTimeMachineGrossGoldPerSecond(state);
+  if(diggerDrainTotal(state)>gross){d.active=false;throw new Error("GPS_INSUFFISANT");}
+  return{digger:id,active:true,runLevel:d.runLevel};
+}
+
+function diggerBonuses(state){
+  const s=state.systems.diggers;
+  const out={drop:1,wandoos:1,stats:1,adventure:1,energyNgu:1,magicNgu:1,energyBeard:1,magicBeard:1,pp:1,daycare:1,blood:1,experience:1};
+  if(!s?.unlocked)return out;
+  const g=diggerGlobalBonus(state);
+  for(const def of IDLE_NGU_DIGGERS){
+    const d=s.data.diggers[def.id];
+    if(!d.active||d.runLevel<=0)continue;
+    const L=d.runLevel;
+    let pct=100;
+    if(def.id==="drop"||def.id==="wandoos"||def.id==="blood")pct=150+L;
+    else if(def.id==="stats")pct=200+Math.pow(L,3);
+    else if(def.id==="adventure")pct=110+0.5*L;
+    else if(def.id==="energyNgu"||def.id==="magicNgu"||def.id==="energyBeard"||def.id==="magicBeard")pct=120+L;
+    else if(def.id==="pp")pct=110+L;
+    else if(def.id==="daycare")pct=105+0.1*L;
+    else if(def.id==="experience")pct=105+0.5*L;
+    out[def.effect]=Math.max(1,pct/100*g);
+  }
+  return out;
+}
+
+function advanceLateSystems(state, seconds, context, now) {
+  const tower = state.systems.tower;
+  if (tower.unlocked && tower.active) {
+    const power = Math.max(1, num(context.adventurePower, 1));
+    tower.data.floor = Math.max(0, int(tower.data.floor, 0));
+    tower.data.killProgress = Math.max(0, num(tower.data.killProgress, 0)) + seconds * Math.min(1, Math.pow(power / Math.pow(1.05, tower.data.floor), 0.2) / 20);
+    const kills = Math.floor(tower.data.killProgress);
+    if (kills > 0) {
+      tower.data.killProgress -= kills;
+      tower.data.kills = Math.max(0, int(tower.data.kills, 0)) + kills;
+      // Wiki NGU (page ITOPOD, section "Drops") : "(200 + Floor) PPP per
+      // dude killed" en difficulté Normal — pas un flat 250 (qui n'est
+      // exact qu'au floor 50 pile et s'écarte de plus en plus au-delà).
+      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (200 + tower.data.floor);
+      tower.data.floor += Math.floor(kills / 10);
+      const pp = Math.floor(tower.data.ppProgress / 1e6);
+      if (pp > 0) {
+        tower.data.ppProgress -= pp * 1e6;
+        state.currencies.pp += pp;
+      }
+    }
+  }
+
+  const cards = state.systems.cards;
+  if (cards.unlocked) {
+    cards.data.nextCardAt = Math.max(0, num(cards.data.nextCardAt, now + 3600000));
+    cards.data.deck = Array.isArray(cards.data.deck) ? cards.data.deck : [];
+    while (now >= cards.data.nextCardAt && cards.data.deck.length < 10) {
+      cards.data.deck.push({ id: "card-" + cards.data.nextCardAt, type: "attack", quality: 1 });
+      cards.data.nextCardAt += 3600000;
+    }
+  }
+}
+
+export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()) {
+  const state = normalizeIdleNguState(raw, context, now);
+  const secs = clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS);
+
+  advanceGeneratedResources(state,secs,context);
+  advanceAugmentations(state, secs, context);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
+  advanceTimeMachine(state, secs);
+  advanceBloodMagic(state, secs, context);
+  advanceYggdrasil(state, secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wandoos"), secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "ngu"), secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs);
+  advanceMoneyPitAndDaily(state, nowMs(now));
+  advanceLateSystems(state, secs, context, nowMs(now));
+
+  reconcileResourceCurrents(state,context);
+  state.updatedAt = nowMs(now);
+  state.rebirth = refreshRebirthState(state, context, nowMs(now));
+  return state;
+}
+
+export function syncIdleNguState(raw, context = {}, now = Date.now()) {
+  const state = normalizeIdleNguState(raw, context, now);
+  const elapsed = Math.max(0, (nowMs(now) - state.updatedAt) / 1000);
+  return advanceIdleNguState(state, elapsed, context, now);
+}
+
+function trackBonusLevel(state, systemId, trackId) {
+  return totalTrackLevel(state.systems[systemId], trackId);
+}
+
+function beardSoftLevel(level, exponent, scalar) {
+  const l = Math.max(0, num(level, 0));
+  return l <= 1000 ? l : Math.pow(l, exponent) * scalar;
+}
+
+function beardBonusMultiplier(state, role) {
+  const s = state.systems.beards;
+  if (!s?.unlocked) return 1;
+  const def = (IDLE_NGU_TRACKS.beards || []).find(x => x.beardRole === role);
+  if (!def || !beardTrackUnlocked(state, def)) return 1;
+  const t = s.data?.tracks?.[def.id] || {};
+  const tempActive = Boolean(s.active && s.data?.activeTrack === def.id);
+  const temp = tempActive ? Math.max(0, num(t.tempLevel, 0)) : 0;
+  const perm = Math.max(0, num(t.permanentLevel, 0));
+  let tb = 0, pb = 0;
+  if (role === "attackDefense") {
+    tb = temp * 0.05; pb = perm * 0.01;
+  } else if (role === "drop") {
+    tb = beardSoftLevel(temp, .3, 125.9) * .0005;
+    pb = beardSoftLevel(perm, .33, 102.4) * .0005;
+  } else if (role === "number") {
+    tb = beardSoftLevel(temp, .5, 31.7) * .01;
+    pb = beardSoftLevel(perm, .5, 31.7) * .001;
+  } else if (role === "ngu") {
+    tb = beardSoftLevel(temp, .3, 125.9) * .0001;
+    pb = beardSoftLevel(perm, .3, 125.9) * .0002;
+  } else if (role === "wandoos") {
+    tb = beardSoftLevel(temp, .5, 31.7) * .001;
+    pb = beardSoftLevel(perm, .5, 31.7) * .002;
+  } else if (role === "adventure") {
+    tb = beardSoftLevel(temp, .3, 125.9) * .001;
+    pb = beardSoftLevel(perm, .5, 31.7) * .0005;
+  } else if (role === "gold") {
+    tb = beardSoftLevel(temp, .5, 31.7) * .002;
+    pb = beardSoftLevel(perm, .5, 31.7) * .005;
+  }
+  return Math.max(1, (1 + tb) * (1 + pb));
+}
+
+function beardRebirthTimeFactor(seconds) {
+  const wholeHours = Math.floor(Math.max(0, num(seconds, 0)) / 3600);
+  return clamp(wholeHours / 3, 0, 8);
+}
+
+function convertActiveBeardOnRebirth(state, runSeconds) {
+  const s = state.systems.beards;
+  if (!s?.unlocked || !s.data?.tracks) return { track: "", gained: 0, timeFactor: 0 };
+  const id = s.active ? (s.data.activeTrack || "") : "";
+  const def = (IDLE_NGU_TRACKS.beards || []).find(x => x.id === id);
+  const t = id ? s.data.tracks[id] : null;
+  const timeFactor = beardRebirthTimeFactor(runSeconds);
+  let gained = 0;
+  if (t && beardTrackUnlocked(state, def)) {
+    const temp = Math.max(0, num(t.tempLevel, 0));
+    gained = Math.min(temp, Math.floor(Math.sqrt(temp) * timeFactor));
+    t.permanentLevel = Math.max(0, num(t.permanentLevel, 0)) + gained;
+  }
+  for (const track of Object.values(s.data.tracks)) {
+    track.tempLevel = 0;
+    track.progress = 0;
+  }
+  s.tempLevel = 0;
+  s.permanentLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + Math.max(0, num(x.permanentLevel, 0)), 0);
+  return { track: id, gained, timeFactor };
+}
+
+export function idleNguBonuses(raw) {
+  const state = raw && raw.version === IDLE_NGU_META_VERSION
+    ? raw
+    : normalizeIdleNguState(raw, {}, raw?.updatedAt || Date.now());
+
+  const aug = idleNguAugmentationMultiplier(state);
+  const atPower = trackBonusLevel(state, "advancedTraining", "power");
+  const atToughness = trackBonusLevel(state, "advancedTraining", "toughness");
+  const nguAttack = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "attack");
+  const nguDefense = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "defense");
+  const nguAdventure = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "adventure");
+  const nguDrop = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "drop");
+  const nguRespawn = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "respawn");
+  const nguExp = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "experience");
+  const equipmentDisabled = state.challenge.active === "noEquipment";
+  const adventureGear = equipmentDisabled
+    ? {power:0,toughness:0,hp:0,regen:0,specials:{}}
+    : idleAdventureEquipmentStatsV47(state.adventure);
+  const adventurePermanent = state.adventure?.permanent || {};
+  const diggers = diggerBonuses(state);
+  const ygg = state.systems.yggdrasil?.data || createYggdrasilData();
+  const yggPermanent = ygg.permanent || createYggdrasilData().permanent;
+  const powerAlphaMultiplier = 1 + Math.pow(Math.max(0,num(ygg.runPowerAlphaValue,0)),1.5);
+  const powerBetaMultiplier = ygg.runPowerBetaActive
+    ? 1 + Math.pow(Math.max(0,num(yggPermanent.powerBetaValue,0)),2)*1e-6
+    : 1;
+  const fruitNumbersMultiplier = ygg.runNumbersActive
+    ? 1 + Math.pow(Math.max(0,num(yggPermanent.numbersValue,0)),1.3)*1e-4
+    : 1;
+
+  const beardAttack = beardBonusMultiplier(state, "attackDefense");
+  const beardNumber = beardBonusMultiplier(state, "number");
+  const beardAdventure = beardBonusMultiplier(state, "adventure");
+  const beardDrop = beardBonusMultiplier(state, "drop");
+  const beardNgu = beardBonusMultiplier(state, "ngu");
+  const beardWandoos = beardBonusMultiplier(state, "wandoos");
+  const beardGold = beardBonusMultiplier(state, "gold");
+  const challengeBonuses=challengePermanentBonuses(state);
+  const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
+  const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
+  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber;
+  /*
+   * Wiki NGU (page "Advanced Training", section Formulas) : "The Bonus%
+   * for Adventure Power/Toughness is: Level^0.4 * 10" (vérifié cellule par
+   * cellule contre la table du wiki, ex. niveau 10 -> 25.12%, niveau 100 ->
+   * 63.10%, niveau 1000 -> 158.49%). L'ancienne formule (1 + sqrt(L)*0.005,
+   * soit +50% à L=10000) sous-évaluait massivement le bonus réel (+398% à
+   * L=10000) et n'avait aucune source wiki.
+   */
+  const atPowerBonus = 1 + Math.pow(Math.max(0, atPower), 0.4) * 0.1;
+  const atToughnessBonus = 1 + Math.pow(Math.max(0, atToughness), 0.4) * 0.1;
+  const attackMultiplier =
+    number *
+    beardAttack *
+    aug *
+    powerAlphaMultiplier *
+    powerBetaMultiplier *
+    diggers.stats *
+    perkBonuses.statMultiplier *
+    quirkBonuses.statMultiplier *
+    wishBonuses.statMultiplier *
+    atPowerBonus *
+    (1 + Math.log10(1 + nguAttack) * 0.10);
+
+  return {
+    attackMultiplier: attackMultiplier,
+    defenseMultiplier:
+      attackMultiplier *
+      atToughnessBonus *
+      (1 + Math.log10(1 + nguDefense) * 0.08),
+    adventureMultiplier:
+      challengeBonuses.adventureStatsMultiplier *
+      perkBonuses.adventureStatsMultiplier *
+      quirkBonuses.adventureStatsMultiplier *
+      wishBonuses.adventureStatsMultiplier *
+      beardAdventure *
+      diggers.adventure *
+      (1 + Math.sqrt(atPower) * 0.008) *
+      (1 + Math.log10(1 + nguAdventure) * 0.08) *
+      (1 + num(state.bonuses.ironPill, 0)),
+    dropMultiplier:
+      beardDrop *
+      diggers.drop *
+      perkBonuses.dropChanceMultiplier *
+      (1 + Math.log10(1 + nguDrop) * 0.05) *
+      (1 + num(adventureGear.specials?.dropChancePct, 0) / 100) *
+      (1 + num(yggPermanent.luckDropPct,0)/100) *
+      /*
+       * Blood Spaghetti (wiki NGU, page Blood Magic) — bonus de Drop
+       * Chance calculé dans castBloodSpell() mais jamais lu par ce
+       * multiplicateur jusqu'ici (bug "effet calculé mais jamais
+       * appliqué"), câblé ici pour la première fois.
+       */
+      Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
+    xpMultiplier: diggers.experience * (1 + Math.log10(1 + nguExp) * 0.03) * (1 + num(state.bonuses.cookingExp, 0)),
+    respawnReduction: clamp(
+      Math.log10(1 + nguRespawn) * 0.03 +
+      num(adventureGear.specials?.respawnReductionPct, 0) / 100,
+      0,
+      0.75
+    ),
+    adventurePowerFlat: num(adventureGear.power, 0)+num(yggPermanent.adventurePower,0)+perkBonuses.adventurePowerFlat,
+    adventureToughnessFlat: num(adventureGear.toughness, 0)+num(yggPermanent.adventureToughness,0)+perkBonuses.adventureToughnessFlat,
+    adventureHpFlat: num(adventureGear.hp, 0)+num(yggPermanent.adventureHp,0),
+    adventureRegenFlat: num(adventureGear.regen, 0)+num(yggPermanent.adventureRegen,0),
+    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier,
+    energySpeedFlat: num(adventurePermanent.energySpeedFlat, 0),
+    energyPowerFlat: num(adventurePermanent.energyPowerFlat, 0)+perkBonuses.energyPowerFlat,
+    energyBarsFlat: num(adventurePermanent.energyBarsFlat, 0)+perkBonuses.energyBarsFlat,
+    energyPowerMultiplier: perkBonuses.energyPowerMultiplier * quirkBonuses.energyPowerMultiplier * wishBonuses.energyPowerMultiplier,
+    energyBarsMultiplier: perkBonuses.energyBarsMultiplier * quirkBonuses.energyBarsMultiplier * wishBonuses.energyBarsMultiplier,
+    energyCapMultiplier: perkBonuses.energyCapMultiplier * quirkBonuses.energyCapMultiplier * wishBonuses.energyCapMultiplier,
+    magicPowerFlat: num(adventurePermanent.magicPowerFlat, 0)+perkBonuses.magicPowerFlat,
+    magicBarsFlat: num(adventurePermanent.magicBarsFlat, 0)+perkBonuses.magicBarsFlat,
+    magicCapFlat: num(adventurePermanent.magicCapFlat, 0)+perkBonuses.magicCapFlat,
+    magicPowerMultiplier: perkBonuses.magicPowerMultiplier * quirkBonuses.magicPowerMultiplier * wishBonuses.magicPowerMultiplier,
+    magicBarsMultiplier: perkBonuses.magicBarsMultiplier * quirkBonuses.magicBarsMultiplier * wishBonuses.magicBarsMultiplier,
+    magicCapMultiplier: perkBonuses.magicCapMultiplier * quirkBonuses.magicCapMultiplier * wishBonuses.magicCapMultiplier,
+    /*
+     * r3Power/Cap/BarsMultiplier : nouvelles clés, sans équivalent Perks/
+     * Quirks existant (aucune des deux catalogues Normal ne touche
+     * Resource 3 — voir idle-perks-v1.js/idle-quirks-v1.js). Resource 3
+     * est pourtant déjà une ressource de première classe ici (state.
+     * resources.r3, allouée par les Hacks) ; ces clés suivent exactement
+     * le même schéma que les six ci-dessus, alimentées pour l'instant
+     * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
+     */
+    r3PowerMultiplier: wishBonuses.r3PowerMultiplier,
+    r3CapMultiplier: wishBonuses.r3CapMultiplier,
+    r3BarsMultiplier: wishBonuses.r3BarsMultiplier,
+    boostPowerMultiplier: perkBonuses.boostPowerMultiplier * quirkBonuses.boostPowerMultiplier,
+    inventorySlotsFromPerks: perkBonuses.inventorySlots,
+    accessorySlotsFromPerks: perkBonuses.accessorySlotBonus,
+    diggerSlotBonusFromPerks: perkBonuses.diggerSlotBonus,
+    advancedTrainingStartBonusFromPerks: perkBonuses.advancedTrainingStartBonus,
+    atBankMultiplierFromPerks: perkBonuses.atBankMultiplier,
+    tmBankMultiplierFromPerks: perkBonuses.tmBankMultiplier,
+    beardBankMultiplierFromPerks: perkBonuses.beardBankMultiplier,
+    atBankMultiplierFromQuirks: quirkBonuses.atBankMultiplier,
+    tmBankMultiplierFromQuirks: quirkBonuses.tmBankMultiplier,
+    beardBankMultiplierFromQuirks: quirkBonuses.beardBankMultiplier,
+    titanExpFirstKillsMultiplierFromPerks: perkBonuses.titanExpFirstKillsMultiplier,
+    bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier,
+    seedYieldMultiplierFromPerks: perkBonuses.seedYieldMultiplier,
+    seedYieldMultiplierFromQuirks: quirkBonuses.seedYieldMultiplier,
+    lootGoblinChanceFromPerks: perkBonuses.lootGoblinChance,
+    cubeBoostRateFromPerks: perkBonuses.cubeBoostRate,
+    daycareGrowthMultiplierFromPerks: perkBonuses.daycareGrowthMultiplier,
+    firstHarvestMultiplierFromPerks: perkBonuses.firstHarvestMultiplier,
+    wandoosOsLevelBonusFromPerks: perkBonuses.wandoosOsLevelBonus,
+    doubleBasicTrainingFromPerks: perkBonuses.doubleBasicTraining,
+    disableEquipment: equipmentDisabled,
+    numberMultiplier: number,
+    augmentationMultiplier: aug,
+    timeMachineGoldPerSecond: idleNguTimeMachineGoldPerSecond(state),
+    timeMachineGrossGoldPerSecond: idleNguTimeMachineGrossGoldPerSecond(state),
+    diggerDrainGoldPerSecond: diggerDrainTotal(state),
+    diggerGlobalBonus: diggerGlobalBonus(state),
+    diggerSlots: availableDiggerSlots(state),
+    nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + Math.log10(1 + trackBonusLevel(state, "ngu", "attack")) * 0.01),
+    nguSpeedEnergyMultiplierFromPerks: perkBonuses.nguSpeedEnergyMultiplier,
+    nguSpeedMagicMultiplierFromPerks: perkBonuses.nguSpeedMagicMultiplier,
+    wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
+    beardGoldMultiplier: beardGold,
+    beardNumberMultiplier: beardNumber,
+    ppMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "pp")) * 0.04,
+    questSpeedMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "quest")) * 0.04,
+    daycareSpeedMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "daycare")) * 0.04,
+    /*
+     * hackSpeedMultiplier/wishSpeedMultiplier étaient déclarées ici à 1 en
+     * dur depuis le début, sans aucune source réelle. Câblées ici pour la
+     * première fois avec les souhaits "Hack Speed"/"Wish Speed" du
+     * catalogue réel (idle-wishes-v1.js). advanceWishTrack() calcule déjà
+     * sa propre vitesse de souhait directement via wishBonusesV1() (pour
+     * ne pas dépendre de tout idleNguBonuses() dans sa propre boucle) ;
+     * advanceHackTrack ne lit pas encore hackSpeedMultiplier — valeur
+     * correctement calculée, câblage dans les Hacks laissé pour un futur
+     * passage, comme les multiplicateurs Perks/Quirks jamais appliqués
+     * ci-dessus (energyPowerMultiplier and co.).
+     */
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier,
+    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier,
+    challengeBonuses:clone(challengeBonuses),
+    perkBonuses:clone(perkBonuses),
+    quirkBonuses:clone(quirkBonuses),
+    wishBonuses:clone(wishBonuses),
+    inventorySlotsFromChallenges:challengeBonuses.inventorySlots,
+    autoBoostUnlockedByChallenges:challengeBonuses.autoBoost,
+    autoMergeTimeMultiplierFromChallenges:challengeBonuses.autoMergeTimeMultiplier,
+    titanRespawnReductionMsFromChallenges:challengeBonuses.titanRespawnReductionMs,
+    titanLootLevelBonusFromChallenges:challengeBonuses.titanLootLevelBonus,
+    boostRecycleChanceFromChallenges:challengeBonuses.boostRecycleChance
+  };
+}
+
+function unlockInfo(def, state, context) {
+  return {
+    unlocked: Boolean(state.systems[def.id].unlocked),
+    bosses: num(def.unlock?.bosses, 0),
+    rebirths: num(def.unlock?.rebirths, 0),
+    sets: num(def.unlock?.sets, 0),
+    item: def.unlock?.item || "",
+    flag: def.unlock?.flag || "",
+    basicTrainingComplete: Boolean(def.unlock?.basicTrainingComplete)
+  };
+}
+
+/*
+ * Correctif 2026-09-14 (Norman, deuxième signalement le même jour : "je
+ * viens de lancer 1 nouvelle partie sur NGU tout en lancant une sur
+ * SOREAL IDLE. Je suis déjà à 1,5M alors que dans NGU je ne suis qu'à
+ * 350K. Il y a un souci au niveau des points de vie de départ, de la
+ * manière dont la vie remonte... rien ne correspond.") — le correctif
+ * précédent (même jour, voir historique git) citait une page wiki
+ * "Fight Boss" avec "Max HP = Attack x 10"/"HP Regen = Defense / 20" :
+ * cette page N'EXISTE PAS sur le wiki NGU (vérifié en direct au
+ * navigateur, 404) — une valeur inventée, exactement ce que Norman
+ * interdit explicitement. Cause réelle du décalage de vitesse signalé :
+ * ce ratio inventé rendait le joueur bien plus résistant que le vrai
+ * jeu, donc capable d'idle-farmer des zones largement au-dessus de son
+ * niveau réel.
+ *
+ * Vraie source, vérifiée en direct au navigateur (2026-09-14) :
+ * https://ngu-idle.fandom.com/wiki/Build_Max_HP et
+ * https://ngu-idle.fandom.com/wiki/Build_HP_Regen — ces deux pages
+ * listent les stats Power/Toughness/HP Max/HP regen de ~20 objets
+ * d'Aventure réels (UUG's Big Book of Insults, THE DEATHSTICK, Choffice
+ * Hat of Greed, etc.). Le ratio est EXACTEMENT le même sur chacun des 20
+ * objets, sans une seule exception :
+ *   HP Max = Power × 3
+ *   HP Regen = Toughness × 0.03 (3%)
+ * (ex. UUG's Big Book : Power 104 000 000 000 → HP Max 312 000 000 000
+ * = ×3 exact ; Toughness 1 600 000 000 → HP regen 48 000 000 = ×0.03
+ * exact — répété à l'identique sur Choffice Hat, Wooden Office Apron,
+ * The Titan Effigy, Tie of Apathy, etc.)
+ */
+function idleAdventureCombatStatsV1(gear, context) {
+  const g = gear && typeof gear === "object" ? gear : {};
+  return Object.assign({}, g, {
+    power: Math.max(1, num(context.adventurePower, 1)) + Math.max(0, num(g.power, 0)),
+    toughness: Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) + Math.max(0, num(g.toughness, 0)),
+    hp: Math.max(1, num(context.adventurePower, 1)) * 3 + Math.max(0, num(g.hp, 0)),
+    regen: Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) * 0.03 + Math.max(0, num(g.regen, 0))
+  });
+}
+
+export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
+  const state = syncIdleNguState(raw, context, now);
+  return {
+    version: state.version,
+    saveSchema: state.saveSchema,
+    resources: clone(state.resources),
+    resourceBudget: Object.fromEntries(
+      RESOURCE_KEYS.map(resource=>[resource,idleNguResourceBudget(state,resource,context)])
+    ),
+    currencies: clone(state.currencies),
+    records: clone(state.records),
+    rebirth: clone(state.rebirth),
+    challenge: clone(state.challenge),
+    challengeDefinitions: challengeSnapshotDefinitions(state,context),
+    challengeBonuses: challengePermanentBonuses(state),
+    bank: clone(state.bank),
+    /*
+     * 4G's Sellout Shop : le client ne doit jamais recalculer une formule
+     * de coût lui-même — chaque entrée porte déjà son coût réel pour le
+     * PROCHAIN achat (ou null si au plafond), calculé ici une seule fois.
+     */
+    selloutShop: {
+      purchases: clone(state.selloutShop.purchases),
+      catalog: IDLE_SELLOUT_SHOP_CATALOG_V1.map((item) => {
+        const purchased = Math.max(0, int(state.selloutShop.purchases[item.id], 0));
+        return {
+          id: item.id,
+          category: item.category,
+          name: item.name,
+          effect: item.effect,
+          max: item.max,
+          qty: item.qty || 0,
+          purchased,
+          nextCost: idleSelloutShopNextCostV1(item, purchased)
+        };
+      })
+    },
+    bonuses: idleNguBonuses(state),
+    adventure: (() => {
+      /*
+       * Norman (2026-09-11) : "le mode aventure est déjà débloqué [après un
+       * Rebirth]... il ne doit se débloquer qu'au niveau habituel." Vérifié
+       * contre le wiki NGU (page "Rebirths") : "Access to the Adventure...
+       * tabs [is lost] until their related bosses are beaten... Bosses
+       * fought (you go back to boss 1)." L'hypothèse inverse ci-dessous
+       * (permanence via records.highestBoss) n'a jamais été vérifiée contre
+       * le wiki et était fausse — seuls l'Inventaire et la Collection
+       * restent permanents après un Rebirth, pas l'Aventure. `context.bosses`
+       * (compteur du RUN EN COURS, remis à 0 à chaque Renaissance) est donc
+       * la SEULE source à utiliser ici, exactement comme le jeu réel.
+       */
+      const snap = idleAdventureSnapshotV47(state.adventure, num(context.bosses, 0));
+      const gear = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
+      snap.stats = idleAdventureCombatStatsV1(gear, context);
+      return snap;
+    })(),
+    earlyGameTimeline: clone(IDLE_NGU_EARLY_GAME_TIMELINE),
+    /*
+     * Audit 2026-09-13 (Norman) : "Le menu augmentation ne possède pas de
+     * barres qui montent comme dans basic training." Basic Training expose
+     * déjà skill.progress (0-1) pour animer une barre de remplissage —
+     * Augmentations exposait seulement level/upgradeLevel (un nombre entier
+     * qui saute), jamais la progression continue vers le niveau suivant.
+     * progressPct/upgradeProgressPct réutilisent la même formule de temps
+     * déjà utilisée pour VRAIMENT faire progresser le niveau
+     * (augmentationSecondsForNextLevel), jamais un second calcul inventé
+     * côté client.
+     */
+    augmentations: IDLE_NGU_AUGMENTATIONS.map((def) => {
+      const pair = state.systems.augmentations.data.pairs?.[def.id] || {};
+      const neededMain = augmentationSecondsForNextLevel(state, def, false);
+      const neededUpgrade = def.upgrade ? augmentationSecondsForNextLevel(state, def, true) : Infinity;
+      return Object.assign({}, def, {
+        progressPct: Number.isFinite(neededMain) && neededMain > 0 ? Math.max(0, Math.min(1, num(pair.progress, 0) / neededMain)) : 0,
+        upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0
+      });
+    }),
+    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
+    yggFruits: clone(IDLE_NGU_YGG_FRUITS),
+    diggerDefinitions: clone(IDLE_NGU_DIGGERS),
+    /*
+     * Audit 2026-09-14 (mission fidélité wiki) : buyPerkV1/buyQuirkV1
+     * (plus haut dans ce fichier) exigent un perkId/quirkId précis depuis
+     * longtemps (migration Perks d'une session antérieure, puis Quirks ce
+     * soir), mais AUCUN des deux catalogues (IDLE_PERKS_CATALOG_V1,
+     * IDLE_QUIRKS_CATALOG_V1) n'était exposé au client — qui n'avait donc
+     * structurellement aucun moyen de savoir quels perks/quirks existent,
+     * ni de construire un bouton d'achat avec le bon id. Résultat en jeu :
+     * le seul bouton existant ("Acheter une Maîtrise"/"Acheter une
+     * Procédure", Soreal_Idle_UI.html) envoyait l'action sans aucun id,
+     * échouant systématiquement (PERK_INTROUVABLE/QUIRK_INTROUVABLE).
+     * Mêmes gabarit et clé que diggerDefinitions ci-dessus.
+     */
+    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1),
+    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1),
+    systems: IDLE_NGU_SYSTEMS.map(def => ({
+      id: def.id,
+      name: def.name,
+      icon: def.icon,
+      kind: def.kind,
+      resources: def.resources.slice(),
+      unlock: unlockInfo(def, state, context),
+      tracks: (IDLE_NGU_TRACKS[def.id] || []).map(track => ({
+        ...track,
+        unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
+        state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
+        active:
+          state.systems[def.id].data.activeTrack === track.id &&
+          (def.id !== "beards" || state.systems[def.id].active)
+      })),
+      state: clone(state.systems[def.id])
+    }))
+  };
+}
+
+function buyResource(state, resource, stat) {
+  if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
+  if (!["speed", "power", "cap", "bars"].includes(stat)) throw new Error("STAT_RESSOURCE_INVALIDE");
+  if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  const purchase=IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat];
+  if (!purchase) throw new Error("ACHAT_RESSOURCE_INDISPONIBLE");
+  const r = state.resources[resource];
+  if (num(r[stat],0) >= purchase.hardCap - 1e-12) throw new Error("STAT_RESSOURCE_MAX");
+  if (state.currencies.experience < purchase.cost) throw new Error("EXP_INSUFFISANTE");
+  state.currencies.experience -= purchase.cost;
+  r.spentExp += purchase.cost;
+  r[stat] = Math.min(purchase.hardCap, num(r[stat],0) + purchase.gain);
+  return { resource, stat, cost:purchase.cost, gain:purchase.gain, value:r[stat] };
+}
+
+function selectTrack(state, id, trackId) {
+  const s = state.systems[id];
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const trackDef = (IDLE_NGU_TRACKS[id] || []).find(x => x.id === trackId);
+  if (!trackDef) throw new Error("PISTE_INVALIDE");
+  if (
+    id === "advancedTraining" &&
+    (trackId === "wandoosEnergy" || trackId === "wandoosMagic") &&
+    !state.systems.wandoos?.unlocked
+  ) throw new Error("SYSTEME_VERROUILLE");
+  if (id === "beards" && !beardTrackUnlocked(state, trackDef)) {
+    throw new Error("PISTE_VERROUILLEE");
+  }
+  s.data.activeTrack = trackId;
+  if (id === "beards") s.active = true;
+}
+
+function selectAugment(state, pairId, upgrade) {
+  const s = state.systems.augmentations;
+  if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const def = IDLE_NGU_AUGMENTATIONS.find(x => x.id === pairId);
+  if (!def) throw new Error("AUGMENT_INVALIDE");
+  s.data.activePair = pairId;
+  s.data.trainUpgrade = Boolean(upgrade);
+}
+
+function selectRitual(state, ritualId, context) {
+  const s = state.systems.bloodMagic;
+  if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const ritual = IDLE_NGU_BLOOD_RITUALS.find(x => x.id === ritualId);
+  if (!ritual || !ritualUnlocked(ritual, context)) throw new Error("RITUEL_VERROUILLE");
+  s.data.activeRitual = ritualId;
+}
+
+function moneyPitTierV48_(gold) {
+  const thresholds=[1e5,1e7,1e9,1e11,1e13,1e15,1e18,1e21,1e24,1e27,1e30];
+  let tier=0;
+  for(let i=0;i<thresholds.length;i+=1){
+    if(gold>=thresholds[i])tier=i+1;
+    else break;
+  }
+  return tier;
+}
+
+function tossMoneyPit(state, now) {
+  const s = state.systems.moneyPit;
+  if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (now < num(s.data.nextAt, 0)) throw new Error("PUITS_EN_RECHARGE");
+
+  // NGU rule: the pit takes ALL current gold. 100k is only the minimum
+  // required to receive a reward; the player cannot choose a smaller toss.
+  const cost = Math.floor(Math.max(0, num(state.currencies.gold, 0)));
+  if (cost < 100000) throw new Error("OR_INSUFFISANT");
+  const tier = moneyPitTierV48_(cost);
+  const tosses = Math.max(0, int(s.data.tossesThisRun, 0));
+
+  state.currencies.gold = 0;
+  s.data.tossesThisRun = tosses + 1;
+  s.data.lastTossAt = now;
+  s.data.totalGoldTossed = Math.max(0, num(s.data.totalGoldTossed, 0)) + cost;
+  const cooldownHours = 1 + tosses;
+  s.data.nextAt = now + cooldownHours * 3600000;
+  s.level = Math.max(0, int(s.level, 0)) + 1;
+
+  /*
+   * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
+   * chance... JE VEUX QUE CHAQUE STATISTIQUES SOIENT INTEGREES." Table
+   * complète relue directement sur le wiki NGU (page Money Pit, via
+   * navigateur — les résultats de recherche étaient trop incomplets) :
+   * "It's a random chance between all available rewards" — un seul
+   * type de récompense tiré au hasard PARMI ceux listés pour le palier
+   * atteint (jamais tous en même temps).
+   *
+   * Chaque palier réel liste plusieurs colonnes de récompense possibles
+   * (Adv Stat, Boost, Adv Max HP, Adv HP Regen, Equip +1lvl, EXP,
+   * Wandoos, Seeds). Seules Boost (BOOSTS=[1,2,5,10,20,50,100],
+   * exactement les forces du wiki) et EXP/Seeds (déjà de vraies
+   * monnaies SOREAL) sont buildables sans construire de toute pièce
+   * les stats Adventure séparées, l'amélioration groupée de
+   * l'équipement, le boost du Cube ou Wandoos — ces colonnes-là sont
+   * honnêtement omises (documenté ici, pas fabriqué) plutôt que
+   * remplacées par une valeur inventée.
+   */
+  const IDLE_MONEY_PIT_REWARDS_V1 = [
+    [],                                                       // tier 0 (jamais atteint, cost>=100000 déjà exigé)
+    [{ boost: 1 }],                                            // tier 1 : 100k-10M
+    [{ boost: 2 }],                                            // tier 2 : 10M-1B
+    [{ boost: 5 }],                                             // tier 3 : 1B-100B
+    [{ boost: 10 }],                                            // tier 4 : 100B-10T
+    [{ seeds: 10 }],                                            // tier 5 : 10T-1Qa
+    [{ experience: 25 }, { seeds: 25 }],                        // tier 6 : 1Qa-1Qi
+    [{ experience: 25 }, { seeds: 100 }],                       // tier 7 : 1Qi-1Sx
+    [{ experience: 200 }, { seeds: 200 }],                      // tier 8 : 1Sx-1Sp
+    [{ experience: 300 }, { seeds: 300 }],                      // tier 9 : 1Sp-1Oc
+    [{ experience: 400 }, { seeds: 500 }],                      // tier 10 : 1Oc-1No
+    [{ experience: 500 }, { seeds: 700 }]                       // tier 11 : 1No+
+  ];
+  const candidats = IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)];
+  const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
+
+  const reward = {};
+  let boostGrant = null;
+  for (const [k, v] of Object.entries(choix)) {
+    if (k === "boost") {
+      const type = ["power", "toughness", "special"][Math.floor(Math.random() * 3)];
+      boostGrant = idleAdventureBoostV1(type, v);
+    } else {
+      reward[k] = (reward[k] || 0) + v;
+    }
+  }
+
+  // Wiki (page Money Pit) : "The pit also rewards AP using the formula log10(gold)" — un bonus fixe, en plus du tirage, sur chaque tir.
+  reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
+
+  for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
+  if (boostGrant) idleAdventureAddItemV1(state.adventure, boostGrant);
+
+  return { cost, tier, reward, boost: boostGrant ? { type: boostGrant.boostType, strength: boostGrant.strength } : null, cooldownHours, nextAt: s.data.nextAt };
+}
+
+function dailySpinTierV48_(spins) {
+  const thresholds=[0,7,14,30,60,120,180,365];
+  let tier=0;
+  for(let i=0;i<thresholds.length;i+=1){
+    if(spins>=thresholds[i])tier=i;
+    else break;
+  }
+  return tier;
+}
+
+function spinDaily(state, now) {
+  const s = state.systems.dailySpin;
+  if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const previousReadyAt = Math.max(0, num(s.data.readyAt, 0));
+  if (now < previousReadyAt) throw new Error("ROUE_PAS_PRETE");
+
+  const totalBefore = Math.max(0, int(s.data.totalSpins, s.level));
+  const tier = dailySpinTierV48_(totalBefore);
+  /*
+   * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
+   * chance... JE VEUX QUE CHAQUE STATISTIQUES SOIENT INTEGREES." Table
+   * complète relue directement sur le wiki NGU (page Daily Spin, via
+   * navigateur) : chaque palier liste des lots à pourcentages RÉELS
+   * (pondérés, jamais uniformes). Les lots AP/Seeds (déjà de vraies
+   * monnaies SOREAL) sont repris avec leurs vrais pourcentages ; les
+   * lots non buildables (Potions Energy/Magic, Lucky Charm, Bar Bar,
+   * Poop, Consumables Jackpot — aucun n'existe encore côté SOREAL) sont
+   * honnêtement omis plutôt que remplacés par une valeur inventée — le
+   * jeu n'était de toute façon jamais censé donner de l'Or via la roue
+   * (l'ancienne implémentation SOREAL le faisait à tort, jamais présent
+   * sur le wiki).
+   * Tier 7 (365 spins) : le wiki documente un vrai bug du jeu original
+   * ("2000 Seeds (10%)[2]" avec la note "BUG: you get 5000 seeds
+   * instead") — repris tel quel (5000), car c'est le comportement RÉEL
+   * vécu par les joueurs, pas la valeur nominale jamais atteignable.
+   */
+  const IDLE_DAILY_SPIN_REWARDS_V1 = [
+    [{ ap: 50, poids: 70 }, { ap: 100, poids: 30 }],
+    [{ ap: 100, poids: 53 }, { ap: 200, poids: 35 }, { ap: 1000, poids: 10 }],
+    [{ ap: 200, poids: 53 }, { ap: 400, poids: 30 }, { ap: 2000, poids: 10 }],
+    [{ ap: 300, poids: 37 }, { ap: 600, poids: 25 }, { ap: 3000, poids: 10 }, { seeds: 20, poids: 10 }, { ap: 50000, poids: 0.5 }],
+    [{ ap: 500, poids: 50 }, { ap: 1000, poids: 25 }, { ap: 5000, poids: 10 }, { seeds: 100, poids: 5 }, { ap: 75000, poids: 0.5 }],
+    [{ ap: 800, poids: 36 }, { ap: 1600, poids: 25 }, { ap: 8000, poids: 10 }, { seeds: 400, poids: 10 }, { ap: 100000, poids: 0.5 }],
+    [{ ap: 1200, poids: 35 }, { ap: 2400, poids: 25 }, { ap: 12000, poids: 10 }, { seeds: 2000, poids: 10 }, { ap: 150000, poids: 0.5 }],
+    [{ ap: 1500, poids: 35 }, { ap: 3000, poids: 25 }, { ap: 15000, poids: 10 }, { seeds: 5000, poids: 10 }, { ap: 175000, poids: 0.5 }]
+  ];
+  const table = IDLE_DAILY_SPIN_REWARDS_V1[Math.min(tier, IDLE_DAILY_SPIN_REWARDS_V1.length - 1)];
+  const poidsTotal = table.reduce((sum, entree) => sum + entree.poids, 0);
+  let curseur = Math.random() * poidsTotal;
+  let choix = table[table.length - 1];
+  for (const entree of table) {
+    if (curseur < entree.poids) { choix = entree; break; }
+    curseur -= entree.poids;
+  }
+  const reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
+  for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
+
+  s.level = totalBefore + 1;
+  s.data.totalSpins = s.level;
+  // 24h cadence with up to 12h of lateness banked toward the next spin.
+  const bankedMs = Math.min(12 * 3600000, Math.max(0, now - previousReadyAt));
+  s.data.readyAt = now + 24 * 3600000 - bankedMs;
+  return { reward, tier, totalSpins: s.data.totalSpins, bankedMs, readyAt: s.data.readyAt };
+}
+
+function challengeNguLevels(state) {
+  const tracks=state.systems.ngu?.data?.tracks || {};
+  return Object.keys(tracks).reduce((sum,id)=>sum+totalTrackLevel(state.systems.ngu,id),0);
+}
+
+function challengeDefinition(id) {
+  return IDLE_NGU_NORMAL_CHALLENGES.find(def=>def.id===String(id||"")) || null;
+}
+
+function challengeUnlocked(def,state,context={}) {
+  if(!def||!state.systems.challenges?.unlocked)return false;
+  const highestBoss=Math.max(0,int(state.records.highestBoss,context.bosses||0));
+  if(def.id==="basic")return highestBoss>=58;
+  if(def.id==="noAugmentations")return highestBoss>=75;
+  if(def.id==="twentyFourHours")return num(state.challenge.bestMs?.basic,Infinity)<=24*3600000;
+  if(def.id==="hundredLevels")return challengeNguLevels(state)>=10;
+  if(def.id==="noEquipment")return Boolean(state.adventure?.completedSets?.grb||state.adventure?.setRewards?.noEquipmentChallenge);
+  if(def.id==="troll")return int(state.adventure?.titans?.t2?.kills,0)>0;
+  if(def.id==="noRebirth")return int(state.adventure?.titans?.t3?.kills,0)>0;
+  if(def.id==="laserSword")return int(state.adventure?.itemList?.laserSword?.maxLevel,-1)>=1;
+  if(def.id==="blind")return int(state.adventure?.titans?.t4?.kills,0)>0;
+  if(def.id==="noNgu")return challengeNguLevels(state)>=10000;
+  if(def.id==="noTimeMachine")return Boolean(state.systems.diggers?.unlocked);
+  return false;
+}
+
+function challengeTargetBoss(def,completion) {
+  if(!def||!def.targetBoss)return 0;
+  return Math.max(0,int(def.targetBoss,0)+Math.max(0,int(completion,0))*Math.max(0,int(def.targetStep,0)));
+}
+
+function challengeSnapshotDefinitions(state,context={}) {
+  return IDLE_NGU_NORMAL_CHALLENGES.map(def=>{
+    const completion=Math.max(0,int(state.challenge.completions?.[def.id],0));
+    return Object.assign({},clone(def),{
+      completion,
+      unlocked:challengeUnlocked(def,state,context),
+      targetBoss:challengeTargetBoss(def,completion),
+      active:state.challenge.active===def.id
+    });
+  });
+}
+
+function challengeAction(state, payload, context, now) {
+  const mode=String(payload.mode||"start");
+  if(!state.systems.challenges.unlocked)throw new Error("SYSTEME_VERROUILLE");
+
+  if(mode==="stop"){
+    const stopped=String(state.challenge.active||"");
+    state.challenge.active="";
+    state.challenge.startedAt=0;
+    return {stopped:Boolean(stopped),challenge:stopped};
+  }
+
+  const id=String(payload.challenge||state.challenge.active||"basic");
+  const def=challengeDefinition(id);
+  if(!def)throw new Error("DEFI_INVALIDE");
+
+  if(mode==="complete"){
+    if(state.challenge.active!==id)throw new Error("DEFI_NON_ACTIF");
+    const before=Math.max(0,int(state.challenge.completions[id],0));
+    const target=challengeTargetBoss(def,before);
+    if(target>0&&num(context.bosses,0)<target)throw new Error("OBJECTIF_NON_ATTEINT");
+    if(id==="twentyFourHours"&&now-num(state.challenge.startedAt,now)>24*3600000)throw new Error("DEFI_ECHOUE_TEMPS");
+
+    const elapsed=Math.max(0,now-num(state.challenge.startedAt,now));
+    const rewarded=before<Math.max(0,int(def.max,0));
+    if(rewarded){
+      state.challenge.completions[id]=before+1;
+      state.currencies.experience+=Math.max(0,num(def.reward?.experience,0));
+      state.currencies.ap+=Math.max(0,num(def.reward?.ap,0));
+    }
+    const oldBest=num(state.challenge.bestMs?.[id],Infinity);
+    state.challenge.bestMs[id]=Math.min(oldBest,elapsed);
+    state.challenge.active="";
+    state.challenge.startedAt=0;
+    return {
+      completed:id,
+      completion:Math.max(0,int(state.challenge.completions[id],0)),
+      targetBoss:target,
+      rewarded,
+      reward:rewarded?clone(def.reward):{experience:0,ap:0},
+      elapsedMs:elapsed
+    };
+  }
+
+  if(mode!=="start")throw new Error("ACTION_DEFI_INVALIDE");
+  if(state.challenge.active)throw new Error("DEFI_DEJA_ACTIF");
+  if(!challengeUnlocked(def,state,context))throw new Error("DEFI_VERROUILLE");
+  if(!def.implemented)throw new Error("DEFI_EN_PREPARATION");
+
+  applyRebirthResetV56_(state,context,now,{
+    forceNumber:1,
+    clearBanks:true,
+    challengeId:id
+  });
+
+  return {
+    started:id,
+    challengeReset:true,
+    targetBoss:challengeTargetBoss(def,state.challenge.completions[id]),
+    number:state.rebirth.number,
+    banksCleared:true
+  };
+}
+
+function titanFight(state, context, now) {
+  const s = state.systems.titans;
+  if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+
+  // Single source of truth: the first Titan is fought by the Adventure V47
+  // engine. This keeps cooldown, guaranteed consumables and gear drops in
+  // the same persisted state as the Adventure screen.
+  const titanChallengeBonuses=challengePermanentBonuses(state);
+  const applied = applyIdleAdventureActionV47(
+    state.adventure,
+    {
+      action: "titan",
+      titanId: "t1",
+      stats: {
+        power: Math.max(0, num(context.adventurePower, 0)),
+        toughness: Math.max(0, num(context.adventureToughness, context.adventurePower || 0))
+      }
+    },
+    Object.assign({},context,{
+      titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
+      titanLootLevelBonus:titanChallengeBonuses.titanLootLevelBonus
+    }),
+    now
+  );
+  state.adventure = applied.state;
+
+  const titanState = state.adventure?.titans?.t1 || { kills: 0, nextAt: 0 };
+  s.data.kills = Math.max(0, int(titanState.kills, 0));
+  s.data.firstTitanDefeated = s.data.kills > 0;
+  s.data.nextAt = Math.max(0, num(titanState.nextAt, 0));
+  s.level = s.data.kills;
+
+  return Object.assign(
+    { tier: 1, nextAt: s.data.nextAt },
+    applied.result || {}
+  );
+}
+
+function collectSystem(state, id, context, now) {
+  if (id === "dailySpin") return spinDaily(state, now);
+  if (id === "bloodMagic") return castBloodSpell(state, String(context.spell || "numberBoost"));
+  if (id === "yggdrasil") {
+    const s = state.systems.yggdrasil;
+    if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    const harvests = Math.floor(num(s.data.growth, 0));
+    if (harvests <= 0) throw new Error("RIEN_A_RECOLTER");
+    s.data.growth -= harvests;
+    state.currencies.seeds += harvests;
+    s.level += harvests;
+    return { harvests };
+  }
+  throw new Error("ACTION_NON_DISPONIBLE");
+}
+
+/*
+ * Real per-perk purchase (IDLE_PERKS_CATALOG_V1) — one specific perk id,
+ * its own flat per-level cost, up to its own cap. Replaces the previous
+ * generic "buyTree" fake single-counter/exponential-cost model for
+ * "perks" specifically; the same migration (buyQuirkV1, below) has since
+ * been done for "quirks" — buyTree had no remaining callers and was
+ * removed (audit 2026-09-14).
+ */
+function buyPerkV1(state, perkId) {
+  const s = state.systems.perks;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const perk = idlePerkByIdV1(int(perkId, -1));
+  if (!perk) throw new Error("PERK_INTROUVABLE");
+  const levels = s.data && typeof s.data === "object" ? s.data.levels : null;
+  const currentLevel = Math.max(0, int(levels?.[perk.id], 0));
+  const cost = idlePerkNextCostV1(perk, currentLevel);
+  if (!Number.isFinite(cost)) throw new Error("PERK_AU_MAXIMUM");
+  if (state.currencies.pp < cost) throw new Error("MONNAIE_INSUFFISANTE");
+  state.currencies.pp -= cost;
+  if (!s.data || typeof s.data !== "object") s.data = { levels: {} };
+  if (!s.data.levels || typeof s.data.levels !== "object") s.data.levels = {};
+  s.data.levels[perk.id] = currentLevel + 1;
+  s.level = Object.values(s.data.levels).reduce((sum, v) => sum + Math.max(0, int(v, 0)), 0);
+  return { cost, perkId: perk.id, level: currentLevel + 1, cap: perk.cap };
+}
+
+/*
+ * Real per-quirk purchase (IDLE_QUIRKS_CATALOG_V1) — one specific quirk id,
+ * its own flat per-level cost, up to its own cap. Replaces the previous
+ * buyTree(state, "quirks", "qp", 50) fake single-counter/exponential-cost
+ * call (audit 2026-09-14, wiki NGU page Quirk Points) — same migration
+ * buyPerkV1 already did for Perks.
+ */
+function buyQuirkV1(state, quirkId) {
+  const s = state.systems.quirks;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const quirk = idleQuirkByIdV1(int(quirkId, -1));
+  if (!quirk) throw new Error("QUIRK_INTROUVABLE");
+  const levels = s.data && typeof s.data === "object" ? s.data.levels : null;
+  const currentLevel = Math.max(0, int(levels?.[quirk.id], 0));
+  const cost = idleQuirkNextCostV1(quirk, currentLevel);
+  if (!Number.isFinite(cost)) throw new Error("QUIRK_AU_MAXIMUM");
+  if (state.currencies.qp < cost) throw new Error("MONNAIE_INSUFFISANTE");
+  state.currencies.qp -= cost;
+  if (!s.data || typeof s.data !== "object") s.data = { levels: {} };
+  if (!s.data.levels || typeof s.data.levels !== "object") s.data.levels = {};
+  s.data.levels[quirk.id] = currentLevel + 1;
+  s.level = Object.values(s.data.levels).reduce((sum, v) => sum + Math.max(0, int(v, 0)), 0);
+  return { cost, quirkId: quirk.id, level: currentLevel + 1, cap: quirk.cap };
+}
+
+export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
+  const t = nowMs(now);
+  const state = syncIdleNguState(raw, context, t);
+  const action = String(payload.action || "").trim();
+  let result = {};
+
+  if (action === "adventure") {
+    const experienceBefore = num(state.adventure?.permanent?.experience, 0);
+    const goldBefore = num(state.adventure?.permanent?.gold, 0);
+    /*
+     * Norman (2026-09-14) : "est-ce que tu as ajouté les bonus des sets
+     * complets ?" — checkSets() (idle-adventure-v47.js) crédite déjà
+     * correctement experience/gold/energySpeedFlat/energyPowerFlat/
+     * energyBarsFlat/magicPowerFlat/magicBarsFlat/magicCapFlat (lus par
+     * idleNguPermanentBonusesV1 plus bas et par le diff experience/gold
+     * ci-dessous) — mais l'AP de complétion (ex. Badly Drawn Set : 5000,
+     * Stealth Set : 10000, UUG's Rings : 20000) restait dans
+     * adventure.permanent.ap SANS jamais être diffé vers la vraie
+     * monnaie state.currencies.ap, contrairement à experience et gold
+     * juste au-dessus (même schéma, oublié pour l'AP spécifiquement).
+     */
+    const apBefore = num(state.adventure?.permanent?.ap, 0);
+    const applied = applyIdleAdventureActionV47(
+      state.adventure,
+      payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload,
+      Object.assign({}, context, {
+        dropChancePct: num(context.dropChancePct, 0),
+        titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
+        titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
+        adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context)
+      }),
+      t
+    );
+    state.adventure = applied.state;
+    const experienceAfter = num(state.adventure?.permanent?.experience, experienceBefore);
+    if (experienceAfter > experienceBefore) {
+      state.currencies.experience += experienceAfter - experienceBefore;
+    }
+    /*
+     * Norman (2026-09-11) : "il faut aussi regarder ce que les mobs sont
+     * supposés looter. Il faut qu'ils lootent des golds aussi." Même
+     * schéma que l'expérience juste au-dessus : l'or gagné vit dans
+     * state.adventure.permanent.gold (idle-adventure-v47.js, rollKill),
+     * diffé ici vers la vraie monnaie partagée (state.currencies.gold,
+     * déjà utilisée par Augmentations/Time Machine/Blood Magic).
+     */
+    const goldAfter = num(state.adventure?.permanent?.gold, goldBefore);
+    if (goldAfter > goldBefore) {
+      state.currencies.gold += goldAfter - goldBefore;
+    }
+    const apAfter = num(state.adventure?.permanent?.ap, apBefore);
+    if (apAfter > apBefore) {
+      state.currencies.ap += apAfter - apBefore;
+    }
+    result = applied.result || {};
+    // Consuming one of the permanent unlock items should immediately expose
+    // the corresponding system without waiting for another server tick.
+    for (const def of IDLE_NGU_SYSTEMS) {
+      if (unlockSatisfied(def, context, state)) state.systems[def.id].unlocked = true;
+    }
+  } else if (action === "allocate") {
+    setAllocation(
+      state,
+      String(payload.system || ""),
+      String(payload.resource || ""),
+      num(payload.value, 0),
+      context
+    );
+  } else if (action === "reclaimResource") {
+    result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
+  } else if (action === "selectTrack") {
+    selectTrack(state, String(payload.system || ""), String(payload.track || ""));
+  } else if (action === "selectAugment") {
+    selectAugment(state, String(payload.pair || "scissors"), Boolean(payload.upgrade));
+  } else if (action === "selectRitual") {
+    selectRitual(state, String(payload.ritual || "tack"), context);
+  } else if (action === "castBloodSpell") {
+    result = castBloodSpell(state, String(payload.spell || "numberBoost"));
+  } else if (action === "toggle") {
+    const s = state.systems[String(payload.system || "")];
+    if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    s.active = payload.active === undefined ? !s.active : Boolean(payload.active);
+  } else if (action === "buyResource") {
+    result = buyResource(state, String(payload.resource || ""), String(payload.stat || "power"));
+  } else if (action === "upgradeYggFruit") {
+    result = upgradeYggFruit(state,String(payload.fruit||"gold"));
+  } else if (action === "activateYggFruit") {
+    result = activateYggFruit(state,String(payload.fruit||"gold"));
+  } else if (action === "useYggFruit") {
+    result = useYggFruit(state,String(payload.fruit||"gold"),String(payload.mode||"eat"));
+  } else if (action === "upgradeDigger") {
+    result = upgradeDigger(state,String(payload.digger||"drop"));
+  } else if (action === "setDiggerLevel") {
+    result = setDiggerLevel(state,String(payload.digger||"drop"),payload.level);
+  } else if (action === "toggleDigger") {
+    result = toggleDigger(state,String(payload.digger||"drop"),payload.active);
+  } else if (action === "buyPerk") {
+    result = buyPerkV1(state, payload.perkId);
+  } else if (action === "sellShopBuy") {
+    result = idleSelloutShopBuyV1(state, payload.itemId);
+  } else if (action === "buyQuirk") {
+    result = buyQuirkV1(state, payload.quirkId);
+  } else if (action === "collect") {
+    const id = String(payload.system || "");
+    result = collectSystem(state, id, Object.assign({}, context, { spell: payload.spell }), t);
+  } else if (action === "challenge") {
+    result = challengeAction(state, payload, context, t);
+  } else if (action === "titan") {
+    result = titanFight(state, context, t);
+    for (const def of IDLE_NGU_SYSTEMS) {
+      if (unlockSatisfied(def, context, state)) state.systems[def.id].unlocked = true;
+    }
+  } else if (action === "moneyPit") {
+    result = tossMoneyPit(state, t);
+  } else if (action === "difficulty") {
+    if (String(payload.value || "normal") !== "normal") throw new Error("DIFFICULTE_HORS_EARLY_GAME");
+  } else if (action === "buyDigger") {
+    result = upgradeDigger(state,String(payload.digger||"drop"));
+  } else {
+    throw new Error("ACTION_META_INCONNUE");
+  }
+
+  state.updatedAt = t;
+  state.rebirth = refreshRebirthState(state, context, t);
+  return { state, result };
+}
+
+function resetRunSystem(def, s) {
+  s.progress = 0;
+  s.active = false;
+  s.allocation = { energy: 0, magic: 0, r3: 0 };
+  if ((IDLE_NGU_TRACKS[def.id] || []).length) {
+    for (const t of Object.values(s.data.tracks || {})) {
+      t.tempLevel = 0;
+      t.progress = 0;
+    }
+    s.tempLevel = 0;
+  }
+}
+
+function applyNaturalEnergyCapGrowthOnRebirth(state){
+  const r=state.resources.energy;
+  if(!r)return 0;
+  const generated=Math.max(0,num(r.generatedThisRun,0));
+  const rawGain=Math.floor(generated/20);
+  const room=Math.max(0,100000-Math.min(100000,num(r.cap,0)));
+  const gain=Math.min(rawGain,room);
+  if(gain>0)r.cap+=gain;
+  return gain;
+}
+
+function applyRebirthResetV56_(state,context,t,options={}) {
+  const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
+  const rb=refreshRebirthState(state,context,t);
+  const challengeBefore=String(state.challenge?.active||"");
+  const challengeStartedBefore=Math.max(0,num(state.challenge?.startedAt,0));
+  const forced=options.forceNumber===undefined||options.forceNumber===null
+    ?null
+    :Math.max(1,num(options.forceNumber,1));
+  const committedNumber=forced===null?rb.nextNumber:forced;
+
+  rb.lastNumber=rb.number;
+  rb.number=committedNumber;
+  rb.lastBosses=Math.max(0,int(context.bosses,0));
+  rb.lastRunSeconds=runSeconds;
+  rb.hasPreviousRun=true;
+  rb.canRebirth=false;
+
+  /*
+   * Wiki NGU (page "Banks") : les Perks/Quirks "Level Bank" retiennent, à
+   * chaque Rebirth, un pourcentage CUMULATIF (simple addition des paliers,
+   * pas multiplicatif — confirmé par la colonne "Cumulative bonus" de la
+   * page, ex. 5 x 10% Perks + 5 x 5% Quirks = 75%) du niveau atteint en fin
+   * de run pour la prochaine run : Time Machine (Speed et Gold séparément)
+   * et Beards (niveau temporaire de la track active). Avant ce correctif,
+   * seule la LECTURE de state.bank.timeMachineSpeed/Gold existait (elle
+   * réamorce bien la run suivante) mais rien n'écrivait jamais dedans, et
+   * state.bank.beards n'était ni lu ni écrit : les achats Perks/Quirks
+   * "Level Bank" (déjà catalogués, cf idle-perks-v1.js / idle-quirks-v1.js)
+   * étaient donc totalement inertes pour ces deux systèmes.
+   */
+  const tmSpeedLevelEnd=Math.max(0,num(state.systems.timeMachine.data.speedLevel,0));
+  const tmGoldLevelEnd=Math.max(0,num(state.systems.timeMachine.data.goldLevel,0));
+  const beardsSys=state.systems.beards;
+  const beardActiveId=beardsSys?.active?(beardsSys.data?.activeTrack||""):"";
+  const beardTempLevelEnd=beardActiveId&&beardsSys?.data?.tracks?.[beardActiveId]
+    ?Math.max(0,num(beardsSys.data.tracks[beardActiveId].tempLevel,0))
+    :0;
+
+  const beardConversion=convertActiveBeardOnRebirth(state,runSeconds);
+  const naturalEnergyCapGain=applyNaturalEnergyCapGrowthOnRebirth(state);
+
+  const perkBankBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
+  const quirkBankBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const tmBankPct=Math.max(0,(perkBankBonuses.tmBankMultiplier-1)+(quirkBankBonuses.tmBankMultiplier-1));
+  const beardBankPct=Math.max(0,(perkBankBonuses.beardBankMultiplier-1)+(quirkBankBonuses.beardBankMultiplier-1));
+  state.bank.timeMachineSpeed=Math.floor(tmSpeedLevelEnd*tmBankPct);
+  state.bank.timeMachineGold=Math.floor(tmGoldLevelEnd*tmBankPct);
+  state.bank.beards=Math.floor(beardTempLevelEnd*beardBankPct);
+
+  if(options.clearBanks){
+    state.bank.advancedTraining=0;
+    state.bank.timeMachineSpeed=0;
+    state.bank.timeMachineGold=0;
+    state.bank.beards=0;
+  }
+
+  for(const resource of RESOURCE_KEYS){
+    const r=state.resources[resource];
+    if(!r)continue;
+    r.current=0;
+    r.fillProgress=0;
+    r.generatedThisRun=0;
+  }
+
+  for(const def of IDLE_NGU_SYSTEMS){
+    const s=state.systems[def.id];
+    if(def.kind==="run")resetRunSystem(def,s);
+    if(def.id==="augmentations")s.data=createAugmentationData();
+    if(def.id==="timeMachine"){
+      const speedBank=Math.max(0,int(state.bank.timeMachineSpeed,0));
+      const goldBank=Math.max(0,int(state.bank.timeMachineGold,0));
+      s.data=createTimeMachineData();
+      s.data.speedLevel=speedBank;
+      s.data.goldLevel=goldBank;
+      s.level=speedBank+goldBank;
+      s.tempLevel=s.level;
+    }
+    if(def.id==="bloodMagic"){
+      const permanent=clone(s.data.spells);
+      s.data=createBloodMagicData();
+      s.data.spells.ironPill=Math.max(0,num(permanent.ironPill,0));
+    }
+    if(def.id==="beards"&&s.data?.tracks){
+      // Wiki NGU (page "Banks") : "banked Beard levels apply right away [on
+      // rebirth], without needing to first hit the E/M cap" — the banked
+      // amount seeds the NEXT active track's temp level immediately,
+      // exactly like Time Machine's speed/gold bank above.
+      const beardBank=Math.max(0,int(state.bank.beards,0));
+      const nextActiveId=s.data.activeTrack||"";
+      const nextTrack=nextActiveId?s.data.tracks[nextActiveId]:null;
+      if(nextTrack&&beardBank>0)nextTrack.tempLevel=beardBank;
+      s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
+    }
+  }
+
+  // Gold and Blood are run currencies in NGU. Permanent currencies survive.
+  state.currencies.gold=0;
+  state.currencies.blood=0;
+
+  if(state.systems.yggdrasil?.data){
+    const ygg=state.systems.yggdrasil.data;
+    ygg.reserved={energy:0,magic:0};
+    ygg.runPowerAlphaValue=0;
+    ygg.runPowerBetaActive=false;
+    ygg.runNumbersActive=false;
+    for(const f of Object.values(ygg.fruits||{})){
+      f.active=false;
+      f.growthHours=0;
+      f.firstHarvestThisRun=true;
+    }
+  }
+
+  {
+    const pit=state.systems.moneyPit.data;
+    const last=Math.max(0,num(pit.lastTossAt,0));
+    pit.tossesThisRun=0;
+    pit.nextAt=last>0?last+3600000:0;
+  }
+
+  const challengeAfter=options.challengeId!==undefined
+    ?String(options.challengeId||"")
+    :challengeBefore;
+  state.challenge.active=challengeAfter;
+  state.challenge.startedAt=options.challengeId!==undefined
+    ?(challengeAfter?t:0)
+    :(challengeAfter?challengeStartedBefore:0);
+
+  state.records.totalRebirths+=1;
+  state.runStartedAt=t;
+  state.updatedAt=t;
+  state.rebirth=rb;
+  state.rebirth.nextNumber=rb.number;
+  state.rebirth.preview={};
+  state.rebirth.beardConversion=beardConversion;
+  state.rebirth.resourceGrowth={energyCapGain:naturalEnergyCapGain};
+  return state;
+}
+
+export function rebirthIdleNguState(raw,context={},now=Date.now()) {
+  const t=nowMs(now);
+  const state=syncIdleNguState(raw,context,t);
+  if(state.challenge?.active==="noRebirth")throw new Error("REBIRTH_INTERDITE_DEFI");
+  const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
+  if(runSeconds<MIN_REBIRTH_SECONDS)throw new Error("REBIRTH_TROP_TOT");
+  return applyRebirthResetV56_(state,context,t,{});
+}
