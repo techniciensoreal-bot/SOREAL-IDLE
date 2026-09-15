@@ -8,7 +8,13 @@
     "basePuissance": 2,
     "goldMin": 12,
     "goldMax": 16,
-    "setTheme": "Tenue Bénévole"
+    "setTheme": "Tenue Bénévole",
+    "enemyName": "Carton Mal Fermé",
+    "bossName": "Le Chariot Récalcitrant",
+    "pvEnnemi": 80,
+    "attaqueEnnemi": 2,
+    "pvBoss": 640,
+    "attaqueBoss": 16
   },
   {
     "zone": 3,
@@ -19,7 +25,13 @@
     "basePuissance": 2.1,
     "goldMin": 13,
     "goldMax": 17,
-    "setTheme": "Tenue Encombrants"
+    "setTheme": "Tenue Encombrants",
+    "enemyName": "Frigo Qui Fuit",
+    "bossName": "La Palette Infernale",
+    "pvEnnemi": 84,
+    "attaqueEnnemi": 2,
+    "pvBoss": 672,
+    "attaqueBoss": 17
   },
   {
     "zone": 4,
@@ -30,7 +42,13 @@
     "basePuissance": 2.5,
     "goldMin": 14,
     "goldMax": 18,
-    "setTheme": "Tenue Forestière"
+    "setTheme": "Tenue Forestière",
+    "enemyName": "Pile de Cagettes",
+    "bossName": "Le Transpalette Sauvage",
+    "pvEnnemi": 100,
+    "attaqueEnnemi": 3,
+    "pvBoss": 800,
+    "attaqueBoss": 20
   },
   {
     "zone": 5,
@@ -41,7 +59,13 @@
     "basePuissance": 3,
     "goldMin": 15,
     "goldMax": 21,
-    "setTheme": "Tenue Cave"
+    "setTheme": "Tenue Cave",
+    "enemyName": "Yaourt Explosif",
+    "bossName": "Le Fromage Ambulant",
+    "pvEnnemi": 120,
+    "attaqueEnnemi": 3,
+    "pvBoss": 960,
+    "attaqueBoss": 24
   },
   {
     "zone": 6,
@@ -52,7 +76,13 @@
     "basePuissance": 3.7,
     "goldMin": 17,
     "goldMax": 23,
-    "setTheme": "Tenue Aérienne"
+    "setTheme": "Tenue Aérienne",
+    "enemyName": "Colis Volant",
+    "bossName": "Le Camion sans Chauffeur",
+    "pvEnnemi": 148,
+    "attaqueEnnemi": 4,
+    "pvBoss": 1184,
+    "attaqueBoss": 30
   },
   {
     "zone": 7,
@@ -63,7 +93,13 @@
     "basePuissance": 3.7,
     "goldMin": 17,
     "goldMax": 23,
-    "setTheme": "Tenue Sécurité"
+    "setTheme": "Tenue Sécurité",
+    "enemyName": "Vigile Trop Zélé",
+    "bossName": "Le Digicode Vivant",
+    "pvEnnemi": 148,
+    "attaqueEnnemi": 4,
+    "pvBoss": 1184,
+    "attaqueBoss": 30
   },
   {
     "zone": 8,
@@ -74,7 +110,13 @@
     "basePuissance": 4.3,
     "goldMin": 19,
     "goldMax": 25,
-    "setTheme": "Tenue Toque"
+    "setTheme": "Tenue Toque",
+    "enemyName": "-",
+    "bossName": "Le Chef Boulanger Furieux",
+    "pvEnnemi": 172,
+    "attaqueEnnemi": 4,
+    "pvBoss": 1376,
+    "attaqueBoss": 34
   },
   {
     "zone": 9,
@@ -85,7 +127,13 @@
     "basePuissance": 4.8,
     "goldMin": 20,
     "goldMax": 26,
-    "setTheme": "Tenue Horlogère"
+    "setTheme": "Tenue Horlogère",
+    "enemyName": "Planning Contradictoire",
+    "bossName": "L'Horaire Qui Se Contredit",
+    "pvEnnemi": 192,
+    "attaqueEnnemi": 5,
+    "pvBoss": 1536,
+    "attaqueBoss": 38
   },
   {
     "zone": 10,
@@ -96,7 +144,13 @@
     "basePuissance": 5,
     "goldMin": 20,
     "goldMax": 28,
-    "setTheme": "Tenue Racines"
+    "setTheme": "Tenue Racines",
+    "enemyName": "-",
+    "bossName": "Le Grand Chêne Périmé",
+    "pvEnnemi": 200,
+    "attaqueEnnemi": 5,
+    "pvBoss": 1600,
+    "attaqueBoss": 40
   },
   {
     "zone": 11,
@@ -107,7 +161,13 @@
     "basePuissance": 5.2,
     "goldMin": 20,
     "goldMax": 28,
-    "setTheme": "Tenue Carton Plat"
+    "setTheme": "Tenue Carton Plat",
+    "enemyName": "Carton Écrasé",
+    "bossName": "Le Meuble IKEA Incompréhensible",
+    "pvEnnemi": 208,
+    "attaqueEnnemi": 5,
+    "pvBoss": 1664,
+    "attaqueBoss": 42
   },
   {
     "zone": 12,
@@ -118,7 +178,13 @@
     "basePuissance": 5.9,
     "goldMin": 22,
     "goldMax": 30,
-    "setTheme": "Tenue Poussiéreuse"
+    "setTheme": "Tenue Poussiéreuse",
+    "enemyName": "Toile d’Araignée Géante",
+    "bossName": "L'Inventaire Fantôme",
+    "pvEnnemi": 236,
+    "attaqueEnnemi": 6,
+    "pvBoss": 1888,
+    "attaqueBoss": 47
   },
   {
     "zone": 13,
@@ -129,7 +195,13 @@
     "basePuissance": 6.1,
     "goldMin": 23,
     "goldMax": 31,
-    "setTheme": "Tenue Bureau"
+    "setTheme": "Tenue Bureau",
+    "enemyName": "-",
+    "bossName": "Le Comptable Hanté",
+    "pvEnnemi": 244,
+    "attaqueEnnemi": 6,
+    "pvBoss": 1952,
+    "attaqueBoss": 49
   },
   {
     "zone": 14,
@@ -140,7 +212,13 @@
     "basePuissance": 6.9,
     "goldMin": 24,
     "goldMax": 32,
-    "setTheme": "Tenue Improbable"
+    "setTheme": "Tenue Improbable",
+    "enemyName": "Chose Indescriptible",
+    "bossName": "Le Truc Qui Ne Devrait Pas Être Là",
+    "pvEnnemi": 276,
+    "attaqueEnnemi": 7,
+    "pvBoss": 2208,
+    "attaqueBoss": 55
   },
   {
     "zone": 15,
@@ -151,7 +229,13 @@
     "basePuissance": 8.9,
     "goldMin": 28,
     "goldMax": 38,
-    "setTheme": "Tenue Méga"
+    "setTheme": "Tenue Méga",
+    "enemyName": "Rayonnage XXL",
+    "bossName": "Le Monte-Charge Géant",
+    "pvEnnemi": 356,
+    "attaqueEnnemi": 9,
+    "pvBoss": 2848,
+    "attaqueBoss": 71
   },
   {
     "zone": 16,
@@ -162,7 +246,13 @@
     "basePuissance": 10,
     "goldMin": 30,
     "goldMax": 40,
-    "setTheme": "Tenue Givrée"
+    "setTheme": "Tenue Givrée",
+    "enemyName": "-",
+    "bossName": "Le Congélateur Sans Nom",
+    "pvEnnemi": 400,
+    "attaqueEnnemi": 10,
+    "pvBoss": 3200,
+    "attaqueBoss": 80
   },
   {
     "zone": 17,
@@ -173,7 +263,13 @@
     "basePuissance": 12.7,
     "goldMin": 34,
     "goldMax": 46,
-    "setTheme": "Tenue Barbue"
+    "setTheme": "Tenue Barbue",
+    "enemyName": "Sac Plastique Barbu",
+    "bossName": "Le Trieur de Vêtements Millénaire",
+    "pvEnnemi": 508,
+    "attaqueEnnemi": 13,
+    "pvBoss": 4064,
+    "attaqueBoss": 102
   },
   {
     "zone": 18,
@@ -184,7 +280,13 @@
     "basePuissance": 13.3,
     "goldMin": 35,
     "goldMax": 47,
-    "setTheme": "Tenue Vagabonde"
+    "setTheme": "Tenue Vagabonde",
+    "enemyName": "-",
+    "bossName": "Le Palettiseur Fou",
+    "pvEnnemi": 532,
+    "attaqueEnnemi": 13,
+    "pvBoss": 4256,
+    "attaqueBoss": 106
   },
   {
     "zone": 19,
@@ -195,7 +297,13 @@
     "basePuissance": 19.1,
     "goldMin": 43,
     "goldMax": 57,
-    "setTheme": "Tenue Griffonnée"
+    "setTheme": "Tenue Griffonnée",
+    "enemyName": "Étiquette Illisible",
+    "bossName": "Le Formulaire Mal Rempli",
+    "pvEnnemi": 764,
+    "attaqueEnnemi": 19,
+    "pvBoss": 6112,
+    "attaqueBoss": 153
   },
   {
     "zone": 20,
@@ -206,7 +314,13 @@
     "basePuissance": 26.1,
     "goldMin": 50,
     "goldMax": 68,
-    "setTheme": "Tenue Discrète"
+    "setTheme": "Tenue Discrète",
+    "enemyName": "Place de Parking Fantôme",
+    "bossName": "L'Attente Interminable",
+    "pvEnnemi": 1044,
+    "attaqueEnnemi": 26,
+    "pvBoss": 8352,
+    "attaqueBoss": 209
   },
   {
     "zone": 21,
@@ -217,7 +331,13 @@
     "basePuissance": 43,
     "goldMin": 66,
     "goldMax": 90,
-    "setTheme": "Tenue Gluante"
+    "setTheme": "Tenue Gluante",
+    "enemyName": "-",
+    "bossName": "La Bête du Quai 12",
+    "pvEnnemi": 1720,
+    "attaqueEnnemi": 43,
+    "pvBoss": 13760,
+    "attaqueBoss": 344
   },
   {
     "zone": 22,
@@ -228,7 +348,13 @@
     "basePuissance": 65,
     "goldMin": 82,
     "goldMax": 112,
-    "setTheme": "Tenue Chocolat"
+    "setTheme": "Tenue Chocolat",
+    "enemyName": "Tablette Fondue",
+    "bossName": "Le Distributeur Détraqué",
+    "pvEnnemi": 2600,
+    "attaqueEnnemi": 65,
+    "pvBoss": 20800,
+    "attaqueBoss": 520
   },
   {
     "zone": 23,
@@ -239,7 +365,13 @@
     "basePuissance": 138,
     "goldMin": 125,
     "goldMax": 169,
-    "setTheme": "Tenue Sombre"
+    "setTheme": "Tenue Sombre",
+    "enemyName": "Ombre du Sous-sol",
+    "bossName": "L'Ascenseur Qui Descend Trop Loin",
+    "pvEnnemi": 5520,
+    "attaqueEnnemi": 138,
+    "pvBoss": 44160,
+    "attaqueBoss": 1104
   },
   {
     "zone": 24,
@@ -250,7 +382,13 @@
     "basePuissance": 178,
     "goldMin": 144,
     "goldMax": 194,
-    "setTheme": "Tenue Princesse"
+    "setTheme": "Tenue Princesse",
+    "enemyName": "Peluche Vengeresse",
+    "bossName": "La Licorne Comptable",
+    "pvEnnemi": 7120,
+    "attaqueEnnemi": 178,
+    "pvBoss": 56960,
+    "attaqueBoss": 1424
   },
   {
     "zone": 25,
@@ -261,7 +399,13 @@
     "basePuissance": 316,
     "goldMin": 197,
     "goldMax": 267,
-    "setTheme": "Tenue Stagiaire"
+    "setTheme": "Tenue Stagiaire",
+    "enemyName": "-",
+    "bossName": "Le Stagiaire Graisseux",
+    "pvEnnemi": 12640,
+    "attaqueEnnemi": 316,
+    "pvBoss": 101120,
+    "attaqueBoss": 2528
   },
   {
     "zone": 26,
@@ -272,7 +416,13 @@
     "basePuissance": 428,
     "goldMin": 232,
     "goldMax": 314,
-    "setTheme": "Tenue Numérique"
+    "setTheme": "Tenue Numérique",
+    "enemyName": "Ligne Excel Corrompue",
+    "bossName": "Le Tableur Devenu Conscient",
+    "pvEnnemi": 17120,
+    "attaqueEnnemi": 428,
+    "pvBoss": 136960,
+    "attaqueBoss": 3424
   },
   {
     "zone": 27,
@@ -283,7 +433,13 @@
     "basePuissance": 610,
     "goldMin": 282,
     "goldMax": 382,
-    "setTheme": "Tenue Fête"
+    "setTheme": "Tenue Fête",
+    "enemyName": "Confetti Increvable",
+    "bossName": "Le DJ Bénévole Possédé",
+    "pvEnnemi": 24400,
+    "attaqueEnnemi": 610,
+    "pvBoss": 195200,
+    "attaqueBoss": 4880
   },
   {
     "zone": 28,
@@ -294,7 +450,13 @@
     "basePuissance": 1179,
     "goldMin": 405,
     "goldMax": 549,
-    "setTheme": "Tenue Mafia"
+    "setTheme": "Tenue Mafia",
+    "enemyName": "-",
+    "bossName": "La Marraine du Quai",
+    "pvEnnemi": 47160,
+    "attaqueEnnemi": 1179,
+    "pvBoss": 377280,
+    "attaqueBoss": 9432
   },
   {
     "zone": 29,
@@ -305,7 +467,13 @@
     "basePuissance": 1652,
     "goldMin": 488,
     "goldMax": 660,
-    "setTheme": "Tenue Mal Orthographiée"
+    "setTheme": "Tenue Mal Orthographiée",
+    "enemyName": "Corecteur Automqtique",
+    "bossName": "Le Boss Que Presqno Ne Sait Pas Écrire",
+    "pvEnnemi": 66080,
+    "attaqueEnnemi": 1652,
+    "pvBoss": 528640,
+    "attaqueBoss": 13216
   },
   {
     "zone": 30,
@@ -316,7 +484,13 @@
     "basePuissance": 2038,
     "goldMin": 547,
     "goldMax": 741,
-    "setTheme": "Tenue Tendance"
+    "setTheme": "Tenue Tendance",
+    "enemyName": "Legging Démodé",
+    "bossName": "L'Influenceur du Rayon Promo",
+    "pvEnnemi": 81520,
+    "attaqueEnnemi": 2038,
+    "pvBoss": 652160,
+    "attaqueBoss": 16304
   },
   {
     "zone": 31,
@@ -327,7 +501,13 @@
     "basePuissance": 2619,
     "goldMin": 628,
     "goldMax": 850,
-    "setTheme": "Tenue Héroïque"
+    "setTheme": "Tenue Héroïque",
+    "enemyName": "PNJ Sans Réplique",
+    "bossName": "Le Boss Final du Planning",
+    "pvEnnemi": 104760,
+    "attaqueEnnemi": 2619,
+    "pvBoss": 838080,
+    "attaqueBoss": 20952
   },
   {
     "zone": 32,
@@ -338,7 +518,13 @@
     "basePuissance": 4657,
     "goldMin": 861,
     "goldMax": 1165,
-    "setTheme": "Tenue Exil"
+    "setTheme": "Tenue Exil",
+    "enemyName": "-",
+    "bossName": "L'Ancien Responsable Banni",
+    "pvEnnemi": 186280,
+    "attaqueEnnemi": 4657,
+    "pvBoss": 1490240,
+    "attaqueBoss": 37256
   },
   {
     "zone": 33,
@@ -349,7 +535,13 @@
     "basePuissance": 7522,
     "goldMin": 1120,
     "goldMax": 1516,
-    "setTheme": "Tenue Radioactive"
+    "setTheme": "Tenue Radioactive",
+    "enemyName": "Yaourt Périmé Depuis 2019",
+    "bossName": "Le Frigo Mutant",
+    "pvEnnemi": 300880,
+    "attaqueEnnemi": 7522,
+    "pvBoss": 2407040,
+    "attaqueBoss": 60176
   },
   {
     "zone": 34,
@@ -360,7 +552,13 @@
     "basePuissance": 16478,
     "goldMin": 1722,
     "goldMax": 2330,
-    "setTheme": "Tenue Écolier"
+    "setTheme": "Tenue Écolier",
+    "enemyName": "Formulaire de Rentrée",
+    "bossName": "Le Directeur Trop Strict",
+    "pvEnnemi": 659120,
+    "attaqueEnnemi": 16478,
+    "pvBoss": 5272960,
+    "attaqueBoss": 131824
   },
   {
     "zone": 35,
@@ -371,7 +569,13 @@
     "basePuissance": 20786,
     "goldMin": 1956,
     "goldMax": 2646,
-    "setTheme": "Tenue Cowboy"
+    "setTheme": "Tenue Cowboy",
+    "enemyName": "Tumbleweed de Cartons",
+    "bossName": "Le Shérif du Parking",
+    "pvEnnemi": 831440,
+    "attaqueEnnemi": 20786,
+    "pvBoss": 6651520,
+    "attaqueBoss": 166288
   },
   {
     "zone": 36,
@@ -382,7 +586,13 @@
     "basePuissance": 31573,
     "goldMin": 2459,
     "goldMax": 3327,
-    "setTheme": "Tenue Spatiale"
+    "setTheme": "Tenue Spatiale",
+    "enemyName": "-",
+    "bossName": "La Faim qui Dévore le Stock",
+    "pvEnnemi": 1262920,
+    "attaqueEnnemi": 31573,
+    "pvBoss": 10103360,
+    "attaqueBoss": 252584
   },
   {
     "zone": 37,
@@ -393,7 +603,13 @@
     "basePuissance": 37789,
     "goldMin": 2714,
     "goldMax": 3672,
-    "setTheme": "Tenue Boulangère"
+    "setTheme": "Tenue Boulangère",
+    "enemyName": "Baguette Rassise",
+    "bossName": "Le Pain Qui a Trouvé Conscience",
+    "pvEnnemi": 1511560,
+    "attaqueEnnemi": 37789,
+    "pvBoss": 12092480,
+    "attaqueBoss": 302312
   },
   {
     "zone": 38,
@@ -404,7 +620,13 @@
     "basePuissance": 45559,
     "goldMin": 3007,
     "goldMax": 4069,
-    "setTheme": "Tenue Disco"
+    "setTheme": "Tenue Disco",
+    "enemyName": "Boule à Facettes Cassée",
+    "bossName": "Le Vigile en Pattes d’Éph",
+    "pvEnnemi": 1822360,
+    "attaqueEnnemi": 45559,
+    "pvBoss": 14578880,
+    "attaqueBoss": 364472
   },
   {
     "zone": 39,
@@ -415,7 +637,13 @@
     "basePuissance": 51040,
     "goldMin": 3200,
     "goldMax": 4330,
-    "setTheme": "Tenue Fantôme"
+    "setTheme": "Tenue Fantôme",
+    "enemyName": "Colis Hanté",
+    "bossName": "Le Fantôme du Dernier Inventaire",
+    "pvEnnemi": 2041600,
+    "attaqueEnnemi": 51040,
+    "pvBoss": 16332800,
+    "attaqueBoss": 408320
   },
   {
     "zone": 40,
@@ -426,7 +654,13 @@
     "basePuissance": 79211,
     "goldMin": 4073,
     "goldMax": 5511,
-    "setTheme": "Tenue Rock"
+    "setTheme": "Tenue Rock",
+    "enemyName": "-",
+    "bossName": "Le Homard Rocker",
+    "pvEnnemi": 3168440,
+    "attaqueEnnemi": 79211,
+    "pvBoss": 25347520,
+    "attaqueBoss": 633688
   },
   {
     "zone": 41,
@@ -437,7 +671,13 @@
     "basePuissance": 87098,
     "goldMin": 4291,
     "goldMax": 5805,
-    "setTheme": "Tenue Chantier"
+    "setTheme": "Tenue Chantier",
+    "enemyName": "Cône de Chantier Baladeur",
+    "bossName": "Le Marteau-Piqueur Autonome",
+    "pvEnnemi": 3483920,
+    "attaqueEnnemi": 87098,
+    "pvBoss": 27871360,
+    "attaqueBoss": 696784
   },
   {
     "zone": 42,
@@ -448,7 +688,13 @@
     "basePuissance": 103187,
     "goldMin": 4709,
     "goldMax": 6371,
-    "setTheme": "Tenue Canard"
+    "setTheme": "Tenue Canard",
+    "enemyName": "Canard Égaré",
+    "bossName": "Le Canard Chef de Zone",
+    "pvEnnemi": 4127480,
+    "attaqueEnnemi": 103187,
+    "pvBoss": 33019840,
+    "attaqueBoss": 825496
   },
   {
     "zone": 43,
@@ -459,7 +705,13 @@
     "basePuissance": 114242,
     "goldMin": 4979,
     "goldMax": 6737,
-    "setTheme": "Tenue Voisine"
+    "setTheme": "Tenue Voisine",
+    "enemyName": "Voisin Curieux",
+    "bossName": "Le Syndic Vengeur",
+    "pvEnnemi": 4569680,
+    "attaqueEnnemi": 114242,
+    "pvBoss": 36557440,
+    "attaqueBoss": 913936
   },
   {
     "zone": 44,
@@ -470,7 +722,13 @@
     "basePuissance": 156376,
     "goldMin": 5914,
     "goldMax": 8002,
-    "setTheme": "Tenue Amalgame"
+    "setTheme": "Tenue Amalgame",
+    "enemyName": "-",
+    "bossName": "L'Amas de Tout Ce Qui Traîne",
+    "pvEnnemi": 6255040,
+    "attaqueEnnemi": 156376,
+    "pvBoss": 50040320,
+    "attaqueBoss": 1251008
   },
   {
     "zone": 45,
@@ -481,7 +739,13 @@
     "basePuissance": 215539,
     "goldMin": 7052,
     "goldMax": 9542,
-    "setTheme": "Tenue Marine"
+    "setTheme": "Tenue Marine",
+    "enemyName": "Bouteille à la Mer (Invendue)",
+    "bossName": "Le Capitaine des Retours Client",
+    "pvEnnemi": 8621560,
+    "attaqueEnnemi": 215539,
+    "pvBoss": 68972480,
+    "attaqueBoss": 1724312
   },
   {
     "zone": 46,
@@ -492,7 +756,13 @@
     "basePuissance": 209990,
     "goldMin": 6952,
     "goldMax": 9406,
-    "setTheme": "Tenue Tippi"
+    "setTheme": "Tenue Tippi",
+    "enemyName": "-",
+    "bossName": "Tippi, la Souris du Tuto",
+    "pvEnnemi": 8399600,
+    "attaqueEnnemi": 209990,
+    "pvBoss": 67196800,
+    "attaqueBoss": 1679920
   },
   {
     "zone": 47,
@@ -503,6 +773,12 @@
     "basePuissance": 250000,
     "goldMin": 7650,
     "goldMax": 10350,
-    "setTheme": "Tenue Traître"
+    "setTheme": "Tenue Traître",
+    "enemyName": "-",
+    "bossName": "Le Traître du Quai",
+    "pvEnnemi": 10000000,
+    "attaqueEnnemi": 250000,
+    "pvBoss": 80000000,
+    "attaqueBoss": 2000000
   }
 ]
