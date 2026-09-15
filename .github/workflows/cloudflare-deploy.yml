@@ -1,0 +1,45 @@
+name: Deploy SOREAL Idle to Cloudflare
+
+# Dépôt extrait de SOREAL-TV le 2026-09-15 pour isoler le moteur du jeu
+# (301 boss, ~77 sets, systèmes NGU complets) de son propre bundle/CI.
+#
+# Incident évité par ce fichier : SOREAL-TV a eu, le 2026-09-15, un
+# correctif IDLE poussé sur main jamais pris en compte en production
+# parce qu'aucune CI ne déployait le Worker séparé "soreal-idle" — sans
+# ce workflow, exactement le même problème se reproduirait ici dès le
+# premier commit sur ce dépôt.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cloudflare/**"
+      - "wrangler.jsonc"
+      - ".github/workflows/cloudflare-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: soreal-idle-cloudflare-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run test suite
+        run: |
+          for f in cloudflare/tests/*.test.mjs; do
+            echo "=== $f ==="
+            node "$f"
+          done
+
+      - name: Deploy SOREAL Idle Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: '4.127.1'
+          command: deploy --config wrangler.jsonc
