@@ -7391,6 +7391,38 @@ function definitionBossSorealIdle_(
         )
       ),
 
+    /*
+     * Audit 2026-09-15 : ce champ manquait entièrement dans la branche
+     * "progression infinie" (au-delà du catalogue) — un boss ici n'avait
+     * donc AUCUNE Defense (nombreSorealIdle_ retombait sur la constante
+     * CONFIG_SOREAL_IDLE.ATTAQUE_BOSS_BASE, minuscule comparée à la vraie
+     * progression), ce qui rendait tout boss au-delà du catalogue
+     * trivialement tuable en un coup — même cause racine que le bug déjà
+     * corrigé pour pv/attaque/xp le 2026-09-09 (V56), jamais reporté pour
+     * defense. Même plancher (MAX contre nguBossStatsV1) que les champs
+     * ci-dessus.
+     */
+    defense:
+      Math.round(
+        Math.max(
+          dernier.defense *
+          Math.pow(
+            Math.max(
+              1.01,
+              nombreSorealIdle_(
+                parametreSorealIdle_(
+                  'BOSS_INFINI_MULTIPLICATEUR_DEFENSE',
+                  10
+                ),
+                10
+              )
+            ),
+            supplement
+          ),
+          nguBossStatsV1(n).defense
+        )
+      ),
+
     xp:
       Math.round(
         Math.max(
