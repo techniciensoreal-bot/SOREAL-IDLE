@@ -67,6 +67,42 @@ const zones = [
   [47, 'THE TRAITOR', n(128, 'Dc'), true, '[TITAN] Le Traître du Quai', 'Tenue Traître', '-', 'Le Traître du Quai']
 ];
 
+// CORRECTION (2026-09-15, plus tard cette nuit) : IDLE_ZONES.Boss et
+// IDLE_BOSS sont le MEME systeme couple -- le boss de la zone N est
+// litteralement l'entree N de l'echelle de boss numerotee (confirme en
+// lisant les donnees live : la zone 1 pre-existante avait deja
+// Boss="La Palette Infernale", qui est exactement IDLE_BOSS#1). Cette
+// echelle existe deja, avec histoire/capacites soignees, jusqu'au
+// boss #20 -- donc les zones 1-20 DOIVENT utiliser ces noms reels, pas
+// des noms de boss invente independamment. Zones 21-46 restent
+// inventees (aucune entree IDLE_BOSS n'existe encore au-dela de 20) --
+// a etendre plus tard pour une vraie coherence totale.
+const REAL_BOSS_LADDER = {
+  1: 'La Palette Infernale', 2: 'Le Pain Éternel', 3: 'Le Choc Freezer', 4: 'La Palette Maudite',
+  5: 'Le Maxity de l’Apocalypse', 6: 'Thermo King, Seigneur du Froid', 7: 'Le Transpalette Possédé',
+  8: 'Le Chariot des Âmes Perdues', 9: 'Le Scanner Maudit', 10: 'Le Seigneur du Stock Mort',
+  11: 'La Chambre Froide Vivante', 12: 'Le Bahut des enfer', 13: 'Le Mur de Bacs',
+  14: 'Le Roi de la Ramasse', 15: 'Le Conteneur Interdit', 16: "L'Abomination des quais Aldi",
+  17: 'Le Colosse du Dépôt', 18: 'Le Maître des Palettes', 19: 'Le Gardien de SOREAL',
+  20: "Le Directeur de l'Apocalypse"
+};
+
+// Zones 1-6 existaient deja en jeu avant cette nuit, avec une identite
+// deja bien ecrite (description, ennemi, et pour la zone 1 une vraie
+// image deja uploadee sur Drive) -- Norman voulait repartir de zero sur
+// les DONNEES (les chiffres ne suivaient aucune courbe verifiee contre
+// le wiki), pas detruire ce travail creatif deja fait. Preserve donc
+// cette identite telle quelle, ne remplace que les 9 colonnes
+// numeriques par les formules fideles au wiki ci-dessous.
+const PRESERVED_ZONE_IDENTITY = {
+  1: { Nom: 'Quai des Palettes', Emoji: '📦', Description: 'Première étape. Le set du Quai est la préparation prévue pour franchir le mur du boss 3.', Ennemi: 'Palette bancale', ImageName: 'Quai_des_palettes.png', DriveFileID: '1UpQ8tfTsfNo5_G2pDgFiOAmKV6OsMk1N' },
+  2: { Nom: 'Couloir du Pain', Emoji: '🥖', Description: "Un long couloir saturé de miettes, de chariots et d'odeurs de pain. Certaines baguettes ont clairement cessé d'être inoffensives.", Ennemi: 'Baguette fossilisée', ImageName: 'Couloir_du_Pain.png', DriveFileID: '' },
+  3: { Nom: 'Choc Freezer', Emoji: '🥩', Description: 'Le froid y colle aux parois et transforme tout ce qui traîne en menace.', Ennemi: 'Steak cryogénisé', ImageName: 'Choc_Freezer.png', DriveFileID: '' },
+  4: { Nom: 'Cour des Palettes Maudites', Emoji: '🪵', Description: "Les palettes oubliées dans la cour grincent même quand il n'y a pas de vent.", Ennemi: 'Palette possédée', ImageName: 'Cour_des_Palettes_Maudites.png', DriveFileID: '' },
+  5: { Nom: 'Parking de l’Apocalypse', Emoji: '🚚', Description: "Entre véhicules, quais et ombres sous les remorques, le parking n'est jamais vraiment vide.", Ennemi: 'Diable de manutention', ImageName: 'Parking_de_l_Apocalypse.png', DriveFileID: '' },
+  6: { Nom: 'Chambre Froide Interdite', Emoji: '🧊', Description: "Une porte qu'on aurait mieux fait de laisser fermée. Le froid y semble presque vivant.", Ennemi: 'Esprit frigorifique', ImageName: 'Chambre_Froide_Interdite.png', DriveFileID: '' }
+};
+
 const P0 = 10, P_END = 150000;
 const realZone1 = zones[0][2], realZoneEnd = zones[zones.length - 1][2];
 const compression = Math.log(P_END / P0) / Math.log(realZoneEnd / realZone1);
@@ -93,13 +129,15 @@ const zoneRows = zones.map(([realWikiZone, realName, realPower, isTitan, sorealN
   const zoneId = idx + 1;
   const bp = basePuissance(realPower);
   const puissance = bp < 50 ? Math.round(bp * 10) / 10 : Math.round(bp);
+  const preserved = PRESERVED_ZONE_IDENTITY[zoneId];
+  const realBoss = REAL_BOSS_LADDER[zoneId];
   return {
     ID: zoneId,
-    Nom: sorealName,
-    Emoji: emojiByTheme[setTheme] || '🗺️',
-    Description: `Zone ${zoneId} du parcours SOREAL IDLE (progression fidèle au wiki NGU Idle, thème ${setTheme}).`,
-    Ennemi: enemyName,
-    Boss: bossName,
+    Nom: preserved ? preserved.Nom : sorealName,
+    Emoji: preserved ? preserved.Emoji : (emojiByTheme[setTheme] || '🗺️'),
+    Description: preserved ? preserved.Description : `Zone ${zoneId} du parcours SOREAL IDLE (progression fidèle au wiki NGU Idle, thème ${setTheme}).`,
+    Ennemi: preserved ? preserved.Ennemi : enemyName,
+    Boss: realBoss || bossName,
     NiveauRequis: zoneId * 2,
     PuissanceRecommandee: puissance,
     CoutEntree: Math.round(12 * Math.pow(1.35, zoneId - 1)),
@@ -111,11 +149,12 @@ const zoneRows = zones.map(([realWikiZone, realName, realPower, isTitan, sorealN
     Pieces: Math.max(1, Math.round(3 + zoneId * 0.55)),
     Image: '',
     Actif: 'TRUE',
-    ImageName: '',
-    DriveFileID: '',
+    ImageName: preserved ? preserved.ImageName : '',
+    DriveFileID: preserved ? preserved.DriveFileID : '',
     _setTheme: setTheme,
     _isTitan: isTitan,
-    _realWikiZone: realWikiZone
+    _realWikiZone: realWikiZone,
+    _bossFromRealLadder: Boolean(realBoss)
   };
 });
 

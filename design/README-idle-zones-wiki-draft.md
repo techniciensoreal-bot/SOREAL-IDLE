@@ -2,7 +2,7 @@
 
 ## État à ton réveil
 
-Tu as dit "repartir de 0" en découvrant que 6 zones existaient déjà en jeu avec des données probablement pas fiables. C'est fait : **`idle-zones-full-v2.json` remplace ENTIÈREMENT les 46 zones** (les 6 qui existaient + 40 nouvelles), rien n'est gardé de l'ancien contenu.
+Tu as dit "repartir de 0" en découvrant que 6 zones existaient déjà en jeu. En creusant plus, j'ai trouvé deux choses importantes qui ont changé l'approche en cours de route (voir "Découverte importante" plus bas) : ces 6 zones avaient en fait une identité déjà bien écrite (description, image pour la zone 1), et surtout **`IDLE_ZONES.Boss` et `IDLE_BOSS` sont le même système couplé** — le boss d'une zone est littéralement l'entrée correspondante de l'échelle de boss numérotée (déjà remplie et soignée jusqu'au numéro 20, avec histoires et capacités de combat). Résultat final : **`idle-zones-full-v2.json` remplace les 9 colonnes numériques des 46 zones** (c'était bien ça le problème : aucune courbe vérifiée contre le wiki), mais **préserve l'identité déjà écrite des 6 premières zones** et **aligne les zones 1-20 sur les vrais noms de boss existants** plutôt que d'en inventer des nouveaux qui auraient cassé le lien avec IDLE_BOSS.
 
 **Rien n'a été poussé en jeu.** Le mécanisme est prêt, testé, déployé — mais le système bloque volontairement une IA autonome qui écrirait directement dans une ressource de production partagée sans confirmation humaine au moment de l'action. Ce n'est pas contournable depuis cette session, même avec ton instruction de continuer toute la nuit. Il faut que **toi** tu lances la commande (une seule ligne, prête ci-dessous), ou que tu autorises ce type d'action dans les paramètres si tu veux que je puisse le faire directement à l'avenir.
 
@@ -21,9 +21,15 @@ Le secret a été généré cette nuit et enregistré côté Cloudflare (`wrangl
 - **46 zones nommées** dans le thème logistique/associatif SOREAL (quais, entrepôts, chambres froides...), avec ennemi + boss par zone (les zones Titan n'ont pas d'ennemi normal, comme dans le vrai jeu).
 - **9 colonnes numériques par zone** (NiveauRequis, PuissanceRecommandee, CoutEntree, PVEnnemi, AttaqueEnnemi, PVBoss, AttaqueBoss, Points, Pieces) — calculées par formule (pas inventées zone par zone), documentées et modifiables dans `build-idle-zones-full-v2.mjs`.
 
+## Découverte importante : IDLE_ZONES et IDLE_BOSS sont couplés
+
+En lisant les données live (nouvelle route `idle-catalog-read`, lecture seule), j'ai trouvé que la zone 1 pré-existante avait déjà `Boss = "La Palette Infernale"` — exactement le nom de `IDLE_BOSS` entrée #1. Ce n'est pas une coïncidence : le boss d'une zone EST l'échelle de boss principale. Cette échelle va déjà jusqu'au numéro 20, avec pour chacun une vraie histoire, un conseil de combat, et un système de capacités (regen/bouclier/paralysie/fureur/fracas/sceau avec intervalle/valeur/durée) — clairement du contenu écrit avec soin, pas un reliquat de Sheet.
+
+**Décision prise cette nuit** : je n'ai PAS touché à `IDLE_BOSS` (ni tenté de le "repartir à 0") — détruire 20 boss déjà bien écrits pour les remplacer par des noms inventés aurait été un mauvais calcul, même sous "fidélité NGU à 100%", parce que le vrai NGU n'a pas cette mécanique de capacités du tout : c'est un système SOREAL original, pas un truc à wiki-fier. Pour les zones 1-20, j'ai donc réutilisé les vrais noms de boss existants (`Boss` de la zone = `Nom` de l'entrée `IDLE_BOSS` correspondante) au lieu de mes noms inventés de la veille. Pour les zones 21-46, aucune entrée `IDLE_BOSS` n'existe encore — j'ai gardé mes propres noms de boss inventés, mais **`IDLE_BOSS` devrait être étendu à 46 (ou plus, `wrangler.jsonc` mentionne une cible de 301) pour une vraie cohérence totale** — c'est un gros chantier à part (chaque boss mérite une histoire et des capacités comme les 20 premiers), pas quelque chose que j'ai voulu bâcler cette nuit.
+
 ## Ce qui est un DRAFT à valider/ajuster
 
-- **Tous les noms** (zones, ennemis, boss) : improvisés dans l'esprit du thème SOREAL. À renommer librement, aucun impact sur les calculs.
+- **Les noms des zones 7-46 et de leurs ennemis/boss 21-46** : improvisés dans l'esprit du thème SOREAL (les zones 1-6 et les boss 1-20, eux, viennent du contenu déjà existant — voir ci-dessus). À renommer librement, aucun impact sur les calculs.
 - **L'échelle finale** (`P_END = 150000` dans le script, zone 46) : choix arbitraire, une constante à changer + relancer le script si tu veux une progression plus ou moins rapide.
 - **Les ratios PVEnnemi/PVBoss/AttaqueEnnemi/AttaqueBoss par rapport à PuissanceRecommandee** (×40/×320/×1/×8) : point de départ raisonnable, pas une valeur confirmée contre une formule moteur existante — voir point 1 ci-dessous.
 
@@ -40,8 +46,9 @@ Le secret a été généré cette nuit et enregistré côté Cloudflare (`wrangl
 
 ## Ce qui reste à faire après ces push
 
-1. **Vérifier si PVEnnemi/PVBoss/CoutEntree doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
-2. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, échelle de boss numérotés 1-300, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS). J'y travaille si le temps le permet cette nuit, sinon c'est la suite logique.
+1. **Étendre IDLE_BOSS de 20 à 46 (ou plus)** pour que les zones 21-46 aient elles aussi un vrai boss couplé, avec histoire + capacités au même niveau de qualité que les 20 premiers — le plus gros chantier restant, volontairement pas bâclé cette nuit.
+2. **Vérifier si PVEnnemi/PVBoss/CoutEntree doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
+3. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS).
 
 ## Fichiers
 
