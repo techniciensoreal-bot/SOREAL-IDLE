@@ -54,13 +54,26 @@ function makeFakeSqlStorage(sharedTables) {
       if (q.startsWith("INSERT INTO idle_catalog")) {
         const [sheet_name, row_index] = bindings;
         const key = sheet_name + "|" + row_index;
-        if (!tables.idle_catalog.has(key)) tables.idle_catalog.set(key, bindings);
+        // ON CONFLICT ... DO UPDATE (replaceCatalogSheets) overwrites; DO NOTHING (importLegacyData) keeps first-write-wins.
+        if (q.includes("DO UPDATE") || !tables.idle_catalog.has(key)) tables.idle_catalog.set(key, bindings);
         return [];
       }
       if (q.startsWith("INSERT INTO migration_sources")) {
         const [source_key] = bindings;
         if (!tables.migration_sources.has(source_key)) tables.migration_sources.set(source_key, bindings);
         return [];
+      }
+      if (q.startsWith("DELETE FROM idle_catalog WHERE sheet_name=?")) {
+        const [sheet_name] = bindings;
+        for (const key of [...tables.idle_catalog.keys()]) {
+          if (key.startsWith(sheet_name + "|")) tables.idle_catalog.delete(key);
+        }
+        return [];
+      }
+      if (q.startsWith("SELECT COUNT(*) AS n FROM idle_catalog WHERE sheet_name=?")) {
+        const [sheet_name] = bindings;
+        const n = [...tables.idle_catalog.keys()].filter(key => key.startsWith(sheet_name + "|")).length;
+        return [{ n }];
       }
       if (q.startsWith("SELECT COUNT(*) AS n FROM idle_players")) return [{ n: tables.idle_players.size }];
       if (q.startsWith("SELECT COUNT(*) AS n FROM idle_catalog")) return [{ n: tables.idle_catalog.size }];
@@ -228,6 +241,56 @@ function makeIdleMigrationSourcesFixture() {
   const req = new Request("https://x.invalid/__soreal-idle-v1/operations");
   await coordinator.internal(req, new URL(req.url));
   assert.ok(!tables.idle_catalog.has("JOUEURS|2"), "internal() doit lui-même déclencher la purge si le marqueur est absent, sans attendre une reconstruction de l'objet.");
+}
+
+// --- replaceCatalogSheets : remplacement complet (pas un complément) ---
+// Norman (2026-09-15) : "j'oublie ce Google Sheet, je reprends sur le
+// wiki les vraies informations" — IDLE_LOOTS/IDLE_SETS doivent pouvoir
+// être entièrement remplacées depuis un fichier JSON versionné, sans
+// jamais toucher aux autres feuilles du catalogue partagé (CONFIG,
+// IDLE_BOSS, JOUEURS...).
+{
+  const tables = { idle_players: new Map(), idle_catalog: new Map(), migration_sources: new Map(), idle_meta: new Map() };
+  tables.idle_catalog.set("IDLE_LOOTS|1", ["IDLE_LOOTS", 1, JSON.stringify(["ID", "Nom"]), Date.now()]);
+  tables.idle_catalog.set("IDLE_LOOTS|2", ["IDLE_LOOTS", 2, JSON.stringify(["old_1", "Vieux objet Sheet"]), Date.now()]);
+  tables.idle_catalog.set("IDLE_BOSS|1", ["IDLE_BOSS", 1, JSON.stringify(["nom", "pv"]), Date.now()]);
+
+  const state = { storage: { sql: makeFakeSqlStorage(tables) } };
+  const coordinator = new SorealIdleCoordinatorV1(state, {});
+
+  const result = coordinator.replaceCatalogSheets({
+    sheets: ["IDLE_LOOTS"],
+    catalog: [
+      { sheet_name: "IDLE_LOOTS", row_index: 1, row_json: ["ID", "Nom"], updated_at: Date.now() },
+      { sheet_name: "IDLE_LOOTS", row_index: 2, row_json: ["wiki_1", "Objet sourcé wiki"], updated_at: Date.now() },
+      { sheet_name: "IDLE_LOOTS", row_index: 3, row_json: ["wiki_2", "Deuxième objet wiki"], updated_at: Date.now() },
+      // Une ligne pour une feuille NON listée dans `sheets` ne doit jamais être insérée ici.
+      { sheet_name: "IDLE_SETS", row_index: 1, row_json: ["ID", "Nom"], updated_at: Date.now() }
+    ]
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.deleted, 2, "Les 2 anciennes lignes IDLE_LOOTS doivent être comptées comme supprimées.");
+  assert.equal(result.inserted, 3, "Seules les 3 lignes IDLE_LOOTS du payload sont insérées, pas la ligne IDLE_SETS non listée.");
+  assert.ok(!tables.idle_catalog.has("IDLE_LOOTS|2") || JSON.parse(tables.idle_catalog.get("IDLE_LOOTS|2")[2])[0] !== "old_1", "L'ancien objet Sheet ne doit plus exister sous son ancien contenu.");
+  assert.equal(JSON.parse(tables.idle_catalog.get("IDLE_LOOTS|2")[2])[0], "wiki_1", "La nouvelle ligne wiki doit avoir remplacé l'ancienne.");
+  assert.ok(tables.idle_catalog.has("IDLE_LOOTS|3"), "La nouvelle ligne 3 doit exister.");
+  assert.ok(tables.idle_catalog.has("IDLE_BOSS|1"), "IDLE_BOSS (feuille non listée dans `sheets`) ne doit jamais être touchée.");
+  assert.ok(!tables.idle_catalog.has("IDLE_SETS|1"), "Une ligne de payload pour une feuille absente de `sheets` ne doit jamais être insérée.");
+
+  // Rejouer avec un contenu modifié doit REMPLACER, pas s'ajouter au précédent (pas de doublons qui traînent).
+  const second = coordinator.replaceCatalogSheets({
+    sheets: ["IDLE_LOOTS"],
+    catalog: [
+      { sheet_name: "IDLE_LOOTS", row_index: 1, row_json: ["ID", "Nom"], updated_at: Date.now() },
+      { sheet_name: "IDLE_LOOTS", row_index: 2, row_json: ["wiki_1_v2", "Objet wiki corrigé"], updated_at: Date.now() }
+    ]
+  });
+  assert.equal(second.deleted, 3, "Le deuxième remplacement doit repartir des 3 lignes laissées par le premier, pas s'accumuler.");
+  assert.ok(!tables.idle_catalog.has("IDLE_LOOTS|3"), "Une ligne absente du nouveau payload doit disparaître (vrai remplacement, pas une fusion).");
+
+  const missingSheets = coordinator.replaceCatalogSheets({ sheets: [], catalog: [] });
+  assert.equal(missingSheets.ok, false, "Un appel sans `sheets` doit être refusé explicitement plutôt que de ne rien faire silencieusement.");
 }
 
 console.log("idle-coordinator-migration: OK");

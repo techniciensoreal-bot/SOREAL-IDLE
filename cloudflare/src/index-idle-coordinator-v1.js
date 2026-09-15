@@ -144,6 +144,49 @@ export class SorealIdleCoordinatorV1 {
     return { ok: true, inserted };
   }
 
+  /*
+   * Remplacement complet d'une ou plusieurs feuilles du catalogue partagé
+   * (Norman, 2026-09-15 : "j'oublie ce Google Sheet, je reprends sur le
+   * wiki les vraies informations" — IDLE_LOOTS/IDLE_SETS n'ont plus de
+   * source Sheet vivante depuis la bascule Cloudflare, voir
+   * lireTableSorealIdle_/SpreadsheetApp dans idle-sqlite-runtime.js ; ce
+   * contenu doit maintenant venir d'un fichier JSON versionné dans le
+   * dépôt, source de vérité wiki).
+   *
+   * Contrairement à importLegacyData() (ON CONFLICT DO NOTHING, ne
+   * comble que les trous), ceci VIDE chaque feuille listée dans
+   * `sheets` avant d'insérer les nouvelles lignes — un vrai remplacement,
+   * pas un complément. Ne touche jamais une feuille absente de `sheets`
+   * (JOUEURS, CONFIG, etc. restent intacts).
+   */
+  replaceCatalogSheets(payload) {
+    const sheets = Array.isArray(payload?.sheets)
+      ? [...new Set(payload.sheets.map(s => String(s || "").trim()).filter(Boolean))]
+      : [];
+    const catalog = Array.isArray(payload?.catalog) ? payload.catalog : [];
+    if (!sheets.length) return { ok: false, error: "SHEETS_REQUIRED" };
+
+    let deleted = 0;
+    for (const sheetName of sheets) {
+      const before = this.sqlAll("SELECT COUNT(*) AS n FROM idle_catalog WHERE sheet_name=?", sheetName)[0]?.n || 0;
+      this.sql.exec("DELETE FROM idle_catalog WHERE sheet_name=?", sheetName);
+      deleted += before;
+    }
+
+    let inserted = 0;
+    for (const row of catalog) {
+      const sheetName = String(row?.sheet_name || "").trim();
+      if (!sheetName || row.row_index == null || !sheets.includes(sheetName)) continue;
+      const rowJson = Array.isArray(row.row_json) ? JSON.stringify(row.row_json) : String(row.row_json || "[]");
+      this.sql.exec(
+        "INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?) ON CONFLICT(sheet_name,row_index) DO UPDATE SET row_json=excluded.row_json,updated_at=excluded.updated_at",
+        sheetName, row.row_index, rowJson, row.updated_at || Date.now()
+      );
+      inserted++;
+    }
+    return { ok: true, sheets, deleted, inserted };
+  }
+
   async internal(request, url) {
     /*
      * Norman (2026-09-09) : "ça n'a pas reset ma partie." La purge posée
@@ -175,6 +218,10 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/import") {
       const p = await request.json().catch(() => ({}));
       return Response.json(this.importLegacyData(p), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/replace-sheets") {
+      const p = await request.json().catch(() => ({}));
+      return Response.json(this.replaceCatalogSheets(p), { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/counts") {
       return Response.json({
