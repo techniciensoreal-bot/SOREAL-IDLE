@@ -27,11 +27,21 @@ Le secret a été généré cette nuit et enregistré côté Cloudflare (`wrangl
 - **L'échelle finale** (`P_END = 150000` dans le script, zone 46) : choix arbitraire, une constante à changer + relancer le script si tu veux une progression plus ou moins rapide.
 - **Les ratios PVEnnemi/PVBoss/AttaqueEnnemi/AttaqueBoss par rapport à PuissanceRecommandee** (×40/×320/×1/×8) : point de départ raisonnable, pas une valeur confirmée contre une formule moteur existante — voir point 1 ci-dessous.
 
-## Ce qui reste à faire après ce push
+## IDLE_LOOTS / IDLE_SETS — fait aussi cette nuit
+
+- **276 objets** (6 par zone × 46 zones, les 6 emplacements confirmés dans le moteur : tête, torse, bottes, arme, bijou1, bijou2), nommés `{Emplacement} {Thème}` (ex. "Casque Bénévole") — même patron que le vrai NGU (Crappy Helmet, Magitech Chestplate...).
+- **46 sets**, bonus 2/4/6 pièces croissants avec la zone (le moteur est figé sur 3 paliers 2/4/6, contrairement au vrai NGU où chaque set a un nombre de pièces variable et un seul bonus de complétion — compromis structurel du moteur SOREAL, pas un oubli).
+- Chaque objet est lié au **boss nommé de sa zone** (`Boss` = nom exact du boss, pas `"*"`) — fidèle au vrai jeu où l'équipement d'un set vient du boss de zone, pas des ennemis normaux.
+- Fichiers : `idle-loots-full-v1.json`, `idle-sets-full-v1.json`, générés par `build-idle-loots-sets-full-v1.mjs`.
+- Pour pousser (même secret que pour les zones) :
+  ```bash
+  SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-loots-sets.mjs
+  ```
+
+## Ce qui reste à faire après ces push
 
 1. **Vérifier si PVEnnemi/PVBoss/CoutEntree doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
-2. **Les objets/sets qui droppent** (IDLE_LOOTS/IDLE_SETS) — le thème de chaque set est choisi (`_setTheme` dans le JSON), mais les objets individuels (casque/plastron/jambières/bottes/arme/2 accessoires — 6 slots confirmés dans le moteur) ne sont pas encore générés. C'est la suite logique une fois les zones validées.
-3. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, échelle de boss numérotés 1-300, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS). Dis-moi si tu veux que j'attaque ça aussi.
+2. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, échelle de boss numérotés 1-300, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS). J'y travaille si le temps le permet cette nuit, sinon c'est la suite logique.
 
 ## Fichiers
 
