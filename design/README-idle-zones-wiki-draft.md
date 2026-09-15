@@ -55,10 +55,24 @@ En lisant les données live (nouvelle route `idle-catalog-read`, lecture seule),
   SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-boss-extension.mjs
   ```
 
+## IDLE_MONSTRES étendu (zones 7-46, tiers normal + boss_zone) — fait aussi cette nuit
+
+Découverte : les zones 1-6 ont en fait un système à **3 tiers de monstres** par zone (`normal`, `boss_zone`, `rare`), le tier `rare` ayant son propre objet légendaire nommé (slot + puissance de base) — encore plus soigné que ce que j'avais supposé.
+
+- **80 lignes ajoutées** (tiers `normal` + `boss_zone` pour les zones 7-46), stats réutilisées directement depuis `idle-zones-full-v2.json` (`PVEnnemi`/`AttaqueEnnemi`/`PVBoss`/`AttaqueBoss`), pas de nouvelle formule.
+- **Le tier `rare` (avec objet légendaire unique par zone) n'est PAS fait cette nuit** — chaque légendaire mérite un nom propre comme "Pendentif du Gerbeur Fantôme" ou "Cœur du Zéro Absolu", pas une génération en série bâclée pour 40 zones. C'est la suite logique la plus évidente.
+- Import strictement additif (`idle-catalog-import`), les zones 1-6 (normal/boss/rare) ne sont jamais touchées.
+- Fichiers : `idle-monstres-extension-7-46.json`, généré par `build-idle-monstres-extension-7-46.mjs`.
+- Pour pousser :
+  ```bash
+  SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-monstres-extension.mjs
+  ```
+
 ## Ce qui reste à faire après ces push
 
-1. **Vérifier si PVEnnemi/PVBoss/CoutEntree (des zones) doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
-2. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS).
+1. **Le tier `rare` + objets légendaires** pour les zones 7-46 dans IDLE_MONSTRES (voir ci-dessus) — le morceau le plus créatif qui reste, volontairement pas rushé.
+2. **Vérifier si PVEnnemi/PVBoss/CoutEntree (des zones) doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
+3. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS).
 
 ## Fichiers
 
