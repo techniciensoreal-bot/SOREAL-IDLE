@@ -75,6 +75,13 @@ function makeFakeSqlStorage(sharedTables) {
         const n = [...tables.idle_catalog.keys()].filter(key => key.startsWith(sheet_name + "|")).length;
         return [{ n }];
       }
+      if (q.startsWith("SELECT row_index,row_json FROM idle_catalog WHERE sheet_name=? ORDER BY row_index")) {
+        const [sheet_name] = bindings;
+        return [...tables.idle_catalog.entries()]
+          .filter(([key]) => key.startsWith(sheet_name + "|"))
+          .map(([, row]) => ({ row_index: row[1], row_json: row[2] }))
+          .sort((a, b) => a.row_index - b.row_index);
+      }
       if (q.startsWith("SELECT COUNT(*) AS n FROM idle_players")) return [{ n: tables.idle_players.size }];
       if (q.startsWith("SELECT COUNT(*) AS n FROM idle_catalog")) return [{ n: tables.idle_catalog.size }];
       if (q.startsWith("SELECT COUNT(*) AS n FROM migration_sources")) return [{ n: tables.migration_sources.size }];
@@ -291,6 +298,26 @@ function makeIdleMigrationSourcesFixture() {
 
   const missingSheets = coordinator.replaceCatalogSheets({ sheets: [], catalog: [] });
   assert.equal(missingSheets.ok, false, "Un appel sans `sheets` doit être refusé explicitement plutôt que de ne rien faire silencieusement.");
+}
+
+// --- readCatalogSheet : lecture seule, ne doit jamais écrire ---
+{
+  const tables = { idle_players: new Map(), idle_catalog: new Map(), migration_sources: new Map(), idle_meta: new Map() };
+  tables.idle_catalog.set("IDLE_ZONES|1", ["IDLE_ZONES", 1, JSON.stringify(["ID", "Nom", "Monde"]), Date.now()]);
+  tables.idle_catalog.set("IDLE_ZONES|2", ["IDLE_ZONES", 2, JSON.stringify(["1", "Quai des Palettes", "1"]), Date.now()]);
+
+  const state = { storage: { sql: makeFakeSqlStorage(tables) } };
+  const coordinator = new SorealIdleCoordinatorV1(state, {});
+
+  const result = coordinator.readCatalogSheet("IDLE_ZONES");
+  assert.equal(result.ok, true);
+  assert.equal(result.rows.length, 2);
+  assert.deepEqual(result.rows[0].row, ["ID", "Nom", "Monde"], "La ligne d'en-tête réelle doit être lisible telle quelle, pour connaître l'ordre exact des colonnes avant d'ajouter des lignes.");
+  assert.deepEqual(result.rows[1].row, ["1", "Quai des Palettes", "1"]);
+  assert.equal(tables.idle_catalog.size, 2, "readCatalogSheet ne doit jamais écrire quoi que ce soit.");
+
+  const missing = coordinator.readCatalogSheet("");
+  assert.equal(missing.ok, false, "Un appel sans nom de feuille doit être refusé explicitement.");
 }
 
 console.log("idle-coordinator-migration: OK");

@@ -187,6 +187,27 @@ export class SorealIdleCoordinatorV1 {
     return { ok: true, sheets, deleted, inserted };
   }
 
+  /*
+   * Lecture seule (aucune écriture) — nécessaire pour connaître l'ordre
+   * exact des colonnes déjà en place dans une feuille (ex: IDLE_ZONES,
+   * dont la ligne 1 existante ne doit jamais être écrasée par
+   * importLegacyData) avant d'y ajouter de nouvelles lignes sans rien
+   * décaler ni corrompre.
+   */
+  readCatalogSheet(sheetName) {
+    const name = String(sheetName || "").trim();
+    if (!name) return { ok: false, error: "SHEET_NAME_REQUIRED" };
+    const rows = this.sqlAll(
+      "SELECT row_index,row_json FROM idle_catalog WHERE sheet_name=? ORDER BY row_index",
+      name
+    );
+    return {
+      ok: true,
+      sheet: name,
+      rows: rows.map(r => ({ row_index: r.row_index, row: JSON.parse(r.row_json || "[]") }))
+    };
+  }
+
   async internal(request, url) {
     /*
      * Norman (2026-09-09) : "ça n'a pas reset ma partie." La purge posée
@@ -222,6 +243,10 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/replace-sheets") {
       const p = await request.json().catch(() => ({}));
       return Response.json(this.replaceCatalogSheets(p), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/read-sheet") {
+      const p = await request.json().catch(() => ({}));
+      return Response.json(this.readCatalogSheet(p?.sheet), { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/counts") {
       return Response.json({
