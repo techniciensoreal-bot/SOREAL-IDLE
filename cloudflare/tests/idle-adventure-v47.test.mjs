@@ -750,4 +750,79 @@ assert.equal(t.result.nextAt,7000);
   }
 }
 
+/*
+ * EXP de boss d'Aventure (Norman, 2026-09-16, "les boss d'Aventure doivent
+ * looter de l'EXP comme le reste du jeu") — jusqu'ici rollKill ne posait
+ * JAMAIS d'EXP sur un kill de boss d'Aventure, alors que le wiki NGU
+ * documente une ligne "Exp N (X% base chance, up to Y% max)" sur CHAQUE
+ * zone du monde Normal (vérifié en direct au navigateur le 2026-09-16,
+ * page par page — jamais depuis la mémoire). Ce test verrouille :
+ * (1) le pourcentage ET la quantité EXACTS de chaque zone (le wiki ne
+ * donne pas toujours "Exp 1" — ça grimpe avec la zone, jusqu'à "Exp 30" à
+ * Boring-Ass Earth/Chocolate World, jamais un flat "1" partout comme un
+ * premier passage superficiel aurait pu le supposer) ;
+ * (2) qu'un kill NON-boss ne donne jamais d'EXP (le wiki ne documente ce
+ * drop QUE sur la ligne "Boss" de chaque zone) ;
+ * (3) que l'EXP gagnée s'accumule dans s.permanent.experience — EXACTEMENT
+ * le même champ que checkSets() (reward.experience des sets) alimente déjà
+ * plus haut dans idle-adventure-v47.js, jamais un second système d'EXP
+ * parallèle.
+ */
+{
+  const attendu={
+    tutorial:{chance:.07,amount:1},
+    sewers:{chance:.085,amount:1},
+    forest:{chance:.10,amount:1},
+    cave:{chance:.12,amount:1},
+    sky:{chance:.16,amount:1},
+    hsb:{chance:.09,amount:2},
+    clock:{chance:.10,amount:2},
+    "2d":{chance:.05,amount:3},
+    ancient:{chance:.03,amount:5},
+    avsp:{chance:.01,amount:10},
+    mega:{chance:.005,amount:15},
+    beardverse:{chance:.002,amount:20},
+    badly:{chance:.0005,amount:25},
+    boring:{chance:.0003,amount:30},
+    chocolate:{chance:.0002,amount:30}
+  };
+  const alea=Math.random;
+  try{
+    for(const [id,{chance,amount}] of Object.entries(attendu)){
+      const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===id);
+      assert.ok(z,`Zone ${id} introuvable dans IDLE_ADVENTURE_ZONES.`);
+      const eps=Math.max(chance*0.01,1e-7);
+
+      let s0=normalizeIdleAdventureStateV47({});
+      s0=applyIdleAdventureActionV47(s0,{action:"selectZone",zone:id},{bosses:z.boss},1).state;
+
+      Math.random=()=>chance+eps;
+      let r=applyIdleAdventureActionV47(s0,{action:"zoneKill"},{bosses:z.boss,forceBoss:true},2);
+      assert.equal(r.result.experience,0,`Zone ${id} : juste AU-DESSUS du base chance (${chance}) ne doit donner AUCUNE EXP.`);
+      assert.equal(r.state.permanent.experience,0,`Zone ${id} : aucune EXP ne doit s'accumuler dans permanent.experience si le roll échoue.`);
+
+      Math.random=()=>Math.max(0,chance-eps);
+      r=applyIdleAdventureActionV47(s0,{action:"zoneKill"},{bosses:z.boss,forceBoss:true},3);
+      assert.equal(r.result.experience,amount,`Zone ${id} : juste EN-DESSOUS du base chance (${chance}) doit donner EXACTEMENT ${amount} EXP (ligne "Exp ${amount}" du wiki), pas une autre quantité.`);
+      assert.equal(r.state.permanent.experience,amount,`Zone ${id} : l'EXP de boss doit s'accumuler dans permanent.experience, comme les rewards de set.`);
+    }
+  }finally{Math.random=alea;}
+
+  // Un kill NON-boss ne doit jamais donner d'EXP, même avec un roll
+  // toujours gagnant (Math.random=0) — le wiki ne documente ce drop QUE
+  // sur la ligne "Boss" de chaque zone, jamais sur les ennemis normaux.
+  {
+    const alea2=Math.random;
+    try{
+      Math.random=()=>0;
+      let s0=normalizeIdleAdventureStateV47({});
+      s0=applyIdleAdventureActionV47(s0,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+      const r=applyIdleAdventureActionV47(s0,{action:"zoneKill"},{bosses:7,forceBoss:false},2);
+      assert.equal(r.result.boss,false);
+      assert.equal(r.result.experience,0,"Un kill NON-boss ne doit jamais donner d'EXP, même si le roll serait gagnant.");
+      assert.equal(r.state.permanent.experience,0);
+    }finally{Math.random=alea2;}
+  }
+}
+
 console.log("Adventure compact V47 OK");

@@ -1006,6 +1006,39 @@ const ZONE_GOLD_RANGES_V1={
   chocolate:{normal:[2400000,3000000],boss:[3600000,4500000]}
 };
 /*
+ * EXP de boss d'Aventure (Norman, 2026-09-16, "les boss d'Aventure doivent
+ * looter de l'EXP comme le reste") : sourcé exactement de la section
+ * Loot > Boss de la page wiki NGU DE CHAQUE ZONE du monde Normal (les 15
+ * zones d'IDLE_ADVENTURE_ZONES au-dessus), vérifié en direct au navigateur
+ * le 2026-09-16 — le wiki documente une ligne "Exp N (X% base chance, up to
+ * Y% max)" par zone, jamais un pourcentage universel. `chance` est le "base
+ * chance" (le "up to" est un maximum sous condition externe — bonus non
+ * implémenté ici, cohérent avec le reste du fichier qui ignore déjà ces
+ * plafonds pour les autres taux, ex. les SPECIALS bossOnly avec dropChance
+ * ci-dessous). `amount` est le nombre exact d'EXP de la ligne "Exp N" —
+ * PAS toujours 1 : ça grimpe avec la zone (Exp 1 en early game jusqu'à Exp
+ * 30 à Boring-Ass Earth/Chocolate World). Aucune zone du monde Normal n'est
+ * dépourvue de ce drop sur le wiki — les 15 lignes ci-dessous sont donc
+ * complètes, aucune valeur devinée.
+ */
+const ZONE_BOSS_EXP_CHANCE_V1={
+  tutorial:{chance:.07,amount:1},
+  sewers:{chance:.085,amount:1},
+  forest:{chance:.10,amount:1},
+  cave:{chance:.12,amount:1},
+  sky:{chance:.16,amount:1},
+  hsb:{chance:.09,amount:2},
+  clock:{chance:.10,amount:2},
+  "2d":{chance:.05,amount:3},
+  ancient:{chance:.03,amount:5},
+  avsp:{chance:.01,amount:10},
+  mega:{chance:.005,amount:15},
+  beardverse:{chance:.002,amount:20},
+  badly:{chance:.0005,amount:25},
+  boring:{chance:.0003,amount:30},
+  chocolate:{chance:.0002,amount:30}
+};
+/*
  * Norman (2026-09-14, urgent) : "les combats ne démarrent plus en
  * aventure." Cause : le correctif du même jour (adventurePower/
  * Toughness ne fuitent plus depuis le Basic Training) a fait
@@ -1043,7 +1076,26 @@ function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZ
  * SPECIALS bossOnly SANS dropChance, ex. pissedOffKey ci-dessous).
  */
 if(boss){for(const [id,d] of Object.entries(SPECIALS)){if(d.zone===z.id&&d.bossOnly&&d.dropChance!=null&&I(ctx.bosses)>=I(d.requiresBoss)&&Math.random()<C(N(d.dropChance)*dropMult,0,1)){out.push(add(s,special(id,d.dropLevel||0)))}}}
-if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}return{zone:z.id,boss,drops:out.filter(Boolean),gold}}
+if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}
+/*
+ * EXP de boss d'Aventure (voir ZONE_BOSS_EXP_CHANCE_V1 plus haut, sourcé
+ * page par page du wiki NGU le 2026-09-16) : roll indépendant, uniquement
+ * sur un kill de boss (jamais un monstre normal — le wiki ne documente ce
+ * drop QUE sur la ligne "Boss" de chaque zone), au "base chance" exact de
+ * la zone (0 par repli si la zone est absente de l'objet, ex. "safe" qui
+ * n'a de toute façon aucun combat). Même dropMult que les autres rolls à
+ * pourcentage propre de cette fonction (ex. les SPECIALS bossOnly juste
+ * au-dessus) — jamais appliqué au pool générique 4%/22%/12%, seulement aux
+ * taux individuels sourcés du wiki, par cohérence avec ce que ce fichier
+ * fait déjà. Stocké dans s.permanent.experience, EXACTEMENT le même champ
+ * que checkSets() (reward.experience des sets) utilise déjà plus haut dans
+ * ce fichier — jamais un second système d'EXP parallèle. Ce champ est
+ * ensuite diffé vers la vraie monnaie state.currencies.experience par
+ * applyIdleNguAction (idle-ngu-progression.js), même schéma que gold/ap
+ * juste au-dessus dans ce même fichier.
+ */
+let experience=0;if(boss){const expDef=ZONE_BOSS_EXP_CHANCE_V1[z.id];const expChance=N(expDef?.chance,0);if(expChance>0&&Math.random()<C(expChance*dropMult,0,1)){experience=I(expDef.amount,0);s.permanent.experience=N(s.permanent.experience)+experience}}
+return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience}}
 /*
  * Combat de zone réel (demande Norman 2026-09-09) : "on voit l'ennemi, on
  * voit les barres de vie qui descendent à chaque coup. Comme pour les
