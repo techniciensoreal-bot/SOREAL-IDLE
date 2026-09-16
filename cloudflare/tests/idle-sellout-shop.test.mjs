@@ -123,4 +123,26 @@ function freshState(ap) {
   assert.equal(entry.purchased, 0);
 }
 
+// --- unlockedEver : n'apparaît qu'après avoir récolté du premier AP, jamais réévalué à la baisse ---
+{
+  const snapAvant = idleNguSnapshot(
+    { version: IDLE_NGU_META_VERSION, saveSchema: IDLE_NGU_SAVE_SCHEMA },
+    { adventurePower: 100, adventureToughness: 100, bosses: 0 }
+  );
+  assert.equal(snapAvant.selloutShop.unlockedEver, false, "Une toute nouvelle partie (0 AP) ne doit pas encore débloquer le Sellout Shop.");
+
+  const snapApres = idleNguSnapshot(
+    { version: IDLE_NGU_META_VERSION, saveSchema: IDLE_NGU_SAVE_SCHEMA, currencies: { ap: 1 } },
+    { adventurePower: 100, adventureToughness: 100, bosses: 0 }
+  );
+  assert.equal(snapApres.selloutShop.unlockedEver, true, "Dès le premier AP récolté, le Sellout Shop doit apparaître.");
+
+  // Dépenser tout son AP (retomber à 0) ne doit jamais faire disparaître le menu déjà débloqué.
+  const snapApresDepense = idleNguSnapshot(
+    { version: IDLE_NGU_META_VERSION, saveSchema: IDLE_NGU_SAVE_SCHEMA, currencies: { ap: 0 }, selloutShop: { purchases: {}, unlockedEver: true } },
+    { adventurePower: 100, adventureToughness: 100, bosses: 0 }
+  );
+  assert.equal(snapApresDepense.selloutShop.unlockedEver, true, "Une fois débloqué, dépenser tout son AP ne doit jamais re-verrouiller le menu.");
+}
+
 console.log("idle-sellout-shop: OK");

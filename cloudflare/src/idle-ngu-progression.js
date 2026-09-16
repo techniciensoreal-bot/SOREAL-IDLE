@@ -1026,7 +1026,16 @@ function migrateLegacyMetaToV47(raw, now) {
       const n = Math.max(0, int(rawPurchases[item.id], 0));
       purchases[item.id] = item.max != null ? Math.min(item.max, n) : n;
     }
-    state.selloutShop = { purchases };
+    /*
+     * Norman (2026-09-16) : "J'aimerais que le sellout shop n'apparaisse
+     * qu'à partir du moment où on récolte ses premiers points d'AP."
+     * unlockedEver reste vrai pour toujours dès la première fois où l'AP
+     * dépasse 0 — jamais juste "ap>0 en ce moment", sinon dépenser tout
+     * son AP au shop referait disparaître le menu qu'on est en train
+     * d'utiliser.
+     */
+    const unlockedEver = Boolean(src.selloutShop?.unlockedEver) || num(state.currencies.ap, 0) > 0;
+    state.selloutShop = { purchases, unlockedEver };
   }
 
   state.bonuses = Object.assign(state.bonuses, src.bonuses || {});
@@ -1139,6 +1148,19 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
 
   state.currencies = Object.assign(baseState(t).currencies, source.currencies || {});
   for (const k of Object.keys(state.currencies)) state.currencies[k] = Math.max(0, num(state.currencies[k], 0));
+
+  /*
+   * Norman (2026-09-16) : "le sellout shop ne doit apparaître qu'à
+   * partir du moment où on récolte ses premiers points d'AP." Dérivé
+   * ICI (chemin commun aux deux migrations, v47 déjà natif ou legacy)
+   * plutôt que seulement dans migrateLegacyMetaToV47 — sinon un save
+   * déjà en v47 (l'immense majorité) ne recalculait jamais ce drapeau.
+   * unlockedEver reste vrai pour toujours une fois franchi, jamais
+   * réévalué sur le solde courant (dépenser tout son AP au shop ne doit
+   * jamais faire disparaître le menu qu'on est en train d'utiliser).
+   */
+  state.selloutShop = Object.assign(baseState(t).selloutShop, state.selloutShop || {});
+  state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
 
   state.records = Object.assign(baseState(t).records, source.records || {});
   for (const k of Object.keys(state.records)) state.records[k] = Math.max(0, num(state.records[k], 0));
@@ -2784,6 +2806,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      */
     selloutShop: {
       purchases: clone(state.selloutShop.purchases),
+      unlockedEver: Boolean(state.selloutShop.unlockedEver),
       catalog: IDLE_SELLOUT_SHOP_CATALOG_V1.map((item) => {
         const purchased = Math.max(0, int(state.selloutShop.purchases[item.id], 0));
         return {
