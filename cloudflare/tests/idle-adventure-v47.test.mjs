@@ -587,25 +587,31 @@ assert.equal(t.result.nextAt,7000);
 // une fois l'"actual stat" au "maximum potential", booster ne sert plus
 // à rien — bloqué). Le niveau (0-100) est le proxy SOREAL de ce plafond.
 //
-// RÉVISÉ 2026-09-14 (Norman, 2e retour : "sur mon arme qui est
-// Toughness 1/2, j'ai ajouté des boost jusqu'à ce que je ne puisse plus
-// en ajouter. Et pourtant la stat est restée pareil... alors que ça
-// aurait dû passer à Toughness 2/2") : le "X/Y" affiché au joueur est
-// TOUJOURS basePower×2 (le plafond ABSOLU à niveau 100), jamais
-// basePower×(1+niveau/100) (le plafond du niveau COURANT). Un objet
-// frais (jamais fusionné) sous le niveau 100 a donc bien un vrai écart
-// à combler par boost — item() calcule power=basePower×(1+niveau/100),
-// strictement inférieur à basePower×2 tant que niveau<100. Ce premier
-// bloc vérifie que l'action n'est jamais bloquée/rejetée ET qu'elle
-// comble réellement cet écart, sans jamais le dépasser.
+// RÉVISÉ 2026-09-16 (Norman, 3e retour : "la fusion d'objet augmente la
+// quantité de power. Mais dans NGU si un objet est 1/3 et que je le
+// fusionne il passe à 1/4. La seule manière de le faire monter à 2/4
+// sera de lui mettre des boosts") — un correctif intermédiaire du
+// 2026-09-14 avait changé le plafond de applyBoost() de
+// basePower×(1+niveau/100) (le plafond du niveau COURANT) vers
+// basePower×2 (le plafond ABSOLU à niveau 100), en pensant réparer un
+// boost "sans effet" sur un objet frais. Reconfirmé sur
+// ngu-idle.fandom.com/wiki/Inventory, section "Leveling-up Items" :
+// "Each time an item levels-up, its maximum potential will go up and
+// require to be boosted" — le plafond grandit AVEC LE NIVEAU, pas de
+// façon fixe. Un objet frais (jamais fusionné) est TOUJOURS déjà à son
+// propre plafond du moment dès sa création (item()/special() calculent
+// power=basePower×(1+niveau/100)) : un boost dessus est donc gâché SANS
+// EFFET, ce qui est le comportement ATTENDU, pas un bug — l'écart
+// n'apparaît qu'APRÈS une fusion (qui augmente le niveau, donc le
+// plafond, sans jamais toucher la stat courante). Revenu au plafond
+// niveau-par-niveau, la même formule "q" que item()/special().
 {
   /*
    * Isolation stats réelles par objet (2026-09-15) : training:head
    * ("Cloth Hat") n'a plus de Power du tout (0, exact wiki) — un boost
    * "power" n'aurait donc plus aucun écart à combler. Ce bloc teste
    * désormais un boost "toughness" sur ce même objet (qui, lui, en a
-   * réellement — Toughness 1/2 au niveau 50, exactement le cas d'origine
-   * du 2e retour de Norman), même logique de test inchangée.
+   * réellement), même logique de test inchangée.
    */
   s=normalizeIdleAdventureStateV47({});
   s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
@@ -614,49 +620,25 @@ assert.equal(t.result.nextAt,7000);
   s.inventory.push({id:"boostTest1",definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:1,level:0});
 
   const avantPuissance=s.inventory[0].toughness;
-  const plafondFrais=idleAdventureItemAtLevelV47("training:head",0).toughness*2;
-  assert.ok(avantPuissance<plafondFrais-1e-9,"Un objet frais sous le niveau 100 doit avoir un vrai écart avec son plafond absolu (sinon ce test ne prouve rien).");
   assert.doesNotThrow(
     ()=>{s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTest1",targetId:cibleId},{bosses:7},1).state;},
-    "Un objet sous le niveau max doit toujours pouvoir recevoir un boost (jamais bloqué/rejeté)."
+    "Un objet sous le niveau max doit toujours pouvoir recevoir un boost (jamais bloqué/rejeté), même quand le boost n'a aucun effet."
   );
   const apresPuissance=s.inventory.find(x=>x.id===cibleId).toughness;
-  assert.ok(
-    apresPuissance>avantPuissance,
-    "Un objet frais sous le niveau 100 doit réellement progresser vers son plafond absolu quand on le booste, jamais rester figé (le bug du 2e retour)."
+  assert.equal(
+    apresPuissance,
+    avantPuissance,
+    "Un objet frais (jamais fusionné) est déjà à SON PROPRE plafond du niveau courant dès sa création — un boost dessus doit être gâché, sans aucun effet (comportement NGU attendu, pas un bug)."
   );
   assert.ok(
-    apresPuissance<=plafondFrais+1e-9,
-    "...mais jamais dépasser ce plafond absolu (le bug du 1er retour)."
+    !s.inventory.some(x=>x.id==="boostTest1"),
+    "Le boost doit tout de même être consommé même quand il n'a aucun effet (fidèle au wiki : gâché, pas remboursé)."
   );
 
   /*
-   * RÉVISÉ 2026-09-13 (Norman, re-audit : "une arme à 3/3 en force passera
-   * 3/4 en fusionnant... regarde bien le wiki NGU") : vérifié directement
-   * sur ngu-idle.fandom.com/wiki/Inventory — la fusion prend le MAX entre
-   * les deux objets (jamais un recalcul de formule), donc le niveau peut
-   * atteindre 100 alors que Power/Toughness restent SOUS leur vrai
-   * plafond (basePower×2). Bloquer le boost au niveau 100 (règle
-   * précédente, 2026-09-10) empêchait exactement le geste qui doit rester
-   * possible : combler cet écart. Un objet niveau 100 doit donc pouvoir
-   * continuer à recevoir des boosts.
-   *
-   * RÉVISÉ 2026-09-14 (Norman : "je peux mettre des boost même si la
-   * somme maximal est déjà atteinte... Power 4/1 alors que le maximum est
-   * 1/1") : l'assertion précédente ("power>avantPuissanceMax") encodait
-   * exactement ce bug — un objet créé directement au niveau 100 via
-   * addItem a SA valeur DÉJÀ au plafond pur (basePower×2, aucun écart de
-   * fusion à combler ici), donc un boost supplémentaire ne doit RIEN
-   * ajouter (gâché, fidèle au wiki : "you could waste boosts if already
-   * at max potential"), sans jamais être bloqué/rejeté pour autant. Les
-   * deux exigences (jamais bloqué + jamais au-delà du plafond) sont
-   * désormais vérifiées séparément.
-   */
-  /*
-   * Isolation stats réelles par objet (2026-09-15) : training:head n'a
-   * plus de Power (0, exact wiki) — ce bloc et le suivant utilisent donc
-   * Toughness (que ce Cloth Hat porte réellement), même logique de test
-   * inchangée.
+   * Un objet créé directement au niveau 100 : plafond du niveau courant
+   * = basePower×(1+100/100) = basePower×2, donc identique au plafond
+   * absolu — un boost supplémentaire ne doit rien ajouter non plus.
    */
   s=normalizeIdleAdventureStateV47({});
   s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
@@ -677,11 +659,14 @@ assert.equal(t.result.nextAt,7000);
   );
 
   /*
-   * Cas Norman exact : un objet SOUS son plafond pur (le vrai écart de
-   * fusion documenté plus haut — deux objets niveau 40 fusionnés donnent
-   * niveau 81 mais gardent la stat du niveau 40) doit toujours pouvoir
-   * progresser vers ce plafond via boost, mais jamais le dépasser même en
-   * boostant massivement plusieurs fois d'affilée.
+   * Cas Norman exact : la fusion crée un vrai écart (deux objets niveau
+   * 40 fusionnés donnent niveau 81, wiki : "The new level will be the
+   * sum of the levels of the two items, +1" — mais gardent la stat du
+   * niveau 40, wiki : "the resulting merged item will have the max
+   * number in each stat between the original items", jamais un recalcul
+   * de formule). Seul un boost doit pouvoir combler cet écart, jusqu'au
+   * plafond du NOUVEAU niveau (81), jamais jusqu'au plafond absolu
+   * (niveau 100) puisque l'objet n'est pas allé jusque-là.
    */
   s=normalizeIdleAdventureStateV47({});
   s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
@@ -693,23 +678,13 @@ assert.equal(t.result.nextAt,7000);
   const avantEcart=s.inventory[0].toughness;
   const niveauApresFusion=s.inventory[0].level;
   assert.equal(niveauApresFusion,81,"40+40+1=81 (idleAdventureMergeLevelV47), pour un écart connu et reproductible.");
-  /*
-   * RÉVISÉ 2026-09-14 (re-audit, Norman : "sur mon arme qui est
-   * Toughness 1/2, j'ai ajouté des boost jusqu'à ce que je ne puisse
-   * plus en ajouter. Et pourtant la stat est restée pareil... alors que
-   * ça aurait dû passer à Toughness 2/2") : le plafond utilisé par
-   * applyBoost() est baseToughness×2 (le plafond ABSOLU à niveau 100),
-   * exactement le "Y" affiché au joueur dans "X/Y" — jamais
-   * baseToughness×(1+niveau/100) (le plafond du niveau COURANT), qui pour
-   * un objet fraîchement fusionné rendait le boost inerte dès le départ
-   * puisque ce plafond-là grandit avec le niveau, pas avec le vrai
-   * maximum affiché.
-   */
+
   const basePureItem=idleAdventureItemAtLevelV47("training:head",0).toughness;
-  const plafondPur=basePureItem*2;
+  const plafondNiveauCourant=basePureItem*(1+niveauApresFusion/100);
+  const plafondAbsolu=basePureItem*2;
   assert.ok(
-    avantEcart<plafondPur-1e-9,
-    "La fusion doit créer un vrai écart entre toughness et son plafond affiché (sinon ce test ne prouve rien)."
+    avantEcart<plafondNiveauCourant-1e-9,
+    "La fusion doit créer un vrai écart entre toughness et le plafond du NOUVEAU niveau (81) — sinon ce test ne prouve rien."
   );
   for(let i=0;i<50;i++){
     s.inventory.push({id:"boostTestEcart"+i,definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:100,level:0});
@@ -722,8 +697,12 @@ assert.equal(t.result.nextAt,7000);
   );
   assert.equal(
     finalPower,
-    plafondPur,
-    "En boostant massivement, Toughness doit pouvoir atteindre EXACTEMENT son plafond affiché (baseToughness×2) — jamais rester bloqué en dessous (le bug du 2e retour), jamais le dépasser (le bug du 1er retour, Power 4/1 alors que le maximum est 1/1)."
+    plafondNiveauCourant,
+    "En boostant massivement, Toughness doit pouvoir atteindre EXACTEMENT le plafond du niveau COURANT (81, pas 100) — jamais rester bloqué en dessous, jamais le dépasser."
+  );
+  assert.ok(
+    finalPower<plafondAbsolu-1e-9,
+    "Le plafond du niveau courant (81) doit rester strictement sous le plafond absolu (niveau 100) — la fusion seule ne comble jamais tout l'écart jusqu'au niveau 100."
   );
 }
 

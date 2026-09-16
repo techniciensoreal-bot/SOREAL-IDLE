@@ -795,33 +795,35 @@ function unequip(s,id){const o=s.inventory.find(x=>x.id===id);if(!o)throw Error(
  * Norman (2026-09-14) : "je peux mettre des boost même si la somme
  * maximal est déjà atteinte... mes bottes actuelles me donnent Power
  * 4/1 alors que le maximum est 1/1." Cause confirmée : rien ne plafonnait
- * jamais le résultat d'un boost Power/Toughness — le commentaire
- * sourcé au-dessus d'idleAdventureObjetPleinementMaxeV1 documentait déjà
- * ce plafond (basePower×(1+niveau/100), la même formule que item()/
- * special() ci-dessus) pour le badge Coffre, mais applyBoost() ne
- * l'appliquait jamais lui-même. Vrai NGU (wiki, page Boost) : la valeur
- * courante ne peut jamais dépasser le "maximum potential" affiché — un
- * boost appliqué une fois ce plafond atteint est simplement gâché (le
- * boost est quand même consommé, sans aucun effet), jamais bloqué côté
- * UI. "Special" reste volontairement sans plafond (aucune formule/donnée
- * sourcée du wiki n'existe pour lui, cf. commentaire dans
- * idle-adventure-stat-max-display.test.mjs côté APP).
- */
-/*
- * Correctif 2026-09-14 (re-audit, Norman : "sur mon arme qui est
- * Toughness 1/2, j'ai ajouté des boost jusqu'à ce que je ne puisse plus
- * en ajouter. Et pourtant la stat est restée pareil... alors que ça
- * aurait dû passer à Toughness 2/2") : le tout premier correctif de ce
- * même jour plafonnait à basePower×(1+niveau/100) — le plafond CE
- * NIVEAU-LÀ, jamais atteignable au-delà pour un objet fraîchement créé
- * (dont le power est TOUJOURS exactement ce plafond dès sa création,
- * item()/special() utilisant la même formule) — un boost n'avait donc
- * plus jamais aucun effet, contrairement à l'ancien bug (aucun plafond
- * du tout) ET à la vraie attente. Le "X/Y" affiché au joueur (voir
- * Soreal_Idle_UI.html, afficherDetailsObjetAdventureIdleV138_) est
- * TOUJOURS basePower×2 (le plafond ABSOLU à niveau 100), jamais le
- * plafond du niveau courant — c'est CE nombre que le boost doit pouvoir
- * atteindre, exactement ce que l'objet montre déjà.
+ * jamais le résultat d'un boost Power/Toughness — un plafond devait
+ * exister pour empêcher un boost de dépasser le "maximum potential"
+ * affiché (wiki, page Boost : "the actual stat can never exceed the
+ * maximum potential shown").
+ *
+ * Correctif 2026-09-16 (re-audit, Norman : "la fusion d'objet augmente
+ * la quantité de power. Mais dans NGU si un objet est 1/3 et que je le
+ * fusionne il passe à 1/4. La seule manière de le faire monter à 2/4
+ * sera de lui mettre des boosts") — un précédent correctif du 2026-09-14
+ * avait changé ce plafond de basePower×(1+niveau/100) (le plafond
+ * CORRECT, celui qui grandit avec le niveau) vers basePower×2 (le
+ * plafond ABSOLU, atteint seulement au niveau 100), en partant du
+ * constat qu'un objet FRAÎCHEMENT CRÉÉ a déjà power=basePower×(1+niveau/100)
+ * dès sa création (item()/special() ci-dessus) et qu'un boost n'aurait
+ * donc "jamais d'effet" avec le plafond niveau-par-niveau. C'était une
+ * fausse alerte : c'est exactement le comportement voulu par le wiki
+ * (ngu-idle.fandom.com/wiki/Inventory, section Leveling-up Items :
+ * "Each time an item levels-up, its maximum potential will go up and
+ * require to be boosted") — un objet neuf est TOUJOURS déjà à son
+ * plafond du moment (aucun boost utile tant qu'il n'a pas encore été
+ * fusionné) ; ce n'est qu'APRÈS une fusion (qui augmente le niveau —
+ * donc le plafond — sans jamais toucher la stat courante, voir merge()
+ * ci-dessus) qu'un écart apparaît, comblable uniquement par des boosts.
+ * Revient donc au plafond niveau-par-niveau, la même formule "q" que
+ * item()/special(). Le "X/Y" affiché au joueur (Soreal_Idle_UI.html,
+ * afficherDetailsObjetAdventureIdleV138_) doit suivre ce même plafond,
+ * jamais rester fixé à basePower×2. "Special" reste volontairement sans
+ * plafond (aucune formule/donnée sourcée du wiki n'existe pour lui, cf.
+ * commentaire dans idle-adventure-stat-max-display.test.mjs côté APP).
  */
 function applyBoost(s,boostId,targetId){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
@@ -845,7 +847,7 @@ function applyBoost(s,boostId,targetId){
   if(type==="power"||type==="toughness"){
     const d=defById(o.definitionId);
     const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
-    const cap=base?(type==="power"?base.baseP:base.baseT)*2:null;
+    const cap=base?(type==="power"?base.baseP:base.baseT)*(1+C(N(o.level),0,MAX)/100):null;
     o[type]=cap!=null?Math.min(cap,N(o[type])+added):N(o[type])+added;
   }else{
     o[type]=N(o[type])+added;
