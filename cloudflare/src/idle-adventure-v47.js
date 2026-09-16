@@ -114,8 +114,19 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * Collection retombe déjà sur un émoji générique via l'attribut onerror
  * du <img>, Soreal_Idle_UI.html).
  */
+/*
+ * Correctif 2026-09-16 (Norman, Tutorial : "il manque l'épouvantail et
+ * qu'on voit 2 fois l'image du boss" — 4 vrais fichiers R2 confirmés par
+ * Norman : tutorial_cardboard_foreman_boss.webp, tutorial_monster_box.webp,
+ * tutorial_pallet_goblin.webp, tutorial_scarecrow.webp). L'énumération
+ * initiale (seed 0-15, ancien mécanisme haché) n'avait jamais fait
+ * remonter le fichier boss pour cette zone — catalogué à tort "0 boss".
+ * Le fichier boss a "boss" en SUFFIXE (juste avant l'extension), jamais
+ * revu jusqu'ici : choisirCleMobR2_ (worker.js) a été élargi pour
+ * reconnaître "boss" en infixe OU en suffixe, pas seulement en infixe.
+ */
 export const IDLE_ADVENTURE_MOB_CATALOG_V1=Object.freeze({
-  tutorial:{normal:["monster_box","pallet_goblin","scarecrow"],boss:[]},
+  tutorial:{normal:["monster_box","pallet_goblin","scarecrow"],boss:["cardboard_foreman"]},
   sewers:{normal:["biobox_mimic","hazard_cone","mutant_rat"],boss:[]},
   forest:{normal:["boar","crow","hyena","shroom","spider","squirrel","woodling"],boss:["ancient_tree","pallet_wolf"]},
   cave:{normal:["barrel","camera","carcass","crate","dog","fish","forklift","worker"],boss:["abattoir","freezer","leviathan"]},
