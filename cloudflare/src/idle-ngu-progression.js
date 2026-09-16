@@ -156,6 +156,19 @@ export const IDLE_NGU_EARLY_GAME_TIMELINE = Object.freeze([
   { boss: 58, id: "titans", name: "Premier Titan" }
 ]);
 
+/*
+ * Norman (2026-09-16) : "je vois que le rebirth n'est supposé se
+ * déverrouiller qu'à ce moment là [tutoriel Aventure] alors que dans
+ * SOREAL IDLE on l'a direct." Confirmé par le tutoriel réel NGU (page
+ * Adventure_Mode/Tutorial Zone, "You've also unlocked REBIRTHS, which
+ * needs some explanation" — affiché juste après le déblocage d'Aventure,
+ * boss 4). Seuil unique, réutilisé par calculateIdleNguNextNumber
+ * (canRebirth) et rebirthIdleNguState (garde serveur) — jamais un second
+ * "4" écrit en dur ailleurs.
+ */
+export const REBIRTH_UNLOCK_BOSS_V1 =
+  IDLE_NGU_EARLY_GAME_TIMELINE.find(x=>x.id==="adventure")?.boss ?? 4;
+
 export const IDLE_NGU_NORMAL_CHALLENGES = Object.freeze([
   Object.freeze({id:"basic",name:"Basic Challenge",max:5,targetBoss:58,targetStep:0,implemented:true,reward:{experience:1500,ap:2500},unlock:{bosses:58},restriction:"resetNumber"}),
   Object.freeze({id:"noAugmentations",name:"No Augs Challenge",max:5,targetBoss:59,targetStep:0,implemented:true,reward:{experience:5000,ap:10000},unlock:{bosses:75},restriction:"noAugmentations"}),
@@ -1216,7 +1229,7 @@ export function calculateIdleNguNextNumber(input = {}) {
       macguffinNumberBonus,
       hacksNumberBonus
     ]),
-    canRebirth: runSeconds >= MIN_REBIRTH_SECONDS,
+    canRebirth: runSeconds >= MIN_REBIRTH_SECONDS && bosses >= REBIRTH_UNLOCK_BOSS_V1,
     minimumRebirthSeconds: MIN_REBIRTH_SECONDS,
     factors: {
       currentBossFactor,
@@ -3433,6 +3446,7 @@ export function rebirthIdleNguState(raw,context={},now=Date.now()) {
   const t=nowMs(now);
   const state=syncIdleNguState(raw,context,t);
   if(state.challenge?.active==="noRebirth")throw new Error("REBIRTH_INTERDITE_DEFI");
+  if(Math.max(0,int(context.bosses,0))<REBIRTH_UNLOCK_BOSS_V1)throw new Error("REBIRTH_VERROUILLEE_AVENTURE");
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
   if(runSeconds<MIN_REBIRTH_SECONDS)throw new Error("REBIRTH_TROP_TOT");
   return applyRebirthResetV56_(state,context,t,{});

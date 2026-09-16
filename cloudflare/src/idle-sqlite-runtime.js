@@ -20,7 +20,8 @@ import {
   idleNguResourceBudget,
   idleNguResourceGenerationPerSecond,
   applyIdleNguAction,
-  rebirthIdleNguState
+  rebirthIdleNguState,
+  REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1 } from "./idle-ngu-boss-reference-v1.js";
 import {
@@ -10663,6 +10664,15 @@ function construireEtatJoueurSorealIdle_(
 
     renaissance: {
       debloquee:Boolean(metaNguEtat.rebirth&&metaNguEtat.rebirth.canRebirth),
+      /*
+       * Norman (2026-09-16) : le Rebirth doit rester verrouillé (avec une
+       * explication claire, pas juste "3 minutes") tant que le tutoriel
+       * Aventure (boss 4) n'est pas fait — voir REBIRTH_UNLOCK_BOSS_V1.
+       */
+      aventureRequise:
+        (metaNguEtat.records&&metaNguEtat.records.highestBoss||0) <
+        REBIRTH_UNLOCK_BOSS_V1,
+      aventureRequiseBoss:REBIRTH_UNLOCK_BOSS_V1,
       number:Math.max(1,nombreSorealIdle_(metaNguEtat.rebirth&&metaNguEtat.rebirth.number,1)),
       nextNumber:Math.max(1,nombreSorealIdle_(metaNguEtat.rebirth&&metaNguEtat.rebirth.nextNumber,1)),
       renaissances:Math.max(0,nombreSorealIdle_(metaNguEtat.records&&metaNguEtat.records.totalRebirths,0)),

@@ -630,7 +630,10 @@ const fresh=(context={}, now=1_000_000)=>
 
 {
   // Energy natural cap grows by one per 20 generated Energy at rebirth, capped at 100k.
-  const context={bosses:1};
+  // bosses:4 (au lieu de 1) : Rebirth n'est déblocable qu'après le tutoriel
+  // Aventure (boss 4, voir REBIRTH_UNLOCK_BOSS_V1) — ce test porte sur le
+  // calcul du plafond d'Energie, pas sur ce seuil de déblocage.
+  const context={bosses:4};
   let state=fresh(context,0);
   state.resources.energy.current=0;
   state.resources.energy.generatedThisRun=400;
