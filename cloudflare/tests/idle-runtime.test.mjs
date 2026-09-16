@@ -803,7 +803,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
   const selectStart=
     source.indexOf("function selectionnerBossSorealIdle(");
   const selectEnd=
-    source.indexOf("function obtenirImageReposSorealIdle",selectStart);
+    source.indexOf("function reinitialiserTousLesComptesSorealIdle",selectStart);
   const selectBlock=
     source.slice(selectStart,selectEnd);
 
