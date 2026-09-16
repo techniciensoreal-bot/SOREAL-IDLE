@@ -24,10 +24,19 @@ import { nguBossStatsV1, NGU_BOSS_REFERENCE_COUNT_V1 } from "../src/idle-ngu-bos
   assert.equal(s.defense, 40000, "La Defense du boss 1 doit être exactement 40 000, comme publié sur le wiki (Attack/Defense/HP = 50 000/40 000/500 000).");
 }
 
-// --- Boss 4 (index 3) : Attack 1 300 000 / Defense 700 000 / HP 13 000 000 ---
+/*
+ * Correctif 2026-09-16 (Norman, screenshot en direct du VRAI jeu NGU
+ * Idle, pas seulement le wiki) : Boss 4 "A Small Mouse" = Attack
+ * 1 100 000 / Defense 600 000 / HP 11 000 000 — confirmé par capture
+ * d'écran réelle du jeu original, plus fiable que le tableau
+ * récapitulatif du wiki (qui affichait 1 300 000/700 000/13 000 000,
+ * en désaccord avec la fiche individuelle ET le jeu réel).
+ */
 {
   const s = nguBossStatsV1(3);
-  assert.equal(s.defense, 700000);
+  assert.equal(s.attaque, 1100000, "Attack du boss 4 confirmé par screenshot réel du jeu : 1 100 000.");
+  assert.equal(s.defense, 600000, "Defense du boss 4 confirmé par screenshot réel du jeu : 600 000.");
+  assert.equal(s.pv, 11000000, "HP du boss 4 confirmé par screenshot réel du jeu : 11 000 000.");
 }
 
 // --- Extrapolation au-delà de la table sourcée (160 boss) : même multiplicateur ×10/boss que pv/attaque ---

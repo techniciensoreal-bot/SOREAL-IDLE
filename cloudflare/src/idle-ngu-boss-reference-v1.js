@@ -80,13 +80,37 @@
  * (boss9, boss20, etc.). xp (Exp Reward) déjà exact, non modifié : chaque
  * valeur boss1-160 re-comparée à la colonne "Exp Reward" du wiki, aucun
  * écart.
+ *
+ * Correctif 2026-09-16 (suite, Norman : "mon screenshot vient de NGU
+ * IDLE lancé sur mon PC. Une toute nouvelle partie... la vérité ce sont
+ * mes screenshots. Ils sont pris du jeu original.") : le boss 4 "A Small
+ * Mouse" ci-dessus était FAUX malgré la vérification précédente — sourcé
+ * du tableau récapitulatif "Boss listing" (1 300 000/700 000/13 000 000),
+ * qui est en réalité en DÉSACCORD avec la fiche individuelle du wiki pour
+ * ce boss précis (https://ngu-idle.fandom.com/wiki/A_Small_Mouse :
+ * 1 100 000/600 000/11 000 000) — les deux pages du même wiki se
+ * contredisent. Confirmé par capture d'écran RÉELLE du jeu original
+ * (fournie par Norman, partie neuve) : les vraies valeurs sont bien
+ * celles de la fiche individuelle. Corrigé en conséquence (index 3).
+ *
+ * Important : cette correction ne se propage PAS à boss5+ — vérifié en
+ * direct que la fiche individuelle de "A Slightly Bigger Mouse" (boss 5,
+ * https://ngu-idle.fandom.com/wiki/A_Slightly_Bigger_Mouse) affiche
+ * 6 500 000/3 500 000/65 000 000, soit exactement ×5 de l'ANCIENNE valeur
+ * boss4 (13 000 000), pas de la nouvelle (11 000 000×5=55 000 000). Ceci
+ * est cohérent avec le texte officiel du wiki lui-même : la règle ×5/boss
+ * ne s'applique QUE "du boss 5 au boss 20" — la transition boss3→boss4
+ * (comme boss1→2→3) est une valeur individuellement conçue par les
+ * développeurs, jamais une formule, donc aucune contradiction à ce que
+ * boss4 diverge de ×5×boss3 sans que boss5+ n'en soit affecté. Seul
+ * l'index 3 a été corrigé ; boss5-160 restent inchangés et déjà vérifiés.
  */
 
 const NGU_BOSS_REFERENCE_V1 = [
   { pv: 500000, attaque: 50000, defense: 40000, xp: 0 },
   { pv: 1000000, attaque: 100000, defense: 90000, xp: 0 },
   { pv: 4000000, attaque: 400000, defense: 350000, xp: 0 },
-  { pv: 13000000, attaque: 1300000, defense: 700000, xp: 1 },
+  { pv: 11000000, attaque: 1100000, defense: 600000, xp: 1 },
   { pv: 65000000, attaque: 6500000, defense: 3500000, xp: 0 },
   { pv: 325000000, attaque: 32500000, defense: 17500000, xp: 0 },
   { pv: 1625000000, attaque: 162500000, defense: 87500000, xp: 1 },
