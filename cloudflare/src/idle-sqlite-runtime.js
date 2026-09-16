@@ -25,6 +25,7 @@ import {
 import { nguBossStatsV1 } from "./idle-ngu-boss-reference-v1.js";
 import {
   IDLE_ADVENTURE_ZONES,
+  IDLE_ADVENTURE_MOB_CATALOG_V1,
   normalizeIdleAdventureStateV47
 } from "./idle-adventure-v47.js";
 
@@ -5367,46 +5368,127 @@ function construireBestiaireSorealIdle_(
     (adventureStateBestiaireV1.zone &&
       adventureStateBestiaireV1.zone.bossEncounters) ||
     {};
+  /*
+   * Norman (2026-09-16) : "j'ai plusieurs images qui sont utilisée pour
+   * le même mob [...] Chacune des image doit être reliée à un ennemi. Le
+   * compte est bon normalement pour les premières zones." Root cause :
+   * une seule entrée Collection par zone/boss-ou-normal, quel que soit
+   * le nombre réel d'images R2 (3 à 8). Utilise désormais le suivi PAR
+   * INDEX (mobEncountersByIndex/bossEncountersByIndex, startZoneFight)
+   * pour émettre UNE entrée Collection par image du catalogue partagé
+   * avec worker.js (SOREAL-APP) — jamais un second calcul du nom des
+   * images, la seule source de vérité reste IDLE_ADVENTURE_MOB_CATALOG_V1.
+   */
+  const zoneMobIndexBestiaireV1 =
+    (adventureStateBestiaireV1.zone &&
+      adventureStateBestiaireV1.zone.mobEncountersByIndex) ||
+    {};
+  const zoneBossIndexBestiaireV1 =
+    (adventureStateBestiaireV1.zone &&
+      adventureStateBestiaireV1.zone.bossEncountersByIndex) ||
+    {};
+  function nomAffichageMobSorealIdleV1_(base) {
+    return String(base || '')
+      .split('_')
+      .filter(Boolean)
+      .map(function(mot) {
+        return mot.charAt(0).toUpperCase() + mot.slice(1);
+      })
+      .join(' ') || 'Créature';
+  }
 
   IDLE_ADVENTURE_ZONES
     .filter(function(zone) {
       return zone.id !== 'safe';
     })
     .forEach(function(zone) {
-      [false, true].forEach(function(estBoss) {
-        const rencontresCompteur =
-          Math.max(
-            0,
-            Math.floor(
-              nombreSorealIdle_(
-                estBoss
-                  ? zoneBossEncountersBestiaireV1[zone.id]
-                  : zoneEncountersBestiaireV1[zone.id],
-                0
-              )
-            )
-          );
-        const decouvert = rencontresCompteur > 0;
+      const catalogueZone =
+        IDLE_ADVENTURE_MOB_CATALOG_V1[zone.id] ||
+        { normal: [], boss: [] };
 
-        entrees.push({
-          cle: 'aventure:' + zone.id + (estBoss ? ':boss' : ':mob'),
-          source: 'aventure',
-          type: estBoss ? 'boss_zone' : 'normal',
-          categorie: estBoss ? 'Gardien de zone' : 'Créature',
-          rare: false,
-          decouvert: decouvert,
-          rencontres: rencontresCompteur,
-          numero: 0,
-          zone: zone.id,
-          boss: estBoss ? 1 : 0,
-          zoneId: 0,
-          nom: decouvert ? zone.name : '???????',
-          emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
-          pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
-          attaque: decouvert ? zone.p : 0,
-          description: '',
-          driveFileId: '',
-          image: ''
+      [false, true].forEach(function(estBoss) {
+        const pool = estBoss ? catalogueZone.boss : catalogueZone.normal;
+
+        /*
+         * Repli (zones sans catalogue d'images pour l'instant, ex.
+         * beardverse/badly/boring/chocolate — aucun dossier R2 dédié
+         * encore) : garder l'ancien comportement (une seule entrée
+         * générique par zone/rôle), jamais perdre une découverte déjà
+         * comptée par le joueur faute d'art disponible.
+         */
+        if (!pool.length) {
+          const rencontresCompteur =
+            Math.max(
+              0,
+              Math.floor(
+                nombreSorealIdle_(
+                  estBoss
+                    ? zoneBossEncountersBestiaireV1[zone.id]
+                    : zoneEncountersBestiaireV1[zone.id],
+                  0
+                )
+              )
+            );
+          const decouvert = rencontresCompteur > 0;
+
+          entrees.push({
+            cle: 'aventure:' + zone.id + (estBoss ? ':boss' : ':mob'),
+            source: 'aventure',
+            type: estBoss ? 'boss_zone' : 'normal',
+            categorie: estBoss ? 'Gardien de zone' : 'Créature',
+            rare: false,
+            decouvert: decouvert,
+            rencontres: rencontresCompteur,
+            numero: 0,
+            zone: zone.id,
+            boss: estBoss ? 1 : 0,
+            index: 0,
+            zoneId: 0,
+            nom: decouvert ? zone.name : '???????',
+            emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
+            pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
+            attaque: decouvert ? zone.p : 0,
+            description: '',
+            driveFileId: '',
+            image: ''
+          });
+          return;
+        }
+
+        const indexStore = estBoss ? zoneBossIndexBestiaireV1 : zoneMobIndexBestiaireV1;
+        const indexCounters = indexStore[zone.id] || {};
+
+        pool.forEach(function(baseNom, index) {
+          const rencontresCompteur =
+            Math.max(
+              0,
+              Math.floor(
+                nombreSorealIdle_(indexCounters[index], 0)
+              )
+            );
+          const decouvert = rencontresCompteur > 0;
+
+          entrees.push({
+            cle: 'aventure:' + zone.id + (estBoss ? ':boss:' : ':mob:') + index,
+            source: 'aventure',
+            type: estBoss ? 'boss_zone' : 'normal',
+            categorie: estBoss ? 'Gardien de zone' : 'Créature',
+            rare: false,
+            decouvert: decouvert,
+            rencontres: rencontresCompteur,
+            numero: 0,
+            zone: zone.id,
+            boss: estBoss ? 1 : 0,
+            index: index,
+            zoneId: 0,
+            nom: decouvert ? nomAffichageMobSorealIdleV1_(baseNom) : '???????',
+            emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
+            pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
+            attaque: decouvert ? zone.p : 0,
+            description: '',
+            driveFileId: '',
+            image: ''
+          });
         });
       });
     });

@@ -70,6 +70,67 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"boring",name:"Boring-Ass Earth",boss:124,p:180000000,t:90000000,oneHitP:7210000000,bossChance:2/9,set:"stealth",dropLevel:0,avatarLevel:6},
 {id:"chocolate",name:"Chocolate World",boss:137,p:70000000000,t:50000000000,oneHitP:2720000000000,bossChance:3/13,set:"choco",dropLevel:0,avatarLevel:6}
 ]);
+/*
+ * Norman (2026-09-16) : "j'ai plusieurs images qui sont utilisée pour le
+ * même mob. Ce qui fait que dans collection, je n'ai jamais tous les
+ * mobs. Il remplace juste par la nouvelle image. Chacune des image doit
+ * être reliée à un ennemi. Le compte est bon normalement pour les
+ * premières zones."
+ *
+ * Root cause confirmée : s.zone.encounters[zoneId]/bossEncounters[zoneId]
+ * étaient de simples compteurs GLOBAUX par zone (un seul pour TOUS les
+ * mobs normaux, un seul pour TOUS les boss) — construireBestiaireSorealIdle_
+ * (idle-sqlite-runtime.js) n'en tirait donc jamais que 2 entrées Collection
+ * par zone, quel que soit le nombre réel d'images R2 (3 à 8 mobs normaux
+ * + 0 à 3 portraits de boss selon la zone). Le média (choisirCleMobR2_,
+ * worker.js côté SOREAL-APP) piochait ensuite une image "au hasard mais
+ * stable" dans tout le dossier via ce même compteur cumulé — donnant
+ * l'impression trompeuse qu'"une nouvelle image remplace l'ancienne"
+ * sur cette unique entrée.
+ *
+ * Ce moteur (idle-adventure-v47.js) reste volontairement isolé de R2 (cf.
+ * index-idle-coordinator-v1.js : "runSorealIdleOperation() ne dépend que
+ * d'un handle SQLite brut, jamais d'accès réseau externe") — un petit
+ * catalogue statique, sourcé en énumérant les vraies clés R2 en direct
+ * via /api/idle/media/mob (en-tête x-soreal-idle-r2-key, seed 0-15 par
+ * zone), sert donc de contrat partagé avec worker.js (SOREAL-APP), qui
+ * trie et indexe SES pools EXACTEMENT dans le même ordre alphabétique —
+ * mêmes noms de base ci-dessous, sans le préfixe de zone ni l'extension.
+ * Ce ne sont PAS de vrais monstres NGU (aucune fiche wiki dédiée) : ce
+ * sont des créations SOREAL originales sur le thème dépôt/entrepôt —
+ * leur nom affiché en Collection se dérive directement du nom de fichier,
+ * jamais inventé depuis le wiki.
+ *
+ * Un seul boss par zone existe réellement dans le moteur de jeu (rollKill/
+ * startZoneFight, pas de notion de boss "en plusieurs étapes") : quand
+ * une zone a plusieurs portraits "_boss_" en R2 (ex. Cave en a 3), ce
+ * ne sont que des variantes visuelles du MÊME unique boss de zone,
+ * chacune devenant sa propre entrée Collection au même titre qu'un mob
+ * normal — jamais une nouvelle mécanique de boss à étapes.
+ *
+ * beardverse/badly/boring/chocolate n'ont pas encore d'art R2 dédié
+ * (dossiers absents de IDLE_ADVENTURE_MOB_FOLDERS côté worker.js) —
+ * catalogues vides ici en attendant, sans effet néfaste (l'image de
+ * Collection retombe déjà sur un émoji générique via l'attribut onerror
+ * du <img>, Soreal_Idle_UI.html).
+ */
+export const IDLE_ADVENTURE_MOB_CATALOG_V1=Object.freeze({
+  tutorial:{normal:["monster_box","pallet_goblin","scarecrow"],boss:[]},
+  sewers:{normal:["biobox_mimic","hazard_cone","mutant_rat"],boss:[]},
+  forest:{normal:["boar","crow","hyena","shroom","spider","squirrel","woodling"],boss:["ancient_tree","pallet_wolf"]},
+  cave:{normal:["barrel","camera","carcass","crate","dog","fish","forklift","worker"],boss:["abattoir","freezer","leviathan"]},
+  sky:{normal:["cloud_spirit","drone","hornet","pigeon","plastic_ghost","seagull","supply_drop","wind_elemental"],boss:["airship"]},
+  hsb:{normal:["dog","forklift","guard","hazmat","heavybot","mine","recon","turret"],boss:["chief","mutant"]},
+  clock:{normal:["box","drone","forkbot","guard","hourglass","pallet","rat"],boss:["timewarden"]},
+  "2d":{normal:["glitch_cube","pixel_slime","scanline_wraith","sprite_knight","vector_spider","wireframe_rat"],boss:["crt_demon","glitch_colossus"]},
+  ancient:{normal:["ghost_worker","haunted_drone","mimic_crate","pallet_rat","pallet_walker","possessed_forklift"],boss:["forklord","pallet_golem"]},
+  avsp:{normal:["crystal_brain","eye_blob","floating_mask","mouth_cube","tentacle_worker","void_spider"],boss:["cosmic_manager","reality_eater"]},
+  mega:{normal:["drone","hound","leaker","riot","scavenger","slime","spitter","spore"],boss:["excavator"]},
+  beardverse:{normal:[],boss:[]},
+  badly:{normal:[],boss:[]},
+  boring:{normal:[],boss:[]},
+  chocolate:{normal:[],boss:[]}
+});
 export const IDLE_ADVENTURE_TITANS=Object.freeze([
 /*
  * Re-audit 2026-09-13 (Norman : "boss ennemis pas pareil en aventure") :
@@ -1040,6 +1101,25 @@ if(!s.zone.encounters)s.zone.encounters={};
 if(!s.zone.bossEncounters)s.zone.bossEncounters={};
 if(boss)s.zone.bossEncounters[z.id]=(s.zone.bossEncounters[z.id]||0)+1;
 else s.zone.encounters[z.id]=(s.zone.encounters[z.id]||0)+1;
+/*
+ * Norman (2026-09-16) : "Chacune des image doit être reliée à un
+ * ennemi." Compteurs ADDITIFS par INDEX de catalogue (jamais un
+ * remplacement des compteurs globaux ci-dessus, qui gardent leur rôle
+ * existant) — chaque image individuelle de IDLE_ADVENTURE_MOB_CATALOG_V1
+ * obtient son propre suivi de rencontres, au lieu d'un seul compteur
+ * partagé par toute la zone. L'index est tiré au même moment que "boss"
+ * ci-dessus (la vraie rencontre), jamais recalculé à la résolution.
+ */
+if(!s.zone.mobEncountersByIndex)s.zone.mobEncountersByIndex={};
+if(!s.zone.bossEncountersByIndex)s.zone.bossEncountersByIndex={};
+const catalogueZoneV1=IDLE_ADVENTURE_MOB_CATALOG_V1[z.id]||{normal:[],boss:[]};
+const poolIndexV1=boss?catalogueZoneV1.boss:catalogueZoneV1.normal;
+if(poolIndexV1.length){
+  const monsterIndex=Math.floor(Math.random()*poolIndexV1.length);
+  const store=boss?s.zone.bossEncountersByIndex:s.zone.mobEncountersByIndex;
+  if(!store[z.id])store[z.id]={};
+  store[z.id][monsterIndex]=(store[z.id][monsterIndex]||0)+1;
+}
 return X(s.fight)}
 /*
  * BUG CORRIGÉ (2026-09-10) : une garde "if(s.fight.monsterHp>0)throw" avait
