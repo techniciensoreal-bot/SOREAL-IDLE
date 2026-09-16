@@ -395,7 +395,15 @@ const SPECIALS=Object.freeze({
  * débloqué (transformé, cf. record() plus bas) doit rester inéquipable ;
  * avant ce seuil, c'est un accessoire normal comme n'importe quel autre.
  */
-tutorialCube:{name:"Tutorial Cube",zone:"sewers",slot:"special",cube:true,dropLevel:4,p:7,t:7},
+/*
+ * Correctif 2026-09-16 (Norman : "tu ne dois rien laisser différent de
+ * NGU") : wiki ngu-idle.fandom.com/wiki/Sewers, section Loot > Boss —
+ * "4G's Merge and Boost Tutorial Cube lvl 4 (10% base chance)", listé
+ * uniquement sous les drops du BOSS (Brown Slime), jamais des ennemis
+ * normaux. bossOnly:true + dropChance:0.10 (roll dédié dans rollKill,
+ * jamais mélangé au pool générique 4% partagé par les autres SPECIALS).
+ */
+tutorialCube:{name:"Tutorial Cube",zone:"sewers",slot:"special",cube:true,dropLevel:4,p:7,t:7,bossOnly:true,dropChance:0.10},
 // wiki : "The Tuba of Time" — Power/Toughness Max stat at lvl 0 = 10/10.
 tubaTime:{name:"Tuba of Time",zone:"forest",slot:"accessory",dropLevel:1,p:10,t:10},
 // wiki : "Cheese Grater" — Power Max at lvl 0 = 15 ; aucune stat Toughness listée.
@@ -1005,7 +1013,18 @@ const ZONE_GOLD_RANGES_V1={
  * l'ancien chemin zoneKill (kill instantané, plus appelé par l'écran
  * actuel mais gardé pour compatibilité).
  */
-function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];if(z.set&&Math.random()<C(.22*dropMult,0,.95)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<C(.12*dropMult,0,.85))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<C(.04*dropMult,0,.5)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}return{zone:z.id,boss,drops:out.filter(Boolean),gold}}
+function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];if(z.set&&Math.random()<C(.22*dropMult,0,.95)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<C(.12*dropMult,0,.85))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<C(.04*dropMult,0,.5)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
+/*
+ * Correctif 2026-09-16 (Norman, wiki NGU exact) : les SPECIALS bossOnly
+ * PORTANT un dropChance sourcé du wiki (ex. tutorialCube, 10% sur le
+ * boss de Sewers) obtiennent chacun leur PROPRE roll indépendant à leur
+ * propre pourcentage, uniquement sur un kill de boss — jamais mélangés
+ * au pool générique 4% ci-dessus (partagé par les SPECIALS sans donnée
+ * de taux propre), ni transformés en déblocage garanti (réservé aux
+ * SPECIALS bossOnly SANS dropChance, ex. pissedOffKey ci-dessous).
+ */
+if(boss){for(const [id,d] of Object.entries(SPECIALS)){if(d.zone===z.id&&d.bossOnly&&d.dropChance!=null&&I(ctx.bosses)>=I(d.requiresBoss)&&Math.random()<C(N(d.dropChance)*dropMult,0,1)){out.push(add(s,special(id,d.dropLevel||0)))}}}
+if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}return{zone:z.id,boss,drops:out.filter(Boolean),gold}}
 /*
  * Combat de zone réel (demande Norman 2026-09-09) : "on voit l'ennemi, on
  * voit les barres de vie qui descendent à chaque coup. Comme pour les
