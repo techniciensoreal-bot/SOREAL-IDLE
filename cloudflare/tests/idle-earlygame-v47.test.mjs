@@ -136,15 +136,29 @@ const fresh=(context={}, now=1_000_000)=>
 }
 
 {
+  /*
+   * Fidélité wiki (audit 2026-09-16, ngu-time-machine.md) : le niveau
+   * 0->1 du Time Machine coûte réellement 1 000 000s ET 5 000 000 Or à ce
+   * rythme d'allocation (1 Power, 1000 alloués) — jamais 1 seconde
+   * gratuite comme l'ancienne formule (bug corrigé) le laissait croire.
+   * Ce test vérifie donc désormais le VRAI seuil, Or fourni.
+   */
   const context={bosses:37,bestGold:1000};
   let state=fresh(context,1_000_000);
+  state.currencies.gold=10_000_000;
   state.resources.energy.cap=1000;
   state.resources.energy.current=1000;
   state.resources.magic.cap=1000;
   state.resources.magic.current=1000;
   state=applyIdleNguAction(state,{action:"allocate",system:"timeMachine",resource:"energy",value:1000},context,1_000_000).state;
   state=applyIdleNguAction(state,{action:"allocate",system:"timeMachine",resource:"magic",value:1000},context,1_000_000).state;
-  state=advanceIdleNguState(state,1,context,1_001_000);
+
+  // 1 seconde (ancien seuil, désormais bien trop court) ne doit plus jamais suffire.
+  const tooSoon=advanceIdleNguState(state,1,context,1_000_001);
+  assert.equal(tooSoon.systems.timeMachine.data.speedLevel,0,"1s ne doit plus faire monter le niveau (ancienne régression corrigée).");
+
+  // Le vrai seuil wiki (1 000 000s à ce rythme) doit, lui, fonctionner — Or suffisant fourni.
+  state=advanceIdleNguState(state,1_000_000,context,2_000_000);
   assert.ok(state.systems.timeMachine.data.speedLevel>=1);
   assert.ok(state.systems.timeMachine.data.goldLevel>=1);
   assert.ok(idleNguTimeMachineGoldPerSecond(state)>0);

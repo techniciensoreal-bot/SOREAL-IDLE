@@ -1762,11 +1762,32 @@ function advanceTrackSystem(state, def, seconds) {
   s.permanentLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.permanentLevel, 0);
 }
 
-function tmLevelSeconds(state, resource) {
+/*
+ * Fidélité wiki (2026-09-16, audit) : ngu-time-machine.md — "Cost for
+ * level N-1->N is N times the level 0->1 cost (linear scaling)". La
+ * base (0->1, à 1 Energy/Magic Power + 1000 de cap alloué) vaut
+ * 1 000 000 s : alloc×power=1000 à ce point de référence, donc
+ * base = 1e9/(alloc×power) redonne bien 1 000 000 s. L'ancienne formule
+ * (1000/(alloc×power), sans dépendance au niveau) rendait chaque niveau
+ * quasi instantané (~1s), une régression bien plus grave que le simple
+ * "pas de scaling par niveau" repéré par l'audit.
+ */
+function tmLevelSeconds(state, resource, targetLevel) {
   const alloc = Math.max(0, num(state.systems.timeMachine.allocation[resource], 0));
   if (alloc <= 0) return Infinity;
   const power = Math.max(1, state.resources[resource].power);
-  return 1000 / Math.max(1e-12, alloc * power);
+  const n = Math.max(1, targetLevel);
+  return (1e9 / Math.max(1e-12, alloc * power)) * n;
+}
+
+/*
+ * Fidélité wiki : "Level 0->1 for EITHER track: 5,000,000 Gold... Requires
+ * Energy and Magic allocation, plus Gold, to level up." Aucun coût en Or
+ * n'était jamais prélevé auparavant — la barre se remplissait, puis le
+ * niveau montait gratuitement.
+ */
+function tmLevelGoldCost(targetLevel) {
+  return 5000000 * Math.max(1, targetLevel);
 }
 
 function advanceTimeMachine(state, seconds) {
@@ -1774,24 +1795,46 @@ function advanceTimeMachine(state, seconds) {
   if (!s.unlocked || seconds <= 0) return;
   const d = s.data;
 
-  const energyStep = tmLevelSeconds(state, "energy");
+  /*
+   * Le coût grandissant avec le niveau (temps ET Or), on ne peut plus
+   * calculer le nombre de niveaux gagnés en une division : chaque palier
+   * doit être franchi un par un, et un palier reste bloqué si l'Or
+   * disponible est insuffisant au moment où la barre se remplit (la barre
+   * plafonne alors pleine, en attente d'Or — jamais une perte de
+   * progression). Le nombre d'itérations reste naturellement borné (le
+   * coût croît linéairement, donc le temps cumulé croît en N²) ; une
+   * limite défensive évite malgré tout toute boucle non bornée.
+   */
+  let guard = 0;
+  let energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
   if (Number.isFinite(energyStep)) {
     d.speedProgress += seconds;
-    const levels = Math.floor(d.speedProgress / energyStep);
-    if (levels > 0) {
-      d.speedProgress -= levels * energyStep;
-      d.speedLevel += levels;
+    while (d.speedProgress >= energyStep && guard < 100000) {
+      guard++;
+      const cost = tmLevelGoldCost(d.speedLevel + 1);
+      if (state.currencies.gold + 1e-9 < cost) { d.speedProgress = energyStep; break; }
+      state.currencies.gold -= cost;
+      d.speedProgress -= energyStep;
+      d.speedLevel += 1;
+      energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
+      if (!Number.isFinite(energyStep)) break;
     }
   }
 
   if (state.systems.bloodMagic.unlocked) {
-    const magicStep = tmLevelSeconds(state, "magic");
+    guard = 0;
+    let magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
     if (Number.isFinite(magicStep)) {
       d.goldProgress += seconds;
-      const levels = Math.floor(d.goldProgress / magicStep);
-      if (levels > 0) {
-        d.goldProgress -= levels * magicStep;
-        d.goldLevel += levels;
+      while (d.goldProgress >= magicStep && guard < 100000) {
+        guard++;
+        const cost = tmLevelGoldCost(d.goldLevel + 1);
+        if (state.currencies.gold + 1e-9 < cost) { d.goldProgress = magicStep; break; }
+        state.currencies.gold -= cost;
+        d.goldProgress -= magicStep;
+        d.goldLevel += 1;
+        magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
+        if (!Number.isFinite(magicStep)) break;
       }
     }
   }

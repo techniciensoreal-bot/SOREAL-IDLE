@@ -21,6 +21,23 @@
  * correctly-costed catalog entries; only their mechanical payoff is
  * pending a future Yggdrasil pass. Never silently drop or fake data to
  * avoid an empty bonus object — an honest gap beats an invented one.
+ *
+ * Audit 2026-09-16 — "The Fibonacci Perk" (wiki index 94, listed further
+ * down Page 1 than index 56 because most of its own milestones are
+ * Evil/Sadistic-tier, but its early tiers are explicitly Normal per
+ * ngu-core-tracks.md/itopod.md) was entirely missing from this catalog.
+ * Unlike every perk above, it is NOT a linear per-level bonus — leveling
+ * it unlocks a fixed, qualitatively different bonus at each
+ * Fibonacci-numbered level (1, 2, 5, 8, 13, 21, 34, 55, 89, 144, ...,
+ * cap 1597), so it carries its own `fibonacciMilestones` array instead of
+ * a `bonus` map, applied by perkBonusesV1() as threshold unlocks rather
+ * than level x perLevel sums. Only the milestones independently confirmed
+ * against the local wiki mirror (1, 2, 5, 8, 21, 55, 144) are wired to a
+ * real bonus below; milestones 13 (ITOPOD PP earnings), 89 (AP gain) and
+ * 987 (flat EXP gain) have no aggregator field anywhere in this codebase
+ * yet (AP/EXP/PP-earnings are not currently multiplier-driven) — left
+ * undocumented in code rather than inventing a new global multiplier
+ * system as a side effect of adding one perk. Same honesty rule as 16/17.
  */
 
 export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
@@ -79,7 +96,24 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 52, name: "A Digger Slot!", effect: "Unlock an additional Digger Slot", cost: 25, cap: 1, bonus: { diggerSlotBonus: 1 } },
   { id: 53, name: "Ooh, Another Digger Slot!", effect: "Yet another Digger Slot", cost: 250, cap: 1, bonus: { diggerSlotBonus: 1 } },
   { id: 54, name: "Stat Boost for Rich Perks II", effect: "+1% Attack/Defense per level", cost: 100, cap: 1000, bonus: { statPct: 0.01 } },
-  { id: 55, name: "Adventure Boost For Rich Perks I", effect: "+0.1% to Adventure Stats per level", cost: 100, cap: 1000, bonus: { adventureStatsPct: 0.001 } }
+  { id: 55, name: "Adventure Boost For Rich Perks I", effect: "+0.1% to Adventure Stats per level", cost: 100, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
+  {
+    id: 94,
+    name: "The Fibonacci Perk",
+    effect: "Each level unlocks secret bonuses at the next Fibonacci-numbered level (1, 2, 5, 8, 13, 21, 34, 55, 89, 144, ...).",
+    cost: 500,
+    cap: 1597,
+    bonus: {},
+    fibonacciMilestones: [
+      { level: 1, energyPowerPct: 0.10, magicPowerPct: 0.10, energyCapPct: 0.10, energyBarsPct: 0.10, magicBarsPct: 0.10 },
+      { level: 2, energyPowerPct: 0.10, magicPowerPct: 0.10, energyCapPct: 0.10, energyBarsPct: 0.10, magicBarsPct: 0.10 },
+      { level: 5, nguSpeedEnergyPct: 0.05 },
+      { level: 8, nguSpeedMagicPct: 0.05 },
+      { level: 21, energyPowerPct: 0.10, magicPowerPct: 0.10, energyCapPct: 0.10, energyBarsPct: 0.10, magicBarsPct: 0.10 },
+      { level: 55, daycareGrowthPct: 0.05 },
+      { level: 144, lootGoblinChancePct: 0.05 }
+    ]
+  }
 ]);
 
 export function idlePerkByIdV1(id) {
@@ -112,6 +146,15 @@ export function perkBonusesV1(levelsById) {
     if (!level) continue;
     for (const [key, perLevel] of Object.entries(perk.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
+    }
+    if (Array.isArray(perk.fibonacciMilestones)) {
+      for (const tier of perk.fibonacciMilestones) {
+        if (level < tier.level) continue;
+        for (const [key, value] of Object.entries(tier)) {
+          if (key === "level") continue;
+          totals[key] = (totals[key] || 0) + value;
+        }
+      }
     }
   }
   return {

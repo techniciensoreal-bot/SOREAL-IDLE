@@ -23,7 +23,7 @@ import {
  */
 
 // --- Catalog shape: 56 entries, unique sequential ids 0-55, sane cost/cap ---
-assert.equal(IDLE_PERKS_CATALOG_V1.length, 56, "56 Normal-accessible perks (wiki indices 0-55).");
+assert.equal(IDLE_PERKS_CATALOG_V1.length, 57, "56 Normal-accessible perks (wiki indices 0-55) + The Fibonacci Perk (wiki index 94).");
 for (let i = 0; i < 56; i++) {
   const perk = IDLE_PERKS_CATALOG_V1[i];
   assert.equal(perk.id, i, "Perk ids must be sequential 0-55, matching the wiki table order.");
@@ -44,6 +44,40 @@ assert.equal(idlePerkByIdV1(29).bonus.accessorySlotBonus, 1, "Perk 29 is the fla
 assert.equal(idlePerkByIdV1(55).name, "Adventure Boost For Rich Perks I");
 assert.equal(idlePerkByIdV1(55).bonus.adventureStatsPct, 0.001, "0.1% per level, matches the wiki exactly.");
 assert.equal(idlePerkByIdV1(56), null, "Index 56 (Macguffin Daycare!, Evil only) must not be in the Normal catalog.");
+assert.equal(idlePerkByIdV1(94).name, "The Fibonacci Perk");
+assert.equal(idlePerkByIdV1(94).cost, 500, "500 PP per level, per the audit.");
+assert.equal(idlePerkByIdV1(94).cap, 1597, "Caps at 1597 (a Fibonacci number), per the audit.");
+
+// --- The Fibonacci Perk: threshold-unlocked milestones, not linear per-level bonuses ---
+{
+  const below = perkBonusesV1({ 94: 0 });
+  assert.equal(below.energyPowerMultiplier, 1, "Level 0 must unlock nothing.");
+
+  const l1 = perkBonusesV1({ 94: 1 });
+  assert.ok(Math.abs(l1.energyPowerMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Energy Power.");
+  assert.ok(Math.abs(l1.magicPowerMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Magic Power.");
+  assert.ok(Math.abs(l1.energyCapMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Energy Cap.");
+  assert.ok(Math.abs(l1.energyBarsMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Energy Bars.");
+  assert.ok(Math.abs(l1.magicBarsMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Magic Bars.");
+  assert.equal(l1.nguSpeedEnergyMultiplier, 1, "Level 5's bonus must not apply yet at level 1.");
+
+  const l4 = perkBonusesV1({ 94: 4 });
+  assert.ok(Math.abs(l4.energyPowerMultiplier - 1.20) < 1e-9, "Levels 1+2 stack: +10%+10% = +20% Energy Power.");
+  assert.equal(l4.nguSpeedEnergyMultiplier, 1, "Level 5 not yet reached at level 4.");
+
+  const l21 = perkBonusesV1({ 94: 21 });
+  assert.ok(Math.abs(l21.energyPowerMultiplier - 1.30) < 1e-9, "Levels 1+2+21 stack to +30% Energy Power at level 21.");
+  assert.ok(Math.abs(l21.nguSpeedEnergyMultiplier - 1.05) < 1e-9, "Level 5's +5% Energy NGU speed is included by level 21.");
+  assert.ok(Math.abs(l21.nguSpeedMagicMultiplier - 1.05) < 1e-9, "Level 8's +5% Magic NGU speed is included by level 21.");
+
+  const l55 = perkBonusesV1({ 94: 55 });
+  assert.ok(Math.abs(l55.daycareGrowthMultiplier - 1.05) < 1e-9, "Level 55 unlocks +5% Daycare growth.");
+
+  const l144 = perkBonusesV1({ 94: 144 });
+  assert.ok(Math.abs(l144.lootGoblinChance - 0.05) < 1e-9, "Level 144 unlocks a 5% loot-level-up chance, same pool as Loot Goblin's Blessing.");
+
+  assert.ok(Math.abs(perkBonusesV1({ 94: 99999 }).energyPowerMultiplier - perkBonusesV1({ 94: 1597 }).energyPowerMultiplier) < 1e-9, "Level is clamped to the 1597 cap, never over-counted beyond it.");
+}
 
 // --- Real flat per-level cost, not the old exponential model ---
 assert.equal(idlePerkNextCostV1(idlePerkByIdV1(31), 0), 2, "More Inventory Space I costs a flat 2 per level, every level.");
