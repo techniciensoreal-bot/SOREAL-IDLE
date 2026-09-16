@@ -1217,11 +1217,25 @@ if(!s.zone.mobEncountersByIndex)s.zone.mobEncountersByIndex={};
 if(!s.zone.bossEncountersByIndex)s.zone.bossEncountersByIndex={};
 const catalogueZoneV1=IDLE_ADVENTURE_MOB_CATALOG_V1[z.id]||{normal:[],boss:[]};
 const poolIndexV1=boss?catalogueZoneV1.boss:catalogueZoneV1.normal;
+/*
+ * Audit 2026-09-16 (Norman : "tous les mobs s'appellent Monster Box dans
+ * le journal de combat") : cet index tiré au hasard n'était utilisé QUE
+ * pour le compteur de rencontres (mobEncountersByIndex, ci-dessous),
+ * jamais posé sur s.fight lui-même. Le client (libelleEnnemiAdventureIdleV1_,
+ * Soreal_Idle_UI.html) résolvait donc le nom/l'image via monsterHpMax
+ * comme "seed" -- une valeur constante pour TOUTE la zone (dépend
+ * seulement de z.oneHitP, jamais du mob réellement tiré), résolvant donc
+ * TOUJOURS vers le même mob du pool. Stocké ici sur s.fight.monsterIndex
+ * (le vrai index tiré), pour que le client résolve le VRAI mob rencontré.
+ */
 if(poolIndexV1.length){
   const monsterIndex=Math.floor(Math.random()*poolIndexV1.length);
+  s.fight.monsterIndex=monsterIndex;
   const store=boss?s.zone.bossEncountersByIndex:s.zone.mobEncountersByIndex;
   if(!store[z.id])store[z.id]={};
   store[z.id][monsterIndex]=(store[z.id][monsterIndex]||0)+1;
+}else{
+  s.fight.monsterIndex=-1;
 }
 return X(s.fight)}
 /*
