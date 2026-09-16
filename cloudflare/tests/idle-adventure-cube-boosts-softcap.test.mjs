@@ -59,9 +59,19 @@ function baseState(inventory, cube) {
 
 // --- Softcap : exemple exact du wiki (base 1000, cube 1100 => contribution 1010) ---
 {
-  // Un objet équipé donnant exactement 1000 de Power, cube à 1100.
+  /*
+   * Un objet équipé donnant exactement 1000 de Power, cube à 1100.
+   * definitionId volontairement HORS catalogue (2026-09-16, migration
+   * cleanItem) : depuis que cleanItem() plafonne power/toughness au
+   * vrai niveau de l'objet (base×(1+niveau/100)) pour tout definitionId
+   * réel, un vrai "training:head" (baseP=0) ramènerait ce power=1000
+   * fictif à 0 avant même d'atteindre idleAdventureEquipmentStatsV47 —
+   * ce test vise uniquement l'agrégation équipement+cube et son
+   * softcap, jamais le plafonnement par objet (déjà couvert par
+   * idle-adventure-v47.test.mjs).
+   */
   const state = baseState(
-    [{ id: "gear1", definitionId: "training:head", kind: "equipment", level: 0, power: 1000, toughness: 0 }],
+    [{ id: "gear1", definitionId: "__test_fake_gear_v1__", kind: "equipment", level: 0, power: 1000, toughness: 0 }],
     { power: 1100, toughness: 0 }
   );
   state.equipment.head = "gear1";
@@ -72,7 +82,7 @@ function baseState(inventory, cube) {
 // --- Softcap : sous le seuil, le cube s'additionne intégralement (pas de perte) ---
 {
   const state = baseState(
-    [{ id: "gear2", definitionId: "training:head", kind: "equipment", level: 0, power: 1000, toughness: 0 }],
+    [{ id: "gear2", definitionId: "__test_fake_gear_v1__", kind: "equipment", level: 0, power: 1000, toughness: 0 }],
     { power: 300, toughness: 0 }
   );
   state.equipment.head = "gear2";

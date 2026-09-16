@@ -564,7 +564,26 @@ export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
 function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
 export function createIdleAdventureStateV47(){return base()}
-function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));return z}
+/*
+ * Migration 2026-09-16 (Norman : "je me retrouve avec des stats genre
+ * Toughness 2/1 sur mon casque... tu dois mettre à jour les
+ * sauvegardes des joueurs déjà en cours [...] tenir compte du nombre
+ * de boosts réellement appliqué, ne pas remplir artificiellement les
+ * statistiques") — conséquence directe du bug de plafond corrigé plus
+ * haut (applyBoost utilisait basePower×2, le plafond ABSOLU, au lieu de
+ * basePower×(1+niveau/100), le plafond du NIVEAU COURANT) : des objets
+ * boostés SOUS le niveau 100 avaient pu accumuler une stat au-delà de ce
+ * que leur vrai niveau autorise (ex. Toughness=2 sur un objet niveau 21,
+ * dont le vrai plafond n'est que baseT×1.21≈1). cleanItem() tournant à
+ * CHAQUE chargement (normalizeIdleAdventureStateV47, inventaire ET
+ * coffre), ce correctif s'applique automatiquement, une seule fois par
+ * objet concerné, à TOUTES les sauvegardes déjà en cours, sans action
+ * manuelle. Toujours un plafonnement VERS LE BAS (jamais une valeur
+ * ajoutée/inventée) : un objet déjà dans les clous n'est jamais modifié,
+ * seul l'excédent illégitime (accumulé via le bug, jamais via un vrai
+ * boost sous les nouvelles règles) est retiré.
+ */
+function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);}return z}
 export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);
 /*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
