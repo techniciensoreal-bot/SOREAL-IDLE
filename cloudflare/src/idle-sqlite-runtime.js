@@ -2675,11 +2675,13 @@ function monstresAventureSorealIdleGameV409_() {
             .trim()
             .toLowerCase();
 
+        // Tier "rare" + objet legendaire retire : mecanique 100% SOREAL
+        // sans equivalent NGU (aucune trace sur le wiki). Les lignes IDLE_MONSTRES
+        // de type rare retombent desormais sur 'normal'.
         const type =
           [
             'normal',
-            'boss_zone',
-            'rare'
+            'boss_zone'
           ].indexOf(typeBrut) !== -1
             ? typeBrut
             : 'normal';
@@ -5803,6 +5805,9 @@ function bonusSetsSorealIdle_(
       const pieces =
         groupes[setId];
 
+      // Palier unique a la piece complete (set.pieces6, toujours 6 dans le
+      // moteur SOREAL) : le vrai NGU ne donne qu'un seul bonus de
+      // complétion par set, jamais de paliers intermediaires 2pc/4pc.
       let bonus = 0;
 
       if (
@@ -5810,16 +5815,6 @@ function bonusSetsSorealIdle_(
       ) {
         bonus =
           set.bonus6Pct;
-      } else if (
-        pieces >= set.pieces4
-      ) {
-        bonus =
-          set.bonus4Pct;
-      } else if (
-        pieces >= set.pieces2
-      ) {
-        bonus =
-          set.bonus2Pct;
       }
 
       if (bonus > 0) {
@@ -15606,108 +15601,10 @@ function bossCatalogueSorealIdle_() {
       );
     })
     .map(function(ligne, index) {
-      const capacites = [
-        {
-          type:
-            String(
-              ligne.Capacite1 || ''
-            )
-              .trim()
-              .toLowerCase(),
-          intervalle:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Intervalle1,
-                0
-              )
-            ),
-          valeur:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Valeur1,
-                0
-              )
-            ),
-          duree:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Duree1,
-                0
-              )
-            )
-        },
-        {
-          type:
-            String(
-              ligne.Capacite2 || ''
-            )
-              .trim()
-              .toLowerCase(),
-          intervalle:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Intervalle2,
-                0
-              )
-            ),
-          valeur:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Valeur2,
-                0
-              )
-            ),
-          duree:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Duree2,
-                0
-              )
-            )
-        },
-        {
-          type:
-            String(
-              ligne.Capacite3 || ''
-            )
-              .trim()
-              .toLowerCase(),
-          intervalle:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Intervalle3,
-                0
-              )
-            ),
-          valeur:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Valeur3,
-                0
-              )
-            ),
-          duree:
-            Math.max(
-              0,
-              nombreSorealIdle_(
-                ligne.Duree3,
-                0
-              )
-            )
-        }
-      ].filter(function(capacite) {
-        return Boolean(
-          capacite.type
-        );
-      });
+      // Systeme de capacites (regen/bouclier/paralysie/fureur/fracas/sceau)
+      // retire : mecanique 100% SOREAL sans equivalent NGU, remplacee par
+      // la resolution Attaque-vs-Defense pure documentee sur le wiki.
+      const capacites = [];
 
       return {
         id:

@@ -1,6 +1,18 @@
-# SOREAL IDLE — Contenu du parcours de zones, sourcé wiki (nuit du 2026-09-15)
+# SOREAL IDLE — Contenu du parcours de zones, sourcé wiki (nuit du 2026-09-15/16)
 
-## État à ton réveil
+## Mise à jour du 2026-09-16 : retrait des mécaniques non-wiki
+
+Consigne de Norman après relecture de l'inventaire ci-dessous : **on ne garde que les noms en rapport avec SOREAL, tout le reste (mécaniques et valeurs sans base wiki) est supprimé.** Trois systèmes concernés, tous confirmés absents du wiki NGU (recherche exhaustive sur `ngu-wiki-reference/`, zéro résultat) :
+
+1. **Le système de capacités de boss** (regen/bouclier/paralysie/fureur/fracas/sceau, avec intervalle/valeur/durée) — retiré du moteur. `cloudflare/src/idle-sqlite-runtime.js` : le tableau `capacites` construit dans `bossCatalogueSorealIdle_()` est maintenant toujours vide (`const capacites = [];`), ce qui neutralise en cascade tous les multiplicateurs de combat qui en dépendaient (paralysie/bouclier sur le DPS joueur, régénération boss, fureur sous seuil de PV, sceau). Les colonnes `Capacite1-3`/`Intervalle1-3`/`Valeur1-3`/`Duree1-3` restent dans le schéma `IDLE_BOSS` (retirer les colonnes casserait le positionnement des 20 boss déjà en place) mais ne sont plus lues ni écrites pour du contenu neuf. `design/build-idle-boss-extension-21-46.mjs` régénéré sans ces colonnes ; les textes de `Conseil` qui référençaient une capacité nommée ont été réécrits en conseil de combat générique. `MortVivant`/`EffetMortVivant` (système de sorts Blood Magic avec bonus contre les ennemis morts-vivants) est un système différent, non concerné, laissé en place.
+2. **Le tier `rare` + objet légendaire** dans `IDLE_MONSTRES` — retiré du moteur. Le type `'rare'` a été retiré de la liste blanche des types (`normal`/`boss_zone` seulement) ; toute ligne encore taguée `rare` en base retombe automatiquement sur `normal` (elle continue d'exister comme rencontre très rare grâce à son `ChanceRencontre` resté bas, mais sans jamais générer d'objet légendaire — `genererObjetLegendaireRareAventureSorealIdle_` a son garde `monstre.type !== 'rare'` qui se déclenche désormais toujours). Les 3 fichiers construits cette nuit pour étendre ce tier aux zones 7-46 (`build-idle-monstres-rare-7-46.mjs`, `idle-monstres-rare-7-46.json`, `push-idle-monstres-rare.mjs`) ont été supprimés du dépôt : plus rien à pousser pour ce système. **Les 6 lignes `rare` déjà live sur les zones 1-6 n'ont pas été supprimées de la base** (ça demanderait un remplacement complet de la feuille, une action de plus sur une ressource de production) — elles resteront simplement des rencontres normales anecdotiques sans effet spécial une fois le nouveau code déployé. Rien à faire côté data, seul le déploiement du code suffit.
+3. **La structure de sets à 3 paliers (2/4/6 pièces)** dans `IDLE_SETS` — simplifiée à un seul bonus de complétion, au palier maximum (`set.pieces6`), comme le vrai NGU (un set = un seul bonus de complétion, jamais de paliers intermédiaires). `cloudflare/src/idle-sqlite-runtime.js` : le calcul du bonus de set ignore désormais `pieces2`/`pieces4`/`bonus2Pct`/`bonus4Pct`. Les colonnes restent dans le schéma `IDLE_SETS` (même raisonnement que pour `IDLE_BOSS`) mais ne comptent plus. Les 6 sets déjà live (zones 1-6) perdront leurs bonus intermédiaires (5-12%/6-15%/etc. selon la zone) dès que le nouveau code est déployé ; seul le bonus complet à 6 pièces reste actif, sans changement de valeur.
+
+Ce qui reste inchangé et volontairement conservé : **tous les noms** (zones, boss, ennemis, sets, thèmes) en thème SOREAL — décision antérieure de Norman, confirmée à nouveau. Les valeurs numériques qui prolongent une vraie courbe existante par ratio réel (courbe de zones log-compressée sur les vrais ratios wiki, extrapolation boss 21-46 sur le vrai taux de croissance de boss 16-20) restent aussi : ce ne sont pas des inventions sans base, contrairement aux 3 mécaniques ci-dessus.
+
+Suite de tests complète (40 fichiers) repassée après ces changements : tout est vert, aucune régression détectée.
+
+## État à ton réveil (nuit du 2026-09-15, avant la mise à jour ci-dessus)
 
 Tu as dit "repartir de 0" en découvrant que 6 zones existaient déjà en jeu. En creusant plus, j'ai trouvé deux choses importantes qui ont changé l'approche en cours de route (voir "Découverte importante" plus bas) : ces 6 zones avaient en fait une identité déjà bien écrite (description, image pour la zone 1), et surtout **`IDLE_ZONES.Boss` et `IDLE_BOSS` sont le même système couplé** — le boss d'une zone est littéralement l'entrée correspondante de l'échelle de boss numérotée (déjà remplie et soignée jusqu'au numéro 20, avec histoires et capacités de combat). Résultat final : **`idle-zones-full-v2.json` remplace les 9 colonnes numériques des 46 zones** (c'était bien ça le problème : aucune courbe vérifiée contre le wiki), mais **préserve l'identité déjà écrite des 6 premières zones** et **aligne les zones 1-20 sur les vrais noms de boss existants** plutôt que d'en inventer des nouveaux qui auraient cassé le lien avec IDLE_BOSS.
 
@@ -67,20 +79,9 @@ Découverte : les zones 1-6 ont en fait un système à **3 tiers de monstres** p
   SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-monstres-extension.mjs
   ```
 
-## IDLE_MONSTRES — tier `rare` + objets légendaires (zones 7-46) — fait cette nuit aussi
+## IDLE_MONSTRES — tier `rare` + objets légendaires : construit cette nuit, puis retiré le 2026-09-16
 
-Vérifié avant d'écrire : `rare` n'est pas une mécanique du wiki NGU (grep sur tout `ngu-wiki-reference/` pour "legendary"/"rare enemy" → 0 résultat) — c'est un système 100% SOREAL original, déjà en place et soigné sur les zones 1-6 (`Z1_RARE` = "Le Gerbeur Fantôme" -> "Pendentif du Gerbeur Fantôme", etc., lu en direct via `idle-catalog-read`). Rien à vérifier contre le wiki ici, seulement à prolonger fidèlement le patron existant.
-
-- **40 monstres rares uniques + 40 objets légendaires uniques**, un par zone 7-46, même ton (humour noir logistique SOREAL) et mêmes champs que les 6 déjà en jeu.
-- **PV/Attaque** : interpolés entre le monstre normal et le boss de la même zone (déjà calculés dans `idle-zones-full-v2.json`), aux mêmes fractions observées sur les 6 zones réelles (PV ≈ 50% du chemin normal→boss, Attaque ≈ 70%).
-- **BaseLegendaire** : `PuissanceRecommandee(zone) × multiplicateur(zone)`, le multiplicateur montant en douceur de 0,7 (valeur réelle de la zone 1) vers un plateau à 3,0 — au lieu d'extrapoler platement le ratio géométrique observé sur seulement 6 zones (qui aurait explosé à des valeurs absurdes en zone 46).
-- **ChanceRencontre (0,3%) et ChanceLegendaire (25%)** : gardées identiques aux zones 1-6, confirmé lu correctement par le moteur (`nombreSorealIdle_` convertit la virgule française, `type==='rare'` déclenche bien `genererObjetLegendaireRareAventureSorealIdle_` dans `idle-sqlite-runtime.js`).
-- Import strictement additif, nouveaux `row_index` à partir de 100 (les zones 1-6 et l'extension normal/boss 7-46 ne sont jamais touchées).
-- Fichiers : `idle-monstres-rare-7-46.json`, généré par `build-idle-monstres-rare-7-46.mjs`.
-- Pour pousser :
-  ```bash
-  SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-monstres-rare.mjs
-  ```
+Un tier `rare` (40 monstres uniques + 40 objets légendaires pour les zones 7-46) avait été construit pour prolonger le patron déjà en place sur les zones 1-6. Confirmé au passage que ce système est 100% SOREAL original (absent du wiki NGU). Norman a ensuite tranché : ce système sort du jeu avec le reste des mécaniques non-wiki — voir "Mise à jour du 2026-09-16" tout en haut de ce document pour le détail de ce qui a été fait (retiré du moteur, fichiers supprimés du dépôt).
 
 ## Ce qui reste à faire après ces push
 
