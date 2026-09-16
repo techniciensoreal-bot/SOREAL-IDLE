@@ -8177,52 +8177,35 @@ function appliquerProgressionEnergieSorealIdle_(
     );
 
   /*
-   * REPOS : pvJoueurMax, pvJoueur et ecoulePrisEnCompte
-   * sont tous initialisés avant ce bloc. La même valeur regenPctSec
-   * (Salle de repos choisie) sert aussi à la récupération progressive
-   * après K.O. dans la boucle de simulation plus bas — jamais un
-   * second calcul, une seule source de vérité pour "à quelle vitesse
-   * ce joueur régénère sa vie".
+   * Norman (2026-09-16) : "la regen de vie m'a l'air plus lente que dans
+   * NGU idle" — confirmé : la regen du Combat de boss numéroté utilisait
+   * "Salle de repos" (regenPctSec, un pourcentage du pool max choisi par
+   * numéro de salle), un mécanisme SOREAL jamais réellement rattaché à
+   * une fonctionnalité que Norman reconnaît ("il n'y a en effet aucune
+   * salle de repos" dans Combat de boss) — Defense n'intervenait nulle
+   * part dans la regen, alors que investir en Defense devrait TOUJOURS
+   * payer double (moins de dégâts subis ET regen plus rapide).
+   *
+   * Formule NGU réelle vérifiée (sayolove.github.io/ngu-guide, page
+   * Fight Boss) : "HP Regen - Increasing Defense increases HP Regen by
+   * Defense/20" — un montant ABSOLU de PV/seconde (jamais un pourcentage
+   * du pool max). "Salle de repos" reste une sélection cosmétique
+   * (nom/image, comme "apparence") ailleurs dans le moteur — seule sa
+   * contribution à la regen disparaît ici, remplacée par la vraie règle.
+   * pvJoueurMax, pvJoueur et ecoulePrisEnCompte sont tous initialisés
+   * avant ce bloc. La récupération progressive après K.O. plus bas dans
+   * la boucle de simulation réutilise cette même valeur — jamais un
+   * second calcul, une seule source de vérité.
    */
-  const reposListe =
-    reposSorealIdle_();
-
-  const numeroRepos =
-    Math.max(
-      1,
-      Math.floor(
-        nombreSorealIdle_(
-          statsCombat.reposNumero,
-          1
-        )
-      )
-    );
-
-  const repos =
-    reposListe.find(
-      function(r) {
-        return r.numero === numeroRepos;
-      }
-    ) ||
-    reposListe[0] ||
-    {
-      regenPctSec: 2.5
-    };
-
-  const regenPctSecJoueur =
+  const regenPvSecJoueur =
     Math.max(
       0,
-      nombreSorealIdle_(
-        repos.regenPctSec,
-        2.5
-      )
+      defense / 20
     );
 
   if (!combatBossActif) {
     const regenPv =
-      pvJoueurMax *
-      regenPctSecJoueur /
-      100 *
+      regenPvSecJoueur *
       ecoulePrisEnCompte;
 
     pvJoueur =
@@ -8326,15 +8309,14 @@ function appliquerProgressionEnergieSorealIdle_(
        * here to heal" — la récupération après défaite est TOUJOURS
        * progressive dans NGU, jamais un reset instantané. Le K.O. ne fait
        * donc plus que débloquer le combat ; la vie continue de régénérer
-       * au même taux (regenPctSecJoueur) pendant l'attente elle-même.
+       * au même taux (regenPvSecJoueur, Defense/20 — voir plus haut)
+       * pendant l'attente elle-même.
        */
       pvJoueur =
         Math.min(
           pvJoueurMax,
           pvJoueur +
-          pvJoueurMax *
-          regenPctSecJoueur /
-          100 *
+          regenPvSecJoueur *
           attente
         );
 

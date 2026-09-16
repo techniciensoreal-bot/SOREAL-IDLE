@@ -242,10 +242,14 @@ export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries
  * coïncidence par set — jamais besoin de stocker HP Max/Regen à part,
  * item()/special() les dérivent directement de power/toughness.
  *
- * Sets non encore audités individuellement (pas de fiche wiki consultée
- * cette session) : 2d, uug, wanderer, rerednaw — laissés sur l'ancienne
- * répartition égale (repli automatique ci-dessous) en attendant un audit
- * dédié, plutôt que d'inventer des valeurs.
+ * Audit complété 2026-09-16 (Norman : "mets à jour les stats des objets
+ * avant notre update des chiffres") pour les 4 derniers sets non audités
+ * (2d, uug, wanderer, rerednaw) — mêmes fiches wiki dédiées
+ * (ngu-idle.fandom.com/wiki/2D_(set), .../UUG's_rings_(set),
+ * .../Wanderer's_(set), .../S'rerednaW_(set)), même convention "Stats Max"
+ * niveau 100. Les totaux par set (s.p/s.t ci-dessus) étaient déjà
+ * corrects — seule la répartition PAR PIÈCE était fausse (égale au lieu
+ * de suivre la vraie fiche wiki).
  */
 const SET_ITEM_STATS_V1=Object.freeze({
   "training:weapon":{p:6,t:0},"training:head":{p:0,t:2},"training:chest":{p:0,t:2},"training:legs":{p:0,t:2},"training:boots":{p:0,t:2},
@@ -263,7 +267,11 @@ const SET_ITEM_STATS_V1=Object.freeze({
   "badly:weapon":{p:1000000,t:50000},"badly:head":{p:0,t:120000},"badly:chest":{p:0,t:120000},"badly:legs":{p:0,t:120000},"badly:boots":{p:0,t:120000},
   "stealth:weapon":{p:2000000,t:120000},"stealth:head":{p:10000,t:224000},"stealth:chest":{p:10000,t:230000},"stealth:legs":{p:10000,t:236000},"stealth:boots":{p:10000,t:244000},
   "choco:weapon":{p:7600000,t:400000},"choco:head":{p:60000,t:704000},"choco:chest":{p:40000,t:740000},"choco:legs":{p:40000,t:710000},"choco:boots":{p:40000,t:732000},
-  "slimy:weapon":{p:4400000,t:200000},"slimy:head":{p:22000,t:484000},"slimy:chest":{p:22000,t:500000},"slimy:legs":{p:20000,t:490000},"slimy:boots":{p:20000,t:480000}
+  "slimy:weapon":{p:4400000,t:200000},"slimy:head":{p:22000,t:484000},"slimy:chest":{p:22000,t:500000},"slimy:legs":{p:20000,t:490000},"slimy:boots":{p:20000,t:480000},
+  "2d:weapon":{p:9200,t:600},"2d:head":{p:100,t:1200},"2d:chest":{p:100,t:1290},"2d:legs":{p:140,t:1520},"2d:boots":{p:120,t:1400},"2d:cube":{p:1300,t:1300},"2d:amulet":{p:0,t:0},
+  "uug:ringGreed":{p:0,t:0},"uug:ringMight":{p:13332,t:13332},"uug:ringUtility":{p:2000,t:2000},"uug:ringEnergy":{p:2000,t:2000},"uug:ringMagic":{p:2000,t:2000},
+  "wanderer:head":{p:2000,t:44000},"wanderer:chest":{p:2000,t:46000},"wanderer:legs":{p:2000,t:46000},"wanderer:boots":{p:2000,t:48000},
+  "rerednaw:head":{p:2000,t:42000},"rerednaw:chest":{p:2000,t:44000},"rerednaw:legs":{p:2000,t:46000},"rerednaw:boots":{p:2000,t:48000}
 });
 export function idleAdventureItemStatsMaxV1(set,slot){
   const override=SET_ITEM_STATS_V1[`${set}:${slot}`];
@@ -437,7 +445,16 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
   }
   return catalog;
 })());
-const BOOSTS=Object.freeze([1,2,5,10,20,50,100]);
+/*
+ * Norman (2026-09-16) : "mets à jour les stats des objets avant notre
+ * update des chiffres" — wiki NGU (page Boost) confirme 13 vrais paliers :
+ * "1, 2, 5, 10, 20, 50, 100, 200, 500, 1k, 2k, 5k and 10k." Il n'en
+ * manquait que les 6 derniers (200 à 10k), plafonnant à tort la
+ * progression des boosts bien avant le vrai jeu. rollKill() (plus bas)
+ * pioche déjà un INDEX dans ce tableau, borné par boss tués — l'étendre
+ * suffit, aucune autre formule à toucher.
+ */
+const BOOSTS=Object.freeze([1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]);
 export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
 /*
  * hp/regen (2026-09-15) : dérivés de power/toughness (HP Max=Power×3,
@@ -737,7 +754,22 @@ function unequip(s,id){const o=s.inventory.find(x=>x.id===id);if(!o)throw Error(
 function applyBoost(s,boostId,targetId){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
   if(!b||b.kind!=="boost"||!o||o.kind==="boost")throw Error("BOOST_INVALIDE");
-  const type=b.boostType,added=N(b.strength)*(1+N(s.setRewards.boostEffectiveness));
+  const type=b.boostType;
+  /*
+   * Norman (2026-09-16) : "Sébastien a toujours le boost spécial qui est
+   * ajouté à son épée alors que c'est impossible normalement." Confirmé :
+   * "special" est volontairement sans plafond/formule (voir commentaire
+   * ci-dessus) parce qu'AUCUN objet d'équipement (arme/armure d'un set)
+   * n'est censé porter de vrai bonus "special" — seuls les objets du
+   * catalogue SPECIALS (accessoires/cube) en ont un. Rien ne vérifiait
+   * jamais que la cible d'un boost "special" était réellement un objet
+   * de ce type, laissant n'importe quelle arme/armure accumuler un
+   * "special" sans aucune formule ni effet de jeu réel.
+   */
+  if(type==="special"&&defById(o.definitionId)?.kind!=="special"){
+    throw Error("BOOST_SPECIAL_CIBLE_INVALIDE");
+  }
+  const added=N(b.strength)*(1+N(s.setRewards.boostEffectiveness));
   if(type==="power"||type==="toughness"){
     const d=defById(o.definitionId);
     const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);

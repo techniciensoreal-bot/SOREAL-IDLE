@@ -21,9 +21,17 @@ import { readFileSync } from "node:fs";
  * défaite est TOUJOURS progressive dans NGU, jamais un reset instantané.
  *
  * Correctif : le K.O. ne fait plus que débloquer le combat (koJusqua=0) ;
- * pvJoueur continue de régénérer au même taux (regenPctSecJoueur, la Salle
- * de repos choisie — une seule résolution, réutilisée par le repos hors
- * combat ET par l'attente de K.O., jamais un second calcul).
+ * pvJoueur continue de régénérer au même taux (regenPvSecJoueur — une
+ * seule résolution, réutilisée par le repos hors combat ET par l'attente
+ * de K.O., jamais un second calcul).
+ *
+ * RÉVISÉ 2026-09-16 (Norman : "la regen de vie m'a l'air plus lente que
+ * dans NGU idle") — regenPctSecJoueur (Salle de repos, un pourcentage du
+ * pool max jamais lié à la Defense) a été remplacé par regenPvSecJoueur
+ * (Defense/20, la vraie formule NGU — sayolove.github.io/ngu-guide, page
+ * Fight Boss). Le principe verrouillé par CE test (une seule résolution
+ * partagée, jamais un second calcul) reste inchangé, seul le nom/la
+ * formule sous-jacente change.
  */
 const source = readFileSync(
   new URL("../src/idle-sqlite-runtime.js", import.meta.url),
@@ -35,13 +43,13 @@ assert.ok(fnStart >= 0, "appliquerProgressionEnergieSorealIdle_ introuvable.");
 const fnEnd = source.indexOf("\nfunction ", fnStart + 10);
 const fnBody = source.slice(fnStart, fnEnd);
 
-// Une seule résolution de regenPctSec (Salle de repos), partagée par
+// Une seule résolution de regenPvSecJoueur (Defense/20), partagée par
 // le repos hors combat ET la récupération pendant l'attente de K.O.
-const regenDeclarations = (fnBody.match(/const regenPctSecJoueur\s*=/g) || []).length;
+const regenDeclarations = (fnBody.match(/const regenPvSecJoueur\s*=/g) || []).length;
 assert.equal(
   regenDeclarations,
   1,
-  "regenPctSecJoueur doit être calculé une seule fois et réutilisé partout — jamais un second calcul dupliqué."
+  "regenPvSecJoueur doit être calculé une seule fois et réutilisé partout — jamais un second calcul dupliqué."
 );
 
 const koWaitStart = fnBody.indexOf("koJusqua > tempsSimulation");
@@ -55,9 +63,9 @@ assert.ok(
 );
 
 assert.ok(
-  koWaitBody.includes("regenPctSecJoueur") &&
+  koWaitBody.includes("regenPvSecJoueur") &&
   /pvJoueur\s*=\s*\n?\s*Math\.min\(\s*\n?\s*pvJoueurMax,\s*\n?\s*pvJoueur\s*\+/.test(koWaitBody),
-  "L'attente de K.O. doit appliquer une régénération progressive (Math.min(pvJoueurMax, pvJoueur + ...)) en utilisant le même regenPctSecJoueur que le repos hors combat."
+  "L'attente de K.O. doit appliquer une régénération progressive (Math.min(pvJoueurMax, pvJoueur + ...)) en utilisant le même regenPvSecJoueur que le repos hors combat."
 );
 
 console.log("idle-boss-ko-gradual-regen: OK");
