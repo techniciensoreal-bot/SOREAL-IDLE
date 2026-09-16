@@ -412,6 +412,26 @@ cheeseGrater:{name:"Cheese Grater",zone:"cave",slot:"accessory",dropLevel:1,p:15
 skyBall:{name:"A Dragon's Left Ball",zone:"sky",slot:"accessory",dropLevel:1,p:0,t:0},
 // wiki : "Pissed Off Key" — Type Consumable, aucune stat.
 pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bossOnly:true,dropLevel:0,p:0,t:0},
+/*
+ * Audit 2026-09-16 (Norman, page wiki réelle vérifiée en direct
+ * ngu-idle.fandom.com/wiki/The_Lonely_Flubber) : Accessoire, Tutorial
+ * Zone, ID 120, Set None, aucune stat Power/Toughness (le Respawn 8%
+ * n'apparaît qu'à l'évolution "The Triple Flubber" à la maximisation,
+ * non implémentée ici). Chance de drop unique parmi les SPECIALS :
+ * "drop chance is based off in CURRENT run's highest defeated boss,
+ * starting at 0.82% at boss 59, and increasing by 0.41% every boss
+ * after, up to 100% at boss 300... This item is NOT affected by drop
+ * chance multipliers." Roll dédié dans rollKill (jamais gagné avant
+ * boss 59, jamais multiplié par dropMult) -- contrairement à Tutorial
+ * Cube (bossOnly), tombe aussi bien sur les mobs normaux que sur le
+ * boss de zone (confirmé par le wiki : "the item drops equally from
+ * normal enemies and bosses"). set:"training" est purement cosmétique
+ * (partage le dossier R2 déjà résolu pour le Training Set,
+ * "SOREAL_IDLE_Tutorial_Set" -- voir IDLE_ITEM_SET_FOLDER_ALIASES côté
+ * SOREAL-APP), jamais compté comme une pièce du set (checkSets() ignore
+ * ce champ, voir commentaire de special() plus haut).
+ */
+flubber:{name:"The Lonely Flubber",zone:"tutorial",slot:"accessory",set:"training",dropLevel:0,p:0,t:0},
 // wiki : "A busted copy of Wandoos 98" — consommable de déblocage d'OS, aucune stat.
 wandoos98:{name:"Wandoos 98",zone:"sky",slot:"special",unlock:"wandoos",dropLevel:0,p:0,t:0},
 // wiki : "Magicite Crystal" — Power/Toughness Max at lvl 0 = 50/50.
@@ -549,7 +569,20 @@ function item(id,set,slot,lv=0){const s=SETS[set],{p,t}=idleAdventureItemStatsMa
  * appliquée à la vraie base Power/Toughness du wiki (d.p/d.t, 0 quand
  * l'objet réel n'en a aucune) au lieu du power:0/toughness:0 fixe d'avant.
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");const q=1+C(lv,0,MAX)/100,power=N(d.p)*q,toughness=N(d.t)*q;return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,level:C(lv,0,MAX),power,toughness,hp:power*3,regen:toughness*.03,special:0}}
+/*
+ * Audit 2026-09-16 : `special()` ne recopiait jamais `d.set` sur l'objet
+ * créé -- le client (urlImageObjetAdventureIdleV138_/iconeObjetAdventureIdleV138_,
+ * Soreal_Idle_UI.html) exige `item.set` pour même tenter une résolution
+ * d'image réelle, sinon il retombe systématiquement sur une simple
+ * emoji générique par slot. Aucun impact sur checkSets() (lit
+ * s.itemList[`${setId}:${slot}`], une structure séparée indexée par le
+ * SET et SES PROPRES slots -- jamais par le champ .set d'un item
+ * individuel), donc un SPECIAL portant un `set` cosmétique (ex. "The
+ * Lonely Flubber" -> set:"training", pour partager le dossier R2 du
+ * Training Set sans compter comme une pièce du set) ne peut jamais être
+ * compté à tort dans une complétion de set.
+ */
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");const q=1+C(lv,0,MAX)/100,power=N(d.p)*q,toughness=N(d.t)*q;return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power,toughness,hp:power*3,regen:toughness*.03,special:0}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -1076,6 +1109,15 @@ function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZ
  * SPECIALS bossOnly SANS dropChance, ex. pissedOffKey ci-dessous).
  */
 if(boss){for(const [id,d] of Object.entries(SPECIALS)){if(d.zone===z.id&&d.bossOnly&&d.dropChance!=null&&I(ctx.bosses)>=I(d.requiresBoss)&&Math.random()<C(N(d.dropChance)*dropMult,0,1)){out.push(add(s,special(id,d.dropLevel||0)))}}}
+/*
+ * Correctif 2026-09-16 (wiki réel vérifié en direct) : "The Lonely
+ * Flubber" a sa PROPRE formule (0,82% dès boss 59, +0,41%/boss, 100% au
+ * boss 300 -- basée sur le plus haut boss de la RUN EN COURS, ctx.bosses)
+ * -- ni le pool générique 4% (mauvais taux), ni le roll bossOnly
+ * ci-dessus (tombe aussi sur les mobs normaux), et JAMAIS multipliée par
+ * dropMult (précisé explicitement par le wiki).
+ */
+if(z.id==="tutorial"){const flubberBoss=I(ctx.bosses);if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){out.push(add(s,special("flubber",0)))}}
 if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}
 /*
  * EXP de boss d'Aventure (voir ZONE_BOSS_EXP_CHANCE_V1 plus haut, sourcé
