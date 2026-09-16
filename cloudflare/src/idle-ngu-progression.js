@@ -169,16 +169,48 @@ export const IDLE_NGU_EARLY_GAME_TIMELINE = Object.freeze([
 export const REBIRTH_UNLOCK_BOSS_V1 =
   IDLE_NGU_EARLY_GAME_TIMELINE.find(x=>x.id==="adventure")?.boss ?? 4;
 
+/*
+ * Audit 2026-09-16 — 5 des 11 défis Normal étaient marqués `implemented:
+ * false` (jamais lançables, "DEFI_EN_PREPARATION"). Le moteur générique
+ * (unlock/start/win-condition boss/récompense EXP+AP/historique bestMs)
+ * fonctionnait déjà pour tous — seule une vraie contrainte de jeu manquait
+ * pour chacun (sourcée sur augments-and-challenges.md) :
+ * - twentyFourHours/hundredLevels/troll ("offline progress disabled") :
+ *   IDLE_CHALLENGE_OFFLINE_DISABLED_IDS plafonne le rattrapage par appel à
+ *   60s pendant que l'un des trois est actif (voir advanceIdleNguState).
+ * - hundredLevels : pool combiné de 100 niveaux (Augments+Blood Magic+Time
+ *   Machine+Wandoos+Beards) par Rebirth, appliqué à la source dans chacune
+ *   des 5 fonctions concernées AVANT toute dépense de ressource (jamais
+ *   après coup, pour ne jamais perdre d'Or sans le niveau correspondant).
+ * - laserSword : condition de victoire réelle (paliers 2/2, +1/+1 par
+ *   completion sur l'Augment Laser Sword + son upgrade), ET correction du
+ *   rebirth (seul défi qui n'est PAS censé réinitialiser NUMBER/banks —
+ *   c'était câblé comme les 10 autres avant ce correctif) ; sa condition de
+ *   déblocage lisait un champ (`state.adventure.itemList.laserSword`) qui
+ *   n'existe nulle part ailleurs dans le dépôt (donc toujours fausse) —
+ *   corrigée pour lire le véritable niveau de l'Augment.
+ * - blind : sa restriction ("la plupart des nombres à l'écran sont
+ *   masqués") est purement un rendu CLIENT, sans équivalent numérique côté
+ *   moteur — rien à appliquer ici ; unlock/win/récompense génériques
+ *   suffisent pour ce défi précis.
+ * Les bonus permanents PAR COMPLETION propres à ces 5 défis (ex. Troll
+ * débloquant un slot d'accessoire à la 2e completion, un slot de Beard à
+ * la 4e...) ne sont volontairement PAS câblés : chacun dépend d'un système
+ * qui n'existe pas encore dans SOREAL IDLE (paliers de fruits Yggdrasil,
+ * rituels de Sang additionnels...) — l'EXP/AP plat (déjà généralisé pour
+ * tous les défis existants) est bien accordé, mais inventer les bonus
+ * annexes casserait la règle "jamais de donnée inventée".
+ */
 export const IDLE_NGU_NORMAL_CHALLENGES = Object.freeze([
   Object.freeze({id:"basic",name:"Basic Challenge",max:5,targetBoss:58,targetStep:0,implemented:true,reward:{experience:1500,ap:2500},unlock:{bosses:58},restriction:"resetNumber"}),
   Object.freeze({id:"noAugmentations",name:"No Augs Challenge",max:5,targetBoss:59,targetStep:0,implemented:true,reward:{experience:5000,ap:10000},unlock:{bosses:75},restriction:"noAugmentations"}),
-  Object.freeze({id:"twentyFourHours",name:"24 Hour Challenge",max:10,targetBoss:58,targetStep:26,implemented:false,reward:{experience:400,ap:5000},unlock:{basicUnder24h:true},restriction:"offlineDisabled"}),
-  Object.freeze({id:"hundredLevels",name:"100 Levels Challenge",max:5,targetBoss:58,targetStep:0,implemented:false,reward:{experience:500,ap:1500},unlock:{nguLevels:10},restriction:"hundredLevels"}),
+  Object.freeze({id:"twentyFourHours",name:"24 Hour Challenge",max:10,targetBoss:58,targetStep:26,implemented:true,reward:{experience:400,ap:5000},unlock:{basicUnder24h:true},restriction:"offlineDisabled"}),
+  Object.freeze({id:"hundredLevels",name:"100 Levels Challenge",max:5,targetBoss:58,targetStep:0,implemented:true,reward:{experience:500,ap:1500},unlock:{nguLevels:10},restriction:"hundredLevels"}),
   Object.freeze({id:"noEquipment",name:"No Equipment Challenge",max:5,targetBoss:66,targetStep:0,implemented:true,reward:{experience:4000,ap:3000},unlock:{grbSet:true},restriction:"noEquipment"}),
-  Object.freeze({id:"troll",name:"Troll Challenge",max:7,targetBoss:69,targetStep:15,implemented:false,reward:{experience:5000,ap:10000},unlock:{titan:"t2"},restriction:"troll"}),
+  Object.freeze({id:"troll",name:"Troll Challenge",max:7,targetBoss:69,targetStep:15,implemented:true,reward:{experience:5000,ap:10000},unlock:{titan:"t2"},restriction:"troll"}),
   Object.freeze({id:"noRebirth",name:"No Rebirth Challenge",max:10,targetBoss:40,targetStep:5,implemented:true,reward:{experience:10000,ap:25000},unlock:{titan:"t3"},restriction:"noRebirth"}),
-  Object.freeze({id:"laserSword",name:"Laser Sword Challenge",max:20,targetBoss:0,targetStep:0,implemented:false,reward:{experience:3000,ap:3000},unlock:{laserSword:true},restriction:"laserSword"}),
-  Object.freeze({id:"blind",name:"Blind Challenge",max:10,targetBoss:58,targetStep:10,implemented:false,reward:{experience:2500,ap:3000},unlock:{titan:"t4"},restriction:"blind"}),
+  Object.freeze({id:"laserSword",name:"Laser Sword Challenge",max:20,targetBoss:0,targetStep:0,implemented:true,reward:{experience:3000,ap:3000},unlock:{laserSword:true},restriction:"laserSword"}),
+  Object.freeze({id:"blind",name:"Blind Challenge",max:10,targetBoss:58,targetStep:10,implemented:true,reward:{experience:2500,ap:3000},unlock:{titan:"t4"},restriction:"blind"}),
   Object.freeze({id:"noNgu",name:"No NGU Challenge",max:10,targetBoss:58,targetStep:10,implemented:true,reward:{experience:3000,ap:3000},unlock:{nguLevels:10000},restriction:"noNgu"}),
   Object.freeze({id:"noTimeMachine",name:"No Time Machine Challenge",max:10,targetBoss:58,targetStep:15,implemented:true,reward:{experience:2000,ap:2000},unlock:{diggers:true},restriction:"noTimeMachine"})
 ]);
@@ -690,7 +722,8 @@ function baseState(now) {
       active: "",
       completions: Object.fromEntries(IDLE_NGU_NORMAL_CHALLENGES.map(def=>[def.id,0])),
       startedAt: 0,
-      bestMs: {}
+      bestMs: {},
+      hundredLevelsGained: 0
     },
     bank: {
       advancedTraining: 0,
@@ -1478,7 +1511,7 @@ function advanceAugmentations(state, seconds, context) {
     }
 
     const cost = augmentationGoldCost(state,def,level,upgrade);
-    if (state.currencies.gold + 1e-9 < cost) {
+    if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) {
       pair[progressKey] = needed;
       remaining = 0;
       break;
@@ -1489,6 +1522,7 @@ function advanceAugmentations(state, seconds, context) {
     state.currencies.gold -= cost;
     if (upgrade) pair.upgradeLevel += 1;
     else pair.level += 1;
+    challengeHundredLevelsConsume(state, 1);
   }
 
   s.level = Object.values(s.data.pairs).reduce((sum, p) => sum + p.level + p.upgradeLevel, 0);
@@ -1585,6 +1619,16 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
 
     const nextDuration = Math.max(1 / 50, (level + 1) / baseRate);
     progress = clamp(remaining / nextDuration, 0, 0.999999999);
+  }
+
+  const startingLevel = Math.max(0, int(track.tempLevel, 0));
+  if (level > startingLevel) {
+    const remaining = challengeHundredLevelsRemaining(state);
+    if (level - startingLevel > remaining) {
+      level = startingLevel + remaining;
+      progress = 0;
+    }
+    challengeHundredLevelsConsume(state, level - startingLevel);
   }
 
   track.tempLevel = level;
@@ -1750,11 +1794,15 @@ function advanceTrackSystem(state, def, seconds) {
     100000;
 
   t.progress += (throughput / divisor) * seconds;
-  const gain = Math.floor(t.progress);
+  let gain = Math.floor(t.progress);
+  if (def.id === "wandoos" && gain > 0) {
+    gain = Math.min(gain, challengeHundredLevelsRemaining(state));
+  }
   if (gain > 0) {
     t.progress -= gain;
     if (def.kind === "run" || def.kind === "hybrid") t.tempLevel += gain;
     else t.level += gain;
+    if (def.id === "wandoos") challengeHundredLevelsConsume(state, gain);
   }
 
   s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
@@ -1812,10 +1860,11 @@ function advanceTimeMachine(state, seconds) {
     while (d.speedProgress >= energyStep && guard < 100000) {
       guard++;
       const cost = tmLevelGoldCost(d.speedLevel + 1);
-      if (state.currencies.gold + 1e-9 < cost) { d.speedProgress = energyStep; break; }
+      if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) { d.speedProgress = energyStep; break; }
       state.currencies.gold -= cost;
       d.speedProgress -= energyStep;
       d.speedLevel += 1;
+      challengeHundredLevelsConsume(state, 1);
       energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
       if (!Number.isFinite(energyStep)) break;
     }
@@ -1829,10 +1878,11 @@ function advanceTimeMachine(state, seconds) {
       while (d.goldProgress >= magicStep && guard < 100000) {
         guard++;
         const cost = tmLevelGoldCost(d.goldLevel + 1);
-        if (state.currencies.gold + 1e-9 < cost) { d.goldProgress = magicStep; break; }
+        if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) { d.goldProgress = magicStep; break; }
         state.currencies.gold -= cost;
         d.goldProgress -= magicStep;
         d.goldLevel += 1;
+        challengeHundredLevelsConsume(state, 1);
         magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
         if (!Number.isFinite(magicStep)) break;
       }
@@ -1899,7 +1949,7 @@ function advanceBloodMagic(state, seconds, context) {
   if (completions <= 0) return;
 
   const affordable = Math.floor(state.currencies.gold / ritual.gold);
-  completions = Math.min(completions, affordable, 1000000);
+  completions = Math.min(completions, affordable, 1000000, challengeHundredLevelsRemaining(state));
   if (completions <= 0) return;
 
   rs.progress -= completions * secondsPerCompletion;
@@ -1907,6 +1957,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
   state.currencies.blood += completions * ritual.blood;
+  challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
 }
@@ -2323,9 +2374,24 @@ function advanceLateSystems(state, seconds, context, now) {
   }
 }
 
+/*
+ * Wiki (audit 2026-09-16, augments-and-challenges.md) : le 24 Hour, le 100
+ * Levels et le Troll Challenge désactivent tous les trois explicitement la
+ * progression hors-ligne. Cette architecture ne distingue pas un tick en
+ * ligne d'un rattrapage hors-ligne (les deux ne sont qu'un delta de temps
+ * écoulé) — appliquer un plafond court par appel est l'équivalent le plus
+ * proche sans inventer un nouveau concept d'état "en ligne" : un gros écart
+ * (revenir après plusieurs heures) ne peut plus faire progresser les
+ * systèmes passifs pendant que l'un de ces défis est actif.
+ */
+const IDLE_CHALLENGE_OFFLINE_DISABLED_IDS = Object.freeze(["twentyFourHours", "hundredLevels", "troll"]);
+
 export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()) {
   const state = normalizeIdleNguState(raw, context, now);
-  const secs = clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS);
+  const offlineCap = IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active)
+    ? 60
+    : EARLY_GAME_MAX_OFFLINE_SECONDS;
+  const secs = clamp(seconds, 0, offlineCap);
 
   advanceGeneratedResources(state,secs,context);
   advanceAugmentations(state, secs, context);
@@ -2990,6 +3056,36 @@ function challengeNguLevels(state) {
   return Object.keys(tracks).reduce((sum,id)=>sum+totalTrackLevel(state.systems.ngu,id),0);
 }
 
+function laserSwordPair(state) {
+  const pair=state.systems.augmentations?.data?.pairs?.laserSword;
+  return {
+    level:Math.max(0,int(pair?.level,0)),
+    upgradeLevel:Math.max(0,int(pair?.upgradeLevel,0))
+  };
+}
+
+/*
+ * "100 Levels Challenge" (audit 2026-09-16, augments-and-challenges.md) :
+ * "total levels gained from Augments+Blood Magic+Time Machine+Wandoos+
+ * Beards COMBINED capped at 100/rebirth". Le pool est un simple compteur
+ * remis à zéro à chaque Rebirth (applyRebirthResetV56_) ; chaque site de
+ * gain (advanceAugmentations, advanceBloodMagic, advanceTimeMachine,
+ * advanceTrackSystem pour Wandoos, advanceBeardTrack) vérifie le budget
+ * restant AVANT de dépenser une ressource pour ce niveau — jamais après
+ * coup, pour ne jamais faire perdre de l'Or déjà dépensé sans le niveau
+ * correspondant (même invariant que les gardes "Or insuffisant" déjà
+ * présentes dans ces mêmes fonctions).
+ */
+function challengeHundredLevelsRemaining(state) {
+  if (state.challenge?.active !== "hundredLevels") return Infinity;
+  return Math.max(0, 100 - Math.max(0, int(state.challenge.hundredLevelsGained, 0)));
+}
+
+function challengeHundredLevelsConsume(state, amount) {
+  if (state.challenge?.active !== "hundredLevels" || !(amount > 0)) return;
+  state.challenge.hundredLevelsGained = Math.max(0, int(state.challenge.hundredLevelsGained, 0)) + amount;
+}
+
 function challengeDefinition(id) {
   return IDLE_NGU_NORMAL_CHALLENGES.find(def=>def.id===String(id||"")) || null;
 }
@@ -3004,7 +3100,7 @@ function challengeUnlocked(def,state,context={}) {
   if(def.id==="noEquipment")return Boolean(state.adventure?.completedSets?.grb||state.adventure?.setRewards?.noEquipmentChallenge);
   if(def.id==="troll")return int(state.adventure?.titans?.t2?.kills,0)>0;
   if(def.id==="noRebirth")return int(state.adventure?.titans?.t3?.kills,0)>0;
-  if(def.id==="laserSword")return int(state.adventure?.itemList?.laserSword?.maxLevel,-1)>=1;
+  if(def.id==="laserSword")return laserSwordPair(state).level>=1&&laserSwordPair(state).upgradeLevel>=1;
   if(def.id==="blind")return int(state.adventure?.titans?.t4?.kills,0)>0;
   if(def.id==="noNgu")return challengeNguLevels(state)>=10000;
   if(def.id==="noTimeMachine")return Boolean(state.systems.diggers?.unlocked);
@@ -3049,6 +3145,12 @@ function challengeAction(state, payload, context, now) {
     const target=challengeTargetBoss(def,before);
     if(target>0&&num(context.bosses,0)<target)throw new Error("OBJECTIF_NON_ATTEINT");
     if(id==="twentyFourHours"&&now-num(state.challenge.startedAt,now)>24*3600000)throw new Error("DEFI_ECHOUE_TEMPS");
+    if(id==="laserSword"){
+      // Wiki : "Make a (2/2 + 1/1 per completion) Laser Sword" — palier 2/2 à la 1re, +1/+1 par completion suivante.
+      const requiredLevel=2+before;
+      const pair=laserSwordPair(state);
+      if(pair.level<requiredLevel||pair.upgradeLevel<requiredLevel)throw new Error("OBJECTIF_NON_ATTEINT");
+    }
 
     const elapsed=Math.max(0,now-num(state.challenge.startedAt,now));
     const rewarded=before<Math.max(0,int(def.max,0));
@@ -3076,18 +3178,21 @@ function challengeAction(state, payload, context, now) {
   if(!challengeUnlocked(def,state,context))throw new Error("DEFI_VERROUILLE");
   if(!def.implemented)throw new Error("DEFI_EN_PREPARATION");
 
+  // Wiki : "Starting ANY challenge resets NUMBER to 1 and empties banks —
+  // EXCEPT the Laser Sword Challenge, which performs only a normal rebirth."
+  const isLaserSword=id==="laserSword";
   applyRebirthResetV56_(state,context,now,{
-    forceNumber:1,
-    clearBanks:true,
+    forceNumber:isLaserSword?undefined:1,
+    clearBanks:!isLaserSword,
     challengeId:id
   });
 
   return {
     started:id,
-    challengeReset:true,
+    challengeReset:!isLaserSword,
     targetBoss:challengeTargetBoss(def,state.challenge.completions[id]),
     number:state.rebirth.number,
-    banksCleared:true
+    banksCleared:!isLaserSword
   };
 }
 
@@ -3363,6 +3468,10 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   rb.lastRunSeconds=runSeconds;
   rb.hasPreviousRun=true;
   rb.canRebirth=false;
+
+  // "100 Levels Challenge" pool is explicitly "per rebirth" (audit
+  // 2026-09-16) — reset on every rebirth, not just when that challenge starts.
+  state.challenge.hundredLevelsGained=0;
 
   /*
    * Wiki NGU (page "Banks") : les Perks/Quirks "Level Bank" retiennent, à

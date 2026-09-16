@@ -767,6 +767,107 @@ const fresh=(context={}, now=1_000_000)=>
   assert.throws(()=>rebirthIdleNguState(noRb,{bosses:20},300_000),/REBIRTH_INTERDITE_DEFI/);
 }
 
+{
+  // Audit 2026-09-16 : 5 défis marqués implemented:false ne pouvaient pas
+  // être lancés du tout ("DEFI_EN_PREPARATION"). Vérifie que chacun est
+  // désormais réellement jouable ET que sa contrainte de jeu est appliquée.
+  const def=id=>IDLE_NGU_NORMAL_CHALLENGES.find(d=>d.id===id);
+  for (const id of ["twentyFourHours","hundredLevels","troll","laserSword","blind"]) {
+    assert.equal(def(id).implemented,true,id+" doit maintenant être marqué implémenté.");
+  }
+
+  // "offline progress disabled" (24h/100 Levels/Troll) : un gros rattrapage
+  // (plusieurs heures d'un coup) ne doit plus faire progresser les systèmes
+  // passifs pendant que l'un des trois est actif.
+  for (const id of ["twentyFourHours","hundredLevels","troll"]) {
+    let state=fresh({bosses:100},0);
+    state.adventure.titans.t2={kills:1,nextAt:0};
+    state.challenge.bestMs.basic=3600000;
+    state.systems.ngu.data.tracks.attack.level=10;
+    state=applyIdleNguAction(state,{action:"challenge",mode:"start",challenge:id},{bosses:100},10_000).state;
+    state.systems.timeMachine.unlocked=true;
+    state.systems.timeMachine.allocation={energy:1000,magic:0};
+    state.resources.energy.power=1;
+    state.currencies.gold=1e12;
+    const before=state.systems.timeMachine.data.speedLevel;
+    const after=advanceIdleNguState(state,10*3600,{bosses:100},20_000);
+    // Repère wiki (1 Power, 1000 alloué) = 1 000 000s pour le niveau 0->1 ;
+    // même 10h (36 000s) ne doivent JAMAIS suffire une fois plafonnées à 60s.
+    assert.equal(after.systems.timeMachine.data.speedLevel,before,id+" doit plafonner le rattrapage hors-ligne, pas laisser passer 10h d'un coup.");
+  }
+
+  // "100 Levels Challenge" : pool combiné de 100 niveaux par Rebirth,
+  // partagé entre Augments/Blood Magic/Time Machine/Wandoos/Beards.
+  {
+    let state=fresh({bosses:100},0);
+    state.systems.ngu.data.tracks.attack.level=10;
+    state=applyIdleNguAction(state,{action:"challenge",mode:"start",challenge:"hundredLevels"},{bosses:100},10_000).state;
+    state.challenge.hundredLevelsGained=99;
+    state.systems.augmentations.unlocked=true;
+    state.systems.augmentations.data.trainUpgrade=false;
+    state.resources.energy.power=1e12;
+    state.resources.energy.bars=1e12;
+    state.currencies.gold=1e30;
+    const after=advanceIdleNguState(state,60,{bosses:17},20_000);
+    assert.ok(after.systems.augmentations.data.pairs.scissors.level<=1,"Le pool à 99/100 ne doit laisser passer qu'1 seul niveau supplémentaire, jamais plus.");
+    assert.ok(after.challenge.hundredLevelsGained<=100,"Le compteur du pool ne doit jamais dépasser 100.");
+
+    const reborn=rebirthIdleNguState(
+      Object.assign({},after,{challenge:Object.assign({},after.challenge,{active:""})}),
+      {bosses:17},
+      200_000
+    );
+    assert.equal(reborn.challenge.hundredLevelsGained,0,"Le pool des 100 niveaux se remet à zéro à chaque Rebirth (pas seulement au lancement du défi).");
+  }
+
+  // "Laser Sword Challenge" : seul défi qui ne réinitialise PAS NUMBER/banks,
+  // et dont la condition de victoire est le niveau réel de l'Augment (2/2
+  // pour la 1re completion), pas un champ d'inventaire Aventure inexistant.
+  {
+    let locked=fresh({bosses:100},0);
+    assert.throws(
+      ()=>applyIdleNguAction(locked,{action:"challenge",mode:"start",challenge:"laserSword"},{bosses:100},10_000),
+      /DEFI_VERROUILLE/,
+      "Sans Augment Laser Sword niveau 1/1, le défi doit rester verrouillé."
+    );
+
+    let state=fresh({bosses:100},0);
+    state.systems.augmentations.data.pairs.laserSword={level:1,upgradeLevel:1,progress:0,upgradeProgress:0};
+    state.systems.timeMachine.unlocked=true;
+    state.systems.timeMachine.data.speedLevel=500;
+    state.systems.perks.data.levels[41]=10;
+    state.rebirth.number=42;
+    const started=applyIdleNguAction(state,{action:"challenge",mode:"start",challenge:"laserSword"},{bosses:100},200_000);
+    assert.equal(started.result.challengeReset,false,"Laser Sword ne doit jamais annoncer un reset de NUMBER/banks.");
+    assert.notEqual(started.state.rebirth.number,1,"NUMBER ne doit pas être forcé à 1 pour Laser Sword (rebirth normal, formule habituelle).");
+    assert.ok(started.state.bank.timeMachineSpeed>0,"Les banks doivent se remplir normalement (pas vidées de force) pour Laser Sword.");
+
+    assert.throws(
+      ()=>applyIdleNguAction(started.state,{action:"challenge",mode:"complete",challenge:"laserSword"},{bosses:100},20_000),
+      /OBJECTIF_NON_ATTEINT/,
+      "Niveau 1/1 ne suffit pas : la 1re completion exige 2/2."
+    );
+
+    started.state.systems.augmentations.data.pairs.laserSword.level=2;
+    started.state.systems.augmentations.data.pairs.laserSword.upgradeLevel=2;
+    const completed=applyIdleNguAction(started.state,{action:"challenge",mode:"complete",challenge:"laserSword"},{bosses:100},20_000);
+    assert.equal(completed.state.challenge.completions.laserSword,1);
+    assert.equal(completed.state.currencies.experience,3000);
+    assert.equal(completed.state.currencies.ap,3000);
+  }
+
+  // "Blind Challenge" : restriction purement visuelle (client), rien à
+  // appliquer côté moteur — le générique unlock/win/récompense suffit.
+  {
+    let state=fresh({bosses:100},0);
+    state.adventure.titans.t4={kills:1,nextAt:0};
+    const started=applyIdleNguAction(state,{action:"challenge",mode:"start",challenge:"blind"},{bosses:100},10_000);
+    assert.equal(started.state.challenge.active,"blind");
+    const completed=applyIdleNguAction(started.state,{action:"challenge",mode:"complete",challenge:"blind"},{bosses:58},20_000);
+    assert.equal(completed.state.challenge.completions.blind,1);
+  }
+}
+
 
 {
   // V57 rewards are derived solely from completion counters.

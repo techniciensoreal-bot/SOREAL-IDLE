@@ -15,7 +15,7 @@ assert.ok(src.includes('IDLE_NGU_YGG_FRUITS'));
 assert.ok(src.includes('IDLE_NGU_DIGGERS'));
 assert.ok(src.includes('IDLE_NGU_NORMAL_CHALLENGES'));
 assert.ok(src.includes('applyRebirthResetV56_'));
-assert.ok(src.includes('challengeReset:true'));
+assert.ok(src.includes('challengeReset:!isLaserSword'));
 assert.ok(src.includes('REBIRTH_INTERDITE_DEFI'));
 assert.ok(src.includes('idleNguChallengeBonuses'));
 assert.ok(src.includes('augmentationPowerMultiplier'));
