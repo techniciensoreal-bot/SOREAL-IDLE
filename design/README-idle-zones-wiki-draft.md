@@ -60,7 +60,6 @@ En lisant les données live (nouvelle route `idle-catalog-read`, lecture seule),
 Découverte : les zones 1-6 ont en fait un système à **3 tiers de monstres** par zone (`normal`, `boss_zone`, `rare`), le tier `rare` ayant son propre objet légendaire nommé (slot + puissance de base) — encore plus soigné que ce que j'avais supposé.
 
 - **80 lignes ajoutées** (tiers `normal` + `boss_zone` pour les zones 7-46), stats réutilisées directement depuis `idle-zones-full-v2.json` (`PVEnnemi`/`AttaqueEnnemi`/`PVBoss`/`AttaqueBoss`), pas de nouvelle formule.
-- **Le tier `rare` (avec objet légendaire unique par zone) n'est PAS fait cette nuit** — chaque légendaire mérite un nom propre comme "Pendentif du Gerbeur Fantôme" ou "Cœur du Zéro Absolu", pas une génération en série bâclée pour 40 zones. C'est la suite logique la plus évidente.
 - Import strictement additif (`idle-catalog-import`), les zones 1-6 (normal/boss/rare) ne sont jamais touchées.
 - Fichiers : `idle-monstres-extension-7-46.json`, généré par `build-idle-monstres-extension-7-46.mjs`.
 - Pour pousser :
@@ -68,11 +67,25 @@ Découverte : les zones 1-6 ont en fait un système à **3 tiers de monstres** p
   SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-monstres-extension.mjs
   ```
 
+## IDLE_MONSTRES — tier `rare` + objets légendaires (zones 7-46) — fait cette nuit aussi
+
+Vérifié avant d'écrire : `rare` n'est pas une mécanique du wiki NGU (grep sur tout `ngu-wiki-reference/` pour "legendary"/"rare enemy" → 0 résultat) — c'est un système 100% SOREAL original, déjà en place et soigné sur les zones 1-6 (`Z1_RARE` = "Le Gerbeur Fantôme" -> "Pendentif du Gerbeur Fantôme", etc., lu en direct via `idle-catalog-read`). Rien à vérifier contre le wiki ici, seulement à prolonger fidèlement le patron existant.
+
+- **40 monstres rares uniques + 40 objets légendaires uniques**, un par zone 7-46, même ton (humour noir logistique SOREAL) et mêmes champs que les 6 déjà en jeu.
+- **PV/Attaque** : interpolés entre le monstre normal et le boss de la même zone (déjà calculés dans `idle-zones-full-v2.json`), aux mêmes fractions observées sur les 6 zones réelles (PV ≈ 50% du chemin normal→boss, Attaque ≈ 70%).
+- **BaseLegendaire** : `PuissanceRecommandee(zone) × multiplicateur(zone)`, le multiplicateur montant en douceur de 0,7 (valeur réelle de la zone 1) vers un plateau à 3,0 — au lieu d'extrapoler platement le ratio géométrique observé sur seulement 6 zones (qui aurait explosé à des valeurs absurdes en zone 46).
+- **ChanceRencontre (0,3%) et ChanceLegendaire (25%)** : gardées identiques aux zones 1-6, confirmé lu correctement par le moteur (`nombreSorealIdle_` convertit la virgule française, `type==='rare'` déclenche bien `genererObjetLegendaireRareAventureSorealIdle_` dans `idle-sqlite-runtime.js`).
+- Import strictement additif, nouveaux `row_index` à partir de 100 (les zones 1-6 et l'extension normal/boss 7-46 ne sont jamais touchées).
+- Fichiers : `idle-monstres-rare-7-46.json`, généré par `build-idle-monstres-rare-7-46.mjs`.
+- Pour pousser :
+  ```bash
+  SOREAL_IDLE_CATALOG_SECRET=<voir le message de conversation> node design/push-idle-monstres-rare.mjs
+  ```
+
 ## Ce qui reste à faire après ces push
 
-1. **Le tier `rare` + objets légendaires** pour les zones 7-46 dans IDLE_MONSTRES (voir ci-dessus) — le morceau le plus créatif qui reste, volontairement pas rushé.
-2. **Vérifier si PVEnnemi/PVBoss/CoutEntree (des zones) doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
-3. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS).
+1. **Vérifier si PVEnnemi/PVBoss/CoutEntree (des zones) doivent plutôt venir des constantes déjà dans le moteur** (`AVENTURE.MULTIPLICATEUR_PV_ENNEMI`, `COUT_ENTREE_BASE`, `CROISSANCE_COUT_ENTREE` dans `idle-sqlite-runtime.js`) plutôt que d'être fixées par zone — à ne pas dupliquer une logique existante sans vérifier.
+2. **Tout le reste du jeu en dehors d'Adventure Mode** (piste NGU centrale, Wishes, Wandoos, Basic/Advanced Training...) — pas touché cette nuit, hors scope de ce qui a été demandé au départ (IDLE_LOOTS/IDLE_SETS). Wishes en particulier est le plus gros morceau de contenu wiki encore jamais commencé (100+ souhaits nommés sur 11 pages wiki, formule multiplicative Énergie×Magie×R3) — bon candidat pour la suite si le rythme de cette nuit continue.
 
 ## Fichiers
 
