@@ -6829,25 +6829,6 @@ function degatsRecusSecondeSorealIdle_(
       )
     );
 
-  /*
-   * Boss 1 : combat tutoriel volontairement serré mais gagnable.
-   * La valeur représente les dégâts RÉELLEMENT subis par seconde,
-   * après la défense. Le journal client affiche séparément l'attaque
-   * brute, le blocage et les dégâts reçus.
-   */
-  if (index === 0) {
-    return Math.max(
-      1,
-      nombreSorealIdle_(
-        parametreSorealIdle_(
-          'BOSS_TUTORIEL_DEGATS_SEC',
-          1
-        ),
-        1
-      )
-    );
-  }
-
   const attaque =
     attaqueBossSorealIdle_(
       index
@@ -11513,18 +11494,6 @@ function ajouterCoutsEntrainementEtatSorealIdle_(
         CONFIG_SOREAL_IDLE
           .DEGATS_BOSS_MIN_PCT
       ),
-    bossTutorielDegatsSec:
-      Math.max(
-        1,
-        nombreSorealIdle_(
-          parametreSorealIdle_(
-            'BOSS_TUTORIEL_DEGATS_SEC',
-            1
-          ),
-          1
-        )
-      ),
-
     bossRespawnSecondes:
       delaiRespawnBossSorealIdle_(
         Math.max(
@@ -16950,7 +16919,8 @@ export const idleRuntimeTestHooks=Object.freeze({
   __idleRestoreCatalogFromLegacyV2,
   equilibrerBossPrincipalSorealIdleV413_,
   definitionBossSorealIdle_,
-  contexteMetaNguSorealIdle_
+  contexteMetaNguSorealIdle_,
+  degatsRecusSecondeSorealIdle_
 });
 
 export function runSorealIdleOperation(sql,operation,args,user){
