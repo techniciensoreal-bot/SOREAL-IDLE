@@ -560,6 +560,30 @@ const fresh=(context={}, now=1_000_000)=>
 }
 
 {
+  // Audit 2026-09-16 : la page "Resource 3" du Spend EXP menu (wiki,
+  // currencies-gold-exp-ap.md) était absente — buyResource("r3",...) levait
+  // ACHAT_RESSOURCE_INDISPONIBLE dans tous les cas.
+  const context={bosses:37};
+  let state=fresh(context,1_000_000);
+  state.currencies.experience=1e7;
+
+  assert.throws(
+    ()=>applyIdleNguAction(state,{action:"buyResource",resource:"r3",stat:"speed"},context,1_000_000),
+    /R3_VERROUILLEE/,
+    "R3 doit rester verrouillé tant que les Hacks ne sont pas débloqués (même patron que Magic/Blood Magic)."
+  );
+
+  state.systems.hacks.unlocked=true;
+  state=applyIdleNguAction(state,{action:"buyResource",resource:"r3",stat:"speed"},context,1_000_000).state;
+  assert.equal(state.resources.r3.speed,1.1);
+  assert.equal(state.currencies.experience,1e7-300000);
+  const capBefore=state.resources.r3.cap;
+  state=applyIdleNguAction(state,{action:"buyResource",resource:"r3",stat:"cap"},context,1_000_000).state;
+  assert.equal(state.resources.r3.cap,capBefore+10000);
+  assert.equal(state.currencies.experience,1e7-300000-4000000);
+}
+
+{
   // V51: NGU Energy generation follows the 50-tick speed rule and Bars.
   const mod=await import('../src/idle-ngu-progression.js');
   let state=fresh({},1_000_000);

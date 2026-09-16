@@ -63,6 +63,20 @@ export const IDLE_NGU_RESOURCE_PURCHASES = Object.freeze({
     power: Object.freeze({ cost: 45, gain: 0.1, hardCap: 1e18 }),
     cap: Object.freeze({ cost: 120, gain: 10000, hardCap: 9e18 }),
     bars: Object.freeze({ cost: 240, gain: 1, hardCap: 1e18 })
+  }),
+  /*
+   * Audit 2026-09-16 : la page "Resource 3" du "Spend EXP" menu (wiki,
+   * currencies-gold-exp-ap.md) était totalement absente ici — buyResource
+   * levait ACHAT_RESSOURCE_INDISPONIBLE pour r3 dans tous les cas, alors
+   * qu'Energy/Magic fonctionnaient déjà. Mêmes hardCap qu'Energy/Magic
+   * (colonnes "Capped at..." identiques sur le wiki), seuls les coûts EXP
+   * changent (bien plus chers, cohérent avec R3 débloqué plus tard).
+   */
+  r3: Object.freeze({
+    speed: Object.freeze({ cost: 300000, gain: 0.1, hardCap: 50 }),
+    power: Object.freeze({ cost: 1500000, gain: 0.1, hardCap: 1e18 }),
+    cap: Object.freeze({ cost: 4000000, gain: 10000, hardCap: 9e18 }),
+    bars: Object.freeze({ cost: 8000000, gain: 1, hardCap: 1e18 })
   })
 });
 const EARLY_GAME_MAX_OFFLINE_SECONDS = 30 * 24 * 3600;
@@ -2855,6 +2869,7 @@ function buyResource(state, resource, stat) {
   if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
   if (!["speed", "power", "cap", "bars"].includes(stat)) throw new Error("STAT_RESSOURCE_INVALIDE");
   if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "r3" && !state.systems.hacks.unlocked) throw new Error("R3_VERROUILLEE");
   const purchase=IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat];
   if (!purchase) throw new Error("ACHAT_RESSOURCE_INDISPONIBLE");
   const r = state.resources[resource];
