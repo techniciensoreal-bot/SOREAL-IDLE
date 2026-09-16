@@ -329,9 +329,43 @@ const SpreadsheetApp={
   },
   flush(){}
 };
+/*
+ * Audit 2026-09-16 (Norman : "le bouton + pour ajouter des points dans
+ * Attaque passive ne fonctionne plus", "le menu Spend EXP ne dépense pas
+ * l'EXP... on peut spammer et acheter des ressources en chaîne") : ce
+ * shim renvoyait TOUJOURS true pour tryLock/waitLock -- aucune exclusion
+ * mutuelle réelle, alors que plusieurs fonctions (agirProgressionSorealIdle,
+ * envoyerAllocationsBasicTrainingIdleV120_ côté client, la synchro
+ * périodique obtenirEtatSorealIdleGameV40_...) font toutes un cycle
+ * lire-modifier-écrire sur LA MÊME ligne joueur en supposant que ce
+ * verrou les protège. Un incident déjà documenté ailleurs dans ce fichier
+ * ("Quand je mets des points dans Basic training, ils me sont souvent
+ * rendus") décrivait déjà ce symptôme de contention perdue. Corrigé par
+ * un vrai verrou en mémoire, scopé à CET isolate Durable Object : comme
+ * chaque cycle lire-modifier-écrire de ces fonctions est entièrement
+ * synchrone (jamais d'await entre tryLock et releaseLock), un simple
+ * indicateur suffit à sérialiser deux requêtes qui s'entrelaceraient au
+ * niveau du `await request.json()` de l'appelant -- la seule vraie
+ * fenêtre de concurrence possible dans ce modèle à isolate unique.
+ */
+let __idleScriptLockHeldV1=false;
 const LockService={
   getScriptLock(){
-    return {tryLock(){return true;},waitLock(){return true;},releaseLock(){}};
+    return {
+      tryLock(){
+        if(__idleScriptLockHeldV1)return false;
+        __idleScriptLockHeldV1=true;
+        return true;
+      },
+      waitLock(){
+        if(__idleScriptLockHeldV1)throw new Error("SOREAL_IDLE_LOCK_TIMEOUT");
+        __idleScriptLockHeldV1=true;
+        return true;
+      },
+      releaseLock(){
+        __idleScriptLockHeldV1=false;
+      }
+    };
   }
 };
 const CacheService={
