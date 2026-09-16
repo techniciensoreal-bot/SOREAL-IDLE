@@ -1,4 +1,25 @@
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
+
+/*
+ * Audit 2026-09-16 : PVBoss/AttaqueBoss étaient calculés indépendamment
+ * pour les 46 zones via un ratio de PuissanceRecommandee (x320/x8), alors
+ * que IDLE_ZONES.Boss ET IDLE_BOSS sont le MEME système couplé (voir
+ * commentaire REAL_BOSS_LADDER plus bas) -- pour les zones 21-46, cette
+ * formule divergeait de 55x à 87x (et grandissant) du vrai PV du boss
+ * déjà étendu dans idle-boss-extension-21-46.json (qui, lui, continue le
+ * vrai taux de croissance observé sur les boss 16-20 déjà en production).
+ * Corrigé en lisant directement PV/Attaque du boss réel par son nom pour
+ * les zones 21-46, au lieu de les recalculer séparément.
+ * Zones 1-20 restent sur le ratio (IDLE_BOSS 1-20 est une ressource live
+ * que cette session n'a pas pu relire -- à réconcilier séparément avec
+ * les vraies valeurs PV/Attaque des boss 1-20 avant un prochain push).
+ */
+const BOSS_EXTENSION_21_46 = JSON.parse(
+  readFileSync(new URL('./idle-boss-extension-21-46.json', import.meta.url), 'utf8')
+);
+const BOSS_STATS_BY_NAME = Object.fromEntries(
+  BOSS_EXTENSION_21_46.map((b) => [b.Nom, { PV: b.PV, Attaque: b.Attaque }])
+);
 
 // Builds the complete 46-zone SOREAL IDLE progression from scratch (Norman,
 // 2026-09-15 night: "tu dois repartir de 0 vu qu'elles n'ont certainement
@@ -55,14 +76,22 @@ const zones = [
   [35, 'The West World', n(8, 'Oc'), false, 'Le Far Quai', 'Tenue Cowboy', 'Tumbleweed de Cartons', 'Le Shérif du Parking'],
   [36, 'IT HUNGERS', n(130, 'Oc'), true, '[TITAN] La Faim qui Dévore le Stock', 'Tenue Spatiale', '-', 'La Faim qui Dévore le Stock'],
   [37, 'The Breadverse', n(431, 'Oc'), false, 'Le Monde du Pain Rassis', 'Tenue Boulangère', 'Baguette Rassise', 'Le Pain Qui a Trouvé Conscience'],
-  [38, "That 70's Zone", n(1.5, 'No'), false, 'Le Local Disco', 'Tenue Disco', 'Boule à Facettes Cassée', 'Le Vigile en Pattes d’Éph'],
+  [38, "That 70's Zone", n(1.5, 'No'), false, 'Le Local Disco', 'Tenue Disco', 'Boule à Facettes Cassée', "Le Vigile en Pattes d'Éph"],
   [39, 'The Halloweenies', n(3.2, 'No'), false, 'Le Quai Hanté', 'Tenue Fantôme', 'Colis Hanté', 'Le Fantôme du Dernier Inventaire'],
   [40, 'ROCK LOBSTER', n(60, 'No'), true, '[TITAN] Le Homard Rocker', 'Tenue Rock', '-', 'Le Homard Rocker'],
   [41, 'Construction Zone', n(113, 'No'), false, 'Le Chantier Éternel', 'Tenue Chantier', 'Cône de Chantier Baladeur', 'Le Marteau-Piqueur Autonome'],
   [42, 'DUCK DUCK ZONE', n(350, 'No'), false, 'La Zone des Canards Égarés', 'Tenue Canard', 'Canard Égaré', 'Le Canard Chef de Zone'],
   [43, 'The Nether Regions', n(690, 'No'), false, 'Les Contrées Voisines', 'Tenue Voisine', 'Voisin Curieux', 'Le Syndic Vengeur'],
   [44, 'AMALGAMATE', n(5.6, 'Dc'), true, "[TITAN] L'Amas de Tout Ce Qui Traîne", 'Tenue Amalgame', '-', "L'Amas de Tout Ce Qui Traîne"],
-  [45, 'The Aethereal Sea', n(47.6, 'Dc'), false, 'La Mer des Invendus', 'Tenue Marine', 'Bouteille à la Mer (Invendue)', 'Le Capitaine des Retours Client'],
+  // Audit 2026-09-16 : la colonne "Idle P" (47.6Dc, Beast OFF) avait été
+  // prise par erreur au lieu de "Manual P" (17.2Dc) -- toutes les zones
+  // voisines (44: Manual 5.6Dc, 46: Manual 40Dc, 47: Manual 128Dc) et
+  // toutes les autres zones du script utilisent la colonne Manual comme
+  // ancre. Avec 47.6Dc, la puissance de la zone 45 dépassait celle de la
+  // zone 46 (rupture de monotonie 44->45->46) ; avec 17.2Dc (Manual, cf.
+  // ngu-wiki-reference/adventure-zones-master-table.md ligne 268), la
+  // progression 5.6Dc -> 17.2Dc -> 40Dc -> 128Dc reste croissante.
+  [45, 'The Aethereal Sea', n(17.2, 'Dc'), false, 'La Mer des Invendus', 'Tenue Marine', 'Bouteille à la Mer (Invendue)', 'Le Capitaine des Retours Client'],
   [46, 'TIPPI THE TUTORIAL', n(40, 'Dc'), true, '[TITAN] Tippi, la Souris du Tuto', 'Tenue Tippi', '-', 'Tippi, la Souris du Tuto'],
   [47, 'THE TRAITOR', n(128, 'Dc'), true, '[TITAN] Le Traître du Quai', 'Tenue Traître', '-', 'Le Traître du Quai']
 ];
@@ -131,20 +160,28 @@ const zoneRows = zones.map(([realWikiZone, realName, realPower, isTitan, sorealN
   const puissance = bp < 50 ? Math.round(bp * 10) / 10 : Math.round(bp);
   const preserved = PRESERVED_ZONE_IDENTITY[zoneId];
   const realBoss = REAL_BOSS_LADDER[zoneId];
+  const resolvedBossName = realBoss || bossName;
+  const realBossStats = BOSS_STATS_BY_NAME[resolvedBossName];
   return {
     ID: zoneId,
     Nom: preserved ? preserved.Nom : sorealName,
     Emoji: preserved ? preserved.Emoji : (emojiByTheme[setTheme] || '🗺️'),
     Description: preserved ? preserved.Description : `Zone ${zoneId} du parcours SOREAL IDLE (progression fidèle au wiki NGU Idle, thème ${setTheme}).`,
     Ennemi: preserved ? preserved.Ennemi : enemyName,
-    Boss: realBoss || bossName,
+    Boss: resolvedBossName,
     NiveauRequis: zoneId * 2,
     PuissanceRecommandee: puissance,
     CoutEntree: Math.round(12 * Math.pow(1.35, zoneId - 1)),
     PVEnnemi: Math.max(1, Math.round(puissance * 40)),
     AttaqueEnnemi: Math.max(1, Math.round(puissance * 1)),
-    PVBoss: Math.max(1, Math.round(puissance * 320)),
-    AttaqueBoss: Math.max(1, Math.round(puissance * 8)),
+    // Zones 21-46 : PV/Attaque réels du boss (idle-boss-extension-21-46.json,
+    // continue le vrai taux de croissance des boss 16-20 en production) --
+    // jamais recalculés séparément par un ratio de zone, pour ne plus
+    // diverger de 55x-87x comme avant ce correctif. Zones 1-20 : ratio
+    // conservé en attendant une réconciliation avec les vraies valeurs
+    // IDLE_BOSS 1-20 (ressource live, non relisible depuis cette session).
+    PVBoss: realBossStats ? realBossStats.PV : Math.max(1, Math.round(puissance * 320)),
+    AttaqueBoss: realBossStats ? realBossStats.Attaque : Math.max(1, Math.round(puissance * 8)),
     Points: Math.max(1, Math.round(2 + zoneId * 0.35)),
     Pieces: Math.max(1, Math.round(3 + zoneId * 0.55)),
     Image: '',
@@ -154,9 +191,24 @@ const zoneRows = zones.map(([realWikiZone, realName, realPower, isTitan, sorealN
     _setTheme: setTheme,
     _isTitan: isTitan,
     _realWikiZone: realWikiZone,
-    _bossFromRealLadder: Boolean(realBoss)
+    _bossFromRealLadder: Boolean(realBoss),
+    _bossStatsFromRealBoss: Boolean(realBossStats)
   };
 });
+
+// Garde-fou (audit 2026-09-16) : une zone 21-46 sans correspondance dans
+// idle-boss-extension-21-46.json (nom mal orthographié/apostrophe
+// différente, etc.) retomberait silencieusement sur le ratio de zone --
+// exactement le bug déjà trouvé une fois (apostrophe typographique vs
+// simple sur "Le Vigile en Pattes d'Éph"). Échoue fort plutôt que de
+// laisser passer une seconde divergence non détectée.
+const missingRealBossStats = zoneRows.filter((z) => z.ID > 20 && !z._bossStatsFromRealBoss);
+if (missingRealBossStats.length) {
+  throw new Error(
+    'Zones sans stats de boss réelles (idle-boss-extension-21-46.json) : ' +
+    missingRealBossStats.map((z) => z.ID + ' (' + z.Boss + ')').join(', ')
+  );
+}
 
 writeFileSync(new URL('./idle-zones-full-v2.json', import.meta.url), JSON.stringify(zoneRows, null, 2));
 console.log('wrote', zoneRows.length, 'zones (1-' + zoneRows.length + ')');

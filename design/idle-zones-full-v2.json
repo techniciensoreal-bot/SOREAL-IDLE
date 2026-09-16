@@ -22,7 +22,8 @@
     "_setTheme": "Tenue Bénévole",
     "_isTitan": false,
     "_realWikiZone": 2,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 2,
@@ -47,7 +48,8 @@
     "_setTheme": "Tenue Encombrants",
     "_isTitan": false,
     "_realWikiZone": 3,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 3,
@@ -72,7 +74,8 @@
     "_setTheme": "Tenue Forestière",
     "_isTitan": false,
     "_realWikiZone": 4,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 4,
@@ -97,7 +100,8 @@
     "_setTheme": "Tenue Cave",
     "_isTitan": false,
     "_realWikiZone": 5,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 5,
@@ -122,7 +126,8 @@
     "_setTheme": "Tenue Aérienne",
     "_isTitan": false,
     "_realWikiZone": 6,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 6,
@@ -147,7 +152,8 @@
     "_setTheme": "Tenue Sécurité",
     "_isTitan": false,
     "_realWikiZone": 7,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 7,
@@ -172,7 +178,8 @@
     "_setTheme": "Tenue Toque",
     "_isTitan": true,
     "_realWikiZone": 8,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 8,
@@ -197,7 +204,8 @@
     "_setTheme": "Tenue Horlogère",
     "_isTitan": false,
     "_realWikiZone": 9,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 9,
@@ -222,7 +230,8 @@
     "_setTheme": "Tenue Racines",
     "_isTitan": true,
     "_realWikiZone": 10,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 10,
@@ -247,7 +256,8 @@
     "_setTheme": "Tenue Carton Plat",
     "_isTitan": false,
     "_realWikiZone": 11,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 11,
@@ -272,7 +282,8 @@
     "_setTheme": "Tenue Poussiéreuse",
     "_isTitan": false,
     "_realWikiZone": 12,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 12,
@@ -297,7 +308,8 @@
     "_setTheme": "Tenue Bureau",
     "_isTitan": true,
     "_realWikiZone": 13,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 13,
@@ -322,7 +334,8 @@
     "_setTheme": "Tenue Improbable",
     "_isTitan": false,
     "_realWikiZone": 14,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 14,
@@ -347,7 +360,8 @@
     "_setTheme": "Tenue Méga",
     "_isTitan": false,
     "_realWikiZone": 15,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 15,
@@ -372,7 +386,8 @@
     "_setTheme": "Tenue Givrée",
     "_isTitan": true,
     "_realWikiZone": 16,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 16,
@@ -397,7 +412,8 @@
     "_setTheme": "Tenue Barbue",
     "_isTitan": false,
     "_realWikiZone": 17,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 17,
@@ -422,7 +438,8 @@
     "_setTheme": "Tenue Vagabonde",
     "_isTitan": true,
     "_realWikiZone": 18,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 18,
@@ -447,7 +464,8 @@
     "_setTheme": "Tenue Griffonnée",
     "_isTitan": false,
     "_realWikiZone": 19,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 19,
@@ -472,7 +490,8 @@
     "_setTheme": "Tenue Discrète",
     "_isTitan": false,
     "_realWikiZone": 20,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 20,
@@ -497,7 +516,8 @@
     "_setTheme": "Tenue Gluante",
     "_isTitan": true,
     "_realWikiZone": 21,
-    "_bossFromRealLadder": true
+    "_bossFromRealLadder": true,
+    "_bossStatsFromRealBoss": false
   },
   {
     "ID": 21,
@@ -511,8 +531,8 @@
     "CoutEntree": 4851,
     "PVEnnemi": 6880,
     "AttaqueEnnemi": 172,
-    "PVBoss": 55040,
-    "AttaqueBoss": 1376,
+    "PVBoss": 4788000,
+    "AttaqueBoss": 460,
     "Points": 9,
     "Pieces": 15,
     "Image": "",
@@ -522,7 +542,8 @@
     "_setTheme": "Tenue Chocolat",
     "_isTitan": false,
     "_realWikiZone": 22,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 22,
@@ -536,8 +557,8 @@
     "CoutEntree": 6549,
     "PVEnnemi": 12840,
     "AttaqueEnnemi": 321,
-    "PVBoss": 102720,
-    "AttaqueBoss": 2568,
+    "PVBoss": 6368040,
+    "AttaqueBoss": 543,
     "Points": 10,
     "Pieces": 15,
     "Image": "",
@@ -547,7 +568,8 @@
     "_setTheme": "Tenue Sombre",
     "_isTitan": false,
     "_realWikiZone": 23,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 23,
@@ -561,8 +583,8 @@
     "CoutEntree": 8841,
     "PVEnnemi": 15800,
     "AttaqueEnnemi": 395,
-    "PVBoss": 126400,
-    "AttaqueBoss": 3160,
+    "PVBoss": 8469493,
+    "AttaqueBoss": 641,
     "Points": 10,
     "Pieces": 16,
     "Image": "",
@@ -572,7 +594,8 @@
     "_setTheme": "Tenue Princesse",
     "_isTitan": false,
     "_realWikiZone": 24,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 24,
@@ -586,8 +609,8 @@
     "CoutEntree": 11936,
     "PVEnnemi": 25320,
     "AttaqueEnnemi": 633,
-    "PVBoss": 202560,
-    "AttaqueBoss": 5064,
+    "PVBoss": 11264426,
+    "AttaqueBoss": 756,
     "Points": 10,
     "Pieces": 16,
     "Image": "",
@@ -597,7 +620,8 @@
     "_setTheme": "Tenue Stagiaire",
     "_isTitan": true,
     "_realWikiZone": 25,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 25,
@@ -611,8 +635,8 @@
     "CoutEntree": 16114,
     "PVEnnemi": 32440,
     "AttaqueEnnemi": 811,
-    "PVBoss": 259520,
-    "AttaqueBoss": 6488,
+    "PVBoss": 14981687,
+    "AttaqueBoss": 892,
     "Points": 11,
     "Pieces": 17,
     "Image": "",
@@ -622,7 +646,8 @@
     "_setTheme": "Tenue Numérique",
     "_isTitan": false,
     "_realWikiZone": 26,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 26,
@@ -636,8 +661,8 @@
     "CoutEntree": 21753,
     "PVEnnemi": 43400,
     "AttaqueEnnemi": 1085,
-    "PVBoss": 347200,
-    "AttaqueBoss": 8680,
+    "PVBoss": 19925643,
+    "AttaqueBoss": 1053,
     "Points": 11,
     "Pieces": 17,
     "Image": "",
@@ -647,7 +672,8 @@
     "_setTheme": "Tenue Fête",
     "_isTitan": false,
     "_realWikiZone": 27,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 27,
@@ -661,8 +687,8 @@
     "CoutEntree": 29367,
     "PVEnnemi": 74480,
     "AttaqueEnnemi": 1862,
-    "PVBoss": 595840,
-    "AttaqueBoss": 14896,
+    "PVBoss": 26501105,
+    "AttaqueBoss": 1242,
     "Points": 11,
     "Pieces": 18,
     "Image": "",
@@ -672,7 +698,8 @@
     "_setTheme": "Tenue Mafia",
     "_isTitan": true,
     "_realWikiZone": 28,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 28,
@@ -686,8 +713,8 @@
     "CoutEntree": 39645,
     "PVEnnemi": 98200,
     "AttaqueEnnemi": 2455,
-    "PVBoss": 785600,
-    "AttaqueBoss": 19640,
+    "PVBoss": 35246470,
+    "AttaqueBoss": 1466,
     "Points": 12,
     "Pieces": 18,
     "Image": "",
@@ -697,7 +724,8 @@
     "_setTheme": "Tenue Mal Orthographiée",
     "_isTitan": false,
     "_realWikiZone": 29,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 29,
@@ -711,8 +739,8 @@
     "CoutEntree": 53521,
     "PVEnnemi": 116600,
     "AttaqueEnnemi": 2915,
-    "PVBoss": 932800,
-    "AttaqueBoss": 23320,
+    "PVBoss": 46877805,
+    "AttaqueBoss": 1730,
     "Points": 12,
     "Pieces": 19,
     "Image": "",
@@ -722,7 +750,8 @@
     "_setTheme": "Tenue Tendance",
     "_isTitan": false,
     "_realWikiZone": 30,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 30,
@@ -736,8 +765,8 @@
     "CoutEntree": 72254,
     "PVEnnemi": 143240,
     "AttaqueEnnemi": 3581,
-    "PVBoss": 1145920,
-    "AttaqueBoss": 28648,
+    "PVBoss": 62347481,
+    "AttaqueBoss": 2041,
     "Points": 13,
     "Pieces": 20,
     "Image": "",
@@ -747,7 +776,8 @@
     "_setTheme": "Tenue Héroïque",
     "_isTitan": false,
     "_realWikiZone": 31,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 31,
@@ -761,8 +791,8 @@
     "CoutEntree": 97543,
     "PVEnnemi": 229560,
     "AttaqueEnnemi": 5739,
-    "PVBoss": 1836480,
-    "AttaqueBoss": 45912,
+    "PVBoss": 82922150,
+    "AttaqueBoss": 2409,
     "Points": 13,
     "Pieces": 20,
     "Image": "",
@@ -772,7 +802,8 @@
     "_setTheme": "Tenue Exil",
     "_isTitan": true,
     "_realWikiZone": 32,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 32,
@@ -786,8 +817,8 @@
     "CoutEntree": 131683,
     "PVEnnemi": 339960,
     "AttaqueEnnemi": 8499,
-    "PVBoss": 2719680,
-    "AttaqueBoss": 67992,
+    "PVBoss": 110286459,
+    "AttaqueBoss": 2842,
     "Points": 13,
     "Pieces": 21,
     "Image": "",
@@ -797,7 +828,8 @@
     "_setTheme": "Tenue Radioactive",
     "_isTitan": false,
     "_realWikiZone": 33,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 33,
@@ -811,8 +843,8 @@
     "CoutEntree": 177771,
     "PVEnnemi": 646360,
     "AttaqueEnnemi": 16159,
-    "PVBoss": 5170880,
-    "AttaqueBoss": 129272,
+    "PVBoss": 146680990,
+    "AttaqueBoss": 3354,
     "Points": 14,
     "Pieces": 21,
     "Image": "",
@@ -822,7 +854,8 @@
     "_setTheme": "Tenue Écolier",
     "_isTitan": false,
     "_realWikiZone": 34,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 34,
@@ -836,8 +869,8 @@
     "CoutEntree": 239991,
     "PVEnnemi": 781840,
     "AttaqueEnnemi": 19546,
-    "PVBoss": 6254720,
-    "AttaqueBoss": 156368,
+    "PVBoss": 195085717,
+    "AttaqueBoss": 3957,
     "Points": 14,
     "Pieces": 22,
     "Image": "",
@@ -847,7 +880,8 @@
     "_setTheme": "Tenue Cowboy",
     "_isTitan": false,
     "_realWikiZone": 35,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 35,
@@ -861,8 +895,8 @@
     "CoutEntree": 323988,
     "PVEnnemi": 1101240,
     "AttaqueEnnemi": 27531,
-    "PVBoss": 8809920,
-    "AttaqueBoss": 220248,
+    "PVBoss": 259464004,
+    "AttaqueBoss": 4670,
     "Points": 14,
     "Pieces": 22,
     "Image": "",
@@ -872,7 +906,8 @@
     "_setTheme": "Tenue Spatiale",
     "_isTitan": true,
     "_realWikiZone": 36,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 36,
@@ -886,8 +921,8 @@
     "CoutEntree": 437384,
     "PVEnnemi": 1275920,
     "AttaqueEnnemi": 31898,
-    "PVBoss": 10207360,
-    "AttaqueBoss": 255184,
+    "PVBoss": 345087125,
+    "AttaqueBoss": 5510,
     "Points": 15,
     "Pieces": 23,
     "Image": "",
@@ -897,7 +932,8 @@
     "_setTheme": "Tenue Boulangère",
     "_isTitan": false,
     "_realWikiZone": 37,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 37,
@@ -905,14 +941,14 @@
     "Emoji": "🕺",
     "Description": "Zone 37 du parcours SOREAL IDLE (progression fidèle au wiki NGU Idle, thème Tenue Disco).",
     "Ennemi": "Boule à Facettes Cassée",
-    "Boss": "Le Vigile en Pattes d’Éph",
+    "Boss": "Le Vigile en Pattes d'Éph",
     "NiveauRequis": 74,
     "PuissanceRecommandee": 37179,
     "CoutEntree": 590469,
     "PVEnnemi": 1487160,
     "AttaqueEnnemi": 37179,
-    "PVBoss": 11897280,
-    "AttaqueBoss": 297432,
+    "PVBoss": 458965876,
+    "AttaqueBoss": 6502,
     "Points": 15,
     "Pieces": 23,
     "Image": "",
@@ -922,7 +958,8 @@
     "_setTheme": "Tenue Disco",
     "_isTitan": false,
     "_realWikiZone": 38,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 38,
@@ -936,8 +973,8 @@
     "CoutEntree": 797133,
     "PVEnnemi": 1632240,
     "AttaqueEnnemi": 40806,
-    "PVBoss": 13057920,
-    "AttaqueBoss": 326448,
+    "PVBoss": 610424615,
+    "AttaqueBoss": 7673,
     "Points": 15,
     "Pieces": 24,
     "Image": "",
@@ -947,7 +984,8 @@
     "_setTheme": "Tenue Fantôme",
     "_isTitan": false,
     "_realWikiZone": 39,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 39,
@@ -961,8 +999,8 @@
     "CoutEntree": 1076129,
     "PVEnnemi": 2339760,
     "AttaqueEnnemi": 58494,
-    "PVBoss": 18718080,
-    "AttaqueBoss": 467952,
+    "PVBoss": 811864738,
+    "AttaqueBoss": 9054,
     "Points": 16,
     "Pieces": 24,
     "Image": "",
@@ -972,7 +1010,8 @@
     "_setTheme": "Tenue Rock",
     "_isTitan": true,
     "_realWikiZone": 40,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 40,
@@ -986,8 +1025,8 @@
     "CoutEntree": 1452775,
     "PVEnnemi": 2529000,
     "AttaqueEnnemi": 63225,
-    "PVBoss": 20232000,
-    "AttaqueBoss": 505800,
+    "PVBoss": 1079780102,
+    "AttaqueBoss": 10683,
     "Points": 16,
     "Pieces": 25,
     "Image": "",
@@ -997,7 +1036,8 @@
     "_setTheme": "Tenue Chantier",
     "_isTitan": false,
     "_realWikiZone": 41,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 41,
@@ -1011,8 +1051,8 @@
     "CoutEntree": 1961246,
     "PVEnnemi": 2905800,
     "AttaqueEnnemi": 72645,
-    "PVBoss": 23246400,
-    "AttaqueBoss": 581160,
+    "PVBoss": 1436107536,
+    "AttaqueBoss": 12606,
     "Points": 16,
     "Pieces": 26,
     "Image": "",
@@ -1022,7 +1062,8 @@
     "_setTheme": "Tenue Canard",
     "_isTitan": false,
     "_realWikiZone": 42,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 42,
@@ -1036,8 +1077,8 @@
     "CoutEntree": 2647682,
     "PVEnnemi": 3158520,
     "AttaqueEnnemi": 78963,
-    "PVBoss": 25268160,
-    "AttaqueBoss": 631704,
+    "PVBoss": 1910023022,
+    "AttaqueBoss": 14875,
     "Points": 17,
     "Pieces": 26,
     "Image": "",
@@ -1047,7 +1088,8 @@
     "_setTheme": "Tenue Voisine",
     "_isTitan": false,
     "_realWikiZone": 43,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 43,
@@ -1061,8 +1103,8 @@
     "CoutEntree": 3574370,
     "PVEnnemi": 4085040,
     "AttaqueEnnemi": 102126,
-    "PVBoss": 32680320,
-    "AttaqueBoss": 817008,
+    "PVBoss": 2540330620,
+    "AttaqueBoss": 17553,
     "Points": 17,
     "Pieces": 27,
     "Image": "",
@@ -1072,7 +1114,8 @@
     "_setTheme": "Tenue Amalgame",
     "_isTitan": true,
     "_realWikiZone": 44,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 44,
@@ -1082,12 +1125,12 @@
     "Ennemi": "Bouteille à la Mer (Invendue)",
     "Boss": "Le Capitaine des Retours Client",
     "NiveauRequis": 88,
-    "PuissanceRecommandee": 132836,
+    "PuissanceRecommandee": 117221,
     "CoutEntree": 4825400,
-    "PVEnnemi": 5313440,
-    "AttaqueEnnemi": 132836,
-    "PVBoss": 42507520,
-    "AttaqueBoss": 1062688,
+    "PVEnnemi": 4688840,
+    "AttaqueEnnemi": 117221,
+    "PVBoss": 3378639724,
+    "AttaqueBoss": 20713,
     "Points": 17,
     "Pieces": 27,
     "Image": "",
@@ -1097,7 +1140,8 @@
     "_setTheme": "Tenue Marine",
     "_isTitan": false,
     "_realWikiZone": 45,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 45,
@@ -1111,8 +1155,8 @@
     "CoutEntree": 6514290,
     "PVEnnemi": 5201080,
     "AttaqueEnnemi": 130027,
-    "PVBoss": 41608640,
-    "AttaqueBoss": 1040216,
+    "PVBoss": 4493590833,
+    "AttaqueBoss": 24441,
     "Points": 18,
     "Pieces": 28,
     "Image": "",
@@ -1122,7 +1166,8 @@
     "_setTheme": "Tenue Tippi",
     "_isTitan": true,
     "_realWikiZone": 46,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   },
   {
     "ID": 46,
@@ -1136,8 +1181,8 @@
     "CoutEntree": 8794291,
     "PVEnnemi": 6000000,
     "AttaqueEnnemi": 150000,
-    "PVBoss": 48000000,
-    "AttaqueBoss": 1200000,
+    "PVBoss": 5976475808,
+    "AttaqueBoss": 28840,
     "Points": 18,
     "Pieces": 28,
     "Image": "",
@@ -1147,6 +1192,7 @@
     "_setTheme": "Tenue Traître",
     "_isTitan": true,
     "_realWikiZone": 47,
-    "_bossFromRealLadder": false
+    "_bossFromRealLadder": false,
+    "_bossStatsFromRealBoss": true
   }
 ]

@@ -1,5 +1,43 @@
 # SOREAL IDLE — Contenu du parcours de zones, sourcé wiki (nuit du 2026-09-15/16)
 
+## Mise à jour du 2026-09-16 (audit) : 2 vraies incohérences corrigées dans le draft
+
+1. **Contradiction PVBoss zones 21-46 vs idle-boss-extension-21-46.json** :
+   `idle-zones-full-v2.json` calculait `PVBoss`/`AttaqueBoss` indépendamment
+   via un ratio de zone (`puissance × 320` / `× 8`) pour les 46 zones,
+   alors que `idle-boss-extension-21-46.json` donne déjà le VRAI PV/Attaque
+   de chaque boss 21-46 (continuation du taux de croissance réel observé
+   sur les boss 16-20 déjà en production). Les deux divergeaient de 55x à
+   87x (et grandissant avec la zone) — ex. zone 21 : ratio=55 040,
+   vrai boss=4 788 000. `build-idle-zones-full-v2.mjs` lit désormais
+   `idle-boss-extension-21-46.json` par nom de boss pour les zones 21-46
+   (zones 1-20 restent sur le ratio, `IDLE_BOSS` 1-20 étant une ressource
+   live non relisible depuis cette session — **à réconcilier séparément
+   avant un futur push**, voir point "reste à faire" plus bas). Un
+   garde-fou (`throw` si une zone 21-46 n'a pas de correspondance) a été
+   ajouté pour ne plus jamais laisser passer une divergence de ce type en
+   silence.
+2. **Zone 45 utilisait la colonne "Idle P" au lieu de "Manual P"** : toutes
+   les zones voisines (44, 46, 47) et le reste du script utilisent la
+   colonne wiki "Manual P" comme ancre de puissance — zone 45 avait pris
+   "Idle P Beast OFF" (47.6Dc) par erreur, faisant dépasser sa puissance
+   celle de la zone 46 (rupture de progression 44→45→46). Corrigé à
+   17.2Dc (Manual P réelle, `adventure-zones-master-table.md` ligne 268) ;
+   la séquence 44(5.6Dc)→45(17.2Dc)→46(40Dc)→47(128Dc) reste maintenant
+   strictement croissante.
+
+Une 3e incohérence trouvée au passage (apostrophe typographique vs
+simple sur "Le Vigile en Pattes d'Éph" entre le fichier de zones et
+`idle-boss-extension-21-46.json`) a aussi été corrigée, et
+`idle-loots-full-v1.json`/`idle-sets-full-v1.json` régénérés en
+conséquence (ils lisent les noms de boss depuis le fichier de zones,
+donc auto-corrigés une fois celui-ci fixé).
+
+Les 3 structures ci-dessous (loot Power/Toughness à une seule valeur au
+lieu d'un split par slot comme le vrai NGU) n'ont volontairement PAS été
+touchées ici — changement de modèle de données plus invasif, à scoper
+séparément si Norman le souhaite.
+
 ## Mise à jour du 2026-09-16 : retrait des mécaniques non-wiki
 
 Consigne de Norman après relecture de l'inventaire ci-dessous : **on ne garde que les noms en rapport avec SOREAL, tout le reste (mécaniques et valeurs sans base wiki) est supprimé.** Trois systèmes concernés, tous confirmés absents du wiki NGU (recherche exhaustive sur `ngu-wiki-reference/`, zéro résultat) :

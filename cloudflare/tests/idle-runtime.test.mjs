@@ -903,7 +903,17 @@ console.log("SOREAL IDLE runtime calculations: OK");
   );
 }
 
-// V41.3 — le stuff doit être un vrai multiplicateur du combat principal.
+/*
+ * Audit 2026-09-16 : dans le vrai NGU Idle, l'équipement/loot n'existe
+ * QUE dans Adventure Mode -- le combat de boss numéroté (Fight Boss/
+ * Basic Training) n'a AUCUN objet équipé dans le vrai jeu. Décision de
+ * Norman (2026-09-16, fidélité NGU totale, "je n'ai pas peur de tout
+ * casser") : ce bloc V41.3 verrouillait l'ANCIEN comportement ("le stuff
+ * doit être un vrai multiplicateur du combat") -- remplacé par son
+ * exact inverse : profilEquipementCombatPrincipalSorealIdleV413_ reste
+ * calculé (affichage/gel de données, rien supprimé) mais ne doit plus
+ * jamais influencer attaque/défense.
+ */
 {
   const source=fs.readFileSync(
     new URL("../src/idle-sqlite-runtime.js",import.meta.url),
@@ -922,7 +932,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
     gear.includes("scorePuissance * 0.03") &&
     gear.includes("piecesArmure * 0.10") &&
     gear.includes("scoreArmure * 0.04"),
-    "Chaque pièce et sa puissance doivent améliorer réellement attaque et défense."
+    "Le profil d'équipement continue d'être calculé (données gelées, pas supprimées), même s'il n'agit plus sur le combat."
   );
 
   const sharedStart=
@@ -934,10 +944,13 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
   assert.ok(
     shared.includes("deriveBasicTrainingStatsV411(") &&
-    shared.includes(".multiplicateurAttaque") &&
-    shared.includes(".multiplicateurDefense") &&
-    shared.includes("multiplicateurPermanent"),
-    "Training, stuff et bonus permanents doivent partager une seule formule de combat."
+    shared.includes("const multiplicateurPermanent = 1;"),
+    "Attaque/Défense doivent venir uniquement de Training + NGU/Perks/Quirks -- jamais de l'équipement (fidélité NGU : le loot n'existe que dans Adventure Mode)."
+  );
+  assert.ok(
+    !shared.includes("profilEquipement.multiplicateurAttaque") &&
+    !shared.includes("profilEquipement.multiplicateurDefense"),
+    "Le multiplicateur d'équipement ne doit plus jamais être appliqué au combat de boss numéroté."
   );
 
   const recalcStart=

@@ -4151,6 +4151,16 @@ function choisirLootPondereSorealIdle_(
 function genererObjetLootSorealIdle_(
   contexte
 ) {
+  /*
+   * Audit 2026-09-16 : plus de fidélité NGU pour le combat de boss
+   * numéroté (Fight Boss/Basic Training) -- l'équipement/loot n'existe
+   * que dans Adventure Mode dans le vrai jeu. Coupé à la source (chaque
+   * appelant traite déjà un retour null comme "rien obtenu", même
+   * comportement que quand aucun objet n'est éligible) plutôt que dans
+   * chacun des call sites, pour un seul point de vérité.
+   */
+  return null;
+
   const ctx =
     contexte || {};
 
@@ -5516,6 +5526,13 @@ function genererObjetLegendaireRareAventureSorealIdle_(
   zone,
   niveauJoueur
 ) {
+  // Audit 2026-09-16 : même décision que genererObjetLootSorealIdle_
+  // ci-dessus -- plus de loot pour le combat de boss numéroté historique.
+  void monstre;
+  void zone;
+  void niveauJoueur;
+  return null;
+
   if (
     !monstre ||
     monstre.type !== 'rare' ||
@@ -7233,14 +7250,21 @@ function statsCombatPrincipalSorealIdleV413_(
         : {}
     );
 
-  // Sets/collections remain equipment progression; legacy Essence does not.
-  const multiplicateurPermanent =
-    1 +
-    (
-      bonusSets.pourcent +
-      bonusCollections.bonusPourcent
-    ) /
-    100;
+  /*
+   * Audit 2026-09-16 : dans le vrai NGU Idle, l'équipement/loot n'existe
+   * QUE dans Adventure Mode — le combat de boss numéroté (Fight Boss/
+   * Basic Training) n'a AUCUN objet équipé dans le vrai jeu, juste
+   * Attack/Defense entraînés (+ NGU/Perks/Quirks). Le système de loot de
+   * ce moteur historique (forge, équipement, sets, collections) était
+   * une invention SOREAL sans équivalent NGU. Décision de Norman
+   * (2026-09-16) : retirer cet effet du combat pour une fidélité NGU
+   * totale — bonusSets/bonusCollections restent calculés ci-dessus
+   * (aucune donnée supprimée, gel propre) mais ne contribuent plus au
+   * combat. void pour ne jamais dériver "variable inutilisée".
+   */
+  void bonusSets;
+  void bonusCollections;
+  const multiplicateurPermanent = 1;
 
   const attaqueEntrainement =
     Math.max(
@@ -7274,11 +7298,9 @@ function statsCombatPrincipalSorealIdleV413_(
             )
           )
         ) *
-        (
-          bonusMetaNgu.disableEquipment
-            ? 1
-            : profilEquipement.multiplicateurAttaque
-        ) *
+        // Audit 2026-09-16 : équipement retiré du combat Fight Boss (voir
+        // multiplicateurPermanent ci-dessus) — plus de fidélité NGU.
+        1 *
         multiplicateurPermanent *
         Math.max(
           1,
@@ -7295,11 +7317,9 @@ function statsCombatPrincipalSorealIdleV413_(
       100,
       Math.round(
         defenseEntrainement *
-        (
-          bonusMetaNgu.disableEquipment
-            ? 1
-            : profilEquipement.multiplicateurDefense
-        ) *
+        // Audit 2026-09-16 : équipement retiré du combat Fight Boss (voir
+        // multiplicateurPermanent ci-dessus) — plus de fidélité NGU.
+        1 *
         multiplicateurPermanent *
         Math.max(
           1,
@@ -12850,368 +12870,37 @@ function reponseOccupeeSorealIdleV60_() {
 }
 
 
-function equiperObjetsSorealIdle(
-  sessionToken,
-  objetIds
-) {
-  const acces=
-    exigerAccesSorealIdle_(
-      sessionToken
-    );
-
-  const ids=
-    (
-      Array.isArray(objetIds)
-        ?objetIds
-        :[objetIds]
-    )
-      .map(function(id){
-        return String(id||'');
-      })
-      .filter(Boolean)
-      .slice(0,200);
-
-  if(!ids.length){
-    return {
-      ok:true,
-      equipes:0
-    };
-  }
-
-  const lock=
-    LockService.getScriptLock();
-
-  if(!lock.tryLock(8000)){
-    return reponseOccupeeSorealIdleV60_();
-  }
-
-  try{
-    const feuille=
-      obtenirFeuilleJoueursSorealIdle_();
-
-    const ligne=
-      trouverLigneJoueurSorealIdle_(
-        feuille,
-        acces
-      );
-
-    assurerDonneesJeuSorealIdle_(
-      feuille,
-      ligne
-    );
-
-    const c=
-      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-
-    const inventaire=
-      parserJsonSorealIdle_(
-        feuille
-          .getRange(
-            ligne,
-            c.INVENTAIRE_JSON
-          )
-          .getValue(),
-        []
-      );
-
-    let equipement=
-      parserJsonSorealIdle_(
-        feuille
-          .getRange(
-            ligne,
-            c.EQUIPEMENT_JSON
-          )
-          .getValue(),
-        {}
-      );
-
-    if(
-      !equipement ||
-      typeof equipement!=='object'
-    ){
-      equipement={};
-    }
-
-    let equipes=0;
-
-    ids.forEach(function(id){
-      const objet=
-        inventaire.find(
-          function(item){
-            return String(
-              item&&item.id||''
-            )===id;
-          }
-        );
-
-      if(!objet){
-        return;
-      }
-
-      const slot=
-        String(
-          objet.slot||''
-        );
-
-      if(
-        slotsEquipementSorealIdle_()
-          .indexOf(slot)===-1
-      ){
-        return;
-      }
-
-      equipement[slot]=id;
-      equipes+=1;
-    });
-
-    feuille
-      .getRange(
-        ligne,
-        c.EQUIPEMENT_JSON
-      )
-      .setValue(
-        JSON.stringify(
-          equipement
-        )
-      );
-
-    recalculerPuissanceCompleteSorealIdle_(
-      feuille,
-      ligne
-    );
-
-    feuille
-      .getRange(
-        ligne,
-        c.DERNIERE_SYNCHRO
-      )
-      .setValue(
-        new Date()
-      );
-
-    SpreadsheetApp.flush();
-
-    return {
-      ok:true,
-      equipes:equipes
-    };
-  }finally{
-    lock.releaseLock();
-  }
+/*
+ * Audit 2026-09-16 : dans le vrai NGU Idle, l'équipement/loot n'existe
+ * QUE dans Adventure Mode -- le combat de boss numéroté (Fight Boss/
+ * Basic Training) n'a AUCUN objet équipé dans le vrai jeu. Désactivée
+ * pour une fidélité NGU totale (décision de Norman, 2026-09-16), même
+ * patron que les 7 autres mécaniques de loot déjà désactivées ici. Les
+ * objets déjà équipés/l'inventaire existant restent en l'état (gel
+ * propre, aucune donnée supprimée), simplement plus modifiables ni
+ * lus par le calcul de combat (voir statsCombatPrincipalSorealIdleV413_).
+ */
+function equiperObjetsSorealIdle(...args) {
+  void args;
+  return {
+    ok:false,
+    code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
+    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+  };
 }
 
 
-function fusionnerObjetsSorealIdle(
-  sessionToken,
-  objetIds
-) {
-  const acces=
-    exigerAccesSorealIdle_(
-      sessionToken
-    );
-
-  const ids=
-    (
-      Array.isArray(objetIds)
-        ?objetIds
-        :[objetIds]
-    )
-      .map(function(id){
-        return String(id||'');
-      })
-      .filter(Boolean)
-      .slice(0,200);
-
-  if(!ids.length){
-    return {
-      ok:true,
-      fusions:0
-    };
-  }
-
-  const lock=
-    LockService.getScriptLock();
-
-  if(!lock.tryLock(8000)){
-    return reponseOccupeeSorealIdleV60_();
-  }
-
-  try{
-    const feuille=
-      obtenirFeuilleJoueursSorealIdle_();
-
-    const ligne=
-      trouverLigneJoueurSorealIdle_(
-        feuille,
-        acces
-      );
-
-    assurerDonneesJeuSorealIdle_(
-      feuille,
-      ligne
-    );
-
-    const c=
-      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-
-    const inventaire=
-      parserJsonSorealIdle_(
-        feuille
-          .getRange(
-            ligne,
-            c.INVENTAIRE_JSON
-          )
-          .getValue(),
-        []
-      );
-
-    const equipement=
-      parserJsonSorealIdle_(
-        feuille
-          .getRange(
-            ligne,
-            c.EQUIPEMENT_JSON
-          )
-          .getValue(),
-        {}
-      );
-
-    let fusions=0;
-
-    ids.forEach(function(id){
-      const index=
-        inventaire.findIndex(
-          function(o){
-            return String(
-              o&&o.id||''
-            )===id;
-          }
-        );
-
-      if(index<0){
-        return;
-      }
-
-      const objet=
-        inventaire[index];
-
-      const niveau=
-        Math.max(
-          0,
-          Math.floor(
-            nombreSorealIdle_(
-              objet&&objet.fusion,
-              0
-            )
-          )
-        );
-
-      const doublon=
-        inventaire.findIndex(
-          function(autre,i){
-            return (
-              i!==index &&
-              String(autre&&autre.nom||'')===
-                String(objet&&objet.nom||'') &&
-              String(autre&&autre.slot||'')===
-                String(objet&&objet.slot||'') &&
-              String(autre&&autre.rarete||'')===
-                String(objet&&objet.rarete||'') &&
-              Math.max(
-                0,
-                Math.floor(
-                  nombreSorealIdle_(
-                    autre&&autre.fusion,
-                    0
-                  )
-                )
-              )===niveau &&
-              !objetEstEquipeSorealIdle_(
-                equipement,
-                autre&&autre.id
-              )
-            );
-          }
-        );
-
-      if(doublon<0){
-        return;
-      }
-
-      objet.fusion=
-        niveau+1;
-
-      objet.bonusPuissance=
-        Math.max(
-          1,
-          Math.round(
-            nombreSorealIdle_(
-              objet.bonusPuissance,
-              1
-            )*1.15
-          )
-        );
-
-      inventaire[index]=objet;
-      inventaire.splice(
-        doublon,
-        1
-      );
-
-      fusions+=1;
-    });
-
-    if(fusions>0){
-      const stats=
-        statsJoueurSorealIdle_(
-          feuille
-            .getRange(
-              ligne,
-              c.STATS_JSON
-            )
-            .getValue()
-        );
-
-      stats.fusions+=
-        fusions;
-
-      feuille
-        .getRange(
-          ligne,
-          c.INVENTAIRE_JSON
-        )
-        .setValue(
-          JSON.stringify(
-            inventaire
-          )
-        );
-
-      feuille
-        .getRange(
-          ligne,
-          c.STATS_JSON
-        )
-        .setValue(
-          JSON.stringify(
-            stats
-          )
-        );
-
-      recalculerPuissanceCompleteSorealIdle_(
-        feuille,
-        ligne
-      );
-
-      SpreadsheetApp.flush();
-    }
-
-    return {
-      ok:true,
-      fusions:fusions
-    };
-  }finally{
-    lock.releaseLock();
-  }
+/*
+ * Audit 2026-09-16 : même décision que equiperObjetsSorealIdle ci-dessus
+ * -- pas déquivalent NGU pour la fusion d’équipement Fight Boss.
+ */
+function fusionnerObjetsSorealIdle(...args) {
+  void args;
+  return {
+    ok:false,
+    code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
+    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+  };
 }
 
 
