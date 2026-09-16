@@ -2368,7 +2368,18 @@ function advanceLateSystems(state, seconds, context, now) {
       // dude killed" en difficulté Normal — pas un flat 250 (qui n'est
       // exact qu'au floor 50 pile et s'écarte de plus en plus au-delà).
       tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (200 + tower.data.floor);
-      tower.data.floor += Math.floor(kills / 10);
+      /*
+       * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
+       * perdait le report entre deux ticks — en jeu normal (tick fréquent,
+       * quasi toujours 0 ou 1 kill par appel), Math.floor(1/10) vaut
+       * TOUJOURS 0, donc l'étage ne montait jamais tant qu'un seul gros
+       * rattrapage (hors-ligne) n'accumulait pas 10 kills d'un coup dans
+       * UN SEUL appel — contraire au wiki ("every 10 enemies killed
+       * advances 1 floor"). Dériver l'étage du total cumulé de kills
+       * élimine toute perte de report, quel que soit le découpage des
+       * ticks.
+       */
+      tower.data.floor = Math.floor(tower.data.kills / 10);
       const pp = Math.floor(tower.data.ppProgress / 1e6);
       if (pp > 0) {
         tower.data.ppProgress -= pp * 1e6;
