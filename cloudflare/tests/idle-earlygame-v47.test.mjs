@@ -584,6 +584,16 @@ const fresh=(context={}, now=1_000_000)=>
 }
 
 {
+  // Le client (page Spend EXP) doit pouvoir lire coûts/plafonds sans
+  // recalculer une formule lui-même — même patron que perkDefinitions.
+  const idleNguSnapshot=(await import('../src/idle-ngu-progression.js')).idleNguSnapshot;
+  const snapshot=idleNguSnapshot(fresh({bosses:37},1_000_000),{bosses:37},1_000_000);
+  assert.equal(snapshot.resourcePurchases.energy.speed.cost,2);
+  assert.equal(snapshot.resourcePurchases.magic.bars.hardCap,1e18);
+  assert.equal(snapshot.resourcePurchases.r3.cap.cost,4000000);
+}
+
+{
   // V51: NGU Energy generation follows the 50-tick speed rule and Bars.
   const mod=await import('../src/idle-ngu-progression.js');
   let state=fresh({},1_000_000);

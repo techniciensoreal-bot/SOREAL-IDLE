@@ -2845,6 +2845,14 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      */
     perkDefinitions: clone(IDLE_PERKS_CATALOG_V1),
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1),
+    /*
+     * Audit 2026-09-16 : le client n'avait aucun moyen de connaître le coût
+     * EXP/plafond des achats Spend EXP (energy/magic/r3) — jamais exposé
+     * avant, uniquement utilisé côté serveur par buyResource(). Même
+     * gabarit que perkDefinitions/quirkDefinitions ci-dessus : un catalogue
+     * statique cloné, jamais une formule recalculée côté client.
+     */
+    resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
     systems: IDLE_NGU_SYSTEMS.map(def => ({
       id: def.id,
       name: def.name,
