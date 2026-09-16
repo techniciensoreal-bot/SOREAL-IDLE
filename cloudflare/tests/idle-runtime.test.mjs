@@ -444,6 +444,20 @@ const {
   assert.equal(res?.joueur?.banniereDriveFileId,"1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb");
   assert.equal(sql.catalog.has("JOUEURS"),true);
   assert.equal(sql.catalog.has("CONFIG"),true);
+
+  /*
+   * Norman (2026-09-16) : "il faut aussi un timer avec le temps du run
+   * actuel." renaissance.runDebuteA expose le vrai horodatage de début
+   * de run (déjà suivi en interne pour le calcul du NUMBER) — jamais un
+   * second calcul côté client. Pour une partie neuve, ce doit être un
+   * horodatage récent (le run vient de démarrer), jamais 0/absent.
+   */
+  assert.ok(
+    Number.isFinite(res?.joueur?.renaissance?.runDebuteA) &&
+    res.joueur.renaissance.runDebuteA>0 &&
+    Math.abs(Date.now()-res.joueur.renaissance.runDebuteA)<60000,
+    "renaissance.runDebuteA doit être un horodatage récent pour une partie neuve, jamais 0/absent."
+  );
 }
 
 console.log("SOREAL IDLE runtime calculations: OK");

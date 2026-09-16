@@ -8461,6 +8461,29 @@ function appliquerProgressionEnergieSorealIdle_(
         );
     }
 
+    /*
+     * Norman (2026-09-16, deuxième signalement le même jour, en lançant NGU
+     * et SOREAL IDLE en parallèle) : "vie qui ne descend pas à la même
+     * vitesse dans les 2 jeux, régen de vie plus faible dans SOREAL IDLE."
+     * Cause confirmée : regenPvSecJoueur (Defense/20) avait bien été
+     * corrigé plus haut dans cette même fonction, mais UNIQUEMENT pour le
+     * repos hors combat (if (!combatBossActif)) et l'attente de K.O. — la
+     * vraie règle NGU (wiki NGU-idle.fandom.com, page Boss Fights : "HP
+     * while fighting is 10*attack, and HP regain is defense/20") décrit
+     * ces deux stats comme s'appliquant PENDANT le combat lui-même, pas
+     * seulement au repos. Cette boucle de simulation (le combat actif)
+     * n'avait donc jamais reçu la regen, ce qui rendait la vie du joueur
+     * plus rapide à descendre ici que dans le vrai jeu. Nette directement
+     * ici, sur la même resolution regenPvSecJoueur déjà utilisée plus
+     * haut/plus bas — jamais un second calcul de regen.
+     */
+    degatsRecusSec =
+      Math.max(
+        0,
+        degatsRecusSec -
+        regenPvSecJoueur
+      );
+
     const multiplicateurDpsBoss =
       multiplicateurDpsJoueurBossSorealIdle_(
         bossCombatIndex,
@@ -10676,6 +10699,15 @@ function construireEtatJoueurSorealIdle_(
       number:Math.max(1,nombreSorealIdle_(metaNguEtat.rebirth&&metaNguEtat.rebirth.number,1)),
       nextNumber:Math.max(1,nombreSorealIdle_(metaNguEtat.rebirth&&metaNguEtat.rebirth.nextNumber,1)),
       renaissances:Math.max(0,nombreSorealIdle_(metaNguEtat.records&&metaNguEtat.records.totalRebirths,0)),
+      /*
+       * Norman (2026-09-16) : "il faut aussi un timer avec le temps du
+       * run actuel. Un run peut durer plusieurs jours." Expose le vrai
+       * horodatage de début de run (déjà suivi en interne pour le calcul
+       * du NUMBER, idle-ngu-progression.js) — le client calcule la durée
+       * écoulée lui-même (Date.now()-runDebuteA), jamais un second
+       * horodatage recalculé côté serveur.
+       */
+      runDebuteA:Math.max(0,nombreSorealIdle_(metaNguEtat.runStartedAt,0)),
       essence:0,
       legacy:false
     },
