@@ -46,15 +46,28 @@ for (const fn of ["equiperObjetsSorealIdle", "fusionnerObjetsSorealIdle"]) {
 // --- Les 3 sites de génération de loot sont coupés à la source ---
 {
   const start = source.indexOf("function genererObjetLootSorealIdle_(");
-  const end = source.indexOf("\n  const ctx =", start);
+  const end = source.indexOf("\n}", start);
   const body = source.slice(start, end);
   assert.ok(body.includes("return null;"), "genererObjetLootSorealIdle_ ne doit plus jamais générer d'objet (Fight Boss kill drop + auto-adventure offline drops).");
 }
 {
   const start = source.indexOf("function genererObjetLegendaireRareAventureSorealIdle_(");
-  const end = source.indexOf("\n  if (", start);
+  const end = source.indexOf("\n}", start);
   const body = source.slice(start, end);
   assert.ok(body.includes("return null;"), "genererObjetLegendaireRareAventureSorealIdle_ ne doit plus jamais générer d'objet.");
 }
+
+/*
+ * Audit 2026-09-17 (grand nettoyage) : le code mort qui suivait les
+ * deux `return null;` ci-dessus a été supprimé (rareteAleatoireSorealIdle_,
+ * lootEligibleSorealIdle_, choisirLootPondereSorealIdle_ n'avaient plus
+ * qu'un seul appelant chacun, ce même code mort jamais atteint).
+ */
+assert.ok(
+  !source.includes("function rareteAleatoireSorealIdle_(") &&
+  !source.includes("function lootEligibleSorealIdle_(") &&
+  !source.includes("function choisirLootPondereSorealIdle_("),
+  "Les 3 fonctions devenues orphelines avec le code mort doivent avoir disparu, pas seulement le code mort qui les appelait."
+);
 
 console.log("idle-fight-boss-loot-removed: OK");
