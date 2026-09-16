@@ -2775,11 +2775,23 @@ function unlockInfo(def, state, context) {
  */
 function idleAdventureCombatStatsV1(gear, context) {
   const g = gear && typeof gear === "object" ? gear : {};
+  /*
+   * Norman (répété plusieurs fois, dont 2026-09-16) : "La regen n'est
+   * toujours pas à 1/s dès le début du mode aventure." Cause réelle :
+   * le plancher de secours (aucune valeur adventurePower/Toughness
+   * externe n'existe tant qu'aucun équipement d'Aventure n'est trouvé,
+   * voir contexteMetaNguSorealIdle_) s'appliquait sur le TOUGHNESS
+   * d'entrée (floor à 1) puis était multiplié par 0.03 — donnant un
+   * plancher réel de 0.03/s, pas 1/s. HP suit le même schéma (floor
+   * POWER à 1, ×3 → plancher réel 3, cohérent avec le ratio HP=Power×3
+   * vérifié sur le wiki) — seul le REGEN doit avoir son propre plancher
+   * de sortie à 1, appliqué APRÈS la multiplication, jamais avant.
+   */
   return Object.assign({}, g, {
     power: Math.max(1, num(context.adventurePower, 1)) + Math.max(0, num(g.power, 0)),
     toughness: Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) + Math.max(0, num(g.toughness, 0)),
     hp: Math.max(1, num(context.adventurePower, 1)) * 3 + Math.max(0, num(g.hp, 0)),
-    regen: Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) * 0.03 + Math.max(0, num(g.regen, 0))
+    regen: Math.max(1, Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) * 0.03) + Math.max(0, num(g.regen, 0))
   });
 }
 
