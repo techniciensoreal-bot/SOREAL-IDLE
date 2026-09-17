@@ -663,22 +663,6 @@ function inventaireCapaciteMaxSorealIdle_() {
 }
 
 
-function inventaireExtensionPasSorealIdle_() {
-  return Math.max(
-    1,
-    Math.floor(
-      nombreSorealIdle_(
-        parametreSorealIdle_(
-          'INVENTAIRE_EXTENSION_PAS',
-          3
-        ),
-        3
-      )
-    )
-  );
-}
-
-
 function bossParMondeSorealIdle_() {
   return Math.max(
     1,
@@ -3756,142 +3740,6 @@ function synchroniserEntrainementBaseSorealIdleV41_(
   };
 }
 
-function bonusRenaissanceSorealIdle_(
-  essence
-) {
-  // V53 compatibility shim: legacy Essence remains readable in old saves but
-  // must never alter NGU pacing. NUMBER is the sole Rebirth combat multiplier.
-  void essence;
-  return {
-    essence:0,
-    multiplicateurPuissance:1,
-    multiplicateurProduction:1,
-    multiplicateurCapacite:1
-  };
-}
-
-
-function recompenseRenaissanceSorealIdle_(
-  niveau,
-  bossVaincus
-) {
-  const niv =
-    Math.max(
-      1,
-      Math.floor(
-        nombreSorealIdle_(
-          niveau,
-          1
-        )
-      )
-    );
-
-  if (
-    niv <
-    niveauDeblocageFonctionSorealIdle_(
-      'renaissance',
-      CONFIG_SOREAL_IDLE
-        .NIVEAU_RENAISSANCE
-    )
-  ) {
-    return 0;
-  }
-
-  const boss =
-    Math.max(
-      0,
-      Math.floor(
-        nombreSorealIdle_(
-          bossVaincus,
-          0
-        )
-      )
-    );
-
-  return Math.max(
-    1,
-    Math.floor(niv / 10) +
-    Math.floor(boss / 12)
-  );
-}
-
-
-function etatRenaissanceSorealIdle_(
-  niveau,
-  bossVaincus,
-  renaissances,
-  essence
-) {
-  const niv =
-    Math.max(
-      1,
-      Math.floor(
-        nombreSorealIdle_(
-          niveau,
-          1
-        )
-      )
-    );
-
-  const totalRenaissances =
-    Math.max(
-      0,
-      Math.floor(
-        nombreSorealIdle_(
-          renaissances,
-          0
-        )
-      )
-    );
-
-  const totalEssence =
-    Math.max(
-      0,
-      Math.floor(
-        nombreSorealIdle_(
-          essence,
-          0
-        )
-      )
-    );
-
-  const niveauRequis = 0;
-
-  const debloquee = true;
-
-  return {
-    debloquee: debloquee,
-
-    niveauRequis:
-      niveauRequis,
-
-    progressionNiveau:
-      Math.min(
-        CONFIG_SOREAL_IDLE
-          .NIVEAU_RENAISSANCE,
-        niv
-      ),
-
-    renaissances:
-      totalRenaissances,
-
-    essence:
-      totalEssence,
-
-    essenceGagnee:
-      recompenseRenaissanceSorealIdle_(
-        niv,
-        bossVaincus
-      ),
-
-    bonus:
-      bonusRenaissanceSorealIdle_(
-        totalEssence
-      )
-  };
-}
-
-
 function parserJsonSorealIdle_(
   valeur,
   defaut
@@ -5635,132 +5483,6 @@ function coutExtensionSacSorealIdle_(
 }
 
 
-function bonusArmureDefenseSorealIdle_(
-  inventaire,
-  equipement
-) {
-  const details =
-    detailsEquipementSorealIdle_(
-      inventaire,
-      equipement
-    );
-
-  return [
-    'tete',
-    'torse',
-    'bottes'
-  ].reduce(
-    function(total,slot) {
-      const objet =
-        details &&
-        details[slot]
-          ? details[slot]
-          : null;
-
-      return total +
-        (
-          objet
-            ? Math.max(
-                0,
-                nombreSorealIdle_(
-                  objet.bonusPuissance,
-                  0
-                )
-              )
-            : 0
-        );
-    },
-    0
-  );
-}
-
-
-function defenseJoueurSorealIdle_(
-  endurance,
-  inventaire,
-  equipement
-) {
-  const endu =
-    Math.max(
-      1,
-      nombreSorealIdle_(
-        endurance,
-        1
-      )
-    );
-
-  const bonusArmure =
-    bonusArmureDefenseSorealIdle_(
-      inventaire,
-      equipement
-    );
-
-  return Math.max(
-    0,
-    Math.floor(
-      endu *
-      Math.max(
-        0,
-        nombreSorealIdle_(
-          parametreSorealIdle_(
-            'DEFENSE_PAR_ENDURANCE',
-            CONFIG_SOREAL_IDLE.DEFENSE_PAR_ENDURANCE
-          ),
-          CONFIG_SOREAL_IDLE.DEFENSE_PAR_ENDURANCE
-        )
-      ) +
-      bonusArmure *
-      CONFIG_SOREAL_IDLE
-        .DEFENSE_ARMURE_COEFFICIENT
-    )
-  );
-}
-
-
-function pvMaxJoueurSorealIdle_(
-  endurance,
-  inventaire,
-  equipement
-) {
-  const endu =
-    Math.max(
-      1,
-      nombreSorealIdle_(
-        endurance,
-        1
-      )
-    );
-
-  const bonusArmure =
-    bonusArmureDefenseSorealIdle_(
-      inventaire,
-      equipement
-    );
-
-  return Math.max(
-    1,
-    Math.round(
-      CONFIG_SOREAL_IDLE
-        .PV_JOUEUR_BASE +
-      endu *
-      Math.max(
-        0,
-        nombreSorealIdle_(
-          parametreSorealIdle_(
-            'PV_PAR_ENDURANCE',
-            CONFIG_SOREAL_IDLE.PV_PAR_ENDURANCE
-          ),
-          CONFIG_SOREAL_IDLE.PV_PAR_ENDURANCE
-        )
-      ) +
-      bonusArmure *
-      CONFIG_SOREAL_IDLE
-        .PV_ARMURE_COEFFICIENT
-    )
-  );
-}
-
-
 function attaqueBossSorealIdle_(
   bossVaincus
 ) {
@@ -5812,16 +5534,6 @@ function niveauRequisBossSorealIdle_(
   bossIndex
 ) {
   void bossIndex;
-  return 1;
-}
-
-
-function multiplicateurXpBossNiveauSorealIdle_(
-  bossIndex,
-  niveauJoueur
-) {
-  void bossIndex;
-  void niveauJoueur;
   return 1;
 }
 
@@ -5999,85 +5711,13 @@ function cooldownAventureSorealIdle_(
 }
 
 
-/* IDLE_COMBAT_EVENTS_V43 — les dégâts Aventure existent uniquement sous forme de coups. */
-function simulerCoupsAventureSorealIdleV43_(options) {
-  const o=options&&typeof options==='object'?options:{};
-  const pvJoueurMax=Math.max(1,nombreSorealIdle_(o.pvJoueurMax,1));
-  const pvEnnemiMax=Math.max(1,nombreSorealIdle_(o.pvEnnemiMax,1));
-  const dpsJoueur=Math.max(0,nombreSorealIdle_(o.dpsJoueur,0));
-  const dpsEnnemi=Math.max(0,nombreSorealIdle_(o.dpsEnnemi,0));
-  const limite=Math.max(.05,nombreSorealIdle_(o.limiteSecondes,30));
-  const intervalleJoueurMs=Math.max(
-    150,
-    Math.floor(nombreSorealIdle_(parametreSorealIdle_('AVENTURE_INTERVALLE_COUP_JOUEUR_MS',850),850))
-  );
-  const intervalleEnnemiMs=Math.max(
-    150,
-    Math.floor(nombreSorealIdle_(parametreSorealIdle_('AVENTURE_INTERVALLE_COUP_ENNEMI_MS',1000),1000))
-  );
-  const intervalleJoueur=intervalleJoueurMs/1000;
-  const intervalleEnnemi=intervalleEnnemiMs/1000;
-
-  let pvJoueur=pvJoueurMax;
-  let pvEnnemi=pvEnnemiMax;
-  let prochainJoueur=intervalleJoueur;
-  let prochainEnnemi=intervalleEnnemi;
-  const evenements=[];
-
-  function ajouter(acteur,cible,instant,degats,pvAvant,pvApres){
-    evenements.push({
-      index:evenements.length+1,
-      atMs:Math.max(0,Math.round(instant*1000)),
-      acteur,
-      cible,
-      degats:Math.max(0,degats),
-      pvAvant:Math.max(0,pvAvant),
-      pvApres:Math.max(0,pvApres)
-    });
-  }
-
-  while(
-    pvJoueur>0&&
-    pvEnnemi>0&&
-    Math.min(prochainJoueur,prochainEnnemi)<=limite+1e-9&&
-    evenements.length<500
-  ){
-    if(prochainJoueur<=prochainEnnemi){
-      const avant=pvEnnemi;
-      const degats=Math.min(avant,dpsJoueur*intervalleJoueur);
-      pvEnnemi=Math.max(0,avant-degats);
-      ajouter('joueur','ennemi',prochainJoueur,degats,avant,pvEnnemi);
-      prochainJoueur+=intervalleJoueur;
-      if(pvEnnemi<=0)break;
-      continue;
-    }
-
-    const avant=pvJoueur;
-    const degats=Math.min(avant,dpsEnnemi*intervalleEnnemi);
-    pvJoueur=Math.max(0,avant-degats);
-    ajouter('ennemi','joueur',prochainEnnemi,degats,avant,pvJoueur);
-    prochainEnnemi+=intervalleEnnemi;
-  }
-
-  const victoire=pvEnnemi<=0&&pvJoueur>0;
-  const raisonDefaite=victoire?'':(pvJoueur<=0?'KO':'TEMPS');
-  const dernierMs=evenements.length?evenements[evenements.length-1].atMs:0;
-  const dureeCombat=victoire||pvJoueur<=0
-    ?Math.min(limite,dernierMs/1000)
-    :limite;
-
-  return {
-    victoire,
-    raisonDefaite,
-    dureeCombat,
-    degatsRecus:Math.max(0,pvJoueurMax-pvJoueur),
-    pvJoueurFinal:pvJoueur,
-    pvEnnemiFinal:pvEnnemi,
-    intervalleJoueurMs,
-    intervalleEnnemiMs,
-    evenements
-  };
-}
+/*
+ * Audit 2026-09-17 (grand nettoyage) : simulerCoupsAventureSorealIdleV43_
+ * (timeline de coups V43 pour l'ancien combat Adventure du moteur
+ * legacy) n'avait plus aucun appelant — combattreAventureSorealIdle,
+ * son seul consommateur, est désactivée depuis le passage au moteur
+ * NGU V47 (SOREAL_IDLE_V47_LEGACY_DISABLED). Supprimée.
+ */
 
 
 function capacitesBossSorealIdle_(
@@ -10664,90 +10304,6 @@ function calculerPiecesSorealIdle_(
 }
 
 
-function titreJoueurSorealIdle_(
-  niveau
-) {
-  const n =
-    Math.max(
-      1,
-      Math.floor(
-        nombreSorealIdle_(
-          niveau,
-          1
-        )
-      )
-    );
-
-  if (n >= 20) {
-    return 'Légende SOREAL';
-  }
-
-  if (n >= 15) {
-    return 'Maître du dépôt';
-  }
-
-  if (n >= 10) {
-    return 'Chef de palette';
-  }
-
-  if (n >= 5) {
-    return 'Combattant du stock';
-  }
-
-  return 'Recrue du dépôt';
-}
-
-
-function prochainPalierSorealIdle_(
-  niveau
-) {
-  const paliers = [
-    {
-      niveau: 5,
-      nom: 'Combattant du stock'
-    },
-    {
-      niveau: 10,
-      nom: 'Chef de palette'
-    },
-    {
-      niveau: 15,
-      nom: 'Maître du dépôt'
-    },
-    {
-      niveau: 20,
-      nom: 'Légende SOREAL'
-    }
-  ];
-
-  const n =
-    Math.max(
-      1,
-      Math.floor(
-        nombreSorealIdle_(
-          niveau,
-          1
-        )
-      )
-    );
-
-  for (
-    let i = 0;
-    i < paliers.length;
-    i += 1
-  ) {
-    if (n < paliers[i].niveau) {
-      return paliers[i];
-    }
-  }
-
-  return {
-    niveau: n,
-    nom: 'Tous les titres débloqués'
-  };
-}
-
-
 function prochainBossSorealIdle_(
   bossVaincus
 ) {
@@ -10831,46 +10387,6 @@ function obtenirParametresEntrainementSorealIdle_() {
 }
 
 
-function normaliserTypeEntrainementSorealIdle_(
-  type
-) {
-  const valeur =
-    String(type || '')
-      .trim()
-      .toLowerCase();
-
-  if (
-    valeur !== 'force' &&
-    valeur !== 'endurance' &&
-    valeur !== 'organisation'
-  ) {
-    throw new Error(
-      'SOREAL_IDLE_ENTRAINEMENT_INVALIDE'
-    );
-  }
-
-  return valeur;
-}
-
-
-function colonneEntrainementSorealIdle_(
-  type
-) {
-  const c =
-    CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-
-  if (type === 'force') {
-    return c.FORCE;
-  }
-
-  if (type === 'endurance') {
-    return c.ENDURANCE;
-  }
-
-  return c.ORGANISATION;
-}
-
-
 function coutEntrainementSorealIdle_(
   niveauActuel
 ) {
@@ -10897,17 +10413,6 @@ function coutEntrainementSorealIdle_(
       ) *
       niveau
     )
-  );
-}
-
-
-function recalculerPuissanceSorealIdle_(
-  feuille,
-  ligne
-) {
-  return recalculerPuissanceCompleteSorealIdle_(
-    feuille,
-    ligne
   );
 }
 
@@ -13251,59 +12756,6 @@ function renaitreSorealIdle(
 
 
 
-function valeurMateriauxObjetSorealIdle_(
-  objet
-) {
-  const rarete =
-    String(
-      objet && objet.rarete || 'commun'
-    );
-
-  const table =
-    raretesSorealIdle_();
-
-  for (
-    let i = 0;
-    i < table.length;
-    i += 1
-  ) {
-    if (
-      table[i].id === rarete
-    ) {
-      return Math.max(
-        1,
-        Math.round(
-          nombreSorealIdle_(
-            table[i].materiaux,
-            1
-          )
-        )
-      );
-    }
-  }
-
-  return 1;
-}
-
-
-function objetEstEquipeSorealIdle_(
-  equipement,
-  objetId
-) {
-  const id = String(objetId || '');
-
-  return slotsEquipementSorealIdle_()
-    .some(function(slot) {
-      const valeur = equipement ? equipement[slot] : '';
-      const idEquipe =
-        valeur && typeof valeur === 'object'
-          ? String(valeur.id || '')
-          : String(valeur || '');
-      return idEquipe === id;
-    });
-}
-
-
 function recyclerObjetSorealIdle(...args) {
   void args;
   return {
@@ -14342,88 +13794,9 @@ function sortsSorealIdle_() {
 }
 
 
-function sortSorealIdle_(id) {
-  const cle =
-    String(id || '')
-      .trim()
-      .toLowerCase();
-
-  return (
-    sortsSorealIdle_()
-      .find(function(sort) {
-        return (
-          String(sort.id || '')
-            .toLowerCase() === cle
-        );
-      }) || null
-  );
-}
-
-
 /* ============================================================
    RARETÉS / LOOTS / SETS / COLLECTIONS
    ============================================================ */
-
-function raretesSorealIdle_() {
-  return lireTableSorealIdle_(
-    'IDLE_RARETES'
-  )
-    .filter(function(ligne) {
-      return (
-        String(
-          ligne.Actif
-        ).toLowerCase() !== 'false'
-      );
-    })
-    .map(function(ligne) {
-      return {
-        id:
-          String(
-            ligne.ID || 'commun'
-          ),
-
-        nom:
-          String(
-            ligne.Nom || 'Commun'
-          ),
-
-        chance:
-          Math.max(
-            0,
-            nombreSorealIdle_(
-              ligne.Chance,
-              0
-            )
-          ),
-
-        multiplicateur:
-          Math.max(
-            0.01,
-            nombreSorealIdle_(
-              ligne.Multiplicateur,
-              1
-            )
-          ),
-
-        materiaux:
-          Math.max(
-            1,
-            Math.round(
-              nombreSorealIdle_(
-                ligne.Materiaux,
-                1
-              )
-            )
-          ),
-
-        couleur:
-          String(
-            ligne.Couleur || ''
-          )
-      };
-    });
-}
-
 
 function lootsSorealIdle_() {
   return lireTableSorealIdle_(

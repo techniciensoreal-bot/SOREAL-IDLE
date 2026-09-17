@@ -1196,39 +1196,34 @@ console.log("SOREAL IDLE runtime calculations: OK");
 }
 
 
-// V43 — la timeline Aventure est la source unique des barres et du résultat.
+/*
+ * Audit 2026-09-17 (grand nettoyage) : ce bloc datait d'avant la
+ * désactivation de combattreAventureSorealIdle (moteur legacy, remplacé
+ * par NGU V47) — simulerCoupsAventureSorealIdleV43_ (la timeline de
+ * coups qu'il vérifiait) a été supprimée car orphelines, et la
+ * branche if/else ne prenait plus jamais que le chemin "else" (la
+ * fonction reste désactivée en permanence). Simplifié en une seule
+ * assertion directe, sans marqueur de tranche fragile.
+ */
 {
   const source=fs.readFileSync(
     new URL("../src/idle-sqlite-runtime.js",import.meta.url),
     "utf8"
   );
-  const helperStart=source.indexOf("function simulerCoupsAventureSorealIdleV43_(");
   const fightStart=source.indexOf("function combattreAventureSorealIdle(");
-  const fightEnd=source.indexOf("SO... (go/truncated-by-tool?)" );
-  const fight=source.slice(fightStart,fightEnd>fightStart?fightEnd:source.length);
+  const fightEnd=source.indexOf("\n}",fightStart);
+  const fight=source.slice(fightStart,fightEnd);
 
   assert.ok(
-    helperStart>=0&&
-    source.includes("IDLE_COMBAT_EVENTS_V43")&&
-    source.includes("atMs:")&&
-    source.includes("pvAvant:")&&
-    source.includes("pvApres:"),
-    "Le serveur doit produire une timeline de coups avec PV avant/après."
+    !source.includes("function simulerCoupsAventureSorealIdleV43_(") &&
+    !source.includes("IDLE_COMBAT_EVENTS_V43 —"),
+    "La timeline de coups V43 (orpheline depuis la désactivation du combat Adventure legacy) ne doit plus exister."
   );
-  if (!fight.includes("SOREAL_IDLE_V47_LEGACY_DISABLED")) {
-    assert.ok(
-      fight.includes("simulerCoupsAventureSorealIdleV43_(")&&
-      fight.includes("versionCoups: 'V43'")&&
-      fight.includes("evenements: combatCoups.evenements")&&
-      fight.includes("combatCoups.degatsRecus"),
-      "La victoire, les dégâts et la réponse Aventure doivent provenir de la timeline."
-    );
-  } else {
-    assert.ok(
-      fight.includes("moteur NGU V47"),
-      "L'ancien combat Adventure neutralisé doit déléguer au moteur V47, qui possède ses propres tests de combat."
-    );
-  }
+  assert.ok(
+    fight.includes("SOREAL_IDLE_V47_LEGACY_DISABLED") &&
+    fight.includes("moteur NGU V47"),
+    "L'ancien combat Adventure neutralisé doit déléguer au moteur V47, qui possède ses propres tests de combat."
+  );
 }
 
 

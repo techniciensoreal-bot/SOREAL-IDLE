@@ -30,16 +30,29 @@ for (const fn of ["acheterAmeliorationSorealIdle", "acheterAmeliorationsSorealId
 }
 
 // Les helpers de calcul (ameliorationsSorealIdle_, coutAmeliorationSorealIdle_,
-// bonusAmeliorationsSorealIdle_, bonusRenaissanceSorealIdle_) restent réels :
-// d'autres call sites vivants les utilisent encore (obtenirEtatBoutiqueSorealIdle,
+// bonusAmeliorationsSorealIdle_) restent réels : d'autres call sites vivants
+// les utilisent encore (obtenirEtatBoutiqueSorealIdle,
 // construireEtatJoueurSorealIdle_) — jamais à supprimer, contrairement aux
 // fonctions dédiées au loot Fight Boss qui, elles, n'avaient plus aucun
 // appelant du tout.
-for (const helper of ["ameliorationsSorealIdle_", "coutAmeliorationSorealIdle_", "bonusAmeliorationsSorealIdle_", "bonusRenaissanceSorealIdle_"]) {
+for (const helper of ["ameliorationsSorealIdle_", "coutAmeliorationSorealIdle_", "bonusAmeliorationsSorealIdle_"]) {
   assert.ok(
     source.includes("function " + helper + "("),
     helper + " doit rester (utilisé ailleurs, pas orphelin comme le code des boutiques désactivées)."
   );
 }
+
+/*
+ * Correction en cours de route (audit 2026-09-17, passe d'orphelins en
+ * cascade) : bonusRenaissanceSorealIdle_ avait en réalité ZÉRO appelant
+ * réel une fois les boutiques désactivées ET etatRenaissanceSorealIdle_
+ * (elle aussi orpheline) retirées — son seul "usage" était dans du code
+ * déjà mort. Supprimée avec le reste, contrairement à ce que ce test
+ * affirmait initialement.
+ */
+assert.ok(
+  !source.includes("function bonusRenaissanceSorealIdle_("),
+  "bonusRenaissanceSorealIdle_ doit avoir disparu (confirmé orpheline après suppression de ses seuls appelants, eux-mêmes du code mort)."
+);
 
 console.log("idle-legacy-shop-dead-code-removed: OK");
