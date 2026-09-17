@@ -1407,7 +1407,19 @@ export function calculateIdleNguNextNumber(input = {}) {
   const runSeconds = Math.max(0, num(input.runSeconds, 0));
   const lastRunSeconds = Math.max(0, num(input.lastRunSeconds, 0));
   const hasPreviousRun = Boolean(input.hasPreviousRun);
-  const base = input.difficulty === "extreme" ? 1.2 : input.difficulty === "difficile" ? 1.5 : 2;
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+   * Wiki NGU local, page "SADISTIC difficulty", section "Fight boss and
+   * number" : "Boss Power Bonus of rebirth NUMBER is based on 1.2^[boss
+   * beaten]... this multiplier can be increased to up to x1.25 per boss
+   * killed through the unlocking of the relevant Perks, Quirks and
+   * Wishes." Perks 157/158 ("Improved Sadistic Boss Multiplier I/II",
+   * +0.0005/niveau chacun, cap 10) et Quirks 74/75 (+0.001/niveau chacun,
+   * cap 10) totalisent jusqu'à +0.01+0.02=0.03... la borne wiki "up to
+   * x1.25" inclut aussi les Wishes (non construites) : seule la portion
+   * Perks+Quirks est câblée ici, jamais extrapolée jusqu'à 1.25.
+   */
+  const base = input.difficulty === "extreme" ? 1.2 + Math.max(0, num(input.sadisticBossMultiplierBonus, 0)) : input.difficulty === "difficile" ? 1.5 : 2;
 
   const currentBossFactor = safePow(base, bosses);
   const priorBossFactor = hasPreviousRun ? safePow(base, lastBosses) : 1;
@@ -1488,7 +1500,10 @@ function refreshRebirthState(state, context, now) {
     beardNumberBonus: beardBonusMultiplier(state, "number"),
     yggNumberBonus: 1,
     macguffinNumberBonus: 1,
-    hacksNumberBonus: 1
+    hacksNumberBonus: 1,
+    sadisticBossMultiplierBonus:
+      perkBonusesV1(state.systems.perks?.data?.levels).sadisticBossMultiplierBonus +
+      quirkBonusesV1(state.systems.quirks?.data?.levels).sadisticBossMultiplierBonus
   });
   rb.nextNumber = preview.nextNumber;
   rb.canRebirth = preview.canRebirth;

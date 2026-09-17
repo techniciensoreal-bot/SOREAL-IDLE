@@ -38,8 +38,8 @@
  * (17), Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
  * (57-60,174-175), Wishes (54,56), Automerge Slot (55), Cards/Mayo/Tags/
  * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
- * 185 -- pas de 3e ressource entraînable), Sadistic Boss Multiplier
- * (74-75), Quêtes/Idle Questing (71), Faster Energy/Magic NGU I-III
+ * 185 -- pas de 3e ressource entraînable), Quêtes/Idle Questing (71),
+ * Faster Energy/Magic NGU I-III
  * (93-98 -- même gap "multiplicateur jamais branché" que 15-16), Better
  * Blood Magic (91 -- production de sang non exposée comme taux
  * modifiable dans ce round), Even More Inventory Space (90 -- le
@@ -109,6 +109,8 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 66, name: "Generic Magic Bars Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Bars!", cost: 1000, cap: 50, bonus: { magicBarsPct: 0.002 } },
   { id: 72, name: "Beasted Boosts III", effect: "Gain 1% better boosts per level of this quirk!", cost: 600, cap: 50, bonus: { boostPowerPct: 0.01 } },
   { id: 73, name: "Beasted Boosts IV", effect: "Gain 0.5% better boosts per level of this quirk!", cost: 1800, cap: 50, bonus: { boostPowerPct: 0.005 } },
+  { id: 74, name: "Improved Sadistic Boss Multiplier I", effect: "+0.001 to the Sadistic Boss Multiplier per level (base 1.20)", cost: 20000, cap: 10, bonus: { sadisticBossMultiplierBonus: 0.001 } },
+  { id: 75, name: "Improved Sadistic Boss Multiplier II", effect: "Another +0.001 to the Sadistic Boss Multiplier per level (base 1.20)", cost: 100000, cap: 10, bonus: { sadisticBossMultiplierBonus: 0.001 } },
   { id: 76, name: "Stat Boost for Rich Quirks III", effect: "Improve your Attack/Defense by 1% per level!", cost: 400, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 77, name: "Adventure Boost for Rich Quirks III", effect: "Improve your Adventure stats by 0.03% per level!", cost: 400, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
   { id: 78, name: "Stat Boost for Rich Quirks IV", effect: "Improve your Attack/Defense by 1% per level!", cost: 1300, cap: 1000, bonus: { statPct: 0.01 } },
@@ -179,6 +181,7 @@ export function quirkBonusesV1(levelsById) {
     boostPowerMultiplier: 1 + (totals.boostPowerPct || 0),
     atBankMultiplier: 1 + (totals.atBankPct || 0),
     tmBankMultiplier: 1 + (totals.tmBankPct || 0),
-    beardBankMultiplier: 1 + (totals.beardBankPct || 0)
+    beardBankMultiplier: 1 + (totals.beardBankPct || 0),
+    sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0
   };
 }

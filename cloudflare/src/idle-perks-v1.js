@@ -49,8 +49,7 @@
  * 216,138-143,146-150 quirks), Hack Milestones (113-115,217-219 --
  * mécanique de palier non identifiée avec certitude dans le temps
  * imparti), Resource 3 (95-103,122-124,132-134,141-143,226-228 -- pas de
- * 3e ressource entraînable chez SOREAL, seulement Energy/Magic), Sadistic
- * Boss Multiplier (157-158 -- mécanique non identifiée), Iron Pill I/II
+ * 3e ressource entraînable chez SOREAL, seulement Energy/Magic), Iron Pill I/II
  * (84-85 -- multiplierait castBloodSpell's gain ironPill, hook non
  * construit dans ce round), Daycare Slot supplémentaire (86 -- nombre de
  * slots Daycare non modélisé), respawn (93 -- aucune minuterie de
@@ -179,6 +178,16 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 129, name: "Generic Magic Power Perk V", effect: "+0.2% bonus multiplier to your Magic Power per level", cost: 500000, cap: 100, bonus: { magicPowerPct: 0.002 } },
   { id: 130, name: "Generic Magic Bar Perk V", effect: "+0.1% bonus multiplier to your Magic Bars per level", cost: 500000, cap: 100, bonus: { magicBarsPct: 0.001 } },
   { id: 131, name: "Generic Magic Cap Perk V", effect: "+0.1% bonus multiplier to your Magic Cap per level", cost: 500000, cap: 100, bonus: { magicCapPct: 0.001 } },
+  /*
+   * Sadistic Boss Multiplier (2026-09-18) : wiki NGU local, page
+   * "SADISTIC difficulty", section "Fight boss and number" — la base
+   * 1.20^[boss] de la formule NUMBER (idle-ngu-progression.js,
+   * calculateIdleNguNextNumber) peut être augmentée par ces 2 perks.
+   * sadisticBossMultiplierBonus est additif, ajouté à la base avant
+   * exponentiation, jamais un multiplicateur composé par-dessus.
+   */
+  { id: 157, name: "Improved Sadistic Boss Multiplier I", effect: "+0.0005 to the Sadistic Boss Multiplier per level (base 1.20)", cost: 1000000, cap: 10, bonus: { sadisticBossMultiplierBonus: 0.0005 } },
+  { id: 158, name: "Improved Sadistic Boss Multiplier II", effect: "Another +0.0005 to the Sadistic Boss Multiplier per level (base 1.20)", cost: 20000000, cap: 10, bonus: { sadisticBossMultiplierBonus: 0.0005 } },
   { id: 135, name: "Generic Energy Power Perk VI", effect: "+0.2% bonus multiplier to your Energy Power per level", cost: 2500000, cap: 100, bonus: { energyPowerPct: 0.002 } },
   { id: 136, name: "Generic Energy Bar Perk VI", effect: "+0.1% bonus multiplier to your Energy Bars per level", cost: 2500000, cap: 100, bonus: { energyBarsPct: 0.001 } },
   { id: 137, name: "Generic Energy Cap Perk VI", effect: "+0.1% bonus multiplier to your Energy Cap per level", cost: 2500000, cap: 100, bonus: { energyCapPct: 0.001 } },
@@ -306,6 +315,7 @@ export function perkBonusesV1(levelsById) {
     bossExpMultiplier: 1 + (totals.bossExpPct || 0),
     fruitKnowledgeExpMultiplier: Math.max(1, totals.fruitKnowledgeExpMult || 1),
     doubleBasicTraining: Boolean(totals.doubleBasicTraining),
-    beardTrimSpeedLevel: totals.beardTrimSpeedLevel || 0
+    beardTrimSpeedLevel: totals.beardTrimSpeedLevel || 0,
+    sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0
   };
 }
