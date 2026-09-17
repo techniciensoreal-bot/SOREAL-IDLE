@@ -24,6 +24,16 @@ import { applyIdleNguAction, normalizeIdleNguState } from "../src/idle-ngu-progr
  * achat successif du MÊME bouton doit coûter le plein tarif, sans
  * exception, sur les 4 stats concernées (speed/power/cap/bars) et sur
  * les 3 ressources (energy/magic/r3).
+ *
+ * Mise à jour 2026-09-17 (Newbie Offers / achats en lot / verrou boss 17,
+ * capture Norman du vrai shop) : Power/Cap sont désormais verrouillés tant
+ * que le boss du run courant n'a pas atteint IDLE_NGU_RESOURCE_POWER_CAP_
+ * UNLOCK_BOSS_V1 (17) — un contexte {bosses:17} est donc passé à chaque
+ * appel ci-dessous pour rester au-dessus du seuil, sans quoi ce test
+ * lèverait ACHAT_VERROUILLE_BOSS avant même d'atteindre la vérification
+ * anti-exploit qu'il vise. buyResource() accepte aussi une quantité
+ * (nouveau 4e paramètre, absent ici = 1 par défaut) : ce test reste donc
+ * valable tel quel pour l'achat unitaire historique.
  */
 
 function freshState(experience) {
@@ -56,7 +66,7 @@ for (const resource of ["energy", "magic", "r3"]) {
       const { state: nextState, result } = applyIdleNguAction(
         stored,
         { action: "buyResource", resource, stat },
-        {},
+        { bosses: 17 },
         Date.now() + click
       );
 
@@ -107,7 +117,7 @@ for (const resource of ["energy", "magic", "r3"]) {
   let state = freshState(1); // 1 EXP : insuffisant pour le coût de 2 (energy/speed)
   const stored = roundTrip(state);
   assert.throws(
-    () => applyIdleNguAction(stored, { action: "buyResource", resource: "energy", stat: "speed" }, {}, Date.now()),
+    () => applyIdleNguAction(stored, { action: "buyResource", resource: "energy", stat: "speed" }, { bosses: 17 }, Date.now()),
     /EXP_INSUFFISANTE/,
     "Un achat sans assez d'EXP doit lever EXP_INSUFFISANTE, jamais réussir gratuitement."
   );

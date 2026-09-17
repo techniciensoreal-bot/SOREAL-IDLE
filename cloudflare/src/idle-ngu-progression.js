@@ -49,20 +49,47 @@ export const IDLE_NGU_SAVE_SCHEMA = 47;
 
 const RESOURCE_KEYS = Object.freeze(["energy", "magic", "r3"]);
 
+/*
+ * Audit 2026-09-17 (screenshot Norman du vrai "Spend EXP" NGU) : le nombre
+ * de boss requis pour débloquer Power/Cap dans CE shop ("REACH BOSS 17 FOR
+ * MORE PURCHASES HERE!", visible en jeu sous Energy Speed/Bars) est le MÊME
+ * palier que celui déjà vérifié pour Augmentations juste plus bas
+ * (IDLE_NGU_SYSTEMS, unlock:{bosses:17}) — cohérent avec le wiki/communauté
+ * ("energy power is useless to you until you kill boss #17 and unlock
+ * augments"). Une seule constante partagée pour ne jamais dupliquer cette
+ * règle métier entre les deux endroits qui la consomment.
+ */
+export const IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 = 17;
+
 // NGU Spend EXP base purchases. Values are base-stat increments per purchase,
 // not UI-derived multipliers. Keeping them here makes APP/TV consume one table.
+//
+// `bulkTiers` : quantités de raccourci proposées par le vrai shop NGU (x1/x10
+// systématiques, x100 en plus pour les stats à plafond élevé). Confirmé par
+// capture d'écran Norman du vrai jeu pour Energy (Speed : x1/x10 seulement —
+// wiki/capture n'en montre jamais x100, cohérent avec un hardCap de 50 ;
+// Bars : x1/x10/x100, hardCap 1e18). Magic/R3 partagent la même structure de
+// shop qu'Energy (mêmes 4 stats, même mécanique de plafond) donc le même
+// motif de paliers est appliqué par symétrie — seul le TABLEAU DE PRIX change
+// par ressource, jamais recalculé côté client de toute façon (quantité ×
+// cost/gain, cf buyResource ci-dessous).
+//
+// `unlockBoss` sur power/cap : cf IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1
+// ci-dessus. Absent (undefined) sur speed/bars : ces deux stats sont
+// achetables dès le début de la partie, exactement comme le montre la
+// capture d'écran du vrai jeu.
 export const IDLE_NGU_RESOURCE_PURCHASES = Object.freeze({
   energy: Object.freeze({
-    speed: Object.freeze({ cost: 2, gain: 0.1, hardCap: 50 }),
-    power: Object.freeze({ cost: 15, gain: 0.1, hardCap: 1e18 }),
-    cap: Object.freeze({ cost: 40, gain: 10000, hardCap: 9e18 }),
-    bars: Object.freeze({ cost: 80, gain: 1, hardCap: 1e18 })
+    speed: Object.freeze({ cost: 2, gain: 0.1, hardCap: 50, bulkTiers: Object.freeze([1, 10]) }),
+    power: Object.freeze({ cost: 15, gain: 0.1, hardCap: 1e18, bulkTiers: Object.freeze([1, 10, 100]), unlockBoss: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }),
+    cap: Object.freeze({ cost: 40, gain: 10000, hardCap: 9e18, bulkTiers: Object.freeze([1, 10, 100]), unlockBoss: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }),
+    bars: Object.freeze({ cost: 80, gain: 1, hardCap: 1e18, bulkTiers: Object.freeze([1, 10, 100]) })
   }),
   magic: Object.freeze({
-    speed: Object.freeze({ cost: 3, gain: 0.1, hardCap: 50 }),
-    power: Object.freeze({ cost: 45, gain: 0.1, hardCap: 1e18 }),
-    cap: Object.freeze({ cost: 120, gain: 10000, hardCap: 9e18 }),
-    bars: Object.freeze({ cost: 240, gain: 1, hardCap: 1e18 })
+    speed: Object.freeze({ cost: 3, gain: 0.1, hardCap: 50, bulkTiers: Object.freeze([1, 10]) }),
+    power: Object.freeze({ cost: 45, gain: 0.1, hardCap: 1e18, bulkTiers: Object.freeze([1, 10, 100]), unlockBoss: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }),
+    cap: Object.freeze({ cost: 120, gain: 10000, hardCap: 9e18, bulkTiers: Object.freeze([1, 10, 100]), unlockBoss: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }),
+    bars: Object.freeze({ cost: 240, gain: 1, hardCap: 1e18, bulkTiers: Object.freeze([1, 10, 100]) })
   }),
   /*
    * Audit 2026-09-16 : la page "Resource 3" du "Spend EXP" menu (wiki,
@@ -73,10 +100,34 @@ export const IDLE_NGU_RESOURCE_PURCHASES = Object.freeze({
    * changent (bien plus chers, cohérent avec R3 débloqué plus tard).
    */
   r3: Object.freeze({
-    speed: Object.freeze({ cost: 300000, gain: 0.1, hardCap: 50 }),
-    power: Object.freeze({ cost: 1500000, gain: 0.1, hardCap: 1e18 }),
-    cap: Object.freeze({ cost: 4000000, gain: 10000, hardCap: 9e18 }),
-    bars: Object.freeze({ cost: 8000000, gain: 1, hardCap: 1e18 })
+    speed: Object.freeze({ cost: 300000, gain: 0.1, hardCap: 50, bulkTiers: Object.freeze([1, 10]) }),
+    power: Object.freeze({ cost: 1500000, gain: 0.1, hardCap: 1e18, bulkTiers: Object.freeze([1, 10, 100]), unlockBoss: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }),
+    cap: Object.freeze({ cost: 4000000, gain: 10000, hardCap: 9e18, bulkTiers: Object.freeze([1, 10, 100]), unlockBoss: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }),
+    bars: Object.freeze({ cost: 8000000, gain: 1, hardCap: 1e18, bulkTiers: Object.freeze([1, 10, 100]) })
+  })
+});
+
+/*
+ * NGU Spend EXP "Newbie Offers" — captures d'écran Norman du vrai shop
+ * (2026-09-17) : trois achats à usage unique, réservés à Energy Speed
+ * (aucune section équivalente visible sous Energy Bars sur la capture, et
+ * Magic/R3 se débloquent bien plus tard — bosses:37/hacks — quand le joueur
+ * n'est plus un "newbie" ; recherche wiki croisée (ngu-idle.fandom.com,
+ * pages Experience/Magic/Resource 3) ne mentionne aucune Newbie Offer pour
+ * ces deux ressources, cohérent avec l'hypothèse). Nettement meilleur taux
+ * que l'achat normal (2 EXP pour 0.1) : 1 EXP->0.2, 2 EXP->0.3, 3 EXP->0.4.
+ * Achetable une seule fois PAR COMPTE, jamais remise en jeu par une
+ * Renaissance (un bonus de démarrage n'a pas de sens à refarmer à l'infini
+ * à chaque Renaissance ; state.records survit déjà à la Renaissance pour
+ * les mêmes raisons que highestBoss/totalRebirths juste à côté).
+ */
+export const IDLE_NGU_NEWBIE_OFFERS = Object.freeze({
+  energy: Object.freeze({
+    speed: Object.freeze([
+      Object.freeze({ id: "energySpeedNewbie1", cost: 1, gain: 0.2 }),
+      Object.freeze({ id: "energySpeedNewbie2", cost: 2, gain: 0.3 }),
+      Object.freeze({ id: "energySpeedNewbie3", cost: 3, gain: 0.4 })
+    ])
   })
 });
 const EARLY_GAME_MAX_OFFLINE_SECONDS = 30 * 24 * 3600;
@@ -514,7 +565,7 @@ export const IDLE_NGU_TRACKS = Object.freeze({
 export const IDLE_NGU_SYSTEMS = Object.freeze([
   { id: "achievements", name: "Achievements", icon: "🏆", kind: "permanent", resources: [], unlock: {} },
   { id: "dailySpin", name: "Daily Spin", icon: "🎡", kind: "daily", resources: [], unlock: { system: "moneyPit" } },
-  { id: "augmentations", name: "Augmentations", icon: "🦾", kind: "run", resources: ["energy"], unlock: {bosses:17} },
+  { id: "augmentations", name: "Augmentations", icon: "🦾", kind: "run", resources: ["energy"], unlock: {bosses:IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1} },
   { id: "advancedTraining", name: "Advanced Training", icon: "🏋️", kind: "run", resources: ["energy"], unlock: { basicTrainingComplete: true } },
   { id: "timeMachine", name: "Time Machine", icon: "⏱️", kind: "run", resources: ["energy", "magic"], unlock: {bosses:30} },
   { id: "bloodMagic", name: "Blood Magic", icon: "🩸", kind: "run", resources: ["magic"], unlock: {bosses:37} },
@@ -728,7 +779,11 @@ function baseState(now) {
       highestZone: 1,
       setsCompleted: 0,
       totalRebirths: 0,
-      highestGoldDrop: 0
+      highestGoldDrop: 0,
+      // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
+      // vidé par applyRebirthResetV56_, exactement comme les autres champs
+      // de records ci-dessus (highestBoss, totalRebirths...).
+      newbieOffersUsed: []
     },
     rebirth: createRebirthState(now),
     systems,
@@ -999,7 +1054,14 @@ function migrateLegacyMetaToV47(raw, now) {
   for (const key of Object.keys(state.currencies)) state.currencies[key] = Math.max(0, num(state.currencies[key], 0));
 
   state.records = Object.assign(state.records, src.records || {});
-  for (const key of Object.keys(state.records)) state.records[key] = Math.max(0, num(state.records[key], 0));
+  // newbieOffersUsed est un tableau, pas un compteur — même exclusion que
+  // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
+  const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
+  for (const key of Object.keys(state.records)) {
+    if (key === "newbieOffersUsed") continue;
+    state.records[key] = Math.max(0, num(state.records[key], 0));
+  }
+  state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
 
   state.challenge = Object.assign(state.challenge, src.challenge || {});
   state.challenge.completions = Object.assign(
@@ -1163,7 +1225,18 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
 
   state.records = Object.assign(baseState(t).records, source.records || {});
-  for (const k of Object.keys(state.records)) state.records[k] = Math.max(0, num(state.records[k], 0));
+  /*
+   * newbieOffersUsed est un tableau d'ids (IDLE_NGU_NEWBIE_OFFERS), pas un
+   * compteur numérique — exclu de la coercion Math.max(0,num(...)) juste en
+   * dessous (qui le réduirait sinon à 0 via Number([...]) === NaN/0) et
+   * assaini séparément pour tolérer une sauvegarde corrompue.
+   */
+  const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
+  for (const k of Object.keys(state.records)) {
+    if (k === "newbieOffersUsed") continue;
+    state.records[k] = Math.max(0, num(state.records[k], 0));
+  }
+  state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
 
   state.challenge = Object.assign(baseState(t).challenge, source.challenge || {});
   state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
@@ -2893,6 +2966,28 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      * statique cloné, jamais une formule recalculée côté client.
      */
     resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
+    /*
+     * Audit 2026-09-17 (Newbie Offers / achats en lot / verrou boss 17,
+     * capture Norman du vrai shop) : le client ne doit jamais recalculer
+     * lui-même si Power/Cap sont débloqués (resourcePurchaseUnlocked lit
+     * context.bosses, la même convention que IDLE_NGU_SYSTEMS) ni quelles
+     * Newbie Offers restent disponibles — les deux sont donc précalculés
+     * ici, même principe que resourcePurchases/selloutShop ci-dessus.
+     */
+    resourcePurchaseUnlock: Object.fromEntries(RESOURCE_KEYS.map(resource => [
+      resource,
+      Object.fromEntries(Object.keys(IDLE_NGU_RESOURCE_PURCHASES[resource]).map(stat => {
+        const purchase = IDLE_NGU_RESOURCE_PURCHASES[resource][stat];
+        return [stat, {
+          unlocked: resourcePurchaseUnlocked(purchase, context),
+          neededBosses: num(purchase.unlockBoss, 0)
+        }];
+      }))
+    ])),
+    newbieOffers: {
+      catalog: clone(IDLE_NGU_NEWBIE_OFFERS),
+      used: clone(state.records.newbieOffersUsed || [])
+    },
     systems: IDLE_NGU_SYSTEMS.map(def => ({
       id: def.id,
       name: def.name,
@@ -2913,20 +3008,73 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   };
 }
 
-function buyResource(state, resource, stat) {
+/*
+ * Vrai NGU ("REACH BOSS 17 FOR MORE PURCHASES HERE!", capture Norman) :
+ * Power/Cap restent verrouillés (pas de bouton, message de palier à la
+ * place) tant que le boss du RUN EN COURS n'a pas atteint le seuil. Réutilise
+ * exactement la même convention que IDLE_NGU_SYSTEMS/unlockSatisfied
+ * (context.bosses, remis à 0 à chaque Renaissance comme les autres
+ * déblocages de systèmes) plutôt que le tracker permanent
+ * state.records.highestBoss (qui sert un autre besoin : le bonus FTBE,
+ * jamais remis à 0). purchase.unlockBoss est absent (undefined) sur
+ * speed/bars, donc toujours considéré débloqué pour ces deux stats.
+ */
+function resourcePurchaseUnlocked(purchase, context) {
+  const needed = num(purchase?.unlockBoss, 0);
+  return needed <= 0 || num(context?.bosses, 0) >= needed;
+}
+
+function buyResource(state, resource, stat, quantity, context = {}) {
   if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
   if (!["speed", "power", "cap", "bars"].includes(stat)) throw new Error("STAT_RESSOURCE_INVALIDE");
   if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
   if (resource === "r3" && !state.systems.hacks.unlocked) throw new Error("R3_VERROUILLEE");
   const purchase=IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat];
   if (!purchase) throw new Error("ACHAT_RESSOURCE_INDISPONIBLE");
+  if (!resourcePurchaseUnlocked(purchase, context)) throw new Error("ACHAT_VERROUILLE_BOSS");
+  /*
+   * Achat en lot (capture Norman : "+1 for 80 EXP" / "+10 for 800 EXP" /
+   * "+100 for 8000 EXP", plus le montant personnalisé de droite) : une seule
+   * vérification EXP_INSUFFISANTE pour tout le lot, jamais un achat partiel
+   * si le joueur n'a pas assez pour la quantité demandée en entier.
+   */
+  const qty = Math.floor(num(quantity, 1));
+  if (!Number.isFinite(qty) || qty < 1) throw new Error("QUANTITE_INVALIDE");
   const r = state.resources[resource];
   if (num(r[stat],0) >= purchase.hardCap - 1e-12) throw new Error("STAT_RESSOURCE_MAX");
-  if (state.currencies.experience < purchase.cost) throw new Error("EXP_INSUFFISANTE");
-  state.currencies.experience -= purchase.cost;
-  r.spentExp += purchase.cost;
-  r[stat] = Math.min(purchase.hardCap, num(r[stat],0) + purchase.gain);
-  return { resource, stat, cost:purchase.cost, gain:purchase.gain, value:r[stat] };
+  const totalCost = purchase.cost * qty;
+  const totalGain = purchase.gain * qty;
+  if (state.currencies.experience < totalCost) throw new Error("EXP_INSUFFISANTE");
+  state.currencies.experience -= totalCost;
+  r.spentExp += totalCost;
+  r[stat] = Math.min(purchase.hardCap, num(r[stat],0) + totalGain);
+  return { resource, stat, quantity: qty, cost: totalCost, gain: totalGain, value: r[stat] };
+}
+
+/*
+ * NGU Spend EXP "Newbie Offers" (IDLE_NGU_NEWBIE_OFFERS ci-dessus) : achat
+ * distinct de buyResource — un id stable, achetable une seule fois PAR
+ * COMPTE (jamais remis en jeu par une Renaissance, cf commentaire sur
+ * records.newbieOffersUsed dans baseState()).
+ */
+function buyNewbieOffer(state, resource, stat, offerId) {
+  if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
+  if (!["speed", "power", "cap", "bars"].includes(stat)) throw new Error("STAT_RESSOURCE_INVALIDE");
+  if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "r3" && !state.systems.hacks.unlocked) throw new Error("R3_VERROUILLEE");
+  const id = String(offerId || "");
+  const offer = (IDLE_NGU_NEWBIE_OFFERS[resource]?.[stat] || []).find(o => o.id === id);
+  if (!id || !offer) throw new Error("OFFRE_INTROUVABLE");
+  if (state.records.newbieOffersUsed.includes(id)) throw new Error("OFFRE_DEJA_UTILISEE");
+  const hardCap = num(IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat]?.hardCap, Infinity);
+  const r = state.resources[resource];
+  if (num(r[stat],0) >= hardCap - 1e-12) throw new Error("STAT_RESSOURCE_MAX");
+  if (state.currencies.experience < offer.cost) throw new Error("EXP_INSUFFISANTE");
+  state.currencies.experience -= offer.cost;
+  r.spentExp += offer.cost;
+  r[stat] = Math.min(hardCap, num(r[stat],0) + offer.gain);
+  state.records.newbieOffersUsed = state.records.newbieOffersUsed.concat([id]);
+  return { resource, stat, offerId: id, cost: offer.cost, gain: offer.gain, value: r[stat] };
 }
 
 function selectTrack(state, id, trackId) {
@@ -3447,7 +3595,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     s.active = payload.active === undefined ? !s.active : Boolean(payload.active);
   } else if (action === "buyResource") {
-    result = buyResource(state, String(payload.resource || ""), String(payload.stat || "power"));
+    result = buyResource(state, String(payload.resource || ""), String(payload.stat || "power"), payload.quantity, context);
+  } else if (action === "buyNewbieOffer") {
+    result = buyNewbieOffer(state, String(payload.resource || ""), String(payload.stat || "power"), String(payload.offerId || ""));
   } else if (action === "upgradeYggFruit") {
     result = upgradeYggFruit(state,String(payload.fruit||"gold"));
   } else if (action === "activateYggFruit") {
