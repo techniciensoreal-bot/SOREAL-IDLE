@@ -1301,9 +1301,20 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
 
   state.systems.achievements.unlocked = true;
   reconcileResourceCurrents(state,context);
-  state.difficulty = "normal";
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+   * Cause racine d'un bug bloquant trouvé en auditant ce fichier :
+   * state.difficulty était lu correctement plus haut (migrateLegacyMetaToV47
+   * puis Object.assign(baseState(t), source)) puis ÉCRASÉ ici en dur à
+   * "normal" à CHAQUE sync — rendant impossible toute persistance d'un
+   * choix Evil/Sadistic (state.difficulty ne valait jamais autre chose que
+   * "normal" au runtime, quoi que le joueur ait choisi). difficultyPeaks.
+   * normal était de même mis à jour en dur, peu importe la difficulté
+   * réellement active -- corrigé pour suivre state.difficulty (déjà lu,
+   * jamais réécrit ici).
+   */
   state.difficultyPeaks = Object.assign({ normal: 0, difficile: 0, extreme: 0 }, source.difficultyPeaks || {});
-  state.difficultyPeaks.normal = Math.max(num(state.difficultyPeaks.normal, 0), bosses);
+  state.difficultyPeaks[state.difficulty] = Math.max(num(state.difficultyPeaks[state.difficulty], 0), bosses);
 
   state.rebirth = normalizeRebirthState(source.rebirth, state.runStartedAt, t);
   state.rebirth = refreshRebirthState(state, context, t);
@@ -1403,7 +1414,16 @@ function refreshRebirthState(state, context, now) {
   const runSeconds = Math.max(0, (now - state.runStartedAt) / 1000);
   const rb = normalizeRebirthState(state.rebirth, state.runStartedAt, now);
   const preview = calculateIdleNguNextNumber({
-    difficulty: "normal",
+    /*
+     * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+     * calculateIdleNguNextNumber sait déjà distinguer "difficile" (Evil,
+     * 1.5^boss) et "extreme" (Sadistic, 1.2^boss) de "normal" (2^boss) --
+     * mais ce point d'appel forçait "normal" en dur, rendant la formule
+     * Evil/Sadistic inatteignable même une fois state.difficulty
+     * correctement choisi et persisté (cf. correctif normalizeIdleNguState
+     * ci-dessus). Lit maintenant la vraie difficulté active.
+     */
+    difficulty: state.difficulty,
     bosses: context.bosses,
     lastBosses: rb.lastBosses,
     runSeconds,
@@ -2874,6 +2894,9 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     currencies: clone(state.currencies),
     records: clone(state.records),
     rebirth: clone(state.rebirth),
+    difficulty: state.difficulty,
+    difficultyPeaks: clone(state.difficultyPeaks),
+    difficultyUnlockRequirements: idleNguDifficultyUnlockRequirementsV1(state, context),
     challenge: clone(state.challenge),
     challengeDefinitions: challengeSnapshotDefinitions(state,context),
     challengeBonuses: challengePermanentBonuses(state),
@@ -3629,7 +3652,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "moneyPit") {
     result = tossMoneyPit(state, t);
   } else if (action === "difficulty") {
-    if (String(payload.value || "normal") !== "normal") throw new Error("DIFFICULTE_HORS_EARLY_GAME");
+    result = difficultyAction(state, payload, context, t);
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else {
@@ -3796,6 +3819,18 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     ?(challengeAfter?t:0)
     :(challengeAfter?challengeStartedBefore:0);
 
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+   * Wiki NGU (pages "Evil difficulty"/"SADISTIC difficulty") : "there is a
+   * choice of rebirthing into normal, evil, or SADISTIC difficulty. A
+   * rebirth that changes the difficulty is similar to starting a
+   * challenge" -- même mécanique que challengeId ci-dessus (déjà
+   * forceNumber:1/clearBanks:true côté appelant, cf. idleNguChangeDifficultyV1).
+   * options.difficulty absent = rebirth normal, garde la difficulté
+   * actuelle inchangée (jamais une réinitialisation implicite).
+   */
+  if(options.difficulty!==undefined)state.difficulty=String(options.difficulty);
+
   state.records.totalRebirths+=1;
   state.runStartedAt=t;
   state.updatedAt=t;
@@ -3805,6 +3840,86 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   state.rebirth.beardConversion=beardConversion;
   state.rebirth.resourceGrowth={energyCapGain:naturalEnergyCapGain};
   return state;
+}
+
+/*
+ * Conditions de déblocage Evil/Sadistic (2026-09-18, Norman : "il faut
+ * tout faire", fidélité NGU). Sourcé wiki local, pages "Evil difficulty"
+ * et "SADISTIC difficulty", section "Unlocking requirements" :
+ *
+ * Evil (toutes les conditions requises) :
+ *   - Reach Boss 301 aka beat boss 300 (en difficulté Normal)
+ *   - Attack Boost for Rich Jerks (EXP) x ITOPOD stat bonus (PP) >= 1M %
+ *   - The Beast v4 beaten
+ *
+ * SADISTIC (toutes les conditions requises) :
+ *   - Reach Boss 301 aka beat boss 300 on Evil difficulty
+ *   - The Exile v4 beaten
+ *
+ * Seule la première condition de chaque palier (le pic de boss réellement
+ * atteint dans la difficulté précédente, difficultyPeaks) est vérifiable
+ * avec les données déjà trackées par ce fichier. Les deux autres dépendent
+ * de systèmes qui n'existent pas encore dans ce moteur au moment de ce
+ * correctif :
+ *   - le perk "Rich Jerks" (catalogue Perks) et le bonus stat ITOPOD (PP)
+ *     correspondant n'existent pas -- context.richJerksItopodBonusPct doit
+ *     être fourni par l'appelant une fois ce système construit ; en son
+ *     absence, vaut 0 (jamais satisfait), jamais un repli inventé à une
+ *     valeur qui débloquerait Evil à tort.
+ *   - aucun suivi "Beast v4 vaincu" n'existe encore (le titan Beast utilise
+ *     un système de difficultés Easy/Normal/Hard/Brutal, pas de version
+ *     v1-v4) -- context.beastV4Beaten doit être fourni par l'appelant une
+ *     fois ce suivi construit ; false par défaut.
+ *   - le titan The Exile n'existe pas du tout dans le moteur (aucune
+ *     stat/forme/drop) -- context.exileV4Beaten doit être fourni par
+ *     l'appelant une fois ce titan construit ; false par défaut.
+ * Ce choix (false/0 par défaut, jamais un repli qui déverrouillerait à
+ * tort) garde Evil/SADISTIC correctement verrouillés tant que ces
+ * prérequis n'existent pas, plutôt que d'inventer un raccourci.
+ */
+export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
+  const peaks = state && state.difficultyPeaks ? state.difficultyPeaks : {};
+  const bossReadyEvil = num(peaks.normal, 0) >= 301;
+  const richJerksReady = num(context.richJerksItopodBonusPct, 0) >= 1e6;
+  const beastV4Ready = Boolean(context.beastV4Beaten);
+  const bossReadySadistic = num(peaks.difficile, 0) >= 301;
+  const exileV4Ready = Boolean(context.exileV4Beaten);
+  return {
+    difficile: {
+      met: bossReadyEvil && richJerksReady && beastV4Ready,
+      bossReady: bossReadyEvil,
+      richJerksReady,
+      beastV4Ready
+    },
+    extreme: {
+      met: bossReadySadistic && exileV4Ready,
+      bossReady: bossReadySadistic,
+      exileV4Ready
+    }
+  };
+}
+
+/*
+ * Change de difficulté de Renaissance (2026-09-18, Norman : "il faut tout
+ * faire"). Wiki NGU : "there is a choice of rebirthing into normal, evil,
+ * or SADISTIC difficulty. A rebirth that changes the difficulty is
+ * similar to starting a challenge - number and all last rebirth number
+ * factors are reset to 1, and banked levels are lost" -- même mécanique
+ * que challengeAction (voir forceNumber:1/clearBanks:true ci-dessous),
+ * jamais un simple changement de champ sans les effets de bord réels.
+ * Signature alignée sur challengeAction (mute l'état déjà ouvert par
+ * applyIdleNguAction, jamais un second syncIdleNguState concurrent).
+ */
+function difficultyAction(state, payload, context, t) {
+  const requested = ["normal", "difficile", "extreme"].includes(payload.value) ? payload.value : null;
+  if (!requested) throw new Error("DIFFICULTE_INVALIDE");
+  if (requested === state.difficulty) throw new Error("DIFFICULTE_DEJA_ACTIVE");
+  if (requested !== "normal") {
+    const req = idleNguDifficultyUnlockRequirementsV1(state, context);
+    if (!req[requested].met) throw new Error("DIFFICULTE_VERROUILLEE");
+  }
+  applyRebirthResetV56_(state, context, t, { forceNumber: 1, clearBanks: true, difficulty: requested });
+  return { difficulty: requested };
 }
 
 export function rebirthIdleNguState(raw,context={},now=Date.now()) {
