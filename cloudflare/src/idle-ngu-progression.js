@@ -813,10 +813,32 @@ function baseState(now) {
       ironPill: 0,
       cubePower: 0,
       cubeToughness: 0,
-      cookingExp: 0
+      cookingExp: 0,
+      /*
+       * "Rich Jerks" (2026-09-18, Norman : "il faut tout faire", fidélité
+       * Evil/Sadistic). Wiki NGU local, page "Experience", section "Spend
+       * Experience" > "Misc", tableau "Attack Boosts For Rich Jerks" :
+       * Cost=30 EXP par niveau (plat, aucune formule de croissance du coût
+       * publiée -- contrairement à d'autres achats de cette page qui
+       * documentent un plafond, celui-ci n'en a aucun), Growth=+10% par
+       * niveau, séparément pour Attack et Defense. Persistant au Rebirth
+       * comme le reste de ce sac `bonuses` (EXP elle-même ne se remet
+       * jamais à 0, cf. applyRebirthResetV56_ : seuls gold/blood le sont).
+       */
+      richJerksAttackLevel: 0,
+      richJerksDefenseLevel: 0
     }
   };
 }
+
+/*
+ * Coût/effet "Rich Jerks" -- voir le commentaire ci-dessus sur
+ * state.bonuses.richJerksAttackLevel/richJerksDefenseLevel pour la source
+ * wiki. Exportées pour que le snapshot client puisse afficher le prochain
+ * coût sans dupliquer la constante.
+ */
+export const RICH_JERKS_COST_EXP_V1 = 30;
+export const RICH_JERKS_PCT_PER_LEVEL_V1 = 10;
 
 function unlockSatisfied(def, ctx, state) {
   const u = def.unlock || {};
@@ -2687,12 +2709,27 @@ export function idleNguBonuses(raw) {
     wishBonuses.statMultiplier *
     atPowerBonus *
     (1 + Math.log10(1 + nguAttack) * 0.10);
+  /*
+   * "Attack Boost for Rich Jerks" (2026-09-18, Norman : "il faut tout
+   * faire") -- wiki NGU local, page "Experience", section "Spend
+   * Experience" > "Misc", tableau "Attack Boosts For Rich Jerks" : +10%
+   * Attack OU Defense par niveau, achetés et trackés SÉPARÉMENT (contraire
+   * à "Stat Boost for Rich Perks" ci-dessus, qui boost les deux ensemble)
+   * -- voir richJerksAction et state.bonuses.richJerksAttackLevel/
+   * richJerksDefenseLevel. Appliqué ici SEULEMENT sur le multiplicateur
+   * final exporté de chaque stat, jamais dans attackMultiplier lui-même
+   * (qui alimente aussi defenseMultiplier ci-dessous) -- sinon un achat
+   * "Attack" boosterait aussi Defense à tort.
+   */
+  const richJerksAttackMultiplier = 1 + idleNguRichJerksAttackPctV1(state) / 100;
+  const richJerksDefenseMultiplier = 1 + Math.max(0, num(state.bonuses?.richJerksDefenseLevel, 0)) * RICH_JERKS_PCT_PER_LEVEL_V1 / 100;
 
   return {
-    attackMultiplier: attackMultiplier,
+    attackMultiplier: attackMultiplier * richJerksAttackMultiplier,
     defenseMultiplier:
       attackMultiplier *
       atToughnessBonus *
+      richJerksDefenseMultiplier *
       (1 + Math.log10(1 + nguDefense) * 0.08),
     adventureMultiplier:
       challengeBonuses.adventureStatsMultiplier *
@@ -3653,6 +3690,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = tossMoneyPit(state, t);
   } else if (action === "difficulty") {
     result = difficultyAction(state, payload, context, t);
+  } else if (action === "richJerks") {
+    result = richJerksAction(state, payload);
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else {
@@ -3843,6 +3882,34 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 }
 
 /*
+ * "ITOPOD stat bonus (PP)" (wiki, page "Evil difficulty") : vérifié sur le
+ * wiki local (page "Glossary", entrée "Rich Jerks / Perks / Quirks" :
+ * "Refers to the EXP purchase, Stat Boosts For Rich Jerks and the Rich
+ * Perks and Quirks") -- l'exemple donné sur la page "Evil difficulty"
+ * ("500% rich perks (40 PP), and the Newbie Stat Perk (1 PP) is
+ * sufficient") liste la Newbie Stat Perk comme participant elle aussi au
+ * total, donc "ITOPOD stat bonus (PP)" = la somme de TOUS les perks payés
+ * en PP qui boostent Attack/Defense (statPct), pas seulement les 2 perks
+ * nommés "Rich Perks" -- exactement perkBonusesV1(...).statMultiplier
+ * (idle-perks-v1.js), déjà agrégé sur tout le catalogue (ids 4/5/54).
+ */
+function idleNguItopodStatBonusPctV1(state) {
+  const levels = state?.systems?.perks?.data?.levels;
+  return Math.max(0, perkBonusesV1(levels).statMultiplier - 1) * 100;
+}
+
+/*
+ * "Attack Boost for Rich Jerks (EXP)" (wiki, page "Evil difficulty") :
+ * voir state.bonuses.richJerksAttackLevel ci-dessus (baseState) pour la
+ * source wiki complète. Exprimé en % (10 par niveau), comme
+ * idleNguItopodStatBonusPctV1 ci-dessus, pour reproduire littéralement le
+ * "X% x Y%" du wiki.
+ */
+function idleNguRichJerksAttackPctV1(state) {
+  return Math.max(0, num(state?.bonuses?.richJerksAttackLevel, 0)) * RICH_JERKS_PCT_PER_LEVEL_V1;
+}
+
+/*
  * Conditions de déblocage Evil/Sadistic (2026-09-18, Norman : "il faut
  * tout faire", fidélité NGU). Sourcé wiki local, pages "Evil difficulty"
  * et "SADISTIC difficulty", section "Unlocking requirements" :
@@ -3856,16 +3923,10 @@ function applyRebirthResetV56_(state,context,t,options={}) {
  *   - Reach Boss 301 aka beat boss 300 on Evil difficulty
  *   - The Exile v4 beaten
  *
- * Seule la première condition de chaque palier (le pic de boss réellement
- * atteint dans la difficulté précédente, difficultyPeaks) est vérifiable
- * avec les données déjà trackées par ce fichier. Les deux autres dépendent
- * de systèmes qui n'existent pas encore dans ce moteur au moment de ce
- * correctif :
- *   - le perk "Rich Jerks" (catalogue Perks) et le bonus stat ITOPOD (PP)
- *     correspondant n'existent pas -- context.richJerksItopodBonusPct doit
- *     être fourni par l'appelant une fois ce système construit ; en son
- *     absence, vaut 0 (jamais satisfait), jamais un repli inventé à une
- *     valeur qui débloquerait Evil à tort.
+ * Les 2 premières conditions Evil sont maintenant entièrement calculables
+ * depuis `state` (peaks + Rich Jerks/perks ci-dessus). Les 2 dernières
+ * dépendent de systèmes qui n'existent pas encore dans ce moteur au
+ * moment de ce correctif :
  *   - aucun suivi "Beast v4 vaincu" n'existe encore (le titan Beast utilise
  *     un système de difficultés Easy/Normal/Hard/Brutal, pas de version
  *     v1-v4) -- context.beastV4Beaten doit être fourni par l'appelant une
@@ -3873,14 +3934,15 @@ function applyRebirthResetV56_(state,context,t,options={}) {
  *   - le titan The Exile n'existe pas du tout dans le moteur (aucune
  *     stat/forme/drop) -- context.exileV4Beaten doit être fourni par
  *     l'appelant une fois ce titan construit ; false par défaut.
- * Ce choix (false/0 par défaut, jamais un repli qui déverrouillerait à
- * tort) garde Evil/SADISTIC correctement verrouillés tant que ces
- * prérequis n'existent pas, plutôt que d'inventer un raccourci.
+ * Ce choix (false par défaut, jamais un repli qui déverrouillerait à tort)
+ * garde Evil/SADISTIC correctement verrouillés tant que ces prérequis
+ * n'existent pas, plutôt que d'inventer un raccourci.
  */
 export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
   const peaks = state && state.difficultyPeaks ? state.difficultyPeaks : {};
   const bossReadyEvil = num(peaks.normal, 0) >= 301;
-  const richJerksReady = num(context.richJerksItopodBonusPct, 0) >= 1e6;
+  const richJerksItopodBonusPct = idleNguRichJerksAttackPctV1(state) * idleNguItopodStatBonusPctV1(state);
+  const richJerksReady = richJerksItopodBonusPct >= 1e6;
   const beastV4Ready = Boolean(context.beastV4Beaten);
   const bossReadySadistic = num(peaks.difficile, 0) >= 301;
   const exileV4Ready = Boolean(context.exileV4Beaten);
@@ -3889,6 +3951,7 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
       met: bossReadyEvil && richJerksReady && beastV4Ready,
       bossReady: bossReadyEvil,
       richJerksReady,
+      richJerksItopodBonusPct,
       beastV4Ready
     },
     extreme: {
@@ -3910,6 +3973,25 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
  * Signature alignée sur challengeAction (mute l'état déjà ouvert par
  * applyIdleNguAction, jamais un second syncIdleNguState concurrent).
  */
+/*
+ * Achat "Rich Jerks" (2026-09-18, Norman : "il faut tout faire").
+ * Voir state.bonuses.richJerksAttackLevel (baseState) pour la source
+ * wiki : 30 EXP par niveau (plat), +10% Attack OU Defense par niveau,
+ * jamais un plafond inventé (le wiki n'en documente aucun pour ce tableau
+ * précis, contrairement à d'autres achats de la même page).
+ */
+function richJerksAction(state, payload) {
+  const stat = payload.stat === "defense" ? "defense" : payload.stat === "attack" ? "attack" : null;
+  if (!stat) throw new Error("RICH_JERKS_STAT_INVALIDE");
+  const levels = Math.max(1, int(payload.levels, 1));
+  const cost = levels * RICH_JERKS_COST_EXP_V1;
+  if (num(state.currencies.experience, 0) < cost) throw new Error("EXP_INSUFFISANT");
+  state.currencies.experience -= cost;
+  const key = stat === "attack" ? "richJerksAttackLevel" : "richJerksDefenseLevel";
+  state.bonuses[key] = Math.max(0, num(state.bonuses[key], 0)) + levels;
+  return { stat, level: state.bonuses[key], pct: state.bonuses[key] * RICH_JERKS_PCT_PER_LEVEL_V1, cost };
+}
+
 function difficultyAction(state, payload, context, t) {
   const requested = ["normal", "difficile", "extreme"].includes(payload.value) ? payload.value : null;
   if (!requested) throw new Error("DIFFICULTE_INVALIDE");

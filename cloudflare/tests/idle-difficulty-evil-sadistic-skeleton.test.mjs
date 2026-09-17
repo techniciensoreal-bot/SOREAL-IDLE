@@ -37,18 +37,25 @@ import {
 }
 
 // --- Conditions de déblocage : les 3 doivent être réunies, aucun repli inventé ---
+// Rich Jerks x ITOPOD est désormais calculé DIRECTEMENT depuis state (voir
+// idle-rich-jerks-and-itopod-stat-bonus.test.mjs pour ce calcul en détail) --
+// state.bonuses.richJerksAttackLevel=1000 (10 000%) x perk id5 niveau100
+// (statPct 0.10x100=10, soit +1000%) = 10 000 000 %, largement >= 1e6.
 {
   const state = normalizeIdleNguState(null, { bosses: 301 }, 0);
   state.difficultyPeaks.normal = 301;
 
   const noneMet = idleNguDifficultyUnlockRequirementsV1(state, {});
-  assert.equal(noneMet.difficile.met, false, "Sans richJerksItopodBonusPct ni beastV4Beaten fournis par l'appelant, Evil doit rester verrouillé.");
+  assert.equal(noneMet.difficile.met, false, "Sans Rich Jerks/ITOPOD achetés ni beastV4Beaten fourni par l'appelant, Evil doit rester verrouillé.");
   assert.equal(noneMet.difficile.bossReady, true, "Le seul critère calculable ici (boss 301) doit lui être vrai.");
 
-  const partial = idleNguDifficultyUnlockRequirementsV1(state, { richJerksItopodBonusPct: 1e6 });
+  state.bonuses.richJerksAttackLevel = 1000;
+  state.systems.perks.data.levels[5] = 100;
+  const partial = idleNguDifficultyUnlockRequirementsV1(state, {});
+  assert.equal(partial.difficile.richJerksReady, true, "Rich Jerks x ITOPOD doit maintenant dépasser 1M% (calculé depuis state, pas depuis un contexte externe).");
   assert.equal(partial.difficile.met, false, "beastV4Beaten manquant doit encore bloquer Evil, même avec le seuil Rich Jerks atteint.");
 
-  const allMet = idleNguDifficultyUnlockRequirementsV1(state, { richJerksItopodBonusPct: 1e6, beastV4Beaten: true });
+  const allMet = idleNguDifficultyUnlockRequirementsV1(state, { beastV4Beaten: true });
   assert.equal(allMet.difficile.met, true, "Les 3 conditions réunies (boss 301, Rich Jerks x ITOPOD >= 1M%, Beast v4) doivent débloquer Evil.");
 }
 
@@ -72,8 +79,10 @@ import {
   state.runStartedAt = 0;
   state.rebirth.number = 999;
   state.bank.advancedTraining = 42;
+  state.bonuses.richJerksAttackLevel = 1000;
+  state.systems.perks.data.levels[5] = 100;
 
-  const ctx = { bosses: 301, richJerksItopodBonusPct: 1e6, beastV4Beaten: true };
+  const ctx = { bosses: 301, beastV4Beaten: true };
   const { state: after, result } = applyIdleNguAction(state, { action: "difficulty", value: "difficile" }, ctx, 4 * 60 * 1000);
 
   assert.equal(result.difficulty, "difficile", "Le résultat doit confirmer la nouvelle difficulté.");
