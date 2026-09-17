@@ -840,6 +840,37 @@ function baseState(now) {
 export const RICH_JERKS_COST_EXP_V1 = 30;
 export const RICH_JERKS_PCT_PER_LEVEL_V1 = 10;
 
+/*
+ * Ralentissements Evil/Sadistic (2026-09-18, Norman : "il faut tout
+ * faire"). Wiki NGU local, pages "Evil difficulty" et "SADISTIC
+ * difficulty", section "Differences" > "Features level slower"/
+ * "Features" : Augmentations, Time Machine et Blood Magic ont chacun un
+ * diviseur de vitesse UNIFORME (pas cumulatif -- la valeur Sadistic est
+ * déjà le total face à Normal, pas un multiplicateur additionnel sur la
+ * valeur Evil) :
+ *   - Augmentations : Evil 2.5 trillion (2.5e12) / Sadistic 2.5 octillion
+ *     (2.5e27, soit x1e15 la valeur Evil, colonne "Relative to Evil").
+ *   - Time Machine : Evil 1 trillion (1e12) / Sadistic 1 septillion
+ *     (1e24, soit x1e12 la valeur Evil).
+ *   - Blood Magic : Evil 1 billion (1e9) / Sadistic 10 sextillion (1e22,
+ *     soit x1e13 la valeur Evil).
+ * Wandoos a également un diviseur documenté (gap OS x1e6 en Evil,
+ * x1e12 supplémentaire en Sadistic) mais AUCUNE mécanique Wandoos
+ * (OS/Energy-Magic Dump) n'existe encore dans ce moteur -- rien à
+ * diviser tant que ce système n'est pas construit, volontairement non
+ * traité ici plutôt que d'inventer un point d'ancrage.
+ */
+const IDLE_DIFFICULTY_SPEED_DIVIDERS_V1 = Object.freeze({
+  augmentations: { difficile: 2.5e12, extreme: 2.5e27 },
+  timeMachine: { difficile: 1e12, extreme: 1e24 },
+  bloodMagic: { difficile: 1e9, extreme: 1e22 }
+});
+export function idleNguDifficultySpeedDividerV1(state, system) {
+  const tiers = IDLE_DIFFICULTY_SPEED_DIVIDERS_V1[system];
+  if (!tiers) return 1;
+  return num(tiers[state?.difficulty], 1) || 1;
+}
+
 function unlockSatisfied(def, ctx, state) {
   const u = def.unlock || {};
   if (num(ctx.bosses, 0) < num(u.bosses, 0)) return false;
@@ -1614,7 +1645,8 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const power = Math.max(1, state.resources.energy.power);
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
-  return base * 1000 / Math.max(1e-12, allocation * power * challengeSpeed);
+  const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
+  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed);
 }
 
 function advanceAugmentations(state, seconds, context) {
@@ -1687,7 +1719,19 @@ export function idleNguAugmentationMultiplier(raw) {
     additive += augment * upgrade;
   }
   const challengePower=challengePermanentBonuses(state).augmentationPowerMultiplier;
-  return Math.max(1,1+additive*challengePower);
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+   * Wiki NGU local, page "SADISTIC difficulty", section "Features" :
+   * "For Augmentations, the total Attack/Defense multiplier has an
+   * additional strength divider of 1 trillion (1e12), floored at 1. This
+   * multiplier includes the contribution from NGU Augments." -- SADISTIC
+   * uniquement (jamais mentionné sur la page "Evil difficulty"), et
+   * séparé du diviseur de VITESSE de progression déjà appliqué plus haut
+   * (augmentationSecondsForNextLevel) : celui-ci divise le résultat
+   * (force du bonus), pas la vitesse pour l'obtenir.
+   */
+  const sadisticStrengthDivider = state.difficulty === "extreme" ? 1e12 : 1;
+  return Math.max(1,1+(additive*challengePower)/sadisticStrengthDivider);
 }
 
 function beardTrackUnlocked(state, trackDef) {
@@ -1970,7 +2014,8 @@ function tmLevelSeconds(state, resource, targetLevel) {
   if (alloc <= 0) return Infinity;
   const power = Math.max(1, state.resources[resource].power);
   const n = Math.max(1, targetLevel);
-  return (1e9 / Math.max(1e-12, alloc * power)) * n;
+  const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "timeMachine");
+  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power)) * n;
 }
 
 /*
@@ -2088,7 +2133,8 @@ function advanceBloodMagic(state, seconds, context) {
   const power = Math.max(1, state.resources.magic.power);
   if (magic <= 0) return;
 
-  const secondsPerCompletion = ritual.baseSeconds * 1000 / Math.max(1e-12, magic * power);
+  const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
+  const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power);
   rs.progress += seconds;
   let completions = Math.floor(rs.progress / secondsPerCompletion);
   if (completions <= 0) return;
