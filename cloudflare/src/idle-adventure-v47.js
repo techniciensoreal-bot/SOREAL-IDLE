@@ -142,6 +142,174 @@ export const IDLE_ADVENTURE_MOB_CATALOG_V1=Object.freeze({
   boring:{normal:[],boss:[]},
   chocolate:{normal:[],boss:[]}
 });
+/*
+ * Norman (2026-09-17, capture d'écran de la fiche wiki "A Small Piece of
+ * Fluff") : "Pour les mobs aventure, tu dois cliquer sur l'onglet aventure
+ * en dessous de la photo. Les statistiques des mobs ne sont pas bonnes...
+ * il y a une version boss fight et une version adventure pour chaque
+ * mobs. Tu dois connaitre les 2." Chaque fiche wiki NGU d'un mob possède
+ * un tabber à 2 onglets : "Boss fight" (Number/Exp/Attack/Defense/HP
+ * Regen/Max HP — déjà câblé côté NGU_BOSS_REFERENCE_V1, jamais touché
+ * ici) et "Adventure" (Bestiary ID/Location/Type/Attack Rate/Power/
+ * Toughness/HP Regen/Max HP — jamais exploité jusqu'ici : monsterHpMax
+ * ne dépendait que de z.oneHitP, un nombre UNIQUE par zone, identique
+ * quel que soit le mob réellement tiré par startZoneFight, alors que le
+ * wiki donne des PV/Power/Toughness différents par mob individuel).
+ *
+ * Extrait en direct au navigateur le 2026-09-17 (tabber : les 2 panneaux
+ * restent dans le DOM, seule la visibilité change — extraction fiable
+ * quel que soit l'onglet visuellement actif) pour les zones accessibles
+ * en tout début/milieu de progression (avatarLevel 1 à 4 d'
+ * IDLE_ADVENTURE_ZONES, celles que testent les joueurs en ce moment) :
+ * tutorial, sewers, forest (8 des 9 entrées réelles — Fast Zombie n'a
+ * AUCUN onglet Adventure sur sa fiche, jamais rencontré en Aventure côté
+ * vrai NGU, volontairement absent), sky, hsb, clock, 2d — Bestiary ID
+ * 1-20 (tutorial/sewers/forest/cave) recoupé avec la page-résumé
+ * https://ngu-idle.fandom.com/wiki/Adventure_Mode (section "Adventure
+ * Mode Enemies", qui liste le VRAI roster Non-Boss/Boss par zone) puis
+ * chaque fiche individuelle pour Sky/HSB/Clock/2D (Bestiary ID 38-74).
+ *
+ * cave : seulement 3 des 16 ennemis réels de la zone ont été vérifiés
+ * (Gorgonzola/Brie/Gouda, déjà dans l'ancien tableau 1-20) — les 13
+ * autres (T-800, Floppy Mattress, Fluffy Chair, Couch, Parmesan, Evil
+ * Fridge, The Kitchen Sink, Robot, A Wide Screen T.V, + 3 boss) et TOUTES
+ * les zones au-delà de 2D (Ancient Battlefield avatarLevel 5 et plus)
+ * n'ont PAS été vérifiées cette session, faute de temps — volontairement
+ * ABSENTES ci-dessous plutôt qu'inventées (consigne explicite de Norman :
+ * "tu ne dois jamais inventer de valeurs toi-même"). monsterHpMaxForZoneV1
+ * retombe sur l'ancien calcul zone-plat (z.oneHitP) pour tout mob dont
+ * l'index tiré n'a pas d'entrée réelle ci-dessous — jamais un plantage,
+ * jamais une valeur inventée.
+ *
+ * "boss" ci-dessous = l'ennemi à couronne jaune PROPRE à l'Aventure de
+ * cette zone (ex. Brown Slime à Sewers, A Bird Person au Ciel) — un
+ * concept wiki totalement différent du "Combat de Boss" séquentiel
+ * (NGU_BOSS_REFERENCE_V1, boss 1-137, jamais touché ici). Un même mob
+ * (ex. "A Small Mouse") peut être Boss fight n°4 dans le classement
+ * séquentiel ET, séparément, l'ennemi Aventure à couronne de sa propre
+ * zone (Tutorial Zone) — les 2 rôles cohabitent sans conflit.
+ *
+ * name ci-dessous = le VRAI nom wiki (uniquement pour audit/lisibilité de
+ * ce fichier) — jamais affiché tel quel au joueur, qui voit toujours le
+ * nom SOREAL reskin (IDLE_ADVENTURE_MOB_CATALOG_V1, thème dépôt/
+ * entrepôt, cf. commentaire 2026-09-16 ci-dessus) : exactement le même
+ * principe déjà appliqué à IDLE_ADVENTURE_ZONES (p/t/oneHitP réels sous
+ * un nom de zone reskin). Les tableaux normal[]/boss[] ci-dessous sont
+ * INDEXÉS INDÉPENDAMMENT du reskin (longueurs différentes assumées) —
+ * monsterHpMaxForZoneV1 utilise le même monsterIndex tiré au hasard que
+ * le reskin, mais modulo la longueur RÉELLE de ce tableau-ci.
+ */
+export const IDLE_ADVENTURE_MOB_BESTIARY_V1=Object.freeze({
+  tutorial:{normal:[
+    {name:"A Small Piece of Fluff",type:"normal",attackRate:1,power:7,toughness:6,hpRegen:1,maxHp:40},
+    {name:"Floating Sewage",type:"normal",attackRate:1.2,power:7,toughness:6,hpRegen:1.5,maxHp:45},
+    {name:"A Stick?",type:"normal",attackRate:1.5,power:8,toughness:7,hpRegen:.5,maxHp:55}
+  ],boss:[
+    {name:"A Small Mouse",type:"normal",attackRate:1,power:9,toughness:9,hpRegen:1,maxHp:100}
+  ]},
+  sewers:{normal:[
+    {name:"A Slightly Bigger Mouse",type:"normal",attackRate:1.2,power:10,toughness:10,hpRegen:1.5,maxHp:50},
+    {name:"A Large Rat",type:"normal",attackRate:1.5,power:11,toughness:11,hpRegen:.5,maxHp:70}
+  ],boss:[
+    {name:"Brown Slime",type:"poison",attackRate:1,power:13,toughness:13,hpRegen:1,maxHp:150}
+  ]},
+  forest:{normal:[
+    {name:"Skeleton",type:"normal",attackRate:1.1,power:26,toughness:29,hpRegen:3,maxHp:400},
+    {name:"Goblin",type:"rapid",attackRate:.9,power:30,toughness:29,hpRegen:1,maxHp:420},
+    {name:"Orc",type:"normal",attackRate:1.2,power:31,toughness:31,hpRegen:2,maxHp:450},
+    {name:"Slow Zombie",type:"normal",attackRate:1.5,power:30,toughness:17,hpRegen:8,maxHp:900},
+    {name:"Ent",type:"normal",attackRate:1.2,power:28,toughness:34,hpRegen:4,maxHp:515},
+    {name:"Giant",type:"charger",attackRate:1.3,power:30,toughness:35,hpRegen:1,maxHp:500},
+    {name:"Rat of Unusual Size",type:"normal",attackRate:1.5,power:32,toughness:32,hpRegen:3,maxHp:500},
+    {name:"Fairy",type:"exploder",attackRate:5,power:33,toughness:31,hpRegen:2,maxHp:200}
+  ],boss:[
+    {name:"Gorgon",type:"paralyze",attackRate:1.25,power:33,toughness:33,hpRegen:2.5,maxHp:600}
+  ]},
+  cave:{normal:[
+    {name:"Gorgonzola",type:"normal",attackRate:1.3,power:114,toughness:113,hpRegen:8,maxHp:1900},
+    {name:"Brie",type:"normal",attackRate:1.3,power:110,toughness:117,hpRegen:10,maxHp:1900},
+    {name:"Gouda",type:"normal",attackRate:1.5,power:107,toughness:120,hpRegen:12,maxHp:1940}
+  ],boss:[]},
+  sky:{normal:[
+    {name:"Kid On a Cloud",type:"grower",attackRate:1.3,power:300,toughness:323,hpRegen:20,maxHp:4600},
+    {name:"747",type:"normal",attackRate:1.3,power:350,toughness:310,hpRegen:20,maxHp:4500},
+    {name:"Oriental Dragon",type:"charger",attackRate:1,power:322,toughness:322,hpRegen:22,maxHp:4440},
+    {name:"Lester",type:"poison",attackRate:1.3,power:350,toughness:350,hpRegen:18,maxHp:4550},
+    {name:"Excitable Ninja Samurai",type:"rapid",attackRate:1.3,power:350,toughness:342,hpRegen:13,maxHp:4800},
+    {name:"Icarus Proudbottom",type:"exploder",attackRate:9,power:340,toughness:320,hpRegen:10,maxHp:4900},
+    {name:"Gigantic Flock of Seagulls",type:"poison",attackRate:1.3,power:340,toughness:317,hpRegen:20,maxHp:5200},
+    {name:"A Weird Two-Headed Guy",type:"normal",attackRate:1.3,power:330,toughness:310,hpRegen:19,maxHp:3500}
+  ],boss:[
+    {name:"Gigantic Flock of Canada Geese",type:"poison",attackRate:1.3,power:365,toughness:360,hpRegen:23,maxHp:8700},
+    {name:"A Bird Person",type:"rapid",attackRate:1.3,power:340,toughness:340,hpRegen:25,maxHp:9000}
+  ]},
+  hsb:{normal:[
+    {name:"Hooloovoo",type:"rapid",attackRate:1.3,power:400,toughness:403,hpRegen:40,maxHp:6333},
+    {name:"Gross Green Alien",type:"normal",attackRate:1.3,power:400,toughness:410,hpRegen:30,maxHp:6500},
+    {name:"The Rat God",type:"charger",attackRate:1,power:412,toughness:422,hpRegen:32,maxHp:6440},
+    {name:"Massive Plant Monster",type:"poison",attackRate:1.3,power:390,toughness:451,hpRegen:28,maxHp:6500},
+    {name:"High Security Insect Guard 1",type:"normal",attackRate:1.3,power:420,toughness:402,hpRegen:23,maxHp:6140},
+    {name:"High Security Insect Guard 2",type:"normal",attackRate:1.2,power:426,toughness:404,hpRegen:20,maxHp:6600},
+    {name:"The Experiment",type:"grower",attackRate:1.1,power:416,toughness:410,hpRegen:20,maxHp:6200},
+    {name:"A Whole Lotta Guards",type:"normal",attackRate:1.3,power:410,toughness:427,hpRegen:30,maxHp:6300}
+  ],boss:[
+    {name:"One Mega-Guard",type:"charger",attackRate:1.3,power:435,toughness:440,hpRegen:33,maxHp:11200},
+    {name:"Spiky Haired Guy",type:"rapid",attackRate:1.3,power:440,toughness:440,hpRegen:35,maxHp:12000}
+  ]},
+  clock:{normal:[
+    {name:"Monday",type:"charger",attackRate:1.3,power:1641,toughness:1571,hpRegen:147,maxHp:50000},
+    {name:"Tuesday",type:"normal",attackRate:1.3,power:1641,toughness:1591,hpRegen:149,maxHp:52000},
+    {name:"Wednesday",type:"normal",attackRate:1.3,power:1611,toughness:1611,hpRegen:141,maxHp:54000},
+    {name:"Thursday",type:"normal",attackRate:1.3,power:1631,toughness:1631,hpRegen:143,maxHp:56000},
+    {name:"Friday",type:"normal",attackRate:1.3,power:1651,toughness:1651,hpRegen:145,maxHp:58000},
+    {name:"Saturday",type:"normal",attackRate:1.3,power:1671,toughness:1671,hpRegen:147,maxHp:60000},
+    {name:"Sunday",type:"normal",attackRate:1.3,power:1691,toughness:1691,hpRegen:149,maxHp:62000}
+  ],boss:[
+    {name:"Sundae",type:"normal",attackRate:1.3,power:1700,toughness:1720,hpRegen:200,maxHp:85000}
+  ]},
+  "2d":{normal:[
+    {name:"A Flat Mouse",type:"charger",attackRate:1,power:3076,toughness:3071,hpRegen:307,maxHp:100000},
+    {name:"A Tiny Triangle",type:"normal",attackRate:1.1,power:3001,toughness:3091,hpRegen:309,maxHp:101000},
+    {name:"A Square Bear",type:"normal",attackRate:1.1,power:3065,toughness:3011,hpRegen:301,maxHp:100000},
+    {name:"The Pentagon",type:"rapid",attackRate:1.2,power:3022,toughness:3031,hpRegen:303,maxHp:105000},
+    {name:"The First Stop Sign",type:"normal",attackRate:1.2,power:3086,toughness:3071,hpRegen:307,maxHp:108000},
+    {name:"The Second Stop Sign",type:"normal",attackRate:1.2,power:3159,toughness:3091,hpRegen:309,maxHp:100000}
+  ],boss:[
+    {name:"A Super Hexagon",type:"normal",attackRate:1.2,power:3133,toughness:3133,hpRegen:303,maxHp:133333},
+    {name:"King Circle",type:"normal",attackRate:1.2,power:3041,toughness:3050,hpRegen:300,maxHp:100000}
+  ]}
+});
+/*
+ * Moyenne des ennemis normaux réels d'une zone (jamais les boss, qui ont
+ * leur propre variance) — sert à 2 choses : 1) le facteur d'échelle qui
+ * ramène les PV réels du wiki (petits nombres, ex. 40-5200) au même
+ * ordre de grandeur que z.oneHitP déjà utilisé partout côté SOREAL
+ * (ancrage explicite sur cette donnée déjà wiki-vérifiée, jamais un
+ * nouveau nombre inventé) ; 2) la référence Power/Attack Rate "moyenne
+ * de zone" pour juger si UN mob précis est relativement plus ou moins
+ * dangereux que la moyenne de sa zone.
+ */
+export function idleAdventureBestiaryAverageV1(list,key){
+  if(!list||!list.length)return 0;
+  let total=0;for(const m of list)total+=N(m&&m[key]);
+  return total/list.length;
+}
+/*
+ * Facteur d'échelle PV réel -> échelle SOREAL, ancré sur z.oneHitP (déjà
+ * wiki-vérifié, cf. commentaire 2026-09-14 sur IDLE_ADVENTURE_ZONES) :
+ * scale = oneHitP / (moyenne des Max HP réels des mobs normaux de la
+ * zone). Par construction, appliquer ce facteur à la moyenne redonne
+ * exactement oneHitP — le fallback zone-plat (monstre "moyen") et le
+ * nouveau calcul par-mob restent donc cohérents entre eux, seule la
+ * variance RÉELLE autour de cette moyenne (un mob plus ou moins costaud
+ * que ses voisins de zone, comme le vrai wiki le documente) devient enfin
+ * visible côté SOREAL.
+ */
+export function idleAdventureMobScaleV1(z,bestiaryZone){
+  const avgHp=idleAdventureBestiaryAverageV1(bestiaryZone&&bestiaryZone.normal,"maxHp");
+  if(!avgHp)return 0;
+  return N(z.oneHitP||z.t)/avgHp;
+}
 export const IDLE_ADVENTURE_TITANS=Object.freeze([
 /*
  * Re-audit 2026-09-13 (Norman : "boss ennemis pas pareil en aventure") :
@@ -1201,6 +1369,61 @@ return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience}}
  * idle-ngu-progression.js (idleAdventureCombatStatsV1), pas ici.
  */
 function monsterHpMaxForZoneV1(z,boss){const base=Math.max(1,I(N(z.oneHitP||z.t)));return boss?base*3:base}
+/*
+ * Norman (2026-09-17) : "il y a une version boss fight et une version
+ * adventure pour chaque mobs. Tu dois connaitre les 2" — suite du
+ * correctif z.oneHitP (2026-09-14) : ce dernier ne connaissait que la
+ * MOYENNE de zone, jamais le mob RÉELLEMENT tiré par startZoneFight
+ * (monsterIndex). Reprend maintenant IDLE_ADVENTURE_MOB_BESTIARY_V1 (onglet
+ * "Adventure" de chaque fiche wiki) quand une entrée réelle existe pour ce
+ * monsterIndex précis ; retombe sur l'ancien calcul zone-plat sinon
+ * (zone jamais vérifiée, ou index tiré au-delà des entrées connues) —
+ * jamais un plantage, jamais une extrapolation inventée au-delà de ce qui
+ * est réellement sourcé.
+ */
+export function idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex){
+  const bestiaryZone=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
+  if(!bestiaryZone||!(monsterIndex>=0))return null;
+  const pool=boss?bestiaryZone.boss:bestiaryZone.normal;
+  if(!pool||!pool.length)return null;
+  return pool[monsterIndex%pool.length];
+}
+export function monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex){
+  const entry=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
+  if(entry){
+    const bestiaryZone=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
+    const scale=idleAdventureMobScaleV1(z,bestiaryZone);
+    if(scale>0)return Math.max(1,I(N(entry.maxHp)*scale));
+  }
+  return monsterHpMaxForZoneV1(z,boss);
+}
+/*
+ * Facteur de dégâts relatif du mob réellement rencontré, dérivé de SES
+ * propres Power/Attack Rate réels (wiki, onglet Adventure) comparés à la
+ * moyenne des mobs normaux de sa zone — jamais un second calcul de PV
+ * (qui reste monsterHpMaxForZoneV1WithMob ci-dessus), seulement le rythme/
+ * la force de sa riposte. Un Power supérieur à la moyenne de zone tape
+ * plus fort ; un Attack Rate plus petit que la moyenne (le mob agit plus
+ * vite, cf. wiki : Goblin/rapid=0.9 contre Skeleton/normal=1.1 à Forêt)
+ * tape plus souvent — combinés en un seul multiplicateur pour rester
+ * simple côté client (Soreal_Idle_UI.html), qui n'a accès à aucune de ces
+ * données brutes et ne doit jamais dupliquer ce calcul. Repli à 1 (aucun
+ * ajustement, comportement identique à avant) si le mob réel est inconnu.
+ */
+export function idleAdventureMobAttackFactorV1(z,boss,monsterIndex){
+  const entry=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
+  if(!entry)return 1;
+  const bestiaryZone=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
+  const avgPower=idleAdventureBestiaryAverageV1(bestiaryZone&&bestiaryZone.normal,"power");
+  const avgAttackRate=idleAdventureBestiaryAverageV1(bestiaryZone&&bestiaryZone.normal,"attackRate");
+  if(!avgPower||!avgAttackRate||!N(entry.attackRate))return 1;
+  const facteur=(N(entry.power)/avgPower)*(avgAttackRate/N(entry.attackRate));
+  return C(facteur,.2,3);
+}
+export function idleAdventureMobTypeV1(z,boss,monsterIndex){
+  const entry=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
+  return entry?String(entry.type||"normal"):"";
+}
 function playerHpMaxForAdventureV1(stats){return 10+Math.max(0,N(stats&&stats.hp))}
 /*
  * Correctif 2026-09-14 (Norman) :
@@ -1228,7 +1451,21 @@ function playerHpMaxForAdventureV1(stats){return 10+Math.max(0,N(stats&&stats.hp
  *    client à partir du même regen affiché, cf. Soreal_Idle_UI.html)
  *    sert de PV de départ quand fourni, plafonné au vrai max.
  */
-function startZoneFight(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(z.id==="safe")throw Error("ZONE_SANS_COMBAT");if(!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");const stats=ctx.stats||{};const boss=Math.random()<(z.bossChance!=null?z.bossChance:0.25),hpMax=monsterHpMaxForZoneV1(z,boss),playerHpMax=playerHpMaxForAdventureV1(stats);const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;s.fight={active:true,zone:z.id,monsterHp:hpMax,monsterHpMax:hpMax,boss,playerHp,playerHpMax};
+function startZoneFight(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(z.id==="safe")throw Error("ZONE_SANS_COMBAT");if(!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");const stats=ctx.stats||{};const boss=Math.random()<(z.bossChance!=null?z.bossChance:0.25);
+/*
+ * Norman (2026-09-17) : le tirage du mob réellement rencontré (déjà fait
+ * plus bas pour le reskin/nom, cf. commentaire 2026-09-16) doit être
+ * connu AVANT de calculer les PV du monstre, pas après — sinon impossible
+ * d'utiliser ses vraies stats (IDLE_ADVENTURE_MOB_BESTIARY_V1). Avancé ici
+ * SANS changer le tirage lui-même (même pool reskin, même Math.random()),
+ * seul l'ORDRE des opérations change.
+ */
+const catalogueZoneV1=IDLE_ADVENTURE_MOB_CATALOG_V1[z.id]||{normal:[],boss:[]};
+const poolIndexV1=boss?catalogueZoneV1.boss:catalogueZoneV1.normal;
+const monsterIndex=poolIndexV1.length?Math.floor(Math.random()*poolIndexV1.length):-1;
+const hpMax=monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex),playerHpMax=playerHpMaxForAdventureV1(stats);const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
+const mobAttackFactor=idleAdventureMobAttackFactorV1(z,boss,monsterIndex),mobType=idleAdventureMobTypeV1(z,boss,monsterIndex);
+s.fight={active:true,zone:z.id,monsterHp:hpMax,monsterHpMax:hpMax,boss,playerHp,playerHpMax,monsterIndex,mobAttackFactor,mobType};
 /*
  * Norman (2026-09-15) : "tous les ennemis rencontrés en aventure
  * n'apparaissent pas dans collection. J'ai juste le boss et un mob alors
@@ -1257,27 +1494,22 @@ else s.zone.encounters[z.id]=(s.zone.encounters[z.id]||0)+1;
  */
 if(!s.zone.mobEncountersByIndex)s.zone.mobEncountersByIndex={};
 if(!s.zone.bossEncountersByIndex)s.zone.bossEncountersByIndex={};
-const catalogueZoneV1=IDLE_ADVENTURE_MOB_CATALOG_V1[z.id]||{normal:[],boss:[]};
-const poolIndexV1=boss?catalogueZoneV1.boss:catalogueZoneV1.normal;
 /*
  * Audit 2026-09-16 (Norman : "tous les mobs s'appellent Monster Box dans
- * le journal de combat") : cet index tiré au hasard n'était utilisé QUE
- * pour le compteur de rencontres (mobEncountersByIndex, ci-dessous),
- * jamais posé sur s.fight lui-même. Le client (libelleEnnemiAdventureIdleV1_,
- * Soreal_Idle_UI.html) résolvait donc le nom/l'image via monsterHpMax
- * comme "seed" -- une valeur constante pour TOUTE la zone (dépend
- * seulement de z.oneHitP, jamais du mob réellement tiré), résolvant donc
- * TOUJOURS vers le même mob du pool. Stocké ici sur s.fight.monsterIndex
- * (le vrai index tiré), pour que le client résolve le VRAI mob rencontré.
+ * le journal de combat") : cet index tiré au hasard (catalogueZoneV1/
+ * poolIndexV1/monsterIndex, déjà calculés plus haut — Norman 2026-09-17 :
+ * avancés pour aussi servir au calcul des PV réels du mob, jamais un
+ * second tirage) sert ici de compteur de rencontres par image. Le client
+ * (libelleEnnemiAdventureIdleV1_, Soreal_Idle_UI.html) résolvait avant ça
+ * le nom/l'image via monsterHpMax comme "seed" -- une valeur constante
+ * pour TOUTE la zone, résolvant donc TOUJOURS vers le même mob du pool.
+ * s.fight.monsterIndex (posé plus haut) permet au client de résoudre le
+ * VRAI mob rencontré.
  */
 if(poolIndexV1.length){
-  const monsterIndex=Math.floor(Math.random()*poolIndexV1.length);
-  s.fight.monsterIndex=monsterIndex;
   const store=boss?s.zone.bossEncountersByIndex:s.zone.mobEncountersByIndex;
   if(!store[z.id])store[z.id]={};
   store[z.id][monsterIndex]=(store[z.id][monsterIndex]||0)+1;
-}else{
-  s.fight.monsterIndex=-1;
 }
 return X(s.fight)}
 /*

@@ -80,12 +80,24 @@ assert.equal(
   "playerHpMax du combat réel doit toujours correspondre exactement à 10 + le Max HP affiché par idleNguSnapshot — plus jamais deux calculs séparés du même nombre."
 );
 
-// 4. Le pool de PV du monstre (Tutoriel, oneHitP=129.5, arrondi à 129) doit
-//    lui aussi venir de la vraie donnée wiki, jamais de z.t (10).
+/*
+ * 4. Le pool de PV du monstre en Tutoriel doit venir de la vraie donnée
+ *    wiki, jamais de z.t (10). Depuis le 2026-09-17 (Norman : "il y a une
+ *    version boss fight et une version adventure pour chaque mobs, tu
+ *    dois connaitre les 2"), ce n'est plus la simple moyenne de zone
+ *    (floor(oneHitP)=129) mais le VRAI mob tiré par monsterIndex
+ *    (IDLE_ADVENTURE_MOB_BESTIARY_V1, onglet Adventure de sa fiche wiki),
+ *    mis à l'échelle de zone. Math.random()=0.99 fige ce combat sur le
+ *    reskin tutorial "scarecrow" (index 2 sur 3), qui retombe modulo sur
+ *    le 3e mob réel connu de Tutorial Zone ("A Stick?", Max HP réel 55) —
+ *    floor(55 × (129.5/moyenne(40,45,55))) = floor(55 × 2.775) = 152,
+ *    jamais 129 pile (l'ancienne moyenne de zone, qui ne distinguait pas
+ *    les mobs entre eux) ni z.t=10.
+ */
 assert.equal(
   fought.result.monsterHpMax,
-  129,
-  "PV du monstre en Tutoriel doit être floor(oneHitP)=129 (sourcé wiki, colonne One Hit P), jamais z.t=10 (seuil de survie du joueur, pas les PV du monstre)."
+  152,
+  "PV du monstre en Tutoriel doit venir du VRAI mob tiré (A Stick?, Max HP réel 55, mis à l'échelle du oneHitP de la zone = 152), jamais de z.t=10 (seuil de survie du joueur) ni d'une simple moyenne de zone figée."
 );
 
 console.log("idle-adventure-combat-stats-shared: OK");

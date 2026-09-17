@@ -210,7 +210,17 @@ assert.equal(t.result.nextAt,7000);
   assert.equal(f.result.active,true);
   assert.equal(f.result.zone,"sewers");
   assert.equal(f.result.boss,false);
-  assert.equal(f.result.monsterHpMax,194,"PV du monstre = z.oneHitP (seuil one-hit-kill sourcé du wiki), sewers=194 (pas z.t=12, qui est le seuil de survie du JOUEUR, pas les PV du monstre).");
+  /*
+   * Depuis le 2026-09-17 (Norman : "il y a une version boss fight et une
+   * version adventure pour chaque mobs, tu dois connaitre les 2"), le
+   * pool de PV n'est plus la simple moyenne de zone (z.oneHitP=194) mais
+   * le VRAI mob tiré par monsterIndex (IDLE_ADVENTURE_MOB_BESTIARY_V1),
+   * mis à l'échelle de zone. Math.random()=0.9 fige ce combat sur le
+   * reskin sewers "mutant_rat" (index 2 sur 3), qui retombe modulo sur le
+   * 1er mob réel connu de Sewers ("A Slightly Bigger Mouse", Max HP réel
+   * 50) : floor(50 × (194/moyenne(50,70))) = floor(50 × 3.2333) = 161.
+   */
+  assert.equal(f.result.monsterHpMax,161,"PV du monstre = le VRAI mob tiré (A Slightly Bigger Mouse, Max HP réel 50, mis à l'échelle du oneHitP de zone = 161), jamais z.t=12 (seuil de survie du JOUEUR) ni la simple moyenne de zone (194) qui ne distinguait pas les mobs entre eux.");
   assert.equal(f.result.monsterHp,f.result.monsterHpMax);
   /*
    * playerHpMaxForAdventureV1 (10+stats.hp) reste inchangée ici — ce test
@@ -339,7 +349,20 @@ assert.equal(t.result.nextAt,7000);
       bossHpMax=f.result.monsterHpMax;
     }finally{Math.random=alea;}
   }
-  assert.equal(bossHpMax,normalHpMax*3,"Un boss de zone doit avoir plus de PV qu'un monstre normal.");
+  /*
+   * Depuis le 2026-09-17, normalHpMax vient désormais du VRAI mob normal
+   * tiré (IDLE_ADVENTURE_MOB_BESTIARY_V1) plutôt que de la moyenne de
+   * zone — il n'est donc plus mécaniquement égal à bossHpMax/3 (Sewers
+   * n'a aucune entrée réelle de boss reconnue par le reskin catalogue,
+   * cf. IDLE_ADVENTURE_MOB_CATALOG_V1.sewers.boss=[] : bossHpMax retombe
+   * sur l'ancien calcul zone-plat ×3, monsterHpMaxForZoneV1(z,true) =
+   * floor(194)×3 = 582, indépendant du mob normal précis tiré à côté).
+   * Le test vérifie maintenant juste que le boss reste bien plus corsé
+   * qu'un monstre normal, sans exiger un ratio ×3 exact devenu obsolète
+   * dès qu'un vrai mob (au lieu d'une moyenne) entre en jeu.
+   */
+  assert.equal(bossHpMax,582,"Sans entrée boss réelle connue pour Sewers (catalogue reskin sewers.boss=[]), le combat de boss retombe sur l'ancien calcul zone-plat floor(oneHitP)×3 = 582.");
+  assert.ok(bossHpMax>normalHpMax,"Un boss de zone doit avoir plus de PV qu'un monstre normal.");
 
   /*
    * Régression directe du bug signalé : perdre contre un boss (kills
