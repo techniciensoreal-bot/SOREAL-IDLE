@@ -31,6 +31,51 @@ import {
 } from "./idle-adventure-v47.js";
 
 /* SOREAL IDLE — runtime Cloudflare SQLite steady-state. */
+
+/*
+ * Audit 2026-09-17 (risque cross-repo SOREAL-IDLE / SOREAL-APP, aucun
+ * contrat de version partagé entre les deux dépôts — voir AGENTS.md
+ * section "Relation avec SOREAL-APP / SOREAL-TV") : ce nombre entier
+ * décrit la compatibilité du CONTRAT client/serveur (noms d'opérations,
+ * forme des réponses, arguments attendus), PAS le build en cours
+ * d'exécution — ça, c'est déjà couvert par `bridgeAssetVersion`/
+ * `IDLE_TEST_VERSION` côté SOREAL-APP (badge visuel ajouté le même jour,
+ * un identifiant différent pour un besoin différent : "quel code exact
+ * tourne" vs. "le client comprend-il encore l'API").
+ *
+ * `IDLE_CLIENT_PROTOCOL_VERSION` (Soreal_Idle_UI.html, SOREAL-APP) doit
+ * toujours être égal à cette constante. Exposée au client dans la
+ * réponse de `obtenirAccesSorealIdle` (premier appel fait à l'ouverture
+ * du module IDLE) sous `protocolVersion`. Le client compare et, en cas
+ * de désaccord, affiche un message calme invitant à recharger la page
+ * (pas de crash, pas de comportement silencieusement cassé) plutôt que
+ * de continuer avec des hypothèses de forme de réponse potentiellement
+ * fausses.
+ *
+ * À incrémenter UNIQUEMENT pour un changement cassant du contrat, par
+ * exemple :
+ *   - un champ de réponse exposé au client est renommé ou retiré ;
+ *   - la forme d'une réponse change (ex. un champ change de type, une
+ *     structure imbriquée est aplatie/réorganisée) ;
+ *   - les arguments attendus par une opération existante changent
+ *     (ordre, nombre, type) ;
+ *   - un nom d'opération appelé par le client est renommé/supprimé.
+ *
+ * NE PAS incrémenter pour :
+ *   - l'ajout d'un nouveau champ optionnel à une réponse existante
+ *     (additif, non cassant — c'est le cas de `protocolVersion`
+ *     lui-même dans ce commit : la valeur reste à 1) ;
+ *   - l'ajout d'une nouvelle opération dans IDLE_OPERATIONS ;
+ *   - un refactor interne qui ne change aucune forme observable côté
+ *     client (renommage de fonction privée, réorganisation de fichier,
+ *     optimisation de calcul...).
+ *
+ * Bumper la valeur ici ET dans SOREAL-APP (`IDLE_CLIENT_PROTOCOL_VERSION`
+ * dans Soreal_Idle_UI.html) dans le même effort de travail que le
+ * changement cassant lui-même — jamais après coup.
+ */
+const IDLE_PROTOCOL_VERSION=1;
+
 let __idleRuntimeUser=null;
 let __idleWorkbook=null;
 const __idleCacheStore=new Map();
@@ -1978,13 +2023,15 @@ function obtenirAccesSorealIdle(
   ) {
     return {
       ok: true,
-      autorise: false
+      autorise: false,
+      protocolVersion: IDLE_PROTOCOL_VERSION
     };
   }
 
   return {
     ok: true,
     autorise: true,
+    protocolVersion: IDLE_PROTOCOL_VERSION,
     utilisateur: {
       prenom:
         String(
@@ -14656,6 +14703,7 @@ export function idleOperationNames(){
 
 export const idleRuntimeTestHooks=Object.freeze({
   CONFIG_SOREAL_IDLE,
+  IDLE_PROTOCOL_VERSION,
   IDLE_NGU_META_VERSION,
   normalizeIdleNguState,
   syncIdleNguState,
