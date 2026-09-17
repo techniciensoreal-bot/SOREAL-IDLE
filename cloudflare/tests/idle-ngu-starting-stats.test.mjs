@@ -39,12 +39,16 @@ import { IDLE_ADVENTURE_V47 } from "../src/idle-adventure-v47.js";
 }
 
 // --- Un bonus de set complété doit s'ADDITIONNER, jamais remplacer la formule Power/Toughness ---
+// selectedZone="tutorial" (pas "safe", la valeur par défaut) pour isoler ce
+// test du multiplicateur Safe Zone (2026-09-18, voir idleAdventureEquipmentStatsV47) :
+// sinon setRewards.adventureRegen=2 serait ×5 (safeZoneRegen10x absent) et
+// masquerait la règle testée ici (additif, pas remplacement).
 {
   const snap = idleNguSnapshot(
     {
       version: IDLE_NGU_META_VERSION,
       saveSchema: IDLE_NGU_SAVE_SCHEMA,
-      adventure: { version: IDLE_ADVENTURE_V47, setRewards: { adventureHp: 50, adventureRegen: 2 } }
+      adventure: { version: IDLE_ADVENTURE_V47, selectedZone: "tutorial", setRewards: { adventureHp: 50, adventureRegen: 2 } }
     },
     { adventurePower: 100, adventureToughness: 100, bosses: 0 }
   );

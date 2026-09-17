@@ -1633,11 +1633,29 @@ export function idleAdventureEquipmentStatsV47(raw){
    */
   const equippedHp=equipped.reduce((a,x)=>a+N(x.power)*3,0);
   const equippedRegen=equipped.reduce((a,x)=>a+N(x.toughness)*.03,0);
+  /*
+   * Multiplicateur Safe Zone sur la regen d'équipement (2026-09-18,
+   * Norman, confirmé en jouant au vrai jeu) : le wiki NGU (page locale
+   * "Adventure Mode", tableau Zones, ligne "1. Safe Zone: Awakening
+   * Site" : "5x HP Regeneration in zone / 10x with GRB's set bonus")
+   * documente un multiplicateur ×5 (×10 avec le bonus de set GRB, déjà
+   * stocké dans setRewards.safeZoneRegen10x via checkSets mais jamais lu
+   * jusqu'ici) appliqué SEULEMENT dans la Safe Zone. Norman : ce
+   * multiplicateur ne s'applique qu'au bonus fourni par l'équipement —
+   * le plancher de base à 1/s (safe zone, combat, zone tutoriel...) est
+   * déjà géré séparément et correctement dans idleAdventureCombatStatsV1
+   * (idle-ngu-progression.js, correctif 2026-09-16, plancher appliqué
+   * APRÈS multiplication sur le terme context.adventureToughness) : ne
+   * pas dupliquer cette base ici, seulement multiplier la part
+   * équipement (equippedRegen+setRewards.adventureRegen) qui s'ADDITIONNE
+   * ensuite à ce plancher.
+   */
+  const safeZoneRegenMultiplierV1=s.selectedZone==="safe"?(s.setRewards.safeZoneRegen10x?10:5):1;
   return{
     power:basePower+idleAdventureCubeSoftcapV1(s.cube.power,basePower),
     toughness:baseToughness+idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness),
     hp:equippedHp+N(s.setRewards.adventureHp),
-    regen:equippedRegen+N(s.setRewards.adventureRegen),
+    regen:(equippedRegen+N(s.setRewards.adventureRegen))*safeZoneRegenMultiplierV1,
     special:equipped.reduce((a,x)=>a+N(x.special),0),
     specials:{
       dropChancePct:N(s.setRewards.drop)*100+idleAdventureCubeTierV1(s.cube).dropChancePct,
