@@ -21,10 +21,9 @@ import {
 
 const zoneById=Object.fromEntries(IDLE_ADVENTURE_ZONES.map(z=>[z.id,z]));
 
-// 1. Les zones couvertes cette session (avatarLevel 1-4, priorité donnée par
-//    Norman aux joueurs en cours de progression) ont bien des entrées
-//    réelles non vides, jamais inventées au-delà de ce qui a été vérifié.
-for(const zoneId of ["tutorial","sewers","forest","sky","hsb","clock","2d"]){
+// 1. Les 15 zones jouables (extension V2, miroir wiki local complet) ont
+//    bien des entrées réelles non vides, jamais inventées.
+for(const zoneId of ["tutorial","sewers","forest","cave","sky","hsb","clock","2d","ancient","avsp","mega","beardverse","badly","boring","chocolate"]){
   const bestiary=IDLE_ADVENTURE_MOB_BESTIARY_V1[zoneId];
   assert.ok(bestiary&&bestiary.normal&&bestiary.normal.length>0,`${zoneId} doit avoir au moins une entrée réelle normal[] (vérifiée au navigateur).`);
   for(const entry of [...bestiary.normal,...bestiary.boss]){
@@ -37,15 +36,21 @@ for(const zoneId of ["tutorial","sewers","forest","sky","hsb","clock","2d"]){
   }
 }
 
-// 2. cave n'a QUE 3 des 16 ennemis réels vérifiés (Gorgonzola/Brie/Gouda) —
-//    honnêteté de couverture partielle, jamais complétée par invention.
-assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.cave.normal.length,3,"Cave : seulement 3 mobs normaux réels vérifiés cette session (Gorgonzola/Brie/Gouda), le reste honnêtement absent plutôt qu'inventé.");
-assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.cave.boss.length,0,"Cave : aucun boss réel d'Aventure vérifié cette session (A Fifth Giant Mole/Mega Rat/Limburger Cheese) — repli sur l'ancien calcul zone-plat attendu.");
+/*
+ * 2026-09-17 (extension bestiaire V2, design/build-idle-adventure-bestiary-v2.mjs) :
+ * le miroir local complet du wiki (C:\Users\n0rma\Documents\NGU-Wiki\pages)
+ * a remplacé la navigation manuelle page par page — Cave a maintenant ses
+ * 16 ennemis réels au complet (13 normaux + 3 boss d'Aventure), plus les
+ * 15 zones jouables au complet (voir cloudflare/tests/idle-ngu-real-names-bestiary-v2.test.mjs
+ * pour le verrou détaillé par zone).
+ */
+assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.cave.normal.length,13,"Cave : les 13 ennemis normaux réels (sourcés du miroir wiki local).");
+assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.cave.boss.length,3,"Cave : les 3 boss d'Aventure réels (A Fifth Giant Mole/Mega-Rat/Limburger Cheese).");
 
-// 3. Zones non atteintes cette session (au-delà d'avatarLevel 4, ex.
-//    Ancient Battlefield) : aucune entrée du tout, jamais un canevas vide
-//    qui ferait illusion de couverture.
-assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.ancient,undefined,"Ancient Battlefield (avatarLevel 5) n'a pas été vérifié cette session — honnêtement absent de IDLE_ADVENTURE_MOB_BESTIARY_V1.");
+// 3. "safe" (Safety Zone) n'a jamais de combat (cf. IDLE_ADVENTURE_ZONES) :
+//    aucune entrée bestiaire, jamais un canevas vide qui ferait illusion
+//    de couverture.
+assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.safe,undefined,"Safety Zone n'a aucun combat : absente de IDLE_ADVENTURE_MOB_BESTIARY_V1.");
 
 // 4. monsterHpMaxForZoneV1WithMob : mob réel connu -> PV dérivés de SES
 //    propres stats (Max HP réel × facteur d'échelle de zone), jamais la
@@ -64,21 +69,21 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.ancient,undefined,"Ancient Battlefie
 }
 
 // 5. monsterHpMaxForZoneV1WithMob : mob réel INCONNU (monsterIndex=-1 ou
-//    zone non couverte) -> repli garanti sur l'ancien calcul zone-plat,
-//    jamais un crash ni un 0.
+//    zone non couverte, ex. "safe" qui n'a jamais de combat) -> repli
+//    garanti sur l'ancien calcul zone-plat, jamais un crash ni un 0.
 {
   const z=zoneById.tutorial;
   assert.equal(monsterHpMaxForZoneV1WithMob(z,false,-1),Math.max(1,Math.floor(z.oneHitP)),"monsterIndex=-1 doit retomber sur l'ancien calcul zone-plat.");
-  const zAncient=zoneById.ancient;
-  assert.equal(monsterHpMaxForZoneV1WithMob(zAncient,false,0),Math.max(1,Math.floor(zAncient.oneHitP)),"Une zone jamais vérifiée (ancient) doit retomber sur l'ancien calcul zone-plat, jamais planter.");
-  assert.equal(monsterHpMaxForZoneV1WithMob(zAncient,true,0),Math.max(1,Math.floor(zAncient.oneHitP))*3,"Idem côté boss (×3, comportement historique inchangé).");
+  const zSafe=zoneById.safe;
+  assert.equal(monsterHpMaxForZoneV1WithMob(zSafe,false,0),Math.max(1,Math.floor(zSafe.oneHitP||zSafe.t)),"Une zone sans bestiaire (safe) doit retomber sur l'ancien calcul zone-plat, jamais planter.");
+  assert.equal(monsterHpMaxForZoneV1WithMob(zSafe,true,0),Math.max(1,Math.floor(zSafe.oneHitP||zSafe.t))*3,"Idem côté boss (×3, comportement historique inchangé).");
 }
 
 // 6. idleAdventureMobAttackFactorV1 : repli à 1 (comportement IDENTIQUE à
 //    avant ce correctif) quand le mob réel est inconnu ; sinon un facteur
 //    cohérent avec le Power/Attack Rate réel du mob face à sa zone.
 {
-  assert.equal(idleAdventureMobAttackFactorV1(zoneById.ancient,false,0),1,"Zone non couverte -> aucun ajustement (comportement historique préservé).");
+  assert.equal(idleAdventureMobAttackFactorV1(zoneById.safe,false,0),1,"Zone sans bestiaire (safe) -> aucun ajustement (comportement historique préservé).");
   assert.equal(idleAdventureMobAttackFactorV1(zoneById.tutorial,false,-1),1,"monsterIndex=-1 -> aucun ajustement.");
   // Forest, index 5 = "Giant" (charger, power 30, attackRate 1.3), au
   // Power légèrement au-dessus de la moyenne forest (~30.5) mais à
@@ -96,9 +101,9 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.ancient,undefined,"Ancient Battlefie
 // 7. idleAdventureMobTypeV1 : type réel exposé tel quel (pour la logique
 //    de combat côté client, ex. exploder/poison), chaîne vide si inconnu.
 {
-  assert.equal(idleAdventureMobTypeV1(zoneById.forest,false,7),"exploder","Forest index 7 = Fairy (exploder), sourcé wiki.");
+  assert.equal(idleAdventureMobTypeV1(zoneById.forest,false,6),"exploder","Forest index 6 = Fairy (exploder), sourcé wiki.");
   assert.equal(idleAdventureMobTypeV1(zoneById.sewers,true,0),"poison","Sewers boss = Brown Slime (poison), sourcé wiki.");
-  assert.equal(idleAdventureMobTypeV1(zoneById.ancient,false,0),"","Zone non couverte -> type inconnu, jamais un type inventé.");
+  assert.equal(idleAdventureMobTypeV1(zoneById.safe,false,0),"","Zone sans bestiaire (safe) -> type inconnu, jamais un type inventé.");
 }
 
 // 8. Intégration bout-en-bout via applyIdleAdventureActionV47/
@@ -111,14 +116,18 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.ancient,undefined,"Ancient Battlefie
   const alea=Math.random;
   let f;
   try{
-    // reskin forest.normal a 7 entrées ; floor(0.99*7)=6 -> real forest
-    // normal[6] = "Rat of Unusual Size" (index 6 sur 8 réels, cf. tableau).
+    /*
+     * reskin forest.normal (catalogue d'images) a 7 entrées ; floor(0.99*7)=6.
+     * Bestiaire forest.normal (V2, 7 entrées désormais -- "Rat of Unusual
+     * Size" reclassé boss d'Aventure, cf. commentaire IDLE_ADVENTURE_MOB_BESTIARY_V1)
+     * -> real forest normal[6] = "Fairy" (exploder, sourcé wiki).
+     */
     Math.random=()=>0.99;
     f=applyIdleAdventureActionV47(s,{action:"startZoneFight"},{bosses:17,stats:{power:35,toughness:35}},2);
   }finally{Math.random=alea;}
   assert.equal(f.result.boss,false);
   assert.equal(f.result.monsterIndex,6);
-  assert.equal(f.result.mobType,"normal","Rat of Unusual Size est de type normal (sourcé wiki).");
+  assert.equal(f.result.mobType,"exploder","Fairy est de type exploder (sourcé wiki).");
   assert.ok(typeof f.result.mobAttackFactor==="number"&&f.result.mobAttackFactor>0,"mobAttackFactor doit être exposé au client sur s.fight, jamais recalculé côté APP (source de vérité unique).");
 }
 

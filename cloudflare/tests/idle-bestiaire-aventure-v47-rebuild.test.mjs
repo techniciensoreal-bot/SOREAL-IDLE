@@ -3,8 +3,10 @@ import { readFileSync } from "node:fs";
 import {
   IDLE_ADVENTURE_ZONES,
   IDLE_ADVENTURE_MOB_CATALOG_V1,
+  IDLE_ADVENTURE_MOB_BESTIARY_V1,
   IDLE_ADVENTURE_V47,
-  normalizeIdleAdventureStateV47
+  normalizeIdleAdventureStateV47,
+  idleAdventureMobBestiaryEntryV1
 } from "../src/idle-adventure-v47.js";
 
 /*
@@ -31,7 +33,7 @@ const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 // --- Verrous structurels ---
 assert.ok(
   source.includes(
-    'import {\n  IDLE_ADVENTURE_ZONES,\n  IDLE_ADVENTURE_MOB_CATALOG_V1,\n  normalizeIdleAdventureStateV47\n} from "./idle-adventure-v47.js";'
+    'import {\n  IDLE_ADVENTURE_ZONES,\n  IDLE_ADVENTURE_MOB_CATALOG_V1,\n  normalizeIdleAdventureStateV47,\n  idleAdventureMobBestiaryEntryV1\n} from "./idle-adventure-v47.js";'
   ),
   "Le vrai catalogue de zones ET le catalogue d'images V1 doivent être importés, pas reconstruits séparément."
 );
@@ -61,7 +63,7 @@ function buildEntries(rawAdventureState) {
   const entrees = [];
   const stats = { metaNgu: { adventure: rawAdventureState } };
   const fn = new Function(
-    "IDLE_ADVENTURE_ZONES", "IDLE_ADVENTURE_MOB_CATALOG_V1", "normalizeIdleAdventureStateV47", "nombreSorealIdle_", "stats", "entrees",
+    "IDLE_ADVENTURE_ZONES", "IDLE_ADVENTURE_MOB_CATALOG_V1", "normalizeIdleAdventureStateV47", "nombreSorealIdle_", "stats", "entrees", "idleAdventureMobBestiaryEntryV1",
     block
   );
   fn(
@@ -70,7 +72,8 @@ function buildEntries(rawAdventureState) {
     normalizeIdleAdventureStateV47,
     (v, d) => (Number.isFinite(+v) ? +v : d),
     stats,
-    entrees
+    entrees,
+    idleAdventureMobBestiaryEntryV1
   );
   return entrees;
 }
@@ -116,10 +119,17 @@ function expectedEntryCount() {
   assert.equal(discovered.length, 1, "Seule l'image à l'index rencontré doit être découverte, jamais les autres images du même pool.");
   assert.equal(discovered[0].index, 1);
   assert.equal(discovered[0].rencontres, 3);
+  /*
+   * 2026-09-17 (Norman : "les MEMES noms [que NGU], tout ce qui est
+   * Soreal disparait") : le nom affiché en Collection vient maintenant du
+   * VRAI nom NGU (IDLE_ADVENTURE_MOB_BESTIARY_V1, sourcé du miroir wiki
+   * local) quand une entrée existe pour ce zone/rôle/index, plutôt que du
+   * nom dérivé du fichier image R2 (habillage SOREAL) -- jamais l'inverse.
+   */
   assert.equal(
     discovered[0].nom,
-    IDLE_ADVENTURE_MOB_CATALOG_V1.sewers.normal[1].split('_').filter(Boolean).map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(' '),
-    "Le nom affiché doit dériver du vrai nom de fichier catalogue, jamais un nom générique de zone."
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.sewers.normal[1].name,
+    "Le nom affiché doit être le vrai nom NGU (bestiaire sourcé wiki) quand il existe, jamais l'habillage SOREAL dérivé du fichier image."
   );
   assert.ok(sewersMobs.filter(e => !e.decouvert).every(e => e.nom === "???????"), "Les autres images du même pool restent verrouillées.");
 }

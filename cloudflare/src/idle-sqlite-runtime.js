@@ -27,7 +27,8 @@ import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-
 import {
   IDLE_ADVENTURE_ZONES,
   IDLE_ADVENTURE_MOB_CATALOG_V1,
-  normalizeIdleAdventureStateV47
+  normalizeIdleAdventureStateV47,
+  idleAdventureMobBestiaryEntryV1
 } from "./idle-adventure-v47.js";
 
 /* SOREAL IDLE — runtime Cloudflare SQLite steady-state. */
@@ -566,7 +567,15 @@ const CONFIG_SOREAL_IDLE = {
   FORCE_BASE: 1,
   ENDURANCE_BASE: 1,
   ORGANISATION_BASE: 1,
-  BOSS_BASE: 'La Palette Infernale',
+  /*
+   * 2026-09-17 (Norman, "copie absolument tout dans le jeu [...] les
+   * MEMES noms [que NGU] [...] tout ce qui est Soreal disparait") : ce
+   * repli n'est utilisé QUE quand le catalogue IDLE_BOSS est vide
+   * (definitionBossSorealIdle_) -- vrai premier boss NGU (bf_number=1,
+   * sourcé du miroir wiki local, design/ngu-wiki-enemies-v1.json), plus
+   * l'ancien nom SOREAL inventé "La Palette Infernale".
+   */
+  BOSS_BASE: 'A Small Piece of Fluff',
   BOSS_PV_BASE: 800,
   MULTIPLICATEUR_PV_BOSS: 1.5,
 
@@ -5009,6 +5018,32 @@ function construireBestiaireSorealIdle_(
       .join(' ') || 'Créature';
   }
 
+  /*
+   * Norman (2026-09-17) : "je veux que ce soit ALL the boss names, ALL
+   * the mob names [...] les MEMES noms [que le vrai NGU] [...] tout ce
+   * qui est Soreal disparait." Jusqu'ici, Collection affichait un nom
+   * dérivé du fichier image R2 (ex. "pallet_goblin" -> "Pallet Goblin"),
+   * un habillage SOREAL sans rapport avec le vrai nom NGU. Utilise
+   * maintenant le vrai nom wiki depuis IDLE_ADVENTURE_MOB_BESTIARY_V1
+   * quand une entrée existe pour CE zone/rôle/index précis (même lookup
+   * que le combat réel, cf. idleAdventureMobBestiaryEntryV1 dans
+   * idle-adventure-v47.js) -- jamais un second nom inventé. Ne retombe
+   * sur l'ancien nom dérivé de l'image QUE pour les mobs sans entrée
+   * bestiaire réelle (zones/rôles pas encore sourcés), jamais un
+   * remplacement partiel silencieux.
+   */
+  function nomReelOuAffichageMobSorealIdleV1_(zoneId, estBoss, index, base) {
+    const entreeBestiaire = idleAdventureMobBestiaryEntryV1(
+      { id: zoneId },
+      estBoss,
+      index
+    );
+    if (entreeBestiaire && entreeBestiaire.name) {
+      return String(entreeBestiaire.name);
+    }
+    return nomAffichageMobSorealIdleV1_(base);
+  }
+
   IDLE_ADVENTURE_ZONES
     .filter(function(zone) {
       return zone.id !== 'safe';
@@ -5093,7 +5128,7 @@ function construireBestiaireSorealIdle_(
             boss: estBoss ? 1 : 0,
             index: index,
             zoneId: 0,
-            nom: decouvert ? nomAffichageMobSorealIdleV1_(baseNom) : '???????',
+            nom: decouvert ? nomReelOuAffichageMobSorealIdleV1_(zone.id, estBoss, index, baseNom) : '???????',
             emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
             pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
             attaque: decouvert ? zone.p : 0,
