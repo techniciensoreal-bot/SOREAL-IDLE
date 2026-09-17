@@ -25,8 +25,8 @@ assert.ok(
   "La branche de progression infinie doit calculer defense à partir de dernier.defense, comme pv/attaque."
 );
 assert.ok(
-  infini.includes("nguBossStatsV1(n).defense"),
-  "La Defense de la progression infinie doit rester plafonnée au minimum par la vraie référence NGU, comme pv/attaque/xp."
+  infini.includes("nguBossStatsV1(n, difficulty).defense"),
+  "La Defense de la progression infinie doit rester plafonnée au minimum par la vraie référence NGU, comme pv/attaque/xp (2026-09-18 : nguBossStatsV1 prend désormais difficulty en 2e paramètre, voir idle-difficulty-evil-sadistic-skeleton.test.mjs)."
 );
 
 console.log("idle-boss-defense-infinite-progression: OK");

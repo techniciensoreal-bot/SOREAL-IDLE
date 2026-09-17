@@ -290,15 +290,43 @@ function nguBossXpForBossNumberV1(bossNumber) {
 }
 
 /*
+ * Diviseur de combat Evil/SADISTIC (2026-09-18, Norman : "il faut tout
+ * faire", fidélité Evil/Sadistic). Wiki NGU local, page "Evil difficulty"
+ * section "Differences" : "Fight boss attack defense divided by 1
+ * nonillion (1e30)" ; page "SADISTIC difficulty" section "Differences" :
+ * "Fight boss attack/defense is divided by 1e30 compared to Normal (this
+ * attack modifier is the same as Evil as of patch 1.110)" -- UN SEUL
+ * diviseur, identique pour Evil et SADISTIC, jamais un second diviseur
+ * cumulé. Ne s'applique qu'à attaque/defense ; pv reste dérivé de la règle
+ * déjà vérifiée HP=Attaque×10 (donc mécaniquement divisé dans les mêmes
+ * proportions), xp ne change jamais avec la difficulté (non documenté par
+ * le wiki comme variant).
+ */
+const NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1 = 1e30;
+
+/*
  * Stats NGU sourcées/extrapolées pour un boss, par index 0-based (0 = boss
  * n°1, comme le paramètre `bossVaincus`/`n` déjà utilisé dans
- * idle-sqlite-runtime.js::definitionBossSorealIdle_).
+ * idle-sqlite-runtime.js::definitionBossSorealIdle_). `difficulty` :
+ * "normal" (défaut, compatible avec tous les appelants existants) /
+ * "difficile" (Evil) / "extreme" (SADISTIC) -- voir
+ * NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1 ci-dessus.
  */
-export function nguBossStatsV1(index) {
+export function nguBossStatsV1(index, difficulty) {
   const i = Math.max(0, Math.floor(Number(index) || 0));
+  const divider = difficulty === "difficile" || difficulty === "extreme"
+    ? NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1
+    : 1;
 
   if (i < NGU_BOSS_REFERENCE_V1.length) {
-    return NGU_BOSS_REFERENCE_V1[i];
+    const ref = NGU_BOSS_REFERENCE_V1[i];
+    if (divider === 1) return ref;
+    return {
+      pv: ref.pv / divider,
+      attaque: ref.attaque / divider,
+      defense: ref.defense / divider,
+      xp: ref.xp
+    };
   }
 
   const last = NGU_BOSS_REFERENCE_V1[NGU_BOSS_REFERENCE_V1.length - 1];
@@ -306,9 +334,9 @@ export function nguBossStatsV1(index) {
   const bossNumber = i + 1;
 
   return {
-    pv: last.pv * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement),
-    attaque: last.attaque * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement),
-    defense: last.defense * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement),
+    pv: last.pv * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement) / divider,
+    attaque: last.attaque * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement) / divider,
+    defense: last.defense * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement) / divider,
     xp: nguBossXpForBossNumberV1(bossNumber)
   };
 }

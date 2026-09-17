@@ -6219,9 +6219,21 @@ function recalculerPuissanceCompleteSorealIdle_(
   return combat.attaque;
 }
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty` (3e paramètre, optionnel, défaut "normal") -- prépare le
+ * diviseur ×1e-30 (nguBossStatsV1, idle-ngu-boss-reference-v1.js) sans
+ * casser aucun appelant existant : "normal" reproduit exactement le
+ * comportement d'avant ce correctif. Le branchement de contexte.difficulty
+ * (déjà exposé par contexteMetaNguSorealIdle_) sur chaque site d'appel
+ * réel du combat se fait progressivement, site par site -- voir le suivi
+ * dans les commits suivants plutôt qu'un unique gros changement risqué
+ * sur ~20 sites d'appel du moteur de combat en production.
+ */
 function equilibrerBossPrincipalSorealIdleV413_(
   definition,
-  index
+  index,
+  difficulty
 ) {
   const source =
     definition &&
@@ -6255,7 +6267,7 @@ function equilibrerBossPrincipalSorealIdleV413_(
    * inventé vers la vraie courbe NGU.
    */
   const reference =
-    nguBossStatsV1(i);
+    nguBossStatsV1(i, difficulty);
 
   const pvMinimum = reference.pv;
   const attaqueMinimum = reference.attaque;
@@ -6624,8 +6636,17 @@ function statsCombatPrincipalSorealIdleV413_(
 }
 
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty` (2e paramètre, optionnel, défaut "normal" -- voir
+ * equilibrerBossPrincipalSorealIdleV413_ ci-dessus) : propagé vers TOUS les
+ * appels internes (le catalogue vide, le catalogue SOREAL et la
+ * progression infinie), pour que le diviseur ×1e-30 (Evil/SADISTIC,
+ * nguBossStatsV1) s'applique de façon identique quel que soit le chemin.
+ */
 function definitionBossSorealIdle_(
-  bossVaincus
+  bossVaincus,
+  difficulty
 ) {
   const catalogue =
     bossCatalogueSorealIdle_();
@@ -6655,14 +6676,16 @@ function definitionBossSorealIdle_(
         pieces: 5,
         niveauRequis: n + 1
       },
-      n
+      n,
+      difficulty
     );
   }
 
   if (n < catalogue.length) {
     return equilibrerBossPrincipalSorealIdleV413_(
       catalogue[n],
-      n
+      n,
+      difficulty
     );
   }
 
@@ -6675,7 +6698,8 @@ function definitionBossSorealIdle_(
       catalogue[
         catalogue.length - 1
       ],
-      catalogue.length - 1
+      catalogue.length - 1,
+      difficulty
     );
 
   const supplement =
@@ -6717,7 +6741,7 @@ function definitionBossSorealIdle_(
             ),
             supplement
           ),
-          nguBossStatsV1(n).pv
+          nguBossStatsV1(n, difficulty).pv
         )
       ),
 
@@ -6738,7 +6762,7 @@ function definitionBossSorealIdle_(
             ),
             supplement
           ),
-          nguBossStatsV1(n).attaque
+          nguBossStatsV1(n, difficulty).attaque
         )
       ),
 
@@ -6770,7 +6794,7 @@ function definitionBossSorealIdle_(
             ),
             supplement
           ),
-          nguBossStatsV1(n).defense
+          nguBossStatsV1(n, difficulty).defense
         )
       ),
 
@@ -6782,7 +6806,7 @@ function definitionBossSorealIdle_(
             1.18,
             supplement
           ),
-          nguBossStatsV1(n).xp
+          nguBossStatsV1(n, difficulty).xp
         )
       ),
 
@@ -9044,7 +9068,18 @@ function contexteMetaNguSorealIdle_(
     basicTrainingComplete: Boolean(
       skills.length &&
       skills.every(function(skill){return Boolean(skill&&skill.unlocked);})
-    )
+    ),
+    /*
+     * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+     * meta.difficulty existe désormais côté idle-ngu-progression.js
+     * (Phase 1, correctif de persistance) mais n'était encore lu nulle
+     * part ici -- le moteur de combat réel (nguBossStatsV1, ci-dessous)
+     * ignorait donc totalement la difficulté active. Exposé ici pour que
+     * les points d'appel du diviseur ×1e-30 (wiki NGU : "Fight boss
+     * attack/defense divided by 1 nonillion (1e30)", identique en Evil et
+     * SADISTIC) puissent le lire.
+     */
+    difficulty: ['normal','difficile','extreme'].indexOf(meta.difficulty) !== -1 ? meta.difficulty : 'normal'
   };
 }
 
