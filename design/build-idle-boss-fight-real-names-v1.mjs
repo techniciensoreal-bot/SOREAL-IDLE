@@ -21,20 +21,33 @@
  * contenu actuel de IDLE_BOSS et au secret) puisse fusionner en ne
  * touchant QUE la colonne Nom, jamais Histoire/Conseil/MortVivant.
  *
+ * V2 (2026-09-18, Norman : "tu repars du premier boss, tu lis absolument
+ * tout... boss 2 etc.") : la V1 ne couvrait que 245/301 id (limitée aux
+ * boss ayant leur propre page {{Enemy}}). Complète maintenant les 56
+ * manquants via parseBossFightsMasterTable (table "Boss listing" de la
+ * page wiki "Boss Fights", qui liste les 301 entrées sur une seule page,
+ * y compris celles sans page dédiée) -- 301/301 id couverts, nom
+ * toujours sourcé du wiki, jamais deviné. Les stats bf_* restent null
+ * pour les 56 complétés par la table maîtresse (cette table ne publie
+ * les stats que jusqu'au boss 183, et de façon documentée comme corrompue
+ * dès le boss 161 -- voir cloudflare/src/idle-ngu-boss-reference-v1.js,
+ * qui reste l'unique source de vérité pour les stats numériques, jamais
+ * dupliquée ici).
+ *
  * Utilisation : node design/build-idle-boss-fight-real-names-v1.mjs
  */
 
 import { writeFileSync } from 'node:fs';
-import { parsePagesDirectory } from './parse-ngu-wiki.mjs';
+import { parsePagesDirectory, parseBossFightsMasterTable } from './parse-ngu-wiki.mjs';
 
 const PAGES_DIR = 'C:\\Users\\n0rma\\Documents\\NGU-Wiki\\pages';
 const OUTPUT = new URL('./ngu-boss-fight-real-names-v1.json', import.meta.url);
 
 const { parsed, skipped } = parsePagesDirectory(PAGES_DIR);
-const bossFights = parsed
-  .filter(e => e.bfNumber != null)
-  .sort((a, b) => a.bfNumber - b.bfNumber)
-  .map(e => ({
+const fromPages = new Map();
+for (const e of parsed) {
+  if (e.bfNumber == null) continue;
+  fromPages.set(e.bfNumber, {
     id: e.bfNumber,
     nom: e.title,
     bfHp: e.bfHp,
@@ -42,12 +55,25 @@ const bossFights = parsed
     bfToughness: e.bfToughness,
     bfHpRegen: e.bfHpRegen,
     bfExp: e.bfExp
-  }));
+  });
+}
+
+const masterTable = parseBossFightsMasterTable(PAGES_DIR);
+let completedFromMasterTable = 0;
+for (const { id, nom } of masterTable) {
+  if (!fromPages.has(id)) {
+    fromPages.set(id, { id, nom, bfHp: null, bfPower: null, bfToughness: null, bfHpRegen: null, bfExp: null });
+    completedFromMasterTable++;
+  }
+}
+
+const bossFights = [...fromPages.values()].sort((a, b) => a.id - b.id);
 
 writeFileSync(OUTPUT, JSON.stringify(bossFights, null, 2) + '\n', 'utf8');
 
-console.log('Combats de Boss séquentiels avec un vrai nom NGU sourcé :', bossFights.length);
-console.log('Plage id couverte :', bossFights[0]?.id, '->', bossFights[bossFights.length - 1]?.id);
+console.log('Combats de Boss séquentiels avec un vrai nom NGU sourcé :', bossFights.length, '/ 301');
+console.log('  dont ' + fromPages.size.toString().padStart(3) + ' - ' + completedFromMasterTable + ' = ' + (fromPages.size - completedFromMasterTable) + ' depuis leur propre page {{Enemy}} (avec stats bf_*)');
+console.log('  et ' + completedFromMasterTable + ' complétés depuis la table maîtresse "Boss Fights" (nom seul, pas de page dédiée)');
 console.log('(pages ignorées par le parseur global : ' + skipped.length + ')');
 console.log('Écrit dans :', OUTPUT.pathname.replace(/^\//, ''));
 console.log('');

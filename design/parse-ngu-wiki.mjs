@@ -266,6 +266,72 @@ export function parsePagesDirectory(pagesDir) {
   return { parsed, skipped };
 }
 
+/*
+ * Table maîtresse "Boss listing" de la page wiki "Boss Fights" (Norman,
+ * 2026-09-18 : "tu repars du premier boss, tu lis absolument tout").
+ * Contrairement à parsePagesDirectory (qui ne trouve que 245/301 noms,
+ * limité aux boss ayant leur PROPRE page {{Enemy}}), cette table liste
+ * les 301 entrées du Combat de Boss séquentiel sur une SEULE page,
+ * y compris les ~56 qui n'ont jamais eu de page dédiée (ex. id 249-295 :
+ * "The Nether Regions"/"The Aethereal Sea", uniquement documentés ici).
+ *
+ * Format wikitext (vérifié cellule par cellule, boss 1 à 301) : chaque
+ * entrée commence par {{Vanchor|N}}, suivie d'un bloc de cellules
+ * pipe-séparées jusqu'au premier "|-" (fin de ligne). Deux formats
+ * cohabitent sur la page :
+ *   - boss 1-183 : [stats (BigNum/scientifique), nom, image?, exp, ref?]
+ *     -- la cellule stats est détectée par mot-clé (BigNum/Quintillion/
+ *     .../<sup>E) ou motif purement numérique, jamais par position fixe.
+ *   - boss 184-301 : [nom, exp, ref?] -- pas de cellule stats du tout
+ *     (le tableau du wiki lui-même n'en a plus, vérifié en direct).
+ * Le nom est donc TOUJOURS "la première cellule qui n'est pas une cellule
+ * de stats", jamais un index de colonne fixe -- ce qui rend l'extraction
+ * robuste aux deux formats sans les distinguer explicitement.
+ */
+const BOSS_STAT_MARKERS = [
+  'BigNum', 'Quintillion', 'Sextillion', 'Septillion', 'Octillion', 'Nonillion',
+  'Decillion', 'Undecillion', 'Duodecillion', '<sup>E', 'Trillion', 'Billion',
+  'Million', 'Thousand'
+];
+
+function looksLikeBossStatCell(cell) {
+  if (BOSS_STAT_MARKERS.some(marker => cell.includes(marker))) return true;
+  const stripped = cell.replace(/<br\s*\/?>|[\d.eE+\-\s]/g, '');
+  return stripped === '';
+}
+
+export function parseBossFightsMasterTable(pagesDir) {
+  const path = pagesDir + '\\Boss Fights.json';
+  const json = JSON.parse(readFileSync(path, 'utf8'));
+  const extracted = extractPageWikitext(json);
+  if (!extracted) return [];
+  const text = extracted.wikitext;
+
+  const parts = text.split(/\{\{Vanchor\|(\d+)\}\}/);
+  const entries = [];
+  for (let i = 1; i < parts.length; i += 2) {
+    const id = Number(parts[i]);
+    const block = parts[i + 1] || '';
+    const rowEndIdx = block.indexOf('|-');
+    const row = rowEndIdx !== -1 ? block.slice(0, rowEndIdx) : block.slice(0, 400);
+    const cells = (row.match(/^\|+\s*(.*)$/gm) || [])
+      .map(line => line.replace(/^\|+\s*/, '').trim())
+      .filter(c => c !== '');
+
+    let nameCell = null;
+    if (cells.length) {
+      nameCell = looksLikeBossStatCell(cells[0]) && cells.length >= 2 ? cells[1] : cells[0];
+    }
+    if (!nameCell) continue;
+
+    nameCell = nameCell.replace(/^\|/, '').trim().replace(/<br\s*\/?>\s*$/, '').trim();
+    const linkMatch = /^\[\[([^\]|]+)/.exec(nameCell);
+    const nom = (linkMatch ? linkMatch[1] : nameCell).trim();
+    if (nom) entries.push({ id, nom });
+  }
+  return entries;
+}
+
 function isMainModule() {
   try {
     return process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];

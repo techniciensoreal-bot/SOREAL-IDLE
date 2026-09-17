@@ -819,6 +819,15 @@
     "bfExp": "7"
   },
   {
+    "id": 92,
+    "nom": "Kitten in a Mech Woman",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
     "id": 93,
     "nom": "Mr Plow",
     "bfHp": 1.984e+91,
@@ -1015,6 +1024,24 @@
     "bfToughness": 1.068e+111,
     "bfHpRegen": 3.052e+107,
     "bfExp": "10"
+  },
+  {
+    "id": 115,
+    "nom": "Evil Spiky Haired Guy",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 116,
+    "nom": "EVIL Badly Drawn Kitty",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
   },
   {
     "id": 117,
@@ -1590,6 +1617,24 @@
     "bfPower": 1.984e+177,
     "bfToughness": 1.068e+177,
     "bfHpRegen": 3.052e+173,
+    "bfExp": null
+  },
+  {
+    "id": 181,
+    "nom": "The Slammer",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 182,
+    "nom": "Demonic Flurbie",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
     "bfExp": null
   },
   {
@@ -2187,8 +2232,467 @@
     "bfExp": null
   },
   {
+    "id": 249,
+    "nom": "A Seagull",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 250,
+    "nom": "Cosmic Jellyfish",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 251,
+    "nom": "Aether Eel",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 252,
+    "nom": "You.",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 253,
+    "nom": "A Pi-rat",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 254,
+    "nom": "Bunch of Old Newspapers",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 255,
+    "nom": "THE BUCKET",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 256,
+    "nom": "A Tar Blob Monster",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 257,
+    "nom": "Another You.",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 258,
+    "nom": "A Paddlefish",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 259,
+    "nom": "An Anglerfish",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 260,
+    "nom": "A Bunch of Cannons",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 261,
+    "nom": "A Pile of Ropes",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 262,
+    "nom": "Ladders!",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 263,
+    "nom": "And Snakes!",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 264,
+    "nom": "The Ramshackle Sea Inn",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 265,
+    "nom": "The First Pirate",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 266,
+    "nom": "The Second Pirate",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 267,
+    "nom": "The Third Pirate",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 268,
+    "nom": "The Fourth Pirate",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 269,
+    "nom": "The Captain",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
     "id": 270,
     "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 271,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 272,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 273,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 274,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 275,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 276,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 277,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 278,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 279,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 280,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 281,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 282,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 283,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 284,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 285,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 286,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 287,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 288,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 289,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 290,
+    "nom": "A Single Rat",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 291,
+    "nom": "A Strange Sign",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 292,
+    "nom": "A Stranger Sign",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 293,
+    "nom": "The Strangest Sign",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 294,
+    "nom": "Rat Guard 1",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 295,
+    "nom": "Rat Guard 2",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 296,
+    "nom": "Tippi The Tutorial Mouse",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 297,
+    "nom": "The Cleric",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 298,
+    "nom": "The Rogue",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 299,
+    "nom": "The Wizard",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 300,
+    "nom": "The Barbarian",
     "bfHp": null,
     "bfPower": null,
     "bfToughness": null,
