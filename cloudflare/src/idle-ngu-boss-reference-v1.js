@@ -314,3 +314,36 @@ export function nguBossStatsV1(index) {
 }
 
 export const NGU_BOSS_REFERENCE_COUNT_V1 = NGU_BOSS_REFERENCE_V1.length;
+
+/*
+ * Bonus XP "First Time Beaten Ever" (FTBE) — récompense ONE-TIME accordée
+ * la toute première fois qu'un boss est vaincu par ce compte, EN PLUS de
+ * l'XP normale (nguBossStatsV1(i).xp), jamais reversée aux tueries
+ * suivantes (même run ou après une Renaissance).
+ *
+ * Sourcé le 2026-09-17 par Norman en visitant en direct les 20 fiches wiki
+ * individuelles du catalogue SOREAL (ngu-idle.fandom.com/wiki/<NomBoss>),
+ * croisé avec son propre test EN JEU RÉEL pour les deux premiers : boss 1
+ * "La Palette Infernale" (A Simple Slime en VO) -> 2 XP FTBE, boss 2
+ * "Le Pain Éternel" -> 3 XP FTBE. Les 18 valeurs suivantes proviennent des
+ * mêmes fiches individuelles (pas du tableau récapitulatif "Boss listing",
+ * qui ne documente pas ce bonus séparément).
+ *
+ * Ne couvre QUE les 20 boss du catalogue SOREAL. Au-delà (progression
+ * infinie, definitionBossSorealIdle_ pour n >= catalogue.length), aucune
+ * fiche wiki individuelle n'a été vérifiée pour ce bonus précis — plutôt
+ * que d'inventer une extrapolation non sourcée (exactement l'erreur qui a
+ * causé le bug XP corrigé le même jour, cf. NGU_BOSS_REFERENCE_V1 plus
+ * haut), nguBossFtbeBonusXpV1 renvoie 0 au-delà de l'index 19 : ces boss
+ * gardent leur XP normale à chaque kill, sans bonus première fois.
+ */
+const NGU_BOSS_FTBE_BONUS_XP_V1 = Object.freeze([
+  2, 3, 4, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+]);
+
+export function nguBossFtbeBonusXpV1(index) {
+  const i = Math.max(0, Math.floor(Number(index) || 0));
+  return i < NGU_BOSS_FTBE_BONUS_XP_V1.length
+    ? NGU_BOSS_FTBE_BONUS_XP_V1[i]
+    : 0;
+}

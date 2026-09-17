@@ -23,7 +23,7 @@ import {
   rebirthIdleNguState,
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
-import { nguBossStatsV1 } from "./idle-ngu-boss-reference-v1.js";
+import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import {
   IDLE_ADVENTURE_ZONES,
   IDLE_ADVENTURE_MOB_CATALOG_V1,
@@ -6236,17 +6236,30 @@ function equilibrerBossPrincipalSorealIdleV413_(
           )
         ),
 
+      /*
+       * 2026-09-17 — contrairement à pv/attaque/defense (un plancher
+       * légitime : un boss du catalogue SOREAL peut volontairement être
+       * plus fort que la courbe NGU, identité propre au jeu), le XP stocké
+       * dans IDLE_BOSS n'a jamais été un choix de design : 100/120/180/
+       * .../19000 sur les boss 1-20 étaient des valeurs inventées, jamais
+       * sourcées (comme le reste de ce fichier avant la mission NGU
+       * 2026-09-09). Un simple MAX(source.xp, xpMinimum) ne pouvait donc
+       * JAMAIS corriger ce bug : la valeur inventée est toujours
+       * strictement supérieure au vrai plancher NGU (100 > 0, 19000 > 1,
+       * etc.), donc toujours gagnante. Norman a vérifié en direct sur le
+       * wiki (20 fiches boss individuelles, ngu-idle.fandom.com) que le XP
+       * réel des boss 1-20 est 0/0/0/1/0/0/1×14 — EXACTEMENT
+       * nguBossStatsV1(i).xp pour ces index (déjà sourcé le 2026-09-09,
+       * jamais branché comme valeur autoritaire jusqu'ici). Le XP devient
+       * donc autoritaire depuis la référence sourcée pour toute la plage
+       * couverte par NGU_BOSS_REFERENCE_V1, plutôt qu'un plancher que la
+       * donnée inventée pouvait toujours dominer.
+       */
       xp:
         Math.max(
           0,
           Math.round(
-            Math.max(
-              nombreSorealIdle_(
-                source.xp,
-                0
-              ),
-              xpMinimum
-            )
+            xpMinimum
           )
         )
     }
@@ -6773,8 +6786,16 @@ function pvMaxBossSorealIdle_(
 function xpBossSorealIdle_(
   bossVaincusAvant
 ) {
+  /*
+   * 2026-09-17 — ce plancher de 1 empêchait à jamais un boss au XP réel
+   * de 0 (wiki : boss 1/2/3/5/6 du catalogue SOREAL) de donner 0 XP,
+   * quelle que soit la correction apportée en amont
+   * (equilibrerBossPrincipalSorealIdleV413_). C'était le deuxième étage
+   * du même bug : même après avoir corrigé la donnée source, ce floor
+   * la remontait quand même à 1 juste avant l'octroi au joueur.
+   */
   return Math.max(
-    1,
+    0,
     Math.round(
       nombreSorealIdle_(
         definitionBossSorealIdle_(
@@ -6783,6 +6804,86 @@ function xpBossSorealIdle_(
         25
       )
     )
+  );
+}
+
+
+/*
+ * FTBE — "First Time Beaten Ever" (2026-09-17).
+ *
+ * NGU accorde un bonus XP UNIQUE la toute première fois qu'un boss est
+ * vaincu par un compte, jamais reversé aux kills suivants (même run ou
+ * après une Renaissance) — mécanique absente jusqu'ici de ce moteur.
+ *
+ * Plutôt que d'ajouter un nouveau champ persistant, on réutilise
+ * metaNgu.records.highestBoss : un high-water-mark déjà permanent
+ * (jamais remis à 0 par applyRebirthResetV56_/rebirthIdleNguState, cf.
+ * idle-ngu-progression.js — seul totalRebirths y est incrémenté), déjà
+ * mis à jour par Math.max(existant, bosses) dans normalizeIdleNguState,
+ * et déjà utilisé pour la découverte permanente du Bestiaire (cf.
+ * construireBestiaireSorealIdle_ / "index < bossVaincus" avec
+ * highestBossEver). Comme la progression des boss principaux est
+ * strictement séquentielle (bossVaincus avance par pas de 1, jamais de
+ * saut), highestBoss = N signifie exactement "les boss d'index 0..N-1
+ * ont déjà été vaincus au moins une fois, un jour, sur ce compte" — la
+ * même donnée que le FTBE a besoin de suivre, sans nouveau champ.
+ *
+ * Cette valeur ne reflète que les kills des requêtes PRÉCÉDENTES (déjà
+ * sauvegardées) : un combat/NUKE peut vaincre plusieurs boss d'affilée
+ * dans la MÊME requête, donc l'appelant doit garder son propre compteur
+ * local (initialisé une fois avant la boucle de résolution) et le faire
+ * avancer via enregistrerBossJamaisVaincuSorealIdle_ après chaque kill,
+ * plutôt que relire metaNgu.records.highestBoss à chaque itération.
+ */
+function highestBossJamaisAtteintSorealIdle_(metaNgu) {
+  return Math.max(
+    0,
+    Math.floor(
+      nombreSorealIdle_(
+        metaNgu &&
+          metaNgu.records &&
+          metaNgu.records.highestBoss,
+        0
+      )
+    )
+  );
+}
+
+
+/*
+ * Bonus XP FTBE pour un index de boss 0-based. Ne couvre QUE les 20 boss
+ * du catalogue SOREAL (nguBossFtbeBonusXpV1 renvoie 0 au-delà — voir le
+ * commentaire de cette fonction dans idle-ngu-boss-reference-v1.js pour
+ * la justification : aucune fiche wiki individuelle vérifiée au-delà du
+ * boss 20 pour ce bonus précis).
+ */
+function xpBonusPremiereFoisSorealIdle_(bossIndex) {
+  return Math.max(
+    0,
+    Math.round(
+      nguBossFtbeBonusXpV1(
+        bossIndex
+      )
+    )
+  );
+}
+
+
+/*
+ * Fait avancer le high-water-mark permanent après un kill qui vient de
+ * battre le record du compte (bossIndex >= highestBossJamaisAtteintSorealIdle_
+ * AVANT ce kill). Mute metaNgu.records directement : l'appelant sérialise
+ * ensuite le même objet metaNgu dans STATS_JSON, donc aucune écriture
+ * séparée n'est nécessaire ici.
+ */
+function enregistrerBossJamaisVaincuSorealIdle_(metaNgu, bossIndex) {
+  if (!metaNgu.records || typeof metaNgu.records !== 'object') {
+    metaNgu.records = {};
+  }
+
+  metaNgu.records.highestBoss = Math.max(
+    highestBossJamaisAtteintSorealIdle_(metaNgu),
+    Math.floor(bossIndex) + 1
   );
 }
 
@@ -7535,6 +7636,17 @@ function appliquerProgressionEnergieSorealIdle_(
   let dropsRecents = [];
   let iterations = 0;
 
+  /*
+   * FTBE (2026-09-17) : suivi local du high-water-mark, avancé après
+   * chaque kill qui bat le record du compte — un seul appel peut vaincre
+   * plusieurs boss d'affilée, voir le commentaire de
+   * highestBossJamaisAtteintSorealIdle_.
+   */
+  let highestBossJamaisAtteint =
+    highestBossJamaisAtteintSorealIdle_(
+      statsCombat.metaNgu
+    );
+
   while (
     tempsRestant > 0.0001 &&
     iterations < 2000 &&
@@ -7801,6 +7913,56 @@ function appliquerProgressionEnergieSorealIdle_(
           xpReelle;
         xp=Math.max(0,nombreSorealIdle_(statsCombat.metaNgu.currencies.experience,0));
         xpGagnee += xpReelle;
+      }
+
+      /*
+       * FTBE — bonus une seule fois par boss, jamais reversé aux kills
+       * suivants (même run ou après Renaissance). Voir le commentaire de
+       * highestBossJamaisAtteintSorealIdle_ : bossCombatIndex >= le
+       * record avant CE kill signifie que ce boss n'a jamais été vaincu
+       * sur ce compte.
+       */
+      const estPremiereFoisJamais =
+        bossCombatIndex >= highestBossJamaisAtteint;
+
+      const bonusPremiereFois =
+        estPremiereFoisJamais
+          ? Math.max(
+              0,
+              Math.round(
+                xpBonusPremiereFoisSorealIdle_(
+                  bossCombatIndex
+                ) *
+                Math.max(
+                  1,
+                  nombreSorealIdle_(
+                    idleNguBonuses(
+                      statsCombat.metaNgu
+                    ).xpMultiplier,
+                    1
+                  )
+                )
+              )
+            )
+          : 0;
+
+      if (bonusPremiereFois > 0) {
+        statsCombat.metaNgu.currencies.experience=
+          Math.max(0,nombreSorealIdle_(statsCombat.metaNgu.currencies.experience,0))+
+          bonusPremiereFois;
+        xp=Math.max(0,nombreSorealIdle_(statsCombat.metaNgu.currencies.experience,0));
+        xpGagnee += bonusPremiereFois;
+      }
+
+      if (estPremiereFoisJamais) {
+        enregistrerBossJamaisVaincuSorealIdle_(
+          statsCombat.metaNgu,
+          bossCombatIndex
+        );
+        highestBossJamaisAtteint =
+          highestBossJamaisAtteintSorealIdle_(
+            statsCombat.metaNgu
+          );
       }
 
       pieces +=
@@ -9960,7 +10122,17 @@ function construireEtatJoueurSorealIdle_(
               definitionBossSorealIdle_(index).pv,
             attaque:
               definitionBossSorealIdle_(index).attaque,
-            xp: boss.xp,
+            /*
+             * 2026-09-17 — pv/attaque juste au-dessus passent déjà par
+             * definitionBossSorealIdle_ (valeurs équilibrées/corrigées).
+             * xp lisait encore la ligne BRUTE du catalogue (boss.xp,
+             * jamais corrigée par le plancher NGU) : le Bestiaire/l'écran
+             * boss du client affichait donc encore 100/120/180/.../19000
+             * même une fois le vrai calcul de combat corrigé. Alignée sur
+             * pv/attaque pour afficher la même valeur que celle réellement
+             * accordée au kill.
+             */
+            xp: definitionBossSorealIdle_(index).xp,
             pieces: boss.pieces,
             histoire:
               String(boss.histoire || ''),
@@ -11012,6 +11184,17 @@ function nukerBossSorealIdle(
     let xpGagnee = 0;
     let iterations = 0;
 
+    /*
+     * FTBE (2026-09-17) : même mécanique que dans
+     * appliquerProgressionEnergieSorealIdle_ — NUKE peut aussi vaincre
+     * plusieurs boss d'affilée dans le même appel, donc le high-water-mark
+     * local doit avancer à chaque kill, pas seulement être relu une fois.
+     */
+    let highestBossJamaisAtteintNuke =
+      highestBossJamaisAtteintSorealIdle_(
+        stats.metaNgu
+      );
+
     while (iterations < 500) {
       iterations += 1;
 
@@ -11074,6 +11257,47 @@ function nukerBossSorealIdle(
           xpReelleNuke;
 
         xpGagnee += xpReelleNuke;
+      }
+
+      const estPremiereFoisJamaisNuke =
+        bossIndexNuke >= highestBossJamaisAtteintNuke;
+
+      const bonusPremiereFoisNuke =
+        estPremiereFoisJamaisNuke
+          ? Math.max(
+              0,
+              Math.round(
+                xpBonusPremiereFoisSorealIdle_(
+                  bossIndexNuke
+                ) *
+                xpMultiplierNuke
+              )
+            )
+          : 0;
+
+      if (bonusPremiereFoisNuke > 0) {
+        stats.metaNgu.currencies.experience =
+          Math.max(
+            0,
+            nombreSorealIdle_(
+              stats.metaNgu.currencies.experience,
+              0
+            )
+          ) +
+          bonusPremiereFoisNuke;
+
+        xpGagnee += bonusPremiereFoisNuke;
+      }
+
+      if (estPremiereFoisJamaisNuke) {
+        enregistrerBossJamaisVaincuSorealIdle_(
+          stats.metaNgu,
+          bossIndexNuke
+        );
+        highestBossJamaisAtteintNuke =
+          highestBossJamaisAtteintSorealIdle_(
+            stats.metaNgu
+          );
       }
 
       pieces +=
@@ -13269,9 +13493,17 @@ function bossCatalogueSorealIdle_() {
             )
           ),
 
+        /*
+         * 2026-09-17 — ce plancher de 1 forçait un minimum de 1 XP même
+         * pour un boss dont le XP réel (repeat-kill) est 0 (wiki : boss
+         * 1/2/3/5/6 du catalogue). equilibrerBossPrincipalSorealIdleV413_
+         * rend maintenant le XP autoritaire depuis la référence sourcée
+         * (ce champ brut ne sert donc plus qu'à un éventuel accès direct
+         * hors combat), mais gardait quand même ce plancher inexact.
+         */
         xp:
           Math.max(
-            1,
+            0,
             Math.round(
               nombreSorealIdle_(
                 ligne.XP,
@@ -14441,7 +14673,11 @@ export const idleRuntimeTestHooks=Object.freeze({
   equilibrerBossPrincipalSorealIdleV413_,
   definitionBossSorealIdle_,
   contexteMetaNguSorealIdle_,
-  degatsRecusSecondeSorealIdle_
+  degatsRecusSecondeSorealIdle_,
+  xpBossSorealIdle_,
+  highestBossJamaisAtteintSorealIdle_,
+  xpBonusPremiereFoisSorealIdle_,
+  enregistrerBossJamaisVaincuSorealIdle_
 });
 
 export function runSorealIdleOperation(sql,operation,args,user){
