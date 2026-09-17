@@ -20,17 +20,31 @@ import { IDLE_PERKS_CATALOG_V1 } from "../src/idle-perks-v1.js";
  * live and reachable via the "buyQuirk" action. This is the same migration
  * already done for Perks: the 27 Normal-accessible quirks (wiki page
  * https://ngu-idle.fandom.com/wiki/Quirk_Points, indices 0-13, 19-21,
- * 25-26, 30-31, 35-40 — every other index on the page is Evil/Sadistic
- * only and intentionally excluded), each individually purchasable at its
- * own flat per-level cost/cap, with bonuses wired into the same aggregator
+ * 25-26, 30-31, 35-40), each individually purchasable at its own flat
+ * per-level cost/cap, with bonuses wired into the same aggregator
  * (idleNguBonuses) every other bonus source (perks, challenges, beard,
  * diggers) already feeds.
+ *
+ * Extension (2026-09-18) — indices 41-182 (39 more) were previously
+ * excluded on the mistaken belief that the wiki's "Evil only"/"Sadistic
+ * only" note was a game-enforced purchase gate; it is community
+ * buying-order advice, not a mechanic. Added wherever the effect maps to
+ * an already-existing bonus key (see idle-quirks-v1.js header for the
+ * full breakdown of what's still excluded and why).
  */
 
-// --- Catalog shape: 27 entries, ids matching the wiki table's own indices ---
-assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 27, "27 Normal-accessible quirks.");
-const expectedIds = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,19,20,21,25,26,30,31,35,36,37,38,39,40];
-assert.deepEqual(IDLE_QUIRKS_CATALOG_V1.map(q => q.id), expectedIds, "Quirk ids must match the wiki table's own indices, gaps included (Evil/Sadistic-only rows skipped).");
+// --- Catalog shape: 66 entries, ids matching the wiki table's own indices ---
+assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 66, "27 Normal-accessible quirks + 39 Evil/Sadistic-tier quirks.");
+const expectedIds = [
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13,19,20,21,25,26,30,31,35,36,37,38,39,40,
+  41,42,43,44,45,46,51,52,53,61,62,63,64,65,66,72,73,76,77,78,79,80,81,82,83,84,85,92,
+  170,171,172,173,176,177,178,179,180,181,182
+];
+assert.deepEqual(IDLE_QUIRKS_CATALOG_V1.map(q => q.id), expectedIds, "Quirk ids must match the wiki table's own indices, gaps included (excluded rows skipped).");
+{
+  const ids = IDLE_QUIRKS_CATALOG_V1.map(q => q.id);
+  assert.equal(new Set(ids).size, ids.length, "No duplicate quirk ids across the whole catalog.");
+}
 for (const quirk of IDLE_QUIRKS_CATALOG_V1) {
   assert.ok(quirk.name && typeof quirk.name === "string", "Quirk " + quirk.id + " needs a name.");
   assert.ok(quirk.effect && typeof quirk.effect === "string", "Quirk " + quirk.id + " needs an effect description.");
@@ -46,8 +60,14 @@ assert.equal(idleQuirkByIdV1(7).cap, 1000, "Stat Boost For Rich Quirks I caps at
 assert.equal(idleQuirkByIdV1(9).name, "GOOOOOLLLLLLLLLLLD!");
 assert.equal(idleQuirkByIdV1(9).bonus.adventureGoldPct, 0.10, "10% gold drops per level, matches the wiki exactly.");
 assert.equal(idleQuirkByIdV1(20).bonus.atBankPct, 0.005, "0.5% per level, not the Perk catalog's 1% — a different, real wiki value.");
-assert.equal(idleQuirkByIdV1(14), null, "Index 14 (The Beast NGU Quirk Ever, Evil only) must not be in the Normal catalog.");
-assert.equal(idleQuirkByIdV1(41), null, "Index 41 (Generic Energy Power Quirk II, Evil only) must not be in the Normal catalog.");
+assert.equal(idleQuirkByIdV1(14), null, "Index 14 (The Beast NGU Quirk Ever) needs a separate Evil/Sadistic NGU track system SOREAL doesn't have — still excluded.");
+
+// --- Spot-check the 2026-09-18 Evil/Sadistic-tier extension ---
+assert.deepEqual(idleQuirkByIdV1(41).bonus, { energyPowerPct: 0.01 }, "Generic Energy Power Quirk II : même taux que le palier I (indice 35), juste un coût/plafond différents.");
+assert.equal(idleQuirkByIdV1(61).bonus.energyPowerPct, 0.005, "Wiki : palier III baisse à +0.5%/niveau (pas +1%).");
+assert.equal(idleQuirkByIdV1(92).bonus.seedYieldPct, 0.001, "Wiki : \"Even Better Yggdrasil Yields\" = +0.1%/niveau, réutilise la clé de \"The Beast's Seed ;)\" (indice 12).");
+assert.deepEqual(idleQuirkByIdV1(176).bonus, {}, "\"A PROBLEM HAS BEEN DETECTED\" est une quirk-blague, aucun effet réel à inventer.");
+assert.equal(idleQuirkByIdV1(99), null, "Index 99 (Magic NGU Speed Card Tier Up I) a besoin du système Cards, absent de SOREAL — reste exclu.");
 
 // --- Real flat per-level cost, not the old exponential model ---
 assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 0), 75, "Generic Energy Power Quirk I costs a flat 75 per level, every level.");

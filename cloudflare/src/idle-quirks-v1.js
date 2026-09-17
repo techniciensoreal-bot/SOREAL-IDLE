@@ -1,14 +1,50 @@
 /*
- * SOREAL IDLE — Quirks (Beast Quirks, QP currency), Normal-difficulty catalog.
+ * SOREAL IDLE — Quirks (Beast Quirks, QP currency).
  *
  * Source: NGU Idle wiki (https://ngu-idle.fandom.com/wiki/Quirk_Points),
- * "Quirks" table, Page 1 — only the rows carrying no "Evil only"/"Sadistic
- * only" note (Normal-accessible quirks). Wiki indices kept as `id` for
- * direct traceability back to the table: 0-13, 19-21, 25-26, 30-31, 35-40
- * (27 entries). Every other index on the page is explicitly gated to Evil
- * or Sadistic difficulty and is intentionally excluded until those
- * difficulties exist in SOREAL IDLE — same exclusion rule already applied
- * to the Perks catalog (idle-perks-v1.js) for its one Evil-only entry.
+ * "Quirks" table. Wiki indices kept as `id` for direct traceability back
+ * to the table: 0-13, 19-21, 25-26, 30-31, 35-40 (27 Normal-accessible
+ * entries).
+ *
+ * Extension (2026-09-18, Norman : "il faut tout faire" -- Evil/Sadistic
+ * fidélité, même correction que idle-perks-v1.js). Le déni précédent
+ * ("index gated to Evil/Sadistic difficulty, exclu jusqu'à ce qu'elles
+ * existent") reposait sur une lecture erronée : la colonne "Note" du
+ * tableau ("Evil only"/"Sadistic only"/"No"/etc.) est un conseil
+ * stratégique communautaire sur l'ordre d'achat, jamais une restriction
+ * imposée par le jeu (mêmes valeurs de conseil déjà présentes sur les
+ * indices 0-40 ci-dessous, jamais traitées comme un verrou). Chaque
+ * quirk reste achetable dès que son coût en QP est payé.
+ *
+ * 39 quirks ajoutées (indices 41-182), toutes câblées sur des clés bonus
+ * déjà agrégées par quirkBonusesV1 ci-dessous (energyPowerPct, statPct,
+ * adventureStatsPct, boostPowerPct, seedYieldPct) -- paliers II-IV/Final
+ * des quirks génériques Energy/Magic déjà présents en indices 35-40,
+ * paliers II-VI des Rich Quirks déjà présents en indices 7-8, paliers
+ * II-IV de Beasted Boosts déjà présent en indice 11, et "Even Better
+ * Yggdrasil Yields" qui réutilise exactement la clé seedYieldPct de "The
+ * Beast's Seed ;)" (indice 12). "A PROBLEM HAS BEEN DETECTED" (176) est
+ * une quirk-blague sans AUCUN effet mécanique réel (texte : "YOUR PC RAN
+ * INTO A PROBLEM") -- `bonus:{}` est la valeur réelle, même statut que
+ * "ERROR" côté Perks.
+ *
+ * Volontairement exclus (système absent de SOREAL, ou multiplicateur déjà
+ * calculé mais jamais branché ailleurs dans ce fichier -- gap préexistant
+ * hors périmètre de cette passe, jamais approximé) : NGU Evil/Sadistic
+ * séparé (14, 89), Wandoos speed par ressource (15-16 --
+ * nguSpeedEnergyMultiplierFromPerks/quivalent Wandoos jamais branché à la
+ * boucle d'avancement, même gap que documenté dans idle-ngu-progression.js
+ * pour advanceTrackSystem), Basic Training +1 niveau distinct du double
+ * (17), Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
+ * (57-60,174-175), Wishes (54,56), Automerge Slot (55), Cards/Mayo/Tags/
+ * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
+ * 185 -- pas de 3e ressource entraînable), Sadistic Boss Multiplier
+ * (74-75), Quêtes/Idle Questing (71), Faster Energy/Magic NGU I-III
+ * (93-98 -- même gap "multiplicateur jamais branché" que 15-16), Better
+ * Blood Magic (91 -- production de sang non exposée comme taux
+ * modifiable dans ce round), Even More Inventory Space (90 -- le
+ * pipeline inventorySlotsFromPerks/FromChallenges n'a pas d'équivalent
+ * FromQuirks câblé, hors périmètre).
  *
  * Previously "Quirks" was buyTree(state, "quirks", "qp", 50) — a single
  * generic counter (one shared level, exponential 1.55^level cost) reused
@@ -55,7 +91,46 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 37, name: "Generic Energy Bars Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Energy Bars!", cost: 75, cap: 50, bonus: { energyBarsPct: 0.01 } },
   { id: 38, name: "Generic Magic Power Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Magic Power!", cost: 75, cap: 50, bonus: { magicPowerPct: 0.01 } },
   { id: 39, name: "Generic Magic Cap Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Magic Cap!", cost: 75, cap: 50, bonus: { magicCapPct: 0.01 } },
-  { id: 40, name: "Generic Magic Bars Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Magic Bars!", cost: 75, cap: 50, bonus: { magicBarsPct: 0.01 } }
+  { id: 40, name: "Generic Magic Bars Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Magic Bars!", cost: 75, cap: 50, bonus: { magicBarsPct: 0.01 } },
+  { id: 41, name: "Generic Energy Power Quirk II", effect: "Each level in this Quirk adds a 1% boost to your Energy Power!", cost: 300, cap: 50, bonus: { energyPowerPct: 0.01 } },
+  { id: 42, name: "Generic Energy Cap Quirk II", effect: "Each level in this Quirk adds a 1% boost to your Energy Cap!", cost: 300, cap: 50, bonus: { energyCapPct: 0.01 } },
+  { id: 43, name: "Generic Energy Bars Quirk II", effect: "Each level in this Quirk adds a 1% boost to your Energy Bars!", cost: 300, cap: 50, bonus: { energyBarsPct: 0.01 } },
+  { id: 44, name: "Generic Magic Power Quirk II", effect: "Each level in this Quirk adds a 1% boost to your Magic Power!", cost: 300, cap: 50, bonus: { magicPowerPct: 0.01 } },
+  { id: 45, name: "Generic Magic Cap Quirk II", effect: "Each level in this Quirk adds a 1% boost to your Magic Cap!", cost: 300, cap: 50, bonus: { magicCapPct: 0.01 } },
+  { id: 46, name: "Generic Magic Bars Quirk II", effect: "Each level in this Quirk adds a 1% boost to your Magic Bars!", cost: 300, cap: 50, bonus: { magicBarsPct: 0.01 } },
+  { id: 51, name: "Stat Boost For Rich Quirks II", effect: "Improve your Attack/Defense by 2% per level!", cost: 125, cap: 1000, bonus: { statPct: 0.02 } },
+  { id: 52, name: "Adventure Boost For Rich Quirks II", effect: "Improve your Adventure stats by 0.1% per level!", cost: 125, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
+  { id: 53, name: "Beasted Boosts II", effect: "Gain 2% better boosts per level of this quirk!", cost: 200, cap: 60, bonus: { boostPowerPct: 0.02 } },
+  { id: 61, name: "Generic Energy Power Quirk III", effect: "Each level in this Quirk adds a 0.5% boost to your Energy Power!", cost: 1000, cap: 50, bonus: { energyPowerPct: 0.005 } },
+  { id: 62, name: "Generic Energy Cap Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Energy Cap!", cost: 1000, cap: 50, bonus: { energyCapPct: 0.002 } },
+  { id: 63, name: "Generic Energy Bars Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Energy Bars!", cost: 1000, cap: 50, bonus: { energyBarsPct: 0.002 } },
+  { id: 64, name: "Generic Magic Power Quirk III", effect: "Each level in this Quirk adds a 0.5% boost to your Magic Power!", cost: 1000, cap: 50, bonus: { magicPowerPct: 0.005 } },
+  { id: 65, name: "Generic Magic Cap Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Cap!", cost: 1000, cap: 50, bonus: { magicCapPct: 0.002 } },
+  { id: 66, name: "Generic Magic Bars Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Bars!", cost: 1000, cap: 50, bonus: { magicBarsPct: 0.002 } },
+  { id: 72, name: "Beasted Boosts III", effect: "Gain 1% better boosts per level of this quirk!", cost: 600, cap: 50, bonus: { boostPowerPct: 0.01 } },
+  { id: 73, name: "Beasted Boosts IV", effect: "Gain 0.5% better boosts per level of this quirk!", cost: 1800, cap: 50, bonus: { boostPowerPct: 0.005 } },
+  { id: 76, name: "Stat Boost for Rich Quirks III", effect: "Improve your Attack/Defense by 1% per level!", cost: 400, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 77, name: "Adventure Boost for Rich Quirks III", effect: "Improve your Adventure stats by 0.03% per level!", cost: 400, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
+  { id: 78, name: "Stat Boost for Rich Quirks IV", effect: "Improve your Attack/Defense by 1% per level!", cost: 1300, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 79, name: "Adventure Boost for Rich Quirks IV", effect: "Improve your Adventure stats by 0.03% per level!", cost: 1300, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
+  { id: 80, name: "Generic Energy Power Quirk IV", effect: "Each level in this Quirk adds a 0.5% boost to your Energy Power!", cost: 3000, cap: 50, bonus: { energyPowerPct: 0.005 } },
+  { id: 81, name: "Generic Energy Cap Quirk IV", effect: "Each level in this Quirk adds a 0.2% boost to your Energy Cap!", cost: 3000, cap: 50, bonus: { energyCapPct: 0.002 } },
+  { id: 82, name: "Generic Energy Bars Quirk IV", effect: "Each level in this Quirk adds a 0.2% boost to your Energy Bars!", cost: 3000, cap: 50, bonus: { energyBarsPct: 0.002 } },
+  { id: 83, name: "Generic Magic Power Quirk IV", effect: "Each level in this Quirk adds a 0.5% boost to your Magic Power!", cost: 3000, cap: 50, bonus: { magicPowerPct: 0.005 } },
+  { id: 84, name: "Generic Magic Cap Quirk IV", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Cap!", cost: 3000, cap: 50, bonus: { magicCapPct: 0.002 } },
+  { id: 85, name: "Generic Magic Bars Quirk IV", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Bars!", cost: 3000, cap: 50, bonus: { magicBarsPct: 0.002 } },
+  { id: 92, name: "Even Better Yggdrasil Yields", effect: "+0.1% Seed yield per level", cost: 2500, cap: 50, bonus: { seedYieldPct: 0.001 } },
+  { id: 170, name: "Stat Boost for Rich Quirks V", effect: "Improve your Attack/Defense by 1% per level!", cost: 2800, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 171, name: "Adventure Boost for Rich Quirks V", effect: "Improve your Adventure stats by 0.03% per level!", cost: 2800, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
+  { id: 172, name: "Stat Boost for Rich Quirks VI", effect: "Improve your Attack/Defense by 1% per level!", cost: 6000, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 173, name: "Adventure Boost for Rich Quirks VI", effect: "Improve your Adventure stats by 0.03% per level!", cost: 6000, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
+  { id: 176, name: "A PROBLEM HAS BEEN DETECTED", effect: "YOUR PC RAN INTO A PROBLEM", cost: 10000000, cap: 1, bonus: {} },
+  { id: 177, name: "The Final Generic Energy Power Quirk", effect: "Add a 1% Boost to your Energy Power with this Quirk!", cost: 50000, cap: 50, bonus: { energyPowerPct: 0.01 } },
+  { id: 178, name: "The Final Generic Energy Cap Quirk", effect: "Add a 1% Boost to your Energy Cap with this Quirk!", cost: 50000, cap: 50, bonus: { energyCapPct: 0.01 } },
+  { id: 179, name: "The Final Generic Energy Bars Quirk", effect: "Add a 1% Boost to your Energy Bars with this Quirk!", cost: 50000, cap: 50, bonus: { energyBarsPct: 0.01 } },
+  { id: 180, name: "The Final Generic Magic Power Quirk", effect: "Add a 1% Boost to your Magic Power with this Quirk!", cost: 50000, cap: 50, bonus: { magicPowerPct: 0.01 } },
+  { id: 181, name: "The Final Generic Magic Cap Quirk", effect: "Add a 1% Boost to your Magic Cap with this Quirk!", cost: 50000, cap: 50, bonus: { magicCapPct: 0.01 } },
+  { id: 182, name: "The Final Generic Magic Bars Quirk", effect: "Add a 1% Boost to your Magic Bars with this Quirk!", cost: 50000, cap: 50, bonus: { magicBarsPct: 0.01 } }
 ]);
 
 export function idleQuirkByIdV1(id) {
