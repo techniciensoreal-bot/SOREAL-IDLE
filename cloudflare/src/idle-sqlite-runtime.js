@@ -9057,6 +9057,19 @@ function contexteMetaNguSorealIdle_(
     meta.currencies && typeof meta.currencies === 'object'
       ? meta.currencies
       : {};
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+   * beastBrutalDefeated/exileBrutalDefeated vivent dans l'état Aventure
+   * (idle-adventure-v47.js::titan(), s.unlockFlags), imbriqué sous
+   * metaNgu.adventure -- jamais au même niveau que metaRecords/
+   * metaCurrencies ci-dessus. Exposés ici pour
+   * idleNguDifficultyUnlockRequirementsV1 (idle-ngu-progression.js),
+   * qui ne lit que `context`, jamais l'état Aventure directement.
+   */
+  const metaAdventureUnlockFlags =
+    meta.adventure && meta.adventure.unlockFlags && typeof meta.adventure.unlockFlags === 'object'
+      ? meta.adventure.unlockFlags
+      : {};
 
   return {
     bosses: Math.max(0,nombreSorealIdle_(row[c.BOSS_VAINCUS - 1],0)),
@@ -9119,7 +9132,9 @@ function contexteMetaNguSorealIdle_(
      * attack/defense divided by 1 nonillion (1e30)", identique en Evil et
      * SADISTIC) puissent le lire.
      */
-    difficulty: ['normal','difficile','extreme'].indexOf(meta.difficulty) !== -1 ? meta.difficulty : 'normal'
+    difficulty: ['normal','difficile','extreme'].indexOf(meta.difficulty) !== -1 ? meta.difficulty : 'normal',
+    beastV4Beaten: Boolean(metaAdventureUnlockFlags.beastBrutalDefeated),
+    exileV4Beaten: Boolean(metaAdventureUnlockFlags.exileBrutalDefeated)
   };
 }
 

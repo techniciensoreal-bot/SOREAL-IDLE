@@ -344,6 +344,28 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   normal:{p:7000000000,t:5000000000},
   hard:{p:70000000000,t:50000000000},
   brutal:{p:700000000000,t:500000000000}
+}},
+/*
+ * The Exile (2026-09-18, Norman : "il faut tout faire" -- prérequis
+ * "Exile v4 vaincu" du déblocage Sadistic, wiki "SADISTIC difficulty").
+ * Wiki NGU local, page "The Exile" : 9e Titan, débloqué en battant le
+ * boss 190 EN DIFFICULTÉ EVIL (hors périmètre de ce champ `boss`, qui ne
+ * connaît que le compteur de boss courant -- pas une régression, aucun
+ * autre titan de cette liste n'est encore gated par difficulté non plus).
+ * Respawn 330 minutes = 5.5*H. 4 paliers (Easy/Normal/Hard/Brutal), p/t =
+ * stats "Manual" recommandées du wiki (même convention que The Beast
+ * ci-dessus, pas les stats AutoKill). drop="stillBeatingHeart" (guaranteed
+ * lvl 4, débloque Cards -- wiki : "guaranteed to drop A Still-Beating
+ * Heart, which unlocks Cards"). Butin complet (Exile (set), Hat of Greed,
+ * Blue Eyes White Chestplate, etc.) volontairement HORS périmètre de ce
+ * correctif -- seul le combat/tracking "v4 vaincu" est nécessaire pour la
+ * condition de déblocage Sadistic ; le butin sera une passe séparée.
+ */
+{id:"t7",name:"The Exile",boss:190,cooldown:5.5*H,drop:"stillBeatingHeart",avatarLevel:6,difficulties:{
+  easy:{p:2.3e22,t:1.2e22},
+  normal:{p:3.72e23,t:1.56e23},
+  hard:{p:7.45e24,t:3.55e24},
+  brutal:{p:2.2e26,t:1.0e26}
 }}
 ]);
 const SETS={
@@ -1572,7 +1594,21 @@ function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return tr
  * (ringOfApathyMaxed, tutorialCubeMaxed).
  */
 export const WALDERP_HIDE_PANELS_V147=Object.freeze(["combat","entrainement","inventaire","bestiaire","parametres"]);
-function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));if(id==="t1"){drops.push(add(s,setDrop(s,"grb",challengeTitanLootLevel)));if(!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}}if(id==="t3")drops.push(add(s,setDrop(s,"jake",challengeTitanLootLevel)));if(id==="t4")drops.push(add(s,setDrop(s,"uug",challengeTitanLootLevel)));if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)));drops.push(add(s,setDrop(s,"wanderer",challengeTitanLootLevel)));drops.push(add(s,setDrop(s,"rerednaw",challengeTitanLootLevel)))}if(id==="t6"){drops.push(add(s,setDrop(s,"slimy",challengeTitanLootLevel)));if(tierKey==="normal"||tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("shrunkenVoodooDoll",0)));if(tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("pricelessVanGoghPainting",0)));if(tierKey==="brutal")drops.push(add(s,special("smallGerbil",0)))}return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean)}}
+function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));if(id==="t1"){drops.push(add(s,setDrop(s,"grb",challengeTitanLootLevel)));if(!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}}if(id==="t3")drops.push(add(s,setDrop(s,"jake",challengeTitanLootLevel)));if(id==="t4")drops.push(add(s,setDrop(s,"uug",challengeTitanLootLevel)));if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)));drops.push(add(s,setDrop(s,"wanderer",challengeTitanLootLevel)));drops.push(add(s,setDrop(s,"rerednaw",challengeTitanLootLevel)))}if(id==="t6"){drops.push(add(s,setDrop(s,"slimy",challengeTitanLootLevel)));if(tierKey==="normal"||tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("shrunkenVoodooDoll",0)));if(tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("pricelessVanGoghPainting",0)));if(tierKey==="brutal")drops.push(add(s,special("smallGerbil",0)))}
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * beastBrutalDefeated/exileBrutalDefeated : flag PERMANENT (jamais remis
+ * à false), posé la première fois que le palier Brutal (V4) de ces 2
+ * titans est vaincu -- même mécanique que walderpFinalDefeated ci-dessus
+ * pour la forme finale de Walderp. Sert exclusivement les conditions de
+ * déblocage Evil ("The Beast v4 beaten") et Sadistic ("The Exile v4
+ * beaten"), wiki pages "Evil difficulty"/"SADISTIC difficulty" -- voir
+ * idleNguDifficultyUnlockRequirementsV1 (idle-ngu-progression.js) côté
+ * appelant.
+ */
+if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
+if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
+return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean)}}
 /*
  * V147 — retrouver Walderp caché. Purement déclaratif côté serveur (le
  * client sait déjà où il se cache via le snapshot — il ne "devine" rien,
