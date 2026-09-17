@@ -50,10 +50,33 @@ for(const name of [
   'ameliorerEquipementForgeSorealIdle','ameliorerEquipementsForgeSorealIdle',
   'agrandirInventaireSorealIdle','agrandirInventairePlusieursSorealIdle',
   'recyclerObjetSorealIdle','recyclerObjetsSorealIdle','fusionnerObjetSorealIdle',
-  'definirCombatAutoAventureSorealIdle','selectionnerZoneAventureSorealIdle','combattreAventureSorealIdle'
+  'definirCombatAutoAventureSorealIdle','combattreAventureSorealIdle'
 ]){
   const b=block(name);
   assert.ok(b.includes('SOREAL_IDLE_V47_LEGACY_DISABLED'),`${name} doit être neutralisé`);
+}
+
+/*
+ * Audit 2026-09-17 : selectionnerZoneAventureSorealIdle était encore ici,
+ * un stub mort de plus renvoyant SOREAL_IDLE_V47_LEGACY_DISABLED. Vérifié
+ * qu'aucun consommateur réel ne subsistait nulle part (SOREAL-IDLE et
+ * SOREAL-APP) avant suppression complète -- retiré, pas seulement
+ * neutralisé, car un stub mort qui ne sert plus à rien n'a pas besoin de
+ * continuer à exister. Ce test verrouille qu'il ne réapparaît pas.
+ */
+assert.ok(
+  !source.includes('function selectionnerZoneAventureSorealIdle('),
+  'selectionnerZoneAventureSorealIdle doit rester supprimé (stub mort sans consommateur réel, cf. audit 2026-09-17), pas seulement neutralisé.'
+);
+{
+  const opsStart=source.indexOf('const IDLE_OPERATIONS={');
+  assert.ok(opsStart>=0,'IDLE_OPERATIONS introuvable.');
+  const opsEnd=source.indexOf('\n};',opsStart);
+  const opsBlock=source.slice(opsStart,opsEnd>opsStart?opsEnd:opsStart+2000);
+  assert.ok(
+    !opsBlock.includes('selectionnerZoneAventureSorealIdle'),
+    'selectionnerZoneAventureSorealIdle ne doit plus apparaître dans IDLE_OPERATIONS.'
+  );
 }
 
 assert.ok(source.includes('function definirAllocationsEntrainementSorealIdle('),'Basic Training V41.1 doit rester actif');

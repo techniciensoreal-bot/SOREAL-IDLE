@@ -13048,14 +13048,25 @@ function definirCombatAutoAventureSorealIdle(...args) {
 }
 
 
-function selectionnerZoneAventureSorealIdle(...args) {
-  void args;
-  return {
-    ok:false,
-    code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
-  };
-}
+/*
+ * Audit 2026-09-17 : selectionnerZoneAventureSorealIdle (stub mort
+ * renvoyant SOREAL_IDLE_V47_LEGACY_DISABLED, jamais un mécanisme réel)
+ * retiré entièrement plutôt que laissé en stub. Vérifié avant suppression
+ * qu'aucun consommateur réel ne subsistait : le seul appelant client
+ * (runner.selectionnerZoneAventureSorealIdle, google.script.run) avait
+ * déjà été retiré de Soreal_Idle_UI.html le 2026-09-16 (cf.
+ * idle-collection-menu-and-dead-zone-case.test.mjs côté SOREAL-APP) — la
+ * vraie sélection de zone Aventure passe depuis par
+ * __selectionnerZoneAdventureIdleV47__ (idle-adventure-v47.js). Seule
+ * référence restante trouvée : cloudflare/public/cloudflare-bridge.js
+ * (SOREAL-APP) expose encore un passe-plat générique portant ce nom, mais
+ * ce fichier mirrore SYMÉTRIQUEMENT chaque nom d'opération connu (y
+ * compris d'autres mécaniques déjà mortes comme equiperObjetsSorealIdle)
+ * sans jamais l'appeler lui-même — un appel réel via ce passe-plat
+ * échouerait désormais avec SOREAL_IDLE_OPERATION_INCONNUE au lieu de
+ * SOREAL_IDLE_V47_LEGACY_DISABLED, un changement de message sans risque
+ * puisqu'aucun code n'invoque ce passe-plat.
+ */
 
 
 function combattreAventureSorealIdle(...args) {
@@ -14635,7 +14646,6 @@ const IDLE_OPERATIONS={
   renaitreSorealIdle,
   sauvegarderDispositionInventaireSorealIdle,
   selectionnerBossSorealIdle,
-  selectionnerZoneAventureSorealIdle,
   synchroniserSorealIdle,
   testerAccesSorealIdle
 };
