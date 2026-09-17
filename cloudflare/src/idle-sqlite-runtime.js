@@ -1292,10 +1292,16 @@ function bossMondeCibleZoneSorealIdle_(
 }
 
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty` (4e paramètre, optionnel) propagé jusqu'aux dégâts/stats
+ * boss ci-dessous.
+ */
 function seuilPuissanceBossPrincipalSorealIdle_(
   bossNumero,
   pvJoueurMax,
-  defense
+  defense,
+  difficulty
 ) {
   const numero =
     Math.max(
@@ -1313,7 +1319,8 @@ function seuilPuissanceBossPrincipalSorealIdle_(
 
   const boss =
     definitionBossSorealIdle_(
-      index
+      index,
+      difficulty
     );
 
   const pvBoss =
@@ -1347,7 +1354,8 @@ function seuilPuissanceBossPrincipalSorealIdle_(
         index,
         defense,
         pvBoss,
-        pvBoss
+        pvBoss,
+        difficulty
       );
   } else {
     const degatsNormaux =
@@ -1355,7 +1363,8 @@ function seuilPuissanceBossPrincipalSorealIdle_(
         index,
         defense,
         pvBoss,
-        pvBoss
+        pvBoss,
+        difficulty
       );
 
     const degatsFureur =
@@ -1363,7 +1372,8 @@ function seuilPuissanceBossPrincipalSorealIdle_(
         index,
         defense,
         pvBoss * 0.25,
-        pvBoss
+        pvBoss,
+        difficulty
       );
 
     /*
@@ -5565,15 +5575,24 @@ function coutExtensionSacSorealIdle_(
 }
 
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty` (2e paramètre, optionnel, défaut "normal" via
+ * definitionBossSorealIdle_/nguBossStatsV1) -- propage le diviseur ×1e-30
+ * jusqu'à la vraie boucle de dégâts (degatsRecusSecondeSorealIdle_
+ * ci-dessous, qui appelle cette fonction).
+ */
 function attaqueBossSorealIdle_(
-  bossVaincus
+  bossVaincus,
+  difficulty
 ) {
   return Math.max(
     1,
     Math.round(
       nombreSorealIdle_(
         definitionBossSorealIdle_(
-          bossVaincus
+          bossVaincus,
+          difficulty
         ).attaque,
         CONFIG_SOREAL_IDLE.ATTAQUE_BOSS_BASE
       )
@@ -5584,17 +5603,20 @@ function attaqueBossSorealIdle_(
 /*
  * Audit 2026-09-13 (Norman) : pendant du attaqueBossSorealIdle_ ci-dessus,
  * pour la Defense — nécessaire pour que le dégât du joueur contre le boss
- * puisse enfin la soustraire (wiki NGU, page Attack).
+ * puisse enfin la soustraire (wiki NGU, page Attack). `difficulty` : même
+ * propagation que ci-dessus (2026-09-18).
  */
 function defenseBossSorealIdle_(
-  bossVaincus
+  bossVaincus,
+  difficulty
 ) {
   return Math.max(
     1,
     Math.round(
       nombreSorealIdle_(
         definitionBossSorealIdle_(
-          bossVaincus
+          bossVaincus,
+          difficulty
         ).defense,
         CONFIG_SOREAL_IDLE.ATTAQUE_BOSS_BASE
       )
@@ -6037,11 +6059,18 @@ function multiplicateurAttaqueBossSorealIdle_(
 }
 
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty` (5e paramètre, optionnel) propagé jusqu'à
+ * attaqueBossSorealIdle_ -- voir NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1
+ * (idle-ngu-boss-reference-v1.js).
+ */
 function degatsRecusSecondeSorealIdle_(
   bossVaincus,
   defense,
   pvBoss,
-  pvBossMax
+  pvBossMax,
+  difficulty
 ) {
   const index =
     Math.max(
@@ -6056,7 +6085,8 @@ function degatsRecusSecondeSorealIdle_(
 
   const attaque =
     attaqueBossSorealIdle_(
-      index
+      index,
+      difficulty
     ) *
     multiplicateurAttaqueBossSorealIdle_(
       index,
@@ -6872,15 +6902,22 @@ function nomBossSorealIdle_(
 }
 
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty` (2e paramètre, optionnel) -- même propagation que
+ * attaqueBossSorealIdle_/defenseBossSorealIdle_ ci-dessus.
+ */
 function pvMaxBossSorealIdle_(
-  bossVaincus
+  bossVaincus,
+  difficulty
 ) {
   return Math.max(
     1,
     Math.round(
       nombreSorealIdle_(
         definitionBossSorealIdle_(
-          bossVaincus
+          bossVaincus,
+          difficulty
         ).pv,
         CONFIG_SOREAL_IDLE.BOSS_PV_BASE
       )
@@ -7558,7 +7595,8 @@ function appliquerProgressionEnergieSorealIdle_(
 
   const bossPvMaxDefinition =
     pvMaxBossSorealIdle_(
-      bossCombatIndex
+      bossCombatIndex,
+      metaNguRessourceV55.difficulty
     );
 
   const bossPvMaxEnregistre =
@@ -7824,7 +7862,8 @@ function appliquerProgressionEnergieSorealIdle_(
 
     const attaqueBoss =
       attaqueBossSorealIdle_(
-        bossCombatIndex
+        bossCombatIndex,
+        metaNguRessourceV55.difficulty
       );
 
     let degatsRecusSec =
@@ -7832,7 +7871,8 @@ function appliquerProgressionEnergieSorealIdle_(
         bossCombatIndex,
         defense,
         bossPv,
-        bossPvMax
+        bossPvMax,
+        metaNguRessourceV55.difficulty
       );
 
     if (
@@ -12822,7 +12862,14 @@ function agirProgressionSorealIdle(
       row[c.NIVEAU-1]=1;
       row[c.BOSS_VAINCUS-1]=0;
       row[c.BOSS_ACTUEL-1]=nomBossSorealIdle_(0);
-      row[c.BOSS_PV_MAX-1]=pvMaxBossSorealIdle_(0);
+      /*
+       * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+       * stats.metaNgu vient d'être remplacé par applique.state (ligne
+       * ci-dessus) -- reflète déjà la NOUVELLE difficulté si ce reset
+       * provient d'un changement de difficulté (difficultyAction,
+       * idle-ngu-progression.js), pas l'ancienne.
+       */
+      row[c.BOSS_PV_MAX-1]=pvMaxBossSorealIdle_(0,stats.metaNgu&&stats.metaNgu.difficulty);
       row[c.BOSS_PV-1]=row[c.BOSS_PV_MAX-1];
       feuille.getRange(ligne,c.NIVEAU).setValue(1);
       feuille.getRange(ligne,c.BOSS_VAINCUS).setValue(0);
@@ -12949,8 +12996,17 @@ function lancerSortSorealIdle(...args) {
  * ============================================================
  */
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulte` (2e paramètre, optionnel) : wiki NGU, "at the bottom of the
+ * rebirth screen, there is a choice of Normal, Evil difficulty or
+ * Sadistic" -- le vrai jeu propose ce choix DANS le même clic Rebirth,
+ * jamais une action séparée. Absent/omis = comportement strictement
+ * inchangé (Rebirth normal, difficulté actuelle conservée).
+ */
 function renaitreSorealIdle(
-  sessionToken
+  sessionToken,
+  difficulte
 ) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   const lock = LockService.getScriptLock();
@@ -12981,14 +13037,34 @@ function renaitreSorealIdle(
       stats.metaNgu = rebirthIdleNguState(
         stats.metaNgu,
         contexte,
-        maintenant
+        maintenant,
+        { difficulty: difficulte }
       );
     } catch (erreurRebirth) {
-      if (String(erreurRebirth && erreurRebirth.message || erreurRebirth) === 'REBIRTH_TROP_TOT') {
+      const codeErreurRebirth = String(erreurRebirth && erreurRebirth.message || erreurRebirth);
+      if (codeErreurRebirth === 'REBIRTH_TROP_TOT') {
         return {
           ok:false,
           code:'REBIRTH_TROP_TOT',
           message:'Un Rebirth demande au moins 3 minutes de run.',
+          joueur:ajouterCoutsEntrainementEtatSorealIdle_(
+            construireEtatJoueurSorealIdle_(feuille,ligne,null)
+          )
+        };
+      }
+      /*
+       * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+       * Même traitement que REBIRTH_TROP_TOT ci-dessus : un choix de
+       * difficulté non débloquée ne doit jamais planter la requête, juste
+       * renvoyer un état joueur inchangé avec un code exploitable côté
+       * client (cf. idleNguDifficultyUnlockRequirementsV1 pour savoir quelle
+       * condition manque encore).
+       */
+      if (codeErreurRebirth === 'DIFFICULTE_VERROUILLEE') {
+        return {
+          ok:false,
+          code:'DIFFICULTE_VERROUILLEE',
+          message:'Les conditions de déblocage de cette difficulté ne sont pas encore réunies.',
           joueur:ajouterCoutsEntrainementEtatSorealIdle_(
             construireEtatJoueurSorealIdle_(feuille,ligne,null)
           )
@@ -13003,7 +13079,7 @@ function renaitreSorealIdle(
     );
     stats.modeleJeuVersion = BASIC_TRAINING_V411.version;
 
-    const boss = definitionBossSorealIdle_(0);
+    const boss = definitionBossSorealIdle_(0, stats.metaNgu && stats.metaNgu.difficulty);
     const energieDepart = Math.max(0,CONFIG_SOREAL_IDLE.ENERGIE_BASE);
 
     /*
@@ -14805,7 +14881,10 @@ export const idleRuntimeTestHooks=Object.freeze({
   xpBossSorealIdle_,
   highestBossJamaisAtteintSorealIdle_,
   xpBonusPremiereFoisSorealIdle_,
-  enregistrerBossJamaisVaincuSorealIdle_
+  enregistrerBossJamaisVaincuSorealIdle_,
+  attaqueBossSorealIdle_,
+  defenseBossSorealIdle_,
+  pvMaxBossSorealIdle_
 });
 
 export function runSorealIdleOperation(sql,operation,args,user){

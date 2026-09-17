@@ -3919,15 +3919,42 @@ function difficultyAction(state, payload, context, t) {
     if (!req[requested].met) throw new Error("DIFFICULTE_VERROUILLEE");
   }
   applyRebirthResetV56_(state, context, t, { forceNumber: 1, clearBanks: true, difficulty: requested });
-  return { difficulty: requested };
+  /*
+   * challengeReset:true (2026-09-18) : réutilise le même signal que
+   * challengeAction (idle-sqlite-runtime.js::agirProgressionSorealIdle,
+   * "if(applique.result&&applique.result.challengeReset)") -- ce
+   * changement de difficulté vient de remettre number à 1/vider les banks
+   * exactement comme un démarrage de défi ; le moteur de combat de la
+   * ladder de boss (état ligne JOUEURS, séparé de ce fichier) doit se
+   * réinitialiser à l'identique (BOSS_VAINCUS=0, etc.), pas seulement
+   * l'état meta NGU géré ici.
+   */
+  return { difficulty: requested, challengeReset: true };
 }
 
-export function rebirthIdleNguState(raw,context={},now=Date.now()) {
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `options.difficulty` (optionnel, absent = comportement strictement
+ * inchangé pour tous les appelants existants) : wiki NGU, "at the bottom
+ * of the rebirth screen, there is a choice of Normal, Evil difficulty or
+ * Sadistic" -- le choix de difficulté fait partie du MÊME clic Rebirth
+ * dans le vrai jeu, jamais une action séparée. Quand la difficulté
+ * demandée diffère de l'actuelle, applique le même traitement que
+ * difficultyAction (déblocage vérifié, number forcé à 1, banks vidées --
+ * "similar to starting a challenge").
+ */
+export function rebirthIdleNguState(raw,context={},now=Date.now(),options={}) {
   const t=nowMs(now);
   const state=syncIdleNguState(raw,context,t);
   if(state.challenge?.active==="noRebirth")throw new Error("REBIRTH_INTERDITE_DEFI");
   if(Math.max(0,int(context.bosses,0))<REBIRTH_UNLOCK_BOSS_V1)throw new Error("REBIRTH_VERROUILLEE_AVENTURE");
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
   if(runSeconds<MIN_REBIRTH_SECONDS)throw new Error("REBIRTH_TROP_TOT");
-  return applyRebirthResetV56_(state,context,t,{});
+  const requestedDifficulty=["normal","difficile","extreme"].includes(options.difficulty)?options.difficulty:state.difficulty;
+  const changingDifficulty=requestedDifficulty!==state.difficulty;
+  if(changingDifficulty&&requestedDifficulty!=="normal"){
+    const req=idleNguDifficultyUnlockRequirementsV1(state,context);
+    if(!req[requestedDifficulty].met)throw new Error("DIFFICULTE_VERROUILLEE");
+  }
+  return applyRebirthResetV56_(state,context,t,changingDifficulty?{forceNumber:1,clearBanks:true,difficulty:requestedDifficulty}:{});
 }
