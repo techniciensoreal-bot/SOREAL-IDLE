@@ -1356,12 +1356,6 @@ function resourceThroughput(state, resource) {
   return Math.max(1, r.power) * Math.max(1, r.bars);
 }
 
-function allocatedFraction(state, systemId, resource) {
-  const s = state.systems[systemId];
-  const cap = Math.max(1, state.resources[resource]?.cap || 1);
-  return clamp(num(s?.allocation?.[resource], 0) / cap, 0, 1);
-}
-
 function totalAllocated(state, resource, exceptId = "") {
   let total = 0;
   for (const def of IDLE_NGU_SYSTEMS) {
