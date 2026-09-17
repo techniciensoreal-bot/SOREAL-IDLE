@@ -1,0 +1,2207 @@
+[
+  {
+    "id": 1,
+    "nom": "A Small Piece of Fluff",
+    "bfHp": 500000,
+    "bfPower": 50000,
+    "bfToughness": 40000,
+    "bfHpRegen": 40,
+    "bfExp": "0 (2 first time ever)"
+  },
+  {
+    "id": 2,
+    "nom": "Floating Sewage",
+    "bfHp": 1000000,
+    "bfPower": 100000,
+    "bfToughness": 90000,
+    "bfHpRegen": 90,
+    "bfExp": "0 (3 first time ever)"
+  },
+  {
+    "id": 3,
+    "nom": "A Stick?",
+    "bfHp": 4000000,
+    "bfPower": 400000,
+    "bfToughness": 350000,
+    "bfHpRegen": 350,
+    "bfExp": "0 (4 first time ever)"
+  },
+  {
+    "id": 4,
+    "nom": "A Small Mouse",
+    "bfHp": 11000000,
+    "bfPower": 1100000,
+    "bfToughness": 600000,
+    "bfHpRegen": 170,
+    "bfExp": "1 (10 first time ever)"
+  },
+  {
+    "id": 5,
+    "nom": "A Slightly Bigger Mouse",
+    "bfHp": 65000000,
+    "bfPower": 6500000,
+    "bfToughness": 3500000,
+    "bfHpRegen": 1000,
+    "bfExp": "0 (3 first time beaten)"
+  },
+  {
+    "id": 6,
+    "nom": "A Large Rat",
+    "bfHp": 325000000,
+    "bfPower": 32500000,
+    "bfToughness": 17500000,
+    "bfHpRegen": 5000,
+    "bfExp": "0 (3 first time beaten)"
+  },
+  {
+    "id": 7,
+    "nom": "Brown Slime",
+    "bfHp": 1625000000,
+    "bfPower": 162500000,
+    "bfToughness": 87500000,
+    "bfHpRegen": 25000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 8,
+    "nom": "Skeleton",
+    "bfHp": 8125000000,
+    "bfPower": 812500000,
+    "bfToughness": 437500000,
+    "bfHpRegen": 125000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 9,
+    "nom": "Goblin",
+    "bfHp": 40620000000,
+    "bfPower": 4062000000,
+    "bfToughness": 2188000000,
+    "bfHpRegen": 625000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 10,
+    "nom": "Orc",
+    "bfHp": 203100000000,
+    "bfPower": 20310000000,
+    "bfToughness": 10940000000,
+    "bfHpRegen": 3125000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 11,
+    "nom": "Slow Zombie",
+    "bfHp": 1016000000000,
+    "bfPower": 101600000000,
+    "bfToughness": 54690000000,
+    "bfHpRegen": 15620000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 12,
+    "nom": "Fast Zombie",
+    "bfHp": 5078000000000,
+    "bfPower": 507800000000,
+    "bfToughness": 273400000000,
+    "bfHpRegen": 78120000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 13,
+    "nom": "Ent",
+    "bfHp": 25390000000000,
+    "bfPower": 2539000000000,
+    "bfToughness": 1367000000000,
+    "bfHpRegen": 390600000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 14,
+    "nom": "Giant",
+    "bfHp": 127000000000000,
+    "bfPower": 12700000000000,
+    "bfToughness": 6836000000000,
+    "bfHpRegen": 1953000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 15,
+    "nom": "Rat of Unusual Size",
+    "bfHp": 634800000000000,
+    "bfPower": 63480000000000,
+    "bfToughness": 34180000000000,
+    "bfHpRegen": 9766000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 16,
+    "nom": "Fairy",
+    "bfHp": 3174000000000000,
+    "bfPower": 317400000000000,
+    "bfToughness": 170900000000000,
+    "bfHpRegen": 48830000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 17,
+    "nom": "Gorgon",
+    "bfHp": 15870000000000000,
+    "bfPower": 1587000000000000,
+    "bfToughness": 854500000000000,
+    "bfHpRegen": 244100000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 18,
+    "nom": "Gorgonzola",
+    "bfHp": 79350000000000000,
+    "bfPower": 7935000000000000,
+    "bfToughness": 4272000000000000,
+    "bfHpRegen": 1221000000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 19,
+    "nom": "Brie",
+    "bfHp": 396700000000000000,
+    "bfPower": 39670000000000000,
+    "bfToughness": 21360000000000000,
+    "bfHpRegen": 6104000000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 20,
+    "nom": "Gouda",
+    "bfHp": 1984000000000000000,
+    "bfPower": 198400000000000000,
+    "bfToughness": 106800000000000000,
+    "bfHpRegen": 30520000000000,
+    "bfExp": "1 (3 first time beaten)"
+  },
+  {
+    "id": 21,
+    "nom": "Blue Cheese",
+    "bfHp": 19840000000000000000,
+    "bfPower": 1984000000000000000,
+    "bfToughness": 1068000000000000000,
+    "bfHpRegen": 305200000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 22,
+    "nom": "Parmesan",
+    "bfHp": 198400000000000000000,
+    "bfPower": 19840000000000000000,
+    "bfToughness": 10680000000000000000,
+    "bfHpRegen": 3052000000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 23,
+    "nom": "Limburger Cheese",
+    "bfHp": 1.984e+21,
+    "bfPower": 198400000000000000000,
+    "bfToughness": 106800000000000000000,
+    "bfHpRegen": 30520000000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 24,
+    "nom": "Mega-Rat",
+    "bfHp": 1.984e+22,
+    "bfPower": 1.984e+21,
+    "bfToughness": 1.068e+21,
+    "bfHpRegen": 305200000000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 25,
+    "nom": "Robot",
+    "bfHp": 1.984e+23,
+    "bfPower": 1.984e+22,
+    "bfToughness": 1.068e+22,
+    "bfHpRegen": 3052000000000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 26,
+    "nom": "A fluffy Chair",
+    "bfHp": 1.984e+24,
+    "bfPower": 1.984e+23,
+    "bfToughness": 1.068e+23,
+    "bfHpRegen": 30520000000000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 27,
+    "nom": "Couch",
+    "bfHp": 1.984e+25,
+    "bfPower": 1.984e+24,
+    "bfToughness": 1.068e+24,
+    "bfHpRegen": 305200000000000000000,
+    "bfExp": "1"
+  },
+  {
+    "id": 28,
+    "nom": "Floppy Mattress",
+    "bfHp": 1.984e+26,
+    "bfPower": 1.984e+25,
+    "bfToughness": 1.068e+25,
+    "bfHpRegen": 3.052e+21,
+    "bfExp": "1"
+  },
+  {
+    "id": 29,
+    "nom": "Evil Fridge",
+    "bfHp": 1.984e+27,
+    "bfPower": 1.984e+26,
+    "bfToughness": 1.068e+26,
+    "bfHpRegen": 3.052e+22,
+    "bfExp": "1"
+  },
+  {
+    "id": 30,
+    "nom": "T-800",
+    "bfHp": 1.984e+28,
+    "bfPower": 1.984e+27,
+    "bfToughness": 1.068e+27,
+    "bfHpRegen": 3.052e+23,
+    "bfExp": "1"
+  },
+  {
+    "id": 31,
+    "nom": "A Wide Screen T.V",
+    "bfHp": 1.984e+29,
+    "bfPower": 1.984e+28,
+    "bfToughness": 1.068e+28,
+    "bfHpRegen": 3.052e+24,
+    "bfExp": "1"
+  },
+  {
+    "id": 32,
+    "nom": "The Kitchen Sink",
+    "bfHp": 1.984e+30,
+    "bfPower": 1.984e+29,
+    "bfToughness": 1.068e+29,
+    "bfHpRegen": 3.052e+25,
+    "bfExp": "1"
+  },
+  {
+    "id": 33,
+    "nom": "A Giant Mole",
+    "bfHp": 1.984e+31,
+    "bfPower": 1.984e+30,
+    "bfToughness": 1.068e+30,
+    "bfHpRegen": 3.052e+26,
+    "bfExp": "1"
+  },
+  {
+    "id": 34,
+    "nom": "A Second Giant Mole",
+    "bfHp": 1.984e+32,
+    "bfPower": 1.984e+31,
+    "bfToughness": 1.068e+31,
+    "bfHpRegen": 3.052e+27,
+    "bfExp": "2"
+  },
+  {
+    "id": 35,
+    "nom": "A Third Giant Mole",
+    "bfHp": 1.984e+33,
+    "bfPower": 1.984e+32,
+    "bfToughness": 1.068e+32,
+    "bfHpRegen": 3.052e+28,
+    "bfExp": "2"
+  },
+  {
+    "id": 36,
+    "nom": "A Fourth Giant Mole",
+    "bfHp": 1.984e+34,
+    "bfPower": 1.984e+33,
+    "bfToughness": 1.068e+33,
+    "bfHpRegen": 3.052e+29,
+    "bfExp": "2"
+  },
+  {
+    "id": 37,
+    "nom": "A Fifth Giant Mole",
+    "bfHp": 1.984e+35,
+    "bfPower": 1.984e+34,
+    "bfToughness": 1.068e+34,
+    "bfHpRegen": 3.052e+30,
+    "bfExp": "2"
+  },
+  {
+    "id": 38,
+    "nom": "Kid On a Cloud",
+    "bfHp": 1.984e+36,
+    "bfPower": 1.984e+35,
+    "bfToughness": 1.068e+35,
+    "bfHpRegen": 3.052e+31,
+    "bfExp": "2"
+  },
+  {
+    "id": 39,
+    "nom": "747",
+    "bfHp": 1.984e+37,
+    "bfPower": 1.984e+36,
+    "bfToughness": 1.068e+36,
+    "bfHpRegen": 3.052e+32,
+    "bfExp": "2"
+  },
+  {
+    "id": 40,
+    "nom": "Oriental Dragon",
+    "bfHp": 1.984e+38,
+    "bfPower": 1.984e+37,
+    "bfToughness": 1.068e+37,
+    "bfHpRegen": 3.052e+33,
+    "bfExp": "2"
+  },
+  {
+    "id": 41,
+    "nom": "Lester",
+    "bfHp": 1.984e+39,
+    "bfPower": 1.984e+38,
+    "bfToughness": 1.068e+38,
+    "bfHpRegen": 3.052e+34,
+    "bfExp": "2"
+  },
+  {
+    "id": 42,
+    "nom": "Excitable Ninja Samurai",
+    "bfHp": 1.984e+40,
+    "bfPower": 1.984e+39,
+    "bfToughness": 1.068e+39,
+    "bfHpRegen": 3.052e+35,
+    "bfExp": "2"
+  },
+  {
+    "id": 43,
+    "nom": "Icarus Proudbottom",
+    "bfHp": 1.984e+41,
+    "bfPower": 1.984e+40,
+    "bfToughness": 1.068e+40,
+    "bfHpRegen": 3.052e+36,
+    "bfExp": "2"
+  },
+  {
+    "id": 44,
+    "nom": "Gigantic Flock of Seagulls",
+    "bfHp": 1.984e+42,
+    "bfPower": 1.984e+41,
+    "bfToughness": 1.068e+41,
+    "bfHpRegen": 3.052e+37,
+    "bfExp": "3"
+  },
+  {
+    "id": 45,
+    "nom": "Gigantic Flock of Canada Geese",
+    "bfHp": 1.984e+43,
+    "bfPower": 1.984e+42,
+    "bfToughness": 1.068e+42,
+    "bfHpRegen": 3.052e+38,
+    "bfExp": "3"
+  },
+  {
+    "id": 46,
+    "nom": "A Weird Two-Headed Guy",
+    "bfHp": 1.984e+44,
+    "bfPower": 1.984e+43,
+    "bfToughness": 1.068e+43,
+    "bfHpRegen": 3.052e+39,
+    "bfExp": "3"
+  },
+  {
+    "id": 47,
+    "nom": "A Bird Person",
+    "bfHp": 1.984e+45,
+    "bfPower": 1.984e+44,
+    "bfToughness": 1.068e+44,
+    "bfHpRegen": 3.052e+40,
+    "bfExp": "3"
+  },
+  {
+    "id": 48,
+    "nom": "The Bouncer",
+    "bfHp": 1.984e+46,
+    "bfPower": 1.984e+45,
+    "bfToughness": 1.068e+45,
+    "bfHpRegen": 3.052e+41,
+    "bfExp": "3"
+  },
+  {
+    "id": 49,
+    "nom": "Hooloovoo",
+    "bfHp": 1.984e+47,
+    "bfPower": 1.984e+46,
+    "bfToughness": 1.068e+46,
+    "bfHpRegen": 3.052e+42,
+    "bfExp": "3"
+  },
+  {
+    "id": 50,
+    "nom": "Gross Green Alien",
+    "bfHp": 1.984e+48,
+    "bfPower": 1.984e+47,
+    "bfToughness": 1.068e+47,
+    "bfHpRegen": 3.052e+43,
+    "bfExp": "3"
+  },
+  {
+    "id": 51,
+    "nom": "The Rat God",
+    "bfHp": 1.984e+49,
+    "bfPower": 1.984e+48,
+    "bfToughness": 1.068e+48,
+    "bfHpRegen": 3.052e+44,
+    "bfExp": "3"
+  },
+  {
+    "id": 52,
+    "nom": "Massive Plant Monster",
+    "bfHp": 1.984e+50,
+    "bfPower": 1.984e+49,
+    "bfToughness": 1.068e+49,
+    "bfHpRegen": 3.052e+45,
+    "bfExp": "3"
+  },
+  {
+    "id": 53,
+    "nom": "High Security Insect Guard 1",
+    "bfHp": 1.984e+51,
+    "bfPower": 1.984e+50,
+    "bfToughness": 1.068e+50,
+    "bfHpRegen": 3.052e+46,
+    "bfExp": "3"
+  },
+  {
+    "id": 54,
+    "nom": "High Security Insect Guard 2",
+    "bfHp": 1.984e+52,
+    "bfPower": 1.984e+51,
+    "bfToughness": 1.068e+51,
+    "bfHpRegen": 3.052e+47,
+    "bfExp": "4"
+  },
+  {
+    "id": 55,
+    "nom": "The Experiment",
+    "bfHp": 1.984e+53,
+    "bfPower": 1.984e+52,
+    "bfToughness": 1.068e+52,
+    "bfHpRegen": 3.052e+48,
+    "bfExp": "4"
+  },
+  {
+    "id": 56,
+    "nom": "A Whole Lotta Guards",
+    "bfHp": 1.984e+54,
+    "bfPower": 1.984e+53,
+    "bfToughness": 1.068e+53,
+    "bfHpRegen": 3.052e+49,
+    "bfExp": "4"
+  },
+  {
+    "id": 57,
+    "nom": "One Mega-Guard",
+    "bfHp": 1.984e+55,
+    "bfPower": 1.984e+54,
+    "bfToughness": 1.068e+54,
+    "bfHpRegen": 3.052e+50,
+    "bfExp": "4"
+  },
+  {
+    "id": 58,
+    "nom": "Spiky Haired Guy",
+    "bfHp": 1.984e+56,
+    "bfPower": 1.984e+55,
+    "bfToughness": 1.068e+55,
+    "bfHpRegen": 3.052e+51,
+    "bfExp": "4"
+  },
+  {
+    "id": 59,
+    "nom": "Monday",
+    "bfHp": 1.984e+57,
+    "bfPower": 1.984e+56,
+    "bfToughness": 1.068e+56,
+    "bfHpRegen": 3.052e+52,
+    "bfExp": "4"
+  },
+  {
+    "id": 60,
+    "nom": "Tuesday",
+    "bfHp": 1.984e+58,
+    "bfPower": 1.984e+57,
+    "bfToughness": 1.068e+57,
+    "bfHpRegen": 3.052e+53,
+    "bfExp": "4"
+  },
+  {
+    "id": 61,
+    "nom": "Wednesday",
+    "bfHp": 1.984e+59,
+    "bfPower": 1.984e+58,
+    "bfToughness": 1.068e+58,
+    "bfHpRegen": 3.052e+54,
+    "bfExp": "4"
+  },
+  {
+    "id": 62,
+    "nom": "Thursday",
+    "bfHp": 1.984e+60,
+    "bfPower": 1.984e+59,
+    "bfToughness": 1.068e+59,
+    "bfHpRegen": 3.052e+55,
+    "bfExp": "4"
+  },
+  {
+    "id": 63,
+    "nom": "Friday",
+    "bfHp": 1.984e+61,
+    "bfPower": 1.984e+60,
+    "bfToughness": 1.068e+60,
+    "bfHpRegen": 3.052e+56,
+    "bfExp": "4"
+  },
+  {
+    "id": 64,
+    "nom": "Saturday",
+    "bfHp": 1.984e+62,
+    "bfPower": 1.984e+61,
+    "bfToughness": 1.068e+61,
+    "bfHpRegen": 3.052e+57,
+    "bfExp": "5"
+  },
+  {
+    "id": 65,
+    "nom": "Sunday",
+    "bfHp": 1.984e+63,
+    "bfPower": 1.984e+62,
+    "bfToughness": 1.068e+62,
+    "bfHpRegen": 3.052e+58,
+    "bfExp": "5"
+  },
+  {
+    "id": 66,
+    "nom": "Sundae",
+    "bfHp": 1.984e+64,
+    "bfPower": 1.984e+63,
+    "bfToughness": 1.068e+63,
+    "bfHpRegen": 3.052e+59,
+    "bfExp": "5"
+  },
+  {
+    "id": 67,
+    "nom": "A Flat Mouse",
+    "bfHp": 1.984e+65,
+    "bfPower": 1.984e+64,
+    "bfToughness": 1.068e+64,
+    "bfHpRegen": 3.052e+60,
+    "bfExp": "5"
+  },
+  {
+    "id": 68,
+    "nom": "A Tiny Triangle",
+    "bfHp": 1.984e+66,
+    "bfPower": 1.984e+65,
+    "bfToughness": 1.068e+65,
+    "bfHpRegen": 3.052e+61,
+    "bfExp": "5"
+  },
+  {
+    "id": 69,
+    "nom": "A Square Bear",
+    "bfHp": 1.984e+67,
+    "bfPower": 1.984e+66,
+    "bfToughness": 1.068e+66,
+    "bfHpRegen": 3.052e+62,
+    "bfExp": "5"
+  },
+  {
+    "id": 70,
+    "nom": "The Pentagon",
+    "bfHp": 1.984e+68,
+    "bfPower": 1.984e+67,
+    "bfToughness": 1.068e+67,
+    "bfHpRegen": 3.052e+63,
+    "bfExp": "5"
+  },
+  {
+    "id": 71,
+    "nom": "A Super Hexagon",
+    "bfHp": 1.984e+69,
+    "bfPower": 1.984e+68,
+    "bfToughness": 1.068e+68,
+    "bfHpRegen": 3.052e+64,
+    "bfExp": "5"
+  },
+  {
+    "id": 72,
+    "nom": "The First Stop Sign",
+    "bfHp": 1.984e+70,
+    "bfPower": 1.984e+69,
+    "bfToughness": 1.068e+69,
+    "bfHpRegen": 3.052e+65,
+    "bfExp": "5"
+  },
+  {
+    "id": 73,
+    "nom": "The Second Stop Sign",
+    "bfHp": 1.984e+71,
+    "bfPower": 1.984e+70,
+    "bfToughness": 1.068e+70,
+    "bfHpRegen": 3.052e+66,
+    "bfExp": "5"
+  },
+  {
+    "id": 74,
+    "nom": "KING CIRCLE",
+    "bfHp": 1.984e+72,
+    "bfPower": 1.984e+71,
+    "bfToughness": 1.068e+71,
+    "bfHpRegen": 3.052e+67,
+    "bfExp": "6"
+  },
+  {
+    "id": 75,
+    "nom": "Ghost Mice",
+    "bfHp": 1.984e+73,
+    "bfPower": 1.984e+72,
+    "bfToughness": 1.068e+72,
+    "bfHpRegen": 3.052e+68,
+    "bfExp": "6"
+  },
+  {
+    "id": 76,
+    "nom": "Crasper, The Pissed Off Ghost",
+    "bfHp": 1.984e+74,
+    "bfPower": 1.984e+73,
+    "bfToughness": 1.068e+73,
+    "bfHpRegen": 3.052e+69,
+    "bfExp": "6"
+  },
+  {
+    "id": 77,
+    "nom": "Ghost Dad",
+    "bfHp": 1.984e+75,
+    "bfPower": 1.984e+74,
+    "bfToughness": 1.068e+74,
+    "bfHpRegen": 3.052e+70,
+    "bfExp": "6"
+  },
+  {
+    "id": 78,
+    "nom": "Living Armor",
+    "bfHp": 1.984e+76,
+    "bfPower": 1.984e+75,
+    "bfToughness": 1.068e+75,
+    "bfHpRegen": 3.052e+71,
+    "bfExp": "6"
+  },
+  {
+    "id": 79,
+    "nom": "Living Armour",
+    "bfHp": 1.984e+77,
+    "bfPower": 1.984e+76,
+    "bfToughness": 1.068e+76,
+    "bfHpRegen": 3.052e+72,
+    "bfExp": "6"
+  },
+  {
+    "id": 80,
+    "nom": "\"\"",
+    "bfHp": 1.984e+78,
+    "bfPower": 1.984e+77,
+    "bfToughness": 1.068e+77,
+    "bfHpRegen": 3.052e+73,
+    "bfExp": "6"
+  },
+  {
+    "id": 81,
+    "nom": "The Pantheon of Fallen Gods",
+    "bfHp": 1.984e+79,
+    "bfPower": 1.984e+78,
+    "bfToughness": 1.068e+78,
+    "bfHpRegen": 3.052e+74,
+    "bfExp": "6"
+  },
+  {
+    "id": 82,
+    "nom": "Mysterious Figure",
+    "bfHp": 1.984e+80,
+    "bfPower": 1.984e+79,
+    "bfToughness": 1.068e+79,
+    "bfHpRegen": 3.052e+75,
+    "bfExp": "6"
+  },
+  {
+    "id": 83,
+    "nom": "The Entire Alphabet Up a Coconut Tree",
+    "bfHp": 1.984e+81,
+    "bfPower": 1.984e+80,
+    "bfToughness": 1.068e+80,
+    "bfHpRegen": 3.052e+76,
+    "bfExp": "6"
+  },
+  {
+    "id": 84,
+    "nom": "The Lummox",
+    "bfHp": 1.984e+82,
+    "bfPower": 1.984e+81,
+    "bfToughness": 1.068e+81,
+    "bfHpRegen": 3.052e+77,
+    "bfExp": "7"
+  },
+  {
+    "id": 85,
+    "nom": "A Metal Slime",
+    "bfHp": 1.984e+83,
+    "bfPower": 1.984e+82,
+    "bfToughness": 1.068e+82,
+    "bfHpRegen": 3.052e+78,
+    "bfExp": "7"
+  },
+  {
+    "id": 86,
+    "nom": "A Ginormous Sword",
+    "bfHp": 1.984e+84,
+    "bfPower": 1.984e+83,
+    "bfToughness": 1.068e+83,
+    "bfHpRegen": 3.052e+79,
+    "bfExp": "7"
+  },
+  {
+    "id": 87,
+    "nom": "Kenny",
+    "bfHp": 1.984e+85,
+    "bfPower": 1.984e+84,
+    "bfToughness": 1.068e+84,
+    "bfHpRegen": 3.052e+80,
+    "bfExp": "7"
+  },
+  {
+    "id": 88,
+    "nom": "Vic",
+    "bfHp": 1.984e+86,
+    "bfPower": 1.984e+85,
+    "bfToughness": 1.068e+85,
+    "bfHpRegen": 3.052e+81,
+    "bfExp": "7"
+  },
+  {
+    "id": 89,
+    "nom": "An Ordinary Chicken",
+    "bfHp": 1.984e+87,
+    "bfPower": 1.984e+86,
+    "bfToughness": 1.068e+86,
+    "bfHpRegen": 3.052e+82,
+    "bfExp": "7"
+  },
+  {
+    "id": 90,
+    "nom": "743 pissed off Cuckoos",
+    "bfHp": 1.984e+88,
+    "bfPower": 1.984e+87,
+    "bfToughness": 1.068e+87,
+    "bfHpRegen": 3.052e+83,
+    "bfExp": "7"
+  },
+  {
+    "id": 91,
+    "nom": "Broken VCR Man",
+    "bfHp": 1.984e+89,
+    "bfPower": 1.984e+88,
+    "bfToughness": 1.068e+88,
+    "bfHpRegen": 3.052e+84,
+    "bfExp": "7"
+  },
+  {
+    "id": 93,
+    "nom": "Mr Plow",
+    "bfHp": 1.984e+91,
+    "bfPower": 1.984e+90,
+    "bfToughness": 1.068e+90,
+    "bfHpRegen": 3.052e+86,
+    "bfExp": "7"
+  },
+  {
+    "id": 94,
+    "nom": "ROBUTT",
+    "bfHp": 1.984e+92,
+    "bfPower": 1.984e+91,
+    "bfToughness": 1.068e+91,
+    "bfHpRegen": 3.052e+87,
+    "bfExp": "8"
+  },
+  {
+    "id": 95,
+    "nom": "Former Canadian PM Stephen Harper",
+    "bfHp": 1.984e+93,
+    "bfPower": 1.984e+92,
+    "bfToughness": 1.068e+92,
+    "bfHpRegen": 3.052e+88,
+    "bfExp": "8"
+  },
+  {
+    "id": 96,
+    "nom": "A Cyberdemon",
+    "bfHp": 1.984e+94,
+    "bfPower": 1.984e+93,
+    "bfToughness": 1.068e+93,
+    "bfHpRegen": 3.052e+89,
+    "bfExp": "8"
+  },
+  {
+    "id": 97,
+    "nom": "Robo Rat 9000",
+    "bfHp": 1.984e+95,
+    "bfPower": 1.984e+94,
+    "bfToughness": 1.068e+94,
+    "bfHpRegen": 3.052e+90,
+    "bfExp": "8"
+  },
+  {
+    "id": 98,
+    "nom": "Butter-Passing Robot",
+    "bfHp": 1.984e+96,
+    "bfPower": 1.984e+95,
+    "bfToughness": 1.068e+95,
+    "bfHpRegen": 3.052e+91,
+    "bfExp": "8"
+  },
+  {
+    "id": 99,
+    "nom": "ALL of The Robot Masters. Again.",
+    "bfHp": 1.984e+97,
+    "bfPower": 1.984e+96,
+    "bfToughness": 1.068e+96,
+    "bfHpRegen": 3.052e+92,
+    "bfExp": "8"
+  },
+  {
+    "id": 100,
+    "nom": "Doctor Wahwee",
+    "bfHp": 1.984e+98,
+    "bfPower": 1.984e+97,
+    "bfToughness": 1.068e+97,
+    "bfHpRegen": 3.052e+93,
+    "bfExp": "8"
+  },
+  {
+    "id": 101,
+    "nom": "A Bearded Lady",
+    "bfHp": 1.984e+99,
+    "bfPower": 1.984e+98,
+    "bfToughness": 1.068e+98,
+    "bfHpRegen": 3.052e+94,
+    "bfExp": "8"
+  },
+  {
+    "id": 102,
+    "nom": "A Bearded Man",
+    "bfHp": 1.984e+100,
+    "bfPower": 1.984e+99,
+    "bfToughness": 1.068e+99,
+    "bfHpRegen": 3.052e+95,
+    "bfExp": "8"
+  },
+  {
+    "id": 103,
+    "nom": "Cousin Itt",
+    "bfHp": 1.984e+101,
+    "bfPower": 1.984e+100,
+    "bfToughness": 1.068e+100,
+    "bfHpRegen": 3.052e+96,
+    "bfExp": "8"
+  },
+  {
+    "id": 104,
+    "nom": "A Naked Molerat",
+    "bfHp": 1.984e+102,
+    "bfPower": 1.984e+101,
+    "bfToughness": 1.068e+101,
+    "bfHpRegen": 3.052e+97,
+    "bfExp": "9"
+  },
+  {
+    "id": 105,
+    "nom": "Rob Boss",
+    "bfHp": 1.984e+103,
+    "bfPower": 1.984e+102,
+    "bfToughness": 1.068e+102,
+    "bfHpRegen": 3.052e+98,
+    "bfExp": "9"
+  },
+  {
+    "id": 106,
+    "nom": "An Orange Toupée With Fists",
+    "bfHp": 1.984e+104,
+    "bfPower": 1.984e+103,
+    "bfToughness": 1.068e+103,
+    "bfHpRegen": 3.052e+99,
+    "bfExp": "9"
+  },
+  {
+    "id": 107,
+    "nom": "Gossamer",
+    "bfHp": 1.984e+105,
+    "bfPower": 1.984e+104,
+    "bfToughness": 1.068e+104,
+    "bfHpRegen": 3.052e+100,
+    "bfExp": "9"
+  },
+  {
+    "id": 108,
+    "nom": "A Clogged Shower Drain",
+    "bfHp": 1.984e+106,
+    "bfPower": 1.984e+105,
+    "bfToughness": 1.068e+105,
+    "bfHpRegen": 3.052e+101,
+    "bfExp": "9"
+  },
+  {
+    "id": 109,
+    "nom": "Badly Drawn Dragon",
+    "bfHp": 1.984e+107,
+    "bfPower": 1.984e+106,
+    "bfToughness": 1.068e+106,
+    "bfHpRegen": 3.052e+102,
+    "bfExp": "9"
+  },
+  {
+    "id": 110,
+    "nom": "Really Bad Sonic Fanart",
+    "bfHp": 1.984e+108,
+    "bfPower": 1.984e+107,
+    "bfToughness": 1.068e+107,
+    "bfHpRegen": 3.052e+103,
+    "bfExp": "9"
+  },
+  {
+    "id": 111,
+    "nom": "Badly Drawn Schoolgirl",
+    "bfHp": 1.984e+109,
+    "bfPower": 1.984e+108,
+    "bfToughness": 1.068e+108,
+    "bfHpRegen": 3.052e+104,
+    "bfExp": "9"
+  },
+  {
+    "id": 112,
+    "nom": "No Enemy(?)",
+    "bfHp": 1.984e+110,
+    "bfPower": 1.984e+109,
+    "bfToughness": 1.068e+109,
+    "bfHpRegen": 3.052e+105,
+    "bfExp": "9"
+  },
+  {
+    "id": 113,
+    "nom": "Really Bad MLP Fanart",
+    "bfHp": 1.984e+111,
+    "bfPower": 1.984e+110,
+    "bfToughness": 1.068e+110,
+    "bfHpRegen": 3.052e+106,
+    "bfExp": "9"
+  },
+  {
+    "id": 114,
+    "nom": "Loss.png",
+    "bfHp": 1.984e+112,
+    "bfPower": 1.984e+111,
+    "bfToughness": 1.068e+111,
+    "bfHpRegen": 3.052e+107,
+    "bfExp": "10"
+  },
+  {
+    "id": 117,
+    "nom": "The Eiffel Tower",
+    "bfHp": 1.984e+115,
+    "bfPower": 1.984e+114,
+    "bfToughness": 1.068e+114,
+    "bfHpRegen": 3.052e+110,
+    "bfExp": "10"
+  },
+  {
+    "id": 118,
+    "nom": "A Mummy",
+    "bfHp": 1.984e+116,
+    "bfPower": 1.984e+115,
+    "bfToughness": 1.068e+115,
+    "bfHpRegen": 3.052e+111,
+    "bfExp": "10"
+  },
+  {
+    "id": 119,
+    "nom": "A Daddy",
+    "bfHp": 1.984e+117,
+    "bfPower": 1.984e+116,
+    "bfToughness": 1.068e+116,
+    "bfHpRegen": 3.052e+112,
+    "bfExp": "10"
+  },
+  {
+    "id": 120,
+    "nom": "Two Bananas In Pyjamas",
+    "bfHp": 1.984e+118,
+    "bfPower": 1.984e+117,
+    "bfToughness": 1.068e+117,
+    "bfHpRegen": 3.052e+113,
+    "bfExp": "10"
+  },
+  {
+    "id": 121,
+    "nom": "Giant Raisins From California",
+    "bfHp": 1.984e+119,
+    "bfPower": 1.984e+118,
+    "bfToughness": 1.068e+118,
+    "bfHpRegen": 3.052e+114,
+    "bfExp": "10"
+  },
+  {
+    "id": 122,
+    "nom": "An Annoying Penguin",
+    "bfHp": 1.984e+120,
+    "bfPower": 1.984e+119,
+    "bfToughness": 1.068e+119,
+    "bfHpRegen": 3.052e+115,
+    "bfExp": "10"
+  },
+  {
+    "id": 123,
+    "nom": "An Army of Annoying Penguins",
+    "bfHp": 1.984e+121,
+    "bfPower": 1.984e+120,
+    "bfToughness": 1.068e+120,
+    "bfHpRegen": 3.052e+116,
+    "bfExp": "10"
+  },
+  {
+    "id": 124,
+    "nom": "The Elusive 'C.S'",
+    "bfHp": 1.984e+122,
+    "bfPower": 1.984e+121,
+    "bfToughness": 1.068e+121,
+    "bfHpRegen": 3.052e+117,
+    "bfExp": "11"
+  },
+  {
+    "id": 125,
+    "nom": "Chocolate Mouse",
+    "bfHp": 1.984e+123,
+    "bfPower": 1.984e+122,
+    "bfToughness": 1.068e+122,
+    "bfHpRegen": 3.052e+118,
+    "bfExp": "11"
+  },
+  {
+    "id": 126,
+    "nom": "Chocolate Mimic",
+    "bfHp": 1.984e+124,
+    "bfPower": 1.984e+123,
+    "bfToughness": 1.068e+123,
+    "bfHpRegen": 3.052e+119,
+    "bfExp": "11"
+  },
+  {
+    "id": 127,
+    "nom": "Chocolate Crowbar (Enemy)",
+    "bfHp": 1.984e+125,
+    "bfPower": 1.984e+124,
+    "bfToughness": 1.068e+124,
+    "bfHpRegen": 3.052e+120,
+    "bfExp": "11"
+  },
+  {
+    "id": 128,
+    "nom": "Chocolate Freeman",
+    "bfHp": 1.984e+126,
+    "bfPower": 1.984e+125,
+    "bfToughness": 1.068e+125,
+    "bfHpRegen": 3.052e+121,
+    "bfExp": "11"
+  },
+  {
+    "id": 129,
+    "nom": "Chocolate Fondue",
+    "bfHp": 1.984e+127,
+    "bfPower": 1.984e+126,
+    "bfToughness": 1.068e+126,
+    "bfHpRegen": 3.052e+122,
+    "bfExp": "11"
+  },
+  {
+    "id": 130,
+    "nom": "Chocolate Slime",
+    "bfHp": 1.984e+128,
+    "bfPower": 1.984e+127,
+    "bfToughness": 1.068e+127,
+    "bfHpRegen": 3.052e+123,
+    "bfExp": "11"
+  },
+  {
+    "id": 131,
+    "nom": "Dark Chocolate",
+    "bfHp": 1.984e+129,
+    "bfPower": 1.984e+128,
+    "bfToughness": 1.068e+128,
+    "bfHpRegen": 3.052e+124,
+    "bfExp": "11"
+  },
+  {
+    "id": 132,
+    "nom": "Chocolate Salty Balls",
+    "bfHp": 1.984e+130,
+    "bfPower": 1.984e+129,
+    "bfToughness": 1.068e+129,
+    "bfHpRegen": 3.052e+125,
+    "bfExp": "11"
+  },
+  {
+    "id": 133,
+    "nom": "Screaming Chocolate Fish",
+    "bfHp": 1.984e+131,
+    "bfPower": 1.984e+130,
+    "bfToughness": 1.068e+130,
+    "bfHpRegen": 3.052e+126,
+    "bfExp": "11"
+  },
+  {
+    "id": 134,
+    "nom": "A Mighty Lump of Poo",
+    "bfHp": 1.984e+132,
+    "bfPower": 1.984e+131,
+    "bfToughness": 1.068e+131,
+    "bfHpRegen": 3.052e+127,
+    "bfExp": "12"
+  },
+  {
+    "id": 135,
+    "nom": "Melted Chocolate Blob (?)",
+    "bfHp": 1.984e+133,
+    "bfPower": 1.984e+132,
+    "bfToughness": 1.068e+132,
+    "bfHpRegen": 3.052e+128,
+    "bfExp": "12"
+  },
+  {
+    "id": 136,
+    "nom": "Choco Golem",
+    "bfHp": 1.984e+134,
+    "bfPower": 1.984e+133,
+    "bfToughness": 1.068e+133,
+    "bfHpRegen": 3.052e+129,
+    "bfExp": "12"
+  },
+  {
+    "id": 137,
+    "nom": "Type 2 Diabetes",
+    "bfHp": 1.984e+135,
+    "bfPower": 1.984e+134,
+    "bfToughness": 1.068e+134,
+    "bfHpRegen": 3.052e+130,
+    "bfExp": "12"
+  },
+  {
+    "id": 138,
+    "nom": "A Giant Probe",
+    "bfHp": 1.984e+136,
+    "bfPower": 1.984e+135,
+    "bfToughness": 1.068e+135,
+    "bfHpRegen": 3.052e+131,
+    "bfExp": "12"
+  },
+  {
+    "id": 139,
+    "nom": "The NCC-1701 D",
+    "bfHp": 1.984e+137,
+    "bfPower": 1.984e+136,
+    "bfToughness": 1.068e+136,
+    "bfHpRegen": 3.052e+132,
+    "bfExp": "12"
+  },
+  {
+    "id": 140,
+    "nom": "An Infinite Number of Turtles",
+    "bfHp": 1.984e+138,
+    "bfPower": 1.984e+137,
+    "bfToughness": 1.068e+137,
+    "bfHpRegen": 3.052e+133,
+    "bfExp": "12"
+  },
+  {
+    "id": 141,
+    "nom": "Michelangelo, Leonardo, Raphael and Donatello",
+    "bfHp": 1.984e+139,
+    "bfPower": 1.984e+138,
+    "bfToughness": 1.068e+138,
+    "bfHpRegen": 3.052e+134,
+    "bfExp": "12"
+  },
+  {
+    "id": 142,
+    "nom": "Michelangelo, Leonardo, Raphael and Donatello (Again)",
+    "bfHp": 1.984e+140,
+    "bfPower": 1.984e+139,
+    "bfToughness": 1.068e+139,
+    "bfHpRegen": 3.052e+135,
+    "bfExp": "12"
+  },
+  {
+    "id": 143,
+    "nom": "M.O.U.S.E",
+    "bfHp": 1.984e+141,
+    "bfPower": 1.984e+140,
+    "bfToughness": 1.068e+140,
+    "bfHpRegen": 3.052e+136,
+    "bfExp": "12"
+  },
+  {
+    "id": 144,
+    "nom": "A Stickman Cowboy",
+    "bfHp": 1.984e+142,
+    "bfPower": 1.984e+141,
+    "bfToughness": 1.068e+141,
+    "bfHpRegen": 3.052e+137,
+    "bfExp": "13"
+  },
+  {
+    "id": 145,
+    "nom": "Your Browser History",
+    "bfHp": 1.984e+143,
+    "bfPower": 1.984e+142,
+    "bfToughness": 1.068e+142,
+    "bfHpRegen": 3.052e+138,
+    "bfExp": "13"
+  },
+  {
+    "id": 146,
+    "nom": "The House on the Hill",
+    "bfHp": 1.984e+144,
+    "bfPower": 1.984e+143,
+    "bfToughness": 1.068e+143,
+    "bfHpRegen": 3.052e+139,
+    "bfExp": "13"
+  },
+  {
+    "id": 147,
+    "nom": "A Stoner Kid",
+    "bfHp": 1.984e+145,
+    "bfPower": 1.984e+144,
+    "bfToughness": 1.068e+144,
+    "bfHpRegen": 3.052e+140,
+    "bfExp": "13"
+  },
+  {
+    "id": 148,
+    "nom": "Moneybags",
+    "bfHp": 1.984e+146,
+    "bfPower": 1.984e+145,
+    "bfToughness": 1.068e+145,
+    "bfHpRegen": 3.052e+141,
+    "bfExp": "13"
+  },
+  {
+    "id": 149,
+    "nom": "THE TRAITOR",
+    "bfHp": 1.984e+147,
+    "bfPower": 1.984e+146,
+    "bfToughness": 1.068e+146,
+    "bfHpRegen": 3.052e+142,
+    "bfExp": "13"
+  },
+  {
+    "id": 150,
+    "nom": "DEFEAT",
+    "bfHp": 1.984e+148,
+    "bfPower": 1.984e+147,
+    "bfToughness": 1.068e+147,
+    "bfHpRegen": 3.052e+143,
+    "bfExp": "13"
+  },
+  {
+    "id": 151,
+    "nom": "A Half-eaten Cookie",
+    "bfHp": 1.984e+149,
+    "bfPower": 1.984e+148,
+    "bfToughness": 1.068e+148,
+    "bfHpRegen": 3.052e+144,
+    "bfExp": null
+  },
+  {
+    "id": 152,
+    "nom": "A Rusty Crank",
+    "bfHp": 1.984e+150,
+    "bfPower": 1.984e+149,
+    "bfToughness": 1.068e+149,
+    "bfHpRegen": 3.052e+145,
+    "bfExp": null
+  },
+  {
+    "id": 153,
+    "nom": "Ahh!! A Shark!!",
+    "bfHp": 1.984e+151,
+    "bfPower": 1.984e+150,
+    "bfToughness": 1.068e+150,
+    "bfHpRegen": 3.052e+146,
+    "bfExp": null
+  },
+  {
+    "id": 154,
+    "nom": "The number 1.8 x 10^308",
+    "bfHp": 1.984e+152,
+    "bfPower": 1.984e+151,
+    "bfToughness": 1.068e+151,
+    "bfHpRegen": 3.052e+147,
+    "bfExp": null
+  },
+  {
+    "id": 155,
+    "nom": "A Weird Goblin-Demon-Thing",
+    "bfHp": 1.984e+153,
+    "bfPower": 1.984e+152,
+    "bfToughness": 1.068e+152,
+    "bfHpRegen": 3.052e+148,
+    "bfExp": null
+  },
+  {
+    "id": 156,
+    "nom": "A Cute Kitten",
+    "bfHp": 1.984e+154,
+    "bfPower": 1.984e+153,
+    "bfToughness": 1.068e+153,
+    "bfHpRegen": 3.052e+149,
+    "bfExp": null
+  },
+  {
+    "id": 157,
+    "nom": "THE DRAGON OF WISDOM",
+    "bfHp": 1.984e+155,
+    "bfPower": 1.984e+154,
+    "bfToughness": 1.068e+154,
+    "bfHpRegen": 3.052e+150,
+    "bfExp": null
+  },
+  {
+    "id": 158,
+    "nom": "THE DRAGON OF DILDO",
+    "bfHp": 1.984e+156,
+    "bfPower": 1.984e+155,
+    "bfToughness": 1.068e+155,
+    "bfHpRegen": 3.052e+151,
+    "bfExp": null
+  },
+  {
+    "id": 159,
+    "nom": "The Bouncer, Part 2",
+    "bfHp": 1.984e+157,
+    "bfPower": 1.984e+156,
+    "bfToughness": 1.068e+156,
+    "bfHpRegen": 3.052e+152,
+    "bfExp": null
+  },
+  {
+    "id": 160,
+    "nom": "Jambi",
+    "bfHp": 1.984e+158,
+    "bfPower": 1.984e+157,
+    "bfToughness": 1.068e+157,
+    "bfHpRegen": 3.052e+153,
+    "bfExp": null
+  },
+  {
+    "id": 161,
+    "nom": "God of Thunder",
+    "bfHp": 1.984e+159,
+    "bfPower": 1.984e+158,
+    "bfToughness": 1.068e+158,
+    "bfHpRegen": 3.052e+154,
+    "bfExp": null
+  },
+  {
+    "id": 162,
+    "nom": "The Entire State of South Dakota",
+    "bfHp": 1.984e+160,
+    "bfPower": 1.984e+159,
+    "bfToughness": 1.068e+159,
+    "bfHpRegen": 3.052e+155,
+    "bfExp": null
+  },
+  {
+    "id": 163,
+    "nom": "A Huge Stack of Pogs",
+    "bfHp": 1.984e+161,
+    "bfPower": 1.984e+160,
+    "bfToughness": 1.068e+160,
+    "bfHpRegen": 3.052e+156,
+    "bfExp": null
+  },
+  {
+    "id": 164,
+    "nom": "Three Guys Shouting out 'Ed'",
+    "bfHp": 1.984e+162,
+    "bfPower": 1.984e+161,
+    "bfToughness": 1.068e+161,
+    "bfHpRegen": 3.052e+157,
+    "bfExp": null
+  },
+  {
+    "id": 165,
+    "nom": "Mr. Chow",
+    "bfHp": 1.984e+163,
+    "bfPower": 1.984e+162,
+    "bfToughness": 1.068e+162,
+    "bfHpRegen": 3.052e+158,
+    "bfExp": null
+  },
+  {
+    "id": 166,
+    "nom": "The Life Of The Party",
+    "bfHp": 1.984e+164,
+    "bfPower": 1.984e+163,
+    "bfToughness": 1.068e+163,
+    "bfHpRegen": 3.052e+159,
+    "bfExp": null
+  },
+  {
+    "id": 167,
+    "nom": "Permanenet",
+    "bfHp": 1.984e+165,
+    "bfPower": 1.984e+164,
+    "bfToughness": 1.068e+164,
+    "bfHpRegen": 3.052e+160,
+    "bfExp": null
+  },
+  {
+    "id": 168,
+    "nom": "Coudl",
+    "bfHp": 1.984e+166,
+    "bfPower": 1.984e+165,
+    "bfToughness": 1.068e+165,
+    "bfHpRegen": 3.052e+161,
+    "bfExp": null
+  },
+  {
+    "id": 169,
+    "nom": "Liek",
+    "bfHp": 1.984e+167,
+    "bfPower": 1.984e+166,
+    "bfToughness": 1.068e+166,
+    "bfHpRegen": 3.052e+162,
+    "bfExp": null
+  },
+  {
+    "id": 170,
+    "nom": "Blodo",
+    "bfHp": 1.984e+168,
+    "bfPower": 1.984e+167,
+    "bfToughness": 1.068e+167,
+    "bfHpRegen": 3.052e+163,
+    "bfExp": null
+  },
+  {
+    "id": 171,
+    "nom": "Brian",
+    "bfHp": 1.984e+169,
+    "bfPower": 1.984e+168,
+    "bfToughness": 1.068e+168,
+    "bfHpRegen": 3.052e+164,
+    "bfExp": null
+  },
+  {
+    "id": 172,
+    "nom": "Odign",
+    "bfHp": 1.984e+170,
+    "bfPower": 1.984e+169,
+    "bfToughness": 1.068e+169,
+    "bfHpRegen": 3.052e+165,
+    "bfExp": null
+  },
+  {
+    "id": 173,
+    "nom": "Horus",
+    "bfHp": 1.984e+171,
+    "bfPower": 1.984e+170,
+    "bfToughness": 1.068e+170,
+    "bfHpRegen": 3.052e+166,
+    "bfExp": null
+  },
+  {
+    "id": 174,
+    "nom": "ELDER TYPO GOD, ELXU",
+    "bfHp": 1.984e+172,
+    "bfPower": 1.984e+171,
+    "bfToughness": 1.068e+171,
+    "bfHpRegen": 3.052e+167,
+    "bfExp": null
+  },
+  {
+    "id": 175,
+    "nom": "A Very Sad Slinky :c",
+    "bfHp": 1.984e+173,
+    "bfPower": 1.984e+172,
+    "bfToughness": 1.068e+172,
+    "bfHpRegen": 3.052e+168,
+    "bfExp": null
+  },
+  {
+    "id": 176,
+    "nom": "Giant Metal Spinning Top",
+    "bfHp": 1.984e+174,
+    "bfPower": 1.984e+173,
+    "bfToughness": 1.068e+173,
+    "bfHpRegen": 3.052e+169,
+    "bfExp": null
+  },
+  {
+    "id": 177,
+    "nom": "A Stack of Krazy Bonez",
+    "bfHp": 1.984e+175,
+    "bfPower": 1.984e+174,
+    "bfToughness": 1.068e+174,
+    "bfHpRegen": 3.052e+170,
+    "bfExp": null
+  },
+  {
+    "id": 178,
+    "nom": "Rare Foil Pokeyman Card (Enemy)",
+    "bfHp": 1.984e+176,
+    "bfPower": 1.984e+175,
+    "bfToughness": 1.068e+175,
+    "bfHpRegen": 3.052e+171,
+    "bfExp": null
+  },
+  {
+    "id": 179,
+    "nom": "A Busted Gameboy",
+    "bfHp": 1.984e+177,
+    "bfPower": 1.984e+176,
+    "bfToughness": 1.068e+176,
+    "bfHpRegen": 3.052e+172,
+    "bfExp": null
+  },
+  {
+    "id": 180,
+    "nom": "A Worthless Bean-y Baby",
+    "bfHp": 1.984e+178,
+    "bfPower": 1.984e+177,
+    "bfToughness": 1.068e+177,
+    "bfHpRegen": 3.052e+173,
+    "bfExp": null
+  },
+  {
+    "id": 183,
+    "nom": "Sentient Pile of Belts",
+    "bfHp": 1.984e+181,
+    "bfPower": 1.984e+180,
+    "bfToughness": 1.068e+180,
+    "bfHpRegen": 3.052e+176,
+    "bfExp": null
+  },
+  {
+    "id": 184,
+    "nom": "Mimic 'Mimic Chest' Chest",
+    "bfHp": 1.984e+182,
+    "bfPower": 1.984e+181,
+    "bfToughness": 1.068e+181,
+    "bfHpRegen": 3.052e+177,
+    "bfExp": null
+  },
+  {
+    "id": 185,
+    "nom": "A Suplexing Train",
+    "bfHp": 1.984e+183,
+    "bfPower": 1.984e+182,
+    "bfToughness": 1.068e+182,
+    "bfHpRegen": 3.052e+178,
+    "bfExp": null
+  },
+  {
+    "id": 186,
+    "nom": "The Annoying Fan",
+    "bfHp": 1.984e+184,
+    "bfPower": 1.984e+183,
+    "bfToughness": 1.068e+183,
+    "bfHpRegen": 3.052e+179,
+    "bfExp": null
+  },
+  {
+    "id": 187,
+    "nom": "The Infinity+1 Sword",
+    "bfHp": 1.984e+185,
+    "bfPower": 1.984e+184,
+    "bfToughness": 1.068e+184,
+    "bfHpRegen": 3.052e+180,
+    "bfExp": null
+  },
+  {
+    "id": 188,
+    "nom": "The Damage Cap",
+    "bfHp": 1.984e+186,
+    "bfPower": 1.984e+185,
+    "bfToughness": 1.068e+185,
+    "bfHpRegen": 3.052e+181,
+    "bfExp": null
+  },
+  {
+    "id": 189,
+    "nom": "FINAL BOSS",
+    "bfHp": 1.984e+187,
+    "bfPower": 1.984e+186,
+    "bfToughness": 1.068e+186,
+    "bfHpRegen": 3.052e+182,
+    "bfExp": null
+  },
+  {
+    "id": 190,
+    "nom": "TRUE FINAL BOSS",
+    "bfHp": 1.984e+188,
+    "bfPower": 1.984e+187,
+    "bfToughness": 1.068e+187,
+    "bfHpRegen": 3.052e+183,
+    "bfExp": null
+  },
+  {
+    "id": 191,
+    "nom": "Small Bart",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 192,
+    "nom": "Nuclear Power Pants",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 193,
+    "nom": "A.C SKATER",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 194,
+    "nom": "Lame Security Guard",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 195,
+    "nom": "A Giant Vat of Plutonium-238",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 196,
+    "nom": "Mutant Zombie Marie Curie",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 197,
+    "nom": "Pair of Shades Wearing Shades",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 198,
+    "nom": "A Wandering Gamma Ray",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 199,
+    "nom": "A Massive Sealed Vault",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 200,
+    "nom": "RADIOACTIVE MACGUFFIN",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 201,
+    "nom": "Grandma's 'Brownies'",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 202,
+    "nom": "Angry Raw Cookie Dough",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 203,
+    "nom": "A Bearded Breaded Braid",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 204,
+    "nom": "Butcher & Candlestick Maker",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 205,
+    "nom": "The Ex-Greatest Thing",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 206,
+    "nom": "Moldy Slice Of Bread",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 207,
+    "nom": "THE YEAST BEAST",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 208,
+    "nom": "A DAY-OLD BAGUETTE",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 209,
+    "nom": "A Groovy Saxophone",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 210,
+    "nom": "A Giant Pair Of Roller Skates",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 211,
+    "nom": "A 70's Porn Mustasche",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 212,
+    "nom": "A Disgusting Bong",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 213,
+    "nom": "A Hippie with a Hip",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 214,
+    "nom": "Holy Crap It's Another Shark",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 215,
+    "nom": "THE WORST VINYL RECORD",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 216,
+    "nom": "THE 'FRO",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 217,
+    "nom": "Ultra Instinct Stoner",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 218,
+    "nom": "A Skeleton Inside a Body",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 219,
+    "nom": "A Badly Made Sexy Florida Costume",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 220,
+    "nom": "An Unnecessary Sequel",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 221,
+    "nom": "An Elevator Full of Blood",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 222,
+    "nom": "Candy Corn",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 223,
+    "nom": "TEXAS CHAINSAW MASCARA",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 224,
+    "nom": "JIGSAW",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 225,
+    "nom": "A Construction Slob",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 226,
+    "nom": "Quicksand Cement",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 227,
+    "nom": "A Cement Truck",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 228,
+    "nom": "A Bulldozer",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 229,
+    "nom": "3 Guys Carrying a Beam",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 230,
+    "nom": "A Piano-Safe",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 231,
+    "nom": "7 GUYS TAKING A BREAK",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 232,
+    "nom": "THE CRANE",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 233,
+    "nom": "A Duck",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 234,
+    "nom": "Another Duck",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 235,
+    "nom": "...Goose!",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 236,
+    "nom": "Scientifically Accurate Duck",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 237,
+    "nom": "A MotherDucker",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 238,
+    "nom": "Totally A Duck",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 239,
+    "nom": "THE DOG",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 240,
+    "nom": "A SINGLE GRAPE",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 241,
+    "nom": "A Patch of Tulips",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 242,
+    "nom": "A Random Lady",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 243,
+    "nom": "A Lost Canadian Moose :c",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 244,
+    "nom": "A 5-Bladed Windmill",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 245,
+    "nom": "A Jerk Cyclist",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 246,
+    "nom": "A Dutch Oven",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 247,
+    "nom": "THE GRAND DUTCH DUCHY",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 248,
+    "nom": "DAAN VAN DER VAAN JAANSEN",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 270,
+    "nom": "Intermission",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  },
+  {
+    "id": 301,
+    "nom": "The 2 3/4 Winged Traitor",
+    "bfHp": null,
+    "bfPower": null,
+    "bfToughness": null,
+    "bfHpRegen": null,
+    "bfExp": null
+  }
+]
