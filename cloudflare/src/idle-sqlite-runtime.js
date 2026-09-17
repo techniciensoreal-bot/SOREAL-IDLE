@@ -9133,6 +9133,15 @@ function contexteMetaNguSorealIdle_(
      * SADISTIC) puissent le lire.
      */
     difficulty: ['normal','difficile','extreme'].indexOf(meta.difficulty) !== -1 ? meta.difficulty : 'normal',
+    /*
+     * difficultyPeaks (2026-09-18, Norman : "il faut tout faire") : pic de
+     * boss réellement atteint par difficulté (idle-ngu-progression.js,
+     * normalizeIdleNguState) -- utilisé par unlockedZone
+     * (idle-adventure-v47.js) pour "Normal zones remain unlocked at all
+     * times" (wiki "Evil difficulty") même quand la difficulté ACTUELLE
+     * n'est plus Normal.
+     */
+    difficultyPeaks: meta.difficultyPeaks && typeof meta.difficultyPeaks === 'object' ? meta.difficultyPeaks : {},
     beastV4Beaten: Boolean(metaAdventureUnlockFlags.beastBrutalDefeated),
     exileV4Beaten: Boolean(metaAdventureUnlockFlags.exileBrutalDefeated)
   };

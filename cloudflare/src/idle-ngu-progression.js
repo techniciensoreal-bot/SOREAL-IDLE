@@ -2974,7 +2974,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
        * (compteur du RUN EN COURS, remis à 0 à chaque Renaissance) est donc
        * la SEULE source à utiliser ici, exactement comme le jeu réel.
        */
-      const snap = idleAdventureSnapshotV47(state.adventure, num(context.bosses, 0));
+      const snap = idleAdventureSnapshotV47(state.adventure, num(context.bosses, 0), state.difficulty, state.difficultyPeaks);
       const gear = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
       snap.stats = idleAdventureCombatStatsV1(gear, context);
       return snap;

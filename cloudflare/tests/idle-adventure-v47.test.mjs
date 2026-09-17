@@ -9,7 +9,7 @@ assert.equal(normalizeIdleAdventureStateV47({version:"old",inventory:[{level:99}
 const gates=Object.fromEntries(IDLE_ADVENTURE_ZONES.map(z=>[z.id,z.boss]));
 assert.deepEqual([gates.tutorial,gates.sewers,gates.forest,gates.cave,gates.sky,gates.hsb,gates.clock,gates["2d"],gates.ancient,gates.avsp,gates.mega],[4,7,17,37,48,58,66,74,82,90,100]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.cooldown/3600000),[1,1,2,2,3,3.5,5.5]);
-assert.deepEqual(IDLE_ADVENTURE_ZONES.map(x=>x.avatarLevel),[1,1,1,2,2,3,3,4,4,5,5,6,6,6,6,6]);
+assert.deepEqual(IDLE_ADVENTURE_ZONES.map(x=>x.avatarLevel),[1,1,1,2,2,3,3,4,4,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.avatarLevel),[3,4,5,6,6,6,6]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.slice(1).map(x=>[x.requiresTitan,x.requiresKills,x.requiresUnlock]),[
   ["t1",24,"ngu"],["t2",24,"yggdrasil"],["t3",28,"diggers"],

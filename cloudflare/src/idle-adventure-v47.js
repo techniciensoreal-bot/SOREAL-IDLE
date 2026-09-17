@@ -68,7 +68,44 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"beardverse",name:"The Beardverse",boss:108,p:1300000,t:550000,oneHitP:46230000,bossChance:1/4,set:"beardverse",dropLevel:0,avatarLevel:6},
 {id:"badly",name:"Badly Drawn World",boss:116,p:18000000,t:11000000,oneHitP:889080000,bossChance:1/4,set:"badly",dropLevel:0,avatarLevel:6},
 {id:"boring",name:"Boring-Ass Earth",boss:124,p:180000000,t:90000000,oneHitP:7210000000,bossChance:2/9,set:"stealth",dropLevel:0,avatarLevel:6},
-{id:"chocolate",name:"Chocolate World",boss:137,p:70000000000,t:50000000000,oneHitP:2720000000000,bossChance:3/13,set:"choco",dropLevel:0,avatarLevel:6}
+{id:"chocolate",name:"Chocolate World",boss:137,p:70000000000,t:50000000000,oneHitP:2720000000000,bossChance:3/13,set:"choco",dropLevel:0,avatarLevel:6},
+/*
+ * Zones Evil/Sadistic (2026-09-18, Norman : "il faut tout faire", fidélité
+ * NGU). Stats "Manual P/T" et "One Hit P" sourcées du wiki NGU local, page
+ * "Adventure Mode", tableaux "Evil"/"SADISTIC" (numérotation réelle du
+ * wiki entre parenthèses -- même mapping SOREAL-zone#/wiki-zone# que
+ * ngu-wiki-reference/item-id-mapping-wiki-to-soreal.md). requiredDifficulty
+ * gate ces zones via unlockedZone ci-dessus ("Zones from Evilverse onwards
+ * unlockable by beating their corresponding boss in evil difficulty" /
+ * "...from Back to School onwards... in Sadistic").
+ *
+ * set:"" (aucun équipement) pour les 17 zones ci-dessous : les sets réels
+ * (Edgy, Pretty Pink Princess, Rad, etc., wiki-documentés) ne sont pas
+ * encore construits dans ce moteur -- volontairement hors périmètre de ce
+ * correctif (zones jouables/franchissables dès maintenant, drop
+ * d'équipement dédié en suivi séparé). bossChance omis (repli 0.25 déjà
+ * en place dans startZoneFight, jamais vérifié individuellement zone par
+ * zone pour cette nouvelle plage). avatarLevel:6 (palier max déjà utilisé,
+ * aucun visuel de palier 7+ n'existe -- même raison que les zones Normal
+ * tardives ci-dessus).
+ */
+{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"}
 ]);
 /*
  * Norman (2026-09-16) : "j'ai plusieurs images qui sont utilisée pour le
@@ -1162,7 +1199,33 @@ function coffreRetirer(s,id){
   s.inventory.push(o);
   return{id:o.id};
 }
-function unlockedZone(z,bosses){return I(bosses)>=I(z.boss)}
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * z.requiredDifficulty (absent pour les 15 zones Normal existantes,
+ * "difficile"/"extreme" pour les nouvelles zones Evil/Sadistic ci-dessous)
+ * -- wiki NGU local, page "Evil difficulty" section "Differences" >
+ * "Adventure" : "Zones from Evilverse onwards are unlockable by beating
+ * their corresponding boss in evil difficulty. Normal zones remain
+ * unlocked at all times." Page "SADISTIC difficulty", même section :
+ * "Zones from Back to School onwards are unlockable by beating their
+ * corresponding boss in Sadistic."
+ *
+ * Une zone Evil/Sadistic exige donc d'être ACTUELLEMENT dans la bonne
+ * difficulté (bosses = compteur DU RUN EN COURS, qui n'a de sens que pour
+ * la difficulté active -- cf. commentaire 2026-09-11 sur
+ * idleAdventureSnapshotV47 plus bas). Une zone Normal (sans
+ * requiredDifficulty) reste accessible "à tout moment" : soit via le
+ * compteur du run en cours (si actuellement en Normal), soit via le pic
+ * historique déjà atteint un jour en Normal (difficultyPeaks.normal) --
+ * jamais reverrouillée simplement parce que le joueur est passé en Evil/
+ * Sadistic entre-temps.
+ */
+function unlockedZone(z,bosses,difficulty,difficultyPeaks){
+  if(!z.requiredDifficulty){
+    return I(bosses)>=I(z.boss)||I((difficultyPeaks||{}).normal)>=I(z.boss)
+  }
+  return difficulty===z.requiredDifficulty&&I(bosses)>=I(z.boss)
+}
 function setDrop(s,setId,lv=0){const d=SETS[setId],slot=d.slots[I(Math.random()*d.slots.length)];return item(`i${s.serial++}`,setId,slot,lv)}
 /*
  * Or d'Aventure (Norman, 2026-09-11, "ça doit être identique à NGU IDLE" +
@@ -1254,7 +1317,7 @@ const ZONE_BOSS_EXP_CHANCE_V1={
  * l'ancien chemin zoneKill (kill instantané, plus appelé par l'écran
  * actuel mais gardé pour compatibilité).
  */
-function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];if(z.set&&Math.random()<C(.22*dropMult,0,.95)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<C(.12*dropMult,0,.85))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<C(.04*dropMult,0,.5)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
+function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];if(z.set&&Math.random()<C(.22*dropMult,0,.95)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<C(.12*dropMult,0,.85))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<C(.04*dropMult,0,.5)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
 /*
  * Correctif 2026-09-16 (Norman, wiki NGU exact) : les SPECIALS bossOnly
  * PORTANT un dropChance sourcé du wiki (ex. tutorialCube, 10% sur le
@@ -1439,7 +1502,7 @@ function playerHpMaxForAdventureV1(stats){return 10+Math.max(0,N(stats&&stats.hp
  *    client à partir du même regen affiché, cf. Soreal_Idle_UI.html)
  *    sert de PV de départ quand fourni, plafonné au vrai max.
  */
-function startZoneFight(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(z.id==="safe")throw Error("ZONE_SANS_COMBAT");if(!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");const stats=ctx.stats||{};const boss=Math.random()<(z.bossChance!=null?z.bossChance:0.25);
+function startZoneFight(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(z.id==="safe")throw Error("ZONE_SANS_COMBAT");if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const stats=ctx.stats||{};const boss=Math.random()<(z.bossChance!=null?z.bossChance:0.25);
 /*
  * Norman (2026-09-17) : le tirage du mob réellement rencontré (déjà fait
  * plus bas pour le reskin/nom, cf. commentaire 2026-09-16) doit être
@@ -1705,7 +1768,16 @@ export function idleAdventureEquipmentStatsV47(raw){
     permanent:X(s.permanent)
   }
 }
-export function idleAdventureSnapshotV47(raw,bosses=0){const s=normalizeIdleAdventureStateV47(raw);return{version:s.version,visualSource:"avatar-level",selectedZone:s.selectedZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * `difficulty`/`difficultyPeaks` (4e/5e paramètres, optionnels) --
+ * propagés à unlockedZone ci-dessus pour les nouvelles zones Evil/
+ * Sadistic. Seul appelant existant (idle-ngu-progression.js::
+ * idleNguSnapshot) mis à jour pour les fournir ; absents = comportement
+ * strictement inchangé pour tout autre appelant (une zone Evil/Sadistic
+ * resterait alors verrouillée, jamais accessible par erreur).
+ */
+export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks){const s=normalizeIdleAdventureStateV47(raw);return{version:s.version,visualSource:"avatar-level",selectedZone:s.selectedZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses,difficulty,difficultyPeaks),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
  * Bug trouvé en vérifiant le vrai NGU (Norman, 2026-09-10) : "je ne
  * pense pas qu'ils soient visibles dans un menu dès le début" —
  * progressionUnlocked ne vérifiait QUE la chaîne de prérequis entre
@@ -1716,4 +1788,4 @@ export function idleAdventureSnapshotV47(raw,bosses=0){const s=normalizeIdleAdve
  * conditions sont vraies.
  */
 titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.boss)&&titanGate(s,t),visual:{source:"avatar-level",level:I(t.avatarLevel,1),fallback:"emoji"},state:X(s.titans[t.id]||{kills:0,nextAt:0})})),inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0});return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
-export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else throw Error("ACTION_AVENTURE_INCONNUE");return{state:s,result}}
+export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else throw Error("ACTION_AVENTURE_INCONNUE");return{state:s,result}}
