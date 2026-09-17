@@ -1982,7 +1982,20 @@ function advanceTrackSystem(state, def, seconds) {
     def.id === "ngu" ? 300000 :
     100000;
 
-  t.progress += (throughput / divisor) * seconds;
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (équipement des 17 zones
+   * Evil/Sadistic). Wiki NGU : "Meta (set)" +20% NGU Speed, "Back To
+   * School (set)" +15% NGU Speed -- setRewards.nguSpeedPct
+   * (idle-adventure-v47.js) est le pont déjà utilisé pour les autres
+   * bonus de set. Ce champ ne couvre QUE ce pont-là : le multiplicateur
+   * "NGU Speed" plus large (beard/digger/auto-boost, déjà calculé dans
+   * idleNguBonuses().nguSpeedMultiplier pour l'affichage) reste un gap
+   * préexistant non touché ici -- jamais branché dans la boucle
+   * d'avancement, hors du périmètre de ce correctif ciblé sur
+   * l'équipement.
+   */
+  const nguSpeedSetMultiplier = def.id === "ngu" ? 1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0)) : 1;
+  t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier;
   let gain = Math.floor(t.progress);
   if (def.id === "wandoos" && gain > 0) {
     gain = Math.min(gain, challengeHundredLevelsRemaining(state));

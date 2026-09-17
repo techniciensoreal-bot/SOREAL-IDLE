@@ -519,15 +519,15 @@ pinkprincess:{name:"Pretty Pink Princess Set",source:"pinkprincess",slots:["head
  * "Meta (set)" : 7 pièces (Numerical Head/Chest/Legs/Boots + The Number 7
  * [arme] + Infinity Charm + 69 Charm, 2 accessoires distincts -- même
  * schéma que sewers/cave/hsb qui ont déjà 2 slots accessoires nommés).
- * "Bonus for Completion: +20% NGU Speed!" -- "NGU" désigne ici les
- * trainers NGU classiques (Strength/Toughness/etc.), un système CŒUR de
- * NGU Idle entièrement absent de SOREAL (cf. statut "core NGU track" non
- * construit) : aucun mécanisme existant sur lequel accrocher ce bonus,
- * volontairement omis plutôt qu'approximé (même traitement que Beards/
- * MacGuffins ci-dessus). Total p/t = 54 371 714 / 23 171 714 (somme des
- * 7 pièces "Stats Max").
+ * "Bonus for Completion: +20% NGU Speed!" -- correction du 2026-09-18 :
+ * le système "ngu" (trainers Attack/Defense/Adventure/Drop/etc., wiki
+ * NGU "NGU" track) EST déjà construit chez SOREAL (state.systems.ngu,
+ * IDLE_NGU_TRACKS.ngu, advanceTrackSystem) -- le déni initial de ce
+ * bonus était une erreur, corrigée ci-dessous via setRewards.nguSpeedPct
+ * (idle-ngu-progression.js, advanceTrackSystem). Total p/t =
+ * 54 371 714 / 23 171 714 (somme des 7 pièces "Stats Max").
  */
-meta:{name:"Meta Set",source:"metaland",slots:["head","chest","legs","boots","weapon","charmInfinity","charm69"],p:54371714,t:23171714,reward:{}},
+meta:{name:"Meta Set",source:"metaland",slots:["head","chest","legs","boots","weapon","charmInfinity","charm69"],p:54371714,t:23171714,reward:{nguSpeedPct:.20}},
 /*
  * Interdimensional Party (2026-09-18, même passe). Wiki NGU en direct,
  * page "Party (set)" : 7 pièces (Party Hat/Pogmail Chest/Tear Away Pants/
@@ -593,12 +593,11 @@ rad:{name:"Rad Set",source:"radlands",slots:["head","chest","legs","boots","weap
  * NGU en direct, page "Back To School (set)" : 7 pièces (Dunce Cap/School
  * Jersey/ULTRAWIDE Pants/Shoes With Wheels/Floppy Elastic Ruler [arme]/
  * THE S/A Walkman, 2 accessoires). "Bonus for Completion: +15% NGU
- * Speed!" -- trainers NGU cœur non construits chez SOREAL (même
- * traitement que Meta Land ci-dessus) : reward volontairement vide.
- * Total p/t = 2 928 800 000 / 1 606 000 000 (somme des 7 pièces
- * "Stats Max").
+ * Speed!" -- même setRewards.nguSpeedPct que Meta Land ci-dessus (le
+ * système "ngu" existe chez SOREAL, correction du déni initial). Total
+ * p/t = 2 928 800 000 / 1 606 000 000 (somme des 7 pièces "Stats Max").
  */
-backtoschool:{name:"Back To School Set",source:"backtoschool",slots:["head","chest","legs","boots","weapon","theS","walkman"],p:2928800000,t:1606000000,reward:{}},
+backtoschool:{name:"Back To School Set",source:"backtoschool",slots:["head","chest","legs","boots","weapon","theS","walkman"],p:2928800000,t:1606000000,reward:{nguSpeedPct:.15}},
 /*
  * The West World (2026-09-18, même passe SADISTIC). Wiki NGU en direct,
  * page "Western (set)" : 7 pièces (A 10 Litre Hat/Asslest Vest/Assful
@@ -1044,7 +1043,7 @@ function boost(type,strength){if(!["power","toughness","special"].includes(type)
  */
 export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
-function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
+function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
 export function createIdleAdventureStateV47(){return base()}
 /*
  * Migration 2026-09-16 (Norman : "je me retrouve avec des stats genre

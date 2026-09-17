@@ -44,6 +44,7 @@ assert.deepEqual(statsAt100("backtoschool:boots"), { power: 9200000, toughness: 
 assert.deepEqual(statsAt100("backtoschool:theS"), { power: 360000000, toughness: 360000000 });
 assert.deepEqual(statsAt100("backtoschool:walkman"), { power: 252000000, toughness: 180000000 });
 assert.deepEqual(sumSet(["backtoschool:weapon", "backtoschool:head", "backtoschool:chest", "backtoschool:legs", "backtoschool:boots", "backtoschool:theS", "backtoschool:walkman"]), { power: 2928800000, toughness: 1606000000 });
+assert.equal(IDLE_ADVENTURE_SETS.backtoschool.reward.nguSpeedPct, .15, "Wiki : \"+15% NGU Speed!\" -- même pont que Meta Land (idle-adventure-ngu-speed-set-crosswiring.test.mjs).");
 
 // --- Western Set (7 pièces) ---
 assert.deepEqual(statsAt100("western:weapon"), { power: 2960000000, toughness: 116000000 });

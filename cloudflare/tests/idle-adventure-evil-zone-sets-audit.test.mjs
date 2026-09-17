@@ -58,6 +58,7 @@ assert.deepEqual(statsAt100("meta:boots"), { power: 300000, toughness: 4400000 }
 assert.deepEqual(statsAt100("meta:charmInfinity"), { power: 1777776, toughness: 1777776 });
 assert.deepEqual(statsAt100("meta:charm69"), { power: 1393938, toughness: 1393938 });
 assert.deepEqual(sumSet(["meta:weapon", "meta:head", "meta:chest", "meta:legs", "meta:boots", "meta:charmInfinity", "meta:charm69"]), { power: 54371714, toughness: 23171714 });
+assert.equal(IDLE_ADVENTURE_SETS.meta.reward.nguSpeedPct, .20, "Wiki : \"+20% NGU Speed!\" -- le système ngu existe chez SOREAL, ce bonus est câblé (idle-adventure-ngu-speed-set-crosswiring.test.mjs).");
 
 // --- Party Set ---
 assert.deepEqual(statsAt100("party:weapon"), { power: 100000000, toughness: 4000000 });
