@@ -2411,11 +2411,14 @@ function advanceYggdrasil(state,seconds){
  * +100% final, pas se MULTIPLIER par-dessus. L'ancienne formule
  * calculait (1+levelPct/100)*1.05, ce qui composait les deux termes au
  * lieu de les additionner comme l'exige le wiki — un écart croissant
- * avec le nombre de niveaux de Diggers. Le "Party (set) Bonus" (Party
- * Set, un objet d'équipement d'Aventure) n'a aucune implémentation
- * dans SOREAL IDLE et reste donc à 0 — gap honnête, hors scope
- * meta-progression (les fichiers Adventure sont déjà couverts par
- * d'autres rounds).
+ * avec le nombre de niveaux de Diggers.
+ *
+ * Norman (2026-09-18) : "il faut tout faire" (équipement des 17 zones
+ * Evil/Sadistic). Wiki NGU en direct, page "Party (set)" (Interdimensional
+ * Party) : "Bonus for Completion: +5% Total Diggers Level Bonus" -- le
+ * "Party (set) Bonus" mentionné ci-dessus par la page Gold Diggers est
+ * maintenant câblable (setRewards.diggerGlobalBonusPct, idle-adventure-
+ * v47.js), le gap précédemment honnête est comblé.
  */
 function diggerGlobalBonus(state){
   const s=state.systems.diggers;
@@ -2423,7 +2426,8 @@ function diggerGlobalBonus(state){
   const total=Object.values(s.data.diggers).reduce((a,d)=>a+Math.max(0,int(d.maxLevel,0)),0);
   const levelPct=total<=500 ? total*0.05 : 25+0.05*Math.pow(total-500,0.7);
   const challengePct=(challengePermanentBonuses(state).diggerGlobalMultiplier-1)*100;
-  return 1+(levelPct+challengePct)/100;
+  const partySetPct=Math.max(0,num(state.adventure?.setRewards?.diggerGlobalBonusPct,0));
+  return 1+(levelPct+challengePct+partySetPct)/100;
 }
 
 function diggerDefinition(id){
@@ -2554,7 +2558,16 @@ function advanceLateSystems(state, seconds, context, now) {
        * change (200/700/2000), jamais le terme "+ floor".
        */
       const itopodPpBase = state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200;
-      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor);
+      /*
+       * Norman (2026-09-18) : "il faut tout faire" (équipement des 17
+       * zones Evil/Sadistic). Wiki NGU en direct, page "Pretty Pink
+       * Princess (set)" : "Bonus for Completion: Gain 10% more PP" --
+       * setRewards.itopodPpPct (idle-adventure-v47.js) est le pont
+       * cross-système déjà utilisé pour setRewards.diggerSlot ci-dessus
+       * (availableDiggerSlots), jamais une nouvelle mécanique inventée.
+       */
+      const itopodPpSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0));
+      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier;
       /*
        * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
        * perdait le report entre deux ticks — en jeu normal (tick fréquent,

@@ -89,14 +89,14 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * aucun visuel de palier 7+ n'existe -- même raison que les zones Normal
  * tardives ci-dessus).
  */
-{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
@@ -479,7 +479,115 @@ choco:{name:"Choco Set",source:"chocolate",slots:["head","chest","legs","boots",
 uug:{name:"UUG's Rings Set",source:"t4",slots:["ringGreed","ringMight","ringUtility","ringEnergy","ringMagic"],p:19332,t:19332,reward:{experience:20000,ap:20000}},
 wanderer:{name:"Wanderer's Set",source:"t5",slots:["head","chest","legs","boots"],p:8000,t:184000,reward:{experience:50000,ap:10000}},
 rerednaw:{name:"S'rerednaW Set",source:"t5",slots:["head","chest","legs","boots"],p:8000,t:180000,reward:{experience:50000,ap:10000}},
-slimy:{name:"Slimy Set",source:"t6",slots:["head","chest","legs","boots","weapon"],p:4484000,t:2154000,reward:{experience:100000,ap:10000}}
+slimy:{name:"Slimy Set",source:"t6",slots:["head","chest","legs","boots","weapon"],p:4484000,t:2154000,reward:{experience:100000,ap:10000}},
+/*
+ * Evilverse (2026-09-18, Norman : "il faut tout faire" -- extension aux 17
+ * zones Evil/Sadistic). Wiki NGU en direct (ngu-idle.fandom.com, le mirroir
+ * local n'a pas les templates Item_data qui résolvent les stats -- même
+ * méthode que les 16 sets déjà audités le 2026-09-15/16, cf. commentaire
+ * SET_ITEM_STATS_V1 ci-dessus) :
+ * - "Edgy (set)" (Helmet/Chest/Pants/Jaw Axe/A Cheap Plastic Amulet) :
+ *   "Bonus for Completion: 250k EXP! Gain a MacGuffin slot!" -- MacGuffins
+ *   non construit chez SOREAL (même statut que "choco" ci-dessus), reward
+ *   limité à experience:250000.
+ * - "Edgy Boots (set)" (Left+Right Edgy Boot) complète séparément et
+ *   débloque uniquement l'objet fusionné "BOTH Edgy Boots" (pas de bonus
+ *   numérique propre) -- SOREAL n'a qu'UN slot "boots" par set (pas de
+ *   Left/Right distincts) : slot "boots" ci-dessous = les stats de "BOTH
+ *   Edgy Boots" directement (Power 120 000 / Toughness 1 080 000 au
+ *   niveau 100, vérifié sur sa fiche dédiée), la modélisation la plus
+ *   fidèle disponible sans construire un système Left/Right inexistant.
+ * Total p/t = somme des 6 pièces (Helmet+Chest+Pants+Jaw Axe+BOTH Boots+
+ * Amulet) = 11 820 000 / 5 174 000.
+ */
+edgy:{name:"Edgy Set",source:"evilverse",slots:["head","chest","legs","boots","weapon","amulet"],p:11820000,t:5174000,reward:{experience:250000}},
+/*
+ * Pretty Pink Princess Land (2026-09-18, même passe Evil/Sadistic). Wiki
+ * NGU en direct, page "Pretty Pink Princess (set)" : 6 pièces (Clown Hat/
+ * Fabulous Super Chest/A Crappy Tutu/Pretty Pink Slippers/Giant Sticky
+ * Foot/A Pretty Pink Bow), "Bonus for Completion: Gain 10% more PP."
+ * "PP" = Perk Points ITOPOD (glossaire wiki) : ce bonus EST câblable chez
+ * SOREAL puisque le calcul ITOPOD existe déjà (idle-ngu-progression.js,
+ * itopodPpBase) -- nouveau champ setRewards.itopodPpPct branché comme
+ * multiplicateur sur tower.data.ppProgress, même pont cross-système que
+ * setRewards.diggerSlot (déjà utilisé par availableDiggerSlots).
+ * Total p/t = 16 400 000 / 7 614 000 (somme des 6 pièces "Stats Max").
+ */
+pinkprincess:{name:"Pretty Pink Princess Set",source:"pinkprincess",slots:["head","chest","legs","boots","weapon","amulet"],p:16400000,t:7614000,reward:{itopodPpPct:.10}},
+/*
+ * Meta Land (2026-09-18, même passe). Wiki NGU en direct, page
+ * "Meta (set)" : 7 pièces (Numerical Head/Chest/Legs/Boots + The Number 7
+ * [arme] + Infinity Charm + 69 Charm, 2 accessoires distincts -- même
+ * schéma que sewers/cave/hsb qui ont déjà 2 slots accessoires nommés).
+ * "Bonus for Completion: +20% NGU Speed!" -- "NGU" désigne ici les
+ * trainers NGU classiques (Strength/Toughness/etc.), un système CŒUR de
+ * NGU Idle entièrement absent de SOREAL (cf. statut "core NGU track" non
+ * construit) : aucun mécanisme existant sur lequel accrocher ce bonus,
+ * volontairement omis plutôt qu'approximé (même traitement que Beards/
+ * MacGuffins ci-dessus). Total p/t = 54 371 714 / 23 171 714 (somme des
+ * 7 pièces "Stats Max").
+ */
+meta:{name:"Meta Set",source:"metaland",slots:["head","chest","legs","boots","weapon","charmInfinity","charm69"],p:54371714,t:23171714,reward:{}},
+/*
+ * Interdimensional Party (2026-09-18, même passe). Wiki NGU en direct,
+ * page "Party (set)" : 7 pièces (Party Hat/Pogmail Chest/Tear Away Pants/
+ * Pizza Boots/The God of Thunder's Hammer [arme]/Plastic Red Cup/Party
+ * Whistle, 2 accessoires distincts). "Bonus for Completion: +5% Total
+ * Diggers Level Bonus" -- câblé ci-dessus dans diggerGlobalBonus()
+ * (idle-ngu-progression.js), qui référençait déjà ce bonus par son nom
+ * exact ("Party (set) Bonus") sans jamais pouvoir le calculer faute
+ * d'équipement Party construit. Total p/t = 109 000 000 / 46 000 000
+ * (somme des 7 pièces "Stats Max").
+ */
+party:{name:"Party Set",source:"interdimensional",slots:["head","chest","legs","boots","weapon","cup","whistle"],p:109000000,t:46000000,reward:{diggerGlobalBonusPct:5}},
+/*
+ * Typo Zonw (2026-09-18, même passe). Wiki NGU en direct, page
+ * "Typo (set)" : 7 pièces (Hamlet/Chess Plate/Logs/Booms/Wee pin [arme]/
+ * The Ass-cessory/Eye of ELXU, 2 accessoires). "Bonus for Completion:
+ * +20% Wish Speed!" -- le système Wishes est absent de SOREAL (statut
+ * "Wishes" non construit, cf. audit wiki-parity) : reward volontairement
+ * vide, jamais approximé. Total p/t = 362 133 332 / 172 333 332 (somme
+ * des 7 pièces "Stats Max").
+ */
+typo:{name:"Typo Set",source:"typozone",slots:["head","chest","legs","boots","weapon","asscessory","eyeElxu"],p:362133332,t:172333332,reward:{}},
+/*
+ * The Fad-lands (2026-09-18, même passe). Wiki NGU en direct, page
+ * "Fad (set)" : 7 pièces (Spinning Tophat/Demonic Flurbie Chestplate/AAA
+ * Battery Legs/Slinky Boots/THE MALF SLAMMER [arme]/Rare Foil Pokeyman
+ * Card/A handful of Krazy Bonez, 2 accessoires). "Bonus for Completion:
+ * 10% Faster Major Quests! + 3 Beast Butters" -- Questing (statut :
+ * documenté mais jamais implémenté en mécanique jouable) et Beast Mode
+ * (jamais construit chez SOREAL) sont tous deux hors périmètre : reward
+ * volontairement vide. Total p/t = 585 200 000 / 278 000 000 (somme des
+ * 7 pièces "Stats Max").
+ */
+fad:{name:"Fad Set",source:"fadlands",slots:["head","chest","legs","boots","weapon","pokeymanCard","krazyBonez"],p:585200000,t:278000000,reward:{}},
+/*
+ * JRPGVille (2026-09-18, même passe). Wiki NGU en direct, page
+ * "JRPG (set)" : gag JRPG -- l'épée "Buster Sword" est démembrée en 4
+ * pièces d'ARMURE (Top/Upper/Lower/Bottom = head/chest/legs/boots) tandis
+ * que "Gift Shop Buster Sword Replica" est la vraie arme (800M Power,
+ * de loin la plus grosse valeur du set) ; + 2 accessoires (A Gigantic
+ * Zipper, Anime Hero Wig). "Bonus for Completion: A better Ultimate
+ * Attack! (5.01x -> 7.01x)" -- "Ultimate Attack" est une compétence
+ * ITOPOD/combat discrète qui n'existe pas dans le modèle de combat
+ * SOREAL (attaque/défense continues, jamais de multiplicateur d'attaque
+ * spéciale) : reward volontairement vide. Total p/t = 913 800 000 /
+ * 442 000 000 (somme des 7 pièces "Stats Max").
+ */
+jrpg:{name:"JRPG Set",source:"jrpgville",slots:["head","chest","legs","boots","weapon","zipper","wig"],p:913800000,t:442000000,reward:{}},
+/*
+ * The Rad-Lands (2026-09-18, même passe -- dernière zone Evil, "Higher
+ * zones continue only in SADISTIC difficulty"). Wiki NGU en direct, page
+ * "Rad (set)" : 7 pièces (Cool Shades/Leather Jacket/Flamin' Hot Shorts/
+ * A Skateboard/Nunchuks [arme]/Not Drugs/The Glove of Power, 2
+ * accessoires). "Bonus for Completion: +5 Max Deck Size" -- système
+ * Cards (débloqué par "A Still-Beating Heart", drop garanti de l'Exile,
+ * cf. commentaire IDLE_ADVENTURE_TITANS ci-dessus) jamais construit chez
+ * SOREAL : reward volontairement vide. Total p/t = 2 227 200 000 /
+ * 1 100 000 000 (somme des 7 pièces "Stats Max").
+ */
+rad:{name:"Rad Set",source:"radlands",slots:["head","chest","legs","boots","weapon","notDrugs","gloveOfPower"],p:2227200000,t:1100000000,reward:{}}
 };
 export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries(SETS).map(([id,s])=>[id,Object.freeze({id,...s})])));
 /*
@@ -536,7 +644,15 @@ const SET_ITEM_STATS_V1=Object.freeze({
   "2d:weapon":{p:9200,t:600},"2d:head":{p:100,t:1200},"2d:chest":{p:100,t:1290},"2d:legs":{p:140,t:1520},"2d:boots":{p:120,t:1400},"2d:cube":{p:1300,t:1300},"2d:amulet":{p:0,t:0},
   "uug:ringGreed":{p:0,t:0},"uug:ringMight":{p:13332,t:13332},"uug:ringUtility":{p:2000,t:2000},"uug:ringEnergy":{p:2000,t:2000},"uug:ringMagic":{p:2000,t:2000},
   "wanderer:head":{p:2000,t:44000},"wanderer:chest":{p:2000,t:46000},"wanderer:legs":{p:2000,t:46000},"wanderer:boots":{p:2000,t:48000},
-  "rerednaw:head":{p:2000,t:42000},"rerednaw:chest":{p:2000,t:44000},"rerednaw:legs":{p:2000,t:46000},"rerednaw:boots":{p:2000,t:48000}
+  "rerednaw:head":{p:2000,t:42000},"rerednaw:chest":{p:2000,t:44000},"rerednaw:legs":{p:2000,t:46000},"rerednaw:boots":{p:2000,t:48000},
+  "edgy:weapon":{p:11200000,t:600000},"edgy:head":{p:80000,t:1004000},"edgy:chest":{p:60000,t:1080000},"edgy:legs":{p:60000,t:1110000},"edgy:boots":{p:120000,t:1080000},"edgy:amulet":{p:300000,t:300000},
+  "pinkprincess:weapon":{p:15200000,t:880000},"pinkprincess:head":{p:120000,t:1484000},"pinkprincess:chest":{p:120000,t:1480000},"pinkprincess:legs":{p:100000,t:1510000},"pinkprincess:boots":{p:60000,t:1460000},"pinkprincess:amulet":{p:800000,t:800000},
+  "meta:weapon":{p:50000000,t:2400000},"meta:head":{p:300000,t:4400000},"meta:chest":{p:300000,t:4400000},"meta:legs":{p:300000,t:4400000},"meta:boots":{p:300000,t:4400000},"meta:charmInfinity":{p:1777776,t:1777776},"meta:charm69":{p:1393938,t:1393938},
+  "party:weapon":{p:100000000,t:4000000},"party:head":{p:500000,t:9000000},"party:chest":{p:500000,t:9000000},"party:legs":{p:500000,t:9000000},"party:boots":{p:500000,t:9000000},"party:cup":{p:3000000,t:2000000},"party:whistle":{p:4000000,t:4000000},
+  "typo:weapon":{p:320000000,t:12000000},"typo:head":{p:1200000,t:30000000},"typo:chest":{p:1200000,t:32000000},"typo:legs":{p:1200000,t:31000000},"typo:boots":{p:1200000,t:30000000},"typo:asscessory":{p:24000000,t:24000000},"typo:eyeElxu":{p:13333332,t:13333332},
+  "fad:weapon":{p:500000000,t:20000000},"fad:head":{p:1800000,t:44000000},"fad:chest":{p:1800000,t:48000000},"fad:legs":{p:1800000,t:46000000},"fad:boots":{p:1800000,t:42000000},"fad:pokeymanCard":{p:38000000,t:38000000},"fad:krazyBonez":{p:40000000,t:40000000},
+  "jrpg:weapon":{p:800000000,t:32000000},"jrpg:head":{p:2800000,t:76000000},"jrpg:chest":{p:3000000,t:74000000},"jrpg:legs":{p:3000000,t:78000000},"jrpg:boots":{p:3000000,t:76000000},"jrpg:zipper":{p:42000000,t:46000000},"jrpg:wig":{p:60000000,t:60000000},
+  "rad:weapon":{p:1760000000,t:70000000},"rad:head":{p:6600000,t:174000000},"rad:chest":{p:6800000,t:172000000},"rad:legs":{p:7000000,t:172000000},"rad:boots":{p:6800000,t:172000000},"rad:notDrugs":{p:180000000,t:180000000},"rad:gloveOfPower":{p:260000000,t:160000000}
 });
 export function idleAdventureItemStatsMaxV1(set,slot){
   const override=SET_ITEM_STATS_V1[`${set}:${slot}`];
@@ -788,7 +904,7 @@ function boost(type,strength){if(!["power","toughness","special"].includes(type)
  */
 export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
-function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
+function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
 export function createIdleAdventureStateV47(){return base()}
 /*
  * Migration 2026-09-16 (Norman : "je me retrouve avec des stats genre
