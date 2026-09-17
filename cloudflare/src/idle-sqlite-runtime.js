@@ -5801,33 +5801,18 @@ function defenseBossSorealIdle_(
 
 
 
+/*
+ * V53 : plus de niveau joueur global requis pour affronter un boss —
+ * la progression est gérée par le moteur NGU meta. Code mort retiré
+ * (audit 2026-09-17, grand nettoyage) : l'ancien calcul par
+ * definitionBossSorealIdle_(index).niveauRequis n'était plus jamais
+ * atteint après ce `return 1;`.
+ */
 function niveauRequisBossSorealIdle_(
   bossIndex
 ) {
   void bossIndex;
   return 1;
-  const index =
-    Math.max(
-      0,
-      Math.floor(
-        nombreSorealIdle_(
-          bossIndex,
-          0
-        )
-      )
-    );
-
-  return Math.max(
-    1,
-    Math.floor(
-      nombreSorealIdle_(
-        definitionBossSorealIdle_(
-          index
-        ).niveauRequis,
-        index + 1
-      )
-    )
-  );
 }
 
 
