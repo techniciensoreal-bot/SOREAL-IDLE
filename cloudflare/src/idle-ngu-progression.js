@@ -2541,10 +2541,20 @@ function advanceLateSystems(state, seconds, context, now) {
     if (kills > 0) {
       tower.data.killProgress -= kills;
       tower.data.kills = Math.max(0, int(tower.data.kills, 0)) + kills;
-      // Wiki NGU (page ITOPOD, section "Drops") : "(200 + Floor) PPP per
-      // dude killed" en difficulté Normal — pas un flat 250 (qui n'est
-      // exact qu'au floor 50 pile et s'écarte de plus en plus au-delà).
-      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (200 + tower.data.floor);
+      /*
+       * Wiki NGU (page ITOPOD, section "Drops") : "(200 + Floor) PPP per
+       * dude killed" en difficulté Normal — pas un flat 250 (qui n'est
+       * exact qu'au floor 50 pile et s'écarte de plus en plus au-delà).
+       *
+       * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/
+       * Sadistic). Wiki pages "Evil difficulty"/"SADISTIC difficulty",
+       * section "Differences" > "Adventure" : "ITOPOD base pp progress is
+       * (700 + floor) instead of (200 + floor)" (Evil) ; "(2000 + floor)
+       * instead of Evil's (700 + floor)" (SADISTIC) -- seule la base
+       * change (200/700/2000), jamais le terme "+ floor".
+       */
+      const itopodPpBase = state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200;
+      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor);
       /*
        * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
        * perdait le report entre deux ticks — en jeu normal (tick fréquent,

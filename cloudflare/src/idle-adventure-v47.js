@@ -1317,7 +1317,22 @@ const ZONE_BOSS_EXP_CHANCE_V1={
  * l'ancien chemin zoneKill (kill instantané, plus appelé par l'écran
  * actuel mais gardé pour compatibilité).
  */
-function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];if(z.set&&Math.random()<C(.22*dropMult,0,.95)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<C(.12*dropMult,0,.85))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<C(.04*dropMult,0,.5)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * Wiki NGU local, page "Evil difficulty", section "Differences" > "Drop
+ * chance" : "Only cube root of drop chance applies for zones and titans
+ * unlocked in evil difficulty." Formule donnée en %
+ * (cbrt(dropchance/100)*100) ; en fraction 0-1 (déjà l'unité utilisée par
+ * les 3 tirages ci-dessous), c'est mathématiquement Math.cbrt(fraction)
+ * directement -- jamais une seconde conversion %/fraction. Appliqué
+ * SEULEMENT aux zones Evil (z.requiredDifficulty==="difficile") : la page
+ * "SADISTIC difficulty" ne documente aucune règle équivalente, jamais une
+ * extrapolation non sourcée aux zones Sadistic. Le cube root AUGMENTE la
+ * chance (racine d'une fraction <1 > la fraction elle-même) -- appliqué
+ * avant le plafond `cap` pour que celui-ci reste la vraie borne finale.
+ */
+function evilZoneDropChanceV1(p,cap,isEvilZone){return C(isEvilZone?Math.cbrt(Math.max(0,p)):p,0,cap)}
+function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];const isEvilZone=z.requiredDifficulty==="difficile";if(z.set&&Math.random()<evilZoneDropChanceV1(.22*dropMult,.95,isEvilZone)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<evilZoneDropChanceV1(.12*dropMult,.85,isEvilZone))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<evilZoneDropChanceV1(.04*dropMult,.5,isEvilZone)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
 /*
  * Correctif 2026-09-16 (Norman, wiki NGU exact) : les SPECIALS bossOnly
  * PORTANT un dropChance sourcé du wiki (ex. tutorialCube, 10% sur le
