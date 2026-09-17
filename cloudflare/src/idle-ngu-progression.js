@@ -2134,7 +2134,16 @@ function advanceBloodMagic(state, seconds, context) {
   if (magic <= 0) return;
 
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
-  const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power);
+  /*
+   * Norman (2026-09-18) : "il faut tout faire" (équipement des 17 zones
+   * Evil/Sadistic). Wiki NGU en direct, page "Dutch (set)" (The Nether
+   * Regions) : "Bonus for Completion: +25% Faster Blood Magic Rituals!"
+   * -- même pont setRewards.* que les autres bonus de set câblés
+   * ci-dessus, ici sur le temps par complétion (diviseur, jamais un
+   * multiplicateur composé avec difficultyDivider).
+   */
+  const dutchSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
+  const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier;
   rs.progress += seconds;
   let completions = Math.floor(rs.progress / secondsPerCompletion);
   if (completions <= 0) return;

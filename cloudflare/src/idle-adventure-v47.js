@@ -97,15 +97,15 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,set:"",dropLevel:0,avatarLevel:6,requiredDifficulty:"extreme"}
+{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
 ]);
 /*
  * Norman (2026-09-16) : "j'ai plusieurs images qui sont utilisée pour le
@@ -587,7 +587,138 @@ jrpg:{name:"JRPG Set",source:"jrpgville",slots:["head","chest","legs","boots","w
  * SOREAL : reward volontairement vide. Total p/t = 2 227 200 000 /
  * 1 100 000 000 (somme des 7 pièces "Stats Max").
  */
-rad:{name:"Rad Set",source:"radlands",slots:["head","chest","legs","boots","weapon","notDrugs","gloveOfPower"],p:2227200000,t:1100000000,reward:{}}
+rad:{name:"Rad Set",source:"radlands",slots:["head","chest","legs","boots","weapon","notDrugs","gloveOfPower"],p:2227200000,t:1100000000,reward:{}},
+/*
+ * Back To School (2026-09-18, passe SADISTIC -- 9 zones restantes). Wiki
+ * NGU en direct, page "Back To School (set)" : 7 pièces (Dunce Cap/School
+ * Jersey/ULTRAWIDE Pants/Shoes With Wheels/Floppy Elastic Ruler [arme]/
+ * THE S/A Walkman, 2 accessoires). "Bonus for Completion: +15% NGU
+ * Speed!" -- trainers NGU cœur non construits chez SOREAL (même
+ * traitement que Meta Land ci-dessus) : reward volontairement vide.
+ * Total p/t = 2 928 800 000 / 1 606 000 000 (somme des 7 pièces
+ * "Stats Max").
+ */
+backtoschool:{name:"Back To School Set",source:"backtoschool",slots:["head","chest","legs","boots","weapon","theS","walkman"],p:2928800000,t:1606000000,reward:{}},
+/*
+ * The West World (2026-09-18, même passe SADISTIC). Wiki NGU en direct,
+ * page "Western (set)" : 7 pièces (A 10 Litre Hat/Asslest Vest/Assful
+ * Chaps/Extra Spiky Spurs/The Six Shooter [arme]/A Battle Corgi/A Pink
+ * Bandana, 2 accessoires). "Bonus for Completion: An Extra Drop in this
+ * zone!" -- formulation qualitative sans mécanique ni magnitude précisée
+ * (double tirage complet ? un item garanti en plus ? le wiki ne le
+ * détaille pas) : jamais implémenté sur une supposition, reward
+ * volontairement vide (règle n°1, AGENTS.md). Le bonus post-complétion
+ * "A 9mm Beretta" (drop supplémentaire "if Western (set) complete") est
+ * un 8e objet de loot hors des 7 pièces de complétion -- même statut que
+ * les autres rares multi-zones (Ascended Pendant, Sir Looty) déjà
+ * laissés hors de IDLE_ADVENTURE_SETS pour toutes les zones précédentes,
+ * jamais un oubli. Total p/t = 3 788 000 000 / 2 174 000 000 (somme des
+ * 7 pièces "Stats Max").
+ */
+western:{name:"Western Set",source:"westworld",slots:["head","chest","legs","boots","weapon","corgi","bandana"],p:3788000000,t:2174000000,reward:{}},
+/*
+ * The Breadverse (2026-09-18, même passe SADISTIC). Wiki NGU en direct,
+ * page "Bread (set)" : 8 pièces, PAS 7 -- "Without accessories" (le
+ * bloc qui isole l'armure+arme(s) des accessoires) additionne À LA FOIS
+ * "1 Day-Old Baguette" ET "A Rolling Pin" comme 2 objets à arme distincts
+ * (confirmé par la somme exacte du total officiel de la page), en plus
+ * des 4 pièces d'armure et de 2 accessoires (A Cream Pie, A Spoonful of
+ * Yeast). SOREAL n'a qu'UN slot "weapon" par set : "weapon" porte A
+ * Rolling Pin (la plus grosse Power), "baguette" porte 1 Day-Old
+ * Baguette comme second slot arme distinct -- déjà le même principe que
+ * les 2 slots accessoires des sets précédents, juste appliqué à une arme
+ * au lieu d'un bijou. "Bonus for Completion: Faster Cooks!!" -- le
+ * système Cooking n'existe pas du tout chez SOREAL : reward
+ * volontairement vide. Total p/t = 16 524 000 000 / 5 080 000 000
+ * (somme des 8 pièces "Stats Max").
+ */
+bread:{name:"Bread Set",source:"breadverse",slots:["head","chest","legs","boots","weapon","baguette","creamPie","yeast"],p:16524000000,t:5080000000,reward:{}},
+/*
+ * That 70's Zone (2026-09-18, même passe SADISTIC). Wiki NGU en direct,
+ * page "Disco (set)" : même structure à 8 pièces que Bread ci-dessus --
+ * "Without accessories" additionne "A Rusty Old Sabre" ET "A Vinyl
+ * Record Shard" comme 2 armes distinctes, + 4 pièces d'armure + 2
+ * accessoires (A Bit of White Powder, Some Rolling Paper). "weapon" =
+ * A Rusty Old Sabre, "vinylShard" = second slot arme (même principe que
+ * "baguette" pour Bread). "Bonus for Completion: Less crappy cards!" --
+ * système Cards non construit chez SOREAL : reward volontairement vide.
+ * Total p/t = 22 076 601 000 / 6 820 000 000 (somme des 8 pièces
+ * "Stats Max").
+ */
+disco:{name:"Disco Set",source:"seventies",slots:["head","chest","legs","boots","weapon","vinylShard","whitePowder","rollingPaper"],p:22076601000,t:6820000000,reward:{}},
+/*
+ * The Halloweenies (2026-09-18, même passe SADISTIC). Wiki NGU en
+ * direct, page "Halloweenie (set)" : même structure à 8 pièces que
+ * Bread/Disco -- "Without accessories" additionne "An Ordinary Apple" ET
+ * "A Giant Scythe" comme 2 armes distinctes, + 4 pièces d'armure (Neck
+ * Bolts/Skeleton Shirt/A Broomstick/Fuzzy Boots) + 2 accessoires (A Roll
+ * of Toilet Paper, Pandora's Box). "weapon" = A Giant Scythe (la plus
+ * grosse Power), "apple" = second slot arme. "Bonus for Completion: +45%
+ * PP gain!" -- ITOPOD, même pont setRewards.itopodPpPct que Pretty Pink
+ * Princess ci-dessus (les deux s'additionnent naturellement via
+ * checkSets, jamais un plafond artificiel). Total p/t = 31 331 600 000 /
+ * 9 226 000 000 (somme des 8 pièces "Stats Max").
+ */
+halloweenie:{name:"Halloweenie Set",source:"halloweenies",slots:["head","chest","legs","boots","weapon","apple","toiletPaper","pandora"],p:31331600000,t:9226000000,reward:{itopodPpPct:.45}},
+/*
+ * Construction Zone (2026-09-18, même passe SADISTIC). Wiki NGU en
+ * direct, page "Construction (set)" : même structure à 8 pièces --
+ * "Without accessories" additionne "A Wooden Hammer" ET "A Giant
+ * Wrecking Ball" comme 2 armes distinctes, + 4 pièces d'armure (A
+ * Hardhat/High Visibility Vest/Yet Another Generic Pair Of Jeans/Steel
+ * Toed Boots) + 2 accessoires (The Toolbox, A Level Level). "weapon" =
+ * A Giant Wrecking Ball (la plus grosse Power), "hammer" = second slot
+ * arme. "Bonus for Completion: 20% Boostier Boosts!" -- réutilise
+ * exactement setRewards.boostEffectiveness, déjà câblé dans applyBoost()
+ * depuis le set "badly" (Badly Drawn World, V143) : s'additionne
+ * naturellement avec lui via checkSets, jamais un nouveau champ. Total
+ * p/t = 87 119 800 000 / 23 276 000 000 (somme des 8 pièces
+ * "Stats Max").
+ */
+construction:{name:"Construction Set",source:"construction",slots:["head","chest","legs","boots","weapon","hammer","toolbox","levelLevel"],p:87119800000,t:23276000000,reward:{boostEffectiveness:.20}},
+/*
+ * DUCK DUCK ZONE (2026-09-18, même passe SADISTIC). Wiki NGU en direct,
+ * page "Duck (set)" : même structure à 8 pièces -- "Without accessories"
+ * additionne "A shotgun" ET "The Zapper" comme 2 armes distinctes, + 4
+ * pièces d'armure (A Fake Duckbill/An Inflatable Ducky Innertube/Duck
+ * Duck Shorts/Duck Slippers) + 2 accessoires (Some Duck-t Tape, A Duck
+ * Caller). "weapon" = The Zapper (la plus grosse Power), "shotgun" =
+ * second slot arme. "Bonus for Completion: +6% Mayo and Card Speed!" --
+ * Mayo et Cards n'existent ni l'un ni l'autre chez SOREAL : reward
+ * volontairement vide. Total p/t = 123 080 000 000 / 32 100 000 000
+ * (somme des 8 pièces "Stats Max").
+ */
+duck:{name:"Duck Set",source:"duckduck",slots:["head","chest","legs","boots","weapon","shotgun","ducktTape","duckCaller"],p:123080000000,t:32100000000,reward:{}},
+/*
+ * The Nether Regions (2026-09-18, même passe SADISTIC). Wiki NGU en
+ * direct, page "Dutch (set)" : même structure à 8 pièces -- "Without
+ * accessories" additionne "Black Tulip" ET "Weaponized Hollandaise
+ * sauce" comme 2 armes distinctes, + 4 pièces d'armure (A Dutch Hat/
+ * Windmill Shirt/Stroopwaffel Pants/Clogs) + 2 accessoires (Pocket
+ * Netherlands, Rest of the Combat Cheese). "weapon" = Weaponized
+ * Hollandaise sauce (la plus grosse Power), "tulip" = second slot arme.
+ * "Bonus for Completion: +25% Faster Blood Magic Rituals!" -- câblé
+ * ci-dessus dans advanceBloodMagic() via le nouveau
+ * setRewards.bloodMagicSpeedPct, système déjà entièrement construit chez
+ * SOREAL. Total p/t = 166 160 000 000 / 45 680 000 000 (somme des 8
+ * pièces "Stats Max").
+ */
+dutch:{name:"Dutch Set",source:"netherregions",slots:["head","chest","legs","boots","weapon","tulip","netherlands","cheese"],p:166160000000,t:45680000000,reward:{bloodMagicSpeedPct:.25}},
+/*
+ * The Aethereal Sea (2026-09-18, dernière zone -- "It was formerly named
+ * The Aethereal Sea Part 1 but apparently an intended Part 2 got
+ * cancelled"). Wiki NGU en direct, page "Pirate (set)" : même structure
+ * à 8 pièces -- "Without accessories" additionne "The Cutlass" ET "The
+ * Flintlock" comme 2 armes distinctes, + 4 pièces d'armure (Pirate Hat/
+ * Swashbuckler Chest/Piratey Pants/Piratey Peglegs) + 2 accessoires (A
+ * Giant's Eyepatch, A Compass!). "weapon" = The Flintlock (la plus
+ * grosse Power), "cutlass" = second slot arme. "Bonus for Completion:
+ * \"Pride and Accomplishment.\"" -- texte d'ambiance littéral, PAS un
+ * bonus chiffré (blague NGU habituelle sur les sets de fin de contenu) :
+ * reward vide à raison, rien à câbler. Total p/t = 289 540 000 000 /
+ * 72 200 000 000 (somme des 8 pièces "Stats Max").
+ */
+pirate:{name:"Pirate Set",source:"aethereansea",slots:["head","chest","legs","boots","weapon","cutlass","eyepatch","compass"],p:289540000000,t:72200000000,reward:{}}
 };
 export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries(SETS).map(([id,s])=>[id,Object.freeze({id,...s})])));
 /*
@@ -652,7 +783,16 @@ const SET_ITEM_STATS_V1=Object.freeze({
   "typo:weapon":{p:320000000,t:12000000},"typo:head":{p:1200000,t:30000000},"typo:chest":{p:1200000,t:32000000},"typo:legs":{p:1200000,t:31000000},"typo:boots":{p:1200000,t:30000000},"typo:asscessory":{p:24000000,t:24000000},"typo:eyeElxu":{p:13333332,t:13333332},
   "fad:weapon":{p:500000000,t:20000000},"fad:head":{p:1800000,t:44000000},"fad:chest":{p:1800000,t:48000000},"fad:legs":{p:1800000,t:46000000},"fad:boots":{p:1800000,t:42000000},"fad:pokeymanCard":{p:38000000,t:38000000},"fad:krazyBonez":{p:40000000,t:40000000},
   "jrpg:weapon":{p:800000000,t:32000000},"jrpg:head":{p:2800000,t:76000000},"jrpg:chest":{p:3000000,t:74000000},"jrpg:legs":{p:3000000,t:78000000},"jrpg:boots":{p:3000000,t:76000000},"jrpg:zipper":{p:42000000,t:46000000},"jrpg:wig":{p:60000000,t:60000000},
-  "rad:weapon":{p:1760000000,t:70000000},"rad:head":{p:6600000,t:174000000},"rad:chest":{p:6800000,t:172000000},"rad:legs":{p:7000000,t:172000000},"rad:boots":{p:6800000,t:172000000},"rad:notDrugs":{p:180000000,t:180000000},"rad:gloveOfPower":{p:260000000,t:160000000}
+  "rad:weapon":{p:1760000000,t:70000000},"rad:head":{p:6600000,t:174000000},"rad:chest":{p:6800000,t:172000000},"rad:legs":{p:7000000,t:172000000},"rad:boots":{p:6800000,t:172000000},"rad:notDrugs":{p:180000000,t:180000000},"rad:gloveOfPower":{p:260000000,t:160000000},
+  "backtoschool:weapon":{p:2280000000,t:90000000},"backtoschool:head":{p:9200000,t:244000000},"backtoschool:chest":{p:9200000,t:244000000},"backtoschool:legs":{p:9200000,t:244000000},"backtoschool:boots":{p:9200000,t:244000000},"backtoschool:theS":{p:360000000,t:360000000},"backtoschool:walkman":{p:252000000,t:180000000},
+  "western:weapon":{p:2960000000,t:116000000},"western:head":{p:12000000,t:318000000},"western:chest":{p:12000000,t:320000000},"western:legs":{p:12000000,t:316000000},"western:boots":{p:12000000,t:324000000},"western:corgi":{p:440000000,t:440000000},"western:bandana":{p:340000000,t:340000000},
+  "bread:weapon":{p:7640000000,t:180000000},"bread:baguette":{p:7200000000,t:274000000},"bread:head":{p:26000000,t:760000000},"bread:chest":{p:26000000,t:764000000},"bread:legs":{p:26000000,t:766000000},"bread:boots":{p:26000000,t:756000000},"bread:creamPie":{p:820000000,t:820000000},"bread:yeast":{p:760000000,t:760000000},
+  "disco:weapon":{p:9720001000,t:274000000},"disco:vinylShard":{p:10000000000,t:220000000},"disco:head":{p:35000000,t:1026000000},"disco:chest":{p:35200000,t:1024000000},"disco:legs":{p:35200000,t:1028000000},"disco:boots":{p:35200000,t:1032000000},"disco:whitePowder":{p:1106000000,t:1106000000},"disco:rollingPaper":{p:1110000000,t:1110000000},
+  "halloweenie:weapon":{p:14500000000,t:420000000},"halloweenie:apple":{p:14040000000,t:274000000},"halloweenie:head":{p:50600000,t:1486000000},"halloweenie:chest":{p:51000000,t:1480000000},"halloweenie:legs":{p:51000000,t:1490000000},"halloweenie:boots":{p:51000000,t:1488000000},"halloweenie:toiletPaper":{p:1286000000,t:1286000000},"halloweenie:pandora":{p:1302000000,t:1302000000},
+  "construction:weapon":{p:41020000000,t:600000000},"construction:hammer":{p:40000000000,t:800000000},"construction:head":{p:145200000,t:4110000000},"construction:chest":{p:144800000,t:4080000000},"construction:legs":{p:151800000,t:4060000000},"construction:boots":{p:152000000,t:4120000000},"construction:toolbox":{p:3640000000,t:3640000000},"construction:levelLevel":{p:1866000000,t:1866000000},
+  "duck:weapon":{p:57800000000,t:840000000},"duck:shotgun":{p:57000000000,t:1100000000},"duck:head":{p:200000000,t:5640000000},"duck:chest":{p:200000000,t:5620000000},"duck:legs":{p:200000000,t:5740000000},"duck:boots":{p:200000000,t:5680000000},"duck:ducktTape":{p:5080000000,t:5080000000},"duck:duckCaller":{p:2400000000,t:2400000000},
+  "dutch:weapon":{p:76400000000,t:1200000000},"dutch:tulip":{p:76000000000,t:1200000000},"dutch:head":{p:280000000,t:7700000000},"dutch:chest":{p:280000000,t:7640000000},"dutch:legs":{p:280000000,t:7600000000},"dutch:boots":{p:280000000,t:7700000000},"dutch:netherlands":{p:5620000000,t:5620000000},"dutch:cheese":{p:7020000000,t:7020000000},
+  "pirate:weapon":{p:138000000000,t:2000000000},"pirate:cutlass":{p:126000000000,t:2000000000},"pirate:head":{p:480000000,t:11200000000},"pirate:chest":{p:500000000,t:11400000000},"pirate:legs":{p:480000000,t:11000000000},"pirate:boots":{p:480000000,t:11000000000},"pirate:eyepatch":{p:11800000000,t:11800000000},"pirate:compass":{p:11800000000,t:11800000000}
 });
 export function idleAdventureItemStatsMaxV1(set,slot){
   const override=SET_ITEM_STATS_V1[`${set}:${slot}`];
@@ -904,7 +1044,7 @@ function boost(type,strength){if(!["power","toughness","special"].includes(type)
  */
 export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
-function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
+function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
 export function createIdleAdventureStateV47(){return base()}
 /*
  * Migration 2026-09-16 (Norman : "je me retrouve avec des stats genre
