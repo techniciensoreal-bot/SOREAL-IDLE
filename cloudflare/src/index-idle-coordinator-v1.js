@@ -55,50 +55,19 @@ export class SorealIdleCoordinatorV1 {
       "cursor_row INTEGER,row_count INTEGER,checksum TEXT,status TEXT,imported_at INTEGER,error TEXT)"
     );
     this.sql.exec("CREATE TABLE IF NOT EXISTS idle_meta (meta_key TEXT PRIMARY KEY, meta_value TEXT)");
-    this.resetAllPlayersOnceV1();
-  }
-
-  /*
-   * Remise à zéro complète (Norman, 2026-09-09) : "il faut que tu obliges
-   * chaque joueur à recommencer à 0."
-   *
-   * V3 (2026-09-10) — VRAIE CAUSE TROUVÉE : V1 et V2 vidaient idle_players,
-   * une table QUI N'EST JAMAIS LUE PAR LE MOTEUR DE JEU. runSorealIdleOperation
-   * (idle-sqlite-runtime.js) reconstruit un "classeur" en mémoire à partir
-   * de idle_catalog (__idleBuildWorkbook) et lit/écrit la progression
-   * réelle de chaque joueur dans la feuille "JOUEURS" de CE classeur
-   * (idle_catalog WHERE sheet_name='JOUEURS'), jamais dans idle_players.
-   * Confirmé en direct via wrangler tail (la purge V1 s'exécutait bien,
-   * "SOREAL_IDLE_RESET_ALREADY_DONE" loggé) alors que le compte réel de
-   * Norman gardait sa progression à chaque nouvelle vérification —
-   * la mauvaise table était vidée depuis le début.
-   *
-   * La ligne 1 de idle_catalog/JOUEURS est l'en-tête de colonnes
-   * (trouverLigneJoueurSorealIdle_ commence toujours à la ligne 2) — donc
-   * seules les lignes >1 sont supprimées ; les autres feuilles du même
-   * classeur (CONFIG, IDLE_BOSS, IDLE_ZONES, etc., un vrai catalogue de
-   * jeu partagé) ne sont jamais touchées.
-   *
-   * Appelée à la fois depuis le constructeur (instance froide) et depuis
-   * internal() à chaque requête (instance restée chaude depuis avant un
-   * déploiement) — rejouée volontairement, gardée par idle_meta pour
-   * rester une purge UNIQUE. Jamais laissée casser une requête réelle si
-   * quelque chose d'inattendu se produit.
-   */
-  resetAllPlayersOnceV1() {
-    try {
-      this.sql.exec("CREATE TABLE IF NOT EXISTS idle_meta (meta_key TEXT PRIMARY KEY, meta_value TEXT)");
-      const already = this.sqlAll("SELECT meta_value FROM idle_meta WHERE meta_key='reset_fresh_start_v3'");
-      if (already.length) return;
-      this.sql.exec("DELETE FROM idle_players");
-      this.sql.exec("DELETE FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index>1");
-      this.sql.exec(
-        "INSERT INTO idle_meta(meta_key,meta_value) VALUES('reset_fresh_start_v3', ?) ON CONFLICT(meta_key) DO NOTHING",
-        String(Date.now())
-      );
-    } catch (_error) {
-      // Ne jamais faire échouer une requête de jeu réelle à cause de la remise à zéro.
-    }
+    /*
+     * La remise à zéro ponctuelle demandée par Norman le 2026-09-09
+     * ("il faut que tu obliges chaque joueur à recommencer à 0") a été
+     * exécutée une seule fois — le marqueur idle_meta.reset_fresh_start_v3
+     * est déjà posé en production, avec de vraies progressions de joueurs
+     * vivantes depuis. Un audit externe (2026-09-17) a signalé à juste
+     * titre qu'un code de purge encore présent, même gardé par ce
+     * marqueur, reste un risque structurel si jamais ce marqueur
+     * disparaissait (anomalie de stockage). Migration définitivement
+     * consommée : le code de purge est retiré du chemin normal plutôt
+     * que laissé "au cas où" — voir l'historique git pour resetAllPlayersOnceV1
+     * si une future migration similaire est nécessaire.
+     */
   }
 
   sqlAll(query, ...bindings) {
@@ -158,6 +127,18 @@ export class SorealIdleCoordinatorV1 {
    * `sheets` avant d'insérer les nouvelles lignes — un vrai remplacement,
    * pas un complément. Ne touche jamais une feuille absente de `sheets`
    * (JOUEURS, CONFIG, etc. restent intacts).
+   *
+   * Garde-fou (audit externe 2026-09-17, confirmé en lisant le code) :
+   * avant cette correction, un payload avec `sheets` valide mais
+   * `catalog` vide ou mal formé (aucune ligne ne matchait une feuille
+   * demandée) supprimait quand même tout le contenu existant de cette
+   * feuille puis renvoyait `ok:true, inserted:0` — un vidage silencieux
+   * déguisé en succès. Le nombre de lignes valides par feuille demandée
+   * est maintenant compté AVANT toute suppression ; si une feuille
+   * demandée n'a AUCUNE ligne valide dans `catalog`, tout l'appel est
+   * refusé (rien n'est supprimé nulle part) sauf si l'appelant passe
+   * explicitement `confirmPurge:true` (vidage volontaire assumé, jamais
+   * le défaut).
    */
   replaceCatalogSheets(payload) {
     const sheets = Array.isArray(payload?.sheets)
@@ -165,6 +146,18 @@ export class SorealIdleCoordinatorV1 {
       : [];
     const catalog = Array.isArray(payload?.catalog) ? payload.catalog : [];
     if (!sheets.length) return { ok: false, error: "SHEETS_REQUIRED" };
+
+    const validRows = catalog.filter(row => {
+      const sheetName = String(row?.sheet_name || "").trim();
+      return sheetName && row.row_index != null && sheets.includes(sheetName);
+    });
+    const confirmPurge = payload?.confirmPurge === true;
+    if (!confirmPurge) {
+      const emptySheets = sheets.filter(sheetName => !validRows.some(row => String(row.sheet_name).trim() === sheetName));
+      if (emptySheets.length) {
+        return { ok: false, error: "EMPTY_REPLACEMENT_REFUSED", emptySheets };
+      }
+    }
 
     let deleted = 0;
     for (const sheetName of sheets) {
@@ -174,9 +167,8 @@ export class SorealIdleCoordinatorV1 {
     }
 
     let inserted = 0;
-    for (const row of catalog) {
-      const sheetName = String(row?.sheet_name || "").trim();
-      if (!sheetName || row.row_index == null || !sheets.includes(sheetName)) continue;
+    for (const row of validRows) {
+      const sheetName = String(row.sheet_name).trim();
       const rowJson = Array.isArray(row.row_json) ? JSON.stringify(row.row_json) : String(row.row_json || "[]");
       this.sql.exec(
         "INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?) ON CONFLICT(sheet_name,row_index) DO UPDATE SET row_json=excluded.row_json,updated_at=excluded.updated_at",
@@ -209,19 +201,6 @@ export class SorealIdleCoordinatorV1 {
   }
 
   async internal(request, url) {
-    /*
-     * Norman (2026-09-09) : "ça n'a pas reset ma partie." La purge posée
-     * dans le constructeur ne s'exécute que si le Durable Object est
-     * reconstruit (instance froide) - or une instance déjà "chaude" avant
-     * ce déploiement continue de tourner avec l'ancien code en mémoire
-     * jusqu'à sa prochaine éviction naturelle, potentiellement bien après
-     * le push. this.resetAllPlayersOnceV1() reste gardé par idle_meta
-     * (toujours idempotent), donc l'appeler aussi ici, sur CHAQUE requête,
-     * ne coûte qu'un SELECT une fois la purge faite - mais garantit qu'elle
-     * se déclenche dès la toute prochaine requête réelle, peu importe
-     * l'état chaud/froid de l'instance qui la sert.
-     */
-    this.resetAllPlayersOnceV1();
     const path = url.pathname;
     if (path === "/__soreal-idle-v1/call") {
       const p = await request.json().catch(() => ({}));

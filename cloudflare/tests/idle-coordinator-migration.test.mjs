@@ -183,71 +183,27 @@ function makeIdleMigrationSourcesFixture() {
   assert.ok(Array.isArray(body.operations) && body.operations.includes("obtenirEtatSorealIdle"));
 }
 
-// --- remise à zéro (Norman, 2026-09-09) : "obliger chaque joueur à
-// recommencer à 0... comme si c'était la première fois" — suppression
-// réelle choisie explicitement par Norman.
-//
-// V3 — VRAIE CAUSE TROUVÉE (2026-09-10) : V1/V2 vidaient idle_players,
-// une table que le moteur de jeu (runSorealIdleOperation) ne lit JAMAIS.
-// La progression réelle vit dans idle_catalog, feuille "JOUEURS"
-// (__idleBuildWorkbook reconstruit un classeur à partir de cette table).
-// Confirmé en direct via wrangler tail : la purge V1 s'exécutait
-// vraiment ("SOREAL_IDLE_RESET_ALREADY_DONE" loggé) mais le compte réel
-// de Norman gardait toute sa progression - la mauvaise table était
-// vidée. Doit maintenant vider idle_catalog/JOUEURS (sauf la ligne 1,
-// l'en-tête de colonnes) UNE seule fois dans toute la vie du Durable
-// Object, jamais les autres feuilles du même classeur (CONFIG,
-// IDLE_BOSS, IDLE_ZONES... un vrai catalogue de jeu partagé), et ne
-// jamais reviser une deuxième fois même si l'objet se réveille à nouveau.
+// --- remise à zéro (Norman, 2026-09-09) : migration ponctuelle,
+// définitivement consommée et retirée du chemin normal (audit externe
+// 2026-09-17 : un code de purge encore présent restait un risque
+// structurel même gardé par un marqueur, si ce marqueur venait à
+// disparaître). Le constructeur et internal() ne doivent plus jamais
+// pouvoir vider idle_players/idle_catalog JOUEURS eux-mêmes.
 {
   const tables = { idle_players: new Map(), idle_catalog: new Map(), migration_sources: new Map(), idle_meta: new Map() };
-
-  // Premier réveil : un joueur existe déjà (ancienne progression, ligne 2
-  // de la feuille JOUEURS) — doit disparaître. La ligne 1 (en-tête) et
-  // les autres feuilles du catalogue partagé doivent survivre.
   tables.idle_catalog.set("JOUEURS|1", ["JOUEURS", 1, JSON.stringify(["id", "nom", "email"]), Date.now()]);
   tables.idle_catalog.set("JOUEURS|2", ["JOUEURS", 2, JSON.stringify(["1", "Norman", "norman@example.com"]), Date.now()]);
-  tables.idle_catalog.set("IDLE_BOSS|1", ["IDLE_BOSS", 1, JSON.stringify(["nom", "pv"]), Date.now()]);
   tables.idle_players.set("norman@example.com", ["1", "Norman", "norman@example.com", "norman@example.com", "[]", 2, Date.now()]);
-
-  const state1 = { storage: { sql: makeFakeSqlStorage(tables) } };
-  new SorealIdleCoordinatorV1(state1, {});
-  assert.equal(tables.idle_players.size, 0, "idle_players (héritée) doit aussi être vidée par prudence.");
-  assert.ok(!tables.idle_catalog.has("JOUEURS|2"), "La vraie progression du joueur (feuille JOUEURS, ligne >1) doit disparaître.");
-  assert.ok(tables.idle_catalog.has("JOUEURS|1"), "L'en-tête de colonnes de la feuille JOUEURS (ligne 1) ne doit jamais être supprimé.");
-  assert.ok(tables.idle_catalog.has("IDLE_BOSS|1"), "Les autres feuilles du catalogue partagé (boss, zones...) ne doivent jamais être touchées.");
-  assert.ok(tables.idle_meta.has("reset_fresh_start_v3"), "Un marqueur doit empêcher toute nouvelle purge future.");
-
-  // Un joueur relance le jeu après la remise à zéro (nouvelle ligne créée normalement).
-  tables.idle_catalog.set("JOUEURS|2", ["JOUEURS", 2, JSON.stringify(["1", "Norman", "norman@example.com"]), Date.now()]);
-
-  // Deuxième réveil du même Durable Object (même stockage partagé) : ne doit JAMAIS repurger.
-  const state2 = { storage: { sql: makeFakeSqlStorage(tables) } };
-  new SorealIdleCoordinatorV1(state2, {});
-  assert.ok(tables.idle_catalog.has("JOUEURS|2"), "Une deuxième instanciation ne doit jamais reproduire la purge (garde idle_meta respectée).");
-}
-
-// --- remise à zéro sur une instance restée "chaude" depuis avant le
-// déploiement (Norman : "ça n'a pas reset ma partie") : le constructeur
-// d'un Durable Object déjà en mémoire ne se rejoue jamais tout seul —
-// internal() doit donc lui aussi déclencher la purge, dès la toute
-// première requête réelle qu'il traite après le déploiement.
-{
-  const tables = { idle_players: new Map(), idle_catalog: new Map(), migration_sources: new Map(), idle_meta: new Map() };
-  tables.idle_catalog.set("JOUEURS|1", ["JOUEURS", 1, JSON.stringify(["id", "nom", "email"]), Date.now()]);
-  tables.idle_catalog.set("JOUEURS|2", ["JOUEURS", 2, JSON.stringify(["1", "Norman", "norman@example.com"]), Date.now()]);
 
   const state = { storage: { sql: makeFakeSqlStorage(tables) } };
   const coordinator = new SorealIdleCoordinatorV1(state, {});
-  // Le constructeur a déjà purgé (instance froide simulée) — on simule
-  // maintenant une instance restée chaude en effaçant le marqueur, comme
-  // si ce process n'avait jamais exécuté le nouveau constructeur.
-  tables.idle_meta.delete("reset_fresh_start_v3");
-  tables.idle_catalog.set("JOUEURS|2", ["JOUEURS", 2, JSON.stringify(["1", "Norman", "norman@example.com"]), Date.now()]);
+  assert.equal(tables.idle_players.size, 1, "Le constructeur ne doit plus jamais vider idle_players.");
+  assert.ok(tables.idle_catalog.has("JOUEURS|2"), "Le constructeur ne doit plus jamais vider la progression réelle (idle_catalog/JOUEURS).");
+  assert.equal(typeof coordinator.resetAllPlayersOnceV1, "undefined", "La méthode de purge historique doit être entièrement retirée, pas seulement neutralisée.");
 
   const req = new Request("https://x.invalid/__soreal-idle-v1/operations");
   await coordinator.internal(req, new URL(req.url));
-  assert.ok(!tables.idle_catalog.has("JOUEURS|2"), "internal() doit lui-même déclencher la purge si le marqueur est absent, sans attendre une reconstruction de l'objet.");
+  assert.ok(tables.idle_catalog.has("JOUEURS|2"), "internal() ne doit plus jamais déclencher de purge non plus.");
 }
 
 // --- replaceCatalogSheets : remplacement complet (pas un complément) ---
@@ -298,6 +254,34 @@ function makeIdleMigrationSourcesFixture() {
 
   const missingSheets = coordinator.replaceCatalogSheets({ sheets: [], catalog: [] });
   assert.equal(missingSheets.ok, false, "Un appel sans `sheets` doit être refusé explicitement plutôt que de ne rien faire silencieusement.");
+
+  // --- Audit externe 2026-09-17 (confirmé en lisant le code) : un
+  // `sheets` valide avec un `catalog` vide ou mal formé (aucune ligne ne
+  // matchait) vidait quand même la feuille et renvoyait ok:true,
+  // inserted:0 — un vidage silencieux déguisé en succès.
+  const beforeEmptyWipe = tables.idle_catalog.size;
+  const emptyWipe = coordinator.replaceCatalogSheets({ sheets: ["IDLE_LOOTS"], catalog: [] });
+  assert.equal(emptyWipe.ok, false, "Un `catalog` vide pour une feuille demandée doit être refusé, jamais silencieusement accepté.");
+  assert.equal(emptyWipe.error, "EMPTY_REPLACEMENT_REFUSED");
+  assert.deepEqual(emptyWipe.emptySheets, ["IDLE_LOOTS"]);
+  assert.equal(tables.idle_catalog.size, beforeEmptyWipe, "Rien ne doit être supprimé quand le remplacement est refusé.");
+  assert.ok(tables.idle_catalog.has("IDLE_LOOTS|2"), "La feuille existante doit rester intacte après un refus.");
+
+  // Un payload dont AUCUNE ligne ne correspond à la feuille demandée
+  // (mauvais nom de feuille dans le catalogue, bug d'appelant) doit être
+  // refusé de la même façon, pas seulement le cas `catalog: []` littéral.
+  const malformedWipe = coordinator.replaceCatalogSheets({
+    sheets: ["IDLE_LOOTS"],
+    catalog: [{ sheet_name: "IDLE_SETS", row_index: 1, row_json: ["ID"], updated_at: Date.now() }]
+  });
+  assert.equal(malformedWipe.ok, false, "Un catalogue qui ne contient aucune ligne pour la feuille demandée doit aussi être refusé.");
+  assert.equal(tables.idle_catalog.size, beforeEmptyWipe, "Rien ne doit être supprimé pour ce cas non plus.");
+
+  // Un vidage volontaire reste possible, mais seulement de façon explicite.
+  const confirmedPurge = coordinator.replaceCatalogSheets({ sheets: ["IDLE_LOOTS"], catalog: [], confirmPurge: true });
+  assert.equal(confirmedPurge.ok, true, "confirmPurge:true doit permettre un vidage volontaire assumé.");
+  assert.equal(confirmedPurge.inserted, 0);
+  assert.ok(!tables.idle_catalog.has("IDLE_LOOTS|1"), "Avec confirmPurge:true, la feuille doit réellement être vidée.");
 }
 
 // --- readCatalogSheet : lecture seule, ne doit jamais écrire ---

@@ -1430,23 +1430,32 @@ const catalogueZoneV1=IDLE_ADVENTURE_MOB_CATALOG_V1[z.id]||{normal:[],boss:[]};
 const poolIndexV1=boss?catalogueZoneV1.boss:catalogueZoneV1.normal;
 /*
  * Correctif 2026-09-17 (extension bestiaire V2 aux 15 zones, cf.
- * IDLE_ADVENTURE_MOB_BESTIARY_V1 ci-dessus) : ce tirage servait à la fois
- * à choisir l'image Collection (poolIndexV1, catalogue d'art R2) ET
- * indirectement le mob du bestiaire (idleAdventureMobBestiaryEntryV1 fait
- * modulo sur SA PROPRE longueur, donc tolère déjà un poolIndexV1 plus
- * long ou plus court) -- mais quand poolIndexV1 est VIDE (beardverse/
- * badly/boring/chocolate : aucun art R2 dédié pour l'instant), le tirage
- * retombait sur -1 et idleAdventureMobBestiaryEntryV1 abandonnait
- * aussitôt (`!(monsterIndex>=0)`), même quand le bestiaire réel avait des
- * entrées exploitables. Ces 4 zones combattaient donc toujours le
- * monstre "moyen" générique (repli zone-plat), jamais un vrai mob
- * individuel, malgré des stats réelles désormais disponibles. Retombe
- * sur la longueur du bestiaire réel de zone quand le catalogue d'images
- * est vide, jamais un plantage ni une zone supplémentaire inventée.
+ * IDLE_ADVENTURE_MOB_BESTIARY_V1 ci-dessus) : ce tirage sert à la fois à
+ * choisir l'image Collection (poolIndexV1, catalogue d'art R2) ET le mob
+ * du bestiaire (idleAdventureMobBestiaryEntryV1 fait modulo sur SA
+ * PROPRE longueur, donc tolère déjà un monsterIndex plus grand que son
+ * propre pool ; choisirCleMobR2_ côté APP fait de même sur son propre
+ * pool d'images). La taille du tirage doit donc venir du BESTIAIRE réel
+ * (le vrai roster NGU, qui définit qui peut apparaître), jamais du
+ * nombre d'images R2 disponibles.
+ *
+ * Audit externe (2026-09-17, confirmé en lisant le code) : l'ordre
+ * précédent (poolIndexV1.length en premier) faisait l'inverse — dès que
+ * la zone avait NE SERAIT-CE QU'UNE image R2, ce nombre primait sur la
+ * vraie taille du bestiaire. Exemple concret : Cave a 13 vrais mobs NGU
+ * normaux mais seulement 8 images R2 normales -> les index 8 à 12 du
+ * roster réel n'étaient JAMAIS tirables en combat, malgré des stats
+ * réelles disponibles pour eux. Un nombre d'images inférieur au
+ * bestiaire doit seulement faire RÉUTILISER un visuel (modulo côté
+ * choisirCleMobR2_), jamais réduire la population réelle de monstres.
+ *
+ * Le pool d'images ne sert donc plus que de repli pour les 4 zones sans
+ * bestiaire connu (beardverse/badly/boring/chocolate) — jamais de
+ * plantage ni de zone supplémentaire inventée dans ce cas.
  */
 const bestiaryZoneForIndexV1=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
 const bestiaryPoolForIndexV1=bestiaryZoneForIndexV1?(boss?bestiaryZoneForIndexV1.boss:bestiaryZoneForIndexV1.normal):null;
-const monsterIndexPoolLenV1=poolIndexV1.length||(bestiaryPoolForIndexV1&&bestiaryPoolForIndexV1.length)||0;
+const monsterIndexPoolLenV1=(bestiaryPoolForIndexV1&&bestiaryPoolForIndexV1.length)||poolIndexV1.length||0;
 const monsterIndex=monsterIndexPoolLenV1?Math.floor(Math.random()*monsterIndexPoolLenV1):-1;
 const hpMax=monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex),playerHpMax=playerHpMaxForAdventureV1(stats);const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
 const mobAttackFactor=idleAdventureMobAttackFactorV1(z,boss,monsterIndex),mobType=idleAdventureMobTypeV1(z,boss,monsterIndex);
