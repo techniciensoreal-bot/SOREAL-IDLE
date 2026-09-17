@@ -15,15 +15,24 @@ import {
  * NGU wiki adaptation (2026-09-11) — "Perks" was a single generic counter
  * (one shared level, exponential 1.55^level cost, no per-item identity or
  * real effect) with nothing matching the actual game. This is the first
- * real increment: the 56 Normal-accessible perks (wiki indices 0-55,
- * index 56 "Macguffin Daycare!" is Evil-only and intentionally excluded),
+ * real increment: the 56 Normal-accessible perks (wiki indices 0-55),
  * each individually purchasable at its own flat per-level cost/cap, with
  * bonuses wired into the same aggregator (idleNguBonuses) every other
  * bonus source (challenges, beard, diggers) already feeds.
+ *
+ * Extension (2026-09-18) — indices 56-231 were previously excluded on the
+ * mistaken belief that the wiki's "Evil only"/"Sadistic only" column was a
+ * game-enforced purchase gate; it is community buying-order advice, not a
+ * mechanic (same as "YES (second)"/"Maybe a few" already on indices
+ * 0-55, never treated as a lock). 54 more entries added wherever their
+ * effect maps to an already-existing bonus key or hook; the rest stay
+ * excluded (MacGuffins/Cards/Mayo/Wishes/Quests/Hack Milestones/Resource
+ * 3/Sadistic Boss Multiplier/Iron Pill/Daycare slots/respawn — see
+ * idle-perks-v1.js header for the full breakdown).
  */
 
-// --- Catalog shape: 56 entries, unique sequential ids 0-55, sane cost/cap ---
-assert.equal(IDLE_PERKS_CATALOG_V1.length, 57, "56 Normal-accessible perks (wiki indices 0-55) + The Fibonacci Perk (wiki index 94).");
+// --- Catalog shape: 111 entries, unique ids, sane cost/cap ---
+assert.equal(IDLE_PERKS_CATALOG_V1.length, 111, "56 Normal-accessible perks (0-55) + Fibonacci Perk (94) + 54 Evil/Sadistic-tier perks.");
 for (let i = 0; i < 56; i++) {
   const perk = IDLE_PERKS_CATALOG_V1[i];
   assert.equal(perk.id, i, "Perk ids must be sequential 0-55, matching the wiki table order.");
@@ -32,6 +41,17 @@ for (let i = 0; i < 56; i++) {
   assert.ok(Number.isFinite(perk.cost) && perk.cost > 0, "Perk " + i + " needs a positive flat cost.");
   assert.ok(Number.isFinite(perk.cap) && perk.cap > 0, "Perk " + i + " needs a positive cap.");
   assert.ok(perk.bonus && typeof perk.bonus === "object", "Perk " + i + " needs a bonus object (may be empty).");
+}
+{
+  const ids = IDLE_PERKS_CATALOG_V1.map(p => p.id);
+  assert.equal(new Set(ids).size, ids.length, "No duplicate perk ids across the whole catalog.");
+  for (const perk of IDLE_PERKS_CATALOG_V1) {
+    assert.ok(perk.name && typeof perk.name === "string", `Perk ${perk.id} needs a name.`);
+    assert.ok(perk.effect && typeof perk.effect === "string", `Perk ${perk.id} needs an effect description.`);
+    assert.ok(Number.isFinite(perk.cost) && perk.cost > 0, `Perk ${perk.id} needs a positive flat cost.`);
+    assert.ok(Number.isFinite(perk.cap) && perk.cap > 0, `Perk ${perk.id} needs a positive cap.`);
+    assert.ok(perk.bonus && typeof perk.bonus === "object", `Perk ${perk.id} needs a bonus object (may be empty).`);
+  }
 }
 
 // --- Spot-check exact wiki values for a representative sample ---

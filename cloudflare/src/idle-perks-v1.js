@@ -1,10 +1,60 @@
 /*
- * SOREAL IDLE — Perks (ITOPOD, PP currency), Normal-difficulty catalog.
+ * SOREAL IDLE — Perks (ITOPOD, PP currency).
  *
  * Source: NGU Idle wiki (https://ngu-idle.fandom.com/wiki/Perk_Points),
- * indices 0-55 — the Normal-accessible portion of Page 1 (index 56,
- * "Macguffin Daycare!", is the first Evil-only perk and is intentionally
- * excluded until Evil difficulty exists in SOREAL IDLE).
+ * indices 0-55 — the Normal-accessible portion of Page 1.
+ *
+ * Extension (2026-09-18, Norman : "il faut tout faire" -- Evil/Sadistic
+ * fidélité). Le déni précédent ("index 56 exclu jusqu'à ce qu'Evil
+ * existe") reposait sur une lecture erronée du wiki : la colonne "Buy
+ * Early?" du tableau (valeurs "Evil only"/"Sadistic only"/"No"/"Yes")
+ * est un CONSEIL STRATÉGIQUE communautaire sur l'ordre d'achat efficace
+ * ("cette perk n'est rentable qu'une fois en Evil/Sadistic, vu son
+ * coût"), jamais une restriction d'achat imposée par le jeu -- exactement
+ * comme les valeurs "YES (second)"/"Maybe a few" déjà présentes sur les
+ * indices 0-55 ci-dessous, qui n'ont jamais été traitées comme une
+ * mécanique de verrouillage. Chaque perk reste achetable dès que son
+ * coût en PP est payé, quelle que soit la difficulté courante -- aucun
+ * champ requiresDifficulty n'existe ni n'est nécessaire.
+ *
+ * Indices 56-231 ajoutés SEULEMENT quand leur effet correspond à un
+ * mécanisme déjà construit chez SOREAL (mêmes clés bonus déjà agrégées
+ * par perkBonusesV1 ci-dessous, ou hooks Blood Magic/Aventure/ngu déjà
+ * câblés ailleurs) :
+ * - 57-64, 74-81, 116-121, 126-131, 135-140, 220-225 : paliers II-VI/
+ *   "Final" des perks génériques Energy/Magic Power/Bars/Cap et Faster
+ *   NGU Energy/Magic déjà présents en indices 6-11/13-14 -- même clés
+ *   bonus (energyPowerPct, nguSpeedEnergyPct, etc.), juste un palier de
+ *   plus.
+ * - 82-83, 149-154 : paliers III-VI des Rich Perks (statPct/
+ *   adventureStatsPct) déjà présents en indices 5/54-55.
+ * - 107, 229-230 : paliers III-V de Boosted Boosts (boostPowerPct) déjà
+ *   présent en indices 12/33.
+ * - 125, 144 : "Welcome to Evil/Sadistic Difficulty", bonus ponctuels
+ *   (cap 1) en statPct/dropChancePct/adventureStatsPct, toutes des clés
+ *   déjà agrégées. La perk 144 documente aussi +20% Aug Speed et +20%
+ *   NGU Speed dans son texte wiki réel -- ces deux composantes N'ONT PAS
+ *   de hook existant (Aug Speed : aucun multiplicateur perk-based sur
+ *   augmentationSecondsForNextLevel ; NGU Speed : setRewards.nguSpeedPct
+ *   couvre les sets d'Aventure, pas les perks) et sont donc
+ *   volontairement OMISES de `bonus` -- reward partiel honnête plutôt
+ *   qu'une perk à moitié inventée, `effect` reste le texte wiki complet.
+ * - 231 : "ERROR" est une perk-blague sans AUCUN effet mécanique réel
+ *   (texte : "NGU.EXE HAS ENCOUNTERED AN ERROR AND MUST CLOSE") --
+ *   `bonus:{}` est donc la valeur réelle, pas un renoncement.
+ *
+ * Volontairement exclus (système absent de SOREAL, jamais approximé) :
+ * MacGuffins (56,65-71,73,88), Quêtes/Idle Questing (87,89-92,104-106,
+ * 145-148), Wishes (108-110,155-156,159-160), Cards/Mayo/Tags/Deck (161-
+ * 216,138-143,146-150 quirks), Hack Milestones (113-115,217-219 --
+ * mécanique de palier non identifiée avec certitude dans le temps
+ * imparti), Resource 3 (95-103,122-124,132-134,141-143,226-228 -- pas de
+ * 3e ressource entraînable chez SOREAL, seulement Energy/Magic), Sadistic
+ * Boss Multiplier (157-158 -- mécanique non identifiée), Iron Pill I/II
+ * (84-85 -- multiplierait castBloodSpell's gain ironPill, hook non
+ * construit dans ce round), Daycare Slot supplémentaire (86 -- nombre de
+ * slots Daycare non modélisé), respawn (93 -- aucune minuterie de
+ * réapparition ennemie n'existe dans le modèle de combat SOREAL).
  *
  * Previously "Perks" was a single generic counter (one shared level,
  * exponential 1.55^level cost) with no per-item identity or real effect —
@@ -97,6 +147,67 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 53, name: "Ooh, Another Digger Slot!", effect: "Yet another Digger Slot", cost: 250, cap: 1, bonus: { diggerSlotBonus: 1 } },
   { id: 54, name: "Stat Boost for Rich Perks II", effect: "+1% Attack/Defense per level", cost: 100, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 55, name: "Adventure Boost For Rich Perks I", effect: "+0.1% to Adventure Stats per level", cost: 100, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
+  { id: 57, name: "Generic Energy Power Perk II", effect: "+1% bonus multiplier to your Energy Power per level", cost: 50, cap: 100, bonus: { energyPowerPct: 0.01 } },
+  { id: 58, name: "Generic Energy Bar Perk II", effect: "+1% bonus multiplier to your Energy Bars per level", cost: 50, cap: 100, bonus: { energyBarsPct: 0.01 } },
+  { id: 59, name: "Generic Energy Cap Perk II", effect: "+1% bonus multiplier to your Energy Cap per level", cost: 50, cap: 100, bonus: { energyCapPct: 0.01 } },
+  { id: 60, name: "Generic Magic Power Perk II", effect: "+1% bonus multiplier to your Magic Power per level", cost: 50, cap: 100, bonus: { magicPowerPct: 0.01 } },
+  { id: 61, name: "Generic Magic Bar Perk II", effect: "+1% bonus multiplier to your Magic Bars per level", cost: 50, cap: 100, bonus: { magicBarsPct: 0.01 } },
+  { id: 62, name: "Generic Magic Cap Perk II", effect: "+1% bonus multiplier to your Magic Cap per level", cost: 50, cap: 100, bonus: { magicCapPct: 0.01 } },
+  { id: 63, name: "Faster NGU Energy II", effect: "Raises the Speed of Energy-based NGU's by 2% per level", cost: 100, cap: 100, bonus: { nguSpeedEnergyPct: 0.02 } },
+  { id: 64, name: "Faster NGU Magic II", effect: "Raises the Speed of Magic-based NGU's by 2% per level", cost: 100, cap: 100, bonus: { nguSpeedMagicPct: 0.02 } },
+  { id: 74, name: "Generic Energy Power Perk III", effect: "+0.3% bonus multiplier to your Energy Power per level", cost: 250, cap: 100, bonus: { energyPowerPct: 0.003 } },
+  { id: 75, name: "Generic Energy Bar Perk III", effect: "+0.3% bonus multiplier to your Energy Bars per level", cost: 250, cap: 100, bonus: { energyBarsPct: 0.003 } },
+  { id: 76, name: "Generic Energy Cap Perk III", effect: "+0.3% bonus multiplier to your Energy Cap per level", cost: 250, cap: 100, bonus: { energyCapPct: 0.003 } },
+  { id: 77, name: "Generic Magic Power Perk III", effect: "+0.3% bonus multiplier to your Magic Power per level", cost: 250, cap: 100, bonus: { magicPowerPct: 0.003 } },
+  { id: 78, name: "Generic Magic Bar Perk III", effect: "+0.3% bonus multiplier to your Magic Bars per level", cost: 250, cap: 100, bonus: { magicBarsPct: 0.003 } },
+  { id: 79, name: "Generic Magic Cap Perk III", effect: "+0.3% bonus multiplier to your Magic Cap per level", cost: 250, cap: 100, bonus: { magicCapPct: 0.003 } },
+  { id: 80, name: "Faster NGU Energy III", effect: "Raises the Speed of Energy-based NGU's by 0.3% per level", cost: 250, cap: 100, bonus: { nguSpeedEnergyPct: 0.003 } },
+  { id: 81, name: "Faster NGU Magic III", effect: "Raises the Speed of Magic-based NGU's by 0.3% per level", cost: 250, cap: 100, bonus: { nguSpeedMagicPct: 0.003 } },
+  { id: 82, name: "Stat Boost for Rich Perks III", effect: "+1% to Attack/Defence per level", cost: 1000, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 83, name: "Adventure Boost For Rich Perks II", effect: "+0.1% to Adventure stats per level", cost: 1000, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
+  { id: 107, name: "Boosted Boosts III", effect: "Additional 2% stacking bonus to the total boost power of any applied boost per level", cost: 20000, cap: 60, bonus: { boostPowerPct: 0.02 } },
+  { id: 116, name: "Generic Energy Power Perk IV", effect: "+0.2% bonus multiplier to your Energy Power per level", cost: 100000, cap: 100, bonus: { energyPowerPct: 0.002 } },
+  { id: 117, name: "Generic Energy Bar Perk IV", effect: "+0.2% bonus multiplier to your Energy Bars per level", cost: 100000, cap: 100, bonus: { energyBarsPct: 0.002 } },
+  { id: 118, name: "Generic Energy Cap Perk IV", effect: "+0.2% bonus multiplier to your Energy Cap per level", cost: 100000, cap: 100, bonus: { energyCapPct: 0.002 } },
+  { id: 119, name: "Generic Magic Power Perk IV", effect: "+0.2% bonus multiplier to your Magic Power per level", cost: 100000, cap: 100, bonus: { magicPowerPct: 0.002 } },
+  { id: 120, name: "Generic Magic Bar Perk IV", effect: "+0.2% bonus multiplier to your Magic Bars per level", cost: 100000, cap: 100, bonus: { magicBarsPct: 0.002 } },
+  { id: 121, name: "Generic Magic Cap Perk IV", effect: "+0.2% bonus multiplier to your Magic Cap per level", cost: 100000, cap: 100, bonus: { magicCapPct: 0.002 } },
+  { id: 125, name: "Welcome to Evil Difficulty", effect: "Receive a +200% buff to Attack/Defense and 50% Drop Chance bonus", cost: 200, cap: 1, bonus: { statPct: 2.0, dropChancePct: 0.50 } },
+  { id: 126, name: "Generic Energy Power Perk V", effect: "+0.2% bonus multiplier to your Energy Power per level", cost: 500000, cap: 100, bonus: { energyPowerPct: 0.002 } },
+  { id: 127, name: "Generic Energy Bar Perk V", effect: "+0.1% bonus multiplier to your Energy Bars per level", cost: 500000, cap: 100, bonus: { energyBarsPct: 0.001 } },
+  { id: 128, name: "Generic Energy Cap Perk V", effect: "+0.1% bonus multiplier to your Energy Cap per level", cost: 500000, cap: 100, bonus: { energyCapPct: 0.001 } },
+  { id: 129, name: "Generic Magic Power Perk V", effect: "+0.2% bonus multiplier to your Magic Power per level", cost: 500000, cap: 100, bonus: { magicPowerPct: 0.002 } },
+  { id: 130, name: "Generic Magic Bar Perk V", effect: "+0.1% bonus multiplier to your Magic Bars per level", cost: 500000, cap: 100, bonus: { magicBarsPct: 0.001 } },
+  { id: 131, name: "Generic Magic Cap Perk V", effect: "+0.1% bonus multiplier to your Magic Cap per level", cost: 500000, cap: 100, bonus: { magicCapPct: 0.001 } },
+  { id: 135, name: "Generic Energy Power Perk VI", effect: "+0.2% bonus multiplier to your Energy Power per level", cost: 2500000, cap: 100, bonus: { energyPowerPct: 0.002 } },
+  { id: 136, name: "Generic Energy Bar Perk VI", effect: "+0.1% bonus multiplier to your Energy Bars per level", cost: 2500000, cap: 100, bonus: { energyBarsPct: 0.001 } },
+  { id: 137, name: "Generic Energy Cap Perk VI", effect: "+0.1% bonus multiplier to your Energy Cap per level", cost: 2500000, cap: 100, bonus: { energyCapPct: 0.001 } },
+  { id: 138, name: "Generic Magic Power Perk VI", effect: "+0.2% bonus multiplier to your Magic Power per level", cost: 2500000, cap: 100, bonus: { magicPowerPct: 0.002 } },
+  { id: 139, name: "Generic Magic Bar Perk VI", effect: "+0.1% bonus multiplier to your Magic Bars per level", cost: 2500000, cap: 100, bonus: { magicBarsPct: 0.001 } },
+  { id: 140, name: "Generic Magic Cap Perk VI", effect: "+0.1% bonus multiplier to your Magic Cap per level", cost: 2500000, cap: 100, bonus: { magicCapPct: 0.001 } },
+  {
+    id: 144,
+    name: "Welcome to Sadistic Difficulty",
+    effect: "Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus (Aug/NGU Speed components not yet wired — no perk-based hook exists for either in this codebase)",
+    cost: 500000,
+    cap: 1,
+    bonus: { statPct: 10.0, adventureStatsPct: 0.15 }
+  },
+  { id: 149, name: "Stat Boost for rich Perks IV", effect: "+1% to Attack/Defence per level", cost: 10000, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 150, name: "Adventure Boost For Rich Perks III", effect: "+0.05% to Adventure stats per level", cost: 10000, cap: 1000, bonus: { adventureStatsPct: 0.0005 } },
+  { id: 151, name: "Stat Boost for rich Perks V", effect: "+1% to Attack/Defence per level", cost: 100000, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 152, name: "Adventure Boost For Rich Perks IV", effect: "+0.05% to Adventure stats per level", cost: 100000, cap: 1000, bonus: { adventureStatsPct: 0.0005 } },
+  { id: 153, name: "Stat Boost for rich Perks VI", effect: "+1% to Attack/Defence per level", cost: 1000000, cap: 1000, bonus: { statPct: 0.01 } },
+  { id: 154, name: "Adventure Boost For Rich Perks V", effect: "+0.05% to Adventure stats per level", cost: 1000000, cap: 1000, bonus: { adventureStatsPct: 0.0005 } },
+  { id: 220, name: "The Final Generic Energy Power Perk", effect: "+1% Power per level", cost: 10000000, cap: 100, bonus: { energyPowerPct: 0.01 } },
+  { id: 221, name: "The Final Generic Energy Bar Perk", effect: "+1% Bars per level", cost: 10000000, cap: 100, bonus: { energyBarsPct: 0.01 } },
+  { id: 222, name: "The Final Generic Energy Cap Perk", effect: "+1% Cap per level", cost: 10000000, cap: 100, bonus: { energyCapPct: 0.01 } },
+  { id: 223, name: "The Final Generic Magic Power Perk", effect: "+1% Power per level", cost: 10000000, cap: 100, bonus: { magicPowerPct: 0.01 } },
+  { id: 224, name: "The Final Generic Magic Bar Perk", effect: "+1% Bars per level", cost: 10000000, cap: 100, bonus: { magicBarsPct: 0.01 } },
+  { id: 225, name: "The Final Generic Magic Cap Perk", effect: "+1% Cap per level", cost: 10000000, cap: 100, bonus: { magicCapPct: 0.01 } },
+  { id: 229, name: "Boosted Boosts IV", effect: "Additional 1% stacking bonus to the total boost power of any applied boost per level", cost: 2000000, cap: 50, bonus: { boostPowerPct: 0.01 } },
+  { id: 230, name: "Boosted Boosts V", effect: "Additional 1% stacking bonus to the total boost power of any applied boost per level", cost: 10000000, cap: 50, bonus: { boostPowerPct: 0.01 } },
+  { id: 231, name: "ERROR", effect: "NGU.EXE HAS ENCOUNTERED AN ERROR AND MUST CLOSE", cost: 2500000000, cap: 1, bonus: {} },
   {
     id: 94,
     name: "The Fibonacci Perk",
