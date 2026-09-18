@@ -14984,16 +14984,8 @@ export const idleRuntimeTestHooks=Object.freeze({
  */
 let __idleLegacyRepairDoneV1=false;
 
-/*
- * DIAGNOSTIC TEMPORAIRE (2026-09-18) — à retirer une fois la vraie cause du
- * ralentissement /api/idle/call confirmée. N'affecte aucune donnée réelle.
- */
-let __idleLastTimingsV1=null;
-
 export function runSorealIdleOperation(sql,operation,args,user){
   const op=String(operation||"");
-  if(op==="idleDebugTimingsV1")return{ok:true,timings:__idleLastTimingsV1};
-  const __t0=Date.now();
   const fn=IDLE_OPERATIONS[op];
   if(typeof fn!=="function")throw new Error("SOREAL_IDLE_OPERATION_INCONNUE");
 
@@ -15021,7 +15013,6 @@ export function runSorealIdleOperation(sql,operation,args,user){
   if(Number(sourceState.total||0)<15||Number(sourceState.done||0)!==Number(sourceState.total||0)){
     throw new Error("SOREAL_IDLE_MIGRATION_INCOMPLETE");
   }
-  const __t1=Date.now();
 
   /*
    * Les premières migrations IDLE ont stocké les noms techniques en
@@ -15047,29 +15038,15 @@ export function runSorealIdleOperation(sql,operation,args,user){
     __idleRestoreCatalogFromLegacyV2(sql);
     __idleLegacyRepairDoneV1=true;
   }
-  const __t2=Date.now();
 
   const workbook=__idleBuildWorkbook(sql);
   if(!workbook.getSheetByName("JOUEURS"))throw new Error("SOREAL_IDLE_JOUEURS_ABSENT");
-  const __t3=Date.now();
 
   __idleRuntimeUser=user||null;
   __idleWorkbook=workbook;
   try{
     const result=fn.apply(null,Array.isArray(args)?args:[]);
-    const __t4=Date.now();
     __idleCommit(sql,workbook);
-    const __t5=Date.now();
-    __idleLastTimingsV1={
-      op,
-      sourceStateMs:__t1-__t0,
-      repairMs:__t2-__t1,
-      buildMs:__t3-__t2,
-      operationMs:__t4-__t3,
-      commitMs:__t5-__t4,
-      totalMs:__t5-__t0,
-      legacyRepairSkipped:__idleLegacyRepairDoneV1&&__t2-__t1<1
-    };
     return result;
   }finally{
     __idleRuntimeUser=null;
