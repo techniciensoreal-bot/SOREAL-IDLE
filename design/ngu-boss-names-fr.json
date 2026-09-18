@@ -1,0 +1,1507 @@
+[
+  {
+    "id": 1,
+    "nomEn": "A Small Piece of Fluff",
+    "nomFr": "Un Petit Bout de Peluche"
+  },
+  {
+    "id": 2,
+    "nomEn": "Floating Sewage",
+    "nomFr": "Caca Flottant"
+  },
+  {
+    "id": 3,
+    "nomEn": "A Stick?",
+    "nomFr": "Un Bâton ?"
+  },
+  {
+    "id": 4,
+    "nomEn": "A Small Mouse",
+    "nomFr": "Une Petite Souris"
+  },
+  {
+    "id": 5,
+    "nomEn": "A Slightly Bigger Mouse",
+    "nomFr": "Une Souris Un Peu Plus Grosse"
+  },
+  {
+    "id": 6,
+    "nomEn": "A Large Rat",
+    "nomFr": "Un Gros Rat"
+  },
+  {
+    "id": 7,
+    "nomEn": "Brown Slime",
+    "nomFr": "Slime Marron"
+  },
+  {
+    "id": 8,
+    "nomEn": "Skeleton",
+    "nomFr": "Squelette"
+  },
+  {
+    "id": 9,
+    "nomEn": "Goblin",
+    "nomFr": "Gobelin"
+  },
+  {
+    "id": 10,
+    "nomEn": "Orc",
+    "nomFr": "Orc"
+  },
+  {
+    "id": 11,
+    "nomEn": "Slow Zombie",
+    "nomFr": "Zombie Lent"
+  },
+  {
+    "id": 12,
+    "nomEn": "Fast Zombie",
+    "nomFr": "Zombie Rapide"
+  },
+  {
+    "id": 13,
+    "nomEn": "Ent",
+    "nomFr": "Ent"
+  },
+  {
+    "id": 14,
+    "nomEn": "Giant",
+    "nomFr": "Géant"
+  },
+  {
+    "id": 15,
+    "nomEn": "Rat of Unusual Size",
+    "nomFr": "Rat de Taille Inhabituelle"
+  },
+  {
+    "id": 16,
+    "nomEn": "Fairy",
+    "nomFr": "Fée"
+  },
+  {
+    "id": 17,
+    "nomEn": "Gorgon",
+    "nomFr": "Gorgone"
+  },
+  {
+    "id": 18,
+    "nomEn": "Gorgonzola",
+    "nomFr": "Gorgonzola"
+  },
+  {
+    "id": 19,
+    "nomEn": "Brie",
+    "nomFr": "Brie"
+  },
+  {
+    "id": 20,
+    "nomEn": "Gouda",
+    "nomFr": "Gouda"
+  },
+  {
+    "id": 21,
+    "nomEn": "Blue Cheese",
+    "nomFr": "Bleu"
+  },
+  {
+    "id": 22,
+    "nomEn": "Parmesan",
+    "nomFr": "Parmesan"
+  },
+  {
+    "id": 23,
+    "nomEn": "Limburger Cheese",
+    "nomFr": "Munster"
+  },
+  {
+    "id": 24,
+    "nomEn": "Mega-Rat",
+    "nomFr": "Méga-Rat"
+  },
+  {
+    "id": 25,
+    "nomEn": "Robot",
+    "nomFr": "Robot"
+  },
+  {
+    "id": 26,
+    "nomEn": "A fluffy Chair",
+    "nomFr": "Une Chaise Moelleuse"
+  },
+  {
+    "id": 27,
+    "nomEn": "Couch",
+    "nomFr": "Canapé"
+  },
+  {
+    "id": 28,
+    "nomEn": "Floppy Mattress",
+    "nomFr": "Matelas Avachi"
+  },
+  {
+    "id": 29,
+    "nomEn": "Evil Fridge",
+    "nomFr": "Frigo Maléfique"
+  },
+  {
+    "id": 30,
+    "nomEn": "T-800",
+    "nomFr": "T-800"
+  },
+  {
+    "id": 31,
+    "nomEn": "A Wide Screen T.V",
+    "nomFr": "Une Télé Grand Écran"
+  },
+  {
+    "id": 32,
+    "nomEn": "The Kitchen Sink",
+    "nomFr": "L'Évier de Cuisine"
+  },
+  {
+    "id": 33,
+    "nomEn": "A Giant Mole",
+    "nomFr": "Une Taupe Géante"
+  },
+  {
+    "id": 34,
+    "nomEn": "A Second Giant Mole",
+    "nomFr": "Une Deuxième Taupe Géante"
+  },
+  {
+    "id": 35,
+    "nomEn": "A Third Giant Mole",
+    "nomFr": "Une Troisième Taupe Géante"
+  },
+  {
+    "id": 36,
+    "nomEn": "A Fourth Giant Mole",
+    "nomFr": "Une Quatrième Taupe Géante"
+  },
+  {
+    "id": 37,
+    "nomEn": "A Fifth Giant Mole",
+    "nomFr": "Une Cinquième Taupe Géante"
+  },
+  {
+    "id": 38,
+    "nomEn": "Kid On a Cloud",
+    "nomFr": "Un Gamin sur un Nuage"
+  },
+  {
+    "id": 39,
+    "nomEn": "747",
+    "nomFr": "747"
+  },
+  {
+    "id": 40,
+    "nomEn": "Oriental Dragon",
+    "nomFr": "Dragon Oriental"
+  },
+  {
+    "id": 41,
+    "nomEn": "Lester",
+    "nomFr": "Lester"
+  },
+  {
+    "id": 42,
+    "nomEn": "Excitable Ninja Samurai",
+    "nomFr": "Ninja Samouraï Surexcité"
+  },
+  {
+    "id": 43,
+    "nomEn": "Icarus Proudbottom",
+    "nomFr": "Icare Culotté"
+  },
+  {
+    "id": 44,
+    "nomEn": "Gigantic Flock of Seagulls",
+    "nomFr": "Horde Géante de Mouettes"
+  },
+  {
+    "id": 45,
+    "nomEn": "Gigantic Flock of Canada Geese",
+    "nomFr": "Horde Géante de Bernaches du Canada"
+  },
+  {
+    "id": 46,
+    "nomEn": "A Weird Two-Headed Guy",
+    "nomFr": "Un Type Bizarre à Deux Têtes"
+  },
+  {
+    "id": 47,
+    "nomEn": "A Bird Person",
+    "nomFr": "Un Homme-Oiseau"
+  },
+  {
+    "id": 48,
+    "nomEn": "The Bouncer",
+    "nomFr": "Le Videur"
+  },
+  {
+    "id": 49,
+    "nomEn": "Hooloovoo",
+    "nomFr": "Hooloovoo"
+  },
+  {
+    "id": 50,
+    "nomEn": "Gross Green Alien",
+    "nomFr": "Alien Vert Dégoûtant"
+  },
+  {
+    "id": 51,
+    "nomEn": "The Rat God",
+    "nomFr": "Le Dieu des Rats"
+  },
+  {
+    "id": 52,
+    "nomEn": "Massive Plant Monster",
+    "nomFr": "Monstre Végétal Massif"
+  },
+  {
+    "id": 53,
+    "nomEn": "High Security Insect Guard 1",
+    "nomFr": "Garde Insecte Haute Sécurité 1"
+  },
+  {
+    "id": 54,
+    "nomEn": "High Security Insect Guard 2",
+    "nomFr": "Garde Insecte Haute Sécurité 2"
+  },
+  {
+    "id": 55,
+    "nomEn": "The Experiment",
+    "nomFr": "L'Expérience"
+  },
+  {
+    "id": 56,
+    "nomEn": "A Whole Lotta Guards",
+    "nomFr": "Une Tripotée de Gardes"
+  },
+  {
+    "id": 57,
+    "nomEn": "One Mega-Guard",
+    "nomFr": "Un Méga-Garde"
+  },
+  {
+    "id": 58,
+    "nomEn": "Spiky Haired Guy",
+    "nomFr": "Le Type aux Cheveux en Pétard"
+  },
+  {
+    "id": 59,
+    "nomEn": "Monday",
+    "nomFr": "Lundi"
+  },
+  {
+    "id": 60,
+    "nomEn": "Tuesday",
+    "nomFr": "Mardi"
+  },
+  {
+    "id": 61,
+    "nomEn": "Wednesday",
+    "nomFr": "Mercredi"
+  },
+  {
+    "id": 62,
+    "nomEn": "Thursday",
+    "nomFr": "Jeudi"
+  },
+  {
+    "id": 63,
+    "nomEn": "Friday",
+    "nomFr": "Vendredi"
+  },
+  {
+    "id": 64,
+    "nomEn": "Saturday",
+    "nomFr": "Samedi"
+  },
+  {
+    "id": 65,
+    "nomEn": "Sunday",
+    "nomFr": "Dimanche"
+  },
+  {
+    "id": 66,
+    "nomEn": "Sundae",
+    "nomFr": "Sundae"
+  },
+  {
+    "id": 67,
+    "nomEn": "A Flat Mouse",
+    "nomFr": "Une Souris Plate"
+  },
+  {
+    "id": 68,
+    "nomEn": "A Tiny Triangle",
+    "nomFr": "Un Minuscule Triangle"
+  },
+  {
+    "id": 69,
+    "nomEn": "A Square Bear",
+    "nomFr": "Un Ours Carré"
+  },
+  {
+    "id": 70,
+    "nomEn": "The Pentagon",
+    "nomFr": "Le Pentagone"
+  },
+  {
+    "id": 71,
+    "nomEn": "A Super Hexagon",
+    "nomFr": "Un Super Hexagone"
+  },
+  {
+    "id": 72,
+    "nomEn": "The First Stop Sign",
+    "nomFr": "Le Premier Panneau Stop"
+  },
+  {
+    "id": 73,
+    "nomEn": "The Second Stop Sign",
+    "nomFr": "Le Deuxième Panneau Stop"
+  },
+  {
+    "id": 74,
+    "nomEn": "KING CIRCLE",
+    "nomFr": "LE ROI CERCLE"
+  },
+  {
+    "id": 75,
+    "nomEn": "Ghost Mice",
+    "nomFr": "Souris Fantômes"
+  },
+  {
+    "id": 76,
+    "nomEn": "Crasper, The Pissed Off Ghost",
+    "nomFr": "Crasper, le Fantôme en Rogne"
+  },
+  {
+    "id": 77,
+    "nomEn": "Ghost Dad",
+    "nomFr": "Papa Fantôme"
+  },
+  {
+    "id": 78,
+    "nomEn": "Living Armor",
+    "nomFr": "Armure Vivante"
+  },
+  {
+    "id": 79,
+    "nomEn": "Living Armour",
+    "nomFr": "Armure Vivante"
+  },
+  {
+    "id": 80,
+    "nomEn": "\"\"",
+    "nomFr": "\"\""
+  },
+  {
+    "id": 81,
+    "nomEn": "The Pantheon of Fallen Gods",
+    "nomFr": "Le Panthéon des Dieux Déchus"
+  },
+  {
+    "id": 82,
+    "nomEn": "Mysterious Figure",
+    "nomFr": "Personnage Mystérieux"
+  },
+  {
+    "id": 83,
+    "nomEn": "The Entire Alphabet Up a Coconut Tree",
+    "nomFr": "Tout l'Alphabet en Haut d'un Cocotier"
+  },
+  {
+    "id": 84,
+    "nomEn": "The Lummox",
+    "nomFr": "Le Balourd"
+  },
+  {
+    "id": 85,
+    "nomEn": "A Metal Slime",
+    "nomFr": "Un Slime Métallique"
+  },
+  {
+    "id": 86,
+    "nomEn": "A Ginormous Sword",
+    "nomFr": "Une Épée Gigantorme"
+  },
+  {
+    "id": 87,
+    "nomEn": "Kenny",
+    "nomFr": "Kenny"
+  },
+  {
+    "id": 88,
+    "nomEn": "Vic",
+    "nomFr": "Vic"
+  },
+  {
+    "id": 89,
+    "nomEn": "An Ordinary Chicken",
+    "nomFr": "Un Poulet Ordinaire"
+  },
+  {
+    "id": 90,
+    "nomEn": "743 pissed off Cuckoos",
+    "nomFr": "743 Coucous Furieux"
+  },
+  {
+    "id": 91,
+    "nomEn": "Broken VCR Man",
+    "nomFr": "L'Homme au Magnétoscope Cassé"
+  },
+  {
+    "id": 92,
+    "nomEn": "Kitten in a Mech Woman",
+    "nomFr": "Un Chaton dans un Robot-Femme"
+  },
+  {
+    "id": 93,
+    "nomEn": "Mr Plow",
+    "nomFr": "Monsieur Chasse-Neige"
+  },
+  {
+    "id": 94,
+    "nomEn": "ROBUTT",
+    "nomFr": "ROBOCUL"
+  },
+  {
+    "id": 95,
+    "nomEn": "Former Canadian PM Stephen Harper",
+    "nomFr": "L'ancien Premier ministre canadien Stephen Harper"
+  },
+  {
+    "id": 96,
+    "nomEn": "A Cyberdemon",
+    "nomFr": "Un Cyberdémon"
+  },
+  {
+    "id": 97,
+    "nomEn": "Robo Rat 9000",
+    "nomFr": "Robo-Rat 9000"
+  },
+  {
+    "id": 98,
+    "nomEn": "Butter-Passing Robot",
+    "nomFr": "Robot Passe-Beurre"
+  },
+  {
+    "id": 99,
+    "nomEn": "ALL of The Robot Masters. Again.",
+    "nomFr": "TOUS les Robot Masters. Encore."
+  },
+  {
+    "id": 100,
+    "nomEn": "Doctor Wahwee",
+    "nomFr": "Docteur Wahwee"
+  },
+  {
+    "id": 101,
+    "nomEn": "A Bearded Lady",
+    "nomFr": "Une Femme à Barbe"
+  },
+  {
+    "id": 102,
+    "nomEn": "A Bearded Man",
+    "nomFr": "Un Homme Barbu"
+  },
+  {
+    "id": 103,
+    "nomEn": "Cousin Itt",
+    "nomFr": "Cousin Machin"
+  },
+  {
+    "id": 104,
+    "nomEn": "A Naked Molerat",
+    "nomFr": "Un Rat-Taupe Nu"
+  },
+  {
+    "id": 105,
+    "nomEn": "Rob Boss",
+    "nomFr": "Rob le Patron"
+  },
+  {
+    "id": 106,
+    "nomEn": "An Orange Toupée With Fists",
+    "nomFr": "Un Toupet Orange Avec des Poings"
+  },
+  {
+    "id": 107,
+    "nomEn": "Gossamer",
+    "nomFr": "Gossamer"
+  },
+  {
+    "id": 108,
+    "nomEn": "A Clogged Shower Drain",
+    "nomFr": "Une Bonde de Douche Bouchée"
+  },
+  {
+    "id": 109,
+    "nomEn": "Badly Drawn Dragon",
+    "nomFr": "Dragon Mal Dessiné"
+  },
+  {
+    "id": 110,
+    "nomEn": "Really Bad Sonic Fanart",
+    "nomFr": "Un Fan Art de Sonic Vraiment Nul"
+  },
+  {
+    "id": 111,
+    "nomEn": "Badly Drawn Schoolgirl",
+    "nomFr": "Écolière Mal Dessinée"
+  },
+  {
+    "id": 112,
+    "nomEn": "No Enemy(?)",
+    "nomFr": "Aucun Ennemi (?)"
+  },
+  {
+    "id": 113,
+    "nomEn": "Really Bad MLP Fanart",
+    "nomFr": "Un Fan Art de MLP Vraiment Nul"
+  },
+  {
+    "id": 114,
+    "nomEn": "Loss.png",
+    "nomFr": "Loss.png"
+  },
+  {
+    "id": 115,
+    "nomEn": "Evil Spiky Haired Guy",
+    "nomFr": "Le Type Maléfique aux Cheveux en Pics"
+  },
+  {
+    "id": 116,
+    "nomEn": "EVIL Badly Drawn Kitty",
+    "nomFr": "MÉCHANT Chaton Mal Dessiné"
+  },
+  {
+    "id": 117,
+    "nomEn": "The Eiffel Tower",
+    "nomFr": "La Tour Eiffel"
+  },
+  {
+    "id": 118,
+    "nomEn": "A Mummy",
+    "nomFr": "Une Momie"
+  },
+  {
+    "id": 119,
+    "nomEn": "A Daddy",
+    "nomFr": "Un Papa"
+  },
+  {
+    "id": 120,
+    "nomEn": "Two Bananas In Pyjamas",
+    "nomFr": "Deux Bananes en Pyjama"
+  },
+  {
+    "id": 121,
+    "nomEn": "Giant Raisins From California",
+    "nomFr": "Les Raisins Secs Géants de Californie"
+  },
+  {
+    "id": 122,
+    "nomEn": "An Annoying Penguin",
+    "nomFr": "Un Pingouin Agaçant"
+  },
+  {
+    "id": 123,
+    "nomEn": "An Army of Annoying Penguins",
+    "nomFr": "Une Armée de Pingouins Agaçants"
+  },
+  {
+    "id": 124,
+    "nomEn": "The Elusive 'C.S'",
+    "nomFr": "L'Insaisissable « C.S »"
+  },
+  {
+    "id": 125,
+    "nomEn": "Chocolate Mouse",
+    "nomFr": "Souris en Chocolat"
+  },
+  {
+    "id": 126,
+    "nomEn": "Chocolate Mimic",
+    "nomFr": "Mimique en Chocolat"
+  },
+  {
+    "id": 127,
+    "nomEn": "Chocolate Crowbar (Enemy)",
+    "nomFr": "Pied-de-Biche en Chocolat (Ennemi)"
+  },
+  {
+    "id": 128,
+    "nomEn": "Chocolate Freeman",
+    "nomFr": "Freeman en Chocolat"
+  },
+  {
+    "id": 129,
+    "nomEn": "Chocolate Fondue",
+    "nomFr": "Fondue au Chocolat"
+  },
+  {
+    "id": 130,
+    "nomEn": "Chocolate Slime",
+    "nomFr": "Slime en Chocolat"
+  },
+  {
+    "id": 131,
+    "nomEn": "Dark Chocolate",
+    "nomFr": "Chocolat Noir"
+  },
+  {
+    "id": 132,
+    "nomEn": "Chocolate Salty Balls",
+    "nomFr": "Boules Salées au Chocolat"
+  },
+  {
+    "id": 133,
+    "nomEn": "Screaming Chocolate Fish",
+    "nomFr": "Poisson en Chocolat Hurlant"
+  },
+  {
+    "id": 134,
+    "nomEn": "A Mighty Lump of Poo",
+    "nomFr": "Un Puissant Tas de Caca"
+  },
+  {
+    "id": 135,
+    "nomEn": "Melted Chocolate Blob (?)",
+    "nomFr": "Un Blob de Chocolat Fondu (?)"
+  },
+  {
+    "id": 136,
+    "nomEn": "Choco Golem",
+    "nomFr": "Choco-Golem"
+  },
+  {
+    "id": 137,
+    "nomEn": "Type 2 Diabetes",
+    "nomFr": "Diabète de Type 2"
+  },
+  {
+    "id": 138,
+    "nomEn": "A Giant Probe",
+    "nomFr": "Une Sonde Géante"
+  },
+  {
+    "id": 139,
+    "nomEn": "The NCC-1701 D",
+    "nomFr": "Le NCC-1701 D"
+  },
+  {
+    "id": 140,
+    "nomEn": "An Infinite Number of Turtles",
+    "nomFr": "Un Nombre Infini de Tortues"
+  },
+  {
+    "id": 141,
+    "nomEn": "Michelangelo, Leonardo, Raphael and Donatello",
+    "nomFr": "Michelangelo, Leonardo, Raphael et Donatello"
+  },
+  {
+    "id": 142,
+    "nomEn": "Michelangelo, Leonardo, Raphael and Donatello (Again)",
+    "nomFr": "Michelangelo, Leonardo, Raphael et Donatello (Encore)"
+  },
+  {
+    "id": 143,
+    "nomEn": "M.O.U.S.E",
+    "nomFr": "M.O.U.S.E"
+  },
+  {
+    "id": 144,
+    "nomEn": "A Stickman Cowboy",
+    "nomFr": "Un Cow-boy Bonhomme Allumette"
+  },
+  {
+    "id": 145,
+    "nomEn": "Your Browser History",
+    "nomFr": "Ton Historique de Navigation"
+  },
+  {
+    "id": 146,
+    "nomEn": "The House on the Hill",
+    "nomFr": "La Maison sur la Colline"
+  },
+  {
+    "id": 147,
+    "nomEn": "A Stoner Kid",
+    "nomFr": "Un Ado Défoncé"
+  },
+  {
+    "id": 148,
+    "nomEn": "Moneybags",
+    "nomFr": "Grippe-Sou"
+  },
+  {
+    "id": 149,
+    "nomEn": "THE TRAITOR",
+    "nomFr": "LE TRAÎTRE"
+  },
+  {
+    "id": 150,
+    "nomEn": "DEFEAT",
+    "nomFr": "DÉFAITE"
+  },
+  {
+    "id": 151,
+    "nomEn": "A Half-eaten Cookie",
+    "nomFr": "Un Cookie à Moitié Mangé"
+  },
+  {
+    "id": 152,
+    "nomEn": "A Rusty Crank",
+    "nomFr": "Une Manivelle Rouillée"
+  },
+  {
+    "id": 153,
+    "nomEn": "Ahh!! A Shark!!",
+    "nomFr": "Ahh!! Un Requin!!"
+  },
+  {
+    "id": 154,
+    "nomEn": "The number 1.8 x 10^308",
+    "nomFr": "Le Nombre 1,8 x 10^308"
+  },
+  {
+    "id": 155,
+    "nomEn": "A Weird Goblin-Demon-Thing",
+    "nomFr": "Un Truc Bizarre Gobelin-Démon"
+  },
+  {
+    "id": 156,
+    "nomEn": "A Cute Kitten",
+    "nomFr": "Un Adorable Chaton"
+  },
+  {
+    "id": 157,
+    "nomEn": "THE DRAGON OF WISDOM",
+    "nomFr": "LE DRAGON DE LA SAGESSE"
+  },
+  {
+    "id": 158,
+    "nomEn": "THE DRAGON OF DILDO",
+    "nomFr": "LE DRAGON DU GODEMICHÉ"
+  },
+  {
+    "id": 159,
+    "nomEn": "The Bouncer, Part 2",
+    "nomFr": "Le Videur, Partie 2"
+  },
+  {
+    "id": 160,
+    "nomEn": "Jambi",
+    "nomFr": "Jambi"
+  },
+  {
+    "id": 161,
+    "nomEn": "God of Thunder",
+    "nomFr": "Dieu du Tonnerre"
+  },
+  {
+    "id": 162,
+    "nomEn": "The Entire State of South Dakota",
+    "nomFr": "L'État du Dakota du Sud Tout Entier"
+  },
+  {
+    "id": 163,
+    "nomEn": "A Huge Stack of Pogs",
+    "nomFr": "Un Énorme Tas de Pogs"
+  },
+  {
+    "id": 164,
+    "nomEn": "Three Guys Shouting out 'Ed'",
+    "nomFr": "Trois Mecs Qui Crient 'Ed'"
+  },
+  {
+    "id": 165,
+    "nomEn": "Mr. Chow",
+    "nomFr": "Mr. Chow"
+  },
+  {
+    "id": 166,
+    "nomEn": "The Life Of The Party",
+    "nomFr": "L'Âme de la Fête"
+  },
+  {
+    "id": 167,
+    "nomEn": "Permanenet",
+    "nomFr": "Permanenet"
+  },
+  {
+    "id": 168,
+    "nomEn": "Coudl",
+    "nomFr": "Coudl"
+  },
+  {
+    "id": 169,
+    "nomEn": "Liek",
+    "nomFr": "Liek"
+  },
+  {
+    "id": 170,
+    "nomEn": "Blodo",
+    "nomFr": "Blodo"
+  },
+  {
+    "id": 171,
+    "nomEn": "Brian",
+    "nomFr": "Brian"
+  },
+  {
+    "id": 172,
+    "nomEn": "Odign",
+    "nomFr": "Odign"
+  },
+  {
+    "id": 173,
+    "nomEn": "Horus",
+    "nomFr": "Horus"
+  },
+  {
+    "id": 174,
+    "nomEn": "ELDER TYPO GOD, ELXU",
+    "nomFr": "DIEU ANCIEN DES TYPOS, ELXU"
+  },
+  {
+    "id": 175,
+    "nomEn": "A Very Sad Slinky :c",
+    "nomFr": "Un Slinky Très Triste :c"
+  },
+  {
+    "id": 176,
+    "nomEn": "Giant Metal Spinning Top",
+    "nomFr": "Énorme Toupie en Métal"
+  },
+  {
+    "id": 177,
+    "nomEn": "A Stack of Krazy Bonez",
+    "nomFr": "Un Tas de Krazy Bonez"
+  },
+  {
+    "id": 178,
+    "nomEn": "Rare Foil Pokeyman Card (Enemy)",
+    "nomFr": "Carte Pokéyman Holo Rare (Ennemi)"
+  },
+  {
+    "id": 179,
+    "nomEn": "A Busted Gameboy",
+    "nomFr": "Une Gameboy Explosée"
+  },
+  {
+    "id": 180,
+    "nomEn": "A Worthless Bean-y Baby",
+    "nomFr": "Un Bean-y Baby Sans Valeur"
+  },
+  {
+    "id": 181,
+    "nomEn": "The Slammer",
+    "nomFr": "La Taule"
+  },
+  {
+    "id": 182,
+    "nomEn": "Demonic Flurbie",
+    "nomFr": "Flurby Démoniaque"
+  },
+  {
+    "id": 183,
+    "nomEn": "Sentient Pile of Belts",
+    "nomFr": "Tas de Ceintures Conscient"
+  },
+  {
+    "id": 184,
+    "nomEn": "Mimic 'Mimic Chest' Chest",
+    "nomFr": "Coffre Mimique 'Coffre Mimique'"
+  },
+  {
+    "id": 185,
+    "nomEn": "A Suplexing Train",
+    "nomFr": "Un Train qui Fait des Suplex"
+  },
+  {
+    "id": 186,
+    "nomEn": "The Annoying Fan",
+    "nomFr": "Le Fan Relou"
+  },
+  {
+    "id": 187,
+    "nomEn": "The Infinity+1 Sword",
+    "nomFr": "L'Épée Infini+1"
+  },
+  {
+    "id": 188,
+    "nomEn": "The Damage Cap",
+    "nomFr": "Le Plafond de Dégâts"
+  },
+  {
+    "id": 189,
+    "nomEn": "FINAL BOSS",
+    "nomFr": "BOSS FINAL"
+  },
+  {
+    "id": 190,
+    "nomEn": "TRUE FINAL BOSS",
+    "nomFr": "VRAI BOSS FINAL"
+  },
+  {
+    "id": 191,
+    "nomEn": "Small Bart",
+    "nomFr": "Petit Bart"
+  },
+  {
+    "id": 192,
+    "nomEn": "Nuclear Power Pants",
+    "nomFr": "Pantalon Nucléaire"
+  },
+  {
+    "id": 193,
+    "nomEn": "A.C SKATER",
+    "nomFr": "A.C SKATER"
+  },
+  {
+    "id": 194,
+    "nomEn": "Lame Security Guard",
+    "nomFr": "Vigile Nul"
+  },
+  {
+    "id": 195,
+    "nomEn": "A Giant Vat of Plutonium-238",
+    "nomFr": "Une Cuve Géante de Plutonium-238"
+  },
+  {
+    "id": 196,
+    "nomEn": "Mutant Zombie Marie Curie",
+    "nomFr": "Marie Curie Zombie Mutante"
+  },
+  {
+    "id": 197,
+    "nomEn": "Pair of Shades Wearing Shades",
+    "nomFr": "Paire de Lunettes de Soleil Portant des Lunettes de Soleil"
+  },
+  {
+    "id": 198,
+    "nomEn": "A Wandering Gamma Ray",
+    "nomFr": "Un Rayon Gamma Errant"
+  },
+  {
+    "id": 199,
+    "nomEn": "A Massive Sealed Vault",
+    "nomFr": "Un Immense Coffre-Fort Scellé"
+  },
+  {
+    "id": 200,
+    "nomEn": "RADIOACTIVE MACGUFFIN",
+    "nomFr": "MACGUFFIN RADIOACTIF"
+  },
+  {
+    "id": 201,
+    "nomEn": "Grandma's 'Brownies'",
+    "nomFr": "Les 'Brownies' de Mamie"
+  },
+  {
+    "id": 202,
+    "nomEn": "Angry Raw Cookie Dough",
+    "nomFr": "Pâte à Cookie Crue en Colère"
+  },
+  {
+    "id": 203,
+    "nomEn": "A Bearded Breaded Braid",
+    "nomFr": "Une Tresse Barbue Panée"
+  },
+  {
+    "id": 204,
+    "nomEn": "Butcher & Candlestick Maker",
+    "nomFr": "Le Boucher & Le Chandelier"
+  },
+  {
+    "id": 205,
+    "nomEn": "The Ex-Greatest Thing",
+    "nomFr": "L'Ex-Meilleure Chose du Monde"
+  },
+  {
+    "id": 206,
+    "nomEn": "Moldy Slice Of Bread",
+    "nomFr": "Tranche de Pain Moisie"
+  },
+  {
+    "id": 207,
+    "nomEn": "THE YEAST BEAST",
+    "nomFr": "LA BÊTE DE LEVURE"
+  },
+  {
+    "id": 208,
+    "nomEn": "A DAY-OLD BAGUETTE",
+    "nomFr": "UNE BAGUETTE DE LA VEILLE"
+  },
+  {
+    "id": 209,
+    "nomEn": "A Groovy Saxophone",
+    "nomFr": "Un Saxo Groovy"
+  },
+  {
+    "id": 210,
+    "nomEn": "A Giant Pair Of Roller Skates",
+    "nomFr": "Une Paire de Patins à Roulettes Géante"
+  },
+  {
+    "id": 211,
+    "nomEn": "A 70's Porn Mustasche",
+    "nomFr": "Une Moustache Porno Rétro (Années 70)"
+  },
+  {
+    "id": 212,
+    "nomEn": "A Disgusting Bong",
+    "nomFr": "Un Bang Dégueulasse"
+  },
+  {
+    "id": 213,
+    "nomEn": "A Hippie with a Hip",
+    "nomFr": "Un Hippie à la Hanche"
+  },
+  {
+    "id": 214,
+    "nomEn": "Holy Crap It's Another Shark",
+    "nomFr": "Merde, Encore un Requin"
+  },
+  {
+    "id": 215,
+    "nomEn": "THE WORST VINYL RECORD",
+    "nomFr": "LE PIRE DISQUE VINYLE"
+  },
+  {
+    "id": 216,
+    "nomEn": "THE 'FRO",
+    "nomFr": "L'AFRO"
+  },
+  {
+    "id": 217,
+    "nomEn": "Ultra Instinct Stoner",
+    "nomFr": "Le Défoncé à l'Instinct Supérieur"
+  },
+  {
+    "id": 218,
+    "nomEn": "A Skeleton Inside a Body",
+    "nomFr": "Un Squelette Dans un Corps"
+  },
+  {
+    "id": 219,
+    "nomEn": "A Badly Made Sexy Florida Costume",
+    "nomFr": "Un Déguisement Sexy de Floride Mal Fait"
+  },
+  {
+    "id": 220,
+    "nomEn": "An Unnecessary Sequel",
+    "nomFr": "Une Suite Inutile"
+  },
+  {
+    "id": 221,
+    "nomEn": "An Elevator Full of Blood",
+    "nomFr": "Un Ascenseur Rempli de Sang"
+  },
+  {
+    "id": 222,
+    "nomEn": "Candy Corn",
+    "nomFr": "Candy Corn"
+  },
+  {
+    "id": 223,
+    "nomEn": "TEXAS CHAINSAW MASCARA",
+    "nomFr": "MASCARA À LA TRONÇONNEUSE"
+  },
+  {
+    "id": 224,
+    "nomEn": "JIGSAW",
+    "nomFr": "JIGSAW"
+  },
+  {
+    "id": 225,
+    "nomEn": "A Construction Slob",
+    "nomFr": "Un Plouc du Chantier"
+  },
+  {
+    "id": 226,
+    "nomEn": "Quicksand Cement",
+    "nomFr": "Ciment Mouvant"
+  },
+  {
+    "id": 227,
+    "nomEn": "A Cement Truck",
+    "nomFr": "Une Bétonnière"
+  },
+  {
+    "id": 228,
+    "nomEn": "A Bulldozer",
+    "nomFr": "Un Bulldozer"
+  },
+  {
+    "id": 229,
+    "nomEn": "3 Guys Carrying a Beam",
+    "nomFr": "3 Gars Qui Portent une Poutre"
+  },
+  {
+    "id": 230,
+    "nomEn": "A Piano-Safe",
+    "nomFr": "Un Piano-Coffre-Fort"
+  },
+  {
+    "id": 231,
+    "nomEn": "7 GUYS TAKING A BREAK",
+    "nomFr": "7 GARS EN PAUSE"
+  },
+  {
+    "id": 232,
+    "nomEn": "THE CRANE",
+    "nomFr": "LA GRUE"
+  },
+  {
+    "id": 233,
+    "nomEn": "A Duck",
+    "nomFr": "Un Canard"
+  },
+  {
+    "id": 234,
+    "nomEn": "Another Duck",
+    "nomFr": "Encore un Canard"
+  },
+  {
+    "id": 235,
+    "nomEn": "...Goose!",
+    "nomFr": "...Une Oie !"
+  },
+  {
+    "id": 236,
+    "nomEn": "Scientifically Accurate Duck",
+    "nomFr": "Canard Scientifiquement Exact"
+  },
+  {
+    "id": 237,
+    "nomEn": "A MotherDucker",
+    "nomFr": "Un Fils de Canard"
+  },
+  {
+    "id": 238,
+    "nomEn": "Totally A Duck",
+    "nomFr": "Vraiment un Canard"
+  },
+  {
+    "id": 239,
+    "nomEn": "THE DOG",
+    "nomFr": "LE CHIEN"
+  },
+  {
+    "id": 240,
+    "nomEn": "A SINGLE GRAPE",
+    "nomFr": "UN SEUL RAISIN"
+  },
+  {
+    "id": 241,
+    "nomEn": "A Patch of Tulips",
+    "nomFr": "Un Parterre de Tulipes"
+  },
+  {
+    "id": 242,
+    "nomEn": "A Random Lady",
+    "nomFr": "Une Dame Quelconque"
+  },
+  {
+    "id": 243,
+    "nomEn": "A Lost Canadian Moose :c",
+    "nomFr": "Un Orignal Canadien Perdu :c"
+  },
+  {
+    "id": 244,
+    "nomEn": "A 5-Bladed Windmill",
+    "nomFr": "Un Moulin à 5 Pales"
+  },
+  {
+    "id": 245,
+    "nomEn": "A Jerk Cyclist",
+    "nomFr": "Un Cycliste Relou"
+  },
+  {
+    "id": 246,
+    "nomEn": "A Dutch Oven",
+    "nomFr": "Une Cocotte Hollandaise"
+  },
+  {
+    "id": 247,
+    "nomEn": "THE GRAND DUTCH DUCHY",
+    "nomFr": "LE GRAND DUCHÉ HOLLANDAIS"
+  },
+  {
+    "id": 248,
+    "nomEn": "DAAN VAN DER VAAN JAANSEN",
+    "nomFr": "DAAN VAN DER VAAN JAANSEN"
+  },
+  {
+    "id": 249,
+    "nomEn": "A Seagull",
+    "nomFr": "Une Mouette"
+  },
+  {
+    "id": 250,
+    "nomEn": "Cosmic Jellyfish",
+    "nomFr": "Méduse Cosmique"
+  },
+  {
+    "id": 251,
+    "nomEn": "Aether Eel",
+    "nomFr": "Anguille d'Éther"
+  },
+  {
+    "id": 252,
+    "nomEn": "You.",
+    "nomFr": "Toi."
+  },
+  {
+    "id": 253,
+    "nomEn": "A Pi-rat",
+    "nomFr": "Un Pi-Rat"
+  },
+  {
+    "id": 254,
+    "nomEn": "Bunch of Old Newspapers",
+    "nomFr": "Tas de Vieux Journaux"
+  },
+  {
+    "id": 255,
+    "nomEn": "THE BUCKET",
+    "nomFr": "LE SEAU"
+  },
+  {
+    "id": 256,
+    "nomEn": "A Tar Blob Monster",
+    "nomFr": "Un Monstre de Goudron"
+  },
+  {
+    "id": 257,
+    "nomEn": "Another You.",
+    "nomFr": "Encore Toi."
+  },
+  {
+    "id": 258,
+    "nomEn": "A Paddlefish",
+    "nomFr": "Un Poisson-Spatule"
+  },
+  {
+    "id": 259,
+    "nomEn": "An Anglerfish",
+    "nomFr": "Une Baudroie"
+  },
+  {
+    "id": 260,
+    "nomEn": "A Bunch of Cannons",
+    "nomFr": "Un Tas de Canons"
+  },
+  {
+    "id": 261,
+    "nomEn": "A Pile of Ropes",
+    "nomFr": "Un Tas de Cordes"
+  },
+  {
+    "id": 262,
+    "nomEn": "Ladders!",
+    "nomFr": "Des Échelles !"
+  },
+  {
+    "id": 263,
+    "nomEn": "And Snakes!",
+    "nomFr": "Et des Serpents !"
+  },
+  {
+    "id": 264,
+    "nomEn": "The Ramshackle Sea Inn",
+    "nomFr": "L'Auberge Délabrée des Mers"
+  },
+  {
+    "id": 265,
+    "nomEn": "The First Pirate",
+    "nomFr": "Le Premier Pirate"
+  },
+  {
+    "id": 266,
+    "nomEn": "The Second Pirate",
+    "nomFr": "Le Deuxième Pirate"
+  },
+  {
+    "id": 267,
+    "nomEn": "The Third Pirate",
+    "nomFr": "Le Troisième Pirate"
+  },
+  {
+    "id": 268,
+    "nomEn": "The Fourth Pirate",
+    "nomFr": "Le Quatrième Pirate"
+  },
+  {
+    "id": 269,
+    "nomEn": "The Captain",
+    "nomFr": "Le Capitaine"
+  },
+  {
+    "id": 270,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 271,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 272,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 273,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 274,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 275,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 276,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 277,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 278,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 279,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 280,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 281,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 282,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 283,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 284,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 285,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 286,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 287,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 288,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 289,
+    "nomEn": "Intermission",
+    "nomFr": "Intermède"
+  },
+  {
+    "id": 290,
+    "nomEn": "A Single Rat",
+    "nomFr": "Un Seul Rat"
+  },
+  {
+    "id": 291,
+    "nomEn": "A Strange Sign",
+    "nomFr": "Un Panneau Étrange"
+  },
+  {
+    "id": 292,
+    "nomEn": "A Stranger Sign",
+    "nomFr": "Un Panneau Plus Étrange"
+  },
+  {
+    "id": 293,
+    "nomEn": "The Strangest Sign",
+    "nomFr": "Le Panneau le Plus Étrange"
+  },
+  {
+    "id": 294,
+    "nomEn": "Rat Guard 1",
+    "nomFr": "Garde-Rat 1"
+  },
+  {
+    "id": 295,
+    "nomEn": "Rat Guard 2",
+    "nomFr": "Garde-Rat 2"
+  },
+  {
+    "id": 296,
+    "nomEn": "Tippi The Tutorial Mouse",
+    "nomFr": "Tippi la Souris du Tutoriel"
+  },
+  {
+    "id": 297,
+    "nomEn": "The Cleric",
+    "nomFr": "Le Clerc"
+  },
+  {
+    "id": 298,
+    "nomEn": "The Rogue",
+    "nomFr": "Le Roublard"
+  },
+  {
+    "id": 299,
+    "nomEn": "The Wizard",
+    "nomFr": "Le Magicien"
+  },
+  {
+    "id": 300,
+    "nomEn": "The Barbarian",
+    "nomFr": "Le Barbare"
+  },
+  {
+    "id": 301,
+    "nomEn": "The 2 3/4 Winged Traitor",
+    "nomFr": "Le Traître aux 2 Ailes 3/4"
+  }
+]
