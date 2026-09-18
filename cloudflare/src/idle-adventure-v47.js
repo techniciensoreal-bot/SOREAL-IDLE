@@ -1152,13 +1152,14 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
       const{p,t}=idleAdventureItemStatsMaxV1(setId,slot);
       const baseP=p/2,baseT=t/2;
       catalog[`${setId}:${slot}`]=Object.freeze({
-        kind:"equipment",set:setId,setName:s.name,slot,name:`${s.name} ${slot}`,
+        kind:"equipment",set:setId,setName:s.name,slot,name:SET_ITEM_NAMES_V1[`${setId}:${slot}`]||`${s.name} ${slot}`,
+        wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
         basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03
       });
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03});
   }
   return catalog;
 })());
@@ -1172,6 +1173,12 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
  * suffit, aucune autre formule à toucher.
  */
 const BOOSTS=Object.freeze([1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]);
+const IDLE_ADVENTURE_BOOST_WIKI_ID_BASE_V1=Object.freeze({power:1,toughness:14,special:27});
+function wikiItemIdBoostV1(type,strength){
+  const idx=BOOSTS.indexOf(Number(strength));
+  const base=Number(IDLE_ADVENTURE_BOOST_WIKI_ID_BASE_V1[String(type||"")])||0;
+  return idx>=0&&base?base+idx:0;
+}
 export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
 /*
  * hp/regen (2026-09-15) : dérivés de power/toughness (HP Max=Power×3,
@@ -1368,7 +1375,291 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   // Pirate (set) (Aetherean Sea) -- ngu-idle.fandom.com/wiki/Pirate_(set) -- slot "cutlass" = objet "The Cutlass" (arme réelle = The Flintlock)
   "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!"
 });
-function item(id,set,slot,lv=0){const s=SETS[set];const realName=SET_ITEM_NAMES_V1[`${set}:${slot}`];return{id,definitionId:`${set}:${slot}`,name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
+/*
+ * Identifiants d'items officiels NGU (2026-09-18).
+ *
+ * Source de vérité média : les fichiers R2 suivent exactement la convention
+ * `idle/items/Item_<ID wiki sur 4 chiffres>_<nom NGU>.<ext>`.
+ * Les 241 pièces de sets ci-dessous ont été recoupées par nom NGU exact
+ * avec le listing R2 réel. Les 22 SPECIALS sont couverts aussi ; cinq ont
+ * un libellé SOREAL abrégé/différent du fichier R2 et sont explicitement
+ * verrouillés : Tutorial Cube=77, Tuba=432, Wandoos 98=66,
+ * Beard Comb=441, Shrunken Voodoo Doll=190.
+ *
+ * Cette table vit côté moteur IDLE : APP ne doit plus maintenir une copie
+ * géante des noms/IDs. Le client transporte wikiItemId et le Worker média
+ * résout d'abord l'ID exact, puis conserve le nom comme compatibilité.
+ */
+export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
+  "training:weapon":75,
+  "training:head":62,
+  "training:chest":63,
+  "training:legs":64,
+  "training:boots":65,
+  "sewers:weapon":44,
+  "sewers:head":40,
+  "sewers:chest":41,
+  "sewers:legs":42,
+  "sewers:boots":43,
+  "sewers:ring":45,
+  "sewers:amulet":46,
+  "forest:weapon":51,
+  "forest:head":47,
+  "forest:chest":48,
+  "forest:legs":49,
+  "forest:boots":50,
+  "forest:ring":52,
+  "forest:pendant":53,
+  "cave:weapon":58,
+  "cave:head":54,
+  "cave:chest":55,
+  "cave:legs":56,
+  "cave:boots":57,
+  "cave:ring":59,
+  "cave:amulet":60,
+  "cave:combat":61,
+  "hsb:weapon":72,
+  "hsb:head":68,
+  "hsb:chest":69,
+  "hsb:legs":70,
+  "hsb:boots":71,
+  "hsb:ring":73,
+  "hsb:amulet":74,
+  "grb:weapon":82,
+  "grb:head":78,
+  "grb:chest":79,
+  "grb:legs":80,
+  "grb:boots":81,
+  "grb:necklace":83,
+  "grb:meat":84,
+  "clock:weapon":89,
+  "clock:head":85,
+  "clock:chest":86,
+  "clock:legs":87,
+  "clock:boots":88,
+  "clock:alarm":90,
+  "clock:sands":91,
+  "2d:weapon":99,
+  "2d:head":95,
+  "2d:chest":96,
+  "2d:legs":97,
+  "2d:boots":98,
+  "2d:cube":100,
+  "2d:amulet":101,
+  "spoopy:weapon":107,
+  "spoopy:head":103,
+  "spoopy:chest":104,
+  "spoopy:legs":105,
+  "spoopy:boots":106,
+  "spoopy:ring":108,
+  "spoopy:amulet":109,
+  "jake:weapon":115,
+  "jake:head":111,
+  "jake:chest":112,
+  "jake:legs":113,
+  "jake:boots":114,
+  "jake:tie":116,
+  "jake:paperweight":117,
+  "gaudy:weapon":126,
+  "gaudy:head":122,
+  "gaudy:chest":123,
+  "gaudy:legs":124,
+  "gaudy:boots":125,
+  "mega:weapon":134,
+  "mega:head":130,
+  "mega:chest":131,
+  "mega:legs":132,
+  "mega:boots":133,
+  "beardverse:weapon":147,
+  "beardverse:head":143,
+  "beardverse:chest":144,
+  "beardverse:legs":145,
+  "beardverse:boots":146,
+  "badly:weapon":168,
+  "badly:head":164,
+  "badly:chest":165,
+  "badly:legs":166,
+  "badly:boots":167,
+  "stealth:weapon":177,
+  "stealth:head":173,
+  "stealth:chest":174,
+  "stealth:legs":175,
+  "stealth:boots":176,
+  "choco:weapon":225,
+  "choco:head":221,
+  "choco:chest":222,
+  "choco:legs":223,
+  "choco:boots":224,
+  "uug:ringGreed":136,
+  "uug:ringMight":137,
+  "uug:ringUtility":138,
+  "uug:ringEnergy":139,
+  "uug:ringMagic":140,
+  "wanderer:head":150,
+  "wanderer:chest":151,
+  "wanderer:legs":152,
+  "wanderer:boots":153,
+  "rerednaw:head":155,
+  "rerednaw:chest":156,
+  "rerednaw:legs":157,
+  "rerednaw:boots":158,
+  "slimy:weapon":188,
+  "slimy:head":184,
+  "slimy:chest":185,
+  "slimy:legs":186,
+  "slimy:boots":187,
+  "edgy:head":213,
+  "edgy:chest":214,
+  "edgy:legs":215,
+  "edgy:boots":220,
+  "edgy:weapon":217,
+  "edgy:amulet":218,
+  "pinkprincess:head":231,
+  "pinkprincess:chest":232,
+  "pinkprincess:legs":233,
+  "pinkprincess:boots":234,
+  "pinkprincess:weapon":235,
+  "pinkprincess:amulet":236,
+  "meta:weapon":255,
+  "meta:head":251,
+  "meta:chest":252,
+  "meta:legs":253,
+  "meta:boots":254,
+  "meta:charmInfinity":256,
+  "meta:charm69":257,
+  "party:weapon":262,
+  "party:head":258,
+  "party:chest":259,
+  "party:legs":260,
+  "party:boots":261,
+  "party:cup":263,
+  "party:whistle":264,
+  "typo:head":301,
+  "typo:chest":302,
+  "typo:legs":303,
+  "typo:boots":304,
+  "typo:weapon":305,
+  "typo:asscessory":306,
+  "typo:eyeElxu":307,
+  "fad:head":308,
+  "fad:chest":309,
+  "fad:legs":310,
+  "fad:boots":311,
+  "fad:weapon":312,
+  "fad:pokeymanCard":313,
+  "fad:krazyBonez":314,
+  "jrpg:head":315,
+  "jrpg:chest":316,
+  "jrpg:legs":317,
+  "jrpg:boots":318,
+  "jrpg:weapon":319,
+  "jrpg:zipper":320,
+  "jrpg:wig":321,
+  "rad:head":345,
+  "rad:chest":346,
+  "rad:legs":347,
+  "rad:boots":348,
+  "rad:weapon":349,
+  "rad:notDrugs":350,
+  "rad:gloveOfPower":351,
+  "backtoschool:head":352,
+  "backtoschool:chest":353,
+  "backtoschool:legs":354,
+  "backtoschool:boots":355,
+  "backtoschool:weapon":356,
+  "backtoschool:theS":357,
+  "backtoschool:walkman":358,
+  "western:head":359,
+  "western:chest":360,
+  "western:legs":361,
+  "western:boots":362,
+  "western:weapon":363,
+  "western:corgi":364,
+  "western:bandana":365,
+  "bread:head":392,
+  "bread:chest":393,
+  "bread:legs":394,
+  "bread:boots":395,
+  "bread:weapon":399,
+  "bread:baguette":396,
+  "bread:creamPie":397,
+  "bread:yeast":398,
+  "disco:head":400,
+  "disco:chest":401,
+  "disco:legs":402,
+  "disco:boots":403,
+  "disco:weapon":404,
+  "disco:vinylShard":407,
+  "disco:whitePowder":405,
+  "disco:rollingPaper":406,
+  "halloweenie:head":408,
+  "halloweenie:chest":409,
+  "halloweenie:legs":410,
+  "halloweenie:boots":411,
+  "halloweenie:weapon":415,
+  "halloweenie:apple":412,
+  "halloweenie:toiletPaper":413,
+  "halloweenie:pandora":414,
+  "construction:head":453,
+  "construction:chest":454,
+  "construction:legs":455,
+  "construction:boots":456,
+  "construction:weapon":460,
+  "construction:hammer":457,
+  "construction:toolbox":458,
+  "construction:levelLevel":459,
+  "duck:head":496,
+  "duck:chest":497,
+  "duck:legs":498,
+  "duck:boots":499,
+  "duck:weapon":503,
+  "duck:shotgun":500,
+  "duck:ducktTape":501,
+  "duck:duckCaller":502,
+  "dutch:head":461,
+  "dutch:chest":462,
+  "dutch:legs":463,
+  "dutch:boots":464,
+  "dutch:weapon":468,
+  "dutch:tulip":465,
+  "dutch:netherlands":466,
+  "dutch:cheese":467,
+  "pirate:head":507,
+  "pirate:chest":508,
+  "pirate:legs":509,
+  "pirate:boots":510,
+  "pirate:weapon":514,
+  "pirate:cutlass":511,
+  "pirate:eyepatch":512,
+  "pirate:compass":513,
+  "tutorialCube":77,
+  "tubaTime":432,
+  "cheeseGrater":433,
+  "skyBall":434,
+  "pissedOffKey":172,
+  "flubber":120,
+  "wandoos98":66,
+  "magicite":435,
+  "windupGear":436,
+  "sinusoidalWave":437,
+  "ghostTypewriter":438,
+  "gaudyShoulders":439,
+  "fTank":440,
+  "ringOfApathy":135,
+  "beardComb":441,
+  "randomCrayons":442,
+  "redLipstick":443,
+  "candyCornNecklace":444,
+  "wanderersCane":154,
+  "shrunkenVoodooDoll":190,
+  "pricelessVanGoghPainting":192,
+  "smallGerbil":195
+});
+function wikiItemIdAdventureV1(definitionId){
+  return Number(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1[String(definitionId||"")])||0;
+}
+
+function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
 /*
  * power/toughness (2026-09-13, cf. commentaire sourcé au-dessus de SPECIALS) :
  * même formule de niveau que item() (q=1+niveau/100, doublement à 100),
@@ -1403,8 +1694,8 @@ function item(id,set,slot,lv=0){const s=SETS[set];const realName=SET_ITEM_NAMES_
  * plancher réelle, PAS 0. Ne change rien pour les SPECIALS sans sBase
  * (undefined -> N(undefined)=0, comportement identique à avant).
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(d.sBase)}}
-function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(d.sBase)}}
+function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,wikiItemId:wikiItemIdBoostV1(type,strength),name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
  * chance... JE VEUX QUE CHAQUE STATISTIQUES SOIENT INTEGREES." Le
@@ -1463,7 +1754,7 @@ export function createIdleAdventureStateV47(){return base()}
  * seul l'excédent illégitime (accumulé via le bug, jamais via un vrai
  * boost sous les nouvelles règles) est retiré.
  */
-function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
+function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.wikiItemId=wikiItemIdAdventureV1(z.definitionId)||Number(z.wikiItemId)||0;z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
 // PISTE 1 (2026-09-18) : même plafond que power/toughness pour le Special Bonus chiffré (baseS>0 uniquement -- ex. tutorialCube) ; les autres SPECIALS (baseS=0) restent non plafonnés, comportement inchangé.
 if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}
 /*
@@ -1872,7 +2163,7 @@ function idleAdventureCoffreSlotsV1(s){
       const connu=Boolean(s.itemList[definitionId]?.seen);
       return{
         definitionId,
-        set:def.set,setName:def.setName,slot:def.slot,name:def.name,
+        set:def.set,setName:def.setName,slot:def.slot,name:def.name,wikiItemId:def.wikiItemId||0,
         decouvert:connu,
         occupe:Boolean(occupant),
         item:occupant?{...occupant,maxed:true,basePower:def.basePower,baseToughness:def.baseToughness}:null
