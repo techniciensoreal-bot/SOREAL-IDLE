@@ -1835,21 +1835,42 @@ return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience}}
  * stats.power — un combat reste donc un vrai échange de plusieurs coups
  * quel que soit à quel point stats.power est déjà énorme.
  *
- * Côté JOUEUR ("nous non plus") : playerHpMaxForAdventureV1 lui-même
- * (10+stats.hp) était DÉJÀ correct — le vrai bug était en amont, dans
- * idle-ngu-progression.js. Ce fichier (idle-adventure-v47.js) ne connaît
- * pas Attack/Defense (propriété de la progression NGU globale, hors de
- * son périmètre volontairement isolé) ; c'est idle-ngu-progression.js qui
- * doit lui fournir un stats.hp déjà enrichi (Attack×10, sourcé
- * wiki NGU page Fight Boss, audit 2026-09-13) AVANT de l'y passer. Ce
- * calcul existait déjà mais UNIQUEMENT pour l'aperçu affiché au joueur
- * (idleNguSnapshot) — le chemin RÉELLEMENT utilisé pour lancer un combat
- * (applyIdleNguAction, action "adventure" → ctx.adventureStats) ne
- * reprenait jamais cette même formule, ne corrigeant que power/toughness
- * et laissant hp/regen à leur seul bonus d'équipement brut (0 par
- * défaut). Le joueur voyait donc "Max HP: 1010" à l'écran mais un combat
- * réel démarrait avec seulement ~10 PV — corrigé dans
- * idle-ngu-progression.js (idleAdventureCombatStatsV1), pas ici.
+ * Côté JOUEUR ("nous non plus") : playerHpMaxForAdventureV1 fournissait
+ * (10+stats.hp) — le vrai bug était en amont, dans idle-ngu-progression.js
+ * (stats.hp jamais enrichi sur le chemin de combat réel, seulement sur
+ * l'aperçu) ; ce point reste corrigé dans idle-ngu-progression.js
+ * (idleAdventureCombatStatsV1). Ce fichier (idle-adventure-v47.js) ne
+ * connaît pas Attack/Defense (propriété de la progression NGU globale,
+ * hors de son périmètre volontairement isolé) ; c'est idle-ngu-
+ * progression.js qui lui fournit un stats.hp déjà enrichi (Power×3, sourcé
+ * wiki NGU pages Build_Max_HP/Build_HP_Regen, audit 2026-09-14) AVANT de
+ * l'y passer.
+ *
+ * PISTE 3 de l'audit wiki 2026-09-18 : le "+10" lui-même (ci-dessous)
+ * N'A JAMAIS EU de citation wiki dans ce fichier — recherché en direct au
+ * navigateur (2026-09-18) sur ngu-idle.fandom.com pour une page qui
+ * documenterait un "PV du joueur en combat d'Aventure" : aucune page de ce
+ * type n'existe. Cause architecturale confirmée : le vrai NGU Idle n'a
+ * PAS de barre de vie joueur en Aventure — son "Adventure Mode" est un
+ * système à SEUIL (le Power/Toughness du joueur doit dépasser le seuil
+ * "One Hit P/T" du mob pour le tuer en un coup, cf. commentaire détaillé
+ * plus haut sur monsterHpMaxForZoneV1/z.oneHitP) ; le combat "coup par
+ * coup avec vraie barre de vie" est un choix SOREAL délibéré (Norman,
+ * 2026-09-09 : "Comme pour les boss"), documenté comme tel, jamais une
+ * mécanique NGU réelle à citer. Il n'existe donc structurellement AUCUNE
+ * page wiki à citer pour un "+10" côté joueur. Conformément à la règle
+ * n°1 d'AGENTS.md ("si une page ne publie pas la magnitude exacte dont on
+ * a besoin : ne pas inventer de repli, réduire la fonctionnalité à ce qui
+ * est réellement confirmé") : le "+10" est retiré, playerHpMaxForAdventureV1
+ * ne reproduit plus que Math.max(0,stats.hp) — la seule partie
+ * effectivement sourcée du wiki (Build_Max_HP, Power×3). Un ancien
+ * commentaire ici citait "Power 10 → 40 calculé contre 50 observé à
+ * l'écran" comme preuve du bug, mais ce "50" venait d'une capture d'écran
+ * Norman de l'app SOREAL elle-même, jamais du wiki NGU — pas une source
+ * valable pour fixer une nouvelle magnitude (aurait remplacé une valeur
+ * inventée par une autre). Tests mis à jour en conséquence :
+ * idle-adventure-combat-stats-shared.test.mjs, idle-ngu-starting-stats.
+ * test.mjs, idle-adventure-v47.test.mjs.
  */
 function monsterHpMaxForZoneV1(z,boss){const base=Math.max(1,I(N(z.oneHitP||z.t)));return boss?base*3:base}
 /*
@@ -1907,7 +1928,7 @@ export function idleAdventureMobTypeV1(z,boss,monsterIndex){
   const entry=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
   return entry?String(entry.type||"normal"):"";
 }
-function playerHpMaxForAdventureV1(stats){return 10+Math.max(0,N(stats&&stats.hp))}
+function playerHpMaxForAdventureV1(stats){return Math.max(0,N(stats&&stats.hp))}
 /*
  * Correctif 2026-09-14 (Norman) :
  * 1) "quand on clique sur combattre dans la safety zone, le journal

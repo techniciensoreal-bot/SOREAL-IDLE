@@ -231,16 +231,21 @@ assert.equal(t.result.nextAt,7000);
   assert.equal(f.result.monsterHpMax,145,"PV du monstre = le VRAI mob tiré (Small Mouse, Max HP réel 40, mis à l'échelle du oneHitP de zone = 145), jamais z.t=12 (seuil de survie du JOUEUR) ni la simple moyenne de zone (194) qui ne distinguait pas les mobs entre eux.");
   assert.equal(f.result.monsterHp,f.result.monsterHpMax);
   /*
-   * playerHpMaxForAdventureV1 (10+stats.hp) reste inchangée ici — ce test
+   * playerHpMaxForAdventureV1 reproduit Math.max(0,stats.hp) -- ce test
    * appelle applyIdleAdventureActionV47 directement avec un stats brut
    * {power,toughness} sans .hp, exactement comme le fait idle-ngu-
    * progression.js AVANT d'enrichir hp via idleAdventureCombatStatsV1
-   * (Attack×10, voir ce fichier) : stats.hp est donc 0 ici par construction
-   * du test, playerHpMax=10. Le vrai enrichissement Attack×10 est
-   * verrouillé séparément par idle-adventure-combat-stats-shared.test.mjs,
-   * au niveau où il s'applique réellement.
+   * (Power×3, voir ce fichier) : stats.hp est donc 0 ici par construction
+   * du test, playerHpMax=0. Le vrai enrichissement Power×3 est verrouillé
+   * séparément par idle-adventure-combat-stats-shared.test.mjs, au niveau
+   * où il s'applique réellement.
+   *
+   * PISTE 3 de l'audit wiki 2026-09-18 : le "+10" plat qu'ajoutait avant
+   * playerHpMaxForAdventureV1 n'avait aucune citation wiki (aucune page
+   * NGU ne documente de PV joueur en Aventure -- système à seuil dans le
+   * vrai jeu) -- retiré, donc 0 ici (10+0=10 avant ce correctif).
    */
-  assert.equal(f.result.playerHpMax,10,"Sans stats.hp fourni (cas de ce test isolé), playerHpMax reste 10+0=10 — inchangé, ce n'est pas ici que le vrai bug/correctif se trouve.");
+  assert.equal(f.result.playerHpMax,0,"Sans stats.hp fourni (cas de ce test isolé), playerHpMax reste 0 -- le +10 non sourcé a été retiré (PISTE 3, audit 2026-09-18).");
   assert.equal(f.result.playerHp,f.result.playerHpMax);
   assert.equal(s.zone.kills.sewers||0,0,"Le kill ne doit être compté qu'à la résolution du combat, jamais à son démarrage.");
   assert.equal(idleAdventureSnapshotV47(s,7).fight.active,true,"Le combat en cours doit être exposé dans l'état renvoyé au client.");
@@ -317,8 +322,18 @@ assert.equal(t.result.nextAt,7000);
   // si s.fight.playerHp (jamais mis à jour côté serveur) affiche encore sa
   // valeur de départ — le client est seul juge du moment de la défaite,
   // exactement comme pour resolveZoneFight ci-dessus.
+  /*
+   * PISTE 3 (audit wiki 2026-09-18) : stats.hp:50 fourni explicitement ici
+   * -- depuis le retrait du "+10" non sourcé de playerHpMaxForAdventureV1,
+   * un stats brut SANS .hp (comme dans les autres blocs de ce fichier, qui
+   * testent volontairement ce cas isolé) donnerait playerHpMax=0, cassant
+   * la précondition "PV serveur jamais décrémenté" ci-dessous sans rapport
+   * avec ce que ce bloc vérifie réellement (la défaite, pas le calcul du
+   * Max HP lui-même, déjà verrouillé par idle-ngu-starting-stats.test.mjs
+   * et idle-adventure-combat-stats-shared.test.mjs).
+   */
   s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
-  f=applyIdleAdventureActionV47(s,{action:"startZoneFight"},{bosses:7,stats:{power:12,toughness:12}},1);
+  f=applyIdleAdventureActionV47(s,{action:"startZoneFight"},{bosses:7,stats:{power:12,toughness:12,hp:50}},1);
   s=f.state;
   assert.ok(s.fight.playerHp>0,"Le PV serveur n'est jamais décrémenté — précondition du test de non-régression ci-dessous.");
   const defeat=applyIdleAdventureActionV47(s,{action:"loseZoneFight"},{bosses:7,stats:{power:12,toughness:12}},3);

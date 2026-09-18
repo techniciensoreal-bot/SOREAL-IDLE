@@ -66,18 +66,28 @@ try {
   Math.random = originalRandom;
 }
 
-// 3. Le combat réel doit donner EXACTEMENT les mêmes PV que l'aperçu
-//    (10 + 300 = 310), jamais le ~10 qu'aurait donné l'ancien bug
-//    (bonus d'équipement brut seul, sans le Power×3).
+/*
+ * 3. Le combat réel doit donner EXACTEMENT les mêmes PV que l'aperçu
+ *    (300 = Power×3), jamais le ~10 qu'aurait donné l'ancien bug (bonus
+ *    d'équipement brut seul, sans le Power×3).
+ *
+ * PISTE 3 de l'audit wiki 2026-09-18 (idle-adventure-v47.js,
+ * playerHpMaxForAdventureV1) : le "+10" plat qui s'ajoutait ici n'avait
+ * jamais de citation wiki (recherché en direct, aucune page NGU ne
+ * documente de PV joueur en Aventure — le vrai jeu utilise un système à
+ * seuil Power/Toughness, pas une barre de vie). Retiré ; playerHpMax ne
+ * reproduit plus que le Max HP réellement sourcé (Build_Max_HP, Power×3).
+ * 310 -> 300 ci-dessous.
+ */
 assert.equal(
   fought.result.playerHpMax,
-  310,
-  "Un vrai combat démarré via applyIdleNguAction doit donner playerHpMax=310 (10 + Power×3), pas ~10 (le bug où hp/regen n'étaient jamais enrichis pour le chemin de combat réel)."
+  300,
+  "Un vrai combat démarré via applyIdleNguAction doit donner playerHpMax=300 (Power×3, plus de +10 non sourcé), pas ~10 (le bug où hp/regen n'étaient jamais enrichis pour le chemin de combat réel)."
 );
 assert.equal(
   fought.result.playerHpMax,
-  10 + snap.adventure.stats.hp,
-  "playerHpMax du combat réel doit toujours correspondre exactement à 10 + le Max HP affiché par idleNguSnapshot — plus jamais deux calculs séparés du même nombre."
+  snap.adventure.stats.hp,
+  "playerHpMax du combat réel doit toujours correspondre exactement au Max HP affiché par idleNguSnapshot — plus jamais deux calculs séparés du même nombre."
 );
 
 /*

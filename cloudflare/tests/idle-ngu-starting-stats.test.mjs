@@ -24,8 +24,12 @@ import { IDLE_ADVENTURE_V47 } from "../src/idle-adventure-v47.js";
  * en restant additif avec le bonus de set (jamais un remplacement).
  *
  * playerHpMaxForAdventureV1 (idle-adventure-v47.js, non exportée, fonction
- * privée) fait ensuite 10+stats.hp — donc pour un joueur neuf :
- * 10 + (100*3) = 310.
+ * privée) reproduisait ensuite stats.hp+10 — donc pour un joueur neuf :
+ * 10 + (100*3) = 310. PISTE 3 de l'audit wiki 2026-09-18 : ce "+10" n'a
+ * jamais eu de citation wiki (recherché en direct, aucune page NGU ne
+ * documente de PV joueur en Aventure — système à seuil dans le vrai jeu,
+ * pas de barre de vie). Retiré : playerHpMaxForAdventureV1 ne reproduit
+ * plus que Math.max(0,stats.hp), donc 300 pour un joueur neuf, pas 310.
  */
 
 // --- Joueur neuf : Power/Toughness au plancher (100), aucun set complété ---
@@ -33,9 +37,9 @@ import { IDLE_ADVENTURE_V47 } from "../src/idle-adventure-v47.js";
   const snap = idleNguSnapshot(null, { adventurePower: 100, adventureToughness: 100, bosses: 0 });
   const stats = snap.adventure.stats;
 
-  assert.equal(stats.hp, 300, "Max HP de base (avant le +10 d'affichage) doit être Power x 3 = 300 (ratio réel vérifié sur les pages wiki Build Max HP / Build HP Regen).");
+  assert.equal(stats.hp, 300, "Max HP de base doit être Power x 3 = 300 (ratio réel vérifié sur les pages wiki Build Max HP / Build HP Regen).");
   assert.equal(stats.regen, 3, "HP Regen doit être Toughness x 0.03 = 3, jamais 0 ni 1.");
-  assert.equal(10 + stats.hp, 310, "Avec le +10 de playerHpMaxForAdventureV1, Max HP affiché = 310.");
+  assert.equal(stats.hp, 300, "PISTE 3 (audit 2026-09-18) : playerHpMaxForAdventureV1 ne reproduit plus le +10 non sourcé -- Max HP affiché = 300, pas 310.");
 }
 
 // --- Un bonus de set complété doit s'ADDITIONNER, jamais remplacer la formule Power/Toughness ---
