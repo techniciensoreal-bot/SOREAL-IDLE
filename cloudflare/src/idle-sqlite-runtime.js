@@ -9633,13 +9633,24 @@ function construireEtatJoueurSorealIdle_(
      * plus, la résolution Drive côté serveur étant un stub inopérant
      * dans cet environnement Cloudflare Workers (DriveApp/Utilities,
      * ~ligne 362, renvoient toujours un blob vide).
+     *
+     * Correctif 2026-09-18 (Norman : "c'est toujours les mauvaises images
+     * dans fight boss") : bossDefinitionEtat.id vient de la colonne brute
+     * IDLE_BOSS.ID (via bossCatalogueSorealIdle_, qui trie ENSUITE le
+     * catalogue par ce même id — un ID incohérent/à trous dans la feuille
+     * décale l'id réel par rapport à la position réelle du boss). L'écran
+     * Collection, lui, n'utilise JAMAIS cet id : bossCatalogue expose
+     * "numero: index+1" (position dans le catalogue trié, RENVOYÉ
+     * IDENTIQUE pour Fight Boss et Collection). bossSelectionIndex est
+     * exactement ce même index (= bossVaincus, cf. plus haut) : bossId
+     * doit donc être bossSelectionIndex+1, jamais bossDefinitionEtat.id,
+     * pour résoudre EXACTEMENT la même image que la carte Collection du
+     * même boss.
      */
     bossId:
       Math.max(
         0,
-        Math.floor(
-          nombreSorealIdle_(bossDefinitionEtat.id, 0)
-        )
+        Math.floor(bossSelectionIndex) + 1
       ),
 
     bossPv:
