@@ -34,9 +34,9 @@ import { IDLE_PERKS_CATALOG_V1 } from "../src/idle-perks-v1.js";
  */
 
 // --- Catalog shape: 66 entries, ids matching the wiki table's own indices ---
-assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 68, "27 Normal-accessible quirks + 41 Evil/Sadistic-tier quirks.");
+assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 70, "27 Normal-accessible quirks + 43 Evil/Sadistic-tier quirks.");
 const expectedIds = [
-  0,1,2,3,4,5,6,7,8,9,10,11,12,13,19,20,21,25,26,30,31,35,36,37,38,39,40,
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,19,20,21,25,26,30,31,35,36,37,38,39,40,
   41,42,43,44,45,46,51,52,53,61,62,63,64,65,66,72,73,74,75,76,77,78,79,80,81,82,83,84,85,92,
   170,171,172,173,176,177,178,179,180,181,182
 ];

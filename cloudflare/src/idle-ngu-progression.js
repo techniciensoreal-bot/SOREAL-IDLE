@@ -477,6 +477,17 @@ export const IDLE_NGU_DIGGERS = Object.freeze([
 ]);
 
 
+/*
+ * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
+ * L'ancien "wandoos: [energy, magic]" ci-dessous a été retiré : c'était un
+ * système à piste UNIQUE active (comme "beards"), structurellement
+ * incompatible avec le vrai mécanisme NGU où Energy ET Magic Dump
+ * progressent SIMULTANÉMENT et se multiplient ensemble dans la formule de
+ * stat (wiki, page "Wandoos", section "Using Wandoos" : "Energy and Magic
+ * Dump level bonuses are calculated separately before being multiplied
+ * together"). Remplacé par IDLE_WANDOOS_OS_V1 + advanceWandoos() plus bas,
+ * un système dédié comme Augmentations/Blood Magic/Time Machine.
+ */
 export const IDLE_NGU_TRACKS = Object.freeze({
   advancedTraining: [
     { id: "power", name: "Adventure Power", effect: "Adventure Attack" },
@@ -484,10 +495,6 @@ export const IDLE_NGU_TRACKS = Object.freeze({
     { id: "block", name: "Block Damage", effect: "Adventure Block" },
     { id: "wandoosEnergy", name: "Wandoos Energy Dump", effect: "Wandoos Energy" },
     { id: "wandoosMagic", name: "Wandoos Magic Dump", effect: "Wandoos Magic" }
-  ],
-  wandoos: [
-    { id: "energy", name: "Wandoos Energy", effect: "Attack/Defense" },
-    { id: "magic", name: "Wandoos Magic", effect: "Attack/Defense" }
   ],
   ngu: [
     { id: "attack", name: "NGU Power", effect: "Attack" },
@@ -719,6 +726,192 @@ function createDiggersData() {
   };
 }
 
+/*
+ * Wandoos (2026-09-18, Norman : "il faut tout faire"). Sources : wiki NGU
+ * en direct, page "Wandoos" (ngu-idle.fandom.com/wiki/Wandoos), complétée
+ * par les pages "Advanced Training" et "Energy" pour la vitesse de dump.
+ *
+ * 3 OS réels, chacun avec sa PROPRE formule de bonus Attack/Defense
+ * (section "Operating Systems") et son propre seuil Energy/Magic "pour
+ * un speed-cap de 50 niveaux/seconde" par difficulté (Normal/Evil/
+ * SADISTIC, valeurs littérales de la page, jamais une formule unique
+ * extrapolée entre elles).
+ *
+ * Le "speed-cap de 50 niveaux/seconde" N'EST PAS une mécanique propre à
+ * Wandoos : page "Energy", note de bas de page sur "Speed" : "Almost
+ * everything in NGU operates on ticks... there are 50 ticks/updates per
+ * second... the most a progress bar can gain is... 50 fills (or levels)
+ * per second" — c'est le taux de tick du moteur NGU lui-même. Et la même
+ * page confirme "Energy Power does not affect the speed on the Energy
+ * dump, so high Energy Cap is essential" — seule la quantité ALLOUÉE
+ * compte (contrairement à Augmentations/Blood Magic/Time Machine, où
+ * Power intervient) : la vitesse est donc directement proportionnelle à
+ * l'allocation jusqu'au seuil (aucune autre courbe n'est documentée) :
+ * levels/sec = min(50, 50 * alloué / seuil).
+ */
+export const IDLE_WANDOOS_OS_V1 = Object.freeze({
+  "98": {
+    name: "Wandoos 98",
+    requirement: { normal: 1e9, difficile: 1e21, extreme: 1e33 },
+    statBonus: (e, m) => Math.pow((1 + e / 100) * (1 + m / 25), 0.8)
+  },
+  meh: {
+    name: "Wandoos MEH",
+    requirement: { normal: 1e12, difficile: 1e27, extreme: 1e39 },
+    statBonus: (e, m) => (1 + e / 5) * (1 + m * 2)
+  },
+  xl: {
+    name: "Wandoos XL",
+    requirement: { normal: 1e15, difficile: 1e33, extreme: 1e45 },
+    statBonus: (e, m) => Math.pow((1 + e * 6) * (1 + m * 40), 1.05)
+  }
+});
+
+/*
+ * Niveau d'OS total (0-400, wiki section "Leveling up the OS") : "+4%
+ * level 0, +8% at level 1... maximum level 400, giving +1604% speed" —
+ * vérifié : 1+(400+1)*0.04 = 17.04, soit +1604% (multiplicateur total
+ * 17.04, "bonus" = 1604 points de %). Formule : 1+(niveau+1)*0.04.
+ *
+ * Les 4 sources qui alimentent ce niveau total (Wandoos 98/XL consommés,
+ * Money Pit, ITOPOD) sont plafonnées à 100 chacune côté wiki. Seule la
+ * source ITOPOD (perk 22 "Wandoos Lover", déjà réelle et achetable) est
+ * câblée ici — Money Pit et la consommation d'objets "A busted copy of
+ * Wandoos 98/XL" nécessitent des mécaniques (table de drops Money Pit,
+ * objets consommables avec niveau) non construites chez SOREAL : leurs
+ * champs existent dans data.osLevels (jamais supprimés, toujours à 0)
+ * mais ne sont alimentés par aucune action pour l'instant — gap honnête,
+ * pas un oubli.
+ */
+function createWandoosData() {
+  return {
+    os: "98",
+    dumpEnergyLevel: 0,
+    dumpMagicLevel: 0,
+    dumpEnergyProgress: 0,
+    dumpMagicProgress: 0,
+    osLevels: { moneyPit: 0, consumed98: 0, consumedXl: 0 }
+  };
+}
+
+function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
+  const level = Math.max(0, Math.min(400, num(totalOsLevel, 0)));
+  return 1 + (level + 1) * 0.04;
+}
+
+/*
+ * Boot-up (wiki, section "Boot-up") : "1-hour boot-up process... linear,
+ * and ranges from 0-100% speed." Réduit par le set Wandoos XL (-10%,
+ * gear non construit chez SOREAL — omis) et par les défis "100 Levels"
+ * complétés EN EVIL (-10% chacun, jusqu'à 5, plancher 27 minutes avec les
+ * deux réductions). SOREAL ne distingue pas la difficulté au moment où un
+ * défi "100 Levels" a été complété (state.challenge.completions.hundredLevels
+ * est un compteur global) : la réduction ci-dessous utilise ce compteur
+ * tel quel, un léger sur-crédit possible si des complétions ont eu lieu
+ * en Normal — documenté honnêtement, jamais un chiffre inventé, la
+ * réduction du set XL (-10% supplémentaire, jusqu'au plancher réel de 27
+ * min) reste hors périmètre.
+ */
+function wandoosBootFractionV1(state, now) {
+  const hundredLevelsCount = Math.max(0, Math.min(5, int(state.challenge?.completions?.hundredLevels, 0)));
+  const bootSeconds = 3600 * (1 - 0.10 * hundredLevelsCount);
+  const elapsed = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
+  return clamp(elapsed / Math.max(1, bootSeconds), 0, 1);
+}
+
+function advanceWandoos(state, seconds, context, now) {
+  const s = state.systems.wandoos;
+  if (!s?.unlocked || seconds <= 0) return;
+  const osId = IDLE_WANDOOS_OS_V1[s.data.os] ? s.data.os : "98";
+  const os = IDLE_WANDOOS_OS_V1[osId];
+  const requirement = os.requirement[state.difficulty] || os.requirement.normal;
+
+  const perkBonuses = perkBonusesV1(state.systems.perks?.data?.levels);
+  const quirkBonuses = quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const totalOsLevel = Math.min(400,
+    Math.max(0, perkBonuses.wandoosOsLevelBonus) +
+    Math.max(0, num(s.data.osLevels?.moneyPit, 0)) +
+    Math.max(0, num(s.data.osLevels?.consumed98, 0)) +
+    Math.max(0, num(s.data.osLevels?.consumedXl, 0))
+  );
+  const osLevelMultiplier = wandoosOsLevelSpeedMultiplierV1(totalOsLevel);
+  const bootFraction = wandoosBootFractionV1(state, now);
+  const beardWandoos = beardBonusMultiplier(state, "wandoos");
+  const diggerWandoos = diggerBonuses(state).wandoos;
+  /*
+   * "Wandoos Energy/Magic Dump+" (Advanced Training, wiki page "Advanced
+   * Training") : "+1% per level" à la vitesse de dump — déjà des pistes
+   * réelles chez SOREAL (IDLE_NGU_TRACKS.advancedTraining "wandoosEnergy"/
+   * "wandoosMagic"), jamais lues par Wandoos jusqu'ici.
+   */
+  const atEnergyDumpMultiplier = 1 + totalTrackLevel(state.systems.advancedTraining, "wandoosEnergy") * 0.01;
+  const atMagicDumpMultiplier = 1 + totalTrackLevel(state.systems.advancedTraining, "wandoosMagic") * 0.01;
+  /*
+   * "Energy/Magic Wandoos BEAST-a" (Quirks 15/16, wiki page "Wandoos") :
+   * +2%/niveau chacun, Energy et Magic séparément.
+   */
+  const quirkEnergyMultiplier = 1 + Math.max(0, num(quirkBonuses.wandoosEnergySpeedPct, 0));
+  const quirkMagicMultiplier = 1 + Math.max(0, num(quirkBonuses.wandoosMagicSpeedPct, 0));
+
+  const energyAlloc = Math.max(0, num(s.allocation.energy, 0));
+  const magicAlloc = Math.max(0, num(s.allocation.magic, 0));
+
+  const energySpeed = Math.min(50, 50 * energyAlloc / requirement)
+    * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
+    * atEnergyDumpMultiplier * quirkEnergyMultiplier;
+  const magicSpeed = Math.min(50, 50 * magicAlloc / requirement)
+    * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
+    * atMagicDumpMultiplier * quirkMagicMultiplier;
+
+  s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
+  s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
+  let energyGain = Math.floor(s.data.dumpEnergyProgress);
+  let magicGain = Math.floor(s.data.dumpMagicProgress);
+  /*
+   * Défi "100 Levels" (wiki, page Challenges) : pool combiné de 100
+   * niveaux partagé entre Augments/Blood Magic/Time Machine/Wandoos —
+   * même plafond déjà appliqué aux 3 autres systèmes ci-dessus,
+   * jusqu'ici jamais appliqué à Wandoos spécifiquement malgré son
+   * inclusion documentée dans ce pool.
+   */
+  if (energyGain + magicGain > 0) {
+    const remaining = challengeHundredLevelsRemaining(state);
+    if (energyGain + magicGain > remaining) {
+      const total = energyGain + magicGain;
+      energyGain = Math.floor(energyGain * remaining / total);
+      magicGain = Math.floor(magicGain * remaining / total);
+    }
+    if (energyGain > 0) {
+      s.data.dumpEnergyProgress -= energyGain;
+      s.data.dumpEnergyLevel = Math.max(0, num(s.data.dumpEnergyLevel, 0)) + energyGain;
+    }
+    if (magicGain > 0) {
+      s.data.dumpMagicProgress -= magicGain;
+      s.data.dumpMagicLevel = Math.max(0, num(s.data.dumpMagicLevel, 0)) + magicGain;
+    }
+    if (energyGain + magicGain > 0) challengeHundredLevelsConsume(state, energyGain + magicGain);
+  }
+
+  s.level = s.data.dumpEnergyLevel + s.data.dumpMagicLevel;
+  s.tempLevel = s.level;
+}
+
+/*
+ * Multiplicateur Attack/Defense de l'OS Wandoos actif, à partir des
+ * niveaux de Dump Energy/Magic courants (wiki, section "Operating
+ * Systems", formule par OS). Retourne 1 si Wandoos n'est pas débloqué ou
+ * si aucun Dump n'a encore de niveau — jamais de bonus fantôme.
+ */
+function wandoosCombatMultiplierV1(state) {
+  const s = state.systems.wandoos;
+  if (!s?.unlocked) return 1;
+  const osId = IDLE_WANDOOS_OS_V1[s.data?.os] ? s.data.os : "98";
+  const os = IDLE_WANDOOS_OS_V1[osId];
+  const e = Math.max(0, num(s.data?.dumpEnergyLevel, 0));
+  const m = Math.max(0, num(s.data?.dumpMagicLevel, 0));
+  return Math.max(1, os.statBonus(e, m));
+}
+
 function createRebirthState(now) {
   return {
     number: 1,
@@ -744,6 +937,7 @@ function baseState(now) {
     if (def.id === "bloodMagic") s.data = createBloodMagicData();
     if (def.id === "yggdrasil") s.data = createYggdrasilData();
     if (def.id === "diggers") s.data = createDiggersData();
+    if (def.id === "wandoos") s.data = createWandoosData();
     if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0 };
     if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0 };
     if (def.id === "titans") s.data = { nextAt: 0, kills: 0, firstTitanDefeated: false };
@@ -1058,6 +1252,21 @@ function normalizeSystem(def, raw) {
     }
     s.data = { levels };
     s.level = Object.values(levels).reduce((sum, v) => sum + v, 0);
+  } else if (def.id === "wandoos") {
+    const data = src.data && typeof src.data === "object" ? src.data : {};
+    s.data = createWandoosData();
+    s.data.os = ["98", "meh", "xl"].includes(data.os) ? data.os : "98";
+    s.data.dumpEnergyLevel = Math.max(0, num(data.dumpEnergyLevel, 0));
+    s.data.dumpMagicLevel = Math.max(0, num(data.dumpMagicLevel, 0));
+    s.data.dumpEnergyProgress = Math.max(0, num(data.dumpEnergyProgress, 0));
+    s.data.dumpMagicProgress = Math.max(0, num(data.dumpMagicProgress, 0));
+    s.data.osLevels = {
+      moneyPit: Math.max(0, Math.min(100, num(data.osLevels?.moneyPit, 0))),
+      consumed98: Math.max(0, Math.min(100, num(data.osLevels?.consumed98, 0))),
+      consumedXl: Math.max(0, Math.min(100, num(data.osLevels?.consumedXl, 0)))
+    };
+    s.level = s.data.dumpEnergyLevel + s.data.dumpMagicLevel;
+    s.tempLevel = s.level;
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
   } else {
@@ -1993,7 +2202,6 @@ function advanceTrackSystem(state, def, seconds) {
 
   const divisor =
     def.id === "advancedTraining" ? 25000 :
-    def.id === "wandoos" ? 120000 :
     def.id === "ngu" ? 300000 :
     100000;
 
@@ -2012,14 +2220,10 @@ function advanceTrackSystem(state, def, seconds) {
   const nguSpeedSetMultiplier = def.id === "ngu" ? 1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0)) : 1;
   t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier;
   let gain = Math.floor(t.progress);
-  if (def.id === "wandoos" && gain > 0) {
-    gain = Math.min(gain, challengeHundredLevelsRemaining(state));
-  }
   if (gain > 0) {
     t.progress -= gain;
     if (def.kind === "run" || def.kind === "hybrid") t.tempLevel += gain;
     else t.level += gain;
-    if (def.id === "wandoos") challengeHundredLevelsConsume(state, gain);
   }
 
   s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
@@ -2661,7 +2865,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceTimeMachine(state, secs);
   advanceBloodMagic(state, secs, context);
   advanceYggdrasil(state, secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wandoos"), secs);
+  advanceWandoos(state, secs, context, now);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "ngu"), secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
@@ -2814,7 +3018,14 @@ export function idleNguBonuses(raw) {
     quirkBonuses.statMultiplier *
     wishBonuses.statMultiplier *
     atPowerBonus *
-    (1 + Math.log10(1 + nguAttack) * 0.10);
+    (1 + Math.log10(1 + nguAttack) * 0.10) *
+    /*
+     * Wandoos (2026-09-18) : wiki page "Wandoos" — l'OS actif multiplie
+     * Attack ET Defense ensemble à partir des niveaux de Dump Energy/
+     * Magic (formule propre à chaque OS, cf. IDLE_WANDOOS_OS_V1),
+     * jamais lu par le combat jusqu'ici (système entièrement mort).
+     */
+    wandoosCombatMultiplierV1(state);
   /*
    * "Attack Boost for Rich Jerks" (2026-09-18, Norman : "il faut tout
    * faire") -- wiki NGU local, page "Experience", section "Spend
@@ -3258,6 +3469,28 @@ function selectTrack(state, id, trackId) {
   }
   s.data.activeTrack = trackId;
   if (id === "beards") s.active = true;
+}
+
+/*
+ * Wiki NGU (page "Wandoos", section "Using Wandoos") : "Wandoos Energy
+ * and Magic levels are lost when: ...Switching between the different
+ * Wandoos OSes (98, MEH and XL)." Changer d'OS repart donc à zéro sur les
+ * Dump levels courants, mais jamais sur osLevels (niveau d'OS permanent,
+ * partagé entre les 3 OS -- "regardless of which OS is currently being
+ * used").
+ */
+function selectWandoosOs(state, osId) {
+  const s = state.systems.wandoos;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (!IDLE_WANDOOS_OS_V1[osId]) throw new Error("OS_INVALIDE");
+  if (s.data.os === osId) return;
+  s.data.os = osId;
+  s.data.dumpEnergyLevel = 0;
+  s.data.dumpMagicLevel = 0;
+  s.data.dumpEnergyProgress = 0;
+  s.data.dumpMagicProgress = 0;
+  s.level = 0;
+  s.tempLevel = 0;
 }
 
 function selectAugment(state, pairId, upgrade) {
@@ -3752,6 +3985,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     selectTrack(state, String(payload.system || ""), String(payload.track || ""));
   } else if (action === "selectAugment") {
     selectAugment(state, String(payload.pair || "scissors"), Boolean(payload.upgrade));
+  } else if (action === "selectWandoosOs") {
+    selectWandoosOs(state, String(payload.os || "98"));
   } else if (action === "selectRitual") {
     selectRitual(state, String(payload.ritual || "tack"), context);
   } else if (action === "castBloodSpell") {
@@ -3918,6 +4153,20 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       const permanent=clone(s.data.spells);
       s.data=createBloodMagicData();
       s.data.spells.ironPill=Math.max(0,num(permanent.ironPill,0));
+    }
+    if(def.id==="wandoos"){
+      /*
+       * Wiki NGU (page "Wandoos", section "Using Wandoos") : "Wandoos
+       * Energy and Magic levels are lost when: Rebirthing..." -- seuls
+       * les niveaux de Dump (temporaires) sont perdus ; le niveau d'OS
+       * total (osLevels) et l'OS sélectionné restent permanents ("Wandoos
+       * remains unlocked throughout rebirths").
+       */
+      const permanentOs=s.data.os;
+      const permanentOsLevels=clone(s.data.osLevels);
+      s.data=createWandoosData();
+      s.data.os=permanentOs;
+      s.data.osLevels=permanentOsLevels;
     }
     if(def.id==="beards"&&s.data?.tracks){
       // Wiki NGU (page "Banks") : "banked Beard levels apply right away [on
