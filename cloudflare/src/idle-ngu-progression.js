@@ -2039,13 +2039,28 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
   const diggerSpeed = resource === "magic"
     ? Math.max(1, num(diggers.magicBeard, 1))
     : Math.max(1, num(diggers.energyBeard, 1));
+  /*
+   * Correctif 2026-09-18 ("finir le câblage laissé ouvert" après 5a281bd) :
+   * beardSpeedMultiplierFromItems (Beard Comb/Red Lipstick/A Shrunken
+   * Voodoo Doll, wiki "Specials" -- idleNguBonuses(), calculé depuis PISTE
+   * 2 mais jamais relu, voir son propre commentaire "câblage dans
+   * beardBonusMultiplier laissé pour un futur passage"). beardBonusMultiplier()
+   * (plus bas dans ce fichier) n'est PAS le bon point d'entrée : ce
+   * multiplicateur y représente l'EFFET produit par le niveau de Beard déjà
+   * acquis sur d'autres stats (Attack/Drop/Gold/...), jamais la VITESSE à
+   * laquelle la Beard active elle-même progresse -- exactement ce que
+   * "Beard Speed" boost sur le wiki. Le vrai point de consommation de la
+   * vitesse de Beard est baseRate ci-dessous (advanceBeardTrack) : câblé ici.
+   */
+  const beardSpeedFromItems = Math.max(0, num(idleNguBonuses(state).beardSpeedMultiplierFromItems, 1));
 
   // V49 starts with NGU's first Beard slot only, therefore the
   // Beards_SameResource divisor is 1 until a later unlock adds more slots.
   const baseRate =
     Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "bars")) *
     Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
-    diggerSpeed /
+    diggerSpeed *
+    beardSpeedFromItems /
     Math.max(1, num(trackDef.speedDivider, 1e8));
 
   if (baseRate <= 0) return;
@@ -3262,7 +3277,15 @@ export function idleNguBonuses(raw) {
     nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + Math.log10(1 + trackBonusLevel(state, "ngu", "attack")) * 0.01) * (1 + num(adventureGear.specials?.nguSpeedPct, 0) / 100),
     nguSpeedEnergyMultiplierFromPerks: perkBonuses.nguSpeedEnergyMultiplier,
     nguSpeedMagicMultiplierFromPerks: perkBonuses.nguSpeedMagicMultiplier,
-    // PISTE 2 (2026-09-18) : "Beard Speed" (Beard Comb/Red Lipstick/A Shrunken Voodoo Doll, wiki) -- aucun multiplicateur externe existant dans beardBonusMultiplier (uniquement alimenté par les niveaux de la piste Beard elle-même) : nouvelle clé "FromItems", même convention que seedYieldMultiplierFromItems ci-dessus, câblage dans beardBonusMultiplier laissé pour un futur passage (même statut que hackSpeedMultiplier avant son câblage Wishes).
+    /*
+     * PISTE 2 (2026-09-18) : "Beard Speed" (Beard Comb/Red Lipstick/A
+     * Shrunken Voodoo Doll, wiki). Correctif 2026-09-18 (suite) : câblé
+     * maintenant dans advanceBeardTrack (baseRate) -- PAS dans
+     * beardBonusMultiplier(), qui représente l'effet produit par le niveau
+     * de Beard déjà acquis sur d'autres stats, jamais la vitesse à laquelle
+     * la Beard active elle-même progresse. Voir le commentaire d'
+     * advanceBeardTrack pour le détail.
+     */
     beardSpeedMultiplierFromItems: 1 + num(adventureGear.specials?.beardSpeedPct, 0) / 100,
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
