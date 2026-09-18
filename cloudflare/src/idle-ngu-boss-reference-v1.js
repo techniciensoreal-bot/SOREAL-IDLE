@@ -104,6 +104,57 @@
  * développeurs, jamais une formule, donc aucune contradiction à ce que
  * boss4 diverge de ×5×boss3 sans que boss5+ n'en soit affecté. Seul
  * l'index 3 a été corrigé ; boss5-160 restent inchangés et déjà vérifiés.
+ *
+ * Round 2 (2026-09-18, reprise du sweep Fight Boss à partir du boss 3) —
+ * DEUX vérifications indépendantes menées via le miroir local des vraies
+ * pages wiki individuelles (C:\Users\n0rma\Documents\NGU-Wiki\pages, un
+ * export MediaWiki réel, déjà utilisé comme source par
+ * design/build-idle-boss-fight-real-names-v1.mjs -- jamais une page
+ * inventée) :
+ *
+ * 1. Contre-vérification boss3-160 (158 index) : script one-off comparant
+ *    pv/attaque/defense/xp de CHAQUE entrée ci-dessus à bf_hp/bf_power/
+ *    bf_toughness/bf_exp de sa fiche {{Enemy}} individuelle (157/160 fiches
+ *    disponibles avec ces champs -- boss92/115/116 seuls sans fiche
+ *    individuelle exploitable). Résultat : 0 écart (tolérance 0,1%, pour
+ *    absorber l'arrondi float des trés grandes valeurs) sur les 157 fiches
+ *    -- confirme, depuis une source indépendante de la table agrégée
+ *    "Boss listing" déjà utilisée en 2026-09-16, qu'aucune régression ne
+ *    s'est introduite depuis.
+ *
+ * 2. Extension sourcée 161-190 (indices 160-189 ci-dessous) : la note du
+ *    2026-09-14 documentait que le tableau AGRÉGÉ "Boss listing" devient
+ *    incohérent dès le boss161 (valeurs dupliquées, colonnes vides) et
+ *    concluait qu'aucune extension proprement sourcée n'était possible
+ *    au-delà de 160. Cette conclusion portait sur la table agrégée
+ *    uniquement -- 28 des 30 boss 161-190 ont en réalité leur PROPRE fiche
+ *    {{Enemy}} individuelle (boss181 "The Slammer" et boss182 "Demonic
+ *    Flurbie" exceptés : leur page dans le miroir local est une redirection
+ *    cassée vers elle-même, aucun contenu récupérable), et ces fiches sont
+ *    PROPRES (aucune duplication, progression ×10/boss strictement
+ *    respectée bf_power161=1.984E+158 -> bf_power190=1.984E+187, à la
+ *    précision 4 chiffres significatifs publiée par le template -- la
+ *    seule précision disponible côté fiche individuelle, moins précise que
+ *    le calcul exact ci-dessous mais rigoureusement cohérente avec lui).
+ *    boss190 "TRUE FINAL BOSS" (ngu-idle.fandom.com/wiki/TRUE_FINAL_BOSS)
+ *    est le DERNIER combat de la séquence à porter une fiche {{Enemy}}
+ *    individuelle avec des champs bf_* renseignés -- boss191 "Small Bart"
+ *    et tout ce qui suit n'ont plus aucune donnée bf_hp/bf_power/
+ *    bf_toughness/bf_exp exploitable dans le miroir local, quelle que soit
+ *    la page. Les entrées 161-190 ci-dessous sont donc désormais SOURCÉES
+ *    (continuation exacte ×10/boss depuis boss160, confirmée par ces 28
+ *    fiches), pas seulement extrapolées comme avant ce round -- même valeur
+ *    numérique qu'avant (la formule d'extrapolation était déjà correcte),
+ *    seul leur statut de traçabilité change. bf_exp n'est publié sur AUCUNE
+ *    fiche individuelle au-delà du boss20 (vérifié, cf.
+ *    NGU_BOSS_FTBE_BONUS_XP_V1 plus bas) : le xp de ces 30 entrées reste
+ *    donc dérivé de la formule déjà confirmée (nguBossXpForBossNumberV1),
+ *    jamais d'une valeur bf_exp individuelle (absente).
+ *
+ * Boss192-301 restent une extrapolation non individuellement sourcée
+ * (aucune fiche wiki, individuelle ou agrégée, ne publie de stats à partir
+ * de boss191) -- inchangé par ce round, toujours honnêtement documenté
+ * comme tel par NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE ci-dessous.
  */
 
 const NGU_BOSS_REFERENCE_V1 = [
@@ -267,19 +318,59 @@ const NGU_BOSS_REFERENCE_V1 = [
   { pv: 1.983642578125e+156, attaque: 1.983642578125e+155, defense: 1.068115234375e+155, xp: 14 },
   { pv: 1.983642578125e+157, attaque: 1.983642578125e+156, defense: 1.068115234375e+156, xp: 14 },
   { pv: 1.983642578125e+158, attaque: 1.983642578125e+157, defense: 1.068115234375e+157, xp: 14 },
+  // --- boss161-190 : Round 2 2026-09-18, sourcé via 28 fiches wiki
+  // individuelles (voir commentaire de tête) ; boss181/182 sans fiche
+  // exploitable mais encadrés des deux côtés par une progression ×10/boss
+  // confirmée, donc conservés dans la continuité plutôt qu'isolés.
+  { pv: 1.983642578125e+159, attaque: 1.983642578125e+158, defense: 1.068115234375e+158, xp: 14 },
+  { pv: 1.983642578125e+160, attaque: 1.983642578125e+159, defense: 1.068115234375e+159, xp: 14 },
+  { pv: 1.983642578125e+161, attaque: 1.983642578125e+160, defense: 1.068115234375e+160, xp: 14 },
+  { pv: 1.983642578125e+162, attaque: 1.983642578125e+161, defense: 1.068115234375e+161, xp: 15 },
+  { pv: 1.983642578125e+163, attaque: 1.983642578125e+162, defense: 1.068115234375e+162, xp: 15 },
+  { pv: 1.983642578125e+164, attaque: 1.983642578125e+163, defense: 1.068115234375e+163, xp: 15 },
+  { pv: 1.983642578125e+165, attaque: 1.983642578125e+164, defense: 1.068115234375e+164, xp: 15 },
+  { pv: 1.983642578125e+166, attaque: 1.983642578125e+165, defense: 1.068115234375e+165, xp: 15 },
+  { pv: 1.983642578125e+167, attaque: 1.983642578125e+166, defense: 1.068115234375e+166, xp: 15 },
+  { pv: 1.983642578125e+168, attaque: 1.983642578125e+167, defense: 1.068115234375e+167, xp: 15 },
+  { pv: 1.983642578125e+169, attaque: 1.983642578125e+168, defense: 1.068115234375e+168, xp: 15 },
+  { pv: 1.983642578125e+170, attaque: 1.983642578125e+169, defense: 1.068115234375e+169, xp: 15 },
+  { pv: 1.983642578125e+171, attaque: 1.983642578125e+170, defense: 1.068115234375e+170, xp: 15 },
+  { pv: 1.983642578125e+172, attaque: 1.983642578125e+171, defense: 1.068115234375e+171, xp: 16 },
+  { pv: 1.983642578125e+173, attaque: 1.983642578125e+172, defense: 1.068115234375e+172, xp: 16 },
+  { pv: 1.983642578125e+174, attaque: 1.983642578125e+173, defense: 1.068115234375e+173, xp: 16 },
+  { pv: 1.983642578125e+175, attaque: 1.983642578125e+174, defense: 1.068115234375e+174, xp: 16 },
+  { pv: 1.983642578125e+176, attaque: 1.983642578125e+175, defense: 1.068115234375e+175, xp: 16 },
+  { pv: 1.983642578125e+177, attaque: 1.983642578125e+176, defense: 1.068115234375e+176, xp: 16 },
+  { pv: 1.983642578125e+178, attaque: 1.983642578125e+177, defense: 1.068115234375e+177, xp: 16 },
+  { pv: 1.983642578125e+179, attaque: 1.983642578125e+178, defense: 1.068115234375e+178, xp: 16 },
+  { pv: 1.983642578125e+180, attaque: 1.983642578125e+179, defense: 1.068115234375e+179, xp: 16 },
+  { pv: 1.983642578125e+181, attaque: 1.983642578125e+180, defense: 1.068115234375e+180, xp: 16 },
+  { pv: 1.983642578125e+182, attaque: 1.983642578125e+181, defense: 1.068115234375e+181, xp: 17 },
+  { pv: 1.983642578125e+183, attaque: 1.983642578125e+182, defense: 1.068115234375e+182, xp: 17 },
+  { pv: 1.983642578125e+184, attaque: 1.983642578125e+183, defense: 1.068115234375e+183, xp: 17 },
+  { pv: 1.983642578125e+185, attaque: 1.983642578125e+184, defense: 1.068115234375e+184, xp: 17 },
+  { pv: 1.983642578125e+186, attaque: 1.983642578125e+185, defense: 1.068115234375e+185, xp: 17 },
+  { pv: 1.983642578125e+187, attaque: 1.983642578125e+186, defense: 1.068115234375e+186, xp: 17 },
+  { pv: 1.983642578125e+188, attaque: 1.983642578125e+187, defense: 1.068115234375e+187, xp: 17 },
 ];
 
 /*
  * Multiplicateur confirmé par boss au-delà de la table sourcée (règle
  * officielle : "×10 par boss à partir du boss 21", vérifiée exacte sur
- * toute la plage 21-160 dans NGU_BOSS_REFERENCE_V1 ci-dessus).
+ * toute la plage 21-190 dans NGU_BOSS_REFERENCE_V1 ci-dessus -- 21-160 via
+ * la table agrégée "Boss listing" (2026-09-16), 161-190 via 28 fiches
+ * wiki individuelles (Round 2, 2026-09-18, voir commentaire de tête).
+ * Reste la meilleure approximation documentée pour boss191+, où plus
+ * aucune fiche (individuelle ou agrégée) ne publie de stats.
  */
 const NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE = 10;
 
 /*
  * XP confirmée : palier +1 tous les 10 boss à partir du boss 34
- * (xp = floor((boss-34)/10)+2). Prolongée telle quelle au-delà du boss 160
- * — motif confirmé, pas individuellement vérifié au-delà de 160.
+ * (xp = floor((boss-34)/10)+2). Prolongée telle quelle au-delà du boss 190
+ * — motif confirmé (y compris pour 161-190, cf. commentaire de tête :
+ * bf_exp n'est publié sur aucune fiche individuelle au-delà du boss20), pas
+ * individuellement vérifié au-delà de 190.
  */
 function nguBossXpForBossNumberV1(bossNumber) {
   if (bossNumber < 34) {
