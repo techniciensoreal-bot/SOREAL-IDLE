@@ -1745,6 +1745,18 @@ function refreshRebirthState(state, context, now) {
  * affiché tel quel côté UI, seul l'effectif utilisé par le calcul change).
  * idleNguBonuses() ne dépend d'aucune de ces fonctions de ressource (vérifié
  * par grep dans son corps, lignes 2966-3205) : pas de récursion.
+ *
+ * Correctif 2026-09-18 (suite, "finir le câblage laissé ouvert") :
+ * energyPowerMultiplier/energyBarsMultiplier/magicPowerMultiplier/
+ * magicBarsMultiplier (Perks/Quirks/Wishes + objets Specials depuis
+ * 5a281bd/12e2fe2) restaient calculés par idleNguBonuses() mais jamais lus
+ * ici -- seul le terme *Flat l'était pour power/bars (le terme *Multiplier
+ * de "cap" ci-dessous, lui, était déjà correctement appliqué depuis le
+ * début : (raw+flat)*mult). Mis en cohérence avec ce même schéma pour
+ * power/bars, au lieu de le laisser à raw+flat sans multiplicateur --
+ * c'est aussi exactement la façon dont attackMultiplier/dropMultiplier
+ * composent déjà flat et multiplicatif ailleurs dans ce fichier (une base
+ * additive suivie d'un ou plusieurs facteurs multiplicatifs).
  */
 function idleNguEffectiveResourceStatV1(state, resource, stat) {
   const raw = Math.max(0, num(state.resources?.[resource]?.[stat], 0));
@@ -1756,8 +1768,16 @@ function idleNguEffectiveResourceStatV1(state, resource, stat) {
     if (stat === "cap") return raw * Math.max(0, num(bonuses.r3CapMultiplier, 1));
     return raw;
   }
-  if (stat === "power") return raw + Math.max(0, num(bonuses[`${resource}PowerFlat`], 0));
-  if (stat === "bars") return raw + Math.max(0, num(bonuses[`${resource}BarsFlat`], 0));
+  if (stat === "power") {
+    const flat = Math.max(0, num(bonuses[`${resource}PowerFlat`], 0));
+    const mult = Math.max(0, num(bonuses[`${resource}PowerMultiplier`], 1));
+    return (raw + flat) * mult;
+  }
+  if (stat === "bars") {
+    const flat = Math.max(0, num(bonuses[`${resource}BarsFlat`], 0));
+    const mult = Math.max(0, num(bonuses[`${resource}BarsMultiplier`], 1));
+    return (raw + flat) * mult;
+  }
   if (stat === "cap") {
     const flat = Math.max(0, num(bonuses[`${resource}CapFlat`], 0));
     const mult = Math.max(0, num(bonuses[`${resource}CapMultiplier`], 1));
