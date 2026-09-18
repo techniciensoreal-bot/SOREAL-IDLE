@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { applyIdleNguAction, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
 
 /*
@@ -120,6 +121,47 @@ for (const resource of ["energy", "magic", "r3"]) {
     () => applyIdleNguAction(stored, { action: "buyResource", resource: "energy", stat: "speed" }, { bosses: 17 }, Date.now()),
     /EXP_INSUFFISANTE/,
     "Un achat sans assez d'EXP doit lever EXP_INSUFFISANTE, jamais réussir gratuitement."
+  );
+}
+
+/*
+ * Régression runtime réelle (2026-09-18) : le test moteur ci-dessus
+ * passait alors que le jeu remboursait chaque achat au prochain RPC.
+ * Cause : statsJoueurSorealIdle_ whitelistait STATS_JSON mais jetait
+ * legacyXpMigratedV54 ; appliquerProgressionEnergieSorealIdle_ croyait
+ * donc refaire une migration "one-shot" à chaque requête et restaurait
+ * Math.max(meta EXP après achat, ancienne colonne XP avant achat).
+ *
+ * Verrouille les DEUX invariants qui ferment ce trou :
+ *  1. le parseur doit conserver legacyXpMigratedV54 ;
+ *  2. agirProgressionSorealIdle doit remettre la colonne XP miroir au
+ *     solde metaNgu immédiatement après chaque action.
+ */
+{
+  const runtime=fs.readFileSync(
+    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
+    "utf8"
+  );
+  const parserStart=runtime.indexOf("function statsJoueurSorealIdle_(");
+  const parserEnd=runtime.indexOf("\nfunction cleBestiaireBossPrincipalSorealIdle_",parserStart);
+  assert.ok(parserStart>=0&&parserEnd>parserStart,"statsJoueurSorealIdle_ introuvable.");
+  const parser=runtime.slice(parserStart,parserEnd);
+  assert.ok(
+    parser.includes("legacyXpMigratedV54:") &&
+    parser.includes("Boolean(s.legacyXpMigratedV54)"),
+    "Le parseur runtime doit préserver le marqueur de migration XP, sinon la vieille colonne XP rembourse les achats au prochain appel."
+  );
+
+  const actionStart=runtime.indexOf("function agirProgressionSorealIdle(");
+  const actionEnd=runtime.indexOf("\nfunction acheterAmeliorationSorealIdle(",actionStart);
+  assert.ok(actionStart>=0&&actionEnd>actionStart,"agirProgressionSorealIdle introuvable.");
+  const action=runtime.slice(actionStart,actionEnd);
+  assert.ok(
+    action.includes("stats.metaNgu = applique.state;") &&
+    action.includes("stats.metaNgu.currencies.experience") &&
+    action.includes("c.XP") &&
+    action.includes(".setValue("),
+    "Toute action meta doit resynchroniser immédiatement la colonne XP miroir depuis metaNgu après un achat/récompense."
   );
 }
 

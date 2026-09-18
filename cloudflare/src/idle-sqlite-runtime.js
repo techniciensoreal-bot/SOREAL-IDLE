@@ -4639,6 +4639,18 @@ function statsJoueurSorealIdle_(valeur) {
         ? s.entrainementBase
         : null,
 
+    /*
+     * Correctif 2026-09-18 (EXP Shop, repro en production) : ce parseur
+     * reconstruit un objet whitelisté à chaque lecture de STATS_JSON.
+     * legacyXpMigratedV54 était écrit après la migration XP mais n'était
+     * jamais recopié ici ; il redevenait donc undefined au prochain appel.
+     * appliquerProgressionEnergieSorealIdle_ réimportait alors la vieille
+     * colonne XP via Math.max(metaNgu EXP, row XP), remboursant de fait
+     * l'achat précédent. Ce marqueur fait partie de l'état persistant.
+     */
+    legacyXpMigratedV54:
+      Boolean(s.legacyXpMigratedV54),
+
     metaNgu:
       s.metaNgu &&
       typeof s.metaNgu === 'object' &&
@@ -12935,6 +12947,33 @@ function agirProgressionSorealIdle(
     );
 
     stats.metaNgu = applique.state;
+
+    /*
+     * EXP Shop : metaNgu.currencies.experience est la source de vérité.
+     * La colonne historique XP n'est plus qu'un miroir de compatibilité ;
+     * on la resynchronise dans LA MÊME opération que tout achat/récompense
+     * meta afin qu'une valeur ancienne ne puisse jamais être réimportée
+     * lors d'un appel ultérieur. Cela couvre buyResource, Newbie Offers
+     * et tout autre achat du Spend EXP sans logique spéciale par bouton.
+     */
+    const experienceMetaAction=Math.max(
+      0,
+      nombreSorealIdle_(
+        stats.metaNgu &&
+          stats.metaNgu.currencies &&
+          stats.metaNgu.currencies.experience,
+        0
+      )
+    );
+    row[c.XP - 1]=experienceMetaAction;
+    feuille
+      .getRange(
+        ligne,
+        c.XP
+      )
+      .setValue(
+        experienceMetaAction
+      );
 
     if(applique.result&&applique.result.challengeReset){
       const maintenantDefi=Date.now();

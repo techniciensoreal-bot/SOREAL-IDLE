@@ -214,21 +214,12 @@ assert.equal(t.result.nextAt,7000);
   assert.equal(f.result.zone,"sewers");
   assert.equal(f.result.boss,false);
   /*
-   * Depuis le 2026-09-17 (Norman : "il y a une version boss fight et une
-   * version adventure pour chaque mobs, tu dois connaitre les 2"), le
-   * pool de PV n'est plus la simple moyenne de zone (z.oneHitP=194) mais
-   * le VRAI mob tiré par monsterIndex (IDLE_ADVENTURE_MOB_BESTIARY_V1),
-   * mis à l'échelle de zone. Math.random()=0.9 fige ce combat sur le
-   * reskin sewers "mutant_rat" (index 2 sur 3).
-   *
-   * Extension bestiaire V2 (même jour, miroir wiki local complet) : Sewers
-   * a maintenant ses 3 VRAIS mobs normaux (A Slightly Bigger Mouse/A Large
-   * Rat/Small Mouse -- "Small Mouse" manquait avant cette extension),
-   * index 2 retombe donc directement sur "Small Mouse" (Max HP réel 40),
-   * plus besoin de modulo sur un pool de 2 : floor(40 ×
-   * (194/moyenne(50,70,40))) = floor(40 × 3.6375) = 145.
+   * Correctif 2026-09-18 (comparaison côte à côte NGU/SOREAL) : Sewers
+   * index 2 = Small Mouse, dont l'onglet Adventure donne Max HP=40.
+   * z.oneHitP=194 est le Power recommandé pour one-shot la zone ; le
+   * multiplier par 194/moyenne(HP) gonflait ce mob à 145 HP à tort.
    */
-  assert.equal(f.result.monsterHpMax,145,"PV du monstre = le VRAI mob tiré (Small Mouse, Max HP réel 40, mis à l'échelle du oneHitP de zone = 145), jamais z.t=12 (seuil de survie du JOUEUR) ni la simple moyenne de zone (194) qui ne distinguait pas les mobs entre eux.");
+  assert.equal(f.result.monsterHpMax,40,"Small Mouse doit garder ses 40 HP Adventure NGU exacts, sans mise à l'échelle par oneHitP.");
   assert.equal(f.result.monsterHp,f.result.monsterHpMax);
   /*
    * playerHpMaxForAdventureV1 reproduit Math.max(0,stats.hp) -- ce test
@@ -375,17 +366,10 @@ assert.equal(t.result.nextAt,7000);
    * tiré (IDLE_ADVENTURE_MOB_BESTIARY_V1) plutôt que de la moyenne de
    * zone — il n'est donc plus mécaniquement égal à bossHpMax/3.
    *
-   * Extension bestiaire V2 (même jour) : IDLE_ADVENTURE_MOB_CATALOG_V1
-   * .sewers.boss reste vide (aucun art R2 dédié pour le boss de Sewers),
-   * mais le tirage du monsterIndex retombe maintenant sur la longueur du
-   * bestiaire réel quand le catalogue d'images est vide (cf. correctif
-   * startZoneFight, "extension bestiaire V2 aux 15 zones") -- Sewers A
-   * bien une entrée boss réelle (Brown Slime, Max HP réel 150), donc
-   * bossHpMax = floor(150 × (194/moyenne(50,70,40))) = floor(150 ×
-   * 3.6375) = 545, plus jamais l'ancien repli zone-plat ×3 (582) dès
-   * qu'une vraie entrée existe.
+   * Brown Slime a Max HP=150 dans son onglet Adventure. Le bestiaire réel
+   * fait autorité directement : aucun ×3 historique ni facteur oneHitP.
    */
-  assert.equal(bossHpMax,545,"Avec Brown Slime maintenant reconnu comme boss réel de Sewers (extension bestiaire V2), le combat de boss utilise SES stats réelles (150 × échelle de zone), jamais l'ancien repli zone-plat ×3.");
+  assert.equal(bossHpMax,150,"Brown Slime doit garder ses 150 HP Adventure NGU exacts, sans mise à l'échelle.");
   assert.ok(bossHpMax>normalHpMax,"Un boss de zone doit avoir plus de PV qu'un monstre normal.");
 
   /*

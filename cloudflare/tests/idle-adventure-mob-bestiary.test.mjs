@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {
   IDLE_ADVENTURE_ZONES,IDLE_ADVENTURE_MOB_CATALOG_V1,IDLE_ADVENTURE_MOB_BESTIARY_V1,
   idleAdventureMobBestiaryEntryV1,monsterHpMaxForZoneV1WithMob,idleAdventureMobAttackFactorV1,
-  idleAdventureMobTypeV1,idleAdventureMobScaleV1,idleAdventureBestiaryAverageV1,
+  idleAdventureMobTypeV1,idleAdventureBestiaryAverageV1,
   applyIdleAdventureActionV47,normalizeIdleAdventureStateV47
 } from "../src/idle-adventure-v47.js";
 
@@ -52,20 +52,53 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.cave.boss.length,3,"Cave : les 3 bos
 //    de couverture.
 assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.safe,undefined,"Safety Zone n'a aucun combat : absente de IDLE_ADVENTURE_MOB_BESTIARY_V1.");
 
-// 4. monsterHpMaxForZoneV1WithMob : mob réel connu -> PV dérivés de SES
-//    propres stats (Max HP réel × facteur d'échelle de zone), jamais la
-//    moyenne plate.
+// 4. monsterHpMaxForZoneV1WithMob : les Max HP de l'onglet Adventure
+//    NGU sont déjà la valeur finale de l'ennemi. oneHitP est une statistique
+//    de recommandation joueur ("Power pour one-shot"), jamais un facteur
+//    d'échelle à appliquer aux PV. Les trois premières zones sont verrouillées
+//    ici avec leurs valeurs bestiaire réelles.
 {
-  const z=zoneById.tutorial;
-  // index 0 -> "A Small Piece of Fluff", Max HP réel 40.
-  const scale=idleAdventureMobScaleV1(z,IDLE_ADVENTURE_MOB_BESTIARY_V1.tutorial);
-  const attendu=Math.max(1,Math.floor(40*scale));
-  assert.equal(monsterHpMaxForZoneV1WithMob(z,false,0),attendu);
-  // Chaque index doit donner un pool de PV DIFFÉRENT (variance réelle du
-  // wiki, jamais le monolithe zone-plat d'avant ce correctif).
-  const hp0=monsterHpMaxForZoneV1WithMob(z,false,0);
-  const hp2=monsterHpMaxForZoneV1WithMob(z,false,2);
-  assert.notEqual(hp0,hp2,"Deux mobs différents de la même zone doivent avoir des PV différents (A Small Piece of Fluff=40 vs A Stick?=55 réels), jamais la même moyenne figée.");
+  assert.deepEqual(
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.tutorial.normal.map(x=>x.maxHp),
+    [40,45,55],
+    "Tutorial : Max HP réels des 3 mobs normaux."
+  );
+  assert.deepEqual(
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.tutorial.boss.map(x=>x.maxHp),
+    [100],
+    "Tutorial : A Small Mouse = 100 HP."
+  );
+  assert.deepEqual(
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.sewers.normal.map(x=>x.maxHp),
+    [50,70,40],
+    "Sewers : Max HP réels des 3 mobs normaux."
+  );
+  assert.deepEqual(
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.sewers.boss.map(x=>x.maxHp),
+    [150],
+    "Sewers : Brown Slime = 150 HP."
+  );
+  assert.deepEqual(
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.forest.normal.map(x=>x.maxHp),
+    [400,420,450,900,515,500,200],
+    "Forest : Max HP réels des 7 mobs normaux."
+  );
+  assert.deepEqual(
+    IDLE_ADVENTURE_MOB_BESTIARY_V1.forest.boss.map(x=>x.maxHp),
+    [500,600],
+    "Forest : R.O.U.S/Gorgon = 500/600 HP."
+  );
+
+  assert.equal(monsterHpMaxForZoneV1WithMob(zoneById.tutorial,false,0),40);
+  assert.equal(monsterHpMaxForZoneV1WithMob(zoneById.tutorial,true,0),100);
+  assert.equal(monsterHpMaxForZoneV1WithMob(zoneById.sewers,false,2),40);
+  assert.equal(monsterHpMaxForZoneV1WithMob(zoneById.sewers,true,0),150);
+  assert.equal(monsterHpMaxForZoneV1WithMob(zoneById.forest,false,3),900);
+  assert.equal(monsterHpMaxForZoneV1WithMob(zoneById.forest,true,1),600);
+
+  const hp0=monsterHpMaxForZoneV1WithMob(zoneById.tutorial,false,0);
+  const hp2=monsterHpMaxForZoneV1WithMob(zoneById.tutorial,false,2);
+  assert.notEqual(hp0,hp2,"Deux mobs différents doivent garder leurs Max HP NGU distincts (40 vs 55), jamais une moyenne de zone.");
 }
 
 // 5. monsterHpMaxForZoneV1WithMob : mob réel INCONNU (monsterIndex=-1 ou

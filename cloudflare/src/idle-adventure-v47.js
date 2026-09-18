@@ -2502,11 +2502,17 @@ export function idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex){
 }
 export function monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex){
   const entry=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
-  if(entry){
-    const bestiaryZone=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
-    const scale=idleAdventureMobScaleV1(z,bestiaryZone);
-    if(scale>0)return Math.max(1,I(N(entry.maxHp)*scale));
-  }
+  /*
+   * Correctif 2026-09-18 (comparaison côte à côte NGU/SOREAL) :
+   * entry.maxHp vient déjà de l'onglet Adventure du vrai bestiaire NGU.
+   * Le multiplier encore par oneHitP/moyenneMaxHp gonflait artificiellement
+   * tous les PV (ex. Tutorial 40 -> ~111, Sewers 40 -> 145). oneHitP est
+   * une recommandation de Power pour one-shot la zone, PAS une échelle de
+   * PV ennemis. Quand une entrée réelle existe, ses Max HP sont donc pris
+   * tels quels. Le vieux calcul zone-plat reste uniquement en fallback
+   * lorsqu'aucune donnée bestiaire n'existe.
+   */
+  if(entry)return Math.max(1,I(N(entry.maxHp)));
   return monsterHpMaxForZoneV1(z,boss);
 }
 /*
