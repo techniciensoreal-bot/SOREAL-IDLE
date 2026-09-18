@@ -1728,9 +1728,48 @@ function refreshRebirthState(state, context, now) {
   return rb;
 }
 
+/*
+ * Correctif PISTE 6 de l'audit wiki 2026-09-18 : idleNguBonuses() (plus bas
+ * dans ce fichier) calcule déjà energyPowerFlat/energyBarsFlat/
+ * energyCapMultiplier/magicPowerFlat/magicBarsFlat/magicCapFlat/
+ * magicCapMultiplier/r3PowerMultiplier/r3CapMultiplier/r3BarsMultiplier
+ * (alimentés par Perks/Quirks/Wishes -- ex. idle-perks-v1.js:94, "The
+ * Newbie Magic Perk" : "Gain 1 Magic Power, 1 Magic Bar, and 10k Magic
+ * Cap!") mais AUCUN autre point de ce fichier ne relisait ces champs avant
+ * ce correctif (grep sur chaque nom de champ, seule idleNguBonuses() les
+ * produisait) : un joueur montant ces Perks/Quirks/Wishes ne voyait aucun
+ * effet sur sa vitesse Energy/Magic/Resource 3. idleNguEffectiveResourceStatV1
+ * centralise la lecture "effective" (achat brut + bonus) utilisée par tous
+ * les calculs de vitesse/débit ci-dessous -- jamais en mutant
+ * state.resources.<r>.power/bars/cap eux-mêmes (ce total acheté reste
+ * affiché tel quel côté UI, seul l'effectif utilisé par le calcul change).
+ * idleNguBonuses() ne dépend d'aucune de ces fonctions de ressource (vérifié
+ * par grep dans son corps, lignes 2966-3205) : pas de récursion.
+ */
+function idleNguEffectiveResourceStatV1(state, resource, stat) {
+  const raw = Math.max(0, num(state.resources?.[resource]?.[stat], 0));
+  if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
+  const bonuses = idleNguBonuses(state);
+  if (resource === "r3") {
+    if (stat === "power") return raw * Math.max(0, num(bonuses.r3PowerMultiplier, 1));
+    if (stat === "bars") return raw * Math.max(0, num(bonuses.r3BarsMultiplier, 1));
+    if (stat === "cap") return raw * Math.max(0, num(bonuses.r3CapMultiplier, 1));
+    return raw;
+  }
+  if (stat === "power") return raw + Math.max(0, num(bonuses[`${resource}PowerFlat`], 0));
+  if (stat === "bars") return raw + Math.max(0, num(bonuses[`${resource}BarsFlat`], 0));
+  if (stat === "cap") {
+    const flat = Math.max(0, num(bonuses[`${resource}CapFlat`], 0));
+    const mult = Math.max(0, num(bonuses[`${resource}CapMultiplier`], 1));
+    return (raw + flat) * mult;
+  }
+  return raw;
+}
+
 function resourceThroughput(state, resource) {
-  const r = state.resources[resource] || defaultResource(resource);
-  return Math.max(1, r.power) * Math.max(1, r.bars);
+  const power = idleNguEffectiveResourceStatV1(state, resource, "power");
+  const bars = idleNguEffectiveResourceStatV1(state, resource, "bars");
+  return Math.max(1, power) * Math.max(1, bars);
 }
 
 function totalAllocated(state, resource, exceptId = "") {
@@ -1751,7 +1790,7 @@ function externalResourceAllocation(context, resource) {
 }
 
 function resourceCapacityForCurrent(state,resource,context={}){
-  const cap=Math.max(0,num(state.resources?.[resource]?.cap,0));
+  const cap=idleNguEffectiveResourceStatV1(state,resource,"cap");
   return Math.max(0,cap-totalAllocated(state,resource)-externalResourceAllocation(context,resource));
 }
 
@@ -1774,7 +1813,8 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   const speed=clamp(num(r.speed,1),0.1,50);
   const ticksPerFill=Math.max(1,Math.ceil(50/speed));
   const fillsPerSecond=50/ticksPerFill;
-  return fillsPerSecond*Math.max(1,num(r.bars,1));
+  const bars=idleNguEffectiveResourceStatV1(state,resource,"bars");
+  return fillsPerSecond*Math.max(1,bars);
 }
 
 function advanceGeneratedResources(state,seconds,context={}){
@@ -1785,7 +1825,7 @@ function advanceGeneratedResources(state,seconds,context={}){
     const capacity=resourceCapacityForCurrent(state,resource,context);
     if(capacity<=r.current+1e-12)continue;
     const perSecond=idleNguResourceGenerationPerSecond(state,resource);
-    const bars=Math.max(1,num(r.bars,1));
+    const bars=Math.max(1,idleNguEffectiveResourceStatV1(state,resource,"bars"));
     const fillsPerSecond=perSecond/bars;
     const fillTotal=Math.max(0,num(r.fillProgress,0))+fillsPerSecond*seconds;
     const fullFills=Math.floor(fillTotal+1e-12);
@@ -1854,7 +1894,7 @@ function reclaimAllocatedResource(state,resource,context={}){
   r.current=clamp(
     num(r.current,0)+released,
     0,
-    Math.max(0,num(r.cap,0)-externalResourceAllocation(context,resource))
+    Math.max(0,idleNguEffectiveResourceStatV1(state,resource,"cap")-externalResourceAllocation(context,resource))
   );
   return {resource,released,current:r.current};
 }
@@ -1873,7 +1913,7 @@ function augmentationGoldCost(state,def,level,upgrade=false) {
 function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const allocation = Math.max(0, num(state.systems.augmentations.allocation.energy, 0));
   if (allocation <= 0) return Infinity;
-  const power = Math.max(1, state.resources.energy.power);
+  const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
@@ -1975,7 +2015,6 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
   if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
 
   const resource = trackDef.resource || "energy";
-  const r = state.resources[resource] || defaultResource(resource);
   const diggers = diggerBonuses(state);
   const diggerSpeed = resource === "magic"
     ? Math.max(1, num(diggers.magicBeard, 1))
@@ -1984,8 +2023,8 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
   // V49 starts with NGU's first Beard slot only, therefore the
   // Beards_SameResource divisor is 1 until a later unlock adds more slots.
   const baseRate =
-    Math.max(1, num(r.bars, 1)) *
-    Math.sqrt(Math.max(1, num(r.power, 1))) *
+    Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "bars")) *
+    Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
     diggerSpeed /
     Math.max(1, num(trackDef.speedDivider, 1e8));
 
@@ -2199,11 +2238,12 @@ function advanceTrackSystem(state, def, seconds) {
      * racine carrée ; Wandoos/NGU/Wishes gardent leur Puissance à taux
      * plein (non touché ici).
      */
-    const r = state.resources[resource] || defaultResource(resource);
+    const effPower = idleNguEffectiveResourceStatV1(state, resource, "power");
+    const effBars = idleNguEffectiveResourceStatV1(state, resource, "bars");
     const power = def.id === "advancedTraining"
-      ? Math.sqrt(Math.max(1, r.power))
-      : Math.max(1, r.power);
-    throughput += alloc * power * Math.max(1, r.bars);
+      ? Math.sqrt(Math.max(1, effPower))
+      : Math.max(1, effPower);
+    throughput += alloc * power * Math.max(1, effBars);
   }
   if (throughput <= 0) return;
 
@@ -2251,7 +2291,7 @@ function advanceTrackSystem(state, def, seconds) {
 function tmLevelSeconds(state, resource, targetLevel) {
   const alloc = Math.max(0, num(state.systems.timeMachine.allocation[resource], 0));
   if (alloc <= 0) return Infinity;
-  const power = Math.max(1, state.resources[resource].power);
+  const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
   const n = Math.max(1, targetLevel);
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "timeMachine");
   return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power)) * n;
@@ -2369,7 +2409,7 @@ function advanceBloodMagic(state, seconds, context) {
   const rs = s.data.rituals[ritual.id];
 
   const magic = Math.max(0, num(s.allocation.magic, 0));
-  const power = Math.max(1, state.resources.magic.power);
+  const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
   if (magic <= 0) return;
 
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
@@ -3963,9 +4003,19 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      * Norman (2026-09-14) : "est-ce que tu as ajouté les bonus des sets
      * complets ?" — checkSets() (idle-adventure-v47.js) crédite déjà
      * correctement experience/gold/energySpeedFlat/energyPowerFlat/
-     * energyBarsFlat/magicPowerFlat/magicBarsFlat/magicCapFlat (lus par
-     * idleNguPermanentBonusesV1 plus bas et par le diff experience/gold
-     * ci-dessous) — mais l'AP de complétion (ex. Badly Drawn Set : 5000,
+     * energyBarsFlat/magicPowerFlat/magicBarsFlat/magicCapFlat dans
+     * adventure.permanent (lu par idleNguBonuses() plus haut dans ce
+     * fichier, champ `adventurePermanent`, et par le diff experience/gold
+     * ci-dessous). Correctif audit 2026-09-18 (PISTE 6) : la fonction citée
+     * ici ("idleNguPermanentBonusesV1") n'a jamais existé dans ce fichier
+     * (grep confirmé) — les champs *Flat/*Multiplier étaient bien calculés
+     * par idleNguBonuses() mais jamais relus ailleurs. Voir désormais
+     * idleNguEffectiveResourceStatV1 (plus haut) qui les consomme pour de
+     * vrai dans resourceThroughput/idleNguResourceGenerationPerSecond/
+     * resourceCapacityForCurrent/advanceGeneratedResources/
+     * advanceBeardTrack/advanceTrackSystem/tmLevelSeconds/
+     * advanceBloodMagic/augmentationSecondsForNextLevel/
+     * reclaimAllocatedResource — mais l'AP de complétion (ex. Badly Drawn Set : 5000,
      * Stealth Set : 10000, UUG's Rings : 20000) restait dans
      * adventure.permanent.ap SANS jamais être diffé vers la vraie
      * monnaie state.currencies.ap, contrairement à experience et gold
