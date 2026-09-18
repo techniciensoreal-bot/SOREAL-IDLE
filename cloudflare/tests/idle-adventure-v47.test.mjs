@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {
   IDLE_ADVENTURE_V47,IDLE_ADVENTURE_ZONES,IDLE_ADVENTURE_TITANS,IDLE_ADVENTURE_SETS,
   normalizeIdleAdventureStateV47,idleAdventureMergeLevelV47,idleAdventureItemAtLevelV47,
-  idleAdventureSnapshotV47,applyIdleAdventureActionV47
+  idleAdventureSnapshotV47,applyIdleAdventureActionV47,idleAdventureItemStatsMaxV1
 } from "../src/idle-adventure-v47.js";
 
 /*
@@ -611,31 +611,23 @@ assert.equal(t.result.nextAt,7000);
 // une fois l'"actual stat" au "maximum potential", booster ne sert plus
 // à rien — bloqué). Le niveau (0-100) est le proxy SOREAL de ce plafond.
 //
-// RÉVISÉ 2026-09-16 (Norman, 3e retour : "la fusion d'objet augmente la
-// quantité de power. Mais dans NGU si un objet est 1/3 et que je le
-// fusionne il passe à 1/4. La seule manière de le faire monter à 2/4
-// sera de lui mettre des boosts") — un correctif intermédiaire du
-// 2026-09-14 avait changé le plafond de applyBoost() de
-// basePower×(1+niveau/100) (le plafond du niveau COURANT) vers
-// basePower×2 (le plafond ABSOLU à niveau 100), en pensant réparer un
-// boost "sans effet" sur un objet frais. Reconfirmé sur
-// ngu-idle.fandom.com/wiki/Inventory, section "Leveling-up Items" :
-// "Each time an item levels-up, its maximum potential will go up and
-// require to be boosted" — le plafond grandit AVEC LE NIVEAU, pas de
-// façon fixe. Un objet frais (jamais fusionné) est TOUJOURS déjà à son
-// propre plafond du moment dès sa création (item()/special() calculent
-// power=basePower×(1+niveau/100)) : un boost dessus est donc gâché SANS
-// EFFET, ce qui est le comportement ATTENDU, pas un bug — l'écart
-// n'apparaît qu'APRÈS une fusion (qui augmente le niveau, donc le
-// plafond, sans jamais toucher la stat courante). Revenu au plafond
-// niveau-par-niveau, la même formule "q" que item()/special().
+// CORRECTIF 2026-09-18 (Norman, capture d'écran du vrai NGU en direct :
+// Tutorial Cube jamais fusionné, Power 0/7, pas 7/7) — les deux blocs
+// ci-dessous affirmaient qu'un objet FRAIS (jamais fusionné) démarre
+// déjà à son plafond du moment, rendant tout boost "gâché sans effet".
+// C'était une mauvaise lecture du wiki (voir le correctif détaillé dans
+// item()/special()/applyBoost(), idle-adventure-v47.js) : la valeur
+// COURANTE part toujours de 0 à la création, qu'il ait déjà été
+// fusionné ou non — seul le PLAFOND (basePower×(1+niveau/100), inchangé)
+// vient du niveau. Un objet frais a donc bien un écart à combler dès le
+// départ, comblable par boost, exactement comme le montre la capture du
+// jeu réel.
 {
   /*
-   * Isolation stats réelles par objet (2026-09-15) : training:head
-   * ("Cloth Hat") n'a plus de Power du tout (0, exact wiki) — un boost
-   * "power" n'aurait donc plus aucun écart à combler. Ce bloc teste
-   * désormais un boost "toughness" sur ce même objet (qui, lui, en a
-   * réellement), même logique de test inchangée.
+   * training:head ("Cloth Hat") : p:0/t:2 en override (SET_ITEM_STATS_V1)
+   * -> baseToughness=t/2=1. Aucun Power réel (0, exact wiki) — un boost
+   * "power" n'aurait donc jamais d'écart à combler ; ce bloc teste un
+   * boost "toughness" (qui, lui, a un vrai plafond non nul).
    */
   s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:50},{bosses:7},1).state;
@@ -643,41 +635,44 @@ assert.equal(t.result.nextAt,7000);
   s.inventory.push({id:"boostTest1",definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:1,level:0});
 
   const avantPuissance=s.inventory[0].toughness;
+  assert.equal(avantPuissance,0,"Un objet fraîchement créé (jamais fusionné, jamais boosté) doit démarrer à toughness=0, jamais déjà à son plafond.");
   assert.doesNotThrow(
     ()=>{s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTest1",targetId:cibleId},{bosses:7},1).state;},
-    "Un objet sous le niveau max doit toujours pouvoir recevoir un boost (jamais bloqué/rejeté), même quand le boost n'a aucun effet."
+    "Un objet sous le niveau max doit toujours pouvoir recevoir un boost."
   );
   const apresPuissance=s.inventory.find(x=>x.id===cibleId).toughness;
   assert.equal(
     apresPuissance,
-    avantPuissance,
-    "Un objet frais (jamais fusionné) est déjà à SON PROPRE plafond du niveau courant dès sa création — un boost dessus doit être gâché, sans aucun effet (comportement NGU attendu, pas un bug)."
+    1,
+    "Un boost de force 1 sur un objet frais (0/1.5 au niveau 50 : baseToughness=1×(1+50/100)=1.5) doit combler l'écart depuis 0, exactement comme dans le vrai NGU."
   );
   assert.ok(
     !s.inventory.some(x=>x.id==="boostTest1"),
-    "Le boost doit tout de même être consommé même quand il n'a aucun effet (fidèle au wiki : gâché, pas remboursé)."
+    "Le boost doit être consommé une fois appliqué."
   );
 
   /*
    * Un objet créé directement au niveau 100 : plafond du niveau courant
-   * = basePower×(1+100/100) = basePower×2, donc identique au plafond
-   * absolu — un boost supplémentaire ne doit rien ajouter non plus.
+   * = baseToughness×(1+100/100) = baseToughness×2 = 2, mais la valeur
+   * COURANTE part quand même de 0 (même correctif) — un boost comble
+   * l'écart jusqu'à ce plafond absolu, jamais au-delà.
    */
   s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:100},{bosses:7},1).state;
   const cibleMaxId=s.inventory[0].id;
   const avantPuissanceMax=s.inventory[0].toughness;
-  s.inventory.push({id:"boostTest2",definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:1,level:0});
+  assert.equal(avantPuissanceMax,0,"Même créé directement au niveau 100, un objet frais démarre à toughness=0.");
+  s.inventory.push({id:"boostTest2",definitionId:"boost:toughness:5",kind:"boost",boostType:"toughness",strength:5,level:0});
   s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTest2",targetId:cibleMaxId},{bosses:7},1).state;
   const apresPuissanceMax=s.inventory.find(x=>x.id===cibleMaxId).toughness;
   assert.equal(
     apresPuissanceMax,
-    avantPuissanceMax,
-    "Un objet déjà à son plafond pur (baseToughness×2, niveau 100 créé directement) ne doit RIEN gagner d'un boost supplémentaire — gâché, jamais ajouté au-delà du maximum."
+    2,
+    "Un boost de force 5 (plus que l'écart réel) doit être plafonné à baseToughness×2=2, jamais ajouté au-delà du maximum absolu."
   );
   assert.ok(
     !s.inventory.some(x=>x.id==="boostTest2"),
-    "Le boost doit tout de même être consommé même quand il n'a aucun effet (fidèle au wiki : gâché, pas remboursé)."
+    "Le boost doit être consommé même quand il est partiellement gâché (plafonné)."
   );
 
   /*
@@ -700,7 +695,15 @@ assert.equal(t.result.nextAt,7000);
   const niveauApresFusion=s.inventory[0].level;
   assert.equal(niveauApresFusion,81,"40+40+1=81 (idleAdventureMergeLevelV47), pour un écart connu et reproductible.");
 
-  const basePureItem=idleAdventureItemAtLevelV47("training:head",0).toughness;
+  /*
+   * Correctif 2026-09-18 : idleAdventureItemAtLevelV47(...).toughness ne
+   * peut plus servir à lire la base (item()/special() renvoient
+   * toughness:0 à la création, cf. correctif ci-dessus) -- basePureItem
+   * vient désormais directement de idleAdventureItemStatsMaxV1 (t = max
+   * absolu niveau 100, /2 pour la base niveau 0), la même source que
+   * item() utilise en interne.
+   */
+  const basePureItem=idleAdventureItemStatsMaxV1("training","head").t/2;
   const plafondNiveauCourant=basePureItem*(1+niveauApresFusion/100);
   const plafondAbsolu=basePureItem*2;
   assert.ok(

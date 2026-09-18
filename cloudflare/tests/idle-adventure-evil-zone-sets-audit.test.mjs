@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { idleAdventureItemAtLevelV47, IDLE_ADVENTURE_SETS } from "../src/idle-adventure-v47.js";
+import { idleAdventureItemAtLevelV47, idleAdventureItemStatsMaxV1, IDLE_ADVENTURE_SETS } from "../src/idle-adventure-v47.js";
 
 /*
  * Norman (2026-09-18) : "il faut tout faire" (équipement des 17 zones
@@ -20,8 +20,17 @@ import { idleAdventureItemAtLevelV47, IDLE_ADVENTURE_SETS } from "../src/idle-ad
  */
 
 function statsAt100(definitionId) {
-  const o = idleAdventureItemAtLevelV47(definitionId, 100, "preview");
-  return { power: o.power, toughness: o.toughness };
+  /*
+   * Correctif 2026-09-18 (Norman, capture d'écran du vrai NGU en direct :
+   * Power 0/7, pas 7/7) -- idleAdventureItemAtLevelV47(...).power/toughness
+   * valent toujours 0 à la création (voir item()/special(), idle-adventure-
+   * v47.js) : ce test d'audit lit désormais directement le plafond niveau 100
+   * (idleAdventureItemStatsMaxV1, la vraie source de vérité sourcée du wiki),
+   * jamais la valeur COURANTE d'un objet fraichement créé.
+   */
+  const [set, slot] = definitionId.split(":");
+  const { p, t } = idleAdventureItemStatsMaxV1(set, slot);
+  return { power: p, toughness: t };
 }
 function sumSet(ids) {
   return ids.reduce((acc, id) => {

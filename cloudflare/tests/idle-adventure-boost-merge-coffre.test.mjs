@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {
   normalizeIdleAdventureStateV47,applyIdleAdventureActionV47,
-  idleAdventureSnapshotV47,idleAdventureNiveauEstMaxV1
+  idleAdventureSnapshotV47,idleAdventureNiveauEstMaxV1,idleAdventureItemStatsMaxV1
 } from "../src/idle-adventure-v47.js";
 
 /*
@@ -121,6 +121,22 @@ import {
   s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const maxedId = s.inventory[0].id;
+  /*
+   * Correctif 2026-09-18 (Norman, capture d'écran du vrai NGU en direct) :
+   * un objet fraîchement créé démarre désormais à power:0/toughness:0,
+   * même au niveau 100 (voir item()/special() dans idle-adventure-v47.js)
+   * -- "niveau 100" seul ne suffit donc plus à être "pleinement maxé"
+   * (idleAdventureObjetPleinementMaxeV1 exige AUSSI power/toughness au
+   * vrai plafond). On simule ici directement l'état d'un objet déjà
+   * entièrement boosté (précondition du test, pas le mécanisme de boost
+   * lui-même, déjà testé plus haut dans ce fichier).
+   */
+  {
+    const maxedItem = s.inventory.find(x => x.id === maxedId);
+    const { p, t } = idleAdventureItemStatsMaxV1("forest", "weapon");
+    maxedItem.power = p;
+    maxedItem.toughness = t;
+  }
 
   r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 50 }, { bosses: 17 }, 1);
   s = r.state;
@@ -157,6 +173,12 @@ import {
   r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const secondMaxedId = s.inventory.find(x => x.definitionId === "forest:weapon" && !idsBeforeSecondAdd.has(x.id)).id;
+  {
+    const secondMaxedItem = s.inventory.find(x => x.id === secondMaxedId);
+    const { p, t } = idleAdventureItemStatsMaxV1("forest", "weapon");
+    secondMaxedItem.power = p;
+    secondMaxedItem.toughness = t;
+  }
   assert.throws(
     () => applyIdleAdventureActionV47(s, { action: "coffreDeposer", id: secondMaxedId }, { bosses: 17 }, 1),
     /CASE_DEJA_OCCUPEE/,

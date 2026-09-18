@@ -1032,7 +1032,23 @@ export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
  * exception sur les ~90 objets audités (voir SET_ITEM_STATS_V1
  * ci-dessus) — jamais une donnée par objet à stocker séparément.
  */
-function item(id,set,slot,lv=0){const s=SETS[set],{p,t}=idleAdventureItemStatsMaxV1(set,slot),baseP=p/2,baseT=t/2,q=1+C(lv,0,MAX)/100,power=baseP*q,toughness=baseT*q;return{id,definitionId:`${set}:${slot}`,name:`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power,toughness,hp:power*3,regen:toughness*.03,special:0}}
+/*
+ * Correctif 2026-09-18 (Norman, capture d'écran du vrai NGU en direct :
+ * "Power 0/7... Use the boosts you find to improve this item's stats!")
+ * -- un objet fraîchement créé (drop ou addItem) doit démarrer à 0/0,
+ * JAMAIS déjà à son plafond du moment. Le correctif du 2026-09-16
+ * ci-dessous (applyBoost) avait conclu l'inverse ("un objet neuf est
+ * TOUJOURS déjà à son plafond") en interprétant le texte du wiki
+ * ("maximum potential will go up and require to be boosted" à chaque
+ * fusion) comme si l'état INITIAL était déjà maxé -- la capture d'écran
+ * du jeu réel (Tutorial Cube jamais fusionné, Power 0/7, Toughness 0/7,
+ * Max Health 0/21, Health Regen 0/0,21) contredit directement cette
+ * lecture : le plafond grandit avec le niveau (via fusion), mais la
+ * valeur COURANTE part toujours de 0 et ne monte QUE par boost, y
+ * compris pour un objet jamais encore fusionné. hp/regen restent
+ * dérivés de power/toughness (0 tant que non boosté).
+ */
+function item(id,set,slot,lv=0){const s=SETS[set];return{id,definitionId:`${set}:${slot}`,name:`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
 /*
  * power/toughness (2026-09-13, cf. commentaire sourcé au-dessus de SPECIALS) :
  * même formule de niveau que item() (q=1+niveau/100, doublement à 100),
@@ -1052,7 +1068,16 @@ function item(id,set,slot,lv=0){const s=SETS[set],{p,t}=idleAdventureItemStatsMa
  * Training Set sans compter comme une pièce du set) ne peut jamais être
  * compté à tort dans une complétion de set.
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");const q=1+C(lv,0,MAX)/100,power=N(d.p)*q,toughness=N(d.t)*q;return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power,toughness,hp:power*3,regen:toughness*.03,special:0}}
+/*
+ * Correctif 2026-09-18 (Norman, capture d'écran du vrai NGU en direct :
+ * Tutorial Cube jamais fusionné -- Power 0/7, Toughness 0/7, Max Health
+ * 0/21, Health Regen 0/0,21) : même correctif que item() ci-dessus -- un
+ * objet SPECIALS fraîchement créé démarre à 0/0, JAMAIS déjà à son
+ * plafond (d.p/d.t reste la vraie base sourcée du wiki, utilisée
+ * ailleurs -- idleAdventureSpecialBaseStatsV1 -- comme plafond, jamais
+ * comme valeur de départ).
+ */
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -1380,6 +1405,18 @@ function unequip(s,id){const o=s.inventory.find(x=>x.id===id);if(!o)throw Error(
  * jamais rester fixé à basePower×2. "Special" reste volontairement sans
  * plafond (aucune formule/donnée sourcée du wiki n'existe pour lui, cf.
  * commentaire dans idle-adventure-stat-max-display.test.mjs côté APP).
+ *
+ * CORRECTIF 2026-09-18 (Norman, capture d'écran du vrai NGU en direct) :
+ * le plafond niveau-par-niveau ci-dessus (basePower×(1+niveau/100))
+ * reste exact et inchangé -- mais l'affirmation "un objet neuf est
+ * TOUJOURS déjà à son plafond du moment" ci-dessus était une mauvaise
+ * lecture du wiki. La vraie capture d'écran d'un Tutorial Cube jamais
+ * fusionné montre Power 0/7 (pas 7/7) : la valeur COURANTE part
+ * toujours de 0 à la création (voir item()/special() plus haut, revenus
+ * à power:0/toughness:0), qu'il ait déjà été fusionné ou non -- seul le
+ * PLAFOND affiché en "Y" (ce paragraphe) vient de la formule niveau-par-
+ * niveau. Un objet frais a donc bien un écart à combler dès le départ
+ * (0/basePower), pas seulement après une fusion.
  */
 function applyBoost(s,boostId,targetId){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
