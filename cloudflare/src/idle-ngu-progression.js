@@ -3049,12 +3049,35 @@ export function idleNguBonuses(raw) {
   const richJerksAttackMultiplier = 1 + idleNguRichJerksAttackPctV1(state) / 100;
   const richJerksDefenseMultiplier = 1 + Math.max(0, num(state.bonuses?.richJerksDefenseLevel, 0)) * RICH_JERKS_PCT_PER_LEVEL_V1 / 100;
 
+  /*
+   * "Equipment Modifier" du panneau Attack/Defense Breakdown (Norman,
+   * 2026-09-18, deux captures d'écran du vrai NGU le même jour : la 1re,
+   * personnage tout neuf sans gear, montrait "Equipment Modifier: x100%"
+   * -- neutre faute d'équipement ; la 2e, panneau "EQUIPMENT BONUSES"
+   * avec du gear équipé, montrait Power +1 -> "Player Stat Boosts:
+   * Attack: 1%" et Toughness +1 -> "Defense: 1%", un ratio exact de 1
+   * point = 1%). Wiki NGU (page Adventure Mode, déjà cité idle-sqlite-
+   * runtime.js:9095-9097 lors d'un correctif antérieur qui avait retiré
+   * le sens INVERSE, invalide) : "for every point of Power/Toughness
+   * from your gear, you also get +1% Attack/Defense" -- jamais câblé
+   * jusqu'ici, seulement documenté en commentaire. Même principe que
+   * Rich Jerks ci-dessus : appliqué SEULEMENT sur le multiplicateur
+   * final exporté (jamais dans attackMultiplier partagé), sinon Power
+   * boosterait Defense à tort via la base commune de defenseMultiplier.
+   * adventureGear.power/toughness sont déjà à 0 sous le No Equipment
+   * Challenge (equipmentDisabled plus haut), donc neutre dans ce cas
+   * sans garde supplémentaire.
+   */
+  const equipmentAttackMultiplier = 1 + Math.max(0, num(adventureGear.power, 0)) * 0.01;
+  const equipmentDefenseMultiplier = 1 + Math.max(0, num(adventureGear.toughness, 0)) * 0.01;
+
   return {
-    attackMultiplier: attackMultiplier * richJerksAttackMultiplier,
+    attackMultiplier: attackMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
     defenseMultiplier:
       attackMultiplier *
       atToughnessBonus *
       richJerksDefenseMultiplier *
+      equipmentDefenseMultiplier *
       (1 + Math.log10(1 + nguDefense) * 0.08),
     adventureMultiplier:
       challengeBonuses.adventureStatsMultiplier *
