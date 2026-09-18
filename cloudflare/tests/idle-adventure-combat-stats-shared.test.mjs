@@ -45,12 +45,9 @@ const afterSelect = applyIdleNguAction(
 
 /*
  * startZoneFight (idle-adventure-v47.js) tire un boss au hasard
- * (Math.random() < zone.bossChance, 1/4 pour le Tutoriel) et triple
- * monsterHpMax dans ce cas (129 -> 387 = 129*3, exactement l'écart
- * observé en CI ~1 run sur 4). C'est un tirage voulu (cf. commentaire
- * 2026-09-15 sur startZoneFight), pas un bug — mais ce test vérifie le
- * chemin normal (non-boss), donc on fige Math.random() pour éviter le
- * tirage boss pendant l'appel.
+ * (Math.random() < zone.bossChance, 1/4 pour le Tutoriel). Le test vise
+ * ici un mob normal précis, donc on fige Math.random() pour éviter un
+ * tirage boss et choisir de façon déterministe le 3e mob normal.
  */
 const originalRandom = Math.random;
 let fought;
@@ -91,23 +88,16 @@ assert.equal(
 );
 
 /*
- * 4. Le pool de PV du monstre en Tutoriel doit venir de la vraie donnée
- *    wiki, jamais de z.t (10). Depuis le 2026-09-17 (Norman : "il y a une
- *    version boss fight et une version adventure pour chaque mobs, tu
- *    dois connaitre les 2"), ce n'est plus la simple moyenne de zone
- *    (floor(oneHitP)=129) mais le VRAI mob tiré par monsterIndex
- *    (IDLE_ADVENTURE_MOB_BESTIARY_V1, onglet Adventure de sa fiche wiki),
- *    mis à l'échelle de zone. Math.random()=0.99 fige ce combat sur le
- *    reskin tutorial "scarecrow" (index 2 sur 3), qui retombe modulo sur
- *    le 3e mob réel connu de Tutorial Zone ("A Stick?", Max HP réel 55) —
- *    floor(55 × (129.5/moyenne(40,45,55))) = floor(55 × 2.775) = 152,
- *    jamais 129 pile (l'ancienne moyenne de zone, qui ne distinguait pas
- *    les mobs entre eux) ni z.t=10.
+ * 4. Le monstre du Tutoriel doit garder les Max HP exacts de son onglet
+ *    Adventure NGU. Math.random()=0.99 choisit le 3e mob normal :
+ *    "A Stick?", Max HP=55. oneHitP=129.5 est une recommandation de Power
+ *    joueur pour one-shot la zone ; ce n'est jamais un multiplicateur de
+ *    PV ennemi.
  */
 assert.equal(
   fought.result.monsterHpMax,
-  152,
-  "PV du monstre en Tutoriel doit venir du VRAI mob tiré (A Stick?, Max HP réel 55, mis à l'échelle du oneHitP de la zone = 152), jamais de z.t=10 (seuil de survie du joueur) ni d'une simple moyenne de zone figée."
+  55,
+  "A Stick? doit avoir exactement 55 HP comme dans son onglet Adventure NGU, sans mise à l'échelle par oneHitP."
 );
 
 console.log("idle-adventure-combat-stats-shared: OK");
