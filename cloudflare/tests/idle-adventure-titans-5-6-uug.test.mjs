@@ -27,15 +27,21 @@ const t6=IDLE_ADVENTURE_TITANS.find(x=>x.id==="t6");
 assert.equal(t6.name,"The Beast");
 assert.equal(t6.boss,132);
 assert.equal(t6.cooldown/3600000,3.5,"Le respawn (cooldown) est UNIQUE et partage entre les 4 paliers, comme le wiki (une seule valeur affichee).");
+/*
+ * Idle P/T (2026-09-18) : idleP/idleT ajoutes a chaque palier, sources de
+ * https://ngu-idle.fandom.com/wiki/Adventure_Mode, ligne "The Beast" —
+ * voir le commentaire dedie au-dessus de IDLE_ADVENTURE_TITANS
+ * (idle-adventure-v47.js) pour le detail de la verification.
+ */
 assert.deepEqual(
   t6.difficulties,
   {
-    easy:{p:700000000,t:500000000},
-    normal:{p:7000000000,t:5000000000},
-    hard:{p:70000000000,t:50000000000},
-    brutal:{p:700000000000,t:500000000000}
+    easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8},
+    normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9},
+    hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10},
+    brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11}
   },
-  "Les 4 paliers doivent etre les vrais seuils Manual P/T du wiki (x10 a chaque palier)."
+  "Les 4 paliers doivent etre les vrais seuils Manual P/T du wiki (x10 a chaque palier), avec leur Idle P/T publie."
 );
 assert.equal(t6.requiresTitan,undefined,"t5/t6 ne doivent pas inventer un palier de chaine anti-skip non confirme par Norman.");
 

@@ -21,6 +21,60 @@ const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b
  * un bonus d'équipement plutôt qu'un pur PV de base.
  */
 /*
+ * Idle P/T (2026-09-18, Norman en chat : demande directe d'implémenter ce
+ * troisième nombre du wiki, jamais fait jusqu'ici) -- champs idleP/idleT
+ * ajoutés à chaque zone de combat, sourcés de
+ * https://ngu-idle.fandom.com/wiki/Adventure_Mode, colonne "Idle P/T" du
+ * tableau de zones (vérifié en direct au navigateur 2026-09-18). Le wiki
+ * définit exactement ce que mesure ce nombre, en toutes lettres au-dessus
+ * du tableau : "Idle values indicate minimum toughness to maintain about
+ * 90% health and enough Power to kill any exploder" -- le seuil minimum
+ * pour laisser la zone tourner sans surveillance (AFK / Auto Aventure)
+ * sans mourir, distinct de Manual P/T (survie en combat manuel cliqué,
+ * z.p/z.t) et de One Hit P (one-shot un ennemi normal, z.oneHitP déjà en
+ * place depuis le 2026-09-14).
+ *
+ * À partir de Chocolate World (zone 22) et pour toutes les zones Evil/
+ * Sadistic, le wiki publie DEUX valeurs Idle P/T selon un toggle "Beast
+ * Mode ON/OFF" -- bonus du set Fad ("+3 Beast Butters", voir commentaire
+ * fad{} dans SETS plus bas), mécanique confirmée réelle mais jamais
+ * construite chez SOREAL. idleP/idleT ci-dessous reprennent SYSTÉMATIQUEMENT
+ * la valeur "Beast Mode OFF" (l'état par défaut, sans un bonus que SOREAL
+ * ne modélise pas) -- jamais "Beast Mode ON", qui décrirait un état
+ * inatteignable ici.
+ *
+ * Trois zones ont une valeur Idle P/T génuinement ambiguë entre plusieurs
+ * lectures/pages wiki EN DIRECT (pas une extrapolation) -- conformément à
+ * la règle n°1 d'AGENTS.md, aucun nombre de repli n'est inventé ; le champ
+ * concerné est simplement omis pour cette zone :
+ * - beardverse : la table agrégée affiche Idle Toughness "2 M" avec son
+ *   propre repli scientifique "(2E6)" (les deux cohérents entre eux), mais
+ *   la page dédiée https://ngu-idle.fandom.com/wiki/The_Beardverse affiche
+ *   "1.7 M (1.7E+06)" pour la même case -- désaccord réel entre deux pages
+ *   wiki, jamais tranché ici (idleT omis). idleP=2 500 000 reste ajouté :
+ *   la page dédiée confirme cette valeur, la table agrégée elle-même étant
+ *   déjà incohérente en interne ("3 M" affiché contre "(2.5E6)" entre
+ *   parenthèses sur la même ligne).
+ * - typozone : Idle Power affiché "370 Qi" mais repli scientifique
+ *   "(2.7E20)" -- 370 Qi vaudrait 3,7E20, pas 2,7E20, un écart de plus de
+ *   25% (pas un simple arrondi, comparer aux écarts <10% tolérés ailleurs
+ *   sur cette table, ex. badly: "35 M" affiché contre "(3.7E7)" entre
+ *   parenthèses). idleP omis, idleT (accord parfait "240 Qi"/"2.4E20")
+ *   conservé.
+ * - construction : la table agrégée affiche Idle Power "113 No" en texte
+ *   mais "(1.45E32)" entre parenthèses (deux nombres différents dans LA
+ *   MÊME cellule), et la page dédiée
+ *   https://ngu-idle.fandom.com/wiki/Construction_Zone donne une TROISIÈME
+ *   valeur, "125.90 No (1.26E+32)" -- trois sources, trois nombres
+ *   différents pour Idle Power (et Toughness diverge pareillement). idleP/
+ *   idleT omis entièrement pour cette zone plutôt que de choisir
+ *   arbitrairement l'une des trois.
+ *
+ * Walderp (t5) et The Exile (t7, "Ninth Titan" du wiki) n'ont AUCUNE valeur
+ * Idle P/T publiée -- voir le commentaire dédié au-dessus de
+ * IDLE_ADVENTURE_TITANS.
+ */
+/*
  * Correctif 2026-09-15 (Norman : "on tombe uniquement sur le boss...
  * l'ennemi qu'on rencontre doit être aléatoire... recopie les
  * pourcentages") — bossChance ajouté par zone, sourcé de la section
@@ -34,17 +88,17 @@ const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b
  */
 export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"safe",name:"Safety Zone",boss:4,p:0,t:0,set:"",dropLevel:0,avatarLevel:1},
-{id:"tutorial",name:"Tutoriel SOREAL",boss:4,p:10,t:10,oneHitP:129.5,bossChance:1/4,set:"training",dropLevel:10,avatarLevel:1},
-{id:"sewers",name:"Biobox maudites",boss:7,p:12,t:12,oneHitP:194,bossChance:1/4,set:"sewers",dropLevel:4,avatarLevel:1},
-{id:"forest",name:"Forêt de palettes",boss:17,p:35,t:35,oneHitP:1134,bossChance:2/9,set:"forest",dropLevel:1,avatarLevel:2},
-{id:"cave",name:"Chambre froide",boss:37,p:150,t:150,oneHitP:3811,bossChance:3/16,set:"cave",dropLevel:0,avatarLevel:2},
-{id:"sky",name:"Quai céleste",boss:48,p:600,t:400,oneHitP:11420,bossChance:1/5,set:"",dropLevel:0,avatarLevel:3},
-{id:"hsb",name:"High Security Base SOREAL",boss:58,p:700,t:500,oneHitP:15220,bossChance:1/5,set:"hsb",dropLevel:0,avatarLevel:3},
-{id:"clock",name:"Horloge du dépôt",boss:66,p:3250,t:2250,oneHitP:107110,bossChance:2/9,set:"clock",dropLevel:0,avatarLevel:4},
-{id:"2d",name:"Zone 2D",boss:74,p:4500,t:3500,oneHitP:168223,bossChance:1/4,set:"2d",dropLevel:0,avatarLevel:4},
-{id:"ancient",name:"Ancien entrepôt",boss:82,p:12000,t:10000,oneHitP:282966,bossChance:1/4,set:"spoopy",dropLevel:0,avatarLevel:5},
-{id:"avsp",name:"Endroit très étrange",boss:90,p:28000,t:18000,oneHitP:842483,bossChance:1/4,set:"gaudy",dropLevel:0,avatarLevel:5},
-{id:"mega",name:"Mega Lands SOREAL",boss:100,p:125000,t:60000,oneHitP:3540000,bossChance:1/5,set:"mega",dropLevel:0,avatarLevel:6},
+{id:"tutorial",name:"Tutoriel SOREAL",boss:4,p:10,t:10,oneHitP:129.5,idleP:13,idleT:13,bossChance:1/4,set:"training",dropLevel:10,avatarLevel:1},
+{id:"sewers",name:"Biobox maudites",boss:7,p:12,t:12,oneHitP:194,idleP:21,idleT:21,bossChance:1/4,set:"sewers",dropLevel:4,avatarLevel:1},
+{id:"forest",name:"Forêt de palettes",boss:17,p:35,t:35,oneHitP:1134,idleP:53,idleT:53,bossChance:2/9,set:"forest",dropLevel:1,avatarLevel:2},
+{id:"cave",name:"Chambre froide",boss:37,p:150,t:150,oneHitP:3811,idleP:200,idleT:200,bossChance:3/16,set:"cave",dropLevel:0,avatarLevel:2},
+{id:"sky",name:"Quai céleste",boss:48,p:600,t:400,oneHitP:11420,idleP:750,idleT:650,bossChance:1/5,set:"",dropLevel:0,avatarLevel:3},
+{id:"hsb",name:"High Security Base SOREAL",boss:58,p:700,t:500,oneHitP:15220,idleP:750,idleT:750,bossChance:1/5,set:"hsb",dropLevel:0,avatarLevel:3},
+{id:"clock",name:"Horloge du dépôt",boss:66,p:3250,t:2250,oneHitP:107110,idleP:4500,idleT:3000,bossChance:2/9,set:"clock",dropLevel:0,avatarLevel:4},
+{id:"2d",name:"Zone 2D",boss:74,p:4500,t:3500,oneHitP:168223,idleP:8000,idleT:6000,bossChance:1/4,set:"2d",dropLevel:0,avatarLevel:4},
+{id:"ancient",name:"Ancien entrepôt",boss:82,p:12000,t:10000,oneHitP:282966,idleP:17000,idleT:16000,bossChance:1/4,set:"spoopy",dropLevel:0,avatarLevel:5},
+{id:"avsp",name:"Endroit très étrange",boss:90,p:28000,t:18000,oneHitP:842483,idleP:48000,idleT:38000,bossChance:1/4,set:"gaudy",dropLevel:0,avatarLevel:5},
+{id:"mega",name:"Mega Lands SOREAL",boss:100,p:125000,t:60000,oneHitP:3540000,idleP:265000,idleT:145000,bossChance:1/5,set:"mega",dropLevel:0,avatarLevel:6},
 /*
  * V143 — Norman (2026-09-11) : "tu as tout sur le wiki, utilise ton
  * navigateur." Manual P/T copiés directement des pages de zone du wiki
@@ -65,10 +119,10 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * confirmé par capture d'écran de la ligne du tableau, pas seulement le
  * texte brut. Power (1 300 000) reste inchangé, déjà exact.
  */
-{id:"beardverse",name:"The Beardverse",boss:108,p:1300000,t:550000,oneHitP:46230000,bossChance:1/4,set:"beardverse",dropLevel:0,avatarLevel:6},
-{id:"badly",name:"Badly Drawn World",boss:116,p:18000000,t:11000000,oneHitP:889080000,bossChance:1/4,set:"badly",dropLevel:0,avatarLevel:6},
-{id:"boring",name:"Boring-Ass Earth",boss:124,p:180000000,t:90000000,oneHitP:7210000000,bossChance:2/9,set:"stealth",dropLevel:0,avatarLevel:6},
-{id:"chocolate",name:"Chocolate World",boss:137,p:70000000000,t:50000000000,oneHitP:2720000000000,bossChance:3/13,set:"choco",dropLevel:0,avatarLevel:6},
+{id:"beardverse",name:"The Beardverse",boss:108,p:1300000,t:550000,oneHitP:46230000,idleP:2500000,bossChance:1/4,set:"beardverse",dropLevel:0,avatarLevel:6},
+{id:"badly",name:"Badly Drawn World",boss:116,p:18000000,t:11000000,oneHitP:889080000,idleP:45000000,idleT:35000000,bossChance:1/4,set:"badly",dropLevel:0,avatarLevel:6},
+{id:"boring",name:"Boring-Ass Earth",boss:124,p:180000000,t:90000000,oneHitP:7210000000,idleP:360000000,idleT:270000000,bossChance:2/9,set:"stealth",dropLevel:0,avatarLevel:6},
+{id:"chocolate",name:"Chocolate World",boss:137,p:70000000000,t:50000000000,oneHitP:2720000000000,idleP:150000000000,idleT:90000000000,bossChance:3/13,set:"choco",dropLevel:0,avatarLevel:6},
 /*
  * Zones Evil/Sadistic (2026-09-18, Norman : "il faut tout faire", fidélité
  * NGU). Stats "Manual P/T" et "One Hit P" sourcées du wiki NGU local, page
@@ -89,23 +143,36 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * aucun visuel de palier 7+ n'existe -- même raison que les zones Normal
  * tardives ci-dessus).
  */
-{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,idleP:2.4e13,idleT:1.6e13,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,idleP:1.3e14,idleT:9.7e13,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,idleP:4.5e16,idleT:3.1e16,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,idleP:4.8e17,idleT:3.1e17,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+/*
+ * typozone : idleP omis -- ambiguïté >25% entre "370 Qi" et son repli
+ * scientifique "(2.7E20)" sur la table agrégée, voir commentaire détaillé
+ * au-dessus de IDLE_ADVENTURE_ZONES. idleT (240 Qi/2.4E20, accord parfait)
+ * conservé.
+ */
+{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,idleT:2.4e20,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,idleP:1.5e21,idleT:1.1e21,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,idleP:9.1e24,idleT:5.6e24,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,idleP:1.7e27,idleT:8.5e26,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,idleP:8e27,idleT:3.5e27,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,idleP:1.5e30,idleT:6.5e29,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,idleP:3.2e30,idleT:2.4e30,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+/*
+ * construction : idleP/idleT omis entièrement -- trois sources wiki
+ * (table agrégée en texte, sa propre parenthèse scientifique, et la page
+ * dédiée Construction_Zone) donnent trois valeurs différentes pour Idle
+ * Power ("113 No" / "1.45E32" / "125.90 No"), voir commentaire détaillé
+ * au-dessus de IDLE_ADVENTURE_ZONES. Jamais tranché arbitrairement.
+ */
 {id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
+{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,idleP:3.5e32,idleT:2.3e32,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,idleP:6.9e32,idleT:5e32,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,idleP:4.76e34,idleT:3.4e34,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
 ]);
 /*
  * Norman (2026-09-16) : "j'ai plusieurs images qui sont utilisée pour le
@@ -337,10 +404,43 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * pas 1 350 / 1 350 (capture d'écran de la ligne du tableau, pas
  * seulement le texte brut).
  */
-{id:"t1",name:"GRB",boss:58,cooldown:H,p:1300,t:1300,drop:"aNumber",unlock:"ngu",avatarLevel:3},
-{id:"t2",name:"Grand Corrupted Tree",boss:66,cooldown:H,p:5000,t:4000,drop:"giantSeed",unlock:"yggdrasil",avatarLevel:4,requiresTitan:"t1",requiresKills:24,requiresUnlock:"ngu"},
-{id:"t3",name:"Jake From Accounting",boss:82,cooldown:2*H,p:14000,t:12000,drop:"scrapPaper",unlock:"diggers",avatarLevel:5,requiresTitan:"t2",requiresKills:24,requiresUnlock:"yggdrasil"},
-{id:"t4",name:"UUG",boss:100,cooldown:2*H,p:400000,t:300000,drop:"uugHair",unlock:"beards",flag:"ringOfApathyMaxed",avatarLevel:6,requiresTitan:"t3",requiresKills:28,requiresUnlock:"diggers"},
+/*
+ * Idle P/T pour les Titans (2026-09-18, même passe que les zones -- voir le
+ * commentaire détaillé au-dessus de IDLE_ADVENTURE_ZONES). Contrairement
+ * aux zones normales, la page Adventure_Mode publie ICI une vraie
+ * structure à TROIS paliers par Titan (Manual/Idle/AutoKill, parfois avec
+ * un 4e chiffre Regen sur l'AutoKill), vérifiée en direct au navigateur
+ * 2026-09-18, colonne "Idle P/T" de chaque ligne Titan. Seuls idleP/idleT
+ * sont ajoutés ici (AutoKill hors périmètre de ce correctif -- SOREAL n'a
+ * aucune mécanique "Automatically Kill Titans", jamais construite).
+ *
+ * t1 (GRB) : Idle P/T = 2 300 / 2 100.
+ * t2 (Grand Corrupted Tree) : Idle P/T = 6 000 / 5 000.
+ * t3 (Jake From Accounting) : Idle P/T = 22 000 / 14 000.
+ * t4 (UUG) : Idle P/T = 600 000 / 400 000.
+ *
+ * t5 (Walderp) : AUCUNE valeur Idle P/T publiée -- le wiki précise
+ * explicitement sur sa propre ligne du tableau : "Walderp cannot be idled
+ * due to his ability" (seules des colonnes Manual et AutoKill existent
+ * pour lui, jamais de colonne Idle). Champ idleP/idleT volontairement
+ * absent sur t5 ci-dessous, jamais inventé.
+ *
+ * t6 (The Beast) : voir idleP/idleT ajoutés directement dans chaque palier
+ * de `difficulties` ci-dessous (Idle P/T publié séparément par palier
+ * Easy/Normal/Hard/Brutal, comme Manual/AutoKill le sont déjà).
+ *
+ * t7 (The Exile, "Ninth Titan" du wiki) : AUCUNE valeur Idle P/T publiée --
+ * la page Adventure_Mode ne montre pour lui que des colonnes Manual et
+ * AutoKill par palier, avec la note "AutoKills for the Exile are also
+ * unlocked by 24 manual kills at that difficulty, unlikely to reach idle
+ * stats before it" (sous-entend que le concept "Idle" existe en théorie
+ * pour ce Titan mais n'est jamais chiffré par le wiki). Champ idleP/idleT
+ * volontairement absent sur t7 plus bas, jamais inventé.
+ */
+{id:"t1",name:"GRB",boss:58,cooldown:H,p:1300,t:1300,idleP:2300,idleT:2100,drop:"aNumber",unlock:"ngu",avatarLevel:3},
+{id:"t2",name:"Grand Corrupted Tree",boss:66,cooldown:H,p:5000,t:4000,idleP:6000,idleT:5000,drop:"giantSeed",unlock:"yggdrasil",avatarLevel:4,requiresTitan:"t1",requiresKills:24,requiresUnlock:"ngu"},
+{id:"t3",name:"Jake From Accounting",boss:82,cooldown:2*H,p:14000,t:12000,idleP:22000,idleT:14000,drop:"scrapPaper",unlock:"diggers",avatarLevel:5,requiresTitan:"t2",requiresKills:24,requiresUnlock:"yggdrasil"},
+{id:"t4",name:"UUG",boss:100,cooldown:2*H,p:400000,t:300000,idleP:600000,idleT:400000,drop:"uugHair",unlock:"beards",flag:"ringOfApathyMaxed",avatarLevel:6,requiresTitan:"t3",requiresKills:28,requiresUnlock:"diggers"},
 /*
  * V144 — Norman (2026-09-11) : "pas le choix", suite du monde Normal
  * après les 4 zones simples. Manual P/T (Form 1 pour Walderp, 4 paliers
@@ -393,10 +493,10 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   {p:4000000,t:3000000}
 ]},
 {id:"t6",name:"The Beast",boss:132,cooldown:3.5*H,drop:"heroicSigil",avatarLevel:6,difficulties:{
-  easy:{p:700000000,t:500000000},
-  normal:{p:7000000000,t:5000000000},
-  hard:{p:70000000000,t:50000000000},
-  brutal:{p:700000000000,t:500000000000}
+  easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8},
+  normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9},
+  hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10},
+  brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11}
 }},
 /*
  * The Exile (2026-09-18, Norman : "il faut tout faire" -- prérequis
