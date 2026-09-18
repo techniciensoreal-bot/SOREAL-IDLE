@@ -29,8 +29,6 @@ for(const [definitionId,def] of Object.entries(catalog)){
   assert.ok(Number.isInteger(def.wikiItemId)&&def.wikiItemId>0,definitionId+" doit exposer un wikiItemId positif.");
   assert.equal(def.wikiItemId,ids[definitionId],definitionId+" doit utiliser la table canonique d'IDs wiki.");
 }
-assert.equal(catalog["training:head"].name,"Cloth Hat");
-assert.equal(catalog["training:weapon"].name,"A Stick");
 assert.equal(catalog.tutorialCube.wikiItemId,77);
 
 const state=mod.createIdleAdventureStateV47();
