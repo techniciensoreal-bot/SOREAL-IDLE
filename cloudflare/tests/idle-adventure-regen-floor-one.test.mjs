@@ -17,8 +17,18 @@ import { idleNguSnapshot } from "../src/idle-ngu-progression.js";
  * vrai NGU) : personnage tout neuf, sans équipement, "Base Adventure
  * Power: 10" / "Base Adventure Toughness: 10" -- le plancher de secours
  * est passé de 1 à 10 (idle-ngu-progression.js::idleAdventureCombatStatsV1),
- * donc HP=10×3=30 désormais, et le plancher regen (toujours >=1) reste
- * inchangé puisque 10×0.03=0.3 est toujours en dessous de 1.
+ * et le plancher regen (toujours >=1) reste inchangé puisque 10×0.03=0.3
+ * est toujours en dessous de 1.
+ *
+ * Norman (2026-09-18, plus tard le même jour, répété depuis le
+ * 2026-09-14) : "Les points de vie du mode aventure au début ne sont pas
+ * les mêmes dans NGU et Soreal. C'est 50hp sans équipement." La barre de
+ * vie d'Aventure est un système SOREAL (aucune page NGU ne documente de
+ * PV joueur en combat d'Aventure, cf. idle-adventure-v47.js) -- pour ce
+ * genre de système, Norman EST l'autorité, pas le wiki. HP de base passe
+ * donc de Power(10)×3=30 à un flat 50 (uniquement quand aucun
+ * adventurePower externe n'est fourni -- voir idle-adventure-combat-
+ * stats-shared.test.mjs pour le cas où il L'EST, qui garde Power×3).
  */
 
 // Contexte réel d'un joueur tout frais : aucune valeur adventurePower/
@@ -34,9 +44,10 @@ assert.equal(
   "Un joueur sans aucun équipement d'Aventure doit avoir un regen de 1/s dès le début, jamais 0.03/s (plancher toughness=1 écrasé par le ×0.03)."
 );
 
-// HP reste correct (floor power=10 -> hp=10*3=30), le regen est le SEUL champ
-// dont le plancher doit être appliqué après la multiplication.
-assert.equal(snap.adventure.stats.hp, 30, "HP de base doit rester Power(10)×3=30 (plancher Power/Toughness NGU réel).");
+// HP de base = 50 flat (exigence Norman, système SOREAL sans équivalent wiki),
+// le regen est le seul champ dont le plancher doit être appliqué après la
+// multiplication.
+assert.equal(snap.adventure.stats.hp, 50, "HP de base doit être 50 flat sans équipement (Norman, 2026-09-18 -- système SOREAL, pas une valeur wiki).");
 
 // Avec de vraies stats d'équipement d'Aventure (context alimenté), le
 // plancher ne doit jamais réduire un regen déjà supérieur à 1.

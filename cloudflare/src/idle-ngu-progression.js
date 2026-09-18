@@ -3306,11 +3306,38 @@ function idleAdventureCombatStatsV1(gear, context) {
    * secours ci-dessus utilisait 1, pas 10 -- sous-évaluant Power/
    * Toughness/HP/Regen de base d'un facteur 10 pour tout joueur sans
    * encore d'équipement d'Aventure.
+   *
+   * Norman (2026-09-18, en direct, répété depuis le 2026-09-14) : "Les
+   * points de vie du mode aventure au début ne sont pas les mêmes dans
+   * NGU et Soreal. C'est 50hp sans équipement." L'audit du même jour
+   * (piste 3) avait retiré le "+10" plat au motif qu'AUCUNE page wiki ne
+   * documente de PV joueur en combat d'Aventure -- ce qui reste exact,
+   * MAIS c'est précisément pour cette raison que ce plancher n'est PAS
+   * une donnée à sourcer sur le wiki : la barre de vie d'Aventure est un
+   * système SOREAL, jamais une mécanique NGU réelle (Norman, 2026-09-09,
+   * déjà documenté plus haut). Pour un système que SOREAL invente
+   * lui-même, l'autorité n'est pas une page wiki (qui ne peut
+   * structurellement pas exister) mais Norman lui-même, qui vient de
+   * fixer explicitement cette magnitude -- pas une valeur "inventée" par
+   * un correctif, mais une exigence de conception donnée directement.
+   * Le "50" observé le 2026-09-14 venait déjà d'un écran SOREAL, pas du
+   * wiki -- ce correctif ne prétend toujours pas que 50 est une valeur
+   * NGU, seulement que c'est la valeur SOREAL demandée. Le ratio HP
+   * Max=Power×3 RESTE sourcé et inchangé -- pour la contribution de
+   * l'équipement (g.hp, wiki Build_Max_HP) ET pour tout scénario où
+   * context.adventurePower est réellement fourni (aucun chemin réel ne le
+   * fait aujourd'hui, mais idle-adventure-combat-stats-shared.test.mjs
+   * l'exerce explicitement avec adventurePower=100 -> hp=300 attendu,
+   * comportement à préserver). Seul le PLANCHER PAR DÉFAUT (aucun
+   * adventurePower fourni du tout, le cas réel de tout joueur sans encore
+   * de contexte externe) devient 50 plutôt que Power_base(10)×3=30.
    */
+  const BASE_ADVENTURE_HP_V1 = 50;
+  const hasExternalAdventurePower = Number.isFinite(Number(context.adventurePower));
   return Object.assign({}, g, {
     power: Math.max(10, num(context.adventurePower, 10)) + Math.max(0, num(g.power, 0)),
     toughness: Math.max(10, num(context.adventureToughness, context.adventurePower || 10)) + Math.max(0, num(g.toughness, 0)),
-    hp: Math.max(10, num(context.adventurePower, 10)) * 3 + Math.max(0, num(g.hp, 0)),
+    hp: (hasExternalAdventurePower ? Math.max(10, num(context.adventurePower, 10)) * 3 : BASE_ADVENTURE_HP_V1) + Math.max(0, num(g.hp, 0)),
     regen: Math.max(1, Math.max(10, num(context.adventureToughness, context.adventurePower || 10)) * 0.03) + Math.max(0, num(g.regen, 0))
   });
 }
