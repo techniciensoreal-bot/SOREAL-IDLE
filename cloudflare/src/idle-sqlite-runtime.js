@@ -11975,6 +11975,35 @@ function selectionnerBossSorealIdle(
  */
 const ADMIN_SOREAL_IDLE_EMAIL = 'technicien.soreal@gmail.com';
 
+/*
+ * Correctif 2026-09-18 (Norman, en direct, bug confirmé en repro live
+ * malgré un premier correctif client le même jour) : le bouton admin
+ * restait invisible car il dépendait entièrement de SOREAL_USER, peuplé
+ * côté client par le handshake TV-embed (postMessage, tv-staging-session-
+ * bridge-v1.html / authReturnInline de build-static.mjs) -- un mécanisme
+ * asynchrone dont le timing n'est jamais garanti par rapport au premier
+ * rendu de la page Settings. Ce point d'entrée dédié, minimal (aucune
+ * lecture de feuille), donne au client une réponse SERVEUR autoritaire
+ * et indépendante de ce handshake -- la même comparaison que
+ * reinitialiserTousLesComptesSorealIdle ci-dessous, jamais un second
+ * critère dupliqué.
+ */
+function estAdminSorealIdle(
+  sessionToken
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  return {
+    ok: true,
+    isAdmin:
+      String(acces.emailAutorise || '').toLowerCase() ===
+      ADMIN_SOREAL_IDLE_EMAIL
+  };
+}
+
 function reinitialiserTousLesComptesSorealIdle(
   sessionToken
 ) {
@@ -14882,6 +14911,7 @@ const IDLE_OPERATIONS={
   definirAutoBossSuivantSorealIdle,
   definirCombatAutoAventureSorealIdle,
   definirCombatBossSorealIdle,
+  estAdminSorealIdle,
   equiperObjetsSorealIdle,
   fusionnerObjetSorealIdle,
   fusionnerObjetsSorealIdle,
