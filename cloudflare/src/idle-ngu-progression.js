@@ -5,7 +5,8 @@ import {
   idleAdventureSnapshotV47,
   idleAdventureEquipmentStatsV47,
   idleAdventureBoostV1,
-  idleAdventureAddItemV1
+  idleAdventureAddItemV1,
+  idleAdventureCubeTierV1
 } from "./idle-adventure-v47.js";
 import {
   bigFromLog10V1,
@@ -2138,10 +2139,20 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
  * plus de temps que le précédent — une boucle par niveau reste bornée
  * (plafonnée ici par sécurité, jamais atteinte en pratique vu la vitesse
  * de croissance des BaseSpeedDivider, de 1e8 à 1e13).
+ *
+ * Correctif 2026-09-18 : hackSpeedMultiplier (idleNguBonuses(), souhaits
+ * "Hack Speed" du catalogue + tiers 8-10 de l'Infinity Cube) était calculé
+ * mais jamais relu ici (voir le commentaire à sa déclaration) -- acheter le
+ * souhait "I wish the Greasy Nerd took a shower" ou monter le cube au tier
+ * 8+ n'accélérait donc jamais réellement les Hacks. Appliqué au débit
+ * (throughput), comme wishSpeedMultiplier l'est déjà sur le temps requis
+ * pour les Wishes ci-dessous (même sens : plus le multiplicateur est haut,
+ * plus vite le niveau avance).
  */
 function advanceHackTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;
-  const throughput = Math.max(0, num(system.allocation.r3, 0)) * resourceThroughput(state, "r3");
+  const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonuses(state).hackSpeedMultiplier, 1));
+  const throughput = Math.max(0, num(system.allocation.r3, 0)) * resourceThroughput(state, "r3") * hackSpeedMultiplier;
   if (throughput <= 0) return;
 
   let level = Math.max(0, int(track.level, 0));
@@ -2188,6 +2199,15 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
  * rester fidèles au wiki ("hard cap... putting more resources into it will
  * not speed up the process", qui ne mentionne aucune exception pour les
  * boosts de vitesse eux-mêmes).
+ *
+ * Correctif 2026-09-18 : les tiers 8-10 de l'Infinity Cube ("Wish Speed",
+ * IDLE_ADVENTURE_CUBE_TIERS_V1.wishSpeedPct, idle-adventure-v47.js)
+ * n'étaient mergés nulle part -- calculé ici en plus du wishSpeedMultiplier
+ * des Wishes, toujours SANS passer par idleNguBonuses() (design déjà en
+ * place : cette boucle par niveau ne doit pas dépendre de tout
+ * idleNguBonuses(), voir commentaire de sa propre déclaration) -- même
+ * formule que idleNguBonuses().wishSpeedMultiplier, dupliquée volontairement
+ * à petite échelle plutôt que centralisée, pour les mêmes raisons de coût.
  */
 function advanceWishTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;
@@ -2203,7 +2223,8 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const r3Power = Math.max(1, num(state.resources.r3?.power, 1));
   const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier);
+  const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100));
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -3312,18 +3333,21 @@ export function idleNguBonuses(raw) {
     daycareSpeedMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "daycare")) * 0.04,
     /*
      * hackSpeedMultiplier/wishSpeedMultiplier étaient déclarées ici à 1 en
-     * dur depuis le début, sans aucune source réelle. Câblées ici pour la
-     * première fois avec les souhaits "Hack Speed"/"Wish Speed" du
-     * catalogue réel (idle-wishes-v1.js). advanceWishTrack() calcule déjà
-     * sa propre vitesse de souhait directement via wishBonusesV1() (pour
-     * ne pas dépendre de tout idleNguBonuses() dans sa propre boucle) ;
-     * advanceHackTrack ne lit pas encore hackSpeedMultiplier — valeur
-     * correctement calculée, câblage dans les Hacks laissé pour un futur
-     * passage, comme les multiplicateurs Perks/Quirks jamais appliqués
-     * ci-dessus (energyPowerMultiplier and co.).
+     * dur depuis le début, sans aucune source réelle. Câblées avec les
+     * souhaits "Hack Speed"/"Wish Speed" du catalogue réel (idle-wishes-
+     * v1.js). Correctif 2026-09-18 (suite) : rejoint désormais aussi les
+     * tiers 8-10 de l'Infinity Cube (hackSpeedPct/wishSpeedPct,
+     * IDLE_ADVENTURE_CUBE_TIERS_V1, 11/11 tiers vérifiés wiki), même
+     * principe que dropChancePct/goldDropsPct déjà câblés depuis le cube --
+     * ET câblage réel dans advanceHackTrack (qui ne lisait aucun
+     * multiplicateur de vitesse jusqu'ici) / advanceWishTrack (qui calcule
+     * déjà sa propre vitesse directement via wishBonusesV1(), pour ne pas
+     * dépendre de tout idleNguBonuses() dans sa propre boucle -- la même
+     * contribution du cube y est donc dupliquée par petit calcul local
+     * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
-    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier,
-    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier,
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100),
+    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100),
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
     quirkBonuses:clone(quirkBonuses),
