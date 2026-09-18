@@ -1484,6 +1484,29 @@ if(d?.kind==="special"){
   const def=SPECIALS[d.id];
   if(def&&N(def.sBase)>0)z.special=Math.max(z.special,N(def.sBase));
 }
+/*
+ * Norman (2026-09-18, en direct) : "le set que tu vois n'est pas le set
+ * du tuto. Je t'ai donné son nom tout à l'heure." Même classe de bug que
+ * le plancher sBase juste au-dessus : item() n'applique SET_ITEM_NAMES_V1
+ * (les vrais noms wiki, "Cloth Hat"/"Cloth Shirt"/"Cloth Boots"...) qu'À
+ * LA CRÉATION d'un objet -- un Training Set chest/boots déjà en
+ * inventaire AVANT le correctif de renommage (audit Round 2, même jour)
+ * garde son ancien nom générique "Training Set chest" pour toujours,
+ * jamais remis à jour. Confirmé en direct : sur le compte de Norman,
+ * "head" (Cloth Hat, créé après le correctif) était déjà correct, mais
+ * "chest"/"boots" (créés avant) montraient encore le nom générique --
+ * et urlImageObjetAdventureIdleV138_ (Soreal_Idle_UI.html) construit
+ * l'URL d'image R2 à partir de CE nom, donc une image générique/absente
+ * au lieu de la vraie photo Cloth Shirt/Cloth Boots. Resynchronisé ici à
+ * chaque chargement -- toujours sans risque : le nom n'a aucune
+ * incidence sur les stats, resynchroniser vers le nom RÉEL (jamais
+ * inventé, SET_ITEM_NAMES_V1 est la même table déjà utilisée par item())
+ * ne peut jamais être qu'une correction.
+ */
+if(d?.kind==="set"){
+  const realName=SET_ITEM_NAMES_V1[`${d.set}:${d.slot}`];
+  if(realName)z.name=realName;
+}
 return z}
 export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);
 /*
