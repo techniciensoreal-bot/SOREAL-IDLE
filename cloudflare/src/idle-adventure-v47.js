@@ -1077,7 +1077,23 @@ export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
  * compris pour un objet jamais encore fusionné. hp/regen restent
  * dérivés de power/toughness (0 tant que non boosté).
  */
-function item(id,set,slot,lv=0){const s=SETS[set];return{id,definitionId:`${set}:${slot}`,name:`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
+/*
+ * PISTE 2 de l'audit wiki 2026-09-18 : pages ngu-idle.fandom.com/wiki/
+ * Tutorial_Zone et .../Training_(set) vérifiées en direct (navigateur) --
+ * "Items in Training (set): A Stick, Cloth Hat, Cloth Shirt, Cloth
+ * Leggings, Cloth Boots". Sans entrée dans SET_ITEM_NAMES_V1, item()
+ * retombait sur un nom générique inventé ("Training Set head", "Training
+ * Set weapon", ...) au lieu du vrai nom wiki par pièce -- les STATS par
+ * pièce (SET_ITEM_STATS_V1 plus haut) étaient déjà correctes, seul le nom
+ * était un reskin SOREAL. Seul le set "training" est couvert ici (portée
+ * de cette piste) ; les autres sets gardent le nom générique
+ * `${s.name} ${slot}` jusqu'à un audit dédié (voir rapport final -- tâche
+ * de balayage systématique restante, ~50 sets).
+ */
+const SET_ITEM_NAMES_V1=Object.freeze({
+  "training:weapon":"A Stick","training:head":"Cloth Hat","training:chest":"Cloth Shirt","training:legs":"Cloth Leggings","training:boots":"Cloth Boots"
+});
+function item(id,set,slot,lv=0){const s=SETS[set];const realName=SET_ITEM_NAMES_V1[`${set}:${slot}`];return{id,definitionId:`${set}:${slot}`,name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
 /*
  * power/toughness (2026-09-13, cf. commentaire sourcé au-dessus de SPECIALS) :
  * même formule de niveau que item() (q=1+niveau/100, doublement à 100),
