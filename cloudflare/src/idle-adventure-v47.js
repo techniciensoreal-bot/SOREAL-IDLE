@@ -1465,7 +1465,26 @@ export function createIdleAdventureStateV47(){return base()}
  */
 function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
 // PISTE 1 (2026-09-18) : même plafond que power/toughness pour le Special Bonus chiffré (baseS>0 uniquement -- ex. tutorialCube) ; les autres SPECIALS (baseS=0) restent non plafonnés, comportement inchangé.
-if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}return z}
+if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}
+/*
+ * Norman (2026-09-18, en direct, capture d'écran de son propre Tutorial
+ * Cube) : "je vois que mon tutorial cube n'a toujours pas de stats
+ * special." Cause confirmée : le plancher sBase (special:N(d.sBase),
+ * fonction special() ci-dessus, PISTE 1) ne s'applique qu'À LA CRÉATION
+ * d'un nouvel objet -- un Tutorial Cube déjà en inventaire AVANT ce
+ * correctif garde .special=0 pour toujours, cleanItem() ne l'ayant
+ * jusqu'ici QUE plafonné vers le bas (Math.min ci-dessus), jamais
+ * remonté. Toujours un plancher VERS LE HAUT jamais inventé : sBase est
+ * la valeur de départ garantie par le wiki (aucun boost ne peut faire
+ * descendre .special en dessous), donc un objet dont .special<sBase ne
+ * peut être qu'une donnée antérieure à ce correctif, jamais un vrai état
+ * de jeu à respecter.
+ */
+if(d?.kind==="special"){
+  const def=SPECIALS[d.id];
+  if(def&&N(def.sBase)>0)z.special=Math.max(z.special,N(def.sBase));
+}
+return z}
 export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);
 /*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
@@ -2558,5 +2577,22 @@ export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks
  * serveur au clic. Un titan n'est réellement accessible que si les DEUX
  * conditions sont vraies.
  */
-titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.boss)&&titanGate(s,t),visual:{source:"avatar-level",level:I(t.avatarLevel,1),fallback:"emoji"},state:X(s.titans[t.id]||{kills:0,nextAt:0})})),inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0});return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
+titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.boss)&&titanGate(s,t),visual:{source:"avatar-level",level:I(t.avatarLevel,1),fallback:"emoji"},state:X(s.titans[t.id]||{kills:0,nextAt:0})})),/*
+ * Norman (2026-09-18, en direct, capture d'écran de son propre Tutorial
+ * Cube) : "je vois que mon tutorial cube n'a toujours pas de stats
+ * special." Cause confirmée (2e partie, côté client cette fois) :
+ * basePower/baseToughness sont déjà exposés ici pour que le client
+ * calcule lui-même le plafond X/MAX (basePower*q) -- specialType/
+ * baseSpecial n'existaient pas du tout, donc afficherDetailsObjetAdventureIdleV138_
+ * (Soreal_Idle_UI.html) ne pouvait montrer qu'un nombre brut "Special: X"
+ * générique (jamais un vrai plafond, jamais le vrai label wiki comme
+ * "Energy Speed"), et seulement quand item.special>0 -- rien du tout pour
+ * un Tutorial Cube dont .special valait encore 0 (voir le correctif
+ * plancher sBase juste au-dessus dans cleanItem). specialType (d.sType,
+ * ex. "energySpeedPct") et baseSpecial (base.baseS, plafond au niveau 0 --
+ * même convention que basePower/baseToughness) permettent désormais au
+ * client de reproduire EXACTEMENT le même calcul X/MAX que pour Power/
+ * Toughness, avec le vrai label.
+ */
+inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0});const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03,specialType:specialType||undefined,baseSpecial:base.baseS||0};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
 export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else throw Error("ACTION_AVENTURE_INCONNUE");return{state:s,result}}
