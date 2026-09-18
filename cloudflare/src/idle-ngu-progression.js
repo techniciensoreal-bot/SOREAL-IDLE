@@ -3154,19 +3154,47 @@ export function idleNguBonuses(raw) {
     adventureToughnessFlat: num(adventureGear.toughness, 0)+num(yggPermanent.adventureToughness,0)+perkBonuses.adventureToughnessFlat,
     adventureHpFlat: num(adventureGear.hp, 0)+num(yggPermanent.adventureHp,0),
     adventureRegenFlat: num(adventureGear.regen, 0)+num(yggPermanent.adventureRegen,0),
-    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier,
+    /*
+     * PISTE 2 (2026-09-18, audit "Est-ce que tu as bien intégré chacune des
+     * statistiques special etc ?") -- adventureGear.specials.<type>Pct
+     * (idle-adventure-v47.js::idleAdventureSpecialsByTypeV1, alimenté par
+     * SPECIALS.<item>.sType/sExtra, chaque magnitude sourcée wiki) rejoint
+     * désormais chacun des multiplicateurs ci-dessous, au même niveau que
+     * les contributions Perks/Quirks/Wishes déjà présentes -- même
+     * convention non terminale que le reste de ce bloc (energyPowerMultiplier
+     * and co. restent, comme avant ce correctif, calculés ici mais pas
+     * encore lus par idleNguEffectiveResourceStatV1 pour le terme
+     * multiplicatif -- seul le terme FLAT l'est ; gap préexistant documenté
+     * plus haut "les multiplicateurs Perks/Quirks jamais appliqués", commun
+     * à Perks/Quirks/Wishes/objets, pas propre à ce correctif ni aggravé
+     * par lui).
+     */
+    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier * (1 + num(adventureGear.specials?.goldDropsPct, 0) / 100),
     energySpeedFlat: num(adventurePermanent.energySpeedFlat, 0),
     energyPowerFlat: num(adventurePermanent.energyPowerFlat, 0)+perkBonuses.energyPowerFlat,
     energyBarsFlat: num(adventurePermanent.energyBarsFlat, 0)+perkBonuses.energyBarsFlat,
-    energyPowerMultiplier: perkBonuses.energyPowerMultiplier * quirkBonuses.energyPowerMultiplier * wishBonuses.energyPowerMultiplier,
-    energyBarsMultiplier: perkBonuses.energyBarsMultiplier * quirkBonuses.energyBarsMultiplier * wishBonuses.energyBarsMultiplier,
-    energyCapMultiplier: perkBonuses.energyCapMultiplier * quirkBonuses.energyCapMultiplier * wishBonuses.energyCapMultiplier,
+    energyPowerMultiplier: perkBonuses.energyPowerMultiplier * quirkBonuses.energyPowerMultiplier * wishBonuses.energyPowerMultiplier * (1 + num(adventureGear.specials?.energyPowerPct, 0) / 100),
+    energyBarsMultiplier: perkBonuses.energyBarsMultiplier * quirkBonuses.energyBarsMultiplier * wishBonuses.energyBarsMultiplier * (1 + num(adventureGear.specials?.energyBarsPct, 0) / 100),
+    energyCapMultiplier: perkBonuses.energyCapMultiplier * quirkBonuses.energyCapMultiplier * wishBonuses.energyCapMultiplier * (1 + num(adventureGear.specials?.energyCapPct, 0) / 100),
+    /*
+     * energySpeedMultiplier/magicSpeedMultiplier : pas d'équivalent Perks/
+     * Quirks/Wishes existant à étendre (aucun des trois catalogues n'a de
+     * clé "energySpeedMultiplier"/"magicSpeedMultiplier" -- à distinguer de
+     * energyPowerMultiplier/energyBarsMultiplier/energyCapMultiplier
+     * ci-dessus, et de "Wandoos Energy/Magic Speed" (quirkEnergyMultiplier/
+     * quirkMagicMultiplier, advanceWandoosTrack ci-dessous -- un mécanisme
+     * Wandoos différent, déjà câblé, jamais celui-ci). Nouvelle clé, même
+     * schéma que r3Power/Cap/BarsMultiplier ci-dessous : "smallest sensible
+     * consumer" pour un TYPE de bonus sans câblage préexistant.
+     */
+    energySpeedMultiplier: 1 + num(adventureGear.specials?.energySpeedPct, 0) / 100,
+    magicSpeedMultiplier: 1 + num(adventureGear.specials?.magicSpeedPct, 0) / 100,
     magicPowerFlat: num(adventurePermanent.magicPowerFlat, 0)+perkBonuses.magicPowerFlat,
     magicBarsFlat: num(adventurePermanent.magicBarsFlat, 0)+perkBonuses.magicBarsFlat,
     magicCapFlat: num(adventurePermanent.magicCapFlat, 0)+perkBonuses.magicCapFlat,
-    magicPowerMultiplier: perkBonuses.magicPowerMultiplier * quirkBonuses.magicPowerMultiplier * wishBonuses.magicPowerMultiplier,
-    magicBarsMultiplier: perkBonuses.magicBarsMultiplier * quirkBonuses.magicBarsMultiplier * wishBonuses.magicBarsMultiplier,
-    magicCapMultiplier: perkBonuses.magicCapMultiplier * quirkBonuses.magicCapMultiplier * wishBonuses.magicCapMultiplier,
+    magicPowerMultiplier: perkBonuses.magicPowerMultiplier * quirkBonuses.magicPowerMultiplier * wishBonuses.magicPowerMultiplier * (1 + num(adventureGear.specials?.magicPowerPct, 0) / 100),
+    magicBarsMultiplier: perkBonuses.magicBarsMultiplier * quirkBonuses.magicBarsMultiplier * wishBonuses.magicBarsMultiplier * (1 + num(adventureGear.specials?.magicBarsPct, 0) / 100),
+    magicCapMultiplier: perkBonuses.magicCapMultiplier * quirkBonuses.magicCapMultiplier * wishBonuses.magicCapMultiplier * (1 + num(adventureGear.specials?.magicCapPct, 0) / 100),
     /*
      * r3Power/Cap/BarsMultiplier : nouvelles clés, sans équivalent Perks/
      * Quirks existant (aucune des deux catalogues Normal ne touche
@@ -3194,6 +3222,8 @@ export function idleNguBonuses(raw) {
     bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier,
     seedYieldMultiplierFromPerks: perkBonuses.seedYieldMultiplier,
     seedYieldMultiplierFromQuirks: quirkBonuses.seedYieldMultiplier,
+    // PISTE 2 (2026-09-18) : "Seed Gain" (Candy Corn Necklace, wiki) -- même convention FromPerks/FromQuirks ci-dessus, aucun équivalent existant à étendre.
+    seedYieldMultiplierFromItems: 1 + num(adventureGear.specials?.seedGainPct, 0) / 100,
     lootGoblinChanceFromPerks: perkBonuses.lootGoblinChance,
     cubeBoostRateFromPerks: perkBonuses.cubeBoostRate,
     daycareGrowthMultiplierFromPerks: perkBonuses.daycareGrowthMultiplier,
@@ -3208,9 +3238,12 @@ export function idleNguBonuses(raw) {
     diggerDrainGoldPerSecond: diggerDrainTotal(state),
     diggerGlobalBonus: diggerGlobalBonus(state),
     diggerSlots: availableDiggerSlots(state),
-    nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + Math.log10(1 + trackBonusLevel(state, "ngu", "attack")) * 0.01),
+    // PISTE 2 (2026-09-18) : "NGU Speed" (Candy Corn Necklace / A Shrunken Voodoo Doll, wiki) rejoint ce multiplicateur déjà affichage-seul (voir commentaire ci-dessus "reste un gap préexistant"), même traitement non terminal que le reste de cette section.
+    nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + Math.log10(1 + trackBonusLevel(state, "ngu", "attack")) * 0.01) * (1 + num(adventureGear.specials?.nguSpeedPct, 0) / 100),
     nguSpeedEnergyMultiplierFromPerks: perkBonuses.nguSpeedEnergyMultiplier,
     nguSpeedMagicMultiplierFromPerks: perkBonuses.nguSpeedMagicMultiplier,
+    // PISTE 2 (2026-09-18) : "Beard Speed" (Beard Comb/Red Lipstick/A Shrunken Voodoo Doll, wiki) -- aucun multiplicateur externe existant dans beardBonusMultiplier (uniquement alimenté par les niveaux de la piste Beard elle-même) : nouvelle clé "FromItems", même convention que seedYieldMultiplierFromItems ci-dessus, câblage dans beardBonusMultiplier laissé pour un futur passage (même statut que hackSpeedMultiplier avant son câblage Wishes).
+    beardSpeedMultiplierFromItems: 1 + num(adventureGear.specials?.beardSpeedPct, 0) / 100,
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
     beardNumberMultiplier: beardNumber,

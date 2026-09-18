@@ -928,11 +928,27 @@ export function idleAdventureItemStatsMaxV1(set,slot){
  * chaque fiche que "Max stat at max lvl" = 2× "Max stat at lvl 0").
  * Beaucoup d'accessoires réels n'ont EFFECTIVEMENT aucune stat Power/
  * Toughness (ils ne donnent que des bonus "Specials" en %, ex. Energy/Magic
- * Cap/Power/Speed, Drop Chance) — SOREAL n'a jamais construit de mécanisme
- * de bonus par objet pour ces Specials (seuls les Specials globaux déjà
- * câblés via setRewards existent), donc les ajouter serait une NOUVELLE
- * mécanique non demandée : volontairement omis, `p`/`t` valent alors bien
- * 0 ci-dessous — valeur réelle et vérifiée du wiki, pas un oubli.
+ * Cap/Power/Speed, Drop Chance) : `p`/`t` valent alors bien 0 ci-dessous —
+ * valeur réelle et vérifiée du wiki, pas un oubli.
+ *
+ * PISTE 2 (audit 2026-09-18, Norman : "Est-ce que tu as bien intégré chacune
+ * des statistiques special etc ?") — chaque fiche "Specials" a été revérifiée
+ * en direct au navigateur pour les ~17 objets SPECIALS restants (au-delà de
+ * tutorialCube, déjà fait PISTE 1). `sType`/`sBase`/`sMax` portent désormais
+ * le PREMIER bonus Special listé par la fiche (celui qui reste le seul
+ * boostable/plafonné via le mécanisme existant `special()`/`applyBoost`/
+ * `cleanItem` — inchangé, un seul scalaire `o.special` par objet). Quand une
+ * fiche en liste D'AUTRES (2e/3e/4e/5e bonus, ex. Cheese Grater : Drop
+ * Chance + Energy Speed + Magic Speed), ils sont portés par `sExtra`
+ * ([{type,base,max0,max100}]) : leur "Base value" wiki (valeur garantie par
+ * le simple fait d'équiper l'objet, SANS boost) alimente l'agrégat
+ * `specialsByType`/`specials` ci-dessous (idleAdventureEquipmentStatsV47).
+ * Ces bonus `sExtra` ne sont PAS individuellement boostables : le wiki NGU
+ * ne documente nulle part de mécanisme choisissant QUEL Special d'un objet
+ * multi-bonus reçoit un Boost donné, et SOREAL n'a qu'un unique boostType
+ * "special" par objet — inventer une UI de ciblage par sous-stat serait une
+ * nouvelle mécanique non demandée. Signalé comme choix de conception dans le
+ * rapport final, pas un oubli.
  */
 const SPECIALS=Object.freeze({
 /*
@@ -996,13 +1012,14 @@ const SPECIALS=Object.freeze({
  * audit par-objet du TYPE + magnitude de chaque Special (tâche séparée,
  * signalée dans le rapport final, pas un simple oubli).
  */
-tutorialCube:{name:"Tutorial Cube",zone:"sewers",slot:"special",cube:true,dropLevel:4,p:7,t:7,sBase:5,sMax:15,bossOnly:true,dropChance:0.10},
-// wiki : "The Tuba of Time" — Power/Toughness Max stat at lvl 0 = 10/10.
-tubaTime:{name:"Tuba of Time",zone:"forest",slot:"accessory",dropLevel:1,p:10,t:10},
-// wiki : "Cheese Grater" — Power Max at lvl 0 = 15 ; aucune stat Toughness listée.
-cheeseGrater:{name:"Cheese Grater",zone:"cave",slot:"accessory",dropLevel:1,p:15,t:0},
-// wiki : "A Dragon's Left Ball" — aucune stat Power/Toughness (Specials seulement : Magic Cap/Power).
-skyBall:{name:"A Dragon's Left Ball",zone:"sky",slot:"accessory",dropLevel:1,p:0,t:0},
+// PISTE 2 : sType ajouté (energySpeedPct) -- même magnitude PISTE 1, voir commentaire au-dessus de SPECIALS.
+tutorialCube:{name:"Tutorial Cube",zone:"sewers",slot:"special",cube:true,dropLevel:4,p:7,t:7,sBase:5,sMax:15,sType:"energySpeedPct",bossOnly:true,dropChance:0.10},
+// wiki : "The Tuba of Time" — Power/Toughness Max stat at lvl 0 = 10/10. Specials : Energy Power -- Base 5%, Max lvl0 15%, Max lvl100 30%.
+tubaTime:{name:"Tuba of Time",zone:"forest",slot:"accessory",dropLevel:1,p:10,t:10,sBase:5,sMax:15,sType:"energyPowerPct"},
+// wiki : "Cheese Grater" — Power Max at lvl 0 = 15 ; aucune stat Toughness listée. Specials : Drop Chance (1/2/4%), Energy Speed (20/40/80%), Magic Speed (15/30/60%).
+cheeseGrater:{name:"Cheese Grater",zone:"cave",slot:"accessory",dropLevel:1,p:15,t:0,sBase:1,sMax:2,sType:"dropChancePct",sExtra:[{type:"energySpeedPct",base:20,max0:40,max100:80},{type:"magicSpeedPct",base:15,max0:30,max100:60}]},
+// wiki : "A Dragon's Left Ball" — aucune stat Power/Toughness. Specials : Magic Cap (2/3/6%), Magic Power (20/50/100%).
+skyBall:{name:"A Dragon's Left Ball",zone:"sky",slot:"accessory",dropLevel:1,p:0,t:0,sBase:2,sMax:3,sType:"magicCapPct",sExtra:[{type:"magicPowerPct",base:20,max0:50,max100:100}]},
 // wiki : "Pissed Off Key" — Type Consumable, aucune stat.
 pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bossOnly:true,dropLevel:0,p:0,t:0},
 /*
@@ -1033,28 +1050,28 @@ pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bos
 flubber:{name:"The Lonely Flubber",zone:"tutorial",slot:"accessory",set:"training",dropLevel:10,p:0,t:0,customDropRoll:true},
 // wiki : "A busted copy of Wandoos 98" — consommable de déblocage d'OS, aucune stat.
 wandoos98:{name:"Wandoos 98",zone:"sky",slot:"special",unlock:"wandoos",dropLevel:0,p:0,t:0},
-// wiki : "Magicite Crystal" — Power/Toughness Max at lvl 0 = 50/50.
-magicite:{name:"Magicite Crystal",zone:"hsb",slot:"accessory",dropLevel:1,p:50,t:50},
-// wiki : "Giant Windup Gear" — Power/Toughness Max at lvl 0 = 150/150.
-windupGear:{name:"Giant Windup Gear",zone:"clock",slot:"accessory",dropLevel:1,p:150,t:150},
-// wiki : "A Sinusoidal Wave" — aucune stat Power/Toughness (Specials seulement : Energy/Magic Cap).
-sinusoidalWave:{name:"A Sinusoidal Wave",zone:"2d",slot:"accessory",dropLevel:1,p:0,t:0},
-// wiki : "Ghost Typewriter" — Power/Toughness Max at lvl 0 = 600/600.
-ghostTypewriter:{name:"Ghost Typewriter",zone:"ancient",slot:"accessory",dropLevel:1,p:600,t:600},
-// wiki : "Gaudy Epaulettes" — Power/Toughness Max at lvl 0 = 900/900.
-gaudyShoulders:{name:"Gaudy Epaulettes",zone:"avsp",slot:"accessory",dropLevel:1,p:900,t:900},
-// wiki : "The F Tank" — Power/Toughness Max at lvl 0 = 4 000/4 000.
-fTank:{name:"The F Tank",zone:"mega",slot:"accessory",dropLevel:1,p:4000,t:4000},
-// wiki : "Ring of Apathy" — pas de section Stats du tout, aucune stat Power/Toughness.
+// wiki : "Magicite Crystal" — Power/Toughness Max at lvl 0 = 50/50. Specials : Magic Cap (4/6/12%), Magic Speed (25/50/100%).
+magicite:{name:"Magicite Crystal",zone:"hsb",slot:"accessory",dropLevel:1,p:50,t:50,sBase:4,sMax:6,sType:"magicCapPct",sExtra:[{type:"magicSpeedPct",base:25,max0:50,max100:100}]},
+// wiki : "Giant Windup Gear" — Power/Toughness Max at lvl 0 = 150/150. Specials : Drop Chance (4/8/16%), Energy Cap (3/5/10%), Magic Cap (3/5/10%).
+windupGear:{name:"Giant Windup Gear",zone:"clock",slot:"accessory",dropLevel:1,p:150,t:150,sBase:4,sMax:8,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:3,max0:5,max100:10},{type:"magicCapPct",base:3,max0:5,max100:10}]},
+// wiki : "A Sinusoidal Wave" — aucune stat Power/Toughness. Specials : Energy Cap (2.5/7/14%), Magic Cap (2.5/7/14%).
+sinusoidalWave:{name:"A Sinusoidal Wave",zone:"2d",slot:"accessory",dropLevel:1,p:0,t:0,sBase:2.5,sMax:7,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:2.5,max0:7,max100:14}]},
+// wiki : "Ghost Typewriter" — Power/Toughness Max at lvl 0 = 600/600. Specials : Drop Chance (9/18/36%), Energy Cap (8/16/32%), Magic Power (30/60/120%).
+ghostTypewriter:{name:"Ghost Typewriter",zone:"ancient",slot:"accessory",dropLevel:1,p:600,t:600,sBase:9,sMax:18,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:8,max0:16,max100:32},{type:"magicPowerPct",base:30,max0:60,max100:120}]},
+// wiki : "Gaudy Epaulettes" — Power/Toughness Max at lvl 0 = 900/900. Specials : Energy Bars (60/100/200%), Energy Cap (12/24/48%), Energy Power (50/90/180%).
+gaudyShoulders:{name:"Gaudy Epaulettes",zone:"avsp",slot:"accessory",dropLevel:1,p:900,t:900,sBase:60,sMax:100,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:12,max0:24,max100:48},{type:"energyPowerPct",base:50,max0:90,max100:180}]},
+// wiki : "The F Tank" — Power/Toughness Max at lvl 0 = 4 000/4 000. Specials : Energy Bars (100/100/200%), Energy Cap (50/50/100%), Energy Power (100/160/320%).
+fTank:{name:"The F Tank",zone:"mega",slot:"accessory",dropLevel:1,p:4000,t:4000,sBase:100,sMax:100,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:50,max0:50,max100:100},{type:"energyPowerPct",base:100,max0:160,max100:320}]},
+// wiki : "Ring of Apathy" — pas de section Stats du tout, aucune stat Power/Toughness, aucun Special (son seul effet réel est un mécanisme de parité de niveau pour UUG, pas un bonus chiffré).
 ringOfApathy:{name:"Ring of Apathy",zone:"forest",slot:"accessory",dropLevel:1,maxFlag:"ringOfApathyMaxed",requiresBoss:100,p:0,t:0},
-// wiki : "A Beard Comb" — aucune stat Power/Toughness (Specials seulement).
-beardComb:{name:"Beard Comb",zone:"beardverse",slot:"accessory",dropLevel:1,p:0,t:0},
-// wiki : "Random Crayons" — aucune stat Power/Toughness (Specials seulement).
-randomCrayons:{name:"Random Crayons",zone:"badly",slot:"accessory",dropLevel:1,p:0,t:0},
-// wiki : "Red Lipstick" — aucune stat Power/Toughness (Specials seulement).
-redLipstick:{name:"Red Lipstick",zone:"boring",slot:"accessory",dropLevel:1,p:0,t:0},
-// wiki : "Candy Corn Necklace" — aucune stat Power/Toughness (Specials seulement).
-candyCornNecklace:{name:"Candy Corn Necklace",zone:"chocolate",slot:"accessory",dropLevel:1,p:0,t:0},
+// wiki : "A Beard Comb" — aucune stat Power/Toughness. Specials : Beard Speed (6/12/24%), Energy Cap (40/60/120%), Magic Power (350/450/900%).
+beardComb:{name:"Beard Comb",zone:"beardverse",slot:"accessory",dropLevel:1,p:0,t:0,sBase:6,sMax:12,sType:"beardSpeedPct",sExtra:[{type:"energyCapPct",base:40,max0:60,max100:120},{type:"magicPowerPct",base:350,max0:450,max100:900}]},
+// wiki : "Random Crayons" — aucune stat Power/Toughness. Specials : Drop Chance (40/40/80%), Energy Cap (40/40/80%), Energy Power (400/400/800%), Magic Cap (40/40/80%), Magic Power (400/400/800%).
+randomCrayons:{name:"Random Crayons",zone:"badly",slot:"accessory",dropLevel:1,p:0,t:0,sBase:40,sMax:40,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:40,max0:40,max100:80},{type:"energyPowerPct",base:400,max0:400,max100:800},{type:"magicCapPct",base:40,max0:40,max100:80},{type:"magicPowerPct",base:400,max0:400,max100:800}]},
+// wiki : "Red Lipstick" — aucune stat Power/Toughness. Specials : Beard Speed (25/25/50%), Energy Power (1000/1000/2000%), Magic Cap (150/150/300%), Magic Power (1000/1000/2000%).
+redLipstick:{name:"Red Lipstick",zone:"boring",slot:"accessory",dropLevel:1,p:0,t:0,sBase:25,sMax:25,sType:"beardSpeedPct",sExtra:[{type:"energyPowerPct",base:1000,max0:1000,max100:2000},{type:"magicCapPct",base:150,max0:150,max100:300},{type:"magicPowerPct",base:1000,max0:1000,max100:2000}]},
+// wiki : "Candy Corn Necklace" — aucune stat Power/Toughness. Specials : Energy Bars (2000/2000/4000%), Magic Bars (2000/2000/4000%), NGU Speed (200/200/400%), Seed Gain (50/50/100%).
+candyCornNecklace:{name:"Candy Corn Necklace",zone:"chocolate",slot:"accessory",dropLevel:1,p:0,t:0,sBase:2000,sMax:2000,sType:"energyBarsPct",sExtra:[{type:"magicBarsPct",base:2000,max0:2000,max100:4000},{type:"nguSpeedPct",base:200,max0:200,max100:400},{type:"seedGainPct",base:50,max0:50,max100:100}]},
 /*
  * Audit round 3 (2026-09-14, Norman : "trop d'objets n'ont pas encore
  * leurs stats") : le butin garanti de Walderp (t5, IDLE_ADVENTURE_TITANS)
@@ -1076,6 +1093,7 @@ candyCornNecklace:{name:"Candy Corn Necklace",zone:"chocolate",slot:"accessory",
  * lieu du flag unlockItems seul — laissé en place, inoffensif, pour ne pas
  * élargir le correctif au-delà du gap stat identifié.
  */
+// PISTE 2 (2026-09-18) : fiche revérifiée -- aucune section "Specials", seulement Power/Toughness ci-dessus. Pas d'oubli.
 wanderersCane:{name:"Wanderer's Cane",zone:"",slot:"weapon",dropLevel:10,p:170000,t:12000},
 /*
  * V145 — butin exclusif aux paliers Normal+/Hard+/Brutal de The Beast
@@ -1084,12 +1102,12 @@ wanderersCane:{name:"Wanderer's Cane",zone:"",slot:"weapon",dropLevel:10,p:17000
  * ne sont pas des butins de zone (jamais sélectionnés par rollKill),
  * uniquement distribués depuis titan().
  */
-// wiki : "A Shrunken Voodoo Doll" (lvl 4, Titan The Beast Normal+) — Power/Toughness Max at lvl 0 = 66 666/66 666.
-shrunkenVoodooDoll:{name:"Shrunken Voodoo Doll",zone:"",slot:"accessory",dropLevel:4,p:66666,t:66666},
-// wiki : "A Priceless Van-Gogh Painting" (lvl 4, Titan The Beast Hard+) — Power/Toughness Max at lvl 0 = 30 000/30 000.
-pricelessVanGoghPainting:{name:"A Priceless Van-Gogh Painting",zone:"",slot:"accessory",dropLevel:4,p:30000,t:30000},
-// wiki : "A Small Gerbil" (lvl 4, Titan The Beast Brutal) — Power/Toughness Max at lvl 0 = 100 000/100 000.
-smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000,t:100000}
+// wiki : "A Shrunken Voodoo Doll" (lvl 4, Titan The Beast Normal+) — Power/Toughness Max at lvl 0 = 66 666/66 666. Specials : Beard Speed (200/200/400%), NGU Speed (200/200/400%).
+shrunkenVoodooDoll:{name:"Shrunken Voodoo Doll",zone:"",slot:"accessory",dropLevel:4,p:66666,t:66666,sBase:200,sMax:200,sType:"beardSpeedPct",sExtra:[{type:"nguSpeedPct",base:200,max0:200,max100:400}]},
+// wiki : "A Priceless Van-Gogh Painting" (lvl 4, Titan The Beast Hard+) — Power/Toughness Max at lvl 0 = 30 000/30 000. Specials : Energy Cap (200/200/400%), Gold Drops (3000/3000/6000%), Magic Cap (200/200/400%).
+pricelessVanGoghPainting:{name:"A Priceless Van-Gogh Painting",zone:"",slot:"accessory",dropLevel:4,p:30000,t:30000,sBase:200,sMax:200,sType:"energyCapPct",sExtra:[{type:"goldDropsPct",base:3000,max0:3000,max100:6000},{type:"magicCapPct",base:200,max0:200,max100:400}]},
+// wiki : "A Small Gerbil" (lvl 4, Titan The Beast Brutal) — Power/Toughness Max at lvl 0 = 100 000/100 000. Specials : Energy Power (2000/6000/12000%), Magic Cap (200/600/1200%), Magic Power (2000/6000/12000%).
+smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000,t:100000,sBase:2000,sMax:6000,sType:"energyPowerPct",sExtra:[{type:"magicCapPct",base:200,max0:600,max100:1200},{type:"magicPowerPct",base:2000,max0:6000,max100:12000}]}
 });
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
 /*
@@ -2426,6 +2444,34 @@ export function idleAdventureCubeTierV1(cube){
   const suivant=IDLE_ADVENTURE_CUBE_TIERS_V1[actuel.tier+1]||null;
   return{...actuel,totalStats:total,suivant}
 }
+/*
+ * PISTE 2 (2026-09-18, audit "Est-ce que tu as bien intégré chacune des
+ * statistiques special etc ?") -- agrège, PAR TYPE réel de bonus (voir
+ * commentaire au-dessus de SPECIALS pour sType/sExtra), les Specials des
+ * objets équipés :
+ * - sType (le Special "primaire", boostable) : contribue sa valeur COURANTE
+ *   o.special (démarre à sBase, plafonnée par applyBoost/cleanItem à
+ *   sMax*(1+niveau/100) -- même mécanisme que PISTE 1, inchangé).
+ * - sExtra (les Specials additionnels, non boostables individuellement --
+ *   voir commentaire au-dessus de SPECIALS) : contribue sa "Base value"
+ *   wiki fixe (entry.base), garantie par le simple fait d'équiper l'objet.
+ * Exporté séparément (`specialsByType`) ET replié dans `specials` par
+ * idleAdventureEquipmentStatsV47 pour que les consommateurs existants
+ * (dropMultiplier notamment, déjà câblé sur specials.dropChancePct) captent
+ * automatiquement la contribution des objets sans changement de leur côté.
+ */
+function idleAdventureSpecialsByTypeV1(equipped){
+  const out={};
+  const add=(type,value)=>{if(!type)return;out[type]=N(out[type])+N(value)};
+  for(const o of equipped){
+    const def=defById(o.definitionId);
+    const d=def?.kind==="special"?SPECIALS[def.id]:null;
+    if(!d)continue;
+    if(d.sType)add(d.sType,o.special);
+    if(Array.isArray(d.sExtra))for(const ex of d.sExtra)add(ex.type,ex.base);
+  }
+  return out;
+}
 export function idleAdventureEquipmentStatsV47(raw){
   const s=normalizeIdleAdventureStateV47(raw);
   const ids=[s.equipment.head,s.equipment.chest,s.equipment.legs,s.equipment.boots,s.equipment.weapon,...(s.equipment.accessories||[])].filter(Boolean);
@@ -2460,19 +2506,34 @@ export function idleAdventureEquipmentStatsV47(raw){
    * ensuite à ce plancher.
    */
   const safeZoneRegenMultiplierV1=s.selectedZone==="safe"?(s.setRewards.safeZoneRegen10x?10:5):1;
+  const specialsByType=idleAdventureSpecialsByTypeV1(equipped);
   return{
     power:basePower+idleAdventureCubeSoftcapV1(s.cube.power,basePower),
     toughness:baseToughness+idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness),
     hp:equippedHp+N(s.setRewards.adventureHp),
     regen:(equippedRegen+N(s.setRewards.adventureRegen))*safeZoneRegenMultiplierV1,
     special:equipped.reduce((a,x)=>a+N(x.special),0),
+    specialsByType,
     specials:{
-      dropChancePct:N(s.setRewards.drop)*100+idleAdventureCubeTierV1(s.cube).dropChancePct,
+      dropChancePct:N(s.setRewards.drop)*100+idleAdventureCubeTierV1(s.cube).dropChancePct+N(specialsByType.dropChancePct),
       respawnReductionPct:N(s.setRewards.respawn)*100,
       chargeMultiplier:Math.max(1,N(s.setRewards.chargeMultiplier,1)),
       idleAttack:Boolean(s.setRewards.idleAttack),
       wandoosMeh:Boolean(s.setRewards.wandoosMeh),
-      noEquipmentChallenge:Boolean(s.setRewards.noEquipmentChallenge)
+      noEquipmentChallenge:Boolean(s.setRewards.noEquipmentChallenge),
+      // PISTE 2 (2026-09-18) : agrégat typé des SPECIALS équipés (sType/sExtra ci-dessus), voir idleAdventureSpecialsByTypeV1.
+      energySpeedPct:N(specialsByType.energySpeedPct),
+      energyPowerPct:N(specialsByType.energyPowerPct),
+      energyCapPct:N(specialsByType.energyCapPct),
+      energyBarsPct:N(specialsByType.energyBarsPct),
+      magicSpeedPct:N(specialsByType.magicSpeedPct),
+      magicPowerPct:N(specialsByType.magicPowerPct),
+      magicCapPct:N(specialsByType.magicCapPct),
+      magicBarsPct:N(specialsByType.magicBarsPct),
+      goldDropsPct:N(specialsByType.goldDropsPct),
+      beardSpeedPct:N(specialsByType.beardSpeedPct),
+      nguSpeedPct:N(specialsByType.nguSpeedPct),
+      seedGainPct:N(specialsByType.seedGainPct)
     },
     setRewards:X(s.setRewards),
     permanent:X(s.permanent)
