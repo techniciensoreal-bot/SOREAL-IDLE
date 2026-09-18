@@ -2292,15 +2292,22 @@ function advanceTrackSystem(state, def, seconds) {
    * Evil/Sadistic). Wiki NGU : "Meta (set)" +20% NGU Speed, "Back To
    * School (set)" +15% NGU Speed -- setRewards.nguSpeedPct
    * (idle-adventure-v47.js) est le pont déjà utilisé pour les autres
-   * bonus de set. Ce champ ne couvre QUE ce pont-là : le multiplicateur
-   * "NGU Speed" plus large (beard/digger/auto-boost, déjà calculé dans
-   * idleNguBonuses().nguSpeedMultiplier pour l'affichage) reste un gap
-   * préexistant non touché ici -- jamais branché dans la boucle
-   * d'avancement, hors du périmètre de ce correctif ciblé sur
-   * l'équipement.
+   * bonus de set. Ce champ ne couvre QUE ce pont-là.
+   *
+   * Correctif 2026-09-18 (suite) : le multiplicateur "NGU Speed" plus large
+   * (challenges/beard/digger/attack-NGU/objets, déjà calculé dans
+   * idleNguBonuses().nguSpeedMultiplier) restait un gap préexistant jamais
+   * branché dans cette boucle d'avancement -- câblé maintenant, en plus de
+   * nguSpeedSetMultiplier ci-dessus (deux sources distinctes du même wiki,
+   * multipliées ensemble comme le reste des chaînes de multiplicateurs de
+   * ce fichier). Uniquement sur def.id === "ngu" : ce champ ne concerne que
+   * cette piste précise (Attack/Defense/Adventure/Drop/Respawn/Experience/
+   * PP/Quest/Daycare via NGU), jamais Beards/Hacks/Wishes/Wandoos/Advanced
+   * Training qui ont chacun leur propre vitesse déjà câblée ailleurs.
    */
   const nguSpeedSetMultiplier = def.id === "ngu" ? 1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0)) : 1;
-  t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier;
+  const nguSpeedBonusMultiplier = def.id === "ngu" ? Math.max(0, num(idleNguBonuses(state).nguSpeedMultiplier, 1)) : 1;
+  t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier * nguSpeedBonusMultiplier;
   let gain = Math.floor(t.progress);
   if (gain > 0) {
     t.progress -= gain;
@@ -3273,7 +3280,17 @@ export function idleNguBonuses(raw) {
     diggerDrainGoldPerSecond: diggerDrainTotal(state),
     diggerGlobalBonus: diggerGlobalBonus(state),
     diggerSlots: availableDiggerSlots(state),
-    // PISTE 2 (2026-09-18) : "NGU Speed" (Candy Corn Necklace / A Shrunken Voodoo Doll, wiki) rejoint ce multiplicateur déjà affichage-seul (voir commentaire ci-dessus "reste un gap préexistant"), même traitement non terminal que le reste de cette section.
+    /*
+     * PISTE 2 (2026-09-18) : "NGU Speed" (Candy Corn Necklace / A Shrunken
+     * Voodoo Doll, wiki) rejoint ce multiplicateur. Correctif 2026-09-18
+     * (suite) : ce multiplicateur était resté affichage-seul -- advanceTrackSystem
+     * (def.id === "ngu") n'appliquait que setRewards.nguSpeedPct (le pont
+     * "set complet" existant), jamais ce multiplicateur-ci (beard/digger/
+     * attack-NGU/objets). Câblé maintenant dans advanceTrackSystem, en plus
+     * de nguSpeedSetMultiplier (les deux sont des sources distinctes,
+     * multipliées ensemble comme le reste des chaînes de multiplicateurs de
+     * ce fichier).
+     */
     nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + Math.log10(1 + trackBonusLevel(state, "ngu", "attack")) * 0.01) * (1 + num(adventureGear.specials?.nguSpeedPct, 0) / 100),
     nguSpeedEnergyMultiplierFromPerks: perkBonuses.nguSpeedEnergyMultiplier,
     nguSpeedMagicMultiplierFromPerks: perkBonuses.nguSpeedMagicMultiplier,
