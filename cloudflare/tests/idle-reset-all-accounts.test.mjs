@@ -15,6 +15,15 @@ import fs from "node:fs";
  * Réservé à un déclenchement manuel ponctuel (jamais un bouton
  * joueur) : exigerAccesSorealIdle_ suffit, l'appelant est le seul
  * Responsable qui a demandé et confirmé cette action explicitement.
+ *
+ * Correctif 2026-09-18 (Norman, en direct : "ajoute à moi seul, dans le
+ * menu paramètres, un bouton qui reset l'entièreté des joueurs actuels")
+ * — cette action est désormais réellement exposée à un bouton
+ * (SOREAL-APP, pageParametresIdleV28_), donc "jamais un bouton joueur"
+ * ci-dessus n'est plus vrai : exigerAccesSorealIdle_ seul autoriserait
+ * n'importe quel compte de EMAILS_DEVELOPPEMENT (Norman, Sébastien...),
+ * pas seulement le Responsable. ADMIN_SOREAL_IDLE_EMAIL restreint cette
+ * action précise (et elle seule) au seul compte de Norman.
  */
 const source = fs.readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
@@ -29,6 +38,21 @@ assert.ok(
   body.indexOf("exigerAccesSorealIdle_(") < body.indexOf("LockService.getScriptLock()"),
   "L'action doit exiger une session IDLE valide avant tout accès au verrou/à la feuille."
 );
+assert.ok(
+  source.includes("const ADMIN_SOREAL_IDLE_EMAIL = 'technicien.soreal@gmail.com';"),
+  "L'email admin doit être défini explicitement — jamais deviné/dérivé ailleurs."
+);
+{
+  const guardStart = body.indexOf("exigerAccesSorealIdle_(");
+  const guardEnd = body.indexOf("LockService.getScriptLock()");
+  const guard = body.slice(guardStart, guardEnd);
+  assert.ok(
+    /acces\.emailAutorise[\s\S]{0,40}toLowerCase\(\)[\s\S]{0,40}!==[\s\S]{0,10}ADMIN_SOREAL_IDLE_EMAIL/.test(guard) &&
+    guard.includes("throw new Error(") &&
+    guard.includes("'SOREAL_IDLE_ADMIN_REQUIS'"),
+    "Doit vérifier acces.emailAutorise contre ADMIN_SOREAL_IDLE_EMAIL et refuser (throw) tout autre compte de la liste de développement — après exigerAccesSorealIdle_, avant tout accès au verrou/à la feuille."
+  );
+}
 assert.ok(
   body.includes("feuille.getLastRow()") &&
   !body.includes("trouverLigneJoueurSorealIdle_("),

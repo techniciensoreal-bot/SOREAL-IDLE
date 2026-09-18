@@ -11961,13 +11961,36 @@ function selectionnerBossSorealIdle(
  * Réservé à un déclenchement manuel ponctuel (jamais exposé à un
  * bouton joueur) : exigerAccesSorealIdle_ suffit ici, l'appelant est
  * l'unique Responsable qui a demandé et confirmé cette action.
+ *
+ * Correctif 2026-09-18 (Norman, en direct : "ajoute à moi seul, dans le
+ * menu paramètres, un bouton qui reset l'entièreté des joueurs actuels")
+ * — désormais exposée à un vrai bouton (SOREAL-APP, pageParametresIdleV28_),
+ * donc le commentaire ci-dessus ("jamais un bouton joueur", "l'appelant
+ * est l'unique Responsable") n'est plus garanti par le simple fait que
+ * personne d'autre ne connaît cette fonction : exigerAccesSorealIdle_
+ * seul autorise tout compte de la liste EMAILS_DEVELOPPEMENT (Norman,
+ * Sébastien...), pas seulement Norman. ADMIN_SOREAL_IDLE_EMAIL restreint
+ * cette action précise (et elle seule) au seul Responsable — la liste de
+ * développement reste inchangée pour l'accès normal au jeu.
  */
+const ADMIN_SOREAL_IDLE_EMAIL = 'technicien.soreal@gmail.com';
+
 function reinitialiserTousLesComptesSorealIdle(
   sessionToken
 ) {
-  exigerAccesSorealIdle_(
-    sessionToken
-  );
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  if (
+    String(acces.emailAutorise || '').toLowerCase() !==
+    ADMIN_SOREAL_IDLE_EMAIL
+  ) {
+    throw new Error(
+      'SOREAL_IDLE_ADMIN_REQUIS'
+    );
+  }
 
   const lock =
     LockService.getScriptLock();
