@@ -867,7 +867,36 @@ const SPECIALS=Object.freeze({
  * normaux. bossOnly:true + dropChance:0.10 (roll dédié dans rollKill,
  * jamais mélangé au pool générique 4% partagé par les autres SPECIALS).
  */
-tutorialCube:{name:"Tutorial Cube",zone:"sewers",slot:"special",cube:true,dropLevel:4,p:7,t:7,bossOnly:true,dropChance:0.10},
+/*
+ * PISTE 1 de l'audit wiki 2026-09-18 : page ngu-idle.fandom.com/wiki/
+ * 4G%27s_Merge_and_Boost_Tutorial_Cube vérifiée en direct (navigateur,
+ * section "Specials") -- "Energy Speed -- Base value: 5% -- Max stat at
+ * lvl 0: 15% -- Max stat at max lvl: 30% -- Base Points: 5 -- Max Points
+ * at lvl 0: 15 -- Max Points at max lvl: 30". Aucun champ ne portait cette
+ * magnitude avant ce correctif (SPECIALS.tutorialCube n'avait que p/t).
+ * sBase:5 (valeur de départ SANS aucun boost -- seule stat de cet objet
+ * dont le "Base value" wiki n'est PAS 0, contrairement à Power/Toughness/
+ * HP Max/HP regen ci-dessus dont "Base value" vaut bien 0 chacun -- donc
+ * PAS soumis au principe "démarre à 0" du commentaire special() plus bas,
+ * la fiche wiki documente explicitement un plancher non nul pour ce
+ * Special précis) ; sMax:15 (plafond au niveau 0, doublant à 30 au niveau
+ * 100 via le même q=1+niveau/100 déjà utilisé pour p/t -- vérifié sur la
+ * fiche que "Max stat at max lvl" = 2×"Max stat at lvl 0", identique à la
+ * convention Power/Toughness). Câblé dans special()/idleAdventure
+ * SpecialBaseStatsV1/applyBoost/cleanItem (voir ces fonctions). Le
+ * multiplicateur Energy Speed réel (appliquer ce % à la vitesse Energy
+ * effective) reste HORS PÉRIMÈTRE de ce correctif : stats.special (agrégat
+ * idleAdventureEquipmentStatsV47, ligne ~2123) somme déjà TOUS les objets
+ * SPECIALS équipés dans un seul nombre sans distinguer leur TYPE réel de
+ * bonus (Energy Speed pour ce cube, mais Magic Cap/Power pour "A Dragon's
+ * Left Ball", Energy/Magic Cap pour "A Sinusoidal Wave", etc. -- voir
+ * commentaires "Specials seulement" plus bas, aucun avec magnitude vérifiée
+ * pour l'instant) : câbler l'agrégat tel quel en "+X% Energy Speed"
+ * mélangerait à tort des bonus de types différents. Nécessite d'abord un
+ * audit par-objet du TYPE + magnitude de chaque Special (tâche séparée,
+ * signalée dans le rapport final, pas un simple oubli).
+ */
+tutorialCube:{name:"Tutorial Cube",zone:"sewers",slot:"special",cube:true,dropLevel:4,p:7,t:7,sBase:5,sMax:15,bossOnly:true,dropChance:0.10},
 // wiki : "The Tuba of Time" — Power/Toughness Max stat at lvl 0 = 10/10.
 tubaTime:{name:"Tuba of Time",zone:"forest",slot:"accessory",dropLevel:1,p:10,t:10},
 // wiki : "Cheese Grater" — Power Max at lvl 0 = 15 ; aucune stat Toughness listée.
@@ -1077,7 +1106,13 @@ function item(id,set,slot,lv=0){const s=SETS[set];return{id,definitionId:`${set}
  * ailleurs -- idleAdventureSpecialBaseStatsV1 -- comme plafond, jamais
  * comme valeur de départ).
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
+/*
+ * PISTE 1 (2026-09-18) : d.sBase -- quand défini (ex. tutorialCube:5, wiki
+ * "Energy Speed Base value: 5%") -- initialise `special` à cette valeur
+ * plancher réelle, PAS 0. Ne change rien pour les SPECIALS sans sBase
+ * (undefined -> N(undefined)=0, comportement identique à avant).
+ */
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(d.sBase)}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -1137,7 +1172,9 @@ export function createIdleAdventureStateV47(){return base()}
  * seul l'excédent illégitime (accumulé via le bug, jamais via un vrai
  * boost sous les nouvelles règles) est retiré.
  */
-function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);}return z}
+function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
+// PISTE 1 (2026-09-18) : même plafond que power/toughness pour le Special Bonus chiffré (baseS>0 uniquement -- ex. tutorialCube) ; les autres SPECIALS (baseS=0) restent non plafonnés, comportement inchangé.
+if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}return z}
 export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);
 /*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
@@ -1213,7 +1250,8 @@ function idleAdventureBaseStatsV1(set,slot){if(!SETS[set])return{baseP:0,baseT:0
  * sourcé au-dessus de SPECIALS) pour que le snapshot affiche la vraie base
  * au lieu de {baseP:0,baseT:0} fixe.
  */
-function idleAdventureSpecialBaseStatsV1(id){const d=SPECIALS[id];return d?{baseP:N(d.p),baseT:N(d.t)}:{baseP:0,baseT:0}}
+// PISTE 1 (2026-09-18) : baseS = d.sMax (plafond du Special Bonus au niveau 0, wiki, ex. tutorialCube sMax:15) -- 0 quand l'objet n'a pas de Special Bonus chiffré.
+function idleAdventureSpecialBaseStatsV1(id){const d=SPECIALS[id];return d?{baseP:N(d.p),baseT:N(d.t),baseS:N(d.sMax)}:{baseP:0,baseT:0,baseS:0}}
 /*
  * Correctif 2026-09-13 (Phase 11, audit) : "objet réellement maxé"
  * (niveau 100) était vérifié par TROIS comparaisons ">=100" séparées —
@@ -1443,7 +1481,20 @@ function applyBoost(s,boostId,targetId){
     const cap=base?(type==="power"?base.baseP:base.baseT)*(1+C(N(o.level),0,MAX)/100):null;
     o[type]=cap!=null?Math.min(cap,N(o[type])+added):N(o[type])+added;
   }else{
-    o[type]=N(o[type])+added;
+    /*
+     * PISTE 1 (2026-09-18) : un Special Bonus AVEC magnitude chiffrée sur le
+     * wiki (idleAdventureSpecialBaseStatsV1(d.id).baseS>0 -- ex. tutorialCube,
+     * sMax:15) est désormais plafonné exactement comme power/toughness
+     * (même formule baseS×(1+niveau/100)). Les SPECIALS sans magnitude
+     * chiffrée connue (baseS=0) restent sans plafond -- comportement
+     * inchangé, cf. commentaire Norman 2026-09-16 ci-dessus : la cible doit
+     * déjà être kind==="special" (vérifié plus haut), donc aucune arme/
+     * armure de set ne peut recevoir ce boost, plafonné ou non.
+     */
+    const d=defById(o.definitionId);
+    const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null;
+    const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
+    o[type]=cap!=null?Math.min(cap,N(o[type])+added):N(o[type])+added;
   }
   s.inventory=s.inventory.filter(x=>x.id!==b.id);
   record(s,o);
