@@ -7,14 +7,27 @@
  * La version V1 de ce bestiaire (2026-09-17, plus tôt le même jour) avait
  * été construite à la main, page wiki par page wiki, pour seulement 8 des
  * 15 zones jouables (tutorial/sewers/forest/sky/hsb/clock/2d + cave
- * partielle, 3 des 16 ennemis réels). Cette V2 couvre les 15 zones au
- * complet (tutorial -> chocolate), directement depuis le miroir local --
- * la disponibilité de CE miroir est précisément ce qui change ici.
+ * partielle, 3 des 16 ennemis réels). La V2 (même jour) a couvert les 15
+ * zones "Normal" au complet (tutorial -> chocolate).
  *
- * Utilisation : node design/build-idle-adventure-bestiary-v2.mjs
- * (réécrit cloudflare/src/idle-adventure-v47.js en place, uniquement le
- * bloc IDLE_ADVENTURE_MOB_BESTIARY_V1 -- rien d'autre dans ce fichier
- * n'est touché).
+ * V3 (2026-09-18, Norman : "tu peux faire pareil mais pour les mobs
+ * aventure maintenant" -- suite de l'audit des boss) : ajoute les 17
+ * zones Evil/Sadistic (IDLE_ADVENTURE_ZONES, ajoutées le même jour) au
+ * ZONE_MAP -- le miroir local les contenait déjà (confirmé via
+ * `node design/parse-ngu-wiki.mjs` seul, répartition par zone), inutile
+ * de retourner naviguer le wiki en direct. 16/17 ont un `location`
+ * exploitable (noms EXACTS du champ `location` des fiches {{Enemy}}
+ * individuelles, PAS forcément identiques au titre de la page de zone --
+ * ex. "Typo Zonw" avec la même coquille que le nom de zone SOREAL,
+ * "The Fad-lands" en minuscule contrairement au titre de page "The
+ * Fad-Lands"). La 17e, aethereansea ("The Aethereal Sea"), n'a AUCUNE
+ * fiche {{Enemy}} individuelle sur le miroir -- sa page de zone est un
+ * stub wiki ("{{Stub}}", "It was formerly named 'The Aethereal Sea Part
+ * 1' but apparently an intended Part 2 got cancelled") sans ennemis
+ * nommés/statés listés ailleurs sur le wiki. Volontairement absente du
+ * bestiaire plutôt que devinée -- même principe que les Combats de Boss
+ * 184-301 (idle-ngu-boss-reference-v1.js) dont le wiki lui-même ne
+ * documente plus les valeurs.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -24,13 +37,10 @@ const PAGES_DIR = 'C:\\Users\\n0rma\\Documents\\NGU-Wiki\\pages';
 const TARGET_FILE = new URL('../cloudflare/src/idle-adventure-v47.js', import.meta.url);
 
 // Zone SOREAL (IDLE_ADVENTURE_ZONES) -> nom réel de la zone sur le wiki
-// NGU (champ `location` du template {{Enemy}}). Seules les 15 zones
-// jouables de ce moteur (IDLE_ADVENTURE_ZONES, hors "safe") ont une
-// entrée ici -- toutes les autres zones/mondes présents dans le miroir
-// (Rad-Lands, Evilverse, Construction Zone, etc.) sont réels mais ne
-// correspondent à AUCUNE zone jouable ici, donc ignorés par ce script
-// (pas d'endroit où les mettre sans construire de nouvelles zones,
-// explicitement hors du périmètre Phase 1 demandé par Norman).
+// NGU (champ `location` du template {{Enemy}}). Couvre maintenant les 32
+// zones de combat (Normal + Evil/Sadistic ; "safe" exclue, aucun combat).
+// aethereansea absente : voir commentaire d'en-tête (pas de fiche
+// {{Enemy}} individuelle sur le miroir pour cette zone).
 const ZONE_MAP = {
   tutorial: 'Tutorial Zone',
   sewers: 'Sewers',
@@ -46,7 +56,23 @@ const ZONE_MAP = {
   beardverse: 'The Beardverse',
   badly: 'Badly Drawn World',
   boring: 'Boring-Ass Earth',
-  chocolate: 'Chocolate World'
+  chocolate: 'Chocolate World',
+  evilverse: 'The Evilverse',
+  pinkprincess: 'Pretty Pink Princess Land',
+  metaland: 'Meta Land',
+  interdimensional: 'Interdimensional Party',
+  typozone: 'Typo Zonw',
+  fadlands: 'The Fad-lands',
+  jrpgville: 'JRPGVille',
+  radlands: 'The Rad-Lands',
+  backtoschool: 'Back To School',
+  westworld: 'The West World',
+  breadverse: 'The Breadverse',
+  seventies: "That 70's Zone",
+  halloweenies: 'The Halloweenies',
+  construction: 'Construction Zone',
+  duckduck: 'DUCK DUCK ZONE',
+  netherregions: 'The Nether Regions'
 };
 
 function jsNumber(n) {
