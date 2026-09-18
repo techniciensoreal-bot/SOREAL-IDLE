@@ -14975,6 +14975,15 @@ export const idleRuntimeTestHooks=Object.freeze({
   pvMaxBossSorealIdle_
 });
 
+/*
+ * Drapeau mémoire (2026-09-18, perf) — voir le commentaire dans
+ * runSorealIdleOperation() juste en dessous : la réparation/restauration
+ * legacy des feuilles de catalogue ne fait jamais rien d'utile une fois la
+ * migration confirmée terminée. Scopé à l'isolate (jamais persistant), donc
+ * toujours ré-exécuté au moins une fois après chaque redémarrage à froid.
+ */
+let __idleLegacyRepairDoneV1=false;
+
 export function runSorealIdleOperation(sql,operation,args,user){
   const op=String(operation||"");
   const fn=IDLE_OPERATIONS[op];
@@ -15010,9 +15019,25 @@ export function runSorealIdleOperation(sql,operation,args,user){
    * minuscules (joueurs, config, boss...) alors que le moteur attend les
    * noms réels des feuilles (JOUEURS, CONFIG, IDLE_BOSS...). On répare
    * ces clés de façon idempotente avant de reconstruire le workbook.
+   *
+   * Perf (2026-09-18, Norman : "le menu Paramètres est lent") — mesuré en
+   * direct : chaque /api/idle/call prenait 830ms à 2,2s. Cause confirmée :
+   * ces deux passes de réparation tournaient AVANT CHAQUE opération, sans
+   * exception, alors qu'elles ne font jamais rien d'utile une fois la
+   * migration terminée — chacune exécute jusqu'à 15 requêtes SQL (une par
+   * feuille canonique) rien que pour constater qu'il n'y a rien à réparer.
+   * Le check ci-dessus (sourceState.total/done) confirme déjà que la
+   * migration des 15 sources est complète — une fois vrai, ça ne redevient
+   * jamais faux (aucun mécanisme ne réintroduit du legacy après coup). Un
+   * simple drapeau mémoire, remis à zéro à chaque redémarrage à froid de
+   * l'isolate (donc toujours ré-exécuté au moins une fois, jamais un skip
+   * permanent risqué), suffit à économiser ces ~30 requêtes par appel.
    */
-  __idleRepairCatalogSheetNamesV1(sql);
-  __idleRestoreCatalogFromLegacyV2(sql);
+  if(!__idleLegacyRepairDoneV1){
+    __idleRepairCatalogSheetNamesV1(sql);
+    __idleRestoreCatalogFromLegacyV2(sql);
+    __idleLegacyRepairDoneV1=true;
+  }
 
   const workbook=__idleBuildWorkbook(sql);
   if(!workbook.getSheetByName("JOUEURS"))throw new Error("SOREAL_IDLE_JOUEURS_ABSENT");
