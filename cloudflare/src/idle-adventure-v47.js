@@ -1228,10 +1228,16 @@ export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
  * place au-dessus de SETS.uug ("le Cane/Candy Cane sont des objets à
  * part, pas repris ici").
  *
- * Portée : les 36 sets de SETS (training -> pirate, mode Normal complet)
- * sont maintenant tous couverts. Les variantes Evil/Sadistic (équipement
- * séparé, cf. commit 71d65b0/4a702bd du 2026-09-18) utilisent leurs
- * propres tables de noms, hors de SET_ITEM_NAMES_V1 -- non touchées ici.
+ * Portée : les 36 sets de SETS (training -> pirate) sont maintenant tous
+ * couverts -- ce qui inclut, en réalité, les 17 zones marquées
+ * requiredDifficulty ("difficile"/"extreme", cf. IDLE_ADVENTURE_ZONES :
+ * evilverse -> aethereansea) : contrairement à une première lecture, il
+ * n'existe PAS de table de noms séparée pour l'équipement Evil/Sadistic --
+ * z.set pointe vers le même SETS/SET_ITEM_NAMES_V1 que les zones Normal
+ * (vérifié en relisant unlockedZone()/rollKill() : requiredDifficulty ne
+ * change que le déverrouillage et le diviseur de drop, jamais l'identité
+ * de l'objet). Ces 17 zones sont donc déjà couvertes par ce round, pas
+ * seulement les 19 zones "Normal" au sens strict.
  */
 const SET_ITEM_NAMES_V1=Object.freeze({
   "training:weapon":"A Stick","training:head":"Cloth Hat","training:chest":"Cloth Shirt","training:legs":"Cloth Leggings","training:boots":"Cloth Boots",
