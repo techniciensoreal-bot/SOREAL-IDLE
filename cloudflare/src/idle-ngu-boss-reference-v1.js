@@ -42,6 +42,17 @@
  * boss restent la propriété du catalogue SOREAL (identité visuelle/
  * textuelle SOREAL, cf. mission règle 9-10) — non touchés ici.
  *
+ * Round 2 (2026-09-18) : vérifié que "respawn/cooldown" et "drops d'objet"
+ * (demandés dans le sweep Fight Boss) n'existent tout simplement pas comme
+ * mécanique NGU pour ce mode. Le template wiki {{Enemy}} (voir
+ * design/parse-ngu-wiki.mjs, ENEMY_FIELD_KEYS) ne publie aucun champ
+ * bf_respawn/bf_cooldown/bf_drop pour les 301 fiches du catalogue Fight
+ * Boss — cohérent avec le jeu réel (l'équipement/loot n'existe QUE en
+ * Adventure Mode, déjà documenté dans idle-sqlite-runtime.js,
+ * statsCombatPrincipalSorealIdleV413_, audit du 2026-09-16). Rien à
+ * corriger ici : ce ne sont pas des champs oubliés, juste des champs qui
+ * n'existent pas pour ce mode.
+ *
  * Audit 2026-09-13 (Norman, en jouant les deux jeux en parallèle) : le
  * champ `defense` était déjà extrait du wiki dans
  * cloudflare/reference/ngu-boss-reference-v1.json depuis le 2026-09-09,
@@ -455,6 +466,16 @@ export const NGU_BOSS_REFERENCE_COUNT_V1 = NGU_BOSS_REFERENCE_V1.length;
  * causé le bug XP corrigé le même jour, cf. NGU_BOSS_REFERENCE_V1 plus
  * haut), nguBossFtbeBonusXpV1 renvoie 0 au-delà de l'index 19 : ces boss
  * gardent leur XP normale à chaque kill, sans bonus première fois.
+ *
+ * Round 2 (2026-09-18) : confirmé que cette limite à 20 n'est pas une
+ * simple absence de vérification mais un vrai plafond côté wiki. En
+ * parcourant les 147 fiches {{Enemy}} du miroir local qui publient un
+ * champ bf_exp (boss1 à ~155, cf. design/ngu-boss-fight-real-names-v1.json),
+ * SEULES les 20 déjà connues portent l'annotation "(N first time
+ * ever/beaten)" — à partir du boss21 (ex. "Blue Cheese"), bf_exp est un
+ * simple nombre sans annotation FTBE (vérifié en direct sur plusieurs
+ * fiches, ex. boss21-40). Aucune extension n'est donc possible sans
+ * deviner une magnitude non publiée — ce plafond reste correct.
  */
 const NGU_BOSS_FTBE_BONUS_XP_V1 = Object.freeze([
   2, 3, 4, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
