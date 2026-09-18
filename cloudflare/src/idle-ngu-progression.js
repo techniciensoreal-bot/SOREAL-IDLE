@@ -599,7 +599,14 @@ export const IDLE_NGU_SYSTEMS = Object.freeze([
 
 function defaultResource(resource = "energy") {
   const key=String(resource||"energy");
-  const cap=key === "energy" ? 500 : 100;
+  /*
+   * Norman (2026-09-18, capture d'écran "Magic Stats Breakdown" du vrai
+   * NGU en direct, personnage tout neuf) : "Base Magic Cap: 0 ...
+   * Total Magic Cap: 1" -- un plancher de 1, pas 100. r3 (Hacks/Wishes,
+   * débloqué très tard, item "incriminatingEvidence") n'a aucune preuve
+   * contraire fournie -- laissé à 100 pour ne rien casser sans preuve.
+   */
+  const cap = key === "energy" ? 500 : key === "magic" ? 1 : 100;
   return {
     speed: 1,
     power: 1,
@@ -2779,7 +2786,8 @@ function diggerBonuses(state){
 function advanceLateSystems(state, seconds, context, now) {
   const tower = state.systems.tower;
   if (tower.unlocked && tower.active) {
-    const power = Math.max(1, num(context.adventurePower, 1));
+    // Même base-10 que idleAdventureCombatStatsV1 (Norman, 2026-09-18, capture "Adventure Stats Breakdown").
+    const power = Math.max(10, num(context.adventurePower, 10));
     tower.data.floor = Math.max(0, int(tower.data.floor, 0));
     tower.data.killProgress = Math.max(0, num(tower.data.killProgress, 0)) + seconds * Math.min(1, Math.pow(power / Math.pow(1.05, tower.data.floor), 0.2) / 20);
     const kills = Math.floor(tower.data.killProgress);
@@ -3227,12 +3235,20 @@ function idleAdventureCombatStatsV1(gear, context) {
    * POWER à 1, ×3 → plancher réel 3, cohérent avec le ratio HP=Power×3
    * vérifié sur le wiki) — seul le REGEN doit avoir son propre plancher
    * de sortie à 1, appliqué APRÈS la multiplication, jamais avant.
+   *
+   * Norman (2026-09-18, capture d'écran "Adventure Stats Breakdown" du
+   * vrai NGU en direct) : personnage tout neuf, sans aucun équipement
+   * d'Aventure ("Equipment Modifier: +0") -- "Base Adventure Power: 10"
+   * / "Base Adventure Toughness: 10" / "Total: 10". Le plancher de
+   * secours ci-dessus utilisait 1, pas 10 -- sous-évaluant Power/
+   * Toughness/HP/Regen de base d'un facteur 10 pour tout joueur sans
+   * encore d'équipement d'Aventure.
    */
   return Object.assign({}, g, {
-    power: Math.max(1, num(context.adventurePower, 1)) + Math.max(0, num(g.power, 0)),
-    toughness: Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) + Math.max(0, num(g.toughness, 0)),
-    hp: Math.max(1, num(context.adventurePower, 1)) * 3 + Math.max(0, num(g.hp, 0)),
-    regen: Math.max(1, Math.max(1, num(context.adventureToughness, context.adventurePower || 1)) * 0.03) + Math.max(0, num(g.regen, 0))
+    power: Math.max(10, num(context.adventurePower, 10)) + Math.max(0, num(g.power, 0)),
+    toughness: Math.max(10, num(context.adventureToughness, context.adventurePower || 10)) + Math.max(0, num(g.toughness, 0)),
+    hp: Math.max(10, num(context.adventurePower, 10)) * 3 + Math.max(0, num(g.hp, 0)),
+    regen: Math.max(1, Math.max(10, num(context.adventureToughness, context.adventurePower || 10)) * 0.03) + Math.max(0, num(g.regen, 0))
   });
 }
 

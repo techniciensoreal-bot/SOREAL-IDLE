@@ -12,6 +12,13 @@ import { idleNguSnapshot } from "../src/idle-ngu-progression.js";
  * multipliait ce 1 par 0.03 → un plancher réel de 0.03/s, jamais 1/s.
  * Le plancher doit désormais s'appliquer sur le REGEN final (après la
  * multiplication), jamais sur le toughness d'entrée.
+ *
+ * Norman (2026-09-18, capture d'écran "Adventure Stats Breakdown" du
+ * vrai NGU) : personnage tout neuf, sans équipement, "Base Adventure
+ * Power: 10" / "Base Adventure Toughness: 10" -- le plancher de secours
+ * est passé de 1 à 10 (idle-ngu-progression.js::idleAdventureCombatStatsV1),
+ * donc HP=10×3=30 désormais, et le plancher regen (toujours >=1) reste
+ * inchangé puisque 10×0.03=0.3 est toujours en dessous de 1.
  */
 
 // Contexte réel d'un joueur tout frais : aucune valeur adventurePower/
@@ -27,9 +34,9 @@ assert.equal(
   "Un joueur sans aucun équipement d'Aventure doit avoir un regen de 1/s dès le début, jamais 0.03/s (plancher toughness=1 écrasé par le ×0.03)."
 );
 
-// HP reste correct (floor power=1 -> hp=1*3=3), le regen est le SEUL champ
+// HP reste correct (floor power=10 -> hp=10*3=30), le regen est le SEUL champ
 // dont le plancher doit être appliqué après la multiplication.
-assert.equal(snap.adventure.stats.hp, 3, "HP de base doit rester Power(1)×3=3, comportement inchangé.");
+assert.equal(snap.adventure.stats.hp, 30, "HP de base doit rester Power(10)×3=30 (plancher Power/Toughness NGU réel).");
 
 // Avec de vraies stats d'équipement d'Aventure (context alimenté), le
 // plancher ne doit jamais réduire un regen déjà supérieur à 1.
