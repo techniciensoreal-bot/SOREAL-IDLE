@@ -1133,248 +1133,6 @@ export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
  * par tout consommateur du catalogue (Collection, Coffre), jamais un
  * second ordre inventé ailleurs.
  */
-const IDLE_ADVENTURE_SLOT_RANK_V1={weapon:0,head:1,chest:2,legs:3,boots:4};
-function idleAdventureSlotRankV1(slot){
-  return IDLE_ADVENTURE_SLOT_RANK_V1[slot]!=null?IDLE_ADVENTURE_SLOT_RANK_V1[slot]:5;
-}
-export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
-  const catalog={};
-  for(const[setId,s]of Object.entries(SETS)){
-    const slotsTries=[...s.slots].sort((a,b)=>idleAdventureSlotRankV1(a)-idleAdventureSlotRankV1(b));
-    for(const slot of slotsTries){
-      /*
-       * Mêmes bases que item() ci-dessus (idleAdventureItemStatsMaxV1/2) —
-       * permet au Collection (client) de recalculer Power/Toughness/HP
-       * Max/Regen au niveau maxLevel enregistré dans itemList, sans
-       * dupliquer une seconde fois la formule ni exiger un objet vivant
-       * dans l'inventaire.
-       */
-      const{p,t}=idleAdventureItemStatsMaxV1(setId,slot);
-      const baseP=p/2,baseT=t/2;
-      catalog[`${setId}:${slot}`]=Object.freeze({
-        kind:"equipment",set:setId,setName:s.name,slot,name:SET_ITEM_NAMES_V1[`${setId}:${slot}`]||`${s.name} ${slot}`,
-        wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
-        basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03
-      });
-    }
-  }
-  for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03});
-  }
-  return catalog;
-})());
-/*
- * Norman (2026-09-16) : "mets à jour les stats des objets avant notre
- * update des chiffres" — wiki NGU (page Boost) confirme 13 vrais paliers :
- * "1, 2, 5, 10, 20, 50, 100, 200, 500, 1k, 2k, 5k and 10k." Il n'en
- * manquait que les 6 derniers (200 à 10k), plafonnant à tort la
- * progression des boosts bien avant le vrai jeu. rollKill() (plus bas)
- * pioche déjà un INDEX dans ce tableau, borné par boss tués — l'étendre
- * suffit, aucune autre formule à toucher.
- */
-const BOOSTS=Object.freeze([1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]);
-const IDLE_ADVENTURE_BOOST_WIKI_ID_BASE_V1=Object.freeze({power:1,toughness:14,special:27});
-function wikiItemIdBoostV1(type,strength){
-  const idx=BOOSTS.indexOf(Number(strength));
-  const base=Number(IDLE_ADVENTURE_BOOST_WIKI_ID_BASE_V1[String(type||"")])||0;
-  return idx>=0&&base?base+idx:0;
-}
-export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
-/*
- * hp/regen (2026-09-15) : dérivés de power/toughness (HP Max=Power×3,
- * HP Regen=Toughness×0.03), une règle du moteur NGU vérifiée sans
- * exception sur les ~90 objets audités (voir SET_ITEM_STATS_V1
- * ci-dessus) — jamais une donnée par objet à stocker séparément.
- */
-/*
- * Correctif 2026-09-18 (Norman, capture d'écran du vrai NGU en direct :
- * "Power 0/7... Use the boosts you find to improve this item's stats!")
- * -- un objet fraîchement créé (drop ou addItem) doit démarrer à 0/0,
- * JAMAIS déjà à son plafond du moment. Le correctif du 2026-09-16
- * ci-dessous (applyBoost) avait conclu l'inverse ("un objet neuf est
- * TOUJOURS déjà à son plafond") en interprétant le texte du wiki
- * ("maximum potential will go up and require to be boosted" à chaque
- * fusion) comme si l'état INITIAL était déjà maxé -- la capture d'écran
- * du jeu réel (Tutorial Cube jamais fusionné, Power 0/7, Toughness 0/7,
- * Max Health 0/21, Health Regen 0/0,21) contredit directement cette
- * lecture : le plafond grandit avec le niveau (via fusion), mais la
- * valeur COURANTE part toujours de 0 et ne monte QUE par boost, y
- * compris pour un objet jamais encore fusionné. hp/regen restent
- * dérivés de power/toughness (0 tant que non boosté).
- */
-/*
- * PISTE 2 de l'audit wiki 2026-09-18 : pages ngu-idle.fandom.com/wiki/
- * Tutorial_Zone et .../Training_(set) vérifiées en direct (navigateur) --
- * "Items in Training (set): A Stick, Cloth Hat, Cloth Shirt, Cloth
- * Leggings, Cloth Boots". Sans entrée dans SET_ITEM_NAMES_V1, item()
- * retombait sur un nom générique inventé ("Training Set head", "Training
- * Set weapon", ...) au lieu du vrai nom wiki par pièce -- les STATS par
- * pièce (SET_ITEM_STATS_V1 plus haut) étaient déjà correctes, seul le nom
- * était un reskin SOREAL. Seul le set "training" était couvert par cette
- * piste (portée initiale).
- *
- * Round 2 (2026-09-18, sweep "renommage des sets d'équipement") : les 35
- * sets restants de IDLE_ADVENTURE_ZONES/SETS (sewers -> pirate, la totalité
- * du catalogue mode Normal) sont maintenant couverts, sourcés depuis le
- * miroir wiki local (C:\Users\n0rma\Documents\NGU-Wiki\pages\<Nom> (set).json,
- * un export MediaWiki réel -- même source que build-idle-boss-fight-real-
- * names-v1.mjs). Méthode : chaque page {{Set}} liste ses N objets dans un
- * ORDRE CONSTANT par page (soit arme-en-tête puis tête/torse/jambes/
- * bottes/accessoires, soit tête/torse/jambes/bottes/arme/accessoires selon
- * la page -- jamais mélangé au sein d'une même page) ; le slot de chaque
- * objet est identifié par sa position dans cette énumération recoupée avec
- * son nom (casque/chapeau=head, plastron/chemise/veste=chest, pantalon/
- * jambières=legs, bottes/chaussures=boots) et, quand le nom seul est
- * ambigu (ex. Pretty Pink Princess, où "Giant Sticky Foot" n'a rien d'une
- * arme au premier regard), vérifié via la catégorie de la fiche objet
- * individuelle ([[Category:Weapon]]/[[Category:Accessory]] -- cf.
- * "Giant Sticky Foot.json" = Category:Weapon, "A Pretty Pink Bow.json" =
- * Category:Accessory, confirmant le slot malgré l'ordre de page atypique).
- * Les slots à nom explicite (necklace/meat, alarm/sands, cube, tie/
- * paperweight, ringGreed.../charmInfinity/charm69, cup/whistle,
- * asscessory/eyeElxu, pokeymanCard/krazyBonez, zipper/wig, notDrugs/
- * gloveOfPower, theS/walkman, corgi/bandana, baguette/creamPie/yeast,
- * vinylShard/whitePowder/rollingPaper, apple/toiletPaper/pandora, hammer/
- * toolbox/levelLevel, shotgun/ducktTape/duckCaller, tulip/netherlands/
- * cheese, cutlass/eyepatch/compass) se recoupent directement avec le nom
- * de l'objet correspondant sur sa page wiki (ex. slot "hammer" du set
- * Construction = l'objet "A Wooden Hammer", séparé du VRAI slot weapon
- * de ce set = "A Giant Wrecking Ball" -- la blague récurrente NGU où
- * l'accessoire "thématique" n'est pas l'arme réellement équipée).
- *
- * edgy (Evilverse) : le wiki documente Left/Right/BOTH Edgy Boots comme
- * trois objets distincts qui fusionnent (aucun équivalent Left/Right côté
- * SOREAL, un seul slot "boots") -- "BOTH Edgy Boots" retenu comme nom du
- * slot boots, déjà la modélisation actée dans le commentaire "Evilverse"
- * au-dessus de la définition SETS.edgy (2026-09-18, avant ce round).
- *
- * wanderer/rerednaw : 4 pièces seulement (head/chest/legs/boots), pas de
- * slot weapon défini dans SETS -- cohérent avec le commentaire déjà en
- * place au-dessus de SETS.uug ("le Cane/Candy Cane sont des objets à
- * part, pas repris ici").
- *
- * Portée : les 36 sets de SETS (training -> pirate) sont maintenant tous
- * couverts -- ce qui inclut, en réalité, les 17 zones marquées
- * requiredDifficulty ("difficile"/"extreme", cf. IDLE_ADVENTURE_ZONES :
- * evilverse -> aethereansea) : contrairement à une première lecture, il
- * n'existe PAS de table de noms séparée pour l'équipement Evil/Sadistic --
- * z.set pointe vers le même SETS/SET_ITEM_NAMES_V1 que les zones Normal
- * (vérifié en relisant unlockedZone()/rollKill() : requiredDifficulty ne
- * change que le déverrouillage et le diviseur de drop, jamais l'identité
- * de l'objet). Ces 17 zones sont donc déjà couvertes par ce round, pas
- * seulement les 19 zones "Normal" au sens strict.
- */
-const SET_ITEM_NAMES_V1=Object.freeze({
-  "training:weapon":"A Stick","training:head":"Cloth Hat","training:chest":"Cloth Shirt","training:legs":"Cloth Leggings","training:boots":"Cloth Boots",
-
-  // Sewers (set) -- ngu-idle.fandom.com/wiki/Sewers_(set)
-  "sewers:weapon":"Rusty Sword","sewers:head":"Crappy Helmet","sewers:chest":"Crappy Chestplate","sewers:legs":"Crappy Leggings","sewers:boots":"Crappy Boots","sewers:ring":"Gross Ring","sewers:amulet":"Cracked Amulet",
-
-  // Forest (set) -- ngu-idle.fandom.com/wiki/Forest_(set) (pendant = objet de base "Forest Pendant", pas une variante Ascended)
-  "forest:weapon":"Kokiri Blade","forest:head":"Forest Helmet","forest:chest":"Forest Chestplate","forest:legs":"Forest Leggings","forest:boots":"Forest Boots","forest:ring":"Mossy Ring","forest:pendant":"Forest Pendant",
-
-  // Cave (set) -- ngu-idle.fandom.com/wiki/Cave_(set)
-  "cave:weapon":"Mole Hammer","cave:head":"Blue Cheese Helmet","cave:chest":"Gouda Chestplate","cave:legs":"Swiss Leggings","cave:boots":"Limburger Boots","cave:ring":"Havarti Ring","cave:amulet":"Cheddar Amulet","cave:combat":"Combat Cheese",
-
-  // HSB (set) -- ngu-idle.fandom.com/wiki/HSB_(set)
-  "hsb:weapon":"Magitech Blade","hsb:head":"Magitech Helmet","hsb:chest":"Magitech Chestplate","hsb:legs":"Magitech Leggings","hsb:boots":"Magitech Boots","hsb:ring":"Magitech Ring","hsb:amulet":"Magitech Amulet",
-
-  // GRB (set) -- ngu-idle.fandom.com/wiki/GRB_(set)
-  "grb:weapon":"Bloody Cleaver","grb:head":"Chef's Hat","grb:chest":"Chef's Apron","grb:legs":"Regular Pants","grb:boots":"Non Slip Shoes","grb:necklace":"Suspicious Sausage Necklace","grb:meat":"Raw Slab of Meat",
-
-  // Clock (set) -- ngu-idle.fandom.com/wiki/Clock_(set)
-  "clock:weapon":"A Comically Oversized Minute-Hand","clock:head":"Clockwork Hat","clock:chest":"Clockwork Chest","clock:legs":"Clockwork Pants","clock:boots":"Clockwork Boots","clock:alarm":"Alarm Clock","clock:sands":"The Sands of Time",
-
-  // 2D (set) -- ngu-idle.fandom.com/wiki/2D_(set)
-  "2d:weapon":"A Triangle","2d:head":"Circle Helmet","2d:chest":"Square Chestpiece","2d:legs":"Rectangle Pants","2d:boots":"Polygon Boots","2d:cube":"THE CUBE","2d:amulet":"King Circle's Amulet of Helping Random Stuff",
-
-  // Spoopy (set) (Ancient Battlefield) -- ngu-idle.fandom.com/wiki/Spoopy_(set)
-  "spoopy:weapon":"Spooky Sword","spoopy:head":"Spoopy Helmet","spoopy:chest":"Ghostly Chest","spoopy:legs":"Pants of Horror","spoopy:boots":"Spectral Boots","spoopy:ring":"Cursed Ring","spoopy:amulet":"Amulet of Sunshine, Sparkles, and Gore",
-
-  // Jake (set) (titan Jake From Accounting) -- ngu-idle.fandom.com/wiki/Jake_(set)
-  "jake:weapon":"The Pen-Is","jake:head":"Office Hat","jake:chest":"Office Shirt","jake:legs":"Office Pants","jake:boots":"Office Shoes","jake:tie":"A Regular Tie","jake:paperweight":"Generic Paperweight",
-
-  // Gaudy (set) (A Very Special Place) -- ngu-idle.fandom.com/wiki/Gaudy_(set), pas d'accessoires publiés
-  "gaudy:weapon":"Paper Fan","gaudy:head":"Gaudy Hat","gaudy:chest":"Gaudy Shirt","gaudy:legs":"Gaudy Pants","gaudy:boots":"Gaudy Boots",
-
-  // Mega (set) (Mega Lands) -- ngu-idle.fandom.com/wiki/Mega_(set)
-  "mega:weapon":"Beam Laser Sword","mega:head":"Mega Helmet","mega:chest":"Mega Chest","mega:legs":"Mega Blue Jeans","mega:boots":"Mega Boots",
-
-  // Beardverse (set) -- ngu-idle.fandom.com/wiki/Beardverse_(set)
-  "beardverse:weapon":"Bearded Axe","beardverse:head":"Groucho Marx Disguise","beardverse:chest":"Gossamer Chest","beardverse:legs":"Braided Beard Legs","beardverse:boots":"Fuzzy Orange Cheeto Slippers!",
-
-  // Badly Drawn (set) -- ngu-idle.fandom.com/wiki/Badly_Drawn_(set)
-  "badly:weapon":"Badly Drawn Gun","badly:head":"Badly Drawn Smiley Face","badly:chest":"Badly Drawn Chest","badly:legs":"Badly Drawn Pants","badly:boots":"Badly Drawn Foot",
-
-  // Stealth (set) (Boring/Stealth World) -- ngu-idle.fandom.com/wiki/Stealth_(set)
-  "stealth:weapon":"A Giant Bazooka","stealth:head":"Stealthy Hat","stealth:chest":"Stealthy Chest","stealth:legs":"No Pants","stealth:boots":"High Heeled Boots",
-
-  // Choco (set) (Chocolate World) -- ngu-idle.fandom.com/wiki/Choco_(set)
-  "choco:weapon":"Chocolate Crowbar","choco:head":"Chocolate Helmet","choco:chest":"Chocolate Chest","choco:legs":"Chocolate Pants","choco:boots":"Chocolate Boots",
-
-  // UUG's rings (set) (titan UUG) -- ngu-idle.fandom.com/wiki/UUG's_rings_(set) -- 5 anneaux, pas de slots corps
-  "uug:ringGreed":"Ring of Greed","uug:ringMight":"Ring of Might","uug:ringUtility":"Ring of Utility","uug:ringEnergy":"Ring of Way Too Much Energy","uug:ringMagic":"Ring of Way Too Much Magic",
-
-  // Wanderer's (set) (titan Wanderer, mode Normal) -- ngu-idle.fandom.com/wiki/Wanderer's_(set) -- pas de weapon (Cane à part)
-  "wanderer:head":"Wanderer's Hat","wanderer:chest":"Wanderer's Chest","wanderer:legs":"Wanderer's Pants","wanderer:boots":"Wanderer's Boots",
-
-  // S'rerednaW (set) (même titan, mode Evil -- texte inversé, blague NGU) -- ngu-idle.fandom.com/wiki/S'rerednaW_(set)
-  "rerednaw:head":"taH s'rerednaW","rerednaw:chest":"tsehC s'rerednaW","rerednaw:legs":"stnaP s'rerednaW","rerednaw:boots":"stooB s'rerednaW",
-
-  // Slimy (set) (titan Slimy) -- ngu-idle.fandom.com/wiki/Slimy_(set)
-  "slimy:weapon":"The Fists of Flubber","slimy:head":"Slimy Helmet","slimy:chest":"Slimy Chest","slimy:legs":"Slimy Pants","slimy:boots":"Slimy Boots",
-
-  // Edgy (set) (Evilverse) -- ngu-idle.fandom.com/wiki/Edgy_(set) -- boots="BOTH Edgy Boots" (fusion Left+Right, cf. commentaire SETS.edgy)
-  "edgy:head":"Edgy Helmet","edgy:chest":"Edgy Chest","edgy:legs":"Edgy Pants","edgy:boots":"BOTH Edgy Boots","edgy:weapon":"Edgy Jaw Axe","edgy:amulet":"A Cheap Plastic Amulet",
-
-  // Pretty Pink Princess (set) -- ngu-idle.fandom.com/wiki/Pretty_Pink_Princess_(set) -- slot confirmé via catégorie objet (Giant Sticky Foot=Weapon, A Pretty Pink Bow=Accessory)
-  "pinkprincess:head":"Clown Hat","pinkprincess:chest":"Fabulous Super Chest","pinkprincess:legs":"A Crappy Tutu","pinkprincess:boots":"Pretty Pink Slippers","pinkprincess:weapon":"Giant Sticky Foot","pinkprincess:amulet":"A Pretty Pink Bow",
-
-  // Meta (set) (Metaland) -- ngu-idle.fandom.com/wiki/Meta_(set)
-  "meta:weapon":"The Number 7","meta:head":"Numerical Head","meta:chest":"Numerical Chest","meta:legs":"Numerical Legs","meta:boots":"Numerical Boots","meta:charmInfinity":"Infinity Charm","meta:charm69":"69 Charm",
-
-  // Party (set) (Interdimensional Party) -- ngu-idle.fandom.com/wiki/Party_(set)
-  "party:weapon":"The God of Thunder's Hammer","party:head":"Party Hat","party:chest":"Pogmail Chest","party:legs":"Tear Away Pants","party:boots":"Pizza Boots","party:cup":"Plastic Red Cup","party:whistle":"Party Whistle",
-
-  // Typo (set) (Typo Zone) -- ngu-idle.fandom.com/wiki/Typo_(set) -- noms tous des jeux de mots (Hamlet=Helmet, Chess Plate=Chestplate, Logs=Legs, Booms=Boots, Wee pin=Weapon)
-  "typo:head":"Hamlet","typo:chest":"Chess Plate","typo:legs":"Logs","typo:boots":"Booms","typo:weapon":"Wee pin","typo:asscessory":"The Ass-cessory","typo:eyeElxu":"Eye of ELXU",
-
-  // Fad (set) (Fadlands) -- ngu-idle.fandom.com/wiki/Fad_(set)
-  "fad:head":"Spinning Tophat","fad:chest":"Demonic Flurbie Chestplate","fad:legs":"AAA Battery Legs","fad:boots":"Slinky Boots","fad:weapon":"THE MALF SLAMMER","fad:pokeymanCard":"Rare Foil Pokeyman Card","fad:krazyBonez":"A handful of Krazy Bonez",
-
-  // JRPG (set) (JRPGVille) -- ngu-idle.fandom.com/wiki/JRPG_(set) -- 4 pièces "Buster Sword Top/Upper/Lower/Bottom" (armure), arme réelle = "...Replica"
-  "jrpg:head":"Buster Sword Top","jrpg:chest":"Buster Sword Upper","jrpg:legs":"Buster Sword Lower","jrpg:boots":"Buster Sword Bottom","jrpg:weapon":"Gift Shop Buster Sword Replica","jrpg:zipper":"A Gigantic Zipper","jrpg:wig":"Anime Hero Wig",
-
-  // Rad (set) (Radlands) -- ngu-idle.fandom.com/wiki/Rad_(set)
-  "rad:head":"Cool Shades","rad:chest":"Leather Jacket","rad:legs":"Flamin' Hot Shorts","rad:boots":"A Skateboard","rad:weapon":"Nunchuks","rad:notDrugs":"Not Drugs","rad:gloveOfPower":"The Glove of Power",
-
-  // Back To School (set) -- ngu-idle.fandom.com/wiki/Back_To_School_(set)
-  "backtoschool:head":"Dunce Cap","backtoschool:chest":"School Jersey","backtoschool:legs":"ULTRAWIDE Pants","backtoschool:boots":"Shoes With Wheels","backtoschool:weapon":"Floppy Elastic Ruler","backtoschool:theS":"THE S","backtoschool:walkman":"A Walkman",
-
-  // Western (set) (Westworld) -- ngu-idle.fandom.com/wiki/Western_(set)
-  "western:head":"A 10 Litre Hat","western:chest":"Asslest Vest","western:legs":"Assful Chaps","western:boots":"Extra Spiky Spurs","western:weapon":"The Six Shooter","western:corgi":"A Battle Corgi","western:bandana":"A Pink Bandana",
-
-  // Bread (set) (Breadverse) -- ngu-idle.fandom.com/wiki/Bread_(set) -- slot "baguette" = objet "1 Day-Old Baguette" (arme réelle = A Rolling Pin)
-  "bread:head":"Bread Bowl Helmet","bread:chest":"Paper Thin Crepe Cape","bread:legs":"Flour Sack Pants","bread:boots":"Gingerbread Boots","bread:weapon":"A Rolling Pin","bread:baguette":"1 Day-Old Baguette","bread:creamPie":"A Cream Pie","bread:yeast":"A Spoonful of Yeast",
-
-  // Disco (set) (Seventies) -- ngu-idle.fandom.com/wiki/Disco_(set)
-  "disco:head":"Disco Ball Helmet","disco:chest":"Disco Shirt","disco:legs":"Bell Bottoms","disco:boots":"Roller Skates","disco:weapon":"A Rusty Old Sabre","disco:vinylShard":"A Vinyl Record Shard","disco:whitePowder":"A Bit of White Powder","disco:rollingPaper":"Some Rolling Paper",
-
-  // Halloweenie (set) -- ngu-idle.fandom.com/wiki/Halloweenie_(set) -- legs="A Broomstick" (blague sorcière), weapon="A Giant Scythe"
-  "halloweenie:head":"Neck Bolts","halloweenie:chest":"Skeleton Shirt","halloweenie:legs":"A Broomstick","halloweenie:boots":"Fuzzy Boots","halloweenie:weapon":"A Giant Scythe","halloweenie:apple":"An Ordinary Apple","halloweenie:toiletPaper":"A Roll of Toilet Paper","halloweenie:pandora":"Pandora's Box",
-
-  // Construction (set) -- ngu-idle.fandom.com/wiki/Construction_(set) -- slot "hammer" = objet "A Wooden Hammer" (arme réelle = A Giant Wrecking Ball)
-  "construction:head":"A Hardhat","construction:chest":"High Visibility Vest","construction:legs":"Yet Another Generic Pair Of Jeans","construction:boots":"Steel Toed Boots","construction:weapon":"A Giant Wrecking Ball","construction:hammer":"A Wooden Hammer","construction:toolbox":"The Toolbox","construction:levelLevel":"A Level Level",
-
-  // Duck (set) (DuckDuckGoose) -- ngu-idle.fandom.com/wiki/Duck_(set) -- slot "shotgun" = objet "A shotgun" (arme réelle = The Zapper)
-  "duck:head":"A Fake Duckbill","duck:chest":"An Inflatable Ducky Innertube","duck:legs":"Duck Duck Shorts","duck:boots":"Duck Slippers","duck:weapon":"The Zapper","duck:shotgun":"A shotgun","duck:ducktTape":"Some Duck-t Tape","duck:duckCaller":"A Duck Caller",
-
-  // Dutch (set) (Netherregions) -- ngu-idle.fandom.com/wiki/Dutch_(set)
-  "dutch:head":"A Dutch Hat","dutch:chest":"Windmill Shirt","dutch:legs":"Stroopwaffel Pants","dutch:boots":"Clogs","dutch:weapon":"Weaponized Hollandaise sauce","dutch:tulip":"Black Tulip","dutch:netherlands":"Pocket Netherlands","dutch:cheese":"Rest of the Combat Cheese",
-
-  // Pirate (set) (Aetherean Sea) -- ngu-idle.fandom.com/wiki/Pirate_(set) -- slot "cutlass" = objet "The Cutlass" (arme réelle = The Flintlock)
-  "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!"
-});
 /*
  * Identifiants d'items officiels NGU (2026-09-18).
  *
@@ -1659,6 +1417,248 @@ function wikiItemIdAdventureV1(definitionId){
   return Number(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1[String(definitionId||"")])||0;
 }
 
+const IDLE_ADVENTURE_SLOT_RANK_V1={weapon:0,head:1,chest:2,legs:3,boots:4};
+function idleAdventureSlotRankV1(slot){
+  return IDLE_ADVENTURE_SLOT_RANK_V1[slot]!=null?IDLE_ADVENTURE_SLOT_RANK_V1[slot]:5;
+}
+export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
+  const catalog={};
+  for(const[setId,s]of Object.entries(SETS)){
+    const slotsTries=[...s.slots].sort((a,b)=>idleAdventureSlotRankV1(a)-idleAdventureSlotRankV1(b));
+    for(const slot of slotsTries){
+      /*
+       * Mêmes bases que item() ci-dessus (idleAdventureItemStatsMaxV1/2) —
+       * permet au Collection (client) de recalculer Power/Toughness/HP
+       * Max/Regen au niveau maxLevel enregistré dans itemList, sans
+       * dupliquer une seconde fois la formule ni exiger un objet vivant
+       * dans l'inventaire.
+       */
+      const{p,t}=idleAdventureItemStatsMaxV1(setId,slot);
+      const baseP=p/2,baseT=t/2;
+      catalog[`${setId}:${slot}`]=Object.freeze({
+        kind:"equipment",set:setId,setName:s.name,slot,name:`${s.name} ${slot}`,
+        wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
+        basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03
+      });
+    }
+  }
+  for(const[id,d]of Object.entries(SPECIALS)){
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03});
+  }
+  return catalog;
+})());
+/*
+ * Norman (2026-09-16) : "mets à jour les stats des objets avant notre
+ * update des chiffres" — wiki NGU (page Boost) confirme 13 vrais paliers :
+ * "1, 2, 5, 10, 20, 50, 100, 200, 500, 1k, 2k, 5k and 10k." Il n'en
+ * manquait que les 6 derniers (200 à 10k), plafonnant à tort la
+ * progression des boosts bien avant le vrai jeu. rollKill() (plus bas)
+ * pioche déjà un INDEX dans ce tableau, borné par boss tués — l'étendre
+ * suffit, aucune autre formule à toucher.
+ */
+const BOOSTS=Object.freeze([1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]);
+const IDLE_ADVENTURE_BOOST_WIKI_ID_BASE_V1=Object.freeze({power:1,toughness:14,special:27});
+function wikiItemIdBoostV1(type,strength){
+  const idx=BOOSTS.indexOf(Number(strength));
+  const base=Number(IDLE_ADVENTURE_BOOST_WIKI_ID_BASE_V1[String(type||"")])||0;
+  return idx>=0&&base?base+idx:0;
+}
+export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
+/*
+ * hp/regen (2026-09-15) : dérivés de power/toughness (HP Max=Power×3,
+ * HP Regen=Toughness×0.03), une règle du moteur NGU vérifiée sans
+ * exception sur les ~90 objets audités (voir SET_ITEM_STATS_V1
+ * ci-dessus) — jamais une donnée par objet à stocker séparément.
+ */
+/*
+ * Correctif 2026-09-18 (Norman, capture d'écran du vrai NGU en direct :
+ * "Power 0/7... Use the boosts you find to improve this item's stats!")
+ * -- un objet fraîchement créé (drop ou addItem) doit démarrer à 0/0,
+ * JAMAIS déjà à son plafond du moment. Le correctif du 2026-09-16
+ * ci-dessous (applyBoost) avait conclu l'inverse ("un objet neuf est
+ * TOUJOURS déjà à son plafond") en interprétant le texte du wiki
+ * ("maximum potential will go up and require to be boosted" à chaque
+ * fusion) comme si l'état INITIAL était déjà maxé -- la capture d'écran
+ * du jeu réel (Tutorial Cube jamais fusionné, Power 0/7, Toughness 0/7,
+ * Max Health 0/21, Health Regen 0/0,21) contredit directement cette
+ * lecture : le plafond grandit avec le niveau (via fusion), mais la
+ * valeur COURANTE part toujours de 0 et ne monte QUE par boost, y
+ * compris pour un objet jamais encore fusionné. hp/regen restent
+ * dérivés de power/toughness (0 tant que non boosté).
+ */
+/*
+ * PISTE 2 de l'audit wiki 2026-09-18 : pages ngu-idle.fandom.com/wiki/
+ * Tutorial_Zone et .../Training_(set) vérifiées en direct (navigateur) --
+ * "Items in Training (set): A Stick, Cloth Hat, Cloth Shirt, Cloth
+ * Leggings, Cloth Boots". Sans entrée dans SET_ITEM_NAMES_V1, item()
+ * retombait sur un nom générique inventé ("Training Set head", "Training
+ * Set weapon", ...) au lieu du vrai nom wiki par pièce -- les STATS par
+ * pièce (SET_ITEM_STATS_V1 plus haut) étaient déjà correctes, seul le nom
+ * était un reskin SOREAL. Seul le set "training" était couvert par cette
+ * piste (portée initiale).
+ *
+ * Round 2 (2026-09-18, sweep "renommage des sets d'équipement") : les 35
+ * sets restants de IDLE_ADVENTURE_ZONES/SETS (sewers -> pirate, la totalité
+ * du catalogue mode Normal) sont maintenant couverts, sourcés depuis le
+ * miroir wiki local (C:\Users\n0rma\Documents\NGU-Wiki\pages\<Nom> (set).json,
+ * un export MediaWiki réel -- même source que build-idle-boss-fight-real-
+ * names-v1.mjs). Méthode : chaque page {{Set}} liste ses N objets dans un
+ * ORDRE CONSTANT par page (soit arme-en-tête puis tête/torse/jambes/
+ * bottes/accessoires, soit tête/torse/jambes/bottes/arme/accessoires selon
+ * la page -- jamais mélangé au sein d'une même page) ; le slot de chaque
+ * objet est identifié par sa position dans cette énumération recoupée avec
+ * son nom (casque/chapeau=head, plastron/chemise/veste=chest, pantalon/
+ * jambières=legs, bottes/chaussures=boots) et, quand le nom seul est
+ * ambigu (ex. Pretty Pink Princess, où "Giant Sticky Foot" n'a rien d'une
+ * arme au premier regard), vérifié via la catégorie de la fiche objet
+ * individuelle ([[Category:Weapon]]/[[Category:Accessory]] -- cf.
+ * "Giant Sticky Foot.json" = Category:Weapon, "A Pretty Pink Bow.json" =
+ * Category:Accessory, confirmant le slot malgré l'ordre de page atypique).
+ * Les slots à nom explicite (necklace/meat, alarm/sands, cube, tie/
+ * paperweight, ringGreed.../charmInfinity/charm69, cup/whistle,
+ * asscessory/eyeElxu, pokeymanCard/krazyBonez, zipper/wig, notDrugs/
+ * gloveOfPower, theS/walkman, corgi/bandana, baguette/creamPie/yeast,
+ * vinylShard/whitePowder/rollingPaper, apple/toiletPaper/pandora, hammer/
+ * toolbox/levelLevel, shotgun/ducktTape/duckCaller, tulip/netherlands/
+ * cheese, cutlass/eyepatch/compass) se recoupent directement avec le nom
+ * de l'objet correspondant sur sa page wiki (ex. slot "hammer" du set
+ * Construction = l'objet "A Wooden Hammer", séparé du VRAI slot weapon
+ * de ce set = "A Giant Wrecking Ball" -- la blague récurrente NGU où
+ * l'accessoire "thématique" n'est pas l'arme réellement équipée).
+ *
+ * edgy (Evilverse) : le wiki documente Left/Right/BOTH Edgy Boots comme
+ * trois objets distincts qui fusionnent (aucun équivalent Left/Right côté
+ * SOREAL, un seul slot "boots") -- "BOTH Edgy Boots" retenu comme nom du
+ * slot boots, déjà la modélisation actée dans le commentaire "Evilverse"
+ * au-dessus de la définition SETS.edgy (2026-09-18, avant ce round).
+ *
+ * wanderer/rerednaw : 4 pièces seulement (head/chest/legs/boots), pas de
+ * slot weapon défini dans SETS -- cohérent avec le commentaire déjà en
+ * place au-dessus de SETS.uug ("le Cane/Candy Cane sont des objets à
+ * part, pas repris ici").
+ *
+ * Portée : les 36 sets de SETS (training -> pirate) sont maintenant tous
+ * couverts -- ce qui inclut, en réalité, les 17 zones marquées
+ * requiredDifficulty ("difficile"/"extreme", cf. IDLE_ADVENTURE_ZONES :
+ * evilverse -> aethereansea) : contrairement à une première lecture, il
+ * n'existe PAS de table de noms séparée pour l'équipement Evil/Sadistic --
+ * z.set pointe vers le même SETS/SET_ITEM_NAMES_V1 que les zones Normal
+ * (vérifié en relisant unlockedZone()/rollKill() : requiredDifficulty ne
+ * change que le déverrouillage et le diviseur de drop, jamais l'identité
+ * de l'objet). Ces 17 zones sont donc déjà couvertes par ce round, pas
+ * seulement les 19 zones "Normal" au sens strict.
+ */
+const SET_ITEM_NAMES_V1=Object.freeze({
+  "training:weapon":"A Stick","training:head":"Cloth Hat","training:chest":"Cloth Shirt","training:legs":"Cloth Leggings","training:boots":"Cloth Boots",
+
+  // Sewers (set) -- ngu-idle.fandom.com/wiki/Sewers_(set)
+  "sewers:weapon":"Rusty Sword","sewers:head":"Crappy Helmet","sewers:chest":"Crappy Chestplate","sewers:legs":"Crappy Leggings","sewers:boots":"Crappy Boots","sewers:ring":"Gross Ring","sewers:amulet":"Cracked Amulet",
+
+  // Forest (set) -- ngu-idle.fandom.com/wiki/Forest_(set) (pendant = objet de base "Forest Pendant", pas une variante Ascended)
+  "forest:weapon":"Kokiri Blade","forest:head":"Forest Helmet","forest:chest":"Forest Chestplate","forest:legs":"Forest Leggings","forest:boots":"Forest Boots","forest:ring":"Mossy Ring","forest:pendant":"Forest Pendant",
+
+  // Cave (set) -- ngu-idle.fandom.com/wiki/Cave_(set)
+  "cave:weapon":"Mole Hammer","cave:head":"Blue Cheese Helmet","cave:chest":"Gouda Chestplate","cave:legs":"Swiss Leggings","cave:boots":"Limburger Boots","cave:ring":"Havarti Ring","cave:amulet":"Cheddar Amulet","cave:combat":"Combat Cheese",
+
+  // HSB (set) -- ngu-idle.fandom.com/wiki/HSB_(set)
+  "hsb:weapon":"Magitech Blade","hsb:head":"Magitech Helmet","hsb:chest":"Magitech Chestplate","hsb:legs":"Magitech Leggings","hsb:boots":"Magitech Boots","hsb:ring":"Magitech Ring","hsb:amulet":"Magitech Amulet",
+
+  // GRB (set) -- ngu-idle.fandom.com/wiki/GRB_(set)
+  "grb:weapon":"Bloody Cleaver","grb:head":"Chef's Hat","grb:chest":"Chef's Apron","grb:legs":"Regular Pants","grb:boots":"Non Slip Shoes","grb:necklace":"Suspicious Sausage Necklace","grb:meat":"Raw Slab of Meat",
+
+  // Clock (set) -- ngu-idle.fandom.com/wiki/Clock_(set)
+  "clock:weapon":"A Comically Oversized Minute-Hand","clock:head":"Clockwork Hat","clock:chest":"Clockwork Chest","clock:legs":"Clockwork Pants","clock:boots":"Clockwork Boots","clock:alarm":"Alarm Clock","clock:sands":"The Sands of Time",
+
+  // 2D (set) -- ngu-idle.fandom.com/wiki/2D_(set)
+  "2d:weapon":"A Triangle","2d:head":"Circle Helmet","2d:chest":"Square Chestpiece","2d:legs":"Rectangle Pants","2d:boots":"Polygon Boots","2d:cube":"THE CUBE","2d:amulet":"King Circle's Amulet of Helping Random Stuff",
+
+  // Spoopy (set) (Ancient Battlefield) -- ngu-idle.fandom.com/wiki/Spoopy_(set)
+  "spoopy:weapon":"Spooky Sword","spoopy:head":"Spoopy Helmet","spoopy:chest":"Ghostly Chest","spoopy:legs":"Pants of Horror","spoopy:boots":"Spectral Boots","spoopy:ring":"Cursed Ring","spoopy:amulet":"Amulet of Sunshine, Sparkles, and Gore",
+
+  // Jake (set) (titan Jake From Accounting) -- ngu-idle.fandom.com/wiki/Jake_(set)
+  "jake:weapon":"The Pen-Is","jake:head":"Office Hat","jake:chest":"Office Shirt","jake:legs":"Office Pants","jake:boots":"Office Shoes","jake:tie":"A Regular Tie","jake:paperweight":"Generic Paperweight",
+
+  // Gaudy (set) (A Very Special Place) -- ngu-idle.fandom.com/wiki/Gaudy_(set), pas d'accessoires publiés
+  "gaudy:weapon":"Paper Fan","gaudy:head":"Gaudy Hat","gaudy:chest":"Gaudy Shirt","gaudy:legs":"Gaudy Pants","gaudy:boots":"Gaudy Boots",
+
+  // Mega (set) (Mega Lands) -- ngu-idle.fandom.com/wiki/Mega_(set)
+  "mega:weapon":"Beam Laser Sword","mega:head":"Mega Helmet","mega:chest":"Mega Chest","mega:legs":"Mega Blue Jeans","mega:boots":"Mega Boots",
+
+  // Beardverse (set) -- ngu-idle.fandom.com/wiki/Beardverse_(set)
+  "beardverse:weapon":"Bearded Axe","beardverse:head":"Groucho Marx Disguise","beardverse:chest":"Gossamer Chest","beardverse:legs":"Braided Beard Legs","beardverse:boots":"Fuzzy Orange Cheeto Slippers!",
+
+  // Badly Drawn (set) -- ngu-idle.fandom.com/wiki/Badly_Drawn_(set)
+  "badly:weapon":"Badly Drawn Gun","badly:head":"Badly Drawn Smiley Face","badly:chest":"Badly Drawn Chest","badly:legs":"Badly Drawn Pants","badly:boots":"Badly Drawn Foot",
+
+  // Stealth (set) (Boring/Stealth World) -- ngu-idle.fandom.com/wiki/Stealth_(set)
+  "stealth:weapon":"A Giant Bazooka","stealth:head":"Stealthy Hat","stealth:chest":"Stealthy Chest","stealth:legs":"No Pants","stealth:boots":"High Heeled Boots",
+
+  // Choco (set) (Chocolate World) -- ngu-idle.fandom.com/wiki/Choco_(set)
+  "choco:weapon":"Chocolate Crowbar","choco:head":"Chocolate Helmet","choco:chest":"Chocolate Chest","choco:legs":"Chocolate Pants","choco:boots":"Chocolate Boots",
+
+  // UUG's rings (set) (titan UUG) -- ngu-idle.fandom.com/wiki/UUG's_rings_(set) -- 5 anneaux, pas de slots corps
+  "uug:ringGreed":"Ring of Greed","uug:ringMight":"Ring of Might","uug:ringUtility":"Ring of Utility","uug:ringEnergy":"Ring of Way Too Much Energy","uug:ringMagic":"Ring of Way Too Much Magic",
+
+  // Wanderer's (set) (titan Wanderer, mode Normal) -- ngu-idle.fandom.com/wiki/Wanderer's_(set) -- pas de weapon (Cane à part)
+  "wanderer:head":"Wanderer's Hat","wanderer:chest":"Wanderer's Chest","wanderer:legs":"Wanderer's Pants","wanderer:boots":"Wanderer's Boots",
+
+  // S'rerednaW (set) (même titan, mode Evil -- texte inversé, blague NGU) -- ngu-idle.fandom.com/wiki/S'rerednaW_(set)
+  "rerednaw:head":"taH s'rerednaW","rerednaw:chest":"tsehC s'rerednaW","rerednaw:legs":"stnaP s'rerednaW","rerednaw:boots":"stooB s'rerednaW",
+
+  // Slimy (set) (titan Slimy) -- ngu-idle.fandom.com/wiki/Slimy_(set)
+  "slimy:weapon":"The Fists of Flubber","slimy:head":"Slimy Helmet","slimy:chest":"Slimy Chest","slimy:legs":"Slimy Pants","slimy:boots":"Slimy Boots",
+
+  // Edgy (set) (Evilverse) -- ngu-idle.fandom.com/wiki/Edgy_(set) -- boots="BOTH Edgy Boots" (fusion Left+Right, cf. commentaire SETS.edgy)
+  "edgy:head":"Edgy Helmet","edgy:chest":"Edgy Chest","edgy:legs":"Edgy Pants","edgy:boots":"BOTH Edgy Boots","edgy:weapon":"Edgy Jaw Axe","edgy:amulet":"A Cheap Plastic Amulet",
+
+  // Pretty Pink Princess (set) -- ngu-idle.fandom.com/wiki/Pretty_Pink_Princess_(set) -- slot confirmé via catégorie objet (Giant Sticky Foot=Weapon, A Pretty Pink Bow=Accessory)
+  "pinkprincess:head":"Clown Hat","pinkprincess:chest":"Fabulous Super Chest","pinkprincess:legs":"A Crappy Tutu","pinkprincess:boots":"Pretty Pink Slippers","pinkprincess:weapon":"Giant Sticky Foot","pinkprincess:amulet":"A Pretty Pink Bow",
+
+  // Meta (set) (Metaland) -- ngu-idle.fandom.com/wiki/Meta_(set)
+  "meta:weapon":"The Number 7","meta:head":"Numerical Head","meta:chest":"Numerical Chest","meta:legs":"Numerical Legs","meta:boots":"Numerical Boots","meta:charmInfinity":"Infinity Charm","meta:charm69":"69 Charm",
+
+  // Party (set) (Interdimensional Party) -- ngu-idle.fandom.com/wiki/Party_(set)
+  "party:weapon":"The God of Thunder's Hammer","party:head":"Party Hat","party:chest":"Pogmail Chest","party:legs":"Tear Away Pants","party:boots":"Pizza Boots","party:cup":"Plastic Red Cup","party:whistle":"Party Whistle",
+
+  // Typo (set) (Typo Zone) -- ngu-idle.fandom.com/wiki/Typo_(set) -- noms tous des jeux de mots (Hamlet=Helmet, Chess Plate=Chestplate, Logs=Legs, Booms=Boots, Wee pin=Weapon)
+  "typo:head":"Hamlet","typo:chest":"Chess Plate","typo:legs":"Logs","typo:boots":"Booms","typo:weapon":"Wee pin","typo:asscessory":"The Ass-cessory","typo:eyeElxu":"Eye of ELXU",
+
+  // Fad (set) (Fadlands) -- ngu-idle.fandom.com/wiki/Fad_(set)
+  "fad:head":"Spinning Tophat","fad:chest":"Demonic Flurbie Chestplate","fad:legs":"AAA Battery Legs","fad:boots":"Slinky Boots","fad:weapon":"THE MALF SLAMMER","fad:pokeymanCard":"Rare Foil Pokeyman Card","fad:krazyBonez":"A handful of Krazy Bonez",
+
+  // JRPG (set) (JRPGVille) -- ngu-idle.fandom.com/wiki/JRPG_(set) -- 4 pièces "Buster Sword Top/Upper/Lower/Bottom" (armure), arme réelle = "...Replica"
+  "jrpg:head":"Buster Sword Top","jrpg:chest":"Buster Sword Upper","jrpg:legs":"Buster Sword Lower","jrpg:boots":"Buster Sword Bottom","jrpg:weapon":"Gift Shop Buster Sword Replica","jrpg:zipper":"A Gigantic Zipper","jrpg:wig":"Anime Hero Wig",
+
+  // Rad (set) (Radlands) -- ngu-idle.fandom.com/wiki/Rad_(set)
+  "rad:head":"Cool Shades","rad:chest":"Leather Jacket","rad:legs":"Flamin' Hot Shorts","rad:boots":"A Skateboard","rad:weapon":"Nunchuks","rad:notDrugs":"Not Drugs","rad:gloveOfPower":"The Glove of Power",
+
+  // Back To School (set) -- ngu-idle.fandom.com/wiki/Back_To_School_(set)
+  "backtoschool:head":"Dunce Cap","backtoschool:chest":"School Jersey","backtoschool:legs":"ULTRAWIDE Pants","backtoschool:boots":"Shoes With Wheels","backtoschool:weapon":"Floppy Elastic Ruler","backtoschool:theS":"THE S","backtoschool:walkman":"A Walkman",
+
+  // Western (set) (Westworld) -- ngu-idle.fandom.com/wiki/Western_(set)
+  "western:head":"A 10 Litre Hat","western:chest":"Asslest Vest","western:legs":"Assful Chaps","western:boots":"Extra Spiky Spurs","western:weapon":"The Six Shooter","western:corgi":"A Battle Corgi","western:bandana":"A Pink Bandana",
+
+  // Bread (set) (Breadverse) -- ngu-idle.fandom.com/wiki/Bread_(set) -- slot "baguette" = objet "1 Day-Old Baguette" (arme réelle = A Rolling Pin)
+  "bread:head":"Bread Bowl Helmet","bread:chest":"Paper Thin Crepe Cape","bread:legs":"Flour Sack Pants","bread:boots":"Gingerbread Boots","bread:weapon":"A Rolling Pin","bread:baguette":"1 Day-Old Baguette","bread:creamPie":"A Cream Pie","bread:yeast":"A Spoonful of Yeast",
+
+  // Disco (set) (Seventies) -- ngu-idle.fandom.com/wiki/Disco_(set)
+  "disco:head":"Disco Ball Helmet","disco:chest":"Disco Shirt","disco:legs":"Bell Bottoms","disco:boots":"Roller Skates","disco:weapon":"A Rusty Old Sabre","disco:vinylShard":"A Vinyl Record Shard","disco:whitePowder":"A Bit of White Powder","disco:rollingPaper":"Some Rolling Paper",
+
+  // Halloweenie (set) -- ngu-idle.fandom.com/wiki/Halloweenie_(set) -- legs="A Broomstick" (blague sorcière), weapon="A Giant Scythe"
+  "halloweenie:head":"Neck Bolts","halloweenie:chest":"Skeleton Shirt","halloweenie:legs":"A Broomstick","halloweenie:boots":"Fuzzy Boots","halloweenie:weapon":"A Giant Scythe","halloweenie:apple":"An Ordinary Apple","halloweenie:toiletPaper":"A Roll of Toilet Paper","halloweenie:pandora":"Pandora's Box",
+
+  // Construction (set) -- ngu-idle.fandom.com/wiki/Construction_(set) -- slot "hammer" = objet "A Wooden Hammer" (arme réelle = A Giant Wrecking Ball)
+  "construction:head":"A Hardhat","construction:chest":"High Visibility Vest","construction:legs":"Yet Another Generic Pair Of Jeans","construction:boots":"Steel Toed Boots","construction:weapon":"A Giant Wrecking Ball","construction:hammer":"A Wooden Hammer","construction:toolbox":"The Toolbox","construction:levelLevel":"A Level Level",
+
+  // Duck (set) (DuckDuckGoose) -- ngu-idle.fandom.com/wiki/Duck_(set) -- slot "shotgun" = objet "A shotgun" (arme réelle = The Zapper)
+  "duck:head":"A Fake Duckbill","duck:chest":"An Inflatable Ducky Innertube","duck:legs":"Duck Duck Shorts","duck:boots":"Duck Slippers","duck:weapon":"The Zapper","duck:shotgun":"A shotgun","duck:ducktTape":"Some Duck-t Tape","duck:duckCaller":"A Duck Caller",
+
+  // Dutch (set) (Netherregions) -- ngu-idle.fandom.com/wiki/Dutch_(set)
+  "dutch:head":"A Dutch Hat","dutch:chest":"Windmill Shirt","dutch:legs":"Stroopwaffel Pants","dutch:boots":"Clogs","dutch:weapon":"Weaponized Hollandaise sauce","dutch:tulip":"Black Tulip","dutch:netherlands":"Pocket Netherlands","dutch:cheese":"Rest of the Combat Cheese",
+
+  // Pirate (set) (Aetherean Sea) -- ngu-idle.fandom.com/wiki/Pirate_(set) -- slot "cutlass" = objet "The Cutlass" (arme réelle = The Flintlock)
+  "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!"
+});
 function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
 /*
  * power/toughness (2026-09-13, cf. commentaire sourcé au-dessus de SPECIALS) :
