@@ -46,6 +46,47 @@ assert.ok(
     assert.ok(flubber, "Un tirage gagnant (Math.random()=0) au boss 59 doit produire The Lonely Flubber dans l'inventaire.");
     assert.equal(flubber.slot, "accessory");
     assert.equal(flubber.set, "training", "Doit partager le dossier R2 du Training Set (SOREAL_IDLE_Tutorial_Set) pour une vraie image.");
+    assert.equal(
+      flubber.level, 10,
+      "Doit tomber au niveau 10 (wiki : 'Item Drop Level / Drop Zone(s): lvl 10 in Tutorial Zone'), jamais niveau 0."
+    );
+  } finally {
+    Math.random = realRandom;
+  }
+}
+
+assert.ok(
+  source.includes('flubber:{name:"The Lonely Flubber",zone:"tutorial",slot:"accessory",set:"training",dropLevel:10,p:0,t:0,customDropRoll:true}'),
+  "flubber doit porter customDropRoll:true pour être exclu du pool générique 4% (candidates plus bas), et dropLevel:10 (wiki : 'lvl 10 in Tutorial Zone')."
+);
+assert.ok(
+  source.includes("!d.bossOnly&&!d.customDropRoll&&I(ctx.bosses)>=I(d.requiresBoss)"),
+  "Le filtre du pool générique (candidates) doit exclure les SPECIALS customDropRoll, pas seulement bossOnly -- sinon un objet avec sa propre formule dédiée (ex. flubber) reste EN PLUS éligible au pool générique, cumulant les deux et tombant bien avant son vrai seuil."
+);
+
+/*
+ * Correctif 2026-09-18 (Norman, en direct : "le drop était beaucoup trop
+ * élevé") : avant ce correctif, flubber n'étant ni bossOnly ni doté d'un
+ * requiresBoss, il restait éligible au pool générique ~4% (candidates)
+ * EN PLUS de son roll dédié -- il pouvait donc tomber dès le tout premier
+ * kill de la Tutorial Zone, bien avant le seuil réel du boss 59. Avec
+ * Math.random() toujours gagnant et bosses=0 (aucun boss vaincu, très en
+ * dessous du seuil 59), aucun flubber ne doit désormais apparaître --
+ * seul le pool générique pourrait autrement le produire à ce stade.
+ */
+{
+  const realRandom = Math.random;
+  Math.random = () => 0;
+  try {
+    const s = createIdleAdventureStateV47();
+    const afterZone = applyIdleAdventureActionV47(s, { action: "selectZone", zone: "tutorial" }, { bosses: 100 }).state;
+    // bosses:4 -- le minimum réel pour débloquer la Tutorial Zone (boss:4 dans IDLE_ADVENTURE_ZONES), largement sous le seuil 59 du flubber.
+    const res = applyIdleAdventureActionV47(afterZone, { action: "zoneKill" }, { bosses: 4 });
+    const flubber = (res.state.inventory || []).find((i) => i.definitionId === "flubber");
+    assert.ok(
+      !flubber,
+      "Avant le boss 59, aucun flubber ne doit pouvoir tomber, même avec un pool générique toujours gagnant (Math.random()=0) -- flubber ne doit plus être un candidat de ce pool."
+    );
   } finally {
     Math.random = realRandom;
   }

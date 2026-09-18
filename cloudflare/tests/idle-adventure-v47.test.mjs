@@ -5,7 +5,21 @@ import {
   idleAdventureSnapshotV47,applyIdleAdventureActionV47
 } from "../src/idle-adventure-v47.js";
 
-assert.equal(normalizeIdleAdventureStateV47({version:"old",inventory:[{level:99}]}).inventory.length,0);
+/*
+ * Correctif 2026-09-18 (Norman, URGENT : "le cube tutorial n'est
+ * toujours pas présent quand on ouvre l'inventaire... il doit déjà s'y
+ * trouver à la première fois") : un état sans version V47 valide
+ * (legacy/corrompu, comme ici) retombe sur base() (raw.version!==
+ * IDLE_ADVENTURE_V47 juste au-dessus) -- un état neuf contient
+ * désormais toujours le Tutorial Cube de départ (1 objet), jamais 0.
+ * La donnée invalide ({level:99}, sans id/definitionId) reste bien
+ * intégralement écartée -- seul le cube de départ subsiste.
+ */
+{
+  const etatNeuf=normalizeIdleAdventureStateV47({version:"old",inventory:[{level:99}]});
+  assert.equal(etatNeuf.inventory.length,1);
+  assert.equal(etatNeuf.inventory[0].definitionId,"tutorialCube");
+}
 const gates=Object.fromEntries(IDLE_ADVENTURE_ZONES.map(z=>[z.id,z.boss]));
 assert.deepEqual([gates.tutorial,gates.sewers,gates.forest,gates.cave,gates.sky,gates.hsb,gates.clock,gates["2d"],gates.ancient,gates.avsp,gates.mega],[4,7,17,37,48,58,66,74,82,90,100]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.cooldown/3600000),[1,1,2,2,3,3.5,5.5]);
@@ -36,8 +50,7 @@ s.inventory=[];
 assert.equal(idleAdventureSnapshotV47(s,4).completedSets.training,true);
 assert.equal(Object.keys(idleAdventureSnapshotV47(s,4).itemList).length,remembered);
 
-s=normalizeIdleAdventureStateV47({});
-let a=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"forest:weapon",level:0},{bosses:17},1);s=a.state;
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});let a=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"forest:weapon",level:0},{bosses:17},1);s=a.state;
 let b=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"forest:weapon",level:0},{bosses:17},1);s=b.state;
 const ids=s.inventory.map(x=>x.id);
 s=applyIdleAdventureActionV47(s,{action:"merge",a:ids[0],b:ids[1]},{bosses:17},1).state;
@@ -45,16 +58,14 @@ assert.equal(s.inventory.length,1);
 assert.equal(s.inventory[0].level,1);
 assert.equal("rarete" in s.inventory[0],false);
 
-s=normalizeIdleAdventureStateV47({});
-let t=applyIdleAdventureActionV47(s,{action:"titan",titan:"t1"},{bosses:58,stats:{power:2000,toughness:2000}},1000);
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});let t=applyIdleAdventureActionV47(s,{action:"titan",titan:"t1"},{bosses:58,stats:{power:2000,toughness:2000}},1000);
 assert.equal(t.result.firstDrop,"aNumber");
 assert.equal(t.result.nextAt,1000+3600000);
 s=t.state;
 s=applyIdleAdventureActionV47(s,{action:"consumeUnlock",item:"aNumber"},{bosses:58},2000).state;
 assert.equal(s.unlockFlags.ngu,true);
 
-s=normalizeIdleAdventureStateV47({});
-s.unlockFlags.ngu=true;
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});s.unlockFlags.ngu=true;
 s.titans.t1={kills:24,nextAt:0};
 t=applyIdleAdventureActionV47(s,{action:"titan",titan:"t2"},{bosses:66,stats:{power:6000,toughness:5000}},1000);
 assert.equal(t.result.firstDrop,"giantSeed");
@@ -62,26 +73,22 @@ s=t.state;
 s=applyIdleAdventureActionV47(s,{action:"consumeUnlock",item:"giantSeed"},{bosses:66},2000).state;
 assert.equal(s.unlockFlags.yggdrasil,true);
 
-s=normalizeIdleAdventureStateV47({});
-assert.throws(()=>applyIdleAdventureActionV47(s,{action:"titan",titan:"t4"},{bosses:100,stats:{power:1e6,toughness:1e6}},1),/PROTECTION_TITAN_REQUISE/);
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});assert.throws(()=>applyIdleAdventureActionV47(s,{action:"titan",titan:"t4"},{bosses:100,stats:{power:1e6,toughness:1e6}},1),/PROTECTION_TITAN_REQUISE/);
 
-s=normalizeIdleAdventureStateV47({});
-s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"ringOfApathy",level:100},{bosses:100},1).state;
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"ringOfApathy",level:100},{bosses:100},1).state;
 assert.equal(s.unlockFlags.ringOfApathyMaxed,true);
 s.unlockFlags.diggers=true;
 s.titans.t3={kills:28,nextAt:0};
 t=applyIdleAdventureActionV47(s,{action:"titan",titan:"t4"},{bosses:100,stats:{power:1e6,toughness:1e6}},2);
 assert.equal(t.result.firstDrop,"uugHair");
 
-s=normalizeIdleAdventureStateV47({});
-s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"tutorialCube",level:100},{bosses:4},1).state;
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"tutorialCube",level:100},{bosses:4},1).state;
 assert.equal(s.cube.unlocked,true);
 assert.equal(s.unlockFlags.tutorialCubeMaxed,true);
 
 
 // V47 regression: zoneKill accepts the runtime adventureStats alias.
-s=normalizeIdleAdventureStateV47({});
-s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"tutorial"},{bosses:4},1).state;
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"tutorial"},{bosses:4},1).state;
 assert.doesNotThrow(()=>
   applyIdleAdventureActionV47(
     s,
@@ -96,8 +103,7 @@ assert.doesNotThrow(()=>
 // V49 pacing: a fresh save cannot skip the NGU -> Yggdrasil -> Diggers chain.
 // 24 GRB kills, 24 Tree kills and 28 Jake kills imply 100 hours of Titan
 // cooldown between the first GRB and eligibility for UUG, before gear farming.
-s=normalizeIdleAdventureStateV47({});
-assert.throws(
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});assert.throws(
   ()=>applyIdleAdventureActionV47(s,{action:"titan",titan:"t2"},{bosses:100,stats:{power:1e9,toughness:1e9}},1),
   /PROGRESSION_TITAN_REQUISE/
 );
@@ -141,8 +147,7 @@ assert.equal(visualSnap.titans.find(x=>x.id==="t3").progressionUnlocked,false);
 
 
 // V58 — No Rebirth rewards alter the real Adventure Titan engine.
-s=normalizeIdleAdventureStateV47({});
-t=applyIdleAdventureActionV47(
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});t=applyIdleAdventureActionV47(
   s,
   {action:"titan",titan:"t1"},
   {
@@ -156,8 +161,7 @@ t=applyIdleAdventureActionV47(
 assert.equal(t.result.nextAt,5000+45*60*1000);
 assert.ok(t.result.drops.some(x=>x.set==="grb"&&x.level===1));
 
-s=normalizeIdleAdventureStateV47({});
-t=applyIdleAdventureActionV47(
+s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});t=applyIdleAdventureActionV47(
   s,
   {action:"titan",titan:"t1"},
   {
@@ -175,8 +179,7 @@ assert.equal(t.result.nextAt,7000);
 // (zoneKill reste utilisable telle quelle, non touchée) par un vrai
 // combat avec PV de monstre, simulé côté client comme le Combat de boss.
 {
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
 
   /*
    * RÉVISÉ 2026-09-14 (Norman, urgent : "les combats ne démarrent plus
@@ -314,8 +317,7 @@ assert.equal(t.result.nextAt,7000);
   // si s.fight.playerHp (jamais mis à jour côté serveur) affiche encore sa
   // valeur de départ — le client est seul juge du moment de la défaite,
   // exactement comme pour resolveZoneFight ci-dessus.
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   f=applyIdleAdventureActionV47(s,{action:"startZoneFight"},{bosses:7,stats:{power:12,toughness:12}},1);
   s=f.state;
   assert.ok(s.fight.playerHp>0,"Le PV serveur n'est jamais décrémenté — précondition du test de non-régression ci-dessous.");
@@ -337,8 +339,7 @@ assert.equal(t.result.nextAt,7000);
    * exactement le symptôme signalé). Math.random est figé pour verrouiller
    * le seuil exact (25%) plutôt qu'un test statistique flaky.
    */
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   let normalHpMax=0,bossHpMax=0;
   {
     const alea=Math.random;
@@ -421,8 +422,7 @@ assert.equal(t.result.nextAt,7000);
 
   // zoneKill reste disponible et inchangée (compatibilité, non appelée par
   // le nouveau client mais non retirée par prudence).
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   const kill=applyIdleAdventureActionV47(s,{action:"zoneKill"},{bosses:7,stats:{power:12,toughness:12}},1);
   assert.equal(kill.result.zone,"sewers");
   assert.equal(kill.state.zone.kills.sewers,1);
@@ -434,8 +434,7 @@ assert.equal(t.result.nextAt,7000);
 // zone — visible même sur le décor de la Safe Zone, qui n'a pourtant
 // aucun ennemi dans le vrai NGU.
 {
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"startZoneFight"},{bosses:7,stats:{power:12,toughness:12}},1).state;
   assert.equal(s.fight.active,true);
 
@@ -467,8 +466,7 @@ assert.equal(t.result.nextAt,7000);
 // juste silencieusement perdu (comme le vrai NGU : "you won't get any
 // new drops").
 {
-  s=normalizeIdleAdventureStateV47({});
-  const snap0=idleAdventureSnapshotV47(s,100);
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  const snap0=idleAdventureSnapshotV47(s,100);
   assert.equal(snap0.inventoryCapacity,24,"La capacité de base doit être 24, comme le vrai NGU.");
   assert.equal(snap0.inventoryUsed,0);
 
@@ -508,8 +506,7 @@ assert.equal(t.result.nextAt,7000);
 // V63 — case Trash (Norman, 2026-09-10) : "on doit pouvoir jeter les
 // items aussi... il y a une case Trash dans NGU."
 {
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:0},{bosses:7},1).state;
   const objetId=s.inventory[0].id;
   assert.equal(s.inventory.length,1);
@@ -526,8 +523,7 @@ assert.equal(t.result.nextAt,7000);
 
   // Un objet ÉQUIPÉ ne doit jamais pouvoir être jeté directement (comme
   // le vrai NGU : il faut d'abord le déséquiper).
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:0},{bosses:7},1).state;
   const equipeId=s.inventory[0].id;
   s=applyIdleAdventureActionV47(s,{action:"equip",id:equipeId,slot:"head"},{bosses:7},1).state;
@@ -538,8 +534,7 @@ assert.equal(t.result.nextAt,7000);
   );
 
   // Jeter un objet libère bien une place dans le sac (capacité).
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   for(let i=0;i<24;i++){
     s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:0},{bosses:7},1).state;
   }
@@ -560,8 +555,7 @@ assert.equal(t.result.nextAt,7000);
  * l'inventaire, et le rendre ensuite jetable normalement.
  */
 {
-  let s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:0},{bosses:7},1).state;
+  let s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:0},{bosses:7},1).state;
   const id=s.inventory[0].id;
   s=applyIdleAdventureActionV47(s,{action:"equip",id,slot:"head"},{bosses:7},1).state;
   assert.equal(s.equipment.head,id);
@@ -589,8 +583,7 @@ assert.equal(t.result.nextAt,7000);
  * coéquipables (qui ne comptent pas contre ce plafond général).
  */
 {
-  let s=normalizeIdleAdventureStateV47({});
-  const ids=[];
+  let s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  const ids=[];
   for(let i=0;i<3;i++){
     s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:weapon",level:0},{bosses:7},1).state;
     ids.push(s.inventory[s.inventory.length-1].id);
@@ -644,8 +637,7 @@ assert.equal(t.result.nextAt,7000);
    * désormais un boost "toughness" sur ce même objet (qui, lui, en a
    * réellement), même logique de test inchangée.
    */
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:50},{bosses:7},1).state;
   const cibleId=s.inventory[0].id;
   s.inventory.push({id:"boostTest1",definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:1,level:0});
@@ -671,8 +663,7 @@ assert.equal(t.result.nextAt,7000);
    * = basePower×(1+100/100) = basePower×2, donc identique au plafond
    * absolu — un boost supplémentaire ne doit rien ajouter non plus.
    */
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:100},{bosses:7},1).state;
   const cibleMaxId=s.inventory[0].id;
   const avantPuissanceMax=s.inventory[0].toughness;
@@ -699,8 +690,7 @@ assert.equal(t.result.nextAt,7000);
    * plafond du NOUVEAU niveau (81), jamais jusqu'au plafond absolu
    * (niveau 100) puisque l'objet n'est pas allé jusque-là.
    */
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:40},{bosses:7},1).state;
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:40},{bosses:7},1).state;
   const idsEcart=s.inventory.map(x=>x.id);
@@ -765,8 +755,7 @@ assert.equal(t.result.nextAt,7000);
   const safe=IDLE_ADVENTURE_ZONES.find(x=>x.id==="safe");
   assert.equal(safe.bossChance,undefined,"Safety Zone n'a aucun combat, donc aucun bossChance ne doit y être défini.");
 
-  s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"cave"},{bosses:37},1).state;
+  s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"cave"},{bosses:37},1).state;
   {
     const alea=Math.random;
     try{
@@ -824,8 +813,7 @@ assert.equal(t.result.nextAt,7000);
       assert.ok(z,`Zone ${id} introuvable dans IDLE_ADVENTURE_ZONES.`);
       const eps=Math.max(chance*0.01,1e-7);
 
-      let s0=normalizeIdleAdventureStateV47({});
-      s0=applyIdleAdventureActionV47(s0,{action:"selectZone",zone:id},{bosses:z.boss},1).state;
+      let s0=normalizeIdleAdventureStateV47({});      s0.inventory=s0.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});      s0=applyIdleAdventureActionV47(s0,{action:"selectZone",zone:id},{bosses:z.boss},1).state;
 
       Math.random=()=>chance+eps;
       let r=applyIdleAdventureActionV47(s0,{action:"zoneKill"},{bosses:z.boss,forceBoss:true},2);
@@ -846,8 +834,7 @@ assert.equal(t.result.nextAt,7000);
     const alea2=Math.random;
     try{
       Math.random=()=>0;
-      let s0=normalizeIdleAdventureStateV47({});
-      s0=applyIdleAdventureActionV47(s0,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
+      let s0=normalizeIdleAdventureStateV47({});      s0.inventory=s0.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});      s0=applyIdleAdventureActionV47(s0,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
       const r=applyIdleAdventureActionV47(s0,{action:"zoneKill"},{bosses:7,forceBoss:false},2);
       assert.equal(r.result.boss,false);
       assert.equal(r.result.experience,0,"Un kill NON-boss ne doit jamais donner d'EXP, même si le roll serait gagnant.");

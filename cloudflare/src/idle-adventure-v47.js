@@ -895,7 +895,13 @@ pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bos
  * SOREAL-APP), jamais compté comme une pièce du set (checkSets() ignore
  * ce champ, voir commentaire de special() plus haut).
  */
-flubber:{name:"The Lonely Flubber",zone:"tutorial",slot:"accessory",set:"training",dropLevel:0,p:0,t:0},
+/*
+ * Correctif 2026-09-18 (wiki réel : "Id: 120... Item Drop Level / Drop
+ * Zone(s): lvl 10 in Tutorial Zone") : dropLevel corrigé de 0 à 10 --
+ * l'objet apparaît déjà au niveau 10 quand il tombe, comme documenté,
+ * jamais niveau 0.
+ */
+flubber:{name:"The Lonely Flubber",zone:"tutorial",slot:"accessory",set:"training",dropLevel:10,p:0,t:0,customDropRoll:true},
 // wiki : "A busted copy of Wandoos 98" — consommable de déblocage d'OS, aucune stat.
 wandoos98:{name:"Wandoos 98",zone:"sky",slot:"special",unlock:"wandoos",dropLevel:0,p:0,t:0},
 // wiki : "Magicite Crystal" — Power/Toughness Max at lvl 0 = 50/50.
@@ -1059,7 +1065,33 @@ function boost(type,strength){if(!["power","toughness","special"].includes(type)
  */
 export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
-function base(){return{version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1}}
+/*
+ * Correctif 2026-09-18 (Norman, en direct, marqué URGENT : "le cube
+ * tutorial n'est toujours pas présent quand on ouvre l'inventaire.
+ * Normalement, il doit déjà s'y trouver à la première fois où on accède
+ * à notre inventaire.") Vérifié sur le wiki (4G's Merge and Boost
+ * Tutorial Cube) : le joueur POSSÈDE déjà cet objet dès le début, jamais
+ * besoin de le faire tomber une première fois -- seules des copies
+ * SUPPLÉMENTAIRES (à fusionner pour monter jusqu'au niveau 100) tombent
+ * ensuite en Sewers (SPECIALS.tutorialCube, bossOnly, 10%, déjà
+ * implémenté plus haut, inchangé). base() est le seul point de
+ * construction d'un état Aventure neuf (nouveau joueur ET migration
+ * d'une sauvegarde legacy sans état V47, voir migrateLegacyMetaToV47
+ * dans idle-ngu-progression.js) -- y semer l'objet ici garantit qu'il
+ * est déjà là au tout premier accès à l'inventaire, sans jamais toucher
+ * au reste de la construction de l'état. Déposé dans le SAC (inventory),
+ * PAS pré-équipé : Norman a été explicite ("il est juste là sans l'avoir
+ * drop. Ensuite on peut l'équiper") -- le joueur l'équipe lui-même,
+ * exactement comme n'importe quel autre accessoire trouvé.
+ */
+function base(){
+  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const cubeDepart=special("tutorialCube",0);
+  cubeDepart.id=`i${s.serial++}`;
+  s.inventory.push(cubeDepart);
+  record(s,cubeDepart);
+  return s;
+}
 export function createIdleAdventureStateV47(){return base()}
 /*
  * Migration 2026-09-16 (Norman : "je me retrouve avec des stats genre
@@ -1603,7 +1635,7 @@ const ZONE_BOSS_EXP_CHANCE_V1={
  * avant le plafond `cap` pour que celui-ci reste la vraie borne finale.
  */
 function evilZoneDropChanceV1(p,cap,isEvilZone){return C(isEvilZone?Math.cbrt(Math.max(0,p)):p,0,cap)}
-function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];const isEvilZone=z.requiredDifficulty==="difficile";if(z.set&&Math.random()<evilZoneDropChanceV1(.22*dropMult,.95,isEvilZone)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<evilZoneDropChanceV1(.12*dropMult,.85,isEvilZone))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<evilZoneDropChanceV1(.04*dropMult,.5,isEvilZone)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
+function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];const isEvilZone=z.requiredDifficulty==="difficile";if(z.set&&Math.random()<evilZoneDropChanceV1(.22*dropMult,.95,isEvilZone)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<evilZoneDropChanceV1(.12*dropMult,.85,isEvilZone))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&!d.customDropRoll&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<evilZoneDropChanceV1(.04*dropMult,.5,isEvilZone)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
 /*
  * Correctif 2026-09-16 (Norman, wiki NGU exact) : les SPECIALS bossOnly
  * PORTANT un dropChance sourcé du wiki (ex. tutorialCube, 10% sur le
@@ -1621,8 +1653,18 @@ if(boss){for(const [id,d] of Object.entries(SPECIALS)){if(d.zone===z.id&&d.bossO
  * -- ni le pool générique 4% (mauvais taux), ni le roll bossOnly
  * ci-dessus (tombe aussi sur les mobs normaux), et JAMAIS multipliée par
  * dropMult (précisé explicitement par le wiki).
+ *
+ * Correctif 2026-09-18 (Norman, en direct : "le drop était beaucoup trop
+ * élevé") : l'intention ci-dessus n'était jamais réellement appliquée --
+ * flubber n'étant ni bossOnly ni doté d'un requiresBoss, il restait
+ * éligible au pool générique 4% (candidates, juste au-dessus) EN PLUS de
+ * ce roll dédié, cumulant les deux (et surtout, tombant dès le premier
+ * kill via le pool générique, bien avant le seuil réel du boss 59). Le
+ * flag customDropRoll (SPECIALS.flubber) exclut désormais explicitement
+ * flubber de ce pool générique -- seul ce roll dédié, wiki-exact,
+ * s'applique.
  */
-if(z.id==="tutorial"){const flubberBoss=I(ctx.bosses);if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){out.push(add(s,special("flubber",0)))}}
+if(z.id==="tutorial"){const flubberBoss=I(ctx.bosses);if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){out.push(add(s,special("flubber",SPECIALS.flubber.dropLevel||0)))}}
 if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}
 /*
  * EXP de boss d'Aventure (voir ZONE_BOSS_EXP_CHANCE_V1 plus haut, sourcé

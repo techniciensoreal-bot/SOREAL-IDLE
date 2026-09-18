@@ -21,7 +21,7 @@ import {
 // 1) Un boost "special" sur une arme d'équipement (kind:"set") doit être refusé.
 {
   let s = normalizeIdleAdventureStateV47({});
-  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
   const weaponId = s.inventory[0].id;
 
@@ -38,7 +38,7 @@ import {
 // 2) Un boost "special" sur un vrai objet SPECIALS (accessoire/cube) doit continuer à fonctionner.
 {
   let s = normalizeIdleAdventureStateV47({});
-  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "tutorialCube", level: 1 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "tutorialCube", level: 1 }, { bosses: 17 }, 1);
   s = r.state;
   // tutorialCube a cube:true dans son catalogue, donc l'objet construit porte
   // kind:"cube" (voir special() dans idle-adventure-v47.js) — mais defById()
@@ -59,7 +59,7 @@ import {
 // 3) Power/Toughness boosts sur une arme d'équipement doivent rester inchangés (pas de régression).
 {
   let s = normalizeIdleAdventureStateV47({});
-  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
   let r2 = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r2.state;

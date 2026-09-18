@@ -89,8 +89,8 @@ assert.deepEqual(
 // Le moteur générique (checkSets/rollKill/item) doit gérer les 4 zones
 // sans code dédié — complétion réelle du set Badly Drawn de bout en bout.
 {
-  let s=normalizeIdleAdventureStateV47({});
-  for(const slot of IDLE_ADVENTURE_SETS.badly.slots){
+  let s = normalizeIdleAdventureStateV47({});
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  for(const slot of IDLE_ADVENTURE_SETS.badly.slots){
     const r=applyIdleAdventureActionV47(
       s,{action:"addItem",definitionId:`badly:${slot}`,level:100},{bosses:116},1
     );
@@ -120,8 +120,8 @@ assert.deepEqual(
  * toucher le plafond.
  */
 {
-  let s=normalizeIdleAdventureStateV47({});
-  s=applyIdleAdventureActionV47(
+  let s = normalizeIdleAdventureStateV47({});
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(
     s,{action:"addItem",definitionId:"mega:head",level:40},{bosses:90},1
   ).state;
   s=applyIdleAdventureActionV47(
@@ -152,8 +152,8 @@ assert.deepEqual(
 // Une zone du nouveau lot doit apparaître verrouillée/déverrouillée comme
 // n'importe quelle autre, sans logique dédiée.
 {
-  const s=normalizeIdleAdventureStateV47({});
-  assert.equal(
+  const s = normalizeIdleAdventureStateV47({});
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  assert.equal(
     idleAdventureSnapshotV47(s,107).zones.find(x=>x.id==="beardverse").unlocked,false
   );
   assert.equal(
