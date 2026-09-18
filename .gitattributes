@@ -1,0 +1,16 @@
+# Cause confirmée (Norman/Claude, 2026-09-18) : idle-runtime.test.mjs,
+# idle-boss-xp-baseline-and-ftbe.test.mjs et d'autres tests comparent le
+# contenu de cloudflare/src/*.js à des littéraux multi-lignes exacts (via
+# source.includes("...\n...")). Sur une machine Windows avec
+# core.autocrlf=true (le cas de ce poste), un `git checkout` réintroduit
+# des fins de ligne CRLF dans le fichier sur disque alors que le blob
+# committé est en LF -- ce qui casse silencieusement ces comparaisons
+# alors même que `git diff` ne montre aucune différence (autocrlf
+# normalise la comparaison mais pas le contenu réellement lu par Node).
+# Constaté concrètement sur idle-sqlite-runtime.js, idle-ngu-progression.js
+# et idle-adventure-v47.js (les 3 fichiers les plus souvent édités).
+# Fixé en forçant LF pour tout le code source, indépendamment du
+# core.autocrlf de la machine qui clone ce dépôt.
+* text=auto eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
