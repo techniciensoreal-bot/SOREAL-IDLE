@@ -1660,6 +1660,18 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!"
 });
 function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
+function rollFreshEquipmentStatsV1(o){
+  if(!o||o.kind!=="equipment")return o;
+  const base=idleAdventureItemStatsMaxV1(o.set,o.slot);
+  const q=1+C(o.level,0,MAX)/100;
+  const pMax=Math.max(0,N(base&&base.p)*q);
+  const tMax=Math.max(0,N(base&&base.t)*q);
+  o.power=pMax>0?Math.floor(Math.random()*(Math.floor(pMax)+1)):0;
+  o.toughness=tMax>0?Math.floor(Math.random()*(Math.floor(tMax)+1)):0;
+  o.hp=o.power*3;
+  o.regen=o.toughness*.03;
+  return o;
+}
 /*
  * power/toughness (2026-09-13, cf. commentaire sourcé au-dessus de SPECIALS) :
  * même formule de niveau que item() (q=1+niveau/100, doublement à 100),
@@ -1731,7 +1743,9 @@ function base(){
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
-  s.inventorySlots=[cubeDepart.id];
+  const boostsDepart=["power","toughness","special"].map(function(type){return boost(type,1)});
+  s.inventory.push(...boostsDepart);
+  s.inventorySlots=[cubeDepart.id,...boostsDepart.map(function(x){return x.id})];
   record(s,cubeDepart);
   return s;
 }
@@ -2298,7 +2312,7 @@ function unlockedZone(z,bosses,difficulty,difficultyPeaks){
   }
   return difficulty===z.requiredDifficulty&&I(bosses)>=I(z.boss)
 }
-function setDrop(s,setId,lv=0){const d=SETS[setId],slot=d.slots[I(Math.random()*d.slots.length)];return item(`i${s.serial++}`,setId,slot,lv)}
+function setDrop(s,setId,lv=0){const d=SETS[setId],slot=d.slots[I(Math.random()*d.slots.length)];return rollFreshEquipmentStatsV1(item(`i${s.serial++}`,setId,slot,lv))}
 /*
  * Or d'Aventure (Norman, 2026-09-11, "ça doit être identique à NGU IDLE" +
  * "il faut aussi regarder ce que les mobs sont supposés looter... des
@@ -2605,7 +2619,7 @@ function dropLevelAdventureV2(s,baseLevel){
 function definitionEquipmentDropAdventureV2(s,definitionId,level){
   const d=defById(definitionId);
   if(!d||d.kind!=="set")return null;
-  return item("i"+s.serial++,d.set,d.slot,level);
+  return rollFreshEquipmentStatsV1(item("i"+s.serial++,d.set,d.slot,level));
 }
 
 function definitionsEquipmentPoolAdventureV2(pool){
