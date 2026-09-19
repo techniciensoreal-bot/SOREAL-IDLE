@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>SOREAL IDLE</title>
+  <style>
+    html,body{margin:0;min-height:100%;background:#06111d;color:#eef8ff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{display:grid;place-items:center;min-height:100vh}
+    main{width:min(680px,calc(100% - 32px));padding:28px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:#0b1b2b}
+    h1{margin:0 0 10px;font-size:30px}p{line-height:1.55;color:#bcd0df}
+    #status{margin-top:18px;font-weight:800;color:#91e9ff}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>SOREAL IDLE</h1>
+    <p>Frontend autonome en cours de bascule. Cette page est désormais servie directement par le Worker SOREAL-IDLE et non par SOREAL-APP.</p>
+    <div id="status">Initialisation…</div>
+  </main>
+  <script>
+    (async function(){
+      const status=document.getElementById("status");
+      try{
+        const r=await fetch("/api/v1/bootstrap",{cache:"no-store",headers:{accept:"application/json"}});
+        const data=await r.json();
+        status.textContent=data&&data.ok?"Moteur SOREAL-IDLE disponible.":"Moteur indisponible.";
+      }catch(e){
+        status.textContent="Moteur indisponible.";
+      }
+    })();
+  </script>
+</body>
+</html>
