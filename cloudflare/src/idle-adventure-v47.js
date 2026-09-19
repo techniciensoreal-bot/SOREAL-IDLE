@@ -1666,8 +1666,18 @@ function rollFreshEquipmentStatsV1(o){
   const q=1+C(o.level,0,MAX)/100;
   const pMax=Math.max(0,N(base&&base.p)*q);
   const tMax=Math.max(0,N(base&&base.t)*q);
-  o.power=pMax>0?Math.floor(Math.random()*(Math.floor(pMax)+1)):0;
-  o.toughness=tMax>0?Math.floor(Math.random()*(Math.floor(tMax)+1)):0;
+  function roll(seed,max){
+    if(!(max>0))return 0;
+    let h=2166136261;
+    const txt=String(seed||"");
+    for(let i=0;i<txt.length;i+=1){
+      h^=txt.charCodeAt(i);
+      h=Math.imul(h,16777619);
+    }
+    return Math.floor(((h>>>0)/4294967296)*(Math.floor(max)+1));
+  }
+  o.power=roll(String(o.id)+":p",pMax);
+  o.toughness=roll(String(o.id)+":t",tMax);
   o.hp=o.power*3;
   o.regen=o.toughness*.03;
   return o;
