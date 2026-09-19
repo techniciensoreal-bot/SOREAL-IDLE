@@ -6,6 +6,13 @@ function envV1() {
   return {
     calls,
     SOREAL_IDLE_INTERNAL_KEY: "secret",
+    ASSETS: {
+      async fetch(request) {
+        return new Response("<!doctype html><title>SOREAL IDLE</title>", {
+          headers: { "content-type": "text/html; charset=utf-8" }
+        });
+      }
+    },
     SOREAL_IDLE: {
       idFromName(name) {
         assert.equal(name, "global");
@@ -39,6 +46,13 @@ function envV1() {
   assert.equal(data.ok, true);
   assert.equal(data.standalone, true);
   assert.equal(data.sessionEndpoint, "https://idle.test/api/v1/session");
+}
+
+{
+  const env = envV1();
+  const response = await worker.fetch(new Request("https://idle.test/"), env);
+  assert.equal(response.status, 200);
+  assert.match(await response.text(), /SOREAL IDLE/);
 }
 
 {
