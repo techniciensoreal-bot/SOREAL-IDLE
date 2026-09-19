@@ -3230,9 +3230,13 @@ export function idleAdventureEquipmentStatsV47(raw){
    * le tick client de repos.
    */
   const specialsByType=idleAdventureSpecialsByTypeV1(equipped);
+  const cubePowerContribution=idleAdventureCubeSoftcapV1(s.cube.power,basePower);
+  const cubeToughnessContribution=idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness);
   return{
-    power:basePower+idleAdventureCubeSoftcapV1(s.cube.power,basePower),
-    toughness:baseToughness+idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness),
+    power:basePower+cubePowerContribution,
+    toughness:baseToughness+cubeToughnessContribution,
+    cubePowerContribution,
+    cubeToughnessContribution,
     hp:equippedHp+N(s.setRewards.adventureHp),
     regen:equippedRegen+N(s.setRewards.adventureRegen),
     special:equipped.reduce((a,x)=>a+N(x.special),0),
