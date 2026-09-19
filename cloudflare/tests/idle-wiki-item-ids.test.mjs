@@ -13,7 +13,11 @@ const mod=await import(moduleUrl.href+"?wiki-item-ids="+Date.now());
 const ids=mod.IDLE_ADVENTURE_WIKI_ITEM_IDS_V1;
 const catalog=mod.IDLE_ADVENTURE_ITEM_CATALOG_V1;
 
-assert.equal(Object.keys(ids).length,263,"Les 241 pièces de set + 22 SPECIALS doivent toutes avoir un wikiItemId.");
+assert.deepEqual(
+  Object.keys(ids).sort(),
+  Object.keys(catalog).sort(),
+  "La table wikiItemId doit couvrir exactement le catalogue Adventure courant, sans entrée manquante ni ID orphelin."
+);
 assert.equal(ids["training:head"],62);
 assert.equal(ids["training:chest"],63);
 assert.equal(ids["training:legs"],64);
