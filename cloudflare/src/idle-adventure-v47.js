@@ -2346,21 +2346,21 @@ const ZONE_GOLD_RANGES_V1={
  * complètes, aucune valeur devinée.
  */
 const ZONE_BOSS_EXP_CHANCE_V1={
-  tutorial:{chance:.07,amount:1},
-  sewers:{chance:.085,amount:1},
-  forest:{chance:.10,amount:1},
-  cave:{chance:.12,amount:1},
-  sky:{chance:.16,amount:1},
-  hsb:{chance:.09,amount:2},
-  clock:{chance:.10,amount:2},
-  "2d":{chance:.05,amount:3},
-  ancient:{chance:.03,amount:5},
-  avsp:{chance:.01,amount:10},
-  mega:{chance:.005,amount:15},
-  beardverse:{chance:.002,amount:20},
-  badly:{chance:.0005,amount:25},
-  boring:{chance:.0003,amount:30},
-  chocolate:{chance:.0002,amount:30}
+  tutorial:{chance:.07,cap:.08,amount:1},
+  sewers:{chance:.085,cap:.10,amount:1},
+  forest:{chance:.10,cap:.12,amount:1},
+  cave:{chance:.12,cap:.15,amount:1},
+  sky:{chance:.16,cap:.20,amount:1},
+  hsb:{chance:.09,cap:.12,amount:2},
+  clock:{chance:.10,cap:.16,amount:2},
+  "2d":{chance:.05,cap:.15,amount:3},
+  ancient:{chance:.03,cap:.10,amount:5},
+  avsp:{chance:.01,cap:.10,amount:10},
+  mega:{chance:.005,cap:.10,amount:15},
+  beardverse:{chance:.002,cap:.10,amount:20},
+  badly:{chance:.0005,cap:.10,amount:25},
+  boring:{chance:.0003,cap:.10,amount:30},
+  chocolate:{chance:.0002,cap:.03,amount:30}
 };
 /*
  * Norman (2026-09-14, urgent) : "les combats ne démarrent plus en
@@ -2403,57 +2403,365 @@ const ZONE_BOSS_EXP_CHANCE_V1={
  * chance (racine d'une fraction <1 > la fraction elle-même) -- appliqué
  * avant le plafond `cap` pour que celui-ci reste la vraie borne finale.
  */
-function evilZoneDropChanceV1(p,cap,isEvilZone){return C(isEvilZone?Math.cbrt(Math.max(0,p)):p,0,cap)}
-function rollKill(s,ctx){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");const kills=(s.zone.kills[z.id]||0)+1;s.zone.kills[z.id]=kills;const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;const dropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)),out=[];const isEvilZone=z.requiredDifficulty==="difficile";if(z.set&&Math.random()<evilZoneDropChanceV1(.22*dropMult,.95,isEvilZone)){let lv=I(z.dropLevel);if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;out.push(add(s,setDrop(s,z.set,lv)))}if(Math.random()<evilZoneDropChanceV1(.12*dropMult,.85,isEvilZone))out.push(add(s,boost(["power","toughness","special"][I(Math.random()*3)],BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))])));const candidates=Object.entries(SPECIALS).filter(([,d])=>d.zone===z.id&&!d.bossOnly&&!d.customDropRoll&&I(ctx.bosses)>=I(d.requiresBoss));if(candidates.length&&Math.random()<evilZoneDropChanceV1(.04*dropMult,.5,isEvilZone)){const [id,d]=candidates[I(Math.random()*candidates.length)];out.push(add(s,special(id,d.dropLevel||0)))}
+
 /*
- * Correctif 2026-09-16 (Norman, wiki NGU exact) : les SPECIALS bossOnly
- * PORTANT un dropChance sourcé du wiki (ex. tutorialCube, 10% sur le
- * boss de Sewers) obtiennent chacun leur PROPRE roll indépendant à leur
- * propre pourcentage, uniquement sur un kill de boss — jamais mélangés
- * au pool générique 4% ci-dessus (partagé par les SPECIALS sans donnée
- * de taux propre), ni transformés en déblocage garanti (réservé aux
- * SPECIALS bossOnly SANS dropChance, ex. pissedOffKey ci-dessous).
+ * NGU Adventure loot V2 — taux par zone et par type de rencontre.
+ * Les anciens 22% / 12% / 4% universels ne sont conservés qu'en fallback
+ * pour les zones Evil/Sadistic encore non auditées individuellement.
  */
-if(boss){for(const [id,d] of Object.entries(SPECIALS)){if(d.zone===z.id&&d.bossOnly&&d.dropChance!=null&&I(ctx.bosses)>=I(d.requiresBoss)&&Math.random()<C(N(d.dropChance)*dropMult,0,1)){out.push(add(s,special(id,d.dropLevel||0)))}}}
-/*
- * Correctif 2026-09-16 (wiki réel vérifié en direct) : "The Lonely
- * Flubber" a sa PROPRE formule (0,82% dès boss 59, +0,41%/boss, 100% au
- * boss 300 -- basée sur le plus haut boss de la RUN EN COURS, ctx.bosses)
- * -- ni le pool générique 4% (mauvais taux), ni le roll bossOnly
- * ci-dessus (tombe aussi sur les mobs normaux), et JAMAIS multipliée par
- * dropMult (précisé explicitement par le wiki).
- *
- * Correctif 2026-09-18 (Norman, en direct : "le drop était beaucoup trop
- * élevé") : l'intention ci-dessus n'était jamais réellement appliquée --
- * flubber n'étant ni bossOnly ni doté d'un requiresBoss, il restait
- * éligible au pool générique 4% (candidates, juste au-dessus) EN PLUS de
- * ce roll dédié, cumulant les deux (et surtout, tombant dès le premier
- * kill via le pool générique, bien avant le seuil réel du boss 59). Le
- * flag customDropRoll (SPECIALS.flubber) exclut désormais explicitement
- * flubber de ce pool générique -- seul ce roll dédié, wiki-exact,
- * s'applique.
- */
-if(z.id==="tutorial"){const flubberBoss=I(ctx.bosses);if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){out.push(add(s,special("flubber",SPECIALS.flubber.dropLevel||0)))}}
-if(boss&&z.id==="sky"&&!s.unlockItems.pissedOffKey){s.unlockItems.pissedOffKey=true;out.push(add(s,special("pissedOffKey")))}const goldRange=ZONE_GOLD_RANGES_V1[z.id];let gold=0;if(goldRange){const [lo,hi]=boss?goldRange.boss:goldRange.normal;const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));s.permanent.gold=N(s.permanent.gold)+gold}
-/*
- * EXP de boss d'Aventure (voir ZONE_BOSS_EXP_CHANCE_V1 plus haut, sourcé
- * page par page du wiki NGU le 2026-09-16) : roll indépendant, uniquement
- * sur un kill de boss (jamais un monstre normal — le wiki ne documente ce
- * drop QUE sur la ligne "Boss" de chaque zone), au "base chance" exact de
- * la zone (0 par repli si la zone est absente de l'objet, ex. "safe" qui
- * n'a de toute façon aucun combat). Même dropMult que les autres rolls à
- * pourcentage propre de cette fonction (ex. les SPECIALS bossOnly juste
- * au-dessus) — jamais appliqué au pool générique 4%/22%/12%, seulement aux
- * taux individuels sourcés du wiki, par cohérence avec ce que ce fichier
- * fait déjà. Stocké dans s.permanent.experience, EXACTEMENT le même champ
- * que checkSets() (reward.experience des sets) utilise déjà plus haut dans
- * ce fichier — jamais un second système d'EXP parallèle. Ce champ est
- * ensuite diffé vers la vraie monnaie state.currencies.experience par
- * applyIdleNguAction (idle-ngu-progression.js), même schéma que gold/ap
- * juste au-dessus dans ce même fichier.
- */
-let experience=0;if(boss){const expDef=ZONE_BOSS_EXP_CHANCE_V1[z.id];const expChance=N(expDef?.chance,0);if(expChance>0&&Math.random()<C(expChance*dropMult,0,1)){experience=I(expDef.amount,0);s.permanent.experience=N(s.permanent.experience)+experience}}
-return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience}}
+export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
+  tutorial:{
+    normal:{
+      equipment:[{chance:.25,definitions:["training:weapon"],level:10,firstGuaranteed:"training:weapon"}],
+      boosts:[{strength:1,chance:.15,requiresCompletedSet:"training"}]
+    },
+    boss:{
+      equipment:[{chance:1,definitions:["training:head","training:chest","training:legs","training:boots"],level:10}]
+    }
+  },
+  sewers:{
+    normal:{boosts:[{strength:1,chance:.15}]},
+    boss:{
+      equipment:[{chance:.65,set:"sewers",level:4}],
+      specials:[{id:"tutorialCube",chance:.10,level:4}]
+    }
+  },
+  forest:{
+    normal:{
+      boosts:[{strength:1,chance:.12},{strength:2,chance:.08}],
+      specials:[{id:"tubaTime",chance:.013,level:1}]
+    },
+    boss:{
+      equipment:[{
+        chance:.50,
+        definitions:["forest:head","forest:chest","forest:legs","forest:boots","forest:weapon","forest:ring","forest:pendant"],
+        level:1,
+        levels:{"forest:pendant":0}
+      }],
+      specials:[{id:"tubaTime",chance:.013,level:1}]
+    }
+  },
+  cave:{
+    normal:{
+      boosts:[{strength:1,chance:.13},{strength:2,chance:.12}],
+      specials:[{id:"cheeseGrater",chance:.0125,level:1}]
+    },
+    boss:{
+      equipment:[{
+        chance:.75,
+        definitions:["cave:head","cave:chest","cave:legs","cave:boots","cave:weapon","cave:ring","cave:amulet","cave:combat","forest:pendant"],
+        level:0,
+        levels:{"forest:pendant":1}
+      }],
+      specials:[{id:"cheeseGrater",chance:.0125,level:1}]
+    }
+  },
+  sky:{
+    normal:{
+      boosts:[{strength:2,chance:.08},{strength:5,chance:.08}],
+      specials:[{id:"skyBall",chance:.01,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.40,definitions:["forest:pendant"],level:2}],
+      specials:[
+        {id:"wandoos98",chance:.003,level:0},
+        {id:"pissedOffKey",chance:.01,level:0,firstGuaranteed:true},
+        {id:"skyBall",chance:.01,level:1}
+      ]
+    }
+  },
+  hsb:{
+    normal:{
+      boosts:[{strength:2,chance:.06},{strength:5,chance:.015}],
+      specials:[{id:"magicite",chance:.007,level:1}]
+    },
+    boss:{
+      equipment:[{
+        chance:.40,
+        definitions:["hsb:head","hsb:chest","hsb:legs","hsb:boots","hsb:weapon","hsb:ring","hsb:amulet","forest:pendant"],
+        level:0,
+        levels:{"forest:pendant":3}
+      }],
+      specials:[{id:"magicite",chance:.007,level:1}]
+    }
+  },
+  clock:{
+    normal:{
+      boosts:[{strength:5,chance:.03,cap:.15},{strength:10,chance:.03,cap:.15}],
+      specials:[{id:"windupGear",chance:.005,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.30,set:"clock",level:0}],
+      specials:[{id:"windupGear",chance:.005,level:1}]
+    }
+  },
+  "2d":{
+    normal:{
+      boosts:[{strength:10,chance:.07,cap:.15},{strength:20,chance:.07,cap:.15}],
+      specials:[{id:"sinusoidalWave",chance:.005,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.32,set:"2d",level:0}],
+      specials:[{id:"sinusoidalWave",chance:.005,level:1}]
+    }
+  },
+  ancient:{
+    normal:{
+      boosts:[{strength:10,chance:.06,cap:.20},{strength:20,chance:.06,cap:.20}],
+      specials:[{id:"ghostTypewriter",chance:.0045,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.30,set:"spoopy",level:0}],
+      specials:[
+        {id:"wandoos98",chance:.002,level:0},
+        {id:"ghostTypewriter",chance:.0045,level:1}
+      ]
+    }
+  },
+  avsp:{
+    normal:{
+      boosts:[{strength:20,chance:.03,cap:.25},{strength:50,chance:.03,cap:.25}],
+      specials:[{id:"gaudyShoulders",chance:.004,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.20,set:"gaudy",level:0}],
+      specials:[
+        {id:"wandoos98",chance:.0025,level:1},
+        {id:"gaudyShoulders",chance:.004,level:1}
+      ]
+    }
+  },
+  mega:{
+    normal:{
+      boosts:[{strength:50,chance:.011,cap:.15},{strength:100,chance:.011,cap:.15}],
+      specials:[{id:"fTank",chance:.002,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.08,set:"mega",level:0}],
+      specials:[{id:"fTank",chance:.002,level:1}]
+    }
+  },
+  beardverse:{
+    normal:{
+      boosts:[{strength:50,chance:.0035,cap:.25},{strength:100,chance:.0035,cap:.25}],
+      specials:[{id:"beardComb",chance:.0002,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.01,set:"beardverse",level:0}],
+      specials:[{id:"beardComb",chance:.0002,level:1}]
+    }
+  },
+  badly:{
+    normal:{
+      boosts:[{strength:100,chance:.001,cap:.20},{strength:200,chance:.001,cap:.20}],
+      equipment:[{chance:.00006,cap:.05,set:"badly",level:0}],
+      specials:[{id:"randomCrayons",chance:.000012,cap:.03,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.00018,cap:.15,set:"badly",level:0}],
+      specials:[{id:"randomCrayons",chance:.000012,cap:.03,level:1}]
+    }
+  },
+  boring:{
+    normal:{
+      boosts:[{strength:200,chance:.00012,cap:.20},{strength:500,chance:.00012,cap:.20}],
+      equipment:[{chance:.00003,cap:.04,set:"stealth",level:0}],
+      specials:[{id:"redLipstick",chance:.000006,cap:.02,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.00009,cap:.10,set:"stealth",level:0}],
+      specials:[{id:"redLipstick",chance:.000006,cap:.02,level:1}]
+    }
+  },
+  chocolate:{
+    normal:{
+      boosts:[{strength:200,chance:.00055,cap:.10},{strength:500,chance:.00055,cap:.10}],
+      equipment:[{chance:.00018,cap:.08,set:"choco",level:0}],
+      specials:[{id:"candyCornNecklace",chance:.00008,cap:.016,level:1}]
+    },
+    boss:{
+      equipment:[{chance:.00055,cap:.12,set:"choco",level:0}],
+      specials:[{id:"candyCornNecklace",chance:.00008,cap:.016,level:1}]
+    }
+  }
+});
+
+function zoneUsesCubeRootDropV2(z){
+  return Boolean(z&&(z.id==="chocolate"||z.requiredDifficulty));
+}
+
+export function idleAdventureDropChanceV2(baseChance,cap,dropMultiplier,zone){
+  const mult=Math.max(0,N(dropMultiplier,1));
+  const effectif=zoneUsesCubeRootDropV2(zone)?Math.cbrt(mult):mult;
+  return C(N(baseChance)*effectif,0,cap==null?1:N(cap));
+}
+
+function dropLevelAdventureV2(s,baseLevel){
+  let lv=Math.max(0,I(baseLevel));
+  if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;
+  return lv;
+}
+
+function definitionEquipmentDropAdventureV2(s,definitionId,level){
+  const d=defById(definitionId);
+  if(!d||d.kind!=="set")return null;
+  return item("i"+s.serial++,d.set,d.slot,level);
+}
+
+function definitionsEquipmentPoolAdventureV2(pool){
+  if(Array.isArray(pool.definitions)&&pool.definitions.length)return pool.definitions;
+  const setId=String(pool.set||"");
+  const setDef=SETS[setId];
+  if(!setDef)return[];
+  return setDef.slots.map(slot=>setId+":"+slot);
+}
+
+function rollEquipmentAdventureV2(s,z,pool,dropMult){
+  const defs=definitionsEquipmentPoolAdventureV2(pool);
+  if(!defs.length)return null;
+  const firstId=String(pool.firstGuaranteed||"");
+  const guaranteed=Boolean(firstId&&!s.itemList[firstId]?.seen);
+  if(!guaranteed&&Math.random()>=idleAdventureDropChanceV2(pool.chance,pool.cap,dropMult,z))return null;
+
+  const definitionId=guaranteed?firstId:defs[I(Math.random()*defs.length)];
+  if(!definitionId)return null;
+
+  const override=pool.levels&&pool.levels[definitionId];
+  const baseLevel=override!=null?override:(pool.level!=null?pool.level:z.dropLevel);
+  const obj=definitionEquipmentDropAdventureV2(
+    s,
+    definitionId,
+    dropLevelAdventureV2(s,baseLevel)
+  );
+  return obj?add(s,obj):null;
+}
+
+function rollBoostAdventureV2(s,z,def,dropMult){
+  if(def.requiresCompletedSet&&!s.completedSets[String(def.requiresCompletedSet)])return null;
+  if(Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
+  const type=["power","toughness","special"][I(Math.random()*3)];
+  return add(s,boost(type,def.strength));
+}
+
+function rollSpecialAdventureV2(s,z,def,dropMult){
+  const id=String(def.id||"");
+  const source=SPECIALS[id];
+  if(!source)return null;
+
+  const firstGuaranteed=Boolean(def.firstGuaranteed&&!s.itemList[id]?.seen);
+  if(!firstGuaranteed&&Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
+
+  const level=def.level!=null?def.level:(source.dropLevel||0);
+  return add(s,special(id,dropLevelAdventureV2(s,level)));
+}
+
+function rollProfileLootAdventureV2(s,z,boss,dropMult){
+  const zoneProfile=IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2[z.id];
+  const profile=zoneProfile&&(boss?zoneProfile.boss:zoneProfile.normal);
+  if(!profile)return null;
+
+  const out=[];
+  for(const pool of profile.equipment||[]){
+    const o=rollEquipmentAdventureV2(s,z,pool,dropMult);
+    if(o)out.push(o);
+  }
+  for(const def of profile.boosts||[]){
+    const o=rollBoostAdventureV2(s,z,def,dropMult);
+    if(o)out.push(o);
+  }
+  for(const def of profile.specials||[]){
+    const o=rollSpecialAdventureV2(s,z,def,dropMult);
+    if(o)out.push(o);
+  }
+  return out;
+}
+
+/* Fallback legacy uniquement pour les zones Evil/Sadistic non auditées. */
+function rollLegacyZoneLootAdventureV2(s,z,dropMult,ctx){
+  const out=[];
+  if(z.set&&Math.random()<idleAdventureDropChanceV2(.22,.95,dropMult,z)){
+    const o=add(s,setDrop(s,z.set,dropLevelAdventureV2(s,z.dropLevel)));
+    if(o)out.push(o);
+  }
+  if(Math.random()<idleAdventureDropChanceV2(.12,.85,dropMult,z)){
+    const o=add(
+      s,
+      boost(
+        ["power","toughness","special"][I(Math.random()*3)],
+        BOOSTS[Math.min(BOOSTS.length-1,I(Math.log2(1+Math.max(0,I(ctx.bosses))/10)))]
+      )
+    );
+    if(o)out.push(o);
+  }
+  const candidates=Object.entries(SPECIALS).filter(([,d])=>
+    d.zone===z.id&&!d.bossOnly&&!d.customDropRoll&&I(ctx.bosses)>=I(d.requiresBoss)
+  );
+  if(candidates.length&&Math.random()<idleAdventureDropChanceV2(.04,.5,dropMult,z)){
+    const pair=candidates[I(Math.random()*candidates.length)];
+    const o=add(s,special(pair[0],pair[1].dropLevel||0));
+    if(o)out.push(o);
+  }
+  return out;
+}
+
+function rollKill(s,ctx){
+  const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone)||IDLE_ADVENTURE_ZONES[0];
+  if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");
+
+  const kills=(s.zone.kills[z.id]||0)+1;
+  s.zone.kills[z.id]=kills;
+  const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;
+  if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;
+
+  const dropMult=Math.max(
+    .1,
+    N(ctx.dropMultiplier,1)*
+    (1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)
+  );
+
+  const exact=rollProfileLootAdventureV2(s,z,boss,dropMult);
+  const out=exact===null?rollLegacyZoneLootAdventureV2(s,z,dropMult,ctx):exact;
+
+  if(
+    !boss&&z.id==="forest"&&String(ctx.forceMobName||"")==="Goblin"&&
+    (I(ctx.bosses)>=100||Boolean(s.itemList.ringOfApathy?.seen))&&
+    Math.random()<idleAdventureDropChanceV2(.008,1,dropMult,z)
+  ){
+    const ring=add(s,special("ringOfApathy",1));
+    if(ring)out.push(ring);
+  }
+
+  if(z.id==="tutorial"){
+    const flubberBoss=I(ctx.bosses);
+    if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){
+      const flubber=add(s,special("flubber",SPECIALS.flubber.dropLevel||0));
+      if(flubber)out.push(flubber);
+    }
+  }
+
+  const goldRange=ZONE_GOLD_RANGES_V1[z.id];
+  let gold=0;
+  if(goldRange){
+    const range=boss?goldRange.boss:goldRange.normal;
+    const lo=range[0],hi=range[1];
+    const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
+    gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));
+    s.permanent.gold=N(s.permanent.gold)+gold;
+  }
+
+  let experience=0;
+  if(boss){
+    const expDef=ZONE_BOSS_EXP_CHANCE_V1[z.id];
+    const expChance=N(expDef?.chance,0);
+    if(expChance>0&&Math.random()<idleAdventureDropChanceV2(expChance,expDef?.cap,dropMult,z)){
+      experience=I(expDef.amount,0);
+      s.permanent.experience=N(s.permanent.experience)+experience;
+    }
+  }
+
+  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience};
+}
+
 /*
  * Combat de zone réel (demande Norman 2026-09-09) : "on voit l'ennemi, on
  * voit les barres de vie qui descendent à chaque coup. Comme pour les
@@ -2734,7 +3042,7 @@ return X(s.fight)}
  * en boucle rejetées "COMBAT_NON_TERMINE". Le serveur doit faire confiance
  * au timing du client ici, exactement comme pour le Combat de boss.
  */
-function resolveZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");const wasBoss=Boolean(s.fight.boss);s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return rollKill(s,Object.assign({},ctx,{forceBoss:wasBoss}))}
+function resolveZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");const wasBoss=Boolean(s.fight.boss),mobName=String(s.fight.mobName||"");s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return rollKill(s,Object.assign({},ctx,{forceBoss:wasBoss,forceMobName:mobName}))}
 /*
  * Défaite en Aventure (Norman, 2026-09-09) : "en aventure, on doit être
  * renvoyé à la safe zone." Contrairement au Combat de boss (qui reste
