@@ -873,17 +873,18 @@ console.log("SOREAL IDLE runtime calculations: OK");
     "À partir du Boss 21, chaque boss doit valoir ×10 le précédent (règle NGU sourcée)."
   );
 
-  // Un catalogue qui définit volontairement un boss plus fort garde le dessus
-  // (le plancher NGU ne doit jamais AFFAIBLIR une valeur curatée SOREAL).
+  // Le catalogue historique ne doit jamais écraser les statistiques NGU
+  // vérifiées, même lorsqu'il contient une valeur artificiellement plus forte.
   const boss1Renforce=
     idleRuntimeTestHooks.equilibrerBossPrincipalSorealIdleV413_(
       {pv:999999999,attaque:999999999},
       0
     );
   assert.equal(
-    boss1Renforce.pv,999999999,
-    "Le plancher NGU ne doit jamais réduire une valeur de catalogue volontairement plus forte."
+    boss1Renforce.pv,500000,
+    "Le Boss 1 doit conserver ses PV NGU exacts, jamais une valeur de catalogue SOREAL."
   );
+  assert.equal(boss1Renforce.attaque,50000,"Le Boss 1 doit conserver son Attaque NGU exacte.");
 
   const source=fs.readFileSync(
     new URL("../src/idle-sqlite-runtime.js",import.meta.url),
@@ -1397,4 +1398,3 @@ console.log("SOREAL IDLE runtime (rebirth unlocks survive Renaissance): OK");
 }
 
 console.log("SOREAL IDLE runtime (NUKE): OK");
-
