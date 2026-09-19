@@ -15,8 +15,8 @@ assert.ok(
   "equilibrerBossPrincipalSorealIdleV413_ doit lire la Defense de référence, comme pv/attaque."
 );
 assert.ok(
-  /defense:\s*\n\s*Math\.max\(\s*\n\s*1,\s*\n\s*Math\.round\(\s*\n\s*Math\.max\(\s*\n\s*nombreSorealIdle_\(\s*\n\s*source\.defense,/.test(source),
-  "La Defense doit suivre EXACTEMENT le même patron de plancher (MAX, jamais un remplacement) que pv/attaque."
+  /defense:\s*\n\s*Math\.max\(\s*\n\s*1,\s*\n\s*Math\.round\(\s*\n\s*defenseMinimum\s*\n\s*\)\s*\n\s*\)/.test(source),
+  "La Defense doit provenir exactement de la référence NGU, avec seulement le plancher technique de 1."
 );
 assert.ok(
   source.includes("function defenseBossSorealIdle_(") ,
