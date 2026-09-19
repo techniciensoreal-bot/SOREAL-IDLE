@@ -21,8 +21,8 @@ assert.ok(
   "The Lonely Flubber doit exister dans SPECIALS (zone tutorial, accessoire, set:training pour l'image R2 partagée)."
 );
 assert.ok(
-  source.includes('if(z.id==="tutorial"){const flubberBoss=I(ctx.bosses);if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1))'),
-  "La formule exacte du wiki (0.82% dès boss 59, +0.41%/boss) doit être utilisée, jamais un taux approximé."
+  /flubberBoss\s*>=\s*59\s*&&\s*Math\.random\(\)\s*<\s*C\(\.0082\s*\+\s*\.0041\s*\*\s*\(flubberBoss\s*-\s*59\)\s*,\s*0\s*,\s*1\s*\)/.test(source),
+  "La formule exacte du wiki (0.82% dès boss 59, +0.41%/boss, plafonnée à 100%) doit être utilisée, indépendamment du formatage du code."
 );
 assert.ok(
   !/flubber.*dropMult/.test(source.slice(source.indexOf('if(z.id==="tutorial"){const flubberBoss'), source.indexOf('if(z.id==="tutorial"){const flubberBoss') + 300)),
