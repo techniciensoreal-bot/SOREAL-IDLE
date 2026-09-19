@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import {
   normalizeIdleAdventureStateV47,
   applyIdleAdventureActionV47,
-  IDLE_ADVENTURE_V47
+  IDLE_ADVENTURE_V47,
+  idleAdventureDropChanceV2
 } from "../src/idle-adventure-v47.js";
 
 /*
@@ -25,30 +26,17 @@ function forceRandom(sequence) {
   return () => { Math.random = original; };
 }
 
-// 12% (0.12) cube-root -> cbrt(0.12) ~= 0.4932. Une valeur tirée à 0.30
-// (entre 0.12 et 0.4932) ne dropperait JAMAIS sans cube root, mais DOIT
-// dropper avec cube root en zone Evil.
-{
-  const restore = forceRandom([0.30, 0.30]); // 1er tirage (equip, sans effet ici car set=""), 2e tirage (boost)
-  try {
-    const state = normalizeIdleAdventureStateV47({ version: IDLE_ADVENTURE_V47, selectedZone: "evilverse" });
-    const { result } = applyIdleAdventureActionV47(state, { action: "zoneKill" }, { bosses: 58, difficulty: "difficile", dropMultiplier: 1 }, 1);
-    assert.ok(result.drops.length > 0, "Avec cube root (Evil), un tirage à 0.30 doit dropper un boost (cbrt(0.12) ~= 0.493 > 0.30).");
-  } finally {
-    restore();
-  }
-}
-
-// Même tirage (0.30), mais en zone Normal (tutorial, pas de requiredDifficulty) : pas de cube root, ne doit jamais dropper à 0.30 > 0.12.
-{
-  const restore = forceRandom([0.30, 0.30, 0.30]);
-  try {
-    const state = normalizeIdleAdventureStateV47({ version: IDLE_ADVENTURE_V47, selectedZone: "tutorial" });
-    const { result } = applyIdleAdventureActionV47(state, { action: "zoneKill" }, { bosses: 30, dropMultiplier: 1 }, 1);
-    assert.equal(result.drops.length, 0, "Sans cube root (zone Normal), un tirage à 0.30 ne doit jamais dropper (12% de base, jamais 30%+).");
-  } finally {
-    restore();
-  }
-}
+// La règle cube-root est désormais centralisée dans idleAdventureDropChanceV2.
+// On verrouille directement la formule au lieu de dépendre du nombre de tirages
+// RNG internes d'une table de loot qui évolue par zone.
+assert.ok(
+  idleAdventureDropChanceV2(.12,1,8,{id:"evilverse",requiredDifficulty:"difficile"})>.30,
+  "En zone Evil, la racine cubique du multiplicateur doit permettre un seuil supérieur à 30% dans ce cas de référence."
+);
+assert.equal(
+  idleAdventureDropChanceV2(.12,1,1,{id:"tutorial"}),
+  .12,
+  "Une zone Normal conserve son taux de base sans racine cubique."
+);
 
 console.log("idle-adventure-evil-zone-cube-root-drop: OK");
