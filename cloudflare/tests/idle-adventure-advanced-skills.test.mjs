@@ -107,7 +107,7 @@ assert.equal(state.skillState.move69Uses,69);
 assert.equal(state.skillState.endPiece481,true);
 
 // The rare unlock items use their real documented base chances.
-const source=readFileSync("../src/idle-adventure-v47.js","utf8");
+const source=readFileSync(new URL("../src/idle-adventure-v47.js",import.meta.url),"utf8");
 assert.ok(
   source.includes('if(id==="t2"&&Math.random()<.01)drops.push(add(s,special("mysteriousRedLiquid",5)))'),
   "Grand Corrupted Tree must use the 1% Red Liquid base chance."
