@@ -522,7 +522,13 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
 }}
 ]);
 const SETS={
-training:{name:"Training Set",source:"tutorial",slots:["head","chest","legs","boots","weapon"],p:6,t:8,reward:{experience:20,energySpeed:2}},
+/*
+ * Wiki Training (set), dernière mise à jour 2026-05-28 :
+ * completion = +2 Energy Speed et 10 EXP. La FAQ conserve encore une
+ * ancienne valeur de 20 EXP ; la page dédiée au set est la source la plus
+ * récente et la plus spécifique.
+ */
+training:{name:"Training Set",source:"tutorial",slots:["head","chest","legs","boots","weapon"],p:6,t:8,reward:{experience:10,energySpeed:2}},
 sewers:{name:"Sewers Set",source:"sewers",slots:["head","chest","legs","boots","weapon","ring","amulet"],p:20,t:20,reward:{experience:20,adventurePower:5,adventureToughness:5,adventureHp:15,adventureRegen:.2}},
 /*
  * V152 — audit wiki (Norman, 2026-09-11, "parcours les pages du wiki et
