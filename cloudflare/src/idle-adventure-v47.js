@@ -1773,7 +1773,7 @@ export function idleAdventureAddItemV1(state,o){return add(state,o)}
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -1801,7 +1801,7 @@ export function createIdleAdventureStateV47(){return base()}
  * seul l'excédent illégitime (accumulé via le bug, jamais via un vrai
  * boost sous les nouvelles règles) est retiré.
  */
-function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.wikiItemId=wikiItemIdAdventureV1(z.definitionId)||Number(z.wikiItemId)||0;z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
+function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.wikiItemId=wikiItemIdAdventureV1(z.definitionId)||Number(z.wikiItemId)||0;z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));z.locked=Boolean(z.locked);const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
 // PISTE 1 (2026-09-18) : même plafond que power/toughness pour le Special Bonus chiffré (baseS>0 uniquement -- ex. tutorialCube) ; les autres SPECIALS (baseS=0) restent non plafonnés, comportement inchangé.
 if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}
 /*
@@ -1846,7 +1846,7 @@ if(d?.kind==="set"){
   if(realName)z.name=realName;
 }
 return z}
-export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);
+export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
 /*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
  * appropriée [du coffre]." Le coffre passe d'un tableau libre à un objet
@@ -2123,7 +2123,25 @@ export function idleAdventureItemAtLevelV47(definitionId,level=0,id="preview"){c
  * jamais un recalcul de formule, jamais une perte de boost déjà investi
  * sur A OU B (contrairement à l'ancien remake() qui ignorait B).
  */
-function merge(s,a,b){const A=s.inventory.find(x=>x.id===a),B=s.inventory.find(x=>x.id===b);if(!A||!B||A===B||A.definitionId!==B.definitionId)throw Error("FUSION_INVALIDE");A.level=idleAdventureMergeLevelV47(A.level,B.level);A.power=Math.max(N(A.power),N(B.power));A.toughness=Math.max(N(A.toughness),N(B.toughness));A.special=Math.max(N(A.special),N(B.special));s.inventory=s.inventory.filter(x=>x.id!==B.id);record(s,A);return A}
+function merge(s,a,b){
+  const A=s.inventory.find(x=>x.id===a),B=s.inventory.find(x=>x.id===b);
+  if(!A||!B||A===B||A.definitionId!==B.definitionId)throw Error("FUSION_INVALIDE");
+  /*
+   * Le premier objet (a) est toujours la destination et survit. Le second
+   * (b) est consommé. Un objet verrouillé ne peut donc jamais disparaître
+   * par fusion, et un objet équipé ne peut pas être consommé en laissant
+   * un emplacement pointer vers un id mort.
+   */
+  if(B.locked)throw Error("OBJET_VERROUILLE");
+  if(equippedIdsAdventureV1(s).has(B.id))throw Error("OBJET_EQUIPE");
+  A.level=idleAdventureMergeLevelV47(A.level,B.level);
+  A.power=Math.max(N(A.power),N(B.power));
+  A.toughness=Math.max(N(A.toughness),N(B.toughness));
+  A.special=Math.max(N(A.special),N(B.special));
+  s.inventory=s.inventory.filter(x=>x.id!==B.id);
+  record(s,A);
+  return A;
+}
 /*
  * Correctif 2026-09-14 — un Tutorial Cube (kind==='cube') s'équipe comme
  * un accessoire normal TANT QUE le Cube de l'infini n'est pas débloqué
@@ -2331,7 +2349,54 @@ function idleAdventureCoffreSlotsV1(s){
  * d'abord le déséquiper) — évite de perdre discrètement l'équipement
  * porté via un mauvais glisser-déposer.
  */
-function discard(s,id){const o=s.inventory.find(x=>x.id===id);if(!o)throw Error("OBJET_INTROUVABLE");if(equippedIdsAdventureV1(s).has(o.id))throw Error("OBJET_EQUIPE");s.inventory=s.inventory.filter(x=>x.id!==o.id);return{id:o.id}}
+function discard(s,id){
+  const o=s.inventory.find(x=>x.id===id);
+  if(!o)throw Error("OBJET_INTROUVABLE");
+  if(o.locked)throw Error("OBJET_VERROUILLE");
+  if(equippedIdsAdventureV1(s).has(o.id))throw Error("OBJET_EQUIPE");
+  s.inventory=s.inventory.filter(x=>x.id!==o.id);
+  return{id:o.id};
+}
+
+/*
+ * Verrou NGU-like : le flag vit sur l'objet lui-même afin de survivre aux
+ * déplacements, à l'équipement et aux sauvegardes. Les opérations
+ * destructives consultent ce flag côté moteur, pas seulement dans l'UI.
+ */
+function setLockAdventureV1(s,id,locked){
+  const o=s.inventory.find(x=>x.id===id);
+  if(!o)throw Error("OBJET_INTROUVABLE");
+  o.locked=Boolean(locked);
+  return{id:o.id,locked:o.locked};
+}
+
+/*
+ * Trash NGU-like : un seul emplacement séparé du sac. Déposer un objet
+ * remplace (et détruit) l'ancien contenu ; le contenu courant peut être
+ * récupéré tant qu'une place est disponible dans l'inventaire.
+ */
+function trashPutAdventureV1(s,id){
+  const o=s.inventory.find(x=>x.id===id);
+  if(!o)throw Error("OBJET_INTROUVABLE");
+  if(o.locked)throw Error("OBJET_VERROUILLE");
+  if(equippedIdsAdventureV1(s).has(o.id))throw Error("OBJET_EQUIPE");
+  const previous=s.trash&&typeof s.trash==="object"?s.trash:null;
+  s.inventory=s.inventory.filter(x=>x.id!==o.id);
+  s.trash=o;
+  return{
+    id:o.id,
+    replacedId:previous?String(previous.id||""):"",
+    destroyedPrevious:Boolean(previous)
+  };
+}
+function trashRecoverAdventureV1(s){
+  const o=s.trash&&typeof s.trash==="object"?s.trash:null;
+  if(!o)throw Error("TRASH_VIDE");
+  if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s))throw Error("SAC_PLEIN");
+  s.trash=null;
+  s.inventory.push(o);
+  return{id:o.id};
+}
 /*
  * Coffre (Phase 12, 2026-09-13) — Norman : "pouvoir conserver les objets
  * farmés qui sont complètement terminés sans devoir les jeter lorsque
@@ -3419,6 +3484,27 @@ export function idleAdventureEquipmentStatsV47(raw){
  * strictement inchangé pour tout autre appelant (une zone Evil/Sadistic
  * resterait alors verrouillée, jamais accessible par erreur).
  */
+function snapshotItemAdventureV1(o){
+  const d=defById(o&&o.definitionId);
+  const base=d?.kind==="set"
+    ?idleAdventureBaseStatsV1(d.set,d.slot)
+    :(d?.kind==="special"
+      ?idleAdventureSpecialBaseStatsV1(d.id)
+      :{baseP:0,baseT:0,baseS:0});
+  const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;
+  return{
+    ...o,
+    maxed:idleAdventureNiveauEstMaxV1(o&&o.level),
+    fullyMaxed:idleAdventureObjetPleinementMaxeV1(o),
+    basePower:base.baseP,
+    baseToughness:base.baseT,
+    baseHp:base.baseP*3,
+    baseRegen:base.baseT*.03,
+    specialType:specialType||undefined,
+    baseSpecial:base.baseS||0,
+    locked:Boolean(o&&o.locked)
+  };
+}
 export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks){const s=normalizeIdleAdventureStateV47(raw);return{version:s.version,visualSource:"avatar-level",selectedZone:s.selectedZone,lastCombatZone:s.lastCombatZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses,difficulty,difficultyPeaks),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
  * Bug trouvé en vérifiant le vrai NGU (Norman, 2026-09-10) : "je ne
  * pense pas qu'ils soient visibles dans un menu dès le début" —
@@ -3446,5 +3532,5 @@ titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.bo
  * client de reproduire EXACTEMENT le même calcul X/MAX que pour Power/
  * Toughness, avec le vrai label.
  */
-inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0,baseS:0});const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),fullyMaxed:idleAdventureObjetPleinementMaxeV1(o),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03,specialType:specialType||undefined,baseSpecial:base.baseS||0};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
-export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");syncInventorySlotsAdventureV2(s);return{state:s,result}}
+inventory:X(s.inventory).map(snapshotItemAdventureV1),trash:s.trash?snapshotItemAdventureV1(s.trash):null,coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
+export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="setLock")result=setLockAdventureV1(s,String(p.id||p.itemId),p.locked);else if(a==="trashPut")result=trashPutAdventureV1(s,String(p.id||p.itemId));else if(a==="trashRecover")result=trashRecoverAdventureV1(s);else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");syncInventorySlotsAdventureV2(s);return{state:s,result}}
