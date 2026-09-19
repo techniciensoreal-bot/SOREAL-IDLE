@@ -108,7 +108,7 @@ import {
 // --- 2bis. Le snapshot expose maxed directement, le client ne doit plus le recalculer seul ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const snap = idleAdventureSnapshotV47(s, 17);
   assert.equal(snap.inventory[0].maxed, true, "Un objet de niveau 100 doit être marqué maxed dans le snapshot.");
@@ -118,7 +118,7 @@ import {
 // --- 3. Coffre (audit 2026-09-13, Norman : emplacements fixes, "ranger nous-même dans la case appropriée") ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const maxedId = s.inventory[0].id;
   /*
@@ -221,7 +221,7 @@ function equippedIdsFromState(s) {
 // --- 3ter. Coffre : niveau 100 SEUL ne suffit plus — il faut aussi Power/Toughness au plafond (Norman, re-audit) ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  // Fusionne un objet niveau 50 (jamais boosté) avec un objet niveau 49 : résultat niveau 100,
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  // Fusionne un objet niveau 50 (jamais boosté) avec un objet niveau 49 : résultat niveau 100,
   // mais Power reste celui du plus fort des deux (formule niveau 50 < plafond niveau 100) — "3/3 → 3/4".
   let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 50 }, { bosses: 17 }, 1);
   s = r.state;
@@ -261,7 +261,7 @@ function equippedIdsFromState(s) {
 // --- 3bis. Un objet équipé ne peut pas rejoindre le coffre directement (doit d'abord être déséquipé, comme discard()) ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const id = s.inventory[0].id;
   r = applyIdleAdventureActionV47(s, { action: "equip", id, slot: "weapon" }, { bosses: 17 }, 1);
