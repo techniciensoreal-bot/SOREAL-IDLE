@@ -3451,11 +3451,15 @@ function idleAdventureCombatStatsV1(gear, context) {
    */
   const BASE_ADVENTURE_HP_V1 = 50;
   const hasExternalAdventurePower = Number.isFinite(Number(context.adventurePower));
+  const baseAdventurePower = Math.max(10, num(context.adventurePower, 10));
+  const baseAdventureToughness = Math.max(10, num(context.adventureToughness, context.adventurePower || 10));
+  const baseAdventureRegen = Math.max(1, baseAdventureToughness * 0.03);
   return Object.assign({}, g, {
-    power: Math.max(10, num(context.adventurePower, 10)) + Math.max(0, num(g.power, 0)),
-    toughness: Math.max(10, num(context.adventureToughness, context.adventurePower || 10)) + Math.max(0, num(g.toughness, 0)),
-    hp: (hasExternalAdventurePower ? Math.max(10, num(context.adventurePower, 10)) * 3 : BASE_ADVENTURE_HP_V1) + Math.max(0, num(g.hp, 0)),
-    regen: Math.max(1, Math.max(10, num(context.adventureToughness, context.adventurePower || 10)) * 0.03) + Math.max(0, num(g.regen, 0))
+    power: baseAdventurePower + Math.max(0, num(g.power, 0)),
+    toughness: baseAdventureToughness + Math.max(0, num(g.toughness, 0)),
+    hp: (hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1) + Math.max(0, num(g.hp, 0)),
+    regenBase: baseAdventureRegen,
+    regen: baseAdventureRegen + Math.max(0, num(g.regen, 0))
   });
 }
 
