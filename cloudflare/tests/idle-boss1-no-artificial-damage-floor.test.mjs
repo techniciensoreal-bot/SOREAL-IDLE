@@ -19,8 +19,8 @@ import { readFileSync } from "node:fs";
  * du vrai NGU. Supprimé côté serveur (degatsRecusSecondeSorealIdle_,
  * combatRegles) ET côté client (SOREAL-APP/Soreal_Idle_UI.html, branche
  * `tutoriel`) : Boss 1 utilise désormais exactement la même formule
- * réelle que tous les autres boss (max(1, attaque*plancherPct,
- * attaque-defense)).
+ * réelle que tous les autres boss, max(0, attaque-defense). Le wiki
+ * Defense confirme explicitement que Defense >= Boss Attack donne 0 dégât.
  */
 const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
@@ -47,8 +47,11 @@ assert.ok(
   "degatsRecusSecondeSorealIdle_ ne doit plus spécial-caser le Boss 1 : même formule réelle pour tous les boss."
 );
 assert.ok(
-  body.includes("plancherPct") && body.includes("BOSS_DEGATS_MIN_PCT"),
-  "La formule réelle (plancherPct issu de BOSS_DEGATS_MIN_PCT) doit rester utilisée pour tous les boss, y compris Boss 1."
+  !body.includes("plancherPct") &&
+  !body.includes("BOSS_DEGATS_MIN_PCT") &&
+  body.includes("attaque -") &&
+  body.includes("Math.max("),
+  "La formule NGU doit rester max(0, attaque du boss - défense du joueur), sans plancher artificiel, y compris pour Boss 1."
 );
 
 console.log("idle-boss1-no-artificial-damage-floor: OK");
