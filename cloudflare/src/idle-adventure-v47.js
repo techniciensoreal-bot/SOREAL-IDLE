@@ -1678,10 +1678,18 @@ const SET_ITEM_NAMES_V1=Object.freeze({
 function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
 function rollFreshEquipmentStatsV1(o){
   if(!o||o.kind!=="equipment")return o;
-  const base=idleAdventureItemStatsMaxV1(o.set,o.slot);
+  /*
+   * SET_ITEM_STATS_V1 contient les MAX du niveau 100. Le plafond niveau 0
+   * est donc /2, puis +1% de ce plafond par niveau (wiki Inventory).
+   * L'ancien tirage utilisait directement le max niveau 100 puis remultipliait
+   * par q, avant d'être re-clampé par cleanItem(). Résultat : beaucoup de
+   * drops étaient artificiellement collés au plafond. On tire désormais
+   * directement dans le vrai plafond du niveau courant.
+   */
+  const base=idleAdventureBaseStatsV1(o.set,o.slot);
   const q=1+C(o.level,0,MAX)/100;
-  const pMax=Math.max(0,N(base&&base.p)*q);
-  const tMax=Math.max(0,N(base&&base.t)*q);
+  const pMax=Math.max(0,N(base&&base.baseP)*q);
+  const tMax=Math.max(0,N(base&&base.baseT)*q);
   function roll(seed,max){
     if(!(max>0))return 0;
     let h=2166136261;
@@ -1878,6 +1886,33 @@ s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSet
  * une nouvelle remise à zéro complète.
  */
 if(s.fight.active&&s.fight.zone&&s.fight.zone!==s.selectedZone){s.fight=X(base().fight)}
+/*
+ * Auto-réparation des sauvegardes déjà en cours :
+ * - une pièce actuellement verte/pleinement boostée doit immédiatement
+ *   apparaître comme 100% dans Collection ;
+ * - un set dont toutes les pièces ont déjà atteint le niveau 100 doit
+ *   déclencher son vrai bonus même si un ancien build avait oublié
+ *   d'appeler checkSets après chargement.
+ */
+for(const o of s.inventory){
+  if(o&&o.definitionId&&idleAdventureObjetPleinementMaxeV1(o)){
+    const info=s.itemList[o.definitionId]||{maxLevel:I(o.level,-1),seen:true};
+    info.seen=true;
+    info.maxLevel=Math.max(I(info.maxLevel,-1),I(o.level));
+    info.fullyMaxed=true;
+    s.itemList[o.definitionId]=info;
+  }
+}
+for(const o of Object.values(s.coffre||{})){
+  if(o&&o.definitionId&&idleAdventureObjetPleinementMaxeV1(o)){
+    const info=s.itemList[o.definitionId]||{maxLevel:I(o.level,-1),seen:true};
+    info.seen=true;
+    info.maxLevel=Math.max(I(info.maxLevel,-1),I(o.level));
+    info.fullyMaxed=true;
+    s.itemList[o.definitionId]=info;
+  }
+}
+checkSets(s);
 syncInventorySlotsAdventureV2(s);
 return s}
 const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slots.includes(slot)?{kind:"set",set,slot}:SPECIALS[id]?{kind:"special",id}:null};
@@ -1944,11 +1979,18 @@ export function idleAdventureNiveauEstMaxV1(niveau){return I(niveau,-1)>=MAX}
 function idleAdventureObjetPleinementMaxeV1(o){
   if(!idleAdventureNiveauEstMaxV1(o?.level))return false;
   const d=defById(o?.definitionId);
-  if(d?.kind!=="set")return true;
-  const{baseP,baseT}=idleAdventureBaseStatsV1(d.set,d.slot);
-  return N(o.power)>=baseP*2&&N(o.toughness)>=baseT*2;
+  if(!d)return false;
+  const base=d.kind==="set"
+    ?idleAdventureBaseStatsV1(d.set,d.slot)
+    :d.kind==="special"
+      ?idleAdventureSpecialBaseStatsV1(d.id)
+      :{baseP:0,baseT:0,baseS:0};
+  const pOk=!(N(base.baseP)>0)||N(o.power)+1e-9>=N(base.baseP)*2;
+  const tOk=!(N(base.baseT)>0)||N(o.toughness)+1e-9>=N(base.baseT)*2;
+  const sOk=!(N(base.baseS)>0)||N(o.special)+1e-9>=N(base.baseS)*2;
+  return pOk&&tOk&&sOk;
 }
-function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitionId]||{maxLevel:-1};old.maxLevel=Math.max(I(old.maxLevel,-1),I(o.level));old.seen=true;s.itemList[o.definitionId]=old;const d=defById(o.definitionId);if(d?.kind==="special"&&SPECIALS[d.id]?.maxFlag&&idleAdventureNiveauEstMaxV1(old.maxLevel))s.unlockFlags[SPECIALS[d.id].maxFlag]=true;if(o.definitionId==="tutorialCube"&&idleAdventureNiveauEstMaxV1(old.maxLevel)&&!s.unlockFlags.tutorialCubeMaxed){s.cube.unlocked=true;s.unlockFlags.tutorialCubeMaxed=true;s.setRewards.ap=N(s.setRewards.ap)+10000;
+function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitionId]||{maxLevel:-1};old.maxLevel=Math.max(I(old.maxLevel,-1),I(o.level));old.seen=true;old.fullyMaxed=Boolean(old.fullyMaxed||idleAdventureObjetPleinementMaxeV1(o));s.itemList[o.definitionId]=old;const d=defById(o.definitionId);if(d?.kind==="special"&&SPECIALS[d.id]?.maxFlag&&idleAdventureNiveauEstMaxV1(old.maxLevel))s.unlockFlags[SPECIALS[d.id].maxFlag]=true;if(o.definitionId==="tutorialCube"&&idleAdventureNiveauEstMaxV1(old.maxLevel)&&!s.unlockFlags.tutorialCubeMaxed){s.cube.unlocked=true;s.unlockFlags.tutorialCubeMaxed=true;s.setRewards.ap=N(s.setRewards.ap)+10000;
 /*
  * Le Tutorial Cube (accessoire équipable jusqu'ici) se TRANSFORME en Cube
  * de l'infini à ce seuil (wiki : la fusion/le boost du même objet devient
@@ -3387,5 +3429,5 @@ titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.bo
  * client de reproduire EXACTEMENT le même calcul X/MAX que pour Power/
  * Toughness, avec le vrai label.
  */
-inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0});const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03,specialType:specialType||undefined,baseSpecial:base.baseS||0};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
+inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0,baseS:0});const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),fullyMaxed:idleAdventureObjetPleinementMaxeV1(o),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03,specialType:specialType||undefined,baseSpecial:base.baseS||0};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
 export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");syncInventorySlotsAdventureV2(s);return{state:s,result}}
