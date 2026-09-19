@@ -522,7 +522,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
 }}
 ]);
 const SETS={
-training:{name:"Training Set",source:"tutorial",slots:["head","chest","legs","boots","weapon"],p:6,t:8,reward:{experience:10,energySpeed:2}},
+training:{name:"Training Set",source:"tutorial",slots:["head","chest","legs","boots","weapon"],p:6,t:8,reward:{experience:20,energySpeed:2}},
 sewers:{name:"Sewers Set",source:"sewers",slots:["head","chest","legs","boots","weapon","ring","amulet"],p:20,t:20,reward:{experience:20,adventurePower:5,adventureToughness:5,adventureHp:15,adventureRegen:.2}},
 /*
  * V152 — audit wiki (Norman, 2026-09-11, "parcours les pages du wiki et
@@ -1913,6 +1913,23 @@ for(const o of Object.values(s.coffre||{})){
   }
 }
 checkSets(s);
+/*
+ * Migration unique : les anciennes sauvegardes avaient reçu 10 EXP pour
+ * le Training Set alors que la récompense NGU est 20 EXP. Une complétion
+ * faite sous le nouveau catalogue pose trainingSetExp20V1 directement
+ * dans checkSets(), donc seul un ancien completedSets.training reçoit ici
+ * le complément de +10. Le moteur NGU partagé crédite la vraie monnaie
+ * via le drapeau pending ci-dessous.
+ */
+if(
+  s.completedSets.training&&
+  !s.unlockFlags.trainingSetExp20V1
+){
+  s.setRewards.experience=N(s.setRewards.experience)+10;
+  s.permanent.experience=N(s.permanent.experience)+10;
+  s.unlockFlags.trainingSetExp20V1=true;
+  s.unlockFlags.trainingSetExp20CurrencyPendingV1=true;
+}
 syncInventorySlotsAdventureV2(s);
 return s}
 const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slots.includes(slot)?{kind:"set",set,slot}:SPECIALS[id]?{kind:"special",id}:null};
@@ -2000,7 +2017,7 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
  */
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
-function checkSets(s){for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;for(const [k,v] of Object.entries(d.reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(d.reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(d.reward.experience);if(N(d.reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(d.reward.ap);if(N(d.reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(d.reward.energySpeed);if(N(d.reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(d.reward.energyPower);if(N(d.reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(d.reward.energyBars);if(N(d.reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(d.reward.magicPower);if(N(d.reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(d.reward.magicBars);if(N(d.reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(d.reward.magicCap)}}
+function checkSets(s){for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;for(const [k,v] of Object.entries(d.reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(d.reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(d.reward.experience);if(N(d.reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(d.reward.ap);if(N(d.reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(d.reward.energySpeed);if(N(d.reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(d.reward.energyPower);if(N(d.reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(d.reward.energyBars);if(N(d.reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(d.reward.magicPower);if(N(d.reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(d.reward.magicBars);if(N(d.reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(d.reward.magicCap);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}}
 /*
  * Capacité de sac réelle (Norman, 2026-09-10) : "j'ai un inventaire
  * infini alors que dans NGU il est limité." Vrai NGU (wiki, page
