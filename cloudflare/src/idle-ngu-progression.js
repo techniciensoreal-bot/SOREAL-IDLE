@@ -1800,6 +1800,18 @@ function idleNguEffectiveResourceStatV1(state, resource, stat) {
     const mult = Math.max(0, num(bonuses[`${resource}CapMultiplier`], 1));
     return (raw + flat) * mult;
   }
+  if (stat === "speed") {
+    /*
+     * Training Set : +2 Energy Speed (bonus de complétion NGU).
+     * Le bonus était bien stocké dans adventure.permanent.energySpeedFlat
+     * mais aucun consommateur ne le lisait : la génération utilisait
+     * directement state.resources.energy.speed. Même chemin pour les
+     * multiplicateurs Energy/Magic Speed provenant des objets.
+     */
+    const flat = Math.max(0, num(bonuses[`${resource}SpeedFlat`], 0));
+    const mult = Math.max(0, num(bonuses[`${resource}SpeedMultiplier`], 1));
+    return (raw + flat) * mult;
+  }
   return raw;
 }
 
@@ -1847,7 +1859,7 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   if(resource==="r3")return 0;
   if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
   const r=state.resources[resource]||defaultResource(resource);
-  const speed=clamp(num(r.speed,1),0.1,50);
+  const speed=clamp(idleNguEffectiveResourceStatV1(state,resource,"speed"),0.1,50);
   const ticksPerFill=Math.max(1,Math.ceil(50/speed));
   const fillsPerSecond=50/ticksPerFill;
   const bars=idleNguEffectiveResourceStatV1(state,resource,"bars");
