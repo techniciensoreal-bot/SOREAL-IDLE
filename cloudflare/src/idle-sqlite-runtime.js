@@ -10967,6 +10967,40 @@ function definirCombatBossSorealIdle(
           .getValue()
       );
 
+    /*
+     * Fight Boss doit être idempotent. Un double/multi-clic sur Fight ne
+     * doit jamais réinitialiser le démarrage du même combat ni permettre
+     * de repartir pendant le K.O. Le client applique le même garde, mais
+     * le serveur le répète pour qu'aucun appel rapide/direct ne puisse le
+     * contourner.
+     */
+    if(Boolean(actif)&&stats.combatBossActif){
+      return {ok:true,actif:true,dejaActif:true};
+    }
+
+    if(Boolean(actif)){
+      const koBrut=
+        feuille
+          .getRange(
+            ligne,
+            c.KO_JUSQUA
+          )
+          .getValue();
+      const koJusquaMs=
+        koBrut instanceof Date
+          ?koBrut.getTime()
+          :Math.max(0,nombreSorealIdle_(koBrut,0));
+
+      if(koJusquaMs>Date.now()){
+        return {
+          ok:false,
+          code:'JOUEUR_KO',
+          actif:false,
+          message:'K.O. : attends la fin de la récupération avant de relancer Fight.'
+        };
+      }
+    }
+
     if (Boolean(actif)) {
       const niveau =
         Math.max(
