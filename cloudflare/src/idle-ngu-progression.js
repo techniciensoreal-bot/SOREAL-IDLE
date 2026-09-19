@@ -1472,6 +1472,22 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.runStartedAt = Math.max(0, num(source.runStartedAt, t));
   state.adventure = normalizeIdleAdventureStateV47(source.adventure);
 
+  /*
+   * Parité NGU : au premier déblocage d'Adventure, l'inventaire contient
+   * le Tutorial Cube plus un Boost Power 1, Toughness 1 et Special 1.
+   * Le drapeau est persistant : jamais de doublon aux synchros suivantes.
+   */
+  state.adventure.unlockFlags=state.adventure.unlockFlags||{};
+  if(
+    Math.max(0,int(context&&context.bosses,0))>=4 &&
+    !state.adventure.unlockFlags.starterBoostsGrantedV1
+  ){
+    ["power","toughness","special"].forEach(function(type){
+      idleAdventureAddItemV1(state.adventure,idleAdventureBoostV1(type,1));
+    });
+    state.adventure.unlockFlags.starterBoostsGrantedV1=true;
+  }
+
   state.resources = {
     energy: normalizeResource(source.resources?.energy,"energy"),
     magic: normalizeResource(source.resources?.magic,"magic"),
