@@ -1753,7 +1753,7 @@ function base(){
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
-  const boostsDepart=["power","toughness","special"].map(function(type){return boost(type,1)});
+  const boostsDepart=["power","toughness","special"].map(function(type){return{id:"starter:boost:"+type+":1",definitionId:"boost:"+type+":1",wikiItemId:wikiItemIdBoostV1(type,1),name:"Boost "+type+" 1",kind:"boost",boostType:type,strength:1,level:0}});
   s.inventory.push(...boostsDepart);
   s.inventorySlots=[cubeDepart.id,...boostsDepart.map(function(x){return x.id})];
   record(s,cubeDepart);
