@@ -58,7 +58,7 @@ import {
  */
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
   r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
