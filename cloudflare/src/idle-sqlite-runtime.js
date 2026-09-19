@@ -8009,8 +8009,24 @@ function appliquerProgressionEnergieSorealIdle_(
         segment * degatsRecusSec
       );
 
-    bossPv -= dommageBoss;
-    pvJoueur -= dommageJoueur;
+    bossPv =
+      Math.max(
+        0,
+        bossPv-dommageBoss
+      );
+    pvJoueur =
+      Math.max(
+        0,
+        pvJoueur-dommageJoueur
+      );
+
+    /*
+     * La mort n'est déclenchée que sur une valeur de PV exactement 0.
+     * Le petit epsilon historique (<=0.0001) pouvait valider la mort
+     * alors qu'un résidu positif subsistait encore dans l'état/barre.
+     */
+    if(bossPv<=1e-9)bossPv=0;
+    if(pvJoueur<=1e-9)pvJoueur=0;
 
     degatsInfliges += dommageBoss;
     degatsRecus += dommageJoueur;
@@ -8020,10 +8036,10 @@ function appliquerProgressionEnergieSorealIdle_(
       segment * 1000;
 
     const bossMort =
-      bossPv <= 0.0001;
+      bossPv===0;
 
     const joueurKo =
-      pvJoueur <= 0.0001;
+      pvJoueur===0;
 
     if (bossMort) {
       statsCombat.bossStunJusqua = 0;
