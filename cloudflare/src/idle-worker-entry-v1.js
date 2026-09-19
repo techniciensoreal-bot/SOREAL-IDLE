@@ -107,6 +107,11 @@ export default {
       return idleBootstrapV1(request);
     }
 
+    if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
+      if (!env?.ASSETS) return new Response("SOREAL Idle UI indisponible", { status: 503 });
+      return env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+    }
+
     if (request.method === "POST" && url.pathname === "/api/v1/session") {
       return idleJsonV1({
         ok: false,
