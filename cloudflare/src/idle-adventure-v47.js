@@ -1107,7 +1107,20 @@ shrunkenVoodooDoll:{name:"Shrunken Voodoo Doll",zone:"",slot:"accessory",dropLev
 // wiki : "A Priceless Van-Gogh Painting" (lvl 4, Titan The Beast Hard+) — Power/Toughness Max at lvl 0 = 30 000/30 000. Specials : Energy Cap (200/200/400%), Gold Drops (3000/3000/6000%), Magic Cap (200/200/400%).
 pricelessVanGoghPainting:{name:"A Priceless Van-Gogh Painting",zone:"",slot:"accessory",dropLevel:4,p:30000,t:30000,sBase:200,sMax:200,sType:"energyCapPct",sExtra:[{type:"goldDropsPct",base:3000,max0:3000,max100:6000},{type:"magicCapPct",base:200,max0:200,max100:400}]},
 // wiki : "A Small Gerbil" (lvl 4, Titan The Beast Brutal) — Power/Toughness Max at lvl 0 = 100 000/100 000. Specials : Energy Power (2000/6000/12000%), Magic Cap (200/600/1200%), Magic Power (2000/6000/12000%).
-smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000,t:100000,sBase:2000,sMax:6000,sType:"energyPowerPct",sExtra:[{type:"magicCapPct",base:200,max0:600,max100:1200},{type:"magicPowerPct",base:2000,max0:6000,max100:12000}]}
+smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000,t:100000,sBase:2000,sMax:6000,sType:"energyPowerPct",sExtra:[{type:"magicCapPct",base:200,max0:600,max100:1200},{type:"magicPowerPct",base:2000,max0:6000,max100:12000}]},
+/*
+ * Compétences Adventure avancées — objets de déblocage NGU.
+ * - Red Liquid : lvl 5, rare drop du Grand Corrupted Tree, consommé pour
+ *   Hyper Regen ; niveau 100 = Red Liquid Set.
+ * - Purple Liquid : lvl 1, rare drop The Beast Normal+, consommé pour
+ *   Beast Mode ; niveau 100 = Purple Liquid Set.
+ * - Grey Liquid : transformation d'un Small Gerbil lvl 100 en Sadistic,
+ *   consommé pour MOVE 69.
+ * Ce sont des consommables, jamais des accessoires équipables.
+ */
+mysteriousRedLiquid:{name:"Mysterious Red Liquid",zone:"",slot:"consumable",dropLevel:5,p:0,t:0,consumable:true,maxFlag:"redLiquidMaxed"},
+mysteriousPurpleLiquid:{name:"Mysterious Purple Liquid",zone:"",slot:"consumable",dropLevel:1,p:0,t:0,consumable:true,maxFlag:"purpleLiquidMaxed"},
+mysteriousGreyLiquid:{name:"Mysterious Grey Liquid",zone:"",slot:"consumable",dropLevel:0,p:0,t:0,consumable:true}
 });
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
 /*
@@ -1411,7 +1424,10 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "wanderersCane":154,
   "shrunkenVoodooDoll":190,
   "pricelessVanGoghPainting":192,
-  "smallGerbil":195
+  "smallGerbil":195,
+  "mysteriousRedLiquid":93,
+  "mysteriousPurpleLiquid":191,
+  "mysteriousGreyLiquid":506
 });
 function wikiItemIdAdventureV1(definitionId){
   return Number(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1[String(definitionId||"")])||0;
@@ -1716,7 +1732,7 @@ function rollFreshEquipmentStatsV1(o){
  * plancher réelle, PAS 0. Ne change rien pour les SPECIALS sans sBase
  * (undefined -> N(undefined)=0, comportement identique à avant).
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(d.sBase)}}
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(d.sBase)}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,wikiItemId:wikiItemIdBoostV1(type,strength),name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -1749,7 +1765,7 @@ export function idleAdventureAddItemV1(state,o){return add(state,o)}
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -1849,7 +1865,7 @@ if(Array.isArray(s.coffre)){
 }else{
   s.coffre={};
 }
-s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.setRewards=Object.assign(base().setRewards,s.setRewards||{});s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
+s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.setRewards=Object.assign(base().setRewards,s.setRewards||{});s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.skillState=Object.assign(base().skillState,s.skillState&&typeof s.skillState==="object"?s.skillState:{});s.skillState.move69Uses=C(I(s.skillState.move69Uses),0,69);s.skillState.endPiece481=Boolean(s.skillState.endPiece481||s.skillState.move69Uses>=69);s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
 /*
  * Auto-guérison (Norman, 2026-09-09) : "j'ai été en safe zone et l'ennemi
  * est toujours présent." selectZone ne vidait jamais un combat actif
@@ -2057,7 +2073,7 @@ function merge(s,a,b){const A=s.inventory.find(x=>x.id===a),B=s.inventory.find(x
  * plus bas) — cette garde reste une sécurité défensive, pas le mécanisme
  * principal.
  */
-function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==="boost"||(o.kind==="cube"&&s.cube.unlocked))throw Error("EQUIPEMENT_INVALIDE");if(slot==="accessory"){if(!s.equipment.accessories.includes(id)){
+function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==="boost"||o.consumable||(o.kind==="cube"&&s.cube.unlocked))throw Error("EQUIPEMENT_INVALIDE");if(slot==="accessory"){if(!s.equipment.accessories.includes(id)){
   /*
    * UUG's Rings (set) reste l'exception déjà documentée plus haut (V144) :
    * ses 5 anneaux sont COÉQUIPABLES simultanément et ne consomment jamais
@@ -3118,7 +3134,22 @@ function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return tr
  * (ringOfApathyMaxed, tutorialCubeMaxed).
  */
 export const WALDERP_HIDE_PANELS_V147=Object.freeze(["combat","entrainement","inventaire","bestiaire","parametres"]);
-function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));if(id==="t1"){drops.push(add(s,setDrop(s,"grb",challengeTitanLootLevel)));if(!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}}if(id==="t3")drops.push(add(s,setDrop(s,"jake",challengeTitanLootLevel)));if(id==="t4")drops.push(add(s,setDrop(s,"uug",challengeTitanLootLevel)));if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)));drops.push(add(s,setDrop(s,"wanderer",challengeTitanLootLevel)));drops.push(add(s,setDrop(s,"rerednaw",challengeTitanLootLevel)))}if(id==="t6"){drops.push(add(s,setDrop(s,"slimy",challengeTitanLootLevel)));if(tierKey==="normal"||tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("shrunkenVoodooDoll",0)));if(tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("pricelessVanGoghPainting",0)));if(tierKey==="brutal")drops.push(add(s,special("smallGerbil",0)))}
+function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));if(id==="t1"){drops.push(add(s,setDrop(s,"grb",challengeTitanLootLevel)));if(!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}}if(id==="t3")drops.push(add(s,setDrop(s,"jake",challengeTitanLootLevel)));if(id==="t4")drops.push(add(s,setDrop(s,"uug",challengeTitanLootLevel)));if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)));drops.push(add(s,setDrop(s,"wanderer",challengeTitanLootLevel)));drops.push(add(s,setDrop(s,"rerednaw",challengeTitanLootLevel)))}if(id==="t2"&&Math.random()<.01)drops.push(add(s,special("mysteriousRedLiquid",5)));
+if(id==="t6"){
+  drops.push(add(s,setDrop(s,"slimy",challengeTitanLootLevel)));
+  if(tierKey==="normal"||tierKey==="hard"||tierKey==="brutal"){
+    drops.push(add(s,special("shrunkenVoodooDoll",0)));
+    if(Math.random()<.00002)drops.push(add(s,special("mysteriousPurpleLiquid",1)));
+  }
+  if(tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("pricelessVanGoghPainting",0)));
+  /*
+   * Wiki The Beast : Small Gerbil (Brutal) = 0.0001% base chance.
+   * L'ancien code le garantissait, ce qui rendait MOVE 69 artificiellement
+   * facile à débloquer. Seule cette source liée au présent chantier est
+   * corrigée ici ; les autres rares du Titan restent un chantier séparé.
+   */
+  if(tierKey==="brutal"&&Math.random()<.000001)drops.push(add(s,special("smallGerbil",4)));
+}
 /*
  * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
  * beastBrutalDefeated/exileBrutalDefeated : flag PERMANENT (jamais remis
@@ -3142,6 +3173,60 @@ return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,
 function titanFound(s,id,t){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s.titans[id];if(!d||!st||!st.hiddenPanel)throw Error("TITAN_PAS_CACHE");st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,N(d.cooldown));s.titans[id]=st;return{id,nextAt:st.nextAt}}
 const unlockMap={aNumber:"ngu",giantSeed:"yggdrasil",scrapPaper:"diggers",uugHair:"beards",pissedOffKey:"tower",wandoos98:"wandoos"};
 function consume(s,id){const flag=unlockMap[id];if(!flag||!s.unlockItems[id])throw Error("OBJET_DEBLOCAGE_ABSENT");s.unlockFlags[flag]=true;s.unlockItems[id]=false;return{flag}}
+
+/*
+ * Consommables qui déverrouillent les compétences Adventure avancées.
+ * Le déblocage est permanent ; l'objet réel est retiré du sac au moment
+ * où il est bu, comme dans NGU.
+ */
+const ADVENTURE_SKILL_CONSUMABLES_V1=Object.freeze({
+  mysteriousRedLiquid:"hyperRegenUnlocked",
+  mysteriousPurpleLiquid:"beastModeUnlocked",
+  mysteriousGreyLiquid:"move69Unlocked"
+});
+function retirerObjetAdventureV1(s,itemId){
+  const id=String(itemId||"");
+  const o=s.inventory.find(x=>x.id===id);
+  if(!o)throw Error("OBJET_INTROUVABLE");
+  for(const slot of ["head","chest","legs","boots","weapon"]){
+    if(s.equipment[slot]===id)s.equipment[slot]="";
+  }
+  s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(x=>x!==id);
+  s.inventory=s.inventory.filter(x=>x.id!==id);
+  syncInventorySlotsAdventureV2(s);
+  return o;
+}
+function consumeAdventureSkillItemV1(s,itemId){
+  const o=s.inventory.find(x=>x.id===String(itemId||""));
+  const flag=o&&ADVENTURE_SKILL_CONSUMABLES_V1[o.definitionId];
+  if(!o||!o.consumable||!flag)throw Error("CONSOMMABLE_SKILL_INVALIDE");
+  retirerObjetAdventureV1(s,o.id);
+  s.unlockFlags[flag]=true;
+  return{definitionId:o.definitionId,flag};
+}
+function transformAdventureItemV1(s,itemId,ctx){
+  const o=s.inventory.find(x=>x.id===String(itemId||""));
+  if(!o||o.definitionId!=="smallGerbil")throw Error("TRANSFORMATION_INVALIDE");
+  if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
+  if(String(ctx&&ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");
+  retirerObjetAdventureV1(s,o.id);
+  const liquid=special("mysteriousGreyLiquid",0);
+  liquid.id=`i${s.serial++}`;
+  const added=add(s,liquid);
+  if(!added)throw Error("INVENTAIRE_PLEIN");
+  return added;
+}
+function setBeastModeAdventureV1(s,enabled){
+  if(!s.unlockFlags.beastModeUnlocked)throw Error("BEAST_MODE_VERROUILLE");
+  s.skillState.beastMode=Boolean(enabled);
+  return{beastMode:s.skillState.beastMode};
+}
+function useMove69AdventureV1(s){
+  if(!s.unlockFlags.move69Unlocked)throw Error("MOVE_69_VERROUILLE");
+  s.skillState.move69Uses=C(I(s.skillState.move69Uses)+1,0,69);
+  if(s.skillState.move69Uses>=69)s.skillState.endPiece481=true;
+  return{uses:s.skillState.move69Uses,endPiece481:Boolean(s.skillState.endPiece481)};
+}
 /*
  * Cube Tiers (2026-09-11) — sourcé directement de la page wiki
  * "Infinity Cube" (ngu-idle.fandom.com, vérifiée au navigateur) :
@@ -3302,5 +3387,5 @@ titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.bo
  * client de reproduire EXACTEMENT le même calcul X/MAX que pour Power/
  * Toughness, avec le vrai label.
  */
-inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0});const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03,specialType:specialType||undefined,baseSpecial:base.baseS||0};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
-export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else throw Error("ACTION_AVENTURE_INCONNUE");syncInventorySlotsAdventureV2(s);return{state:s,result}}
+inventory:X(s.inventory).map(o=>{const d=defById(o.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):{baseP:0,baseT:0});const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;return{...o,maxed:idleAdventureNiveauEstMaxV1(o.level),basePower:base.baseP,baseToughness:base.baseT,baseHp:base.baseP*3,baseRegen:base.baseT*.03,specialType:specialType||undefined,baseSpecial:base.baseS||0};}),coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
+export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");syncInventorySlotsAdventureV2(s);return{state:s,result}}
