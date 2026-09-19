@@ -4198,6 +4198,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
          */
         dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
         dropChancePct: num(context.dropChancePct, 0),
+        difficulty: state.difficulty,
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
         adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context)
