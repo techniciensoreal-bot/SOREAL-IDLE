@@ -1452,7 +1452,7 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
       const{p,t}=idleAdventureItemStatsMaxV1(setId,slot);
       const baseP=p/2,baseT=t/2;
       catalog[`${setId}:${slot}`]=Object.freeze({
-        kind:"equipment",set:setId,setName:s.name,slot,name:`${s.name} ${slot}`,
+        kind:"equipment",set:setId,setName:s.name,slot,name:SET_ITEM_NAMES_V1[`${setId}:${slot}`]||`${s.name} ${slot}`,
         wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
         basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03
       });
