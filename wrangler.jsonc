@@ -10,6 +10,10 @@
   "main": "cloudflare/src/idle-worker-entry-v1.js",
   "compatibility_date": "2026-08-28",
   "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./cloudflare/public",
+    "binding": "ASSETS"
+  },
   "durable_objects": {
     "bindings": [
       {
