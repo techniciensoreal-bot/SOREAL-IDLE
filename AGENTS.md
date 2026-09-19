@@ -66,21 +66,26 @@ Procédure attendue avant d'ajouter/corriger une valeur de jeu :
   seul le binding Durable Object l'atteint.
 - Chaque opération de jeu a un nom (`combattreAventureSorealIdle`,
   `renaitreSorealIdle`, etc., listés dans `IDLE_OPERATIONS` dans
-  `idle-sqlite-runtime.js`). **Il n'existe aucun contrat de version
-  partagé entre ce dépôt et SOREAL-APP.** Rien n'empêche mécaniquement un
-  changement ici de casser silencieusement le client si :
-  - un nom d'opération est renommé ou supprimé alors qu'il est encore
-    appelé côté client ;
-  - la forme d'une réponse change (champs renommés/retirés) ;
-  - un champ d'état (`fight.mobType`, `fight.mobAttackFactor`, etc.) que
-    le client lit est retiré ou change de sens.
+  `idle-sqlite-runtime.js`). Le contrat machine-readable est désormais
+  versionné dans `cloudflare/contracts/idle-protocol.json` et contrôlé par
+  `cloudflare/tests/idle-protocol-contract.test.mjs`, qui impose
+  `protocolVersion === IDLE_PROTOCOL_VERSION` et l'égalité exacte entre
+  la liste JSON et `IDLE_OPERATIONS`. SOREAL-APP maintient son snapshot
+  consommateur dans `cloudflare/features/idle/protocol.json` et le vérifie
+  contre `IDLE_CLIENT_PROTOCOL_VERSION` et son bridge.
+  Un changement cassant reste interdit sans mise à jour coordonnée :
+  - renommer/supprimer une opération appelée par le client ;
+  - retirer/renommer un champ de réponse ;
+  - changer le type ou le sens d'un champ d'état ;
+  - changer les arguments attendus par une opération.
+  Dans ces cas, incrémenter `IDLE_PROTOCOL_VERSION`, mettre à jour le contrat
+  JSON serveur, le snapshot APP et `IDLE_CLIENT_PROTOCOL_VERSION` dans le
+  même chantier.
   **Règle : avant de renommer ou de retirer un nom d'opération ou un champ
   de réponse exposé au client, chercher son usage réel dans SOREAL-APP**
   (`Soreal_Idle_UI.html`, `cloudflare/public/cloudflare-bridge.js`) et pas
   seulement dans ce dépôt. Un grep dans ce seul dépôt ne suffit jamais à
-  conclure qu'un nom est mort — voir le correctif
-  `selectionnerZoneAventureSorealIdle` (2026-09-17) qui a explicitement
-  vérifié les deux dépôts avant suppression.
+  conclure qu'un nom est mort.
 - `cloudflare/public/cloudflare-bridge.js` (SOREAL-APP) expose un
   passe-plat générique qui mirrore la plupart des noms d'`IDLE_OPERATIONS`
   symétriquement, y compris certains déjà désactivés côté serveur

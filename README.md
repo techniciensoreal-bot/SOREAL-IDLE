@@ -13,6 +13,11 @@ Cloudflare avec un Durable Object SQLite) — pas d'interface.
   (`/api/app/idle/call` / `/api/tv/idle/call`), qui relaie vers ce dépôt
   via un binding Durable Object cross-script nommé `SOREAL_IDLE`. Voir
   [AGENTS.md](./AGENTS.md) pour le détail exact du chemin.
+- **Contrat client/serveur** : `cloudflare/contracts/idle-protocol.json`
+  versionne le numéro de protocole et la liste des opérations exposées.
+  `cloudflare/tests/idle-protocol-contract.test.mjs` vérifie qu'il
+  correspond exactement au runtime. SOREAL-APP conserve un snapshot
+  contrôlé dans `cloudflare/features/idle/protocol.json`.
 
 ## Structure
 
