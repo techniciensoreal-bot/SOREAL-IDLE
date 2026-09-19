@@ -7721,6 +7721,7 @@ function appliquerProgressionEnergieSorealIdle_(
   const regenPvSecJoueur =
     Math.max(
       0,
+      0.05 +
       defense / 20
     );
 
