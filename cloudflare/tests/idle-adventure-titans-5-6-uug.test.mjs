@@ -112,11 +112,22 @@ assert.deepEqual(
   assert.ok(hard.drops.some(x=>x.definitionId==="pricelessVanGoghPainting"));
   assert.equal(hard.drops.some(x=>x.definitionId==="smallGerbil"),false);
 
-  const brutal=applyIdleAdventureActionV47(
-    normalizeIdleAdventureStateV47({}),
-    {action:"titan",titan:"t6",difficulty:"brutal"},
-    {bosses:132,stats:{power:700000000000,toughness:500000000000}},1
-  ).result;
+  const randomAvant=Math.random;
+  let brutal;
+  try{
+    /*
+     * Small Gerbil est un vrai jet rare (0,0001 %). Le test force le jet
+     * gagnant au lieu de dépendre du hasard du runner CI.
+     */
+    Math.random=()=>0;
+    brutal=applyIdleAdventureActionV47(
+      normalizeIdleAdventureStateV47({}),
+      {action:"titan",titan:"t6",difficulty:"brutal"},
+      {bosses:132,stats:{power:700000000000,toughness:500000000000}},1
+    ).result;
+  }finally{
+    Math.random=randomAvant;
+  }
   assert.ok(brutal.drops.some(x=>x.definitionId==="shrunkenVoodooDoll"));
   assert.ok(brutal.drops.some(x=>x.definitionId==="pricelessVanGoghPainting"));
   assert.ok(brutal.drops.some(x=>x.definitionId==="smallGerbil"));
