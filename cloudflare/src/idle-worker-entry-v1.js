@@ -32,8 +32,53 @@ async function pingSorealIdleV1(env) {
   }
 }
 
+function idleJsonV1(payload, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store"
+    }
+  });
+}
+
+/*
+ * 2026-09-19 — première brique de l'isolation complète de SOREAL Idle.
+ *
+ * APP/TV ne doivent à terme fournir qu'un bouton de lancement. Le Worker
+ * Idle expose donc désormais ses propres routes publiques de bootstrap.
+ * Elles ne donnent encore aucun accès à un compte joueur : l'identité sera
+ * transmise par un ticket de lancement signé et consommable une seule fois.
+ * Tant que ce ticket n'est pas câblé, /api/v1/session refuse explicitement
+ * l'accès au lieu de retomber silencieusement sur l'ancien bridge APP/TV.
+ */
+function idleBootstrapV1(request) {
+  const url = new URL(request.url);
+  return idleJsonV1({
+    ok: true,
+    service: "soreal-idle",
+    standalone: true,
+    protocol: 1,
+    sessionEndpoint: url.origin + "/api/v1/session"
+  });
+}
+
 export default {
-  async fetch() {
+  async fetch(request) {
+    const url = new URL(request.url);
+
+    if (request.method === "GET" && url.pathname === "/api/v1/bootstrap") {
+      return idleBootstrapV1(request);
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/v1/session") {
+      return idleJsonV1({
+        ok: false,
+        code: "LAUNCH_TICKET_REQUIRED",
+        message: "SOREAL Idle attend un ticket de lancement signe par SOREAL."
+      }, 401);
+    }
+
     return new Response("SOREAL Idle Worker", { status: 404 });
   },
   async scheduled(_event, env, ctx) {
