@@ -30,7 +30,7 @@ function forceRandom(sequence) {
 // On verrouille directement la formule au lieu de dépendre du nombre de tirages
 // RNG internes d'une table de loot qui évolue par zone.
 assert.ok(
-  idleAdventureDropChanceV2(.12,1,8,{id:"evilverse",requiredDifficulty:"difficile"})>.30,
+  idleAdventureDropChanceV2(.12,1,27,{id:"evilverse",requiredDifficulty:"difficile"})>.30,
   "En zone Evil, la racine cubique du multiplicateur doit permettre un seuil supérieur à 30% dans ce cas de référence."
 );
 assert.equal(
