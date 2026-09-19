@@ -4174,6 +4174,13 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       state.adventure,
       payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload,
       Object.assign({}, context, {
+        /*
+         * Adventure rollKill consomme un multiplicateur, pas un pourcentage.
+         * Jusqu'ici seul dropChancePct était transmis : tous les bonus réels
+         * (Digger, Perks, équipement Drop Chance, Blood Spaghetti...) étaient
+         * donc calculés puis perdus avant le jet de loot.
+         */
+        dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
         dropChancePct: num(context.dropChancePct, 0),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
