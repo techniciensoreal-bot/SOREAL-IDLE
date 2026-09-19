@@ -33,8 +33,8 @@ assert.equal(
 );
 assert.equal(
   snap.adventure.stats.regen,
-  1.03,
-  "Un pantalon +0,03 doit afficher 1(+0,03), jamais 1(+0,15) en Safe Zone."
+  1,
+  "Un objet de fixture créé à 0/maximum ne doit pas inventer de régén avant d'avoir réellement reçu des points de Toughness."
 );
 
 /*
