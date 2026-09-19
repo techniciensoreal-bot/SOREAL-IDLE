@@ -1727,7 +1727,7 @@ export function idleAdventureAddItemV1(state,o){return add(state,o)}
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],coffre:{},equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -1826,7 +1826,7 @@ if(Array.isArray(s.coffre)){
 }else{
   s.coffre={};
 }
-s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.setRewards=Object.assign(base().setRewards,s.setRewards||{});s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});
+s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.setRewards=Object.assign(base().setRewards,s.setRewards||{});s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
 /*
  * Auto-guérison (Norman, 2026-09-09) : "j'ai été en safe zone et l'ennemi
  * est toujours présent." selectZone ne vidait jamais un combat actif
@@ -2617,6 +2617,7 @@ const monsterIndex=monsterIndexPoolLenV1?Math.floor(Math.random()*monsterIndexPo
 const mobStatsV1=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
 const hpMax=monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex),playerHpMax=playerHpMaxForAdventureV1(stats);const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
 const mobAttackFactor=idleAdventureMobAttackFactorV1(z,boss,monsterIndex),mobType=idleAdventureMobTypeV1(z,boss,monsterIndex);
+s.lastCombatZone=z.id;
 s.fight={active:true,zone:z.id,monsterHp:hpMax,monsterHpMax:hpMax,boss,playerHp,playerHpMax,monsterIndex,mobAttackFactor,mobType,mobName:mobStatsV1?String(mobStatsV1.name||""):"",mobPower:mobStatsV1?N(mobStatsV1.power):0,mobToughness:mobStatsV1?N(mobStatsV1.toughness):0,mobHpRegen:mobStatsV1?N(mobStatsV1.hpRegen):0,mobAttackRate:mobStatsV1?N(mobStatsV1.attackRate):0};
 /*
  * Norman (2026-09-15) : "tous les ennemis rencontrés en aventure
@@ -2689,7 +2690,7 @@ function resolveZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_A
  * côté serveur) — le client est seul juge du moment où le combat se
  * termine, exactement comme pour le Combat de boss.
  */
-function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");const zone=s.fight.zone;s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};s.selectedZone="safe";return{defeated:true,zone}}
+function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};s.selectedZone="safe";return{defeated:true,zone}}
 function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}
 /*
  * V145 — The Beast (t6) est le premier titan avec plusieurs paliers de
@@ -2834,29 +2835,19 @@ export function idleAdventureEquipmentStatsV47(raw){
   const equippedHp=equipped.reduce((a,x)=>a+N(x.power)*3,0);
   const equippedRegen=equipped.reduce((a,x)=>a+N(x.toughness)*.03,0);
   /*
-   * Multiplicateur Safe Zone sur la regen d'équipement (2026-09-18,
-   * Norman, confirmé en jouant au vrai jeu) : le wiki NGU (page locale
-   * "Adventure Mode", tableau Zones, ligne "1. Safe Zone: Awakening
-   * Site" : "5x HP Regeneration in zone / 10x with GRB's set bonus")
-   * documente un multiplicateur ×5 (×10 avec le bonus de set GRB, déjà
-   * stocké dans setRewards.safeZoneRegen10x via checkSets mais jamais lu
-   * jusqu'ici) appliqué SEULEMENT dans la Safe Zone. Norman : ce
-   * multiplicateur ne s'applique qu'au bonus fourni par l'équipement —
-   * le plancher de base à 1/s (safe zone, combat, zone tutoriel...) est
-   * déjà géré séparément et correctement dans idleAdventureCombatStatsV1
-   * (idle-ngu-progression.js, correctif 2026-09-16, plancher appliqué
-   * APRÈS multiplication sur le terme context.adventureToughness) : ne
-   * pas dupliquer cette base ici, seulement multiplier la part
-   * équipement (equippedRegen+setRewards.adventureRegen) qui s'ADDITIONNE
-   * ensuite à ce plancher.
+   * La stat d'équipement doit rester canonique et indépendante de la zone.
+   * Exemple réel signalé : un pantalon +0,03 HP Regen affichait +0,15 en
+   * Safe Zone parce que le ×5 était appliqué ici AVANT la construction de
+   * la fiche. Le multiplicateur de repos est un effet de zone, pas une
+   * propriété de l'équipement : il est désormais appliqué uniquement par
+   * le tick client de repos.
    */
-  const safeZoneRegenMultiplierV1=s.selectedZone==="safe"?(s.setRewards.safeZoneRegen10x?10:5):1;
   const specialsByType=idleAdventureSpecialsByTypeV1(equipped);
   return{
     power:basePower+idleAdventureCubeSoftcapV1(s.cube.power,basePower),
     toughness:baseToughness+idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness),
     hp:equippedHp+N(s.setRewards.adventureHp),
-    regen:(equippedRegen+N(s.setRewards.adventureRegen))*safeZoneRegenMultiplierV1,
+    regen:equippedRegen+N(s.setRewards.adventureRegen),
     special:equipped.reduce((a,x)=>a+N(x.special),0),
     specialsByType,
     specials:{
@@ -2893,7 +2884,7 @@ export function idleAdventureEquipmentStatsV47(raw){
  * strictement inchangé pour tout autre appelant (une zone Evil/Sadistic
  * resterait alors verrouillée, jamais accessible par erreur).
  */
-export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks){const s=normalizeIdleAdventureStateV47(raw);return{version:s.version,visualSource:"avatar-level",selectedZone:s.selectedZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses,difficulty,difficultyPeaks),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
+export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks){const s=normalizeIdleAdventureStateV47(raw);return{version:s.version,visualSource:"avatar-level",selectedZone:s.selectedZone,lastCombatZone:s.lastCombatZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses,difficulty,difficultyPeaks),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
  * Bug trouvé en vérifiant le vrai NGU (Norman, 2026-09-10) : "je ne
  * pense pas qu'ils soient visibles dans un menu dès le début" —
  * progressionUnlocked ne vérifiait QUE la chaîne de prérequis entre
