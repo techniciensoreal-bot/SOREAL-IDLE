@@ -23,4 +23,24 @@ assert.ok(
   "Fight Boss death/KO must be based on exact zero HP after clamping."
 );
 
+
+const damageStart=source.indexOf("function degatsRecusSecondeSorealIdle_(");
+const damageEnd=source.indexOf("function recalculerPuissanceCompleteSorealIdle_",damageStart);
+const damageBody=source.slice(damageStart,damageEnd);
+assert.ok(
+  damageBody.includes("attaque -") &&
+  !damageBody.includes("BOSS_DEGATS_MIN_PCT") &&
+  !damageBody.includes("attaque * plancherPct"),
+  "Fight Boss damage must be exactly max(0, Boss Attack - Defense), with no artificial damage floor."
+);
+
+const regenStart=source.indexOf("const regenPvSecJoueur =");
+const regenEnd=source.indexOf("if (!combatBossActif)",regenStart);
+const regenBody=source.slice(regenStart,regenEnd);
+assert.ok(
+  regenBody.includes("defense / 20") &&
+  !regenBody.includes("0.05 +"),
+  "Fight Boss HP regen must be exactly Defense/20."
+);
+
 console.log("idle-fight-boss-zero-and-start-guard: OK");
