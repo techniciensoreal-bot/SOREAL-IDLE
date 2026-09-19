@@ -63,8 +63,44 @@ function idleBootstrapV1(request) {
   });
 }
 
+async function idleCallV1(request, env) {
+  if (!env?.SOREAL_IDLE) {
+    return idleJsonV1({ ok: false, error: "IDLE_COORDINATOR_UNAVAILABLE" }, 503);
+  }
+
+  const body = await request.json().catch(() => null);
+  const operation = String(body?.operation || "").trim();
+  const args = Array.isArray(body?.args) ? body.args : [];
+  const user = body?.user && typeof body.user === "object" ? body.user : null;
+
+  if (!operation) {
+    return idleJsonV1({ ok: false, error: "IDLE_OPERATION_REQUIRED" }, 400);
+  }
+
+  /*
+   * Route autonome vers le Durable Object IDLE. L'authentification publique
+   * reste volontairement fermée tant que le ticket signé APP/TV n'est pas
+   * consommé ici. Le header interne permet aux tests/liaisons Worker de
+   * préparer la migration sans exposer un compte joueur sur Internet.
+   */
+  const internalKey = String(env.SOREAL_IDLE_INTERNAL_KEY || "");
+  const suppliedKey = String(request.headers.get("x-soreal-idle-internal-key") || "");
+  if (!internalKey || suppliedKey !== internalKey) {
+    return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
+  }
+
+  const id = env.SOREAL_IDLE.idFromName("global");
+  const stub = env.SOREAL_IDLE.get(id);
+  const target = new URL("/__soreal-idle-v1/call", request.url);
+  return stub.fetch(new Request(target, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ operation, args, user })
+  }));
+}
+
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
     if (request.method === "GET" && url.pathname === "/api/v1/bootstrap") {
@@ -77,6 +113,10 @@ export default {
         code: "LAUNCH_TICKET_REQUIRED",
         message: "SOREAL Idle attend un ticket de lancement signe par SOREAL."
       }, 401);
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/v1/call") {
+      return idleCallV1(request, env);
     }
 
     return new Response("SOREAL Idle Worker", { status: 404 });
