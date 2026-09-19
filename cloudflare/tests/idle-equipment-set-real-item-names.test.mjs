@@ -18,8 +18,8 @@ import {
  */
 
 const SAMPLES = {
-  "sewers:weapon": "Rusty Sword",
-  "sewers:amulet": "Cracked Amulet",
+  "sewers:weapon": "Épée rouillée",
+  "sewers:amulet": "Amulette fissurée",
   "forest:pendant": "Forest Pendant",
   "cave:combat": "Combat Cheese",
   "hsb:weapon": "Magitech Blade",

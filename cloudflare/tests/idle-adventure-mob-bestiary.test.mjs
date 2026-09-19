@@ -140,9 +140,9 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.safe,undefined,"Safety Zone n'a aucu
 }
 
 // 8. Intégration bout-en-bout via applyIdleAdventureActionV47/
-//    startZoneFight : le combat réel expose bien mobAttackFactor/mobType
-//    sur s.fight, dérivés du VRAI mob tiré (même pool/même tirage que le
-//    reskin déjà utilisé pour le nom/l'image, jamais un second tirage).
+//    startZoneFight : le combat réel expose bien les données brutes du
+//    bestiaire sur s.fight. Le client n'a donc jamais à déduire un nom ou
+//    une statistique depuis un ancien catalogue d'illustrations.
 {
   let s=normalizeIdleAdventureStateV47({});
   s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"forest"},{bosses:17},1).state;
@@ -160,6 +160,11 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.safe,undefined,"Safety Zone n'a aucu
   }finally{Math.random=alea;}
   assert.equal(f.result.boss,false);
   assert.equal(f.result.monsterIndex,6);
+  assert.equal(f.result.mobName,"Fairy","Le nom réel du bestiaire doit être transmis au combat.");
+  assert.equal(f.result.mobPower,33,"Fairy : Power d'Aventure NGU transmis sans conversion.");
+  assert.equal(f.result.mobToughness,31,"Fairy : Toughness d'Aventure NGU transmis sans conversion.");
+  assert.equal(f.result.mobHpRegen,2,"Fairy : HP Regen d'Aventure NGU transmis sans conversion.");
+  assert.equal(f.result.mobAttackRate,5,"Fairy : Attack Rate d'Aventure NGU transmis sans conversion.");
   assert.equal(f.result.mobType,"exploder","Fairy est de type exploder (sourcé wiki).");
   assert.ok(typeof f.result.mobAttackFactor==="number"&&f.result.mobAttackFactor>0,"mobAttackFactor doit être exposé au client sur s.fight, jamais recalculé côté APP (source de vérité unique).");
 }

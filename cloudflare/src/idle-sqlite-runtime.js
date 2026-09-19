@@ -24,6 +24,7 @@ import {
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
+import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import {
   IDLE_ADVENTURE_ZONES,
   IDLE_ADVENTURE_MOB_CATALOG_V1,
@@ -76,6 +77,13 @@ import {
  * changement cassant lui-même — jamais après coup.
  */
 const IDLE_PROTOCOL_VERSION=1;
+
+const NGU_BOSS_NAMES_FR_V1 = new Map(
+  NGU_BOSS_NAMES_FR_V1_SOURCE.map((entry) => [
+    Number(entry.id),
+    String(entry.nomFr || entry.nomEn || "Boss"),
+  ])
+);
 
 let __idleRuntimeUser=null;
 let __idleWorkbook=null;
@@ -5054,7 +5062,7 @@ function construireBestiaireSorealIdle_(
    * bestiaire réelle (zones/rôles pas encore sourcés), jamais un
    * remplacement partiel silencieux.
    */
-  function nomReelOuAffichageMobSorealIdleV1_(zoneId, estBoss, index, base) {
+  function nomReelOuAffichageMobSorealIdleV1_(zoneId, estBoss, index) {
     const entreeBestiaire = idleAdventureMobBestiaryEntryV1(
       { id: zoneId },
       estBoss,
@@ -5063,7 +5071,7 @@ function construireBestiaireSorealIdle_(
     if (entreeBestiaire && entreeBestiaire.name) {
       return String(entreeBestiaire.name);
     }
-    return nomAffichageMobSorealIdleV1_(base);
+    return 'Créature NGU non documentée';
   }
 
   IDLE_ADVENTURE_ZONES
@@ -5127,7 +5135,7 @@ function construireBestiaireSorealIdle_(
         const indexStore = estBoss ? zoneBossIndexBestiaireV1 : zoneMobIndexBestiaireV1;
         const indexCounters = indexStore[zone.id] || {};
 
-        pool.forEach(function(baseNom, index) {
+        pool.forEach(function(_baseNom, index) {
           const rencontresCompteur =
             Math.max(
               0,
@@ -5150,7 +5158,7 @@ function construireBestiaireSorealIdle_(
             boss: estBoss ? 1 : 0,
             index: index,
             zoneId: 0,
-            nom: decouvert ? nomReelOuAffichageMobSorealIdleV1_(zone.id, estBoss, index, baseNom) : '???????',
+            nom: decouvert ? nomReelOuAffichageMobSorealIdleV1_(zone.id, estBoss, index) : '???????',
             emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
             pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
             attaque: decouvert ? zone.p : 0,
@@ -6320,17 +6328,20 @@ function equilibrerBossPrincipalSorealIdleV413_(
     {},
     source,
     {
+      /*
+       * Le catalogue historique ne définit plus l'identité d'un boss : il
+       * peut rester présent dans une base existante, mais les noms affichés
+       * sont toujours ceux de NGU, localisés en français.
+       */
+      nom:
+        NGU_BOSS_NAMES_FR_V1.get(i + 1) ||
+        String(source.nom || "Boss"),
+
       pv:
         Math.max(
           1,
           Math.round(
-            Math.max(
-              nombreSorealIdle_(
-                source.pv,
-                1
-              ),
-              pvMinimum
-            )
+            pvMinimum
           )
         ),
 
@@ -6338,13 +6349,7 @@ function equilibrerBossPrincipalSorealIdleV413_(
         Math.max(
           1,
           Math.round(
-            Math.max(
-              nombreSorealIdle_(
-                source.attaque,
-                1
-              ),
-              attaqueMinimum
-            )
+            attaqueMinimum
           )
         ),
 
@@ -6362,13 +6367,7 @@ function equilibrerBossPrincipalSorealIdleV413_(
         Math.max(
           1,
           Math.round(
-            Math.max(
-              nombreSorealIdle_(
-                source.defense,
-                1
-              ),
-              defenseMinimum
-            )
+            defenseMinimum
           )
         ),
 
@@ -6397,7 +6396,11 @@ function equilibrerBossPrincipalSorealIdleV413_(
           Math.round(
             xpMinimum
           )
-        )
+        ),
+
+      /* Le wiki NGU ne fournit pas de narration par boss à reproduire. */
+      histoire: "",
+      conseil: ""
     }
   );
 }

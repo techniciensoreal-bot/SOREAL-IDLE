@@ -14,11 +14,11 @@ import {
  */
 
 const EXPECTED = {
-  weapon: "A Stick",
-  head: "Cloth Hat",
-  chest: "Cloth Shirt",
-  legs: "Cloth Leggings",
-  boots: "Cloth Boots"
+  weapon: "Un bâton",
+  head: "Chapeau en tissu",
+  chest: "Chemise en tissu",
+  legs: "Jambières en tissu",
+  boots: "Bottes en tissu"
 };
 
 for (const [slot, expectedName] of Object.entries(EXPECTED)) {

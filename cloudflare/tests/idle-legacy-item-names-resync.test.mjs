@@ -33,8 +33,8 @@ import { normalizeIdleAdventureStateV47, IDLE_ADVENTURE_V47 } from "../src/idle-
   const normalized = normalizeIdleAdventureStateV47(legacyState);
   const chest = normalized.inventory.find((i) => i.id === "chest1");
   const boots = normalized.inventory.find((i) => i.id === "boots1");
-  assert.equal(chest.name, "Cloth Shirt", "Un objet legacy 'Training Set chest' doit être resynchronisé au vrai nom wiki 'Cloth Shirt' à chaque chargement.");
-  assert.equal(boots.name, "Cloth Boots", "Un objet legacy 'Training Set boots' doit être resynchronisé au vrai nom wiki 'Cloth Boots' à chaque chargement.");
+  assert.equal(chest.name, "Chemise en tissu", "Un objet legacy 'Training Set chest' doit être resynchronisé vers le libellé français à chaque chargement.");
+  assert.equal(boots.name, "Bottes en tissu", "Un objet legacy 'Training Set boots' doit être resynchronisé vers le libellé français à chaque chargement.");
 }
 
 // --- Un objet déjà correctement nommé (créé après le correctif) n'est jamais modifié ---
@@ -42,12 +42,12 @@ import { normalizeIdleAdventureStateV47, IDLE_ADVENTURE_V47 } from "../src/idle-
   const state = {
     version: IDLE_ADVENTURE_V47,
     inventory: [
-      { id: "head1", definitionId: "training:head", kind: "equipment", set: "training", slot: "head", level: 10, power: 0, toughness: 0, special: 0, name: "Cloth Hat" }
+      { id: "head1", definitionId: "training:head", kind: "equipment", set: "training", slot: "head", level: 10, power: 0, toughness: 0, special: 0, name: "Chapeau en tissu" }
     ]
   };
   const normalized = normalizeIdleAdventureStateV47(state);
   const head = normalized.inventory.find((i) => i.id === "head1");
-  assert.equal(head.name, "Cloth Hat", "Un objet déjà correctement nommé ne doit jamais changer.");
+  assert.equal(head.name, "Chapeau en tissu", "Un objet déjà correctement nommé ne doit jamais changer.");
 }
 
 // --- Un objet SPECIALS (jamais concerné par SET_ITEM_NAMES_V1) garde son propre nom ---

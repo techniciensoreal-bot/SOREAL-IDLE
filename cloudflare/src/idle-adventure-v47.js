@@ -87,18 +87,18 @@ const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b
  * cette zone explicitement).
  */
 export const IDLE_ADVENTURE_ZONES=Object.freeze([
-{id:"safe",name:"Safety Zone",boss:4,p:0,t:0,set:"",dropLevel:0,avatarLevel:1},
-{id:"tutorial",name:"Tutoriel SOREAL",boss:4,p:10,t:10,oneHitP:129.5,idleP:13,idleT:13,bossChance:1/4,set:"training",dropLevel:10,avatarLevel:1},
-{id:"sewers",name:"Biobox maudites",boss:7,p:12,t:12,oneHitP:194,idleP:21,idleT:21,bossChance:1/4,set:"sewers",dropLevel:4,avatarLevel:1},
-{id:"forest",name:"Forêt de palettes",boss:17,p:35,t:35,oneHitP:1134,idleP:53,idleT:53,bossChance:2/9,set:"forest",dropLevel:1,avatarLevel:2},
-{id:"cave",name:"Chambre froide",boss:37,p:150,t:150,oneHitP:3811,idleP:200,idleT:200,bossChance:3/16,set:"cave",dropLevel:0,avatarLevel:2},
-{id:"sky",name:"Quai céleste",boss:48,p:600,t:400,oneHitP:11420,idleP:750,idleT:650,bossChance:1/5,set:"",dropLevel:0,avatarLevel:3},
-{id:"hsb",name:"High Security Base SOREAL",boss:58,p:700,t:500,oneHitP:15220,idleP:750,idleT:750,bossChance:1/5,set:"hsb",dropLevel:0,avatarLevel:3},
-{id:"clock",name:"Horloge du dépôt",boss:66,p:3250,t:2250,oneHitP:107110,idleP:4500,idleT:3000,bossChance:2/9,set:"clock",dropLevel:0,avatarLevel:4},
-{id:"2d",name:"Zone 2D",boss:74,p:4500,t:3500,oneHitP:168223,idleP:8000,idleT:6000,bossChance:1/4,set:"2d",dropLevel:0,avatarLevel:4},
-{id:"ancient",name:"Ancien entrepôt",boss:82,p:12000,t:10000,oneHitP:282966,idleP:17000,idleT:16000,bossChance:1/4,set:"spoopy",dropLevel:0,avatarLevel:5},
-{id:"avsp",name:"Endroit très étrange",boss:90,p:28000,t:18000,oneHitP:842483,idleP:48000,idleT:38000,bossChance:1/4,set:"gaudy",dropLevel:0,avatarLevel:5},
-{id:"mega",name:"Mega Lands SOREAL",boss:100,p:125000,t:60000,oneHitP:3540000,idleP:265000,idleT:145000,bossChance:1/5,set:"mega",dropLevel:0,avatarLevel:6},
+{id:"safe",name:"Zone sûre",boss:4,p:0,t:0,set:"",dropLevel:0,avatarLevel:1},
+{id:"tutorial",name:"Tutoriel",boss:4,p:10,t:10,oneHitP:129.5,idleP:13,idleT:13,bossChance:1/4,set:"training",dropLevel:10,avatarLevel:1},
+{id:"sewers",name:"Égouts",boss:7,p:12,t:12,oneHitP:194,idleP:21,idleT:21,bossChance:1/4,set:"sewers",dropLevel:4,avatarLevel:1},
+{id:"forest",name:"Forêt",boss:17,p:35,t:35,oneHitP:1134,idleP:53,idleT:53,bossChance:2/9,set:"forest",dropLevel:1,avatarLevel:2},
+{id:"cave",name:"Grotte aux multiples choses",boss:37,p:150,t:150,oneHitP:3811,idleP:200,idleT:200,bossChance:3/16,set:"cave",dropLevel:0,avatarLevel:2},
+{id:"sky",name:"Le Ciel",boss:48,p:600,t:400,oneHitP:11420,idleP:750,idleT:650,bossChance:1/5,set:"",dropLevel:0,avatarLevel:3},
+{id:"hsb",name:"Base haute sécurité",boss:58,p:700,t:500,oneHitP:15220,idleP:750,idleT:750,bossChance:1/5,set:"hsb",dropLevel:0,avatarLevel:3},
+{id:"clock",name:"Dimension de l’horloge",boss:66,p:3250,t:2250,oneHitP:107110,idleP:4500,idleT:3000,bossChance:2/9,set:"clock",dropLevel:0,avatarLevel:4},
+{id:"2d",name:"Univers 2D",boss:74,p:4500,t:3500,oneHitP:168223,idleP:8000,idleT:6000,bossChance:1/4,set:"2d",dropLevel:0,avatarLevel:4},
+{id:"ancient",name:"Champ de bataille antique",boss:82,p:12000,t:10000,oneHitP:282966,idleP:17000,idleT:16000,bossChance:1/4,set:"spoopy",dropLevel:0,avatarLevel:5},
+{id:"avsp",name:"Un endroit très étrange",boss:90,p:28000,t:18000,oneHitP:842483,idleP:48000,idleT:38000,bossChance:1/4,set:"gaudy",dropLevel:0,avatarLevel:5},
+{id:"mega",name:"Mégaterres",boss:100,p:125000,t:60000,oneHitP:3540000,idleP:265000,idleT:145000,bossChance:1/5,set:"mega",dropLevel:0,avatarLevel:6},
 /*
  * V143 — Norman (2026-09-11) : "tu as tout sur le wiki, utilise ton
  * navigateur." Manual P/T copiés directement des pages de zone du wiki
@@ -1549,10 +1549,10 @@ export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
  * seulement les 19 zones "Normal" au sens strict.
  */
 const SET_ITEM_NAMES_V1=Object.freeze({
-  "training:weapon":"A Stick","training:head":"Cloth Hat","training:chest":"Cloth Shirt","training:legs":"Cloth Leggings","training:boots":"Cloth Boots",
+  "training:weapon":"Un bâton","training:head":"Chapeau en tissu","training:chest":"Chemise en tissu","training:legs":"Jambières en tissu","training:boots":"Bottes en tissu",
 
   // Sewers (set) -- ngu-idle.fandom.com/wiki/Sewers_(set)
-  "sewers:weapon":"Rusty Sword","sewers:head":"Crappy Helmet","sewers:chest":"Crappy Chestplate","sewers:legs":"Crappy Leggings","sewers:boots":"Crappy Boots","sewers:ring":"Gross Ring","sewers:amulet":"Cracked Amulet",
+  "sewers:weapon":"Épée rouillée","sewers:head":"Casque pourri","sewers:chest":"Plastron pourri","sewers:legs":"Jambières pourries","sewers:boots":"Bottes pourries","sewers:ring":"Anneau dégoûtant","sewers:amulet":"Amulette fissurée",
 
   // Forest (set) -- ngu-idle.fandom.com/wiki/Forest_(set) (pendant = objet de base "Forest Pendant", pas une variante Ascended)
   "forest:weapon":"Kokiri Blade","forest:head":"Forest Helmet","forest:chest":"Forest Chestplate","forest:legs":"Forest Leggings","forest:boots":"Forest Boots","forest:ring":"Mossy Ring","forest:pendant":"Forest Pendant",
@@ -2609,9 +2609,15 @@ const bestiaryZoneForIndexV1=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
 const bestiaryPoolForIndexV1=bestiaryZoneForIndexV1?(boss?bestiaryZoneForIndexV1.boss:bestiaryZoneForIndexV1.normal):null;
 const monsterIndexPoolLenV1=(bestiaryPoolForIndexV1&&bestiaryPoolForIndexV1.length)||poolIndexV1.length||0;
 const monsterIndex=monsterIndexPoolLenV1?Math.floor(Math.random()*monsterIndexPoolLenV1):-1;
+/*
+ * Les valeurs brutes sont transportées avec le combat. Le client peut ainsi
+ * afficher le vrai nom NGU et, à terme, les statistiques sans reconstruire
+ * un second catalogue à partir des anciens identifiants d'illustrations.
+ */
+const mobStatsV1=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
 const hpMax=monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex),playerHpMax=playerHpMaxForAdventureV1(stats);const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
 const mobAttackFactor=idleAdventureMobAttackFactorV1(z,boss,monsterIndex),mobType=idleAdventureMobTypeV1(z,boss,monsterIndex);
-s.fight={active:true,zone:z.id,monsterHp:hpMax,monsterHpMax:hpMax,boss,playerHp,playerHpMax,monsterIndex,mobAttackFactor,mobType};
+s.fight={active:true,zone:z.id,monsterHp:hpMax,monsterHpMax:hpMax,boss,playerHp,playerHpMax,monsterIndex,mobAttackFactor,mobType,mobName:mobStatsV1?String(mobStatsV1.name||""):"",mobPower:mobStatsV1?N(mobStatsV1.power):0,mobToughness:mobStatsV1?N(mobStatsV1.toughness):0,mobHpRegen:mobStatsV1?N(mobStatsV1.hpRegen):0,mobAttackRate:mobStatsV1?N(mobStatsV1.attackRate):0};
 /*
  * Norman (2026-09-15) : "tous les ennemis rencontrés en aventure
  * n'apparaissent pas dans collection. J'ai juste le boss et un mob alors
