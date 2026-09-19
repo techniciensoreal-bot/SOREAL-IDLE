@@ -6114,26 +6114,13 @@ function degatsRecusSecondeSorealIdle_(
       pvBossMax
     );
 
-  const plancherPct =
-    Math.max(
-      0,
-      Math.min(
-        1,
-        nombreSorealIdle_(
-          parametreSorealIdle_(
-            'BOSS_DEGATS_MIN_PCT',
-            CONFIG_SOREAL_IDLE
-              .DEGATS_BOSS_MIN_PCT
-          ),
-          CONFIG_SOREAL_IDLE
-            .DEGATS_BOSS_MIN_PCT
-        )
-      )
-    );
-
+  /*
+   * NGU Fight Boss : dégâts entrants = Boss Attack - Defense.
+   * Defense >= Boss Attack signifie 0 dégât ; aucun plancher de 1 PV
+   * ni 12 % de l'attaque n'existe dans cette règle.
+   */
   return Math.max(
-    1,
-    attaque * plancherPct,
+    0,
     attaque -
     Math.max(
       0,
@@ -7721,7 +7708,6 @@ function appliquerProgressionEnergieSorealIdle_(
   const regenPvSecJoueur =
     Math.max(
       0,
-      0.05 +
       defense / 20
     );
 
