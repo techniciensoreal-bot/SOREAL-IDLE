@@ -41,6 +41,9 @@ jobs:
         run: |
           node cloudflare/build-standalone.mjs
           node --check cloudflare/public/standalone-bridge.js
+          for f in cloudflare/public/modules/*.js; do
+            node --check "$f"
+          done
           node --check cloudflare/public/soreal-idle-ui.js
 
       - name: Deploy SOREAL Idle Worker
