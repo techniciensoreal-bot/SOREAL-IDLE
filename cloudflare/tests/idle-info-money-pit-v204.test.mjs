@@ -17,12 +17,15 @@ assert.ok(
 
 for(const token of [
   "titre:'Money Pit & Roue journalière'",
-  "Jeter TOUT l’Or",
   "cycle de 24 heures",
-  "rendreBoutonDailySpinIdleV203_",
-  "🎡 Faire tourner la roue",
-  "rendreSystemeMetaIdleV130_(j,pit,true)+",
-  "rendreSystemeMetaIdleV130_(j,roue,true)"
+  "function pageMoneyPitDailySpinIdleV206_(j)",
+  "/api/idle/media/banner?name=Money_Pit.jpg",
+  "Balance ton argent",
+  "Daily Spin!",
+  "Fais-moi tourner, bébé !",
+  "TABLE DES RÉCOMPENSES",
+  "RÉCOMPENSES OBTENUES",
+  "TON PRIX"
 ]){
   assert.ok(ui.includes(token),"Money Pit / Daily Spin V206 manquant: "+token);
 }
@@ -54,7 +57,7 @@ for(const token of [
 
 assert.ok(
   ui.includes('Build <b style="color:#dce5f3">V206</b>'),
-  "Settings doit afficher le jalon V204."
+  "Settings doit afficher le jalon V206."
 );
 
 new Function(ui);
