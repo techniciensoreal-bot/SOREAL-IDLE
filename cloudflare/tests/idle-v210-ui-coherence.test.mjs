@@ -30,7 +30,12 @@ for(const token of [
   "Cette statistique est déjà au maximum : le boost n’est pas consommé.",
   "Augmente la vitesse à laquelle cette ressource est générée",
   "Quantité personnalisée",
-  "🎁 Offres débutant"
+  "🎁 Offres débutant",
+  "IDLE_SELLOUT_TRADUCTIONS_V210",
+  "Potion d’énergie α",
+  "Espace d’inventaire supplémentaire",
+  "Mon cœur rouge <3",
+  "Dépense tes AP ici. Aucun achat ne coûte d’argent réel."
 ]){
   assert.ok(ui.includes(token),"Garde UI V210 manquante: "+token);
 }
@@ -52,7 +57,7 @@ assert.ok(!fightBlock.includes("SpeechSynthesisUtterance"),"Fight ne doit plus l
 assert.ok(!fightBlock.includes('"FIGHT!"'),"Fight ne doit plus prononcer FIGHT.");
 assert.ok(fightBlock.includes("jouerWebAudio_(310"),"Fight doit conserver un impact court WebAudio.");
 
-let meta=normalizeIdleNguState(null,Date.now());
+let meta=normalizeIdleNguState(null,{},Date.now());
 assert.equal(Boolean(meta.selloutShop&&meta.selloutShop.unlockedEver),false);
 meta.currencies.ap=10;
 meta=syncIdleNguState(meta,{},Date.now());
