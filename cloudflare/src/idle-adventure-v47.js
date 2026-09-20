@@ -2581,7 +2581,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
   tutorial:{
     normal:{
       equipment:[{chance:.25,definitions:["training:weapon"],level:10,firstGuaranteed:"training:weapon"}],
-      boosts:[{strength:1,chance:.15,requiresCompletedSet:"training"}]
+      boosts:[{strength:1,chance:.15,requiresUnlockedSet:"training"}]
     },
     boss:{
       equipment:[{chance:1,definitions:["training:head","training:chest","training:legs","training:boots"],level:10}]
@@ -2804,7 +2804,22 @@ function rollEquipmentAdventureV2(s,z,pool,dropMult){
   return obj?add(s,obj):null;
 }
 
+function idleAdventureSetUnlockedV1(s,setId){
+  const id=String(setId||"");
+  const set=SETS[id];
+  return Boolean(set&&set.slots.every(slot=>Boolean(s.itemList[`${id}:${slot}`]?.seen)));
+}
 function rollBoostAdventureV2(s,z,def,dropMult){
+  /*
+   * NGU Tutorial Zone: Boost 1 (15%) is available after "unlocking whole
+   * Training (set)". "Unlocked/discovered" is distinct from "completed":
+   * completion requires every piece at level 100. Waiting for
+   * completedSets.training delayed Tutorial boosts until the set was already
+   * maxed. The gate below therefore checks that every Training item has been
+   * seen at least once, while preserving requiresCompletedSet for any future
+   * drop that genuinely needs set completion.
+   */
+  if(def.requiresUnlockedSet&&!idleAdventureSetUnlockedV1(s,def.requiresUnlockedSet))return null;
   if(def.requiresCompletedSet&&!s.completedSets[String(def.requiresCompletedSet)])return null;
   if(Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
   const type=["power","toughness","special"][I(Math.random()*3)];

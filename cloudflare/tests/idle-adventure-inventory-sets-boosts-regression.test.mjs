@@ -69,6 +69,52 @@ act({action:"boost",boostId:boost.id,targetId:weapon.id});
 snapshot=idleAdventureSnapshotV47(state,999,"normal",ctx.difficultyPeaks);
 assert.equal(snapshot.itemList["training:weapon"].fullyMaxed,true);
 
+// Tutorial Boost 1 unlocks when the WHOLE Training set has been discovered,
+// not only after every piece has already reached level 100.
+// Wiki wording is "only after unlocking whole Training (set)"; NGU's Item List
+// separately calls level-100 sets "completed".
+{
+  let gateState=createIdleAdventureStateV47();
+  const gateAct=(payload,now=1)=>{
+    const out=applyIdleAdventureActionV47(gateState,payload,ctx,now);
+    gateState=out.state;
+    return out;
+  };
+
+  // Four of five Training definitions seen: a forced-success RNG must still
+  // NOT create a Tutorial boost.
+  for(const slot of ["weapon","head","chest","legs"]){
+    gateAct({action:"addItem",definitionId:"training:"+slot,level:10});
+  }
+  gateAct({action:"selectZone",zone:"tutorial"});
+  const randomBefore=Math.random;
+  try{
+    Math.random=()=>0;
+    const beforeUnlock=gateAct({action:"zoneKill"},{...ctx,forceBoss:false},50);
+    assert.ok(
+      !(beforeUnlock.result.drops||[]).some(x=>x&&x.kind==="boost"),
+      "Tutorial Boost 1 must stay locked until all five Training items have been discovered."
+    );
+  }finally{
+    Math.random=randomBefore;
+  }
+
+  // Discovering the fifth item unlocks the 15% Tutorial boost roll even
+  // though the set is nowhere near level 100 completion.
+  gateAct({action:"addItem",definitionId:"training:boots",level:10});
+  assert.equal(gateState.completedSets.training,undefined);
+  try{
+    Math.random=()=>0;
+    const afterUnlock=gateAct({action:"zoneKill"},{...ctx,forceBoss:false},51);
+    assert.ok(
+      (afterUnlock.result.drops||[]).some(x=>x&&x.kind==="boost"&&x.strength===1),
+      "Tutorial Boost 1 must drop after all Training items are discovered, without requiring level-100 set completion."
+    );
+  }finally{
+    Math.random=randomBefore;
+  }
+}
+
 // Tutorial Boost 1 really drops at its documented 15% roll once Training set is unlocked.
 act({action:"selectZone",zone:"tutorial"});
 const originalRandom=Math.random;
