@@ -407,6 +407,32 @@ function nguBossXpForBossNumberV1(bossNumber) {
 const NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1 = 1e30;
 
 /*
+ * HP Regen Fight Boss — valeurs du vrai jeu.
+ *
+ * Les fiches individuelles du wiki exposent bf_hp_regen. Les quatre
+ * premiers boss sont des valeurs conçues séparément (40 / 90 / 350 / 170).
+ * À partir du boss 5 la progression publiée suit ×5 jusqu'au boss 20,
+ * puis ×10 par boss à partir du boss 21, comme le reste des stats Fight
+ * Boss. Cette formule reproduit les valeurs publiées (ex. boss 5 = 1 000,
+ * boss 20 ≈ 3.052e13, boss 190 ≈ 3.052e183) sans dépendre d'un champ
+ * historique SOREAL ni de la Defense du boss.
+ */
+function nguBossHpRegenForBossNumberV1(bossNumber) {
+  const n=Math.max(1,Math.floor(Number(bossNumber)||1));
+
+  if(n===1)return 40;
+  if(n===2)return 90;
+  if(n===3)return 350;
+  if(n===4)return 170;
+
+  if(n<=20){
+    return 1000*Math.pow(5,n-5);
+  }
+
+  return 30517578125000*Math.pow(10,n-20);
+}
+
+/*
  * Stats NGU sourcées/extrapolées pour un boss, par index 0-based (0 = boss
  * n°1, comme le paramètre `bossVaincus`/`n` déjà utilisé dans
  * idle-sqlite-runtime.js::definitionBossSorealIdle_). `difficulty` :
@@ -420,25 +446,30 @@ export function nguBossStatsV1(index, difficulty) {
     ? NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1
     : 1;
 
+  const bossNumber = i + 1;
+  const regen =
+    nguBossHpRegenForBossNumberV1(bossNumber) /
+    divider;
+
   if (i < NGU_BOSS_REFERENCE_V1.length) {
     const ref = NGU_BOSS_REFERENCE_V1[i];
-    if (divider === 1) return ref;
     return {
       pv: ref.pv / divider,
       attaque: ref.attaque / divider,
       defense: ref.defense / divider,
+      regen: regen,
       xp: ref.xp
     };
   }
 
   const last = NGU_BOSS_REFERENCE_V1[NGU_BOSS_REFERENCE_V1.length - 1];
   const supplement = i - (NGU_BOSS_REFERENCE_V1.length - 1);
-  const bossNumber = i + 1;
 
   return {
     pv: last.pv * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement) / divider,
     attaque: last.attaque * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement) / divider,
     defense: last.defense * Math.pow(NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE, supplement) / divider,
+    regen: regen,
     xp: nguBossXpForBossNumberV1(bossNumber)
   };
 }
