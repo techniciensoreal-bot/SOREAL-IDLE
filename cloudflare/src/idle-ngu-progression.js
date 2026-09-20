@@ -3949,7 +3949,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
         upgradeCapEnergy:augmentationCapEnergyV213_(state,def,true)
       });
     }),
-    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
+    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
     /*
