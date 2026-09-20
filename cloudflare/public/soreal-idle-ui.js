@@ -26038,7 +26038,7 @@ function pageAventureIdleV28_(j){
           'draggable="false" '+
           '>'+
           (item
-            ?'<button type="button" class="soreal-idle-item-info-v197" data-idle-item-info-v197="'+occupantId+'" data-soreal-longpress-ignore aria-label="Afficher les informations de cet objet">i</button>'
+            ?''
             :'')+
           contenu+
           '</div>';
@@ -26069,7 +26069,7 @@ function pageAventureIdleV28_(j){
           'draggable="false" '+
           '>'+
           (item
-            ?'<button type="button" class="soreal-idle-item-info-v197" data-idle-item-info-v197="'+occupantId+'" data-soreal-longpress-ignore aria-label="Afficher les informations de cet objet">i</button>'
+            ?''
             :'')+
           contenu+'</div>';
       }
@@ -26142,7 +26142,7 @@ function pageAventureIdleV28_(j){
           'draggable="false" '+
           'title="'+titre+'" '+
           '>'+
-          '<button type="button" class="soreal-idle-item-info-v197" data-idle-item-info-v197="'+id+'" data-soreal-longpress-ignore aria-label="Afficher les informations de cet objet">i</button>'+
+          ''+
           iconeObjetAdventureIdleV138_(item)+
         '</div>';
       }
