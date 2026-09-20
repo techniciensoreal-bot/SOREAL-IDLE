@@ -9063,16 +9063,12 @@
           transition='width .12s linear';
         }else if(precedent>=0&&pct<precedent-.015&&!estAventure){
           /*
-           * Fight Boss : les dégâts restent appliqués aux vrais instants
-           * d'impact, mais la barre parcourt progressivement la distance
-           * jusqu'au prochain impact. Aventure garde volontairement le
-           * rendu par impact demandé.
+           * Fight Boss : le moteur local met les PV à jour toutes les
+           * 100 ms selon le DPS net. Une transition de la même durée rend
+           * ce drain continu sans retarder artificiellement l'état réel.
+           * Adventure reste volontairement sans interpolation.
            */
-          const dureeMs=
-            element.classList&&element.classList.contains('soreal-idle-bossbar-v7')
-              ?Math.max(80,IDLE_HIT_JOUEUR_MS_V116-20)
-              :Math.max(80,IDLE_HIT_BOSS_MS_V116-20);
-          transition='width '+dureeMs+'ms linear';
+          transition='width .10s linear';
         }
 
         element.style.setProperty('transition',transition,'important');
@@ -9581,69 +9577,34 @@
               )>0 &&
               !idleCombatEnPauseApresDefaiteV1
             ){
-              initialiserCoupsCombatIdleV116_();
-
-              const coupsJoueur=
-                coupsDusIdleV116_(
-                  maintenantTick,
-                  idleProchainCoupJoueurV116,
-                  IDLE_HIT_JOUEUR_MS_V116
-                );
-
-              idleProchainCoupJoueurV116=
-                coupsJoueur.prochain;
-
               const bossAvant=
                 idleNombre_(
                   idleEtat.bossPv
                 );
 
               /*
-               * Le serveur Fight Boss est déterministe. Le client doit
-               * peindre exactement le même montant à chaque échéance,
-               * sans variance/critique décoratif qui ferait diverger les PV.
+               * Fight Boss suit le modèle NGU à drain continu : le DPS net
+               * est appliqué à chaque tick local avec le vrai dt écoulé.
+               * Adventure conserve son système distinct par impacts.
                */
-              const impactsJoueur={
-                valeur:
-                  Math.max(
-                    0,
-                    dps*
-                    (
-                      IDLE_HIT_JOUEUR_MS_V116/
-                      1000
-                    )*
-                    coupsJoueur.nombre
-                  ),
-                critiques:0
-              };
-
               const degatsBoss=
                 Math.min(
                   bossAvant,
-                  impactsJoueur.valeur
+                  Math.max(
+                    0,
+                    dps*dt
+                  )
                 );
 
               if(degatsBoss>0){
                 idleCombatLogDegatsJoueurV70+=
                   degatsBoss;
 
-                idleCombatLogCritiquesJoueurV117+=
-                  impactsJoueur.critiques;
-
                 idleEtat.bossPv=
                   Math.max(
                     0,
                     bossAvant-degatsBoss
                   );
-
-                idleDernierImpactBossV46=
-                  maintenantTick;
-
-                impactsEchelonnesIdleV136_(
-                  'sorealIdleBossImageHostV36',
-                  'boss',
-                  coupsJoueur.nombre
-                );
               }
 
               if(
@@ -9712,16 +9673,18 @@
 
                 nettoyerImpactsIdleV50_();
 
-                const apresFrameMort=function(){
+                const apresBarreVide=function(){
                   transitionMortBossIdleV61_();
                   synchroniserJeuIdleV7_(true);
                 };
                 if(typeof requestAnimationFrame==='function'){
                   requestAnimationFrame(function(){
-                    requestAnimationFrame(apresFrameMort);
+                    requestAnimationFrame(function(){
+                      setTimeout(apresBarreVide,110);
+                    });
                   });
                 }else{
-                  setTimeout(apresFrameMort,32);
+                  setTimeout(apresBarreVide,130);
                 }
               }
             }
@@ -9849,76 +9812,50 @@
                 attaqueBrute-recus
               );
 
-            initialiserCoupsCombatIdleV116_();
-
-            const coupsBoss=
-              coupsDusIdleV116_(
-                maintenantTick,
-                idleProchainCoupBossV116,
-                IDLE_HIT_BOSS_MS_V116
-              );
-
-            idleProchainCoupBossV116=
-              coupsBoss.prochain;
-
-            const dureeCoupsBoss=
-              (
-                IDLE_HIT_BOSS_MS_V116/
-                1000
-              )*
-              coupsBoss.nombre;
-
-            const brutImpactBoss=
+            /*
+             * Même règle côté joueur : Fight Boss est un drain continu.
+             * La régénération Defense/20 est intégrée au débit net, comme
+             * côté serveur. Aucun paquet de dégâts 850/1000 ms ici.
+             */
+            const recusNet=
               Math.max(
                 0,
-                attaqueBrute*
-                dureeCoupsBoss
+                recus-regenPvSecJoueurBossV1
               );
 
-            const recusImpactBoss=
+            const brutContinu=
               Math.max(
                 0,
-                recus*
-                dureeCoupsBoss
+                attaqueBrute*dt
               );
 
-            const bloqueImpactBoss=
+            const bloqueContinu=
               Math.max(
                 0,
-                bloque*
-                dureeCoupsBoss
+                bloque*dt
               );
-
-            const impactsBoss={
-              critiques:0
-            };
 
             const degatsJoueur=
               Math.min(
                 idleNombre_(
                   idleEtat.pvJoueur
                 ),
-                recusImpactBoss
-              );
-
-            if(coupsBoss.nombre>0){
-              idleCombatLogDegatsBrutsV100+=
-                brutImpactBoss;
-
-              idleCombatLogDegatsBossV70+=
                 Math.max(
                   0,
-                  degatsJoueur
-                );
+                  recusNet*dt
+                )
+              );
 
-              idleCombatLogBloquesV70+=
-                bloqueImpactBoss;
+            idleCombatLogDegatsBrutsV100+=
+              brutContinu;
 
-              idleCombatLogCritiquesBossV117+=
-                impactsBoss.critiques;
-            }
+            idleCombatLogBloquesV70+=
+              bloqueContinu;
 
             if(degatsJoueur>0){
+              idleCombatLogDegatsBossV70+=
+                degatsJoueur;
+
               idleEtat.pvJoueur=
                 Math.max(
                   0,
@@ -9927,15 +9864,6 @@
                   )-
                   degatsJoueur
                 );
-
-              idleDernierImpactJoueurV46=
-                maintenantTick;
-
-              impactsEchelonnesIdleV136_(
-                'sorealIdlePlayerImageHostV43',
-                'joueur',
-                coupsBoss.nombre
-              );
             }
 
             if(
@@ -9975,23 +9903,6 @@
                * après succès : une lecture avant ce succès peut encore
                * renvoyer combatBossActif=true et écraser la récupération.
                */
-            }else if(
-              !idleVictoireBossLocaleV49&&
-              regenPvSecJoueurBossV1>0
-            ){
-              /*
-               * NGU natif : les dégâts sont résolus d'abord ; si le joueur
-               * survit et que le boss n'est pas mort, Character.updateHP
-               * applique ensuite la regen. Le dt local conserve une montée
-               * fluide, tandis que les dégâts restent des impacts secs.
-               */
-              idleEtat.pvJoueur=
-                Math.min(
-                  idleNombre_(idleEtat.pvJoueurMax),
-                  idleNombre_(idleEtat.pvJoueur)+
-                  regenPvSecJoueurBossV1*
-                  dt
-                );
             }
             }
         }
