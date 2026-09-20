@@ -9913,10 +9913,12 @@ function construireEtatJoueurSorealIdle_(
         bossDefinitionEtat.mortVivant
       ),
 
-    bossConseil:
-      String(
-        bossDefinitionEtat.conseil || ''
-      ),
+    /*
+     * V186 — IDLE_BOSS.Conseil est un vestige éditorial SOREAL historique,
+     * non sourcé NGU. Les histoires restent ; les anciens "tips" sont
+     * neutralisés partout.
+     */
+    bossConseil: '',
 
     ko:
       koSecondesRestantes > 0,
@@ -10458,8 +10460,7 @@ function construireEtatJoueurSorealIdle_(
               String(boss.histoire || ''),
             mortVivant:
               Boolean(boss.mortVivant),
-            conseil:
-              String(boss.conseil || ''),
+            conseil: '',
             capacites:
               Array.isArray(
                 boss.capacites
@@ -13442,6 +13443,31 @@ function renaitreSorealIdle(
       }
       throw erreurRebirth;
     }
+
+    /*
+     * V186 — après chaque Rebirth, Adventure repart obligatoirement dans
+     * la Safe Zone et n'engage AUCUN combat tout seul. La progression,
+     * l'inventaire et les déblocages persistent ; seule la position/instance
+     * de combat du run courant est remise au repos.
+     */
+    if(
+      stats.metaNgu &&
+      stats.metaNgu.adventure &&
+      typeof stats.metaNgu.adventure==='object'
+    ){
+      stats.metaNgu.adventure.selectedZone='safe';
+      stats.metaNgu.adventure.fight={
+        active:false,
+        zone:'',
+        monsterHp:0,
+        monsterHpMax:0,
+        boss:false,
+        playerHp:0,
+        playerHpMax:0
+      };
+    }
+    stats.autoAventure=false;
+    stats.autoAventureZone=0;
 
     stats.entrainementBase = rebirthBasicTrainingStateV411(
       stats.entrainementBase,
