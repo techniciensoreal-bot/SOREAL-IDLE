@@ -25,9 +25,13 @@ assert.match(
   /if\(nouveau\)\{[\s\S]*?positionnerTutoFlottantV1_\(root\);[\s\S]*?\}[\s\S]*?activerGlisserTutoFlottantV1_\(root\);/,
   "Le drag doit être réattaché après chaque recréation de la poignée."
 );
+const nouveauBlock=render.slice(
+  render.indexOf("if(nouveau){"),
+  render.indexOf("/*\n         * root.innerHTML recrée",render.indexOf("if(nouveau){"))
+);
 assert.doesNotMatch(
-  render,
-  /if\(nouveau\)\{[\s\S]*?activerGlisserTutoFlottantV1_\(root\);[\s\S]*?\}/,
+  nouveauBlock,
+  /activerGlisserTutoFlottantV1_\(root\)/,
   "Le drag ne doit plus être limité au tout premier rendu du tutoriel."
 );
 
