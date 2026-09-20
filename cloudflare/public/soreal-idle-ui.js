@@ -16918,13 +16918,13 @@
         {
           titre:'Récompenses',
           paragraphes:[
-            'Donc tuer des boss apporte quelques récompenses importantes : d’abord, tu gagnes de l’EXP. L’EXP sert à acheter des pouvoirs permanents dans le menu Dépenser l’EXP, qui vient aussi de se débloquer. Tu devrais voir un joli bouton jaune en bas à gauche.'
+            'Donc tuer des boss apporte quelques récompenses importantes : d’abord, tu gagnes de l’EXP. L’EXP sert à acheter des pouvoirs permanents dans le menu EXP Shop, qui vient aussi de se débloquer. Tu devrais voir un joli bouton bleu dans la barre en haut.'
           ]
         },
         {
           titre:'Conseil de pro',
           paragraphes:[
-            'Il y a plein de trucs à acheter avec l’EXP, mais ne panique pas ! Notre conseil de pro : achète les offres spéciales qui augmentent la vitesse de remplissage de la barre d’Énergie. On les a faites spécifiquement pour des débutants comme toi... mais sans pression.'
+            'Il y a plein de trucs à acheter avec l’EXP, mais ne panique pas ! Notre conseil de pro : achète les offres spéciales qui augmentent la vitesse de remplissage de la barre d’Énergie. On les a faites spécifiquement pour des débutants comme toi... ne le prends pas mal.'
           ]
         },
         {
@@ -17181,8 +17181,15 @@
 
         if(nouveau){
           positionnerTutoFlottantV1_(root);
-          activerGlisserTutoFlottantV1_(root);
         }
+
+        /*
+         * root.innerHTML recrée la poignée à CHAQUE changement de page.
+         * Les anciens listeners mousedown/touchstart sont donc détruits
+         * avec l'ancienne poignée. Réattacher le drag après chaque rendu,
+         * sinon seule la première page flottante reste déplaçable sur PC.
+         */
+        activerGlisserTutoFlottantV1_(root);
       }
 
       function demarrerTutorielPagesIdleV1_(pages,cle){
