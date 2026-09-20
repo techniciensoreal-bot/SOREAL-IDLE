@@ -15,10 +15,10 @@ const ui=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/modules/tutorial-tts-v202.js?v=203')&&
-  index.includes('/soreal-idle-ui.js?v=203')&&
-  index.indexOf('/modules/tutorial-tts-v202.js?v=203')<
-    index.indexOf('/soreal-idle-ui.js?v=203'),
+  index.includes('/modules/tutorial-tts-v202.js?v=204')&&
+  index.includes('/soreal-idle-ui.js?v=204')&&
+  index.indexOf('/modules/tutorial-tts-v202.js?v=204')<
+    index.indexOf('/soreal-idle-ui.js?v=204'),
   "Le TTS V203 doit être cache-busté et chargé avant l'UI principale."
 );
 
