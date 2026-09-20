@@ -7894,16 +7894,29 @@ function appliquerProgressionEnergieSorealIdle_(
    */
 
   /*
-   * Un boss déjà à 0 PV doit toujours passer dans la logique
-   * de victoire, même si cette synchro arrive presque instantanément.
+   * V184 — invariant Fight Boss :
+   * un boss ne peut JAMAIS être déclaré vaincu hors combat.
+   *
+   * Un 0 PV peut survivre brièvement à une transition asynchrone
+   * (NUKE / changement de boss / réponse réseau ancienne). L'ancien
+   * code forçait alors 1 ms de simulation même avec combatBossActif=false,
+   * ce qui validait le NOUVEAU boss comme vaincu sans clic Fight.
+   *
+   * Hors combat, le boss courant doit donc être vivant. Si un 0 résiduel
+   * est trouvé, il appartient nécessairement à l'ancienne instance et on
+   * restaure le boss courant à son maximum au lieu de créditer une victoire.
    */
+  if(
+    !combatBossActif &&
+    bossPv<=1e-9
+  ){
+    bossPv=bossPvMax;
+  }
+
   let tempsRestant =
-    Math.max(
-      ecoulePrisEnCompte,
-      bossPv <= 0.0001
-        ? 0.001
-        : 0
-    );
+    combatBossActif
+      ?Math.max(0,ecoulePrisEnCompte)
+      :0;
 
   let tempsSimulation =
     derniereSynchro;
@@ -7931,10 +7944,7 @@ function appliquerProgressionEnergieSorealIdle_(
     tempsRestant > 0.0001 &&
     iterations < 2000 &&
     !bossBloqueRenaissance &&
-    (
-      combatBossActif ||
-      bossPv <= 0.0001
-    )
+    combatBossActif
   ) {
     iterations += 1;
 
@@ -11116,6 +11126,28 @@ function definirCombatBossSorealIdle(
           )
         )===bossSelectionCourante
       );
+
+    /*
+     * V184 — un Start peut rester en vol pendant un NUKE/Rebirth.
+     * Si sa snapshot vise le boss précédent, il est OBSOLÈTE : surtout
+     * ne pas réactiver combatBossActif sur le nouveau boss.
+     *
+     * On répond ok:true pour rendre l'opération idempotente et silencieuse ;
+     * le client se resynchronisera normalement sans boucle de retry.
+     */
+    if(
+      Boolean(actif) &&
+      snapshotCombat &&
+      !snapshotMemeBoss
+    ){
+      return {
+        ok:true,
+        actif:false,
+        ignore:true,
+        obsolete:true,
+        bossSelection:bossSelectionCourante
+      };
+    }
 
     /*
      * Le client simule Fight Boss en continu entre deux RPC. Au moment
