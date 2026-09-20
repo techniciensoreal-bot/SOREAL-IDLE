@@ -17,7 +17,7 @@ assert.ok(
 
 for(const token of [
   "titre:'Money Pit & Roue journalière'",
-  "jeter TOUT l’Or",
+  "Jeter TOUT l’Or",
   "cycle de 24 heures",
   "rendreBoutonDailySpinIdleV203_",
   "🎡 Faire tourner la roue",
