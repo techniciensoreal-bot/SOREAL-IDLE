@@ -941,6 +941,22 @@ async function bossImage_(request,env,url){
   return reponseObjetR2_(request,env,{key});
 }
 
+async function bannerImage_(request,env,url){
+  const nom=String(url.searchParams.get("name")||"").trim();
+  if(!/^[A-Za-z0-9_.-]{1,120}$/.test(nom)||nom.includes("..")){
+    return new Response("Bannière IDLE invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Média de bannière indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const key="idle/banners/"+nom;
+  const object=await env.SOREAL_R2.get(key);
+  if(!object){
+    return new Response("Bannière IDLE introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  }
+  return reponseObjetR2_(request,env,{key,object});
+}
+
 async function debugListeR2_(request,env,url){
   const prefix=String(url.searchParams.get("prefix")||"").trim();
   if(!prefix.startsWith("idle/"))return new Response("Prefix invalide",{status:400,headers:{"cache-control":"no-store"}});
@@ -969,6 +985,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/boost",
     "/api/idle/media/boss",
     "/api/idle/media/player",
+    "/api/idle/media/banner",
     "/api/idle/media/debug-list"
   ]);
   if(!routes.has(url.pathname))return null;
@@ -983,5 +1000,6 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/boost")return boostImage_(request,env,url);
   if(url.pathname==="/api/idle/media/boss")return bossImage_(request,env,url);
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
   return adventureZone_(request,env,url);
 }
