@@ -16798,7 +16798,7 @@
         {
           titre:'Énergie Idle',
           paragraphes:[
-            'La grosse barre verte, représente ton energie d'entrainement disponible. C’est la quantité d’Énergie que tu n’as assignée nulle part et qui traîne à rien faire comme une bonne grosse feignasse. Ton « Plafond d’Énergie » c’est la somme de toute ton Énergie, qu’elle soit idle ou assignée.'
+            'La grosse barre verte, représente ton energie d\'entrainement disponible. C’est la quantité d’Énergie que tu n’as assignée nulle part et qui traîne à rien faire comme une bonne grosse feignasse. Ton « Plafond d’Énergie » c’est la somme de toute ton Énergie, qu’elle soit idle ou assignée.'
           ]
         },
         {
