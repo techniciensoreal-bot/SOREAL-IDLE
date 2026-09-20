@@ -64,7 +64,10 @@ assert.equal(pct(1,0),0.2);
 assert.equal(pct(1,1),100);
 assert.equal(pct(100,0),20);
 assert.equal(pct(100,1),100);
-assert.equal(pct(101,0),20.2);
+assert.ok(
+  Math.abs(pct(101,0)-20.2)<1e-9,
+  "101/500 doit correspondre à 20.2% malgré les imprécisions IEEE-754."
+);
 assert.equal(pct(500,0),100);
 
 const ticker=block(
