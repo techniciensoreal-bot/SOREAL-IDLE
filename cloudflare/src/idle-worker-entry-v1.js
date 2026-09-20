@@ -59,44 +59,76 @@ function idleBootstrapV1(request) {
     service: "soreal-idle",
     standalone: true,
     protocol: 1,
-    sessionEndpoint: url.origin + "/api/v1/session"
+    sessionEndpoint: url.origin + "/api/v1/session",
+    callEndpoint: url.origin + "/api/v1/call"
+  });
+}
+
+function idleBearerV1(request) {
+  const raw = String(request.headers.get("authorization") || "").trim();
+  const match = /^Bearer\s+(.+)$/i.exec(raw);
+  return match ? String(match[1] || "").trim() : "";
+}
+
+async function idleCoordinatorFetchV1(env, path, init = {}) {
+  if (!env?.SOREAL_IDLE) {
+    return idleJsonV1({ ok: false, error: "IDLE_COORDINATOR_UNAVAILABLE" }, 503);
+  }
+  const id = env.SOREAL_IDLE.idFromName("global");
+  const stub = env.SOREAL_IDLE.get(id);
+  const headers = new Headers(init.headers || {});
+  if (init.body != null && !headers.has("content-type")) {
+    headers.set("content-type", "application/json");
+  }
+  return stub.fetch(new Request(
+    new URL(path, "https://soreal-idle.invalid"),
+    { method: init.method || "GET", headers, body: init.body }
+  ));
+}
+
+async function idleSessionV1(request, env) {
+  const body = await request.json().catch(() => null);
+  const ticket = String(body?.ticket || "").trim();
+  if (!ticket) {
+    return idleJsonV1({ ok: false, error: "LAUNCH_TICKET_REQUIRED" }, 400);
+  }
+  return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/launch-ticket-consume", {
+    method: "POST",
+    body: JSON.stringify({ ticket })
   });
 }
 
 async function idleCallV1(request, env) {
-  if (!env?.SOREAL_IDLE) {
-    return idleJsonV1({ ok: false, error: "IDLE_COORDINATOR_UNAVAILABLE" }, 503);
-  }
-
   const body = await request.json().catch(() => null);
   const operation = String(body?.operation || "").trim();
   const args = Array.isArray(body?.args) ? body.args : [];
-  const user = body?.user && typeof body.user === "object" ? body.user : null;
 
   if (!operation) {
     return idleJsonV1({ ok: false, error: "IDLE_OPERATION_REQUIRED" }, 400);
   }
 
-  /*
-   * Route autonome vers le Durable Object IDLE. L'authentification publique
-   * reste volontairement fermée tant que le ticket signé APP/TV n'est pas
-   * consommé ici. Le header interne permet aux tests/liaisons Worker de
-   * préparer la migration sans exposer un compte joueur sur Internet.
-   */
   const internalKey = String(env.SOREAL_IDLE_INTERNAL_KEY || "");
   const suppliedKey = String(request.headers.get("x-soreal-idle-internal-key") || "");
-  if (!internalKey || suppliedKey !== internalKey) {
+  if (internalKey && suppliedKey === internalKey) {
+    return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/call", {
+      method: "POST",
+      body: JSON.stringify({
+        operation,
+        args,
+        user: body?.user && typeof body.user === "object" ? body.user : null
+      })
+    });
+  }
+
+  const sessionToken = idleBearerV1(request);
+  if (!sessionToken) {
     return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
   }
 
-  const id = env.SOREAL_IDLE.idFromName("global");
-  const stub = env.SOREAL_IDLE.get(id);
-  const target = new URL("/__soreal-idle-v1/call", request.url);
-  return stub.fetch(new Request(target, {
+  return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ operation, args, user })
-  }));
+    body: JSON.stringify({ sessionToken, operation, args })
+  });
 }
 
 export default {
@@ -113,11 +145,7 @@ export default {
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/session") {
-      return idleJsonV1({
-        ok: false,
-        code: "LAUNCH_TICKET_REQUIRED",
-        message: "SOREAL Idle attend un ticket de lancement signe par SOREAL."
-      }, 401);
+      return idleSessionV1(request, env);
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/call") {
