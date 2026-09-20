@@ -4870,6 +4870,17 @@
             -webkit-touch-callout:none;
             -webkit-user-select:none;
             user-select:none;
+            -webkit-tap-highlight-color:transparent;
+          }
+
+          .soreal-idle-v138-bag-card[data-item-id] img,
+          .soreal-idle-v138-slot[data-occupant-id] img{
+            pointer-events:none;
+            -webkit-user-drag:none;
+            user-drag:none;
+            -webkit-touch-callout:none;
+            -webkit-user-select:none;
+            user-select:none;
           }
 
           /*
@@ -25364,17 +25375,17 @@ function pageAventureIdleV28_(j){
 
       function iconeObjetAdventureIdleV138_(item){
         if(item&&item.kind==='boost'){
-          return '<img class="idle-boost-icon-v1" src="'+idleHtml_(urlImageBoostAdventureIdleV138_(item))+'" alt="" loading="lazy" '+
+          return '<img class="idle-boost-icon-v1" src="'+idleHtml_(urlImageBoostAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
             'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
             '<span style="display:none">⚡</span>';
         }
         if(item&&item.kind==='cube'){
-          return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" '+
+          return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
             'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
             '<span style="display:none">🧊</span>';
         }
         if(!item||!item.set)return iconeSlotAdventureIdleV138_(item&&item.slot);
-        return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" '+
+        return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
           'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
           '<span style="display:none">'+iconeSlotAdventureIdleV138_(item.slot)+'</span>';
       }
@@ -25437,11 +25448,7 @@ function pageAventureIdleV28_(j){
         return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-'+idleHtml_(slotKey)+(rareteClasse?' '+rareteClasse:'')+(item&&item.locked?' idle-item-locked-v165':'')+'" '+
           'data-equip-slot-v180="'+idleHtml_(slotKey)+'" '+
           (occupantId?'data-occupant-id="'+occupantId+'" ':'')+
-          (item?'draggable="true" ondragstart="window.__debutDragAdventureIdleV138__(event,\''+occupantId+'\')" ondragend="window.__finDragAdventureIdleV138__()" ':'')+
-          'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
-          'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
-          'ondrop="window.__deposerSurSlotAdventureIdleV138__(event,\''+idleHtml_(slotKey)+'\',\''+occupantId+'\')" '+
-          'onclick="window.__clicCibleAdventureIdleV138__(\''+idleHtml_(slotKey)+'\',\''+occupantId+'\')" '+
+          'draggable="false" '+
           '>'+
           contenu+
           '</div>';
@@ -25469,11 +25476,7 @@ function pageAventureIdleV28_(j){
         return '<div class="soreal-idle-v138-slot'+(classeSupplementaire?' '+classeSupplementaire:'')+(rareteClasse?' '+rareteClasse:'')+(item&&item.locked?' idle-item-locked-v165':'')+'" '+
           'data-equip-slot-v180="accessory" '+
           (occupantId?'data-occupant-id="'+occupantId+'" ':'')+
-          (item?'draggable="true" ondragstart="window.__debutDragAdventureIdleV138__(event,\''+occupantId+'\')" ondragend="window.__finDragAdventureIdleV138__()" ':'')+
-          'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
-          'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
-          'ondrop="window.__deposerSurSlotAdventureIdleV138__(event,\'accessory\',\''+occupantId+'\')" '+
-          'onclick="window.__clicCibleAdventureIdleV138__(\'accessory\',\''+occupantId+'\')" '+
+          'draggable="false" '+
           '>'+contenu+'</div>';
       }
 
@@ -25541,14 +25544,8 @@ function pageAventureIdleV28_(j){
           'data-item-id="'+id+'" '+
           'data-item-version="'+version+'" '+
           'data-slot-index="'+idleEntier_(slotIndex)+'" '+
-          'draggable="true" '+
+          'draggable="false" '+
           'title="'+titre+'" '+
-          'ondragstart="window.__debutDragAdventureIdleV138__(event,\''+id+'\')" '+
-          'ondragend="window.__finDragAdventureIdleV138__()" '+
-          'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
-          'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
-          'ondrop="window.__deposerSurCarteAdventureIdleV138__(event,\''+id+'\')" '+
-          'onclick="window.__clicCarteAdventureIdleV138__(event,\''+id+'\')" '+
           '>'+
           iconeObjetAdventureIdleV138_(item)+
         '</div>';
@@ -25574,11 +25571,7 @@ function pageAventureIdleV28_(j){
           cases.push(
             item
               ?rendreCarteSacAdventureIdleV138_(item,i)
-              :'<div class="soreal-idle-v138-bag-card soreal-idle-v138-bag-card-vide" data-slot-index="'+i+'" '+
-                'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
-                'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
-                'ondrop="window.__deposerSurEmplacementVideSacAdventureIdleV1__(event,'+i+')"'+
-                '></div>'
+              :'<div class="soreal-idle-v138-bag-card soreal-idle-v138-bag-card-vide" data-slot-index="'+i+'"></div>'
           );
         }
         return '<div class="soreal-idle-v138-bag">'+cases.join('')+'</div>';
@@ -25619,29 +25612,24 @@ function pageAventureIdleV28_(j){
       let idleAdventureIgnorerClicJusquaV165=0;
 
       /*
-       * V195 — contrôleur UNIQUE des gestes d'inventaire.
+       * V196 — contrôleur UNIQUE d'interaction inventaire.
        *
-       * Le frontend autonome est affiché dans un iframe, lui-même utilisé
-       * dans l'APP mobile. Les anciennes générations superposaient
-       * Pointer Events, clic synthétique, HTML5 drag et détection de
-       * double-tap dans le handler onclick. Selon la WebView, pointercancel
-       * ou l'absence de clic synthétique interrompait l'appui long.
+       * Source de vérité : Pointer Events pour souris, tactile et stylet.
+       * Aucun item n'est HTML5-draggable : le drag natif déclenche lui-même
+       * pointercancel et entre en conflit avec un appui long personnalisé.
        *
-       * Désormais :
-       * - souris/stylet : Pointer Events uniquement pour le maintien ;
-       *   le clic et le drag HTML5 restent natifs ;
-       * - tactile/WebView : Touch Events en capture, source de vérité
-       *   unique pour tap, double-tap, maintien et drag ;
-       * - le popup n'est jamais ouvert par un clic simple.
+       * WebKit/WKWebView : un touchstart actif + preventDefault() est gardé
+       * uniquement comme garde anti-callout/drag système. Toute la logique
+       * applicative reste dans Pointer Events.
        */
-      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V195=32;
-      const IDLE_ADVENTURE_APPUI_LONG_MS_V195=600;
-      const IDLE_ADVENTURE_DOUBLE_TAP_MS_V195=420;
+      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;
+      const IDLE_ADVENTURE_APPUI_LONG_MS_V196=600;
+      const IDLE_ADVENTURE_DOUBLE_TAP_MS_V196=420;
 
-      let idleAdventureGesteV195=null;
-      let idleAdventureDernierTapIdV195='';
-      let idleAdventureDernierTapMsV195=0;
-      let idleAdventurePointerCibleV195=null;
+      let idleAdventureGesteV196=null;
+      let idleAdventureDernierTapIdV196='';
+      let idleAdventureDernierTapMsV196=0;
+      let idleAdventureCibleDragV196=null;
       let idleAdventureDragGhostV183=null;
 
       function supprimerGhostDragAdventureIdleV183_(){
@@ -25670,14 +25658,31 @@ function pageAventureIdleV28_(j){
         idleAdventureDragGhostV183.style.top=idleNombre_(point.clientY)+'px';
       }
 
-      function nettoyerSurvolGesteAdventureIdleV195_(){
-        if(idleAdventurePointerCibleV195){
-          idleAdventurePointerCibleV195.classList.remove('drag-over');
-          idleAdventurePointerCibleV195=null;
+      function elementObjetGesteAdventureIdleV196_(target){
+        if(!target||!target.closest)return null;
+        return target.closest(
+          '.soreal-idle-v138-bag-card[data-item-id],'+
+          '.soreal-idle-v138-slot[data-occupant-id]'
+        );
+      }
+
+      function idObjetGesteAdventureIdleV196_(element){
+        if(!element)return '';
+        return String(
+          element.getAttribute('data-item-id')||
+          element.getAttribute('data-occupant-id')||
+          ''
+        );
+      }
+
+      function nettoyerCibleDragAdventureIdleV196_(){
+        if(idleAdventureCibleDragV196){
+          idleAdventureCibleDragV196.classList.remove('drag-over');
+          idleAdventureCibleDragV196=null;
         }
       }
 
-      function cibleGesteAdventureIdleV195_(point){
+      function cibleDragAdventureIdleV196_(point){
         if(!point||typeof document.elementFromPoint!=='function')return null;
         const brut=document.elementFromPoint(
           idleNombre_(point.clientX),
@@ -25694,16 +25699,16 @@ function pageAventureIdleV28_(j){
         );
       }
 
-      function marquerCibleGesteAdventureIdleV195_(point){
-        const cible=cibleGesteAdventureIdleV195_(point);
-        if(cible===idleAdventurePointerCibleV195)return cible;
-        nettoyerSurvolGesteAdventureIdleV195_();
-        idleAdventurePointerCibleV195=cible;
+      function marquerCibleDragAdventureIdleV196_(point){
+        const cible=cibleDragAdventureIdleV196_(point);
+        if(cible===idleAdventureCibleDragV196)return cible;
+        nettoyerCibleDragAdventureIdleV196_();
+        idleAdventureCibleDragV196=cible;
         if(cible)cible.classList.add('drag-over');
         return cible;
       }
 
-      function appliquerDepotGesteAdventureIdleV195_(sourceId,cible){
+      function appliquerDepotGesteAdventureIdleV196_(sourceId,cible){
         const source=String(sourceId||'');
         if(!source||!cible)return;
 
@@ -25756,6 +25761,7 @@ function pageAventureIdleV28_(j){
               Array.isArray(equipment.accessories)&&
               equipment.accessories.map(String).indexOf(source)!==-1
             );
+
           if(estEquipe){
             desequiperObjetAdventureIdleV47_(
               source,
@@ -25771,50 +25777,47 @@ function pageAventureIdleV28_(j){
         }
       }
 
-      function elementObjetGesteAdventureIdleV195_(target){
-        if(!target||!target.closest)return null;
-        return target.closest(
-          '.soreal-idle-v138-bag-card[data-item-id],'+
-          '.soreal-idle-v138-slot[data-occupant-id]'
-        );
-      }
-
-      function idObjetGesteAdventureIdleV195_(element){
-        if(!element)return '';
-        return String(
-          element.getAttribute('data-item-id')||
-          element.getAttribute('data-occupant-id')||
-          ''
-        );
-      }
-
-      function restaurerDraggableGesteAdventureIdleV195_(geste){
-        const el=geste&&geste.sourceEl;
-        if(!el||geste.draggableAvant==null)return;
-        el.draggable=Boolean(geste.draggableAvant);
-      }
-
-      function annulerTimerGesteAdventureIdleV195_(){
-        if(idleAdventureGesteV195&&idleAdventureGesteV195.timer){
-          clearTimeout(idleAdventureGesteV195.timer);
-          idleAdventureGesteV195.timer=0;
+      function annulerTimerGesteAdventureIdleV196_(){
+        if(idleAdventureGesteV196&&idleAdventureGesteV196.timer){
+          clearTimeout(idleAdventureGesteV196.timer);
+          idleAdventureGesteV196.timer=0;
         }
       }
 
-      function terminerEtatGesteAdventureIdleV195_(){
-        const geste=idleAdventureGesteV195;
-        annulerTimerGesteAdventureIdleV195_();
-        restaurerDraggableGesteAdventureIdleV195_(geste);
-        idleAdventureGesteV195=null;
-        supprimerGhostDragAdventureIdleV183_();
-        nettoyerSurvolGesteAdventureIdleV195_();
+      function libererCaptureGesteAdventureIdleV196_(geste){
+        const el=geste&&geste.sourceEl;
+        if(
+          !el||
+          geste.pointerId==null||
+          typeof el.hasPointerCapture!=='function'||
+          typeof el.releasePointerCapture!=='function'
+        )return;
+
+        try{
+          if(el.hasPointerCapture(geste.pointerId)){
+            el.releasePointerCapture(geste.pointerId);
+          }
+        }catch(_){}
       }
 
-      function ouvrirDetailsObjetParGesteAdventureIdleV195_(id){
+      function terminerEtatGesteAdventureIdleV196_(options){
+        const geste=idleAdventureGesteV196;
+        annulerTimerGesteAdventureIdleV196_();
+        if(!(options&&options.garderCapture)){
+          libererCaptureGesteAdventureIdleV196_(geste);
+        }
+        idleAdventureGesteV196=null;
+        supprimerGhostDragAdventureIdleV183_();
+        nettoyerCibleDragAdventureIdleV196_();
+      }
+
+      function ouvrirDetailsObjetParGesteAdventureIdleV196_(id){
         const objet=String(id||'');
         if(!objet)return false;
+
         nettoyerEtatDragAdventureIdleV138_();
         idleAdventureSelectionIdV138=objet;
+
         document.querySelectorAll(
           '[data-item-id],[data-occupant-id]'
         ).forEach(function(el){
@@ -25825,281 +25828,283 @@ function pageAventureIdleV28_(j){
           );
           if(cible===objet)el.classList.add('selected');
         });
+
         afficherDetailsObjetAdventureIdleV138_(objet);
-        idleAdventureIgnorerClicJusquaV165=Date.now()+700;
+        idleAdventureIgnorerClicJusquaV165=Date.now()+750;
         return true;
       }
 
-      function commencerGesteAdventureIdleV195_(mode,element,id,point,identifiant){
-        if(!element||!id||!point)return false;
+      function estDoubleTapGesteAdventureIdleV196_(id,pointerType){
+        if(pointerType==='mouse')return false;
 
-        terminerEtatGesteAdventureIdleV195_();
+        const maintenant=Date.now();
+        const objet=String(id||'');
+        const estDouble=Boolean(
+          objet&&
+          objet===idleAdventureDernierTapIdV196&&
+          maintenant-idleAdventureDernierTapMsV196<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196
+        );
 
-        const tactile=mode==='touch';
+        if(estDouble){
+          idleAdventureDernierTapIdV196='';
+          idleAdventureDernierTapMsV196=0;
+        }else{
+          idleAdventureDernierTapIdV196=objet;
+          idleAdventureDernierTapMsV196=maintenant;
+        }
+
+        return estDouble;
+      }
+
+      function executerTapSlotAdventureIdleV196_(element){
+        if(!element)return;
+        const occupant=String(element.getAttribute('data-occupant-id')||'');
+        if(!occupant)return;
+
+        if(
+          idleAdventureComparerEnAttenteV183&&
+          occupant!==idleAdventureComparerPremierV183
+        ){
+          ouvrirComparaisonObjetAdventureIdleV183_(occupant);
+          return;
+        }
+
+        if(!idleAdventureSelectionIdV138){
+          idleAdventureSelectionIdV138=occupant;
+          element.classList.add('selected');
+          return;
+        }
+
+        const source=idleAdventureSelectionIdV138;
+        nettoyerEtatDragAdventureIdleV138_();
+        appliquerActionSlotAdventureIdleV138_(source,occupant);
+      }
+
+      function executerTapCarteAdventureIdleV196_(element,id){
+        const objet=String(id||'');
+        if(!element||!objet)return;
+
+        if(
+          idleAdventureComparerEnAttenteV183&&
+          objet!==idleAdventureComparerPremierV183
+        ){
+          ouvrirComparaisonObjetAdventureIdleV183_(objet);
+          return;
+        }
+
+        if(idleAdventureSelectionIdV138&&idleAdventureSelectionIdV138!==objet){
+          const source=idleAdventureSelectionIdV138;
+          nettoyerEtatDragAdventureIdleV138_();
+          fusionnerSiPossibleAdventureIdleV138_(source,objet);
+          return;
+        }
+
+        if(idleAdventureSelectionIdV138===objet){
+          nettoyerEtatDragAdventureIdleV138_();
+          fermerDetailsObjetAdventureIdleV1_();
+          return;
+        }
+
+        nettoyerEtatDragAdventureIdleV138_();
+        idleAdventureSelectionIdV138=objet;
+        element.classList.add('selected');
+      }
+
+      function executerTapObjetAdventureIdleV196_(element,id){
+        if(!element)return;
+        if(element.classList.contains('soreal-idle-v138-bag-card')){
+          executerTapCarteAdventureIdleV196_(element,id);
+          return;
+        }
+        executerTapSlotAdventureIdleV196_(element);
+      }
+
+      function commencerGesteAdventureIdleV196_(event,element,id){
+        terminerEtatGesteAdventureIdleV196_();
+
         const geste={
-          mode:mode,
-          itemId:String(id),
+          pointerId:event.pointerId,
+          pointerType:String(event.pointerType||'mouse'),
           sourceEl:element,
-          identifiant:identifiant,
-          startX:idleNombre_(point.clientX),
-          startY:idleNombre_(point.clientY),
+          itemId:String(id||''),
+          startX:idleNombre_(event.clientX),
+          startY:idleNombre_(event.clientY),
           drag:false,
+          moved:false,
           appuiLong:false,
-          draggableAvant:tactile?Boolean(element.draggable):null,
           timer:0
         };
 
-        if(tactile){
-          element.draggable=false;
+        idleAdventureGesteV196=geste;
+
+        if(typeof element.setPointerCapture==='function'){
+          try{element.setPointerCapture(event.pointerId);}catch(_){}
         }
 
         geste.timer=setTimeout(function(){
-          if(idleAdventureGesteV195!==geste||geste.drag)return;
+          if(idleAdventureGesteV196!==geste||geste.drag||geste.moved)return;
           geste.timer=0;
           geste.appuiLong=true;
-          idleAdventureIgnorerClicJusquaV165=Date.now()+700;
-          ouvrirDetailsObjetParGesteAdventureIdleV195_(geste.itemId);
-        },IDLE_ADVENTURE_APPUI_LONG_MS_V195);
-
-        idleAdventureGesteV195=geste;
-        return true;
+          ouvrirDetailsObjetParGesteAdventureIdleV196_(geste.itemId);
+        },IDLE_ADVENTURE_APPUI_LONG_MS_V196);
       }
 
-      function deplacerGesteAdventureIdleV195_(point,event){
-        const geste=idleAdventureGesteV195;
-        if(!geste||!point)return;
+      function deplacerGesteAdventureIdleV196_(event){
+        const geste=idleAdventureGesteV196;
+        if(!geste||geste.pointerId!==event.pointerId)return;
 
-        const dx=idleNombre_(point.clientX)-geste.startX;
-        const dy=idleNombre_(point.clientY)-geste.startY;
+        const dx=idleNombre_(event.clientX)-geste.startX;
+        const dy=idleNombre_(event.clientY)-geste.startY;
         const distance=Math.hypot(dx,dy);
 
-        if(distance<=IDLE_ADVENTURE_GESTE_SEUIL_PX_V195)return;
+        if(distance<=IDLE_ADVENTURE_GESTE_SEUIL_PX_V196)return;
 
-        annulerTimerGesteAdventureIdleV195_();
+        geste.moved=true;
+        annulerTimerGesteAdventureIdleV196_();
 
-        if(geste.mode!=='touch'||geste.appuiLong)return;
+        if(geste.appuiLong)return;
 
         if(!geste.drag){
           geste.drag=true;
           idleAdventureDragIdV138=geste.itemId;
-          idleAdventureIgnorerClicJusquaV165=Date.now()+700;
+          idleAdventureIgnorerClicJusquaV165=Date.now()+750;
           geste.sourceEl.classList.add('selected');
-          creerGhostDragAdventureIdleV183_(geste.sourceEl,point);
+          creerGhostDragAdventureIdleV183_(geste.sourceEl,event);
         }
 
-        deplacerGhostDragAdventureIdleV183_(point);
-        marquerCibleGesteAdventureIdleV195_(point);
+        deplacerGhostDragAdventureIdleV183_(event);
+        marquerCibleDragAdventureIdleV196_(event);
 
-        if(event&&event.cancelable)event.preventDefault();
-        if(event)event.stopPropagation();
+        if(event.cancelable)event.preventDefault();
+        event.stopPropagation();
       }
 
-      function estDoubleTapGesteAdventureIdleV195_(id){
-        const maintenant=Date.now();
-        const objet=String(id||'');
-        const doubleTap=Boolean(
-          objet&&
-          objet===idleAdventureDernierTapIdV195&&
-          maintenant-idleAdventureDernierTapMsV195<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V195
-        );
+      function finirGesteAdventureIdleV196_(event){
+        const geste=idleAdventureGesteV196;
+        if(!geste||geste.pointerId!==event.pointerId)return;
 
-        if(doubleTap){
-          idleAdventureDernierTapIdV195='';
-          idleAdventureDernierTapMsV195=0;
-        }else{
-          idleAdventureDernierTapIdV195=objet;
-          idleAdventureDernierTapMsV195=maintenant;
-        }
+        if(event.cancelable)event.preventDefault();
+        event.stopPropagation();
 
-        return doubleTap;
-      }
-
-      function executerTapSimpleGesteAdventureIdleV195_(geste){
-        if(!geste||!geste.sourceEl)return;
-        const el=geste.sourceEl;
-        const id=geste.itemId;
-        if(el.classList.contains('soreal-idle-v138-bag-card')){
-          clicCarteAdventureIdleV138_(
-            {
-              currentTarget:el,
-              preventDefault:function(){},
-              stopPropagation:function(){}
-            },
-            id
-          );
-          return;
-        }
-
-        clicCibleAdventureIdleV138_(
-          String(el.getAttribute('data-equip-slot-v180')||''),
-          id
-        );
-      }
-
-      function finirGesteTactileAdventureIdleV195_(point,event){
-        const geste=idleAdventureGesteV195;
-        if(!geste||geste.mode!=='touch')return;
-
-        if(event&&event.cancelable)event.preventDefault();
-        if(event)event.stopPropagation();
-
-        annulerTimerGesteAdventureIdleV195_();
+        annulerTimerGesteAdventureIdleV196_();
 
         if(geste.drag){
-          const cible=marquerCibleGesteAdventureIdleV195_(point);
+          const cible=marquerCibleDragAdventureIdleV196_(event);
           const source=geste.itemId;
-          terminerEtatGesteAdventureIdleV195_();
+          idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+          terminerEtatGesteAdventureIdleV196_();
           nettoyerEtatDragAdventureIdleV138_();
-          idleAdventureIgnorerClicJusquaV165=Date.now()+700;
-          appliquerDepotGesteAdventureIdleV195_(source,cible);
+          appliquerDepotGesteAdventureIdleV196_(source,cible);
           return;
         }
 
         if(geste.appuiLong){
-          terminerEtatGesteAdventureIdleV195_();
+          idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+          terminerEtatGesteAdventureIdleV196_();
           return;
         }
 
+        const element=geste.sourceEl;
         const id=geste.itemId;
-        const doubleTap=estDoubleTapGesteAdventureIdleV195_(id);
-        const tapGeste={
-          sourceEl:geste.sourceEl,
-          itemId:geste.itemId
-        };
-        terminerEtatGesteAdventureIdleV195_();
+        const pointerType=geste.pointerType;
+        const moved=geste.moved;
 
-        if(doubleTap){
-          ouvrirDetailsObjetParGesteAdventureIdleV195_(id);
+        idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+        terminerEtatGesteAdventureIdleV196_();
+
+        if(moved)return;
+
+        if(estDoubleTapGesteAdventureIdleV196_(id,pointerType)){
+          ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
           return;
         }
 
-        executerTapSimpleGesteAdventureIdleV195_(tapGeste);
+        executerTapObjetAdventureIdleV196_(element,id);
       }
 
-      function pointTouchParIdentifiantAdventureIdleV195_(touches,identifiant){
-        if(!touches)return null;
-        for(let i=0;i<touches.length;i+=1){
-          if(touches[i]&&touches[i].identifier===identifiant){
-            return touches[i];
-          }
-        }
-        return null;
+      function annulerGesteAdventureIdleV196_(event){
+        const geste=idleAdventureGesteV196;
+        if(!geste)return;
+        if(event&&event.pointerId!=null&&geste.pointerId!==event.pointerId)return;
+        idleAdventureIgnorerClicJusquaV165=Date.now()+350;
+        terminerEtatGesteAdventureIdleV196_();
       }
 
-      function installerGestesInventaireAdventureIdleV195_(){
-        if(document.documentElement.dataset.idleInventoryGesturesV195==='1')return;
-        document.documentElement.dataset.idleInventoryGesturesV195='1';
+      function installerGestesInventaireAdventureIdleV196_(){
+        if(document.documentElement.dataset.idleInventoryGesturesV196==='1')return;
+        document.documentElement.dataset.idleInventoryGesturesV196='1';
 
         document.addEventListener('pointerdown',function(event){
-          if(String(event.pointerType||'')==='touch')return;
-          if(event.button!=null&&event.button!==0)return;
-          const element=elementObjetGesteAdventureIdleV195_(event.target);
-          const id=idObjetGesteAdventureIdleV195_(element);
-          if(!element||!id)return;
-          commencerGesteAdventureIdleV195_(
-            'pointer',
-            element,
-            id,
-            event,
-            event.pointerId
-          );
-        },true);
+          if(event.isPrimary===false)return;
+          if(String(event.pointerType||'mouse')==='mouse'&&event.button!==0)return;
 
-        document.addEventListener('pointermove',function(event){
-          const geste=idleAdventureGesteV195;
-          if(
-            !geste||
-            geste.mode!=='pointer'||
-            geste.identifiant!==event.pointerId
-          )return;
-          deplacerGesteAdventureIdleV195_(event,event);
-        },true);
-
-        document.addEventListener('pointerup',function(event){
-          const geste=idleAdventureGesteV195;
-          if(
-            !geste||
-            geste.mode!=='pointer'||
-            geste.identifiant!==event.pointerId
-          )return;
-          terminerEtatGesteAdventureIdleV195_();
-        },true);
-
-        document.addEventListener('pointercancel',function(event){
-          const geste=idleAdventureGesteV195;
-          if(
-            !geste||
-            geste.mode!=='pointer'||
-            geste.identifiant!==event.pointerId
-          )return;
-          terminerEtatGesteAdventureIdleV195_();
-        },true);
-
-        document.addEventListener('touchstart',function(event){
-          if(!event.touches||event.touches.length!==1)return;
-          const element=elementObjetGesteAdventureIdleV195_(event.target);
-          const id=idObjetGesteAdventureIdleV195_(element);
+          const element=elementObjetGesteAdventureIdleV196_(event.target);
+          const id=idObjetGesteAdventureIdleV196_(element);
           if(!element||!id)return;
 
           /*
-           * Le tactile est géré ici de bout en bout : empêcher la WebView
-           * de lancer son callout/drag/clic synthétique est volontaire.
-           * Le tap simple sera exécuté explicitement à touchend.
+           * Pas de comportement navigateur concurrent : tout l'item
+           * appartient au contrôleur V196 dès le pointerdown.
            */
           if(event.cancelable)event.preventDefault();
           event.stopPropagation();
 
-          const touch=event.touches[0];
-          commencerGesteAdventureIdleV195_(
-            'touch',
-            element,
-            id,
-            touch,
-            touch.identifier
-          );
+          commencerGesteAdventureIdleV196_(event,element,id);
         },{capture:true,passive:false});
 
-        document.addEventListener('touchmove',function(event){
-          const geste=idleAdventureGesteV195;
-          if(!geste||geste.mode!=='touch')return;
-          const touch=pointTouchParIdentifiantAdventureIdleV195_(
-            event.touches,
-            geste.identifiant
-          );
-          if(!touch)return;
-          deplacerGesteAdventureIdleV195_(touch,event);
+        document.addEventListener('pointermove',function(event){
+          deplacerGesteAdventureIdleV196_(event);
         },{capture:true,passive:false});
 
-        document.addEventListener('touchend',function(event){
-          const geste=idleAdventureGesteV195;
-          if(!geste||geste.mode!=='touch')return;
-          const touch=
-            pointTouchParIdentifiantAdventureIdleV195_(
-              event.changedTouches,
-              geste.identifiant
-            )||
-            {
-              clientX:geste.startX,
-              clientY:geste.startY
-            };
-          finirGesteTactileAdventureIdleV195_(touch,event);
+        document.addEventListener('pointerup',function(event){
+          finirGesteAdventureIdleV196_(event);
         },{capture:true,passive:false});
 
-        document.addEventListener('touchcancel',function(event){
-          const geste=idleAdventureGesteV195;
-          if(!geste||geste.mode!=='touch')return;
-          if(event&&event.cancelable)event.preventDefault();
-          if(event)event.stopPropagation();
-          terminerEtatGesteAdventureIdleV195_();
+        document.addEventListener('pointercancel',function(event){
+          annulerGesteAdventureIdleV196_(event);
+        },true);
+
+        document.addEventListener('lostpointercapture',function(event){
+          /*
+           * Après pointerup, l'état est déjà nettoyé. Si la capture se
+           * perd avant, on traite cela comme une annulation réelle.
+           */
+          if(
+            idleAdventureGesteV196&&
+            idleAdventureGesteV196.pointerId===event.pointerId
+          ){
+            annulerGesteAdventureIdleV196_(event);
+          }
+        },true);
+
+        /*
+         * Garde spécifique WebKit/WKWebView.
+         * WebKit documente qu'un touchstart actif + preventDefault()
+         * empêche le callout/loupe qui peut voler un appui long.
+         * Aucune logique métier n'est exécutée ici.
+         */
+        document.addEventListener('touchstart',function(event){
+          if(!elementObjetGesteAdventureIdleV196_(event.target))return;
+          if(event.cancelable)event.preventDefault();
         },{capture:true,passive:false});
 
         document.addEventListener('contextmenu',function(event){
-          if(!elementObjetGesteAdventureIdleV195_(event.target))return;
+          if(!elementObjetGesteAdventureIdleV196_(event.target))return;
           event.preventDefault();
+        },true);
+
+        document.addEventListener('click',function(event){
+          if(!elementObjetGesteAdventureIdleV196_(event.target))return;
+          /*
+           * Les taps/clics sont terminés sur pointerup par V196. On bloque
+           * donc les clics de compatibilité retardés des WebView.
+           */
+          event.preventDefault();
+          event.stopPropagation();
         },true);
       }
 
-      installerGestesInventaireAdventureIdleV195_();
+      installerGestesInventaireAdventureIdleV196_();
 
       function idSourceAdventureIdleV138_(event){
         return String(
@@ -26901,29 +26906,14 @@ function pageAventureIdleV28_(j){
        * doublon dans le sac et le fusionner.
        */
       function clicCibleAdventureIdleV138_(slotName,occupantId){
+        void slotName;
         if(Date.now()<idleAdventureIgnorerClicJusquaV165)return;
         const occupant=String(occupantId||'');
-
-        if(
-          idleAdventureComparerEnAttenteV183&&
-          occupant&&
-          occupant!==idleAdventureComparerPremierV183
-        ){
-          ouvrirComparaisonObjetAdventureIdleV183_(occupant);
-          return;
-        }
-
-        if(!idleAdventureSelectionIdV138){
-          if(occupant){
-            idleAdventureSelectionIdV138=occupant;
-            const el=document.querySelector('.soreal-idle-v138-slot[data-occupant-id="'+occupant+'"]');
-            if(el)el.classList.add('selected');
-          }
-          return;
-        }
-        const id=idleAdventureSelectionIdV138;
-        nettoyerEtatDragAdventureIdleV138_();
-        appliquerActionSlotAdventureIdleV138_(id,occupant);
+        if(!occupant)return;
+        const element=document.querySelector(
+          '.soreal-idle-v138-slot[data-occupant-id="'+occupant+'"]'
+        );
+        if(element)executerTapSlotAdventureIdleV196_(element);
       }
 
       function clicTrashAdventureIdleV138_(){
@@ -26943,35 +26933,16 @@ function pageAventureIdleV28_(j){
           if(event){event.preventDefault();event.stopPropagation();}
           return;
         }
+
         const id=String(itemId||'');
+        const element=
+          event&&event.currentTarget
+            ?event.currentTarget
+            :document.querySelector(
+                '.soreal-idle-v138-bag-card[data-item-id="'+id+'"]'
+              );
 
-        if(idleAdventureComparerEnAttenteV183&&id!==idleAdventureComparerPremierV183){
-          if(event){event.preventDefault();event.stopPropagation();}
-          ouvrirComparaisonObjetAdventureIdleV183_(id);
-          return;
-        }
-
-        if(idleAdventureSelectionIdV138&&idleAdventureSelectionIdV138!==id){
-          const source=idleAdventureSelectionIdV138;
-          nettoyerEtatDragAdventureIdleV138_();
-          fusionnerSiPossibleAdventureIdleV138_(source,id);
-          return;
-        }
-
-        /*
-         * Norman (2026-09-14) : "il disparaîtrait quand on reclique sur
-         * l'item." Recliquer sur l'objet déjà sélectionné doit fermer le
-         * popup de détails, pas juste nettoyer un éventuel glisser-déposer.
-         */
-        if(idleAdventureSelectionIdV138===id){
-          nettoyerEtatDragAdventureIdleV138_();
-          fermerDetailsObjetAdventureIdleV1_();
-          return;
-        }
-
-        nettoyerEtatDragAdventureIdleV138_();
-        idleAdventureSelectionIdV138=id;
-        if(event&&event.currentTarget)event.currentTarget.classList.add('selected');
+        if(element)executerTapCarteAdventureIdleV196_(element,id);
       }
 
       window.__debutDragAdventureIdleV138__=debutDragAdventureIdleV138_;
