@@ -25638,7 +25638,16 @@ function pageAventureIdleV28_(j){
       let idleAdventurePointerDragV180=null;
       let idleAdventurePointerCibleV180=null;
       let idleAdventureDragGhostV183=null;
-      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V182=22;
+      /*
+       * V194 — téléphone : 22 px était trop sensible aux micro-mouvements
+       * naturels d'un doigt maintenu. On laisse un peu plus de tolérance
+       * avant de transformer le geste en drag / annuler l'appui long.
+       */
+      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V182=32;
+      const IDLE_ADVENTURE_APPUI_LONG_MS_V194=600;
+      const IDLE_ADVENTURE_DOUBLE_TAP_MS_V194=420;
+      let idleAdventureDernierTapIdV194='';
+      let idleAdventureDernierTapMsV194=0;
 
       function supprimerGhostDragAdventureIdleV183_(){
         if(idleAdventureDragGhostV183&&idleAdventureDragGhostV183.parentNode){
@@ -25816,8 +25825,11 @@ function pageAventureIdleV28_(j){
         idleAdventureLongPressY165=idleNombre_(event.clientY);
         idleAdventureLongPressTimerV165=setTimeout(function(){
           const id=idleAdventureLongPressIdV165;
+          const drag=idleAdventurePointerDragV180;
           idleAdventureLongPressTimerV165=0;
           idleAdventurePointerDragV180=null;
+          restaurerDraggablePointerAdventureIdleV182_(drag);
+          supprimerGhostDragAdventureIdleV183_();
           nettoyerSurvolPointerAdventureIdleV180_();
           if(!id)return;
           idleAdventureIgnorerClicJusquaV165=Date.now()+650;
@@ -25840,7 +25852,7 @@ function pageAventureIdleV28_(j){
             if(cible===id)el.classList.add('selected');
           });
           afficherDetailsObjetAdventureIdleV138_(id);
-        },1000);
+        },IDLE_ADVENTURE_APPUI_LONG_MS_V194);
       }
 
       function bougerAppuiLongAdventureIdleV165_(event){
@@ -26747,6 +26759,43 @@ function pageAventureIdleV28_(j){
       window.__fermerDetailsObjetAdventureIdleV1__=fermerDetailsObjetAdventureIdleV1_;
 
       /*
+       * V194 — secours mobile : double-tap sur le MÊME objet ouvre son
+       * popup. Le tap simple garde son rôle de sélection/fusion.
+       */
+      function doubleTapObjetAdventureIdleV194_(id){
+        const maintenant=Date.now();
+        const objet=String(id||'');
+        const estDouble=Boolean(
+          objet&&
+          objet===idleAdventureDernierTapIdV194&&
+          maintenant-idleAdventureDernierTapMsV194<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V194
+        );
+        idleAdventureDernierTapIdV194=objet;
+        idleAdventureDernierTapMsV194=maintenant;
+        return estDouble;
+      }
+
+      function ouvrirDetailsObjetTactileAdventureIdleV194_(id){
+        const objet=String(id||'');
+        if(!objet)return false;
+        nettoyerEtatDragAdventureIdleV138_();
+        idleAdventureSelectionIdV138=objet;
+        document.querySelectorAll(
+          '[data-item-id],[data-occupant-id]'
+        ).forEach(function(el){
+          const cible=String(
+            el.getAttribute('data-item-id')||
+            el.getAttribute('data-occupant-id')||
+            ''
+          );
+          if(cible===objet)el.classList.add('selected');
+        });
+        afficherDetailsObjetAdventureIdleV138_(objet);
+        idleAdventureIgnorerClicJusquaV165=Date.now()+120;
+        return true;
+      }
+
+      /*
        * Un emplacement déjà occupé peut désormais être choisi comme
        * SOURCE (tapoter l'objet équipé en premier), pas seulement comme
        * cible d'équipement — condition pour pouvoir ensuite tapoter un
@@ -26756,6 +26805,15 @@ function pageAventureIdleV28_(j){
         if(Date.now()<idleAdventureIgnorerClicJusquaV165)return;
         const occupant=String(occupantId||'');
         const tactile=interactionTactileRecenteAdventureIdleV165_();
+
+        if(
+          tactile&&
+          occupant&&
+          doubleTapObjetAdventureIdleV194_(occupant)
+        ){
+          ouvrirDetailsObjetTactileAdventureIdleV194_(occupant);
+          return;
+        }
 
         if(
           idleAdventureComparerEnAttenteV183&&
@@ -26799,6 +26857,16 @@ function pageAventureIdleV28_(j){
         }
         const id=String(itemId||'');
         const tactile=interactionTactileRecenteAdventureIdleV165_();
+
+        if(
+          tactile&&
+          id&&
+          doubleTapObjetAdventureIdleV194_(id)
+        ){
+          if(event){event.preventDefault();event.stopPropagation();}
+          ouvrirDetailsObjetTactileAdventureIdleV194_(id);
+          return;
+        }
 
         if(idleAdventureComparerEnAttenteV183&&id!==idleAdventureComparerPremierV183){
           if(event){event.preventDefault();event.stopPropagation();}
