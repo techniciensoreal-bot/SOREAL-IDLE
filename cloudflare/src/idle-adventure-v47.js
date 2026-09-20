@@ -2363,11 +2363,22 @@ function applyBoost(s,boostId,targetId){
   if(type==="special"&&defById(o.definitionId)?.kind!=="special"){
     throw Error("BOOST_SPECIAL_CIBLE_INVALIDE");
   }
+  /*
+   * V210 — un objet réellement terminé ne doit jamais avaler un boost
+   * inutile. Avant ce garde, Math.min(cap, actuel+boost) gardait la même
+   * valeur mais le boost était quand même supprimé de l'inventaire.
+   */
+  if(idleAdventureObjetPleinementMaxeV1(o)){
+    throw Error("OBJET_DEJA_MAXE");
+  }
   const added=N(b.strength)*(1+N(s.setRewards.boostEffectiveness));
   if(type==="power"||type==="toughness"){
     const d=defById(o.definitionId);
     const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
     const cap=base?(type==="power"?base.baseP:base.baseT)*(1+C(N(o.level),0,MAX)/100):null;
+    if(cap!=null&&N(o[type])>=cap-1e-9){
+      throw Error("BOOST_STAT_DEJA_MAX");
+    }
     o[type]=cap!=null?Math.min(cap,N(o[type])+added):N(o[type])+added;
   }else{
     /*
@@ -2383,6 +2394,9 @@ function applyBoost(s,boostId,targetId){
     const d=defById(o.definitionId);
     const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null;
     const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
+    if(cap!=null&&N(o[type])>=cap-1e-9){
+      throw Error("BOOST_STAT_DEJA_MAX");
+    }
     o[type]=cap!=null?Math.min(cap,N(o[type])+added):N(o[type])+added;
   }
   s.inventory=s.inventory.filter(x=>x.id!==b.id);
