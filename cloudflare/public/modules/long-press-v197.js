@@ -20,7 +20,9 @@
   var state=null;
 
   function cible_(node){
-    return node&&node.closest?node.closest(SELECTOR):null;
+    if(!node||!node.closest)return null;
+    if(node.closest('[data-soreal-longpress-ignore]'))return null;
+    return node.closest(SELECTOR);
   }
 
   function clear_(expected){
