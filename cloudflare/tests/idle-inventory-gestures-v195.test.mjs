@@ -14,85 +14,107 @@ function block(start,end){
 }
 
 assert.ok(
-  source.includes("V195 — contrôleur UNIQUE des gestes d'inventaire"),
-  "L'inventaire doit utiliser un contrôleur de gestes unique."
+  source.includes("V196 — contrôleur UNIQUE d'interaction inventaire"),
+  "L'inventaire doit utiliser le contrôleur unique V196."
 );
 
 assert.ok(
-  source.includes("const IDLE_ADVENTURE_GESTE_SEUIL_PX_V195=32;")&&
-  source.includes("const IDLE_ADVENTURE_APPUI_LONG_MS_V195=600;")&&
-  source.includes("const IDLE_ADVENTURE_DOUBLE_TAP_MS_V195=420;"),
-  "Les seuils mobile doivent rester centralisés dans V195."
+  source.includes("const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;")&&
+  source.includes("const IDLE_ADVENTURE_APPUI_LONG_MS_V196=600;")&&
+  source.includes("const IDLE_ADVENTURE_DOUBLE_TAP_MS_V196=420;"),
+  "Les seuils du geste doivent rester centralisés dans V196."
 );
 
 const controller=block(
-  "      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V195=32;",
+  "      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;",
   "      function idSourceAdventureIdleV138_(event){"
 );
 
-for(const eventName of ["touchstart","touchmove","touchend","touchcancel"]){
-  assert.ok(
-    controller.includes("document.addEventListener('"+eventName+"'"),
-    "Gestion tactile manquante: "+eventName
-  );
-}
-
-assert.ok(
-  controller.includes("{capture:true,passive:false}"),
-  "Les Touch Events doivent être interceptés en capture et non-passifs dans la WebView."
-);
-
-assert.ok(
-  controller.includes("if(event.cancelable)event.preventDefault();")&&
-  controller.includes("executerTapSimpleGesteAdventureIdleV195_"),
-  "Le tactile doit gérer son tap lui-même au lieu de dépendre d'un clic synthétique WebView."
-);
-
-assert.ok(
-  controller.includes("ouvrirDetailsObjetParGesteAdventureIdleV195_")&&
-  controller.includes("estDoubleTapGesteAdventureIdleV195_"),
-  "Maintien et double-tap doivent converger vers la même ouverture de détails."
-);
-
-for(const obsolete of [
-  "attributsAppuiLongAdventureIdleV165_",
-  "doubleTapObjetAdventureIdleV194_",
-  "ouvrirDetailsObjetTactileAdventureIdleV194_",
-  "interactionTactileRecenteAdventureIdleV165_",
-  "idleAdventurePointerDragV180"
+for(const eventName of [
+  "pointerdown",
+  "pointermove",
+  "pointerup",
+  "pointercancel",
+  "lostpointercapture"
 ]){
   assert.ok(
-    !source.includes(obsolete),
-    "Ancienne couche de geste encore présente: "+obsolete
+    controller.includes("document.addEventListener('"+eventName+"'"),
+    "Pointer Event manquant: "+eventName
   );
 }
 
-const bagClick=block(
-  "      function clicCarteAdventureIdleV138_(event,itemId){",
-  "      window.__debutDragAdventureIdleV138__="
-);
 assert.ok(
-  !bagClick.includes("afficherDetailsObjetAdventureIdleV138_("),
-  "Un clic simple sur un item du sac ne doit jamais ouvrir le popup."
+  controller.includes("setPointerCapture(event.pointerId)"),
+  "Le geste doit capturer explicitement le pointeur."
 );
 
-const equipmentClick=block(
-  "      function clicCibleAdventureIdleV138_(slotName,occupantId){",
-  "      function clicTrashAdventureIdleV138_(){"
-);
 assert.ok(
-  !equipmentClick.includes("afficherDetailsObjetAdventureIdleV138_("),
-  "Un clic simple sur un item équipé ne doit jamais ouvrir le popup."
+  controller.includes("document.addEventListener('touchstart'")&&
+  controller.includes("{capture:true,passive:false}")&&
+  controller.includes("if(event.cancelable)event.preventDefault();"),
+  "WKWebView doit avoir un touchstart actif servant uniquement de garde native."
+);
+
+assert.ok(
+  controller.includes("document.addEventListener('contextmenu'")&&
+  controller.includes("document.addEventListener('click'"),
+  "Les menus/clics synthétiques natifs doivent être neutralisés."
+);
+
+assert.ok(
+  controller.includes("ouvrirDetailsObjetParGesteAdventureIdleV196_")&&
+  controller.includes("estDoubleTapGesteAdventureIdleV196_")&&
+  controller.includes("executerTapObjetAdventureIdleV196_")&&
+  controller.includes("appliquerDepotGesteAdventureIdleV196_"),
+  "Tap, double-tap, maintien et drag doivent converger dans le même contrôleur."
 );
 
 assert.ok(
   source.includes("touch-action:none;")&&
-  source.includes("-webkit-touch-callout:none;"),
-  "Les items tactiles doivent rester protégés du callout/drag natif de la WebView."
+  source.includes("-webkit-touch-callout:none;")&&
+  source.includes("-webkit-user-drag:none;")&&
+  source.includes("pointer-events:none;"),
+  "Le CSS doit neutraliser pan/callout/drag natifs sur les items et leurs images."
 );
+
+const iconBlock=block(
+  "      function iconeObjetAdventureIdleV138_(item){",
+  "      /*\n       * Norman (2026-09-14) : \"tu dois copier la couleur"
+);
+assert.ok(
+  (iconBlock.match(/draggable="false"/g)||[]).length>=3,
+  "Toutes les images d'items doivent être explicitement non-draggables."
+);
+
+for(const fn of [
+  ["function rendreSlotPaperdollAdventureIdleV138_","function rendreEmplacementAccessoireAdventureIdleV138_"],
+  ["function rendreEmplacementAccessoireAdventureIdleV138_","function rendreAccessoiresAdventureIdleV138_"],
+  ["function rendreCarteSacAdventureIdleV138_","function rendreGrilleSacAdventureIdleV1_"]
+]){
+  const rendered=block("      "+fn[0],"      "+fn[1]);
+  assert.ok(
+    !rendered.includes('draggable="true"')&&
+    !rendered.includes("ondragstart=")&&
+    !rendered.includes("ondragend=")&&
+    !rendered.includes("ondrop=")&&
+    !rendered.includes('onclick="window.__clic'),
+    "Le rendu "+fn[0]+" ne doit plus embarquer de moteur d'interaction concurrent."
+  );
+}
+
+for(const obsolete of [
+  "V195 — contrôleur UNIQUE des gestes d'inventaire",
+  "idleAdventureGesteV195",
+  "IDLE_ADVENTURE_APPUI_LONG_MS_V195"
+]){
+  assert.ok(
+    !source.includes(obsolete),
+    "Ancien contrôleur encore présent: "+obsolete
+  );
+}
 
 new Function(source);
 
 console.log(
-  "SOREAL IDLE Inventory V195: OK — contrôleur unique WebView, maintien 600 ms, double-tap, drag tactile et aucun popup au clic simple."
+  "SOREAL IDLE Inventory V196: OK — Pointer Events unique, pointer capture, garde WKWebView, aucun drag HTML natif."
 );
