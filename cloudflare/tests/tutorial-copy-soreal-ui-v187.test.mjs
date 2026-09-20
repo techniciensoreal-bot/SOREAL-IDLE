@@ -27,6 +27,16 @@ assert.ok(
 );
 
 assert.ok(
+  ui.includes("à côté de « Attaque passive »"),
+  "Le tutoriel Basic Training doit pointer vers « Attaque passive »."
+);
+
+assert.ok(
+  !ui.includes("Attaque Idle"),
+  "L'ancien libellé « Attaque Idle » ne doit plus subsister dans le tutoriel."
+);
+
+assert.ok(
   ui.includes(String.raw`La grosse barre verte, représente ton energie d\'entrainement disponible.`),
   "La page Énergie Idle doit expliquer l'énergie d'entraînement disponible via la barre verte."
 );
