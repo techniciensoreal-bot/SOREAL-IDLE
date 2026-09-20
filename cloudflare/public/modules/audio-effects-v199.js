@@ -206,67 +206,18 @@
   }
 
   function voixFight_(){
-    return reveiller_().then(function(c){
-      if(c){
-        /*
-         * V203 — le synthé vocal natif ne permet pas un vrai pitch-shifter
-         * après SpeechSynthesis. On pousse donc sa hauteur au minimum
-         * autorisé et on renforce le dessous de la voix avec un grondement
-         * sub-bass très court, sans sample ni fichier audio.
-         */
-        tonal_(c,{type:"sawtooth",from:78,to:35,duration:.68,volume:.082});
-        tonal_(c,{type:"square",from:52,to:31,duration:.56,volume:.052,delay:.018});
-        tonal_(c,{type:"sine",from:42,to:27,duration:.84,volume:.118,delay:.035});
-        bruit_(c,{
-          duration:.24,volume:.043,
-          filterType:"lowpass",frequency:520,frequencyEnd:85,decay:2.9
-        });
-      }
-
-      if(
-        !window.speechSynthesis||
-        typeof window.SpeechSynthesisUtterance!=="function"
-      ){
-        return attendre_(560);
-      }
-
-      return new Promise(function(resolve){
-        var fini=false;
-        var terminer=function(){
-          if(fini)return;
-          fini=true;
-          resolve();
-        };
-
-        try{
-          var synth=window.speechSynthesis;
-          var utterance=new SpeechSynthesisUtterance("FIGHT!");
-          utterance.lang="en-US";
-          utterance.rate=.66;
-          utterance.pitch=0;
-          utterance.volume=1;
-
-          var voices=typeof synth.getVoices==="function"?synth.getVoices():[];
-          if(Array.isArray(voices)&&voices.length){
-            var english=voices.filter(function(v){
-              return /^en(?:-|_)/i.test(String(v&&v.lang||""));
-            });
-            var preferred=english.find(function(v){
-              return /male|daniel|fred|alex|david|mark|george|guy|english united states/i
-                .test(String(v&&v.name||""));
-            })||english[0];
-            if(preferred)utterance.voice=preferred;
-          }
-
-          utterance.onend=terminer;
-          utterance.onerror=terminer;
-
-          try{synth.cancel();}catch(_){}
-          synth.speak(utterance);
-          setTimeout(terminer,1750);
-        }catch(_){
-          terminer();
-        }
+    /*
+     * V210 — même son sur ordinateur et téléphone. La version desktop
+     * ajoutait encore SpeechSynthesis("FIGHT!") au petit impact WebAudio,
+     * alors que les WebView mobiles ne jouaient que l'impact court.
+     * La voix est retirée : un seul cue synthétique, identique partout.
+     */
+    return jouerWebAudio_(310,function(c){
+      tonal_(c,{type:"sawtooth",from:86,to:44,duration:.24,volume:.070});
+      tonal_(c,{type:"sine",from:58,to:34,duration:.29,volume:.105,delay:.01});
+      bruit_(c,{
+        duration:.13,volume:.034,delay:.015,
+        filterType:"lowpass",frequency:760,frequencyEnd:130,decay:2.5
       });
     });
   }
