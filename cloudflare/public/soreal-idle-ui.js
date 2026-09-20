@@ -4902,39 +4902,6 @@
             position:relative;
           }
 
-          .soreal-idle-item-info-v197{
-            position:absolute!important;
-            top:3px!important;
-            right:3px!important;
-            z-index:40!important;
-            width:22px!important;
-            height:22px!important;
-            min-width:22px!important;
-            min-height:22px!important;
-            display:grid!important;
-            place-items:center!important;
-            padding:0!important;
-            margin:0!important;
-            border:1px solid rgba(255,255,255,.88)!important;
-            border-radius:50%!important;
-            background:linear-gradient(180deg,#3b82f6,#1d4ed8)!important;
-            color:#fff!important;
-            box-shadow:
-              0 2px 8px rgba(0,0,0,.48),
-              inset 0 1px 0 rgba(255,255,255,.35)!important;
-            font:900 12px/1 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif!important;
-            text-shadow:0 1px 1px rgba(0,0,0,.65);
-            cursor:pointer!important;
-            opacity:1!important;
-            visibility:visible!important;
-            touch-action:manipulation;
-            -webkit-tap-highlight-color:transparent;
-          }
-
-          .soreal-idle-item-info-v197:active{
-            transform:scale(.9);
-          }
-
           /*
            * Norman (2026-09-14) : "j'aimerai que les stats de l'arme...
            * s'affichent dans un popup qu'on peut déplacer en le glissant...
@@ -26457,12 +26424,6 @@ function pageAventureIdleV28_(j){
         if(!popupDetailsObjetAdventureIdleOuvertV207_())return false;
         const target=event&&event.target;
         if(cibleDansPopupDetailsObjetAdventureIdleV207_(target))return false;
-        if(
-          target&&target.closest&&
-          target.closest('[data-idle-item-info-v197]')
-        ){
-          return false;
-        }
         fermerDetailsObjetAdventureIdleV1_();
         return true;
       }
@@ -26696,8 +26657,6 @@ function pageAventureIdleV28_(j){
 
           fermerPopupDetailsSiExterieurAdventureIdleV207_(event);
 
-          if(event.target&&event.target.closest&&event.target.closest('[data-idle-item-info-v197]'))return;
-
           const element=elementObjetGesteAdventureIdleV196_(event.target);
           const id=idObjetGesteAdventureIdleV196_(element);
           if(!element||!id)return;
@@ -26763,33 +26722,6 @@ function pageAventureIdleV28_(j){
         },true);
 
         document.addEventListener('click',function(event){
-          const info=
-            event.target&&event.target.closest
-              ?event.target.closest('[data-idle-item-info-v197]')
-              :null;
-
-          if(info){
-            const id=String(info.getAttribute('data-idle-item-info-v197')||'');
-            if(id){
-              terminerEtatGesteAdventureIdleV196_();
-
-              /*
-               * V207 — le bouton "i" est un vrai interrupteur :
-               * réappuyer sur le "i" du même objet ferme le popup.
-               */
-              if(
-                popupDetailsObjetAdventureIdleOuvertV207_()&&
-                String(idleAdventureSelectionIdV138||'')===id
-              ){
-                fermerDetailsObjetAdventureIdleV1_();
-              }else{
-                ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
-              }
-            }
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-          }
 
           /*
            * V207 — clic/tap n'importe où hors popup = fermeture.
