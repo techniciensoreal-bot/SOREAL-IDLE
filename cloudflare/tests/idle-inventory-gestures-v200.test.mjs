@@ -72,22 +72,9 @@ assert.ok(
 
 assert.ok(
   source.includes('data-soreal-longpress="idle-item"')&&
-  source.includes("data-idle-item-info-v197")&&
-  source.includes("soreal-idle-item-info-v197"),
-  "Sac et équipement doivent exposer long-press + bouton info."
-);
-
-assert.ok(
-  source.includes("position:absolute!important;")&&
-  source.includes("background:linear-gradient(180deg,#3b82f6,#1d4ed8)!important;")&&
-  source.includes("visibility:visible!important;"),
-  "Le bouton info doit rester réellement visible même si les styles historiques changent."
-);
-
-assert.ok(
-  controller.includes("closest('[data-idle-item-info-v197]')")&&
-  controller.includes("ouvrirDetailsObjetParGesteAdventureIdleV196_(id);"),
-  "Le bouton info doit ouvrir le popup directement."
+  !source.includes("data-idle-item-info-v197")&&
+  !source.includes("soreal-idle-item-info-v197"),
+  "Sac et équipement doivent exposer uniquement le maintien long, sans ancien bouton info."
 );
 
 assert.ok(
