@@ -10092,12 +10092,12 @@
            */
           joueurBarre.classList.toggle(
             'low',
-            pctJoueur<=35&&pctJoueur>15
+            pctJoueur<=50&&pctJoueur>25
           );
 
           joueurBarre.classList.toggle(
             'critical',
-            pctJoueur<=15
+            pctJoueur<=25
           );
         }
 
