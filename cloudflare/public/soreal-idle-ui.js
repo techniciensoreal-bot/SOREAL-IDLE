@@ -16863,19 +16863,19 @@
         {
           titre:'Objectif',
           paragraphes:[
-            'Donc, ton objectif principal dans SOREAL IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin ! Sur la gauche, tu vois tes deux stats principales, Attaque et Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.'
+            'Donc, ton objectif principal dans SOREAL IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin ! En haut, en dessous de la grosse barre verte, tu vois tes deux stats principales, Attaque et Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.'
           ]
         },
         {
           titre:'Énergie',
           paragraphes:[
-            'En haut à gauche, tu as aussi ton Énergie. Tu génères de l’Énergie à chaque fois que la barre verte se remplit, jusqu’à atteindre le plafond, qui est de 500 pour l’instant. Et l’Énergie sera la clé pour faire grimper tes chiffres d’Attaque et de Défense.'
+            'En parlant de la grosse barre verte, elle représente ton énergie. Tu génères de l’Énergie à chaque fois que la barre verte se remplit, jusqu’à atteindre le plafond, qui est de 500 pour l’instant. Et l’Énergie sera la clé pour faire grimper tes chiffres d’Attaque et de Défense.'
           ]
         },
         {
-          titre:'Entraînement de base',
+          titre:'Basic Training',
           paragraphes:[
-            'La grande section, c’est là que se passe l’action principale du jeu. Là, tu as le menu Entraînement de base ouvert, c’est comme ça que tu augmentes ton attaque et ta défense (quelle surprise). Pour t’entraîner, tu assignes ton Énergie à une tâche ! Vas-y, clique sur le bouton « + » à côté de « Attaque Idle » et regarde ce qui se passe.'
+            'C’est là que les choses se passent. Si tu sélectionnes Basic Training dans le menu en haut, tu pourras augmenter ton attaque et ta défense (quelle surprise). Pour t’entraîner, tu assignes ton Énergie à une tâche ! Vas-y, clique sur le bouton « + » à côté de « Attaque Idle » et regarde ce qui se passe.'
           ]
         },
         {
@@ -16887,7 +16887,7 @@
         {
           titre:'Énergie Idle',
           paragraphes:[
-            'Dans l’affichage d’Énergie en haut à gauche, ton « Énergie Idle » c’est la quantité d’Énergie que tu n’as assignée nulle part et qui traîne à rien faire comme une bonne grosse feignasse. Ton « Plafond d’Énergie » c’est la somme de toute ton Énergie, qu’elle soit idle ou assignée.'
+            'La grosse barre verte, représente ton energie d'entrainement disponible. C’est la quantité d’Énergie que tu n’as assignée nulle part et qui traîne à rien faire comme une bonne grosse feignasse. Ton « Plafond d’Énergie » c’est la somme de toute ton Énergie, qu’elle soit idle ou assignée.'
           ]
         },
         {
@@ -16899,13 +16899,13 @@
         {
           titre:'Défense',
           paragraphes:[
-            'Avoir la force d’un transpalette électrique mais en verre, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Donc, il va falloir entraîner la compétence « Blocage » dans le menu Entraînement de base aussi. Si toute ton Énergie est allouée à l’Attaque Idle, il va falloir en retirer un peu.'
+            'Avoir la force d’un transpalette électrique mais en carton, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Donc, il va falloir entraîner la compétence « Blocage » dans le menu Basic Training aussi. Si toute ton Énergie est allouée à l’Attaque Idle, il va falloir en retirer un peu.'
           ]
         },
         {
-          titre:'Combat de boss',
+          titre:'Fight Boss',
           paragraphes:[
-            'Quand tes stats seront assez hautes, va jeter un œil au menu Combat de boss, et tu pourras mettre ta puissance à l’épreuve. En commençant par un adversaire particulièrement vicieux... Un Petit Bout de Peluche.'
+            'Quand tes stats seront assez hautes, va jeter un œil au menu Fight Boss, et tu pourras mettre ta puissance à l’épreuve. En commençant par un adversaire particulièrement vicieux... Un Petit Bout de Peluche.'
           ]
         },
         {
@@ -21346,7 +21346,7 @@ let idleDialogueTimerV76=null;
       function pageCombatIdleV28_(j){
         return `
           ${entetePageIdleV28_(
-            '⚔️ Combat de boss',
+            '⚔️ Fight Boss',
             'Appuie sur Start. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant.'
           )}
 
