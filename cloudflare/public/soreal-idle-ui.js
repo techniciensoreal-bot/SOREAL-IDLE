@@ -18868,7 +18868,7 @@
         }
 
         return `
-          <div class="soreal-idle-boss-lore-v142">
+          <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142">
             <div class="soreal-idle-boss-lore-title-v168">Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184">✦ ❦ ✦</div>
@@ -18878,6 +18878,7 @@
             ${narration
               ?'<div class="soreal-idle-boss-lore-histoire-v142">'+idleHtml_(narration)+'</div>'
               :''}
+            <button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleBossChroniqueV206">🔊 Lire la chronique</button>
           </div>
         `;
       }
@@ -20740,12 +20741,15 @@
                 </div>
               </div>
 
-              <div class="soreal-idle-boss-story-v91">
+              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91">
                 ${idleHtml_(
                   b.histoire||
                   'Aucune archive n’existe encore pour ce boss.'
                 )}
               </div>
+              ${b.histoire
+                ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleBossModalStoryV206_'+idleEntier_(b.numero)+'">🔊 Lire la chronique</button>'
+                :''}
 
               <div class="soreal-idle-boss-powers-v91">
                 ${
@@ -22117,7 +22121,16 @@ let idleDialogueTimerV76=null;
                   · ⚔️ ${formatGrandNombreIdleV70_(e.attaque)} attaque
                   · 👁️ ${idleEntier_(e.rencontres)} rencontre${idleEntier_(e.rencontres)>1?'s':''}
                 </div>
-                ${e.description?'<div class="soreal-idle-bestiary-desc-v110">'+idleHtml_(e.description)+'</div>':''}
+                ${e.description
+                  ?'<div id="'+
+                    (idleEntier_(e.numero)>0
+                      ?'sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)
+                      :'sorealIdleCollectionCreatureDescV206_'+idleEntier_(e.index))+
+                    '" class="soreal-idle-bestiary-desc-v110">'+idleHtml_(e.description)+'</div>'
+                  :''}
+                ${idleEntier_(e.numero)>0&&e.description
+                  ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)+'">🔊 Lire cette chronique</button>'
+                  :''}
               </div>
             `;
           }).join('')+
@@ -22305,6 +22318,53 @@ let idleDialogueTimerV76=null;
       }
       window.__afficherDetailsCollectionIdleV1__=afficherDetailsCollectionIdleV1_;
 
+      function lireHistoireCompleteBossIdleV206_(){
+        if(!idleEtat)return;
+
+        const catalogue=
+          Array.isArray(idleEtat.bossCatalogue)
+            ?idleEtat.bossCatalogue
+            :[];
+
+        const parties=catalogue
+          .filter(function(b){
+            return b&&b.connu&&String(b.histoire||'').trim();
+          })
+          .sort(function(a,b){
+            return idleEntier_(a.numero)-idleEntier_(b.numero);
+          })
+          .map(function(b){
+            return (
+              'Boss '+idleEntier_(b.numero)+
+              ', '+String(b.nom||'Boss')+'. '+
+              String(b.histoire||'').trim()
+            );
+          });
+
+        if(!parties.length){
+          toastIdleV5_('Aucune chronique de boss débloquée.');
+          return;
+        }
+
+        const tts=
+          window.__SOREAL_IDLE_TUTORIAL_TTS_V203__||
+          window.__SOREAL_IDLE_TUTORIAL_TTS_V202__;
+
+        if(!tts||typeof tts.readText!=='function'){
+          toastIdleV5_('Lecture vocale indisponible sur cet appareil.');
+          return;
+        }
+
+        tts.readText(
+          'Chroniques de boss. '+parties.join(' ')
+        );
+      }
+
+
+      window.__lireHistoireCompleteBossIdleV206__=
+        lireHistoireCompleteBossIdleV206_;
+
+
       function pageBestiaireIdleV110_(j){
         const b=
           j&&j.bestiaire
@@ -22367,7 +22427,12 @@ let idleDialogueTimerV76=null;
             </button>
           </div>
 
-          ${onglet==='boss'?rendreCollectionCreaturesIdleV1_(bossEntrees,'Aucun boss vaincu pour l’instant.'):''}
+          ${onglet==='boss'
+            ?'<div class="soreal-idle-section-v8" style="margin-bottom:10px">'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__lireHistoireCompleteBossIdleV206__()">🔊 Lire toute l’histoire des boss débloqués</button>'+
+              '</div>'+
+              rendreCollectionCreaturesIdleV1_(bossEntrees,'Aucun boss vaincu pour l’instant.')
+            :''}
           ${onglet==='aventure'?rendreCollectionCreaturesIdleV1_(aventureEntrees,'Aucune rencontre d’Aventure pour l’instant.'):''}
           ${onglet==='equipement'?rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube):''}
           ${onglet==='sets'?rendreCollectionIdleV22_(j):''}
