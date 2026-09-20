@@ -205,15 +205,17 @@
     return reveiller_().then(function(c){
       if(c){
         /*
-         * V202 — annonceur plus sombre : grondement grave + attaque sale,
-         * puis la voix système très abaissée. Aucun sample audio embarqué.
+         * V203 — le synthé vocal natif ne permet pas un vrai pitch-shifter
+         * après SpeechSynthesis. On pousse donc sa hauteur au minimum
+         * autorisé et on renforce le dessous de la voix avec un grondement
+         * sub-bass très court, sans sample ni fichier audio.
          */
-        tonal_(c,{type:"sawtooth",from:96,to:46,duration:.58,volume:.078});
-        tonal_(c,{type:"square",from:64,to:41,duration:.46,volume:.048,delay:.025});
-        tonal_(c,{type:"sine",from:49,to:33,duration:.72,volume:.105,delay:.055});
+        tonal_(c,{type:"sawtooth",from:78,to:35,duration:.68,volume:.082});
+        tonal_(c,{type:"square",from:52,to:31,duration:.56,volume:.052,delay:.018});
+        tonal_(c,{type:"sine",from:42,to:27,duration:.84,volume:.118,delay:.035});
         bruit_(c,{
-          duration:.20,volume:.040,
-          filterType:"lowpass",frequency:680,frequencyEnd:115,decay:2.7
+          duration:.24,volume:.043,
+          filterType:"lowpass",frequency:520,frequencyEnd:85,decay:2.9
         });
       }
 
@@ -221,7 +223,7 @@
         !window.speechSynthesis||
         typeof window.SpeechSynthesisUtterance!=="function"
       ){
-        return attendre_(520);
+        return attendre_(560);
       }
 
       return new Promise(function(resolve){
@@ -236,8 +238,8 @@
           var synth=window.speechSynthesis;
           var utterance=new SpeechSynthesisUtterance("FIGHT!");
           utterance.lang="en-US";
-          utterance.rate=.72;
-          utterance.pitch=.10;
+          utterance.rate=.66;
+          utterance.pitch=0;
           utterance.volume=1;
 
           var voices=typeof synth.getVoices==="function"?synth.getVoices():[];
@@ -255,15 +257,9 @@
           utterance.onend=terminer;
           utterance.onerror=terminer;
 
-          /*
-           * La file native du navigateur ne doit jamais devenir une
-           * deuxième file audio parallèle à la nôtre.
-           */
           try{synth.cancel();}catch(_){}
           synth.speak(utterance);
-
-          // Filet WebView : certains moteurs oublient parfois onend.
-          setTimeout(terminer,1550);
+          setTimeout(terminer,1750);
         }catch(_){
           terminer();
         }
@@ -272,40 +268,26 @@
   }
 
   function gongBoss_(){
-    return jouerWebAudio_(980,function(c){
+    return jouerWebAudio_(1750,function(c){
       /*
-       * V202 — double frappe rapprochée : TONG-TONG.
-       * Les résonances se chevauchent volontairement pour éviter
-       * l'ancien effet "tong... tong" trop espacé.
+       * V203 — plus de gong. Court sting d'horreur synthétique :
+       * bourdon sub-grave dissonant, battements très proches, note
+       * descendante et souffle filtré. Les fréquences volontairement
+       * désaccordées créent une tension sans embarquer le moindre MP3.
        */
-      function frappe_(delay,force){
-        [
-          [116,.74,.110],
-          [184,.70,.070],
-          [276,.62,.043],
-          [392,.52,.029],
-          [524,.43,.017]
-        ].forEach(function(p,index){
-          tonal_(c,{
-            type:index<2?"sine":"triangle",
-            from:p[0],to:p[0]*.982,
-            duration:p[1],
-            volume:p[2]*force,
-            delay:delay+index*.004
-          });
-        });
-        bruit_(c,{
-          duration:.085,
-          volume:.024*force,
-          frequency:1650,
-          frequencyEnd:310,
-          decay:3.7,
-          delay:delay
-        });
-      }
-
-      frappe_(0,1);
-      frappe_(.24,.86);
+      tonal_(c,{type:"sine",from:48,to:41,duration:1.68,volume:.105});
+      tonal_(c,{type:"sine",from:51,to:44,duration:1.62,volume:.070,delay:.025});
+      tonal_(c,{type:"triangle",from:76,to:69,duration:1.38,volume:.052,delay:.08});
+      tonal_(c,{type:"sawtooth",from:214,to:82,duration:1.26,volume:.024,delay:.12});
+      tonal_(c,{type:"sine",from:311,to:147,duration:.92,volume:.019,delay:.24});
+      bruit_(c,{
+        duration:1.18,volume:.033,delay:.10,
+        filterType:"bandpass",frequency:1850,frequencyEnd:290,q:1.15,decay:1.45
+      });
+      bruit_(c,{
+        duration:.44,volume:.050,delay:.88,
+        filterType:"lowpass",frequency:430,frequencyEnd:72,q:.55,decay:2.5
+      });
     });
   }
 
