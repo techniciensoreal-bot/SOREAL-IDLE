@@ -21274,7 +21274,7 @@ let idleDialogueTimerV76=null;
                          * calcule DÉJÀ ce même repli R2 avant de rendre —
                          * repris ici à l'identique.
                          */
-                        j.bossImage||urlBossR2IdleV1_(j.bossId),
+                        j.bossImage||urlBossR2IdleV1_(idImageBossCanoniqueIdleV181_(j)),
                         j.bossActuel||'Boss',
                         'soreal-idle-boss-image-v35',
                         j.bossActuel||'Boss'
@@ -29270,7 +29270,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
          */
         prechargerUrlCombatIdleV61_(
           urlBossR2IdleV1_(
-            j.bossId
+            idImageBossCanoniqueIdleV181_(j)
           )
         );
 
@@ -29293,20 +29293,28 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
         catalogue.forEach(
           function(boss,index){
+            /*
+             * V181 — même règle que Fight Boss/Collection : le numéro
+             * canonique est boss.numero (ou index+1), jamais boss.id brut.
+             * Le cache est indexé par numéro, pas par nom, pour qu'un nom
+             * traduit/dupliqué ne puisse jamais empoisonner le portrait.
+             */
+            const numero=
+              Math.max(
+                1,
+                idleEntier_(boss&&boss.numero)||index+1
+              );
+
             const url=
               urlBossR2IdleV1_(
-                boss&&boss.id
+                numero
               );
 
             if(!url)return;
 
-            if(
-              boss&&boss.nom
-            ){
-              idleBossImageCacheV36[
-                String(boss.nom)
-              ]=url;
-            }
+            idleBossImageCacheV36[
+              String(numero)
+            ]=url;
 
             setTimeout(
               function(){
@@ -29514,6 +29522,28 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
       /*
+       * V181 — l'identité VISUELLE d'un boss suit toujours son numéro
+       * Fight Boss (bossSelection). bossId est un champ de compatibilité
+       * qui peut arriver avec un snapshot plus ancien juste après NUKE.
+       * Utiliser bossSelection en priorité empêche donc l'image du boss N
+       * de rester affichée alors que les PV/nom sont déjà ceux de N+1.
+       */
+      function idImageBossCanoniqueIdleV181_(j){
+        const selection=
+          Math.max(
+            0,
+            idleEntier_(j&&j.bossSelection)
+          );
+
+        if(selection>0)return selection;
+
+        return Math.max(
+          0,
+          idleEntier_(j&&j.bossId)
+        );
+      }
+
+      /*
        * Norman (2026-09-18) : "Je veux que ce soit les images R2." Même
        * cause que chargerImageJoueurIdleV43_ : driveFileId (hérité de
        * l'ancien catalogue Google Sheets/Drive) était toujours tenté en
@@ -29532,8 +29562,15 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             nomBoss || ''
           ).trim();
 
+        const numero=
+          Math.max(
+            0,
+            idleEntier_(bossId)
+          );
+
         if(
           !nom ||
+          !numero ||
           !SOREAL_SESSION
         ){
           return;
@@ -29548,28 +29585,31 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           return;
         }
 
+        const cacheKey=
+          String(numero);
+
         if(
-          idleBossImageCacheV36[nom]
+          idleBossImageCacheV36[cacheKey]
         ){
           host.innerHTML=
             markupImageCombatIdleV61_(
               'boss',
               '',
-              idleBossImageCacheV36[nom],
+              idleBossImageCacheV36[cacheKey],
               nom,
               'soreal-idle-boss-image-v35',
-              nom
+              cacheKey
             );
 
           return;
         }
 
         const urlR2=
-          urlBossR2IdleV1_(bossId);
+          urlBossR2IdleV1_(numero);
 
         if(!urlR2)return;
 
-        idleBossImageCacheV36[nom]=
+        idleBossImageCacheV36[cacheKey]=
           urlR2;
 
         host.innerHTML=
@@ -29579,7 +29619,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             urlR2,
             nom,
             'soreal-idle-boss-image-v35',
-            nom
+            cacheKey
           );
       }
 
@@ -29932,7 +29972,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             chargerImageBossIdleV36_(
               j.bossActuel,
               j.bossDriveFileId,
-              j.bossId
+              idImageBossCanoniqueIdleV181_(j)
             );
 
             /*
