@@ -300,12 +300,16 @@
       +  '<div class="soreal-idle-v79-adventure-media"><div class="soreal-idle-v79-adventure-fallback">🗺️</div></div>'
       +  '<div class="soreal-idle-v79-combat-health">'
       +    '<div class="soreal-idle-v79-card-health soreal-idle-v79-adventure-enemy-row" style="visibility:hidden">'
-      +      '<div id="sorealIdleAdventureFightPvV1" class="soreal-idle-v79-adventure-mob-pv"></div>'
-      +      '<div class="soreal-idle-bossbar-wrap-v7"><div id="sorealIdleAdventureFightBarV1" class="soreal-idle-bossbar-v7" style="width:0%"></div></div>'
+      +      '<div class="soreal-idle-v79-health-track-v200">'
+      +        '<div id="sorealIdleAdventureFightBarV1" class="soreal-idle-bossbar-v7 soreal-idle-v79-health-fill-v200" style="width:0%"></div>'
+      +        '<div id="sorealIdleAdventureFightPvV1" class="soreal-idle-v79-adventure-mob-pv soreal-idle-v79-health-label-v200"></div>'
+      +      '</div>'
       +    '</div>'
       +    '<div class="soreal-idle-v79-card-health soreal-idle-v79-player-health">'
-      +      '<div id="sorealIdleAdventureJoueurPvLabelV1" class="soreal-idle-adventure-player-pv-label-v1"></div>'
-      +      '<div class="soreal-idle-playerbar-wrap-v15"><div id="sorealIdleAdventureJoueurBarV1" class="soreal-idle-playerbar-v15" style="width:0%"></div></div>'
+      +      '<div class="soreal-idle-v79-health-track-v200">'
+      +        '<div id="sorealIdleAdventureJoueurBarV1" class="soreal-idle-playerbar-v15 soreal-idle-v79-health-fill-v200" style="width:0%"></div>'
+      +        '<div id="sorealIdleAdventureJoueurPvLabelV1" class="soreal-idle-adventure-player-pv-label-v1 soreal-idle-v79-health-label-v200"></div>'
+      +      '</div>'
       +    '</div>'
       +  '</div>'
       +  '<div class="soreal-idle-v79-stats-grid">'
@@ -400,6 +404,7 @@
       \
       .soreal-idle-v79-adventure-enemy-row{display:flex;flex-direction:column;align-items:center;width:100%}\
       .soreal-idle-v79-adventure-mob-pv{font-size:13px;font-weight:900}\
+      .soreal-idle-v79-health-track-v200{position:relative;width:100%;height:28px;overflow:hidden;border:2px solid #111827;border-radius:6px;background:linear-gradient(180deg,#f4f7fb 0%,#dce3ec 100%);box-shadow:0 2px 8px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(15,23,42,.12)}.soreal-idle-v79-health-track-v200 .soreal-idle-v79-health-fill-v200{position:absolute;left:0;top:0;bottom:0;height:100%!important;border:0!important;border-radius:3px 0 0 3px!important;background:linear-gradient(180deg,#ff5a63 0%,#ef3742 47%,#ce202d 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset -1px 0 0 rgba(84,0,8,.22),0 0 10px rgba(239,55,66,.20)!important}.soreal-idle-v79-health-label-v200{position:absolute!important;inset:0!important;z-index:3!important;display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:0 8px!important;color:#fff!important;font-family:\"Segoe UI Variable Display\",\"Segoe UI Variable\",\"Segoe UI\",system-ui,-apple-system,sans-serif!important;font-size:13px!important;font-weight:900!important;letter-spacing:.025em!important;font-variant-numeric:tabular-nums!important;line-height:1!important;text-align:center!important;pointer-events:none!important;text-shadow:0 1px 0 #000,0 0 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.8)!important}@media(max-width:700px){.soreal-idle-v79-health-track-v200{height:26px}.soreal-idle-v79-health-label-v200{font-size:12px!important}}\
     ';document.head.appendChild(st);
   }
 
