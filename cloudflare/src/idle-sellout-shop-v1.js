@@ -10,17 +10,12 @@
  * page Arbitrary Points) — les deux seuls mécanismes d'argent réel du
  * jeu réel, explicitement interdits par Norman. Tout le reste est fidèle.
  *
- * Portée de ce premier lot (documentée honnêtement, pas cachée) :
- * l'achat, le prix, le plafond et la persistance de CHAQUE objet sont
- * réels et fonctionnels. L'effet de jeu réel n'est câblé immédiatement
- * que pour l'EXP/PP (ajout direct à state.currencies, déjà la bonne
- * monnaie partagée) — les potions/barres/emplacements/bascules restent
- * enregistrés (AP dépensé, compteur persistant) mais leur effet
- * numérique sur Energy/Magic/Resource3/inventaire/accessoires n'est pas
- * encore branché dans cette passe : câbler ça correctement demande de
- * toucher les points de lecture de state.resources[..].power partout où
- * ils existent déjà (Augmentations, Wandoos, NGU...), un vrai chantier
- * séparé à ne pas bâcler sous pression.
+ * Portée V212 : l'EXP/PP est le seul groupe dont l'effet est réellement
+ * câblé dans le moteur aujourd'hui. Les autres objets restent visibles
+ * pour documenter le catalogue NGU, mais ils sont NON ACHETABLES tant que
+ * leur effet n'existe pas : aucun AP ne doit pouvoir être débité pour un
+ * achat sans résultat. Le serveur réapplique cette garde, même si un client
+ * ancien ou modifié tente d'envoyer directement sellShopBuy.
  */
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
@@ -150,6 +145,19 @@ export function idleSelloutShopNextCostV1(item, purchased) {
   return Math.max(0, Math.round(item.cost(n)));
 }
 
+export function idleSelloutShopEffectActiveV1(itemOrId) {
+  const item =
+    typeof itemOrId === "string"
+      ? idleSelloutShopItemV1(itemOrId)
+      : itemOrId;
+  return Boolean(
+    item &&
+    item.grant &&
+    item.grant.currency &&
+    N(item.grant.amount, 0) > 0
+  );
+}
+
 /*
  * Achat générique — un seul point d'entrée pour les ~75 objets, jamais
  * une fonction différente par objet. Ne fait QUE : vérifier le plafond,
@@ -161,6 +169,9 @@ export function idleSelloutShopNextCostV1(item, purchased) {
 export function idleSelloutShopBuyV1(state, itemId) {
   const item = idleSelloutShopItemV1(String(itemId || ""));
   if (!item) throw new Error("OBJET_BOUTIQUE_INTROUVABLE");
+  if (!idleSelloutShopEffectActiveV1(item)) {
+    throw new Error("EFFET_BOUTIQUE_AP_INACTIF");
+  }
   const shop = state.selloutShop && typeof state.selloutShop === "object" ? state.selloutShop : { purchases: {} };
   const purchases = shop.purchases && typeof shop.purchases === "object" ? shop.purchases : {};
   const already = Math.max(0, I(purchases[item.id], 0));
