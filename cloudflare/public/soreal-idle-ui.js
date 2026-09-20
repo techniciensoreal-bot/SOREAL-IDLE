@@ -21356,6 +21356,18 @@ let idleDialogueTimerV76=null;
       }
 
 
+      function bossNukableIdleV198_(j){
+        if(!j)return false;
+
+        return (
+          idleNombre_(j.puissance)/5 >
+            idleNombre_(j.defenseBoss) &&
+          idleNombre_(j.defense)/5 >
+            idleNombre_(j.attaqueBoss)
+        );
+      }
+
+
       function pageCombatIdleV28_(j){
         return `
           ${entetePageIdleV28_(
@@ -21559,7 +21571,8 @@ let idleDialogueTimerV76=null;
                 onclick="window.__nukerBossIdleV1__()"
                 title="NUKE : ton Attaque doit dépasser 5× la Défense du boss ET ta Défense dépasser 5× son Attaque."
                 ${
-                  j.bossBloqueRenaissance
+                  j.bossBloqueRenaissance||
+                  !bossNukableIdleV198_(j)
                     ?'disabled'
                     :''
                 }
