@@ -244,18 +244,30 @@ function equippedIdsFromState(s) {
     "Norman : 'une arme ne doit pas être considérée comme maxée si elle n'a pas le level 100 ET les stats au max grâce aux boosts.' Niveau 100 seul ne doit jamais suffire pour le Coffre."
   );
 
-  // Une fois boosté jusqu'au vrai plafond (Power ET Toughness — forest:weapon a basePower=baseToughness, même écart des deux côtés), le Coffre doit l'accepter.
+  // Une fois toutes les statistiques RÉELLES de l'objet au plafond, le Coffre doit l'accepter.
+  // forest:weapon n'a ici qu'un plafond Power utile : après ce boost l'objet est pleinement terminé.
   const boostPowerId = "test-boost-cap-power";
   const boostToughnessId = "test-boost-cap-toughness";
   s.inventory.push({ id: boostPowerId, definitionId: "boost:power:100", name: "Boost power 100", kind: "boost", boostType: "power", strength: 100000, level: 0 });
   s.inventory.push({ id: boostToughnessId, definitionId: "boost:toughness:100", name: "Boost toughness 100", kind: "boost", boostType: "toughness", strength: 100000, level: 0 });
   r = applyIdleAdventureActionV47(s, { action: "boost", boostId: boostPowerId, targetId: aId }, { bosses: 17 }, 1);
   s = r.state;
-  r = applyIdleAdventureActionV47(s, { action: "boost", boostId: boostToughnessId, targetId: aId }, { bosses: 17 }, 1);
-  s = r.state;
+
+  // V210 : un objet déjà terminé ne doit plus engloutir un boost inutile.
+  assert.throws(
+    () => applyIdleAdventureActionV47(s, { action: "boost", boostId: boostToughnessId, targetId: aId }, { bosses: 17 }, 1),
+    /OBJET_DEJA_MAXE|BOOST_STAT_DEJA_MAX/,
+    "Une pièce pleinement maxée doit refuser tout boost supplémentaire."
+  );
+  assert.equal(
+    s.inventory.some(x => x.id === boostToughnessId),
+    true,
+    "Le boost refusé doit rester dans l'inventaire."
+  );
+
   r = applyIdleAdventureActionV47(s, { action: "coffreDeposer", id: aId }, { bosses: 17 }, 1);
   s = r.state;
-  assert.equal(s.coffre["forest:weapon"]?.id, aId, "Une fois Power ET Toughness au plafond réel, le Coffre doit accepter l'objet.");
+  assert.equal(s.coffre["forest:weapon"]?.id, aId, "Une fois ses statistiques utiles au plafond réel, le Coffre doit accepter l'objet.");
 }
 
 // --- 3bis. Un objet équipé ne peut pas rejoindre le coffre directement (doit d'abord être déséquipé, comme discard()) ---
