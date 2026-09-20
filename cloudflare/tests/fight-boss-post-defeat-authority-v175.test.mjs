@@ -45,6 +45,27 @@ assert.doesNotMatch(
   "Post-defeat recovery must not depend on server boss selection matching."
 );
 
+assert.match(
+  guard,
+  /basicTraining:[\s\S]{0,180}localAvantRecupV175\.basicTraining/
+);
+
+assert.match(
+  guard,
+  /defense:[\s\S]{0,160}localAvantRecupV175\.defense/
+);
+
+assert.doesNotMatch(
+  guard,
+  /Math\.max\([\s\S]{0,120}joueurServeur\.defense/,
+  "Recovery must not inject a server-final Defense into the next HP tick."
+);
+
+assert.match(
+  ui,
+  /const regenJoueurVisibleV176=[\s\S]{0,420}regenPvFightBossNguParSecondeV164_[\s\S]{0,500}↗ \+/
+);
+
 /*
  * Behavioral mirror of the V175 merge:
  * server can say FULL HP and even carry another boss selection,
