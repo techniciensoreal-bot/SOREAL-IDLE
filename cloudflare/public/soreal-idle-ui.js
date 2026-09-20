@@ -25442,8 +25442,6 @@ function pageAventureIdleV28_(j){
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurSlotAdventureIdleV138__(event,\''+idleHtml_(slotKey)+'\',\''+occupantId+'\')" '+
           'onclick="window.__clicCibleAdventureIdleV138__(\''+idleHtml_(slotKey)+'\',\''+occupantId+'\')" '+
-          (item?'oncontextmenu="return false"':'')+
-          (item?attributsAppuiLongAdventureIdleV165_(occupantId):'')+
           '>'+
           contenu+
           '</div>';
@@ -25476,8 +25474,6 @@ function pageAventureIdleV28_(j){
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurSlotAdventureIdleV138__(event,\'accessory\',\''+occupantId+'\')" '+
           'onclick="window.__clicCibleAdventureIdleV138__(\'accessory\',\''+occupantId+'\')" '+
-          (item?'oncontextmenu="return false"':'')+
-          (item?attributsAppuiLongAdventureIdleV165_(occupantId):'')+
           '>'+contenu+'</div>';
       }
 
@@ -25553,8 +25549,6 @@ function pageAventureIdleV28_(j){
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurCarteAdventureIdleV138__(event,\''+id+'\')" '+
           'onclick="window.__clicCarteAdventureIdleV138__(event,\''+id+'\')" '+
-          'oncontextmenu="return false"'+
-          attributsAppuiLongAdventureIdleV165_(id)+
           '>'+
           iconeObjetAdventureIdleV138_(item)+
         '</div>';
@@ -25622,32 +25616,33 @@ function pageAventureIdleV28_(j){
 
       let idleAdventureDragIdV138='';
       let idleAdventureSelectionIdV138='';
-      let idleAdventureLongPressTimerV165=0;
-      let idleAdventureLongPressIdV165='';
-      let idleAdventureLongPressX165=0;
-      let idleAdventureLongPressY165=0;
       let idleAdventureIgnorerClicJusquaV165=0;
-      let idleAdventureDernierTouchV165=0;
 
       /*
-       * V180 — vrai drag tactile. HTML5 draggable/dragstart n'est pas une
-       * API de drag fiable sur téléphone. Un PointerEvent tactile suit
-       * donc l'objet du pointerdown au pointerup et résout la cible sous
-       * le doigt avec elementFromPoint().
+       * V195 — contrôleur UNIQUE des gestes d'inventaire.
+       *
+       * Le frontend autonome est affiché dans un iframe, lui-même utilisé
+       * dans l'APP mobile. Les anciennes générations superposaient
+       * Pointer Events, clic synthétique, HTML5 drag et détection de
+       * double-tap dans le handler onclick. Selon la WebView, pointercancel
+       * ou l'absence de clic synthétique interrompait l'appui long.
+       *
+       * Désormais :
+       * - souris/stylet : Pointer Events uniquement pour le maintien ;
+       *   le clic et le drag HTML5 restent natifs ;
+       * - tactile/WebView : Touch Events en capture, source de vérité
+       *   unique pour tap, double-tap, maintien et drag ;
+       * - le popup n'est jamais ouvert par un clic simple.
        */
-      let idleAdventurePointerDragV180=null;
-      let idleAdventurePointerCibleV180=null;
+      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V195=32;
+      const IDLE_ADVENTURE_APPUI_LONG_MS_V195=600;
+      const IDLE_ADVENTURE_DOUBLE_TAP_MS_V195=420;
+
+      let idleAdventureGesteV195=null;
+      let idleAdventureDernierTapIdV195='';
+      let idleAdventureDernierTapMsV195=0;
+      let idleAdventurePointerCibleV195=null;
       let idleAdventureDragGhostV183=null;
-      /*
-       * V194 — téléphone : 22 px était trop sensible aux micro-mouvements
-       * naturels d'un doigt maintenu. On laisse un peu plus de tolérance
-       * avant de transformer le geste en drag / annuler l'appui long.
-       */
-      const IDLE_ADVENTURE_GESTE_SEUIL_PX_V182=32;
-      const IDLE_ADVENTURE_APPUI_LONG_MS_V194=600;
-      const IDLE_ADVENTURE_DOUBLE_TAP_MS_V194=420;
-      let idleAdventureDernierTapIdV194='';
-      let idleAdventureDernierTapMsV194=0;
 
       function supprimerGhostDragAdventureIdleV183_(){
         if(idleAdventureDragGhostV183&&idleAdventureDragGhostV183.parentNode){
@@ -25655,9 +25650,10 @@ function pageAventureIdleV28_(j){
         }
         idleAdventureDragGhostV183=null;
       }
-      function creerGhostDragAdventureIdleV183_(source,event){
+
+      function creerGhostDragAdventureIdleV183_(source,point){
         supprimerGhostDragAdventureIdleV183_();
-        if(!source||!event)return;
+        if(!source||!point)return;
         const ghost=document.createElement('div');
         ghost.className='soreal-idle-drag-ghost-v183';
         const visuel=source.querySelector('img,.soreal-idle-v138-slot-icon,span');
@@ -25665,34 +25661,27 @@ function pageAventureIdleV28_(j){
         else ghost.textContent='📦';
         document.body.appendChild(ghost);
         idleAdventureDragGhostV183=ghost;
-        deplacerGhostDragAdventureIdleV183_(event);
-      }
-      function deplacerGhostDragAdventureIdleV183_(event){
-        if(!idleAdventureDragGhostV183||!event)return;
-        idleAdventureDragGhostV183.style.left=idleNombre_(event.clientX)+'px';
-        idleAdventureDragGhostV183.style.top=idleNombre_(event.clientY)+'px';
+        deplacerGhostDragAdventureIdleV183_(point);
       }
 
-      function annulerAppuiLongAdventureIdleV165_(){
-        if(idleAdventureLongPressTimerV165){
-          clearTimeout(idleAdventureLongPressTimerV165);
-          idleAdventureLongPressTimerV165=0;
-        }
-        idleAdventureLongPressIdV165='';
+      function deplacerGhostDragAdventureIdleV183_(point){
+        if(!idleAdventureDragGhostV183||!point)return;
+        idleAdventureDragGhostV183.style.left=idleNombre_(point.clientX)+'px';
+        idleAdventureDragGhostV183.style.top=idleNombre_(point.clientY)+'px';
       }
 
-      function nettoyerSurvolPointerAdventureIdleV180_(){
-        if(idleAdventurePointerCibleV180){
-          idleAdventurePointerCibleV180.classList.remove('drag-over');
-          idleAdventurePointerCibleV180=null;
+      function nettoyerSurvolGesteAdventureIdleV195_(){
+        if(idleAdventurePointerCibleV195){
+          idleAdventurePointerCibleV195.classList.remove('drag-over');
+          idleAdventurePointerCibleV195=null;
         }
       }
 
-      function ciblePointerAdventureIdleV180_(event){
-        if(!event||typeof document.elementFromPoint!=='function')return null;
+      function cibleGesteAdventureIdleV195_(point){
+        if(!point||typeof document.elementFromPoint!=='function')return null;
         const brut=document.elementFromPoint(
-          idleNombre_(event.clientX),
-          idleNombre_(event.clientY)
+          idleNombre_(point.clientX),
+          idleNombre_(point.clientY)
         );
         if(!brut||!brut.closest)return null;
         return brut.closest(
@@ -25705,16 +25694,16 @@ function pageAventureIdleV28_(j){
         );
       }
 
-      function marquerCiblePointerAdventureIdleV180_(event){
-        const cible=ciblePointerAdventureIdleV180_(event);
-        if(cible===idleAdventurePointerCibleV180)return cible;
-        nettoyerSurvolPointerAdventureIdleV180_();
-        idleAdventurePointerCibleV180=cible;
+      function marquerCibleGesteAdventureIdleV195_(point){
+        const cible=cibleGesteAdventureIdleV195_(point);
+        if(cible===idleAdventurePointerCibleV195)return cible;
+        nettoyerSurvolGesteAdventureIdleV195_();
+        idleAdventurePointerCibleV195=cible;
         if(cible)cible.classList.add('drag-over');
         return cible;
       }
 
-      function appliquerDepotPointerAdventureIdleV180_(sourceId,cible){
+      function appliquerDepotGesteAdventureIdleV195_(sourceId,cible){
         const source=String(sourceId||'');
         if(!source||!cible)return;
 
@@ -25782,186 +25771,335 @@ function pageAventureIdleV28_(j){
         }
       }
 
-      function debutAppuiLongAdventureIdleV165_(event,itemId){
-        if(!event)return;
-        if(event.button!=null&&event.button!==0)return;
-
-        annulerAppuiLongAdventureIdleV165_();
-        nettoyerSurvolPointerAdventureIdleV180_();
-
-        const pointerType=String(event.pointerType||'');
-        if(pointerType!=='mouse'){
-          idleAdventureDernierTouchV165=Date.now();
-
-          /*
-           * V182 — sur iOS/Android, draggable=true peut lancer le drag
-           * natif / touch-callout au maintien et provoquer pointercancel
-           * avant les 1 000 ms. Pendant le geste tactile, notre Pointer
-           * Event est l'unique propriétaire du déplacement.
-           */
-          if(event.currentTarget){
-            event.currentTarget.dataset.idleDraggableAvantV182=
-              event.currentTarget.draggable?'1':'0';
-            event.currentTarget.draggable=false;
-            if(typeof event.currentTarget.setPointerCapture==='function'){
-              try{event.currentTarget.setPointerCapture(event.pointerId);}catch(_e){}
-            }
-          }
-
-          idleAdventurePointerDragV180={
-            pointerId:event.pointerId,
-            itemId:String(itemId||''),
-            startX:idleNombre_(event.clientX),
-            startY:idleNombre_(event.clientY),
-            sourceEl:event.currentTarget||null,
-            active:false
-          };
-        }else{
-          idleAdventurePointerDragV180=null;
-        }
-
-        idleAdventureLongPressIdV165=String(itemId||'');
-        idleAdventureLongPressX165=idleNombre_(event.clientX);
-        idleAdventureLongPressY165=idleNombre_(event.clientY);
-        idleAdventureLongPressTimerV165=setTimeout(function(){
-          const id=idleAdventureLongPressIdV165;
-          const drag=idleAdventurePointerDragV180;
-          idleAdventureLongPressTimerV165=0;
-          idleAdventurePointerDragV180=null;
-          restaurerDraggablePointerAdventureIdleV182_(drag);
-          supprimerGhostDragAdventureIdleV183_();
-          nettoyerSurvolPointerAdventureIdleV180_();
-          if(!id)return;
-          idleAdventureIgnorerClicJusquaV165=Date.now()+650;
-
-          if(idleAdventureComparerEnAttenteV183&&id!==idleAdventureComparerPremierV183){
-            ouvrirComparaisonObjetAdventureIdleV183_(id);
-            return;
-          }
-
-          nettoyerEtatDragAdventureIdleV138_();
-          idleAdventureSelectionIdV138=id;
-          document.querySelectorAll(
-            '[data-item-id],[data-occupant-id]'
-          ).forEach(function(el){
-            const cible=String(
-              el.getAttribute('data-item-id')||
-              el.getAttribute('data-occupant-id')||
-              ''
-            );
-            if(cible===id)el.classList.add('selected');
-          });
-          afficherDetailsObjetAdventureIdleV138_(id);
-        },IDLE_ADVENTURE_APPUI_LONG_MS_V194);
+      function elementObjetGesteAdventureIdleV195_(target){
+        if(!target||!target.closest)return null;
+        return target.closest(
+          '.soreal-idle-v138-bag-card[data-item-id],'+
+          '.soreal-idle-v138-slot[data-occupant-id]'
+        );
       }
 
-      function bougerAppuiLongAdventureIdleV165_(event){
-        if(!event)return;
+      function idObjetGesteAdventureIdleV195_(element){
+        if(!element)return '';
+        return String(
+          element.getAttribute('data-item-id')||
+          element.getAttribute('data-occupant-id')||
+          ''
+        );
+      }
 
-        const dx=idleNombre_(event.clientX)-idleAdventureLongPressX165;
-        const dy=idleNombre_(event.clientY)-idleAdventureLongPressY165;
+      function restaurerDraggableGesteAdventureIdleV195_(geste){
+        const el=geste&&geste.sourceEl;
+        if(!el||geste.draggableAvant==null)return;
+        el.draggable=Boolean(geste.draggableAvant);
+      }
+
+      function annulerTimerGesteAdventureIdleV195_(){
+        if(idleAdventureGesteV195&&idleAdventureGesteV195.timer){
+          clearTimeout(idleAdventureGesteV195.timer);
+          idleAdventureGesteV195.timer=0;
+        }
+      }
+
+      function terminerEtatGesteAdventureIdleV195_(){
+        const geste=idleAdventureGesteV195;
+        annulerTimerGesteAdventureIdleV195_();
+        restaurerDraggableGesteAdventureIdleV195_(geste);
+        idleAdventureGesteV195=null;
+        supprimerGhostDragAdventureIdleV183_();
+        nettoyerSurvolGesteAdventureIdleV195_();
+      }
+
+      function ouvrirDetailsObjetParGesteAdventureIdleV195_(id){
+        const objet=String(id||'');
+        if(!objet)return false;
+        nettoyerEtatDragAdventureIdleV138_();
+        idleAdventureSelectionIdV138=objet;
+        document.querySelectorAll(
+          '[data-item-id],[data-occupant-id]'
+        ).forEach(function(el){
+          const cible=String(
+            el.getAttribute('data-item-id')||
+            el.getAttribute('data-occupant-id')||
+            ''
+          );
+          if(cible===objet)el.classList.add('selected');
+        });
+        afficherDetailsObjetAdventureIdleV138_(objet);
+        idleAdventureIgnorerClicJusquaV165=Date.now()+700;
+        return true;
+      }
+
+      function commencerGesteAdventureIdleV195_(mode,element,id,point,identifiant){
+        if(!element||!id||!point)return false;
+
+        terminerEtatGesteAdventureIdleV195_();
+
+        const tactile=mode==='touch';
+        const geste={
+          mode:mode,
+          itemId:String(id),
+          sourceEl:element,
+          identifiant:identifiant,
+          startX:idleNombre_(point.clientX),
+          startY:idleNombre_(point.clientY),
+          drag:false,
+          appuiLong:false,
+          draggableAvant:tactile?Boolean(element.draggable):null,
+          timer:0
+        };
+
+        if(tactile){
+          element.draggable=false;
+        }
+
+        geste.timer=setTimeout(function(){
+          if(idleAdventureGesteV195!==geste||geste.drag)return;
+          geste.timer=0;
+          geste.appuiLong=true;
+          idleAdventureIgnorerClicJusquaV165=Date.now()+700;
+          ouvrirDetailsObjetParGesteAdventureIdleV195_(geste.itemId);
+        },IDLE_ADVENTURE_APPUI_LONG_MS_V195);
+
+        idleAdventureGesteV195=geste;
+        return true;
+      }
+
+      function deplacerGesteAdventureIdleV195_(point,event){
+        const geste=idleAdventureGesteV195;
+        if(!geste||!point)return;
+
+        const dx=idleNombre_(point.clientX)-geste.startX;
+        const dy=idleNombre_(point.clientY)-geste.startY;
         const distance=Math.hypot(dx,dy);
 
-        if(distance>IDLE_ADVENTURE_GESTE_SEUIL_PX_V182){
-          annulerAppuiLongAdventureIdleV165_();
+        if(distance<=IDLE_ADVENTURE_GESTE_SEUIL_PX_V195)return;
+
+        annulerTimerGesteAdventureIdleV195_();
+
+        if(geste.mode!=='touch'||geste.appuiLong)return;
+
+        if(!geste.drag){
+          geste.drag=true;
+          idleAdventureDragIdV138=geste.itemId;
+          idleAdventureIgnorerClicJusquaV165=Date.now()+700;
+          geste.sourceEl.classList.add('selected');
+          creerGhostDragAdventureIdleV183_(geste.sourceEl,point);
         }
 
-        const drag=idleAdventurePointerDragV180;
-        if(
-          !drag||
-          drag.pointerId!==event.pointerId||
-          String(event.pointerType||'')==='mouse'
-        ){
+        deplacerGhostDragAdventureIdleV183_(point);
+        marquerCibleGesteAdventureIdleV195_(point);
+
+        if(event&&event.cancelable)event.preventDefault();
+        if(event)event.stopPropagation();
+      }
+
+      function estDoubleTapGesteAdventureIdleV195_(id){
+        const maintenant=Date.now();
+        const objet=String(id||'');
+        const doubleTap=Boolean(
+          objet&&
+          objet===idleAdventureDernierTapIdV195&&
+          maintenant-idleAdventureDernierTapMsV195<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V195
+        );
+
+        if(doubleTap){
+          idleAdventureDernierTapIdV195='';
+          idleAdventureDernierTapMsV195=0;
+        }else{
+          idleAdventureDernierTapIdV195=objet;
+          idleAdventureDernierTapMsV195=maintenant;
+        }
+
+        return doubleTap;
+      }
+
+      function executerTapSimpleGesteAdventureIdleV195_(geste){
+        if(!geste||!geste.sourceEl)return;
+        const el=geste.sourceEl;
+        const id=geste.itemId;
+        if(el.classList.contains('soreal-idle-v138-bag-card')){
+          clicCarteAdventureIdleV138_(
+            {
+              currentTarget:el,
+              preventDefault:function(){},
+              stopPropagation:function(){}
+            },
+            id
+          );
           return;
         }
 
-        if(!drag.active&&distance>IDLE_ADVENTURE_GESTE_SEUIL_PX_V182){
-          drag.active=true;
-          idleAdventureDragIdV138=drag.itemId;
-          idleAdventureIgnorerClicJusquaV165=Date.now()+650;
-          const source=document.querySelector(
-            '.soreal-idle-v138-bag-card[data-item-id="'+drag.itemId+'"],'+
-            '.soreal-idle-v138-slot[data-occupant-id="'+drag.itemId+'"]'
-          );
-          if(source){
-            source.classList.add('selected');
-            creerGhostDragAdventureIdleV183_(source,event);
+        clicCibleAdventureIdleV138_(
+          String(el.getAttribute('data-equip-slot-v180')||''),
+          id
+        );
+      }
+
+      function finirGesteTactileAdventureIdleV195_(point,event){
+        const geste=idleAdventureGesteV195;
+        if(!geste||geste.mode!=='touch')return;
+
+        if(event&&event.cancelable)event.preventDefault();
+        if(event)event.stopPropagation();
+
+        annulerTimerGesteAdventureIdleV195_();
+
+        if(geste.drag){
+          const cible=marquerCibleGesteAdventureIdleV195_(point);
+          const source=geste.itemId;
+          terminerEtatGesteAdventureIdleV195_();
+          nettoyerEtatDragAdventureIdleV138_();
+          idleAdventureIgnorerClicJusquaV165=Date.now()+700;
+          appliquerDepotGesteAdventureIdleV195_(source,cible);
+          return;
+        }
+
+        if(geste.appuiLong){
+          terminerEtatGesteAdventureIdleV195_();
+          return;
+        }
+
+        const id=geste.itemId;
+        const doubleTap=estDoubleTapGesteAdventureIdleV195_(id);
+        const tapGeste={
+          sourceEl:geste.sourceEl,
+          itemId:geste.itemId
+        };
+        terminerEtatGesteAdventureIdleV195_();
+
+        if(doubleTap){
+          ouvrirDetailsObjetParGesteAdventureIdleV195_(id);
+          return;
+        }
+
+        executerTapSimpleGesteAdventureIdleV195_(tapGeste);
+      }
+
+      function pointTouchParIdentifiantAdventureIdleV195_(touches,identifiant){
+        if(!touches)return null;
+        for(let i=0;i<touches.length;i+=1){
+          if(touches[i]&&touches[i].identifier===identifiant){
+            return touches[i];
           }
         }
+        return null;
+      }
 
-        if(drag.active){
-          deplacerGhostDragAdventureIdleV183_(event);
+      function installerGestesInventaireAdventureIdleV195_(){
+        if(document.documentElement.dataset.idleInventoryGesturesV195==='1')return;
+        document.documentElement.dataset.idleInventoryGesturesV195='1';
+
+        document.addEventListener('pointerdown',function(event){
+          if(String(event.pointerType||'')==='touch')return;
+          if(event.button!=null&&event.button!==0)return;
+          const element=elementObjetGesteAdventureIdleV195_(event.target);
+          const id=idObjetGesteAdventureIdleV195_(element);
+          if(!element||!id)return;
+          commencerGesteAdventureIdleV195_(
+            'pointer',
+            element,
+            id,
+            event,
+            event.pointerId
+          );
+        },true);
+
+        document.addEventListener('pointermove',function(event){
+          const geste=idleAdventureGesteV195;
+          if(
+            !geste||
+            geste.mode!=='pointer'||
+            geste.identifiant!==event.pointerId
+          )return;
+          deplacerGesteAdventureIdleV195_(event,event);
+        },true);
+
+        document.addEventListener('pointerup',function(event){
+          const geste=idleAdventureGesteV195;
+          if(
+            !geste||
+            geste.mode!=='pointer'||
+            geste.identifiant!==event.pointerId
+          )return;
+          terminerEtatGesteAdventureIdleV195_();
+        },true);
+
+        document.addEventListener('pointercancel',function(event){
+          const geste=idleAdventureGesteV195;
+          if(
+            !geste||
+            geste.mode!=='pointer'||
+            geste.identifiant!==event.pointerId
+          )return;
+          terminerEtatGesteAdventureIdleV195_();
+        },true);
+
+        document.addEventListener('touchstart',function(event){
+          if(!event.touches||event.touches.length!==1)return;
+          const element=elementObjetGesteAdventureIdleV195_(event.target);
+          const id=idObjetGesteAdventureIdleV195_(element);
+          if(!element||!id)return;
+
+          /*
+           * Le tactile est géré ici de bout en bout : empêcher la WebView
+           * de lancer son callout/drag/clic synthétique est volontaire.
+           * Le tap simple sera exécuté explicitement à touchend.
+           */
           if(event.cancelable)event.preventDefault();
           event.stopPropagation();
-          marquerCiblePointerAdventureIdleV180_(event);
-        }
-      }
 
-      function restaurerDraggablePointerAdventureIdleV182_(drag){
-        const el=drag&&drag.sourceEl;
-        if(!el)return;
-        const avant=String(el.dataset.idleDraggableAvantV182||'');
-        el.draggable=avant==='1';
-        delete el.dataset.idleDraggableAvantV182;
-      }
+          const touch=event.touches[0];
+          commencerGesteAdventureIdleV195_(
+            'touch',
+            element,
+            id,
+            touch,
+            touch.identifier
+          );
+        },{capture:true,passive:false});
 
-      function finirAppuiLongAdventureIdleV165_(event){
-        annulerAppuiLongAdventureIdleV165_();
+        document.addEventListener('touchmove',function(event){
+          const geste=idleAdventureGesteV195;
+          if(!geste||geste.mode!=='touch')return;
+          const touch=pointTouchParIdentifiantAdventureIdleV195_(
+            event.touches,
+            geste.identifiant
+          );
+          if(!touch)return;
+          deplacerGesteAdventureIdleV195_(touch,event);
+        },{capture:true,passive:false});
 
-        const drag=idleAdventurePointerDragV180;
-        idleAdventurePointerDragV180=null;
-        restaurerDraggablePointerAdventureIdleV182_(drag);
-        supprimerGhostDragAdventureIdleV183_();
+        document.addEventListener('touchend',function(event){
+          const geste=idleAdventureGesteV195;
+          if(!geste||geste.mode!=='touch')return;
+          const touch=
+            pointTouchParIdentifiantAdventureIdleV195_(
+              event.changedTouches,
+              geste.identifiant
+            )||
+            {
+              clientX:geste.startX,
+              clientY:geste.startY
+            };
+          finirGesteTactileAdventureIdleV195_(touch,event);
+        },{capture:true,passive:false});
 
-        if(
-          drag&&
-          drag.active&&
-          (!event||drag.pointerId===event.pointerId)
-        ){
+        document.addEventListener('touchcancel',function(event){
+          const geste=idleAdventureGesteV195;
+          if(!geste||geste.mode!=='touch')return;
           if(event&&event.cancelable)event.preventDefault();
           if(event)event.stopPropagation();
-          const cible=event
-            ?marquerCiblePointerAdventureIdleV180_(event)
-            :idleAdventurePointerCibleV180;
-          const source=drag.itemId;
-          idleAdventureIgnorerClicJusquaV165=Date.now()+650;
-          nettoyerSurvolPointerAdventureIdleV180_();
-          nettoyerEtatDragAdventureIdleV138_();
-          appliquerDepotPointerAdventureIdleV180_(source,cible);
-          return;
-        }
+          terminerEtatGesteAdventureIdleV195_();
+        },{capture:true,passive:false});
 
-        nettoyerSurvolPointerAdventureIdleV180_();
+        document.addEventListener('contextmenu',function(event){
+          if(!elementObjetGesteAdventureIdleV195_(event.target))return;
+          event.preventDefault();
+        },true);
       }
 
-      function annulerPointerAdventureIdleV180_(){
-        /*
-         * Un pointercancel peut encore arriver (appel système / navigateur).
-         * On ne laisse jamais l'élément bloqué en draggable=false.
-         */
-        const drag=idleAdventurePointerDragV180;
-        annulerAppuiLongAdventureIdleV165_();
-        idleAdventurePointerDragV180=null;
-        restaurerDraggablePointerAdventureIdleV182_(drag);
-        supprimerGhostDragAdventureIdleV183_();
-        nettoyerSurvolPointerAdventureIdleV180_();
-      }
-
-      function attributsAppuiLongAdventureIdleV165_(itemId){
-        const id=idleHtml_(String(itemId||''));
-        return ' onpointerdown="window.__debutAppuiLongAdventureIdleV165__(event,\''+id+'\')"'+
-          ' onpointermove="window.__bougerAppuiLongAdventureIdleV165__(event)"'+
-          ' onpointerup="window.__finAppuiLongAdventureIdleV165__(event)"'+
-          ' onpointercancel="window.__annulerPointerAdventureIdleV180__(event)"';
-      }
-      window.__debutAppuiLongAdventureIdleV165__=debutAppuiLongAdventureIdleV165_;
-      window.__bougerAppuiLongAdventureIdleV165__=bougerAppuiLongAdventureIdleV165_;
-      window.__finAppuiLongAdventureIdleV165__=finirAppuiLongAdventureIdleV165_;
-      window.__annulerPointerAdventureIdleV180__=annulerPointerAdventureIdleV180_;
-
-      function interactionTactileRecenteAdventureIdleV165_(){
-        return Date.now()-idleAdventureDernierTouchV165<900;
-      }
+      installerGestesInventaireAdventureIdleV195_();
 
       function idSourceAdventureIdleV138_(event){
         return String(
@@ -25995,9 +26133,7 @@ function pageAventureIdleV28_(j){
       }
 
       function debutDragAdventureIdleV138_(event,itemId){
-        annulerAppuiLongAdventureIdleV165_();
-        idleAdventurePointerDragV180=null;
-        nettoyerSurvolPointerAdventureIdleV180_();
+        terminerEtatGesteAdventureIdleV195_();
         idleAdventureDragIdV138=String(itemId||'');
         if(event&&event.dataTransfer){
           event.dataTransfer.effectAllowed='move';
@@ -26759,43 +26895,6 @@ function pageAventureIdleV28_(j){
       window.__fermerDetailsObjetAdventureIdleV1__=fermerDetailsObjetAdventureIdleV1_;
 
       /*
-       * V194 — secours mobile : double-tap sur le MÊME objet ouvre son
-       * popup. Le tap simple garde son rôle de sélection/fusion.
-       */
-      function doubleTapObjetAdventureIdleV194_(id){
-        const maintenant=Date.now();
-        const objet=String(id||'');
-        const estDouble=Boolean(
-          objet&&
-          objet===idleAdventureDernierTapIdV194&&
-          maintenant-idleAdventureDernierTapMsV194<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V194
-        );
-        idleAdventureDernierTapIdV194=objet;
-        idleAdventureDernierTapMsV194=maintenant;
-        return estDouble;
-      }
-
-      function ouvrirDetailsObjetTactileAdventureIdleV194_(id){
-        const objet=String(id||'');
-        if(!objet)return false;
-        nettoyerEtatDragAdventureIdleV138_();
-        idleAdventureSelectionIdV138=objet;
-        document.querySelectorAll(
-          '[data-item-id],[data-occupant-id]'
-        ).forEach(function(el){
-          const cible=String(
-            el.getAttribute('data-item-id')||
-            el.getAttribute('data-occupant-id')||
-            ''
-          );
-          if(cible===objet)el.classList.add('selected');
-        });
-        afficherDetailsObjetAdventureIdleV138_(objet);
-        idleAdventureIgnorerClicJusquaV165=Date.now()+120;
-        return true;
-      }
-
-      /*
        * Un emplacement déjà occupé peut désormais être choisi comme
        * SOURCE (tapoter l'objet équipé en premier), pas seulement comme
        * cible d'équipement — condition pour pouvoir ensuite tapoter un
@@ -26804,16 +26903,6 @@ function pageAventureIdleV28_(j){
       function clicCibleAdventureIdleV138_(slotName,occupantId){
         if(Date.now()<idleAdventureIgnorerClicJusquaV165)return;
         const occupant=String(occupantId||'');
-        const tactile=interactionTactileRecenteAdventureIdleV165_();
-
-        if(
-          tactile&&
-          occupant&&
-          doubleTapObjetAdventureIdleV194_(occupant)
-        ){
-          ouvrirDetailsObjetTactileAdventureIdleV194_(occupant);
-          return;
-        }
 
         if(
           idleAdventureComparerEnAttenteV183&&
@@ -26829,7 +26918,6 @@ function pageAventureIdleV28_(j){
             idleAdventureSelectionIdV138=occupant;
             const el=document.querySelector('.soreal-idle-v138-slot[data-occupant-id="'+occupant+'"]');
             if(el)el.classList.add('selected');
-            if(!tactile)afficherDetailsObjetAdventureIdleV138_(occupant);
           }
           return;
         }
@@ -26856,17 +26944,6 @@ function pageAventureIdleV28_(j){
           return;
         }
         const id=String(itemId||'');
-        const tactile=interactionTactileRecenteAdventureIdleV165_();
-
-        if(
-          tactile&&
-          id&&
-          doubleTapObjetAdventureIdleV194_(id)
-        ){
-          if(event){event.preventDefault();event.stopPropagation();}
-          ouvrirDetailsObjetTactileAdventureIdleV194_(id);
-          return;
-        }
 
         if(idleAdventureComparerEnAttenteV183&&id!==idleAdventureComparerPremierV183){
           if(event){event.preventDefault();event.stopPropagation();}
@@ -26895,7 +26972,6 @@ function pageAventureIdleV28_(j){
         nettoyerEtatDragAdventureIdleV138_();
         idleAdventureSelectionIdV138=id;
         if(event&&event.currentTarget)event.currentTarget.classList.add('selected');
-        if(!tactile)afficherDetailsObjetAdventureIdleV138_(id);
       }
 
       window.__debutDragAdventureIdleV138__=debutDragAdventureIdleV138_;
