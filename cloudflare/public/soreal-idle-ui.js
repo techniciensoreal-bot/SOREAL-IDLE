@@ -8696,8 +8696,6 @@
               idlePopupActifV75 ||
               idlePopupQueueV75.length ||
               idleEtat.bossBloqueRenaissance ||
-              idleEtat.ko ||
-              idleNombre_(idleEtat.koSecondesRestantes)>0 ||
               idleNombre_(idleEtat.pvJoueur)<=0
             );
         }
@@ -8722,11 +8720,6 @@
           fuite.disabled=!idleEtat.combatBossActif;
         }
 
-        const koEl=document.getElementById('sorealIdleKoV15');
-        if(koEl&&!idleEtat.ko){
-          koEl.classList.add('inactive');
-          koEl.textContent='';
-        }
       }
 
       function transitionMortBossIdleV61_(){
@@ -9133,45 +9126,28 @@
         }
 
         /*
-         * Norman (2026-09-18, en direct) : "Le boss récupère sa vie
-         * progressivement comme nous suivant ses propres statistiques de
-         * régen." Avant : Fuite ET un vrai K.O. rendaient tous deux
-         * idleEtat.bossPv à idleEtat.bossPvMax INSTANTANÉMENT (voir
-         * definirCombatBossIdleV39_ et le K.O. plus haut dans ce fichier).
-         * Vérifié en direct sur le wiki NGU (page Boss Fights, WIP) : "HP
-         * while fighting is 10*attack, and HP regain is defense/20" —
-         * formule symétrique (confirmée par le tableau de stats de la même
-         * page : chaque boss listé a HP = Attack×10 exactement, ex. Boss 1
-         * Attack 50 000 → HP 500 000), déjà appliquée au joueur
-         * (regenPvSecJoueurBossV1 plus haut) mais jamais au boss lui-même.
-         * idleEtat.defenseBoss est déjà exposé par le serveur (utilisé
-         * pour dpsBase plus haut) — même formule, appliquée ici à la
-         * régén progressive du boss hors combat (guard !combatBossActif
-         * déjà établi ci-dessus, couvre à la fois le K.O. et le temps
-         * d'attente avant de recliquer sur Fight).
+         * Fight Boss NGU : hors combat, un boss blessé récupère
+         * progressivement selon SON HP Regen. Cette valeur vient de la
+         * référence bf_hp_regen du serveur (idleEtat.regenBoss), jamais
+         * de Defense/20 — Defense/20 est la regen du joueur.
+         *
+         * Un boss à 0 est réellement vaincu et ne ressuscite pas.
          */
         if(
           !idleEtat.combatBossActif &&
-          idleNombre_(idleEtat.bossPv)>0
+          idleNombre_(idleEtat.bossPv)>0 &&
+          idleNombre_(idleEtat.bossPv)<
+            idleNombre_(idleEtat.bossPvMax)
         ){
-          /*
-           * Le garde idleNombre_(idleEtat.bossPv)>0 ci-dessus empêche de
-           * faire "ressusciter" un boss réellement vaincu (0 PV) juste
-           * parce que combatBossActif vient de repasser à false à la
-           * victoire — un boss à 0 doit rester à 0 jusqu'à la sélection
-           * d'un nouveau boss (selectionnerBossIdleV37_, qui fixe déjà
-           * pv=b.pv/pvMax=b.pv lui-même), jamais régénérer depuis rien.
-           */
-          const regenBossParSecV1=
+          const regenBossParSecV172=
             Math.max(
               0,
               idleNombre_(
-                idleEtat.defenseBoss
-              )/
-              20
+                idleEtat.regenBoss
+              )
             );
 
-          if(regenBossParSecV1>0){
+          if(regenBossParSecV172>0){
             idleEtat.bossPv=
               Math.min(
                 idleNombre_(
@@ -9180,7 +9156,7 @@
                 idleNombre_(
                   idleEtat.bossPv
                 )+
-                regenBossParSecV1*
+                regenBossParSecV172*
                 dt
               );
           }
@@ -9398,51 +9374,34 @@
               );
           }
 
+          const dpsAvantRegenBoss=
+            dpsBase*
+            (
+              bouclierActif
+                ?Math.max(
+                    .05,
+                    1-
+                    idleBouclierReductionV70/
+                    100
+                  )
+                :1
+            )*
+            multiplicateurMagieDps;
+
           const dps=
             paralyse
               ?0
-              :dpsBase*
-                (
-                  bouclierActif
-                    ?Math.max(
-                        .05,
-                        1-
-                        idleBouclierReductionV70/
-                        100
-                      )
-                    :1
-                )*
-                multiplicateurMagieDps;
-          let koRestant=
-            Math.max(
-              0,
-              idleNombre_(
-                idleEtat.koSecondesRestantes
-              )
-            );
-
-          if(koRestant>0){
-            koRestant=
-              Math.max(
-                0,
-                koRestant-dt
-              );
-
-            idleEtat.koSecondesRestantes=
-              koRestant;
-
-            idleEtat.ko=
-              koRestant>0;
-
-            /*
-             * V171 — aucune régénération supplémentaire ici.
-             * Le bloc commun !idleEtat.combatBossActif plus haut est
-             * l'unique écrivain de récupération Fight Boss hors combat :
-             * Defense / 20 PV/s. Le K.O. passait auparavant une seconde
-             * fois par la même formule dans ce bloc, soit une vitesse x2.
-             */
-          }else{
-            if(
+              :Math.max(
+                  0,
+                  dpsAvantRegenBoss-
+                  Math.max(
+                    0,
+                    idleNombre_(
+                      idleEtat.regenBoss
+                    )
+                  )
+                );
+          if(
               dps>0 &&
               idleNombre_(
                 idleEtat.bossPv
@@ -9809,67 +9768,29 @@
             if(
               idleEtat.pvJoueur<=0
             ){
-              idleEtat.ko=true;
-              idleEtat.koSecondesRestantes=
-                Math.max(
-                  1,
-                  idleNombre_(
-                    idleEtat.dureeKoSecondes||10
-                  )
-                );
-
               /*
-               * Norman (2026-09-09) : "le combat doit totalement s'arrêter
-               * tant qu'on ne reclique pas sur le bouton." Le combat ne
-               * doit plus jamais repartir tout seul quand la régénération
-               * atteint 100% ou que le décompte KO se termine — seul un
-               * clic explicite (reprendreCombatBossIdleV1_) le relance.
+               * Défaite Fight Boss NGU :
+               * le coup fatal peint immédiatement 0 PV puis arrête le
+               * combat. Aucun K.O., aucun délai artificiel et aucun reset
+               * des PV du boss. Les deux barres récupèrent ensuite hors
+               * combat selon leurs regens respectives.
                */
+              idleEtat.pvJoueur=0;
               idleCombatEnPauseApresDefaiteV1=true;
-
-              /*
-               * Norman (2026-09-18) : "Le boss récupère sa vie
-               * progressivement comme nous suivant ses propres statistiques
-               * de régen." Avant : mourir rendait tous ses PV au boss
-               * INSTANTANÉMENT (sauf s'il venait de mourir dans ce même
-               * tick, riposte encaissée après le coup fatal du joueur, voir
-               * plus haut — ce garde-fou reste nécessaire, un K.O.
-               * simultané ne doit toujours pas "ressusciter" un boss déjà
-               * vaincu). Le retour à pleine vie n'est plus instantané : le
-               * bloc de régén progressive plus haut (guard
-               * !idleEtat.combatBossActif, regenBossParSecV1 =
-               * defenseBoss/20, wiki NGU page Boss Fights) prend
-               * maintenant le relais pendant tout le K.O., exactement comme
-               * pour la Fuite (definirCombatBossIdleV39_) — bossPv reste
-               * donc simplement où il en était, jamais reset ici.
-               */
-
-              /*
-               * Norman (2026-09-11) : "quand le KO est terminé, le boss nous
-               * attaque de nouveau" sans reclic sur Fight. Cause : un K.O.
-               * ne mettait à jour QUE l'état local (ko/koSecondesRestantes/
-               * idleCombatEnPauseApresDefaiteV1) — jamais idleEtat.combatBossActif
-               * côté SERVEUR, contrairement à la Fuite (definirCombatBossIdleV39_)
-               * qui, elle, le fait déjà. Le serveur croyait donc le combat
-               * toujours actif et sa simulation de rattrapage
-               * (idle-sqlite-runtime.js, la boucle "while(...combatBossActif...)")
-               * continuait d'infliger des coups pour tout le temps écoulé
-               * pendant la récupération K.O., avant même que le joueur ne
-               * reclique — exactement comme si le combat n'avait jamais
-               * réellement cessé. Signale maintenant l'arrêt au serveur au
-               * moment même du K.O., pas seulement en local.
-               */
               idleEtat.combatBossActif=false;
+
               ajouterActionRapideIdleV60_(
                 'combat',
                 {
                   actif:false,
-                  raison:'ko'
+                  raison:'defaite'
                 }
               );
 
               setTimeout(
-                synchroniserJeuIdleV7_,
+                function(){
+                  synchroniserJeuIdleV7_(true);
+                },
                 0
               );
             }else if(
@@ -9891,7 +9812,6 @@
                 );
             }
             }
-          }
         }
 
         if(
@@ -10100,32 +10020,6 @@
           );
         }
 
-        const koEl=
-          document.getElementById(
-            'sorealIdleKoV15'
-          );
-
-        if(koEl){
-          const ko=
-            Math.max(
-              0,
-              Math.ceil(
-                idleNombre_(
-                  idleEtat.koSecondesRestantes
-                )
-              )
-            );
-
-          koEl.classList.toggle(
-            'inactive',
-            ko<=0
-          );
-
-          koEl.textContent=
-            ko>0
-              ?'💫 K.O. · récupération : '+ko+' s'
-              :'';
-        }
 
         const bossPvEl=
           document.getElementById(
@@ -10658,20 +10552,6 @@
             Math.max(
               idleNombre_(idleEtat.defense),
               idleNombre_(joueurServeur.defense)
-            ),
-          ko:
-            Boolean(
-              idleEtat.ko ||
-              joueurServeur.ko
-            ),
-          koSecondesRestantes:
-            Math.max(
-              idleNombre_(
-                idleEtat.koSecondesRestantes
-              ),
-              idleNombre_(
-                joueurServeur.koSecondesRestantes
-              )
             )
         };
 
@@ -20425,8 +20305,8 @@
        * totalement s'arrêter tant qu'on ne reclique pas sur le bouton."
        * Suivie en dehors de idleEtat (comme idleVictoireBossLocaleV49
        * juste au-dessus) pour ne jamais être effacée par un resync
-       * serveur périodique pendant que le joueur est K.O. — sinon le
-       * combat repartirait tout seul dès la prochaine synchro.
+       * serveur périodique pendant la transition de défaite — sinon le
+       * combat pourrait repartir tout seul dès la prochaine synchro.
        */
       let idleCombatEnPauseApresDefaiteV1=false;
 
@@ -20445,8 +20325,6 @@
           actif&&(
             idleEtat.combatBossActif||
             idleVictoireBossLocaleV49||
-            Boolean(idleEtat.ko)||
-            idleNombre_(idleEtat.koSecondesRestantes)>0||
             idleNombre_(idleEtat.pvJoueur)<=0
           )
         ){
@@ -20484,8 +20362,6 @@
            * reprendreCombatBossIdleV1_, retiré ci-dessous), sans attendre
            * la fin du décompte de récupération.
            */
-          idleEtat.ko=false;
-          idleEtat.koSecondesRestantes=0;
           idleCombatEnPauseApresDefaiteV1=false;
 
           /*
@@ -20517,48 +20393,20 @@
 
         if(!actif){
           /*
-           * V146 — Norman (2026-09-11) : "le bouton Fuite doit juste
-           * servir à interrompre un combat trop long ou perdu d'avance.
-           * Il ne doit pas rendre toute la vie au joueur. Il doit avoir
-           * le même effet que quand on est KO. Le combat s'arrête et
-           * l'énergie remonte tout doucement, pas en une fois."
-           * Avant : ko/koSecondesRestantes étaient remis à false/0
-           * INSTANTANÉMENT — l'inverse d'un KO (qui, lui, impose un vrai
-           * décompte de récupération avant de pouvoir refrapper). Fuite
-           * applique maintenant EXACTEMENT le même état qu'une vraie
-           * défaite (mêmes lignes que le KO plus haut dans ce fichier) :
-           * le joueur doit attendre le décompte de récupération avant de
-           * repartir.
-           *
-           * Norman (2026-09-18) : "Le boss récupère sa vie progressivement
-           * comme nous suivant ses propres statistiques de régen." Le
-           * retour à pleine vie n'est plus instantané ici non plus — bossPv
-           * reste où il en était, le bloc de régén progressive
-           * (regenBossParSecV1=defenseBoss/20, wiki NGU page Boss Fights,
-           * plus haut dans ce fichier) prend le relais pendant tout le
-           * décompte, comme pour un vrai K.O.
+           * Fuite = STOP immédiat. Aucun K.O. ni compte à rebours.
+           * Les PV actuels des deux combattants sont conservés, puis chacun
+           * récupère progressivement hors combat selon sa propre regen.
            */
-          idleEtat.ko=true;
-          idleEtat.koSecondesRestantes=
-            Math.max(
-              1,
-              idleNombre_(
-                idleEtat.dureeKoSecondes||10
-              )
-            );
-
-          idleCombatEnPauseApresDefaiteV1=true;
+          idleCombatEnPauseApresDefaiteV1=false;
 
           messageFlottantIdleV32_(
-            '🏃 Fuite · combat interrompu, récupération en cours…'
+            '🏃 Fuite · combat interrompu.'
           );
 
           ajouterLogCombatIdleV70_(
             'system',
-            '🏃 Fuite : combat interrompu, récupération en cours…'
+            '🏃 Fuite : combat interrompu.'
           );
-        }else{
-          idleCombatEnPauseApresDefaiteV1=false;
         }
 
         idleVictoireBossLocaleV49=false;
@@ -20847,9 +20695,6 @@
 
           idleEtat.pvJoueur=
             idleEtat.pvJoueurMax;
-
-          idleEtat.ko=false;
-          idleEtat.koSecondesRestantes=0;
 
           idleEtat.bossCatalogue.forEach(
             function(x){
@@ -21151,8 +20996,6 @@ let idleDialogueTimerV76=null;
                 ${
                   j.combatBossActif||
                   j.bossBloqueRenaissance||
-                  j.ko||
-                  idleNombre_(j.koSecondesRestantes)>0||
                   idleNombre_(j.pvJoueur)<=0
                     ?'disabled'
                     :''
@@ -21194,18 +21037,6 @@ let idleDialogueTimerV76=null;
             -->
             ${histoireBossMarkupIdleV142_(j)}
 
-            <div class="soreal-idle-ko-slot-v28" style="width:100%">
-              <div
-                id="sorealIdleKoV15"
-                class="soreal-idle-ko-v15${j.ko?'':' inactive'}"
-              >
-                ${
-                  j.ko
-                    ?'💫 K.O. · récupération : '+idleEntier_(j.koSecondesRestantes)+' s'
-                    :''
-                }
-              </div>
-            </div>
 
             <div
               id="sorealIdleBossRespawnV100"
