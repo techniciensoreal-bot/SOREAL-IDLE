@@ -33,8 +33,8 @@ assert.match(
 
 assert.match(
   ui,
-  /function appliquerDepotPointerAdventureIdleV180_\(/,
-  "Un vrai chemin de drop PointerEvent mobile doit exister."
+  /function appliquerDepotGesteAdventureIdleV196_\(/,
+  "Le contrôleur PointerEvent V196 doit conserver un vrai chemin de drop mobile."
 );
 assert.match(
   ui,
