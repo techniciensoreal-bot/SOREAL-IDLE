@@ -11,7 +11,7 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=208'),
+  index.includes('/soreal-idle-ui.js?v=209'),
   "Le shell doit charger l'UI V208."
 );
 
@@ -19,6 +19,11 @@ for(const token of [
   "titre:'Money Pit & Roue journalière'",
   "cycle de 24 heures",
   "function pageMoneyPitDailySpinIdleV206_(j)",
+  "sorealIdleMoneyPitImageV209",
+  "soreal-idle-nav-money-green-v1",
+  "soreal-idle-nav-money-yellow-v1",
+  "gold>=100000",
+  "imageMoneyPitAvantRenduV209",
   "/api/idle/media/banner?name=Money_Pit.jpg",
   "Balance ton argent",
   "Daily Spin!",
@@ -56,7 +61,7 @@ for(const token of [
 }
 
 assert.ok(
-  ui.includes('Build <b style="color:#dce5f3">V208</b>'),
+  ui.includes('Build <b style="color:#dce5f3">V209</b>'),
   "Settings doit afficher le jalon V206."
 );
 
