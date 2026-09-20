@@ -254,6 +254,13 @@
     enabled:function(){return auto;},
     read:function(){lastFingerprint='';readVisible_(true);},
     readTarget:lireCible_,
+    readText:function(value){
+      var txt=String(value||'').replace(/\s+/g,' ').trim();
+      if(!txt)return false;
+      lastFingerprint='';
+      speak_(txt,0,true);
+      return true;
+    },
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
