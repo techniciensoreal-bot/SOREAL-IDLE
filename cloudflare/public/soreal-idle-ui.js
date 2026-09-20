@@ -684,6 +684,60 @@
         }
 
         /*
+         * V177 — une réponse de sauvegarde Basic Training est un autre
+         * chemin réseau que la synchro générale. Pendant la récupération
+         * après une défaite Fight Boss, le client possède déjà la trajectoire
+         * exacte des niveaux/Defense toutes les 100 ms. Injecter ici le
+         * snapshot serveur (potentiellement calculé sur une fenêtre plus
+         * large) change Defense d'un coup, puis le tick suivant applique
+         * Defense/20 et peut remplir la barre instantanément.
+         *
+         * On accepte encore les champs énergie/persistance sans rapport avec
+         * les PV, mais on ne remplace ni BT, ni A/D, ni PV max pendant cette
+         * phase. Le prochain clic Fight resynchronise l'état de combat.
+         */
+        if(
+          idleCombatEnPauseApresDefaiteV1 &&
+          !idleEtat.combatBossActif
+        ){
+          [
+            'energie',
+            'energieMax',
+            'productionSeconde',
+            'renaissances'
+          ].forEach(function(cle){
+            if(joueur[cle]!==undefined){
+              idleEtat[cle]=joueur[cle];
+            }
+          });
+
+          if(
+            joueur.energieTick&&
+            typeof joueur.energieTick==='object'
+          ){
+            idleEtat.energieTick=
+              Object.assign(
+                {},
+                idleEtat.energieTick||{},
+                joueur.energieTick
+              );
+
+            idleResteTickEnergieMsV114=
+              Math.max(
+                0,
+                idleNombre_(
+                  joueur.energieTick.resteMs
+                )
+              );
+          }
+
+          rafraichirBasicTrainingIdleV120_();
+          rafraichirEnergieEtBoutonsIdleV9_();
+          pousserEtatVersRuntimePartageIdleV1_();
+          return;
+        }
+
+        /*
          * Correctif 2026-09-18 (Norman, en direct : "la barre de vie monte
          * à 3M et redescend jusqu'à la valeur qui devrait être la bonne...
          * ça se produit au moment où tu places tes premiers points dans
