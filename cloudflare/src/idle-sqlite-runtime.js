@@ -12473,13 +12473,15 @@ function obtenirEtatSorealIdle(
   sessionToken
 ) {
   return obtenirEtatSorealIdleGameV40_(
-    sessionToken
+    sessionToken,
+    {stopBossOnOpen:true}
   );
 }
 
 
 function obtenirEtatSorealIdleGameV40_(
-  sessionToken
+  sessionToken,
+  options
 ) {
   const acces =
     exigerAccesSorealIdle_(
@@ -12526,6 +12528,31 @@ function obtenirEtatSorealIdleGameV40_(
       ligne
     );
 
+    /*
+     * V206 — ouvrir/recharger SOREAL IDLE ne reprend jamais un Fight Boss
+     * abandonné dans un ancien onglet/WebView. Le combat doit repartir
+     * uniquement après un nouveau clic explicite sur Fight.
+     *
+     * Important : on coupe l'ancien flag AVANT de rejouer le temps écoulé,
+     * sinon une session fermée avec combatBossActif=true pouvait tuer le
+     * boss suivant pendant l'écran de chargement.
+     */
+    if(options&&options.stopBossOnOpen){
+      const c=CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+      const statsOuverture=statsJoueurSorealIdle_(
+        feuille.getRange(ligne,c.STATS_JSON).getValue()
+      );
+      if(statsOuverture.combatBossActif){
+        statsOuverture.combatBossActif=false;
+        statsOuverture.bossStunJusqua=0;
+        statsOuverture.bossVulnerableJusqua=0;
+        statsOuverture.bossVulnerablePct=0;
+        statsOuverture.sceauBriseBossNumero=0;
+        feuille.getRange(ligne,c.STATS_JSON).setValue(JSON.stringify(statsOuverture));
+        feuille.getRange(ligne,c.DERNIERE_SYNCHRO).setValue(new Date());
+      }
+    }
+
     const progression =
       appliquerProgressionEnergieSorealIdle_(
         feuille,
@@ -12568,7 +12595,8 @@ function synchroniserSorealIdle(
   sessionToken
 ) {
   return obtenirEtatSorealIdleGameV40_(
-    sessionToken
+    sessionToken,
+    {stopBossOnOpen:false}
   );
 }
 
