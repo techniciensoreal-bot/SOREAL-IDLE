@@ -22,11 +22,11 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=205')&&
+  index.includes('/modules/audio-effects-v199.js?v=206')&&
   index.includes('/modules/long-press-v200.js?v=200')&&
-  index.includes('/soreal-idle-ui.js?v=205')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=205')<
-    index.indexOf('/soreal-idle-ui.js?v=205'),
+  index.includes('/soreal-idle-ui.js?v=206')&&
+  index.indexOf('/modules/audio-effects-v199.js?v=206')<
+    index.indexOf('/soreal-idle-ui.js?v=206'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 
