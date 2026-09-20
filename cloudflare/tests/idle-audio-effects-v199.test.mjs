@@ -22,10 +22,10 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=200')&&
+  index.includes('/modules/audio-effects-v199.js?v=201')&&
   index.includes('/modules/long-press-v200.js?v=200')&&
   index.includes('/soreal-idle-ui.js?v=200')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=200')<
+  index.indexOf('/modules/audio-effects-v199.js?v=201')<
     index.indexOf('/soreal-idle-ui.js?v=200'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
@@ -58,6 +58,17 @@ assert.ok(
   audio.includes("utterance.rate=1.34")&&
   audio.includes("utterance.onend=terminer"),
   "Fight doit être une voix synthétique dont la fin pilote le scheduler."
+);
+
+assert.ok(
+  audio.includes("function amorcerAudioDepuisGeste_()")&&
+  audio.includes("c.createBuffer(")&&
+  audio.includes("c.createBufferSource()")&&
+  audio.includes("source.start(0)")&&
+  audio.includes('document.addEventListener("pointerdown",debloquer_')&&
+  audio.includes('document.addEventListener("touchstart",debloquer_')&&
+  audio.includes('document.addEventListener("click",debloquer_'),
+  "La WebView doit amorcer réellement Web Audio pendant un geste utilisateur."
 );
 
 assert.ok(
