@@ -208,7 +208,7 @@
   function voixFight_(){
     /*
      * V210 — même son sur ordinateur et téléphone. La version desktop
-     * ajoutait encore SpeechSynthesis("FIGHT!") au petit impact WebAudio,
+     * ajoutait encore une annonce vocale au petit impact WebAudio,
      * alors que les WebView mobiles ne jouaient que l'impact court.
      * La voix est retirée : un seul cue synthétique, identique partout.
      */
