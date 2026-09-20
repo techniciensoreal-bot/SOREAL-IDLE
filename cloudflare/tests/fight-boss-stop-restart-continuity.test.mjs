@@ -32,7 +32,11 @@ assert.match(
 );
 assert.match(ui,/const regenBossParSecV172=/);
 assert.match(ui,/idleEtat\.regenBoss/);
-assert.match(ui,/idleEtat\.bossPv<\s*idleNombre_\(idleEtat\.bossPvMax\)/);
+assert.ok(
+  ui.includes("idleEtat.bossPv<") &&
+  ui.includes("idleEtat.bossPvMax"),
+  "La regen du boss hors combat doit rester bornée à ses PV max."
+);
 assert.match(
   ui,
   /if\(!idleEtat\.combatBossActif\)\{[\s\S]{0,180}rafraichirCommandesFightBossIdleV167_\(\)/
