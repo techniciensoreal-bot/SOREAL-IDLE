@@ -9970,6 +9970,15 @@
           );
 
         if(joueurPvEl){
+          const regenJoueurVisibleV176=
+            !idleEtat.combatBossActif &&
+            idleNombre_(idleEtat.pvJoueur)<
+              idleNombre_(idleEtat.pvJoueurMax)
+              ?regenPvFightBossNguParSecondeV164_(
+                  idleEtat.defense
+                )
+              :0;
+
           texteCombatIdleV121_(
             joueurPvEl,
             '❤️ '+
@@ -9979,6 +9988,16 @@
             ' / '+
             formatGrandNombreIdleV70_(
               idleEtat.pvJoueurMax
+            )+
+            (
+              regenJoueurVisibleV176>0
+                ?' · ↗ +'+
+                  formatGrandNombreIdleV70_(
+                    regenJoueurVisibleV176,
+                    2
+                  )+
+                  '/s'
+                :''
             )
           );
         }
@@ -10508,35 +10527,31 @@
                 bossCapacites:
                   localAvantRecupV175.bossCapacites,
 
+                /*
+                 * V176 : pendant cette récupération, la simulation locale
+                 * fait déjà avancer Basic Training toutes les 100 ms avec
+                 * la même formule NGU. Une sync serveur ne doit pas injecter
+                 * d'un coup une Defense de fin de fenêtre, sinon le tick
+                 * suivant calcule Defense/20 avec cette valeur future et
+                 * remplit artificiellement le reste de la barre.
+                 */
                 basicTraining:
-                  fusionnerBasicTrainingPlusAvanceIdleV166_(
-                    localAvantRecupV175.basicTraining,
-                    joueurServeur.basicTraining
-                  ),
+                  localAvantRecupV175.basicTraining,
 
                 force:
-                  Math.max(
-                    idleNombre_(localAvantRecupV175.force),
-                    idleNombre_(joueurServeur.force)
-                  ),
+                  idleNombre_(localAvantRecupV175.force),
 
                 endurance:
-                  Math.max(
-                    idleNombre_(localAvantRecupV175.endurance),
-                    idleNombre_(joueurServeur.endurance)
-                  ),
+                  idleNombre_(localAvantRecupV175.endurance),
 
                 puissance:
-                  Math.max(
-                    idleNombre_(localAvantRecupV175.puissance),
-                    idleNombre_(joueurServeur.puissance)
-                  ),
+                  idleNombre_(localAvantRecupV175.puissance),
 
                 defense:
-                  Math.max(
-                    idleNombre_(localAvantRecupV175.defense),
-                    idleNombre_(joueurServeur.defense)
-                  )
+                  idleNombre_(localAvantRecupV175.defense),
+
+                combatPrincipal:
+                  localAvantRecupV175.combatPrincipal
               }
             );
 
