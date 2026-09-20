@@ -19,7 +19,14 @@
   }
 
   function getState_(force){
-    if(!force&&state&&Date.now()-stateAt<CACHE_MS)return Promise.resolve(state);
+    /*
+     * Le moteur principal pousse déjà son état live via pushState_().
+     * Ne jamais relire le serveur toutes les CACHE_MS à cause des mutations
+     * DOM du ticker Fight Boss : cela créait un second moteur de synchro
+     * toutes les ~2 s. Une lecture réseau n'est autorisée que si aucun état
+     * principal n'a encore été reçu, ou si un appelant demande force=true.
+     */
+    if(!force&&state)return Promise.resolve(state);
     if(statePromise)return statePromise;
     var token=token_();
     if(!token||!window.google||!google.script||!google.script.run)return Promise.resolve(null);
@@ -41,7 +48,7 @@ resolve(joueur);
     schedule_();
   }
 
-  function invalidate_(){stateAt=0;}
+  function invalidate_(){state=null;stateAt=0;}
 
   function flush_(){
     renderTimer=0;
