@@ -37,6 +37,12 @@ jobs:
             node "$f"
           done
 
+      - name: Build standalone frontend
+        run: |
+          node cloudflare/build-standalone.mjs
+          node --check cloudflare/public/standalone-bridge.js
+          node --check cloudflare/public/soreal-idle-ui.js
+
       - name: Deploy SOREAL Idle Worker
         uses: cloudflare/wrangler-action@v3
         with:
