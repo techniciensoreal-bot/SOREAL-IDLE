@@ -7,39 +7,40 @@ const source=await readFile(
   "utf8"
 );
 
-test("Fight Boss KO stop is distinct from flee",()=>{
+test("Fight Boss stop uses defeat reason without KO state",()=>{
   assert.match(
     source,
-    /function definirCombatBossSorealIdle\([\s\S]{0,100}sessionToken,[\s\S]{0,80}actif,[\s\S]{0,80}raison/
+    /function definirCombatBossSorealIdle\([\s\S]{0,120}sessionToken,[\s\S]{0,80}actif,[\s\S]{0,80}raison/
   );
   assert.match(
     source,
-    /const arretApresKo =[\s\S]{0,160}!Boolean\(actif\)[\s\S]{0,80}raisonArret==='ko'/
+    /const arretApresDefaite=[\s\S]{0,160}!Boolean\(actif\)[\s\S]{0,80}raisonArret==='defaite'/
   );
+  assert.doesNotMatch(source,/arretApresKo/);
+  assert.doesNotMatch(source,/code:'JOUEUR_KO'/);
 });
 
-test("KO persists zero HP and a KO deadline instead of clearing recovery",()=>{
-  const start=source.indexOf("if(arretApresKo){");
-  const end=source.indexOf("}else{",start);
-  assert.ok(start>=0&&end>start,"KO branch must exist");
-  const branch=source.slice(start,end);
+test("defeat persists zero HP but no KO deadline",()=>{
+  const apiStart=source.indexOf("function definirCombatBossSorealIdle(");
+  const defeatStart=source.indexOf("if(arretApresDefaite){",apiStart);
+  assert.ok(defeatStart>=0,"branche défaite API introuvable");
+  const branch=source.slice(defeatStart,defeatStart+1100);
   assert.match(branch,/c\.PV_JOUEUR[\s\S]{0,100}\.setValue\(0\)/);
-  assert.match(branch,/c\.KO_JUSQUA[\s\S]{0,220}DUREE_KO_SECONDES\*1000/);
-  assert.match(branch,/c\.DERNIERE_SYNCHRO/);
-  assert.doesNotMatch(branch,/clearContent\(\)/);
+  assert.match(branch,/c\.KO_JUSQUA[\s\S]{0,100}\.clearContent\(\)/);
+  assert.doesNotMatch(branch,/DUREE_KO_SECONDES/);
 });
 
-test("progression no longer heals zero HP to max before KO processing",()=>{
-  assert.doesNotMatch(
-    source,
-    /if \(pvJoueur <= 0\) \{\s*pvJoueur = pvJoueurMax;\s*\}[\s\S]{0,3500}const koBrut/
-  );
-  assert.match(
-    source,
-    /const regenPvSecJoueur =[\s\S]{0,120}defense \/ 20/
-  );
-  assert.match(
-    source,
-    /if \(!combatBossActif\) \{[\s\S]{0,220}regenPvSecJoueur \*[\s\S]{0,80}ecoulePrisEnCompte/
-  );
+test("stopping never resets boss HP to max",()=>{
+  const apiStart=source.indexOf("function definirCombatBossSorealIdle(");
+  const apiEnd=source.indexOf("\nfunction nukerBossSorealIdle",apiStart);
+  const api=source.slice(apiStart,apiEnd);
+  assert.doesNotMatch(api,/c\.BOSS_PV[\s\S]{0,160}\.setValue\(\s*boss\.pv\s*\)/);
 });
+
+test("legacy KO column remains schema-compatible but inert",()=>{
+  assert.match(source,/ko:\s*\n?\s*koSecondesRestantes > 0/);
+  assert.match(source,/const koSecondesRestantes=0;/);
+  assert.match(source,/dureeKoSecondes:\s*0/);
+});
+
+console.log("idle-boss-defeat-no-ko-v172: OK");
