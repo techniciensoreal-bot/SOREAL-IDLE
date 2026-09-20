@@ -6,10 +6,43 @@ const ui=readFileSync(
   "utf8"
 );
 
+const audio=readFileSync(
+  new URL("../public/modules/audio-effects-v199.js",import.meta.url),
+  "utf8"
+);
+
+const index=readFileSync(
+  new URL("../public/index.html",import.meta.url),
+  "utf8"
+);
+
+/*
+ * V199 : le Coffre ne doit PLUS créer son propre AudioContext dans l'UI.
+ * Tous les sons passent par l'ordonnanceur audio partagé afin qu'aucun
+ * effet ne puisse se superposer avec Fight, défaite, forge, boosts, etc.
+ */
 assert.match(
+  index,
+  /modules\/audio-effects-v199\.js\?v=199/,
+  "Le moteur audio partagé V199 doit être chargé par le frontend autonome."
+);
+
+assert.match(
+  audio,
+  /chestOpen:coffreOuverture_/,
+  "Le moteur V199 doit exposer le son d'ouverture du Coffre."
+);
+
+assert.match(
+  audio,
+  /chestClose:coffreFermeture_/,
+  "Le moteur V199 doit exposer un son de fermeture distinct."
+);
+
+assert.doesNotMatch(
   ui,
   /function jouerSonOuvertureCoffreIdleV1_\(\)[\s\S]*?AudioContext\|\|window\.webkitAudioContext/,
-  "Le Coffre doit avoir un son d'ouverture Web Audio dédié."
+  "Le Coffre ne doit plus créer un AudioContext local qui contourne le scheduler."
 );
 
 const toggleStart=ui.indexOf("function toggleCoffreOuvertAdventureIdleV1_");
@@ -20,13 +53,25 @@ const toggle=ui.slice(toggleStart,toggleEnd);
 assert.match(
   toggle,
   /if\(!actuel\)\{[\s\S]*?jouerSonOuvertureCoffreIdleV1_\(\)/,
-  "Le son doit jouer uniquement quand le Coffre passe de fermé à ouvert."
+  "L'ouverture doit demander le son d'ouverture."
 );
 
-assert.doesNotMatch(
+assert.match(
   toggle,
-  /if\(actuel\)[\s\S]*?jouerSonOuvertureCoffreIdleV1_\(\)/,
-  "Fermer le Coffre ne doit pas rejouer le son d'ouverture."
+  /else\{[\s\S]*?jouerSonFermetureCoffreIdleV197_\(\)/,
+  "La fermeture doit demander son effet dédié et distinct."
+);
+
+assert.match(
+  ui,
+  /function jouerSonOuvertureCoffreIdleV1_\(\)\{[\s\S]*?jouerEffetAudioIdleV199_\('chestOpen'\)/,
+  "L'ouverture du Coffre doit passer par l'ordonnanceur V199."
+);
+
+assert.match(
+  ui,
+  /function jouerSonFermetureCoffreIdleV197_\(\)\{[\s\S]*?jouerEffetAudioIdleV199_\('chestClose'\)/,
+  "La fermeture du Coffre doit passer par l'ordonnanceur V199."
 );
 
 const clickStart=ui.indexOf("function clicCoffreAdventureIdleV1_");
@@ -39,4 +84,4 @@ assert.match(
   "Un clic sur l'icône du Coffre sans objet sélectionné doit ouvrir/fermer le Coffre."
 );
 
-console.log("Inventory chest opening sound: OK");
+console.log("Inventory chest audio V199 scheduler: OK");
