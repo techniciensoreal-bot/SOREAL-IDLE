@@ -59,7 +59,7 @@
      * Ce module n'est PAS propriétaire de l'état Fight/Fuite.
      * Le moteur principal décide seul si Fight est disabled
      * (combat actif, 0 PV, popup, etc.). L'ancienne ligne
-     * button.disabled=false pouvait réactiver Fight avec un état runtime
+     * L'ancienne écriture pouvait réactiver Fight avec un état runtime
      * vieux de 2 s et entrer en conflit avec le ticker principal.
      */
     if(button.title&&/Renaissance/.test(button.title))button.title='';
