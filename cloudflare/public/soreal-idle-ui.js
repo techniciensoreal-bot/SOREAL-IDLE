@@ -27263,7 +27263,10 @@ function pageAventureIdleV28_(j){
       window.__deposerSurCoffreAdventureIdleV1__=deposerSurCoffreAdventureIdleV1_;
 
       function clicCoffreAdventureIdleV1_(){
-        if(!idleAdventureSelectionIdV138)return;
+        if(!idleAdventureSelectionIdV138){
+          toggleCoffreOuvertAdventureIdleV1_();
+          return;
+        }
         const id=idleAdventureSelectionIdV138;
         nettoyerEtatDragAdventureIdleV138_();
         actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});
