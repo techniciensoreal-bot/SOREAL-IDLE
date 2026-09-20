@@ -17656,6 +17656,8 @@
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
         {id:'inventaire',icon:'🎒',nom:'Inventory'},
+        {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
+        {id:'sellout',icon:'🛍️',nom:'Boutique AP'},
         {id:'bestiaire',icon:'🏆',nom:'Collection'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
         {id:'augmentations',icon:'🦾',nom:'Augmentations'},
@@ -17665,7 +17667,6 @@
         {id:'wandoos',icon:'💻',nom:'Wandoos'},
         {id:'ngu',icon:'♾️',nom:'NGU'},
         {id:'yggdrasil',icon:'🌱',nom:'Yggdrasil'},
-        {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
         {id:'diggers',icon:'⛏️',nom:'Gold Diggers'},
         {id:'beards',icon:'🧔',nom:'Beards'},
         {id:'tower',icon:'🏢',nom:'ITOPOD'},
@@ -17681,7 +17682,6 @@
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
-        {id:'sellout',icon:'🛍️',nom:'Boutique AP'},
         {id:'spendExp',icon:'✨',nom:'EXP Shop'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
       ];
@@ -29389,6 +29389,18 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             ' +'+formatGrandNombreIdleV70_(entree.boost.strength||0)
           );
         }
+        if(reward.adventureStats){
+          morceaux.push(
+            '+'+formatGrandNombreIdleV70_(reward.adventureStats)+
+            ' Power/Toughness Aventure'
+          );
+        }
+        if(reward.adventureHp){
+          morceaux.push('+'+formatGrandNombreIdleV70_(reward.adventureHp)+' PV max Aventure');
+        }
+        if(reward.adventureRegen){
+          morceaux.push('+'+formatGrandNombreIdleV70_(reward.adventureRegen,2)+' regen Aventure');
+        }
         if(reward.ap)morceaux.push(formatGrandNombreIdleV70_(reward.ap)+' AP');
         if(reward.experience)morceaux.push(formatGrandNombreIdleV70_(reward.experience)+' EXP');
         if(reward.seeds)morceaux.push(formatGrandNombreIdleV70_(reward.seeds)+' graines');
@@ -29724,7 +29736,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-shop-grid-v12">'+
               items.map(function(item){
                 const auMax=item.nextCost==null;
-                const abordable=!auMax&&ap>=item.nextCost;
+                const effetActif=item.effectActive===true;
+                const abordable=effetActif&&!auMax&&ap>=item.nextCost;
                 const texte=traductionSelloutIdleV210_(item);
                 const compteur=item.max!=null?' ('+idleEntier_(item.purchased)+'/'+idleEntier_(item.max)+')':(item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'');
                 return '<div class="soreal-idle-shop-card-v12'+(auMax?' maxed':'')+'">'+
@@ -29732,13 +29745,15 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                     '<div class="soreal-idle-shop-card-name-v12">'+idleHtml_(texte.name)+compteur+'</div>'+
                     '<div class="soreal-idle-shop-card-desc-v12">'+idleHtml_(texte.effect)+'</div>'+
                   '</div>'+
-                  (auMax
-                    ?'<div class="soreal-idle-shop-card-cost-v12">Maximum atteint</div>'
-                    :'<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-shop-card-buy-v12" '+
-                      (abordable?'':'disabled ')+
-                      'onclick="window.__actionMetaIdleV130__({action:\'sellShopBuy\',itemId:\''+idleHtml_(item.id)+'\'})">'+
-                      formatGrandNombreIdleV70_(item.nextCost)+' AP'+
-                    '</button>'
+                  (!effetActif
+                    ?'<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-shop-card-buy-v12" disabled title="Cet effet sera activé dans un prochain palier">🔒 Effet pas encore actif · '+formatGrandNombreIdleV70_(item.nextCost||0)+' AP</button>'
+                    :auMax
+                      ?'<div class="soreal-idle-shop-card-cost-v12">Maximum atteint</div>'
+                      :'<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-shop-card-buy-v12" '+
+                        (abordable?'':'disabled ')+
+                        'onclick="window.__actionMetaIdleV130__({action:\'sellShopBuy\',itemId:\''+idleHtml_(item.id)+'\'})">'+
+                        formatGrandNombreIdleV70_(item.nextCost)+' AP'+
+                      '</button>'
                   )+
                 '</div>';
               }).join('')+
@@ -30469,7 +30484,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V211</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V212</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
