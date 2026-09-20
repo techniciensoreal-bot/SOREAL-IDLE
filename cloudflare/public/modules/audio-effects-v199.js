@@ -21,7 +21,9 @@
 
   var DEFINITIONS={
     fight:{group:"combat-start",priority:90,maxAgeMs:1600},
-    bossAppear:{group:"combat-boss",priority:75,maxAgeMs:1400},
+    bossAppear:{group:"combat-boss",priority:75,maxAgeMs:2200},
+    victory:{group:"combat-end",priority:105,maxAgeMs:2200},
+    nuke:{group:"combat-action",priority:110,maxAgeMs:1200},
     defeat:{group:"combat-end",priority:100,maxAgeMs:2800},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
@@ -291,6 +293,50 @@
     });
   }
 
+  function victoireBoss_(){
+    return jouerWebAudio_(980,function(c){
+      /*
+       * V206 — fanfare originale très courte : sensation "coffre/victoire"
+       * sans reprendre de mélodie existante. Quatre notes ascendantes,
+       * accord final et éclat cristallin.
+       */
+      [
+        [392,.18,.052,0],
+        [494,.18,.052,.13],
+        [587,.20,.055,.26],
+        [784,.42,.070,.40]
+      ].forEach(function(p){
+        tonal_(c,{type:"triangle",from:p[0],to:p[0]*1.008,duration:p[1],volume:p[2],delay:p[3]});
+      });
+      tonal_(c,{type:"sine",from:988,to:1047,duration:.38,volume:.034,delay:.44});
+      tonal_(c,{type:"sine",from:1175,to:1319,duration:.30,volume:.023,delay:.50});
+      bruit_(c,{
+        duration:.16,volume:.018,delay:.47,
+        filterType:"highpass",frequency:5200,frequencyEnd:7600,decay:2.8
+      });
+    });
+  }
+
+  function nuke_(){
+    return jouerWebAudio_(920,function(c){
+      /*
+       * Charge nucléaire : montée électronique très rapide, sifflement,
+       * impact sub-grave puis souffle court. Un seul événement scheduler.
+       */
+      tonal_(c,{type:"sawtooth",from:95,to:920,duration:.38,volume:.040});
+      tonal_(c,{type:"square",from:180,to:1400,duration:.31,volume:.018,delay:.06});
+      tonal_(c,{type:"sine",from:86,to:38,duration:.48,volume:.150,delay:.35});
+      bruit_(c,{
+        duration:.40,volume:.105,delay:.34,
+        filterType:"lowpass",frequency:2100,frequencyEnd:95,decay:2.5
+      });
+      bruit_(c,{
+        duration:.16,volume:.050,delay:.27,
+        filterType:"highpass",frequency:3600,frequencyEnd:7400,decay:1.8
+      });
+    });
+  }
+
   function defaite_(){
     return jouerWebAudio_(920,function(c){
       tonal_(c,{type:"sawtooth",from:350,to:92,duration:.62,volume:.062});
@@ -409,6 +455,8 @@
   var JOUEURS={
     fight:voixFight_,
     bossAppear:gongBoss_,
+    victory:victoireBoss_,
+    nuke:nuke_,
     defeat:defaite_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
@@ -518,6 +566,8 @@
     play:demander_,
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},
+    victory:function(){return demander_("victory");},
+    nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
