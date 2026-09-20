@@ -1235,13 +1235,36 @@ function normalizeSystem(def, raw) {
       tossesThisRun: Math.max(0, int(data.tossesThisRun, 0)),
       nextAt: Math.max(0, num(data.nextAt, 0)),
       lastTossAt: Math.max(0, num(data.lastTossAt, 0)),
-      totalGoldTossed: Math.max(0, num(data.totalGoldTossed, 0))
+      totalGoldTossed: Math.max(0, num(data.totalGoldTossed, 0)),
+      history:Array.isArray(data.history)
+        ?data.history.slice(0,20).map(entry=>({
+            at:Math.max(0,num(entry?.at,0)),
+            cost:Math.max(0,num(entry?.cost,0)),
+            tier:Math.max(0,int(entry?.tier,0)),
+            reward:entry?.reward&&typeof entry.reward==="object"
+              ?clone(entry.reward)
+              :{},
+            boost:entry?.boost&&typeof entry.boost==="object"
+              ?clone(entry.boost)
+              :null
+          }))
+        :[]
     };
   } else if (def.id === "dailySpin") {
     const data = src.data && typeof src.data === "object" ? src.data : {};
     s.data = {
       readyAt: Math.max(0, num(data.readyAt, 0)),
-      totalSpins: Math.max(0, int(data.totalSpins, s.level))
+      totalSpins: Math.max(0, int(data.totalSpins, s.level)),
+      history:Array.isArray(data.history)
+        ?data.history.slice(0,20).map(entry=>({
+            at:Math.max(0,num(entry?.at,0)),
+            tier:Math.max(0,int(entry?.tier,0)),
+            reward:entry?.reward&&typeof entry.reward==="object"
+              ?clone(entry.reward)
+              :{},
+            totalSpins:Math.max(0,int(entry?.totalSpins,0))
+          }))
+        :[]
     };
   } else if (def.id === "perks") {
     /*
