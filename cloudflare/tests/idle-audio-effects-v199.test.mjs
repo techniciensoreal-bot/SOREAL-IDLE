@@ -22,11 +22,11 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=202')&&
+  index.includes('/modules/audio-effects-v199.js?v=203')&&
   index.includes('/modules/long-press-v200.js?v=200')&&
-  index.includes('/soreal-idle-ui.js?v=200')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=202')<
-    index.indexOf('/soreal-idle-ui.js?v=200'),
+  index.includes('/soreal-idle-ui.js?v=203')&&
+  index.indexOf('/modules/audio-effects-v199.js?v=203')<
+    index.indexOf('/soreal-idle-ui.js?v=203'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 
@@ -54,8 +54,8 @@ for(const method of [
 assert.ok(
   audio.includes('new SpeechSynthesisUtterance("FIGHT!")')&&
   audio.includes('utterance.lang="en-US"')&&
-  audio.includes("utterance.pitch=.10")&&
-  audio.includes("utterance.rate=.72")&&
+  audio.includes("utterance.pitch=0")&&
+  audio.includes("utterance.rate=.66")&&
   audio.includes("utterance.onend=terminer"),
   "Fight doit utiliser une voix système très grave et ralentie, dont la fin pilote le scheduler."
 );
@@ -72,10 +72,12 @@ assert.ok(
 );
 
 assert.ok(
-  audio.includes("function frappe_(delay,force)")&&
-  audio.includes("frappe_(0,1);")&&
-  audio.includes("frappe_(.24,.86);"),
-  "Le gong boss doit être une double frappe très rapprochée (tong-tong)."
+  audio.includes("bourdon sub-grave dissonant")&&
+  audio.includes('tonal_(c,{type:"sine",from:48,to:41,duration:1.68')&&
+  audio.includes('tonal_(c,{type:"sine",from:51,to:44,duration:1.62')&&
+  audio.includes("filterType:\"bandpass\",frequency:1850,frequencyEnd:290")&&
+  !audio.includes("function frappe_(delay,force)"),
+  "L'apparition du boss doit jouer une courte ambiance horrifique, plus un double gong."
 );
 
 assert.ok(
@@ -106,10 +108,27 @@ assert.ok(
   ui.includes("return 'boostPower';")&&
   ui.includes("return 'boostToughness';")&&
   ui.includes("return 'boostSpecial';")&&
-  ui.includes("audioCue:cueAudioMutationInventaireIdleV199_(current,payload||{})")&&
-  ui.includes("if(tx.audioCue){\n            jouerEffetAudioIdleV199_(tx.audioCue);"),
-  "Les sons de fusion/boost doivent être déterminés avant mutation mais joués seulement après confirmation serveur."
+  ui.includes("audioCue:cueAudioMutationInventaireIdleV199_(current,payload||{})"),
+  "Les sons de fusion/boost doivent toujours être déterminés avant la mutation."
 );
+
+{
+  const queueAt=ui.indexOf("idleInventoryMutationQueueV160.push(tx);");
+  const playAt=ui.indexOf("jouerEffetAudioIdleV199_(tx.audioCue);",queueAt);
+  const optimisticAt=ui.indexOf("marquePerfInventaireIdleV160_('event',tx.id);",queueAt);
+  assert.ok(
+    queueAt>=0&&playAt>queueAt&&optimisticAt>playAt,
+    "Fusion/boost : le son doit partir immédiatement à l'acceptation optimiste, avant le réseau."
+  );
+
+  const finishStart=ui.indexOf("function terminerMutationInventaireIdleV160_");
+  const finishEnd=ui.indexOf("function envoyerProchaineMutationInventaireIdleV160_",finishStart);
+  const finish=ui.slice(finishStart,finishEnd);
+  assert.ok(
+    !finish.includes("jouerEffetAudioIdleV199_(tx.audioCue)"),
+    "La confirmation serveur ne doit plus rejouer ni retarder le son fusion/boost."
+  );
+}
 
 assert.ok(
   !ui.includes("__SOREAL_IDLE_AUDIO_V197__")&&
@@ -182,5 +201,5 @@ new Function(audio);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE Audio V199: OK — cache-bust, Fight→défaite séquentiel, file max 2, sons merge/boost confirmés."
+  "SOREAL IDLE Audio V203: OK — Fight pitch mini, sting horreur, fusion/boost immédiats, scheduler conservé."
 );
