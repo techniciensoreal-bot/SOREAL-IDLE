@@ -16696,21 +16696,44 @@
             });
 
             if(s){
-              const menuCible=IDLE_MENU_PAR_SYSTEME_V1[systemeId]||null;
-              info=menuCible?{
-                icon:s.icon||'✨',
-                titre:(s.name||'Nouveau système')+' débloqué',
-                intro:'Une nouvelle couche de progression est disponible.',
-                menuCible:menuCible,
-                libelleCible:'Ouvrir le système',
-                bullets:[
-                  s.desc||'Ce système améliore ta progression.',
-                  'Son état est sauvegardé dans le moteur partagé SOREAL IDLE.',
-                  s.kind==='permanent'
-                    ?'Cette progression est permanente entre les Renaissances.'
-                    :'Vérifie ce qui est conservé ou banké lors d’une Renaissance.'
-                ]
-              }:null;
+              /*
+               * V203 — Money Pit n'est pas "une nouvelle couche de
+               * progression" générique. Son premier panneau explique
+               * réellement le puits ET la Roue journalière, qui vivent
+               * dans le même menu.
+               */
+              if(systemeId==='moneyPit'){
+                info={
+                  icon:'🕳️',
+                  titre:'Money Pit & Roue journalière',
+                  intro:'Tu as débloqué un trou dans lequel jeter tout ton Or. Oui, tout. Excellente gestion financière.',
+                  menuCible:'moneyPit',
+                  libelleCible:'Ouvrir le Money Pit',
+                  bullets:[
+                    'Money Pit : avec au moins 100 000 Or, tu peux jeter TOUT l’Or que tu possèdes dans le puits. Plus la somme est énorme, plus le palier de récompenses possibles monte.',
+                    'Le puits te recrache un lot aléatoire selon le palier atteint, puis il doit se recharger avant le prochain lancer. Les lancers suivants du même run ont un temps de recharge plus long.',
+                    'Roue journalière : elle est accessible dans ce même menu. Quand elle est prête, fais-la tourner pour gagner un lot aléatoire, notamment de l’AP ou des graines.',
+                    'La roue revient sur un cycle de 24 heures. Plus tu accumules de tours au fil du temps, plus ses paliers de récompenses progressent.',
+                    'Repère visuel : le bouton Money Pit devient vert quand le puits est prêt, ou jaune quand la roue journalière est disponible.'
+                  ]
+                };
+              }else if(systemeId!=='dailySpin'){
+                const menuCible=IDLE_MENU_PAR_SYSTEME_V1[systemeId]||null;
+                info=menuCible?{
+                  icon:s.icon||'✨',
+                  titre:(s.name||'Nouveau système')+' débloqué',
+                  intro:'Une nouvelle couche de progression est disponible.',
+                  menuCible:menuCible,
+                  libelleCible:'Ouvrir le système',
+                  bullets:[
+                    s.desc||'Ce système améliore ta progression.',
+                    'Son état est sauvegardé dans le moteur partagé SOREAL IDLE.',
+                    s.kind==='permanent'
+                      ?'Cette progression est permanente entre les Renaissances.'
+                      :'Vérifie ce qui est conservé ou banké lors d’une Renaissance.'
+                  ]
+                }:null;
+              }
             }
           }
 
@@ -16721,6 +16744,7 @@
 
         return parMenu;
       }
+
 
       function idleMenusAckCleV1_(j){
         return 'soreal_idle_menus_ack_v1_'+generationJoueurIdleV75_(j);
@@ -23271,9 +23295,6 @@ let idleDialogueTimerV76=null;
               'reconcile','reconcile-start','reconcile-end',tx.id
             );
 
-          if(tx.audioCue){
-            jouerEffetAudioIdleV199_(tx.audioCue);
-          }
         }else{
           reconstruireEtatOptimisteInventaireIdleV160_({
             action:tx.payload.action,
@@ -23334,6 +23355,16 @@ let idleDialogueTimerV76=null;
           createdAt:Date.now()
         };
         idleInventoryMutationQueueV160.push(tx);
+
+        /*
+         * V203 — feedback audio au moment exact où l'action optimiste
+         * locale est acceptée. Avant, le son attendait le round-trip
+         * serveur puis la réconciliation, ce qui cassait complètement
+         * la sensation de fusion/boost sur mobile.
+         */
+        if(tx.audioCue){
+          jouerEffetAudioIdleV199_(tx.audioCue);
+        }
 
         marquePerfInventaireIdleV160_('event',tx.id);
         appliquerMutationOptimisteInventaireIdleV160_(
@@ -29564,12 +29595,52 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * acquittés (idleMenusAckListeV1_), ce qui exclut naturellement
        * tout menu non débloqué (il ne peut jamais être acquitté avant).
        */
+      function textesNormanSebastienIdleV203_(j){
+        const bossVaincus=idleEntier_(j&&j.bossVaincus);
+        const groupes=[
+          {
+            nom:'Début du jeu',
+            visible:true,
+            pages:TUTORIEL_DEBUT_JEU_PAGES_V1
+          },
+          {
+            nom:'Premier boss',
+            visible:bossVaincus>=1,
+            pages:TUTORIEL_PREMIER_BOSS_PAGES_V1
+          },
+          {
+            nom:'Aventure',
+            visible:menuDisponibleIdleV28_('aventure',j),
+            pages:TUTORIEL_AVENTURE_PAGES_V1
+          }
+        ];
+        const sorties=[];
+
+        groupes.forEach(function(groupe){
+          if(!groupe.visible)return;
+          const pages=(groupe.pages||[]).filter(function(page){
+            return page&&page.titre==='Norman & Sébastien';
+          });
+          pages.forEach(function(page,index){
+            sorties.push({
+              groupe:groupe.nom,
+              suffixe:pages.length>1?' · '+(index+1)+'/'+pages.length:'',
+              paragraphes:Array.isArray(page.paragraphes)?page.paragraphes:[]
+            });
+          });
+        });
+
+        return sorties;
+      }
+
+
       function pageParametresIdleV28_(j){
         const infosParMenu=idleInfosParMenuIdleV1_(j);
         const vus=idleMenusAckListeV1_(j);
         const entrees=vus
           .map(function(menuId){return infosParMenu[menuId];})
           .filter(Boolean);
+        const introsNormanSebastien=textesNormanSebastienIdleV203_(j);
 
         return entetePageIdleV28_(
           '⚙️ Settings',
@@ -29577,10 +29648,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         )+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">ℹ️ Info</div>'+
-            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications des menus déjà débloqués.</div>'+
+            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications des menus déjà débloqués. Chaque texte peut être relu à voix haute avec la synthèse vocale de ton appareil.</div>'+
             (entrees.length
-              ?entrees.map(function(info){
-                return '<div class="soreal-idle-info-recap-card-v1">'+
+              ?entrees.map(function(info,index){
+                const targetId='sorealIdleInfoRecapV203_'+index;
+                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1">'+
                   '<div class="soreal-idle-info-recap-head-v1">'+idleHtml_(info.icon||'✨')+' <b>'+idleHtml_(info.titre||'')+'</b></div>'+
                   (info.intro?'<div class="soreal-idle-info-recap-intro-v1">'+idleHtml_(info.intro)+'</div>':'')+
                   (info.texte?'<div>'+idleHtml_(info.texte)+'</div>':'')+
@@ -29591,40 +29663,38 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                       }).join('')+
                       '</div>'
                     :'')+
+                  '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+targetId+'">🔊 Lire ce texte</button>'+
                 '</div>';
               }).join('')
               :'<div style="font-size:12px;color:#5b6178">Aucun panneau d’information consulté pour l’instant.</div>'
             )+
+            '<div class="soreal-idle-window-title-v31" style="margin-top:16px">🎙️ Norman & Sébastien</div>'+
+            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Retrouve ici leurs interventions déjà rencontrées dans ta partie. Tu peux les relire ou les faire lire par le Text-to-Speech.</div>'+
+            (introsNormanSebastien.length
+              ?introsNormanSebastien.map(function(info,index){
+                const targetId='sorealIdleNarrateursV203_'+index;
+                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1">'+
+                  '<div class="soreal-idle-info-recap-head-v1">🎙️ <b>Norman &amp; Sébastien — '+idleHtml_(info.groupe+info.suffixe)+'</b></div>'+
+                  '<div class="soreal-idle-info-recap-intro-v1">'+
+                    info.paragraphes.map(function(texte){
+                      return '<div style="margin-bottom:7px">'+idleHtml_(texte)+'</div>';
+                    }).join('')+
+                  '</div>'+
+                  '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+targetId+'">🔊 Lire ce texte</button>'+
+                '</div>';
+              }).join('')
+              :'<div style="font-size:12px;color:#5b6178">Aucune intervention disponible pour l’instant.</div>'
+            )+
           '</div>'+
-          /*
-           * Réinitialisation complète : vivait auparavant dans un patch
-           * séparé (cloudflare/features/idle/interaction-repair-v79.html)
-           * qui réécrivait le panneau Settings en aval, à l'époque où
-           * l'onglet 'parametres' n'avait pas de vraie page (retombait en
-           * silence sur Combat de Boss). Maintenant que Settings a une
-           * vraie page, cette section vit ici directement — même bouton,
-           * même popup de confirmation (window.__ouvrirPopupResetTotalIdleV67__),
-           * jamais une seconde logique de reset dupliquée.
-           */
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V200</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V203</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+
             '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTotalIdleV67__()">💣 Réinitialiser entièrement SOREAL IDLE</button>'+
           '</div>'+
-          /*
-           * Correctif 2026-09-18 (Norman, en direct : "ajoute à moi seul,
-           * dans le menu paramètres, un bouton qui fait reset l'entièreté
-           * des joueurs actuels") — visible seulement pour le Responsable
-           * (estAdminSorealIdle_, lit SOREAL_USER) ; purement cosmétique
-           * côté client, la vraie porte est ADMIN_SOREAL_IDLE_EMAIL côté
-           * serveur (reinitialiserTousLesComptesSorealIdle,
-           * idle-sqlite-runtime.js) — jamais fiable seule pour un contrôle
-           * d'accès.
-           */
           (estAdminSorealIdle_()
             ?'<div class="soreal-idle-section-v8">'+
               '<div class="soreal-idle-window-title-v31">🔧 Admin</div>'+
