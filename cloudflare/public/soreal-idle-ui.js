@@ -17681,7 +17681,7 @@
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
-        {id:'sellout',icon:'🛍️',nom:'Sellout Shop'},
+        {id:'sellout',icon:'🛍️',nom:'Boutique AP'},
         {id:'spendExp',icon:'✨',nom:'EXP Shop'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
       ];
@@ -20520,12 +20520,18 @@
         const combat=j&&j.combatPrincipal?j.combatPrincipal:{};
         const systemes=j&&j.systemes?j.systemes:{};
         const monnaies=systemes.currencies||{};
+        const records=systemes.records||{};
         const number=
           j&&j.renaissance&&j.renaissance.number!==undefined
             ?j.renaissance.number
             :j&&j.renaissance&&j.renaissance.multiplicateur!==undefined
               ?j.renaissance.multiplicateur
               :1;
+        const apVisible=Boolean(
+          idleNombre_(monnaies.ap)>0||
+          (systemes.selloutShop&&systemes.selloutShop.unlockedEver)
+        );
+        const rebirths=Math.max(0,idleEntier_(records.totalRebirths||0));
 
         return `
           <div class="soreal-idle-summary-grid-v28">
@@ -20549,6 +20555,16 @@
               ⭐ EXP
               <b id="sorealIdleSummaryExpV50">${formatGrandNombreIdleV70_(monnaies.experience||j.xp||0)}</b>
             </div>
+            ${apVisible
+              ?`<div class="soreal-idle-summary-v28">
+                  💠 AP
+                  <b id="sorealIdleSummaryApV210">${formatGrandNombreIdleV70_(monnaies.ap||0)}</b>
+                </div>`
+              :''}
+            <div class="soreal-idle-summary-v28">
+              ♻️ Rebirths
+              <b id="sorealIdleSummaryRebirthsV210">${formatGrandNombreIdleV70_(rebirths)}</b>
+            </div>
             <div class="soreal-idle-summary-v28">
               ⏱️ Run
               <b id="sorealIdleSummaryRunV1">${formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j))}</b>
@@ -20570,6 +20586,7 @@
         const combat=j.combatPrincipal?j.combatPrincipal:{};
         const systemes=j.systemes||{};
         const monnaies=systemes.currencies||{};
+        const records=systemes.records||{};
         const number=
           j.renaissance&&j.renaissance.number!==undefined
             ?j.renaissance.number
@@ -20587,6 +20604,8 @@
         ecrire('sorealIdleSummaryDefenseV50',formatGrandNombreIdleV70_(combat.defense||j.defense||0));
         ecrire('sorealIdleSummaryGoldV50',formatGrandNombreIdleV70_(monnaies.gold||0));
         ecrire('sorealIdleSummaryExpV50',formatGrandNombreIdleV70_(monnaies.experience||j.xp||0));
+        ecrire('sorealIdleSummaryApV210',formatGrandNombreIdleV70_(monnaies.ap||0));
+        ecrire('sorealIdleSummaryRebirthsV210',formatGrandNombreIdleV70_(records.totalRebirths||0));
         ecrire('sorealIdleSummaryRunV1',formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j)));
       }
 
@@ -22200,7 +22219,22 @@ let idleDialogueTimerV76=null;
       window.__changerPageCollectionEquipementV1__=changerPageCollectionEquipementV1_;
 
       function rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube){
-        const idsEquipementToutes=Object.keys(catalog);
+        const setsDemarres=new Set(
+          Object.keys(itemList).map(function(id){
+            const def=catalog[id];
+            return def&&def.kind==='equipment'&&itemList[id]&&itemList[id].seen
+              ?String(def.set||'')
+              :'';
+          }).filter(Boolean)
+        );
+        const idsEquipementToutes=Object.keys(catalog).filter(function(id){
+          const def=catalog[id];
+          if(!def)return false;
+          if(def.kind==='equipment'){
+            return setsDemarres.has(String(def.set||''));
+          }
+          return Boolean(itemList[id]&&itemList[id].seen);
+        });
         const idsBoosts=Object.keys(itemList).filter(function(id){
           return IDLE_COLLECTION_BOOST_RE_V1.test(id);
         });
@@ -22379,6 +22413,11 @@ let idleDialogueTimerV76=null;
 
         if(!tts||typeof tts.readText!=='function'){
           toastIdleV5_('Lecture vocale indisponible sur cet appareil.');
+          return;
+        }
+
+        if(typeof tts.isSpeaking==='function'&&tts.isSpeaking()){
+          if(typeof tts.stop==='function')tts.stop();
           return;
         }
 
@@ -23332,6 +23371,23 @@ let idleDialogueTimerV76=null;
           }else{
             const target=trouver(payload.targetId);
             if(!target||target.kind==='boost')return false;
+            const type=String(boost.boostType||'');
+            const q=1+Math.max(0,Math.min(100,idleNombre_(target.level)))/100;
+            const cap=type==='power'
+              ?idleNombre_(target.basePower)*q
+              :type==='toughness'
+                ?idleNombre_(target.baseToughness)*q
+                :type==='special'
+                  ?idleNombre_(target.baseSpecial)*q
+                  :0;
+            const actuel=type==='power'
+              ?idleNombre_(target.power)
+              :type==='toughness'
+                ?idleNombre_(target.toughness)
+                :type==='special'
+                  ?idleNombre_(target.special)
+                  :0;
+            if(target.fullyMaxed||(cap>0&&actuel>=cap-1e-9))return false;
             target._idlePendingV160=txId||1;
             a.inventory=a.inventory.filter(function(x){
               return String(x&&x.id)!==String(boost.id);
@@ -25667,10 +25723,17 @@ function pageAventureIdleV28_(j){
         const itemCatalog=a&&a.itemCatalog&&typeof a.itemCatalog==='object'?a.itemCatalog:{};
         const itemList=a&&a.itemList&&typeof a.itemList==='object'?a.itemList:{};
         const completed=a&&a.completedSets&&typeof a.completedSets==='object'?a.completedSets:{};
-        const sets=Object.values(setCatalog);
+        const sets=Object.values(setCatalog).filter(function(setDef){
+          const setId=String(setDef&&setDef.id||'');
+          const slots=Array.isArray(setDef&&setDef.slots)?setDef.slots:[];
+          return slots.some(function(slot){
+            const info=itemList[setId+':'+String(slot)];
+            return Boolean(info&&info.seen);
+          });
+        });
 
         if(!sets.length){
-          return '<div class="soreal-idle-empty-v10">Aucun set disponible dans le catalogue Adventure.</div>';
+          return '<div class="soreal-idle-empty-v10">Aucun set découvert pour l’instant. Les cases apparaîtront dès que tu trouveras la première pièce d’un set.</div>';
         }
 
         return sets.map(function(setDef){
@@ -26892,7 +26955,40 @@ function pageAventureIdleV28_(j){
       }
 
       function boosterObjetParIdAdventureIdleV47_(boostId,cibleId){
-        actionAdventureIdleV47_({action:'boost',boostId:String(boostId||''),targetId:String(cibleId||'')});
+        const a=aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const boost=items.find(function(x){return String(x&&x.id)===String(boostId||'');});
+        const cible=items.find(function(x){return String(x&&x.id)===String(cibleId||'');});
+        if(!boost||boost.kind!=='boost'||!cible||cible.kind==='boost')return;
+
+        const type=String(boost.boostType||'');
+        const q=1+Math.max(0,Math.min(100,idleNombre_(cible.level)))/100;
+        let cap=0;
+        let actuel=0;
+        if(type==='power'){
+          cap=idleNombre_(cible.basePower)*q;
+          actuel=idleNombre_(cible.power);
+        }else if(type==='toughness'){
+          cap=idleNombre_(cible.baseToughness)*q;
+          actuel=idleNombre_(cible.toughness);
+        }else if(type==='special'){
+          cap=idleNombre_(cible.baseSpecial)*q;
+          actuel=idleNombre_(cible.special);
+        }
+
+        if(
+          cible.fullyMaxed||
+          (cap>0&&actuel>=cap-1e-9)
+        ){
+          toastIdleV5_('Cette statistique est déjà au maximum : le boost n’est pas consommé.');
+          return;
+        }
+
+        actionAdventureIdleV47_({
+          action:'boost',
+          boostId:String(boostId||''),
+          targetId:String(cibleId||'')
+        });
       }
 
       function deposerSurCubeAdventureIdleV138_(event){
@@ -28486,23 +28582,32 @@ function pageAventureIdleV28_(j){
        * bouton d'achat qui échouerait silencieusement.
        */
       const IDLE_SPEND_EXP_STATS_V1=[
-        {id:'speed',nom:'Vitesse',icone:'⏩'},
-        {id:'power',nom:'Puissance',icone:'💪'},
-        {id:'cap',nom:'Plafond',icone:'📦'},
-        {id:'bars',nom:'Barres',icone:'📊'}
+        {
+          id:'speed',
+          nom:'Vitesse',
+          icone:'⏩',
+          explication:'Augmente la vitesse à laquelle cette ressource est générée : plus la valeur est élevée, plus vite ta barre progresse.'
+        },
+        {
+          id:'power',
+          nom:'Puissance',
+          icone:'💪',
+          explication:'Augmente la quantité de ressource produite à chaque génération.'
+        },
+        {
+          id:'cap',
+          nom:'Plafond',
+          icone:'📦',
+          explication:'Augmente la quantité maximale de ressource que tu peux stocker.'
+        },
+        {
+          id:'bars',
+          nom:'Barres',
+          icone:'📊',
+          explication:'Augmente le nombre de barres de cette ressource et donc ta capacité de progression.'
+        }
       ];
 
-      /*
-       * Audit 2026-09-17 (capture Norman du vrai "Spend EXP" NGU) : achat en
-       * lot (x1/x10/x100 + montant personnalisé), Newbie Offers à usage
-       * unique et verrou "REACH BOSS 17 FOR MORE PURCHASES HERE!" sur
-       * Power/Cap — tout est déjà calculé côté serveur (idle-ngu-
-       * progression.js : resourcePurchases[].bulkTiers/unlockBoss,
-       * resourcePurchaseUnlock, newbieOffers). Le client ne fait ici que du
-       * rendu + un calcul d'AFFICHAGE (aperçu du coût pendant la saisie) —
-       * l'achat réel est toujours revalidé et re-tarifé côté serveur
-       * (buyResource/buyNewbieOffer), jamais fait confiance au client.
-       */
       function idleExpShopIdInput_(res,stat){
         return 'idle-exp-qty-'+res+'-'+stat;
       }
@@ -28512,37 +28617,32 @@ function pageAventureIdleV28_(j){
 
       function idleExpShopBoutonsLotIdleV1_(res,stat,achat){
         const tiers=Array.isArray(achat.bulkTiers)&&achat.bulkTiers.length?achat.bulkTiers:[1];
-        return tiers.map(function(qty){
+        return '<div class="soreal-idle-exp-actions-v210">'+tiers.map(function(qty){
           const cout=idleEntier_((achat.cost||0)*qty);
-          /*
-           * Correctif visuel (vérif live 2026-09-17) : decimales toujours
-           * fournie, jamais omise — un gain fractionnaire (Vitesse : 0.1
-           * par palier) affichait "+0 pour 2 EXP" avec le comportement par
-           * défaut de formatGrandNombreIdleV70_ (Math.round arrondit 0.1 à
-           * 0 sous 1000). toFixed(2) + strip des zéros de fin gère aussi
-           * bien les gains ronds (Barres : 1 -> "1") que fractionnaires.
-           */
           const gain=formatGrandNombreIdleV70_((achat.gain||0)*qty,2);
-          return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__acheterRessourceMetaIdleV130__(\''+
-            idleHtml_(res)+'\',\''+idleHtml_(stat)+'\','+qty+')">+'+gain+' pour '+cout+' EXP</button>';
-        }).join('');
+          return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRessourceMetaIdleV130__(\''+
+            idleHtml_(res)+'\',\''+idleHtml_(stat)+'\','+qty+')">'+
+              '<b>Acheter ×'+qty+'</b>'+
+              '<small>+'+gain+' · '+cout+' EXP</small>'+
+            '</button>';
+        }).join('')+'</div>';
       }
 
       function idleExpShopLotPersonnaliseIdleV1_(res,stat,achat){
         const idInput=idleExpShopIdInput_(res,stat);
         const idApercu=idleExpShopIdApercu_(res,stat);
         const coutUnitaire=idleEntier_(achat.cost||0);
-        return '<div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:7px">'+
+        return '<div class="soreal-idle-exp-custom-v210">'+
+          '<label>Quantité personnalisée</label>'+
           '<input type="number" min="1" step="1" value="1" id="'+idHtml_attr_(idInput)+'" '+
-            'style="width:70px" '+
             'oninput="window.__idleExpShopApercuLotPersonnalise__(\''+idleHtml_(res)+'\',\''+idleHtml_(stat)+'\','+coutUnitaire+')">'+
-          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__acheterRessourceLotPersonnaliseMetaIdleV130__(\''+
-            idleHtml_(res)+'\',\''+idleHtml_(stat)+'\')">Acheter pour <span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</button>'+
+          '<button type="button" class="soreal-idle-exp-buy-v210 primary" onclick="window.__acheterRessourceLotPersonnaliseMetaIdleV130__(\''+
+            idleHtml_(res)+'\',\''+idleHtml_(stat)+'\')">'+
+            '<b>Acheter</b><small><span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</small>'+
+          '</button>'+
         '</div>';
       }
 
-      // idHtml_attr_ : un id DOM n'a pas besoin d'échappement HTML complet (pas de contenu texte),
-      // seule la ressource/stat (déjà des ids internes connus, jamais une saisie joueur) le compose.
       function idHtml_attr_(v){
         return String(v||'');
       }
@@ -28559,14 +28659,15 @@ function pageAventureIdleV28_(j){
       function idleExpShopNewbieOffersIdleV1_(res,stat,offres,utilisees){
         const restantes=(offres||[]).filter(function(o){return utilisees.indexOf(o.id)===-1;});
         if(!restantes.length)return '';
-        return '<div class="soreal-idle-section-v8" style="margin-top:7px">'+
-          '<div class="soreal-idle-window-title-v31">🎁 Newbie Offers</div>'+
-          '<div class="soreal-idle-note-v4">Achats à usage unique, disparaissent une fois pris.</div>'+
-          '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:7px">'+
+        return '<div class="soreal-idle-exp-newbie-v210">'+
+          '<div class="soreal-idle-window-title-v31">🎁 Offres débutant</div>'+
+          '<div class="soreal-idle-note-v4">Offres à usage unique : elles disparaissent après achat.</div>'+
+          '<div class="soreal-idle-exp-actions-v210">'+
             restantes.map(function(o){
-              return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__acheterNewbieOfferMetaIdleV130__(\''+
-                idleHtml_(res)+'\',\''+idleHtml_(stat)+'\',\''+idleHtml_(o.id)+'\')">+'+
-                formatGrandNombreIdleV70_(o.gain,2)+' pour '+idleEntier_(o.cost)+' EXP</button>';
+              return '<button type="button" class="soreal-idle-exp-buy-v210 offer" onclick="window.__acheterNewbieOfferMetaIdleV130__(\''+
+                idleHtml_(res)+'\',\''+idleHtml_(stat)+'\',\''+idleHtml_(o.id)+'\')">'+
+                '<b>Offre unique</b><small>+'+formatGrandNombreIdleV70_(o.gain,2)+' · '+idleEntier_(o.cost)+' EXP</small>'+
+              '</button>';
             }).join('')+
           '</div>'+
         '</div>';
@@ -28575,14 +28676,18 @@ function pageAventureIdleV28_(j){
       function idleExpShopStatBlocIdleV1_(res,stat,x,achat,verrou,newbieCatalogue,newbieUtilisees){
         const auMax=achat&&idleNombre_(x[stat.id])>=achat.hardCap-1e-9;
         const verrouille=achat&&achat.unlockBoss&&verrou&&verrou.unlocked===false;
-        return '<div class="soreal-idle-section-v8" style="margin-top:9px">'+
-          '<div class="soreal-idle-window-title-v31">'+stat.icone+' '+stat.nom+' : '+formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</div>'+
+        return '<div class="soreal-idle-exp-stat-v210">'+
+          '<div class="soreal-idle-exp-stat-head-v210">'+
+            '<span>'+stat.icone+' '+stat.nom+'</span>'+
+            '<strong>'+formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong>'+
+          '</div>'+
+          '<div class="soreal-idle-exp-help-v210">'+idleHtml_(stat.explication||'')+'</div>'+
           (!achat
             ?'<div class="soreal-idle-note-v4">Indisponible.</div>'
             :verrouille
-              ?'<div class="soreal-idle-note-v4">🔒 ATTEINS LE BOSS '+idleEntier_(verrou.neededBosses)+' POUR DÉBLOQUER CET ACHAT !</div>'
+              ?'<div class="soreal-idle-exp-lock-v210">🔒 Atteins le Boss '+idleEntier_(verrou.neededBosses)+' pour débloquer cet achat.</div>'
               :auMax
-                ?'<div class="soreal-idle-note-v4">✔ Maximum atteint.</div>'
+                ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
                 :idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat)+
                   idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat)+
                   idleExpShopNewbieOffersIdleV1_(res.id,stat.id,(newbieCatalogue&&newbieCatalogue[stat.id])||null,newbieUtilisees)
@@ -28601,54 +28706,53 @@ function pageAventureIdleV28_(j){
         const exp=idleEntier_((m.currencies&&m.currencies.experience)||0);
         const magicSysteme=systemeMetaParIdIdleV130_(j,'bloodMagic');
         const r3Systeme=systemeMetaParIdIdleV130_(j,'hacks');
-        /*
-         * Norman (2026-09-17, capture du vrai menu "Spend EXP" NGU — onglets
-         * Energy / Locked / Adventure Stats / Adventure Special / Locked...) :
-         * "Le menu Energy doit apparaitre dès qu'on a de l'exp en tuant le
-         * premier boss." m.records.highestBoss est le tracker PERMANENT déjà
-         * utilisé pour le bonus FTBE (jamais remis à 0 par une Renaissance,
-         * contrairement à m.aventure.boss qui repart de 0) — "au moins un
-         * boss déjà vaincu un jour sur ce compte" est exactement ce qu'il
-         * faut ici, pas le compteur du run en cours.
-         * Ce tableau reste générique (pas de longueur codée en dur) : deux
-         * autres catégories (Adventure Stats/Special) s'y ajouteront dans un
-         * prochain lot sans qu'il faille réécrire cette page.
-         */
         const ressources=[
           {id:'energy',unlocked:Boolean(m.records&&idleNombre_(m.records.highestBoss)>=1)},
           {id:'magic',unlocked:Boolean(magicSysteme&&magicSysteme.state&&magicSysteme.state.unlocked)},
           {id:'r3',unlocked:Boolean(r3Systeme&&r3Systeme.state&&r3Systeme.state.unlocked)}
         ];
+
         return entetePageIdleV28_(
-          '✨ EXP Shop',
-          'Dépense ton EXP pour augmenter Vitesse/Puissance/Plafond/Barres, une ressource et une statistique à la fois — coût plat, jamais perdu, jamais recalculé.'
+          '✨ Boutique EXP',
+          'Utilise ton EXP pour améliorer durablement la génération et la capacité de tes ressources.'
         )+
-        '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">EXP disponible<b>'+exp+'</b></div></div>'+
+        '<style>'+
+          '.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;margin-bottom:12px;border-radius:15px;background:linear-gradient(135deg,rgba(8,145,178,.13),rgba(99,102,241,.10));border:1px solid rgba(8,145,178,.24)}'+
+          '.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900}.soreal-idle-exp-balance-v210 b{font-size:22px}'+
+          '.soreal-idle-exp-resource-v210{margin:12px 0 6px;padding:10px 13px;border-radius:13px;background:rgba(8,145,178,.08);border:1px solid rgba(8,145,178,.18);font-weight:950}'+
+          '.soreal-idle-exp-stat-v210{margin:8px 0;padding:13px;border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(38,52,84,.10);box-shadow:0 5px 16px rgba(31,41,70,.06)}'+
+          '.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:950}.soreal-idle-exp-stat-head-v210 strong{font-size:15px}'+
+          '.soreal-idle-exp-help-v210{margin:5px 0 10px;color:#70798f;font-size:11px;line-height:1.45;font-weight:750}'+
+          '.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px}'+
+          '.soreal-idle-exp-buy-v210{border:1px solid rgba(8,145,178,.22);border-radius:11px;padding:9px 10px;background:rgba(8,145,178,.09);color:inherit;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}'+
+          '.soreal-idle-exp-buy-v210:hover{background:rgba(8,145,178,.16)}.soreal-idle-exp-buy-v210 b{font-size:11px}.soreal-idle-exp-buy-v210 small{font-size:9px;opacity:.76}'+
+          '.soreal-idle-exp-buy-v210.primary{background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.28)}.soreal-idle-exp-buy-v210.offer{background:rgba(245,158,11,.11);border-color:rgba(245,158,11,.26)}'+
+          '.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 84px minmax(110px,auto);gap:7px;align-items:end;margin-top:8px}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;color:#7b8498;font-weight:850}.soreal-idle-exp-custom-v210 input{width:100%;box-sizing:border-box;padding:9px;border-radius:9px;border:1px solid rgba(38,52,84,.17);background:rgba(255,255,255,.86)}'+
+          '.soreal-idle-exp-newbie-v210{margin-top:9px;padding-top:9px;border-top:1px dashed rgba(38,52,84,.14)}.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(107,114,128,.08);font-size:11px;font-weight:850}'+
+          '@media(max-width:560px){.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 input{grid-column:1}.soreal-idle-exp-custom-v210 .soreal-idle-exp-buy-v210{grid-column:2}.soreal-idle-exp-actions-v210{grid-template-columns:1fr 1fr}}'+
+        '</style>'+
+        '<div class="soreal-idle-exp-balance-v210"><span>⭐ EXP disponible</span><b>'+formatGrandNombreIdleV70_(exp)+'</b></div>'+
         ressources.map(function(res){
+          const titre=libelleRessourceMetaIdleV130_(res.id);
           if(!res.unlocked){
-            return '<div class="soreal-idle-section-v8">'+
-              '<div class="soreal-idle-window-title-v31">'+libelleRessourceMetaIdleV130_(res.id)+'</div>'+
-              '<div class="soreal-idle-note-v4">🔒 Verrouillé.</div>'+
-            '</div>';
+            return '<div class="soreal-idle-exp-resource-v210">🔒 '+idleHtml_(titre)+' · verrouillé</div>';
           }
           const x=r[res.id]||{};
           const couts=achats[res.id]||{};
           const verrousRessource=verrousBoss[res.id]||{};
           const newbieCatalogueRessource=newbieCatalogueParRessource[res.id]||{};
-          return '<div class="soreal-idle-section-v8">'+
-            '<div class="soreal-idle-window-title-v31">'+libelleRessourceMetaIdleV130_(res.id)+'</div>'+
-          '</div>'+
-          IDLE_SPEND_EXP_STATS_V1.map(function(stat){
-            return idleExpShopStatBlocIdleV1_(
-              res,
-              stat,
-              x,
-              couts[stat.id],
-              verrousRessource[stat.id],
-              newbieCatalogueRessource,
-              newbieUtilisees
-            );
-          }).join('');
+          return '<div class="soreal-idle-exp-resource-v210">'+idleHtml_(titre)+'</div>'+
+            IDLE_SPEND_EXP_STATS_V1.map(function(stat){
+              return idleExpShopStatBlocIdleV1_(
+                res,
+                stat,
+                x,
+                couts[stat.id],
+                verrousRessource[stat.id],
+                newbieCatalogueRessource,
+                newbieUtilisees
+              );
+            }).join('');
         }).join('');
       }
 
@@ -30241,7 +30345,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V209</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V210</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
