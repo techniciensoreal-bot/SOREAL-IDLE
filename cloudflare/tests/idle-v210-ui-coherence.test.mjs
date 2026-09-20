@@ -15,10 +15,10 @@ const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",impor
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
 
-assert.ok(index.includes("/soreal-idle-ui.js?v=211"));
+assert.ok(index.includes("/soreal-idle-ui.js?v=212"));
 assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
 assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V211</b>'));
+assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'));
 
 for(const token of [
   "sorealIdleSummaryApV210",
@@ -92,4 +92,4 @@ new Function(ui);
 new Function("window","document","localStorage",tts);
 new Function("window","document",audio);
 
-console.log("SOREAL IDLE V211: OK — AP/Rebirth, Boutique AP, Collection progressive, TTS stop, Fight uniforme, boosts max et EXP Shop.");
+console.log("SOREAL IDLE V212: OK — AP/Rebirth, Boutique AP, Collection progressive, TTS stop, Fight uniforme, boosts max et EXP Shop.");

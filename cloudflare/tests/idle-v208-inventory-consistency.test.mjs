@@ -62,8 +62,8 @@ for(const token of [
 
 assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
 assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
-assert.ok(index.includes("/soreal-idle-ui.js?v=211"));
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V211</b>'));
+assert.ok(index.includes("/soreal-idle-ui.js?v=212"));
+assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'));
 
 new Function(ui);
 console.log("SOREAL IDLE V208: OK — révisions Adventure, fusion idempotente et barrière anti-rollback.");
