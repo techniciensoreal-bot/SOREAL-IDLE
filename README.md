@@ -1,13 +1,18 @@
 # SOREAL IDLE
 
-Moteur de jeu du mini-jeu idle inspiré de [NGU Idle](https://ngu-idle.fandom.com/),
-intégré à SOREAL. Ce dépôt contient uniquement le **serveur** (un Worker
-Cloudflare avec un Durable Object SQLite) — pas d'interface.
+Jeu idle inspiré de [NGU Idle](https://ngu-idle.fandom.com/), intégré à SOREAL.
+Ce dépôt contient désormais le **moteur serveur** (Worker Cloudflare +
+Durable Object SQLite) **et le frontend autonome de production** servi par
+ce même Worker.
 
 ## Où vit le reste
 
-- **Interface** (HTML/JS joué par les employés) : `Soreal_Idle_UI.html`
-  dans le dépôt **SOREAL-APP**.
+- **Frontend autonome de production** : `cloudflare/public/index.html`,
+  `cloudflare/public/standalone-bridge.js` et surtout
+  `cloudflare/public/soreal-idle-ui.js` dans **ce dépôt**.
+- `SOREAL-APP/Soreal_Idle_UI.html` est un ancien snapshot historique :
+  le launcher actuel de l'APP ne l'exécute plus. Il crée un ticket puis
+  charge `https://soreal-idle.technicien-soreal.workers.dev` dans un iframe.
 - **Point d'entrée réseau réel** : le client n'appelle pas ce Worker
   directement. Il appelle une route sur le Worker SOREAL-APP ou SOREAL-TV
   (`/api/app/idle/call` / `/api/tv/idle/call`), qui relaie vers ce dépôt
@@ -23,6 +28,11 @@ Cloudflare avec un Durable Object SQLite) — pas d'interface.
 
 ```
 cloudflare/
+  public/
+    index.html                   shell autonome
+    standalone-bridge.js        bridge session/API
+    soreal-idle-ui.js            frontend de production
+    modules/                     modules frontend annexes
   src/
     idle-sqlite-runtime.js       moteur principal + shim "Apps Script sur SQLite"
     idle-adventure-v47.js        mode Adventure (zones, mobs, combat)
