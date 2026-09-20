@@ -11,8 +11,8 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=205'),
-  "Le shell doit charger l'UI V205."
+  index.includes('/soreal-idle-ui.js?v=206'),
+  "Le shell doit charger l'UI V206."
 );
 
 for(const token of [
@@ -24,7 +24,7 @@ for(const token of [
   "rendreSystemeMetaIdleV130_(j,pit,true)+",
   "rendreSystemeMetaIdleV130_(j,roue,true)"
 ]){
-  assert.ok(ui.includes(token),"Money Pit / Daily Spin V205 manquant: "+token);
+  assert.ok(ui.includes(token),"Money Pit / Daily Spin V206 manquant: "+token);
 }
 
 for(const token of [
@@ -53,12 +53,12 @@ for(const token of [
 }
 
 assert.ok(
-  ui.includes('Build <b style="color:#dce5f3">V205</b>'),
+  ui.includes('Build <b style="color:#dce5f3">V206</b>'),
   "Settings doit afficher le jalon V204."
 );
 
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE V205: OK — Money Pit/Roue expliqués, roue accessible, archives Info/TTS, audio inventaire immédiat."
+  "SOREAL IDLE V206: OK — Money Pit/Roue expliqués, roue accessible, archives Info/TTS, audio inventaire immédiat."
 );
