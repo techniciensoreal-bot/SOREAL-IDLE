@@ -6620,6 +6620,22 @@
             opacity:.9;
           }
 
+          .soreal-idle-boss-lore-info-v198{
+            max-width:980px;
+            margin:0 auto 12px;
+            padding:8px 10px;
+            border-radius:9px;
+            background:rgba(138,170,219,.08);
+            border:1px solid rgba(159,186,225,.14);
+            color:#aebbd0;
+            font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+            font-size:12.5px;
+            font-weight:700;
+            line-height:1.45;
+            text-align:left;
+            text-shadow:none;
+          }
+
           .soreal-idle-boss-lore-histoire-v142{
             max-width:980px;
             margin:0 auto;
@@ -18751,12 +18767,33 @@
             j&&j.bossActuel||'Boss'
           ).trim();
 
+        /*
+         * V198 — certaines histoires NGU commencent par une information
+         * système entre parenthèses (ex. déblocage de The Sewers), suivie
+         * de la vraie narration. Cette première phrase n'appartient pas au
+         * récit : elle est rendue séparément en information neutre, tandis
+         * que le paragraphe narratif conserve l'habillage grimoire/doré.
+         */
+        let infoDeblocage='';
+        let narration=histoire;
+        const infoMatch=histoire.match(/^\(([^\n]+)\)\s*/);
+
+        if(infoMatch){
+          infoDeblocage='('+String(infoMatch[1]||'').trim()+')';
+          narration=histoire.slice(infoMatch[0].length).trim();
+        }
+
         return `
           <div class="soreal-idle-boss-lore-v142">
             <div class="soreal-idle-boss-lore-title-v168">Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184">✦ ❦ ✦</div>
-            <div class="soreal-idle-boss-lore-histoire-v142">${idleHtml_(histoire)}</div>
+            ${infoDeblocage
+              ?'<div class="soreal-idle-boss-lore-info-v198">'+idleHtml_(infoDeblocage)+'</div>'
+              :''}
+            ${narration
+              ?'<div class="soreal-idle-boss-lore-histoire-v142">'+idleHtml_(narration)+'</div>'
+              :''}
           </div>
         `;
       }
@@ -20914,10 +20951,9 @@
 
 
       /*
-       * NUKE (Task 4) — reproduit le bouton NUKE de NGU Idle : le serveur
-       * enchaîne instantanément tous les boss que la Défense peut one-shot
-       * (Défense >= 5x leur Attaque, cf. nukerBossSorealIdle côté
-       * idle-sqlite-runtime.js) puis renvoie la liste des boss enchaînés.
+       * NUKE — le serveur applique la règle réelle de BossController :
+       * Attack/5 > Defense boss ET Defense/5 > Attack boss, puis renvoie
+       * la liste des boss réellement nukables.
        * Cette fonction se contente d'afficher rapidement chaque boss vaincu
        * en cascade (overlay autonome, sans toucher au rendu de combat
        * existant) avant d'appliquer l'état final "prêt, reclique Start"
@@ -21521,7 +21557,7 @@ let idleDialogueTimerV76=null;
                 id="sorealIdleBossNukeV1"
                 class="soreal-idle-boss-control-v39 nuke"
                 onclick="window.__nukerBossIdleV1__()"
-                title="Enchaîne instantanément tous les boss que ta Défense peut one-shot (Défense ≥ 5x leur Attaque)."
+                title="NUKE : ton Attaque doit dépasser 5× la Défense du boss ET ta Défense dépasser 5× son Attaque."
                 ${
                   j.bossBloqueRenaissance
                     ?'disabled'
