@@ -60,10 +60,10 @@ for(const token of [
   assert.ok(ui.includes(token),"Protection anti-rollback V208 manquante: "+token);
 }
 
-assert.ok(index.includes("/modules/audio-effects-v199.js?v=208"));
-assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=208"));
-assert.ok(index.includes("/soreal-idle-ui.js?v=209"));
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V209</b>'));
+assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
+assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
+assert.ok(index.includes("/soreal-idle-ui.js?v=210"));
+assert.ok(ui.includes('Build <b style="color:#dce5f3">V210</b>'));
 
 new Function(ui);
 console.log("SOREAL IDLE V208: OK — révisions Adventure, fusion idempotente et barrière anti-rollback.");
