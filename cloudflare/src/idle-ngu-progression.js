@@ -2292,6 +2292,72 @@ function augmentationRowsV213_(state,context={}){
   return rows;
 }
 
+function augmentationCostForLevelsV213_(state,def,fromLevel,count,upgrade=false){
+  const k=Math.max(0,int(count,0));
+  if(k<=0)return 0;
+  const start=Math.max(0,int(fromLevel,0))+1;
+  const end=start+k-1;
+  const costMultiplier=challengePermanentBonuses(state).augmentationCostMultiplier;
+  if(!upgrade){
+    const sum=(start+end)*k/2;
+    return def.baseGold*sum*costMultiplier;
+  }
+  const squares=n=>n*(n+1)*(2*n+1)/6;
+  return def.upgrade.baseGold*(squares(end)-squares(start-1))*costMultiplier;
+}
+
+function augmentationAffordableLevelsV213_(state,def,fromLevel,wanted,upgrade=false){
+  let lo=0;
+  let hi=Math.max(0,int(wanted,0));
+  const gold=Math.max(0,num(state.currencies.gold,0));
+  while(lo<hi){
+    const mid=Math.ceil((lo+hi)/2);
+    const cost=augmentationCostForLevelsV213_(state,def,fromLevel,mid,upgrade);
+    if(cost<=gold+1e-9)lo=mid;
+    else hi=mid-1;
+  }
+  return lo;
+}
+
+function bulkAdvanceAugmentationRowsV213_(state,seconds,context={}){
+  const duration=Math.max(0,num(seconds,0));
+  if(duration<=0)return;
+  const rows=augmentationRowsV213_(state,context);
+  for(const row of rows){
+    const needed=augmentationSecondsForNextLevel(state,row.def,row.upgrade,row.allocation);
+    if(!Number.isFinite(needed)||needed<=0)continue;
+
+    const progress=clamp(num(row.pair[row.keys.progress],0),0,1);
+    const raw=progress+duration/needed;
+    let wanted=Math.max(0,Math.floor(raw+1e-12));
+    const fractional=clamp(raw-wanted,0,0.999999999999);
+    const level=Math.max(0,int(row.pair[row.keys.level],0));
+    const target=int(row.pair[row.keys.target],0);
+    if(target>0)wanted=Math.min(wanted,Math.max(0,target-level));
+    wanted=Math.min(wanted,challengeHundredLevelsRemaining(state));
+
+    const affordable=augmentationAffordableLevelsV213_(state,row.def,level,wanted,row.upgrade);
+    if(affordable>0){
+      state.currencies.gold=Math.max(
+        0,
+        state.currencies.gold-augmentationCostForLevelsV213_(state,row.def,level,affordable,row.upgrade)
+      );
+      row.pair[row.keys.level]=level+affordable;
+      challengeHundredLevelsConsume(state,affordable);
+    }
+
+    if(affordable<wanted){
+      row.pair[row.keys.progress]=1;
+    }else{
+      row.pair[row.keys.progress]=fractional;
+    }
+
+    if(augmentationTargetReachedV213_(row.pair,row.upgrade)){
+      moveAugmentationEnergyV213_(state,row.index,row.upgrade,context);
+    }
+  }
+}
+
 function advanceAugmentations(state, seconds, context) {
   const s = state.systems.augmentations;
   if (!s.unlocked || seconds <= 0 || state.challenge?.active==="noAugmentations") return;
@@ -2352,6 +2418,10 @@ function advanceAugmentations(state, seconds, context) {
     }
     remaining-=step;
   }
+
+  // Une longue absence peut dépasser 100k événements au cap 50/s.
+  // Agrège alors le reliquat au lieu de tronquer le temps hors-ligne.
+  if(remaining>1e-12)bulkAdvanceAugmentationRowsV213_(state,remaining,context);
 
   syncAugmentationTotalAllocationV213_(state);
   s.level=Object.values(s.data.pairs).reduce((sum,p)=>sum+Math.max(0,int(p.level,0))+Math.max(0,int(p.upgradeLevel,0)),0);
