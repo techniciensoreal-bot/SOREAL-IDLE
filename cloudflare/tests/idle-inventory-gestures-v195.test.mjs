@@ -6,6 +6,11 @@ const source=fs.readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
+const longPress=fs.readFileSync(
+  new URL("../public/modules/long-press-v197.js",import.meta.url),
+  "utf8"
+).replace(/\r\n/g,"\n");
+
 function block(start,end){
   const a=source.indexOf(start);
   const b=source.indexOf(end,a);
@@ -15,14 +20,14 @@ function block(start,end){
 
 assert.ok(
   source.includes("V196 — contrôleur UNIQUE d'interaction inventaire"),
-  "L'inventaire doit utiliser le contrôleur unique V196."
+  "L'inventaire doit conserver V196 pour tap/drag."
 );
 
 assert.ok(
   source.includes("const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;")&&
-  source.includes("const IDLE_ADVENTURE_APPUI_LONG_MS_V196=600;")&&
-  source.includes("const IDLE_ADVENTURE_DOUBLE_TAP_MS_V196=420;"),
-  "Les seuils du geste doivent rester centralisés dans V196."
+  source.includes("const IDLE_ADVENTURE_DOUBLE_TAP_MS_V196=420;")&&
+  !source.includes("IDLE_ADVENTURE_APPUI_LONG_MS_V196"),
+  "V196 ne doit plus posséder le timer d'appui long."
 );
 
 const controller=block(
@@ -39,34 +44,38 @@ for(const eventName of [
 ]){
   assert.ok(
     controller.includes("document.addEventListener('"+eventName+"'"),
-    "Pointer Event manquant: "+eventName
+    "Pointer Event tap/drag manquant: "+eventName
   );
 }
 
 assert.ok(
   controller.includes("setPointerCapture(event.pointerId)"),
-  "Le geste doit capturer explicitement le pointeur."
+  "Le drag/tap doit capturer explicitement le pointeur."
 );
 
 assert.ok(
-  controller.includes("document.addEventListener('touchstart'")&&
-  controller.includes("{capture:true,passive:false}")&&
-  controller.includes("if(event.cancelable)event.preventDefault();"),
-  "WKWebView doit avoir un touchstart actif servant uniquement de garde native."
+  !controller.includes("document.addEventListener('touchstart'"),
+  "V196 ne doit plus concurrencer le composant long-press sur touchstart."
 );
 
 assert.ok(
-  controller.includes("document.addEventListener('contextmenu'")&&
-  controller.includes("document.addEventListener('click'"),
-  "Les menus/clics synthétiques natifs doivent être neutralisés."
+  controller.includes("document.addEventListener('soreal-longpress'")&&
+  controller.includes("ouvrirDetailsObjetParGesteAdventureIdleV196_(id)"),
+  "L'inventaire doit consommer l'événement long-press générique."
 );
 
 assert.ok(
-  controller.includes("ouvrirDetailsObjetParGesteAdventureIdleV196_")&&
-  controller.includes("estDoubleTapGesteAdventureIdleV196_")&&
-  controller.includes("executerTapObjetAdventureIdleV196_")&&
-  controller.includes("appliquerDepotGesteAdventureIdleV196_"),
-  "Tap, double-tap, maintien et drag doivent converger dans le même contrôleur."
+  source.includes('data-soreal-longpress="idle-item"')&&
+  source.includes("data-idle-item-info-v197")&&
+  source.includes("soreal-idle-item-info-v197"),
+  "Sac et équipement doivent exposer long-press + bouton info."
+);
+
+assert.ok(
+  controller.includes("closest('[data-idle-item-info-v197]')")&&
+  controller.includes("terminerEtatGesteAdventureIdleV196_();")&&
+  controller.includes("ouvrirDetailsObjetParGesteAdventureIdleV196_(id);"),
+  "Le bouton info doit ouvrir directement le même popup sans déclencher drag/tap."
 );
 
 assert.ok(
@@ -74,7 +83,7 @@ assert.ok(
   source.includes("-webkit-touch-callout:none;")&&
   source.includes("-webkit-user-drag:none;")&&
   source.includes("pointer-events:none;"),
-  "Le CSS doit neutraliser pan/callout/drag natifs sur les items et leurs images."
+  "Le CSS doit neutraliser les comportements natifs concurrents."
 );
 
 const iconBlock=block(
@@ -96,25 +105,46 @@ for(const fn of [
     !rendered.includes('draggable="true"')&&
     !rendered.includes("ondragstart=")&&
     !rendered.includes("ondragend=")&&
-    !rendered.includes("ondrop=")&&
     !rendered.includes('onclick="window.__clic'),
-    "Le rendu "+fn[0]+" ne doit plus embarquer de moteur d'interaction concurrent."
+    "Le rendu "+fn[0]+" ne doit plus embarquer de moteur concurrent."
   );
 }
+
+assert.ok(
+  longPress.includes("var HOLD_MS=600;")&&
+  longPress.includes("var MOVE_PX=32;")&&
+  longPress.includes("document.addEventListener('touchstart'")&&
+  longPress.includes("{capture:true,passive:false}")&&
+  longPress.includes("new CustomEvent('soreal-longpress'"),
+  "Le composant V197 doit posséder le vrai timer WebView et émettre soreal-longpress."
+);
+
+assert.ok(
+  longPress.includes("document.addEventListener('touchcancel'")&&
+  longPress.includes("elapsed>=120")&&
+  longPress.includes("s.cancelledByBrowser=true"),
+  "Un touchcancel WebView sur maintien immobile ne doit plus tuer le timer."
+);
+
+assert.ok(
+  longPress.includes("data-soreal-longpress-ignore"),
+  "Les contrôles explicites comme le bouton info doivent être exclus du maintien."
+);
 
 for(const obsolete of [
   "V195 — contrôleur UNIQUE des gestes d'inventaire",
   "idleAdventureGesteV195",
-  "IDLE_ADVENTURE_APPUI_LONG_MS_V195"
+  "terminerEtatGesteAdventureIdleV195_"
 ]){
   assert.ok(
     !source.includes(obsolete),
-    "Ancien contrôleur encore présent: "+obsolete
+    "Ancienne couche encore présente: "+obsolete
   );
 }
 
 new Function(source);
+new Function(longPress);
 
 console.log(
-  "SOREAL IDLE Inventory V196: OK — Pointer Events unique, pointer capture, garde WKWebView, aucun drag HTML natif."
+  "SOREAL IDLE Inventory V197: OK — tap/drag V196 séparé, long-press WebView réutilisable, bouton info direct."
 );
