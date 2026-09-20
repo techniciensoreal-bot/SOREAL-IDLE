@@ -28,12 +28,11 @@ assert.equal(
   sourceBoss.histoire,
   "L'équilibrage Fight Boss doit préserver exactement l'histoire du catalogue Collection."
 );
-assert.equal(
-  balanced.conseil,
-  sourceBoss.conseil,
-  "L'équilibrage Fight Boss doit préserver exactement le conseil du catalogue Collection."
-);
-
+/*
+ * V186 : le champ brut peut rester dans la définition interne pour
+ * compatibilité des données, mais il ne doit plus être exposé au joueur.
+ * Seule l'Histoire fait partie de la parité Collection/Fight Boss.
+ */
 const runtime=readFileSync(
   new URL("../src/idle-sqlite-runtime.js",import.meta.url),
   "utf8"
@@ -46,13 +45,13 @@ assert.match(
 );
 assert.match(
   runtime,
-  /bossConseil:\s*String\([\s\S]{0,100}bossDefinitionEtat\.conseil/,
-  "L'état Fight Boss doit exposer le conseil équilibré."
+  /bossConseil:\s*''/,
+  "Les anciens conseils SOREAL ne doivent plus être exposés dans Fight Boss."
 );
 assert.doesNotMatch(
   runtime,
   /histoire:\s*""\s*,\s*conseil:\s*""/,
-  "Le runtime ne doit plus effacer la narration des boss."
+  "Le runtime ne doit jamais effacer l'Histoire en même temps que les anciens conseils."
 );
 
 console.log("Fight Boss lore parity with Collection V185: OK");
