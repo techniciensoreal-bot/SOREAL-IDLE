@@ -29624,7 +29624,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * acquittés (idleMenusAckListeV1_), ce qui exclut naturellement
        * tout menu non débloqué (il ne peut jamais être acquitté avant).
        */
-      function textesNormanSebastienIdleV203_(j){
+      function textesNormanSebastienIdleV204_(j){
         const bossVaincus=idleEntier_(j&&j.bossVaincus);
         const groupes=[
           {
@@ -29638,22 +29638,32 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             pages:TUTORIEL_PREMIER_BOSS_PAGES_V1
           },
           {
-            nom:'Aventure',
+            nom:'Aventure & Rebirth',
             visible:menuDisponibleIdleV28_('aventure',j),
             pages:TUTORIEL_AVENTURE_PAGES_V1
           }
         ];
         const sorties=[];
 
+        /*
+         * V204 — "tout pouvoir relire" : Norman & Sébastien sont les
+         * narrateurs de ces séquences complètes. On archive donc TOUTES
+         * les pages déjà atteintes (prologue, Objectif, Énergie, etc.),
+         * pas uniquement celles dont le titre littéral est leur nom.
+         * Les groupes futurs restent cachés jusqu'à leur vrai déblocage
+         * pour ne jamais spoiler la progression.
+         */
         groupes.forEach(function(groupe){
           if(!groupe.visible)return;
-          const pages=(groupe.pages||[]).filter(function(page){
-            return page&&page.titre==='Norman & Sébastien';
-          });
+          const pages=Array.isArray(groupe.pages)?groupe.pages:[];
           pages.forEach(function(page,index){
+            if(!page)return;
             sorties.push({
               groupe:groupe.nom,
-              suffixe:pages.length>1?' · '+(index+1)+'/'+pages.length:'',
+              titre:String(page.titre||'Introduction'),
+              sousTitre:String(page.sousTitre||''),
+              index:index+1,
+              total:pages.length,
               paragraphes:Array.isArray(page.paragraphes)?page.paragraphes:[]
             });
           });
@@ -29662,14 +29672,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return sorties;
       }
 
-
       function pageParametresIdleV28_(j){
         const infosParMenu=idleInfosParMenuIdleV1_(j);
         const vus=idleMenusAckListeV1_(j);
         const entrees=vus
           .map(function(menuId){return infosParMenu[menuId];})
           .filter(Boolean);
-        const introsNormanSebastien=textesNormanSebastienIdleV203_(j);
+        const introsNormanSebastien=textesNormanSebastienIdleV204_(j);
 
         return entetePageIdleV28_(
           '⚙️ Settings',
@@ -29698,12 +29707,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               :'<div style="font-size:12px;color:#5b6178">Aucun panneau d’information consulté pour l’instant.</div>'
             )+
             '<div class="soreal-idle-window-title-v31" style="margin-top:16px">🎙️ Norman & Sébastien</div>'+
-            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Retrouve ici leurs interventions déjà rencontrées dans ta partie. Tu peux les relire ou les faire lire par le Text-to-Speech.</div>'+
+            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Retrouve ici toutes les pages des introductions et tutoriels de Norman & Sébastien déjà rencontrées dans ta partie. Tu peux tout relire ou lancer le Text-to-Speech page par page.</div>'+
             (introsNormanSebastien.length
               ?introsNormanSebastien.map(function(info,index){
                 const targetId='sorealIdleNarrateursV203_'+index;
                 return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1">'+
-                  '<div class="soreal-idle-info-recap-head-v1">🎙️ <b>Norman &amp; Sébastien — '+idleHtml_(info.groupe+info.suffixe)+'</b></div>'+
+                  '<div class="soreal-idle-info-recap-head-v1">🎙️ <b>'+idleHtml_(info.groupe)+' · '+idleHtml_(info.titre)+'</b></div>'+
+                  '<div style="font-size:10px;color:#7f8aa4;margin:4px 0 7px">Page '+idleEntier_(info.index)+' / '+idleEntier_(info.total)+(info.sousTitre?' · '+idleHtml_(info.sousTitre):'')+'</div>'+ 
                   '<div class="soreal-idle-info-recap-intro-v1">'+
                     info.paragraphes.map(function(texte){
                       return '<div style="margin-bottom:7px">'+idleHtml_(texte)+'</div>';
