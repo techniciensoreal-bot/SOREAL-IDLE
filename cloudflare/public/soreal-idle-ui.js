@@ -24066,7 +24066,12 @@ let idleDialogueTimerV76=null;
        * très différents. Le combat ci-dessous utilise désormais les stats
        * réelles déjà transportées par le serveur pour CHAQUE mob.
        */
-      /* Wiki NGU vérifié : Safe Zone = x5 HP Regen, x10 après le set GRB ; Idle Mode = +20% HP Regen en combat. */
+      /*
+       * Wiki NGU : Safe Zone = x5 HP Regen, x10 après le set GRB.
+       * Hors Safe Zone et hors combat, aucune multiplication x2 n'existe :
+       * on conserve la regen normale. L'ancien x2 SOREAL pouvait rendre
+       * toute la vie presque instantanément juste après un kill.
+       */
       function regenReposAdventureIdleV3_(a,zoneCourante){
         const stats=(a&&a.stats)||{};
         const total=Math.max(
@@ -24076,7 +24081,7 @@ let idleDialogueTimerV76=null;
         if(zoneCourante==='safe'){
           return total*(a&&a.setRewards&&a.setRewards.safeZoneRegen10x?10:5);
         }
-        return total*2;
+        return total;
       }
 
       function facteurAleatoireDegatsAdventureIdleV2_(){
