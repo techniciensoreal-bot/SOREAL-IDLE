@@ -2,7 +2,9 @@
  * SOREAL IDLE standalone UI.
  * Migrated from SOREAL-APP/Soreal_Idle_UI.html at 0e9f517632ed462ee707d98eb86c7da7721914b8.
  * Source blob: d806407ce4f0c5ab52e679703a116e6e87fef27a.
- * SOREAL-IDLE becomes the authoritative frontend owner after cutover.
+ * Post-snapshot APP fixes synchronized: 1c43812 (single boss recovery path)
+ * and 9d71863 (stable Fight button while disabled).
+ * SOREAL-IDLE is the authoritative frontend owner after cutover.
  */
 /*
      * ============================================================
@@ -3392,6 +3394,23 @@
           .soreal-idle-boss-control-v39:disabled{
             opacity:.42;
             cursor:default;
+          }
+
+          /*
+           * V171 — Fight doit rester visuellement parfaitement stable
+           * pendant le combat. Il reste disabled pour bloquer les doubles
+           * clics, mais ne s'assombrit plus et ne transite jamais entre
+           * deux opacités : aucun flash n'est visible même si un snapshot
+           * réseau touche brièvement l'état disabled.
+           */
+          .soreal-idle-boss-control-v39.start,
+          .soreal-idle-boss-control-v39.start:disabled{
+            opacity:1 !important;
+            background:#47d77d !important;
+            color:#163f25 !important;
+            transition:none !important;
+            transform:none !important;
+            filter:none !important;
           }
 
           .soreal-idle-combat-state-v39{
@@ -9416,34 +9435,12 @@
               koRestant>0;
 
             /*
-             * Norman (2026-09-09) : "Parfois on regen et en une fois on a
-             * toute notre vie. Ça rend le combat suivant étrange." Le KO
-             * ne remettait jamais idleEtat.combatBossActif à false, donc
-             * la régénération progressive normale (plus bas, gardée par
-             * !combatBossActif) ne s'appliquait jamais pendant le KO — le
-             * seul PV rendu était ce snap à 100% en fin de KO. Applique
-             * ici la même régénération progressive (regenPctSec) pendant
-             * tout le KO, pour qu'on retrouve le combat avec les PV
-             * réellement récupérés, jamais un plein instantané.
+             * V171 — aucune régénération supplémentaire ici.
+             * Le bloc commun !idleEtat.combatBossActif plus haut est
+             * l'unique écrivain de récupération Fight Boss hors combat :
+             * Defense / 20 PV/s. Le K.O. passait auparavant une seconde
+             * fois par la même formule dans ce bloc, soit une vitesse x2.
              */
-            const regenPvKoV164=
-              regenPvFightBossNguParSecondeV164_(
-                idleEtat.defense
-              );
-
-            if(regenPvKoV164>0){
-              idleEtat.pvJoueur=
-                Math.min(
-                  idleNombre_(
-                    idleEtat.pvJoueurMax
-                  ),
-                  idleNombre_(
-                    idleEtat.pvJoueur
-                  )+
-                  regenPvKoV164*
-                  dt
-                );
-            }
           }else{
             if(
               dps>0 &&
