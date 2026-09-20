@@ -128,12 +128,15 @@
     if(!button)return;
     if(!supported_()){
       button.disabled=true;
-      button.textContent='🔇 TTS indisponible';
+      if(button.textContent!=='🔇 TTS indisponible'){
+        button.textContent='🔇 TTS indisponible';
+      }
       button.title='La lecture vocale système n’est pas disponible sur cet appareil.';
       return;
     }
     button.disabled=false;
-    button.textContent=auto?'🔊 Lecture auto ON':'🔈 Lecture auto OFF';
+    var label=auto?'🔊 Lecture auto ON':'🔈 Lecture auto OFF';
+    if(button.textContent!==label)button.textContent=label;
     button.title=auto
       ?'Désactiver la lecture automatique des panneaux explicatifs'
       :'Activer la lecture automatique des panneaux explicatifs';
