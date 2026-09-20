@@ -2133,13 +2133,25 @@ function merge(s,a,b){
   const A=s.inventory.find(x=>x.id===a),B=s.inventory.find(x=>x.id===b);
   if(!A||!B||A===B||A.definitionId!==B.definitionId)throw Error("FUSION_INVALIDE");
   /*
-   * Le premier objet (a) est toujours la destination et survit. Le second
-   * (b) est consommé. Un objet verrouillé ne peut donc jamais disparaître
-   * par fusion, et un objet équipé ne peut pas être consommé en laissant
-   * un emplacement pointer vers un id mort.
+   * a est toujours la destination et survit ; b est absorbé. Le client
+   * V180 envoie désormais la CIBLE (objet 2) comme a et la SOURCE
+   * (objet 1) comme b.
+   *
+   * Si b était équipé, son emplacement est transféré vers a AVANT sa
+   * consommation. On respecte ainsi "objet 2 absorbe objet 1" sans jamais
+   * laisser un slot d'équipement pointer vers un id supprimé.
    */
   if(B.locked)throw Error("OBJET_VERROUILLE");
-  if(equippedIdsAdventureV1(s).has(B.id))throw Error("OBJET_EQUIPE");
+
+  for(const slot of ["head","chest","legs","boots","weapon"]){
+    if(s.equipment[slot]===B.id)s.equipment[slot]=A.id;
+  }
+  if(Array.isArray(s.equipment.accessories)&&s.equipment.accessories.includes(B.id)){
+    s.equipment.accessories=s.equipment.accessories
+      .map(id=>id===B.id?A.id:id)
+      .filter((id,index,arr)=>arr.indexOf(id)===index);
+  }
+
   A.level=idleAdventureMergeLevelV47(A.level,B.level);
   A.power=Math.max(N(A.power),N(B.power));
   A.toughness=Math.max(N(A.toughness),N(B.toughness));
@@ -2385,7 +2397,19 @@ function trashPutAdventureV1(s,id){
   const o=s.inventory.find(x=>x.id===id);
   if(!o)throw Error("OBJET_INTROUVABLE");
   if(o.locked)throw Error("OBJET_VERROUILLE");
-  if(equippedIdsAdventureV1(s).has(o.id))throw Error("OBJET_EQUIPE");
+
+  /*
+   * V180 — le bouton Supprimer du popup signifie "envoyer dans Trash".
+   * Il doit donc fonctionner aussi depuis le popup d'un objet équipé :
+   * on le déséquipe atomiquement avant de le déplacer vers la Trash.
+   */
+  for(const slot of ["head","chest","legs","boots","weapon"]){
+    if(s.equipment[slot]===o.id)s.equipment[slot]="";
+  }
+  if(Array.isArray(s.equipment.accessories)){
+    s.equipment.accessories=s.equipment.accessories.filter(x=>x!==o.id);
+  }
+
   const previous=s.trash&&typeof s.trash==="object"?s.trash:null;
   s.inventory=s.inventory.filter(x=>x.id!==o.id);
   s.trash=o;
