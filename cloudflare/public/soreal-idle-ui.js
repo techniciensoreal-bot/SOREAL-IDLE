@@ -9542,6 +9542,7 @@
 
         if(
           idleEtat.combatBossActif &&
+          idleCombatArmeLocalV206 &&
           !idleVictoireBossLocaleV49
         ){
           traiterCapacitesBossLocalesIdleV70_(
@@ -9701,8 +9702,10 @@
                 idleVictoireBossLocaleV49=
                   true;
 
+                idleCombatArmeLocalV206=false;
                 idleEtat.combatBossActif=
                   false;
+                jouerEffetAudioIdleV199_('victory');
 
                 const gainXpLocal=
                   idleNombre_(
@@ -9964,6 +9967,7 @@
                */
               idleEtat.pvJoueur=0;
               idleCombatEnPauseApresDefaiteV1=true;
+              idleCombatArmeLocalV206=false;
               idleEtat.combatBossActif=false;
               jouerEffetAudioIdleV199_('defeat');
 
@@ -10512,6 +10516,37 @@
       function appliquerSynchroCombatSansReflowIdleV116_(
         joueurServeur
       ){
+        if(
+          joueurServeur &&
+          joueurServeur.combatBossActif &&
+          !idleCombatArmeLocalV206
+        ){
+          /*
+           * V206 — garde anti-combat fantôme. Une réponse réseau retardée
+           * peut encore dire "actif" après une victoire/fuite. Elle est
+           * ignorée et on envoie une seule commande STOP corrective.
+           */
+          if(idleEtat)idleEtat.combatBossActif=false;
+
+          if(
+            !idleCombatStopFantomeEnvoyeV206 &&
+            idleEtat &&
+            SOREAL_SESSION
+          ){
+            idleCombatStopFantomeEnvoyeV206=true;
+            ajouterActionRapideIdleV60_(
+              'combat',
+              {
+                actif:false,
+                raison:'garde_client',
+                snapshot:snapshotCombatFightBossIdleV173_()
+              }
+            );
+          }
+          return true;
+        }
+
+
         if(!idleEtat||!joueurServeur)return false;
 
         /*
@@ -20858,6 +20893,13 @@
       let idleAutoBossActionV49=false;
       let idleVictoireBossLocaleV49=false;
       /*
+       * V206 — un combat Fight Boss ne peut exister localement qu'après un
+       * geste explicite sur Fight. Un snapshot réseau "actif" ancien ne
+       * possède jamais le droit de démarrer le boss suivant tout seul.
+       */
+      let idleCombatArmeLocalV206=false;
+      let idleCombatStopFantomeEnvoyeV206=false;
+      /*
        * Pause après défaite (Norman, 2026-09-09) : "le combat doit
        * totalement s'arrêter tant qu'on ne reclique pas sur le bouton."
        * Suivie en dehors de idleEtat (comme idleVictoireBossLocaleV49
@@ -20918,7 +20960,11 @@
         }
 
         if(actif){
+          idleCombatArmeLocalV206=true;
+          idleCombatStopFantomeEnvoyeV206=false;
           jouerEffetAudioIdleV199_('fight');
+        }else{
+          idleCombatArmeLocalV206=false;
         }
 
         idleEtat.combatBossActif=
@@ -21132,7 +21178,9 @@
          * sélectionné.
          */
         idleFastPendingV60.combat=null;
+        idleCombatArmeLocalV206=false;
         idleEtat.combatBossActif=false;
+        jouerEffetAudioIdleV199_('nuke');
         idleCombatIdentiteV116='';
         idleProchainCoupJoueurV116=0;
         idleProchainCoupBossV116=0;
@@ -21266,6 +21314,7 @@
             numero
           );
 
+        idleCombatArmeLocalV206=false;
         idleEtat.bossSelection=n;
 
         const b=
