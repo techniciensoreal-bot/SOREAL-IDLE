@@ -71,7 +71,7 @@ test("Trash stores one recoverable object and replacing it destroys the previous
   assert.ok(!snap.inventory.some(x=>x.id===chest.id));
 });
 
-test("Tutorial Boost 1 remains gated by Training Set completion at 15 percent",async()=>{
+test("Tutorial Boost 1 unlocks on full Training Set discovery at 15 percent",async()=>{
   const source=await import("node:fs/promises").then(fs=>fs.readFile(new URL("../src/idle-adventure-v47.js",import.meta.url),"utf8"));
-  assert.match(source,/tutorial:\s*\{[\s\S]*?normal:\s*\{[\s\S]*?boosts:\[\{strength:1,chance:\.15,requiresCompletedSet:"training"\}\]/);
+  assert.match(source,/tutorial:\s*\{[\s\S]*?normal:\s*\{[\s\S]*?boosts:\[\{strength:1,chance:\.15,requiresUnlockedSet:"training"\}\]/);
 });
