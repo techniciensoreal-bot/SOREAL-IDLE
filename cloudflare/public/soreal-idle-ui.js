@@ -26145,6 +26145,35 @@ function pageAventureIdleV28_(j){
         nettoyerCibleDragAdventureIdleV196_();
       }
 
+      function popupDetailsObjetAdventureIdleOuvertV207_(){
+        const root=document.getElementById('soreal-idle-v138-details');
+        if(!root)return false;
+        return root.style.display!=='none'&&root.getClientRects().length>0;
+      }
+
+      function cibleDansPopupDetailsObjetAdventureIdleV207_(target){
+        if(!target||!target.closest)return false;
+        return Boolean(
+          target.closest('#soreal-idle-v138-details')||
+          target.closest('#soreal-idle-v138-details-compare-v183')
+        );
+      }
+
+      function fermerPopupDetailsSiExterieurAdventureIdleV207_(event){
+        if(!popupDetailsObjetAdventureIdleOuvertV207_())return false;
+        const target=event&&event.target;
+        if(cibleDansPopupDetailsObjetAdventureIdleV207_(target))return false;
+        if(
+          target&&target.closest&&
+          target.closest('[data-idle-item-info-v197]')
+        ){
+          return false;
+        }
+        fermerDetailsObjetAdventureIdleV1_();
+        return true;
+      }
+
+
       function ouvrirDetailsObjetParGesteAdventureIdleV196_(id){
         const objet=String(id||'');
         if(!objet)return false;
@@ -26370,6 +26399,9 @@ function pageAventureIdleV28_(j){
         document.addEventListener('pointerdown',function(event){
           if(event.isPrimary===false)return;
           if(String(event.pointerType||'mouse')==='mouse'&&event.button!==0)return;
+
+          fermerPopupDetailsSiExterieurAdventureIdleV207_(event);
+
           if(event.target&&event.target.closest&&event.target.closest('[data-idle-item-info-v197]'))return;
 
           const element=elementObjetGesteAdventureIdleV196_(event.target);
@@ -26446,12 +26478,31 @@ function pageAventureIdleV28_(j){
             const id=String(info.getAttribute('data-idle-item-info-v197')||'');
             if(id){
               terminerEtatGesteAdventureIdleV196_();
-              ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
+
+              /*
+               * V207 — le bouton "i" est un vrai interrupteur :
+               * réappuyer sur le "i" du même objet ferme le popup.
+               */
+              if(
+                popupDetailsObjetAdventureIdleOuvertV207_()&&
+                String(idleAdventureSelectionIdV138||'')===id
+              ){
+                fermerDetailsObjetAdventureIdleV1_();
+              }else{
+                ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
+              }
             }
             event.preventDefault();
             event.stopPropagation();
             return;
           }
+
+          /*
+           * V207 — clic/tap n'importe où hors popup = fermeture.
+           * Le clic continue ensuite sa vie normale (sélection d'un autre
+           * objet, navigation, etc.), on ne crée pas une couche modale.
+           */
+          fermerPopupDetailsSiExterieurAdventureIdleV207_(event);
 
           if(!elementObjetGesteAdventureIdleV196_(event.target))return;
           /*
