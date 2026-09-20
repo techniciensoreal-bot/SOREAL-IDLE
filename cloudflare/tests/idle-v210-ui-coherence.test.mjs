@@ -15,10 +15,10 @@ const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",impor
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
 
-assert.ok(index.includes("/soreal-idle-ui.js?v=210"));
+assert.ok(index.includes("/soreal-idle-ui.js?v=211"));
 assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
 assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V210</b>'));
+assert.ok(ui.includes('Build <b style="color:#dce5f3">V211</b>'));
 
 for(const token of [
   "sorealIdleSummaryApV210",
@@ -31,6 +31,9 @@ for(const token of [
   "Augmente la vitesse à laquelle cette ressource est générée",
   "Quantité personnalisée",
   "🎁 Offres débutant",
+  "soreal-idle-exp-current-v211",
+  "background:#17203f;color:#fff",
+  "background:#fff;color:#17203f",
   "IDLE_SELLOUT_TRADUCTIONS_V210",
   "Potion d’énergie α",
   "Espace d’inventaire supplémentaire",
@@ -89,4 +92,4 @@ new Function(ui);
 new Function("window","document","localStorage",tts);
 new Function("window","document",audio);
 
-console.log("SOREAL IDLE V210: OK — AP/Rebirth, Boutique AP, Collection progressive, TTS stop, Fight uniforme, boosts max et EXP Shop.");
+console.log("SOREAL IDLE V211: OK — AP/Rebirth, Boutique AP, Collection progressive, TTS stop, Fight uniforme, boosts max et EXP Shop.");
