@@ -170,7 +170,7 @@
     }
 
     if(audioBusy_()&&attempt<14){
-      setTimeout(function(){speak_(text,attempt+1,force);},140);
+      setTimeout(function(){speak_(text,attempt+1,force,targetId);},140);
       return;
     }
 
