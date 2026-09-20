@@ -7,19 +7,36 @@ const ui=await readFile(
   "utf8"
 );
 
-test("Fight Boss recovery uses one client regen path only",()=>{
+test("Fight Boss frontend has no KO countdown",()=>{
+  assert.doesNotMatch(ui,/let koRestant=/);
+  assert.doesNotMatch(ui,/sorealIdleKoV15/);
+  assert.doesNotMatch(ui,/raison:'ko'/);
+  assert.match(ui,/raison:'defaite'/);
+});
+
+test("player and boss recover outside combat from their own regen",()=>{
   assert.match(
     ui,
     /if\(!idleEtat\.combatBossActif\)\{[\s\S]{0,420}regenPvFightBossNguParSecondeV164_\([\s\S]{0,100}idleEtat\.defense/
   );
-  assert.doesNotMatch(
-    ui,
-    /const regenPvKoV164=/
-  );
   assert.match(
     ui,
-    /V171[\s\S]{0,260}unique écrivain[\s\S]{0,180}Defense \/ 20 PV\/s/
+    /regenBossParSecV172[\s\S]{0,160}idleEtat\.regenBoss/
   );
+  assert.doesNotMatch(
+    ui,
+    /regenBossParSecV1[\s\S]{0,180}defenseBoss/
+  );
+});
+
+test("defeat stops at zero without resetting boss",()=>{
+  const start=ui.indexOf("idleEtat.pvJoueur<=0");
+  const end=ui.indexOf("}else if(",start);
+  assert.ok(start>=0&&end>start,"client defeat branch missing");
+  const branch=ui.slice(start,end);
+  assert.match(branch,/idleEtat\.pvJoueur=0;/);
+  assert.match(branch,/idleEtat\.combatBossActif=false;/);
+  assert.doesNotMatch(branch,/idleEtat\.bossPv\s*=\s*idleEtat\.bossPvMax/);
 });
 
 test("Fight button remains visually stable while disabled",()=>{
@@ -29,8 +46,4 @@ test("Fight button remains visually stable while disabled",()=>{
   );
 });
 
-test("standalone frontend records the final APP snapshot sync",()=>{
-  assert.match(ui,/Post-snapshot APP fixes synchronized:/);
-  assert.match(ui,/1c43812/);
-  assert.match(ui,/9d71863/);
-});
+console.log("idle-boss-recovery-no-ko-v172: OK");
