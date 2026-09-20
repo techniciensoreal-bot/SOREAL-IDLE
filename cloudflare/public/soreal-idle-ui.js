@@ -29314,35 +29314,104 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       function pageAugmentationsIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'augmentations');
         if(!s||!s.state||!s.state.unlocked)return entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
+
         const snap=j&&j.systemes||{};
         const defs=Array.isArray(snap.augmentations)?snap.augmentations:[];
         const data=s.state.data||{};
         const pairs=data.pairs||{};
-        const boss=idleEntier_(snap.records&&snap.records.highestBoss||0);
-        const gold=idleNombre_(snap.currencies&&snap.currencies.gold||0);
-        const mult=idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
-        return entetePageIdleV28_('🦾 Augmentations','Choisis une paire puis alloue de l’Energy. Les niveaux consomment automatiquement le Gold nécessaire et sont réinitialisés au Rebirth.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+
-          allocationMetaIdleV48_(j,'augmentations','energy','Energy allouée')+
+        const gold=Math.max(0,idleNombre_(snap.currencies&&snap.currencies.gold||0));
+        const mult=Math.max(1,idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1));
+        const totalEnergy=Math.max(0,idleNombre_(s.state.allocation&&s.state.allocation.energy||0));
+        const freeEnergy=Math.max(0,idleNombre_(snap.resourceBudget&&snap.resourceBudget.energy&&snap.resourceBudget.energy.current||0));
+        const bossMax=idleEntier_(snap.records&&snap.records.highestBoss||0);
+
+        function tempsAugIdleV213_(v){
+          const n=idleNombre_(v);
+          if(!(n>0))return '—';
+          if(n<1)return n.toFixed(2).replace('.',',')+' s';
+          if(n<60)return n.toFixed(n<10?1:0).replace('.',',')+' s';
+          return formatDureeRunIdleV1_(n);
+        }
+
+        function ligneAugIdleV213_(def,p,upgrade){
+          const u=Boolean(upgrade);
+          const unlocked=u?Boolean(def.upgradeUnlocked):Boolean(def.mainUnlocked);
+          const nom=u?(def.upgrade&&def.upgrade.name||'Upgrade'):(def.name||def.id);
+          const level=idleEntier_(u?p.upgradeLevel:p.level);
+          const allocation=Math.max(0,idleNombre_(u?def.upgradeAllocation:def.mainAllocation));
+          const target=Number(u?def.upgradeTarget:def.mainTarget)||0;
+          const pct=Math.max(0,Math.min(100,idleNombre_(u?def.upgradeProgressPct:def.progressPct)*100));
+          const goldCost=Math.max(0,idleNombre_(u?def.nextUpgradeGoldCost:def.nextGoldCost));
+          const seconds=u?def.upgradeSecondsPerLevel:def.secondsPerLevel;
+          const cap=Math.max(0,idleNombre_(u?def.upgradeCapEnergy:def.capEnergy));
+          const unlockBoss=idleEntier_(u?(def.upgrade&&def.upgrade.unlockBoss):def.unlockBoss);
+          const suffix=u?'up':'main';
+          const energyId='sorealAugEnergyV213_'+idleHtml_(def.id)+'_'+suffix;
+          const targetId='sorealAugTargetV213_'+idleHtml_(def.id)+'_'+suffix;
+          const pairJs=String(def.id||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+          const upJs=u?'true':'false';
+          const maxValue=Math.max(0,Math.floor(allocation+freeEnergy));
+
+          if(!unlocked){
+            return '<div style="padding:10px;border:1px solid #313849;border-radius:10px;opacity:.55;background:#111722"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+idleHtml_(nom)+'</b><span>🔒 Boss '+unlockBoss+'</span></div></div>';
+          }
+
+          return '<div style="padding:10px;border:1px solid #343c50;border-radius:10px;background:#121824">'+
+            '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>'+idleHtml_(nom)+'</b><span>Niv. '+level+'</span></div>'+
+            '<div class="soreal-idle-bt-track-v120" style="margin-top:7px"><div class="soreal-idle-bt-fill-v120" style="width:'+pct+'%;background:'+(u?'#a855f7':'#6366f1')+'"></div></div>'+
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-top:7px;font-size:12px;color:#aeb5c8">'+
+              '<span>Progression <b style="color:#eef2ff">'+pct.toFixed(1).replace('.',',')+'%</b></span>'+
+              '<span>Prochain coût <b style="color:#f5c451">'+formatGrandNombreIdleV70_(goldCost)+' Gold</b></span>'+
+              '<span>Temps/niveau <b style="color:#eef2ff">'+idleHtml_(tempsAugIdleV213_(seconds))+'</b></span>'+
+              '<span>Energy <b style="color:#7dd3fc">'+formatGrandNombreIdleV70_(allocation)+'</b></span>'+
+            '</div>'+
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:9px">'+
+              '<input id="'+energyId+'" type="number" min="0" step="1" value="'+Math.floor(allocation)+'" style="width:126px;background:#0b1020;border:1px solid #39435b;color:#eef2ff;border-radius:7px;padding:7px 8px">'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'setAugmentAllocation\',pair:\''+pairJs+'\',upgrade:'+upJs+',value:document.getElementById(\''+energyId+'\').value})">Appliquer</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'setAugmentAllocation\',pair:\''+pairJs+'\',upgrade:'+upJs+',value:0})">0</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'setAugmentAllocation\',pair:\''+pairJs+'\',upgrade:'+upJs+',value:'+Math.floor(cap)+'})">CAP</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'setAugmentAllocation\',pair:\''+pairJs+'\',upgrade:'+upJs+',value:'+maxValue+'})">MAX</button>'+
+            '</div>'+
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px">'+
+              '<span style="font-size:12px;color:#aeb5c8">Target</span>'+
+              '<input id="'+targetId+'" type="number" min="-1" step="1" value="'+target+'" style="width:90px;background:#0b1020;border:1px solid #39435b;color:#eef2ff;border-radius:7px;padding:7px 8px">'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'setAugmentTarget\',pair:\''+pairJs+'\',upgrade:'+upJs+',value:document.getElementById(\''+targetId+'\').value})">Target</button>'+
+              '<span style="font-size:11px;color:#7f8aa3">0 = ∞ · -1 = ignorer</span>'+
+            '</div>'+
+          '</div>';
+        }
+
+        return entetePageIdleV28_(
+          '🦾 Augmentations',
+          'Chaque Augment et chaque Upgrade possède sa propre Energy et progresse en parallèle. Les niveaux et leur bonus sont réinitialisés au Rebirth.'
+        )+
+          '<div class="soreal-idle-summary-grid-v28">'+
+            '<div class="soreal-idle-summary-v28">Gold<b>'+formatGrandNombreIdleV70_(gold)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Multiplicateur<b>x'+formatGrandNombreIdleV70_(mult)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Energy allouée<b>'+formatGrandNombreIdleV70_(totalEnergy)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Energy libre<b>'+formatGrandNombreIdleV70_(freeEnergy)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Boss max<b>'+bossMax+'</b></div>'+
+          '</div>'+
+          '<div class="soreal-idle-section-v8" style="margin:10px 0 0">'+
+            '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">'+
+              '<div><b>Advance Energy</b><div style="font-size:12px;color:#98a2b8;margin-top:2px">À la Target, transfère l’Energy vers le prochain Augment/Upgrade disponible du même type.</div></div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" style="'+(data.advanceEnergy?'box-shadow:0 0 13px #22c55e;color:#bbf7d0':'')+'" onclick="window.__actionMetaV47__({action:\'setAugmentAdvance\',value:'+(data.advanceEnergy?'false':'true')+'})">'+(data.advanceEnergy?'ON':'OFF')+'</button>'+
+            '</div>'+
+          '</div>'+
           '<div style="display:grid;gap:10px;margin-top:10px">'+defs.map(function(def){
             const p=pairs[def.id]||{};
-            const active=data.activePair===def.id;
-            const mainOk=boss>=idleEntier_(def.unlockBoss||0);
-            const upgradeOk=boss>=idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
-            /*
-             * Audit 2026-09-13 (Norman) : "Le menu augmentation ne possède
-             * pas de barres qui montent comme dans basic training... Tout
-             * repose sur ces barres qui vont de plus en plus vite." Seule
-             * la paire ACTIVE progresse réellement (advanceAugmentations,
-             * SOREAL-TV) — la barre n'a donc de sens que pour elle. Même
-             * gabarit visuel que Basic Training (soreal-idle-bt-track-v120/
-             * -fill-v120), jamais un nouveau composant de barre.
-             */
-            const pct=active?Math.max(0,Math.min(100,idleNombre_(data.trainUpgrade?def.upgradeProgressPct:def.progressPct)*100)):0;
-            const barre=active
-              ?'<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:'+pct+'%;background:#6366f1"></div></div>'
-              :'';
-            return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(mainOk?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+idleHtml_(def.name||def.id)+'</b><span>Niv. '+idleEntier_(p.level||0)+' · Upgrade '+idleEntier_(p.upgradeLevel||0)+'</span></div>'+barre+'<div style="font-size:12px;color:#aeb5c8;margin-top:5px">Boss '+idleEntier_(def.unlockBoss||0)+' · coût de base '+formatGrandNombreIdleV70_(def.baseGold||0)+' Gold'+(def.upgrade?' · upgrade boss '+idleEntier_(def.upgrade.unlockBoss||0):'')+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" '+(mainOk?'onclick="window.__actionMetaV47__({action:\'selectAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:false})"':'disabled')+'>'+(active&&!data.trainUpgrade?'▶ Principal':'Principal')+'</button><button type="button" class="soreal-idle-expand-button-v25" '+(upgradeOk?'onclick="window.__actionMetaV47__({action:\'selectAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:true})"':'disabled')+'>'+(active&&data.trainUpgrade?'▶ Upgrade':'Upgrade')+'</button></div></div>';
+            const contribution=Math.max(0,idleNombre_(def.pairContribution||0));
+            const exponent=Math.max(1,idleNombre_(def.effectiveExponent||def.exponent||1));
+            return '<div class="soreal-idle-section-v8" style="margin:0">'+
+              '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">'+
+                '<div><b style="font-size:15px">'+idleHtml_(def.name||def.id)+'</b><div style="font-size:11px;color:#8f9ab2;margin-top:2px">Exposant '+exponent.toFixed(2).replace('.',',')+' · contribution +'+formatGrandNombreIdleV70_(contribution)+'</div></div>'+
+                '<span style="font-size:12px;color:#aeb5c8">Boss '+idleEntier_(def.unlockBoss||0)+(def.upgrade?' · Upgrade Boss '+idleEntier_(def.upgrade.unlockBoss||0):'')+'</span>'+
+              '</div>'+
+              '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">'+
+                ligneAugIdleV213_(def,p,false)+
+                ligneAugIdleV213_(def,p,true)+
+              '</div>'+
+            '</div>';
           }).join('')+'</div>';
       }
 
@@ -30484,7 +30553,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V212</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V213</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
