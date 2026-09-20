@@ -10433,6 +10433,120 @@
           bossSelectionServeurV167;
 
         /*
+         * V175 — récupération après DÉFAITE : le ticker local est l'unique
+         * écrivain des PV jusqu'au prochain clic Fight.
+         *
+         * V174 protégeait uniquement le cas où bossSelection serveur/local
+         * était identique. Or une réponse réseau peut transporter une
+         * structure légèrement différente (sélection recalculée, catalogue
+         * rafraîchi, état ancien parti avant le STOP). Dans ce cas le chemin
+         * générique pouvait encore remplacer 1,60 B par 3,18 B en un seul
+         * rendu. Pendant cette phase, on fusionne les données non-combat du
+         * serveur mais on CONSERVE strictement les deux barres et l'identité
+         * du boss affiché. Le prochain clic Fight envoie le snapshot V173
+         * exact au serveur.
+         */
+        if(
+          !idleEtat.combatBossActif &&
+          idleCombatEnPauseApresDefaiteV1
+        ){
+          const localAvantRecupV175=idleEtat;
+
+          idleEtat=
+            Object.assign(
+              {},
+              joueurServeur,
+              {
+                combatBossActif:false,
+
+                pvJoueur:
+                  Math.max(
+                    0,
+                    idleNombre_(localAvantRecupV175.pvJoueur)
+                  ),
+
+                pvJoueurMax:
+                  Math.max(
+                    1,
+                    idleNombre_(localAvantRecupV175.pvJoueurMax),
+                    idleNombre_(joueurServeur.pvJoueurMax)
+                  ),
+
+                bossPv:
+                  Math.max(
+                    0,
+                    idleNombre_(localAvantRecupV175.bossPv)
+                  ),
+
+                bossPvMax:
+                  Math.max(
+                    1,
+                    idleNombre_(localAvantRecupV175.bossPvMax)
+                  ),
+
+                bossSelection:
+                  idleEntier_(localAvantRecupV175.bossSelection),
+
+                bossVaincus:
+                  idleEntier_(localAvantRecupV175.bossVaincus),
+
+                bossActuel:
+                  localAvantRecupV175.bossActuel,
+
+                bossId:
+                  localAvantRecupV175.bossId,
+
+                attaqueBoss:
+                  localAvantRecupV175.attaqueBoss,
+
+                defenseBoss:
+                  localAvantRecupV175.defenseBoss,
+
+                regenBoss:
+                  localAvantRecupV175.regenBoss,
+
+                bossCapacites:
+                  localAvantRecupV175.bossCapacites,
+
+                basicTraining:
+                  fusionnerBasicTrainingPlusAvanceIdleV166_(
+                    localAvantRecupV175.basicTraining,
+                    joueurServeur.basicTraining
+                  ),
+
+                force:
+                  Math.max(
+                    idleNombre_(localAvantRecupV175.force),
+                    idleNombre_(joueurServeur.force)
+                  ),
+
+                endurance:
+                  Math.max(
+                    idleNombre_(localAvantRecupV175.endurance),
+                    idleNombre_(joueurServeur.endurance)
+                  ),
+
+                puissance:
+                  Math.max(
+                    idleNombre_(localAvantRecupV175.puissance),
+                    idleNombre_(joueurServeur.puissance)
+                  ),
+
+                defense:
+                  Math.max(
+                    idleNombre_(localAvantRecupV175.defense),
+                    idleNombre_(joueurServeur.defense)
+                  )
+              }
+            );
+
+          idleDernierTickLocalV40=Date.now();
+          rafraichirEnergieEtBoutonsIdleV9_();
+          pousserEtatVersRuntimePartageIdleV1_();
+          return true;
+        }
+
+        /*
          * V174 — récupération Fight Boss hors combat.
          *
          * Après une défaite, une requête réseau partie juste AVANT le STOP
