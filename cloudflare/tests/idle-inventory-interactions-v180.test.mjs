@@ -28,7 +28,10 @@ assert.match(
   "Le bouton Supprimer doit envoyer dans Trash, jamais appeler discard."
 );
 
-// L'appui long a été extrait du contrôleur V180 : il est couvert par\n// idle-inventory-gestures-v200.test.mjs et son module long-press-v200.js.\n\nassert.match(
+// L'appui long a été extrait du contrôleur V180 : il est couvert par
+// idle-inventory-gestures-v200.test.mjs et son module long-press-v200.js.
+
+assert.match(
   ui,
   /function appliquerDepotPointerAdventureIdleV180_\(/,
   "Un vrai chemin de drop PointerEvent mobile doit exister."
