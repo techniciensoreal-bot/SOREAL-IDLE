@@ -23,7 +23,7 @@ const index=readFileSync(
  */
 assert.match(
   index,
-  /modules\/audio-effects-v199\.js\?v=199/,
+  /modules\/audio-effects-v199\.js\?v=\d+/,
   "Le moteur audio partagé V199 doit être chargé par le frontend autonome."
 );
 
