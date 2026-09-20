@@ -6508,47 +6508,125 @@
             font-weight:900;
           }
 
+          /*
+           * V184 — chronique du boss façon grimoire.
+           * Le texte reste immédiatement SOUS Fight/Fuite/NUKE et possède
+           * son propre cadre pleine largeur, sans réintroduire le battle log.
+           */
           .soreal-idle-boss-lore-v142{
+            position:relative;
             width:100%;
             box-sizing:border-box;
             display:flex;
             flex-direction:column;
-            gap:8px;
-            margin:12px 0 8px;
-            padding:14px 16px;
+            gap:10px;
+            margin:12px 0 10px;
+            padding:20px clamp(16px,3vw,28px) 18px;
+            overflow:hidden;
             border-radius:14px;
             background:
-              linear-gradient(
-                145deg,
-                #17131f,
-                #21182c
-              );
-            border:1px solid rgba(205,155,235,.18);
+              radial-gradient(circle at 50% -20%,rgba(205,160,69,.13),transparent 48%),
+              linear-gradient(145deg,#241c13 0%,#1a1510 52%,#21180f 100%);
+            border:1px solid rgba(211,167,77,.58);
             box-shadow:
-              inset 0 1px 0 rgba(255,255,255,.025),
-              0 8px 22px rgba(5,7,13,.18);
+              inset 0 0 0 1px rgba(255,226,159,.055),
+              inset 0 0 38px rgba(0,0,0,.36),
+              0 10px 28px rgba(4,5,9,.28);
+            font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif;
           }
 
+          .soreal-idle-boss-lore-v142::before,
+          .soreal-idle-boss-lore-v142::after{
+            content:"";
+            position:absolute;
+            left:18px;
+            right:18px;
+            height:1px;
+            background:linear-gradient(90deg,transparent,rgba(218,176,88,.55),transparent);
+            pointer-events:none;
+          }
+
+          .soreal-idle-boss-lore-v142::before{top:9px}
+          .soreal-idle-boss-lore-v142::after{bottom:9px}
+
           .soreal-idle-boss-lore-title-v168{
-            color:#f1e8ff;
-            font-size:10px;
-            font-weight:1000;
-            letter-spacing:.09em;
+            color:#d8ad50;
+            font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif;
+            font-size:11px;
+            font-weight:700;
+            letter-spacing:.18em;
+            text-align:center;
             text-transform:uppercase;
+            text-shadow:0 1px 0 #000,0 0 12px rgba(220,171,70,.17);
+          }
+
+          .soreal-idle-boss-lore-name-v184{
+            margin-top:-3px;
+            color:#f0ce79;
+            font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif;
+            font-size:clamp(17px,2vw,22px);
+            font-weight:700;
+            line-height:1.2;
+            text-align:center;
+            letter-spacing:.035em;
+            text-shadow:0 2px 2px rgba(0,0,0,.72);
+          }
+
+          .soreal-idle-boss-lore-ornament-v184{
+            color:#b98a39;
+            font-size:13px;
+            line-height:1;
+            text-align:center;
+            letter-spacing:.55em;
+            padding-left:.55em;
+            opacity:.9;
           }
 
           .soreal-idle-boss-lore-histoire-v142{
-            color:#d7c8e7;
-            font-size:12px;
-            font-style:italic;
-            line-height:1.5;
+            max-width:980px;
+            margin:0 auto;
+            color:#eadfc9;
+            font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif;
+            font-size:clamp(14px,1.45vw,16.5px);
+            font-weight:400;
+            line-height:1.72;
+            text-align:left;
+            text-wrap:pretty;
+            text-shadow:0 1px 1px rgba(0,0,0,.48);
+          }
+
+          .soreal-idle-boss-lore-histoire-v142::first-letter{
+            color:#e5bd63;
+            font-size:1.42em;
+            font-weight:700;
           }
 
           .soreal-idle-boss-lore-conseil-v142{
-            color:#f4d47a;
-            font-size:10.5px;
-            font-weight:700;
-            line-height:1.35;
+            max-width:980px;
+            margin:3px auto 0;
+            padding-top:10px;
+            width:100%;
+            border-top:1px solid rgba(204,159,69,.2);
+            color:#d7c49a;
+            font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif;
+            font-size:12.5px;
+            font-style:italic;
+            line-height:1.55;
+            text-align:center;
+          }
+
+          @media(max-width:620px){
+            .soreal-idle-boss-lore-v142{
+              padding:18px 14px 17px;
+              border-radius:12px;
+            }
+            .soreal-idle-boss-lore-histoire-v142{
+              font-size:14px;
+              line-height:1.65;
+            }
+            .soreal-idle-boss-lore-name-v184{
+              font-size:18px;
+            }
           }
 
           .soreal-idle-combat-log-v70{
@@ -18685,9 +18763,16 @@
           return '';
         }
 
+        const nomBoss=
+          String(
+            j&&j.bossActuel||'Boss'
+          ).trim();
+
         return `
           <div class="soreal-idle-boss-lore-v142">
-            <div class="soreal-idle-boss-lore-title-v168">Histoire</div>
+            <div class="soreal-idle-boss-lore-title-v168">Chronique du boss</div>
+            <div class="soreal-idle-boss-lore-name-v184">${idleHtml_(nomBoss)}</div>
+            <div class="soreal-idle-boss-lore-ornament-v184">✦ ❦ ✦</div>
             ${histoire
               ?'<div class="soreal-idle-boss-lore-histoire-v142">'+
                 idleHtml_(histoire)+
@@ -20968,6 +21053,18 @@
           return;
         }
 
+        /*
+         * V184 — NUKE crée une frontière stricte entre deux instances de
+         * Fight Boss. Un ancien Start/Fuite encore en file locale ne doit
+         * jamais pouvoir être envoyé ensuite sur le boss nouvellement
+         * sélectionné.
+         */
+        idleFastPendingV60.combat=null;
+        idleEtat.combatBossActif=false;
+        idleCombatIdentiteV116='';
+        idleProchainCoupJoueurV116=0;
+        idleProchainCoupBossV116=0;
+
         idleNukeEnCoursV1=true;
 
         google.script.run
@@ -20993,8 +21090,19 @@
             lancerCascadeNukeIdleV1_(
               defeated,
               function(){
+                idleFastPendingV60.combat=null;
+                idleCombatIdentiteV116='';
+                idleProchainCoupJoueurV116=0;
+                idleProchainCoupBossV116=0;
+
                 idleEtat=
                   res.joueur;
+
+                /*
+                 * Réponse NUKE autoritaire : le boss suivant est toujours
+                 * affiché PRÊT, jamais déjà engagé par un ancien Fight.
+                 */
+                idleEtat.combatBossActif=false;
 
                 rendreIdleEtat_({
                   ok:true,
