@@ -9933,7 +9933,7 @@
               idleEtat.pvJoueur=0;
               idleCombatEnPauseApresDefaiteV1=true;
               idleEtat.combatBossActif=false;
-              jouerEffetAudioIdleV197_('defeat');
+              jouerEffetAudioIdleV199_('defeat');
 
               /*
                * Mort = combat réellement terminé dès ce tick.
@@ -20819,12 +20819,20 @@
       let idleCombatEnPauseApresDefaiteV1=false;
 
 
-      function jouerEffetAudioIdleV197_(nom){
-        const audio=window.__SOREAL_IDLE_AUDIO_V197__;
-        const fn=audio&&audio[String(nom||'')];
-        if(typeof fn==='function'){
-          try{fn();}catch(_){}
+      function jouerEffetAudioIdleV199_(nom){
+        const audio=window.__SOREAL_IDLE_AUDIO_V199__;
+        if(!audio)return false;
+
+        if(typeof audio.play==='function'){
+          try{return Boolean(audio.play(String(nom||'')));}catch(_){return false;}
         }
+
+        const fn=audio[String(nom||'')];
+        if(typeof fn==='function'){
+          try{return Boolean(fn());}catch(_){return false;}
+        }
+
+        return false;
       }
 
 
@@ -20861,7 +20869,7 @@
         }
 
         if(actif){
-          jouerEffetAudioIdleV197_('fight');
+          jouerEffetAudioIdleV199_('fight');
         }
 
         idleEtat.combatBossActif=
@@ -23116,6 +23124,59 @@ let idleDialogueTimerV76=null;
         );
       }
 
+      function cueAudioMutationInventaireIdleV199_(a,payload){
+        if(!a||!payload)return '';
+
+        const action=String(payload.action||'');
+        const items=Array.isArray(a.inventory)?a.inventory:[];
+        const trouver=function(id){
+          return items.find(function(item){
+            return String(item&&item.id)===String(id||'');
+          })||null;
+        };
+
+        if(action==='merge'){
+          const A=trouver(payload.a);
+          const B=trouver(payload.b);
+          if(
+            !A||
+            !B||
+            A===B||
+            A.definitionId!==B.definitionId||
+            A.kind==='boost'||
+            B.kind==='boost'
+          ){
+            return '';
+          }
+
+          const slot=String(A.slot||B.slot||'');
+          if(slot==='weapon')return 'mergeWeapon';
+
+          if(['head','chest','legs','boots'].indexOf(slot)!==-1){
+            return 'mergeArmor';
+          }
+
+          return '';
+        }
+
+        if(action==='boost'&&!payload.toCube){
+          const boost=trouver(payload.boostId);
+          const cible=trouver(payload.targetId);
+
+          if(!boost||boost.kind!=='boost'||!cible||cible.kind==='boost'){
+            return '';
+          }
+
+          const type=String(boost.boostType||'').toLowerCase();
+          if(type==='power')return 'boostPower';
+          if(type==='toughness')return 'boostToughness';
+          if(type==='special')return 'boostSpecial';
+        }
+
+        return '';
+      }
+
+
       function terminerMutationInventaireIdleV160_(tx,res,erreur){
         const courant=idleInventoryMutationQueueV160[0];
         if(!courant||courant.id!==tx.id){
@@ -23184,6 +23245,10 @@ let idleDialogueTimerV76=null;
             mesurePerfInventaireIdleV160_(
               'reconcile','reconcile-start','reconcile-end',tx.id
             );
+
+          if(tx.audioCue){
+            jouerEffetAudioIdleV199_(tx.audioCue);
+          }
         }else{
           reconstruireEtatOptimisteInventaireIdleV160_({
             action:tx.payload.action,
@@ -23240,6 +23305,7 @@ let idleDialogueTimerV76=null;
         const tx={
           id:++idleInventorySequenceV160,
           payload:cloneInventaireIdleV160_(payload||{}),
+          audioCue:cueAudioMutationInventaireIdleV199_(current,payload||{}),
           createdAt:Date.now()
         };
         idleInventoryMutationQueueV160.push(tx);
@@ -27415,10 +27481,10 @@ function pageAventureIdleV28_(j){
        * même famille bois/métal mais restent clairement distincts.
        */
       function jouerSonOuvertureCoffreIdleV1_(){
-        jouerEffetAudioIdleV197_('chestOpen');
+        jouerEffetAudioIdleV199_('chestOpen');
       }
       function jouerSonFermetureCoffreIdleV197_(){
-        jouerEffetAudioIdleV197_('chestClose');
+        jouerEffetAudioIdleV199_('chestClose');
       }
       window.__jouerSonOuvertureCoffreIdleV1__=jouerSonOuvertureCoffreIdleV1_;
       window.__jouerSonFermetureCoffreIdleV197__=jouerSonFermetureCoffreIdleV197_;
@@ -29765,7 +29831,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             idleDerniereImageBossV61!==key
           ){
             idleDerniereImageBossV61=key;
-            jouerEffetAudioIdleV197_('bossAppear');
+            jouerEffetAudioIdleV199_('bossAppear');
             return ' soreal-idle-image-fade-v61';
           }
 
