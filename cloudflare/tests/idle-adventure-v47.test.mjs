@@ -709,10 +709,27 @@ assert.equal(t.result.nextAt,7000);
     avantEcart<plafondNiveauCourant-1e-9,
     "La fusion doit créer un vrai écart entre toughness et le plafond du NOUVEAU niveau (81) — sinon ce test ne prouve rien."
   );
+  let boostRefuseAuPlafond="";
   for(let i=0;i<50;i++){
-    s.inventory.push({id:"boostTestEcart"+i,definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:100,level:0});
-    s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTestEcart"+i,targetId:cibleEcartId},{bosses:7},1).state;
+    const idBoost="boostTestEcart"+i;
+    s.inventory.push({id:idBoost,definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:100,level:0});
+    try{
+      s=applyIdleAdventureActionV47(s,{action:"boost",boostId:idBoost,targetId:cibleEcartId},{bosses:7},1).state;
+    }catch(error){
+      assert.match(
+        String(error&&error.message||error),
+        /BOOST_STAT_DEJA_MAX|OBJET_DEJA_MAXE/,
+        "Une fois le plafond atteint, les boosts suivants doivent être refusés."
+      );
+      boostRefuseAuPlafond=idBoost;
+      break;
+    }
   }
+  assert.ok(boostRefuseAuPlafond,"Le test doit atteindre le plafond puis rencontrer un boost refusé.");
+  assert.ok(
+    s.inventory.some(x=>x.id===boostRefuseAuPlafond),
+    "Le boost refusé au plafond doit rester dans l'inventaire."
+  );
   const finalPower=s.inventory.find(x=>x.id===cibleEcartId).toughness;
   assert.ok(
     finalPower>avantEcart,
