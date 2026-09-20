@@ -32,13 +32,9 @@
  *   présent en indices 12/33.
  * - 125, 144 : "Welcome to Evil/Sadistic Difficulty", bonus ponctuels
  *   (cap 1) en statPct/dropChancePct/adventureStatsPct, toutes des clés
- *   déjà agrégées. La perk 144 documente aussi +20% Aug Speed et +20%
- *   NGU Speed dans son texte wiki réel -- ces deux composantes N'ONT PAS
- *   de hook existant (Aug Speed : aucun multiplicateur perk-based sur
- *   augmentationSecondsForNextLevel ; NGU Speed : setRewards.nguSpeedPct
- *   couvre les sets d'Aventure, pas les perks) et sont donc
- *   volontairement OMISES de `bonus` -- reward partiel honnête plutôt
- *   qu'une perk à moitié inventée, `effect` reste le texte wiki complet.
+ *   déjà agrégées. V213 câble aussi le +20% Aug Speed de la perk 144
+ *   directement dans le moteur Augmentations. Le +20% NGU Speed reste
+ *   hors de cette passe tant que son hook perk-based n'est pas généralisé.
  * - 231 : "ERROR" est une perk-blague sans AUCUN effet mécanique réel
  *   (texte : "NGU.EXE HAS ENCOUNTERED AN ERROR AND MUST CLOSE") --
  *   `bonus:{}` est donc la valeur réelle, pas un renoncement.
@@ -197,7 +193,7 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   {
     id: 144,
     name: "Welcome to Sadistic Difficulty",
-    effect: "Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus (Aug/NGU Speed components not yet wired — no perk-based hook exists for either in this codebase)",
+    effect: "Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus",
     cost: 500000,
     cap: 1,
     bonus: { statPct: 10.0, adventureStatsPct: 0.15 }
