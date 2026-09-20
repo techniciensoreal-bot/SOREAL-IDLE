@@ -9162,6 +9162,14 @@
           }
         }
 
+        /*
+         * Après une mort/fuite, Fight redevient disponible dès le premier
+         * PV régénéré et Fuite reste grisée tant que le combat est arrêté.
+         */
+        if(!idleEtat.combatBossActif){
+          rafraichirCommandesFightBossIdleV167_();
+        }
+
         const energieEl=
           document.getElementById(
             'sorealIdleEnergieValeurV4'
@@ -9779,11 +9787,19 @@
               idleCombatEnPauseApresDefaiteV1=true;
               idleEtat.combatBossActif=false;
 
+              /*
+               * Mort = combat réellement terminé dès ce tick.
+               * Fuite doit devenir grisée immédiatement, sans attendre
+               * la prochaine réponse réseau.
+               */
+              rafraichirCommandesFightBossIdleV167_();
+
               ajouterActionRapideIdleV60_(
                 'combat',
                 {
                   actif:false,
-                  raison:'defaite'
+                  raison:'defaite',
+                  snapshot:snapshotCombatFightBossIdleV173_()
                 }
               );
 
@@ -11825,16 +11841,37 @@
       let idleShopReconcileDemandeeV111=false;
       let idleShopReconcileEnCoursV111=false;
 
+      function snapshotCombatFightBossIdleV173_(){
+        if(!idleEtat)return null;
+        return {
+          pvJoueur:Math.max(0,idleNombre_(idleEtat.pvJoueur)),
+          bossPv:Math.max(0,idleNombre_(idleEtat.bossPv)),
+          bossSelection:idleEntier_(idleEtat.bossSelection)
+        };
+      }
+
       function normaliserCommandeCombatIdleV170_(payload){
         if(payload&&typeof payload==='object'){
+          const snapshot=
+            payload.snapshot&&typeof payload.snapshot==='object'
+              ?payload.snapshot
+              :null;
           return {
             actif:Boolean(payload.actif),
-            raison:String(payload.raison||'')
+            raison:String(payload.raison||''),
+            snapshot:snapshot
+              ?{
+                  pvJoueur:Math.max(0,idleNombre_(snapshot.pvJoueur)),
+                  bossPv:Math.max(0,idleNombre_(snapshot.bossPv)),
+                  bossSelection:idleEntier_(snapshot.bossSelection)
+                }
+              :null
           };
         }
         return {
           actif:Boolean(payload),
-          raison:''
+          raison:'',
+          snapshot:null
         };
       }
 
@@ -12618,7 +12655,8 @@
             runner.definirCombatBossSorealIdle(
               SOREAL_SESSION,
               commandeCombat.actif,
-              commandeCombat.raison
+              commandeCombat.raison,
+              commandeCombat.snapshot
             );
             break;
           }
@@ -20407,7 +20445,11 @@
 
         ajouterActionRapideIdleV60_(
           'combat',
-          Boolean(actif)
+          {
+            actif:Boolean(actif),
+            raison:actif?'reprise':'fuite',
+            snapshot:snapshotCombatFightBossIdleV173_()
+          }
         );
       }
 
