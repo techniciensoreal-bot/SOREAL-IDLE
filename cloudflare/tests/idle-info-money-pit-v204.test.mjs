@@ -11,8 +11,8 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=206'),
-  "Le shell doit charger l'UI V206."
+  index.includes('/soreal-idle-ui.js?v=207'),
+  "Le shell doit charger l'UI V207."
 );
 
 for(const token of [
@@ -56,12 +56,12 @@ for(const token of [
 }
 
 assert.ok(
-  ui.includes('Build <b style="color:#dce5f3">V206</b>'),
+  ui.includes('Build <b style="color:#dce5f3">V207</b>'),
   "Settings doit afficher le jalon V206."
 );
 
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE V206: OK — Money Pit/Roue expliqués, roue accessible, archives Info/TTS, audio inventaire immédiat."
+  "SOREAL IDLE V207: OK — Money Pit/Roue expliqués, roue accessible, archives Info/TTS, audio inventaire immédiat."
 );
