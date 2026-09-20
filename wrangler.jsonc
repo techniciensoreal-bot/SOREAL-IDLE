@@ -10,6 +10,12 @@
   "main": "cloudflare/src/idle-worker-entry-v1.js",
   "compatibility_date": "2026-08-28",
   "compatibility_flags": ["nodejs_compat"],
+  "r2_buckets": [
+    {
+      "binding": "SOREAL_R2",
+      "bucket_name": "soreal"
+    }
+  ],
   "assets": {
     "directory": "./cloudflare/public",
     "binding": "ASSETS"

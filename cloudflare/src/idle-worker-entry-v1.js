@@ -1,4 +1,5 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
+import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
 
 /*
  * Ce Worker n'est jamais appelé directement par un navigateur — seul le
@@ -134,6 +135,9 @@ async function idleCallV1(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const mediaResponse = await traiterRequeteIdleMedia(request, env);
+    if (mediaResponse) return mediaResponse;
+
 
     if (request.method === "GET" && url.pathname === "/api/v1/bootstrap") {
       return idleBootstrapV1(request);
