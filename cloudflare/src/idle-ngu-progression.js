@@ -3505,12 +3505,25 @@ function idleAdventureCombatStatsV1(gear, context) {
   const baseAdventurePower = Math.max(10, num(context.adventurePower, 10));
   const baseAdventureToughness = Math.max(10, num(context.adventureToughness, context.adventurePower || 10));
   const baseAdventureRegen = Math.max(1, baseAdventureToughness * 0.03);
+  const permanent = g.permanent && typeof g.permanent === "object" ? g.permanent : {};
   return Object.assign({}, g, {
-    power: baseAdventurePower + Math.max(0, num(g.power, 0)),
-    toughness: baseAdventureToughness + Math.max(0, num(g.toughness, 0)),
-    hp: (hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1) + Math.max(0, num(g.hp, 0)),
+    power:
+      baseAdventurePower +
+      Math.max(0, num(g.power, 0)) +
+      Math.max(0, num(permanent.adventurePower, 0)),
+    toughness:
+      baseAdventureToughness +
+      Math.max(0, num(g.toughness, 0)) +
+      Math.max(0, num(permanent.adventureToughness, 0)),
+    hp:
+      (hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1) +
+      Math.max(0, num(g.hp, 0)) +
+      Math.max(0, num(permanent.adventureHp, 0)),
     regenBase: baseAdventureRegen,
-    regen: baseAdventureRegen + Math.max(0, num(g.regen, 0))
+    regen:
+      baseAdventureRegen +
+      Math.max(0, num(g.regen, 0)) +
+      Math.max(0, num(permanent.adventureRegen, 0))
   });
 }
 
@@ -3551,6 +3564,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
           max: item.max,
           qty: item.qty || 0,
           purchased,
+          effectActive: Boolean(item.grant),
           nextCost: idleSelloutShopNextCostV1(item, purchased)
         };
       })
@@ -3837,38 +3851,73 @@ function tossMoneyPit(state, now) {
    * honnêtement omises (documenté ici, pas fabriqué) plutôt que
    * remplacées par une valeur inventée.
    */
+  /*
+   * V212 — les quatre premiers paliers peuvent désormais utiliser les
+   * colonnes NGU réellement déjà représentables dans SOREAL IDLE :
+   * Adventure Stat, Boost, Adventure Max HP, Adventure HP Regen et EXP.
+   * Valeurs du tableau Money Pit NGU :
+   * T1 +1 / Boost 1 / +10 HP / +0.1 regen ;
+   * T2 +2 / Boost 2 / +20 HP / +0.2 regen / +1 EXP ;
+   * T3 +5 / Boost 5 / +50 HP / +0.5 regen / +2 EXP ;
+   * T4 +10 / Boost 10 / +75 HP / +1 regen / +3 EXP.
+   * Les colonnes Equip/Wandoos/Cube des paliers suivants restent hors de
+   * cette passe plutôt que d'être remplacées par une récompense inventée.
+   */
   const IDLE_MONEY_PIT_REWARDS_V1 = [
-    [],                                                       // tier 0 (jamais atteint, cost>=100000 déjà exigé)
-    [{ boost: 1 }],                                            // tier 1 : 100k-10M
-    [{ boost: 2 }],                                            // tier 2 : 10M-1B
-    [{ boost: 5 }],                                             // tier 3 : 1B-100B
-    [{ boost: 10 }],                                            // tier 4 : 100B-10T
-    [{ seeds: 10 }],                                            // tier 5 : 10T-1Qa
-    [{ experience: 25 }, { seeds: 25 }],                        // tier 6 : 1Qa-1Qi
-    [{ experience: 25 }, { seeds: 100 }],                       // tier 7 : 1Qi-1Sx
-    [{ experience: 200 }, { seeds: 200 }],                      // tier 8 : 1Sx-1Sp
-    [{ experience: 300 }, { seeds: 300 }],                      // tier 9 : 1Sp-1Oc
-    [{ experience: 400 }, { seeds: 500 }],                      // tier 10 : 1Oc-1No
-    [{ experience: 500 }, { seeds: 700 }]                       // tier 11 : 1No+
+    [],
+    [{ adventureStats: 1 }, { boost: 1 }, { adventureHp: 10 }, { adventureRegen: 0.1 }],
+    [{ adventureStats: 2 }, { boost: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }, { experience: 1 }],
+    [{ adventureStats: 5 }, { boost: 5 }, { adventureHp: 50 }, { adventureRegen: 0.5 }, { experience: 2 }],
+    [{ adventureStats: 10 }, { boost: 10 }, { adventureHp: 75 }, { adventureRegen: 1 }, { experience: 3 }],
+    [{ seeds: 10 }],
+    [{ experience: 25 }, { seeds: 25 }],
+    [{ experience: 25 }, { seeds: 100 }],
+    [{ experience: 200 }, { seeds: 200 }],
+    [{ experience: 300 }, { seeds: 300 }],
+    [{ experience: 400 }, { seeds: 500 }],
+    [{ experience: 500 }, { seeds: 700 }]
   ];
   const candidats = IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)];
   const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
 
   const reward = {};
   let boostGrant = null;
+  state.adventure.permanent =
+    state.adventure.permanent && typeof state.adventure.permanent === "object"
+      ? state.adventure.permanent
+      : {};
+
   for (const [k, v] of Object.entries(choix)) {
     if (k === "boost") {
       const type = ["power", "toughness", "special"][Math.floor(Math.random() * 3)];
       boostGrant = idleAdventureBoostV1(type, v);
+    } else if (k === "adventureStats") {
+      state.adventure.permanent.adventurePower =
+        Math.max(0, num(state.adventure.permanent.adventurePower, 0)) + v;
+      state.adventure.permanent.adventureToughness =
+        Math.max(0, num(state.adventure.permanent.adventureToughness, 0)) + v;
+      reward.adventureStats = (reward.adventureStats || 0) + v;
+    } else if (k === "adventureHp") {
+      state.adventure.permanent.adventureHp =
+        Math.max(0, num(state.adventure.permanent.adventureHp, 0)) + v;
+      reward.adventureHp = (reward.adventureHp || 0) + v;
+    } else if (k === "adventureRegen") {
+      state.adventure.permanent.adventureRegen =
+        Math.max(0, num(state.adventure.permanent.adventureRegen, 0)) + v;
+      reward.adventureRegen = (reward.adventureRegen || 0) + v;
     } else {
       reward[k] = (reward[k] || 0) + v;
     }
   }
 
-  // Wiki (page Money Pit) : "The pit also rewards AP using the formula log10(gold)" — un bonus fixe, en plus du tirage, sur chaque tir.
+  // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
   reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
 
-  for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
+  for (const [k, v] of Object.entries(reward)) {
+    if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
+      state.currencies[k] += v;
+    }
+  }
   if (boostGrant) idleAdventureAddItemV1(state.adventure, boostGrant);
 
   const resultat={
