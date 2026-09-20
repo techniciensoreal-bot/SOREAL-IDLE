@@ -141,6 +141,7 @@
       }
       let idleTimerSession=null;
       let idleTimerEnergie=null;
+      let idleAnimationFrameJeuV214=0;
       let idleDernierImpactBossV46=0;
       let idleDernierImpactJoueurV46=0;
 
@@ -9090,34 +9091,13 @@
       function largeurBarreVieCombatIdleV163_(element,pourcentage){
         if(!element)return;
         const pct=Math.max(0,Math.min(100,idleNombre_(pourcentage)));
-        const precedent=idleNombre_(
-          element.dataset&&element.dataset.idlePctV121,
-          -1
-        );
         /*
-         * Dégâts = PAF : aucune interpolation. Une hausse correspond à de
-         * la régénération et reste légèrement lissée pour conserver le
-         * mouvement continu demandé. setProperty(...,'important') neutralise
-         * les anciennes transitions CSS héritées des barres génériques.
+         * V214 — une barre de PV est un instrument d'état, pas une
+         * animation décorative. Toute transition CSS retardait visuellement
+         * les PV réels (particulièrement Fight Boss). La largeur est donc
+         * appliquée au même frame que la valeur HP locale.
          */
-        const estAventure=
-          element.id==='sorealIdleAdventureFightBarV1'||
-          element.id==='sorealIdleAdventureJoueurBarV1';
-        let transition='none';
-
-        if(precedent>=0&&pct>precedent+.015){
-          transition='width .12s linear';
-        }else if(precedent>=0&&pct<precedent-.015&&!estAventure){
-          /*
-           * Fight Boss : le moteur local met les PV à jour toutes les
-           * 100 ms selon le DPS net. Une transition de la même durée rend
-           * ce drain continu sans retarder artificiellement l'état réel.
-           * Adventure reste volontairement sans interpolation.
-           */
-          transition='width .10s linear';
-        }
-
-        element.style.setProperty('transition',transition,'important');
+        element.style.setProperty('transition','none','important');
         largeurBarreCombatIdleV121_(element,pct);
       }
 
@@ -11415,20 +11395,31 @@
 
       function demarrerTickerIdle_(){
         if(idleTimerEnergie){
-          clearInterval(
-            idleTimerEnergie
-          );
-
+          clearInterval(idleTimerEnergie);
           idleTimerEnergie=null;
         }
+        if(idleAnimationFrameJeuV214){
+          cancelAnimationFrame(idleAnimationFrameJeuV214);
+          idleAnimationFrameJeuV214=0;
+        }
 
-        mettreAJourJeuIdleLocalV7_();
-
-        idleTimerEnergie=
-          setInterval(
-            mettreAJourJeuIdleLocalV7_,
-            100
-          );
+        /*
+         * V214 — le moteur visuel suit désormais le rafraîchissement écran.
+         * L'ancien setInterval(100 ms) plafonnait l'affichage à 10 mises à
+         * jour/s : une ressource censée tiquer 15 ou 50 fois/s sautait donc
+         * plusieurs ticks d'un coup. Le calcul reste fondé sur le temps
+         * réellement écoulé, mais chaque frame peut maintenant matérialiser
+         * les ticks au moment où ils deviennent dus.
+         */
+        function frameJeuV214_(){
+          mettreAJourJeuIdleLocalV7_();
+          if(PAGE_ACTIVE==='idle'){
+            idleAnimationFrameJeuV214=requestAnimationFrame(frameJeuV214_);
+          }else{
+            idleAnimationFrameJeuV214=0;
+          }
+        }
+        frameJeuV214_();
 
         if(
           window.__sorealIdleSyncTimerV7
