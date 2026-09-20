@@ -11,8 +11,8 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=204'),
-  "Le shell doit charger l'UI V204."
+  index.includes('/soreal-idle-ui.js?v=205'),
+  "Le shell doit charger l'UI V205."
 );
 
 for(const token of [
@@ -24,20 +24,22 @@ for(const token of [
   "rendreSystemeMetaIdleV130_(j,pit,true)+",
   "rendreSystemeMetaIdleV130_(j,roue,true)"
 ]){
-  assert.ok(ui.includes(token),"Money Pit / Daily Spin V204 manquant: "+token);
+  assert.ok(ui.includes(token),"Money Pit / Daily Spin V205 manquant: "+token);
 }
 
 for(const token of [
-  "function textesNormanSebastienIdleV203_(j)",
+  "function textesNormanSebastienIdleV204_(j)",
   "TUTORIEL_DEBUT_JEU_PAGES_V1",
   "TUTORIEL_PREMIER_BOSS_PAGES_V1",
   "TUTORIEL_AVENTURE_PAGES_V1",
+  "pages.forEach(function(page,index)",
+  "titre:String(page.titre||'Introduction')",
   "sorealIdleInfoRecapV203_",
   "sorealIdleNarrateursV203_",
   "soreal-idle-tts-read-v203",
   "data-soreal-tts-target"
 ]){
-  assert.ok(ui.includes(token),"Settings > Info / narrateurs manquant: "+token);
+  assert.ok(ui.includes(token),"Settings > Info / tutoriels narrateurs manquant: "+token);
 }
 
 {
@@ -51,12 +53,12 @@ for(const token of [
 }
 
 assert.ok(
-  ui.includes('Build <b style="color:#dce5f3">V204</b>'),
+  ui.includes('Build <b style="color:#dce5f3">V205</b>'),
   "Settings doit afficher le jalon V204."
 );
 
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE V204: OK — Money Pit/Roue expliqués, roue accessible, archives Info/TTS, audio inventaire immédiat."
+  "SOREAL IDLE V205: OK — Money Pit/Roue expliqués, roue accessible, archives Info/TTS, audio inventaire immédiat."
 );
