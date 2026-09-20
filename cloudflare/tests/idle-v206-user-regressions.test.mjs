@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { NGU_BOSS_REFERENCE_V1, nguBossStatsV1 } from "../src/idle-ngu-boss-reference-v1.js";
+import { NGU_BOSS_REFERENCE_COUNT_V1, nguBossStatsV1 } from "../src/idle-ngu-boss-reference-v1.js";
 
 const ui=fs.readFileSync(new URL("../public/soreal-idle-ui.js",import.meta.url),"utf8");
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
@@ -19,7 +19,7 @@ assert.ok(!index.includes("body{min-height:100vh;background:#f4f6fb;color:#17203
 
 const boss6=nguBossStatsV1(5,"normal");
 assert.deepEqual({attaque:boss6.attaque,defense:boss6.defense,pv:boss6.pv,xp:boss6.xp},{attaque:32500000,defense:17500000,pv:325000000,xp:0},"Boss 6 NGU incorrect.");
-assert.ok(NGU_BOSS_REFERENCE_V1.length>=6);
+assert.ok(NGU_BOSS_REFERENCE_COUNT_V1>=6);
 
 for(const token of ["let idleCombatArmeLocalV206=false;","idleCombatArmeLocalV206=true;","idleCombatArmeLocalV206 &&","joueurServeur.combatBossActif &&","!idleCombatArmeLocalV206","raison:'garde_client'","{stopBossOnOpen:true}","{stopBossOnOpen:false}"]){
   assert.ok((ui+runtime).includes(token),"Garde anti-combat fantôme manquant: "+token);
