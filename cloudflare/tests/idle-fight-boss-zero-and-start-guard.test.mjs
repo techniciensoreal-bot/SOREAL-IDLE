@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 
-const source=readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+const source=readFileSync(
+  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
+  "utf8"
+);
 
 assert.ok(
   source.includes("if(Boolean(actif)&&stats.combatBossActif)") &&
@@ -10,19 +13,29 @@ assert.ok(
 );
 
 assert.ok(
-  source.includes("code:'JOUEUR_KO'") &&
-  source.includes("koJusquaMs>Date.now()"),
-  "Fight must not restart while the player is still KO."
+  !source.includes("code:'JOUEUR_KO'") &&
+  !source.includes("DUREE_KO_SECONDES"),
+  "Fight Boss must have no KO gate or KO countdown."
 );
 
 assert.ok(
   source.includes("if(bossPv<=1e-9)bossPv=0;") &&
   source.includes("if(pvJoueur<=1e-9)pvJoueur=0;") &&
   source.includes("const bossMort =\n      bossPv===0;") &&
-  source.includes("const joueurKo =\n      pvJoueur===0;"),
-  "Fight Boss death/KO must be based on exact zero HP after clamping."
+  source.includes("const joueurBattu =\n      pvJoueur===0;"),
+  "Fight Boss death/defeat must be based on exact zero HP after clamping."
 );
 
+const defeatStart=source.indexOf("if (joueurBattu) {");
+assert.ok(defeatStart>=0,"Defeat branch missing.");
+const defeat=source.slice(defeatStart,defeatStart+900);
+assert.ok(
+  defeat.includes("pvJoueur=0;") &&
+  defeat.includes("statsCombat.combatBossActif=false;") &&
+  defeat.includes("combatBossActif=false;") &&
+  !/bossPv\s*=\s*bossPvMax/.test(defeat),
+  "Player defeat must stop combat at zero HP without restoring boss HP."
+);
 
 const damageStart=source.indexOf("function degatsRecusSecondeSorealIdle_(");
 const damageEnd=source.indexOf("function recalculerPuissanceCompleteSorealIdle_",damageStart);
@@ -40,7 +53,7 @@ const regenBody=source.slice(regenStart,regenEnd);
 assert.ok(
   regenBody.includes("defense / 20") &&
   !regenBody.includes("0.05 +"),
-  "Fight Boss HP regen must be exactly Defense/20."
+  "Player Fight Boss HP regen must be exactly Defense/20."
 );
 
 console.log("idle-fight-boss-zero-and-start-guard: OK");
