@@ -1645,20 +1645,20 @@
 
       function marquerBoutonIdleActif_(){
         document.querySelectorAll('.nav-button').forEach(function(btn){
-          btn.classList.remove('active');
+          btn.classList.remove('active','idle-open');
+          btn.removeAttribute('data-idle-open-v186');
         });
 
         const bouton=boutonIdle_();
 
         if(bouton){
           /*
-           * Le header principal utilise lui aussi `.active`.
-           * On ne réutilise plus cette classe pour le raccourci IDLE :
-           * elle était la cause la plus probable du séparateur vertical
-           * parasite après le clic.
+           * V186 — aucun état visuel générique sur le raccourci hôte.
+           * Les classes globales active/idle-open pouvaient lui imposer
+           * une hauteur/bordure du shell et créer le grand cadre vertical.
            */
-          bouton.classList.remove('active');
-          bouton.classList.add('idle-open');
+          bouton.classList.remove('active','idle-open');
+          bouton.setAttribute('data-idle-open-v186','1');
         }
       }
 
@@ -16050,6 +16050,31 @@
             idleCombatEnPauseApresDefaiteV1=false;
             idleVictoireBossLocaleV49=false;
 
+            /*
+             * V186 — Safe Zone autoritaire après Rebirth. Les timers AUTO
+             * et le localStorage sont hors idleEtat : les couper ici évite
+             * qu'un combat Adventure ancien reparte tout seul.
+             */
+            idleAutoAventureV30=false;
+            idleAutoZoneV30=0;
+            annulerTimerCombatAutoIdleV30_();
+            sauverCombatAutoIdleV30_();
+            idleAdventureRespawnAtV1=0;
+            if(idleAdventureRespawnTimerV165){
+              clearTimeout(idleAdventureRespawnTimerV165);
+              idleAdventureRespawnTimerV165=null;
+            }
+
+            const adventureApresRebirthV186=
+              aventureMetaIdleV47_(idleEtat);
+            if(adventureApresRebirthV186){
+              adventureApresRebirthV186.selectedZone='safe';
+              if(adventureApresRebirthV186.fight){
+                adventureApresRebirthV186.fight.active=false;
+              }
+            }
+            pousserEtatVersRuntimePartageIdleV1_();
+
             rendreIdleEtat_({
               ok:true,
               joueur:res.joueur
@@ -18749,17 +18774,11 @@
             j&&j.bossHistoire||''
           ).trim();
 
-        const conseilBrut=
-          String(
-            j&&j.bossConseil||''
-          ).trim();
-
-        const conseil=
-          /palette|transpalette|d[ée]pôt|entrepôt/i.test(conseilBrut)
-            ?''
-            :conseilBrut;
-
-        if(!histoire&&!conseil){
+        /*
+         * V186 — IDLE_BOSS.Conseil = anciens tips SOREAL, non NGU.
+         * Seule l'Histoire partagée avec Collection reste visible.
+         */
+        if(!histoire){
           return '';
         }
 
@@ -18773,16 +18792,7 @@
             <div class="soreal-idle-boss-lore-title-v168">Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184">✦ ❦ ✦</div>
-            ${histoire
-              ?'<div class="soreal-idle-boss-lore-histoire-v142">'+
-                idleHtml_(histoire)+
-                '</div>'
-              :''}
-            ${conseil
-              ?'<div class="soreal-idle-boss-lore-conseil-v142">💡 '+
-                idleHtml_(conseil)+
-                '</div>'
-              :''}
+            <div class="soreal-idle-boss-lore-histoire-v142">${idleHtml_(histoire)}</div>
           </div>
         `;
       }
@@ -20671,14 +20681,6 @@
                     :'<span class="soreal-idle-boss-skill-chip-v70">Aucun pouvoir spécial</span>'
                 }
               </div>
-
-              ${
-                b.conseil
-                  ?'<div class="soreal-idle-boss-advice-v91">💡 '+
-                    idleHtml_(b.conseil)+
-                    '</div>'
-                  :''
-              }
             </div>
 
             <div class="soreal-idle-modal-actions-v63">
