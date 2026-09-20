@@ -2398,7 +2398,25 @@ function applyBoost(s,boostId,targetId){
  * étaient rejetés (CUBE_BOOST_INVALIDE) alors qu'ils doivent être acceptés
  * et répartis 0,5%/0,5%.
  */
-function cube(s,boostId){const b=s.inventory.find(x=>x.id===boostId);if(!b||b.kind!=="boost"||!["power","toughness","special"].includes(b.boostType))throw Error("CUBE_BOOST_INVALIDE");if(b.boostType==="special"){s.cube.power+=b.strength*0.005;s.cube.toughness+=b.strength*0.005}else{s.cube[b.boostType]+=b.strength*0.01}s.inventory=s.inventory.filter(x=>x.id!==b.id);return X(s.cube)}
+function cube(s,boostId){
+  const b=s.inventory.find(x=>x.id===boostId);
+  if(!b||b.kind!=="boost"||!["power","toughness","special"].includes(b.boostType))throw Error("CUBE_BOOST_INVALIDE");
+  /*
+   * V183 — le wiki définit le gain Cube à partir de la valeur TOTALE du
+   * boost. Le +2% de chaque boost maxé fait partie de cette valeur totale,
+   * au même titre que Badly Drawn/Construction déjà stockés dans le même
+   * multiplicateur boostEffectiveness.
+   */
+  const valeur=N(b.strength)*(1+N(s.setRewards.boostEffectiveness));
+  if(b.boostType==="special"){
+    s.cube.power+=valeur*0.005;
+    s.cube.toughness+=valeur*0.005;
+  }else{
+    s.cube[b.boostType]+=valeur*0.01;
+  }
+  s.inventory=s.inventory.filter(x=>x.id!==b.id);
+  return X(s.cube);
+}
 /*
  * Audit 2026-09-13 (wiki NGU, page Infinity Cube, section Softcap) : "When
  * your Infinity Cube's Power and Toughness stats exceeds your equipment +
