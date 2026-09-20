@@ -28,7 +28,9 @@
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
+    mergeAccessory:{group:"inventory-merge",priority:48,maxAgeMs:1100},
     mergeWeapon:{group:"inventory-merge",priority:50,maxAgeMs:1100},
+    uiClick:{group:"ui-click",priority:15,maxAgeMs:180},
     boostPower:{group:"inventory-boost",priority:55,maxAgeMs:1100},
     boostToughness:{group:"inventory-boost",priority:55,maxAgeMs:1100},
     boostSpecial:{group:"inventory-boost",priority:60,maxAgeMs:1100}
@@ -386,6 +388,37 @@
     });
   }
 
+  function fusionAccessoire_(){
+    return jouerWebAudio_(470,function(c){
+      // Accessoire/bijou : petit tintement clair, distinct du métal lourd des armes.
+      tonal_(c,{type:"sine",from:880,to:905,duration:.34,volume:.043});
+      tonal_(c,{type:"sine",from:1320,to:1360,duration:.28,volume:.030,delay:.025});
+      tonal_(c,{type:"triangle",from:1760,to:1810,duration:.19,volume:.018,delay:.055});
+      bruit_(c,{
+        duration:.07,volume:.018,delay:.01,
+        filterType:"highpass",frequency:4200,frequencyEnd:6200,decay:3.2
+      });
+    });
+  }
+
+  function clicInterface_(){
+    return jouerWebAudio_(70,function(c){
+      /*
+       * Même caractère que le clic global de SOREAL APP : bruit blanc
+       * filtré très bref, façon petit bouton mécanique.
+       */
+      bruit_(c,{
+        duration:.035,
+        volume:.090,
+        filterType:"bandpass",
+        frequency:1800,
+        frequencyEnd:1700,
+        q:1.1,
+        decay:3.2
+      });
+    });
+  }
+
   function fusionArme_(){
     return jouerWebAudio_(620,function(c){
       // Marteau + enclume : impact grave puis résonances métalliques.
@@ -461,7 +494,9 @@
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
     mergeArmor:fusionArmure_,
+    mergeAccessory:fusionAccessoire_,
     mergeWeapon:fusionArme_,
+    uiClick:clicInterface_,
     boostPower:boostPower_,
     boostToughness:boostToughness_,
     boostSpecial:boostSpecial_
@@ -572,7 +607,9 @@
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
     mergeArmor:function(){return demander_("mergeArmor");},
+    mergeAccessory:function(){return demander_("mergeAccessory");},
     mergeWeapon:function(){return demander_("mergeWeapon");},
+    uiClick:function(){return demander_("uiClick");},
     boostPower:function(){return demander_("boostPower");},
     boostToughness:function(){return demander_("boostToughness");},
     boostSpecial:function(){return demander_("boostSpecial");},
