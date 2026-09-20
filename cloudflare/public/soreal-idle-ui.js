@@ -28432,7 +28432,20 @@ function pageAventureIdleV28_(j){
         if(gold<100000){
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (100 000 Or requis, '+formatGrandNombreIdleV70_(gold)+' actuel)</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Jeter de l’or</button>';
+        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Jeter TOUT l’Or</button>';
+      }
+
+      function rendreBoutonDailySpinIdleV203_(st){
+        const readyAt=idleNombre_(st&&st.data&&st.data.readyAt);
+        const restantMs=readyAt-Date.now();
+        if(restantMs>0){
+          const restantS=Math.ceil(restantMs/1000);
+          const h=Math.floor(restantS/3600);
+          const m=Math.floor((restantS%3600)/60);
+          const libelle=h>0?(h+'h '+m+'m'):(m>0?(m+'m'):(restantS+'s'));
+          return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🎡 Prochain tour · '+libelle+'</button>';
+        }
+        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Faire tourner la roue</button>';
       }
 
       function rendreSystemeMetaIdleV130_(
@@ -28520,11 +28533,14 @@ function pageAventureIdleV28_(j){
                       '\')">'+
                       (st.active?'⏸️ Désactiver':'▶️ Activer')+
                     '</button>'+
-                    (collecte
-                      ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\''+
-                        idleHtml_(s.id)+
-                        '\')">📥 Récolter / utiliser</button>'
-                      :'')+
+                    (s.id==='dailySpin'
+                      ?rendreBoutonDailySpinIdleV203_(st)
+                      :(collecte
+                        ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\''+
+                          idleHtml_(s.id)+
+                          '\')">📥 Récolter / utiliser</button>'
+                        :'')
+                    )+
                     (s.id==='moneyPit'?rendreBoutonMoneyPitIdleV1_(j,st):'')+
                     (s.id==='diggers'
                       ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'buyDigger\'})">⛏️ Améliorer l’équipe</button>'
@@ -28871,6 +28887,19 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='perks')return pagePerksIdleV1_(j);
         if(id==='quirks')return pageQuirksIdleV1_(j);
         if(id==='challenges')return pageChallengesIdleV1_(j);
+
+        if(id==='moneyPit'){
+          const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
+          const roue=systemeMetaParIdIdleV130_(j,'dailySpin');
+          return ''+
+            entetePageIdleV28_(
+              '🕳️ Money Pit & 🎡 Roue journalière',
+              'Sacrifie ton Or au puits ou tente ta chance avec la roue quand elle est prête.'
+            )+
+            bandeauMetaIdleV130_(j)+
+            rendreSystemeMetaIdleV130_(j,pit,true)+
+            rendreSystemeMetaIdleV130_(j,roue,true);
+        }
 
         const s=
           systemeMetaParIdIdleV130_(
