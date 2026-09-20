@@ -4860,6 +4860,16 @@
           }
 
           /*
+           * V180 — un geste commencé directement sur un objet appartient
+           * à l'inventaire (drag / appui long), jamais au swipe global des
+           * pages. Le fond et les cases vides restent scrollables.
+           */
+          .soreal-idle-v138-bag-card[data-item-id],
+          .soreal-idle-v138-slot[data-occupant-id]{
+            touch-action:none;
+          }
+
+          /*
            * Norman (2026-09-14) : "j'aimerai que les stats de l'arme...
            * s'affichent dans un popup qu'on peut déplacer en le glissant...
            * Un joli popup." Flottant (position:fixed), pas de flash à
@@ -17548,7 +17558,15 @@
            * démarré sur la barre de navigation n'arme plus ce geste.
            */
           const surBarreNav=e.target&&e.target.closest&&e.target.closest('.soreal-idle-nav-v28');
-          if(!cible||surBarreNav||!e.touches||e.touches.length!==1){
+          const surInteractionInventaireV180=
+            e.target&&
+            e.target.closest&&
+            e.target.closest(
+              '.soreal-idle-v138-bag-card[data-item-id],'+
+              '.soreal-idle-v138-slot[data-occupant-id],'+
+              '.soreal-idle-item-popup-v1'
+            );
+          if(!cible||surBarreNav||surInteractionInventaireV180||!e.touches||e.touches.length!==1){
             idleSwipeDebutXV1=null;
             idleSwipeDebutYV1=null;
             return;
@@ -25245,6 +25263,7 @@ function pageAventureIdleV28_(j){
         const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
 
         return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-'+idleHtml_(slotKey)+(rareteClasse?' '+rareteClasse:'')+(item&&item.locked?' idle-item-locked-v165':'')+'" '+
+          'data-equip-slot-v180="'+idleHtml_(slotKey)+'" '+
           (occupantId?'data-occupant-id="'+occupantId+'" ':'')+
           (item?'draggable="true" ondragstart="window.__debutDragAdventureIdleV138__(event,\''+occupantId+'\')" ondragend="window.__finDragAdventureIdleV138__()" ':'')+
           'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
@@ -25277,6 +25296,7 @@ function pageAventureIdleV28_(j){
         const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
 
         return '<div class="soreal-idle-v138-slot'+(classeSupplementaire?' '+classeSupplementaire:'')+(rareteClasse?' '+rareteClasse:'')+(item&&item.locked?' idle-item-locked-v165':'')+'" '+
+          'data-equip-slot-v180="accessory" '+
           (occupantId?'data-occupant-id="'+occupantId+'" ':'')+
           (item?'draggable="true" ondragstart="window.__debutDragAdventureIdleV138__(event,\''+occupantId+'\')" ondragend="window.__finDragAdventureIdleV138__()" ':'')+
           'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
@@ -25431,6 +25451,15 @@ function pageAventureIdleV28_(j){
       let idleAdventureIgnorerClicJusquaV165=0;
       let idleAdventureDernierTouchV165=0;
 
+      /*
+       * V180 — vrai drag tactile. HTML5 draggable/dragstart n'est pas une
+       * API de drag fiable sur téléphone. Un PointerEvent tactile suit
+       * donc l'objet du pointerdown au pointerup et résout la cible sous
+       * le doigt avec elementFromPoint().
+       */
+      let idleAdventurePointerDragV180=null;
+      let idleAdventurePointerCibleV180=null;
+
       function annulerAppuiLongAdventureIdleV165_(){
         if(idleAdventureLongPressTimerV165){
           clearTimeout(idleAdventureLongPressTimerV165);
@@ -25438,16 +25467,134 @@ function pageAventureIdleV28_(j){
         }
         idleAdventureLongPressIdV165='';
       }
+
+      function nettoyerSurvolPointerAdventureIdleV180_(){
+        if(idleAdventurePointerCibleV180){
+          idleAdventurePointerCibleV180.classList.remove('drag-over');
+          idleAdventurePointerCibleV180=null;
+        }
+      }
+
+      function ciblePointerAdventureIdleV180_(event){
+        if(!event||typeof document.elementFromPoint!=='function')return null;
+        const brut=document.elementFromPoint(
+          idleNombre_(event.clientX),
+          idleNombre_(event.clientY)
+        );
+        if(!brut||!brut.closest)return null;
+        return brut.closest(
+          '[data-idle-trash-slot-v165],'+
+          '[data-idle-cube-drop-v180],'+
+          '[data-idle-coffre-drop-v180],'+
+          '.soreal-idle-v138-bag-card[data-item-id],'+
+          '.soreal-idle-v138-bag-card-vide[data-slot-index],'+
+          '.soreal-idle-v138-slot[data-equip-slot-v180]'
+        );
+      }
+
+      function marquerCiblePointerAdventureIdleV180_(event){
+        const cible=ciblePointerAdventureIdleV180_(event);
+        if(cible===idleAdventurePointerCibleV180)return cible;
+        nettoyerSurvolPointerAdventureIdleV180_();
+        idleAdventurePointerCibleV180=cible;
+        if(cible)cible.classList.add('drag-over');
+        return cible;
+      }
+
+      function appliquerDepotPointerAdventureIdleV180_(sourceId,cible){
+        const source=String(sourceId||'');
+        if(!source||!cible)return;
+
+        if(cible.hasAttribute('data-idle-trash-slot-v165')){
+          mettreObjetDansTrashAdventureIdleV165_(source);
+          return;
+        }
+
+        if(cible.hasAttribute('data-idle-cube-drop-v180')){
+          const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
+          const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+          const item=items.find(function(x){return String(x&&x.id)===source;});
+          if(!item||item.kind!=='boost'){
+            toastIdleV5_('Seul un boost peut être absorbé par le Cube.');
+            return;
+          }
+          boosterCubeAdventureIdleV47_(source);
+          return;
+        }
+
+        if(cible.hasAttribute('data-idle-coffre-drop-v180')){
+          actionAdventureIdleV47_({action:'coffreDeposer',id:source});
+          return;
+        }
+
+        if(cible.hasAttribute('data-equip-slot-v180')){
+          appliquerActionSlotAdventureIdleV138_(
+            source,
+            String(cible.getAttribute('data-occupant-id')||'')
+          );
+          return;
+        }
+
+        const cibleId=String(cible.getAttribute('data-item-id')||'');
+        if(cibleId){
+          if(cibleId!==source){
+            fusionnerSiPossibleAdventureIdleV138_(source,cibleId);
+          }
+          return;
+        }
+
+        if(cible.classList.contains('soreal-idle-v138-bag-card-vide')){
+          const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
+          const equipment=a&&a.equipment||{};
+          const estEquipe=
+            ADVENTURE_CORE_SLOTS_V138.some(function(slot){
+              return String(equipment[slot]||'')===source;
+            })||
+            (
+              Array.isArray(equipment.accessories)&&
+              equipment.accessories.map(String).indexOf(source)!==-1
+            );
+          if(estEquipe){
+            desequiperObjetAdventureIdleV47_(source);
+          }else{
+            reordonnerInventaireAdventureIdleV162_(
+              source,
+              '',
+              idleEntier_(cible.getAttribute('data-slot-index'))
+            );
+          }
+        }
+      }
+
       function debutAppuiLongAdventureIdleV165_(event,itemId){
-        if(!event||event.pointerType==='mouse')return;
+        if(!event)return;
+        if(event.button!=null&&event.button!==0)return;
+
         annulerAppuiLongAdventureIdleV165_();
-        idleAdventureDernierTouchV165=Date.now();
+        nettoyerSurvolPointerAdventureIdleV180_();
+
+        const pointerType=String(event.pointerType||'');
+        if(pointerType!=='mouse'){
+          idleAdventureDernierTouchV165=Date.now();
+          idleAdventurePointerDragV180={
+            pointerId:event.pointerId,
+            itemId:String(itemId||''),
+            startX:idleNombre_(event.clientX),
+            startY:idleNombre_(event.clientY),
+            active:false
+          };
+        }else{
+          idleAdventurePointerDragV180=null;
+        }
+
         idleAdventureLongPressIdV165=String(itemId||'');
         idleAdventureLongPressX165=idleNombre_(event.clientX);
         idleAdventureLongPressY165=idleNombre_(event.clientY);
         idleAdventureLongPressTimerV165=setTimeout(function(){
           const id=idleAdventureLongPressIdV165;
           idleAdventureLongPressTimerV165=0;
+          idleAdventurePointerDragV180=null;
+          nettoyerSurvolPointerAdventureIdleV180_();
           if(!id)return;
           idleAdventureIgnorerClicJusquaV165=Date.now()+650;
           nettoyerEtatDragAdventureIdleV138_();
@@ -25465,25 +25612,89 @@ function pageAventureIdleV28_(j){
           afficherDetailsObjetAdventureIdleV138_(id);
         },1000);
       }
+
       function bougerAppuiLongAdventureIdleV165_(event){
-        if(!idleAdventureLongPressTimerV165||!event)return;
+        if(!event)return;
+
         const dx=idleNombre_(event.clientX)-idleAdventureLongPressX165;
         const dy=idleNombre_(event.clientY)-idleAdventureLongPressY165;
-        if(Math.hypot(dx,dy)>10)annulerAppuiLongAdventureIdleV165_();
+        const distance=Math.hypot(dx,dy);
+
+        if(distance>10){
+          annulerAppuiLongAdventureIdleV165_();
+        }
+
+        const drag=idleAdventurePointerDragV180;
+        if(
+          !drag||
+          drag.pointerId!==event.pointerId||
+          String(event.pointerType||'')==='mouse'
+        ){
+          return;
+        }
+
+        if(!drag.active&&distance>10){
+          drag.active=true;
+          idleAdventureDragIdV138=drag.itemId;
+          idleAdventureIgnorerClicJusquaV165=Date.now()+650;
+          const source=document.querySelector(
+            '.soreal-idle-v138-bag-card[data-item-id="'+drag.itemId+'"],'+
+            '.soreal-idle-v138-slot[data-occupant-id="'+drag.itemId+'"]'
+          );
+          if(source)source.classList.add('selected');
+        }
+
+        if(drag.active){
+          if(event.cancelable)event.preventDefault();
+          event.stopPropagation();
+          marquerCiblePointerAdventureIdleV180_(event);
+        }
       }
-      function finirAppuiLongAdventureIdleV165_(){
+
+      function finirAppuiLongAdventureIdleV165_(event){
         annulerAppuiLongAdventureIdleV165_();
+
+        const drag=idleAdventurePointerDragV180;
+        idleAdventurePointerDragV180=null;
+
+        if(
+          drag&&
+          drag.active&&
+          (!event||drag.pointerId===event.pointerId)
+        ){
+          if(event&&event.cancelable)event.preventDefault();
+          if(event)event.stopPropagation();
+          const cible=event
+            ?marquerCiblePointerAdventureIdleV180_(event)
+            :idleAdventurePointerCibleV180;
+          const source=drag.itemId;
+          idleAdventureIgnorerClicJusquaV165=Date.now()+650;
+          nettoyerSurvolPointerAdventureIdleV180_();
+          nettoyerEtatDragAdventureIdleV138_();
+          appliquerDepotPointerAdventureIdleV180_(source,cible);
+          return;
+        }
+
+        nettoyerSurvolPointerAdventureIdleV180_();
       }
+
+      function annulerPointerAdventureIdleV180_(){
+        annulerAppuiLongAdventureIdleV165_();
+        idleAdventurePointerDragV180=null;
+        nettoyerSurvolPointerAdventureIdleV180_();
+      }
+
       function attributsAppuiLongAdventureIdleV165_(itemId){
         const id=idleHtml_(String(itemId||''));
         return ' onpointerdown="window.__debutAppuiLongAdventureIdleV165__(event,\''+id+'\')"'+
           ' onpointermove="window.__bougerAppuiLongAdventureIdleV165__(event)"'+
-          ' onpointerup="window.__finAppuiLongAdventureIdleV165__()"'+
-          ' onpointercancel="window.__finAppuiLongAdventureIdleV165__()"';
+          ' onpointerup="window.__finAppuiLongAdventureIdleV165__(event)"'+
+          ' onpointercancel="window.__annulerPointerAdventureIdleV180__(event)"';
       }
       window.__debutAppuiLongAdventureIdleV165__=debutAppuiLongAdventureIdleV165_;
       window.__bougerAppuiLongAdventureIdleV165__=bougerAppuiLongAdventureIdleV165_;
       window.__finAppuiLongAdventureIdleV165__=finirAppuiLongAdventureIdleV165_;
+      window.__annulerPointerAdventureIdleV180__=annulerPointerAdventureIdleV180_;
 
       function interactionTactileRecenteAdventureIdleV165_(){
         return Date.now()-idleAdventureDernierTouchV165<900;
@@ -25521,6 +25732,9 @@ function pageAventureIdleV28_(j){
       }
 
       function debutDragAdventureIdleV138_(event,itemId){
+        annulerAppuiLongAdventureIdleV165_();
+        idleAdventurePointerDragV180=null;
+        nettoyerSurvolPointerAdventureIdleV180_();
         idleAdventureDragIdV138=String(itemId||'');
         if(event&&event.dataTransfer){
           event.dataTransfer.effectAllowed='move';
@@ -25567,23 +25781,20 @@ function pageAventureIdleV28_(j){
       }
 
       /*
-       * V169 — direction unique de fusion.
+       * V180 — direction unique de fusion.
        *
-       * Règle utilisateur : le PREMIER objet sélectionné / déplacé est la
-       * destination et reste dans l'inventaire ; le SECOND est absorbé.
-       * Exception : lorsqu'on cible une pièce déjà équipée, cette pièce
-       * équipée doit rester équipée et devient donc la destination.
+       * Règle utilisateur corrigée : l'objet 1 est celui sélectionné /
+       * déplacé en premier (source). L'objet 2 est celui touché / visé en
+       * second (cible). L'OBJET 2 absorbe toujours l'OBJET 1.
        *
-       * merge(a,b) côté moteur conserve a et consomme b. Tous les chemins
-       * UI passent désormais par ce helper afin qu'un futur changement de
-       * clic/drag ne puisse plus inverser silencieusement la fusion.
+       * merge(a,b) côté moteur conserve a et consomme b : la cible est
+       * donc toujours "a", sans exception inventaire/équipement.
        */
       function idsFusionAdventureIdleV169_(sourceId,cibleId,cibleEquipe){
+        void cibleEquipe;
         const source=String(sourceId||'');
         const cible=String(cibleId||'');
-        return cibleEquipe
-          ?{a:cible,b:source}
-          :{a:source,b:cible};
+        return {a:cible,b:source};
       }
 
       function fusionnerSelonInteractionAdventureIdleV169_(sourceId,cibleId,cibleEquipe){
@@ -25696,11 +25907,12 @@ function pageAventureIdleV28_(j){
 
       /*
        * Trash NGU-like : un seul emplacement récupérable. Un nouvel objet
-       * déposé détruit l'ancien contenu, jamais le nouvel objet. Le bouton
-       * Supprimer du popup reste, lui, une suppression définitive.
+       * déposé détruit l'ancien contenu. Le bouton "Supprimer" du popup
+       * n'efface JAMAIS directement : il envoie exactement l'objet dans
+       * cette Trash récupérable.
        */
       function supprimerObjetAdventureIdleV165_(id){
-        actionAdventureIdleV47_({action:'discard',id:String(id||'')});
+        mettreObjetDansTrashAdventureIdleV165_(id);
       }
       function mettreObjetDansTrashAdventureIdleV165_(id){
         actionAdventureIdleV47_({action:'trashPut',id:String(id||'')});
@@ -26591,7 +26803,7 @@ function pageAventureIdleV28_(j){
             '<span>🗄️ Coffre ('+occupees+' / '+slots.length+')</span>'+
             '<span class="soreal-idle-coffre-chevron-v1">'+(ouvert?'▲':'▼')+'</span>'+
           '</div>'+
-          '<div class="soreal-idle-v138-cube-slot" '+
+          '<div class="soreal-idle-v138-cube-slot" data-idle-coffre-drop-v180 '+
             'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
             'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
             'ondrop="window.__deposerSurCoffreAdventureIdleV1__(event)" '+
@@ -26684,7 +26896,7 @@ function pageAventureIdleV28_(j){
           ' · Toughness '+formatGrandNombreIdleV70_(cube.toughness||0)
         );
 
-        return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-cube" '+
+        return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-cube" data-idle-cube-drop-v180 '+
           'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurCubeAdventureIdleV138__(event)" '+
