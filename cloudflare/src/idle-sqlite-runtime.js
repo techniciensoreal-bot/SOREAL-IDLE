@@ -15211,7 +15211,8 @@ export const idleRuntimeTestHooks=Object.freeze({
   enregistrerBossJamaisVaincuSorealIdle_,
   attaqueBossSorealIdle_,
   defenseBossSorealIdle_,
-  pvMaxBossSorealIdle_
+  pvMaxBossSorealIdle_,
+  regenPvIntegreeBasicTrainingSorealIdleV176_
 });
 
 /*
