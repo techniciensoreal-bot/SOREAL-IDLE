@@ -27202,8 +27202,50 @@ function pageAventureIdleV28_(j){
         }
       }
 
+      /*
+       * Son dédié du Coffre. Généré localement via Web Audio pour éviter
+       * une dépendance réseau/fichier et ne pas dupliquer le son de clic
+       * global. Il ne joue qu'au passage fermé -> ouvert.
+       */
+      function jouerSonOuvertureCoffreIdleV1_(){
+        try{
+          const AudioCtx=window.AudioContext||window.webkitAudioContext;
+          if(!AudioCtx)return;
+          const ctx=new AudioCtx();
+          const gain=ctx.createGain();
+          const filtre=ctx.createBiquadFilter();
+          const duree=.42;
+          const buffer=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*duree)),ctx.sampleRate);
+          const data=buffer.getChannelData(0);
+          for(let i=0;i<data.length;i+=1){
+            const t=i/data.length;
+            const env=Math.pow(1-t,2.2);
+            data[i]=(Math.random()*2-1)*env;
+          }
+          const source=ctx.createBufferSource();
+          source.buffer=buffer;
+          filtre.type='lowpass';
+          filtre.frequency.setValueAtTime(850,ctx.currentTime);
+          filtre.frequency.exponentialRampToValueAtTime(220,ctx.currentTime+duree);
+          gain.gain.setValueAtTime(.0001,ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.16,ctx.currentTime+.018);
+          gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duree);
+          source.connect(filtre);
+          filtre.connect(gain);
+          gain.connect(ctx.destination);
+          source.start();
+          source.onended=function(){
+            try{ctx.close();}catch(e){}
+          };
+        }catch(e){}
+      }
+      window.__jouerSonOuvertureCoffreIdleV1__=jouerSonOuvertureCoffreIdleV1_;
+
       function toggleCoffreOuvertAdventureIdleV1_(){
         const actuel=idleCoffreOuvertV1_();
+        if(!actuel){
+          jouerSonOuvertureCoffreIdleV1_();
+        }
         try{
           localStorage.setItem('soreal_idle_coffre_ouvert_v1',actuel?'0':'1');
         }catch(e){}
