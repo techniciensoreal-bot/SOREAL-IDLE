@@ -1350,7 +1350,7 @@ console.log("SOREAL IDLE runtime (rebirth unlocks survive Renaissance): OK");
 
 // Norman (2026-09-09) : "il faut un bouton 'NUKE'" — reproduit la mécanique
 // réelle de NGU Idle : avancer instantanément à travers les boss déjà
-// largement dépassés en puissance (Défense >= 5x Attaque), en accordant les
+// largement dépassés en puissance selon le double seuil NGU actuel, en accordant les
 // mêmes récompenses qu'une victoire normale, jusqu'au premier boss qui
 // résiste. Un kill normal (ou NUKE) laisse toujours combatBossActif=false :
 // jamais de chaîne automatique, le joueur doit recliquer Start ou NUKE.
@@ -1372,8 +1372,10 @@ console.log("SOREAL IDLE runtime (rebirth unlocks survive Renaissance): OK");
     "NUKE ne doit jamais court-circuiter un combat manuel déjà en cours."
   );
   assert.ok(
-    body.includes("if (defenseNuke < attaqueBossNuke * 5) {\n        break;\n      }"),
-    "La règle NGU exacte (Défense >= 5x Attaque du boss) doit être respectée pour chaque boss enchaîné."
+    body.includes("attaqueNuke / 5 > defenseBossNuke") &&
+    body.includes("defenseNuke / 5 > attaqueBossNuke") &&
+    !body.includes("defenseNuke < attaqueBossNuke * 5"),
+    "NUKE doit exiger Attack/5 > Boss Defense ET Defense/5 > Boss Attack pour chaque boss enchaîné."
   );
   assert.ok(
     body.includes(
@@ -1389,7 +1391,7 @@ console.log("SOREAL IDLE runtime (rebirth unlocks survive Renaissance): OK");
   );
   assert.ok(
     body.includes("if (!defeated.length) {"),
-    "NUKE doit rejeter proprement le cas où aucun boss n'a pu être vaincu (Défense insuffisante)."
+    "NUKE doit rejeter proprement le cas où aucun boss ne satisfait les deux seuils."
   );
   assert.ok(
     body.includes("while (iterations < 500) {"),
