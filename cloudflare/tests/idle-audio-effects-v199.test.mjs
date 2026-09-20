@@ -39,6 +39,8 @@ assert.ok(
 for(const method of [
   "fight:voixFight_",
   "bossAppear:gongBoss_",
+  "victory:victoireBoss_",
+  "nuke:nuke_",
   "defeat:defaite_",
   "chestOpen:coffreOuverture_",
   "chestClose:coffreFermeture_",
@@ -95,6 +97,8 @@ assert.ok(
   ui.includes("__SOREAL_IDLE_AUDIO_V199__")&&
   ui.includes("jouerEffetAudioIdleV199_('fight')")&&
   ui.includes("jouerEffetAudioIdleV199_('bossAppear')")&&
+  ui.includes("jouerEffetAudioIdleV199_('victory')")&&
+  ui.includes("jouerEffetAudioIdleV199_('nuke')")&&
   ui.includes("jouerEffetAudioIdleV199_('defeat')")&&
   ui.includes("jouerEffetAudioIdleV199_('chestOpen')")&&
   ui.includes("jouerEffetAudioIdleV199_('chestClose')"),
