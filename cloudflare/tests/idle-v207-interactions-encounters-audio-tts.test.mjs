@@ -14,7 +14,7 @@ assert.ok(index.includes("/soreal-idle-ui.js?v=213"));
 for(const token of [
   "popupDetailsObjetAdventureIdleOuvertV207_",
   "fermerPopupDetailsSiExterieurAdventureIdleV207_",
-  "String(idleAdventureSelectionIdV138||'')===id",
+  "idleAdventureSelectionIdV138=objet",
   "cibleDansPopupDetailsObjetAdventureIdleV207_"
 ]){
   assert.ok(ui.includes(token),"Popup item V207 manquant: "+token);
