@@ -35,6 +35,7 @@ for(const token of [
   "u.lang='fr-BE'",
   "data-soreal-tts-target",
   "readTarget:lireCible_",
+  "readText:function(value)",
   "__SOREAL_IDLE_TUTORIAL_TTS_V203__"
 ]){
   assert.ok(tts.includes(token),"TTS V203 manquant: "+token);
