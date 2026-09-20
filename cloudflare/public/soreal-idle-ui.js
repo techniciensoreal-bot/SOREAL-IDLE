@@ -4883,6 +4883,33 @@
             user-select:none;
           }
 
+          .soreal-idle-item-info-v197{
+            position:absolute;
+            top:3px;
+            right:3px;
+            z-index:8;
+            width:19px;
+            height:19px;
+            min-width:19px;
+            min-height:19px;
+            display:grid;
+            place-items:center;
+            padding:0;
+            border:1px solid rgba(226,237,255,.68);
+            border-radius:50%;
+            background:rgba(13,22,38,.82);
+            color:#eef6ff;
+            box-shadow:0 2px 7px rgba(0,0,0,.34);
+            font:900 11px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+            cursor:pointer;
+            touch-action:manipulation;
+            -webkit-tap-highlight-color:transparent;
+          }
+
+          .soreal-idle-item-info-v197:active{
+            transform:scale(.92);
+          }
+
           /*
            * Norman (2026-09-14) : "j'aimerai que les stats de l'arme...
            * s'affichent dans un popup qu'on peut déplacer en le glissant...
@@ -9890,6 +9917,7 @@
               idleEtat.pvJoueur=0;
               idleCombatEnPauseApresDefaiteV1=true;
               idleEtat.combatBossActif=false;
+              jouerEffetAudioIdleV197_('defeat');
 
               /*
                * Mort = combat réellement terminé dès ce tick.
@@ -20754,6 +20782,15 @@
       let idleCombatEnPauseApresDefaiteV1=false;
 
 
+      function jouerEffetAudioIdleV197_(nom){
+        const audio=window.__SOREAL_IDLE_AUDIO_V197__;
+        const fn=audio&&audio[String(nom||'')];
+        if(typeof fn==='function'){
+          try{fn();}catch(_){}
+        }
+      }
+
+
       function definirCombatBossIdleV39_(
         actif
       ){
@@ -20784,6 +20821,10 @@
         ){
           afficherProchainePopupIdleV75_();
           return;
+        }
+
+        if(actif){
+          jouerEffetAudioIdleV197_('fight');
         }
 
         idleEtat.combatBossActif=
@@ -25447,9 +25488,12 @@ function pageAventureIdleV28_(j){
 
         return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-'+idleHtml_(slotKey)+(rareteClasse?' '+rareteClasse:'')+(item&&item.locked?' idle-item-locked-v165':'')+'" '+
           'data-equip-slot-v180="'+idleHtml_(slotKey)+'" '+
-          (occupantId?'data-occupant-id="'+occupantId+'" ':'')+
+          (occupantId?'data-occupant-id="'+occupantId+'" data-soreal-longpress="idle-item" ':'')+
           'draggable="false" '+
           '>'+
+          (item
+            ?'<button type="button" class="soreal-idle-item-info-v197" data-idle-item-info-v197="'+occupantId+'" data-soreal-longpress-ignore aria-label="Afficher les informations de cet objet">i</button>'
+            :'')+
           contenu+
           '</div>';
       }
@@ -25475,9 +25519,13 @@ function pageAventureIdleV28_(j){
 
         return '<div class="soreal-idle-v138-slot'+(classeSupplementaire?' '+classeSupplementaire:'')+(rareteClasse?' '+rareteClasse:'')+(item&&item.locked?' idle-item-locked-v165':'')+'" '+
           'data-equip-slot-v180="accessory" '+
-          (occupantId?'data-occupant-id="'+occupantId+'" ':'')+
+          (occupantId?'data-occupant-id="'+occupantId+'" data-soreal-longpress="idle-item" ':'')+
           'draggable="false" '+
-          '>'+contenu+'</div>';
+          '>'+
+          (item
+            ?'<button type="button" class="soreal-idle-item-info-v197" data-idle-item-info-v197="'+occupantId+'" data-soreal-longpress-ignore aria-label="Afficher les informations de cet objet">i</button>'
+            :'')+
+          contenu+'</div>';
       }
 
       /*
@@ -25544,9 +25592,11 @@ function pageAventureIdleV28_(j){
           'data-item-id="'+id+'" '+
           'data-item-version="'+version+'" '+
           'data-slot-index="'+idleEntier_(slotIndex)+'" '+
+          'data-soreal-longpress="idle-item" '+
           'draggable="false" '+
           'title="'+titre+'" '+
           '>'+
+          '<button type="button" class="soreal-idle-item-info-v197" data-idle-item-info-v197="'+id+'" data-soreal-longpress-ignore aria-label="Afficher les informations de cet objet">i</button>'+
           iconeObjetAdventureIdleV138_(item)+
         '</div>';
       }
@@ -25623,7 +25673,6 @@ function pageAventureIdleV28_(j){
        * applicative reste dans Pointer Events.
        */
       const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;
-      const IDLE_ADVENTURE_APPUI_LONG_MS_V196=600;
       const IDLE_ADVENTURE_DOUBLE_TAP_MS_V196=420;
 
       let idleAdventureGesteV196=null;
@@ -25941,12 +25990,11 @@ function pageAventureIdleV28_(j){
           try{element.setPointerCapture(event.pointerId);}catch(_){}
         }
 
-        geste.timer=setTimeout(function(){
-          if(idleAdventureGesteV196!==geste||geste.drag||geste.moved)return;
-          geste.timer=0;
-          geste.appuiLong=true;
-          ouvrirDetailsObjetParGesteAdventureIdleV196_(geste.itemId);
-        },IDLE_ADVENTURE_APPUI_LONG_MS_V196);
+        /*
+         * Le timer d'appui long n'habite plus ici. Le composant générique
+         * long-press-v197 utilise Touch Events en WebView et émet
+         * soreal-longpress. V196 ne gère que tap/drag.
+         */
       }
 
       function deplacerGesteAdventureIdleV196_(event){
@@ -26037,6 +26085,7 @@ function pageAventureIdleV28_(j){
         document.addEventListener('pointerdown',function(event){
           if(event.isPrimary===false)return;
           if(String(event.pointerType||'mouse')==='mouse'&&event.button!==0)return;
+          if(event.target&&event.target.closest&&event.target.closest('[data-idle-item-info-v197]'))return;
 
           const element=elementObjetGesteAdventureIdleV196_(event.target);
           const id=idObjetGesteAdventureIdleV196_(element);
@@ -26077,16 +26126,25 @@ function pageAventureIdleV28_(j){
           }
         },true);
 
-        /*
-         * Garde spécifique WebKit/WKWebView.
-         * WebKit documente qu'un touchstart actif + preventDefault()
-         * empêche le callout/loupe qui peut voler un appui long.
-         * Aucune logique métier n'est exécutée ici.
-         */
-        document.addEventListener('touchstart',function(event){
-          if(!elementObjetGesteAdventureIdleV196_(event.target))return;
+        document.addEventListener('soreal-longpress',function(event){
+          const element=elementObjetGesteAdventureIdleV196_(event.target);
+          const id=idObjetGesteAdventureIdleV196_(element);
+          if(!element||!id)return;
+
+          if(
+            idleAdventureGesteV196&&
+            idleAdventureGesteV196.itemId===id
+          ){
+            idleAdventureGesteV196.appuiLong=true;
+            annulerTimerGesteAdventureIdleV196_();
+          }
+
+          idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+          ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
+
           if(event.cancelable)event.preventDefault();
-        },{capture:true,passive:false});
+          event.stopPropagation();
+        },true);
 
         document.addEventListener('contextmenu',function(event){
           if(!elementObjetGesteAdventureIdleV196_(event.target))return;
@@ -26094,6 +26152,22 @@ function pageAventureIdleV28_(j){
         },true);
 
         document.addEventListener('click',function(event){
+          const info=
+            event.target&&event.target.closest
+              ?event.target.closest('[data-idle-item-info-v197]')
+              :null;
+
+          if(info){
+            const id=String(info.getAttribute('data-idle-item-info-v197')||'');
+            if(id){
+              terminerEtatGesteAdventureIdleV196_();
+              ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+
           if(!elementObjetGesteAdventureIdleV196_(event.target))return;
           /*
            * Les taps/clics sont terminés sur pointerup par V196. On bloque
@@ -26138,7 +26212,7 @@ function pageAventureIdleV28_(j){
       }
 
       function debutDragAdventureIdleV138_(event,itemId){
-        terminerEtatGesteAdventureIdleV195_();
+        terminerEtatGesteAdventureIdleV196_();
         idleAdventureDragIdV138=String(itemId||'');
         if(event&&event.dataTransfer){
           event.dataTransfer.effectAllowed='move';
@@ -27287,48 +27361,25 @@ function pageAventureIdleV28_(j){
       }
 
       /*
-       * Son dédié du Coffre. Généré localement via Web Audio pour éviter
-       * une dépendance réseau/fichier et ne pas dupliquer le son de clic
-       * global. Il ne joue qu'au passage fermé -> ouvert.
+       * Coffre V197 : ouverture et fermeture utilisent le moteur audio
+       * partagé du frontend autonome. Les deux sons appartiennent à la
+       * même famille bois/métal mais restent clairement distincts.
        */
       function jouerSonOuvertureCoffreIdleV1_(){
-        try{
-          const AudioCtx=window.AudioContext||window.webkitAudioContext;
-          if(!AudioCtx)return;
-          const ctx=new AudioCtx();
-          const gain=ctx.createGain();
-          const filtre=ctx.createBiquadFilter();
-          const duree=.42;
-          const buffer=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*duree)),ctx.sampleRate);
-          const data=buffer.getChannelData(0);
-          for(let i=0;i<data.length;i+=1){
-            const t=i/data.length;
-            const env=Math.pow(1-t,2.2);
-            data[i]=(Math.random()*2-1)*env;
-          }
-          const source=ctx.createBufferSource();
-          source.buffer=buffer;
-          filtre.type='lowpass';
-          filtre.frequency.setValueAtTime(850,ctx.currentTime);
-          filtre.frequency.exponentialRampToValueAtTime(220,ctx.currentTime+duree);
-          gain.gain.setValueAtTime(.0001,ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(.16,ctx.currentTime+.018);
-          gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duree);
-          source.connect(filtre);
-          filtre.connect(gain);
-          gain.connect(ctx.destination);
-          source.start();
-          source.onended=function(){
-            try{ctx.close();}catch(e){}
-          };
-        }catch(e){}
+        jouerEffetAudioIdleV197_('chestOpen');
+      }
+      function jouerSonFermetureCoffreIdleV197_(){
+        jouerEffetAudioIdleV197_('chestClose');
       }
       window.__jouerSonOuvertureCoffreIdleV1__=jouerSonOuvertureCoffreIdleV1_;
+      window.__jouerSonFermetureCoffreIdleV197__=jouerSonFermetureCoffreIdleV197_;
 
       function toggleCoffreOuvertAdventureIdleV1_(){
         const actuel=idleCoffreOuvertV1_();
         if(!actuel){
           jouerSonOuvertureCoffreIdleV1_();
+        }else{
+          jouerSonFermetureCoffreIdleV197_();
         }
         try{
           localStorage.setItem('soreal_idle_coffre_ouvert_v1',actuel?'0':'1');
@@ -29665,6 +29716,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             idleDerniereImageBossV61!==key
           ){
             idleDerniereImageBossV61=key;
+            jouerEffetAudioIdleV197_('bossAppear');
             return ' soreal-idle-image-fade-v61';
           }
 
