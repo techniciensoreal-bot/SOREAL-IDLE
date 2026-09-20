@@ -16,7 +16,7 @@ const longPress=readFileSync(
  * "popup mobile", mais l'implémentation réelle a été refactorée :
  * - V196 possède tap / double-tap / drag ;
  * - long-press-v197.js possède le maintien tactile WebView ;
- * - un bouton "i" fournit un accès direct au même popup.
+ * - aucun bouton de secours n'est rendu : le maintien est l'accès direct au popup.
  */
 
 assert.match(
@@ -79,16 +79,10 @@ assert.match(
   "Le double-tap doit ouvrir le même popup de statistiques."
 );
 
-assert.match(
+assert.doesNotMatch(
   ui,
-  /class="soreal-idle-item-info-v197"[^>]*data-idle-item-info-v197=/,
-  "Chaque item rendu doit proposer le bouton de secours i."
-);
-
-assert.match(
-  ui,
-  /closest\('\[data-idle-item-info-v197\]'\)[\s\S]*?ouvrirDetailsObjetParGesteAdventureIdleV196_\(id\)/,
-  "Le bouton i doit ouvrir directement le même popup."
+  /soreal-idle-item-info-v197|data-idle-item-info-v197/,
+  "L'ancien bouton i doit être totalement absent du rendu et du contrôleur."
 );
 
 assert.doesNotMatch(
@@ -100,4 +94,4 @@ assert.doesNotMatch(
 new Function(ui);
 new Function(longPress);
 
-console.log("Inventory mobile item popup: OK — long-press V197, double-tap V196, bouton i.");
+console.log("Inventory mobile item popup: OK — long-press V197 et double-tap V196, sans bouton i.");
