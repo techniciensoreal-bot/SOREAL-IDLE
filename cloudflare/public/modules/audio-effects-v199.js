@@ -17,6 +17,7 @@
   var master=null;
   var actif=null;
   var file=[];
+  var amorceWebView=false;
 
   var DEFINITIONS={
     fight:{group:"combat-start",priority:90,maxAgeMs:1600},
@@ -46,6 +47,47 @@
       master=null;
       return null;
     }
+  }
+
+  function amorcerAudioDepuisGeste_(){
+    var c=contexte_();
+    if(!c)return Promise.resolve(null);
+
+    /*
+     * Android WebView / WKWebView : resume() seul peut rester muet dans
+     * une iframe cross-origin. Démarrer un BufferSource silencieux pendant
+     * le geste utilisateur force réellement l'activation de la sortie audio.
+     */
+    if(!amorceWebView){
+      try{
+        var buffer=c.createBuffer(
+          1,
+          1,
+          Math.max(8000,Number(c.sampleRate)||44100)
+        );
+        var source=c.createBufferSource();
+        var gain=c.createGain();
+        source.buffer=buffer;
+        gain.gain.setValueAtTime(.000001,c.currentTime||0);
+        source.connect(gain);
+        gain.connect(master||c.destination);
+        source.start(0);
+        if(typeof source.stop==="function"){
+          source.stop((c.currentTime||0)+.01);
+        }
+        amorceWebView=true;
+      }catch(_){}
+    }
+
+    try{
+      if(c.state==="suspended"){
+        return Promise.resolve(c.resume())
+          .then(function(){return c;})
+          .catch(function(){return c;});
+      }
+    }catch(_){}
+
+    return Promise.resolve(c);
   }
 
   function reveiller_(){
@@ -457,11 +499,12 @@
   }
 
   function debloquer_(){
-    reveiller_();
+    amorcerAudioDepuisGeste_();
   }
 
   document.addEventListener("pointerdown",debloquer_,{capture:true,passive:true});
   document.addEventListener("touchstart",debloquer_,{capture:true,passive:true});
+  document.addEventListener("click",debloquer_,{capture:true,passive:true});
 
   window.__SOREAL_IDLE_AUDIO_V199__={
     unlock:debloquer_,
