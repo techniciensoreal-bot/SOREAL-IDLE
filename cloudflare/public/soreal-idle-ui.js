@@ -23319,7 +23319,11 @@ let idleDialogueTimerV76=null;
             return 'mergeArmor';
           }
 
-          return '';
+          /*
+           * V207 — tout autre doublon compatible est un accessoire/spécial
+           * équipable : il mérite son propre tintement au lieu du silence.
+           */
+          return 'mergeAccessory';
         }
 
         if(action==='boost'&&!payload.toCube){
@@ -30139,7 +30143,15 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       function jouerSonMenuIdleV1_(){
         if(typeof window.__jouerSonClicSorealV1__==='function'){
           window.__jouerSonClicSorealV1__();
+          return;
         }
+
+        /*
+         * V207 — le standalone SOREAL IDLE ne charge pas le module audio
+         * global du shell APP. On retombe donc sur le même clic synthétique
+         * via le moteur audio IDLE au lieu de rester silencieux.
+         */
+        jouerEffetAudioIdleV199_('uiClick');
       }
       window.__jouerSonMenuIdleV1__=jouerSonMenuIdleV1_;
 
