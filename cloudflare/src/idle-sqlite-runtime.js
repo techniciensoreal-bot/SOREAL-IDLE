@@ -10900,7 +10900,8 @@ function ajouterCoutsEntrainementEtatSorealIdle_(
 function definirCombatBossSorealIdle(
   sessionToken,
   actif,
-  raison
+  raison,
+  snapshot
 ) {
   const acces =
     exigerAccesSorealIdle_(
@@ -10937,16 +10938,14 @@ function definirCombatBossSorealIdle(
       CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
 
     /*
-     * Au STOP (défaite OU fuite), rejouer d'abord le temps écoulé jusqu'à
-     * maintenant. Ainsi les PV du boss persistés correspondent au combat
-     * réellement joué, au lieu de repartir d'un snapshot réseau plus ancien.
+     * Rejouer TOUJOURS le temps écoulé avant de changer l'état Fight Boss.
+     * C'est indispensable au redémarrage : le temps passé à régénérer hors
+     * combat ne doit jamais être rejoué ensuite comme du temps de combat.
      */
-    if(!Boolean(actif)){
-      appliquerProgressionEnergieSorealIdle_(
-        feuille,
-        ligne
-      );
-    }
+    appliquerProgressionEnergieSorealIdle_(
+      feuille,
+      ligne
+    );
 
     const stats =
       statsJoueurSorealIdle_(
@@ -10966,6 +10965,151 @@ function definirCombatBossSorealIdle(
     const arretApresDefaite=
       !Boolean(actif)&&
       raisonArret==='defaite';
+
+    const snapshotCombat=
+      snapshot&&typeof snapshot==='object'
+        ?snapshot
+        :null;
+
+    const bossVaincusCourant=
+      Math.max(
+        0,
+        Math.floor(
+          nombreSorealIdle_(
+            feuille
+              .getRange(
+                ligne,
+                c.BOSS_VAINCUS
+              )
+              .getValue(),
+            0
+          )
+        )
+      );
+
+    const bossSelectionCourante=
+      bossVaincusCourant+1;
+
+    const snapshotMemeBoss=
+      Boolean(
+        snapshotCombat &&
+        Math.max(
+          0,
+          Math.floor(
+            nombreSorealIdle_(
+              snapshotCombat.bossSelection,
+              0
+            )
+          )
+        )===bossSelectionCourante
+      );
+
+    /*
+     * Le client simule Fight Boss en continu entre deux RPC. Au moment
+     * exact d'une défaite, fuite ou reprise, ses PV visibles sont donc
+     * l'état le plus récent. Les recopier ici évite qu'un snapshot serveur
+     * légèrement plus ancien ne rende instantanément de la vie au joueur
+     * ou au boss. Les valeurs restent strictement bornées aux maxima serveur.
+     */
+    if(snapshotCombat){
+      const pvJoueurMaxCourant=
+        Math.max(
+          1,
+          nombreSorealIdle_(
+            feuille
+              .getRange(
+                ligne,
+                c.PV_JOUEUR_MAX
+              )
+              .getValue(),
+            1
+          )
+        );
+
+      const pvJoueurSnapshot=
+        Math.max(
+          0,
+          Math.min(
+            pvJoueurMaxCourant,
+            nombreSorealIdle_(
+              snapshotCombat.pvJoueur,
+              feuille
+                .getRange(
+                  ligne,
+                  c.PV_JOUEUR
+                )
+                .getValue()
+            )
+          )
+        );
+
+      feuille
+        .getRange(
+          ligne,
+          c.PV_JOUEUR
+        )
+        .setValue(
+          arretApresDefaite
+            ?0
+            :pvJoueurSnapshot
+        );
+
+      if(snapshotMemeBoss){
+        const bossPvMaxCourant=
+          Math.max(
+            1,
+            nombreSorealIdle_(
+              feuille
+                .getRange(
+                  ligne,
+                  c.BOSS_PV_MAX
+                )
+                .getValue(),
+              1
+            )
+          );
+
+        const bossPvSnapshot=
+          Math.max(
+            0,
+            Math.min(
+              bossPvMaxCourant,
+              nombreSorealIdle_(
+                snapshotCombat.bossPv,
+                feuille
+                  .getRange(
+                    ligne,
+                    c.BOSS_PV
+                  )
+                  .getValue()
+              )
+            )
+          );
+
+        feuille
+          .getRange(
+            ligne,
+            c.BOSS_PV
+          )
+          .setValue(
+            bossPvSnapshot
+          );
+      }
+    }
+
+    /*
+     * Le prochain calcul serveur doit partir exactement de l'instant où
+     * Fight/Fuite/défaite vient d'être enregistré, jamais d'un timestamp
+     * antérieur à la transition d'état.
+     */
+    feuille
+      .getRange(
+        ligne,
+        c.DERNIERE_SYNCHRO
+      )
+      .setValue(
+        new Date()
+      );
 
     /*
      * Fight Boss reste idempotent : un double clic sur Fight ne recrée
@@ -10993,20 +11137,7 @@ function definirCombatBossSorealIdle(
         );
 
       const bossVaincus =
-        Math.max(
-          0,
-          Math.floor(
-            nombreSorealIdle_(
-              feuille
-                .getRange(
-                  ligne,
-                  c.BOSS_VAINCUS
-                )
-                .getValue(),
-              0
-            )
-          )
-        );
+        bossVaincusCourant;
 
       const bossIndex =
         bossVaincus;
