@@ -29607,6 +29607,10 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
            * jamais une seconde logique de reset dupliquée.
            */
           '<div class="soreal-idle-section-v8">'+
+            '<div class="soreal-idle-window-title-v31">Version</div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V200</b></div>'+
+          '</div>'+
+          '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+
             '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTotalIdleV67__()">💣 Réinitialiser entièrement SOREAL IDLE</button>'+
