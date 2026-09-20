@@ -16,6 +16,7 @@
   var auto=false;
   var lastFingerprint='';
   var timer=0;
+  var speechGeneration=0;
 
   try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
 
@@ -88,6 +89,51 @@
     }
   }
 
+  function decouperTexteAndroidV207_(value){
+    var texte=String(value||'').replace(/\s+/g,' ').trim();
+    if(!texte)return [];
+
+    /*
+     * Android Chrome/WebView peut rester muet ou suspendre les très longues
+     * SpeechSynthesisUtterance. On lit donc le texte par phrases courtes,
+     * puis on enchaîne via onend. 220 caractères garde chaque morceau bien
+     * sous la durée où le moteur Google TTS a tendance à se figer.
+     */
+    var phrases=texte.match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g)||[texte];
+    var morceaux=[];
+    var courant='';
+
+    phrases.forEach(function(partie){
+      var phrase=String(partie||'').trim();
+      if(!phrase)return;
+
+      if(phrase.length>220){
+        if(courant){
+          morceaux.push(courant);
+          courant='';
+        }
+        while(phrase.length>220){
+          var coupe=phrase.lastIndexOf(' ',220);
+          if(coupe<80)coupe=220;
+          morceaux.push(phrase.slice(0,coupe).trim());
+          phrase=phrase.slice(coupe).trim();
+        }
+        if(phrase)courant=phrase;
+        return;
+      }
+
+      if((courant+' '+phrase).trim().length>220){
+        if(courant)morceaux.push(courant);
+        courant=phrase;
+      }else{
+        courant=(courant+' '+phrase).trim();
+      }
+    });
+
+    if(courant)morceaux.push(courant);
+    return morceaux;
+  }
+
   function speak_(text,attempt,force){
     if((!force&&!auto)||!text||!supported_())return;
     attempt=Math.max(0,Number(attempt)||0);
@@ -98,18 +144,77 @@
     }
 
     var synth=synth_();
+    var morceaux=decouperTexteAndroidV207_(text);
+    if(!morceaux.length)return;
+
+    var generation=++speechGeneration;
+    var voice=voiceFr_(synth);
+
     try{synth.cancel();}catch(_){}
 
-    try{
-      var u=new SpeechSynthesisUtterance(text);
-      u.lang='fr-BE';
-      u.rate=.96;
-      u.pitch=.96;
-      u.volume=1;
-      var voice=voiceFr_(synth);
-      if(voice)u.voice=voice;
-      synth.speak(u);
-    }catch(_){}
+    function parler(index,reessaiSansVoix){
+      if(generation!==speechGeneration||index>=morceaux.length)return;
+
+      try{
+        /*
+         * Android : cancel() suivi immédiatement de speak() peut être
+         * ignoré. Le premier morceau part donc après un très court délai.
+         * resume() est appelé avant chaque morceau pour réveiller un moteur
+         * Google TTS suspendu par la WebView.
+         */
+        try{synth.resume();}catch(_){}
+
+        var u=new SpeechSynthesisUtterance(morceaux[index]);
+        u.lang=voice&&voice.lang?String(voice.lang):'fr-FR';
+        u.rate=.96;
+        u.pitch=.96;
+        u.volume=1;
+        if(voice&&!reessaiSansVoix)u.voice=voice;
+
+        var fini=false;
+        var terminer=function(){
+          if(fini||generation!==speechGeneration)return;
+          fini=true;
+          setTimeout(function(){parler(index+1,false);},35);
+        };
+
+        u.onend=terminer;
+        u.onerror=function(){
+          if(fini||generation!==speechGeneration)return;
+          fini=true;
+
+          /*
+           * Certains WebView exposent une voix installée mais refusent son
+           * objet SpeechSynthesisVoice. On retente une fois avec seulement
+           * lang=fr-FR pour laisser Android choisir Google TTS lui-même.
+           */
+          if(voice&&!reessaiSansVoix){
+            setTimeout(function(){parler(index,true);},80);
+          }else{
+            setTimeout(function(){parler(index+1,false);},35);
+          }
+        };
+
+        synth.speak(u);
+
+        /*
+         * Garde-fou Android : une synthèse longue peut se mettre en pause
+         * toute seule. resume() périodique sans pause() préalable est
+         * inoffensif sur Chrome desktop et réveille certaines WebView.
+         */
+        setTimeout(function(){
+          if(generation===speechGeneration){
+            try{synth.resume();}catch(_){}
+          }
+        },900);
+      }catch(_){
+        setTimeout(function(){parler(index+1,false);},35);
+      }
+    }
+
+    setTimeout(function(){
+      parler(0,false);
+    },70);
   }
 
   function readVisible_(force){
@@ -153,6 +258,7 @@
     try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
 
     if(!auto){
+      speechGeneration+=1;
       try{synth_().cancel();}catch(_){}
     }else{
       lastFingerprint='';
@@ -264,7 +370,10 @@
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
-      if(!auto&&synth_()){try{synth_().cancel();}catch(_){}}
+      if(!auto&&synth_()){
+        speechGeneration+=1;
+        try{synth_().cancel();}catch(_){}
+      }
       lastFingerprint='';
       schedule_();
       return auto;
