@@ -4880,6 +4880,26 @@
            * et repris sur la même palette sombre que le reste de SOREAL
            * IDLE (voir body.soreal-idle-active-v47 plus bas).
            */
+          .soreal-idle-drag-ghost-v183{
+            position:fixed;
+            z-index:2147483001;
+            width:64px;
+            height:64px;
+            transform:translate(-50%,-50%);
+            pointer-events:none;
+            opacity:.58;
+            filter:drop-shadow(0 8px 12px rgba(0,0,0,.45));
+          }
+          .soreal-idle-drag-ghost-v183 img{
+            width:64px!important;
+            height:64px!important;
+            object-fit:contain!important;
+            border-radius:8px;
+          }
+          .soreal-idle-item-popup-v1.idle-compare-v183{
+            width:min(320px,calc(50vw - 12px));
+          }
+
           .soreal-idle-item-popup-v1{
             position:fixed;
             z-index:2600;
@@ -16085,6 +16105,65 @@
        */
       let idleMenuRenduV179=null;
 
+      /*
+       * V183 — running gag global SOREAL IDLE : chaque nombre EXACTEMENT
+       * égal à 69 affiché dans le texte devient "69 lol". Les nombres qui
+       * contiennent 69 (6987, 6969, 169, 69.5...) ne sont jamais touchés.
+       */
+      function texte69LolIdleV183_(texte){
+        return String(texte||'').replace(
+          /(^|[^0-9.,])69(?=$|[^0-9.,])/g,
+          function(match,prefix,offset,full){
+            const fin=offset+match.length;
+            if(full.slice(fin,fin+4)===' lol')return match;
+            return prefix+'69 lol';
+          }
+        );
+      }
+      function appliquer69LolNoeudIdleV183_(racine){
+        if(!racine||!document.body.classList.contains('soreal-idle-active-v47'))return;
+        const walker=document.createTreeWalker(
+          racine,
+          NodeFilter.SHOW_TEXT
+        );
+        const nodes=[];
+        while(walker.nextNode())nodes.push(walker.currentNode);
+        nodes.forEach(function(node){
+          const parent=node.parentElement;
+          if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;
+          const avant=node.nodeValue;
+          const apres=texte69LolIdleV183_(avant);
+          if(apres!==avant)node.nodeValue=apres;
+        });
+      }
+      function installer69LolIdleV183_(){
+        if(document.body.dataset.idle69LolV183==='1')return;
+        document.body.dataset.idle69LolV183='1';
+        const observer=new MutationObserver(function(mutations){
+          if(!document.body.classList.contains('soreal-idle-active-v47'))return;
+          mutations.forEach(function(m){
+            if(m.type==='characterData'){
+              const node=m.target;
+              const parent=node.parentElement;
+              if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;
+              const apres=texte69LolIdleV183_(node.nodeValue);
+              if(apres!==node.nodeValue)node.nodeValue=apres;
+            }else{
+              Array.from(m.addedNodes||[]).forEach(function(node){
+                if(node.nodeType===Node.TEXT_NODE){
+                  const apres=texte69LolIdleV183_(node.nodeValue);
+                  if(apres!==node.nodeValue)node.nodeValue=apres;
+                }else if(node.nodeType===Node.ELEMENT_NODE){
+                  appliquer69LolNoeudIdleV183_(node);
+                }
+              });
+            }
+          });
+        });
+        observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+        appliquer69LolNoeudIdleV183_(document.body);
+      }
+
 
       function chargerMenuIdleV28_(){
         try{
@@ -22915,6 +22994,31 @@ let idleDialogueTimerV76=null;
             'network','network-start','network-end',tx.id
           );
 
+        const mergeTransitoireV183=
+          String(tx.payload&&tx.payload.action||'')==='merge'&&
+          (
+            Boolean(erreur)||
+            Boolean(res&&res.retryable)||
+            ['SOREAL_IDLE_OCCUPE','TIMEOUT','NETWORK_ERROR'].indexOf(
+              String(res&&res.code||'')
+            )!==-1
+          );
+
+        if(mergeTransitoireV183&&(tx.retryCount||0)<4){
+          tx.retryCount=(tx.retryCount||0)+1;
+          idleInventoryBusyV160=false;
+          /*
+           * V183 — surtout ne PAS reconstruire depuis l'ancien snapshot :
+           * la fusion optimiste reste affichée pendant les retries. C'est
+           * précisément ce qui neutralise le rollback visuel transitoire.
+           */
+          setTimeout(
+            envoyerProchaineMutationInventaireIdleV160_,
+            120*tx.retryCount
+          );
+          return;
+        }
+
         idleInventoryMutationQueueV160.shift();
         idleInventoryBusyV160=false;
 
@@ -25524,7 +25628,32 @@ function pageAventureIdleV28_(j){
        */
       let idleAdventurePointerDragV180=null;
       let idleAdventurePointerCibleV180=null;
+      let idleAdventureDragGhostV183=null;
       const IDLE_ADVENTURE_GESTE_SEUIL_PX_V182=22;
+
+      function supprimerGhostDragAdventureIdleV183_(){
+        if(idleAdventureDragGhostV183&&idleAdventureDragGhostV183.parentNode){
+          idleAdventureDragGhostV183.remove();
+        }
+        idleAdventureDragGhostV183=null;
+      }
+      function creerGhostDragAdventureIdleV183_(source,event){
+        supprimerGhostDragAdventureIdleV183_();
+        if(!source||!event)return;
+        const ghost=document.createElement('div');
+        ghost.className='soreal-idle-drag-ghost-v183';
+        const visuel=source.querySelector('img,.soreal-idle-v138-slot-icon,span');
+        if(visuel)ghost.appendChild(visuel.cloneNode(true));
+        else ghost.textContent='📦';
+        document.body.appendChild(ghost);
+        idleAdventureDragGhostV183=ghost;
+        deplacerGhostDragAdventureIdleV183_(event);
+      }
+      function deplacerGhostDragAdventureIdleV183_(event){
+        if(!idleAdventureDragGhostV183||!event)return;
+        idleAdventureDragGhostV183.style.left=idleNombre_(event.clientX)+'px';
+        idleAdventureDragGhostV183.style.top=idleNombre_(event.clientY)+'px';
+      }
 
       function annulerAppuiLongAdventureIdleV165_(){
         if(idleAdventureLongPressTimerV165){
@@ -25683,6 +25812,12 @@ function pageAventureIdleV28_(j){
           nettoyerSurvolPointerAdventureIdleV180_();
           if(!id)return;
           idleAdventureIgnorerClicJusquaV165=Date.now()+650;
+
+          if(idleAdventureComparerEnAttenteV183&&id!==idleAdventureComparerPremierV183){
+            ouvrirComparaisonObjetAdventureIdleV183_(id);
+            return;
+          }
+
           nettoyerEtatDragAdventureIdleV138_();
           idleAdventureSelectionIdV138=id;
           document.querySelectorAll(
@@ -25727,10 +25862,14 @@ function pageAventureIdleV28_(j){
             '.soreal-idle-v138-bag-card[data-item-id="'+drag.itemId+'"],'+
             '.soreal-idle-v138-slot[data-occupant-id="'+drag.itemId+'"]'
           );
-          if(source)source.classList.add('selected');
+          if(source){
+            source.classList.add('selected');
+            creerGhostDragAdventureIdleV183_(source,event);
+          }
         }
 
         if(drag.active){
+          deplacerGhostDragAdventureIdleV183_(event);
           if(event.cancelable)event.preventDefault();
           event.stopPropagation();
           marquerCiblePointerAdventureIdleV180_(event);
@@ -25751,6 +25890,7 @@ function pageAventureIdleV28_(j){
         const drag=idleAdventurePointerDragV180;
         idleAdventurePointerDragV180=null;
         restaurerDraggablePointerAdventureIdleV182_(drag);
+        supprimerGhostDragAdventureIdleV183_();
 
         if(
           drag&&
@@ -25782,6 +25922,7 @@ function pageAventureIdleV28_(j){
         annulerAppuiLongAdventureIdleV165_();
         idleAdventurePointerDragV180=null;
         restaurerDraggablePointerAdventureIdleV182_(drag);
+        supprimerGhostDragAdventureIdleV183_();
         nettoyerSurvolPointerAdventureIdleV180_();
       }
 
@@ -25925,11 +26066,17 @@ function pageAventureIdleV28_(j){
          * exactement comme deux pièces d'équipement, sinon le niveau 100
          * requis pour débloquer le Cube de l'infini est inatteignable.
          */
-        if(
-          source.kind!=='boost'&&
-          cible.kind!=='boost'&&
-          source.definitionId===cible.definitionId
-        ){
+        const memeDefinition=
+          source.definitionId===cible.definitionId;
+        const boostDejaComplete=
+          source.kind==='boost'&&
+          Boolean(
+            a.itemList&&
+            a.itemList[source.definitionId]&&
+            idleEntier_(a.itemList[source.definitionId].maxLevel)>=100
+          );
+
+        if(memeDefinition&&!boostDejaComplete){
           fusionnerSelonInteractionAdventureIdleV169_(
             source.id,
             cible.id,
@@ -26411,6 +26558,8 @@ function pageAventureIdleV28_(j){
           '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerVerrouObjetAdventureIdleV165__(\''+idleHtml_(id)+'\','+(estVerrouille?'false':'true')+')">'+
           (estVerrouille?'🔓 Déverrouiller':'🔒 Verrouiller')+
           '</button>';
+        const boutonComparer=
+          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__comparerObjetAdventureIdleV183__(\''+idleHtml_(id)+'\')">⚖️ Comparer</button>';
         const boutonSupprimer=
           '<button type="button" class="soreal-idle-expand-button-v25" '+
           (estVerrouille
@@ -26423,6 +26572,7 @@ function pageAventureIdleV28_(j){
             boutonVerrouiller+
             boutonConsommer+
             boutonTransformer+
+            boutonComparer+
             boutonSupprimer+
           '</div>';
 
@@ -26465,7 +26615,7 @@ function pageAventureIdleV28_(j){
         root.style.top=idleItemPopupPositionV1_.top+'px';
       }
       function activerGlisserPopupObjetAdventureIdleV1_(root){
-        const poignee=document.getElementById('soreal-idle-v138-details-drag');
+        const poignee=root&&root.querySelector('.soreal-idle-item-popup-drag-v1');
         if(!poignee||poignee.dataset.idleDragBoundV1==='1')return;
         poignee.dataset.idleDragBoundV1='1';
         let actif=false,departX=0,departY=0,origineLeft=0,origineTop=0;
@@ -26510,7 +26660,77 @@ function pageAventureIdleV28_(j){
         poignee.addEventListener('mousedown',surDebut);
         poignee.addEventListener('touchstart',surDebut,{passive:false});
       }
+      let idleAdventureComparerPremierV183='';
+      let idleAdventureComparerEnAttenteV183=false;
+
+      function fermerComparaisonObjetAdventureIdleV183_(){
+        const second=document.getElementById('soreal-idle-v138-details-compare-v183');
+        if(second)second.remove();
+        idleAdventureComparerPremierV183='';
+        idleAdventureComparerEnAttenteV183=false;
+        const primary=document.getElementById('soreal-idle-v138-details');
+        if(primary)primary.classList.remove('idle-compare-v183');
+      }
+      function comparerObjetAdventureIdleV183_(id){
+        fermerComparaisonObjetAdventureIdleV183_();
+        idleAdventureComparerPremierV183=String(id||'');
+        idleAdventureComparerEnAttenteV183=true;
+        toastIdleV5_('Choisis maintenant le deuxième objet à comparer.');
+      }
+      function ouvrirComparaisonObjetAdventureIdleV183_(secondId){
+        const firstId=String(idleAdventureComparerPremierV183||'');
+        const second=String(secondId||'');
+        if(!firstId||!second||firstId===second)return false;
+
+        const root=document.getElementById('soreal-idle-v138-details');
+        const corps=document.getElementById('soreal-idle-v138-details-body');
+        if(!root||!corps)return false;
+
+        afficherDetailsObjetAdventureIdleV138_(firstId);
+        const firstHtml=corps.innerHTML;
+        afficherDetailsObjetAdventureIdleV138_(second);
+        const secondHtml=corps.innerHTML;
+
+        corps.innerHTML=firstHtml;
+        root.style.display='block';
+        root.classList.add('idle-compare-v183');
+
+        const clone=root.cloneNode(true);
+        clone.id='soreal-idle-v138-details-compare-v183';
+        clone.classList.add('idle-compare-v183');
+        const cloneBody=clone.querySelector('.soreal-idle-item-popup-body-v1');
+        if(cloneBody){
+          cloneBody.id='soreal-idle-v138-details-body-compare-v183';
+          cloneBody.innerHTML=secondHtml;
+        }
+        const drag=clone.querySelector('.soreal-idle-item-popup-drag-v1');
+        if(drag)drag.id='soreal-idle-v138-details-drag-compare-v183';
+        const close=clone.querySelector('.soreal-idle-item-popup-close-v1');
+        if(close)close.setAttribute('onclick','window.__fermerComparaisonObjetAdventureIdleV183__()');
+
+        document.body.appendChild(clone);
+
+        const marge=8;
+        const largeur=Math.max(140,Math.floor((window.innerWidth-marge*3)/2));
+        root.style.width=Math.min(320,largeur)+'px';
+        clone.style.width=Math.min(320,largeur)+'px';
+        root.style.left=marge+'px';
+        clone.style.left=Math.max(marge,window.innerWidth-Math.min(320,largeur)-marge)+'px';
+        root.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-root.offsetHeight-marge))+'px';
+        clone.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-clone.offsetHeight-marge))+'px';
+
+        activerGlisserPopupObjetAdventureIdleV1_(root);
+        activerGlisserPopupObjetAdventureIdleV1_(clone);
+        idleAdventureComparerEnAttenteV183=false;
+        return true;
+      }
+      window.__comparerObjetAdventureIdleV183__=comparerObjetAdventureIdleV183_;
+      window.__fermerComparaisonObjetAdventureIdleV183__=fermerComparaisonObjetAdventureIdleV183_;
+
       function fermerDetailsObjetAdventureIdleV1_(){
+        fermerComparaisonObjetAdventureIdleV183_();
+        const primary=document.getElementById('soreal-idle-v138-details');
+        if(primary)primary.style.width='';
         idleAdventureSelectionIdV138='';
         document.querySelectorAll('.soreal-idle-v138-slot.selected,.soreal-idle-v138-bag-card.selected').forEach(function(el){el.classList.remove('selected');});
         afficherDetailsObjetAdventureIdleV138_('');
@@ -26527,6 +26747,16 @@ function pageAventureIdleV28_(j){
         if(Date.now()<idleAdventureIgnorerClicJusquaV165)return;
         const occupant=String(occupantId||'');
         const tactile=interactionTactileRecenteAdventureIdleV165_();
+
+        if(
+          idleAdventureComparerEnAttenteV183&&
+          occupant&&
+          occupant!==idleAdventureComparerPremierV183
+        ){
+          ouvrirComparaisonObjetAdventureIdleV183_(occupant);
+          return;
+        }
+
         if(!idleAdventureSelectionIdV138){
           if(occupant){
             idleAdventureSelectionIdV138=occupant;
@@ -26560,6 +26790,12 @@ function pageAventureIdleV28_(j){
         }
         const id=String(itemId||'');
         const tactile=interactionTactileRecenteAdventureIdleV165_();
+
+        if(idleAdventureComparerEnAttenteV183&&id!==idleAdventureComparerPremierV183){
+          if(event){event.preventDefault();event.stopPropagation();}
+          ouvrirComparaisonObjetAdventureIdleV183_(id);
+          return;
+        }
 
         if(idleAdventureSelectionIdV138&&idleAdventureSelectionIdV138!==id){
           const source=idleAdventureSelectionIdV138;
@@ -30151,6 +30387,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         document.body.classList.add(
           'soreal-idle-active-v47'
         );
+
+        installer69LolIdleV183_();
 
         if(
           typeof arreterActualisationsLiveSorealV14_1===
