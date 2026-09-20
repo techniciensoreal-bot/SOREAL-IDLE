@@ -16857,15 +16857,15 @@
           ]
         },
         {
-          titre:'Renaissances',
+          titre:'Rebirth',
           paragraphes:[
-            'Tu as aussi débloqué les RENAISSANCES, ce qui mérite quelques explications.'
+            'Tu as aussi débloqué le menu Rebirth (une renaissance en français), ce qui mérite quelques explications.'
           ]
         },
         {
           titre:'Le NOMBRE',
           paragraphes:[
-            'À un moment donné, tu vas arriver à un point où progresser prendra une éternité. Si tu fais une Renaissance, tu vas réinitialiser la plupart de ta progression dans chaque menu, et les boss vont être réinitialisés. En contrepartie, ton NOMBRE va grandir. Le NOMBRE, c’est... eh bien, c’est un nombre. Ton Attaque et ta Défense sont multipliées par ce NOMBRE, et ton NOMBRE peut devenir ridiculement énorme.'
+            'À un moment donné, tu vas arriver à un point où progresser prendra une éternité. Si tu fais un Rebirth (une renaissance en français), tu vas réinitialiser la plupart de ta progression dans chaque menu, et les boss vont être réinitialisés. En contrepartie, ton NOMBRE va grandir. Le NOMBRE, c’est... eh bien, c’est un nombre. Ton Attaque et ta Défense sont multipliées par ce NOMBRE, et ton NOMBRE peut devenir ridiculement énorme.'
           ]
         },
         {
@@ -16877,19 +16877,19 @@
         {
           titre:'Le NOMBRE',
           paragraphes:[
-            'Genre, plus énorme que les blagues sur « ta mère ».'
+            'Genre, beaucoup plus énorme que ce que t’as dans le pantalon. Hein ptite bite ! (Si t’es une femme, c’est valable pour toi aussi)'
           ]
         },
         {
-          titre:'Quand faire une Renaissance ?',
+          titre:'Quand faire un Rebirth ?',
           paragraphes:[
-            'Donc, dès que la progression te semble lente, c’est probablement le moment de faire une Renaissance, et de réinitialiser un peu de progression pour faire grimper ton nombre ! Tu peux essayer de faire une Renaissance maintenant si tu veux, mais si tu attends plus longtemps, ton NOMBRE grandira encore plus ! Le temps écoulé depuis ta dernière Renaissance est un facteur important pour la taille de ton NOMBRE, jusqu’à 60 minutes. Tu peux vérifier depuis combien de temps ta Renaissance est en cours dans le menu des statistiques.'
+            'Donc, dès que la progression te semble lente, c’est probablement le moment de faire un Rebirth (une renaissance en français), et de réinitialiser un peu de progression pour faire grimper ton nombre ! Tu peux essayer de faire un Rebirth maintenant si tu veux, mais si tu attends plus longtemps, ton NOMBRE grandira encore plus ! Le temps écoulé depuis ton dernier Rebirth est un facteur important pour la taille de ton NOMBRE, jusqu’à 60 minutes. Tu peux vérifier depuis combien de temps ton Rebirth est en cours dans la barre au-dessus.'
           ]
         },
         {
-          titre:'Après la Renaissance',
+          titre:'Après le Rebirth',
           paragraphes:[
-            'Quand tu fais une Renaissance, les boss réapparaissent aussi. Avec un NOMBRE assez élevé, tu peux vaincre des boss avec un numéro plus élevé, ce qui te donnera de l’EXP à chaque fois que tu les vaincs !'
+            'Quand tu fais un Rebirth (une renaissance en français), les boss réapparaissent aussi. Avec un NOMBRE assez élevé, tu peux vaincre des boss avec un numéro plus élevé, ce qui te donnera de l’EXP à chaque fois que tu les vaincs !'
           ]
         },
         {
