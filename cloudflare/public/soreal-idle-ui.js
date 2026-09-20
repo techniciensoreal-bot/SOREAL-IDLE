@@ -9803,12 +9803,13 @@
                 }
               );
 
-              setTimeout(
-                function(){
-                  synchroniserJeuIdleV7_(true);
-                },
-                0
-              );
+              /*
+               * Ne PAS lancer ici une synchro forcée en parallèle du STOP.
+               * Le lot 'combat:defaite' doit être persisté en premier.
+               * terminerLotRapideIdleV60_ déclenche déjà la réconciliation
+               * après succès : une lecture avant ce succès peut encore
+               * renvoyer combatBossActif=true et écraser la récupération.
+               */
             }else if(
               !idleVictoireBossLocaleV49&&
               regenPvSecJoueurBossV1>0
@@ -10034,15 +10035,33 @@
           );
 
         if(bossPvEl){
+          const bossEnRegenV174=
+            !idleEtat.combatBossActif &&
+            idleNombre_(idleEtat.bossPv)>0 &&
+            idleNombre_(idleEtat.bossPv)<
+              idleNombre_(idleEtat.bossPvMax) &&
+            idleNombre_(idleEtat.regenBoss)>0;
+
           texteCombatIdleV121_(
             bossPvEl,
             '❤️ '+
             formatGrandNombreIdleV70_(
-              idleEtat.bossPv
+              idleEtat.bossPv,
+              bossEnRegenV174?4:undefined
             )+
             ' / '+
             formatGrandNombreIdleV70_(
               idleEtat.bossPvMax
+            )+
+            (
+              bossEnRegenV174
+                ?' · ↗ +'+
+                  formatGrandNombreIdleV70_(
+                    idleEtat.regenBoss,
+                    2
+                  )+
+                  '/s'
+                :''
             )
           );
         }
@@ -10409,13 +10428,96 @@
           return true;
         }
 
-        if(!idleEtat.combatBossActif){
-          return false;
-        }
-
         const memeBossServeurV167=
           bossSelectionLocaleV167===
           bossSelectionServeurV167;
+
+        /*
+         * V174 — récupération Fight Boss hors combat.
+         *
+         * Après une défaite, une requête réseau partie juste AVANT le STOP
+         * peut encore revenir avec combatBossActif=true. Ce snapshot est
+         * forcément ancien : le client a déjà peint 0 PV, arrêté les coups
+         * et envoyé la commande de défaite. Il ne doit jamais ressusciter
+         * le combat ni interrompre la régénération.
+         */
+        if(
+          !idleEtat.combatBossActif &&
+          idleCombatEnPauseApresDefaiteV1 &&
+          joueurServeur.combatBossActif &&
+          memeBossServeurV167
+        ){
+          return true;
+        }
+
+        /*
+         * Quand les deux côtés confirment que le même boss est hors combat,
+         * les PV affichés restent pilotés par le ticker local de 100 ms.
+         * Le serveur persiste la même progression, mais une réponse réseau
+         * ne doit jamais remplacer en bloc une barre au milieu de sa montée.
+         * Au prochain Fight/Fuite, le snapshot V173 renvoie ces valeurs
+         * exactes au serveur.
+         */
+        if(
+          !idleEtat.combatBossActif &&
+          !joueurServeur.combatBossActif &&
+          memeBossServeurV167
+        ){
+          const pvJoueurLocalReposV174=
+            Math.max(0,idleNombre_(idleEtat.pvJoueur));
+          const bossPvLocalReposV174=
+            Math.max(0,idleNombre_(idleEtat.bossPv));
+          const basicTrainingReposV174=
+            idleEtat.basicTraining;
+
+          idleEtat=
+            Object.assign(
+              {},
+              joueurServeur,
+              {
+                pvJoueur:pvJoueurLocalReposV174,
+                bossPv:bossPvLocalReposV174,
+                pvJoueurMax:Math.max(
+                  idleNombre_(idleEtat.pvJoueurMax),
+                  idleNombre_(joueurServeur.pvJoueurMax)
+                ),
+                bossPvMax:Math.max(
+                  idleNombre_(idleEtat.bossPvMax),
+                  idleNombre_(joueurServeur.bossPvMax)
+                ),
+                basicTraining:
+                  fusionnerBasicTrainingPlusAvanceIdleV166_(
+                    basicTrainingReposV174,
+                    joueurServeur.basicTraining
+                  ),
+                force:Math.max(
+                  idleNombre_(idleEtat.force),
+                  idleNombre_(joueurServeur.force)
+                ),
+                endurance:Math.max(
+                  idleNombre_(idleEtat.endurance),
+                  idleNombre_(joueurServeur.endurance)
+                ),
+                puissance:Math.max(
+                  idleNombre_(idleEtat.puissance),
+                  idleNombre_(joueurServeur.puissance)
+                ),
+                defense:Math.max(
+                  idleNombre_(idleEtat.defense),
+                  idleNombre_(joueurServeur.defense)
+                )
+              }
+            );
+
+          idleDernierTickLocalV40=Date.now();
+          rafraichirEnergieEtBoutonsIdleV9_();
+          pousserEtatVersRuntimePartageIdleV1_();
+          return true;
+        }
+
+        if(!idleEtat.combatBossActif){
+          return false;
+        }
 
         /*
          * V167 — le serveur simule lui aussi Fight Boss entre deux syncs.
