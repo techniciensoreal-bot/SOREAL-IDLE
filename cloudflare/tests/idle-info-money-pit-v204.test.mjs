@@ -11,8 +11,8 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=212'),
-  "Le shell doit charger l'UI V212."
+  index.includes('/soreal-idle-ui.js?v=213'),
+  "Le shell doit charger l'UI V213."
 );
 
 for(const token of [
