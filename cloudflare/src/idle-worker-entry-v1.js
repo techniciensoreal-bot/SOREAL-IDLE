@@ -145,7 +145,24 @@ export default {
 
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       if (!env?.ASSETS) return new Response("SOREAL Idle UI indisponible", { status: 503 });
-      return env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+      const asset = await env.ASSETS.fetch(
+        new Request(new URL("/index.html", request.url), request)
+      );
+      const headers = new Headers(asset.headers);
+      /*
+       * Le shell standalone doit toujours revalider : les scripts internes
+       * sont versionnés par query string, mais un index.html figé en cache
+       * empêcherait justement le navigateur/WebView de voir ces nouvelles
+       * URLs après un déploiement.
+       */
+      headers.set("cache-control", "no-cache, no-store, must-revalidate");
+      headers.set("pragma", "no-cache");
+      headers.set("expires", "0");
+      return new Response(asset.body, {
+        status: asset.status,
+        statusText: asset.statusText,
+        headers
+      });
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/session") {
