@@ -37,9 +37,29 @@ test("defeat never restores boss HP instantly",()=>{
 });
 
 test("out of combat recovery is progressive for player and boss",()=>{
+  const recoveryStart=fnBody.indexOf("if (!combatBossActif) {");
+  assert.ok(recoveryStart>=0,"branche de récupération hors combat introuvable");
+  const recovery=fnBody.slice(recoveryStart,recoveryStart+1800);
+
   assert.match(
-    fnBody,
-    /if \(!combatBossActif\) \{[\s\S]{0,300}regenPvSecJoueur[\s\S]{0,180}pvJoueur[\s\S]{0,650}regenBossSecondeSorealIdle_/
+    recovery,
+    /regenPvIntegreeBasicTrainingSorealIdleV176_\s*\(/
+  );
+  assert.match(
+    recovery,
+    /pvJoueur\s*=\s*Math\.min\s*\([\s\S]{0,220}pvJoueur\s*\+\s*regenPv/
+  );
+  assert.match(
+    recovery,
+    /bossPv\s*=\s*Math\.min\s*\([\s\S]{0,320}regenBossSecondeSorealIdle_\s*\([\s\S]{0,180}\*\s*ecoulePrisEnCompte/
+  );
+  assert.doesNotMatch(
+    recovery,
+    /pvJoueur\s*=\s*pvJoueurMax/
+  );
+  assert.doesNotMatch(
+    recovery,
+    /bossPv\s*=\s*bossPvMax/
   );
 });
 
