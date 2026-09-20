@@ -272,24 +272,40 @@
   }
 
   function gongBoss_(){
-    return jouerWebAudio_(1320,function(c){
-      [
-        [112,1.28,.105],
-        [181,1.18,.068],
-        [274,1.00,.043],
-        [386,.86,.030],
-        [517,.68,.019]
-      ].forEach(function(p,index){
-        tonal_(c,{
-          type:index<2?"sine":"triangle",
-          from:p[0],to:p[0]*.986,
-          duration:p[1],volume:p[2],delay:index*.007
+    return jouerWebAudio_(980,function(c){
+      /*
+       * V202 — double frappe rapprochée : TONG-TONG.
+       * Les résonances se chevauchent volontairement pour éviter
+       * l'ancien effet "tong... tong" trop espacé.
+       */
+      function frappe_(delay,force){
+        [
+          [116,.74,.110],
+          [184,.70,.070],
+          [276,.62,.043],
+          [392,.52,.029],
+          [524,.43,.017]
+        ].forEach(function(p,index){
+          tonal_(c,{
+            type:index<2?"sine":"triangle",
+            from:p[0],to:p[0]*.982,
+            duration:p[1],
+            volume:p[2]*force,
+            delay:delay+index*.004
+          });
         });
-      });
-      bruit_(c,{
-        duration:.11,volume:.022,
-        frequency:1500,frequencyEnd:280,decay:3.4
-      });
+        bruit_(c,{
+          duration:.085,
+          volume:.024*force,
+          frequency:1650,
+          frequencyEnd:310,
+          decay:3.7,
+          delay:delay
+        });
+      }
+
+      frappe_(0,1);
+      frappe_(.24,.86);
     });
   }
 
