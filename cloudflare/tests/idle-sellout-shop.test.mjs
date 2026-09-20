@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   IDLE_SELLOUT_SHOP_CATALOG_V1,
   idleSelloutShopNextCostV1,
+  idleSelloutShopEffectActiveV1,
   idleSelloutShopBuyV1
 } from "../src/idle-sellout-shop-v1.js";
 import {
@@ -60,7 +61,7 @@ import {
   assert.equal(idleSelloutShopNextCostV1(item, 4), null, "Max 4 : le 5e achat doit être refusé.");
 }
 
-// --- Achat réel : débite l'AP, incrémente le compteur, refuse si insuffisant ou au plafond ---
+// --- V212 : seuls les achats dont l'effet est actif peuvent débiter des AP ---
 function freshState(ap) {
   const snap = idleNguSnapshot(
     { version: IDLE_NGU_META_VERSION, saveSchema: IDLE_NGU_SAVE_SCHEMA },
@@ -72,37 +73,30 @@ function freshState(ap) {
 }
 
 {
-  const s = freshState(20000);
-  const r = idleSelloutShopBuyV1(s, "energyPotionAlpha");
-  assert.equal(r.cost, 5000);
-  assert.equal(s.currencies.ap, 15000, "L'AP doit être débitée exactement du coût réel.");
-  assert.equal(s.selloutShop.purchases.energyPotionAlpha, 1);
+  assert.equal(idleSelloutShopEffectActiveV1("energyPotionAlpha"),false);
+  assert.equal(idleSelloutShopEffectActiveV1("exp500"),true);
 
-  idleSelloutShopBuyV1(s, "energyPotionAlpha");
-  assert.equal(s.selloutShop.purchases.energyPotionAlpha, 2, "Un objet à achats illimités doit pouvoir être racheté.");
+  const s = freshState(20000);
+  assert.throws(
+    () => idleSelloutShopBuyV1(s, "energyPotionAlpha"),
+    /EFFET_BOUTIQUE_AP_INACTIF/,
+    "Une potion non câblée doit être impossible à acheter."
+  );
+  assert.equal(s.currencies.ap,20000,"Un effet inactif ne doit jamais consommer d'AP.");
+  assert.equal(s.selloutShop.purchases.energyPotionAlpha,undefined,"Un effet inactif ne doit pas incrémenter le compteur.");
 }
 
 {
   const s = freshState(100);
   assert.throws(
-    () => idleSelloutShopBuyV1(s, "energyPotionAlpha"),
+    () => idleSelloutShopBuyV1(s, "exp200"),
     /AP_INSUFFISANT/,
-    "Un achat sans assez d'AP doit être refusé, jamais un découvert silencieux."
+    "Un achat ACTIF sans assez d'AP doit être refusé."
   );
   assert.equal(s.currencies.ap, 100, "L'AP ne doit jamais être débitée si l'achat échoue.");
 }
 
-{
-  const s = freshState(10000000);
-  s.selloutShop.purchases.improvedLootFilter = 1;
-  assert.throws(
-    () => idleSelloutShopBuyV1(s, "improvedLootFilter"),
-    /OBJET_AU_MAXIMUM/,
-    "Un objet à achat unique (max:1) déjà acheté doit refuser un second achat."
-  );
-}
-
-// --- EXP/PP : seul effet de jeu câblé immédiatement dans ce lot ---
+// --- EXP/PP : effets actifs de jeu réellement câblés ---
 {
   const s = freshState(1000000);
   idleSelloutShopBuyV1(s, "exp500");
@@ -121,6 +115,9 @@ function freshState(ap) {
   const entry = snap.selloutShop.catalog.find((x) => x.id === "energyPotionAlpha");
   assert.equal(entry.nextCost, 5000);
   assert.equal(entry.purchased, 0);
+  assert.equal(entry.effectActive,false,"Une potion non câblée doit être marquée inactive pour le client.");
+  const expEntry=snap.selloutShop.catalog.find((x)=>x.id==="exp500");
+  assert.equal(expEntry.effectActive,true,"Les achats EXP réellement câblés doivent rester actifs.");
 }
 
 // --- unlockedEver : n'apparaît qu'après avoir récolté du premier AP, jamais réévalué à la baisse ---

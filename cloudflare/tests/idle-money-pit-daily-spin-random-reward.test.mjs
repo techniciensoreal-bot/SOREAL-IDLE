@@ -7,11 +7,10 @@ import {normalizeIdleNguState,advanceIdleNguState,applyIdleNguAction,rebirthIdle
  * chance... JE VEUX QUE CHAQUE STATISTIQUES SOIENT INTEGREES." Tables
  * complètes relues directement sur le wiki NGU (pages Money Pit et
  * Daily Spin, via navigateur — les résultats de recherche étaient trop
- * incomplets). Les lots non buildables (Potions, Lucky Charm, Bar Bar,
- * Poop, Cube, Adv Stat, Equip+1lvl, Wandoos — aucune de ces mécaniques
- * n'existe encore côté SOREAL) sont honnêtement omis plutôt que
- * remplacés par une valeur inventée ; l'Or n'a JAMAIS été un lot réel
- * de la roue (contrairement à l'ancienne implémentation SOREAL).
+ * incomplets). V212 active Adventure Stat, Boost, Adventure Max HP,
+ * Adventure HP Regen et EXP aux premiers paliers. Les lots encore non
+ * câblés restent omis plutôt que remplacés par une valeur inventée ;
+ * l'Or n'a JAMAIS été un lot réel de la roue.
  */
 const context={bosses:37,bestGold:0,basicTrainingComplete:true};
 
@@ -25,23 +24,45 @@ assert.equal(
   "Le compteur de cycle déterministe rewardIndex ne doit plus exister (le tirage est désormais au hasard)."
 );
 
-// --- Tier 3 (1e9, palier "Boost 5" du wiki) : chaque tir doit accorder un vrai boost + le bonus AP fixe (log10) ---
+// --- Tier 3 (1e9) : les cinq colonnes NGU déjà supportées sont réellement appliquées ---
 {
-  let cursor=state;
-  let at=1_000_000;
-  for(let i=0;i<10;i+=1){
-    cursor.currencies.gold=1e9;
-    const before=(cursor.adventure&&cursor.adventure.inventory||[]).length;
-    const res=applyIdleNguAction(cursor,{action:'moneyPit'},context,at);
-    assert.equal(res.result.tier,3,"1e9 doit correspondre au palier 3 (Boost 5, wiki : min 1B).");
-    assert.ok(res.result.boost&&res.result.boost.strength===5,"Le palier 3 doit accorder un Boost de force 5 (exact du wiki), jamais une monnaie inventée.");
-    assert.ok(['power','toughness','special'].includes(res.result.boost.type),"Le type de boost doit être un type réel (power/toughness/special).");
-    assert.equal(res.result.reward.ap,Math.floor(Math.log10(1e9)),"Le bonus AP fixe doit suivre exactement la formule du wiki : log10(or jeté).");
-    const after=(res.state.adventure&&res.state.adventure.inventory||[]).length;
-    assert.equal(after,before+1,"Le boost accordé doit être réellement ajouté à l'inventaire Aventure (idleAdventureAddItemV1), pas juste mentionné dans la réponse.");
-    cursor=res.state;
-    cursor.systems.moneyPit.data.nextAt=at;
-    at+=1;
+  const originalRandom=Math.random;
+  try{
+    const cas=[
+      {random:0.01,type:'adventureStats',value:5},
+      {random:0.21,type:'boost',value:5},
+      {random:0.41,type:'adventureHp',value:50},
+      {random:0.61,type:'adventureRegen',value:0.5},
+      {random:0.81,type:'experience',value:2}
+    ];
+    for(const c of cas){
+      let cursor=normalizeIdleNguState({},context,1_000_000);
+      cursor.currencies.gold=1e9;
+      cursor=normalizeIdleNguState(cursor,context,1_000_000);
+      const beforeInventory=cursor.adventure.inventory.length;
+      Math.random=()=>c.random;
+      const res=applyIdleNguAction(cursor,{action:'moneyPit'},context,1_000_000);
+      assert.equal(res.result.tier,3,"1e9 doit correspondre au palier 3 (wiki : min 1B).");
+      assert.equal(res.result.reward.ap,9,"Le bonus AP fixe doit rester floor(log10(1e9)) = 9.");
+
+      if(c.type==='boost'){
+        assert.ok(res.result.boost&&res.result.boost.strength===5,"Le tirage Boost du palier 3 doit donner Boost 5.");
+        assert.ok(['power','toughness','special'].includes(res.result.boost.type));
+        assert.equal(res.state.adventure.inventory.length,beforeInventory+1,"Le Boost doit réellement entrer dans l'inventaire.");
+      }else{
+        assert.equal(res.result.reward[c.type],c.value,"La magnitude du lot doit être celle du tableau Money Pit NGU.");
+      }
+
+      if(c.type==='adventureStats'){
+        assert.equal(res.state.adventure.permanent.adventurePower,5);
+        assert.equal(res.state.adventure.permanent.adventureToughness,5);
+      }
+      if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,50);
+      if(c.type==='adventureRegen')assert.equal(res.state.adventure.permanent.adventureRegen,0.5);
+      if(c.type==='experience')assert.equal(res.state.currencies.experience,2);
+    }
+  }finally{
+    Math.random=originalRandom;
   }
 }
 
