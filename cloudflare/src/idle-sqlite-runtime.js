@@ -6391,9 +6391,21 @@ function equilibrerBossPrincipalSorealIdleV413_(
           )
         ),
 
-      /* Le wiki NGU ne fournit pas de narration par boss à reproduire. */
-      histoire: "",
-      conseil: ""
+      /*
+       * V185 — l'équilibrage NGU ne doit modifier que les statistiques.
+       * L'identité éditoriale du boss (Histoire/Conseil) vient du même
+       * catalogue IDLE_BOSS que Collection. L'ancien effacement ici faisait
+       * que Collection affichait le texte tandis que Fight Boss recevait
+       * bossHistoire="" et bossConseil="".
+       */
+      histoire:
+        String(
+          source.histoire || ""
+        ),
+      conseil:
+        String(
+          source.conseil || ""
+        )
     }
   );
 }
