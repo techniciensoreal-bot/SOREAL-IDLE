@@ -28481,7 +28481,7 @@ function pageAventureIdleV28_(j){
         if(gold<100000){
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (100 000 Or requis, '+formatGrandNombreIdleV70_(gold)+' actuel)</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Jeter TOUT l’Or</button>';
+        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
       }
 
       function rendreBoutonDailySpinIdleV203_(st){
@@ -28494,7 +28494,7 @@ function pageAventureIdleV28_(j){
           const libelle=h>0?(h+'h '+m+'m'):(m>0?(m+'m'):(restantS+'s'));
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🎡 Prochain tour · '+libelle+'</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Faire tourner la roue</button>';
+        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Fais-moi tourner, bébé !</button>';
       }
 
       function rendreSystemeMetaIdleV130_(
@@ -28922,6 +28922,149 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<h3 style="margin:16px 0 8px">Blood Spells</h3><div style="display:grid;gap:10px">'+spellDefs.map(function(sp){return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+idleHtml_(sp[1])+'</b><span>'+formatGrandNombreIdleV70_(sp[2])+'</span></div><button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(blood>0?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp[0]+'\'})"':'disabled')+'>Utiliser tout le Blood</button></div>';}).join('')+'</div>';
       }
 
+      function libelleRecompenseMetaV206_(entree){
+        if(!entree)return '—';
+        const morceaux=[];
+        const reward=entree.reward&&typeof entree.reward==='object'?entree.reward:{};
+        if(entree.boost){
+          morceaux.push(
+            'Boost '+String(entree.boost.type||'')+
+            ' +'+formatGrandNombreIdleV70_(entree.boost.strength||0)
+          );
+        }
+        if(reward.ap)morceaux.push(formatGrandNombreIdleV70_(reward.ap)+' AP');
+        if(reward.experience)morceaux.push(formatGrandNombreIdleV70_(reward.experience)+' EXP');
+        if(reward.seeds)morceaux.push(formatGrandNombreIdleV70_(reward.seeds)+' graines');
+        return morceaux.length?morceaux.join(' · '):'Récompense mystérieuse';
+      }
+
+
+      function tierDailySpinIdleV206_(totalSpins){
+        const n=Math.max(0,idleEntier_(totalSpins));
+        const seuils=[0,7,14,30,60,120,180,365];
+        let tier=0;
+        seuils.forEach(function(seuil,index){
+          if(n>=seuil)tier=index;
+        });
+        return tier;
+      }
+
+
+      function recompensesDailySpinTierIdleV206_(tier){
+        const tables=[
+          ['50 AP · 70 %','100 AP · 30 %'],
+          ['100 AP · 53 %','200 AP · 35 %','1 000 AP · 10 %'],
+          ['200 AP · 53 %','400 AP · 30 %','2 000 AP · 10 %'],
+          ['300 AP · 37 %','600 AP · 25 %','3 000 AP · 10 %','20 graines · 10 %','50 000 AP · 0,5 %'],
+          ['500 AP · 50 %','1 000 AP · 25 %','5 000 AP · 10 %','100 graines · 5 %','75 000 AP · 0,5 %'],
+          ['800 AP · 36 %','1 600 AP · 25 %','8 000 AP · 10 %','400 graines · 10 %','100 000 AP · 0,5 %'],
+          ['1 200 AP · 35 %','2 400 AP · 25 %','12 000 AP · 10 %','2 000 graines · 10 %','150 000 AP · 0,5 %'],
+          ['1 500 AP · 35 %','3 000 AP · 25 %','15 000 AP · 10 %','5 000 graines · 10 %','175 000 AP · 0,5 %']
+        ];
+        return tables[Math.max(0,Math.min(tables.length-1,idleEntier_(tier)))]||tables[0];
+      }
+
+
+      function historiqueMoneyPitIdleV206_(pit,roue){
+        const pitData=pit&&pit.state&&pit.state.data||{};
+        const roueData=roue&&roue.state&&roue.state.data||{};
+        const lignes=[];
+
+        (Array.isArray(pitData.history)?pitData.history:[]).forEach(function(x){
+          lignes.push({
+            at:idleNombre_(x.at),
+            source:'🕳️ Money Pit',
+            detail:'Palier '+idleEntier_(x.tier)+' · '+formatGrandNombreIdleV70_(x.cost||0)+' Or',
+            prize:libelleRecompenseMetaV206_(x)
+          });
+        });
+        (Array.isArray(roueData.history)?roueData.history:[]).forEach(function(x){
+          lignes.push({
+            at:idleNombre_(x.at),
+            source:'🎡 Roue journalière',
+            detail:'Tier '+idleEntier_(x.tier),
+            prize:libelleRecompenseMetaV206_(x)
+          });
+        });
+
+        lignes.sort(function(a,b){return b.at-a.at;});
+        return lignes.slice(0,20);
+      }
+
+
+      function pageMoneyPitDailySpinIdleV206_(j){
+        const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
+        const roue=systemeMetaParIdIdleV130_(j,'dailySpin');
+        const pitSt=pit&&pit.state||{};
+        const roueSt=roue&&roue.state||{};
+        const pitData=pitSt.data||{};
+        const roueData=roueSt.data||{};
+        const totalSpins=idleEntier_(roueData.totalSpins||roueSt.level||0);
+        const tier=tierDailySpinIdleV206_(totalSpins);
+        const table=recompensesDailySpinTierIdleV206_(tier);
+        const historique=historiqueMoneyPitIdleV206_(pit,roue);
+        const derniere=historique.length?historique[0]:null;
+
+        return ''+
+          entetePageIdleV28_(
+            '🕳️ Money Pit & 🎡 Roue journalière',
+            'Balance tout ton Or durement gagné dedans.'
+          )+
+          bandeauMetaIdleV130_(j)+
+          '<style>'+
+            '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
+            '.soreal-idle-money-scene-v206>img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover}'+
+            '.soreal-idle-money-action-v206{position:absolute;z-index:3;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.82);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.38);text-align:center;min-width:170px;backdrop-filter:blur(3px)}'+
+            '.soreal-idle-money-pit-action-v206{left:48%;bottom:5%;transform:translateX(-50%)}'+
+            '.soreal-idle-money-spin-action-v206{right:3%;top:40%;min-width:155px}'+
+            '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+
+            '.soreal-idle-money-action-title-v206{font-size:13px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
+            '.soreal-idle-money-action-note-v206{font-size:10px;color:#d5e1f5;margin-top:2px}'+
+            '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
+            '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:11px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
+            '@media(max-width:620px){.soreal-idle-money-action-v206{min-width:0;width:42%;padding:6px}.soreal-idle-money-pit-action-v206{left:42%;bottom:3%}.soreal-idle-money-spin-action-v206{right:2%;top:38%;width:35%}.soreal-idle-money-action-title-v206{font-size:11px}.soreal-idle-money-action-note-v206{font-size:9px}}'+
+          '</style>'+
+          '<div class="soreal-idle-money-scene-v206">'+
+            '<img src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
+            '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
+              '<div class="soreal-idle-money-action-title-v206">Balance ton argent</div>'+
+              '<div class="soreal-idle-money-action-note-v206">Le puits prend tout ton Or actuel.</div>'+
+              rendreBoutonMoneyPitIdleV1_(j,pitSt)+
+            '</div>'+
+            '<div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
+              '<div class="soreal-idle-money-action-title-v206">Daily Spin!</div>'+
+              '<div class="soreal-idle-money-action-note-v206">Bon, ça ne « tourne » pas vraiment, mais c’est aléatoire !</div>'+
+              rendreBoutonDailySpinIdleV203_(roueSt)+
+            '</div>'+
+          '</div>'+
+          '<div class="soreal-idle-section-v8">'+
+            '<div class="soreal-idle-window-title-v31">🎁 TON PRIX</div>'+
+            '<div class="soreal-idle-prize-v206">'+
+              (derniere
+                ?idleHtml_(derniere.prize)
+                :'Aucun prix obtenu pour l’instant.')+
+            '</div>'+
+          '</div>'+
+          '<div class="soreal-idle-section-v8">'+
+            '<div class="soreal-idle-window-title-v31">🎡 TABLE DES RÉCOMPENSES · TIER '+tier+'</div>'+
+            '<div style="font-size:11px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>. Les récompenses affichées sont celles réellement disponibles dans SOREAL IDLE.</div>'+
+            '<table class="soreal-idle-reward-table-v206"><tbody>'+
+              table.map(function(x){return '<tr><td>'+idleHtml_(x)+'</td></tr>';}).join('')+
+            '</tbody></table>'+
+          '</div>'+
+          '<div class="soreal-idle-section-v8">'+
+            '<div class="soreal-idle-window-title-v31">📜 RÉCOMPENSES OBTENUES</div>'+
+            (historique.length
+              ?'<table class="soreal-idle-reward-table-v206"><thead><tr><th>Source</th><th>Palier</th><th>Prix</th></tr></thead><tbody>'+
+                historique.map(function(x){
+                  return '<tr><td>'+idleHtml_(x.source)+'</td><td>'+idleHtml_(x.detail)+'</td><td><b>'+idleHtml_(x.prize)+'</b></td></tr>';
+                }).join('')+
+                '</tbody></table>'
+              :'<div class="soreal-idle-note-v4">Le tableau se remplira dès ton premier lancer.</div>')+
+          '</div>';
+      }
+
+
       function pageSystemeMetaIdleV130_(
         j,
         id,
@@ -28937,18 +29080,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='quirks')return pageQuirksIdleV1_(j);
         if(id==='challenges')return pageChallengesIdleV1_(j);
 
-        if(id==='moneyPit'){
-          const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
-          const roue=systemeMetaParIdIdleV130_(j,'dailySpin');
-          return ''+
-            entetePageIdleV28_(
-              '🕳️ Money Pit & 🎡 Roue journalière',
-              'Sacrifie ton Or au puits ou tente ta chance avec la roue quand elle est prête.'
-            )+
-            bandeauMetaIdleV130_(j)+
-            rendreSystemeMetaIdleV130_(j,pit,true)+
-            rendreSystemeMetaIdleV130_(j,roue,true);
-        }
+        if(id==='moneyPit')return pageMoneyPitDailySpinIdleV206_(j);
 
         const s=
           systemeMetaParIdIdleV130_(
