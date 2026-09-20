@@ -9996,18 +9996,9 @@
             pctJoueur
           );
 
-          joueurBarre.classList.toggle(
-            'ko',
-            Boolean(idleEtat.ko)
-          );
-
           /*
-           * Norman (2026-09-18, "for the colors, makes something really
-           * beautiful") : la barre de vie du joueur restait verte fixe
-           * jusqu'à 0. Deux paliers ajoutés (même mécanisme que .ko
-           * juste au-dessus, un simple classList.toggle par tick) pour
-           * qu'elle vire à l'ambre puis au rouge en s'approchant du
-           * danger -- un signal visuel immédiat, pas juste décoratif.
+           * La couleur de la barre dépend uniquement du pourcentage de PV.
+           * Aucun état K.O. séparé n'existe plus dans Fight Boss.
            */
           joueurBarre.classList.toggle(
             'low',
@@ -20350,17 +20341,9 @@
 
         if(actif){
           /*
-           * Norman (2026-09-16) : "le bouton Fuite doit être juste
-           * l'équivalent d'un bouton Stop. Il ne doit pas permettre de
-           * 'Reprendre le combat'. Pour reprendre, on clique juste de
-           * nouveau sur fight." Fuite ET un vrai K.O. mettent tous deux
-           * idleEtat.ko/koSecondesRestantes/idleCombatEnPauseApresDefaiteV1
-           * dans le même état (voir plus bas) et laissent déjà le bouton
-           * Fight cliquable (combatBossActif redevient false) — Fight
-           * reprend maintenant directement ce même rôle qu'avait le
-           * bouton séparé "🔁 Reprendre le combat" (repris tel quel de
-           * reprendreCombatBossIdleV1_, retiré ci-dessous), sans attendre
-           * la fin du décompte de récupération.
+           * Fight est le seul bouton qui démarre/reprend un combat.
+           * Fuite et défaite arrêtent le combat ; aucun état K.O. ou
+           * compte à rebours intermédiaire n'existe.
            */
           idleCombatEnPauseApresDefaiteV1=false;
 
