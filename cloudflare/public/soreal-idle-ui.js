@@ -4883,31 +4883,42 @@
             user-select:none;
           }
 
+          .soreal-idle-v138-bag-card[data-item-id],
+          .soreal-idle-v138-slot[data-occupant-id]{
+            position:relative;
+          }
+
           .soreal-idle-item-info-v197{
-            position:absolute;
-            top:3px;
-            right:3px;
-            z-index:8;
-            width:19px;
-            height:19px;
-            min-width:19px;
-            min-height:19px;
-            display:grid;
-            place-items:center;
-            padding:0;
-            border:1px solid rgba(226,237,255,.68);
-            border-radius:50%;
-            background:rgba(13,22,38,.82);
-            color:#eef6ff;
-            box-shadow:0 2px 7px rgba(0,0,0,.34);
-            font:900 11px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-            cursor:pointer;
+            position:absolute!important;
+            top:3px!important;
+            right:3px!important;
+            z-index:40!important;
+            width:22px!important;
+            height:22px!important;
+            min-width:22px!important;
+            min-height:22px!important;
+            display:grid!important;
+            place-items:center!important;
+            padding:0!important;
+            margin:0!important;
+            border:1px solid rgba(255,255,255,.88)!important;
+            border-radius:50%!important;
+            background:linear-gradient(180deg,#3b82f6,#1d4ed8)!important;
+            color:#fff!important;
+            box-shadow:
+              0 2px 8px rgba(0,0,0,.48),
+              inset 0 1px 0 rgba(255,255,255,.35)!important;
+            font:900 12px/1 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif!important;
+            text-shadow:0 1px 1px rgba(0,0,0,.65);
+            cursor:pointer!important;
+            opacity:1!important;
+            visibility:visible!important;
             touch-action:manipulation;
             -webkit-tap-highlight-color:transparent;
           }
 
           .soreal-idle-item-info-v197:active{
-            transform:scale(.92);
+            transform:scale(.9);
           }
 
           /*
@@ -9261,20 +9272,41 @@
         const metaTickEnergie=
           metaTickEnergieIdleV114_();
 
-        idleResteTickEnergieMsV114+=
-          ecouleTickMs;
-
-        const ticksEnergie=
+        /*
+         * V200 — une ressource pleine ne continue pas à "tiquer" en
+         * arrière-plan. On remet le reliquat à zéro au plafond. Dès que
+         * de l'énergie est réellement dépensée, le prochain cycle repart
+         * proprement de zéro seconde depuis la nouvelle base.
+         */
+        const energieAvantTick=
           Math.max(
             0,
-            Math.floor(
-              (
-                idleResteTickEnergieMsV114+
-                1e-7
-              )/
-              metaTickEnergie.dureeMs
-            )
+            idleNombre_(idleEtat.energie)
           );
+
+        const energieAuPlafond=
+          energieAvantTick>=max;
+
+        if(energieAuPlafond){
+          idleResteTickEnergieMsV114=0;
+        }else{
+          idleResteTickEnergieMsV114+=
+            ecouleTickMs;
+        }
+
+        const ticksEnergie=
+          energieAuPlafond
+            ?0
+            :Math.max(
+                0,
+                Math.floor(
+                  (
+                    idleResteTickEnergieMsV114+
+                    1e-7
+                  )/
+                  metaTickEnergie.dureeMs
+                )
+              );
 
         if(ticksEnergie>0){
           idleResteTickEnergieMsV114=
@@ -9289,20 +9321,20 @@
             Math.min(
               max,
               Math.floor(
-                idleNombre_(
-                  idleEtat.energie
-                )+
+                energieAvantTick+
                 ticksEnergie*
                 metaTickEnergie.gain+
                 1e-9
               )
             );
+
+          if(idleNombre_(idleEtat.energie)>=max){
+            idleResteTickEnergieMsV114=0;
+          }
         }else{
           idleEtat.energie=
             Math.floor(
-              idleNombre_(
-                idleEtat.energie
-              )+
+              energieAvantTick+
               1e-9
             );
         }
@@ -10306,10 +10338,8 @@
           if(fightPvEl){
             texteCombatIdleV121_(
               fightPvEl,
-              '❤️ '+
               formatGrandNombreIdleV70_(fight.monsterHp)+
-              ' / '+
-              formatGrandNombreIdleV70_(fight.monsterHpMax)
+              ' HP'
             );
           }
 
@@ -10353,10 +10383,7 @@
           if(joueurPvLabelEl){
             texteCombatIdleV121_(
               joueurPvLabelEl,
-              '❤️ '+
               formatGrandNombreIdleV70_(fight.playerHp)+
-              ' / '+
-              formatGrandNombreIdleV70_(fight.playerHpMax)+
               ' HP'
             );
           }
@@ -10430,10 +10457,7 @@
           if(joueurPvLabelReposEl){
             texteCombatIdleV121_(
               joueurPvLabelReposEl,
-              '❤️ '+
-              idleEntier_(pvRepos)+
-              ' / '+
-              idleEntier_(pvMaxRepos)+
+              formatGrandNombreIdleV70_(pvRepos)+
               ' HP'
             );
           }
@@ -11297,15 +11321,22 @@
       }
 
       /*
-       * Barre de progression générique "valeur accumulée + progression du
-       * tick en cours", pensée pour être réutilisée par n'importe quelle
-       * future barre à génération continue (Norman : "Ce système devra
-       * ensuite pouvoir être réutilisé pour les deux autres barres qui
-       * seront ajoutées plus tard"). Ne fait aucune hypothèse sur
-       * l'identité de la ressource — seulement value/tickProgress/max.
-       * Réutilise largeurBarreCombatIdleV121_ (déjà l'unique writer de
-       * largeur de barre côté combat) pour le dédoublonnage d'écriture
-       * DOM et le clamp 0-100, au lieu d'une deuxième implémentation.
+       * V200 — cycle visuel de génération demandé par Norman.
+       *
+       * La quantité déjà générée est la BASE immuable du cycle courant.
+       * Pendant le temps nécessaire à produire le prochain point, la
+       * partie verte parcourt tout l'espace restant jusqu'au cap :
+       *
+       *   0/500   : 0   -> 500
+       *   1/500   : 1   -> 500
+       *   100/500 : 100 -> 500
+       *
+       * Quand le tick se termine, le point est réellement ajouté puis le
+       * cycle suivant repart de cette nouvelle base. La barre ne prétend
+       * donc jamais qu'un point intermédiaire est acquis : seul le texte
+       * X / 500 représente l'énergie réellement disponible.
+       *
+       * Au cap, la barre reste pleine et aucune animation n'est appliquée.
        */
       function mettreAJourBarreProgressionContinueV1_(
         element,
@@ -11335,34 +11366,28 @@
             )
           );
 
-        /*
-         * Au plafond, aucun tick en cours ne doit plus faire avancer la
-         * barre (déjà correct). Norman (2026-09-18) : "elle ne va pas
-         * jusqu'au bout de la barre [...] quand la barre est totalement
-         * vide, on voit encore un petit morceau de vert qui semble
-         * encore gonfler dégonfler. [...] ça ne doit plus tiquer une
-         * fois le total d'énergie généré." À énergie disponible = 0,
-         * cette progression continuait pourtant à grandir de 0 à 0.999
-         * puis à retomber à 0 à chaque tic (idleResteTickEnergieMsV114
-         * mod dureeMs) MÊME quand il ne reste plus rien à dépenser —
-         * un petit fragment vert qui gonfle/dégonfle en boucle sur une
-         * barre que le joueur voit comme "vide". Comme au plafond : à 0,
-         * plus aucun tic en cours ne doit faire bouger la barre.
-         */
+        if(valeur>=max){
+          largeurBarreCombatIdleV121_(element,100);
+          return;
+        }
+
         const progression=
-          (valeur>=max||valeur<=0)
-            ?0
-            :Math.max(
-              0,
-              Math.min(
-                0.999,
-                idleNombre_(progressionTick)
-              )
-            );
+          Math.max(
+            0,
+            Math.min(
+              1,
+              idleNombre_(progressionTick)
+            )
+          );
+
+        const valeurVisuelle=
+          valeur+
+          (max-valeur)*
+          progression;
 
         largeurBarreCombatIdleV121_(
           element,
-          ((valeur+progression)/max)*100
+          valeurVisuelle/max*100
         );
       }
 
