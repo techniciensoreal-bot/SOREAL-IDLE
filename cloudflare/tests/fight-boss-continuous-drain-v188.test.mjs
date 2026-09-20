@@ -27,13 +27,13 @@ assert.doesNotMatch(incoming,/coupsDusIdleV116_|IDLE_HIT_BOSS_MS_V116/,"Le boss 
 
 assert.match(
   ui,
-  /transition='width \.10s linear';/,
-  "La barre Fight Boss doit lisser chaque tick de 100 ms."
+  /element\.style\.setProperty\('transition','none','important'\)/,
+  "La barre Fight Boss doit refléter les PV du frame courant sans interpolation retardée."
 );
 assert.match(
   ui,
-  /const estAventure=[\s\S]{0,180}sorealIdleAdventureFightBarV1[\s\S]{0,180}sorealIdleAdventureJoueurBarV1/,
-  "Adventure doit rester identifié séparément pour conserver son rendu par impacts."
+  /requestAnimationFrame\(frameJeuV214_\)/,
+  "Le rendu combat/ressources doit suivre les frames et ne plus être plafonné à 10 Hz."
 );
 
 assert.match(
