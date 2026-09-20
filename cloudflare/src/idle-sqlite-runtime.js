@@ -7300,6 +7300,108 @@ function creerSimulateurEnergieHorsLigneSorealIdle_(
  * longue remplissait d'abord la jauge jusqu'au plafond puis jetait toute
  * la production restante avant de simuler les combats.
  */
+/*
+ * V176 — intégration temporelle de HP Regen pendant Basic Training.
+ *
+ * NGU : HP Regen = Defense / 20. Defense n'est PAS constante pendant le
+ * Basic Training : chaque skill suit Level^1.3 × BaseValue. Utiliser la
+ * Defense de FIN de fenêtre pour toutes les secondes écoulées surcrédite
+ * donc la récupération à chaque sync (jusqu'au plein instantané).
+ *
+ * On intègre exactement x^1.3 sur la trajectoire linéaire observée entre
+ * le snapshot Basic Training avant/après. Si la fenêtre HP est plus longue
+ * que la fenêtre BT (allocation enregistrée entre-temps), la portion plus
+ * ancienne utilise la Defense du début — jamais celle de fin.
+ */
+function regenPvIntegreeBasicTrainingSorealIdleV176_(
+  avantBrut,
+  apresBrut,
+  secondesBt,
+  secondesHp
+){
+  const hpSec=Math.max(0,nombreSorealIdle_(secondesHp,0));
+  if(hpSec<=0)return 0;
+
+  const btSec=Math.max(0,nombreSorealIdle_(secondesBt,0));
+  const avant=normalizeBasicTrainingStateV411(avantBrut,Date.now());
+  const apres=normalizeBasicTrainingStateV411(apresBrut,Date.now());
+
+  function niveau_(skill){
+    return Math.max(
+      0,
+      nombreSorealIdle_(skill&&skill.level,0)+
+      Math.max(
+        0,
+        Math.min(
+          .999999999,
+          nombreSorealIdle_(skill&&skill.progress,0)
+        )
+      )
+    );
+  }
+
+  function moyennePuissance13_(a,b){
+    const x0=Math.max(0,nombreSorealIdle_(a,0));
+    const x1=Math.max(x0,nombreSorealIdle_(b,x0));
+    if(Math.abs(x1-x0)<1e-12)return Math.pow(x1,1.3);
+    return (
+      Math.pow(x1,2.3)-
+      Math.pow(x0,2.3)
+    )/(2.3*(x1-x0));
+  }
+
+  let defenseMoyenne=
+    Math.max(
+      0,
+      nombreSorealIdle_(
+        BASIC_TRAINING_V411.naturalDefense,
+        100
+      )
+    );
+
+  for(const def of BASIC_TRAINING_V411.skills){
+    if(def.group!=="defense")continue;
+
+    const s0=avant.skills&&avant.skills[def.id];
+    const s1=apres.skills&&apres.skills[def.id];
+    const l0=niveau_(s0);
+    const l1=niveau_(s1);
+    let debutFenetre=l0;
+    let moyenneNiveau13=Math.pow(l0,1.3);
+
+    if(btSec>1e-9){
+      if(hpSec>=btSec){
+        const moyenneBt=moyennePuissance13_(l0,l1);
+        const extra=hpSec-btSec;
+        moyenneNiveau13=
+          (
+            moyenneBt*btSec+
+            Math.pow(l0,1.3)*extra
+          )/hpSec;
+      }else{
+        const fraction=hpSec/btSec;
+        debutFenetre=
+          l1-(l1-l0)*fraction;
+        moyenneNiveau13=
+          moyennePuissance13_(
+            debutFenetre,
+            l1
+          );
+      }
+    }
+
+    defenseMoyenne+=
+      moyenneNiveau13*
+      Math.max(
+        0,
+        nombreSorealIdle_(def.baseValue,0)
+      );
+  }
+
+  return Math.max(0,defenseMoyenne/20*hpSec);
+}
+
+
 function appliquerProgressionEnergieSorealIdle_(
   feuille,
   ligne
@@ -7395,6 +7497,12 @@ function appliquerProgressionEnergieSorealIdle_(
 
   const maintenantEntrainementV41 =
     Date.now();
+
+  const entrainementAvantV176=
+    normalizeBasicTrainingStateV411(
+      statsRessourceV55.entrainementBase,
+      maintenantEntrainementV41
+    );
 
   const entrainementV41 =
     synchroniserEntrainementBaseSorealIdleV41_(
@@ -7721,8 +7829,13 @@ function appliquerProgressionEnergieSorealIdle_(
 
   if (!combatBossActif) {
     const regenPv =
-      regenPvSecJoueur *
-      ecoulePrisEnCompte;
+      regenPvIntegreeBasicTrainingSorealIdleV176_(
+        entrainementAvantV176,
+        entrainementV41.stats&&
+          entrainementV41.stats.entrainementBase,
+        entrainementV41.secondes,
+        ecoulePrisEnCompte
+      );
 
     pvJoueur =
       Math.min(
