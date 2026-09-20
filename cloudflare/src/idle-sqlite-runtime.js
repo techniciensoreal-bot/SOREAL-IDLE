@@ -4631,6 +4631,28 @@ function statsJoueurSorealIdle_(valeur) {
         ? s.bestiaireRencontres
         : {},
 
+    bestiaireBossRunVersionV207:
+      Math.max(
+        0,
+        Math.floor(
+          nombreSorealIdle_(
+            s.bestiaireBossRunVersionV207,
+            0
+          )
+        )
+      ),
+
+    bestiaireBossRunMaxNumeroV207:
+      Math.max(
+        0,
+        Math.floor(
+          nombreSorealIdle_(
+            s.bestiaireBossRunMaxNumeroV207,
+            0
+          )
+        )
+      ),
+
     modeleJeuVersion:
       Math.max(
         0,
@@ -4792,6 +4814,77 @@ function marquerRencontreBestiaireSorealIdle_(
 }
 
 
+function marquerRencontreBossPrincipalUneFoisParRunV207_(
+  stats,
+  numero,
+  bossVaincusCourant
+) {
+  if (!stats) return false;
+
+  /*
+   * Avant V207, chaque clic Fight incrémentait "rencontres". Un boss
+   * difficile pouvait donc afficher 7 rencontres simplement parce que le
+   * joueur avait perdu/repris 7 fois, alors que les premiers boss du run
+   * n'étaient comptés qu'une fois. Une rencontre de Boss principal est
+   * désormais comptée UNE fois par run et par boss, pas une fois par
+   * tentative de combat.
+   *
+   * Migration douce : au premier appel sur une ancienne sauvegarde, les
+   * boss déjà vaincus dans le run courant sont considérés comme déjà
+   * rencontrés ; on ne les recompte pas artificiellement.
+   */
+  if (stats.bestiaireBossRunVersionV207 !== 207) {
+    stats.bestiaireBossRunVersionV207 = 207;
+    stats.bestiaireBossRunMaxNumeroV207 =
+      Math.max(
+        0,
+        Math.floor(
+          nombreSorealIdle_(
+            bossVaincusCourant,
+            0
+          )
+        )
+      );
+  }
+
+  const n =
+    Math.max(
+      1,
+      Math.floor(
+        nombreSorealIdle_(
+          numero,
+          1
+        )
+      )
+    );
+
+  if (
+    n <=
+    Math.max(
+      0,
+      Math.floor(
+        nombreSorealIdle_(
+          stats.bestiaireBossRunMaxNumeroV207,
+          0
+        )
+      )
+    )
+  ) {
+    return false;
+  }
+
+  const nouveau =
+    marquerRencontreBestiaireSorealIdle_(
+      stats,
+      cleBestiaireBossPrincipalSorealIdle_(n)
+    );
+
+  stats.bestiaireBossRunMaxNumeroV207 = n;
+
+  return nouveau;
+}
+
+
 function construireBestiaireSorealIdle_(
   row,
   highestBossEver
@@ -4858,7 +4951,48 @@ function construireBestiaireSorealIdle_(
 
   const entrees = [];
 
-  bossCatalogueSorealIdle_()
+  const catalogueBossBestiaireV207 =
+    bossCatalogueSorealIdle_();
+
+  /*
+   * Réparation d'affichage des anciens compteurs pré-V207.
+   * Les boss sont obligatoirement rencontrés dans l'ordre : si le boss N
+   * possède X rencontres uniques de run, aucun boss antérieur ne peut en
+   * avoir moins. Les anciennes tentatives répétées ont malheureusement
+   * détruit cette information exacte ; on applique donc le minimum
+   * historiquement cohérent (suffix max), sans inventer de rencontres
+   * supplémentaires pour les boss plus récents.
+   */
+  const rencontresBossAffichageV207 =
+    catalogueBossBestiaireV207.map(function(_boss,index){
+      const trace =
+        rencontres[
+          cleBestiaireBossPrincipalSorealIdle_(index + 1)
+        ];
+      return Math.max(
+        0,
+        Math.floor(
+          nombreSorealIdle_(
+            trace && trace.rencontres,
+            0
+          )
+        )
+      );
+    });
+
+  for (
+    let i = rencontresBossAffichageV207.length - 2;
+    i >= 0;
+    i -= 1
+  ) {
+    rencontresBossAffichageV207[i] =
+      Math.max(
+        rencontresBossAffichageV207[i],
+        rencontresBossAffichageV207[i + 1]
+      );
+  }
+
+  catalogueBossBestiaireV207
     .forEach(function(boss,index) {
       const cle =
         cleBestiaireBossPrincipalSorealIdle_(
@@ -4908,13 +5042,7 @@ function construireBestiaireSorealIdle_(
           decouvert
             ? Math.max(
                 legacy ? 1 : 0,
-                Math.floor(
-                  nombreSorealIdle_(
-                    trace &&
-                    trace.rencontres,
-                    0
-                  )
-                )
+                rencontresBossAffichageV207[index]
               )
             : 0,
         numero:
@@ -11346,11 +11474,10 @@ function definirCombatBossSorealIdle(
         };
       }
 
-      marquerRencontreBestiaireSorealIdle_(
+      marquerRencontreBossPrincipalUneFoisParRunV207_(
         stats,
-        cleBestiaireBossPrincipalSorealIdle_(
-          bossIndex + 1
-        )
+        bossIndex + 1,
+        bossVaincusCourant
       );
     }
 
@@ -11734,11 +11861,10 @@ function nukerBossSorealIdle(
 
       const bossIndexNuke = bossVaincus;
 
-      marquerRencontreBestiaireSorealIdle_(
+      marquerRencontreBossPrincipalUneFoisParRunV207_(
         stats,
-        cleBestiaireBossPrincipalSorealIdle_(
-          bossIndexNuke + 1
-        )
+        bossIndexNuke + 1,
+        bossVaincus
       );
 
       const xpReelleNuke =
@@ -13555,6 +13681,9 @@ function renaitreSorealIdle(
     }
     stats.autoAventure=false;
     stats.autoAventureZone=0;
+
+    stats.bestiaireBossRunVersionV207=207;
+    stats.bestiaireBossRunMaxNumeroV207=0;
 
     stats.entrainementBase = rebirthBasicTrainingStateV411(
       stats.entrainementBase,
