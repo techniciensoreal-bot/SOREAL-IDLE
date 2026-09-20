@@ -10,7 +10,7 @@ const media=fs.readFileSync(new URL("../src/idle-media-v1.js",import.meta.url),"
 const ngu=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
 const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
 
-assert.ok(index.includes("/modules/audio-effects-v199.js?v=208")&&index.includes("/modules/tutorial-tts-v202.js?v=208")&&index.includes("/soreal-idle-ui.js?v=208"),"Assets V207 non cache-bustés.");
+assert.ok(index.includes("/modules/audio-effects-v199.js?v=208")&&index.includes("/modules/tutorial-tts-v202.js?v=208")&&index.includes("/soreal-idle-ui.js?v=209"),"Assets V207 non cache-bustés.");
 
 for(const token of ["background:#071226","soreal-idle-loading-card","soreal-idle-loading-banner","1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb","standaloneProgress","standalonePercent"]){
   assert.ok(index.includes(token),"Écran de chargement bleu manquant: "+token);
@@ -42,7 +42,7 @@ for(const token of ["readText:function(value)","sorealIdleBossChroniqueV206","�
   assert.ok((tts+ui).includes(token),"TTS chroniques Boss manquant: "+token);
 }
 
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V208</b>'),"Settings doit afficher V208.");
+assert.ok(ui.includes('Build <b style="color:#dce5f3">V209</b>'),"Settings doit afficher V208.");
 new Function(ui);
 new Function("window","document",audio);
 new Function("window","document","localStorage",tts);
