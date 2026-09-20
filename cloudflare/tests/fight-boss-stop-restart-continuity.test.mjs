@@ -30,10 +30,9 @@ assert.match(
   ui,
   /runner\.definirCombatBossSorealIdle\([\s\S]{0,240}commandeCombat\.snapshot/
 );
-assert.match(
-  ui,
-  /!idleEtat\.combatBossActif[\s\S]{0,220}idleEtat\.bossPv>0[\s\S]{0,500}idleEtat\.regenBoss/
-);
+assert.match(ui,/const regenBossParSecV172=/);
+assert.match(ui,/idleEtat\.regenBoss/);
+assert.match(ui,/idleEtat\.bossPv<\s*idleNombre_\(idleEtat\.bossPvMax\)/);
 assert.match(
   ui,
   /if\(!idleEtat\.combatBossActif\)\{[\s\S]{0,180}rafraichirCommandesFightBossIdleV167_\(\)/
