@@ -946,8 +946,8 @@ function baseState(now) {
     if (def.id === "yggdrasil") s.data = createYggdrasilData();
     if (def.id === "diggers") s.data = createDiggersData();
     if (def.id === "wandoos") s.data = createWandoosData();
-    if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0 };
-    if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0 };
+    if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0, history: [] };
+    if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0, history: [] };
     if (def.id === "titans") s.data = { nextAt: 0, kills: 0, firstTitanDefeated: false };
     systems[def.id] = s;
   }
@@ -3848,7 +3848,26 @@ function tossMoneyPit(state, now) {
   for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
   if (boostGrant) idleAdventureAddItemV1(state.adventure, boostGrant);
 
-  return { cost, tier, reward, boost: boostGrant ? { type: boostGrant.boostType, strength: boostGrant.strength } : null, cooldownHours, nextAt: s.data.nextAt };
+  const resultat={
+    cost,
+    tier,
+    reward,
+    boost:boostGrant ? { type: boostGrant.boostType, strength: boostGrant.strength } : null,
+    cooldownHours,
+    nextAt:s.data.nextAt
+  };
+
+  const historique=Array.isArray(s.data.history)?s.data.history:[];
+  historique.unshift({
+    at:now,
+    cost,
+    tier,
+    reward:Object.assign({},reward),
+    boost:resultat.boost
+  });
+  s.data.history=historique.slice(0,20);
+
+  return resultat;
 }
 
 function dailySpinTierV48_(spins) {
@@ -3913,7 +3932,24 @@ function spinDaily(state, now) {
   // 24h cadence with up to 12h of lateness banked toward the next spin.
   const bankedMs = Math.min(12 * 3600000, Math.max(0, now - previousReadyAt));
   s.data.readyAt = now + 24 * 3600000 - bankedMs;
-  return { reward, tier, totalSpins: s.data.totalSpins, bankedMs, readyAt: s.data.readyAt };
+
+  const resultat={
+    reward,
+    tier,
+    totalSpins:s.data.totalSpins,
+    bankedMs,
+    readyAt:s.data.readyAt
+  };
+  const historique=Array.isArray(s.data.history)?s.data.history:[];
+  historique.unshift({
+    at:now,
+    tier,
+    reward:Object.assign({},reward),
+    totalSpins:s.data.totalSpins
+  });
+  s.data.history=historique.slice(0,20);
+
+  return resultat;
 }
 
 function challengeNguLevels(state) {
