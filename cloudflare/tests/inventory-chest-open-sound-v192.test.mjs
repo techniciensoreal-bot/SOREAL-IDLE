@@ -29,4 +29,14 @@ assert.doesNotMatch(
   "Fermer le Coffre ne doit pas rejouer le son d'ouverture."
 );
 
+const clickStart=ui.indexOf("function clicCoffreAdventureIdleV1_");
+const clickEnd=ui.indexOf("window.__clicCoffreAdventureIdleV1__",clickStart);
+assert.ok(clickStart>=0&&clickEnd>clickStart,"Clic direct sur le Coffre introuvable.");
+const clickBlock=ui.slice(clickStart,clickEnd);
+assert.match(
+  clickBlock,
+  /if\(!idleAdventureSelectionIdV138\)\{[\s\S]*?toggleCoffreOuvertAdventureIdleV1_\(\)/,
+  "Un clic sur l'icône du Coffre sans objet sélectionné doit ouvrir/fermer le Coffre."
+);
+
 console.log("Inventory chest opening sound: OK");
