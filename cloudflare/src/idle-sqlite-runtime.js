@@ -597,8 +597,10 @@ const CONFIG_SOREAL_IDLE = {
   DEGATS_BOSS_MIN_PCT: 0.12,
   ATTAQUE_BOSS_BASE: 2,
   MULTIPLICATEUR_ATTAQUE_BOSS: 1.32,
-  DUREE_KO_SECONDES: 10,
-
+  /*
+   * Fight Boss : aucune durée de K.O. NGU.
+   * KO_JUSQUA reste une colonne historique uniquement, toujours vidée.
+   */
   AVENTURE: {
     NIVEAU_DEBLOCAGE: 2,
     ENNEMIS_PAR_ZONE: 5,
@@ -5977,46 +5979,50 @@ function regenBossSecondeSorealIdle_(
   bossIndex,
   pvMax
 ) {
-  let soinSeconde = 0;
+  /*
+   * Fight Boss NGU expose un HP Regen propre au boss (bf_hp_regen).
+   * Ce n'est PAS Defense/20 : cette formule appartient au joueur.
+   * nguBossStatsV1 fournit désormais cette valeur sourcée sous "regen".
+   *
+   * On met à l'échelle par le ratio PV réels / PV de référence afin que
+   * les difficultés Evil/Sadistic, qui divisent les stats Fight Boss,
+   * conservent la même proportion sans dupliquer une seconde table.
+   */
+  const reference=
+    nguBossStatsV1(
+      bossIndex
+    );
 
-  capaciteBossSorealIdle_(
-    bossIndex,
-    'regen'
-  ).forEach(function(capacite) {
-    const intervalle =
-      Math.max(
-        0.01,
-        nombreSorealIdle_(
-          capacite.intervalle,
-          0
-        )
-      );
+  const pvReference=
+    Math.max(
+      1,
+      nombreSorealIdle_(
+        reference&&reference.pv,
+        1
+      )
+    );
 
-    const pourcent =
-      Math.max(
-        0,
-        nombreSorealIdle_(
-          capacite.valeur,
-          0
-        )
-      );
+  const regenReference=
+    Math.max(
+      0,
+      nombreSorealIdle_(
+        reference&&reference.regen,
+        0
+      )
+    );
 
-    soinSeconde +=
-      Math.max(
-        0,
-        nombreSorealIdle_(
-          pvMax,
-          0
-        )
-      ) *
-      pourcent /
-      100 /
-      intervalle;
-  });
+  const ratioPv=
+    Math.max(
+      0,
+      nombreSorealIdle_(
+        pvMax,
+        pvReference
+      )
+    )/
+    pvReference;
 
-  return soinSeconde;
+  return regenReference*ratioPv;
 }
-
 
 function multiplicateurAttaqueBossSorealIdle_(
   bossIndex,
@@ -7723,6 +7729,27 @@ function appliquerProgressionEnergieSorealIdle_(
         pvJoueurMax,
         pvJoueur + regenPv
       );
+
+    /*
+     * Après une défaite ou une fuite, le boss conserve les PV qu'il lui
+     * restait puis remonte progressivement selon SON HP Regen Fight Boss.
+     * Un boss réellement vaincu (0 PV) ne ressuscite jamais ici.
+     */
+    if(
+      bossPv>0 &&
+      bossPv<bossPvMax
+    ){
+      bossPv=
+        Math.min(
+          bossPvMax,
+          bossPv+
+          regenBossSecondeSorealIdle_(
+            bossCombatIndex,
+            bossPvMax
+          )*
+          ecoulePrisEnCompte
+        );
+    }
   }
 
 
@@ -7747,19 +7774,11 @@ function appliquerProgressionEnergieSorealIdle_(
   void resteEnergieAvantProgressionMs;
   void energieApresProduction;
 
-  const koBrut =
-    row[c.KO_JUSQUA - 1];
-
-  let koJusqua =
-    koBrut instanceof Date
-      ? koBrut.getTime()
-      : new Date(
-          koBrut || 0
-        ).getTime();
-
-  if (!Number.isFinite(koJusqua)) {
-    koJusqua = 0;
-  }
+  /*
+   * Ancienne colonne KO_JUSQUA : conservée dans le schéma pour ne pas
+   * casser les sauvegardes existantes, mais Fight Boss n'utilise plus
+   * aucun compte à rebours de K.O.
+   */
 
   /*
    * Un boss déjà à 0 PV doit toujours passer dans la logique
@@ -7806,62 +7825,18 @@ function appliquerProgressionEnergieSorealIdle_(
   ) {
     iterations += 1;
 
-    if (
-      koJusqua > tempsSimulation
-    ) {
-      const attente =
-        Math.min(
-          tempsRestant,
-          (koJusqua - tempsSimulation) /
-          1000
-        );
-
-      tempsRestant -= attente;
-      tempsSimulation +=
-        attente * 1000;
-
-      /*
-       * Norman (2026-09-15, en testant en direct) : après un K.O., la vie
-       * revenait trop vite. Cause : ce K.O. remettait pvJoueur à
-       * pvJoueurMax instantanément dès la fin du décompte, au lieu de
-       * régénérer progressivement comme partout ailleurs (repos hors
-       * combat, Aventure Safe Zone). Vérifié sur le wiki NGU (Safe Zone:
-       * Awakening Site) : "Every time the player is defeated they return
-       * here to heal" — la récupération après défaite est TOUJOURS
-       * progressive dans NGU, jamais un reset instantané. Le K.O. ne fait
-       * donc plus que débloquer le combat ; la vie continue de régénérer
-       * au même taux (regenPvSecJoueur, Defense/20 — voir plus haut)
-       * pendant l'attente elle-même.
-       */
-      pvJoueur =
-        Math.min(
-          pvJoueurMax,
-          pvJoueur +
-          regenPvSecJoueur *
-          attente
-        );
-
-      if (
-        tempsSimulation + 1 >= koJusqua
-      ) {
-        koJusqua = 0;
-      }
-
-      continue;
-    }
-
+    /*
+     * Aucun état K.O. intermédiaire. Si une ancienne sauvegarde arrive
+     * déjà à 0 PV alors qu'un combat est encore marqué actif, la défaite
+     * arrête simplement le combat et la récupération hors combat repart
+     * de 0 à la prochaine progression.
+     */
     if (pvJoueur <= 0) {
-      bossPv=bossPvMax;
-
+      pvJoueur=0;
       koSubis += 1;
-
-      koJusqua =
-        tempsSimulation +
-        CONFIG_SOREAL_IDLE
-          .DUREE_KO_SECONDES *
-        1000;
-
-      continue;
+      statsCombat.combatBossActif=false;
+      combatBossActif=false;
+      break;
     }
 
     const attaqueBoss =
@@ -7972,7 +7947,7 @@ function appliquerProgressionEnergieSorealIdle_(
           dpsBossNet
         : Number.POSITIVE_INFINITY;
 
-    const tempsPourKo =
+    const tempsPourDefaite =
       degatsRecusSec > 0.000001
         ? pvJoueur /
           degatsRecusSec
@@ -7982,7 +7957,7 @@ function appliquerProgressionEnergieSorealIdle_(
       Math.min(
         tempsRestant,
         tempsPourBoss,
-        tempsPourKo
+        tempsPourDefaite
       );
 
     const dommageBoss =
@@ -8027,7 +8002,7 @@ function appliquerProgressionEnergieSorealIdle_(
     const bossMort =
       bossPv===0;
 
-    const joueurKo =
+    const joueurBattu =
       pvJoueur===0;
 
     if (bossMort) {
@@ -8239,23 +8214,27 @@ function appliquerProgressionEnergieSorealIdle_(
         bossPvMax;
     }
 
-    if (joueurKo) {
-      pvJoueur = 0;
-      bossPv = bossPvMax;
-
+    if (joueurBattu) {
+      /*
+       * Défaite Fight Boss façon NGU :
+       * - le coup fatal met immédiatement le joueur à 0 ;
+       * - le combat s'arrête immédiatement ;
+       * - le boss GARDE exactement les PV qu'il lui reste ;
+       * - aucune période K.O. n'est créée.
+       *
+       * À partir du prochain tick hors combat, chacun récupère
+       * progressivement selon sa propre regen.
+       */
+      pvJoueur=0;
       koSubis += 1;
-
-      koJusqua =
-        tempsSimulation +
-        CONFIG_SOREAL_IDLE
-          .DUREE_KO_SECONDES *
-        1000;
+      statsCombat.combatBossActif=false;
+      combatBossActif=false;
     }
 
     if (
       segment <= 0.000001 &&
       !bossMort &&
-      !joueurKo
+      !joueurBattu
     ) {
       break;
     }
@@ -8278,12 +8257,6 @@ function appliquerProgressionEnergieSorealIdle_(
       bossCombatIndex
     );
 
-  const koActif =
-    koJusqua > maintenant;
-
-  if (!koActif && pvJoueur <= 0) {
-    pvJoueur = pvJoueurMax;
-  }
 
   /*
    * AUTO-AVENTURE HORS LIGNE
@@ -8944,11 +8917,12 @@ function appliquerProgressionEnergieSorealIdle_(
   feuille.getRange(ligne,c.PV_JOUEUR).setValue(Math.max(0,Math.round(pvJoueur)));
   feuille.getRange(ligne,c.PV_JOUEUR_MAX).setValue(pvJoueurMax);
 
-  if (koActif) {
-    feuille.getRange(ligne,c.KO_JUSQUA).setValue(new Date(koJusqua));
-  } else {
-    feuille.getRange(ligne,c.KO_JUSQUA).clearContent();
-  }
+  /*
+   * Plus aucun K.O. Fight Boss persistant.
+   * Nettoie également les anciennes sauvegardes qui avaient encore
+   * une date KO_JUSQUA.
+   */
+  feuille.getRange(ligne,c.KO_JUSQUA).clearContent();
 
   feuille
     .getRange(
@@ -9225,25 +9199,11 @@ function construireEtatJoueurSorealIdle_(
       row[c.BOSS_VAINCUS - 1]
     );
 
-  const koDateBrute =
-    row[c.KO_JUSQUA - 1];
-
-  const koTimestamp =
-    dateSorealIdle_(
-      koDateBrute,
-      0
-    );
-
-  const koSecondesRestantes =
-    Number.isFinite(koTimestamp)
-      ? Math.max(
-          0,
-          Math.ceil(
-            (koTimestamp - Date.now()) /
-            1000
-          )
-        )
-      : 0;
+  /*
+   * Champs legacy conservés dans la réponse pour compatibilité avec de
+   * vieux clients, mais le système K.O. Fight Boss n'existe plus.
+   */
+  const koSecondesRestantes=0;
 
   const dateDebutBrute =
     row[c.DATE_DEBUT - 1];
@@ -9778,6 +9738,21 @@ function construireEtatJoueurSorealIdle_(
     defenseBoss:
       defenseBossSelection,
 
+    regenBoss:
+      regenBossSecondeSorealIdle_(
+        bossSelectionIndex,
+        Math.max(
+          1,
+          nombreSorealIdle_(
+            row[c.BOSS_PV_MAX - 1],
+            pvMaxBossSorealIdle_(
+              bossSelectionIndex,
+              metaNguEtat.difficulty
+            )
+          )
+        )
+      ),
+
     degatsRecusSeconde:
       degatsRecusSecondeSorealIdle_(
         bossSelectionIndex,
@@ -9814,9 +9789,7 @@ function construireEtatJoueurSorealIdle_(
     koSecondesRestantes:
       koSecondesRestantes,
 
-    dureeKoSecondes:
-      CONFIG_SOREAL_IDLE
-        .DUREE_KO_SECONDES,
+    dureeKoSecondes: 0,
 
     pieces:
       Math.max(
@@ -10963,6 +10936,18 @@ function definirCombatBossSorealIdle(
     const c =
       CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
 
+    /*
+     * Au STOP (défaite OU fuite), rejouer d'abord le temps écoulé jusqu'à
+     * maintenant. Ainsi les PV du boss persistés correspondent au combat
+     * réellement joué, au lieu de repartir d'un snapshot réseau plus ancien.
+     */
+    if(!Boolean(actif)){
+      appliquerProgressionEnergieSorealIdle_(
+        feuille,
+        ligne
+      );
+    }
+
     const stats =
       statsJoueurSorealIdle_(
         feuille
@@ -10973,51 +10958,21 @@ function definirCombatBossSorealIdle(
           .getValue()
       );
 
-    /*
-     * V170 — un K.O. n'est pas une Fuite.
-     * raison="ko" arrête les coups serveur sans supprimer la récupération.
-     */
-    const raisonArret =
+    const raisonArret=
       String(raison||'')
         .trim()
         .toLowerCase();
 
-    const arretApresKo =
-      !Boolean(actif) &&
-      raisonArret==='ko';
+    const arretApresDefaite=
+      !Boolean(actif)&&
+      raisonArret==='defaite';
 
     /*
-     * Fight Boss doit être idempotent. Un double/multi-clic sur Fight ne
-     * doit jamais réinitialiser le démarrage du même combat ni permettre
-     * de repartir pendant le K.O. Le client applique le même garde, mais
-     * le serveur le répète pour qu'aucun appel rapide/direct ne puisse le
-     * contourner.
+     * Fight Boss reste idempotent : un double clic sur Fight ne recrée
+     * jamais le combat. Il n'existe en revanche plus aucun verrou K.O.
      */
     if(Boolean(actif)&&stats.combatBossActif){
       return {ok:true,actif:true,dejaActif:true};
-    }
-
-    if(Boolean(actif)){
-      const koBrut=
-        feuille
-          .getRange(
-            ligne,
-            c.KO_JUSQUA
-          )
-          .getValue();
-      const koJusquaMs=
-        koBrut instanceof Date
-          ?koBrut.getTime()
-          :Math.max(0,nombreSorealIdle_(koBrut,0));
-
-      if(koJusquaMs>Date.now()){
-        return {
-          ok:false,
-          code:'JOUEUR_KO',
-          actif:false,
-          message:'K.O. : attends la fin de la récupération avant de relancer Fight.'
-        };
-      }
     }
 
     if (Boolean(actif)) {
@@ -11088,6 +11043,15 @@ function definirCombatBossSorealIdle(
     stats.combatBossActif =
       Boolean(actif);
 
+    if(Boolean(actif)){
+      feuille
+        .getRange(
+          ligne,
+          c.KO_JUSQUA
+        )
+        .clearContent();
+    }
+
     feuille
       .getRange(
         ligne,
@@ -11123,122 +11087,37 @@ function definirCombatBossSorealIdle(
           )
         );
 
-      if(arretApresKo){
-        /*
-         * K.O. Fight Boss : conserver 0 PV et un vrai délai K.O. côté
-         * serveur. La prochaine progression hors combat remontera alors
-         * naturellement depuis 0 via regenPvSecJoueur = Defense/20.
-         */
-        const maintenantKo=Date.now();
-
+      /*
+       * Aucun K.O. et aucun reset de boss :
+       * - défaite : le joueur est persisté à 0 PV ;
+       * - fuite : ses PV courants sont conservés ;
+       * - dans les deux cas, le boss conserve ses PV courants ;
+       * - les deux barres régénèrent ensuite hors combat.
+       */
+      if(arretApresDefaite){
         feuille
           .getRange(
             ligne,
             c.PV_JOUEUR
           )
           .setValue(0);
-
-        feuille
-          .getRange(
-            ligne,
-            c.KO_JUSQUA
-          )
-          .setValue(
-            new Date(
-              maintenantKo+
-              CONFIG_SOREAL_IDLE.DUREE_KO_SECONDES*1000
-            )
-          );
-
-        feuille
-          .getRange(
-            ligne,
-            c.DERNIERE_SYNCHRO
-          )
-          .setValue(
-            new Date(maintenantKo)
-          );
-      }else{
-        /*
-         * STOP explicite = fuite du combat.
-         * Le joueur retourne à la salle de repos et le boss récupère
-         * immédiatement 100 % de ses PV.
-         */
-        const bossVaincus =
-          Math.max(
-            0,
-            Math.floor(
-              nombreSorealIdle_(
-                feuille
-                  .getRange(
-                    ligne,
-                    c.BOSS_VAINCUS
-                  )
-                  .getValue(),
-                0
-              )
-            )
-          );
-
-        const bossIndex =
-          stats.bossSelection > 0
-            ? Math.max(
-                0,
-                Math.min(
-                  bossVaincus,
-                  stats.bossSelection - 1
-                )
-              )
-            : bossVaincus;
-
-        const boss =
-          definitionBossSorealIdle_(
-            bossIndex
-          );
-
-        feuille
-          .getRange(
-            ligne,
-            c.BOSS_ACTUEL
-          )
-          .setValue(
-            boss.nom
-          );
-
-        feuille
-          .getRange(
-            ligne,
-            c.BOSS_PV_MAX
-          )
-          .setValue(
-            boss.pv
-          );
-
-        feuille
-          .getRange(
-            ligne,
-            c.BOSS_PV
-          )
-          .setValue(
-            boss.pv
-          );
-
-        feuille
-          .getRange(
-            ligne,
-            c.KO_JUSQUA
-          )
-          .clearContent();
-
-        feuille
-          .getRange(
-            ligne,
-            c.DERNIERE_SYNCHRO
-          )
-          .setValue(
-            new Date()
-          );
       }
+
+      feuille
+        .getRange(
+          ligne,
+          c.KO_JUSQUA
+        )
+        .clearContent();
+
+      feuille
+        .getRange(
+          ligne,
+          c.DERNIERE_SYNCHRO
+        )
+        .setValue(
+          new Date()
+        );
 
       stats.bossStunJusqua = 0;
       stats.bossVulnerableJusqua = 0;
