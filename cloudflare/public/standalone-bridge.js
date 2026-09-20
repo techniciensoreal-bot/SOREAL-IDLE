@@ -4,6 +4,31 @@
   const SESSION_KEY="soreal_idle_session_v1";
   const TIMEOUT_MS=15000;
 
+  /*
+   * Le frontend IDLE autonome ne charge plus Soreal_JS_01_Coeur.html.
+   * Soreal_Idle_UI utilisait historiquement ces helpers globaux fournis
+   * par APP. Ils appartiennent désormais au shell autonome.
+   */
+  function escapeHtmlV1(value){
+    return String(value==null?"":value)
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+  }
+
+  function escapeAttrV1(value){
+    return escapeHtmlV1(value).replace(/`/g,"&#096;");
+  }
+
+  if(typeof window.escapeHtml!=="function"){
+    window.escapeHtml=escapeHtmlV1;
+  }
+  if(typeof window.escapeAttr!=="function"){
+    window.escapeAttr=escapeAttrV1;
+  }
+
   function statusV1(message, error){
     const el=document.getElementById("standaloneStatus");
     if(!el)return;
