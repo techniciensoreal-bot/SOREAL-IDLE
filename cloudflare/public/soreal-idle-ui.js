@@ -11128,9 +11128,14 @@
                   )
                 :0;
 
+            const joueurServeurProtegeV208=
+              protegerJoueurServeurInventaireIdleV208_(
+                res.joueur
+              );
+
             const joueurSynchronise=
               appliquerSuppressionsLocalesRecycleV38_(
-                res.joueur
+                joueurServeurProtegeV208
               );
 
             if(
@@ -19905,8 +19910,12 @@
                * Même garde-fou réutilisé avant l'écrasement brut.
                */
               const adventureRestPvAvantSortV1=idleEtat&&idleEtat.adventureRestPv;
-              if(!appliquerSynchroCombatSansReflowIdleV116_(res.joueur)){
-                idleEtat=res.joueur;
+              const joueurSortProtegeV208=
+                protegerJoueurServeurInventaireIdleV208_(
+                  res.joueur
+                );
+              if(!appliquerSynchroCombatSansReflowIdleV116_(joueurSortProtegeV208)){
+                idleEtat=joueurSortProtegeV208;
                 if(adventureRestPvAvantSortV1!=null)idleEtat.adventureRestPv=adventureRestPvAvantSortV1;
               }
 
@@ -22472,6 +22481,169 @@ let idleDialogueTimerV76=null;
       let idleInventoryConfirmedAdventureV160=null;
       let idleInventoryDeferredPatchV160=false;
 
+      /*
+       * V208 — barrière anti-rollback globale de l'Adventure Inventory.
+       *
+       * V160/V183 savaient déjà rejouer les mutations optimistes et garder
+       * une fusion visible pendant un retry. Il restait toutefois deux
+       * courses :
+       *  - une synchro/une action Aventure partie AVANT la fusion pouvait
+       *    répondre APRÈS et réinjecter un snapshot plus ancien ;
+       *  - un timeout pouvait cacher une fusion réellement appliquée côté
+       *    serveur, puis son retry tentait de consommer à nouveau le même
+       *    objet.
+       *
+       * Le moteur expose maintenant adventure.revision (monotone). Tant
+       * qu'une mutation Inventory est en vol, les champs d'inventaire du
+       * snapshot serveur sont donc mis en attente et l'état optimiste local
+       * reste affiché. Une réponse de révision plus ancienne ne peut plus
+       * reprendre le dessus. Le snapshot différé le plus récent est appliqué
+       * dès que la file FIFO est vide.
+       */
+      let idleAdventureRevisionServeurV208=0;
+      let idleAdventureSnapshotDiffereV208=null;
+
+      const IDLE_ADVENTURE_INVENTORY_FIELDS_V208=[
+        'inventory','inventorySlots','equipment','itemList',
+        'completedSets','setRewards','permanent','unlockItems','unlockFlags',
+        'skillState','cube','cubeTier','inventoryCapacity','inventoryUsed',
+        'accessorySlotsCapacity','stats','trash','coffreSlots'
+      ];
+
+      function revisionAdventureServeurIdleV208_(a){
+        return Math.max(0,idleEntier_(a&&a.revision));
+      }
+
+      function fusionnerAdventureServeurAvecInventaireLocalV208_(serveur,local){
+        if(!serveur)return serveur;
+        if(!local)return cloneInventaireIdleV160_(serveur);
+        const fusion=cloneInventaireIdleV160_(serveur);
+        IDLE_ADVENTURE_INVENTORY_FIELDS_V208.forEach(function(cle){
+          if(Object.prototype.hasOwnProperty.call(local,cle)){
+            fusion[cle]=cloneInventaireIdleV160_(local[cle]);
+          }
+        });
+        return fusion;
+      }
+
+      function joueurAvecAdventureIdleV208_(joueur,aventure){
+        if(!joueur||!aventure)return joueur;
+        const copie=Object.assign({},joueur);
+        copie.systemes=Object.assign({},joueur.systemes||{});
+        copie.systemes.adventure=aventure;
+        return copie;
+      }
+
+      function memoriserAdventureDiffereeIdleV208_(aventure){
+        if(!aventure)return;
+        const revision=revisionAdventureServeurIdleV208_(aventure);
+        const precedente=revisionAdventureServeurIdleV208_(
+          idleAdventureSnapshotDiffereV208
+        );
+        if(!idleAdventureSnapshotDiffereV208||revision>precedente){
+          idleAdventureSnapshotDiffereV208=
+            cloneInventaireIdleV160_(aventure);
+        }
+      }
+
+      function protegerJoueurServeurInventaireIdleV208_(joueur){
+        if(!joueur)return joueur;
+        const serveur=aventureMetaIdleV47_(joueur);
+        if(!serveur)return joueur;
+
+        const revision=revisionAdventureServeurIdleV208_(serveur);
+        const local=idleEtat?aventureMetaIdleV47_(idleEtat):null;
+        const mutationEnCours=Boolean(
+          idleInventoryBusyV160||
+          idleInventoryMutationQueueV160.length
+        );
+
+        if(mutationEnCours&&local){
+          memoriserAdventureDiffereeIdleV208_(serveur);
+          idleAdventureRevisionServeurV208=Math.max(
+            idleAdventureRevisionServeurV208,
+            revision
+          );
+          return joueurAvecAdventureIdleV208_(
+            joueur,
+            fusionnerAdventureServeurAvecInventaireLocalV208_(
+              serveur,
+              local
+            )
+          );
+        }
+
+        if(
+          local&&
+          revision<idleAdventureRevisionServeurV208
+        ){
+          return joueurAvecAdventureIdleV208_(
+            joueur,
+            fusionnerAdventureServeurAvecInventaireLocalV208_(
+              serveur,
+              local
+            )
+          );
+        }
+
+        idleAdventureRevisionServeurV208=Math.max(
+          idleAdventureRevisionServeurV208,
+          revision
+        );
+        idleInventoryConfirmedAdventureV160=
+          cloneInventaireIdleV160_(serveur);
+        return joueur;
+      }
+
+      function appliquerAdventureDiffereeIdleV208_(){
+        if(
+          idleInventoryBusyV160||
+          idleInventoryMutationQueueV160.length||
+          !idleAdventureSnapshotDiffereV208||
+          !idleEtat
+        ){
+          return false;
+        }
+
+        const differee=idleAdventureSnapshotDiffereV208;
+        idleAdventureSnapshotDiffereV208=null;
+
+        const revisionDifferee=
+          revisionAdventureServeurIdleV208_(differee);
+        const revisionConfirmee=
+          revisionAdventureServeurIdleV208_(
+            idleInventoryConfirmedAdventureV160
+          );
+
+        if(revisionDifferee<=revisionConfirmee){
+          return false;
+        }
+
+        const courant=aventureMetaIdleV47_(idleEtat);
+        const fightLocal=
+          courant&&courant.fight&&courant.fight.active
+            ?cloneInventaireIdleV160_(courant.fight)
+            :null;
+        const prochain=cloneInventaireIdleV160_(differee);
+        if(fightLocal)prochain.fight=fightLocal;
+
+        idleEtat.systemes=Object.assign({},idleEtat.systemes||{});
+        idleEtat.systemes.adventure=prochain;
+        idleInventoryConfirmedAdventureV160=
+          cloneInventaireIdleV160_(differee);
+        idleAdventureRevisionServeurV208=Math.max(
+          idleAdventureRevisionServeurV208,
+          revisionDifferee
+        );
+
+        pousserEtatVersRuntimePartageIdleV1_();
+        patchInventaireAdventureIdleV160_(
+          idleEtat,
+          {action:'reconcile-v208',confirmed:true}
+        );
+        return true;
+      }
+
       const idleInventoryPerfV160={
         patches:0,
         nodesCreated:0,
@@ -23399,6 +23571,10 @@ let idleDialogueTimerV76=null;
           if(serveur){
             idleInventoryConfirmedAdventureV160=
               cloneInventaireIdleV160_(serveur);
+            idleAdventureRevisionServeurV208=Math.max(
+              idleAdventureRevisionServeurV208,
+              revisionAdventureServeurIdleV208_(serveur)
+            );
           }
 
           marquePerfInventaireIdleV160_('reconcile-start',tx.id);
@@ -23424,6 +23600,10 @@ let idleDialogueTimerV76=null;
               ?res.message
               :(erreur&&erreur.message?erreur.message:'Erreur Inventory.')
           );
+        }
+
+        if(!idleInventoryMutationQueueV160.length){
+          appliquerAdventureDiffereeIdleV208_();
         }
 
         envoyerProchaineMutationInventaireIdleV160_();
@@ -23466,9 +23646,20 @@ let idleDialogueTimerV76=null;
             cloneInventaireIdleV160_(current);
         }
 
+        const txId=++idleInventorySequenceV160;
+        const mutationPayload=
+          cloneInventaireIdleV160_(payload||{});
+        if(!mutationPayload.clientMutationId){
+          mutationPayload.clientMutationId=
+            'inv-'+
+            Date.now().toString(36)+'-'+
+            String(txId)+'-'+
+            Math.random().toString(36).slice(2,10);
+        }
+
         const tx={
-          id:++idleInventorySequenceV160,
-          payload:cloneInventaireIdleV160_(payload||{}),
+          id:txId,
+          payload:mutationPayload,
           audioCue:cueAudioMutationInventaireIdleV199_(current,payload||{}),
           createdAt:Date.now()
         };
@@ -27876,8 +28067,12 @@ function pageAventureIdleV28_(j){
                * local conservé) et ne doit alors PAS être réécrasé ici.
                */
               const adventureRestPvAvantV1=idleEtat&&idleEtat.adventureRestPv;
-              if(!appliquerSynchroCombatSansReflowIdleV116_(res.joueur)){
-                idleEtat=res.joueur;
+              const joueurMetaProtegeV208=
+                protegerJoueurServeurInventaireIdleV208_(
+                  res.joueur
+                );
+              if(!appliquerSynchroCombatSansReflowIdleV116_(joueurMetaProtegeV208)){
+                idleEtat=joueurMetaProtegeV208;
                 if(adventureRestPvAvantV1!=null)idleEtat.adventureRestPv=adventureRestPvAvantV1;
               }
 
@@ -27951,7 +28146,7 @@ function pageAventureIdleV28_(j){
 
               if(!estCycleCombatZoneV1){
                 if(estMutationInventaireAdventureV1){
-                  const aventureFraicheV1=aventureMetaIdleV47_(res.joueur);
+                  const aventureFraicheV1=aventureMetaIdleV47_(joueurMetaProtegeV208);
                   const aventureCouranteV1=aventureMetaIdleV47_(idleEtat);
                   const fightLocalV1=aventureCouranteV1&&aventureCouranteV1.fight&&aventureCouranteV1.fight.active
                     ?aventureCouranteV1.fight
@@ -27975,7 +28170,7 @@ function pageAventureIdleV28_(j){
                 }else{
                   rendreIdleEtat_({
                     ok:true,
-                    joueur:res.joueur
+                    joueur:joueurMetaProtegeV208
                   });
                 }
               }else if(
@@ -30028,7 +30223,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V207</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V208</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
@@ -30842,6 +31037,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           return;
         }
 
+        const joueurRenduProtegeV208=
+          protegerJoueurServeurInventaireIdleV208_(
+            res.joueur
+          );
+
         if(window.__SOREAL_IDLE_INVENTORY_PERF_V160__){
           window.__SOREAL_IDLE_INVENTORY_PERF_V160__.globalRenders+=1;
         }
@@ -30883,11 +31083,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const adventureRestPvAvantV2=idleEtat&&idleEtat.adventureRestPv;
         const synchroCombatSansReflowV179=
           appliquerSynchroCombatSansReflowIdleV116_(
-            res.joueur
+            joueurRenduProtegeV208
           );
 
         if(!synchroCombatSansReflowV179){
-          idleEtat=res.joueur;
+          idleEtat=joueurRenduProtegeV208;
           if(adventureRestPvAvantV2!=null&&idleEtat.adventureRestPv==null){
             idleEtat.adventureRestPv=adventureRestPvAvantV2;
           }
