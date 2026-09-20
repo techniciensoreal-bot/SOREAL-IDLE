@@ -22,10 +22,10 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=201')&&
+  index.includes('/modules/audio-effects-v199.js?v=202')&&
   index.includes('/modules/long-press-v200.js?v=200')&&
   index.includes('/soreal-idle-ui.js?v=200')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=201')<
+  index.indexOf('/modules/audio-effects-v199.js?v=202')<
     index.indexOf('/soreal-idle-ui.js?v=200'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
@@ -52,12 +52,12 @@ for(const method of [
 }
 
 assert.ok(
-  audio.includes('new SpeechSynthesisUtterance("Fight!")')&&
+  audio.includes('new SpeechSynthesisUtterance("FIGHT!")')&&
   audio.includes('utterance.lang="en-US"')&&
-  audio.includes("utterance.pitch=.52")&&
-  audio.includes("utterance.rate=1.34")&&
+  audio.includes("utterance.pitch=.10")&&
+  audio.includes("utterance.rate=.72")&&
   audio.includes("utterance.onend=terminer"),
-  "Fight doit être une voix synthétique dont la fin pilote le scheduler."
+  "Fight doit utiliser une voix système très grave et ralentie, dont la fin pilote le scheduler."
 );
 
 assert.ok(
@@ -69,6 +69,13 @@ assert.ok(
   audio.includes('document.addEventListener("touchstart",debloquer_')&&
   audio.includes('document.addEventListener("click",debloquer_'),
   "La WebView doit amorcer réellement Web Audio pendant un geste utilisateur."
+);
+
+assert.ok(
+  audio.includes("function frappe_(delay,force)")&&
+  audio.includes("frappe_(0,1);")&&
+  audio.includes("frappe_(.24,.86);"),
+  "Le gong boss doit être une double frappe très rapprochée (tong-tong)."
 );
 
 assert.ok(
