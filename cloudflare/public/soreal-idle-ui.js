@@ -20594,6 +20594,19 @@
               ?j.renaissance.multiplicateur
               :1;
 
+        const apVisible=Boolean(
+          idleNombre_(monnaies.ap)>0||
+          (systemes.selloutShop&&systemes.selloutShop.unlockedEver)
+        );
+        const apExistant=document.getElementById('sorealIdleSummaryApV210');
+        if(apVisible&&!apExistant){
+          const numberNode=document.getElementById('sorealIdleSummaryNumberV50');
+          const grille=numberNode&&numberNode.closest('.soreal-idle-summary-grid-v28');
+          if(grille){
+            grille.outerHTML=resumeStatsIdleV28_(j);
+          }
+        }
+
         const ecrire=function(id,texte){
           const el=document.getElementById(id);
           if(el)el.textContent=texte;
@@ -20651,6 +20664,11 @@
           Boolean(j.aventure&&j.aventure.debloquee),
           Boolean(j.bestiaire&&j.bestiaire.debloquee),
           Boolean(j.renaissance&&j.renaissance.debloquee),
+          Boolean(
+            j.systemes&&
+            j.systemes.selloutShop&&
+            j.systemes.selloutShop.unlockedEver
+          ),
           idleEntier_(j.niveau),
           unlocks
         ].join('|');
