@@ -1,10 +1,15 @@
 # SOREAL IDLE — règles d'architecture
 
-Ce dépôt contient uniquement le moteur de jeu SOREAL IDLE : un Worker
-Cloudflare (`soreal-idle`) avec un Durable Object SQLite, aucune interface.
-L'interface vit dans SOREAL-APP (`Soreal_Idle_UI.html`). Voir la section
-"Relation avec SOREAL-APP / SOREAL-TV" ci-dessous avant tout changement qui
-touche un nom d'opération, un champ d'état ou un format de réponse.
+Ce dépôt contient le moteur de jeu SOREAL IDLE **et son frontend autonome
+de production**. Le Worker Cloudflare (`soreal-idle`) sert à la fois le
+Durable Object SQLite et les assets de `cloudflare/public/`, dont
+`soreal-idle-ui.js`.
+
+Le fichier `SOREAL-APP/Soreal_Idle_UI.html` est désormais un snapshot
+historique : le launcher APP actuel ne l'exécute plus. Il crée un ticket
+opaque puis charge le frontend autonome de ce dépôt dans un iframe. Voir la
+section "Relation avec SOREAL-APP / SOREAL-TV" ci-dessous avant tout
+changement de contrat client/serveur.
 
 **Il n'y a pas de Feature Guard ici** (confirmé : aucun dossier
 `cloudflare/feature-guard/` dans ce dépôt, contrairement à SOREAL-APP et
@@ -50,11 +55,19 @@ Procédure attendue avant d'ajouter/corriger une valeur de jeu :
 
 ## Relation avec SOREAL-APP / SOREAL-TV
 
-- L'interface (HTML/JS) vit dans SOREAL-APP : `Soreal_Idle_UI.html`. Ce
-  dépôt (SOREAL-IDLE) ne contient que le moteur serveur.
+- Le frontend de production vit dans **ce dépôt** :
+  `cloudflare/public/index.html`, `standalone-bridge.js`,
+  `soreal-idle-ui.js` et `cloudflare/public/modules/`.
+- `SOREAL-APP/Soreal_Idle_UI.html` n'est plus chargé par le launcher
+  courant. Ne pas y corriger un bug visible dans le frontend autonome sans
+  d'abord vérifier explicitement qu'un ancien client utilise encore ce
+  snapshot.
 - Le client n'appelle **pas** directement ce Worker. Le vrai chemin
   (vérifié dans le code, pas supposé) :
-  `Soreal_Idle_UI.html` → route HTTP sur le Worker SOREAL-APP ou
+  launcher SOREAL-APP/SOREAL-TV → ticket de lancement → frontend autonome
+  SOREAL-IDLE → `/api/v1/call` sur ce Worker. Les anciens bridges APP/TV
+  restent des points d'intégration/compatibilité selon le client. Pour le
+  chemin serveur historique : route HTTP sur le Worker SOREAL-APP ou
   SOREAL-TV (`/api/app/idle/call` ou `/api/tv/idle/call`, définies dans
   `index-global-read-coordinator-v55.js` côté SOREAL-TV) → binding
   cross-script Durable Object `SOREAL_IDLE` (déclaré dans le
