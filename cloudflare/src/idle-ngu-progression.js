@@ -663,11 +663,22 @@ function createAugmentationData() {
     pairs[def.id] = {
       level: 0,
       progress: 0,
+      energy: 0,
+      target: 0,
       upgradeLevel: 0,
-      upgradeProgress: 0
+      upgradeProgress: 0,
+      upgradeEnergy: 0,
+      upgradeTarget: 0
     };
   }
-  return { pairs, activePair: "scissors", trainUpgrade: false };
+  return {
+    pairs,
+    // Conservés uniquement pour migrer/servir les anciens clients V212.
+    activePair: "scissors",
+    trainUpgrade: false,
+    advanceEnergy: false,
+    modelVersion: 2
+  };
 }
 
 function createTimeMachineData() {
@@ -1163,18 +1174,46 @@ function normalizeSystem(def, raw) {
   if (def.id === "augmentations") {
     s.data = createAugmentationData();
     const data = src.data && typeof src.data === "object" ? src.data : {};
+    const granularSaved = IDLE_NGU_AUGMENTATIONS.some(aug => {
+      const a = data.pairs?.[aug.id];
+      return a && typeof a === "object" && (
+        Object.prototype.hasOwnProperty.call(a, "energy") ||
+        Object.prototype.hasOwnProperty.call(a, "upgradeEnergy")
+      );
+    });
     for (const aug of IDLE_NGU_AUGMENTATIONS) {
       const a = data.pairs?.[aug.id] || {};
       s.data.pairs[aug.id] = {
         level: Math.max(0, int(a.level, 0)),
+        // V212 stockait ici des secondes; V213 stocke une fraction 0..1.
+        // La conversion exacte est faite après normalisation complète de l'état.
         progress: Math.max(0, num(a.progress, 0)),
+        energy: Math.max(0, num(a.energy, 0)),
+        target: int(a.target, 0) < 0 ? -1 : Math.max(0, int(a.target, 0)),
         upgradeLevel: Math.max(0, int(a.upgradeLevel, 0)),
-        upgradeProgress: Math.max(0, num(a.upgradeProgress, 0))
+        upgradeProgress: Math.max(0, num(a.upgradeProgress, 0)),
+        upgradeEnergy: Math.max(0, num(a.upgradeEnergy, 0)),
+        upgradeTarget: int(a.upgradeTarget, 0) < 0 ? -1 : Math.max(0, int(a.upgradeTarget, 0))
       };
     }
     if (IDLE_NGU_AUGMENTATIONS.some(a => a.id === data.activePair)) s.data.activePair = data.activePair;
     s.data.trainUpgrade = Boolean(data.trainUpgrade);
-  } else if (def.id === "timeMachine") {
+    s.data.advanceEnergy = Boolean(data.advanceEnergy);
+    s.data.modelVersion = Math.max(0, int(data.modelVersion, 0));
+
+    // Migration V212 : l'ancienne UI n'avait qu'une allocation globale et
+    // une seule paire active. On conserve exactement cette énergie en la
+    // déposant sur la ligne anciennement active.
+    if (!granularSaved && s.allocation.energy > 0) {
+      const legacyPair = s.data.pairs[s.data.activePair] || s.data.pairs.scissors;
+      if (s.data.trainUpgrade) legacyPair.upgradeEnergy = s.allocation.energy;
+      else legacyPair.energy = s.allocation.energy;
+    }
+    s.allocation.energy = Object.values(s.data.pairs).reduce(
+      (sum, pair) => sum + Math.max(0, num(pair.energy, 0)) + Math.max(0, num(pair.upgradeEnergy, 0)),
+      0
+    );
+  } else if (def.id === "timeMachine") {  } else if (def.id === "timeMachine") {
     s.data = Object.assign(createTimeMachineData(), src.data || {});
     for (const key of ["speedLevel", "speedProgress", "goldLevel", "goldProgress", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
       s.data[key] = Math.max(0, num(s.data[key], 0));
@@ -1556,6 +1595,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   const systems = {};
   for (const def of IDLE_NGU_SYSTEMS) systems[def.id] = normalizeSystem(def, source.systems?.[def.id]);
   state.systems = systems;
+  normalizeAugmentationProgressModelV213_(state);
 
   // V51 migration: older V47/V50 saves had no persisted free-resource pool.
   // The legacy row is consulted once when available, then metaNgu owns it.
@@ -1937,6 +1977,17 @@ function setAllocation(state, id, resource, value, context = {}) {
   if (!def || !s || !s.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if(state.challenge?.active==="noAugmentations"&&id==="augmentations")throw new Error("DEFI_SANS_AUGMENTATIONS");
   if (!def.resources.includes(resource)) throw new Error("RESSOURCE_INCOMPATIBLE");
+  // Compatibilité des anciens clients V212 : leur allocation globale est
+  // redirigée vers la paire/ligne qu'ils avaient sélectionnée.
+  if (id === "augmentations" && resource === "energy") {
+    return setAugmentAllocationV213_(
+      state,
+      s.data.activePair || "scissors",
+      Boolean(s.data.trainUpgrade),
+      value,
+      context
+    );
+  }
   if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
   const r=state.resources[resource];
   const cap = Math.max(0, r?.cap || 0);
@@ -1961,6 +2012,12 @@ function reclaimAllocatedResource(state,resource,context={}){
     if(amount<=0)continue;
     released+=amount;
     s.allocation[resource]=0;
+    if(resource==="energy"&&def.id==="augmentations"&&s.data?.pairs){
+      for(const pair of Object.values(s.data.pairs)){
+        pair.energy=0;
+        pair.upgradeEnergy=0;
+      }
+    }
   }
   const r=state.resources[resource];
   r.current=clamp(
@@ -1982,71 +2039,332 @@ function augmentationGoldCost(state,def,level,upgrade=false) {
   return base*challengePermanentBonuses(state).augmentationCostMultiplier;
 }
 
-function augmentationSecondsForNextLevel(state, def, upgrade = false) {
-  const allocation = Math.max(0, num(state.systems.augmentations.allocation.energy, 0));
+function augmentationRowKeysV213_(upgrade=false){
+  return upgrade
+    ?{level:"upgradeLevel",progress:"upgradeProgress",energy:"upgradeEnergy",target:"upgradeTarget"}
+    :{level:"level",progress:"progress",energy:"energy",target:"target"};
+}
+
+function augmentationRowUnlockedV213_(def,upgrade,context={}){
+  const boss=Math.max(0,int(context.bosses,0));
+  return boss>=Math.max(0,int(upgrade?def.upgrade?.unlockBoss:def.unlockBoss,0));
+}
+
+function augmentationSpeedMultiplierV213_(state){
+  const challenge=Math.max(1,challengePermanentBonuses(state).augmentationSpeedMultiplier);
+  // Perk 144, "Welcome to Sadistic Difficulty" : +20% Aug Speed.
+  const perk144=Math.max(0,int(state.systems.perks?.data?.levels?.[144],0));
+  const perk=perk144>0?1.20:1;
+
+  // "Augment Speed Hack" : +0.2% par niveau et milestone 101% tous les
+  // 20 niveaux. Le système Hacks stocke déjà ces niveaux, mais V212 ne
+  // les raccordait à aucune mécanique d'Augmentations.
+  const hackDef=(IDLE_NGU_TRACKS.hacks||[]).find(x=>x.id==="augmentSpeed");
+  const hackLevel=hackDef?Math.max(0,totalTrackLevel(state.systems.hacks,"augmentSpeed")):0;
+  const hackBase=1+hackLevel*Math.max(0,num(hackDef?.effectPerLevelPct,0))/100;
+  const hackMilestones=hackDef?Math.floor(hackLevel/Math.max(1,int(hackDef.levelsPerMilestone,1))):0;
+  const hackMilestone=Math.pow(Math.max(1,num(hackDef?.milestoneBonusPct,100))/100,hackMilestones);
+  return challenge*perk*hackBase*hackMilestone;
+}
+
+function augmentationSecondsForNextLevel(state, def, upgrade = false, allocationOverride = null) {
+  const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
+  const keys=augmentationRowKeysV213_(upgrade);
+  const allocation = Math.max(
+    0,
+    num(allocationOverride===null||allocationOverride===undefined?pair[keys.energy]:allocationOverride,0)
+  );
   if (allocation <= 0) return Infinity;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
-  const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
+  const speedMultiplier=augmentationSpeedMultiplierV213_(state);
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed);
+  // NGU tourne à 50 updates/s : une barre ne peut pas produire plus de
+  // 50 niveaux par seconde, même avec une quantité d'Energy gigantesque.
+  return Math.max(
+    1/50,
+    base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * speedMultiplier)
+  );
+}
+
+function augmentationCapEnergyV213_(state,def,upgrade=false){
+  const power=Math.max(1,idleNguEffectiveResourceStatV1(state,"energy","power"));
+  const base=upgrade?def.upgrade.baseSeconds:def.baseSeconds;
+  const speedMultiplier=augmentationSpeedMultiplierV213_(state);
+  const difficultyDivider=idleNguDifficultySpeedDividerV1(state,"augmentations");
+  return Math.max(1,Math.ceil(base*1000*difficultyDivider*50/Math.max(1e-12,power*speedMultiplier)));
+}
+
+function normalizeAugmentationProgressModelV213_(state){
+  const s=state.systems?.augmentations;
+  if(!s?.data?.pairs)return;
+  const data=s.data;
+  if(Math.max(0,int(data.modelVersion,0))>=2){
+    for(const pair of Object.values(data.pairs)){
+      pair.progress=clamp(num(pair.progress,0),0,1);
+      pair.upgradeProgress=clamp(num(pair.upgradeProgress,0),0,1);
+    }
+    data.modelVersion=2;
+    return;
+  }
+
+  // V212 exprimait la progression en secondes contre une allocation globale.
+  // On la convertit une seule fois en fraction de barre. L'allocation legacy
+  // vient d'être migrée sur sa ligne active par normalizeSystem().
+  const legacyAllocation=Math.max(0,num(s.allocation.energy,0));
+  for(const def of IDLE_NGU_AUGMENTATIONS){
+    const pair=data.pairs[def.id];
+    for(const upgrade of [false,true]){
+      const keys=augmentationRowKeysV213_(upgrade);
+      const rawProgress=Math.max(0,num(pair[keys.progress],0));
+      if(rawProgress<=0){
+        pair[keys.progress]=0;
+        continue;
+      }
+      const rowAllocation=Math.max(0,num(pair[keys.energy],0));
+      const basis=rowAllocation>0?rowAllocation:legacyAllocation;
+      const needed=augmentationSecondsForNextLevel(state,def,upgrade,basis);
+      pair[keys.progress]=Number.isFinite(needed)&&needed>0
+        ?clamp(rawProgress/needed,0,1)
+        :0;
+    }
+  }
+  data.modelVersion=2;
+}
+
+function augmentationTotalAllocatedV213_(state){
+  const pairs=state.systems.augmentations?.data?.pairs||{};
+  return Object.values(pairs).reduce(
+    (sum,pair)=>sum+Math.max(0,num(pair.energy,0))+Math.max(0,num(pair.upgradeEnergy,0)),
+    0
+  );
+}
+
+function syncAugmentationTotalAllocationV213_(state){
+  const s=state.systems.augmentations;
+  if(!s)return 0;
+  const total=augmentationTotalAllocatedV213_(state);
+  s.allocation.energy=total;
+  return total;
+}
+
+function augmentationTargetReachedV213_(pair,upgrade=false){
+  const keys=augmentationRowKeysV213_(upgrade);
+  const target=int(pair[keys.target],0);
+  if(target<0)return true; // -1 = toujours ignorer lors de l'auto-advance.
+  return target>0&&Math.max(0,int(pair[keys.level],0))>=target;
+}
+
+function returnAugmentationEnergyIdleV213_(state,amount,context={}){
+  const released=Math.max(0,num(amount,0));
+  if(released<=0)return;
+  const r=state.resources.energy;
+  syncAugmentationTotalAllocationV213_(state);
+  r.current=clamp(
+    num(r.current,0)+released,
+    0,
+    Math.max(
+      0,
+      idleNguEffectiveResourceStatV1(state,"energy","cap")
+        -totalAllocated(state,"energy")
+        -externalResourceAllocation(context,"energy")
+    )
+  );
+}
+
+function moveAugmentationEnergyV213_(state,fromIndex,upgrade,context={}){
+  const s=state.systems.augmentations;
+  const fromDef=IDLE_NGU_AUGMENTATIONS[fromIndex];
+  const fromPair=s.data.pairs[fromDef.id];
+  const keys=augmentationRowKeysV213_(upgrade);
+  const amount=Math.max(0,num(fromPair[keys.energy],0));
+  if(amount<=0)return {moved:0,to:""};
+
+  fromPair[keys.energy]=0;
+  if(s.data.advanceEnergy){
+    for(let step=1;step<=IDLE_NGU_AUGMENTATIONS.length;step+=1){
+      const idx=(fromIndex+step)%IDLE_NGU_AUGMENTATIONS.length;
+      const def=IDLE_NGU_AUGMENTATIONS[idx];
+      const pair=s.data.pairs[def.id];
+      if(!augmentationRowUnlockedV213_(def,upgrade,context))continue;
+      if(augmentationTargetReachedV213_(pair,upgrade))continue;
+      pair[keys.energy]=Math.max(0,num(pair[keys.energy],0))+amount;
+      syncAugmentationTotalAllocationV213_(state);
+      return {moved:amount,to:def.id};
+    }
+  }
+
+  syncAugmentationTotalAllocationV213_(state);
+  returnAugmentationEnergyIdleV213_(state,amount,context);
+  return {moved:amount,to:"idle"};
+}
+
+function settleAugmentationTargetsV213_(state,context={}){
+  const s=state.systems.augmentations;
+  if(!s?.data?.pairs)return;
+  let changed=true;
+  let guard=0;
+  while(changed&&guard++<64){
+    changed=false;
+    for(let i=0;i<IDLE_NGU_AUGMENTATIONS.length;i+=1){
+      const def=IDLE_NGU_AUGMENTATIONS[i];
+      const pair=s.data.pairs[def.id];
+      for(const upgrade of [false,true]){
+        const keys=augmentationRowKeysV213_(upgrade);
+        if(Math.max(0,num(pair[keys.energy],0))<=0)continue;
+        if(!augmentationRowUnlockedV213_(def,upgrade,context)||augmentationTargetReachedV213_(pair,upgrade)){
+          moveAugmentationEnergyV213_(state,i,upgrade,context);
+          changed=true;
+        }
+      }
+    }
+  }
+}
+
+function setAugmentAllocationV213_(state,pairId,upgrade,value,context={}){
+  const s=state.systems.augmentations;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  if(state.challenge?.active==="noAugmentations")throw new Error("DEFI_SANS_AUGMENTATIONS");
+  const index=IDLE_NGU_AUGMENTATIONS.findIndex(x=>x.id===pairId);
+  if(index<0)throw new Error("AUGMENT_INVALIDE");
+  const def=IDLE_NGU_AUGMENTATIONS[index];
+  if(!augmentationRowUnlockedV213_(def,upgrade,context))throw new Error("AUGMENT_VERROUILLE");
+
+  const pair=s.data.pairs[def.id];
+  const keys=augmentationRowKeysV213_(upgrade);
+  const previous=Math.max(0,num(pair[keys.energy],0));
+  const r=state.resources.energy;
+  const usedElsewhere=totalAllocated(state,"energy","augmentations")+externalResourceAllocation(context,"energy");
+  const cap=Math.max(0,idleNguEffectiveResourceStatV1(state,"energy","cap"));
+  const systemMax=Math.max(0,cap-usedElsewhere);
+  const otherAugments=Math.max(0,augmentationTotalAllocatedV213_(state)-previous);
+  const maxByCapacity=Math.max(0,systemMax-otherAugments);
+  const maxByOwned=Math.max(0,previous+num(r.current,0));
+  const target=clamp(num(value,0),0,Math.min(maxByCapacity,maxByOwned));
+  const delta=target-previous;
+
+  pair[keys.energy]=target;
+  syncAugmentationTotalAllocationV213_(state);
+  r.current=clamp(
+    num(r.current,0)-delta,
+    0,
+    Math.max(0,cap-usedElsewhere-s.allocation.energy)
+  );
+  settleAugmentationTargetsV213_(state,context);
+  return {pair:def.id,upgrade:Boolean(upgrade),allocation:pair[keys.energy]};
+}
+
+function setAugmentTargetV213_(state,pairId,upgrade,value,context={}){
+  const s=state.systems.augmentations;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const index=IDLE_NGU_AUGMENTATIONS.findIndex(x=>x.id===pairId);
+  if(index<0)throw new Error("AUGMENT_INVALIDE");
+  const pair=s.data.pairs[pairId];
+  const keys=augmentationRowKeysV213_(upgrade);
+  const v=int(value,0);
+  pair[keys.target]=v<0?-1:Math.max(0,v);
+  settleAugmentationTargetsV213_(state,context);
+  return {pair:pairId,upgrade:Boolean(upgrade),target:pair[keys.target]};
+}
+
+function setAugmentAdvanceV213_(state,value,context={}){
+  const s=state.systems.augmentations;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  s.data.advanceEnergy=Boolean(value);
+  settleAugmentationTargetsV213_(state,context);
+  return {advanceEnergy:s.data.advanceEnergy};
+}
+
+function augmentationRowsV213_(state,context={}){
+  const rows=[];
+  for(let i=0;i<IDLE_NGU_AUGMENTATIONS.length;i+=1){
+    const def=IDLE_NGU_AUGMENTATIONS[i];
+    const pair=state.systems.augmentations.data.pairs[def.id];
+    for(const upgrade of [false,true]){
+      const keys=augmentationRowKeysV213_(upgrade);
+      const allocation=Math.max(0,num(pair[keys.energy],0));
+      if(allocation<=0)continue;
+      if(!augmentationRowUnlockedV213_(def,upgrade,context))continue;
+      if(augmentationTargetReachedV213_(pair,upgrade))continue;
+      rows.push({index:i,def,pair,upgrade,keys,allocation});
+    }
+  }
+  return rows;
 }
 
 function advanceAugmentations(state, seconds, context) {
   const s = state.systems.augmentations;
-  if (!s.unlocked || seconds <= 0) return;
-  const def = augmentationPair(state);
-  if (num(context.bosses, 0) < def.unlockBoss) return;
-  const pair = s.data.pairs[def.id];
-  const upgrade = Boolean(s.data.trainUpgrade);
-  if (upgrade && num(context.bosses, 0) < def.upgrade.unlockBoss) return;
+  if (!s.unlocked || seconds <= 0 || state.challenge?.active==="noAugmentations") return;
 
-  /*
-   * Audit 2026-09-13 (Norman) : "le menu augmentation ne possède pas de
-   * barres qui montent comme dans basic training." Cause racine trouvée
-   * en creusant plus loin que le seul manque de barre côté client : la
-   * vérification d'Or se faisait AVANT toute accumulation de progression
-   * — sans assez d'Or, pair.progress restait bloquée à 0 pour TOUJOURS,
-   * quel que soit le temps écoulé. Un joueur à court d'Or (fréquent :
-   * chaque niveau consomme tout l'Or accumulé) voyait donc une barre
-   * réellement figée, pas juste absente. Corrigé pour accumuler la
-   * progression indépendamment de l'Or (le temps investi ne doit jamais
-   * être perdu), et ne vérifier l'Or qu'au moment de VALIDER le niveau
-   * (barre pleine) — si l'Or manque alors, la barre plafonne à 100% et
-   * attend, elle ne se vide jamais toute seule.
-   */
-  let remaining = seconds;
-  let guard = 0;
-  while (remaining > 0 && guard++ < 10000) {
-    const level = upgrade ? pair.upgradeLevel : pair.level;
-    const needed = augmentationSecondsForNextLevel(state, def, upgrade);
-    if (!Number.isFinite(needed)) break;
-    const progressKey = upgrade ? "upgradeProgress" : "progress";
-    const missing = Math.max(0, needed - pair[progressKey]);
+  settleAugmentationTargetsV213_(state,context);
+  let remaining=Math.max(0,num(seconds,0));
+  let guard=0;
 
-    if (remaining + 1e-9 < missing) {
-      pair[progressKey] += remaining;
-      remaining = 0;
-      break;
+  // Simulation événementielle : toutes les 14 barres avancent réellement en
+  // parallèle. On saute d'un remplissage au suivant afin que Target/Advance
+  // puisse déplacer l'Energy au bon instant, y compris pendant l'offline.
+  while(remaining>1e-12&&guard++<100000){
+    let rows=augmentationRowsV213_(state,context);
+    if(!rows.length)break;
+
+    let completedNow=false;
+    for(const row of rows){
+      const progress=clamp(num(row.pair[row.keys.progress],0),0,1);
+      if(progress<1-1e-12)continue;
+      const level=Math.max(0,int(row.pair[row.keys.level],0));
+      const cost=augmentationGoldCost(state,row.def,level,row.upgrade);
+      if(state.currencies.gold+1e-9<cost||challengeHundredLevelsRemaining(state)<=0){
+        row.pair[row.keys.progress]=1;
+        continue;
+      }
+      state.currencies.gold-=cost;
+      row.pair[row.keys.level]=level+1;
+      row.pair[row.keys.progress]=0;
+      challengeHundredLevelsConsume(state,1);
+      if(augmentationTargetReachedV213_(row.pair,row.upgrade)){
+        moveAugmentationEnergyV213_(state,row.index,row.upgrade,context);
+      }
+      completedNow=true;
     }
+    if(completedNow)continue;
 
-    const cost = augmentationGoldCost(state,def,level,upgrade);
-    if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) {
-      pair[progressKey] = needed;
-      remaining = 0;
-      break;
+    rows=augmentationRowsV213_(state,context).filter(row=>clamp(num(row.pair[row.keys.progress],0),0,1)<1-1e-12);
+    if(!rows.length)break;
+
+    let step=remaining;
+    const timings=[];
+    for(const row of rows){
+      const needed=augmentationSecondsForNextLevel(state,row.def,row.upgrade,row.allocation);
+      if(!Number.isFinite(needed)||needed<=0)continue;
+      const progress=clamp(num(row.pair[row.keys.progress],0),0,1);
+      const until=(1-progress)*needed;
+      timings.push({row,needed});
+      step=Math.min(step,Math.max(0,until));
     }
+    if(!timings.length||step<=1e-15)break;
 
-    remaining -= missing;
-    pair[progressKey] = 0;
-    state.currencies.gold -= cost;
-    if (upgrade) pair.upgradeLevel += 1;
-    else pair.level += 1;
-    challengeHundredLevelsConsume(state, 1);
+    for(const entry of timings){
+      entry.row.pair[entry.row.keys.progress]=clamp(
+        num(entry.row.pair[entry.row.keys.progress],0)+step/entry.needed,
+        0,
+        1
+      );
+    }
+    remaining-=step;
   }
 
-  s.level = Object.values(s.data.pairs).reduce((sum, p) => sum + p.level + p.upgradeLevel, 0);
-  s.tempLevel = s.level;
+  syncAugmentationTotalAllocationV213_(state);
+  s.level=Object.values(s.data.pairs).reduce((sum,p)=>sum+Math.max(0,int(p.level,0))+Math.max(0,int(p.upgradeLevel,0)),0);
+  s.tempLevel=s.level;
+}
+
+function augmentationEffectiveExponentV213_(state,def,index){
+  if(index<=0)return 1;
+  const completions=clamp(int(state.challenge?.completions?.laserSword,0),0,20);
+  // Wiki : Milk +0.01/completion, Cannon +0.02, ... Laser +0.06.
+  // 1re et 20e complétions donnent chacune +0.05 supplémentaire.
+  const challengeBonus=completions*0.01*index+(completions>0?0.05:0)+(completions>=20?0.05:0);
+  return Math.max(1,num(def.exponent,1)+challengeBonus);
 }
 
 export function idleNguAugmentationMultiplier(raw) {
@@ -2054,10 +2372,12 @@ export function idleNguAugmentationMultiplier(raw) {
   if(state.challenge?.active==="noAugmentations")return 1;
   let additive = 0;
   const pairs = state.systems.augmentations.data.pairs;
-  for (const def of IDLE_NGU_AUGMENTATIONS) {
+  for (let index=0;index<IDLE_NGU_AUGMENTATIONS.length;index+=1) {
+    const def=IDLE_NGU_AUGMENTATIONS[index];
     const p = pairs[def.id];
     if (!p || p.level <= 0) continue;
-    const augment = def.baseMultiplier * safePow(p.level, def.exponent);
+    const exponent=augmentationEffectiveExponentV213_(state,def,index);
+    const augment = def.baseMultiplier * safePow(p.level, exponent);
     const upgrade = 1 + safePow(p.upgradeLevel, 2);
     additive += augment * upgrade;
   }
@@ -3600,16 +3920,36 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      * (augmentationSecondsForNextLevel), jamais un second calcul inventé
      * côté client.
      */
-    augmentations: IDLE_NGU_AUGMENTATIONS.map((def) => {
+    augmentations: IDLE_NGU_AUGMENTATIONS.map((def,index) => {
       const pair = state.systems.augmentations.data.pairs?.[def.id] || {};
-      const neededMain = augmentationSecondsForNextLevel(state, def, false);
-      const neededUpgrade = def.upgrade ? augmentationSecondsForNextLevel(state, def, true) : Infinity;
-      return Object.assign({}, def, {
-        progressPct: Number.isFinite(neededMain) && neededMain > 0 ? Math.max(0, Math.min(1, num(pair.progress, 0) / neededMain)) : 0,
-        upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0
+      const mainAllocation=Math.max(0,num(pair.energy,0));
+      const upgradeAllocation=Math.max(0,num(pair.upgradeEnergy,0));
+      const exponent=augmentationEffectiveExponentV213_(state,def,index);
+      const mainNeeded=augmentationSecondsForNextLevel(state,def,false,mainAllocation);
+      const upgradeNeeded=augmentationSecondsForNextLevel(state,def,true,upgradeAllocation);
+      const pairContribution=Math.max(0,int(pair.level,0))>0
+        ?def.baseMultiplier*safePow(Math.max(0,int(pair.level,0)),exponent)*(1+safePow(Math.max(0,int(pair.upgradeLevel,0)),2))
+        :0;
+      return Object.assign({},def,{
+        effectiveExponent:exponent,
+        pairContribution,
+        mainUnlocked:augmentationRowUnlockedV213_(def,false,context),
+        upgradeUnlocked:augmentationRowUnlockedV213_(def,true,context),
+        mainAllocation,
+        upgradeAllocation,
+        mainTarget:int(pair.target,0),
+        upgradeTarget:int(pair.upgradeTarget,0),
+        progressPct:clamp(num(pair.progress,0),0,1),
+        upgradeProgressPct:clamp(num(pair.upgradeProgress,0),0,1),
+        nextGoldCost:augmentationGoldCost(state,def,Math.max(0,int(pair.level,0)),false),
+        nextUpgradeGoldCost:augmentationGoldCost(state,def,Math.max(0,int(pair.upgradeLevel,0)),true),
+        secondsPerLevel:Number.isFinite(mainNeeded)?mainNeeded:null,
+        upgradeSecondsPerLevel:Number.isFinite(upgradeNeeded)?upgradeNeeded:null,
+        capEnergy:augmentationCapEnergyV213_(state,def,false),
+        upgradeCapEnergy:augmentationCapEnergyV213_(state,def,true)
       });
     }),
-    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
+    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
     /*
@@ -4366,6 +4706,24 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     selectTrack(state, String(payload.system || ""), String(payload.track || ""));
   } else if (action === "selectAugment") {
     selectAugment(state, String(payload.pair || "scissors"), Boolean(payload.upgrade));
+  } else if (action === "setAugmentAllocation") {
+    result=setAugmentAllocationV213_(
+      state,
+      String(payload.pair||"scissors"),
+      Boolean(payload.upgrade),
+      num(payload.value,0),
+      context
+    );
+  } else if (action === "setAugmentTarget") {
+    result=setAugmentTargetV213_(
+      state,
+      String(payload.pair||"scissors"),
+      Boolean(payload.upgrade),
+      payload.value,
+      context
+    );
+  } else if (action === "setAugmentAdvance") {
+    result=setAugmentAdvanceV213_(state,payload.value,context);
   } else if (action === "selectWandoosOs") {
     selectWandoosOs(state, String(payload.os || "98"));
   } else if (action === "selectRitual") {
