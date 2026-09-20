@@ -24661,34 +24661,6 @@ let idleDialogueTimerV76=null;
         return n.toFixed(n<10?2:1).replace('.',',')+' h';
       }
 
-      function programmerTutorielBasicTrainingIdleV47_(){
-        try{
-          if(localStorage.getItem('sorealIdleBasicTrainingTutorielV47')==='1')return;
-        }catch(_e){}
-        if(document.getElementById('sorealIdleBasicTrainingTutorielV47'))return;
-        setTimeout(function(){
-          if(document.getElementById('sorealIdleBasicTrainingTutorielV47'))return;
-          const modal=document.createElement('div');
-          modal.id='sorealIdleBasicTrainingTutorielV47';
-          modal.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px;';
-          modal.innerHTML='<div style="max-width:560px;width:100%;background:linear-gradient(180deg,#171923,#0d0f16);border:1px solid rgba(255,255,255,.18);border-radius:22px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.55);color:#fff">'+
-            '<div style="font-size:34px;margin-bottom:8px">🥊</div>'+
-            '<div style="font-size:24px;font-weight:900;margin-bottom:10px">Basic Training</div>'+
-            '<div style="line-height:1.55;color:#d8dbea">Ton énergie ne disparaît pas quand tu la places ici : <b>tu l’alloues</b> à un entraînement. Plus tu alloues d’énergie, plus la barre progresse vite.</div>'+
-            '<div style="margin-top:14px;padding:14px;border-radius:14px;background:rgba(255,255,255,.06);line-height:1.5">Les entraînements d’attaque augmentent ton <b>Attack</b>. Ceux de défense augmentent ta <b>Defense</b>. Tu peux reprendre et redistribuer ton énergie quand tu veux.</div>'+
-            '<div style="margin-top:14px;color:#aeb5c8;line-height:1.45">Le cap d’un entraînement reste fixe pendant ce run. Le Rebirth pourra le réduire pour les runs suivants.</div>'+
-            '<button type="button" onclick="window.__fermerTutorielBasicTrainingIdleV47__()" style="margin-top:20px;width:100%;border:0;border-radius:14px;padding:13px;font-weight:900;cursor:pointer">J’ai compris</button>'+
-          '</div>';
-          document.body.appendChild(modal);
-        },120);
-      }
-
-      function fermerTutorielBasicTrainingIdleV47_(){
-        try{localStorage.setItem('sorealIdleBasicTrainingTutorielV47','1');}catch(_e){}
-        const modal=document.getElementById('sorealIdleBasicTrainingTutorielV47');
-        if(modal)modal.remove();
-      }
-
       /*
        * Menu déroulant personnalisé pour la sélection de zone d'Aventure
        * (même composant visuel que "Trier par" en Équipe, team-sort-*).
@@ -24719,11 +24691,8 @@ let idleDialogueTimerV76=null;
       window.__actionMetaV47__=actionMetaV47_;
       window.__setDiggerIdleV47__=setDiggerIdleV47_;
       window.__toggleDiggerIdleV47__=toggleDiggerIdleV47_;
-      window.__fermerTutorielBasicTrainingIdleV47__=fermerTutorielBasicTrainingIdleV47_;
-
 
       function pageEntrainementIdleV28_(j){
-        programmerTutorielBasicTrainingIdleV47_();
         return pageEntrainementIdleLegacyV47_(j);
       }
 
