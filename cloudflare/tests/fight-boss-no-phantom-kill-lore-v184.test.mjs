@@ -26,9 +26,12 @@ assert.doesNotMatch(
   "La simulation ne doit jamais entrer uniquement parce que bossPv vaut 0."
 );
 
-const whilePos=progression.indexOf("while (");
-assert.ok(whilePos>=0,"Boucle Fight Boss absente.");
-const whileHead=progression.slice(whilePos,whilePos+420);
+const fightLoopAnchor=progression.indexOf("iterations < 2000");
+assert.ok(fightLoopAnchor>=0,"Boucle Fight Boss absente.");
+const whileHead=progression.slice(
+  Math.max(0,fightLoopAnchor-180),
+  fightLoopAnchor+360
+);
 assert.match(
   whileHead,
   /combatBossActif/,
