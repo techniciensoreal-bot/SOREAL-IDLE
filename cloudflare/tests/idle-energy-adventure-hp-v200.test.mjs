@@ -24,7 +24,7 @@ function block(source,start,end){
 }
 
 assert.ok(
-  index.includes('/modules/adventure-scene-v79.js?v=200')&&
+  index.includes('/modules/adventure-scene-v79.js?v=202')&&
   index.includes('/soreal-idle-ui.js?v=200'),
   "Le standalone doit charger les assets V200 de la barre Energie et des PV Aventure."
 );
@@ -112,6 +112,8 @@ for(const token of [
   "soreal-idle-v79-health-label-v200",
   "background:linear-gradient(180deg,#f4f7fb 0%,#dce3ec 100%)",
   "background:linear-gradient(180deg,#ff5a63 0%,#ef3742 47%,#ce202d 100%)!important",
+  "soreal-idle-v79-player-health .soreal-idle-v79-health-fill-v200",
+  "background:linear-gradient(180deg,#62e58d 0%,#22c55e 48%,#159447 100%)!important",
   'font-family:\\"Segoe UI Variable Display\\",\\"Segoe UI Variable\\",\\"Segoe UI\\",system-ui',
   "text-shadow:0 1px 0 #000,0 0 3px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.8)!important"
 ]){
