@@ -29580,6 +29580,109 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         expPp:'⭐ EXP / PP'
       };
 
+      /*
+       * V210 — le moteur conserve les noms NGU canoniques dans son
+       * catalogue, mais l'interface destinée au joueur est entièrement
+       * francisée ici. Les IDs/prix/effets mécaniques restent inchangés.
+       */
+      const IDLE_SELLOUT_TRADUCTIONS_V210={
+        energyPotionAlpha:{name:'Potion d’énergie α',effect:'Double la puissance d’Énergie pendant 60 minutes, même à travers plusieurs Rebirths. Se cumule avec la Potion d’énergie β.'},
+        energyPotionBeta:{name:'Potion d’énergie β',effect:'Double la puissance d’Énergie jusqu’au prochain Rebirth. Se cumule avec la Potion d’énergie α.'},
+        energyPotionDelta:{name:'Potion d’énergie δ',effect:'Double la puissance d’Énergie pendant 24 heures, même à travers plusieurs Rebirths. Ajoute du temps au compteur de la Potion d’énergie α.'},
+        magicPotionAlpha:{name:'Potion de magie α',effect:'Double la puissance de Magie pendant 60 minutes, même à travers plusieurs Rebirths. Se cumule avec la Potion de magie β.'},
+        magicPotionBeta:{name:'Potion de magie β',effect:'Double la puissance de Magie jusqu’au prochain Rebirth. Se cumule avec la Potion de magie α.'},
+        magicPotionDelta:{name:'Potion de magie δ',effect:'Double la puissance de Magie pendant 24 heures, même à travers plusieurs Rebirths. Ajoute du temps au compteur de la Potion de magie α.'},
+        resource3PotionAlpha:{name:'Potion de Ressource 3 α',effect:'Triple la puissance de Ressource 3 pendant 60 minutes, même à travers plusieurs Rebirths. Se cumule avec la Potion de Ressource 3 β.'},
+        resource3PotionBeta:{name:'Potion de Ressource 3 β',effect:'Double la puissance de Ressource 3 jusqu’au prochain Rebirth. Se cumule avec la Potion de Ressource 3 α.'},
+        resource3PotionDelta:{name:'Potion de Ressource 3 δ',effect:'Triple la puissance de Ressource 3 pendant 24 heures, même à travers plusieurs Rebirths. Ajoute du temps au compteur de la Potion de Ressource 3 α.'},
+        energyBarBar:{name:'Barre de barres d’énergie',effect:'Double tes barres d’Énergie pendant 60 minutes, même à travers plusieurs Rebirths.'},
+        magicBarBar:{name:'Barre de barres de magie',effect:'Double tes barres de Magie pendant 60 minutes, même à travers plusieurs Rebirths.'},
+        macguffinMuffin:{name:'Muffin MacGuffin',effect:'Double pendant 24 heures le bonus obtenu des MacGuffins lors d’un Rebirth. Le bonus s’applique à au moins un Rebirth, même si les 24 heures sont dépassées.'},
+
+        icarusFertilizer1:{name:'Engrais maison d’Icarus Proudbottom (x1)',effect:'Accorde +50 % lors de la récolte ou de la consommation d’un fruit d’Yggdrasil. Chaque tas vaut pour un fruit.'},
+        icarusFertilizer10:{name:'Engrais maison d’Icarus Proudbottom (x10)',effect:'Même effet que l’engrais à l’unité, par lot de 10.'},
+        icarusFertilizer100:{name:'Engrais maison d’Icarus Proudbottom (x100)',effect:'Même effet que l’engrais à l’unité, par lot de 100.'},
+        littleBluePill1000:{name:'Petite pilule bleue (x1 000)',effect:'Double le gain de PP dans l’ITOPOD. Chaque pilule dure pendant un kill.'},
+        littleBluePill10000:{name:'Petite pilule bleue (x10 000)',effect:'Même effet que la petite pilule bleue, par lot de 10 000.'},
+        littleBluePill100000:{name:'Petite pilule bleue (x100 000)',effect:'Même effet que la petite pilule bleue, par lot de 100 000.'},
+        beastButter1:{name:'Beurre de la Bête (x1)',effect:'Double la récompense de QP de ta prochaine quête.'},
+        beastButter10:{name:'Beurre de la Bête (x10)',effect:'Double la récompense de QP des prochaines quêtes concernées, par lot de 10.'},
+        beastButter100:{name:'Beurre de la Bête (x100)',effect:'Double la récompense de QP des prochaines quêtes concernées, par lot de 100.'},
+        luckyCharm:{name:'Porte-bonheur',effect:'Double les chances de drop en Adventure pendant 30 minutes, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.'},
+        superLuckyCharm:{name:'Super porte-bonheur',effect:'Double les chances de drop en Adventure pendant 12 heures, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.'},
+        mayoInfuser:{name:'Infuseur de mayo',effect:'Double la vitesse de génération de Mayo pendant 24 heures. Affecte aussi les récompenses de fruits.'},
+        regularBlackPens:{name:'Stylos noirs ordinaires (x25)',effect:'Ajoute 2 tiers à la prochaine carte générée. Cet effet ne peut pas être désactivé.'},
+
+        improvedLootFilter:{name:'Filtre de butin amélioré',effect:'Permet d’utiliser la liste d’objets comme filtre de butin personnalisé et de filtrer chaque objet individuellement.'},
+        extraInventorySpace:{name:'Espace d’inventaire supplémentaire',effect:'Ajoute un emplacement d’inventaire. Peut être acheté plusieurs fois, jusqu’à 166 emplacements supplémentaires.'},
+        autoMergeBoostTimers:{name:'Réduction Auto Merge / Auto Boost',effect:'Réduit de 50 % le temps de l’Auto Boost et de l’Auto Merge.'},
+        instaTrainingCap:{name:'Plafond d’entraînement instantané',effect:'Assigne presque immédiatement 6 Énergies, une à chacun des entraînements, après chaque Rebirth.'},
+        customEnergyMagicButtons:{name:'Boutons % personnalisés Énergie/Magie',effect:'Débloque un jeu de boutons % personnalisés pour les entrées Énergie et Magie, calculés sur le plafond total.'},
+        moreCustomEnergyMagicButtons:{name:'Plus de boutons % Énergie/Magie',effect:'Débloque un second jeu de boutons % personnalisés pour les entrées Énergie et Magie.'},
+        yggdrasilHarvestLight:{name:'Alerte de récolte Yggdrasil',effect:'Fait s’illuminer le menu Yggdrasil lorsqu’un fruit est totalement mûr et prêt à être mangé ou récolté.'},
+        dailySpinTimeBank:{name:'Banque de 7 jours pour la roue journalière',effect:'Étend la durée maximale mise en réserve par la roue journalière de 36 heures à 7 jours.'},
+        loadoutSlot:{name:'Emplacement de configuration',effect:'Ajoute un emplacement de configuration. Maximum : 7 achats.'},
+        extraBeardSlot:{name:'Emplacement de barbe supplémentaire',effect:'Ajoute une barbe pour Beards of Power. Maximum : 4 achats ; le premier emplacement coûte moins cher.'},
+        filterBoostsIntoCube:{name:'Envoyer les boosts filtrés dans le Cube de l’infini',effect:'Les boosts filtrés sont fusionnés dans le Cube de l’infini. Les boosts appliqués ainsi ne sont pas recyclés.'},
+        lazyItopodFloorShifter:{name:'Réglage automatique de l’étage ITOPOD',effect:'Vérifie ton étage optimal après chaque kill et ajuste automatiquement l’étage de l’ITOPOD.'},
+
+        extraAccessorySlot1:{name:'Emplacement d’accessoire supplémentaire',effect:'Ajoute 1 emplacement d’accessoire.'},
+        daycareSpeedBoost:{name:'Accélération de la garderie',effect:'Les objets placés en garderie gagnent leurs niveaux 10 % plus vite.'},
+        extraAccessorySlot2:{name:'Encore un emplacement d’accessoire',effect:'Ajoute encore 1 emplacement d’accessoire. Oui, encore.'},
+        diggerSlots:{name:'Emplacements Gold Digger',effect:'Ajoute 1 emplacement de Digger. Maximum : 6 achats ; le premier coûte moins cher.'},
+        macguffinSlot:{name:'Emplacement MacGuffin',effect:'Ajoute 1 emplacement MacGuffin. Maximum : 11 achats ; les deux premiers coûtent moins cher.'},
+        questReminder:{name:'Rappel de quête',effect:'Fait s’illuminer le menu Questing lorsqu’une quête est prête à être rendue.'},
+        fasterQuesting:{name:'Quêtes plus rapides',effect:'Permet de gagner les Major Quests 20 % plus vite.'},
+        extendedQuestBank:{name:'Banque de quêtes étendue',effect:'Augmente le plafond de Major Quests de 10 à 50.'},
+        extraAccessorySlot3:{name:'Un autre emplacement d’accessoire (bis)',effect:'Ajoute encore 1 emplacement d’accessoire.'},
+        customIdleEnergyMagicButtons:{name:'Boutons % Idle Énergie/Magie',effect:'Débloque des boutons % personnalisés pour les entrées Idle Énergie et Magie, calculés sur les ressources Idle totales.'},
+        autoNuker:{name:'Nuke automatique',effect:'Lance automatiquement un Nuke sur les boss 10 secondes après chaque Rebirth, puis toutes les minutes.'},
+        extraAccessorySlot4:{name:'Encore encore un emplacement d’accessoire',effect:'Ajoute 1 emplacement d’accessoire. Fais-nous confiance : ils serviront tous.'},
+
+        nguCapModifier:{name:'Modificateur de plafond NGU',effect:'Débloque un réglage permettant de choisir le pourcentage du plafond injecté avec le bouton de plafond NGU.'},
+        daycareKittyArt:{name:'Apparences du chat de la garderie',effect:'Débloque plusieurs apparences du chat de la garderie. Clique sur le chat pour parcourir les apparences débloquées.'},
+        customResource3Button:{name:'Bouton % personnalisé Ressource 3',effect:'Débloque un bouton personnalisé de pourcentage du plafond pour Ressource 3.'},
+        anotherCustomResource3Button:{name:'Autre bouton % Ressource 3',effect:'Débloque un second bouton personnalisé de pourcentage du plafond pour Ressource 3.'},
+        customIdleResource3Button:{name:'Bouton % Idle Ressource 3',effect:'Débloque un bouton % Idle personnalisé pour Ressource 3.'},
+        resource3NameRandomizer:{name:'Nom aléatoire de Ressource 3',effect:'Débloque un réglage qui change aléatoirement le nom de Ressource 3 à chaque Rebirth, parmi plus de 200 noms.'},
+        fasterWishes:{name:'Wishes plus rapides',effect:'Accélère les Wishes de 25 %.'},
+        inventoryMergeSlots:{name:'Emplacements de fusion d’inventaire',effect:'Débloque un emplacement supplémentaire de fusion d’inventaire. Maximum : 4 achats.'},
+        adventureLight:{name:'Alerte Adventure',effect:'Fait s’illuminer le bouton Adventure lorsque tu es dans une Safe Zone.'},
+        adventureAdvancer:{name:'Avancement Adventure',effect:'Au bout de 20 secondes d’un Rebirth, te déplace vers la zone normale la plus avancée que tu peux atteindre.'},
+        goToQuestZoneButton:{name:'Bouton « Aller à la zone de quête »',effect:'Débloque un bouton qui t’envoie directement dans la zone Adventure de ta quête.'},
+
+        extraDeckSize:{name:'Taille de deck supplémentaire',effect:'Augmente la taille du deck pour pouvoir conserver davantage de cartes. Maximum : 50 achats.'},
+        mayoGenerator:{name:'Générateur de mayo',effect:'Permet de faire fonctionner un générateur de Mayo supplémentaire et augmente la vitesse de génération de Mayo de 2 % par emplacement. Maximum : 2 achats.'},
+        extraTagSlot:{name:'Emplacement de tag supplémentaire',effect:'Débloque un emplacement de tag supplémentaire pour les cartes afin de favoriser celles que tu veux obtenir.'},
+        extraAccessorySlot5:{name:'Dernier emplacement d’accessoire',effect:'Voilà, c’est le dernier emplacement d’accessoire achetable avec de l’AP. Après celui-ci, terminé.'},
+
+        heartRed:{name:'Mon cœur rouge <3',effect:'Au niveau 100, son bonus complet de +10 % EXP s’applique sans devoir l’équiper.'},
+        heartYellow:{name:'Mon cœur jaune <3',effect:'Au niveau 100, son bonus complet de +20 % AP s’applique sans devoir l’équiper.'},
+        heartBrown:{name:'Mon cœur brun <3',effect:'Au niveau 100, chaque 10e caca appliqué à un fruit ne consomme pas de caca.'},
+        heartGreen:{name:'Mon cœur vert <3',effect:'Au niveau 100, tu gagnes les Perk Points 20 % plus vite dans l’ITOPOD.'},
+        heartBlue:{name:'Mon cœur bleu <3',effect:'Au niveau 100, les effets de tous les consommables sont améliorés de 10 %.'},
+        heartPurple:{name:'Mon cœur violet <3',effect:'Au niveau 100, les MacGuffins tombent 20 % plus souvent.'},
+        heartOrange:{name:'Mon cœur orange <3',effect:'Au niveau 100, les quêtes rapportent 20 % de QP supplémentaires.'},
+        heartGrey:{name:'Mon cœur gris <3',effect:'Au niveau 100, les Hacks sont 25 % plus rapides.'},
+        heartPink:{name:'Mon cœur rose <3',effect:'Au niveau 100, tu gagnes un emplacement de Wish.'},
+        heartRainbow:{name:'Mon cœur arc-en-ciel',effect:'Au niveau 100, la vitesse de génération des Cartes et de Mayo augmente de 10 %.'},
+
+        exp200:{name:'200 EXP',effect:'Ajoute 200 EXP à dépenser dans la Boutique EXP.'},
+        exp500:{name:'500 EXP',effect:'Ajoute 500 EXP à dépenser dans la Boutique EXP.'},
+        exp2000:{name:'2 000 EXP',effect:'Ajoute 2 000 EXP à dépenser dans la Boutique EXP.'},
+        pp25:{name:'25 PP',effect:'Ajoute 25 PP à dépenser dans le menu Perks de l’ITOPOD.'},
+        pp100:{name:'100 PP',effect:'Ajoute 100 PP à dépenser dans le menu Perks de l’ITOPOD.'},
+        pp500:{name:'500 PP',effect:'Ajoute 500 PP à dépenser dans le menu Perks de l’ITOPOD.'}
+      };
+
+      function traductionSelloutIdleV210_(item){
+        const t=IDLE_SELLOUT_TRADUCTIONS_V210[String(item&&item.id||'')]||null;
+        return {
+          name:t&&t.name?t.name:String(item&&item.name||'Objet'),
+          effect:t&&t.effect?t.effect:String(item&&item.effect||'')
+        };
+      }
+
       function pageSelloutShopIdleV1_(j){
         const systemes=(j&&j.systemes)||{};
         const shop=systemes.selloutShop||{catalog:[],purchases:{}};
@@ -29602,11 +29705,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               items.map(function(item){
                 const auMax=item.nextCost==null;
                 const abordable=!auMax&&ap>=item.nextCost;
+                const texte=traductionSelloutIdleV210_(item);
                 const compteur=item.max!=null?' ('+idleEntier_(item.purchased)+'/'+idleEntier_(item.max)+')':(item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'');
                 return '<div class="soreal-idle-shop-card-v12'+(auMax?' maxed':'')+'">'+
                   '<div class="soreal-idle-shop-card-info-v12">'+
-                    '<div class="soreal-idle-shop-card-name-v12">'+idleHtml_(item.name)+compteur+'</div>'+
-                    '<div class="soreal-idle-shop-card-desc-v12">'+idleHtml_(item.effect)+'</div>'+
+                    '<div class="soreal-idle-shop-card-name-v12">'+idleHtml_(texte.name)+compteur+'</div>'+
+                    '<div class="soreal-idle-shop-card-desc-v12">'+idleHtml_(texte.effect)+'</div>'+
                   '</div>'+
                   (auMax
                     ?'<div class="soreal-idle-shop-card-cost-v12">Maximum atteint</div>'
@@ -29625,7 +29729,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return `
           ${entetePageIdleV28_(
             "🛍️ La Boutique de Norman & Sébastien",
-            "Dépense ton AP ici. Aucun achat ne coûte jamais d'argent réel."
+            "Dépense tes AP ici. Aucun achat ne coûte d’argent réel."
           )}
           <div class="soreal-idle-window-title-v31 gold">
             💠 AP possédé
