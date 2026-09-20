@@ -16066,6 +16066,12 @@
 
       let idleMenuActifV28='combat';
 
+      /*
+       * V179 — dernier menu réellement peint dans #app.
+       * Distingue un vrai changement d'onglet d'une réconciliation réseau.
+       */
+      let idleMenuRenduV179=null;
+
 
       function chargerMenuIdleV28_(){
         try{
@@ -29503,7 +29509,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
          * local conservé) et ne doit pas être réécrasé ici.
          */
         const adventureRestPvAvantV2=idleEtat&&idleEtat.adventureRestPv;
-        if(!appliquerSynchroCombatSansReflowIdleV116_(res.joueur)){
+        const synchroCombatSansReflowV179=
+          appliquerSynchroCombatSansReflowIdleV116_(
+            res.joueur
+          );
+
+        if(!synchroCombatSansReflowV179){
           idleEtat=res.joueur;
           if(adventureRestPvAvantV2!=null&&idleEtat.adventureRestPv==null){
             idleEtat.adventureRestPv=adventureRestPvAvantV2;
@@ -29526,6 +29537,34 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const j=idleEtat;
 
         initialiserCoupsCombatIdleV116_();
+
+        /*
+         * V179 — Fight Boss visible = DOM de combat immuable pendant le
+         * combat. La synchro sans reflow a déjà fusionné l'état serveur ;
+         * continuer jusqu'au remplacement complet de #app recréerait le
+         * bouton Fight et provoquerait son clignotement.
+         *
+         * Le garde ne s'applique que si l'onglet Combat est déjà celui qui
+         * est réellement peint. Un changement volontaire d'onglet continue
+         * donc de déclencher un rendu complet normal.
+         */
+        const fightBossDomStableV179=
+          synchroCombatSansReflowV179 &&
+          Boolean(j.combatBossActif) &&
+          idleMenuActifV28==='combat' &&
+          idleMenuRenduV179==='combat' &&
+          Boolean(
+            document.getElementById(
+              'sorealIdleBossStartV100'
+            )
+          );
+
+        if(fightBossDomStableV179){
+          patcherResumeStatsIdleV28_(j);
+          rafraichirEnergieEtBoutonsIdleV9_();
+          rafraichirCommandesFightBossIdleV167_();
+          return;
+        }
 
         afficherResumeHorsLigneIdleV64_(
           j
@@ -29602,6 +29641,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               ${contenuMenuIdleV28_(j)}
             </div>
           </section>`;
+
+        idleMenuRenduV179=
+          idleMenuActifV28;
 
         /*
          * À ce stade le jeu est déjà rendu et utilisable. Une mise à jour
