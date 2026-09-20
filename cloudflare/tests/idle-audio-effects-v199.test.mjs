@@ -53,14 +53,18 @@ for(const method of [
   assert.ok(audio.includes(method),"Effet audio manquant: "+method);
 }
 
-assert.ok(
-  audio.includes('new SpeechSynthesisUtterance("FIGHT!")')&&
-  audio.includes('utterance.lang="en-US"')&&
-  audio.includes("utterance.pitch=0")&&
-  audio.includes("utterance.rate=.66")&&
-  audio.includes("utterance.onend=terminer"),
-  "Fight doit utiliser une voix système très grave et ralentie, dont la fin pilote le scheduler."
-);
+{
+  const fightStart=audio.indexOf("function voixFight_()");
+  const fightEnd=audio.indexOf("function gongBoss_",fightStart);
+  const fightBlock=audio.slice(fightStart,fightEnd);
+  assert.ok(
+    fightStart>=0&&fightEnd>fightStart&&
+    fightBlock.includes("jouerWebAudio_(310")&&
+    !fightBlock.includes("SpeechSynthesisUtterance")&&
+    !fightBlock.includes('"FIGHT!"'),
+    "Fight doit jouer le même impact court WebAudio sur PC et téléphone, sans voix TTS."
+  );
+}
 
 assert.ok(
   audio.includes("function amorcerAudioDepuisGeste_()")&&
@@ -182,7 +186,7 @@ let state=engine.debugState();
 assert.equal(state.active,"fight","Fight doit rester le son actif.");
 assert.deepEqual(state.pending,["defeat"],"La défaite doit attendre Fight, jamais le chevaucher.");
 
-await new Promise(resolve=>setTimeout(resolve,45));
+await new Promise(resolve=>setTimeout(resolve,130));
 state=engine.debugState();
 assert.equal(state.active,"defeat","La défaite doit démarrer après la fin de Fight.");
 
@@ -205,5 +209,5 @@ new Function(audio);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE Audio V203: OK — Fight pitch mini, sting horreur, fusion/boost immédiats, scheduler conservé."
+  "SOREAL IDLE Audio V210: OK — Fight uniforme PC/mobile, sting horreur, fusion/boost immédiats, scheduler conservé."
 );
