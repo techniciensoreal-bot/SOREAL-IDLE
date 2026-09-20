@@ -204,15 +204,24 @@
   function voixFight_(){
     return reveiller_().then(function(c){
       if(c){
-        tonal_(c,{type:"square",from:170,to:95,duration:.11,volume:.045});
-        tonal_(c,{type:"sawtooth",from:920,to:390,duration:.085,volume:.018,delay:.018});
+        /*
+         * V202 — annonceur plus sombre : grondement grave + attaque sale,
+         * puis la voix système très abaissée. Aucun sample audio embarqué.
+         */
+        tonal_(c,{type:"sawtooth",from:96,to:46,duration:.58,volume:.078});
+        tonal_(c,{type:"square",from:64,to:41,duration:.46,volume:.048,delay:.025});
+        tonal_(c,{type:"sine",from:49,to:33,duration:.72,volume:.105,delay:.055});
+        bruit_(c,{
+          duration:.20,volume:.040,
+          filterType:"lowpass",frequency:680,frequencyEnd:115,decay:2.7
+        });
       }
 
       if(
         !window.speechSynthesis||
         typeof window.SpeechSynthesisUtterance!=="function"
       ){
-        return attendre_(260);
+        return attendre_(520);
       }
 
       return new Promise(function(resolve){
@@ -225,11 +234,11 @@
 
         try{
           var synth=window.speechSynthesis;
-          var utterance=new SpeechSynthesisUtterance("Fight!");
+          var utterance=new SpeechSynthesisUtterance("FIGHT!");
           utterance.lang="en-US";
-          utterance.rate=1.34;
-          utterance.pitch=.52;
-          utterance.volume=.95;
+          utterance.rate=.72;
+          utterance.pitch=.10;
+          utterance.volume=1;
 
           var voices=typeof synth.getVoices==="function"?synth.getVoices():[];
           if(Array.isArray(voices)&&voices.length){
@@ -237,7 +246,7 @@
               return /^en(?:-|_)/i.test(String(v&&v.lang||""));
             });
             var preferred=english.find(function(v){
-              return /male|daniel|fred|alex|google us english|english united states/i
+              return /male|daniel|fred|alex|david|mark|george|guy|english united states/i
                 .test(String(v&&v.name||""));
             })||english[0];
             if(preferred)utterance.voice=preferred;
@@ -254,7 +263,7 @@
           synth.speak(utterance);
 
           // Filet WebView : certains moteurs oublient parfois onend.
-          setTimeout(terminer,1050);
+          setTimeout(terminer,1550);
         }catch(_){
           terminer();
         }
