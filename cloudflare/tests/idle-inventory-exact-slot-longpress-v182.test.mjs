@@ -40,34 +40,7 @@ assert.match(
   "Le drop tactile d'un objet équipé doit conserver la case visée."
 );
 
-// 3) Mobile long press must tolerate normal finger jitter and suppress native drag/callout.
-assert.match(
-  ui,
-  /const IDLE_ADVENTURE_GESTE_SEUIL_PX_V182=22/,
-  "Le seuil tactile doit tolérer les micro-mouvements du doigt."
-);
-assert.match(
-  ui,
-  /setPointerCapture\(event\.pointerId\)/,
-  "Le geste tactile doit capturer le pointeur jusqu'au relâchement."
-);
-assert.match(
-  ui,
-  /event\.currentTarget\.draggable=false/,
-  "Le drag HTML5 natif doit être neutralisé pendant un geste tactile."
-);
-assert.match(
-  ui,
-  /-webkit-touch-callout:none/,
-  "Le callout mobile ne doit pas voler l'appui long."
-);
-assert.match(
-  ui,
-  /setTimeout\(function\(\)[\s\S]{0,1200}afficherDetailsObjetAdventureIdleV138_\(id\)[\s\S]{0,80}\},1000\);/,
-  "Le popup doit toujours être ouvert après 1 seconde d'appui immobile."
-);
-
-// Engine: equipped item must land in the exact requested empty slot.
+// 3) Les gestes mobiles sont désormais couverts par idle-inventory-gestures-v200.test.mjs.\n// Ce test V182 ne verrouille plus l'ancien contrôleur tactile intégré.\n\n// Engine: equipped item must land in the exact requested empty slot.
 let state=createIdleAdventureStateV47();
 state=applyIdleAdventureActionV47(
   state,
@@ -101,4 +74,4 @@ assert.equal(
 );
 assert.equal(state.equipment.weapon,"");
 
-console.log("Inventory exact slot + mobile long press V182: OK");
+console.log("Inventory exact slot V182: OK — gestes mobiles couverts par V200.");
