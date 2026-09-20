@@ -40,6 +40,11 @@ for(const token of [
   "data-soreal-tts-target",
   "readTarget:lireCible_",
   "readText:function(value)",
+  "function stop_()",
+  "⏹ Arrêter la lecture",
+  "stop:stop_",
+  "isSpeaking:function()",
+  "speak_(text,attempt+1,force,targetId)",
   "__SOREAL_IDLE_TUTORIAL_TTS_V203__"
 ]){
   assert.ok(tts.includes(token),"TTS V203 manquant: "+token);
