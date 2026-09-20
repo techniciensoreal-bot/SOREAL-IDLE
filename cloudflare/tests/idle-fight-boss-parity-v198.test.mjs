@@ -47,7 +47,7 @@ assert.ok(
 const progression=block(
   runtime,
   "function appliquerProgressionEnergieSorealIdle_(",
-  "function appliquerProgression"
+  "function contexteMetaNguSorealIdle_("
 );
 
 assert.ok(
@@ -83,7 +83,7 @@ assert.equal(
 const nuke=block(
   runtime,
   "function nukerBossSorealIdle(",
-  "function "
+  "function definirAutoBossSuivantSorealIdle("
 );
 
 assert.ok(
