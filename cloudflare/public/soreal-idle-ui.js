@@ -10529,9 +10529,9 @@
          * tandis que le portrait changeait au milieu du dernier impact.
          *
          * Tant que le combat LOCAL est encore réellement actif, cette avance
-         * serveur est seulement mise de côté. La mort locale déclenche déjà
-         * synchroniserJeuIdleV7_(true) après avoir peint 0 PV ; V167 garantit
-         * désormais que cette synchro forcée ne peut plus être perdue.
+         * serveur est seulement mise de côté. Après une défaite, la commande
+         * STOP est désormais confirmée AVANT toute réconciliation réseau
+         * (V174), afin qu'aucun snapshot pré-défaite ne puisse reprendre la main.
          */
         if(
           !joueurServeur.combatBossActif ||
