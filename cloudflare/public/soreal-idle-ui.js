@@ -2631,16 +2631,30 @@
             50%{box-shadow:0 0 18px 5px rgba(145,0,20,.48);background:#3b1820}
           }
           @keyframes sorealIdleNavGreenPulseV1{
-            0%,100%{box-shadow:0 0 0 rgba(46,204,113,0)}
-            50%{box-shadow:0 0 18px 5px rgba(46,204,113,.48);background:#183a29}
+            0%,100%{box-shadow:0 0 10px 2px rgba(46,204,113,.30)}
+            50%{box-shadow:0 0 24px 7px rgba(46,204,113,.72)}
           }
           @keyframes sorealIdleNavYellowPulseV1{
-            0%,100%{box-shadow:0 0 0 rgba(241,196,15,0)}
-            50%{box-shadow:0 0 18px 5px rgba(241,196,15,.46);background:#3c3518}
+            0%,100%{box-shadow:0 0 10px 2px rgba(241,196,15,.28)}
+            50%{box-shadow:0 0 24px 7px rgba(241,196,15,.68)}
           }
           .soreal-idle-nav-adventure-ko-v1{animation:sorealIdleNavBloodPulseV1 2.2s ease-in-out infinite}
-          .soreal-idle-nav-money-green-v1{animation:sorealIdleNavGreenPulseV1 2.2s ease-in-out infinite}
-          .soreal-idle-nav-money-yellow-v1{animation:sorealIdleNavYellowPulseV1 2.2s ease-in-out infinite}
+          /*
+           * V209 — l'alerte Money Pit reste colorée hors de l'onglet.
+           * Vert = Money Pit utilisable, jaune = Daily Spin seul.
+           * Le pulse n'altère plus la couleur de fond.
+           */
+          .soreal-idle-nav-money-green-v1{
+            background:#2ecc71!important;
+            color:#fff!important;
+            animation:sorealIdleNavGreenPulseV1 1.8s ease-in-out infinite;
+          }
+          .soreal-idle-nav-money-yellow-v1{
+            background:#f1c40f!important;
+            color:#fff!important;
+            text-shadow:0 1px 2px rgba(0,0,0,.34);
+            animation:sorealIdleNavYellowPulseV1 1.8s ease-in-out infinite;
+          }
 
           .soreal-idle-nav-button-v28{
             flex:0 0 auto;
@@ -17690,9 +17704,13 @@
       function idleCouleurMoneyPitNavV1_(j){
         const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
         const pitData=pit&&pit.state&&pit.state.data||null;
+        const gold=idleNombre_(
+          j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.gold
+        );
         const pitPret=Boolean(
           pit&&pit.unlock&&pit.unlock.unlocked&&
           pitData&&
+          gold>=100000&&
           Date.now()>=Number(pitData.nextAt||0)
         );
         if(pitPret)return '#2ecc71';
@@ -29340,7 +29358,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '@media(max-width:620px){.soreal-idle-money-action-v206{min-width:0;width:42%;padding:6px}.soreal-idle-money-pit-action-v206{left:42%;bottom:3%}.soreal-idle-money-spin-action-v206{right:2%;top:38%;width:35%}.soreal-idle-money-action-title-v206{font-size:11px}.soreal-idle-money-action-note-v206{font-size:9px}}'+
           '</style>'+
           '<div class="soreal-idle-money-scene-v206">'+
-            '<img src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
+            '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
               '<div class="soreal-idle-money-action-title-v206">Balance ton argent</div>'+
               '<div class="soreal-idle-money-action-note-v206">Le puits prend tout ton Or actuel.</div>'+
@@ -30223,7 +30241,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V208</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V209</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
@@ -31181,6 +31199,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           sauverMenuIdleV28_();
         }
 
+        /*
+         * V209 — conserver le même noeud image Money Pit pendant les
+         * synchronisations. Le rendu global reconstruit #app ; garder le
+         * noeud évite d'annuler/reprendre le chargement de l'image.
+         */
+        const imageMoneyPitAvantRenduV209=
+          idleMenuActifV28==='moneyPit'
+            ?document.getElementById('sorealIdleMoneyPitImageV209')
+            :null;
+
         document.getElementById('app').innerHTML=
           header()+
           `<section class="soreal-idle-native-v4">
@@ -31213,6 +31241,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               ${contenuMenuIdleV28_(j)}
             </div>
           </section>`;
+
+        if(
+          idleMenuActifV28==='moneyPit'&&
+          imageMoneyPitAvantRenduV209
+        ){
+          const imageMoneyPitApresRenduV209=
+            document.getElementById('sorealIdleMoneyPitImageV209');
+          if(
+            imageMoneyPitApresRenduV209&&
+            imageMoneyPitApresRenduV209!==imageMoneyPitAvantRenduV209
+          ){
+            imageMoneyPitApresRenduV209.replaceWith(
+              imageMoneyPitAvantRenduV209
+            );
+          }
+        }
 
         idleMenuRenduV179=
           idleMenuActifV28;
