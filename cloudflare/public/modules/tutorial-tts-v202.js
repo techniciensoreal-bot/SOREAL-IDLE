@@ -17,6 +17,7 @@
   var lastFingerprint='';
   var timer=0;
   var speechGeneration=0;
+  var activeReadTarget='';
 
   try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
 
@@ -26,6 +27,31 @@
 
   function supported_(){
     return Boolean(synth_()&&typeof window.SpeechSynthesisUtterance==='function');
+  }
+
+  function updateReadButtons_(){
+    document.querySelectorAll('.'+READ_CLASS+'[data-soreal-tts-target]').forEach(function(button){
+      if(!button.dataset.sorealTtsOriginalLabel){
+        button.dataset.sorealTtsOriginalLabel=String(button.textContent||'🔊 Lire ce texte');
+      }
+      var cible=String(button.getAttribute('data-soreal-tts-target')||'');
+      var active=Boolean(activeReadTarget&&cible===activeReadTarget);
+      button.dataset.sorealTtsReading=active?'1':'0';
+      button.textContent=active
+        ?'⏹ Arrêter la lecture'
+        :button.dataset.sorealTtsOriginalLabel;
+    });
+  }
+
+  function stop_(){
+    speechGeneration+=1;
+    activeReadTarget='';
+    try{
+      var synth=synth_();
+      if(synth)synth.cancel();
+    }catch(_){}
+    updateReadButtons_();
+    return true;
   }
 
   function activePanel_(){
@@ -134,9 +160,14 @@
     return morceaux;
   }
 
-  function speak_(text,attempt,force){
+  function speak_(text,attempt,force,targetId){
     if((!force&&!auto)||!text||!supported_())return;
     attempt=Math.max(0,Number(attempt)||0);
+
+    if(targetId){
+      activeReadTarget=String(targetId);
+      updateReadButtons_();
+    }
 
     if(audioBusy_()&&attempt<14){
       setTimeout(function(){speak_(text,attempt+1,force);},140);
@@ -153,7 +184,14 @@
     try{synth.cancel();}catch(_){}
 
     function parler(index,reessaiSansVoix){
-      if(generation!==speechGeneration||index>=morceaux.length)return;
+      if(generation!==speechGeneration)return;
+      if(index>=morceaux.length){
+        if(activeReadTarget){
+          activeReadTarget='';
+          updateReadButtons_();
+        }
+        return;
+      }
 
       try{
         /*
@@ -258,8 +296,7 @@
     try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
 
     if(!auto){
-      speechGeneration+=1;
-      try{synth_().cancel();}catch(_){}
+      stop_();
     }else{
       lastFingerprint='';
       readVisible_(true);
@@ -291,17 +328,24 @@
 
   function lireCible_(targetId){
     if(!supported_())return false;
-    var target=document.getElementById(String(targetId||''));
+    var id=String(targetId||'');
+    if(activeReadTarget===id){
+      stop_();
+      return true;
+    }
+    var target=document.getElementById(id);
     if(!visible_(target))return false;
     var txt=text_(target);
     if(!txt)return false;
     lastFingerprint='';
-    speak_(txt,0,true);
+    stop_();
+    speak_(txt,0,true,id);
     return true;
   }
 
   function scan_(){
     renderButton_();
+    updateReadButtons_();
     if(auto)readVisible_(false);
   }
 
@@ -364,15 +408,23 @@
       var txt=String(value||'').replace(/\s+/g,' ').trim();
       if(!txt)return false;
       lastFingerprint='';
-      speak_(txt,0,true);
+      stop_();
+      speak_(txt,0,true,'__manual_text__');
       return true;
+    },
+    stop:stop_,
+    isSpeaking:function(){
+      var synth=synth_();
+      return Boolean(
+        activeReadTarget||
+        (synth&&(synth.speaking||synth.pending))
+      );
     },
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
       if(!auto&&synth_()){
-        speechGeneration+=1;
-        try{synth_().cancel();}catch(_){}
+        stop_();
       }
       lastFingerprint='';
       schedule_();
