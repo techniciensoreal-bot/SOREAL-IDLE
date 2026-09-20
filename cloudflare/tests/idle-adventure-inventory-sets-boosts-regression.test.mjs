@@ -75,8 +75,8 @@ assert.equal(snapshot.itemList["training:weapon"].fullyMaxed,true);
 // separately calls level-100 sets "completed".
 {
   let gateState=createIdleAdventureStateV47();
-  const gateAct=(payload,now=1)=>{
-    const out=applyIdleAdventureActionV47(gateState,payload,ctx,now);
+  const gateAct=(payload,context=ctx,now=1)=>{
+    const out=applyIdleAdventureActionV47(gateState,payload,context,now);
     gateState=out.state;
     return out;
   };
