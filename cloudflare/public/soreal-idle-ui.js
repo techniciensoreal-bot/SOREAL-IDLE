@@ -28640,8 +28640,8 @@ function pageAventureIdleV28_(j){
           const gain=formatGrandNombreIdleV70_((achat.gain||0)*qty,2);
           return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRessourceMetaIdleV130__(\''+
             idleHtml_(res)+'\',\''+idleHtml_(stat)+'\','+qty+')">'+
-              '<b>Acheter ×'+qty+'</b>'+
-              '<small>+'+gain+' · '+cout+' EXP</small>'+
+              '<b>+'+gain+'</b>'+
+              '<small>×'+qty+' achat'+(qty>1?'s':'')+' · '+cout+' EXP</small>'+
             '</button>';
         }).join('')+'</div>';
       }
@@ -28697,7 +28697,7 @@ function pageAventureIdleV28_(j){
         return '<div class="soreal-idle-exp-stat-v210">'+
           '<div class="soreal-idle-exp-stat-head-v210">'+
             '<span>'+stat.icone+' '+stat.nom+'</span>'+
-            '<strong>'+formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong>'+
+            '<div class="soreal-idle-exp-current-v211"><small>Actuel</small><strong>'+formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong></div>'+
           '</div>'+
           '<div class="soreal-idle-exp-help-v210">'+idleHtml_(stat.explication||'')+'</div>'+
           (!achat
@@ -28735,19 +28735,21 @@ function pageAventureIdleV28_(j){
           'Utilise ton EXP pour améliorer durablement la génération et la capacité de tes ressources.'
         )+
         '<style>'+
-          '.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;margin-bottom:12px;border-radius:15px;background:linear-gradient(135deg,rgba(8,145,178,.13),rgba(99,102,241,.10));border:1px solid rgba(8,145,178,.24)}'+
-          '.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900}.soreal-idle-exp-balance-v210 b{font-size:22px}'+
-          '.soreal-idle-exp-resource-v210{margin:12px 0 6px;padding:10px 13px;border-radius:13px;background:rgba(8,145,178,.08);border:1px solid rgba(8,145,178,.18);font-weight:950}'+
-          '.soreal-idle-exp-stat-v210{margin:8px 0;padding:13px;border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(38,52,84,.10);box-shadow:0 5px 16px rgba(31,41,70,.06)}'+
-          '.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:950}.soreal-idle-exp-stat-head-v210 strong{font-size:15px}'+
-          '.soreal-idle-exp-help-v210{margin:5px 0 10px;color:#70798f;font-size:11px;line-height:1.45;font-weight:750}'+
-          '.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px}'+
-          '.soreal-idle-exp-buy-v210{border:1px solid rgba(8,145,178,.22);border-radius:11px;padding:9px 10px;background:rgba(8,145,178,.09);color:inherit;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:2px}'+
-          '.soreal-idle-exp-buy-v210:hover{background:rgba(8,145,178,.16)}.soreal-idle-exp-buy-v210 b{font-size:11px}.soreal-idle-exp-buy-v210 small{font-size:9px;opacity:.76}'+
-          '.soreal-idle-exp-buy-v210.primary{background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.28)}.soreal-idle-exp-buy-v210.offer{background:rgba(245,158,11,.11);border-color:rgba(245,158,11,.26)}'+
-          '.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 84px minmax(110px,auto);gap:7px;align-items:end;margin-top:8px}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;color:#7b8498;font-weight:850}.soreal-idle-exp-custom-v210 input{width:100%;box-sizing:border-box;padding:9px;border-radius:9px;border:1px solid rgba(38,52,84,.17);background:rgba(255,255,255,.86)}'+
-          '.soreal-idle-exp-newbie-v210{margin-top:9px;padding-top:9px;border-top:1px dashed rgba(38,52,84,.14)}.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(107,114,128,.08);font-size:11px;font-weight:850}'+
-          '@media(max-width:560px){.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 input{grid-column:1}.soreal-idle-exp-custom-v210 .soreal-idle-exp-buy-v210{grid-column:2}.soreal-idle-exp-actions-v210{grid-template-columns:1fr 1fr}}'+
+          '.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;margin:0 0 14px;border-radius:16px;background:#17203f;color:#fff;border:1px solid #17203f;box-shadow:0 8px 18px rgba(23,32,63,.16)}'+
+          '.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900;letter-spacing:.02em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:7px 11px;border-radius:999px;background:#f1c65b;color:#17203f;font-size:18px;line-height:1;font-weight:1000;box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}'+
+          '.soreal-idle-exp-resource-v210{margin:16px 0 8px;padding:10px 13px;border-radius:12px;background:#e9edf7;color:#27334f;border-left:4px solid #5968ee;border-top:1px solid #d8deec;border-right:1px solid #d8deec;border-bottom:1px solid #d8deec;font-size:13px;font-weight:1000;letter-spacing:.01em}'+
+          '.soreal-idle-exp-stat-v210{margin:8px 0;padding:14px;border-radius:15px;background:#fff;color:#17203f;border:1px solid #d9dfeb;box-shadow:0 4px 13px rgba(31,41,70,.06)}'+
+          '.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#17203f;font-size:14px;font-weight:1000}.soreal-idle-exp-stat-head-v210>span{min-width:0}'+
+          '.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:5px 8px;border-radius:9px;background:#f1f3f8;color:#17203f;border:1px solid #e0e4ee}.soreal-idle-exp-current-v211 small{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#6f7789;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:14px;color:#17203f;font-weight:1000}'+
+          '.soreal-idle-exp-help-v210{margin:6px 0 12px;color:#596174;font-size:11px;line-height:1.5;font-weight:750}'+
+          '.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:7px}'+
+          '.soreal-idle-exp-buy-v210{appearance:none;min-height:48px;border:1px solid #243154;border-radius:11px;padding:8px 10px;background:#26345a;color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:3px;box-shadow:0 3px 8px rgba(31,41,70,.12);transition:transform .12s ease,background .12s ease,box-shadow .12s ease}'+
+          '.soreal-idle-exp-buy-v210:hover{background:#33436f;box-shadow:0 5px 12px rgba(31,41,70,.16);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:9px;line-height:1.25;color:#dce3f2 !important;opacity:1}'+
+          '.soreal-idle-exp-buy-v210.primary{background:#5968ee;border-color:#4d5bdd;color:#fff !important}.soreal-idle-exp-buy-v210.primary:hover{background:#4d5bdd}.soreal-idle-exp-buy-v210.offer{background:#fff4cf;border-color:#e5c86c;color:#5e4810 !important;box-shadow:none}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#5e4810 !important}.soreal-idle-exp-buy-v210.offer:hover{background:#ffedb2}'+
+          '.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:7px;align-items:end;margin-top:9px;padding-top:9px;border-top:1px solid #e5e8f0}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#6d7485;font-weight:900}.soreal-idle-exp-custom-v210 input{width:100%;height:43px;box-sizing:border-box;padding:9px 10px;border-radius:10px;border:1px solid #cfd6e3;background:#fff;color:#17203f;font-weight:900;outline:none}.soreal-idle-exp-custom-v210 input:focus{border-color:#5968ee;box-shadow:0 0 0 3px rgba(89,104,238,.12)}'+
+          '.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:#fffaf0;border:1px solid #eee0b8}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#5e4810;font-size:12px}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{margin:0 0 8px;color:#76642f;font-size:10px}'+
+          '.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:#f1f3f7;color:#596174;border:1px solid #e0e4ec;font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{background:#edf8f0;color:#326341;border-color:#cfe6d5}'+
+          '@media(max-width:560px){.soreal-idle-exp-stat-v210{padding:12px}.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 input{grid-column:1}.soreal-idle-exp-custom-v210 .soreal-idle-exp-buy-v210{grid-column:2}}'+
         '</style>'+
         '<div class="soreal-idle-exp-balance-v210"><span>⭐ EXP disponible</span><b>'+formatGrandNombreIdleV70_(exp)+'</b></div>'+
         ressources.map(function(res){
@@ -30467,7 +30469,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V210</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V211</b></div>'+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
