@@ -27,7 +27,7 @@ assert.ok(
 );
 
 assert.ok(
-  ui.includes("La grosse barre verte, représente ton energie d'entrainement disponible."),
+  ui.includes(String.raw`La grosse barre verte, représente ton energie d\'entrainement disponible.`),
   "La page Énergie Idle doit expliquer l'énergie d'entraînement disponible via la barre verte."
 );
 
