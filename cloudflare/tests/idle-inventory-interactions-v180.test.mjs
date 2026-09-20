@@ -28,15 +28,7 @@ assert.match(
   "Le bouton Supprimer doit envoyer dans Trash, jamais appeler discard."
 );
 
-const debutLong=ui.slice(
-  ui.indexOf("function debutAppuiLongAdventureIdleV165_"),
-  ui.indexOf("function bougerAppuiLongAdventureIdleV165_")
-);
-assert.ok(debutLong.includes("setTimeout"),"L'appui long doit conserver son timer.");
-assert.ok(debutLong.includes("},1000);"),"L'appui long doit rester à 1 seconde.");
-assert.ok(!debutLong.includes("pointerType==='mouse'"),"Le maintien souris doit aussi ouvrir le popup.");
-
-assert.match(
+// L'appui long a été extrait du contrôleur V180 : il est couvert par\n// idle-inventory-gestures-v200.test.mjs et son module long-press-v200.js.\n\nassert.match(
   ui,
   /function appliquerDepotPointerAdventureIdleV180_\(/,
   "Un vrai chemin de drop PointerEvent mobile doit exister."
