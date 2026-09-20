@@ -16380,9 +16380,16 @@
         }
 
         if(id==='spendExp'){
-          return idleEntier_(
-            j.systemes&&j.systemes.currencies&&j.systemes.currencies.experience
-          )>0;
+          /*
+           * EXP Shop se débloque au premier boss et reste visible ensuite,
+           * même quand le solde EXP retombe à 0. records.highestBoss est un
+           * record permanent qui survit aux dépenses et aux Rebirths.
+           */
+          return Boolean(
+            j.systemes&&
+            j.systemes.records&&
+            idleNombre_(j.systemes.records.highestBoss)>=1
+          );
         }
 
         if(id==='setsZones')return false;
@@ -16786,7 +16793,7 @@
         {
           titre:'Basic Training',
           paragraphes:[
-            'C’est là que les choses se passent. Si tu sélectionnes Basic Training dans le menu en haut, tu pourras augmenter ton attaque et ta défense (quelle surprise). Pour t’entraîner, tu assignes ton Énergie à une tâche ! Vas-y, clique sur le bouton « + » à côté de « Attaque Idle » et regarde ce qui se passe.'
+            'C’est là que les choses se passent. Si tu sélectionnes Basic Training dans le menu en haut, tu pourras augmenter ton attaque et ta défense (quelle surprise). Pour t’entraîner, tu assignes ton Énergie à une tâche ! Vas-y, clique sur le bouton « + » à côté de « Attaque passive » et regarde ce qui se passe.'
           ]
         },
         {
@@ -16810,7 +16817,7 @@
         {
           titre:'Défense',
           paragraphes:[
-            'Avoir la force d’un transpalette électrique mais en carton, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Donc, il va falloir entraîner la compétence « Blocage » dans le menu Basic Training aussi. Si toute ton Énergie est allouée à l’Attaque Idle, il va falloir en retirer un peu.'
+            'Avoir la force d’un transpalette électrique mais en carton, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Donc, il va falloir entraîner la compétence « Blocage » dans le menu Basic Training aussi. Si toute ton Énergie est allouée à l’Attaque passive, il va falloir en retirer un peu.'
           ]
         },
         {
