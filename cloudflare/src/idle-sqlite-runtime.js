@@ -8066,10 +8066,35 @@ function appliquerProgressionEnergieSorealIdle_(
         bossPvMax
       );
 
+    /*
+     * V198 — Fight Boss : UNE seule formule client/serveur.
+     *
+     * NGU : les dégâts infligés au boss partent de
+     *   max(Attack joueur - Defense boss, 0)
+     * puis seulement les effets temporaires du combat s'appliquent.
+     *
+     * Le client suivait déjà cette règle, mais le serveur utilisait encore
+     * `puissance` brute. Une synchronisation pouvait donc enlever beaucoup
+     * plus de PV que l'écran, voire valider la mort d'un boss que le joueur
+     * n'était pas encore capable de blesser.
+     */
+    const defenseBossCombat =
+      defenseBossSorealIdle_(
+        bossCombatIndex,
+        metaNguRessourceV55.difficulty
+      );
+
+    const dpsJoueurBase =
+      Math.max(
+        0,
+        puissance -
+        defenseBossCombat
+      );
+
     const dpsBossNet =
       Math.max(
         0,
-        puissance *
+        dpsJoueurBase *
         multiplicateurDpsBoss *
         multiplicateurSceau *
         multiplicateurVulnerabilite -
@@ -11437,14 +11462,11 @@ function definirCombatBossSorealIdle(
 
 
 /**
- * NUKE — reproduit la mécanique réelle de NGU Idle : "You can instantly skip
- * bosses with the nuke button, if you are strong enough to kill it — your
- * defense must be at least 5x the attack of the boss." On avance depuis le
- * boss courant tant que Défense >= 5x Attaque du boss suivant, en accordant
- * les mêmes récompenses (XP, pièces, loot, rencontre Bestiaire) qu'une
- * victoire normale, puis on s'arrête net — combat toujours arrêté, exactement
- * comme après une victoire manuelle (V41.2) — au premier boss qui résiste.
- * Le mur "bloqué jusqu'à la Renaissance" en fin de monde reste infranchissable.
+ * NUKE — règle BossController.nukeBosses() de NGU :
+ * Attack joueur / 5 > Defense boss ET Defense joueur / 5 > Attack boss.
+ * On avance depuis le boss courant tant que LES DEUX conditions restent
+ * vraies, en accordant les mêmes récompenses qu'une victoire normale.
+ * Combat arrêté au premier boss non nukable ; mur de Renaissance inchangé.
  */
 function nukerBossSorealIdle(
   sessionToken
@@ -11545,14 +11567,27 @@ function nukerBossSorealIdle(
         )
       );
 
+    /*
+     * V198 — appliquerProgressionEnergieSorealIdle_ vient de synchroniser
+     * Basic Training + bonus NGU et a réécrit PUISSANCE/ENDURANCE avec les
+     * stats Fight Boss effectives. Ce sont donc les mêmes Attack/Defense
+     * que celles utilisées par le combat, jamais un calcul parallèle.
+     */
+    const attaqueNuke =
+      Math.max(
+        0,
+        nombreSorealIdle_(
+          row[c.PUISSANCE - 1],
+          0
+        )
+      );
+
     const defenseNuke =
       Math.max(
         0,
-        Math.floor(
-          nombreSorealIdle_(
-            row[c.ENDURANCE - 1],
-            0
-          )
+        nombreSorealIdle_(
+          row[c.ENDURANCE - 1],
+          0
         )
       );
 
@@ -11664,12 +11699,36 @@ function nukerBossSorealIdle(
         break;
       }
 
+      const difficulteNuke =
+        stats.metaNgu &&
+        stats.metaNgu.difficulty;
+
       const attaqueBossNuke =
         attaqueBossSorealIdle_(
-          bossVaincus
+          bossVaincus,
+          difficulteNuke
         );
 
-      if (defenseNuke < attaqueBossNuke * 5) {
+      const defenseBossNuke =
+        defenseBossSorealIdle_(
+          bossVaincus,
+          difficulteNuke
+        );
+
+      /*
+       * Règle réelle de BossController.nukeBosses() :
+       *   playerAttack / 5 > bossDefense
+       *   ET
+       *   playerDefense / 5 > bossAttack
+       *
+       * Les deux comparaisons sont strictes. L'ancienne implémentation ne
+       * testait que Defense >= 5× Boss Attack et pouvait donc nuker un boss
+       * que le joueur était incapable d'endommager.
+       */
+      if (
+        !(attaqueNuke / 5 > defenseBossNuke) ||
+        !(defenseNuke / 5 > attaqueBossNuke)
+      ) {
         break;
       }
 
@@ -11807,7 +11866,7 @@ function nukerBossSorealIdle(
       return {
         ok: false,
         code: 'SOREAL_IDLE_NUKE_AUCUN_BOSS',
-        message: 'Ta Défense n’est pas encore assez haute pour one-shot le boss actuel (il faut au moins 5x son Attaque, comme dans NGU Idle).'
+        message: 'NUKE impossible : ton Attaque doit dépasser 5× la Défense du boss ET ta Défense doit dépasser 5× son Attaque.'
       };
     }
 
