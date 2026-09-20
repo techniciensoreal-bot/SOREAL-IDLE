@@ -25,8 +25,8 @@ function block(start,end){
 
 assert.ok(
   index.includes('/modules/long-press-v200.js?v=200')&&
-  index.includes('/soreal-idle-ui.js?v=207'),
-  "Le standalone doit conserver le module de maintien V200 et charger l'UI cache-bustée V207."
+  index.includes('/soreal-idle-ui.js?v=208'),
+  "Le standalone doit conserver le module de maintien V200 et charger l'UI cache-bustée V208."
 );
 
 assert.ok(

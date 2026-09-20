@@ -11,8 +11,8 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=207'),
-  "Le shell doit charger l'UI V207."
+  index.includes('/soreal-idle-ui.js?v=208'),
+  "Le shell doit charger l'UI V208."
 );
 
 for(const token of [
@@ -56,7 +56,7 @@ for(const token of [
 }
 
 assert.ok(
-  ui.includes('Build <b style="color:#dce5f3">V207</b>'),
+  ui.includes('Build <b style="color:#dce5f3">V208</b>'),
   "Settings doit afficher le jalon V206."
 );
 
