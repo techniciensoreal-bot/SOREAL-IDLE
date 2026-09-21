@@ -524,3 +524,29 @@ Démarrage : 2026-09-21.
 
 État actuel : modification de code non commencée sur cette branche.
 Prochaine action : ajouter les routes modèles vocales, la sélection persistante côté Piper, l'interface de choix et les tests de non-régression.
+
+
+### V9 — modèles et contrôleur multi-voix ajoutés
+Commits réalisés :
+- `3fdd193d` : routes proxy pour les modèles sélectionnables ;
+- `3d4ed1fb` : tests des routes proxy ;
+- `790f1fe3` : moteur Piper avec sélection persistante et changement de modèle ;
+- `e753f357` : sélecteur de voix dans les contrôles de narration ;
+- `502cfa63` : cache-busters V9 ;
+- `08523ec0` / `cf687ee7` : tests de non-régression du moteur et du sélecteur ;
+- `d5386213` : smoke Chromium prévu pour synthétiser SOREAL, Siwis et Gilles ;
+- `2d9dcf77` : CI vérifie la disponibilité des trois modèles.
+
+Voix configurées :
+- SOREAL : modèle V8 actuel ;
+- Siwis : fr_FR-siwis-medium (Piper voices v1.0.0) ;
+- Gilles : fr_FR-gilles-low (Piper voices v1.0.0).
+
+Dernière anomalie :
+- validation locale impossible dans le conteneur ChatGPT : `git clone` échoue avec `Could not resolve host: github.com` ; ce n'est pas une erreur du dépôt ni des tests.
+
+État tests/build :
+- non encore exécutés sur GitHub pour V9.
+Prochaine action :
+- ajouter un workflow temporaire de validation de branche ;
+- ouvrir la PR pour déclencher tests + build + Wrangler local + Chromium sur les trois voix.
