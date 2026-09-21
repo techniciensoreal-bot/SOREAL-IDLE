@@ -15,7 +15,7 @@ const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",impor
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
 
-assert.ok(index.includes("/soreal-idle-ui.js?v=213"));
+assert.ok(index.includes("/soreal-idle-ui.js?v=218"));
 assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
 assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
 assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'));
