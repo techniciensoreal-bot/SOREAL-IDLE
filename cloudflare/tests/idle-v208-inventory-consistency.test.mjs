@@ -60,9 +60,9 @@ for(const token of [
   assert.ok(ui.includes(token),"Protection anti-rollback V208 manquante: "+token);
 }
 
-assert.match(index,/\\/modules\\/audio-effects-v199\\.js\\?v=\\d+/);
-assert.match(index,/\\/modules\\/tutorial-tts-v202\\.js\\?v=\\d+/);
-assert.match(index,/\\/soreal-idle-ui\\.js\\?v=\\d+/);
+assert.match(index,new RegExp("/modules/audio-effects-v199\\\\.js\\\\?v=\\\\d+"));
+assert.match(index,new RegExp("/modules/tutorial-tts-v202\\\\.js\\\\?v=\\\\d+"));
+assert.match(index,new RegExp("/soreal-idle-ui\\\\.js\\\\?v=\\\\d+"));
 assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'));
 
 new Function(ui);
