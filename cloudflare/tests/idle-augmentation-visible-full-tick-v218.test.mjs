@@ -11,7 +11,7 @@ const index=readFileSync(
 );
 
 /*
- * Régression V218 — à 15 Hz sur un écran 60 Hz, une animation linéaire
+ * Régression V219 — à 15 Hz sur un écran 60 Hz, une animation linéaire
  * 0 -> 100 % de 66,7 ms est souvent échantillonnée visuellement à
  * 0/25/50/75 %, puis reboucle avant qu'un frame ne montre 100 %.
  * Les extrémités doivent donc disposer d'une vraie fenêtre d'affichage
@@ -33,8 +33,8 @@ assert.match(
   "La durée du cycle doit rester exactement liée à la durée réelle du niveau, plafonnée à 50 Hz."
 );
 assert.ok(
-  index.includes("/soreal-idle-ui.js?v=218"),
-  "Le shell doit forcer le chargement de la révision V218, sans réutiliser le cache V213."
+  index.includes("/soreal-idle-ui.js?v=219"),
+  "Le shell doit forcer le chargement de la révision V219, sans réutiliser le cache V213."
 );
 
-console.log("idle augmentation visible full tick V218: OK");
+console.log("idle augmentation visible full tick V219: OK");
