@@ -9468,9 +9468,32 @@
               const duration=Math.max(20,seconds*1000);
               if(!el.__idleAugAnimationV217||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
                 if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
-                el.style.width='0%';
+                el.style.width='100%';
+                /*
+                 * V218 — correction de la cause réelle du "1/4 -> 3/4".
+                 * À 15 Hz sur un écran 60 Hz, une animation strictement
+                 * linéaire de 66,7 ms est typiquement échantillonnée à
+                 * 0/25/50/75 %, puis le frame suivant tombe déjà sur le
+                 * cycle suivant : le navigateur ne présente donc jamais
+                 * visuellement 100 %. Même phénomène à 50 Hz.
+                 *
+                 * Un tick conserve EXACTEMENT la même durée réelle, mais
+                 * réserve une courte fenêtre visible à 0 % et à 100 %.
+                 * Ainsi chaque cycle observé est bien :
+                 * 0 -> montée -> 100 -> reset 0.
+                 *
+                 * transform:scaleX() est utilisé plutôt que width afin
+                 * que l'animation reste sur le compositor et ne provoque
+                 * pas de layout jusqu'à 50 cycles/s sur plusieurs barres.
+                 */
                 const animation=el.animate(
-                  [{width:'0%'},{width:'100%'}],
+                  [
+                    {transform:'scaleX(0)',offset:0},
+                    {transform:'scaleX(0)',offset:.08},
+                    {transform:'scaleX(1)',offset:.72},
+                    {transform:'scaleX(1)',offset:.98},
+                    {transform:'scaleX(0)',offset:1}
+                  ],
                   {duration:duration,iterations:Infinity,easing:'linear'}
                 );
                 animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(x[1])))*duration;
@@ -29293,7 +29316,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const level=idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'Upgrade':'Augment';
           const values=[0,Math.floor(cap*.25),Math.floor(cap*.5),cap];
-          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+formatGrandNombreIdleV70_(value)+' ⚡</span></div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:'+pct+'%;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+values.map(function(v,i){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__actionMetaV47__({action:\'allocateAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:'+upgrade+',value:'+v+'})"':'disabled')+'>'+['0%','25%','50%','100%'][i]+'</button>';}).join('')+'</div></div>';
+          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+formatGrandNombreIdleV70_(value)+' ⚡</span></div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+values.map(function(v,i){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__actionMetaV47__({action:\'allocateAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:'+upgrade+',value:'+v+'})"':'disabled')+'>'+['0%','25%','50%','100%'][i]+'</button>';}).join('')+'</div></div>';
         }
         return entetePageIdleV28_('🦾 Augmentations','Chaque Augment et chaque Upgrade possède sa propre allocation Energy et progresse en parallèle. Les niveaux sont remis à zéro au Rebirth.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+
