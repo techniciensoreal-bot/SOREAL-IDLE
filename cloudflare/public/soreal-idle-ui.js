@@ -25385,7 +25385,14 @@ let idleDialogueTimerV76=null;
       }
 
       function boosterCubeAdventureIdleV47_(boostId){
-        actionAdventureIdleV47_({action:'boost',boostId:String(boostId||''),toCube:true});
+        /*
+         * V221 — le moteur Aventure possède une action dédiée "cube".
+         * L'ancien client envoyait action:"boost",toCube:true ; le moteur
+         * ignore toCube pour cette action et cherche alors targetId, donc
+         * chaque dépôt/clic de Power, Toughness ou Special échouait avant
+         * d'atteindre cube(). On envoie désormais l'action serveur réelle.
+         */
+        actionAdventureIdleV47_({action:'cube',boostId:String(boostId||'')});
       }
 
       function actionMetaV47_(payload){
