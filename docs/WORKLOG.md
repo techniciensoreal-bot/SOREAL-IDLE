@@ -108,3 +108,16 @@ Validation hors production :
 - workflow temporaire supprimé au commit `0340daa60460c5f53d0b98c35c5af0697d916b59`.
 
 Prochaine action : comparer la branche à `main`, merger si 0 commit derrière, puis vérifier CI/build/déploiement/SHA production.
+
+
+## Correctif narration V2 — état production vérifié
+- Merge PR #3 : `ede23e471987d7df187b67bba17a9c6d6b59f37d`.
+- Workflow production #503 : SUCCESS.
+- Suite complète : SUCCESS.
+- Build standalone : SUCCESS.
+- Déploiement Cloudflare : SUCCESS.
+- Vérification du SHA actif : SUCCESS.
+- Version Cloudflare : `24eeb579-604e-449a-88f2-e64227ff2f77`.
+- Routage : 100 %.
+- Correctifs actifs : API MeloTTS documentée sans `returnRawResponse`, sans `rejectIfBusy`, timeout client neural 30 s, cache-buster `?v=223`.
+- Prochaine action : retest réel d'un bouton de lecture dans SOREAL-IDLE. Si la voix reste identique, instrumenter la route pour exposer la raison exacte du fallback au lieu de continuer à deviner.
