@@ -509,3 +509,18 @@ Dernière anomalie connue :
 Prochaine action :
 - retest auditif utilisateur sur un bouton de narration réel ;
 - si un défaut subsiste sur un navigateur précis, relever le code d’erreur affiché par le bouton et diagnostiquer ce navigateur sans remettre en cause le chemin production déjà vérifié.
+
+
+## Narration V9 — choix de voix IA
+Démarrage : 2026-09-21.
+- Dépôt traité : SOREAL-IDLE uniquement.
+- Branche : `feat/piper-voice-choice-v9`.
+- `main` vérifié au démarrage : `31677b98a7bb8901ccefb1fe0a9cc199af9796c7` (commit docs-only).
+- Dernier SHA de code vérifié en production avant ce chantier : `0254667cf5abf348f9f6399240d010ed09d3afae`.
+- État production de départ : run #509 SUCCESS, tests/build/déploiement/SHA actif/smoke Piper production-origin SUCCESS.
+- Demande : permettre au joueur de choisir réellement sa voix IA.
+- Constat : le modèle V8 courant n'expose qu'un seul locuteur et l'API navigateur Piper Plus 0.7.0 ne propose pas de sélection speakerId ; un faux sélecteur est donc exclu.
+- Direction retenue : choix entre plusieurs modèles vocaux français mono-locuteur, chargés à la demande et mémorisés localement, sans réintroduire SpeechSynthesis ni TTS cloud.
+
+État actuel : modification de code non commencée sur cette branche.
+Prochaine action : ajouter les routes modèles vocales, la sélection persistante côté Piper, l'interface de choix et les tests de non-régression.
