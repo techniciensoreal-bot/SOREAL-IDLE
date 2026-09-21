@@ -1,0 +1,32 @@
+name: Diagnose neural narration production
+
+on:
+  push:
+    branches:
+      - work/neural-only-v3
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe production narration health
+        shell: bash
+        run: |
+          set -u
+          endpoint="https://soreal-idle.technicien-soreal.workers.dev/api/v1/narration-health"
+          for i in $(seq 1 10); do
+            echo "Attempt $i"
+            code=$(curl --silent --show-error --max-time 60 -o /tmp/body.txt -w "%{http_code}" "$endpoint" || true)
+            echo "HTTP $code"
+            cat /tmp/body.txt || true
+            echo
+            if [ "$code" = "200" ]; then
+              exit 0
+            fi
+            if [ "$code" != "404" ]; then
+              exit 1
+            fi
+            sleep 2
+          done
+          exit 1
