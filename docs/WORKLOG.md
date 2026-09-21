@@ -215,3 +215,37 @@ Prochaine action :
 - valider la branche complète ;
 - merger seulement si `main` n'a pas avancé ;
 - exiger un health check Grok TTS réel vert en production.
+
+
+## Narration V6 — Piper Plus local, sans crédits API
+Diagnostic réel du run production #506 :
+- tests : SUCCESS ;
+- build : SUCCESS ;
+- déploiement Worker : SUCCESS ;
+- Grok TTS : FAILURE avec `2021: Insufficient AI Gateway credits`.
+- Le blocage Grok est donc lié au compte Cloudflare/billing, pas au code client.
+
+Décision V6 :
+- le chemin de lecture client ne dépend plus de Workers AI ;
+- `SpeechSynthesis` reste totalement interdit ;
+- moteur : Piper Plus 0.7.0 en WebAssembly/ONNX dans le navigateur ;
+- ONNX Runtime Web épinglé en 1.30.0 ;
+- modèle : `ayousanz/piper-plus-css10-ja-6lang` ;
+- modèle ONNX FP16 : environ 40 Mo, français explicitement supporté ;
+- langue forcée : `fr` ;
+- chargement lazy au premier usage ;
+- modèle mis en cache par le navigateur après téléchargement ;
+- progression affichée sur le bouton pendant chargement/génération ;
+- aucun appel client à `/api/v1/narration` ;
+- aucun fallback vers Web Speech ;
+- cache-buster du contrôleur : `?v=225`.
+
+Fichiers :
+- nouveau `cloudflare/public/modules/local-neural-piper-v1.js` ;
+- `cloudflare/public/index.html` ajoute un import map épinglé et charge le module local avant le contrôleur ;
+- `cloudflare/public/modules/tutorial-tts-v202.js` utilise uniquement audio mappé ou Piper local ;
+- nouveau test `idle-local-piper-neural.test.mjs` ;
+- workflow production : suppression du health check payant Grok, remplacé par la vérification d'accessibilité des dépendances Piper/ONNX/modèle.
+
+État branche : `work/local-piper-v6`.
+Prochaine action : suite complète + build + smoke test Chromium générant réellement une phrase française avec Piper local. Aucun merge avant succès.
