@@ -61,17 +61,31 @@ jobs:
           endpoint="https://soreal-idle.technicien-soreal.workers.dev/api/v1/narration-health"
           output="$RUNNER_TEMP/soreal-idle-narration-health.json"
 
-          curl --fail-with-body --silent --show-error \
-            --retry 2 --retry-delay 2 --max-time 60 \
-            "$endpoint" > "$output"
+          code=""
+          for attempt in 1 2 3; do
+            echo "Narration health attempt $attempt"
+            code=$(curl --silent --show-error --max-time 60 -o "$output" -w "%{http_code}" "$endpoint" || true)
+            cat "$output" || true
+            echo
+            if [ "$code" = "200" ]; then
+              break
+            fi
+            sleep 3
+          done
+
+          if [ "$code" != "200" ]; then
+            echo "Narration health HTTP failure: $code"
+            exit 1
+          fi
 
           NARRATION_HEALTH_FILE="$output" node <<'NODE'
           const fs=require("node:fs");
           const data=JSON.parse(fs.readFileSync(process.env.NARRATION_HEALTH_FILE,"utf8"));
           if(
             data?.ok!==true||
-            data?.model!=="@cf/myshell-ai/melotts"||
-            data?.lang!=="FR"||
+            data?.model!=="xai/grok-tts"||
+            data?.lang!=="fr"||
+            data?.voice!=="ara"||
             !(Number(data?.bytes)>0)
           ){
             console.error("SOREAL IDLE neural narration health failed:",data);
