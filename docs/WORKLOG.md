@@ -396,3 +396,16 @@ Prochaine action :
 Prochaine action :
 - retest utilisateur sur un bouton de narration réel dans SOREAL-IDLE.
 - ce commit WORKLOG est docs-only ; le SHA de code réellement déployé reste `bee6933f4bae1dabb1192d14e8f7c56f6dfe4df0`.
+
+
+### Validation V8 — run #1
+- commit testé : `d0078e2594a07c2d99c73b43b0f7bbbfea9d1513` ;
+- nouveau test proxy same-origin : SUCCESS ;
+- suite complète : FAILURE avant build/smoke ;
+- erreur exacte : `idle-tutorial-tts-v202.test.mjs:90` attend encore `/modules/local-neural-piper-v1.js?v=2` ;
+- cause : assertion de garde obsolète après passage volontaire du cache-buster Piper à `?v=3` ;
+- build et smoke navigateur : non exécutés sur ce run.
+
+Prochaine action :
+- mettre à jour cette assertion vers `?v=3` ;
+- relancer la validation complète sans autre changement fonctionnel.
