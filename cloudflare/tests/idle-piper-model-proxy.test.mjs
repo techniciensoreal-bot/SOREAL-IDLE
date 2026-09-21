@@ -12,7 +12,7 @@ globalThis.fetch=async (url,init={})=>{
       status:200,
       headers:{
         "content-type":"application/json",
-        "etag":"\"config-v1\""
+        "etag":"\"config-v2\""
       }
     });
   }
@@ -21,41 +21,55 @@ globalThis.fetch=async (url,init={})=>{
       status:200,
       headers:{
         "content-type":"application/octet-stream",
-        "etag":"\"model-v1\""
+        "etag":"\"model-v2\""
       }
     });
   }
   return new Response("unexpected",{status:404});
 };
 
+async function verifierRoute_(origin,path){
+  const response=await traiterRequeteIdleMedia(new Request(origin+path),{});
+  assert.equal(response.status,200,path);
+  assert.equal(response.headers.get("access-control-allow-origin"),"*",path);
+  assert.match(response.headers.get("cache-control")||"",/immutable/,path);
+  if(path.endsWith(".json")){
+    assert.match(response.headers.get("content-type")||"",/application\/json/,path);
+    assert.match(await response.text(),/sample_rate/,path);
+  }else{
+    assert.match(response.headers.get("content-type")||"",/application\/octet-stream/,path);
+    assert.deepEqual([...new Uint8Array(await response.arrayBuffer())],[1,2,3,4],path);
+  }
+}
+
 try{
   const origin="https://soreal-idle.example";
 
-  const config=await traiterRequeteIdleMedia(
-    new Request(origin+"/api/idle/media/piper-model.onnx.json"),
-    {}
-  );
-  assert.equal(config.status,200);
-  assert.match(config.headers.get("content-type")||"",/application\/json/);
-  assert.equal(config.headers.get("access-control-allow-origin"),"*");
-  assert.match(config.headers.get("cache-control")||"",/immutable/);
-  assert.match(await config.text(),/sample_rate/);
-
-  const model=await traiterRequeteIdleMedia(
-    new Request(origin+"/api/idle/media/piper-model.onnx"),
-    {}
-  );
-  assert.equal(model.status,200);
-  assert.match(model.headers.get("content-type")||"",/application\/octet-stream/);
-  assert.equal(model.headers.get("access-control-allow-origin"),"*");
-  assert.deepEqual([...new Uint8Array(await model.arrayBuffer())],[1,2,3,4]);
+  for(const path of [
+    "/api/idle/media/piper-model.onnx.json",
+    "/api/idle/media/piper-model.onnx",
+    "/api/idle/media/piper-voice-soreal.onnx.json",
+    "/api/idle/media/piper-voice-soreal.onnx",
+    "/api/idle/media/piper-voice-siwis.onnx.json",
+    "/api/idle/media/piper-voice-siwis.onnx",
+    "/api/idle/media/piper-voice-gilles.onnx.json",
+    "/api/idle/media/piper-voice-gilles.onnx"
+  ]){
+    await verifierRoute_(origin,path);
+  }
 
   assert.deepEqual(calls.map(call=>call.href),[
     "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx.json",
-    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx"
+    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx",
+    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx.json",
+    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx.json",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx.json",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx"
   ]);
 
-  console.log("idle Piper same-origin proxy: OK");
+  console.log("idle Piper voice proxy: OK — soreal, siwis et gilles.");
 }finally{
   globalThis.fetch=originalFetch;
 }
