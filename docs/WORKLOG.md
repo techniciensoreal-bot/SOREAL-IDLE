@@ -434,3 +434,23 @@ Prochaine action :
 - supprimer le workflow temporaire de branche ;
 - comparer à `main`, merger seulement si la branche n’est pas en retard ;
 - vérifier ensuite CI, build, SHA Cloudflare et smoke Piper sur la vraie production.
+
+
+### Validation V8 — run #5 final
+- commit testé : `580815bdd75dbaf7c758c2b3d85b16128e22198e` ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- installation Chromium : SUCCESS ;
+- smoke Piper same-origin : SUCCESS ;
+- la vérification permanente du smoke sur l’origine de production est maintenant intégrée à `.github/workflows/cloudflare-deploy.yml`.
+
+État :
+- correction validée sur branche ;
+- pas encore fusionnée sur `main` ;
+- pas encore déployée en production.
+
+Prochaine action :
+- supprimer le workflow temporaire `validate-piper-same-origin-v8.yml` ;
+- vérifier l’écart exact avec `main` ;
+- fusionner uniquement si la branche est à jour ;
+- vérifier le run de production complet, le SHA actif et le smoke navigateur contre l’origine Cloudflare.
