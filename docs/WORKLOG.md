@@ -454,3 +454,17 @@ Prochaine action :
 - vérifier l’écart exact avec `main` ;
 - fusionner uniquement si la branche est à jour ;
 - vérifier le run de production complet, le SHA actif et le smoke navigateur contre l’origine Cloudflare.
+
+
+### V8 — état pré-fusion vérifié
+- `main` vérifié : `84e52feff5cc77b17967a680dac220926d237fd9` ;
+- tête de branche avant cette note : `af43120500642bb161c02f9e2525d109804fa0eb` ;
+- comparaison : branche `ahead` de 13 commits, `behind_by=0` ;
+- workflow temporaire V8 supprimé avant fusion ;
+- dernier code réellement validé : `580815bdd75dbaf7c758c2b3d85b16128e22198e` ;
+- run de validation V8 #5 : SUCCESS complet (tests, build, Chromium, synthèse et lecture same-origin).
+
+Prochaine action :
+- créer puis fusionner la PR V8 vers `main` ;
+- suivre le workflow `Deploy SOREAL Idle to Cloudflare` ;
+- exiger : tests SUCCESS, build SUCCESS, déploiement SUCCESS, SHA Cloudflare actif correct et smoke Piper production-origin SUCCESS.
