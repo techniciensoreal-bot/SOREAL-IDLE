@@ -160,3 +160,36 @@ Prochaine action :
 - vérifier que la branche est 0 commit derrière `main` ;
 - merger ;
 - vérifier le workflow production, y compris le nouveau smoke test MeloTTS réel et le SHA Cloudflare actif.
+
+
+## Correctif MeloTTS V4 — code langue français
+Diagnostic production du run #504 :
+- tests : SUCCESS ;
+- build : SUCCESS ;
+- déploiement Worker : SUCCESS ;
+- smoke test neural : FAILURE ;
+- réponse réelle Cloudflare : `8002: Invalid input`.
+
+Cause identifiée :
+- le payload utilisait `lang: "fr"` ;
+- MeloTTS upstream utilise les identifiants de langue en majuscules, dont `FR` pour le français ;
+- Cloudflare documente actuellement un exemple en minuscules, mais des erreurs `8002` similaires sont documentées pour des codes de langue non acceptés.
+
+Branche : `work/melotts-fr-v4`
+
+Correctifs :
+- `IDLE_NARRATION_LANG_V1` : `fr` → `FR` ;
+- tests mis à jour ;
+- smoke test production exige désormais `lang === "FR"`.
+
+Validation hors production :
+- workflow temporaire `Validate MeloTTS FR branch` run #1 ;
+- SHA testé : `5100436f6221ead7e06feb9a3654c05cf974dac9` ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- workflow temporaire supprimé au commit `4f646022f03078c04c20763f9edf2d22372a42b9`.
+
+Prochaine action :
+- vérifier que la branche est 0 commit derrière `main` ;
+- merger ;
+- vérifier la production et surtout `/api/v1/narration-health` avec le vrai modèle MeloTTS.
