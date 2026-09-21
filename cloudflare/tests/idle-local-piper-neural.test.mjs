@@ -33,7 +33,7 @@ assert.ok(
 for(const token of [
   'import { PiperPlus } from "piper-plus"',
   'import * as ort from "onnxruntime-web"',
-  'MODEL_V1="ayousanz/piper-plus-css10-ja-6lang"',
+  'MODEL_V1="https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx"',
   'LANGUAGE_V1="fr"',
   'PiperPlus.initialize({',
   'engine.synthesize(value,{',

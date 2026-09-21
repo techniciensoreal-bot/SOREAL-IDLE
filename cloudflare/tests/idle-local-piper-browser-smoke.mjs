@@ -38,7 +38,7 @@ try{
 
   assert.equal(
     result.model,
-    "ayousanz/piper-plus-css10-ja-6lang",
+    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx",
     "Le smoke test doit utiliser le modèle Piper attendu."
   );
   assert.equal(result.language,"fr","La langue Piper doit rester fr.");
