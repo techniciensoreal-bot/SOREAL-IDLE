@@ -649,3 +649,10 @@ Prochaine action :
 - Validation #1 : faux négatif du nouveau test (attendait `999.4` au lieu du comportement historique localisé `999,4`). Aucun changement fonctionnel appliqué pour le corriger.
 - Validation #2 : run `35652922982` SUCCESS sur `684ce36b665742f7c49c216177bf8af41cb14570` ; suite complète + build/syntaxe SUCCESS.
 - Workflow V3 temporaire supprimé. Prochaine action : merge PR #13 et vérifier production complète avant V4.
+
+
+## Refactor découpage UI V4 — 2026-09-21
+- V3 production : `main` = `8dde82bc52d8710d0e8b94d834c6ac3e911ad2fd`, run #513 SUCCESS complet (tests, build, Worker, dépendances Piper, SHA déployé, Chromium Piper).
+- Extraction V4 : formatage de durée/run/heures vers `cloudflare/public/modules/time-format-v1.js` ; wrappers historiques conservés.
+- Validation V4 : run `35653334813` SUCCESS sur `69756446b4033a46b4fa193ad3874825a5a08173` ; suite complète + build/syntaxe SUCCESS.
+- Workflow temporaire supprimé. Prochaine action : merge PR #14 puis vérifier production avant V5.
