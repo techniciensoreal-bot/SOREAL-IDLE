@@ -396,3 +396,75 @@ Prochaine action :
 Prochaine action :
 - retest utilisateur sur un bouton de narration réel dans SOREAL-IDLE.
 - ce commit WORKLOG est docs-only ; le SHA de code réellement déployé reste `bee6933f4bae1dabb1192d14e8f7c56f6dfe4df0`.
+
+
+### Validation V8 — run #1
+- commit testé : `d0078e2594a07c2d99c73b43b0f7bbbfea9d1513` ;
+- nouveau test proxy same-origin : SUCCESS ;
+- suite complète : FAILURE avant build/smoke ;
+- erreur exacte : `idle-tutorial-tts-v202.test.mjs:90` attend encore `/modules/local-neural-piper-v1.js?v=2` ;
+- cause : assertion de garde obsolète après passage volontaire du cache-buster Piper à `?v=3` ;
+- build et smoke navigateur : non exécutés sur ce run.
+
+Prochaine action :
+- mettre à jour cette assertion vers `?v=3` ;
+- relancer la validation complète sans autre changement fonctionnel.
+
+
+### Validation V8 — run #3 vert
+- commit de code testé : `bbe200465e8471b249589edb1025e4de28b8ad55` ;
+- suite complète `cloudflare/tests/*.test.mjs` : SUCCESS ;
+- build standalone : SUCCESS ;
+- installation Chromium/Playwright : SUCCESS ;
+- smoke navigateur same-origin : SUCCESS ;
+- Chromium exécuté avec `--autoplay-policy=user-gesture-required` ;
+- Piper charge modèle + configuration via la route same-origin ;
+- synthèse française : SUCCESS ;
+- lecture Web Audio : SUCCESS ;
+- aucune erreur CORS / `Failed to fetch`.
+
+État :
+- correction validée sur branche uniquement ;
+- aucune fusion sur `main` ;
+- aucun déploiement production V8 à ce stade.
+
+Prochaine action :
+- ajouter ce smoke réel au workflow de production après vérification du SHA déployé ;
+- revalider la branche ;
+- supprimer le workflow temporaire de branche ;
+- comparer à `main`, merger seulement si la branche n’est pas en retard ;
+- vérifier ensuite CI, build, SHA Cloudflare et smoke Piper sur la vraie production.
+
+
+### Validation V8 — run #5 final
+- commit testé : `580815bdd75dbaf7c758c2b3d85b16128e22198e` ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- installation Chromium : SUCCESS ;
+- smoke Piper same-origin : SUCCESS ;
+- la vérification permanente du smoke sur l’origine de production est maintenant intégrée à `.github/workflows/cloudflare-deploy.yml`.
+
+État :
+- correction validée sur branche ;
+- pas encore fusionnée sur `main` ;
+- pas encore déployée en production.
+
+Prochaine action :
+- supprimer le workflow temporaire `validate-piper-same-origin-v8.yml` ;
+- vérifier l’écart exact avec `main` ;
+- fusionner uniquement si la branche est à jour ;
+- vérifier le run de production complet, le SHA actif et le smoke navigateur contre l’origine Cloudflare.
+
+
+### V8 — état pré-fusion vérifié
+- `main` vérifié : `84e52feff5cc77b17967a680dac220926d237fd9` ;
+- tête de branche avant cette note : `af43120500642bb161c02f9e2525d109804fa0eb` ;
+- comparaison : branche `ahead` de 13 commits, `behind_by=0` ;
+- workflow temporaire V8 supprimé avant fusion ;
+- dernier code réellement validé : `580815bdd75dbaf7c758c2b3d85b16128e22198e` ;
+- run de validation V8 #5 : SUCCESS complet (tests, build, Chromium, synthèse et lecture same-origin).
+
+Prochaine action :
+- créer puis fusionner la PR V8 vers `main` ;
+- suivre le workflow `Deploy SOREAL Idle to Cloudflare` ;
+- exiger : tests SUCCESS, build SUCCESS, déploiement SUCCESS, SHA Cloudflare actif correct et smoke Piper production-origin SUCCESS.

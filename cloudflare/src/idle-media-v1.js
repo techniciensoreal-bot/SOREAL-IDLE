@@ -676,6 +676,48 @@ async function adventureSafeZone_(request,env,url){
   });
 }
 
+const IDLE_PIPER_MODEL_UPSTREAM_V1="https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx";
+const IDLE_PIPER_MODEL_ROUTE_V1="/api/idle/media/piper-model.onnx";
+const IDLE_PIPER_MODEL_CONFIG_ROUTE_V1=IDLE_PIPER_MODEL_ROUTE_V1+".json";
+
+async function piperModelProxy_(request,url){
+  const isConfig=url.pathname===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1;
+  const upstreamUrl=IDLE_PIPER_MODEL_UPSTREAM_V1+(isConfig?".json":"");
+  const upstream=await fetch(upstreamUrl,{
+    method:request.method==="HEAD"?"HEAD":"GET",
+    headers:{
+      accept:isConfig?"application/json,*/*":"application/octet-stream,*/*"
+    },
+    cf:{cacheEverything:true,cacheTtl:604800}
+  });
+
+  if(!upstream.ok){
+    return new Response("Modèle vocal Piper indisponible",{
+      status:502,
+      headers:{"cache-control":"no-store"}
+    });
+  }
+
+  const headers=new Headers();
+  headers.set(
+    "content-type",
+    isConfig
+      ?"application/json; charset=utf-8"
+      :(upstream.headers.get("content-type")||"application/octet-stream")
+  );
+  headers.set("cache-control","public, max-age=604800, immutable");
+  headers.set("access-control-allow-origin","*");
+  for(const name of ["content-length","etag","last-modified"]){
+    const value=upstream.headers.get(name);
+    if(value)headers.set(name,value);
+  }
+
+  return new Response(request.method==="HEAD"?null:upstream.body,{
+    status:200,
+    headers
+  });
+}
+
 async function avatarProxy_(request,url){
   const id=String(url.searchParams.get("id")||"").trim();
   const width=Math.max(64,Math.min(1600,Math.floor(Number(url.searchParams.get("w"))||700)));
@@ -1017,6 +1059,8 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/boss",
     "/api/idle/media/player",
     "/api/idle/media/banner",
+    "/api/idle/media/piper-model.onnx",
+    "/api/idle/media/piper-model.onnx.json",
     "/api/idle/media/debug-list"
   ]);
   if(!routes.has(url.pathname))return null;
@@ -1024,6 +1068,7 @@ export async function traiterRequeteIdleMedia(request,env){
     return new Response("Méthode non autorisée",{status:405,headers:{allow:"GET, HEAD","cache-control":"no-store"}});
   }
   if(url.pathname==="/api/idle/media/debug-list")return debugListeR2_(request,env,url);
+  if(url.pathname===IDLE_PIPER_MODEL_ROUTE_V1||url.pathname===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1)return piperModelProxy_(request,url);
   if(url.pathname==="/api/idle/media/avatar")return avatarProxy_(request,url);
   if(url.pathname==="/api/idle/media/item")return itemSet_(request,env,url);
   if(url.pathname==="/api/idle/media/mob")return adventureMob_(request,env,url);
