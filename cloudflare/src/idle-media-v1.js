@@ -735,6 +735,23 @@ async function piperModelProxy_(request,url){
   );
   headers.set("cache-control","public, max-age=604800, immutable");
   headers.set("access-control-allow-origin","*");
+
+  const needsFrenchOnlyCompat=isConfig&&voice.id!=="soreal"&&request.method!=="HEAD";
+  if(needsFrenchOnlyCompat){
+    let config;
+    try{config=await upstream.json();}catch(_){
+      return new Response("Configuration vocale Piper invalide",{
+        status:502,
+        headers:{"cache-control":"no-store"}
+      });
+    }
+    config.language_id_map={fr:0};
+    config.num_languages=1;
+    config.soreal_monolingual_g2p_compat=true;
+    headers.set("content-type","application/json; charset=utf-8");
+    return new Response(JSON.stringify(config),{status:200,headers});
+  }
+
   for(const name of ["content-length","etag","last-modified"]){
     const value=upstream.headers.get(name);
     if(value)headers.set(name,value);
