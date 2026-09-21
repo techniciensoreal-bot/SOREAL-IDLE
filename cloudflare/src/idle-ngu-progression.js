@@ -664,7 +664,9 @@ function createAugmentationData() {
       level: 0,
       progress: 0,
       upgradeLevel: 0,
-      upgradeProgress: 0
+      upgradeProgress: 0,
+      energy: 0,
+      upgradeEnergy: 0
     };
   }
   return { pairs, activePair: "scissors", trainUpgrade: false };
@@ -1169,7 +1171,9 @@ function normalizeSystem(def, raw) {
         level: Math.max(0, int(a.level, 0)),
         progress: Math.max(0, num(a.progress, 0)),
         upgradeLevel: Math.max(0, int(a.upgradeLevel, 0)),
-        upgradeProgress: Math.max(0, num(a.upgradeProgress, 0))
+        upgradeProgress: Math.max(0, num(a.upgradeProgress, 0)),
+        energy: Math.max(0, num(a.energy, 0)),
+        upgradeEnergy: Math.max(0, num(a.upgradeEnergy, 0))
       };
     }
     if (IDLE_NGU_AUGMENTATIONS.some(a => a.id === data.activePair)) s.data.activePair = data.activePair;
@@ -1983,7 +1987,15 @@ function augmentationGoldCost(state,def,level,upgrade=false) {
 }
 
 function augmentationSecondsForNextLevel(state, def, upgrade = false) {
-  const allocation = Math.max(0, num(state.systems.augmentations.allocation.energy, 0));
+  const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
+  const perTrack=Math.max(0,num(upgrade?pair.upgradeEnergy:pair.energy,0));
+  const legacy=Math.max(0,num(state.systems.augmentations.allocation.energy,0));
+  const allocation=perTrack>0?perTrack:(
+    def.id===state.systems.augmentations.data.activePair &&
+    Boolean(upgrade)===Boolean(state.systems.augmentations.data.trainUpgrade)
+      ?legacy
+      :0
+  );
   if (allocation <= 0) return Infinity;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
@@ -1992,61 +2004,45 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed);
 }
 
-function advanceAugmentations(state, seconds, context) {
-  const s = state.systems.augmentations;
-  if (!s.unlocked || seconds <= 0) return;
-  const def = augmentationPair(state);
-  if (num(context.bosses, 0) < def.unlockBoss) return;
-  const pair = s.data.pairs[def.id];
-  const upgrade = Boolean(s.data.trainUpgrade);
-  if (upgrade && num(context.bosses, 0) < def.upgrade.unlockBoss) return;
-
-  /*
-   * Audit 2026-09-13 (Norman) : "le menu augmentation ne possède pas de
-   * barres qui montent comme dans basic training." Cause racine trouvée
-   * en creusant plus loin que le seul manque de barre côté client : la
-   * vérification d'Or se faisait AVANT toute accumulation de progression
-   * — sans assez d'Or, pair.progress restait bloquée à 0 pour TOUJOURS,
-   * quel que soit le temps écoulé. Un joueur à court d'Or (fréquent :
-   * chaque niveau consomme tout l'Or accumulé) voyait donc une barre
-   * réellement figée, pas juste absente. Corrigé pour accumuler la
-   * progression indépendamment de l'Or (le temps investi ne doit jamais
-   * être perdu), et ne vérifier l'Or qu'au moment de VALIDER le niveau
-   * (barre pleine) — si l'Or manque alors, la barre plafonne à 100% et
-   * attend, elle ne se vide jamais toute seule.
-   */
-  let remaining = seconds;
-  let guard = 0;
-  while (remaining > 0 && guard++ < 10000) {
-    const level = upgrade ? pair.upgradeLevel : pair.level;
-    const needed = augmentationSecondsForNextLevel(state, def, upgrade);
-    if (!Number.isFinite(needed)) break;
-    const progressKey = upgrade ? "upgradeProgress" : "progress";
-    const missing = Math.max(0, needed - pair[progressKey]);
-
-    if (remaining + 1e-9 < missing) {
-      pair[progressKey] += remaining;
-      remaining = 0;
-      break;
+function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
+  if(num(context.bosses,0)<def.unlockBoss)return;
+  if(upgrade&&(!def.upgrade||num(context.bosses,0)<def.upgrade.unlockBoss))return;
+  let remaining=seconds,guard=0;
+  const progressKey=upgrade?"upgradeProgress":"progress";
+  while(remaining>0&&guard++<10000){
+    const level=upgrade?pair.upgradeLevel:pair.level;
+    const needed=augmentationSecondsForNextLevel(state,def,upgrade);
+    if(!Number.isFinite(needed))break;
+    const missing=Math.max(0,needed-num(pair[progressKey],0));
+    if(remaining+1e-9<missing){pair[progressKey]+=remaining;break;}
+    const cost=augmentationGoldCost(state,def,level,upgrade);
+    if(state.currencies.gold+1e-9<cost||challengeHundredLevelsRemaining(state)<=0){
+      pair[progressKey]=needed;break;
     }
-
-    const cost = augmentationGoldCost(state,def,level,upgrade);
-    if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) {
-      pair[progressKey] = needed;
-      remaining = 0;
-      break;
-    }
-
-    remaining -= missing;
-    pair[progressKey] = 0;
-    state.currencies.gold -= cost;
-    if (upgrade) pair.upgradeLevel += 1;
-    else pair.level += 1;
-    challengeHundredLevelsConsume(state, 1);
+    remaining-=missing;
+    pair[progressKey]=0;
+    state.currencies.gold-=cost;
+    if(upgrade)pair.upgradeLevel+=1;else pair.level+=1;
+    challengeHundredLevelsConsume(state,1);
   }
+}
 
-  s.level = Object.values(s.data.pairs).reduce((sum, p) => sum + p.level + p.upgradeLevel, 0);
-  s.tempLevel = s.level;
+function advanceAugmentations(state, seconds, context) {
+  const s=state.systems.augmentations;
+  if(!s.unlocked||seconds<=0)return;
+  /*
+   * V214 — chaque Augment et son Upgrade disposent de leur propre allocation
+   * et progressent en parallèle. L'ancien activePair/trainUpgrade reste
+   * uniquement comme migration pour les sauvegardes qui possèdent encore
+   * l'allocation globale historique.
+   */
+  for(const def of IDLE_NGU_AUGMENTATIONS){
+    const pair=s.data.pairs[def.id];
+    advanceAugmentationTrackV214_(state,seconds,context,def,pair,false);
+    advanceAugmentationTrackV214_(state,seconds,context,def,pair,true);
+  }
+  s.level=Object.values(s.data.pairs).reduce((sum,p)=>sum+p.level+p.upgradeLevel,0);
+  s.tempLevel=s.level;
 }
 
 export function idleNguAugmentationMultiplier(raw) {
@@ -3785,6 +3781,27 @@ function selectWandoosOs(state, osId) {
   s.tempLevel = 0;
 }
 
+function setAugmentAllocationV214_(state,pairId,upgrade,value,context={}){
+  const s=state.systems.augmentations;
+  if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
+  const def=IDLE_NGU_AUGMENTATIONS.find(x=>x.id===pairId);
+  if(!def)throw new Error("AUGMENT_INVALIDE");
+  if(num(context.bosses,0)<def.unlockBoss||upgrade&&num(context.bosses,0)<def.upgrade.unlockBoss)throw new Error("AUGMENT_VERROUILLE");
+  const pair=s.data.pairs[pairId];
+  const key=upgrade?"upgradeEnergy":"energy";
+  const previous=Math.max(0,num(pair[key],0));
+  const cap=Math.max(0,idleNguEffectiveResourceStatV1(state,"energy","cap"));
+  let allocatedTracks=0;
+  for(const p of Object.values(s.data.pairs||{}))allocatedTracks+=Math.max(0,num(p.energy,0))+Math.max(0,num(p.upgradeEnergy,0));
+  const otherSystems=totalAllocated(state,"energy","augmentations")+externalResourceAllocation(context,"energy");
+  const maxByCapacity=Math.max(0,cap-otherSystems-(allocatedTracks-previous));
+  const maxByOwned=Math.max(0,previous+num(state.resources.energy.current,0));
+  const target=clamp(value,0,Math.min(maxByCapacity,maxByOwned));
+  state.resources.energy.current=clamp(num(state.resources.energy.current,0)-(target-previous),0,cap);
+  pair[key]=target;
+  s.allocation.energy=Object.values(s.data.pairs||{}).reduce((sum,p)=>sum+Math.max(0,num(p.energy,0))+Math.max(0,num(p.upgradeEnergy,0)),0);
+}
+
 function selectAugment(state, pairId, upgrade) {
   const s = state.systems.augmentations;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -4362,6 +4379,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     );
   } else if (action === "reclaimResource") {
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
+  } else if (action === "allocateAugment") {
+    setAugmentAllocationV214_(state,String(payload.pair||"scissors"),Boolean(payload.upgrade),num(payload.value,0),context);
   } else if (action === "selectTrack") {
     selectTrack(state, String(payload.system || ""), String(payload.track || ""));
   } else if (action === "selectAugment") {
