@@ -90,4 +90,13 @@ function baseState(inventory, cube) {
   assert.equal(stats.power, 1300, "Sous le softcap, le cube doit s'additionner intégralement, sans racine carrée.");
 }
 
+
+// --- Contrat client historique : boost + toCube doit atteindre le même moteur ---
+{
+  const state = baseState([{ id: "b4", kind: "boost", boostType: "toughness", strength: 100 }]);
+  const { state: after } = applyIdleAdventureActionV47(state, { action: "boost", boostId: "b4", toCube: true });
+  assert.equal(after.cube.toughness, 1, "Le contrat Inventory boost+toCube doit être normalisé vers le Cube.");
+  assert.equal(after.inventory.length, 0, "Le boost absorbé par le Cube ne doit pas réapparaître.");
+}
+
 console.log("idle-adventure-cube-boosts-softcap: OK");
