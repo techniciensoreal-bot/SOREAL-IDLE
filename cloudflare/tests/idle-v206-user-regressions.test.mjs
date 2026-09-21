@@ -10,7 +10,17 @@ const media=fs.readFileSync(new URL("../src/idle-media-v1.js",import.meta.url),"
 const ngu=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
 const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
 
-assert.ok(index.includes("/modules/audio-effects-v199.js?v=210")&&index.includes("/modules/tutorial-tts-v202.js?v=210")&&index.includes("/soreal-idle-ui.js?v=219"),"Assets V207 non cache-bustés.");
+for(const asset of [
+  /\/modules\/audio-effects-v199\.js\?v=\d+/,
+  /\/modules\/tutorial-tts-v202\.js\?v=\d+/,
+  /\/soreal-idle-ui\.js\?v=\d+/
+]){
+  assert.match(
+    index,
+    asset,
+    "Chaque asset critique doit être cache-busté sans figer une version numérique précise."
+  );
+}
 
 for(const token of ["background:#071226","soreal-idle-loading-card","soreal-idle-loading-banner","1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb","standaloneProgress","standalonePercent"]){
   assert.ok(index.includes(token),"Écran de chargement bleu manquant: "+token);
