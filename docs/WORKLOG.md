@@ -376,3 +376,23 @@ Prochaine action :
 - merger ;
 - vérifier CI/build/déploiement/SHA Cloudflare actif ;
 - retest utilisateur sur le bouton réel.
+
+
+## Narration V7 — production vérifiée
+- PR #8 fusionnée sur `main`.
+- SHA de code déployé : `bee6933f4bae1dabb1192d14e8f7c56f6dfe4df0`.
+- Workflow production : `Deploy SOREAL Idle to Cloudflare` run #508.
+- Suite complète : SUCCESS.
+- Build standalone : SUCCESS.
+- Déploiement Cloudflare Worker : SUCCESS.
+- Vérification dépendances Piper/G2P/ONNX/modèle : SUCCESS.
+- Vérification du SHA actif : SUCCESS.
+- Version Cloudflare active : `eebe7b14-c6f5-4c83-a229-51b98eec4a7e`.
+- Routage : 100 %.
+- Validation navigateur stricte avant merge : SUCCESS avec `--autoplay-policy=user-gesture-required`, clic réel, synthèse Piper, lecture complète Web Audio, `lastError=""`, `audioState="running"`.
+- Cache-busters actifs : Piper local `?v=2`, contrôleur narration `?v=226`.
+- Si un nouvel échec apparaît côté utilisateur, le bouton affiche maintenant le code d'erreur exact.
+
+Prochaine action :
+- retest utilisateur sur un bouton de narration réel dans SOREAL-IDLE.
+- ce commit WORKLOG est docs-only ; le SHA de code réellement déployé reste `bee6933f4bae1dabb1192d14e8f7c56f6dfe4df0`.
