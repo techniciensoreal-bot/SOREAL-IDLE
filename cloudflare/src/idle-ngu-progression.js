@@ -3602,7 +3602,11 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       const neededUpgrade = def.upgrade ? augmentationSecondsForNextLevel(state, def, true) : Infinity;
       return Object.assign({}, def, {
         progressPct: Number.isFinite(neededMain) && neededMain > 0 ? Math.max(0, Math.min(1, num(pair.progress, 0) / neededMain)) : 0,
-        upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0
+        upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0,
+        secondsPerLevel: Number.isFinite(neededMain) ? neededMain : null,
+        upgradeSecondsPerLevel: Number.isFinite(neededUpgrade) ? neededUpgrade : null,
+        levelsPerSecond: Number.isFinite(neededMain) && neededMain > 0 ? Math.min(50,1/neededMain) : 0,
+        upgradeLevelsPerSecond: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.min(50,1/neededUpgrade) : 0
       });
     }),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
