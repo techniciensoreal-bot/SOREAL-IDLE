@@ -170,6 +170,12 @@ async function engine_(){
       try{if(engine&&typeof engine.dispose==="function")engine.dispose();}catch(_){}
       throw new Error("PIPER_LOCAL_VOICE_CHANGED");
     }
+    const config=engine&&engine.config;
+    if(config&&config.soreal_monolingual_g2p_compat){
+      delete config.language_id_map;
+      delete config.num_languages;
+      delete config.soreal_monolingual_g2p_compat;
+    }
     engineInstance=engine;
     setState_({
       status:"ready",
