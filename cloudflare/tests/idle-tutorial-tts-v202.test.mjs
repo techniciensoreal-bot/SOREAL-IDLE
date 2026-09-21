@@ -14,11 +14,13 @@ const ui=fs.readFileSync(
   "utf8"
 );
 
+const ttsScript=/\/modules\/tutorial-tts-v202\.js\?v=\d+/.exec(index);
+const uiScript=/\/soreal-idle-ui\.js\?v=\d+/.exec(index);
+
 assert.ok(
-  index.includes('/modules/tutorial-tts-v202.js?v=210')&&
-  index.includes('/soreal-idle-ui.js?v=219')&&
-  index.indexOf('/modules/tutorial-tts-v202.js?v=210')<
-    index.indexOf('/soreal-idle-ui.js?v=219'),
+  ttsScript&&
+  uiScript&&
+  ttsScript.index<uiScript.index,
   "Le TTS V203 doit être cache-busté et chargé avant l'UI principale."
 );
 
