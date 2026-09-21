@@ -9454,7 +9454,35 @@
               const el=document.querySelector('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
               if(!el||!(x[2]>0))return;
               const cycles=x[1]+elapsed/x[2];
-              el.style.width=((cycles-Math.floor(cycles))*100)+'%';
+              const fraction=cycles-Math.floor(cycles);
+              /*
+               * V216 — chaque tick doit être un cycle visuel complet
+               * 0 -> 100 %, puis retour instantané à 0. À haute cadence,
+               * l'échantillonnage par frame peut sinon tomber toujours
+               * autour de 25/75 % et donner l'impression d'un va-et-vient.
+               * On mémorise le numéro de cycle et force explicitement 0 %
+               * pendant un frame lorsqu'un ou plusieurs ticks viennent
+               * d'être franchis, avant de reprendre la montée réelle.
+               */
+              const cycle=Math.floor(cycles);
+              const precedent=idleEntier_(el.dataset.idleAugCycleV216||cycle);
+              if(cycle>precedent){
+                el.style.width='100%';
+                el.dataset.idleAugCycleV216=String(cycle);
+                requestAnimationFrame(function(){
+                  if(!el.isConnected)return;
+                  el.style.width='0%';
+                  requestAnimationFrame(function(){
+                    if(!el.isConnected)return;
+                    const maintenant=Math.max(0,(performance.now()-augVisual.at)/1000);
+                    const c=x[1]+maintenant/x[2];
+                    el.style.width=((c-Math.floor(c))*100)+'%';
+                  });
+                });
+              }else{
+                el.dataset.idleAugCycleV216=String(cycle);
+                el.style.width=(fraction*100)+'%';
+              }
             });
           });
         }
