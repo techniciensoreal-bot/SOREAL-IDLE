@@ -1,0 +1,23 @@
+name: Diagnose MeloTTS V4 production
+
+on:
+  push:
+    branches:
+      - diagnose/melotts-v4
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe current production neural health
+        shell: bash
+        run: |
+          set -u
+          endpoint="https://soreal-idle.technicien-soreal.workers.dev/api/v1/narration-health"
+          code=$(curl --silent --show-error --max-time 90 -o /tmp/body.txt -w "%{http_code}" "$endpoint" || true)
+          echo "HTTP $code"
+          echo "BODY:"
+          cat /tmp/body.txt || true
+          echo
+          test "$code" = "200"
