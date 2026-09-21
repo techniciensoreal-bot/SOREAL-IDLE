@@ -9438,6 +9438,27 @@
           );
         }
 
+        /*
+         * V215 — les barres Augmentations sont extrapolées entre deux
+         * snapshots serveur à partir de la durée réelle d'un niveau.
+         * Elles suivent donc réellement le temps : 15 niveaux/s produit
+         * 15 cycles/s (jusqu'au plafond moteur NGU de 50), sans attendre
+         * le prochain polling réseau.
+         */
+        const augVisual=idleEtat.__augmentationsVisualV215;
+        if(augVisual&&PAGE_ACTIVE==='idle'){
+          const elapsed=Math.max(0,(performance.now()-augVisual.at)/1000);
+          Object.keys(augVisual.defs||{}).forEach(function(id){
+            const d=augVisual.defs[id]||{};
+            [['main',d.progress,d.seconds],['upgrade',d.upgradeProgress,d.upgradeSeconds]].forEach(function(x){
+              const el=document.querySelector('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
+              if(!el||!(x[2]>0))return;
+              const cycles=x[1]+elapsed/x[2];
+              el.style.width=((cycles-Math.floor(cycles))*100)+'%';
+            });
+          });
+        }
+
         const summaryEnergieEl=
           document.getElementById(
             'sorealIdleSummaryEnergieV50'
@@ -29239,6 +29260,10 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!sys||!sys.state||!sys.state.unlocked)return entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
         const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[],pairs=(sys.state.data||{}).pairs||{};
         const boss=idleEntier_(snap.records&&snap.records.highestBoss||0),gold=idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
+        idleEtat.__augmentationsVisualV215={
+          at:performance.now(),
+          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:idleNombre_(d.progressPct),upgradeProgress:idleNombre_(d.upgradeProgressPct),seconds:idleNombre_(d.secondsPerLevel),upgradeSeconds:idleNombre_(d.upgradeSecondsPerLevel)}];}))
+        };
         const cap=Math.max(0,idleNombre_(snap.resources&&snap.resources.energy&&snap.resources.energy.cap||0));
         function track(def,pair,upgrade,ok){
           const value=Math.max(0,idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
