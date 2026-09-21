@@ -1,14 +1,8 @@
 name: Deploy SOREAL Idle to Cloudflare
 
-# Dépôt extrait de SOREAL-TV le 2026-09-15 pour isoler le moteur du jeu
-# (301 boss, ~77 sets, systèmes NGU complets) de son propre bundle/CI.
-#
-# Incident évité par ce fichier : SOREAL-TV a eu, le 2026-09-15, un
-# correctif IDLE poussé sur main jamais pris en compte en production
-# parce qu'aucune CI ne déployait le Worker séparé "soreal-idle" — sans
-# ce workflow, exactement le même problème se reproduirait ici dès le
-# premier commit sur ce dépôt.
-
+# Dépôt extrait de SOREAL-TV le 2026-09-15 pour isoler le moteur du jeu.
+# Toute publication de main passe par la suite complète, le build autonome,
+# puis une vérification du SHA réellement annoté sur le déploiement Cloudflare.
 on:
   push:
     branches:
@@ -32,6 +26,7 @@ jobs:
 
       - name: Run test suite
         run: |
+          set -e
           for f in cloudflare/tests/*.test.mjs; do
             echo "=== $f ==="
             node "$f"
@@ -39,6 +34,7 @@ jobs:
 
       - name: Build standalone frontend
         run: |
+          set -e
           node cloudflare/build-standalone.mjs
           node --check cloudflare/public/standalone-bridge.js
           for f in cloudflare/public/modules/*.js; do
@@ -51,4 +47,36 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           wranglerVersion: '4.127.1'
-          command: deploy --config wrangler.jsonc
+          command: deploy --config wrangler.jsonc --message git:${{ github.sha }}
+
+      - name: Verify deployed Git SHA
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/soreal-idle-deployments.json"
+          npx --yes wrangler@4.127.1 deployments list --config wrangler.jsonc --json > "$out"
+          DEPLOYMENTS_FILE="$out" EXPECTED="git:$GITHUB_SHA" node <<'NODE'
+          const fs=require("node:fs");
+          const parsed=JSON.parse(fs.readFileSync(process.env.DEPLOYMENTS_FILE,"utf8"));
+          const deployments=Array.isArray(parsed)
+            ? parsed
+            : Array.isArray(parsed?.deployments)
+              ? parsed.deployments
+              : Array.isArray(parsed?.result)
+                ? parsed.result
+                : Array.isArray(parsed?.result?.deployments)
+                  ? parsed.result.deployments
+                  : [];
+          const latest=deployments[0]||null;
+          const message=latest?.annotations?.["workers/message"]||"";
+          if(message!==process.env.EXPECTED){
+            console.error("SOREAL IDLE production SHA mismatch:",{
+              expected:process.env.EXPECTED,
+              observed:message||"absent"
+            });
+            process.exit(1);
+          }
+          console.log("SOREAL IDLE production SHA verified:",message);
+          NODE
