@@ -2,7 +2,7 @@
   "use strict";
 
   const SESSION_KEY="soreal_idle_session_v1";
-  const TIMEOUT_MS=15000;
+  const TIMEOUT_MS=45000;
 
   /*
    * Le frontend IDLE autonome ne charge plus Soreal_JS_01_Coeur.html.
