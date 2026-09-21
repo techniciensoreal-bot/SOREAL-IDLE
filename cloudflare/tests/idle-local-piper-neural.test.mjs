@@ -18,34 +18,43 @@ for(const token of [
   '"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"',
   '"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"',
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
-  '<script type="module" src="/modules/local-neural-piper-v1.js?v=3"></script>',
-  '/modules/tutorial-tts-v202.js?v=226'
+  '<script type="module" src="/modules/local-neural-piper-v1.js?v=4"></script>',
+  '/modules/tutorial-tts-v202.js?v=227'
 ]){
   assert.ok(index.includes(token),"Piper local index manquant: "+token);
 }
 
 assert.ok(
-  index.indexOf('/modules/local-neural-piper-v1.js?v=3')<
-  index.indexOf('/modules/tutorial-tts-v202.js?v=226'),
+  index.indexOf('/modules/local-neural-piper-v1.js?v=4')<
+  index.indexOf('/modules/tutorial-tts-v202.js?v=227'),
   "Le module Piper local doit être déclaré avant le contrôleur de narration."
 );
 
 for(const token of [
   'import { PiperPlus } from "piper-plus"',
   'import * as ort from "onnxruntime-web"',
-  'MODEL_V1=new URL("/api/idle/media/piper-model.onnx",window.location.origin).href',
-  'LANGUAGE_V1="fr"',
+  'VOICE_STORAGE_KEY_V2="soreal_idle_piper_voice_v2"',
+  'DEFAULT_VOICE_ID_V2="soreal"',
+  '/api/idle/media/piper-voice-soreal.onnx',
+  '/api/idle/media/piper-voice-siwis.onnx',
+  '/api/idle/media/piper-voice-gilles.onnx',
+  'label:"SOREAL"',
+  'label:"Siwis"',
+  'label:"Gilles"',
+  'function setVoice_(voiceId)',
+  'localStorage.setItem(VOICE_STORAGE_KEY_V2,id)',
+  'disposeEngine_()',
+  'engineGeneration+=1',
   'PiperPlus.initialize({',
   'engine.synthesize(value,{',
   'language:LANGUAGE_V1',
   'lengthScale:LENGTH_SCALE_V1',
   'result.toBlob()',
   '__SOREAL_IDLE_LOCAL_NEURAL_V1__',
-  'synthesize:synthesize_',
-  'preload:engine_',
-  'subscribe:subscribe_'
+  'voices:voices_',
+  'setVoice:setVoice_'
 ]){
-  assert.ok(local.includes(token),"Piper local manquant: "+token);
+  assert.ok(local.includes(token),"Piper local multi-voix manquant: "+token);
 }
 
 for(const forbidden of [
@@ -54,7 +63,7 @@ for(const forbidden of [
   "/api/v1/narration",
   "xai/grok-tts",
   "@cf/myshell-ai/melotts",
-  "huggingface.co/spaces/ayousanz/piper-plus-demo"
+  "huggingface.co/"
 ]){
   assert.ok(!local.includes(forbidden),"Piper local ne doit pas contenir: "+forbidden);
 }
@@ -63,13 +72,15 @@ for(const token of [
   "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
   "requestLocalNeuralAudio_",
   "waitLocalNeuralApi_",
-  "Chargement voix IA",
-  "Génération voix IA",
+  "VOICE_SELECT_CLASS='soreal-idle-tts-voice-v209'",
+  "Choisir la voix IA",
+  "changeVoice_",
+  "api.setVoice",
+  "Voix · ",
   "playBlobWebAudioPromise_",
-  "unlockAudio_",
-  "WEB_AUDIO_BLOQUE_"
+  "unlockAudio_"
 ]){
-  assert.ok(narration.includes(token),"Contrôleur Piper local manquant: "+token);
+  assert.ok(narration.includes(token),"Contrôleur Piper multi-voix manquant: "+token);
 }
 
 for(const forbidden of [
@@ -89,4 +100,4 @@ new Function(
 );
 new Function("window","document","localStorage",narration);
 
-console.log("idle local Piper: OK — français neural local, modèle lazy, aucun TTS cloud/système client.");
+console.log("idle local Piper V9: OK — 3 modèles vocaux sélectionnables, persistants, aucun TTS cloud/système.");
