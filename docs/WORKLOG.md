@@ -193,3 +193,25 @@ Prochaine action :
 - vérifier que la branche est 0 commit derrière `main` ;
 - merger ;
 - vérifier la production et surtout `/api/v1/narration-health` avec le vrai modèle MeloTTS.
+
+
+## Narration V5 — abandon MeloTTS, bascule Grok TTS
+Diagnostic réel après V4 :
+- MeloTTS accepte désormais le code langue mais renvoie `3043: Internal server error` côté Cloudflare ;
+- la route Worker, le binding AI et le smoke test fonctionnent : l'échec est dans le backend MeloTTS français.
+
+Décision :
+- remplacement du modèle par `xai/grok-tts`, exposé via le même binding `env.AI` Cloudflare ;
+- langue : `fr` ;
+- voix : `ara` (chaude/conversationnelle) ;
+- sortie : MP3 fournie par URL signée, téléchargée côté Worker puis mise en cache R2 ;
+- aucun retour de SpeechSynthesis n'est réintroduit ;
+- cache déplacé sous `idle/narration/v2/fr/` ;
+- le hash de cache inclut modèle + langue + voix ;
+- le health check production exige modèle Grok TTS + français + voix ara + octets audio réels ;
+- le workflow affiche désormais le corps JSON des erreurs du health check.
+
+Prochaine action :
+- valider la branche complète ;
+- merger seulement si `main` n'a pas avancé ;
+- exiger un health check Grok TTS réel vert en production.
