@@ -448,6 +448,109 @@
         );
       }
 
+      function animerBarreBasicTrainingIdleV219_(bar,skill,vitesse){
+        if(!bar)return;
+
+        const speed=
+          Math.max(
+            0,
+            Math.min(
+              50,
+              idleNombre_(vitesse)
+            )
+          );
+
+        if(!(speed>0)){
+          if(bar.__idleBtAnimationV219){
+            bar.__idleBtAnimationV219.cancel();
+            bar.__idleBtAnimationV219=null;
+          }
+          bar.style.setProperty('transition','none','important');
+          bar.style.width='100%';
+          bar.style.transformOrigin='left center';
+          bar.style.transform='scaleX(0)';
+          delete bar.dataset.idleBtDurationV219;
+          return;
+        }
+
+        /*
+         * V219 — la progression mécanique et la progression visuelle sont
+         * volontairement séparées.
+         *
+         * Le moteur continue d'ajouter exactement speed * dt niveaux.
+         * La barre, elle, utilise une animation compositor dont UN cycle
+         * dure exactement 1000/speed ms. À 15 niv/s sur un écran 60 Hz,
+         * écrire simplement skill.progress à chaque frame ne peut montrer
+         * que ~0/25/50/75 % : le niveau reboucle avant qu'un frame ne
+         * tombe sur 100 %. On réserve donc une vraie fenêtre visible au
+         * début et à la fin du cycle sans modifier sa durée totale.
+         */
+        const duration=
+          Math.max(
+            20,
+            1000/
+            speed
+          );
+
+        const progress=
+          Math.max(
+            0,
+            Math.min(
+              .999999,
+              idleNombre_(
+                skill&&skill.progress
+              )
+            )
+          );
+
+        bar.style.setProperty('transition','none','important');
+        bar.style.width='100%';
+        bar.style.transformOrigin='left center';
+        bar.style.willChange='transform';
+
+        const ancienneDuree=
+          idleNombre_(
+            bar.dataset&&
+            bar.dataset.idleBtDurationV219
+          );
+
+        if(
+          !bar.__idleBtAnimationV219 ||
+          Math.abs(ancienneDuree-duration)>.1
+        ){
+          if(bar.__idleBtAnimationV219){
+            bar.__idleBtAnimationV219.cancel();
+          }
+
+          const animation=
+            bar.animate(
+              [
+                {transform:'scaleX(0)',offset:0},
+                {transform:'scaleX(0)',offset:.08},
+                {transform:'scaleX(1)',offset:.72},
+                {transform:'scaleX(1)',offset:.98},
+                {transform:'scaleX(0)',offset:1}
+              ],
+              {
+                duration:duration,
+                iterations:Infinity,
+                easing:'linear'
+              }
+            );
+
+          animation.currentTime=
+            progress*
+            duration;
+
+          bar.__idleBtAnimationV219=
+            animation;
+
+          bar.dataset.idleBtDurationV219=
+            String(duration);
+        }
+      }
+
+
       function allocationsBasicTrainingIdleV120_(){
         const bt=basicTrainingIdleV120_();
         const result={};
@@ -598,9 +701,10 @@
           }
 
           if(bar){
-            largeurBarreCombatIdleV121_(
+            animerBarreBasicTrainingIdleV219_(
               bar,
-              vitesse>0?idleNombre_(skill.progress)*100:0
+              skill,
+              vitesse
             );
           }
         });
@@ -1323,19 +1427,11 @@
             );
 
           if(bar){
-            largeurBarreCombatIdleV121_(
+            animerBarreBasicTrainingIdleV219_(
               bar,
-              skill.progress*100
+              skill,
+              vitesse
             );
-
-            if(skill.level>niveauAvant){
-              bar.classList.remove('pulse');
-              void bar.offsetWidth;
-              bar.classList.add('pulse');
-              setTimeout(function(){
-                if(bar)bar.classList.remove('pulse');
-              },320);
-            }
           }
         });
 
@@ -21929,7 +22025,7 @@ let idleDialogueTimerV76=null;
                 <div
                   id="sorealIdleBtBarV120_${idleHtml_(skill.id)}"
                   class="soreal-idle-bt-fill-v120"
-                  style="width:${pourcentageInitial}%"
+                  style="width:100%;transform:scaleX(${pourcentageInitial/100});transform-origin:left center;will-change:transform;transition:none"
                 ></div>
               </div>
 
