@@ -138,3 +138,14 @@ jobs:
             percentage
           });
           NODE
+
+
+      - name: Verify deployed Piper narration in Chromium
+        shell: bash
+        env:
+          SOREAL_IDLE_URL: https://soreal-idle.technicien-soreal.workers.dev/
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+          node cloudflare/tests/idle-piper-production-origin.smoke.mjs
