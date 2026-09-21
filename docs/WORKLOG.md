@@ -1,33 +1,70 @@
 # WORKLOG — SOREAL-IDLE
 
 Dernière mise à jour : 2026-09-21
-Tâche en cours : remplacer progressivement le TTS navigateur par une couche audio capable de lire des fichiers pré-générés, avec fallback TTS.
+Tâche en cours : remplacer progressivement le TTS navigateur par une couche audio pré-générée avec fallback TTS.
 
 ## État vérifié avant chantier
-- Branche : `main`
+- Branche production : `main`
 - SHA `main` initial vérifié : `005168cc4566fe4adb98fe76da1b30d5806510e9`
 - Dernier workflow production avant chantier : `Deploy SOREAL Idle to Cloudflare` run #498
 - CI / déploiement du SHA initial : SUCCESS
 - SHA réellement déployé avant chantier : `005168cc4566fe4adb98fe76da1b30d5806510e9`
-- Commit de création du WORKLOG : `29d231ef11cf2c0726d5032ba73dcd52f85bd0ab` (docs uniquement, pas de déploiement attendu)
-- Tests/build locaux pour ce chantier : non exécutables depuis le clone local de cette session car l'environnement ne résout pas github.com
-- Dernière erreur : `git clone` local impossible (`Could not resolve host: github.com`). La connexion GitHub applicative fonctionne.
-- Note : aucun `docs/WORKLOG.md` n'existait auparavant dans ce dépôt.
+- Création du WORKLOG : `29d231ef11cf2c0726d5032ba73dcd52f85bd0ab`
+- Audit consigné : `8d2eb2fa51d1f74efb32c055da8613a7d60b9157`
+- Les deux commits docs ci-dessus ne touchent pas `cloudflare/**` et ne déclenchent donc pas de déploiement.
+
+## Limitation de l'environnement
+- Le clone local de cette session ne peut pas résoudre `github.com` : `Could not resolve host: github.com`.
+- La connexion GitHub applicative fonctionne.
+- La suite complète locale ne peut donc pas être exécutée dans le conteneur de cette session.
+- Ne pas déclarer le chantier terminé avant la suite complète GitHub Actions sur `main` et la vérification du SHA déployé.
 
 ## Audit TTS vérifié
-- Module de production : `cloudflare/public/modules/tutorial-tts-v202.js`.
-- L'API exposée est actuellement `__SOREAL_IDLE_TUTORIAL_TTS_V203__` / alias V202.
-- Lecture actuelle : Web Speech API uniquement (`window.speechSynthesis` + `SpeechSynthesisUtterance`).
-- Le module contient des contournements Android : découpage <= 220 caractères, `resume()`, relance sans voix explicite.
-- Le test `idle-tutorial-tts-v202.test.mjs` interdit explicitement tout `fetch`, `Audio` ou fichier .mp3/.wav/.ogg : ce garde doit être adapté pour autoriser la nouvelle architecture.
-- Le cache-buster actuel du module dans `cloudflare/public/index.html` est `?v=210`.
+- Module : `cloudflare/public/modules/tutorial-tts-v202.js`.
+- Avant changement : Web Speech API uniquement, avec contournements Android (morceaux <= 220 caractères, `resume()`, retry sans voix explicite).
+- Le test historique interdisait explicitement `Audio` et devait être adapté.
+- Cache-buster initial du module : `?v=210`.
 
-## Stratégie de changement
-- Première étape uniquement : support d'un audio pré-généré quand une source est fournie.
-- Sources prévues : attribut `data-soreal-tts-audio-src` ou manifeste global par identifiant de cible.
-- En cas de source absente, erreur de chargement ou lecture refusée : fallback vers le Web Speech API existant.
-- Aucun fournisseur externe, secret ou génération dynamique n'est ajouté à cette étape.
-- Le bouton et les API existants restent compatibles.
+## Implémentation sur branche
+Branche : `work/tts-audio-fallback`
+
+Commits fonctionnels :
+- `fc6c3a610cd157345324dd5ae3fd09fd1c7040e7` — priorité à l'audio pré-généré avec fallback TTS.
+- `8b23373cbeab508e3626b10c127725ca411c314f` — test adapté pour couvrir l'architecture hybride.
+- `a03187ad454198ddb758912da0c814bcb0eaa3cb` — cache-buster narration `?v=221`.
+- `0ac7f35c7b889d8075cc6d85f2d8fc309970f5ca` — évite un double fallback si `Audio.play()` échoue synchroniquement.
+
+Comportement ajouté :
+- source audio explicite via `data-soreal-tts-audio-src` ;
+- ou manifeste global `window.__SOREAL_IDLE_NARRATION_AUDIO_MANIFEST__` indexé par ID de cible ;
+- `readText(text, audioSrc)` accepte aussi une URL audio explicite ;
+- si aucun audio n'existe : SpeechSynthesis actuel ;
+- si le chargement/la lecture audio échoue : SpeechSynthesis actuel ;
+- `stop()` coupe audio et synthèse ;
+- aucune clé API ni appel direct à un fournisseur TTS depuis le navigateur.
+
+## Validation ciblée exécutée
+Validation V8 avec faux `Audio` et faux `SpeechSynthesis` :
+- syntaxe du module : OK ;
+- audio pré-généré prioritaire : OK ;
+- fallback SpeechSynthesis après erreur audio : OK ;
+- arrêt de l'audio par `stop()` : OK ;
+- aucun `fetch()` direct vers un fournisseur TTS : OK ;
+- cache-buster `?v=221` : OK.
+
+Dernier SHA de branche validé : `0ac7f35c7b889d8075cc6d85f2d8fc309970f5ca`.
+
+## État production
+- Dernier SHA production vérifié : `005168cc4566fe4adb98fe76da1b30d5806510e9`.
+- La nouvelle narration n'est PAS encore sur `main` ni en production à ce stade.
+
+## Dernière erreur
+- Pas d'erreur fonctionnelle connue sur la branche.
+- Limitation persistante : clone local réseau indisponible, donc suite complète locale non exécutée.
 
 ## Prochaine action
-Créer une branche de travail depuis le SHA courant de `main`, modifier le module + test ciblé + cache-buster, vérifier la syntaxe et les tests ciblés récupérables, puis intégrer sur `main` et laisser la CI complète + déploiement vérifier le changement avant de le déclarer terminé.
+1. Vérifier que `main` n'a pas avancé depuis `8d2eb2fa...`.
+2. Comparer précisément la branche à `main`.
+3. Intégrer sur `main` seulement si le diff est limité au module narration, son test, le cache-buster et ce WORKLOG.
+4. Vérifier le workflow complet GitHub Actions : suite de tests, build, déploiement Cloudflare et contrôle du SHA actif.
+5. Mettre à jour ce WORKLOG avec le SHA réellement déployé.
