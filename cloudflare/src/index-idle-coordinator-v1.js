@@ -392,6 +392,19 @@ export class SorealIdleCoordinatorV1 {
         headers: { "cache-control": "no-store" }
       });
     }
+    if (path === "/__soreal-idle-v1/session-validate") {
+      const p = await request.json().catch(() => ({}));
+      const session = this.standaloneSessionV1(p?.sessionToken);
+      return Response.json(
+        session.ok
+          ? { ok: true, expiresAt: session.expiresAt }
+          : { ok: false, error: session.error },
+        {
+          status: session.ok ? 200 : 401,
+          headers: { "cache-control": "no-store" }
+        }
+      );
+    }
     if (path === "/__soreal-idle-v1/session-call") {
       const p = await request.json().catch(() => ({}));
       try {
