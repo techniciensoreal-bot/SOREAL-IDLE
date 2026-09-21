@@ -336,3 +336,43 @@ Dernière erreur :
 Prochaine action :
 - test auditif utilisateur dans SOREAL IDLE sur un bouton de narration réel, idéalement après un rechargement forcé afin de prendre les nouveaux assets.
 - ce commit WORKLOG est docs-only ; le SHA réellement déployé reste `854ff7729cff3f4db0821e63adab03b07eaceac9`.
+
+
+## Narration V7 — lecture navigateur réelle
+Retour utilisateur après V6 :
+- bouton : `Voix IA indisponible` sur navigateur réel.
+
+Écart trouvé dans la validation V6 :
+- le smoke Chromium V6 vérifiait uniquement que Piper pouvait synthétiser un WAV ;
+- il ne vérifiait pas la lecture audio différée après chargement du modèle ;
+- le contrôleur V6 appelait `HTMLAudioElement.play()` après plusieurs opérations asynchrones, donc hors de la fenêtre de geste utilisateur selon la politique autoplay du navigateur.
+
+Correctif V7 :
+- branche : `fix/piper-playback-v7` ;
+- Web Audio `AudioContext` créé/réactivé dès le clic utilisateur ;
+- impulsion silencieuse immédiate pour conserver le déverrouillage audio ;
+- WAV Piper décodé puis lu via `AudioBufferSourceNode` ;
+- arrêt de narration coupe aussi la source Web Audio ;
+- cache-busters : Piper local `?v=2`, contrôleur narration `?v=226` ;
+- en cas d'échec, le bouton affiche maintenant le code d'erreur au lieu du seul message générique.
+
+Validation hors production :
+- workflow temporaire : `Validate Piper playback V7 branch` ;
+- run #1 : échec sur une assertion de test obsolète uniquement ;
+- run #2 : SUCCESS ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- Chromium lancé avec `--autoplay-policy=user-gesture-required` ;
+- clic réel sur le bouton de narration : SUCCESS ;
+- synthèse Piper : SUCCESS ;
+- lecture complète Web Audio : SUCCESS ;
+- `lastError=""` ;
+- `audioState="running"` ;
+- moteur Piper final : `ready`, langue `fr`.
+
+Prochaine action :
+- supprimer le workflow temporaire ;
+- vérifier que la branche est 0 commit derrière `main` ;
+- merger ;
+- vérifier CI/build/déploiement/SHA Cloudflare actif ;
+- retest utilisateur sur le bouton réel.
