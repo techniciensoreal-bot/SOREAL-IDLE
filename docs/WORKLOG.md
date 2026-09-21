@@ -416,3 +416,26 @@ Prochaine action :
 - déplacer le script de diagnostic sous le workspace du dépôt ;
 - relancer le même test contre `https://soreal-idle.technicien-soreal.workers.dev/` ;
 - ne toucher au code de narration qu’après obtention d’une erreur runtime réellement reproduite.
+
+
+### Diagnostic production V8 — cause réelle reproduite
+Run #3 sur le commit `955eea76991dbd7e8554e1e6ef07317ce3963928` :
+- Chromium charge l’origine réelle `https://soreal-idle.technicien-soreal.workers.dev/` ;
+- les modules V7 sont bien présents ;
+- l’initialisation Piper échoue avant la synthèse ;
+- `lastError = "Failed to fetch"` ;
+- état moteur : `status="error"`, `stage="error"` ;
+- erreur navigateur exacte :
+  `Access to fetch at 'https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx.json' from origin 'https://soreal-idle.technicien-soreal.workers.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- requête échouée : modèle de configuration `.onnx.json` Hugging Face, `net::ERR_FAILED`.
+
+Cause racine :
+- le smoke local V7 utilisait une origine locale et n’a pas couvert le comportement CORS de l’origine Cloudflare ;
+- le frontend production charge actuellement directement le modèle/configuration depuis Hugging Face ;
+- Hugging Face ne fournit pas l’en-tête CORS requis sur cette ressource dans ce contexte.
+
+Prochaine action :
+- ne plus faire télécharger Piper directement depuis Hugging Face par le navigateur ;
+- exposer modèle + configuration via une route same-origin SOREAL-IDLE côté Worker ;
+- ajouter un test de non-régression production-origin ;
+- valider synthèse + lecture réelle avant merge.
