@@ -61,7 +61,7 @@ function envV1(){
       async run(model,input){
         aiCalls+=1;
         assert.equal(model,"@cf/myshell-ai/melotts");
-        assert.equal(input.lang,"fr");
+        assert.equal(input.lang,"FR");
         assert.ok(String(input.prompt||"").length>0);
         return {audio:makeMp3Base64()};
       }
@@ -120,7 +120,7 @@ function envV1(){
   const body1=await health1.json();
   assert.equal(body1.ok,true);
   assert.equal(body1.model,"@cf/myshell-ai/melotts");
-  assert.equal(body1.lang,"fr");
+  assert.equal(body1.lang,"FR");
   assert.equal(body1.versionId,"version-test-123");
   assert.equal(body1.cache,"MISS");
   assert.equal(body1.bytes,256);
