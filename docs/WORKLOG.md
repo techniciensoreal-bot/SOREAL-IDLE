@@ -396,3 +396,23 @@ Prochaine action :
 Prochaine action :
 - retest utilisateur sur un bouton de narration réel dans SOREAL-IDLE.
 - ce commit WORKLOG est docs-only ; le SHA de code réellement déployé reste `bee6933f4bae1dabb1192d14e8f7c56f6dfe4df0`.
+
+
+## Narration V8 — diagnostic origine production
+Objectif : reproduire la lecture Piper dans Chromium contre l’URL Cloudflare réellement déployée, sans modifier la production.
+
+Branche : `diag/piper-production-v8`.
+
+Diagnostic run #1 :
+- commit : `907b07234a23ebb2e019cf847e06580cd02dad48` ;
+- checkout : SUCCESS ;
+- installation Chromium/Playwright : SUCCESS ;
+- test production : FAILURE avant ouverture du navigateur ;
+- erreur exacte : `ERR_MODULE_NOT_FOUND: Cannot find package 'playwright' imported from /tmp/piper-prod-smoke.mjs` ;
+- cause : le script de diagnostic était créé dans `/tmp`, hors de l’arborescence du dépôt, donc la résolution ESM ne remontait pas vers le `node_modules` du workspace ;
+- aucune conclusion sur Piper ou la production ne peut être tirée de ce run.
+
+Prochaine action :
+- déplacer le script de diagnostic sous le workspace du dépôt ;
+- relancer le même test contre `https://soreal-idle.technicien-soreal.workers.dev/` ;
+- ne toucher au code de narration qu’après obtention d’une erreur runtime réellement reproduite.
