@@ -641,3 +641,11 @@ Prochaine action :
 - UI split V2 validation : run `35652426289` SUCCESS sur `b8f2906efe964518465e0146a1d2fd4e256485e0` ; tests complets + build/syntaxe validés.
 - Module extrait : `modules/item-presentation-v1.js`; monolithe délègue la présentation emoji des objets.
 - Workflow V2 temporaire supprimé après validation. Prochaine action : merge PR #12 puis validation production complète avant V3.
+
+
+## Refactor découpage UI V3 — 2026-09-21
+- Base production vérifiée : `main` = `1e16b4d0139154deac8e378eac54274526a5ebb4`, run #512 SUCCESS complet.
+- Extraction : formatteurs numériques vers `cloudflare/public/modules/number-format-v1.js` ; wrappers compatibles conservés dans le monolithe.
+- Validation #1 : faux négatif du nouveau test (attendait `999.4` au lieu du comportement historique localisé `999,4`). Aucun changement fonctionnel appliqué pour le corriger.
+- Validation #2 : run `35652922982` SUCCESS sur `684ce36b665742f7c49c216177bf8af41cb14570` ; suite complète + build/syntaxe SUCCESS.
+- Workflow V3 temporaire supprimé. Prochaine action : merge PR #13 et vérifier production complète avant V4.

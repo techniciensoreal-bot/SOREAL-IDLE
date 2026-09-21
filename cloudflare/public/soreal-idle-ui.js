@@ -17982,103 +17982,12 @@
       }
 
 
-      function formatGrandNombreIdleV70_(
-        valeur,
-        decimales
-      ){
-        const n=
-          idleNombre_(
-            valeur
-          );
-
-        const abs=
-          Math.abs(n);
-
-        if(
-          !Number.isFinite(n)
-        ){
-          return '∞';
-        }
-
-        if(abs<1000){
-          /*
-           * Norman (2026-09-15) : les items de l'Aventure procurent
-           * désormais de vrais bonus de régénération de vie par palier de
-           * 0,01 à quelques centaines (HP Regen=Toughness×0.03) —
-           * Math.round() les arrondissait TOUJOURS à l'entier le plus
-           * proche (0,03 → 0), quel que soit l'appelant. decimales reste
-           * ignoré ici pour tout appelant existant (comportement inchangé
-           * tant que ce paramètre n'est pas fourni) ; seul un appelant qui
-           * le fournit EXPLICITEMENT obtient des décimales sous 1000.
-           */
-          return decimales===undefined
-            ?String(Math.round(n))
-            :n.toFixed(Math.max(0,idleEntier_(decimales))).replace(/\.0+$/,'').replace(/(\.\d*?)0+$/,'$1');
-        }
-
-        const suffixes=[
-          '',
-          'K',
-          'M',
-          'B',
-          'T',
-          'Qa',
-          'Qi',
-          'Sx',
-          'Sp',
-          'Oc',
-          'No',
-          'Dc',
-          'Ud',
-          'Dd',
-          'Td',
-          'Qad',
-          'Qid'
-        ];
-
-        const rang=
-          Math.min(
-            suffixes.length-1,
-            Math.floor(
-              Math.log10(abs)/3
-            )
-          );
-
-        if(rang>=suffixes.length-1){
-          return n.toExponential(2);
-        }
-
-        const div=
-          Math.pow(
-            1000,
-            rang
-          );
-
-        const scaled=
-          n/div;
-
-        const d=
-          decimales===undefined
-            ?(
-                Math.abs(scaled)>=100
-                  ?0
-                  :Math.abs(scaled)>=10
-                    ?1
-                    :2
-              )
-            :Math.max(
-                0,
-                idleEntier_(
-                  decimales
-                )
-              );
-
-        return scaled.toFixed(d)
-          .replace(/\.0+$/,'')
-          .replace(/(\.\d*?)0+$/,'$1')+
-          suffixes[rang];
+      function formatGrandNombreIdleV70_(valeur,decimales){
+        const api=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
+        return api&&typeof api.grandNombre==='function'
+          ?api.grandNombre(valeur,decimales)
+          :String(Math.round(idleNombre_(valeur)));
       }
-
 
       function barreXpIdleV70_(
         j
@@ -18513,54 +18422,12 @@
       }
 
 
-      function formatNombreCombatIdleV100_(
-        valeur
-      ){
-        const n=
-          Math.max(
-            0,
-            idleNombre_(
-              valeur
-            )
-          );
-
-        /*
-         * Norman (2026-09-09) : "les journaux de combats affichent trop de
-         * chiffres." Avant ce correctif, cette fonction se contentait
-         * d'arrondir la valeur brute et de la renvoyer telle quelle — au-delà
-         * de 1000 de dégâts (ce qui arrive très vite dans un idle game), ça
-         * affichait des chaînes de chiffres énormes (ex. "1984000000000000").
-         * On réutilise le même formatteur compact que celui déjà utilisé pour
-         * l'XP/les PV (formatGrandNombreIdleV70_, suffixes K/M/B/T/Qa/…) pour
-         * rester cohérent avec le reste du journal de combat.
-         */
-        if(n>=1000){
-          return formatGrandNombreIdleV70_(
-            n
-          );
-        }
-
-        const dixieme=
-          Math.round(
-            n*10
-          )/10;
-
-        if(
-          Math.abs(
-            dixieme-
-            Math.round(dixieme)
-          )<.001
-        ){
-          return String(
-            Math.round(dixieme)
-          );
-        }
-
-        return dixieme
-          .toFixed(1)
-          .replace('.',',');
+      function formatNombreCombatIdleV100_(valeur){
+        const api=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
+        return api&&typeof api.combat==='function'
+          ?api.combat(valeur)
+          :String(Math.round(Math.max(0,idleNombre_(valeur))));
       }
-
 
       function motDegatIdleV100_(
         valeur
