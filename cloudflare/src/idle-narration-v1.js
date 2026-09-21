@@ -1,5 +1,5 @@
 const IDLE_NARRATION_MODEL_V1="@cf/myshell-ai/melotts";
-const IDLE_NARRATION_LANG_V1="fr";
+const IDLE_NARRATION_LANG_V1="FR";
 const IDLE_NARRATION_R2_PREFIX_V1="idle/narration/v1/fr/";
 const IDLE_NARRATION_HEALTH_PREFIX_V1="idle/narration-health/v1/";
 const IDLE_NARRATION_MAX_CHARS_V1=3500;
