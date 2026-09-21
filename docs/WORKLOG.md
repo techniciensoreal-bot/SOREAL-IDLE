@@ -509,3 +509,105 @@ Dernière anomalie connue :
 Prochaine action :
 - retest auditif utilisateur sur un bouton de narration réel ;
 - si un défaut subsiste sur un navigateur précis, relever le code d’erreur affiché par le bouton et diagnostiquer ce navigateur sans remettre en cause le chemin production déjà vérifié.
+
+
+## Narration V9 — choix de voix IA
+Démarrage : 2026-09-21.
+- Dépôt traité : SOREAL-IDLE uniquement.
+- Branche : `feat/piper-voice-choice-v9`.
+- `main` vérifié au démarrage : `31677b98a7bb8901ccefb1fe0a9cc199af9796c7` (commit docs-only).
+- Dernier SHA de code vérifié en production avant ce chantier : `0254667cf5abf348f9f6399240d010ed09d3afae`.
+- État production de départ : run #509 SUCCESS, tests/build/déploiement/SHA actif/smoke Piper production-origin SUCCESS.
+- Demande : permettre au joueur de choisir réellement sa voix IA.
+- Constat : le modèle V8 courant n'expose qu'un seul locuteur et l'API navigateur Piper Plus 0.7.0 ne propose pas de sélection speakerId ; un faux sélecteur est donc exclu.
+- Direction retenue : choix entre plusieurs modèles vocaux français mono-locuteur, chargés à la demande et mémorisés localement, sans réintroduire SpeechSynthesis ni TTS cloud.
+
+État actuel : modification de code non commencée sur cette branche.
+Prochaine action : ajouter les routes modèles vocales, la sélection persistante côté Piper, l'interface de choix et les tests de non-régression.
+
+
+### V9 — modèles et contrôleur multi-voix ajoutés
+Commits réalisés :
+- `3fdd193d` : routes proxy pour les modèles sélectionnables ;
+- `3d4ed1fb` : tests des routes proxy ;
+- `790f1fe3` : moteur Piper avec sélection persistante et changement de modèle ;
+- `e753f357` : sélecteur de voix dans les contrôles de narration ;
+- `502cfa63` : cache-busters V9 ;
+- `08523ec0` / `cf687ee7` : tests de non-régression du moteur et du sélecteur ;
+- `d5386213` : smoke Chromium prévu pour synthétiser SOREAL, Siwis et Gilles ;
+- `2d9dcf77` : CI vérifie la disponibilité des trois modèles.
+
+Voix configurées :
+- SOREAL : modèle V8 actuel ;
+- Siwis : fr_FR-siwis-medium (Piper voices v1.0.0) ;
+- Gilles : fr_FR-gilles-low (Piper voices v1.0.0).
+
+Dernière anomalie :
+- validation locale impossible dans le conteneur ChatGPT : `git clone` échoue avec `Could not resolve host: github.com` ; ce n'est pas une erreur du dépôt ni des tests.
+
+État tests/build :
+- non encore exécutés sur GitHub pour V9.
+Prochaine action :
+- ajouter un workflow temporaire de validation de branche ;
+- ouvrir la PR pour déclencher tests + build + Wrangler local + Chromium sur les trois voix.
+
+
+### Validation V9 — échec Chromium #1
+Run GitHub Actions : `35649204569`.
+- Suite complète : SUCCESS.
+- Build standalone : SUCCESS.
+- Dépendances des trois voix : SUCCESS.
+- Worker Wrangler local : SUCCESS.
+- Smoke Chromium : FAILURE après succès de la voix SOREAL.
+
+Erreur exacte sur Siwis :
+`openjtalkModule is required. Pass it via new JapaneseG2P({ openjtalkModule }) or initialize({ openjtalkModule }).`
+
+Cause vérifiée :
+- les anciens modèles Piper mono-langue Siwis/Gilles n'ont pas de `language_id_map` ;
+- Piper Plus 0.7.0 initialise alors tous les G2P JS, dont le japonais, ce qui réclame OpenJTalk alors que seule la phonémisation française est nécessaire ;
+- le modèle SOREAL actuel possède une carte de langues et passe correctement.
+
+Prochaine action précise :
+- adapter uniquement les configs same-origin Siwis/Gilles pendant l'initialisation pour borner le G2P à `fr`, puis retirer cette carte de compatibilité avant l'inférence afin de ne pas envoyer de tenseur `lid` aux modèles mono-langue ;
+- relancer la validation complète avant fusion.
+
+
+### Validation V9 — run vert pré-fusion
+- Workflow temporaire : `Validate Piper voice choice V9`.
+- Run : `35649603324`.
+- Job : `106498440361`.
+- SHA de code validé : `502fbf3b3737de16fd3e42c7586e9a51153c3f0b`.
+- Suite complète `cloudflare/tests/*.test.mjs` : SUCCESS.
+- Build standalone + vérifications syntaxiques : SUCCESS.
+- Disponibilité des dépendances et des trois modèles : SUCCESS.
+- Worker Wrangler local : SUCCESS.
+- Chromium avec politique autoplay stricte : SUCCESS.
+- Synthèse + lecture Web Audio SOREAL : SUCCESS.
+- Synthèse + lecture Web Audio Siwis : SUCCESS.
+- Synthèse + lecture Web Audio Gilles : SUCCESS.
+- État final : `lastError=""`, `audioState="running"`.
+- Aucun SpeechSynthesis ni TTS cloud réintroduit.
+
+Important :
+- ce run valide la branche contre un Worker local, pas encore la production ;
+- aucune fusion sur `main` ni aucun déploiement V9 n'a encore eu lieu.
+
+Prochaine action :
+- supprimer le workflow temporaire de validation ;
+- vérifier que la branche reste `behind_by=0` par rapport à `main` ;
+- fusionner la PR #10 ;
+- exiger ensuite le workflow de production complet avec SHA Cloudflare actif et smoke Chromium réel sur les trois voix.
+
+
+### V9 — état pré-fusion vérifié
+- Workflow temporaire de validation supprimé au commit `f2496938289954dc8a90aefbb839d34a39568af8`.
+- `main` vérifié avant fusion : `31677b98a7bb8901ccefb1fe0a9cc199af9796c7`.
+- Branche V9 : `behind_by=0`.
+- Comparaison depuis le SHA de code validé `502fbf3b3737de16fd3e42c7586e9a51153c3f0b` : uniquement `docs/WORKLOG.md` modifié et workflow temporaire retiré ; aucun fichier de production/test validé n'a changé après le run vert.
+- PR : #10.
+
+Prochaine action :
+- fusionner la PR #10 vers `main` ;
+- vérifier le workflow de production complet ;
+- ne déclarer V9 disponible qu'après tests/build/déploiement, vérification du SHA Cloudflare actif et smoke Chromium des trois voix contre l'origine de production.

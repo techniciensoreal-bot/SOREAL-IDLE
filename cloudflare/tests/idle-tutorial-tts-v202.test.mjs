@@ -30,6 +30,14 @@ for(const token of [
   "soreal_idle_tutorial_tts_auto_v202",
   "Voix IA auto ON",
   "Voix IA auto OFF",
+  "VOICE_SELECT_CLASS='soreal-idle-tts-voice-v209'",
+  "Choisir la voix IA",
+  "updateVoiceSelector_",
+  "changeVoice_",
+  "api.setVoice",
+  "voices:function()",
+  "voice:function()",
+  "setVoice:function(value)",
   "data-soreal-tts-target",
   "readTarget:lireCible_",
   "readText:function(value,audioSrc)",
@@ -37,6 +45,7 @@ for(const token of [
   "⏹ Arrêter la narration",
   "stop:stop_",
   "isSpeaking:function()",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V209__",
   "__SOREAL_IDLE_TUTORIAL_TTS_V208__",
   "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
   "requestLocalNeuralAudio_",
@@ -51,7 +60,7 @@ for(const token of [
   "CHUNK_MAX=2000",
   "⚠️ Voix IA · "
 ]){
-  assert.ok(narration.includes(token),"Narration V206 manquante: "+token);
+  assert.ok(narration.includes(token),"Narration V209 manquante: "+token);
 }
 
 for(const forbidden of [
@@ -91,13 +100,14 @@ assert.ok(
   index.includes('"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"')&&
   index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=3'),
-  "Piper Plus, son G2P et ONNX Runtime doivent être épinglés et le module local doit être chargé."
+  index.includes('/modules/local-neural-piper-v1.js?v=4')&&
+  index.includes('/modules/tutorial-tts-v202.js?v=227'),
+  "Piper Plus et le contrôleur multi-voix doivent être épinglés et cache-bustés."
 );
 
 new Function("window","document","localStorage",narration);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE narration V208: OK — Piper local + Web Audio déverrouillé, aucun SpeechSynthesis ni TTS cloud client."
+  "SOREAL IDLE narration V209: OK — sélecteur de modèles Piper locaux, Web Audio, aucun SpeechSynthesis/TTS cloud."
 );

@@ -676,13 +676,41 @@ async function adventureSafeZone_(request,env,url){
   });
 }
 
-const IDLE_PIPER_MODEL_UPSTREAM_V1="https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx";
 const IDLE_PIPER_MODEL_ROUTE_V1="/api/idle/media/piper-model.onnx";
 const IDLE_PIPER_MODEL_CONFIG_ROUTE_V1=IDLE_PIPER_MODEL_ROUTE_V1+".json";
+const IDLE_PIPER_VOICES_V2=new Map([
+  ["soreal",{
+    route:"/api/idle/media/piper-voice-soreal.onnx",
+    upstream:"https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx"
+  }],
+  ["siwis",{
+    route:"/api/idle/media/piper-voice-siwis.onnx",
+    upstream:"https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx"
+  }],
+  ["gilles",{
+    route:"/api/idle/media/piper-voice-gilles.onnx",
+    upstream:"https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx"
+  }]
+]);
+
+function piperVoiceForPath_(pathname){
+  const path=String(pathname||"");
+  if(path===IDLE_PIPER_MODEL_ROUTE_V1||path===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1){
+    const voice=IDLE_PIPER_VOICES_V2.get("soreal");
+    return {...voice,isConfig:path===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1,id:"soreal"};
+  }
+  for(const [id,voice] of IDLE_PIPER_VOICES_V2){
+    if(path===voice.route)return {...voice,isConfig:false,id};
+    if(path===voice.route+".json")return {...voice,isConfig:true,id};
+  }
+  return null;
+}
 
 async function piperModelProxy_(request,url){
-  const isConfig=url.pathname===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1;
-  const upstreamUrl=IDLE_PIPER_MODEL_UPSTREAM_V1+(isConfig?".json":"");
+  const voice=piperVoiceForPath_(url.pathname);
+  if(!voice)return new Response("Voix Piper inconnue",{status:404,headers:{"cache-control":"no-store"}});
+  const isConfig=voice.isConfig;
+  const upstreamUrl=voice.upstream+(isConfig?".json":"");
   const upstream=await fetch(upstreamUrl,{
     method:request.method==="HEAD"?"HEAD":"GET",
     headers:{
@@ -707,6 +735,23 @@ async function piperModelProxy_(request,url){
   );
   headers.set("cache-control","public, max-age=604800, immutable");
   headers.set("access-control-allow-origin","*");
+
+  const needsFrenchOnlyCompat=isConfig&&voice.id!=="soreal"&&request.method!=="HEAD";
+  if(needsFrenchOnlyCompat){
+    let config;
+    try{config=await upstream.json();}catch(_){
+      return new Response("Configuration vocale Piper invalide",{
+        status:502,
+        headers:{"cache-control":"no-store"}
+      });
+    }
+    config.language_id_map={fr:0};
+    config.num_languages=1;
+    config.soreal_monolingual_g2p_compat=true;
+    headers.set("content-type","application/json; charset=utf-8");
+    return new Response(JSON.stringify(config),{status:200,headers});
+  }
+
   for(const name of ["content-length","etag","last-modified"]){
     const value=upstream.headers.get(name);
     if(value)headers.set(name,value);
@@ -1061,6 +1106,12 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/banner",
     "/api/idle/media/piper-model.onnx",
     "/api/idle/media/piper-model.onnx.json",
+    "/api/idle/media/piper-voice-soreal.onnx",
+    "/api/idle/media/piper-voice-soreal.onnx.json",
+    "/api/idle/media/piper-voice-siwis.onnx",
+    "/api/idle/media/piper-voice-siwis.onnx.json",
+    "/api/idle/media/piper-voice-gilles.onnx",
+    "/api/idle/media/piper-voice-gilles.onnx.json",
     "/api/idle/media/debug-list"
   ]);
   if(!routes.has(url.pathname))return null;
@@ -1068,7 +1119,7 @@ export async function traiterRequeteIdleMedia(request,env){
     return new Response("Méthode non autorisée",{status:405,headers:{allow:"GET, HEAD","cache-control":"no-store"}});
   }
   if(url.pathname==="/api/idle/media/debug-list")return debugListeR2_(request,env,url);
-  if(url.pathname===IDLE_PIPER_MODEL_ROUTE_V1||url.pathname===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1)return piperModelProxy_(request,url);
+  if(piperVoiceForPath_(url.pathname))return piperModelProxy_(request,url);
   if(url.pathname==="/api/idle/media/avatar")return avatarProxy_(request,url);
   if(url.pathname==="/api/idle/media/item")return itemSet_(request,env,url);
   if(url.pathname==="/api/idle/media/mob")return adventureMob_(request,env,url);
