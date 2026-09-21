@@ -623,3 +623,8 @@ Prochaine action :
 - Production : inchangée ; rien de cette branche n'est sur `main`.
 - Tests/CI de branche : à lancer/vérifier avant toute extraction supplémentaire.
 - Prochaine action : exécuter les tests sur la branche, corriger toute régression, puis seulement choisir le prochain bloc autonome à extraire.
+
+- Validation branche UI split : run #3 (ID 35651772502) SUCCESS sur `a99663da8f75f288f807ea523ffe5991571b238f` ; suite complète SUCCESS ; build standalone + syntaxe SUCCESS.
+- Deux faux négatifs de test corrigés avant validation : ancien contrat interdisant `modules/ui.js`, puis ordre de chargement du test mal recalculé.
+- Workflow temporaire supprimé après validation au commit `6a089556a46b3948b936ea703b6467ac8088d88e`.
+- Prochaine action : merger PR #11, vérifier le nouveau SHA `main`, puis vérifier le workflow production complet et le SHA réellement déployé avant de poursuivre les extractions suivantes.
