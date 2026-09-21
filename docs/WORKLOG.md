@@ -628,3 +628,12 @@ Prochaine action :
 - Deux faux négatifs de test corrigés avant validation : ancien contrat interdisant `modules/ui.js`, puis ordre de chargement du test mal recalculé.
 - Workflow temporaire supprimé après validation au commit `6a089556a46b3948b936ea703b6467ac8088d88e`.
 - Prochaine action : merger PR #11, vérifier le nouveau SHA `main`, puis vérifier le workflow production complet et le SHA réellement déployé avant de poursuivre les extractions suivantes.
+
+
+## Refactor découpage UI V2 — 2026-09-21
+- V1 mergée sur `main` : `2f7216f107d1f13eee3b6ce881947a4b2555b562`.
+- Production run #511 / ID `35651868202` : SUCCESS complet.
+- Tests complets : SUCCESS ; build standalone : SUCCESS ; déploiement Worker : SUCCESS ; dépendances Piper : SUCCESS ; SHA production : SUCCESS ; smoke Chromium Piper : SUCCESS.
+- Branche V2 créée depuis ce SHA production vérifié : `refactor/split-idle-ui-v2`.
+- Blocage technique constaté pour l'extraction suivante : l'API GitHub de lecture par plages renvoie un contenu vide pour `soreal-idle-ui.js` (1,1 Mo) et le fetch brut refuse le fichier comme trop volumineux. Ne pas modifier le monolithe à l'aveugle.
+- Prochaine action précise : utiliser une méthode de récupération adaptée au gros blob ou une extraction basée sur une copie locale, identifier les frontières d'un bloc autonome, puis seulement créer le module V2 avec test de parité.
