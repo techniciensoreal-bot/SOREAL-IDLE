@@ -16,6 +16,9 @@
       "bucket_name": "soreal"
     }
   ],
+  "ai": {
+    "binding": "AI"
+  },
   "assets": {
     "directory": "./cloudflare/public",
     "binding": "ASSETS"
