@@ -25386,13 +25386,18 @@ let idleDialogueTimerV76=null;
 
       function boosterCubeAdventureIdleV47_(boostId){
         /*
-         * V221 — le moteur Aventure possède une action dédiée "cube".
-         * L'ancien client envoyait action:"boost",toCube:true ; le moteur
-         * ignore toCube pour cette action et cherche alors targetId, donc
-         * chaque dépôt/clic de Power, Toughness ou Special échouait avant
-         * d'atteindre cube(). On envoie désormais l'action serveur réelle.
+         * V222 — le moteur Aventure sait absorber le Cube via action:"cube",
+         * mais le runtime de production reçoit encore le contrat historique
+         * Inventory action:"boost",toCube:true. On conserve donc ce contrat
+         * réseau et le serveur le normalise vers "cube". Cela évite le
+         * rollback visuel boost disparu/réapparu observé quand un runtime
+         * encore ancien rejette ACTION_AVENTURE_INCONNUE pour "cube".
          */
-        actionAdventureIdleV47_({action:'cube',boostId:String(boostId||'')});
+        actionAdventureIdleV47_({
+          action:'boost',
+          boostId:String(boostId||''),
+          toCube:true
+        });
       }
 
       function actionMetaV47_(payload){
