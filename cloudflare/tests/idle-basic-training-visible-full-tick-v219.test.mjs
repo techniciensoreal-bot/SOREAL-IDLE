@@ -10,9 +10,9 @@ const index=readFileSync(
   "utf8"
 );
 
-const helperStart=ui.indexOf("function animerBarreBasicTrainingIdleV219_");
+const helperStart=ui.indexOf("function animerBarreBasicTrainingIdleV220_");
 const helperEnd=ui.indexOf("function allocationsBasicTrainingIdleV120_",helperStart);
-assert.ok(helperStart>=0&&helperEnd>helperStart,"L'animateur Basic Training V219 doit exister.");
+assert.ok(helperStart>=0&&helperEnd>helperStart,"L'animateur Basic Training V220 doit exister.");
 const helper=ui.slice(helperStart,helperEnd);
 
 assert.match(helper,/Math\.min\(\s*50,/,"La vitesse visuelle Basic Training doit rester plafonnée à 50 Hz.");
@@ -26,7 +26,7 @@ assert.match(
 const progressStart=ui.indexOf("function progresserBasicTrainingLocalIdleV120_");
 const progressEnd=ui.indexOf("function actualiserDeblocagesBasicTrainingLocalIdleV120_",progressStart+50);
 const progress=ui.slice(progressStart,progressEnd>progressStart?progressEnd:progressStart+18000);
-assert.match(progress,/animerBarreBasicTrainingIdleV219_\(/,"Le ticker Basic Training doit utiliser l'animateur V219.");
+assert.match(progress,/animerBarreBasicTrainingIdleV220_\(/,"Le ticker Basic Training doit utiliser l'animateur V220.");
 assert.doesNotMatch(progress,/void bar\.offsetWidth/,"Le ticker ne doit plus forcer un reflow à chaque niveau.");
 assert.doesNotMatch(
   progress,
@@ -34,6 +34,6 @@ assert.doesNotMatch(
   "La progression mécanique ne doit plus tronquer la barre au dernier frame avant 100 %."
 );
 
-assert.ok(index.includes("/soreal-idle-ui.js?v=219"),"Le shell doit charger la révision UI V219.");
+assert.ok(index.includes("/soreal-idle-ui.js?v=220"),"Le shell doit charger la révision UI V220.");
 
-console.log("idle Basic Training full visual ticks V219: OK");
+console.log("idle Basic Training full visual ticks V220: OK");
