@@ -71,7 +71,7 @@ jobs:
           if(
             data?.ok!==true||
             data?.model!=="@cf/myshell-ai/melotts"||
-            data?.lang!=="fr"||
+            data?.lang!=="FR"||
             !(Number(data?.bytes)>0)
           ){
             console.error("SOREAL IDLE neural narration health failed:",data);
