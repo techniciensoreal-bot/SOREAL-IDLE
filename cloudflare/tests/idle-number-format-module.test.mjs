@@ -7,7 +7,7 @@ assert.equal(api.grandNombre(999),"999");
 assert.equal(api.grandNombre(.03,2),"0.03");
 assert.equal(api.grandNombre(1500),"1.5K");
 assert.equal(api.grandNombre(1250000),"1.25M");
-assert.equal(api.combat(999.44),"999.4");
+assert.equal(api.combat(999.44),"999,4");
 assert.equal(api.combat(1984000000000000),"1.98Qa");
 assert.equal(api.combat(-4),"0");
 console.log("idle numeric format module: OK");
