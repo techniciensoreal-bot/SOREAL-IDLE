@@ -10,7 +10,7 @@ const media=fs.readFileSync(new URL("../src/idle-media-v1.js",import.meta.url),"
 const ngu=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
 const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
 
-assert.ok(index.includes("/modules/audio-effects-v199.js?v=210")&&index.includes("/modules/tutorial-tts-v202.js?v=210")&&index.includes("/soreal-idle-ui.js?v=213"),"Assets V207 non cache-bustés.");
+assert.ok(index.includes("/modules/audio-effects-v199.js?v=210")&&index.includes("/modules/tutorial-tts-v202.js?v=210")&&index.includes("/soreal-idle-ui.js?v=218"),"Assets V207 non cache-bustés.");
 
 for(const token of ["background:#071226","soreal-idle-loading-card","soreal-idle-loading-banner","1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb","standaloneProgress","standalonePercent"]){
   assert.ok(index.includes(token),"Écran de chargement bleu manquant: "+token);
