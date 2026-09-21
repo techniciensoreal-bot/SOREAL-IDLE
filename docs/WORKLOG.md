@@ -550,3 +550,24 @@ Dernière anomalie :
 Prochaine action :
 - ajouter un workflow temporaire de validation de branche ;
 - ouvrir la PR pour déclencher tests + build + Wrangler local + Chromium sur les trois voix.
+
+
+### Validation V9 — échec Chromium #1
+Run GitHub Actions : `35649204569`.
+- Suite complète : SUCCESS.
+- Build standalone : SUCCESS.
+- Dépendances des trois voix : SUCCESS.
+- Worker Wrangler local : SUCCESS.
+- Smoke Chromium : FAILURE après succès de la voix SOREAL.
+
+Erreur exacte sur Siwis :
+`openjtalkModule is required. Pass it via new JapaneseG2P({ openjtalkModule }) or initialize({ openjtalkModule }).`
+
+Cause vérifiée :
+- les anciens modèles Piper mono-langue Siwis/Gilles n'ont pas de `language_id_map` ;
+- Piper Plus 0.7.0 initialise alors tous les G2P JS, dont le japonais, ce qui réclame OpenJTalk alors que seule la phonémisation française est nécessaire ;
+- le modèle SOREAL actuel possède une carte de langues et passe correctement.
+
+Prochaine action précise :
+- adapter uniquement les configs same-origin Siwis/Gilles pendant l'initialisation pour borner le G2P à `fr`, puis retirer cette carte de compatibilité avant l'inférence afin de ne pas envoyer de tenseur `lid` aux modèles mono-langue ;
+- relancer la validation complète avant fusion.
