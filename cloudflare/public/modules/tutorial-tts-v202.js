@@ -1,5 +1,5 @@
 /*
- * SOREAL IDLE — Neural narration V207
+ * SOREAL IDLE — Neural narration V208
  *
  * Web Speech / SpeechSynthesis est totalement absent.
  * Lecture : audio pré-généré si mappé, sinon Piper Plus neural local (WASM).
@@ -8,7 +8,7 @@
 (function(){
   'use strict';
 
-  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V207__)return;
+  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V208__)return;
 
   var KEY='soreal_idle_tutorial_tts_auto_v202';
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
@@ -21,17 +21,22 @@
   var activeReadTarget='';
   var activeAudio=null;
   var activeAudioObjectUrl='';
+  var activeBufferSource=null;
+  var audioContext=null;
   var lastError='';
 
   try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
+
+  function audioContextCtor_(){
+    try{return window.AudioContext||window.webkitAudioContext||null;}catch(_){return null;}
+  }
 
   function audioSupported_(){
     try{
       return (
         typeof window.Audio==='function'&&
         typeof WebAssembly==='object'&&
-        typeof URL!=='undefined'&&
-        typeof URL.createObjectURL==='function'
+        Boolean(audioContextCtor_())
       );
     }catch(_){
       return false;
@@ -40,6 +45,38 @@
 
   function supported_(){
     return audioSupported_();
+  }
+
+  function ensureAudioContext_(){
+    var Ctor=audioContextCtor_();
+    if(!Ctor)return null;
+    try{
+      if(!audioContext||audioContext.state==='closed'){
+        audioContext=new Ctor();
+      }
+      return audioContext;
+    }catch(_){
+      return null;
+    }
+  }
+
+  function unlockAudio_(){
+    var ctx=ensureAudioContext_();
+    if(!ctx)return false;
+    try{
+      if(ctx.state==='suspended'){
+        var resumed=ctx.resume();
+        if(resumed&&typeof resumed.catch==='function')resumed.catch(function(){});
+      }
+      var buffer=ctx.createBuffer(1,1,22050);
+      var source=ctx.createBufferSource();
+      source.buffer=buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+      return true;
+    }catch(_){
+      return false;
+    }
   }
 
   function safeAudioSource_(value){
@@ -135,7 +172,8 @@
         if(!button.dataset.sorealTtsOriginalLabel){
           button.dataset.sorealTtsOriginalLabel=String(button.textContent||'🔊 Lire ce texte');
         }
-        button.textContent='⚠️ Voix IA indisponible';
+        button.textContent='⚠️ Voix IA · '+lastError.slice(0,32);
+        button.title='Erreur voix IA : '+lastError;
         setTimeout(function(){
           if(button&&button.isConnected&&button.dataset.sorealTtsReading!=='1'){
             button.textContent=button.dataset.sorealTtsOriginalLabel;
@@ -156,6 +194,14 @@
       try{audio.onended=null;audio.onerror=null;}catch(_){}
       try{audio.pause();}catch(_){}
       try{audio.currentTime=0;}catch(_){}
+    }
+
+    var source=activeBufferSource;
+    activeBufferSource=null;
+    if(source){
+      try{source.onended=null;}catch(_){}
+      try{source.stop(0);}catch(_){}
+      try{source.disconnect();}catch(_){}
     }
 
     var objectUrl=activeAudioObjectUrl;
@@ -272,11 +318,65 @@
         .then(function(blob){
           if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
           if(!blob||!blob.size)throw new Error('PIPER_LOCAL_AUDIO_VIDE');
-          return URL.createObjectURL(blob);
+          return blob;
         })
         .finally(function(){
           try{unsubscribe();}catch(_){}
         });
+    });
+  }
+
+  function playBlobWebAudioPromise_(blob,targetId,expectedGeneration){
+    return new Promise(function(resolve,reject){
+      if(!blob||!blob.size||expectedGeneration!==generation){
+        reject(new Error('NARRATION_ANNULEE'));
+        return;
+      }
+
+      var ctx=ensureAudioContext_();
+      if(!ctx){
+        reject(new Error('WEB_AUDIO_INDISPONIBLE'));
+        return;
+      }
+
+      Promise.resolve(
+        ctx.state==='suspended'?ctx.resume():undefined
+      ).then(function(){
+        if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+        if(ctx.state!=='running')throw new Error('WEB_AUDIO_BLOQUE_'+String(ctx.state||'unknown').toUpperCase());
+        return blob.arrayBuffer();
+      }).then(function(bytes){
+        if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+        return ctx.decodeAudioData(bytes.slice(0));
+      }).then(function(buffer){
+        if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+        var source=ctx.createBufferSource();
+        source.buffer=buffer;
+        source.connect(ctx.destination);
+        activeBufferSource=source;
+
+        var done=false;
+        function clear_(){
+          if(activeBufferSource===source)activeBufferSource=null;
+          try{source.disconnect();}catch(_){}
+        }
+
+        source.onended=function(){
+          if(done)return;
+          done=true;
+          clear_();
+          resolve(true);
+        };
+
+        try{
+          source.start(0);
+        }catch(error){
+          if(done)return;
+          done=true;
+          clear_();
+          reject(error||new Error('WEB_AUDIO_START_ECHOUE'));
+        }
+      }).catch(reject);
     });
   }
 
@@ -363,8 +463,8 @@
             String(targetId||'__manual_text__'),
             myGeneration
           );
-        }).then(function(src){
-          return playAudioPromise_(src,targetId,myGeneration);
+        }).then(function(blob){
+          return playBlobWebAudioPromise_(blob,targetId,myGeneration);
         });
       },Promise.resolve());
     }
@@ -417,6 +517,7 @@
       e.stopPropagation();
     }
     if(!supported_())return;
+    unlockAudio_();
     auto=!auto;
     try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
     if(!auto)stop_();
@@ -450,6 +551,7 @@
 
   function lireCible_(targetId){
     if(!supported_())return false;
+    unlockAudio_();
     var id=String(targetId||'');
     if(activeReadTarget===id){
       stop_();
@@ -527,9 +629,10 @@
     },
     stop:stop_,
     isSpeaking:function(){
-      return Boolean(activeReadTarget||activeAudio);
+      return Boolean(activeReadTarget||activeAudio||activeBufferSource);
     },
     lastError:function(){return lastError;},
+    audioState:function(){return audioContext?String(audioContext.state||'unknown'):'none';},
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
@@ -540,6 +643,7 @@
     }
   };
 
+  window.__SOREAL_IDLE_TUTORIAL_TTS_V208__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V207__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V206__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V205__=api;
