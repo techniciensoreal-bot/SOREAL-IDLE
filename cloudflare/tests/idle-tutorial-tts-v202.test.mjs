@@ -37,9 +37,11 @@ for(const token of [
   "⏹ Arrêter la narration",
   "stop:stop_",
   "isSpeaking:function()",
-  "__SOREAL_IDLE_TUTORIAL_TTS_V206__",
-  "/api/v1/narration",
-  "authorization:'Bearer '+session",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V207__",
+  "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
+  "requestLocalNeuralAudio_",
+  "PIPER_LOCAL_MODULE_TIMEOUT",
+  "Chargement voix IA",
   "URL.createObjectURL(blob)",
   "revokeObjectUrl_",
   "decouperNarration_",
@@ -71,15 +73,28 @@ assert.ok(
   "Settings > Info doit conserver ses boutons de lecture."
 );
 
+for(const forbidden of [
+  "/api/v1/narration",
+  "authorization:'Bearer '+session",
+  "requestNeuralAudio_"
+]){
+  assert.ok(
+    !narration.includes(forbidden),
+    "Le lecteur client ne doit plus dépendre du TTS cloud: "+forbidden
+  );
+}
+
 assert.ok(
-  narration.includes("fetch('/api/v1/narration'")&&
-  !/https?:\/\/(api\.)?(elevenlabs|openai|deepgram)\./i.test(narration),
-  "Le navigateur doit appeler uniquement la route SOREAL-IDLE."
+  index.includes('"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"')&&
+  index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
+  index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
+  index.includes('/modules/local-neural-piper-v1.js?v=1'),
+  "Piper Plus, son G2P et ONNX Runtime doivent être épinglés et le module local doit être chargé."
 );
 
 new Function("window","document","localStorage",narration);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE narration V206: OK — neural only, aucun SpeechSynthesis."
+  "SOREAL IDLE narration V207: OK — Piper local neural-only, aucun SpeechSynthesis ni TTS cloud client."
 );
