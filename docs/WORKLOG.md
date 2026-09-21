@@ -1,90 +1,84 @@
 # WORKLOG — SOREAL-IDLE
 
 Dernière mise à jour : 2026-09-21
-Tâche : couche de narration audio pré-générée avec fallback TTS.
+Tâche : remplacer la lecture TTS navigateur par une narration neurale avec cache, tout en gardant un fallback fiable.
 
 ## État final vérifié
 - Branche production : `main`
-- SHA fonctionnel vérifié sur `main` : `98d3757dfd81e543e6c13059e73502147259aed6`
-- Workflow : `Deploy SOREAL Idle to Cloudflare` run #501
-- Suite complète de tests : SUCCESS
+- SHA fonctionnel vérifié et déployé : `05003c6f7228de448a03459679ce0b8568ecb62c`
+- Workflow production : `Deploy SOREAL Idle to Cloudflare` run #502
+- Suite complète `cloudflare/tests/*.test.mjs` : SUCCESS
 - Build standalone frontend : SUCCESS
 - Déploiement Cloudflare Worker : SUCCESS
 - Vérification du SHA actif : SUCCESS
-- SHA réellement déployé : `98d3757dfd81e543e6c13059e73502147259aed6`
-- Version Cloudflare active : `35a954af-f164-48a2-b776-b195f648cd0f`
+- Version Cloudflare active : `0bfe1ed7-efa0-4763-b6a3-78c7a68b1a14`
 - Routage production : 100 %
-- Ce fichier WORKLOG est mis à jour par un commit docs-only après ce SHA ; ce commit ne touche pas `cloudflare/**` et ne déclenche donc pas de nouveau déploiement.
+- Le commit WORKLOG qui suit est docs-only ; il ne touche pas `cloudflare/**` et ne redéploie pas le Worker.
 
-## Fonctionnalité livrée
-- Module : `cloudflare/public/modules/tutorial-tts-v202.js` (API V204, alias V203/V202 conservés).
-- L'audio pré-généré devient prioritaire lorsqu'une source est disponible.
-- Sources supportées :
-  - attribut `data-soreal-tts-audio-src` sur une cible ;
-  - manifeste global `window.__SOREAL_IDLE_NARRATION_AUDIO_MANIFEST__` indexé par ID de cible ;
-  - second argument optionnel de `readText(text, audioSrc)`.
-- Si aucune source audio n'existe : fallback vers le Web Speech API existant.
-- Si le chargement ou la lecture audio échoue : fallback vers SpeechSynthesis.
-- `stop()` coupe désormais à la fois l'audio et SpeechSynthesis.
-- Aucun secret ni appel direct à un fournisseur TTS n'est embarqué dans le navigateur.
-- Cache-buster du module : `?v=221`.
+## Narration V205 livrée
+Ordre de lecture côté client :
+1. audio explicitement mappé via `data-soreal-tts-audio-src` ou `__SOREAL_IDLE_NARRATION_AUDIO_MANIFEST__` ;
+2. narration neurale SOREAL-IDLE ;
+3. fallback `SpeechSynthesis` navigateur.
 
-## Validation ciblée effectuée avant intégration
-Validation V8 avec faux `Audio` et faux `SpeechSynthesis` :
-- syntaxe du module : OK ;
-- audio pré-généré prioritaire : OK ;
-- fallback SpeechSynthesis après erreur audio : OK ;
-- arrêt audio par `stop()` : OK ;
-- aucun `fetch()` direct vers un fournisseur TTS : OK.
+### Narration neurale
+- Route : `POST /api/v1/narration`
+- Authentification : session SOREAL-IDLE obligatoire.
+- Validation interne : `/__soreal-idle-v1/session-validate`.
+- Workers AI binding : `env.AI`.
+- Modèle : `@cf/myshell-ai/melotts`.
+- Langue : `fr`.
+- Sortie : MP3.
+- Limite : 3500 caractères par génération neurale ; les textes plus longs retombent sur SpeechSynthesis.
+- Aucun secret tiers ni clé ElevenLabs dans le navigateur ou le dépôt.
 
-## Historique CI de ce chantier
-- Run #499 sur `5020a68fa9480c9bd2f5b54dc47e031a231d6a06` : FAILURE.
-  - Cause : test `idle-tutorial-tts-v202.test.mjs` exigeait encore littéralement `readText:function(value)`.
-  - Build/déploiement non exécutés.
-- Correctif : `a3dd3992d213a57fa77b70065d1b06d36d548b81`.
-- Run #500 : FAILURE.
-  - Le test TTS principal passe.
-  - Cause suivante : même garde obsolète dans `idle-v206-user-regressions.test.mjs`.
-  - Build/déploiement non exécutés.
-- Correctif : `98d3757dfd81e543e6c13059e73502147259aed6`.
-- Run #501 : SUCCESS complet, y compris déploiement et vérification du SHA actif.
+### Cache
+- Bucket existant : binding `SOREAL_R2`.
+- Préfixe : `idle/narration/v1/fr/`.
+- Clé : SHA-256 du modèle + langue + texte normalisé.
+- Premier passage : génération Workers AI puis écriture R2.
+- Passages suivants : lecture du MP3 R2 sans nouvelle inférence.
+- Une panne R2 n'empêche pas de lire un audio déjà généré pendant la requête.
+- Une panne Workers AI, un timeout client, une session invalide ou un texte trop long déclenche le fallback SpeechSynthesis.
 
-## Limitation de l'environnement
-- Le clone local de cette session ne pouvait pas résoudre `github.com` (`Could not resolve host: github.com`).
-- La connexion GitHub applicative a été utilisée pour les lectures/écritures.
-- La validation définitive a donc été la suite complète GitHub Actions sur `main`, qui est verte.
+### Client
+- Module : `cloudflare/public/modules/tutorial-tts-v202.js`.
+- API courante : `__SOREAL_IDLE_TUTORIAL_TTS_V205__`.
+- Aliases V204/V203/V202 conservés.
+- Cache-buster : `?v=222`.
+- Timeout neural client : 12 s.
+- Les Blob URLs audio sont libérées à la fin, à l'erreur et à l'arrêt.
+- Le bouton Arrêter annule aussi une génération en attente grâce au compteur `speechGeneration`.
+
+## Validation avant production
+Une CI temporaire de branche a été utilisée pour ne pas tester pour la première fois en production :
+- Branche : `work/neural-narration-v1`
+- Workflow temporaire : `Validate neural narration branch`
+- Run #1
+- SHA testé : `953ba4089dda23a66b3061a4e885a7869b478531`
+- Suite complète : SUCCESS
+- Build standalone : SUCCESS
+- Syntaxe des modules Worker : SUCCESS
+- Workflow temporaire supprimé avant merge.
+
+## Validation production
+- Merge PR #2 : `05003c6f7228de448a03459679ce0b8568ecb62c`
+- Run #502 : SUCCESS complet.
+- Cloudflare a confirmé :
+  - SHA : `05003c6f7228de448a03459679ce0b8568ecb62c`
+  - version : `0bfe1ed7-efa0-4763-b6a3-78c7a68b1a14`
+  - routage : 100 %.
 
 ## État actuel / dernière erreur
-- Aucune erreur CI ou de déploiement connue après le run #501.
-- Les textes existants continuent à utiliser SpeechSynthesis tant qu'aucun fichier audio pré-généré n'est renseigné pour leur cible.
-- La couche nécessaire pour brancher des voix neurales est maintenant en production.
-
-## Étape en cours — narration neurale V1
-Branche : `work/neural-narration-v1`
-
-Architecture implémentée :
-- Workers AI binding `env.AI`.
-- Modèle `@cf/myshell-ai/melotts`, langue `fr`.
-- Route `POST /api/v1/narration` protégée par la session SOREAL-IDLE.
-- Validation de session via la route interne `/__soreal-idle-v1/session-validate`.
-- Cache R2 déterministe sous `idle/narration/v1/fr/<sha256>.mp3`.
-- Maximum neural : 3500 caractères ; au-delà, le client retombe sur SpeechSynthesis.
-- Le lecteur client essaie dans cet ordre : audio explicitement mappé → Workers AI/R2 → SpeechSynthesis.
-- Les Blob URLs générées côté navigateur sont libérées à la fin/à l'arrêt.
-- Cache-buster client : `tutorial-tts-v202.js?v=222`.
-- Aucun secret tiers ni clé ElevenLabs.
-
-Validation de branche sans production :
-- Workflow temporaire `Validate neural narration branch`, run #1.
-- SHA testé : `953ba4089dda23a66b3061a4e885a7869b478531`.
-- Suite complète `cloudflare/tests/*.test.mjs` : SUCCESS.
-- Build standalone : SUCCESS.
-- `node --check` modules Worker modifiés : SUCCESS.
-- Le workflow temporaire a ensuite été supprimé de la branche au commit `de419a906bbe74d61f499041bf5b86b3fb25f3a6` ; cette suppression ne modifie aucun code fonctionnel.
-
-Limitation restante :
-- La génération MeloTTS réelle ne peut pas être appelée depuis cette session sans un jeton de session SOREAL-IDLE utilisateur.
-- Elle devra être confirmée après déploiement par une lecture réelle dans le jeu ; en cas d'échec, SpeechSynthesis reste le fallback automatique.
+- Aucune erreur CI, build ou déploiement connue.
+- La route, l'authentification, le cache R2 et le comportement client sont couverts par les tests.
+- La seule vérification qui ne peut pas être effectuée depuis cette session est l'écoute réelle d'une génération MeloTTS avec une session joueur active.
 
 ## Prochaine action
-Comparer la branche finale à `main`, merger uniquement si elle est 0 commit derrière et limitée aux fichiers attendus, puis vérifier le workflow production complet et le SHA Cloudflare actif.
+Test manuel dans SOREAL-IDLE avec une session réelle :
+- ouvrir un texte possédant un bouton de lecture ;
+- lancer la lecture ;
+- confirmer que la voix entendue est neurale et non la voix système ;
+- relancer le même texte pour confirmer que la lecture reste correcte après mise en cache R2 ;
+- tester ensuite sur mobile.
+Si l'écoute réelle révèle un défaut, reprendre depuis ce SHA sans toucher aux autres dépôts.
