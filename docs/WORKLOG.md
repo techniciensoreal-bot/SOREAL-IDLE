@@ -571,3 +571,30 @@ Cause vérifiée :
 Prochaine action précise :
 - adapter uniquement les configs same-origin Siwis/Gilles pendant l'initialisation pour borner le G2P à `fr`, puis retirer cette carte de compatibilité avant l'inférence afin de ne pas envoyer de tenseur `lid` aux modèles mono-langue ;
 - relancer la validation complète avant fusion.
+
+
+### Validation V9 — run vert pré-fusion
+- Workflow temporaire : `Validate Piper voice choice V9`.
+- Run : `35649603324`.
+- Job : `106498440361`.
+- SHA de code validé : `502fbf3b3737de16fd3e42c7586e9a51153c3f0b`.
+- Suite complète `cloudflare/tests/*.test.mjs` : SUCCESS.
+- Build standalone + vérifications syntaxiques : SUCCESS.
+- Disponibilité des dépendances et des trois modèles : SUCCESS.
+- Worker Wrangler local : SUCCESS.
+- Chromium avec politique autoplay stricte : SUCCESS.
+- Synthèse + lecture Web Audio SOREAL : SUCCESS.
+- Synthèse + lecture Web Audio Siwis : SUCCESS.
+- Synthèse + lecture Web Audio Gilles : SUCCESS.
+- État final : `lastError=""`, `audioState="running"`.
+- Aucun SpeechSynthesis ni TTS cloud réintroduit.
+
+Important :
+- ce run valide la branche contre un Worker local, pas encore la production ;
+- aucune fusion sur `main` ni aucun déploiement V9 n'a encore eu lieu.
+
+Prochaine action :
+- supprimer le workflow temporaire de validation ;
+- vérifier que la branche reste `behind_by=0` par rapport à `main` ;
+- fusionner la PR #10 ;
+- exiger ensuite le workflow de production complet avec SHA Cloudflare actif et smoke Chromium réel sur les trois voix.
