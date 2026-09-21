@@ -12,6 +12,18 @@ function makeMp3Base64(){
   return bytes.toString("base64");
 }
 
+const originalFetch=globalThis.fetch;
+let remoteAudioFetches=0;
+globalThis.fetch=async function(input,init){
+  const url=String(input instanceof Request?input.url:input||"");
+  if(url==="https://audio.test/grok.mp3"){
+    remoteAudioFetches+=1;
+    const bytes=Buffer.from(makeMp3Base64(),"base64");
+    return new Response(bytes,{status:200,headers:{"content-type":"audio/mpeg"}});
+  }
+  return originalFetch(input,init);
+};
+
 function envV1(){
   const store=new Map();
   let aiCalls=0;
@@ -60,10 +72,10 @@ function envV1(){
     AI:{
       async run(model,input){
         aiCalls+=1;
-        assert.equal(model,"@cf/myshell-ai/melotts");
-        assert.equal(input.lang,"FR");
-        assert.ok(String(input.prompt||"").length>0);
-        return {audio:makeMp3Base64()};
+        assert.equal(model,"xai/grok-tts");
+        assert.equal(input.language,"fr");
+        assert.ok(String(input.text||"").length>0);\n        assert.equal(input.voice_id,"ara");
+        return {state:"Completed",result:{audio:"https://audio.test/grok.mp3"}};
       }
     }
   };
@@ -108,6 +120,7 @@ function envV1(){
   assert.equal(second.headers.get("x-soreal-idle-narration-cache"),"HIT");
   assert.equal((await second.arrayBuffer()).byteLength,256);
   assert.equal(env.aiCalls,1,"Le cache R2 doit éviter une seconde génération Workers AI.");
+  assert.equal(remoteAudioFetches,1,"L'URL audio Grok ne doit être téléchargée qu'à la première génération.");
 }
 
 {
@@ -119,8 +132,8 @@ function envV1(){
   assert.equal(health1.status,200);
   const body1=await health1.json();
   assert.equal(body1.ok,true);
-  assert.equal(body1.model,"@cf/myshell-ai/melotts");
-  assert.equal(body1.lang,"FR");
+  assert.equal(body1.model,"xai/grok-tts");
+  assert.equal(body1.lang,"fr");\n  assert.equal(body1.voice,"ara");
   assert.equal(body1.versionId,"version-test-123");
   assert.equal(body1.cache,"MISS");
   assert.equal(body1.bytes,256);
@@ -151,4 +164,6 @@ function envV1(){
   assert.equal(env.aiCalls,0);
 }
 
-console.log("idle neural narration V206: ok — neural only, session, MeloTTS, health et cache R2.");
+console.log("idle neural narration V206: ok — neural only, session, Grok TTS, health et cache R2.");
+
+globalThis.fetch=originalFetch;
