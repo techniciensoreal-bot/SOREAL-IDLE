@@ -1,14 +1,14 @@
 /*
- * SOREAL IDLE — Tutorial / Info TTS V203
+ * SOREAL IDLE — Tutorial / Info narration V204
  *
- * SpeechSynthesis natif uniquement : aucune voix, aucun modèle et aucun
- * fichier audio ne sont embarqués. Couvre les tutoriels flottants, les
- * modales explicatives et les boutons "Lire ce texte" de Settings > Info.
+ * Préfère un audio pré-généré lorsqu'une source est fournie, puis retombe
+ * sur SpeechSynthesis natif si l'audio manque ou échoue. Aucun fournisseur
+ * externe ni secret API n'est embarqué côté client.
  */
 (function(){
   'use strict';
 
-  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V203__)return;
+  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V204__)return;
 
   var KEY='soreal_idle_tutorial_tts_auto_v202';
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
@@ -18,6 +18,8 @@
   var timer=0;
   var speechGeneration=0;
   var activeReadTarget='';
+  var activeAudio=null;
+  var activeAudioSource='';
 
   try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
 
@@ -25,8 +27,50 @@
     return window.speechSynthesis||null;
   }
 
-  function supported_(){
+  function speechSupported_(){
     return Boolean(synth_()&&typeof window.SpeechSynthesisUtterance==='function');
+  }
+
+  function audioSupported_(){
+    try{
+      return typeof window.Audio==='function';
+    }catch(_){
+      return false;
+    }
+  }
+
+  function supported_(){
+    return audioSupported_()||speechSupported_();
+  }
+
+  function safeAudioSource_(value){
+    var src=String(value||'').trim();
+    if(!src)return '';
+    try{
+      var base=String(window.location&&window.location.href||'https://soreal.invalid/');
+      var parsed=new URL(src,base);
+      if(parsed.protocol!=='https:'&&parsed.protocol!=='http:')return '';
+      return src;
+    }catch(_){
+      return '';
+    }
+  }
+
+  function audioSourceFor_(targetId,target,explicitSource){
+    var direct=safeAudioSource_(explicitSource);
+    if(direct)return direct;
+    if(target&&typeof target.getAttribute==='function'){
+      direct=safeAudioSource_(target.getAttribute('data-soreal-tts-audio-src'));
+      if(direct)return direct;
+    }
+    try{
+      var manifest=window.__SOREAL_IDLE_NARRATION_AUDIO_MANIFEST__;
+      if(manifest&&targetId&&Object.prototype.hasOwnProperty.call(manifest,targetId)){
+        direct=safeAudioSource_(manifest[targetId]);
+        if(direct)return direct;
+      }
+    }catch(_){}
+    return '';
   }
 
   function updateReadButtons_(){
@@ -46,6 +90,14 @@
   function stop_(){
     speechGeneration+=1;
     activeReadTarget='';
+    var audio=activeAudio;
+    activeAudio=null;
+    activeAudioSource='';
+    if(audio){
+      try{audio.onended=null;audio.onerror=null;}catch(_){}
+      try{audio.pause();}catch(_){}
+      try{audio.currentTime=0;}catch(_){}
+    }
     try{
       var synth=synth_();
       if(synth)synth.cancel();
@@ -161,7 +213,7 @@
   }
 
   function speak_(text,attempt,force,targetId){
-    if((!force&&!auto)||!text||!supported_())return;
+    if((!force&&!auto)||!text||!speechSupported_())return false;
     attempt=Math.max(0,Number(attempt)||0);
 
     if(targetId){
@@ -255,6 +307,79 @@
     },70);
   }
 
+  function playAudio_(src,text,targetId){
+    if(!src||!audioSupported_())return false;
+    var generation=++speechGeneration;
+    var audio=null;
+    try{
+      audio=new Audio(src);
+      audio.preload='auto';
+    }catch(_){
+      return false;
+    }
+    activeAudio=audio;
+    activeAudioSource=src;
+    if(targetId){
+      activeReadTarget=String(targetId);
+      updateReadButtons_();
+    }
+    try{
+      var synth=synth_();
+      if(synth)synth.cancel();
+    }catch(_){}
+    var done=false;
+    function clearAudio_(){
+      if(activeAudio===audio){
+        activeAudio=null;
+        activeAudioSource='';
+      }
+    }
+    function finish_(){
+      if(done||generation!==speechGeneration)return;
+      done=true;
+      clearAudio_();
+      if(activeReadTarget&&(!targetId||activeReadTarget===String(targetId))){
+        activeReadTarget='';
+        updateReadButtons_();
+      }
+    }
+    function fallback_(){
+      if(done||generation!==speechGeneration)return;
+      done=true;
+      clearAudio_();
+      try{audio.pause();}catch(_){}
+      if(speechSupported_()){
+        speak_(text,0,true,targetId);
+      }else if(activeReadTarget&&(!targetId||activeReadTarget===String(targetId))){
+        activeReadTarget='';
+        updateReadButtons_();
+      }
+    }
+    audio.onended=finish_;
+    audio.onerror=fallback_;
+    try{
+      var started=audio.play();
+      if(started&&typeof started.catch==='function'){
+        started.catch(fallback_);
+      }
+      return true;
+    }catch(_){
+      fallback_();
+      return false;
+    }
+  }
+
+  function readWithAudioFallback_(text,targetId,target,force,explicitSource){
+    if((!force&&!auto)||!text)return false;
+    var src=audioSourceFor_(targetId,target,explicitSource);
+    if(src&&playAudio_(src,text,targetId))return true;
+    if(speechSupported_()){
+      speak_(text,0,Boolean(force),targetId);
+      return true;
+    }
+    return false;
+  }
+
   function readVisible_(force){
     var panel=activePanel_();
     if(!visible_(panel))return;
@@ -264,7 +389,7 @@
 
     if(!force&&txt===lastFingerprint)return;
     lastFingerprint=txt;
-    speak_(txt,0,Boolean(force));
+    readWithAudioFallback_(txt,String(panel.id||''),panel,Boolean(force));
   }
 
   function updateButton_(button){
@@ -339,8 +464,7 @@
     if(!txt)return false;
     lastFingerprint='';
     stop_();
-    speak_(txt,0,true,id);
-    return true;
+    return readWithAudioFallback_(txt,id,target,true);
   }
 
   function scan_(){
@@ -404,19 +528,19 @@
     enabled:function(){return auto;},
     read:function(){lastFingerprint='';readVisible_(true);},
     readTarget:lireCible_,
-    readText:function(value){
+    readText:function(value,audioSrc){
       var txt=String(value||'').replace(/\s+/g,' ').trim();
       if(!txt)return false;
       lastFingerprint='';
       stop_();
-      speak_(txt,0,true,'__manual_text__');
-      return true;
+      return readWithAudioFallback_(txt,'__manual_text__',null,true,audioSrc);
     },
     stop:stop_,
     isSpeaking:function(){
       var synth=synth_();
       return Boolean(
         activeReadTarget||
+        Boolean(activeAudio)||
         (synth&&(synth.speaking||synth.pending))
       );
     },
@@ -432,6 +556,7 @@
     }
   };
 
+  window.__SOREAL_IDLE_TUTORIAL_TTS_V204__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V203__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V202__=api;
 
