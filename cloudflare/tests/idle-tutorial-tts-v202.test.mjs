@@ -41,7 +41,7 @@ for(const token of [
   "u.lang=voice&&voice.lang?String(voice.lang):'fr-FR'",
   "data-soreal-tts-target",
   "readTarget:lireCible_",
-  "readText:function(value)",
+  "readText:function(value,audioSrc)",
   "function stop_()",
   "⏹ Arrêter la lecture",
   "stop:stop_",
