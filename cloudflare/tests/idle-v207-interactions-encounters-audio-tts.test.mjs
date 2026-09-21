@@ -51,14 +51,20 @@ assert.ok(ui.includes("jouerEffetAudioIdleV199_('uiClick')"));
 for(const token of [
   "function decouperNarration_",
   "CHUNK_MAX=2000",
-  "requestNeuralAudio_",
-  "/api/v1/narration",
+  "requestLocalNeuralAudio_",
+  "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
   "⚠️ Voix IA indisponible"
 ]){
-  assert.ok(tts.includes(token),"Narration neurale V206 manquante: "+token);
+  assert.ok(tts.includes(token),"Narration neurale locale V207 manquante: "+token);
 }
-assert.ok(!tts.includes("SpeechSynthesisUtterance"));
-assert.ok(!tts.includes("window.speechSynthesis"));
+for(const forbidden of [
+  "requestNeuralAudio_",
+  "/api/v1/narration",
+  "SpeechSynthesisUtterance",
+  "window.speechSynthesis"
+]){
+  assert.ok(!tts.includes(forbidden),"Ancien chemin TTS encore présent: "+forbidden);
+}
 
 new Function(ui);
 new Function("window","document",audio);
