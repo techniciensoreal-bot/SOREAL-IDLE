@@ -121,3 +121,42 @@ Prochaine action : comparer la branche à `main`, merger si 0 commit derrière, 
 - Routage : 100 %.
 - Correctifs actifs : API MeloTTS documentée sans `returnRawResponse`, sans `rejectIfBusy`, timeout client neural 30 s, cache-buster `?v=223`.
 - Prochaine action : retest réel d'un bouton de lecture dans SOREAL-IDLE. Si la voix reste identique, instrumenter la route pour exposer la raison exacte du fallback au lieu de continuer à deviner.
+
+
+## Narration neurale V3 — suppression totale du TTS navigateur
+Retour utilisateur : la voix restait celle du TTS système. Décision : supprimer totalement Web Speech / SpeechSynthesis et ne conserver que la narration neurale.
+
+Branche : `work/neural-only-v3`
+
+Modifications :
+- `tutorial-tts-v202.js` réécrit en mode neural-only ;
+- aucune utilisation de `window.speechSynthesis` ;
+- aucune utilisation de `SpeechSynthesisUtterance` ;
+- aucun fallback vers une voix système ;
+- en cas d'échec neural : silence + message visible `⚠️ Voix IA indisponible` ;
+- les textes longs sont découpés en morceaux de 2000 caractères et lus séquentiellement via MeloTTS ;
+- timeout d'un appel neural : 45 s ;
+- cache-buster narration : `?v=224` ;
+- ancienne voix système `Fight!` supprimée de `audio-effects-v197.js` ;
+- garde permanent `idle-no-browser-speech.test.mjs` : toute future réintroduction de SpeechSynthesis dans `cloudflare/public/` fait échouer la CI.
+
+Diagnostic réel ajouté :
+- route `GET /api/v1/narration-health` ;
+- binding Cloudflare `CF_VERSION_METADATA` ;
+- chaque nouvelle version Worker génère réellement une courte phrase MeloTTS française une fois ;
+- résultat mis en cache R2 par version ;
+- le workflow production appelle ce health check après déploiement et refuse un succès si MeloTTS ne renvoie pas d'audio ;
+- modèle vérifié dans la documentation Cloudflare : `@cf/myshell-ai/melotts`, langue `fr`.
+
+Validation hors production :
+- workflow temporaire `Validate neural-only narration branch` ;
+- run #4 sur `8dc2b97cca62ef47d3a82bf03527a94ea50f8abc` : SUCCESS ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- garde global anti-SpeechSynthesis : SUCCESS.
+
+Prochaine action :
+- supprimer le workflow temporaire de branche ;
+- vérifier que la branche est 0 commit derrière `main` ;
+- merger ;
+- vérifier le workflow production, y compris le nouveau smoke test MeloTTS réel et le SHA Cloudflare actif.

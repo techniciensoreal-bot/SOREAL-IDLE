@@ -1,6 +1,6 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
-import { traiterNarrationIdleV1 } from "./idle-narration-v1.js";
+import { traiterNarrationIdleV1, testerNarrationIdleV1 } from "./idle-narration-v1.js";
 
 /*
  * Ce Worker n'est jamais appelé directement par un navigateur — seul le
@@ -192,6 +192,10 @@ export default {
 
     if (request.method === "POST" && url.pathname === "/api/v1/session") {
       return idleSessionV1(request, env);
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/v1/narration-health") {
+      return testerNarrationIdleV1(env);
     }
 
     if (url.pathname === "/api/v1/narration") {

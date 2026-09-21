@@ -1,7 +1,7 @@
 /*
  * SOREAL IDLE — Audio Effects V197
  * Moteur audio autonome du frontend IDLE.
- * Un seul AudioContext partagé : voix Fight, gong boss, défaite et coffre.
+ * Un seul AudioContext partagé : impact Fight, gong boss, défaite et coffre.
  */
 (function(){
   'use strict';
@@ -101,36 +101,8 @@
   }
 
   function voixFight_(){
+    // Impact WebAudio uniquement. Aucun moteur vocal système.
     accentFight_();
-
-    try{
-      if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=="function")return;
-      var synth=window.speechSynthesis;
-      var utterance=new SpeechSynthesisUtterance("Fight!");
-      utterance.lang="en-US";
-      utterance.rate=1.32;
-      utterance.pitch=.58;
-      utterance.volume=.92;
-
-      var voices=typeof synth.getVoices==="function"?synth.getVoices():[];
-      if(Array.isArray(voices)&&voices.length){
-        var english=voices.filter(function(v){
-          return /^en(?:-|_)/i.test(String(v&&v.lang||""));
-        });
-        var preferred=english.find(function(v){
-          return /male|daniel|fred|alex|google us english|english united states/i.test(String(v&&v.name||""));
-        })||english[0];
-        if(preferred)utterance.voice=preferred;
-      }
-
-      /*
-       * Une seule réplique de combat doit être entendue : supprimer une
-       * éventuelle réplique Fight encore en file évite l'empilement lors
-       * de clics rapides.
-       */
-      try{synth.cancel();}catch(_){}
-      synth.speak(utterance);
-    }catch(_){}
   }
 
   function gongBoss_(){
