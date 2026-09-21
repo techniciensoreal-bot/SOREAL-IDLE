@@ -35,7 +35,15 @@ async function verifierRoute_(origin,path){
   assert.match(response.headers.get("cache-control")||"",/immutable/,path);
   if(path.endsWith(".json")){
     assert.match(response.headers.get("content-type")||"",/application\/json/,path);
-    assert.match(await response.text(),/sample_rate/,path);
+    const config=JSON.parse(await response.text());
+    assert.ok(config.audio&&config.audio.sample_rate,path);
+    if(path.includes("piper-voice-siwis")||path.includes("piper-voice-gilles")){
+      assert.deepEqual(config.language_id_map,{fr:0},path+" French-only G2P compatibility");
+      assert.equal(config.num_languages,1,path+" French-only language count");
+      assert.equal(config.soreal_monolingual_g2p_compat,true,path+" compatibility marker");
+    }else{
+      assert.equal(config.soreal_monolingual_g2p_compat,undefined,path+" must not alter SOREAL config");
+    }
   }else{
     assert.match(response.headers.get("content-type")||"",/application\/octet-stream/,path);
     assert.deepEqual([...new Uint8Array(await response.arrayBuffer())],[1,2,3,4],path);
