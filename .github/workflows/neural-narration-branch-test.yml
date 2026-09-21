@@ -1,0 +1,39 @@
+name: Validate neural narration branch
+
+on:
+  push:
+    branches:
+      - work/neural-narration-v1
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run test suite
+        run: |
+          set -e
+          for f in cloudflare/tests/*.test.mjs; do
+            echo "=== $f ==="
+            node "$f"
+          done
+
+      - name: Build standalone frontend
+        run: |
+          set -e
+          node cloudflare/build-standalone.mjs
+          node --check cloudflare/public/standalone-bridge.js
+          for f in cloudflare/public/modules/*.js; do
+            node --check "$f"
+          done
+          node --check cloudflare/public/soreal-idle-ui.js
+
+      - name: Check Worker modules
+        run: |
+          set -e
+          node --check cloudflare/src/idle-narration-v1.js
+          node --check cloudflare/src/idle-worker-entry-v1.js
+          node --check cloudflare/src/index-idle-coordinator-v1.js
