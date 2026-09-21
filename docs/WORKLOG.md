@@ -59,5 +59,17 @@ Validation V8 avec faux `Audio` et faux `SpeechSynthesis` :
 - Les textes existants continuent à utiliser SpeechSynthesis tant qu'aucun fichier audio pré-généré n'est renseigné pour leur cible.
 - La couche nécessaire pour brancher des voix neurales est maintenant en production.
 
+## Étape en cours — narration neurale V1
+Branche : `work/neural-narration-v1`
+
+Architecture retenue après vérification de la documentation Cloudflare :
+- Workers AI binding `env.AI`.
+- Modèle `@cf/myshell-ai/melotts`, langue `fr`.
+- Endpoint public protégé par la session SOREAL-IDLE.
+- Génération uniquement à la demande.
+- Cache R2 déterministe par hash du texte sous `idle/narration/v1/fr/`.
+- Le navigateur conserve SpeechSynthesis comme fallback si l'appel neural échoue.
+- Aucun secret tiers ni clé ElevenLabs n'est nécessaire.
+
 ## Prochaine action
-Ajouter les premiers fichiers de narration neurale et leur mapping dans le manifeste / les attributs de cible, par petit lot, puis vérifier lecture réelle et fallback sur desktop/mobile.
+Ajouter le binding Workers AI, la route serveur authentifiée + cache R2 et ses tests, puis brancher le module client. Ne pousser sur `main` qu'après validation ciblée du diff.
