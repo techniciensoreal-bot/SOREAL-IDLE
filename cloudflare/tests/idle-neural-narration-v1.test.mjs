@@ -50,12 +50,11 @@ function envV1(){
       }
     },
     AI:{
-      async run(model,input,options){
+      async run(model,input){
         aiCalls+=1;
         assert.equal(model,"@cf/myshell-ai/melotts");
         assert.equal(input.lang,"fr");
         assert.equal(input.prompt,"Bonjour depuis SOREAL IDLE.");
-        assert.equal(options.returnRawResponse,true);
         return new Response(new Uint8Array([73,68,76,69]),{
           headers:{"content-type":"audio/mpeg"}
         });
