@@ -43,40 +43,106 @@ jobs:
           node --check cloudflare/public/soreal-idle-ui.js
 
       - name: Deploy SOREAL Idle Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          wranglerVersion: '4.127.1'
-          command: deploy --config wrangler.jsonc --message git:${{ github.sha }}
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/soreal-idle-wrangler-output.jsonl
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.127.1 deploy \
+            --config wrangler.jsonc \
+            --message "git:$GITHUB_SHA"
 
       - name: Verify deployed Git SHA
         shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          WRANGLER_DEPLOY_OUTPUT: ${{ runner.temp }}/soreal-idle-wrangler-output.jsonl
         run: |
           set -euo pipefail
-          out="$RUNNER_TEMP/soreal-idle-deployments.json"
-          npx --yes wrangler@4.127.1 deployments list --config wrangler.jsonc --json > "$out"
-          DEPLOYMENTS_FILE="$out" EXPECTED="git:$GITHUB_SHA" node <<'NODE'
+
+          deployments="$RUNNER_TEMP/soreal-idle-deployments.json"
+          versions="$RUNNER_TEMP/soreal-idle-versions.json"
+
+          npx --yes wrangler@4.127.1 deployments list --config wrangler.jsonc --json > "$deployments"
+          npx --yes wrangler@4.127.1 versions list --config wrangler.jsonc --json > "$versions"
+
+          DEPLOYMENTS_FILE="$deployments" \
+          VERSIONS_FILE="$versions" \
+          EXPECTED="git:$GITHUB_SHA" \
+          node <<'NODE'
           const fs=require("node:fs");
-          const parsed=JSON.parse(fs.readFileSync(process.env.DEPLOYMENTS_FILE,"utf8"));
-          const deployments=Array.isArray(parsed)
-            ? parsed
-            : Array.isArray(parsed?.deployments)
-              ? parsed.deployments
-              : Array.isArray(parsed?.result)
-                ? parsed.result
-                : Array.isArray(parsed?.result?.deployments)
-                  ? parsed.result.deployments
-                  : [];
+
+          function parseJson(path){
+            return JSON.parse(fs.readFileSync(path,"utf8"));
+          }
+          function asDeployments(parsed){
+            if(Array.isArray(parsed))return parsed;
+            if(Array.isArray(parsed?.deployments))return parsed.deployments;
+            if(Array.isArray(parsed?.result))return parsed.result;
+            if(Array.isArray(parsed?.result?.deployments))return parsed.result.deployments;
+            return [];
+          }
+          function asVersions(parsed){
+            if(Array.isArray(parsed))return parsed;
+            if(Array.isArray(parsed?.versions))return parsed.versions;
+            if(Array.isArray(parsed?.result))return parsed.result;
+            if(Array.isArray(parsed?.result?.versions))return parsed.result.versions;
+            return [];
+          }
+          function versionId(value){
+            return String(
+              value?.version_id||
+              value?.versionId||
+              value?.id||
+              value?.version?.id||
+              ""
+            );
+          }
+          function versionMessage(value){
+            return String(
+              value?.annotations?.["workers/message"]||
+              value?.metadata?.annotations?.["workers/message"]||
+              value?.message||
+              value?.metadata?.message||
+              ""
+            );
+          }
+
+          const deployments=asDeployments(parseJson(process.env.DEPLOYMENTS_FILE));
+          const versions=asVersions(parseJson(process.env.VERSIONS_FILE));
           const latest=deployments[0]||null;
-          const message=latest?.annotations?.["workers/message"]||"";
+          const traffic=Array.isArray(latest?.versions)?latest.versions:[];
+          const active=traffic
+            .slice()
+            .sort((a,b)=>Number(b?.percentage||0)-Number(a?.percentage||0))[0]||null;
+          const activeId=versionId(active);
+          const activePct=Number(active?.percentage||0);
+
+          if(!activeId||activePct!==100){
+            console.error("SOREAL IDLE production routing non vérifiable:",{
+              activeVersionId:activeId||"absent",
+              percentage:activePct,
+              deploymentId:latest?.id||"absent"
+            });
+            process.exit(1);
+          }
+
+          const deployedVersion=versions.find(v=>versionId(v)===activeId)||null;
+          const message=versionMessage(deployedVersion);
+
           if(message!==process.env.EXPECTED){
             console.error("SOREAL IDLE production SHA mismatch:",{
               expected:process.env.EXPECTED,
+              activeVersionId:activeId,
               observed:message||"absent"
             });
             process.exit(1);
           }
-          console.log("SOREAL IDLE production SHA verified:",message);
+
+          console.log("SOREAL IDLE production SHA verified:",{
+            sha:process.env.EXPECTED.slice(4),
+            versionId:activeId,
+            percentage:activePct
+          });
           NODE
