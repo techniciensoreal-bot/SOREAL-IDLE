@@ -313,3 +313,26 @@ Prochaine action :
 - V6 est sur `main` et le SHA de code est vérifié en production.
 - Le commit WORKLOG final est docs-only et ne doit pas redéployer le Worker.
 - Prochaine vérification fonctionnelle : tester un bouton de narration dans une vraie session SOREAL-IDLE sur desktop, puis mobile, afin d'évaluer la qualité audible et le temps de premier chargement.
+
+
+## Narration V6 — production vérifiée
+- PR #7 fusionnée.
+- SHA de production déployé : `854ff7729cff3f4db0821e63adab03b07eaceac9`.
+- Workflow production : `Deploy SOREAL Idle to Cloudflare` run #507.
+- Suite complète : SUCCESS.
+- Build standalone : SUCCESS.
+- Déploiement Cloudflare Worker : SUCCESS.
+- Vérification des dépendances locales Piper/G2P/ONNX/modèle : SUCCESS.
+- Vérification du SHA Cloudflare actif : SUCCESS.
+- Version Cloudflare active : `b9eacd00-fb6c-442d-9af6-14346fd97f2e`.
+- Routage production : 100 %.
+- Smoke Chromium pré-merge : SUCCESS sur `a6344354b3cd633c535e71f2c811bf301f389bee`, WAV français réel de 161324 octets, RIFF, état moteur `ready`.
+- Le code client en production ne dépend plus de Grok/MeloTTS pour la lecture et n'utilise pas SpeechSynthesis.
+- Modèle production : `multilingual-test-medium.onnx` de la démo Piper Plus, langue forcée `fr`.
+
+Dernière erreur :
+- aucune erreur CI/build/déploiement connue après le run #507.
+
+Prochaine action :
+- test auditif utilisateur dans SOREAL IDLE sur un bouton de narration réel, idéalement après un rechargement forcé afin de prendre les nouveaux assets.
+- ce commit WORKLOG est docs-only ; le SHA réellement déployé reste `854ff7729cff3f4db0821e63adab03b07eaceac9`.
