@@ -62,7 +62,7 @@ for(const token of [
 
 assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
 assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
-assert.ok(index.includes("/soreal-idle-ui.js?v=213"));
+assert.ok(index.includes("/soreal-idle-ui.js?v=218"));
 assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'));
 
 new Function(ui);
