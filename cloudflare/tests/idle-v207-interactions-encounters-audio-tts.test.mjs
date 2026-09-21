@@ -9,7 +9,7 @@ const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf
 
 assert.ok(index.includes("/modules/audio-effects-v199.js?v=210"));
 assert.ok(index.includes("/modules/tutorial-tts-v202.js?v=210"));
-assert.ok(index.includes("/soreal-idle-ui.js?v=213"));
+assert.ok(index.includes("/soreal-idle-ui.js?v=218"));
 
 for(const token of [
   "popupDetailsObjetAdventureIdleOuvertV207_",
