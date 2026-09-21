@@ -91,7 +91,7 @@ assert.ok(
   index.includes('"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"')&&
   index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=2'),
+  index.includes('/modules/local-neural-piper-v1.js?v=3'),
   "Piper Plus, son G2P et ONNX Runtime doivent être épinglés et le module local doit être chargé."
 );
 
