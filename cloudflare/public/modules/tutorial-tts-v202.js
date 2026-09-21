@@ -1,47 +1,47 @@
 /*
- * SOREAL IDLE — Tutorial / Info narration V205
+ * SOREAL IDLE — Neural narration V206
  *
- * Préfère un audio pré-généré lorsqu'une source est fournie. Sinon demande
- * une narration neurale française au Worker SOREAL-IDLE (Workers AI + cache
- * R2), puis retombe sur SpeechSynthesis si le service neural échoue.
+ * Web Speech / SpeechSynthesis est volontairement supprimé.
+ * Lecture : audio pré-généré si mappé, sinon Workers AI MeloTTS + cache R2.
+ * En cas d'échec neural, on affiche l'erreur et on reste silencieux :
+ * aucun retour vers la voix système du navigateur.
  */
 (function(){
   'use strict';
 
-  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V205__)return;
+  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V206__)return;
 
   var KEY='soreal_idle_tutorial_tts_auto_v202';
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
   var READ_CLASS='soreal-idle-tts-read-v203';
+  var CHUNK_MAX=2000;
   var auto=false;
   var lastFingerprint='';
   var timer=0;
-  var speechGeneration=0;
+  var generation=0;
   var activeReadTarget='';
   var activeAudio=null;
-  var activeAudioSource='';
   var activeAudioObjectUrl='';
+  var activeController=null;
+  var lastError='';
 
   try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
 
-  function synth_(){
-    return window.speechSynthesis||null;
-  }
-
-  function speechSupported_(){
-    return Boolean(synth_()&&typeof window.SpeechSynthesisUtterance==='function');
-  }
-
   function audioSupported_(){
     try{
-      return typeof window.Audio==='function';
+      return (
+        typeof window.Audio==='function'&&
+        typeof fetch==='function'&&
+        typeof URL!=='undefined'&&
+        typeof URL.createObjectURL==='function'
+      );
     }catch(_){
       return false;
     }
   }
 
   function supported_(){
-    return audioSupported_()||speechSupported_();
+    return audioSupported_();
   }
 
   function safeAudioSource_(value){
@@ -87,51 +87,42 @@
 
   function revokeObjectUrl_(src){
     if(!src||String(src).indexOf('blob:')!==0)return;
-    try{
-      if(typeof URL!=='undefined'&&typeof URL.revokeObjectURL==='function'){
-        URL.revokeObjectURL(src);
-      }
-    }catch(_){}
+    try{URL.revokeObjectURL(src);}catch(_){}
   }
 
-  function requestNeuralAudio_(text,targetId){
-    var session=standaloneSession_();
-    if(!session||typeof fetch!=='function'||!audioSupported_()){
-      return Promise.resolve('');
-    }
-    if(typeof URL==='undefined'||typeof URL.createObjectURL!=='function'){
-      return Promise.resolve('');
-    }
+  function decouperNarration_(value){
+    var text=String(value||'').replace(/\s+/g,' ').trim();
+    if(!text)return [];
+    var phrases=text.match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g)||[text];
+    var chunks=[];
+    var current='';
 
-    var controller=typeof AbortController==='function'?new AbortController():null;
-    var timeout=setTimeout(function(){
-      try{if(controller)controller.abort();}catch(_){}
-    },30000);
+    phrases.forEach(function(part){
+      var phrase=String(part||'').trim();
+      if(!phrase)return;
 
-    return fetch('/api/v1/narration',{
-      method:'POST',
-      cache:'no-store',
-      signal:controller?controller.signal:undefined,
-      headers:{
-        accept:'audio/mpeg',
-        'content-type':'application/json',
-        authorization:'Bearer '+session
-      },
-      body:JSON.stringify({
-        text:String(text||''),
-        targetId:String(targetId||'__manual_text__')
-      })
-    }).then(function(response){
-      if(!response||!response.ok)throw new Error('IDLE_NARRATION_UNAVAILABLE');
-      return response.blob();
-    }).then(function(blob){
-      if(!blob||!blob.size)return '';
-      return URL.createObjectURL(blob);
-    }).catch(function(){
-      return '';
-    }).finally(function(){
-      clearTimeout(timeout);
+      while(phrase.length>CHUNK_MAX){
+        if(current){
+          chunks.push(current);
+          current='';
+        }
+        var cut=phrase.lastIndexOf(' ',CHUNK_MAX);
+        if(cut<500)cut=CHUNK_MAX;
+        chunks.push(phrase.slice(0,cut).trim());
+        phrase=phrase.slice(cut).trim();
+      }
+
+      if(!phrase)return;
+      if((current+' '+phrase).trim().length>CHUNK_MAX){
+        if(current)chunks.push(current);
+        current=phrase;
+      }else{
+        current=(current+' '+phrase).trim();
+      }
     });
+
+    if(current)chunks.push(current);
+    return chunks;
   }
 
   function updateReadButtons_(){
@@ -139,33 +130,55 @@
       if(!button.dataset.sorealTtsOriginalLabel){
         button.dataset.sorealTtsOriginalLabel=String(button.textContent||'🔊 Lire ce texte');
       }
-      var cible=String(button.getAttribute('data-soreal-tts-target')||'');
-      var active=Boolean(activeReadTarget&&cible===activeReadTarget);
+      var target=String(button.getAttribute('data-soreal-tts-target')||'');
+      var active=Boolean(activeReadTarget&&target===activeReadTarget);
       button.dataset.sorealTtsReading=active?'1':'0';
       button.textContent=active
-        ?'⏹ Arrêter la lecture'
+        ?'⏹ Arrêter la narration'
         :button.dataset.sorealTtsOriginalLabel;
     });
   }
 
+  function afficherErreur_(message,targetId){
+    lastError=String(message||'VOIX_IA_INDISPONIBLE');
+    console.error('SOREAL IDLE narration neurale:',lastError);
+    if(targetId){
+      document.querySelectorAll('.'+READ_CLASS+'[data-soreal-tts-target]').forEach(function(button){
+        if(String(button.getAttribute('data-soreal-tts-target')||'')!==String(targetId))return;
+        if(!button.dataset.sorealTtsOriginalLabel){
+          button.dataset.sorealTtsOriginalLabel=String(button.textContent||'🔊 Lire ce texte');
+        }
+        button.textContent='⚠️ Voix IA indisponible';
+        setTimeout(function(){
+          if(button&&button.isConnected&&button.dataset.sorealTtsReading!=='1'){
+            button.textContent=button.dataset.sorealTtsOriginalLabel;
+          }
+        },3500);
+      });
+    }
+  }
+
   function stop_(){
-    speechGeneration+=1;
+    generation+=1;
     activeReadTarget='';
+    lastFingerprint='';
+
+    if(activeController){
+      try{activeController.abort();}catch(_){}
+      activeController=null;
+    }
+
     var audio=activeAudio;
     activeAudio=null;
-    activeAudioSource='';
-    var objectUrl=activeAudioObjectUrl;
-    activeAudioObjectUrl='';
     if(audio){
       try{audio.onended=null;audio.onerror=null;}catch(_){}
       try{audio.pause();}catch(_){}
       try{audio.currentTime=0;}catch(_){}
     }
+
+    var objectUrl=activeAudioObjectUrl;
+    activeAudioObjectUrl='';
     revokeObjectUrl_(objectUrl);
-    try{
-      var synth=synth_();
-      if(synth)synth.cancel();
-    }catch(_){}
     updateReadButtons_();
     return true;
   }
@@ -205,307 +218,198 @@
       +BUTTON_CLASS+',.'+READ_CLASS+
       ',[aria-hidden="true"],[data-soreal-tts-ignore],[data-soreal-tts-target]'
     ).forEach(function(el){el.remove();});
-    return String(clone.textContent||'')
-      .replace(/\s+/g,' ')
-      .trim();
+    return String(clone.textContent||'').replace(/\s+/g,' ').trim();
   }
 
-  function voiceFr_(synth){
-    var voices=typeof synth.getVoices==='function'?synth.getVoices():[];
-    if(!Array.isArray(voices)||!voices.length)return null;
-    return (
-      voices.find(function(v){return /^fr-BE$/i.test(String(v&&v.lang||''));})||
-      voices.find(function(v){return /^fr-FR$/i.test(String(v&&v.lang||''));})||
-      voices.find(function(v){return /^fr(?:-|_)/i.test(String(v&&v.lang||''));})||
-      null
-    );
-  }
-
-  function audioBusy_(){
-    try{
-      var audio=window.__SOREAL_IDLE_AUDIO_V199__;
-      var state=audio&&typeof audio.debugState==='function'?audio.debugState():null;
-      return Boolean(state&&state.active);
-    }catch(_){
-      return false;
-    }
-  }
-
-  function decouperTexteAndroidV207_(value){
-    var texte=String(value||'').replace(/\s+/g,' ').trim();
-    if(!texte)return [];
-
-    /*
-     * Android Chrome/WebView peut rester muet ou suspendre les très longues
-     * SpeechSynthesisUtterance. On lit donc le texte par phrases courtes,
-     * puis on enchaîne via onend. 220 caractères garde chaque morceau bien
-     * sous la durée où le moteur Google TTS a tendance à se figer.
-     */
-    var phrases=texte.match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g)||[texte];
-    var morceaux=[];
-    var courant='';
-
-    phrases.forEach(function(partie){
-      var phrase=String(partie||'').trim();
-      if(!phrase)return;
-
-      if(phrase.length>220){
-        if(courant){
-          morceaux.push(courant);
-          courant='';
-        }
-        while(phrase.length>220){
-          var coupe=phrase.lastIndexOf(' ',220);
-          if(coupe<80)coupe=220;
-          morceaux.push(phrase.slice(0,coupe).trim());
-          phrase=phrase.slice(coupe).trim();
-        }
-        if(phrase)courant=phrase;
-        return;
+  function errorDepuisResponse_(response){
+    return response.text().then(function(raw){
+      var message='HTTP_'+response.status;
+      try{
+        var data=JSON.parse(raw);
+        message=String(data&&(
+          data.error||
+          data.message
+        )||message);
+      }catch(_){
+        if(raw)message=String(raw).slice(0,240);
       }
-
-      if((courant+' '+phrase).trim().length>220){
-        if(courant)morceaux.push(courant);
-        courant=phrase;
-      }else{
-        courant=(courant+' '+phrase).trim();
-      }
+      throw new Error(message);
     });
-
-    if(courant)morceaux.push(courant);
-    return morceaux;
   }
 
-  function speak_(text,attempt,force,targetId){
-    if((!force&&!auto)||!text||!speechSupported_())return false;
-    attempt=Math.max(0,Number(attempt)||0);
+  function requestNeuralAudio_(text,targetId,expectedGeneration){
+    var session=standaloneSession_();
+    if(!session)return Promise.reject(new Error('IDLE_SESSION_ABSENTE'));
+    if(!audioSupported_())return Promise.reject(new Error('AUDIO_NAVIGATEUR_INDISPONIBLE'));
 
-    if(targetId){
-      activeReadTarget=String(targetId);
-      updateReadButtons_();
-    }
+    var controller=typeof AbortController==='function'?new AbortController():null;
+    activeController=controller;
+    var timeout=setTimeout(function(){
+      try{if(controller)controller.abort();}catch(_){}
+    },45000);
 
-    if(audioBusy_()&&attempt<14){
-      setTimeout(function(){speak_(text,attempt+1,force,targetId);},140);
-      return;
-    }
+    return fetch('/api/v1/narration',{
+      method:'POST',
+      cache:'no-store',
+      signal:controller?controller.signal:undefined,
+      headers:{
+        accept:'audio/mpeg',
+        'content-type':'application/json',
+        authorization:'Bearer '+session
+      },
+      body:JSON.stringify({
+        text:String(text||''),
+        targetId:String(targetId||'__manual_text__')
+      })
+    }).then(function(response){
+      if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+      if(!response||!response.ok)return errorDepuisResponse_(response);
+      var type=String(response.headers&&response.headers.get
+        ?response.headers.get('content-type')||''
+        :'');
+      if(type&&type.indexOf('audio/')!==0){
+        throw new Error('IDLE_NARRATION_FORMAT_'+type);
+      }
+      return response.blob();
+    }).then(function(blob){
+      if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+      if(!blob||!blob.size)throw new Error('IDLE_NARRATION_AUDIO_VIDE');
+      return URL.createObjectURL(blob);
+    }).finally(function(){
+      clearTimeout(timeout);
+      if(activeController===controller)activeController=null;
+    });
+  }
 
-    var synth=synth_();
-    var morceaux=decouperTexteAndroidV207_(text);
-    if(!morceaux.length)return;
-
-    var generation=++speechGeneration;
-    var voice=voiceFr_(synth);
-
-    try{synth.cancel();}catch(_){}
-
-    function parler(index,reessaiSansVoix){
-      if(generation!==speechGeneration)return;
-      if(index>=morceaux.length){
-        if(activeReadTarget){
-          activeReadTarget='';
-          updateReadButtons_();
-        }
+  function playAudioPromise_(src,targetId,expectedGeneration){
+    return new Promise(function(resolve,reject){
+      if(!src||expectedGeneration!==generation){
+        revokeObjectUrl_(src);
+        reject(new Error('NARRATION_ANNULEE'));
         return;
       }
+
+      var audio;
+      try{
+        audio=new Audio(src);
+        audio.preload='auto';
+      }catch(_){
+        revokeObjectUrl_(src);
+        reject(new Error('AUDIO_CREATION_ECHOUEE'));
+        return;
+      }
+
+      activeAudio=audio;
+      activeAudioObjectUrl=String(src).indexOf('blob:')===0?String(src):'';
+
+      var done=false;
+      function clear_(){
+        if(activeAudio===audio)activeAudio=null;
+        if(activeAudioObjectUrl===src)activeAudioObjectUrl='';
+        revokeObjectUrl_(src);
+      }
+      audio.onended=function(){
+        if(done)return;
+        done=true;
+        clear_();
+        resolve(true);
+      };
+      audio.onerror=function(){
+        if(done)return;
+        done=true;
+        clear_();
+        reject(new Error('LECTURE_AUDIO_ECHOUEE'));
+      };
 
       try{
-        /*
-         * Android : cancel() suivi immédiatement de speak() peut être
-         * ignoré. Le premier morceau part donc après un très court délai.
-         * resume() est appelé avant chaque morceau pour réveiller un moteur
-         * Google TTS suspendu par la WebView.
-         */
-        try{synth.resume();}catch(_){}
-
-        var u=new SpeechSynthesisUtterance(morceaux[index]);
-        u.lang=voice&&voice.lang?String(voice.lang):'fr-FR';
-        u.rate=.96;
-        u.pitch=.96;
-        u.volume=1;
-        if(voice&&!reessaiSansVoix)u.voice=voice;
-
-        var fini=false;
-        var terminer=function(){
-          if(fini||generation!==speechGeneration)return;
-          fini=true;
-          setTimeout(function(){parler(index+1,false);},35);
-        };
-
-        u.onend=terminer;
-        u.onerror=function(){
-          if(fini||generation!==speechGeneration)return;
-          fini=true;
-
-          /*
-           * Certains WebView exposent une voix installée mais refusent son
-           * objet SpeechSynthesisVoice. On retente une fois avec seulement
-           * lang=fr-FR pour laisser Android choisir Google TTS lui-même.
-           */
-          if(voice&&!reessaiSansVoix){
-            setTimeout(function(){parler(index,true);},80);
-          }else{
-            setTimeout(function(){parler(index+1,false);},35);
-          }
-        };
-
-        synth.speak(u);
-
-        /*
-         * Garde-fou Android : une synthèse longue peut se mettre en pause
-         * toute seule. resume() périodique sans pause() préalable est
-         * inoffensif sur Chrome desktop et réveille certaines WebView.
-         */
-        setTimeout(function(){
-          if(generation===speechGeneration){
-            try{synth.resume();}catch(_){}
-          }
-        },900);
-      }catch(_){
-        setTimeout(function(){parler(index+1,false);},35);
+        var started=audio.play();
+        if(started&&typeof started.catch==='function'){
+          started.catch(function(error){
+            if(done)return;
+            done=true;
+            clear_();
+            reject(error||new Error('LECTURE_AUDIO_REFUSEE'));
+          });
+        }
+      }catch(error){
+        if(done)return;
+        done=true;
+        clear_();
+        reject(error||new Error('LECTURE_AUDIO_REFUSEE'));
       }
-    }
-
-    setTimeout(function(){
-      parler(0,false);
-    },70);
+    });
   }
 
-  function playAudio_(src,text,targetId){
-    if(!src||!audioSupported_())return false;
-    var generation=++speechGeneration;
-    var audio=null;
-    try{
-      audio=new Audio(src);
-      audio.preload='auto';
-    }catch(_){
-      revokeObjectUrl_(src);
-      return false;
+  function narrate_(text,targetId,target,force,explicitSource){
+    if((!force&&!auto)||!text||!supported_())return false;
+
+    stop_();
+    var myGeneration=generation;
+    lastError='';
+    activeReadTarget=String(targetId||'__manual_text__');
+    updateReadButtons_();
+
+    var mapped=audioSourceFor_(targetId,target,explicitSource);
+    var task;
+
+    if(mapped){
+      task=playAudioPromise_(mapped,targetId,myGeneration);
+    }else{
+      var chunks=decouperNarration_(text);
+      task=chunks.reduce(function(chain,chunk,index){
+        return chain.then(function(){
+          if(myGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+          return requestNeuralAudio_(
+            chunk,
+            String(targetId||'__manual_text__')+':'+String(index+1),
+            myGeneration
+          );
+        }).then(function(src){
+          return playAudioPromise_(src,targetId,myGeneration);
+        });
+      },Promise.resolve());
     }
-    activeAudio=audio;
-    activeAudioSource=src;
-    activeAudioObjectUrl=String(src).indexOf('blob:')===0?String(src):'';
-    if(targetId){
-      activeReadTarget=String(targetId);
+
+    task.then(function(){
+      if(myGeneration!==generation)return;
+      activeReadTarget='';
       updateReadButtons_();
-    }
-    try{
-      var synth=synth_();
-      if(synth)synth.cancel();
-    }catch(_){}
-    var done=false;
-    function clearAudio_(){
-      if(activeAudio===audio){
-        var objectUrl=activeAudioObjectUrl;
-        activeAudio=null;
-        activeAudioSource='';
-        activeAudioObjectUrl='';
-        revokeObjectUrl_(objectUrl);
-      }
-    }
-    function finish_(){
-      if(done||generation!==speechGeneration)return;
-      done=true;
-      clearAudio_();
-      if(activeReadTarget&&(!targetId||activeReadTarget===String(targetId))){
-        activeReadTarget='';
-        updateReadButtons_();
-      }
-    }
-    function fallback_(){
-      if(done||generation!==speechGeneration)return;
-      done=true;
-      clearAudio_();
-      try{audio.pause();}catch(_){}
-      if(speechSupported_()){
-        speak_(text,0,true,targetId);
-      }else if(activeReadTarget&&(!targetId||activeReadTarget===String(targetId))){
-        activeReadTarget='';
-        updateReadButtons_();
-      }
-    }
-    audio.onended=finish_;
-    audio.onerror=fallback_;
-    try{
-      var started=audio.play();
-      if(started&&typeof started.catch==='function'){
-        started.catch(fallback_);
-      }
-      return true;
-    }catch(_){
-      fallback_();
-      return true;
-    }
-  }
+    }).catch(function(error){
+      if(myGeneration!==generation)return;
+      activeReadTarget='';
+      lastFingerprint='';
+      updateReadButtons_();
+      var message=String(error&&error.message||error||'VOIX_IA_INDISPONIBLE');
+      if(message!=='NARRATION_ANNULEE')afficherErreur_(message,targetId);
+    });
 
-  function readWithAudioFallback_(text,targetId,target,force,explicitSource){
-    if((!force&&!auto)||!text)return false;
-
-    var src=audioSourceFor_(targetId,target,explicitSource);
-    if(src&&playAudio_(src,text,targetId))return true;
-
-    var session=standaloneSession_();
-    if(session&&audioSupported_()&&typeof fetch==='function'){
-      var generation=++speechGeneration;
-      if(targetId){
-        activeReadTarget=String(targetId);
-        updateReadButtons_();
-      }
-
-      requestNeuralAudio_(text,targetId).then(function(neuralSrc){
-        if(generation!==speechGeneration){
-          revokeObjectUrl_(neuralSrc);
-          return;
-        }
-        if(neuralSrc&&playAudio_(neuralSrc,text,targetId))return;
-
-        if(speechSupported_()){
-          speak_(text,0,Boolean(force),targetId);
-          return;
-        }
-        if(activeReadTarget&&(!targetId||activeReadTarget===String(targetId))){
-          activeReadTarget='';
-          updateReadButtons_();
-        }
-      });
-      return true;
-    }
-
-    if(speechSupported_()){
-      speak_(text,0,Boolean(force),targetId);
-      return true;
-    }
-    return false;
+    return true;
   }
 
   function readVisible_(force){
     var panel=activePanel_();
-    if(!visible_(panel))return;
-
+    if(!visible_(panel))return false;
     var txt=text_(panel);
-    if(!txt)return;
-
-    if(!force&&txt===lastFingerprint)return;
+    if(!txt)return false;
+    if(!force&&txt===lastFingerprint)return false;
     lastFingerprint=txt;
-    readWithAudioFallback_(txt,String(panel.id||''),panel,Boolean(force));
+    return narrate_(txt,String(panel.id||''),panel,Boolean(force));
   }
 
   function updateButton_(button){
     if(!button)return;
     if(!supported_()){
       button.disabled=true;
-      if(button.textContent!=='🔇 TTS indisponible'){
-        button.textContent='🔇 TTS indisponible';
-      }
-      button.title='La lecture vocale système n’est pas disponible sur cet appareil.';
+      button.textContent='🔇 Voix IA indisponible';
+      button.title='La lecture audio neurale n’est pas disponible sur cet appareil.';
       return;
     }
     button.disabled=false;
-    var label=auto?'🔊 Lecture auto ON':'🔈 Lecture auto OFF';
+    var label=auto?'🔊 Voix IA auto ON':'🔈 Voix IA auto OFF';
     if(button.textContent!==label)button.textContent=label;
     button.title=auto
-      ?'Désactiver la lecture automatique des panneaux explicatifs'
-      :'Activer la lecture automatique des panneaux explicatifs';
+      ?'Désactiver la narration neurale automatique'
+      :'Activer la narration neurale automatique';
   }
 
   function toggleAuto_(e){
@@ -514,13 +418,10 @@
       e.stopPropagation();
     }
     if(!supported_())return;
-
     auto=!auto;
     try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
-
-    if(!auto){
-      stop_();
-    }else{
+    if(!auto)stop_();
+    else{
       lastFingerprint='';
       readVisible_(true);
     }
@@ -530,7 +431,6 @@
   function renderButton_(){
     var panel=activePanel_();
     if(!panel)return;
-
     var host=buttonHost_(panel);
     if(!host)return;
 
@@ -561,8 +461,7 @@
     var txt=text_(target);
     if(!txt)return false;
     lastFingerprint='';
-    stop_();
-    return readWithAudioFallback_(txt,id,target,true);
+    return narrate_(txt,id,target,true);
   }
 
   function scan_(){
@@ -596,7 +495,6 @@
 
   function init_(){
     style_();
-
     new MutationObserver(schedule_).observe(
       document.body,
       {childList:true,subtree:true,characterData:true}
@@ -615,45 +513,35 @@
     document.addEventListener('pointerdown',function(){
       if(auto)schedule_();
     },{capture:true,passive:true});
-
-    if(window.speechSynthesis&&'onvoiceschanged' in window.speechSynthesis){
-      window.speechSynthesis.addEventListener('voiceschanged',schedule_);
-    }
     schedule_();
   }
 
   var api={
     enabled:function(){return auto;},
-    read:function(){lastFingerprint='';readVisible_(true);},
+    read:function(){lastFingerprint='';return readVisible_(true);},
     readTarget:lireCible_,
     readText:function(value,audioSrc){
       var txt=String(value||'').replace(/\s+/g,' ').trim();
       if(!txt)return false;
       lastFingerprint='';
-      stop_();
-      return readWithAudioFallback_(txt,'__manual_text__',null,true,audioSrc);
+      return narrate_(txt,'__manual_text__',null,true,audioSrc);
     },
     stop:stop_,
     isSpeaking:function(){
-      var synth=synth_();
-      return Boolean(
-        activeReadTarget||
-        Boolean(activeAudio)||
-        (synth&&(synth.speaking||synth.pending))
-      );
+      return Boolean(activeReadTarget||activeAudio||activeController);
     },
+    lastError:function(){return lastError;},
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
-      if(!auto&&synth_()){
-        stop_();
-      }
+      if(!auto)stop_();
       lastFingerprint='';
       schedule_();
       return auto;
     }
   };
 
+  window.__SOREAL_IDLE_TUTORIAL_TTS_V206__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V205__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V204__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V203__=api;
