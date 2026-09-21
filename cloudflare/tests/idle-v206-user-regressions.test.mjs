@@ -48,7 +48,7 @@ for(const token of ["/api/idle/media/banner","const key=\"idle/banners/\"+nom","
 }
 assert.ok(ngu.includes("s.data.history=historique.slice(0,20)")&&ngu.includes("history:Array.isArray(data.history)"),"Historique des prix non persistant.");
 
-for(const token of ["readText:function(value)","sorealIdleBossChroniqueV206","🔊 Lire la chronique","sorealIdleCollectionBossStoryV206_","🔊 Lire cette chronique","function lireHistoireCompleteBossIdleV206_()","🔊 Lire toute l’histoire des boss débloqués","return b&&b.connu&&String(b.histoire||'').trim();"]){
+for(const token of ["readText:function(value,audioSrc)","sorealIdleBossChroniqueV206","🔊 Lire la chronique","sorealIdleCollectionBossStoryV206_","🔊 Lire cette chronique","function lireHistoireCompleteBossIdleV206_()","🔊 Lire toute l’histoire des boss débloqués","return b&&b.connu&&String(b.histoire||'').trim();"]){
   assert.ok((tts+ui).includes(token),"TTS chroniques Boss manquant: "+token);
 }
 
