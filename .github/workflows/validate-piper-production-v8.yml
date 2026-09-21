@@ -1,0 +1,113 @@
+name: Diagnose Piper production V8
+
+on:
+  push:
+    branches:
+      - diag/piper-production-v8
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Chromium runtime
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Exercise deployed Piper through real production origin
+        env:
+          SOREAL_IDLE_URL: https://soreal-idle.technicien-soreal.workers.dev/
+        run: |
+          set -euo pipefail
+          cat > /tmp/piper-prod-smoke.mjs <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright";
+
+          const url=process.env.SOREAL_IDLE_URL;
+          const browser=await chromium.launch({
+            headless:true,
+            args:["--autoplay-policy=user-gesture-required"]
+          });
+          const page=await browser.newPage();
+          const trace=[];
+          page.on("console",m=>trace.push(`[console ${m.type()}] ${m.text()}`));
+          page.on("pageerror",e=>trace.push(`[pageerror] ${String(e?.stack||e)}`));
+          page.on("requestfailed",r=>trace.push(`[requestfailed] ${r.url()} :: ${r.failure()?.errorText||"unknown"}`));
+          page.on("response",r=>{
+            if(r.status()>=400)trace.push(`[http ${r.status()}] ${r.url()}`);
+          });
+
+          try{
+            const response=await page.goto(url,{waitUntil:"domcontentloaded",timeout:60000});
+            assert.ok(response,"Production root did not return a response");
+            assert.ok(response.status()<400,`Production root HTTP ${response.status()}`);
+
+            await page.waitForFunction(()=>Boolean(
+              window.__SOREAL_IDLE_LOCAL_NEURAL_V1__ &&
+              window.__SOREAL_IDLE_TUTORIAL_TTS_V208__
+            ),null,{timeout:60000});
+
+            await page.evaluate(()=>{
+              const b=document.createElement("button");
+              b.id="piperProdDiagnostic";
+              b.type="button";
+              b.textContent="diagnostic";
+              b.addEventListener("click",()=>{
+                window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.readText(
+                  "Bonjour. Ceci est un test réel de la voix française Piper en production."
+                );
+              });
+              document.body.appendChild(b);
+            });
+
+            await page.click("#piperProdDiagnostic");
+
+            await page.waitForFunction(()=>{
+              const t=window.__SOREAL_IDLE_TUTORIAL_TTS_V208__;
+              const p=window.__SOREAL_IDLE_LOCAL_NEURAL_V1__;
+              if(!t||!p)return false;
+              return Boolean(t.lastError()) || p.state().status==="ready" || p.state().status==="error";
+            },null,{timeout:150000});
+
+            await page.waitForTimeout(1000);
+            const during=await page.evaluate(()=>({
+              href:location.href,
+              lastError:window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.lastError(),
+              audioState:window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.audioState(),
+              speaking:window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.isSpeaking(),
+              neural:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state()
+            }));
+            console.log("PIPER_PRODUCTION_DIAGNOSTIC",JSON.stringify(during));
+            assert.equal(during.lastError,"",`Piper production error: ${during.lastError}`);
+            assert.equal(during.audioState,"running",`Web Audio state: ${during.audioState}`);
+            assert.equal(during.neural.status,"ready",`Piper state: ${JSON.stringify(during.neural)}`);
+
+            await page.waitForFunction(()=>!window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.isSpeaking(),null,{timeout:90000});
+            const final=await page.evaluate(()=>({
+              lastError:window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.lastError(),
+              audioState:window.__SOREAL_IDLE_TUTORIAL_TTS_V208__.audioState(),
+              neural:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state()
+            }));
+            console.log("PIPER_PRODUCTION_FINAL",JSON.stringify(final));
+            assert.equal(final.lastError,"");
+          }catch(error){
+            console.error("PIPER_PRODUCTION_TRACE_START");
+            for(const line of trace.slice(-200))console.error(line);
+            console.error("PIPER_PRODUCTION_TRACE_END");
+            throw error;
+          }finally{
+            await browser.close();
+          }
+          NODE
+          node /tmp/piper-prod-smoke.mjs
