@@ -409,3 +409,28 @@ Prochaine action :
 Prochaine action :
 - mettre à jour cette assertion vers `?v=3` ;
 - relancer la validation complète sans autre changement fonctionnel.
+
+
+### Validation V8 — run #3 vert
+- commit de code testé : `bbe200465e8471b249589edb1025e4de28b8ad55` ;
+- suite complète `cloudflare/tests/*.test.mjs` : SUCCESS ;
+- build standalone : SUCCESS ;
+- installation Chromium/Playwright : SUCCESS ;
+- smoke navigateur same-origin : SUCCESS ;
+- Chromium exécuté avec `--autoplay-policy=user-gesture-required` ;
+- Piper charge modèle + configuration via la route same-origin ;
+- synthèse française : SUCCESS ;
+- lecture Web Audio : SUCCESS ;
+- aucune erreur CORS / `Failed to fetch`.
+
+État :
+- correction validée sur branche uniquement ;
+- aucune fusion sur `main` ;
+- aucun déploiement production V8 à ce stade.
+
+Prochaine action :
+- ajouter ce smoke réel au workflow de production après vérification du SHA déployé ;
+- revalider la branche ;
+- supprimer le workflow temporaire de branche ;
+- comparer à `main`, merger seulement si la branche n’est pas en retard ;
+- vérifier ensuite CI, build, SHA Cloudflare et smoke Piper sur la vraie production.
