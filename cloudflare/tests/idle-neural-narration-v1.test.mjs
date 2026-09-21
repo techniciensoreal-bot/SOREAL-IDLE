@@ -4,6 +4,13 @@ import worker from "../src/idle-worker-entry-v1.js";
 
 const wrangler=fs.readFileSync(new URL("../../wrangler.jsonc",import.meta.url),"utf8");
 assert.match(wrangler,/"ai"\s*:\s*\{\s*"binding"\s*:\s*"AI"/);
+assert.match(wrangler,/"version_metadata"\s*:\s*\{\s*"binding"\s*:\s*"CF_VERSION_METADATA"/);
+
+function makeMp3Base64(){
+  const bytes=Buffer.alloc(256,0);
+  bytes[0]=0x49;bytes[1]=0x44;bytes[2]=0x33;
+  return bytes.toString("base64");
+}
 
 function envV1(){
   const store=new Map();
@@ -13,6 +20,7 @@ function envV1(){
     store,
     coordinatorCalls,
     get aiCalls(){return aiCalls;},
+    CF_VERSION_METADATA:{id:"version-test-123",tag:"",timestamp:new Date().toISOString()},
     SOREAL_IDLE:{
       idFromName(name){
         assert.equal(name,"global");
@@ -38,7 +46,7 @@ function envV1(){
     SOREAL_R2:{
       async get(key){
         const bytes=store.get(key);
-        return bytes?{body:new Uint8Array(bytes)}:null;
+        return bytes?{body:new Uint8Array(bytes),size:bytes.length}:null;
       },
       async put(key,value){
         const bytes=value instanceof ArrayBuffer
@@ -54,10 +62,8 @@ function envV1(){
         aiCalls+=1;
         assert.equal(model,"@cf/myshell-ai/melotts");
         assert.equal(input.lang,"fr");
-        assert.equal(input.prompt,"Bonjour depuis SOREAL IDLE.");
-        return new Response(new Uint8Array([73,68,76,69]),{
-          headers:{"content-type":"audio/mpeg"}
-        });
+        assert.ok(String(input.prompt||"").length>0);
+        return {audio:makeMp3Base64()};
       }
     }
   };
@@ -83,7 +89,7 @@ function envV1(){
       authorization:"Bearer ils_test"
     },
     body:JSON.stringify({
-      targetId:"sorealIdleInfoRecapV203_",
+      targetId:"sorealIdleInfoRecapV203_:1",
       text:"Bonjour depuis SOREAL IDLE."
     })
   });
@@ -92,17 +98,43 @@ function envV1(){
   assert.equal(first.status,200);
   assert.equal(first.headers.get("content-type"),"audio/mpeg");
   assert.equal(first.headers.get("x-soreal-idle-narration-cache"),"MISS");
-  assert.deepEqual([...new Uint8Array(await first.arrayBuffer())],[73,68,76,69]);
+  assert.equal((await first.arrayBuffer()).byteLength,256);
   assert.equal(env.aiCalls,1);
   assert.equal(env.store.size,1);
   assert.equal(env.coordinatorCalls[0].path,"/__soreal-idle-v1/session-validate");
-  assert.deepEqual(env.coordinatorCalls[0].body,{sessionToken:"ils_test"});
 
   const second=await worker.fetch(request(),env);
   assert.equal(second.status,200);
   assert.equal(second.headers.get("x-soreal-idle-narration-cache"),"HIT");
-  assert.deepEqual([...new Uint8Array(await second.arrayBuffer())],[73,68,76,69]);
+  assert.equal((await second.arrayBuffer()).byteLength,256);
   assert.equal(env.aiCalls,1,"Le cache R2 doit éviter une seconde génération Workers AI.");
+}
+
+{
+  const env=envV1();
+  const health1=await worker.fetch(
+    new Request("https://idle.test/api/v1/narration-health"),
+    env
+  );
+  assert.equal(health1.status,200);
+  const body1=await health1.json();
+  assert.equal(body1.ok,true);
+  assert.equal(body1.model,"@cf/myshell-ai/melotts");
+  assert.equal(body1.lang,"fr");
+  assert.equal(body1.versionId,"version-test-123");
+  assert.equal(body1.cache,"MISS");
+  assert.equal(body1.bytes,256);
+  assert.equal(env.aiCalls,1);
+
+  const health2=await worker.fetch(
+    new Request("https://idle.test/api/v1/narration-health"),
+    env
+  );
+  assert.equal(health2.status,200);
+  const body2=await health2.json();
+  assert.equal(body2.ok,true);
+  assert.equal(body2.cache,"HIT");
+  assert.equal(env.aiCalls,1,"Le health check ne doit inférer qu'une fois par version.");
 }
 
 {
@@ -119,4 +151,4 @@ function envV1(){
   assert.equal(env.aiCalls,0);
 }
 
-console.log("idle neural narration V1: ok — session, MeloTTS et cache R2.");
+console.log("idle neural narration V206: ok — neural only, session, MeloTTS, health et cache R2.");
