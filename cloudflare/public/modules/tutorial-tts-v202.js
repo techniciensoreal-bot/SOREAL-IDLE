@@ -365,7 +365,7 @@
       return true;
     }catch(_){
       fallback_();
-      return false;
+      return true;
     }
   }
 
