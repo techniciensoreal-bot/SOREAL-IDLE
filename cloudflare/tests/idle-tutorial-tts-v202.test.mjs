@@ -37,16 +37,19 @@ for(const token of [
   "⏹ Arrêter la narration",
   "stop:stop_",
   "isSpeaking:function()",
-  "__SOREAL_IDLE_TUTORIAL_TTS_V207__",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V208__",
   "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
   "requestLocalNeuralAudio_",
   "PIPER_LOCAL_MODULE_TIMEOUT",
   "Chargement voix IA",
-  "URL.createObjectURL(blob)",
+  "playBlobWebAudioPromise_",
+  "unlockAudio_",
+  "audioState:function()",
+  "WEB_AUDIO_BLOQUE_",
   "revokeObjectUrl_",
   "decouperNarration_",
   "CHUNK_MAX=2000",
-  "⚠️ Voix IA indisponible"
+  "⚠️ Voix IA · "
 ]){
   assert.ok(narration.includes(token),"Narration V206 manquante: "+token);
 }
@@ -88,7 +91,7 @@ assert.ok(
   index.includes('"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"')&&
   index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=1'),
+  index.includes('/modules/local-neural-piper-v1.js?v=2'),
   "Piper Plus, son G2P et ONNX Runtime doivent être épinglés et le module local doit être chargé."
 );
 
@@ -96,5 +99,5 @@ new Function("window","document","localStorage",narration);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE narration V207: OK — Piper local neural-only, aucun SpeechSynthesis ni TTS cloud client."
+  "SOREAL IDLE narration V208: OK — Piper local + Web Audio déverrouillé, aucun SpeechSynthesis ni TTS cloud client."
 );
