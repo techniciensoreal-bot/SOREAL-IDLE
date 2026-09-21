@@ -468,3 +468,44 @@ Prochaine action :
 - créer puis fusionner la PR V8 vers `main` ;
 - suivre le workflow `Deploy SOREAL Idle to Cloudflare` ;
 - exiger : tests SUCCESS, build SUCCESS, déploiement SUCCESS, SHA Cloudflare actif correct et smoke Piper production-origin SUCCESS.
+
+
+## Narration V8 — production vérifiée
+Cause réelle du message utilisateur `Voix IA indisponible` :
+- Piper V7 chargeait directement le modèle depuis Hugging Face ;
+- sur l’origine réelle Cloudflare, le navigateur bloquait `multilingual-test-medium.onnx.json` par CORS ;
+- erreur reproduite : `Failed to fetch` + absence de `Access-Control-Allow-Origin`.
+
+Correctif :
+- modèle Piper et configuration exposés par SOREAL-IDLE via :
+  - `/api/idle/media/piper-model.onnx`
+  - `/api/idle/media/piper-model.onnx.json`
+- le navigateur ne contacte plus directement Hugging Face pour le modèle ;
+- cache-buster du module Piper : `?v=3` ;
+- test de non-régression du proxy ajouté ;
+- smoke Chromium production-origin ajouté au workflow de déploiement permanent.
+
+État vérifié :
+- PR #9 fusionnée ;
+- SHA de code sur `main` et déployé : `0254667cf5abf348f9f6399240d010ed09d3afae` ;
+- workflow production : `Deploy SOREAL Idle to Cloudflare` run #509 ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- déploiement Cloudflare : SUCCESS ;
+- dépendances Piper/G2P/ONNX/modèle : SUCCESS ;
+- vérification SHA actif : SUCCESS ;
+- version Cloudflare active : `592732fb-1ef6-4313-980d-51d486bc3415` ;
+- routage : 100 % ;
+- smoke Chromium sur `https://soreal-idle.technicien-soreal.workers.dev/` : SUCCESS ;
+- `lastError=""` ;
+- `audioState="running"` ;
+- moteur Piper final : `status="ready"`, langue `fr` ;
+- modèle réellement utilisé : `https://soreal-idle.technicien-soreal.workers.dev/api/idle/media/piper-model.onnx`.
+
+Dernière anomalie connue :
+- aucune erreur CI/build/déploiement/Piper connue après le run #509.
+- l’ancienne erreur CORS Hugging Face est couverte par le smoke permanent.
+
+Prochaine action :
+- retest auditif utilisateur sur un bouton de narration réel ;
+- si un défaut subsiste sur un navigateur précis, relever le code d’erreur affiché par le bouton et diagnostiquer ce navigateur sans remettre en cause le chemin production déjà vérifié.
