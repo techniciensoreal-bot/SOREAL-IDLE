@@ -1,0 +1,17 @@
+name: Validate UI split V4
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set -e
+          for f in cloudflare/tests/*.test.mjs; do node "$f"; done
+      - run: |
+          set -e
+          node cloudflare/build-standalone.mjs
+          for f in cloudflare/public/modules/*.js; do node --check "$f"; done
+          node --check cloudflare/public/soreal-idle-ui.js
