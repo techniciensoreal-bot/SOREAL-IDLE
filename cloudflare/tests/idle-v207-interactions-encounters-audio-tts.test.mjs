@@ -53,7 +53,7 @@ for(const token of [
   "CHUNK_MAX=2000",
   "requestLocalNeuralAudio_",
   "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
-  "⚠️ Voix IA indisponible"
+  "⚠️ Voix IA · "
 ]){
   assert.ok(tts.includes(token),"Narration neurale locale V207 manquante: "+token);
 }
