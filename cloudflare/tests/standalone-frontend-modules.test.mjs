@@ -17,7 +17,10 @@ const modules=[
 
 let previous=index.indexOf('/standalone-bridge.js');
 assert.ok(previous>=0,"Le bridge standalone doit être chargé.");
-assert.ok(!index.includes("/modules/ui.js"),"Le module UI legacy ne doit plus être chargé.");
+assert.ok(index.includes("/modules/ui.js?v=49"),"Le module UI extrait doit être chargé.");
+const extractedUi=index.indexOf("/modules/ui.js?v=49");
+assert.ok(extractedUi>previous,"Le module UI extrait doit être chargé après le bridge.");
+previous=extractedUi;
 
 for(const name of modules){
   const file=new URL("modules/"+name,root);
