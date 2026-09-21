@@ -101,6 +101,26 @@ assert.equal(consumed.ok, true);
 assert.match(consumed.sessionToken, /^ils_[a-f0-9]{64}$/);
 assert.equal(sql.sessions.size, 1);
 
+const validateRequest = new Request("https://idle.internal/__soreal-idle-v1/session-validate", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ sessionToken: consumed.sessionToken })
+});
+const validateResponse = await coordinator.internal(validateRequest, new URL(validateRequest.url));
+assert.equal(validateResponse.status, 200);
+const validated = await validateResponse.json();
+assert.equal(validated.ok, true);
+assert.ok(Number(validated.expiresAt) > Date.now());
+
+const invalidValidateRequest = new Request("https://idle.internal/__soreal-idle-v1/session-validate", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ sessionToken: "ils_invalid" })
+});
+const invalidValidateResponse = await coordinator.internal(invalidValidateRequest, new URL(invalidValidateRequest.url));
+assert.equal(invalidValidateResponse.status, 401);
+assert.equal((await invalidValidateResponse.json()).error, "IDLE_SESSION_INVALID");
+
 const secondConsumeRequest = new Request("https://idle.internal/__soreal-idle-v1/launch-ticket-consume", {
   method: "POST",
   headers: { "content-type": "application/json" },
