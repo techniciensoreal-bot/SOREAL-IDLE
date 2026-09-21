@@ -1,7 +1,8 @@
-const IDLE_NARRATION_MODEL_V1="@cf/myshell-ai/melotts";
-const IDLE_NARRATION_LANG_V1="FR";
-const IDLE_NARRATION_R2_PREFIX_V1="idle/narration/v1/fr/";
-const IDLE_NARRATION_HEALTH_PREFIX_V1="idle/narration-health/v1/";
+const IDLE_NARRATION_MODEL_V1="xai/grok-tts";
+const IDLE_NARRATION_LANG_V1="fr";
+const IDLE_NARRATION_VOICE_V1="ara";
+const IDLE_NARRATION_R2_PREFIX_V1="idle/narration/v2/fr/";
+const IDLE_NARRATION_HEALTH_PREFIX_V1="idle/narration-health/v2/";
 const IDLE_NARRATION_MAX_CHARS_V1=3500;
 const IDLE_NARRATION_HEALTH_TEXT_V1="SOREAL IDLE. La narration neurale française est opérationnelle.";
 
@@ -28,6 +29,7 @@ async function hashNarrationV1(text,salt=""){
   const source=[
     IDLE_NARRATION_MODEL_V1,
     IDLE_NARRATION_LANG_V1,
+    IDLE_NARRATION_VOICE_V1,
     String(salt||""),
     text
   ].join("\n");
@@ -46,10 +48,54 @@ function base64AudioBytesV1(value){
   raw=raw.replace(/\s+/g,"");
   if(!raw)return null;
 
-  const binary=atob(raw);
-  const bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  return bytes.buffer;
+  try{
+    const binary=atob(raw);
+    const bytes=new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+    return bytes.buffer;
+  }catch(_){
+    return null;
+  }
+}
+
+async function audioDepuisUrlV1(value){
+  const raw=String(value||"").trim();
+  if(!raw)return null;
+
+  let parsed;
+  try{parsed=new URL(raw);}catch(_){return null;}
+  if(parsed.protocol!=="https:")return null;
+
+  const response=await fetch(parsed.toString(),{
+    method:"GET",
+    redirect:"follow",
+    headers:{accept:"audio/mpeg,audio/*;q=0.9,*/*;q=0.1"}
+  });
+  if(!response.ok){
+    throw new Error("IDLE_NARRATION_AUDIO_URL_HTTP_"+response.status);
+  }
+
+  const audio=await response.arrayBuffer();
+  if(!audio||!audio.byteLength){
+    throw new Error("IDLE_NARRATION_AUDIO_URL_EMPTY");
+  }
+  return audio;
+}
+
+async function bytesDepuisValeurAudioV1(value){
+  if(value instanceof ArrayBuffer)return value;
+  if(ArrayBuffer.isView(value)){
+    return value.buffer.slice(value.byteOffset,value.byteOffset+value.byteLength);
+  }
+  if(typeof value==="string"&&value){
+    if(/^https:\/\//i.test(value)){
+      const remote=await audioDepuisUrlV1(value);
+      if(remote)return remote;
+    }
+    const decoded=base64AudioBytesV1(value);
+    if(decoded)return decoded;
+  }
+  return null;
 }
 
 async function bytesDepuisResultatAiV1(result){
@@ -64,16 +110,17 @@ async function bytesDepuisResultatAiV1(result){
   if(typeof ReadableStream!=="undefined"&&result instanceof ReadableStream){
     return new Response(result).arrayBuffer();
   }
+
   if(result&&typeof result==="object"){
-    if(result.audio instanceof ArrayBuffer)return result.audio;
-    if(ArrayBuffer.isView(result.audio)){
-      return result.audio.buffer.slice(result.audio.byteOffset,result.audio.byteOffset+result.audio.byteLength);
-    }
-    if(typeof result.audio==="string"&&result.audio){
-      const decoded=base64AudioBytesV1(result.audio);
-      if(decoded)return decoded;
-    }
+    const direct=await bytesDepuisValeurAudioV1(result.audio);
+    if(direct)return direct;
+
+    const nested=result.result&&typeof result.result==="object"
+      ?await bytesDepuisValeurAudioV1(result.result.audio)
+      :null;
+    if(nested)return nested;
   }
+
   throw new Error("IDLE_NARRATION_AI_FORMAT_UNSUPPORTED");
 }
 
@@ -81,14 +128,20 @@ function audioValideV1(audio){
   return Boolean(audio&&Number(audio.byteLength||0)>=128);
 }
 
-async function executerMeloTtsV1(env,text){
+async function executerNeuralTtsV1(env,text){
   if(!env?.AI||typeof env.AI.run!=="function"){
     throw new Error("IDLE_NARRATION_AI_UNAVAILABLE");
   }
+
   const result=await env.AI.run(
     IDLE_NARRATION_MODEL_V1,
-    {prompt:text,lang:IDLE_NARRATION_LANG_V1}
+    {
+      text,
+      language:IDLE_NARRATION_LANG_V1,
+      voice_id:IDLE_NARRATION_VOICE_V1
+    }
   );
+
   const audio=await bytesDepuisResultatAiV1(result);
   if(!audioValideV1(audio))throw new Error("IDLE_NARRATION_AI_EMPTY");
   return audio;
@@ -115,6 +168,7 @@ async function ecrireCacheR2V1(env,key,audio,targetId){
     customMetadata:{
       model:IDLE_NARRATION_MODEL_V1,
       lang:IDLE_NARRATION_LANG_V1,
+      voice:IDLE_NARRATION_VOICE_V1,
       targetId:String(targetId||"")
     }
   });
@@ -133,7 +187,7 @@ async function obtenirNarrationV1(env,text,targetId,salt=""){
 
   let audio;
   try{
-    audio=await executerMeloTtsV1(env,text);
+    audio=await executerNeuralTtsV1(env,text);
   }catch(error){
     const message=String(error?.message||error||"IDLE_NARRATION_AI_FAILED");
     const wrapped=new Error(message);
@@ -144,7 +198,8 @@ async function obtenirNarrationV1(env,text,targetId,salt=""){
   try{
     await ecrireCacheR2V1(env,key,audio,targetId);
   }catch(_){
-    // L'audio généré reste utilisable même si R2 rencontre un problème.
+    // Le cache R2 améliore coût/latence, mais une panne de cache ne doit
+    // jamais empêcher la lecture de l'audio déjà généré.
   }
 
   return {
@@ -163,7 +218,8 @@ function reponseAudioNarrationV1(result){
       "cache-control":"private, max-age=86400",
       "x-soreal-idle-narration-cache":result.cacheStatus,
       "x-soreal-idle-narration-key":result.key,
-      "x-soreal-idle-narration-model":IDLE_NARRATION_MODEL_V1
+      "x-soreal-idle-narration-model":IDLE_NARRATION_MODEL_V1,
+      "x-soreal-idle-narration-voice":IDLE_NARRATION_VOICE_V1
     }
   });
 }
@@ -227,6 +283,7 @@ export async function testerNarrationIdleV1(env){
       ok:true,
       model:IDLE_NARRATION_MODEL_V1,
       lang:IDLE_NARRATION_LANG_V1,
+      voice:IDLE_NARRATION_VOICE_V1,
       versionId,
       cache:result.cacheStatus,
       bytes:result.size
@@ -245,6 +302,7 @@ export async function testerNarrationIdleV1(env){
 export const IDLE_NARRATION_V1={
   model:IDLE_NARRATION_MODEL_V1,
   lang:IDLE_NARRATION_LANG_V1,
+  voice:IDLE_NARRATION_VOICE_V1,
   maxChars:IDLE_NARRATION_MAX_CHARS_V1,
   prefix:IDLE_NARRATION_R2_PREFIX_V1,
   healthPrefix:IDLE_NARRATION_HEALTH_PREFIX_V1
