@@ -47,7 +47,15 @@ for(const token of [
   "stop:stop_",
   "isSpeaking:function()",
   "speak_(text,attempt+1,force,targetId)",
-  "__SOREAL_IDLE_TUTORIAL_TTS_V203__"
+  "__SOREAL_IDLE_TUTORIAL_TTS_V203__",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V204__",
+  "__SOREAL_IDLE_NARRATION_AUDIO_MANIFEST__",
+  "data-soreal-tts-audio-src",
+  "new Audio(src)",
+  "audio.play()",
+  "audio.onerror=fallback_",
+  "readWithAudioFallback_",
+  "Boolean(activeAudio)"
 ]){
   assert.ok(tts.includes(token),"TTS V203 manquant: "+token);
 }
@@ -61,15 +69,19 @@ assert.ok(
 );
 
 assert.ok(
-  !/fetch\s*\(/.test(tts)&&
-  !/new\s+Audio\s*\(/.test(tts)&&
-  !/\.mp3|\.wav|\.ogg/i.test(tts),
-  "Le TTS doit rester natif et léger : aucun téléchargement de voix/fichier audio."
+  !/fetch\s*\(/.test(tts),
+  "La narration ne doit pas appeler directement un fournisseur TTS depuis le navigateur."
+);
+assert.ok(
+  tts.includes("if(src&&playAudio_(src,text,targetId))return true;")&&
+  tts.includes("if(speechSupported_()){")&&
+  tts.includes("speak_(text,0,true,targetId);"),
+  "Un audio pré-généré doit être prioritaire avec fallback SpeechSynthesis en cas d'échec."
 );
 
 new Function("window","document","localStorage",tts);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE Tutorial TTS V203: OK — tutoriels, modales et relecture Settings utilisent SpeechSynthesis natif."
+  "SOREAL IDLE narration V204: OK — audio pré-généré prioritaire, SpeechSynthesis en fallback."
 );
