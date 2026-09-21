@@ -45,11 +45,11 @@ for(const token of [
 
 for(const token of [
   "function stop_()",
-  "⏹ Arrêter la lecture",
+  "⏹ Arrêter la narration",
   "stop:stop_",
   "isSpeaking:function()"
 ]){
-  assert.ok(tts.includes(token),"TTS stoppable V210 manquant: "+token);
+  assert.ok(tts.includes(token),"Narration stoppable V210 manquante: "+token);
 }
 
 const fightStart=audio.indexOf("function voixFight_()");
@@ -92,4 +92,4 @@ new Function(ui);
 new Function("window","document","localStorage",tts);
 new Function("window","document",audio);
 
-console.log("SOREAL IDLE V212: OK — AP/Rebirth, Boutique AP, Collection progressive, TTS stop, Fight uniforme, boosts max et EXP Shop.");
+console.log("SOREAL IDLE V212: OK — AP/Rebirth, Boutique AP, Collection progressive, narration stop, Fight uniforme, boosts max et EXP Shop.");
