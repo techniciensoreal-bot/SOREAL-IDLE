@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import vm from "node:vm";
+const window={}; vm.runInNewContext(readFileSync("cloudflare/public/modules/time-format-v1.js","utf8"),{window,Date});
+const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+assert.equal(api.duree(0),"00:00:00");
+assert.equal(api.duree(3661),"01:01:01");
+assert.equal(api.duree(90061),"1j 01:01:01");
+assert.equal(api.heures(2.5),"2,50 h");
+assert.equal(api.heures(12.5),"12,5 h");
+assert.equal(api.runSecondes({renaissance:{runDebuteA:1000}},61000),60);
+assert.equal(api.runSecondes({},61000),0);
+console.log("idle time format module: OK");
