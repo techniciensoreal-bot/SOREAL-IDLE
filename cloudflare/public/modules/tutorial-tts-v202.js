@@ -1,5 +1,5 @@
 /*
- * SOREAL IDLE — Neural narration V208
+ * SOREAL IDLE — Neural narration V209
  *
  * Web Speech / SpeechSynthesis est totalement absent.
  * Lecture : audio pré-généré si mappé, sinon Piper Plus neural local (WASM).
@@ -8,11 +8,12 @@
 (function(){
   'use strict';
 
-  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V208__)return;
+  if(window.__SOREAL_IDLE_TUTORIAL_TTS_V209__)return;
 
   var KEY='soreal_idle_tutorial_tts_auto_v202';
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
   var READ_CLASS='soreal-idle-tts-read-v203';
+  var VOICE_SELECT_CLASS='soreal-idle-tts-voice-v209';
   var CHUNK_MAX=2000;
   var auto=false;
   var lastFingerprint='';
@@ -528,11 +529,91 @@
     renderButton_();
   }
 
+  function updateVoiceSelector_(select){
+    if(!select)return;
+    var api=localNeuralApi_();
+    if(!api||typeof api.voices!=='function'||typeof api.voice!=='function'){
+      select.disabled=true;
+      select.innerHTML='<option>Voix IA…</option>';
+      return;
+    }
+
+    var voices=[];
+    var current=null;
+    try{
+      voices=api.voices()||[];
+      current=api.voice()||null;
+    }catch(_){}
+
+    var signature=voices.map(function(voice){
+      return String(voice.id||'')+'|'+String(voice.label||'');
+    }).join('||');
+
+    if(select.dataset.sorealVoiceSignature!==signature){
+      select.innerHTML='';
+      voices.forEach(function(voice){
+        var option=document.createElement('option');
+        option.value=String(voice.id||'');
+        option.textContent='Voix · '+String(voice.label||voice.id||'IA');
+        if(voice.detail)option.title=String(voice.detail);
+        select.appendChild(option);
+      });
+      select.dataset.sorealVoiceSignature=signature;
+    }
+
+    select.disabled=!voices.length;
+    if(current&&current.id)select.value=String(current.id);
+    select.title=current
+      ?'Voix IA : '+String(current.label||current.id)+(current.detail?' — '+String(current.detail):'')
+      :'Choisir la voix IA';
+  }
+
+  function changeVoice_(e){
+    if(e){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    var select=e&&e.currentTarget?e.currentTarget:null;
+    if(!select)return;
+
+    stop_();
+    lastFingerprint='';
+    var api=localNeuralApi_();
+    if(!api||typeof api.setVoice!=='function'){
+      afficherErreur_('PIPER_LOCAL_VOICE_API_INDISPONIBLE','');
+      updateVoiceSelector_(select);
+      return;
+    }
+
+    try{
+      api.setVoice(String(select.value||''));
+      updateVoiceSelector_(select);
+      if(auto)readVisible_(true);
+    }catch(error){
+      afficherErreur_(String(error&&error.message||error||'PIPER_LOCAL_VOICE_CHANGE_FAILED'),'');
+      updateVoiceSelector_(select);
+    }
+  }
+
   function renderButton_(){
     var panel=activePanel_();
     if(!panel)return;
     var host=buttonHost_(panel);
     if(!host)return;
+
+    var select=host.querySelector('.'+VOICE_SELECT_CLASS);
+    if(!select){
+      select=document.createElement('select');
+      select.className=VOICE_SELECT_CLASS;
+      select.setAttribute('data-soreal-tts-ignore','1');
+      select.setAttribute('aria-label','Choisir la voix IA');
+      select.addEventListener('pointerdown',function(e){e.stopPropagation();});
+      select.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
+      select.addEventListener('mousedown',function(e){e.stopPropagation();});
+      select.addEventListener('change',changeVoice_);
+      host.appendChild(select);
+    }
+    updateVoiceSelector_(select);
 
     var button=host.querySelector('.'+BUTTON_CLASS);
     if(!button){
@@ -587,6 +668,10 @@
       'color:#f4f7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;'+
       'box-shadow:0 3px 12px rgba(0,0,0,.28)!important;cursor:pointer!important;'+
       'touch-action:manipulation!important}.'+BUTTON_CLASS+':disabled{opacity:.58!important;cursor:default!important}'+
+      '.'+VOICE_SELECT_CLASS+'{margin-left:auto!important;flex:0 0 auto!important;max-width:145px!important;'+
+      'border:1px solid rgba(125,211,252,.38)!important;border-radius:999px!important;padding:5px 24px 5px 9px!important;'+
+      'background:rgba(11,18,31,.92)!important;color:#dff7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;'+
+      'cursor:pointer!important;touch-action:manipulation!important}.'+VOICE_SELECT_CLASS+':disabled{opacity:.58!important;cursor:default!important}'+
       '.'+READ_CLASS+'{margin-top:10px!important;border:1px solid rgba(125,211,252,.32)!important;'+
       'border-radius:10px!important;padding:7px 10px!important;background:rgba(14,116,144,.15)!important;'+
       'color:#dff7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;cursor:pointer!important;'+
@@ -633,6 +718,23 @@
     },
     lastError:function(){return lastError;},
     audioState:function(){return audioContext?String(audioContext.state||'unknown'):'none';},
+    voices:function(){
+      var neural=localNeuralApi_();
+      return neural&&typeof neural.voices==='function'?neural.voices():[];
+    },
+    voice:function(){
+      var neural=localNeuralApi_();
+      return neural&&typeof neural.voice==='function'?neural.voice():null;
+    },
+    setVoice:function(value){
+      var neural=localNeuralApi_();
+      if(!neural||typeof neural.setVoice!=='function')throw new Error('PIPER_LOCAL_VOICE_API_INDISPONIBLE');
+      stop_();
+      lastFingerprint='';
+      var result=neural.setVoice(value);
+      schedule_();
+      return result;
+    },
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
@@ -643,6 +745,7 @@
     }
   };
 
+  window.__SOREAL_IDLE_TUTORIAL_TTS_V209__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V208__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V207__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V206__=api;
