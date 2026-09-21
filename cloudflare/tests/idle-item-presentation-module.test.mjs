@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+const source=readFileSync("cloudflare/public/modules/item-presentation-v1.js","utf8");
+const window={};
+vm.runInNewContext(source,{window});
+const api=window.__SOREAL_IDLE_ITEM_PRESENTATION_V1__;
+assert.ok(api&&typeof api.emojiObjet==="function");
+assert.equal(api.emojiObjet({slot:"arme",nom:"Cutter"}),"🗡️ ✂️");
+assert.equal(api.emojiObjet({slot:"torse",nomBase:"Gilet"}),"👕 🦺");
+assert.equal(api.emojiObjet({slot:"bottes",nom:"Chaussures sécurité"}),"🥾 ⚠️");
+assert.equal(api.emojiObjet({slot:"bijou1",nom:"Badge"}),"💍 🪪");
+assert.equal(api.emojiObjet({}),"📦 📦");
+console.log("idle item presentation module: OK");
