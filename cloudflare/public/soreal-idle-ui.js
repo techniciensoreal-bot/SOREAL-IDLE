@@ -27121,8 +27121,50 @@ function pageAventureIdleV28_(j){
        * ce qui explique qu'il paraissait "ne pas exister" malgré un
        * mécanisme serveur déjà complet (idle-adventure-v47.js).
        */
+      function afficherDetailsCubeInfiniAdventureIdleV220_(){
+        const root=document.getElementById('soreal-idle-v138-details');
+        const corps=document.getElementById('soreal-idle-v138-details-body');
+        const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
+        const cube=a&&a.cube;
+        const tier=a&&a.cubeTier;
+        if(!root||!corps||!cube||!cube.unlocked)return;
+
+        const palier=Math.max(0,idleEntier_(tier&&tier.tier));
+        const total=Math.max(0,idleNombre_(tier&&tier.totalStats));
+        const suivant=tier&&tier.suivant||null;
+        const bonus=[];
+        if(idleNombre_(tier&&tier.dropChancePct)>0)bonus.push('Chance de drop +'+idleNombre_(tier.dropChancePct)+'%');
+        if(idleNombre_(tier&&tier.goldDropsPct)>0)bonus.push('Gold Drops +'+idleNombre_(tier.goldDropsPct)+'%');
+        if(idleNombre_(tier&&tier.hackSpeedPct)>0)bonus.push('Hack Speed +'+idleNombre_(tier.hackSpeedPct)+'%');
+        if(idleNombre_(tier&&tier.wishSpeedPct)>0)bonus.push('Wish Speed +'+idleNombre_(tier.wishSpeedPct)+'%');
+
+        corps.innerHTML=
+          '<div class="soreal-idle-window-title-v31">Cube de l\'infini</div>'+
+          '<div class="soreal-idle-v138-details-level">Tier '+palier+' · ID wiki 100</div>'+
+          '<div style="display:flex;justify-content:center;margin:8px 0 12px">'+
+            '<img src="'+idleHtml_(urlImageCubeInfiniAdventureIdleV1_(palier))+'" alt="Infinity Cube Tier '+palier+'" style="width:92px;height:92px;object-fit:contain">'+
+          '</div>'+
+          '<div class="soreal-idle-v138-details-stats">'+
+            '<div class="soreal-idle-v138-details-stat"><span>Power</span><b>'+formatGrandNombreIdleV70_(cube.power||0)+'</b></div>'+
+            '<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+formatGrandNombreIdleV70_(cube.toughness||0)+'</b></div>'+
+            '<div class="soreal-idle-v138-details-stat"><span>Total stats</span><b>'+formatGrandNombreIdleV70_(total)+'</b></div>'+
+            (suivant
+              ?'<div class="soreal-idle-v138-details-stat"><span>Prochain tier</span><b>'+formatGrandNombreIdleV70_(suivant.seuil||0)+'</b></div>'
+              :'<div class="soreal-idle-v138-details-stat"><span>Tier</span><b>MAX</b></div>')+
+          '</div>'+
+          (bonus.length
+            ?'<div style="margin-top:10px;font-size:12px;color:#aeb5c8"><b>Bonus du tier</b><br>'+bonus.map(idleHtml_).join('<br>')+'</div>'
+            :'');
+        root.style.display='block';
+        positionnerPopupObjetAdventureIdleV1_(root);
+        activerGlisserPopupObjetAdventureIdleV1_(root);
+      }
+
       function clicCubeAdventureIdleV138_(){
-        if(!idleAdventureSelectionIdV138)return;
+        if(!idleAdventureSelectionIdV138){
+          afficherDetailsCubeInfiniAdventureIdleV220_();
+          return;
+        }
         const id=idleAdventureSelectionIdV138;
         nettoyerEtatDragAdventureIdleV138_();
         if(!idleEtat)return;
@@ -28176,7 +28218,13 @@ function pageAventureIdleV28_(j){
        */
       function urlImageCubeInfiniAdventureIdleV1_(tier){
         const n=Math.max(0,idleEntier_(tier));
-        return '/api/idle/media/item?set=infinity-cubes&name='+encodeURIComponent('infinityCube_tier_'+n);
+        /*
+         * V220 — l'Infinity Cube est l'item wiki #100. Son image dépend
+         * directement du tier : Item_0100_THE_CUBE_Tier0.png,
+         * Item_0100_THE_CUBE_Tier1.png, etc. On transmet donc l'ID et le
+         * tier au Worker média au lieu d'un nom SOREAL inventé.
+         */
+        return '/api/idle/media/item?wikiItemId=100&tier='+n+'&name='+encodeURIComponent('THE CUBE');
       }
       /*
        * Correctif 2026-09-18 (Norman, en direct : "enlève le gros cadre
