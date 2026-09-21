@@ -379,6 +379,7 @@
       audio=new Audio(src);
       audio.preload='auto';
     }catch(_){
+      revokeObjectUrl_(src);
       return false;
     }
     activeAudio=audio;
