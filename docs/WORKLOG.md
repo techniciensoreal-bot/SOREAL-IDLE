@@ -1,7 +1,7 @@
 # WORKLOG — SOREAL-IDLE
 
 Dernière mise à jour : 2026-09-21
-Tâche : remplacer la lecture TTS navigateur par une narration neurale avec cache, tout en gardant un fallback fiable.
+Tâche : remplacer définitivement le TTS navigateur et le TTS cloud payant par une narration neurale française Piper exécutée localement dans le navigateur.
 
 ## État final vérifié
 - Branche production : `main`
@@ -249,3 +249,46 @@ Fichiers :
 
 État branche : `work/local-piper-v6`.
 Prochaine action : suite complète + build + smoke test Chromium générant réellement une phrase française avec Piper local. Aucun merge avant succès.
+
+
+## Narration V6 — validation Piper locale réelle
+Base `main` avant merge :
+- SHA `main` : `71415350444c6a3197e04607ee521806791afabf`.
+- Run production #506 : tests SUCCESS, build SUCCESS, déploiement Worker SUCCESS, puis échec du health check Grok pour crédits insuffisants ; la vérification finale du SHA actif a donc été SKIPPED.
+- Dernier déploiement dont le SHA actif a été entièrement vérifié par le workflow : run #503, SHA `ede23e471987d7df187b67bba17a9c6d6b59f37d`, version Cloudflare `24eeb579-604e-449a-88f2-e64227ff2f77`, routage 100 %.
+
+Branche : `work/local-piper-v6`.
+
+Échecs réellement détectés pendant la validation :
+1. run temporaire #1 : ancien test V207 encore lié au cloud `requestNeuralAudio_` ;
+2. run #2 : import navigateur `@piper-plus/g2p` non résolu ;
+3. run #3 : modèle CSS10 incompatible avec le fallback speaker embedding de Piper 0.7.0 (192 fourni, 256 attendu).
+
+Correctifs :
+- garde V207 alignée sur `requestLocalNeuralAudio_` et interdiction explicite de l'ancien TTS cloud / SpeechSynthesis ;
+- import map épinglé : `piper-plus@0.7.0`, `@piper-plus/g2p@0.4.2`, `onnxruntime-web@1.30.0` ;
+- modèle remplacé par le modèle multilingue de démo Piper :
+  `https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx` ;
+- langue forcée : `fr`.
+
+Validation décisive :
+- workflow temporaire `Validate local Piper V6 branch` run #4 ;
+- SHA de code testé : `a6344354b3cd633c535e71f2c811bf301f389bee` ;
+- suite complète `cloudflare/tests/*.test.mjs` : SUCCESS ;
+- build standalone : SUCCESS ;
+- dépendances Piper/G2P/ONNX/modèle : SUCCESS ;
+- installation Chromium : SUCCESS ;
+- synthèse française réelle dans Chromium : SUCCESS ;
+- WAV produit : 161324 octets, MIME `audio/wav`, entête `RIFF` ;
+- état moteur : `ready`, langue `fr` ;
+- aucun avertissement `speaker_embedding`, aucun échec Rust WASM/G2P dans le run vert.
+
+Nettoyage :
+- workflow temporaire supprimé au commit `b2d81962815313a1e50d2ff8ceaa2e300322e70e`.
+- le smoke test Chromium reste dans les tests comme harnais de validation ciblée, mais n'est pas exécuté automatiquement par le workflow production.
+
+Prochaine action :
+- comparer `work/local-piper-v6` à `main` et exiger 0 commit derrière ;
+- créer/merger la PR ;
+- vérifier le workflow production complet ;
+- ne déclarer V6 en production qu'après tests, build, déploiement et vérification du SHA Cloudflare actif.
