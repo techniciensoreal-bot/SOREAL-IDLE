@@ -82,3 +82,29 @@ Test manuel dans SOREAL-IDLE avec une session réelle :
 - relancer le même texte pour confirmer que la lecture reste correcte après mise en cache R2 ;
 - tester ensuite sur mobile.
 Si l'écoute réelle révèle un défaut, reprendre depuis ce SHA sans toucher aux autres dépôts.
+
+
+## Correctif narration V2 — 2026-09-21
+Retour utilisateur : la voix entendue restait identique au TTS navigateur.
+
+Cause probable corrigée après vérification de la documentation Cloudflare :
+- `env.AI.run()` MeloTTS était appelé avec `returnRawResponse:true`, option non documentée pour le binding Workers AI ;
+- `rejectIfBusy:true` faisait échouer immédiatement la génération si le modèle était occupé ;
+- le client abandonnait la génération neurale après 12 s.
+
+Correctifs sur `work/neural-narration-v2` :
+- appel MeloTTS ramené à l'API documentée : `env.AI.run(model,{prompt,lang})` ;
+- suppression de `returnRawResponse` ;
+- suppression de `rejectIfBusy` ;
+- timeout client passé de 12 s à 30 s ;
+- cache-buster narration passé à `?v=223` ;
+- test MeloTTS ajusté au retour documenté `{audio: <base64 MP3>}`.
+
+Validation hors production :
+- workflow temporaire `Validate neural narration V2 branch` run #1 ;
+- SHA testé : `33bf5a7ad28ad70be153721298b11bd614e6dbcc` ;
+- suite complète : SUCCESS ;
+- build standalone : SUCCESS ;
+- workflow temporaire supprimé au commit `0340daa60460c5f53d0b98c35c5af0697d916b59`.
+
+Prochaine action : comparer la branche à `main`, merger si 0 commit derrière, puis vérifier CI/build/déploiement/SHA production.
