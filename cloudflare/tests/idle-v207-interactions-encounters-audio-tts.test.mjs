@@ -49,17 +49,19 @@ assert.ok(ui.includes("return 'mergeAccessory';"));
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('uiClick')"));
 
 for(const token of [
-  "function decouperTexteAndroidV207_",
-  "phrase.length>220",
-  "speechGeneration",
-  "synth.resume()",
-  "setTimeout(function(){parler(index+1,false);},35)"
+  "function decouperNarration_",
+  "CHUNK_MAX=2000",
+  "requestNeuralAudio_",
+  "/api/v1/narration",
+  "⚠️ Voix IA indisponible"
 ]){
-  assert.ok(tts.includes(token),"TTS Android V207 manquant: "+token);
+  assert.ok(tts.includes(token),"Narration neurale V206 manquante: "+token);
 }
+assert.ok(!tts.includes("SpeechSynthesisUtterance"));
+assert.ok(!tts.includes("window.speechSynthesis"));
 
 new Function(ui);
 new Function("window","document",audio);
 new Function("window","document","localStorage",tts);
 
-console.log("SOREAL IDLE V207: OK — popup, rencontres, audio et TTS Android.");
+console.log("SOREAL IDLE V207: OK — popup, rencontres, audio et narration neurale.");
