@@ -637,3 +637,7 @@ Prochaine action :
 - Branche V2 créée depuis ce SHA production vérifié : `refactor/split-idle-ui-v2`.
 - Blocage technique constaté pour l'extraction suivante : l'API GitHub de lecture par plages renvoie un contenu vide pour `soreal-idle-ui.js` (1,1 Mo) et le fetch brut refuse le fichier comme trop volumineux. Ne pas modifier le monolithe à l'aveugle.
 - Prochaine action précise : utiliser une méthode de récupération adaptée au gros blob ou une extraction basée sur une copie locale, identifier les frontières d'un bloc autonome, puis seulement créer le module V2 avec test de parité.
+
+- UI split V2 validation : run `35652426289` SUCCESS sur `b8f2906efe964518465e0146a1d2fd4e256485e0` ; tests complets + build/syntaxe validés.
+- Module extrait : `modules/item-presentation-v1.js`; monolithe délègue la présentation emoji des objets.
+- Workflow V2 temporaire supprimé après validation. Prochaine action : merge PR #12 puis validation production complète avant V3.
