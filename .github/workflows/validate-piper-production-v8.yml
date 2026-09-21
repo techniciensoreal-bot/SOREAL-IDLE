@@ -30,7 +30,7 @@ jobs:
           SOREAL_IDLE_URL: https://soreal-idle.technicien-soreal.workers.dev/
         run: |
           set -euo pipefail
-          cat > /tmp/piper-prod-smoke.mjs <<'NODE'
+          cat > .piper-prod-smoke.mjs <<'NODE'
           import assert from "node:assert/strict";
           import { chromium } from "playwright";
 
@@ -110,4 +110,4 @@ jobs:
             await browser.close();
           }
           NODE
-          node /tmp/piper-prod-smoke.mjs
+          node .piper-prod-smoke.mjs
