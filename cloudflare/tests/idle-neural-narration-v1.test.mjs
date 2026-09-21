@@ -74,7 +74,8 @@ function envV1(){
         aiCalls+=1;
         assert.equal(model,"xai/grok-tts");
         assert.equal(input.language,"fr");
-        assert.ok(String(input.text||"").length>0);\n        assert.equal(input.voice_id,"ara");
+        assert.ok(String(input.text||"").length>0);
+        assert.equal(input.voice_id,"ara");
         return {state:"Completed",result:{audio:"https://audio.test/grok.mp3"}};
       }
     }
@@ -133,7 +134,8 @@ function envV1(){
   const body1=await health1.json();
   assert.equal(body1.ok,true);
   assert.equal(body1.model,"xai/grok-tts");
-  assert.equal(body1.lang,"fr");\n  assert.equal(body1.voice,"ara");
+  assert.equal(body1.lang,"fr");
+  assert.equal(body1.voice,"ara");
   assert.equal(body1.versionId,"version-test-123");
   assert.equal(body1.cache,"MISS");
   assert.equal(body1.bytes,256);
