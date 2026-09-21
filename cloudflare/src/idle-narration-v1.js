@@ -115,8 +115,7 @@ export async function traiterNarrationIdleV1(request,env){
   try{
     result=await env.AI.run(
       IDLE_NARRATION_MODEL_V1,
-      {prompt:text,lang:IDLE_NARRATION_LANG_V1},
-      {returnRawResponse:true,rejectIfBusy:true}
+      {prompt:text,lang:IDLE_NARRATION_LANG_V1}
     );
   }catch(error){
     return narrationJsonV1({
