@@ -292,3 +292,24 @@ Prochaine action :
 - créer/merger la PR ;
 - vérifier le workflow production complet ;
 - ne déclarer V6 en production qu'après tests, build, déploiement et vérification du SHA Cloudflare actif.
+
+
+## Narration V6 — production vérifiée
+- PR #7 fusionnée sur `main`.
+- SHA de code fusionné et déployé : `854ff7729cff3f4db0821e63adab03b07eaceac9`.
+- Workflow production : `Deploy SOREAL Idle to Cloudflare` run #507.
+- Suite complète `cloudflare/tests/*.test.mjs` : SUCCESS.
+- Build standalone frontend : SUCCESS.
+- Déploiement Cloudflare Worker : SUCCESS.
+- Vérification des dépendances Piper/G2P/ONNX/modèle : SUCCESS.
+- Vérification du SHA actif : SUCCESS.
+- Version Cloudflare active : `b9eacd00-fb6c-442d-9af6-14346fd97f2e`.
+- Routage production : 100 %.
+- Validation navigateur préalable : Chromium a synthétisé une phrase française réelle en WAV `audio/wav`, 161324 octets, entête `RIFF`, langue `fr`, moteur revenu à `ready`.
+- Aucun `SpeechSynthesis` dans le frontend et aucun appel client au TTS cloud pour la narration.
+- Le moteur courant est Piper Plus local dans le navigateur, avec dépendances épinglées et chargement lazy.
+
+### État actuel / prochaine action
+- V6 est sur `main` et le SHA de code est vérifié en production.
+- Le commit WORKLOG final est docs-only et ne doit pas redéployer le Worker.
+- Prochaine vérification fonctionnelle : tester un bouton de narration dans une vraie session SOREAL-IDLE sur desktop, puis mobile, afin d'évaluer la qualité audible et le temps de premier chargement.
