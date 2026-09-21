@@ -598,3 +598,16 @@ Prochaine action :
 - vérifier que la branche reste `behind_by=0` par rapport à `main` ;
 - fusionner la PR #10 ;
 - exiger ensuite le workflow de production complet avec SHA Cloudflare actif et smoke Chromium réel sur les trois voix.
+
+
+### V9 — état pré-fusion vérifié
+- Workflow temporaire de validation supprimé au commit `f2496938289954dc8a90aefbb839d34a39568af8`.
+- `main` vérifié avant fusion : `31677b98a7bb8901ccefb1fe0a9cc199af9796c7`.
+- Branche V9 : `behind_by=0`.
+- Comparaison depuis le SHA de code validé `502fbf3b3737de16fd3e42c7586e9a51153c3f0b` : uniquement `docs/WORKLOG.md` modifié et workflow temporaire retiré ; aucun fichier de production/test validé n'a changé après le run vert.
+- PR : #10.
+
+Prochaine action :
+- fusionner la PR #10 vers `main` ;
+- vérifier le workflow de production complet ;
+- ne déclarer V9 disponible qu'après tests/build/déploiement, vérification du SHA Cloudflare actif et smoke Chromium des trois voix contre l'origine de production.
