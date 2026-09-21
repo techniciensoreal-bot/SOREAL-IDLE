@@ -106,7 +106,7 @@
     var controller=typeof AbortController==='function'?new AbortController():null;
     var timeout=setTimeout(function(){
       try{if(controller)controller.abort();}catch(_){}
-    },12000);
+    },30000);
 
     return fetch('/api/v1/narration',{
       method:'POST',
