@@ -49,13 +49,19 @@ for(const token of [
   "speak_(text,attempt+1,force,targetId)",
   "__SOREAL_IDLE_TUTORIAL_TTS_V203__",
   "__SOREAL_IDLE_TUTORIAL_TTS_V204__",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V205__",
   "__SOREAL_IDLE_NARRATION_AUDIO_MANIFEST__",
   "data-soreal-tts-audio-src",
   "new Audio(src)",
   "audio.play()",
   "audio.onerror=fallback_",
   "readWithAudioFallback_",
-  "Boolean(activeAudio)"
+  "Boolean(activeAudio)",
+  "/api/v1/narration",
+  "requestNeuralAudio_",
+  "authorization:'Bearer '+session",
+  "URL.createObjectURL(blob)",
+  "revokeObjectUrl_"
 ]){
   assert.ok(tts.includes(token),"TTS V203 manquant: "+token);
 }
@@ -69,8 +75,9 @@ assert.ok(
 );
 
 assert.ok(
-  !/fetch\s*\(/.test(tts),
-  "La narration ne doit pas appeler directement un fournisseur TTS depuis le navigateur."
+  tts.includes("fetch('/api/v1/narration'")&&
+  !/https?:\/\/(api\.)?(elevenlabs|openai|deepgram)\./i.test(tts),
+  "Le navigateur doit appeler uniquement la route SOREAL-IDLE, jamais un fournisseur TTS externe directement."
 );
 assert.ok(
   tts.includes("if(src&&playAudio_(src,text,targetId))return true;")&&
@@ -83,5 +90,5 @@ new Function("window","document","localStorage",tts);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE narration V204: OK — audio pré-généré prioritaire, SpeechSynthesis en fallback."
+  "SOREAL IDLE narration V205: OK — audio pré-généré, Workers AI/R2 puis SpeechSynthesis en fallback."
 );
