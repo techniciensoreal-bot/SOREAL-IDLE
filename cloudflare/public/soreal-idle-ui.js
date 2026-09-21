@@ -20450,21 +20450,13 @@
        * plusieurs jours.
        */
       function formatDureeRunIdleV1_(secondesTotal){
-        const s=Math.max(0,idleEntier_(secondesTotal));
-        const jours=Math.floor(s/86400);
-        const heures=Math.floor((s%86400)/3600);
-        const minutes=Math.floor((s%3600)/60);
-        const secondes=s%60;
-        const deux=v=>String(v).padStart(2,'0');
-        return (jours>0?jours+'j ':'')+deux(heures)+':'+deux(minutes)+':'+deux(secondes);
+        const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+        return api&&typeof api.duree==='function'?api.duree(secondesTotal):'00:00:00';
       }
-
       function dureeRunSecondesIdleV1_(j){
-        const debut=idleNombre_(j&&j.renaissance&&j.renaissance.runDebuteA);
-        if(!(debut>0))return 0;
-        return Math.max(0,(Date.now()-debut)/1000);
+        const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+        return api&&typeof api.runSecondes==='function'?api.runSecondes(j):0;
       }
-
       function resumeStatsIdleV28_(j){
         const combat=j&&j.combatPrincipal?j.combatPrincipal:{};
         const systemes=j&&j.systemes?j.systemes:{};
@@ -25242,10 +25234,9 @@ let idleDialogueTimerV76=null;
       }
 
       function formatterHeuresIdleV47_(heures){
-        const n=Math.max(0,idleNombre_(heures));
-        return n.toFixed(n<10?2:1).replace('.',',')+' h';
+        const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+        return api&&typeof api.heures==='function'?api.heures(heures):'0,00 h';
       }
-
       /*
        * Menu déroulant personnalisé pour la sélection de zone d'Aventure
        * (même composant visuel que "Trier par" en Équipe, team-sort-*).
