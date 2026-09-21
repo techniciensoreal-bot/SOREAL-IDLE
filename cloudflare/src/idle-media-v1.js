@@ -311,6 +311,33 @@ function choisirObjetItemR2ParDefinition_(objects,definitionId,itemName="",slot=
   const target=Number(IDLE_ITEM_R2_ID_BY_DEFINITION[String(definitionId||"")])||0;
   return choisirObjetItemR2ParId_(objects,target,itemName,slot,setId);
 }
+function choisirObjetItemR2ParIdEtTier_(objects,itemId,tier,itemName="",slot="",setId=""){
+  const target=Number(itemId)||0;
+  const niveau=Math.max(0,Math.floor(Number(tier)||0));
+  if(!target||!Array.isArray(objects))return null;
+
+  const exactName=("Item_"+String(target).padStart(4,"0")+"_THE_CUBE_Tier"+niveau+".png").toLowerCase();
+  const exact=objects.find(object=>{
+    const file=String(object&&object.key||"").split("/").pop().toLowerCase();
+    return file===exactName;
+  });
+  if(exact)return exact;
+
+  const suffix=("tier"+niveau).toLowerCase();
+  const tierCandidates=objects.filter(object=>{
+    if(idObjetItemR2_(object)!==target)return false;
+    const stem=String(object&&object.key||"")
+      .split("/")
+      .pop()
+      .replace(/\.[^.]+$/,"");
+    return normaliserNomItemR2_(stem).endsWith(suffix);
+  });
+
+  return tierCandidates.length
+    ?choisirObjetItemR2ParId_(tierCandidates,target,itemName,slot,setId)
+    :null;
+}
+
 
 function itemR2NameOverride_(setId,slot){
   const bySet=IDLE_ITEM_SLOT_R2_NAME[setId];
@@ -741,6 +768,8 @@ async function itemSet_(request,env,url){
   const definitionId=paramItemR2_(url,"definition",80);
   const wikiItemIdRaw=paramItemR2_(url,"wikiItemId",12);
   const wikiItemId=/^\d{1,6}$/.test(wikiItemIdRaw)?Number(wikiItemIdRaw):0;
+  const tierRaw=paramItemR2_(url,"tier",3);
+  const tier=/^\d{1,2}$/.test(tierRaw)?Number(tierRaw):null;
   const legacyDefinitionItemId=Number(IDLE_ITEM_R2_ID_BY_DEFINITION[definitionId])||0;
   const explicitItemId=wikiItemId||legacyDefinitionItemId;
   if((setId&&!/^[a-z0-9_-]+$/.test(setId))||(!setId&&!explicitItemId)){
@@ -764,7 +793,9 @@ async function itemSet_(request,env,url){
   const objects=await objetsDossierItemR2_(env,IDLE_ITEMS_R2_PREFIX);
   const nomReel=itemR2NameOverride_(setId,slot)||itemName;
   const object=explicitItemId
-    ?choisirObjetItemR2ParId_(objects,explicitItemId,nomReel,slot,setId)
+    ?(tier!==null
+      ?choisirObjetItemR2ParIdEtTier_(objects,explicitItemId,tier,nomReel,slot,setId)
+      :choisirObjetItemR2ParId_(objects,explicitItemId,nomReel,slot,setId))
     :choisirObjetItemR2_(objects,nomReel,slot,setId);
   return reponseObjetR2_(request,env,object);
 }
