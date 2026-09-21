@@ -8,7 +8,7 @@
 import { PiperPlus } from "piper-plus";
 import * as ort from "onnxruntime-web";
 
-const MODEL_V1="https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx";
+const MODEL_V1=new URL("/api/idle/media/piper-model.onnx",window.location.origin).href;
 const LANGUAGE_V1="fr";
 const LENGTH_SCALE_V1=1.30;
 const NOISE_SCALE_V1=0.55;
