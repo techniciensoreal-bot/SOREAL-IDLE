@@ -29235,38 +29235,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
       function pageAugmentationsIdleV48_(j){
-        const s=systemeMetaParIdIdleV130_(j,'augmentations');
-        if(!s||!s.state||!s.state.unlocked)return entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
-        const snap=j&&j.systemes||{};
-        const defs=Array.isArray(snap.augmentations)?snap.augmentations:[];
-        const data=s.state.data||{};
-        const pairs=data.pairs||{};
-        const boss=idleEntier_(snap.records&&snap.records.highestBoss||0);
-        const gold=idleNombre_(snap.currencies&&snap.currencies.gold||0);
-        const mult=idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
-        return entetePageIdleV28_('🦾 Augmentations','Choisis une paire puis alloue de l’Energy. Les niveaux consomment automatiquement le Gold nécessaire et sont réinitialisés au Rebirth.')+
+        const sys=systemeMetaParIdIdleV130_(j,'augmentations');
+        if(!sys||!sys.state||!sys.state.unlocked)return entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
+        const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[],pairs=(sys.state.data||{}).pairs||{};
+        const boss=idleEntier_(snap.records&&snap.records.highestBoss||0),gold=idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
+        const cap=Math.max(0,idleNombre_(snap.resources&&snap.resources.energy&&snap.resources.energy.cap||0));
+        function track(def,pair,upgrade,ok){
+          const value=Math.max(0,idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
+          const pct=Math.max(0,Math.min(100,idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
+          const level=idleEntier_(upgrade?pair.upgradeLevel:pair.level);
+          const label=upgrade?'Upgrade':'Augment';
+          const values=[0,Math.floor(cap*.25),Math.floor(cap*.5),cap];
+          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+formatGrandNombreIdleV70_(value)+' ⚡</span></div><div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:'+pct+'%;background:#6366f1"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+values.map(function(v,i){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__actionMetaV47__({action:\'allocateAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:'+upgrade+',value:'+v+'})"':'disabled')+'>'+['0%','25%','50%','100%'][i]+'</button>';}).join('')+'</div></div>';
+        }
+        return entetePageIdleV28_('🦾 Augmentations','Chaque Augment et chaque Upgrade possède sa propre allocation Energy et progresse en parallèle. Les niveaux sont remis à zéro au Rebirth.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+
-          allocationMetaIdleV48_(j,'augmentations','energy','Energy allouée')+
-          '<div style="display:grid;gap:10px;margin-top:10px">'+defs.map(function(def){
-            const p=pairs[def.id]||{};
-            const active=data.activePair===def.id;
-            const mainOk=boss>=idleEntier_(def.unlockBoss||0);
-            const upgradeOk=boss>=idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
-            /*
-             * Audit 2026-09-13 (Norman) : "Le menu augmentation ne possède
-             * pas de barres qui montent comme dans basic training... Tout
-             * repose sur ces barres qui vont de plus en plus vite." Seule
-             * la paire ACTIVE progresse réellement (advanceAugmentations,
-             * SOREAL-TV) — la barre n'a donc de sens que pour elle. Même
-             * gabarit visuel que Basic Training (soreal-idle-bt-track-v120/
-             * -fill-v120), jamais un nouveau composant de barre.
-             */
-            const pct=active?Math.max(0,Math.min(100,idleNombre_(data.trainUpgrade?def.upgradeProgressPct:def.progressPct)*100)):0;
-            const barre=active
-              ?'<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:'+pct+'%;background:#6366f1"></div></div>'
-              :'';
-            return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(mainOk?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+idleHtml_(def.name||def.id)+'</b><span>Niv. '+idleEntier_(p.level||0)+' · Upgrade '+idleEntier_(p.upgradeLevel||0)+'</span></div>'+barre+'<div style="font-size:12px;color:#aeb5c8;margin-top:5px">Boss '+idleEntier_(def.unlockBoss||0)+' · coût de base '+formatGrandNombreIdleV70_(def.baseGold||0)+' Gold'+(def.upgrade?' · upgrade boss '+idleEntier_(def.upgrade.unlockBoss||0):'')+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" '+(mainOk?'onclick="window.__actionMetaV47__({action:\'selectAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:false})"':'disabled')+'>'+(active&&!data.trainUpgrade?'▶ Principal':'Principal')+'</button><button type="button" class="soreal-idle-expand-button-v25" '+(upgradeOk?'onclick="window.__actionMetaV47__({action:\'selectAugment\',pair:\''+idleHtml_(def.id)+'\',upgrade:true})"':'disabled')+'>'+(active&&data.trainUpgrade?'▶ Upgrade':'Upgrade')+'</button></div></div>';
-          }).join('')+'</div>';
+          '<div style="display:grid;gap:10px;margin-top:10px">'+defs.map(function(def){const pair=pairs[def.id]||{};const mainOk=boss>=idleEntier_(def.unlockBoss||0);const upgradeOk=boss>=idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(mainOk?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+idleHtml_(def.name||def.id)+'</b><span>Boss '+idleEntier_(def.unlockBoss||0)+(def.upgrade?' · Upgrade '+idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+track(def,pair,true,upgradeOk)+'</div>';}).join('')+'</div>';
       }
 
       function pageTimeMachineIdleV48_(j){
