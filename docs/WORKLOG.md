@@ -160,3 +160,18 @@ Prochaine action :
 - vérifier que la branche est 0 commit derrière `main` ;
 - merger ;
 - vérifier le workflow production, y compris le nouveau smoke test MeloTTS réel et le SHA Cloudflare actif.
+
+
+## Narration V4 — cause réelle MeloTTS identifiée
+- Run production #504 de la V3 : tests SUCCESS, build SUCCESS, déploiement SUCCESS, mais smoke test neural FAILURE.
+- Diagnostic production après propagation : HTTP 503 avec `8002: Invalid input`.
+- Le modèle et le binding sont présents ; l'échec vient du paramètre `lang`.
+- La documentation Cloudflare affiche actuellement `fr`, mais des retours Cloudflare/MeloTTS documentent que le backend attend les codes en majuscules (`FR`, `EN`, `ES`, etc.).
+- Correctif V4 : `IDLE_NARRATION_LANG_V1="FR"`.
+- Le smoke test production est conservé et exige désormais `lang: "FR"`.
+- Aucun SpeechSynthesis n'est réintroduit.
+
+Prochaine action :
+- valider la branche complète ;
+- merger sur `main` ;
+- exiger que le health check réel MeloTTS passe avant de considérer la voix neurale fonctionnelle.
