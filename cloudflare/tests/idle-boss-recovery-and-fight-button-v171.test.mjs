@@ -6,7 +6,10 @@ const ui=await readFile(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
-const css=await readFile(\n  new URL("../public/soreal-idle-ui.css",import.meta.url),\n  "utf8"\n);
+const css=await readFile(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+);
 
 test("Fight Boss frontend has no KO countdown",()=>{
   assert.doesNotMatch(ui,/let koRestant=/);
