@@ -663,3 +663,10 @@ Prochaine action :
 - Extraction V5 : helpers texte purs vers `cloudflare/public/modules/text-helpers-v1.js` (effets, dégât(s), nom R2, ressources).
 - Validation V5 : run `35686720053` SUCCESS sur `dca5d2cd3643d0ca2379a515f8439243715fe76b` ; suite complète + build/syntaxe SUCCESS.
 - Workflow temporaire supprimé. Prochaine action : merge PR #15 puis vérifier production avant V6.
+
+
+## Refactor découpage UI V6 — 2026-09-22
+- Base production V5 : `main` = `5aafaef0513efaeecfd5e9a38b37ccede7ff7c49`, run #515 SUCCESS complet.
+- Extraction V6 : présentation inventaire (noms/icônes de slots + classe de rareté) vers `cloudflare/public/modules/inventory-presentation-v1.js`.
+- Validation V6 : run `35687115563` SUCCESS sur `3f75641a16b82b3d73a75eec645103da620599b8` ; suite complète + build/syntaxe SUCCESS.
+- Workflow temporaire supprimé. Prochaine action : merge PR #16 puis vérifier production avant V7.
