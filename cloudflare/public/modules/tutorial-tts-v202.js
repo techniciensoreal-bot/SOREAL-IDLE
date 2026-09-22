@@ -150,12 +150,34 @@
     return chunks;
   }
 
-  function ensureVoiceSelectAfter_(anchor){
-    if(!anchor||!anchor.parentNode)return;
-    var next=anchor.nextElementSibling;
-    var select=(next&&next.classList&&next.classList.contains(VOICE_SELECT_CLASS))?next:null;
-    if(!select){
-      select=document.createElement('select');
+  var GLOBAL_VOICE_HOST_ID='sorealIdleGlobalVoiceHostV210';
+
+  /*
+   * Historique : un sélecteur avait d'abord été injecté à côté de chaque
+   * bouton de lecture directement dans le contenu de page (boutons
+   * data-soreal-tts-target). Bug réel trouvé en creusant le retour
+   * utilisateur ("ça reste sur Voix SOREAL" quoi que je choisisse) :
+   * rendreIdleEtat_ remplace tout #app (document.getElementById('app')
+   * .innerHTML=...) à chaque synchronisation serveur — très fréquent dans
+   * un idle game — détruisant ce sélecteur avant même que le clic du
+   * joueur n'ait pu s'enregistrer. Les 3 popups ponctuels (tutoriel,
+   * nouveauté) fonctionnaient, eux, car ils sont attachés directement à
+   * document.body, hors de #app.
+   *
+   * Corrigé en revenant à UN SEUL sélecteur, global et persistant,
+   * attaché lui aussi directement à document.body (jamais recréé,
+   * jamais dans #app) : il survit à toute synchronisation serveur et
+   * gouverne la voix utilisée par tous les boutons "Lire" du jeu.
+   */
+  function ensureGlobalVoiceControl_(){
+    if(!supported_())return;
+    var host=document.getElementById(GLOBAL_VOICE_HOST_ID);
+    if(!host){
+      host=document.createElement('div');
+      host.id=GLOBAL_VOICE_HOST_ID;
+      host.setAttribute('data-soreal-tts-ignore','1');
+
+      var select=document.createElement('select');
       select.className=VOICE_SELECT_CLASS;
       select.setAttribute('data-soreal-tts-ignore','1');
       select.setAttribute('aria-label','Choisir la voix IA');
@@ -163,9 +185,11 @@
       select.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
       select.addEventListener('mousedown',function(e){e.stopPropagation();});
       select.addEventListener('change',changeVoice_);
-      anchor.insertAdjacentElement('afterend',select);
+      host.appendChild(select);
+
+      document.body.appendChild(host);
     }
-    updateVoiceSelector_(select);
+    updateVoiceSelector_(host.querySelector('.'+VOICE_SELECT_CLASS));
   }
 
   function updateReadButtons_(){
@@ -179,16 +203,6 @@
       button.textContent=active
         ?'⏹ Arrêter la narration'
         :button.dataset.sorealTtsOriginalLabel;
-      /*
-       * Historique : le sélecteur de voix n'était injecté que dans les 3
-       * popups ponctuels (tutoriel début de jeu, tutoriel premier boss,
-       * nouveauté), qui ne s'affichent qu'une fois. Tous les autres
-       * boutons "Lire" du jeu (chroniques de boss, etc.) n'offraient donc
-       * jamais le choix de la voix. Retour utilisateur confirmé : "je n'ai
-       * qu'une seule voix, pas d'option pour changer". Corrigé en
-       * attachant le même sélecteur à côté de chaque bouton de lecture.
-       */
-      ensureVoiceSelectAfter_(button);
     });
   }
 
@@ -566,6 +580,20 @@
       return;
     }
 
+    /*
+     * Bug réel corrigé (retour utilisateur : "ça reste sur Voix SOREAL"
+     * quoi que je choisisse) : le scan périodique (MutationObserver,
+     * déclenché par n'importe quelle mutation ailleurs sur la page — très
+     * fréquent dans un idle game avec ses barres/compteurs qui bougent en
+     * continu) rappelle cette fonction en boucle et forçait select.value
+     * à chaque passage. Pendant que le joueur a la liste native ouverte
+     * ou vient de cliquer une option, ce forçage annule sa sélection
+     * avant même que l'évènement 'change' n'ait fini de se propager : le
+     * sélecteur restait bloqué sur l'ancienne voix. On ne resynchronise
+     * donc jamais un select qui a actuellement le focus.
+     */
+    if(document.activeElement===select)return;
+
     var voices=[];
     var current=null;
     try{
@@ -675,6 +703,7 @@
   }
 
   function scan_(){
+    ensureGlobalVoiceControl_();
     renderButton_();
     updateReadButtons_();
     if(auto)readVisible_(false);
@@ -703,7 +732,17 @@
       '.'+READ_CLASS+'{margin-top:10px!important;border:1px solid rgba(125,211,252,.32)!important;'+
       'border-radius:10px!important;padding:7px 10px!important;background:rgba(14,116,144,.15)!important;'+
       'color:#dff7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;cursor:pointer!important;'+
-      'touch-action:manipulation!important}';
+      'touch-action:manipulation!important}'+
+      /*
+       * Positionné hors du flux normal (position:fixed, hors de #app) :
+       * ce contrôle doit survivre au remplacement complet de #app.innerHTML
+       * par rendreIdleEtat_ à chaque synchronisation serveur — d'où la
+       * position fixed plutôt qu'un simple ajout dans le contenu de page.
+       */
+      '#'+GLOBAL_VOICE_HOST_ID+'{position:fixed!important;right:10px!important;bottom:10px!important;'+
+      'z-index:5000!important;pointer-events:none!important}'+
+      '#'+GLOBAL_VOICE_HOST_ID+' .'+VOICE_SELECT_CLASS+'{margin-left:0!important;pointer-events:auto!important;'+
+      'box-shadow:0 6px 18px rgba(0,0,0,.4)!important}';
     document.head.appendChild(st);
   }
 

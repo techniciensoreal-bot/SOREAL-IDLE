@@ -59,8 +59,8 @@ for(const token of [
   "decouperNarration_",
   "CHUNK_MAX=2000",
   "⚠️ Voix IA · ",
-  "function ensureVoiceSelectAfter_(anchor)",
-  "ensureVoiceSelectAfter_(button)"
+  "function ensureGlobalVoiceControl_(",
+  "GLOBAL_VOICE_HOST_ID='sorealIdleGlobalVoiceHostV210'"
 ]){
   assert.ok(narration.includes(token),"Narration V209 manquante: "+token);
 }
@@ -88,24 +88,30 @@ assert.ok(
 );
 
 /*
- * Retour utilisateur : le sélecteur de voix n'apparaissait que dans les
- * 3 popups ponctuels (tutoriel début de jeu, tutoriel premier boss,
- * nouveauté), jamais à côté des boutons de lecture permanents (chroniques
- * de boss, Settings > Info) — d'où "je n'ai qu'une seule voix, pas
- * d'option pour changer". Le sélecteur doit désormais être attaché à
- * chaque bouton de lecture, pas seulement aux popups.
+ * Historique du bug réel (retour utilisateur, 2 tours) :
+ * 1) Le sélecteur de voix n'apparaissait que dans 3 popups ponctuels
+ *    (tutoriel début de jeu, tutoriel premier boss, nouveauté), jamais à
+ *    côté des boutons de lecture permanents (chroniques de boss,
+ *    Settings > Info) — "je n'ai qu'une seule voix, pas d'option pour
+ *    changer".
+ * 2) Un sélecteur attaché à côté de chaque bouton de lecture a été
+ *    tenté, mais rendreIdleEtat_ remplace tout #app.innerHTML à chaque
+ *    synchronisation serveur (très fréquent), détruisant ce sélecteur
+ *    avant que le clic ne s'enregistre — "ça reste sur Voix SOREAL".
+ * Corrigé par UN SEUL sélecteur global, attaché directement à
+ * document.body (comme les popups qui, eux, fonctionnaient déjà),
+ * jamais recréé, donc jamais interrompu par un rafraîchissement de page.
  */
-{
-  const start=narration.indexOf("function updateReadButtons_(){");
-  const end=narration.indexOf("function afficherErreur_(",start);
-  assert.ok(start>=0&&end>start,"updateReadButtons_ introuvable.");
-  const body=narration.slice(start,end);
-  assert.match(
-    body,
-    /ensureVoiceSelectAfter_\(button\)/,
-    "Chaque bouton de lecture doit recevoir son propre sélecteur de voix, pas seulement les popups ponctuels."
-  );
-}
+assert.match(
+  narration,
+  /function scan_\(\)\{\s*ensureGlobalVoiceControl_\(\);/,
+  "Le contrôle de voix global doit être (re)créé à chaque scan, avant tout le reste."
+);
+assert.match(
+  narration,
+  /function ensureGlobalVoiceControl_\(\)\{[\s\S]{0,900}document\.body\.appendChild\(host\);/,
+  "Le contrôle de voix global doit être attaché à document.body, jamais à l'intérieur de #app."
+);
 
 for(const forbidden of [
   "/api/v1/narration",
@@ -123,7 +129,7 @@ assert.ok(
   index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
   index.includes('/modules/local-neural-piper-v1.js?v=4')&&
-  index.includes('/modules/tutorial-tts-v202.js?v=228'),
+  index.includes('/modules/tutorial-tts-v202.js?v=229'),
   "Piper Plus et le contrôleur multi-voix doivent être épinglés et cache-bustés."
 );
 
