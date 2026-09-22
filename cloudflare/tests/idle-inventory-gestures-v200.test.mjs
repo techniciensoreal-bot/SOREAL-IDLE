@@ -6,6 +6,11 @@ const source=fs.readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
+const css=fs.readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+).replace(/\r\n/g,"\n");
+
 const longPress=fs.readFileSync(
   new URL("../public/modules/long-press-v200.js",import.meta.url),
   "utf8"
@@ -78,10 +83,10 @@ assert.ok(
 );
 
 assert.ok(
-  source.includes("touch-action:none;")&&
-  source.includes("-webkit-touch-callout:none;")&&
-  source.includes("-webkit-user-drag:none;")&&
-  source.includes("pointer-events:none;"),
+  css.includes("touch-action:none;")&&
+  css.includes("-webkit-touch-callout:none;")&&
+  css.includes("-webkit-user-drag:none;")&&
+  css.includes("pointer-events:none;"),
   "Le CSS doit neutraliser les comportements natifs concurrents."
 );
 

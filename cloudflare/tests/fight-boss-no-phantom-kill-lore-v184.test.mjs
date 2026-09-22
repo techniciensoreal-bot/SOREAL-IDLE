@@ -9,6 +9,10 @@ const ui=readFileSync(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const css=readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+);
 
 const progressionStart=runtime.indexOf("function appliquerProgressionEnergieSorealIdle_");
 const progressionEnd=runtime.indexOf("\nfunction contexteMetaNguSorealIdle_",progressionStart);
@@ -78,8 +82,8 @@ assert.ok(
 
 assert.match(ui,/soreal-idle-boss-lore-title-v168">Chronique du boss/);
 assert.match(ui,/soreal-idle-boss-lore-name-v184/);
-assert.match(ui,/color:#d8ad50/);
-assert.match(ui,/font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif/);
+assert.match(css,/color:#d8ad50/);
+assert.match(css,/font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif/);
 assert.match(ui,/soreal-idle-boss-lore-ornament-v184">✦ ❦ ✦/);
 
 console.log("Fight Boss no phantom kill + grimoire lore V184: OK");

@@ -11,6 +11,11 @@ const ui=fs.readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
+const css=fs.readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+).replace(/\r\n/g,"\n");
+
 const bossReference=fs.readFileSync(
   new URL("../src/idle-ngu-boss-reference-v1.js",import.meta.url),
   "utf8"
@@ -133,9 +138,9 @@ assert.ok(
 );
 
 assert.ok(
-  ui.includes(".soreal-idle-boss-lore-info-v198{")&&
-  ui.includes("color:#aebbd0;")&&
-  ui.includes("font-family:\"Segoe UI Variable Text\""),
+  css.includes(".soreal-idle-boss-lore-info-v198{")&&
+  css.includes("color:#aebbd0;")&&
+  css.includes("font-family:\"Segoe UI Variable Text\""),
   "Le préambule d'information doit avoir un style neutre, non doré."
 );
 

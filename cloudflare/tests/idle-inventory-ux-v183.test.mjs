@@ -5,10 +5,18 @@ const source=readFileSync(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const css=readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+);
+const textTransforms=readFileSync(
+  new URL("../public/modules/text-transforms-v1.js",import.meta.url),
+  "utf8"
+);
 
 // 69 lol: exact 69 only.
 assert.match(source,/function texte69LolIdleV183_/);
-assert.match(source,/\(\^\|\[\^0-9\.,\]\)69\(\?=\$\|\[\^0-9\.,\]\)/);
+assert.match(textTransforms,/\(\^\|\[\^0-9\.,\]\)69\(\?=\$\|\[\^0-9\.,\]\)/);
 assert.match(source,/installer69LolIdleV183_\(\)/);
 
 // Merge rollback protection: retry before queue shift/reconcile.
@@ -39,7 +47,7 @@ assert.doesNotMatch(
 
 // Transparent item ghost follows the finger.
 assert.match(source,/function creerGhostDragAdventureIdleV183_/);
-assert.match(source,/opacity:\.58/);
+assert.match(css,/opacity:\.58/);
 assert.match(source,/deplacerGhostDragAdventureIdleV183_\(event\)/);
 
 // Compare mode: a second real popup is created.

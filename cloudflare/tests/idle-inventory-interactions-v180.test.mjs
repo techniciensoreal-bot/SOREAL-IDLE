@@ -10,6 +10,10 @@ const ui=readFileSync(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const css=readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+);
 
 assert.match(
   ui,
@@ -47,7 +51,7 @@ assert.match(
   "Le swipe global doit être désarmé quand le geste commence sur un item."
 );
 assert.match(
-  ui,
+  css,
   /\.soreal-idle-v138-bag-card\[data-item-id\],[\s\S]{0,160}\.soreal-idle-v138-slot\[data-occupant-id\][\s\S]{0,100}touch-action:none/,
   "Les objets tactiles doivent posséder le geste au lieu de le céder au navigateur."
 );

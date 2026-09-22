@@ -6,6 +6,10 @@ const ui=await readFile(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const css=await readFile(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+);
 
 test("Fight Boss frontend has no KO countdown",()=>{
   assert.doesNotMatch(ui,/let koRestant=/);
@@ -41,7 +45,7 @@ test("defeat stops at zero without resetting boss",()=>{
 
 test("Fight button remains visually stable while disabled",()=>{
   assert.match(
-    ui,
+    css,
     /\.soreal-idle-boss-control-v39\.start,[\s\S]{0,120}\.soreal-idle-boss-control-v39\.start:disabled\{[\s\S]{0,360}opacity:1 !important;[\s\S]{0,160}background:#47d77d !important;[\s\S]{0,120}color:#163f25 !important;[\s\S]{0,160}transition:none !important;/
   );
 });

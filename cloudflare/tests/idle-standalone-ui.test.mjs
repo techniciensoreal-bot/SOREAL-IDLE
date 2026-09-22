@@ -8,7 +8,9 @@ const ui=readFileSync("cloudflare/public/soreal-idle-ui.js","utf8");
 
 assert.match(index,/id="app"/);
 assert.match(index,/standalone-bridge\.js/);
+assert.match(index,/soreal-idle-ui\.css/);
 assert.match(index,/soreal-idle-ui\.js/);
+assert.ok(index.indexOf("soreal-idle-ui.css")<index.indexOf("standalone-bridge.js"));
 assert.ok(index.indexOf("standalone-bridge.js")<index.indexOf("modules/ui.js"));
 assert.ok(index.indexOf("modules/ui.js")<index.indexOf("soreal-idle-ui.js"));
 assert.match(index,/var SOREAL_SESSION=""/);
