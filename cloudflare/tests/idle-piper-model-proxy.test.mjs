@@ -37,13 +37,16 @@ async function verifierRoute_(origin,path){
     assert.match(response.headers.get("content-type")||"",/application\/json/,path);
     const config=JSON.parse(await response.text());
     assert.ok(config.audio&&config.audio.sample_rate,path);
-    if(path.includes("piper-voice-siwis")||path.includes("piper-voice-gilles")){
-      assert.deepEqual(config.language_id_map,{fr:0},path+" French-only G2P compatibility");
-      assert.equal(config.num_languages,1,path+" French-only language count");
-      assert.equal(config.soreal_monolingual_g2p_compat,true,path+" compatibility marker");
-    }else{
-      assert.equal(config.soreal_monolingual_g2p_compat,undefined,path+" must not alter SOREAL config");
-    }
+    /*
+     * Demande utilisateur (2026-09-22) : une seule voix (Tom), sans choix.
+     * fr_FR-tom-medium, comme toute voix Piper officielle mono-langue,
+     * n'a pas de language_id_map : ce correctif s'applique désormais
+     * systématiquement (il ne dépendait plus d'un cas particulier
+     * "SOREAL" depuis la suppression du multi-voix).
+     */
+    assert.deepEqual(config.language_id_map,{fr:0},path+" French-only G2P compatibility");
+    assert.equal(config.num_languages,1,path+" French-only language count");
+    assert.equal(config.soreal_monolingual_g2p_compat,true,path+" compatibility marker");
   }else{
     assert.match(response.headers.get("content-type")||"",/application\/octet-stream/,path);
     assert.deepEqual([...new Uint8Array(await response.arrayBuffer())],[1,2,3,4],path);
@@ -55,29 +58,33 @@ try{
 
   for(const path of [
     "/api/idle/media/piper-model.onnx.json",
-    "/api/idle/media/piper-model.onnx",
-    "/api/idle/media/piper-voice-soreal.onnx.json",
-    "/api/idle/media/piper-voice-soreal.onnx",
-    "/api/idle/media/piper-voice-siwis.onnx.json",
-    "/api/idle/media/piper-voice-siwis.onnx",
-    "/api/idle/media/piper-voice-gilles.onnx.json",
-    "/api/idle/media/piper-voice-gilles.onnx"
+    "/api/idle/media/piper-model.onnx"
   ]){
     await verifierRoute_(origin,path);
   }
 
   assert.deepEqual(calls.map(call=>call.href),[
-    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx.json",
-    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx",
-    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx.json",
-    "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx",
-    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx.json",
-    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx",
-    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx.json",
-    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx"
+    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/tom/medium/fr_FR-tom-medium.onnx.json",
+    "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/tom/medium/fr_FR-tom-medium.onnx"
   ]);
 
-  console.log("idle Piper voice proxy: OK — soreal, siwis et gilles.");
+  /*
+   * Les anciennes routes multi-voix (soreal/siwis/gilles) ne doivent plus
+   * exister : le sélecteur de voix a été retiré, une seule voix (Tom).
+   */
+  for(const path of [
+    "/api/idle/media/piper-voice-soreal.onnx",
+    "/api/idle/media/piper-voice-soreal.onnx.json",
+    "/api/idle/media/piper-voice-siwis.onnx",
+    "/api/idle/media/piper-voice-siwis.onnx.json",
+    "/api/idle/media/piper-voice-gilles.onnx",
+    "/api/idle/media/piper-voice-gilles.onnx.json"
+  ]){
+    const response=await traiterRequeteIdleMedia(new Request(origin+path),{});
+    assert.equal(response,null,path+" ne doit plus être une route connue");
+  }
+
+  console.log("idle Piper voice proxy: OK — une seule voix (Tom), aucune route multi-voix résiduelle.");
 }finally{
   globalThis.fetch=originalFetch;
 }

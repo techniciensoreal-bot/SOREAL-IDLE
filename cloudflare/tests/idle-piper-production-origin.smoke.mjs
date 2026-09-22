@@ -41,75 +41,55 @@ try{
     document.body.appendChild(button);
   });
 
-  const expectedModels={
-    soreal:"/api/idle/media/piper-voice-soreal.onnx",
-    siwis:"/api/idle/media/piper-voice-siwis.onnx",
-    gilles:"/api/idle/media/piper-voice-gilles.onnx"
-  };
+  /*
+   * Demande utilisateur (2026-09-22) : une seule voix (Tom,
+   * fr_FR-tom-medium), sans sélecteur. Ce smoke vérifiait auparavant les
+   * 3 voix du multi-voix V9 (soreal/siwis/gilles) ; simplifié pour ne
+   * vérifier que la voix unique servie par /api/idle/media/piper-model.onnx.
+   */
+  const initial=await page.evaluate(()=>window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state());
+  assert.ok(
+    String(initial?.model||"").endsWith("/api/idle/media/piper-model.onnx"),
+    "Unexpected Piper model URL: "+String(initial?.model||"")
+  );
 
-  for(const voiceId of ["soreal","siwis","gilles"]){
-    await page.evaluate(id=>{
-      window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.setVoice(id);
-    },voiceId);
+  await page.click("#piperProductionSmoke");
 
-    const selected=await page.evaluate(()=>({
-      controller:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.voice(),
-      neural:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state()
-    }));
-    assert.equal(selected.controller?.id,voiceId,"Controller voice mismatch");
-    assert.equal(selected.neural?.voice?.id,voiceId,"Neural voice mismatch before synthesis");
-    assert.ok(
-      String(selected.neural?.model||"").endsWith(expectedModels[voiceId]),
-      "Unexpected model for "+voiceId+": "+String(selected.neural?.model||"")
-    );
+  await page.waitForFunction(()=>{
+    const t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+    const p=window.__SOREAL_IDLE_LOCAL_NEURAL_V1__;
+    if(!t||!p)return false;
+    const state=p.state();
+    return Boolean(t.lastError()) || state.status==="ready" || state.status==="error";
+  },null,{timeout:180000});
 
-    await page.click("#piperProductionSmoke");
+  await page.waitForTimeout(750);
+  const during=await page.evaluate(()=>({
+    lastError:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.lastError(),
+    audioState:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.audioState(),
+    speaking:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.isSpeaking(),
+    neural:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state()
+  }));
 
-    await page.waitForFunction(id=>{
-      const t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
-      const p=window.__SOREAL_IDLE_LOCAL_NEURAL_V1__;
-      if(!t||!p)return false;
-      const state=p.state();
-      if(state?.voice?.id!==id)return false;
-      return Boolean(t.lastError()) || state.status==="ready" || state.status==="error";
-    },voiceId,{timeout:180000});
+  assert.equal(during.lastError,"","Piper error: "+during.lastError);
+  assert.equal(during.audioState,"running","Web Audio state: "+during.audioState);
+  assert.equal(during.neural.status,"ready","Piper state: "+JSON.stringify(during.neural));
 
-    await page.waitForTimeout(750);
-    const during=await page.evaluate(()=>({
-      lastError:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.lastError(),
-      audioState:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.audioState(),
-      speaking:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.isSpeaking(),
-      neural:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state()
-    }));
-
-    assert.equal(during.lastError,"","Piper "+voiceId+" error: "+during.lastError);
-    assert.equal(during.audioState,"running","Web Audio "+voiceId+" state: "+during.audioState);
-    assert.equal(during.neural.status,"ready","Piper "+voiceId+" state: "+JSON.stringify(during.neural));
-    assert.equal(during.neural.voice?.id,voiceId,"Piper selected voice changed during synthesis");
-
-    await page.waitForFunction(
-      ()=>!window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.isSpeaking(),
-      null,
-      {timeout:120000}
-    );
-
-    console.log("Piper voice smoke: SUCCESS",JSON.stringify({
-      voice:voiceId,
-      model:during.neural.model,
-      audioState:during.audioState
-    }));
-  }
+  await page.waitForFunction(
+    ()=>!window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.isSpeaking(),
+    null,
+    {timeout:120000}
+  );
 
   const final=await page.evaluate(()=>({
     lastError:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.lastError(),
     audioState:window.__SOREAL_IDLE_TUTORIAL_TTS_V209__.audioState(),
-    voice:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state().voice
+    model:window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.state().model
   }));
 
   assert.equal(final.lastError,"");
   assert.equal(final.audioState,"running");
-  assert.equal(final.voice?.id,"gilles");
-  console.log("Piper production-origin multi-voice smoke: SUCCESS",JSON.stringify(final));
+  console.log("Piper production-origin single-voice smoke: SUCCESS",JSON.stringify(final));
 }catch(error){
   console.error("PIPER_SMOKE_TRACE_START");
   for(const line of trace.slice(-300))console.error(line);

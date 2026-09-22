@@ -18,33 +18,28 @@ for(const token of [
   '"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"',
   '"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"',
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
-  '<script type="module" src="/modules/local-neural-piper-v1.js?v=4"></script>',
-  '/modules/tutorial-tts-v202.js?v=229'
+  '<script type="module" src="/modules/local-neural-piper-v1.js?v=5"></script>',
+  '/modules/tutorial-tts-v202.js?v=230'
 ]){
   assert.ok(index.includes(token),"Piper local index manquant: "+token);
 }
 
 assert.ok(
-  index.indexOf('/modules/local-neural-piper-v1.js?v=4')<
-  index.indexOf('/modules/tutorial-tts-v202.js?v=229'),
+  index.indexOf('/modules/local-neural-piper-v1.js?v=5')<
+  index.indexOf('/modules/tutorial-tts-v202.js?v=230'),
   "Le module Piper local doit être déclaré avant le contrôleur de narration."
 );
 
+/*
+ * Demande utilisateur (2026-09-22) : une seule voix (Tom, fr_FR-tom-medium),
+ * choisie après écoute comparative des voix officielles Piper via
+ * https://rhasspy.github.io/piper-samples/. Le multi-voix (V9) et son
+ * correctif de persistance (V9.1) sont retirés — cf. docs/WORKLOG.md.
+ */
 for(const token of [
   'import { PiperPlus } from "piper-plus"',
   'import * as ort from "onnxruntime-web"',
-  'VOICE_STORAGE_KEY_V2="soreal_idle_piper_voice_v2"',
-  'DEFAULT_VOICE_ID_V2="soreal"',
-  '/api/idle/media/piper-voice-soreal.onnx',
-  '/api/idle/media/piper-voice-siwis.onnx',
-  '/api/idle/media/piper-voice-gilles.onnx',
-  'label:"SOREAL"',
-  'label:"Siwis"',
-  'label:"Gilles"',
-  'function setVoice_(voiceId)',
-  'localStorage.setItem(VOICE_STORAGE_KEY_V2,id)',
-  'disposeEngine_()',
-  'engineGeneration+=1',
+  'MODEL_URL_V1=new URL("/api/idle/media/piper-model.onnx"',
   'PiperPlus.initialize({',
   'config.soreal_monolingual_g2p_compat',
   'delete config.language_id_map',
@@ -53,11 +48,9 @@ for(const token of [
   'language:LANGUAGE_V1',
   'lengthScale:LENGTH_SCALE_V1',
   'result.toBlob()',
-  '__SOREAL_IDLE_LOCAL_NEURAL_V1__',
-  'voices:voices_',
-  'setVoice:setVoice_'
+  '__SOREAL_IDLE_LOCAL_NEURAL_V1__'
 ]){
-  assert.ok(local.includes(token),"Piper local multi-voix manquant: "+token);
+  assert.ok(local.includes(token),"Piper local (voix unique) manquant: "+token);
 }
 
 for(const forbidden of [
@@ -66,24 +59,28 @@ for(const forbidden of [
   "/api/v1/narration",
   "xai/grok-tts",
   "@cf/myshell-ai/melotts",
-  "huggingface.co/"
+  "huggingface.co/",
+  "VOICES_V2",
+  "selectedVoiceId",
+  "setVoice_",
+  "voices_",
+  "voicePublic_",
+  "savedVoiceId_",
+  "label:\"SOREAL\"",
+  "label:\"Siwis\"",
+  "label:\"Gilles\""
 ]){
-  assert.ok(!local.includes(forbidden),"Piper local ne doit pas contenir: "+forbidden);
+  assert.ok(!local.includes(forbidden),"Piper local ne doit plus contenir (multi-voix retiré): "+forbidden);
 }
 
 for(const token of [
   "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
   "requestLocalNeuralAudio_",
   "waitLocalNeuralApi_",
-  "VOICE_SELECT_CLASS='soreal-idle-tts-voice-v209'",
-  "Choisir la voix IA",
-  "changeVoice_",
-  "api.setVoice",
-  "Voix · ",
   "playBlobWebAudioPromise_",
   "unlockAudio_"
 ]){
-  assert.ok(narration.includes(token),"Contrôleur Piper multi-voix manquant: "+token);
+  assert.ok(narration.includes(token),"Contrôleur narration manquant: "+token);
 }
 
 for(const forbidden of [
@@ -91,9 +88,16 @@ for(const forbidden of [
   "requestNeuralAudio_",
   "authorization:'Bearer '+session",
   "SpeechSynthesisUtterance",
-  "speechSynthesis"
+  "speechSynthesis",
+  "VOICE_SELECT_CLASS",
+  "GLOBAL_VOICE_HOST_ID",
+  "ensureGlobalVoiceControl_",
+  "updateVoiceSelector_",
+  "changeVoice_",
+  "Choisir la voix IA",
+  "api.setVoice"
 ]){
-  assert.ok(!narration.includes(forbidden),"Ancien chemin TTS encore actif: "+forbidden);
+  assert.ok(!narration.includes(forbidden),"Sélecteur de voix ou ancien chemin TTS encore présent: "+forbidden);
 }
 
 new Function(
@@ -103,4 +107,4 @@ new Function(
 );
 new Function("window","document","localStorage",narration);
 
-console.log("idle local Piper V9: OK — 3 modèles vocaux sélectionnables, persistants, aucun TTS cloud/système.");
+console.log("idle local Piper: OK — voix unique (Tom), aucun sélecteur, aucun TTS cloud/système.");

@@ -30,14 +30,6 @@ for(const token of [
   "soreal_idle_tutorial_tts_auto_v202",
   "Voix IA auto ON",
   "Voix IA auto OFF",
-  "VOICE_SELECT_CLASS='soreal-idle-tts-voice-v209'",
-  "Choisir la voix IA",
-  "updateVoiceSelector_",
-  "changeVoice_",
-  "api.setVoice",
-  "voices:function()",
-  "voice:function()",
-  "setVoice:function(value)",
   "data-soreal-tts-target",
   "readTarget:lireCible_",
   "readText:function(value,audioSrc)",
@@ -58,11 +50,9 @@ for(const token of [
   "revokeObjectUrl_",
   "decouperNarration_",
   "CHUNK_MAX=2000",
-  "⚠️ Voix IA · ",
-  "function ensureGlobalVoiceControl_(",
-  "GLOBAL_VOICE_HOST_ID='sorealIdleGlobalVoiceHostV210'"
+  "⚠️ Voix IA · "
 ]){
-  assert.ok(narration.includes(token),"Narration V209 manquante: "+token);
+  assert.ok(narration.includes(token),"Narration V210 manquante: "+token);
 }
 
 for(const forbidden of [
@@ -88,30 +78,35 @@ assert.ok(
 );
 
 /*
- * Historique du bug réel (retour utilisateur, 2 tours) :
- * 1) Le sélecteur de voix n'apparaissait que dans 3 popups ponctuels
- *    (tutoriel début de jeu, tutoriel premier boss, nouveauté), jamais à
- *    côté des boutons de lecture permanents (chroniques de boss,
- *    Settings > Info) — "je n'ai qu'une seule voix, pas d'option pour
- *    changer".
- * 2) Un sélecteur attaché à côté de chaque bouton de lecture a été
- *    tenté, mais rendreIdleEtat_ remplace tout #app.innerHTML à chaque
- *    synchronisation serveur (très fréquent), détruisant ce sélecteur
- *    avant que le clic ne s'enregistre — "ça reste sur Voix SOREAL".
- * Corrigé par UN SEUL sélecteur global, attaché directement à
- * document.body (comme les popups qui, eux, fonctionnaient déjà),
- * jamais recréé, donc jamais interrompu par un rafraîchissement de page.
+ * Historique du sélecteur de voix (retiré) :
+ * V9 : sélecteur seulement dans 3 popups ponctuels, jamais visible en
+ *      usage réel — "je n'ai qu'une seule voix, pas d'option pour changer".
+ * V9.1 : sélecteur attaché à chaque bouton "Lire", mais détruit en
+ *        continu par rendreIdleEtat_ (remplace #app.innerHTML à chaque
+ *        synchronisation serveur) — "ça reste sur Voix SOREAL".
+ * V9.2 : sélecteur global persistant (document.body), fonctionnel.
+ * 2026-09-22 : demande explicite de l'utilisateur après avoir comparé les
+ * voix officielles Piper (https://rhasspy.github.io/piper-samples/) —
+ * une seule voix (Tom), sans choix. Tout l'appareillage de sélection est
+ * donc retiré ; ces gardes empêchent qu'il ne soit réintroduit par erreur.
  */
-assert.match(
-  narration,
-  /function scan_\(\)\{\s*ensureGlobalVoiceControl_\(\);/,
-  "Le contrôle de voix global doit être (re)créé à chaque scan, avant tout le reste."
-);
-assert.match(
-  narration,
-  /function ensureGlobalVoiceControl_\(\)\{[\s\S]{0,900}document\.body\.appendChild\(host\);/,
-  "Le contrôle de voix global doit être attaché à document.body, jamais à l'intérieur de #app."
-);
+for(const forbidden of [
+  "VOICE_SELECT_CLASS",
+  "GLOBAL_VOICE_HOST_ID",
+  "ensureGlobalVoiceControl_",
+  "updateVoiceSelector_",
+  "changeVoice_",
+  "Choisir la voix IA",
+  "api.setVoice",
+  "voices:function()",
+  "voice:function()",
+  "setVoice:function(value)"
+]){
+  assert.ok(
+    !narration.includes(forbidden),
+    "Le sélecteur de voix (retiré, une seule voix désormais) est réapparu: "+forbidden
+  );
+}
 
 for(const forbidden of [
   "/api/v1/narration",
@@ -128,14 +123,14 @@ assert.ok(
   index.includes('"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"')&&
   index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=4')&&
-  index.includes('/modules/tutorial-tts-v202.js?v=229'),
-  "Piper Plus et le contrôleur multi-voix doivent être épinglés et cache-bustés."
+  index.includes('/modules/local-neural-piper-v1.js?v=5')&&
+  index.includes('/modules/tutorial-tts-v202.js?v=230'),
+  "Piper Plus et le contrôleur de narration doivent être épinglés et cache-bustés."
 );
 
 new Function("window","document","localStorage",narration);
 new Function(ui);
 
 console.log(
-  "SOREAL IDLE narration V209: OK — sélecteur de modèles Piper locaux, Web Audio, aucun SpeechSynthesis/TTS cloud."
+  "SOREAL IDLE narration V210: OK — voix unique (Tom), Web Audio, aucun SpeechSynthesis/TTS cloud."
 );

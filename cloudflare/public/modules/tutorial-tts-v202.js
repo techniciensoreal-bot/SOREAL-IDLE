@@ -1,9 +1,12 @@
 /*
- * SOREAL IDLE — Neural narration V209
+ * SOREAL IDLE — Neural narration V210
  *
  * Web Speech / SpeechSynthesis est totalement absent.
  * Lecture : audio pré-généré si mappé, sinon Piper Plus neural local (WASM).
  * Aucun service TTS payant n'est requis et aucun fallback voix système n'existe.
+ * Une seule voix (Tom), sans sélecteur : demande utilisateur du 2026-09-22
+ * après avoir testé le multi-voix (V9) puis son correctif (V9.1) — cf.
+ * docs/WORKLOG.md pour l'historique complet.
  */
 (function(){
   'use strict';
@@ -13,7 +16,6 @@
   var KEY='soreal_idle_tutorial_tts_auto_v202';
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
   var READ_CLASS='soreal-idle-tts-read-v203';
-  var VOICE_SELECT_CLASS='soreal-idle-tts-voice-v209';
   var CHUNK_MAX=2000;
   var auto=false;
   var lastFingerprint='';
@@ -148,48 +150,6 @@
 
     if(current)chunks.push(current);
     return chunks;
-  }
-
-  var GLOBAL_VOICE_HOST_ID='sorealIdleGlobalVoiceHostV210';
-
-  /*
-   * Historique : un sélecteur avait d'abord été injecté à côté de chaque
-   * bouton de lecture directement dans le contenu de page (boutons
-   * data-soreal-tts-target). Bug réel trouvé en creusant le retour
-   * utilisateur ("ça reste sur Voix SOREAL" quoi que je choisisse) :
-   * rendreIdleEtat_ remplace tout #app (document.getElementById('app')
-   * .innerHTML=...) à chaque synchronisation serveur — très fréquent dans
-   * un idle game — détruisant ce sélecteur avant même que le clic du
-   * joueur n'ait pu s'enregistrer. Les 3 popups ponctuels (tutoriel,
-   * nouveauté) fonctionnaient, eux, car ils sont attachés directement à
-   * document.body, hors de #app.
-   *
-   * Corrigé en revenant à UN SEUL sélecteur, global et persistant,
-   * attaché lui aussi directement à document.body (jamais recréé,
-   * jamais dans #app) : il survit à toute synchronisation serveur et
-   * gouverne la voix utilisée par tous les boutons "Lire" du jeu.
-   */
-  function ensureGlobalVoiceControl_(){
-    if(!supported_())return;
-    var host=document.getElementById(GLOBAL_VOICE_HOST_ID);
-    if(!host){
-      host=document.createElement('div');
-      host.id=GLOBAL_VOICE_HOST_ID;
-      host.setAttribute('data-soreal-tts-ignore','1');
-
-      var select=document.createElement('select');
-      select.className=VOICE_SELECT_CLASS;
-      select.setAttribute('data-soreal-tts-ignore','1');
-      select.setAttribute('aria-label','Choisir la voix IA');
-      select.addEventListener('pointerdown',function(e){e.stopPropagation();});
-      select.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
-      select.addEventListener('mousedown',function(e){e.stopPropagation();});
-      select.addEventListener('change',changeVoice_);
-      host.appendChild(select);
-
-      document.body.appendChild(host);
-    }
-    updateVoiceSelector_(host.querySelector('.'+VOICE_SELECT_CLASS));
   }
 
   function updateReadButtons_(){
@@ -571,105 +531,11 @@
     renderButton_();
   }
 
-  function updateVoiceSelector_(select){
-    if(!select)return;
-    var api=localNeuralApi_();
-    if(!api||typeof api.voices!=='function'||typeof api.voice!=='function'){
-      select.disabled=true;
-      select.innerHTML='<option>Voix IA…</option>';
-      return;
-    }
-
-    /*
-     * Bug réel corrigé (retour utilisateur : "ça reste sur Voix SOREAL"
-     * quoi que je choisisse) : le scan périodique (MutationObserver,
-     * déclenché par n'importe quelle mutation ailleurs sur la page — très
-     * fréquent dans un idle game avec ses barres/compteurs qui bougent en
-     * continu) rappelle cette fonction en boucle et forçait select.value
-     * à chaque passage. Pendant que le joueur a la liste native ouverte
-     * ou vient de cliquer une option, ce forçage annule sa sélection
-     * avant même que l'évènement 'change' n'ait fini de se propager : le
-     * sélecteur restait bloqué sur l'ancienne voix. On ne resynchronise
-     * donc jamais un select qui a actuellement le focus.
-     */
-    if(document.activeElement===select)return;
-
-    var voices=[];
-    var current=null;
-    try{
-      voices=api.voices()||[];
-      current=api.voice()||null;
-    }catch(_){}
-
-    var signature=voices.map(function(voice){
-      return String(voice.id||'')+'|'+String(voice.label||'');
-    }).join('||');
-
-    if(select.dataset.sorealVoiceSignature!==signature){
-      select.innerHTML='';
-      voices.forEach(function(voice){
-        var option=document.createElement('option');
-        option.value=String(voice.id||'');
-        option.textContent='Voix · '+String(voice.label||voice.id||'IA');
-        if(voice.detail)option.title=String(voice.detail);
-        select.appendChild(option);
-      });
-      select.dataset.sorealVoiceSignature=signature;
-    }
-
-    select.disabled=!voices.length;
-    if(current&&current.id)select.value=String(current.id);
-    select.title=current
-      ?'Voix IA : '+String(current.label||current.id)+(current.detail?' — '+String(current.detail):'')
-      :'Choisir la voix IA';
-  }
-
-  function changeVoice_(e){
-    if(e){
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    var select=e&&e.currentTarget?e.currentTarget:null;
-    if(!select)return;
-
-    stop_();
-    lastFingerprint='';
-    var api=localNeuralApi_();
-    if(!api||typeof api.setVoice!=='function'){
-      afficherErreur_('PIPER_LOCAL_VOICE_API_INDISPONIBLE','');
-      updateVoiceSelector_(select);
-      return;
-    }
-
-    try{
-      api.setVoice(String(select.value||''));
-      updateVoiceSelector_(select);
-      if(auto)readVisible_(true);
-    }catch(error){
-      afficherErreur_(String(error&&error.message||error||'PIPER_LOCAL_VOICE_CHANGE_FAILED'),'');
-      updateVoiceSelector_(select);
-    }
-  }
-
   function renderButton_(){
     var panel=activePanel_();
     if(!panel)return;
     var host=buttonHost_(panel);
     if(!host)return;
-
-    var select=host.querySelector('.'+VOICE_SELECT_CLASS);
-    if(!select){
-      select=document.createElement('select');
-      select.className=VOICE_SELECT_CLASS;
-      select.setAttribute('data-soreal-tts-ignore','1');
-      select.setAttribute('aria-label','Choisir la voix IA');
-      select.addEventListener('pointerdown',function(e){e.stopPropagation();});
-      select.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
-      select.addEventListener('mousedown',function(e){e.stopPropagation();});
-      select.addEventListener('change',changeVoice_);
-      host.appendChild(select);
-    }
-    updateVoiceSelector_(select);
 
     var button=host.querySelector('.'+BUTTON_CLASS);
     if(!button){
@@ -703,7 +569,6 @@
   }
 
   function scan_(){
-    ensureGlobalVoiceControl_();
     renderButton_();
     updateReadButtons_();
     if(auto)readVisible_(false);
@@ -725,24 +590,10 @@
       'color:#f4f7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;'+
       'box-shadow:0 3px 12px rgba(0,0,0,.28)!important;cursor:pointer!important;'+
       'touch-action:manipulation!important}.'+BUTTON_CLASS+':disabled{opacity:.58!important;cursor:default!important}'+
-      '.'+VOICE_SELECT_CLASS+'{margin-left:auto!important;flex:0 0 auto!important;max-width:145px!important;'+
-      'border:1px solid rgba(125,211,252,.38)!important;border-radius:999px!important;padding:5px 24px 5px 9px!important;'+
-      'background:rgba(11,18,31,.92)!important;color:#dff7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;'+
-      'cursor:pointer!important;touch-action:manipulation!important}.'+VOICE_SELECT_CLASS+':disabled{opacity:.58!important;cursor:default!important}'+
       '.'+READ_CLASS+'{margin-top:10px!important;border:1px solid rgba(125,211,252,.32)!important;'+
       'border-radius:10px!important;padding:7px 10px!important;background:rgba(14,116,144,.15)!important;'+
       'color:#dff7ff!important;font:800 11px/1.1 system-ui,sans-serif!important;cursor:pointer!important;'+
-      'touch-action:manipulation!important}'+
-      /*
-       * Positionné hors du flux normal (position:fixed, hors de #app) :
-       * ce contrôle doit survivre au remplacement complet de #app.innerHTML
-       * par rendreIdleEtat_ à chaque synchronisation serveur — d'où la
-       * position fixed plutôt qu'un simple ajout dans le contenu de page.
-       */
-      '#'+GLOBAL_VOICE_HOST_ID+'{position:fixed!important;right:10px!important;bottom:10px!important;'+
-      'z-index:5000!important;pointer-events:none!important}'+
-      '#'+GLOBAL_VOICE_HOST_ID+' .'+VOICE_SELECT_CLASS+'{margin-left:0!important;pointer-events:auto!important;'+
-      'box-shadow:0 6px 18px rgba(0,0,0,.4)!important}';
+      'touch-action:manipulation!important}';
     document.head.appendChild(st);
   }
 
@@ -785,23 +636,6 @@
     },
     lastError:function(){return lastError;},
     audioState:function(){return audioContext?String(audioContext.state||'unknown'):'none';},
-    voices:function(){
-      var neural=localNeuralApi_();
-      return neural&&typeof neural.voices==='function'?neural.voices():[];
-    },
-    voice:function(){
-      var neural=localNeuralApi_();
-      return neural&&typeof neural.voice==='function'?neural.voice():null;
-    },
-    setVoice:function(value){
-      var neural=localNeuralApi_();
-      if(!neural||typeof neural.setVoice!=='function')throw new Error('PIPER_LOCAL_VOICE_API_INDISPONIBLE');
-      stop_();
-      lastFingerprint='';
-      var result=neural.setVoice(value);
-      schedule_();
-      return result;
-    },
     setEnabled:function(value){
       auto=Boolean(value);
       try{localStorage.setItem(KEY,auto?'1':'0');}catch(_){}
