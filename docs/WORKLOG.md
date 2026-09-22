@@ -739,3 +739,13 @@ Prochaine action :
   - Verify deployed Piper narration in Chromium : OK (57s, synthèse + lecture réelle — sans rapport avec ce changement, fait partie du gate standard)
 - Production reconfirmée par requête directe indépendante (`curl` hors CI) : `soreal-idle-ui.js?v=221` chargé, `modules/meta-progression-v130.js` accessible (HTTP 200).
 - État : aucune erreur bloquante ni bug fonctionnel connu sur SOREAL-IDLE à ce stade. Monolithe réduit de 22 025 à 20 866 lignes depuis le début du chantier (V1-V9, ~5 % rien que sur V9, davantage cumulé depuis V1). Prochaine action potentielle : V10 (poursuite du découpage, dette technique non urgente) ou nettoyage de la route Grok TTS morte (`/api/v1/narration-health`, repéré en V8), selon priorité de l'utilisateur.
+
+## Nettoyage narration serveur morte (Grok TTS) — 2026-09-22
+- Demande utilisateur : nettoyer Grok TTS s'il est mort. Vérifié en direct avant toute suppression : `/api/v1/narration-health` répondait encore `2021: Insufficient AI Gateway credits` — confirmé mort, pas juste inutilisé.
+- Confirmé qu'aucun code client (depuis V6, Piper Plus local) n'appelle plus `/api/v1/narration` — les gardes anti-régression existants (`idle-local-piper-neural`, `idle-tutorial-tts-v202`, `idle-v207-interactions-encounters-audio-tts`) l'interdisent déjà explicitement et restent en place.
+- Supprimé : `cloudflare/src/idle-narration-v1.js` (génération + cache R2 via `xai/grok-tts`), les routes `/api/v1/narration` et `/api/v1/narration-health` du Worker, le binding `"ai"` dans `wrangler.jsonc` (plus aucun code ne lit `env.AI`), et `cloudflare/tests/idle-neural-narration-v1.test.mjs` (testait uniquement ce chemin mort).
+- Suite complète locale : 170/170 OK.
+- Commit `4695bb8b93664be2a617ed47cb9bae389214eca7`, poussé directement sur `main` (suppression pure, aucun changement de comportement client à valider sur branche séparée).
+- Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 37s**, toutes les étapes vertes y compris le smoke Chromium Piper réel.
+- Production reconfirmée par requêtes directes indépendantes : `/api/v1/narration-health` et `/api/v1/narration` renvoient désormais `404` ; `/` renvoie toujours `200`.
+- Note : les objets déjà écrits dans le bucket R2 sous `idle/narration/v1/fr/`, `idle/narration/v2/fr/` et `idle/narration-health/v2/` (générés par l'ancien pipeline Grok/MeloTTS quand il fonctionnait encore) n'ont pas été purgés — nettoyage de données, hors périmètre de ce changement de code, à faire séparément si souhaité.
