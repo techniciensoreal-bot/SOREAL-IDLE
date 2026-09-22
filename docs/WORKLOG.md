@@ -670,3 +670,19 @@ Prochaine action :
 - Extraction V6 : présentation inventaire (noms/icônes de slots + classe de rareté) vers `cloudflare/public/modules/inventory-presentation-v1.js`.
 - Validation V6 : run `35687115563` SUCCESS sur `3f75641a16b82b3d73a75eec645103da620599b8` ; suite complète + build/syntaxe SUCCESS.
 - Workflow temporaire supprimé. Prochaine action : merge PR #16 puis vérifier production avant V7.
+
+
+## UI split V7 — 2026-09-22
+- Base vérifiée : main `a79667ed2623965b36ba69a1db19714215c37547`.
+- Tâche : réduction du monolithe `cloudflare/public/soreal-idle-ui.js` par gros blocs cohérents.
+- Extraction texte : `texte69LolIdleV183_` et `idHtml_attr_` vers `modules/text-transforms-v1.js`.
+- Extraction majeure : stylesheet embarqué déplacé vers `cloudflare/public/soreal-idle-ui.css` et chargé avant le bridge standalone.
+- Monolithe avant V7 : 32 025 lignes.
+- Monolithe après V7 : 25 047 lignes.
+- Réduction nette V7 : 6 978 lignes (~22 %).
+- Nouveau CSS extrait : 6 960 lignes.
+- Les échecs intermédiaires provenaient de tests historiques qui lisaient les styles dans le JS ; contrats migrés vers le CSS extrait, sans suppression des assertions fonctionnelles.
+- Validation branche : workflow `Validate UI split V7`, run `35689483439` : SUCCESS complet (suite cloudflare/tests, build standalone et contrôles de syntaxe).
+- Workflow temporaire supprimé après validation au commit `7754af745a797cd8ed67ea6c6f73af7d4bd53f94`.
+- Dernière erreur : aucune sur la validation V7.
+- Prochaine action : merger PR #17, vérifier le SHA réel de main et le déploiement production ; ensuite créer V8 depuis ce main et extraire un nouveau sous-système cohérent de 500–2000+ lignes.
