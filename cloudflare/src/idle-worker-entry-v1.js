@@ -1,6 +1,5 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
-import { traiterNarrationIdleV1, testerNarrationIdleV1 } from "./idle-narration-v1.js";
 
 /*
  * Ce Worker n'est jamais appelé directement par un navigateur — seul le
@@ -100,30 +99,6 @@ async function idleSessionV1(request, env) {
   });
 }
 
-async function idleNarrationV1(request, env) {
-  if (request.method !== "POST") {
-    return new Response("Méthode non autorisée", {
-      status: 405,
-      headers: { allow: "POST", "cache-control": "no-store" }
-    });
-  }
-
-  const sessionToken = idleBearerV1(request);
-  if (!sessionToken) {
-    return idleJsonV1({ ok: false, error: "IDLE_SESSION_REQUIRED" }, 401);
-  }
-
-  const validation = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-validate", {
-    method: "POST",
-    body: JSON.stringify({ sessionToken })
-  });
-  if (!validation.ok) {
-    return idleJsonV1({ ok: false, error: "IDLE_SESSION_INVALID" }, 401);
-  }
-
-  return traiterNarrationIdleV1(request, env);
-}
-
 async function idleCallV1(request, env) {
   const body = await request.json().catch(() => null);
   const operation = String(body?.operation || "").trim();
@@ -192,14 +167,6 @@ export default {
 
     if (request.method === "POST" && url.pathname === "/api/v1/session") {
       return idleSessionV1(request, env);
-    }
-
-    if (request.method === "GET" && url.pathname === "/api/v1/narration-health") {
-      return testerNarrationIdleV1(env);
-    }
-
-    if (url.pathname === "/api/v1/narration") {
-      return idleNarrationV1(request, env);
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/call") {
