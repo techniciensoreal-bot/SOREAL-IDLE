@@ -18171,44 +18171,7 @@
       let idleEffetsSignatureV112='';
 
 
-      function normaliserTypeEffetJoueurIdleV112_(
-        type
-      ){
-        const t=
-          String(type||'')
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g,'');
-
-        if(
-          ['paralysie','paralyse','paralysis','electricite','electric']
-            .indexOf(t)!==-1
-        )return 'paralysie';
-
-        if(
-          ['gel','frost','freeze','froid','glace']
-            .indexOf(t)!==-1
-        )return 'gel';
-
-        if(
-          ['feu','fire','burn','brulure','brule']
-            .indexOf(t)!==-1
-        )return 'feu';
-
-        if(t==='poison')return 'poison';
-
-        if(
-          ['stun','etourdissement','etourdi']
-            .indexOf(t)!==-1
-        )return 'stun';
-
-        if(
-          ['bouclier','shield','protection']
-            .indexOf(t)!==-1
-        )return 'bouclier';
-
-        return '';
-      }
+      function normaliserTypeEffetJoueurIdleV112_(type){const api=window.__SOREAL_IDLE_TEXT_HELPERS_V1__;return api&&typeof api.normaliserEffet==='function'?api.normaliserEffet(type):'';}
 
 
       function activerEffetVisuelJoueurIdleV112_(
@@ -18429,13 +18392,7 @@
           :String(Math.round(Math.max(0,idleNombre_(valeur))));
       }
 
-      function motDegatIdleV100_(
-        valeur
-      ){
-        return idleNombre_(valeur)>1.0001
-          ?'dégâts'
-          :'dégât';
-      }
+      function motDegatIdleV100_(valeur){const api=window.__SOREAL_IDLE_TEXT_HELPERS_V1__;return api&&typeof api.motDegat==='function'?api.motDegat(valeur):(idleNombre_(valeur)>1.0001?'dégâts':'dégât');}
 
 
       /*
@@ -24550,15 +24507,7 @@ let idleDialogueTimerV76=null;
        * par tous les fichiers. Le mot-clé "_boss" en suffixe (ancienne
        * convention) reste toléré en repli, jamais supprimé du contrat.
        */
-      function nomDepuisCleR2AdventureIdleV1_(cle,zoneId){
-        let base=String(cle||'').split('/').pop().replace(/\.[a-z0-9]+$/i,'');
-        base=base.replace(/^Adv_\d+_/i,'');
-        if(zoneId)base=base.replace(new RegExp('^'+zoneId+'_','i'),'');
-        base=base.replace(/_boss$/i,'');
-        return base.split('_').filter(Boolean).map(function(mot){
-          return mot.charAt(0).toUpperCase()+mot.slice(1);
-        }).join(' ')||'Créature';
-      }
+      function nomDepuisCleR2AdventureIdleV1_(cle,zoneId){const api=window.__SOREAL_IDLE_TEXT_HELPERS_V1__;return api&&typeof api.nomDepuisCleR2==='function'?api.nomDepuisCleR2(cle,zoneId):'Créature';}
       function resoudreNomEnnemiAdventureIdleV1_(zoneId,boss,seed){
         const cle=cleMobNomCacheV1_(zoneId,boss,seed);
         if(IDLE_ADVENTURE_MOB_NOM_CACHE_V1[cle]!==undefined)return;
@@ -28545,12 +28494,7 @@ function pageAventureIdleV28_(j){
         }).join(' · ')||'rien';
       }
 
-      function libelleRessourceMetaIdleV130_(id){
-        if(id==='energy')return '⚡ Énergie';
-        if(id==='magic')return '🔮 Magie';
-        if(id==='r3')return '🧪 R3';
-        return String(id||'');
-      }
+      function libelleRessourceMetaIdleV130_(id){const api=window.__SOREAL_IDLE_TEXT_HELPERS_V1__;return api&&typeof api.libelleRessource==='function'?api.libelleRessource(id):String(id||'');}
 
       /*
        * Audit 2026-09-16 : le vrai menu NGU "Spend EXP" (ngu-wiki-reference/
