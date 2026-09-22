@@ -791,3 +791,28 @@ Vérification (décisive, pas seulement des assertions de chaîne) :
 - Commit `68836fbd5c4439443cfa8a3e5cd37702693a2f70`, poussé sur `main`.
 - Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 42s**, toutes les étapes vertes y compris le smoke Chromium Piper réel.
 - Production reconfirmée par requête directe indépendante : `tutorial-tts-v202.js?v=229` chargé.
+
+## Voix unique (Tom), suppression du sélecteur — 2026-09-22
+Retour utilisateur après avoir pu réellement tester le sélecteur (corrigé au round précédent) : "je n'aime aucune des 3 voix. Quel serait le meilleur moyen d'en avoir des bien sans devoir payer ?"
+
+Recherche (avant tout changement de code) :
+- Catalogue officiel `rhasspy/piper-voices` pour le français (fr_FR) : `gilles` (low), `siwis` (low/medium), `mls` (medium), `mls_1840` (low), `tom` (medium), `upmc` (medium, 2 locuteurs). Aucune voix "high" n'existe en français chez Piper — "medium" est le plafond de qualité officiel.
+- Site d'écoute officiel confirmé fonctionnel : `https://rhasspy.github.io/piper-samples/`.
+- Voix précédemment utilisées : `siwis` et `gilles`. "SOREAL" (voix par défaut d'origine) n'est pas une voix Piper officielle du tout — modèle démo multilingue non listé dans ce catalogue.
+- Utilisateur a écouté et choisi **Tom** (`fr_FR-tom-medium`), et a explicitement demandé de retirer le choix (une seule voix par défaut).
+
+Changement :
+- `cloudflare/src/idle-media-v1.js` : le proxy CORS Piper ne sert plus qu'un seul modèle (`fr_FR-tom-medium.onnx`) via `/api/idle/media/piper-model.onnx` (+`.json`). Retiré : la table multi-voix (`IDLE_PIPER_VOICES_V2`) et les 3 routes `piper-voice-{soreal,siwis,gilles}.onnx`. Le correctif de compatibilité G2P français (`language_id_map`, nécessaire pour toute voix Piper officielle mono-langue) s'applique désormais systématiquement, plus seulement aux voix non-"soreal".
+- `cloudflare/public/modules/local-neural-piper-v1.js` : réécrit sans état de sélection/persistance de voix (`VOICES_V2`, `selectedVoiceId`, `setVoice_`, `localStorage`) — une seule URL de modèle fixe.
+- `cloudflare/public/modules/tutorial-tts-v202.js` : retiré le sélecteur de voix global persistant (ajouté puis corrigé lors des deux rounds précédents) et toute son API publique (`voices`/`voice`/`setVoice`).
+- Cache-busters : `local-neural-piper-v1.js` `?v=4→5`, `tutorial-tts-v202.js` `?v=229→230`.
+
+Vérification :
+- URLs du modèle Tom vérifiées accessibles avant tout changement (`curl`, HTTP 200, `.onnx` = 63 511 038 octets).
+- Harnais HTML local (jamais commité) : confirmé qu'aucun `<select>` n'apparaît plus nulle part dans le DOM.
+- Suite complète locale : 170/170 OK. 3 tests réécrits pour l'API voix unique (`idle-local-piper-neural.test.mjs`, `idle-piper-model-proxy.test.mjs`, `idle-tutorial-tts-v202.test.mjs`) + le smoke Chromium de production réel simplifié en conséquence (`idle-piper-production-origin.smoke.mjs`, testait auparavant les 3 voix en boucle).
+- Commit `94f58e97c45f8580ce6beb9efdd6b6145ca03b7e`, poussé sur `main`.
+- Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 51s**, y compris le smoke Chromium réel (1m 7s — téléchargement effectif du modèle Tom 63 Mo + synthèse + lecture Web Audio).
+- Production reconfirmée par requêtes directes indépendantes : `local-neural-piper-v1.js?v=5` et `tutorial-tts-v202.js?v=230` chargés ; `/api/idle/media/piper-model.onnx` sert bien le modèle Tom (63 511 038 octets, HTTP 200) ; les anciennes routes `/api/idle/media/piper-voice-soreal.onnx` etc. renvoient `404`.
+
+Dette technique repérée en passant, hors périmètre de ce changement : `idle-local-piper-browser-smoke.mjs` et `idle-local-piper-controller-smoke.mjs` pointent vers des pages de harnais local qui n'existent plus et ne sont exécutés par aucune CI — tâche séparée créée pour investigation/nettoyage.
