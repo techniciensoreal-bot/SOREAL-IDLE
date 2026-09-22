@@ -9,6 +9,7 @@ const ui=readFileSync(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const css=readFileSync(\n  new URL("../public/soreal-idle-ui.css",import.meta.url),\n  "utf8"\n);
 
 const progressionStart=runtime.indexOf("function appliquerProgressionEnergieSorealIdle_");
 const progressionEnd=runtime.indexOf("\nfunction contexteMetaNguSorealIdle_",progressionStart);
