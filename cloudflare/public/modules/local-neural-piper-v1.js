@@ -217,8 +217,18 @@ async function engine_(){
   return promise;
 }
 
+/*
+ * espeak-ng (via piper_phonemize) abandonne silencieusement "..."/"…" :
+ * aucun phonème de pause n'est généré (contrairement à "." ou ","),
+ * vérifié en comparant les flux de phonèmes bruts en conditions réelles.
+ * On normalise donc vers "." (dont la pause fonctionne) avant phonémisation.
+ */
+function normalizeEllipsis_(text){
+  return text.replace(/\.{2,}|…/g,".");
+}
+
 async function synthesize_(text){
-  const value=String(text||"").replace(/\s+/g," ").trim();
+  const value=normalizeEllipsis_(String(text||"").replace(/\s+/g," ").trim());
   if(!value)throw new Error("PIPER_LOCAL_TEXT_REQUIRED");
 
   const engine=await engine_();

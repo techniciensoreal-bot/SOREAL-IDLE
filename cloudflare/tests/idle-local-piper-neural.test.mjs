@@ -57,9 +57,28 @@ for(const token of [
   'ort.Tensor("int64"',
   'ort.Tensor("float32"',
   'pcm2wav_',
+  'normalizeEllipsis_',
   '__SOREAL_IDLE_LOCAL_NEURAL_V1__'
 ]){
   assert.ok(local.includes(token),"Piper local (espeak-ng réel) manquant: "+token);
+}
+
+/*
+ * Demande utilisateur (2026-09-22) : "il ne s'arrête pas aux points de
+ * suspension". Confirmé en comparant les flux de phonèmes bruts en
+ * conditions réelles : espeak-ng (via piper_phonemize) abandonne
+ * silencieusement "..."/"…" sans générer de phonème de pause, alors que
+ * "." fonctionne. On normalise donc vers "." avant phonémisation.
+ */
+{
+  const normalizeEllipsis_=new Function(
+    "text",
+    "return (" + local.match(/function normalizeEllipsis_\(text\)\{[\s\S]*?\n\}/)[0].replace(/^function normalizeEllipsis_\(text\)/,"function(text)") + ")(text);"
+  );
+  assert.equal(normalizeEllipsis_("Bonjour... Ca va ?"),"Bonjour. Ca va ?","Trois points ASCII doivent devenir un point simple");
+  assert.equal(normalizeEllipsis_("Bonjour… Ca va ?"),"Bonjour. Ca va ?","Le caractère unicode … doit devenir un point simple");
+  assert.equal(normalizeEllipsis_("Attends.... vraiment ?"),"Attends. vraiment ?","Une suite de 4 points doit devenir un point simple");
+  assert.equal(normalizeEllipsis_("Bonjour. Ca va ?"),"Bonjour. Ca va ?","Un point simple ne doit pas être altéré");
 }
 
 for(const forbidden of [

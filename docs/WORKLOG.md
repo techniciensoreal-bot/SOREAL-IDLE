@@ -865,3 +865,23 @@ Vérification :
 - Commit `8aa217deb7cbd8601c258e8ef731f746844524e0`, poussé sur `main`.
 - Workflow production `Deploy SOREAL Idle to Cloudflare` run #525 : **Success en 1m 39s** (job `deploy` 1m 30s), avec l'étape réelle "Verify deployed Piper narration in Chromium" (le smoke Chromium) réussie en 45s — pas de ralentissement notable malgré les ~18,6 Mo supplémentaires d'espeak-ng, probablement grâce au cache CDN jsdelivr.
 - Production reconfirmée par requêtes `curl` directes indépendantes : `index.html` ne référence plus `piper-plus` dans l'import map, contient bien `<script src=".../piper_phonemize.js">` et `local-neural-piper-v1.js?v=6` ; `/api/idle/media/piper-model.onnx.json` sert la config Tom brute (aucun des champs `language_id_map`/`num_languages`/`soreal_monolingual_g2p_compat` injectés auparavant) ; `/api/idle/media/piper-model.onnx` sert toujours le modèle Tom (63 511 038 octets, HTTP 200, CORS `*`, cache immutable).
+
+## Correctif points de suspension abandonnés par espeak-ng — 2026-09-22
+Retour utilisateur après avoir testé le moteur espeak-ng en production : "il ne s'arrête pas aux points de suspension par exemple. C'est compréhensible, mais j'ai l'impression que c'est moins bien que sur le site où j'ai choisi cette voix."
+
+Root cause (confirmée en comparant les flux de phonèmes bruts, pas supposée) : harnais HTML comparant la sortie de `piper_phonemize` (JSON `{"phonemes":[...],"phoneme_ids":[...]}`) pour 4 entrées :
+- `"Bonjour. Ca va ?"` → séquence de phonèmes contient bien `"."` (id 10, pause).
+- `"Bonjour, ca va ?"` → contient bien `","` (id 8, pause courte).
+- `"Bonjour... Ca va ?"` (3 points ASCII) → **aucun phonème de pause généré du tout** : la séquence saute directement de "ʁ" à "s", comme si la ponctuation n'existait pas.
+- `"Bonjour… Ca va ?"` (caractère unicode ellipsis U+2026) → **résultat identique**, phonème totalement absorbé/perdu.
+
+Contrairement à la virgule et au point simple (tous deux présents dans le `phoneme_id_map` de 256 symboles de Tom, vérifié directement dans sa config), espeak-ng ne produit aucun phonème pour "..."/"…" lors de la phonémisation français via `piper_phonemize` — la ponctuation est silencieusement absorbée, pas seulement mal pausée.
+
+Correctif :
+- `cloudflare/public/modules/local-neural-piper-v1.js` : nouvelle fonction `normalizeEllipsis_(text)` — remplace toute suite de 2+ points (`/\.{2,}/`) ou le caractère unicode `…` (`…`) par un point simple `"."`, appliquée dans `synthesize_` avant la phonémisation. Le point simple étant déjà prouvé fonctionnel (pause correcte), c'est le point d'ancrage le plus sûr dans le vocabulaire de 256 symboles du modèle.
+
+Vérification :
+- Harnais HTML local (jamais commité) confirmant que `normalizeEllipsis_("Bonjour... Ca va ?")` et `normalizeEllipsis_("Bonjour… Ca va ?")` produisent bien `"Bonjour. Ca va ?"`, dont la pause phonémique fonctionne (cas déjà vérifié ci-dessus).
+- Nouveau test comportemental dans `idle-local-piper-neural.test.mjs` : extrait et exécute réellement `normalizeEllipsis_` (pas seulement une vérification de présence de chaîne) sur 4 cas (3 points ASCII, caractère unicode, 4 points, point simple inchangé).
+- Suite complète locale : 174/174 OK.
+- Harnais HTML local chargeant le module réellement shippé (même méthode que le changement précédent) : synthèse réussie sur "Attends... Je ne sais pas... c'est compliqué.", WAV de 258 604 octets, état `ready`. Échantillon envoyé à l'utilisateur pour confirmation auditive. Harnais supprimé après vérification, jamais commité.
