@@ -885,3 +885,6 @@ Vérification :
 - Nouveau test comportemental dans `idle-local-piper-neural.test.mjs` : extrait et exécute réellement `normalizeEllipsis_` (pas seulement une vérification de présence de chaîne) sur 4 cas (3 points ASCII, caractère unicode, 4 points, point simple inchangé).
 - Suite complète locale : 174/174 OK.
 - Harnais HTML local chargeant le module réellement shippé (même méthode que le changement précédent) : synthèse réussie sur "Attends... Je ne sais pas... c'est compliqué.", WAV de 258 604 octets, état `ready`. Échantillon envoyé à l'utilisateur pour confirmation auditive. Harnais supprimé après vérification, jamais commité.
+- Commit `63c639cabc06b75fdc3d4dbf6b4c3d2c2858729d`, poussé sur `main`.
+- Workflow production `Deploy SOREAL Idle to Cloudflare` run #526 : **Success en 1m 25s**, "Verify deployed Piper narration in Chromium" réussie en 38s.
+- Production reconfirmée par requête `curl` directe indépendante : `/modules/local-neural-piper-v1.js` contient bien `normalizeEllipsis_` et son appel dans `synthesize_`.
