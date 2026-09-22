@@ -13425,31 +13425,9 @@
         );
       }
 
-      function nomSlotIdleV10_(slot){
-        const noms={
-          tete:'Tête',
-          torse:'Torse',
-          bottes:'Bottes',
-          arme:'Arme principale',
-          bijou1:'Bijou 1',
-          bijou2:'Bijou 2'
-        };
+      function nomSlotIdleV10_(slot){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.nomSlot?a.nomSlot(slot):slot;}
 
-        return noms[slot] || slot;
-      }
-
-      function iconeSlotIdleV10_(slot){
-        const icones={
-          tete:'🪖',
-          torse:'🥋',
-          bottes:'🥾',
-          arme:'⚔️',
-          bijou1:'💍',
-          bijou2:'💎'
-        };
-
-        return icones[slot] || '📦';
-      }
+      function iconeSlotIdleV10_(slot){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.iconeSlot?a.iconeSlot(slot):'📦';}
 
 
       function dateIdleV25_(iso){
@@ -25889,10 +25867,7 @@ function pageAventureIdleV28_(j){
         return '/api/idle/media/boost?'+p.toString();
       }
 
-      function iconeSlotAdventureIdleV138_(slot){
-        const icones={head:'🪖',chest:'👕',legs:'👖',boots:'🥾',weapon:'🗡️',accessory:'💍'};
-        return icones[String(slot||'')]||'📦';
-      }
+      function iconeSlotAdventureIdleV138_(slot){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.iconeAdventure?a.iconeAdventure(slot):'📦';}
 
       function iconeObjetAdventureIdleV138_(item){
         if(item&&item.kind==='boost'){
@@ -25928,15 +25903,7 @@ function pageAventureIdleV28_(j){
        * classe de carte .soreal-idle-collection-card-v1) — jamais dupliquée.
        */
       const IDLE_RARETE_SEUILS_V1=[0.76,1.61,2.47,3.33,4.19,5.04];
-      function idleRareteClasseObjetAdventureIdleV1_(item){
-        if(!item||(item.kind!=='equipment'&&item.kind!=='special'))return '';
-        const valeur=Math.max(idleNombre_(item.basePower),idleNombre_(item.baseToughness));
-        if(!(valeur>0))return '';
-        const log=Math.log10(valeur);
-        let idx=0;
-        while(idx<IDLE_RARETE_SEUILS_V1.length&&log>=IDLE_RARETE_SEUILS_V1[idx])idx++;
-        return 'idle-rarity-'+idx;
-      }
+      function idleRareteClasseObjetAdventureIdleV1_(item){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.rarete?a.rarete(item):'';}
 
       /*
        * Correctif 2026-09-15 (Norman : "pas besoin d'écrire bottes,
