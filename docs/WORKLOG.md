@@ -700,3 +700,17 @@ Prochaine action :
 - Workflow temporaire V8 supprimé après validation.
 - Dernière erreur : aucune.
 - Prochaine action : merge PR #18, vérifier production, puis reprendre V9 avec extraction d'un sous-système JavaScript cohérent.
+
+## UI split V8 — production vérifiée
+- PR #18 fusionnée sur `main` : `539199f5c8620bc02f0cc3e1d9518ace6ac7e916`.
+- Vérifié indépendamment en reprenant cette session (nouveau dépôt, local remis à jour depuis un HEAD périmé) : ni supposé ni recopié du WORKLOG.
+- Workflow production `Deploy SOREAL Idle to Cloudflare` run #518 : **succeeded en 1m 32s**, toutes les étapes vertes :
+  - Run test suite : OK
+  - Build standalone frontend : OK
+  - Deploy SOREAL Idle Worker : OK
+  - Verify local neural dependencies : OK
+  - Verify deployed Git SHA : OK (`wrangler deployments status --json`, comparaison directe au SHA courant, pas de tri de liste — pas exposé au bug d'ordre trouvé sur SOREAL-TV/SOREAL-APP)
+  - Verify deployed Piper narration in Chromium : OK (synthèse + lecture réelle)
+- Production reconfirmée par requête directe indépendante (`curl` hors CI) : HTTP 200 sur `https://soreal-idle.technicien-soreal.workers.dev/`.
+- Anomalie mineure repérée en passant (non bloquante, hors périmètre V8) : `/api/v1/narration-health` répond encore `{"ok":false,"error":"2021: Insufficient AI Gateway credits","model":"xai/grok-tts"}` — reste de l'ancienne route Grok TTS (V5, abandonnée dès V6 au profit de Piper local). Le client n'appelle plus cette route depuis V6, donc aucun impact utilisateur actuel ; à nettoyer un jour comme dette technique (route morte qui signale une fausse erreur si quelqu'un la consulte).
+- État : aucune erreur bloquante ni bug fonctionnel connu sur SOREAL-IDLE à ce stade. Prochaine action potentielle : V9 (poursuite du découpage du monolithe UI, dette technique non urgente) ou nettoyage de la route Grok TTS morte, selon priorité de l'utilisateur.
