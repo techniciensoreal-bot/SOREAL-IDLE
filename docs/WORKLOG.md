@@ -771,3 +771,23 @@ Vérification :
 - Production reconfirmée par requête directe indépendante : `tutorial-tts-v202.js?v=228` chargé.
 
 Prochaine action potentielle (non demandée pour l'instant, à discuter séparément avec l'utilisateur) : générer et mettre en cache sur R2 le premier résultat de synthèse Piper (gratuit, local) pour accélérer les écoutes suivantes du même texte, sans réintroduire de dépendance à un TTS serveur payant.
+
+## Correctif sélecteur de voix — round 2 : rendu persistant — 2026-09-22
+Retour utilisateur après le correctif précédent : "je n'arrive pas à sélectionner une voix dans la liste. Ça reste sur Voix SOREAL."
+
+Root cause réelle, trouvée en instrumentant un vrai navigateur (harnais HTML local avec simulation de churn DOM), pas supposée :
+- `rendreIdleEtat_` remplace **tout** `document.getElementById('app').innerHTML` à chaque synchronisation serveur — très fréquent dans un idle game.
+- Le sélecteur attaché au round précédent à côté de chaque bouton "Lire" (`ensureVoiceSelectAfter_`) vivait à l'intérieur de `#app` : il était donc détruit et recréé en continu, souvent avant même que le clic du joueur n'ait pu s'enregistrer sur l'option choisie.
+- Les 3 popups ponctuels (tutoriel, nouveauté) fonctionnaient, eux, précisément parce qu'ils sont attachés à `document.body` directement (`document.body.appendChild(...)`), hors de `#app`.
+
+Correctif :
+- Remplacé l'attache par bouton par **un seul sélecteur global et persistant** (`ensureGlobalVoiceControl_`), lui aussi attaché directement à `document.body` (position fixed, coin bas-droit, `z-index:5000`), créé une seule fois (jamais recréé) et resynchronisé à chaque scan sans jamais être détruit par un rafraîchissement de page.
+- Les 3 popups ponctuels sont restés inchangés (ils fonctionnaient déjà correctement).
+- Cache-buster `tutorial-tts-v202.js` : `?v=228` → `?v=229`.
+
+Vérification (décisive, pas seulement des assertions de chaîne) :
+- Harnais HTML local simulant `rendreIdleEtat_` : remplacement complet de `#app.innerHTML` toutes les 300ms. Sur plus de 200 cycles (3+ secondes), le nœud DOM du contrôle global n'est jamais recréé (`hostIsSameNode:true`, `hostParent:'BODY'`) et la voix sélectionnée reste stable (`Voix · Gilles` affiché correctement après 216 destructions du contenu). Harnais supprimé après vérification, jamais commité.
+- Suite complète locale : 170/170 OK (assertions mises à jour pour vérifier `ensureGlobalVoiceControl_` + son attache à `document.body`, plus le nouveau cache-buster).
+- Commit `68836fbd5c4439443cfa8a3e5cd37702693a2f70`, poussé sur `main`.
+- Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 42s**, toutes les étapes vertes y compris le smoke Chromium Piper réel.
+- Production reconfirmée par requête directe indépendante : `tutorial-tts-v202.js?v=229` chargé.
