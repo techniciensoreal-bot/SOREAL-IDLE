@@ -686,3 +686,17 @@ Prochaine action :
 - Workflow temporaire supprimé après validation au commit `7754af745a797cd8ed67ea6c6f73af7d4bd53f94`.
 - Dernière erreur : aucune sur la validation V7.
 - Prochaine action : merger PR #17, vérifier le SHA réel de main et le déploiement production ; ensuite créer V8 depuis ce main et extraire un nouveau sous-système cohérent de 500–2000+ lignes.
+
+
+## UI split V8 — 2026-09-22
+- Base production V7 : `main` = `8d53eacbb2496321dc59f98917391d11df3e4613`, production run `35689554263` SUCCESS complet.
+- Extraction : 348 blocs de commentaires historiques multiline retirés du runtime et conservés dans `docs/UI-MONOLITH-HISTORY.md`.
+- Monolithe avant V8 : 25 047 lignes.
+- Monolithe après V8 : 22 025 lignes.
+- Réduction nette V8 : 3 022 lignes.
+- Documentation extraite : 4 767 lignes.
+- Tests qui dépendaient de libellés de commentaires migrés vers des invariants de code exécutables (V177, drain Fight Boss, V175, gestes V196, tutoriel draggable).
+- Validation branche : run `35690224012` SUCCESS complet (suite tests, build standalone, syntaxe).
+- Workflow temporaire V8 supprimé après validation.
+- Dernière erreur : aucune.
+- Prochaine action : merge PR #18, vérifier production, puis reprendre V9 avec extraction d'un sous-système JavaScript cohérent.
