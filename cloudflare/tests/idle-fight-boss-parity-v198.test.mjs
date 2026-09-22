@@ -11,6 +11,10 @@ const ui=fs.readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
+const css=fs.readFileSync(\n  new URL("../public/soreal-idle-ui.css",import.meta.url),\n  "utf8"\n).replace(/\\r
+/g,"
+");
+
 const bossReference=fs.readFileSync(
   new URL("../src/idle-ngu-boss-reference-v1.js",import.meta.url),
   "utf8"
