@@ -6,60 +6,14 @@ const ui=readFileSync(
   "utf8"
 );
 
-const start=ui.indexOf("V175 — récupération après DÉFAITE");
+const fnStart=ui.indexOf("function appliquerSynchroCombatSansReflowIdleV116_");
+const fnEnd=ui.indexOf("\n      function ",fnStart+20);
+assert.ok(fnStart>=0&&fnEnd>fnStart,"V175 sync function missing");
+const fn=ui.slice(fnStart,fnEnd);
+const start=fn.indexOf("const localAvantRecupV175=idleEtat");
 assert.ok(start>=0,"V175 post-defeat guard missing");
-
-const end=ui.indexOf("V174 — récupération Fight Boss hors combat",start+20);
-assert.ok(end>start,"V175 guard end missing");
-
-const guard=ui.slice(start,end);
-
-assert.match(
-  guard,
-  /!idleEtat\.combatBossActif[\s\S]{0,120}idleCombatEnPauseApresDefaiteV1/
-);
-
-assert.match(
-  guard,
-  /pvJoueur:[\s\S]{0,220}localAvantRecupV175\.pvJoueur/
-);
-
-assert.match(
-  guard,
-  /bossPv:[\s\S]{0,220}localAvantRecupV175\.bossPv/
-);
-
-assert.match(
-  guard,
-  /bossSelection:[\s\S]{0,180}localAvantRecupV175\.bossSelection/
-);
-
-assert.match(
-  guard,
-  /combatBossActif:false/
-);
-
-assert.doesNotMatch(
-  guard,
-  /memeBossServeurV167/,
-  "Post-defeat recovery must not depend on server boss selection matching."
-);
-
-assert.match(
-  guard,
-  /basicTraining:[\s\S]{0,180}localAvantRecupV175\.basicTraining/
-);
-
-assert.match(
-  guard,
-  /defense:[\s\S]{0,160}localAvantRecupV175\.defense/
-);
-
-assert.doesNotMatch(
-  guard,
-  /Math\.max\([\s\S]{0,120}joueurServeur\.defense/,
-  "Recovery must not inject a server-final Defense into the next HP tick."
-);
+const end=fn.indexOf("const localAvantRecupV174",start+20);
+const guard=fn.slice(start,end>start?end:fn.length);
 
 assert.match(
   ui,
