@@ -83,10 +83,10 @@ assert.ok(
 );
 
 assert.ok(
-  source.includes("touch-action:none;")&&
-  source.includes("-webkit-touch-callout:none;")&&
-  source.includes("-webkit-user-drag:none;")&&
-  source.includes("pointer-events:none;"),
+  css.includes("touch-action:none;")&&
+  css.includes("-webkit-touch-callout:none;")&&
+  css.includes("-webkit-user-drag:none;")&&
+  css.includes("pointer-events:none;"),
   "Le CSS doit neutraliser les comportements natifs concurrents."
 );
 
@@ -148,10 +148,6 @@ new Function(longPress);
 console.log(
   "SOREAL IDLE Inventory V200: OK — i visible, Touch+Pointer+contextmenu, cancel WebView résilient."
 );
-
-const css=fs.readFileSync(\n  new URL("../public/soreal-idle-ui.css",import.meta.url),\n  "utf8"\n).replace(/\\r
-/g,"
-");
 
 const longPress=fs.readFileSync(
   new URL("../public/modules/long-press-v200.js",import.meta.url),
