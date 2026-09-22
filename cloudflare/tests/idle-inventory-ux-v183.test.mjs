@@ -5,6 +5,10 @@ const source=readFileSync(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const css=readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+);
 const textTransforms=readFileSync(
   new URL("../public/modules/text-transforms-v1.js",import.meta.url),
   "utf8"
@@ -43,7 +47,7 @@ assert.doesNotMatch(
 
 // Transparent item ghost follows the finger.
 assert.match(source,/function creerGhostDragAdventureIdleV183_/);
-assert.match(source,/opacity:\.58/);
+assert.match(css,/opacity:\.58/);
 assert.match(source,/deplacerGhostDragAdventureIdleV183_\(event\)/);
 
 // Compare mode: a second real popup is created.
