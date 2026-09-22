@@ -16318,16 +16318,7 @@
        * égal à 69 affiché dans le texte devient "69 lol". Les nombres qui
        * contiennent 69 (6987, 6969, 169, 69.5...) ne sont jamais touchés.
        */
-      function texte69LolIdleV183_(texte){
-        return String(texte||'').replace(
-          /(^|[^0-9.,])69(?=$|[^0-9.,])/g,
-          function(match,prefix,offset,full){
-            const fin=offset+match.length;
-            if(full.slice(fin,fin+4)===' lol')return match;
-            return prefix+'69 lol';
-          }
-        );
-      }
+      function texte69LolIdleV183_(texte){const a=window.__SOREAL_IDLE_TEXT_TRANSFORMS_V1__;return a&&a.texte69Lol?a.texte69Lol(texte):String(texte||'');}
       function appliquer69LolNoeudIdleV183_(racine){
         if(!racine||!document.body.classList.contains('soreal-idle-active-v47'))return;
         const walker=document.createTreeWalker(
@@ -28537,9 +28528,7 @@ function pageAventureIdleV28_(j){
         '</div>';
       }
 
-      function idHtml_attr_(v){
-        return String(v||'');
-      }
+      function idHtml_attr_(v){const a=window.__SOREAL_IDLE_TEXT_TRANSFORMS_V1__;return a&&a.attr?a.attr(v):String(v||'');}
 
       window.__idleExpShopApercuLotPersonnalise__=function(res,stat,coutUnitaire){
         const input=document.getElementById(idleExpShopIdInput_(res,stat));
