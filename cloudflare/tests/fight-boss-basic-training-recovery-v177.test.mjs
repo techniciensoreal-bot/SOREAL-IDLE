@@ -6,22 +6,20 @@ const ui=readFileSync(
   "utf8"
 );
 
-const start=ui.indexOf("V177 — une réponse de sauvegarde Basic Training");
-assert.ok(start>=0,"V177 Basic Training recovery guard missing");
-
-const fnStart=ui.lastIndexOf(
-  "function appliquerEtatBasicTrainingIdleV120_",
-  start
+const fnStart=ui.indexOf(
+  "function appliquerEtatBasicTrainingIdleV120_"
 );
 const fnEnd=ui.indexOf(
   "function envoyerAllocationsBasicTrainingIdleV120_",
-  start
+  fnStart
 );
-assert.ok(fnStart>=0&&fnEnd>start);
+assert.ok(fnStart>=0&&fnEnd>fnStart,"V177 Basic Training recovery guard missing");
 
 const fn=ui.slice(fnStart,fnEnd);
-const guardEnd=fn.indexOf("return;",fn.indexOf("V177"))+7;
-const guard=fn.slice(fn.indexOf("V177"),guardEnd);
+const guardStart=fn.indexOf("idleCombatEnPauseApresDefaiteV1");
+assert.ok(guardStart>=0,"V177 Basic Training recovery guard missing");
+const guardEnd=fn.indexOf("return;",guardStart)+7;
+const guard=fn.slice(guardStart,guardEnd);
 
 assert.match(
   guard,
