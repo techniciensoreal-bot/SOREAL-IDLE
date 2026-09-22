@@ -816,3 +816,19 @@ Vérification :
 - Production reconfirmée par requêtes directes indépendantes : `local-neural-piper-v1.js?v=5` et `tutorial-tts-v202.js?v=230` chargés ; `/api/idle/media/piper-model.onnx` sert bien le modèle Tom (63 511 038 octets, HTTP 200) ; les anciennes routes `/api/idle/media/piper-voice-soreal.onnx` etc. renvoient `404`.
 
 Dette technique repérée en passant, hors périmètre de ce changement : `idle-local-piper-browser-smoke.mjs` et `idle-local-piper-controller-smoke.mjs` pointent vers des pages de harnais local qui n'existent plus et ne sont exécutés par aucune CI — tâche séparée créée pour investigation/nettoyage.
+
+## Nettoyage tests orphelins Piper local — 2026-09-22
+Investigation de la dette repérée ci-dessus (`idle-local-piper-browser-smoke.mjs`, `idle-local-piper-controller-smoke.mjs`).
+
+Constats :
+- Les deux fichiers chargent `http://127.0.0.1:4173/__piper-smoke.html` et `__piper-playback-smoke.html` — des pages de harnais local qui n'ont jamais été commitées (voir note ligne 812 ci-dessus) et n'existent nulle part dans le dépôt.
+- Aucune référence dans `.github/workflows/` ni dans `docs/` — confirmé par recherche.
+- Non exécutés par la boucle de suite locale (`for f in cloudflare/tests/*.test.mjs`, voir `AGENTS.md`) : leur extension `.mjs` sans suffixe `.test.` les exclut déjà du pattern.
+- `idle-local-piper-browser-smoke.mjs` contenait en plus une assertion obsolète : comparait `api.model` à l'ancienne URL directe HuggingFace (`https://huggingface.co/spaces/ayousanz/piper-plus-demo/...`), périmée depuis le proxy CORS `/api/idle/media/piper-model.onnx` et totalement fausse depuis le passage à la voix unique Tom (ce même jour, voir section précédente).
+- `idle-local-piper-controller-smoke.mjs` référençait `window.__SOREAL_IDLE_TUTORIAL_TTS_V208__`, un global déjà remplacé par `V209` (voir `tutorial-tts-v202.js` current + `idle-piper-production-origin.smoke.mjs`).
+- `cloudflare/tests/idle-piper-production-origin.smoke.mjs`, câblé dans le workflow de production (`.github/workflows/cloudflare-deploy.yml:155`), couvre déjà le même terrain contre la vraie origine Cloudflare : chargement du module, synthèse Piper, déverrouillage Web Audio, lecture complète — avec en plus la vérification de l'URL de modèle actuelle.
+
+Décision : suppression pure, pas de récupération. Recréer les pages de harnais local aurait dupliqué une couverture déjà assurée en production par un test correctement câblé en CI, pour un gain nul (les pages harnais étaient de toute façon un choix délibéré de ne jamais committer). Supprimés : `cloudflare/tests/idle-local-piper-browser-smoke.mjs`, `cloudflare/tests/idle-local-piper-controller-smoke.mjs`.
+
+Vérification :
+- Suite complète locale : 170/170 OK (aucun de ces deux fichiers n'y participait, extension confirmée hors du pattern `*.test.mjs`).
