@@ -5,6 +5,10 @@ const source=readFileSync(
   new URL("../public/soreal-idle-ui.js",import.meta.url),
   "utf8"
 );
+const textTransforms=readFileSync(
+  new URL("../public/modules/text-transforms-v1.js",import.meta.url),
+  "utf8"
+);
 
 // 69 lol: exact 69 only.
 assert.match(source,/function texte69LolIdleV183_/);
