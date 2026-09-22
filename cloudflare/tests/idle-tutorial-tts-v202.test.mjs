@@ -58,7 +58,9 @@ for(const token of [
   "revokeObjectUrl_",
   "decouperNarration_",
   "CHUNK_MAX=2000",
-  "⚠️ Voix IA · "
+  "⚠️ Voix IA · ",
+  "function ensureVoiceSelectAfter_(anchor)",
+  "ensureVoiceSelectAfter_(button)"
 ]){
   assert.ok(narration.includes(token),"Narration V209 manquante: "+token);
 }
@@ -85,6 +87,26 @@ assert.ok(
   "Settings > Info doit conserver ses boutons de lecture."
 );
 
+/*
+ * Retour utilisateur : le sélecteur de voix n'apparaissait que dans les
+ * 3 popups ponctuels (tutoriel début de jeu, tutoriel premier boss,
+ * nouveauté), jamais à côté des boutons de lecture permanents (chroniques
+ * de boss, Settings > Info) — d'où "je n'ai qu'une seule voix, pas
+ * d'option pour changer". Le sélecteur doit désormais être attaché à
+ * chaque bouton de lecture, pas seulement aux popups.
+ */
+{
+  const start=narration.indexOf("function updateReadButtons_(){");
+  const end=narration.indexOf("function afficherErreur_(",start);
+  assert.ok(start>=0&&end>start,"updateReadButtons_ introuvable.");
+  const body=narration.slice(start,end);
+  assert.match(
+    body,
+    /ensureVoiceSelectAfter_\(button\)/,
+    "Chaque bouton de lecture doit recevoir son propre sélecteur de voix, pas seulement les popups ponctuels."
+  );
+}
+
 for(const forbidden of [
   "/api/v1/narration",
   "authorization:'Bearer '+session",
@@ -101,7 +123,7 @@ assert.ok(
   index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
   index.includes('/modules/local-neural-piper-v1.js?v=4')&&
-  index.includes('/modules/tutorial-tts-v202.js?v=227'),
+  index.includes('/modules/tutorial-tts-v202.js?v=228'),
   "Piper Plus et le contrôleur multi-voix doivent être épinglés et cache-bustés."
 );
 

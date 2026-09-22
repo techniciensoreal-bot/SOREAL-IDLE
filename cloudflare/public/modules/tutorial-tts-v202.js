@@ -150,6 +150,24 @@
     return chunks;
   }
 
+  function ensureVoiceSelectAfter_(anchor){
+    if(!anchor||!anchor.parentNode)return;
+    var next=anchor.nextElementSibling;
+    var select=(next&&next.classList&&next.classList.contains(VOICE_SELECT_CLASS))?next:null;
+    if(!select){
+      select=document.createElement('select');
+      select.className=VOICE_SELECT_CLASS;
+      select.setAttribute('data-soreal-tts-ignore','1');
+      select.setAttribute('aria-label','Choisir la voix IA');
+      select.addEventListener('pointerdown',function(e){e.stopPropagation();});
+      select.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
+      select.addEventListener('mousedown',function(e){e.stopPropagation();});
+      select.addEventListener('change',changeVoice_);
+      anchor.insertAdjacentElement('afterend',select);
+    }
+    updateVoiceSelector_(select);
+  }
+
   function updateReadButtons_(){
     document.querySelectorAll('.'+READ_CLASS+'[data-soreal-tts-target]').forEach(function(button){
       if(!button.dataset.sorealTtsOriginalLabel){
@@ -161,6 +179,16 @@
       button.textContent=active
         ?'⏹ Arrêter la narration'
         :button.dataset.sorealTtsOriginalLabel;
+      /*
+       * Historique : le sélecteur de voix n'était injecté que dans les 3
+       * popups ponctuels (tutoriel début de jeu, tutoriel premier boss,
+       * nouveauté), qui ne s'affichent qu'une fois. Tous les autres
+       * boutons "Lire" du jeu (chroniques de boss, etc.) n'offraient donc
+       * jamais le choix de la voix. Retour utilisateur confirmé : "je n'ai
+       * qu'une seule voix, pas d'option pour changer". Corrigé en
+       * attachant le même sélecteur à côté de chaque bouton de lecture.
+       */
+      ensureVoiceSelectAfter_(button);
     });
   }
 

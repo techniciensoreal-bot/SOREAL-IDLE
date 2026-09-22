@@ -19,14 +19,14 @@ for(const token of [
   '"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"',
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
   '<script type="module" src="/modules/local-neural-piper-v1.js?v=4"></script>',
-  '/modules/tutorial-tts-v202.js?v=227'
+  '/modules/tutorial-tts-v202.js?v=228'
 ]){
   assert.ok(index.includes(token),"Piper local index manquant: "+token);
 }
 
 assert.ok(
   index.indexOf('/modules/local-neural-piper-v1.js?v=4')<
-  index.indexOf('/modules/tutorial-tts-v202.js?v=227'),
+  index.indexOf('/modules/tutorial-tts-v202.js?v=228'),
   "Le module Piper local doit être déclaré avant le contrôleur de narration."
 );
 
