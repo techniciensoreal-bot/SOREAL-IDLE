@@ -138,9 +138,9 @@ assert.ok(
 );
 
 assert.ok(
-  ui.includes(".soreal-idle-boss-lore-info-v198{")&&
-  ui.includes("color:#aebbd0;")&&
-  ui.includes("font-family:\"Segoe UI Variable Text\""),
+  css.includes(".soreal-idle-boss-lore-info-v198{")&&
+  css.includes("color:#aebbd0;")&&
+  css.includes("font-family:\"Segoe UI Variable Text\""),
   "Le préambule d'information doit avoir un style neutre, non doré."
 );
 
