@@ -14,6 +14,8 @@ const ui=fs.readFileSync(new URL("../public/soreal-idle-ui.js",import.meta.url),
 const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",import.meta.url),"utf8");
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
+/* UI split V9 : la Boutique EXP (pageSpendExpIdleV1_) a été extraite vers ce module. */
+const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8");
 
 assert.match(index,/\/soreal-idle-ui\.js\?v=\d+/);
 assert.match(index,/\/modules\/audio-effects-v199\.js\?v=\d+/);
@@ -40,7 +42,7 @@ for(const token of [
   "Mon cœur rouge <3",
   "Dépense tes AP ici. Aucun achat ne coûte d’argent réel."
 ]){
-  assert.ok(ui.includes(token),"Garde UI V210 manquante: "+token);
+  assert.ok((ui+metaModule).includes(token),"Garde UI V210 manquante: "+token);
 }
 
 for(const token of [

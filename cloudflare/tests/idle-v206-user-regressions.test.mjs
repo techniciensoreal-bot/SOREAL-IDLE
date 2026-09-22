@@ -9,6 +9,8 @@ const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf
 const media=fs.readFileSync(new URL("../src/idle-media-v1.js",import.meta.url),"utf8");
 const ngu=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
 const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+/* UI split V9 : la page Money Pit/Daily Spin a été extraite vers ce module, sans changement fonctionnel. */
+const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8");
 
 for(const asset of [
   /\/modules\/audio-effects-v199\.js\?v=\d+/,
@@ -44,7 +46,7 @@ for(const token of ["victory:{group:\"combat-end\"","nuke:{group:\"combat-action
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('victory')")&&ui.includes("jouerEffetAudioIdleV199_('nuke')"),"Fight Boss doit lancer victoire et NUKE.");
 
 for(const token of ["/api/idle/media/banner","const key=\"idle/banners/\"+nom","Money_Pit.jpg","function pageMoneyPitDailySpinIdleV206_(j)","Balance ton argent","Daily Spin!","TON PRIX","TABLE DES RÉCOMPENSES","RÉCOMPENSES OBTENUES"]){
-  assert.ok((media+ui).includes(token),"Money Pit V206 manquant: "+token);
+  assert.ok((media+ui+metaModule).includes(token),"Money Pit V206 manquant: "+token);
 }
 assert.ok(ngu.includes("s.data.history=historique.slice(0,20)")&&ngu.includes("history:Array.isArray(data.history)"),"Historique des prix non persistant.");
 

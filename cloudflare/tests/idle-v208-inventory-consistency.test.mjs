@@ -8,6 +8,8 @@ import {
 
 const ui=fs.readFileSync(new URL("../public/soreal-idle-ui.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
+/* UI split V9 : actionMetaIdleV130_ (et joueurMetaProtegeV208) a été extrait vers ce module. */
+const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8");
 
 function act(state,payload){
   return applyIdleAdventureActionV47(state,payload,{},Date.now());
@@ -57,7 +59,7 @@ for(const token of [
   "joueurSortProtegeV208",
   "joueurRenduProtegeV208"
 ]){
-  assert.ok(ui.includes(token),"Protection anti-rollback V208 manquante: "+token);
+  assert.ok((ui+metaModule).includes(token),"Protection anti-rollback V208 manquante: "+token);
 }
 
 assert.match(index,/\/modules\/audio-effects-v199\.js\?v=\d+/);

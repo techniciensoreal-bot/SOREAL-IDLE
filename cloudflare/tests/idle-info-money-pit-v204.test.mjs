@@ -11,10 +11,23 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=220'),
-  "Le shell doit charger l'UI V220."
+  index.includes('/soreal-idle-ui.js?v=221'),
+  "Le shell doit charger une révision UI cache-bustée."
 );
 
+/*
+ * UI split V9 : le dispatcheur de la page Money Pit / Daily Spin a été
+ * extrait vers modules/meta-progression-v130.js avec le reste du
+ * Système Méta, sans changement fonctionnel ; d'autres tokens (nav,
+ * popups) restent légitimement dans le monolithe. On vérifie donc la
+ * présence dans l'une ou l'autre source plutôt que de figer où chaque
+ * chaîne doit vivre.
+ */
+const metaModule=fs.readFileSync(
+  new URL("../public/modules/meta-progression-v130.js",import.meta.url),
+  "utf8"
+);
+const uiEtModule=ui+"\n"+metaModule;
 for(const token of [
   "titre:'Money Pit & Roue journalière'",
   "cycle de 24 heures",
@@ -32,7 +45,7 @@ for(const token of [
   "RÉCOMPENSES OBTENUES",
   "TON PRIX"
 ]){
-  assert.ok(ui.includes(token),"Money Pit / Daily Spin V206 manquant: "+token);
+  assert.ok(uiEtModule.includes(token),"Money Pit / Daily Spin V206 manquant: "+token);
 }
 
 for(const token of [

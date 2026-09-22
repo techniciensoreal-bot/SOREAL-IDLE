@@ -33,8 +33,8 @@ assert.match(
   "La durée du cycle doit rester exactement liée à la durée réelle du niveau, plafonnée à 50 Hz."
 );
 assert.ok(
-  index.includes("/soreal-idle-ui.js?v=220"),
-  "Le shell doit forcer le chargement de la révision V220, sans réutiliser le cache V213."
+  index.includes("/soreal-idle-ui.js?v=221"),
+  "Le shell doit forcer le chargement d'une révision cache-bustée après V213."
 );
 
 console.log("idle augmentation visible full tick V220: OK");
