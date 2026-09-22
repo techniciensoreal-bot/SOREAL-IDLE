@@ -1,0 +1,4 @@
+import assert from "node:assert/strict";import {readFileSync} from "node:fs";import vm from "node:vm";const window={};vm.runInNewContext(readFileSync("cloudflare/public/modules/inventory-presentation-v1.js","utf8"),{window});const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;
+assert.equal(a.nomSlot("arme"),"Arme principale");assert.equal(a.nomSlot("x"),"x");assert.equal(a.iconeSlot("torse"),"🥋");assert.equal(a.iconeAdventure("legs"),"👖");assert.equal(a.iconeAdventure("x"),"📦");
+assert.equal(a.rarete(null),"");assert.equal(a.rarete({kind:"boost",basePower:999}),"");assert.equal(a.rarete({kind:"equipment",basePower:1,baseToughness:0}),"idle-rarity-0");assert.equal(a.rarete({kind:"special",basePower:10,baseToughness:0}),"idle-rarity-1");
+console.log("idle inventory presentation module: OK");
