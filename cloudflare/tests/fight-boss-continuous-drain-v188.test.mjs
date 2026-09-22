@@ -10,7 +10,7 @@ const runtime=readFileSync(
   "utf8"
 );
 
-const fightStart=ui.indexOf("function progresserCombatBossLocalIdleV116_");
+const fightStart=ui.indexOf("function mettreAJourJeuIdleLocalV7_");
 const fightEnd=ui.indexOf("\n      function ",fightStart+20);
 assert.ok(fightStart>=0&&fightEnd>fightStart,"Bloc Fight Boss local introuvable.");
 const fight=ui.slice(fightStart,fightEnd);
