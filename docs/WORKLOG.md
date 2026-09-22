@@ -656,3 +656,10 @@ Prochaine action :
 - Extraction V4 : formatage de durée/run/heures vers `cloudflare/public/modules/time-format-v1.js` ; wrappers historiques conservés.
 - Validation V4 : run `35653334813` SUCCESS sur `69756446b4033a46b4fa193ad3874825a5a08173` ; suite complète + build/syntaxe SUCCESS.
 - Workflow temporaire supprimé. Prochaine action : merge PR #14 puis vérifier production avant V5.
+
+
+## Refactor découpage UI V5 — 2026-09-22
+- Base production V4 : `main` = `72cc1d676bc3dc2e363053a67770e52e4698d6fd`, run #514 SUCCESS complet.
+- Extraction V5 : helpers texte purs vers `cloudflare/public/modules/text-helpers-v1.js` (effets, dégât(s), nom R2, ressources).
+- Validation V5 : run `35686720053` SUCCESS sur `dca5d2cd3643d0ca2379a515f8439243715fe76b` ; suite complète + build/syntaxe SUCCESS.
+- Workflow temporaire supprimé. Prochaine action : merge PR #15 puis vérifier production avant V6.
