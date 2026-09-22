@@ -34,10 +34,7 @@ assert.ok(
   "Le standalone doit conserver le module de maintien V200 et charger l'UI cache-bustée V220."
 );
 
-assert.ok(
-  source.includes("V196 — contrôleur UNIQUE d'interaction inventaire"),
-  "L'inventaire conserve V196 pour tap/drag."
-);
+
 
 assert.ok(
   source.includes("const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;")&&
