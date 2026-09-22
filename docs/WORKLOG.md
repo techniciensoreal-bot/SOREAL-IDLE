@@ -727,3 +727,15 @@ Prochaine action :
 - Suite complète locale : 171/171 OK.
 - Validation branche : workflow temporaire `Validate UI split V9 branch` run #1 (`35724377758`) : SUCCESS (suite complète + build standalone + syntaxe, sur infrastructure GitHub Actions réelle). Workflow temporaire supprimé après validation.
 - Prochaine action : merger sur `main`, vérifier le workflow de production complet (y compris le smoke Chromium Piper — sans rapport avec ce changement mais fait partie du gate standard), puis vérifier la production directement.
+
+## UI split V9 — production vérifiée
+- PR #19 fusionnée sur `main` : `766b9e5b80b82c18a01e3b3926614a10ea641103`.
+- Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 39s**, toutes les étapes vertes :
+  - Run test suite : OK (11s, 171 tests)
+  - Build standalone frontend : OK
+  - Deploy SOREAL Idle Worker : OK (24s)
+  - Verify local neural dependencies : OK
+  - Verify deployed Git SHA : OK
+  - Verify deployed Piper narration in Chromium : OK (57s, synthèse + lecture réelle — sans rapport avec ce changement, fait partie du gate standard)
+- Production reconfirmée par requête directe indépendante (`curl` hors CI) : `soreal-idle-ui.js?v=221` chargé, `modules/meta-progression-v130.js` accessible (HTTP 200).
+- État : aucune erreur bloquante ni bug fonctionnel connu sur SOREAL-IDLE à ce stade. Monolithe réduit de 22 025 à 20 866 lignes depuis le début du chantier (V1-V9, ~5 % rien que sur V9, davantage cumulé depuis V1). Prochaine action potentielle : V10 (poursuite du découpage, dette technique non urgente) ou nettoyage de la route Grok TTS morte (`/api/v1/narration-health`, repéré en V8), selon priorité de l'utilisateur.
