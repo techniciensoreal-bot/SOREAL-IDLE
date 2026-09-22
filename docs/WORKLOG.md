@@ -749,3 +749,25 @@ Prochaine action :
 - Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 37s**, toutes les étapes vertes y compris le smoke Chromium Piper réel.
 - Production reconfirmée par requêtes directes indépendantes : `/api/v1/narration-health` et `/api/v1/narration` renvoient désormais `404` ; `/` renvoie toujours `200`.
 - Note : les objets déjà écrits dans le bucket R2 sous `idle/narration/v1/fr/`, `idle/narration/v2/fr/` et `idle/narration-health/v2/` (générés par l'ancien pipeline Grok/MeloTTS quand il fonctionnait encore) n'ont pas été purgés — nettoyage de données, hors périmètre de ce changement de code, à faire séparément si souhaité.
+
+## Correctif sélecteur de voix inaccessible — 2026-09-22
+Retour utilisateur : "je n'ai qu'une seule voix, pas d'option pour changer" — alors que V9 avait ajouté 3 voix Piper sélectionnables (SOREAL/Siwis/Gilles).
+
+Diagnostic réel (pas supposé) :
+- Le sélecteur de voix n'était injecté (`renderButton_`/`activePanel_`) que dans 3 popups ponctuels : tutoriel début de jeu, tutoriel premier boss, popup nouveauté — chacun affiché une seule fois grâce à un flag `localStorage`.
+- Tous les autres boutons "Lire" permanents du jeu (chroniques de boss dans Settings > Info et dans la Collection, potentiellement d'autres) utilisent un mécanisme totalement séparé (`data-soreal-tts-target` + écouteur `document.click` global) qui n'a jamais attaché de sélecteur.
+- Dans un usage réel du jeu, l'utilisateur ne pouvait donc jamais réellement voir ni utiliser le sélecteur — conforme au symptôme rapporté.
+
+Correctif :
+- Nouvelle fonction partagée `ensureVoiceSelectAfter_(anchor)` dans `tutorial-tts-v202.js`, appelée par `updateReadButtons_()` pour chaque bouton `.soreal-idle-tts-read-v203[data-soreal-tts-target]` détecté (scanné en continu par le `MutationObserver` existant).
+- Réutilise le style déjà injecté (`style_()`, pastille bordée, lisible sur fond sombre) et le même `changeVoice_` que les popups.
+- Cache-buster `tutorial-tts-v202.js` : `?v=227` → `?v=228`.
+
+Vérification :
+- Vérifié visuellement dans un navigateur réel (harnais HTML local temporaire, pas seulement des assertions de chaîne) : un bouton "Lire" simulé hors de tout popup reçoit bien un sélecteur listant les 3 voix ; changer la sélection appelle `setVoice(id)` et se resynchronise correctement. Harnais supprimé après vérification, jamais commité.
+- Suite complète locale : 170/170 OK (2 tests mis à jour pour le nouveau cache-buster + une nouvelle assertion structurelle garantissant que `updateReadButtons_` attache bien le sélecteur).
+- Commit `df7407ac0a3b13f3853ab477748e744149860633`, poussé sur `main`.
+- Workflow production `Deploy SOREAL Idle to Cloudflare` : **succeeded en 1m 41s**, toutes les étapes vertes y compris le smoke Chromium Piper réel.
+- Production reconfirmée par requête directe indépendante : `tutorial-tts-v202.js?v=228` chargé.
+
+Prochaine action potentielle (non demandée pour l'instant, à discuter séparément avec l'utilisateur) : générer et mettre en cache sur R2 le premier résultat de synthèse Piper (gratuit, local) pour accélérer les écoutes suivantes du même texte, sans réintroduire de dépendance à un TTS serveur payant.
