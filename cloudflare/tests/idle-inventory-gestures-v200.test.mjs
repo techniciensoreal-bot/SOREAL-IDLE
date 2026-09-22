@@ -6,9 +6,10 @@ const source=fs.readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
-const css=fs.readFileSync(\n  new URL("../public/soreal-idle-ui.css",import.meta.url),\n  "utf8"\n).replace(/\\r
-/g,"
-");
+const css=fs.readFileSync(
+  new URL("../public/soreal-idle-ui.css",import.meta.url),
+  "utf8"
+).replace(/\r\n/g,"\n");
 
 const longPress=fs.readFileSync(
   new URL("../public/modules/long-press-v200.js",import.meta.url),
