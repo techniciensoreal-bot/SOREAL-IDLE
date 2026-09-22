@@ -721,28 +721,6 @@ async function piperModelProxy_(request,url){
   headers.set("cache-control","public, max-age=604800, immutable");
   headers.set("access-control-allow-origin","*");
 
-  /*
-   * fr_FR-tom-medium, comme toute voix Piper officielle mono-langue, n'a
-   * pas de language_id_map : sans ce correctif, Piper Plus 0.7.0
-   * initialise tous les G2P (dont le japonais), qui exige OpenJTalk alors
-   * que seule la phonémisation française est nécessaire. Cf. WORKLOG V9
-   * (déjà nécessaire pour siwis/gilles).
-   */
-  if(isConfig&&request.method!=="HEAD"){
-    let config;
-    try{config=await upstream.json();}catch(_){
-      return new Response("Configuration vocale Piper invalide",{
-        status:502,
-        headers:{"cache-control":"no-store"}
-      });
-    }
-    config.language_id_map={fr:0};
-    config.num_languages=1;
-    config.soreal_monolingual_g2p_compat=true;
-    headers.set("content-type","application/json; charset=utf-8");
-    return new Response(JSON.stringify(config),{status:200,headers});
-  }
-
   for(const name of ["content-length","etag","last-modified"]){
     const value=upstream.headers.get(name);
     if(value)headers.set(name,value);

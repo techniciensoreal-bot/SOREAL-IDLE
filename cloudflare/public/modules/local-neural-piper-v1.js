@@ -1,20 +1,25 @@
 /*
- * SOREAL IDLE — Local Neural Piper V3
+ * SOREAL IDLE — Local Neural Piper V4
  *
- * Neural TTS executed entirely in the browser with Piper Plus + ONNX Runtime.
- * Une seule voix (Tom, fr_FR-tom-medium), sans choix : demande utilisateur
- * du 2026-09-22 après écoute comparative des voix officielles Piper. Les
- * précédentes versions (V1/V2) exposaient un sélecteur multi-voix
- * (SOREAL/Siwis/Gilles) ; retiré, cf. docs/WORKLOG.md.
+ * Neural TTS exécutée entièrement dans le navigateur : phonémisation par
+ * le vrai espeak-ng (WASM, @diffusionstudio/piper-wasm — le même outil
+ * piper_phonemize utilisé pour entraîner les voix officielles) suivie
+ * d'une inférence ONNX manuelle sur le modèle Piper officiel
+ * fr_FR-tom-medium. Remplace piper-plus (V1-V3) : son phonémiseur maison
+ * (non espeak) produisait des phonèmes incompatibles avec les modèles
+ * Piper officiels, d'où l'accent étranger et la prononciation erronée
+ * observés sur toutes les voix testées — cf. docs/WORKLOG.md (2026-09-22).
  */
-import { PiperPlus } from "piper-plus";
 import * as ort from "onnxruntime-web";
 
-const LANGUAGE_V1="fr";
-const LENGTH_SCALE_V1=1.30;
-const NOISE_SCALE_V1=0.55;
-const NOISE_W_V1=0.70;
 const MODEL_URL_V1=new URL("/api/idle/media/piper-model.onnx",window.location.origin).href;
+const MODEL_CONFIG_URL_V1=MODEL_URL_V1+".json";
+const PIPER_PHONEMIZE_WASM_URL_V1="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.wasm";
+const PIPER_PHONEMIZE_DATA_URL_V1="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.data";
+
+const DEFAULT_NOISE_SCALE_V1=0.667;
+const DEFAULT_LENGTH_SCALE_V1=1.0;
+const DEFAULT_NOISE_W_V1=0.8;
 
 let enginePromise=null;
 let engineInstance=null;
@@ -28,7 +33,7 @@ let state={
 const listeners=new Set();
 
 function snapshot_(){
-  return {...state,model:MODEL_URL_V1,language:LANGUAGE_V1};
+  return {...state,model:MODEL_URL_V1};
 }
 
 function notify_(){
@@ -46,10 +51,98 @@ function setState_(patch){
   notify_();
 }
 
-function progressValue_(value){
-  const n=Number(value);
-  if(!Number.isFinite(n))return 0;
-  return Math.max(0,Math.min(1,n));
+async function fetchModelWithProgress_(onProgress){
+  const response=await fetch(MODEL_URL_V1);
+  if(!response.ok||!response.body){
+    throw new Error("PIPER_LOCAL_MODEL_FETCH_FAILED_"+response.status);
+  }
+  const totalHeader=response.headers.get("content-length");
+  const total=totalHeader?Number(totalHeader):0;
+  const reader=response.body.getReader();
+  const chunks=[];
+  let received=0;
+  for(;;){
+    const step=await reader.read();
+    if(step.done)break;
+    chunks.push(step.value);
+    received+=step.value.length;
+    if(typeof onProgress==="function"&&total>0){
+      onProgress(Math.max(0,Math.min(1,received/total)));
+    }
+  }
+  const buffer=new Uint8Array(received);
+  let offset=0;
+  for(const chunk of chunks){
+    buffer.set(chunk,offset);
+    offset+=chunk.length;
+  }
+  return buffer.buffer;
+}
+
+async function phonemize_(text,espeakVoice){
+  if(typeof window.createPiperPhonemize!=="function"){
+    throw new Error("PIPER_LOCAL_PHONEMIZER_UNAVAILABLE");
+  }
+  return await new Promise(function(resolve,reject){
+    window.createPiperPhonemize({
+      print:function(data){
+        try{
+          const parsed=JSON.parse(data);
+          const ids=parsed&&parsed.phoneme_ids;
+          if(!Array.isArray(ids)||!ids.length){
+            reject(new Error("PIPER_LOCAL_PHONEMIZE_EMPTY"));
+            return;
+          }
+          resolve(ids);
+        }catch(error){
+          reject(error);
+        }
+      },
+      printErr:function(message){
+        reject(new Error(String(message||"PIPER_LOCAL_PHONEMIZE_FAILED")));
+      },
+      locateFile:function(url){
+        if(url.endsWith(".wasm"))return PIPER_PHONEMIZE_WASM_URL_V1;
+        if(url.endsWith(".data"))return PIPER_PHONEMIZE_DATA_URL_V1;
+        return url;
+      }
+    }).then(function(module){
+      module.callMain([
+        "-l",espeakVoice,
+        "--input",JSON.stringify([{text:String(text||"").trim()}]),
+        "--espeak_data","/espeak-ng-data"
+      ]);
+    }).catch(reject);
+  });
+}
+
+function pcm2wav_(pcm,sampleRate){
+  const numSamples=pcm.length;
+  const buffer=new ArrayBuffer(44+numSamples*2);
+  const view=new DataView(buffer);
+  function writeString(offset,str){
+    for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i));
+  }
+  writeString(0,"RIFF");
+  view.setUint32(4,36+numSamples*2,true);
+  writeString(8,"WAVE");
+  writeString(12,"fmt ");
+  view.setUint32(16,16,true);
+  view.setUint16(20,1,true);
+  view.setUint16(22,1,true);
+  view.setUint32(24,sampleRate,true);
+  view.setUint32(28,sampleRate*2,true);
+  view.setUint16(32,2,true);
+  view.setUint16(34,16,true);
+  writeString(36,"data");
+  view.setUint32(40,numSamples*2,true);
+  let offset=44;
+  for(let i=0;i<numSamples;i++){
+    const s=Math.max(-1,Math.min(1,pcm[i]));
+    view.setInt16(offset,s<0?s*0x8000:s*0x7fff,true);
+    offset+=2;
+  }
+  return buffer;
 }
 
 async function engine_(){
@@ -57,34 +150,46 @@ async function engine_(){
 
   setState_({
     status:"loading",
-    stage:"initialisation",
+    stage:"config",
     progress:0,
-    message:"Initialisation de la voix…",
+    message:"Chargement de la configuration vocale…",
     error:""
   });
 
-  const promise=PiperPlus.initialize({
-    model:MODEL_URL_V1,
-    ort,
-    onProgress:function(info){
-      const stage=String(info&&info.stage||"chargement");
-      const progress=progressValue_(info&&info.progress);
-      const message=String(info&&info.message||"Chargement de la voix…");
+  const promise=(async function(){
+    const configResponse=await fetch(MODEL_CONFIG_URL_V1);
+    if(!configResponse.ok){
+      throw new Error("PIPER_LOCAL_CONFIG_FETCH_FAILED_"+configResponse.status);
+    }
+    const config=await configResponse.json();
+
+    setState_({
+      status:"loading",
+      stage:"model",
+      progress:0,
+      message:"Téléchargement de la voix…",
+      error:""
+    });
+    const modelBuffer=await fetchModelWithProgress_(function(progress){
       setState_({
         status:"loading",
-        stage,
+        stage:"model",
         progress,
-        message,
+        message:"Téléchargement de la voix…",
         error:""
       });
-    }
-  }).then(function(engine){
-    const config=engine&&engine.config;
-    if(config&&config.soreal_monolingual_g2p_compat){
-      delete config.language_id_map;
-      delete config.num_languages;
-      delete config.soreal_monolingual_g2p_compat;
-    }
+    });
+
+    setState_({
+      status:"loading",
+      stage:"session",
+      progress:1,
+      message:"Préparation de la voix…",
+      error:""
+    });
+    const session=await ort.InferenceSession.create(modelBuffer);
+
+    const engine={config,session};
     engineInstance=engine;
     setState_({
       status:"ready",
@@ -94,7 +199,7 @@ async function engine_(){
       error:""
     });
     return engine;
-  }).catch(function(error){
+  })().catch(function(error){
     enginePromise=null;
     engineInstance=null;
     const message=String(error&&error.message||error||"PIPER_LOCAL_INIT_FAILED");
@@ -127,19 +232,32 @@ async function synthesize_(text){
   });
 
   try{
-    const result=await engine.synthesize(value,{
-      language:LANGUAGE_V1,
-      lengthScale:LENGTH_SCALE_V1,
-      noiseScale:NOISE_SCALE_V1,
-      noiseW:NOISE_W_V1
-    });
+    const config=engine.config||{};
+    const espeakVoice=(config.espeak&&config.espeak.voice)||"fr";
+    const phonemeIds=await phonemize_(value,espeakVoice);
 
-    if(!result||typeof result.toBlob!=="function"){
-      throw new Error("PIPER_LOCAL_AUDIO_RESULT_INVALID");
+    const sampleRate=(config.audio&&config.audio.sample_rate)||22050;
+    const inference=config.inference||{};
+    const noiseScale=inference.noise_scale!=null?inference.noise_scale:DEFAULT_NOISE_SCALE_V1;
+    const lengthScale=inference.length_scale!=null?inference.length_scale:DEFAULT_LENGTH_SCALE_V1;
+    const noiseW=inference.noise_w!=null?inference.noise_w:DEFAULT_NOISE_W_V1;
+
+    const feeds={
+      input:new ort.Tensor("int64",BigInt64Array.from(phonemeIds.map(BigInt)),[1,phonemeIds.length]),
+      input_lengths:new ort.Tensor("int64",BigInt64Array.from([BigInt(phonemeIds.length)]),[1]),
+      scales:new ort.Tensor("float32",Float32Array.from([noiseScale,lengthScale,noiseW]),[3])
+    };
+
+    const results=await engine.session.run(feeds);
+    const outputName=engine.session.outputNames[0];
+    const pcm=results[outputName]&&results[outputName].data;
+    if(!pcm||!pcm.length){
+      throw new Error("PIPER_LOCAL_AUDIO_EMPTY");
     }
 
-    const blob=result.toBlob();
-    if(!blob||!blob.size){
+    const wavBuffer=pcm2wav_(pcm,sampleRate);
+    const blob=new Blob([wavBuffer],{type:"audio/wav"});
+    if(!blob.size){
       throw new Error("PIPER_LOCAL_AUDIO_EMPTY");
     }
 
@@ -176,8 +294,7 @@ const api={
   preload:engine_,
   subscribe:subscribe_,
   state:snapshot_,
-  model:MODEL_URL_V1,
-  language:LANGUAGE_V1
+  model:MODEL_URL_V1
 };
 
 window.__SOREAL_IDLE_LOCAL_NEURAL_V1__=api;

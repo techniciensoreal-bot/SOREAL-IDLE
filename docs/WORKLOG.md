@@ -832,3 +832,34 @@ Décision : suppression pure, pas de récupération. Recréer les pages de harna
 
 Vérification :
 - Suite complète locale : 170/170 OK (aucun de ces deux fichiers n'y participait, extension confirmée hors du pattern `*.test.mjs`).
+
+## Remplacement du moteur de phonémisation (piper-plus → espeak-ng réel) — 2026-09-22
+Retour utilisateur après avoir écouté Tom en jeu : "il lit super mal le texte. Pourtant sur l'autre page, il lisait bien. Ça ne ressemble presque pas à du français." Un premier WAV reproduisant exactement le pipeline du jeu (même modèle, mêmes réglages) présentait le même défaut. Reformulation décisive de l'utilisateur : "il y a le même souci [...] déjà avec les voix avant ça il y avait le même problème [...] on dirait qu'ils ont un accent autre que français [...] ne s'arrêtent pas aux virgules" — le défaut n'était donc pas spécifique à Tom, il était présent depuis la toute première voix Piper intégrée (V6).
+
+Root cause (confirmée en lisant le code source, pas supposée) :
+- `piper-plus@0.7.0` embarque son **propre phonémiseur maison** (`@piper-plus/g2p@0.4.2`), à base de règles, qui n'est **pas** espeak-ng.
+- Les modèles Piper officiels (`rhasspy/piper-voices`, dont `fr_FR-tom-medium`) sont entraînés sur des phonèmes produits par le **vrai** espeak-ng (l'outil C++ `piper_phonemize` utilisé par le projet Piper original).
+- Ce décalage phonèmes-d'entraînement / phonèmes-d'inférence explique mécaniquement l'accent étranger, les mauvaises prononciations et l'absence de pause aux virgules constatés sur les 3 voix testées (siwis, gilles, tom) : le modèle reçoit des identifiants de phonèmes qu'il n'a jamais vus à l'entraînement pour la plupart des mots.
+- Piste de correctif léger testée et rejetée : retirer l'option `language` de `piper-plus` (pour éviter son tenseur `lid` erroné côté ONNX) — échoue immédiatement (`G2P: language "en" is not initialised`), car la bibliothèque bascule alors sur l'anglais par défaut. Aucun correctif interne à `piper-plus` n'est viable sans un vrai changement de moteur.
+
+Recherche (agent dédié, sources lues directement, pas de spéculation) :
+- `@diffusionstudio/piper-wasm@1.0.0` (CDN jsdelivr, ~635 Ko wasm + ~18 Mo data, `access-control-allow-origin: *` confirmé) est un vrai build WASM du `piper_phonemize` C++/espeak-ng original. Chargé en `<script>` classique (pas ESM), expose `window.createPiperPhonemize`.
+- Licence : le cœur espeak-ng-data est GPL-3.0-or-later (contrairement au phonémiseur maison MIT de piper-plus) — signalé à l'utilisateur, pas bloquant pour ce projet.
+
+Preuve de concept (avant tout changement de code shippé) :
+- Harnais HTML local reproduisant le contrat ONNX standard de Piper (lu depuis le code Python officiel `rhasspy/piper`, `voice.py`) : `input`/`input_lengths`/`scales` en entrée, sortie `output` (PCM float32 brut), en lisant les réglages `noise_scale`/`length_scale`/`noise_w` directement depuis `config.inference` du modèle (et non plus des valeurs codées en dur côté client).
+- Testé contre le vrai modèle Tom déployé (63 511 038 octets) avec la phrase "Bonjour, ceci est un test de la voix française." → 101 phonème-ids générés par le vrai espeak-ng, synthèse réussie, WAV envoyé à l'utilisateur pour écoute réelle.
+- Confirmation explicite : **"oui ça sonne beaucoup mieux."**
+
+Changement (intégration dans le code shippé, même algorithme que la preuve de concept) :
+- `cloudflare/src/idle-media-v1.js` : proxy `piperModelProxy_` simplifié — sert désormais la configuration du modèle Tom **telle quelle**, sans injection de `language_id_map`/`num_languages`/`soreal_monolingual_g2p_compat` (ce correctif de compatibilité était spécifique au phonémiseur maison de piper-plus, devenu inutile).
+- `cloudflare/public/modules/local-neural-piper-v1.js` (V3 → V4) : réécrit intégralement sans dépendance à `piper-plus`. Nouveau pipeline : `window.createPiperPhonemize(...).then(module => module.callMain(["-l", config.espeak.voice, "--input", JSON.stringify([{text}]), "--espeak_data", "/espeak-ng-data"]))` pour la phonémisation, puis inférence ONNX manuelle directe (`ort.InferenceSession.create` + `session.run`) avec les tenseurs `input`/`input_lengths`/`scales` construits à la main, et encodage WAV manuel (`pcm2wav_`). Le téléchargement du modèle (63 Mo) rapporte sa progression via un lecteur de flux (`fetchModelWithProgress_`), équivalent à l'ancien `onProgress` de piper-plus.
+- `cloudflare/public/index.html` : import map — retiré `piper-plus`/`@piper-plus/g2p`, conservé `onnxruntime-web`. Ajouté `<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js"></script>` (chargement classique, avant le module Piper local, pour exposer `window.createPiperPhonemize` à temps). Cache-buster `local-neural-piper-v1.js` : `?v=5` → `?v=6`.
+- API publique (`window.__SOREAL_IDLE_LOCAL_NEURAL_V1__`) inchangée dans sa forme (`synthesize`/`preload`/`subscribe`/`state`/`model`) : aucun changement requis côté `tutorial-tts-v202.js`.
+
+Vérification :
+- 3 fichiers de test réécrits pour la nouvelle architecture : `idle-local-piper-neural.test.mjs` (assertions sur le nouveau pipeline espeak-ng, absence de `piper-plus`/`PiperPlus`), `idle-piper-model-proxy.test.mjs` (le proxy ne patch plus la config), `idle-tutorial-tts-v202.test.mjs` (import map mise à jour). `idle-piper-production-origin.smoke.mjs` inchangé (ne teste que la forme de l'API publique, restée stable).
+- Suite complète locale : 173/173 OK.
+- Harnais HTML local chargeant le **module réellement shippé** (`local-neural-piper-v1.js` servi tel quel, avec un override ciblé de `fetch` pour rediriger uniquement les requêtes du modèle Tom vers l'origine de production le temps du test) : synthèse réussie, WAV de 544 812 octets produit, état `ready` correct. Harnais supprimé après vérification, jamais commité.
+- Échantillon audio du module shippé envoyé à l'utilisateur pour confirmation finale (mêmes paramètres que la preuve de concept déjà validée).
+- Reste à faire après ce commit : pousser sur `main`, surveiller le workflow réel `Deploy SOREAL Idle to Cloudflare` (le smoke Chromium va désormais aussi télécharger le WASM/data espeak-ng, ~18,6 Mo supplémentaires, donc un run probablement plus long que les ~1m40-50s habituels), puis reconfirmer la production par `curl` direct.

@@ -38,15 +38,14 @@ async function verifierRoute_(origin,path){
     const config=JSON.parse(await response.text());
     assert.ok(config.audio&&config.audio.sample_rate,path);
     /*
-     * Demande utilisateur (2026-09-22) : une seule voix (Tom), sans choix.
-     * fr_FR-tom-medium, comme toute voix Piper officielle mono-langue,
-     * n'a pas de language_id_map : ce correctif s'applique désormais
-     * systématiquement (il ne dépendait plus d'un cas particulier
-     * "SOREAL" depuis la suppression du multi-voix).
+     * Depuis le passage à la phonémisation espeak-ng réelle (2026-09-22),
+     * la configuration du modèle est servie telle quelle : plus de
+     * correctif language_id_map/num_languages (spécifique à piper-plus,
+     * dont le phonémiseur maison exigeait ce contournement).
      */
-    assert.deepEqual(config.language_id_map,{fr:0},path+" French-only G2P compatibility");
-    assert.equal(config.num_languages,1,path+" French-only language count");
-    assert.equal(config.soreal_monolingual_g2p_compat,true,path+" compatibility marker");
+    assert.equal(config.language_id_map,undefined,path+" ne doit plus être patché");
+    assert.equal(config.num_languages,undefined,path+" ne doit plus être patché");
+    assert.equal(config.soreal_monolingual_g2p_compat,undefined,path+" ne doit plus être patché");
   }else{
     assert.match(response.headers.get("content-type")||"",/application\/octet-stream/,path);
     assert.deepEqual([...new Uint8Array(await response.arrayBuffer())],[1,2,3,4],path);

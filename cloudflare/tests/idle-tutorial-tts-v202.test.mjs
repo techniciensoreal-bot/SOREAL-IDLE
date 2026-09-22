@@ -120,12 +120,15 @@ for(const forbidden of [
 }
 
 assert.ok(
-  index.includes('"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"')&&
-  index.includes('"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"')&&
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=5')&&
+  index.includes('<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js"></script>')&&
+  index.includes('/modules/local-neural-piper-v1.js?v=6')&&
   index.includes('/modules/tutorial-tts-v202.js?v=230'),
-  "Piper Plus et le contrôleur de narration doivent être épinglés et cache-bustés."
+  "Le phonémiseur espeak-ng et le contrôleur de narration doivent être épinglés et cache-bustés."
+);
+assert.ok(
+  !index.includes("piper-plus"),
+  "Import map ne doit plus référencer piper-plus."
 );
 
 new Function("window","document","localStorage",narration);

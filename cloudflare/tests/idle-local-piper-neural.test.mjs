@@ -15,45 +15,58 @@ const narration=fs.readFileSync(
 );
 
 for(const token of [
-  '"piper-plus": "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"',
-  '"@piper-plus/g2p": "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"',
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
-  '<script type="module" src="/modules/local-neural-piper-v1.js?v=5"></script>',
+  '<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js"></script>',
+  '<script type="module" src="/modules/local-neural-piper-v1.js?v=6"></script>',
   '/modules/tutorial-tts-v202.js?v=230'
 ]){
   assert.ok(index.includes(token),"Piper local index manquant: "+token);
 }
 
+for(const forbidden of [
+  "piper-plus",
+  "@piper-plus/g2p"
+]){
+  assert.ok(!index.includes(forbidden),"Import map ne doit plus référencer piper-plus: "+forbidden);
+}
+
 assert.ok(
-  index.indexOf('/modules/local-neural-piper-v1.js?v=5')<
+  index.indexOf('piper_phonemize.js')<
+  index.indexOf('/modules/local-neural-piper-v1.js?v=6'),
+  "Le phonémiseur espeak-ng doit être chargé avant le module Piper local."
+);
+assert.ok(
+  index.indexOf('/modules/local-neural-piper-v1.js?v=6')<
   index.indexOf('/modules/tutorial-tts-v202.js?v=230'),
   "Le module Piper local doit être déclaré avant le contrôleur de narration."
 );
 
 /*
- * Demande utilisateur (2026-09-22) : une seule voix (Tom, fr_FR-tom-medium),
- * choisie après écoute comparative des voix officielles Piper via
- * https://rhasspy.github.io/piper-samples/. Le multi-voix (V9) et son
- * correctif de persistance (V9.1) sont retirés — cf. docs/WORKLOG.md.
+ * Demande utilisateur (2026-09-22) : voix unique (Tom, fr_FR-tom-medium)
+ * synthétisée avec le vrai espeak-ng (@diffusionstudio/piper-wasm) au lieu
+ * du phonémiseur maison de piper-plus, root-causé comme incompatible avec
+ * les modèles Piper officiels (accent étranger, mauvaise prononciation) —
+ * cf. docs/WORKLOG.md.
  */
 for(const token of [
-  'import { PiperPlus } from "piper-plus"',
   'import * as ort from "onnxruntime-web"',
   'MODEL_URL_V1=new URL("/api/idle/media/piper-model.onnx"',
-  'PiperPlus.initialize({',
-  'config.soreal_monolingual_g2p_compat',
-  'delete config.language_id_map',
-  'delete config.num_languages',
-  'engine.synthesize(value,{',
-  'language:LANGUAGE_V1',
-  'lengthScale:LENGTH_SCALE_V1',
-  'result.toBlob()',
+  'window.createPiperPhonemize',
+  'espeak_data',
+  'ort.InferenceSession.create(modelBuffer)',
+  'ort.Tensor("int64"',
+  'ort.Tensor("float32"',
+  'pcm2wav_',
   '__SOREAL_IDLE_LOCAL_NEURAL_V1__'
 ]){
-  assert.ok(local.includes(token),"Piper local (voix unique) manquant: "+token);
+  assert.ok(local.includes(token),"Piper local (espeak-ng réel) manquant: "+token);
 }
 
 for(const forbidden of [
+  "PiperPlus",
+  "@piper-plus/g2p",
+  "soreal_monolingual_g2p_compat",
+  "language_id_map",
   "SpeechSynthesisUtterance",
   "speechSynthesis",
   "/api/v1/narration",
@@ -70,7 +83,7 @@ for(const forbidden of [
   "label:\"Siwis\"",
   "label:\"Gilles\""
 ]){
-  assert.ok(!local.includes(forbidden),"Piper local ne doit plus contenir (multi-voix retiré): "+forbidden);
+  assert.ok(!local.includes(forbidden),"Piper local (espeak-ng réel, voix unique) ne doit plus contenir: "+forbidden);
 }
 
 for(const token of [
@@ -107,4 +120,4 @@ new Function(
 );
 new Function("window","document","localStorage",narration);
 
-console.log("idle local Piper: OK — voix unique (Tom), aucun sélecteur, aucun TTS cloud/système.");
+console.log("idle local Piper: OK — espeak-ng réel, voix unique (Tom), aucun sélecteur, aucun TTS cloud/système.");
