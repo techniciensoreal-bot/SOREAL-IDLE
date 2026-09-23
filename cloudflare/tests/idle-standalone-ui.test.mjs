@@ -5,6 +5,16 @@ import vm from "node:vm";
 const index=readFileSync("cloudflare/public/index.html","utf8");
 const bridge=readFileSync("cloudflare/public/standalone-bridge.js","utf8");
 const ui=readFileSync("cloudflare/public/soreal-idle-ui.js","utf8");
+const runtime=readFileSync("cloudflare/public/modules/runtime.js","utf8");
+
+/*
+ * Audit 2026-09-23 (second passage) : runtime.js lisait encore la clé
+ * localStorage 'soreal_session_v6b' -- résidu de l'ancienne intégration
+ * APP/TV, jamais écrite nulle part dans ce dépôt (IDLE tourne sur sa
+ * propre origine, aucun localStorage partagé avec APP/TV). Même règle
+ * que pour standalone-bridge.js ci-dessous.
+ */
+assert.doesNotMatch(runtime,/soreal_session_v6b/);
 
 assert.match(index,/id="app"/);
 assert.match(index,/standalone-bridge\.js/);

@@ -972,3 +972,15 @@ L'en-tête HTTP CSP ajouté plus tôt le même jour posait `frame-ancestors 'sel
 **Fix** : `frame-ancestors 'self' https://soreal-tv.technicien-soreal.workers.dev https://soreal-app.technicien-soreal.workers.dev` -- les deux origines de production qui embarquent réellement ce frontend, listées explicitement. Test `index-html-csp-and-sri.test.mjs` mis à jour.
 
 Suite complète : 173/173 OK.
+
+## 2026-09-23 — Second audit approfondi (3 dépôts) : tier Faible — fichiers morts, doc obsolète, résidu localStorage
+
+**Fichiers morts** : `modules/audio-effects-v197.js` (jamais chargé par `index.html`, seul `v199` l'est, aucune référence nulle part) et `modules/long-press-v197.js` (jamais chargé -- `long-press-v200.js` l'est) supprimés. `inventory-mobile-item-popup-v194.test.mjs` lisait pourtant `long-press-v197.js` et validait sa logique (`touchcancel` avec seuil `elapsed>=120`) -- alors que le v200 réellement servi aux joueurs a une gestion de `touchcancel` **réellement différente** (plus de seuil, tout maintien immobile annulé tôt est conservé). Ce test donnait donc une fausse confiance sur du code qui n'est plus celui livré. Les assertions sur le module long-press retirées de ce test (redondantes avec `idle-inventory-gestures-v200.test.mjs`, qui couvre déjà `HOLD_MS`, `MOVE_PX`, `touchstart` actif et `touchcancel` immobile sur le vrai v200) ; ses assertions sur `soreal-idle-ui.js` (double-tap V196, absence de l'ancien bouton i) restent.
+
+**`AGENTS.md`** : le paragraphe affirmant « le Worker de ce dépôt n'a lui-même aucune route publique utile » (faux depuis le 2026-09-19, et auto-contradictoire avec le paragraphe juste au-dessus) réécrit pour décrire les deux surfaces réelles (chemin public standalone par ticket/session, chemin historique par binding Durable Object).
+
+**`modules/runtime.js`** : `token_()` lisait encore `localStorage.getItem('soreal_session_v6b')`, clé jamais écrite dans ce dépôt (IDLE tourne sur sa propre origine, aucun localStorage partagé avec APP/TV) -- retirée. `idle-standalone-ui.test.mjs` étendu pour couvrir aussi `runtime.js` (il ne vérifiait que `standalone-bridge.js`).
+
+**Rate-limiting sur les routes publiques** (même tier) : non ajouté, même raisonnement que côté TV/APP -- jetons 256 bits non devinables, protections plateforme Cloudflare, coût/bénéfice faible.
+
+Suite complète : 173/173 OK.

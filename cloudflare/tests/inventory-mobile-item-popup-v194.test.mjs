@@ -6,48 +6,25 @@ const ui=readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
-const longPress=readFileSync(
-  new URL("../public/modules/long-press-v197.js",import.meta.url),
-  "utf8"
-).replace(/\r\n/g,"\n");
-
 /*
  * Ce test V194 est conservé comme garde de compatibilité du besoin
  * "popup mobile", mais l'implémentation réelle a été refactorée :
- * - V196 possède tap / double-tap / drag ;
- * - long-press-v197.js possède le maintien tactile WebView ;
+ * - V196 possède tap / double-tap / drag (vérifié ci-dessous) ;
+ * - long-press-v200.js possède le maintien tactile WebView (vérifié par
+ *   idle-inventory-gestures-v200.test.mjs, qui lit le vrai module livré) ;
  * - aucun bouton de secours n'est rendu : le maintien est l'accès direct au popup.
+ *
+ * Audit 2026-09-23 (second passage) : ce test lisait auparavant
+ * long-press-v197.js -- un fichier mort, jamais chargé par index.html
+ * (remplacé par v200, dont la gestion de touchcancel diffère réellement :
+ * v197 avait un seuil elapsed>=120, v200 n'en a plus). Il validait donc
+ * silencieusement une implémentation qui n'est plus celle servie aux
+ * joueurs. Les assertions sur le module long-press lui-même ont été
+ * retirées d'ici (redondantes avec idle-inventory-gestures-v200.test.mjs,
+ * qui couvre déjà HOLD_MS, MOVE_PX, touchstart actif et touchcancel
+ * immobile sur le vrai module v200) ; long-press-v197.js et
+ * audio-effects-v197.js (aussi jamais chargé) ont été supprimés.
  */
-
-assert.match(
-  longPress,
-  /var HOLD_MS=600;/,
-  "L'appui long mobile doit se déclencher après 600 ms."
-);
-
-assert.match(
-  longPress,
-  /var MOVE_PX=32;/,
-  "L'appui long doit tolérer les micro-mouvements naturels du doigt."
-);
-
-assert.match(
-  longPress,
-  /document\.addEventListener\('touchstart',[\s\S]*?\{capture:true,passive:false\}\)/,
-  "Le maintien mobile doit utiliser un touchstart actif en capture pour les WebView."
-);
-
-assert.match(
-  longPress,
-  /new CustomEvent\('soreal-longpress'/,
-  "Le composant de maintien doit émettre l'événement soreal-longpress."
-);
-
-assert.match(
-  longPress,
-  /document\.addEventListener\('touchcancel',[\s\S]*?elapsed>=120[\s\S]*?cancelledByBrowser=true/,
-  "Un touchcancel WebView pendant un maintien immobile ne doit pas tuer immédiatement le timer."
-);
 
 assert.match(
   ui,
@@ -92,6 +69,5 @@ assert.doesNotMatch(
 );
 
 new Function(ui);
-new Function(longPress);
 
-console.log("Inventory mobile item popup: OK — long-press V197 et double-tap V196, sans bouton i.");
+console.log("Inventory mobile item popup: OK — double-tap V196, sans bouton i (long-press couvert par idle-inventory-gestures-v200).");

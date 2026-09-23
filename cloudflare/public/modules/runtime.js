@@ -15,7 +15,7 @@
 
   function token_(){
     try{if(typeof SOREAL_SESSION!=='undefined'&&SOREAL_SESSION)return String(SOREAL_SESSION).trim();}catch(e){}
-    try{return String(window.SOREAL_SESSION||localStorage.getItem('soreal_session_v6b')||'').trim();}catch(e){return '';}
+    try{return String(window.SOREAL_SESSION||'').trim();}catch(e){return '';}
   }
 
   function getState_(force){

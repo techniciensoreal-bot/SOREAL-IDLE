@@ -74,9 +74,18 @@ Procédure attendue avant d'ajouter/corriger une valeur de jeu :
   `wrangler.jsonc` de SOREAL-TV avec `script_name: "soreal-idle"`) → ce
   dépôt, `SorealIdleCoordinatorV1.fetch()` sur la route interne
   `/__soreal-idle-v1/call`, qui appelle `runSorealIdleOperation()`.
-  Le Worker de ce dépôt n'a lui-même aucune route publique utile — son
-  `fetch()` racine renvoie un simple 404 (voir `idle-worker-entry-v1.js`) ;
-  seul le binding Durable Object l'atteint.
+  Le Worker de ce dépôt a **deux surfaces distinctes** (corrigé le
+  2026-09-23 : ce paragraphe affirmait à tort « aucune route publique
+  utile » alors que `idle-worker-entry-v1.js` sert bien `index.html`,
+  `/api/v1/bootstrap`, `/api/v1/session` et `/api/v1/call` en public
+  depuis le 2026-09-19) : (1) le chemin **public** standalone décrit
+  juste au-dessus (ticket → session → `/api/v1/call`, authentifié par
+  jeton de session émis par le mécanisme de ticket à usage unique -- le
+  repli « clé interne » qui existait sur `/api/v1/call` a été retiré le
+  2026-09-23, il n'avait aucun appelant légitime) ; (2) le chemin
+  **historique** par binding Durable Object, jamais joignable depuis
+  l'internet (seuls les Workers TV/APP l'appellent, avec un `user`
+  vérifié côté serveur). Tout autre chemin renvoie 404.
 - Chaque opération de jeu a un nom (`combattreAventureSorealIdle`,
   `renaitreSorealIdle`, etc., listés dans `IDLE_OPERATIONS` dans
   `idle-sqlite-runtime.js`). Le contrat machine-readable est désormais
