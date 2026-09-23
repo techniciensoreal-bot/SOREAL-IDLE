@@ -898,7 +898,30 @@ dutch:{name:"Dutch Set",source:"netherregions",slots:["head","chest","legs","boo
  * reward vide à raison, rien à câbler. Total p/t = 289 540 000 000 /
  * 72 200 000 000 (somme des 8 pièces "Stats Max").
  */
-pirate:{name:"Pirate Set",source:"aethereansea",slots:["head","chest","legs","boots","weapon","cutlass","eyepatch","compass"],p:289540000000,t:72200000000,reward:{}}
+pirate:{name:"Pirate Set",source:"aethereansea",slots:["head","chest","legs","boots","weapon","cutlass","eyepatch","compass"],p:289540000000,t:72200000000,reward:{}},
+/*
+ * Sets des titans Evil/Sadistic (2026-09-23, miroir local NGU-Wiki : page
+ * "<Set> (set)" pour le total et le bonus, fiche de chaque pièce pour les
+ * stats/Specials, recoupées avec les gabarits "Item data <pièce>"). p/t =
+ * "Total Power/Toughness" de "Total Stats Max" de la page du set, égal à la
+ * somme des "Max stat at max lvl" des pièces (vérifié pièce par pièce).
+ * Même convention que Bread/Disco pour les sets à 2 armes : "weapon" porte
+ * l'arme à la plus grosse Power, la seconde arme a son propre slot.
+ * Bonus de complétion : AUCUN n'est exprimable avec les champs setRewards
+ * existants, donc reward:{} (jamais approximé, règle n°1 AGENTS.md) :
+ * - Greasy Nerd : "All MacGuffins drop 1 level higher!"
+ * - Mobster : "+15% QP Gain"
+ * - Exile : "Unlocks something secret!" (drops Sack/Face of the Exile, consommables absents)
+ * - Space : "+10% Cooking EXP Bonus!"
+ * - Rock : "+1 tier to ALL CARDS!"
+ * - Amalgamate : "+10 Max Deck size!"
+ */
+greasynerd:{name:"Greasy Nerd Set",source:"nerd",slots:["head","chest","legs","boots","weapon"],p:22580000,t:10440000,reward:{}},
+mobster:{name:"Mobster Set",source:"godmother",slots:["head","chest","legs","boots","weapon","garrote","brassKnuckles"],p:218200000,t:103000000,reward:{}},
+exile:{name:"Exile Set",source:"t7",slots:["head","chest","legs","boots","weapon"],p:1257800000,t:518000000,reward:{}},
+space:{name:"Space Set",source:"hungers",slots:["head","chest","legs","boots","weapon","manhole","redShirt"],p:4952400000,t:2240000002,reward:{}},
+rock:{name:"Rock Set",source:"lobster",slots:["head","chest","legs","boots","weapon","rocket","petRock","rollingStone"],p:45340800000,t:13328000000,reward:{}},
+amalgamate:{name:"Amalgamate Set",source:"amalgamate",slots:["head","chest","legs","boots","weapon","deathstick","corruptedLeaf","glued"],p:229820000000,t:55600000000,reward:{}}
 };
 export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries(SETS).map(([id,s])=>[id,Object.freeze({id,...s})])));
 /*
@@ -972,7 +995,14 @@ const SET_ITEM_STATS_V1=Object.freeze({
   "construction:weapon":{p:41020000000,t:600000000},"construction:hammer":{p:40000000000,t:800000000},"construction:head":{p:145200000,t:4110000000},"construction:chest":{p:144800000,t:4080000000},"construction:legs":{p:151800000,t:4060000000},"construction:boots":{p:152000000,t:4120000000},"construction:toolbox":{p:3640000000,t:3640000000},"construction:levelLevel":{p:1866000000,t:1866000000},
   "duck:weapon":{p:57800000000,t:840000000},"duck:shotgun":{p:57000000000,t:1100000000},"duck:head":{p:200000000,t:5640000000},"duck:chest":{p:200000000,t:5620000000},"duck:legs":{p:200000000,t:5740000000},"duck:boots":{p:200000000,t:5680000000},"duck:ducktTape":{p:5080000000,t:5080000000},"duck:duckCaller":{p:2400000000,t:2400000000},
   "dutch:weapon":{p:76400000000,t:1200000000},"dutch:tulip":{p:76000000000,t:1200000000},"dutch:head":{p:280000000,t:7700000000},"dutch:chest":{p:280000000,t:7640000000},"dutch:legs":{p:280000000,t:7600000000},"dutch:boots":{p:280000000,t:7700000000},"dutch:netherlands":{p:5620000000,t:5620000000},"dutch:cheese":{p:7020000000,t:7020000000},
-  "pirate:weapon":{p:138000000000,t:2000000000},"pirate:cutlass":{p:126000000000,t:2000000000},"pirate:head":{p:480000000,t:11200000000},"pirate:chest":{p:500000000,t:11400000000},"pirate:legs":{p:480000000,t:11000000000},"pirate:boots":{p:480000000,t:11000000000},"pirate:eyepatch":{p:11800000000,t:11800000000},"pirate:compass":{p:11800000000,t:11800000000}
+  "pirate:weapon":{p:138000000000,t:2000000000},"pirate:cutlass":{p:126000000000,t:2000000000},"pirate:head":{p:480000000,t:11200000000},"pirate:chest":{p:500000000,t:11400000000},"pirate:legs":{p:480000000,t:11000000000},"pirate:boots":{p:480000000,t:11000000000},"pirate:eyepatch":{p:11800000000,t:11800000000},"pirate:compass":{p:11800000000,t:11800000000},
+  // Sets des titans Evil/Sadistic (2026-09-23) : "Max stat at max lvl" de la fiche de chaque pièce (= "Stats Max" de la page du set).
+  "greasynerd:head":{p:160000,t:2200000},"greasynerd:chest":{p:160000,t:2240000},"greasynerd:legs":{p:100000,t:2400000},"greasynerd:boots":{p:160000,t:2400000},"greasynerd:weapon":{p:22000000,t:1200000},
+  "mobster:head":{p:800000,t:20000000},"mobster:chest":{p:800000,t:20000000},"mobster:legs":{p:800000,t:20000000},"mobster:boots":{p:800000,t:20000000},"mobster:weapon":{p:200000000,t:8000000},"mobster:garrote":{p:8000000,t:8000000},"mobster:brassKnuckles":{p:7000000,t:7000000},
+  "exile:head":{p:4400000,t:114000000},"exile:chest":{p:4600000,t:120000000},"exile:legs":{p:4400000,t:118000000},"exile:boots":{p:4400000,t:116000000},"exile:weapon":{p:1240000000,t:50000000},
+  "space:head":{p:15600000,t:410000000},"space:chest":{p:15600000,t:410000000},"space:legs":{p:15600000,t:410000000},"space:boots":{p:15600000,t:410000000},"space:weapon":{p:3840000000,t:150000000},"space:manhole":{p:450000000,t:450000000},"space:redShirt":{p:600000000,t:2},
+  "rock:head":{p:73200000,t:2150000000},"rock:chest":{p:73200000,t:2150000000},"rock:legs":{p:73200000,t:2140000000},"rock:boots":{p:73200000,t:2160000000},"rock:weapon":{p:21020000000,t:600000000},"rock:rocket":{p:20300000000,t:400000000},"rock:petRock":{p:1862000000,t:1862000000},"rock:rollingStone":{p:1866000000,t:1866000000},
+  "amalgamate:head":{p:340000000,t:9200000000},"amalgamate:chest":{p:9200000000,t:9200000000},"amalgamate:legs":{p:340000000,t:9200000000},"amalgamate:boots":{p:340000000,t:9200000000},"amalgamate:weapon":{p:104000000000,t:1600000000},"amalgamate:deathstick":{p:100000000000,t:1600000000},"amalgamate:corruptedLeaf":{p:6400000000,t:6400000000},"amalgamate:glued":{p:9200000000,t:9200000000}
 });
 export function idleAdventureItemStatsMaxV1(set,slot){
   const override=SET_ITEM_STATS_V1[`${set}:${slot}`];
@@ -1185,7 +1215,172 @@ smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000
  */
 mysteriousRedLiquid:{name:"Mysterious Red Liquid",zone:"",slot:"consumable",dropLevel:5,p:0,t:0,consumable:true,maxFlag:"redLiquidMaxed"},
 mysteriousPurpleLiquid:{name:"Mysterious Purple Liquid",zone:"",slot:"consumable",dropLevel:1,p:0,t:0,consumable:true,maxFlag:"purpleLiquidMaxed"},
-mysteriousGreyLiquid:{name:"Mysterious Grey Liquid",zone:"",slot:"consumable",dropLevel:0,p:0,t:0,consumable:true}
+mysteriousGreyLiquid:{name:"Mysterious Grey Liquid",zone:"",slot:"consumable",dropLevel:0,p:0,t:0,consumable:true},
+/*
+ * Objets manquants (audit 2026-09-23) : chaque ligne est copiée de la fiche
+ * wiki de l'objet (miroir local NGU-Wiki, section "Stats" et "Specials"), puis
+ * recoupée avec son gabarit "Item data <objet>" (mêmes nombres). Même
+ * convention que les accessoires ci-dessus : p/t = "Max stat at lvl 0" de
+ * Power/Toughness (0 si la fiche n'en liste pas), sBase/sMax = "Base value"/
+ * "Max stat at lvl 0" du 1er Special, sExtra = les suivants ; "Max stat at max
+ * lvl" = 2x "Max stat at lvl 0" vérifié pour chaque stat. "A Broken Pair Of
+ * Scissors" : sa page est écrasée dans le miroir par une redirection (collision
+ * de casse Windows), valeurs lues sur son gabarit "Item data". zone = zone
+ * d'Aventure unique de l'objet, "" quand il vient d'un titan ou de plusieurs
+ * zones (les vrais taux sont dans IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2 et
+ * rollTitanLootV1). Les Evil Bonus Accs (Edgy Magicite Crystal ... Rad Mixtape)
+ * suivent le modèle des accessoires "Normal Bonus Accs" (Tuba ... Candy Corn
+ * Necklace) : des SPECIALS, sans set (bonus du set "+20% Adventure stats!" non
+ * exprimable avec les setRewards existants).
+ */
+// wiki : "Looty McLootFace" (Id 67, Accessory) — Power/Toughness Max at lvl 0 = 2/2. Specials : Drop Chance (5/10/20%).
+lootyMcLootFace:{name:"Looty McLootFace",zone:"",slot:"accessory",dropLevel:0,p:2,t:2,sBase:5,sMax:10,sType:"dropChancePct"},
+// wiki : "Ascended Forest Pendant" (Id 76, Accessory) — Power/Toughness Max at lvl 0 = 100/100. Specials : Drop Chance (0/20/40%), Gold Drops (0/200/400%).
+ascendedForestPendant:{name:"Ascended Forest Pendant",zone:"",slot:"accessory",dropLevel:0,p:100,t:100,sBase:0,sMax:20,sType:"dropChancePct",sExtra:[{type:"goldDropsPct",base:0,max0:200,max100:400}]},
+// wiki : "Ascended Ascended Forest Pendant" (Id 94, Accessory) — Power/Toughness Max at lvl 0 = 800/800. Specials : Drop Chance (20/40/80%), Gold Drops (200/400/800%), Magic Power (20/100/200%).
+ascendedAscendedForestPendant:{name:"Ascended Ascended Forest Pendant",zone:"",slot:"accessory",dropLevel:1,p:800,t:800,sBase:20,sMax:40,sType:"dropChancePct",sExtra:[{type:"goldDropsPct",base:200,max0:400,max100:800},{type:"magicPowerPct",base:20,max0:100,max100:200}]},
+// wiki : "Dragon Wings" (Id 110, Accessory) — Power/Toughness Max at lvl 0 = 82/82. Specials : Gold Drops (0/200/400%), Magic Cap (14.14/22.82/45.64%), Magic Power (41.4/108.2/216.2%).
+dragonWings:{name:"Dragon Wings",zone:"ancient",slot:"accessory",dropLevel:4,p:82,t:82,sBase:0,sMax:200,sType:"goldDropsPct",sExtra:[{type:"magicCapPct",base:14.14,max0:22.82,max100:45.64},{type:"magicPowerPct",base:41.4,max0:108.2,max100:216.2}]},
+// wiki : "Stapler" (Id 118, Accessory) — Power/Toughness Max at lvl 0 = 500/0. Specials : Energy Cap (22.33/30/60%), Respawn (3/6/12%).
+stapler:{name:"Stapler",zone:"",slot:"accessory",dropLevel:4,p:500,t:0,sBase:22.33,sMax:30,sType:"energyCapPct",sExtra:[{type:"respawnReductionPct",base:3,max0:6,max100:12}]},
+// wiki : "A Beanie" (Id 127, Head) — Power/Toughness Max at lvl 0 = 2000/3000. Specials : Magic Cap (20/53/106%), Magic Power (70/184.9/369.8%).
+aBeanie:{name:"A Beanie",zone:"avsp",slot:"head",dropLevel:4,p:2000,t:3000,sBase:20,sMax:53,sType:"magicCapPct",sExtra:[{type:"magicPowerPct",base:70,max0:184.9,max100:369.8}]},
+// wiki : "Sir Looty McLootington III, Esquire" (Id 128, Accessory) — Power/Toughness Max at lvl 0 = 200/200. Specials : Drop Chance (10/40/80%), Energy Power (0/100/200%), Magic Power (0/100/200%).
+sirLooty:{name:"Sir Looty McLootington III, Esquire",zone:"",slot:"accessory",dropLevel:5,p:200,t:200,sBase:10,sMax:40,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:0,max0:100,max100:200},{type:"magicPowerPct",base:0,max0:100,max100:200}]},
+// wiki : "Ascended Ascended Ascended Pendant" (Id 142, Accessory) — Power/Toughness Max at lvl 0 = 40000/40000. Specials : Drop Chance (100/100/200%), Energy Power (270/270/540%), Gold Drops (800/800/1600%).
+ascendedX3Pendant:{name:"Ascended Ascended Ascended Pendant",zone:"",slot:"accessory",dropLevel:1,p:40000,t:40000,sBase:100,sMax:100,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:270,max0:270,max100:540},{type:"goldDropsPct",base:800,max0:800,max100:1600}]},
+// wiki : "An Infinitely Long Strand of Beard Hair" (Id 148, Accessory) — Power/Toughness Max at lvl 0 = 8000/8000. Specials : Beard Speed (10/10/20%), Energy Power (450/450/900%), Magic Power (350/350/700%).
+beardHairStrand:{name:"An Infinitely Long Strand of Beard Hair",zone:"beardverse",slot:"accessory",dropLevel:5,p:8000,t:8000,sBase:10,sMax:10,sType:"beardSpeedPct",sExtra:[{type:"energyPowerPct",base:450,max0:450,max100:900},{type:"magicPowerPct",base:350,max0:350,max100:700}]},
+// wiki : "UUG's 'Special' Ring" (Id 149, Accessory) — Power/Toughness Max at lvl 0 = 12000/12000. Specials : Beard Speed (10/10/20%), NGU Speed (100/100/200%), Seed Gain (15/15/30%).
+uugSpecialRing:{name:"UUG's 'Special' Ring",zone:"",slot:"accessory",dropLevel:4,p:12000,t:12000,sBase:10,sMax:10,sType:"beardSpeedPct",sExtra:[{type:"nguSpeedPct",base:100,max0:100,max100:200},{type:"seedGainPct",base:15,max0:15,max100:30}]},
+// wiki : "The Candy Cane of Destiny" (Id 159, Weapon) — Power/Toughness Max at lvl 0 = 170000/12000. Specials : Energy Bars (1000/1000/2000%), Energy Cap (100/100/200%), Energy Power (1000/1000/2000%), Magic Bars (1000/1000/2000%), Magic Cap (100/100/200%), Magic Power (1000/1000/2000%).
+candyCaneDestiny:{name:"The Candy Cane of Destiny",zone:"",slot:"weapon",dropLevel:0,p:170000,t:12000,sBase:1000,sMax:1000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:100,max0:100,max100:200},{type:"energyPowerPct",base:1000,max0:1000,max100:2000},{type:"magicBarsPct",base:1000,max0:1000,max100:2000},{type:"magicCapPct",base:100,max0:100,max100:200},{type:"magicPowerPct",base:1000,max0:1000,max100:2000}]},
+// wiki : "Fanny Pack" (Id 160, Accessory) — Power/Toughness Max at lvl 0 = 15000/15000. Specials : Drop Chance (30/30/60%), Energy Cap (30/30/60%), Energy Power (500/500/1000%), Magic Cap (30/30/60%), Magic Power (500/500/1000%).
+fannyPack:{name:"Fanny Pack",zone:"",slot:"accessory",dropLevel:10,p:15000,t:15000,sBase:30,sMax:30,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:30,max0:30,max100:60},{type:"energyPowerPct",base:500,max0:500,max100:1000},{type:"magicCapPct",base:30,max0:30,max100:60},{type:"magicPowerPct",base:500,max0:500,max100:1000}]},
+// wiki : "Dorky Glasses" (Id 161, Accessory) — Power/Toughness Max at lvl 0 = 5000/5000. Specials : Energy Bars (500/500/1000%), Magic Bars (500/500/1000%), NGU Speed (150/150/300%), Wandoos Speed (120/120/240%).
+dorkyGlasses:{name:"Dorky Glasses",zone:"",slot:"accessory",dropLevel:10,p:5000,t:5000,sBase:500,sMax:500,sType:"energyBarsPct",sExtra:[{type:"magicBarsPct",base:500,max0:500,max100:1000},{type:"nguSpeedPct",base:150,max0:150,max100:300},{type:"wandoosSpeedPct",base:120,max0:120,max100:240}]},
+// wiki : "King Looty" (Id 169, Accessory) — Power/Toughness Max at lvl 0 = 100000/100000. Specials : Drop Chance (100/100/200%), Energy Cap (40/40/80%), Energy Power (400/400/800%), Magic Cap (40/40/80%), Magic Power (400/400/800%).
+kingLooty:{name:"King Looty",zone:"",slot:"accessory",dropLevel:1,p:100000,t:100000,sBase:100,sMax:100,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:40,max0:40,max100:80},{type:"energyPowerPct",base:400,max0:400,max100:800},{type:"magicCapPct",base:40,max0:40,max100:80},{type:"magicPowerPct",base:400,max0:400,max100:800}]},
+// wiki : "Ascended x4 Pendant" (Id 170, Accessory) — Power/Toughness Max at lvl 0 = 100000/100000. Specials : Drop Chance (250/250/500%), Energy Cap (120/120/240%), Magic Cap (120/120/240%), Quest Drops (5/5/10%).
+ascendedX4Pendant:{name:"Ascended x4 Pendant",zone:"",slot:"accessory",dropLevel:1,p:100000,t:100000,sBase:250,sMax:250,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:120,max0:120,max100:240},{type:"magicCapPct",base:120,max0:120,max100:240},{type:"questDropsPct",base:5,max0:5,max100:10}]},
+// wiki : "The Stealthiest Armour" (Id 178, Chest) — Power/Toughness Max at lvl 0 = 8000/150000. Specials : Energy Bars (2000/2000/4000%), Energy Cap (210/210/420%), Magic Bars (2000/2000/4000%), Magic Cap (210/210/420%), NGU Speed (200/200/400%).
+stealthiestArmour:{name:"The Stealthiest Armour",zone:"boring",slot:"chest",dropLevel:5,p:8000,t:150000,sBase:2000,sMax:2000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:210,max0:210,max100:420},{type:"magicBarsPct",base:2000,max0:2000,max100:4000},{type:"magicCapPct",base:210,max0:210,max100:420},{type:"nguSpeedPct",base:200,max0:200,max100:400}]},
+// wiki : "A Bald Egg" (Id 189, Accessory) — Power/Toughness Max at lvl 0 = 33333/33333. Specials : Energy Cap (150/150/300%), Magic Cap (150/150/300%), Wandoos Speed (200/200/400%).
+baldEgg:{name:"A Bald Egg",zone:"",slot:"accessory",dropLevel:4,p:33333,t:33333,sBase:150,sMax:150,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:150,max0:150,max100:300},{type:"wandoosSpeedPct",base:200,max0:200,max100:400}]},
+// wiki : "A Giant Apple" (Id 193, Accessory) — Power/Toughness Max at lvl 0 = 50000/50000. Specials : Seed Gain (50/50/100%), Yggdrasil Yield (10/10/20%).
+giantApple:{name:"A Giant Apple",zone:"",slot:"accessory",dropLevel:4,p:50000,t:50000,sBase:50,sMax:50,sType:"seedGainPct",sExtra:[{type:"yggdrasilYieldPct",base:10,max0:10,max100:20}]},
+// wiki : "A Power Pill" (Id 194, Accessory) — Power/Toughness Max at lvl 0 = 250000/250000. Specials : Energy Bars (3000/3000/6000%), Energy Cap (300/300/600%), Energy Power (3000/3000/6000%), Magic Bars (3000/3000/6000%), Magic Cap (300/300/600%), Magic Power (3000/3000/6000%).
+powerPill:{name:"A Power Pill",zone:"",slot:"accessory",dropLevel:4,p:250000,t:250000,sBase:3000,sMax:3000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:300,max0:300,max100:600},{type:"energyPowerPct",base:3000,max0:3000,max100:6000},{type:"magicBarsPct",base:3000,max0:3000,max100:6000},{type:"magicCapPct",base:300,max0:300,max100:600},{type:"magicPowerPct",base:3000,max0:3000,max100:6000}]},
+// wiki : "Energy Bar Bar (Accessory)" (Id 226, Accessory) — Power/Toughness Max at lvl 0 = 50000/50000. Specials : Energy Bars (2200/2200/4400%), Energy Cap (250/250/500%), Energy Power (3000/3000/6000%).
+energyBarBarAccessory:{name:"Energy Bar Bar (Accessory)",zone:"chocolate",slot:"accessory",dropLevel:1,p:50000,t:50000,sBase:2200,sMax:2200,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:250,max0:250,max100:500},{type:"energyPowerPct",base:3000,max0:3000,max100:6000}]},
+// wiki : "Magic Bar Bar (Accessory)" (Id 227, Accessory) — Power/Toughness Max at lvl 0 = 50000/50000. Specials : Magic Bars (2200/2200/4400%), Magic Cap (250/250/500%), Magic Power (3000/3000/6000%).
+magicBarBarAccessory:{name:"Magic Bar Bar (Accessory)",zone:"chocolate",slot:"accessory",dropLevel:1,p:50000,t:50000,sBase:2200,sMax:2200,sType:"magicBarsPct",sExtra:[{type:"magicCapPct",base:250,max0:250,max100:500},{type:"magicPowerPct",base:3000,max0:3000,max100:6000}]},
+// wiki : "Ascended x5 Pendant" (Id 229, Accessory) — Power/Toughness Max at lvl 0 = 400000/400000. Specials : Energy Cap (500/500/1000%), Energy Power (5000/5000/10000%), Magic Cap (500/500/1000%), Magic Power (5000/5000/10000%), NGU Speed (250/250/500%).
+ascendedX5Pendant:{name:"Ascended x5 Pendant",zone:"",slot:"accessory",dropLevel:1,p:400000,t:400000,sBase:500,sMax:500,sType:"energyCapPct",sExtra:[{type:"energyPowerPct",base:5000,max0:5000,max100:10000},{type:"magicCapPct",base:500,max0:500,max100:1000},{type:"magicPowerPct",base:5000,max0:5000,max100:10000},{type:"nguSpeedPct",base:250,max0:250,max100:500}]},
+// wiki : "Emperor Looty" (Id 230, Accessory) — Power/Toughness Max at lvl 0 = 300000/300000. Specials : Drop Chance (300/300/600%), Energy Cap (150/150/300%), Energy Power (1500/1500/3000%), Magic Cap (150/150/300%), Magic Power (1500/1500/3000%).
+emperorLooty:{name:"Emperor Looty",zone:"",slot:"accessory",dropLevel:1,p:300000,t:300000,sBase:300,sMax:300,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:150,max0:150,max100:300},{type:"energyPowerPct",base:1500,max0:1500,max100:3000},{type:"magicCapPct",base:150,max0:150,max100:300},{type:"magicPowerPct",base:1500,max0:1500,max100:3000}]},
+// wiki : "Ascended x6 Pendant" (Id 295, Accessory) — Power/Toughness Max at lvl 0 = 20000000/20000000. Specials : Resource 3 Cap (50/50/100%), Resource 3 Bars (100/100/200%), Resource 3 Power (100/100/200%).
+ascendedX6Pendant:{name:"Ascended x6 Pendant",zone:"",slot:"accessory",dropLevel:2,p:20000000,t:20000000,sBase:50,sMax:50,sType:"r3CapPct",sExtra:[{type:"r3BarsPct",base:100,max0:100,max100:200},{type:"r3PowerPct",base:100,max0:100,max100:200}]},
+// wiki : "GALACTIC HERALD LOOTY" (Id 296, Accessory) — Power/Toughness Max at lvl 0 = 30000000/30000000. Specials : Drop Chance (600/600/1200%), Energy Power (25000/25000/50000%), Magic Power (25000/25000/50000%), Resource 3 Cap (20/20/40%).
+galacticHeraldLooty:{name:"GALACTIC HERALD LOOTY",zone:"",slot:"accessory",dropLevel:2,p:30000000,t:30000000,sBase:600,sMax:600,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:25000,max0:25000,max100:50000},{type:"magicPowerPct",base:25000,max0:25000,max100:50000},{type:"r3CapPct",base:20,max0:20,max100:40}]},
+// wiki : "Ascended x7 Pendant" (Id 388, Accessory) — Power/Toughness Max at lvl 0 = 400000000/400000000. Specials : Resource 3 Cap (40/40/80%), Resource 3 Power (400/400/800%), Wish Speed (40/40/80%).
+ascendedX7Pendant:{name:"Ascended x7 Pendant",zone:"",slot:"accessory",dropLevel:50,p:400000000,t:400000000,sBase:40,sMax:40,sType:"r3CapPct",sExtra:[{type:"r3PowerPct",base:400,max0:400,max100:800},{type:"wishSpeedPct",base:40,max0:40,max100:80}]},
+// wiki : "SUPREME INTELLIGENCE LOOTY" (Id 389, Accessory) — Power/Toughness Max at lvl 0 = 500000000/500000000. Specials : Drop Chance (3000/3000/6000%), Energy Power (500000/500000/1000000%), Gold Drops (200000/200000/400000%), Magic Power (500000/500000/1000000%).
+supremeIntelligenceLooty:{name:"SUPREME INTELLIGENCE LOOTY",zone:"",slot:"accessory",dropLevel:50,p:500000000,t:500000000,sBase:3000,sMax:3000,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:500000,max0:500000,max100:1000000},{type:"goldDropsPct",base:200000,max0:200000,max100:400000},{type:"magicPowerPct",base:500000,max0:500000,max100:1000000}]},
+// wiki : "A 9mm Beretta" (Id 366, Weapon) — Power/Toughness Max at lvl 0 = 1400000000/70000000. Specials : Augment Speed (750/750/1500%), NGU Speed (700/700/1400%), Resource 3 Cap (21/21/42%).
+beretta9mm:{name:"A 9mm Beretta",zone:"westworld",slot:"weapon",dropLevel:1,p:1400000000,t:70000000,sBase:750,sMax:750,sType:"augmentSpeedPct",sExtra:[{type:"nguSpeedPct",base:700,max0:700,max100:1400},{type:"r3CapPct",base:21,max0:21,max100:42}]},
+// wiki : "Edgy Magicite Crystal" (Id 445, Accessory) — Power/Toughness Max at lvl 0 = 666000/666000. Specials : Energy Power (6000/6000/12000%), Magic Cap (600/600/1200%), NGU Speed (250/250/500%).
+edgyMagicite:{name:"Edgy Magicite Crystal",zone:"evilverse",slot:"accessory",dropLevel:1,p:666000,t:666000,sBase:6000,sMax:6000,sType:"energyPowerPct",sExtra:[{type:"magicCapPct",base:600,max0:600,max100:1200},{type:"nguSpeedPct",base:250,max0:250,max100:500}]},
+// wiki : "Creepy Doll" (Id 446, Accessory) — Power/Toughness Max at lvl 0 = 930000/930000. Specials : Daycare Speed (12/12/24%), Energy Power (8500/8500/17000%), Magic Power (8500/8500/17000%), Respawn (3/3/6%).
+creepyDoll:{name:"Creepy Doll",zone:"pinkprincess",slot:"accessory",dropLevel:1,p:930000,t:930000,sBase:12,sMax:12,sType:"daycareSpeedPct",sExtra:[{type:"energyPowerPct",base:8500,max0:8500,max100:17000},{type:"magicPowerPct",base:8500,max0:8500,max100:17000},{type:"respawnReductionPct",base:3,max0:3,max100:6}]},
+// wiki : "THE EXPONENTIAL" (Id 447, Accessory) — Power/Toughness Max at lvl 0 = 2800000/2800000. Specials : Drop Chance (200/200/400%), Energy Cap (1200/1200/2400%), Energy Power (12000/12000/24000%), Magic Cap (1200/1200/2400%), Magic Power (12000/12000/24000%).
+theExponential:{name:"THE EXPONENTIAL",zone:"metaland",slot:"accessory",dropLevel:1,p:2800000,t:2800000,sBase:200,sMax:200,sType:"dropChancePct",sExtra:[{type:"energyCapPct",base:1200,max0:1200,max100:2400},{type:"energyPowerPct",base:12000,max0:12000,max100:24000},{type:"magicCapPct",base:1200,max0:1200,max100:2400},{type:"magicPowerPct",base:12000,max0:12000,max100:24000}]},
+// wiki : "Mt. Rushmore Roosevelt's Nose" (Id 448, Accessory) — Power/Toughness Max at lvl 0 = 5000000/5000000. Specials : Energy Bars (15000/15000/30000%), Energy Power (15000/15000/30000%), Magic Bars (15000/15000/30000%), Magic Cap (2500/2500/5000%), Magic Power (15000/15000/30000%).
+rushmoreNose:{name:"Mt. Rushmore Roosevelt's Nose",zone:"interdimensional",slot:"accessory",dropLevel:1,p:5000000,t:5000000,sBase:15000,sMax:15000,sType:"energyBarsPct",sExtra:[{type:"energyPowerPct",base:15000,max0:15000,max100:30000},{type:"magicBarsPct",base:15000,max0:15000,max100:30000},{type:"magicCapPct",base:2500,max0:2500,max100:5000},{type:"magicPowerPct",base:15000,max0:15000,max100:30000}]},
+// wiki : "THRO, ODIGNSLUG" (Id 449, Accessory) — Power/Toughness Max at lvl 0 = 17000000/17000000. Specials : Energy Power (38000/38000/76000%), Magic Power (38000/38000/76000%), NGU Speed (450/450/900%), Wish Speed (4/4/8%).
+throOdignslug:{name:"THRO, ODIGNSLUG",zone:"typozone",slot:"accessory",dropLevel:1,p:17000000,t:17000000,sBase:38000,sMax:38000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:38000,max0:38000,max100:76000},{type:"nguSpeedPct",base:450,max0:450,max100:900},{type:"wishSpeedPct",base:4,max0:4,max100:8}]},
+// wiki : "A Link Cable" (Id 450, Accessory) — Power/Toughness Max at lvl 0 = 28000000/28000000. Specials : Energy Cap (6200/6200/12400%), Energy Power (62000/62000/124000%), Hack Speed (10/10/20%), Magic Cap (6200/6200/12400%), Magic Power (62000/62000/124000%).
+linkCable:{name:"A Link Cable",zone:"fadlands",slot:"accessory",dropLevel:1,p:28000000,t:28000000,sBase:6200,sMax:6200,sType:"energyCapPct",sExtra:[{type:"energyPowerPct",base:62000,max0:62000,max100:124000},{type:"hackSpeedPct",base:10,max0:10,max100:20},{type:"magicCapPct",base:6200,max0:6200,max100:12400},{type:"magicPowerPct",base:62000,max0:62000,max100:124000}]},
+// wiki : "A Hand Cursor" (Id 451, Accessory) — Power/Toughness Max at lvl 0 = 35000000/35000000. Specials : Drop Chance (900/900/1800%), Resource 3 Power (110/110/220%), Wish Speed (7/7/14%).
+handCursor:{name:"A Hand Cursor",zone:"jrpgville",slot:"accessory",dropLevel:1,p:35000000,t:35000000,sBase:900,sMax:900,sType:"dropChancePct",sExtra:[{type:"r3PowerPct",base:110,max0:110,max100:220},{type:"wishSpeedPct",base:7,max0:7,max100:14}]},
+// wiki : "Rad Mixtape" (Id 452, Accessory) — Power/Toughness Max at lvl 0 = 100000000/100000000. Specials : Energy Power (150000/150000/300000%), Magic Power (150000/150000/300000%), NGU Speed (500/500/1000%), Resource 3 Cap (15/15/30%).
+radMixtape:{name:"Rad Mixtape",zone:"radlands",slot:"accessory",dropLevel:1,p:100000000,t:100000000,sBase:150000,sMax:150000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:150000,max0:150000,max100:300000},{type:"nguSpeedPct",base:500,max0:500,max100:1000},{type:"r3CapPct",base:15,max0:15,max100:30}]},
+// wiki : "An Ordinary Calculator" (Id 242, Accessory) — Power/Toughness Max at lvl 0 = 250000/250000. Specials : Energy Bars (6000/6000/12000%), Magic Bars (6000/6000/12000%), NGU Speed (300/300/600%), Resource 3 Power (5/5/10%).
+ordinaryCalculator:{name:"An Ordinary Calculator",zone:"",slot:"accessory",dropLevel:4,p:250000,t:250000,sBase:6000,sMax:6000,sType:"energyBarsPct",sExtra:[{type:"magicBarsPct",base:6000,max0:6000,max100:12000},{type:"nguSpeedPct",base:300,max0:300,max100:600},{type:"r3PowerPct",base:5,max0:5,max100:10}]},
+// wiki : "Anime Figurine" (Id 243, Accessory) — Power/Toughness Max at lvl 0 = 250000/250000. Specials : Energy Bars (6000/6000/12000%), Energy Power (8000/8000/16000%), Magic Cap (500/500/1000%), Magic Power (8000/8000/16000%).
+animeFigurine:{name:"Anime Figurine",zone:"",slot:"accessory",dropLevel:4,p:250000,t:250000,sBase:6000,sMax:6000,sType:"energyBarsPct",sExtra:[{type:"energyPowerPct",base:8000,max0:8000,max100:16000},{type:"magicCapPct",base:500,max0:500,max100:1000},{type:"magicPowerPct",base:8000,max0:8000,max100:16000}]},
+// wiki : "The D20" (Id 244, Accessory) — Power/Toughness Max at lvl 0 = 250000/250000. Specials : Energy Bars (9000/9000/18000%), Energy Cap (800/800/1600%), Energy Power (9000/9000/18000%).
+theD20:{name:"The D20",zone:"",slot:"accessory",dropLevel:4,p:250000,t:250000,sBase:9000,sMax:9000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:800,max0:800,max100:1600},{type:"energyPowerPct",base:9000,max0:9000,max100:18000}]},
+// wiki : "The D8" (Id 245, Accessory) — Power/Toughness Max at lvl 0 = 300000/250000. Specials : Magic Bars (9000/9000/18000%), Magic Cap (800/800/1600%), Magic Power (9000/9000/18000%).
+theD8:{name:"The D8",zone:"",slot:"accessory",dropLevel:4,p:300000,t:250000,sBase:9000,sMax:9000,sType:"magicBarsPct",sExtra:[{type:"magicCapPct",base:800,max0:800,max100:1600},{type:"magicPowerPct",base:9000,max0:9000,max100:18000}]},
+// wiki : "Anime Bodypillow" (Id 246, Accessory) — Power/Toughness Max at lvl 0 = 500000/500000. Specials : NGU Speed (150/150/300%), Resource 3 Power (10/10/20%), Respawn (2/2/4%).
+animeBodypillow:{name:"Anime Bodypillow",zone:"",slot:"accessory",dropLevel:4,p:500000,t:500000,sBase:150,sMax:150,sType:"nguSpeedPct",sExtra:[{type:"r3PowerPct",base:10,max0:10,max100:20},{type:"respawnReductionPct",base:2,max0:2,max100:4}]},
+// wiki : "Red Meeple Thingy" (Id 247, Accessory) — Power/Toughness Max at lvl 0 = 500000/500000. Specials : Augment Speed (250/250/500%), Magic Power (12000/12000/24000%), Resource 3 Power (10/10/20%).
+redMeeple:{name:"Red Meeple Thingy",zone:"",slot:"accessory",dropLevel:4,p:500000,t:500000,sBase:250,sMax:250,sType:"augmentSpeedPct",sExtra:[{type:"magicPowerPct",base:12000,max0:12000,max100:24000},{type:"r3PowerPct",base:10,max0:10,max100:20}]},
+// wiki : "A Bag of Trash" (Id 248, Accessory) — Power/Toughness Max at lvl 0 = 500000/500000. Specials : Daycare Speed (10/10/20%), Energy Cap (1000/1000/2000%), Magic Cap (1000/1000/2000%), Resource 3 Bars (5/5/10%).
+bagOfTrash:{name:"A Bag of Trash",zone:"",slot:"accessory",dropLevel:4,p:500000,t:500000,sBase:10,sMax:10,sType:"daycareSpeedPct",sExtra:[{type:"energyCapPct",base:1000,max0:1000,max100:2000},{type:"magicCapPct",base:1000,max0:1000,max100:2000},{type:"r3BarsPct",base:5,max0:5,max100:10}]},
+// wiki : "Heart Shaped Panties" (Id 249, Accessory) — Power/Toughness Max at lvl 0 = 666666/666666. Specials : Energy Cap (667/667/1333%), Magic Cap (667/667/1333%), NGU Speed (333/333/666%), Resource 3 Power (6.67/6.67/13.33%).
+heartShapedPanties:{name:"Heart Shaped Panties",zone:"",slot:"accessory",dropLevel:4,p:666666,t:666666,sBase:667,sMax:667,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:667,max0:667,max100:1333},{type:"nguSpeedPct",base:333,max0:333,max100:666},{type:"r3PowerPct",base:6.67,max0:6.67,max100:13.33}]},
+// wiki : "Violin Case" (Id 272, Accessory) — Power/Toughness Max at lvl 0 = 7000000/7000000. Specials : Energy Bars (13000/13000/26000%), Energy Cap (1300/1300/2600%), Magic Bars (13000/13000/26000%), Magic Cap (1300/1300/2600%), Resource 3 Power (13/13/26%).
+violinCase:{name:"Violin Case",zone:"",slot:"accessory",dropLevel:4,p:7000000,t:7000000,sBase:13000,sMax:13000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:1300,max0:1300,max100:2600},{type:"magicBarsPct",base:13000,max0:13000,max100:26000},{type:"magicCapPct",base:1300,max0:1300,max100:2600},{type:"r3PowerPct",base:13,max0:13,max100:26}]},
+// wiki : "Molotov Cocktail" (Id 273, Accessory) — Power/Toughness Max at lvl 0 = 10000000/10000000. Specials : NGU Speed (200/200/400%), Seed Gain (50/50/100%), Wandoos Speed (800/800/1600%).
+molotovCocktail:{name:"Molotov Cocktail",zone:"",slot:"accessory",dropLevel:4,p:10000000,t:10000000,sBase:200,sMax:200,sType:"nguSpeedPct",sExtra:[{type:"seedGainPct",base:50,max0:50,max100:100},{type:"wandoosSpeedPct",base:800,max0:800,max100:1600}]},
+// wiki : "The Godmother's Ring" (Id 274, Accessory) — Power/Toughness Max at lvl 0 = 15000000/15000000. Specials : Drop Chance (700/700/1400%), Gold Drops (30000/30000/60000%), Resource 3 Cap (5.5/5.5/11%).
+godmothersRing:{name:"The Godmother's Ring",zone:"",slot:"accessory",dropLevel:4,p:15000000,t:15000000,sBase:700,sMax:700,sType:"dropChancePct",sExtra:[{type:"goldDropsPct",base:30000,max0:30000,max100:60000},{type:"r3CapPct",base:5.5,max0:5.5,max100:11}]},
+// wiki : "The Godmother's Wand" (Id 275, Accessory) — Power/Toughness Max at lvl 0 = 22000000/22000000. Specials : Energy Cap (6000/6000/12000%), Energy Power (60000/60000/120000%), Magic Cap (6000/6000/12000%), Magic Power (60000/60000/120000%), Yggdrasil Yield (7.5/7.5/15%).
+godmothersWand:{name:"The Godmother's Wand",zone:"",slot:"accessory",dropLevel:4,p:22000000,t:22000000,sBase:6000,sMax:6000,sType:"energyCapPct",sExtra:[{type:"energyPowerPct",base:60000,max0:60000,max100:120000},{type:"magicCapPct",base:6000,max0:6000,max100:12000},{type:"magicPowerPct",base:60000,max0:60000,max100:120000},{type:"yggdrasilYieldPct",base:7.5,max0:7.5,max100:15}]},
+// wiki : "Left Fairy Wing" (Id 276, Accessory) — Power/Toughness Max at lvl 0 = 60000000/60000000. Specials : Energy Cap (8000/8000/16000%), Resource 3 Cap (8/8/16%), Resource 3 Power (80/80/160%).
+leftFairyWing:{name:"Left Fairy Wing",zone:"",slot:"accessory",dropLevel:4,p:60000000,t:60000000,sBase:8000,sMax:8000,sType:"energyCapPct",sExtra:[{type:"r3CapPct",base:8,max0:8,max100:16},{type:"r3PowerPct",base:80,max0:80,max100:160}]},
+// wiki : "Right Fairy Wing" (Id 277, Accessory) — Aucune stat Power/Toughness. Specials : Energy Bars (90000/90000/180000%), Energy Power (90000/90000/180000%), Magic Bars (90000/90000/180000%), Magic Cap (9000/9000/18000%), Magic Power (90000/90000/180000%).
+rightFairyWing:{name:"Right Fairy Wing",zone:"",slot:"accessory",dropLevel:4,p:0,t:0,sBase:90000,sMax:90000,sType:"energyBarsPct",sExtra:[{type:"energyPowerPct",base:90000,max0:90000,max100:180000},{type:"magicBarsPct",base:90000,max0:90000,max100:180000},{type:"magicCapPct",base:9000,max0:9000,max100:18000},{type:"magicPowerPct",base:90000,max0:90000,max100:180000}]},
+// wiki : "The Joker" (Id 327, Accessory) — Power/Toughness Max at lvl 0 = 66600000/66600000. Specials : Cooking (10000000/10000000/20000000%), Resource 3 Cap (40/40/80%), Wish Speed (5/5/10%).
+theJoker:{name:"The Joker",zone:"",slot:"accessory",dropLevel:4,p:66600000,t:66600000,sBase:10000000,sMax:10000000,sType:"cookingPct",sExtra:[{type:"r3CapPct",base:40,max0:40,max100:80},{type:"wishSpeedPct",base:5,max0:5,max100:10}]},
+// wiki : "Antlers of the Exile" (Id 328, Accessory) — Power/Toughness Max at lvl 0 = 80000000/0. Specials : Energy Cap (12000/12000/24000%), Energy Power (100000/100000/200000%), Magic Cap (12000/12000/24000%), Magic Power (100000/100000/200000%), Resource 3 Power (120/120/240%).
+antlersExile:{name:"Antlers of the Exile",zone:"",slot:"accessory",dropLevel:4,p:80000000,t:0,sBase:12000,sMax:12000,sType:"energyCapPct",sExtra:[{type:"energyPowerPct",base:100000,max0:100000,max100:200000},{type:"magicCapPct",base:12000,max0:12000,max100:24000},{type:"magicPowerPct",base:100000,max0:100000,max100:200000},{type:"r3PowerPct",base:120,max0:120,max100:240}]},
+// wiki : "The Credit Card" (Id 329, Accessory) — Aucune stat Power/Toughness. Specials : Energy Bars (170000/170000/340000%), Gold Drops (250000/250000/500000%), Magic Bars (170000/170000/340000%), Quest Drops (5/5/10%).
+creditCard:{name:"The Credit Card",zone:"",slot:"accessory",dropLevel:4,p:0,t:0,sBase:170000,sMax:170000,sType:"energyBarsPct",sExtra:[{type:"goldDropsPct",base:250000,max0:250000,max100:500000},{type:"magicBarsPct",base:170000,max0:170000,max100:340000},{type:"questDropsPct",base:5,max0:5,max100:10}]},
+// wiki : "Tentacle of the Exile" (Id 330, Accessory) — Power/Toughness Max at lvl 0 = 110000000/100000000. Specials : Energy Power (190000/190000/380000%), Magic Power (190000/190000/380000%), Resource 3 Cap (18/18/36%), Resource 3 Bars (180/180/360%).
+tentacleExile:{name:"Tentacle of the Exile",zone:"",slot:"accessory",dropLevel:4,p:110000000,t:100000000,sBase:190000,sMax:190000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:190000,max0:190000,max100:380000},{type:"r3CapPct",base:18,max0:18,max100:36},{type:"r3BarsPct",base:180,max0:180,max100:360}]},
+// wiki : "The Skip Card" (Id 331, Accessory) — Power/Toughness Max at lvl 0 = 120000000/120000000. Specials : Energy Power (280000/280000/560000%), Magic Power (280000/280000/560000%), NGU Speed (250/250/500%), Resource 3 Power (260/260/520%).
+skipCard:{name:"The Skip Card",zone:"",slot:"accessory",dropLevel:4,p:120000000,t:120000000,sBase:280000,sMax:280000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:280000,max0:280000,max100:560000},{type:"nguSpeedPct",base:250,max0:250,max100:500},{type:"r3PowerPct",base:260,max0:260,max100:520}]},
+// wiki : "Antennae of the Exile" (Id 332, Accessory) — Power/Toughness Max at lvl 0 = 100000000/100000000. Specials : Energy Cap (26000/26000/52000%), Hack Speed (12/12/24%), Magic Cap (26000/26000/52000%), Resource 3 Power (270/270/540%).
+antennaeExile:{name:"Antennae of the Exile",zone:"",slot:"accessory",dropLevel:4,p:100000000,t:100000000,sBase:26000,sMax:26000,sType:"energyCapPct",sExtra:[{type:"hackSpeedPct",base:12,max0:12,max100:24},{type:"magicCapPct",base:26000,max0:26000,max100:52000},{type:"r3PowerPct",base:270,max0:270,max100:540}]},
+// wiki : "The Black Lotus" (Id 333, Accessory) — Power/Toughness Max at lvl 0 = 150000000/150000000. Specials : Energy Cap (40000/40000/80000%), Magic Cap (40000/40000/80000%), Resource 3 Cap (45/45/90%), Wish Speed (20/20/40%).
+blackLotus:{name:"The Black Lotus",zone:"",slot:"accessory",dropLevel:4,p:150000000,t:150000000,sBase:40000,sMax:40000,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:40000,max0:40000,max100:80000},{type:"r3CapPct",base:45,max0:45,max100:90},{type:"wishSpeedPct",base:20,max0:20,max100:40}]},
+// wiki : "Buster of the Exile" (Id 334, Accessory) — Power/Toughness Max at lvl 0 = 250000000/250000000. Specials : Energy Power (400000/400000/800000%), Hack Speed (20/20/40%), Magic Power (400000/400000/800000%), Resource 3 Power (400/400/800%).
+busterExile:{name:"Buster of the Exile",zone:"",slot:"accessory",dropLevel:4,p:250000000,t:250000000,sBase:400000,sMax:400000,sType:"energyPowerPct",sExtra:[{type:"hackSpeedPct",base:20,max0:20,max100:40},{type:"magicPowerPct",base:400000,max0:400000,max100:800000},{type:"r3PowerPct",base:400,max0:400,max100:800}]},
+// wiki : "'The Cricket'" (Id 380, Weapon) — Power/Toughness Max at lvl 0 = 2100000000/90000000. Specials : Energy Cap (28300/28300/56600%), Energy Power (249000/249000/498000%), Magic Cap (28300/28300/56600%), Magic Power (249000/249000/498000%), Resource 3 Power (253/253/506%).
+theCricket:{name:"'The Cricket'",zone:"",slot:"weapon",dropLevel:4,p:2100000000,t:90000000,sBase:28300,sMax:28300,sType:"energyCapPct",sExtra:[{type:"energyPowerPct",base:249000,max0:249000,max100:498000},{type:"magicCapPct",base:28300,max0:28300,max100:56600},{type:"magicPowerPct",base:249000,max0:249000,max100:498000},{type:"r3PowerPct",base:253,max0:253,max100:506}]},
+// wiki : "Evil Rubber Ducky" (Id 381, Accessory) — Power/Toughness Max at lvl 0 = 225000000/225000000. Specials : Energy Bars (304000/304000/608000%), Energy Cap (30300/30300/60600%), Magic Bars (304000/304000/608000%), Magic Cap (30300/30300/60600%), Magic Power (301000/301000/602000%).
+evilRubberDucky:{name:"Evil Rubber Ducky",zone:"",slot:"accessory",dropLevel:4,p:225000000,t:225000000,sBase:304000,sMax:304000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:30300,max0:30300,max100:60600},{type:"magicBarsPct",base:304000,max0:304000,max100:608000},{type:"magicCapPct",base:30300,max0:30300,max100:60600},{type:"magicPowerPct",base:301000,max0:301000,max100:602000}]},
+// wiki : "A Gas Giant" (Id 382, Accessory) — Power/Toughness Max at lvl 0 = 290000000/290000000. Specials : Augment Speed (800/800/1600%), Resource 3 Cap (30.4/30.4/60.8%), Resource 3 Power (302/302/604%).
+gasGiant:{name:"A Gas Giant",zone:"",slot:"accessory",dropLevel:4,p:290000000,t:290000000,sBase:800,sMax:800,sType:"augmentSpeedPct",sExtra:[{type:"r3CapPct",base:30.4,max0:30.4,max100:60.8},{type:"r3PowerPct",base:302,max0:302,max100:604}]},
+// wiki : "An Inanimate Carbon Rod" (Id 383, Accessory) — Power/Toughness Max at lvl 0 = 400000000/400000000. Specials : Hack Speed (20/20/40%), Yggdrasil Yield (4/4/8%), Wandoos Speed (1300/1300/2600%).
+carbonRod:{name:"An Inanimate Carbon Rod",zone:"",slot:"accessory",dropLevel:4,p:400000000,t:400000000,sBase:20,sMax:20,sType:"hackSpeedPct",sExtra:[{type:"yggdrasilYieldPct",base:4,max0:4,max100:8},{type:"wandoosSpeedPct",base:1300,max0:1300,max100:2600}]},
+// wiki : "A Funky Klein Bottle" (Id 384, Accessory) — Power/Toughness Max at lvl 0 = 380000000/380000000. Specials : Energy Power (255000/255000/510000%), Magic Power (255000/255000/510000%), Resource 3 Power (365/365/730%), 2nd Energy Power (255000/255000/510000%), 2nd Magic Power (255000/255000/510000%).
+kleinBottle:{name:"A Funky Klein Bottle",zone:"",slot:"accessory",dropLevel:4,p:380000000,t:380000000,sBase:255000,sMax:255000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:255000,max0:255000,max100:510000},{type:"r3PowerPct",base:365,max0:365,max100:730},{type:"energyPowerPct",base:255000,max0:255000,max100:510000},{type:"magicPowerPct",base:255000,max0:255000,max100:510000}]},
+// wiki : "Giant Alien Bug Nest" (Id 385, Accessory) — Power/Toughness Max at lvl 0 = 456000000/456000000. Specials : Energy Power (437000/437000/874000%), Magic Power (437000/437000/874000%), Resource 3 Cap (44/44/88%), Quest Drops (8/8/16%).
+alienBugNest:{name:"Giant Alien Bug Nest",zone:"",slot:"accessory",dropLevel:4,p:456000000,t:456000000,sBase:437000,sMax:437000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:437000,max0:437000,max100:874000},{type:"r3CapPct",base:44,max0:44,max100:88},{type:"questDropsPct",base:8,max0:8,max100:16}]},
+// wiki : "The Key" (Id 386, Accessory) — Power/Toughness Max at lvl 0 = 456000000/456000000. Specials : Augment Speed (750/750/1500%), Energy Power (437000/437000/874000%), Magic Power (437000/437000/874000%), NGU Speed (1600/1600/3200%).
+theKey:{name:"The Key",zone:"",slot:"accessory",dropLevel:4,p:456000000,t:456000000,sBase:750,sMax:750,sType:"augmentSpeedPct",sExtra:[{type:"energyPowerPct",base:437000,max0:437000,max100:874000},{type:"magicPowerPct",base:437000,max0:437000,max100:874000},{type:"nguSpeedPct",base:1600,max0:1600,max100:3200}]},
+// wiki : "A Skipping Stone" (Id 424, Accessory) — Power/Toughness Max at lvl 0 = 1582000000/1582000000. Specials : Energy Bars (711000/711000/1422000%), Energy Power (703000/703000/1406000%), Hack Speed (78.8/78.8/157.6%), Magic Bars (711000/711000/1422000%), Magic Power (703000/703000/1406000%).
+skippingStone:{name:"A Skipping Stone",zone:"",slot:"accessory",dropLevel:4,p:1582000000,t:1582000000,sBase:711000,sMax:711000,sType:"energyBarsPct",sExtra:[{type:"energyPowerPct",base:703000,max0:703000,max100:1406000},{type:"hackSpeedPct",base:78.8,max0:78.8,max100:157.6},{type:"magicBarsPct",base:711000,max0:711000,max100:1422000},{type:"magicPowerPct",base:703000,max0:703000,max100:1406000}]},
+// wiki : "A Bed Rock" (Id 425, Accessory) — Power/Toughness Max at lvl 0 = 1576000000/1576000000. Specials : Energy Power (999000/999000/1998000%), Magic Power (999000/999000/1998000%), Resource 3 Cap (72.1/72.1/144.2%), Wish Speed (99.9/99.9/199.8%).
+bedRock:{name:"A Bed Rock",zone:"",slot:"accessory",dropLevel:4,p:1576000000,t:1576000000,sBase:999000,sMax:999000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:999000,max0:999000,max100:1998000},{type:"r3CapPct",base:72.1,max0:72.1,max100:144.2},{type:"wishSpeedPct",base:99.9,max0:99.9,max100:199.8}]},
+// wiki : "Rock Candy" (Id 426, Accessory) — Power/Toughness Max at lvl 0 = 2679000000/2679000000. Specials : Energy Bars (1300000/1300000/2600000%), Energy Power (1250000/1250000/2500000%), Hack Speed (100/100/200%), Magic Bars (1300000/1300000/2600000%), Magic Power (1250000/1250000/2500000%).
+rockCandy:{name:"Rock Candy",zone:"",slot:"accessory",dropLevel:4,p:2679000000,t:2679000000,sBase:1300000,sMax:1300000,sType:"energyBarsPct",sExtra:[{type:"energyPowerPct",base:1250000,max0:1250000,max100:2500000},{type:"hackSpeedPct",base:100,max0:100,max100:200},{type:"magicBarsPct",base:1300000,max0:1300000,max100:2600000},{type:"magicPowerPct",base:1250000,max0:1250000,max100:2500000}]},
+// wiki : "A Broken Pair Of Scissors" (Id 427, Accessory) — Power/Toughness Max at lvl 0 = 2700000000/2700000000. Specials : Energy Power (1320000/1320000/2640000%), Magic Power (1320000/1320000/2640000%), NGU Speed (4000/4000/8000%), Resource 3 Cap (132/132/264%).
+brokenScissors:{name:"A Broken Pair Of Scissors",zone:"",slot:"accessory",dropLevel:4,p:2700000000,t:2700000000,sBase:1320000,sMax:1320000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:1320000,max0:1320000,max100:2640000},{type:"nguSpeedPct",base:4000,max0:4000,max100:8000},{type:"r3CapPct",base:132,max0:132,max100:264}]},
+// wiki : "Portable Stairway (To Heaven)" (Id 428, Accessory) — Power/Toughness Max at lvl 0 = 4860000000/4860000000. Specials : Hack Speed (160/160/320%), NGU Speed (10000/10000/20000%), Wish Speed (160/160/320%).
+portableStairway:{name:"Portable Stairway (To Heaven)",zone:"",slot:"accessory",dropLevel:4,p:4860000000,t:4860000000,sBase:160,sMax:160,sType:"hackSpeedPct",sExtra:[{type:"nguSpeedPct",base:10000,max0:10000,max100:20000},{type:"wishSpeedPct",base:160,max0:160,max100:320}]},
+// wiki : "Amplifier" (Id 429, Accessory) — Power/Toughness Max at lvl 0 = 4840000000/4840000000. Specials : Energy Power (2000000/2000000/4000000%), Magic Power (2000000/2000000/4000000%), Resource 3 Power (2000/2000/4000%), Yggdrasil Yield (10/10/20%).
+amplifier:{name:"Amplifier",zone:"",slot:"accessory",dropLevel:4,p:4840000000,t:4840000000,sBase:2000000,sMax:2000000,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:2000000,max0:2000000,max100:4000000},{type:"r3PowerPct",base:2000,max0:2000,max100:4000},{type:"yggdrasilYieldPct",base:10,max0:10,max100:20}]},
+// wiki : "Raw Slab of Wood" (Id 477, Accessory) — Power/Toughness Max at lvl 0 = 6300000000/6300000000. Specials : Energy Cap (185000/185000/370000%), Magic Cap (185000/185000/370000%), Resource 3 Cap (187/187/374%), Resource 3 Power (1860/1860/3720%).
+rawSlabOfWood:{name:"Raw Slab of Wood",zone:"",slot:"accessory",dropLevel:4,p:6300000000,t:6300000000,sBase:185000,sMax:185000,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:185000,max0:185000,max100:370000},{type:"r3CapPct",base:187,max0:187,max100:374},{type:"r3PowerPct",base:1860,max0:1860,max100:3720}]},
+// wiki : "Tie of Apathy" (Id 478, Accessory) — Power/Toughness Max at lvl 0 = 8999999000/8999999000. Specials : Gold Drops (4000000/4000000/8000000%), Resource 3 Power (1850/1850/3700%), Wish Speed (185/185/370%).
+tieOfApathy:{name:"Tie of Apathy",zone:"",slot:"accessory",dropLevel:4,p:8999999000,t:8999999000,sBase:4000000,sMax:4000000,sType:"goldDropsPct",sExtra:[{type:"r3PowerPct",base:1850,max0:1850,max100:3700},{type:"wishSpeedPct",base:185,max0:185,max100:370}]},
+// wiki : "The Titan Effigy" (Id 479, Accessory) — Power/Toughness Max at lvl 0 = 13000000000/13000000000. Specials : Resource 3 Cap (220/220/440%), Resource 3 Bars (2200/2200/4400%), Resource 3 Power (2200/2200/4400%).
+titanEffigy:{name:"The Titan Effigy",zone:"",slot:"accessory",dropLevel:4,p:13000000000,t:13000000000,sBase:220,sMax:220,sType:"r3CapPct",sExtra:[{type:"r3BarsPct",base:2200,max0:2200,max100:4400},{type:"r3PowerPct",base:2200,max0:2200,max100:4400}]}
 });
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
 /*
@@ -1495,7 +1690,122 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "smallGerbil":195,
   "mysteriousRedLiquid":93,
   "mysteriousPurpleLiquid":191,
-  "mysteriousGreyLiquid":506
+  "mysteriousGreyLiquid":506,
+  // Audit 2026-09-23 : "Id" de la fiche wiki de chaque nouvel objet.
+  "greasynerd:head":237,
+  "greasynerd:chest":238,
+  "greasynerd:legs":239,
+  "greasynerd:boots":240,
+  "greasynerd:weapon":241,
+  "mobster:head":265,
+  "mobster:chest":266,
+  "mobster:legs":267,
+  "mobster:boots":268,
+  "mobster:weapon":269,
+  "mobster:garrote":270,
+  "mobster:brassKnuckles":271,
+  "exile:head":322,
+  "exile:chest":323,
+  "exile:legs":324,
+  "exile:boots":325,
+  "exile:weapon":326,
+  "space:head":373,
+  "space:chest":374,
+  "space:legs":375,
+  "space:boots":376,
+  "space:weapon":377,
+  "space:manhole":378,
+  "space:redShirt":379,
+  "rock:head":416,
+  "rock:chest":417,
+  "rock:legs":418,
+  "rock:boots":419,
+  "rock:weapon":423,
+  "rock:rocket":420,
+  "rock:petRock":421,
+  "rock:rollingStone":422,
+  "amalgamate:head":469,
+  "amalgamate:chest":470,
+  "amalgamate:legs":471,
+  "amalgamate:boots":472,
+  "amalgamate:weapon":476,
+  "amalgamate:deathstick":473,
+  "amalgamate:corruptedLeaf":474,
+  "amalgamate:glued":475,
+  "lootyMcLootFace":67,
+  "ascendedForestPendant":76,
+  "ascendedAscendedForestPendant":94,
+  "dragonWings":110,
+  "stapler":118,
+  "aBeanie":127,
+  "sirLooty":128,
+  "ascendedX3Pendant":142,
+  "beardHairStrand":148,
+  "uugSpecialRing":149,
+  "candyCaneDestiny":159,
+  "fannyPack":160,
+  "dorkyGlasses":161,
+  "kingLooty":169,
+  "ascendedX4Pendant":170,
+  "stealthiestArmour":178,
+  "baldEgg":189,
+  "giantApple":193,
+  "powerPill":194,
+  "energyBarBarAccessory":226,
+  "magicBarBarAccessory":227,
+  "ascendedX5Pendant":229,
+  "emperorLooty":230,
+  "ascendedX6Pendant":295,
+  "galacticHeraldLooty":296,
+  "ascendedX7Pendant":388,
+  "supremeIntelligenceLooty":389,
+  "beretta9mm":366,
+  "edgyMagicite":445,
+  "creepyDoll":446,
+  "theExponential":447,
+  "rushmoreNose":448,
+  "throOdignslug":449,
+  "linkCable":450,
+  "handCursor":451,
+  "radMixtape":452,
+  "ordinaryCalculator":242,
+  "animeFigurine":243,
+  "theD20":244,
+  "theD8":245,
+  "animeBodypillow":246,
+  "redMeeple":247,
+  "bagOfTrash":248,
+  "heartShapedPanties":249,
+  "violinCase":272,
+  "molotovCocktail":273,
+  "godmothersRing":274,
+  "godmothersWand":275,
+  "leftFairyWing":276,
+  "rightFairyWing":277,
+  "theJoker":327,
+  "antlersExile":328,
+  "creditCard":329,
+  "tentacleExile":330,
+  "skipCard":331,
+  "antennaeExile":332,
+  "blackLotus":333,
+  "busterExile":334,
+  "theCricket":380,
+  "evilRubberDucky":381,
+  "gasGiant":382,
+  "carbonRod":383,
+  "kleinBottle":384,
+  "alienBugNest":385,
+  "theKey":386,
+  "skippingStone":424,
+  "bedRock":425,
+  "rockCandy":426,
+  "brokenScissors":427,
+  "portableStairway":428,
+  "amplifier":429,
+  "rawSlabOfWood":477,
+  "tieOfApathy":478,
+  "titanEffigy":479
 });
 function wikiItemIdAdventureV1(definitionId){
   return Number(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1[String(definitionId||"")])||0;
@@ -1741,7 +2051,25 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   "dutch:head":"A Dutch Hat","dutch:chest":"Windmill Shirt","dutch:legs":"Stroopwaffel Pants","dutch:boots":"Clogs","dutch:weapon":"Weaponized Hollandaise sauce","dutch:tulip":"Black Tulip","dutch:netherlands":"Pocket Netherlands","dutch:cheese":"Rest of the Combat Cheese",
 
   // Pirate (set) (Aetherean Sea) -- ngu-idle.fandom.com/wiki/Pirate_(set) -- slot "cutlass" = objet "The Cutlass" (arme réelle = The Flintlock)
-  "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!"
+  "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!",
+
+  // Greasy Nerd (set)
+  "greasynerd:head":"A Worn Out Fedora","greasynerd:chest":"Sweat-Stained NGU Shirt","greasynerd:legs":"Not Sweat-Stained Underpants","greasynerd:boots":"Nerdy Shoes","greasynerd:weapon":"Superior Japanese Katana",
+
+  // Mobster (set)
+  "mobster:head":"Mobster Hat","mobster:chest":"Mobster Vest","mobster:legs":"Mobster Pants","mobster:boots":"Cement Boots","mobster:weapon":"Tommy Gun","mobster:garrote":"A Garrote","mobster:brassKnuckles":"Brass Knuckles",
+
+  // Exile (set)
+  "exile:head":"Hat of Greed","exile:chest":"Blue Eyes White Chestplate","exile:legs":"Trap Pants","exile:boots":"All the other Titans' Missing Shoes","exile:weapon":"The Disk of Dueling",
+
+  // Space (set)
+  "space:head":"Space Helmet","space:chest":"Space Suit Chest","space:legs":"Space Suit Legs","space:boots":"Space Boots","space:weapon":"Space Gun!","space:manhole":"A Manhole","space:redShirt":"A Red Shirt",
+
+  // Rock (set)
+  "rock:head":"A Bandana","rock:chest":"Broken Drum","rock:legs":"Stonehenge Pants","rock:boots":"Platform Boots","rock:weapon":"Giant Drumsticks","rock:rocket":"A Rocket","rock:petRock":"A Pet Rock","rock:rollingStone":"A Rolling Stone",
+
+  // Amalgamate (set)
+  "amalgamate:head":"Choffice Hat of Greed","amalgamate:chest":"Wooden Office Apron of Might","amalgamate:legs":"Papapapantstststs of Utility","amalgamate:boots":"A Shoe.","amalgamate:weapon":"UUG's Big Book of Insults","amalgamate:deathstick":"THE DEATHSTICK","amalgamate:corruptedLeaf":"A Corrupted Leaf","amalgamate:glued":"8 Old Accessories Glued Together"
 });
 function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(SET_ITEM_SPECIALS_V1[definitionId]?.[0]?.[1])}}
 function rollFreshEquipmentStatsV1(o){
@@ -2924,6 +3252,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:.40,definitions:["forest:pendant"],level:2}],
       specials:[
         {id:"wandoos98",chance:.003,level:0},
+        {id:"lootyMcLootFace",chance:.01,level:0}, /* wiki, section Loot > Boss (audit 2026-09-23) */
         {id:"pissedOffKey",chance:.01,level:0,firstGuaranteed:true},
         {id:"skyBall",chance:.01,level:1}
       ]
@@ -2973,7 +3302,8 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:.30,set:"spoopy",level:0}],
       specials:[
         {id:"wandoos98",chance:.002,level:0},
-        {id:"ghostTypewriter",chance:.0045,level:1}
+        {id:"ghostTypewriter",chance:.0045,level:1},
+        {id:"dragonWings",chance:.0015,level:4,mobName:"Mysterious Figure"} /* wiki : "MYSTERIOUS FIGURE (BOSS): Dragon Wings lvl 4 (0.15% base chance)" */
       ]
     }
   },
@@ -2985,6 +3315,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     boss:{
       equipment:[{chance:.20,set:"gaudy",level:0}],
       specials:[
+        {id:"aBeanie",chance:.0015,level:4}, /* wiki, section Loot > Boss (audit 2026-09-23) */
         {id:"wandoos98",chance:.0025,level:1},
         {id:"gaudyShoulders",chance:.004,level:1}
       ]
@@ -2997,7 +3328,10 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.08,set:"mega",level:0}],
-      specials:[{id:"fTank",chance:.002,level:1}]
+      specials:[
+        {id:"ascendedForestPendant",chance:.01,level:0}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"fTank",chance:.002,level:1}
+      ]
     }
   },
   beardverse:{
@@ -3007,7 +3341,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.01,set:"beardverse",level:1}],
-      specials:[{id:"beardComb",chance:.0002,level:1}]
+      specials:[
+        {id:"beardHairStrand",chance:.0002,level:5}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedForestPendant",chance:.006,level:1},
+        {id:"beardComb",chance:.0002,level:1}
+      ]
     }
   },
   badly:{
@@ -3018,7 +3356,12 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.00018,cap:.15,set:"badly",level:1}],
-      specials:[{id:"randomCrayons",chance:.000012,cap:.03,level:1}]
+      specials:[
+        {id:"lootyMcLootFace",chance:.0005,cap:.10,level:10}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"sirLooty",chance:.00001,cap:.01,level:5},
+        {id:"ascendedAscendedForestPendant",chance:.0001,cap:.01,level:1},
+        {id:"randomCrayons",chance:.000012,cap:.03,level:1}
+      ]
     }
   },
   boring:{
@@ -3029,7 +3372,12 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.00009,cap:.10,set:"stealth",level:1}],
-      specials:[{id:"redLipstick",chance:.000006,cap:.02,level:1}]
+      specials:[
+        {id:"ascendedAscendedForestPendant",chance:.00007,cap:.01,level:5}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"sirLooty",chance:.000007,cap:.01,level:8},
+        {id:"stealthiestArmour",chance:.000001,cap:.005,level:5,requiresCompletedSet:"stealth"},
+        {id:"redLipstick",chance:.000006,cap:.02,level:1}
+      ]
     }
   },
   chocolate:{
@@ -3040,7 +3388,10 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.00055,cap:.12,set:"choco",level:1}],
-      specials:[{id:"candyCornNecklace",chance:.00008,cap:.016,level:1}]
+      specials:[
+        {ids:["energyBarBarAccessory","magicBarBarAccessory"],chance:.00018,cap:.12,level:1,requiresCompletedSet:"choco"}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"candyCornNecklace",chance:.00008,cap:.016,level:1}
+      ]
     }
   },
   /*
@@ -3048,84 +3399,134 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
    * remplaçant le repli universel inventé (22% set / 12% boost / 4% spécial,
    * force de boost = log2(1+boss/10)). Taux de base et plafonds ("up to") de la
    * section Loot de chaque page ; le cube root de la chance de drop reste appliqué
-   * par idleAdventureDropChanceV2 (zoneUsesCubeRootDropV2). Les accessoires
-   * propres à chaque zone (Edgy Magicite Crystal, Creepy Doll...), les Ascended
-   * Pendants et les Looties n'existent pas encore côté SOREAL : non tirés ici,
-   * jamais remplacés par une valeur de repli.
+   * par idleAdventureDropChanceV2 (zoneUsesCubeRootDropV2).
+   *
+   * Audit des objets manquants (2026-09-23) : les accessoires propres à chaque
+   * zone (Evil Bonus Accs), les Ascended Pendants et les Looties sont désormais
+   * tirés avec les taux/plafonds/niveaux de la section Loot. Lignes volontairement
+   * NON tirées (jamais de valeur de repli, règle n°1 AGENTS.md) :
+   * - Chocolate World / The Evilverse / Pretty Pink Princess Land : "Ascended
+   *   Ascended Ascended Pendant (0.1% + 0.0000001% / 0.15% + 0.00000001% /
+   *   0.15% + 0.000000002% base chance)" -- notation "+" que le wiki n'explique
+   *   nulle part ;
+   * - The Aethereal Sea : "Ascended x6 Pendant lvl 16 chance ?" et "GALACTIC
+   *   HERALD LOOTY lvl 16 chance ?" -- taux non publiés.
    */
   evilverse:{
     normal:{
       boosts:[{strength:200,chance:0.00012,cap:0.1},{strength:500,chance:0.00012,cap:0.1}],
-      equipment:[{chance:0.00007,cap:0.08,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1}]
+      equipment:[{chance:0.00007,cap:0.08,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1}],
+      specials:[{id:"edgyMagicite",chance:0.00002,cap:0.011,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
       equipment:[
         {chance:0.00021,cap:0.12,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1},
         {chance:0.000018,cap:0.12,definitions:["bothedgy:boots"],level:1,requiresCompletedSet:"edgyboots"}
-      ]
+      ],
+      specials:[{id:"edgyMagicite",chance:0.00002,cap:0.011,level:1}] /* wiki, section Loot > Boss (audit 2026-09-23) */
     }
   },
   pinkprincess:{
     normal:{
       boosts:[{strength:500,chance:0.0001,cap:0.08},{strength:1000,chance:0.0001,cap:0.06}],
-      equipment:[{chance:0.00003,cap:0.08,set:"pinkprincess",level:1}]
+      equipment:[{chance:0.00003,cap:0.08,set:"pinkprincess",level:1}],
+      specials:[{id:"creepyDoll",chance:0.000012,cap:0.013,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.0001,cap:0.12,set:"pinkprincess",level:1}]
+      equipment:[{chance:0.0001,cap:0.12,set:"pinkprincess",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"creepyDoll",chance:0.000012,cap:0.013,level:1}
+      ]
     }
   },
   metaland:{
     normal:{
       boosts:[{strength:1000,chance:0.00005,cap:0.07},{strength:2000,chance:0.00005,cap:0.07}],
-      equipment:[{chance:0.000015,cap:0.04,set:"meta",level:1}]
+      equipment:[{chance:0.000015,cap:0.04,set:"meta",level:1}],
+      specials:[{id:"theExponential",chance:0.000006,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.00005,cap:0.12,set:"meta",level:1}]
+      equipment:[{chance:0.00005,cap:0.12,set:"meta",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.00005,cap:0.03,level:5},
+        {id:"sirLooty",chance:0.000012,cap:0.03,level:25},
+        {id:"theExponential",chance:0.000006,cap:0.017,level:1}
+      ]
     }
   },
   interdimensional:{
     normal:{
       boosts:[{strength:1000,chance:0.00003,cap:0.08},{strength:2000,chance:0.00003,cap:0.08}],
-      equipment:[{chance:0.000011,cap:0.04,set:"party",level:1}]
+      equipment:[{chance:0.000011,cap:0.04,set:"party",level:1}],
+      specials:[{id:"rushmoreNose",chance:0.000014,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000035,cap:0.12,set:"party",level:1}]
+      equipment:[{chance:0.000035,cap:0.12,set:"party",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000035,cap:0.12,level:10},
+        {id:"sirLooty",chance:0.00001,cap:0.12,level:68},
+        {id:"rushmoreNose",chance:0.000014,cap:0.017,level:1}
+      ]
     }
   },
   typozone:{
     normal:{
       boosts:[{strength:1000,chance:0.000022,cap:0.08},{strength:2000,chance:0.000022,cap:0.08}],
-      equipment:[{chance:0.000009,cap:0.04,set:"typo",level:1}]
+      equipment:[{chance:0.000009,cap:0.04,set:"typo",level:1}],
+      specials:[{id:"throOdignslug",chance:0.000004,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000025,cap:0.12,set:"typo",level:1}]
+      equipment:[{chance:0.000025,cap:0.12,set:"typo",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000025,cap:0.12,level:10},
+        {id:"sirLooty",chance:0.000006,cap:0.12,level:68},
+        {id:"throOdignslug",chance:0.000004,cap:0.017,level:1}
+      ]
     }
   },
   fadlands:{
     normal:{
       boosts:[{strength:2000,chance:0.000018,cap:0.08},{strength:5000,chance:0.000018,cap:0.08}],
-      equipment:[{chance:0.000007,cap:0.04,set:"fad",level:1}]
+      equipment:[{chance:0.000007,cap:0.04,set:"fad",level:1}],
+      specials:[{id:"linkCable",chance:0.0000025,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000021,cap:0.12,set:"fad",level:1}]
+      equipment:[{chance:0.000021,cap:0.12,set:"fad",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000021,cap:0.08,level:10},
+        {id:"sirLooty",chance:0.000007,cap:0.08,level:68},
+        {id:"linkCable",chance:0.0000025,cap:0.017,level:1}
+      ]
     }
   },
   jrpgville:{
     normal:{
       boosts:[{strength:2000,chance:0.000015,cap:0.1},{strength:5000,chance:0.000015,cap:0.1}],
-      equipment:[{chance:0.0000055,cap:0.04,set:"jrpg",level:1}]
+      equipment:[{chance:0.0000055,cap:0.04,set:"jrpg",level:1}],
+      specials:[{id:"handCursor",chance:0.000002,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000018,cap:0.12,set:"jrpg",level:1}]
+      equipment:[{chance:0.000018,cap:0.12,set:"jrpg",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000018,cap:0.12,level:10},
+        {id:"sirLooty",chance:0.0000055,cap:0.12,level:68},
+        {id:"handCursor",chance:0.000002,cap:0.017,level:1}
+      ]
     }
   },
   radlands:{
     normal:{
       boosts:[{strength:2000,chance:6e-7,cap:0.15},{strength:5000,chance:6e-7,cap:0.15}],
-      equipment:[{chance:2e-7,cap:0.05,set:"rad",level:1}]
+      equipment:[{chance:2e-7,cap:0.05,set:"rad",level:1}],
+      specials:[{id:"radMixtape",chance:8e-8,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:6e-7,cap:0.15,set:"rad",level:1}]
+      equipment:[{chance:6e-7,cap:0.15,set:"rad",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX4Pendant",chance:0.0000012,cap:0.12,level:1},
+        {id:"kingLooty",chance:4e-7,cap:0.12,level:1},
+        {id:"radMixtape",chance:8e-8,cap:0.017,level:1}
+      ]
     }
   },
   backtoschool:{
@@ -3134,16 +3535,26 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:1.5e-7,cap:0.05,set:"backtoschool",level:1}]
     },
     boss:{
-      equipment:[{chance:4.5e-7,cap:0.15,set:"backtoschool",level:1}]
+      equipment:[{chance:4.5e-7,cap:0.15,set:"backtoschool",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:4.5e-7,cap:0.12,level:1},
+        {id:"emperorLooty",chance:1.5e-7,cap:0.12,level:1}
+      ]
     }
   },
   westworld:{
     normal:{
       boosts:[{strength:5000,chance:2.5e-7,cap:0.15},{strength:10000,chance:2.5e-7,cap:0.15}],
-      equipment:[{chance:1e-7,cap:0.05,set:"western",level:1}]
+      equipment:[{chance:1e-7,cap:0.05,set:"western",level:1}],
+      specials:[{id:"beretta9mm",chance:2e-8,cap:0.12,level:1,requiresCompletedSet:"western"}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:3e-7,cap:0.15,set:"western",level:1}]
+      equipment:[{chance:3e-7,cap:0.15,set:"western",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"beretta9mm",chance:6e-8,cap:0.12,level:1,requiresCompletedSet:"western"},
+        {id:"ascendedX5Pendant",chance:0.000001,cap:0.12,level:1},
+        {id:"emperorLooty",chance:3e-7,cap:0.12,level:1}
+      ]
     }
   },
   breadverse:{
@@ -3152,7 +3563,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:4e-8,cap:0.04,set:"bread",level:1}]
     },
     boss:{
-      equipment:[{chance:1.2e-7,cap:0.15,set:"bread",level:1}]
+      equipment:[{chance:1.2e-7,cap:0.15,set:"bread",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:4e-7,cap:0.12,level:5},
+        {id:"emperorLooty",chance:1.2e-7,cap:0.12,level:5}
+      ]
     }
   },
   seventies:{
@@ -3161,7 +3576,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:2.5e-8,cap:0.04,set:"disco",level:1}]
     },
     boss:{
-      equipment:[{chance:8e-8,cap:0.15,set:"disco",level:1}]
+      equipment:[{chance:8e-8,cap:0.15,set:"disco",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:2.5e-7,cap:0.12,level:15},
+        {id:"emperorLooty",chance:8e-8,cap:0.12,level:15}
+      ]
     }
   },
   halloweenies:{
@@ -3170,7 +3589,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:1.6e-8,cap:0.04,set:"halloweenie",level:1}]
     },
     boss:{
-      equipment:[{chance:5e-8,cap:0.15,set:"halloweenie",level:1}]
+      equipment:[{chance:5e-8,cap:0.15,set:"halloweenie",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:1.6e-7,cap:0.12,level:40},
+        {id:"emperorLooty",chance:6e-8,cap:0.12,level:40}
+      ]
     }
   },
   construction:{
@@ -3179,7 +3602,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:1e-8,cap:0.04,set:"construction",level:1}]
     },
     boss:{
-      equipment:[{chance:3e-8,cap:0.15,set:"construction",level:1}]
+      equipment:[{chance:3e-8,cap:0.15,set:"construction",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX6Pendant",chance:1e-7,cap:0.12,level:2},
+        {id:"galacticHeraldLooty",chance:4e-8,cap:0.12,level:2}
+      ]
     }
   },
   duckduck:{
@@ -3188,7 +3615,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:8e-9,cap:0.05,set:"duck",level:1}]
     },
     boss:{
-      equipment:[{chance:2.4e-8,cap:0.15,set:"duck",level:1}]
+      equipment:[{chance:2.4e-8,cap:0.15,set:"duck",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX6Pendant",chance:8e-8,cap:0.12,level:4},
+        {id:"galacticHeraldLooty",chance:3e-8,cap:0.12,level:4}
+      ]
     }
   },
   netherregions:{
@@ -3197,7 +3628,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:6e-9,cap:0.05,set:"dutch",level:1}]
     },
     boss:{
-      equipment:[{chance:1.8e-8,cap:0.15,set:"dutch",level:1}]
+      equipment:[{chance:1.8e-8,cap:0.15,set:"dutch",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX6Pendant",chance:6e-8,cap:0.12,level:8},
+        {id:"galacticHeraldLooty",chance:2.4e-8,cap:0.12,level:8}
+      ]
     }
   },
   aethereansea:{
@@ -3284,19 +3719,32 @@ function rollBoostAdventureV2(s,z,def,dropMult){
   return add(s,boost(type,def.strength));
 }
 
-function rollSpecialAdventureV2(s,z,def,dropMult){
-  const id=String(def.id||"");
-  const source=SPECIALS[id];
-  if(!source)return null;
+/*
+ * Audit 2026-09-23 (sections Loot du wiki) -- trois formes de ligne en plus :
+ * - requiresCompletedSet : "if <Set> complete, x% base chance" (ex. The
+ *   Stealthiest Armour, A 9mm Beretta) ;
+ * - ids : un seul jet pour "x% base chance ... for one of:" plusieurs objets
+ *   (Energy/Magic Bar Bar (Accessory) en Chocolate World) ;
+ * - mobName : butin propre à un ennemi nommé de la zone (Dragon Wings sur
+ *   "MYSTERIOUS FIGURE (BOSS)" en Ancient Battlefield), même principe que le
+ *   Ring of Apathy sur le Goblin de la Forêt (ctx.forceMobName).
+ */
+function rollSpecialAdventureV2(s,z,def,dropMult,mobName){
+  const ids=Array.isArray(def.ids)&&def.ids.length?def.ids.map(String):[String(def.id||"")];
+  if(!ids.every(x=>SPECIALS[x]))return null;
+  if(def.requiresCompletedSet&&!s.completedSets[String(def.requiresCompletedSet)])return null;
+  if(def.mobName&&String(mobName||"")!==String(def.mobName))return null;
 
-  const firstGuaranteed=Boolean(def.firstGuaranteed&&!s.itemList[id]?.seen);
+  const firstGuaranteed=Boolean(ids.length===1&&def.firstGuaranteed&&!s.itemList[ids[0]]?.seen);
   if(!firstGuaranteed&&Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
 
+  const id=ids.length===1?ids[0]:ids[I(Math.random()*ids.length)];
+  const source=SPECIALS[id];
   const level=def.level!=null?def.level:(source.dropLevel||0);
   return add(s,special(id,dropLevelAdventureV2(s,level)));
 }
 
-function rollProfileLootAdventureV2(s,z,boss,dropMult){
+function rollProfileLootAdventureV2(s,z,boss,dropMult,mobName){
   const zoneProfile=IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2[z.id];
   const profile=zoneProfile&&(boss?zoneProfile.boss:zoneProfile.normal);
   if(!profile)return null;
@@ -3311,7 +3759,7 @@ function rollProfileLootAdventureV2(s,z,boss,dropMult){
     if(o)out.push(o);
   }
   for(const def of profile.specials||[]){
-    const o=rollSpecialAdventureV2(s,z,def,dropMult);
+    const o=rollSpecialAdventureV2(s,z,def,dropMult,mobName);
     if(o)out.push(o);
   }
   return out;
@@ -3361,7 +3809,7 @@ function rollKill(s,ctx){
     (ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)
   );
 
-  const exact=rollProfileLootAdventureV2(s,z,boss,dropMult);
+  const exact=rollProfileLootAdventureV2(s,z,boss,dropMult,ctx.forceMobName);
   const out=exact===null?rollLegacyZoneLootAdventureV2(s,z,dropMult,ctx):exact;
 
   if(
@@ -3790,20 +4238,30 @@ function creditTitanRewardsV1(s,id,ctx,tierKey){
   return out;
 }
 /*
- * Butin des titans 1 à 6 -- sections "Loot" des pages wiki (miroir local
- * NGU-Wiki, 2026-09-23). Les taux "base chance" sont multipliés par le
- * multiplicateur de drop comme partout ailleurs. "lvl a-b" = niveau tiré
- * uniformément entre a et b (lecture de la notation du wiki). Le bonus de
- * niveau des défis No Rebirth s'ajoute aux pièces de set, pas au Forest
- * Pendant (le wiki précise qu'il ne s'y applique pas). Objets du wiki qui
- * n'existent pas encore dans SOREAL (donc jamais tirés, jamais remplacés par
- * une valeur de repli) : Stapler, Ascended Forest Pendant, Heroic Sigil,
- * Ascended Ascended Ascended Pendant, A Bald Egg, A Giant Apple, A Power
- * Pill, Candy Cane of Destiny, Wandoos XL, Fanny Pack, Dorky Glasses,
- * UUG's 'Special' Ring, The First/Second/Third Clue.
+ * Butin des titans -- sections "Loot" des pages wiki (miroir local NGU-Wiki,
+ * 2026-09-23). Les taux "base chance" sont multipliés par le multiplicateur de
+ * drop comme partout ailleurs. "lvl a-b" = niveau tiré uniformément entre a et
+ * b (lecture de la notation du wiki). Le bonus de niveau des défis No Rebirth
+ * s'ajoute aux pièces de set, pas au Forest Pendant (le wiki précise qu'il ne
+ * s'y applique pas) ; les objets SPECIALS gardent leur niveau wiki (même
+ * convention que Wanderer's Cane / Mysterious Red Liquid / Beast ci-dessous).
+ *
+ * Titans Evil/Sadistic (Greasy Nerd, Godmother, Exile, IT HUNGERS, ROCK
+ * LOBSTER, AMALGAMATE) : "Only cube root of loot chance bonus applies" (en
+ * tête de leur section Loot) -> chanceEvil() applique le cube root comme
+ * pour les zones Evil, avec le plafond "up to 25% max" de chaque ligne.
+ * "Normal+" / "Hard+" / "Brutal" = paliers normal-hard-brutal / hard-brutal /
+ * brutal (même lecture que The Beast).
+ *
+ * Objets du wiki volontairement NON tirés (système absent ou taux inconnu,
+ * jamais remplacés par une valeur de repli) : Heroic Sigil (déjà débloqué via
+ * d.drop), A busted copy of Wandoos XL, The First/Second/Third Clue,
+ * MacGuffin Fragments, Sack/Face of the Exile, Blue Eyes Ultimate Chestplate
+ * ("secret unlock" sans condition publiée), les morceaux de THE END.
  */
 function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
   const chance=p=>Math.random()<idleAdventureDropChanceV2(p,1,dropMult,null);
+  const chanceEvil=(p,cap)=>Math.random()<idleAdventureDropChanceV2(p,cap,dropMult,TITAN_LOOT_CUBE_ROOT_V1);
   const pick=liste=>liste[I(Math.random()*liste.length)];
   const niveau=(lo,hi)=>Math.min(MAX,lo+I(Math.random()*(hi-lo+1))+bonus);
   const equip=(setId,slot,lvl)=>{
@@ -3811,6 +4269,7 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     const a=o?add(s,o):null;
     if(a)out.push(a);
   };
+  const objet=(defId,lvl)=>{const a=add(s,special(defId,lvl));if(a)out.push(a)};
   const boosts=(type,liste)=>{
     for(const [force,p] of liste)if(chance(p)){const a=add(s,boost(type,force));if(a)out.push(a)}
   };
@@ -3821,6 +4280,22 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(a)out.push(a);
   };
   const cinq=["head","chest","legs","boots","weapon"];
+  const palierNormal=tierKey==="normal"||tierKey==="hard"||tierKey==="brutal";
+  const palierDur=tierKey==="hard"||tierKey==="brutal";
+  const palierBrutal=tierKey==="brutal";
+  /*
+   * Lignes communes des titans Evil/Sadistic : pièces du set ("x% base chance,
+   * up to 25% max for each of"), objets de tous paliers, puis objets
+   * Normal+/Hard+/Brutal ; [defId, niveau, taux, plafond].
+   */
+  const titanEvil=(setId,tauxPiece,tous,normal,dur,brutal)=>{
+    for(const slot of SETS[setId].slots)if(chanceEvil(tauxPiece,.25))equip(setId,slot,Math.min(MAX,4+bonus));
+    const tirer=liste=>{for(const [defId,lvl,p,cap] of liste)if(chanceEvil(p,cap))objet(defId,lvl)};
+    tirer(tous);
+    if(palierNormal)tirer(normal);
+    if(palierDur)tirer(dur);
+    if(palierBrutal)tirer(brutal);
+  };
   if(id==="t1"){
     equip("grb",pick(cinq),Math.min(MAX,bonus));
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
@@ -3839,30 +4314,92 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(chance(.6))equip("jake",pick(cinq),Math.min(MAX,1+bonus));
     for(const slot of cinq)if(chance(.1))equip("jake",slot,Math.min(MAX,2+bonus));
     if(chance(.25))equip("jake",pick(["tie","paperweight"]),Math.min(MAX,2+bonus));
+    // wiki : "Stapler lvl 4 (2% base chance)", "Ascended Forest Pendant lvl 1 (10% base chance)"
+    if(chance(.02))objet("stapler",4);
     for(const type of ["power","toughness","special"])boosts(type,[[100,.1]]);
+    if(chance(.1))objet("ascendedForestPendant",1);
   }else if(id==="t4"){
     const anneaux=["ringGreed","ringMight","ringUtility","ringEnergy","ringMagic"];
     const premier=!s.itemList["uug:ringGreed"]?.seen;
     for(const slot of anneaux){
       if((premier&&slot==="ringGreed")||chance(.02))equip("uug",slot,Math.min(MAX,4+bonus));
     }
+    // wiki : "UUG's 'Special' Ring lvl 4 (UUG's rings (set) completed, 0.1% base chance)"
+    if(s.completedSets.uug&&chance(.001))objet("uugSpecialRing",4);
     pendantForet(0,.02);
   }else if(id==="t5"){
-    if(chance(.005)){const a=add(s,special("wanderersCane",10));if(a)out.push(a)}
+    if(chance(.005))objet(...canneWalderpV1());
     for(const slot of ["head","chest","legs","boots"]){
       if(chance(.005))equip("wanderer",slot,Math.min(MAX,4+bonus));
       if(chance(.005))equip("rerednaw",slot,Math.min(MAX,4+bonus));
     }
+    // wiki : "Ascended Forest Pendant lvl 50 (0.5% base chance)", "Fanny Pack lvl 10 (if Wanderer's (set) complete, 0.01%)", "Dorky Glasses lvl 10 (if S'rerednaW (set) complete, 0.01%)"
+    if(chance(.005))objet("ascendedForestPendant",50);
+    if(s.completedSets.wanderer&&chance(.0001))objet("fannyPack",10);
+    if(s.completedSets.rerednaw&&chance(.0001))objet("dorkyGlasses",10);
   }else if(id==="t6"){
     for(const slot of cinq)if(chance(.0005))equip("slimy",slot,Math.min(MAX,4+bonus));
-    const palier=tierKey==="normal"||tierKey==="hard"||tierKey==="brutal";
-    const dur=tierKey==="hard"||tierKey==="brutal";
+    // wiki, "All Modes" : "Ascended Ascended Ascended Pendant lvl 1 (0.05% base chance)", "A Bald Egg lvl 4 (0.02% base chance)"
+    if(chance(.0005))objet("ascendedX3Pendant",1);
+    if(chance(.0002))objet("baldEgg",4);
+    const palier=palierNormal;
+    const dur=palierDur;
     if(palier&&chance(.00005)){const a=add(s,special("shrunkenVoodooDoll",4));if(a)out.push(a)}
     if(palier&&chance(.00002)){const a=add(s,special("mysteriousPurpleLiquid",1));if(a)out.push(a)}
     if(dur&&chance(.00001)){const a=add(s,special("pricelessVanGoghPainting",4));if(a)out.push(a)}
+    // wiki, "Hard+" : "A Giant Apple lvl 4 (0.0005% base chance)" ; "Brutal" : "A Power Pill lvl 4 (0.0002% base chance)"
+    if(dur&&chance(.000005))objet("giantApple",4);
+    if(tierKey==="brutal"&&chance(.000002))objet("powerPill",4);
     if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
+  }else if(id==="nerd"){
+    // wiki : "Guaranteed one of" les 5 pièces du set + An Ordinary Calculator + Anime Figurine, lvl 4
+    const garanti=pick([...cinq.map(slot=>"greasynerd:"+slot),"ordinaryCalculator","animeFigurine"]);
+    if(garanti.startsWith("greasynerd:"))equip("greasynerd",garanti.slice(11),Math.min(MAX,4+bonus));else objet(garanti,4);
+    titanEvil("greasynerd",.00035,
+      [["ordinaryCalculator",4,.00035,.25],["animeFigurine",4,.00035,.25],["ascendedX4Pendant",4,.00035,.25]],
+      [["theD20",4,.00027,.25],["theD8",4,.00027,.25]],
+      [["animeBodypillow",4,.00022,.25],["redMeeple",4,.00022,.25]],
+      [["bagOfTrash",4,.00017,.25],["heartShapedPanties",4,.00017,.25]]);
+  }else if(id==="godmother"){
+    titanEvil("mobster",.0001,
+      [["ascendedX4Pendant",8,.0001,.25],["kingLooty",8,.0001,.25]],
+      [["violinCase",4,.000075,.25],["molotovCocktail",4,.000075,.25]],
+      [["godmothersRing",4,.00006,.25],["godmothersWand",4,.00006,.25]],
+      [["leftFairyWing",4,.000045,.25],["rightFairyWing",4,.000045,.25]]);
+  }else if(id==="t7"){
+    titanEvil("exile",.00002,
+      [["theJoker",4,.00002,.25],["antlersExile",4,.00002,.25],["ascendedX4Pendant",50,.000015,.25],["kingLooty",50,.000015,.25]],
+      [["creditCard",4,.00001,.25],["tentacleExile",4,.00001,.25]],
+      [["skipCard",4,.000006,.25],["antennaeExile",4,.000006,.25]],
+      [["blackLotus",4,.000004,.25],["busterExile",4,.000004,.25]]);
+  }else if(id==="hungers"){
+    titanEvil("space",.000001,
+      [["theCricket",4,.000001,.25],["ascendedX5Pendant",50,.000001,.25],["emperorLooty",50,.000001,.25]],
+      [["evilRubberDucky",4,6e-7,.25],["gasGiant",4,6e-7,.25]],
+      [["carbonRod",4,4e-7,.25],["kleinBottle",4,4e-7,.25]],
+      [["alienBugNest",4,3e-7,.25],["theKey",4,3e-7,.25]]);
+  }else if(id==="lobster"){
+    titanEvil("rock",1e-7,
+      [["ascendedX6Pendant",10,1e-7,.25],["galacticHeraldLooty",10,1e-7,.25]],
+      [["skippingStone",4,6.5e-8,.25],["bedRock",4,6.5e-8,.25]],
+      [["rockCandy",4,4e-8,.25],["brokenScissors",4,4e-8,.25]],
+      [["portableStairway",4,3e-8,.25],["amplifier",4,3e-8,.25]]);
+  }else if(id==="amalgamate"){
+    titanEvil("amalgamate",1.4e-8,
+      [["ascendedX7Pendant",50,1.4e-8,.25],["supremeIntelligenceLooty",50,1.4e-8,.25]],
+      [["rawSlabOfWood",4,1e-8,.25]],
+      [["tieOfApathy",4,8e-9,.25]],
+      [["titanEffigy",4,6e-9,.25]]);
   }
 }
+/* Titans Evil/Sadistic : même règle "cube root" que les zones Evil (idleAdventureDropChanceV2 lit requiredDifficulty). */
+const TITAN_LOOT_CUBE_ROOT_V1=Object.freeze({id:"titan-evil",requiredDifficulty:"difficile"});
+/*
+ * Walderp, wiki : "Wanderer's Cane lvl 10 - guaranteed, with 1% flat chance of
+ * The Candy Cane of Destiny lvl 0 instead" (idem pour le jet à 0,5 %). "flat" :
+ * ce 1 % n'est pas multiplié par le bonus de drop.
+ */
+function canneWalderpV1(){return Math.random()<.01?["candyCaneDestiny",0]:["wanderersCane",10]}
 const TITAN_RANK_V1=Object.freeze({t1:1,t2:2,t3:3,t4:4,t5:5,t6:6,nerd:7,godmother:8,t7:9,hungers:10,lobster:11,amalgamate:12});
 function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
  * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
@@ -3870,7 +4407,7 @@ function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",tit
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
  */
 if(id==="t1"&&!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}
-if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)))}
+if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1();drops.push(add(s,special(canne,niveauCanne)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
 const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
 if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops);
