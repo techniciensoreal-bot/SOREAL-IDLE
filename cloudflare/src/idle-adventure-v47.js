@@ -1118,6 +1118,29 @@ skyBall:{name:"A Dragon's Left Ball",zone:"sky",slot:"accessory",dropLevel:1,p:0
 // wiki : "Pissed Off Key" — Type Consumable, aucune stat.
 pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bossOnly:true,dropLevel:0,p:0,t:0},
 /*
+ * Consommables de déblocage des titans (audit des bonus de complétion,
+ * 2026-09-23) : jusqu'ici seulement des drapeaux unlockItems (premier kill),
+ * jamais de vrais objets à fusionner -- leur set à un objet ("Number",
+ * "Armpit", "Incriminating Evidence", "Severed Head", voir SETS_OBJETS_V1)
+ * était donc incomplétable. Même modèle que Pissed Off Key : slot "special",
+ * aucune stat (fiches wiki "Type: Consumable"), zone "" (drop de titan,
+ * rollTitanLootV1, section Loot de la page du titan). Le drapeau
+ * unlockItems/consume() qui débloque le système reste inchangé.
+ */
+// wiki : "A Number" (Id 102, Consumable) -- GRB : "A Number lvl 0 (guaranteed)".
+aNumber:{name:"A Number",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+// wiki : "UUG's Armpit Hair" (Id 141, Consumable) -- UUG : "UUG's Armpit Hair lvl 0 (guaranteed)".
+uugHair:{name:"UUG's Armpit Hair",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+// wiki : "Incriminating Evidence" (Id 294, Consumable) -- Greasy Nerd : "Incriminating Evidence lvl 1 - guaranteed".
+incriminatingEvidence:{name:"Incriminating Evidence",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+/*
+ * wiki : "A Severed Unicorn's Head" (Id 343, Consumable) -- The Godmother :
+ * "A Severed Unicorn's Head lvl 0 - guaranteed" (section Loot). Le gabarit
+ * "Item data" indique "GM1lvldrop = 1" : désaccord entre deux pages du wiki ;
+ * on suit la section Loot du titan, source déjà retenue par rollTitanLootV1.
+ */
+severedUnicornHead:{name:"A Severed Unicorn's Head",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/*
  * Audit 2026-09-16 (Norman, page wiki réelle vérifiée en direct
  * ngu-idle.fandom.com/wiki/The_Lonely_Flubber) : Accessoire, Tutorial
  * Zone, ID 120, Set None, aucune stat Power/Toughness (le Respawn 8%
@@ -1416,7 +1439,28 @@ const SETS_OBJETS_V1=Object.freeze({
    * du set 2D). Total Stats Max du wiki (Power 11 450 / Toughness 11 420) =
    * 2 x la somme des p/t niveau 0 de ces 13 SPECIALS (vérifié).
    */
-  normalBonusAccs:{name:"Normal Bonus Accs Set",items:["tubaTime","cheeseGrater","skyBall","magicite","windupGear","sinusoidalWave","ghostTypewriter","gaudyShoulders","fTank","beardComb","randomCrayons","redLipstick","candyCornNecklace"],reward:{drop:.25}}
+  normalBonusAccs:{name:"Normal Bonus Accs Set",items:["tubaTime","cheeseGrater","skyBall","magicite","windupGear","sinusoidalWave","ghostTypewriter","gaudyShoulders","fTank","beardComb","randomCrayons","redLipstick","candyCornNecklace"],reward:{drop:.25}},
+  /*
+   * "Number (set)" : un seul objet (A Number) ; fiche "A Number" : "Merging
+   * 'A Number' to level 100, will give you a permanent completion bonus of:
+   * +10% NGU speed!" -- même setRewards.nguSpeedPct que Meta/Back To School.
+   */
+  number:{name:"Number Set",items:["aNumber"],reward:{nguSpeedPct:.10}},
+  /*
+   * "Armpit (set)" : un seul objet (UUG's Armpit Hair), "+10% Beard Speed!" --
+   * setRewards.beardSpeedPct, consommé par advanceBeardTrack()
+   * (idle-ngu-progression.js), même terme que les Specials "Beard Speed".
+   */
+  armpit:{name:"Armpit Set",items:["uugHair"],reward:{beardSpeedPct:.10}},
+  /*
+   * "Incriminating Evidence (set)" : "+2 base Resource 3 Power / +80K base
+   * Resource 3 Cap / +2 base Resource 3 Bars / +1 of every Resource 3 Potion!"
+   * -- les trois bonus "base" s'ajoutent à la valeur brute de Resource 3
+   * (adventure.permanent.r3*Flat, idleNguEffectiveResourceStatV1).
+   */
+  incriminatingEvidence:{name:"Incriminating Evidence Set",items:["incriminatingEvidence"],reward:{r3PowerFlat:2,r3CapFlat:80000,r3BarsFlat:2}},
+  /* "Severed Head (set)" : un seul objet (A Severed Unicorn's Head), "+13.37% Wish Speed!" -- même setRewards.wishSpeedPct que Typo. */
+  severedHead:{name:"Severed Head Set",items:["severedUnicornHead"],reward:{wishSpeedPct:.1337}}
 });
 export const IDLE_ADVENTURE_ITEM_SETS_V1=SETS_OBJETS_V1;
 /*
@@ -1707,6 +1751,10 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "cheeseGrater":433,
   "skyBall":434,
   "pissedOffKey":172,
+  "aNumber":102,
+  "uugHair":141,
+  "incriminatingEvidence":294,
+  "severedUnicornHead":343,
   "flubber":120,
   "wandoos98":66,
   "magicite":435,
@@ -2527,7 +2575,7 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
 /* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
-function appliquerRecompenseSetV1(s,reward){for(const [k,v] of Object.entries(reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(reward.experience);if(N(reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(reward.ap);if(N(reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(reward.energySpeed);if(N(reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(reward.energyPower);if(N(reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(reward.energyBars);if(N(reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(reward.magicPower);if(N(reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(reward.magicBars);if(N(reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(reward.magicCap)}
+function appliquerRecompenseSetV1(s,reward){for(const [k,v] of Object.entries(reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(reward.experience);if(N(reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(reward.ap);if(N(reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(reward.energySpeed);if(N(reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(reward.energyPower);if(N(reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(reward.energyBars);if(N(reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(reward.magicPower);if(N(reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(reward.magicBars);if(N(reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(reward.magicCap);for(const k of ["r3PowerFlat","r3CapFlat","r3BarsFlat"])if(N(reward[k])>0)s.permanent[k]=N(s.permanent[k])+N(reward[k])}
 function checkSets(s){
   for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
   /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
@@ -4352,6 +4400,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(palierBrutal)tirer(brutal);
   };
   if(id==="t1"){
+    // wiki GRB, Loot : "A Number lvl 0 (guaranteed)" -- objet fusionnable du Number (set).
+    objet("aNumber",Math.min(MAX,bonus));
     equip("grb",pick(cinq),Math.min(MAX,bonus));
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
     for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
@@ -4374,6 +4424,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     for(const type of ["power","toughness","special"])boosts(type,[[100,.1]]);
     if(chance(.1))objet("ascendedForestPendant",1);
   }else if(id==="t4"){
+    // wiki UUG, Loot : "UUG's Armpit Hair lvl 0 (guaranteed)" -- objet fusionnable de l'Armpit (set).
+    objet("uugHair",Math.min(MAX,bonus));
     const anneaux=["ringGreed","ringMight","ringUtility","ringEnergy","ringMagic"];
     const premier=!s.itemList["uug:ringGreed"]?.seen;
     for(const slot of anneaux){
@@ -4407,6 +4459,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(tierKey==="brutal"&&chance(.000002))objet("powerPill",4);
     if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
   }else if(id==="nerd"){
+    // wiki Greasy Nerd, Loot : "Incriminating Evidence lvl 1 - guaranteed".
+    objet("incriminatingEvidence",Math.min(MAX,1+bonus));
     // wiki : "Guaranteed one of" les 5 pièces du set + An Ordinary Calculator + Anime Figurine, lvl 4
     const garanti=pick([...cinq.map(slot=>"greasynerd:"+slot),"ordinaryCalculator","animeFigurine"]);
     if(garanti.startsWith("greasynerd:"))equip("greasynerd",garanti.slice(11),Math.min(MAX,4+bonus));else objet(garanti,4);
@@ -4416,6 +4470,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
       [["animeBodypillow",4,.00022,.25],["redMeeple",4,.00022,.25]],
       [["bagOfTrash",4,.00017,.25],["heartShapedPanties",4,.00017,.25]]);
   }else if(id==="godmother"){
+    // wiki The Godmother, Loot : "A Severed Unicorn's Head lvl 0 - guaranteed".
+    objet("severedUnicornHead",Math.min(MAX,bonus));
     titanEvil("mobster",.0001,
       [["ascendedX4Pendant",8,.0001,.25],["kingLooty",8,.0001,.25]],
       [["violinCase",4,.000075,.25],["molotovCocktail",4,.000075,.25]],

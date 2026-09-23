@@ -1989,9 +1989,10 @@ function idleNguEffectiveResourceStatV1(state, resource, stat) {
   if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
   const bonuses = idleNguBonuses(state);
   if (resource === "r3") {
-    if (stat === "power") return raw * Math.max(0, num(bonuses.r3PowerMultiplier, 1));
-    if (stat === "bars") return raw * Math.max(0, num(bonuses.r3BarsMultiplier, 1));
-    if (stat === "cap") return raw * Math.max(0, num(bonuses.r3CapMultiplier, 1));
+    /* Bonus "base" (Incriminating Evidence (set) : +2 Power, +80K Cap, +2 Bars) ajoutés au brut avant les multiplicateurs. */
+    if (stat === "power") return (raw + Math.max(0, num(bonuses.r3PowerFlat, 0))) * Math.max(0, num(bonuses.r3PowerMultiplier, 1));
+    if (stat === "bars") return (raw + Math.max(0, num(bonuses.r3BarsFlat, 0))) * Math.max(0, num(bonuses.r3BarsMultiplier, 1));
+    if (stat === "cap") return (raw + Math.max(0, num(bonuses.r3CapFlat, 0))) * Math.max(0, num(bonuses.r3CapMultiplier, 1));
     return raw;
   }
   if (stat === "power") {
@@ -2313,6 +2314,8 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
    * vitesse de Beard est baseRate ci-dessous (advanceBeardTrack) : câblé ici.
    */
   const beardSpeedFromItems = Math.max(0, num(idleNguBonuses(state).beardSpeedMultiplierFromItems, 1));
+  /* Armpit (set) (wiki "Armpit (set)" : "+10% Beard Speed!") -- setRewards.beardSpeedPct. */
+  const beardSpeedFromSets = 1 + Math.max(0, num(state.adventure?.setRewards?.beardSpeedPct, 0));
 
   // V49 starts with NGU's first Beard slot only, therefore the
   // Beards_SameResource divisor is 1 until a later unlock adds more slots.
@@ -2326,6 +2329,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
     Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
     diggerSpeed *
     beardSpeedFromItems *
+    beardSpeedFromSets *
     quirkBonusesV1(state.systems.quirks?.data?.levels).beardSpeedMultiplier /
     (Math.max(1, num(trackDef.speedDivider, 1e8)) * Math.max(1, sameResourceCount));
 
@@ -3987,6 +3991,10 @@ export function idleNguBonuses(raw) {
      * le même schéma que les six ci-dessus, alimentées pour l'instant
      * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
      */
+    /* Incriminating Evidence (set) : +2 base R3 Power / +80K base R3 Cap / +2 base R3 Bars (adventure.permanent). */
+    r3PowerFlat: num(adventurePermanent.r3PowerFlat, 0),
+    r3CapFlat: num(adventurePermanent.r3CapFlat, 0),
+    r3BarsFlat: num(adventurePermanent.r3BarsFlat, 0),
     r3PowerMultiplier: idleSelloutPotionFactorV1(state, "r3Power") * wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * perkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
     r3CapMultiplier: wishBonuses.r3CapMultiplier * quirkBonuses.r3CapMultiplier * perkBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
     r3BarsMultiplier: wishBonuses.r3BarsMultiplier * quirkBonuses.r3BarsMultiplier * perkBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),

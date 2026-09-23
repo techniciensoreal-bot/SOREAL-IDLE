@@ -172,7 +172,10 @@ function titan(id, aleatoire, difficulty, mutate) {
 }
 {
   // Greasy Nerd : "Guaranteed one of" (5 pièces + Calculator + Figurine) lvl 4, rien d'autre sans jet réussi
-  const rien = titan("nerd", 0.999999, "brutal").filter((d) => d.kind !== "boost");
+  // (+ "Incriminating Evidence lvl 1 - guaranteed", objet du set du même nom, voir idle-set-bonus-titan-unlock-items)
+  const tirage = titan("nerd", 0.999999, "brutal").filter((d) => d.kind !== "boost");
+  assert.ok(tirage.some((d) => d.definitionId === "incriminatingEvidence" && d.level === 1));
+  const rien = tirage.filter((d) => d.definitionId !== "incriminatingEvidence");
   assert.equal(rien.length, 1);
   const sept = ["head", "chest", "legs", "boots", "weapon"].map((slot) => "greasynerd:" + slot).concat(["ordinaryCalculator", "animeFigurine"]);
   assert.ok(sept.includes(rien[0].definitionId), rien[0].definitionId);
