@@ -1041,3 +1041,9 @@ Comparaison de `titan()` avec la section Loot de chaque page de titan et la colo
 - Tests : nouveau `idle-adventure-titan-wiki-loot-and-rewards.test.mjs` ; 3 tests qui verrouillaient l'ancien garanti (advanced-skills, titans-5-6-uug, walderp) adaptés (RNG forcé). Suite complète OK.
 
 **Non traité (objets absents de SOREAL, jamais remplacés par une valeur inventée)** : Stapler, Ascended Forest Pendant, Heroic Sigil, Ascended³ Pendant, Bald Egg, Giant Apple, Power Pill, Candy Cane of Destiny, Wandoos XL, Fanny Pack, Dorky Glasses, UUG's Special Ring, les 3 Clues ; multiplicateurs ×1,1/1,2/1,3 du souhait « V2/3/4 Titans better rewards » et QP conditionnés par souhait (niveau de souhait absent du contexte Aventure) ; drops du titan 7 (The Exile) et titans 8–14.
+
+## 2026-09-23 — Audit NGU Idle : Typo (set) et vérifications de parité sans écart
+
+- **Typo (set)** : la récompense de complétion était vide (`reward:{}`) ; le wiki donne « +20% Wish Speed! ». Ajout de `setRewards.wishSpeedPct` (0,20) consommé dans `idleNguBonuses().wishSpeedMultiplier` et dans le calcul de progression des Wishes. Test `idle-adventure-typo-set-wish-speed.test.mjs`.
+- **Rad-Lands, attackRate 0** : vérifié sur les 10 pages de mobs, le wiki publie `attack_rate=?` pour 8 des 10 (seuls Wandering Gamma Ray = 1, A.C SKATER = 1 et RADIOACTIVE MACGUFFIN = 1,2 sont chiffrés, et le code les a) : ce n'est pas un écart, la valeur n'est pas publiée. Aucun changement.
+- **Jake (set)** : le wiki donne 7 000 EXP + Wandoos MEH ; le Digger Slot vient du set « Scrap of Paper » (objet A Scrap of Paper), pas de Jake. SOREAL le donne encore sur `jake` (`diggerSlot:1`) faute d'objet « Scrap of Paper » maxable : non modifié pour ne pas retirer un slot sans son équivalent.

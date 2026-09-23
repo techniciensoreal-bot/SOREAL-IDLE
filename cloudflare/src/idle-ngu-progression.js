@@ -2271,7 +2271,8 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100));
+  const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct));
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -3394,7 +3395,7 @@ export function idleNguBonuses(raw) {
      * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
     hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100),
-    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100),
+    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))),
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
     quirkBonuses:clone(quirkBonuses),
