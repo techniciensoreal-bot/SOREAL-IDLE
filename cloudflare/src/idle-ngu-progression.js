@@ -1834,6 +1834,11 @@ function refreshRebirthState(state, context, now) {
  * composent déjà flat et multiplicatif ailleurs dans ce fichier (une base
  * additive suivie d'un ou plusieurs facteurs multiplicatifs).
  */
+export function idleNguEffectiveResourceStat(raw, resource, stat) {
+  const state = raw && raw.version === IDLE_NGU_META_VERSION ? raw : normalizeIdleNguState(raw || {});
+  return idleNguEffectiveResourceStatV1(state, resource, stat);
+}
+
 function idleNguEffectiveResourceStatV1(state, resource, stat) {
   const raw = Math.max(0, num(state.resources?.[resource]?.[stat], 0));
   if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
@@ -1915,7 +1920,8 @@ function reconcileResourceCurrents(state,context={}){
 export function idleNguResourceGenerationPerSecond(raw,resource){
   if(!RESOURCE_KEYS.includes(resource))throw new Error("RESSOURCE_INVALIDE");
   const state=raw&&raw.version===IDLE_NGU_META_VERSION?raw:normalizeIdleNguState(raw||{});
-  if(resource==="r3")return 0;
+  /* Resource 3 (wiki Resource 3 / Hacks / Wishes) : générée par speed et bars comme Energy et Magic, une fois les Hacks débloqués. */
+  if(resource==="r3"&&!state.systems.hacks?.unlocked)return 0;
   if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
   const r=state.resources[resource]||defaultResource(resource);
   const speed=clamp(idleNguEffectiveResourceStatV1(state,resource,"speed"),0.1,50);
@@ -1927,8 +1933,9 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
 
 function advanceGeneratedResources(state,seconds,context={}){
   if(seconds<=0)return;
-  for(const resource of ["energy","magic"]){
+  for(const resource of ["energy","magic","r3"]){
     if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)continue;
+    if(resource==="r3"&&!state.systems.hacks?.unlocked)continue;
     const r=state.resources[resource];
     const capacity=resourceCapacityForCurrent(state,resource,context);
     if(capacity<=r.current+1e-12)continue;
@@ -1952,7 +1959,8 @@ export function idleNguResourceBudget(raw, resource, context = {}) {
   const state = raw && raw.version === IDLE_NGU_META_VERSION
     ? raw
     : normalizeIdleNguState(raw, context, raw?.updatedAt || Date.now());
-  const cap=Math.max(0,num(state.resources?.[resource]?.cap,0));
+  /* 2026-09-23 (audit) : le cap est le cap EFFECTIF (perks, quirks, wishes, équipement), comme pour la génération. */
+  const cap=Math.max(0,idleNguEffectiveResourceStatV1(state,resource,"cap"));
   const allocated=Math.max(0,totalAllocated(state,resource));
   const reservedExternal=externalResourceAllocation(context,resource);
   const current=clamp(num(state.resources?.[resource]?.current,0),0,Math.max(0,cap-allocated-reservedExternal));
@@ -1975,7 +1983,7 @@ function setAllocation(state, id, resource, value, context = {}) {
   if (!def.resources.includes(resource)) throw new Error("RESSOURCE_INCOMPATIBLE");
   if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
   const r=state.resources[resource];
-  const cap = Math.max(0, r?.cap || 0);
+  const cap = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
   const previous=Math.max(0,num(s.allocation[resource],0));
   const usedElsewhere = totalAllocated(state, resource, id) + externalResourceAllocation(context,resource);
   const maxByCapacity=Math.max(0,cap-usedElsewhere);
@@ -2364,6 +2372,29 @@ function advanceTrackSystem(state, def, seconds) {
     return;
   }
 
+  if (def.id === "advancedTraining") {
+    /*
+     * 2026-09-23 (audit) : wiki "Advanced Training" -- « With 1000 Energy cap,
+     * 1 Energy power ... Adventure Toughness, Adventure Power and Block Damage
+     * Reduction each need 10,000 seconds to level from level 0 to level 1.
+     * Wandoos Energy/Magic Dump+ each need 20,000 seconds. Every level requires
+     * linearly more time than the last one », Energy Power seulement par sa
+     * racine carrée, 50 niveaux/s maximum. L'ancien débit (alloc x sqrt(power) x
+     * bars / 25 000, indépendant du niveau) rendait l'entraînement ~400 fois
+     * trop rapide.
+     */
+    const alloc = Math.max(0, num(s.allocation.energy, 0));
+    if (alloc <= 0) return;
+    const baseSeconds = trackDef.id === "wandoosEnergy" || trackDef.id === "wandoosMagic" ? 20000 : 10000;
+    const sqrtPower = Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power")));
+    const rate = (alloc * sqrtPower) / (baseSeconds * 1000); // unités de travail par seconde
+    const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
+    const work = Math.max(0, num(t.progress, 0)) * (level + 1) + rate * seconds;
+    const step = nguLevelsFromWorkV1(level, work);
+    const gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+    t.tempLevel = level + gained;
+    t.progress = gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
+  } else {
   let throughput = 0;
   for (const resource of def.resources) {
     const alloc = Math.max(0, num(s.allocation[resource], 0));
@@ -2416,6 +2447,7 @@ function advanceTrackSystem(state, def, seconds) {
     t.progress -= gain;
     if (def.kind === "run" || def.kind === "hybrid") t.tempLevel += gain;
     else t.level += gain;
+  }
   }
 
   s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
@@ -2633,7 +2665,9 @@ const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
  *   laissée telle quelle, documentée honnêtement plutôt que remplacée
  *   par une autre conversion tout aussi inventée.
  */
-function castBloodSpell(state, spell) {
+const IRON_PILL_COOLDOWN_MS_V1 = Object.freeze({ normal: 11.5 * 3600000, difficile: 23.5 * 3600000, extreme: 47.5 * 3600000 });
+
+function castBloodSpell(state, spell, now = 0) {
   const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
   if (minimum === undefined) throw new Error("SORT_SANG_INVALIDE");
   const blood = Math.floor(state.currencies.blood);
@@ -2647,8 +2681,10 @@ function castBloodSpell(state, spell) {
   }
   if (spell === "ironPill") {
     /* Wiki Blood Magic : Power/Toughness += Blood^0.25 (HP x3, regen x0,03), permanent -- gain ABSOLU, pas un pourcentage. */
+    if (now > 0 && now < num(spells.ironPillReadyAt, 0)) throw new Error("SORT_EN_RECHARGE");
     const gain = Math.pow(blood, 0.25);
     spells.ironPill += gain;
+    if (now > 0) spells.ironPillReadyAt = now + (IRON_PILL_COOLDOWN_MS_V1[state.difficulty] || IRON_PILL_COOLDOWN_MS_V1.normal);
     state.currencies.blood = 0;
     return { spell, spent: blood, gain };
   }
@@ -3847,7 +3883,10 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   return {
     version: state.version,
     saveSchema: state.saveSchema,
-    resources: clone(state.resources),
+    resources: Object.fromEntries(Object.entries(clone(state.resources)).map(([id, r]) => [
+      id,
+      { ...r, capBase: r.cap, cap: idleNguEffectiveResourceStatV1(state, id, "cap") }
+    ])),
     resourceBudget: Object.fromEntries(
       RESOURCE_KEYS.map(resource=>[resource,idleNguResourceBudget(state,resource,context)])
     ),
@@ -4757,7 +4796,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "selectRitual") {
     selectRitual(state, String(payload.ritual || "tack"), context);
   } else if (action === "castBloodSpell") {
-    result = castBloodSpell(state, String(payload.spell || "numberBoost"));
+    result = castBloodSpell(state, String(payload.spell || "numberBoost"), t);
   } else if (action === "toggle") {
     const s = state.systems[String(payload.system || "")];
     if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -4906,6 +4945,10 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   for(const def of IDLE_NGU_SYSTEMS){
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
+    if(def.id==="hacks"||def.id==="wishes")s.allocation={energy:0,magic:0,r3:0};
+    if(def.id==="diggers"&&s.data?.diggers){
+      for(const d of Object.values(s.data.diggers))d.active=false;
+    }
     if(def.id==="ngu"){
       clearNguAllocationsV1(s,"energy");
       clearNguAllocationsV1(s,"magic");
@@ -4926,6 +4969,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       const permanent=clone(s.data.spells);
       s.data=createBloodMagicData();
       s.data.spells.ironPill=Math.max(0,num(permanent.ironPill,0));
+      s.data.spells.ironPillReadyAt=Math.max(0,num(permanent.ironPillReadyAt,0));
     }
     if(def.id==="wandoos"){
       /*

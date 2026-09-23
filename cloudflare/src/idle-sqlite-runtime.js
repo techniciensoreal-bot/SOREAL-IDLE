@@ -17,6 +17,7 @@ import {
   normalizeIdleNguState,
   syncIdleNguState,
   idleNguBonuses,
+  idleNguEffectiveResourceStat,
   idleNguSnapshot,
   idleNguResourceBudget,
   idleNguResourceGenerationPerSecond,
@@ -7644,7 +7645,7 @@ function appliquerProgressionEnergieSorealIdle_(
     Math.max(
       1,
       nombreSorealIdle_(
-        energieMetaV55.cap,
+        idleNguEffectiveResourceStat(metaNguRessourceV55, 'energy', 'cap'),
         1
       )
     );
