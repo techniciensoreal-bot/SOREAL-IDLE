@@ -1115,3 +1115,22 @@ Audit en parallèle (4 relecteurs, lecture seule) code vs miroir du wiki. Corrig
 - Tests : `idle-adventure-stats-multipliers`, `idle-adventure-rest-hp-survives-sync`, test Advanced Training réécrit.
 
 **À faire (rapports)** : Auto Nuker (vendu 65 000 AP sans effet), bonus FTBE contradictoire dans le wiki, Move Cooldowns d'équipement, Slimy (set) Parry x3, Idle Mode x1,8, taux du Cube (perk), mur avant Rebirth non sourcé (boss 20), pièces par boss ; ITOPOD : formule des ennemis du wiki ; types d'ennemis (aucune mécanique chiffrée : rien à inventer).
+
+## 2026-09-23 — Audit approfondi (lot 2) : ressources, systèmes de run, contenu d'aventure
+
+Corrigé :
+- **Cap effectif** (perks, quirks, wishes, équipement) dans le budget, l'allocation et le cap exposé au client/runtime (`capBase` conservé) : le cap affiché/allouable ignorait ces bonus alors que la génération les utilisait.
+- **Resource 3** : jamais générée (Hacks et Wishes injouables) ; générée par speed/bars comme Energy/Magic dès que les Hacks sont débloqués.
+- **Advanced Training** : ~400 fois trop rapide et à coût constant ; maintenant 10 000 s (20 000 s pour les dumps Wandoos) pour le niveau 0->1 à 1000 de cap et 1 de puissance, temps linéaire par niveau, racine carrée de la puissance, 50 niveaux/s max (wiki Advanced Training).
+- **Rebirth** : allocations Hacks/Wishes rendues, diggers désactivés (wiki Rebirths).
+- **Iron Pill** : recharge selon la difficulté (11,5 h / 23,5 h / 47,5 h, wiki Blood Magic).
+- **Bonus calculés mais jamais lus, désormais appliqués** : multiplicateur d'or d'aventure (Golden Showers, GOOOLD, NGU Gold, Specials Gold Drops), « Boosted/Beasted Boosts » (force des boosts), slots d'inventaire (perks, souhaits « more Inventory space », No Equipment Challenge) et d'accessoires (perk), chance de +1 niveau sur le loot (Fibonacci 144).
+- **Hacks** : effets appliqués (`(1 + Effect x Niveau) x Milestone^floor(niveau/milestone)`, inactifs en Normal) sur Attack/Defense, Adventure, Drop, EXP, PP, NUMBER, vitesses Time Machine/Augments/NGU Energy/Magic/Hack/Wish, Blood ; 6 quirks « Hack Milestone Reducer » ajoutés.
+- **Yggdrasil** : formules de « Fruit Yields » : Power β (0,05 % x niveau², était 1e-4 %), Numbers (0,05 % x niveau^1.3), Arbitrariness x15 AP, Luck ceil(0,7 x ...) x 0,05 %, Knowledge x5 avec EXPBonus et perks FoK, Rage = progression de PP (x60 000), Adventure avec la vraie BaseToughness, Gold en minutes de production ; rendement NGU/Quirk/Yield/FirstHarvest appliqués aux effets.
+- **Perk Fibonacci** : tableau exact de la page wiki (le niveau 3 = Magic Cap manquait, +10 % de tout aux niveaux 1-2 était faux) et jalons PP/AP/QP/EXP/loot branchés.
+- **Set Edgy** restructuré : 5 pièces (Helmet, Chest, Pants, Jaw Axe, Cheap Plastic Amulet, 11 700 000 / 4 094 000), « Edgy Boots (set) » = Left/Right Edgy Boot, « BOTH Edgy Boots » à part et conditionnel (0,0018 %, plafond 12 %, seulement si Edgy Boots (set) complet) ; migration des sauvegardes `edgy:boots` -> `bothedgy:boots`.
+- **Bestiaire** : boss de Badly Drawn World (2) et de la Fad-lands (2, THE SLAMMER via l'API en ligne), mob « Kitten In a Mech Woman » de Mega Lands ; One Hit de The Aethereal Sea (5,75e35).
+- **The Exile** n'est plus combattable en Normal (« 190 (Evil) ») ; **No Equipment Challenge** se débloque en *découvrant* les 7 pièces GRB (wiki) au lieu de les compléter.
+- Non retouché : Lonely Flubber (le wiki publie « +0,41 % par boss », lu tel quel).
+
+**Reste à faire (rapports)** : Auto Nuker ; titans 7 et 9-14 (données dans le rapport : respawn, EXP, PP, or, QP, stats) ; butin des zones normales absent (Looties, Ascended Pendants, Bar Bar, etc.) ; bonus de complétion de sets non câblés ; formules d'ITOPOD ; Beards (~x50 trop lents ?) ; double comptage du NUMBER (Beard/NGU) ; Challenges (récompenses 24 h/100 Levels/Troll/Laser Sword) ; Wandoos (plafond, niveau d'OS) ; perks/quirks manquants ; Money Pit paliers 5-11 ; banks Advanced Training ; achats Spend EXP (slots, Auto-Activate).

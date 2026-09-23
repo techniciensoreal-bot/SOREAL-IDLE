@@ -4505,7 +4505,11 @@ function challengeUnlocked(def,state,context={}) {
   if(def.id==="noAugmentations")return highestBoss>=75;
   if(def.id==="twentyFourHours")return num(state.challenge.bestMs?.basic,Infinity)<=24*3600000;
   if(def.id==="hundredLevels")return challengeNguLevels(state)>=10;
-  if(def.id==="noEquipment")return Boolean(state.adventure?.completedSets?.grb||state.adventure?.setRewards?.noEquipmentChallenge);
+  /* Wiki Challenges : « Discover (NOT complete) every piece of the GRB set » -- les 7 pièces vues au moins une fois. */
+  if(def.id==="noEquipment"){
+    const grbVues=["head","chest","legs","boots","weapon","necklace","meat"].every(slot=>Boolean(state.adventure?.itemList?.["grb:"+slot]?.seen));
+    return Boolean(grbVues||state.adventure?.completedSets?.grb||state.adventure?.setRewards?.noEquipmentChallenge);
+  }
   if(def.id==="troll")return int(state.adventure?.titans?.t2?.kills,0)>0;
   if(def.id==="noRebirth")return int(state.adventure?.titans?.t3?.kills,0)>0;
   if(def.id==="laserSword")return laserSwordPair(state).level>=1&&laserSwordPair(state).upgradeLevel>=1;

@@ -37,11 +37,11 @@ assert.equal(t7.drop, "stillBeatingHeart");
 // --- exileBrutalDefeated : jamais posé avant Brutal, posé et PERMANENT après ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  const ctxEasy = { bosses: 190, stats: { power: 2.3e22, toughness: 1.2e22 } };
+  const ctxEasy = { bosses: 190, difficulty: "difficile", stats: { power: 2.3e22, toughness: 1.2e22 } };
   s = applyIdleAdventureActionV47(s, { action: "titan", titan: "t7", difficulty: "easy" }, ctxEasy, 1).state;
   assert.equal(s.unlockFlags.exileBrutalDefeated, undefined, "Vaincre Easy ne doit jamais poser le flag Brutal.");
 
-  const ctxBrutal = { bosses: 190, stats: { power: 2.2e26, toughness: 1.0e26 } };
+  const ctxBrutal = { bosses: 190, difficulty: "difficile", stats: { power: 2.2e26, toughness: 1.0e26 } };
   s = applyIdleAdventureActionV47(s, { action: "titan", titan: "t7", difficulty: "brutal" }, ctxBrutal, 999999999).state;
   assert.equal(s.unlockFlags.exileBrutalDefeated, true, "Vaincre Brutal (V4) doit poser le flag, utilisé par le déblocage Sadistic.");
 }
@@ -61,9 +61,19 @@ assert.equal(t7.drop, "stillBeatingHeart");
 // --- alias "titan7" (comme titan1..titan6 déjà supportés) ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  const ctxBrutal = { bosses: 190, stats: { power: 2.2e26, toughness: 1.0e26 } };
+  const ctxBrutal = { bosses: 190, difficulty: "difficile", stats: { power: 2.2e26, toughness: 1.0e26 } };
   const { result } = applyIdleAdventureActionV47(s, { action: "titan", titan: "titan7", difficulty: "brutal" }, ctxBrutal, 1);
   assert.equal(result.id, "t7", "L'alias titan7 doit résoudre vers t7, comme titan1..titan6.");
 }
 
+
+
+// Audit 2026-09-23 : « 190 (Evil) » sur la page Titans -- The Exile n'existe qu'en difficulté Evil ou Sadistic
+{
+  const s = normalizeIdleAdventureStateV47({});
+  assert.throws(
+    () => applyIdleAdventureActionV47(s, { action: "titan", titan: "t7", difficulty: "easy" }, { bosses: 190, difficulty: "normal", stats: { power: 1e30, toughness: 1e30 } }, 1),
+    /DIFFICULTE_EVIL_REQUISE/
+  );
+}
 console.log("idle-adventure-exile-titan-and-brutal-flags: OK");
