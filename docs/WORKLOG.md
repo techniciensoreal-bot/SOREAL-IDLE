@@ -1197,3 +1197,7 @@ Wishes dont le bonus était déclaré vide alors que le système existe : 20 (te
 ## 2026-09-23 — Five O'Clock Shadow (Beards)
 
 Le perk « Five O'Clock Shadow » (21) était calculé (`beardTrimSpeedLevel`) mais jamais lu : le facteur de temps de conversion des Beards (+1/3 par heure, 8 après 24 h) atteint maintenant son maximum 1 h plus tôt par niveau (minimum 12 h). Test `idle-beard-shadow-perk`.
+
+## 2026-09-23 — Compétences d'aventure (client)
+
+Page Skills / Build Move Cooldowns : les specials « Move Cooldowns » de l'équipement (Ring of Might 20 %, Sands of Time 20 %, Infinity Charm 10 %) réduisaient rien -- ils réduisent maintenant les cooldowns des moves (puis Red Liquid -20 %) ; Parry x3 avec le set Slimy complété ; l'Idle Mode lit le multiplicateur du serveur (x1,2 / 1,5 / 1,8). `soreal-idle-ui.js?v=231`. Test `idle-client-skill-tweaks`.

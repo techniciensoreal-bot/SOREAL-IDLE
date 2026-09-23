@@ -15544,7 +15544,9 @@ let idleDialogueTimerV76=null;
       function cooldownDureeAdventureIdleV4_(def,a){
         const base=Math.max(0,idleNombre_(def&&def.cooldown));
         if(!def||def.id==='move69')return base;
-        return base*(a&&a.unlockFlags&&a.unlockFlags.redLiquidMaxed ? .8 : 1);
+        /* Specials « Move Cooldowns » de l'équipement (Ring of Might, Sands of Time, Infinity Charm : 50 % max) puis set Red Liquid (-20 %). */
+        const equipement=Math.max(0,Math.min(95,idleNombre_(a&&a.stats&&a.stats.specials&&a.stats.specials.moveCooldownPct)));
+        return base*(1-equipement/100)*(a&&a.unlockFlags&&a.unlockFlags.redLiquidMaxed ? .8 : 1);
       }
 
       function cooldownRestantAdventureIdleV3_(id,maintenant){
@@ -15673,6 +15675,8 @@ let idleDialogueTimerV76=null;
           const jrpg=Boolean(a&&a.completedSets&&a.completedSets.jrpg);
           multiplier=(jrpg?4:2)+bossRecord*.01;
         }
+        /* Wiki Skills : Parry x1 (x3 avec le set Slimy complété). */
+        if(def&&def.id==='parry'&&a&&a.completedSets&&a.completedSets.slimy)multiplier=3;
         if(idleAdventureManualStateV3.charge){
           multiplier*=multiplicateurChargeAdventureIdleV3_(a);
           idleAdventureManualStateV3.charge=false;
