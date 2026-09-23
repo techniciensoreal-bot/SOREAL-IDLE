@@ -614,7 +614,21 @@
           const totalServeur=
             Math.max(0,idleNombre_(srv.level))+
             Math.max(0,Math.min(.999999999,idleNombre_(srv.progress)));
-          const avance=totalLocal>=totalServeur?loc:srv;
+          /*
+           * 2026-09-23 (audit NGU) : le client peut légitimement être en
+           * avance sur le serveur (latence de la réponse, allocation appliquée
+           * localement avant son envoi), mais cette avance restait à vie :
+           * elle n'était jamais résorbée, donc l'affichage dérivait au-dessus
+           * de la vérité serveur à chaque changement d'allocation. L'avance
+           * tolérée est bornée à 3 s de gain à la vitesse courante (2 niveaux
+           * au minimum) ; au-delà, le serveur fait foi.
+           */
+          const vitesseServeur=Math.max(0,idleNombre_(srv.levelsPerSecond));
+          const avanceTolereeMax=Math.max(2,vitesseServeur*3);
+          const avance=(
+            totalLocal>=totalServeur&&
+            totalLocal-totalServeur<=avanceTolereeMax
+          )?loc:srv;
 
           return Object.assign({},srv,{
             level:idleEntier_(avance.level),
