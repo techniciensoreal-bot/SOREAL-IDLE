@@ -3244,6 +3244,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:.40,definitions:["forest:pendant"],level:2}],
       specials:[
         {id:"wandoos98",chance:.003,level:0},
+        {id:"lootyMcLootFace",chance:.01,level:0}, /* wiki, section Loot > Boss (audit 2026-09-23) */
         {id:"pissedOffKey",chance:.01,level:0,firstGuaranteed:true},
         {id:"skyBall",chance:.01,level:1}
       ]
@@ -3293,7 +3294,8 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:.30,set:"spoopy",level:0}],
       specials:[
         {id:"wandoos98",chance:.002,level:0},
-        {id:"ghostTypewriter",chance:.0045,level:1}
+        {id:"ghostTypewriter",chance:.0045,level:1},
+        {id:"dragonWings",chance:.0015,level:4,mobName:"Mysterious Figure"} /* wiki : "MYSTERIOUS FIGURE (BOSS): Dragon Wings lvl 4 (0.15% base chance)" */
       ]
     }
   },
@@ -3305,6 +3307,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     boss:{
       equipment:[{chance:.20,set:"gaudy",level:0}],
       specials:[
+        {id:"aBeanie",chance:.0015,level:4}, /* wiki, section Loot > Boss (audit 2026-09-23) */
         {id:"wandoos98",chance:.0025,level:1},
         {id:"gaudyShoulders",chance:.004,level:1}
       ]
@@ -3317,7 +3320,10 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.08,set:"mega",level:0}],
-      specials:[{id:"fTank",chance:.002,level:1}]
+      specials:[
+        {id:"ascendedForestPendant",chance:.01,level:0}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"fTank",chance:.002,level:1}
+      ]
     }
   },
   beardverse:{
@@ -3327,7 +3333,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.01,set:"beardverse",level:1}],
-      specials:[{id:"beardComb",chance:.0002,level:1}]
+      specials:[
+        {id:"beardHairStrand",chance:.0002,level:5}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedForestPendant",chance:.006,level:1},
+        {id:"beardComb",chance:.0002,level:1}
+      ]
     }
   },
   badly:{
@@ -3338,7 +3348,12 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.00018,cap:.15,set:"badly",level:1}],
-      specials:[{id:"randomCrayons",chance:.000012,cap:.03,level:1}]
+      specials:[
+        {id:"lootyMcLootFace",chance:.0005,cap:.10,level:10}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"sirLooty",chance:.00001,cap:.01,level:5},
+        {id:"ascendedAscendedForestPendant",chance:.0001,cap:.01,level:1},
+        {id:"randomCrayons",chance:.000012,cap:.03,level:1}
+      ]
     }
   },
   boring:{
@@ -3349,7 +3364,12 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.00009,cap:.10,set:"stealth",level:1}],
-      specials:[{id:"redLipstick",chance:.000006,cap:.02,level:1}]
+      specials:[
+        {id:"ascendedAscendedForestPendant",chance:.00007,cap:.01,level:5}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"sirLooty",chance:.000007,cap:.01,level:8},
+        {id:"stealthiestArmour",chance:.000001,cap:.005,level:5,requiresCompletedSet:"stealth"},
+        {id:"redLipstick",chance:.000006,cap:.02,level:1}
+      ]
     }
   },
   chocolate:{
@@ -3360,7 +3380,10 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     },
     boss:{
       equipment:[{chance:.00055,cap:.12,set:"choco",level:1}],
-      specials:[{id:"candyCornNecklace",chance:.00008,cap:.016,level:1}]
+      specials:[
+        {ids:["energyBarBarAccessory","magicBarBarAccessory"],chance:.00018,cap:.12,level:1,requiresCompletedSet:"choco"}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"candyCornNecklace",chance:.00008,cap:.016,level:1}
+      ]
     }
   },
   /*
@@ -3368,84 +3391,134 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
    * remplaçant le repli universel inventé (22% set / 12% boost / 4% spécial,
    * force de boost = log2(1+boss/10)). Taux de base et plafonds ("up to") de la
    * section Loot de chaque page ; le cube root de la chance de drop reste appliqué
-   * par idleAdventureDropChanceV2 (zoneUsesCubeRootDropV2). Les accessoires
-   * propres à chaque zone (Edgy Magicite Crystal, Creepy Doll...), les Ascended
-   * Pendants et les Looties n'existent pas encore côté SOREAL : non tirés ici,
-   * jamais remplacés par une valeur de repli.
+   * par idleAdventureDropChanceV2 (zoneUsesCubeRootDropV2).
+   *
+   * Audit des objets manquants (2026-09-23) : les accessoires propres à chaque
+   * zone (Evil Bonus Accs), les Ascended Pendants et les Looties sont désormais
+   * tirés avec les taux/plafonds/niveaux de la section Loot. Lignes volontairement
+   * NON tirées (jamais de valeur de repli, règle n°1 AGENTS.md) :
+   * - Chocolate World / The Evilverse / Pretty Pink Princess Land : "Ascended
+   *   Ascended Ascended Pendant (0.1% + 0.0000001% / 0.15% + 0.00000001% /
+   *   0.15% + 0.000000002% base chance)" -- notation "+" que le wiki n'explique
+   *   nulle part ;
+   * - The Aethereal Sea : "Ascended x6 Pendant lvl 16 chance ?" et "GALACTIC
+   *   HERALD LOOTY lvl 16 chance ?" -- taux non publiés.
    */
   evilverse:{
     normal:{
       boosts:[{strength:200,chance:0.00012,cap:0.1},{strength:500,chance:0.00012,cap:0.1}],
-      equipment:[{chance:0.00007,cap:0.08,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1}]
+      equipment:[{chance:0.00007,cap:0.08,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1}],
+      specials:[{id:"edgyMagicite",chance:0.00002,cap:0.011,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
       equipment:[
         {chance:0.00021,cap:0.12,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1},
         {chance:0.000018,cap:0.12,definitions:["bothedgy:boots"],level:1,requiresCompletedSet:"edgyboots"}
-      ]
+      ],
+      specials:[{id:"edgyMagicite",chance:0.00002,cap:0.011,level:1}] /* wiki, section Loot > Boss (audit 2026-09-23) */
     }
   },
   pinkprincess:{
     normal:{
       boosts:[{strength:500,chance:0.0001,cap:0.08},{strength:1000,chance:0.0001,cap:0.06}],
-      equipment:[{chance:0.00003,cap:0.08,set:"pinkprincess",level:1}]
+      equipment:[{chance:0.00003,cap:0.08,set:"pinkprincess",level:1}],
+      specials:[{id:"creepyDoll",chance:0.000012,cap:0.013,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.0001,cap:0.12,set:"pinkprincess",level:1}]
+      equipment:[{chance:0.0001,cap:0.12,set:"pinkprincess",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"creepyDoll",chance:0.000012,cap:0.013,level:1}
+      ]
     }
   },
   metaland:{
     normal:{
       boosts:[{strength:1000,chance:0.00005,cap:0.07},{strength:2000,chance:0.00005,cap:0.07}],
-      equipment:[{chance:0.000015,cap:0.04,set:"meta",level:1}]
+      equipment:[{chance:0.000015,cap:0.04,set:"meta",level:1}],
+      specials:[{id:"theExponential",chance:0.000006,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.00005,cap:0.12,set:"meta",level:1}]
+      equipment:[{chance:0.00005,cap:0.12,set:"meta",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.00005,cap:0.03,level:5},
+        {id:"sirLooty",chance:0.000012,cap:0.03,level:25},
+        {id:"theExponential",chance:0.000006,cap:0.017,level:1}
+      ]
     }
   },
   interdimensional:{
     normal:{
       boosts:[{strength:1000,chance:0.00003,cap:0.08},{strength:2000,chance:0.00003,cap:0.08}],
-      equipment:[{chance:0.000011,cap:0.04,set:"party",level:1}]
+      equipment:[{chance:0.000011,cap:0.04,set:"party",level:1}],
+      specials:[{id:"rushmoreNose",chance:0.000014,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000035,cap:0.12,set:"party",level:1}]
+      equipment:[{chance:0.000035,cap:0.12,set:"party",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000035,cap:0.12,level:10},
+        {id:"sirLooty",chance:0.00001,cap:0.12,level:68},
+        {id:"rushmoreNose",chance:0.000014,cap:0.017,level:1}
+      ]
     }
   },
   typozone:{
     normal:{
       boosts:[{strength:1000,chance:0.000022,cap:0.08},{strength:2000,chance:0.000022,cap:0.08}],
-      equipment:[{chance:0.000009,cap:0.04,set:"typo",level:1}]
+      equipment:[{chance:0.000009,cap:0.04,set:"typo",level:1}],
+      specials:[{id:"throOdignslug",chance:0.000004,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000025,cap:0.12,set:"typo",level:1}]
+      equipment:[{chance:0.000025,cap:0.12,set:"typo",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000025,cap:0.12,level:10},
+        {id:"sirLooty",chance:0.000006,cap:0.12,level:68},
+        {id:"throOdignslug",chance:0.000004,cap:0.017,level:1}
+      ]
     }
   },
   fadlands:{
     normal:{
       boosts:[{strength:2000,chance:0.000018,cap:0.08},{strength:5000,chance:0.000018,cap:0.08}],
-      equipment:[{chance:0.000007,cap:0.04,set:"fad",level:1}]
+      equipment:[{chance:0.000007,cap:0.04,set:"fad",level:1}],
+      specials:[{id:"linkCable",chance:0.0000025,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000021,cap:0.12,set:"fad",level:1}]
+      equipment:[{chance:0.000021,cap:0.12,set:"fad",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000021,cap:0.08,level:10},
+        {id:"sirLooty",chance:0.000007,cap:0.08,level:68},
+        {id:"linkCable",chance:0.0000025,cap:0.017,level:1}
+      ]
     }
   },
   jrpgville:{
     normal:{
       boosts:[{strength:2000,chance:0.000015,cap:0.1},{strength:5000,chance:0.000015,cap:0.1}],
-      equipment:[{chance:0.0000055,cap:0.04,set:"jrpg",level:1}]
+      equipment:[{chance:0.0000055,cap:0.04,set:"jrpg",level:1}],
+      specials:[{id:"handCursor",chance:0.000002,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:0.000018,cap:0.12,set:"jrpg",level:1}]
+      equipment:[{chance:0.000018,cap:0.12,set:"jrpg",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",chance:0.000018,cap:0.12,level:10},
+        {id:"sirLooty",chance:0.0000055,cap:0.12,level:68},
+        {id:"handCursor",chance:0.000002,cap:0.017,level:1}
+      ]
     }
   },
   radlands:{
     normal:{
       boosts:[{strength:2000,chance:6e-7,cap:0.15},{strength:5000,chance:6e-7,cap:0.15}],
-      equipment:[{chance:2e-7,cap:0.05,set:"rad",level:1}]
+      equipment:[{chance:2e-7,cap:0.05,set:"rad",level:1}],
+      specials:[{id:"radMixtape",chance:8e-8,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:6e-7,cap:0.15,set:"rad",level:1}]
+      equipment:[{chance:6e-7,cap:0.15,set:"rad",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX4Pendant",chance:0.0000012,cap:0.12,level:1},
+        {id:"kingLooty",chance:4e-7,cap:0.12,level:1},
+        {id:"radMixtape",chance:8e-8,cap:0.017,level:1}
+      ]
     }
   },
   backtoschool:{
@@ -3454,16 +3527,26 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:1.5e-7,cap:0.05,set:"backtoschool",level:1}]
     },
     boss:{
-      equipment:[{chance:4.5e-7,cap:0.15,set:"backtoschool",level:1}]
+      equipment:[{chance:4.5e-7,cap:0.15,set:"backtoschool",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:4.5e-7,cap:0.12,level:1},
+        {id:"emperorLooty",chance:1.5e-7,cap:0.12,level:1}
+      ]
     }
   },
   westworld:{
     normal:{
       boosts:[{strength:5000,chance:2.5e-7,cap:0.15},{strength:10000,chance:2.5e-7,cap:0.15}],
-      equipment:[{chance:1e-7,cap:0.05,set:"western",level:1}]
+      equipment:[{chance:1e-7,cap:0.05,set:"western",level:1}],
+      specials:[{id:"beretta9mm",chance:2e-8,cap:0.12,level:1,requiresCompletedSet:"western"}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
     boss:{
-      equipment:[{chance:3e-7,cap:0.15,set:"western",level:1}]
+      equipment:[{chance:3e-7,cap:0.15,set:"western",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"beretta9mm",chance:6e-8,cap:0.12,level:1,requiresCompletedSet:"western"},
+        {id:"ascendedX5Pendant",chance:0.000001,cap:0.12,level:1},
+        {id:"emperorLooty",chance:3e-7,cap:0.12,level:1}
+      ]
     }
   },
   breadverse:{
@@ -3472,7 +3555,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:4e-8,cap:0.04,set:"bread",level:1}]
     },
     boss:{
-      equipment:[{chance:1.2e-7,cap:0.15,set:"bread",level:1}]
+      equipment:[{chance:1.2e-7,cap:0.15,set:"bread",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:4e-7,cap:0.12,level:5},
+        {id:"emperorLooty",chance:1.2e-7,cap:0.12,level:5}
+      ]
     }
   },
   seventies:{
@@ -3481,7 +3568,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:2.5e-8,cap:0.04,set:"disco",level:1}]
     },
     boss:{
-      equipment:[{chance:8e-8,cap:0.15,set:"disco",level:1}]
+      equipment:[{chance:8e-8,cap:0.15,set:"disco",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:2.5e-7,cap:0.12,level:15},
+        {id:"emperorLooty",chance:8e-8,cap:0.12,level:15}
+      ]
     }
   },
   halloweenies:{
@@ -3490,7 +3581,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:1.6e-8,cap:0.04,set:"halloweenie",level:1}]
     },
     boss:{
-      equipment:[{chance:5e-8,cap:0.15,set:"halloweenie",level:1}]
+      equipment:[{chance:5e-8,cap:0.15,set:"halloweenie",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX5Pendant",chance:1.6e-7,cap:0.12,level:40},
+        {id:"emperorLooty",chance:6e-8,cap:0.12,level:40}
+      ]
     }
   },
   construction:{
@@ -3499,7 +3594,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:1e-8,cap:0.04,set:"construction",level:1}]
     },
     boss:{
-      equipment:[{chance:3e-8,cap:0.15,set:"construction",level:1}]
+      equipment:[{chance:3e-8,cap:0.15,set:"construction",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX6Pendant",chance:1e-7,cap:0.12,level:2},
+        {id:"galacticHeraldLooty",chance:4e-8,cap:0.12,level:2}
+      ]
     }
   },
   duckduck:{
@@ -3508,7 +3607,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:8e-9,cap:0.05,set:"duck",level:1}]
     },
     boss:{
-      equipment:[{chance:2.4e-8,cap:0.15,set:"duck",level:1}]
+      equipment:[{chance:2.4e-8,cap:0.15,set:"duck",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX6Pendant",chance:8e-8,cap:0.12,level:4},
+        {id:"galacticHeraldLooty",chance:3e-8,cap:0.12,level:4}
+      ]
     }
   },
   netherregions:{
@@ -3517,7 +3620,11 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:6e-9,cap:0.05,set:"dutch",level:1}]
     },
     boss:{
-      equipment:[{chance:1.8e-8,cap:0.15,set:"dutch",level:1}]
+      equipment:[{chance:1.8e-8,cap:0.15,set:"dutch",level:1}],
+      specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX6Pendant",chance:6e-8,cap:0.12,level:8},
+        {id:"galacticHeraldLooty",chance:2.4e-8,cap:0.12,level:8}
+      ]
     }
   },
   aethereansea:{
@@ -3604,19 +3711,32 @@ function rollBoostAdventureV2(s,z,def,dropMult){
   return add(s,boost(type,def.strength));
 }
 
-function rollSpecialAdventureV2(s,z,def,dropMult){
-  const id=String(def.id||"");
-  const source=SPECIALS[id];
-  if(!source)return null;
+/*
+ * Audit 2026-09-23 (sections Loot du wiki) -- trois formes de ligne en plus :
+ * - requiresCompletedSet : "if <Set> complete, x% base chance" (ex. The
+ *   Stealthiest Armour, A 9mm Beretta) ;
+ * - ids : un seul jet pour "x% base chance ... for one of:" plusieurs objets
+ *   (Energy/Magic Bar Bar (Accessory) en Chocolate World) ;
+ * - mobName : butin propre à un ennemi nommé de la zone (Dragon Wings sur
+ *   "MYSTERIOUS FIGURE (BOSS)" en Ancient Battlefield), même principe que le
+ *   Ring of Apathy sur le Goblin de la Forêt (ctx.forceMobName).
+ */
+function rollSpecialAdventureV2(s,z,def,dropMult,mobName){
+  const ids=Array.isArray(def.ids)&&def.ids.length?def.ids.map(String):[String(def.id||"")];
+  if(!ids.every(x=>SPECIALS[x]))return null;
+  if(def.requiresCompletedSet&&!s.completedSets[String(def.requiresCompletedSet)])return null;
+  if(def.mobName&&String(mobName||"")!==String(def.mobName))return null;
 
-  const firstGuaranteed=Boolean(def.firstGuaranteed&&!s.itemList[id]?.seen);
+  const firstGuaranteed=Boolean(ids.length===1&&def.firstGuaranteed&&!s.itemList[ids[0]]?.seen);
   if(!firstGuaranteed&&Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
 
+  const id=ids.length===1?ids[0]:ids[I(Math.random()*ids.length)];
+  const source=SPECIALS[id];
   const level=def.level!=null?def.level:(source.dropLevel||0);
   return add(s,special(id,dropLevelAdventureV2(s,level)));
 }
 
-function rollProfileLootAdventureV2(s,z,boss,dropMult){
+function rollProfileLootAdventureV2(s,z,boss,dropMult,mobName){
   const zoneProfile=IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2[z.id];
   const profile=zoneProfile&&(boss?zoneProfile.boss:zoneProfile.normal);
   if(!profile)return null;
@@ -3631,7 +3751,7 @@ function rollProfileLootAdventureV2(s,z,boss,dropMult){
     if(o)out.push(o);
   }
   for(const def of profile.specials||[]){
-    const o=rollSpecialAdventureV2(s,z,def,dropMult);
+    const o=rollSpecialAdventureV2(s,z,def,dropMult,mobName);
     if(o)out.push(o);
   }
   return out;
@@ -3680,7 +3800,7 @@ function rollKill(s,ctx){
     (1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)
   );
 
-  const exact=rollProfileLootAdventureV2(s,z,boss,dropMult);
+  const exact=rollProfileLootAdventureV2(s,z,boss,dropMult,ctx.forceMobName);
   const out=exact===null?rollLegacyZoneLootAdventureV2(s,z,dropMult,ctx):exact;
 
   if(
