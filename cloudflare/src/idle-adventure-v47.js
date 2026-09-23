@@ -143,7 +143,7 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * aucun visuel de palier 7+ n'existe -- même raison que les zones Normal
  * tardives ci-dessus).
  */
-{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,idleP:2.4e13,idleT:1.6e13,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,idleP:2.4e13,idleT:1.6e13,bossChance:2/9,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,idleP:1.3e14,idleT:9.7e13,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,idleP:4.5e16,idleT:3.1e16,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,idleP:4.8e17,idleT:3.1e17,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
@@ -156,7 +156,7 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,idleT:2.4e20,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,idleP:1.5e21,idleT:1.1e21,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,idleP:9.1e24,idleT:5.6e24,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,idleP:9.1e24,idleT:5.6e24,bossChance:1/5,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,idleP:1.7e27,idleT:8.5e26,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,idleP:8e27,idleT:3.5e27,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
@@ -172,7 +172,7 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,idleP:3.5e32,idleT:2.3e32,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,idleP:6.9e32,idleT:5e32,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,idleP:4.76e34,idleT:3.4e34,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
+{id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,idleP:4.76e34,idleT:3.4e34,bossChance:4/21,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
 ]);
 /*
  * Norman (2026-09-16) : "j'ai plusieurs images qui sont utilisée pour le
@@ -529,7 +529,7 @@ const SETS={
  * récente et la plus spécifique.
  */
 training:{name:"Training Set",source:"tutorial",slots:["head","chest","legs","boots","weapon"],p:6,t:8,reward:{experience:10,energySpeed:2}},
-sewers:{name:"Sewers Set",source:"sewers",slots:["head","chest","legs","boots","weapon","ring","amulet"],p:20,t:20,reward:{experience:20,adventurePower:5,adventureToughness:5,adventureHp:15,adventureRegen:.2}},
+sewers:{name:"Sewers Set",source:"sewers",slots:["head","chest","legs","boots","weapon","ring","amulet"],p:52,t:52,reward:{experience:20,adventurePower:5,adventureToughness:5,adventureHp:15,adventureRegen:.2}},
 /*
  * V152 — audit wiki (Norman, 2026-09-11, "parcours les pages du wiki et
  * applique tout") : la récompense de complétion réelle du set Forest
@@ -879,7 +879,7 @@ export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries
 const SET_ITEM_STATS_V1=Object.freeze({
   "training:weapon":{p:6,t:0},"training:head":{p:0,t:2},"training:chest":{p:0,t:2},"training:legs":{p:0,t:2},"training:boots":{p:0,t:2},
   "sewers:weapon":{p:40,t:0},"sewers:head":{p:0,t:10},"sewers:chest":{p:0,t:10},"sewers:legs":{p:0,t:10},"sewers:boots":{p:0,t:10},"sewers:ring":{p:2,t:2},"sewers:amulet":{p:10,t:10},
-  "forest:weapon":{p:160,t:0},"forest:head":{p:0,t:40},"forest:chest":{p:0,t:40},"forest:legs":{p:0,t:40},"forest:boots":{p:0,t:40},"forest:ring":{p:16,t:16},
+  "forest:weapon":{p:160,t:0},"forest:head":{p:0,t:40},"forest:chest":{p:0,t:40},"forest:legs":{p:0,t:40},"forest:boots":{p:0,t:40},"forest:ring":{p:16,t:16},"forest:pendant":{p:0,t:0},
   "cave:weapon":{p:400,t:0},"cave:head":{p:0,t:100},"cave:chest":{p:0,t:100},"cave:legs":{p:0,t:100},"cave:boots":{p:0,t:100},"cave:ring":{p:8,t:8},"cave:amulet":{p:2,t:2},"cave:combat":{p:60,t:60},
   "hsb:weapon":{p:1000,t:0},"hsb:head":{p:0,t:250},"hsb:chest":{p:0,t:250},"hsb:legs":{p:0,t:250},"hsb:boots":{p:0,t:250},"hsb:ring":{p:90,t:90},"hsb:amulet":{p:0,t:0},
   "grb:weapon":{p:2000,t:160},"grb:head":{p:500,t:500},"grb:chest":{p:40,t:500},"grb:legs":{p:40,t:500},"grb:boots":{p:40,t:500},"grb:necklace":{p:500,t:500},"grb:meat":{p:0,t:0},
@@ -2626,7 +2626,32 @@ const ZONE_GOLD_RANGES_V1={
   beardverse:{normal:[880000,1100000],boss:[1600000,2000000]},
   badly:{normal:[880000,1100000],boss:[2000000,2500000]},
   boring:{normal:[1120000,1400000],boss:[2400000,3000000]},
-  chocolate:{normal:[2400000,3000000],boss:[3600000,4500000]}
+  chocolate:{normal:[2400000,3000000],boss:[3600000,4500000]},
+  /*
+   * 2026-09-23 (audit NGU, parité wiki) : zones Evil/Sadistic, plages de la
+   * section Loot de chaque page de zone (miroir local NGU-Wiki, expansion des
+   * modèles incluse). Fad-lands et Back To School : leurs pages ne sont pas
+   * dans le miroir (collision de casse Windows avec leur redirection) --
+   * wikitexte brut relu via l'API MediaWiki, {{formatnum}}/{{BigNum}} réduits
+   * à leur nombre.
+   */
+  evilverse:{normal:[1120000000,1400000000],boss:[2400000000,3000000000]},
+  pinkprincess:{normal:[4000000000,5000000000],boss:[20000000000,25000000000]},
+  metaland:{normal:[20000000000,25000000000],boss:[40000000000,50000000000]},
+  interdimensional:{normal:[40000000000,50000000000],boss:[120000000000,150000000000]},
+  typozone:{normal:[120000000000,150000000000],boss:[200000000000,250000000000]},
+  fadlands:{normal:[180000000000,300000000000],boss:[400000000000,500000000000]},
+  jrpgville:{normal:[400000000000,500000000000],boss:[520000000000,650000000000]},
+  radlands:{normal:[800000000000,1000000000000],boss:[1200000000000,1500000000000]},
+  backtoschool:{normal:[600000000000000,750000000000000],boss:[680000000000000,850000000000000]},
+  westworld:{normal:[1200000000000000,1500000000000000],boss:[1600000000000000,2000000000000000]},
+  breadverse:{normal:[4800000000000000,6000000000000000],boss:[8000000000000000,10000000000000000]},
+  seventies:{normal:[10000000000000000,12500000000000000],boss:[12000000000000000,15000000000000000]},
+  halloweenies:{normal:[20000000000000000,25000000000000000],boss:[24000000000000000,30000000000000000]},
+  construction:{normal:[40000000000000000,50000000000000000],boss:[48000000000000000,60000000000000000]},
+  duckduck:{normal:[80000000000000000,100000000000000000],boss:[96000000000000000,120000000000000000]},
+  netherregions:{normal:[160000000000000000,200000000000000000],boss:[200000000000000000,250000000000000000]},
+  aethereansea:{normal:[320000000000000000,400000000000000000],boss:[640000000000000000,800000000000000000]}
 };
 /*
  * EXP de boss d'Aventure (Norman, 2026-09-16, "les boss d'Aventure doivent
@@ -2659,7 +2684,26 @@ const ZONE_BOSS_EXP_CHANCE_V1={
   beardverse:{chance:.002,cap:.10,amount:20},
   badly:{chance:.0005,cap:.10,amount:25},
   boring:{chance:.0003,cap:.10,amount:30},
-  chocolate:{chance:.0002,cap:.03,amount:30}
+  chocolate:{chance:.0002,cap:.03,amount:30},
+  /* 2026-09-23 (audit NGU) : zones Evil/Sadistic, ligne "Exp N (x% base chance, up to y% max)"
+   * de la section Loot > Boss de chaque page. The Aethereal Sea ("Exp 1,200" sans taux
+   * publié) est volontairement absente : jamais de taux inventé. */
+  evilverse:{chance:0.0001,cap:0.03,amount:30},
+  pinkprincess:{chance:0.0003,cap:0.03,amount:30},
+  metaland:{chance:0.00001,cap:0.03,amount:30},
+  interdimensional:{chance:0.00003,cap:0.03,amount:30},
+  typozone:{chance:0.000022,cap:0.03,amount:35},
+  fadlands:{chance:0.0000018,cap:0.03,amount:40},
+  jrpgville:{chance:0.000018,cap:0.03,amount:45},
+  radlands:{chance:6e-7,cap:0.15,amount:450},
+  backtoschool:{chance:4.5e-7,cap:0.15,amount:500},
+  westworld:{chance:3e-7,cap:0.15,amount:600},
+  breadverse:{chance:1.2e-7,cap:0.15,amount:800},
+  seventies:{chance:8e-8,cap:0.15,amount:1000},
+  halloweenies:{chance:5e-8,cap:0.15,amount:1200},
+  construction:{chance:4e-8,cap:0.15,amount:1200},
+  duckduck:{chance:3.3e-8,cap:0.15,amount:1200},
+  netherregions:{chance:1.8e-8,cap:0.15,amount:1200}
 };
 /*
  * Norman (2026-09-14, urgent) : "les combats ne démarrent plus en
@@ -2846,41 +2890,204 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       specials:[{id:"beardComb",chance:.0002,level:1}]
     },
     boss:{
-      equipment:[{chance:.01,set:"beardverse",level:0}],
+      equipment:[{chance:.01,set:"beardverse",level:1}],
       specials:[{id:"beardComb",chance:.0002,level:1}]
     }
   },
   badly:{
     normal:{
       boosts:[{strength:100,chance:.001,cap:.20},{strength:200,chance:.001,cap:.20}],
-      equipment:[{chance:.00006,cap:.05,set:"badly",level:0}],
+      equipment:[{chance:.00006,cap:.05,set:"badly",level:1}],
       specials:[{id:"randomCrayons",chance:.000012,cap:.03,level:1}]
     },
     boss:{
-      equipment:[{chance:.00018,cap:.15,set:"badly",level:0}],
+      equipment:[{chance:.00018,cap:.15,set:"badly",level:1}],
       specials:[{id:"randomCrayons",chance:.000012,cap:.03,level:1}]
     }
   },
   boring:{
     normal:{
       boosts:[{strength:200,chance:.00012,cap:.20},{strength:500,chance:.00012,cap:.20}],
-      equipment:[{chance:.00003,cap:.04,set:"stealth",level:0}],
+      equipment:[{chance:.00003,cap:.04,set:"stealth",level:1}],
       specials:[{id:"redLipstick",chance:.000006,cap:.02,level:1}]
     },
     boss:{
-      equipment:[{chance:.00009,cap:.10,set:"stealth",level:0}],
+      equipment:[{chance:.00009,cap:.10,set:"stealth",level:1}],
       specials:[{id:"redLipstick",chance:.000006,cap:.02,level:1}]
     }
   },
   chocolate:{
     normal:{
       boosts:[{strength:200,chance:.00055,cap:.10},{strength:500,chance:.00055,cap:.10}],
-      equipment:[{chance:.00018,cap:.08,set:"choco",level:0}],
+      equipment:[{chance:.00018,cap:.08,set:"choco",level:1}],
       specials:[{id:"candyCornNecklace",chance:.00008,cap:.016,level:1}]
     },
     boss:{
-      equipment:[{chance:.00055,cap:.12,set:"choco",level:0}],
+      equipment:[{chance:.00055,cap:.12,set:"choco",level:1}],
       specials:[{id:"candyCornNecklace",chance:.00008,cap:.016,level:1}]
+    }
+  },
+  /*
+   * 2026-09-23 (audit NGU, parité wiki) : profils des 17 zones Evil/Sadistic,
+   * remplaçant le repli universel inventé (22% set / 12% boost / 4% spécial,
+   * force de boost = log2(1+boss/10)). Taux de base et plafonds ("up to") de la
+   * section Loot de chaque page ; le cube root de la chance de drop reste appliqué
+   * par idleAdventureDropChanceV2 (zoneUsesCubeRootDropV2). Les accessoires
+   * propres à chaque zone (Edgy Magicite Crystal, Creepy Doll...), les Ascended
+   * Pendants et les Looties n'existent pas encore côté SOREAL : non tirés ici,
+   * jamais remplacés par une valeur de repli.
+   */
+  evilverse:{
+    normal:{
+      boosts:[{strength:200,chance:0.00012,cap:0.1},{strength:500,chance:0.00012,cap:0.1}],
+      equipment:[{chance:0.00007,cap:0.08,set:"edgy",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.00021,cap:0.12,set:"edgy",level:1}]
+    }
+  },
+  pinkprincess:{
+    normal:{
+      boosts:[{strength:500,chance:0.0001,cap:0.08},{strength:1000,chance:0.0001,cap:0.06}],
+      equipment:[{chance:0.00003,cap:0.08,set:"pinkprincess",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.0001,cap:0.12,set:"pinkprincess",level:1}]
+    }
+  },
+  metaland:{
+    normal:{
+      boosts:[{strength:1000,chance:0.00005,cap:0.07},{strength:2000,chance:0.00005,cap:0.07}],
+      equipment:[{chance:0.000015,cap:0.04,set:"meta",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.00005,cap:0.12,set:"meta",level:1}]
+    }
+  },
+  interdimensional:{
+    normal:{
+      boosts:[{strength:1000,chance:0.00003,cap:0.08},{strength:2000,chance:0.00003,cap:0.08}],
+      equipment:[{chance:0.000011,cap:0.04,set:"party",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.000035,cap:0.12,set:"party",level:1}]
+    }
+  },
+  typozone:{
+    normal:{
+      boosts:[{strength:1000,chance:0.000022,cap:0.08},{strength:2000,chance:0.000022,cap:0.08}],
+      equipment:[{chance:0.000009,cap:0.04,set:"typo",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.000025,cap:0.12,set:"typo",level:1}]
+    }
+  },
+  fadlands:{
+    normal:{
+      boosts:[{strength:2000,chance:0.000018,cap:0.08},{strength:5000,chance:0.000018,cap:0.08}],
+      equipment:[{chance:0.000007,cap:0.04,set:"fad",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.000021,cap:0.12,set:"fad",level:1}]
+    }
+  },
+  jrpgville:{
+    normal:{
+      boosts:[{strength:2000,chance:0.000015,cap:0.1},{strength:5000,chance:0.000015,cap:0.1}],
+      equipment:[{chance:0.0000055,cap:0.04,set:"jrpg",level:1}]
+    },
+    boss:{
+      equipment:[{chance:0.000018,cap:0.12,set:"jrpg",level:1}]
+    }
+  },
+  radlands:{
+    normal:{
+      boosts:[{strength:2000,chance:6e-7,cap:0.15},{strength:5000,chance:6e-7,cap:0.15}],
+      equipment:[{chance:2e-7,cap:0.05,set:"rad",level:1}]
+    },
+    boss:{
+      equipment:[{chance:6e-7,cap:0.15,set:"rad",level:1}]
+    }
+  },
+  backtoschool:{
+    normal:{
+      boosts:[{strength:5000,chance:4e-7,cap:0.1},{strength:10000,chance:4e-7,cap:0.1}],
+      equipment:[{chance:1.5e-7,cap:0.05,set:"backtoschool",level:1}]
+    },
+    boss:{
+      equipment:[{chance:4.5e-7,cap:0.15,set:"backtoschool",level:1}]
+    }
+  },
+  westworld:{
+    normal:{
+      boosts:[{strength:5000,chance:2.5e-7,cap:0.15},{strength:10000,chance:2.5e-7,cap:0.15}],
+      equipment:[{chance:1e-7,cap:0.05,set:"western",level:1}]
+    },
+    boss:{
+      equipment:[{chance:3e-7,cap:0.15,set:"western",level:1}]
+    }
+  },
+  breadverse:{
+    normal:{
+      boosts:[{strength:5000,chance:1e-7,cap:0.15},{strength:10000,chance:1e-7,cap:0.15}],
+      equipment:[{chance:4e-8,cap:0.04,set:"bread",level:1}]
+    },
+    boss:{
+      equipment:[{chance:1.2e-7,cap:0.15,set:"bread",level:1}]
+    }
+  },
+  seventies:{
+    normal:{
+      boosts:[{strength:10000,chance:6e-8,cap:0.15},{strength:10000,chance:6e-8,cap:0.15}],
+      equipment:[{chance:2.5e-8,cap:0.04,set:"disco",level:1}]
+    },
+    boss:{
+      equipment:[{chance:8e-8,cap:0.15,set:"disco",level:1}]
+    }
+  },
+  halloweenies:{
+    normal:{
+      boosts:[{strength:10000,chance:4e-8,cap:0.15},{strength:10000,chance:4e-8,cap:0.15}],
+      equipment:[{chance:1.6e-8,cap:0.04,set:"halloweenie",level:1}]
+    },
+    boss:{
+      equipment:[{chance:5e-8,cap:0.15,set:"halloweenie",level:1}]
+    }
+  },
+  construction:{
+    normal:{
+      boosts:[{strength:10000,chance:2.5e-8,cap:0.16},{strength:10000,chance:2.5e-8,cap:0.16}],
+      equipment:[{chance:1e-8,cap:0.04,set:"construction",level:1}]
+    },
+    boss:{
+      equipment:[{chance:3e-8,cap:0.15,set:"construction",level:1}]
+    }
+  },
+  duckduck:{
+    normal:{
+      boosts:[{strength:10000,chance:2e-8,cap:0.17},{strength:10000,chance:2e-8,cap:0.17}],
+      equipment:[{chance:8e-9,cap:0.05,set:"duck",level:1}]
+    },
+    boss:{
+      equipment:[{chance:2.4e-8,cap:0.15,set:"duck",level:1}]
+    }
+  },
+  netherregions:{
+    normal:{
+      boosts:[{strength:10000,chance:1.6e-8,cap:0.17},{strength:10000,chance:1.6e-8,cap:0.17}],
+      equipment:[{chance:6e-9,cap:0.05,set:"dutch",level:1}]
+    },
+    boss:{
+      equipment:[{chance:1.8e-8,cap:0.15,set:"dutch",level:1}]
+    }
+  },
+  aethereansea:{
+    normal:{
+      boosts:[{strength:10000,chance:1e-8,cap:0.17},{strength:10000,chance:1e-8,cap:0.17}],
+      equipment:[{chance:4e-9,cap:0.05,set:"pirate",level:1}]
+    },
+    boss:{
+      equipment:[{chance:1.2e-8,cap:0.15,set:"pirate",level:1}]
     }
   }
 });
