@@ -1164,3 +1164,11 @@ Source : page ITOPOD (Drops, One hit power required, Tower milestones) + page Re
 - Par défaut l'ITOPOD monte jusqu'à l'« étage optimal » (le plus haut où un coup suffit) ; action `towerFloors` (départ/fin, ou auto) et champs dans la page ITOPOD.
 - Rattrapage hors-ligne par lots (aucune boucle kill par kill), sauvegardes existantes migrées (étage = kills/10).
 - Non modélisé : chute de Boosts (14 %), MacGuffins, dégâts subis / mort. Tests : `idle-itopod-floor-tracking` réécrit ; trois tests PP recalibrés (Power 1e6).
+
+## 2026-09-23 — Beards, Wandoos, Money Pit
+
+- **Beards of Power** : la formule du wiki est « progress per tick » ; la vitesse par seconde était 50 fois trop lente (`baseRate` x50, le plafond de 50 niveaux/s supposait déjà des ticks). Non modélisé : plusieurs Beards actives en même temps (pénalité Beards_SameResource) -- une seule Beard active.
+- **Wandoos** (page Wandoos) : le multiplicateur de niveau d'OS est `niveau + 1` (« 100 % au niveau 0, 200 % au niveau 1, 401x au niveau 400 », le +4 % affiché étant trompeur) au lieu de `1 + (niveau+1) x 0,04` ; le plafond de 50 niveaux/s s'applique après tous les multiplicateurs ; Wandoos MEH n'est sélectionnable qu'avec le set Jake complété. Non modélisé : bonus des sets Wandoos/Wandoos XL, objet Wandoos XL.
+- **Money Pit** (page Money Pit) : paliers 5 à 11 complétés avec toutes leurs colonnes (Adv Stat, Cube P/T ou les deux, HP, regen, EXP multipliée par le bonus d'EXP, niveaux Wandoos plafonnés à 20/50/100, Seeds). Non modélisé : « Equip +1 LVL / Daycare », paliers 12-16 (souhait).
+- Vérifié sans écart : table des Augmentations (dont Laser Sword 2,3e19).
+- Tests : `idle-money-pit-upper-tiers`, `idle-wandoos-meh-gating`, tests Wandoos/Beard recalibrés.

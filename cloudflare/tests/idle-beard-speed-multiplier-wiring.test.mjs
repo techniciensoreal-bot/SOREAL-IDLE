@@ -40,8 +40,8 @@ function beardDropState(context, equipItem) {
 
 {
   const context = { bosses: 100 };
-  const without = advanceIdleNguState(beardDropState(context, false), 1000, context, 1_001_000);
-  const withItem = advanceIdleNguState(beardDropState(context, true), 1000, context, 1_001_000);
+  const without = advanceIdleNguState(beardDropState(context, false), 100, context, 1_100_000);
+  const withItem = advanceIdleNguState(beardDropState(context, true), 100, context, 1_100_000);
   const trackWithout = without.systems.beards.data.tracks.drop;
   const trackWith = withItem.systems.beards.data.tracks.drop;
   assert.equal(trackWithout.tempLevel, 0, "sanity : pas de passage de niveau pendant la fenêtre de mesure (sans l'objet).");

@@ -903,7 +903,12 @@ function createWandoosData() {
 
 function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
   const level = Math.max(0, Math.min(400, num(totalOsLevel, 0)));
-  return 1 + (level + 1) * 0.04;
+  /*
+   * 2026-09-23 (audit, page Wandoos) : « +4 % au niveau 0, +8 % au niveau 1 ... est trompeur : cela
+   * équivaut à 100 % au niveau 0, 200 % au niveau 1 (le temps de remplissage est divisé par deux),
+   * jusqu'à 401 fois plus rapide au niveau 400 » -> multiplicateur = niveau + 1.
+   */
+  return level + 1;
 }
 
 /*
@@ -966,12 +971,13 @@ function advanceWandoos(state, seconds, context, now) {
   /* NGU "Wandoos" (Energy) : "Wandoos speed", audit NGU 2026-09-23. */
   const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed * gearPctV1(gearSpecialsV1(state), "wandoosSpeedPct");
 
-  const energySpeed = Math.min(50, 50 * energyAlloc / requirement)
+  /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
+  const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier;
-  const magicSpeed = Math.min(50, 50 * magicAlloc / requirement)
+    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier);
+  const magicSpeed = Math.min(50, (50 * magicAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier;
+    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier);
 
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
   s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
@@ -2260,7 +2266,12 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
 
   // V49 starts with NGU's first Beard slot only, therefore the
   // Beards_SameResource divisor is 1 until a later unlock adds more slots.
-  const baseRate =
+  /*
+   * 2026-09-23 (audit, page Beards of Power) : la formule du wiki est « progress per tick » (50
+   * ticks/s) ; baseRate est une vitesse par seconde, donc x50 (la barre de Beard était 50 fois
+   * trop lente, alors que le plafond de 50 niveaux/s ci-dessous suppose bien des ticks).
+   */
+  const baseRate = 50 *
     Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "bars")) *
     Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
     diggerSpeed *
@@ -4418,6 +4429,8 @@ function selectWandoosOs(state, osId) {
   const s = state.systems.wandoos;
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if (!IDLE_WANDOOS_OS_V1[osId]) throw new Error("OS_INVALIDE");
+  /* Wiki Wandoos : Wandoos MEH se débloque en complétant le set Jake. */
+  if (osId === "meh" && !state.adventure?.setRewards?.wandoosMeh) throw new Error("OS_VERROUILLE");
   if (s.data.os === osId) return;
   s.data.os = osId;
   s.data.dumpEnergyLevel = 0;
@@ -4533,13 +4546,18 @@ function tossMoneyPit(state, now) {
     [{ adventureStats: 2 }, { boost: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }, { experience: 1 }],
     [{ adventureStats: 5 }, { boost: 5 }, { adventureHp: 50 }, { adventureRegen: 0.5 }, { experience: 2 }],
     [{ adventureStats: 10 }, { boost: 10 }, { adventureHp: 75 }, { adventureRegen: 1 }, { experience: 3 }],
-    [{ seeds: 10 }],
-    [{ experience: 25 }, { seeds: 25 }],
-    [{ experience: 25 }, { seeds: 100 }],
-    [{ experience: 200 }, { seeds: 200 }],
-    [{ experience: 300 }, { seeds: 300 }],
-    [{ experience: 400 }, { seeds: 500 }],
-    [{ experience: 500 }, { seeds: 700 }]
+    /*
+     * 2026-09-23 (audit, page Money Pit) : paliers 5 à 11 complétés avec TOUTES leurs colonnes
+     * (Adv Stat, Cube P/T ou les deux, HP, regen, EXP, Wandoos, Seeds). Le tirage reste un seul
+     * type de récompense au hasard. « Equip +1 LVL » (équipement/Daycare) n'est pas modélisé.
+     */
+    [{ adventureStats: 20 }, { cubePower: 5 }, { cubeToughness: 5 }, { cubeBoth: 3 }, { adventureHp: 150 }, { adventureRegen: 1.5 }, { experience: 10 }, { seeds: 10 }],
+    [{ adventureStats: 50 }, { cubePower: 10 }, { cubeToughness: 10 }, { cubeBoth: 5 }, { adventureHp: 200 }, { adventureRegen: 2 }, { experience: 25 }, { wandoos: 1, wandoosMax: 20 }, { seeds: 25 }],
+    [{ adventureStats: 100 }, { cubePower: 20 }, { cubeToughness: 20 }, { cubeBoth: 10 }, { adventureHp: 300 }, { adventureRegen: 3 }, { experience: 25 }, { wandoos: 1, wandoosMax: 50 }, { seeds: 100 }],
+    [{ adventureStats: 150 }, { cubePower: 50 }, { cubeToughness: 50 }, { cubeBoth: 25 }, { adventureHp: 450 }, { adventureRegen: 5 }, { experience: 200 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 200 }],
+    [{ adventureStats: 200 }, { cubePower: 100 }, { cubeToughness: 100 }, { cubeBoth: 50 }, { adventureHp: 700 }, { adventureRegen: 6 }, { experience: 300 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 300 }],
+    [{ adventureStats: 250 }, { cubePower: 150 }, { cubeToughness: 150 }, { cubeBoth: 75 }, { adventureHp: 750 }, { adventureRegen: 7.5 }, { experience: 400 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 500 }],
+    [{ adventureStats: 300 }, { cubePower: 200 }, { cubeToughness: 200 }, { cubeBoth: 100 }, { adventureHp: 900 }, { adventureRegen: 9 }, { experience: 500 }, { wandoos: 3, wandoosMax: 100 }, { seeds: 700 }]
   ];
   const candidats = IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)];
   const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
@@ -4561,6 +4579,24 @@ function tossMoneyPit(state, now) {
       state.adventure.permanent.adventureToughness =
         Math.max(0, num(state.adventure.permanent.adventureToughness, 0)) + v;
       reward.adventureStats = (reward.adventureStats || 0) + v;
+    } else if (k === "cubePower" || k === "cubeToughness" || k === "cubeBoth") {
+      const cube = state.adventure.cube && typeof state.adventure.cube === "object" ? state.adventure.cube : (state.adventure.cube = { power: 0, toughness: 0 });
+      if (k !== "cubeToughness") cube.power = Math.max(0, num(cube.power, 0)) + v;
+      if (k !== "cubePower") cube.toughness = Math.max(0, num(cube.toughness, 0)) + v;
+      reward[k] = (reward[k] || 0) + v;
+    } else if (k === "wandoos") {
+      const os = state.systems.wandoos?.data?.osLevels;
+      if (os) {
+        const max = Math.min(100, num(choix.wandoosMax, 100));
+        const gained = Math.max(0, Math.min(v, max - num(os.moneyPit, 0)));
+        os.moneyPit = Math.max(0, num(os.moneyPit, 0)) + gained;
+        reward.wandoosLevels = (reward.wandoosLevels || 0) + gained;
+      }
+    } else if (k === "wandoosMax") {
+      /* plafond du palier, traité avec "wandoos" */
+    } else if (k === "experience") {
+      /* Wiki : « EXP rewards are affected by EXP bonus » */
+      reward.experience = (reward.experience || 0) + v * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
     } else if (k === "adventureHp") {
       state.adventure.permanent.adventureHp =
         Math.max(0, num(state.adventure.permanent.adventureHp, 0)) + v;

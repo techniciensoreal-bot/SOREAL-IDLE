@@ -54,23 +54,30 @@ assert.deepEqual(IDLE_WANDOOS_OS_V1.xl.requirement, { normal: 1e15, difficile: 1
   state.resources.energy.current = 1e9;
   state = applyIdleNguAction(state, { action: "allocate", system: "wandoos", resource: "energy", value: 1e9 }, context, 100_000_000).state;
   assert.equal(state.systems.wandoos.allocation.energy, 1e9, "Sanity : l'allocation doit refléter exactement la valeur demandée.");
-  // Allocation = seuil exact (1e9 pour 98/Normal) -> le terme de base plafonne à 50/s ; le
-  // multiplicateur de niveau d'OS (1.04 à niveau 0, wiki "+4% level 0") s'applique PAR-DESSUS
-  // ce plafond, jamais lui-même plafonné (sinon les niveaux d'OS n'auraient aucun effet une
-  // fois le plafond de base atteint, ce qui contredirait tout l'intérêt de la section
-  // "Leveling up the OS" du wiki).
+  // Allocation = seuil exact (1e9 pour 98/Normal) -> 50/s au niveau d'OS 0 (multiplicateur = niveau + 1
+  // = 1, wiki Wandoos). Le plafond de 50 niveaux/s (1 niveau par tick) s'applique APRES les multiplicateurs.
   const after = advanceIdleNguState(state, 1, context, 100_000_001);
-  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 52, "50 (plafond de base) x 1.04 (niveau d'OS 0) = 52.");
+  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 50, "50 (seuil) x 1 (niveau d'OS 0) = 50.");
 }
 {
   let state = unlockedWandoos();
   state.resources.energy.cap = 1e9;
   state.resources.energy.current = 1e9;
   // Moitié du seuil -> moitié de la vitesse de base (25/s), la vitesse de base est bien
-  // linéaire à l'allocation ; x1.04 (niveau d'OS 0) comme ci-dessus.
+  // linéaire à l'allocation ; x1 (niveau d'OS 0) comme ci-dessus.
   state = applyIdleNguAction(state, { action: "allocate", system: "wandoos", resource: "energy", value: 5e8 }, context, 100_000_000).state;
   const after = advanceIdleNguState(state, 1, context, 100_000_001);
-  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 26, "25 (base, moitié du plafond) x 1.04 = 26.");
+  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 25, "25 (moitié du seuil) x 1 (niveau d'OS 0) = 25.");
+}
+{
+  // Niveau d'OS 9 : x10 ; 1/10 du seuil suffit pour atteindre 50/s, jamais au-delà (plafond final).
+  let state = unlockedWandoos();
+  state.resources.energy.cap = 1e9;
+  state.resources.energy.current = 1e9;
+  state.systems.wandoos.data.osLevels = { moneyPit: 9, consumed98: 0, consumedXl: 0 };
+  state = applyIdleNguAction(state, { action: "allocate", system: "wandoos", resource: "energy", value: 1e9 }, context, 100_000_000).state;
+  const after = advanceIdleNguState(state, 1, context, 100_000_001);
+  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 50, "le plafond de 50 niveaux/s s'applique après le multiplicateur d'OS");
 }
 
 // --- Changement d'OS : les niveaux de Dump repartent à 0 (wiki : \"lost when switching\") ---
