@@ -5308,6 +5308,11 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     :Math.max(1,num(options.forceNumber,1));
   const committedNumber=forced===null?rb.nextNumber:forced;
 
+  /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
+  if(!options.challengeId&&runSeconds>=3600){
+    state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier;
+  }
+
   rb.lastNumber=rb.number;
   rb.number=committedNumber;
   rb.lastBosses=Math.max(0,int(context.bosses,0));

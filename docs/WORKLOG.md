@@ -1209,3 +1209,7 @@ Le bonus de drop du set 2D (+7,43 %) et du Cube d'Infinité (50 % et plus, addit
 ## 2026-09-23 — Daily Spin complet
 
 Page Daily Spin : la roue n'avait que les lots AP/graines (probabilités normalisées, donc AP surévalués). Table complète de chaque palier (100 % chacun) avec potions Energy/Magic α/β/δ, Lucky Charm, Bar Bar, Little Blue Pill et « CONSUMABLES JACKPOT » (contenus des paliers 3 à 7) ; les objets s'activent immédiatement comme à l'achat au shop Sellout. Poop, Beast Butter et MacGuffin Muffin (systèmes absents) sont tirés avec leur vraie probabilité mais sans effet. Les récompenses de la Money Pit (Cube, Wandoos) et de la roue s'affichent dans le message de l'interface. Test `idle-daily-spin-items`.
+
+## 2026-09-23 — AP de Rebirth
+
+Page Arbitrary Points : les Rebirths de plus d'une heure donnent 1 AP par 500 s (multiplié par le perk Fibonacci 89) ; n'existait pas. Non modélisés : 1 AP / 10 boss, sauvegarde manuelle (200 AP/jour). Test `idle-rebirth-ap`.
