@@ -174,4 +174,77 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
   assert.equal(r.state.systems.tower.data.ppProgress, 50000, "le reste (50 000) est conservé");
 }
 
+
+// Souhait 3 (meilleures récompenses V2/3/4) et souhait 73 (QP de The Beast)
+{
+  let st = normalizeIdleNguState({}, {}, 0);
+  st.currencies.qp = 0;
+  st.systems.wishes.data.tracks[3] = { level: 3 };
+  st.systems.wishes.data.tracks[73] = { level: 1 };
+  st.adventure.titans.t6 = { kills: 0, nextAt: 0 };
+  const avant = Math.random;
+  Math.random = () => PLUS_RIEN;
+  let r;
+  try {
+    r = applyIdleNguAction(
+      st,
+      { action: "adventure", adventure: { action: "titan", titan: "t6", difficulty: "brutal", stats: { power: 1e13, toughness: 1e13 } } },
+      { bosses: 132 },
+      1000
+    );
+  } finally {
+    Math.random = avant;
+  }
+  assert.equal(r.result.experience, 975, "750 EXP x 1,3 (souhait 3 niveau 3, Brutal)");
+  assert.equal(r.result.ppProgress, 325000, "250 000 x 1,3");
+  assert.ok(Math.abs(r.result.qp - 1.3) < 1e-9, "1 QP de base x 1,3");
+  assert.ok(Math.abs(r.state.currencies.qp - 1.3) < 1e-9, "QP créditée");
+  assert.equal(r.state.currencies.experience, 975);
+}
+{
+  // sans le souhait 73 : aucun QP ; niveau 1 du souhait 3 en Hard : x1,1 seulement
+  let st = normalizeIdleNguState({}, {}, 0);
+  st.systems.wishes.data.tracks[3] = { level: 1 };
+  st.adventure.titans.t6 = { kills: 0, nextAt: 0 };
+  const avant = Math.random;
+  Math.random = () => PLUS_RIEN;
+  let r;
+  try {
+    r = applyIdleNguAction(
+      st,
+      { action: "adventure", adventure: { action: "titan", titan: "t6", difficulty: "hard", stats: { power: 1e13, toughness: 1e13 } } },
+      { bosses: 132 },
+      1000
+    );
+  } finally {
+    Math.random = avant;
+  }
+  assert.equal(r.result.qp, 0);
+  assert.equal(r.result.experience, 825, "750 x 1,1");
+}
+
+
+// Digger Slot : "Scrap of Paper (set)" (1 objet), plus le set Jake
+{
+  const jake = tirage(PLUS_RIEN, () => {
+    const etat = normalizeIdleAdventureStateV47({});
+    etat.titans.t2 = { kills: 24, nextAt: 0 };
+    etat.unlockFlags.yggdrasil = true;
+    return applyIdleAdventureActionV47(etat, { action: "titan", titan: "t3" }, { bosses: 82, stats: { power: 22000, toughness: 14000 } }, 1000);
+  });
+  assert.ok(jake.result.drops.some((d) => d.definitionId === "scrap:paper" && d.level === 0), "A Scrap of Paper lvl 0 garanti");
+
+  let st = normalizeIdleAdventureStateV47({});
+  st = applyIdleAdventureActionV47(st, { action: "addItem", definitionId: "scrap:paper", level: 100 }, { bosses: 100 }, 1).state;
+  assert.equal(st.completedSets.scrap, true);
+  assert.equal(st.setRewards.diggerSlot, 1, "un Digger Slot à la complétion du Scrap of Paper Set");
+
+  let jakeSet = normalizeIdleAdventureStateV47({});
+  for (const slot of ["head", "chest", "legs", "boots", "weapon", "tie", "paperweight"]) {
+    jakeSet = applyIdleAdventureActionV47(jakeSet, { action: "addItem", definitionId: "jake:" + slot, level: 100 }, { bosses: 100 }, 1).state;
+  }
+  assert.equal(jakeSet.completedSets.jake, true);
+  assert.equal(jakeSet.setRewards.diggerSlot, 0, "le set Jake ne donne plus de Digger Slot (7 000 EXP + Wandoos MEH)");
+}
+
 console.log("idle-adventure-titan-wiki-loot-and-rewards: OK");

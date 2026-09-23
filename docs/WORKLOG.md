@@ -1076,3 +1076,9 @@ Wiki (Basic Training / Advanced Training / Perk Points / Quirk Points / Wishes) 
 ## 2026-09-23 — Affichage des PV : plus de clignotement ni de chiffres qui bougent
 
 Retour utilisateur : la regen de vie fait bouger les chiffres des PV, la regen apparaît et disparaît très vite. Causes : le suffixe « ↗ +x/s » n'existait que lorsque les PV étaient sous le max (il s'éteignait à PV pleins puis se rallumait), et `formatGrandNombreIdleV70_` retire les zéros finaux (« 1.60 » -> « 1.6 »), donc la largeur changeait ; les PV du boss utilisaient en plus un nombre de décimales variable (4). Correctif : `formaterDecimalesFixesIdleV1_` (2 décimales fixes), suffixe de regen permanent tant que la regen est > 0 (joueur et boss), chiffres tabulaires + `nowrap` en CSS. Monolithe `?v=224`. Test `idle-hp-display-stable.test.mjs`.
+
+## 2026-09-23 — Titans : souhait « meilleures récompenses », QP ; Scrap of Paper (set)
+
+- **Souhait 3** « I wish V2/3/4 Titans had better rewards » : EXP, PP progress et QP des titans x1,1 (Normal+), x1,2 (Hard+), x1,3 (Brutal) selon le niveau du souhait (`1 + 0,1 x min(niveau, rang du palier)`). **QP** : The Beast 1 (souhait 73), The Exile 3 (souhait 41), créditées dans `currencies.qp`. Le niveau des souhaits est passé au moteur d'Aventure (`wishLevels`).
+- **Scrap of Paper (set)** : le Digger Slot est donné par ce set d'un seul objet (wiki « Gold Diggers » > Digger Slot Locations, page « Scrap of Paper (set) »), que Jake From Accounting laisse tomber à coup sûr (lvl 0), et non plus par la complétion du set Jake (7 000 EXP + Wandoos MEH). Les sauvegardes où le set Jake était déjà complété gardent leur slot (rien n'est retiré).
+- Tests ajoutés à `idle-adventure-titan-wiki-loot-and-rewards.test.mjs`.

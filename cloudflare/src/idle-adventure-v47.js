@@ -546,7 +546,16 @@ grb:{name:"GRB Set",source:"t1",slots:["head","chest","legs","boots","weapon","n
 clock:{name:"Clock Set",source:"clock",slots:["head","chest","legs","boots","weapon","alarm","sands"],p:6080,t:4840,reward:{experience:1000,respawn:.05}},
 "2d":{name:"2D Set",source:"2d",slots:["head","chest","legs","boots","weapon","cube","amulet"],p:10960,t:7310,reward:{experience:2000,drop:.0743}},
 spoopy:{name:"Spoopy Set",source:"ancient",slots:["head","chest","legs","boots","weapon","ring","amulet"],p:20396,t:11070,reward:{experience:3000,idleAttack:true}},
-jake:{name:"Jake Set",source:"t3",slots:["head","chest","legs","boots","weapon","tie","paperweight"],p:26540,t:13561,reward:{experience:7000,wandoosMeh:true,diggerSlot:1}},
+jake:{name:"Jake Set",source:"t3",slots:["head","chest","legs","boots","weapon","tie","paperweight"],p:26540,t:13561,reward:{experience:7000,wandoosMeh:true}},
+/*
+ * 2026-09-23 (audit NGU) : wiki "Gold Diggers" > Digger Slot Locations :
+ * "1 from Scrap of Paper Set" ; page "Scrap of Paper (set)" : un seul objet
+ * (A Scrap of Paper), "Bonus for Completion: Gain a Digger Slot!". Jake
+ * From Accounting le laisse tomber à coup sûr (lvl 0). Ce Digger Slot était
+ * jusqu'ici attaché à tort à la complétion du set Jake (dont le bonus réel
+ * est 7 000 EXP + Wandoos MEH).
+ */
+scrap:{name:"Scrap of Paper Set",source:"t3",slots:["paper"],p:0,t:0,reward:{diggerSlot:1}},
 gaudy:{name:"Gaudy Set",source:"avsp",slots:["head","chest","legs","boots","weapon"],p:42060,t:19800,reward:{experience:5000,luckyCharms:2,extraDropLevelChance:.10}},
 mega:{name:"Mega Set",source:"mega",slots:["head","chest","legs","boots","weapon"],p:90400,t:44800,reward:{experience:6000,chargeMultiplier:2.2}},
 /*
@@ -885,7 +894,7 @@ const SET_ITEM_STATS_V1=Object.freeze({
   "grb:weapon":{p:2000,t:160},"grb:head":{p:500,t:500},"grb:chest":{p:40,t:500},"grb:legs":{p:40,t:500},"grb:boots":{p:40,t:500},"grb:necklace":{p:500,t:500},"grb:meat":{p:0,t:0},
   "clock:weapon":{p:5000,t:160},"clock:head":{p:60,t:860},"clock:chest":{p:40,t:890},"clock:legs":{p:40,t:1000},"clock:boots":{p:40,t:1030},"clock:alarm":{p:900,t:900},"clock:sands":{p:0,t:0},
   "spoopy:weapon":{p:17776,t:600},"spoopy:head":{p:100,t:2000},"spoopy:chest":{p:160,t:2070},"spoopy:legs":{p:140,t:2120},"spoopy:boots":{p:120,t:2180},"spoopy:ring":{p:2100,t:2100},"spoopy:amulet":{p:0,t:0},
-  "jake:weapon":{p:23000,t:0},"jake:head":{p:160,t:2600},"jake:chest":{p:160,t:2500},"jake:legs":{p:160,t:2798},"jake:boots":{p:160,t:2600},"jake:tie":{p:0,t:163},"jake:paperweight":{p:2900,t:2900},
+  "jake:weapon":{p:23000,t:0},"jake:head":{p:160,t:2600},"jake:chest":{p:160,t:2500},"jake:legs":{p:160,t:2798},"jake:boots":{p:160,t:2600},"scrap:paper":{p:0,t:0},"jake:tie":{p:0,t:163},"jake:paperweight":{p:2900,t:2900},
   "gaudy:weapon":{p:40000,t:0},"gaudy:head":{p:560,t:4800},"gaudy:chest":{p:500,t:5000},"gaudy:legs":{p:600,t:5200},"gaudy:boots":{p:400,t:4800},
   "mega:weapon":{p:88000,t:0},"mega:head":{p:600,t:11200},"mega:chest":{p:600,t:11200},"mega:legs":{p:600,t:11400},"mega:boots":{p:600,t:11000},
   "beardverse:weapon":{p:166000,t:12000},"beardverse:head":{p:2200,t:24000},"beardverse:chest":{p:2200,t:25000},"beardverse:legs":{p:2200,t:25000},"beardverse:boots":{p:2400,t:25000},
@@ -1237,6 +1246,7 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "jake:boots":114,
   "jake:tie":116,
   "jake:paperweight":117,
+  "scrap:paper":197,
   "gaudy:weapon":126,
   "gaudy:head":122,
   "gaudy:chest":123,
@@ -1598,7 +1608,7 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   "spoopy:weapon":"Spooky Sword","spoopy:head":"Spoopy Helmet","spoopy:chest":"Ghostly Chest","spoopy:legs":"Pants of Horror","spoopy:boots":"Spectral Boots","spoopy:ring":"Cursed Ring","spoopy:amulet":"Amulet of Sunshine, Sparkles, and Gore",
 
   // Jake (set) (titan Jake From Accounting) -- ngu-idle.fandom.com/wiki/Jake_(set)
-  "jake:weapon":"The Pen-Is","jake:head":"Office Hat","jake:chest":"Office Shirt","jake:legs":"Office Pants","jake:boots":"Office Shoes","jake:tie":"A Regular Tie","jake:paperweight":"Generic Paperweight",
+  "jake:weapon":"The Pen-Is","jake:head":"Office Hat","jake:chest":"Office Shirt","jake:legs":"Office Pants","jake:boots":"Office Shoes","jake:tie":"A Regular Tie","scrap:paper":"A Scrap of Paper","jake:paperweight":"Generic Paperweight",
 
   // Gaudy (set) (A Very Special Place) -- ngu-idle.fandom.com/wiki/Gaudy_(set), pas d'accessoires publiés
   "gaudy:weapon":"Paper Fan","gaudy:head":"Gaudy Hat","gaudy:chest":"Gaudy Shirt","gaudy:legs":"Gaudy Pants","gaudy:boots":"Gaudy Boots",
@@ -1779,7 +1789,7 @@ export function idleAdventureAddItemV1(state,o){return add(state,o)}
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -3635,19 +3645,32 @@ const TITAN_REWARDS_V1=Object.freeze({
   t6:{gold:[20000000,25000000],exp:750,ppProgress:250000},
   t7:{gold:[4000000000000,5000000000000],exp:2500,ppProgress:400000}
 });
-function creditTitanRewardsV1(s,id){
+/*
+ * Souhait 3 "I wish V2/3/4 Titans had better rewards" (wiki, pages The Beast /
+ * The Exile) : EXP, PP et QP x1,1 (Normal+, niveau 1), x1,2 (Hard+, niveau 2),
+ * x1,3 (Brutal, niveau 3). Lu ici comme 1 + 0,1 x min(niveau du souhait, rang
+ * du palier). QP de base : The Beast 1 (souhait 73), The Exile 3 (souhait 41).
+ */
+const TITAN_TIER_RANK_V1=Object.freeze({easy:0,normal:1,hard:2,brutal:3});
+const TITAN_QP_V1=Object.freeze({t6:{wish:73,qp:1},t7:{wish:41,qp:3}});
+function creditTitanRewardsV1(s,id,ctx,tierKey){
   const r=TITAN_REWARDS_V1[id];
-  const out={gold:0,experience:0,ap:0,ppProgress:0};
+  const out={gold:0,experience:0,ap:0,ppProgress:0,qp:0};
   if(!r)return out;
+  const wishes=ctx&&ctx.wishLevels&&typeof ctx.wishLevels==="object"?ctx.wishLevels:{};
+  const rewardMult=1+.1*Math.min(Math.max(0,I(wishes[3])),TITAN_TIER_RANK_V1[tierKey]||0);
   const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
   out.gold=Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult));
-  out.experience=I(r.exp,0);
+  out.experience=Math.round(I(r.exp,0)*rewardMult);
   out.ap=I(r.ap,0);
-  out.ppProgress=I(r.ppProgress,0);
+  out.ppProgress=Math.round(I(r.ppProgress,0)*rewardMult);
+  const qpDef=TITAN_QP_V1[id];
+  if(qpDef&&I(wishes[qpDef.wish])>0)out.qp=qpDef.qp*rewardMult;
   s.permanent.gold=N(s.permanent.gold)+out.gold;
   s.permanent.experience=N(s.permanent.experience)+out.experience;
   s.permanent.ap=N(s.permanent.ap)+out.ap;
   s.permanent.ppProgress=N(s.permanent.ppProgress)+out.ppProgress;
+  s.permanent.qp=N(s.permanent.qp)+out.qp;
   return out;
 }
 /*
@@ -3695,6 +3718,7 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5));if(a)out.push(a)}
     pendantForet(50,.1);
   }else if(id==="t3"){
+    equip("scrap","paper",Math.min(MAX,bonus));
     equip("jake",pick(cinq),Math.min(MAX,bonus));
     if(chance(.6))equip("jake",pick(cinq),Math.min(MAX,1+bonus));
     for(const slot of cinq)if(chance(.1))equip("jake",slot,Math.min(MAX,2+bonus));
@@ -3733,7 +3757,7 @@ if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
 const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
 if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops);
-const recompenses=titanFinalisee?creditTitanRewardsV1(s,id):{gold:0,experience:0,ap:0,ppProgress:0};
+const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey):{gold:0,experience:0,ap:0,ppProgress:0,qp:0};
 /*
  * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
  * beastBrutalDefeated/exileBrutalDefeated : flag PERMANENT (jamais remis
@@ -3747,7 +3771,7 @@ const recompenses=titanFinalisee?creditTitanRewardsV1(s,id):{gold:0,experience:0
  */
 if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
 if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
-return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress}}
+return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress,qp:recompenses.qp}}
 /*
  * V147 — retrouver Walderp caché. Purement déclaratif côté serveur (le
  * client sait déjà où il se cache via le snapshot — il ne "devine" rien,

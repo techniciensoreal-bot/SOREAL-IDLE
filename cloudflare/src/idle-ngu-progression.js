@@ -4462,6 +4462,7 @@ function crediterRecompensesAventure(state, avant) {
   state.currencies.experience += gain("experience");
   state.currencies.gold += gain("gold");
   state.currencies.ap += gain("ap");
+  state.currencies.qp += gain("qp");
   const pp = gain("ppProgress");
   if (pp > 0) {
     const tower = state.systems.tower;
@@ -4474,9 +4475,18 @@ function crediterRecompensesAventure(state, avant) {
     }
   }
 }
+/* Niveaux des souhaits (id -> niveau), lus par les récompenses de titans. */
+function wishLevelsMapV1(state) {
+  const out = {};
+  const tracks = state.systems.wishes?.data?.tracks || {};
+  for (const id of Object.keys(tracks)) out[id] = Math.max(0, int(tracks[id]?.level, 0));
+  return out;
+}
+
 function photoRecompensesAventure(state) {
   const p = state.adventure?.permanent || {};
   return {
+    qp: num(p.qp, 0),
     experience: num(p.experience, 0),
     gold: num(p.gold, 0),
     ap: num(p.ap, 0),
@@ -4504,6 +4514,7 @@ function titanFight(state, context, now) {
       }
     },
     Object.assign({},context,{
+      wishLevels:wishLevelsMapV1(state),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
       titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
       titanLootLevelBonus:titanChallengeBonuses.titanLootLevelBonus
@@ -4635,6 +4646,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
         dropChancePct: num(context.dropChancePct, 0),
         difficulty: state.difficulty,
+        wishLevels: wishLevelsMapV1(state),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
         adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context)
