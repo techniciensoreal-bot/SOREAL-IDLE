@@ -1,9 +1,19 @@
 # WORKLOG — SOREAL-IDLE
 
-Dernière mise à jour : 2026-09-21
-Tâche : remplacer définitivement le TTS navigateur et le TTS cloud payant par une narration neurale française Piper exécutée localement dans le navigateur.
+/*
+ * 2026-09-23 (audit) : ce fichier est un journal chronologique
+ * append-only (les sections les plus RÉCENTES sont en BAS du fichier,
+ * pas ici). La section "État final vérifié" ci-dessous ne décrit que
+ * l'état au 2026-09-21, au moment de la livraison de la narration
+ * V205 -- une snapshot historique, pas un résumé de l'état courant.
+ * Pour l'état le plus récent, lire la fin du fichier.
+ */
 
-## État final vérifié
+## Snapshot historique (2026-09-21) — narration V205
+
+Tâche de l'époque : remplacer définitivement le TTS navigateur et le TTS cloud payant par une narration neurale française Piper exécutée localement dans le navigateur.
+
+## État vérifié le 2026-09-21 (historique, pas l'état courant)
 - Branche production : `main`
 - SHA fonctionnel vérifié et déployé : `05003c6f7228de448a03459679ce0b8568ecb62c`
 - Workflow production : `Deploy SOREAL Idle to Cloudflare` run #502
@@ -932,3 +942,11 @@ Vérification en production après déploiement du correctif `frame-ancestors` (
 **Hypothèse la plus probable** : une couche de cache Cloudflare en amont du Worker (règle de cache/Page Rule au niveau de la zone, hors de ce dépôt) normalise/écrase les en-têtes `cache-control` et `content-security-policy` des réponses mises en cache, indépendamment de ce que le code du Worker fixe. Non vérifiable ni corrigeable depuis ce dépôt (nécessite un accès au tableau de bord Cloudflare).
 
 **Conséquence réelle** : `object-src`/`base-uri` (posés via le `<meta>`, qui fait partie du corps mis en cache) restent bien appliqués. `frame-ancestors` (protection anti-clickjacking, qui NE PEUT être appliqué que via un vrai en-tête HTTP) n'est probablement PAS appliqué en pratique tant que cette couche de cache n'est pas ajustée. **Ne pas considérer ce point comme résolu** -- signalé à l'utilisateur, nécessite une investigation côté tableau de bord Cloudflare (règles de cache pour ce domaine).
+
+## 2026-09-23 — Audit (suite, tier Faible) : étiquette "Ver. Beta local" obsolète + en-tête WORKLOG clarifié
+
+**Étiquette "Ver. Beta local"** affichée aux joueurs en production (écran d'erreur) : "local" est factuellement faux depuis longtemps (déployé sur Cloudflare, pas en local) -- changé en "Version bêta".
+
+**En-tête WORKLOG.md** : la section "État final vérifié" en tête de fichier donnait l'impression d'être un résumé de l'état courant, alors qu'elle décrit l'état au 2026-09-21 (narration V205) -- largement dépassée depuis (abandon MeloTTS, puis Grok TTS, passage à Piper local, voix unique...). Disclaimer ajouté en tête expliquant que ce fichier est un journal chronologique (le plus récent en bas), jamais un résumé courant.
+
+Suite complète : 173/173 OK.
