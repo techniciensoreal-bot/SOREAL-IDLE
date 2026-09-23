@@ -72,7 +72,7 @@ export const IDLE_WISHES_CATALOG_V1 = Object.freeze([
   { id: 20, name: "I wish I didn't have to wait 3 minutes per rebirth", effect: "Seriously? Ugh, fine! This wish will reduces the minimum time to rebirth by 10 seconds per level. *grumbles off into the distance*", levels: 6, speedDivider: 3.00e16, bonus: {} },
   { id: 21, name: "I wish Wishes weren't so slow :c II", effect: "Alright, you can have this wish which will grant another stacking 2% wish speed bonus per level c:", levels: 10, speedDivider: 5.00e16, bonus: { wishSpeedPct: 0.02 } },
   { id: 22, name: "I wish I had more Inventory space II", effect: "Each level in this wish grants 1 extra inventory slot!", levels: 12, speedDivider: 8.00e16, bonus: {} },
-  { id: 23, name: "I wish Basic Training was EVEN FASTER >:)", effect: "Granted! This wish will adds +1 level when the bars fills on every Basic Training!", levels: 1, speedDivider: 1.00e17, bonus: {} },
+  { id: 23, name: "I wish Basic Training was EVEN FASTER >:)", effect: "Granted! This wish will adds +1 level when the bars fills on every Basic Training!", levels: 1, speedDivider: 1.00e17, bonus: { basicTrainingExtraLevel: 1 } },
   { id: 24, name: "I wish Blood MacGuffin α wasn't so random", effect: "Research this wish and the spell will target your first MacGuffin slot, instead of a random one", levels: 1, speedDivider: 6.00e16, bonus: {} },
   { id: 25, name: "I wish Fruit of MacGuffin α wasn't so random", effect: "Research this wish and the fruit will target your first MacGuffin slot, instead of a random one", levels: 1, speedDivider: 6.00e16, bonus: {} },
   { id: 26, name: "I wish I were an Oscar Meyer Weiner", effect: "Well, if that's what you truly want to be who am I to judge? (Unlocks new player portrait)", levels: 1, speedDivider: 1.00e18, bonus: {} },
@@ -317,6 +317,7 @@ export function wishBonusesV1(tracksById) {
     adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
     statMultiplier: 1 + (totals.statPct || 0),
     wishSpeedMultiplier: 1 + (totals.wishSpeedPct || 0),
-    hackSpeedMultiplier: 1 + (totals.hackSpeedPct || 0)
+    hackSpeedMultiplier: 1 + (totals.hackSpeedPct || 0),
+    basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0
   };
 }

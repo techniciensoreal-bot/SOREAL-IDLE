@@ -34,6 +34,7 @@ import {
   IDLE_WISHES_CATALOG_V1,
   wishBonusesV1
 } from "./idle-wishes-v1.js";
+import { levelsPerFillBasicTrainingV411 } from "./idle-basic-training.js";
 
 /*
  * SOREAL IDLE — early game NGU parity engine.
@@ -3341,6 +3342,11 @@ export function idleNguBonuses(raw) {
     firstHarvestMultiplierFromPerks: perkBonuses.firstHarvestMultiplier,
     wandoosOsLevelBonusFromPerks: perkBonuses.wandoosOsLevelBonus,
     doubleBasicTrainingFromPerks: perkBonuses.doubleBasicTraining,
+    basicTrainingLevelsPerFill: levelsPerFillBasicTrainingV411({
+      doubleBasicTraining: perkBonuses.doubleBasicTraining,
+      quirkExtraLevels: quirkBonuses.basicTrainingExtraLevels,
+      wishExtraLevels: wishBonuses.basicTrainingExtraLevels
+    }),
     disableEquipment: equipmentDisabled,
     numberMultiplier: number,
     augmentationMultiplier: aug,

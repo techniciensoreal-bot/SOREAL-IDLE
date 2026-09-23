@@ -230,14 +230,31 @@ export function isBasicTrainingSkillUnlockedV411(
   );
 }
 
+/*
+ * 2026-09-23 (audit NGU) : wiki "Basic Training" / "Advanced Training" --
+ * Double Basic Training (perk ITOPOD), Super Advanced Beast Training!
+ * (quirk) et "I wish Basic Training was EVEN FASTER >:)" (souhait) ajoutent
+ * CHACUN un niveau à chaque remplissage de barre : niveaux par barre = 1 + les
+ * trois bonus (jusqu'à 4).
+ */
+export function levelsPerFillBasicTrainingV411(bonuses){
+  const b=bonuses&&typeof bonuses==="object"?bonuses:{};
+  return 1+
+    (b.doubleBasicTraining?1:0)+
+    Math.max(0,int(b.quirkExtraLevels,0))+
+    Math.max(0,int(b.wishExtraLevels,0));
+}
+
 export function levelsPerSecondForBasicTrainingSkillV411(
   allocation,
-  cap
+  cap,
+  levelsPerFill=1
 ){
   const a=Math.max(0,num(allocation,0));
   const c=Math.max(1,num(cap,1));
 
-  return BASIC_TRAINING_V411.maxLevelsPerSecond*
+  return Math.max(1,num(levelsPerFill,1))*
+    BASIC_TRAINING_V411.maxLevelsPerSecond*
     Math.min(
       1,
       a/c
@@ -284,7 +301,8 @@ export function nextBasicTrainingCapV411(
 
 export function advanceBasicTrainingSkillV411(
   skill,
-  seconds
+  seconds,
+  levelsPerFill=1
 ){
   const source=
     skill&&
@@ -309,7 +327,8 @@ export function advanceBasicTrainingSkillV411(
   x+=
     levelsPerSecondForBasicTrainingSkillV411(
       allocation,
-      cap
+      cap,
+      levelsPerFill
     )*
     secondsSafe;
 
@@ -330,7 +349,8 @@ export function advanceBasicTrainingSkillV411(
 export function advanceBasicTrainingStateV411(
   raw,
   now,
-  maxOfflineSeconds=12*60*60
+  maxOfflineSeconds=12*60*60,
+  levelsPerFill=1
 ){
   const current=Math.max(0,num(now,Date.now()));
   const state=normalizeBasicTrainingStateV411(raw,current);
@@ -365,7 +385,8 @@ export function advanceBasicTrainingStateV411(
     state.skills[def.id]=
       advanceBasicTrainingSkillV411(
         state.skills[def.id],
-        seconds
+        seconds,
+        levelsPerFill
       );
   }
 
@@ -573,7 +594,8 @@ export function applyBasicTrainingAllocationsV411(
 export function basicTrainingSnapshotV411(
   raw,
   totalEnergyCap=0,
-  idleEnergy=0
+  idleEnergy=0,
+  levelsPerFill=1
 ){
   const state=
     normalizeBasicTrainingStateV411(
@@ -624,7 +646,8 @@ export function basicTrainingSnapshotV411(
             unlocked
               ?levelsPerSecondForBasicTrainingSkillV411(
                   skill.allocation,
-                  skill.cap
+                  skill.cap,
+                  levelsPerFill
                 )
               :0,
           unlocked,
@@ -649,7 +672,9 @@ export function basicTrainingSnapshotV411(
   return {
     version:BASIC_TRAINING_V411.version,
     maxLevelsPerSecond:
-      BASIC_TRAINING_V411.maxLevelsPerSecond,
+      BASIC_TRAINING_V411.maxLevelsPerSecond*
+      Math.max(1,num(levelsPerFill,1)),
+    levelsPerFill:Math.max(1,num(levelsPerFill,1)),
     energyPowerAffectsTraining:false,
     attack:derived.attack,
     defense:derived.defense,

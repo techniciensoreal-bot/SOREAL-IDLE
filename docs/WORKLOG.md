@@ -1047,3 +1047,11 @@ Comparaison de `titan()` avec la section Loot de chaque page de titan et la colo
 - **Typo (set)** : la récompense de complétion était vide (`reward:{}`) ; le wiki donne « +20% Wish Speed! ». Ajout de `setRewards.wishSpeedPct` (0,20) consommé dans `idleNguBonuses().wishSpeedMultiplier` et dans le calcul de progression des Wishes. Test `idle-adventure-typo-set-wish-speed.test.mjs`.
 - **Rad-Lands, attackRate 0** : vérifié sur les 10 pages de mobs, le wiki publie `attack_rate=?` pour 8 des 10 (seuls Wandering Gamma Ray = 1, A.C SKATER = 1 et RADIOACTIVE MACGUFFIN = 1,2 sont chiffrés, et le code les a) : ce n'est pas un écart, la valeur n'est pas publiée. Aucun changement.
 - **Jake (set)** : le wiki donne 7 000 EXP + Wandoos MEH ; le Digger Slot vient du set « Scrap of Paper » (objet A Scrap of Paper), pas de Jake. SOREAL le donne encore sur `jake` (`diggerSlot:1`) faute d'objet « Scrap of Paper » maxable : non modifié pour ne pas retirer un slot sans son équivalent.
+
+## 2026-09-23 — Audit NGU Idle : Entraînement de base, niveaux par remplissage de barre
+
+Wiki (Basic Training / Advanced Training / Perk Points / Quirk Points / Wishes) : *Double Basic Training* (perk 15, 100 PP), *Super Advanced Beast Training!* (quirk 17, 4 000 QP) et *I wish Basic Training was EVEN FASTER >:)* (souhait 23) ajoutent **chacun +1 niveau à chaque remplissage de barre** (jusqu'à x4).
+
+- Le perk était acheté sans aucun effet (`doubleBasicTrainingFromPerks` calculé mais jamais lu), le quirk 17 absent du catalogue, le souhait 23 sans bonus.
+- `levelsPerFillBasicTrainingV411` + paramètre `levelsPerFill` dans `idle-basic-training.js` (vitesse, avance, snapshot) ; le snapshot annonce `maxLevelsPerSecond = 50 x niveaux par barre`, que le client utilise déjà pour animer les barres et calculer sa vitesse : aucun changement côté client. `idleNguBonuses().basicTrainingLevelsPerFill` agrège perk + quirk + souhait ; le runtime le passe à l'avance hors ligne et au snapshot.
+- Test `idle-basic-training-levels-per-fill.test.mjs` ; `idle-quirks-v1.test.mjs` passe à 71 quirks.

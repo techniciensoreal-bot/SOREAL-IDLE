@@ -36,8 +36,7 @@
  * Volontairement exclus (système absent de SOREAL, ou multiplicateur déjà
  * calculé mais jamais branché ailleurs dans ce fichier -- gap préexistant
  * hors périmètre de cette passe, jamais approximé) : NGU Evil/Sadistic
- * séparé (14, 89), Basic Training +1 niveau distinct du double
- * (17), Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
+ * séparé (14, 89), Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
  * (57-60,174-175), Wishes (54,56), Automerge Slot (55), Cards/Mayo/Tags/
  * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
  * 185 -- pas de 3e ressource entraînable), Quêtes/Idle Questing (71),
@@ -83,6 +82,7 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 13, name: "The Beast's Fertilizer", effect: "The Beast will make you a mix tape you can play to your fruits as they grow, consisting of the beast wailing at them in yggdrasil-speak to grow faster. Each tier will take 1 minute less to grow!", cost: 3000, cap: 3, bonus: {} },
   { id: 15, name: "Energy Wandoos BEAST-a", effect: "+2% to Energy Wandoos Speed per level", cost: 32, cap: 50, bonus: { wandoosEnergySpeedPct: 0.02 } },
   { id: 16, name: "Magic Wandoos BEAST-a", effect: "+2% to Magic Wandoos Speed per level", cost: 37, cap: 50, bonus: { wandoosMagicSpeedPct: 0.02 } },
+  { id: 17, name: "Super Advanced Beast Training!", effect: "The Beast claims it can scare your Basic Training Levels into rising higher. Buy this Quirk to gain +1 level every time the Basic Training bar fills!", cost: 4000, cap: 1, bonus: { basicTrainingExtraLevel: 1 } },
   { id: 19, name: "MacGuffin Slot!", effect: "The Beast requires enough Quirk Points to make it vomit up a new MacGuffin Slot for you. Why does everything it give have to come in vomit form? Gross.", cost: 7500, cap: 1, bonus: {} },
   { id: 20, name: "Adv. Training Level Bank I", effect: "Each level in this Quirk saves an additional 0.5% of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!", cost: 100, cap: 10, bonus: { atBankPct: 0.005 } },
   { id: 21, name: "Adv. Training Level Bank II", effect: "Each level in this Quirk saves an additional 0.5% of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!", cost: 250, cap: 10, bonus: { atBankPct: 0.005 } },
@@ -188,6 +188,7 @@ export function quirkBonusesV1(levelsById) {
     beardBankMultiplier: 1 + (totals.beardBankPct || 0),
     sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0,
     wandoosEnergySpeedPct: totals.wandoosEnergySpeedPct || 0,
-    wandoosMagicSpeedPct: totals.wandoosMagicSpeedPct || 0
+    wandoosMagicSpeedPct: totals.wandoosMagicSpeedPct || 0,
+    basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0
   };
 }

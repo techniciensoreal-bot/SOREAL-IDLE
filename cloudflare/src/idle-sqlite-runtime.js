@@ -3668,6 +3668,21 @@ function initialiserModeleJoueurSorealIdleV41SiNecessaire_(
 }
 
 
+/*
+ * Niveaux gagnés à chaque remplissage de barre d'Entraînement de base :
+ * 1 + Double Basic Training (perk) + Super Advanced Beast Training! (quirk)
+ * + "I wish Basic Training was EVEN FASTER" (souhait), voir
+ * levelsPerFillBasicTrainingV411.
+ */
+function niveauxParBarreEntrainementSorealIdle_(stats) {
+  const meta = stats && stats.metaNgu;
+  if (!meta || meta.version !== IDLE_NGU_META_VERSION) return 1;
+  return Math.max(
+    1,
+    Math.floor(nombreSorealIdle_(idleNguBonuses(meta).basicTrainingLevelsPerFill, 1))
+  );
+}
+
 function synchroniserEntrainementBaseSorealIdleV41_(
   feuille,
   ligne,
@@ -3687,7 +3702,8 @@ function synchroniserEntrainementBaseSorealIdleV41_(
       stats.entrainementBase,
       maintenant,
       CONFIG_SOREAL_IDLE
-        .PROGRESSION_HORS_LIGNE_MAX_SECONDES
+        .PROGRESSION_HORS_LIGNE_MAX_SECONDES,
+      niveauxParBarreEntrainementSorealIdle_(stats)
     );
 
   stats.modeleJeuVersion =
@@ -9818,7 +9834,8 @@ function construireEtatJoueurSorealIdle_(
         nombreSorealIdle_(
           row[c.ENERGIE - 1],
           0
-        )
+        ),
+        niveauxParBarreEntrainementSorealIdle_(statsEtat)
       ),
 
     combatPrincipal: {
