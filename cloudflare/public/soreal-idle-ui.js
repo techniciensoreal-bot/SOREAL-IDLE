@@ -3052,7 +3052,7 @@
           const pvMaxRepos=Math.max(0,idleNombre_(statsRepos.hp));
 
           if(idleEtat&&(idleEtat.adventureRestPv==null||idleEtat.adventureRestPv>pvMaxRepos)){
-            idleEtat.adventureRestPv=pvMaxRepos;
+            idleEtat.adventureRestPv=restPvInitialIdleV1_(pvMaxRepos);
           }
 
           const pvRepos=idleEtat?Math.max(0,idleEtat.adventureRestPv):pvMaxRepos;
@@ -15961,6 +15961,25 @@ let idleDialogueTimerV76=null;
         ].join('|');
       }
 
+      /*
+       * 2026-09-23 (audit) : la régénération d'aventure paraissait instantanée.
+       * Cause : adventureRestPv (PV de repos entre deux combats / en Safe Zone)
+       * vivait dans idleEtat, qui est REMPLACÉ à chaque synchro serveur
+       * (toutes les 15 s) par un objet où ce champ n'existe pas ; le tick
+       * suivant lisait « null » et remettait les PV au maximum. Le PV de
+       * repos est désormais mémorisé hors de idleEtat et réinjecté.
+       */
+      let idleAdventureRestPvMemoV1=null;
+      function restPvInitialIdleV1_(pvMax){
+        const memo=idleAdventureRestPvMemoV1;
+        if(memo==null||!Number.isFinite(memo))return pvMax;
+        return Math.min(pvMax,Math.max(0,memo));
+      }
+      function memoriserRestPvIdleV1_(valeur){
+        const n=idleNombre_(valeur);
+        idleAdventureRestPvMemoV1=Number.isFinite(n)?Math.max(0,n):null;
+      }
+
       function resetHorlogesFightAdventureIdleV2_(){
         idleAdventureFightNextPlayerHitV2=0;
         idleAdventureFightNextEnemyHitV2=0;
@@ -16037,6 +16056,7 @@ let idleDialogueTimerV76=null;
 
         if(victoire){
           idleEtat.adventureRestPv=Math.max(0,idleNombre_(fight.playerHp));
+          memoriserRestPvIdleV1_(idleEtat.adventureRestPv);
           programmerRespawnAdventureIdleV165_(finCombatMsV166);
           ajouterLogAventureIdleV1_(
             'system',
@@ -16045,6 +16065,7 @@ let idleDialogueTimerV76=null;
           idleAdventureResolutionPendingV2='resolveZoneFight';
         }else{
           idleEtat.adventureRestPv=0;
+          memoriserRestPvIdleV1_(0);
           idleAdventureKoAlertV1=true;
           ajouterLogAventureIdleV1_(
             'enemy',
@@ -16081,13 +16102,14 @@ let idleDialogueTimerV76=null;
           const regen=regenReposAdventureIdleV3_(a,zoneCourante);
 
           if(idleEtat.adventureRestPv==null){
-            idleEtat.adventureRestPv=pvMaxRepos;
+            idleEtat.adventureRestPv=restPvInitialIdleV1_(pvMaxRepos);
           }
           idleEtat.adventureRestPv=Math.min(
             pvMaxRepos,
             Math.max(0,idleNombre_(idleEtat.adventureRestPv))+
               regen*ecouleReposAdventureSecV166
           );
+          memoriserRestPvIdleV1_(idleEtat.adventureRestPv);
 
           if(
             a&&
@@ -16452,7 +16474,7 @@ let idleDialogueTimerV76=null;
         const pvMaxRepos=Math.max(0,idleNombre_(stats.hp));
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-218 */
         if(idleEtat&&(idleEtat.adventureRestPv==null||idleEtat.adventureRestPv>pvMaxRepos)){
-          idleEtat.adventureRestPv=pvMaxRepos;
+          idleEtat.adventureRestPv=restPvInitialIdleV1_(pvMaxRepos);
         }
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-219 */
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-220 */
