@@ -553,7 +553,7 @@
 
       function idleExpShopAventureIdleV1_(m){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const noms={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard'};
+        const noms={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge'};
         const items=Array.isArray(m.expShop)?m.expShop:[];
         const rj=m.richJerks||{};
         return '<div class="soreal-idle-exp-resource-v210">Aventure et divers</div>'+
