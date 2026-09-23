@@ -520,6 +520,46 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   normal:{p:3.72e23,t:1.56e23},
   hard:{p:7.45e24,t:3.55e24},
   brutal:{p:2.2e26,t:1.0e26}
+}},
+/*
+ * 2026-09-23 (audit, page Titans + page de chaque titan) : Greasy Nerd (7e), The Godmother
+ * (8e), IT HUNGERS (10e), ROCK LOBSTER (11e) et AMALGAMATE (12e) n'existaient pas. Seuils
+ * "Manual P/T" de la page de chaque titan (tableau des recommandations), cooldown, boss de
+ * déblocage et difficulté minimale de la page Titans. Le Greasy Nerd et la Godmother
+ * déverrouillent Hacks et Wishes (objets Incriminating Evidence / A Severed Unicorn's Head).
+ * Non modélisé : la quête du Secrets and Spoilers (Nerd, Godmother, IT HUNGERS), le butin
+ * d'objets qui n'existent pas encore, GLOP (IT HUNGERS), les 3 objets « paper » (ROCK LOBSTER),
+ * le Ring of Apathy (AMALGAMATE Brutal), TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
+ */
+{id:"nerd",name:"Greasy Nerd",boss:125,evilOnly:true,cooldown:4.5*H,drop:"incriminatingEvidence",avatarLevel:6,difficulties:{
+  easy:{p:1.37e14,t:8.9e13,idleP:3e14,idleT:2e14},
+  normal:{p:3.2e15,t:1.6e15,idleP:6e15,idleT:4e15},
+  hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16},
+  brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18}
+}},
+{id:"godmother",name:"The Godmother",boss:166,evilOnly:true,cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
+  easy:{p:1.7e18,t:7e17},
+  normal:{p:3.9e19,t:1.5e19},
+  hard:{p:6.6e20,t:3.5e20},
+  brutal:{p:1.5e22,t:6.4e21}
+}},
+{id:"hungers",name:"IT HUNGERS",boss:175,sadisticOnly:true,cooldown:6.5*H,drop:"",avatarLevel:6,difficulties:{
+  easy:{p:1.55e28,t:3e27},
+  normal:{p:1.3e29,t:3.6e28},
+  hard:{p:7.83e29,t:1.61e29},
+  brutal:{p:3.95e30,t:9e29}
+}},
+{id:"lobster",name:"ROCK LOBSTER",boss:224,sadisticOnly:true,cooldown:7*H,drop:"",avatarLevel:6,difficulties:{
+  easy:{p:1.1e31,t:4e30},
+  normal:{p:6e31,t:1.8e31},
+  hard:{p:2.4e32,t:8.6e31},
+  brutal:{p:7.5e32,t:2.5e32}
+}},
+{id:"amalgamate",name:"AMALGAMATE",boss:248,sadisticOnly:true,cooldown:(433+1/3)/60*H,drop:"",avatarLevel:6,difficulties:{
+  easy:{p:1.47e33,t:4.7e32},
+  normal:{p:5.6e33,t:2.1e33},
+  hard:{p:2.13e34,t:6.11e33},
+  brutal:{p:4.12e34,t:1e34}
 }}
 ]);
 const SETS={
@@ -3705,7 +3745,12 @@ const TITAN_REWARDS_V1=Object.freeze({
   t4:{gold:[2000000,2500000],exp:300,ap:60},
   t5:{gold:[4000000,5000000],exp:500,ap:70},
   t6:{gold:[20000000,25000000],exp:750,ppProgress:250000},
-  t7:{gold:[4000000000000,5000000000000],exp:2500,ppProgress:400000}
+  t7:{gold:[4000000000000,5000000000000],exp:2500,ppProgress:400000},
+  nerd:{gold:[4e10,5e10],exp:1100,ppProgress:250000},
+  godmother:{gold:[4e11,5e11],exp:1500,ppProgress:300000},
+  hungers:{gold:[8e15,1e16],exp:4000,ppProgress:500000},
+  lobster:{gold:[8e16,1e17],exp:6000,ppProgress:700000},
+  amalgamate:{gold:[6e17,7.5e17],exp:8000,ppProgress:1000000}
 });
 /*
  * Souhait 3 "I wish V2/3/4 Titans had better rewards" (wiki, pages The Beast /
@@ -3714,7 +3759,7 @@ const TITAN_REWARDS_V1=Object.freeze({
  * du palier). QP de base : The Beast 1 (souhait 73), The Exile 3 (souhait 41).
  */
 const TITAN_TIER_RANK_V1=Object.freeze({easy:0,normal:1,hard:2,brutal:3});
-const TITAN_QP_V1=Object.freeze({t6:{wish:73,qp:1},t7:{wish:41,qp:3}});
+const TITAN_QP_V1=Object.freeze({t6:{wish:73,qp:1},t7:{wish:41,qp:3},nerd:{wish:74,qp:1},godmother:{wish:40,qp:2},hungers:{wish:100,qp:4},lobster:{wish:187,qp:5},amalgamate:{wish:204,qp:6}});
 function creditTitanRewardsV1(s,id,ctx,tierKey){
   const r=TITAN_REWARDS_V1[id];
   const out={gold:0,experience:0,ap:0,ppProgress:0,qp:0};
@@ -3809,7 +3854,7 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
   }
 }
-function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
+function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
  * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
  * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
@@ -3831,6 +3876,7 @@ const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey):{gold:0,
  * idleNguDifficultyUnlockRequirementsV1 (idle-ngu-progression.js) côté
  * appelant.
  */
+if(id==="hungers")s.unlockFlags.itHungersDefeated=true;
 if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
 if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
 return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress,qp:recompenses.qp}}
