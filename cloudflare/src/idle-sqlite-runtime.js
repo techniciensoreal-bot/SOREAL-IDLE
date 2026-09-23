@@ -6762,8 +6762,14 @@ function statsCombatPrincipalSorealIdleV413_(
         // multiplicateurPermanent ci-dessus) — plus de fidélité NGU.
         1 *
         multiplicateurPermanent *
+        /*
+         * 2026-09-23 (audit) : le multiplicateur pouvait être écrasé à 1 alors
+         * que le NUMBER d'un Rebirth rapide est très inférieur à 1 (wiki
+         * "Rebirths" : il peut monter OU baisser) ; NGU applique bien x0,33
+         * après un Rebirth de 10 min. Plancher strictement positif seulement.
+         */
         Math.max(
-          1,
+          1e-300,
           nombreSorealIdle_(
             bonusMetaNgu.attackMultiplier,
             1
@@ -6782,7 +6788,7 @@ function statsCombatPrincipalSorealIdleV413_(
         1 *
         multiplicateurPermanent *
         Math.max(
-          1,
+          1e-300,
           nombreSorealIdle_(
             bonusMetaNgu.defenseMultiplier,
             1
@@ -8337,6 +8343,10 @@ function appliquerProgressionEnergieSorealIdle_(
                 ).xpMultiplier,
                 1
               )
+            ) *
+            facteurExpBossPerkSorealIdle_(
+              idleNguBonuses(statsCombat.metaNgu),
+              bossCombatIndex
             )
           )
         );
@@ -8387,6 +8397,10 @@ function appliquerProgressionEnergieSorealIdle_(
                     ).xpMultiplier,
                     1
                   )
+                ) *
+                facteurExpBossPerkSorealIdle_(
+                  idleNguBonuses(statsCombat.metaNgu),
+                  bossCombatIndex
                 )
               )
             )
@@ -9358,9 +9372,16 @@ function contexteMetaNguSorealIdle_(
       : [];
   const attackTrainingLevels =
     skills.reduce(function(total, skill) {
+      /*
+       * 2026-09-23 (audit) : wiki "Rebirths" -- facteur d'entraînement = +1 par
+       * 10 000 niveaux d'entraînement d'ATTAQUE. Le filtre ne retenait que les
+       * ids "attaque_*" et ignorait trois entraînements du groupe attaque
+       * (contre_palette, percee_quai, ultime_soreal).
+       */
       const id = String(skill && skill.id || '');
+      const def = BASIC_TRAINING_V411.skills.find(function(d) { return d.id === id; });
       return total + (
-        id.indexOf('attaque_') === 0
+        def && def.group === 'attack'
           ? Math.max(0, nombreSorealIdle_(skill.level, 0))
           : 0
       );
@@ -10775,6 +10796,10 @@ function construireEtatJoueurSorealIdle_(
                 ).xpMultiplier,
                 1
               )
+            ) *
+            facteurExpBossPerkSorealIdle_(
+              idleNguBonuses(statsEtat.metaNgu),
+              bossSelectionIndex
             )
           )
         ),
@@ -11634,6 +11659,17 @@ function definirCombatBossSorealIdle(
  * vraies, en accordant les mêmes récompenses qu'une victoire normale.
  * Combat arrêté au premier boss non nukable ; mur de Renaissance inchangé.
  */
+/*
+ * Perk ITOPOD « +2% EXP from bosses 24 and on » (wiki Experience, 25 niveaux) :
+ * bossExpMultiplierFromPerks était calculé mais jamais lu. Les boss
+ * d'index 23 et plus (boss 24+) reçoivent ce facteur en plus du multiplicateur d'XP.
+ */
+function facteurExpBossPerkSorealIdle_(bonus, indexBoss) {
+  return indexBoss >= 23
+    ? Math.max(1, nombreSorealIdle_(bonus && bonus.bossExpMultiplierFromPerks, 1))
+    : 1;
+}
+
 function nukerBossSorealIdle(
   sessionToken
 ) {
@@ -11910,11 +11946,12 @@ function nukerBossSorealIdle(
         Math.max(
           0,
           Math.round(
-            recompenseXpBossNiveauSorealIdle_(
+              recompenseXpBossNiveauSorealIdle_(
               bossIndexNuke,
               niveauNuke
             ) *
-            xpMultiplierNuke
+            xpMultiplierNuke *
+            facteurExpBossPerkSorealIdle_(bonusNguNuke, bossIndexNuke)
           )
         );
 
@@ -11943,7 +11980,8 @@ function nukerBossSorealIdle(
                 xpBonusPremiereFoisSorealIdle_(
                   bossIndexNuke
                 ) *
-                xpMultiplierNuke
+                xpMultiplierNuke *
+                facteurExpBossPerkSorealIdle_(bonusNguNuke, bossIndexNuke)
               )
             )
           : 0;
