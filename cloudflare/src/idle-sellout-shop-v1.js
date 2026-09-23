@@ -171,6 +171,19 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   littleBluePill1000: { pills: 1000 },
   littleBluePill10000: { pills: 10000 },
   littleBluePill100000: { pills: 100000 },
+  /*
+   * Questing (2026-09-23, idle-questing-v1.js) : Beast Butter ("Doubles your QP reward on your
+   * next quest") alimente state.selloutEffects.beastButters (lots de 1/10/100 ; "beastButter" est
+   * l'id des jackpots de la roue quotidienne). Faster Questing / Extended Quest Bank / bouton
+   * "Go To Quest Zone" sont lus directement dans les achats par le moteur de quêtes.
+   */
+  beastButter1: { butters: 1 },
+  beastButter10: { butters: 10 },
+  beastButter100: { butters: 100 },
+  beastButter: { butters: 1 },
+  fasterQuesting: { passive: true },
+  extendedQuestBank: { passive: true },
+  goToQuestZoneButton: { passive: true },
   extraInventorySpace: { passive: true },
   extraAccessorySlot1: { passive: true },
   extraAccessorySlot2: { passive: true },
@@ -190,7 +203,7 @@ export function createSelloutEffectsV1(raw) {
   }
   const beta = {};
   for (const [k, v] of Object.entries(src.beta && typeof src.beta === "object" ? src.beta : {})) if (v) beta[k] = true;
-  return { remaining, beta, bluePills: Math.max(0, I(src.bluePills, 0)) };
+  return { remaining, beta, bluePills: Math.max(0, I(src.bluePills, 0)), beastButters: Math.max(0, I(src.beastButters, 0)) };
 }
 
 /* Facteur multiplicatif d'une potion : x2 (Energy/Magic) ou x3 (Resource 3) pendant le timer, x2 pour la beta. */
@@ -212,6 +225,7 @@ export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
     if (effect.timer) fx.remaining[effect.timer] = N(fx.remaining[effect.timer], 0) + effect.sec;
     if (effect.beta) fx.beta[effect.beta] = true;
     if (effect.pills) fx.bluePills += effect.pills;
+    if (effect.butters) fx.beastButters += effect.butters;
   }
 }
 
