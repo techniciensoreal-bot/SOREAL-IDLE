@@ -1045,6 +1045,19 @@ async function bannerImage_(request,env,url){
 }
 
 async function debugListeR2_(request,env,url){
+  /*
+   * 2026-09-23 (audit) : accessible sans la moindre authentification --
+   * n'importe qui pouvait énumérer toute l'arborescence du stockage R2
+   * (jusqu'à 5000 clés). Outil de diagnostic manuel uniquement (aucun
+   * appelant frontend, confirmé par recherche exhaustive) : même clé
+   * interne que idleCallV1 (idle-worker-entry-v1.js), déjà provisionnée
+   * comme secret Cloudflare réel.
+   */
+  const internalKey=String(env.SOREAL_IDLE_INTERNAL_KEY||"");
+  const suppliedKey=String(request.headers.get("x-soreal-idle-internal-key")||"");
+  if(!internalKey||suppliedKey!==internalKey){
+    return new Response("Non autorisé",{status:401,headers:{"cache-control":"no-store"}});
+  }
   const prefix=String(url.searchParams.get("prefix")||"").trim();
   if(!prefix.startsWith("idle/"))return new Response("Prefix invalide",{status:400,headers:{"cache-control":"no-store"}});
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"){

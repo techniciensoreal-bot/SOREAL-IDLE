@@ -888,3 +888,11 @@ Vérification :
 - Commit `63c639cabc06b75fdc3d4dbf6b4c3d2c2858729d`, poussé sur `main`.
 - Workflow production `Deploy SOREAL Idle to Cloudflare` run #526 : **Success en 1m 25s**, "Verify deployed Piper narration in Chromium" réussie en 38s.
 - Production reconfirmée par requête `curl` directe indépendante : `/modules/local-neural-piper-v1.js` contient bien `normalizeEllipsis_` et son appel dans `synthesize_`.
+
+## 2026-09-23 — Audit de sécurité (3 dépôts) : debug-list R2 public sans authentification
+
+Audit de professionnalisme demandé par l'utilisateur sur les 3 dépôts SOREAL. `/api/idle/media/debug-list` (idle-media-v1.js) énumérait jusqu'à 5000 clés R2 (noms + tailles) sous n'importe quel préfixe `idle/`, sans la moindre authentification. Aucun appelant frontend (recherche exhaustive) : pur outil de diagnostic manuel. Un fichier identique existe dans SOREAL-APP (cloudflare/features/idle/worker.js) — corrigé en parallèle sur ce dépôt voisin.
+
+**Fix** : même clé interne que `idleCallV1` (`idle-worker-entry-v1.js`) — `SOREAL_IDLE_INTERNAL_KEY` / header `x-soreal-idle-internal-key`. Fermé par défaut si le secret n'est pas provisionné (jamais un accès ouvert par défaut).
+
+Nouveau test (`idle-media-debug-list-requires-internal-key.test.mjs`). Suite complète : 171/171 OK.
