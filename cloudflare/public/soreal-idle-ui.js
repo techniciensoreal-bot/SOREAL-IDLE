@@ -3495,7 +3495,7 @@
               idleAventureEnCoursV17 ||
               idleSortPurchaseBusyV101 ||
               idleSortPurchaseQueueV101.length>0 ||
-              idleMetaBusyV130 ||
+              metaOccupeIdleV130_() ||
               idleInventoryBusyV160 ||
               idleInventoryMutationQueueV160.length>0 ||
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-74 */
@@ -3542,7 +3542,7 @@
             }
 
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-76 */
-            if(idleMetaBusyV130){
+            if(metaOccupeIdleV130_()){
               return;
             }
 
@@ -15322,7 +15322,7 @@ let idleDialogueTimerV76=null;
             idleAdventureRespawnTimerV165=setTimeout(tenter,restant);
             return;
           }
-          if(idleAdventureResolutionPendingV2||idleMetaBusyV130){
+          if(idleAdventureResolutionPendingV2||metaOccupeIdleV130_()){
             idleAdventureRespawnTimerV165=setTimeout(tenter,16);
             return;
           }
@@ -15948,7 +15948,7 @@ let idleDialogueTimerV76=null;
       function envoyerResolutionAdventurePendingV2_(){
         if(
           !idleAdventureResolutionPendingV2||
-          idleMetaBusyV130||
+          metaOccupeIdleV130_()||
           !SOREAL_SESSION
         ){
           return false;
@@ -15958,7 +15958,7 @@ let idleDialogueTimerV76=null;
           action:'adventure',
           adventure:{action:action}
         });
-        if(idleMetaBusyV130){
+        if(metaOccupeIdleV130_()){
           idleAdventureResolutionPendingV2='';
           return true;
         }
@@ -18496,7 +18496,18 @@ function pageAventureIdleV28_(j){
 
 
 
-      let idleMetaBusyV130=false;
+      /*
+       * 2026-09-23 : le drapeau "occupé" vit UNIQUEMENT dans le module
+       * meta-progression-v130.js (celui qui envoie réellement les requêtes).
+       * Depuis le split UI V9, ce monolithe en gardait une copie jamais
+       * assignée, donc toujours false : la résolution d'un combat de zone
+       * n'était jamais acquittée (idleAdventureResolutionPendingV2 restait
+       * armé) et le combat suivant ne démarrait plus, jusqu'au rechargement.
+       */
+      function metaOccupeIdleV130_(){
+        const api=window.__SOREAL_IDLE_META_V130__;
+        return Boolean(api&&typeof api.estOccupeIdleV130_==="function"&&api.estOccupeIdleV130_());
+      }
 
       /*
        * Historique V9 (UI split) : le dispatcheur "Système Méta" (Yggdrasil,

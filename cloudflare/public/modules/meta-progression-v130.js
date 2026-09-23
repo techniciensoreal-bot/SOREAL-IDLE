@@ -35,11 +35,34 @@
       }
 
 
+      /*
+       * 2026-09-23 : un startZoneFight qui n'aboutit pas (verrou serveur
+       * SOREAL_IDLE_OCCUPE, timeout réseau, refus serveur, appel abandonné
+       * car le module était occupé) laissait idleAdventureRespawnStartPendingV165
+       * à true pour toujours : plus aucun respawn n'était reprogrammé et
+       * l'aventure restait figée jusqu'à un aller-retour Safe Zone.
+       */
+      function estDemarrageCombatZoneV1_(payload){
+        return Boolean(
+          payload&&
+          payload.action==='adventure'&&
+          payload.adventure&&
+          payload.adventure.action==='startZoneFight'
+        );
+      }
+
+      function libererDemarrageCombatEnEchecV1_(payload){
+        if(estDemarrageCombatZoneV1_(payload)){
+          window.__SOREAL_IDLE_META_HOST_V130__.setIdleAdventureRespawnStartPending(false);
+        }
+      }
+
       function actionMetaIdleV130_(payload){
         if(
           idleMetaBusyV130 ||
           !SOREAL_SESSION
         ){
+          libererDemarrageCombatEnEchecV1_(payload);
           return;
         }
 
@@ -242,6 +265,8 @@
               return;
             }
 
+            libererDemarrageCombatEnEchecV1_(payload);
+
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               res&&res.message
                 ?res.message
@@ -250,6 +275,7 @@
           },
           function(e){
             idleMetaBusyV130=false;
+            libererDemarrageCombatEnEchecV1_(payload);
 
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               e&&e.message
@@ -1254,6 +1280,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
   window.__SOREAL_IDLE_META_V130__={
     pageSystemeMetaIdleV130_:pageSystemeMetaIdleV130_,
     actionMetaIdleV130_:actionMetaIdleV130_,
+    estOccupeIdleV130_:function(){return idleMetaBusyV130;},
     systemeMetaParIdIdleV130_:systemeMetaParIdIdleV130_,
     pageSpendExpIdleV1_:pageSpendExpIdleV1_
   };

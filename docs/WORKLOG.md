@@ -984,3 +984,17 @@ Suite complète : 173/173 OK.
 **Rate-limiting sur les routes publiques** (même tier) : non ajouté, même raisonnement que côté TV/APP -- jetons 256 bits non devinables, protections plateforme Cloudflare, coût/bénéfice faible.
 
 Suite complète : 173/173 OK.
+
+## 2026-09-23 — Audit NGU Idle : le mode Aventure restait figé (deux causes confirmées)
+
+Retour utilisateur : « le mode aventure peine parfois à lancer les combats, il reste figé ».
+
+**Cause 1 (régression du split UI V9, commit `85094df`)** : `idleMetaBusyV130` existait en deux variables indépendantes -- celle du module `meta-progression-v130.js` (assignée à chaque requête) et une copie du monolithe `soreal-idle-ui.js` jamais assignée, donc toujours `false`. Le monolithe ne voyait jamais qu'une requête partait : `envoyerResolutionAdventurePendingV2_` n'acquittait jamais la résolution d'un combat de zone (`idleAdventureResolutionPendingV2` restait armé), le minuteur de respawn se ré-armait toutes les 16 ms sur ce drapeau sans jamais lancer `startZoneFight`, et la résolution était renvoyée à chaque image (`AUCUN_COMBAT_ACTIF` côté serveur). Gel jusqu'au rechargement.
+
+**Cause 2 (antérieure au split)** : un `startZoneFight` qui échoue (verrou serveur `SOREAL_IDLE_OCCUPE` après 5 s, timeout du pont à 45 s, refus serveur, appel abandonné car le module était déjà occupé) laissait `idleAdventureRespawnStartPendingV165` à `true` pour toujours ; plus aucun respawn n'était reprogrammé. Un aller-retour Safe Zone débloquait -- d'où le « parfois ».
+
+**Fix** : la seule source de vérité est celle du module, exposée par `estOccupeIdleV130_()` ; le monolithe l'interroge via `metaOccupeIdleV130_()` (copie morte supprimée). Dans le module, tout échec/abandon d'un `startZoneFight` (réponse non ok, erreur réseau, module occupé, pas de session) libère le drapeau de démarrage, ce qui laisse le cycle par image reprogrammer le respawn. Cache-busters : `meta-progression-v130.js?v=20260923` (n'en avait pas), `soreal-idle-ui.js?v=222`.
+
+Nouveau test `idle-adventure-combat-start-never-freezes.test.mjs` (comportemental : drapeau réel, 4 chemins d'échec ; structurel : plus aucune référence à l'ancienne variable). Suite complète : 174/174 OK.
+
+Non traité ici (suspecté par l'analyse, à vérifier) : une réponse de synchro tardive pouvant écraser l'état d'un combat plus récent.

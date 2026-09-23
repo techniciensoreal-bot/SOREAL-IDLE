@@ -53,8 +53,8 @@ const api = window.__SOREAL_IDLE_META_V130__;
 assert.ok(api, "le module doit exposer window.__SOREAL_IDLE_META_V130__");
 assert.deepEqual(
   Object.keys(api).sort(),
-  ["actionMetaIdleV130_", "pageSpendExpIdleV1_", "pageSystemeMetaIdleV130_", "systemeMetaParIdIdleV130_"].sort(),
-  "le module ne doit exposer que les 4 fonctions réellement appelées par le monolithe"
+  ["actionMetaIdleV130_", "estOccupeIdleV130_", "pageSpendExpIdleV1_", "pageSystemeMetaIdleV130_", "systemeMetaParIdIdleV130_"].sort(),
+  "le module ne doit exposer que les 5 fonctions réellement appelées par le monolithe"
 );
 for (const key of Object.keys(api)) {
   assert.equal(typeof api[key], "function", key + " doit être une fonction");
@@ -97,7 +97,7 @@ assert.doesNotMatch(
 
 // --- le script du nouveau module doit être chargé avant le monolithe ---
 const indexHtml = readFileSync("cloudflare/public/index.html", "utf8");
-assert.match(indexHtml, /<script src="\/modules\/meta-progression-v130\.js"><\/script>/);
+assert.match(indexHtml, /<script src="\/modules\/meta-progression-v130\.js\?v=\d+"><\/script>/);
 const posModule = indexHtml.indexOf("/modules/meta-progression-v130.js");
 const posMonolithe = indexHtml.indexOf("/soreal-idle-ui.js");
 assert.ok(posModule > -1 && posMonolithe > -1 && posModule < posMonolithe);
