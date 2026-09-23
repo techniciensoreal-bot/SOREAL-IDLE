@@ -1917,6 +1917,20 @@
       }
 
 
+      /*
+       * 2026-09-23 : les nombres de PV / regen changeaient de largeur à chaque
+       * rafraîchissement (formatGrandNombreIdleV70_ retire les zéros finaux :
+       * "1.60" devenait "1.6") et le suffixe de regen disparaissait dès que les
+       * PV étaient pleins, d'où un affichage qui clignote et dont les chiffres
+       * bougent. Décimales fixes ici, suffixe toujours présent tant que la
+       * regen est > 0, et chiffres tabulaires (soreal-idle-ui.css).
+       */
+      function formaterDecimalesFixesIdleV1_(valeur,decimales){
+        const n=idleNombre_(valeur);
+        if(Math.abs(n)>=1000)return formatGrandNombreIdleV70_(n,decimales);
+        return n.toFixed(Math.max(0,decimales)).replace('.',',');
+      }
+
       function regenPvFightBossNguParSecondeV164_(defense){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-31 */
         return Math.max(
@@ -2792,13 +2806,9 @@
 
         if(joueurPvEl){
           const regenJoueurVisibleV176=
-            !idleEtat.combatBossActif &&
-            idleNombre_(idleEtat.pvJoueur)<
-              idleNombre_(idleEtat.pvJoueurMax)
-              ?regenPvFightBossNguParSecondeV164_(
-                  idleEtat.defense
-                )
-              :0;
+            regenPvFightBossNguParSecondeV164_(
+              idleEtat.defense
+            );
 
           texteCombatIdleV121_(
             joueurPvEl,
@@ -2813,7 +2823,7 @@
             (
               regenJoueurVisibleV176>0
                 ?' · ↗ +'+
-                  formatGrandNombreIdleV70_(
+                  formaterDecimalesFixesIdleV1_(
                     regenJoueurVisibleV176,
                     2
                   )+
@@ -2873,18 +2883,16 @@
 
         if(bossPvEl){
           const bossEnRegenV174=
-            !idleEtat.combatBossActif &&
             idleNombre_(idleEtat.bossPv)>0 &&
-            idleNombre_(idleEtat.bossPv)<
-              idleNombre_(idleEtat.bossPvMax) &&
             idleNombre_(idleEtat.regenBoss)>0;
 
           texteCombatIdleV121_(
             bossPvEl,
             '❤️ '+
-            formatGrandNombreIdleV70_(
-              idleEtat.bossPv,
-              bossEnRegenV174?4:undefined
+            (
+              bossEnRegenV174
+                ?formaterDecimalesFixesIdleV1_(idleEtat.bossPv,2)
+                :formatGrandNombreIdleV70_(idleEtat.bossPv)
             )+
             ' / '+
             formatGrandNombreIdleV70_(
@@ -2893,7 +2901,7 @@
             (
               bossEnRegenV174
                 ?' · ↗ +'+
-                  formatGrandNombreIdleV70_(
+                  formaterDecimalesFixesIdleV1_(
                     idleEtat.regenBoss,
                     2
                   )+

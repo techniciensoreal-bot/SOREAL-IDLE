@@ -1072,3 +1072,7 @@ Wiki (Basic Training / Advanced Training / Perk Points / Quirk Points / Wishes) 
 **Migration (perte assumée)** : les niveaux des anciennes pistes n'ont aucun équivalent dans les 16 vrais NGU (formules et coûts sans rapport) : ils repartent de 0, comme au début d'une vraie partie ; l'énergie/magie qui leur était allouée est rendue.
 
 **Non traité** : la vitesse d'énergie/« bars » n'entre pas dans le débit d'un NGU (le wiki cite « 50 energy speed » dans la définition du coût de base sans préciser son rôle ; débit = allocation x puissance x multiplicateurs) ; Hacks « Energy/Magic NGU Speed » (les effets des Hacks ne sont branchés nulle part) ; bonus Cards ; le « Number » NGU n'ajoute pas de facteur de temps de Rebirth distinct (le wiki dit qu'il est « multiplié par le facteur de temps courant », déjà porté par le Number).
+
+## 2026-09-23 — Affichage des PV : plus de clignotement ni de chiffres qui bougent
+
+Retour utilisateur : la regen de vie fait bouger les chiffres des PV, la regen apparaît et disparaît très vite. Causes : le suffixe « ↗ +x/s » n'existait que lorsque les PV étaient sous le max (il s'éteignait à PV pleins puis se rallumait), et `formatGrandNombreIdleV70_` retire les zéros finaux (« 1.60 » -> « 1.6 »), donc la largeur changeait ; les PV du boss utilisaient en plus un nombre de décimales variable (4). Correctif : `formaterDecimalesFixesIdleV1_` (2 décimales fixes), suffixe de regen permanent tant que la regen est > 0 (joueur et boss), chiffres tabulaires + `nowrap` en CSS. Monolithe `?v=224`. Test `idle-hp-display-stable.test.mjs`.
