@@ -4190,6 +4190,40 @@ function challengeAction(state, payload, context, now) {
   };
 }
 
+/*
+ * Audit NGU 2026-09-23 : les récompenses de titan (EXP, or, AP, progression
+ * de PP) sont cumulées par le moteur Aventure dans adventure.permanent ; ce
+ * pont les reverse dans les vraies monnaies. Le PP progress suit la même règle
+ * que l'ITOPOD : 1 000 000 de progression = 1 PP.
+ */
+function crediterRecompensesAventure(state, avant) {
+  const p = state.adventure?.permanent || {};
+  const gain = (cle) => Math.max(0, num(p[cle], 0) - num(avant[cle], 0));
+  state.currencies.experience += gain("experience");
+  state.currencies.gold += gain("gold");
+  state.currencies.ap += gain("ap");
+  const pp = gain("ppProgress");
+  if (pp > 0) {
+    const tower = state.systems.tower;
+    if (!tower.data || typeof tower.data !== "object") tower.data = {};
+    tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + pp;
+    const entiers = Math.floor(tower.data.ppProgress / 1e6);
+    if (entiers > 0) {
+      tower.data.ppProgress -= entiers * 1e6;
+      state.currencies.pp += entiers;
+    }
+  }
+}
+function photoRecompensesAventure(state) {
+  const p = state.adventure?.permanent || {};
+  return {
+    experience: num(p.experience, 0),
+    gold: num(p.gold, 0),
+    ap: num(p.ap, 0),
+    ppProgress: num(p.ppProgress, 0)
+  };
+}
+
 function titanFight(state, context, now) {
   const s = state.systems.titans;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -4198,6 +4232,7 @@ function titanFight(state, context, now) {
   // engine. This keeps cooldown, guaranteed consumables and gear drops in
   // the same persisted state as the Adventure screen.
   const titanChallengeBonuses=challengePermanentBonuses(state);
+  const avantRecompenses = photoRecompensesAventure(state);
   const applied = applyIdleAdventureActionV47(
     state.adventure,
     {
@@ -4209,12 +4244,14 @@ function titanFight(state, context, now) {
       }
     },
     Object.assign({},context,{
+      dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
       titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
       titanLootLevelBonus:titanChallengeBonuses.titanLootLevelBonus
     }),
     now
   );
   state.adventure = applied.state;
+  crediterRecompensesAventure(state, avantRecompenses);
 
   const titanState = state.adventure?.titans?.t1 || { kills: 0, nextAt: 0 };
   s.data.kills = Math.max(0, int(titanState.kills, 0));
@@ -4302,8 +4339,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   let result = {};
 
   if (action === "adventure") {
-    const experienceBefore = num(state.adventure?.permanent?.experience, 0);
-    const goldBefore = num(state.adventure?.permanent?.gold, 0);
+    const avantRecompenses = photoRecompensesAventure(state);
     /*
      * Norman (2026-09-14) : "est-ce que tu as ajouté les bonus des sets
      * complets ?" — checkSets() (idle-adventure-v47.js) crédite déjà
@@ -4326,7 +4362,6 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      * monnaie state.currencies.ap, contrairement à experience et gold
      * juste au-dessus (même schéma, oublié pour l'AP spécifiquement).
      */
-    const apBefore = num(state.adventure?.permanent?.ap, 0);
     const applied = applyIdleAdventureActionV47(
       state.adventure,
       payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload,
@@ -4347,10 +4382,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       t
     );
     state.adventure = applied.state;
-    const experienceAfter = num(state.adventure?.permanent?.experience, experienceBefore);
-    if (experienceAfter > experienceBefore) {
-      state.currencies.experience += experienceAfter - experienceBefore;
-    }
+    /* Expérience, or, AP et progression de PP : voir crediterRecompensesAventure. */
     /*
      * Norman (2026-09-11) : "il faut aussi regarder ce que les mobs sont
      * supposés looter. Il faut qu'ils lootent des golds aussi." Même
@@ -4359,14 +4391,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      * diffé ici vers la vraie monnaie partagée (state.currencies.gold,
      * déjà utilisée par Augmentations/Time Machine/Blood Magic).
      */
-    const goldAfter = num(state.adventure?.permanent?.gold, goldBefore);
-    if (goldAfter > goldBefore) {
-      state.currencies.gold += goldAfter - goldBefore;
-    }
-    const apAfter = num(state.adventure?.permanent?.ap, apBefore);
-    if (apAfter > apBefore) {
-      state.currencies.ap += apAfter - apBefore;
-    }
+    crediterRecompensesAventure(state, avantRecompenses);
     result = applied.result || {};
     // Consuming one of the permanent unlock items should immediately expose
     // the corresponding system without waiting for another server tick.

@@ -5,6 +5,18 @@ import {
 } from "../src/idle-adventure-v47.js";
 
 /*
+ * Audit NGU 2026-09-23 : le butin des titans suit désormais les taux "base
+ * chance" du wiki (plus d'objets garantis inventés). Les tests qui vérifient
+ * "ce qui PEUT tomber" forcent donc le tirage à 0 (tout réussit).
+ */
+function tirageForce(valeur,fn){
+  const avant=Math.random;
+  Math.random=()=>valeur;
+  try{return fn()}finally{Math.random=avant}
+}
+
+
+/*
  * Norman (2026-09-11) : "pas le choix" — suite du monde Normal apres les
  * 4 zones simples. Titan 6 (The Beast) : Norman a confirme que les 4
  * paliers de difficulte ne sont "pas un minijeu" ("il faut juste faire
@@ -64,11 +76,19 @@ assert.deepEqual(
 // sans difficulty explicite, repli sur "easy" (jamais une erreur).
 {
   let s=normalizeIdleAdventureStateV47({});
-  const t=applyIdleAdventureActionV47(
+  const t=tirageForce(0,()=>applyIdleAdventureActionV47(
     s,{action:"titan",titan:"t6"},{bosses:132,stats:{power:700000000,toughness:500000000}},1000
-  );
+  ));
   assert.ok(t.result.drops.some(x=>x.set==="slimy"));
   assert.equal(t.result.difficulty,"easy");
+  // Wiki The Beast : Slimy = 0,05 % de base par pièce, jamais garanti.
+  const sans=tirageForce(0.999999,()=>applyIdleAdventureActionV47(
+    normalizeIdleAdventureStateV47({}),{action:"titan",titan:"t6"},{bosses:132,stats:{power:700000000,toughness:500000000}},1000
+  ));
+  assert.equal(sans.result.drops.some(x=>x.set==="slimy"),false,"Slimy ne doit plus tomber à coup sûr.");
+  assert.equal(sans.result.experience,750,"The Beast : 750 EXP");
+  assert.ok(sans.result.gold>=20000000&&sans.result.gold<=25000000);
+  assert.equal(sans.result.ppProgress,250000,"The Beast : 250 000 de progression de PP");
 }
 
 // Titan 6 : un palier trop faible pour les stats du joueur doit refuser
@@ -95,19 +115,19 @@ assert.deepEqual(
   ).result;
   assert.equal(easy.drops.some(x=>x.definitionId==="shrunkenVoodooDoll"),false);
 
-  const normal=applyIdleAdventureActionV47(
+  const normal=tirageForce(0,()=>applyIdleAdventureActionV47(
     normalizeIdleAdventureStateV47({}),
     {action:"titan",titan:"t6",difficulty:"normal"},
     {bosses:132,stats:{power:7000000000,toughness:5000000000}},1
-  ).result;
+  )).result;
   assert.ok(normal.drops.some(x=>x.definitionId==="shrunkenVoodooDoll"));
   assert.equal(normal.drops.some(x=>x.definitionId==="pricelessVanGoghPainting"),false);
 
-  const hard=applyIdleAdventureActionV47(
+  const hard=tirageForce(0,()=>applyIdleAdventureActionV47(
     normalizeIdleAdventureStateV47({}),
     {action:"titan",titan:"t6",difficulty:"hard"},
     {bosses:132,stats:{power:70000000000,toughness:50000000000}},1
-  ).result;
+  )).result;
   assert.ok(hard.drops.some(x=>x.definitionId==="shrunkenVoodooDoll"));
   assert.ok(hard.drops.some(x=>x.definitionId==="pricelessVanGoghPainting"));
   assert.equal(hard.drops.some(x=>x.definitionId==="smallGerbil"),false);
@@ -160,9 +180,9 @@ assert.deepEqual(
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"ringOfApathy",level:100},{bosses:100},1).state;
   s.unlockFlags.diggers=true;
   s.titans.t3={kills:28,nextAt:0};
-  const t=applyIdleAdventureActionV47(
+  const t=tirageForce(0,()=>applyIdleAdventureActionV47(
     s,{action:"titan",titan:"t4"},{bosses:100,stats:{power:1e6,toughness:1e6}},2
-  );
+  ));
   assert.ok(
     t.result.drops.some(x=>x.set==="uug"),
     "Vaincre UUG (t4) doit reellement faire tomber une piece du set uug, pas seulement debloquer 'beards'."

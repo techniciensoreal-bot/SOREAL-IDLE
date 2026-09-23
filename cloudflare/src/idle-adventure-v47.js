@@ -1779,7 +1779,7 @@ export function idleAdventureAddItemV1(state,o){return add(state,o)}
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -3617,22 +3617,123 @@ function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return tr
  * (ringOfApathyMaxed, tutorialCubeMaxed).
  */
 export const WALDERP_HIDE_PANELS_V147=Object.freeze(["combat","entrainement","inventaire","bestiaire","parametres"]);
-function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));if(id==="t1"){drops.push(add(s,setDrop(s,"grb",challengeTitanLootLevel)));if(!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}}if(id==="t3")drops.push(add(s,setDrop(s,"jake",challengeTitanLootLevel)));if(id==="t4")drops.push(add(s,setDrop(s,"uug",challengeTitanLootLevel)));if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)));drops.push(add(s,setDrop(s,"wanderer",challengeTitanLootLevel)));drops.push(add(s,setDrop(s,"rerednaw",challengeTitanLootLevel)))}if(id==="t2"&&Math.random()<.01)drops.push(add(s,special("mysteriousRedLiquid",5)));
-if(id==="t6"){
-  drops.push(add(s,setDrop(s,"slimy",challengeTitanLootLevel)));
-  if(tierKey==="normal"||tierKey==="hard"||tierKey==="brutal"){
-    drops.push(add(s,special("shrunkenVoodooDoll",0)));
-    if(Math.random()<.00002)drops.push(add(s,special("mysteriousPurpleLiquid",1)));
-  }
-  if(tierKey==="hard"||tierKey==="brutal")drops.push(add(s,special("pricelessVanGoghPainting",0)));
-  /*
-   * Wiki The Beast : Small Gerbil (Brutal) = 0.0001% base chance.
-   * L'ancien code le garantissait, ce qui rendait MOVE 69 artificiellement
-   * facile à débloquer. Seule cette source liée au présent chantier est
-   * corrigée ici ; les autres rares du Titan restent un chantier séparé.
-   */
-  if(tierKey==="brutal"&&Math.random()<.000001)drops.push(add(s,special("smallGerbil",4)));
+/*
+ * Récompenses de base des titans -- colonne "Base Rewards" de la page Titans
+ * et lignes Gold/Exp/AP/PP progress de la section Loot de chaque page de
+ * titan (miroir local NGU-Wiki, 2026-09-23). Walderp : Exp/AP lus sur la page
+ * Titans (sa section Loot ne donne que l'or), versés à la forme finale comme
+ * ses drops. Les multiplicateurs 1.1x/1.2x/1.3x du souhait "I wish V2/3/4
+ * Titans had better rewards" et les QP conditionnés par souhait ne sont pas
+ * encore branchés (niveau de souhait absent du contexte de l'Aventure).
+ */
+const TITAN_REWARDS_V1=Object.freeze({
+  t1:{gold:[1000000,1250000],exp:35,ap:10},
+  t2:{gold:[1600000,2000000],exp:60,ap:15},
+  t3:{gold:[1200000,1500000],exp:200,ap:50},
+  t4:{gold:[2000000,2500000],exp:300,ap:60},
+  t5:{gold:[4000000,5000000],exp:500,ap:70},
+  t6:{gold:[20000000,25000000],exp:750,ppProgress:250000},
+  t7:{gold:[4000000000000,5000000000000],exp:2500,ppProgress:400000}
+});
+function creditTitanRewardsV1(s,id){
+  const r=TITAN_REWARDS_V1[id];
+  const out={gold:0,experience:0,ap:0,ppProgress:0};
+  if(!r)return out;
+  const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
+  out.gold=Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult));
+  out.experience=I(r.exp,0);
+  out.ap=I(r.ap,0);
+  out.ppProgress=I(r.ppProgress,0);
+  s.permanent.gold=N(s.permanent.gold)+out.gold;
+  s.permanent.experience=N(s.permanent.experience)+out.experience;
+  s.permanent.ap=N(s.permanent.ap)+out.ap;
+  s.permanent.ppProgress=N(s.permanent.ppProgress)+out.ppProgress;
+  return out;
 }
+/*
+ * Butin des titans 1 à 6 -- sections "Loot" des pages wiki (miroir local
+ * NGU-Wiki, 2026-09-23). Les taux "base chance" sont multipliés par le
+ * multiplicateur de drop comme partout ailleurs. "lvl a-b" = niveau tiré
+ * uniformément entre a et b (lecture de la notation du wiki). Le bonus de
+ * niveau des défis No Rebirth s'ajoute aux pièces de set, pas au Forest
+ * Pendant (le wiki précise qu'il ne s'y applique pas). Objets du wiki qui
+ * n'existent pas encore dans SOREAL (donc jamais tirés, jamais remplacés par
+ * une valeur de repli) : Stapler, Ascended Forest Pendant, Heroic Sigil,
+ * Ascended Ascended Ascended Pendant, A Bald Egg, A Giant Apple, A Power
+ * Pill, Candy Cane of Destiny, Wandoos XL, Fanny Pack, Dorky Glasses,
+ * UUG's 'Special' Ring, The First/Second/Third Clue.
+ */
+function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
+  const chance=p=>Math.random()<idleAdventureDropChanceV2(p,1,dropMult,null);
+  const pick=liste=>liste[I(Math.random()*liste.length)];
+  const niveau=(lo,hi)=>Math.min(MAX,lo+I(Math.random()*(hi-lo+1))+bonus);
+  const equip=(setId,slot,lvl)=>{
+    const o=definitionEquipmentDropAdventureV2(s,setId+":"+slot,lvl);
+    const a=o?add(s,o):null;
+    if(a)out.push(a);
+  };
+  const boosts=(type,liste)=>{
+    for(const [force,p] of liste)if(chance(p)){const a=add(s,boost(type,force));if(a)out.push(a)}
+  };
+  const pendantForet=(lvl,p)=>{
+    if(!chance(p))return;
+    const o=definitionEquipmentDropAdventureV2(s,"forest:pendant",lvl);
+    const a=o?add(s,o):null;
+    if(a)out.push(a);
+  };
+  const cinq=["head","chest","legs","boots","weapon"];
+  if(id==="t1"){
+    equip("grb",pick(cinq),Math.min(MAX,bonus));
+    if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
+    for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
+    pendantForet(20,.1);
+  }else if(id==="t2"){
+    for(const type of ["power","toughness","special"]){const a=add(s,boost(type,10));if(a)out.push(a)}
+    boosts("power",[[10,.1],[20,.08],[50,.05],[100,.05]]);
+    boosts("toughness",[[10,.1],[20,.08],[50,.05],[100,.05]]);
+    boosts("special",[[10,.1],[20,.08],[50,.08],[100,.05]]);
+    if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5));if(a)out.push(a)}
+    pendantForet(50,.1);
+  }else if(id==="t3"){
+    equip("jake",pick(cinq),Math.min(MAX,bonus));
+    if(chance(.6))equip("jake",pick(cinq),Math.min(MAX,1+bonus));
+    for(const slot of cinq)if(chance(.1))equip("jake",slot,Math.min(MAX,2+bonus));
+    if(chance(.25))equip("jake",pick(["tie","paperweight"]),Math.min(MAX,2+bonus));
+    for(const type of ["power","toughness","special"])boosts(type,[[100,.1]]);
+  }else if(id==="t4"){
+    const anneaux=["ringGreed","ringMight","ringUtility","ringEnergy","ringMagic"];
+    const premier=!s.itemList["uug:ringGreed"]?.seen;
+    for(const slot of anneaux){
+      if((premier&&slot==="ringGreed")||chance(.02))equip("uug",slot,Math.min(MAX,4+bonus));
+    }
+    pendantForet(0,.02);
+  }else if(id==="t5"){
+    if(chance(.005)){const a=add(s,special("wanderersCane",10));if(a)out.push(a)}
+    for(const slot of ["head","chest","legs","boots"]){
+      if(chance(.005))equip("wanderer",slot,Math.min(MAX,4+bonus));
+      if(chance(.005))equip("rerednaw",slot,Math.min(MAX,4+bonus));
+    }
+  }else if(id==="t6"){
+    for(const slot of cinq)if(chance(.0005))equip("slimy",slot,Math.min(MAX,4+bonus));
+    const palier=tierKey==="normal"||tierKey==="hard"||tierKey==="brutal";
+    const dur=tierKey==="hard"||tierKey==="brutal";
+    if(palier&&chance(.00005)){const a=add(s,special("shrunkenVoodooDoll",4));if(a)out.push(a)}
+    if(palier&&chance(.00002)){const a=add(s,special("mysteriousPurpleLiquid",1));if(a)out.push(a)}
+    if(dur&&chance(.00001)){const a=add(s,special("pricelessVanGoghPainting",4));if(a)out.push(a)}
+    if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
+  }
+}
+function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;const challengeRespawnReduction=Math.max(0,N(ctx.titanCooldownReductionMs,0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
+ * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
+ * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
+ * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
+ */
+if(id==="t1"&&!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}
+if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)))}
+const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
+const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
+if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops);
+const recompenses=titanFinalisee?creditTitanRewardsV1(s,id):{gold:0,experience:0,ap:0,ppProgress:0};
 /*
  * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
  * beastBrutalDefeated/exileBrutalDefeated : flag PERMANENT (jamais remis
@@ -3646,7 +3747,7 @@ if(id==="t6"){
  */
 if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
 if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
-return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean)}}
+return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress}}
 /*
  * V147 — retrouver Walderp caché. Purement déclaratif côté serveur (le
  * client sait déjà où il se cache via le snapshot — il ne "devine" rien,

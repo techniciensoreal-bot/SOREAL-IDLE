@@ -5,6 +5,18 @@ import {
 } from "../src/idle-adventure-v47.js";
 
 /*
+ * Audit NGU 2026-09-23 : le butin des titans suit désormais les taux "base
+ * chance" du wiki (plus d'objets garantis inventés). Les tests qui vérifient
+ * "ce qui PEUT tomber" forcent donc le tirage à 0 (tout réussit).
+ */
+function tirageForce(valeur,fn){
+  const avant=Math.random;
+  Math.random=()=>valeur;
+  try{return fn()}finally{Math.random=avant}
+}
+
+
+/*
  * "boutique"/"magie"/"personnage" existent encore comme routes de rendu
  * côté client (contenuMenuIdleV28_) mais ne sont PLUS dans la navigation
  * visible depuis la parité NGU — y cacher Walderp le rendrait
@@ -108,9 +120,9 @@ function tuerFormeEtTrouver(s,formeIndex,t){
   }
 
   // Forme 5 (finale) : butin garanti, plus de cache-cache après.
-  const finale=applyIdleAdventureActionV47(
+  const finale=tirageForce(0,()=>applyIdleAdventureActionV47(
     s,{action:"titan",titan:"t5"},{bosses:116,stats:STATS_PAR_FORME[4]},t
-  );
+  ));
   s=finale.state;
   assert.equal(s.titans.t5.kills,5);
   assert.equal(s.titans.t5.hiddenPanel,"","La forme finale ne doit plus jamais se cacher.");
@@ -121,9 +133,9 @@ function tuerFormeEtTrouver(s,formeIndex,t){
   // recombattre après le cooldown normal donne à nouveau du butin, sans
   // jamais se recacher.
   t+=3*3600000+10;
-  const encore=applyIdleAdventureActionV47(
+  const encore=tirageForce(0,()=>applyIdleAdventureActionV47(
     s,{action:"titan",titan:"t5"},{bosses:116,stats:STATS_PAR_FORME[4]},t
-  );
+  ));
   assert.equal(encore.state.titans.t5.hiddenPanel,"");
   assert.ok(encore.result.drops.some(x=>x.set==="wanderer"),"Toute victoire après la forme finale doit donner du butin, indéfiniment.");
 }
