@@ -6,8 +6,22 @@ import {
   idleAdventureEquipmentStatsV47,
   idleAdventureBoostV1,
   idleAdventureAddItemV1,
+  idleAdventureSpecialItemV1,
   idleAdventureCubeTierV1
 } from "./idle-adventure-v47.js";
+import {
+  idleHeartV1,
+  idleHeartsBuyV1,
+  idleHeartsExpMultiplierV1,
+  idleHeartsApMultiplierV1,
+  idleHeartsConsumableFactorV1,
+  idleHeartsHackSpeedMultiplierV1
+} from "./idle-hearts-v1.js";
+import {
+  idleWandoosConsumeCopyV1,
+  idleWandoosBootMultiplierV1,
+  idleWandoosXlUnlockedV1
+} from "./idle-wandoos-os-v1.js";
 import {
   bigFromLog10V1,
   bigToNumberV1
@@ -941,14 +955,10 @@ export const IDLE_WANDOOS_OS_V1 = Object.freeze({
  * 17.04, "bonus" = 1604 points de %). Formule : 1+(niveau+1)*0.04.
  *
  * Les 4 sources qui alimentent ce niveau total (Wandoos 98/XL consommés,
- * Money Pit, ITOPOD) sont plafonnées à 100 chacune côté wiki. Seule la
- * source ITOPOD (perk 22 "Wandoos Lover", déjà réelle et achetable) est
- * câblée ici — Money Pit et la consommation d'objets "A busted copy of
- * Wandoos 98/XL" nécessitent des mécaniques (table de drops Money Pit,
- * objets consommables avec niveau) non construites chez SOREAL : leurs
- * champs existent dans data.osLevels (jamais supprimés, toujours à 0)
- * mais ne sont alimentés par aucune action pour l'instant — gap honnête,
- * pas un oubli.
+ * Money Pit, ITOPOD) sont plafonnées à 100 chacune côté wiki. Sources
+ * câblées : ITOPOD (perk 22 "Wandoos Lover"), Money Pit (tossMoneyPit) et,
+ * depuis le 2026-09-23, la consommation des copies "A busted copy of
+ * Wandoos 98/XL" (action méta consumeWandoosCopy, idle-wandoos-os-v1.js).
  */
 function createWandoosData() {
   return {
@@ -973,20 +983,20 @@ function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
 
 /*
  * Boot-up (wiki, section "Boot-up") : "1-hour boot-up process... linear,
- * and ranges from 0-100% speed." Réduit par le set Wandoos XL (-10%,
- * gear non construit chez SOREAL — omis) et par les défis "100 Levels"
+ * and ranges from 0-100% speed." Réduit par le set Wandoos XL (-10 %,
+ * SETS_OBJETS_V1.wandoosXl, câblé 2026-09-23) et par les défis "100 Levels"
  * complétés EN EVIL (-10% chacun, jusqu'à 5, plancher 27 minutes avec les
  * deux réductions). SOREAL ne distingue pas la difficulté au moment où un
  * défi "100 Levels" a été complété (state.challenge.completions.hundredLevels
  * est un compteur global) : la réduction ci-dessous utilise ce compteur
  * tel quel, un léger sur-crédit possible si des complétions ont eu lieu
- * en Normal — documenté honnêtement, jamais un chiffre inventé, la
- * réduction du set XL (-10% supplémentaire, jusqu'au plancher réel de 27
- * min) reste hors périmètre.
+ * en Normal — documenté honnêtement, jamais un chiffre inventé. Le set XL
+ * multiplie le tout par 0,9 (plancher réel de 27 min = 60 x 0,9 x 0,5).
  */
 function wandoosBootFractionV1(state, now) {
   const hundredLevelsCount = Math.max(0, Math.min(5, int(state.challenge?.completionsTier?.difficile?.hundredLevels, 0)));
-  const bootSeconds = 3600 * (1 - 0.10 * hundredLevelsCount);
+  /* Wandoos XL (set) : x0,9 sur la durée du boot (idle-wandoos-os-v1.js), cumulé multiplicativement avec les défis. */
+  const bootSeconds = 3600 * (1 - 0.10 * hundredLevelsCount) * idleWandoosBootMultiplierV1(state);
   const elapsed = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
   return clamp(elapsed / Math.max(1, bootSeconds), 0, 1);
 }
@@ -3127,8 +3137,10 @@ function useYggFruit(state,fruitId,mode="eat"){
       result.numbers=s.data.permanent.numbersValue;
     }else if(def.effect==="ap"){
       const ap=Math.floor(Math.ceil(factor*15*firstHarvestMultiplier));
-      state.currencies.ap+=ap;
-      result.ap=ap;
+      /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + YellowHeartAPBonus) ..." (arrondi inférieur). */
+      const apCoeur=Math.floor(ap*heartApMultiplierV1(state));
+      state.currencies.ap+=apCoeur;
+      result.ap=apCoeur;
     }else if(def.effect==="pp"){
       /* Perk Point PROGRESS (1 000 000 = 1 PP), pas des PP entiers. */
       const progress=Math.ceil(factor*60000*quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonuses(state).ppMultiplier,1))*firstHarvestMultiplier);
@@ -3402,7 +3414,9 @@ function advanceTowerV1(state, seconds, context) {
     const fx = state.selloutEffects;
     const pills = fx ? Math.min(n, Math.max(0, int(fx.bluePills, 0))) : 0;
     if (pills > 0) fx.bluePills -= pills;
-    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + (n + pills) * (ppBase + floor) * ppMultiplier;
+    /* Little Blue Pill : x2 (x2,2 avec le Blue Heart (set), idle-hearts-v1.js) pour chaque kill couvert. */
+    const pillFactor = 2 * idleHeartsConsumableFactorV1(state);
+    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + (n + pills * (pillFactor - 1)) * (ppBase + floor) * ppMultiplier;
     const rewards = n / towerKillsPerRewardV1(tier);
     state.currencies.experience += rewards * towerExpForTierV1(tier) * expMultiplier;
     d.apProgress += rewards;
@@ -3671,6 +3685,13 @@ function gearSpecialsV1(state) {
   return idleAdventureEquipmentStatsV47(state.adventure).specials || {};
 }
 const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 100;
+/*
+ * My Yellow Heart (idle-hearts-v1.js) : facteur AP de toutes les sources sauf les kills de l'ITOPOD
+ * (page Arbitrary Points : "from all sources, except for ITOPOD kills and Special Prize").
+ */
+function heartApMultiplierV1(state) {
+  return idleHeartsApMultiplierV1(state, gearSpecialsV1(state));
+}
 
 function nguSpeedMultiplierV1(state, resource) {
   const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
@@ -4034,7 +4055,8 @@ function idleNguBonusesSansMacguffinV1(state) {
        * appliqué"), câblé ici pour la première fois.
        */
       Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
-    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * perkBonuses.expEarningsMultiplier * (1 + num(state.bonuses.cookingExp, 0)) * (1 + 0.005 * wishLevelV1(state, 61)),
+    /* My Red Heart (page Yggdrasil, EXPBonus : "(1 + RedHeartEXPBonus)") : équipé ou set complété, idle-hearts-v1.js. */
+    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * perkBonuses.expEarningsMultiplier * (1 + num(state.bonuses.cookingExp, 0)) * (1 + 0.005 * wishLevelV1(state, 61)) * idleHeartsExpMultiplierV1(state, adventureGear.specials),
     respawnReduction: respawnReductionV1(state, nguFx, adventureGear, perkBonuses),
     adventurePowerFlat: num(adventureGear.power, 0)+num(yggPermanent.adventurePower,0)+perkBonuses.adventurePowerFlat,
     adventureToughnessFlat: num(adventureGear.toughness, 0)+num(yggPermanent.adventureToughness,0)+perkBonuses.adventureToughnessFlat,
@@ -4181,7 +4203,7 @@ function idleNguBonusesSansMacguffinV1(state) {
      * contribution du cube y est donc dupliquée par petit calcul local
      * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
-    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct") * hackFx.hackHack * challengeBonuses.hackSpeedChallengeMultiplier,
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct") * hackFx.hackHack * challengeBonuses.hackSpeedChallengeMultiplier * idleHeartsHackSpeedMultiplierV1(state) /* Grey Heart (set) : "25% Faster Hacks!" */,
     wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))) * gearPctV1(adventureGear.specials, "wishSpeedPct") * hackFx.wish,
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
@@ -4667,6 +4689,8 @@ function selectWandoosOs(state, osId) {
   if (!IDLE_WANDOOS_OS_V1[osId]) throw new Error("OS_INVALIDE");
   /* Wiki Wandoos : Wandoos MEH se débloque en complétant le set Jake. */
   if (osId === "meh" && !state.adventure?.setRewards?.wandoosMeh) throw new Error("OS_VERROUILLE");
+  /* Fiche "A busted copy of Wandoos XL" : l'OS XL se débloque en consommant une copie (idle-wandoos-os-v1.js). */
+  if (osId === "xl" && !idleWandoosXlUnlockedV1(state)) throw new Error("OS_VERROUILLE");
   if (s.data.os === osId) return;
   s.data.os = osId;
   s.data.dumpEnergyLevel = 0;
@@ -4953,6 +4977,8 @@ function spinDaily(state, now) {
     for (const [id, n] of Object.entries(choix.items)) idleSelloutApplyEffectV1(state, id, n);
   } else {
     reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
+    /* AP : majoré par My Yellow Heart (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
+    if (reward.ap) reward.ap = Math.floor(reward.ap * heartApMultiplierV1(state));
     for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
   }
 
@@ -5101,7 +5127,8 @@ function challengeAction(state, payload, context, now) {
     if(rewarded){
       completions[id]=before+1;
       state.currencies.experience+=rewardExperience;
-      state.currencies.ap+=rewardAp;
+      /* Page Arbitrary Points : AP des défis majoré par My Yellow Heart, arrondi inférieur. */
+      state.currencies.ap+=Math.floor(rewardAp*heartApMultiplierV1(state));
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
       if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
@@ -5174,7 +5201,7 @@ function crediterRecompensesAventure(state, avant) {
   state.currencies.experience += gain("experience");
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
-  state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier;
+  state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier * heartApMultiplierV1(state);
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
   const pp = gain("ppProgress") * diggerBonuses(state).pp;
   if (pp > 0) {
@@ -5230,8 +5257,10 @@ function questingEnvV1(state, context) {
     respawnSeconds: Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1))),
     idleAttackSeconds: state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1,
     gearQuestDropsPct: Math.max(0, num(gear.specialsByType?.questDropsPct, 0)),
+    /* Heroic Sigil (set) : "Quest items drop 10% more often!" (SETS_OBJETS_V1.heroicSigil). */
+    questDropsSetPct: Math.max(0, num(state.adventure?.setRewards?.questDropsSetPct, 0)),
     qpEarningsMultiplier: perks.qpEarningsMultiplier,
-    apEarningsMultiplier: perks.apEarningsMultiplier,
+    apEarningsMultiplier: perks.apEarningsMultiplier * heartApMultiplierV1(state),
     qpHackMultiplier: Math.max(0, num(hackFxV1(state).qpGain, 1))
   };
 }
@@ -5494,7 +5523,21 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "buyPerk") {
     result = buyPerkV1(state, payload.perkId);
   } else if (action === "sellShopBuy") {
-    result = idleSelloutShopBuyV1(state, payload.itemId);
+    /* Cœurs : l'objet est livré dans l'inventaire d'Aventure avant tout débit d'AP (idle-hearts-v1.js). */
+    if (idleHeartV1(payload.itemId)) {
+      result = idleHeartsBuyV1(state, payload.itemId, {
+        buy: idleSelloutShopBuyV1,
+        createItem: idleAdventureSpecialItemV1,
+        addItem: idleAdventureAddItemV1,
+        nextCost: (id) => idleSelloutShopNextCostV1(idleSelloutShopItemV1(id), state.selloutShop?.purchases?.[id]),
+        r3Unlocked: Boolean(state.systems.hacks?.unlocked)
+      });
+    } else {
+      result = idleSelloutShopBuyV1(state, payload.itemId);
+    }
+  } else if (action === "consumeWandoosCopy") {
+    /* Copie "A busted copy of Wandoos 98/XL" : +1 niveau d'OS ou déblocage de Wandoos XL (idle-wandoos-os-v1.js). */
+    result = idleWandoosConsumeCopyV1(state, String(payload.itemId || payload.id || ""));
   } else if (action === "buyQuirk") {
     result = buyQuirkV1(state, payload.quirkId);
   } else if (/^quest[A-Z]/.test(action)) {
@@ -5527,9 +5570,16 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     if (!state.systems.daycare?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     const factors = daycareFactorsV1(state);
     const itemId = String(payload.itemId || payload.id || "");
+    /*
+     * Un objet repris au niveau 100 peut compléter un set (checkSets via add()) : ses EXP/AP de
+     * complétion (ex. Flubber (set) : 30 000 AP) sont reversés dans les monnaies comme après une
+     * action d'Aventure (crediterRecompensesAventure), sinon ils resteraient dans adventure.permanent.
+     */
+    const avantDaycare = photoRecompensesAventure(state);
     result = action === "daycarePlace"
       ? idleDaycarePlaceV1(state.adventure, state.systems.daycare.data, itemId, factors)
       : idleDaycareRemoveV1(state.adventure, state.systems.daycare.data, itemId, factors);
+    crediterRecompensesAventure(state, avantDaycare);
   } else if (action === "cards") {
     result = idleCardsActionV1(state, payload);
   } else {
@@ -5577,7 +5627,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
   if(!options.challengeId&&runSeconds>=3600){
-    state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier;
+    state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier*heartApMultiplierV1(state);
   }
 
   rb.lastNumber=rb.number;

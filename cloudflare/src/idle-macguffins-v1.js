@@ -31,6 +31,7 @@
  */
 
 import { idleAdventureDropChanceV2 } from "./idle-adventure-v47.js";
+import { idleHeartsPurpleCompleteV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -309,11 +310,11 @@ export function macguffinKillsRequiredV1(opts = {}) {
 }
 
 /*
- * My Purple Heart : l'objet (et donc son set "atteindre le niveau 100")
- * n'existe pas dans l'inventaire SOREAL et heartPurple n'est pas achetable
- * au Sellout Shop (aucun effet câblé) -- facteur jamais actif pour l'instant.
+ * My Purple Heart : "When this heart reaches 100, MacGuffins will drop 20% more
+ * often" (Sellout Shop) -- actif une fois le Purple Heart (set) complété
+ * (SETS_OBJETS_V1.heartPurple, cœur acheté puis monté au niveau 100).
  */
-function purpleHeartActive() { return false; }
+function purpleHeartActive(state) { return idleHeartsPurpleCompleteV1(state); }
 
 export function macguffinZoneKillsRequiredV1(state) {
   return macguffinKillsRequiredV1({ chocoSet: completedSet(state, "choco"), purpleHeart: purpleHeartActive(state) });
@@ -715,7 +716,8 @@ export function macguffinApplyRebirthV1(state, runSeconds) {
     return null;
   }
   const ratio = macguffinTimeRatioV1(runSeconds, macguffinSadisticTroll2V1(state));
-  const factor = muffin ? 2 : 1;
+  /* MacGuffin Muffin x2 ; x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
+  const factor = muffin ? 2 * idleHeartsConsumableFactorV1(state) : 1;
   const gains = {};
   for (const f of data.equipped) {
     const g = macguffinRebirthGainPctV1(f.type, f.level, ratio) * factor;
@@ -758,7 +760,7 @@ export function macguffinSnapshotV1(state, now = Date.now()) {
   const troll2 = macguffinSadisticTroll2V1(state);
   const ratio = macguffinTimeRatioV1(runSeconds, troll2);
   const muffin = macguffinMuffinActiveV1(state);
-  const withGain = f => ({ ...f, nextGainPct: macguffinRebirthGainPctV1(f.type, f.level, ratio) * (muffin ? 2 : 1) });
+  const withGain = f => ({ ...f, nextGainPct: macguffinRebirthGainPctV1(f.type, f.level, ratio) * (muffin ? 2 * idleHeartsConsumableFactorV1(state) : 1) });
   const blood = Math.floor(N(state?.currencies?.blood, 0));
   const zoneType = macguffinZoneTypeV1(state, data.zoneCounter?.zone);
   return {

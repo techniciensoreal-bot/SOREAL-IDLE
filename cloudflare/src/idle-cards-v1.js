@@ -56,11 +56,15 @@
  * NON implémenté (magnitude ou mécanique non exacte dans le wiki, ou système
  * absent) : cartes Foil (« ~1% », purement cosmétiques) ; carte End
  * (« ~1% » en Sadistic, pièces de THE END absentes) ; fruits de Mayo
- * d'Yggdrasil (coût « 10 Qa Energy or Magic » ambigu) ; sets Still-Beating
- * Heart (+1 % tag), Rainbow Heart (+10 % vitesse) et Blue Heart (Mayo
- * Infuser x2.2) : ces sets-cœurs n'existent pas dans IDLE_ADVENTURE_SETS ;
- * glisser-déposer libre remplacé par des déplacements haut/bas.
+ * d'Yggdrasil (coût « 10 Qa Energy or Magic » ambigu) ; glisser-déposer
+ * libre remplacé par des déplacements haut/bas.
+ *
+ * Sets à un objet câblés le 2026-09-23 (SETS_OBJETS_V1, idle-adventure-v47.js ;
+ * idle-hearts-v1.js) : Still-Beating Heart (« +1% Tag Effect »), Rainbow Heart
+ * (« Rainbow Heart (set): x1.10 » vitesse des cartes et du mayo) et Blue Heart
+ * (« Mayo Infusers: x2, or x2.2 with Blue Heart Set »).
  */
+import { idleHeartsCardMayoSpeedMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -485,10 +489,13 @@ export function idleCardsModifiersV1(state) {
   const B = IDLE_CARDS_BASE_V1;
 
   const extraGenerators = N(acc.sums.mayoGenerators, 0) + bought("mayoGenerator");
+  const rainbow = idleHeartsCardMayoSpeedMultiplierV1(state);
   const cardSpeed = acc.cardSpeed
+    * rainbow
     * (setOn("duck") ? 1 + IDLE_CARDS_SETS_V1.duck.cardSpeed : 1)
     * (troll >= C.trollCardSpeedCompletion ? 1 + C.trollCardSpeed : 1);
   const mayoSpeed = acc.mayoSpeed
+    * rainbow
     * (1 + B.extraGeneratorMayoSpeed * extraGenerators)
     * (setOn("duck") ? 1 + IDLE_CARDS_SETS_V1.duck.mayoSpeed : 1)
     * (troll >= C.trollMayoSpeedCompletion ? 1 + C.trollMayoSpeed : 1);
@@ -501,7 +508,8 @@ export function idleCardsModifiersV1(state) {
       + (setOn("rad") ? IDLE_CARDS_SETS_V1.rad.deckSize : 0)
       + (setOn("amalgamate") ? IDLE_CARDS_SETS_V1.amalgamate.deckSize : 0),
     tagSlots: B.tagSlots + N(acc.sums.cardTagSlots, 0) + bought("extraTagSlot"),
-    tagEffect: B.tagEffect + N(acc.sums.cardTagEffectPct, 0),
+    /* Still-Beating Heart (set) : "+1% Tag Effect!" (setRewards.cardTagEffect = 0,01). */
+    tagEffect: B.tagEffect + N(acc.sums.cardTagEffectPct, 0) + Math.max(0, N(state?.adventure?.setRewards?.cardTagEffect, 0)),
     generators: B.generators + extraGenerators,
     cardSpeed,
     mayoSpeed,
@@ -737,7 +745,8 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
     const active = data.generators.slice(0, mods.generators);
     if (active.length) {
       const infused = Math.min(secs, Math.max(0, N(state.selloutEffects?.remaining?.mayoInfuser, 0)));
-      const work = mods.mayoSpeed * (secs + infused * (B.mayoInfuserFactor - 1)) / B.mayoSeconds / active.length;
+      const infuserFactor = B.mayoInfuserFactor * idleHeartsConsumableFactorV1(state);
+      const work = mods.mayoSpeed * (secs + infused * (infuserFactor - 1)) / B.mayoSeconds / active.length;
       for (const id of active) {
         const p = N(data.mayoProgress[id], 0) + work;
         const whole = Math.floor(p);
@@ -930,7 +939,7 @@ export function idleCardsSnapshotV1(state) {
       stored: data.mayo[m.id],
       progress: data.mayoProgress[m.id],
       active: active.includes(m.id),
-      secondsPerMayo: active.includes(m.id) ? IDLE_CARDS_BASE_V1.mayoSeconds * active.length / (mods.mayoSpeed * (infuserSeconds > 0 ? IDLE_CARDS_BASE_V1.mayoInfuserFactor : 1)) : null
+      secondsPerMayo: active.includes(m.id) ? IDLE_CARDS_BASE_V1.mayoSeconds * active.length / (mods.mayoSpeed * (infuserSeconds > 0 ? IDLE_CARDS_BASE_V1.mayoInfuserFactor * idleHeartsConsumableFactorV1(state) : 1)) : null
     })),
     deck: data.deck.map((c) => ({
       ...c,
