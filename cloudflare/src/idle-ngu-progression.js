@@ -1143,7 +1143,9 @@ function baseState(now) {
        * jamais à 0, cf. applyRebirthResetV56_ : seuls gold/blood le sont).
        */
       richJerksAttackLevel: 0,
-      richJerksDefenseLevel: 0
+      richJerksDefenseLevel: 0,
+      /* Spend EXP > Adventure / Misc (2026-09-23) : compteurs d'achats. */
+      expShop: {}
     }
   };
 }
@@ -1694,8 +1696,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.bonusDropLevelChance = perks.lootLevelChance;
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
-      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0)
+      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2")
     };
   }
 
@@ -3086,7 +3088,8 @@ function availableDiggerSlots(state){
   /* Perks « A Digger Slot! » et boutique Sellout (6 slots) : calculés mais jamais lus jusqu'ici. */
   const perkExtra=Math.max(0,int(perkBonusesV1(state.systems.perks?.data?.levels).diggerSlotBonus,0));
   const shopExtra=Math.max(0,Math.min(6,int(state.selloutShop?.purchases?.diggerSlots,0)));
-  return Math.max(1,Math.min(12,int(state.systems.diggers?.data?.slots,1)+extra+challengeExtra+perkExtra+shopExtra));
+  const expExtra=expShopPurchasedV1(state,"diggerSlot");
+  return Math.max(1,Math.min(12,int(state.systems.diggers?.data?.slots,1)+extra+challengeExtra+perkExtra+shopExtra+expExtra));
 }
 
 function upgradeDigger(state,id){
@@ -4305,6 +4308,13 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      * statique cloné, jamais une formule recalculée côté client.
      */
     resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
+    expShop: expShopSnapshotV1(state),
+    richJerks: {
+      attackLevel: Math.max(0, int(state.bonuses.richJerksAttackLevel, 0)),
+      defenseLevel: Math.max(0, int(state.bonuses.richJerksDefenseLevel, 0)),
+      cost: RICH_JERKS_COST_EXP_V1,
+      pctPerLevel: RICH_JERKS_PCT_PER_LEVEL_V1
+    },
     /*
      * Audit 2026-09-17 (Newbie Offers / achats en lot / verrou boss 17,
      * capture Norman du vrai shop) : le client ne doit jamais recalculer
@@ -5204,6 +5214,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = tossMoneyPit(state, t);
   } else if (action === "difficulty") {
     result = difficultyAction(state, payload, context, t);
+  } else if (action === "buyExpShop") {
+    result = buyExpShopV1(state, payload);
   } else if (action === "richJerks") {
     result = richJerksAction(state, payload);
   } else if (action === "buyDigger") {
@@ -5521,6 +5533,60 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
  * jamais un plafond inventé (le wiki n'en documente aucun pour ce tableau
  * précis, contrairement à d'autres achats de la même page).
  */
+/*
+ * Spend EXP (wiki Experience, sections Adventure Stats / Adventure Special / Misc), achats qui ont un
+ * effet dans SOREAL : Power/Toughness (3 EXP = +1), Max Health (3 EXP = +10), HP Regen (50 EXP = +1),
+ * espaces d'inventaire (25-36 : 2 EXP ; 37-60 : 4 x (possédés - 35) ; plafond 60), 2 slots
+ * d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP). Non modélisés : Auto Merge, filtre de
+ * butin, loadouts, Daycare, boutons personnalisés, Training Auto Advance, slots de Beard/MacGuffin.
+ */
+export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
+  adventurePower: Object.freeze({ name: "Adventure Power", cost: () => 3, gain: 1, max: null }),
+  adventureToughness: Object.freeze({ name: "Adventure Toughness", cost: () => 3, gain: 1, max: null }),
+  adventureHp: Object.freeze({ name: "Adventure Max HP", cost: () => 3, gain: 10, max: null }),
+  adventureRegen: Object.freeze({ name: "Adventure HP Regen", cost: () => 50, gain: 1, max: null }),
+  inventorySpace: Object.freeze({ name: "Inventory Space", cost: (n) => (n + 25 <= 36 ? 2 : 4 * (24 + n - 35)), gain: 1, max: 36 }),
+  accessorySlot1: Object.freeze({ name: "Extra Accessory Slot!", cost: () => 3000, gain: 1, max: 1 }),
+  accessorySlot2: Object.freeze({ name: "Another Extra Accessory Slot!", cost: () => 30000, gain: 1, max: 1 }),
+  diggerSlot: Object.freeze({ name: "A Digger Slot!", cost: () => 25000, gain: 1, max: 1 })
+});
+
+function expShopPurchasedV1(state, id) {
+  return Math.max(0, int(state.bonuses?.expShop?.[id], 0));
+}
+
+function buyExpShopV1(state, payload) {
+  const id = String(payload.item || "");
+  const def = IDLE_NGU_EXP_SHOP_V1[id];
+  if (!def) throw new Error("ACHAT_EXP_INCONNU");
+  if (!state.bonuses.expShop || typeof state.bonuses.expShop !== "object") state.bonuses.expShop = {};
+  const wanted = clamp(int(payload.quantity, 1), 1, 1000000);
+  let bought = 0;
+  let spent = 0;
+  while (bought < wanted) {
+    const owned = expShopPurchasedV1(state, id);
+    if (def.max != null && owned >= def.max) break;
+    const cost = def.cost(owned);
+    if (num(state.currencies.experience, 0) < cost) break;
+    state.currencies.experience -= cost;
+    state.bonuses.expShop[id] = owned + 1;
+    spent += cost;
+    bought += 1;
+  }
+  if (bought === 0) throw new Error(def.max != null && expShopPurchasedV1(state, id) >= def.max ? "ACHAT_AU_MAXIMUM" : "EXP_INSUFFISANT");
+  const permanent = state.adventure.permanent && typeof state.adventure.permanent === "object" ? state.adventure.permanent : (state.adventure.permanent = {});
+  const key = { adventurePower: "adventurePower", adventureToughness: "adventureToughness", adventureHp: "adventureHp", adventureRegen: "adventureRegen" }[id];
+  if (key) permanent[key] = Math.max(0, num(permanent[key], 0)) + bought * def.gain;
+  return { item: id, bought, spent, purchased: expShopPurchasedV1(state, id) };
+}
+
+function expShopSnapshotV1(state) {
+  return Object.entries(IDLE_NGU_EXP_SHOP_V1).map(([id, def]) => {
+    const purchased = expShopPurchasedV1(state, id);
+    return { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
+  });
+}
+
 function richJerksAction(state, payload) {
   const stat = payload.stat === "defense" ? "defense" : payload.stat === "attack" ? "attack" : null;
   if (!stat) throw new Error("RICH_JERKS_STAT_INVALIDE");

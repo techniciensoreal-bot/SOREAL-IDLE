@@ -1179,3 +1179,7 @@ Source : page ITOPOD (Drops, One hit power required, Tower milestones) + page Re
 - **Slots de Diggers** : les perks « A Digger Slot! » (+2) et la boutique (+6) étaient calculés mais jamais lus ; le joueur n'avait qu'1 slot + set + défi (maximum 12).
 - **Diggers PP et Blood** : le PP Digger (ITOPOD, PP des titans) et le Blood Digger (gain de sang des rituels) n'étaient jamais lus.
 - Tests : `idle-sellout-effects`, `idle-diggers-pp-blood`.
+
+## 2026-09-23 — Boutique EXP : achats d'aventure, slots, Rich Jerks
+
+Source : page Experience (Spend Experience). Achats manquants (aucun n'existait, ni serveur ni interface, Rich Jerks n'avait pas d'écran) : Adventure Power/Toughness (3 EXP = +1), Max Health (3 EXP = +10), HP Regen (50 EXP = +1), espaces d'inventaire (2 EXP de 25 à 36, puis 4 x (possédés - 35), plafond 60), 2 slots d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP) ; écran « Aventure et divers » dans la Boutique EXP avec Attaque/Défense pour riches. Action `buyExpShop`. Non modélisés : Auto Merge, filtre de butin, loadouts, Daycare, boutons personnalisés, Training Auto Advance, slots de Beard/MacGuffin, Auto-Activate d'Yggdrasil. Tests : `idle-exp-shop-adventure`, `idle-pages-render-2026-09-23`.

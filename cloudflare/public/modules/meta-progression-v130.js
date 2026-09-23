@@ -548,8 +548,35 @@
                 newbieUtilisees
               );
             }).join('');
-        }).join('');
+        }).join('')+idleExpShopAventureIdleV1_(m);
       }
+
+      function idleExpShopAventureIdleV1_(m){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const noms={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger'};
+        const items=Array.isArray(m.expShop)?m.expShop:[];
+        const rj=m.richJerks||{};
+        return '<div class="soreal-idle-exp-resource-v210">Aventure et divers</div>'+
+          items.map(function(it){
+            const fini=it.nextCost==null;
+            const tiers=it.max!=null&&it.max>1?[1,5,10]:it.max===1?[1]:[1,10,100];
+            return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+(noms[it.id]||H.idleHtml_(it.name))+'</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>'+H.idleEntier_(it.purchased)+(it.max!=null?' / '+H.idleEntier_(it.max):'')+'</strong></div></div>'+
+              (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':'<div class="soreal-idle-exp-actions-v210">'+tiers.map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(it.id)+'\','+q+')"><b>+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2)+'</b><small>×'+q+' · dès '+H.idleEntier_(it.nextCost)+' EXP</small></button>';}).join('')+'</div>')+
+              '</div>';
+          }).join('')+
+          ['attack','defense'].map(function(stat){
+            const niveau=stat==='attack'?rj.attackLevel:rj.defenseLevel;
+            return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+(stat==='attack'?'🗡️ Attaque':'🛡️ Défense')+' pour riches (Rich Jerks)</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>'+H.idleEntier_(niveau||0)+'</strong></div></div><div class="soreal-idle-exp-actions-v210">'+[1,10,100].map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRichJerksIdleV1__(\''+stat+'\','+q+')"><b>+'+H.idleEntier_((rj.pctPerLevel||10)*q)+' %</b><small>×'+q+' · '+H.idleEntier_((rj.cost||30)*q)+' EXP</small></button>';}).join('')+'</div></div>';
+          }).join('');
+      }
+      function acheterExpShopIdleV1_(item,quantite){
+        actionMetaIdleV130_({action:'buyExpShop',item:String(item),quantity:Math.max(1,Math.floor(Number(quantite))||1)});
+      }
+      window.__acheterExpShopIdleV1__=acheterExpShopIdleV1_;
+      function acheterRichJerksIdleV1_(stat,niveaux){
+        actionMetaIdleV130_({action:'richJerks',stat:String(stat),levels:Math.max(1,Math.floor(Number(niveaux))||1)});
+      }
+      window.__acheterRichJerksIdleV1__=acheterRichJerksIdleV1_;
 
       function acheterRessourceMetaIdleV130_(ressource,stat,quantite){
         const payload={action:'buyResource',resource:ressource,stat:stat};
