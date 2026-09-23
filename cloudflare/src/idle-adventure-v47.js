@@ -1384,6 +1384,42 @@ titanEffigy:{name:"The Titan Effigy",zone:"",slot:"accessory",dropLevel:4,p:1300
 });
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
 /*
+ * Sets d'objets hors équipement (audit des bonus de complétion, 2026-09-23) :
+ * pages "<Set> (set)" du miroir NGU-Wiki dont les objets sont des SPECIALS
+ * (consommables de déblocage ou accessoires) plutôt que des pièces de SETS.
+ * Même règle de complétion que SETS : chaque objet listé doit avoir atteint
+ * le niveau 100 (itemList[definitionId].maxLevel, par fusion). Clés de
+ * récompense = le vocabulaire setRewards déjà consommé par les moteurs.
+ * Volontairement hors de SETS : SETS pilote aussi les pièces d'équipement
+ * (item(), catalogue, drops de zone), ces objets-là n'en sont pas.
+ */
+const SETS_OBJETS_V1=Object.freeze({
+  /*
+   * "Pissed Off Key (set)" : un seul objet (Pissed Off Key). "Bonus for
+   * Completion: Gain 10% faster progress towards Perk Points (PP) in the
+   * I.T.O.P.O.D!" -- même pont setRewards.itopodPpPct que Pretty Pink Princess
+   * (multiplicateur de la progression de PP, idle-ngu-progression.js).
+   */
+  pissedOffKey:{name:"Pissed Off Key Set",items:["pissedOffKey"],reward:{itopodPpPct:.10}},
+  /*
+   * "Wandoos (set)" : un seul objet (A busted copy of Wandoos 98). "When
+   * Wandoos completes the booting process, gain an additional 10% speed
+   * bonus. Also, 300 EXP" ; page "Wandoos" > Boot-up : "After booting-up, it
+   * gains a 10% speed boost by maxing the Wandoos set". Consommé par
+   * advanceWandoos() (idle-ngu-progression.js) seulement une fois le boot fini.
+   */
+  wandoos:{name:"Wandoos Set",items:["wandoos98"],reward:{experience:300,wandoosBootedSpeedPct:.10}},
+  /*
+   * "Normal Bonus Accs (set)" : 13 accessoires (The Tuba of Time ... Candy
+   * Corn Necklace), tous présents dans SPECIALS ; "Bonus for Completion: +25%
+   * drop rate" -> setRewards.drop (même champ que le "7.43% bonus drop chance"
+   * du set 2D). Total Stats Max du wiki (Power 11 450 / Toughness 11 420) =
+   * 2 x la somme des p/t niveau 0 de ces 13 SPECIALS (vérifié).
+   */
+  normalBonusAccs:{name:"Normal Bonus Accs Set",items:["tubaTime","cheeseGrater","skyBall","magicite","windupGear","sinusoidalWave","ghostTypewriter","gaudyShoulders","fTank","beardComb","randomCrayons","redLipstick","candyCornNecklace"],reward:{drop:.25}}
+});
+export const IDLE_ADVENTURE_ITEM_SETS_V1=SETS_OBJETS_V1;
+/*
  * Collection (2026-09-11) — Norman : "je voudrais Renommer Bestiaire en
  * Collection... toutes les armes obtenues et montées niveau max... avec
  * l'image et les stats." itemList (record(), plus bas) ne garde que
@@ -2481,7 +2517,13 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
  */
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
-function checkSets(s){for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;for(const [k,v] of Object.entries(d.reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(d.reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(d.reward.experience);if(N(d.reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(d.reward.ap);if(N(d.reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(d.reward.energySpeed);if(N(d.reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(d.reward.energyPower);if(N(d.reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(d.reward.energyBars);if(N(d.reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(d.reward.magicPower);if(N(d.reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(d.reward.magicBars);if(N(d.reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(d.reward.magicCap);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}}
+/* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
+function appliquerRecompenseSetV1(s,reward){for(const [k,v] of Object.entries(reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(reward.experience);if(N(reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(reward.ap);if(N(reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(reward.energySpeed);if(N(reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(reward.energyPower);if(N(reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(reward.energyBars);if(N(reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(reward.magicPower);if(N(reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(reward.magicBars);if(N(reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(reward.magicCap)}
+function checkSets(s){
+  for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
+  /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
+  for(const [id,d] of Object.entries(SETS_OBJETS_V1)){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
+}
 /*
  * Capacité de sac réelle (Norman, 2026-09-10) : "j'ai un inventaire
  * infini alors que dans NGU il est limité." Vrai NGU (wiki, page

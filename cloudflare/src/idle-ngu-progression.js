@@ -976,14 +976,21 @@ function advanceWandoos(state, seconds, context, now) {
   const magicAlloc = Math.max(0, num(s.allocation.magic, 0));
   /* NGU "Wandoos" (Energy) : "Wandoos speed", audit NGU 2026-09-23. */
   const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed * gearPctV1(gearSpecialsV1(state), "wandoosSpeedPct");
+  /*
+   * Wandoos (set) (wiki "Wandoos" > Boot-up : "After booting-up, it gains a 10% speed boost by
+   * maxing the Wandoos set") : +10 % uniquement une fois le boot terminé (bootFraction = 1).
+   */
+  const wandoosSetMultiplier = bootFraction >= 1
+    ? 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0))
+    : 1;
 
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
   const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier);
+    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier * wandoosSetMultiplier);
   const magicSpeed = Math.min(50, (50 * magicAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier);
+    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier * wandoosSetMultiplier);
 
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
   s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
