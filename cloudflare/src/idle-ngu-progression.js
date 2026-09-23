@@ -233,13 +233,17 @@ const MIN_REBIRTH_SECONDS = 180;
  * Wiki NGU (page "Wishes", section "Important Math") : "Wishes have a hard
  * cap of 4 hours, after which putting more resources into it will not
  * speed up the process." — plancher de temps par niveau, quel que soit le
- * débit de ressources. (Le wiki mentionne aussi une réduction à 3h via
- * Perks/Quirks ; non implémentée ici, aucune Perk/Quirk Normal de
- * SOREAL IDLE ne la fournit actuellement — idle-perks-v1.js/idle-quirks-
- * v1.js n'incluent que les entrées Normal, et "Minimum Wish Time
- * Reduction I/II" est Evil-only sur le wiki.)
+ * débit de ressources. La réduction jusqu'à 3h ("There are Perks and Quirks
+ * which can reduce the minimum time, down to 3 hours") est câblée dans
+ * wishSpeedParamsV1 : perks 109/110 et quirk 54, 24 s par niveau chacun.
  */
 const WISH_MIN_LEVEL_SECONDS = 4 * 3600;
+/*
+ * Page "Wishes" : "To make more wishes simultaneously, you must unlock more
+ * wish slots. You can get 4 wish slots: 1 to start with, 1 from evil mode
+ * Troll Challenge 7, 1 from maxing My Pink Heart, 1 from Quirks".
+ */
+const IDLE_WISH_MAX_SLOTS_V1 = 4;
 
 function num(v, d = 0) {
   const n = Number(v);
@@ -837,10 +841,80 @@ function createTrackState(def) {
   for (const track of tracks) {
     out[track.id] = { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 };
   }
-  return {
+  const created = {
     tracks: out,
     activeTrack: tracks[0].id
   };
+  /* Wishes : un souhait et une allocation Energy/Magic/R3 par slot (le slot 1 reprend activeTrack). */
+  if (def.id === "wishes") {
+    created.slots = Array.from({ length: IDLE_WISH_MAX_SLOTS_V1 }, (_, i) => emptyWishSlotV1(i === 0 ? tracks[0].id : ""));
+  }
+  return created;
+}
+
+function emptyWishSlotV1(wish = "") {
+  return { wish, allocation: { energy: 0, magic: 0, r3: 0 } };
+}
+
+/*
+ * Slots de souhaits (2026-09-23). Invariants maintenus ici à chaque
+ * normalisation :
+ *  - data.slots : IDLE_WISH_MAX_SLOTS_V1 entrées { wish, allocation } ; un
+ *    même souhait n'occupe jamais deux slots (le wiki parle de faire
+ *    "more wishes simultaneously", donc des souhaits distincts) ;
+ *  - data.activeTrack === slots[0].wish et system.allocation === somme des
+ *    allocations des slots (totalAllocated, budgets et Rebirth continuent
+ *    de lire system.allocation, comme pour les NGU).
+ * Migration / compatibilité : l'ancien état (un seul souhait actif +
+ * allocation partagée) devient le slot 1. Plus généralement, tout code
+ * qui n'écrit que les anciens champs (activeTrack, allocation) est
+ * répercuté sur le slot 1 : slot1 = total - autres slots. Si le total est
+ * inférieur à la somme des autres slots, les autres slots sont vidés et
+ * le slot 1 reçoit tout le total : la quantité allouée n'est jamais
+ * modifiée par la normalisation (aucune ressource créée ni perdue).
+ */
+function normalizeWishSlotsV1(s, rawData) {
+  const valid = new Set((IDLE_NGU_TRACKS.wishes || []).map(t => t.id));
+  const src = rawData && typeof rawData === "object" ? rawData : {};
+  const hadSlots = Array.isArray(src.slots);
+  const slots = [];
+  for (let i = 0; i < IDLE_WISH_MAX_SLOTS_V1; i++) {
+    const raw = hadSlots ? src.slots[i] : null;
+    const slot = emptyWishSlotV1();
+    if (raw && typeof raw === "object") {
+      const wish = String(raw.wish ?? "");
+      slot.wish = valid.has(wish) ? wish : "";
+      for (const k of RESOURCE_KEYS) slot.allocation[k] = Math.max(0, num(raw.allocation?.[k], 0));
+    }
+    slots.push(slot);
+  }
+  /* Slot 1 vidé volontairement : activeTrack "" n'est conservé que pour une sauvegarde déjà à slots. */
+  slots[0].wish = hadSlots && src.activeTrack === "" ? "" : String(s.data.activeTrack || "");
+  const seen = new Set(slots[0].wish ? [slots[0].wish] : []);
+  for (let i = 1; i < slots.length; i++) {
+    if (!slots[i].wish) continue;
+    if (seen.has(slots[i].wish)) slots[i].wish = "";
+    else seen.add(slots[i].wish);
+  }
+  for (const k of RESOURCE_KEYS) {
+    const total = Math.max(0, num(s.allocation[k], 0));
+    const others = slots.slice(1).reduce((sum, x) => sum + x.allocation[k], 0);
+    if (total + 1e-9 < others) {
+      for (let i = 1; i < slots.length; i++) slots[i].allocation[k] = 0;
+      slots[0].allocation[k] = total;
+    } else {
+      slots[0].allocation[k] = Math.max(0, total - others);
+    }
+  }
+  s.data.slots = slots;
+  s.data.activeTrack = slots[0].wish;
+  syncWishAllocationTotalsV1(s);
+}
+
+function syncWishAllocationTotalsV1(s) {
+  for (const k of RESOURCE_KEYS) {
+    s.allocation[k] = (s.data.slots || []).reduce((sum, x) => sum + Math.max(0, num(x.allocation?.[k], 0)), 0);
+  }
 }
 
 function createAugmentationData() {
@@ -1530,6 +1604,7 @@ function normalizeSystem(def, raw) {
     s.data = normalizeIdleCardsDataV1(src.data);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
+    if (def.id === "wishes") normalizeWishSlotsV1(s, src.data);
   } else {
     s.data = src.data && typeof src.data === "object" ? clone(src.data) : {};
   }
@@ -2255,6 +2330,7 @@ function reclaimAllocatedResource(state,resource,context={}){
     released+=amount;
     s.allocation[resource]=0;
     if(def.id==="ngu"){clearNguAllocationsV1(s,resource);syncNguAllocationTotalsV1(s);}
+    if(def.id==="wishes")clearWishSlotAllocationsV1(s,resource);
   }
   const r=state.resources[resource];
   r.current=clamp(
@@ -2387,6 +2463,142 @@ function beardActiveIdsV1(state) {
     const def = defs.find(x => x.id === id);
     return def && beardTrackUnlocked(state, def) && data.tracks?.[id];
   }).slice(0, beardSlotsV1(state));
+}
+
+/*
+ * Slots de souhaits (page "Wishes", 4 au total) : 1 de base ; 1 à la 7e
+ * complétion du Troll Challenge en Evil (page Challenges, Troll Challenge :
+ * "Completion 7 Reward(s) ... Unlock a Wish Slot!" ; page Wishes, tableau
+ * Challenges : "Evil Troll Challenge 7 | Unlock a Wish Slot") ; 1 en
+ * "maxant" My Pink Heart (fiche "Pink Heart (set)" : "Gain an additional
+ * Wish slot!", bonus de complétion obtenu au niveau 100 -- completedSets,
+ * idle-adventure-v47.js) ; 1 par la quirk 56 "A Wish Slot!".
+ */
+function wishSlotBreakdownV1(state) {
+  return {
+    base: 1,
+    trollEvil: int(state.challenge?.completionsTier?.difficile?.troll, 0) >= 7 ? 1 : 0,
+    pinkHeart: state.adventure?.completedSets?.heartPink ? 1 : 0,
+    quirk: Math.min(1, Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).wishSlotBonus, 0)))
+  };
+}
+function wishSlotCountV1(state) {
+  const b = wishSlotBreakdownV1(state);
+  return Math.min(IDLE_WISH_MAX_SLOTS_V1, b.base + b.trollEvil + b.pinkHeart + b.quirk);
+}
+
+/* Un slot non débloqué ne garde jamais de ressources : elles retournent au stock libre. */
+function releaseLockedWishSlotsV1(state, s) {
+  const count = wishSlotCountV1(state);
+  (s.data.slots || []).forEach((slot, i) => {
+    if (i < count) return;
+    for (const k of RESOURCE_KEYS) {
+      const amount = Math.max(0, num(slot.allocation?.[k], 0));
+      if (amount <= 0) continue;
+      slot.allocation[k] = 0;
+      if (state.resources[k]) state.resources[k].current = num(state.resources[k].current, 0) + amount;
+    }
+  });
+  syncWishAllocationTotalsV1(s);
+}
+
+function clearWishSlotAllocationsV1(s, resource) {
+  for (const slot of s?.data?.slots || []) {
+    if (slot?.allocation) slot.allocation[resource] = 0;
+  }
+}
+
+function wishSlotIndexV1(state, slot) {
+  const idx = Number(slot);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= IDLE_WISH_MAX_SLOTS_V1) throw new Error("SLOT_SOUHAIT_INVALIDE");
+  if (idx >= wishSlotCountV1(state)) throw new Error("SLOT_SOUHAIT_VERROUILLE");
+  return idx;
+}
+
+/* Place un souhait dans un slot ("" = vider le slot). L'allocation du slot est conservée. */
+function setWishSlotV1(state, slot, wishId) {
+  const s = state.systems.wishes;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const idx = wishSlotIndexV1(state, slot);
+  const id = String(wishId ?? "");
+  if (id) {
+    const def = (IDLE_NGU_TRACKS.wishes || []).find(x => x.id === id);
+    if (!def) throw new Error("SOUHAIT_INVALIDE");
+    if (Math.max(0, int(s.data.tracks?.[id]?.level, 0)) >= Math.max(0, int(def.levels, 0))) throw new Error("SOUHAIT_TERMINE");
+    if (s.data.slots.some((x, i) => i !== idx && x.wish === id)) throw new Error("SOUHAIT_DEJA_DANS_UN_SLOT");
+  }
+  s.data.slots[idx].wish = id;
+  if (idx === 0) s.data.activeTrack = id;
+  return { slot: idx, wish: id };
+}
+
+/*
+ * Allocation d'une ressource sur un slot : même plafond que les NGU
+ * (setNguAllocationV1) -- jamais au-delà du cap effectif moins ce qui est
+ * alloué ailleurs (autres systèmes, autres slots, réservations externes),
+ * ni au-delà de ce que le joueur possède réellement (current + déjà alloué).
+ */
+function setWishSlotAllocationV1(state, slot, resource, value, context = {}) {
+  const s = state.systems.wishes;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
+  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "r3" && !state.systems.hacks?.unlocked) throw new Error("R3_VERROUILLEE");
+  const idx = wishSlotIndexV1(state, slot);
+  const r = state.resources[resource];
+  const cap = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
+  const entry = s.data.slots[idx];
+  const previous = Math.max(0, num(entry.allocation[resource], 0));
+  const ownAllocated = s.data.slots.reduce((sum, x) => sum + Math.max(0, num(x.allocation?.[resource], 0)), 0);
+  const otherSystems = totalAllocated(state, resource, "wishes") + externalResourceAllocation(context, resource);
+  const maxByCapacity = Math.max(0, cap - otherSystems - (ownAllocated - previous));
+  const maxByOwned = Math.max(0, previous + num(r.current, 0));
+  const target = clamp(num(value, 0), 0, Math.min(maxByCapacity, maxByOwned));
+  r.current = clamp(num(r.current, 0) - (target - previous), 0, cap);
+  entry.allocation[resource] = target;
+  syncWishAllocationTotalsV1(s);
+  return { slot: idx, resource, allocation: target };
+}
+
+/* Vue client des slots : souhait, progression, allocation et durée du niveau en cours. */
+function wishSlotsSnapshotV1(state) {
+  const s = state.systems.wishes;
+  const defs = IDLE_NGU_TRACKS.wishes || [];
+  const count = wishSlotCountV1(state);
+  const params = wishSpeedParamsV1(state, s);
+  return {
+    unlocked: Boolean(s.unlocked),
+    maxSlots: IDLE_WISH_MAX_SLOTS_V1,
+    slotCount: count,
+    sources: wishSlotBreakdownV1(state),
+    minSecondsPerLevel: params.wishMinSeconds,
+    speedMultiplier: params.speedMultiplier,
+    r3Unlocked: Boolean(state.systems.hacks?.unlocked),
+    magicUnlocked: Boolean(state.systems.bloodMagic?.unlocked),
+    slots: (s.data.slots || []).map((slot, index) => {
+      const def = slot.wish ? defs.find(x => x.id === slot.wish) : null;
+      const t = def ? s.data.tracks[def.id] : null;
+      const level = Math.max(0, int(t?.level, 0));
+      const maxLevel = def ? Math.max(0, int(def.levels, 0)) : 0;
+      const done = Boolean(def) && level >= maxLevel;
+      const progress = done ? 0 : clamp(num(t?.progress, 0), 0, 1);
+      const secs = def && !done ? wishSecondsForLevelV1(state, def, level, slot.allocation, params) : Infinity;
+      return {
+        index,
+        unlocked: index < count,
+        wish: slot.wish,
+        name: def ? def.name : "",
+        effect: def ? def.effect : "",
+        level,
+        maxLevel,
+        done,
+        progress,
+        allocation: clone(slot.allocation),
+        secondsPerLevel: Number.isFinite(secs) ? secs : null,
+        secondsRemaining: Number.isFinite(secs) ? secs * (1 - progress) : null
+      };
+    })
+  };
 }
 
 function beardTrackUnlocked(state, trackDef) {
@@ -2584,26 +2796,45 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
  * formule que idleNguBonuses().wishSpeedMultiplier, dupliquée volontairement
  * à petite échelle plutôt que centralisée, pour les mêmes raisons de coût.
  */
-function advanceWishTrack(state, system, trackDef, track, seconds) {
-  if (!system.unlocked || seconds <= 0) return;
-  if (Math.max(0, int(track.level, 0)) >= Math.max(0, int(trackDef.levels, 0))) return;
-
-  const engAlloc = Math.max(0, num(system.allocation.energy, 0));
-  const magAlloc = Math.max(0, num(system.allocation.magic, 0));
-  const r3Alloc = Math.max(0, num(system.allocation.r3, 0));
-  if (engAlloc <= 0 || magAlloc <= 0 || r3Alloc <= 0) return;
-
-  const engPower = Math.max(1, num(state.resources.energy?.power, 1));
-  const magPower = Math.max(1, num(state.resources.magic?.power, 1));
-  const r3Power = Math.max(1, num(state.resources.r3?.power, 1));
-  const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
-  const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
+/*
+ * Paramètres communs à tous les slots (2026-09-23, slots de souhaits) :
+ * multiplicateur de vitesse partagé et temps minimum par niveau. Calculés
+ * une fois par tick puis appliqués à chaque slot avec SA propre allocation.
+ */
+function wishSpeedParamsV1(state, system) {
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
   const perkWish = perkBonusesV1(state.systems.perks?.data?.levels);
   const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(state.systems.quirks?.data?.levels).wishMinTimeReductionSeconds);
   const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish
     * idleCardsMultiplierV1(state, "wishes") /* Cards WISHES */);
+  return { wishMinSeconds, speedMultiplier };
+}
+
+/*
+ * Durée (s) d'un niveau `level` -> `level + 1` avec l'allocation d'UN slot.
+ * Infinity si l'une des trois ressources n'est pas allouée ou si le calcul
+ * déborde. Le bug de virgule flottante décrit par le wiki (progression
+ * bloquée à 50 % au-delà de ~7 j 17 h) n'est volontairement PAS reproduit.
+ */
+function wishSecondsForLevelV1(state, trackDef, level, allocation, params) {
+  const engAlloc = Math.max(0, num(allocation?.energy, 0));
+  const magAlloc = Math.max(0, num(allocation?.magic, 0));
+  const r3Alloc = Math.max(0, num(allocation?.r3, 0));
+  if (engAlloc <= 0 || magAlloc <= 0 || r3Alloc <= 0) return Infinity;
+  const engPower = Math.max(1, num(state.resources.energy?.power, 1));
+  const magPower = Math.max(1, num(state.resources.magic?.power, 1));
+  const r3Power = Math.max(1, num(state.resources.r3?.power, 1));
+  const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
+  const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
+  const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier;
+  return Number.isFinite(rawSeconds) ? Math.max(params.wishMinSeconds, rawSeconds) : Infinity;
+}
+
+function advanceWishTrack(state, system, trackDef, track, seconds, allocation = system.allocation, params = wishSpeedParamsV1(state, system)) {
+  if (!system.unlocked || seconds <= 0) return;
+  if (Math.max(0, int(track.level, 0)) >= Math.max(0, int(trackDef.levels, 0))) return;
+  if (!Number.isFinite(wishSecondsForLevelV1(state, trackDef, Math.max(0, int(track.level, 0)), allocation, params))) return;
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -2613,8 +2844,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   let iterations = 0;
   while (remaining > 1e-9 && level < maxLevel && iterations < 100000) {
     iterations++;
-    const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / speedMultiplier;
-    const secondsNeeded = Number.isFinite(rawSeconds) ? Math.max(wishMinSeconds, rawSeconds) : Infinity;
+    const secondsNeeded = wishSecondsForLevelV1(state, trackDef, level, allocation, params);
     if (!Number.isFinite(secondsNeeded) || secondsNeeded <= 0) break;
     const remainingForLevel = (1 - progress) * secondsNeeded;
     if (remaining + 1e-12 < remainingForLevel) {
@@ -2653,6 +2883,27 @@ function advanceTrackSystem(state, def, seconds) {
     return;
   }
 
+  if (def.id === "wishes") {
+    /*
+     * Chaque slot débloqué fait progresser SON souhait avec SA propre
+     * allocation, même formule et mêmes multiplicateurs partagés (page
+     * Wishes : "spreading out your resources on multiple wishes is very
+     * effective", conséquence directe de l'exposant 0,17).
+     */
+    releaseLockedWishSlotsV1(state, s);
+    const count = wishSlotCountV1(state);
+    const params = wishSpeedParamsV1(state, s);
+    for (let i = 0; i < count; i++) {
+      const slot = s.data.slots?.[i];
+      if (!slot || !slot.wish) continue;
+      const wishDef = tracks.find(x => x.id === slot.wish);
+      const wishState = s.data.tracks[slot.wish];
+      if (wishDef && wishState) advanceWishTrack(state, s, wishDef, wishState, seconds, slot.allocation, params);
+    }
+    s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
+    return;
+  }
+
   const active = s.data.activeTrack || tracks[0].id;
   const trackDef = tracks.find(x => x.id === active) || tracks[0];
   const t = s.data.tracks[active];
@@ -2660,12 +2911,6 @@ function advanceTrackSystem(state, def, seconds) {
 
   if (def.id === "hacks") {
     advanceHackTrack(state, s, trackDef, t, seconds);
-    s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
-    return;
-  }
-
-  if (def.id === "wishes") {
-    advanceWishTrack(state, s, trackDef, t, seconds);
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     return;
   }
@@ -4517,6 +4762,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       });
     }),
     ngus: nguSnapshotV1(state, context),
+    /* Slots de souhaits (page Wishes, 4 au maximum) : un souhait et une allocation par slot. */
+    wishSlots: wishSlotsSnapshotV1(state),
     cards: idleCardsSnapshotV1(state),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
@@ -4594,7 +4841,9 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
         active: def.id === "beards"
           ? beardActiveIdsV1(state).includes(track.id)
-          : state.systems[def.id].data.activeTrack === track.id
+          : def.id === "wishes"
+            ? (state.systems.wishes.data.slots || []).slice(0, wishSlotCountV1(state)).some(x => x.wish === track.id)
+            : state.systems[def.id].data.activeTrack === track.id
       })),
       /* Cooking : vue publique, sans les cibles secrètes du repas. */
       state: def.id === "cooking" ? idleCookingSystemSnapshotV1(state, nowMs(now)) : clone(state.systems[def.id])
@@ -5518,6 +5767,18 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = setNguAllocationV1(state, String(payload.ngu || ""), num(payload.value, 0), context, payload.tier ? String(payload.tier) : undefined);
   } else if (action === "setNguTier") {
     result = setNguTierV1(state, String(payload.tier || ""));
+  } else if (action === "setWishSlot") {
+    /* Slots de souhaits : { slot: 0..3, wish: "<id>" | "" }. */
+    result = setWishSlotV1(state, payload.slot, payload.wish);
+  } else if (action === "allocateWishSlot") {
+    /* { slot: 0..3, resource: "energy"|"magic"|"r3", value: quantité absolue }. */
+    result = setWishSlotAllocationV1(state, payload.slot, String(payload.resource || ""), num(payload.value, 0), context);
+  } else if (action === "allocate" && String(payload.system || "") === "wishes") {
+    /* Ancien contrat (allocation unique des Wishes) : s'applique au slot 1. */
+    result = setWishSlotAllocationV1(state, 0, String(payload.resource || ""), num(payload.value, 0), context);
+  } else if (action === "selectTrack" && String(payload.system || "") === "wishes") {
+    /* Ancien contrat ("Piste active") : place le souhait dans le slot 1. */
+    result = setWishSlotV1(state, 0, String(payload.track || ""));
   } else if (action === "allocate") {
     if (String(payload.system || "") === "ngu") throw new Error("UTILISER_ALLOCATE_NGU");
     setAllocation(
@@ -5743,6 +6004,8 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
     if(def.id==="hacks"||def.id==="wishes")s.allocation={energy:0,magic:0,r3:0};
+    /* Slots de souhaits : les souhaits placés restent, les ressources allouées sont perdues comme avant. */
+    if(def.id==="wishes")for(const k of RESOURCE_KEYS)clearWishSlotAllocationsV1(s,k);
     if(def.id==="diggers"&&s.data?.diggers){
       for(const d of Object.values(s.data.diggers))d.active=false;
     }
