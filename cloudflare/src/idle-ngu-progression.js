@@ -2580,7 +2580,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.completions += completions;
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
-  state.currencies.blood += completions * ritual.blood;
+  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier;
   challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
@@ -2992,7 +2992,8 @@ function advanceLateSystems(state, seconds, context, now) {
        * instead of Evil's (700 + floor)" (SADISTIC) -- seule la base
        * change (200/700/2000), jamais le terme "+ floor".
        */
-      const itopodPpBase = state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200;
+      const itopodPpBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) +
+        quirkBonusesV1(state.systems.quirks?.data?.levels).itopodPppFlat;
       /*
        * Norman (2026-09-18) : "il faut tout faire" (équipement des 17
        * zones Evil/Sadistic). Wiki NGU en direct, page "Pretty Pink
@@ -3537,9 +3538,9 @@ export function idleNguBonuses(raw) {
      * le même schéma que les six ci-dessus, alimentées pour l'instant
      * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
      */
-    r3PowerMultiplier: wishBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
-    r3CapMultiplier: wishBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
-    r3BarsMultiplier: wishBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
+    r3PowerMultiplier: wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
+    r3CapMultiplier: wishBonuses.r3CapMultiplier * quirkBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
+    r3BarsMultiplier: wishBonuses.r3BarsMultiplier * quirkBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
     boostPowerMultiplier: perkBonuses.boostPowerMultiplier * quirkBonuses.boostPowerMultiplier,
     inventorySlotsFromPerks: perkBonuses.inventorySlots,
     accessorySlotsFromPerks: perkBonuses.accessorySlotBonus,
