@@ -40,6 +40,14 @@ import {
   wishBonusesV1
 } from "./idle-wishes-v1.js";
 import { levelsPerFillBasicTrainingV411 } from "./idle-basic-training.js";
+/* Cooking (IT HUNGERS) : moteur isolé dans idle-cooking-v1.js. */
+import {
+  createIdleCookingDataV1,
+  normalizeIdleCookingDataV1,
+  advanceIdleCookingV1,
+  applyIdleCookingActionV1,
+  idleCookingSystemSnapshotV1
+} from "./idle-cooking-v1.js";
 import {
   IDLE_NGU_CATALOG_V1,
   IDLE_NGU_TIERS_V1,
@@ -1063,6 +1071,7 @@ function baseState(now) {
     if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0, history: [] };
     if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0, history: [] };
     if (def.id === "titans") s.data = { nextAt: 0, kills: 0, firstTitanDefeated: false };
+    if (def.id === "cooking") s.data = createIdleCookingDataV1();
     systems[def.id] = s;
   }
 
@@ -1422,6 +1431,8 @@ function normalizeSystem(def, raw) {
   } else if (def.id === "ngu") {
     s.data = normalizeNguDataV1(src.data);
     syncNguAllocationTotalsV1(s);
+  } else if (def.id === "cooking") {
+    s.data = normalizeIdleCookingDataV1(src.data);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
   } else {
@@ -3380,6 +3391,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs);
   advanceMoneyPitAndDaily(state, nowMs(now));
+  advanceIdleCookingV1(state, nowMs(now));
   advanceLateSystems(state, secs, context, nowMs(now));
 
   tickSelloutEffectsV1(state, secs);
@@ -4366,7 +4378,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
           state.systems[def.id].data.activeTrack === track.id &&
           (def.id !== "beards" || state.systems[def.id].active)
       })),
-      state: clone(state.systems[def.id])
+      /* Cooking : vue publique, sans les cibles secrètes du repas. */
+      state: def.id === "cooking" ? idleCookingSystemSnapshotV1(state, nowMs(now)) : clone(state.systems[def.id])
     }))
   };
 }
@@ -5265,6 +5278,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = buyExpShopV1(state, payload);
   } else if (action === "richJerks") {
     result = richJerksAction(state, payload);
+  } else if (action === "cooking") {
+    result = applyIdleCookingActionV1(state, payload, t);
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else {
