@@ -13686,8 +13686,13 @@ let idleDialogueTimerV76=null;
                   ${idleHtml_(e.categorie||'Créature')}
                 </div>
                 <div class="soreal-idle-bestiary-meta-v110">
-                  ❤️ ${formatGrandNombreIdleV70_(e.pv)}
-                  · ⚔️ ${formatGrandNombreIdleV70_(e.attaque)} attaque
+                  ${idleNombre_(e.pv)>0?'❤️ '+formatGrandNombreIdleV70_(e.pv):''}
+                  ${idleNombre_(e.attaque)>0?'· ⚔️ '+formatGrandNombreIdleV70_(e.attaque)+' attaque':''}
+                  ${idleNombre_(e.defense)>0?'· 🛡️ '+formatGrandNombreIdleV70_(e.defense)+' défense':''}
+                  ${idleNombre_(e.regen)>0?'· 💚 '+formatGrandNombreIdleV70_(e.regen)+' regen':''}
+                  ${idleNombre_(e.cadence)>0?'· ⏱️ '+idleNombre_(e.cadence)+' s':''}
+                  ${e.typeMob&&e.typeMob!=='normal'?'· '+idleHtml_(e.typeMob):''}
+                  ${e.numero>0?'· ✨ '+idleEntier_(e.xp)+' EXP':''}
                   · 👁️ ${idleEntier_(e.rencontres)} rencontre${idleEntier_(e.rencontres)>1?'s':''}
                 </div>
                 ${e.description

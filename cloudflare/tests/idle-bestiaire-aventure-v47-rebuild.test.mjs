@@ -33,7 +33,7 @@ const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 // --- Verrous structurels ---
 assert.ok(
   source.includes(
-    'import {\n  IDLE_ADVENTURE_ZONES,\n  IDLE_ADVENTURE_MOB_CATALOG_V1,\n  normalizeIdleAdventureStateV47,\n  idleAdventureMobBestiaryEntryV1\n} from "./idle-adventure-v47.js";'
+    'import {\n  IDLE_ADVENTURE_ZONES,\n  IDLE_ADVENTURE_MOB_CATALOG_V1,\n  IDLE_ADVENTURE_MOB_BESTIARY_V1,\n  normalizeIdleAdventureStateV47,\n  idleAdventureMobBestiaryEntryV1\n} from "./idle-adventure-v47.js";'
   ),
   "Le vrai catalogue de zones ET le catalogue d'images V1 doivent être importés, pas reconstruits séparément."
 );
@@ -63,12 +63,13 @@ function buildEntries(rawAdventureState) {
   const entrees = [];
   const stats = { metaNgu: { adventure: rawAdventureState } };
   const fn = new Function(
-    "IDLE_ADVENTURE_ZONES", "IDLE_ADVENTURE_MOB_CATALOG_V1", "normalizeIdleAdventureStateV47", "nombreSorealIdle_", "stats", "entrees", "idleAdventureMobBestiaryEntryV1",
+    "IDLE_ADVENTURE_ZONES", "IDLE_ADVENTURE_MOB_CATALOG_V1", "IDLE_ADVENTURE_MOB_BESTIARY_V1", "normalizeIdleAdventureStateV47", "nombreSorealIdle_", "stats", "entrees", "idleAdventureMobBestiaryEntryV1",
     block
   );
   fn(
     IDLE_ADVENTURE_ZONES,
     IDLE_ADVENTURE_MOB_CATALOG_V1,
+    IDLE_ADVENTURE_MOB_BESTIARY_V1,
     normalizeIdleAdventureStateV47,
     (v, d) => (Number.isFinite(+v) ? +v : d),
     stats,
@@ -83,8 +84,9 @@ function expectedEntryCount() {
     .filter(z => z.id !== "safe")
     .reduce((total, zone) => {
       const catalogue = IDLE_ADVENTURE_MOB_CATALOG_V1[zone.id] || { normal: [], boss: [] };
-      const mobCount = catalogue.normal.length || 1;
-      const bossCount = catalogue.boss.length || 1;
+      const bestiaire = IDLE_ADVENTURE_MOB_BESTIARY_V1[zone.id] || { normal: [], boss: [] };
+      const mobCount = bestiaire.normal.length || catalogue.normal.length || 1;
+      const bossCount = bestiaire.boss.length || catalogue.boss.length || 1;
       return total + mobCount + bossCount;
     }, 0);
 }
@@ -96,15 +98,17 @@ function expectedEntryCount() {
   assert.ok(entrees.every(e => e.decouvert === false && e.nom === "???????"), "Rien n'est découvert pour un joueur neuf — tout masqué.");
   assert.ok(entrees.every(e => typeof e.zone === "string" && e.zone.length > 0), "Chaque entrée doit porter le vrai id de zone V47 (chaîne), jamais un zoneId numérique légataire.");
 
-  // Sewers a un catalogue réel (3 mobs, 0 boss) : 3 entrées mob + 1 entrée boss de repli.
+  // Sewers : bestiaire wiki (3 mobs, 1 boss).
   const sewersMobs = entrees.filter(e => e.zone === "sewers" && e.boss === 0);
   const sewersBoss = entrees.filter(e => e.zone === "sewers" && e.boss === 1);
   assert.equal(sewersMobs.length, IDLE_ADVENTURE_MOB_CATALOG_V1.sewers.normal.length, "Sewers doit avoir une entrée par mob réel du catalogue.");
-  assert.equal(sewersBoss.length, 1, "Sewers n'a pas de boss au catalogue : repli sur une seule entrée générique.");
+  assert.equal(sewersBoss.length, IDLE_ADVENTURE_MOB_BESTIARY_V1.sewers.boss.length);
 
-  // Une zone sans catalogue du tout (ex. beardverse) garde l'ancien comportement (1 mob + 1 boss).
+  // 2026-09-23 : une zone sans images mais avec bestiaire wiki (beardverse) liste ses vrais ennemis.
   const beardverseEntries = entrees.filter(e => e.zone === "beardverse");
-  assert.equal(beardverseEntries.length, 2, "Zone sans catalogue d'images : repli sur 1 entrée mob + 1 entrée boss générique.");
+  assert.equal(beardverseEntries.length, IDLE_ADVENTURE_MOB_BESTIARY_V1.beardverse.normal.length + IDLE_ADVENTURE_MOB_BESTIARY_V1.beardverse.boss.length);
+  // Une zone sans bestiaire ni images (netherregions) garde un repli générique par rôle.
+  assert.equal(entrees.filter(e => e.zone === "netherregions").length, 2);
 }
 
 // --- Une rencontre sur un index précis débloque SEULEMENT l'entrée de cette image ---
@@ -152,13 +156,13 @@ function expectedEntryCount() {
 {
   const rawState = {
     version: IDLE_ADVENTURE_V47,
-    zone: { encounters: { beardverse: 5 }, bossEncounters: {} }
+    zone: { encounters: { netherregions: 5 }, bossEncounters: {} }
   };
   const entrees = buildEntries(rawState);
-  const beardverseMob = entrees.find(e => e.zone === "beardverse" && e.boss === 0);
+  const beardverseMob = entrees.find(e => e.zone === "netherregions" && e.boss === 0);
   assert.equal(beardverseMob.decouvert, true, "Repli générique : le compteur plat (encounters) doit toujours débloquer l'entrée pour les zones sans catalogue.");
   assert.equal(beardverseMob.rencontres, 5);
-  assert.equal(beardverseMob.nom, IDLE_ADVENTURE_ZONES.find(z => z.id === "beardverse").name, "Repli générique : le nom affiché reste le vrai nom de zone, jamais un nom d'image inexistante.");
+  assert.equal(beardverseMob.nom, IDLE_ADVENTURE_ZONES.find(z => z.id === "netherregions").name, "Repli générique : le nom affiché reste le vrai nom de zone, jamais un nom d'image inexistante.");
 }
 
 console.log("idle-bestiaire-aventure-v47-rebuild: OK");

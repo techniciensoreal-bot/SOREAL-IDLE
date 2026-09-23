@@ -30,6 +30,7 @@ import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" wi
 import {
   IDLE_ADVENTURE_ZONES,
   IDLE_ADVENTURE_MOB_CATALOG_V1,
+  IDLE_ADVENTURE_MOB_BESTIARY_V1,
   normalizeIdleAdventureStateV47,
   idleAdventureMobBestiaryEntryV1
 } from "./idle-adventure-v47.js";
@@ -5024,6 +5025,10 @@ function construireBestiaireSorealIdle_(
       const legacy =
         index < bossVaincus;
 
+      /* 2026-09-23 : la Collection affichait les colonnes brutes du catalogue historique (PV/Attaque inventés) ;
+         elle lit maintenant la définition réellement utilisée au combat (référence wiki : Attaque, Défense, PV, EXP). */
+      const definitionCollection = definitionBossSorealIdle_(index, 'normal');
+
       const trace =
         rencontres[cle] &&
         typeof rencontres[cle] ===
@@ -5070,7 +5075,7 @@ function construireBestiaireSorealIdle_(
         nom:
           decouvert
             ? String(
-                boss.nom || 'Boss'
+                definitionCollection.nom || boss.nom || 'Boss'
               )
             : '???????',
         emoji:
@@ -5079,23 +5084,19 @@ function construireBestiaireSorealIdle_(
             : '❔',
         pv:
           decouvert
-            ? Math.max(
-                1,
-                nombreSorealIdle_(
-                  boss.pv,
-                  1
-                )
-              )
+            ? Math.max(1, nombreSorealIdle_(definitionCollection.pv, 1))
             : 0,
         attaque:
           decouvert
-            ? Math.max(
-                0,
-                nombreSorealIdle_(
-                  boss.attaque,
-                  0
-                )
-              )
+            ? Math.max(0, nombreSorealIdle_(definitionCollection.attaque, 0))
+            : 0,
+        defense:
+          decouvert
+            ? Math.max(0, nombreSorealIdle_(definitionCollection.defense, 0))
+            : 0,
+        xp:
+          decouvert
+            ? Math.max(0, nombreSorealIdle_(definitionCollection.xp, 0))
             : 0,
         description:
           decouvert
@@ -5232,7 +5233,13 @@ function construireBestiaireSorealIdle_(
         { normal: [], boss: [] };
 
       [false, true].forEach(function(estBoss) {
-        const pool = estBoss ? catalogueZone.boss : catalogueZone.normal;
+        const poolImages = estBoss ? catalogueZone.boss : catalogueZone.normal;
+        /* 2026-09-23 : une entrée par ennemi du bestiaire wiki (stats réelles), l'image se résout par indice. */
+        const bestiaireZoneCollection = IDLE_ADVENTURE_MOB_BESTIARY_V1[zone.id];
+        const poolBestiaire = bestiaireZoneCollection
+          ? (estBoss ? bestiaireZoneCollection.boss : bestiaireZoneCollection.normal) || []
+          : [];
+        const pool = poolBestiaire.length ? poolBestiaire : poolImages;
 
         /*
          * Repli (zones sans catalogue d'images pour l'instant, ex.
@@ -5271,8 +5278,8 @@ function construireBestiaireSorealIdle_(
             zoneId: 0,
             nom: decouvert ? zone.name : '???????',
             emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
-            pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
-            attaque: decouvert ? zone.p : 0,
+            pv: 0,
+            attaque: 0,
             description: '',
             driveFileId: '',
             image: ''
@@ -5292,6 +5299,7 @@ function construireBestiaireSorealIdle_(
               )
             );
           const decouvert = rencontresCompteur > 0;
+          const fichePropre = idleAdventureMobBestiaryEntryV1({ id: zone.id }, estBoss, index) || {};
 
           entrees.push({
             cle: 'aventure:' + zone.id + (estBoss ? ':boss:' : ':mob:') + index,
@@ -5308,8 +5316,12 @@ function construireBestiaireSorealIdle_(
             zoneId: 0,
             nom: decouvert ? nomReelOuAffichageMobSorealIdleV1_(zone.id, estBoss, index) : '???????',
             emoji: decouvert ? (estBoss ? '👑' : '👾') : '❔',
-            pv: decouvert ? (estBoss ? zone.t * 3 : zone.t) : 0,
-            attaque: decouvert ? zone.p : 0,
+            pv: decouvert ? nombreSorealIdle_(fichePropre.maxHp, 0) : 0,
+            attaque: decouvert ? nombreSorealIdle_(fichePropre.power, 0) : 0,
+            defense: decouvert ? nombreSorealIdle_(fichePropre.toughness, 0) : 0,
+            regen: decouvert ? nombreSorealIdle_(fichePropre.hpRegen, 0) : 0,
+            cadence: decouvert ? nombreSorealIdle_(fichePropre.attackRate, 0) : 0,
+            typeMob: decouvert ? String(fichePropre.type || '') : '',
             description: '',
             driveFileId: '',
             image: ''

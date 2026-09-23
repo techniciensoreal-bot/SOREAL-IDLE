@@ -4116,7 +4116,7 @@ if(!s.zone.bossEncountersByIndex)s.zone.bossEncountersByIndex={};
  * s.fight.monsterIndex (posé plus haut) permet au client de résoudre le
  * VRAI mob rencontré.
  */
-if(poolIndexV1.length){
+if(monsterIndex>=0){
   const store=boss?s.zone.bossEncountersByIndex:s.zone.mobEncountersByIndex;
   if(!store[z.id])store[z.id]={};
   store[z.id][monsterIndex]=(store[z.id][monsterIndex]||0)+1;

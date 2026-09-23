@@ -172,7 +172,7 @@ const NGU_BOSS_REFERENCE_V1 = [
   { pv: 500000, attaque: 50000, defense: 40000, xp: 0 },
   { pv: 1000000, attaque: 100000, defense: 90000, xp: 0 },
   { pv: 4000000, attaque: 400000, defense: 350000, xp: 0 },
-  { pv: 11000000, attaque: 1100000, defense: 600000, xp: 1 },
+  { pv: 11000000, attaque: 1100000, defense: 600000, xp: 1 }, /* jeu réel (capture) ; le tableau Boss Fights du wiki dit 1,3 M/700 k/13 M (formule par défaut du modèle) -- ne pas "corriger" */
   { pv: 65000000, attaque: 6500000, defense: 3500000, xp: 0 },
   { pv: 325000000, attaque: 32500000, defense: 17500000, xp: 0 },
   { pv: 1625000000, attaque: 162500000, defense: 87500000, xp: 1 },
