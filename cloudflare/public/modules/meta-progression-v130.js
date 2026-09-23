@@ -1476,6 +1476,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         /* Questing : page dans modules/questing-v1.js. */
         if(id==='questing'&&window.__SOREAL_IDLE_QUESTING_V1__)return window.__SOREAL_IDLE_QUESTING_V1__.page(j);
         if(id==='challenges')return pageChallengesIdleV1_(j);
+        /* MacGuffin Fragments : page dans modules/macguffins-v1.js (2026-09-23). */
+        if(id==='macguffins'&&window.__SOREAL_IDLE_MACGUFFINS_V1__)return window.__SOREAL_IDLE_MACGUFFINS_V1__.page(j);
 
         if(id==='moneyPit')return pageMoneyPitDailySpinIdleV206_(j);
         /* Cooking : page rendue par modules/cooking-v1.js. */

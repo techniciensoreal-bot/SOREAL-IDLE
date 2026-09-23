@@ -55,6 +55,20 @@ import {
   idleQuestingOnZoneKillV1,
   idleQuestingSnapshotV1
 } from "./idle-questing-v1.js";
+/* MacGuffin Fragments (2026-09-23) : moteur isolé, voir idle-macguffins-v1.js. */
+import {
+  createMacguffinDataV1,
+  normalizeMacguffinDataV1,
+  macguffinApplyToBonusesV1,
+  macguffinEffectMultiplierV1,
+  macguffinApplyRebirthV1,
+  macguffinAdventureBeforeV1,
+  macguffinAfterAdventureV1,
+  macguffinOnItopodKillsV1,
+  macguffinEatFruitV1,
+  applyMacguffinActionV1,
+  macguffinSnapshotV1
+} from "./idle-macguffins-v1.js";
 import {
   IDLE_NGU_CATALOG_V1,
   IDLE_NGU_TIERS_V1,
@@ -589,7 +603,10 @@ export const IDLE_NGU_YGG_FRUITS = Object.freeze([
   {id:"powerBeta",name:"Fruit of Power β",resource:"magic",activationCost:3000000,baseSeeds:1,tierCost:150,effect:"powerBeta"},
   {id:"arbitrariness",name:"Fruit of Arbitrariness",resource:"energy",activationCost:20000000,baseSeeds:3,tierCost:170,effect:"ap"},
   {id:"numbers",name:"Fruit of Numbers",resource:"magic",activationCost:10000000,baseSeeds:3,tierCost:200,effect:"numbers"},
-  {id:"rage",name:"Fruit of Rage",resource:"energy",activationCost:500000000,baseSeeds:5,tierCost:2000,effect:"pp"}
+  {id:"rage",name:"Fruit of Rage",resource:"energy",activationCost:500000000,baseSeeds:5,tierCost:2000,effect:"pp"},
+  /* Wiki Yggdrasil, "Fruits and Fruit Effects" : 500 M Magic / 6 graines / T² x 15 000 ; 100 B Energy / 8 / T² x 100 000. */
+  {id:"macguffinAlpha",name:"Fruit of MacGuffin α",resource:"magic",activationCost:500000000,baseSeeds:6,tierCost:15000,effect:"macguffinAlpha"},
+  {id:"macguffinBeta",name:"Fruit of MacGuffin β",resource:"energy",activationCost:100000000000,baseSeeds:8,tierCost:100000,effect:"macguffinBeta"}
 ]);
 
 export const IDLE_NGU_DIGGERS = Object.freeze([
@@ -1004,10 +1021,12 @@ function advanceWandoos(state, seconds, context, now) {
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
   const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier);
+    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier
+    * macguffinEffectMultiplierV1(state, "energyWandoos"));
   const magicSpeed = Math.min(50, (50 * magicAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier);
+    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier
+    * macguffinEffectMultiplierV1(state, "magicWandoos"));
 
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
   s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
@@ -1084,6 +1103,7 @@ function baseState(now) {
     if (def.id === "yggdrasil") s.data = createYggdrasilData();
     if (def.id === "diggers") s.data = createDiggersData();
     if (def.id === "wandoos") s.data = createWandoosData();
+    if (def.id === "macguffins") s.data = createMacguffinDataV1();
     if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0, history: [] };
     if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0, history: [] };
     if (def.id === "titans") s.data = { nextAt: 0, kills: 0, firstTitanDefeated: false };
@@ -1455,6 +1475,8 @@ function normalizeSystem(def, raw) {
     syncNguAllocationTotalsV1(s);
   } else if (def.id === "cooking") {
     s.data = normalizeIdleCookingDataV1(src.data);
+  } else if (def.id === "macguffins") {
+    s.data = normalizeMacguffinDataV1(src.data);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
   } else {
@@ -1957,7 +1979,8 @@ function refreshRebirthState(state, context, now) {
     nguNumberBonus: nguFxV1(state).number,
     beardNumberBonus: beardBonusMultiplier(state, "number"),
     yggNumberBonus: 1,
-    macguffinNumberBonus: 1,
+    /* NUMBER MacGuffin Fragment : bonus permanent (idle-macguffins-v1.js). */
+    macguffinNumberBonus: macguffinEffectMultiplierV1(state, "number"),
     hacksNumberBonus: 1,
     sadisticBossMultiplierBonus:
       perkBonusesV1(state.systems.perks?.data?.levels).sadisticBossMultiplierBonus +
@@ -2212,7 +2235,7 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier);
+  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
@@ -2826,7 +2849,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.completions += completions;
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
-  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood;
+  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
   challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
@@ -3083,6 +3106,11 @@ function useYggFruit(state,fruitId,mode="eat"){
       if(entiers>0){tower.data.ppProgress-=entiers*1e6;state.currencies.pp+=entiers;}
       result.pp=entiers;
       result.ppProgress=progress;
+    }else if(def.effect==="macguffinAlpha"||def.effect==="macguffinBeta"){
+      /* Wiki Yggdrasil : ni NGU Yggdrasil (tableau "NGU Yggdrasil / Yggdrasil Yield"), seulement Quirk x Equip x FirstHarvest. */
+      const fx=macguffinEatFruitV1(state,def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
+      result.macguffinLevels=fx.levels;
+      result.macguffins=fx.touched;
     }
   }
   f.firstHarvestThisRun=false;
@@ -3430,7 +3458,10 @@ function towerSetFloorsV1(state, payload) {
 }
 
 function advanceLateSystems(state, seconds, context, now) {
+  const killsItopodAvant = Math.max(0, int(state.systems.tower?.data?.kills, 0));
   advanceTowerV1(state, seconds, context);
+  /* MacGuffin ITOPOD Drops (perk 68) : les kills de ce tick alimentent le compteur MacGuffin. */
+  macguffinOnItopodKillsV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
 
   const cards = state.systems.cards;
   if (cards.unlocked) {
@@ -3627,6 +3658,8 @@ function nguSpeedMultiplierV1(state, resource) {
     beardBonusMultiplier(state, "ngu") *
     (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
     (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
+    /* Energy/Magic NGU MacGuffin Fragment (idle-macguffins-v1.js). */
+    macguffinEffectMultiplierV1(state, resource === "magic" ? "magicNgu" : "energyNgu") *
     (resource === "magic"
       ? diggers.magicNgu * perks.nguSpeedMagicMultiplier * quirks.nguSpeedMagicMultiplier * fx.magicNguSpeed * hackFxV1(state).magicNguSpeed
       : diggers.energyNgu * perks.nguSpeedEnergyMultiplier * quirks.nguSpeedEnergyMultiplier * fx.energyNguSpeed * hackFxV1(state).energyNguSpeed)
@@ -3791,11 +3824,20 @@ function convertActiveBeardOnRebirth(state, runSeconds) {
   return { track: id, gained, timeFactor };
 }
 
+/*
+ * MacGuffin Fragments (2026-09-23) : les facteurs permanents (Stat,
+ * Adventure, Drop Chance, Energy/Magic/R3 Power/Cap/Bars) sont appliqués
+ * sur l'objet calculé ci-dessous (produits commutatifs), voir
+ * macguffinApplyToBonusesV1 dans idle-macguffins-v1.js.
+ */
 export function idleNguBonuses(raw) {
   const state = raw && raw.version === IDLE_NGU_META_VERSION
     ? raw
     : normalizeIdleNguState(raw, {}, raw?.updatedAt || Date.now());
+  return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
+}
 
+function idleNguBonusesSansMacguffinV1(state) {
   const aug = idleNguAugmentationMultiplier(state);
   const atPower = trackBonusLevel(state, "advancedTraining", "power");
   const atToughness = trackBonusLevel(state, "advancedTraining", "toughness");
@@ -4400,6 +4442,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
+    /* MacGuffin Fragments : catalogue, slots, compteurs et bonus permanents (idle-macguffins-v1.js). */
+    macguffins: macguffinSnapshotV1(state, nowMs(now)),
     /*
      * Audit 2026-09-14 (mission fidélité wiki) : buyPerkV1/buyQuirkV1
      * (plus haut dans ce fichier) exigent un perkId/quirkId précis depuis
@@ -4838,8 +4882,9 @@ function spinDaily(state, now) {
    */
   /*
    * 2026-09-23 : table complète de la page Daily Spin (chaque palier totalise 100 %). Les potions, Lucky Charm et
-   * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement ; Poop, Beast Butter et MacGuffin
-   * Muffin (systèmes absents) restent listés avec leur probabilité mais sans effet.
+   * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement ; Poop et Beast Butter (systèmes
+   * absents) restent listés avec leur probabilité mais sans effet. MacGuffin Muffin : réel depuis le 2026-09-23
+   * (IDLE_SELLOUT_EFFECTS_V1.macguffinMuffin, consommé au Rebirth par idle-macguffins-v1.js).
    */
   const P = (item, poids, n = 1) => ({ items: { [item]: n }, poids });
   const JACKPOTS = {
@@ -5263,6 +5308,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
 
   if (action === "adventure") {
     const avantRecompenses = photoRecompensesAventure(state);
+    const macguffinAvant = macguffinAdventureBeforeV1(state.adventure);
     /*
      * Norman (2026-09-14) : "est-ce que tu as ajouté les bonus des sets
      * complets ?" — checkSets() (idle-adventure-v47.js) crédite déjà
@@ -5338,6 +5384,13 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     for (const def of IDLE_NGU_SYSTEMS) {
       if (unlockSatisfied(def, context, state)) state.systems[def.id].unlocked = true;
     }
+    /* MacGuffin Fragments : compteur de kills de zone et drops des titans. */
+    if (!applied.duplicate) {
+      const macguffinDrops = macguffinAfterAdventureV1(state, macguffinAvant, result, { dropMultiplier: idleNguBonuses(state).dropMultiplier });
+      if (macguffinDrops.length && result && typeof result === "object") result.macguffinDrops = macguffinDrops;
+    }
+  } else if (action === "macguffin") {
+    result = applyMacguffinActionV1(state, payload, t);
   } else if (action === "allocateNgu") {
     result = setNguAllocationV1(state, String(payload.ngu || ""), num(payload.value, 0), context, payload.tier ? String(payload.tier) : undefined);
   } else if (action === "setNguTier") {
@@ -5510,6 +5563,8 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     :0;
 
   const beardConversion=convertActiveBeardOnRebirth(state,runSeconds);
+  /* MacGuffin Fragments : les fragments équipés augmentent leur bonus permanent (idle-macguffins-v1.js). */
+  const macguffinGain=macguffinApplyRebirthV1(state,runSeconds);
   const naturalEnergyCapGain=applyNaturalEnergyCapGrowthOnRebirth(state);
 
   const perkBankBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
@@ -5642,6 +5697,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   state.rebirth.nextNumber=rb.number;
   state.rebirth.preview={};
   state.rebirth.beardConversion=beardConversion;
+  state.rebirth.macguffinGain=macguffinGain;
   state.rebirth.resourceGrowth={energyCapGain:naturalEnergyCapGain};
   return state;
 }
@@ -5752,7 +5808,7 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
  * d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP), 3 slots de garderie (« Item Daycare ! »
  * 250, « Another Daycare Slots! » 25 000, « Another Another Daycare Slots! » 500 000 EXP, achat unique
  * chacun). Non modélisés : Auto Merge, filtre de butin, loadouts, boutons personnalisés, Training Auto
- * Advance, slots de Beard/MacGuffin.
+ * Advance, slots de Beard. 2 slots MacGuffin (10 M / 100 M EXP).
  */
 export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   adventurePower: Object.freeze({ name: "Adventure Power", cost: () => 3, gain: 1, max: null }),
@@ -5766,7 +5822,10 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   beardSlot: Object.freeze({ name: "A Beard Slot!", cost: () => 50000, gain: 1, max: 1 }),
   daycareSlot1: Object.freeze({ name: "Item Daycare !", cost: () => 250, gain: 1, max: 1 }),
   daycareSlot2: Object.freeze({ name: "Another Daycare Slots!", cost: () => 25000, gain: 1, max: 1 }),
-  daycareSlot3: Object.freeze({ name: "Another Another Daycare Slots!", cost: () => 500000, gain: 1, max: 1 })
+  daycareSlot3: Object.freeze({ name: "Another Another Daycare Slots!", cost: () => 500000, gain: 1, max: 1 }),
+  /* Wiki Experience, Misc : "A Macguffin Slot!" 10 M puis 100 M EXP (lus par idle-macguffins-v1.js). */
+  macguffinSlot1: Object.freeze({ name: "A Macguffin Slot!", cost: () => 10000000, gain: 1, max: 1 }),
+  macguffinSlot2: Object.freeze({ name: "A Macguffin Slot!", cost: () => 100000000, gain: 1, max: 1 })
 });
 
 function expShopPurchasedV1(state, id) {
