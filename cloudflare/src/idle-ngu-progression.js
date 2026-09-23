@@ -3135,60 +3135,175 @@ function diggerBonuses(state){
   return out;
 }
 
-function advanceLateSystems(state, seconds, context, now) {
+/*
+ * ITOPOD (wiki, page ITOPOD) -- réécriture 2026-09-23. Avant : cadence de kills inventée
+ * (min(1, (Power/1,05^étage)^0,2 / 20) par seconde), aucun EXP/AP, étage = kills/10 sans borne.
+ * Maintenant :
+ *  - ennemis de l'étage F : PV 600 x 1,05^F (588-612), défense 10 x 1,05^F ;
+ *  - dégâts d'Idle Attack = max(10 % Power, Power - défense/2) x bonus Idle (1,2 / 1,5 / 1,8) ;
+ *  - un kill dure : respawn (4 s réduit, plancher 0,34 s) + coups nécessaires x 1 s (0,8 s avec le
+ *    set Red Liquid) ;
+ *  - 10 kills = 1 étage ; sur l'étage de fin, les 10 kills renvoient à l'étage de départ ;
+ *  - récompenses : (200 / 700 / 2000 + étage) PPP par kill, EXP et 1 AP tous les n kills (n = 40 - palier,
+ *    20 au-delà du palier 20 ; EXP du palier = 1, 2, puis (palier-1)(palier-2)+2), PP de première
+ *    atteinte des étages multiples de 10 ;
+ *  - par défaut (départ/fin non réglés) : montée jusqu'à l'« étage optimal » (le plus haut où un coup suffit).
+ * Non modélisé : chute de Boosts (14 %, niveau 1), MacGuffins, mort du joueur (les dégâts subis).
+ */
+const TOWER_MAX_FLOOR_V1 = 1600;
+function towerTierV1(floor) { return Math.max(1, Math.floor(floor / 50) + 1); }
+function towerExpForTierV1(tier) { return tier <= 1 ? 1 : tier === 2 ? 2 : (tier - 1) * (tier - 2) + 2; }
+function towerKillsPerRewardV1(tier) { return tier <= 20 ? 40 - tier : 20; }
+function towerHitsV1(power, idleBonus, floor) {
+  const scale = Math.pow(1.05, floor);
+  const damage = Math.max(0.1 * power, power - (10 * scale) / 2) * Math.max(0.1, idleBonus);
+  return Math.max(1, Math.ceil((600 * scale) / Math.max(1e-9, damage)));
+}
+function towerOptimalFloorV1(power, idleBonus) {
+  let lo = 0;
+  let hi = TOWER_MAX_FLOOR_V1;
+  if (towerHitsV1(power, idleBonus, 0) > 1) return 0;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (towerHitsV1(power, idleBonus, mid) <= 1) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo;
+}
+function towerMilestonePpV1(floor) {
+  if (floor <= 0 || floor % 10 !== 0) return 0;
+  return floor % 100 === 0 ? floor / 10 : 1 + Math.floor(floor / 100);
+}
+
+function advanceTowerV1(state, seconds, context) {
   const tower = state.systems.tower;
-  if (tower.unlocked && tower.active) {
-    // Même base-10 que idleAdventureCombatStatsV1 (Norman, 2026-09-18, capture "Adventure Stats Breakdown").
-    const power = Math.max(10, idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state)).power);
-    tower.data.floor = Math.max(0, int(tower.data.floor, 0));
-    tower.data.killProgress = Math.max(0, num(tower.data.killProgress, 0)) + seconds * Math.min(1, Math.pow(power / Math.pow(1.05, tower.data.floor), 0.2) / 20);
-    const kills = Math.floor(tower.data.killProgress);
-    if (kills > 0) {
-      tower.data.killProgress -= kills;
-      tower.data.kills = Math.max(0, int(tower.data.kills, 0)) + kills;
-      /*
-       * Wiki NGU (page ITOPOD, section "Drops") : "(200 + Floor) PPP per
-       * dude killed" en difficulté Normal — pas un flat 250 (qui n'est
-       * exact qu'au floor 50 pile et s'écarte de plus en plus au-delà).
-       *
-       * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/
-       * Sadistic). Wiki pages "Evil difficulty"/"SADISTIC difficulty",
-       * section "Differences" > "Adventure" : "ITOPOD base pp progress is
-       * (700 + floor) instead of (200 + floor)" (Evil) ; "(2000 + floor)
-       * instead of Evil's (700 + floor)" (SADISTIC) -- seule la base
-       * change (200/700/2000), jamais le terme "+ floor".
-       */
-      const itopodPpBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) +
-        quirkBonusesV1(state.systems.quirks?.data?.levels).itopodPppFlat;
-      /*
-       * Norman (2026-09-18) : "il faut tout faire" (équipement des 17
-       * zones Evil/Sadistic). Wiki NGU en direct, page "Pretty Pink
-       * Princess (set)" : "Bonus for Completion: Gain 10% more PP" --
-       * setRewards.itopodPpPct (idle-adventure-v47.js) est le pont
-       * cross-système déjà utilisé pour setRewards.diggerSlot ci-dessus
-       * (availableDiggerSlots), jamais une nouvelle mécanique inventée.
-       */
-      const itopodPpSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0));
-      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier * nguFxV1(state).pp * hackFxV1(state).pp * perkBonusesV1(state.systems.perks?.data?.levels).ppEarningsMultiplier;
-      /*
-       * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
-       * perdait le report entre deux ticks — en jeu normal (tick fréquent,
-       * quasi toujours 0 ou 1 kill par appel), Math.floor(1/10) vaut
-       * TOUJOURS 0, donc l'étage ne montait jamais tant qu'un seul gros
-       * rattrapage (hors-ligne) n'accumulait pas 10 kills d'un coup dans
-       * UN SEUL appel — contraire au wiki ("every 10 enemies killed
-       * advances 1 floor"). Dériver l'étage du total cumulé de kills
-       * élimine toute perte de report, quel que soit le découpage des
-       * ticks.
-       */
-      tower.data.floor = Math.floor(tower.data.kills / 10);
-      const pp = Math.floor(tower.data.ppProgress / 1e6);
-      if (pp > 0) {
-        tower.data.ppProgress -= pp * 1e6;
-        state.currencies.pp += pp;
+  if (!tower.unlocked || !tower.active || !(seconds > 0)) return;
+  const d = tower.data;
+  d.kills = Math.max(0, int(d.kills, 0));
+  if (d.killsOnFloor === undefined) {
+    d.killsOnFloor = d.kills % 10;
+    d.floor = Math.floor(d.kills / 10);
+  }
+  d.killsOnFloor = Math.max(0, int(d.killsOnFloor, 0)) % 10;
+  d.floor = clamp(int(d.floor, 0), 0, TOWER_MAX_FLOOR_V1);
+  d.highestFloor = Math.max(int(d.highestFloor, 0), d.floor);
+  d.killTime = Math.max(0, num(d.killTime, 0));
+  d.apProgress = Math.max(0, num(d.apProgress, 0));
+
+  const gear = idleAdventureEquipmentStatsV47(state.adventure);
+  const bonuses = idleNguBonuses(state);
+  const power = Math.max(10, idleAdventureCombatStatsV1(gear, context, bonuses).power);
+  const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
+  const respawn = Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1)));
+  const interval = state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1;
+  const optimal = towerOptimalFloorV1(power, idleBonus);
+  const start = d.startFloor == null ? null : clamp(int(d.startFloor, 0), 0, Math.max(0, d.highestFloor - 1));
+  const end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
+  const auto = start === null || end === null;
+  d.optimalFloor = optimal;
+
+  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+  const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat;
+  const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier;
+  const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
+
+  const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor);
+  const applyKills = (n, floor) => {
+    if (!(n > 0)) return;
+    const tier = towerTierV1(floor);
+    d.kills += n;
+    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + n * (ppBase + floor) * ppMultiplier;
+    const rewards = n / towerKillsPerRewardV1(tier);
+    state.currencies.experience += rewards * towerExpForTierV1(tier) * expMultiplier;
+    d.apProgress += rewards;
+    const ap = Math.floor(d.apProgress);
+    if (ap > 0) {
+      d.apProgress -= ap;
+      state.currencies.ap += ap * perks.apEarningsMultiplier;
+    }
+  };
+  const reachFloor = (floor) => {
+    if (floor <= d.highestFloor) return;
+    for (let g = d.highestFloor + 1; g <= floor; g++) state.currencies.pp += towerMilestonePpV1(g);
+    d.highestFloor = floor;
+  };
+
+  let time = seconds + d.killTime;
+  let guard = 0;
+  while (guard++ < 20000) {
+    if (auto) {
+      if (d.floor > optimal) d.floor = optimal;
+    } else if (d.floor < start || d.floor > end) {
+      d.floor = start;
+      d.killsOnFloor = 0;
+    }
+    const tk = killTimeAt(d.floor);
+    const steady = auto ? d.floor >= optimal : start === end;
+    if (steady) {
+      const n = Math.floor(time / tk);
+      if (n <= 0) break;
+      time -= n * tk;
+      applyKills(n, d.floor);
+      d.killsOnFloor = (d.killsOnFloor + n) % 10;
+      break;
+    }
+    if (!auto && d.killsOnFloor === 0 && d.floor === start && d.highestFloor >= end) {
+      let cycle = 0;
+      for (let f = start; f <= end; f++) cycle += 10 * killTimeAt(f);
+      const cycles = Math.floor(time / cycle);
+      if (cycles >= 1) {
+        time -= cycles * cycle;
+        for (let f = start; f <= end; f++) applyKills(10 * cycles, f);
+        continue;
       }
     }
+    const need = 10 - d.killsOnFloor;
+    const n = Math.min(need, Math.floor(time / tk));
+    if (n <= 0) break;
+    time -= n * tk;
+    applyKills(n, d.floor);
+    d.killsOnFloor += n;
+    if (d.killsOnFloor >= 10) {
+      d.killsOnFloor = 0;
+      if (auto) d.floor = Math.min(optimal, d.floor + 1);
+      else if (d.floor >= end) d.floor = start;
+      else d.floor += 1;
+      reachFloor(d.floor);
+    }
   }
+  d.killTime = Math.min(time, killTimeAt(d.floor));
+  const pp = Math.floor(d.ppProgress / 1e6);
+  if (pp > 0) {
+    d.ppProgress -= pp * 1e6;
+    state.currencies.pp += pp;
+  }
+  tower.level = d.floor;
+}
+
+function towerSetFloorsV1(state, payload) {
+  const tower = state.systems.tower;
+  if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const d = tower.data;
+  if (payload.auto) {
+    d.startFloor = null;
+    d.endFloor = null;
+    return { auto: true };
+  }
+  const highest = Math.max(0, int(d.highestFloor, 0));
+  const start = clamp(int(payload.start, 0), 0, Math.max(0, highest - 1));
+  const end = clamp(int(payload.end, start), start, TOWER_MAX_FLOOR_V1);
+  d.startFloor = start;
+  d.endFloor = end;
+  if (d.floor < start || d.floor > end) {
+    d.floor = start;
+    d.killsOnFloor = 0;
+  }
+  return { start, end };
+}
+
+function advanceLateSystems(state, seconds, context, now) {
+  advanceTowerV1(state, seconds, context);
 
   const cards = state.systems.cards;
   if (cards.unlocked) {
@@ -4995,6 +5110,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     selectRitual(state, String(payload.ritual || "tack"), context);
   } else if (action === "castBloodSpell") {
     result = castBloodSpell(state, String(payload.spell || "numberBoost"), t);
+  } else if (action === "towerFloors") {
+    result = towerSetFloorsV1(state, payload);
   } else if (action === "toggle") {
     const s = state.systems[String(payload.system || "")];
     if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");

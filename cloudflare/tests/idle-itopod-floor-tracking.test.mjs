@@ -2,17 +2,14 @@ import assert from "node:assert/strict";
 import {
   IDLE_NGU_META_VERSION,
   IDLE_NGU_SAVE_SCHEMA,
-  advanceIdleNguState
+  advanceIdleNguState,
+  applyIdleNguAction
 } from "../src/idle-ngu-progression.js";
 
 /*
- * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)` perdait
- * le report entre deux ticks — en jeu normal (tick fréquent, quasi
- * toujours 0 ou 1 kill par appel), Math.floor(1/10) vaut TOUJOURS 0, donc
- * l'étage ne montait jamais tant qu'un seul gros rattrapage hors-ligne
- * n'accumulait pas 10 kills d'un coup dans UN SEUL appel — contraire au
- * wiki (itopod.md : "every 10 enemies killed advances 1 floor"). Corrigé
- * en dérivant systématiquement l'étage du total cumulé de kills.
+ * ITOPOD (wiki) : 10 kills = 1 étage, report du temps entre deux ticks, PP de première atteinte des
+ * étages multiples de 10, étages de départ/fin (retour au départ après 10 kills sur l'étage de fin),
+ * EXP + 1 AP tous les n kills selon le palier. Un kill = 4 s de respawn + 1 s par coup d'Idle Attack.
  */
 
 function baseState() {
@@ -25,45 +22,72 @@ function baseState() {
     currencies: { pp: 0 }
   };
 }
+const ctx = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
 
-// --- Régression réelle : 10 ticks d'1 kill chacun doivent faire monter l'étage, pas seulement un seul gros tick de 10 kills ---
+// 10 ticks de 20 s = 40 kills = 4 étages, le report de temps n'est jamais perdu
 {
   let state = baseState();
-  // Puissance calibrée pour produire exactement ~1 kill par appel de 1s à l'étage 0.
-  for (let i = 0; i < 10; i++) {
-    state = advanceIdleNguState(state, 20, { adventurePower: 1, adventureToughness: 1, bosses: 30 }, Date.now());
-  }
-  assert.ok(
-    state.systems.tower.data.kills >= 10,
-    "10 appels doivent cumulativement produire au moins 10 kills au total."
-  );
-  assert.equal(
-    state.systems.tower.data.floor,
-    Math.floor(state.systems.tower.data.kills / 10),
-    "L'étage doit toujours refléter floor(kills totaux / 10), quel que soit le découpage des ticks — jamais bloqué à 0 tant qu'un seul tick n'atteint pas 10 kills."
-  );
-  assert.ok(state.systems.tower.data.floor >= 1, "Après au moins 10 kills cumulés sur plusieurs petits ticks, l'étage doit avoir progressé.");
+  for (let i = 0; i < 10; i++) state = advanceIdleNguState(state, 20, ctx, Date.now());
+  const d = state.systems.tower.data;
+  assert.equal(d.kills, 40);
+  assert.equal(d.floor, 4);
+  assert.equal(d.killsOnFloor, 0);
 }
 
-// --- Un seul gros rattrapage (offline) doit donner le même résultat qu'avant (pas de régression sur le cas déjà correct) ---
+// Ticks d'une seconde : le temps de kill s'accumule (5 s par kill)
 {
   let state = baseState();
-  state = advanceIdleNguState(state, 200, { adventurePower: 1, adventureToughness: 1, bosses: 30 }, Date.now());
-  assert.equal(
-    state.systems.tower.data.floor,
-    Math.floor(state.systems.tower.data.kills / 10),
-    "Un unique gros tick doit aussi respecter floor(kills totaux / 10)."
-  );
+  for (let i = 0; i < 10; i++) state = advanceIdleNguState(state, 1, ctx, Date.now());
+  assert.equal(state.systems.tower.data.kills, 2);
 }
 
-// --- Conversion PPP -> PP inchangée (1 000 000 PPP = 1 PP, (200+Floor) PPP/kill) ---
+// Un gros rattrapage donne le même résultat qu'une suite de petits ticks
+{
+  const gros = advanceIdleNguState(baseState(), 200, ctx, Date.now()).systems.tower.data;
+  assert.equal(gros.kills, 40);
+  assert.equal(gros.floor, 4);
+}
+
+// PP de première atteinte : étage 10 = 1 PP, étage 100 = 10 PP ; jamais deux fois
 {
   let state = baseState();
-  state.systems.tower.data.kills = 4990; // juste avant floor 500
-  state.systems.tower.data.floor = 499;
-  state.systems.tower.data.killProgress = 0.99;
-  state = advanceIdleNguState(state, 1000, { adventurePower: 1e12, adventureToughness: 1e12, bosses: 30 }, Date.now());
-  assert.ok(state.currencies.pp >= 0, "La conversion PP ne doit jamais produire une valeur négative.");
+  Object.assign(state.systems.tower.data, { floor: 9, killsOnFloor: 9, highestFloor: 9, kills: 99 });
+  state = advanceIdleNguState(state, 5, ctx, Date.now());
+  assert.equal(state.systems.tower.data.floor, 10);
+  assert.equal(state.currencies.pp, 1);
+  state = advanceIdleNguState(state, 5, ctx, Date.now());
+  assert.equal(state.currencies.pp, 1);
+}
+
+// Étages de départ/fin : après 10 kills sur l'étage de fin, retour à l'étage de départ
+{
+  let state = baseState();
+  Object.assign(state.systems.tower.data, { floor: 5, killsOnFloor: 0, highestFloor: 20, kills: 50 });
+  state = applyIdleNguAction(state, { action: "towerFloors", start: 2, end: 4 }, ctx, Date.now()).state;
+  assert.equal(state.systems.tower.data.floor, 2);
+  state = advanceIdleNguState(state, 5 * 10 * 3, ctx, Date.now());
+  const d = state.systems.tower.data;
+  assert.equal(d.floor, 2, "3 étages x 10 kills = un cycle complet, retour au départ");
+  assert.equal(d.kills, 50 + 30);
+}
+
+// EXP et AP : palier 1 = 1 EXP / 39 kills ; 39 kills donnent 1 AP
+{
+  let state = baseState();
+  state.currencies.experience = 0;
+  state.currencies.ap = 0;
+  Object.assign(state.systems.tower.data, { floor: 0, killsOnFloor: 0, highestFloor: 0, kills: 0 });
+  state = applyIdleNguAction(state, { action: "towerFloors", start: 0, end: 0 }, ctx, Date.now()).state;
+  state = advanceIdleNguState(state, 5 * 39, ctx, Date.now());
+  assert.equal(state.systems.tower.data.kills, 39);
+  assert.ok(Math.abs(state.currencies.experience - 1) < 1e-9);
+  assert.equal(state.currencies.ap, 1);
+}
+
+// Sans assez de puissance, un kill demande plusieurs coups : 0 kill en 20 s à 10 de Power
+{
+  const faible = advanceIdleNguState(baseState(), 20, { adventurePower: 1, adventureToughness: 1, bosses: 30 }, Date.now());
+  assert.equal(faible.systems.tower.data.kills, 0);
 }
 
 console.log("idle-itopod-floor-tracking: OK");

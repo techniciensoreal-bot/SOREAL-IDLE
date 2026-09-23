@@ -26,9 +26,9 @@ function baseState(difficulty) {
   };
 }
 
-// Puissance/temps calibrés pour produire exactement 1 kill au floor 0 (comme idle-itopod-floor-tracking.test.mjs).
+// Puissance/temps calibrés : un coup suffit au floor 0, un kill dure 4 s de respawn + 1 s d'Idle Attack.
 function oneKill(difficulty) {
-  return advanceIdleNguState(baseState(difficulty), 20, { adventurePower: 1, adventureToughness: 1, bosses: 30 }, Date.now());
+  return advanceIdleNguState(baseState(difficulty), 6, { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 }, Date.now());
 }
 
 {

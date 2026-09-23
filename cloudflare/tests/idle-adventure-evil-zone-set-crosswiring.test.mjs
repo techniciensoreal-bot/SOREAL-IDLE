@@ -26,7 +26,7 @@ import {
     state.adventure.setRewards.itopodPpPct = itopodPpPct;
     return state;
   }
-  const oneKill = (itopodPpPct) => advanceIdleNguState(baseState(itopodPpPct), 20, { adventurePower: 1, adventureToughness: 1, bosses: 30 }, Date.now());
+  const oneKill = (itopodPpPct) => advanceIdleNguState(baseState(itopodPpPct), 6, { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 }, Date.now());
 
   const withoutBonus = oneKill(0);
   assert.equal(withoutBonus.systems.tower.data.kills, 1, "Sanity : la calibration doit produire exactement 1 kill.");

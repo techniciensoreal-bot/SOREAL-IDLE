@@ -30,13 +30,13 @@ assert.equal(idleQuirkByIdV1(185).cost, 100000);
 
 // ITOPOD : +10 PPP de base par niveau du quirk 70
 {
-  const ctx = { bosses: 30, adventurePower: 1, adventureToughness: 1 };
+  const ctx = { bosses: 30, adventurePower: 1e6, adventureToughness: 1e6 };
   const construire = (levels) => {
     const s = normalizeIdleNguState({}, ctx, 0);
     s.systems.tower = { unlocked: true, active: true, data: { floor: 0, killProgress: 0, kills: 0, ppProgress: 0 } };
     s.currencies.pp = 0;
     if (levels) s.systems.quirks.data = { levels };
-    return advanceIdleNguState(s, 20, ctx, 20_000).systems.tower.data.ppProgress;
+    return advanceIdleNguState(s, 6, ctx, 20_000).systems.tower.data.ppProgress;
   };
   const base = construire(null);
   const avec = construire({ 70: 10 });

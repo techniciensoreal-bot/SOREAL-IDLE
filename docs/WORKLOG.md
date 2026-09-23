@@ -1155,3 +1155,12 @@ Source : page Challenges (Normal / Evil / Sadistic).
 - **Perks ajoutés** (page Perk Points, effets déjà modélisés dans SOREAL) : Iron Pill I/II (84/85, x26 et x4), SPAWN FASTER DAMMIT (93, -0,1 % de respawn/niveau), 15 perks Resource 3 (95-103, 122-124, 132-134, 141-143, 226-228), Faster Wishes (108, 155, 156, 159, 160), Minimum Wish Time Reduction (109/110, -24 s/niveau sur les 4 h), Hack Milestone Reducers (113-115, 217-219). « Welcome to Sadistic Difficulty » (144) applique maintenant aussi +20 % vitesse d'augments et +20 % vitesse des NGU. Restent exclus les perks de systèmes absents (MacGuffins, Cards, Mayo, Quêtes, Daycare, Merge slots).
 - **Respawn** (page Respawn) : facteurs multiplicatifs (NGU, set Clock -5 %, perk 93, souhait 46), objets « Respawn » additionnés puis plafonnés à 48 % / 58 % / 78 % selon la difficulté, plancher 0,34 s ; le client plafonnait à 75 % au lieu de ~91,5 %.
 - Tests : `idle-perks-evil-systems`, catalogue 150 perks.
+
+## 2026-09-23 — ITOPOD réécrit selon le wiki
+
+Source : page ITOPOD (Drops, One hit power required, Tower milestones) + page Respawn.
+- Avant : cadence de kills inventée `min(1, (Power/1,05^étage)^0,2 / 20)` par seconde, aucun EXP/AP, étage = kills/10 sans borne.
+- Maintenant : ennemis de l'étage F = 600 x 1,05^F PV et 10 x 1,05^F de défense ; dégâts d'Idle Attack = max(10 % Power, Power - défense/2) x bonus Idle (1,2/1,5/1,8) ; un kill = respawn (4 s réduit, plancher 0,34 s) + coups x 1 s (0,8 s avec Red Liquid) ; 10 kills = 1 étage ; sur l'étage de fin, 10 kills ramènent au départ ; EXP + 1 AP tous les n kills (n = 40 - palier, 20 au-delà ; EXP 1, 2 puis (palier-1)(palier-2)+2) ; PP de première atteinte des étages multiples de 10 (1 PP, +1 par centaine, étage/10 aux centaines).
+- Par défaut l'ITOPOD monte jusqu'à l'« étage optimal » (le plus haut où un coup suffit) ; action `towerFloors` (départ/fin, ou auto) et champs dans la page ITOPOD.
+- Rattrapage hors-ligne par lots (aucune boucle kill par kill), sauvegardes existantes migrées (étage = kills/10).
+- Non modélisé : chute de Boosts (14 %), MacGuffins, dégâts subis / mort. Tests : `idle-itopod-floor-tracking` réécrit ; trois tests PP recalibrés (Power 1e6).
