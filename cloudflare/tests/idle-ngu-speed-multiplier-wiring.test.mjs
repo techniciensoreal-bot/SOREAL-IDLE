@@ -32,8 +32,7 @@ function nguAttackState(context, equipItem) {
   state.adventure.unlockItems.aNumber = true;
   state = applyIdleNguAction(state, { action: "adventure", adventure: { mode: "consumeUnlock", itemId: "aNumber" } }, context, 1_000_000).state;
   state.resources.energy.cap = 1000;
-  state = applyIdleNguAction(state, { action: "allocate", system: "ngu", resource: "energy", value: 100 }, context, 1_000_000).state;
-  state = applyIdleNguAction(state, { action: "selectTrack", system: "ngu", track: "attack" }, context, 1_000_000).state;
+  state = applyIdleNguAction(state, { action: "allocateNgu", ngu: "powerAlpha", value: 100 }, context, 1_000_000).state;
   if (equipItem) state.adventure = equipShrunkenVoodooDoll(context);
   return state;
 }
@@ -42,12 +41,12 @@ function nguAttackState(context, equipItem) {
   const context = { bosses: 100, bestGold: 1e6, adventurePower: 1e9 };
   const without = advanceIdleNguState(nguAttackState(context, false), 200, context, 1_000_200);
   const withItem = advanceIdleNguState(nguAttackState(context, true), 200, context, 1_000_200);
-  const progWithout = without.systems.ngu.data.tracks.attack.progress;
-  const progWith = withItem.systems.ngu.data.tracks.attack.progress;
+  const progWithout = without.systems.ngu.data.ngus.normal.powerAlpha.work;
+  const progWith = withItem.systems.ngu.data.ngus.normal.powerAlpha.work;
   assert.ok(progWithout > 0 && progWithout < 1 && progWith > 0 && progWith < 1, "sanity : pas de passage de niveau pendant la fenêtre de mesure.");
   assert.ok(
     Math.abs(progWith / progWithout - 3.0) < 1e-6,
-    `A Shrunken Voodoo Doll (nguSpeedPct=200, wiki) doit tripler (1+200/100=3x) la progression de la piste NGU "attack" via nguSpeedMultiplier -- mesuré : ${progWith / progWithout}.`
+    `A Shrunken Voodoo Doll (nguSpeedPct=200, wiki) doit tripler (1+200/100=3x) la progression du NGU "Power α" via la vitesse des NGU -- mesuré : ${progWith / progWithout}.`
   );
 }
 

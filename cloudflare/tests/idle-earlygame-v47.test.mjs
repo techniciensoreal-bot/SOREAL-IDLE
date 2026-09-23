@@ -93,7 +93,7 @@ const fresh=(context={}, now=1_000_000)=>
 {
   assert.ok(IDLE_NGU_TRACKS.advancedTraining.some(x=>x.id==="wandoosEnergy"));
   assert.ok(IDLE_NGU_TRACKS.advancedTraining.some(x=>x.id==="wandoosMagic"));
-  assert.ok(IDLE_NGU_TRACKS.ngu.length>=6);
+  assert.equal(IDLE_NGU_TRACKS.ngu.length,16,"16 vrais NGU (9 Energy + 7 Magic)");
   assert.ok(IDLE_NGU_TRACKS.hacks.length>=10);
   assert.ok(IDLE_NGU_TRACKS.wishes.length>=8);
   const ids=new Set(IDLE_NGU_SYSTEMS.map(x=>x.id));
@@ -203,10 +203,10 @@ const fresh=(context={}, now=1_000_000)=>
   state=applyIdleNguAction(state,{action:"adventure",adventure:{mode:"consumeUnlock",itemId:"aNumber"}},context,1_000_000).state;
   assert.equal(state.systems.ngu.unlocked,true);
   state.resources.energy.cap=100;
-  state=applyIdleNguAction(state,{action:"allocate",system:"ngu",resource:"energy",value:100},context,1_000_000).state;
-  state=applyIdleNguAction(state,{action:"selectTrack",system:"ngu",track:"attack"},context,1_000_000).state;
+  state.resources.energy.power=1e6; // 16 vrais NGU : coût de base 2e11 s pour 1 de puissance x 1 alloué
+  state=applyIdleNguAction(state,{action:"allocateNgu",ngu:"powerAlpha",value:100},context,1_000_000).state;
   state=advanceIdleNguState(state,3600,context,4_600_000);
-  assert.ok(state.systems.ngu.data.tracks.attack.level>0);
+  assert.ok(state.systems.ngu.data.ngus.normal.powerAlpha.level>0);
   assert.ok(idleNguBonuses(state).attackMultiplier>1);
 }
 
@@ -353,9 +353,11 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(migrated.records.highestBoss,58);
   assert.equal(migrated.records.totalRebirths,3);
   assert.equal(migrated.systems.ngu.unlocked,true);
-  assert.equal(migrated.systems.ngu.data.tracks.attack.level,12);
-  assert.equal(migrated.systems.ngu.data.tracks.attack.permanentLevel,3);
-  assert.equal(migrated.systems.ngu.allocation.energy,800);
+  // Migration NGU 2026-09-23 : les 9 pistes inventées disparaissent, les 16 vrais NGU
+  // repartent de 0 et l'énergie allouée aux anciennes pistes est rendue au joueur.
+  assert.equal(migrated.systems.ngu.data.tracks,undefined);
+  assert.equal(migrated.systems.ngu.data.ngus.normal.powerAlpha.level,0);
+  assert.equal(migrated.systems.ngu.allocation.energy,0);
   assert.equal(migrated.systems.augmentations.data.pairs.scissors.level,7);
   assert.equal(migrated.systems.timeMachine.data.speedLevel,9);
   assert.equal(migrated.bank.timeMachineSpeed,6);
@@ -366,8 +368,8 @@ const fresh=(context={}, now=1_000_000)=>
 
   const again=normalizeIdleNguState(migrated,{bosses:58},1_000_000);
   assert.equal(again.migration.fromVersion,"META-V2-NGU-PARITY");
-  assert.equal(again.systems.ngu.data.tracks.attack.level,12);
-  assert.equal(again.systems.ngu.allocation.energy,800);
+  assert.equal(again.systems.ngu.data.ngus.normal.powerAlpha.level,0);
+  assert.equal(again.systems.ngu.allocation.energy,0);
   assert.equal(again.currencies.gold,987654);
 }
 
@@ -817,7 +819,7 @@ const fresh=(context={}, now=1_000_000)=>
     let state=fresh({bosses:100},0);
     state.adventure.titans.t2={kills:1,nextAt:0};
     state.challenge.bestMs.basic=3600000;
-    state.systems.ngu.data.tracks.attack.level=10;
+    state.systems.ngu.data.ngus.normal.powerAlpha.level=10;
     state=applyIdleNguAction(state,{action:"challenge",mode:"start",challenge:id},{bosses:100},10_000).state;
     state.systems.timeMachine.unlocked=true;
     state.systems.timeMachine.allocation={energy:1000,magic:0};
@@ -834,7 +836,7 @@ const fresh=(context={}, now=1_000_000)=>
   // partagé entre Augments/Blood Magic/Time Machine/Wandoos/Beards.
   {
     let state=fresh({bosses:100},0);
-    state.systems.ngu.data.tracks.attack.level=10;
+    state.systems.ngu.data.ngus.normal.powerAlpha.level=10;
     state=applyIdleNguAction(state,{action:"challenge",mode:"start",challenge:"hundredLevels"},{bosses:100},10_000).state;
     state.challenge.hundredLevelsGained=99;
     state.systems.augmentations.unlocked=true;

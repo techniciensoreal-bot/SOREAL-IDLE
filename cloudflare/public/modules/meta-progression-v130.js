@@ -1236,12 +1236,105 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
 
+      /*
+       * NGU (2026-09-23, audit) : les 16 vrais NGU (9 Energy + 7 Magic) avec
+       * une allocation propre à chacun ; un seul palier (Normal / Evil /
+       * Sadistic) reçoit de l'énergie et de la magie à la fois.
+       */
+      function dureeLongueNguIdleV1_(secondes){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const n=Number(secondes);
+        if(!Number.isFinite(n)||n<=0)return '—';
+        if(n<1)return '< 1 s';
+        if(n<60)return Math.round(n)+' s';
+        if(n<3600)return Math.round(n/60)+' min';
+        if(n<86400)return (n/3600).toFixed(1).replace('.',',')+' h';
+        if(n<86400*365)return (n/86400).toFixed(1).replace('.',',')+' j';
+        return H.formatGrandNombreIdleV70_(n/86400/365,1)+' ans';
+      }
+
+      function pageNguIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const titre=H.entetePageIdleV28_('♾️ NGU','Chaque NGU a sa propre allocation et progresse en parallèle. Les niveaux persistent à travers les Rebirths ; l\'énergie et la magie allouées sont rendues au Rebirth.');
+        const sys=systemeMetaParIdIdleV130_(j,'ngu');
+        if(!sys||!sys.state||!sys.state.unlocked){
+          return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Débloqué par A Number (Gordon Ramsay Bolton).</div>';
+        }
+        const snap=(j&&j.systemes)||{};
+        const ng=snap.ngus||{};
+        const nomPalier={normal:'Normal',evil:'Evil',sadistic:'Sadistic'};
+        const paliers=Array.isArray(ng.activeTiers)?ng.activeTiers:['normal'];
+        const courant=ng.tier||'normal';
+        const liste=(ng.tiers&&ng.tiers[courant])||[];
+        const systemes=Array.isArray(snap.systems)?snap.systems:[];
+        function capDe(ressource){
+          return Math.max(0,H.idleNombre_(snap.resources&&snap.resources[ressource]&&snap.resources[ressource].cap||0));
+        }
+        function alloueAutres(ressource,exceptId){
+          let total=0;
+          systemes.forEach(function(x){
+            if(!x||x.id==='ngu')return;
+            total+=Math.max(0,H.idleNombre_(x.state&&x.state.allocation&&x.state.allocation[ressource]||0));
+          });
+          liste.forEach(function(n){
+            if(n.resource===ressource&&n.id!==exceptId)total+=Math.max(0,H.idleNombre_(n.allocation));
+          });
+          return total;
+        }
+        const onglets=paliers.map(function(t){
+          const actif=t===courant;
+          return '<button type="button" class="soreal-idle-expand-button-v25" style="'+(actif?'font-weight:700;outline:2px solid #6366f1':'')+'" '+(actif?'disabled':'onclick="window.__actionMetaV47__({action:\'setNguTier\',tier:\''+t+'\'})"')+'>'+nomPalier[t]+'</button>';
+        }).join('');
+        const fx=ng.effects||{};
+        const ratio=function(v){return 'x'+H.formatGrandNombreIdleV70_(Math.max(1,H.idleNombre_(v)),2);};
+        const resume=[
+          ['Attack/Defense',ratio(fx.attackDefense)],
+          ['Adventure',ratio(fx.adventure)],
+          ['Gold',ratio(fx.gold)],
+          ['Drop',ratio(fx.dropChance)],
+          ['EXP',ratio(fx.exp)],
+          ['Number',ratio(fx.number)],
+          ['PP',ratio(fx.pp)],
+          ['Yggdrasil',ratio(fx.yggdrasil)],
+          ['Time Machine',ratio(fx.timeMachine)],
+          ['Augments',ratio(fx.augments)],
+          ['Wandoos',ratio(fx.wandoosSpeed)],
+          ['Respawn','-'+(H.idleNombre_(fx.respawnReduction)*100).toFixed(1).replace('.',',')+' %']
+        ].map(function(x){return '<div class="soreal-idle-summary-v28">'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
+        function ligne(n){
+          const cap=capDe(n.resource);
+          const dispo=Math.max(0,cap-alloueAutres(n.resource,n.id));
+          const verrou=n.resource==='magic'&&!ng.magicUnlocked;
+          const valeurs=[0,Math.floor(dispo*.25),Math.floor(dispo*.5),Math.floor(dispo)];
+          const pct=Math.max(0,Math.min(100,H.idleNombre_(n.progress)*100));
+          const symbole=n.resource==='magic'?'✨':'⚡';
+          const boutons=valeurs.map(function(v,i){
+            return '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou?'disabled':'onclick="window.__actionMetaV47__({action:\'allocateNgu\',ngu:\''+H.idleHtml_(n.id)+'\',value:'+v+'})"')+'>'+['0%','25%','50%','100%'][i]+'</button>';
+          }).join('');
+          return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(verrou?'.55':'1')+'">'+
+            '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+H.idleHtml_(n.name)+' · Niv. '+H.formatGrandNombreIdleV70_(n.level)+'</b><span>'+H.formatGrandNombreIdleV70_(n.allocation)+' '+symbole+'</span></div>'+
+            '<div style="font-size:12px;color:#aeb5c8">'+H.idleHtml_(n.effect)+' : <b>'+(n.id==='respawn'?'-':'+')+H.formatGrandNombreIdleV70_(n.effectPct,2)+' %</b>'+
+            (n.secondsPerLevel!==null&&n.secondsPerLevel!==undefined?' · prochain niveau ≈ '+dureeLongueNguIdleV1_(n.secondsPerLevel):(verrou?' · Magic verrouillée':' · aucune allocation'))+'</div>'+
+            '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;background:#6366f1;transition:none"></div></div>'+
+            '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+boutons+'</div></div>';
+        }
+        const energie=liste.filter(function(n){return n.resource==='energy';}).map(ligne).join('');
+        const magie=liste.filter(function(n){return n.resource==='magic';}).map(ligne).join('');
+        return titre+
+          '<div class="soreal-idle-section-v8" style="margin:0 0 10px"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>Palier</b>'+onglets+'</div>'+
+          '<div style="font-size:12px;color:#aeb5c8;margin-top:6px">Un seul palier reçoit de l\'énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</div></div>'+
+          '<div class="soreal-idle-summary-grid-v28">'+resume+'</div>'+
+          '<h3 style="margin:16px 0 8px">NGU Energy</h3><div style="display:grid;gap:10px">'+energie+'</div>'+
+          '<h3 style="margin:16px 0 8px">NGU Magic</h3><div style="display:grid;gap:10px">'+magie+'</div>';
+      }
+
       function pageSystemeMetaIdleV130_(
         j,
         id,
         titre
       ){
         if(id==='augmentations')return pageAugmentationsIdleV48_(j);
+        if(id==='ngu')return pageNguIdleV1_(j);
         if(id==='timeMachine')return pageTimeMachineIdleV48_(j);
         if(id==='bloodMagic')return pageBloodMagicIdleV48_(j);
         if(id==='yggdrasil')return pageYggdrasilIdleV47_(j);

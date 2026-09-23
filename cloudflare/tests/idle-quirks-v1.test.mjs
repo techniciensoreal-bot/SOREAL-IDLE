@@ -34,10 +34,10 @@ import { IDLE_PERKS_CATALOG_V1 } from "../src/idle-perks-v1.js";
  */
 
 // --- Catalog shape: 66 entries, ids matching the wiki table's own indices ---
-assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 71, "27 Normal-accessible quirks + 44 Evil/Sadistic-tier quirks (17 ajouté 2026-09-23 : Super Advanced Beast Training!).");
+assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 79, "27 Normal-accessible quirks + 52 Evil/Sadistic-tier quirks (17, 14, 89, 93-98 ajoutés le 2026-09-23).");
 const expectedIds = [
-  0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,19,20,21,25,26,30,31,35,36,37,38,39,40,
-  41,42,43,44,45,46,51,52,53,61,62,63,64,65,66,72,73,74,75,76,77,78,79,80,81,82,83,84,85,92,
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,19,20,21,25,26,30,31,35,36,37,38,39,40,
+  41,42,43,44,45,46,51,52,53,61,62,63,64,65,66,72,73,74,75,76,77,78,79,80,81,82,83,84,85,89,92,93,94,95,96,97,98,
   170,171,172,173,176,177,178,179,180,181,182
 ];
 assert.deepEqual(IDLE_QUIRKS_CATALOG_V1.map(q => q.id), expectedIds, "Quirk ids must match the wiki table's own indices, gaps included (excluded rows skipped).");
@@ -60,7 +60,11 @@ assert.equal(idleQuirkByIdV1(7).cap, 1000, "Stat Boost For Rich Quirks I caps at
 assert.equal(idleQuirkByIdV1(9).name, "GOOOOOLLLLLLLLLLLD!");
 assert.equal(idleQuirkByIdV1(9).bonus.adventureGoldPct, 0.10, "10% gold drops per level, matches the wiki exactly.");
 assert.equal(idleQuirkByIdV1(20).bonus.atBankPct, 0.005, "0.5% per level, not the Perk catalog's 1% — a different, real wiki value.");
-assert.equal(idleQuirkByIdV1(14), null, "Index 14 (The Beast NGU Quirk Ever) needs a separate Evil/Sadistic NGU track system SOREAL doesn't have — still excluded.");
+// Les 16 vrais NGU (et leurs paliers Evil/Sadistic) existent depuis le 2026-09-23 : quirks 14, 89 et 93-98 ajoutés.
+assert.equal(idleQuirkByIdV1(14).cost, 15000);
+assert.equal(idleQuirkByIdV1(89).cost, 100000);
+assert.equal(idleQuirkByIdV1(93).bonus.nguSpeedEnergyPct, 0.004, "Faster Energy NGU I : 0,4 % par niveau");
+assert.equal(idleQuirkByIdV1(96).bonus.nguSpeedMagicPct, 0.003, "Faster Magic NGU II : 0,3 % par niveau");
 
 // --- Spot-check the 2026-09-18 Evil/Sadistic-tier extension ---
 assert.deepEqual(idleQuirkByIdV1(41).bonus, { energyPowerPct: 0.01 }, "Generic Energy Power Quirk II : même taux que le palier I (indice 35), juste un coût/plafond différents.");

@@ -1058,9 +1058,10 @@ console.log("SOREAL IDLE runtime calculations: OK");
   state=applyIdleNguAction(state,{action:"adventure",adventure:{mode:"consumeUnlock",itemId:"aNumber"}},context,1_000_000).state;
   assert.equal(state.systems.ngu.unlocked,true);
 
+  state.resources.energy.power=1e6;
   state=applyIdleNguAction(
     state,
-    {action:"allocate",system:"ngu",resource:"energy",value:80},
+    {action:"allocateNgu",ngu:"powerAlpha",value:80},
     context,
     1_000_000
   ).state;
@@ -1078,15 +1079,16 @@ console.log("SOREAL IDLE runtime calculations: OK");
   state.adventure.unlockItems.aNumber=true;
   state=applyIdleNguAction(state,{action:"adventure",adventure:{mode:"consumeUnlock",itemId:"aNumber"}},context,1_000_000).state;
   assert.equal(state.systems.ngu.unlocked,true);
-  state=applyIdleNguAction(state,{action:"selectTrack",system:"ngu",track:"attack"},context,1_000_000).state;
-  state=applyIdleNguAction(state,{action:"allocate",system:"ngu",resource:"energy",value:100},context,1_000_000).state;
+  state.resources.energy.power=1e6;
+  state=applyIdleNguAction(state,{action:"allocateNgu",ngu:"powerAlpha",value:100},context,1_000_000).state;
   state=advanceIdleNguState(state,24*3600,context,87_400_000);
-  const permanentAvant=state.systems.ngu.data.tracks.attack.level;
+  const permanentAvant=state.systems.ngu.data.ngus.normal.powerAlpha.level;
   assert.ok(permanentAvant>0);
 
   const reborn=rebirthIdleNguState(state,context,87_500_000);
 
-  assert.ok(reborn.systems.ngu.data.tracks.attack.level>=permanentAvant);
+  assert.ok(reborn.systems.ngu.data.ngus.normal.powerAlpha.level>=permanentAvant);
+  assert.equal(reborn.systems.ngu.allocation.energy,0,"les allocations NGU sont rendues au Rebirth (les niveaux, eux, restent)");
   assert.ok(reborn.systems.advancedTraining.tempLevel<=state.systems.advancedTraining.tempLevel);
   assert.ok(reborn.systems.timeMachine.tempLevel<=state.systems.timeMachine.tempLevel);
   assert.ok(reborn.systems.beards.permanentLevel>=state.systems.beards.permanentLevel);
@@ -1165,7 +1167,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V42 — les systèmes complexes restent séparés en pistes spécialisées.
 {
-  assert.ok(IDLE_NGU_TRACKS.ngu.length>=6,"NGU SOREAL doit avoir plusieurs pistes.");
+  assert.equal(IDLE_NGU_TRACKS.ngu.length,16,"16 vrais NGU (9 Energy + 7 Magic).");
   assert.ok(IDLE_NGU_TRACKS.hacks.length>=10,"Les Hacks doivent rester spécialisés.");
   assert.ok(IDLE_NGU_TRACKS.wishes.length>=8,"Les Projets/Wishes doivent rester spécialisés.");
 
@@ -1175,24 +1177,18 @@ console.log("SOREAL IDLE runtime calculations: OK");
   state=applyIdleNguAction(state,{action:"adventure",adventure:{mode:"consumeUnlock",itemId:"aNumber"}},context,1_000_000).state;
   assert.equal(state.systems.ngu.unlocked,true);
 
+  state.resources.energy.power=1e8;
   state=applyIdleNguAction(
     state,
-    {action:"selectTrack",system:"ngu",track:"drop"},
-    context,
-    1_000_000
-  ).state;
-
-  state=applyIdleNguAction(
-    state,
-    {action:"allocate",system:"ngu",resource:"energy",value:100},
+    {action:"allocateNgu",ngu:"dropChance",value:100},
     context,
     1_000_000
   ).state;
 
   state=advanceIdleNguState(state,24*3600,context,87_400_000);
 
-  assert.ok(state.systems.ngu.data.tracks.drop.level>0);
-  assert.equal(state.systems.ngu.data.tracks.attack.level,0);
+  assert.ok(state.systems.ngu.data.ngus.normal.dropChance.level>0);
+  assert.equal(state.systems.ngu.data.ngus.normal.powerAlpha.level,0);
   assert.ok(idleNguBonuses(state).dropMultiplier>1);
 }
 

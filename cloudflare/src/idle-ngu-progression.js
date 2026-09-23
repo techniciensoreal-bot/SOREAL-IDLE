@@ -35,6 +35,16 @@ import {
   wishBonusesV1
 } from "./idle-wishes-v1.js";
 import { levelsPerFillBasicTrainingV411 } from "./idle-basic-training.js";
+import {
+  IDLE_NGU_CATALOG_V1,
+  IDLE_NGU_TIERS_V1,
+  IDLE_NGU_MAX_LEVEL_V1,
+  nguParamsV1,
+  nguEffectPctV1,
+  nguEffectsV1,
+  nguActiveTiersV1,
+  nguLevelsFromWorkV1
+} from "./idle-ngu-catalog-v1.js";
 
 /*
  * SOREAL IDLE — early game NGU parity engine.
@@ -498,17 +508,13 @@ export const IDLE_NGU_TRACKS = Object.freeze({
     { id: "wandoosEnergy", name: "Wandoos Energy Dump", effect: "Wandoos Energy" },
     { id: "wandoosMagic", name: "Wandoos Magic Dump", effect: "Wandoos Magic" }
   ],
-  ngu: [
-    { id: "attack", name: "NGU Power", effect: "Attack" },
-    { id: "defense", name: "NGU Toughness", effect: "Defense" },
-    { id: "adventure", name: "NGU Adventure", effect: "Adventure Stats" },
-    { id: "drop", name: "NGU Drop", effect: "Drop Chance" },
-    { id: "respawn", name: "NGU Respawn", effect: "Adventure Respawn" },
-    { id: "experience", name: "NGU EXP", effect: "EXP Gain" },
-    { id: "pp", name: "NGU PP", effect: "PP Gain" },
-    { id: "quest", name: "NGU Questing", effect: "Questing" },
-    { id: "daycare", name: "NGU Daycare", effect: "Daycare" }
-  ],
+  /*
+   * 2026-09-23 (audit NGU) : les 9 pistes NGU inventées (Power/Defense/
+   * Adventure/Drop/Respawn/EXP/PP/Quest/Daycare) sont remplacées par les 16
+   * vrais NGU, voir idle-ngu-catalog-v1.js. La liste ci-dessous ne sert
+   * qu'à exposer leur catalogue sous la même clé.
+   */
+  ngu: IDLE_NGU_CATALOG_V1.map(n => ({ id: n.id, name: n.name, effect: n.effect, resource: n.resource })),
   beards: [
     { id: "attack", name: "Fu Manchu", effect: "Attack/Defense", resource: "magic", speedDivider: 1e7, beardRole: "attackDefense" },
     { id: "drop", name: "Neckbeard", effect: "Drop Chance", resource: "energy", speedDivider: 3e7, beardRole: "drop" },
@@ -646,6 +652,7 @@ function baseSystemState(def) {
 }
 
 function createTrackState(def) {
+  if (def.id === "ngu") return createNguDataV1();
   const tracks = IDLE_NGU_TRACKS[def.id] || [];
   if (!tracks.length) return {};
   const out = {};
@@ -866,13 +873,15 @@ function advanceWandoos(state, seconds, context, now) {
 
   const energyAlloc = Math.max(0, num(s.allocation.energy, 0));
   const magicAlloc = Math.max(0, num(s.allocation.magic, 0));
+  /* NGU "Wandoos" (Energy) : "Wandoos speed", audit NGU 2026-09-23. */
+  const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed;
 
   const energySpeed = Math.min(50, 50 * energyAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
-    * atEnergyDumpMultiplier * quirkEnergyMultiplier;
+    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier;
   const magicSpeed = Math.min(50, 50 * magicAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
-    * atMagicDumpMultiplier * quirkMagicMultiplier;
+    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier;
 
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
   s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
@@ -1303,6 +1312,9 @@ function normalizeSystem(def, raw) {
     };
     s.level = s.data.dumpEnergyLevel + s.data.dumpMagicLevel;
     s.tempLevel = s.level;
+  } else if (def.id === "ngu") {
+    s.data = normalizeNguDataV1(src.data);
+    syncNguAllocationTotalsV1(s);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
   } else {
@@ -1562,6 +1574,25 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   for (const def of IDLE_NGU_SYSTEMS) systems[def.id] = normalizeSystem(def, source.systems?.[def.id]);
   state.systems = systems;
 
+  /*
+   * Migration NGU (2026-09-23) : les anciennes sauvegardes portaient 9 pistes
+   * inventées et une allocation globale. Les niveaux de ces pistes n'ont pas
+   * d'équivalent dans les 16 vrais NGU : ils repartent de zéro (comme au
+   * début d'une vraie partie) et l'énergie/magie qui leur était allouée est
+   * rendue au joueur.
+   */
+  {
+    const oldNgu = source.systems?.ngu;
+    if (oldNgu && typeof oldNgu === "object" && !(oldNgu.data && oldNgu.data.ngus)) {
+      for (const resource of ["energy", "magic"]) {
+        const held = Math.max(0, num(oldNgu.allocation?.[resource], 0));
+        if (held > 0 && state.resources[resource]) {
+          state.resources[resource].current = Math.max(0, num(state.resources[resource].current, 0)) + held;
+        }
+      }
+    }
+  }
+
   // V51 migration: older V47/V50 saves had no persisted free-resource pool.
   // The legacy row is consulted once when available, then metaNgu owns it.
   if(previousResourceModelVersion < 51){
@@ -1757,7 +1788,7 @@ function refreshRebirthState(state, context, now) {
     hasPreviousRun: rb.hasPreviousRun,
     attackTrainingLevels: context.attackTrainingLevels,
     bloodMagicBonus: bloodNumberMultiplier(state),
-    nguNumberBonus: 1 + Math.log10(1 + totalTrackLevel(state.systems.ngu, "attack")) * 0.01,
+    nguNumberBonus: nguFxV1(state).number,
     beardNumberBonus: beardBonusMultiplier(state, "number"),
     yggNumberBonus: 1,
     macguffinNumberBonus: 1,
@@ -1966,6 +1997,7 @@ function reclaimAllocatedResource(state,resource,context={}){
     if(amount<=0)continue;
     released+=amount;
     s.allocation[resource]=0;
+    if(def.id==="ngu"){clearNguAllocationsV1(s,resource);syncNguAllocationTotalsV1(s);}
   }
   const r=state.resources[resource];
   r.current=clamp(
@@ -2071,7 +2103,7 @@ export function idleNguAugmentationMultiplier(raw) {
    * (force du bonus), pas la vitesse pour l'obtenir.
    */
   const sadisticStrengthDivider = state.difficulty === "extreme" ? 1e12 : 1;
-  return Math.max(1,1+(additive*challengePower)/sadisticStrengthDivider);
+  return Math.max(1,1+(additive*nguFxV1(state).augments*challengePower)/sadisticStrengthDivider);
 }
 
 function beardTrackUnlocked(state, trackDef) {
@@ -2500,7 +2532,7 @@ export function idleNguTimeMachineGrossGoldPerSecond(raw) {
 
   const beardGold = beardBonusMultiplier(state, "gold");
   const challengeGold=challengePermanentBonuses(state).timeMachineGoldMultiplier;
-  return goldPerBar * highestBossMultiplier * barsPerSecond * goldMultiplier * counterfeit * beardGold * challengeGold;
+  return goldPerBar * highestBossMultiplier * barsPerSecond * goldMultiplier * counterfeit * beardGold * challengeGold * nguFxV1(state).timeMachine;
 }
 
 export function idleNguTimeMachineGoldPerSecond(raw) {
@@ -2738,7 +2770,7 @@ function useYggFruit(state,fruitId,mode="eat"){
   const harvest=mode==="harvest";
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
-  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier;
+  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil;
   const firstHarvestMultiplier=f.firstHarvestThisRun?perkBonuses.firstHarvestMultiplier:1;
   const seedGain=yggSeedGain(def,grownTier,harvest||def.id==="pomegranate",seedYieldMultiplier,firstHarvestMultiplier);
   state.currencies.seeds+=seedGain;
@@ -2968,7 +3000,7 @@ function advanceLateSystems(state, seconds, context, now) {
        * (availableDiggerSlots), jamais une nouvelle mécanique inventée.
        */
       const itopodPpSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0));
-      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier;
+      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier * nguFxV1(state).pp;
       /*
        * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
        * perdait le report entre deux ticks — en jeu normal (tick fréquent,
@@ -3026,7 +3058,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceBloodMagic(state, secs, context);
   advanceYggdrasil(state, secs);
   advanceWandoos(state, secs, context, now);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "ngu"), secs);
+  advanceNgusV1(state, secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs);
@@ -3043,6 +3075,193 @@ export function syncIdleNguState(raw, context = {}, now = Date.now()) {
   const state = normalizeIdleNguState(raw, context, now);
   const elapsed = Math.max(0, (nowMs(now) - state.updatedAt) / 1000);
   return advanceIdleNguState(state, elapsed, context, now);
+}
+
+/*
+ * NGU (2026-09-23, audit) : 16 NGU x 3 paliers, chacun avec son niveau, son
+ * travail accumulé (unités de niveau : N -> N+1 coûte N+1) et sa propre
+ * allocation. Un seul palier reçoit de l'énergie/magie à la fois.
+ */
+function createNguDataV1() {
+  const ngus = {};
+  for (const tier of IDLE_NGU_TIERS_V1) {
+    ngus[tier] = {};
+    for (const def of IDLE_NGU_CATALOG_V1) ngus[tier][def.id] = { level: 0, work: 0, allocation: 0 };
+  }
+  return { tier: "normal", ngus };
+}
+
+function normalizeNguDataV1(raw) {
+  const out = createNguDataV1();
+  const src = raw && typeof raw === "object" ? raw : {};
+  if (IDLE_NGU_TIERS_V1.includes(src.tier)) out.tier = src.tier;
+  for (const tier of IDLE_NGU_TIERS_V1) {
+    for (const def of IDLE_NGU_CATALOG_V1) {
+      const n = src.ngus?.[tier]?.[def.id] || {};
+      out.ngus[tier][def.id] = {
+        level: clamp(Math.floor(num(n.level, 0)), 0, IDLE_NGU_MAX_LEVEL_V1),
+        work: Math.max(0, num(n.work, 0)),
+        allocation: Math.max(0, num(n.allocation, 0))
+      };
+    }
+  }
+  return out;
+}
+
+function nguAllocationSumV1(data, resource) {
+  let total = 0;
+  for (const tier of IDLE_NGU_TIERS_V1) {
+    for (const def of IDLE_NGU_CATALOG_V1) {
+      if (def.resource === resource) total += Math.max(0, num(data?.ngus?.[tier]?.[def.id]?.allocation, 0));
+    }
+  }
+  return total;
+}
+
+function syncNguAllocationTotalsV1(system) {
+  system.allocation.energy = nguAllocationSumV1(system.data, "energy");
+  system.allocation.magic = nguAllocationSumV1(system.data, "magic");
+  system.level = Object.values(system.data.ngus).reduce(
+    (sum, tierNgus) => sum + Object.values(tierNgus).reduce((t, n) => t + n.level, 0),
+    0
+  );
+  system.permanentLevel = system.level;
+}
+
+function clearNguAllocationsV1(system, resource) {
+  for (const tier of IDLE_NGU_TIERS_V1) {
+    for (const def of IDLE_NGU_CATALOG_V1) {
+      if (def.resource === resource && system.data?.ngus?.[tier]?.[def.id]) system.data.ngus[tier][def.id].allocation = 0;
+    }
+  }
+}
+
+function nguLevelsMapV1(state) {
+  const out = {};
+  const data = state.systems.ngu?.data;
+  for (const tier of IDLE_NGU_TIERS_V1) {
+    out[tier] = {};
+    for (const def of IDLE_NGU_CATALOG_V1) out[tier][def.id] = Math.max(0, num(data?.ngus?.[tier]?.[def.id]?.level, 0));
+  }
+  return out;
+}
+
+/* Effets de tous les NGU (ratios) -- neutres sous le No NGU Challenge. */
+function nguFxV1(state) {
+  if (state.challenge?.active === "noNgu") return nguEffectsV1({}, state.difficulty);
+  return nguEffectsV1(nguLevelsMapV1(state), state.difficulty);
+}
+
+function nguTotalLevelsV1(state) {
+  const map = nguLevelsMapV1(state);
+  let total = 0;
+  for (const tier of IDLE_NGU_TIERS_V1) for (const id of Object.keys(map[tier])) total += map[tier][id];
+  return total;
+}
+
+/*
+ * Vitesse (multiplicateur) des NGU alimentés par `resource` : défis, Beard
+ * Cage, Digger Energy/Magic NGU, set Meta/Back To School, objets, perks
+ * "Faster NGU Energy/Magic", et le NGU "Magic NGU" (accélère les NGU Magic) /
+ * "Energy NGU" (accélère les NGU Energy).
+ */
+function nguSpeedMultiplierV1(state, resource) {
+  const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
+  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+  const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const fx = nguFxV1(state);
+  const diggers = diggerBonuses(state);
+  return Math.max(0,
+    challengePermanentBonuses(state).nguSpeedMultiplier *
+    beardBonusMultiplier(state, "ngu") *
+    (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
+    (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
+    (resource === "magic"
+      ? diggers.magicNgu * perks.nguSpeedMagicMultiplier * quirks.nguSpeedMagicMultiplier * fx.magicNguSpeed
+      : diggers.energyNgu * perks.nguSpeedEnergyMultiplier * quirks.nguSpeedEnergyMultiplier * fx.energyNguSpeed)
+  );
+}
+
+/* Ajoute des niveaux à un NGU et propage les quirks "Beast NGU" (14 : Evil -> Normal, 89 : Sadistic -> Evil). */
+function grantNguLevelsV1(state, tier, id, gained) {
+  const data = state.systems.ngu.data;
+  const n = data.ngus[tier][id];
+  n.level = Math.min(IDLE_NGU_MAX_LEVEL_V1, n.level + Math.max(0, gained));
+  const quirkLevels = state.systems.quirks?.data?.levels || {};
+  if (tier === "sadistic" && num(quirkLevels[89], 0) > 0) grantNguLevelsV1(state, "evil", id, gained);
+  else if (tier === "evil" && num(quirkLevels[14], 0) > 0) grantNguLevelsV1(state, "normal", id, gained);
+}
+
+function advanceNgusV1(state, seconds) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked || seconds <= 0 || state.challenge?.active === "noNgu") return;
+  const tier = s.data.tier;
+  if (!nguActiveTiersV1(state.difficulty).includes(tier)) return;
+  const speeds = {
+    energy: nguSpeedMultiplierV1(state, "energy"),
+    magic: nguSpeedMultiplierV1(state, "magic")
+  };
+  for (const def of IDLE_NGU_CATALOG_V1) {
+    const n = s.data.ngus[tier][def.id];
+    const alloc = Math.max(0, num(n.allocation, 0));
+    if (alloc <= 0 || n.level >= IDLE_NGU_MAX_LEVEL_V1) continue;
+    if (def.resource === "magic" && !state.systems.bloodMagic?.unlocked) continue;
+    const power = Math.max(1, idleNguEffectiveResourceStatV1(state, def.resource, "power"));
+    const base = nguParamsV1(tier, def.id).baseCost;
+    const work = n.work + (alloc * power * speeds[def.resource] * seconds) / base;
+    const { gained, work: rest } = nguLevelsFromWorkV1(n.level, work);
+    n.work = rest;
+    if (gained > 0) grantNguLevelsV1(state, tier, def.id, gained);
+  }
+  syncNguAllocationTotalsV1(s);
+}
+
+function setNguAllocationV1(state, nguId, value, context = {}, tierArg) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (state.challenge?.active === "noNgu") throw new Error("DEFI_SANS_NGU");
+  const def = IDLE_NGU_CATALOG_V1.find(x => x.id === nguId);
+  if (!def) throw new Error("NGU_INVALIDE");
+  const tier = tierArg || s.data.tier;
+  if (!nguActiveTiersV1(state.difficulty).includes(tier)) throw new Error("PALIER_NGU_VERROUILLE");
+  if (tier !== s.data.tier) throw new Error("PALIER_NGU_INACTIF");
+  const resource = def.resource;
+  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  const r = state.resources[resource];
+  const cap = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
+  const n = s.data.ngus[tier][nguId];
+  const previous = Math.max(0, num(n.allocation, 0));
+  const ownAllocated = nguAllocationSumV1(s.data, resource);
+  const otherSystems = totalAllocated(state, resource, "ngu") + externalResourceAllocation(context, resource);
+  const maxByCapacity = Math.max(0, cap - otherSystems - (ownAllocated - previous));
+  const maxByOwned = Math.max(0, previous + num(r.current, 0));
+  const target = clamp(value, 0, Math.min(maxByCapacity, maxByOwned));
+  r.current = clamp(num(r.current, 0) - (target - previous), 0, cap);
+  n.allocation = target;
+  syncNguAllocationTotalsV1(s);
+  return { ngu: nguId, tier, allocation: target };
+}
+
+/* Change de palier : l'énergie/magie allouée aux NGU du palier quitté est rendue. */
+function setNguTierV1(state, tier) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (!IDLE_NGU_TIERS_V1.includes(tier)) throw new Error("PALIER_NGU_INVALIDE");
+  if (!nguActiveTiersV1(state.difficulty).includes(tier)) throw new Error("PALIER_NGU_VERROUILLE");
+  if (s.data.tier === tier) return { tier };
+  for (const resource of ["energy", "magic"]) {
+    let released = 0;
+    for (const def of IDLE_NGU_CATALOG_V1) {
+      if (def.resource !== resource) continue;
+      const n = s.data.ngus[s.data.tier][def.id];
+      released += Math.max(0, num(n.allocation, 0));
+      n.allocation = 0;
+    }
+    if (released > 0) state.resources[resource].current = num(state.resources[resource].current, 0) + released;
+  }
+  s.data.tier = tier;
+  syncNguAllocationTotalsV1(s);
+  return { tier };
 }
 
 function trackBonusLevel(state, systemId, trackId) {
@@ -3123,12 +3342,7 @@ export function idleNguBonuses(raw) {
   const aug = idleNguAugmentationMultiplier(state);
   const atPower = trackBonusLevel(state, "advancedTraining", "power");
   const atToughness = trackBonusLevel(state, "advancedTraining", "toughness");
-  const nguAttack = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "attack");
-  const nguDefense = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "defense");
-  const nguAdventure = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "adventure");
-  const nguDrop = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "drop");
-  const nguRespawn = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "respawn");
-  const nguExp = state.challenge.active === "noNgu" ? 0 : trackBonusLevel(state, "ngu", "experience");
+  const nguFx = nguFxV1(state);
   const equipmentDisabled = state.challenge.active === "noEquipment";
   const adventureGear = equipmentDisabled
     ? {power:0,toughness:0,hp:0,regen:0,specials:{}}
@@ -3156,7 +3370,7 @@ export function idleNguBonuses(raw) {
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
   const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
-  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber;
+  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber * nguFx.number;
   /*
    * Wiki NGU (page "Advanced Training", section Formulas) : "The Bonus%
    * for Adventure Power/Toughness is: Level^0.4 * 10" (vérifié cellule par
@@ -3178,7 +3392,7 @@ export function idleNguBonuses(raw) {
     quirkBonuses.statMultiplier *
     wishBonuses.statMultiplier *
     atPowerBonus *
-    (1 + Math.log10(1 + nguAttack) * 0.10) *
+    nguFx.attackDefense *
     /*
      * Wandoos (2026-09-18) : wiki page "Wandoos" — l'OS actif multiplie
      * Attack ET Defense ensemble à partir des niveaux de Dump Energy/
@@ -3229,8 +3443,7 @@ export function idleNguBonuses(raw) {
       attackMultiplier *
       atToughnessBonus *
       richJerksDefenseMultiplier *
-      equipmentDefenseMultiplier *
-      (1 + Math.log10(1 + nguDefense) * 0.08),
+      equipmentDefenseMultiplier,
     adventureMultiplier:
       challengeBonuses.adventureStatsMultiplier *
       perkBonuses.adventureStatsMultiplier *
@@ -3239,13 +3452,13 @@ export function idleNguBonuses(raw) {
       beardAdventure *
       diggers.adventure *
       (1 + Math.sqrt(atPower) * 0.008) *
-      (1 + Math.log10(1 + nguAdventure) * 0.08) *
+      nguFx.adventure *
       (1 + num(state.bonuses.ironPill, 0)),
     dropMultiplier:
       beardDrop *
       diggers.drop *
       perkBonuses.dropChanceMultiplier *
-      (1 + Math.log10(1 + nguDrop) * 0.05) *
+      nguFx.dropChance *
       (1 + num(adventureGear.specials?.dropChancePct, 0) / 100) *
       (1 + num(yggPermanent.luckDropPct,0)/100) *
       /*
@@ -3255,10 +3468,9 @@ export function idleNguBonuses(raw) {
        * appliqué"), câblé ici pour la première fois.
        */
       Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
-    xpMultiplier: diggers.experience * (1 + Math.log10(1 + nguExp) * 0.03) * (1 + num(state.bonuses.cookingExp, 0)),
+    xpMultiplier: diggers.experience * nguFx.exp * (1 + num(state.bonuses.cookingExp, 0)),
     respawnReduction: clamp(
-      Math.log10(1 + nguRespawn) * 0.03 +
-      num(adventureGear.specials?.respawnReductionPct, 0) / 100,
+      1 - (1 - nguFx.respawnReduction) * (1 - num(adventureGear.specials?.respawnReductionPct, 0) / 100),
       0,
       0.75
     ),
@@ -3281,7 +3493,7 @@ export function idleNguBonuses(raw) {
      * à Perks/Quirks/Wishes/objets, pas propre à ce correctif ni aggravé
      * par lui).
      */
-    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier * (1 + num(adventureGear.specials?.goldDropsPct, 0) / 100),
+    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier * nguFx.gold * (1 + num(adventureGear.specials?.goldDropsPct, 0) / 100),
     energySpeedFlat: num(adventurePermanent.energySpeedFlat, 0),
     energyPowerFlat: num(adventurePermanent.energyPowerFlat, 0)+perkBonuses.energyPowerFlat,
     energyBarsFlat: num(adventurePermanent.energyBarsFlat, 0)+perkBonuses.energyBarsFlat,
@@ -3366,7 +3578,8 @@ export function idleNguBonuses(raw) {
      * multipliées ensemble comme le reste des chaînes de multiplicateurs de
      * ce fichier).
      */
-    nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + Math.log10(1 + trackBonusLevel(state, "ngu", "attack")) * 0.01) * (1 + num(adventureGear.specials?.nguSpeedPct, 0) / 100),
+    nguSpeedMultiplier: challengeBonuses.nguSpeedMultiplier * beardNgu * diggers.energyNgu * (1 + num(adventureGear.specials?.nguSpeedPct, 0) / 100),
+    nguEffects: nguFx,
     nguSpeedEnergyMultiplierFromPerks: perkBonuses.nguSpeedEnergyMultiplier,
     nguSpeedMagicMultiplierFromPerks: perkBonuses.nguSpeedMagicMultiplier,
     /*
@@ -3382,9 +3595,10 @@ export function idleNguBonuses(raw) {
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
     beardNumberMultiplier: beardNumber,
-    ppMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "pp")) * 0.04,
-    questSpeedMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "quest")) * 0.04,
-    daycareSpeedMultiplier: 1 + Math.log10(1 + trackBonusLevel(state, "ngu", "daycare")) * 0.04,
+    ppMultiplier: nguFx.pp,
+    /* Aucun vrai NGU n'accélère Questing ni le Daycare (pistes inventées retirées). */
+    questSpeedMultiplier: 1,
+    daycareSpeedMultiplier: 1,
     /*
      * hackSpeedMultiplier/wishSpeedMultiplier étaient déclarées ici à 1 en
      * dur depuis le début, sans aucune source réelle. Câblées avec les
@@ -3530,6 +3744,45 @@ function idleAdventureCombatStatsV1(gear, context) {
   });
 }
 
+function nguSnapshotV1(state, context) {
+  const s = state.systems.ngu;
+  const active = nguActiveTiersV1(state.difficulty);
+  const speeds = { energy: nguSpeedMultiplierV1(state, "energy"), magic: nguSpeedMultiplierV1(state, "magic") };
+  const tiers = {};
+  for (const tier of IDLE_NGU_TIERS_V1) {
+    tiers[tier] = IDLE_NGU_CATALOG_V1.map(def => {
+      const n = s.data.ngus[tier][def.id];
+      const params = nguParamsV1(tier, def.id);
+      const power = Math.max(1, idleNguEffectiveResourceStatV1(state, def.resource, "power"));
+      const alloc = Math.max(0, num(n.allocation, 0));
+      const rate = alloc * power * speeds[def.resource];
+      const perLevel = params.baseCost * (n.level + 1);
+      return {
+        id: def.id,
+        name: def.name,
+        effect: def.effect,
+        resource: def.resource,
+        level: n.level,
+        allocation: alloc,
+        progress: n.level >= IDLE_NGU_MAX_LEVEL_V1 ? 0 : Math.max(0, Math.min(1, n.work / (n.level + 1))),
+        effectPct: nguEffectPctV1(tier, def.id, n.level),
+        secondsPerLevel: rate > 0 ? perLevel / rate : null,
+        baseCost: params.baseCost
+      };
+    });
+  }
+  return {
+    tier: s.data.tier,
+    activeTiers: active,
+    maxLevel: IDLE_NGU_MAX_LEVEL_V1,
+    unlocked: Boolean(s.unlocked),
+    magicUnlocked: Boolean(state.systems.bloodMagic?.unlocked),
+    speedMultiplier: speeds,
+    tiers,
+    effects: clone(nguFxV1(state))
+  };
+}
+
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   const state = syncIdleNguState(raw, context, now);
   return {
@@ -3616,6 +3869,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
         upgradeLevelsPerSecond: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.min(50,1/neededUpgrade) : 0
       });
     }),
+    ngus: nguSnapshotV1(state, context),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
@@ -4053,8 +4307,7 @@ function spinDaily(state, now) {
 }
 
 function challengeNguLevels(state) {
-  const tracks=state.systems.ngu?.data?.tracks || {};
-  return Object.keys(tracks).reduce((sum,id)=>sum+totalTrackLevel(state.systems.ngu,id),0);
+  return nguTotalLevelsV1(state);
 }
 
 function laserSwordPair(state) {
@@ -4405,7 +4658,12 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     for (const def of IDLE_NGU_SYSTEMS) {
       if (unlockSatisfied(def, context, state)) state.systems[def.id].unlocked = true;
     }
+  } else if (action === "allocateNgu") {
+    result = setNguAllocationV1(state, String(payload.ngu || ""), num(payload.value, 0), context, payload.tier ? String(payload.tier) : undefined);
+  } else if (action === "setNguTier") {
+    result = setNguTierV1(state, String(payload.tier || ""));
   } else if (action === "allocate") {
+    if (String(payload.system || "") === "ngu") throw new Error("UTILISER_ALLOCATE_NGU");
     setAllocation(
       state,
       String(payload.system || ""),
@@ -4418,6 +4676,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "allocateAugment") {
     setAugmentAllocationV214_(state,String(payload.pair||"scissors"),Boolean(payload.upgrade),num(payload.value,0),context);
   } else if (action === "selectTrack") {
+    if (String(payload.system || "") === "ngu") throw new Error("UTILISER_ALLOCATE_NGU");
     selectTrack(state, String(payload.system || ""), String(payload.track || ""));
   } else if (action === "selectAugment") {
     selectAugment(state, String(payload.pair || "scissors"), Boolean(payload.upgrade));
@@ -4575,6 +4834,12 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   for(const def of IDLE_NGU_SYSTEMS){
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
+    if(def.id==="ngu"){
+      clearNguAllocationsV1(s,"energy");
+      clearNguAllocationsV1(s,"magic");
+      syncNguAllocationTotalsV1(s);
+      s.active=false;
+    }
     if(def.id==="augmentations")s.data=createAugmentationData();
     if(def.id==="timeMachine"){
       const speedBank=Math.max(0,int(state.bank.timeMachineSpeed,0));

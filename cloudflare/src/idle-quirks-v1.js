@@ -36,12 +36,12 @@
  * Volontairement exclus (système absent de SOREAL, ou multiplicateur déjà
  * calculé mais jamais branché ailleurs dans ce fichier -- gap préexistant
  * hors périmètre de cette passe, jamais approximé) : NGU Evil/Sadistic
- * séparé (14, 89), Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
+ * (les NGU réels existent depuis 2026-09-23 : quirks 14, 89, 93-98 ajoutés),
+ * Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
  * (57-60,174-175), Wishes (54,56), Automerge Slot (55), Cards/Mayo/Tags/
  * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
  * 185 -- pas de 3e ressource entraînable), Quêtes/Idle Questing (71),
- * Faster Energy/Magic NGU I-III
- * (93-98 -- même gap "multiplicateur jamais branché" que 15-16), Better
+ * Better
  * Blood Magic (91 -- production de sang non exposée comme taux
  * modifiable dans ce round), Even More Inventory Space (90 -- le
  * pipeline inventorySlotsFromPerks/FromChallenges n'a pas d'équivalent
@@ -80,6 +80,7 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 11, name: "Beasted Boosts I", effect: "The Beast said they'll squirt another random fluid onto boosts applied to equipment, and that'll make them boostier! Gain 1% better boosts per level of this Quirk!", cost: 40, cap: 50, bonus: { boostPowerPct: 0.01 } },
   { id: 12, name: "The Beast's Seed ;)", effect: "Receive The Beast's Seed, for +1% Seed yields in Yggdrasil per level!", cost: 35, cap: 25, bonus: { seedYieldPct: 0.01 } },
   { id: 13, name: "The Beast's Fertilizer", effect: "The Beast will make you a mix tape you can play to your fruits as they grow, consisting of the beast wailing at them in yggdrasil-speak to grow faster. Each tier will take 1 minute less to grow!", cost: 3000, cap: 3, bonus: {} },
+  { id: 14, name: "The Beast NGU Quirk Ever", effect: "Using secret demonic (and EVIL) rituals known only to the beast, it can grant you the ability to gain 1 level in a normal NGU every time you gain a level in an Evil NGU!", cost: 15000, cap: 1, bonus: {} },
   { id: 15, name: "Energy Wandoos BEAST-a", effect: "+2% to Energy Wandoos Speed per level", cost: 32, cap: 50, bonus: { wandoosEnergySpeedPct: 0.02 } },
   { id: 16, name: "Magic Wandoos BEAST-a", effect: "+2% to Magic Wandoos Speed per level", cost: 37, cap: 50, bonus: { wandoosMagicSpeedPct: 0.02 } },
   { id: 17, name: "Super Advanced Beast Training!", effect: "The Beast claims it can scare your Basic Training Levels into rising higher. Buy this Quirk to gain +1 level every time the Basic Training bar fills!", cost: 4000, cap: 1, bonus: { basicTrainingExtraLevel: 1 } },
@@ -125,7 +126,14 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 83, name: "Generic Magic Power Quirk IV", effect: "Each level in this Quirk adds a 0.5% boost to your Magic Power!", cost: 3000, cap: 50, bonus: { magicPowerPct: 0.005 } },
   { id: 84, name: "Generic Magic Cap Quirk IV", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Cap!", cost: 3000, cap: 50, bonus: { magicCapPct: 0.002 } },
   { id: 85, name: "Generic Magic Bars Quirk IV", effect: "Each level in this Quirk adds a 0.2% boost to your Magic Bars!", cost: 3000, cap: 50, bonus: { magicBarsPct: 0.002 } },
+  { id: 89, name: "An even Beast-er NGU Quirk", effect: "Using secret demonic (and SADISTIC) rituals known only to the Beast, it can grant you the ability to gain 1 level in an Evil NGU every time you gain a level in a Sadistic NGU!", cost: 100000, cap: 1, bonus: {} },
   { id: 92, name: "Even Better Yggdrasil Yields", effect: "+0.1% Seed yield per level", cost: 2500, cap: 50, bonus: { seedYieldPct: 0.001 } },
+  { id: 93, name: "Faster Energy NGU I", effect: "Get this Quirk and you can enjoy 0.4% Faster Energy NGUs!", cost: 1000, cap: 50, bonus: { nguSpeedEnergyPct: 0.004 } },
+  { id: 94, name: "Faster Magic NGU I", effect: "Get this Quirk and you can enjoy 0.4% Faster Magic NGUs!", cost: 1000, cap: 50, bonus: { nguSpeedMagicPct: 0.004 } },
+  { id: 95, name: "Faster Energy NGU II", effect: "This Quirk will improve Energy NGU speeds by 0.3% per level!", cost: 3000, cap: 50, bonus: { nguSpeedEnergyPct: 0.003 } },
+  { id: 96, name: "Faster Magic NGU II", effect: "This Quirk will improve Magic NGU speeds by 0.3% per level!", cost: 3000, cap: 50, bonus: { nguSpeedMagicPct: 0.003 } },
+  { id: 97, name: "Faster Energy NGU III", effect: "This Quirk will improve Energy NGU speeds by 0.3% per level!", cost: 10000, cap: 50, bonus: { nguSpeedEnergyPct: 0.003 } },
+  { id: 98, name: "Faster Magic NGU III", effect: "This Quirk will improve Magic NGU speeds by 0.3% per level!", cost: 10000, cap: 50, bonus: { nguSpeedMagicPct: 0.003 } },
   { id: 170, name: "Stat Boost for Rich Quirks V", effect: "Improve your Attack/Defense by 1% per level!", cost: 2800, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 171, name: "Adventure Boost for Rich Quirks V", effect: "Improve your Adventure stats by 0.03% per level!", cost: 2800, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
   { id: 172, name: "Stat Boost for Rich Quirks VI", effect: "Improve your Attack/Defense by 1% per level!", cost: 6000, cap: 1000, bonus: { statPct: 0.01 } },
@@ -189,6 +197,8 @@ export function quirkBonusesV1(levelsById) {
     sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0,
     wandoosEnergySpeedPct: totals.wandoosEnergySpeedPct || 0,
     wandoosMagicSpeedPct: totals.wandoosMagicSpeedPct || 0,
-    basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0
+    basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0,
+    nguSpeedEnergyMultiplier: 1 + (totals.nguSpeedEnergyPct || 0),
+    nguSpeedMagicMultiplier: 1 + (totals.nguSpeedMagicPct || 0)
   };
 }
