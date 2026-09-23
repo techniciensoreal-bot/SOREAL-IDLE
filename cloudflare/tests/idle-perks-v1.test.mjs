@@ -32,7 +32,7 @@ import {
  */
 
 // --- Catalog shape: 111 entries, unique ids, sane cost/cap ---
-assert.equal(IDLE_PERKS_CATALOG_V1.length, 150, "56 Normal-accessible perks (0-55) + Fibonacci Perk (94) + 56 Evil/Sadistic-tier perks.");
+assert.equal(IDLE_PERKS_CATALOG_V1.length, 151, "56 Normal-accessible perks (0-55) + Fibonacci Perk (94) + 57 Evil/Sadistic-tier perks (dont 86, slot de garderie).");
 for (let i = 0; i < 56; i++) {
   const perk = IDLE_PERKS_CATALOG_V1[i];
   assert.equal(perk.id, i, "Perk ids must be sequential 0-55, matching the wiki table order.");
