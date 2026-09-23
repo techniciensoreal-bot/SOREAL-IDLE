@@ -22,8 +22,8 @@
  * des quirks génériques Energy/Magic déjà présents en indices 35-40,
  * paliers II-VI des Rich Quirks déjà présents en indices 7-8, paliers
  * II-IV de Beasted Boosts déjà présent en indice 11, et "Even Better
- * Yggdrasil Yields" qui réutilise exactement la clé seedYieldPct de "The
- * Beast's Seed ;)" (indice 12). "A PROBLEM HAS BEEN DETECTED" (176) est
+ * Yggdrasil Yields" (clé yggYieldPct depuis le 2026-09-23 : rendement des
+ * fruits, Quirk_Ygg, et non plus les graines). "A PROBLEM HAS BEEN DETECTED" (176) est
  * une quirk-blague sans AUCUN effet mécanique réel (texte : "YOUR PC RAN
  * INTO A PROBLEM") -- `bonus:{}` est la valeur réelle, même statut que
  * "ERROR" côté Perks.
@@ -56,7 +56,8 @@
  *
  * Some quirks (10: Beast's Special Beard Tonic — a leveling-SPEED bonus for
  * Beards, not a magnitude bonus; 13: Beast's Fertilizer — a flat seconds
- * reduction to Yggdrasil fruit growth time; 19/50: MacGuffin Slot! — since
+ * reduction to Yggdrasil fruit growth time, since 2026-09-23 read by id in
+ * idle-yggdrasil-extra-v1.js; 19/50: MacGuffin Slot! — since
  * 2026-09-23 read by id in idle-macguffins-v1.js, no aggregated key) have no
  * `bonus` entry — there is no existing mechanical hook in SOREAL IDLE to
  * wire their real effect into. They are still real, purchasable,
@@ -162,7 +163,12 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 89, name: "An even Beast-er NGU Quirk", effect: "Using secret demonic (and SADISTIC) rituals known only to the Beast, it can grant you the ability to gain 1 level in an Evil NGU every time you gain a level in a Sadistic NGU!", cost: 100000, cap: 1, bonus: {} },
   { id: 90, name: "Even More Inventory Space?", effect: "The Beast promises it can stash up to 24 items for you, the only way it knows how... by eating them.", cost: 700, cap: 24, bonus: { inventorySlotBonus: 1 } },
   { id: 91, name: "Better Blood Magic I", effect: "The Beast knows a LOT about blood, and they can teach you how to produce more of it faster! (+1% per level)", cost: 2000, cap: 50, bonus: { bloodGainPct: 0.01 } },
-  { id: 92, name: "Even Better Yggdrasil Yields", effect: "+0.1% Seed yield per level", cost: 2500, cap: 50, bonus: { seedYieldPct: 0.001 } },
+  /*
+   * 2026-09-23 (Ygg extra) : page Yggdrasil, tableau Quirks : « Even Better Yggdrasil Yields | +0.1%
+   * Yggdrasil yield » et Nerdy Formulas « Quirk_Ygg = 100% + The current bonus of the quirk "Increased
+   * Yggdrasil Yields" » -> rendement des fruits (Quirk_Ygg), pas les graines (Quirk_Seeds = The Beast's Seed).
+   */
+  { id: 92, name: "Even Better Yggdrasil Yields", effect: "+0.1% Yggdrasil yield per level", cost: 2500, cap: 50, bonus: { yggYieldPct: 0.001 } },
   { id: 93, name: "Faster Energy NGU I", effect: "Get this Quirk and you can enjoy 0.4% Faster Energy NGUs!", cost: 1000, cap: 50, bonus: { nguSpeedEnergyPct: 0.004 } },
   { id: 94, name: "Faster Magic NGU I", effect: "Get this Quirk and you can enjoy 0.4% Faster Magic NGUs!", cost: 1000, cap: 50, bonus: { nguSpeedMagicPct: 0.004 } },
   { id: 95, name: "Faster Energy NGU II", effect: "This Quirk will improve Energy NGU speeds by 0.3% per level!", cost: 3000, cap: 50, bonus: { nguSpeedEnergyPct: 0.003 } },
@@ -235,6 +241,8 @@ export function quirkBonusesV1(levelsById) {
     statMultiplier: 1 + (totals.statPct || 0),
     adventureGoldMultiplier: 1 + (totals.adventureGoldPct || 0),
     seedYieldMultiplier: 1 + (totals.seedYieldPct || 0),
+    /* Quirk_Ygg (rendement des fruits d'Yggdrasil). */
+    yggYieldMultiplier: 1 + (totals.yggYieldPct || 0),
     boostPowerMultiplier: boostPowerProduct,
     atBankMultiplier: 1 + (totals.atBankPct || 0),
     tmBankMultiplier: 1 + (totals.tmBankPct || 0),
