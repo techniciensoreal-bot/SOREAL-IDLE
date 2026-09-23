@@ -1403,7 +1403,72 @@ rawSlabOfWood:{name:"Raw Slab of Wood",zone:"",slot:"accessory",dropLevel:4,p:63
 // wiki : "Tie of Apathy" (Id 478, Accessory) — Power/Toughness Max at lvl 0 = 8999999000/8999999000. Specials : Gold Drops (4000000/4000000/8000000%), Resource 3 Power (1850/1850/3700%), Wish Speed (185/185/370%).
 tieOfApathy:{name:"Tie of Apathy",zone:"",slot:"accessory",dropLevel:4,p:8999999000,t:8999999000,sBase:4000000,sMax:4000000,sType:"goldDropsPct",sExtra:[{type:"r3PowerPct",base:1850,max0:1850,max100:3700},{type:"wishSpeedPct",base:185,max0:185,max100:370}]},
 // wiki : "The Titan Effigy" (Id 479, Accessory) — Power/Toughness Max at lvl 0 = 13000000000/13000000000. Specials : Resource 3 Cap (220/220/440%), Resource 3 Bars (2200/2200/4400%), Resource 3 Power (2200/2200/4400%).
-titanEffigy:{name:"The Titan Effigy",zone:"",slot:"accessory",dropLevel:4,p:13000000000,t:13000000000,sBase:220,sMax:220,sType:"r3CapPct",sExtra:[{type:"r3BarsPct",base:2200,max0:2200,max100:4400},{type:"r3PowerPct",base:2200,max0:2200,max100:4400}]}
+titanEffigy:{name:"The Titan Effigy",zone:"",slot:"accessory",dropLevel:4,p:13000000000,t:13000000000,sBase:220,sMax:220,sType:"r3CapPct",sExtra:[{type:"r3BarsPct",base:2200,max0:2200,max100:4400},{type:"r3PowerPct",base:2200,max0:2200,max100:4400}]},
+/*
+ * Cœurs du 4G's Sellout Shop (2026-09-23) : fiches "My <X> Heart" et gabarits
+ * "Item data My <X> Heart" du miroir NGU-Wiki. Jamais lâchés en Aventure
+ * (zone "", aucune ligne de butin) : uniquement achetés au Sellout Shop
+ * (idle-hearts-v1.js), puis montés au niveau 100 par fusion ou en Daycare.
+ * Même convention que les autres accessoires : p/t = "Max stat at lvl 0" de
+ * Power/Toughness ("Max stat at max lvl" = 2x vérifié pour chacun), sType =
+ * 1er Special de la fiche, sExtra = les suivants ({base,max0,max100}).
+ * pBase/tBase = "Base value" Power/Toughness (69 sur la plupart des cœurs,
+ * non nul contrairement aux objets de zone) : valeur de départ de l'objet
+ * acheté, avant tout Boost. HP Max/HP regen de la fiche = 3 x Power et
+ * 0,03 x Toughness (vérifié sur les 10 fiches), déjà dérivés par
+ * idleAdventureEquipmentStatsV47. Aucune fiche ne donne de niveau d'achat :
+ * dropLevel 0 (pas de "Item Drop Level" publié).
+ * expPct / apPct : nouveaux types de Special (EXP du Red Heart, AP du Yellow
+ * Heart), seuls objets du wiki à les porter ; consommés par idle-hearts-v1.js.
+ */
+// wiki "My Red Heart" (Id 119) : Power 69/100/200, Toughness 69/100/200 ; Specials : Drop Chance (0/30/60%), EXP (2.5/5/10%).
+heartRed:{name:"My Red Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartRed",p:100,t:100,pBase:69,tBase:69,sBase:0,sMax:30,sType:"dropChancePct",sExtra:[{type:"expPct",base:2.5,max0:5,max100:10}]},
+// wiki "My Yellow Heart" (Id 129) : Power 69/100/200, Toughness 69/100/200 ; Specials : Arbitrary Points (5/10/20%), Gold Drops (0/300/600%).
+heartYellow:{name:"My Yellow Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartYellow",p:100,t:100,pBase:69,tBase:69,sBase:5,sMax:10,sType:"apPct",sExtra:[{type:"goldDropsPct",base:0,max0:300,max100:600}]},
+// wiki "My Brown Heart" (Id 162) : Power 69/100/200, Toughness 69/100/200 ; Specials : Energy Power (100/100/200%), Magic Power (100/100/200%), Seed Gain (0/35/70%).
+heartBrown:{name:"My Brown Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartBrown",p:100,t:100,pBase:69,tBase:69,sBase:100,sMax:100,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:100,max0:100,max100:200},{type:"seedGainPct",base:0,max0:35,max100:70}]},
+// wiki "My Green Heart" (Id 171) : Power 69/100/200, Toughness 69/100/200 ; Specials : Beard Speed (30/30/60%), Drop Chance (50/50/100%), Respawn (4/4/8%).
+heartGreen:{name:"My Green Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartGreen",p:100,t:100,pBase:69,tBase:69,sBase:30,sMax:30,sType:"beardSpeedPct",sExtra:[{type:"dropChancePct",base:50,max0:50,max100:100},{type:"respawnReductionPct",base:4,max0:4,max100:8}]},
+// wiki "My Blue Heart" (Id 196) : Power 69/420/840, Toughness 69/420/840 ; Specials : Gold Drops (100/100/200%), NGU Speed (40/40/80%).
+heartBlue:{name:"My Blue Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartBlue",p:420,t:420,pBase:69,tBase:69,sBase:100,sMax:100,sType:"goldDropsPct",sExtra:[{type:"nguSpeedPct",base:40,max0:40,max100:80}]},
+// wiki "My Purple Heart" (Id 212) : Power 69/100/200, Toughness 69/1 000/2 000 ; Specials : Beard Speed (40/40/80%), Drop Chance (40/40/80%).
+heartPurple:{name:"My Purple Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartPurple",p:100,t:1000,pBase:69,tBase:69,sBase:40,sMax:40,sType:"beardSpeedPct",sExtra:[{type:"dropChancePct",base:40,max0:40,max100:80}]},
+// wiki "My Orange Heart" (Id 293) : Power 69/100/200, Toughness 69/1 000/2 000 ; Specials : Gold Drops (300/300/600%), Quest Drops (5/5/10%).
+heartOrange:{name:"My Orange Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartOrange",p:100,t:1000,pBase:69,tBase:69,sBase:300,sMax:300,sType:"goldDropsPct",sExtra:[{type:"questDropsPct",base:5,max0:5,max100:10}]},
+// wiki "My Grey Heart" (Id 297, "unlocked by Resource 3 unlocked") : Power/Toughness 1M/1M/2M ; Specials : Resource 3 Cap (20/20/40%), Resource 3 Bars (20/20/40%).
+heartGrey:{name:"My Grey Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartGrey",p:1000000,t:1000000,pBase:1000000,tBase:1000000,sBase:20,sMax:20,sType:"r3CapPct",sExtra:[{type:"r3BarsPct",base:20,max0:20,max100:40}]},
+// wiki "My Pink Heart" (Id 344) : Power/Toughness 3M/3M/6M ; Specials : Daycare Speed (10/10/20%), Wish Speed (10/10/20%).
+heartPink:{name:"My Pink Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartPink",p:3000000,t:3000000,pBase:3000000,tBase:3000000,sBase:10,sMax:10,sType:"daycareSpeedPct",sExtra:[{type:"wishSpeedPct",base:10,max0:10,max100:20}]},
+/*
+ * wiki "My Rainbow Heart" (Id 390) : Power 69/100/200, Toughness 69/100/200 ; Specials : Cooking
+ * (0/69 000 000/138 000 000 -- valeur telle que publiée ; page Cooking : chaque objet "Cooking %"
+ * compte x1,03 quelle que soit sa valeur, idleCookingGearV1), Resource 3 Bars (100/100/200%),
+ * Seed Gain (30/30/60%).
+ */
+heartRainbow:{name:"My Rainbow Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartRainbow",p:100,t:100,pBase:69,tBase:69,sBase:0,sMax:69000000,sType:"cookingPct",sExtra:[{type:"r3BarsPct",base:100,max0:100,max100:200},{type:"seedGainPct",base:30,max0:30,max100:60}]},
+/*
+ * wiki "A busted copy of Wandoos XL" (Id 163, Consumable, aucune stat) : "lvl 20 from Titan
+ * Walderp / lvl 3 in Badly Drawn World / lvl 8 in Boring-Ass Earth" (la page "Wandoos" écrit
+ * "level 5" pour Badly Drawn World : on suit la fiche de l'objet et la page de la zone, qui
+ * concordent sur 3). Consommé pour débloquer Wandoos XL puis pour monter le niveau d'OS XL
+ * (idle-hearts-v1.js, action méta consumeWandoosCopy).
+ */
+wandoosXl:{name:"Wandoos XL",zone:"",slot:"special",dropLevel:20,p:0,t:0},
+/*
+ * wiki "The Triple Flubber" (Id 121, Accessory, évolution de The Lonely Flubber) : aucune stat
+ * Power/Toughness ; Specials : Respawn (2/4/8%). Obtenu uniquement en transformant une Lonely
+ * Flubber niveau 100 ("level it to level 100 and CTRL + Click to transform it").
+ */
+tripleFlubber:{name:"The Triple Flubber",zone:"",slot:"accessory",dropLevel:0,p:0,t:0,sBase:2,sMax:4,sType:"respawnReductionPct"},
+/*
+ * wiki "Heroic Sigil" (Id 292, Consumable) : "lvl 4 (guaranteed) from Titan The Beast (Easy+)" ;
+ * wiki "A Still-Beating Heart" (Id 391, Consumable) : The Exile, Loot : "A Still-Beating Heart lvl 4
+ * (guaranteed)". Jusqu'ici seulement des drapeaux unlockItems (déblocage de Questing / Cards,
+ * inchangé) : ils deviennent de vrais objets fusionnables pour que leur set à un objet ("Heroic
+ * Sigil (set)", "Still-Beating Heart (set)") soit complétable, comme A Number / UUG's Armpit Hair.
+ */
+heroicSigil:{name:"Heroic Sigil",zone:"",slot:"special",dropLevel:4,p:0,t:0},
+stillBeatingHeart:{name:"A Still-Beating Heart",zone:"",slot:"special",dropLevel:4,p:0,t:0}
 });
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
 /*
@@ -1460,7 +1525,42 @@ const SETS_OBJETS_V1=Object.freeze({
    */
   incriminatingEvidence:{name:"Incriminating Evidence Set",items:["incriminatingEvidence"],reward:{r3PowerFlat:2,r3CapFlat:80000,r3BarsFlat:2,r3PotionAlpha:1,r3PotionBeta:1,r3PotionDelta:1}},
   /* "Severed Head (set)" : un seul objet (A Severed Unicorn's Head), "+13.37% Wish Speed!" -- même setRewards.wishSpeedPct que Typo. */
-  severedHead:{name:"Severed Head Set",items:["severedUnicornHead"],reward:{wishSpeedPct:.1337}}
+  severedHead:{name:"Severed Head Set",items:["severedUnicornHead"],reward:{wishSpeedPct:.1337}},
+  /*
+   * Sets des cœurs (pages "<X> Heart (set)" et section Items du "4G's Sellout Shop" :
+   * "When this heart reaches 100, ..."), un objet chacun. Récompenses lues par
+   * idle-hearts-v1.js et les modules concernés :
+   *  - Red : "the max heart EXP bonus (10%) even when the heart is not equipped" ;
+   *  - Yellow : "the max heart AP bonus (20%) even when the heart is not equipped" ;
+   *  - Green : "Gain 20% faster progress towards Perk Points (PP) in the I.T.O.P.O.D!"
+   *    (même pont itopodPpPct que Pissed Off Key) ;
+   *  - Blue : "All consumable give 10% better effects" ;
+   *  - Purple : "MacGuffins drop 20% more often" (lu par idle-macguffins-v1.js via completedSets) ;
+   *  - Orange : "Quests give 20% more QP!" ;
+   *  - Grey : "25% Faster Hacks!" ;
+   *  - Rainbow : "+10% Mayo and Card Generation Speed!".
+   * Brown ("every 10th poop ... will not be consumed") et Pink ("an additional Wish slot") :
+   * set complétable, mais AUCUN effet -- SOREAL n'a ni Poop (Yggdrasil) ni plusieurs slots de
+   * souhait ; rien n'est inventé à la place.
+   */
+  heartRed:{name:"Red Heart Set",items:["heartRed"],reward:{heartExpPct:.10}},
+  heartYellow:{name:"Yellow Heart Set",items:["heartYellow"],reward:{heartApPct:.20}},
+  heartBrown:{name:"Brown Heart Set",items:["heartBrown"],reward:{}},
+  heartGreen:{name:"Green Heart Set",items:["heartGreen"],reward:{itopodPpPct:.20}},
+  heartBlue:{name:"Blue Heart Set",items:["heartBlue"],reward:{consumablesEffectPct:.10}},
+  heartPurple:{name:"Purple Heart Set",items:["heartPurple"],reward:{}},
+  heartOrange:{name:"Orange Heart Set",items:["heartOrange"],reward:{questQpPct:.20}},
+  heartGrey:{name:"Grey Heart Set",items:["heartGrey"],reward:{hackSpeedPct:.25}},
+  heartPink:{name:"Pink Heart Set",items:["heartPink"],reward:{}},
+  heartRainbow:{name:"Rainbow Heart Set",items:["heartRainbow"],reward:{cardMayoSpeedPct:.10}},
+  /* "Wandoos XL (set)" : "Wandoos now boots up 10% faster!" (page Wandoos : "60 minutes x 90% for the Wandoos XL set"). */
+  wandoosXl:{name:"Wandoos XL Set",items:["wandoosXl"],reward:{wandoosBootReductionPct:.10}},
+  /* "Flubber (set)" : un seul objet (The Triple Flubber), "30,000 AP" (page Arbitrary Points : "Triple Flubber to level 100 : 30,000, once"). */
+  flubber:{name:"Flubber Set",items:["tripleFlubber"],reward:{ap:30000}},
+  /* "Heroic Sigil (set)" : "Quest items drop 10% more often!" (page Questing : "Quest Drops +10%"). */
+  heroicSigil:{name:"Heroic Sigil Set",items:["heroicSigil"],reward:{questDropsSetPct:.10}},
+  /* "Still-Beating Heart (set)" : "+1% Tag Effect!" (page Cards : base 10 % ... total 16.5 % dont ce set). */
+  stillBeatingHeart:{name:"Still-Beating Heart Set",items:["stillBeatingHeart"],reward:{cardTagEffect:.01}}
 });
 export const IDLE_ADVENTURE_ITEM_SETS_V1=SETS_OBJETS_V1;
 /*
@@ -1755,6 +1855,21 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "uugHair":141,
   "incriminatingEvidence":294,
   "severedUnicornHead":343,
+  /* Cœurs du Sellout Shop, Wandoos XL, Triple Flubber, Heroic Sigil, Still-Beating Heart (fiches wiki, champ "Id"). */
+  "heartRed":119,
+  "heartYellow":129,
+  "heartBrown":162,
+  "heartGreen":171,
+  "heartBlue":196,
+  "heartPurple":212,
+  "heartOrange":293,
+  "heartGrey":297,
+  "heartPink":344,
+  "heartRainbow":390,
+  "wandoosXl":163,
+  "tripleFlubber":121,
+  "heroicSigil":292,
+  "stillBeatingHeart":391,
   "flubber":120,
   "wandoos98":66,
   "magicite":435,
@@ -2220,7 +2335,7 @@ function rollFreshEquipmentStatsV1(o){
  * plancher réelle, PAS 0. Ne change rien pour les SPECIALS sans sBase
  * (undefined -> N(undefined)=0, comportement identique à avant).
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(d.sBase)}}
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:N(d.pBase),toughness:N(d.tBase),hp:0,regen:0,special:N(d.sBase)}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,wikiItemId:wikiItemIdBoostV1(type,strength),name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -2233,6 +2348,8 @@ function boost(type,strength){if(!["power","toughness","special"].includes(type)
  */
 export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
+/* Fabrique d'objet SPECIALS (cœurs achetés au Sellout Shop, idle-hearts-v1.js) : même special() que les drops. */
+export function idleAdventureSpecialItemV1(id,level){return special(id,level)}
 /*
  * Correctif 2026-09-18 (Norman, en direct, marqué URGENT : "le cube
  * tutorial n'est toujours pas présent quand on ouvre l'inventaire.
@@ -3474,6 +3591,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
         {id:"lootyMcLootFace",chance:.0005,cap:.10,level:10}, /* wiki, section Loot > Boss (audit 2026-09-23) */
         {id:"sirLooty",chance:.00001,cap:.01,level:5},
         {id:"ascendedAscendedForestPendant",chance:.0001,cap:.01,level:1},
+        {id:"wandoosXl",chance:.00005,cap:.01,level:3}, /* wiki Badly Drawn World, Loot > Boss : "lvl 3 (0.005% base chance, up to 1% max)" */
         {id:"randomCrayons",chance:.000012,cap:.03,level:1}
       ]
     }
@@ -3488,6 +3606,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:.00009,cap:.10,set:"stealth",level:1}],
       specials:[
         {id:"ascendedAscendedForestPendant",chance:.00007,cap:.01,level:5}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"wandoosXl",chance:.00003,cap:.01,level:8}, /* wiki Boring-Ass Earth, Loot > Boss : "lvl 8 (0.003% base chance, up to 1% max)" */
         {id:"sirLooty",chance:.000007,cap:.01,level:8},
         {id:"stealthiestArmour",chance:.000001,cap:.005,level:5,requiresCompletedSet:"stealth"},
         {id:"redLipstick",chance:.000006,cap:.02,level:1}
@@ -4455,9 +4574,13 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     }
     // wiki : "Ascended Forest Pendant lvl 50 (0.5% base chance)", "Fanny Pack lvl 10 (if Wanderer's (set) complete, 0.01%)", "Dorky Glasses lvl 10 (if S'rerednaW (set) complete, 0.01%)"
     if(chance(.005))objet("ascendedForestPendant",50);
+    // wiki Walderp, Loot : "A busted copy of Wandoos XL lvl 20 (0.5% base chance)".
+    if(chance(.005))objet("wandoosXl",20);
     if(s.completedSets.wanderer&&chance(.0001))objet("fannyPack",10);
     if(s.completedSets.rerednaw&&chance(.0001))objet("dorkyGlasses",10);
   }else if(id==="t6"){
+    // wiki The Beast, Loot : "Heroic Sigil lvl 4 - guaranteed" -- objet fusionnable du Heroic Sigil (set).
+    objet("heroicSigil",Math.min(MAX,4+bonus));
     for(const slot of cinq)if(chance(.0005))equip("slimy",slot,Math.min(MAX,4+bonus));
     // wiki, "All Modes" : "Ascended Ascended Ascended Pendant lvl 1 (0.05% base chance)", "A Bald Egg lvl 4 (0.02% base chance)"
     if(chance(.0005))objet("ascendedX3Pendant",1);
@@ -4491,6 +4614,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
       [["godmothersRing",4,.00006,.25],["godmothersWand",4,.00006,.25]],
       [["leftFairyWing",4,.000045,.25],["rightFairyWing",4,.000045,.25]]);
   }else if(id==="t7"){
+    // wiki The Exile, Loot : "A Still-Beating Heart lvl 4 (guaranteed)" -- objet fusionnable du Still-Beating Heart (set).
+    objet("stillBeatingHeart",Math.min(MAX,4+bonus));
     titanEvil("exile",.00002,
       [["theJoker",4,.00002,.25],["antlersExile",4,.00002,.25],["ascendedX4Pendant",50,.000015,.25],["kingLooty",50,.000015,.25]],
       [["creditCard",4,.00001,.25],["tentacleExile",4,.00001,.25]],
@@ -4593,6 +4718,20 @@ function consumeAdventureSkillItemV1(s,itemId){
 }
 function transformAdventureItemV1(s,itemId,ctx){
   const o=s.inventory.find(x=>x.id===String(itemId||""));
+  /*
+   * wiki "The Lonely Flubber" : "can be upgraded to The Triple Flubber (level it to level 100
+   * and CTRL + Click to transform it)". Le wiki ne publie pas le niveau de la Triple Flubber
+   * obtenue : niveau 0, même convention que la Grey Liquid ci-dessous (aucun niveau inventé).
+   */
+  if(o&&o.definitionId==="flubber"){
+    if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
+    retirerObjetAdventureV1(s,o.id);
+    const triple=special("tripleFlubber",0);
+    triple.id=`i${s.serial++}`;
+    const ajoute=add(s,triple);
+    if(!ajoute)throw Error("INVENTAIRE_PLEIN");
+    return ajoute;
+  }
   if(!o||o.definitionId!=="smallGerbil")throw Error("TRANSFORMATION_INVALIDE");
   if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
   if(String(ctx&&ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");
