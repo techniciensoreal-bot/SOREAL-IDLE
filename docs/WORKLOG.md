@@ -1237,3 +1237,9 @@ Signalé : « dans Collection, les informations sur les monstres ne sont pas bon
 ## 2026-09-23 — Plusieurs Beards actives
 
 Page Beards of Power : jusqu'à 7 slots (1 au déblocage, 1 Troll Normal complétion 4, 1 boutique EXP 50 000 EXP, 4 boutique Sellout) ; les Beards actives se ralentissent entre elles quand elles utilisent la même ressource (diviseur = nombre actif, x0,9 avec le set Beardverse) ; la conversion permanente du Rebirth traite chaque Beard active ; quirk « Beast's Special Beard Tonic » (+1 % de vitesse par niveau) branché. Sélectionner une Beard déjà active la retire ; le slot le plus ancien est remplacé quand tous sont pleins. Le bank de niveaux de Beard s'applique à la première Beard active (formulation du wiki ambiguë avec plusieurs Beards). Test `idle-beards-multi-slots`.
+
+## 2026-09-23 — AP des boss d'aventure, boosts de l'ITOPOD
+
+- Page Arbitrary Points : 1 AP tous les 10 boss d'aventure vaincus (multiplié par les bonus d'AP). Test `idle-boss-ap`.
+- Page ITOPOD : 14 % de chance par kill de lâcher un boost de niveau 1 dont la force dépend du palier (1, 2, 5, 10, 20, 50, 100, 200, 500, 1 000, 2 000, 5 000, 10 000) ; limité par la place restante dans l'inventaire. Test `idle-itopod-boost-drops`.
+- TIPPI et THE TRAITOR (titans 13 et 14) restent non modélisés : le miroir du wiki ne publie ni respawn, ni récompenses, ni butin pour eux (modèle vide).

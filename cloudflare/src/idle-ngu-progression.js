@@ -3238,6 +3238,15 @@ function towerOptimalFloorV1(power, idleBonus) {
   }
   return lo;
 }
+/* Page ITOPOD, colonne « Boost » : force du boost lâché par palier (14 % de chance par kill, niveau 1). */
+function towerBoostStrengthV1(tier) {
+  const forces = [1, 2, 5, 10, 20, 50, 100, 200, 500];
+  if (tier <= 9) return forces[tier - 1];
+  if (tier <= 14) return 1000;
+  if (tier <= 17) return 2000;
+  if (tier <= 23) return 5000;
+  return 10000;
+}
 function towerMilestonePpV1(floor) {
   if (floor <= 0 || floor % 10 !== 0) return 0;
   return floor % 100 === 0 ? floor / 10 : 1 + Math.floor(floor / 100);
@@ -3281,6 +3290,18 @@ function advanceTowerV1(state, seconds, context) {
     if (!(n > 0)) return;
     const tier = towerTierV1(floor);
     d.kills += n;
+    d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
+    const boosts = Math.floor(d.boostProgress);
+    if (boosts > 0) {
+      d.boostProgress -= boosts;
+      const types = ["power", "toughness", "special"];
+      const forceBoost = towerBoostStrengthV1(tier);
+      for (let i = 0; i < Math.min(boosts, 200); i++) {
+        const item = idleAdventureBoostV1(types[Math.floor(Math.random() * 3)], forceBoost);
+        item.level = 1;
+        if (!idleAdventureAddItemV1(state.adventure, item)) break;
+      }
+    }
     /* Little Blue Pill : PPP doublés pour les n premiers kills couverts par le stock de pilules. */
     const fx = state.selloutEffects;
     const pills = fx ? Math.min(n, Math.max(0, int(fx.bluePills, 0))) : 0;

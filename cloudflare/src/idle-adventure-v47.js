@@ -3803,6 +3803,8 @@ function rollKill(s,ctx){
   s.zone.kills[z.id]=kills;
   const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;
   if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;
+  /* Page Arbitrary Points : « Adventure Bosses : 1 AP tous les 10 boss ». */
+  if(boss){s.permanent.adventureBossKills=I(s.permanent.adventureBossKills)+1;if(s.permanent.adventureBossKills%10===0)s.permanent.ap=N(s.permanent.ap)+1}
 
   /* 2026-09-23 : quand le moteur meta fournit un multiplicateur qui contient déjà l'équipement (set + Cube + objets), ne pas les recompter. */
   const dropMult=Math.max(
