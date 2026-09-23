@@ -7,6 +7,7 @@ import {
   rebirthBasicTrainingStateV411,
   nextBasicTrainingCapV411,
   totalBasicTrainingAllocationV411,
+  isBasicTrainingSkillUnlockedV411,
   deriveBasicTrainingStatsV411,
   applyBasicTrainingAllocationsV411,
   basicTrainingSnapshotV411
@@ -9314,9 +9315,30 @@ function contexteMetaNguSorealIdle_(
     collection && typeof collection === 'object'
       ? collection
       : {};
+  /*
+   * 2026-09-23 (audit NGU) : entrainementBase.skills est un OBJET indexé par
+   * id (createBasicTrainingStateV411), pas un tableau -- le test
+   * Array.isArray d'origine était toujours faux, donc attackTrainingLevels
+   * valait toujours 0 (facteur NUMBER "training level" bloqué à 1,
+   * wiki : Floor(1 + Attack_Basic_Training_Levels / 10 000)) et
+   * basicTrainingComplete toujours false (Advanced Training, débloqué par
+   * le wiki "once both Ultimate Attack and Ultimate Buff are unlocked",
+   * ne pouvait donc jamais s'ouvrir).
+   */
+  const etatEntrainementBase =
+    stats && stats.entrainementBase
+      ? normalizeBasicTrainingStateV411(stats.entrainementBase, Date.now())
+      : null;
   const skills =
-    stats && stats.entrainementBase && Array.isArray(stats.entrainementBase.skills)
-      ? stats.entrainementBase.skills
+    etatEntrainementBase
+      ? BASIC_TRAINING_V411.skills.map(function(def) {
+          const skill = etatEntrainementBase.skills[def.id] || {};
+          return {
+            id: def.id,
+            level: skill.level,
+            unlocked: isBasicTrainingSkillUnlockedV411(etatEntrainementBase, def)
+          };
+        })
       : [];
   const attackTrainingLevels =
     skills.reduce(function(total, skill) {
@@ -13300,7 +13322,12 @@ function definirAllocationsEntrainementSorealIdle(
       stats.metaNgu.resources.energy
     ){
       stats.metaNgu.resources.energy.current=Math.max(0,nombreSorealIdle_(resultat.idleEnergy,0));
-      stats.metaNgu.resources.energy.fillProgress=0;
+      /*
+       * 2026-09-23 (audit NGU) : ne PAS remettre fillProgress à 0. Chaque
+       * changement d'allocation effaçait la fraction de barre d'énergie déjà
+       * remplie (jusqu'à 1 unité de régénération perdue par clic) ; le vrai
+       * jeu conserve la progression de la barre.
+       */
     }
 
     feuille

@@ -1219,14 +1219,15 @@
         bt.skills.forEach(function(skill){
           if(!skill)return;
 
+          /* 2026-09-23 (audit NGU) : niveau ENTIER (wiki : Level^1.3 x BaseValue),
+           * la fraction de barre (skill.progress) n'est qu'un affichage. */
           const level=
             Math.max(
               0,
-              idleNombre_(
-                skill.level
-              )+
-              idleNombre_(
-                skill.progress
+              Math.floor(
+                idleNombre_(
+                  skill.level
+                )
               )
             );
 

@@ -450,15 +450,15 @@ export function deriveBasicTrainingStatsV411(raw){
   for(const def of BASIC_TRAINING_V411.skills){
     const skill=state.skills[def.id];
 
-    const level=
-      int(skill.level,0)+
-      Math.max(
-        0,
-        Math.min(
-          0.999999999,
-          num(skill.progress,0)
-        )
-      );
+    /*
+     * 2026-09-23 (audit NGU) : la formule du wiki ("Basic Training" :
+     * "bonus equal to Level^1.3 x BaseValue") s'applique au niveau ENTIER,
+     * comme dans le vrai jeu. La fraction de barre (skill.progress) ne
+     * sert qu'à l'affichage de la barre : l'ajouter ici gonflait chaque
+     * statistique de ~0,5 niveau par entraînement, donc deux parties
+     * identiques ne donnaient jamais les mêmes chiffres.
+     */
+    const level=Math.max(0,int(skill.level,0));
 
     const contribution=
       Math.pow(

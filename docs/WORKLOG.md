@@ -998,3 +998,16 @@ Retour utilisateur : « le mode aventure peine parfois à lancer les combats, il
 Nouveau test `idle-adventure-combat-start-never-freezes.test.mjs` (comportemental : drapeau réel, 4 chemins d'échec ; structurel : plus aucune référence à l'ancienne variable). Suite complète : 174/174 OK.
 
 Non traité ici (suspecté par l'analyse, à vérifier) : une réponse de synchro tardive pouvant écraser l'état d'un combat plus récent.
+
+## 2026-09-23 — Audit NGU Idle : Entraînement de base (3 écarts de calcul corrigés)
+
+Retour utilisateur : mêmes chiffres placés dans Entraînement de base dans NGU et SOREAL IDLE dès le début du jeu, statistiques différentes après 1 h. Analyse comparée au miroir local du wiki (`Basic Training`, `Training cap`, `Advanced Training`, `ngu-wiki-reference/rebirth-and-number.md`). **Ce qui est conforme** (vérifié, simulation à l'appui : 500 énergie dans Idle Attack pendant 3600 s = exactement 36 000 niveaux, sans dérive flottante) : vitesse 50 niveaux/s × min(1, allocation/cap), les 12 caps/valeurs de base/paliers, formule `Level^1.3 × BaseValue`, PV = 10 × attaque, régénération = défense/20.
+
+**Corrigé :**
+1. **Niveau fractionnaire dans la formule des stats** (`idle-basic-training.js`, client `soreal-idle-ui.js`) : `Level^1.3` était calculé sur `niveau + fraction de barre`, alors que le wiki (et le vrai jeu) utilise le niveau entier -- chaque entraînement était gonflé d'environ 0,5 niveau. La fraction ne sert plus qu'à la barre de progression. (L'intégrale de régénération de PV V176 reste continue, volontairement.)
+2. **L'allocation effaçait la barre d'énergie** (`idle-sqlite-runtime.js`) : chaque changement d'allocation remettait `fillProgress` à 0, perdant jusqu'à une unité de régénération par clic ; le vrai jeu conserve la progression de la barre.
+3. **`attackTrainingLevels` toujours 0 et `basicTrainingComplete` toujours faux** : `entrainementBase.skills` est un objet indexé par id, or le code testait `Array.isArray` et lisait un champ `unlocked` que l'état ne contient pas. Conséquences : le facteur « training level » du NUMBER (`Floor(1 + Attack_Basic_Training_Levels / 10 000)`) restait figé à 1, et **Advanced Training (wiki : débloqué quand Ultimate Attack et Ultimate Buff le sont) ne pouvait jamais s'ouvrir**. Calcul désormais fait avec `normalizeBasicTrainingStateV411` + `isBasicTrainingSkillUnlockedV411`.
+
+Nouveau test `idle-basic-training-number-and-advanced-unlock.test.mjs`. Suite complète : 175/175 OK.
+
+**Constatés, non corrigés dans ce lot** (à traiter ensuite) : (4) l'allocation est appliquée localement tout de suite et côté serveur après ~70 ms + latence, avec un raccord qui garde la valeur la plus haute (dérive de l'affichage au-dessus de la vérité serveur) ; (5) l'affichage client code les multiplicateurs (NUMBER, perks) à 1 ; (6) le client plafonne le temps d'énergie à 1 s par appel (onglet en arrière-plan sous-crédité à l'écran) ; (7) effets non branchés : Double Basic Training, quirk « Super Advanced Beast Training! », vœu 23 (+1 niveau par remplissage de barre selon le wiki). **À ne pas inventer** : la règle de réduction de cap (`niveaux/1000 %` plafonné à 10 %) n'est pas publiée par le wiki (« up to 10% » seulement) et la table « 1 cap at » du wiki est incohérente avec son propre texte (56/74/81/86/89/92 vs 57..92) -- laissée en l'état, à trancher avec l'utilisateur.
