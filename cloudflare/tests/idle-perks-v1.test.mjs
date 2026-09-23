@@ -68,33 +68,43 @@ assert.equal(idlePerkByIdV1(94).name, "The Fibonacci Perk");
 assert.equal(idlePerkByIdV1(94).cost, 500, "500 PP per level, per the audit.");
 assert.equal(idlePerkByIdV1(94).cap, 1597, "Caps at 1597 (a Fibonacci number), per the audit.");
 
-// --- The Fibonacci Perk: threshold-unlocked milestones, not linear per-level bonuses ---
+// --- The Fibonacci Perk : tableau de la page wiki « Fibonacci Perk » (audit 2026-09-23) ---
 {
   const below = perkBonusesV1({ 94: 0 });
   assert.equal(below.energyPowerMultiplier, 1, "Level 0 must unlock nothing.");
 
   const l1 = perkBonusesV1({ 94: 1 });
-  assert.ok(Math.abs(l1.energyPowerMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Energy Power.");
-  assert.ok(Math.abs(l1.magicPowerMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Magic Power.");
-  assert.ok(Math.abs(l1.energyCapMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Energy Cap.");
-  assert.ok(Math.abs(l1.energyBarsMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Energy Bars.");
-  assert.ok(Math.abs(l1.magicBarsMultiplier - 1.10) < 1e-9, "Level 1 unlocks +10% Magic Bars.");
-  assert.equal(l1.nguSpeedEnergyMultiplier, 1, "Level 5's bonus must not apply yet at level 1.");
+  assert.ok(Math.abs(l1.energyPowerMultiplier - 1.10) < 1e-9, "Level 1 : +10% Energy Power.");
+  assert.ok(Math.abs(l1.magicPowerMultiplier - 1.10) < 1e-9, "Level 1 : +10% Magic Power.");
+  assert.equal(l1.energyCapMultiplier, 1, "Level 1 ne donne PAS de Cap (Energy Cap = niveau 2).");
+  assert.equal(l1.energyBarsMultiplier, 1);
+
+  const l2 = perkBonusesV1({ 94: 2 });
+  assert.ok(Math.abs(l2.energyCapMultiplier - 1.10) < 1e-9, "Level 2 : +10% Energy Cap.");
+  assert.equal(l2.magicCapMultiplier, 1);
+  const l3 = perkBonusesV1({ 94: 3 });
+  assert.ok(Math.abs(l3.magicCapMultiplier - 1.10) < 1e-9, "Level 3 : +10% Magic Cap (absent avant l'audit).");
 
   const l4 = perkBonusesV1({ 94: 4 });
-  assert.ok(Math.abs(l4.energyPowerMultiplier - 1.20) < 1e-9, "Levels 1+2 stack: +10%+10% = +20% Energy Power.");
+  assert.ok(Math.abs(l4.energyPowerMultiplier - 1.10) < 1e-9, "La Power n'est donnée qu'une fois (niveau 1).");
   assert.equal(l4.nguSpeedEnergyMultiplier, 1, "Level 5 not yet reached at level 4.");
 
   const l21 = perkBonusesV1({ 94: 21 });
-  assert.ok(Math.abs(l21.energyPowerMultiplier - 1.30) < 1e-9, "Levels 1+2+21 stack to +30% Energy Power at level 21.");
-  assert.ok(Math.abs(l21.nguSpeedEnergyMultiplier - 1.05) < 1e-9, "Level 5's +5% Energy NGU speed is included by level 21.");
-  assert.ok(Math.abs(l21.nguSpeedMagicMultiplier - 1.05) < 1e-9, "Level 8's +5% Magic NGU speed is included by level 21.");
+  assert.ok(Math.abs(l21.energyBarsMultiplier - 1.10) < 1e-9 && Math.abs(l21.magicBarsMultiplier - 1.10) < 1e-9, "Level 21 : +10% Bars.");
+  assert.ok(Math.abs(l21.nguSpeedEnergyMultiplier - 1.05) < 1e-9, "Level 5 : +5% Energy NGU speed.");
+  assert.ok(Math.abs(l21.nguSpeedMagicMultiplier - 1.05) < 1e-9, "Level 8 : +5% Magic NGU speed.");
+  assert.ok(Math.abs(l21.ppEarningsMultiplier - 1.05) < 1e-9, "Level 13 : +5% PP earnings.");
 
   const l55 = perkBonusesV1({ 94: 55 });
-  assert.ok(Math.abs(l55.daycareGrowthMultiplier - 1.05) < 1e-9, "Level 55 unlocks +5% Daycare growth.");
+  assert.ok(Math.abs(l55.adventureStatsMultiplier - 1.13) < 1e-9, "Level 34 : +13% Adventure Stats.");
+  assert.ok(Math.abs(l55.daycareGrowthMultiplier - 1.05) < 1e-9, "Level 55 : +5% Daycare.");
 
-  const l144 = perkBonusesV1({ 94: 144 });
-  assert.ok(Math.abs(l144.lootGoblinChance - 0.05) < 1e-9, "Level 144 unlocks a 5% loot-level-up chance, same pool as Loot Goblin's Blessing.");
+  const l989 = perkBonusesV1({ 94: 990 });
+  assert.ok(Math.abs(l989.apEarningsMultiplier - 1.02) < 1e-9, "Level 89 : +2% AP.");
+  assert.ok(Math.abs(l989.lootLevelChance - 0.05) < 1e-9, "Level 144 : +5% chance de +1 niveau sur le loot.");
+  assert.ok(Math.abs(l989.qpEarningsMultiplier - 1.10) < 1e-9, "Level 233 : +10% QP.");
+  assert.ok(Math.abs(l989.statMultiplier - 4.77) < 1e-9, "Level 377 : +377% Attack/Defense.");
+  assert.ok(Math.abs(l989.expEarningsMultiplier - 1.05) < 1e-9, "Level 987 : +5% EXP.");
 
   assert.ok(Math.abs(perkBonusesV1({ 94: 99999 }).energyPowerMultiplier - perkBonusesV1({ 94: 1597 }).energyPowerMultiplier) < 1e-9, "Level is clamped to the 1597 cap, never over-counted beyond it.");
 }

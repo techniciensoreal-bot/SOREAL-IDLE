@@ -3146,7 +3146,7 @@ export function idleAdventureDropChanceV2(baseChance,cap,dropMultiplier,zone){
 
 function dropLevelAdventureV2(s,baseLevel){
   let lv=Math.max(0,I(baseLevel));
-  if(lv>=1&&Math.random()<N(s.setRewards.extraDropLevelChance))lv++;
+  if(lv>=1&&Math.random()<Math.min(1,N(s.setRewards.extraDropLevelChance)+N(s.bonusDropLevelChance)))lv++;
   return lv;
 }
 

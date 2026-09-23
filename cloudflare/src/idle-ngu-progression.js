@@ -1582,6 +1582,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   {
     const perks = perkBonusesV1(state.systems.perks?.data?.levels);
     const wishes = wishBonusesV1(state.systems.wishes?.data?.tracks);
+    state.adventure.bonusDropLevelChance = perks.lootLevelChance;
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)),
       accessory: Math.max(0, int(perks.accessorySlotBonus, 0))
@@ -3067,7 +3068,7 @@ function advanceLateSystems(state, seconds, context, now) {
        * (availableDiggerSlots), jamais une nouvelle mécanique inventée.
        */
       const itopodPpSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0));
-      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier * nguFxV1(state).pp * hackFxV1(state).pp;
+      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier * nguFxV1(state).pp * hackFxV1(state).pp * perkBonusesV1(state.systems.perks?.data?.levels).ppEarningsMultiplier;
       /*
        * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
        * perdait le report entre deux ticks — en jeu normal (tick fréquent,
@@ -3600,7 +3601,7 @@ export function idleNguBonuses(raw) {
        * appliqué"), câblé ici pour la première fois.
        */
       Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
-    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * (1 + num(state.bonuses.cookingExp, 0)),
+    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * perkBonuses.expEarningsMultiplier * (1 + num(state.bonuses.cookingExp, 0)),
     respawnReduction: clamp(
       1 - (1 - nguFx.respawnReduction) * (1 - num(adventureGear.specials?.respawnReductionPct, 0) / 100),
       0,
@@ -3727,7 +3728,7 @@ export function idleNguBonuses(raw) {
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
     beardNumberMultiplier: beardNumber,
-    ppMultiplier: nguFx.pp * hackFx.pp,
+    ppMultiplier: nguFx.pp * hackFx.pp * perkBonuses.ppEarningsMultiplier,
     /* Aucun vrai NGU n'accélère Questing ni le Daycare (pistes inventées retirées). */
     questSpeedMultiplier: 1,
     daycareSpeedMultiplier: 1,
@@ -4614,8 +4615,9 @@ function crediterRecompensesAventure(state, avant) {
   const gain = (cle) => Math.max(0, num(p[cle], 0) - num(avant[cle], 0));
   state.currencies.experience += gain("experience");
   state.currencies.gold += gain("gold");
-  state.currencies.ap += gain("ap");
-  state.currencies.qp += gain("qp");
+  const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
+  state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier;
+  state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
   const pp = gain("ppProgress");
   if (pp > 0) {
     const tower = state.systems.tower;

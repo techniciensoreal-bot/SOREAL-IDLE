@@ -224,14 +224,25 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
     cost: 500,
     cap: 1597,
     bonus: {},
+    /*
+     * 2026-09-23 (audit) : tableau exact de la page « Fibonacci Perk » du wiki (l'ancien
+     * tableau donnait +10 % de tout aux niveaux 1 et 2 et omettait le niveau 3).
+     */
     fibonacciMilestones: [
-      { level: 1, energyPowerPct: 0.10, magicPowerPct: 0.10, energyCapPct: 0.10, energyBarsPct: 0.10, magicBarsPct: 0.10 },
-      { level: 2, energyPowerPct: 0.10, magicPowerPct: 0.10, energyCapPct: 0.10, energyBarsPct: 0.10, magicBarsPct: 0.10 },
+      { level: 1, energyPowerPct: 0.10, magicPowerPct: 0.10 },
+      { level: 2, energyCapPct: 0.10 },
+      { level: 3, magicCapPct: 0.10 },
       { level: 5, nguSpeedEnergyPct: 0.05 },
       { level: 8, nguSpeedMagicPct: 0.05 },
-      { level: 21, energyPowerPct: 0.10, magicPowerPct: 0.10, energyCapPct: 0.10, energyBarsPct: 0.10, magicBarsPct: 0.10 },
+      { level: 13, ppEarningsPct: 0.05 },
+      { level: 21, energyBarsPct: 0.10, magicBarsPct: 0.10 },
+      { level: 34, adventureStatsPct: 0.13 },
       { level: 55, daycareGrowthPct: 0.05 },
-      { level: 144, lootGoblinChancePct: 0.05 }
+      { level: 89, apEarningsPct: 0.02 },
+      { level: 144, lootLevelChance: 0.05 },
+      { level: 233, qpEarningsPct: 0.10 },
+      { level: 377, statPct: 3.77 },
+      { level: 987, expEarningsPct: 0.05 }
     ]
   }
 ]);
@@ -315,6 +326,11 @@ export function perkBonusesV1(levelsById) {
     bossExpMultiplier: 1 + (totals.bossExpPct || 0),
     fruitKnowledgeExpMultiplier: Math.max(1, totals.fruitKnowledgeExpMult || 1),
     doubleBasicTraining: Boolean(totals.doubleBasicTraining),
+    ppEarningsMultiplier: 1 + (totals.ppEarningsPct || 0),
+    apEarningsMultiplier: 1 + (totals.apEarningsPct || 0),
+    qpEarningsMultiplier: 1 + (totals.qpEarningsPct || 0),
+    expEarningsMultiplier: 1 + (totals.expEarningsPct || 0),
+    lootLevelChance: Math.min(1, totals.lootLevelChance || 0),
     beardTrimSpeedLevel: totals.beardTrimSpeedLevel || 0,
     sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0
   };
