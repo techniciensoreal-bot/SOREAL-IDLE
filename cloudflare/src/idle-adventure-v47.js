@@ -2422,22 +2422,12 @@ for(const o of Object.values(s.coffre||{})){
 }
 checkSets(s);
 /*
- * Migration unique : les anciennes sauvegardes avaient reçu 10 EXP pour
- * le Training Set alors que la récompense NGU est 20 EXP. Une complétion
- * faite sous le nouveau catalogue pose trainingSetExp20V1 directement
- * dans checkSets(), donc seul un ancien completedSets.training reçoit ici
- * le complément de +10. Le moteur NGU partagé crédite la vraie monnaie
- * via le drapeau pending ci-dessous.
+ * 2026-09-23 (audit des bonus de complétion) : retrait de la migration
+ * "Training Set 10 -> 20 EXP", qui ajoutait +10 EXP aux anciennes
+ * complétions. Le wiki (page "Training (set)", miroir NGU-Wiki : "+2 energy
+ * speed / 10 EXP") donne 10 EXP, valeur déjà dans SETS.training depuis
+ * 27c9514 : le complément portait ces sauvegardes à 20 EXP, contraire au wiki.
  */
-if(
-  s.completedSets.training&&
-  !s.unlockFlags.trainingSetExp20V1
-){
-  s.setRewards.experience=N(s.setRewards.experience)+10;
-  s.permanent.experience=N(s.permanent.experience)+10;
-  s.unlockFlags.trainingSetExp20V1=true;
-  s.unlockFlags.trainingSetExp20CurrencyPendingV1=true;
-}
 syncInventorySlotsAdventureV2(s);
 return s}
 const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slots.includes(slot)?{kind:"set",set,slot}:SPECIALS[id]?{kind:"special",id}:null};
