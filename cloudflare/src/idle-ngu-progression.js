@@ -380,8 +380,8 @@ function challengePermanentBonuses(state){
     augmentationCostMultiplier:noAugs>=5?0.5:1,
     /* Laser Sword (Normal) : +0,01 x rang de l'augment (Milk = 1) à l'exposant, par complétion. */
     laserSwordExponentStep:k(c,"laserSword")*0.01,
-    /* No Equipment : +8 slots par complétion (+10 à la dernière) en Normal, +3 par complétion (12 au total) en Evil. */
-    inventorySlots:noEquipment*8+(noEquipment>=5?10:0)+Math.min(12,k(e,"noEquipment")*3),
+    /* No Equipment : +8 slots par complétion (+10 à la dernière, 50 au total) en Normal ; Evil : +3 par complétion et +9 à la dernière (24 au total, page Inventory). */
+    inventorySlots:noEquipment*8+(noEquipment>=5?10:0)+k(e,"noEquipment")*3+(k(e,"noEquipment")>=5?9:0),
     autoBoost:noEquipment>0,
     autoMergeTimeMultiplier:Math.max(0.5,1-noEquipment*0.10),
     /* No Rebirth : -15 min de respawn par complétion pour les titans à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */
