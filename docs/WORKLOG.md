@@ -1201,3 +1201,7 @@ Le perk « Five O'Clock Shadow » (21) était calculé (`beardTrimSpeedLevel`) m
 ## 2026-09-23 — Compétences d'aventure (client)
 
 Page Skills / Build Move Cooldowns : les specials « Move Cooldowns » de l'équipement (Ring of Might 20 %, Sands of Time 20 %, Infinity Charm 10 %) réduisaient rien -- ils réduisent maintenant les cooldowns des moves (puis Red Liquid -20 %) ; Parry x3 avec le set Slimy complété ; l'Idle Mode lit le multiplicateur du serveur (x1,2 / 1,5 / 1,8). `soreal-idle-ui.js?v=231`. Test `idle-client-skill-tweaks`.
+
+## 2026-09-23 — Drop Chance : set 2D et Cube comptés deux fois
+
+Le bonus de drop du set 2D (+7,43 %) et du Cube d'Infinité (50 % et plus, additif avec les objets d'après la page Drop Chance) entrait déjà dans `specials.dropChancePct` -> `dropMultiplier` du moteur meta, puis était appliqué une seconde fois dans `rollKill` et pour les titans (avec un Cube à 50 %, le drop valait 2,25x au lieu de 1,5x). Le contexte meta signale maintenant `dropMultiplierIncludesGear` et le moteur d'aventure ne recompte plus set + Cube dans ce cas. Test `idle-drop-chance-no-double-count`.

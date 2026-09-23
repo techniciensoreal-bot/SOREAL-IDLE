@@ -5006,6 +5006,7 @@ function titanFight(state, context, now) {
       wishLevels:wishLevelsMapV1(state),
       goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
+      dropMultiplierIncludesGear:true,
       titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
       titanCooldownReductionEvilMs:titanChallengeBonuses.titanRespawnReductionEvilMs,
       titanCooldownReductionSadisticMs:titanChallengeBonuses.titanRespawnReductionSadisticMs,
@@ -5136,6 +5137,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
          * donc calculés puis perdus avant le jet de loot.
          */
         dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
+        dropMultiplierIncludesGear: true,
         dropChancePct: num(context.dropChancePct, 0),
         difficulty: state.difficulty,
         goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),

@@ -3346,10 +3346,11 @@ function rollKill(s,ctx){
   const boss=ctx.forceBoss!=null?Boolean(ctx.forceBoss):kills%10===0;
   if(boss)s.zone.bossKills[z.id]=(s.zone.bossKills[z.id]||0)+1;
 
+  /* 2026-09-23 : quand le moteur meta fournit un multiplicateur qui contient déjà l'équipement (set + Cube + objets), ne pas les recompter. */
   const dropMult=Math.max(
     .1,
     N(ctx.dropMultiplier,1)*
-    (1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)
+    (ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)
   );
 
   const exact=rollProfileLootAdventureV2(s,z,boss,dropMult);
@@ -3863,7 +3864,7 @@ function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",tit
 if(id==="t1"&&!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}
 if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
-const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
+const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
 if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops);
 const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey):{gold:0,experience:0,ap:0,ppProgress:0,qp:0};
 /*
