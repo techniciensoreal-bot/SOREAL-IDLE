@@ -1698,7 +1698,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2")
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
 
@@ -1923,10 +1923,13 @@ function refreshRebirthState(state, context, now) {
     hacksNumberBonus: 1,
     sadisticBossMultiplierBonus:
       perkBonusesV1(state.systems.perks?.data?.levels).sadisticBossMultiplierBonus +
-      quirkBonusesV1(state.systems.quirks?.data?.levels).sadisticBossMultiplierBonus
+      quirkBonusesV1(state.systems.quirks?.data?.levels).sadisticBossMultiplierBonus +
+      0.001 * (wishLevelV1(state, 107) + wishLevelV1(state, 108))
   });
   rb.nextNumber = preview.nextNumber;
-  rb.canRebirth = preview.canRebirth;
+  const minRebirth = minRebirthSecondsV1(state);
+  rb.canRebirth = runSeconds >= minRebirth && Math.max(0, int(context.bosses, 0)) >= REBIRTH_UNLOCK_BOSS_V1;
+  rb.minimumRebirthSeconds = minRebirth;
   rb.preview = preview.factors;
   rb.updatedAt = now;
   return rb;
@@ -3229,7 +3232,7 @@ function advanceTowerV1(state, seconds, context) {
 
   const perks = perkBonusesV1(state.systems.perks?.data?.levels);
   const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
-  const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat;
+  const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79);
   const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier * diggerBonuses(state).pp;
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
 
@@ -3471,7 +3474,10 @@ function hackFxV1(state) {
   if (state.difficulty === "normal") return out;
   const tracks = state.systems.hacks?.data?.tracks || {};
   const reduction = quirkBonusesV1(state.systems.quirks?.data?.levels).hackMilestoneReduction || {};
-  const perkReduction = perkBonusesV1(state.systems.perks?.data?.levels).hackMilestoneReduction || {};
+  const perkReduction = Object.assign({}, perkBonusesV1(state.systems.perks?.data?.levels).hackMilestoneReduction || {});
+  perkReduction.qpGain = (perkReduction.qpGain || 0) + wishLevelV1(state, 76);
+  perkReduction.number = (perkReduction.number || 0) + wishLevelV1(state, 77);
+  perkReduction.hackHack = (perkReduction.hackHack || 0) + wishLevelV1(state, 78);
   for (const def of IDLE_NGU_TRACKS.hacks || []) {
     const level = Math.max(0, int(tracks[def.id]?.level, 0));
     if (level <= 0) continue;
@@ -3517,6 +3523,7 @@ function nguSpeedMultiplierV1(state, resource) {
   return Math.max(0,
     challengePermanentBonuses(state).nguSpeedMultiplier *
     (resource === "magic" ? challengePermanentBonuses(state).nguSpeedMagicChallengeMultiplier : challengePermanentBonuses(state).nguSpeedEnergyChallengeMultiplier) *
+    (1 + 0.02 * (resource === "magic" ? wishLevelV1(state, 113) + wishLevelV1(state, 114) : wishLevelV1(state, 111) + wishLevelV1(state, 112))) *
     beardBonusMultiplier(state, "ngu") *
     (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
     (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
@@ -3850,7 +3857,7 @@ export function idleNguBonuses(raw) {
        * appliqué"), câblé ici pour la première fois.
        */
       Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
-    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * perkBonuses.expEarningsMultiplier * (1 + num(state.bonuses.cookingExp, 0)),
+    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * perkBonuses.expEarningsMultiplier * (1 + num(state.bonuses.cookingExp, 0)) * (1 + 0.005 * wishLevelV1(state, 61)),
     respawnReduction: respawnReductionV1(state, nguFx, adventureGear, perkBonuses),
     adventurePowerFlat: num(adventureGear.power, 0)+num(yggPermanent.adventurePower,0)+perkBonuses.adventurePowerFlat,
     adventureToughnessFlat: num(adventureGear.toughness, 0)+num(yggPermanent.adventureToughness,0)+perkBonuses.adventureToughnessFlat,
@@ -4943,6 +4950,15 @@ function crediterRecompensesAventure(state, avant) {
   }
 }
 /* Niveaux des souhaits (id -> niveau), lus par les récompenses de titans. */
+/* Niveau d'un souhait (0 si absent). */
+function wishLevelV1(state, id) {
+  return Math.max(0, int(state.systems.wishes?.data?.tracks?.[String(id)]?.level, 0));
+}
+/* Souhait 20 (« I didn't have to wait 3 minutes per rebirth ») : -10 s par niveau sur les 180 s minimum. */
+function minRebirthSecondsV1(state) {
+  return Math.max(0, MIN_REBIRTH_SECONDS - 10 * Math.min(6, wishLevelV1(state, 20)));
+}
+
 function wishLevelsMapV1(state) {
   const out = {};
   const tracks = state.systems.wishes?.data?.tracks || {};
@@ -5639,7 +5655,7 @@ export function rebirthIdleNguState(raw,context={},now=Date.now(),options={}) {
   if(state.challenge?.active==="noRebirth")throw new Error("REBIRTH_INTERDITE_DEFI");
   if(Math.max(0,int(context.bosses,0))<REBIRTH_UNLOCK_BOSS_V1)throw new Error("REBIRTH_VERROUILLEE_AVENTURE");
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
-  if(runSeconds<MIN_REBIRTH_SECONDS)throw new Error("REBIRTH_TROP_TOT");
+  if(runSeconds<minRebirthSecondsV1(state))throw new Error("REBIRTH_TROP_TOT");
   const requestedDifficulty=["normal","difficile","extreme"].includes(options.difficulty)?options.difficulty:state.difficulty;
   const changingDifficulty=requestedDifficulty!==state.difficulty;
   if(changingDifficulty&&requestedDifficulty!=="normal"){

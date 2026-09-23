@@ -1189,3 +1189,7 @@ Source : page Experience (Spend Experience). Achats manquants (aucun n'existait,
 - **Quirks ajoutés** : Accessory Slot! (18, +1 slot), Lower Minimum Wish Speed? (54, -24 s/niveau sur les 4 h de Wish), Even More Inventory Space? (90, +1 espace/niveau). Les autres quirks manquants (Cards, Mayo, Quêtes, MacGuffins, Daycare) restent hors périmètre.
 - **No Time Machine Evil (1re complétion)** : +100 % de GPS de la Time Machine (page Broken Time Machine : « 1100 % au total avec les 10 No TM normaux ») et non un multiplicateur d'or d'aventure.
 - Vérifié sans écart : rituels de Blood Magic, formules Iron Pill / Counterfeit Gold, formule de vitesse de Time Machine.
+
+## 2026-09-23 — Souhaits à effet non branché
+
+Wishes dont le bonus était déclaré vide alors que le système existe : 20 (temps minimum de Rebirth -10 s/niveau, 180 s -> 120 s), 46 (respawn -1 %/niveau, déjà ajouté au calcul de respawn), 61 (+0,5 % d'EXP global/niveau), 76/77/78 (paliers des Hacks QP / Number / Hack Hack -1 niveau/palier/niveau), 79 (+50 PPP de base par niveau dans l'ITOPOD), 107/108 (+0,001 au multiplicateur de boss Sadistic par niveau), 109 (slot d'accessoire), 111-114 (+2 % de vitesse NGU Energy/Magic par niveau). Restent sans effet (systèmes absents) : MacGuffins, Daycare, Quêtes, Cards, Mayo, double arme, nouveaux mouvements, Advanced Training auto, Cube boosting, paliers 12-16 du Money Pit.

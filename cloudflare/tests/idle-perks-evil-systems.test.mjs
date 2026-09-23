@@ -49,4 +49,16 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
   assert.equal(st2.adventure.bonusSlots.accessory, 1);
   assert.equal(st2.adventure.bonusSlots.inventory, 24);
 }
+// Souhaits à effet réel : 20 (rebirth), 61 (EXP), 79 (PPP ITOPOD), 109 (slot d'accessoire), 111 (vitesse NGU Energy)
+{
+  const ctx = { bosses: 100 };
+  const base = normalizeIdleNguState({}, ctx, 1_000_000);
+  const avecSouhaits = normalizeIdleNguState({}, ctx, 1_000_000);
+  const niveau = (id, level) => { avecSouhaits.systems.wishes.data.tracks[String(id)].level = level; };
+  niveau(20, 6); niveau(61, 10); niveau(109, 1);
+  assert.ok(Math.abs(idleNguBonuses(avecSouhaits).xpMultiplier / idleNguBonuses(base).xpMultiplier - 1.05) < 1e-9, "Souhait 61 : +0,5 % d'EXP par niveau");
+  const s2 = normalizeIdleNguState(avecSouhaits, ctx, 2_000_000);
+  assert.equal(s2.adventure.bonusSlots.accessory, 1, "Souhait 109 : un slot d'accessoire");
+  assert.equal(s2.rebirth.minimumRebirthSeconds, 120, "Souhait 20 : 6 niveaux = 60 s de moins sur les 180 s");
+}
 console.log("idle-perks-evil-systems ok");
