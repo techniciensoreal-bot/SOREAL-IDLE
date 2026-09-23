@@ -1264,6 +1264,12 @@ function normalizeTracks(def, rawData) {
   if ((IDLE_NGU_TRACKS[def.id] || []).some(t => t.id === source.activeTrack)) {
     out.activeTrack = source.activeTrack;
   }
+  if (def.id === "beards") {
+    /* 2026-09-23 : plusieurs Beards actives en même temps (une par slot). Ancien état : activeTrack seul. */
+    const valid = new Set((IDLE_NGU_TRACKS.beards || []).map(t => t.id));
+    const list = Array.isArray(source.activeTracks) ? source.activeTracks.filter(id => valid.has(id)) : (out.activeTrack ? [out.activeTrack] : []);
+    out.activeTracks = Array.from(new Set(list));
+  }
   return out;
 }
 
@@ -2249,13 +2255,36 @@ export function idleNguAugmentationMultiplier(raw) {
   return Math.max(1,1+(additive*nguFxV1(state).augments*challengePower)/sadisticStrengthDivider);
 }
 
+/*
+ * Page Beards of Power : 7 slots -- 1 au déblocage, 1 Troll Normal (complétion 4), 1 boutique EXP (50 000 EXP),
+ * 4 boutique Sellout. Plusieurs Beards actives ralentissent celles qui utilisent la même ressource :
+ * diviseur = nombre de Beards actives sur cette ressource (x0,9 avec le set Beardverse, minimum 1).
+ */
+function beardSlotsV1(state) {
+  const troll = int(state.challenge?.completions?.troll, 0) >= 4 ? 1 : 0;
+  const exp = expShopPurchasedV1(state, "beardSlot");
+  const sellout = Math.max(0, Math.min(4, int(state.selloutShop?.purchases?.extraBeardSlot, 0)));
+  return Math.min(7, 1 + troll + exp + sellout);
+}
+function beardActiveIdsV1(state) {
+  const s = state.systems.beards;
+  if (!s || !s.active) return [];
+  const data = s.data || {};
+  const list = Array.isArray(data.activeTracks) ? data.activeTracks : (data.activeTrack ? [data.activeTrack] : []);
+  const defs = IDLE_NGU_TRACKS.beards || [];
+  return list.filter(id => {
+    const def = defs.find(x => x.id === id);
+    return def && beardTrackUnlocked(state, def) && data.tracks?.[id];
+  }).slice(0, beardSlotsV1(state));
+}
+
 function beardTrackUnlocked(state, trackDef) {
   if (!trackDef) return false;
   const required = Math.max(0, int(trackDef.unlockTroll, 0));
   return int(state.challenge?.completions?.troll, 0) >= required;
 }
 
-function advanceBeardTrack(state, system, trackDef, track, seconds) {
+function advanceBeardTrack(state, system, trackDef, track, seconds, sameResourceCount = 1) {
   if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
 
   const resource = trackDef.resource || "energy";
@@ -2289,8 +2318,9 @@ function advanceBeardTrack(state, system, trackDef, track, seconds) {
     Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "bars")) *
     Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
     diggerSpeed *
-    beardSpeedFromItems /
-    Math.max(1, num(trackDef.speedDivider, 1e8));
+    beardSpeedFromItems *
+    quirkBonusesV1(state.systems.quirks?.data?.levels).beardSpeedMultiplier /
+    (Math.max(1, num(trackDef.speedDivider, 1e8)) * Math.max(1, sameResourceCount));
 
   if (baseRate <= 0) return;
 
@@ -2488,18 +2518,27 @@ function advanceTrackSystem(state, def, seconds) {
   if (!s.unlocked || seconds <= 0) return;
   const tracks = IDLE_NGU_TRACKS[def.id] || [];
   if (!tracks.length) return;
-  const active = s.data.activeTrack || tracks[0].id;
-  const trackDef = tracks.find(x => x.id === active) || tracks[0];
-  const t = s.data.tracks[active];
-  if (!t) return;
-
   if (def.id === "beards") {
-    advanceBeardTrack(state, s, trackDef, t, seconds);
+    const ids = beardActiveIdsV1(state);
+    const countBy = { energy: 0, magic: 0 };
+    for (const id of ids) countBy[(tracks.find(x => x.id === id)?.resource) || "energy"] += 1;
+    const penaltyFactor = state.adventure?.completedSets?.beardverse ? 0.9 : 1;
+    for (const id of ids) {
+      const bd = tracks.find(x => x.id === id);
+      const same = Math.max(1, countBy[bd.resource || "energy"] * penaltyFactor);
+      advanceBeardTrack(state, s, bd, s.data.tracks[id], seconds, same);
+    }
+    s.data.beardSlots = beardSlotsV1(state);
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
     s.permanentLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.permanentLevel, 0);
     return;
   }
+
+  const active = s.data.activeTrack || tracks[0].id;
+  const trackDef = tracks.find(x => x.id === active) || tracks[0];
+  const t = s.data.tracks[active];
+  if (!t) return;
 
   if (def.id === "hacks") {
     advanceHackTrack(state, s, trackDef, t, seconds);
@@ -3631,7 +3670,7 @@ function beardBonusMultiplier(state, role) {
   const def = (IDLE_NGU_TRACKS.beards || []).find(x => x.beardRole === role);
   if (!def || !beardTrackUnlocked(state, def)) return 1;
   const t = s.data?.tracks?.[def.id] || {};
-  const tempActive = Boolean(s.active && s.data?.activeTrack === def.id);
+  const tempActive = beardActiveIdsV1(state).includes(def.id);
   const temp = tempActive ? Math.max(0, num(t.tempLevel, 0)) : 0;
   const perm = Math.max(0, num(t.permanentLevel, 0));
   let tb = 0, pb = 0;
@@ -3672,15 +3711,16 @@ function beardRebirthTimeFactor(seconds, shadowLevel = 0) {
 function convertActiveBeardOnRebirth(state, runSeconds) {
   const s = state.systems.beards;
   if (!s?.unlocked || !s.data?.tracks) return { track: "", gained: 0, timeFactor: 0 };
-  const id = s.active ? (s.data.activeTrack || "") : "";
-  const def = (IDLE_NGU_TRACKS.beards || []).find(x => x.id === id);
-  const t = id ? s.data.tracks[id] : null;
+  const ids = beardActiveIdsV1(state);
+  const id = ids[0] || "";
   const timeFactor = beardRebirthTimeFactor(runSeconds, perkBonusesV1(state.systems.perks?.data?.levels).beardTrimSpeedLevel);
   let gained = 0;
-  if (t && beardTrackUnlocked(state, def)) {
+  for (const activeId of ids) {
+    const t = s.data.tracks[activeId];
     const temp = Math.max(0, num(t.tempLevel, 0));
-    gained = Math.min(temp, Math.floor(Math.sqrt(temp) * timeFactor));
-    t.permanentLevel = Math.max(0, num(t.permanentLevel, 0)) + gained;
+    const part = Math.min(temp, Math.floor(Math.sqrt(temp) * timeFactor));
+    t.permanentLevel = Math.max(0, num(t.permanentLevel, 0)) + part;
+    gained += part;
   }
   for (const track of Object.values(s.data.tracks)) {
     track.tempLevel = 0;
@@ -4362,9 +4402,9 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
-        active:
-          state.systems[def.id].data.activeTrack === track.id &&
-          (def.id !== "beards" || state.systems[def.id].active)
+        active: def.id === "beards"
+          ? beardActiveIdsV1(state).includes(track.id)
+          : state.systems[def.id].data.activeTrack === track.id
       })),
       state: clone(state.systems[def.id])
     }))
@@ -4453,8 +4493,20 @@ function selectTrack(state, id, trackId) {
   if (id === "beards" && !beardTrackUnlocked(state, trackDef)) {
     throw new Error("PISTE_VERROUILLEE");
   }
+  if (id === "beards") {
+    const list = Array.isArray(s.data.activeTracks) ? s.data.activeTracks.slice() : (s.data.activeTrack ? [s.data.activeTrack] : []);
+    const idx = list.indexOf(trackId);
+    if (idx >= 0) list.splice(idx, 1);
+    else {
+      list.push(trackId);
+      while (list.length > beardSlotsV1(state)) list.shift();
+    }
+    s.data.activeTracks = list;
+    s.data.activeTrack = list[list.length - 1] || "";
+    s.active = list.length > 0;
+    return;
+  }
   s.data.activeTrack = trackId;
-  if (id === "beards") s.active = true;
 }
 
 /*
@@ -5344,7 +5396,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   const tmSpeedLevelEnd=Math.max(0,num(state.systems.timeMachine.data.speedLevel,0));
   const tmGoldLevelEnd=Math.max(0,num(state.systems.timeMachine.data.goldLevel,0));
   const beardsSys=state.systems.beards;
-  const beardActiveId=beardsSys?.active?(beardsSys.data?.activeTrack||""):"";
+  const beardActiveId=beardActiveIdsV1(state)[0]||"";
   const beardTempLevelEnd=beardActiveId&&beardsSys?.data?.tracks?.[beardActiveId]
     ?Math.max(0,num(beardsSys.data.tracks[beardActiveId].tempLevel,0))
     :0;
@@ -5424,7 +5476,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       // amount seeds the NEXT active track's temp level immediately,
       // exactly like Time Machine's speed/gold bank above.
       const beardBank=Math.max(0,int(state.bank.beards,0));
-      const nextActiveId=s.data.activeTrack||"";
+      const nextActiveId=(Array.isArray(s.data.activeTracks)&&s.data.activeTracks[0])||s.data.activeTrack||"";
       const nextTrack=nextActiveId?s.data.tracks[nextActiveId]:null;
       if(nextTrack&&beardBank>0)nextTrack.tempLevel=beardBank;
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
@@ -5600,7 +5652,8 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   inventorySpace: Object.freeze({ name: "Inventory Space", cost: (n) => (n + 25 <= 36 ? 2 : 4 * (24 + n - 35)), gain: 1, max: 36 }),
   accessorySlot1: Object.freeze({ name: "Extra Accessory Slot!", cost: () => 3000, gain: 1, max: 1 }),
   accessorySlot2: Object.freeze({ name: "Another Extra Accessory Slot!", cost: () => 30000, gain: 1, max: 1 }),
-  diggerSlot: Object.freeze({ name: "A Digger Slot!", cost: () => 25000, gain: 1, max: 1 })
+  diggerSlot: Object.freeze({ name: "A Digger Slot!", cost: () => 25000, gain: 1, max: 1 }),
+  beardSlot: Object.freeze({ name: "A Beard Slot!", cost: () => 50000, gain: 1, max: 1 })
 });
 
 function expShopPurchasedV1(state, id) {

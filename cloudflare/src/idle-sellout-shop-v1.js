@@ -178,6 +178,7 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   extraAccessorySlot4: { passive: true },
   extraAccessorySlot5: { passive: true },
   diggerSlots: { passive: true },
+  extraBeardSlot: { passive: true },
   fasterWishes: { passive: true },
   autoNuker: { passive: true }
 });
