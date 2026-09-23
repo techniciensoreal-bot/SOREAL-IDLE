@@ -554,7 +554,9 @@
       function idleExpShopAventureIdleV1_(m){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const noms={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge'};
-        const items=Array.isArray(m.expShop)?m.expShop:[];
+        const tous=Array.isArray(m.expShop)?m.expShop:[];
+        /* Auto-Activate Yggdrasil : section dédiée (cap de ressource requis), voir idleExpShopYggIdleV1_. */
+        const items=tous.filter(function(it){return !it.yggFruit;});
         const rj=m.richJerks||{};
         return '<div class="soreal-idle-exp-resource-v210">Aventure et divers</div>'+
           items.map(function(it){
@@ -567,6 +569,18 @@
           ['attack','defense'].map(function(stat){
             const niveau=stat==='attack'?rj.attackLevel:rj.defenseLevel;
             return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+(stat==='attack'?'🗡️ Attaque':'🛡️ Défense')+' pour riches (Rich Jerks)</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>'+H.idleEntier_(niveau||0)+'</strong></div></div><div class="soreal-idle-exp-actions-v210">'+[1,10,100].map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRichJerksIdleV1__(\''+stat+'\','+q+')"><b>+'+H.idleEntier_((rj.pctPerLevel||10)*q)+' %</b><small>×'+q+' · '+H.idleEntier_((rj.cost||30)*q)+' EXP</small></button>';}).join('')+'</div></div>';
+          }).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit;}));
+      }
+      /* Wiki Experience, section Yggdrasil : activation automatique et gratuite ; cap Energy/Magic total >= 10x le coût d'activation. */
+      function idleExpShopYggIdleV1_(items){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        if(!items.length)return '';
+        return '<div class="soreal-idle-exp-resource-v210">🌱 Yggdrasil : Auto-Activate</div>'+
+          items.map(function(it){
+            const fini=it.nextCost==null;
+            return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+H.idleHtml_(it.name)+'</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>'+H.formatGrandNombreIdleV70_(it.requiredCap||0)+' '+(it.resource==='magic'?'Magic':'Energy')+'</strong></div></div>'+
+              (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':'<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(it.id)+'\',1)"><b>Acheter</b><small>'+H.formatGrandNombreIdleV70_(it.nextCost)+' EXP</small></button></div>')+
+              '</div>';
           }).join('');
       }
       function acheterExpShopIdleV1_(item,quantite){
@@ -859,16 +873,76 @@
 
 
       
+      /*
+       * Yggdrasil (2026-09-23, Ygg extra) : Poop (case à cocher par fruit, envoyée avec Manger/Récolter),
+       * Auto-Activate (boutique EXP, achetable ici), durée d'un tier (The Beast's Fertilizer), coût du
+       * prochain tier. Données : j.systemes.yggExtra (idle-yggdrasil-extra-v1.js). L'ancien résumé
+       * « Réservé Energy/Magic » (modèle de réservation retiré en V52, toujours 0) est remplacé.
+       */
+      const yggPoopChoixIdleV1_={};
+      function basculerPoopYggIdleV1_(fruit,coche){yggPoopChoixIdleV1_[String(fruit)]=Boolean(coche);}
+      window.__basculerPoopYggIdleV1__=basculerPoopYggIdleV1_;
+      function utiliserFruitYggIdleV1_(fruit,mode){
+        const payload={action:'useYggFruit',fruit:String(fruit),mode:mode==='harvest'?'harvest':'eat'};
+        if(yggPoopChoixIdleV1_[String(fruit)])payload.poop=true;
+        yggPoopChoixIdleV1_[String(fruit)]=false;
+        window.__actionMetaV47__(payload);
+      }
+      window.__utiliserFruitYggIdleV1__=utiliserFruitYggIdleV1_;
       function pageYggdrasilIdleV47_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'yggdrasil');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🌱 Yggdrasil','Fais pousser des fruits pendant plusieurs heures.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Trouve la Giant Seed pour débloquer Yggdrasil.</div>';
+        if(!s||!s.state||!s.state.unlocked)return H.entetePageIdleV28_('🌱 Yggdrasil','Fais pousser des fruits pendant plusieurs heures.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Trouve la Giant Seed pour débloquer Yggdrasil.</div>';
         const data=s.state.data||{};
         const fruits=data.fruits||{};
-        const defs=j&&j.systemes&&Array.isArray(j.systemes.yggFruits)?j.systemes.yggFruits:[];
-        const seeds=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.seeds||0):0;
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🌱 Yggdrasil','Chaque tier permet une heure de croissance supplémentaire. Mange un fruit pour son effet ou récolte-le pour davantage de graines.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Seeds<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(seeds)+'</b></div><div class="soreal-idle-summary-v28">Réservé Energy<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(data.reserved&&data.reserved.energy||0)+'</b></div><div class="soreal-idle-summary-v28">Réservé Magic<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(data.reserved&&data.reserved.magic||0)+'</b></div></div>'+
-          '<div style="display:grid;gap:10px">'+defs.map(function(def){const f=fruits[def.id]||{};const tier=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(f.tier||0);const growth=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(f.growthHours||0);return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Tier '+tier+'</span></div><div style="font-size:12px;color:#aeb5c8;margin-top:5px">Croissance '+window.__SOREAL_IDLE_META_HOST_V130__.formatterHeuresIdleV47_(growth)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.formatterHeuresIdleV47_(tier)+' · coût activation '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.activationCost||0)+' '+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.resource||'energy')+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'upgradeYggFruit\',fruit:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})">Tier +1</button><button type="button" class="soreal-idle-expand-button-v25" '+(f.active?'disabled':'onclick="window.__actionMetaV47__({action:\'activateYggFruit\',fruit:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})"')+'>'+(f.active?'En croissance':'Activer')+'</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'useYggFruit\',fruit:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\',mode:\'eat\'})">Manger</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'useYggFruit\',fruit:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\',mode:\'harvest\'})">Récolter</button></div></div>';}).join('')+'</div>';
+        const m=j&&j.systemes?j.systemes:{};
+        const defs=Array.isArray(m.yggFruits)?m.yggFruits:[];
+        const x=m.yggExtra||{};
+        const xf=x.fruits||{};
+        const tierSec=Number(x.tierSeconds)>0?Number(x.tierSeconds):3600;
+        const seeds=m.currencies?H.idleEntier_(m.currencies.seeds||0):0;
+        const exp=m.currencies?Number(m.currencies.experience)||0:0;
+        const poop=H.idleEntier_(x.poop||0);
+        const noms={energy:'Energy',magic:'Magic'};
+        const brown=x.brownHeart?' · Brown Heart : '+(x.nextFreePoopIn===1?'la prochaine est gratuite':'gratuite dans '+H.idleEntier_(x.nextFreePoopIn||0)):'';
+        return H.entetePageIdleV28_('🌱 Yggdrasil','Chaque tier permet une heure de croissance supplémentaire. Mange un fruit pour son effet ou récolte-le pour doubler les graines. Une Poop (+50 % avant arrondi) s’utilise sur le prochain fruit mangé ou récolté.')+
+          '<div class="soreal-idle-summary-grid-v28">'+
+            '<div class="soreal-idle-summary-v28">Graines<b>'+H.formatGrandNombreIdleV70_(seeds)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">💩 Poop<b>'+H.formatGrandNombreIdleV70_(poop)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Durée d’un tier<b>'+H.idleEntier_(Math.round(tierSec/60))+' min</b></div>'+
+          '</div>'+
+          '<div class="soreal-idle-note-v4" style="margin:6px 0 10px">Poop : x'+H.idleHtml_(String(Math.round((Number(x.poopFactor)||1.5)*100)/100).replace('.',','))+' · tier max '+H.idleEntier_(x.maxTier||10)+H.idleHtml_(brown)+' · Poop achetable au 4G’s Sellout Shop.</div>'+
+          '<div style="display:grid;gap:10px">'+defs.map(function(def){
+            const f=fruits[def.id]||{};
+            const e=xf[def.id]||{};
+            const id=H.idleHtml_(def.id);
+            const tier=H.idleEntier_(f.tier||0);
+            const growth=H.idleNombre_(f.growthHours||0)*tierSec/3600;
+            const pret=Boolean(f.active)&&(Number(f.growthHours)||0)>=1;
+            const cout=e.activationCost!=null?e.activationCost:(def.activationCost||0);
+            const verrou=e.unlocked===false&&!(f.tier>0);
+            const ressource=noms[def.resource]||H.idleHtml_(def.resource||'energy');
+            const auto=e.autoActivate
+              ?'<span style="color:#8fe0a0">⚡ Auto-Activate</span>'
+              :(e.autoShopId?'<button type="button" class="soreal-idle-expand-button-v25" '+(exp>=(e.autoCost||0)?'':'disabled ')+'title="Cap '+ressource+' total requis : '+H.formatGrandNombreIdleV70_(e.autoRequiredCap||0)+'" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(e.autoShopId)+'\',1)">Auto-Activate · '+H.formatGrandNombreIdleV70_(e.autoCost||0)+' EXP</button>':'');
+            return '<div class="soreal-idle-section-v8" style="margin:0">'+
+              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(def.name||def.id)+'</b><span>Tier '+tier+'</span></div>'+
+              '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+
+                (verrou?'🔒 Débloqué par la 5e complétion du Troll Challenge · ':'')+
+                'Croissance '+H.formatterHeuresIdleV47_(growth)+' / '+H.formatterHeuresIdleV47_(H.idleEntier_(f.tier||0)*tierSec/3600)+
+                ' · activation '+(cout>0?H.formatGrandNombreIdleV70_(cout)+' '+ressource:'gratuite')+
+                (e.nextTierCost!=null?' · tier suivant '+H.formatGrandNombreIdleV70_(e.nextTierCost)+' graines':(e.nextTierCost===null?' · tier max':''))+
+              '</div>'+
+              '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:9px">'+
+                '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou||e.nextTierCost===null?'disabled':'onclick="window.__actionMetaV47__({action:\'upgradeYggFruit\',fruit:\''+id+'\'})"')+'>Tier +1</button>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" '+(f.active||!(f.tier>0)?'disabled':'onclick="window.__actionMetaV47__({action:\'activateYggFruit\',fruit:\''+id+'\'})"')+'>'+(f.active?(pret?'Prêt':'En croissance'):'Activer')+'</button>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" '+(pret?'':'disabled ')+'onclick="window.__utiliserFruitYggIdleV1__(\''+id+'\',\'eat\')">Manger</button>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" '+(pret?'':'disabled ')+'onclick="window.__utiliserFruitYggIdleV1__(\''+id+'\',\'harvest\')">Récolter</button>'+
+                '<label style="font-size:12px;display:flex;gap:4px;align-items:center"><input type="checkbox" '+(poop>0?'':'disabled ')+(yggPoopChoixIdleV1_[def.id]?'checked ':'')+'onchange="window.__basculerPoopYggIdleV1__(\''+id+'\',this.checked)">💩 Poop</label>'+
+                auto+
+              '</div>'+
+            '</div>';
+          }).join('')+'</div>';
       }
 
       function pageDiggersIdleV47_(j){
