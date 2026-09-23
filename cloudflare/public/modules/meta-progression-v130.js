@@ -1404,6 +1404,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='perks')return pagePerksIdleV1_(j);
         if(id==='quirks')return pageQuirksIdleV1_(j);
         if(id==='challenges')return pageChallengesIdleV1_(j);
+        /* MacGuffin Fragments : page dans modules/macguffins-v1.js (2026-09-23). */
+        if(id==='macguffins'&&window.__SOREAL_IDLE_MACGUFFINS_V1__)return window.__SOREAL_IDLE_MACGUFFINS_V1__.page(j);
 
         if(id==='moneyPit')return pageMoneyPitDailySpinIdleV206_(j);
 
