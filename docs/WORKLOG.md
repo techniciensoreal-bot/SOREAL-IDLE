@@ -1291,3 +1291,7 @@ Les 10 cœurs du shop Sellout sont de vrais accessoires (stats et spéciaux du w
 ## 2026-09-23 — Slots de Wish
 
 Page Wishes : chaque slot de souhait a sa propre allocation Energy/Magic/Resource 3 et travaille sur son propre souhait, même formule ((Power x Alloc)^0,17 / (diviseur x (niveau+1))) par slot, multiplicateurs de vitesse et minimum de 4 h partagés (perks 109/110, quirk 54). 4 slots au plus : 1 de départ, 1 au 7e Troll Evil, 1 avec le set My Pink Heart, 1 avec le quirk 56 « A Wish Slot! » (50 000 QP, ajouté). Actions `setWishSlot` et `allocateWishSlot` (plafonnées par le cap effectif et les ressources possédées), anciennes sauvegardes migrées vers le slot 1, `system.allocation` reste la somme des slots, page client avec une carte par slot. Tests `idle-wish-slots-*`.
+
+## 2026-09-23 — Yggdrasil complété
+
+Nouveaux fruits Power δ, Watermelon et Fruit of Quirks ; Fruit of Numbers débloqué au Troll 5 ; crottin (Poop) avec paquets, Daily Spin, Blue Heart x1,5 / x1,65 et Brown Heart gratuit tous les 10 tiers ; 15 Auto-Activates de la boutique EXP ; Beast's Fertilizer (-1 min par tier et par niveau) ; perks 16/17 après 30 min. Corrigés : les graines ne sont plus boostées par l'équipement Yggdrasil Yield, séparation Quirk_Ygg / Quirk_Seeds (quirk 92), Fruit of Knowledge x3 par perk. Page client : Poop, Auto-Activate, durée d'un tier. Non faits : fruits de Mayo, multiplicateur QP du Fruit of Quirks, set Seed, Poop Sky/ITOPOD, souhait 60, Harvest Light. Note : `collectSystem('yggdrasil')` lit un `data.growth` inexistant (code mort).
