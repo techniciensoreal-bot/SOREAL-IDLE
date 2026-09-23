@@ -1172,3 +1172,10 @@ Source : page ITOPOD (Drops, One hit power required, Tower milestones) + page Re
 - **Money Pit** (page Money Pit) : paliers 5 à 11 complétés avec toutes leurs colonnes (Adv Stat, Cube P/T ou les deux, HP, regen, EXP multipliée par le bonus d'EXP, niveaux Wandoos plafonnés à 20/50/100, Seeds). Non modélisé : « Equip +1 LVL / Daycare », paliers 12-16 (souhait).
 - Vérifié sans écart : table des Augmentations (dont Laser Sword 2,3e19).
 - Tests : `idle-money-pit-upper-tiers`, `idle-wandoos-meh-gating`, tests Wandoos/Beard recalibrés.
+
+## 2026-09-23 — Boutique 4G's Sellout : effets réels, slots de Diggers
+
+- Avant : seuls les objets EXP/PP avaient un effet ; tous les autres étaient injouables (achat refusé). Maintenant câblés : potions Energy/Magic/Resource 3 (alpha/delta = x2 ou x3 avec timer décompté par le moteur, beta = x2 jusqu'au Rebirth, perdue au Rebirth), Bar Bars (x2 bars, 60 min), Lucky Charm / Super Lucky Charm (Drop Chance x2, 30 min / 12 h), Little Blue Pill (PPP de l'ITOPOD doublés par pilule), Extra Inventory Space, Extra Accessory Slot 1-5, Digger Slots, Faster Wishes (+25 %), Auto Nuker (nuke client). Restent inactifs (système absent) : Mayo, Cards, MacGuffins, Quêtes, Daycare, Loadouts, cœurs, boutons personnalisés.
+- **Slots de Diggers** : les perks « A Digger Slot! » (+2) et la boutique (+6) étaient calculés mais jamais lus ; le joueur n'avait qu'1 slot + set + défi (maximum 12).
+- **Diggers PP et Blood** : le PP Digger (ITOPOD, PP des titans) et le Blood Digger (gain de sang des rituels) n'étaient jamais lus.
+- Tests : `idle-sellout-effects`, `idle-diggers-pp-blood`.

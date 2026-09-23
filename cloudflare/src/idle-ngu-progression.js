@@ -20,6 +20,10 @@ import {
 } from "./idle-perks-v1.js";
 import {
   IDLE_SELLOUT_SHOP_CATALOG_V1,
+  idleSelloutShopEffectActiveV1,
+  createSelloutEffectsV1,
+  idleSelloutPotionFactorV1,
+  tickSelloutEffectsV1,
   idleSelloutShopItemV1,
   idleSelloutShopNextCostV1,
   idleSelloutShopBuyV1
@@ -1117,6 +1121,7 @@ function baseState(now) {
      * réinitialisés par un Rebirth (comme l'AP elle-même, confirmée
      * persistante au Rebirth par le wiki NGU, page Rebirths).
      */
+    selloutEffects: { remaining: {}, beta: {}, bluePills: 0 },
     selloutShop: {
       purchases: {}
     },
@@ -1508,6 +1513,7 @@ function migrateLegacyMetaToV47(raw, now) {
      */
     const unlockedEver = Boolean(src.selloutShop?.unlockedEver) || num(state.currencies.ap, 0) > 0;
     state.selloutShop = { purchases, unlockedEver };
+    state.selloutEffects = createSelloutEffectsV1(src.selloutEffects);
   }
 
   state.bonuses = Object.assign(state.bonuses, src.bonuses || {});
@@ -1649,6 +1655,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   state.selloutShop = Object.assign(baseState(t).selloutShop, state.selloutShop || {});
   state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
+  state.selloutEffects = createSelloutEffectsV1(source.selloutEffects);
 
   state.records = Object.assign(baseState(t).records, source.records || {});
   /*
@@ -1687,8 +1694,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.bonusDropLevelChance = perks.lootLevelChance;
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
-      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0))
+      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)),
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0)
     };
   }
 
@@ -2441,7 +2448,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
   const perkWish = perkBonusesV1(state.systems.perks?.data?.levels);
   const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds);
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -2739,7 +2746,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.completions += completions;
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
-  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier * hackFxV1(state).bloodGain;
+  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood;
   challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
@@ -3076,7 +3083,10 @@ function diggerActiveCount(state){
 function availableDiggerSlots(state){
   const extra=Math.max(0,int(state.adventure?.setRewards?.diggerSlot,0));
   const challengeExtra=challengePermanentBonuses(state).diggerSlotBonus;
-  return Math.max(1,int(state.systems.diggers?.data?.slots,1)+extra+challengeExtra);
+  /* Perks « A Digger Slot! » et boutique Sellout (6 slots) : calculés mais jamais lus jusqu'ici. */
+  const perkExtra=Math.max(0,int(perkBonusesV1(state.systems.perks?.data?.levels).diggerSlotBonus,0));
+  const shopExtra=Math.max(0,Math.min(6,int(state.selloutShop?.purchases?.diggerSlots,0)));
+  return Math.max(1,Math.min(12,int(state.systems.diggers?.data?.slots,1)+extra+challengeExtra+perkExtra+shopExtra));
 }
 
 function upgradeDigger(state,id){
@@ -3216,7 +3226,7 @@ function advanceTowerV1(state, seconds, context) {
   const perks = perkBonusesV1(state.systems.perks?.data?.levels);
   const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
   const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat;
-  const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier;
+  const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier * diggerBonuses(state).pp;
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
 
   const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor);
@@ -3224,7 +3234,11 @@ function advanceTowerV1(state, seconds, context) {
     if (!(n > 0)) return;
     const tier = towerTierV1(floor);
     d.kills += n;
-    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + n * (ppBase + floor) * ppMultiplier;
+    /* Little Blue Pill : PPP doublés pour les n premiers kills couverts par le stock de pilules. */
+    const fx = state.selloutEffects;
+    const pills = fx ? Math.min(n, Math.max(0, int(fx.bluePills, 0))) : 0;
+    if (pills > 0) fx.bluePills -= pills;
+    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + (n + pills) * (ppBase + floor) * ppMultiplier;
     const rewards = n / towerKillsPerRewardV1(tier);
     state.currencies.experience += rewards * towerExpForTierV1(tier) * expMultiplier;
     d.apProgress += rewards;
@@ -3360,6 +3374,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceMoneyPitAndDaily(state, nowMs(now));
   advanceLateSystems(state, secs, context, nowMs(now));
 
+  tickSelloutEffectsV1(state, secs);
   reconcileResourceCurrents(state,context);
   state.updatedAt = nowMs(now);
   state.rebirth = refreshRebirthState(state, context, nowMs(now));
@@ -3816,6 +3831,7 @@ export function idleNguBonuses(raw) {
       regen: num(yggPermanent.adventureRegen, 0) + ironPillPoints * 0.03
     },
     dropMultiplier:
+      idleSelloutPotionFactorV1(state, "luck") *
       beardDrop *
       diggers.drop *
       perkBonuses.dropChanceMultiplier *
@@ -3855,8 +3871,8 @@ export function idleNguBonuses(raw) {
     energySpeedFlat: num(adventurePermanent.energySpeedFlat, 0),
     energyPowerFlat: num(adventurePermanent.energyPowerFlat, 0)+perkBonuses.energyPowerFlat,
     energyBarsFlat: num(adventurePermanent.energyBarsFlat, 0)+perkBonuses.energyBarsFlat,
-    energyPowerMultiplier: perkBonuses.energyPowerMultiplier * quirkBonuses.energyPowerMultiplier * wishBonuses.energyPowerMultiplier * (1 + num(adventureGear.specials?.energyPowerPct, 0) / 100),
-    energyBarsMultiplier: perkBonuses.energyBarsMultiplier * quirkBonuses.energyBarsMultiplier * wishBonuses.energyBarsMultiplier * (1 + num(adventureGear.specials?.energyBarsPct, 0) / 100),
+    energyPowerMultiplier: idleSelloutPotionFactorV1(state, "energyPower") * perkBonuses.energyPowerMultiplier * quirkBonuses.energyPowerMultiplier * wishBonuses.energyPowerMultiplier * (1 + num(adventureGear.specials?.energyPowerPct, 0) / 100),
+    energyBarsMultiplier: idleSelloutPotionFactorV1(state, "energyBars") * perkBonuses.energyBarsMultiplier * quirkBonuses.energyBarsMultiplier * wishBonuses.energyBarsMultiplier * (1 + num(adventureGear.specials?.energyBarsPct, 0) / 100),
     energyCapMultiplier: perkBonuses.energyCapMultiplier * quirkBonuses.energyCapMultiplier * wishBonuses.energyCapMultiplier * (1 + num(adventureGear.specials?.energyCapPct, 0) / 100),
     /*
      * energySpeedMultiplier/magicSpeedMultiplier : pas d'équivalent Perks/
@@ -3874,8 +3890,8 @@ export function idleNguBonuses(raw) {
     magicPowerFlat: num(adventurePermanent.magicPowerFlat, 0)+perkBonuses.magicPowerFlat,
     magicBarsFlat: num(adventurePermanent.magicBarsFlat, 0)+perkBonuses.magicBarsFlat,
     magicCapFlat: num(adventurePermanent.magicCapFlat, 0)+perkBonuses.magicCapFlat,
-    magicPowerMultiplier: perkBonuses.magicPowerMultiplier * quirkBonuses.magicPowerMultiplier * wishBonuses.magicPowerMultiplier * (1 + num(adventureGear.specials?.magicPowerPct, 0) / 100),
-    magicBarsMultiplier: perkBonuses.magicBarsMultiplier * quirkBonuses.magicBarsMultiplier * wishBonuses.magicBarsMultiplier * (1 + num(adventureGear.specials?.magicBarsPct, 0) / 100),
+    magicPowerMultiplier: idleSelloutPotionFactorV1(state, "magicPower") * perkBonuses.magicPowerMultiplier * quirkBonuses.magicPowerMultiplier * wishBonuses.magicPowerMultiplier * (1 + num(adventureGear.specials?.magicPowerPct, 0) / 100),
+    magicBarsMultiplier: idleSelloutPotionFactorV1(state, "magicBars") * perkBonuses.magicBarsMultiplier * quirkBonuses.magicBarsMultiplier * wishBonuses.magicBarsMultiplier * (1 + num(adventureGear.specials?.magicBarsPct, 0) / 100),
     magicCapMultiplier: perkBonuses.magicCapMultiplier * quirkBonuses.magicCapMultiplier * wishBonuses.magicCapMultiplier * (1 + num(adventureGear.specials?.magicCapPct, 0) / 100),
     /*
      * r3Power/Cap/BarsMultiplier : nouvelles clés, sans équivalent Perks/
@@ -3886,7 +3902,7 @@ export function idleNguBonuses(raw) {
      * le même schéma que les six ci-dessus, alimentées pour l'instant
      * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
      */
-    r3PowerMultiplier: wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * perkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
+    r3PowerMultiplier: idleSelloutPotionFactorV1(state, "r3Power") * wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * perkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
     r3CapMultiplier: wishBonuses.r3CapMultiplier * quirkBonuses.r3CapMultiplier * perkBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
     r3BarsMultiplier: wishBonuses.r3BarsMultiplier * quirkBonuses.r3BarsMultiplier * perkBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
     boostPowerMultiplier: perkBonuses.boostPowerMultiplier * quirkBonuses.boostPowerMultiplier,
@@ -3953,7 +3969,7 @@ export function idleNguBonuses(raw) {
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
     beardNumberMultiplier: beardNumber,
-    ppMultiplier: nguFx.pp * hackFx.pp * perkBonuses.ppEarningsMultiplier,
+    ppMultiplier: nguFx.pp * hackFx.pp * perkBonuses.ppEarningsMultiplier * diggers.pp,
     /* Aucun vrai NGU n'accélère Questing ni le Daycare (pistes inventées retirées). */
     questSpeedMultiplier: 1,
     daycareSpeedMultiplier: 1,
@@ -4213,7 +4229,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
           max: item.max,
           qty: item.qty || 0,
           purchased,
-          effectActive: Boolean(item.grant),
+          effectActive: idleSelloutShopEffectActiveV1(item),
           nextCost: idleSelloutShopNextCostV1(item, purchased)
         };
       })
@@ -4903,7 +4919,7 @@ function crediterRecompensesAventure(state, avant) {
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
   state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier;
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
-  const pp = gain("ppProgress");
+  const pp = gain("ppProgress") * diggerBonuses(state).pp;
   if (pp > 0) {
     const tower = state.systems.tower;
     if (!tower.data || typeof tower.data !== "object") tower.data = {};
@@ -5245,6 +5261,8 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   // "100 Levels Challenge" pool is explicitly "per rebirth" (audit
   // 2026-09-16) — reset on every rebirth, not just when that challenge starts.
   state.challenge.hundredLevelsGained=0;
+  /* Sellout Shop : les potions beta sont perdues au Rebirth (wiki). */
+  if (state.selloutEffects) state.selloutEffects.beta = {};
 
   /*
    * Wiki NGU (page "Banks") : les Perks/Quirks "Level Bank" retiennent, à

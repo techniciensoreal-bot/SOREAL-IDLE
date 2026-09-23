@@ -145,6 +145,72 @@ export function idleSelloutShopNextCostV1(item, purchased) {
   return Math.max(0, Math.round(item.cost(n)));
 }
 
+/*
+ * 2026-09-23 (audit) : seuls les objets EXP/PP avaient un effet ; le reste du shop débitait de l'AP
+ * pour rien, ou était injouable. Objets maintenant câblés dans le moteur :
+ *  - potions (Energy/Magic/Resource 3 alpha/beta/delta, Bar Bars) : multiplicateurs à durée
+ *    (secondes restantes décomptées par le moteur) ou « jusqu'au Rebirth » (beta) ;
+ *  - Lucky Charm / Super Lucky Charm : Drop Chance x2 pendant 30 min / 12 h ;
+ *  - Little Blue Pill : PPP de l'ITOPOD doublés pour le nombre de kills acheté ;
+ *  - slots (digger, accessoire, inventaire) ; Faster Wishes (+25 %) ; Auto Nuker (client).
+ */
+export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
+  energyPotionAlpha: { timer: "energyPower", sec: 3600 },
+  energyPotionBeta: { beta: "energyPower" },
+  energyPotionDelta: { timer: "energyPower", sec: 86400 },
+  magicPotionAlpha: { timer: "magicPower", sec: 3600 },
+  magicPotionBeta: { beta: "magicPower" },
+  magicPotionDelta: { timer: "magicPower", sec: 86400 },
+  resource3PotionAlpha: { timer: "r3Power", sec: 3600 },
+  resource3PotionBeta: { beta: "r3Power" },
+  resource3PotionDelta: { timer: "r3Power", sec: 86400 },
+  energyBarBar: { timer: "energyBars", sec: 3600 },
+  magicBarBar: { timer: "magicBars", sec: 3600 },
+  luckyCharm: { timer: "luck", sec: 1800 },
+  superLuckyCharm: { timer: "luck", sec: 43200 },
+  littleBluePill1000: { pills: 1000 },
+  littleBluePill10000: { pills: 10000 },
+  littleBluePill100000: { pills: 100000 },
+  extraInventorySpace: { passive: true },
+  extraAccessorySlot1: { passive: true },
+  extraAccessorySlot2: { passive: true },
+  extraAccessorySlot3: { passive: true },
+  extraAccessorySlot4: { passive: true },
+  extraAccessorySlot5: { passive: true },
+  diggerSlots: { passive: true },
+  fasterWishes: { passive: true },
+  autoNuker: { passive: true }
+});
+
+export function createSelloutEffectsV1(raw) {
+  const src = raw && typeof raw === "object" ? raw : {};
+  const remaining = {};
+  for (const [k, v] of Object.entries(src.remaining && typeof src.remaining === "object" ? src.remaining : {})) {
+    if (N(v, 0) > 0) remaining[k] = N(v, 0);
+  }
+  const beta = {};
+  for (const [k, v] of Object.entries(src.beta && typeof src.beta === "object" ? src.beta : {})) if (v) beta[k] = true;
+  return { remaining, beta, bluePills: Math.max(0, I(src.bluePills, 0)) };
+}
+
+/* Facteur multiplicatif d'une potion : x2 (Energy/Magic) ou x3 (Resource 3) pendant le timer, x2 pour la beta. */
+export function idleSelloutPotionFactorV1(state, key) {
+  const fx = state.selloutEffects || {};
+  const base = key === "r3Power" ? 3 : 2;
+  const timed = N(fx.remaining?.[key], 0) > 0 ? base : 1;
+  const beta = fx.beta?.[key] ? 2 : 1;
+  return key === "luck" || key === "energyBars" || key === "magicBars" ? (N(fx.remaining?.[key], 0) > 0 ? 2 : 1) : timed * beta;
+}
+
+export function tickSelloutEffectsV1(state, seconds) {
+  const fx = state.selloutEffects;
+  if (!fx || !fx.remaining || !(seconds > 0)) return;
+  for (const k of Object.keys(fx.remaining)) {
+    fx.remaining[k] = Math.max(0, N(fx.remaining[k], 0) - seconds);
+    if (fx.remaining[k] <= 0) delete fx.remaining[k];
+  }
+}
+
 export function idleSelloutShopEffectActiveV1(itemOrId) {
   const item =
     typeof itemOrId === "string"
@@ -152,9 +218,10 @@ export function idleSelloutShopEffectActiveV1(itemOrId) {
       : itemOrId;
   return Boolean(
     item &&
-    item.grant &&
-    item.grant.currency &&
-    N(item.grant.amount, 0) > 0
+    ((item.grant &&
+      item.grant.currency &&
+      N(item.grant.amount, 0) > 0) ||
+      Object.prototype.hasOwnProperty.call(IDLE_SELLOUT_EFFECTS_V1, item.id))
   );
 }
 
@@ -186,6 +253,14 @@ export function idleSelloutShopBuyV1(state, itemId) {
 
   if (item.grant) {
     state.currencies[item.grant.currency] = N(state.currencies[item.grant.currency], 0) + item.grant.amount;
+  }
+  const effect = IDLE_SELLOUT_EFFECTS_V1[item.id];
+  if (effect && !effect.passive) {
+    state.selloutEffects = createSelloutEffectsV1(state.selloutEffects);
+    const fx = state.selloutEffects;
+    if (effect.timer) fx.remaining[effect.timer] = N(fx.remaining[effect.timer], 0) + effect.sec;
+    if (effect.beta) fx.beta[effect.beta] = true;
+    if (effect.pills) fx.bluePills += effect.pills;
   }
 
   return { itemId: item.id, cost, purchased: already + 1, max: item.max };

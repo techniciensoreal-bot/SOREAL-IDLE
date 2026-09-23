@@ -73,17 +73,18 @@ function freshState(ap) {
 }
 
 {
-  assert.equal(idleSelloutShopEffectActiveV1("energyPotionAlpha"),false);
+  assert.equal(idleSelloutShopEffectActiveV1("mayoInfuser"),false, "Le Mayo n'existe pas dans le moteur : achat impossible.");
+  assert.equal(idleSelloutShopEffectActiveV1("energyPotionAlpha"),true, "Les potions sont câblées depuis le 2026-09-23.");
   assert.equal(idleSelloutShopEffectActiveV1("exp500"),true);
 
   const s = freshState(20000);
   assert.throws(
-    () => idleSelloutShopBuyV1(s, "energyPotionAlpha"),
+    () => idleSelloutShopBuyV1(s, "mayoInfuser"),
     /EFFET_BOUTIQUE_AP_INACTIF/,
-    "Une potion non câblée doit être impossible à acheter."
+    "Un objet non câblé doit être impossible à acheter."
   );
   assert.equal(s.currencies.ap,20000,"Un effet inactif ne doit jamais consommer d'AP.");
-  assert.equal(s.selloutShop.purchases.energyPotionAlpha,undefined,"Un effet inactif ne doit pas incrémenter le compteur.");
+  assert.equal(s.selloutShop.purchases.mayoInfuser,undefined,"Un effet inactif ne doit pas incrémenter le compteur.");
 }
 
 {
@@ -115,7 +116,8 @@ function freshState(ap) {
   const entry = snap.selloutShop.catalog.find((x) => x.id === "energyPotionAlpha");
   assert.equal(entry.nextCost, 5000);
   assert.equal(entry.purchased, 0);
-  assert.equal(entry.effectActive,false,"Une potion non câblée doit être marquée inactive pour le client.");
+  assert.equal(entry.effectActive,true,"Une potion câblée doit être marquée active pour le client.");
+  assert.equal(snap.selloutShop.catalog.find((x)=>x.id==="mayoInfuser").effectActive,false,"Un objet non câblé doit être marqué inactif pour le client.");
   const expEntry=snap.selloutShop.catalog.find((x)=>x.id==="exp500");
   assert.equal(expEntry.effectActive,true,"Les achats EXP réellement câblés doivent rester actifs.");
 }
