@@ -964,3 +964,11 @@ Test `idle-standalone-worker-routes.test.mjs` mis à jour : l'ancien cas qui exe
 Suite complète : 173/173 OK.
 
 **Plus aucun finding Critique restant côté IDLE.**
+
+## 2026-09-23 — Second audit approfondi (3 dépôts) : tier Élevée — `frame-ancestors 'self'` aurait cassé l'intégration TV/APP
+
+L'en-tête HTTP CSP ajouté plus tôt le même jour posait `frame-ancestors 'self'` -- ce qui interdit l'intégration en iframe depuis n'importe quelle origine autre que `soreal-idle` lui-même. Or TV (`TV_78_JS_Fallback_Continued.html`) et APP (`Soreal_App_html.html`, `soreal-idle-module.html`) embarquent tous les deux ce frontend en iframe cross-origin -- pas d'erreur visible aujourd'hui uniquement parce que le bug de cache Cloudflare (déjà documenté, non résolu) empêche cet en-tête d'atteindre les vrais clients. Le jour où ce bug de cache se résout, l'iframe IDLE aurait cessé de s'afficher silencieusement dans TV et APP.
+
+**Fix** : `frame-ancestors 'self' https://soreal-tv.technicien-soreal.workers.dev https://soreal-app.technicien-soreal.workers.dev` -- les deux origines de production qui embarquent réellement ce frontend, listées explicitement. Test `index-html-csp-and-sri.test.mjs` mis à jour.
+
+Suite complète : 173/173 OK.

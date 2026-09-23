@@ -28,9 +28,9 @@ assert.ok(
 );
 assert.ok(
   worker.includes(
-    'headers.set(\n        "content-security-policy",\n        "object-src \'none\'; base-uri \'self\'; frame-ancestors \'self\'"\n      );'
+    'headers.set(\n        "content-security-policy",\n        "object-src \'none\'; base-uri \'self\'; frame-ancestors \'self\' https://soreal-tv.technicien-soreal.workers.dev https://soreal-app.technicien-soreal.workers.dev"\n      );'
   ),
-  "frame-ancestors doit être appliqué via un VRAI en-tête HTTP côté Worker (idle-worker-entry-v1.js) -- c'est le seul endroit où les navigateurs le respectent."
+  "frame-ancestors doit être appliqué via un VRAI en-tête HTTP côté Worker (idle-worker-entry-v1.js) -- c'est le seul endroit où les navigateurs le respectent -- et doit lister les origines TV/APP qui embarquent réellement ce frontend en iframe, pas seulement 'self'."
 );
 
 const piperMatch = html.match(

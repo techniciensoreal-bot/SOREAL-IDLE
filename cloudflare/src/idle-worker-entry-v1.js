@@ -168,10 +168,18 @@ export default {
        * en-tête HTTP le fait respecter. object-src/base-uri restent
        * aussi dans le <meta> (harmless, défense en profondeur), mais
        * frame-ancestors ne peut être appliqué que depuis ici.
+       *
+       * 2026-09-23 (second audit) : 'self' seul aurait cassé l'intégration
+       * légitime de ce frontend en iframe cross-origin depuis TV
+       * (TV_78_JS_Fallback_Continued.html) et APP (Soreal_App_html.html,
+       * soreal-idle-module.html) dès que le bug de cache Cloudflare
+       * ci-dessous (en-tête qui n'atteint pas encore les vrais clients)
+       * serait résolu -- silencieusement, sans erreur applicative visible.
+       * Origines de production listées explicitement.
        */
       headers.set(
         "content-security-policy",
-        "object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+        "object-src 'none'; base-uri 'self'; frame-ancestors 'self' https://soreal-tv.technicien-soreal.workers.dev https://soreal-app.technicien-soreal.workers.dev"
       );
       return new Response(asset.body, {
         status: asset.status,
