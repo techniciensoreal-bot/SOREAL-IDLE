@@ -1030,17 +1030,24 @@ function advanceWandoos(state, seconds, context, now) {
   const magicAlloc = Math.max(0, num(s.allocation.magic, 0));
   /* NGU "Wandoos" (Energy) : "Wandoos speed", audit NGU 2026-09-23. */
   const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed * gearPctV1(gearSpecialsV1(state), "wandoosSpeedPct");
+  /*
+   * Wandoos (set) (wiki "Wandoos" > Boot-up : "After booting-up, it gains a 10% speed boost by
+   * maxing the Wandoos set") : +10 % uniquement une fois le boot terminé (bootFraction = 1).
+   */
+  const wandoosSetMultiplier = bootFraction >= 1
+    ? 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0))
+    : 1;
 
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
   const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
     * idleCardsMultiplierV1(state, "wandoos") /* Cards WANDOOS */
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier
+    * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier * wandoosSetMultiplier
     * macguffinEffectMultiplierV1(state, "energyWandoos"));
   const magicSpeed = Math.min(50, (50 * magicAlloc / requirement)
     * idleCardsMultiplierV1(state, "wandoos") /* Cards WANDOOS */
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
-    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier
+    * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier * wandoosSetMultiplier
     * macguffinEffectMultiplierV1(state, "magicWandoos"));
 
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
@@ -1734,6 +1741,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.selloutShop = Object.assign(baseState(t).selloutShop, state.selloutShop || {});
   state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
   state.selloutEffects = createSelloutEffectsV1(source.selloutEffects);
+  appliquerConsommablesSetsAventureV1(state);
 
   state.records = Object.assign(baseState(t).records, source.records || {});
   /*
@@ -2055,9 +2063,10 @@ function idleNguEffectiveResourceStatV1(state, resource, stat) {
   if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
   const bonuses = idleNguBonuses(state);
   if (resource === "r3") {
-    if (stat === "power") return raw * Math.max(0, num(bonuses.r3PowerMultiplier, 1));
-    if (stat === "bars") return raw * Math.max(0, num(bonuses.r3BarsMultiplier, 1));
-    if (stat === "cap") return raw * Math.max(0, num(bonuses.r3CapMultiplier, 1));
+    /* Bonus "base" (Incriminating Evidence (set) : +2 Power, +80K Cap, +2 Bars) ajoutés au brut avant les multiplicateurs. */
+    if (stat === "power") return (raw + Math.max(0, num(bonuses.r3PowerFlat, 0))) * Math.max(0, num(bonuses.r3PowerMultiplier, 1));
+    if (stat === "bars") return (raw + Math.max(0, num(bonuses.r3BarsFlat, 0))) * Math.max(0, num(bonuses.r3BarsMultiplier, 1));
+    if (stat === "cap") return (raw + Math.max(0, num(bonuses.r3CapFlat, 0))) * Math.max(0, num(bonuses.r3CapMultiplier, 1));
     return raw;
   }
   if (stat === "power") {
@@ -2379,6 +2388,8 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
    * vitesse de Beard est baseRate ci-dessous (advanceBeardTrack) : câblé ici.
    */
   const beardSpeedFromItems = Math.max(0, num(idleNguBonuses(state).beardSpeedMultiplierFromItems, 1));
+  /* Armpit (set) (wiki "Armpit (set)" : "+10% Beard Speed!") -- setRewards.beardSpeedPct. */
+  const beardSpeedFromSets = 1 + Math.max(0, num(state.adventure?.setRewards?.beardSpeedPct, 0));
 
   // V49 starts with NGU's first Beard slot only, therefore the
   // Beards_SameResource divisor is 1 until a later unlock adds more slots.
@@ -2392,6 +2403,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
     Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
     diggerSpeed *
     beardSpeedFromItems *
+    beardSpeedFromSets *
     quirkBonusesV1(state.systems.quirks?.data?.levels).beardSpeedMultiplier /
     (Math.max(1, num(trackDef.speedDivider, 1e8)) * Math.max(1, sameResourceCount));
 
@@ -4078,6 +4090,10 @@ function idleNguBonusesSansMacguffinV1(state) {
      * le même schéma que les six ci-dessus, alimentées pour l'instant
      * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
      */
+    /* Incriminating Evidence (set) : +2 base R3 Power / +80K base R3 Cap / +2 base R3 Bars (adventure.permanent). */
+    r3PowerFlat: num(adventurePermanent.r3PowerFlat, 0),
+    r3CapFlat: num(adventurePermanent.r3CapFlat, 0),
+    r3BarsFlat: num(adventurePermanent.r3BarsFlat, 0),
     r3PowerMultiplier: idleSelloutPotionFactorV1(state, "r3Power") * wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * perkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
     r3CapMultiplier: wishBonuses.r3CapMultiplier * quirkBonuses.r3CapMultiplier * perkBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
     r3BarsMultiplier: wishBonuses.r3BarsMultiplier * quirkBonuses.r3BarsMultiplier * perkBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
@@ -5138,7 +5154,21 @@ function challengeAction(state, payload, context, now) {
  * pont les reverse dans les vraies monnaies. Le PP progress suit la même règle
  * que l'ITOPOD : 1 000 000 de progression = 1 PP.
  */
+/*
+ * Consommables de complétion de set (Forest, HSB, Gaudy, Incriminating
+ * Evidence ; voir accorderConsommablesSetsV1 dans idle-adventure-v47.js) :
+ * activés immédiatement comme ceux de la roue quotidienne, puis retirés de la
+ * file d'attente -- jamais appliqués deux fois.
+ */
+function appliquerConsommablesSetsAventureV1(state) {
+  const file = state.adventure?.pendingSetConsumablesV1;
+  if (!file || typeof file !== "object") return;
+  for (const [id, n] of Object.entries(file)) idleSelloutApplyEffectV1(state, id, Math.max(0, int(n, 0)));
+  state.adventure.pendingSetConsumablesV1 = {};
+}
+
 function crediterRecompensesAventure(state, avant) {
+  appliquerConsommablesSetsAventureV1(state);
   const p = state.adventure?.permanent || {};
   const gain = (cle) => Math.max(0, num(p[cle], 0) - num(avant[cle], 0));
   state.currencies.experience += gain("experience");

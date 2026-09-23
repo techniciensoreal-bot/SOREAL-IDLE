@@ -1118,6 +1118,29 @@ skyBall:{name:"A Dragon's Left Ball",zone:"sky",slot:"accessory",dropLevel:1,p:0
 // wiki : "Pissed Off Key" — Type Consumable, aucune stat.
 pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bossOnly:true,dropLevel:0,p:0,t:0},
 /*
+ * Consommables de déblocage des titans (audit des bonus de complétion,
+ * 2026-09-23) : jusqu'ici seulement des drapeaux unlockItems (premier kill),
+ * jamais de vrais objets à fusionner -- leur set à un objet ("Number",
+ * "Armpit", "Incriminating Evidence", "Severed Head", voir SETS_OBJETS_V1)
+ * était donc incomplétable. Même modèle que Pissed Off Key : slot "special",
+ * aucune stat (fiches wiki "Type: Consumable"), zone "" (drop de titan,
+ * rollTitanLootV1, section Loot de la page du titan). Le drapeau
+ * unlockItems/consume() qui débloque le système reste inchangé.
+ */
+// wiki : "A Number" (Id 102, Consumable) -- GRB : "A Number lvl 0 (guaranteed)".
+aNumber:{name:"A Number",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+// wiki : "UUG's Armpit Hair" (Id 141, Consumable) -- UUG : "UUG's Armpit Hair lvl 0 (guaranteed)".
+uugHair:{name:"UUG's Armpit Hair",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+// wiki : "Incriminating Evidence" (Id 294, Consumable) -- Greasy Nerd : "Incriminating Evidence lvl 1 - guaranteed".
+incriminatingEvidence:{name:"Incriminating Evidence",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+/*
+ * wiki : "A Severed Unicorn's Head" (Id 343, Consumable) -- The Godmother :
+ * "A Severed Unicorn's Head lvl 0 - guaranteed" (section Loot). Le gabarit
+ * "Item data" indique "GM1lvldrop = 1" : désaccord entre deux pages du wiki ;
+ * on suit la section Loot du titan, source déjà retenue par rollTitanLootV1.
+ */
+severedUnicornHead:{name:"A Severed Unicorn's Head",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/*
  * Audit 2026-09-16 (Norman, page wiki réelle vérifiée en direct
  * ngu-idle.fandom.com/wiki/The_Lonely_Flubber) : Accessoire, Tutorial
  * Zone, ID 120, Set None, aucune stat Power/Toughness (le Respawn 8%
@@ -1383,6 +1406,63 @@ tieOfApathy:{name:"Tie of Apathy",zone:"",slot:"accessory",dropLevel:4,p:8999999
 titanEffigy:{name:"The Titan Effigy",zone:"",slot:"accessory",dropLevel:4,p:13000000000,t:13000000000,sBase:220,sMax:220,sType:"r3CapPct",sExtra:[{type:"r3BarsPct",base:2200,max0:2200,max100:4400},{type:"r3PowerPct",base:2200,max0:2200,max100:4400}]}
 });
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
+/*
+ * Sets d'objets hors équipement (audit des bonus de complétion, 2026-09-23) :
+ * pages "<Set> (set)" du miroir NGU-Wiki dont les objets sont des SPECIALS
+ * (consommables de déblocage ou accessoires) plutôt que des pièces de SETS.
+ * Même règle de complétion que SETS : chaque objet listé doit avoir atteint
+ * le niveau 100 (itemList[definitionId].maxLevel, par fusion). Clés de
+ * récompense = le vocabulaire setRewards déjà consommé par les moteurs.
+ * Volontairement hors de SETS : SETS pilote aussi les pièces d'équipement
+ * (item(), catalogue, drops de zone), ces objets-là n'en sont pas.
+ */
+const SETS_OBJETS_V1=Object.freeze({
+  /*
+   * "Pissed Off Key (set)" : un seul objet (Pissed Off Key). "Bonus for
+   * Completion: Gain 10% faster progress towards Perk Points (PP) in the
+   * I.T.O.P.O.D!" -- même pont setRewards.itopodPpPct que Pretty Pink Princess
+   * (multiplicateur de la progression de PP, idle-ngu-progression.js).
+   */
+  pissedOffKey:{name:"Pissed Off Key Set",items:["pissedOffKey"],reward:{itopodPpPct:.10}},
+  /*
+   * "Wandoos (set)" : un seul objet (A busted copy of Wandoos 98). "When
+   * Wandoos completes the booting process, gain an additional 10% speed
+   * bonus. Also, 300 EXP" ; page "Wandoos" > Boot-up : "After booting-up, it
+   * gains a 10% speed boost by maxing the Wandoos set". Consommé par
+   * advanceWandoos() (idle-ngu-progression.js) seulement une fois le boot fini.
+   */
+  wandoos:{name:"Wandoos Set",items:["wandoos98"],reward:{experience:300,wandoosBootedSpeedPct:.10}},
+  /*
+   * "Normal Bonus Accs (set)" : 13 accessoires (The Tuba of Time ... Candy
+   * Corn Necklace), tous présents dans SPECIALS ; "Bonus for Completion: +25%
+   * drop rate" -> setRewards.drop (même champ que le "7.43% bonus drop chance"
+   * du set 2D). Total Stats Max du wiki (Power 11 450 / Toughness 11 420) =
+   * 2 x la somme des p/t niveau 0 de ces 13 SPECIALS (vérifié).
+   */
+  normalBonusAccs:{name:"Normal Bonus Accs Set",items:["tubaTime","cheeseGrater","skyBall","magicite","windupGear","sinusoidalWave","ghostTypewriter","gaudyShoulders","fTank","beardComb","randomCrayons","redLipstick","candyCornNecklace"],reward:{drop:.25}},
+  /*
+   * "Number (set)" : un seul objet (A Number) ; fiche "A Number" : "Merging
+   * 'A Number' to level 100, will give you a permanent completion bonus of:
+   * +10% NGU speed!" -- même setRewards.nguSpeedPct que Meta/Back To School.
+   */
+  number:{name:"Number Set",items:["aNumber"],reward:{nguSpeedPct:.10}},
+  /*
+   * "Armpit (set)" : un seul objet (UUG's Armpit Hair), "+10% Beard Speed!" --
+   * setRewards.beardSpeedPct, consommé par advanceBeardTrack()
+   * (idle-ngu-progression.js), même terme que les Specials "Beard Speed".
+   */
+  armpit:{name:"Armpit Set",items:["uugHair"],reward:{beardSpeedPct:.10}},
+  /*
+   * "Incriminating Evidence (set)" : "+2 base Resource 3 Power / +80K base
+   * Resource 3 Cap / +2 base Resource 3 Bars / +1 of every Resource 3 Potion!"
+   * -- les trois bonus "base" s'ajoutent à la valeur brute de Resource 3
+   * (adventure.permanent.r3*Flat, idleNguEffectiveResourceStatV1).
+   */
+  incriminatingEvidence:{name:"Incriminating Evidence Set",items:["incriminatingEvidence"],reward:{r3PowerFlat:2,r3CapFlat:80000,r3BarsFlat:2,r3PotionAlpha:1,r3PotionBeta:1,r3PotionDelta:1}},
+  /* "Severed Head (set)" : un seul objet (A Severed Unicorn's Head), "+13.37% Wish Speed!" -- même setRewards.wishSpeedPct que Typo. */
+  severedHead:{name:"Severed Head Set",items:["severedUnicornHead"],reward:{wishSpeedPct:.1337}}
+});
+export const IDLE_ADVENTURE_ITEM_SETS_V1=SETS_OBJETS_V1;
 /*
  * Collection (2026-09-11) — Norman : "je voudrais Renommer Bestiaire en
  * Collection... toutes les armes obtenues et montées niveau max... avec
@@ -1671,6 +1751,10 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "cheeseGrater":433,
   "skyBall":434,
   "pissedOffKey":172,
+  "aNumber":102,
+  "uugHair":141,
+  "incriminatingEvidence":294,
+  "severedUnicornHead":343,
   "flubber":120,
   "wandoos98":66,
   "magicite":435,
@@ -2263,6 +2347,15 @@ function migrerEdgyBootsV1(s){
 }
 export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
 /*
+ * Réparation (2026-09-23) : special() pose id = definitionId, et add()
+ * gardait cet id -- deux exemplaires du même objet spécial (2 Pissed Off Key,
+ * 2 accessoires identiques...) partageaient donc le même id et ne pouvaient
+ * jamais être fusionnés (merge() : A===B). add() attribue désormais un id
+ * neuf en cas de collision ; ici, les doublons déjà sauvegardés reçoivent un
+ * id neuf (la première occurrence garde le sien, donc l'équipement aussi).
+ */
+{s.serial=Math.max(1,I(s.serial,1));const idsVus=new Set();for(const o of s.inventory){if(!o.id||idsVus.has(o.id))o.id=`i${s.serial++}`;idsVus.add(o.id)}}
+/*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
  * appropriée [du coffre]." Le coffre passe d'un tableau libre à un objet
  * indexé par definitionId — UN emplacement fixe par objet du catalogue
@@ -2329,22 +2422,12 @@ for(const o of Object.values(s.coffre||{})){
 }
 checkSets(s);
 /*
- * Migration unique : les anciennes sauvegardes avaient reçu 10 EXP pour
- * le Training Set alors que la récompense NGU est 20 EXP. Une complétion
- * faite sous le nouveau catalogue pose trainingSetExp20V1 directement
- * dans checkSets(), donc seul un ancien completedSets.training reçoit ici
- * le complément de +10. Le moteur NGU partagé crédite la vraie monnaie
- * via le drapeau pending ci-dessous.
+ * 2026-09-23 (audit des bonus de complétion) : retrait de la migration
+ * "Training Set 10 -> 20 EXP", qui ajoutait +10 EXP aux anciennes
+ * complétions. Le wiki (page "Training (set)", miroir NGU-Wiki : "+2 energy
+ * speed / 10 EXP") donne 10 EXP, valeur déjà dans SETS.training depuis
+ * 27c9514 : le complément portait ces sauvegardes à 20 EXP, contraire au wiki.
  */
-if(
-  s.completedSets.training&&
-  !s.unlockFlags.trainingSetExp20V1
-){
-  s.setRewards.experience=N(s.setRewards.experience)+10;
-  s.permanent.experience=N(s.permanent.experience)+10;
-  s.unlockFlags.trainingSetExp20V1=true;
-  s.unlockFlags.trainingSetExp20CurrencyPendingV1=true;
-}
 syncInventorySlotsAdventureV2(s);
 return s}
 const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slots.includes(slot)?{kind:"set",set,slot}:SPECIALS[id]?{kind:"special",id}:null};
@@ -2481,7 +2564,36 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
  */
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
-function checkSets(s){for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;for(const [k,v] of Object.entries(d.reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(d.reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(d.reward.experience);if(N(d.reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(d.reward.ap);if(N(d.reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(d.reward.energySpeed);if(N(d.reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(d.reward.energyPower);if(N(d.reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(d.reward.energyBars);if(N(d.reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(d.reward.magicPower);if(N(d.reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(d.reward.magicBars);if(N(d.reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(d.reward.magicCap);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}}
+/* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
+function appliquerRecompenseSetV1(s,reward){for(const [k,v] of Object.entries(reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(reward.experience);if(N(reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(reward.ap);if(N(reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(reward.energySpeed);if(N(reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(reward.energyPower);if(N(reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(reward.energyBars);if(N(reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(reward.magicPower);if(N(reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(reward.magicBars);if(N(reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(reward.magicCap);for(const k of ["r3PowerFlat","r3CapFlat","r3BarsFlat"])if(N(reward[k])>0)s.permanent[k]=N(s.permanent[k])+N(reward[k])}
+function checkSets(s){
+  for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
+  /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
+  for(const [id,d] of Object.entries(SETS_OBJETS_V1)){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
+  accorderConsommablesSetsV1(s);
+}
+/*
+ * Consommables donnés par la complétion d'un set (2026-09-23) : Forest (2
+ * Energy potions α, 2 β, 2 Energy bar bars), HSB (1 Magic potion α, 1 β, 1
+ * Magic bar bar), Gaudy (2 Lucky Charms), Incriminating Evidence (+1 de chaque
+ * potion Resource 3 : α, β, δ). SOREAL n'a pas d'inventaire de consommables :
+ * comme la roue quotidienne, ils sont activés immédiatement via les effets de
+ * la boutique Sellout (idleSelloutApplyEffectV1, appliqué par le moteur méta à
+ * partir de pendingSetConsumablesV1). Une seule fois par set
+ * (setConsumablesGrantedV1), y compris pour un set complété avant ce correctif.
+ */
+const SET_REWARD_CONSUMABLES_V1=Object.freeze({energyPotionA:"energyPotionAlpha",energyPotionB:"energyPotionBeta",energyBarBar:"energyBarBar",magicPotionA:"magicPotionAlpha",magicPotionB:"magicPotionBeta",magicBarBar:"magicBarBar",luckyCharms:"luckyCharm",r3PotionAlpha:"resource3PotionAlpha",r3PotionBeta:"resource3PotionBeta",r3PotionDelta:"resource3PotionDelta"});
+function accorderConsommablesSetsV1(s){
+  if(!s.setConsumablesGrantedV1||typeof s.setConsumablesGrantedV1!=="object")s.setConsumablesGrantedV1={};
+  if(!s.pendingSetConsumablesV1||typeof s.pendingSetConsumablesV1!=="object")s.pendingSetConsumablesV1={};
+  for(const [id,d] of [...Object.entries(SETS),...Object.entries(SETS_OBJETS_V1)]){
+    if(!s.completedSets[id]||s.setConsumablesGrantedV1[id])continue;
+    const lots=Object.entries(d.reward).filter(([k,v])=>SET_REWARD_CONSUMABLES_V1[k]&&I(v)>0);
+    if(!lots.length)continue;
+    for(const [k,v] of lots){const effet=SET_REWARD_CONSUMABLES_V1[k];s.pendingSetConsumablesV1[effet]=I(s.pendingSetConsumablesV1[effet])+I(v)}
+    s.setConsumablesGrantedV1[id]=true;
+  }
+}
 /*
  * Capacité de sac réelle (Norman, 2026-09-10) : "j'ai un inventaire
  * infini alors que dans NGU il est limité." Vrai NGU (wiki, page
@@ -2578,7 +2690,7 @@ function reorderInventoryAdventureV2(s,sourceId,targetId,targetIndex){
   return{sourceId:source,targetIndex:dst,swappedWith:swapped};
 }
 
-function add(s,o){if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s))return null;o=cleanItem(o);if(!o)throw Error("OBJET_INVALIDE");if(!o.id)o.id=`i${s.serial++}`;s.inventory.push(o);record(s,o);return o}
+function add(s,o){if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s))return null;o=cleanItem(o);if(!o)throw Error("OBJET_INVALIDE");if(!o.id||s.inventory.some(x=>x.id===o.id))o.id=`i${s.serial++}`;s.inventory.push(o);record(s,o);return o}
 export function idleAdventureMergeLevelV47(a,b){return C(I(a)+I(b)+1,0,MAX)}
 export function idleAdventureItemAtLevelV47(definitionId,level=0,id="preview"){const d=defById(definitionId);if(!d)throw Error("DEFINITION_INVALIDE");return d.kind==="set"?item(id,d.set,d.slot,level):special(d.id,level)}
 /*
@@ -4301,6 +4413,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(palierBrutal)tirer(brutal);
   };
   if(id==="t1"){
+    // wiki GRB, Loot : "A Number lvl 0 (guaranteed)" -- objet fusionnable du Number (set).
+    objet("aNumber",Math.min(MAX,bonus));
     equip("grb",pick(cinq),Math.min(MAX,bonus));
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
     for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
@@ -4323,6 +4437,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     for(const type of ["power","toughness","special"])boosts(type,[[100,.1]]);
     if(chance(.1))objet("ascendedForestPendant",1);
   }else if(id==="t4"){
+    // wiki UUG, Loot : "UUG's Armpit Hair lvl 0 (guaranteed)" -- objet fusionnable de l'Armpit (set).
+    objet("uugHair",Math.min(MAX,bonus));
     const anneaux=["ringGreed","ringMight","ringUtility","ringEnergy","ringMagic"];
     const premier=!s.itemList["uug:ringGreed"]?.seen;
     for(const slot of anneaux){
@@ -4356,6 +4472,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(tierKey==="brutal"&&chance(.000002))objet("powerPill",4);
     if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
   }else if(id==="nerd"){
+    // wiki Greasy Nerd, Loot : "Incriminating Evidence lvl 1 - guaranteed".
+    objet("incriminatingEvidence",Math.min(MAX,1+bonus));
     // wiki : "Guaranteed one of" les 5 pièces du set + An Ordinary Calculator + Anime Figurine, lvl 4
     const garanti=pick([...cinq.map(slot=>"greasynerd:"+slot),"ordinaryCalculator","animeFigurine"]);
     if(garanti.startsWith("greasynerd:"))equip("greasynerd",garanti.slice(11),Math.min(MAX,4+bonus));else objet(garanti,4);
@@ -4365,6 +4483,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
       [["animeBodypillow",4,.00022,.25],["redMeeple",4,.00022,.25]],
       [["bagOfTrash",4,.00017,.25],["heartShapedPanties",4,.00017,.25]]);
   }else if(id==="godmother"){
+    // wiki The Godmother, Loot : "A Severed Unicorn's Head lvl 0 - guaranteed".
+    objet("severedUnicornHead",Math.min(MAX,bonus));
     titanEvil("mobster",.0001,
       [["ascendedX4Pendant",8,.0001,.25],["kingLooty",8,.0001,.25]],
       [["violinCase",4,.000075,.25],["molotovCocktail",4,.000075,.25]],
