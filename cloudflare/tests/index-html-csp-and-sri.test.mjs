@@ -18,12 +18,19 @@ import { readFileSync } from "node:fs";
  */
 
 const html = readFileSync("cloudflare/public/index.html", "utf8");
+const worker = readFileSync("cloudflare/src/idle-worker-entry-v1.js", "utf8");
 
 assert.ok(
   html.includes(
-    '<meta http-equiv="Content-Security-Policy" content="object-src \'none\'; base-uri \'self\'; frame-ancestors \'self\'">'
+    '<meta http-equiv="Content-Security-Policy" content="object-src \'none\'; base-uri \'self\'">'
   ),
-  "Une CSP de base (object-src/base-uri/frame-ancestors) doit être présente, sans risque de régression sur le WASM/les styles inline."
+  "Le <meta> CSP doit poser object-src/base-uri (sans risque de régression sur le WASM/les styles inline) -- jamais frame-ancestors, ignoré par les navigateurs via <meta>."
+);
+assert.ok(
+  worker.includes(
+    'headers.set(\n        "content-security-policy",\n        "object-src \'none\'; base-uri \'self\'; frame-ancestors \'self\'"\n      );'
+  ),
+  "frame-ancestors doit être appliqué via un VRAI en-tête HTTP côté Worker (idle-worker-entry-v1.js) -- c'est le seul endroit où les navigateurs le respectent."
 );
 
 const piperMatch = html.match(

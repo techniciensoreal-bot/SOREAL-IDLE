@@ -918,3 +918,9 @@ Aucune Subresource Integrity sur les scripts CDN (jsdelivr) ni aucune Content-Se
 - Une politique `script-src`/`style-src` stricte nécessiterait de tester en direct tout le pipeline audio (Piper WASM, AudioWorklet) avant déploiement -- volontairement pas ajoutée dans cette passe.
 
 2 tests existants verrouillaient le tag `<script>` exact sans les nouveaux attributs -- mis à jour. Suite complète : 173/173 OK.
+
+## 2026-09-23 — Correctif immédiat : frame-ancestors ignoré via <meta>, déplacé vers un vrai en-tête HTTP
+
+Vérification en direct du correctif CSP précédent (dans la même session) : la console affichait "The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element." -- confirmation que ce navigateur (et tous) ignorent silencieusement cette directive quand elle vient d'un `<meta>`, contrairement à `object-src`/`base-uri` qui fonctionnent bien par ce biais.
+
+**Fix** : `frame-ancestors` appliqué désormais via un vrai en-tête HTTP `Content-Security-Policy`, posé par le Worker (`idle-worker-entry-v1.js`) au moment de servir `index.html`. Le `<meta>` garde `object-src`/`base-uri` (défense en profondeur, sans risque). Suite complète : 173/173 OK.

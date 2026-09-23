@@ -158,6 +158,19 @@ export default {
       headers.set("cache-control", "no-cache, no-store, must-revalidate");
       headers.set("pragma", "no-cache");
       headers.set("expires", "0");
+      /*
+       * 2026-09-23 (audit, suite) : frame-ancestors est IGNORÉ par les
+       * navigateurs quand livré via <meta http-equiv="Content-Security-
+       * Policy">, confirmé en direct (erreur console après le premier
+       * correctif, qui ne posait la CSP que par meta) -- seul un vrai
+       * en-tête HTTP le fait respecter. object-src/base-uri restent
+       * aussi dans le <meta> (harmless, défense en profondeur), mais
+       * frame-ancestors ne peut être appliqué que depuis ici.
+       */
+      headers.set(
+        "content-security-policy",
+        "object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+      );
       return new Response(asset.body, {
         status: asset.status,
         statusText: asset.statusText,
