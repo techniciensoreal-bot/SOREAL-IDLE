@@ -15,7 +15,8 @@ import {
   idleHeartsExpMultiplierV1,
   idleHeartsApMultiplierV1,
   idleHeartsConsumableFactorV1,
-  idleHeartsHackSpeedMultiplierV1
+  idleHeartsHackSpeedMultiplierV1,
+  idleHeartsPinkCompleteV1
 } from "./idle-hearts-v1.js";
 import {
   idleWandoosConsumeCopyV1,
@@ -2478,7 +2479,7 @@ function wishSlotBreakdownV1(state) {
   return {
     base: 1,
     trollEvil: int(state.challenge?.completionsTier?.difficile?.troll, 0) >= 7 ? 1 : 0,
-    pinkHeart: state.adventure?.completedSets?.heartPink ? 1 : 0,
+    pinkHeart: idleHeartsPinkCompleteV1(state) ? 1 : 0,
     quirk: Math.min(1, Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).wishSlotBonus, 0)))
   };
 }

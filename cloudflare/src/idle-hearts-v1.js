@@ -100,6 +100,11 @@ export function idleHeartsPurpleCompleteV1(state) {
   return completed(state, "heartPurple");
 }
 
+/* Pink Heart (set) : "Gain an additional Wish slot!" (slots de souhaits, idle-ngu-progression.js). */
+export function idleHeartsPinkCompleteV1(state) {
+  return completed(state, "heartPink");
+}
+
 /*
  * Achat d'un cœur : l'AP n'est débité QUE si l'objet a bien été livré dans
  * l'inventaire d'Aventure (niveau 0 : aucune fiche ne publie de niveau d'achat).
