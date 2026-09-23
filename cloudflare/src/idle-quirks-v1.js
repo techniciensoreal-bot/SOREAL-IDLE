@@ -134,6 +134,8 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 68, name: "Generic Resource 3 Cap Quirk II", effect: "Each level in this Quirk adds a 0.5% boost to your Resource 3 Cap!", cost: 1000, cap: 50, bonus: { r3CapPct: 0.005 } },
   { id: 69, name: "Generic Resource 3 Bars Quirk II", effect: "Each level in this Quirk adds a 0.5% boost to your Resource 3 Bars!", cost: 1000, cap: 50, bonus: { r3BarsPct: 0.005 } },
   { id: 70, name: "Improved Base ITOPOD PPP!", effect: "Need to afford those new Sadistic Perks? No better solution to a Sadistic Quirk! Each level adds +10 base PPP to ITOPOD rewards!", cost: 800, cap: 50, bonus: { itopodPppFlat: 10 } },
+  /* Questing (2026-09-23, idle-questing-v1.js) : page "Quirk Points", index 71 (4 000 QP, 2 niveaux). */
+  { id: 71, name: "Bonus Quest Handin Progress I", effect: "reduce the level ratio for higher level Quest handins by 1 per level of this Quirk! Originally the formula is 1 + (level/10), rounded down.", cost: 4000, cap: 2, bonus: { questHandinReduction: 1 } },
   { id: 72, name: "Beasted Boosts III", effect: "Gain 1% better boosts per level of this quirk!", cost: 600, cap: 50, bonus: { boostPowerPct: 0.01 } },
   { id: 73, name: "Beasted Boosts IV", effect: "Gain 0.5% better boosts per level of this quirk!", cost: 1800, cap: 50, bonus: { boostPowerPct: 0.005 } },
   { id: 74, name: "Improved Sadistic Boss Multiplier I", effect: "+0.001 to the Sadistic Boss Multiplier per level (base 1.20)", cost: 20000, cap: 10, bonus: { sadisticBossMultiplierBonus: 0.001 } },
