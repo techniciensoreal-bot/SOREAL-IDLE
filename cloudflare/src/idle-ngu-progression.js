@@ -2646,9 +2646,9 @@ function castBloodSpell(state, spell) {
     return { spell, spent: blood, multiplier: spells.numberBoost };
   }
   if (spell === "ironPill") {
-    const gain = Math.pow(blood, 0.25) / 100;
+    /* Wiki Blood Magic : Power/Toughness += Blood^0.25 (HP x3, regen x0,03), permanent -- gain ABSOLU, pas un pourcentage. */
+    const gain = Math.pow(blood, 0.25);
     spells.ironPill += gain;
-    state.bonuses.ironPill += gain;
     state.currencies.blood = 0;
     return { spell, spent: blood, gain };
   }
@@ -2973,7 +2973,7 @@ function advanceLateSystems(state, seconds, context, now) {
   const tower = state.systems.tower;
   if (tower.unlocked && tower.active) {
     // Même base-10 que idleAdventureCombatStatsV1 (Norman, 2026-09-18, capture "Adventure Stats Breakdown").
-    const power = Math.max(10, num(context.adventurePower, 10));
+    const power = Math.max(10, idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state)).power);
     tower.data.floor = Math.max(0, int(tower.data.floor, 0));
     tower.data.killProgress = Math.max(0, num(tower.data.killProgress, 0)) + seconds * Math.min(1, Math.pow(power / Math.pow(1.05, tower.data.floor), 0.2) / 20);
     const kills = Math.floor(tower.data.killProgress);
@@ -3352,6 +3352,8 @@ export function idleNguBonuses(raw) {
   const aug = idleNguAugmentationMultiplier(state);
   const atPower = trackBonusLevel(state, "advancedTraining", "power");
   const atToughness = trackBonusLevel(state, "advancedTraining", "toughness");
+  const atBlock = trackBonusLevel(state, "advancedTraining", "block");
+  const ironPillPoints = Math.max(0, num(state.systems.bloodMagic?.data?.spells?.ironPill, 0));
   const nguFx = nguFxV1(state);
   const equipmentDisabled = state.challenge.active === "noEquipment";
   const adventureGear = equipmentDisabled
@@ -3401,7 +3403,6 @@ export function idleNguBonuses(raw) {
     perkBonuses.statMultiplier *
     quirkBonuses.statMultiplier *
     wishBonuses.statMultiplier *
-    atPowerBonus *
     nguFx.attackDefense *
     /*
      * Wandoos (2026-09-18) : wiki page "Wandoos" — l'OS actif multiplie
@@ -3451,7 +3452,6 @@ export function idleNguBonuses(raw) {
     attackMultiplier: attackMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
     defenseMultiplier:
       attackMultiplier *
-      atToughnessBonus *
       richJerksDefenseMultiplier *
       equipmentDefenseMultiplier,
     adventureMultiplier:
@@ -3461,9 +3461,40 @@ export function idleNguBonuses(raw) {
       wishBonuses.adventureStatsMultiplier *
       beardAdventure *
       diggers.adventure *
-      (1 + Math.sqrt(atPower) * 0.008) *
+      nguFx.adventure,
+    /*
+     * 2026-09-23 (audit) : wiki Advanced Training -- « Bonus% for Adventure
+     * Power/Toughness = Level^0.4 x 10 » : il s'applique à la Power et à la
+     * Toughness D'AVENTURE (pas à l'Attack/Defense de Fight Boss). Le terme
+     * (1 + sqrt(L) x 0,008) qui le remplaçait ici n'avait aucune source.
+     */
+    adventurePowerMultiplier:
+      challengeBonuses.adventureStatsMultiplier *
+      perkBonuses.adventureStatsMultiplier *
+      quirkBonuses.adventureStatsMultiplier *
+      wishBonuses.adventureStatsMultiplier *
+      beardAdventure *
+      diggers.adventure *
       nguFx.adventure *
-      (1 + num(state.bonuses.ironPill, 0)),
+      atPowerBonus,
+    adventureToughnessMultiplier:
+      challengeBonuses.adventureStatsMultiplier *
+      perkBonuses.adventureStatsMultiplier *
+      quirkBonuses.adventureStatsMultiplier *
+      wishBonuses.adventureStatsMultiplier *
+      beardAdventure *
+      diggers.adventure *
+      nguFx.adventure *
+      atToughnessBonus,
+    /* Block Damage Reduction (wiki Advanced Training) : (Level + 50) / (Level + 100) -- 50 % au niveau 0. */
+    blockReduction: (Math.max(0, atBlock) + 50) / (Math.max(0, atBlock) + 100),
+    /* Gains absolus hors équipement : Fruit of Adventure, perk Newbie (+100), Iron Pill (Blood^0.25 : Power/Toughness, HP x3, regen x0,03). */
+    adventureBaseFlat: {
+      power: num(yggPermanent.adventurePower, 0) + perkBonuses.adventurePowerFlat + ironPillPoints,
+      toughness: num(yggPermanent.adventureToughness, 0) + perkBonuses.adventureToughnessFlat + ironPillPoints,
+      hp: num(yggPermanent.adventureHp, 0) + ironPillPoints * 3,
+      regen: num(yggPermanent.adventureRegen, 0) + ironPillPoints * 0.03
+    },
     dropMultiplier:
       beardDrop *
       diggers.drop *
@@ -3482,7 +3513,7 @@ export function idleNguBonuses(raw) {
     respawnReduction: clamp(
       1 - (1 - nguFx.respawnReduction) * (1 - num(adventureGear.specials?.respawnReductionPct, 0) / 100),
       0,
-      0.75
+      0.92
     ),
     adventurePowerFlat: num(adventureGear.power, 0)+num(yggPermanent.adventurePower,0)+perkBonuses.adventurePowerFlat,
     adventureToughnessFlat: num(adventureGear.toughness, 0)+num(yggPermanent.adventureToughness,0)+perkBonuses.adventureToughnessFlat,
@@ -3680,7 +3711,7 @@ function unlockInfo(def, state, context) {
  * exact — répété à l'identique sur Choffice Hat, Wooden Office Apron,
  * The Titan Effigy, Tie of Apathy, etc.)
  */
-function idleAdventureCombatStatsV1(gear, context) {
+function idleAdventureCombatStatsV1(gear, context, bonuses) {
   const g = gear && typeof gear === "object" ? gear : {};
   /*
    * Norman (répété plusieurs fois, dont 2026-09-16) : "La regen n'est
@@ -3733,24 +3764,42 @@ function idleAdventureCombatStatsV1(gear, context) {
   const baseAdventureToughness = Math.max(10, num(context.adventureToughness, context.adventurePower || 10));
   const baseAdventureRegen = Math.max(1, baseAdventureToughness * 0.03);
   const permanent = g.permanent && typeof g.permanent === "object" ? g.permanent : {};
+  /*
+   * 2026-09-23 (audit) : jusqu'ici AUCUN multiplicateur d'Adventure Stats
+   * n'atteignait le combat (Challenges, Perks, Quirks, Wishes, NGU Adventure
+   * alpha/beta, Diggers, Beard BEARd, Advanced Training, Newbie Adventure Perk,
+   * Fruit of Adventure, Iron Pill : calculés par idleNguBonuses mais jamais
+   * lus). Stats = (base + équipement + permanent + gains absolus) x
+   * multiplicateur ; les PV suivent la Power (x3 wiki) et la regen la
+   * Toughness (x0,03), donc leurs multiplicateurs.
+   */
+  const bo = bonuses && typeof bonuses === "object" ? bonuses : null;
+  const flat = (bo && bo.adventureBaseFlat) || { power: 0, toughness: 0, hp: 0, regen: 0 };
+  const multPower = Math.max(0, num(bo && bo.adventurePowerMultiplier, 1));
+  const multToughness = Math.max(0, num(bo && bo.adventureToughnessMultiplier, 1));
   return Object.assign({}, g, {
     power:
-      baseAdventurePower +
-      Math.max(0, num(g.power, 0)) +
-      Math.max(0, num(permanent.adventurePower, 0)),
+      (baseAdventurePower +
+        Math.max(0, num(g.power, 0)) +
+        Math.max(0, num(permanent.adventurePower, 0)) +
+        Math.max(0, num(flat.power, 0))) * multPower,
     toughness:
-      baseAdventureToughness +
-      Math.max(0, num(g.toughness, 0)) +
-      Math.max(0, num(permanent.adventureToughness, 0)),
+      (baseAdventureToughness +
+        Math.max(0, num(g.toughness, 0)) +
+        Math.max(0, num(permanent.adventureToughness, 0)) +
+        Math.max(0, num(flat.toughness, 0))) * multToughness,
     hp:
-      (hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1) +
-      Math.max(0, num(g.hp, 0)) +
-      Math.max(0, num(permanent.adventureHp, 0)),
+      ((hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1) +
+        Math.max(0, num(g.hp, 0)) +
+        Math.max(0, num(permanent.adventureHp, 0)) +
+        Math.max(0, num(flat.hp, 0))) * multPower,
     regenBase: baseAdventureRegen,
     regen:
-      baseAdventureRegen +
-      Math.max(0, num(g.regen, 0)) +
-      Math.max(0, num(permanent.adventureRegen, 0))
+      (baseAdventureRegen +
+        Math.max(0, num(g.regen, 0)) +
+        Math.max(0, num(permanent.adventureRegen, 0)) +
+        Math.max(0, num(flat.regen, 0))) * multToughness,
+    blockReduction: bo && Number.isFinite(Number(bo.blockReduction)) ? Number(bo.blockReduction) : 0.5
   });
 }
 
@@ -3851,7 +3900,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
        */
       const snap = idleAdventureSnapshotV47(state.adventure, num(context.bosses, 0), state.difficulty, state.difficultyPeaks);
       const gear = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
-      snap.stats = idleAdventureCombatStatsV1(gear, context);
+      snap.stats = idleAdventureCombatStatsV1(gear, context, idleNguBonuses(state));
       return snap;
     })(),
     earlyGameTimeline: clone(IDLE_NGU_EARLY_GAME_TIMELINE),
@@ -4518,10 +4567,11 @@ function titanFight(state, context, now) {
     {
       action: "titan",
       titanId: "t1",
-      stats: {
-        power: Math.max(0, num(context.adventurePower, 0)),
-        toughness: Math.max(0, num(context.adventureToughness, context.adventurePower || 0))
-      }
+      /* 2026-09-23 : vraies stats d'aventure (avec multiplicateurs), plus un champ jamais renseigné (0). */
+      stats: (() => {
+        const combat = idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state));
+        return { power: combat.power, toughness: combat.toughness };
+      })()
     },
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
@@ -4659,7 +4709,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         wishLevels: wishLevelsMapV1(state),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
-        adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context)
+        adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state))
       }),
       t
     );

@@ -3970,8 +3970,10 @@ export function idleAdventureEquipmentStatsV47(raw){
     special:equipped.reduce((a,x)=>a+N(x.special),0),
     specialsByType,
     specials:{
+      /* 2026-09-23 : tous les types agrégés (Resource 3, Wish/Hack/Wandoos/Augment Speed, Move Cooldowns...) sont exposés, pas seulement la liste historique ci-dessous. */
+      ...specialsByType,
       dropChancePct:N(s.setRewards.drop)*100+idleAdventureCubeTierV1(s.cube).dropChancePct+N(specialsByType.dropChancePct),
-      respawnReductionPct:N(s.setRewards.respawn)*100,
+      respawnReductionPct:N(s.setRewards.respawn)*100+N(specialsByType.respawnReductionPct),
       chargeMultiplier:Math.max(1,N(s.setRewards.chargeMultiplier,1)),
       idleAttack:Boolean(s.setRewards.idleAttack),
       wandoosMeh:Boolean(s.setRewards.wandoosMeh),

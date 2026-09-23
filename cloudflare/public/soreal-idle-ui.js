@@ -15708,7 +15708,8 @@ let idleDialogueTimerV76=null;
             attaqueManuelleAdventureIdleV3_(def,a,fight,maintenant);
           }
         }else if(group==='defense'&&def.id==='block'){
-          let reduction=.5;
+          /* Block Damage Reduction : (Level+50)/(Level+100) d'Advanced Training, exposé par le serveur (audit 2026-09-23). */
+          let reduction=(a&&a.stats&&Number.isFinite(Number(a.stats.blockReduction)))?Number(a.stats.blockReduction):.5;
           if(idleAdventureManualStateV3.charge){
             reduction=Math.min(.99,reduction*multiplicateurChargeAdventureIdleV3_(a));
             idleAdventureManualStateV3.charge=false;

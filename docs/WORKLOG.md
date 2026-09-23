@@ -1098,3 +1098,20 @@ Retour utilisateur : la regen de vie fait bouger les chiffres des PV, la regen a
 ## 2026-09-23 — Quirks : banks III-V, Resource 3, ITOPOD PPP, Blood Magic (+23)
 
 Ajout, avec coûts/plafonds/effets du tableau « Quirk Points » : Adv. Training / Time Machine / Beard Temp Level Bank III-V (22-24, 27-29, 32-34), Generic Resource 3 Power/Cap/Bars I-III et Final (47-49, 67-69, 86-88, 183-185, lus par `r3*Multiplier`), Improved Base ITOPOD PPP (70, +10 PPP de base par niveau, lu par le calcul ITOPOD), Better Blood Magic I (91, +1 %/niveau de Blood produit). Toujours exclus (systèmes absents) : Cards/Mayo/Deck/Tags (99-169), Quêtes (71), slots Accessory/MacGuffin/Wish/Automerge (18, 19, 50, 55, 56), Hack Milestone Reducers (57-60, 174-175, les effets des Hacks n'étant pas encore branchés), Lower Minimum Wish Speed (54), Even More Inventory Space (90). Test `idle-quirks-banks-r3-ppp-blood.test.mjs`.
+
+## 2026-09-23 — Audit approfondi (lot 1) : Adventure Stats, régénération, NUMBER, EXP de boss
+
+Audit en parallèle (4 relecteurs, lecture seule) code vs miroir du wiki. Corrigé dans ce lot :
+
+- **Régénération d'aventure « instantanée »** : `adventureRestPv` (PV de repos entre deux combats / en Safe Zone) vivait dans `idleEtat`, remplacé à chaque synchro serveur (~15 s) par un objet sans ce champ ; le tick suivant lisait `null` et remettait les PV au maximum. Mémorisé hors de `idleEtat` (`idleAdventureRestPvMemoV1`). Test `idle-adventure-rest-hp-survives-sync`.
+- **Aucun multiplicateur d'Adventure Stats n'atteignait le combat** (perks, quirks, wishes, NGU Adventure α/β, Advanced Training, Beard BEARd, Digger, Challenges...) : `idleAdventureCombatStatsV1` applique maintenant `(base 10 + équipement + permanent + gains absolus) x multiplicateur` ; PV et regen suivent Power et Toughness (x3 / x0,03). Gains absolus lus : Newbie Adventure Perk (+100), Fruit of Adventure (stocké mais jamais lu), Iron Pill.
+- **Advanced Training** : « Bonus% for Adventure Power/Toughness = Level^0.4 x 10 » s'applique à la Power/Toughness **d'aventure**, pas à l'Attack/Defense de Fight Boss (il y était appliqué à tort) ; le terme sans source `1 + sqrt(L) x 0,008` est retiré. Block Damage Reduction = `(Level+50)/(Level+100)` (au lieu de 50 % fixe), exposé par le serveur et lu par la compétence Block du client.
+- **Iron Pill** : gain absolu `Blood^0.25` (Power/Toughness, HP x3, regen x0,03), comme sur le wiki, au lieu d'un pourcentage jamais lu.
+- **Titans et ITOPOD** utilisaient un champ jamais renseigné (`adventurePower`, donc 0/10) : ils lisent les vraies stats d'aventure.
+- **Specials d'équipement** : seul un sous-ensemble de types était exposé à `idleNguBonuses` ; tous le sont désormais (Resource 3, Wish/Hack/Wandoos/Augment Speed, Respawn, Move Cooldowns...). Ce qui rendait inertes une partie des Specials de sets ajoutés plus tôt. Réduction de respawn : les Specials d'équipement sont comptés, plafond porté de 75 % à 92 % (minimum ~0,33 s du wiki).
+- **NUMBER inférieur à 1** : `attackMultiplier`/`defenseMultiplier` étaient écrasés à 1 dans les stats de combat ; le NUMBER d'un Rebirth rapide vaut par exemple 0,33 après 10 min (wiki Rebirths : « peut monter ou baisser »). Cause probable du NUKE plus généreux dans SOREAL après un Rebirth (sur une partie neuve sans Rebirth, la chaîne Attack/Defense est identique au wiki).
+- **`attackTrainingLevels`** ignorait trois entraînements du groupe attaque (contre_palette, percee_quai, ultime_soreal) : facteur d'entraînement du NUMBER faussé.
+- **Perk « +2 % EXP from bosses 24 and on »** (calculé, jamais lu) appliqué à l'EXP de boss (combat, premier kill, NUKE, récompense affichée).
+- Tests : `idle-adventure-stats-multipliers`, `idle-adventure-rest-hp-survives-sync`, test Advanced Training réécrit.
+
+**À faire (rapports)** : Auto Nuker (vendu 65 000 AP sans effet), bonus FTBE contradictoire dans le wiki, Move Cooldowns d'équipement, Slimy (set) Parry x3, Idle Mode x1,8, taux du Cube (perk), mur avant Rebirth non sourcé (boss 20), pièces par boss ; ITOPOD : formule des ennemis du wiki ; types d'ennemis (aucune mécanique chiffrée : rien à inventer).

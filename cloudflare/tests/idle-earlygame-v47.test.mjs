@@ -969,15 +969,18 @@ const fresh=(context={}, now=1_000_000)=>
    * (niveau 10 -> 25.12%, niveau 100 -> 63.10%, niveau 1000 -> 158.49%).
    */
   const base=fresh({},1_000_000);
-  const baseAttack=idleNguBonuses(base).attackMultiplier;
-  const baseDefense=idleNguBonuses(base).defenseMultiplier;
+  const baseAttack=idleNguBonuses(base).adventurePowerMultiplier;
+  const baseDefense=idleNguBonuses(base).adventureToughnessMultiplier;
+  // Audit 2026-09-23 : ce bonus s'applique à la Power/Toughness D'AVENTURE, pas à l'Attack/Defense de Fight Boss.
+  assert.equal(baseAttack,1);
 
   for (const [level,expectedPct] of [[10,25.12],[100,63.10],[1000,158.49]]) {
     const expectedMultiplier=1+expectedPct/100;
 
     const powerState=fresh({},1_000_000);
     powerState.systems.advancedTraining.data.tracks.power.tempLevel=level;
-    const attackBonus=idleNguBonuses(powerState).attackMultiplier;
+    const attackBonus=idleNguBonuses(powerState).adventurePowerMultiplier;
+    assert.equal(idleNguBonuses(powerState).attackMultiplier,idleNguBonuses(base).attackMultiplier,"Advanced Training n'agit pas sur Attack");
     assert.ok(
       Math.abs(attackBonus/baseAttack/expectedMultiplier-1)<1e-3,
       `attack AT level ${level}: attendu x${expectedMultiplier}`
@@ -985,7 +988,8 @@ const fresh=(context={}, now=1_000_000)=>
 
     const toughnessState=fresh({},1_000_000);
     toughnessState.systems.advancedTraining.data.tracks.toughness.tempLevel=level;
-    const defenseBonus=idleNguBonuses(toughnessState).defenseMultiplier;
+    const defenseBonus=idleNguBonuses(toughnessState).adventureToughnessMultiplier;
+    assert.equal(idleNguBonuses(toughnessState).defenseMultiplier,idleNguBonuses(base).defenseMultiplier,"Advanced Training n'agit pas sur Defense");
     assert.ok(
       Math.abs(defenseBonus/baseDefense/expectedMultiplier-1)<1e-3,
       `defense AT level ${level}: attendu x${expectedMultiplier}`
