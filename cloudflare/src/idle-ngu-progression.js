@@ -1673,6 +1673,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.selloutShop = Object.assign(baseState(t).selloutShop, state.selloutShop || {});
   state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
   state.selloutEffects = createSelloutEffectsV1(source.selloutEffects);
+  appliquerConsommablesSetsAventureV1(state);
 
   state.records = Object.assign(baseState(t).records, source.records || {});
   /*
@@ -5043,7 +5044,21 @@ function challengeAction(state, payload, context, now) {
  * pont les reverse dans les vraies monnaies. Le PP progress suit la même règle
  * que l'ITOPOD : 1 000 000 de progression = 1 PP.
  */
+/*
+ * Consommables de complétion de set (Forest, HSB, Gaudy, Incriminating
+ * Evidence ; voir accorderConsommablesSetsV1 dans idle-adventure-v47.js) :
+ * activés immédiatement comme ceux de la roue quotidienne, puis retirés de la
+ * file d'attente -- jamais appliqués deux fois.
+ */
+function appliquerConsommablesSetsAventureV1(state) {
+  const file = state.adventure?.pendingSetConsumablesV1;
+  if (!file || typeof file !== "object") return;
+  for (const [id, n] of Object.entries(file)) idleSelloutApplyEffectV1(state, id, Math.max(0, int(n, 0)));
+  state.adventure.pendingSetConsumablesV1 = {};
+}
+
 function crediterRecompensesAventure(state, avant) {
+  appliquerConsommablesSetsAventureV1(state);
   const p = state.adventure?.permanent || {};
   const gain = (cle) => Math.max(0, num(p[cle], 0) - num(avant[cle], 0));
   state.currencies.experience += gain("experience");

@@ -111,14 +111,16 @@ const ajouter = (s, definitionId, level = 100) =>
   const avec = ajouter(normalizeIdleNguState({}, {}, 0), "incriminatingEvidence");
   assert.equal(avec.adventure.completedSets.incriminatingEvidence, true);
   const b = idleNguBonuses(avec);
-  for (const [stat, flat, mult] of [["power", 2, b.r3PowerMultiplier], ["cap", 80000, b.r3CapMultiplier], ["bars", 2, b.r3BarsMultiplier]]) {
+  const b0 = idleNguBonuses(sans);
+  // (les potions R3 du même set changent aussi r3PowerMultiplier : comparaison à multiplicateur égal)
+  for (const [stat, flat, mult, mult0] of [["power", 2, b.r3PowerMultiplier, b0.r3PowerMultiplier], ["cap", 80000, b.r3CapMultiplier, b0.r3CapMultiplier], ["bars", 2, b.r3BarsMultiplier, b0.r3BarsMultiplier]]) {
     const brut = avec.resources.r3[stat];
     assert.ok(
       Math.abs(idleNguEffectiveResourceStat(avec, "r3", stat) - (brut + flat) * mult) < 1e-6,
       `R3 ${stat} : (brut + ${flat}) x multiplicateur`
     );
     assert.ok(
-      Math.abs(idleNguEffectiveResourceStat(avec, "r3", stat) - idleNguEffectiveResourceStat(sans, "r3", stat) - flat * mult) < 1e-6,
+      Math.abs(idleNguEffectiveResourceStat(avec, "r3", stat) - (idleNguEffectiveResourceStat(sans, "r3", stat) / mult0 + flat) * mult) < 1e-6,
       `R3 ${stat} : +${flat} de base par rapport à un compte sans le set`
     );
   }

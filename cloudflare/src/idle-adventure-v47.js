@@ -1458,7 +1458,7 @@ const SETS_OBJETS_V1=Object.freeze({
    * -- les trois bonus "base" s'ajoutent à la valeur brute de Resource 3
    * (adventure.permanent.r3*Flat, idleNguEffectiveResourceStatV1).
    */
-  incriminatingEvidence:{name:"Incriminating Evidence Set",items:["incriminatingEvidence"],reward:{r3PowerFlat:2,r3CapFlat:80000,r3BarsFlat:2}},
+  incriminatingEvidence:{name:"Incriminating Evidence Set",items:["incriminatingEvidence"],reward:{r3PowerFlat:2,r3CapFlat:80000,r3BarsFlat:2,r3PotionAlpha:1,r3PotionBeta:1,r3PotionDelta:1}},
   /* "Severed Head (set)" : un seul objet (A Severed Unicorn's Head), "+13.37% Wish Speed!" -- même setRewards.wishSpeedPct que Typo. */
   severedHead:{name:"Severed Head Set",items:["severedUnicornHead"],reward:{wishSpeedPct:.1337}}
 });
@@ -2580,6 +2580,29 @@ function checkSets(s){
   for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
   /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
   for(const [id,d] of Object.entries(SETS_OBJETS_V1)){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
+  accorderConsommablesSetsV1(s);
+}
+/*
+ * Consommables donnés par la complétion d'un set (2026-09-23) : Forest (2
+ * Energy potions α, 2 β, 2 Energy bar bars), HSB (1 Magic potion α, 1 β, 1
+ * Magic bar bar), Gaudy (2 Lucky Charms), Incriminating Evidence (+1 de chaque
+ * potion Resource 3 : α, β, δ). SOREAL n'a pas d'inventaire de consommables :
+ * comme la roue quotidienne, ils sont activés immédiatement via les effets de
+ * la boutique Sellout (idleSelloutApplyEffectV1, appliqué par le moteur méta à
+ * partir de pendingSetConsumablesV1). Une seule fois par set
+ * (setConsumablesGrantedV1), y compris pour un set complété avant ce correctif.
+ */
+const SET_REWARD_CONSUMABLES_V1=Object.freeze({energyPotionA:"energyPotionAlpha",energyPotionB:"energyPotionBeta",energyBarBar:"energyBarBar",magicPotionA:"magicPotionAlpha",magicPotionB:"magicPotionBeta",magicBarBar:"magicBarBar",luckyCharms:"luckyCharm",r3PotionAlpha:"resource3PotionAlpha",r3PotionBeta:"resource3PotionBeta",r3PotionDelta:"resource3PotionDelta"});
+function accorderConsommablesSetsV1(s){
+  if(!s.setConsumablesGrantedV1||typeof s.setConsumablesGrantedV1!=="object")s.setConsumablesGrantedV1={};
+  if(!s.pendingSetConsumablesV1||typeof s.pendingSetConsumablesV1!=="object")s.pendingSetConsumablesV1={};
+  for(const [id,d] of [...Object.entries(SETS),...Object.entries(SETS_OBJETS_V1)]){
+    if(!s.completedSets[id]||s.setConsumablesGrantedV1[id])continue;
+    const lots=Object.entries(d.reward).filter(([k,v])=>SET_REWARD_CONSUMABLES_V1[k]&&I(v)>0);
+    if(!lots.length)continue;
+    for(const [k,v] of lots){const effet=SET_REWARD_CONSUMABLES_V1[k];s.pendingSetConsumablesV1[effet]=I(s.pendingSetConsumablesV1[effet])+I(v)}
+    s.setConsumablesGrantedV1[id]=true;
+  }
 }
 /*
  * Capacité de sac réelle (Norman, 2026-09-10) : "j'ai un inventaire
