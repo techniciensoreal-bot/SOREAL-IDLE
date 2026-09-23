@@ -1225,3 +1225,7 @@ Un script a extrait la section « Loot » des 32 zones du miroir wiki et l'a com
 ## 2026-09-23 — Inventaire : No Equipment Evil
 
 Page Inventory : les No Equipment Challenges Evil donnent 3 espaces par complétion et 9 de plus à la dernière (24 au total), et non 12 au maximum. Le total maximal d'espaces (24 + 360) se retrouve : EXP 36, Sellout 166, No Equipment 50 + 24, perks 24, souhaits 36, quirks 24.
+
+## 2026-09-23 — Infinity Cube : taux de conversion
+
+Le perk « Improved Cube Boosting! » (conversion à 2 % au lieu de 1 %) était exposé mais jamais lu, et le souhait 110 (+5 % d'efficacité du Cube par niveau, x2 au niveau 20) n'avait aucun effet : le versement d'un boost dans le Cube utilise maintenant `cubeBoostRate` et `cubeBoostEffectiveness`. Test `idle-cube-boost-rate`.

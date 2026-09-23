@@ -5163,6 +5163,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         difficulty: state.difficulty,
         goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),
         boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
+        cubeBoostRate: Math.max(0.01, num(perkBonusesV1(state.systems.perks?.data?.levels).cubeBoostRate, 0.01)),
+        cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
