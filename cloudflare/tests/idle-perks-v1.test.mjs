@@ -32,7 +32,7 @@ import {
  */
 
 // --- Catalog shape: 111 entries, unique ids, sane cost/cap ---
-assert.equal(IDLE_PERKS_CATALOG_V1.length, 229, "catalogue complet 2026-09-23 (Cards/Mayo, MacGuffins, Questing, Daycare inclus)");
+assert.equal(IDLE_PERKS_CATALOG_V1.length, 231, "catalogue complet 2026-09-23 (Cards/Mayo, MacGuffins, Questing, Daycare, slots d'automerge 111-112 inclus)");
 for (let i = 0; i < 56; i++) {
   const perk = IDLE_PERKS_CATALOG_V1[i];
   assert.equal(perk.id, i, "Perk ids must be sequential 0-55, matching the wiki table order.");

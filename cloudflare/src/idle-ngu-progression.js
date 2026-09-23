@@ -101,6 +101,21 @@ import {
   idleDaycareRemoveV1,
   idleDaycareSnapshotV1
 } from "./idle-daycare-v1.js";
+/* --- Automatisation de l'inventaire (module dédié, voir idle-inventory-auto-v1.js) --- */
+import {
+  normalizeIdleInventoryAutoV1,
+  idleInventoryMergeSlotCountV1,
+  idleInventoryLoadoutSlotsV1,
+  idleInventoryBoostRecycleChanceV1,
+  advanceIdleInventoryAutoV1,
+  applyIdleInventoryAutoActionV1,
+  idleInventoryAutoSnapshotV1,
+  idleInventoryReceiveDropV1,
+  idleInventoryProcessNewDropsV1,
+  idleInventoryIdsV1,
+  idleInventoryManualBoostBeforeV1,
+  idleInventoryManualBoostAfterV1
+} from "./idle-inventory-auto-v1.js";
 
 /*
  * SOREAL IDLE — early game NGU parity engine.
@@ -1785,6 +1800,10 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     };
   }
 
+  /* Automatisation de l'inventaire : nombre de slots d'automerge (lu par le moteur d'Aventure) et réglages. */
+  state.adventure.mergeSlots = idleInventoryMergeSlotCountV1(state);
+  state.adventure.inventoryAuto = normalizeIdleInventoryAutoV1(state.adventure.inventoryAuto);
+
   /* Item Daycare : données des slots, et déblocage dès qu'un slot existe (« shows up once a daycare slot has been purchased »). */
   state.systems.daycare.data = normalizeIdleDaycareDataV1(state.systems.daycare.data);
   if (idleDaycareFactorsV1(daycareBaseInputsV1(state)).slots > 0) state.adventure.unlockFlags.daycareSlotPurchased = true;
@@ -3392,10 +3411,12 @@ function advanceTowerV1(state, seconds, context) {
       d.boostProgress -= boosts;
       const types = ["power", "toughness", "special"];
       const forceBoost = towerBoostStrengthV1(tier);
+      /* Filtre de butin, Filter Boosts into Infinity Cube et transformation automatique (idle-inventory-auto-v1.js). */
+      const invEnv = inventoryAutoEnvV1(state);
       for (let i = 0; i < Math.min(boosts, 200); i++) {
         const item = idleAdventureBoostV1(types[Math.floor(Math.random() * 3)], forceBoost);
         item.level = 1;
-        if (!idleAdventureAddItemV1(state.adventure, item)) break;
+        if (!idleInventoryReceiveDropV1(state.adventure, item, invEnv)) break;
       }
     }
     /* Little Blue Pill : PPP doublés pour les n premiers kills couverts par le stock de pilules. */
@@ -3536,6 +3557,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceLateSystems(state, secs, context, nowMs(now));
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
   if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
+  /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */
+  advanceIdleInventoryAutoV1(state.adventure, secs, () => inventoryAutoEnvV1(state));
   /* Questing (crochet 1/4) : Major Quests gagnées avec le temps + barre d'idle. */
   if (state.systems.questing?.unlocked) advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now));
 
@@ -4495,6 +4518,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)),
+    /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
+    inventoryAuto: idleInventoryAutoSnapshotV1(state.adventure, inventoryAutoEnvV1(state)),
     /* Questing (crochet 4/4) : état de quête prêt à afficher (idle-questing-v1.js). */
     questing: state.systems.questing?.unlocked ? idleQuestingSnapshotV1(state, questingEnvV1(state, context)) : { unlocked: false },
     /*
@@ -5245,6 +5270,7 @@ function titanFight(state, context, now) {
   // the same persisted state as the Adventure screen.
   const titanChallengeBonuses=challengePermanentBonuses(state);
   const avantRecompenses = photoRecompensesAventure(state);
+  const idsAvantTitan = idleInventoryIdsV1(state.adventure);
   const applied = applyIdleAdventureActionV47(
     state.adventure,
     {
@@ -5269,6 +5295,8 @@ function titanFight(state, context, now) {
     now
   );
   state.adventure = applied.state;
+  /* Butin du titan : filtre de butin / cube / transformation automatique (idle-inventory-auto-v1.js). */
+  if (!applied.duplicate) idleInventoryProcessNewDropsV1(state.adventure, idsAvantTitan, inventoryAutoEnvV1(state));
   crediterRecompensesAventure(state, avantRecompenses);
 
   const titanState = state.adventure?.titans?.t1 || { kills: 0, nextAt: 0 };
@@ -5381,6 +5409,11 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      * monnaie state.currencies.ap, contrairement à experience et gold
      * juste au-dessus (même schéma, oublié pour l'AP spécifiquement).
      */
+    /* Automatisation de l'inventaire (idle-inventory-auto-v1.js) : état avant l'action, relu juste après. */
+    const advPayloadInv = payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload;
+    const advActionInv = String(advPayloadInv.action || advPayloadInv.mode || "");
+    const idsAvantAventure = idleInventoryIdsV1(state.adventure);
+    const boostManuelAvant = idleInventoryManualBoostBeforeV1(state.adventure, advPayloadInv);
     const applied = applyIdleAdventureActionV47(
       state.adventure,
       payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload,
@@ -5409,6 +5442,16 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       t
     );
     state.adventure = applied.state;
+    /*
+     * Butin des kills/titans : filtre de butin, Filter Boosts into Infinity Cube, transformation
+     * automatique. Boost manuel (objet ou cube) : recyclage (page Boost, boutique EXP + Basic Challenge).
+     */
+    let boostRecycleInv = null;
+    if (!applied.duplicate) {
+      const invEnv = inventoryAutoEnvV1(state);
+      if (advActionInv === "zoneKill" || advActionInv === "resolveZoneFight" || advActionInv === "titan") idleInventoryProcessNewDropsV1(state.adventure, idsAvantAventure, invEnv);
+      boostRecycleInv = idleInventoryManualBoostAfterV1(state.adventure, boostManuelAvant, invEnv);
+    }
     /* Expérience, or, AP et progression de PP : voir crediterRecompensesAventure. */
     /*
      * Norman (2026-09-11) : "il faut aussi regarder ce que les mobs sont
@@ -5420,6 +5463,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      */
     crediterRecompensesAventure(state, avantRecompenses);
     result = applied.result || {};
+    if (boostRecycleInv && result && typeof result === "object") result = Object.assign({}, result, { boostRecycled: boostRecycleInv });
     /* Questing (crochet 2/4) : objet de quête possible sur un vrai kill de zone (jamais sur un rejeu idempotent). */
     {
       const adv = payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload;
@@ -5532,6 +5576,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       : idleDaycareRemoveV1(state.adventure, state.systems.daycare.data, itemId, factors);
   } else if (action === "cards") {
     result = idleCardsActionV1(state, payload);
+  } else if (action === "inventoryAuto") {
+    /* Auto Merge/Auto Boost, A/D + clic, transformation de boost, loadouts, filtre de butin (idle-inventory-auto-v1.js). */
+    result = applyIdleInventoryAutoActionV1(state, payload, inventoryAutoEnvV1(state));
   } else {
     throw new Error("ACTION_META_INCONNUE");
   }
@@ -5859,8 +5906,9 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
  * espaces d'inventaire (25-36 : 2 EXP ; 37-60 : 4 x (possédés - 35) ; plafond 60), 2 slots
  * d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP), 3 slots de garderie (« Item Daycare ! »
  * 250, « Another Daycare Slots! » 25 000, « Another Another Daycare Slots! » 500 000 EXP, achat unique
- * chacun). Non modélisés : Auto Merge, filtre de butin, loadouts, boutons personnalisés, Training Auto
- * Advance, slots de Beard. 2 slots MacGuffin (10 M / 100 M EXP).
+ * chacun). Auto Merge, filtre de butin, loadouts, Boost Recycling et Inventory Merge Slot : voir
+ * idle-inventory-auto-v1.js. Non modélisés : boutons personnalisés, Training Auto Advance, slots de
+ * Beard. 2 slots MacGuffin (10 M / 100 M EXP).
  */
 export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   adventurePower: Object.freeze({ name: "Adventure Power", cost: () => 3, gain: 1, max: null }),
@@ -5877,8 +5925,53 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   daycareSlot3: Object.freeze({ name: "Another Another Daycare Slots!", cost: () => 500000, gain: 1, max: 1 }),
   /* Wiki Experience, Misc : "A Macguffin Slot!" 10 M puis 100 M EXP (lus par idle-macguffins-v1.js). */
   macguffinSlot1: Object.freeze({ name: "A Macguffin Slot!", cost: () => 10000000, gain: 1, max: 1 }),
-  macguffinSlot2: Object.freeze({ name: "A Macguffin Slot!", cost: () => 100000000, gain: 1, max: 1 })
+  macguffinSlot2: Object.freeze({ name: "A Macguffin Slot!", cost: () => 100000000, gain: 1, max: 1 }),
+  /*
+   * Wiki Experience, Adventure Special (effets dans idle-inventory-auto-v1.js) : « Auto Merge » 200
+   * (la page Inventory annonce 1 000 : la page de la boutique fait foi), « Basic Loot Filter » 20,
+   * « 2 Loadout Slots! » 1000 (2 slots), « Another Loadout Slot! » 10,000, « Boost Recycling » 100 par
+   * +10 % (« Capped at 50% » = 5 achats), « Inventory Merge Slot! » 1000.
+   */
+  autoMerge: Object.freeze({ name: "Auto Merge", cost: () => 200, gain: 1, max: 1 }),
+  basicLootFilter: Object.freeze({ name: "Basic Loot Filter", cost: () => 20, gain: 1, max: 1 }),
+  loadoutSlots: Object.freeze({ name: "2 Loadout Slots!", cost: () => 1000, gain: 2, max: 1 }),
+  loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),
+  boostRecycling: Object.freeze({ name: "Boost Recycling", cost: () => 100, gain: 10, max: 5 }),
+  inventoryMergeSlot: Object.freeze({ name: "Inventory Merge Slot!", cost: () => 1000, gain: 1, max: 1 })
 });
+
+/*
+ * Automatisation de l'inventaire : bonus lus ici, mécanique dans idle-inventory-auto-v1.js.
+ * No Equipment (Normal) : Auto Boost à la 1re complétion, -10 % de minuteur par complétion
+ * (challengePermanentBonuses) ; « 1/2 Auto Merge and Boost Timers! » : -50 % (combinés
+ * multiplicativement) ; Basic (Normal) : +10 % de recyclage par complétion ; 100 Levels (Normal) :
+ * transformation à la 1re complétion, gratuite + automatique à la dernière.
+ */
+function inventoryAutoEnvV1(state) {
+  const ch = challengePermanentBonuses(state);
+  const sellout = state.selloutShop?.purchases || {};
+  const hundred = Math.max(0, int(state.challenge?.completions?.hundredLevels, 0));
+  const hundredMax = IDLE_NGU_NORMAL_CHALLENGES.find((d) => d.id === "hundredLevels")?.max || 5;
+  return {
+    autoMergeUnlocked: expShopPurchasedV1(state, "autoMerge") >= 1,
+    autoBoostUnlocked: Boolean(ch.autoBoost),
+    timerMultiplier: Math.max(0, num(ch.autoMergeTimeMultiplier, 1)) * (int(sellout.autoMergeBoostTimers, 0) >= 1 ? 0.5 : 1),
+    boostRecycleChance: idleInventoryBoostRecycleChanceV1(expShopPurchasedV1(state, "boostRecycling"), ch.boostRecycleChance),
+    lootFilterBasic: expShopPurchasedV1(state, "basicLootFilter") >= 1,
+    lootFilterImproved: int(sellout.improvedLootFilter, 0) >= 1,
+    filterBoostsIntoCube: int(sellout.filterBoostsIntoCube, 0) >= 1,
+    loadoutSlots: idleInventoryLoadoutSlotsV1(expShopPurchasedV1(state, "loadoutSlots"), expShopPurchasedV1(state, "loadoutSlot3"), sellout.loadoutSlot),
+    boostTransformUnlocked: hundred >= 1,
+    boostTransformFree: hundred >= hundredMax,
+    /* « Merges your equipped items (including MacGuffin Fragments) » : fragments équipés (idle-macguffins-v1.js). */
+    macguffins: state.systems.macguffins?.data || null,
+    boostCtx: () => ({
+      boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
+      cubeBoostRate: Math.max(0.01, num(perkBonusesV1(state.systems.perks?.data?.levels).cubeBoostRate, 0.01)),
+      cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110))
+    })
+  };
+}
 
 function expShopPurchasedV1(state, id) {
   return Math.max(0, int(state.bonuses?.expShop?.[id], 0));
