@@ -108,19 +108,21 @@ async function idleCallV1(request, env) {
     return idleJsonV1({ ok: false, error: "IDLE_OPERATION_REQUIRED" }, 400);
   }
 
-  const internalKey = String(env.SOREAL_IDLE_INTERNAL_KEY || "");
-  const suppliedKey = String(request.headers.get("x-soreal-idle-internal-key") || "");
-  if (internalKey && suppliedKey === internalKey) {
-    return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/call", {
-      method: "POST",
-      body: JSON.stringify({
-        operation,
-        args,
-        user: body?.user && typeof body.user === "object" ? body.user : null
-      })
-    });
-  }
-
+  /*
+   * Audit 2026-09-23 (second passage) : cette route acceptait aussi un
+   * repli "clé interne" (x-soreal-idle-internal-key, même secret que le
+   * proxy avatar/debug-list) qui faisait confiance à un `user.email`
+   * fourni tel quel par l'appelant -- aucune preuve de session, juste une
+   * égalité de chaîne plus loin (reinitialiserTousLesComptesSorealIdle
+   * comparait `acces.emailAutorise==='technicien.soreal@gmail.com'`).
+   * Recherche exhaustive (TV, APP, IDLE) : AUCUN appelant légitime --
+   * TV/APP appellent le Durable Object directement via le binding
+   * cross-script (jamais joignable depuis l'internet), jamais cette
+   * route HTTP publique avec cet en-tête. Retiré entièrement plutôt que
+   * durci : la seule protection restante est le jeton de session normal
+   * ci-dessous, émis par le mécanisme de ticket à usage unique déjà
+   * vérifié solide par cet audit (idle-standalone-session.test.mjs).
+   */
   const sessionToken = idleBearerV1(request);
   if (!sessionToken) {
     return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);

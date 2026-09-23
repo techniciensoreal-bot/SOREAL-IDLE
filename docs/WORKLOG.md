@@ -950,3 +950,17 @@ Vérification en production après déploiement du correctif `frame-ancestors` (
 **En-tête WORKLOG.md** : la section "État final vérifié" en tête de fichier donnait l'impression d'être un résumé de l'état courant, alors qu'elle décrit l'état au 2026-09-21 (narration V205) -- largement dépassée depuis (abandon MeloTTS, puis Grok TTS, passage à Piper local, voix unique...). Disclaimer ajouté en tête expliquant que ce fichier est un journal chronologique (le plus récent en bas), jamais un résumé courant.
 
 Suite complète : 173/173 OK.
+
+## 2026-09-23 — Second audit approfondi (3 dépôts) : tier Critique — bypass d'authentification sur `idleCallV1`
+
+`/api/v1/call` (route publique du Worker standalone) acceptait un repli "clé interne" (`x-soreal-idle-internal-key`, même secret que le proxy avatar/debug-list) qui faisait confiance à un `user` fourni tel quel par l'appelant -- aucun jeton de session, aucune preuve d'identité. Plus loin dans la chaîne, `reinitialiserTousLesComptesSorealIdle` (réinitialisation de TOUS les comptes joueurs) ne vérifiait qu'une égalité de chaîne sur `user.email`. Quiconque obtient cette clé (fuite de log, erreur de config...) pouvait donc réinitialiser tous les comptes ou lire/écrire l'état de n'importe quel joueur en se faisant simplement passer pour son email, depuis l'internet public, sans rate-limit.
+
+**Recherche exhaustive avant de corriger** (TV, APP, IDLE) : aucun appelant légitime nulle part. TV/APP appellent le Durable Object directement via le binding cross-script (`idleCall()` dans `index-global-read-coordinator-v55.js`, jamais joignable depuis l'internet) avec un `user` vérifié serveur (`verifyOperational` d'abord) -- jamais cette route HTTP publique avec cet en-tête. Ce chemin était donc mort fonctionnellement mais vivant comme surface d'attaque.
+
+**Fix** : branche `internalKey` retirée entièrement de `idleCallV1` (`cloudflare/src/idle-worker-entry-v1.js`) plutôt que durcie -- rien ne s'en sert, la retirer ferme le risque sans effet de bord. Le handler Durable Object `/__soreal-idle-v1/call` reste inchangé : il est toujours utilisé légitimement par le binding direct TV/APP (chemin non affecté par ce correctif, non joignable publiquement).
+
+Test `idle-standalone-worker-routes.test.mjs` mis à jour : l'ancien cas qui exerçait le bypass (clé interne + user arbitraire → 200) est remplacé par l'assertion inverse (clé interne seule, sans jeton → 401, Durable Object jamais atteint).
+
+Suite complète : 173/173 OK.
+
+**Plus aucun finding Critique restant côté IDLE.**

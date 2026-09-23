@@ -113,23 +113,30 @@ function envV1() {
   });
 }
 
+/*
+ * Audit 2026-09-23 (second passage) : /api/v1/call acceptait un repli
+ * "clé interne" (même secret que le proxy avatar/debug-list) qui faisait
+ * confiance à un user.email fourni tel quel par l'appelant -- sans
+ * jeton de session, sans preuve d'identité. Aucun appelant légitime
+ * trouvé nulle part (TV/APP passent par le binding Durable Object
+ * direct, jamais cette route HTTP publique). Retiré entièrement : ce
+ * test verrouille qu'un appelant qui connaît la clé interne mais N'A
+ * PAS de jeton de session valide est bien rejeté, exactement comme un
+ * appelant qui n'a ni l'un ni l'autre.
+ */
 {
   const env = envV1();
   const response = await worker.fetch(new Request("https://idle.test/api/v1/call", {
     method: "POST",
     headers: { "content-type": "application/json", "x-soreal-idle-internal-key": "secret" },
     body: JSON.stringify({
-      operation: "obtenirEtatSorealIdle",
-      args: ["token"],
-      user: { email: "test@example.com" }
+      operation: "reinitialiserTousLesComptesSorealIdle",
+      args: [],
+      user: { email: "technicien.soreal@gmail.com" }
     })
   }), env);
-  assert.equal(response.status, 200);
-  assert.equal(env.calls.length, 1);
-  assert.equal(new URL(env.calls[0].url).pathname, "/__soreal-idle-v1/call");
-  assert.equal(env.calls[0].body.operation, "obtenirEtatSorealIdle");
-  assert.deepEqual(env.calls[0].body.args, ["token"]);
-  assert.deepEqual(env.calls[0].body.user, { email: "test@example.com" });
+  assert.equal(response.status, 401);
+  assert.equal(env.calls.length, 0, "la clé interne seule ne doit plus jamais atteindre le Durable Object sur cette route.");
 }
 
 console.log("idle standalone worker routes: ok");
