@@ -131,6 +131,20 @@ import {
   idleInventoryManualBoostBeforeV1,
   idleInventoryManualBoostAfterV1
 } from "./idle-inventory-auto-v1.js";
+/* Yggdrasil : Poop, Auto-Activate, Beast's Fertilizer, perks 16/17, nouveaux fruits (crochets « Ygg extra »). */
+import {
+  idleYggUsePoopV1,
+  idleYggAutoActivateExpShopEntriesV1,
+  idleYggActivationCostV1,
+  idleYggAutoActivateV1,
+  idleYggTierSecondsV1,
+  idleYggQuickActivationV1,
+  idleYggFruitUnlockedV1,
+  idleYggPowerDeltaMultiplierV1,
+  idleYggSeedUnitV1,
+  idleYggFruitOfQuirksQpV1,
+  idleYggExtraSnapshotV1
+} from "./idle-yggdrasil-extra-v1.js";
 
 /*
  * SOREAL IDLE — early game NGU parity engine.
@@ -653,7 +667,16 @@ export const IDLE_NGU_YGG_FRUITS = Object.freeze([
   {id:"rage",name:"Fruit of Rage",resource:"energy",activationCost:500000000,baseSeeds:5,tierCost:2000,effect:"pp"},
   /* Wiki Yggdrasil, "Fruits and Fruit Effects" : 500 M Magic / 6 graines / T² x 15 000 ; 100 B Energy / 8 / T² x 100 000. */
   {id:"macguffinAlpha",name:"Fruit of MacGuffin α",resource:"magic",activationCost:500000000,baseSeeds:6,tierCost:15000,effect:"macguffinAlpha"},
-  {id:"macguffinBeta",name:"Fruit of MacGuffin β",resource:"energy",activationCost:100000000000,baseSeeds:8,tierCost:100000,effect:"macguffinBeta"}
+  /*
+   * Wiki Yggdrasil, "Fruits and Fruit Effects" (2026-09-23) : Fruit of Power δ 5 B Energy / 7 graines /
+   * T² x 30 000 ; Watermelon 20 B Magic / 30 / T² x 50 000 ("Eating or harvesting grants you extra seeds") ;
+   * Fruit of Quirks 40 B Magic / 7 / T² x 25 000 (graines « mangé » sur T, voir idleYggSeedUnitV1).
+   * Fruits de Mayo non ajoutés : coût « 10 Qa Energy or Magic » ambigu (idle-yggdrasil-extra-v1.js).
+   */
+  {id:"powerDelta",name:"Fruit of Power δ",resource:"energy",activationCost:5000000000,baseSeeds:7,tierCost:30000,effect:"powerDelta"},
+  {id:"watermelon",name:"Watermelon",resource:"magic",activationCost:20000000000,baseSeeds:30,tierCost:50000,effect:"seeds"},
+  {id:"macguffinBeta",name:"Fruit of MacGuffin β",resource:"energy",activationCost:100000000000,baseSeeds:8,tierCost:100000,effect:"macguffinBeta"},
+  {id:"quirks",name:"Fruit of Quirks",resource:"magic",activationCost:40000000000,baseSeeds:7,tierCost:25000,effect:"quirks",eatSeedUnit:"linear"}
 ]);
 
 export const IDLE_NGU_DIGGERS = Object.freeze([
@@ -982,7 +1005,9 @@ function createYggdrasilData() {
       adventureRegen:0,
       luckDropPct:0,
       powerBetaValue:0,
-      numbersValue:0
+      numbersValue:0,
+      /* "Invisible Fruit of Power δ Level" (bonus permanent toujours actif). */
+      powerDeltaValue:0
     }
   };
 }
@@ -3276,6 +3301,8 @@ function upgradeYggFruit(state, fruitId) {
   const def=IDLE_NGU_YGG_FRUITS.find(x=>x.id===fruitId);
   const f=s.data.fruits[fruitId];
   if(!def||!f)throw new Error("FRUIT_INVALIDE");
+  /* Ygg extra : Fruit of Numbers débloqué par la 5e complétion du Troll Challenge (Normal). */
+  if(f.tier<=0&&!idleYggFruitUnlockedV1(state,fruitId))throw new Error("FRUIT_NON_DEBLOQUE");
   const maxTier=yggMaxTier(state);
   if(f.tier>=maxTier)throw new Error("FRUIT_TIER_MAX");
   const target=f.tier+1;
@@ -3283,6 +3310,8 @@ function upgradeYggFruit(state, fruitId) {
   if(state.currencies.seeds<cost)throw new Error("GRAINES_INSUFFISANTES");
   state.currencies.seeds-=cost;
   f.tier=target;
+  /* Ygg extra : un fruit à Auto-Activate démarre dès son déblocage. */
+  idleYggAutoActivateV1(state,IDLE_NGU_YGG_FRUITS);
   return {fruit:fruitId,tier:f.tier,cost,maxTier};
 }
 
@@ -3294,10 +3323,12 @@ function activateYggFruit(state, fruitId) {
   if(!def||!f)throw new Error("FRUIT_INVALIDE");
   if(f.tier<=0)throw new Error("FRUIT_VERROUILLE");
   if(f.active)return {fruit:fruitId,active:true};
-  if(yggFreeResource(state,def.resource)<def.activationCost)throw new Error("RESSOURCE_YGG_INSUFFISANTE");
+  /* Ygg extra : coût nul si l'Auto-Activate du fruit est acheté (boutique EXP). */
+  const activationCost=idleYggActivationCostV1(state,def);
+  if(yggFreeResource(state,def.resource)<activationCost)throw new Error("RESSOURCE_YGG_INSUFFISANTE");
   state.resources[def.resource].current=Math.max(
     0,
-    num(state.resources[def.resource].current,0)-def.activationCost
+    num(state.resources[def.resource].current,0)-activationCost
   );
   s.data.reserved[def.resource]=0;
   f.active=true;
@@ -3305,7 +3336,7 @@ function activateYggFruit(state, fruitId) {
   return {
     fruit:fruitId,
     active:true,
-    cost:def.activationCost,
+    cost:activationCost,
     resource:def.resource,
     remaining:state.resources[def.resource].current
   };
@@ -3320,28 +3351,20 @@ function releaseYggFruit(state,def,f){
 }
 
 /*
- * Wiki NGU, page Yggdrasil, section "Nerdy Formulas" > "Seed Gains"
- * (consultée le 2026-09-14) : ⌈⌈T^1.5⌉ x Poop x (1+EquipSeedGain) x
- * NGUYgg x QuirkSeeds x PerkSeeds x BaseSeedReward x FirstHarvest x
- * HarvestBonus⌉. Poop, EquipSeedGain et NGUYgg n'ont aucune implémentation
- * dans SOREAL IDLE (pas de système Poop, pas d'équipement "Seed Gain",
- * pas de piste NGU Yggdrasil) et restent donc à 1/0 par défaut — gap
- * honnête, pas une valeur inventée. PerkSeeds (Perk "I Want Your Seeds
- * ;)") et QuirkSeeds (Quirk "The Beast's Seed ;)") existent bel et bien
- * dans les catalogues idle-perks-v1.js / idle-quirks-v1.js et étaient
- * déjà calculés par idleNguBonuses() (seedYieldMultiplierFromPerks/
- * Quirks) mais jamais lus par cette fonction — un bonus réel, acheté,
- * jamais appliqué. Idem pour FirstHarvest (Perk "The First Harvest's
- * The Best") : le flag f.firstHarvestThisRun était déjà suivi (mis à
- * false après usage, remis à true au Rebirth) mais son bonus n'était
- * jamais consommé. Les deux sont câblés ici pour la première fois.
+ * 2026-09-23 (Ygg extra, relu sur la page Yggdrasil) : EquipSeedGain (spécial "seedGainPct") et
+ * NGU Yggdrasil sont désormais câblés ; le tableau « NGU Yggdrasil / Yggdrasil Yield » précise que
+ * les graines ne reçoivent PAS le bonus « Yggdrasil Yield » (Pomegranate/Watermelon : « Only affected
+ * by Seed Gain ») -- l'ancien multiplicateur appliquait à tort yggdrasilYieldPct aux graines, ainsi
+ * que la quirk « Even Better Yggdrasil Yields » (Quirk_Ygg, pas Quirk_Seeds). Poop : consommable réel
+ * (idle-yggdrasil-extra-v1.js), multiplié au même niveau que FirstHarvest dans CHAQUE formule du wiki
+ * (graines et rendements), d'où `bonus` = FirstHarvest x Poop ci-dessous.
  */
-function yggSeedGain(def,tier,harvest,seedYieldMultiplier=1,firstHarvestMultiplier=1){
-  const unit=Math.ceil(Math.pow(Math.max(1,tier),1.5));
-  return Math.ceil(unit*Math.max(1,def.baseSeeds)*(harvest?2:1)*seedYieldMultiplier*firstHarvestMultiplier);
+function yggSeedGain(def,tier,harvest,seedYieldMultiplier=1,bonus=1,eaten=false){
+  const unit=idleYggSeedUnitV1(def,tier,eaten);
+  return Math.ceil(unit*Math.max(1,def.baseSeeds)*(harvest?2:1)*seedYieldMultiplier*bonus);
 }
 
-function useYggFruit(state,fruitId,mode="eat"){
+function useYggFruit(state,fruitId,mode="eat",options={}){
   const s=state.systems.yggdrasil;
   if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
   const def=IDLE_NGU_YGG_FRUITS.find(x=>x.id===fruitId);
@@ -3353,19 +3376,25 @@ function useYggFruit(state,fruitId,mode="eat"){
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
   const gearYgg=gearSpecialsV1(state);
-  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil*gearPctV1(gearYgg,"seedGainPct")*gearPctV1(gearYgg,"yggdrasilYieldPct");
-  const firstHarvestMultiplier=f.firstHarvestThisRun?perkBonuses.firstHarvestMultiplier:1;
-  const seedGain=yggSeedGain(def,grownTier,harvest||def.id==="pomegranate",seedYieldMultiplier,firstHarvestMultiplier);
+  /* Seed Gains : (1 + Equip_SeedGain) x NGU_Ygg x Quirk_Seeds x Perk_Seeds (jamais Yggdrasil Yield). */
+  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil*gearPctV1(gearYgg,"seedGainPct");
+  /* Ygg extra : Poop choisie pour ce fruit (x1,5, x1,65 avec le Blue Heart (set)), consommée ici. */
+  const poop=options&&options.poop?idleYggUsePoopV1(state):null;
+  const firstHarvestMultiplier=(f.firstHarvestThisRun?perkBonuses.firstHarvestMultiplier:1)*(poop?poop.factor:1);
+  /* Pomegranate et Watermelon : « HarvestBonus = 2, even when eating ». */
+  const seedGain=yggSeedGain(def,grownTier,harvest||def.effect==="seeds",seedYieldMultiplier,firstHarvestMultiplier,!harvest);
   state.currencies.seeds+=seedGain;
   const factor=Math.ceil(Math.pow(grownTier,1.5));
   const result={fruit:fruitId,mode:harvest?"harvest":"eat",tier:grownTier,seeds:seedGain};
+  if(poop)result.poop={consumed:poop.consumed,free:poop.free,remaining:poop.remaining};
   /*
    * 2026-09-23 (audit) : wiki Yggdrasil > Fruit Yields. Chaque fruit a sa formule :
-   * ceil(ceil(T^1.5) x constante du fruit x NGU_Ygg x Quirk_Ygg x Equip_YggYield x
+   * ceil(ceil(T^1.5) x constante du fruit x Poop x NGU_Ygg x Quirk_Ygg x Equip_YggYield x
    * FirstHarvest) ; Gold et Arbitrariness ne reçoivent ni NGU ni Yield ; Rage : Quirk x Equip
-   * x PPBonus. (Poop : consommable absent.)
+   * x PPBonus. Quirk_Ygg = « Even Better Yggdrasil Yields » (quirkBonuses.yggYieldMultiplier).
    */
-  const yieldFruit=nguFxV1(state).yggdrasil*quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier;
+  const quirkYgg=quirkBonuses.yggYieldMultiplier;
+  const yieldFruit=nguFxV1(state).yggdrasil*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier;
 
   if(!harvest){
     if(def.effect==="gold"){
@@ -3385,6 +3414,7 @@ function useYggFruit(state,fruitId,mode="eat"){
       s.data.permanent.adventureRegen+=gain*0.03;
       result.adventureGain=gain;
     }else if(def.effect==="experience"){
+      /* « x FoKSucksPerk x FoKStillSucksPerk » : x3 chacun (perks 19 et 20). */
       const exp=Math.max(1,Math.floor(Math.ceil(factor*5*yieldFruit)*Math.max(1,perkBonuses.fruitKnowledgeExpMultiplier)*Math.max(1,num(idleNguBonuses(state).xpMultiplier,1))));
       state.currencies.experience+=exp;
       result.experience=exp;
@@ -3408,7 +3438,7 @@ function useYggFruit(state,fruitId,mode="eat"){
       result.ap=apCoeur;
     }else if(def.effect==="pp"){
       /* Perk Point PROGRESS (1 000 000 = 1 PP), pas des PP entiers. */
-      const progress=Math.ceil(factor*60000*quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonuses(state).ppMultiplier,1))*firstHarvestMultiplier);
+      const progress=Math.ceil(factor*60000*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonuses(state).ppMultiplier,1))*firstHarvestMultiplier);
       const tower=state.systems.tower;
       if(!tower.data||typeof tower.data!=="object")tower.data={};
       tower.data.ppProgress=Math.max(0,num(tower.data.ppProgress,0))+progress;
@@ -3417,24 +3447,40 @@ function useYggFruit(state,fruitId,mode="eat"){
       result.pp=entiers;
       result.ppProgress=progress;
     }else if(def.effect==="macguffinAlpha"||def.effect==="macguffinBeta"){
-      /* Wiki Yggdrasil : ni NGU Yggdrasil (tableau "NGU Yggdrasil / Yggdrasil Yield"), seulement Quirk x Equip x FirstHarvest. */
-      const fx=macguffinEatFruitV1(state,def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
+      /* Wiki Yggdrasil : ni NGU Yggdrasil (tableau "NGU Yggdrasil / Yggdrasil Yield"), seulement Poop x Quirk x Equip x FirstHarvest. */
+      const fx=macguffinEatFruitV1(state,def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
       result.macguffinLevels=fx.levels;
       result.macguffins=fx.touched;
+    }else if(def.effect==="powerDelta"){
+      /* Fruit of Power δ : ⌈⌈T^1.5⌉ x 7 x Poop x NGU_Ygg x Quirk_Ygg x Equip_YggYield x FirstHarvest⌉ niveaux permanents. */
+      s.data.permanent.powerDeltaValue=Math.max(0,num(s.data.permanent.powerDeltaValue,0))+Math.ceil(factor*7*yieldFruit);
+      result.powerDelta=s.data.permanent.powerDeltaValue;
+    }else if(def.effect==="quirks"){
+      /* Fruit of Quirks : ⌈T x 3 x QPRewardModifier x Poop x Quirk_Ygg x Equip_YggYield x FirstHarvest⌉ (pas de NGU Yggdrasil). */
+      const qp=idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
+      state.currencies.qp=Math.max(0,num(state.currencies.qp,0))+qp;
+      result.qp=qp;
     }
   }
   f.firstHarvestThisRun=false;
   releaseYggFruit(state,def,f);
+  /* Ygg extra : Auto-Activate -- le fruit repart aussitôt, sans coût. */
+  if(idleYggAutoActivateV1(state,IDLE_NGU_YGG_FRUITS).includes(fruitId))result.autoActivated=true;
   return result;
 }
 
-function advanceYggdrasil(state,seconds){
+function advanceYggdrasil(state,seconds,now){
   const s=state.systems.yggdrasil;
   if(!s?.unlocked||seconds<=0)return;
+  /* Ygg extra : Auto-Activate (fruits inactifs relancés) et perks 16/17 (bonus actifs après 30 min de Rebirth). */
+  idleYggAutoActivateV1(state,IDLE_NGU_YGG_FRUITS);
+  if(now!=null)idleYggQuickActivationV1(state,now);
+  /* « Every one full hour growing » ; « The Beast's Fertilizer » : 1 minute de moins par tier et par niveau. */
+  const tierSeconds=idleYggTierSecondsV1(state);
   for(const def of IDLE_NGU_YGG_FRUITS){
     const f=s.data.fruits[def.id];
     if(!f.active||f.tier<=0)continue;
-    f.growthHours=Math.min(f.tier,Math.max(0,num(f.growthHours,0))+seconds/3600);
+    f.growthHours=Math.min(f.tier,Math.max(0,num(f.growthHours,0))+seconds/tierSeconds);
   }
 }
 
@@ -3806,7 +3852,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
   advanceTimeMachine(state, secs);
   advanceBloodMagic(state, secs, context);
-  advanceYggdrasil(state, secs);
+  advanceYggdrasil(state, secs, nowMs(now));
   advanceWandoos(state, secs, context, now);
   advanceNgusV1(state, secs);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
@@ -4207,6 +4253,8 @@ function idleNguBonusesSansMacguffinV1(state) {
     aug *
     powerAlphaMultiplier *
     powerBetaMultiplier *
+    /* Fruit of Power δ : Attack/Defense permanent, toujours actif (idle-yggdrasil-extra-v1.js). */
+    idleYggPowerDeltaMultiplierV1(ygg) *
     diggers.stats *
     perkBonuses.statMultiplier *
     quirkBonuses.statMultiplier *
@@ -4768,6 +4816,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     cards: idleCardsSnapshotV1(state),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
+    /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
+    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost }),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
     /* MacGuffin Fragments : catalogue, slots, compteurs et bonus permanents (idle-macguffins-v1.js). */
     macguffins: macguffinSnapshotV1(state, nowMs(now)),
@@ -5215,9 +5265,10 @@ function spinDaily(state, now) {
    */
   /*
    * 2026-09-23 : table complète de la page Daily Spin (chaque palier totalise 100 %). Les potions, Lucky Charm et
-   * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement ; Poop et Beast Butter (systèmes
-   * absents) restent listés avec leur probabilité mais sans effet. MacGuffin Muffin : réel depuis le 2026-09-23
-   * (IDLE_SELLOUT_EFFECTS_V1.macguffinMuffin, consommé au Rebirth par idle-macguffins-v1.js).
+   * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement. MacGuffin Muffin : réel depuis le
+   * 2026-09-23 (IDLE_SELLOUT_EFFECTS_V1.macguffinMuffin, consommé au Rebirth par idle-macguffins-v1.js). Beast
+   * Butter (Questing) et Poop (IDLE_SELLOUT_EFFECTS_V1.poop -> stock state.selloutEffects.poop, utilisé sur un fruit
+   * d'Yggdrasil, idle-yggdrasil-extra-v1.js) sont réels depuis le 2026-09-23.
    */
   const P = (item, poids, n = 1) => ({ items: { [item]: n }, poids });
   const JACKPOTS = {
@@ -5819,7 +5870,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "activateYggFruit") {
     result = activateYggFruit(state,String(payload.fruit||"gold"));
   } else if (action === "useYggFruit") {
-    result = useYggFruit(state,String(payload.fruit||"gold"),String(payload.mode||"eat"));
+    result = useYggFruit(state,String(payload.fruit||"gold"),String(payload.mode||"eat"),{poop:payload.poop===true});
   } else if (action === "upgradeDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else if (action === "setDiggerLevel") {
@@ -6251,7 +6302,9 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   loadoutSlots: Object.freeze({ name: "2 Loadout Slots!", cost: () => 1000, gain: 2, max: 1 }),
   loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),
   boostRecycling: Object.freeze({ name: "Boost Recycling", cost: () => 100, gain: 10, max: 5 }),
-  inventoryMergeSlot: Object.freeze({ name: "Inventory Merge Slot!", cost: () => 1000, gain: 1, max: 1 })
+  inventoryMergeSlot: Object.freeze({ name: "Inventory Merge Slot!", cost: () => 1000, gain: 1, max: 1 }),
+  /* Wiki Experience, section Yggdrasil : 15 « Auto-Activate » (coût EXP + cap requis ; idle-yggdrasil-extra-v1.js). */
+  ...idleYggAutoActivateExpShopEntriesV1()
 });
 
 /*
@@ -6296,6 +6349,8 @@ function buyExpShopV1(state, payload) {
   const def = IDLE_NGU_EXP_SHOP_V1[id];
   if (!def) throw new Error("ACHAT_EXP_INCONNU");
   if (!state.bonuses.expShop || typeof state.bonuses.expShop !== "object") state.bonuses.expShop = {};
+  /* Auto-Activate Yggdrasil : « Your total Energy or Magic cap must be 10x greater than the fruit's activation cost ». */
+  if (def.requiredCap && !(expShopPurchasedV1(state, id) >= num(def.max, Infinity)) && idleNguEffectiveResourceStatV1(state, def.resource, "cap") < def.requiredCap) throw new Error("CAP_RESSOURCE_INSUFFISANT");
   const wanted = clamp(int(payload.quantity, 1), 1, 1000000);
   let bought = 0;
   let spent = 0;
@@ -6313,13 +6368,18 @@ function buyExpShopV1(state, payload) {
   const permanent = state.adventure.permanent && typeof state.adventure.permanent === "object" ? state.adventure.permanent : (state.adventure.permanent = {});
   const key = { adventurePower: "adventurePower", adventureToughness: "adventureToughness", adventureHp: "adventureHp", adventureRegen: "adventureRegen" }[id];
   if (key) permanent[key] = Math.max(0, num(permanent[key], 0)) + bought * def.gain;
+  /* Auto-Activate : le fruit démarre aussitôt s'il est débloqué et inactif. */
+  if (def.yggFruit) idleYggAutoActivateV1(state, IDLE_NGU_YGG_FRUITS);
   return { item: id, bought, spent, purchased: expShopPurchasedV1(state, id) };
 }
 
 function expShopSnapshotV1(state) {
   return Object.entries(IDLE_NGU_EXP_SHOP_V1).map(([id, def]) => {
     const purchased = expShopPurchasedV1(state, id);
-    return { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
+    const entry = { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
+    /* Auto-Activate Yggdrasil : fruit, ressource et cap requis (affichés à part par le client). */
+    if (def.yggFruit) Object.assign(entry, { yggFruit: def.yggFruit, resource: def.resource, requiredCap: def.requiredCap });
+    return entry;
   });
 }
 

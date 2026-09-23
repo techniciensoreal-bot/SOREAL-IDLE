@@ -69,7 +69,7 @@ assert.equal(idleQuirkByIdV1(96).bonus.nguSpeedMagicPct, 0.003, "Faster Magic NG
 // --- Spot-check the 2026-09-18 Evil/Sadistic-tier extension ---
 assert.deepEqual(idleQuirkByIdV1(41).bonus, { energyPowerPct: 0.01 }, "Generic Energy Power Quirk II : même taux que le palier I (indice 35), juste un coût/plafond différents.");
 assert.equal(idleQuirkByIdV1(61).bonus.energyPowerPct, 0.005, "Wiki : palier III baisse à +0.5%/niveau (pas +1%).");
-assert.equal(idleQuirkByIdV1(92).bonus.seedYieldPct, 0.001, "Wiki : \"Even Better Yggdrasil Yields\" = +0.1%/niveau, réutilise la clé de \"The Beast's Seed ;)\" (indice 12).");
+assert.equal(idleQuirkByIdV1(92).bonus.yggYieldPct, 0.001, "Wiki (page Yggdrasil) : \"Even Better Yggdrasil Yields\" = +0.1% Yggdrasil yield/niveau (Quirk_Ygg, rendement des fruits).");
 assert.deepEqual(idleQuirkByIdV1(176).bonus, {}, "\"A PROBLEM HAS BEEN DETECTED\" est une quirk-blague, aucun effet réel à inventer.");
 assert.deepEqual(idleQuirkByIdV1(99).bonus, { cardTier_magicNgu: 1 }, "Index 99 (Magic NGU Speed Card Tier Up I) : câblé avec le système Cards (idle-cards-v1.js).");
 

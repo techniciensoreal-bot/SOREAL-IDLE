@@ -64,12 +64,11 @@
  * wires the resulting totals into the same bonus object other systems
  * (challenges, beard, diggers) already feed.
  *
- * A handful of perks (16, 17: Yggdrasil auto-activation timers) have no
- * `bonus` entry — SOREAL IDLE has no Yggdrasil bonus-activation-timer
- * concept yet to hook them into. They are still real, purchasable,
- * correctly-costed catalog entries; only their mechanical payoff is
- * pending a future Yggdrasil pass. Never silently drop or fake data to
- * avoid an empty bonus object — an honest gap beats an invented one.
+ * Perks 16, 17 (Yggdrasil auto-activation timers) have no `bonus` entry:
+ * since 2026-09-23 they are read by id in idle-yggdrasil-extra-v1.js
+ * (idleYggQuickActivationV1 : bonus actif 30 minutes après le début du
+ * Rebirth). Never silently drop or fake data to avoid an empty bonus
+ * object — an honest gap beats an invented one.
  *
  * Audit 2026-09-16 — "The Fibonacci Perk" (wiki index 94, listed further
  * down Page 1 than index 56 because most of its own milestones are
@@ -111,8 +110,13 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 16, name: "Quicker Power Fruit Beta Activation", effect: "Power Fruit Beta's bonus will automatically turn on after 30 minutes", cost: 50, cap: 1, bonus: {} },
   { id: 17, name: "Quicker Fruit of Numbers Bonus Activation", effect: "Fruit of Numbers' bonus will automatically turn on after 30 minutes", cost: 50, cap: 1, bonus: {} },
   { id: 18, name: "Instant Advanced Training Levels!", effect: "Gain an extra level of Advanced Training at the start of every rebirth", cost: 2, cap: 100, bonus: { advancedTrainingStartBonus: 1 } },
-  { id: 19, name: "Fruit of Knowledge sucks, 1/5", effect: "Fruit of Knowledge yields 3x more EXP", cost: 20, cap: 1, bonus: { fruitKnowledgeExpMult: 2 } },
-  { id: 20, name: "Fruit of Knowledge STILL sucks, 1/5", effect: "ANOTHER 3x EXP from Fruit of Knowledge", cost: 150, cap: 1, bonus: { fruitKnowledgeExpMult: 2 } },
+  /*
+   * 2026-09-23 (Ygg extra) : page Yggdrasil, formule du Fruit of Knowledge « ... x FoKSucksPerk x
+   * FoKStillSucksPerk » et « Fruit of Knowledge yields 3x more EXP » pour chacun -> x3 puis x9
+   * (l'ancienne valeur 2 additionnée donnait x2 puis x4).
+   */
+  { id: 19, name: "Fruit of Knowledge sucks, 1/5", effect: "Fruit of Knowledge yields 3x more EXP", cost: 20, cap: 1, bonus: { fruitKnowledgeExpPerks: 1 } },
+  { id: 20, name: "Fruit of Knowledge STILL sucks, 1/5", effect: "ANOTHER 3x EXP from Fruit of Knowledge", cost: 150, cap: 1, bonus: { fruitKnowledgeExpPerks: 1 } },
   { id: 21, name: "Five O'Clock Shadow", effect: "Beard trim time factor grows faster, to a minimum of 12 hours", cost: 10, cap: 12, bonus: { beardTrimSpeedLevel: 1 } },
   { id: 22, name: "Wandoos Lover", effect: "+2 to your total OS level per level", cost: 1, cap: 50, bonus: { wandoosOsLevelFlat: 2 } },
   { id: 23, name: "Golden Showers", effect: "+5% multiplier to all gold drops in Adventure", cost: 1, cap: 200, bonus: { adventureGoldPct: 0.05 } },
@@ -429,7 +433,8 @@ export function perkBonusesV1(levelsById) {
     beardBankMultiplier: 1 + (totals.beardBankPct || 0),
     titanExpFirstKillsMultiplier: 1 + (totals.titanExpFirstKillsPct || 0),
     bossExpMultiplier: 1 + (totals.bossExpPct || 0),
-    fruitKnowledgeExpMultiplier: Math.max(1, totals.fruitKnowledgeExpMult || 1),
+    /* Perks 19/20 : x3 chacun, multiplicatifs (page Yggdrasil). */
+    fruitKnowledgeExpMultiplier: Math.pow(3, Math.max(0, totals.fruitKnowledgeExpPerks || 0)),
     doubleBasicTraining: Boolean(totals.doubleBasicTraining),
     ppEarningsMultiplier: 1 + (totals.ppEarningsPct || 0),
     apEarningsMultiplier: 1 + (totals.apEarningsPct || 0),

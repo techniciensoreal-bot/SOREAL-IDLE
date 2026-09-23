@@ -187,6 +187,15 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   beastButter10: { butters: 10 },
   beastButter100: { butters: 100 },
   beastButter: { butters: 1 },
+  /*
+   * Poop (idle-yggdrasil-extra-v1.js) : lots de 1/10/100 (« 3,000 AP for 1 / 25,000 AP for 10 /
+   * 225,000 AP for 100 ») versés dans state.selloutEffects.poop ; "poop" est l'id des lots de la
+   * roue quotidienne (page Daily Spin).
+   */
+  icarusFertilizer1: { poop: 1 },
+  icarusFertilizer10: { poop: 10 },
+  icarusFertilizer100: { poop: 100 },
+  poop: { poop: 1 },
   fasterQuesting: { passive: true },
   extendedQuestBank: { passive: true },
   goToQuestZoneButton: { passive: true },
@@ -257,7 +266,10 @@ export function createSelloutEffectsV1(raw) {
     bluePills: Math.max(0, I(src.bluePills, 0)),
     beastButters: Math.max(0, I(src.beastButters, 0)),
     /* Regular Black Pens restants : +2 tiers sur chacune des prochaines cartes (idle-cards-v1.js). */
-    blackPens: Math.max(0, I(src.blackPens, 0))
+    blackPens: Math.max(0, I(src.blackPens, 0)),
+    /* Poop possédées et compteur de Poop utilisées (Brown Heart (set) : chaque 10e est gratuite). */
+    poop: Math.max(0, I(src.poop, 0)),
+    poopUsed: Math.max(0, I(src.poopUsed, 0))
   };
 }
 
@@ -288,6 +300,7 @@ export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
     if (effect.pills) fx.bluePills += effect.pills;
     if (effect.butters) fx.beastButters += effect.butters;
     if (effect.blackPens) fx.blackPens += effect.blackPens;
+    if (effect.poop) fx.poop += effect.poop;
   }
 }
 
