@@ -2299,6 +2299,15 @@ function migrerEdgyBootsV1(s){
 }
 export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
 /*
+ * Réparation (2026-09-23) : special() pose id = definitionId, et add()
+ * gardait cet id -- deux exemplaires du même objet spécial (2 Pissed Off Key,
+ * 2 accessoires identiques...) partageaient donc le même id et ne pouvaient
+ * jamais être fusionnés (merge() : A===B). add() attribue désormais un id
+ * neuf en cas de collision ; ici, les doublons déjà sauvegardés reçoivent un
+ * id neuf (la première occurrence garde le sien, donc l'équipement aussi).
+ */
+{s.serial=Math.max(1,I(s.serial,1));const idsVus=new Set();for(const o of s.inventory){if(!o.id||idsVus.has(o.id))o.id=`i${s.serial++}`;idsVus.add(o.id)}}
+/*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
  * appropriée [du coffre]." Le coffre passe d'un tableau libre à un objet
  * indexé par definitionId — UN emplacement fixe par objet du catalogue
@@ -2620,7 +2629,7 @@ function reorderInventoryAdventureV2(s,sourceId,targetId,targetIndex){
   return{sourceId:source,targetIndex:dst,swappedWith:swapped};
 }
 
-function add(s,o){if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s))return null;o=cleanItem(o);if(!o)throw Error("OBJET_INVALIDE");if(!o.id)o.id=`i${s.serial++}`;s.inventory.push(o);record(s,o);return o}
+function add(s,o){if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s))return null;o=cleanItem(o);if(!o)throw Error("OBJET_INVALIDE");if(!o.id||s.inventory.some(x=>x.id===o.id))o.id=`i${s.serial++}`;s.inventory.push(o);record(s,o);return o}
 export function idleAdventureMergeLevelV47(a,b){return C(I(a)+I(b)+1,0,MAX)}
 export function idleAdventureItemAtLevelV47(definitionId,level=0,id="preview"){const d=defById(definitionId);if(!d)throw Error("DEFINITION_INVALIDE");return d.kind==="set"?item(id,d.set,d.slot,level):special(d.id,level)}
 /*
