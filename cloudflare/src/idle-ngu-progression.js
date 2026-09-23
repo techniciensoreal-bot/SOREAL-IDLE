@@ -392,10 +392,11 @@ function challengePermanentBonuses(state){
     /* Troll : Normal 1re = Magic NGU x3 ; Sadistic 1re = Energy NGU x3. */
     nguSpeedMagicChallengeMultiplier:trollNormal>=1?3:1,
     nguSpeedEnergyChallengeMultiplier:trollSadistic>=1?3:1,
-    timeMachineGoldMultiplier:1+noTimeMachine,
+    /* Page Broken Time Machine : « les 10 No TM normaux et le 1er No TM Evil donnent +100 % chacun, 1100 % au total ». */
+    timeMachineGoldMultiplier:1+noTimeMachine+(noTimeMachineEvil>=1?1:0),
     /* No Time Machine Evil : +10 % de vitesse de la Time Machine par complétion ; 1re = +100 % de gains d'or. */
     timeMachineSpeedMultiplier:1+noTimeMachineEvil*0.10,
-    goldDropChallengeMultiplier:noTimeMachineEvil>=1?2:1,
+    goldDropChallengeMultiplier:1,
     diggerGlobalMultiplier:noTimeMachine>0?1.05:1,
     diggerSlotBonus:noTimeMachine>=5?1:0,
     /* No NGU Evil : +20 % de vitesse des Hacks par complétion ; Troll Evil 5e : +25 % de vitesse des Hacks. */
@@ -1696,8 +1697,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.bonusDropLevelChance = perks.lootLevelChance;
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
-      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2")
+      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2")
     };
   }
 
@@ -2449,7 +2450,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
   const perkWish = perkBonusesV1(state.systems.perks?.data?.levels);
-  const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds);
+  const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(state.systems.quirks?.data?.levels).wishMinTimeReductionSeconds);
   const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
 
   let level = Math.max(0, int(track.level, 0));

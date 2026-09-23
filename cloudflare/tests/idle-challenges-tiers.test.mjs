@@ -87,7 +87,7 @@ assert.equal(sad.noTimeMachine.reward.experience, 200000);
   assert.equal(b.wandoosSpeedChallengeMultiplier, 1.4);
   assert.ok(Math.abs(b.bossExpPct - (0.3 + 0.08 + 0.08)) < 1e-12);
   assert.ok(Math.abs(b.timeMachineSpeedMultiplier - 1.3) < 1e-12);
-  assert.equal(b.goldDropChallengeMultiplier, 2);
+  assert.equal(b.timeMachineGoldMultiplier, 1 + 0 + 1, "1er No Time Machine Evil : +100 % de GPS (page Broken Time Machine)");
   assert.ok(Math.abs(b.hackSpeedChallengeMultiplier - 1.4) < 1e-12);
   assert.equal(b.inventorySlots, 12);
   assert.ok(Math.abs(b.idleAttackBonus - 0.2) < 1e-12);

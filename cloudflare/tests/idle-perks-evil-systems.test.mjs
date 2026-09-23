@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { perkBonusesV1, idlePerkByIdV1 } from "../src/idle-perks-v1.js";
+import { quirkBonusesV1 } from "../src/idle-quirks-v1.js";
 import { normalizeIdleNguState, idleNguBonuses, applyIdleNguAction } from "../src/idle-ngu-progression.js";
 
 /*
@@ -35,5 +36,17 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
   s.systems.perks.data.levels[93] = 100;
   const red = idleNguBonuses(s).respawnReduction;
   assert.ok(Math.abs(red - 0.1) < 1e-9, "100 niveaux de SPAWN FASTER = -10 %");
+}
+// Quirks 18 (slot d'accessoire), 54 (temps minimum des Wishes), 90 (espaces d'inventaire)
+{
+  const q = quirkBonusesV1({ 18: 1, 54: 50, 90: 24 });
+  assert.equal(q.accessorySlotBonus, 1);
+  assert.equal(q.wishMinTimeReductionSeconds, 1200);
+  assert.equal(q.inventorySlotBonus, 24);
+  const st = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
+  st.systems.quirks.data = { levels: { 18: 1, 90: 24 } };
+  const st2 = normalizeIdleNguState(st, { bosses: 100 }, 2_000_000);
+  assert.equal(st2.adventure.bonusSlots.accessory, 1);
+  assert.equal(st2.adventure.bonusSlots.inventory, 24);
 }
 console.log("idle-perks-evil-systems ok");

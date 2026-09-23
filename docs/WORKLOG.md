@@ -1183,3 +1183,9 @@ Source : page ITOPOD (Drops, One hit power required, Tower milestones) + page Re
 ## 2026-09-23 — Boutique EXP : achats d'aventure, slots, Rich Jerks
 
 Source : page Experience (Spend Experience). Achats manquants (aucun n'existait, ni serveur ni interface, Rich Jerks n'avait pas d'écran) : Adventure Power/Toughness (3 EXP = +1), Max Health (3 EXP = +10), HP Regen (50 EXP = +1), espaces d'inventaire (2 EXP de 25 à 36, puis 4 x (possédés - 35), plafond 60), 2 slots d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP) ; écran « Aventure et divers » dans la Boutique EXP avec Attaque/Défense pour riches. Action `buyExpShop`. Non modélisés : Auto Merge, filtre de butin, loadouts, Daycare, boutons personnalisés, Training Auto Advance, slots de Beard/MacGuffin, Auto-Activate d'Yggdrasil. Tests : `idle-exp-shop-adventure`, `idle-pages-render-2026-09-23`.
+
+## 2026-09-23 — Quirks 18/54/90, No Time Machine Evil
+
+- **Quirks ajoutés** : Accessory Slot! (18, +1 slot), Lower Minimum Wish Speed? (54, -24 s/niveau sur les 4 h de Wish), Even More Inventory Space? (90, +1 espace/niveau). Les autres quirks manquants (Cards, Mayo, Quêtes, MacGuffins, Daycare) restent hors périmètre.
+- **No Time Machine Evil (1re complétion)** : +100 % de GPS de la Time Machine (page Broken Time Machine : « 1100 % au total avec les 10 No TM normaux ») et non un multiplicateur d'or d'aventure.
+- Vérifié sans écart : rituels de Blood Magic, formules Iron Pill / Counterfeit Gold, formule de vitesse de Time Machine.
