@@ -138,31 +138,61 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * (Edgy, Pretty Pink Princess, Rad, etc., wiki-documentés) ne sont pas
  * encore construits dans ce moteur -- volontairement hors périmètre de ce
  * correctif (zones jouables/franchissables dès maintenant, drop
- * d'équipement dédié en suivi séparé). bossChance omis (repli 0.25 déjà
- * en place dans startZoneFight, jamais vérifié individuellement zone par
- * zone pour cette nouvelle plage). avatarLevel:6 (palier max déjà utilisé,
+ * d'équipement dédié en suivi séparé). avatarLevel:6 (palier max déjà utilisé,
  * aucun visuel de palier 7+ n'existe -- même raison que les zones Normal
  * tardives ci-dessus).
+ *
+ * Audit zones 2026-09-23 (script sur le miroir local ; "The Fad-lands" et
+ * "Back To School", absentes du miroir par collision de casse, relues sur
+ * le wiki live via l'API MediaWiki) :
+ * - bossChance : désormais explicite pour les 14 zones qui retombaient sur
+ *   le repli 0.25 de startZoneFight -- ligne "Boss chance 1/4" de la
+ *   section Enemies de chaque page de zone (et colonne "Boss Chance" du
+ *   tableau "Adventure Mode Enemies"). Comportement inchangé (1/4 = 0.25).
+ * - oneHitP : ajouté pour 7 zones dont seule la page de zone publie la
+ *   ligne "One Hit" (le tableau agrégé "Adventure Mode" dit seulement,
+ *   à partir de Typo Zonw, qu'il n'y a plus d'intérêt à one-shot) :
+ *   typozone 6.915e21, fadlands 3.562e22, radlands 1.88575e26,
+ *   backtoschool 5.23908333333333e28, westworld 2.22158333333333e29,
+ *   seventies "13.6 No (1.36E+31)", halloweenies "42.0 Non (4.2E+31)".
+ *   construction omis : la page affiche "1.42 Dec (1.42E+32)" -- 1.42 Dc
+ *   vaudrait 1.42E33, dix fois la parenthèse (même règle que typozone
+ *   idleP). breadverse ("-") et duckduck ("?") ne publient rien.
+ *   Aucun effet sur les PV des mobs de ces zones (bestiaire réel complet,
+ *   monsterHpMaxForZoneV1WithMob) : oneHitP ne sert qu'au repli zone-plat
+ *   et est exposé tel quel dans le snapshot des zones.
+ * - Manual/Idle P/T : le code suit le tableau agrégé "Adventure Mode"
+ *   (source unique déjà retenue). Les pages de zone publient souvent
+ *   d'autres nombres (ex. breadverse Manual 1.73e29/6.41e28 contre
+ *   1.4e29/2.4e28 agrégé, netherregions Idle 7.8e32/5.2e32 contre
+ *   6.9e32/5e32, aethereansea -- listée dans le tableau agrégé sous son
+ *   ancien titre "The Aethereal Sea Part 1" -- Idle 5.2e34/3.3e34 page
+ *   contre 4.76e34/3.4e34 agrégé) : désaccord entre deux pages wiki, jamais
+ *   tranché ici, aucune valeur modifiée.
+ * - Déblocage : boss/requiredDifficulty des 32 zones identiques à la
+ *   table "Boss fights that unlock things" (page Boss Fights) et à la
+ *   phrase "unlocked by beating boss #N [on evil/SADISTIC difficulty]" de
+ *   chaque page de zone.
  */
 {id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,idleP:2.4e13,idleT:1.6e13,bossChance:2/9,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,idleP:1.3e14,idleT:9.7e13,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,idleP:4.5e16,idleT:3.1e16,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,idleP:4.8e17,idleT:3.1e17,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,idleP:1.3e14,idleT:9.7e13,bossChance:1/4,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,idleP:4.5e16,idleT:3.1e16,bossChance:1/4,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,idleP:4.8e17,idleT:3.1e17,bossChance:1/4,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 /*
  * typozone : idleP omis -- ambiguïté >25% entre "370 Qi" et son repli
  * scientifique "(2.7E20)" sur la table agrégée, voir commentaire détaillé
  * au-dessus de IDLE_ADVENTURE_ZONES. idleT (240 Qi/2.4E20, accord parfait)
  * conservé.
  */
-{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,idleT:2.4e20,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,idleP:1.5e21,idleT:1.1e21,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,idleP:9.1e24,idleT:5.6e24,bossChance:1/5,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,idleP:1.7e27,idleT:8.5e26,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,idleP:8e27,idleT:3.5e27,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,idleP:1.5e30,idleT:6.5e29,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,idleP:3.2e30,idleT:2.4e30,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,oneHitP:6.915e21,idleT:2.4e20,bossChance:1/4,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,oneHitP:3.562e22,idleP:1.5e21,idleT:1.1e21,bossChance:1/4,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,bossChance:1/4,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,oneHitP:1.88575e26,idleP:9.1e24,idleT:5.6e24,bossChance:1/5,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,oneHitP:5.23908333333333e28,idleP:1.7e27,idleT:8.5e26,bossChance:1/4,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,oneHitP:2.22158333333333e29,idleP:8e27,idleT:3.5e27,bossChance:1/4,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,bossChance:1/4,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,oneHitP:1.36e31,idleP:1.5e30,idleT:6.5e29,bossChance:1/4,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,oneHitP:4.2e31,idleP:3.2e30,idleT:2.4e30,bossChance:1/4,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 /*
  * construction : idleP/idleT omis entièrement -- trois sources wiki
  * (table agrégée en texte, sa propre parenthèse scientifique, et la page
@@ -170,9 +200,9 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * Power ("113 No" / "1.45E32" / "125.90 No"), voir commentaire détaillé
  * au-dessus de IDLE_ADVENTURE_ZONES. Jamais tranché arbitrairement.
  */
-{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,idleP:3.5e32,idleT:2.3e32,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,idleP:6.9e32,idleT:5e32,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,bossChance:1/4,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,idleP:3.5e32,idleT:2.3e32,bossChance:1/4,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,idleP:6.9e32,idleT:5e32,bossChance:1/4,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,oneHitP:5.75e35,idleP:4.76e34,idleT:3.4e34,bossChance:4/21,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
 ]);
 /*
@@ -333,6 +363,48 @@ export const IDLE_ADVENTURE_MOB_CATALOG_V1=Object.freeze({
  * par script contre les 20 premiers Combats de Boss déjà sourcés
  * (idle-ngu-boss-reference-v1.js) : aucun écart de PV/Attaque/Défense/XP.
  */
+/*
+ * Audit zones 2026-09-23 (diff systématique par script contre le miroir
+ * local : pour chaque zone, la liste "==Enemies==" de SA page de zone,
+ * puis la fiche {{Enemy}} de chaque ennemi listé -- nom, Type, Attack
+ * Rate, Power, Toughness, HP Regen, Max HP, normal ET boss). 30 zones,
+ * 254 ennemis comparés : aucun écart de stats (pages absentes du miroir
+ * par collision de casse -- "The Fad-lands", "Back To School", "KING
+ * CIRCLE", "The Slammer" -- relues sur le wiki live via l'API MediaWiki).
+ * Corrigé :
+ * - The West World : THE OUTLAW / THE SHERIFF déplacés de normal[] vers
+ *   boss[]. La page "The West World" les liste en {{BossLink}}, le tableau
+ *   "Adventure Mode Enemies" (page Adventure Mode) les met dans la colonne
+ *   "Bosses" (6 normaux + 2 boss, "Boss chance 1/4"). Leurs fiches n'ont
+ *   pas `boss=yes`, d'où l'erreur du générateur. Avant : boss:[] -> un
+ *   tirage boss (25 %) n'avait aucun mob réel et retombait sur les PV
+ *   zone-plat.
+ * - The Rad-Lands : attackRate des 7 ennemis normaux publiés "attack_rate=?"
+ *   sur leurs fiches (ex. "Small Bart") -> null au lieu de 0 (le 0 était
+ *   une valeur inventée par le générateur). idleAdventureMobAttackFactorV1
+ *   retombe déjà sur 1 quand attackRate est inconnu ; la moyenne de zone
+ *   ignore désormais les null (idleAdventureBestiaryAverageV1).
+ * Volontairement NON ajouté (règle n°1, aucune valeur inventée) :
+ * - netherregions : les 8 fiches (A Patch of Tulips ... DAAN VAN DER VAAN
+ *   JAANSEN) ne contiennent que image/location/bf_number, aucune stat
+ *   Adventure -- ni dans le miroir, ni sur le wiki live (API MediaWiki
+ *   relue le 2026-09-23, révisions du 2025-12-14). Bestiaire vide ->
+ *   PV zone-plat (monsterHpMaxForZoneV1).
+ * - aethereansea : les 21 ennemis listés sur "The Aethereal Sea" (A
+ *   Seagull ... THE CAPTAIN) n'ont AUCUNE page, ni dans le miroir ni sur
+ *   le wiki live (API : "missing"). Zone absente du bestiaire.
+ * - Écart de roster connu, non corrigé : les images R2
+ *   (IDLE_ADVENTURE_MOB_CATALOG_V1) n'existent que pour tutorial..mega ;
+ *   leurs longueurs diffèrent du roster wiki (ex. sewers boss:[] en image
+ *   pour 1 boss réel) -- l'image est choisie modulo sa propre longueur,
+ *   aucune image n'est inventée.
+ * NOTE : ne pas relancer design/build-idle-adventure-bestiary-v2.mjs tel
+ * quel -- le miroir actuel a perdu ou renommé des fiches par collision de
+ * casse Windows (ex. "KING CIRCLE" écrasé par la redirection "King
+ * Circle", "The Slammer" ; "Kitten In a Mech Woman" et "EVIL SPIKY HAIRED
+ * GUY" désormais titrés en casse différente) : une régénération
+ * supprimerait ou renommerait des entrées pourtant vérifiées.
+ */
 export const IDLE_ADVENTURE_MOB_BESTIARY_V1=Object.freeze({
   "tutorial":{normal:[{name:"A Small Piece of Fluff",type:"normal",attackRate:1,power:7,toughness:6,hpRegen:1,maxHp:40},{name:"Floating Sewage",type:"normal",attackRate:1.2,power:7,toughness:6,hpRegen:1.5,maxHp:45},{name:"A Stick?",type:"normal",attackRate:1.5,power:8,toughness:7,hpRegen:0.5,maxHp:55}],boss:[{name:"A Small Mouse",type:"normal",attackRate:1,power:9,toughness:9,hpRegen:1,maxHp:100}]},
   "sewers":{normal:[{name:"A Slightly Bigger Mouse",type:"normal",attackRate:1.2,power:10,toughness:10,hpRegen:1.5,maxHp:50},{name:"A Large Rat",type:"normal",attackRate:1.5,power:11,toughness:11,hpRegen:0.5,maxHp:70},{name:"Small Mouse",type:"normal",attackRate:1,power:9,toughness:9,hpRegen:1,maxHp:40}],boss:[{name:"Brown Slime",type:"poison",attackRate:1,power:13,toughness:13,hpRegen:1,maxHp:150}]},
@@ -356,9 +428,9 @@ export const IDLE_ADVENTURE_MOB_BESTIARY_V1=Object.freeze({
   "typozone":{normal:[{name:"Permanenet",type:"normal",attackRate:1,power:80000000000000000000,toughness:80000000000000000000,hpRegen:8000000000000000000,maxHp:8.1e+21},{name:"Coudl",type:"rapid",attackRate:1,power:80200000000000000000,toughness:80200000000000000000,hpRegen:8020000000000000000,maxHp:8.1e+21},{name:"Liek",type:"charger",attackRate:1.1,power:80400000000000000000,toughness:80400000000000000000,hpRegen:8040000000000000000,maxHp:8.15e+21},{name:"Blodo",type:"poison",attackRate:1.2,power:80800000000000000000,toughness:80800000000000000000,hpRegen:8080000000000000000,maxHp:8.2e+21},{name:"Brian",type:"normal",attackRate:1.2,power:80600000000000000000,toughness:80600000000000000000,hpRegen:8060000000000000000,maxHp:8.15e+21},{name:"Odign",type:"rapid",attackRate:0.8,power:81000000000000000000,toughness:81000000000000000000,hpRegen:8100000000000000000,maxHp:8.2e+21}],boss:[{name:"Horus",type:"normal",attackRate:1.2,power:81200000000000000000,toughness:81200000000000000000,hpRegen:8120000000000000000,maxHp:8.25e+21},{name:"ELDER TYPO GOD, ELXU",type:"grower",attackRate:1.2,power:81500000000000000000,toughness:81500000000000000000,hpRegen:8150000000000000000,maxHp:8.25e+21}]},
   "fadlands":{normal:[{name:"A Very Sad Slinky :c",type:"normal",attackRate:1,power:400000000000000000000,toughness:400000000000000000000,hpRegen:40000000000000000000,maxHp:4.1e+22},{name:"Giant Metal Spinning Top",type:"rapid",attackRate:1,power:402000000000000000000,toughness:402000000000000000000,hpRegen:40200000000000000000,maxHp:4.1e+22},{name:"A Stack of Krazy Bonez",type:"charger",attackRate:1.1,power:404000000000000000000,toughness:404000000000000000000,hpRegen:40400000000000000000,maxHp:4.15e+22},{name:"Rare Foil Pokeyman Card (Enemy)",type:"normal",attackRate:1.2,power:406000000000000000000,toughness:406000000000000000000,hpRegen:40600000000000000000,maxHp:4.15e+22},{name:"A Busted Gameboy",type:"poison",attackRate:1.2,power:408000000000000000000,toughness:408000000000000000000,hpRegen:40800000000000000000,maxHp:4.2e+22},{name:"A Worthless Bean-y Baby",type:"rapid",attackRate:0.8,power:410000000000000000000,toughness:410000000000000000000,hpRegen:41000000000000000000,maxHp:4.2e+22}],boss:[{name:"THE SLAMMER",type:"charger",attackRate:1.2,power:4.12e+20,toughness:4.12e+20,hpRegen:4.12e+19,maxHp:4.25e+22},{name:"DEMONIC FLURBIE",type:"grower",attackRate:1.2,power:4.15e+20,toughness:4.15e+20,hpRegen:4.15e+19,maxHp:4.25e+22}]},
   "jrpgville":{normal:[{name:"Sentient Pile of Belts",type:"normal",attackRate:1,power:2e+21,toughness:2e+21,hpRegen:200000000000000000000,maxHp:2.1e+23},{name:"Mimic 'Mimic Chest' Chest",type:"paralyze",attackRate:1,power:2.02e+21,toughness:2.02e+21,hpRegen:202000000000000000000,maxHp:2.1e+23},{name:"A Suplexing Train",type:"charger",attackRate:1.1,power:2.04e+21,toughness:2.04e+21,hpRegen:204000000000000000000,maxHp:2.15e+23},{name:"The Annoying Fan",type:"normal",attackRate:1.2,power:2.06e+21,toughness:2.06e+21,hpRegen:206000000000000000000,maxHp:2.15e+23},{name:"The Infinity+1 Sword",type:"poison",attackRate:1.2,power:2.08e+21,toughness:2.08e+21,hpRegen:208000000000000000000,maxHp:2.2e+23},{name:"The Damage Cap",type:"grower",attackRate:1.1,power:2.1e+21,toughness:2.1e+21,hpRegen:210000000000000000000,maxHp:2.2e+23}],boss:[{name:"FINAL BOSS",type:"normal",attackRate:1.2,power:2.12e+21,toughness:2.12e+21,hpRegen:212000000000000000000,maxHp:2.25e+23},{name:"TRUE FINAL BOSS",type:"grower",attackRate:1.2,power:2.15e+21,toughness:2.15e+21,hpRegen:215000000000000000000,maxHp:2.25e+23}]},
-  "radlands":{normal:[{name:"Small Bart",type:"normal",attackRate:0,power:2e+24,toughness:2e+24,hpRegen:2e+23,maxHp:2.1e+26},{name:"Nuclear Power Pants",type:"poison",attackRate:0,power:2.08e+24,toughness:2.08e+24,hpRegen:2.08e+23,maxHp:2.2e+26},{name:"Lame Security Guard",type:"normal",attackRate:0,power:2e+24,toughness:2e+24,hpRegen:2e+23,maxHp:2.1e+26},{name:"A Giant Vat of Plutonium-238",type:"charger",attackRate:0,power:2.04e+24,toughness:2.04e+24,hpRegen:2.04e+23,maxHp:2.15e+26},{name:"Mutant Zombie Marie Curie",type:"normal",attackRate:0,power:2.06e+24,toughness:2.06e+24,hpRegen:2.06e+23,maxHp:2.15e+26},{name:"Pair of Shades Wearing Shades",type:"paralyze",attackRate:0,power:2.02e+24,toughness:2.02e+24,hpRegen:2.02e+23,maxHp:2.1e+26},{name:"A Wandering Gamma Ray",type:"grower",attackRate:1,power:2.1e+24,toughness:2.1e+24,hpRegen:2.1e+23,maxHp:2.2e+26},{name:"A Massive Sealed Vault",type:"normal",attackRate:0,power:2.12e+24,toughness:2.12e+24,hpRegen:2.12e+23,maxHp:2.25e+26}],boss:[{name:"A.C SKATER",type:"normal",attackRate:1,power:2e+24,toughness:2e+24,hpRegen:2e+23,maxHp:2.1e+26},{name:"RADIOACTIVE MACGUFFIN",type:"grower",attackRate:1.2,power:2.15e+24,toughness:2.15e+24,hpRegen:2.15e+23,maxHp:2.25e+26}]},
+  "radlands":{normal:[{name:"Small Bart",type:"normal",attackRate:null,power:2e+24,toughness:2e+24,hpRegen:2e+23,maxHp:2.1e+26},{name:"Nuclear Power Pants",type:"poison",attackRate:null,power:2.08e+24,toughness:2.08e+24,hpRegen:2.08e+23,maxHp:2.2e+26},{name:"Lame Security Guard",type:"normal",attackRate:null,power:2e+24,toughness:2e+24,hpRegen:2e+23,maxHp:2.1e+26},{name:"A Giant Vat of Plutonium-238",type:"charger",attackRate:null,power:2.04e+24,toughness:2.04e+24,hpRegen:2.04e+23,maxHp:2.15e+26},{name:"Mutant Zombie Marie Curie",type:"normal",attackRate:null,power:2.06e+24,toughness:2.06e+24,hpRegen:2.06e+23,maxHp:2.15e+26},{name:"Pair of Shades Wearing Shades",type:"paralyze",attackRate:null,power:2.02e+24,toughness:2.02e+24,hpRegen:2.02e+23,maxHp:2.1e+26},{name:"A Wandering Gamma Ray",type:"grower",attackRate:1,power:2.1e+24,toughness:2.1e+24,hpRegen:2.1e+23,maxHp:2.2e+26},{name:"A Massive Sealed Vault",type:"normal",attackRate:null,power:2.12e+24,toughness:2.12e+24,hpRegen:2.12e+23,maxHp:2.25e+26}],boss:[{name:"A.C SKATER",type:"normal",attackRate:1,power:2e+24,toughness:2e+24,hpRegen:2e+23,maxHp:2.1e+26},{name:"RADIOACTIVE MACGUFFIN",type:"grower",attackRate:1.2,power:2.15e+24,toughness:2.15e+24,hpRegen:2.15e+23,maxHp:2.25e+26}]},
   "backtoschool":{normal:[{name:"A Different Greasy Nerd",type:"normal",attackRate:1,power:6e+26,toughness:6e+26,hpRegen:6e+25,maxHp:6.1e+28},{name:"A Really Strict Nun",type:"normal",attackRate:1,power:6.06e+26,toughness:6.06e+26,hpRegen:6.06e+25,maxHp:6.15e+28},{name:"Sentient Jock Strap",type:"paralyze",attackRate:1,power:6.02e+26,toughness:6.02e+26,hpRegen:6.02e+25,maxHp:6.1e+28},{name:"The Flying Spinelli Monster",type:"charger",attackRate:1,power:6.04e+26,toughness:6.04e+26,hpRegen:6.04e+25,maxHp:6.15e+28},{name:"The Mystery Meat",type:"grower",attackRate:1.1,power:6.1e+26,toughness:6.1e+26,hpRegen:6.1e+25,maxHp:6.2e+28},{name:"The Nun's Ruler",type:"poison",attackRate:1,power:6.08e+26,toughness:6.08e+26,hpRegen:6.08e+25,maxHp:6.2e+28}],boss:[{name:"BELDING",type:"grower",attackRate:1.2,power:6.15e+26,toughness:6.15e+26,hpRegen:6.15e+25,maxHp:6.25e+28},{name:"WILLY",type:"normal",attackRate:1.2,power:6.12e+26,toughness:6.12e+26,hpRegen:6.12e+25,maxHp:6.25e+28}]},
-  "westworld":{normal:[{name:"A Stickman Cowboy",type:"normal",attackRate:1,power:1.5e+27,toughness:1.5e+27,hpRegen:1.5e+26,maxHp:1.5e+29},{name:"A Giant Cannon",type:"paralyze",attackRate:1,power:1.52e+27,toughness:1.52e+27,hpRegen:1.52e+26,maxHp:1.5e+29},{name:"A Pathetic Tumbleweed",type:"poison",attackRate:1.1,power:1.56e+27,toughness:1.56e+27,hpRegen:1.56e+26,maxHp:1.55e+29},{name:"A Single Cow",type:"charger",attackRate:1.1,power:1.58e+27,toughness:1.58e+27,hpRegen:1.58e+26,maxHp:1.6e+29},{name:"Herd of Pissed Off Cows",type:"grower",attackRate:1.1,power:1.6e+27,toughness:1.6e+27,hpRegen:1.6e+26,maxHp:1.6e+29},{name:"The Entire Bar",type:"rapid",attackRate:1,power:1.54e+27,toughness:1.54e+27,hpRegen:1.54e+26,maxHp:1.55e+29},{name:"THE OUTLAW",type:"normal",attackRate:1.2,power:1.62e+27,toughness:1.62e+27,hpRegen:1.62e+26,maxHp:1.65e+29},{name:"THE SHERIFF",type:"grower",attackRate:1.2,power:1.65e+27,toughness:1.65e+27,hpRegen:1.65e+26,maxHp:1.65e+29}],boss:[]},
+  "westworld":{normal:[{name:"A Stickman Cowboy",type:"normal",attackRate:1,power:1.5e+27,toughness:1.5e+27,hpRegen:1.5e+26,maxHp:1.5e+29},{name:"A Giant Cannon",type:"paralyze",attackRate:1,power:1.52e+27,toughness:1.52e+27,hpRegen:1.52e+26,maxHp:1.5e+29},{name:"A Pathetic Tumbleweed",type:"poison",attackRate:1.1,power:1.56e+27,toughness:1.56e+27,hpRegen:1.56e+26,maxHp:1.55e+29},{name:"A Single Cow",type:"charger",attackRate:1.1,power:1.58e+27,toughness:1.58e+27,hpRegen:1.58e+26,maxHp:1.6e+29},{name:"Herd of Pissed Off Cows",type:"grower",attackRate:1.1,power:1.6e+27,toughness:1.6e+27,hpRegen:1.6e+26,maxHp:1.6e+29},{name:"The Entire Bar",type:"rapid",attackRate:1,power:1.54e+27,toughness:1.54e+27,hpRegen:1.54e+26,maxHp:1.55e+29}],boss:[{name:"THE OUTLAW",type:"normal",attackRate:1.2,power:1.62e+27,toughness:1.62e+27,hpRegen:1.62e+26,maxHp:1.65e+29},{name:"THE SHERIFF",type:"grower",attackRate:1.2,power:1.65e+27,toughness:1.65e+27,hpRegen:1.65e+26,maxHp:1.65e+29}]},
   "breadverse":{normal:[{name:"Grandma's 'Brownies'",type:"normal",attackRate:1,power:1e+29,toughness:1.2e+29,hpRegen:1.2e+28,maxHp:5.5e+30},{name:"Angry Raw Cookie Dough",type:"paralyze",attackRate:1,power:1.02e+29,toughness:1.22e+29,hpRegen:1.22e+28,maxHp:5.4e+30},{name:"A Bearded Breaded Braid",type:"normal",attackRate:1.1,power:1e+29,toughness:1.2e+29,hpRegen:1.2e+28,maxHp:5.6e+30},{name:"Butcher & Candlestick Maker",type:"normal",attackRate:1,power:1e+29,toughness:1.2e+29,hpRegen:1.2e+28,maxHp:5.7e+30},{name:"The Ex-Greatest Thing",type:"charger",attackRate:1.1,power:1.04e+29,toughness:1.24e+29,hpRegen:1.24e+28,maxHp:5.8e+30},{name:"Moldy Slice Of Bread",type:"normal",attackRate:1.2,power:1.06e+29,toughness:1.26e+29,hpRegen:1.26e+28,maxHp:5.9e+30}],boss:[{name:"THE YEAST BEAST",type:"poison",attackRate:1.2,power:1.08e+29,toughness:1.28e+29,hpRegen:1.28e+28,maxHp:6e+30},{name:"A DAY-OLD BAGUETTE",type:"grower",attackRate:1.2,power:1.1e+29,toughness:1.3e+29,hpRegen:1.35e+28,maxHp:6e+30}]},
   "seventies":{normal:[{name:"A Groovy Saxophone",type:"normal",attackRate:1,power:3e+29,toughness:4e+29,hpRegen:4e+28,maxHp:2.02e+31},{name:"A Giant Pair Of Roller Skates",type:"paralyze",attackRate:1,power:3.02e+29,toughness:4.02e+29,hpRegen:4.02e+28,maxHp:2.02e+31},{name:"A 70's Porn Mustasche",type:"normal",attackRate:1,power:3e+29,toughness:4e+29,hpRegen:4e+28,maxHp:2.03e+31},{name:"A Disgusting Bong",type:"normal",attackRate:1,power:3e+29,toughness:4e+29,hpRegen:4e+28,maxHp:2.03e+31},{name:"A Hippie with a Hip",type:"charger",attackRate:1.1,power:3.04e+29,toughness:4.04e+29,hpRegen:4.04e+28,maxHp:2.04e+31},{name:"Holy Crap It's Another Shark",type:"rapid",attackRate:1.2,power:3.06e+29,toughness:4.06e+29,hpRegen:4.06e+28,maxHp:2.04e+31}],boss:[{name:"THE WORST VINYL RECORD",type:"poison",attackRate:1.2,power:3.08e+29,toughness:4.08e+29,hpRegen:4.08e+28,maxHp:2.05e+31},{name:"THE 'FRO",type:"grower",attackRate:1.2,power:3.15e+29,toughness:4.1e+29,hpRegen:4.15e+28,maxHp:2.06e+31}]},
   "halloweenies":{normal:[{name:"Ultra Instinct Stoner",type:"normal",attackRate:1,power:1e+30,toughness:1.2e+30,hpRegen:1.2e+29,maxHp:6e+31},{name:"A Skeleton Inside a Body",type:"paralzye",attackRate:1,power:1e+30,toughness:1.22e+30,hpRegen:1.22e+29,maxHp:6e+31},{name:"A Badly Made Sexy Florida Costume",type:"normal",attackRate:1,power:1e+30,toughness:1.2e+30,hpRegen:1.2e+29,maxHp:6e+31},{name:"An Unnecessary Sequel",type:"normal",attackRate:1,power:1e+30,toughness:1.2e+30,hpRegen:1.2e+29,maxHp:6e+31},{name:"An Elevator Full of Blood",type:"charger",attackRate:1,power:1.04e+30,toughness:1.24e+30,hpRegen:1.24e+29,maxHp:6.5e+31},{name:"Candy Corn",type:"normal",attackRate:1,power:1.06e+30,toughness:1.26e+30,hpRegen:1.26e+29,maxHp:6.5e+31}],boss:[{name:"TEXAS CHAINSAW MASCARA",type:"normal",attackRate:1,power:1.08e+30,toughness:1.28e+30,hpRegen:1.28e+29,maxHp:6e+31},{name:"JIGSAW",type:"charger",attackRate:1,power:1.12e+30,toughness:1.3e+30,hpRegen:1.25e+29,maxHp:6.5e+31}]},
@@ -376,10 +448,17 @@ export const IDLE_ADVENTURE_MOB_BESTIARY_V1=Object.freeze({
  * de zone" pour juger si UN mob précis est relativement plus ou moins
  * dangereux que la moyenne de sa zone.
  */
+/*
+ * Audit zones 2026-09-23 : une valeur non publiée par le wiki (null, ex.
+ * attackRate "?" des ennemis normaux de The Rad-Lands) est exclue de la
+ * moyenne au lieu d'y compter pour 0 -- sinon la moyenne de zone serait
+ * tirée vers 0 par des valeurs inconnues, pas par des valeurs réelles.
+ */
 export function idleAdventureBestiaryAverageV1(list,key){
   if(!list||!list.length)return 0;
-  let total=0;for(const m of list)total+=N(m&&m[key]);
-  return total/list.length;
+  let total=0,count=0;
+  for(const m of list){const v=m&&m[key];if(v==null||!Number.isFinite(+v))continue;total+=+v;count++}
+  return count?total/count:0;
 }
 /*
  * Facteur d'échelle PV réel -> échelle SOREAL, ancré sur z.oneHitP (déjà

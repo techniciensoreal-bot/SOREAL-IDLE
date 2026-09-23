@@ -30,6 +30,15 @@
  * documente plus les valeurs.
  */
 
+/*
+ * ATTENTION (audit zones 2026-09-23) : ne pas relancer tel quel. Le miroir
+ * local a depuis perdu ou renommé plusieurs fiches par collision de casse
+ * Windows (ex. "KING CIRCLE" remplacé par la redirection "King Circle",
+ * "The Slammer" ; "Kitten In a Mech Woman", "EVIL SPIKY HAIRED GUY" en
+ * casse différente) : une régénération supprimerait ou renommerait des
+ * entrées déjà vérifiées. Comparer d'abord
+ * avec git diff et ne garder que les écarts prouvés.
+ */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parsePagesDirectory } from './parse-ngu-wiki.mjs';
 
@@ -75,9 +84,39 @@ const ZONE_MAP = {
   netherregions: 'The Nether Regions'
 };
 
+/*
+ * Audit 2026-09-23 (zones) : une valeur non publiée par le wiki ("?", ex.
+ * attack_rate des ennemis de The Rad-Lands) sort désormais `null`, jamais
+ * `0` -- un 0 écrit en dur était une valeur inventée (le wiki dit "?").
+ */
 function jsNumber(n) {
-  if (n == null || !Number.isFinite(n)) return '0';
+  if (n == null || !Number.isFinite(n)) return 'null';
   return String(n);
+}
+
+/*
+ * Audit 2026-09-23 (zones) : le statut "boss d'Aventure" ne vient plus
+ * seulement de `boss=yes` sur la fiche {{Enemy}} : la section "Enemies" de
+ * la page de zone marque chaque boss avec {{BossLink|...}} (icône
+ * BossIcon dans le wikitexte étendu). THE OUTLAW / THE SHERIFF (The West
+ * World) n'ont pas `boss=yes` sur leur fiche mais sont bien listés en
+ * {{BossLink}} sur la page de zone ET dans la colonne "Bosses" du tableau
+ * "Adventure Mode Enemies" -- ils étaient classés à tort en normal[].
+ */
+function zonePageBossTitles(location) {
+  const file = PAGES_DIR + '\\' + location.replace(/[<>:"/\\|?*]/g, '_').trim() + '.json';
+  let json;
+  try { json = JSON.parse(readFileSync(file, 'utf8')); } catch { return new Set(); }
+  const text = json.__expandedWikitext || '';
+  const start = text.search(/^==\s*Enemies\s*==\s*$/m);
+  if (start === -1) return new Set();
+  const out = new Set();
+  for (const line of text.slice(start).split('\n').slice(1)) {
+    if (/^==/.test(line)) break;
+    const m = /^\*\s*\[\[([^\]|]+)(?:\|[^\]]*)?\]\](.*)$/.exec(line.trim());
+    if (m && /BossIcon/.test(m[2])) out.add(m[1].trim().toLowerCase());
+  }
+  return out;
 }
 
 function formatEntry(m) {
@@ -118,8 +157,10 @@ function run() {
   const summary = [];
   for (const [zoneId, location] of Object.entries(ZONE_MAP)) {
     const mobs = parsed.filter(e => e.location === location && e.hp != null);
-    const normal = mobs.filter(m => !m.isAdventureBoss);
-    const boss = mobs.filter(m => m.isAdventureBoss);
+    const pageBosses = zonePageBossTitles(location);
+    const isBoss = m => m.isAdventureBoss || pageBosses.has(m.title.toLowerCase());
+    const normal = mobs.filter(m => !isBoss(m));
+    const boss = mobs.filter(isBoss);
     summary.push(zoneId + ': normal=' + normal.length + ' boss=' + boss.length);
     zoneLines.push(
       '  ' + JSON.stringify(zoneId) + ':{normal:[' + normal.map(formatEntry).join(',') +
