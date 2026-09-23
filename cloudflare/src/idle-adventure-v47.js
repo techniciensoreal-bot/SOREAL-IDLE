@@ -4229,20 +4229,30 @@ function creditTitanRewardsV1(s,id,ctx,tierKey){
   return out;
 }
 /*
- * Butin des titans 1 à 6 -- sections "Loot" des pages wiki (miroir local
- * NGU-Wiki, 2026-09-23). Les taux "base chance" sont multipliés par le
- * multiplicateur de drop comme partout ailleurs. "lvl a-b" = niveau tiré
- * uniformément entre a et b (lecture de la notation du wiki). Le bonus de
- * niveau des défis No Rebirth s'ajoute aux pièces de set, pas au Forest
- * Pendant (le wiki précise qu'il ne s'y applique pas). Objets du wiki qui
- * n'existent pas encore dans SOREAL (donc jamais tirés, jamais remplacés par
- * une valeur de repli) : Stapler, Ascended Forest Pendant, Heroic Sigil,
- * Ascended Ascended Ascended Pendant, A Bald Egg, A Giant Apple, A Power
- * Pill, Candy Cane of Destiny, Wandoos XL, Fanny Pack, Dorky Glasses,
- * UUG's 'Special' Ring, The First/Second/Third Clue.
+ * Butin des titans -- sections "Loot" des pages wiki (miroir local NGU-Wiki,
+ * 2026-09-23). Les taux "base chance" sont multipliés par le multiplicateur de
+ * drop comme partout ailleurs. "lvl a-b" = niveau tiré uniformément entre a et
+ * b (lecture de la notation du wiki). Le bonus de niveau des défis No Rebirth
+ * s'ajoute aux pièces de set, pas au Forest Pendant (le wiki précise qu'il ne
+ * s'y applique pas) ; les objets SPECIALS gardent leur niveau wiki (même
+ * convention que Wanderer's Cane / Mysterious Red Liquid / Beast ci-dessous).
+ *
+ * Titans Evil/Sadistic (Greasy Nerd, Godmother, Exile, IT HUNGERS, ROCK
+ * LOBSTER, AMALGAMATE) : "Only cube root of loot chance bonus applies" (en
+ * tête de leur section Loot) -> chanceEvil() applique le cube root comme
+ * pour les zones Evil, avec le plafond "up to 25% max" de chaque ligne.
+ * "Normal+" / "Hard+" / "Brutal" = paliers normal-hard-brutal / hard-brutal /
+ * brutal (même lecture que The Beast).
+ *
+ * Objets du wiki volontairement NON tirés (système absent ou taux inconnu,
+ * jamais remplacés par une valeur de repli) : Heroic Sigil (déjà débloqué via
+ * d.drop), A busted copy of Wandoos XL, The First/Second/Third Clue,
+ * MacGuffin Fragments, Sack/Face of the Exile, Blue Eyes Ultimate Chestplate
+ * ("secret unlock" sans condition publiée), les morceaux de THE END.
  */
 function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
   const chance=p=>Math.random()<idleAdventureDropChanceV2(p,1,dropMult,null);
+  const chanceEvil=(p,cap)=>Math.random()<idleAdventureDropChanceV2(p,cap,dropMult,TITAN_LOOT_CUBE_ROOT_V1);
   const pick=liste=>liste[I(Math.random()*liste.length)];
   const niveau=(lo,hi)=>Math.min(MAX,lo+I(Math.random()*(hi-lo+1))+bonus);
   const equip=(setId,slot,lvl)=>{
@@ -4250,6 +4260,7 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     const a=o?add(s,o):null;
     if(a)out.push(a);
   };
+  const objet=(defId,lvl)=>{const a=add(s,special(defId,lvl));if(a)out.push(a)};
   const boosts=(type,liste)=>{
     for(const [force,p] of liste)if(chance(p)){const a=add(s,boost(type,force));if(a)out.push(a)}
   };
@@ -4260,6 +4271,22 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(a)out.push(a);
   };
   const cinq=["head","chest","legs","boots","weapon"];
+  const palierNormal=tierKey==="normal"||tierKey==="hard"||tierKey==="brutal";
+  const palierDur=tierKey==="hard"||tierKey==="brutal";
+  const palierBrutal=tierKey==="brutal";
+  /*
+   * Lignes communes des titans Evil/Sadistic : pièces du set ("x% base chance,
+   * up to 25% max for each of"), objets de tous paliers, puis objets
+   * Normal+/Hard+/Brutal ; [defId, niveau, taux, plafond].
+   */
+  const titanEvil=(setId,tauxPiece,tous,normal,dur,brutal)=>{
+    for(const slot of SETS[setId].slots)if(chanceEvil(tauxPiece,.25))equip(setId,slot,Math.min(MAX,4+bonus));
+    const tirer=liste=>{for(const [defId,lvl,p,cap] of liste)if(chanceEvil(p,cap))objet(defId,lvl)};
+    tirer(tous);
+    if(palierNormal)tirer(normal);
+    if(palierDur)tirer(dur);
+    if(palierBrutal)tirer(brutal);
+  };
   if(id==="t1"){
     equip("grb",pick(cinq),Math.min(MAX,bonus));
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
@@ -4278,30 +4305,92 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(chance(.6))equip("jake",pick(cinq),Math.min(MAX,1+bonus));
     for(const slot of cinq)if(chance(.1))equip("jake",slot,Math.min(MAX,2+bonus));
     if(chance(.25))equip("jake",pick(["tie","paperweight"]),Math.min(MAX,2+bonus));
+    // wiki : "Stapler lvl 4 (2% base chance)", "Ascended Forest Pendant lvl 1 (10% base chance)"
+    if(chance(.02))objet("stapler",4);
     for(const type of ["power","toughness","special"])boosts(type,[[100,.1]]);
+    if(chance(.1))objet("ascendedForestPendant",1);
   }else if(id==="t4"){
     const anneaux=["ringGreed","ringMight","ringUtility","ringEnergy","ringMagic"];
     const premier=!s.itemList["uug:ringGreed"]?.seen;
     for(const slot of anneaux){
       if((premier&&slot==="ringGreed")||chance(.02))equip("uug",slot,Math.min(MAX,4+bonus));
     }
+    // wiki : "UUG's 'Special' Ring lvl 4 (UUG's rings (set) completed, 0.1% base chance)"
+    if(s.completedSets.uug&&chance(.001))objet("uugSpecialRing",4);
     pendantForet(0,.02);
   }else if(id==="t5"){
-    if(chance(.005)){const a=add(s,special("wanderersCane",10));if(a)out.push(a)}
+    if(chance(.005))objet(...canneWalderpV1());
     for(const slot of ["head","chest","legs","boots"]){
       if(chance(.005))equip("wanderer",slot,Math.min(MAX,4+bonus));
       if(chance(.005))equip("rerednaw",slot,Math.min(MAX,4+bonus));
     }
+    // wiki : "Ascended Forest Pendant lvl 50 (0.5% base chance)", "Fanny Pack lvl 10 (if Wanderer's (set) complete, 0.01%)", "Dorky Glasses lvl 10 (if S'rerednaW (set) complete, 0.01%)"
+    if(chance(.005))objet("ascendedForestPendant",50);
+    if(s.completedSets.wanderer&&chance(.0001))objet("fannyPack",10);
+    if(s.completedSets.rerednaw&&chance(.0001))objet("dorkyGlasses",10);
   }else if(id==="t6"){
     for(const slot of cinq)if(chance(.0005))equip("slimy",slot,Math.min(MAX,4+bonus));
-    const palier=tierKey==="normal"||tierKey==="hard"||tierKey==="brutal";
-    const dur=tierKey==="hard"||tierKey==="brutal";
+    // wiki, "All Modes" : "Ascended Ascended Ascended Pendant lvl 1 (0.05% base chance)", "A Bald Egg lvl 4 (0.02% base chance)"
+    if(chance(.0005))objet("ascendedX3Pendant",1);
+    if(chance(.0002))objet("baldEgg",4);
+    const palier=palierNormal;
+    const dur=palierDur;
     if(palier&&chance(.00005)){const a=add(s,special("shrunkenVoodooDoll",4));if(a)out.push(a)}
     if(palier&&chance(.00002)){const a=add(s,special("mysteriousPurpleLiquid",1));if(a)out.push(a)}
     if(dur&&chance(.00001)){const a=add(s,special("pricelessVanGoghPainting",4));if(a)out.push(a)}
+    // wiki, "Hard+" : "A Giant Apple lvl 4 (0.0005% base chance)" ; "Brutal" : "A Power Pill lvl 4 (0.0002% base chance)"
+    if(dur&&chance(.000005))objet("giantApple",4);
+    if(tierKey==="brutal"&&chance(.000002))objet("powerPill",4);
     if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
+  }else if(id==="nerd"){
+    // wiki : "Guaranteed one of" les 5 pièces du set + An Ordinary Calculator + Anime Figurine, lvl 4
+    const garanti=pick([...cinq.map(slot=>"greasynerd:"+slot),"ordinaryCalculator","animeFigurine"]);
+    if(garanti.startsWith("greasynerd:"))equip("greasynerd",garanti.slice(11),Math.min(MAX,4+bonus));else objet(garanti,4);
+    titanEvil("greasynerd",.00035,
+      [["ordinaryCalculator",4,.00035,.25],["animeFigurine",4,.00035,.25],["ascendedX4Pendant",4,.00035,.25]],
+      [["theD20",4,.00027,.25],["theD8",4,.00027,.25]],
+      [["animeBodypillow",4,.00022,.25],["redMeeple",4,.00022,.25]],
+      [["bagOfTrash",4,.00017,.25],["heartShapedPanties",4,.00017,.25]]);
+  }else if(id==="godmother"){
+    titanEvil("mobster",.0001,
+      [["ascendedX4Pendant",8,.0001,.25],["kingLooty",8,.0001,.25]],
+      [["violinCase",4,.000075,.25],["molotovCocktail",4,.000075,.25]],
+      [["godmothersRing",4,.00006,.25],["godmothersWand",4,.00006,.25]],
+      [["leftFairyWing",4,.000045,.25],["rightFairyWing",4,.000045,.25]]);
+  }else if(id==="t7"){
+    titanEvil("exile",.00002,
+      [["theJoker",4,.00002,.25],["antlersExile",4,.00002,.25],["ascendedX4Pendant",50,.000015,.25],["kingLooty",50,.000015,.25]],
+      [["creditCard",4,.00001,.25],["tentacleExile",4,.00001,.25]],
+      [["skipCard",4,.000006,.25],["antennaeExile",4,.000006,.25]],
+      [["blackLotus",4,.000004,.25],["busterExile",4,.000004,.25]]);
+  }else if(id==="hungers"){
+    titanEvil("space",.000001,
+      [["theCricket",4,.000001,.25],["ascendedX5Pendant",50,.000001,.25],["emperorLooty",50,.000001,.25]],
+      [["evilRubberDucky",4,6e-7,.25],["gasGiant",4,6e-7,.25]],
+      [["carbonRod",4,4e-7,.25],["kleinBottle",4,4e-7,.25]],
+      [["alienBugNest",4,3e-7,.25],["theKey",4,3e-7,.25]]);
+  }else if(id==="lobster"){
+    titanEvil("rock",1e-7,
+      [["ascendedX6Pendant",10,1e-7,.25],["galacticHeraldLooty",10,1e-7,.25]],
+      [["skippingStone",4,6.5e-8,.25],["bedRock",4,6.5e-8,.25]],
+      [["rockCandy",4,4e-8,.25],["brokenScissors",4,4e-8,.25]],
+      [["portableStairway",4,3e-8,.25],["amplifier",4,3e-8,.25]]);
+  }else if(id==="amalgamate"){
+    titanEvil("amalgamate",1.4e-8,
+      [["ascendedX7Pendant",50,1.4e-8,.25],["supremeIntelligenceLooty",50,1.4e-8,.25]],
+      [["rawSlabOfWood",4,1e-8,.25]],
+      [["tieOfApathy",4,8e-9,.25]],
+      [["titanEffigy",4,6e-9,.25]]);
   }
 }
+/* Titans Evil/Sadistic : même règle "cube root" que les zones Evil (idleAdventureDropChanceV2 lit requiredDifficulty). */
+const TITAN_LOOT_CUBE_ROOT_V1=Object.freeze({id:"titan-evil",requiredDifficulty:"difficile"});
+/*
+ * Walderp, wiki : "Wanderer's Cane lvl 10 - guaranteed, with 1% flat chance of
+ * The Candy Cane of Destiny lvl 0 instead" (idem pour le jet à 0,5 %). "flat" :
+ * ce 1 % n'est pas multiplié par le bonus de drop.
+ */
+function canneWalderpV1(){return Math.random()<.01?["candyCaneDestiny",0]:["wanderersCane",10]}
 const TITAN_RANK_V1=Object.freeze({t1:1,t2:2,t3:3,t4:4,t5:5,t6:6,nerd:7,godmother:8,t7:9,hungers:10,lobster:11,amalgamate:12});
 function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
  * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
@@ -4309,7 +4398,7 @@ function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",tit
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
  */
 if(id==="t1"&&!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}
-if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;drops.push(add(s,special("wanderersCane",10)))}
+if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1();drops.push(add(s,special(canne,niveauCanne)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
 const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
 if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops);
