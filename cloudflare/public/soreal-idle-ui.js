@@ -15549,9 +15549,10 @@ let idleDialogueTimerV76=null;
       function cooldownDureeAdventureIdleV4_(def,a){
         const base=Math.max(0,idleNombre_(def&&def.cooldown));
         if(!def||def.id==='move69')return base;
-        /* Specials « Move Cooldowns » de l'équipement (Ring of Might, Sands of Time, Infinity Charm : 50 % max) puis set Red Liquid (-20 %). */
+        /* Specials « Move Cooldowns » de l'équipement (Ring of Might, Sands of Time, Infinity Charm : 50 % max). */
+        /* Wiki « Red Liquid (set) » : le -20 % porte sur le « global cooldown timer » (délai entre deux moves différents) et la vitesse d'Idle Attack, PAS sur le cooldown propre de chaque move. Le GCD n'a pas de valeur de base publiée : non simulé, rien de réduit ici. */
         const equipement=Math.max(0,Math.min(95,idleNombre_(a&&a.stats&&a.stats.specials&&a.stats.specials.moveCooldownPct)));
-        return base*(1-equipement/100)*(a&&a.unlockFlags&&a.unlockFlags.redLiquidMaxed ? .8 : 1);
+        return base*(1-equipement/100);
       }
 
       function cooldownRestantAdventureIdleV3_(id,maintenant){
