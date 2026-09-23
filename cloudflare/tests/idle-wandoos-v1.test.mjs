@@ -85,6 +85,8 @@ assert.deepEqual(IDLE_WANDOOS_OS_V1.xl.requirement, { normal: 1e15, difficile: 1
   let state = unlockedWandoos();
   state.systems.wandoos.data.dumpEnergyLevel = 40;
   state.systems.wandoos.data.dumpMagicLevel = 12;
+  /* Wandoos XL débloqué par une copie consommée (idle-wandoos-os-v1.js). */
+  state.adventure.unlockFlags = Object.assign({}, state.adventure.unlockFlags, { wandoosXl: true });
   state = applyIdleNguAction(state, { action: "selectWandoosOs", os: "xl" }, context, 100_000_000).state;
   assert.equal(state.systems.wandoos.data.os, "xl");
   assert.equal(state.systems.wandoos.data.dumpEnergyLevel, 0, "Changer d'OS doit remettre le Dump Energy à 0.");

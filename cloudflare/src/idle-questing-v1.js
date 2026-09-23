@@ -19,12 +19,12 @@
  * signalés "CHOIX SOREAL" : ce sont des conventions de code, jamais des
  * nombres de jeu.
  *
+ * Heroic Sigil (set) "+10 % Quest Drops" et Orange Heart (set) "+20 % QP" :
+ * câblés le 2026-09-23 (le Sigil et le cœur sont désormais de vrais objets
+ * fusionnables, SETS_OBJETS_V1 dans idle-adventure-v47.js) ; Blue Heart (set) :
+ * Beast Butter x2,2 au lieu de x2 (idle-hearts-v1.js).
+ *
  * Volontairement NON implémenté (effet non modélisable sans inventer) :
- *  - Heroic Sigil (set) "+10 % Quest Drops" : le Sigil n'existe dans le
- *    moteur Aventure que comme drapeau de déblocage, sans niveau -> le
- *    palier "niveau 100" n'est pas mesurable ;
- *  - My Orange Heart "+20 % QP à 100" : aucun objet cœur n'existe dans
- *    l'inventaire (non achetable au Sellout) ;
  *  - Quest Reminder (voyant du menu : relève du monolithe client) ;
  *  - cartes QP, Fruit of Quirks (Yggdrasil), montée de niveau des objets
  *    de quête en Daycare (48 h) : systèmes absents ou tenus par d'autres.
@@ -33,6 +33,7 @@ import { IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1 } from "./idle-quirks-v1.js";
 import { IDLE_WISHES_CATALOG_V1 } from "./idle-wishes-v1.js";
 import { IDLE_ADVENTURE_ZONES, idleAdventureMergeLevelV47 } from "./idle-adventure-v47.js";
+import { idleHeartsQpMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -186,7 +187,12 @@ export function idleQuestHandInValueV1(level, handInBonusLevel) {
  * Drops special rather than regular Drop Chance specials".
  */
 export function idleQuestDropMultiplierV1(bonus, env) {
-  return Math.max(0, 1 + (Math.max(0, N(env?.gearQuestDropsPct)) + Math.max(0, N(bonus?.questDropsPct))) / 100);
+  /*
+   * Heroic Sigil (set) : "Quest items drop 10% more often!" (env.questDropsSetPct = 0,10 une fois le
+   * Sigil au niveau 100). CHOIX SOREAL : facteur séparé x1,1 ("drop 10% more often").
+   */
+  const sigil = 1 + Math.max(0, N(env?.questDropsSetPct));
+  return Math.max(0, 1 + (Math.max(0, N(env?.gearQuestDropsPct)) + Math.max(0, N(bonus?.questDropsPct))) / 100) * sigil;
 }
 
 /*
@@ -245,9 +251,12 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
     Math.max(0, N(env?.qpEarningsMultiplier, 1)) *
     (1 + bonus.questQpPct) *
     (state?.adventure?.completedSets?.mobster ? 1 + IDLE_QUEST_MOBSTER_SET_QP_PCT_V1 : 1) *
+    idleHeartsQpMultiplierV1(state) /* Orange Heart (set) : "Quests give 20% more QP!" */ *
     (1 + IDLE_QUEST_ITEM_COMPLETION_QP_PCT_V1 * maxedCount) *
     Math.max(0, N(env?.qpHackMultiplier, 1));
-  const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * (butter ? IDLE_QUEST_BUTTER_FACTOR_V1 : 1));
+  /* Beast Butter : x2, x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
+  const butterFactor = butter ? IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state) : 1;
+  const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * butterFactor);
   const ap = Math.floor(base * activeFactor * Math.max(0, N(env?.apEarningsMultiplier, 1)));
   return { qp, ap, base, activeFactor, activeWish, qpMultiplier, butter: Boolean(butter) };
 }

@@ -118,7 +118,9 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   for (const q of IDLE_CARDS_QUIRKS_V1) s.systems.quirks.data.levels[q.id] = q.cap;
   for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) s.systems.wishes.data.tracks[id] = { level: w.levels, tempLevel: 0, permanentLevel: 0, progress: 0 };
   s.selloutShop.purchases = { extraDeckSize: 50, mayoGenerator: 2, extraTagSlot: 1 };
-  s.adventure.completedSets = { rock: true, rad: true, amalgamate: true, disco: true, duck: true };
+  s.adventure.completedSets = { rock: true, rad: true, amalgamate: true, disco: true, duck: true, stillBeatingHeart: true, heartRainbow: true };
+  /* Récompenses de set créditées par checkSets (SETS_OBJETS_V1) : Still-Beating Heart +1 % tag, Rainbow Heart +10 %. */
+  s.adventure.setRewards = Object.assign({}, s.adventure.setRewards, { cardTagEffect: 0.01, cardMayoSpeedPct: 0.10 });
   s.challenge.completionsTier.extreme.troll = 7;
   const m = idleCardsModifiersV1(s);
   assert.equal(m.tiers.wishes, 10, "Total : 10 pour Wishes");
@@ -128,13 +130,13 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   assert.equal(m.deckSize, 120, "Bigger deck size : Total 120");
   assert.equal(m.generators, 6, "Extra mayo generators : Total 6");
   assert.equal(m.tagSlots, 4, "Extra tag slot : Total 4");
-  near(m.tagEffect, 0.165 - 0.01, 1e-12, "16.5 % moins le set Still-Beating Heart (+1 %, non modélisé)");
+  near(m.tagEffect, 0.165, 1e-12, "« Total: 16.5% » (dont le set Still-Beating Heart +1 %)");
   assert.deepEqual([m.mayoMin, m.mayoMax], [5, 13], "« final mayo cost range of 5-13 »");
   assert.deepEqual([m.chonkerMayoMin, m.chonkerMayoMax], [26, 34], "Chonkers : 26 à 34 après les souhaits 229/230");
   assert.equal(m.rarityMin, 0.85, "Disco : rareté min. 0.85");
-  // Page Cards : total x2.1157 dont Rainbow Heart x1.10 (non modélisé) ; mayo x2.3273 dont Rainbow x1.10.
-  near(m.cardSpeed, 2.1157 / 1.10, 0.0005, "vitesse des cartes");
-  near(m.mayoSpeed, 2.3273 / 1.10, 0.0005, "vitesse de la mayo");
+  // Page Cards : total x2.1157 dont Rainbow Heart x1.10 ; mayo x2.3273 dont Rainbow x1.10.
+  near(m.cardSpeed, 2.1157, 0.0005, "vitesse des cartes");
+  near(m.mayoSpeed, 2.3273, 0.0005, "vitesse de la mayo");
   assert.equal(m.chonkers && m.recycleSpawn && m.recycleMayo, true);
 }
 

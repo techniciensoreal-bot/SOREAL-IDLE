@@ -18,6 +18,8 @@
  * ancien ou modifié tente d'envoyer directement sellShopBuy.
  */
 
+import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
+
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
 
@@ -114,17 +116,21 @@ export const IDLE_SELLOUT_SHOP_CATALOG_V1 = Object.freeze([
   { id: "extraTagSlot", category: "special4", name: "Extra Tag Slot!", effect: "Unlock an extra tag Slot for Cards - ensuring you get more of the Cards that you like!", cost: flatCost(250000), max: 1 },
   { id: "extraAccessorySlot5", category: "special4", name: "Extra Accessory Slot (dernier)", effect: "This is it - the last and most sellout-y Accessory slot. There's no more for AP after this.", cost: flatCost(750000), max: 1 },
 
-  // --- Items (Coeurs) ---
-  { id: "heartRed", category: "items", name: "My Red Heart <3", effect: "When this heart reaches 100, you will gain the full EXP bonus (10%) this heart provides without needing it equipped.", cost: flatCost(225000), max: 1 },
-  { id: "heartYellow", category: "items", name: "My Yellow Heart <3", effect: "When this heart reaches 100, you will gain the full AP bonus (20%) this heart provides without needing it equipped.", cost: flatCost(150000), max: 1 },
-  { id: "heartBrown", category: "items", name: "My Brown Heart <3", effect: "When this heart reaches 100, every 10th poop applied to a fruit doesn't consume poop!", cost: flatCost(225000), max: 1 },
-  { id: "heartGreen", category: "items", name: "My Green Heart <3", effect: "When this heart reaches 100, you will earn Perk Points 20% faster in the ITOPOD.", cost: flatCost(225000), max: 1 },
-  { id: "heartBlue", category: "items", name: "My Blue Heart <3", effect: "When this heart reaches 100, all consumables will have their effects improved by 10%.", cost: flatCost(225000), max: 1 },
-  { id: "heartPurple", category: "items", name: "My Purple Heart <3", effect: "When this heart reaches 100, MacGuffins will drop 20% more often.", cost: flatCost(225000), max: 1 },
-  { id: "heartOrange", category: "items", name: "My Orange Heart <3", effect: "When this heart reaches 100, Quests will earn 20% more QP.", cost: flatCost(225000), max: 1 },
-  { id: "heartGrey", category: "items", name: "My Grey Heart <3", effect: "When this heart reaches 100, Hacks will be 25% faster.", cost: flatCost(225000), max: 1 },
-  { id: "heartPink", category: "items", name: "My Pink Heart <3", effect: "When this heart reaches 100, you will gain a Wish Slot.", cost: flatCost(225000), max: 1 },
-  { id: "heartRainbow", category: "items", name: "My Rainbow Heart", effect: "When this heart reaches 100, you will gain +10% Card and Mayo generation speed.", cost: flatCost(500000), max: 1 },
+  /*
+   * --- Items (Coeurs) --- "each item can be bought multiple times but their effect can only
+   * be obtained once" (section Items) : achats illimités (max null), l'effet est le bonus de
+   * complétion du set à un objet (niveau 100), jamais cumulé.
+   */
+  { id: "heartRed", category: "items", name: "My Red Heart <3", effect: "When this heart reaches 100, you will gain the full EXP bonus (10%) this heart provides without needing it equipped.", cost: flatCost(225000), max: null },
+  { id: "heartYellow", category: "items", name: "My Yellow Heart <3", effect: "When this heart reaches 100, you will gain the full AP bonus (20%) this heart provides without needing it equipped.", cost: flatCost(150000), max: null },
+  { id: "heartBrown", category: "items", name: "My Brown Heart <3", effect: "When this heart reaches 100, every 10th poop applied to a fruit doesn't consume poop!", cost: flatCost(225000), max: null },
+  { id: "heartGreen", category: "items", name: "My Green Heart <3", effect: "When this heart reaches 100, you will earn Perk Points 20% faster in the ITOPOD.", cost: flatCost(225000), max: null },
+  { id: "heartBlue", category: "items", name: "My Blue Heart <3", effect: "When this heart reaches 100, all consumables will have their effects improved by 10%.", cost: flatCost(225000), max: null },
+  { id: "heartPurple", category: "items", name: "My Purple Heart <3", effect: "When this heart reaches 100, MacGuffins will drop 20% more often.", cost: flatCost(225000), max: null },
+  { id: "heartOrange", category: "items", name: "My Orange Heart <3", effect: "When this heart reaches 100, Quests will earn 20% more QP.", cost: flatCost(225000), max: null },
+  { id: "heartGrey", category: "items", name: "My Grey Heart <3", effect: "When this heart reaches 100, Hacks will be 25% faster.", cost: flatCost(225000), max: null },
+  { id: "heartPink", category: "items", name: "My Pink Heart <3", effect: "When this heart reaches 100, you will gain a Wish Slot.", cost: flatCost(225000), max: null },
+  { id: "heartRainbow", category: "items", name: "My Rainbow Heart", effect: "When this heart reaches 100, you will gain +10% Card and Mayo generation speed.", cost: flatCost(500000), max: null },
 
   // --- EXP / PP (câblés immédiatement : ajout direct à state.currencies) ---
   { id: "exp200", category: "expPp", name: "200 EXP!", effect: "Gives you 200 EXP to use in the EXP menu.", cost: flatCost(40000), max: null, grant: { currency: "experience", amount: 200 } },
@@ -217,7 +223,21 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   mayoGenerator: { passive: true },
   extraTagSlot: { passive: true },
   mayoInfuser: { timer: "mayoInfuser", sec: 86400 },
-  regularBlackPens: { blackPens: 25 }
+  regularBlackPens: { blackPens: 25 },
+  /*
+   * Cœurs (idle-hearts-v1.js) : l'achat livre l'accessoire "My <X> Heart" niveau 0 dans
+   * l'inventaire d'Aventure ; son bonus de set s'obtient au niveau 100 (SETS_OBJETS_V1).
+   */
+  heartRed: { adventureItem: "heartRed" },
+  heartYellow: { adventureItem: "heartYellow" },
+  heartBrown: { adventureItem: "heartBrown" },
+  heartGreen: { adventureItem: "heartGreen" },
+  heartBlue: { adventureItem: "heartBlue" },
+  heartPurple: { adventureItem: "heartPurple" },
+  heartOrange: { adventureItem: "heartOrange" },
+  heartGrey: { adventureItem: "heartGrey" },
+  heartPink: { adventureItem: "heartPink" },
+  heartRainbow: { adventureItem: "heartRainbow" }
 });
 
 export function createSelloutEffectsV1(raw) {
@@ -241,13 +261,18 @@ export function createSelloutEffectsV1(raw) {
   };
 }
 
-/* Facteur multiplicatif d'une potion : x2 (Energy/Magic) ou x3 (Resource 3) pendant le timer, x2 pour la beta. */
+/*
+ * Facteur multiplicatif d'une potion : x2 (Energy/Magic) ou x3 (Resource 3) pendant le timer, x2 pour la beta.
+ * Blue Heart (set) : chaque facteur actif est multiplié par 1,1 ("All consumable give 10% better effects",
+ * page Cards : "Mayo Infusers: x2, or x2.2 with Blue Heart Set").
+ */
 export function idleSelloutPotionFactorV1(state, key) {
   const fx = state.selloutEffects || {};
+  const k = idleHeartsConsumableFactorV1(state);
   const base = key === "r3Power" ? 3 : 2;
-  const timed = N(fx.remaining?.[key], 0) > 0 ? base : 1;
-  const beta = fx.beta?.[key] ? 2 : 1;
-  return key === "luck" || key === "energyBars" || key === "magicBars" ? (N(fx.remaining?.[key], 0) > 0 ? 2 : 1) : timed * beta;
+  const timed = N(fx.remaining?.[key], 0) > 0 ? base * k : 1;
+  const beta = fx.beta?.[key] ? 2 * k : 1;
+  return key === "luck" || key === "energyBars" || key === "magicBars" ? (N(fx.remaining?.[key], 0) > 0 ? 2 * k : 1) : timed * beta;
 }
 
 /* Applique l'effet d'un objet (achat ou récompense de la roue quotidienne) `times` fois. */
@@ -297,11 +322,15 @@ export function idleSelloutShopEffectActiveV1(itemOrId) {
  * déjà câblé (grant de monnaie EXP/PP). Les autres effets restent
  * fidèlement enregistrés (voir en-tête de fichier) sans être bâclés.
  */
-export function idleSelloutShopBuyV1(state, itemId) {
+export function idleSelloutShopBuyV1(state, itemId, options = {}) {
   const item = idleSelloutShopItemV1(String(itemId || ""));
   if (!item) throw new Error("OBJET_BOUTIQUE_INTROUVABLE");
   if (!idleSelloutShopEffectActiveV1(item)) {
     throw new Error("EFFET_BOUTIQUE_AP_INACTIF");
+  }
+  /* Un cœur n'est jamais débité sans livraison de l'objet (idleHeartsBuyV1 passe adventureItemDelivered). */
+  if (IDLE_SELLOUT_EFFECTS_V1[item.id]?.adventureItem && !options.adventureItemDelivered) {
+    throw new Error("OBJET_AVENTURE_NON_LIVRE");
   }
   const shop = state.selloutShop && typeof state.selloutShop === "object" ? state.selloutShop : { purchases: {} };
   const purchases = shop.purchases && typeof shop.purchases === "object" ? shop.purchases : {};

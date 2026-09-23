@@ -32,7 +32,8 @@ const near = (a, b, msg, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${msg}
   assert.equal(t[446], undefined, "Creepy Doll : daycare = ? sur le wiki, aucun taux inventé.");
   assert.equal(idleDaycareBaseHoursV1({ wikiItemId: 446 }), null);
   const ids = Object.values(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1);
-  assert.equal(ids.filter((id) => t[id] != null).length, 301, "297 objets du dépôt ont un taux publié (les 86 autres : daycare = ?).");
+  /* +13 le 2026-09-23 : 10 cœurs, Wandoos XL, Triple Flubber, Heroic Sigil (A Still-Beating Heart : pas de ligne "Daycare"). */
+  assert.equal(ids.filter((id) => t[id] != null).length, 314, "314 objets du dépôt ont un taux publié (les autres : daycare = ?).");
 }
 
 // --- Slots (page Item Daycare : 6 au total) ---
