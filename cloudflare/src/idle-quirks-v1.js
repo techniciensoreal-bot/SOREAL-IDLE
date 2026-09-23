@@ -204,9 +204,12 @@ export function idleQuirkNextCostV1(quirk, currentLevel) {
 export function quirkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
+  /* Page Boost : « Beasted Boosts I à IV, chacun multiplicatif avec les autres » (1,5 x 2,2 x 1,5 x 1,25 au maximum). */
+  let boostPowerProduct = 1;
   for (const quirk of IDLE_QUIRKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(quirk.cap, Number(levels[quirk.id]) || 0));
     if (!level) continue;
+    if (quirk.bonus && quirk.bonus.boostPowerPct) boostPowerProduct *= 1 + quirk.bonus.boostPowerPct * level;
     for (const [key, perLevel] of Object.entries(quirk.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
@@ -222,7 +225,7 @@ export function quirkBonusesV1(levelsById) {
     statMultiplier: 1 + (totals.statPct || 0),
     adventureGoldMultiplier: 1 + (totals.adventureGoldPct || 0),
     seedYieldMultiplier: 1 + (totals.seedYieldPct || 0),
-    boostPowerMultiplier: 1 + (totals.boostPowerPct || 0),
+    boostPowerMultiplier: boostPowerProduct,
     atBankMultiplier: 1 + (totals.atBankPct || 0),
     tmBankMultiplier: 1 + (totals.tmBankPct || 0),
     beardBankMultiplier: 1 + (totals.beardBankPct || 0),

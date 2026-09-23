@@ -2450,6 +2450,14 @@ function unequip(s,id,targetIndex){
  * niveau. Un objet frais a donc bien un écart à combler dès le départ
  * (0/basePower), pas seulement après une fusion.
  */
+/*
+ * Page Boost : puissance d'un boost = complétions (additives, +2 % par boost maxé, 1,78 au maximum) x perks x quirks x
+ * 1,2 (set Badly Drawn) x 1,2 (set Construction) -- les deux sets sont MULTIPLICATIFS, pas additifs aux complétions.
+ */
+function boostEffectivenessFactorV1(s){
+  const completions=Math.min(39,I(s.setRewards.boostCompletions))*.02;
+  return(1+completions)*(s.completedSets.badly?1.2:1)*(s.completedSets.construction?1.2:1);
+}
 function applyBoost(s,boostId,targetId,ctx){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
   if(!b||b.kind!=="boost"||!o||o.kind==="boost")throw Error("BOOST_INVALIDE");
@@ -2479,7 +2487,7 @@ function applyBoost(s,boostId,targetId,ctx){
     throw Error("OBJET_DEJA_MAXE");
   }
   /* 2026-09-23 (audit) : perks/quirks "Boosted Boosts" / "Beasted Boosts" (boostPowerMultiplier), calculés mais jamais lus. */
-  const added=N(b.strength)*(1+N(s.setRewards.boostEffectiveness))*Math.max(1,N(ctx&&ctx.boostPowerMultiplier,1));
+  const added=N(b.strength)*boostEffectivenessFactorV1(s)*Math.max(1,N(ctx&&ctx.boostPowerMultiplier,1));
   if(type==="power"||type==="toughness"){
     const d=defById(o.definitionId);
     const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
@@ -2529,7 +2537,7 @@ function cube(s,boostId){
    * au même titre que Badly Drawn/Construction déjà stockés dans le même
    * multiplicateur boostEffectiveness.
    */
-  const valeur=N(b.strength)*(1+N(s.setRewards.boostEffectiveness));
+  const valeur=N(b.strength)*boostEffectivenessFactorV1(s);
   if(b.boostType==="special"){
     s.cube.power+=valeur*0.005;
     s.cube.toughness+=valeur*0.005;

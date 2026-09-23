@@ -315,9 +315,12 @@ export function idlePerkNextCostV1(perk, currentLevel) {
 export function perkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
+  /* Page Boost : « Boosted Boosts I à V, chacun multiplicatif avec les autres » (2,5 x 2,2 x 2,2 x 1,5 x 1,5 au maximum). */
+  let boostPowerProduct = 1;
   for (const perk of IDLE_PERKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(perk.cap, Number(levels[perk.id]) || 0));
     if (!level) continue;
+    if (perk.bonus && perk.bonus.boostPowerPct) boostPowerProduct *= 1 + perk.bonus.boostPowerPct * level;
     for (const [key, perLevel] of Object.entries(perk.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
@@ -348,7 +351,7 @@ export function perkBonusesV1(levelsById) {
     magicPowerMultiplier: 1 + (totals.magicPowerPct || 0),
     magicBarsMultiplier: 1 + (totals.magicBarsPct || 0),
     magicCapMultiplier: 1 + (totals.magicCapPct || 0),
-    boostPowerMultiplier: 1 + (totals.boostPowerPct || 0),
+    boostPowerMultiplier: boostPowerProduct,
     nguSpeedEnergyMultiplier: 1 + (totals.nguSpeedEnergyPct || 0),
     nguSpeedMagicMultiplier: 1 + (totals.nguSpeedMagicPct || 0),
     adventureGoldMultiplier: 1 + (totals.adventureGoldPct || 0),

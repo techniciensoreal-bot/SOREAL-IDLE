@@ -1213,3 +1213,7 @@ Page Daily Spin : la roue n'avait que les lots AP/graines (probabilités normali
 ## 2026-09-23 — AP de Rebirth
 
 Page Arbitrary Points : les Rebirths de plus d'une heure donnent 1 AP par 500 s (multiplié par le perk Fibonacci 89) ; n'existait pas. Non modélisés : 1 AP / 10 boss, sauvegarde manuelle (200 AP/jour). Test `idle-rebirth-ap`.
+
+## 2026-09-23 — Puissance des boosts (page Boost)
+
+Écart important : les perks « Boosted Boosts » I à V et les quirks « Beasted Boosts » I à IV étaient ADDITIONNÉS entre eux (5,9 et 3,45 au maximum) alors que la page Boost les dit multiplicatifs (2,5 x 2,2 x 2,2 x 1,5 x 1,5 = 27,2 et 1,5 x 2,2 x 1,5 x 1,25 = 6,19) ; les sets Badly Drawn et Construction (x1,2 chacun, multiplicatifs) étaient ajoutés aux +2 % de complétion. Un boost de force 1 valait environ 10 fois trop peu avec tous les bonus (431,78 sur le wiki, reproduit par le test). Test `idle-boost-power-composition`.

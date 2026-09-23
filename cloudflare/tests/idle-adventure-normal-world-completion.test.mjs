@@ -138,7 +138,7 @@ assert.deepEqual(
     JSON.parse(JSON.stringify(s)),{action:"boost",boostId:"boostTestBadly",targetId:cibleId},{bosses:90},1
   ).state.inventory.find(x=>x.id===cibleId).power;
 
-  s.setRewards.boostEffectiveness=.2;
+  s.completedSets.badly=true; // x1,2 multiplicatif (page Boost)
   const avecBonus=applyIdleAdventureActionV47(
     s,{action:"boost",boostId:"boostTestBadly",targetId:cibleId},{bosses:90},1
   ).state.inventory.find(x=>x.id===cibleId).power;
