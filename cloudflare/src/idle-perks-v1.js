@@ -44,7 +44,8 @@
  *   `bonus:{}` est donc la valeur réelle, pas un renoncement.
  *
  * Volontairement exclus (système absent de SOREAL, jamais approximé) :
- * MacGuffins (56,65-71,73,88), Quêtes/Idle Questing (87,89-92,104-106,
+ * MacGuffin Daycare (56 ; 65-73 et 88 câblés le 2026-09-23, voir
+ * idle-macguffins-v1.js), Quêtes/Idle Questing (87,89-92,104-106,
  * 145-148), Wishes (108-110,155-156,159-160), Cards/Mayo/Tags/Deck (161-
  * 216,138-143,146-150 quirks), Hack Milestones (113-115,217-219 --
  * mécanique de palier non identifiée avec certitude dans le temps
@@ -154,6 +155,23 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 62, name: "Generic Magic Cap Perk II", effect: "+1% bonus multiplier to your Magic Cap per level", cost: 50, cap: 100, bonus: { magicCapPct: 0.01 } },
   { id: 63, name: "Faster NGU Energy II", effect: "Raises the Speed of Energy-based NGU's by 2% per level", cost: 100, cap: 100, bonus: { nguSpeedEnergyPct: 0.02 } },
   { id: 64, name: "Faster NGU Magic II", effect: "Raises the Speed of Magic-based NGU's by 2% per level", cost: 100, cap: 100, bonus: { nguSpeedMagicPct: 0.02 } },
+  /*
+   * MacGuffin Fragments (2026-09-23, page Perk Points, lignes 65-73 et 88) :
+   * effets lus directement par id dans idle-macguffins-v1.js (niveau de
+   * drop, slots, drops ITOPOD et leurs réductions, sorts Blood α/β) --
+   * `bonus` reste vide car aucune clé agrégée de perkBonusesV1 ne s'y
+   * rapporte. 56 ("Macguffin Daycare!") reste exclu : dépend du Daycare.
+   */
+  { id: 65, name: "Improved Macguffin Drops I", effect: "Improve the base level of all MacGuffin drops by 1!", cost: 150, cap: 1, bonus: {} },
+  { id: 66, name: "A MacGuffin Slot!", effect: "Gain an additional MacGuffin Slot!", cost: 250, cap: 1, bonus: {} },
+  { id: 67, name: "Another MacGuffin Slot!", effect: "Gain another additional MacGuffin Slot!", cost: 5000, cap: 1, bonus: {} },
+  { id: 68, name: "MacGuffin ITOPOD Drops!", effect: "This will unlock MacGuffin drops in the ITOPOD! Every 5000 kills, you'll obtain a random MacGuffin!", cost: 50, cap: 1, bonus: {} },
+  { id: 69, name: "Improved MacGuffin ITOPOD Drops I", effect: "Reduce the number of kills per MacGuffin drop in the ITOPOD by 20%!", cost: 150, cap: 1, bonus: {} },
+  { id: 70, name: "Improved MacGuffin ITOPOD Drops II", effect: "Reduce the number of kills per MacGuffin drop in the ITOPOD by another 25%!", cost: 500, cap: 1, bonus: {} },
+  { id: 71, name: "Improved MacGuffin ITOPOD Drops III", effect: "Reduce the number of kills per MacGuffin drop in the ITOPOD by another 25%!", cost: 2500, cap: 1, bonus: {} },
+  { id: 72, name: "Blood Macguffin α Spell!", effect: "Unlocks the Blood Macguffin α Spell, which can raise the level of a random equipped Macguffin!", cost: 100, cap: 1, bonus: {} },
+  { id: 73, name: "Blood Macguffin β Spell!", effect: "Unlocks the Blood Macguffin β Spell, which can raise the level of ALL equipped Macguffins!", cost: 5000, cap: 1, bonus: {} },
+  { id: 88, name: "Another MacGuffin Slot!", effect: "Gain an additional MacGuffin Slot! What were you expecting, a yacht?", cost: 40000, cap: 1, bonus: {} },
   { id: 74, name: "Generic Energy Power Perk III", effect: "+0.3% bonus multiplier to your Energy Power per level", cost: 250, cap: 100, bonus: { energyPowerPct: 0.003 } },
   { id: 75, name: "Generic Energy Bar Perk III", effect: "+0.3% bonus multiplier to your Energy Bars per level", cost: 250, cap: 100, bonus: { energyBarsPct: 0.003 } },
   { id: 76, name: "Generic Energy Cap Perk III", effect: "+0.3% bonus multiplier to your Energy Cap per level", cost: 250, cap: 100, bonus: { energyCapPct: 0.003 } },

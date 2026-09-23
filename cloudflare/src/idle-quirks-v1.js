@@ -37,7 +37,7 @@
  * calculé mais jamais branché ailleurs dans ce fichier -- gap préexistant
  * hors périmètre de cette passe, jamais approximé) : NGU Evil/Sadistic
  * (les NGU réels existent depuis 2026-09-23 : quirks 14, 89, 93-98 ajoutés),
- * Accessory/MacGuffin/Daycare Slot (18-19,50), Hack Milestones
+ * Daycare Slot (MacGuffin Slot 19/50 : câblés le 2026-09-23), Hack Milestones
  * (57-60,174-175), Wishes (54,56), Automerge Slot (55), Cards/Mayo/Tags/
  * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
  * 185 -- pas de 3e ressource entraînable), Quêtes/Idle Questing (71),
@@ -56,8 +56,8 @@
  *
  * Some quirks (10: Beast's Special Beard Tonic — a leveling-SPEED bonus for
  * Beards, not a magnitude bonus; 13: Beast's Fertilizer — a flat seconds
- * reduction to Yggdrasil fruit growth time; 19: MacGuffin Slot! — a slot
- * count SOREAL IDLE's MacGuffins system has no concept of yet) have no
+ * reduction to Yggdrasil fruit growth time; 19/50: MacGuffin Slot! — since
+ * 2026-09-23 read by id in idle-macguffins-v1.js, no aggregated key) have no
  * `bonus` entry — there is no existing mechanical hook in SOREAL IDLE to
  * wire their real effect into. They are still real, purchasable,
  * correctly-costed catalog entries; only their mechanical payoff is
@@ -116,6 +116,8 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 47, name: "Generic Resource 3 Power Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Resource 3 Power!", cost: 300, cap: 50, bonus: { r3PowerPct: 0.01 } },
   { id: 48, name: "Generic Resource 3 Cap Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Resource 3 Cap!", cost: 300, cap: 50, bonus: { r3CapPct: 0.01 } },
   { id: 49, name: "Generic Resource 3 Bars Quirk I", effect: "Each level in this Quirk adds a 1% boost to your Resource 3 Bars!", cost: 300, cap: 50, bonus: { r3BarsPct: 0.01 } },
+  /* 2026-09-23 (page Quirk Points, ligne 50) : slot MacGuffin lu par id dans idle-macguffins-v1.js, comme le 19. */
+  { id: 50, name: "Another MacGuffin Slot!", effect: "With this quirk you'll get... *checks notes* ... another MacGuffin Slot! Not surprising at this point, TBH.", cost: 20000, cap: 1, bonus: {} },
   { id: 51, name: "Stat Boost For Rich Quirks II", effect: "Improve your Attack/Defense by 2% per level!", cost: 125, cap: 1000, bonus: { statPct: 0.02 } },
   { id: 52, name: "Adventure Boost For Rich Quirks II", effect: "Improve your Adventure stats by 0.1% per level!", cost: 125, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
   { id: 53, name: "Beasted Boosts II", effect: "Gain 2% better boosts per level of this quirk!", cost: 200, cap: 60, bonus: { boostPowerPct: 0.02 } },
