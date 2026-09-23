@@ -3658,9 +3658,14 @@ function beardBonusMultiplier(state, role) {
   return Math.max(1, (1 + tb) * (1 + pb));
 }
 
-function beardRebirthTimeFactor(seconds) {
+/*
+ * Page Beards of Power : facteur de temps = +1/3 par heure entière jusqu'à 8 (24 h) ; chaque niveau du
+ * perk « Five O'Clock Shadow » atteint le maximum 1 h plus tôt (minimum 12 h) -> pente 8 / (24 - niveau).
+ */
+function beardRebirthTimeFactor(seconds, shadowLevel = 0) {
   const wholeHours = Math.floor(Math.max(0, num(seconds, 0)) / 3600);
-  return clamp(wholeHours / 3, 0, 8);
+  const hoursToMax = 24 - clamp(int(shadowLevel, 0), 0, 12);
+  return clamp(wholeHours * (8 / hoursToMax), 0, 8);
 }
 
 function convertActiveBeardOnRebirth(state, runSeconds) {
@@ -3669,7 +3674,7 @@ function convertActiveBeardOnRebirth(state, runSeconds) {
   const id = s.active ? (s.data.activeTrack || "") : "";
   const def = (IDLE_NGU_TRACKS.beards || []).find(x => x.id === id);
   const t = id ? s.data.tracks[id] : null;
-  const timeFactor = beardRebirthTimeFactor(runSeconds);
+  const timeFactor = beardRebirthTimeFactor(runSeconds, perkBonusesV1(state.systems.perks?.data?.levels).beardTrimSpeedLevel);
   let gained = 0;
   if (t && beardTrackUnlocked(state, def)) {
     const temp = Math.max(0, num(t.tempLevel, 0));

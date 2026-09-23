@@ -1193,3 +1193,7 @@ Source : page Experience (Spend Experience). Achats manquants (aucun n'existait,
 ## 2026-09-23 — Souhaits à effet non branché
 
 Wishes dont le bonus était déclaré vide alors que le système existe : 20 (temps minimum de Rebirth -10 s/niveau, 180 s -> 120 s), 46 (respawn -1 %/niveau, déjà ajouté au calcul de respawn), 61 (+0,5 % d'EXP global/niveau), 76/77/78 (paliers des Hacks QP / Number / Hack Hack -1 niveau/palier/niveau), 79 (+50 PPP de base par niveau dans l'ITOPOD), 107/108 (+0,001 au multiplicateur de boss Sadistic par niveau), 109 (slot d'accessoire), 111-114 (+2 % de vitesse NGU Energy/Magic par niveau). Restent sans effet (systèmes absents) : MacGuffins, Daycare, Quêtes, Cards, Mayo, double arme, nouveaux mouvements, Advanced Training auto, Cube boosting, paliers 12-16 du Money Pit.
+
+## 2026-09-23 — Five O'Clock Shadow (Beards)
+
+Le perk « Five O'Clock Shadow » (21) était calculé (`beardTrimSpeedLevel`) mais jamais lu : le facteur de temps de conversion des Beards (+1/3 par heure, 8 après 24 h) atteint maintenant son maximum 1 h plus tôt par niveau (minimum 12 h). Test `idle-beard-shadow-perk`.
