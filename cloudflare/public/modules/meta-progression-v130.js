@@ -1390,6 +1390,101 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
       /*
+       * Wishes (2026-09-23) : jusqu'à 4 slots, chacun avec son souhait et sa propre allocation
+       * Energy/Magic/R3. Toutes les valeurs (slots débloqués, durées, plafonds) viennent du
+       * snapshot serveur j.systemes.wishSlots ; les boutons 0/25/50/100 % visent la part libre
+       * du cap (le serveur plafonne de toute façon à ce que le joueur possède).
+       */
+      function pageWishesIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const titre=H.entetePageIdleV28_('🌠 Wishes','Chaque slot travaille sur son propre souhait avec sa propre allocation d\'Énergie, de Magie et de Ressource 3. Répartir ses ressources sur plusieurs souhaits est très efficace : doubler une ressource n\'accélère un souhait que d\'environ 12,5 %.');
+        const sys=systemeMetaParIdIdleV130_(j,'wishes');
+        const snap=(j&&j.systemes)||{};
+        const ws=snap.wishSlots||null;
+        if(!sys||!sys.state||!sys.state.unlocked||!ws){
+          return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Débloqué par A Severed Unicorn\'s Head (butin garanti de The Godmother).</div>';
+        }
+        const pistes=Array.isArray(sys.tracks)?sys.tracks:[];
+        const systemes=Array.isArray(snap.systems)?snap.systems:[];
+        const slots=Array.isArray(ws.slots)?ws.slots:[];
+        const ressources=['energy','magic','r3'];
+        function capDe(r){
+          return Math.max(0,H.idleNombre_(snap.resources&&snap.resources[r]&&snap.resources[r].cap||0));
+        }
+        function alloueAilleurs(r,indexSlot){
+          let total=0;
+          systemes.forEach(function(x){
+            if(!x||x.id==='wishes')return;
+            total+=Math.max(0,H.idleNombre_(x.state&&x.state.allocation&&x.state.allocation[r]||0));
+          });
+          slots.forEach(function(sl){
+            if(sl.index!==indexSlot)total+=Math.max(0,H.idleNombre_(sl.allocation&&sl.allocation[r]));
+          });
+          return total;
+        }
+        const occupes={};
+        slots.forEach(function(sl){if(sl.unlocked&&sl.wish)occupes[sl.wish]=sl.index;});
+        const src=ws.sources||{};
+        const coche=function(v){return v?'✔':'✗';};
+        const resume=
+          '<div class="soreal-idle-summary-grid-v28">'+
+            '<div class="soreal-idle-summary-v28">Slots débloqués<b>'+H.idleEntier_(ws.slotCount)+' / '+H.idleEntier_(ws.maxSlots)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Temps minimum par niveau<b>'+dureeLongueNguIdleV1_(ws.minSecondsPerLevel)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Vitesse des souhaits<b>x'+H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(ws.speedMultiplier)),2)+'</b></div>'+
+          '</div>'+
+          '<div class="soreal-idle-note-v4" style="margin:8px 0 12px">Sources des slots : base ✔ · Troll Challenge Evil (7e complétion) '+coche(src.trollEvil)+' · My Pink Heart niveau 100 '+coche(src.pinkHeart)+' · Quirk « A Wish Slot! » '+coche(src.quirk)+'</div>';
+        function carte(sl){
+          const numero=sl.index+1;
+          if(!sl.unlocked){
+            return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><b>🔒 Slot '+numero+'</b><div style="font-size:12px;color:#aeb5c8;margin-top:4px">Slot verrouillé. Sources : Troll Challenge Evil (7e complétion), My Pink Heart au niveau 100, Quirk « A Wish Slot! ».</div></div>';
+          }
+          const options=['<option value=""'+(sl.wish?'':' selected')+'>— Aucun souhait —</option>'].concat(pistes.filter(function(p){
+            const st=p.state||{};
+            const fini=H.idleNombre_(st.level)>=H.idleNombre_(p.levels);
+            const ailleurs=occupes[p.id]!==undefined&&occupes[p.id]!==sl.index;
+            return p.id===sl.wish||(!fini&&!ailleurs);
+          }).map(function(p){
+            const st=p.state||{};
+            return '<option value="'+H.idleHtml_(p.id)+'"'+(p.id===sl.wish?' selected':'')+'>#'+H.idleHtml_(p.id)+' · '+H.idleHtml_(p.name)+' ('+H.idleEntier_(st.level)+'/'+H.idleEntier_(p.levels)+')</option>';
+          })).join('');
+          const choix='<select style="width:100%;margin-top:6px" onchange="window.__actionMetaIdleV130__({action:\'setWishSlot\',slot:'+sl.index+',wish:this.value})">'+options+'</select>';
+          const pct=Math.max(0,Math.min(100,H.idleNombre_(sl.progress)*100));
+          const etat=!sl.wish
+            ?'Aucun souhait dans ce slot.'
+            :sl.done
+              ?'✔ Souhait terminé : choisis-en un autre.'
+              :(sl.secondsRemaining!==null&&sl.secondsRemaining!==undefined
+                ?'Niveau suivant dans ≈ '+dureeLongueNguIdleV1_(sl.secondsRemaining)+' (niveau complet : '+dureeLongueNguIdleV1_(sl.secondsPerLevel)+')'
+                :'Alloue de l\'Énergie, de la Magie ET de la Ressource 3 pour progresser.');
+          const allocations=ressources.map(function(r){
+            const verrou=(r==='magic'&&!ws.magicUnlocked)||(r==='r3'&&!ws.r3Unlocked);
+            const dispo=Math.max(0,capDe(r)-alloueAilleurs(r,sl.index));
+            const valeurs=[0,Math.floor(dispo*.25),Math.floor(dispo*.5),Math.floor(dispo)];
+            const boutons=valeurs.map(function(v,i){
+              return '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou?'disabled':'onclick="window.__actionMetaIdleV130__({action:\'allocateWishSlot\',slot:'+sl.index+',resource:\''+r+'\',value:'+v+'})"')+'>'+['0%','25%','50%','100%'][i]+'</button>';
+            }).join('');
+            return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px"><span>'+libelleRessourceMetaIdleV130_(r)+(verrou?' 🔒':'')+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
+              '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">'+boutons+'</div></div>';
+          }).join('');
+          return '<div class="soreal-idle-section-v8" style="margin:0">'+
+            '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Slot '+numero+(sl.wish?' · '+H.idleHtml_(sl.name):'')+'</b>'+(sl.wish?'<span>Niv. '+H.idleEntier_(sl.level)+' / '+H.idleEntier_(sl.maxLevel)+'</span>':'')+'</div>'+
+            (sl.wish?'<div style="font-size:12px;color:#aeb5c8;margin-top:4px">'+H.idleHtml_(sl.effect)+'</div>':'')+
+            choix+
+            '<div class="soreal-idle-bt-track-v120" style="margin-top:8px"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;background:#c084fc;transition:none"></div></div>'+
+            '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">'+etat+'</div>'+
+            allocations+
+          '</div>';
+        }
+        const liste=pistes.map(function(p){
+          const st=p.state||{};
+          return '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>#'+H.idleHtml_(p.id)+' · '+H.idleHtml_(p.name)+'</b> · Niv. '+H.idleEntier_(st.level)+' / '+H.idleEntier_(p.levels)+(p.active?' · ▶️ en cours':'')+'<br><span style="color:#aeb5c8">'+H.idleHtml_(p.effect||'')+'</span></div>';
+        }).join('');
+        return titre+resume+
+          '<div style="display:grid;gap:10px">'+slots.map(carte).join('')+'</div>'+
+          '<details class="soreal-idle-section-v8" style="margin-top:12px"><summary><b>Tous les souhaits ('+pistes.length+')</b></summary>'+liste+'</details>';
+      }
+
+      /*
        * Item Daycare (garderie du Daycare Kitty) : placer / reprendre des objets de l'inventaire,
        * progression, ETA et détail des bonus. Toutes les valeurs viennent du snapshot serveur
        * (j.systemes.daycare, calculé par idle-daycare-v1.js), jamais recalculées ici.
@@ -1545,6 +1640,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='augmentations')return pageAugmentationsIdleV48_(j);
         if(id==='daycare')return pageDaycareIdleV1_(j);
         if(id==='ngu')return pageNguIdleV1_(j);
+        if(id==='wishes')return pageWishesIdleV1_(j);
         if(id==='timeMachine')return pageTimeMachineIdleV48_(j);
         if(id==='bloodMagic')return pageBloodMagicIdleV48_(j);
         if(id==='yggdrasil')return pageYggdrasilIdleV47_(j);
