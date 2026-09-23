@@ -44,9 +44,12 @@ assert.deepEqual(statsAt100("edgy:weapon"), { power: 11200000, toughness: 600000
 assert.deepEqual(statsAt100("edgy:head"), { power: 80000, toughness: 1004000 });
 assert.deepEqual(statsAt100("edgy:chest"), { power: 60000, toughness: 1080000 });
 assert.deepEqual(statsAt100("edgy:legs"), { power: 60000, toughness: 1110000 });
-assert.deepEqual(statsAt100("edgy:boots"), { power: 120000, toughness: 1080000 });
+assert.deepEqual(statsAt100("bothedgy:boots"), { power: 120000, toughness: 1080000 });
+assert.deepEqual(statsAt100("edgyboots:left"), { power: 40000, toughness: 1032000 });
+assert.deepEqual(statsAt100("edgyboots:right"), { power: 60000, toughness: 1032000 });
+assert.deepEqual(sumSet(["edgyboots:left", "edgyboots:right"]), { power: 100000, toughness: 2064000 }, "Edgy Boots (set) : 100 000 / 2 064 000 (wiki)");
 assert.deepEqual(statsAt100("edgy:amulet"), { power: 300000, toughness: 300000 });
-assert.deepEqual(sumSet(["edgy:weapon", "edgy:head", "edgy:chest", "edgy:legs", "edgy:boots", "edgy:amulet"]), { power: 11820000, toughness: 5174000 });
+assert.deepEqual(sumSet(["edgy:weapon", "edgy:head", "edgy:chest", "edgy:legs", "edgy:amulet"]), { power: 11700000, toughness: 4094000 }, "Edgy (set) : 5 pièces, 11 700 000 / 4 094 000 (wiki)");
 
 // --- Pretty Pink Princess Set ---
 assert.deepEqual(statsAt100("pinkprincess:weapon"), { power: 15200000, toughness: 880000 });

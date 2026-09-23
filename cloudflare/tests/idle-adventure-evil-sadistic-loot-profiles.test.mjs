@@ -25,9 +25,15 @@ for (const z of zonesDifficiles) {
   assert.ok(p, `${z.id} : profil de butin manquant (retomberait sur le repli inventé)`);
   assert.equal(p.normal.boosts.length, 2, `${z.id} : deux lignes Boost sur la page wiki`);
   assert.equal(p.normal.equipment.length, 1);
-  assert.equal(p.boss.equipment.length, 1);
+  // Evilverse : le boss a en plus le drop conditionnel "BOTH Edgy Boots" (Edgy Boots (set) complet)
+  assert.equal(p.boss.equipment.length, z.id === "evilverse" ? 2 : 1);
   for (const pool of [p.normal.equipment[0], p.boss.equipment[0]]) {
-    assert.equal(pool.set, z.set, `${z.id} : le set du profil doit être celui de la zone`);
+    if (z.id === "evilverse") {
+      assert.equal(pool.definitions.length, 7, "Edgy (set) 5 pièces + Left/Right Edgy Boot");
+      assert.ok(pool.definitions.every((d) => /^(edgy|edgyboots):/.test(d)));
+    } else {
+      assert.equal(pool.set, z.set, `${z.id} : le set du profil doit être celui de la zone`);
+    }
     assert.equal(pool.level, 1, `${z.id} : niveau de drop 1 sur la page wiki`);
     assert.ok(pool.chance > 0 && pool.cap > pool.chance);
   }
@@ -39,8 +45,11 @@ assert.deepEqual(
   evilverse.normal.boosts,
   [{ strength: 200, chance: 0.00012, cap: 0.1 }, { strength: 500, chance: 0.00012, cap: 0.1 }]
 );
-assert.deepEqual(evilverse.normal.equipment[0], { chance: 0.00007, cap: 0.08, set: "edgy", level: 1 });
-assert.deepEqual(evilverse.boss.equipment[0], { chance: 0.00021, cap: 0.12, set: "edgy", level: 1 });
+assert.equal(evilverse.normal.equipment[0].chance, 0.00007);
+assert.equal(evilverse.normal.equipment[0].cap, 0.08);
+assert.equal(evilverse.boss.equipment[0].chance, 0.00021);
+assert.equal(evilverse.boss.equipment[0].cap, 0.12);
+assert.deepEqual(evilverse.boss.equipment[1], { chance: 0.000018, cap: 0.12, definitions: ["bothedgy:boots"], level: 1, requiresCompletedSet: "edgyboots" }, "BOTH Edgy Boots : 0,0018 % de base, plafond 12 %, seulement si Edgy Boots (set) complet");
 assert.deepEqual(
   IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2.radlands.boss.equipment[0],
   { chance: 6e-7, cap: 0.15, set: "rad", level: 1 }
@@ -82,7 +91,8 @@ function tuerBoss(zoneId, aleatoire) {
 {
   const r = tuerBoss("evilverse", 0);
   assert.equal(r.boss, true);
-  assert.ok(r.drops.some((d) => String(d.set || "") === "edgy"), "le set Edgy doit tomber (tirage forcé)");
+  assert.ok(r.drops.some((d) => ["edgy", "edgyboots"].includes(String(d.set || ""))), "une pièce Edgy doit tomber (tirage forcé)");
+  assert.ok(!r.drops.some((d) => d.definitionId === "bothedgy:boots"), "BOTH Edgy Boots ne tombe pas sans Edgy Boots (set) complet");
   assert.equal(r.experience, 30, "Exp 30 sur la page wiki");
   assert.ok(r.gold >= 2400000000 && r.gold <= 3000000000 * 1.0001, "or de boss : 2,4 à 3 milliards");
 }

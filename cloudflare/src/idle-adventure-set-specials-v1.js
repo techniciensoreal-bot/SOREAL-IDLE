@@ -8,9 +8,8 @@
  * sets, la somme des maxima par type est EXACTEMENT le "Total Specials Max"
  * de la page du set (les 2 autres : Stealth, dont les types "2nd Energy X"
  * sont les mêmes que "Energy X" -- somme identique une fois fusionnés -- et
- * Edgy, dont la pièce "boots" est mappée sur l'objet à débloquer
- * "BOTH Edgy Boots" au lieu des bottes du set "Edgy Boots (set)"). Cette
- * dernière pièce n'a donc volontairement AUCUN special ici.
+ * Edgy : sa pièce "boots" était mappée sur l'objet à débloquer "BOTH Edgy Boots" ; le set a
+ * été restructuré le 2026-09-23 (Edgy = 5 pièces, "Edgy Boots (set)" = Left/Right, BOTH à part).
  *
  * Format : "set:slot": [ [type, base, maxNiveau0, maxNiveau100], ... ], le
  * premier Special étant celui que porte le scalaire `special` de l'objet
@@ -241,5 +240,8 @@ export const SET_ITEM_SPECIALS_V1 = Object.freeze({
   "pirate:boots":[["energyBarsPct",1820000,1820000,3640000],["magicBarsPct",1820000,1820000,3640000],["r3CapPct",177,177,354],["r3PowerPct",1810,1810,3620]],
   "pirate:cutlass":[["energyCapPct",179000,179000,358000],["energyPowerPct",1820000,1820000,3640000],["magicCapPct",179000,179000,358000],["magicPowerPct",1820000,1820000,3640000],["wishSpeedPct",183,183,366]],
   "pirate:eyepatch":[["nguSpeedPct",13000,13000,26000],["r3BarsPct",1820,1820,3640],["r3PowerPct",1820,1820,3640]],
-  "pirate:compass":[["r3PowerPct",1820,1820,3640],["respawnReductionPct",1,1,2],["wishSpeedPct",182,182,364]]
+  "pirate:compass":[["r3PowerPct",1820,1820,3640],["respawnReductionPct",1,1,2],["wishSpeedPct",182,182,364]],
+  "edgyboots:left":[["energyBarsPct",4800,4800,9600],["energyCapPct",480,480,960],["energyPowerPct",4800,4800,9600]],
+  "edgyboots:right":[["magicBarsPct",4800,4800,9600],["magicCapPct",480,480,960],["magicPowerPct",4800,4800,9600]],
+  "bothedgy:boots":[["energyBarsPct",4200,4200,8400],["energyCapPct",420,420,840],["energyPowerPct",4200,4200,8400],["magicBarsPct",4200,4200,8400],["magicCapPct",420,420,840],["magicPowerPct",4200,4200,8400]],
 });

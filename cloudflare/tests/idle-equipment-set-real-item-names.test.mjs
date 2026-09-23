@@ -44,8 +44,9 @@ const SAMPLES = {
   "wanderer:head": "Wanderer's Hat",
   "rerednaw:head": "taH s'rerednaW",
   "slimy:weapon": "The Fists of Flubber",
-  // edgy : boots = fusion Left+Right ("BOTH Edgy Boots")
-  "edgy:boots": "BOTH Edgy Boots",
+  // edgy : 5 pièces ; les bottes forment "Edgy Boots (set)" (Left/Right), BOTH à part
+  "edgyboots:left": "Left Edgy Boot",
+  "bothedgy:boots": "BOTH Edgy Boots",
   "edgy:weapon": "Edgy Jaw Axe",
   // pinkprincess : slot confirmé via catégorie objet (pas la position de page)
   "pinkprincess:weapon": "Giant Sticky Foot",

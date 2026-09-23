@@ -632,7 +632,16 @@ slimy:{name:"Slimy Set",source:"t6",slots:["head","chest","legs","boots","weapon
  * Total p/t = somme des 6 pièces (Helmet+Chest+Pants+Jaw Axe+BOTH Boots+
  * Amulet) = 11 820 000 / 5 174 000.
  */
-edgy:{name:"Edgy Set",source:"evilverse",slots:["head","chest","legs","boots","weapon","amulet"],p:11820000,t:5174000,reward:{experience:250000}},
+/*
+ * 2026-09-23 (audit, wiki "Edgy (set)" / "Edgy Boots (set)") : "Edgy (set)" = Helmet, Chest,
+ * Pants, Jaw Axe, A Cheap Plastic Amulet (5 pièces, 11 700 000 / 4 094 000). Les bottes forment
+ * un set À PART, "Edgy Boots (set)" (Left + Right Edgy Boot, 100 000 / 2 064 000), dont la
+ * complétion débloque le drop spécial "BOTH Edgy Boots" (0,0018 % de base, plafond 12 %, boss
+ * de l'Evilverse). Auparavant "boots" était directement BOTH Edgy Boots.
+ */
+edgy:{name:"Edgy Set",source:"evilverse",slots:["head","chest","legs","weapon","amulet"],p:11700000,t:4094000,reward:{experience:250000}},
+edgyboots:{name:"Edgy Boots Set",source:"evilverse",slots:["left","right"],p:100000,t:2064000,reward:{}},
+bothedgy:{name:"BOTH Edgy Boots",source:"evilverse",slots:["boots"],p:120000,t:1080000,reward:{}},
 /*
  * Pretty Pink Princess Land (2026-09-18, même passe Evil/Sadistic). Wiki
  * NGU en direct, page "Pretty Pink Princess (set)" : 6 pièces (Clown Hat/
@@ -907,7 +916,7 @@ const SET_ITEM_STATS_V1=Object.freeze({
   "uug:ringGreed":{p:0,t:0},"uug:ringMight":{p:13332,t:13332},"uug:ringUtility":{p:2000,t:2000},"uug:ringEnergy":{p:2000,t:2000},"uug:ringMagic":{p:2000,t:2000},
   "wanderer:head":{p:2000,t:44000},"wanderer:chest":{p:2000,t:46000},"wanderer:legs":{p:2000,t:46000},"wanderer:boots":{p:2000,t:48000},
   "rerednaw:head":{p:2000,t:42000},"rerednaw:chest":{p:2000,t:44000},"rerednaw:legs":{p:2000,t:46000},"rerednaw:boots":{p:2000,t:48000},
-  "edgy:weapon":{p:11200000,t:600000},"edgy:head":{p:80000,t:1004000},"edgy:chest":{p:60000,t:1080000},"edgy:legs":{p:60000,t:1110000},"edgy:boots":{p:120000,t:1080000},"edgy:amulet":{p:300000,t:300000},
+  "edgy:weapon":{p:11200000,t:600000},"edgy:head":{p:80000,t:1004000},"edgy:chest":{p:60000,t:1080000},"edgy:legs":{p:60000,t:1110000},"edgyboots:left":{p:40000,t:1032000},"edgyboots:right":{p:60000,t:1032000},"bothedgy:boots":{p:120000,t:1080000},"edgy:amulet":{p:300000,t:300000},
   "pinkprincess:weapon":{p:15200000,t:880000},"pinkprincess:head":{p:120000,t:1484000},"pinkprincess:chest":{p:120000,t:1480000},"pinkprincess:legs":{p:100000,t:1510000},"pinkprincess:boots":{p:60000,t:1460000},"pinkprincess:amulet":{p:800000,t:800000},
   "meta:weapon":{p:50000000,t:2400000},"meta:head":{p:300000,t:4400000},"meta:chest":{p:300000,t:4400000},"meta:legs":{p:300000,t:4400000},"meta:boots":{p:300000,t:4400000},"meta:charmInfinity":{p:1777776,t:1777776},"meta:charm69":{p:1393938,t:1393938},
   "party:weapon":{p:100000000,t:4000000},"party:head":{p:500000,t:9000000},"party:chest":{p:500000,t:9000000},"party:legs":{p:500000,t:9000000},"party:boots":{p:500000,t:9000000},"party:cup":{p:3000000,t:2000000},"party:whistle":{p:4000000,t:4000000},
@@ -1299,7 +1308,9 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "edgy:head":213,
   "edgy:chest":214,
   "edgy:legs":215,
-  "edgy:boots":220,
+  "edgyboots:left":216,
+  "edgyboots:right":219,
+  "bothedgy:boots":220,
   "edgy:weapon":217,
   "edgy:amulet":218,
   "pinkprincess:head":231,
@@ -1642,7 +1653,7 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   "slimy:weapon":"The Fists of Flubber","slimy:head":"Slimy Helmet","slimy:chest":"Slimy Chest","slimy:legs":"Slimy Pants","slimy:boots":"Slimy Boots",
 
   // Edgy (set) (Evilverse) -- ngu-idle.fandom.com/wiki/Edgy_(set) -- boots="BOTH Edgy Boots" (fusion Left+Right, cf. commentaire SETS.edgy)
-  "edgy:head":"Edgy Helmet","edgy:chest":"Edgy Chest","edgy:legs":"Edgy Pants","edgy:boots":"BOTH Edgy Boots","edgy:weapon":"Edgy Jaw Axe","edgy:amulet":"A Cheap Plastic Amulet",
+  "edgy:head":"Edgy Helmet","edgy:chest":"Edgy Chest","edgy:legs":"Edgy Pants","edgyboots:left":"Left Edgy Boot","edgyboots:right":"Right Edgy Boot","bothedgy:boots":"BOTH Edgy Boots","edgy:weapon":"Edgy Jaw Axe","edgy:amulet":"A Cheap Plastic Amulet",
 
   // Pretty Pink Princess (set) -- ngu-idle.fandom.com/wiki/Pretty_Pink_Princess_(set) -- slot confirmé via catégorie objet (Giant Sticky Foot=Weapon, A Pretty Pink Bow=Accessory)
   "pinkprincess:head":"Clown Hat","pinkprincess:chest":"Fabulous Super Chest","pinkprincess:legs":"A Crappy Tutu","pinkprincess:boots":"Pretty Pink Slippers","pinkprincess:weapon":"Giant Sticky Foot","pinkprincess:amulet":"A Pretty Pink Bow",
@@ -1867,7 +1878,22 @@ if(d?.kind==="set"){
   if(realName)z.name=realName;
 }
 return z}
-export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=Object.assign(base(),X(raw));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
+/* Migration 2026-09-23 : l'ancienne pièce "edgy:boots" (BOTH Edgy Boots) devient "bothedgy:boots". */
+function migrerEdgyBootsV1(s){
+  const ancien="edgy:boots",nouveau="bothedgy:boots";
+  const renommer=o=>{if(o&&typeof o==="object"&&o.definitionId===ancien){o.definitionId=nouveau;if("set"in o)o.set="bothedgy";if(o.slot==="boots")o.slot="boots"}return o};
+  if(Array.isArray(s.inventory))s.inventory.forEach(renommer);
+  if(s.trash)renommer(s.trash);
+  for(const cle of ["itemList","coffre"]){
+    if(s[cle]&&typeof s[cle]==="object"&&Object.prototype.hasOwnProperty.call(s[cle],ancien)){
+      s[cle][nouveau]=s[cle][ancien];
+      delete s[cle][ancien];
+      if(s[cle][nouveau]&&typeof s[cle][nouveau]==="object")renommer(s[cle][nouveau]);
+    }
+  }
+  return s;
+}
+export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
 /*
  * Audit 2026-09-13 (Norman) : "on doit ranger nous-même dans la case
  * appropriée [du coffre]." Le coffre passe d'un tableau libre à un objet
@@ -2982,10 +3008,13 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
   evilverse:{
     normal:{
       boosts:[{strength:200,chance:0.00012,cap:0.1},{strength:500,chance:0.00012,cap:0.1}],
-      equipment:[{chance:0.00007,cap:0.08,set:"edgy",level:1}]
+      equipment:[{chance:0.00007,cap:0.08,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1}]
     },
     boss:{
-      equipment:[{chance:0.00021,cap:0.12,set:"edgy",level:1}]
+      equipment:[
+        {chance:0.00021,cap:0.12,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1},
+        {chance:0.000018,cap:0.12,definitions:["bothedgy:boots"],level:1,requiresCompletedSet:"edgyboots"}
+      ]
     }
   },
   pinkprincess:{
@@ -3167,6 +3196,7 @@ function definitionsEquipmentPoolAdventureV2(pool){
 function rollEquipmentAdventureV2(s,z,pool,dropMult){
   const defs=definitionsEquipmentPoolAdventureV2(pool);
   if(!defs.length)return null;
+  if(pool.requiresCompletedSet&&!s.completedSets[String(pool.requiresCompletedSet)])return null;
   const firstId=String(pool.firstGuaranteed||"");
   const guaranteed=Boolean(firstId&&!s.itemList[firstId]?.seen);
   if(!guaranteed&&Math.random()>=idleAdventureDropChanceV2(pool.chance,pool.cap,dropMult,z))return null;
