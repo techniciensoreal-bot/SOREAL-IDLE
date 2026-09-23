@@ -1406,6 +1406,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='challenges')return pageChallengesIdleV1_(j);
 
         if(id==='moneyPit')return pageMoneyPitDailySpinIdleV206_(j);
+        /* Cooking : page rendue par modules/cooking-v1.js. */
+        if(id==='cooking'&&window.__SOREAL_IDLE_COOKING_V1__)return window.__SOREAL_IDLE_COOKING_V1__.page(j);
 
         const s=
           systemeMetaParIdIdleV130_(
