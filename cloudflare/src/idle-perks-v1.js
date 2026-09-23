@@ -168,6 +168,20 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 81, name: "Faster NGU Magic III", effect: "Raises the Speed of Magic-based NGU's by 0.3% per level", cost: 250, cap: 100, bonus: { nguSpeedMagicPct: 0.003 } },
   { id: 82, name: "Stat Boost for Rich Perks III", effect: "+1% to Attack/Defence per level", cost: 1000, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 83, name: "Adventure Boost For Rich Perks II", effect: "+0.1% to Adventure stats per level", cost: 1000, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
+  /*
+   * Questing (2026-09-23, système construit dans idle-questing-v1.js -- lève l'exclusion
+   * "Quêtes/Idle Questing" de l'en-tête pour 87, 89-92, 104-106, 145-148). Coût/plafond/texte :
+   * page "Perk Points". Clés `quest*` relues par idleQuestBonusTotalsV1 ; "Better QP Rewards!"
+   * rejoint qpEarningsPct, le même compartiment "QP rewards" que Fibonacci 233.
+   */
+  { id: 87, name: "Not So Minor Anymore", effect: "The base Minor Quest reward modifier is increased by 2 with this perk! Normally this value is 10.", cost: 30000, cap: 1, bonus: { questMinorBaseQp: 2 } },
+  { id: 89, name: "Better QP Rewards!", effect: "Each level in this Perk will improve QP reward by 0.2%!", cost: 400, cap: 50, bonus: { qpEarningsPct: 0.002 } },
+  { id: 90, name: "Improved Quest Looting", effect: "Each level in this Perk will improve the drop chance for Quest Items by 0.5%", cost: 200, cap: 30, bonus: { questDropsPct: 0.5 } },
+  { id: 91, name: "Advanced Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.", cost: 25000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
+  { id: 92, name: "Even More Advanced Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by another 1! Normally, this divider is 8.", cost: 250000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
+  { id: 104, name: "Truly Idle Questing", effect: "With this Perk, Idle Quests will automatically be handed in, and a new Quest started!", cost: 200, cap: 1, bonus: { questTrulyIdle: 1 } },
+  { id: 105, name: "Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 2! Normally, this divider is 8.", cost: 100, cap: 1, bonus: { questIdleDividerReduction: 2 } },
+  { id: 106, name: "Another Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.", cost: 5000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
   { id: 107, name: "Boosted Boosts III", effect: "Additional 2% stacking bonus to the total boost power of any applied boost per level", cost: 20000, cap: 60, bonus: { boostPowerPct: 0.02 } },
   { id: 116, name: "Generic Energy Power Perk IV", effect: "+0.2% bonus multiplier to your Energy Power per level", cost: 100000, cap: 100, bonus: { energyPowerPct: 0.002 } },
   { id: 117, name: "Generic Energy Bar Perk IV", effect: "+0.2% bonus multiplier to your Energy Bars per level", cost: 100000, cap: 100, bonus: { energyBarsPct: 0.002 } },
@@ -206,6 +220,11 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
     cap: 1,
     bonus: { statPct: 10.0, adventureStatsPct: 0.15, augmentSpeedPct: 0.2, nguSpeedEnergyPct: 0.2, nguSpeedMagicPct: 0.2 }
   },
+  /* Questing (2026-09-23) : remise d'objets de quête et récompenses de base, page "Perk Points". */
+  { id: 145, name: "Bonus Quest Handin Progess I", effect: "You can now hand in higher level Quest Items for added progress. The formula is 1 + (level/10) progress, rounded down.", cost: 1500, cap: 1, bonus: { questHandinReduction: 1 } },
+  { id: 146, name: "Bonus Quest Handin Progess II", effect: "Reduce the level ratio for higher level Quest handins by 1 per level of this Perk! Originally the formula is 1 + (level/10), rounded down.", cost: 50000, cap: 2, bonus: { questHandinReduction: 1 } },
+  { id: 147, name: "Improved Major Quest QP Rewards", effect: "Each level adds + 1 to Major Quests' Base QP! Normally this is 50.", cost: 1000000, cap: 10, bonus: { questMajorBaseQp: 1 } },
+  { id: 148, name: "Improved Minor Quest QP Rewards", effect: "Each level adds + 1 to Minor Quests' Base QP! Normally this is 10.", cost: 5000000, cap: 2, bonus: { questMinorBaseQp: 1 } },
   { id: 149, name: "Stat Boost for rich Perks IV", effect: "+1% to Attack/Defence per level", cost: 10000, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 150, name: "Adventure Boost For Rich Perks III", effect: "+0.05% to Adventure stats per level", cost: 10000, cap: 1000, bonus: { adventureStatsPct: 0.0005 } },
   { id: 151, name: "Stat Boost for rich Perks V", effect: "+1% to Attack/Defence per level", cost: 100000, cap: 1000, bonus: { statPct: 0.01 } },
@@ -246,6 +265,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
       { level: 144, lootLevelChance: 0.05 },
       { level: 233, qpEarningsPct: 0.10 },
       { level: 377, statPct: 3.77 },
+      /* Questing (2026-09-23) : "No more Quest Item Quantity RNG! (Quests now require a set 50 items ...)". */
+      { level: 610, questFixedItems: 1 },
       { level: 987, expEarningsPct: 0.05 }
     ]
   },

@@ -1473,6 +1473,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='tower')return pageItopodIdleV1_(j);
         if(id==='perks')return pagePerksIdleV1_(j);
         if(id==='quirks')return pageQuirksIdleV1_(j);
+        /* Questing : page dans modules/questing-v1.js. */
+        if(id==='questing'&&window.__SOREAL_IDLE_QUESTING_V1__)return window.__SOREAL_IDLE_QUESTING_V1__.page(j);
         if(id==='challenges')return pageChallengesIdleV1_(j);
 
         if(id==='moneyPit')return pageMoneyPitDailySpinIdleV206_(j);

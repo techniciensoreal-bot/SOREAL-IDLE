@@ -48,6 +48,13 @@ import {
   applyIdleCookingActionV1,
   idleCookingSystemSnapshotV1
 } from "./idle-cooking-v1.js";
+/* Questing (2026-09-23) : moteur isolé, branché par 4 crochets marqués "Questing" dans ce fichier. */
+import {
+  advanceIdleQuestingV1,
+  applyIdleQuestingActionV1,
+  idleQuestingOnZoneKillV1,
+  idleQuestingSnapshotV1
+} from "./idle-questing-v1.js";
 import {
   IDLE_NGU_CATALOG_V1,
   IDLE_NGU_TIERS_V1,
@@ -3471,6 +3478,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceLateSystems(state, secs, context, nowMs(now));
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
   if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
+  /* Questing (crochet 1/4) : Major Quests gagnées avec le temps + barre d'idle. */
+  if (state.systems.questing?.unlocked) advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now));
 
   tickSelloutEffectsV1(state, secs);
   reconcileResourceCurrents(state,context);
@@ -4408,6 +4417,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)),
+    /* Questing (crochet 4/4) : état de quête prêt à afficher (idle-questing-v1.js). */
+    questing: state.systems.questing?.unlocked ? idleQuestingSnapshotV1(state, questingEnvV1(state, context)) : { unlocked: false },
     /*
      * Audit 2026-09-16 : le client n'avait aucun moyen de connaître le coût
      * EXP/plafond des achats Spend EXP (energy/magic/r3) — jamais exposé
@@ -5110,6 +5121,26 @@ function photoRecompensesAventure(state) {
   };
 }
 
+/*
+ * Questing : valeurs déjà calculées par ce moteur et consommées par idle-questing-v1.js --
+ * respawn réel (même formule que l'ITOPOD : 4 s réduits, plancher 0,34 s), vitesse d'Idle Attack
+ * (0,8 s avec Mysterious Red Liquid maxé, 1 s sinon), spéciaux "Quest Drops" de l'équipement,
+ * multiplicateurs QP/AP des Perks et du QP Hack.
+ */
+function questingEnvV1(state, context) {
+  const bonuses = idleNguBonuses(state);
+  const gear = idleAdventureEquipmentStatsV47(state.adventure);
+  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+  return {
+    respawnSeconds: Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1))),
+    idleAttackSeconds: state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1,
+    gearQuestDropsPct: Math.max(0, num(gear.specialsByType?.questDropsPct, 0)),
+    qpEarningsMultiplier: perks.qpEarningsMultiplier,
+    apEarningsMultiplier: perks.apEarningsMultiplier,
+    qpHackMultiplier: Math.max(0, num(hackFxV1(state).qpGain, 1))
+  };
+}
+
 function titanFight(state, context, now) {
   const s = state.systems.titans;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -5293,6 +5324,15 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      */
     crediterRecompensesAventure(state, avantRecompenses);
     result = applied.result || {};
+    /* Questing (crochet 2/4) : objet de quête possible sur un vrai kill de zone (jamais sur un rejeu idempotent). */
+    {
+      const adv = payload.adventure && typeof payload.adventure === "object" ? payload.adventure : payload;
+      const advAction = String(adv.action || adv.mode || "");
+      if (!applied.duplicate && (advAction === "zoneKill" || advAction === "resolveZoneFight") && result && result.zone && state.systems.questing?.unlocked) {
+        const questDrop = idleQuestingOnZoneKillV1(state, result.zone, questingEnvV1(state, context));
+        if (questDrop) result = Object.assign({}, result, { questDrop });
+      }
+    }
     // Consuming one of the permanent unlock items should immediately expose
     // the corresponding system without waiting for another server tick.
     for (const def of IDLE_NGU_SYSTEMS) {
@@ -5354,6 +5394,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = idleSelloutShopBuyV1(state, payload.itemId);
   } else if (action === "buyQuirk") {
     result = buyQuirkV1(state, payload.quirkId);
+  } else if (/^quest[A-Z]/.test(action)) {
+    /* Questing (crochet 3/4) : questStart/questSkip/questHandIn/questComplete/questIdle/questMerge/questPrefs. */
+    result = applyIdleQuestingActionV1(state, action, payload, questingEnvV1(state, context), t);
   } else if (action === "collect") {
     const id = String(payload.system || "");
     result = collectSystem(state, id, Object.assign({}, context, { spell: payload.spell }), t);
