@@ -1,0 +1,39 @@
+import assert from "node:assert/strict";
+import { perkBonusesV1, idlePerkByIdV1 } from "../src/idle-perks-v1.js";
+import { normalizeIdleNguState, idleNguBonuses, applyIdleNguAction } from "../src/idle-ngu-progression.js";
+
+/*
+ * 2026-09-23 (audit, page Perk Points) : perks Evil/Sadistic dont l'effet existe -- Iron Pill (84/85),
+ * respawn (93), Resource 3 (95-103, 122-124, 132-134, 141-143, 226-228), vitesse et temps
+ * minimum des Wishes (108-110, 155-160), paliers des Hacks (113-115, 217-219), Welcome to Sadistic (144).
+ */
+const b = perkBonusesV1({ 84: 5, 85: 3 });
+assert.equal(b.ironPillMultiplier, 26 * 4, "26x au niveau 5 de 84, 4x au niveau 3 de 85");
+assert.ok(Math.abs(perkBonusesV1({ 93: 100 }).respawnRemaining - 0.9) < 1e-12);
+assert.ok(Math.abs(perkBonusesV1({ 95: 100, 98: 50 }).r3PowerMultiplier - (1 + 1 + 0.5)) < 1e-12);
+assert.ok(Math.abs(perkBonusesV1({ 133: 100 }).r3BarsMultiplier - 1.5) < 1e-12);
+assert.ok(Math.abs(perkBonusesV1({ 108: 50, 155: 100 }).wishSpeedMultiplier - (1 + 0.1 + 0.1)) < 1e-12);
+assert.equal(perkBonusesV1({ 109: 50, 110: 50 }).wishMinTimeReductionSeconds, 2400);
+assert.deepEqual(perkBonusesV1({ 113: 2, 219: 3 }).hackMilestoneReduction, { adventureStats: 2, magicNguSpeed: 3 });
+assert.equal(idlePerkByIdV1(144).bonus.augmentSpeedPct, 0.2);
+assert.equal(idlePerkByIdV1(93).cost, 2500);
+assert.equal(idlePerkByIdV1(228).cap, 100);
+
+// Iron Pill : le gain est multiplié par le perk
+{
+  const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
+  s.systems.bloodMagic.unlocked = true;
+  s.currencies.blood = 10000;
+  s.systems.perks.data.levels[84] = 5;
+  const r = applyIdleNguAction(s, { action: "castBloodSpell", spell: "ironPill" }, { bosses: 100 }, 2_000_000);
+  assert.ok(Math.abs(r.state.systems.bloodMagic.data.spells.ironPill - Math.pow(10000, 0.25) * 26) < 1e-6);
+}
+
+// Respawn : facteurs multiplicatifs, plancher 0,34 s
+{
+  const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
+  s.systems.perks.data.levels[93] = 100;
+  const red = idleNguBonuses(s).respawnReduction;
+  assert.ok(Math.abs(red - 0.1) < 1e-9, "100 niveaux de SPAWN FASTER = -10 %");
+}
+console.log("idle-perks-evil-systems ok");

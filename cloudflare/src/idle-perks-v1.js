@@ -197,10 +197,10 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   {
     id: 144,
     name: "Welcome to Sadistic Difficulty",
-    effect: "Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus (Aug/NGU Speed components not yet wired — no perk-based hook exists for either in this codebase)",
+    effect: "Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus",
     cost: 500000,
     cap: 1,
-    bonus: { statPct: 10.0, adventureStatsPct: 0.15 }
+    bonus: { statPct: 10.0, adventureStatsPct: 0.15, augmentSpeedPct: 0.2, nguSpeedEnergyPct: 0.2, nguSpeedMagicPct: 0.2 }
   },
   { id: 149, name: "Stat Boost for rich Perks IV", effect: "+1% to Attack/Defence per level", cost: 10000, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 150, name: "Adventure Boost For Rich Perks III", effect: "+0.05% to Adventure stats per level", cost: 10000, cap: 1000, bonus: { adventureStatsPct: 0.0005 } },
@@ -244,7 +244,50 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
       { level: 377, statPct: 3.77 },
       { level: 987, expEarningsPct: 0.05 }
     ]
-  }
+  },
+  /*
+   * 2026-09-23 (audit, page Perk Points) : perks Evil/Sadistic dont l'effet existe dans SOREAL
+   * (Iron Pill, respawn, Resource 3, vitesse et temps minimum des Wishes, paliers des Hacks,
+   * « Welcome to Sadistic Difficulty »). Ceux des systèmes absents (MacGuffins, Cards, Mayo,
+   * Quests, Daycare) restent exclus.
+   */
+  { id: 84, name: "\"Iron Pill Also Sucks 1/5\"", effect: "Iron Pill yields +5x more stats per level of this perk, up to 26x at level 5!", cost: 500, cap: 5, bonus: { ironPillA: 5 } },
+  { id: 85, name: "\"Iron Pill Still Sucks 1/5\"", effect: "Iron Pill yields +1x more stats per level of this perk, up to 4x at level 3!", cost: 33333, cap: 3, bonus: { ironPillB: 1 } },
+  { id: 93, name: "SPAWN FASTER DAMMIT", effect: "Each level of this perk reduces normal enemy respawn times by 0.1%.", cost: 2500, cap: 100, bonus: { respawnPct: 0.001 } },
+  { id: 95, name: "Generic Resource 3 Power Perk I", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 250, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 96, name: "Generic Resource 3 Bar Perk I", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 250, cap: 100, bonus: { r3BarsPct: 0.01 } },
+  { id: 97, name: "Generic Resource 3 Cap Perk I", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 250, cap: 100, bonus: { r3CapPct: 0.01 } },
+  { id: 98, name: "Generic Resource 3 Power Perk II", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 2500, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 99, name: "Generic Resource 3 Bar Perk II", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 2500, cap: 100, bonus: { r3BarsPct: 0.01 } },
+  { id: 100, name: "Generic Resource 3 Cap Perk II", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 2500, cap: 100, bonus: { r3CapPct: 0.01 } },
+  { id: 101, name: "Generic Resource 3 Power Perk III", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 25000, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 102, name: "Generic Resource 3 Bar Perk III", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 25000, cap: 100, bonus: { r3BarsPct: 0.01 } },
+  { id: 103, name: "Generic Resource 3 Cap Perk III", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 25000, cap: 100, bonus: { r3CapPct: 0.01 } },
+  { id: 108, name: "Faster Wishes I", effect: "So you just got WIshes and hate how slow they are. Each level of this perk will grant 0.2% wish speed to help alleviate that issue.", cost: 5000, cap: 50, bonus: { wishSpeedPct: 0.002 } },
+  { id: 109, name: "Minimum Wish Time Reduction I", effect: "Got your resources pumped into Wishes so fast, the Fairies can't work any faster? This perk will whip them into shape! Each level reduces the minimum wish completion time by 24 seconds. This time is normally 4 hours.", cost: 10000, cap: 50, bonus: { wishMinTimeSeconds: 24 } },
+  { id: 110, name: "Minimum Wish Time Reduction II", effect: "With this perk,you can work wishes so efficiently that all the labour can be done by a single Australian man in record time! Reduces the minimum wish timer by an additional 24 seconds per level of this perk.", cost: 100000, cap: 50, bonus: { wishMinTimeSeconds: 24 } },
+  { id: 113, name: "Adventure Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 4000000, cap: 5, bonus: { hackReduce_adventureStats: 1 } },
+  { id: 114, name: "Blood Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 10000, cap: 5, bonus: { hackReduce_bloodGain: 1 } },
+  { id: 115, name: "Daycare Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 200000, cap: 5, bonus: { hackReduce_daycare: 1 } },
+  { id: 122, name: "Generic Resource 3 Power Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 123, name: "Generic Resource 3 Bar Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3BarsPct: 0.01 } },
+  { id: 124, name: "Generic Resource 3 Cap Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3CapPct: 0.01 } },
+  { id: 132, name: "Generic Resource 3 Power Perk V", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 500000, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 133, name: "Generic Resource 3 Bar Perk V", effect: "Each level grants +0.5% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 500000, cap: 100, bonus: { r3BarsPct: 0.005 } },
+  { id: 134, name: "Generic Resource 3 Cap Perk V", effect: "Each level grants +0.5% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 500000, cap: 100, bonus: { r3CapPct: 0.005 } },
+  { id: 141, name: "Generic Resource 3 Power Perk VI", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 2500000, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 142, name: "Generic Resource 3 Bar Perk VI", effect: "Each level grants +0.5% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 2500000, cap: 100, bonus: { r3BarsPct: 0.005 } },
+  { id: 143, name: "Generic Resource 3 Cap Perk VI", effect: "Each level grants +0.5% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 2500000, cap: 100, bonus: { r3CapPct: 0.005 } },
+  { id: 155, name: "Faster Wishes II", effect: "Each level of this perk will add +0.1% to wish speed!", cost: 50000, cap: 100, bonus: { wishSpeedPct: 0.001 } },
+  { id: 156, name: "Faster Wishes III", effect: "Each level of this perk will add +0.1% to wish speed!", cost: 200000, cap: 100, bonus: { wishSpeedPct: 0.001 } },
+  { id: 159, name: "Faster Wishes IV", effect: "Each level of this perk will add +0.1% to wish speed!", cost: 800000, cap: 100, bonus: { wishSpeedPct: 0.001 } },
+  { id: 160, name: "Faster Wishes V", effect: "Each level of this perk will add +0.1% to wish speed!", cost: 3000000, cap: 100, bonus: { wishSpeedPct: 0.001 } },
+  { id: 217, name: "Drop Chance Hack Milestone Reducer I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 3000000, cap: 4, bonus: { hackReduce_dropChance: 1 } },
+  { id: 218, name: "Augments Hack Milestone Reducer I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 5000000, cap: 2, bonus: { hackReduce_augmentSpeed: 1 } },
+  { id: 219, name: "Magic NGU Hack Milestone Reducer I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 8000000, cap: 3, bonus: { hackReduce_magicNguSpeed: 1 } },
+  { id: 226, name: "The Final Generic Resource 3 Power Perk", effect: "Eh, just go nuts with this one. Gain 1% Power per level", cost: 10000000, cap: 100, bonus: { r3PowerPct: 0.01 } },
+  { id: 227, name: "The Final Generic Resource 3 Bar Perk", effect: "Eh, just go nuts with this one. Gain 1% Bars per level", cost: 10000000, cap: 100, bonus: { r3BarsPct: 0.01 } },
+  { id: 228, name: "The Final Generic Resource 3 Cap Perk", effect: "Eh, just go nuts with this one. Gain 1% Cap per level", cost: 10000000, cap: 100, bonus: { r3CapPct: 0.01 } },
 ]);
 
 export function idlePerkByIdV1(id) {
@@ -332,6 +375,17 @@ export function perkBonusesV1(levelsById) {
     expEarningsMultiplier: 1 + (totals.expEarningsPct || 0),
     lootLevelChance: Math.min(1, totals.lootLevelChance || 0),
     beardTrimSpeedLevel: totals.beardTrimSpeedLevel || 0,
-    sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0
+    sadisticBossMultiplierBonus: totals.sadisticBossMultiplierBonus || 0,
+    /* Perks 84/85 : Iron Pill donne (1 + 5 x niv84) x (1 + niv85) fois plus de stats. */
+    ironPillMultiplier: (1 + (totals.ironPillA || 0)) * (1 + (totals.ironPillB || 0)),
+    /* Perk 93 : -0,1 % par niveau de temps de respawn (part restante, multiplicative). */
+    respawnRemaining: Math.max(0, 1 - (totals.respawnPct || 0)),
+    r3PowerMultiplier: 1 + (totals.r3PowerPct || 0),
+    r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
+    r3CapMultiplier: 1 + (totals.r3CapPct || 0),
+    wishSpeedMultiplier: 1 + (totals.wishSpeedPct || 0),
+    wishMinTimeReductionSeconds: totals.wishMinTimeSeconds || 0,
+    augmentSpeedMultiplier: 1 + (totals.augmentSpeedPct || 0),
+    hackMilestoneReduction: Object.fromEntries(Object.entries(totals).filter(([k]) => k.startsWith("hackReduce_")).map(([k, v]) => [k.slice(11), v]))
   };
 }

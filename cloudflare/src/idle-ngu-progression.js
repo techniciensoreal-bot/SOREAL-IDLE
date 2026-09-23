@@ -2155,7 +2155,7 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed);
+  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier);
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
@@ -2428,7 +2428,9 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
+  const perkWish = perkBonusesV1(state.systems.perks?.data?.levels);
+  const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds);
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -2439,7 +2441,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   while (remaining > 1e-9 && level < maxLevel && iterations < 100000) {
     iterations++;
     const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / speedMultiplier;
-    const secondsNeeded = Number.isFinite(rawSeconds) ? Math.max(WISH_MIN_LEVEL_SECONDS, rawSeconds) : Infinity;
+    const secondsNeeded = Number.isFinite(rawSeconds) ? Math.max(wishMinSeconds, rawSeconds) : Infinity;
     if (!Number.isFinite(secondsNeeded) || secondsNeeded <= 0) break;
     const remainingForLevel = (1 - progress) * secondsNeeded;
     if (remaining + 1e-12 < remainingForLevel) {
@@ -2796,7 +2798,7 @@ function castBloodSpell(state, spell, now = 0) {
   if (spell === "ironPill") {
     /* Wiki Blood Magic : Power/Toughness += Blood^0.25 (HP x3, regen x0,03), permanent -- gain ABSOLU, pas un pourcentage. */
     if (now > 0 && now < num(spells.ironPillReadyAt, 0)) throw new Error("SORT_EN_RECHARGE");
-    const gain = Math.pow(blood, 0.25);
+    const gain = Math.pow(blood, 0.25) * perkBonusesV1(state.systems.perks?.data?.levels).ironPillMultiplier;
     spells.ironPill += gain;
     if (now > 0) spells.ironPillReadyAt = now + (IRON_PILL_COOLDOWN_MS_V1[state.difficulty] || IRON_PILL_COOLDOWN_MS_V1.normal);
     state.currencies.blood = 0;
@@ -3324,10 +3326,11 @@ function hackFxV1(state) {
   if (state.difficulty === "normal") return out;
   const tracks = state.systems.hacks?.data?.tracks || {};
   const reduction = quirkBonusesV1(state.systems.quirks?.data?.levels).hackMilestoneReduction || {};
+  const perkReduction = perkBonusesV1(state.systems.perks?.data?.levels).hackMilestoneReduction || {};
   for (const def of IDLE_NGU_TRACKS.hacks || []) {
     const level = Math.max(0, int(tracks[def.id]?.level, 0));
     if (level <= 0) continue;
-    const perMilestone = Math.max(1, num(def.levelsPerMilestone, 1) - Math.max(0, num(reduction[def.id], 0)));
+    const perMilestone = Math.max(1, num(def.levelsPerMilestone, 1) - Math.max(0, num(reduction[def.id], 0)) - Math.max(0, num(perkReduction[def.id], 0)));
     const milestones = Math.floor(level / perMilestone);
     out[def.id] = (1 + (num(def.effectPerLevelPct, 0) * level) / 100) * Math.pow(num(def.milestoneBonusPct, 100) / 100, milestones);
   }
@@ -3702,11 +3705,7 @@ export function idleNguBonuses(raw) {
        */
       Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
     xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * perkBonuses.expEarningsMultiplier * (1 + num(state.bonuses.cookingExp, 0)),
-    respawnReduction: clamp(
-      1 - (1 - nguFx.respawnReduction) * (1 - num(adventureGear.specials?.respawnReductionPct, 0) / 100),
-      0,
-      0.92
-    ),
+    respawnReduction: respawnReductionV1(state, nguFx, adventureGear, perkBonuses),
     adventurePowerFlat: num(adventureGear.power, 0)+num(yggPermanent.adventurePower,0)+perkBonuses.adventurePowerFlat,
     adventureToughnessFlat: num(adventureGear.toughness, 0)+num(yggPermanent.adventureToughness,0)+perkBonuses.adventureToughnessFlat,
     adventureHpFlat: num(adventureGear.hp, 0)+num(yggPermanent.adventureHp,0),
@@ -3761,9 +3760,9 @@ export function idleNguBonuses(raw) {
      * le même schéma que les six ci-dessus, alimentées pour l'instant
      * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
      */
-    r3PowerMultiplier: wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
-    r3CapMultiplier: wishBonuses.r3CapMultiplier * quirkBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
-    r3BarsMultiplier: wishBonuses.r3BarsMultiplier * quirkBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
+    r3PowerMultiplier: wishBonuses.r3PowerMultiplier * quirkBonuses.r3PowerMultiplier * perkBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
+    r3CapMultiplier: wishBonuses.r3CapMultiplier * quirkBonuses.r3CapMultiplier * perkBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
+    r3BarsMultiplier: wishBonuses.r3BarsMultiplier * quirkBonuses.r3BarsMultiplier * perkBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
     boostPowerMultiplier: perkBonuses.boostPowerMultiplier * quirkBonuses.boostPowerMultiplier,
     inventorySlotsFromPerks: perkBonuses.inventorySlots,
     accessorySlotsFromPerks: perkBonuses.accessorySlotBonus,
@@ -3860,6 +3859,20 @@ export function idleNguBonuses(raw) {
     titanLootLevelBonusFromChallenges:challengeBonuses.titanLootLevelBonus,
     boostRecycleChanceFromChallenges:challengeBonuses.boostRecycleChance
   };
+}
+
+/*
+ * Wiki Respawn : temps de base 4 s ; facteurs multiplicatifs (NGU Respawn, set Clock -5 %, perk
+ * SPAWN FASTER DAMMIT, souhait « enemies spawned faster » -1 %/niveau) ; les objets « Build Respawn »
+ * s'additionnent puis sont plafonnés (48 % Normal, 58 % Evil, 78 % Sadistic). Plancher : 0,34 s.
+ */
+function respawnReductionV1(state, nguFx, adventureGear, perkBonuses) {
+  const cap = state.difficulty === "extreme" ? 78 : state.difficulty === "difficile" ? 58 : 48;
+  const itemsPct = Math.min(cap, Math.max(0, num(adventureGear.specials?.respawnReductionPct, 0) - Math.max(0, num(state.adventure?.setRewards?.respawn, 0)) * 100));
+  const clockSet = 1 - Math.max(0, Math.min(1, num(state.adventure?.setRewards?.respawn, 0)));
+  const wishLevel = Math.max(0, Math.min(10, int(state.systems.wishes?.data?.tracks?.["46"]?.level, 0)));
+  const remaining = (1 - nguFx.respawnReduction) * clockSet * perkBonuses.respawnRemaining * (1 - wishLevel * 0.01) * (1 - itemsPct / 100);
+  return clamp(1 - remaining, 0, 1 - 0.34 / 4);
 }
 
 function unlockInfo(def, state, context) {

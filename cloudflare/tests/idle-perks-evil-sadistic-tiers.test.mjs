@@ -29,8 +29,8 @@ assert.equal(idlePerkByIdV1(129).bonus.magicPowerPct, 0.002, "Wiki : Power reste
   const sadistic = idlePerkByIdV1(144);
   assert.equal(sadistic.cost, 500000);
   assert.equal(sadistic.cap, 1);
-  assert.deepEqual(sadistic.bonus, { statPct: 10.0, adventureStatsPct: 0.15 }, "Wiki : \"1000% Bonus to Attack/Defense, 15% to Adventure Stats\" -- les 2 composantes câblables ; Aug Speed et NGU Speed restent hors bonus{} faute de hook perk-based existant (documenté dans effect).");
-  assert.match(sadistic.effect, /Aug Speed/, "Le texte doit rester honnête sur les composantes non câblées, jamais silencieusement tronqué.");
+  assert.deepEqual(sadistic.bonus, { statPct: 10.0, adventureStatsPct: 0.15, augmentSpeedPct: 0.2, nguSpeedEnergyPct: 0.2, nguSpeedMagicPct: 0.2 }, "Wiki : 1000% Attack/Defense, 15% Adventure Stats, 20% Aug Speed et 20% NGU Speed (2026-09-23 : les hooks perk existent maintenant).");
+  assert.match(sadistic.effect, /Aug Speed/);
 }
 
 // --- ERROR (perk-blague, aucun effet réel) ---

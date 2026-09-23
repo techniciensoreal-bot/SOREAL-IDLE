@@ -15288,7 +15288,7 @@ let idleDialogueTimerV76=null;
         return Math.max(
           0,
           Math.min(
-            0.75,
+            0.915,
             idleNombre_(j&&j.systemes&&j.systemes.bonuses&&j.systemes.bonuses.respawnReduction)
           )
         );

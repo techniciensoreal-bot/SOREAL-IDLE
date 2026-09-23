@@ -1149,3 +1149,9 @@ Source : page Challenges (Normal / Evil / Sadistic).
 - **Idle Mode** : x1,2 / x1,5 (Spoopy) / x1,8 avec les 5 No Equipment Sadistic (+2 %/complétion, +10 % à la dernière) ; le serveur expose `idleAttackMultiplier`.
 - Non modélisé (systèmes absents) : Mayo, Cards, MacGuffins, Daycare, slot de Beard/Wish des Trolls, bonus « +0,05 » première/dernière complétion du Laser Sword (formulation ambiguë), flat +1 EXP du premier 24 Hour.
 - Tests : `idle-challenges-tiers` ; tests titans/cooldown ajustés.
+
+## 2026-09-23 — Perks manquants et respawn selon le wiki
+
+- **Perks ajoutés** (page Perk Points, effets déjà modélisés dans SOREAL) : Iron Pill I/II (84/85, x26 et x4), SPAWN FASTER DAMMIT (93, -0,1 % de respawn/niveau), 15 perks Resource 3 (95-103, 122-124, 132-134, 141-143, 226-228), Faster Wishes (108, 155, 156, 159, 160), Minimum Wish Time Reduction (109/110, -24 s/niveau sur les 4 h), Hack Milestone Reducers (113-115, 217-219). « Welcome to Sadistic Difficulty » (144) applique maintenant aussi +20 % vitesse d'augments et +20 % vitesse des NGU. Restent exclus les perks de systèmes absents (MacGuffins, Cards, Mayo, Quêtes, Daycare, Merge slots).
+- **Respawn** (page Respawn) : facteurs multiplicatifs (NGU, set Clock -5 %, perk 93, souhait 46), objets « Respawn » additionnés puis plafonnés à 48 % / 58 % / 78 % selon la difficulté, plancher 0,34 s ; le client plafonnait à 75 % au lieu de ~91,5 %.
+- Tests : `idle-perks-evil-systems`, catalogue 150 perks.
