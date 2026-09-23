@@ -34,11 +34,12 @@ import { IDLE_PERKS_CATALOG_V1 } from "../src/idle-perks-v1.js";
  */
 
 // --- Catalog shape: 66 entries, ids matching the wiki table's own indices ---
-assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 113, "102 + Hack Milestone Reducers (57-60, 174-175) ajoutés le 2026-09-23 + Bonus Quest Handin Progress I (71, Questing) + Another MacGuffin Slot! (50).");
+assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 184, "102 + Hack Milestone Reducers (57-60, 174-175) ajoutés le 2026-09-23 + Bonus Quest Handin Progress I (71, Questing) + Another MacGuffin Slot! (50).");
 const expectedIds = [
-  0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
-  41,42,43,44,45,46,47,48,49,50,51,52,53,54,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,
-  170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185
+  ...Array.from({ length: 55 }, (_, i) => i), // 0-54
+  ...Array.from({ length: 42 }, (_, i) => 57 + i), // 57-98
+  ...Array.from({ length: 71 }, (_, i) => 99 + i), // 99-169 (Cards/Mayo)
+  ...Array.from({ length: 16 }, (_, i) => 170 + i) // 170-185
 ];
 assert.deepEqual(IDLE_QUIRKS_CATALOG_V1.map(q => q.id), expectedIds, "Quirk ids must match the wiki table's own indices, gaps included (excluded rows skipped).");
 {
@@ -71,7 +72,7 @@ assert.deepEqual(idleQuirkByIdV1(41).bonus, { energyPowerPct: 0.01 }, "Generic E
 assert.equal(idleQuirkByIdV1(61).bonus.energyPowerPct, 0.005, "Wiki : palier III baisse à +0.5%/niveau (pas +1%).");
 assert.equal(idleQuirkByIdV1(92).bonus.seedYieldPct, 0.001, "Wiki : \"Even Better Yggdrasil Yields\" = +0.1%/niveau, réutilise la clé de \"The Beast's Seed ;)\" (indice 12).");
 assert.deepEqual(idleQuirkByIdV1(176).bonus, {}, "\"A PROBLEM HAS BEEN DETECTED\" est une quirk-blague, aucun effet réel à inventer.");
-assert.equal(idleQuirkByIdV1(99), null, "Index 99 (Magic NGU Speed Card Tier Up I) a besoin du système Cards, absent de SOREAL — reste exclu.");
+assert.deepEqual(idleQuirkByIdV1(99).bonus, { cardTier_magicNgu: 1 }, "Index 99 (Magic NGU Speed Card Tier Up I) : câblé avec le système Cards (idle-cards-v1.js).");
 
 // --- Real flat per-level cost, not the old exponential model ---
 assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 0), 75, "Generic Energy Power Quirk I costs a flat 75 per level, every level.");

@@ -201,7 +201,13 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
    * 24 hours").
    */
   macguffinSlot: { passive: true },
-  macguffinMuffin: { timer: "macguffinMuffin", sec: 86400, arm: "macguffinMuffin" }
+  macguffinMuffin: { timer: "macguffinMuffin", sec: 86400, arm: "macguffinMuffin" },
+  /* Cards et Mayo (idle-cards-v1.js) : deck, générateurs, tags (lus depuis purchases), Mayo Infuser 24 h, Black Pens. */
+  extraDeckSize: { passive: true },
+  mayoGenerator: { passive: true },
+  extraTagSlot: { passive: true },
+  mayoInfuser: { timer: "mayoInfuser", sec: 86400 },
+  regularBlackPens: { blackPens: 25 }
 });
 
 export function createSelloutEffectsV1(raw) {
@@ -214,7 +220,15 @@ export function createSelloutEffectsV1(raw) {
   for (const [k, v] of Object.entries(src.beta && typeof src.beta === "object" ? src.beta : {})) if (v) beta[k] = true;
   const armed = {};
   for (const [k, v] of Object.entries(src.armed && typeof src.armed === "object" ? src.armed : {})) if (v) armed[k] = true;
-  return { remaining, beta, armed, bluePills: Math.max(0, I(src.bluePills, 0)), beastButters: Math.max(0, I(src.beastButters, 0)) };
+  return {
+    remaining,
+    beta,
+    armed,
+    bluePills: Math.max(0, I(src.bluePills, 0)),
+    beastButters: Math.max(0, I(src.beastButters, 0)),
+    /* Regular Black Pens restants : +2 tiers sur chacune des prochaines cartes (idle-cards-v1.js). */
+    blackPens: Math.max(0, I(src.blackPens, 0))
+  };
 }
 
 /* Facteur multiplicatif d'une potion : x2 (Energy/Magic) ou x3 (Resource 3) pendant le timer, x2 pour la beta. */
@@ -238,6 +252,7 @@ export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
     if (effect.arm) fx.armed[effect.arm] = true;
     if (effect.pills) fx.bluePills += effect.pills;
     if (effect.butters) fx.beastButters += effect.butters;
+    if (effect.blackPens) fx.blackPens += effect.blackPens;
   }
 }
 

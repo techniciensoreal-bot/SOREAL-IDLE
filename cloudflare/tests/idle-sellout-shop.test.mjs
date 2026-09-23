@@ -73,18 +73,20 @@ function freshState(ap) {
 }
 
 {
-  assert.equal(idleSelloutShopEffectActiveV1("mayoInfuser"),false, "Le Mayo n'existe pas dans le moteur : achat impossible.");
+  /* Le Mayo Infuser est câblé depuis le système Cards (idle-cards-v1.js) : exemple d'objet inactif = randomiseur de nom (cosmétique). */
+  assert.equal(idleSelloutShopEffectActiveV1("mayoInfuser"),true, "Mayo Infuser : câblé avec le système Cards.");
+  assert.equal(idleSelloutShopEffectActiveV1("resource3NameRandomizer"),false, "Objet cosmétique sans effet moteur : achat impossible.");
   assert.equal(idleSelloutShopEffectActiveV1("energyPotionAlpha"),true, "Les potions sont câblées depuis le 2026-09-23.");
   assert.equal(idleSelloutShopEffectActiveV1("exp500"),true);
 
-  const s = freshState(20000);
+  const s = freshState(200000);
   assert.throws(
-    () => idleSelloutShopBuyV1(s, "mayoInfuser"),
+    () => idleSelloutShopBuyV1(s, "resource3NameRandomizer"),
     /EFFET_BOUTIQUE_AP_INACTIF/,
     "Un objet non câblé doit être impossible à acheter."
   );
-  assert.equal(s.currencies.ap,20000,"Un effet inactif ne doit jamais consommer d'AP.");
-  assert.equal(s.selloutShop.purchases.mayoInfuser,undefined,"Un effet inactif ne doit pas incrémenter le compteur.");
+  assert.equal(s.currencies.ap,200000,"Un effet inactif ne doit jamais consommer d'AP.");
+  assert.equal(s.selloutShop.purchases.resource3NameRandomizer,undefined,"Un effet inactif ne doit pas incrémenter le compteur.");
 }
 
 {
@@ -117,7 +119,7 @@ function freshState(ap) {
   assert.equal(entry.nextCost, 5000);
   assert.equal(entry.purchased, 0);
   assert.equal(entry.effectActive,true,"Une potion câblée doit être marquée active pour le client.");
-  assert.equal(snap.selloutShop.catalog.find((x)=>x.id==="mayoInfuser").effectActive,false,"Un objet non câblé doit être marqué inactif pour le client.");
+  assert.equal(snap.selloutShop.catalog.find((x)=>x.id==="resource3NameRandomizer").effectActive,false,"Un objet non câblé doit être marqué inactif pour le client.");
   const expEntry=snap.selloutShop.catalog.find((x)=>x.id==="exp500");
   assert.equal(expEntry.effectActive,true,"Les achats EXP réellement câblés doivent rester actifs.");
 }
