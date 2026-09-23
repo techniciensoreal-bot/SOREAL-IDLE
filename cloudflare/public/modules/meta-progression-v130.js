@@ -1159,6 +1159,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(reward.ap)morceaux.push(window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.ap)+' AP');
         if(reward.experience)morceaux.push(window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.experience)+' EXP');
         if(reward.seeds)morceaux.push(window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.seeds)+' graines');
+        if(reward.cubePower)morceaux.push('+'+reward.cubePower+' Cube Power');
+        if(reward.cubeToughness)morceaux.push('+'+reward.cubeToughness+' Cube Toughness');
+        if(reward.cubeBoth)morceaux.push('+'+reward.cubeBoth+' Cube Power et Toughness');
+        if(reward.wandoosLevels)morceaux.push('+'+reward.wandoosLevels+' niveau(x) Wandoos');
+        if(reward.items){
+          const NOMS={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'crottin (sans effet)',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
+          Object.keys(reward.items).forEach(function(id){morceaux.push(reward.items[id]+' × '+(NOMS[id]||id));});
+        }
         return morceaux.length?morceaux.join(' · '):'Récompense mystérieuse';
       }
 

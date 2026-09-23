@@ -110,8 +110,8 @@ assert.ok(
 );
 for(const cle of clesSpin){
   assert.ok(
-    ['ap','seeds'].includes(cle),
-    "Le Daily Spin (palier 0, joueur neuf) ne doit produire que les lots réels du wiki pour ce palier (AP), jamais l'Or (absent du wiki, fabriqué par l'ancienne implémentation SOREAL)."
+    ['ap','seeds','items'].includes(cle),
+    "Le Daily Spin (palier 0, joueur neuf) ne doit produire que les lots réels du wiki pour ce palier (AP, graines, potions), jamais l'Or (absent du wiki, fabriqué par l'ancienne implémentation SOREAL)."
   );
 }
 

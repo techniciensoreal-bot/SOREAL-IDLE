@@ -202,6 +202,19 @@ export function idleSelloutPotionFactorV1(state, key) {
   return key === "luck" || key === "energyBars" || key === "magicBars" ? (N(fx.remaining?.[key], 0) > 0 ? 2 : 1) : timed * beta;
 }
 
+/* Applique l'effet d'un objet (achat ou récompense de la roue quotidienne) `times` fois. */
+export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
+  const effect = IDLE_SELLOUT_EFFECTS_V1[itemId];
+  if (!effect || effect.passive) return;
+  state.selloutEffects = createSelloutEffectsV1(state.selloutEffects);
+  const fx = state.selloutEffects;
+  for (let i = 0; i < Math.max(0, I(times, 1)); i++) {
+    if (effect.timer) fx.remaining[effect.timer] = N(fx.remaining[effect.timer], 0) + effect.sec;
+    if (effect.beta) fx.beta[effect.beta] = true;
+    if (effect.pills) fx.bluePills += effect.pills;
+  }
+}
+
 export function tickSelloutEffectsV1(state, seconds) {
   const fx = state.selloutEffects;
   if (!fx || !fx.remaining || !(seconds > 0)) return;
@@ -254,14 +267,7 @@ export function idleSelloutShopBuyV1(state, itemId) {
   if (item.grant) {
     state.currencies[item.grant.currency] = N(state.currencies[item.grant.currency], 0) + item.grant.amount;
   }
-  const effect = IDLE_SELLOUT_EFFECTS_V1[item.id];
-  if (effect && !effect.passive) {
-    state.selloutEffects = createSelloutEffectsV1(state.selloutEffects);
-    const fx = state.selloutEffects;
-    if (effect.timer) fx.remaining[effect.timer] = N(fx.remaining[effect.timer], 0) + effect.sec;
-    if (effect.beta) fx.beta[effect.beta] = true;
-    if (effect.pills) fx.bluePills += effect.pills;
-  }
+  idleSelloutApplyEffectV1(state, item.id, 1);
 
   return { itemId: item.id, cost, purchased: already + 1, max: item.max };
 }

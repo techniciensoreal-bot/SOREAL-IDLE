@@ -22,6 +22,7 @@ import {
   IDLE_SELLOUT_SHOP_CATALOG_V1,
   idleSelloutShopEffectActiveV1,
   createSelloutEffectsV1,
+  idleSelloutApplyEffectV1,
   idleSelloutPotionFactorV1,
   tickSelloutEffectsV1,
   idleSelloutShopItemV1,
@@ -4717,15 +4718,29 @@ function spinDaily(state, now) {
    * instead") — repris tel quel (5000), car c'est le comportement RÉEL
    * vécu par les joueurs, pas la valeur nominale jamais atteignable.
    */
+  /*
+   * 2026-09-23 : table complète de la page Daily Spin (chaque palier totalise 100 %). Les potions, Lucky Charm et
+   * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement ; Poop, Beast Butter et MacGuffin
+   * Muffin (systèmes absents) restent listés avec leur probabilité mais sans effet.
+   */
+  const P = (item, poids, n = 1) => ({ items: { [item]: n }, poids });
+  const JACKPOTS = {
+    3: { energyPotionAlpha: 1, energyPotionBeta: 1, magicPotionAlpha: 1, magicPotionBeta: 1, luckyCharm: 1, energyBarBar: 1, magicBarBar: 1, poop: 2 },
+    4: { energyPotionAlpha: 1, energyPotionBeta: 1, energyPotionDelta: 1, magicPotionAlpha: 1, magicPotionBeta: 1, magicPotionDelta: 1, luckyCharm: 1, energyBarBar: 1, magicBarBar: 1, poop: 5, superLuckyCharm: 1, littleBluePill1000: 1 },
+    5: { energyPotionAlpha: 2, energyPotionBeta: 2, energyPotionDelta: 1, magicPotionAlpha: 2, magicPotionBeta: 2, magicPotionDelta: 1, luckyCharm: 2, energyBarBar: 2, magicBarBar: 2, poop: 10, superLuckyCharm: 1, littleBluePill1000: 2, beastButter: 1, macguffinMuffin: 1 },
+    6: { energyPotionAlpha: 2, energyPotionBeta: 2, energyPotionDelta: 2, magicPotionAlpha: 2, magicPotionBeta: 2, magicPotionDelta: 2, luckyCharm: 3, energyBarBar: 3, magicBarBar: 3, poop: 25, superLuckyCharm: 2, littleBluePill1000: 3, beastButter: 2, macguffinMuffin: 2 },
+    7: { energyPotionAlpha: 3, energyPotionBeta: 3, energyPotionDelta: 3, magicPotionAlpha: 3, magicPotionBeta: 3, magicPotionDelta: 3, luckyCharm: 3, energyBarBar: 3, magicBarBar: 3, poop: 25, superLuckyCharm: 3, littleBluePill1000: 5, beastButter: 3, macguffinMuffin: 3 }
+  };
+  const J = (t, poids) => ({ items: JACKPOTS[t], poids });
   const IDLE_DAILY_SPIN_REWARDS_V1 = [
     [{ ap: 50, poids: 70 }, { ap: 100, poids: 30 }],
-    [{ ap: 100, poids: 53 }, { ap: 200, poids: 35 }, { ap: 1000, poids: 10 }],
-    [{ ap: 200, poids: 53 }, { ap: 400, poids: 30 }, { ap: 2000, poids: 10 }],
-    [{ ap: 300, poids: 37 }, { ap: 600, poids: 25 }, { ap: 3000, poids: 10 }, { seeds: 20, poids: 10 }, { ap: 50000, poids: 0.5 }],
-    [{ ap: 500, poids: 50 }, { ap: 1000, poids: 25 }, { ap: 5000, poids: 10 }, { seeds: 100, poids: 5 }, { ap: 75000, poids: 0.5 }],
-    [{ ap: 800, poids: 36 }, { ap: 1600, poids: 25 }, { ap: 8000, poids: 10 }, { seeds: 400, poids: 10 }, { ap: 100000, poids: 0.5 }],
-    [{ ap: 1200, poids: 35 }, { ap: 2400, poids: 25 }, { ap: 12000, poids: 10 }, { seeds: 2000, poids: 10 }, { ap: 150000, poids: 0.5 }],
-    [{ ap: 1500, poids: 35 }, { ap: 3000, poids: 25 }, { ap: 15000, poids: 10 }, { seeds: 5000, poids: 10 }, { ap: 175000, poids: 0.5 }]
+    [{ ap: 100, poids: 53 }, { ap: 200, poids: 35 }, { ap: 1000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1)],
+    [{ ap: 200, poids: 53 }, { ap: 400, poids: 30 }, { ap: 2000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 1), P("energyBarBar", 1), P("magicBarBar", 1)],
+    [{ ap: 300, poids: 37 }, { ap: 600, poids: 25 }, { ap: 3000, poids: 10 }, P("energyPotionAlpha", 2), P("magicPotionAlpha", 2), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 2), P("energyBarBar", 2), P("magicBarBar", 2), { seeds: 20, poids: 10 }, P("poop", 5, 2), J(3, 0.5), { ap: 50000, poids: 0.5 }],
+    [{ ap: 500, poids: 50 }, { ap: 1000, poids: 25 }, { ap: 5000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 1), P("energyBarBar", 1), P("magicBarBar", 1), { seeds: 100, poids: 5 }, P("poop", 1, 5), J(4, 0.5), { ap: 75000, poids: 0.5 }, P("energyPotionDelta", 0.5), P("magicPotionDelta", 0.5)],
+    [{ ap: 800, poids: 36 }, { ap: 1600, poids: 25 }, { ap: 8000, poids: 10 }, P("energyPotionAlpha", 2), P("magicPotionAlpha", 2), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 2), P("energyBarBar", 2), P("magicBarBar", 2), { seeds: 400, poids: 10 }, P("poop", 5, 10), J(5, 0.5), { ap: 100000, poids: 0.5 }, P("energyPotionDelta", 0.5), P("magicPotionDelta", 0.5)],
+    [{ ap: 1200, poids: 35 }, { ap: 2400, poids: 25 }, { ap: 12000, poids: 10 }, P("energyPotionAlpha", 2, 2), P("magicPotionAlpha", 2, 2), P("energyPotionBeta", 1, 2), P("magicPotionBeta", 1, 2), P("luckyCharm", 2, 2), P("energyBarBar", 2, 2), P("magicBarBar", 2, 2), { seeds: 2000, poids: 10 }, P("poop", 5, 25), P("energyPotionDelta", 1), P("magicPotionDelta", 1), J(6, 0.5), { ap: 150000, poids: 0.5 }],
+    [{ ap: 1500, poids: 35 }, { ap: 3000, poids: 25 }, { ap: 15000, poids: 10 }, P("energyPotionAlpha", 2, 2), P("magicPotionAlpha", 2, 2), P("energyPotionBeta", 1, 2), P("magicPotionBeta", 1, 2), P("luckyCharm", 2, 2), P("energyBarBar", 2, 2), P("magicBarBar", 2, 2), { seeds: 5000, poids: 10 }, P("poop", 5, 25), P("energyPotionDelta", 1), P("magicPotionDelta", 1), J(7, 0.5), { ap: 175000, poids: 0.5 }]
   ];
   const table = IDLE_DAILY_SPIN_REWARDS_V1[Math.min(tier, IDLE_DAILY_SPIN_REWARDS_V1.length - 1)];
   const poidsTotal = table.reduce((sum, entree) => sum + entree.poids, 0);
@@ -4735,8 +4750,14 @@ function spinDaily(state, now) {
     if (curseur < entree.poids) { choix = entree; break; }
     curseur -= entree.poids;
   }
-  const reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
-  for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
+  let reward;
+  if (choix.items) {
+    reward = { items: Object.assign({}, choix.items) };
+    for (const [id, n] of Object.entries(choix.items)) idleSelloutApplyEffectV1(state, id, n);
+  } else {
+    reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
+    for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
+  }
 
   s.level = totalBefore + 1;
   s.data.totalSpins = s.level;

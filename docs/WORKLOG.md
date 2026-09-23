@@ -1205,3 +1205,7 @@ Page Skills / Build Move Cooldowns : les specials « Move Cooldowns » de l'équ
 ## 2026-09-23 — Drop Chance : set 2D et Cube comptés deux fois
 
 Le bonus de drop du set 2D (+7,43 %) et du Cube d'Infinité (50 % et plus, additif avec les objets d'après la page Drop Chance) entrait déjà dans `specials.dropChancePct` -> `dropMultiplier` du moteur meta, puis était appliqué une seconde fois dans `rollKill` et pour les titans (avec un Cube à 50 %, le drop valait 2,25x au lieu de 1,5x). Le contexte meta signale maintenant `dropMultiplierIncludesGear` et le moteur d'aventure ne recompte plus set + Cube dans ce cas. Test `idle-drop-chance-no-double-count`.
+
+## 2026-09-23 — Daily Spin complet
+
+Page Daily Spin : la roue n'avait que les lots AP/graines (probabilités normalisées, donc AP surévalués). Table complète de chaque palier (100 % chacun) avec potions Energy/Magic α/β/δ, Lucky Charm, Bar Bar, Little Blue Pill et « CONSUMABLES JACKPOT » (contenus des paliers 3 à 7) ; les objets s'activent immédiatement comme à l'achat au shop Sellout. Poop, Beast Butter et MacGuffin Muffin (systèmes absents) sont tirés avec leur vraie probabilité mais sans effet. Les récompenses de la Money Pit (Cube, Wandoos) et de la roue s'affichent dans le message de l'interface. Test `idle-daily-spin-items`.
