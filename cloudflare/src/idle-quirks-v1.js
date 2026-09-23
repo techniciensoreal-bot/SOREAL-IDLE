@@ -65,6 +65,8 @@
  * to avoid an empty bonus object — an honest gap beats an invented one.
  */
 
+import { IDLE_CARDS_QUIRKS_V1 } from "./idle-cards-v1.js";
+
 export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 0, name: "Baby's First Quirk: Energy Power", effect: "Improve your Energy Power by 10%!", cost: 100, cap: 1, bonus: { energyPowerPct: 0.10 } },
   { id: 1, name: "Baby's First Quirk: Energy Cap", effect: "Improve your Energy Cap by 10%!", cost: 100, cap: 1, bonus: { energyCapPct: 0.10 } },
@@ -161,6 +163,8 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 96, name: "Faster Magic NGU II", effect: "This Quirk will improve Magic NGU speeds by 0.3% per level!", cost: 3000, cap: 50, bonus: { nguSpeedMagicPct: 0.003 } },
   { id: 97, name: "Faster Energy NGU III", effect: "This Quirk will improve Energy NGU speeds by 0.3% per level!", cost: 10000, cap: 50, bonus: { nguSpeedEnergyPct: 0.003 } },
   { id: 98, name: "Faster Magic NGU III", effect: "This Quirk will improve Magic NGU speeds by 0.3% per level!", cost: 10000, cap: 50, bonus: { nguSpeedMagicPct: 0.003 } },
+  /* Quirks 99-169 (Cards/Mayo/Tags/Deck) : définies et agrégées dans idle-cards-v1.js. */
+  ...IDLE_CARDS_QUIRKS_V1,
   { id: 170, name: "Stat Boost for Rich Quirks V", effect: "Improve your Attack/Defense by 1% per level!", cost: 2800, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 171, name: "Adventure Boost for Rich Quirks V", effect: "Improve your Adventure stats by 0.03% per level!", cost: 2800, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
   { id: 172, name: "Stat Boost for Rich Quirks VI", effect: "Improve your Attack/Defense by 1% per level!", cost: 6000, cap: 1000, bonus: { statPct: 0.01 } },

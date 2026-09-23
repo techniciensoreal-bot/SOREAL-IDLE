@@ -40,6 +40,19 @@ import {
   wishBonusesV1
 } from "./idle-wishes-v1.js";
 import { levelsPerFillBasicTrainingV411 } from "./idle-basic-training.js";
+/* Cards et Mayo (système complet dans idle-cards-v1.js). */
+import {
+  createIdleCardsDataV1,
+  normalizeIdleCardsDataV1,
+  createIdleCardBonusesV1,
+  normalizeIdleCardBonusesV1,
+  idleCardsMultiplierV1,
+  idleCardsApplyToBonusesV1,
+  advanceIdleCardsV1,
+  idleCardsActionV1,
+  idleCardsGrantChallengeMayoV1,
+  idleCardsSnapshotV1
+} from "./idle-cards-v1.js";
 import {
   IDLE_NGU_CATALOG_V1,
   IDLE_NGU_TIERS_V1,
@@ -979,9 +992,11 @@ function advanceWandoos(state, seconds, context, now) {
 
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
   const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
+    * idleCardsMultiplierV1(state, "wandoos") /* Cards WANDOOS */
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
     * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier);
   const magicSpeed = Math.min(50, (50 * magicAlloc / requirement)
+    * idleCardsMultiplierV1(state, "wandoos") /* Cards WANDOOS */
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
     * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier);
 
@@ -1063,6 +1078,7 @@ function baseState(now) {
     if (def.id === "moneyPit") s.data = { tossesThisRun: 0, nextAt: 0, lastTossAt: 0, totalGoldTossed: 0, history: [] };
     if (def.id === "dailySpin") s.data = { readyAt: 0, totalSpins: 0, history: [] };
     if (def.id === "titans") s.data = { nextAt: 0, kills: 0, firstTitanDefeated: false };
+    if (def.id === "cards") s.data = createIdleCardsDataV1();
     systems[def.id] = s;
   }
 
@@ -1128,7 +1144,8 @@ function baseState(now) {
       purchases: {}
     },
     bonuses: {
-      cards: { attack: 0, adventure: 0, drop: 0, xp: 0, ngu: 0, hacks: 0, wishes: 0 },
+      /* Bonus accumulés des cartes lancées, en % par type (idle-cards-v1.js) ; conservés au Rebirth. */
+      cards: createIdleCardBonusesV1(),
       ironPill: 0,
       cubePower: 0,
       cubeToughness: 0,
@@ -1428,6 +1445,8 @@ function normalizeSystem(def, raw) {
   } else if (def.id === "ngu") {
     s.data = normalizeNguDataV1(src.data);
     syncNguAllocationTotalsV1(s);
+  } else if (def.id === "cards") {
+    s.data = normalizeIdleCardsDataV1(src.data);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
   } else {
@@ -1527,7 +1546,7 @@ function migrateLegacyMetaToV47(raw, now) {
   }
 
   state.bonuses = Object.assign(state.bonuses, src.bonuses || {});
-  state.bonuses.cards = Object.assign(baseState(now).bonuses.cards, src.bonuses?.cards || {});
+  state.bonuses.cards = normalizeIdleCardBonusesV1(src.bonuses?.cards);
   if (src.rebirth && typeof src.rebirth === "object") state.rebirth = clone(src.rebirth);
   if (src.adventure && typeof src.adventure === "object") state.adventure = clone(src.adventure);
 
@@ -1687,7 +1706,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(source.challenge?.activeTier) ? source.challenge.activeTier : "normal";
   state.bank = Object.assign(baseState(t).bank, source.bank || {});
   state.bonuses = Object.assign(baseState(t).bonuses, source.bonuses || {});
-  state.bonuses.cards = Object.assign(baseState(t).bonuses.cards, source.bonuses?.cards || {});
+  state.bonuses.cards = normalizeIdleCardBonusesV1(source.bonuses?.cards);
 
   const systems = {};
   for (const def of IDLE_NGU_SYSTEMS) systems[def.id] = normalizeSystem(def, source.systems?.[def.id]);
@@ -2178,7 +2197,7 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   if (allocation <= 0) return Infinity;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
-  const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
+  const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier*idleCardsMultiplierV1(state,"augments"); /* + Cards AUGS */
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
   return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier);
@@ -2485,7 +2504,8 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
   const perkWish = perkBonusesV1(state.systems.perks?.data?.levels);
   const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(state.systems.quirks?.data?.levels).wishMinTimeReductionSeconds);
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish
+    * idleCardsMultiplierV1(state, "wishes") /* Cards WISHES */);
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -2651,7 +2671,8 @@ function tmLevelSeconds(state, resource, targetLevel) {
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
   const n = Math.max(1, targetLevel);
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "timeMachine");
-  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed * challengePermanentBonuses(state).timeMachineSpeedMultiplier)) * n;
+  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed * challengePermanentBonuses(state).timeMachineSpeedMultiplier
+    * idleCardsMultiplierV1(state, "timeMachine") /* Cards TM */)) * n;
 }
 
 /*
@@ -3282,7 +3303,8 @@ function advanceTowerV1(state, seconds, context) {
   const perks = perkBonusesV1(state.systems.perks?.data?.levels);
   const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
   const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79);
-  const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier * diggerBonuses(state).pp;
+  const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier * diggerBonuses(state).pp
+    * idleCardsMultiplierV1(state, "pp") /* Cards PP (page ITOPOD, « PP Cards ») */;
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
 
   const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor);
@@ -3398,15 +3420,8 @@ function towerSetFloorsV1(state, payload) {
 function advanceLateSystems(state, seconds, context, now) {
   advanceTowerV1(state, seconds, context);
 
-  const cards = state.systems.cards;
-  if (cards.unlocked) {
-    cards.data.nextCardAt = Math.max(0, num(cards.data.nextCardAt, now + 3600000));
-    cards.data.deck = Array.isArray(cards.data.deck) ? cards.data.deck : [];
-    while (now >= cards.data.nextCardAt && cards.data.deck.length < 10) {
-      cards.data.deck.push({ id: "card-" + cards.data.nextCardAt, type: "attack", quality: 1 });
-      cards.data.nextCardAt += 3600000;
-    }
-  }
+  /* Cards et Mayo : vrai système (idle-cards-v1.js), remplace les cartes factices horaires. */
+  advanceIdleCardsV1(state, seconds);
 }
 
 /*
@@ -3586,6 +3601,7 @@ function nguSpeedMultiplierV1(state, resource) {
     (resource === "magic" ? challengePermanentBonuses(state).nguSpeedMagicChallengeMultiplier : challengePermanentBonuses(state).nguSpeedEnergyChallengeMultiplier) *
     (1 + 0.02 * (resource === "magic" ? wishLevelV1(state, 113) + wishLevelV1(state, 114) : wishLevelV1(state, 111) + wishLevelV1(state, 112))) *
     beardBonusMultiplier(state, "ngu") *
+    idleCardsMultiplierV1(state, resource === "magic" ? "magicNgu" : "energyNgu") * /* Cards E-NGU / M-NGU */
     (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
     (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
     (resource === "magic"
@@ -3858,7 +3874,8 @@ export function idleNguBonuses(raw) {
   const equipmentAttackMultiplier = 1 + Math.max(0, num(adventureGear.power, 0)) * 0.01;
   const equipmentDefenseMultiplier = 1 + Math.max(0, num(adventureGear.toughness, 0)) * 0.01;
 
-  return {
+  /* Cards : bonus accumulés appliqués en un seul point sur le résultat (idleCardsApplyToBonusesV1). */
+  return idleCardsApplyToBonusesV1(state, {
     attackMultiplier: attackMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
     defenseMultiplier:
       attackMultiplier *
@@ -4078,7 +4095,7 @@ export function idleNguBonuses(raw) {
     titanRespawnReductionMsFromChallenges:challengeBonuses.titanRespawnReductionMs,
     titanLootLevelBonusFromChallenges:challengeBonuses.titanLootLevelBonus,
     boostRecycleChanceFromChallenges:challengeBonuses.boostRecycleChance
-  };
+  });
 }
 
 /*
@@ -4357,6 +4374,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       });
     }),
     ngus: nguSnapshotV1(state, context),
+    cards: idleCardsSnapshotV1(state),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
@@ -4978,6 +4996,8 @@ function challengeAction(state, payload, context, now) {
       completions[id]=before+1;
       state.currencies.experience+=rewardExperience;
       state.currencies.ap+=rewardAp;
+      /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
+      if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
     if(tier==="normal"){
       const oldBest=num(state.challenge.bestMs?.[id],Infinity);
@@ -5340,6 +5360,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = richJerksAction(state, payload);
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
+  } else if (action === "cards") {
+    result = idleCardsActionV1(state, payload);
   } else {
     throw new Error("ACTION_META_INCONNUE");
   }

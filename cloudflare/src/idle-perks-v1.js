@@ -89,6 +89,8 @@
  * system as a side effect of adding one perk. Same honesty rule as 16/17.
  */
 
+import { IDLE_CARDS_PERKS_V1 } from "./idle-cards-v1.js";
+
 export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 0, name: "The Newbie Energy Perk", effect: "Gain 3 Energy Power and 3 Energy Bars!", cost: 1, cap: 1, bonus: { energyPowerFlat: 3, energyBarsFlat: 3 } },
   { id: 1, name: "The Newbie Magic Perk", effect: "Gain 1 Magic Power, 1 Magic Bar, and 10k Magic Cap!", cost: 1, cap: 1, bonus: { magicPowerFlat: 1, magicBarsFlat: 1, magicCapFlat: 10000 } },
@@ -288,6 +290,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 226, name: "The Final Generic Resource 3 Power Perk", effect: "Eh, just go nuts with this one. Gain 1% Power per level", cost: 10000000, cap: 100, bonus: { r3PowerPct: 0.01 } },
   { id: 227, name: "The Final Generic Resource 3 Bar Perk", effect: "Eh, just go nuts with this one. Gain 1% Bars per level", cost: 10000000, cap: 100, bonus: { r3BarsPct: 0.01 } },
   { id: 228, name: "The Final Generic Resource 3 Cap Perk", effect: "Eh, just go nuts with this one. Gain 1% Cap per level", cost: 10000000, cap: 100, bonus: { r3CapPct: 0.01 } },
+  /* Perks 161-216 (Cards/Mayo/Tags/Deck) : définies et agrégées dans idle-cards-v1.js. */
+  ...IDLE_CARDS_PERKS_V1,
 ]);
 
 export function idlePerkByIdV1(id) {
