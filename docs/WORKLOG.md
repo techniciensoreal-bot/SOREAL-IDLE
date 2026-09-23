@@ -906,3 +906,15 @@ Nouveau test (`idle-media-debug-list-requires-internal-key.test.mjs`). Suite com
 **Prudence** : contrairement à `debug-list`, ce proxy a une implémentation soignée (largeur bornée, cache 7 jours, support HEAD) qui suggère un usage réel prévu, même si aucun appelant n'a été trouvé -- probablement un vestige d'une migration vers des avatars hébergés directement sur R2. Si ce correctif casse l'affichage d'un avatar en production, revert immédiat et investigation.
 
 Suite complète : 172/172 OK.
+
+## 2026-09-23 — Audit (suite, tier Moyenne #10) : SRI + CSP de base
+
+Aucune Subresource Integrity sur les scripts CDN (jsdelivr) ni aucune Content-Security-Policy. En cas de compromission de jsdelivr ou du paquet npm source (typosquatting, prise de contrôle de compte mainteneur), le script injecté s'exécuterait avec un accès complet au DOM/sessionStorage (qui contient le sessionToken Bearer).
+
+**Fix scopé volontairement** :
+- CSP de base sans risque de régression : `object-src 'none'; base-uri 'self'; frame-ancestors 'self'` (n'affecte ni le WASM, ni les styles inline très nombreux sur cette page, ni le chargement de scripts).
+- SRI (`integrity` + `crossorigin="anonymous"`) sur `piper_phonemize.js` -- hash SHA-384 calculé directement sur le fichier réellement servi par jsdelivr pour cette version épinglée.
+- `<script type="importmap">` (onnxruntime-web) reste sans SRI : les navigateurs ne le supportent pas encore -- limitation de plateforme documentée en commentaire, pas un oubli.
+- Une politique `script-src`/`style-src` stricte nécessiterait de tester en direct tout le pipeline audio (Piper WASM, AudioWorklet) avant déploiement -- volontairement pas ajoutée dans cette passe.
+
+2 tests existants verrouillaient le tag `<script>` exact sans les nouveaux attributs -- mis à jour. Suite complète : 173/173 OK.

@@ -16,7 +16,7 @@ const narration=fs.readFileSync(
 
 for(const token of [
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
-  '<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js"></script>',
+  '<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>',
   '<script type="module" src="/modules/local-neural-piper-v1.js?v=6"></script>',
   '/modules/tutorial-tts-v202.js?v=230'
 ]){
