@@ -51,8 +51,7 @@
  * imparti), Resource 3 (95-103,122-124,132-134,141-143,226-228 -- pas de
  * 3e ressource entraînable chez SOREAL, seulement Energy/Magic), Iron Pill I/II
  * (84-85 -- multiplierait castBloodSpell's gain ironPill, hook non
- * construit dans ce round), Daycare Slot supplémentaire (86 -- nombre de
- * slots Daycare non modélisé), respawn (93 -- aucune minuterie de
+ * construit dans ce round), respawn (93 -- aucune minuterie de
  * réapparition ennemie n'existe dans le modèle de combat SOREAL).
  *
  * Previously "Perks" was a single generic counter (one shared level,
@@ -117,8 +116,13 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 24, name: "I Want Your Seeds ;)", effect: "+5% multiplier to all seed earnings", cost: 10, cap: 20, bonus: { seedYieldPct: 0.05 } },
   { id: 25, name: "The Loot Goblin's Blessing", effect: "1% chance that any item dropped at lvl 1 or higher gains +1 level", cost: 10, cap: 10, bonus: { lootGoblinChancePct: 0.01 } },
   { id: 26, name: "Improved Cube Boosting!", effect: "Boosts going into the cube convert at a 2% rate instead of 1%", cost: 100, cap: 1, bonus: { cubeBoostRatePct: 0.01 } },
-  { id: 27, name: "Daycare Kitty's Blessing I", effect: "Grow your daycare items 1% faster per level", cost: 5, cap: 5, bonus: { daycareGrowthPct: 0.01 } },
-  { id: 28, name: "Daycare Kitty's Blessing II", effect: "Additional 1% faster per level", cost: 25, cap: 5, bonus: { daycareGrowthPct: 0.01 } },
+  /*
+   * Daycare Kitty's Blessing I/II : page « Item Daycare » (section Time Reductions) -- ce sont des
+   * RÉDUCTIONS DE TEMPS (-1 % par niveau, x95 % chacune au maximum, rétroactives), pas une hausse
+   * de vitesse : clé daycareTimePct, repliée en produit par perkBonusesV1 (daycareTimeMultiplier).
+   */
+  { id: 27, name: "Daycare Kitty's Blessing I", effect: "Grow your daycare items 1% faster per level", cost: 5, cap: 5, bonus: { daycareTimePct: 0.01 } },
+  { id: 28, name: "Daycare Kitty's Blessing II", effect: "Additional 1% faster per level", cost: 25, cap: 5, bonus: { daycareTimePct: 0.01 } },
   { id: 29, name: "You'll Really Want This", effect: "This perk awards a FREE accessory slot, pure and simple.", cost: 250, cap: 1, bonus: { accessorySlotBonus: 1 } },
   { id: 30, name: "What a Crappy Perk", effect: "Tiny chance ITOPOD dudes drop poop, works offline", cost: 25, cap: 1, bonus: {} },
   { id: 31, name: "More Inventory Space I", effect: "Extra Inventory Space per level", cost: 2, cap: 12, bonus: { inventorySlotBonus: 1 } },
@@ -249,7 +253,7 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
    * 2026-09-23 (audit, page Perk Points) : perks Evil/Sadistic dont l'effet existe dans SOREAL
    * (Iron Pill, respawn, Resource 3, vitesse et temps minimum des Wishes, paliers des Hacks,
    * « Welcome to Sadistic Difficulty »). Ceux des systèmes absents (MacGuffins, Cards, Mayo,
-   * Quests, Daycare) restent exclus.
+   * Quests) restent exclus. Le perk 86 (slot de garderie) est câblé depuis idle-daycare-v1.js.
    */
   { id: 84, name: "\"Iron Pill Also Sucks 1/5\"", effect: "Iron Pill yields +5x more stats per level of this perk, up to 26x at level 5!", cost: 500, cap: 5, bonus: { ironPillA: 5 } },
   { id: 85, name: "\"Iron Pill Still Sucks 1/5\"", effect: "Iron Pill yields +1x more stats per level of this perk, up to 4x at level 3!", cost: 33333, cap: 3, bonus: { ironPillB: 1 } },
@@ -268,6 +272,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 110, name: "Minimum Wish Time Reduction II", effect: "With this perk,you can work wishes so efficiently that all the labour can be done by a single Australian man in record time! Reduces the minimum wish timer by an additional 24 seconds per level of this perk.", cost: 100000, cap: 50, bonus: { wishMinTimeSeconds: 24 } },
   { id: 113, name: "Adventure Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 4000000, cap: 5, bonus: { hackReduce_adventureStats: 1 } },
   { id: 114, name: "Blood Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 10000, cap: 5, bonus: { hackReduce_bloodGain: 1 } },
+  /* Page Perk Points (index 86) et page « Item Daycare » (« 1 from ITOPOD perk for 50k PP ») : un slot de garderie. */
+  { id: 86, name: "Daycare Slot! c:", effect: "Make the Daycare Kitty even happier-er-er-est-er and get a new Daycare Slot!", cost: 50000, cap: 1, bonus: { daycareSlotBonus: 1 } },
   { id: 115, name: "Daycare Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 200000, cap: 5, bonus: { hackReduce_daycare: 1 } },
   { id: 122, name: "Generic Resource 3 Power Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3PowerPct: 0.01 } },
   { id: 123, name: "Generic Resource 3 Bar Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3BarsPct: 0.01 } },
@@ -317,10 +323,13 @@ export function perkBonusesV1(levelsById) {
   const totals = {};
   /* Page Boost : « Boosted Boosts I à V, chacun multiplicatif avec les autres » (2,5 x 2,2 x 2,2 x 1,5 x 1,5 au maximum). */
   let boostPowerProduct = 1;
+  /* Page « Item Daycare » : Blessing I et II sont deux facteurs de temps distincts (x95 % x x95 %). */
+  let daycareTimeProduct = 1;
   for (const perk of IDLE_PERKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(perk.cap, Number(levels[perk.id]) || 0));
     if (!level) continue;
     if (perk.bonus && perk.bonus.boostPowerPct) boostPowerProduct *= 1 + perk.bonus.boostPowerPct * level;
+    if (perk.bonus && perk.bonus.daycareTimePct) daycareTimeProduct *= Math.max(0, 1 - perk.bonus.daycareTimePct * level);
     for (const [key, perLevel] of Object.entries(perk.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
@@ -358,7 +367,11 @@ export function perkBonusesV1(levelsById) {
     seedYieldMultiplier: 1 + (totals.seedYieldPct || 0),
     lootGoblinChance: Math.min(1, totals.lootGoblinChancePct || 0),
     cubeBoostRate: 0.01 + (totals.cubeBoostRatePct || 0),
+    /* Hausse de vitesse de la garderie (Fibonacci 55 : x105 %). */
     daycareGrowthMultiplier: 1 + (totals.daycareGrowthPct || 0),
+    /* Réduction de temps de la garderie (Daycare Kitty's Blessing I/II) et slot du perk 86. */
+    daycareTimeMultiplier: daycareTimeProduct,
+    daycareSlotBonus: totals.daycareSlotBonus || 0,
     firstHarvestMultiplier: 1 + (totals.firstHarvestPct || 0),
     wandoosOsLevelBonus: totals.wandoosOsLevelFlat || 0,
     accessorySlotBonus: totals.accessorySlotBonus || 0,

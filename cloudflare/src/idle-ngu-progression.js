@@ -58,6 +58,15 @@ import {
   nguActiveTiersV1,
   nguLevelsFromWorkV1
 } from "./idle-ngu-catalog-v1.js";
+/* --- Item Daycare (module dédié, voir idle-daycare-v1.js) --- */
+import {
+  idleDaycareFactorsV1,
+  normalizeIdleDaycareDataV1,
+  advanceIdleDaycareV1,
+  idleDaycarePlaceV1,
+  idleDaycareRemoveV1,
+  idleDaycareSnapshotV1
+} from "./idle-daycare-v1.js";
 
 /*
  * SOREAL IDLE — early game NGU parity engine.
@@ -1719,6 +1728,10 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
       accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
+
+  /* Item Daycare : données des slots, et déblocage dès qu'un slot existe (« shows up once a daycare slot has been purchased »). */
+  state.systems.daycare.data = normalizeIdleDaycareDataV1(state.systems.daycare.data);
+  if (idleDaycareFactorsV1(daycareBaseInputsV1(state)).slots > 0) state.adventure.unlockFlags.daycareSlotPurchased = true;
 
   /*
    * Migration NGU (2026-09-23) : les anciennes sauvegardes portaient 9 pistes
@@ -3456,6 +3469,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceMoneyPitAndDaily(state, nowMs(now));
   advanceIdleCookingV1(state, nowMs(now));
   advanceLateSystems(state, secs, context, nowMs(now));
+  /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
+  if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
 
   tickSelloutEffectsV1(state, secs);
   reconcileResourceCurrents(state,context);
@@ -4065,7 +4080,8 @@ export function idleNguBonuses(raw) {
     ppMultiplier: nguFx.pp * hackFx.pp * perkBonuses.ppEarningsMultiplier * diggers.pp,
     /* Aucun vrai NGU n'accélère Questing ni le Daycare (pistes inventées retirées). */
     questSpeedMultiplier: 1,
-    daycareSpeedMultiplier: 1,
+    /* Item Daycare (idle-daycare-v1.js) : vitesse (équipement, Fibonacci, souhait, Blind Evil/Sadistic, Digger, Hack) et facteur de temps. */
+    ...(() => { const fx = daycareFactorsV1(state); return { daycareSpeedMultiplier: fx.speedMultiplier, daycareTimeMultiplier: fx.timeFactor, daycareSlots: fx.slots }; })(),
     /*
      * hackSpeedMultiplier/wishSpeedMultiplier étaient déclarées ici à 1 en
      * dur depuis le début, sans aucune source réelle. Câblées avec les
@@ -4390,6 +4406,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      */
     perkDefinitions: clone(IDLE_PERKS_CATALOG_V1),
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1),
+    /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
+    daycare: idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)),
     /*
      * Audit 2026-09-16 : le client n'avait aucun moyen de connaître le coût
      * EXP/plafond des achats Spend EXP (energy/magic/r3) — jamais exposé
@@ -5358,6 +5376,14 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = applyIdleCookingActionV1(state, payload, t);
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
+  } else if (action === "daycarePlace" || action === "daycareRemove") {
+    /* Item Daycare : placer un objet de l'inventaire / le reprendre avec ses niveaux gagnés. */
+    if (!state.systems.daycare?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    const factors = daycareFactorsV1(state);
+    const itemId = String(payload.itemId || payload.id || "");
+    result = action === "daycarePlace"
+      ? idleDaycarePlaceV1(state.adventure, state.systems.daycare.data, itemId, factors)
+      : idleDaycareRemoveV1(state.adventure, state.systems.daycare.data, itemId, factors);
   } else {
     throw new Error("ACTION_META_INCONNUE");
   }
@@ -5680,8 +5706,10 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
  * Spend EXP (wiki Experience, sections Adventure Stats / Adventure Special / Misc), achats qui ont un
  * effet dans SOREAL : Power/Toughness (3 EXP = +1), Max Health (3 EXP = +10), HP Regen (50 EXP = +1),
  * espaces d'inventaire (25-36 : 2 EXP ; 37-60 : 4 x (possédés - 35) ; plafond 60), 2 slots
- * d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP). Non modélisés : Auto Merge, filtre de
- * butin, loadouts, Daycare, boutons personnalisés, Training Auto Advance, slots de Beard/MacGuffin.
+ * d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP), 3 slots de garderie (« Item Daycare ! »
+ * 250, « Another Daycare Slots! » 25 000, « Another Another Daycare Slots! » 500 000 EXP, achat unique
+ * chacun). Non modélisés : Auto Merge, filtre de butin, loadouts, boutons personnalisés, Training Auto
+ * Advance, slots de Beard/MacGuffin.
  */
 export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   adventurePower: Object.freeze({ name: "Adventure Power", cost: () => 3, gain: 1, max: null }),
@@ -5692,7 +5720,10 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   accessorySlot1: Object.freeze({ name: "Extra Accessory Slot!", cost: () => 3000, gain: 1, max: 1 }),
   accessorySlot2: Object.freeze({ name: "Another Extra Accessory Slot!", cost: () => 30000, gain: 1, max: 1 }),
   diggerSlot: Object.freeze({ name: "A Digger Slot!", cost: () => 25000, gain: 1, max: 1 }),
-  beardSlot: Object.freeze({ name: "A Beard Slot!", cost: () => 50000, gain: 1, max: 1 })
+  beardSlot: Object.freeze({ name: "A Beard Slot!", cost: () => 50000, gain: 1, max: 1 }),
+  daycareSlot1: Object.freeze({ name: "Item Daycare !", cost: () => 250, gain: 1, max: 1 }),
+  daycareSlot2: Object.freeze({ name: "Another Daycare Slots!", cost: () => 25000, gain: 1, max: 1 }),
+  daycareSlot3: Object.freeze({ name: "Another Another Daycare Slots!", cost: () => 500000, gain: 1, max: 1 })
 });
 
 function expShopPurchasedV1(state, id) {
@@ -5730,6 +5761,36 @@ function expShopSnapshotV1(state) {
     return { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
   });
 }
+
+/* ===== Item Daycare : sources de bonus lues ici, formule dans idle-daycare-v1.js ===== */
+/* Sources de slots et de réduction de temps (peu coûteuses : lues aussi à chaque normalisation). */
+function daycareBaseInputsV1(state) {
+  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+  const normal = state.challenge?.completions || {};
+  const evil = state.challenge?.completionsTier?.difficile || {};
+  const sadistic = state.challenge?.completionsTier?.extreme || {};
+  return {
+    expShopSlots: expShopPurchasedV1(state, "daycareSlot1") + expShopPurchasedV1(state, "daycareSlot2") + expShopPurchasedV1(state, "daycareSlot3"),
+    blindNormal: int(normal.blind, 0),
+    blindEvil: int(evil.blind, 0),
+    blindSadistic: int(sadistic.blind, 0),
+    trollEvil: int(evil.troll, 0),
+    perkSlots: perks.daycareSlotBonus,
+    perkTimeMultiplier: perks.daycareTimeMultiplier,
+    perkSpeedMultiplier: perks.daycareGrowthMultiplier,
+    selloutSpeedBoost: int(state.selloutShop?.purchases?.daycareSpeedBoost, 0) >= 1
+  };
+}
+function daycareFactorsV1(state) {
+  return idleDaycareFactorsV1(Object.assign(daycareBaseInputsV1(state), {
+    /* Souhait 27 « I wish the Daycare Kitty was even happier » : +1 % de vitesse par niveau (page Wishes). */
+    wishLevel: wishLevelV1(state, 27),
+    gearDaycareSpeedPct: num(gearSpecialsV1(state).daycareSpeedPct, 0),
+    diggerMultiplier: diggerBonuses(state).daycare,
+    hackMultiplier: hackFxV1(state).daycare
+  }));
+}
+/* ===== fin Item Daycare ===== */
 
 function richJerksAction(state, payload) {
   const stat = payload.stat === "defense" ? "defense" : payload.stat === "attack" ? "attack" : null;
