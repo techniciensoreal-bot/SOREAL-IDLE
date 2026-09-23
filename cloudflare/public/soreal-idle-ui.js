@@ -17953,6 +17953,16 @@ function pageAventureIdleV28_(j){
                 :''
               )+
               (function(){
+                /* Pièces de set : tous leurs Specials (valeur actuelle / plafond du niveau), audit NGU 2026-09-23. */
+                if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
+                  return item.specialsAll.map(function(sv){
+                    const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
+                    return '<div class="soreal-idle-v138-details-stat"><span>Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
+                      '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
+                      ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
+                    '</b></div>';
+                  }).join('');
+                }
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-269 */
                 const baseSpecial=idleNombre_(item.baseSpecial);
                 if(!(baseSpecial>0))return'';
@@ -18245,7 +18255,12 @@ function pageAventureIdleV28_(j){
         ["magicCapPct","Magic Cap"],["magicBarsPct","Magic Bars"],
         ["dropChancePct","Drop Chance"],["goldDropsPct","Gold Drops"],
         ["beardSpeedPct","Beard Speed"],["nguSpeedPct","NGU Speed"],
-        ["seedGainPct","Seed Gain"]
+        ["seedGainPct","Seed Gain"],
+        ["r3PowerPct","Resource 3 Power"],["r3CapPct","Resource 3 Cap"],["r3BarsPct","Resource 3 Bars"],
+        ["wishSpeedPct","Wish Speed"],["hackSpeedPct","Hack Speed"],["wandoosSpeedPct","Wandoos Speed"],
+        ["respawnReductionPct","Respawn"],["yggdrasilYieldPct","Yggdrasil Yield"],["augmentSpeedPct","Augment Speed"],
+        ["cookingPct","Cooking"],["questDropsPct","Quest Drops"],["moveCooldownPct","Move Cooldowns"],
+        ["advancedTrainingPct","Advanced Training"],["daycareSpeedPct","Daycare Speed"]
       ];
 
       function idleLabelSpecialBonusV1_(type){

@@ -18,10 +18,15 @@ import {
  * exactement ce que Sébastien a constaté sur son épée.
  */
 
-// 1) Un boost "special" sur une arme d'équipement (kind:"set") doit être refusé.
+/*
+ * Audit NGU 2026-09-23 : le wiki donne des Specials à 225 pièces de set (fiches "Item data") ;
+ * le garde-fou ne refuse donc plus que les pièces SANS Special (ex. Training Set) et
+ * accepte les autres (voir idle-adventure-set-item-specials.test.mjs).
+ */
+// 1) Un boost "special" sur une pièce de set sans aucun Special (Training) doit être refusé.
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
   const weaponId = s.inventory[0].id;
 
@@ -75,6 +80,16 @@ import {
     () => applyIdleAdventureActionV47(s, { action: "boost", boostId, targetId: weaponId }, { bosses: 17 }, 1),
     "Un boost power/toughness sur une arme d'équipement doit rester autorisé — seul 'special' est concerné par le nouveau garde-fou."
   );
+}
+
+// 4) Une pièce de set qui a des Specials (Forest Set : Energy Power) accepte un Special Boost
+{
+  let s = normalizeIdleAdventureStateV47({});
+  s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});
+  s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1).state;
+  const weaponId = s.inventory[0].id;
+  s.inventory.push({ id: "bs", definitionId: "boost:special:1", name: "Boost special 1", kind: "boost", boostType: "special", strength: 1, level: 0 });
+  assert.doesNotThrow(() => applyIdleAdventureActionV47(s, { action: "boost", boostId: "bs", targetId: weaponId }, { bosses: 17 }, 1));
 }
 
 console.log("idle-adventure-special-boost-equipment-guard: OK");

@@ -1,3 +1,4 @@
+import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
 export const IDLE_ADVENTURE_V47="ADVENTURE-V47-NGU-EARLY";
 const MAX=100, H=3600000;
 const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b)=>Math.max(a,Math.min(b,N(v,a))),X=v=>JSON.parse(JSON.stringify(v));
@@ -1691,7 +1692,7 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   // Pirate (set) (Aetherean Sea) -- ngu-idle.fandom.com/wiki/Pirate_(set) -- slot "cutlass" = objet "The Cutlass" (arme réelle = The Flintlock)
   "pirate:head":"Pirate Hat","pirate:chest":"Swashbuckler Chest","pirate:legs":"Piratey Pants","pirate:boots":"Piratey Peglegs","pirate:weapon":"The Flintlock","pirate:cutlass":"The Cutlass","pirate:eyepatch":"A Giant's Eyepatch","pirate:compass":"A Compass!"
 });
-function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:0}}
+function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(SET_ITEM_SPECIALS_V1[definitionId]?.[0]?.[1])}}
 function rollFreshEquipmentStatsV1(o){
   if(!o||o.kind!=="equipment")return o;
   /*
@@ -1838,6 +1839,10 @@ if(d?.kind==="special"){
   const def=SPECIALS[d.id];
   if(def&&N(def.sBase)>0)z.special=Math.max(z.special,N(def.sBase));
 }
+if(d?.kind==="set"){
+  const sp=idleAdventureSetSpecialsV1(d.set,d.slot);
+  if(sp)z.special=Math.max(z.special,N(sp[0][1]));
+}
 /*
  * Norman (2026-09-18, en direct) : "le set que tu vois n'est pas le set
  * du tuto. Je t'ai donné son nom tout à l'heure." Même classe de bug que
@@ -1974,7 +1979,31 @@ const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slot
  * seul un boost supplémentaire peut combler l'écart. remake() est donc
  * supprimée : plus aucun recalcul de formule n'a lieu à la fusion.
  */
-function idleAdventureBaseStatsV1(set,slot){if(!SETS[set])return{baseP:0,baseT:0};const{p,t}=idleAdventureItemStatsMaxV1(set,slot);return{baseP:p/2,baseT:t/2}}
+/*
+ * Specials des pièces de set (audit NGU 2026-09-23, voir
+ * idle-adventure-set-specials-v1.js). Le premier Special de la pièce est porté
+ * par le scalaire `special` de l'objet (départ = "Base value", plafond =
+ * "Max stat at lvl 0" x (1 + niveau/100), monté par les Special Boosts, comme
+ * les accessoires) ; les autres Specials de la même pièce suivent la MÊME
+ * fraction de progression vers leur propre plafond (le wiki ne dit pas
+ * comment un boost se répartit entre plusieurs Specials).
+ */
+function idleAdventureSetSpecialsV1(set,slot){return SET_ITEM_SPECIALS_V1[`${set}:${slot}`]||null}
+function idleAdventureSetSpecialsValuesV1(o){
+  const d=defById(o&&o.definitionId);
+  const list=d?.kind==="set"?idleAdventureSetSpecialsV1(d.set,d.slot):null;
+  if(!list||!list.length)return[];
+  const q=1+C(N(o.level),0,MAX)/100;
+  const [,base0,max0]=list[0];
+  const cap0=max0*q;
+  const fraction=cap0-base0>1e-12?C((N(o.special)-base0)/(cap0-base0),0,1):0;
+  return list.map(([type,base,max],i)=>{
+    const cap=max*q;
+    const value=i===0?Math.min(cap,Math.max(base,N(o.special))):base+(cap-base)*fraction;
+    return{type,value,max:cap};
+  });
+}
+function idleAdventureBaseStatsV1(set,slot){if(!SETS[set])return{baseP:0,baseT:0,baseS:0};const{p,t}=idleAdventureItemStatsMaxV1(set,slot);const sp=idleAdventureSetSpecialsV1(set,slot);return{baseP:p/2,baseT:t/2,baseS:sp?sp[0][2]:0}}
 /*
  * Équivalent de idleAdventureBaseStatsV1 ci-dessus mais pour un accessoire
  * (SPECIALS), qui n'appartient à aucun set — ajouté le 2026-09-13 avec le
@@ -2370,8 +2399,10 @@ function applyBoost(s,boostId,targetId){
    * de ce type, laissant n'importe quelle arme/armure accumuler un
    * "special" sans aucune formule ni effet de jeu réel.
    */
-  if(type==="special"&&defById(o.definitionId)?.kind!=="special"){
-    throw Error("BOOST_SPECIAL_CIBLE_INVALIDE");
+  if(type==="special"){
+    const cible=defById(o.definitionId);
+    const specialPiece=cible?.kind==="set"&&Boolean(idleAdventureSetSpecialsV1(cible.set,cible.slot));
+    if(cible?.kind!=="special"&&!specialPiece)throw Error("BOOST_SPECIAL_CIBLE_INVALIDE");
   }
   /*
    * V210 — un objet réellement terminé ne doit jamais avaler un boost
@@ -2402,7 +2433,7 @@ function applyBoost(s,boostId,targetId){
      * armure de set ne peut recevoir ce boost, plafonné ou non.
      */
     const d=defById(o.definitionId);
-    const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null;
+    const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):(d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):null);
     const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
     if(cap!=null&&N(o[type])>=cap-1e-9){
       throw Error("BOOST_STAT_DEJA_MAX");
@@ -3891,6 +3922,10 @@ function idleAdventureSpecialsByTypeV1(equipped){
   const add=(type,value)=>{if(!type)return;out[type]=N(out[type])+N(value)};
   for(const o of equipped){
     const def=defById(o.definitionId);
+    if(def?.kind==="set"){
+      for(const sv of idleAdventureSetSpecialsValuesV1(o))add(sv.type,sv.value);
+      continue;
+    }
     const d=def?.kind==="special"?SPECIALS[def.id]:null;
     if(!d)continue;
     if(d.sType)add(d.sType,o.special);
@@ -3975,9 +4010,11 @@ function snapshotItemAdventureV1(o){
     :(d?.kind==="special"
       ?idleAdventureSpecialBaseStatsV1(d.id)
       :{baseP:0,baseT:0,baseS:0});
-  const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:undefined;
+  const specialsPiece=d?.kind==="set"?idleAdventureSetSpecialsValuesV1(o):[];
+  const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:(specialsPiece.length?specialsPiece[0].type:undefined);
   return{
     ...o,
+    specialsAll:specialsPiece.length?specialsPiece:undefined,
     maxed:idleAdventureNiveauEstMaxV1(o&&o.level),
     fullyMaxed:idleAdventureObjetPleinementMaxeV1(o),
     basePower:base.baseP,

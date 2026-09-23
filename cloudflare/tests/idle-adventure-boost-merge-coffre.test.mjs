@@ -58,9 +58,9 @@ import {
  */
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
-  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1);
+  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 40 }, { bosses: 17 }, 1);
   s = r.state;
   const idsSetup = s.inventory.map(x => x.id);
   r = applyIdleAdventureActionV47(s, { action: "merge", a: idsSetup[0], b: idsSetup[1] }, { bosses: 17 }, 1);
@@ -78,9 +78,9 @@ import {
   const powerAfterBoost = boostedItem.power;
 
   // Fusionne avec un deuxième objet MOINS boosté (power plus faible) : le résultat garde le MAX (celui de l'objet A, déjà boosté).
-  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 30 }, { bosses: 17 }, 1);
+  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 30 }, { bosses: 17 }, 1);
   s = r.state;
-  const secondId = s.inventory.find(x => x.id !== itemId && x.definitionId === "forest:weapon").id;
+  const secondId = s.inventory.find(x => x.id !== itemId && x.definitionId === "training:weapon").id;
   const secondPower = s.inventory.find(x => x.id === secondId).power;
   assert.ok(secondPower < powerAfterBoost, "Le second objet (non boosté) doit avoir un Power plus faible, pour tester le vrai cas MAX.");
 
@@ -108,17 +108,17 @@ import {
 // --- 2bis. Le snapshot expose maxed directement, le client ne doit plus le recalculer seul ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const snap = idleAdventureSnapshotV47(s, 17);
   assert.equal(snap.inventory[0].maxed, true, "Un objet de niveau 100 doit être marqué maxed dans le snapshot.");
-  assert.equal(snap.itemList["forest:weapon"].maxed, true, "itemList doit aussi porter maxed, pour la Collection.");
+  assert.equal(snap.itemList["training:weapon"].maxed, true, "itemList doit aussi porter maxed, pour la Collection.");
 }
 
 // --- 3. Coffre (audit 2026-09-13, Norman : emplacements fixes, "ranger nous-même dans la case appropriée") ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const maxedId = s.inventory[0].id;
   /*
@@ -133,12 +133,12 @@ import {
    */
   {
     const maxedItem = s.inventory.find(x => x.id === maxedId);
-    const { p, t } = idleAdventureItemStatsMaxV1("forest", "weapon");
+    const { p, t } = idleAdventureItemStatsMaxV1("training", "weapon");
     maxedItem.power = p;
     maxedItem.toughness = t;
   }
 
-  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 50 }, { bosses: 17 }, 1);
+  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 50 }, { bosses: 17 }, 1);
   s = r.state;
   const notMaxedId = s.inventory.find(x => x.id !== maxedId).id;
 
@@ -153,7 +153,7 @@ import {
   r = applyIdleAdventureActionV47(s, { action: "coffreDeposer", id: maxedId }, { bosses: 17 }, 1);
   s = r.state;
   assert.equal(s.inventory.some(x => x.id === maxedId), false, "L'objet doit quitter l'inventaire.");
-  assert.equal(s.coffre["forest:weapon"]?.id, maxedId, "L'objet doit occuper exactement l'emplacement forest:weapon, son emplacement fixe.");
+  assert.equal(s.coffre["training:weapon"]?.id, maxedId, "L'objet doit occuper exactement l'emplacement training:weapon, son emplacement fixe.");
 
   // Le coffre ne compte jamais dans la capacité de sac.
   const snap = idleAdventureSnapshotV47(s, 17);
@@ -162,20 +162,20 @@ import {
   // coffreSlots doit exposer TOUT le catalogue d'équipement (pas seulement les objets déjà déposés) —
   // les cases vides et jamais découvertes restent visibles, jamais reconstruites depuis les seuls objets obtenus.
   assert.ok(snap.coffreSlots.length > 50, "coffreSlots doit couvrir tout le catalogue d'équipement (dizaines d'emplacements), pas seulement les objets déposés.");
-  const slotForestWeapon = snap.coffreSlots.find(x => x.definitionId === "forest:weapon");
-  assert.equal(slotForestWeapon.occupe, true, "L'emplacement forest:weapon doit être marqué occupé (V vert).");
-  assert.equal(slotForestWeapon.item.id, maxedId);
+  const slotTrainingWeapon = snap.coffreSlots.find(x => x.definitionId === "training:weapon");
+  assert.equal(slotTrainingWeapon.occupe, true, "L'emplacement training:weapon doit être marqué occupé (V vert).");
+  assert.equal(slotTrainingWeapon.item.id, maxedId);
   const slotSewersWeapon = snap.coffreSlots.find(x => x.definitionId === "sewers:weapon");
   assert.equal(slotSewersWeapon.occupe, false, "Un emplacement jamais déposé doit rester vide — un trou visible, jamais comblé automatiquement.");
 
   // Refuse un deuxième objet dans une case déjà occupée (une case = un emplacement fixe, pas un choix libre).
   const idsBeforeSecondAdd = new Set(s.inventory.map(x => x.id));
-  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
-  const secondMaxedId = s.inventory.find(x => x.definitionId === "forest:weapon" && !idsBeforeSecondAdd.has(x.id)).id;
+  const secondMaxedId = s.inventory.find(x => x.definitionId === "training:weapon" && !idsBeforeSecondAdd.has(x.id)).id;
   {
     const secondMaxedItem = s.inventory.find(x => x.id === secondMaxedId);
-    const { p, t } = idleAdventureItemStatsMaxV1("forest", "weapon");
+    const { p, t } = idleAdventureItemStatsMaxV1("training", "weapon");
     secondMaxedItem.power = p;
     secondMaxedItem.toughness = t;
   }
@@ -198,7 +198,7 @@ import {
   // Retrait vers l'inventaire : l'objet doit pouvoir être rééquipé ensuite (Norman : "on peut reprendre les items pour les réequiper au besoin").
   r = applyIdleAdventureActionV47(s, { action: "coffreRetirer", id: maxedId }, { bosses: 17 }, 1);
   s = r.state;
-  assert.equal(s.coffre["forest:weapon"], undefined, "L'emplacement doit se vider au retrait.");
+  assert.equal(s.coffre["training:weapon"], undefined, "L'emplacement doit se vider au retrait.");
   assert.equal(s.inventory.some(x => x.id === maxedId), true, "L'objet doit revenir dans l'inventaire au retrait.");
   r = applyIdleAdventureActionV47(s, { action: "equip", id: maxedId, slot: "weapon" }, { bosses: 17 }, 1);
   s = r.state;
@@ -223,10 +223,10 @@ function equippedIdsFromState(s) {
   let s = normalizeIdleAdventureStateV47({});
   s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  // Fusionne un objet niveau 50 (jamais boosté) avec un objet niveau 49 : résultat niveau 100,
   // mais Power reste celui du plus fort des deux (formule niveau 50 < plafond niveau 100) — "3/3 → 3/4".
-  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 50 }, { bosses: 17 }, 1);
+  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 50 }, { bosses: 17 }, 1);
   s = r.state;
   const aId = s.inventory[0].id;
-  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 49 }, { bosses: 17 }, 1);
+  r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 49 }, { bosses: 17 }, 1);
   s = r.state;
   const bId = s.inventory.find(x => x.id !== aId).id;
   r = applyIdleAdventureActionV47(s, { action: "merge", a: aId, b: bId }, { bosses: 17 }, 1);
@@ -245,7 +245,7 @@ function equippedIdsFromState(s) {
   );
 
   // Une fois toutes les statistiques RÉELLES de l'objet au plafond, le Coffre doit l'accepter.
-  // forest:weapon n'a ici qu'un plafond Power utile : après ce boost l'objet est pleinement terminé.
+  // training:weapon n'a ici qu'un plafond Power utile : après ce boost l'objet est pleinement terminé.
   const boostPowerId = "test-boost-cap-power";
   const boostToughnessId = "test-boost-cap-toughness";
   s.inventory.push({ id: boostPowerId, definitionId: "boost:power:100", name: "Boost power 100", kind: "boost", boostType: "power", strength: 100000, level: 0 });
@@ -267,13 +267,13 @@ function equippedIdsFromState(s) {
 
   r = applyIdleAdventureActionV47(s, { action: "coffreDeposer", id: aId }, { bosses: 17 }, 1);
   s = r.state;
-  assert.equal(s.coffre["forest:weapon"]?.id, aId, "Une fois ses statistiques utiles au plafond réel, le Coffre doit accepter l'objet.");
+  assert.equal(s.coffre["training:weapon"]?.id, aId, "Une fois ses statistiques utiles au plafond réel, le Coffre doit accepter l'objet.");
 }
 
 // --- 3bis. Un objet équipé ne peut pas rejoindre le coffre directement (doit d'abord être déséquipé, comme discard()) ---
 {
   let s = normalizeIdleAdventureStateV47({});
-  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
+  s.inventory = s.inventory.filter(function(i){return i.kind==="equipment";});  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:weapon", level: 100 }, { bosses: 17 }, 1);
   s = r.state;
   const id = s.inventory[0].id;
   r = applyIdleAdventureActionV47(s, { action: "equip", id, slot: "weapon" }, { bosses: 17 }, 1);

@@ -73,7 +73,7 @@ import { normalizeIdleAdventureStateV47, idleAdventureSnapshotV47, IDLE_ADVENTUR
   const state = {
     version: IDLE_ADVENTURE_V47,
     inventory: [
-      { id: "w1", definitionId: "forest:weapon", kind: "equipment", set: "forest", slot: "weapon", level: 50, power: 0, toughness: 0, special: 0 }
+      { id: "w1", definitionId: "training:weapon", kind: "equipment", set: "training", slot: "weapon", level: 50, power: 0, toughness: 0, special: 0 }
     ]
   };
   const snap = idleAdventureSnapshotV47(state, 100);

@@ -874,7 +874,7 @@ function advanceWandoos(state, seconds, context, now) {
   const energyAlloc = Math.max(0, num(s.allocation.energy, 0));
   const magicAlloc = Math.max(0, num(s.allocation.magic, 0));
   /* NGU "Wandoos" (Energy) : "Wandoos speed", audit NGU 2026-09-23. */
-  const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed;
+  const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed * gearPctV1(gearSpecialsV1(state), "wandoosSpeedPct");
 
   const energySpeed = Math.min(50, 50 * energyAlloc / requirement)
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
@@ -2034,7 +2034,8 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed);
+  const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
+  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed);
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
@@ -2305,7 +2306,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct));
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct"));
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -2770,7 +2771,8 @@ function useYggFruit(state,fruitId,mode="eat"){
   const harvest=mode==="harvest";
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
-  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil;
+  const gearYgg=gearSpecialsV1(state);
+  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil*gearPctV1(gearYgg,"seedGainPct")*gearPctV1(gearYgg,"yggdrasilYieldPct");
   const firstHarvestMultiplier=f.firstHarvestThisRun?perkBonuses.firstHarvestMultiplier:1;
   const seedGain=yggSeedGain(def,grownTier,harvest||def.id==="pomegranate",seedYieldMultiplier,firstHarvestMultiplier);
   state.currencies.seeds+=seedGain;
@@ -3165,6 +3167,13 @@ function nguTotalLevelsV1(state) {
  * "Faster NGU Energy/Magic", et le NGU "Magic NGU" (accélère les NGU Magic) /
  * "Energy NGU" (accélère les NGU Energy).
  */
+/* Specials cumulés (en %) de l'équipement porté ; vides sous le No Equipment Challenge. */
+function gearSpecialsV1(state) {
+  if (state.challenge?.active === "noEquipment") return {};
+  return idleAdventureEquipmentStatsV47(state.adventure).specials || {};
+}
+const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 100;
+
 function nguSpeedMultiplierV1(state, resource) {
   const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
   const perks = perkBonusesV1(state.systems.perks?.data?.levels);
@@ -3528,9 +3537,9 @@ export function idleNguBonuses(raw) {
      * le même schéma que les six ci-dessus, alimentées pour l'instant
      * uniquement par les souhaits "Resource 3 Power/Cap/Bars".
      */
-    r3PowerMultiplier: wishBonuses.r3PowerMultiplier,
-    r3CapMultiplier: wishBonuses.r3CapMultiplier,
-    r3BarsMultiplier: wishBonuses.r3BarsMultiplier,
+    r3PowerMultiplier: wishBonuses.r3PowerMultiplier * gearPctV1(adventureGear.specials, "r3PowerPct"),
+    r3CapMultiplier: wishBonuses.r3CapMultiplier * gearPctV1(adventureGear.specials, "r3CapPct"),
+    r3BarsMultiplier: wishBonuses.r3BarsMultiplier * gearPctV1(adventureGear.specials, "r3BarsPct"),
     boostPowerMultiplier: perkBonuses.boostPowerMultiplier * quirkBonuses.boostPowerMultiplier,
     inventorySlotsFromPerks: perkBonuses.inventorySlots,
     accessorySlotsFromPerks: perkBonuses.accessorySlotBonus,
@@ -3614,8 +3623,8 @@ export function idleNguBonuses(raw) {
      * contribution du cube y est donc dupliquée par petit calcul local
      * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
-    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100),
-    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))),
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct"),
+    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))) * gearPctV1(adventureGear.specials, "wishSpeedPct"),
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
     quirkBonuses:clone(quirkBonuses),
