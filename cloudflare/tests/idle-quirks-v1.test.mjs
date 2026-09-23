@@ -34,9 +34,9 @@ import { IDLE_PERKS_CATALOG_V1 } from "../src/idle-perks-v1.js";
  */
 
 // --- Catalog shape: 66 entries, ids matching the wiki table's own indices ---
-assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 184, "102 + Hack Milestone Reducers (57-60, 174-175) ajoutés le 2026-09-23 + Bonus Quest Handin Progress I (71, Questing) + Another MacGuffin Slot! (50).");
+assert.equal(IDLE_QUIRKS_CATALOG_V1.length, 185, "102 + Hack Milestone Reducers (57-60, 174-175) ajoutés le 2026-09-23 + Bonus Quest Handin Progress I (71, Questing) + Another MacGuffin Slot! (50) + An Inventory Automerge Slot! (55).");
 const expectedIds = [
-  ...Array.from({ length: 55 }, (_, i) => i), // 0-54
+  ...Array.from({ length: 56 }, (_, i) => i), // 0-55
   ...Array.from({ length: 42 }, (_, i) => 57 + i), // 57-98
   ...Array.from({ length: 71 }, (_, i) => 99 + i), // 99-169 (Cards/Mayo)
   ...Array.from({ length: 16 }, (_, i) => 170 + i) // 170-185

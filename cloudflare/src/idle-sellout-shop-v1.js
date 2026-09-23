@@ -195,6 +195,16 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   fasterWishes: { passive: true },
   autoNuker: { passive: true },
   /*
+   * Automatisation de l'inventaire (idle-inventory-auto-v1.js, lus depuis purchases) : filtre de butin
+   * amélioré, minuteurs Auto Merge/Auto Boost divisés par 2, loadouts, boosts filtrés versés dans
+   * l'Infinity Cube, slots d'automerge.
+   */
+  improvedLootFilter: { passive: true },
+  autoMergeBoostTimers: { passive: true },
+  loadoutSlot: { passive: true },
+  filterBoostsIntoCube: { passive: true },
+  inventoryMergeSlots: { passive: true },
+  /*
    * MacGuffin Fragments (2026-09-23, idle-macguffins-v1.js) : slots (lus via
    * purchases.macguffinSlot) ; Muffin = minuteur 24 h + "armé" jusqu'au
    * prochain Rebirth ("Applies for at least one rebirth, even if it's past
