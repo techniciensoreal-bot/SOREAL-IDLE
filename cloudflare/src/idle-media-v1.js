@@ -732,7 +732,24 @@ async function piperModelProxy_(request,url){
   });
 }
 
-async function avatarProxy_(request,url){
+async function avatarProxy_(request,url,env){
+  /*
+   * 2026-09-23 (audit) : proxy d'image ouvert au public, sans la
+   * moindre authentification -- n'importe qui pouvait faire
+   * télécharger/mettre en cache par le Worker (facturé sur le compte
+   * Cloudflare) n'importe quel fichier Google Drive dont il connaît
+   * l'id, en se faisant passer pour un usage légitime du jeu. Aucun
+   * appelant frontend trouvé nulle part dans les 3 dépôts (recherche
+   * exhaustive) -- même clé interne que idleCallV1
+   * (idle-worker-entry-v1.js) et debug-list (corrigé le même jour) par
+   * cohérence, plutôt qu'une suppression pure tant qu'un appelant
+   * légitime n'est pas formellement exclu.
+   */
+  const internalKey=String(env.SOREAL_IDLE_INTERNAL_KEY||"");
+  const suppliedKey=String(request.headers.get("x-soreal-idle-internal-key")||"");
+  if(!internalKey||suppliedKey!==internalKey){
+    return new Response("Non autorisé",{status:401,headers:{"cache-control":"no-store"}});
+  }
   const id=String(url.searchParams.get("id")||"").trim();
   const width=Math.max(64,Math.min(1600,Math.floor(Number(url.searchParams.get("w"))||700)));
   if(!/^[A-Za-z0-9_-]{10,220}$/.test(id))return new Response("Image IDLE invalide",{status:400,headers:{"cache-control":"no-store"}});
@@ -1096,7 +1113,7 @@ export async function traiterRequeteIdleMedia(request,env){
   }
   if(url.pathname==="/api/idle/media/debug-list")return debugListeR2_(request,env,url);
   if(url.pathname===IDLE_PIPER_MODEL_ROUTE_V1||url.pathname===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1)return piperModelProxy_(request,url);
-  if(url.pathname==="/api/idle/media/avatar")return avatarProxy_(request,url);
+  if(url.pathname==="/api/idle/media/avatar")return avatarProxy_(request,url,env);
   if(url.pathname==="/api/idle/media/item")return itemSet_(request,env,url);
   if(url.pathname==="/api/idle/media/mob")return adventureMob_(request,env,url);
   if(url.pathname==="/api/idle/media/safe-zone")return adventureSafeZone_(request,env,url);

@@ -896,3 +896,13 @@ Audit de professionnalisme demandé par l'utilisateur sur les 3 dépôts SOREAL.
 **Fix** : même clé interne que `idleCallV1` (`idle-worker-entry-v1.js`) — `SOREAL_IDLE_INTERNAL_KEY` / header `x-soreal-idle-internal-key`. Fermé par défaut si le secret n'est pas provisionné (jamais un accès ouvert par défaut).
 
 Nouveau test (`idle-media-debug-list-requires-internal-key.test.mjs`). Suite complète : 171/171 OK.
+
+## 2026-09-23 — Audit (suite, tier Moyenne #11) : proxy d'avatar public sans authentification
+
+`/api/idle/media/avatar` (avatarProxy_) relayait n'importe quelle requête vers un fichier Google Drive arbitraire (via son `id`) sans la moindre authentification -- accessible à quiconque sur Internet, qui pouvait faire télécharger/mettre en cache par le Worker (facturé sur le compte Cloudflare) n'importe quel fichier dont il connaît l'id. Recherche exhaustive dans les 3 dépôts : aucun appelant frontend trouvé nulle part -- même situation que `debug-list` (corrigé plus tôt aujourd'hui).
+
+**Fix** : même clé interne que `idleCallV1`/`debug-list` -- `SOREAL_IDLE_INTERNAL_KEY` / header `x-soreal-idle-internal-key`, fermé par défaut si le secret n'est pas provisionné. Nouveau test `idle-media-avatar-requires-internal-key.test.mjs`.
+
+**Prudence** : contrairement à `debug-list`, ce proxy a une implémentation soignée (largeur bornée, cache 7 jours, support HEAD) qui suggère un usage réel prévu, même si aucun appelant n'a été trouvé -- probablement un vestige d'une migration vers des avatars hébergés directement sur R2. Si ce correctif casse l'affichage d'un avatar en production, revert immédiat et investigation.
+
+Suite complète : 172/172 OK.
