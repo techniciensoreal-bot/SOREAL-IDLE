@@ -2407,6 +2407,8 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
  * pour les Wishes ci-dessous (même sens : plus le multiplicateur est haut,
  * plus vite le niveau avance).
  */
+/* Page Hacks : niveau maximal de chaque Hack (au-delà, la barre repart sans augmenter le bonus). */
+const HACK_HARD_CAP_V1 = Object.freeze({ attackDefense: 7720, adventureStats: 7632, timeMachineSpeed: 7544, dropChance: 7544, augmentSpeed: 7456, energyNguSpeed: 7340, magicNguSpeed: 7340, bloodGain: 7252, qpGain: 7164, daycare: 7048, exp: 6960, number: 6873, pp: 6757, hackHack: 6757, wish: 6262 });
 function advanceHackTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;
   const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonuses(state).hackSpeedMultiplier, 1));
@@ -2418,8 +2420,9 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
   let remaining = Math.max(0, num(seconds, 0));
   const divider = Math.max(1, num(trackDef.speedDivider, 1e8));
 
+  const hardCap = HACK_HARD_CAP_V1[trackDef.id] || Infinity;
   let iterations = 0;
-  while (remaining > 1e-9 && iterations < 100000) {
+  while (remaining > 1e-9 && iterations < 100000 && level < hardCap) {
     iterations++;
     const ticksNeeded = divider * Math.pow(1.0078, level) * (level + 1);
     const secondsNeeded = ticksNeeded / 50 / throughput;
@@ -2435,8 +2438,8 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
     }
   }
 
-  track.level = level;
-  track.progress = progress;
+  track.level = Math.min(level, hardCap);
+  track.progress = level >= hardCap ? 0 : progress;
 }
 
 /*
