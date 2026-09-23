@@ -961,7 +961,7 @@ function pageChallengesIdleV1_(j){
         if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏁 Défis','Défis à restriction, pour des récompenses permanentes.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
         const defs=j&&j.systemes&&Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
         const actif=defs.find(function(d){return d&&d.active;})||null;
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏁 Défis','Démarre un défi débloqué, atteins son objectif de boss, puis valide-le pour la récompense. Un seul défi actif à la fois.')+
+        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏁 Défis'+(defs[0]&&defs[0].tier==='difficile'?' (Evil)':defs[0]&&defs[0].tier==='extreme'?' (Sadistic)':''),'Démarre un défi débloqué, atteins son objectif de boss, puis valide-le pour la récompense. Un seul défi actif à la fois. Les défis Evil et Sadistic ont leurs propres compteurs et récompenses.')+
           (actif
             ?'<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Défi actif<b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(actif.name||actif.id)+'</b></div></div>'+
               '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">'+

@@ -15971,7 +15971,10 @@ let idleDialogueTimerV76=null;
       }
 
       function multiplicateurIdleAttackAdventureIdleV2_(a){
-        return Boolean(a&&a.stats&&a.stats.specials&&a.stats.specials.idleAttack)
+        const sp=a&&a.stats&&a.stats.specials;
+        const serveur=sp&&Number(sp.idleAttackMultiplier);
+        if(serveur>0)return serveur;
+        return Boolean(sp&&sp.idleAttack)
           ?1.5
           :1.2;
       }

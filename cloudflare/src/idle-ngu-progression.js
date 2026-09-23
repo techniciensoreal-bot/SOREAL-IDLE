@@ -281,7 +281,7 @@ export const REBIRTH_UNLOCK_BOSS_V1 =
 export const IDLE_NGU_NORMAL_CHALLENGES = Object.freeze([
   Object.freeze({id:"basic",name:"Basic Challenge",max:5,targetBoss:58,targetStep:0,implemented:true,reward:{experience:1500,ap:2500},unlock:{bosses:58},restriction:"resetNumber"}),
   Object.freeze({id:"noAugmentations",name:"No Augs Challenge",max:5,targetBoss:59,targetStep:0,implemented:true,reward:{experience:5000,ap:10000},unlock:{bosses:75},restriction:"noAugmentations"}),
-  Object.freeze({id:"twentyFourHours",name:"24 Hour Challenge",max:10,targetBoss:58,targetStep:26,implemented:true,reward:{experience:400,ap:5000},unlock:{basicUnder24h:true},restriction:"offlineDisabled"}),
+  Object.freeze({id:"twentyFourHours",name:"24 Hour Challenge",max:10,targetBoss:58,targetStep:26,implemented:true,reward:{experience:400,ap:5000,scaleByNumber:true},unlock:{basicUnder24h:true},restriction:"offlineDisabled"}),
   Object.freeze({id:"hundredLevels",name:"100 Levels Challenge",max:5,targetBoss:58,targetStep:0,implemented:true,reward:{experience:500,ap:1500},unlock:{nguLevels:10},restriction:"hundredLevels"}),
   Object.freeze({id:"noEquipment",name:"No Equipment Challenge",max:5,targetBoss:66,targetStep:0,implemented:true,reward:{experience:4000,ap:3000},unlock:{grbSet:true},restriction:"noEquipment"}),
   Object.freeze({id:"troll",name:"Troll Challenge",max:7,targetBoss:69,targetStep:15,implemented:true,reward:{experience:5000,ap:10000},unlock:{titan:"t2"},restriction:"troll"}),
@@ -292,29 +292,118 @@ export const IDLE_NGU_NORMAL_CHALLENGES = Object.freeze([
   Object.freeze({id:"noTimeMachine",name:"No Time Machine Challenge",max:10,targetBoss:58,targetStep:15,implemented:true,reward:{experience:2000,ap:2000},unlock:{diggers:true},restriction:"noTimeMachine"})
 ]);
 
+/*
+ * 2026-09-23 (audit, page Challenges) : les défis Evil et Sadistic n'existaient pas -- seule la
+ * colonne Normal était modélisée. Chaque difficulté a son propre compteur de complétions, sa
+ * table de récompenses (EXP/AP) et ses bonus permanents. Lignes : [max, boss cible, pas par
+ * complétion, EXP, AP]. « Boss # does NOT increase » (Sadistic) : pas de 0 pour Basic, No Augs,
+ * 100 Levels et No Equipment.
+ */
+const CHALLENGE_TIER_ROWS_V1 = Object.freeze({
+  difficile: {
+    basic:[5,58,0,15000,500], noAugmentations:[5,59,0,50000,2000], twentyFourHours:[10,58,26,4000,1000],
+    hundredLevels:[5,58,0,20000,1200], noEquipment:[5,66,0,40000,2400], troll:[7,69,15,50000,2000],
+    noRebirth:[10,40,5,100000,5000], laserSword:[20,0,0,30000,600], blind:[10,58,10,25000,600],
+    noNgu:[10,58,10,30000,600], noTimeMachine:[10,58,15,20000,400]
+  },
+  extreme: {
+    basic:[5,58,0,150000,500], noAugmentations:[5,59,0,500000,2000], twentyFourHours:[10,58,26,40000,1000],
+    hundredLevels:[5,58,0,200000,1200], noEquipment:[5,66,0,400000,2400], troll:[7,69,15,500000,2000],
+    noRebirth:[10,40,5,1000000,5000], laserSword:[20,0,0,300000,600], blind:[10,58,10,250000,600],
+    noNgu:[10,58,10,300000,600], noTimeMachine:[10,58,15,200000,400]
+  }
+});
+const CHALLENGE_TIER_KEYS_V1 = Object.freeze(["difficile", "extreme"]);
+export const IDLE_NGU_TIER_CHALLENGES = Object.freeze(Object.fromEntries(
+  Object.entries(CHALLENGE_TIER_ROWS_V1).map(([tier, rows]) => [tier, Object.freeze(IDLE_NGU_NORMAL_CHALLENGES.map(base => {
+    const r = rows[base.id];
+    return Object.freeze(Object.assign({}, base, {
+      max:r[0], targetBoss:r[1], targetStep:r[2],
+      reward:Object.assign({experience:r[3], ap:r[4]}, base.id === "twentyFourHours" ? {scaleByNumber:true} : {}),
+      unlock:{}, tier
+    }));
+  }))])
+));
+
+function challengeTierOfDifficultyV1(difficulty){
+  return difficulty==="extreme"?"extreme":difficulty==="difficile"?"difficile":"normal";
+}
+function challengeTierV1(state){
+  if(state?.challenge?.active)return CHALLENGE_TIER_KEYS_V1.includes(state.challenge.activeTier)?state.challenge.activeTier:"normal";
+  return challengeTierOfDifficultyV1(state?.difficulty);
+}
+function challengeDefsForTierV1(tier){
+  return tier==="normal"?IDLE_NGU_NORMAL_CHALLENGES:(IDLE_NGU_TIER_CHALLENGES[tier]||IDLE_NGU_NORMAL_CHALLENGES);
+}
+function challengeCompletionsV1(state,tier){
+  if(tier==="normal")return state.challenge.completions;
+  const all=state.challenge.completionsTier||(state.challenge.completionsTier=createChallengeTiersV1());
+  return all[tier]||(all[tier]={});
+}
+function createChallengeTiersV1(raw){
+  const out={};
+  for(const tier of CHALLENGE_TIER_KEYS_V1){
+    out[tier]=Object.fromEntries(IDLE_NGU_NORMAL_CHALLENGES.map(def=>[def.id,Math.max(0,int(raw?.[tier]?.[def.id],0))]));
+  }
+  return out;
+}
+
 function challengePermanentBonuses(state){
   const c=state?.challenge?.completions||{};
-  const basic=Math.max(0,int(c.basic,0));
-  const noAugs=Math.max(0,int(c.noAugmentations,0));
-  const noEquipment=Math.max(0,int(c.noEquipment,0));
-  const noRebirth=Math.max(0,int(c.noRebirth,0));
-  const noNgu=Math.max(0,int(c.noNgu,0));
-  const noTimeMachine=Math.max(0,int(c.noTimeMachine,0));
+  const e=state?.challenge?.completionsTier?.difficile||{};
+  const s=state?.challenge?.completionsTier?.extreme||{};
+  const k=(o,id)=>Math.max(0,int(o[id],0));
+  const basic=k(c,"basic");
+  const noAugs=k(c,"noAugmentations");
+  const noAugsEvil=k(e,"noAugmentations");
+  const noEquipment=k(c,"noEquipment");
+  const noRebirth=k(c,"noRebirth");
+  const noNgu=k(c,"noNgu");
+  const noTimeMachine=k(c,"noTimeMachine");
+  const noTimeMachineEvil=k(e,"noTimeMachine");
+  const trollNormal=k(c,"troll");
+  const trollEvil=k(e,"troll");
+  const trollSadistic=k(s,"troll");
+  const noEquipmentSadistic=k(s,"noEquipment");
   return {
-    adventureStatsMultiplier:1+basic*0.05+(basic>0?0.10:0),
+    /* Basic : +5 % par complétion (+10 % la première) en Normal, +10 % par complétion en Evil. */
+    adventureStatsMultiplier:1+basic*0.05+(basic>0?0.10:0)+k(e,"basic")*0.10,
     boostRecycleChance:clamp(basic*0.10,0,1),
     augmentationPowerMultiplier:1+noAugs*0.25,
-    augmentationSpeedMultiplier:noAugs>0?1.10:1,
+    /* No Augs : +10 % (1re, Normal), Evil +5 % par complétion et +25 % supplémentaires à la dernière. */
+    augmentationSpeedMultiplier:1+(noAugs>0?0.10:0)+noAugsEvil*0.05+(noAugsEvil>=5?0.25:0),
     augmentationCostMultiplier:noAugs>=5?0.5:1,
-    inventorySlots:noEquipment*8+(noEquipment>=5?10:0),
+    /* Laser Sword (Normal) : +0,01 x rang de l'augment (Milk = 1) à l'exposant, par complétion. */
+    laserSwordExponentStep:k(c,"laserSword")*0.01,
+    /* No Equipment : +8 slots par complétion (+10 à la dernière) en Normal, +3 par complétion (12 au total) en Evil. */
+    inventorySlots:noEquipment*8+(noEquipment>=5?10:0)+Math.min(12,k(e,"noEquipment")*3),
     autoBoost:noEquipment>0,
     autoMergeTimeMultiplier:Math.max(0.5,1-noEquipment*0.10),
+    /* No Rebirth : -15 min de respawn par complétion pour les titans à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */
     titanRespawnReductionMs:noRebirth*15*60*1000,
+    titanRespawnReductionEvilMs:k(e,"noRebirth")*15*60*1000,
+    titanRespawnReductionSadisticMs:k(s,"noRebirth")*15*60*1000,
     titanLootLevelBonus:noRebirth>0?1:0,
     nguSpeedMultiplier:1+noNgu*0.05,
+    /* Troll : Normal 1re = Magic NGU x3 ; Sadistic 1re = Energy NGU x3. */
+    nguSpeedMagicChallengeMultiplier:trollNormal>=1?3:1,
+    nguSpeedEnergyChallengeMultiplier:trollSadistic>=1?3:1,
     timeMachineGoldMultiplier:1+noTimeMachine,
+    /* No Time Machine Evil : +10 % de vitesse de la Time Machine par complétion ; 1re = +100 % de gains d'or. */
+    timeMachineSpeedMultiplier:1+noTimeMachineEvil*0.10,
+    goldDropChallengeMultiplier:noTimeMachineEvil>=1?2:1,
     diggerGlobalMultiplier:noTimeMachine>0?1.05:1,
-    diggerSlotBonus:noTimeMachine>=5?1:0
+    diggerSlotBonus:noTimeMachine>=5?1:0,
+    /* No NGU Evil : +20 % de vitesse des Hacks par complétion ; Troll Evil 5e : +25 % de vitesse des Hacks. */
+    hackSpeedChallengeMultiplier:(1+k(e,"noNgu")*0.20)*(trollEvil>=5?1.25:1),
+    /* 100 Levels Normal : +20 % de vitesse Wandoos permanente par complétion. */
+    wandoosSpeedChallengeMultiplier:1+k(c,"hundredLevels")*0.20,
+    /* 24 Hour : +10 % (Normal), +4 % (Evil), +2 % (Sadistic) d'EXP des boss 24+ par complétion. */
+    bossExpPct:k(c,"twentyFourHours")*0.10+k(e,"twentyFourHours")*0.04+k(s,"twentyFourHours")*0.02,
+    /* No Equipment Sadistic : +2 % d'Idle Attack par complétion, +10 % à la dernière (1,5 x 1,2 = 1,8). */
+    idleAttackBonus:noEquipmentSadistic*0.02+(noEquipmentSadistic>=5?0.10:0),
+    /* Troll : Normal 2e, Evil 1re, Sadistic 7e = un slot d'accessoire chacun. */
+    accessorySlots:(trollNormal>=2?1:0)+(trollEvil>=1?1:0)+(trollSadistic>=7?1:0)
   };
 }
 
@@ -831,7 +920,7 @@ function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
  * min) reste hors périmètre.
  */
 function wandoosBootFractionV1(state, now) {
-  const hundredLevelsCount = Math.max(0, Math.min(5, int(state.challenge?.completions?.hundredLevels, 0)));
+  const hundredLevelsCount = Math.max(0, Math.min(5, int(state.challenge?.completionsTier?.difficile?.hundredLevels, 0)));
   const bootSeconds = 3600 * (1 - 0.10 * hundredLevelsCount);
   const elapsed = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
   return clamp(elapsed / Math.max(1, bootSeconds), 0, 1);
@@ -856,6 +945,7 @@ function advanceWandoos(state, seconds, context, now) {
   const bootFraction = wandoosBootFractionV1(state, now);
   const beardWandoos = beardBonusMultiplier(state, "wandoos");
   const diggerWandoos = diggerBonuses(state).wandoos;
+  const challengeWandoos = challengePermanentBonuses(state).wandoosSpeedChallengeMultiplier;
   /*
    * "Wandoos Energy/Magic Dump+" (Advanced Training, wiki page "Advanced
    * Training") : "+1% per level" à la vitesse de dump — déjà des pistes
@@ -877,10 +967,10 @@ function advanceWandoos(state, seconds, context, now) {
   const nguWandoosMultiplier = nguFxV1(state).wandoosSpeed * gearPctV1(gearSpecialsV1(state), "wandoosSpeedPct");
 
   const energySpeed = Math.min(50, 50 * energyAlloc / requirement)
-    * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
+    * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
     * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier;
   const magicSpeed = Math.min(50, 50 * magicAlloc / requirement)
-    * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos
+    * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
     * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier;
 
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
@@ -1003,6 +1093,8 @@ function baseState(now) {
     systems,
     challenge: {
       active: "",
+      activeTier: "normal",
+      completionsTier: createChallengeTiersV1(),
       completions: Object.fromEntries(IDLE_NGU_NORMAL_CHALLENGES.map(def=>[def.id,0])),
       startedAt: 0,
       bestMs: {},
@@ -1379,6 +1471,8 @@ function migrateLegacyMetaToV47(raw, now) {
     src.challenge?.completions || {}
   );
   state.challenge.bestMs = Object.assign({},src.challenge?.bestMs || {});
+  state.challenge.completionsTier = createChallengeTiersV1(src.challenge?.completionsTier);
+  state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(src.challenge?.activeTier) ? src.challenge.activeTier : "normal";
 
   state.bank.advancedTraining = Math.max(0, num(src.bank?.advancedTraining, 0));
   state.bank.timeMachineSpeed = Math.max(0, num(src.bank?.timeMachineSpeed, src.bank?.timeMachine || 0));
@@ -1566,6 +1660,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
 
   state.challenge = Object.assign(baseState(t).challenge, source.challenge || {});
   state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
+  state.challenge.completionsTier = createChallengeTiersV1(source.challenge?.completionsTier);
+  state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(source.challenge?.activeTier) ? source.challenge.activeTier : "normal";
   state.bank = Object.assign(baseState(t).bank, source.bank || {});
   state.bonuses = Object.assign(baseState(t).bonuses, source.bonuses || {});
   state.bonuses.cards = Object.assign(baseState(t).bonuses.cards, source.bonuses?.cards || {});
@@ -1583,9 +1679,10 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     const perks = perkBonusesV1(state.systems.perks?.data?.levels);
     const wishes = wishBonusesV1(state.systems.wishes?.data?.tracks);
     state.adventure.bonusDropLevelChance = perks.lootLevelChance;
+    state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0))
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0))
     };
   }
 
@@ -2106,11 +2203,13 @@ export function idleNguAugmentationMultiplier(raw) {
   const state = raw && raw.version === IDLE_NGU_META_VERSION ? raw : normalizeIdleNguState(raw);
   if(state.challenge?.active==="noAugmentations")return 1;
   let additive = 0;
+  const laserStep = challengePermanentBonuses(state).laserSwordExponentStep;
   const pairs = state.systems.augmentations.data.pairs;
   for (const def of IDLE_NGU_AUGMENTATIONS) {
     const p = pairs[def.id];
     if (!p || p.level <= 0) continue;
-    const augment = def.baseMultiplier * safePow(p.level, def.exponent);
+    const augmentRank = IDLE_NGU_AUGMENTATIONS.indexOf(def);
+    const augment = def.baseMultiplier * safePow(p.level, def.exponent + laserStep * augmentRank);
     const upgrade = 1 + safePow(p.upgradeLevel, 2);
     additive += augment * upgrade;
   }
@@ -2486,7 +2585,7 @@ function tmLevelSeconds(state, resource, targetLevel) {
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
   const n = Math.max(1, targetLevel);
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "timeMachine");
-  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed)) * n;
+  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed * challengePermanentBonuses(state).timeMachineSpeedMultiplier)) * n;
 }
 
 /*
@@ -3269,6 +3368,7 @@ function nguSpeedMultiplierV1(state, resource) {
   const diggers = diggerBonuses(state);
   return Math.max(0,
     challengePermanentBonuses(state).nguSpeedMultiplier *
+    (resource === "magic" ? challengePermanentBonuses(state).nguSpeedMagicChallengeMultiplier : challengePermanentBonuses(state).nguSpeedEnergyChallengeMultiplier) *
     beardBonusMultiplier(state, "ngu") *
     (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
     (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
@@ -3626,7 +3726,7 @@ export function idleNguBonuses(raw) {
      * à Perks/Quirks/Wishes/objets, pas propre à ce correctif ni aggravé
      * par lui).
      */
-    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier * nguFx.gold * (1 + num(adventureGear.specials?.goldDropsPct, 0) / 100),
+    adventureGoldMultiplier: perkBonuses.adventureGoldMultiplier * quirkBonuses.adventureGoldMultiplier * nguFx.gold * (1 + num(adventureGear.specials?.goldDropsPct, 0) / 100) * challengeBonuses.goldDropChallengeMultiplier,
     energySpeedFlat: num(adventurePermanent.energySpeedFlat, 0),
     energyPowerFlat: num(adventurePermanent.energyPowerFlat, 0)+perkBonuses.energyPowerFlat,
     energyBarsFlat: num(adventurePermanent.energyBarsFlat, 0)+perkBonuses.energyBarsFlat,
@@ -3676,7 +3776,7 @@ export function idleNguBonuses(raw) {
     tmBankMultiplierFromQuirks: quirkBonuses.tmBankMultiplier,
     beardBankMultiplierFromQuirks: quirkBonuses.beardBankMultiplier,
     titanExpFirstKillsMultiplierFromPerks: perkBonuses.titanExpFirstKillsMultiplier,
-    bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier,
+    bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier + challengeBonuses.bossExpPct,
     seedYieldMultiplierFromPerks: perkBonuses.seedYieldMultiplier,
     seedYieldMultiplierFromQuirks: quirkBonuses.seedYieldMultiplier,
     // PISTE 2 (2026-09-18) : "Seed Gain" (Candy Corn Necklace, wiki) -- même convention FromPerks/FromQuirks ci-dessus, aucun équivalent existant à étendre.
@@ -3747,7 +3847,7 @@ export function idleNguBonuses(raw) {
      * contribution du cube y est donc dupliquée par petit calcul local
      * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
-    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct") * hackFx.hackHack,
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct") * hackFx.hackHack * challengeBonuses.hackSpeedChallengeMultiplier,
     wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))) * gearPctV1(adventureGear.specials, "wishSpeedPct") * hackFx.wish,
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
@@ -4494,12 +4594,14 @@ function challengeHundredLevelsConsume(state, amount) {
   state.challenge.hundredLevelsGained = Math.max(0, int(state.challenge.hundredLevelsGained, 0)) + amount;
 }
 
-function challengeDefinition(id) {
-  return IDLE_NGU_NORMAL_CHALLENGES.find(def=>def.id===String(id||"")) || null;
+function challengeDefinition(id, tier = "normal") {
+  return challengeDefsForTierV1(tier).find(def=>def.id===String(id||"")) || null;
 }
 
 function challengeUnlocked(def,state,context={}) {
   if(!def||!state.systems.challenges?.unlocked)return false;
+  /* Wiki : les défis Evil/Sadistic sont débloqués en entrant dans la difficulté. */
+  if(def.tier&&def.tier!=="normal")return true;
   const highestBoss=Math.max(0,int(state.records.highestBoss,context.bosses||0));
   if(def.id==="basic")return highestBoss>=58;
   if(def.id==="noAugmentations")return highestBoss>=75;
@@ -4525,9 +4627,12 @@ function challengeTargetBoss(def,completion) {
 }
 
 function challengeSnapshotDefinitions(state,context={}) {
-  return IDLE_NGU_NORMAL_CHALLENGES.map(def=>{
-    const completion=Math.max(0,int(state.challenge.completions?.[def.id],0));
+  const tier=challengeTierV1(state);
+  const completions=challengeCompletionsV1(state,tier);
+  return challengeDefsForTierV1(tier).map(def=>{
+    const completion=Math.max(0,int(completions?.[def.id],0));
     return Object.assign({},clone(def),{
+      tier,
       completion,
       unlocked:challengeUnlocked(def,state,context),
       targetBoss:challengeTargetBoss(def,completion),
@@ -4543,17 +4648,20 @@ function challengeAction(state, payload, context, now) {
   if(mode==="stop"){
     const stopped=String(state.challenge.active||"");
     state.challenge.active="";
+    state.challenge.activeTier="normal";
     state.challenge.startedAt=0;
     return {stopped:Boolean(stopped),challenge:stopped};
   }
 
   const id=String(payload.challenge||state.challenge.active||"basic");
-  const def=challengeDefinition(id);
+  const tier=challengeTierV1(state);
+  const def=challengeDefinition(id,tier);
   if(!def)throw new Error("DEFI_INVALIDE");
+  const completions=challengeCompletionsV1(state,tier);
 
   if(mode==="complete"){
     if(state.challenge.active!==id)throw new Error("DEFI_NON_ACTIF");
-    const before=Math.max(0,int(state.challenge.completions[id],0));
+    const before=Math.max(0,int(completions[id],0));
     const target=challengeTargetBoss(def,before);
     if(target>0&&num(context.bosses,0)<target)throw new Error("OBJECTIF_NON_ATTEINT");
     if(id==="twentyFourHours"&&now-num(state.challenge.startedAt,now)>24*3600000)throw new Error("DEFI_ECHOUE_TEMPS");
@@ -4566,21 +4674,28 @@ function challengeAction(state, payload, context, now) {
 
     const elapsed=Math.max(0,now-num(state.challenge.startedAt,now));
     const rewarded=before<Math.max(0,int(def.max,0));
+    const rewardScale=def.reward?.scaleByNumber?before+1:1;
+    const rewardExperience=Math.max(0,num(def.reward?.experience,0))*rewardScale;
+    const rewardAp=Math.max(0,num(def.reward?.ap,0))*rewardScale;
     if(rewarded){
-      state.challenge.completions[id]=before+1;
-      state.currencies.experience+=Math.max(0,num(def.reward?.experience,0));
-      state.currencies.ap+=Math.max(0,num(def.reward?.ap,0));
+      completions[id]=before+1;
+      state.currencies.experience+=rewardExperience;
+      state.currencies.ap+=rewardAp;
     }
-    const oldBest=num(state.challenge.bestMs?.[id],Infinity);
-    state.challenge.bestMs[id]=Math.min(oldBest,elapsed);
+    if(tier==="normal"){
+      const oldBest=num(state.challenge.bestMs?.[id],Infinity);
+      state.challenge.bestMs[id]=Math.min(oldBest,elapsed);
+    }
     state.challenge.active="";
+    state.challenge.activeTier="normal";
     state.challenge.startedAt=0;
     return {
       completed:id,
-      completion:Math.max(0,int(state.challenge.completions[id],0)),
+      tier,
+      completion:Math.max(0,int(completions[id],0)),
       targetBoss:target,
       rewarded,
-      reward:rewarded?clone(def.reward):{experience:0,ap:0},
+      reward:rewarded?{experience:rewardExperience,ap:rewardAp}:{experience:0,ap:0},
       elapsedMs:elapsed
     };
   }
@@ -4589,6 +4704,7 @@ function challengeAction(state, payload, context, now) {
   if(state.challenge.active)throw new Error("DEFI_DEJA_ACTIF");
   if(!challengeUnlocked(def,state,context))throw new Error("DEFI_VERROUILLE");
   if(!def.implemented)throw new Error("DEFI_EN_PREPARATION");
+  state.challenge.activeTier=tier;
 
   // Wiki : "Starting ANY challenge resets NUMBER to 1 and empties banks —
   // EXCEPT the Laser Sword Challenge, which performs only a normal rebirth."
@@ -4602,7 +4718,8 @@ function challengeAction(state, payload, context, now) {
   return {
     started:id,
     challengeReset:!isLaserSword,
-    targetBoss:challengeTargetBoss(def,state.challenge.completions[id]),
+    targetBoss:challengeTargetBoss(def,completions[id]),
+    tier,
     number:state.rebirth.number,
     banksCleared:!isLaserSword
   };
@@ -4678,6 +4795,8 @@ function titanFight(state, context, now) {
       goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
       titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
+      titanCooldownReductionEvilMs:titanChallengeBonuses.titanRespawnReductionEvilMs,
+      titanCooldownReductionSadisticMs:titanChallengeBonuses.titanRespawnReductionSadisticMs,
       titanLootLevelBonus:titanChallengeBonuses.titanLootLevelBonus
     }),
     now
@@ -4811,6 +4930,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
         wishLevels: wishLevelsMapV1(state),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
+        titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
+        titanCooldownReductionSadisticMs:challengePermanentBonuses(state).titanRespawnReductionSadisticMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
         adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state))
       }),

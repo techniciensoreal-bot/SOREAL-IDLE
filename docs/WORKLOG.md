@@ -1139,3 +1139,13 @@ Corrigé :
 
 - **Titans** (page Titans + page de chaque titan) : Greasy Nerd (boss 125, Evil), The Godmother (166, Evil), IT HUNGERS (175, Sadistic), ROCK LOBSTER (224, Sadistic) et AMALGAMATE (248, Sadistic) ajoutés avec seuils Manual P/T par difficulté, cooldown, récompenses et QP/wish (`TITAN_QP_V1`). Porte `sadisticOnly` (erreur `DIFFICULTE_SADISTIC_REQUISE`), drop d'objet de déblocage facultatif. Non modélisé : quête Secrets and Spoilers, butin d'objets absents, GLOP, objets « paper », Ring of Apathy ; TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
 - **Auto Nuker** (Sellout Shop, 65 000 AP) : n'avait aucun effet. Le client lance désormais le NUKE existant 10 s après le début de chaque run (`renaissance.runDebuteA`), puis toutes les minutes, sans chevaucher un NUKE ou un combat de boss en cours. `soreal-idle-ui.js?v=228`. Test `idle-auto-nuker`.
+
+## 2026-09-23 — Défis Evil/Sadistic, bonus de défis réellement câblés
+
+Source : page Challenges (Normal / Evil / Sadistic).
+- **Défis Evil et Sadistic** : n'existaient pas (seule la colonne Normal). Compteurs par difficulté (`challenge.completionsTier`), table EXP/AP/boss cible/nombre de complétions propre à chaque difficulté, liste affichée selon la difficulté active (ou celle du défi en cours). Débloqués en entrant dans la difficulté (wiki).
+- **24 Hour** : EXP/AP = base x numéro du défi (400/5000 Normal, 4000/1000 Evil, 40000/1000 Sadistic).
+- **Bonus câblés** : Basic Evil +10 % Adventure Stats/complétion ; No Augs Evil +5 %/+25 % de vitesse d'augments ; No Equipment Evil +3 slots (12 max) ; No Rebirth : -15 min de respawn par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic) -- avant, GRB/GCT en profitaient à tort ; No NGU Evil +20 % vitesse Hacks ; No Time Machine Evil +10 % vitesse TM et +100 % d'or ; 100 Levels Normal +20 % vitesse Wandoos (le boot est réduit par les 100 Levels EVIL seulement) ; Troll Normal 1re = Magic NGU x3, Sadistic 1re = Energy NGU x3, Evil 5e = Hacks +25 %, slots d'accessoire (Normal 2e, Evil 1re, Sadistic 7e) ; 24 Hour = +10 % / +4 % / +2 % d'EXP des boss 24+ par complétion (additif aux perks) ; Laser Sword Normal = +0,01 x rang de l'augment à l'exposant par complétion.
+- **Idle Mode** : x1,2 / x1,5 (Spoopy) / x1,8 avec les 5 No Equipment Sadistic (+2 %/complétion, +10 % à la dernière) ; le serveur expose `idleAttackMultiplier`.
+- Non modélisé (systèmes absents) : Mayo, Cards, MacGuffins, Daycare, slot de Beard/Wish des Trolls, bonus « +0,05 » première/dernière complétion du Laser Sword (formulation ambiguë), flat +1 EXP du premier 24 Hour.
+- Tests : `idle-challenges-tiers` ; tests titans/cooldown ajustés.

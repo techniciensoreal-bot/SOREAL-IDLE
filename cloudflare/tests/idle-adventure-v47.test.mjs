@@ -160,7 +160,8 @@ s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){
   },
   5000
 );
-assert.equal(t.result.nextAt,5000+45*60*1000);
+// La réduction No Rebirth ne s'applique qu'à partir de Jake (wiki Challenges) : GRB garde 1 h.
+assert.equal(t.result.nextAt,5000+60*60*1000);
 assert.ok(t.result.drops.some(x=>x.set==="grb"&&x.level===1));
 
 s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});t=applyIdleAdventureActionV47(
@@ -173,7 +174,7 @@ s=normalizeIdleAdventureStateV47({});s.inventory=s.inventory.filter(function(i){
   },
   7000
 );
-assert.equal(t.result.nextAt,7000);
+assert.equal(t.result.nextAt,7000+60*60*1000);
 
 // V60 — Combat de zone réel (Norman, 2026-09-09) : "on voit l'ennemi, on
 // voit les barres de vie qui descendent à chaque coup. Comme pour les
