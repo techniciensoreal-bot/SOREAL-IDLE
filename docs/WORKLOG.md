@@ -1134,3 +1134,8 @@ Corrigé :
 - Non retouché : Lonely Flubber (le wiki publie « +0,41 % par boss », lu tel quel).
 
 **Reste à faire (rapports)** : Auto Nuker ; titans 7 et 9-14 (données dans le rapport : respawn, EXP, PP, or, QP, stats) ; butin des zones normales absent (Looties, Ascended Pendants, Bar Bar, etc.) ; bonus de complétion de sets non câblés ; formules d'ITOPOD ; Beards (~x50 trop lents ?) ; double comptage du NUMBER (Beard/NGU) ; Challenges (récompenses 24 h/100 Levels/Troll/Laser Sword) ; Wandoos (plafond, niveau d'OS) ; perks/quirks manquants ; Money Pit paliers 5-11 ; banks Advanced Training ; achats Spend EXP (slots, Auto-Activate).
+
+## 2026-09-23 — Titans 7-12 et Auto Nuker
+
+- **Titans** (page Titans + page de chaque titan) : Greasy Nerd (boss 125, Evil), The Godmother (166, Evil), IT HUNGERS (175, Sadistic), ROCK LOBSTER (224, Sadistic) et AMALGAMATE (248, Sadistic) ajoutés avec seuils Manual P/T par difficulté, cooldown, récompenses et QP/wish (`TITAN_QP_V1`). Porte `sadisticOnly` (erreur `DIFFICULTE_SADISTIC_REQUISE`), drop d'objet de déblocage facultatif. Non modélisé : quête Secrets and Spoilers, butin d'objets absents, GLOP, objets « paper », Ring of Apathy ; TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
+- **Auto Nuker** (Sellout Shop, 65 000 AP) : n'avait aucun effet. Le client lance désormais le NUKE existant 10 s après le début de chaque run (`renaissance.runDebuteA`), puis toutes les minutes, sans chevaucher un NUKE ou un combat de boss en cours. `soreal-idle-ui.js?v=228`. Test `idle-auto-nuker`.

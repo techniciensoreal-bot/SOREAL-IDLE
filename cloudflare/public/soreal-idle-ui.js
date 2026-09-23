@@ -12869,6 +12869,39 @@
       window.__nukerBossIdleV1__=
         nukerBossIdleV1_;
 
+      /*
+       * Auto Nuker (Sellout Shop, 65 000 AP -- wiki : "automatically nuke bosses 10 seconds
+       * into each rebirth, and then every minute afterwards"). Lance le même NUKE que le
+       * bouton, à partir de l'horodatage de début de run exposé par le serveur.
+       */
+      let idleAutoNukeRunV1=0;
+      let idleAutoNukeDernierV1=0;
+      function autoNukeDueIdleV1_(runDebuteA,dernier,maintenant){
+        const debut=Number(runDebuteA)||0;
+        if(debut<=0)return false;
+        const depuis=(maintenant-debut)/1000;
+        if(depuis<10)return false;
+        return !dernier||maintenant-dernier>=60000;
+      }
+      window.__autoNukeDueIdleV1__=autoNukeDueIdleV1_;
+      setInterval(function(){
+        try{
+          const j=idleEtat;
+          const achats=j&&j.systemes&&j.systemes.selloutShop&&j.systemes.selloutShop.purchases;
+          if(!achats||!(Number(achats.autoNuker)>0))return;
+          const debut=Number(j.renaissance&&j.renaissance.runDebuteA)||0;
+          if(debut!==idleAutoNukeRunV1){
+            idleAutoNukeRunV1=debut;
+            idleAutoNukeDernierV1=0;
+          }
+          const maintenant=Date.now();
+          if(!autoNukeDueIdleV1_(debut,idleAutoNukeDernierV1,maintenant))return;
+          if(idleNukeEnCoursV1||j.combatBossActif||j.bossBloqueRenaissance)return;
+          idleAutoNukeDernierV1=maintenant;
+          nukerBossIdleV1_();
+        }catch(e){}
+      },1000);
+
 
       function definirAutoBossSuivantIdleV49_(
         actif
