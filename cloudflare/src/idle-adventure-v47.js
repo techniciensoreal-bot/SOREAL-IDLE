@@ -138,31 +138,61 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * (Edgy, Pretty Pink Princess, Rad, etc., wiki-documentés) ne sont pas
  * encore construits dans ce moteur -- volontairement hors périmètre de ce
  * correctif (zones jouables/franchissables dès maintenant, drop
- * d'équipement dédié en suivi séparé). bossChance omis (repli 0.25 déjà
- * en place dans startZoneFight, jamais vérifié individuellement zone par
- * zone pour cette nouvelle plage). avatarLevel:6 (palier max déjà utilisé,
+ * d'équipement dédié en suivi séparé). avatarLevel:6 (palier max déjà utilisé,
  * aucun visuel de palier 7+ n'existe -- même raison que les zones Normal
  * tardives ci-dessus).
+ *
+ * Audit zones 2026-09-23 (script sur le miroir local ; "The Fad-lands" et
+ * "Back To School", absentes du miroir par collision de casse, relues sur
+ * le wiki live via l'API MediaWiki) :
+ * - bossChance : désormais explicite pour les 14 zones qui retombaient sur
+ *   le repli 0.25 de startZoneFight -- ligne "Boss chance 1/4" de la
+ *   section Enemies de chaque page de zone (et colonne "Boss Chance" du
+ *   tableau "Adventure Mode Enemies"). Comportement inchangé (1/4 = 0.25).
+ * - oneHitP : ajouté pour 7 zones dont seule la page de zone publie la
+ *   ligne "One Hit" (le tableau agrégé "Adventure Mode" dit seulement,
+ *   à partir de Typo Zonw, qu'il n'y a plus d'intérêt à one-shot) :
+ *   typozone 6.915e21, fadlands 3.562e22, radlands 1.88575e26,
+ *   backtoschool 5.23908333333333e28, westworld 2.22158333333333e29,
+ *   seventies "13.6 No (1.36E+31)", halloweenies "42.0 Non (4.2E+31)".
+ *   construction omis : la page affiche "1.42 Dec (1.42E+32)" -- 1.42 Dc
+ *   vaudrait 1.42E33, dix fois la parenthèse (même règle que typozone
+ *   idleP). breadverse ("-") et duckduck ("?") ne publient rien.
+ *   Aucun effet sur les PV des mobs de ces zones (bestiaire réel complet,
+ *   monsterHpMaxForZoneV1WithMob) : oneHitP ne sert qu'au repli zone-plat
+ *   et est exposé tel quel dans le snapshot des zones.
+ * - Manual/Idle P/T : le code suit le tableau agrégé "Adventure Mode"
+ *   (source unique déjà retenue). Les pages de zone publient souvent
+ *   d'autres nombres (ex. breadverse Manual 1.73e29/6.41e28 contre
+ *   1.4e29/2.4e28 agrégé, netherregions Idle 7.8e32/5.2e32 contre
+ *   6.9e32/5e32, aethereansea -- listée dans le tableau agrégé sous son
+ *   ancien titre "The Aethereal Sea Part 1" -- Idle 5.2e34/3.3e34 page
+ *   contre 4.76e34/3.4e34 agrégé) : désaccord entre deux pages wiki, jamais
+ *   tranché ici, aucune valeur modifiée.
+ * - Déblocage : boss/requiredDifficulty des 32 zones identiques à la
+ *   table "Boss fights that unlock things" (page Boss Fights) et à la
+ *   phrase "unlocked by beating boss #N [on evil/SADISTIC difficulty]" de
+ *   chaque page de zone.
  */
 {id:"evilverse",name:"The Evilverse",boss:58,p:1e13,t:4.7e12,oneHitP:4.40e14,idleP:2.4e13,idleT:1.6e13,bossChance:2/9,set:"edgy",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,idleP:1.3e14,idleT:9.7e13,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,idleP:4.5e16,idleT:3.1e16,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,idleP:4.8e17,idleT:3.1e17,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"pinkprincess",name:"Pretty Pink Princess Land",boss:100,p:5.4e13,t:2.4e13,oneHitP:2.27e15,idleP:1.3e14,idleT:9.7e13,bossChance:1/4,set:"pinkprincess",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"metaland",name:"Meta Land",boss:158,p:2.6e16,t:1.2e16,oneHitP:1.05e18,idleP:4.5e16,idleT:3.1e16,bossChance:1/4,set:"meta",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"interdimensional",name:"Interdimensional Party",boss:166,p:2.5e17,t:1.1e17,oneHitP:1.05e19,idleP:4.8e17,idleT:3.1e17,bossChance:1/4,set:"party",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 /*
  * typozone : idleP omis -- ambiguïté >25% entre "370 Qi" et son repli
  * scientifique "(2.7E20)" sur la table agrégée, voir commentaire détaillé
  * au-dessus de IDLE_ADVENTURE_ZONES. idleT (240 Qi/2.4E20, accord parfait)
  * conservé.
  */
-{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,idleT:2.4e20,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,idleP:1.5e21,idleT:1.1e21,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,idleP:9.1e24,idleT:5.6e24,bossChance:1/5,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,idleP:1.7e27,idleT:8.5e26,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,idleP:8e27,idleT:3.5e27,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,idleP:1.5e30,idleT:6.5e29,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,idleP:3.2e30,idleT:2.4e30,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"typozone",name:"Typo Zonw",boss:174,p:1.5e20,t:6.8e19,oneHitP:6.915e21,idleT:2.4e20,bossChance:1/4,set:"typo",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,oneHitP:3.562e22,idleP:1.5e21,idleT:1.1e21,bossChance:1/4,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,bossChance:1/4,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,oneHitP:1.88575e26,idleP:9.1e24,idleT:5.6e24,bossChance:1/5,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
+{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,oneHitP:5.23908333333333e28,idleP:1.7e27,idleT:8.5e26,bossChance:1/4,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,oneHitP:2.22158333333333e29,idleP:8e27,idleT:3.5e27,bossChance:1/4,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,bossChance:1/4,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,oneHitP:1.36e31,idleP:1.5e30,idleT:6.5e29,bossChance:1/4,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"halloweenies",name:"The Halloweenies",boss:224,p:1.52e30,t:3.83e29,oneHitP:4.2e31,idleP:3.2e30,idleT:2.4e30,bossChance:1/4,set:"halloweenie",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 /*
  * construction : idleP/idleT omis entièrement -- trois sources wiki
  * (table agrégée en texte, sa propre parenthèse scientifique, et la page
@@ -170,9 +200,9 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * Power ("113 No" / "1.45E32" / "125.90 No"), voir commentaire détaillé
  * au-dessus de IDLE_ADVENTURE_ZONES. Jamais tranché arbitrairement.
  */
-{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,idleP:3.5e32,idleT:2.3e32,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
-{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,idleP:6.9e32,idleT:5e32,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"construction",name:"Construction Zone",boss:232,p:5.24e31,t:2.01e31,bossChance:1/4,set:"construction",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"duckduck",name:"DUCK DUCK ZONE",boss:240,p:1.28e32,t:3.2e31,idleP:3.5e32,idleT:2.3e32,bossChance:1/4,set:"duck",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"netherregions",name:"The Nether Regions",boss:248,p:3.15e32,t:8.42e31,idleP:6.9e32,idleT:5e32,bossChance:1/4,set:"dutch",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"aethereansea",name:"The Aethereal Sea",boss:269,p:1.72e34,t:6.1e33,oneHitP:5.75e35,idleP:4.76e34,idleT:3.4e34,bossChance:4/21,set:"pirate",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"}
 ]);
 /*

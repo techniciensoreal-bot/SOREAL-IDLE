@@ -64,7 +64,8 @@ const zone = (id) => IDLE_ADVENTURE_ZONES.find((z) => z.id === id);
 assert.equal(zone("evilverse").bossChance, 2 / 9);
 assert.equal(zone("radlands").bossChance, 1 / 5);
 assert.equal(zone("aethereansea").bossChance, 4 / 21);
-assert.equal(zone("westworld").bossChance, undefined, "1/4 = valeur par défaut, aucune surcharge nécessaire");
+// Audit zones 2026-09-23 : "Boss chance 1/4" désormais explicite (page de zone), plus de repli implicite.
+assert.equal(zone("westworld").bossChance, 1 / 4, "The West World : Boss chance 1/4 (section Enemies de la page)");
 
 // Niveau de drop des sets de Beardverse, Badly Drawn, Boring-Ass Earth et Chocolate : "lvl 1" sur le wiki
 for (const [id, set] of [["beardverse", "beardverse"], ["badly", "badly"], ["boring", "stealth"], ["chocolate", "choco"]]) {
