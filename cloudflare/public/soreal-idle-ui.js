@@ -18069,8 +18069,14 @@ function pageAventureIdleV28_(j){
           item.definitionId==='smallGerbil'&&
           niveau>=100&&
           String(idleEtat&&idleEtat.systemes&&idleEtat.systemes.difficulty||'')==='extreme';
-        const boutonTransformer=peutTransformerGerbil
+        /* The Lonely Flubber niveau 100 -> The Triple Flubber (wiki : « level it to level 100 and CTRL + Click to transform it »). */
+        const peutTransformerFlubber=item.definitionId==='flubber'&&niveau>=100;
+        const boutonTransformer=(peutTransformerGerbil||peutTransformerFlubber)
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__transformerObjetAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🧪 Transformer</button>'
+          :'';
+        /* Copies de Wandoos 98/XL : +1 niveau d'OS (ou déblocage de Wandoos XL), action méta consumeWandoosCopy. */
+        const boutonInstallerOs=(item.definitionId==='wandoos98'||item.definitionId==='wandoosXl')
+          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeWandoosCopy\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">💾 Installer l’OS</button>'
           :'';
         const estVerrouille=Boolean(item.locked);
         const boutonVerrouiller=
@@ -18091,6 +18097,7 @@ function pageAventureIdleV28_(j){
             boutonVerrouiller+
             boutonConsommer+
             boutonTransformer+
+            boutonInstallerOs+
             boutonComparer+
             boutonSupprimer+
           '</div>';
@@ -18328,7 +18335,8 @@ function pageAventureIdleV28_(j){
         ["wishSpeedPct","Wish Speed"],["hackSpeedPct","Hack Speed"],["wandoosSpeedPct","Wandoos Speed"],
         ["respawnReductionPct","Respawn"],["yggdrasilYieldPct","Yggdrasil Yield"],["augmentSpeedPct","Augment Speed"],
         ["cookingPct","Cooking"],["questDropsPct","Quest Drops"],["moveCooldownPct","Move Cooldowns"],
-        ["advancedTrainingPct","Advanced Training"],["daycareSpeedPct","Daycare Speed"]
+        ["advancedTrainingPct","Advanced Training"],["daycareSpeedPct","Daycare Speed"],
+        ["expPct","EXP"],["apPct","Arbitrary Points (AP)"]
       ];
 
       function idleLabelSpecialBonusV1_(type){
