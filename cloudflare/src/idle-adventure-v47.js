@@ -2234,6 +2234,42 @@ function boost(type,strength){if(!["power","toughness","special"].includes(type)
 export function idleAdventureBoostV1(type,strength){return boost(type,strength)}
 export function idleAdventureAddItemV1(state,o){return add(state,o)}
 /*
+ * Automatisation de l'inventaire (idle-inventory-auto-v1.js : Auto Merge,
+ * Auto Boost, A/D + clic, loadouts, filtre de butin) : ce module réutilise
+ * exactement les primitives des actions manuelles ci-dessous, jamais une
+ * seconde implémentation de la fusion, du boost ou de l'équipement.
+ */
+export function idleAdventureMergeItemsV1(state,a,b){return merge(state,a,b)}
+export function idleAdventureApplyBoostItemV1(state,boostId,targetId,ctx){return applyBoost(state,boostId,targetId,ctx)}
+export function idleAdventureCubeBoostItemV1(state,boostId,ctx){return cube(state,boostId,ctx)}
+export function idleAdventureEquipItemV1(state,id,slot){return equip(state,id,slot)}
+export function idleAdventureUnequipItemV1(state,id){return unequip(state,id)}
+export function idleAdventureRecordItemV1(state,o){return record(state,o)}
+export function idleAdventureSyncInventorySlotsV1(state){return syncInventorySlotsAdventureV2(state)}
+export function idleAdventureInventoryCapacityV1(state){return inventoryCapacityAdventureV1(state)}
+export function idleAdventureInventoryUsedV1(state){return inventoryUsedAdventureV1(state)}
+/*
+ * Marge restante avant le plafond d'une stat pour un type de boost : même
+ * plafond que applyBoost() (base x (1 + niveau/100)). 0 = rien à combler ou
+ * cible invalide pour ce type ; Infinity = stat sans plafond publié.
+ */
+export function idleAdventureBoostRoomV1(s,targetId,type){
+  const o=(s&&Array.isArray(s.inventory)?s.inventory:[]).find(x=>x.id===targetId);
+  if(!o||o.kind==="boost")return 0;
+  const d=defById(o.definitionId);
+  if(type==="special"){
+    const specialPiece=d?.kind==="set"&&Boolean(idleAdventureSetSpecialsV1(d.set,d.slot));
+    if(d?.kind!=="special"&&!specialPiece)return 0;
+    const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):idleAdventureBaseStatsV1(d.set,d.slot);
+    const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
+    return cap==null?Infinity:Math.max(0,cap-N(o.special));
+  }
+  if(type!=="power"&&type!=="toughness")return 0;
+  const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
+  const cap=base?(type==="power"?base.baseP:base.baseT)*(1+C(N(o.level),0,MAX)/100):null;
+  return cap==null?Infinity:Math.max(0,cap-N(o[type]));
+}
+/*
  * Correctif 2026-09-18 (Norman, en direct, marqué URGENT : "le cube
  * tutorial n'est toujours pas présent quand on ouvre l'inventaire.
  * Normalement, il doit déjà s'y trouver à la première fois où on accède
@@ -2657,9 +2693,18 @@ function syncInventorySlotsAdventureV2(s){
       vus.add(id);
     }
   }
+  /*
+   * Slots d'automerge (page Inventory, « Automerge Slots » : « Each new slot
+   * uses the next inventory space starting from the top left of page 1 [...]
+   * no items will drop in these slots ») : les s.mergeSlots premières cases
+   * (nombre calculé par idle-inventory-auto-v1.js) ne reçoivent un nouvel
+   * objet qu'en dernier recours ; le joueur y dépose lui-même ce qu'il veut.
+   */
+  const mergeSlots=Math.max(0,Math.min(cap,I(s.mergeSlots)));
   for(const id of bagIds){
     if(vus.has(id))continue;
-    const libre=slots.indexOf("");
+    let libre=slots.indexOf("",mergeSlots);
+    if(libre<0)libre=slots.indexOf("");
     if(libre<0)break;
     slots[libre]=id;
     vus.add(id);
@@ -2690,7 +2735,16 @@ function reorderInventoryAdventureV2(s,sourceId,targetId,targetIndex){
   return{sourceId:source,targetIndex:dst,swappedWith:swapped};
 }
 
-function add(s,o){if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s))return null;o=cleanItem(o);if(!o)throw Error("OBJET_INVALIDE");if(!o.id||s.inventory.some(x=>x.id===o.id))o.id=`i${s.serial++}`;s.inventory.push(o);record(s,o);return o}
+/* Slots d'automerge encore vides : un nouvel objet ne peut jamais y tomber (voir syncInventorySlotsAdventureV2). */
+function mergeSlotsVidesAdventureV1(s){
+  const k=Math.max(0,I(s&&s.mergeSlots));
+  if(!k)return 0;
+  const equipped=equippedIdsAdventureV1(s);
+  const sac=new Set(s.inventory.filter(x=>x&&!equipped.has(x.id)).map(x=>String(x.id)));
+  const cases=Array.isArray(s.inventorySlots)?s.inventorySlots.slice(0,k):[];
+  return Math.max(0,k-cases.filter(id=>id&&sac.has(String(id))).length);
+}
+function add(s,o){if(inventoryUsedAdventureV1(s)>=inventoryCapacityAdventureV1(s)-mergeSlotsVidesAdventureV1(s))return null;o=cleanItem(o);if(!o)throw Error("OBJET_INVALIDE");if(!o.id||s.inventory.some(x=>x.id===o.id))o.id=`i${s.serial++}`;s.inventory.push(o);record(s,o);return o}
 export function idleAdventureMergeLevelV47(a,b){return C(I(a)+I(b)+1,0,MAX)}
 export function idleAdventureItemAtLevelV47(definitionId,level=0,id="preview"){const d=defById(definitionId);if(!d)throw Error("DEFINITION_INVALIDE");return d.kind==="set"?item(id,d.set,d.slot,level):special(d.id,level)}
 /*
