@@ -101,4 +101,22 @@ assert.ok(ui.includes("enemyParalyzedUntil,maintenant+3000"), "Paralyze : 3 s");
 assert.ok(ui.includes("hyperRegenUntil,maintenant+5000") && ui.includes("secondes+hyperSecondes*4"), "Hyper Regen : regen x5 (500 %) pendant 5 s");
 assert.ok(ui.includes("(idleAdventureIdleModeV3?1.2:1)"), "Idle Mode : HP regen +20 %");
 
+/*
+ * --- Parry : « Blocks 50% of incoming damage and automatically attacks »
+ * (Skills), « Parry's reflected attack » (Slimy set). La riposte part sur
+ * l'attaque ennemie parée, pas au lancement ; la Charge est mémorisée.
+ */
+const lancementParry = block(usage, "if(def.id==='parry'){", "}else{");
+assert.ok(!lancementParry.includes("attaqueManuelleAdventureIdleV3_("), "Parry : aucune attaque au lancement");
+assert.ok(lancementParry.includes("parryArmed=true"), "Parry : parade armée (pré-lançable)");
+assert.ok(lancementParry.includes("parryChargeMult=multiplicateurChargeAdventureIdleV3_(a)") && lancementParry.includes("charge=false"), "Parry : Charge consommée au lancement");
+const tick = block(ui, "function progresserZoneFightLocalIdleV1_(", "function impactMonstreAdventureIdleV1_(");
+const coupEnnemi = tick.slice(tick.indexOf("idleAdventureFightNextEnemyHitV2+="));
+assert.ok(coupEnnemi.includes("degats=Math.max(0,Math.round(degats*.5));"), "Parry : 50 % du coup paré");
+const iRiposte = coupEnnemi.indexOf("definitionCompetenceAdventureIdleV3_('parry')");
+assert.ok(iRiposte > coupEnnemi.indexOf("terminerCombatAdventureLocalV2_(fight,false)"), "Parry : riposte après le coup paré, si le joueur survit");
+assert.ok(coupEnnemi.slice(iRiposte, iRiposte + 200).includes("riposteParryMult"), "Parry : riposte avec la Charge mémorisée");
+const attaque = block(ui, "function attaqueManuelleAdventureIdleV3_(", "function utiliserCompetenceAdventureIdleV3_(");
+assert.ok(attaque.includes("if(chargeMemorisee>0){") && attaque.includes("}else if(idleAdventureManualStateV3.charge){"), "Riposte : ne consomme pas la Charge courante");
+
 console.log("idle-adventure-combat-wiki-parity ok");

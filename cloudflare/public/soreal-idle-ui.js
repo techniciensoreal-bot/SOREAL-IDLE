@@ -15444,7 +15444,8 @@ let idleDialogueTimerV76=null;
         enemyParalyzedUntil:0,
         hyperRegenUntil:0,
         charge:false,
-        parryArmed:false
+        parryArmed:false,
+        parryChargeMult:1
       };
 
       function skillBasicTrainingAdventureIdleV3_(group,index){
@@ -15670,7 +15671,7 @@ let idleDialogueTimerV76=null;
           Math.max(idleAdventureManualStateV3.hyperRegenUntil,maintenant+5000);
       }
 
-      function attaqueManuelleAdventureIdleV3_(def,a,fight,maintenant){
+      function attaqueManuelleAdventureIdleV3_(def,a,fight,maintenant,chargeMemorisee){
         if(!fight||!fight.active)return false;
         let multiplier=Math.max(0,idleNombre_(def&&def.multiplier)||1);
         if(def&&def.id==='ultimate'){
@@ -15683,7 +15684,10 @@ let idleDialogueTimerV76=null;
         }
         /* Wiki Skills : Parry x1 (x3 avec le set Slimy complété). */
         if(def&&def.id==='parry'&&a&&a.completedSets&&a.completedSets.slimy)multiplier=3;
-        if(idleAdventureManualStateV3.charge){
+        /* Riposte de Parry : Charge consommée au lancement de la parade, jamais la Charge courante. */
+        if(chargeMemorisee>0){
+          multiplier*=chargeMemorisee;
+        }else if(idleAdventureManualStateV3.charge){
           multiplier*=multiplicateurChargeAdventureIdleV3_(a);
           idleAdventureManualStateV3.charge=false;
         }
@@ -15745,8 +15749,20 @@ let idleDialogueTimerV76=null;
 
         if(group==='attack'){
           if(def.id==='parry'){
+            /*
+             * Wiki Skills : Parry « Blocks 50% of incoming damage and automatically
+             * attacks » ; set Slimy : « Parry's reflected attack » ; The Beast :
+             * le renvoi de dégâts « will activate Parry ». La riposte part donc
+             * quand la prochaine attaque ennemie est parée (parade pré-lançable
+             * avant le combat), pas au lancement. Parry est « Affected by Charge » :
+             * la Charge active est consommée ici et mémorisée pour la riposte.
+             */
             idleAdventureManualStateV3.parryArmed=true;
-            if(fight&&fight.active)attaqueManuelleAdventureIdleV3_(def,a,fight,maintenant);
+            idleAdventureManualStateV3.parryChargeMult=1;
+            if(idleAdventureManualStateV3.charge){
+              idleAdventureManualStateV3.parryChargeMult=multiplicateurChargeAdventureIdleV3_(a);
+              idleAdventureManualStateV3.charge=false;
+            }
           }else{
             attaqueManuelleAdventureIdleV3_(def,a,fight,maintenant);
           }
@@ -16295,9 +16311,12 @@ let idleDialogueTimerV76=null;
               );
             }
           }
+          let riposteParryMult=0;
           if(idleAdventureManualStateV3.parryArmed){
             degats=Math.max(0,Math.round(degats*.5));
             idleAdventureManualStateV3.parryArmed=false;
+            riposteParryMult=Math.max(1,idleNombre_(idleAdventureManualStateV3.parryChargeMult)||1);
+            idleAdventureManualStateV3.parryChargeMult=1;
           }
           if(beastModeActifAdventureIdleV4_(a)){
             degats=Math.max(0,Math.round(degats*3));
@@ -16316,6 +16335,17 @@ let idleDialogueTimerV76=null;
           if(fight.playerHp<=0){
             terminerCombatAdventureLocalV2_(fight,false);
             return;
+          }
+          /* Riposte automatique de la parade (voir utiliserCompetenceAdventureIdleV3_). */
+          if(riposteParryMult>0){
+            attaqueManuelleAdventureIdleV3_(
+              definitionCompetenceAdventureIdleV3_('parry'),
+              a,
+              fight,
+              momentEvenement,
+              riposteParryMult
+            );
+            if(!fight.active)return;
           }
         }
 
