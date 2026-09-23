@@ -1247,3 +1247,7 @@ Page Beards of Power : jusqu'à 7 slots (1 au déblocage, 1 Troll Normal complé
 ## 2026-09-23 — Niveaux maximaux des Hacks
 
 Page Hacks : chaque Hack a un niveau maximal (attaque/défense 7 720, Adventure 7 632, TM et Drop 7 544, Augments 7 456, NGU 7 340, Blood 7 252, QP 7 164, Daycare 7 048, EXP 6 960, Number 6 873, PP et Hack 6 757, Wish 6 262) ; la progression s'arrête à ce niveau au lieu de croître sans limite.
+
+## 2026-09-23 — Cooking
+
+Nouveau moteur `idle-cooking-v1.js` (déblocage par IT HUNGERS, slots 7/8 par Rock Lobster/Amalgamate, 8 ingrédients en 4 paires secrètes, efficacité « Nerdy Math » du wiki, bonus totaux x1,03 par objet de Cooking, Space x1,10, slots 7/8 x1,20, minuteur 23,5 h / 22,5 h avec Bread, banque 24,5 h, gain d'EXP plafonné à 300 % écrit dans `bonuses.cookingExp`) et page client. Manger un repas est refusé (`COOKING_GAIN_REPAS_NON_DOCUMENTE`) : le wiki ne publie pas l'EXP d'un repas (un seul point de mesure, 0,66 % à 132 % de bonus). Non ajoutés : inventaire d'ingrédients (les aliments de GLOP relèvent du combat contre IT HUNGERS), objet My Rainbow Heart.
