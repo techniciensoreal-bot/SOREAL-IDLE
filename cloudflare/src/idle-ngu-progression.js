@@ -1575,6 +1575,20 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.systems = systems;
 
   /*
+   * 2026-09-23 (audit) : slots d'inventaire / d'accessoires venant des Perks, des
+   * souhaits "more Inventory space" (1 par niveau) et des No Equipment Challenges
+   * -- calculés mais jamais lus, les capacités étant des constantes.
+   */
+  {
+    const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+    const wishes = wishBonusesV1(state.systems.wishes?.data?.tracks);
+    state.adventure.bonusSlots = {
+      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)),
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0))
+    };
+  }
+
+  /*
    * Migration NGU (2026-09-23) : les anciennes sauvegardes portaient 9 pistes
    * inventées et une allocation globale. Les niveaux de ces pistes n'ont pas
    * d'équivalent dans les 16 vrais NGU : ils repartent de zéro (comme au
@@ -4614,6 +4628,7 @@ function titanFight(state, context, now) {
     },
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
+      goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
       titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
       titanLootLevelBonus:titanChallengeBonuses.titanLootLevelBonus
@@ -4745,6 +4760,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
         dropChancePct: num(context.dropChancePct, 0),
         difficulty: state.difficulty,
+        goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),
+        boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
         wishLevels: wishLevelsMapV1(state),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,

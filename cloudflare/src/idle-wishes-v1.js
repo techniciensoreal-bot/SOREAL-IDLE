@@ -318,6 +318,12 @@ export function wishBonusesV1(tracksById) {
     statMultiplier: 1 + (totals.statPct || 0),
     wishSpeedMultiplier: 1 + (totals.wishSpeedPct || 0),
     hackSpeedMultiplier: 1 + (totals.hackSpeedPct || 0),
+    /* Souhaits "I wish I had more Inventory space" : 1 emplacement par niveau (leur effet le dit). */
+    inventorySlots: IDLE_WISHES_CATALOG_V1.reduce((sum, w) => (
+      /extra inventory slot/i.test(String(w.effect || ""))
+        ? sum + Math.max(0, Math.min(w.levels, Number(tracks[w.id]?.level) || 0))
+        : sum
+    ), 0),
     basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0
   };
 }

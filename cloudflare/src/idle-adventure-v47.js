@@ -2103,7 +2103,7 @@ function checkSets(s){for(const [id,d] of Object.entries(SETS)){if(s.completedSe
  * lieu, seul le butin est perdu).
  */
 const INVENTORY_CAPACITY_BASE_V1=24;
-function inventoryCapacityAdventureV1(s){return INVENTORY_CAPACITY_BASE_V1}
+function inventoryCapacityAdventureV1(s){return INVENTORY_CAPACITY_BASE_V1+Math.max(0,I(s&&s.bonusSlots&&s.bonusSlots.inventory))}
 /*
  * Emplacements accessoires (Norman, 2026-09-11) : "chaque fois que j'ajoute
  * un anneau, il me débloque un emplacement supplémentaire... on en a 2 de
@@ -2118,7 +2118,7 @@ function inventoryCapacityAdventureV1(s){return INVENTORY_CAPACITY_BASE_V1}
  * n'existe pas ou de laisser le tableau illimité comme avant ce correctif.
  */
 const ACCESSORY_SLOTS_BASE_V1=2;
-function accessorySlotsCapacityAdventureV1(s){return ACCESSORY_SLOTS_BASE_V1}
+function accessorySlotsCapacityAdventureV1(s){return ACCESSORY_SLOTS_BASE_V1+Math.max(0,I(s&&s.bonusSlots&&s.bonusSlots.accessory))}
 function equippedIdsAdventureV1(s){
   const ids=new Set();
   ["head","chest","legs","boots","weapon"].forEach(slot=>{if(s.equipment[slot])ids.add(s.equipment[slot])});
@@ -2384,7 +2384,7 @@ function unequip(s,id,targetIndex){
  * niveau. Un objet frais a donc bien un écart à combler dès le départ
  * (0/basePower), pas seulement après une fusion.
  */
-function applyBoost(s,boostId,targetId){
+function applyBoost(s,boostId,targetId,ctx){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
   if(!b||b.kind!=="boost"||!o||o.kind==="boost")throw Error("BOOST_INVALIDE");
   const type=b.boostType;
@@ -2412,7 +2412,8 @@ function applyBoost(s,boostId,targetId){
   if(idleAdventureObjetPleinementMaxeV1(o)){
     throw Error("OBJET_DEJA_MAXE");
   }
-  const added=N(b.strength)*(1+N(s.setRewards.boostEffectiveness));
+  /* 2026-09-23 (audit) : perks/quirks "Boosted Boosts" / "Beasted Boosts" (boostPowerMultiplier), calculés mais jamais lus. */
+  const added=N(b.strength)*(1+N(s.setRewards.boostEffectiveness))*Math.max(1,N(ctx&&ctx.boostPowerMultiplier,1));
   if(type==="power"||type==="toughness"){
     const d=defById(o.definitionId);
     const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
@@ -3307,7 +3308,7 @@ function rollKill(s,ctx){
     const range=boss?goldRange.boss:goldRange.normal;
     const lo=range[0],hi=range[1];
     const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
-    gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult));
+    gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult*Math.max(0,N(ctx.goldMultiplier,1))));
     s.permanent.gold=N(s.permanent.gold)+gold;
   }
 
@@ -3691,7 +3692,7 @@ function creditTitanRewardsV1(s,id,ctx,tierKey){
   const wishes=ctx&&ctx.wishLevels&&typeof ctx.wishLevels==="object"?ctx.wishLevels:{};
   const rewardMult=1+.1*Math.min(Math.max(0,I(wishes[3])),TITAN_TIER_RANK_V1[tierKey]||0);
   const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
-  out.gold=Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult));
+  out.gold=Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult*Math.max(0,N(ctx&&ctx.goldMultiplier,1))));
   out.experience=Math.round(I(r.exp,0)*rewardMult);
   out.ap=I(r.ap,0);
   out.ppProgress=Math.round(I(r.ppProgress,0)*rewardMult);
@@ -4056,4 +4057,4 @@ titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.bo
  * Toughness, avec le vrai label.
  */
 inventory:X(s.inventory).map(snapshotItemAdventureV1),trash:s.trash?snapshotItemAdventureV1(s.trash):null,coffreSlots:idleAdventureCoffreSlotsV1(s),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
-export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");const clientMutationId=String(p.clientMutationId||"").slice(0,160);if(clientMutationId){const deja=s.recentClientMutations.find(x=>x&&String(x.id)===clientMutationId);if(deja){syncInventorySlotsAdventureV2(s);return{state:s,result:deja.result==null?deja.result:X(deja.result),duplicate:true}}}let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id),p.targetIndex);else if(a==="boost"&&p.toCube===true)result=cube(s,String(p.boostId));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId));else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="setLock")result=setLockAdventureV1(s,String(p.id||p.itemId),p.locked);else if(a==="trashPut")result=trashPutAdventureV1(s,String(p.id||p.itemId));else if(a==="trashRecover")result=trashRecoverAdventureV1(s);else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");s.revision=Math.max(0,I(s.revision))+1;if(clientMutationId){s.recentClientMutations.push({id:clientMutationId,result:result==null?result:X(result),revision:s.revision});if(s.recentClientMutations.length>64)s.recentClientMutations=s.recentClientMutations.slice(-64)}syncInventorySlotsAdventureV2(s);return{state:s,result}}
+export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");const clientMutationId=String(p.clientMutationId||"").slice(0,160);if(clientMutationId){const deja=s.recentClientMutations.find(x=>x&&String(x.id)===clientMutationId);if(deja){syncInventorySlotsAdventureV2(s);return{state:s,result:deja.result==null?deja.result:X(deja.result),duplicate:true}}}let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id),p.targetIndex);else if(a==="boost"&&p.toCube===true)result=cube(s,String(p.boostId));else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId),ctx);else if(a==="cube")result=cube(s,String(p.boostId));else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="setLock")result=setLockAdventureV1(s,String(p.id||p.itemId),p.locked);else if(a==="trashPut")result=trashPutAdventureV1(s,String(p.id||p.itemId));else if(a==="trashRecover")result=trashRecoverAdventureV1(s);else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");s.revision=Math.max(0,I(s.revision))+1;if(clientMutationId){s.recentClientMutations.push({id:clientMutationId,result:result==null?result:X(result),revision:s.revision});if(s.recentClientMutations.length>64)s.recentClientMutations=s.recentClientMutations.slice(-64)}syncInventorySlotsAdventureV2(s);return{state:s,result}}
