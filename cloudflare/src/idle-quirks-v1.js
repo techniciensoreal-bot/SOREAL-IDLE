@@ -38,7 +38,8 @@
  * hors périmètre de cette passe, jamais approximé) : NGU Evil/Sadistic
  * (les NGU réels existent depuis 2026-09-23 : quirks 14, 89, 93-98 ajoutés),
  * Daycare Slot (MacGuffin Slot 19/50 : câblés le 2026-09-23), Hack Milestones
- * (57-60,174-175), Wishes (54,56), Cards/Mayo/Tags/
+ * (57-60,174-175), Wishes (54 et 56 câblés depuis : temps minimum, slot de
+ * souhait), Cards/Mayo/Tags/
  * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
  * 185 -- pas de 3e ressource entraînable), Quêtes/Idle Questing (71),
  * Better
@@ -126,6 +127,12 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 54, name: "Lower Minimum Wish Speed?", effect: "Using the powers of regurgitation, The Beast will reduce the minimum wish completion time by 24 seconds per level! This time is normally 4 hours.", cost: 400, cap: 50, bonus: { wishMinTimeSeconds: 24 } },
   /* Page Quirk Points 55 : un slot d'automerge (lu par id dans idle-inventory-auto-v1.js). */
   { id: 55, name: "An Inventory Automerge Slot!", effect: "The Beast has developed a neat party trick where it eats 2 identical items! In unrelated news this Quirk will unlock an extra inventory merge slot.", cost: 5000, cap: 1, bonus: {} },
+  /*
+   * Page Quirk Points, ligne 56 (Cost 50,000 / Cap 1) ; page Wishes : « You can get 4 wish slots:
+   * ... 1 from Quirks » (tableau Quirks : « A Wish Slot! | Gain a Wish Slot. | 50,000 | 1 »).
+   * Agrégé en wishSlotBonus et lu par wishSlotBreakdownV1 (idle-ngu-progression.js).
+   */
+  { id: 56, name: "A Wish Slot!", effect: "The Beast and the Godmother have come to an agreement - if you unlock this really expensive Quirk you can have an extra Wish Slot!", cost: 50000, cap: 1, bonus: { wishSlotBonus: 1 } },
   { id: 57, name: "Atk/Def Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 2000, cap: 2, bonus: { hackMilestoneAttackDefense: 1 } },
   { id: 58, name: "PP Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 7000, cap: 3, bonus: { hackMilestonePp: 1 } },
   { id: 59, name: "EXP Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 60000, cap: 5, bonus: { hackMilestoneExp: 1 } },
@@ -244,6 +251,7 @@ export function quirkBonusesV1(levelsById) {
     accessorySlotBonus: totals.accessorySlotBonus || 0,
     inventorySlotBonus: totals.inventorySlotBonus || 0,
     wishMinTimeReductionSeconds: totals.wishMinTimeSeconds || 0,
+    wishSlotBonus: totals.wishSlotBonus || 0,
     wandoosEnergySpeedPct: totals.wandoosEnergySpeedPct || 0,
     wandoosMagicSpeedPct: totals.wandoosMagicSpeedPct || 0,
     basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0,
