@@ -118,6 +118,10 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 51, name: "Stat Boost For Rich Quirks II", effect: "Improve your Attack/Defense by 2% per level!", cost: 125, cap: 1000, bonus: { statPct: 0.02 } },
   { id: 52, name: "Adventure Boost For Rich Quirks II", effect: "Improve your Adventure stats by 0.1% per level!", cost: 125, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
   { id: 53, name: "Beasted Boosts II", effect: "Gain 2% better boosts per level of this quirk!", cost: 200, cap: 60, bonus: { boostPowerPct: 0.02 } },
+  { id: 57, name: "Atk/Def Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 2000, cap: 2, bonus: { hackMilestoneAttackDefense: 1 } },
+  { id: 58, name: "PP Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 7000, cap: 3, bonus: { hackMilestonePp: 1 } },
+  { id: 59, name: "EXP Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 60000, cap: 5, bonus: { hackMilestoneExp: 1 } },
+  { id: 60, name: "Wish Hack Milestone Reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 25000, cap: 5, bonus: { hackMilestoneWish: 1 } },
   { id: 61, name: "Generic Energy Power Quirk III", effect: "Each level in this Quirk adds a 0.5% boost to your Energy Power!", cost: 1000, cap: 50, bonus: { energyPowerPct: 0.005 } },
   { id: 62, name: "Generic Energy Cap Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Energy Cap!", cost: 1000, cap: 50, bonus: { energyCapPct: 0.002 } },
   { id: 63, name: "Generic Energy Bars Quirk III", effect: "Each level in this Quirk adds a 0.2% boost to your Energy Bars!", cost: 1000, cap: 50, bonus: { energyBarsPct: 0.002 } },
@@ -158,6 +162,8 @@ export const IDLE_QUIRKS_CATALOG_V1 = Object.freeze([
   { id: 171, name: "Adventure Boost for Rich Quirks V", effect: "Improve your Adventure stats by 0.03% per level!", cost: 2800, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
   { id: 172, name: "Stat Boost for Rich Quirks VI", effect: "Improve your Attack/Defense by 1% per level!", cost: 6000, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 173, name: "Adventure Boost for Rich Quirks VI", effect: "Improve your Adventure stats by 0.03% per level!", cost: 6000, cap: 1000, bonus: { adventureStatsPct: 0.0003 } },
+  { id: 174, name: "Energy NGU Hack Milestone reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 80000, cap: 3, bonus: { hackMilestoneEnergyNguSpeed: 1 } },
+  { id: 175, name: "TM Hack Milestone reducer I", effect: "Each level of this quirk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 65000, cap: 5, bonus: { hackMilestoneTimeMachineSpeed: 1 } },
   { id: 176, name: "A PROBLEM HAS BEEN DETECTED", effect: "YOUR PC RAN INTO A PROBLEM", cost: 10000000, cap: 1, bonus: {} },
   { id: 177, name: "The Final Generic Energy Power Quirk", effect: "Add a 1% Boost to your Energy Power with this Quirk!", cost: 50000, cap: 50, bonus: { energyPowerPct: 0.01 } },
   { id: 178, name: "The Final Generic Energy Cap Quirk", effect: "Add a 1% Boost to your Energy Cap with this Quirk!", cost: 50000, cap: 50, bonus: { energyCapPct: 0.01 } },
@@ -227,6 +233,14 @@ export function quirkBonusesV1(levelsById) {
     r3CapMultiplier: 1 + (totals.r3CapPct || 0),
     r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
     itopodPppFlat: totals.itopodPppFlat || 0,
+    hackMilestoneReduction: {
+      attackDefense: totals.hackMilestoneAttackDefense || 0,
+      pp: totals.hackMilestonePp || 0,
+      exp: totals.hackMilestoneExp || 0,
+      wish: totals.hackMilestoneWish || 0,
+      energyNguSpeed: totals.hackMilestoneEnergyNguSpeed || 0,
+      timeMachineSpeed: totals.hackMilestoneTimeMachineSpeed || 0
+    },
     bloodGainMultiplier: 1 + (totals.bloodGainPct || 0)
   };
 }

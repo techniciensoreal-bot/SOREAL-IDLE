@@ -2057,7 +2057,7 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier;
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed);
+  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed);
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
@@ -2328,7 +2328,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds) {
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct"));
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish);
 
   let level = Math.max(0, int(track.level, 0));
   let progress = clamp(num(track.progress, 0), 0, 0.999999999);
@@ -2485,7 +2485,7 @@ function tmLevelSeconds(state, resource, targetLevel) {
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
   const n = Math.max(1, targetLevel);
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "timeMachine");
-  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power)) * n;
+  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed)) * n;
 }
 
 /*
@@ -2626,7 +2626,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.completions += completions;
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
-  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier;
+  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier * hackFxV1(state).bloodGain;
   challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
@@ -3053,7 +3053,7 @@ function advanceLateSystems(state, seconds, context, now) {
        * (availableDiggerSlots), jamais une nouvelle mécanique inventée.
        */
       const itopodPpSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0));
-      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier * nguFxV1(state).pp;
+      tower.data.ppProgress = Math.max(0, num(tower.data.ppProgress, 0)) + kills * (itopodPpBase + tower.data.floor) * itopodPpSetMultiplier * nguFxV1(state).pp * hackFxV1(state).pp;
       /*
        * Audit 2026-09-16 : `tower.data.floor += Math.floor(kills / 10)`
        * perdait le report entre deux ticks — en jeu normal (tick fréquent,
@@ -3199,6 +3199,27 @@ function nguLevelsMapV1(state) {
   return out;
 }
 
+/*
+ * Effets des Hacks (wiki Hacks) : (100 % + Effect par niveau x Niveau) x Milestone bonus^(nombre
+ * de milestones), milestones = floor(niveau / niveaux par milestone) ; « Hacks do not affect Normal
+ * mode ». Jusqu'ici seule leur VITESSE était lue : aucun effet n'était appliqué.
+ */
+function hackFxV1(state) {
+  const out = {};
+  for (const def of IDLE_NGU_TRACKS.hacks || []) out[def.id] = 1;
+  if (state.difficulty === "normal") return out;
+  const tracks = state.systems.hacks?.data?.tracks || {};
+  const reduction = quirkBonusesV1(state.systems.quirks?.data?.levels).hackMilestoneReduction || {};
+  for (const def of IDLE_NGU_TRACKS.hacks || []) {
+    const level = Math.max(0, int(tracks[def.id]?.level, 0));
+    if (level <= 0) continue;
+    const perMilestone = Math.max(1, num(def.levelsPerMilestone, 1) - Math.max(0, num(reduction[def.id], 0)));
+    const milestones = Math.floor(level / perMilestone);
+    out[def.id] = (1 + (num(def.effectPerLevelPct, 0) * level) / 100) * Math.pow(num(def.milestoneBonusPct, 100) / 100, milestones);
+  }
+  return out;
+}
+
 /* Effets de tous les NGU (ratios) -- neutres sous le No NGU Challenge. */
 function nguFxV1(state) {
   if (state.challenge?.active === "noNgu") return nguEffectsV1({}, state.difficulty);
@@ -3237,8 +3258,8 @@ function nguSpeedMultiplierV1(state, resource) {
     (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
     (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
     (resource === "magic"
-      ? diggers.magicNgu * perks.nguSpeedMagicMultiplier * quirks.nguSpeedMagicMultiplier * fx.magicNguSpeed
-      : diggers.energyNgu * perks.nguSpeedEnergyMultiplier * quirks.nguSpeedEnergyMultiplier * fx.energyNguSpeed)
+      ? diggers.magicNgu * perks.nguSpeedMagicMultiplier * quirks.nguSpeedMagicMultiplier * fx.magicNguSpeed * hackFxV1(state).magicNguSpeed
+      : diggers.energyNgu * perks.nguSpeedEnergyMultiplier * quirks.nguSpeedEnergyMultiplier * fx.energyNguSpeed * hackFxV1(state).energyNguSpeed)
   );
 }
 
@@ -3405,6 +3426,7 @@ export function idleNguBonuses(raw) {
   const atBlock = trackBonusLevel(state, "advancedTraining", "block");
   const ironPillPoints = Math.max(0, num(state.systems.bloodMagic?.data?.spells?.ironPill, 0));
   const nguFx = nguFxV1(state);
+  const hackFx = hackFxV1(state);
   const equipmentDisabled = state.challenge.active === "noEquipment";
   const adventureGear = equipmentDisabled
     ? {power:0,toughness:0,hp:0,regen:0,specials:{}}
@@ -3432,7 +3454,7 @@ export function idleNguBonuses(raw) {
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
   const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
-  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber * nguFx.number;
+  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber * nguFx.number * hackFx.number;
   /*
    * Wiki NGU (page "Advanced Training", section Formulas) : "The Bonus%
    * for Adventure Power/Toughness is: Level^0.4 * 10" (vérifié cellule par
@@ -3454,6 +3476,7 @@ export function idleNguBonuses(raw) {
     quirkBonuses.statMultiplier *
     wishBonuses.statMultiplier *
     nguFx.attackDefense *
+    hackFx.attackDefense *
     /*
      * Wandoos (2026-09-18) : wiki page "Wandoos" — l'OS actif multiplie
      * Attack ET Defense ensemble à partir des niveaux de Dump Energy/
@@ -3511,7 +3534,8 @@ export function idleNguBonuses(raw) {
       wishBonuses.adventureStatsMultiplier *
       beardAdventure *
       diggers.adventure *
-      nguFx.adventure,
+      nguFx.adventure *
+      hackFx.adventureStats,
     /*
      * 2026-09-23 (audit) : wiki Advanced Training -- « Bonus% for Adventure
      * Power/Toughness = Level^0.4 x 10 » : il s'applique à la Power et à la
@@ -3526,6 +3550,7 @@ export function idleNguBonuses(raw) {
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
+      hackFx.adventureStats *
       atPowerBonus,
     adventureToughnessMultiplier:
       challengeBonuses.adventureStatsMultiplier *
@@ -3535,6 +3560,7 @@ export function idleNguBonuses(raw) {
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
+      hackFx.adventureStats *
       atToughnessBonus,
     /* Block Damage Reduction (wiki Advanced Training) : (Level + 50) / (Level + 100) -- 50 % au niveau 0. */
     blockReduction: (Math.max(0, atBlock) + 50) / (Math.max(0, atBlock) + 100),
@@ -3550,6 +3576,7 @@ export function idleNguBonuses(raw) {
       diggers.drop *
       perkBonuses.dropChanceMultiplier *
       nguFx.dropChance *
+      hackFx.dropChance *
       (1 + num(adventureGear.specials?.dropChancePct, 0) / 100) *
       (1 + num(yggPermanent.luckDropPct,0)/100) *
       /*
@@ -3559,7 +3586,7 @@ export function idleNguBonuses(raw) {
        * appliqué"), câblé ici pour la première fois.
        */
       Math.max(1, num(state.systems.bloodMagic?.data?.spells?.bloodSpaghetti, 1)),
-    xpMultiplier: diggers.experience * nguFx.exp * (1 + num(state.bonuses.cookingExp, 0)),
+    xpMultiplier: diggers.experience * nguFx.exp * hackFx.exp * (1 + num(state.bonuses.cookingExp, 0)),
     respawnReduction: clamp(
       1 - (1 - nguFx.respawnReduction) * (1 - num(adventureGear.specials?.respawnReductionPct, 0) / 100),
       0,
@@ -3686,7 +3713,7 @@ export function idleNguBonuses(raw) {
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
     beardNumberMultiplier: beardNumber,
-    ppMultiplier: nguFx.pp,
+    ppMultiplier: nguFx.pp * hackFx.pp,
     /* Aucun vrai NGU n'accélère Questing ni le Daycare (pistes inventées retirées). */
     questSpeedMultiplier: 1,
     daycareSpeedMultiplier: 1,
@@ -3705,8 +3732,8 @@ export function idleNguBonuses(raw) {
      * contribution du cube y est donc dupliquée par petit calcul local
      * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
-    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct"),
-    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))) * gearPctV1(adventureGear.specials, "wishSpeedPct"),
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct") * hackFx.hackHack,
+    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))) * gearPctV1(adventureGear.specials, "wishSpeedPct") * hackFx.wish,
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
     quirkBonuses:clone(quirkBonuses),
