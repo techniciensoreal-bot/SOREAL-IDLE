@@ -2828,47 +2828,61 @@ function useYggFruit(state,fruitId,mode="eat"){
   state.currencies.seeds+=seedGain;
   const factor=Math.ceil(Math.pow(grownTier,1.5));
   const result={fruit:fruitId,mode:harvest?"harvest":"eat",tier:grownTier,seeds:seedGain};
+  /*
+   * 2026-09-23 (audit) : wiki Yggdrasil > Fruit Yields. Chaque fruit a sa formule :
+   * ceil(ceil(T^1.5) x constante du fruit x NGU_Ygg x Quirk_Ygg x Equip_YggYield x
+   * FirstHarvest) ; Gold et Arbitrariness ne reçoivent ni NGU ni Yield ; Rage : Quirk x Equip
+   * x PPBonus. (Poop : consommable absent.)
+   */
+  const yieldFruit=nguFxV1(state).yggdrasil*quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier;
 
   if(!harvest){
     if(def.effect==="gold"){
-      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*factor*30*60;
+      const minutes=Math.ceil(factor*30*firstHarvestMultiplier);
+      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60;
       state.currencies.gold+=gold;
       result.gold=gold;
     }else if(def.effect==="powerAlpha"){
-      s.data.runPowerAlphaValue+=factor;
+      s.data.runPowerAlphaValue+=Math.ceil(factor*yieldFruit);
       result.runPowerAlphaValue=s.data.runPowerAlphaValue;
     }else if(def.effect==="adventure"){
-      const baseToughness=Math.max(1,num(state.adventure?.permanent?.adventureToughness,1));
-      const gain=Math.floor(factor*Math.pow(baseToughness,0.2));
+      const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure),{},null).toughness);
+      const gain=Math.floor(factor*Math.pow(baseToughness,0.2)*yieldFruit);
       s.data.permanent.adventurePower+=gain;
       s.data.permanent.adventureToughness+=gain;
       s.data.permanent.adventureHp+=gain*3;
       s.data.permanent.adventureRegen+=gain*0.03;
       result.adventureGain=gain;
     }else if(def.effect==="experience"){
-      const exp=Math.max(1,factor*10);
+      const exp=Math.max(1,Math.floor(Math.ceil(factor*5*yieldFruit)*Math.max(1,perkBonuses.fruitKnowledgeExpMultiplier)*Math.max(1,num(idleNguBonuses(state).xpMultiplier,1))));
       state.currencies.experience+=exp;
       result.experience=exp;
     }else if(def.effect==="luck"){
-      const drop=factor*0.01;
+      const drop=Math.ceil(factor*0.7*yieldFruit)*0.05;
       s.data.permanent.luckDropPct+=drop;
       result.dropPct=drop;
     }else if(def.effect==="powerBeta"){
-      s.data.permanent.powerBetaValue+=factor;
+      s.data.permanent.powerBetaValue+=Math.ceil(factor*yieldFruit);
       s.data.runPowerBetaActive=true;
       result.powerBeta=s.data.permanent.powerBetaValue;
     }else if(def.effect==="numbers"){
-      s.data.permanent.numbersValue+=factor;
+      s.data.permanent.numbersValue+=Math.ceil(factor*3*yieldFruit);
       s.data.runNumbersActive=true;
       result.numbers=s.data.permanent.numbersValue;
     }else if(def.effect==="ap"){
-      const ap=factor;
+      const ap=Math.floor(Math.ceil(factor*15*firstHarvestMultiplier));
       state.currencies.ap+=ap;
       result.ap=ap;
     }else if(def.effect==="pp"){
-      const pp=Math.max(1,Math.floor(factor/2));
-      state.currencies.pp+=pp;
-      result.pp=pp;
+      /* Perk Point PROGRESS (1 000 000 = 1 PP), pas des PP entiers. */
+      const progress=Math.ceil(factor*60000*quirkBonuses.seedYieldMultiplier*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonuses(state).ppMultiplier,1))*firstHarvestMultiplier);
+      const tower=state.systems.tower;
+      if(!tower.data||typeof tower.data!=="object")tower.data={};
+      tower.data.ppProgress=Math.max(0,num(tower.data.ppProgress,0))+progress;
+      const entiers=Math.floor(tower.data.ppProgress/1e6);
+      if(entiers>0){tower.data.ppProgress-=entiers*1e6;state.currencies.pp+=entiers;}
+      result.pp=entiers;
+      result.ppProgress=progress;
     }
   }
   f.firstHarvestThisRun=false;
@@ -3437,10 +3451,10 @@ export function idleNguBonuses(raw) {
   const yggPermanent = ygg.permanent || createYggdrasilData().permanent;
   const powerAlphaMultiplier = 1 + Math.pow(Math.max(0,num(ygg.runPowerAlphaValue,0)),1.5);
   const powerBetaMultiplier = ygg.runPowerBetaActive
-    ? 1 + Math.pow(Math.max(0,num(yggPermanent.powerBetaValue,0)),2)*1e-6
+    ? 1 + Math.pow(Math.max(0,num(yggPermanent.powerBetaValue,0)),2)*5e-4
     : 1;
   const fruitNumbersMultiplier = ygg.runNumbersActive
-    ? 1 + Math.pow(Math.max(0,num(yggPermanent.numbersValue,0)),1.3)*1e-4
+    ? 1 + Math.pow(Math.max(0,num(yggPermanent.numbersValue,0)),1.3)*5e-4
     : 1;
 
   const beardAttack = beardBonusMultiplier(state, "attackDefense");
