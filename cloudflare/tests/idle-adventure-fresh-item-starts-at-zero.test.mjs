@@ -24,6 +24,16 @@ import {
  * niveau grandit, la valeur courante ne bouge jamais toute seule).
  */
 
+/*
+ * 2026-09-24 (audit des objets) : la capture du Tutorial Cube reste vraie (sa
+ * "Base value" wiki est 0), mais la règle « tout objet neuf démarre à 0 » était
+ * une généralisation : chaque modèle "Template:Item data" publie une Base value
+ * (stat de l'objet tel qu'il tombe, doc du modèle : "lvl of input stats (for
+ * Base Value)"). Un objet neuf démarre à cette Base value, jamais à son plafond ;
+ * seuls les objets dont la Base value est 0 (Tutorial Cube, Lonely Flubber...)
+ * démarrent à 0. Les boosts restent nécessaires pour atteindre le plafond.
+ */
+
 // --- Un objet SPECIALS (accessoire) fraîchement créé démarre à 0/0 ---
 {
   const s = createIdleAdventureStateV47();
@@ -35,16 +45,15 @@ import {
   assert.equal(flubber.toughness, 0);
 }
 
-// --- Un objet d'ÉQUIPEMENT (set) fraîchement créé démarre à 0/0, même au niveau 100 ---
+// --- Un objet d'ÉQUIPEMENT (set) fraîchement créé démarre à sa Base value, même au niveau 100 ---
 {
   const s = createIdleAdventureStateV47();
   const r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 100 }, { bosses: 17 }, 1);
   const weapon = r.state.inventory.find((i) => i.definitionId === "forest:weapon");
   assert.ok(weapon, "L'arme doit avoir été créée.");
-  assert.equal(weapon.power, 0, "Même créé directement au niveau 100, un objet frais démarre à power=0 -- jamais déjà à son plafond.");
-  assert.equal(weapon.toughness, 0, "Idem pour toughness.");
-  assert.equal(weapon.hp, 0, "hp (dérivé de power) doit aussi démarrer à 0.");
-  assert.equal(weapon.regen, 0, "regen (dérivé de toughness) doit aussi démarrer à 0.");
+  // Template:Item data Kokiri Blade : powervalbase = 20 (plafond 80 au niveau 0, 160 au niveau 100), aucune Toughness.
+  assert.equal(weapon.power, 20, "Même créé directement au niveau 100, un objet frais démarre à sa Base value (20) -- jamais déjà à son plafond (160).");
+  assert.equal(weapon.toughness, 0, "Aucune Toughness publiée pour cette arme.");
 
   // Le plafond (Y de "X/Y"), lui, reste bien calculé et non nul (Power seul pour une arme, wiki : t:0).
   const { p } = idleAdventureItemStatsMaxV1("forest", "weapon");
@@ -60,7 +69,7 @@ import {
   const merged = applyIdleAdventureActionV47(state, { action: "merge", a: ids[0], b: ids[1] }, { bosses: 17 }, 1)
     .state.inventory.find((i) => i.definitionId === "forest:weapon");
   assert.equal(merged.level, 81, "40+40+1=81 (idleAdventureMergeLevelV47).");
-  assert.equal(merged.power, 0, "La fusion ne doit jamais faire apparaître de la stat courante depuis rien -- MAX(0,0)=0, toujours 0 sans boost.");
+  assert.equal(merged.power, 20, "La fusion garde le maximum des deux valeurs courantes (20 et 20) -- jamais un recalcul vers le plafond sans boost.");
   assert.equal(merged.toughness, 0, "Idem pour toughness.");
 }
 
