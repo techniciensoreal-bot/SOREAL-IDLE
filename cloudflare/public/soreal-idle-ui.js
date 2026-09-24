@@ -13500,9 +13500,6 @@ let idleDialogueTimerV76=null;
                     :''
                 }
               </span>
-              <span class="soreal-idle-chip-v8">
-                +${idleEntier_(j.recompenseBossActuel&&j.recompenseBossActuel.pieces)} 🪙
-              </span>
             </div>
 
             ${
@@ -13902,7 +13899,8 @@ let idleDialogueTimerV76=null;
           const def=catalog[id];
           if(!def)return false;
           if(def.kind==='equipment'){
-            return setsDemarres.has(String(def.set||''));
+            /* ANTI-SPOIL (2026-09-24) : seulement les pièces déjà obtenues, jamais les cases vides du set. */
+            return Boolean(itemList[id])&&setsDemarres.has(String(def.set||''));
           }
           return Boolean(itemList[id]&&itemList[id].seen);
         });
@@ -14116,10 +14114,10 @@ let idleDialogueTimerV76=null;
 
           <div class="soreal-idle-collection-tabs-v1">
             <button class="soreal-idle-collection-tab-v1${onglet==='boss'?' active':''}" onclick="window.__changerOngletCollectionIdleV1__('boss')">
-              👹 Boss <span>${decouvertesBoss}/???</span>
+              👹 Boss <span>${decouvertesBoss}</span>
             </button>
             <button class="soreal-idle-collection-tab-v1${onglet==='aventure'?' active':''}" onclick="window.__changerOngletCollectionIdleV1__('aventure')">
-              🗺️ Aventure <span>${decouvertesAventure}/???</span>
+              🗺️ Aventure <span>${decouvertesAventure}</span>
             </button>
             <button class="soreal-idle-collection-tab-v1${onglet==='equipement'?' active':''}" onclick="window.__changerOngletCollectionIdleV1__('equipement')">
               🗡️ Équipement <span>${itemsObtenus}</span>
@@ -16974,6 +16972,7 @@ function pageAventureIdleV28_(j){
               baseToughness:def.baseToughness||0
             };
 
+            if(!vu)return '';
             return '<div class="soreal-idle-collection-slot-v32'+(vu?' found':'')+(vert?' maxed':'')+'">'+
               '<div style="font-size:20px">'+(vu?iconeObjetAdventureIdleV138_(pseudo):'❓')+'</div>'+
               '<div>'+(vu?idleHtml_(def.name||definitionId):'Inconnu')+'</div>'+
@@ -16997,12 +16996,12 @@ function pageAventureIdleV28_(j){
                 '<div class="soreal-idle-collection-zone-name-v32">📚 '+idleHtml_(setDef.name||setId)+'</div>'+
                 recompenseHtml+
                 '<div class="soreal-idle-collection-reward-v32">'+
-                  'Découverts '+vus+'/'+total+' · Niveau 100 '+niveau100+'/'+total+
-                  ' · 100 % boosts '+verts+'/'+total+
+                  'Découverts : '+vus+' · Niveau 100 : '+niveau100+
+                  ' · 100 % boosts : '+verts+
                 '</div>'+
               '</div>'+
               '<div class="soreal-idle-collection-count-v32'+(completeCollection?' done':'')+'">'+
-                verts+' / '+total+(completeCollection?' ✅':'')+
+                verts+(completeCollection?' ✅':'')+
               '</div>'+
             '</div>'+
             '<div class="soreal-idle-collection-slots-v32">'+cartes+'</div>'+
@@ -18766,7 +18765,7 @@ function pageAventureIdleV28_(j){
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+
             'role="button" tabindex="0" aria-expanded="'+(ouvert?'true':'false')+'">'+
-            '<span>🗄️ Coffre ('+occupees+' / '+slots.length+')</span>'+
+            '<span>🗄️ Coffre ('+occupees+')</span>'+
             '<span class="soreal-idle-coffre-chevron-v1">'+(ouvert?'▲':'▼')+'</span>'+
           '</div>'+
           '<div class="soreal-idle-v138-cube-slot" data-idle-coffre-drop-v180 '+

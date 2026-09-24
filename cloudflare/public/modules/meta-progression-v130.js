@@ -469,6 +469,8 @@
       function idleExpShopStatBlocIdleV1_(res,stat,x,achat,verrou,newbieCatalogue,newbieUtilisees){
         const auMax=achat&&window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(x[stat.id])>=achat.hardCap-1e-9;
         const verrouille=achat&&achat.unlockBoss&&verrou&&verrou.unlocked===false;
+        /* ANTI-SPOIL (2026-09-24) : un achat encore verrouillé (ex. Puissance / Plafond avant le boss requis) n'est pas montré du tout. */
+        if(verrouille)return '';
         return '<div class="soreal-idle-exp-stat-v210">'+
           '<div class="soreal-idle-exp-stat-head-v210">'+
             '<span>'+stat.icone+' '+stat.nom+'</span>'+
@@ -517,8 +519,47 @@
       };
       let idleExpOngletV1=(function(){try{return localStorage.getItem('soreal_idle_exp_onglet_v1')||'debuts';}catch(e){return 'debuts';}})();
 
-      function idleExpOngletCourantV1_(){
-        return IDLE_EXP_ONGLETS_V1.some(function(o){return o.id===idleExpOngletV1;})?idleExpOngletV1:'debuts';
+      /*
+       * ANTI-SPOIL (Norman, 2026-09-24 : « Magie, Ressource 3, ils ne doivent pas savoir que ça existe. Ils doivent être surpris quand ils
+       * le débloquent. Pense toujours comme ça dans le jeu. ») : la boutique ne montre QUE ce que le joueur a déjà débloqué — un onglet
+       * ou un achat lié à un système encore verrouillé n'apparaît pas du tout (ni onglet, ni cadenas, ni prix).
+       */
+      const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1={
+        adventurePower:'adventure',adventureToughness:'adventure',adventureHp:'adventure',adventureRegen:'adventure',
+        inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',basicLootFilter:'adventure',
+        loadoutSlots:'adventure',loadoutSlot3:'adventure',boostRecycling:'adventure',inventoryMergeSlot:'adventure',
+        diggerSlot:'diggers',beardSlot:'beards',daycareSlot1:'daycare',daycareSlot2:'daycare',daycareSlot3:'daycare',
+        macguffinSlot1:'macguffins',macguffinSlot2:'macguffins'
+      };
+      function idleExpSystemeDebloqueIdleV1_(j,m,systeme){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        if(!systeme)return true;
+        if(systeme==='adventure')return Boolean(m.records&&H.idleNombre_(m.records.highestBoss)>=4);
+        const sys=systemeMetaParIdIdleV130_(j,systeme);
+        return Boolean(sys&&sys.state&&sys.state.unlocked);
+      }
+      function idleExpAchatVisibleIdleV1_(j,m,it){
+        if(!it)return false;
+        const systeme=it.yggFruit?'yggdrasil':IDLE_EXP_SYSTEME_DE_L_ACHAT_V1[it.id];
+        return idleExpSystemeDebloqueIdleV1_(j,m,systeme);
+      }
+      function idleExpOngletsVisiblesIdleV1_(j,m){
+        const tous=Array.isArray(m.expShop)?m.expShop:[];
+        const visible=function(it){return idleExpAchatVisibleIdleV1_(j,m,it);};
+        const resteSlots=tous.some(function(it){
+          return visible(it)&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
+        });
+        return IDLE_EXP_ONGLETS_V1.filter(function(o){
+          if(o.id==='magic')return idleExpSystemeDebloqueIdleV1_(j,m,'bloodMagic');
+          if(o.id==='r3')return idleExpSystemeDebloqueIdleV1_(j,m,'hacks');
+          if(o.id==='aventure')return idleExpSystemeDebloqueIdleV1_(j,m,'adventure');
+          if(o.id==='slots')return resteSlots;
+          return true;
+        });
+      }
+      function idleExpOngletCourantV1_(visibles){
+        const liste=visibles||IDLE_EXP_ONGLETS_V1;
+        return liste.some(function(o){return o.id===idleExpOngletV1;})?idleExpOngletV1:'debuts';
       }
       window.__ongletExpShopIdleV1__=function(id){
         if(!IDLE_EXP_ONGLETS_V1.some(function(o){return o.id===id;}))return;
@@ -571,11 +612,11 @@
       }
 
       /* Achats de l'onglet Débuts encore abordables avec l'EXP actuelle (pastille sur l'onglet). */
-      function idleExpDebutsAbordablesIdleV1_(m,exp){
+      function idleExpDebutsAbordablesIdleV1_(j,m,exp){
         const tous=Array.isArray(m.expShop)?m.expShop:[];
         return IDLE_EXP_DEBUTS_V1.filter(function(id){
           const it=tous.find(function(x){return x.id===id;});
-          return it&&it.nextCost!=null&&it.nextCost<=exp;
+          return it&&idleExpAchatVisibleIdleV1_(j,m,it)&&it.nextCost!=null&&it.nextCost<=exp;
         }).length;
       }
 
@@ -584,19 +625,11 @@
         const tous=Array.isArray(m.expShop)?m.expShop:[];
         const parId=function(id){return tous.find(function(it){return it.id===id;});};
         if(onglet==='debuts'){
-          const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(Boolean).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
+          const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
           return '<div class="soreal-idle-exp-intro-v212">🚀 <b>À acheter tôt.</b> Ces achats sont peu chers et rendent la partie bien plus confortable ; dans l’ordre conseillé.</div>'+cartes;
         }
         if(onglet==='energy'||onglet==='magic'||onglet==='r3'){
-          const magicSysteme=systemeMetaParIdIdleV130_(j,'bloodMagic');
-          const r3Systeme=systemeMetaParIdIdleV130_(j,'hacks');
-          const debloque=onglet==='energy'
-            ?Boolean(m.records&&H.idleNombre_(m.records.highestBoss)>=1)
-            :onglet==='magic'
-              ?Boolean(magicSysteme&&magicSysteme.state&&magicSysteme.state.unlocked)
-              :Boolean(r3Systeme&&r3Systeme.state&&r3Systeme.state.unlocked);
-          const titre=libelleRessourceMetaIdleV130_(onglet);
-          if(!debloque)return `<div class="soreal-idle-exp-lock-v210">🔒 ${H.idleHtml_(titre)} · verrouillé : il se débloque plus loin dans la partie.</div>`;
+          /* Un onglet de ressource verrouillé n'est jamais proposé (voir idleExpOngletsVisiblesIdleV1_) : aucun message « verrouillé ». */
           const x=(m.resources||{})[onglet]||{};
           const couts=(m.resourcePurchases||{})[onglet]||{};
           const verrous=(m.resourcePurchaseUnlock||{})[onglet]||{};
@@ -608,21 +641,22 @@
           }).join('');
         }
         if(onglet==='aventure'){
-          return IDLE_EXP_STATS_AVENTURE_V1.map(parId).filter(Boolean).map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopRichJerksIdleV1_(m);
+          return IDLE_EXP_STATS_AVENTURE_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopRichJerksIdleV1_(m);
         }
         /* slots : tout le reste (hors Débuts et statistiques d'aventure), puis Yggdrasil */
         const reste=tous.filter(function(it){
-          return !it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
+          return idleExpAchatVisibleIdleV1_(j,m,it)&&!it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
         });
-        return reste.map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit;}));
+        return reste.map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit&&idleExpAchatVisibleIdleV1_(j,m,it);}));
       }
 
       function pageSpendExpIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const m=j&&j.systemes?j.systemes:{};
         const exp=H.idleEntier_((m.currencies&&m.currencies.experience)||0);
-        const onglet=idleExpOngletCourantV1_();
-        const abordables=idleExpDebutsAbordablesIdleV1_(m,exp);
+        const onglets_visibles=idleExpOngletsVisiblesIdleV1_(j,m);
+        const onglet=idleExpOngletCourantV1_(onglets_visibles);
+        const abordables=idleExpDebutsAbordablesIdleV1_(j,m,exp);
         const bleu='var(--nav-color,#0891b2)';
         const fond1='color-mix(in srgb,'+bleu+' 60%,#0b1020)';
         const fond2='color-mix(in srgb,'+bleu+' 38%,#1a2340)';
@@ -666,7 +700,7 @@
           `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{width:fit-content;background:rgba(52,199,89,.14);color:#a6f0bb;border:2px solid rgba(52,199,89,.5);border-radius:8px;transform:rotate(-1.5deg);letter-spacing:.04em;text-transform:uppercase}`,
           `@media(max-width:560px){.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:repeat(2,minmax(0,1fr))}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 .primary{grid-column:1/-1}.soreal-idle-exp-tab-v212{flex:1 1 calc(50% - 7px);justify-content:center}.soreal-idle-exp-tabs-v212,.soreal-idle-exp-aisles-v213{margin-left:10px;margin-right:10px}.soreal-idle-exp-balance-v210{margin-left:10px;margin-right:10px}.soreal-idle-exp-shelves-v213{padding:0 10px 12px}}`
         ].join('');
-        const onglets=IDLE_EXP_ONGLETS_V1.map(function(o){
+        const onglets=onglets_visibles.map(function(o){
           const actif=o.id===onglet;
           const pastille=o.id==='debuts'&&abordables>0?`<span class="soreal-idle-exp-pastille-v212" title="Achats abordables">${abordables}</span>`:'';
           return `<button type="button" class="soreal-idle-exp-tab-v212${actif?' actif':''}" aria-pressed="${actif}" onclick="window.__ongletExpShopIdleV1__('${o.id}')">${o.icone} ${o.nom}${pastille}</button>`;

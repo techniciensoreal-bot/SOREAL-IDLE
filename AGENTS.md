@@ -53,6 +53,15 @@ Procédure attendue avant d'ajouter/corriger une valeur de jeu :
    documente qu'un `Type` (poison/exploder/rapid/charger/...) confirme le
    Type lui-même, pas forcément une formule de dégâts associée.
 
+## Règle n°2 (non négociable) : aucun spoil
+
+Le joueur ne voit **que ce qu'il a déjà débloqué**. Il doit être surpris à chaque déblocage (demande de Norman, 2026-09-24).
+
+- Un système, un onglet, un achat ou un menu encore verrouillé n'apparaît **pas du tout** : ni cadenas, ni « verrouillé », ni prix, ni condition (« bats le boss N »).
+- Pas de total révélateur : jamais « 12 / 301 boss », « 5 / 284 emplacements », « 3 / 6 pièces », ni de case « ??? » pour ce qui n'est pas découvert. On affiche uniquement le nombre déjà découvert, sans dénominateur.
+- Les listes envoyées par le serveur ne contiennent que ce qui est découvert (la taille d'une liste ne doit pas révéler un total).
+- Avant toute nouvelle interface : « ce texte, cette case ou ce compteur révèle-t-il quelque chose de verrouillé ? » Ajouter un test qui le vérifie (voir `idle-anti-spoil-collection-v1.test.mjs`, `idle-exp-shop-tabs-v1.test.mjs`).
+
 ## Relation avec SOREAL-APP / SOREAL-TV
 
 - Le frontend de production vit dans **ce dépôt** :

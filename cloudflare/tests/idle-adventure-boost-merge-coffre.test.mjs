@@ -159,14 +159,14 @@ import {
   const snap = idleAdventureSnapshotV47(s, 17);
   assert.equal(snap.inventoryUsed, 1, "Seul l'objet niveau 50 restant doit compter dans le sac — le coffre ne compte jamais.");
 
-  // coffreSlots doit exposer TOUT le catalogue d'équipement (pas seulement les objets déjà déposés) —
-  // les cases vides et jamais découvertes restent visibles, jamais reconstruites depuis les seuls objets obtenus.
-  assert.ok(snap.coffreSlots.length > 50, "coffreSlots doit couvrir tout le catalogue d'équipement (dizaines d'emplacements), pas seulement les objets déposés.");
+  // ANTI-SPOIL (Norman, 2026-09-24 : « il ne faut pas montrer toutes les cases disponibles ni le nombre d'items à devoir placer ») :
+  // coffreSlots n'expose QUE les emplacements déjà découverts ; le catalogue complet (et donc son nombre) ne sort plus du serveur.
+  assert.ok(snap.coffreSlots.length >= 1 && snap.coffreSlots.length < 10, "coffreSlots ne contient que les emplacements découverts.");
+  assert.ok(snap.coffreSlots.every(x => x.decouvert), "chaque emplacement exposé est découvert");
   const slotTrainingWeapon = snap.coffreSlots.find(x => x.definitionId === "training:weapon");
   assert.equal(slotTrainingWeapon.occupe, true, "L'emplacement training:weapon doit être marqué occupé (V vert).");
   assert.equal(slotTrainingWeapon.item.id, maxedId);
-  const slotSewersWeapon = snap.coffreSlots.find(x => x.definitionId === "sewers:weapon");
-  assert.equal(slotSewersWeapon.occupe, false, "Un emplacement jamais déposé doit rester vide — un trou visible, jamais comblé automatiquement.");
+  assert.equal(snap.coffreSlots.find(x => x.definitionId === "sewers:weapon"), undefined, "Un emplacement jamais découvert n'est pas exposé du tout.");
 
   // Refuse un deuxième objet dans une case déjà occupée (une case = un emplacement fixe, pas un choix libre).
   const idsBeforeSecondAdd = new Set(s.inventory.map(x => x.id));

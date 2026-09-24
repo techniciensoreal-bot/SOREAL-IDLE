@@ -5362,8 +5362,17 @@ function construireBestiaireSorealIdle_(
           return entree.decouvert;
         }
       ).length,
+    /*
+     * ANTI-SPOIL (Norman, 2026-09-24 : « il ne doivent pas voir qu'il y a 301 boss… il ne faut pas montrer toutes les cases
+     * disponibles ») : seules les entrées DÉJÀ DÉCOUVERTES quittent le serveur ; le nombre total de boss et de créatures ne se déduit
+     * plus de la taille de la liste.
+     */
     entrees:
-      entrees
+      entrees.filter(
+        function(entree) {
+          return entree.decouvert;
+        }
+      )
   };
 }
 
@@ -8420,10 +8429,6 @@ function appliquerProgressionEnergieSorealIdle_(
       const ancienBoss =
         bossCombatIndex < bossVaincus;
 
-      const multiplicateurFarm =
-        ancienBoss
-          ? 0.35
-          : 1;
 
       if (xpReelle > 0) {
         statsCombat.metaNgu.currencies.experience=
@@ -8487,74 +8492,12 @@ function appliquerProgressionEnergieSorealIdle_(
           );
       }
 
-      pieces +=
-        Math.max(
-          1,
-          Math.round(
-            recompensePiecesBossSorealIdle_(
-              bossCombatIndex
-            ) *
-            multiplicateurFarm
-          )
-        );
-
-      if (
-        Math.random() <
-        Math.max(
-          0,
-          Math.min(
-            1,
-            nombreSorealIdle_(
-              definitionBossSorealIdle_(
-                bossCombatIndex
-              ).chanceLoot,
-              0.45
-            ) *
-            Math.max(
-              1,
-              nombreSorealIdle_(
-                idleNguBonuses(
-                  statsCombat.metaNgu
-                ).dropMultiplier,
-                1
-              )
-            )
-          )
-        )
-      ) {
-        const objet =
-          genererObjetBossSorealIdle_(
-            bossCombatIndex,
-            nomBossSorealIdle_(
-              bossCombatIndex
-            )
-          );
-
-        const capaciteSac =
-          Math.max(
-            CONFIG_SOREAL_IDLE.INVENTAIRE_CAPACITE_BASE,
-            Math.floor(
-              nombreSorealIdle_(
-                feuille.getRange(
-                  ligne,
-                  c.INVENTAIRE_CAPACITE
-                ).getValue(),
-                CONFIG_SOREAL_IDLE.INVENTAIRE_CAPACITE_BASE
-              )
-            )
-          );
-
-        if (
-          objet &&
-          nombreObjetsSacSorealIdle_(
-            inventaire,
-            equipement
-          ) < capaciteSac
-        ) {
-          inventaire.push(objet);
-          dropsRecents.push(objet);
-        }
-      }
+      /*
+       * 2026-09-24 (Norman : « vérifie que l'XP et l'or affichés en bas de Fight Boss sont corrects » ; règle n°1) : un boss principal
+       * ne rapporte que de l'EXP (wiki, page Boss Fights, colonne « Exp Reward » : aucune autre récompense) et l'équipement n'existe
+       * qu'en Aventure (wiki, page Inventory). Les « pièces » et les objets tirés ici venaient de l'ancienne version de SOREAL IDLE
+       * (colonnes inventées de la feuille IDLE_BOSS) : supprimés.
+       */
 
       const bossVaincuIndex =
         bossCombatIndex;
@@ -10889,12 +10832,7 @@ function construireEtatJoueurSorealIdle_(
           )
         ),
 
-      niveauRequis:1,
-
-      pieces:
-        recompensePiecesBossSorealIdle_(
-          bossSelectionIndex
-        )
+      niveauRequis:1
     },
 
     progressionHorsLigne: {
@@ -12082,51 +12020,12 @@ function nukerBossSorealIdle(
           );
       }
 
-      pieces +=
-        Math.max(
-          1,
-          Math.round(
-            recompensePiecesBossSorealIdle_(
-              bossIndexNuke
-            )
-          )
-        );
-
-      if (
-        Math.random() <
-        Math.max(
-          0,
-          Math.min(
-            1,
-            nombreSorealIdle_(
-              definitionBossSorealIdle_(
-                bossIndexNuke
-              ).chanceLoot,
-              0.45
-            ) *
-            dropMultiplierNuke
-          )
-        )
-      ) {
-        const objetNuke =
-          genererObjetBossSorealIdle_(
-            bossIndexNuke,
-            nomBossSorealIdle_(
-              bossIndexNuke
-            )
-          );
-
-        if (
-          objetNuke &&
-          nombreObjetsSacSorealIdle_(
-            inventaire,
-            equipement
-          ) < capaciteSac
-        ) {
-          inventaire.push(objetNuke);
-          dropsRecents.push(objetNuke);
-        }
-      }
+      /*
+       * 2026-09-24 (Norman : « vérifie que l'XP et l'or affichés en bas de Fight Boss sont corrects » ; règle n°1) : un boss principal
+       * ne rapporte que de l'EXP (wiki, page Boss Fights, colonne « Exp Reward » : aucune autre récompense) et l'équipement n'existe
+       * qu'en Aventure (wiki, page Inventory). Les « pièces » et les objets tirés ici venaient de l'ancienne version de SOREAL IDLE
+       * (colonnes inventées de la feuille IDLE_BOSS) : supprimés.
+       */
 
       defeated.push({
         numero: bossIndexNuke + 1,

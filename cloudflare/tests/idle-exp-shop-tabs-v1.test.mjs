@@ -36,6 +36,8 @@ const api = window.__SOREAL_IDLE_META_V130__;
 const ctx = { bosses: 100 };
 const state = normalizeIdleNguState({}, ctx, 1_000_000);
 state.currencies.experience = 500;
+/* Joueur avancé : tous les systèmes concernés sont débloqués (le joueur qui n'a rien débloqué est testé plus bas). */
+for (const id of ["bloodMagic", "hacks", "diggers", "beards", "daycare", "macguffins", "yggdrasil"]) state.systems[id].unlocked = true;
 const snap = idleNguSnapshot(state, ctx, 2_000_000);
 const j = { systemes: snap };
 etat = j;
@@ -73,8 +75,6 @@ const TOUS = ["debuts", "energy", "magic", "r3", "aventure", "slots"];
   // Les statistiques Energy (Vitesse, Puissance, Plafond, Barres) sont dans leur onglet, pas dans les autres
   assert.ok(pages.energy.includes("Vitesse") && pages.energy.includes("Barres"));
   assert.ok(!pages.debuts.includes("Vitesse") && !pages.slots.includes("Vitesse"));
-  // Ressource verrouillée : message court au lieu d'une pile de blocs
-  assert.match(pages.r3, /🔒 Resource 3 · verrouillé/);
 }
 
 // --- Navigation : les onglets s'affichent, l'actif est marqué, le choix est mémorisé et la page est redessinée ---
@@ -97,6 +97,32 @@ const TOUS = ["debuts", "energy", "magic", "r3", "aventure", "slots"];
   assert.ok(css.includes("60%,#0b1020") && css.includes("38%,#1a2340"), "mêmes dégradés que la bannière (page-head)");
   assert.ok(!/background:#fff[;}]/i.test(css) && !/background:#(?:f[0-9a-f]{2}|f[0-9a-f]{5})[;}]/i.test(css.replace(/background:#(?:f5c451|ffd978)/g,"")), "aucun fond blanc / clair (hors pastille dorée)");
   assert.ok(!/background:#(?:e9edf7|f1f3f8|f1f3f7|fffaf0|fff4cf|edf8f0)/i.test(css));
+}
+
+// --- ANTI-SPOIL : rien de verrouillé n'est visible (ni onglet, ni achat, ni prix, ni cadenas) ---
+{
+  const paliers = [
+    { bosses: 0, absents: ["Magie", "Ressource 3", "Aventure", "Slots", "Rich Jerks", "Filtre de butin", "Digger", "Beard", "MacGuffin", "garderie", "Yggdrasil", "Auto-Activate", "verrouillé", "🔒"], presents: ["Débuts", "Énergie"] },
+    { bosses: 4, absents: ["Magie", "Ressource 3", "Digger", "Beard", "MacGuffin", "garderie", "Yggdrasil", "🔒"], presents: ["Filtre de butin", "Aventure", "Rich Jerks"] }
+  ];
+  for (const palier of paliers) {
+    const c = { bosses: palier.bosses };
+    const neuf = normalizeIdleNguState({}, c, 1_000_000);
+    neuf.currencies.experience = 500;
+    const j2 = { systemes: idleNguSnapshot(neuf, c, 2_000_000) };
+    etat = j2;
+    let tout = "";
+    for (const o of TOUS) { window.__ongletExpShopIdleV1__(o); tout += api.pageSpendExpIdleV1_(j2); }
+    window.__ongletExpShopIdleV1__("debuts");
+    const debuts = api.pageSpendExpIdleV1_(j2);
+    for (const mot of palier.absents) assert.ok(!tout.includes(mot), "boss " + palier.bosses + " : « " + mot + " » ne doit pas être visible");
+    for (const mot of palier.presents) assert.ok(tout.includes(mot), "boss " + palier.bosses + " : « " + mot + " » attendu");
+    // l'onglet mémorisé d'un système encore verrouillé retombe sur Débuts
+    window.__ongletExpShopIdleV1__("magic");
+    assert.match(api.pageSpendExpIdleV1_(j2), /soreal-idle-exp-tab-v212 actif" aria-pressed="true" onclick="window.__ongletExpShopIdleV1__\('debuts'\)"/);
+    window.__ongletExpShopIdleV1__("debuts");
+  }
+  etat = j;
 }
 
 console.log("idle-exp-shop-tabs-v1: OK");
