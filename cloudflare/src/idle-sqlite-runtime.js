@@ -3685,6 +3685,14 @@ function niveauxParBarreEntrainementSorealIdle_(stats) {
   );
 }
 
+/* « Training Auto Advance » (boutique EXP, wiki Experience > Misc) acheté ? */
+function autoAvanceEntrainementSorealIdle_(stats) {
+  const meta = stats && stats.metaNgu;
+  if (!meta || meta.version !== IDLE_NGU_META_VERSION) return false;
+  /* Lecture directe (même source que idleNguBonuses().basicTrainingAutoAdvance) : évite un 2e calcul complet des bonus. */
+  return Math.floor(nombreSorealIdle_(meta.bonuses && meta.bonuses.expShop && meta.bonuses.expShop.trainingAutoAdvance, 0)) >= 1;
+}
+
 function synchroniserEntrainementBaseSorealIdleV41_(
   feuille,
   ligne,
@@ -3705,7 +3713,8 @@ function synchroniserEntrainementBaseSorealIdleV41_(
       maintenant,
       CONFIG_SOREAL_IDLE
         .PROGRESSION_HORS_LIGNE_MAX_SECONDES,
-      niveauxParBarreEntrainementSorealIdle_(stats)
+      niveauxParBarreEntrainementSorealIdle_(stats),
+      { autoAdvance: autoAvanceEntrainementSorealIdle_(stats) }
     );
 
   stats.modeleJeuVersion =
