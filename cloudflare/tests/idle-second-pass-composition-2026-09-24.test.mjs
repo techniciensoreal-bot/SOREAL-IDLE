@@ -7,7 +7,7 @@ import {
   idleNguBonuses,
   idleNguSnapshot
 } from "../src/idle-ngu-progression.js";
-import { idleAdventureTitanCooldownMsV1, normalizeIdleAdventureStateV47, applyIdleAdventureActionV47 } from "../src/idle-adventure-v47.js";
+import { idleAdventureTitanCooldownMsV1, normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSpecialItemV1, idleAdventureAddItemV1, IDLE_ADVENTURE_ASCENSION_CHAIN_V1, IDLE_ADVENTURE_SPECIALS } from "../src/idle-adventure-v47.js";
 
 /*
  * Audit de seconde passe (2026-09-24), méthode de COMPOSITION :
@@ -170,6 +170,39 @@ function etatAvecFib89() {
   const r = applyIdleAdventureActionV47(etat, { action: "titan", titan: "t1" },
     { bosses: 58, stats: { power: 1300, toughness: 1300 }, titanExpChallengePct: 0.10 * 3 }, 1000);
   assert.equal(r.result.experience, Math.floor(35 * 1.3), "35 EXP x 1,3 = 45,5 -> 45");
+}
+
+/* --- 9. Cube : 1 % de la valeur TOTALE du boost (Boosted Boosts / Beasted Boosts compris, page Boost). --- */
+{
+  const s = normalizeIdleAdventureStateV47({});
+  s.inventory.push({ id: "b1", definitionId: "boost:power:100", kind: "boost", boostType: "power", strength: 100, level: 0 });
+  const r = applyIdleAdventureActionV47(s, { action: "boost", boostId: "b1", toCube: true }, { bosses: 100, boostPowerMultiplier: 3 }, 1);
+  assert.ok(Math.abs(r.state.cube.power - 3) < 1e-9, "boost 100 x3 (perks/quirks) -> 1 % = 3");
+}
+
+/* --- 10. Ascension des objets de niveau 100 (page Inventory + pages d'objets « can be upgraded to »). --- */
+{
+  /* Chaque maillon existe, et le dernier x9 / la dernière Looty n'ont pas de suite. */
+  for (const [de, vers] of Object.entries(IDLE_ADVENTURE_ASCENSION_CHAIN_V1)) {
+    assert.ok(IDLE_ADVENTURE_SPECIALS[vers], `définition de ${vers} (suite de ${de})`);
+  }
+  assert.equal(IDLE_ADVENTURE_ASCENSION_CHAIN_V1.ascendedX9Pendant, undefined);
+  assert.equal(IDLE_ADVENTURE_ASCENSION_CHAIN_V1.lootzLrtozl, undefined);
+
+  function ascendre(definitionId, niveau) {
+    const s = normalizeIdleAdventureStateV47({});
+    const item = idleAdventureSpecialItemV1(definitionId, niveau);
+    const ajoute = idleAdventureAddItemV1(s, item);
+    return applyIdleAdventureActionV47(s, { action: "transformAdventureItem", id: ajoute.id || item.id }, { bosses: 100 }, 1);
+  }
+  const r = ascendre("ascendedForestPendant", 100);
+  const suivants = r.state.inventory.filter((x) => x.definitionId === "ascendedAscendedForestPendant");
+  assert.equal(suivants.length, 1, "l'Ascended Forest Pendant niveau 100 devient un Ascended Ascended Forest Pendant");
+  assert.equal(suivants[0].level, 0, "niveau 0 après l'ascension");
+  assert.equal(r.state.inventory.filter((x) => x.definitionId === "ascendedForestPendant").length, 0, "l'ancien objet est consommé");
+  assert.throws(() => ascendre("kingLooty", 99), /OBJET_NON_MAXE/, "niveau 100 requis");
+  const looty = ascendre("supremeIntelligenceLooty", 100);
+  assert.equal(looty.state.inventory.filter((x) => x.definitionId === "grandDemonLootzifer").length, 1);
 }
 
 console.log("idle-second-pass-composition-2026-09-24 ok");

@@ -1402,6 +1402,14 @@ galacticHeraldLooty:{name:"GALACTIC HERALD LOOTY",zone:"",slot:"accessory",dropL
 ascendedX7Pendant:{name:"Ascended x7 Pendant",zone:"",slot:"accessory",dropLevel:50,p:400000000,t:400000000,sBase:40,sMax:40,sType:"r3CapPct",sExtra:[{type:"r3PowerPct",base:400,max0:400,max100:800},{type:"wishSpeedPct",base:40,max0:40,max100:80}]},
 // wiki : "SUPREME INTELLIGENCE LOOTY" (Id 389, Accessory) — Power/Toughness Max at lvl 0 = 500000000/500000000. Specials : Drop Chance (3000/3000/6000%), Energy Power (500000/500000/1000000%), Gold Drops (200000/200000/400000%), Magic Power (500000/500000/1000000%).
 supremeIntelligenceLooty:{name:"SUPREME INTELLIGENCE LOOTY",zone:"",slot:"accessory",dropLevel:50,p:500000000,t:500000000,sBase:3000,sMax:3000,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:500000,max0:500000,max100:1000000},{type:"goldDropsPct",base:200000,max0:200000,max100:400000},{type:"magicPowerPct",base:500000,max0:500000,max100:1000000}]},
+// wiki : "Ascended x8 Pendant" (Id 430, Accessory) — Power/Toughness Max at lvl 0 = 1500000000/1500000000. Specials : Hack Speed (100/100/200%), Resource 3 Cap (100/100/200%), Wish Speed (100/100/200%). Obtenu uniquement par ascension du x7 (Template:Item data Ascended x8 Pendant).
+ascendedX8Pendant:{name:"Ascended x8 Pendant",zone:"",slot:"accessory",dropLevel:0,p:1500000000,t:1500000000,sBase:100,sMax:100,sType:"hackSpeedPct",sExtra:[{type:"r3CapPct",base:100,max0:100,max100:200},{type:"wishSpeedPct",base:100,max0:100,max100:200}]},
+// wiki : "Ascended x9 Pendant" (Id 504, Accessory) — Power/Toughness Max at lvl 0 = 3000000000/3000000000. Specials : Hack Speed (200/200/400%), Resource 3 Cap (200/200/400%), Wish Speed (200/200/400%). Obtenu uniquement par ascension du x8.
+ascendedX9Pendant:{name:"Ascended x9 Pendant",zone:"",slot:"accessory",dropLevel:0,p:3000000000,t:3000000000,sBase:200,sMax:200,sType:"hackSpeedPct",sExtra:[{type:"r3CapPct",base:200,max0:200,max100:400},{type:"wishSpeedPct",base:200,max0:200,max100:400}]},
+// wiki : "GRAND DEMON LOOTZIFER" (Id 431, Accessory) — Power/Toughness Max at lvl 0 = 1000000000/1000000000. Specials : Drop Chance (6660/6660/13320%), Energy Power (3330000/3330000/6660000%), Gold Drops (666000/666000/1332000%), Magic Power (3330000/3330000/6660000%). Obtenu uniquement par ascension du SUPREME INTELLIGENCE LOOTY.
+grandDemonLootzifer:{name:"GRAND DEMON LOOTZIFER",zone:"",slot:"accessory",dropLevel:0,p:1000000000,t:1000000000,sBase:6660,sMax:6660,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:3330000,max0:3330000,max100:6660000},{type:"goldDropsPct",base:666000,max0:666000,max100:1332000},{type:"magicPowerPct",base:3330000,max0:3330000,max100:6660000}]},
+// wiki : "LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt" (Id 505, Accessory) — Power/Toughness Max at lvl 0 = 3000000000/3000000000. Specials : Drop Chance (26660/26660/53320%), Energy Power (10000000/10000000/20000000%), Gold Drops (2200000/2200000/4400000%), Magic Power (10000000/10000000/20000000%). Obtenu uniquement par ascension du GRAND DEMON LOOTZIFER.
+lootzLrtozl:{name:"LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt",zone:"",slot:"accessory",dropLevel:0,p:3000000000,t:3000000000,sBase:26660,sMax:26660,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:10000000,max0:10000000,max100:20000000},{type:"goldDropsPct",base:2200000,max0:2200000,max100:4400000},{type:"magicPowerPct",base:10000000,max0:10000000,max100:20000000}]},
 // wiki : "A 9mm Beretta" (Id 366, Weapon) — Power/Toughness Max at lvl 0 = 1400000000/70000000. Specials : Augment Speed (750/750/1500%), NGU Speed (700/700/1400%), Resource 3 Cap (21/21/42%).
 beretta9mm:{name:"A 9mm Beretta",zone:"westworld",slot:"weapon",dropLevel:1,p:1400000000,t:70000000,sBase:750,sMax:750,sType:"augmentSpeedPct",sExtra:[{type:"nguSpeedPct",base:700,max0:700,max100:1400},{type:"r3CapPct",base:21,max0:21,max100:42}]},
 // wiki : "Edgy Magicite Crystal" (Id 445, Accessory) — Power/Toughness Max at lvl 0 = 666000/666000. Specials : Energy Power (6000/6000/12000%), Magic Cap (600/600/1200%), NGU Speed (250/250/500%).
@@ -2063,6 +2071,10 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "galacticHeraldLooty":296,
   "ascendedX7Pendant":388,
   "supremeIntelligenceLooty":389,
+  "ascendedX8Pendant":430,
+  "grandDemonLootzifer":431,
+  "ascendedX9Pendant":504,
+  "lootzLrtozl":505,
   "beretta9mm":366,
   "edgyMagicite":445,
   "creepyDoll":446,
@@ -3255,7 +3267,13 @@ function cube(s,boostId,ctx){
    */
   /* Perk « Improved Cube Boosting! » : conversion à 2 % au lieu de 1 % ; souhait 110 : +5 % d'efficacité par niveau (x2 au niveau 20). */
   const taux=Math.max(.01,N(ctx&&ctx.cubeBoostRate,.01));
-  const valeur=N(b.strength)*boostEffectivenessFactorV1(s)*Math.max(1,N(ctx&&ctx.cubeBoostEffectiveness,1));
+  /*
+   * Seconde passe 2026-09-24 : page Boost, « The total value of a boost item is calculated as the product of : completion
+   * bonus, Boosted Boosts perks I-V, Beasted Boosts quirks I-IV, Badly Drawn, Construction » ; page Infinity Cube :
+   * « A Power and Toughness Boost will award you 1% of its stats ». Les perks/quirks (ctx.boostPowerMultiplier) manquaient
+   * ici alors que la valeur totale les contient (jusqu'a x15 perdu).
+   */
+  const valeur=N(b.strength)*boostEffectivenessFactorV1(s)*Math.max(1,N(ctx&&ctx.boostPowerMultiplier,1))*Math.max(1,N(ctx&&ctx.cubeBoostEffectiveness,1));
   if(b.boostType==="special"){
     s.cube.power+=valeur*taux/2;
     s.cube.toughness+=valeur*taux/2;
@@ -4943,8 +4961,44 @@ function consumeAdventureSkillItemV1(s,itemId){
   s.unlockFlags[flag]=true;
   return{definitionId:o.definitionId,flag};
 }
+/*
+ * Ascension (page Inventory : « Once the Forest Pendant reaches Level 100, it ascends into a 0 lvl "Ascended Forest
+ * Pendant" » ; pages d'objets : « can be upgraded to X (level it to level 100 and CTRL + Click to transform it) »).
+ * Chaîne du pendentif : Forest Pendant -> Ascended -> Ascended Ascended -> Ascended x3 -> x4 ... -> x9 ; chaîne des Looty :
+ * Looty McLootFace -> Sir Looty McLootington III -> King -> Emperor -> GALACTIC HERALD -> SUPREME INTELLIGENCE -> GRAND
+ * DEMON LOOTZIFER -> LootzLrtozl... Niveau 0 après ascension (même convention que la Triple Flubber et la Grey Liquid).
+ * Non implémenté : la transformation finale de la dernière Looty en THE END (485), objet sans bonus.
+ */
+const ASCENSION_CHAIN_V1=Object.freeze({
+  "forest:pendant":"ascendedForestPendant",
+  ascendedForestPendant:"ascendedAscendedForestPendant",
+  ascendedAscendedForestPendant:"ascendedX3Pendant",
+  ascendedX3Pendant:"ascendedX4Pendant",
+  ascendedX4Pendant:"ascendedX5Pendant",
+  ascendedX5Pendant:"ascendedX6Pendant",
+  ascendedX6Pendant:"ascendedX7Pendant",
+  ascendedX7Pendant:"ascendedX8Pendant",
+  ascendedX8Pendant:"ascendedX9Pendant",
+  lootyMcLootFace:"sirLooty",
+  sirLooty:"kingLooty",
+  kingLooty:"emperorLooty",
+  emperorLooty:"galacticHeraldLooty",
+  galacticHeraldLooty:"supremeIntelligenceLooty",
+  supremeIntelligenceLooty:"grandDemonLootzifer",
+  grandDemonLootzifer:"lootzLrtozl"
+});
+export const IDLE_ADVENTURE_ASCENSION_CHAIN_V1=ASCENSION_CHAIN_V1;
 function transformAdventureItemV1(s,itemId,ctx){
   const o=s.inventory.find(x=>x.id===String(itemId||""));
+  if(o&&Object.prototype.hasOwnProperty.call(ASCENSION_CHAIN_V1,o.definitionId)){
+    if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
+    retirerObjetAdventureV1(s,o.id);
+    const suivant=special(ASCENSION_CHAIN_V1[o.definitionId],0);
+    suivant.id=`i${s.serial++}`;
+    const obtenu=add(s,suivant);
+    if(!obtenu)throw Error("INVENTAIRE_PLEIN");
+    return obtenu;
+  }
   /*
    * wiki "The Lonely Flubber" : "can be upgraded to The Triple Flubber (level it to level 100
    * and CTRL + Click to transform it)". Le wiki ne publie pas le niveau de la Triple Flubber

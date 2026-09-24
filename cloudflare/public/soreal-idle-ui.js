@@ -18157,7 +18157,9 @@ function pageAventureIdleV28_(j){
           String(idleEtat&&idleEtat.systemes&&idleEtat.systemes.difficulty||'')==='extreme';
         /* The Lonely Flubber niveau 100 -> The Triple Flubber (wiki : « level it to level 100 and CTRL + Click to transform it »). */
         const peutTransformerFlubber=item.definitionId==='flubber'&&niveau>=100;
-        const boutonTransformer=(peutTransformerGerbil||peutTransformerFlubber)
+        /* Ascension (wiki Inventory) : Forest Pendant -> ... -> Ascended x9 Pendant ; Looty McLootFace -> ... -> LootzLrtozl. */
+        const peutAscendre=niveau>=100&&['forest:pendant','ascendedForestPendant','ascendedAscendedForestPendant','ascendedX3Pendant','ascendedX4Pendant','ascendedX5Pendant','ascendedX6Pendant','ascendedX7Pendant','ascendedX8Pendant','lootyMcLootFace','sirLooty','kingLooty','emperorLooty','galacticHeraldLooty','supremeIntelligenceLooty','grandDemonLootzifer'].indexOf(item.definitionId)>=0;
+        const boutonTransformer=(peutTransformerGerbil||peutTransformerFlubber||peutAscendre)
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__transformerObjetAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🧪 Transformer</button>'
           :'';
         /* Copies de Wandoos 98/XL : +1 niveau d'OS (ou déblocage de Wandoos XL), action méta consumeWandoosCopy. */
