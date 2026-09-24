@@ -754,7 +754,8 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(state.resources.energy.current,0);
   assert.equal(state.currencies.gold,0);
   assert.equal(state.systems.augmentations.data.pairs.scissors.level,0);
-  assert.deepEqual(state.bank,{advancedTraining:0,timeMachineSpeed:0,timeMachineGold:0,beards:0});
+  /* 2026-09-24 : la banque Advanced Training est aussi tenue par capacité (advancedTrainingTracks, page Banks) ; vide ici. */
+  assert.deepEqual(state.bank,{advancedTraining:0,advancedTrainingTracks:{},timeMachineSpeed:0,timeMachineGold:0,beards:0});
 
   const reborn=rebirthIdleNguState(state,{bosses:10,attackTrainingLevels:10000},300_000);
   assert.equal(reborn.challenge.active,"basic");

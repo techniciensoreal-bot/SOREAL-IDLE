@@ -1309,6 +1309,8 @@ function baseState(now) {
     },
     bank: {
       advancedTraining: 0,
+      /* Niveaux d'Advanced Training banquiés par capacité (page Banks) : { power, toughness, block, wandoosEnergy, wandoosMagic }. */
+      advancedTrainingTracks: {},
       timeMachineSpeed: 0,
       timeMachineGold: 0,
       beards: 0
@@ -2107,7 +2109,15 @@ export function calculateIdleNguNextNumber(input = {}) {
 function totalTrackLevel(system, trackId) {
   const t = system?.data?.tracks?.[trackId];
   if (!t) return 0;
-  return Math.max(0, num(t.level, 0) + num(t.tempLevel, 0) + num(t.permanentLevel, 0));
+  /*
+   * 2026-09-24 (page Banks) : « banked Advanced Training levels do not have any effect until the
+   * AT menu is unlocked by completing Basic Training » -- les niveaux de banque (bankLevel) sont
+   * déjà dans tempLevel mais ne comptent dans les effets qu'une fois Advanced Training débloqué.
+   */
+  const dormantBank = system.id === "advancedTraining" && !system.unlocked
+    ? Math.min(Math.max(0, num(t.tempLevel, 0)), Math.max(0, num(t.bankLevel, 0)))
+    : 0;
+  return Math.max(0, num(t.level, 0) + num(t.tempLevel, 0) - dormantBank + num(t.permanentLevel, 0));
 }
 
 function bloodNumberMultiplier(state) {
@@ -2977,17 +2987,49 @@ function advanceTrackSystem(state, def, seconds) {
      * bars / 25 000, indépendant du niveau) rendait l'entraînement ~400 fois
      * trop rapide.
      */
+    /*
+     * 2026-09-24 (audit de composition) : (1) souhait 190 « I wish I was f**king done with
+     * Advanced Training forever! » (page Advanced Training : « allows all abilities to run at
+     * max speed (50 levels/second) without allocating energy ») ; (2) le spécial d'équipement
+     * « Advanced Training » (objets du build Build Advanced Training : « Gain Advance Training
+     * Speed ») multiplie la vitesse ; (3) les niveaux gagnés comptent dans le plafond de 100
+     * niveaux du défi 100 Levels (note de la page Challenges : « Advanced Training levels
+     * gained during a rebirth also count towards the 100 levels »).
+     */
+    if (wishLevelV1(state, 190) >= 1) {
+      for (const other of tracks) {
+        if ((other.id === "wandoosEnergy" || other.id === "wandoosMagic") && !state.systems.wandoos?.unlocked) continue;
+        const ot = s.data.tracks[other.id];
+        if (!ot) continue;
+        ot.progress = Math.max(0, num(ot.progress, 0)) + 50 * seconds;
+        let gainedFree = Math.floor(ot.progress);
+        const roomFree = challengeHundredLevelsRemaining(state);
+        if (gainedFree > roomFree) { gainedFree = roomFree; ot.progress = 0; }
+        else ot.progress -= gainedFree;
+        if (gainedFree > 0) {
+          ot.tempLevel = Math.max(0, Math.floor(num(ot.tempLevel, 0))) + gainedFree;
+          challengeHundredLevelsConsume(state, gainedFree);
+        }
+      }
+      s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
+      return;
+    }
     const alloc = Math.max(0, num(s.allocation.energy, 0));
     if (alloc <= 0) return;
     const baseSeconds = trackDef.id === "wandoosEnergy" || trackDef.id === "wandoosMagic" ? 20000 : 10000;
     const sqrtPower = Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power")));
-    const rate = (alloc * sqrtPower) / (baseSeconds * 1000); // unités de travail par seconde
+    const gearAtSpeed = gearPctV1(gearSpecialsV1(state), "advancedTrainingPct");
+    const rate = (alloc * sqrtPower * gearAtSpeed) / (baseSeconds * 1000); // unités de travail par seconde
     const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
     const work = Math.max(0, num(t.progress, 0)) * (level + 1) + rate * seconds;
     const step = nguLevelsFromWorkV1(level, work);
-    const gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+    let gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+    const roomAt = challengeHundredLevelsRemaining(state);
+    const cappedByPool = gained > roomAt;
+    if (cappedByPool) gained = roomAt;
+    challengeHundredLevelsConsume(state, gained);
     t.tempLevel = level + gained;
-    t.progress = gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
+    t.progress = cappedByPool || gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
   } else {
   let throughput = 0;
   for (const resource of def.resources) {
@@ -3260,7 +3302,14 @@ const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
  *   laissée telle quelle, documentée honnêtement plutôt que remplacée
  *   par une autre conversion tout aussi inventée.
  */
-const IRON_PILL_COOLDOWN_MS_V1 = Object.freeze({ normal: 11.5 * 3600000, difficile: 23.5 * 3600000, extreme: 47.5 * 3600000 });
+/*
+ * 2026-09-24 (audit de composition, page « Blood Magic ») : le tableau des sorts donne
+ * TROIS durées pour TROIS sorts différents -- Iron Pill 11,5 h, Blood MacGuffin α 23,5 h,
+ * Blood MacGuffin β 1 jour et 23,5 h -- jamais une durée par difficulté. L'ancienne table
+ * (11,5 / 23,5 / 47,5 h selon la difficulté) avait attribué les recharges des deux sorts
+ * MacGuffin à l'Iron Pill en Evil / Sadistic. Aucune page ne publie d'autre recharge.
+ */
+const IRON_PILL_COOLDOWN_MS_V1 = Object.freeze({ normal: 11.5 * 3600000, difficile: 11.5 * 3600000, extreme: 11.5 * 3600000 });
 
 function castBloodSpell(state, spell, now = 0) {
   const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
@@ -6078,6 +6127,24 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     ?Math.max(0,num(beardsSys.data.tracks[beardActiveId].tempLevel,0))
     :0;
 
+  /*
+   * 2026-09-24 (page Banks, page Advanced Training) : les banques Perks/Quirks « Advanced
+   * Training Level Bank » (1 % / 0,5 % par niveau, arrondi vers le bas) conservent une part du
+   * niveau de FIN de run de chaque capacité pour le prochain Rebirth ; elles n'étaient jamais
+   * écrites. Le perk « Instant Advanced Training Levels! » (+1 niveau de chaque capacité par
+   * niveau du perk, au début de chaque Rebirth, même avant le déblocage) est ajouté au reset.
+   */
+  const atBankBonusPerk=perkBonusesV1(state.systems.perks?.data?.levels);
+  const atBankBonusQuirk=quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const atBankPct=Math.max(0,(atBankBonusPerk.atBankMultiplier-1)+(atBankBonusQuirk.atBankMultiplier-1));
+  const atTracksEnd=state.systems.advancedTraining?.data?.tracks||{};
+  const atBankNext={};
+  for(const [trackId,tr] of Object.entries(atTracksEnd)){
+    atBankNext[trackId]=Math.floor(Math.max(0,num(tr.tempLevel,0))*atBankPct+1e-9);
+  }
+  state.bank.advancedTrainingTracks=options.clearBanks?{}:atBankNext;
+  state.bank.advancedTraining=Object.values(state.bank.advancedTrainingTracks).reduce((a,b)=>a+b,0);
+
   const beardConversion=convertActiveBeardOnRebirth(state,runSeconds);
   /* MacGuffin Fragments : les fragments équipés augmentent leur bonus permanent (idle-macguffins-v1.js). */
   const macguffinGain=macguffinApplyRebirthV1(state,runSeconds);
@@ -6109,6 +6176,15 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   for(const def of IDLE_NGU_SYSTEMS){
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
+    if(def.id==="advancedTraining"){
+      const instantLevels=Math.max(0,int(atBankBonusPerk.advancedTrainingStartBonus,0));
+      for(const [trackId,tr] of Object.entries(s.data.tracks||{})){
+        const banked=Math.max(0,int(state.bank.advancedTrainingTracks?.[trackId],0));
+        tr.bankLevel=banked;
+        tr.tempLevel=banked+instantLevels;
+      }
+      s.tempLevel=Object.values(s.data.tracks||{}).reduce((sum,x)=>sum+x.tempLevel,0);
+    }
     if(def.id==="hacks"||def.id==="wishes")s.allocation={energy:0,magic:0,r3:0};
     /* Slots de souhaits : les souhaits placés restent, les ressources allouées sont perdues comme avant. */
     if(def.id==="wishes")for(const k of RESOURCE_KEYS)clearWishSlotAllocationsV1(s,k);
