@@ -1292,9 +1292,6 @@ function baseState(now) {
       setsCompleted: 0,
       totalRebirths: 0,
       highestGoldDrop: 0,
-      // « Sneaky Secret about Rebirthing » (2026-09-24) : Rebirths rapides consécutifs, 1 si réclamé.
-      speedrunStreak: 0,
-      speedrunSecretClaimed: 0,
       // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
       moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
@@ -1915,7 +1912,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
 
@@ -6043,29 +6040,6 @@ function applyNaturalEnergyCapGrowthOnRebirth(state){
   return gain;
 }
 
-/*
- * « Sneaky Secret about Rebirthing » (2026-09-24, audit des pages-guides). Page Rebirths :
- * « Rebirthing 3 times in a row (each under 30 minutes long and each defeating boss 37+)
- * Rewards the player with a special, one-time bonus of: 200 EXP, 1 Energy Power » ; mêmes
- * chiffres sur Tips N' Tricks (achievement 148), Energy (« gives 1 Energy Power »), New Player
- * Guide (Truth) et FAQ (« 200 exp »). Une Rebirth qui ne remplit pas les deux conditions remet
- * la série à zéro. L'Energy Power va dans le même bonus « base » que le +5 du Forest (set).
- */
-function applySpeedrunSecretOnRebirthV1(state,runSeconds,context){
-  const rec=state.records;
-  const rapide=runSeconds<1800&&Math.max(0,int(context.bosses,0))>=37;
-  rec.speedrunStreak=rapide?Math.max(0,int(rec.speedrunStreak,0))+1:0;
-  if(rec.speedrunStreak<3||num(rec.speedrunSecretClaimed,0)>=1)return false;
-  rec.speedrunSecretClaimed=1;
-  state.currencies.experience=Math.max(0,num(state.currencies.experience,0))+200;
-  const adv=state.adventure&&typeof state.adventure==="object"?state.adventure:null;
-  if(adv){
-    adv.permanent=adv.permanent&&typeof adv.permanent==="object"?adv.permanent:{};
-    adv.permanent.energyPowerFlat=Math.max(0,num(adv.permanent.energyPowerFlat,0))+1;
-  }
-  return true;
-}
-
 function applyRebirthResetV56_(state,context,t,options={}) {
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
   const rb=refreshRebirthState(state,context,t);
@@ -6080,8 +6054,6 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   if(!options.challengeId&&runSeconds>=3600){
     state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier*heartApMultiplierV1(state);
   }
-
-  applySpeedrunSecretOnRebirthV1(state,runSeconds,context);
 
   rb.lastNumber=rb.number;
   rb.number=committedNumber;
