@@ -47,4 +47,19 @@ const acheter = (s, item, quantity = 1) => applyIdleNguAction(s, { action: "buyE
   assert.equal(snap.expShop.find((x) => x.id === "diggerSlot").purchased, 1);
   assert.equal(snap.richJerks.cost, 30);
 }
+/* 2026-09-24 : prix des espaces d'inventaire (wiki Experience : 25-36 = 2 EXP, 37-60 = 4 x (Owned - 35), plafond 60) exposés en entier. */
+{
+  const ctx = { bosses: 10 };
+  const state = normalizeIdleNguState({}, ctx, 1000);
+  const snap = idleNguSnapshot(state, ctx, 1000);
+  const inv = snap.expShop.find((x) => x.id === "inventorySpace");
+  assert.equal(inv.remainingCosts.length, 36, "36 achats jusqu'à 60 espaces (24 de base)");
+  assert.deepEqual(inv.remainingCosts.slice(0, 13), [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4], "12 achats à 2 EXP puis 4 x (possédés - 35)");
+  assert.equal(inv.remainingCosts[13], 8);
+  assert.equal(inv.remainingCosts[35], 96, "60e espace : 4 x 24");
+  assert.equal(inv.remainingCosts.reduce((a, b) => a + b, 0), 1224);
+  assert.equal(inv.nextCost, 2);
+  const filtre = snap.expShop.find((x) => x.id === "basicLootFilter");
+  assert.equal(filtre.nextCost, 20, "Basic Loot Filter : 20 EXP");
+}
 console.log("idle-exp-shop-adventure ok");

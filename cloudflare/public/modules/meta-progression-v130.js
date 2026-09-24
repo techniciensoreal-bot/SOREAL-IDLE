@@ -561,9 +561,13 @@
         return '<div class="soreal-idle-exp-resource-v210">Aventure et divers</div>'+
           items.map(function(it){
             const fini=it.nextCost==null;
-            const tiers=it.max!=null&&it.max>1?[1,5,10]:it.max===1?[1]:[1,10,100];
+            const restants=Array.isArray(it.remainingCosts)?it.remainingCosts:null;
+            let tiers=it.max!=null&&it.max>1?[1,5,10]:it.max===1?[1]:[1,10,100];
+            /* Prix variable (espaces d'inventaire) : montants réellement payés, et bouton « tout » pour les places restantes. */
+            if(restants&&restants.length>10)tiers=tiers.concat([restants.length]);
+            const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
             return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+(noms[it.id]||H.idleHtml_(it.name))+'</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>'+H.idleEntier_(it.purchased)+(it.max!=null?' / '+H.idleEntier_(it.max):'')+'</strong></div></div>'+
-              (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':'<div class="soreal-idle-exp-actions-v210">'+tiers.map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(it.id)+'\','+q+')"><b>+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2)+'</b><small>×'+q+' · dès '+H.idleEntier_(it.nextCost)+' EXP</small></button>';}).join('')+'</div>')+
+              (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':'<div class="soreal-idle-exp-actions-v210">'+tiers.map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(it.id)+'\','+q+')"><b>+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2)+'</b><small>×'+q+' · '+(restants?'total '+H.formatGrandNombreIdleV70_(coutTotal(q),2):'dès '+H.idleEntier_(it.nextCost))+' EXP</small></button>';}).join('')+'</div>')+
               '</div>';
           }).join('')+
           ['attack','defense'].map(function(stat){

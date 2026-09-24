@@ -6280,7 +6280,8 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   adventureToughness: Object.freeze({ name: "Adventure Toughness", cost: () => 3, gain: 1, max: null }),
   adventureHp: Object.freeze({ name: "Adventure Max HP", cost: () => 3, gain: 10, max: null }),
   adventureRegen: Object.freeze({ name: "Adventure HP Regen", cost: () => 50, gain: 1, max: null }),
-  inventorySpace: Object.freeze({ name: "Inventory Space", cost: (n) => (n + 25 <= 36 ? 2 : 4 * (24 + n - 35)), gain: 1, max: 36 }),
+  /* Wiki Experience : « 1–24: Free, 25–36: 2, 37–60: 4 x (Owned - 35) », plafond 60 (24 de base + 36 achats). Prix variable : le snapshot donne tous les prix restants. */
+  inventorySpace: Object.freeze({ name: "Inventory Space", cost: (n) => (n + 25 <= 36 ? 2 : 4 * (24 + n - 35)), gain: 1, max: 36, variableCost: true }),
   accessorySlot1: Object.freeze({ name: "Extra Accessory Slot!", cost: () => 3000, gain: 1, max: 1 }),
   accessorySlot2: Object.freeze({ name: "Another Extra Accessory Slot!", cost: () => 30000, gain: 1, max: 1 }),
   diggerSlot: Object.freeze({ name: "A Digger Slot!", cost: () => 25000, gain: 1, max: 1 }),
@@ -6377,6 +6378,10 @@ function expShopSnapshotV1(state) {
   return Object.entries(IDLE_NGU_EXP_SHOP_V1).map(([id, def]) => {
     const purchased = expShopPurchasedV1(state, id);
     const entry = { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
+    if (def.variableCost && def.max != null) {
+      entry.remainingCosts = [];
+      for (let i = purchased; i < def.max; i += 1) entry.remainingCosts.push(def.cost(i));
+    }
     /* Auto-Activate Yggdrasil : fruit, ressource et cap requis (affichés à part par le client). */
     if (def.yggFruit) Object.assign(entry, { yggFruit: def.yggFruit, resource: def.resource, requiredCap: def.requiredCap });
     return entry;
