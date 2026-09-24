@@ -13,9 +13,18 @@ on:
       - ".github/workflows/cloudflare-deploy.yml"
   workflow_dispatch:
 
+# Droits minimaux : le workflow ne fait que lire le dépôt (checkout). Le déploiement utilise le secret CLOUDFLARE_API_TOKEN,
+# jamais le jeton GitHub.
+permissions:
+  contents: read
+
+# Un run déjà commencé n'est JAMAIS annulé : avec cancel-in-progress: true, un push arrivant après `wrangler deploy` mais avant
+# « Verify deployed Git SHA » ou le smoke Chromium laissait un SHA en production sans validation complète (et, si le run
+# suivant échouait aux tests, ce SHA y restait). Désormais le run en cours va jusqu'au bout ; GitHub ne garde qu'UN run en
+# attente (le plus récent, les intermédiaires sont abandonnés avant de commencer).
 concurrency:
   group: soreal-idle-cloudflare-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -23,6 +32,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Version de Node épinglée : les tests sont validés localement sous Node 24, le runner ne doit pas dériver avec l'image.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
 
       - name: Run test suite
         run: |

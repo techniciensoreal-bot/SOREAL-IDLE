@@ -1404,3 +1404,16 @@ Pages relues : Basic Training, Advanced Training, Augmentations, Broken Time Mac
 **Test** : `cloudflare/tests/voice-runtime-dependencies.test.mjs` (hors ligne, déterministe) : extraction sur les vraies sources, aucun script externe sans SRI, toute URL du module vocal couverte, absence de l'ancien pipeline dans le workflow, contrôle avant `wrangler deploy` et smoke après. Rouge sur l'ancien workflow (« piper-plus »), vert sur le nouveau. Contrôle exécuté pour de vrai contre le réseau : toutes les dépendances OK.
 
 **Décision non prise** : auto-héberger le modèle Tom (63,5 Mo) sur R2 plutôt que dépendre de Hugging Face au premier chargement d'un edge (cache 7 jours). Coût R2 négligeable, mais l'envoi sur R2 exige des identifiants Cloudflare : à décider avec Norman.
+
+## 2026-09-24 — CI : Node épinglé, droits minimaux, plus d'annulation d'un run en cours
+
+**Scénario analysé** : avec `concurrency.cancel-in-progress: true`, un push sur `main` pendant un run déjà passé par `wrangler deploy` mais pas encore par « Verify deployed Git SHA » ou le smoke Chromium annulait ce run. Le SHA déployé restait alors en production sans validation complète ; si le run suivant échouait aux tests (donc ne déployait jamais), ce SHA y restait durablement.
+
+**Corrections (workflow `cloudflare-deploy.yml`)** :
+- `cancel-in-progress: false` : le run en cours va toujours jusqu'au bout ; GitHub ne conserve qu'un run en attente, le plus récent (les intermédiaires sont abandonnés avant de commencer, donc pas de minutes gaspillées). Coût : quelques minutes d'attente lors de deux pushes rapprochés.
+- `permissions: contents: read` (le job ne fait que `checkout` ; le déploiement utilise le secret `CLOUDFLARE_API_TOKEN`).
+- `actions/setup-node@v4` avec Node 24 : les 288 fichiers de test sont validés sous Node 24, le runner ne dérive plus avec l'image `ubuntu-latest`. Wrangler reste épinglé à 4.127.1.
+
+**Test** : `cloudflare/tests/deploy-workflow-hardening.test.mjs` (permissions, absence d'annulation hors commentaire, setup-node avant toute commande node/npx, ordre tests → build → dépendances vocales → déploiement → SHA vérifié → smoke réel). Rouge avant la correction, vert après. YAML validé avec js-yaml.
+
+**Non modifié** : actions non épinglées par SHA (`actions/checkout@v4`, `actions/setup-node@v4`) : risque de chaîne d'approvisionnement réel mais faible sur des actions officielles GitHub ; à traiter avec les trois dépôts en même temps si Norman le souhaite.
