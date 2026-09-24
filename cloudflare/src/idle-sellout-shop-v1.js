@@ -209,6 +209,8 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   extraBeardSlot: { passive: true },
   fasterWishes: { passive: true },
   autoNuker: { passive: true },
+  /* Yggdrasil Harvest Light (2026-09-24) : lue depuis purchases (idleYggHarvestLightLitV1, menu client). */
+  yggdrasilHarvestLight: { passive: true },
   /*
    * Automatisation de l'inventaire (idle-inventory-auto-v1.js, lus depuis purchases) : filtre de butin
    * amélioré, minuteurs Auto Merge/Auto Boost divisés par 2, loadouts, boosts filtrés versés dans

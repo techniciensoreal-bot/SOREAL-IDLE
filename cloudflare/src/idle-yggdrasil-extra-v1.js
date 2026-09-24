@@ -296,6 +296,33 @@ export function idleYggFruitOfQuirksQpV1(tier, multipliers = 1) {
   return Math.ceil(Math.max(1, I(tier, 1)) * 3 * Math.max(0, N(multipliers, 1)));
 }
 
+/* ---------- Yggdrasil Harvest Light (2026-09-24) ---------- */
+
+/*
+ * 4G's Sellout Shop, « Yggdrasil Harvest Light » (50,000 AP) : « Buy this to
+ * have the Yggdrasil menu light up when fruit is fully grown and ready to be
+ * eaten of harvested » ; page Yggdrasil : « also light up for the first harvest
+ * of a rebirth » ; Build History 2018 : « if you have any fruit at the max tier
+ * that can't grow any further ». Lecture SOREAL (aucun nombre) : un fruit actif
+ * dont la croissance a atteint son tier (il ne pousse plus), ou un fruit prêt
+ * (au moins 1 h) dont la première récolte du Rebirth n'a pas encore eu lieu.
+ */
+export function idleYggHarvestLightOwnedV1(state) {
+  return Math.max(0, I(state?.selloutShop?.purchases?.yggdrasilHarvestLight, 0)) >= 1;
+}
+
+export function idleYggHarvestLightLitV1(state, fruitDefs) {
+  const data = state?.systems?.yggdrasil?.data;
+  if (!idleYggHarvestLightOwnedV1(state) || !state?.systems?.yggdrasil?.unlocked || !data?.fruits) return false;
+  return fruitDefs.some((def) => {
+    const f = data.fruits[def.id];
+    const tier = I(f?.tier, 0);
+    if (!f || !f.active || tier < 1 || !idleYggFruitUnlockedV1(state, def.id)) return false;
+    const heures = Math.max(0, N(f.growthHours, 0));
+    return heures >= tier || (Boolean(f.firstHarvestThisRun) && heures >= 1);
+  });
+}
+
 /* ---------- Instantané client ---------- */
 
 export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
@@ -312,6 +339,8 @@ export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
     nextFreePoopIn: brown ? IDLE_YGG_BROWN_HEART_EVERY_V1 - (used % IDLE_YGG_BROWN_HEART_EVERY_V1) : null,
     tierSeconds: idleYggTierSecondsV1(state),
     maxTier: deps.maxTier,
+    /* Yggdrasil Harvest Light : achetée, et allumée (menu Yggdrasil à faire briller). */
+    harvestLight: { owned: idleYggHarvestLightOwnedV1(state), lit: idleYggHarvestLightLitV1(state, fruitDefs) },
     fruits: Object.fromEntries(fruitDefs.map((def) => {
       const f = state?.systems?.yggdrasil?.data?.fruits?.[def.id] || {};
       const auto = autos[def.id];

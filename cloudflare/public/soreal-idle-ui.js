@@ -9702,6 +9702,11 @@
                 m.id==='moneyPit'&&couleurDisponibilite
                   ?(couleurDisponibilite==='#f1c40f'?' soreal-idle-nav-money-yellow-v1':' soreal-idle-nav-money-green-v1')
                   :'';
+              /* Yggdrasil Harvest Light (Sellout Shop) : même lueur verte que le Money Pit quand un fruit est prêt (serveur : yggExtra.harvestLight.lit). */
+              const yggExtraNav=j&&j.systemes&&j.systemes.yggExtra;
+              const classeRecolteYgg=
+                m.id==='yggdrasil'&&yggExtraNav&&yggExtraNav.harvestLight&&yggExtraNav.harvestLight.lit
+                  ?' soreal-idle-nav-money-green-v1':'';
 
               return `
                 <button
@@ -9714,7 +9719,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}"
                   style="--nav-color:${
                     couleurDisponibilite||IDLE_NAV_COULEURS_V1[m.id]||'#9aa5bb'
                   }"
