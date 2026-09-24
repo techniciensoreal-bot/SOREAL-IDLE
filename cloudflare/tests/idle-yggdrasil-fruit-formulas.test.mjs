@@ -16,7 +16,11 @@ function manger(fruit, tier, mutate) {
 // Tier 4 : ceil(4^1.5) = 8
 assert.equal(manger("powerBeta", 4).state.systems.yggdrasil.data.permanent.powerBetaValue, 8);
 assert.equal(manger("numbers", 4).state.systems.yggdrasil.data.permanent.numbersValue, 24, "ceil(8 x 3)");
-assert.equal(manger("arbitrariness", 4).state.currencies.ap, 120, "8 x 15 AP");
+/*
+ * 2026-09-24 : formule complète du wiki "floor(ceil(ceil(T^1.5) x 15 x ...) x (1 + BP/10000) x ...)" :
+ * ici boss 10..100 (230 BP) + menu Yggdrasil débloqué (100 BP) -> floor(120 x 1,033) = 123.
+ */
+assert.equal(manger("arbitrariness", 4).state.currencies.ap, 123, "8 x 15 AP x 1,033");
 assert.ok(Math.abs(manger("luck", 4).state.systems.yggdrasil.data.permanent.luckDropPct - Math.ceil(8 * 0.7) * 0.05) < 1e-9, "ceil(8 x 0,7) x 0,05 %");
 assert.equal(manger("powerAlpha", 4).state.systems.yggdrasil.data.runPowerAlphaValue, 8);
 

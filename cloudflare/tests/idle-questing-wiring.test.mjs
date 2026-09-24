@@ -111,7 +111,8 @@ let enQuete;
   r = act(r.state, { action: "questComplete" });
   assert.equal(r.result.qp, 20, "Minor active : 10 x 2");
   assert.equal(r.state.currencies.qp - qpAvant, 20);
-  assert.equal(r.state.currencies.ap - apAvant, 20);
+  /* 2026-09-24 : AP x bonus des succès (boss 10..200 + "Rebirth once!" = 665 BP -> floor(20 x 1,0665) = 21). */
+  assert.equal(r.state.currencies.ap - apAvant, 21);
   assert.equal(r.state.systems.questing.data.quest, null);
   r.state.currencies.qp = 100;
   const achat = act(r.state, { action: "buyQuirk", quirkId: 0 });

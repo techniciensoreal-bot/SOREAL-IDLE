@@ -770,7 +770,9 @@ const fresh=(context={}, now=1_000_000)=>
   const completed=applyIdleNguAction(state,{action:"challenge",mode:"complete",challenge:"basic"},{bosses:58},20_000);
   assert.equal(completed.state.challenge.completions.basic,1);
   assert.equal(completed.state.currencies.experience,1500);
-  assert.equal(completed.state.currencies.ap,2500);
+  // 2026-09-24 : 2500 AP x bonus des succès (boss 10..50 + "Rebirth once!" = 80 BP -> x1,008,
+  // page Arbitrary Points), arrondi inférieur.
+  assert.equal(completed.state.currencies.ap,2520);
   assert.equal(completed.state.challenge.active,"");
 
   let quit=fresh(context,0);
@@ -889,7 +891,8 @@ const fresh=(context={}, now=1_000_000)=>
     const completed=applyIdleNguAction(started.state,{action:"challenge",mode:"complete",challenge:"laserSword"},{bosses:100},20_000);
     assert.equal(completed.state.challenge.completions.laserSword,1);
     assert.equal(completed.state.currencies.experience,3000);
-    assert.equal(completed.state.currencies.ap,3000);
+    // 2026-09-24 : 3000 AP x bonus des succès (boss 10..100 + "Rebirth once!" = 235 BP), arrondi inférieur.
+    assert.equal(completed.state.currencies.ap,3070);
   }
 
   // "Blind Challenge" : restriction purement visuelle (client), rien à

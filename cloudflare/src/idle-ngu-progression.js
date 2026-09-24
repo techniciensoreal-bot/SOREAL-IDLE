@@ -19,6 +19,13 @@ import {
   idleHeartsPinkCompleteV1
 } from "./idle-hearts-v1.js";
 import {
+  IDLE_ACHIEVEMENTS_V1,
+  normalizeIdleAchievementsDataV1,
+  idleAchievementsEvaluateV1,
+  idleAchievementsBpV1,
+  idleAchievementsApMultiplierV1
+} from "./idle-achievements-v1.js";
+import {
   idleWandoosConsumeCopyV1,
   idleWandoosBootMultiplierV1,
   idleWandoosXlUnlockedV1
@@ -1291,6 +1298,9 @@ function baseState(now) {
       setsCompleted: 0,
       totalRebirths: 0,
       highestGoldDrop: 0,
+      /* Secret de Rebirth "3 fois de suite < 30 min avec boss 37" (page Rebirths) : série en cours, bonus versé (0/1). */
+      speedrunStreak: 0,
+      speedrunBonusClaimed: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
       // vidé par applyRebirthResetV56_, exactement comme les autres champs
       // de records ci-dessus (highestBoss, totalRebirths...).
@@ -1630,6 +1640,8 @@ function normalizeSystem(def, raw) {
     s.data = normalizeMacguffinDataV1(src.data);
   } else if (def.id === "cards") {
     s.data = normalizeIdleCardsDataV1(src.data);
+  } else if (def.id === "achievements") {
+    s.data = normalizeIdleAchievementsDataV1(src.data);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
     if (def.id === "wishes") normalizeWishSlotsV1(s, src.data);
@@ -3434,8 +3446,8 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
       result.numbers=s.data.permanent.numbersValue;
     }else if(def.effect==="ap"){
       const ap=Math.floor(Math.ceil(factor*15*firstHarvestMultiplier));
-      /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + YellowHeartAPBonus) ..." (arrondi inférieur). */
-      const apCoeur=Math.floor(ap*heartApMultiplierV1(state));
+      /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + BP/10000) x (1 + YellowHeartAPBonus) x Perk_Fibo89" (arrondi inférieur). */
+      const apCoeur=apWithBonusV1(state,ap);
       state.currencies.ap+=apCoeur;
       result.ap=apCoeur;
     }else if(def.effect==="pp"){
@@ -3738,7 +3750,8 @@ function advanceTowerV1(state, seconds, context) {
     const ap = Math.floor(d.apProgress);
     if (ap > 0) {
       d.apProgress -= ap;
-      state.currencies.ap += ap * perks.apEarningsMultiplier;
+      /* Page Arbitrary Points : les kills de l'ITOPOD sont exclus des bonus AP (succès, Yellow Heart, Fibonacci 89). */
+      state.currencies.ap += ap;
     }
   };
   const reachFloor = (floor) => {
@@ -3876,7 +3889,53 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   reconcileResourceCurrents(state,context);
   state.updatedAt = nowMs(now);
   state.rebirth = refreshRebirthState(state, context, nowMs(now));
+  idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now));
   return state;
+}
+
+/*
+ * Mesures des succès (idle-achievements-v1.js). Energy/Magic Power, Cap et Bar :
+ * valeurs totales effectives (achat + bonus), celles que le jeu affiche ("Obtain
+ * A Total Energy Cap of ..."). Boss : plus haut boss vaincu toutes difficultés
+ * ("Defeat Boss 10!"). The Beast V1-V4 = paliers Easy/Normal/Hard/Brutal (même
+ * lecture que "The Beast v4 beaten" -> beastBrutalDefeated).
+ */
+function achievementMetricsV1(state) {
+  const eff = (r, s) => idleNguEffectiveResourceStatV1(state, r, s);
+  const flags = state.adventure?.unlockFlags || {};
+  const peaks = state.difficultyPeaks || {};
+  return {
+    energyPower: eff("energy", "power"),
+    magicPower: eff("magic", "power"),
+    energyCap: eff("energy", "cap"),
+    magicCap: eff("magic", "cap"),
+    energyBars: eff("energy", "bars"),
+    magicBars: eff("magic", "bars"),
+    highestBoss: Math.max(0, num(state.records?.highestBoss, 0)),
+    totalRebirths: Math.max(0, num(state.records?.totalRebirths, 0)),
+    nguUnlocked: Boolean(state.systems.ngu?.unlocked),
+    yggdrasilUnlocked: Boolean(state.systems.yggdrasil?.unlocked),
+    beardsUnlocked: Boolean(state.systems.beards?.unlocked),
+    walderpFinal: Boolean(flags.walderpFinalDefeated),
+    beastV1: Boolean(flags.beastDefeated_easy),
+    beastV2: Boolean(flags.beastDefeated_normal),
+    beastV3: Boolean(flags.beastDefeated_hard),
+    beastV4: Boolean(flags.beastDefeated_brutal || flags.beastBrutalDefeated),
+    evilEntered: state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
+    speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0
+  };
+}
+
+function achievementsSnapshotV1(state) {
+  const unlocked = state.systems.achievements?.data?.unlocked || {};
+  return {
+    bp: idleAchievementsBpV1(state),
+    apMultiplier: idleAchievementsApMultiplierV1(state),
+    list: IDLE_ACHIEVEMENTS_V1.map(a => ({
+      id: a.id, group: a.group, name: a.name, bp: a.bp, threshold: a.threshold,
+      tracked: a.tracked, secret: a.secret, unlocked: unlocked[a.id] !== undefined
+    }))
+  };
 }
 
 export function syncIdleNguState(raw, context = {}, now = Date.now()) {
@@ -4010,6 +4069,26 @@ const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 
  */
 function heartApMultiplierV1(state) {
   return idleHeartsApMultiplierV1(state, gearSpecialsV1(state));
+}
+/*
+ * Bonus AP commun (2026-09-24). Page Arbitrary Points : "Arbitrary points gained
+ * from all sources, except for ITOPOD kills and Special Prize, can be increased
+ * by: Completing achievements ; My Yellow Heart item/set bonus ; Fibonacci Perk
+ * level 89 (2%)" -- "Maximal bonus is 193.698% (158.25% * 120% * 102%) and the
+ * final AP value is rounded down". Page Yggdrasil (Fruit of Arbitrariness) :
+ * "(1 + BP/10000) x (1 + YellowHeartAPBonus) x Perk_Fibo89". Avant ce correctif,
+ * les succès n'étaient appliqués nulle part et chaque source appliquait un
+ * sous-ensemble différent (défis/Money Pit/Daily Spin/fruit sans Fibonacci,
+ * Money Pit sans aucun bonus, ITOPOD avec Fibonacci alors qu'il est exclu).
+ */
+function apBonusMultiplierV1(state) {
+  return idleAchievementsApMultiplierV1(state) *
+    heartApMultiplierV1(state) *
+    perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier;
+}
+/* AP versée = arrondi inférieur de base x bonus ; la marge 1e-9 absorbe l'erreur binaire (50 000 x 1,023 = 51 150, pas 51 149). */
+function apWithBonusV1(state, base) {
+  return Math.max(0, Math.floor(Math.max(0, num(base, 0)) * apBonusMultiplierV1(state) + 1e-9));
 }
 
 function nguSpeedMultiplierV1(state, resource) {
@@ -4857,6 +4936,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      */
     resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
     expShop: expShopSnapshotV1(state),
+    /* Achievements (2026-09-24) : catalogue, succès débloqués, BP et facteur AP (idle-achievements-v1.js). */
+    achievements: achievementsSnapshotV1(state),
     richJerks: {
       attackLevel: Math.max(0, int(state.bonuses.richJerksAttackLevel, 0)),
       defenseLevel: Math.max(0, int(state.bonuses.richJerksDefenseLevel, 0)),
@@ -5202,7 +5283,8 @@ function tossMoneyPit(state, now) {
   }
 
   // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
-  reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
+  // Bonus AP commun appliqué comme aux autres sources (page Arbitrary Points), arrondi inférieur.
+  reward.ap = apWithBonusV1(state, Math.floor(Math.log10(cost)));
 
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
@@ -5309,8 +5391,8 @@ function spinDaily(state, now) {
     for (const [id, n] of Object.entries(choix.items)) idleSelloutApplyEffectV1(state, id, n);
   } else {
     reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
-    /* AP : majoré par My Yellow Heart (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
-    if (reward.ap) reward.ap = Math.floor(reward.ap * heartApMultiplierV1(state));
+    /* AP : bonus AP commun (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
+    if (reward.ap) reward.ap = apWithBonusV1(state, reward.ap);
     for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
   }
 
@@ -5459,8 +5541,8 @@ function challengeAction(state, payload, context, now) {
     if(rewarded){
       completions[id]=before+1;
       state.currencies.experience+=rewardExperience;
-      /* Page Arbitrary Points : AP des défis majoré par My Yellow Heart, arrondi inférieur. */
-      state.currencies.ap+=Math.floor(rewardAp*heartApMultiplierV1(state));
+      /* Page Arbitrary Points : AP des défis majoré par le bonus AP commun, arrondi inférieur. */
+      state.currencies.ap+=apWithBonusV1(state,rewardAp);
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
       if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
@@ -5533,7 +5615,12 @@ function crediterRecompensesAventure(state, avant) {
   state.currencies.experience += gain("experience");
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
-  state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier * heartApMultiplierV1(state);
+  /*
+   * "the final AP value is rounded down" (page Arbitrary Points). LIMITE : l'arrondi
+   * porte sur le lot crédité par cet appel (boss d'Aventure, titans, sets), pas sur
+   * chaque événement -- le moteur d'Aventure ne transmet qu'un delta cumulé.
+   */
+  state.currencies.ap += apWithBonusV1(state, gain("ap"));
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
   /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
   const poop = Math.floor(gain("poop"));
@@ -5596,7 +5683,7 @@ function questingEnvV1(state, context) {
     /* Heroic Sigil (set) : "Quest items drop 10% more often!" (SETS_OBJETS_V1.heroicSigil). */
     questDropsSetPct: Math.max(0, num(state.adventure?.setRewards?.questDropsSetPct, 0)),
     qpEarningsMultiplier: perks.qpEarningsMultiplier,
-    apEarningsMultiplier: perks.apEarningsMultiplier * heartApMultiplierV1(state),
+    apEarningsMultiplier: apBonusMultiplierV1(state),
     qpHackMultiplier: Math.max(0, num(hackFxV1(state).qpGain, 1)),
     /* Cartes QP « QP Gain » (idle-cards-v1.js, idleCardsApplyToBonusesV1). */
     qpCardMultiplier: Math.max(0, num(bonuses.cardsQpGainMultiplier, 1))
@@ -5997,7 +6084,25 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
   if(!options.challengeId&&runSeconds>=3600){
-    state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier*heartApMultiplierV1(state);
+    state.currencies.ap+=apWithBonusV1(state,Math.floor(runSeconds/500));
+  }
+
+  /*
+   * "Sneaky Secret about Rebirthing" (2026-09-24), page Rebirths : "Rebirthing 3
+   * times in a row (each under 30 minutes long and each defeating boss 37+)
+   * Rewards the player with a special, one-time bonus of: 200 EXP, 1 Energy
+   * Power" -- page Achievements : "Speedrun 3 times in a row with rebirths under
+   * 30 minutes each, with boss 37 defeated!" (20 BP). Série remise à 0 par tout
+   * Rebirth qui ne remplit pas les deux conditions ; bonus versé une seule fois.
+   */
+  {
+    const rapide=runSeconds<30*60&&Math.max(0,int(context.bosses,0))>=37;
+    state.records.speedrunStreak=rapide?Math.max(0,int(state.records.speedrunStreak,0))+1:0;
+    if(rapide&&state.records.speedrunStreak>=3&&!(num(state.records.speedrunBonusClaimed,0)>0)){
+      state.records.speedrunBonusClaimed=1;
+      state.currencies.experience+=200;
+      state.resources.energy.power=Math.max(1,num(state.resources.energy.power,1))+1;
+    }
   }
 
   rb.lastNumber=rb.number;

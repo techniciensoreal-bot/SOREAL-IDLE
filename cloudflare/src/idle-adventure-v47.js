@@ -4850,6 +4850,8 @@ const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey):{gold:0,
  */
 if(id==="hungers")s.unlockFlags.itHungersDefeated=true;
 if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
+/* Achievements "Defeat THE BEAST V1..V4!" (2026-09-24) : palier vaincu, permanent (idle-achievements-v1.js). */
+if(id==="t6"&&tierKey)s.unlockFlags["beastDefeated_"+tierKey]=true;
 if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
 return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress,qp:recompenses.qp}}
 /*
