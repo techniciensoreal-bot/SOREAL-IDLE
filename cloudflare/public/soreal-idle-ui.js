@@ -14975,7 +14975,8 @@ let idleDialogueTimerV76=null;
                 :type==='special'
                   ?idleNombre_(target.special)
                   :0;
-            if(target.fullyMaxed||(cap>0&&actuel>=cap-1e-9))return false;
+            /* Objet sans cette statistique (plafond 0) ou statistique pleine : aucune application optimiste (2026-09-24). */
+            if(target.fullyMaxed||cap<=1e-9||actuel>=cap-1e-9)return false;
             target._idlePendingV160=txId||1;
             a.inventory=a.inventory.filter(function(x){
               return String(x&&x.id)!==String(boost.id);
@@ -18010,9 +18011,19 @@ function pageAventureIdleV28_(j){
           actuel=idleNombre_(cible.special);
         }
 
+        /*
+         * 2026-09-24 (Norman : « Mon épée qui n'a pas de stats Toughness accepte les boosts. Ils me sont ensuite rendus. Il ne doit
+         * les accepter QUE s'il a des stats Toughness non remplies. ») : un plafond de 0 = l'objet n'a pas cette statistique. Avant, la
+         * garde ne refusait que « plafond > 0 et atteint » : le boost était consommé côté client puis refusé par le serveur et rendu.
+         */
+        if(cap<=1e-9){
+          const nomStat=type==='power'?'Power':type==='toughness'?'Toughness':'Special';
+          toastIdleV5_('Cet objet n’a pas de statistique '+nomStat+' à remplir : le boost n’est pas consommé.');
+          return;
+        }
         if(
           cible.fullyMaxed||
-          (cap>0&&actuel>=cap-1e-9)
+          actuel>=cap-1e-9
         ){
           toastIdleV5_('Cette statistique est déjà au maximum : le boost n’est pas consommé.');
           return;
