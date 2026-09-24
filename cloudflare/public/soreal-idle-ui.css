@@ -1685,14 +1685,6 @@
             font-weight:1000;
           }
 
-          /* 2026-09-24 : compteur « Généré » au-dessus de la barre d'énergie (disponible + déjà placé). */
-          .soreal-idle-energy-generated-v1{
-            margin:0 0 4px;
-            font-size:12px;
-            font-weight:900;
-            letter-spacing:.02em;
-            color:#a9cfdc;
-          }
           .soreal-idle-energy-speed-v34{
             margin-top:5px;
             font-size:9px;

@@ -2309,19 +2309,8 @@
             'sorealIdleEnergieValeurV4'
           );
 
-        rafraichirEnergieGenereeIdleV1_();
-
         if(energieEl){
-          energieEl.textContent=
-            '(+'+
-            gainParTickEnergieIdleV34_()+
-            ') '+
-            formatEnergieIdleV50_(
-              energieDisponibleIdleV9_()
-            )+
-            ' / '+
-            idleEntier_(maxTotal)+
-            ' ⚡';
+          energieEl.textContent=texteEnergieGenereeIdleV1_();
         }
 
         const energieOverlayEl=
@@ -4344,11 +4333,6 @@
           idleEntier_(idleEtat&&idleEtat.energieMax);
       }
 
-      function rafraichirEnergieGenereeIdleV1_(){
-        const el=document.getElementById('sorealIdleEnergieGenereeV1');
-        if(el&&idleEtat)el.textContent=texteEnergieGenereeIdleV1_();
-      }
-
       function rafraichirEnergieEtBoutonsIdleV9_(){
         if(!idleEtat){
           return;
@@ -4362,23 +4346,8 @@
             'sorealIdleEnergieValeurV4'
           );
 
-        rafraichirEnergieGenereeIdleV1_();
-
         if(energieEl){
-          energieEl.textContent =
-            '(+'+
-            idleEntier_(
-              gainParTickEnergieIdleV34_()
-            )+
-            ') '+
-            formatEnergieIdleV50_(
-              energieDisponible
-            )+
-            ' / '+
-            idleEntier_(
-              idleEtat.energieMax
-            )+
-            ' ⚡';
+          energieEl.textContent=texteEnergieGenereeIdleV1_();
         }
 
         const energieOverlayEl2=
@@ -12288,9 +12257,7 @@
                 id="sorealIdleEnergieValeurV4"
                 class="soreal-idle-energy-number-v34"
               >
-                (+${idleEntier_(gainParTickEnergieIdleV34_())})
-                ${formatEnergieIdleV50_(energieDisponibleIdleV9_())}
-                / ${idleEntier_(j.energieMax)} ⚡
+                ${texteEnergieGenereeIdleV1_()}
               </div>
             </div>
 
@@ -12301,12 +12268,6 @@
               Tick : ${(dureeTickEnergieIdleV34_()/1000).toFixed(2)} s
               · +${idleEntier_(gainParTickEnergieIdleV34_())} ⚡
             </div>
-
-            <div
-              id="sorealIdleEnergieGenereeV1"
-              class="soreal-idle-energy-generated-v1"
-              title="Énergie déjà générée depuis le début du run : disponible (barre verte) + déjà placée"
-            >${texteEnergieGenereeIdleV1_()}</div>
 
             <div class="soreal-idle-energybar-wrap-v11">
               <div
