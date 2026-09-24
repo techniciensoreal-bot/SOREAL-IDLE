@@ -74,7 +74,13 @@ assert.equal(
   let at=1_000_000;
   for(let i=0;i<40;i+=1){
     cursor.currencies.gold=1e15;
-    const res=applyIdleNguAction(cursor,{action:'moneyPit'},context,at);
+    // 2026-09-24 : test instable (~1 échec sur 100 : le palier 6 a 9 lots, EXP (7e) ou Seeds (9e)
+    // absent de 40 tirages avec une probabilité (8/9)^40 ≈ 0,9 %). Les tirages alternent désormais
+    // un curseur dans la tranche EXP (6/9-7/9) et un dans la tranche Seeds (8/9-1).
+    const originalRandomTier6=Math.random;
+    Math.random=()=>(i%2===0?0.7:0.95);
+    let res;
+    try{res=applyIdleNguAction(cursor,{action:'moneyPit'},context,at);}finally{Math.random=originalRandomTier6;}
     assert.equal(res.result.tier,6,"1e15 doit correspondre au palier 6 (wiki : min 1Qa = 1e15).");
     const clesMonnaie=Object.keys(res.result.reward).filter(k=>k!=='ap');
     assert.equal(clesMonnaie.length,1,"Un seul type de monnaie (hors bonus AP fixe) doit être accordé par tirage.");
