@@ -650,13 +650,11 @@
         return reste.map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit&&idleExpAchatVisibleIdleV1_(j,m,it);}));
       }
 
-      function pageSpendExpIdleV1_(j){
-        const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const m=j&&j.systemes?j.systemes:{};
-        const exp=H.idleEntier_((m.currencies&&m.currencies.experience)||0);
-        const onglets_visibles=idleExpOngletsVisiblesIdleV1_(j,m);
-        const onglet=idleExpOngletCourantV1_(onglets_visibles);
-        const abordables=idleExpDebutsAbordablesIdleV1_(j,m,exp);
+      /*
+       * Style « boutique » partagé par la Boutique EXP et la Boutique AP (Norman, 2026-09-24 : « le même style pour la boutique AP que pour la
+       * XP Shop, mais d'une autre couleur »). La couleur vient de --nav-color, posée sur la page par le menu (IDLE_NAV_COULEURS_V1).
+       */
+      function idleBoutiqueCssIdleV1_(){
         const bleu='var(--nav-color,#0891b2)';
         const fond1='color-mix(in srgb,'+bleu+' 60%,#0b1020)';
         const fond2='color-mix(in srgb,'+bleu+' 38%,#1a2340)';
@@ -694,12 +692,24 @@
           `.soreal-idle-exp-buy-v210{appearance:none;position:relative;min-height:50px;border:1px solid rgba(255,255,255,.28);border-radius:6px 12px 12px 6px;padding:8px 10px 8px 22px;background:${bleu};color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;outline:1px dashed rgba(255,255,255,.35);outline-offset:-4px}`,
           `.soreal-idle-exp-buy-v210::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:${fond2};box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}`,
           `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 82%,#fff);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:10px;color:#e3f4fa !important;font-weight:900}`,
+          `.soreal-idle-exp-buy-v210:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.45);transform:none}`,
           `.soreal-idle-exp-buy-v210.primary{background:#f5c451;border-color:#fff;color:#3a2a00 !important}.soreal-idle-exp-buy-v210.primary b,.soreal-idle-exp-buy-v210.primary small{color:#3a2a00 !important}.soreal-idle-exp-buy-v210.primary:hover{background:#ffd978}.soreal-idle-exp-buy-v210.offer{background:rgba(245,196,81,.22);border-color:rgba(245,196,81,.6);color:#ffeeb5 !important}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#ffeeb5 !important}`,
           `.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:8px;align-items:end;margin-top:10px;padding-top:10px;border-top:2px dotted rgba(255,255,255,.2)}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;font-weight:900;color:#b9d6e0}.soreal-idle-exp-custom-v210 input{min-width:0;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#fff;font-weight:800}`,
           `.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:2px dashed rgba(245,196,81,.4)}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#f7e6b0}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{color:#e9d9a3}`,
           `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{width:fit-content;background:rgba(52,199,89,.14);color:#a6f0bb;border:2px solid rgba(52,199,89,.5);border-radius:8px;transform:rotate(-1.5deg);letter-spacing:.04em;text-transform:uppercase}`,
           `@media(max-width:560px){.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:repeat(2,minmax(0,1fr))}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 .primary{grid-column:1/-1}.soreal-idle-exp-tab-v212{flex:1 1 calc(50% - 7px);justify-content:center}.soreal-idle-exp-tabs-v212,.soreal-idle-exp-aisles-v213{margin-left:10px;margin-right:10px}.soreal-idle-exp-balance-v210{margin-left:10px;margin-right:10px}.soreal-idle-exp-shelves-v213{padding:0 10px 12px}}`
         ].join('');
+        return css;
+      }
+
+      function pageSpendExpIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const m=j&&j.systemes?j.systemes:{};
+        const exp=H.idleEntier_((m.currencies&&m.currencies.experience)||0);
+        const onglets_visibles=idleExpOngletsVisiblesIdleV1_(j,m);
+        const onglet=idleExpOngletCourantV1_(onglets_visibles);
+        const abordables=idleExpDebutsAbordablesIdleV1_(j,m,exp);
+        const css=idleBoutiqueCssIdleV1_();
         const onglets=onglets_visibles.map(function(o){
           const actif=o.id===onglet;
           const pastille=o.id==='debuts'&&abordables>0?`<span class="soreal-idle-exp-pastille-v212" title="Achats abordables">${abordables}</span>`:'';
@@ -1967,6 +1977,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
     actionMetaIdleV130_:actionMetaIdleV130_,
     estOccupeIdleV130_:function(){return idleMetaBusyV130;},
     systemeMetaParIdIdleV130_:systemeMetaParIdIdleV130_,
-    pageSpendExpIdleV1_:pageSpendExpIdleV1_
+    pageSpendExpIdleV1_:pageSpendExpIdleV1_,
+    boutiqueCssIdleV1_:idleBoutiqueCssIdleV1_
   };
 })();

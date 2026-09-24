@@ -69,7 +69,7 @@ assert.match(page, /id="sorealIdleAugInputV1"/);
 assert.match(page, /Énergie libre :/);
 assert.match(page, /clearAugmentAllocations/);
 assert.match(module_, /const value=mode==='plus'\s*\?current\+pas\s*:mode==='moins'\s*\?Math\.max\(0,current-pas\)\s*:Math\.max\(cap,current\);/);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609247"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609248"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 

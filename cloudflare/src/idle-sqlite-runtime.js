@@ -4596,6 +4596,14 @@ function statsJoueurSorealIdle_(valeur) {
     bossSelection:Math.max(0,Math.floor(nombreSorealIdle_(s.bossSelection,0))),
     combatBossActif:Boolean(s.combatBossActif),
     autoBossSuivant:s.autoBossSuivant!==false,
+    /*
+     * 2026-09-24 (Norman : « quand on rebirth, on a encore les popups quand on va dans les menus ; ils ne doivent arriver qu'une fois,
+     * pareil pour les textes d'accueil ») : identifiants des popups, tutoriels et textes d'accueil DÉJÀ montrés. Côté serveur (et non
+     * seulement dans le navigateur) : ni une Renaissance, ni un autre appareil, ni un stockage local vidé ne les rejouent.
+     */
+    vus:Array.isArray(s.vus)
+      ? Array.from(new Set(s.vus.map(function(id){return String(id||'').trim();}).filter(function(id){return id&&id.length<=80&&/^[A-Za-z0-9_:.-]+$/.test(id);}))).slice(0,500)
+      : [],
     reposNumero:Math.max(1,Math.floor(nombreSorealIdle_(s.reposNumero,1))),
 
     energieTickResteMs:
@@ -12188,6 +12196,86 @@ function definirAutoBossSuivantSorealIdle(
 }
 
 
+/* Marque des popups / tutoriels comme vus (voir statsJoueurSorealIdle_.vus). Idempotent ; aucune autre donnée n'est touchée. */
+function marquerVusSorealIdle(
+  sessionToken,
+  ids
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const lock =
+    LockService.getScriptLock();
+
+  if (!lock.tryLock(1800)) {
+    return {
+      ok: false,
+      message:
+        'Le jeu est occupé.'
+    };
+  }
+
+  try {
+    const feuille =
+      obtenirFeuilleJoueursSorealIdle_();
+
+    const ligne =
+      trouverLigneJoueurSorealIdle_(
+        feuille,
+        acces
+      );
+
+    assurerDonneesJeuSorealIdle_(
+      feuille,
+      ligne
+    );
+
+    const c =
+      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+
+    const cellule =
+      feuille.getRange(
+        ligne,
+        c.STATS_JSON
+      );
+
+    const stats =
+      statsJoueurSorealIdle_(
+        cellule.getValue()
+      );
+
+    const demandes =
+      (Array.isArray(ids) ? ids : [])
+        .slice(0,50)
+        .map(function(id) {
+          return String(id || '').trim();
+        });
+
+    stats.vus =
+      statsJoueurSorealIdle_(
+        JSON.stringify({vus:stats.vus.concat(demandes)})
+      ).vus;
+
+    cellule.setValue(
+      JSON.stringify(
+        stats
+      )
+    );
+
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      vus: stats.vus
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
 function selectionnerBossSorealIdle(
   sessionToken,
   numeroBoss
@@ -15483,6 +15571,7 @@ const IDLE_OPERATIONS={
   fusionnerObjetSorealIdle,
   fusionnerObjetsSorealIdle,
   lancerSortSorealIdle,
+  marquerVusSorealIdle,
   nukerBossSorealIdle,
   obtenirAccesSorealIdle,
   obtenirEtatBoutiqueSorealIdle,

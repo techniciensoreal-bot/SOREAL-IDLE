@@ -8796,7 +8796,6 @@
         titans:'titans',
         macguffins:'macguffins',
         daycare:'daycare',
-        infinityCube:'infinityCube',
         questing:'questing',
         quirks:'quirks',
         hacks:'hacks',
@@ -9054,13 +9053,97 @@
         return 'soreal_idle_menus_ack_v1_'+generationJoueurIdleV75_(j);
       }
 
-      function idleMenusAckListeV1_(j){
+      /*
+       * « Déjà vu » (popups de menus, tutoriels, textes d'accueil) — Norman, 2026-09-24 : « quand on rebirth, on a encore les popups quand
+       * on va dans les menus ; ils ne doivent arriver qu'une fois, pareil pour les textes d'accueil ». L'état vit désormais AUSSI côté
+       * serveur (profil.stats.vus, opération marquerVusSorealIdle) : une Renaissance, un autre appareil ou un stockage local vidé ne
+       * les rejouent plus. Le stockage local reste un cache immédiat ; ce qu'il contient déjà est envoyé au serveur une fois.
+       */
+      const idleVusMemoireV1={};
+      let idleVusEnAttenteV1=[];
+      let idleVusEnvoiEnCoursV1=false;
+      let idleVusMigreV1='';
+
+      function idleVusServeurV1_(j){
+        const stats=j&&j.profil&&j.profil.stats;
+        return Array.isArray(stats&&stats.vus)?stats.vus:[];
+      }
+
+      function idleVuConnuV1_(j,id){
+        return idleVusMemoireV1[id]===true||idleVusServeurV1_(j).indexOf(id)!==-1;
+      }
+
+      function idleVusEnvoyerV1_(){
+        if(idleVusEnvoiEnCoursV1||!idleVusEnAttenteV1.length||!SOREAL_SESSION)return;
+        const lot=idleVusEnAttenteV1.slice(0,50);
+        idleVusEnvoiEnCoursV1=true;
+        try{
+          google.script.run
+            .withSuccessHandler(function(res){
+              idleVusEnvoiEnCoursV1=false;
+              if(!res||!res.ok)return;
+              idleVusEnAttenteV1=idleVusEnAttenteV1.filter(function(id){return lot.indexOf(id)===-1;});
+              if(idleEtat&&idleEtat.profil&&idleEtat.profil.stats&&Array.isArray(res.vus)){
+                idleEtat.profil.stats.vus=res.vus;
+              }
+              if(idleVusEnAttenteV1.length)idleVusEnvoyerV1_();
+            })
+            .withFailureHandler(function(){
+              idleVusEnvoiEnCoursV1=false;
+            })
+            .marquerVusSorealIdle(SOREAL_SESSION,lot);
+        }catch(e){
+          idleVusEnvoiEnCoursV1=false;
+        }
+      }
+
+      function idleVuMarquerV1_(id){
+        idleVusMemoireV1[id]=true;
+        if(idleVusEnAttenteV1.indexOf(id)===-1)idleVusEnAttenteV1.push(id);
+        idleVusEnvoyerV1_();
+      }
+
+      /* Identifiant serveur d'un tutoriel : sa clé locale sans le joueur (« soreal_idle_tutoriel_aventure_v1_<joueur> » -> « tuto:tutoriel_aventure »). */
+      function idleVuIdTutorielV1_(cle){
+        return 'tuto:'+String(cle).replace(/^soreal_idle_/,'').replace(/_v\d+_.*$/,'');
+      }
+
+      function idleMenusAckListeLocaleV1_(j){
         try{
           const brut=JSON.parse(localStorage.getItem(idleMenusAckCleV1_(j))||'[]');
           return Array.isArray(brut)?brut:[];
         }catch(e){
           return [];
         }
+      }
+
+      function idleMenusAckListeV1_(j){
+        const liste=idleMenusAckListeLocaleV1_(j).slice();
+        idleVusServeurV1_(j).concat(Object.keys(idleVusMemoireV1)).forEach(function(id){
+          if(String(id).indexOf('menu:')===0&&liste.indexOf(String(id).slice(5))===-1)liste.push(String(id).slice(5));
+        });
+        return liste;
+      }
+
+      /* Une fois par partie chargée : ce que le navigateur sait déjà « vu » est confié au serveur (anciens joueurs). */
+      function idleVusMigrerLocalV1_(j){
+        if(!j)return;
+        const generation=generationJoueurIdleV75_(j);
+        if(idleVusMigreV1===generation)return;
+        idleVusMigreV1=generation;
+        idleMenusAckListeLocaleV1_(j).forEach(function(menu){
+          if(!idleVuConnuV1_(j,'menu:'+menu))idleVuMarquerV1_('menu:'+menu);
+        });
+        [
+          'soreal_idle_bienvenue_v75_',
+          'soreal_idle_tutoriel_debut_v1_soreal_idle_bienvenue_v75_',
+          'soreal_idle_tutoriel_premier_boss_v1_',
+          'soreal_idle_tutoriel_aventure_v1_'
+        ].forEach(function(prefixe){
+          const cle=prefixe+generation;
+          const id=prefixe==='soreal_idle_bienvenue_v75_'?'bienvenue':idleVuIdTutorielV1_(cle);
+          if(idleTutorielPagesDejaVuLocalV1_(cle)&&!idleVuConnuV1_(j,id))idleVuMarquerV1_(id);
+        });
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-119 */
@@ -9073,13 +9156,14 @@
 
       function idleMenuMarquerAcquisV1_(j,menuId){
         if(IDLE_MENUS_SANS_CLIGNOTEMENT_V1.indexOf(menuId)!==-1)return;
-        const liste=idleMenusAckListeV1_(j);
+        const liste=idleMenusAckListeLocaleV1_(j);
         if(liste.indexOf(menuId)===-1){
           liste.push(menuId);
           try{
             localStorage.setItem(idleMenusAckCleV1_(j),JSON.stringify(liste));
           }catch(e){}
         }
+        idleVuMarquerV1_('menu:'+menuId);
       }
 
 
@@ -9147,6 +9231,7 @@
           titre:'LE COMMENCEMENT',
           sousTitre:'(ACCROCHE-TOI BIEN)',
           long:true,
+          bouton:'JOUER',
           paragraphes:[
             '*BLOUM*',
             'Quand tu reprends connaissance, la première chose que tu remarques, c’est ce goût de cuivre dans ta bouche.',
@@ -9316,7 +9401,7 @@
         }
       ];
 
-      function idleTutorielPagesDejaVuV1_(cle){
+      function idleTutorielPagesDejaVuLocalV1_(cle){
         try{
           return Boolean(JSON.parse(localStorage.getItem(cle)||'null'));
         }catch(e){
@@ -9324,10 +9409,15 @@
         }
       }
 
+      function idleTutorielPagesDejaVuV1_(cle){
+        return idleTutorielPagesDejaVuLocalV1_(cle)||idleVuConnuV1_(idleEtat,idleVuIdTutorielV1_(cle));
+      }
+
       function idleTutorielPagesMarquerVuV1_(cle){
         try{
           localStorage.setItem(cle,JSON.stringify(true));
         }catch(e){}
+        idleVuMarquerV1_(idleVuIdTutorielV1_(cle));
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-123 */
@@ -9558,7 +9648,7 @@
                 '</div>'+
               '</div>'+
               '<div class="soreal-idle-modal-actions-v63" style="grid-template-columns:1fr">'+
-                '<button type="button" class="soreal-idle-modal-button-v63 confirm" onclick="window.__tutorielPagesNaviguerV1__(1)">Continuer ▶</button>'+
+                '<button type="button" class="soreal-idle-modal-button-v63 '+(page.bouton?'jouer':'confirm')+'" onclick="window.__tutorielPagesNaviguerV1__(1)">'+idleHtml_(page.bouton||'Continuer ▶')+'</button>'+
               '</div>'+
             '</div>';
           return;
@@ -9778,18 +9868,14 @@
 
         const cle='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(j);
 
-        let dejaVu=false;
-        try{
-          dejaVu=Boolean(JSON.parse(localStorage.getItem(cle)||'null'));
-        }catch(e){
-          dejaVu=false;
-        }
+        idleVusMigrerLocalV1_(j);
 
-        if(dejaVu)return;
+        if(idleTutorielPagesDejaVuLocalV1_(cle)||idleVuConnuV1_(j,'bienvenue'))return;
 
         try{
           localStorage.setItem(cle,JSON.stringify(true));
         }catch(e){}
+        idleVuMarquerV1_('bienvenue');
 
         if(!Boolean(j&&j.profil&&j.profil.nouveauJoueur))return;
 
@@ -9840,14 +9926,13 @@
         titans:'#b91c1c',
         macguffins:'#ec4899',
         daycare:'#84cc16',
-        infinityCube:'#7c3aed',
         questing:'#d97706',
         quirks:'#d946ef',
         hacks:'#059669',
         wishes:'#c084fc',
         cards:'#e11d48',
         cooking:'#c2410c',
-        sellout:'#eab308',
+        sellout:'#8b5cf6',
         spendExp:'#0891b2',
         setsZones:'#0d9488',
         parametres:'#6b7280'
@@ -9877,7 +9962,6 @@
         {id:'titans',icon:'👹',nom:'Titans'},
         {id:'macguffins',icon:'🧩',nom:'MacGuffins'},
         {id:'daycare',icon:'🛠️',nom:'Item Daycare'},
-        {id:'infinityCube',icon:'🧊',nom:'Infinity Cube'},
         {id:'questing',icon:'📋',nom:'Questing'},
         {id:'quirks',icon:'📚',nom:'Quirks'},
         {id:'hacks',icon:'🧪',nom:'Hacks'},
@@ -19192,6 +19276,19 @@ function pageAventureIdleV28_(j){
         };
       }
 
+      /*
+       * Boutique AP — même style « boutique » que la Boutique EXP (auvent, caisse, rayons en onglets, étagères), couleur du menu (mauve).
+       * Norman (2026-09-24) : « Utilise le même style pour le AP shop que pour le XP Shop mais d'une couleur différente ».
+       */
+      let idleApOngletV1='';
+      try{idleApOngletV1=localStorage.getItem('soreal_idle_ap_onglet_v1')||'';}catch(e){}
+      window.__ongletApShopIdleV1__=function(id){
+        if(!Object.prototype.hasOwnProperty.call(IDLE_SELLOUT_SHOP_CATEGORIES_V1,id))return;
+        idleApOngletV1=id;
+        try{localStorage.setItem('soreal_idle_ap_onglet_v1',id);}catch(e){}
+        if(idleEtat)rendreIdleEtat_({ok:true,joueur:idleEtat});
+      };
+
       function pageSelloutShopIdleV1_(j){
         const systemes=(j&&j.systemes)||{};
         const shop=systemes.selloutShop||{catalog:[],purchases:{}};
@@ -19205,50 +19302,52 @@ function pageAventureIdleV28_(j){
           parCategorie[cle].push(item);
         });
 
-        const sections=Object.keys(IDLE_SELLOUT_SHOP_CATEGORIES_V1).map(function(cle){
-          const items=parCategorie[cle]||[];
-          if(!items.length)return'';
-          return '<div class="soreal-idle-section-v8">'+
-            '<div class="soreal-idle-window-title-v31">'+idleHtml_(IDLE_SELLOUT_SHOP_CATEGORIES_V1[cle])+'</div>'+
-            '<div class="soreal-idle-shop-grid-v12">'+
-              items.map(function(item){
-                const auMax=item.nextCost==null;
-                const effetActif=item.effectActive===true;
-                const abordable=effetActif&&!auMax&&ap>=item.nextCost;
-                const texte=traductionSelloutIdleV210_(item);
-                const compteur=item.max!=null?' ('+idleEntier_(item.purchased)+'/'+idleEntier_(item.max)+')':(item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'');
-                return '<div class="soreal-idle-shop-card-v12'+(auMax?' maxed':'')+'">'+
-                  '<div class="soreal-idle-shop-card-info-v12">'+
-                    '<div class="soreal-idle-shop-card-name-v12">'+idleHtml_(texte.name)+compteur+'</div>'+
-                    '<div class="soreal-idle-shop-card-desc-v12">'+idleHtml_(texte.effect)+'</div>'+
-                  '</div>'+
-                  (!effetActif
-                    ?'<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-shop-card-buy-v12" disabled title="Cet effet sera activé dans un prochain palier">🔒 Effet pas encore actif · '+formatGrandNombreIdleV70_(item.nextCost||0)+' AP</button>'
-                    :auMax
-                      ?'<div class="soreal-idle-shop-card-cost-v12">Maximum atteint</div>'
-                      :'<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-shop-card-buy-v12" '+
-                        (abordable?'':'disabled ')+
-                        'onclick="window.__actionMetaIdleV130__({action:\'sellShopBuy\',itemId:\''+idleHtml_(item.id)+'\'})">'+
-                        formatGrandNombreIdleV70_(item.nextCost)+' AP'+
-                      '</button>'
-                  )+
-                '</div>';
-              }).join('')+
-            '</div>'+
+        const visibles=Object.keys(IDLE_SELLOUT_SHOP_CATEGORIES_V1).filter(function(cle){
+          return (parCategorie[cle]||[]).length>0;
+        });
+        const onglet=visibles.indexOf(idleApOngletV1)!==-1?idleApOngletV1:(visibles[0]||'');
+
+        const carte=function(item){
+          const auMax=item.nextCost==null;
+          const effetActif=item.effectActive===true;
+          const abordable=effetActif&&!auMax&&ap>=item.nextCost;
+          const texte=traductionSelloutIdleV210_(item);
+          const compteur=item.max!=null?' ('+idleEntier_(item.purchased)+'/'+idleEntier_(item.max)+')':(item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'');
+          return '<div class="soreal-idle-exp-stat-v210">'+
+            '<div class="soreal-idle-exp-stat-head-v210"><span>'+idleHtml_(texte.name)+compteur+'</span></div>'+
+            '<div class="soreal-idle-exp-help-v210">'+idleHtml_(texte.effect)+'</div>'+
+            (!effetActif
+              ?'<div class="soreal-idle-exp-lock-v210" title="Cet effet sera activé dans un prochain palier">🔒 Effet pas encore actif · '+formatGrandNombreIdleV70_(item.nextCost||0)+' AP</div>'
+              :auMax
+                ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
+                :'<div class="soreal-idle-exp-actions-v210">'+
+                  '<button type="button" class="soreal-idle-exp-buy-v210" '+(abordable?'':'disabled ')+
+                  'onclick="window.__actionMetaIdleV130__({action:\'sellShopBuy\',itemId:\''+idleHtml_(item.id)+'\'})">'+
+                  '<b>Acheter</b><small>'+formatGrandNombreIdleV70_(item.nextCost)+' AP</small></button>'+
+                '</div>')+
           '</div>';
+        };
+
+        const onglets=visibles.map(function(cle){
+          const actif=cle===onglet;
+          return '<button type="button" class="soreal-idle-exp-tab-v212'+(actif?' actif':'')+'" aria-pressed="'+actif+'" onclick="window.__ongletApShopIdleV1__(\''+cle+'\')">'+idleHtml_(IDLE_SELLOUT_SHOP_CATEGORIES_V1[cle])+'</button>';
         }).join('');
 
-        return `
-          ${entetePageIdleV28_(
-            "🛍️ La Boutique de Norman & Sébastien",
-            "Dépense tes AP ici. Aucun achat ne coûte d’argent réel."
-          )}
-          <div class="soreal-idle-window-title-v31 gold">
-            💠 AP possédé
-            <span class="soreal-idle-gold-total-v31">${formatGrandNombreIdleV70_(ap)}</span>
-          </div>
-          ${sections}
-        `;
+        const api=window.__SOREAL_IDLE_META_V130__;
+        const css=api&&typeof api.boutiqueCssIdleV1_==='function'?api.boutiqueCssIdleV1_():'';
+
+        return entetePageIdleV28_(
+          "🛍️ La Boutique de Norman & Sébastien",
+          "Dépense tes AP ici. Aucun achat ne coûte d’argent réel."
+        )+
+        '<style>'+css+'</style>'+
+        '<div class="soreal-idle-exp-shop-v213">'+
+          '<div class="soreal-idle-exp-awning-v213" aria-hidden="true"></div>'+
+          '<div class="soreal-idle-exp-balance-v210"><span>💠 Ta caisse · AP disponible</span><b>'+formatGrandNombreIdleV70_(ap)+'</b></div>'+
+          '<div class="soreal-idle-exp-aisles-v213"><span>🧭 Rayons</span><span class="soreal-idle-exp-open-v213">● OUVERT</span></div>'+
+          '<div class="soreal-idle-exp-tabs-v212" role="tablist">'+onglets+'</div>'+
+          '<div class="soreal-idle-exp-shelves-v213">'+(onglet?(parCategorie[onglet]||[]).map(carte).join(''):'')+'</div>'+
+        '</div>';
       }
 
 
@@ -20019,8 +20118,6 @@ function pageAventureIdleV28_(j){
             return pageSpendExpIdleV1_(j);
           case 'daycare':
             return pageSystemeMetaIdleV130_(j,'daycare','Item Daycare');
-          case 'infinityCube':
-            return pageSystemeMetaIdleV130_(j,'infinityCube','Infinity Cube');
           case 'questing':
             return pageSystemeMetaIdleV130_(j,'questing','Questing');
           case 'quirks':

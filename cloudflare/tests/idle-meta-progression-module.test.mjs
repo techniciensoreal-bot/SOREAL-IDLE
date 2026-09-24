@@ -53,8 +53,8 @@ const api = window.__SOREAL_IDLE_META_V130__;
 assert.ok(api, "le module doit exposer window.__SOREAL_IDLE_META_V130__");
 assert.deepEqual(
   Object.keys(api).sort(),
-  ["actionMetaIdleV130_", "estOccupeIdleV130_", "pageSpendExpIdleV1_", "pageSystemeMetaIdleV130_", "systemeMetaParIdIdleV130_"].sort(),
-  "le module ne doit exposer que les 5 fonctions réellement appelées par le monolithe"
+  ["actionMetaIdleV130_", "boutiqueCssIdleV1_", "estOccupeIdleV130_", "pageSpendExpIdleV1_", "pageSystemeMetaIdleV130_", "systemeMetaParIdIdleV130_"].sort(),
+  "le module ne doit exposer que les 6 fonctions réellement appelées par le monolithe (dont le style de boutique partagé avec la Boutique AP)"
 );
 for (const key of Object.keys(api)) {
   assert.equal(typeof api[key], "function", key + " doit être une fonction");
