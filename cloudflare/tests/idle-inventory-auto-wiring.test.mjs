@@ -86,7 +86,8 @@ for (const id of ["improvedLootFilter", "autoMergeBoostTimers", "loadoutSlot", "
   assert.throws(() => act(t, { action: "inventoryAuto", mode: "lootFilterItem", definitionId: "sewers:weapon", filtered: true }), /FILTRE_AMELIORE_VERROUILLE/);
 
   // Recyclage d'un boost appliqué à la main (100 % : il revient au palier inférieur dans la même case)
-  const cible = addItem(t, "beardverse:weapon");
+  // 2026-09-24 : la Beardverse weapon démarre à sa Base value (83 000 = plafond, Template:Item data), plus de place pour un boost ; cible GRB weapon (690/1 000).
+  const cible = addItem(t, "grb:weapon");
   const b = idleAdventureAddItemV1(t.adventure, idleAdventureBoostV1("power", 5));
   const r = act(t, { action: "adventure", adventure: { action: "boost", boostId: b.id, targetId: cible } });
   assert.deepEqual([r.result.boostRecycled.recycled, r.result.boostRecycled.strength], [true, 2]);

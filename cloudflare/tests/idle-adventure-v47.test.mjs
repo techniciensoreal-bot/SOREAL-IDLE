@@ -38,7 +38,15 @@ assert.equal(idleAdventureMergeLevelV47(90,90),100);
 
 const lv0=idleAdventureItemAtLevelV47("forest:weapon",0);
 const lv100=idleAdventureItemAtLevelV47("forest:weapon",100);
-assert.equal(Math.round(lv100.power*1000),Math.round(lv0.power*2000));
+/*
+ * 2026-09-24 (audit des objets) : ce test comparait deux valeurs COURANTES
+ * toutes deux nulles (0 = 2 x 0). Un objet neuf démarre maintenant à sa
+ * "Base value" (Template:Item data Kokiri Blade : powervalbase = 20), quel que
+ * soit son niveau ; c'est le PLAFOND qui double au niveau 100 (80 -> 160).
+ */
+assert.equal(lv0.power,20);
+assert.equal(lv100.power,20);
+assert.equal(idleAdventureItemStatsMaxV1("forest","weapon").p,160);
 
 let s=normalizeIdleAdventureStateV47({},0);
 for(const slot of IDLE_ADVENTURE_SETS.training.slots){
@@ -637,7 +645,8 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
   s.inventory.push({id:"boostTest1",definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:1,level:0});
 
   const avantPuissance=s.inventory[0].toughness;
-  assert.equal(avantPuissance,0,"Un objet fraîchement créé (jamais fusionné, jamais boosté) doit démarrer à toughness=0, jamais déjà à son plafond.");
+  // 2026-09-24 (audit des objets) : départ = "Base value" publiée (Template:Item data Cloth Hat : toughnessvalbase = 1), plus 0 ; le plafond au niveau 50 reste 1,5.
+  assert.equal(avantPuissance,1,"Un objet fraîchement créé démarre à sa Base value (Toughness 1), jamais déjà à son plafond (1,5).");
   assert.doesNotThrow(
     ()=>{s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTest1",targetId:cibleId},{bosses:7},1).state;},
     "Un objet sous le niveau max doit toujours pouvoir recevoir un boost."
@@ -645,8 +654,8 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
   const apresPuissance=s.inventory.find(x=>x.id===cibleId).toughness;
   assert.equal(
     apresPuissance,
-    1,
-    "Un boost de force 1 sur un objet frais (0/1.5 au niveau 50 : baseToughness=1×(1+50/100)=1.5) doit combler l'écart depuis 0, exactement comme dans le vrai NGU."
+    1.5,
+    "Un boost de force 1 sur un objet frais (1/1.5 au niveau 50 : baseToughness=1×(1+50/100)=1.5) comble l'écart jusqu'au plafond (2026-09-24 : départ à la Base value 1)."
   );
   assert.ok(
     !s.inventory.some(x=>x.id==="boostTest1"),
@@ -663,7 +672,7 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
   s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:100},{bosses:7},1).state;
   const cibleMaxId=s.inventory[0].id;
   const avantPuissanceMax=s.inventory[0].toughness;
-  assert.equal(avantPuissanceMax,0,"Même créé directement au niveau 100, un objet frais démarre à toughness=0.");
+  assert.equal(avantPuissanceMax,1,"Même créé directement au niveau 100, un objet frais démarre à sa Base value (1), pas à son plafond (2) -- 2026-09-24.");
   s.inventory.push({id:"boostTest2",definitionId:"boost:toughness:5",kind:"boost",boostType:"toughness",strength:5,level:0});
   s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTest2",targetId:cibleMaxId},{bosses:7},1).state;
   const apresPuissanceMax=s.inventory.find(x=>x.id===cibleMaxId).toughness;

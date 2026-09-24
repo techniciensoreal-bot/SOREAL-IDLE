@@ -4333,6 +4333,8 @@ function idleNguBonusesSansMacguffinV1(state) {
   const beardAttack = beardBonusMultiplier(state, "attackDefense");
   const beardNumber = beardBonusMultiplier(state, "number");
   const beardAdventure = beardBonusMultiplier(state, "adventure");
+  /* Evil Bonus Accs (Set) (2026-09-24, wiki : "+20% Adventure stats!") : setRewards.adventureStatsPct, un facteur de plus comme perks / quirks / souhaits. */
+  const evilAccsAdventureStats = 1 + Math.max(0, num(state.adventure?.setRewards?.adventureStatsPct, 0));
   const beardDrop = beardBonusMultiplier(state, "drop");
   const beardNgu = beardBonusMultiplier(state, "ngu");
   const beardWandoos = beardBonusMultiplier(state, "wandoos");
@@ -4422,6 +4424,7 @@ function idleNguBonusesSansMacguffinV1(state) {
       perkBonuses.adventureStatsMultiplier *
       quirkBonuses.adventureStatsMultiplier *
       wishBonuses.adventureStatsMultiplier *
+      evilAccsAdventureStats *
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
@@ -4437,6 +4440,7 @@ function idleNguBonusesSansMacguffinV1(state) {
       perkBonuses.adventureStatsMultiplier *
       quirkBonuses.adventureStatsMultiplier *
       wishBonuses.adventureStatsMultiplier *
+      evilAccsAdventureStats *
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
@@ -4447,6 +4451,7 @@ function idleNguBonusesSansMacguffinV1(state) {
       perkBonuses.adventureStatsMultiplier *
       quirkBonuses.adventureStatsMultiplier *
       wishBonuses.adventureStatsMultiplier *
+      evilAccsAdventureStats *
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
