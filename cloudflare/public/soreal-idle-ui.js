@@ -14134,8 +14134,8 @@ let idleDialogueTimerV76=null;
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-176 */
             const estStatBearing=estEquipement||def.kind==='special'||def.kind==='cube';
             const pseudoItem=estEquipement
-              ?{set:def.set,slot:def.slot,name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'equipment'}
-              :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'cube'}:null);
+              ?{set:def.set,slot:def.slot,name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'equipment',level:niveau}
+              :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'cube',level:niveau}:null);
             const puissance=estStatBearing?Math.round(idleNombre_(def.basePower)*(1+niveau/100)):0;
             const solidite=estStatBearing?Math.round(idleNombre_(def.baseToughness)*(1+niveau/100)):0;
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(def);
@@ -17334,7 +17334,27 @@ function pageAventureIdleV28_(j){
 
       function iconeSlotAdventureIdleV138_(slot){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.iconeAdventure?a.iconeAdventure(slot):'📦';}
 
+      /*
+       * Niveau inscrit SUR l'image de l'objet (Norman, 2026-09-24 : « le niveau inscrit sur l'image de manière visible avec un contour,
+       * joli ») et V vert quand l'objet est au maximum : niveau 100 ET statistiques comblées par les boosts — le même prérequis que le
+       * Coffre (item.fullyMaxed, calculé par le serveur ; un boost, sans statistiques, l'est dès le niveau 100).
+       */
+      function badgesNiveauObjetIdleV1_(item){
+        if(!item)return '';
+        const niveau=idleEntier_(item.level);
+        return (niveau>=1
+          ?'<i class="idle-lvl-badge-v1'+(niveau>=100?' max':'')+'" aria-hidden="true">'+niveau+'</i>'
+          :'')+
+          (item.fullyMaxed
+            ?'<i class="idle-maxok-badge-v1" title="Niveau 100 et statistiques au maximum" aria-hidden="true">✔</i>'
+            :'');
+      }
+
       function iconeObjetAdventureIdleV138_(item){
+        return iconeBaseObjetAdventureIdleV138_(item)+badgesNiveauObjetIdleV1_(item);
+      }
+
+      function iconeBaseObjetAdventureIdleV138_(item){
         if(item&&item.kind==='boost'){
           return '<img class="idle-boost-icon-v1" src="'+idleHtml_(urlImageBoostAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
             'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
@@ -18934,7 +18954,7 @@ function pageAventureIdleV28_(j){
               '</div>';
             }
             const item=s.item||{};
-            const pseudoItem={set:s.set,slot:s.slot,name:s.name};
+            const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100};
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
             return '<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
               'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
