@@ -2410,7 +2410,16 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier*idleCardsMultiplierV1(state,"augments"); /* + Cards AUGS */
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
+  /*
+   * 2026-09-24 (audit de composition, page « Augmentations ») : « All
+   * Augmentation Upgrades ... cost Base Cost * n² in gold where n is the level
+   * you want to upgrade the augment to, and cost Base Cost * n in energy in the
+   * same manner as Augmentations » -- le coût en énergie (donc le temps à
+   * allocation/puissance égales, « Base Time » = 1er niveau) est multiplié par
+   * le niveau visé n, pour l'Augment comme pour son Upgrade. Il était constant.
+   */
+  const targetLevel = Math.max(1, int(upgrade ? pair.upgradeLevel : pair.level, 0) + 1);
+  return targetLevel * base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
