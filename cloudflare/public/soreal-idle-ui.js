@@ -2351,10 +2351,22 @@
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
           Object.keys(augVisual.defs||{}).forEach(function(id){
             const d=augVisual.defs[id]||{};
-            [['main',d.progress,d.seconds],['upgrade',d.upgradeProgress,d.upgradeSeconds]].forEach(function(x){
+            [['main',d.progress,d.seconds,d.waiting,d.goldCost],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost]].forEach(function(x){
               const el=document.querySelector('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
               if(!el)return;
               const seconds=idleNombre_(x[2]);
+              /* Compte à rebours « Niveau suivant dans … » : suit la même horloge que la barre. */
+              const etaEl=document.querySelector('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
+              if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
+                etaEl.textContent=window.__texteEtaAugmentIdleV1__({seconds:seconds,progress:x[1],waiting:x[3],goldCost:x[4],gold:augVisual.defs[id].gold},(performance.now()-augVisual.at)/1000);
+              }
+              /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. */
+              if(x[3]&&seconds>0){
+                if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+                el.style.width='100%';
+                el.style.transform='scaleX(1)';
+                return;
+              }
               if(!(seconds>0)){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;}
                 el.style.width='0%';
@@ -2365,14 +2377,23 @@
                 if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
                 el.style.width='100%';
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-41 */
+                /*
+                 * Cycles longs (≥ 2 s) : remplissage linéaire honnête 0 -> 100 % puis retour à 0 (Norman, 2026-09-24 : la barre restait pleine
+                 * ~26 % du cycle). Les paliers d'affichage ne servent qu'aux cycles très courts, échantillonnés à 15 Hz (voir V220).
+                 */
                 const animation=el.animate(
-                  [
-                    {transform:'scaleX(0)',offset:0},
-                    {transform:'scaleX(0)',offset:.08},
-                    {transform:'scaleX(1)',offset:.72},
-                    {transform:'scaleX(1)',offset:.98},
-                    {transform:'scaleX(0)',offset:1}
-                  ],
+                  seconds>=2
+                    ?[
+                      {transform:'scaleX(0)',offset:0},
+                      {transform:'scaleX(1)',offset:1}
+                    ]
+                    :[
+                      {transform:'scaleX(0)',offset:0},
+                      {transform:'scaleX(0)',offset:.08},
+                      {transform:'scaleX(1)',offset:.72},
+                      {transform:'scaleX(1)',offset:.98},
+                      {transform:'scaleX(0)',offset:1}
+                    ],
                   {duration:duration,iterations:Infinity,easing:'linear'}
                 );
                 animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(x[1])))*duration;
@@ -9813,14 +9834,13 @@
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-132 */
       const IDLE_MENUS_V1=[
         {id:'entrainement',icon:'🥊',nom:'Basic Training'},
+        {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
         {id:'inventaire',icon:'🎒',nom:'Inventory'},
         {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
-        {id:'sellout',icon:'🛍️',nom:'Boutique AP'},
         {id:'bestiaire',icon:'🏆',nom:'Collection'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
-        {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'avance',icon:'🏋️',nom:'Advanced Training'},
         {id:'machine',icon:'⏱️',nom:'Time Machine'},
         {id:'sang',icon:'🩸',nom:'Blood Magic'},
@@ -9844,6 +9864,7 @@
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
         {id:'spendExp',icon:'✨',nom:'EXP Shop'},
+        {id:'sellout',icon:'🛍️',nom:'Boutique AP'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
       ];
 

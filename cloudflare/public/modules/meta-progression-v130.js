@@ -1324,6 +1324,38 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
       window.__ajusterAugmentIdleV1__=ajusterAugmentIdleV1_;
 
+      /*
+       * 2026-09-24 (Norman) : « il faudrait le temps indiqué pour qu'elle prenne un niveau ». Durée d'un niveau, coût en Or, et — tant
+       * que la barre est pleine faute d'Or (wiki : chaque niveau coûte de l'Or) — ce qu'il manque. Aussi rafraîchi à chaque tick par
+       * soreal-idle-ui.js (data-idle-aug-eta-v1) : le compte à rebours suit la barre.
+       */
+      function formatDureeAugmentIdleV1_(secondes){
+        let s=Math.max(0,Math.ceil(Number(secondes)||0));
+        if(s<60)return s+' s';
+        const j=Math.floor(s/86400);s-=j*86400;
+        const h=Math.floor(s/3600);s-=h*3600;
+        const m=Math.floor(s/60);s-=m*60;
+        if(j>0)return j+' j '+h+' h';
+        if(h>0)return h+' h '+m+' min';
+        return m+' min '+s+' s';
+      }
+      window.__formatDureeAugmentIdleV1__=formatDureeAugmentIdleV1_;
+      function texteEtaAugmentIdleV1_(x,ecoule){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const secondes=Number(x&&x.seconds);
+        if(!(secondes>0))return 'Place de l’énergie pour progresser.';
+        if(x.waiting){
+          const manque=Math.max(0,Number(x.goldCost)-Number(x.gold));
+          return manque>0
+            ?'⏳ Barre pleine : il manque '+H.formatGrandNombreIdleV70_(manque)+' Or pour le niveau suivant.'
+            :'⏳ Barre pleine : plus de niveau disponible pour l’instant (défi en cours).';
+        }
+        const restant=secondes*(1-Math.max(0,Math.min(1,Number(x.progress)||0)))-(Number(ecoule)||0);
+        const reste=((restant%secondes)+secondes)%secondes;
+        return 'Niveau suivant dans '+formatDureeAugmentIdleV1_(reste||secondes);
+      }
+      window.__texteEtaAugmentIdleV1__=texteEtaAugmentIdleV1_;
+
       function pageAugmentationsIdleV48_(j){
         const sys=systemeMetaParIdIdleV130_(j,'augmentations');
         if(!sys||!sys.state||!sys.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
@@ -1331,7 +1363,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const boss=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
         window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().__augmentationsVisualV215={
           at:performance.now(),
-          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),seconds:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel),upgradeSeconds:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel)}];}))
+          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),seconds:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel),upgradeSeconds:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
         };
         const cap=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.resources&&snap.resources.energy&&snap.resources.energy.cap||0));
         function track(def,pair,upgrade,ok){
@@ -1339,7 +1371,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const pct=Math.max(0,Math.min(100,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'Upgrade':'Augment';
-          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+[['moins','−'],['plus','+'],['max','Max']].map(function(b){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+[['moins','−'],['plus','+'],['max','Max']].map(function(b){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Chaque Augment et chaque Upgrade possède sa propre allocation Energy et progresse en parallèle. Les niveaux sont remis à zéro au Rebirth.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+

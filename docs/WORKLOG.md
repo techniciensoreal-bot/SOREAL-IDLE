@@ -1534,3 +1534,11 @@ Demande de Norman : la voix IA générée à la volée ne lui plaît pas ; il ve
 - **Mêmes blocs partout** : la chronique de boss, la fiche du boss, la Collection et « Lire toute l'histoire » passent par `composerChronique_` (titre, nom, notes de déblocage, récit, mêmes pauses). Les panneaux d'explication (tutoriels, popups de nouveauté, Info, Norman & Sébastien) portent `data-soreal-tts-say` construit depuis les données ; l'en-tête « SOREAL IDLE », les icônes et « Page n / N » ne sont plus lus. Les infos de systèmes dont la description vient des données du jeu restent en repli Piper.
 - Test `idle-voice-pregenerated-v1` (empreinte, composition, couverture : chaque bloc de chaque chronique a son fichier).
 - Pour changer de voix plus tard : changer `VOICE_TAG` et relancer l'outil (les anciens fichiers deviennent orphelins).
+
+## 2026-09-24 — Augmentations : barre, temps par niveau, ordre des menus
+
+Norman : « les barres se remplissent à fond mais ne repartent pas de 0 ; j'aimerais le temps indiqué pour qu'elle prenne un level ; Augmentations entre Fight Boss et Basic Training ; Boutique AP entre EXP Shop et Settings ».
+- **Cause 1 (fidèle à NGU, mais muette)** : wiki « Each augment level costs gold » — sans l'Or du prochain niveau, `advanceAugmentationTrackV214_` garde la barre pleine. Rien ne le disait. Le snapshot expose maintenant `goldCost`, `upgradeGoldCost`, `waitingGold`, `upgradeWaitingGold` (mêmes fonctions que l'achat réel) ; la page affiche « ⏱ durée par niveau · 💰 coût en Or » et, barre pleine, « ⏳ il manque X Or pour le niveau suivant » ; la barre reste alors figée pleine au lieu de tourner à vide.
+- **Cause 2 (client)** : l'animation en boucle remplissait la barre à 72 % du cycle puis la gardait pleine jusqu'à 98 % (paliers prévus pour des ticks de 66 ms, V220). Pour les cycles ≥ 2 s : remplissage linéaire 0 → 100 % puis retour à 0 ; paliers gardés pour les cycles très courts.
+- **Temps** : « Niveau suivant dans 6 min 40 s », compte à rebours rafraîchi à chaque tick avec la barre.
+- **Menus** : Basic Training, Augmentations, Fight Boss, … EXP Shop, Boutique AP, Settings (lecture littérale : Basic Training et Fight Boss étaient déjà voisins). `ui ?v=248`, `meta-progression ?v=202609247`. Test `idle-augmentation-eta-menu-order-v1`.

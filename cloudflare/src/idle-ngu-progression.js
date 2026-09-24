@@ -5086,7 +5086,21 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       const pair = state.systems.augmentations.data.pairs?.[def.id] || {};
       const neededMain = augmentationSecondsForNextLevel(state, def, false);
       const neededUpgrade = def.upgrade ? augmentationSecondsForNextLevel(state, def, true) : Infinity;
+      /*
+       * 2026-09-24 (Norman : « les barres se remplissent à fond mais ne repartent pas de 0 ») : wiki, page Augmentations, « Each augment
+       * level costs gold ». advanceAugmentationTrackV214_ garde la barre PLEINE tant que l'Or du prochain niveau manque : le client doit
+       * le dire (coût, attente) au lieu de laisser croire à un bug. Coûts = augmentationGoldCost, la même fonction que l'achat réel.
+       */
+      const goldCost = augmentationGoldCost(state, def, num(pair.level, 0), false);
+      const upgradeGoldCost = def.upgrade ? augmentationGoldCost(state, def, num(pair.upgradeLevel, 0), true) : null;
+      const gold = num(state.currencies?.gold, 0);
+      const defiBloque = challengeHundredLevelsRemaining(state) <= 0;
+      const attenteOr = (needed, progress, cost) => Number.isFinite(needed) && needed > 0 && num(progress, 0) >= needed - 1e-9 && (gold + 1e-9 < cost || defiBloque);
       return Object.assign({}, def, {
+        goldCost,
+        upgradeGoldCost,
+        waitingGold: attenteOr(neededMain, pair.progress, goldCost),
+        upgradeWaitingGold: upgradeGoldCost != null && attenteOr(neededUpgrade, pair.upgradeProgress, upgradeGoldCost),
         progressPct: Number.isFinite(neededMain) && neededMain > 0 ? Math.max(0, Math.min(1, num(pair.progress, 0) / neededMain)) : 0,
         upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0,
         secondsPerLevel: Number.isFinite(neededMain) ? neededMain : null,
