@@ -589,33 +589,21 @@ const CONFIG_SOREAL_IDLE = {
    */
   BOSS_BASE: 'A Small Piece of Fluff',
   BOSS_PV_BASE: 800,
-  MULTIPLICATEUR_PV_BOSS: 1.5,
-
-  NIVEAU_RENAISSANCE: 8,
-
+  /*
+   * 2026-09-24 (audit « code -> wiki », voir docs/AUDIT-CHIFFRES.md) : supprimées, jamais lues nulle part et sans source wiki (reste
+   * de l'ancienne version de SOREAL IDLE) : MULTIPLICATEUR_PV_BOSS 1,5 ; NIVEAU_RENAISSANCE 8 ; DEFENSE_ARMURE_COEFFICIENT 0,35 ;
+   * PV_ARMURE_COEFFICIENT 5 ; MULTIPLICATEUR_ATTAQUE_BOSS 1,32 ; tout le bloc AVENTURE (niveau de déblocage 2, 5 ennemis par zone,
+   * coût d'entrée 30 x 1,35, PV ennemi x1,55, attaque ennemie x1,34, récompenses de base 2 et 4).
+   */
   PV_JOUEUR_BASE: 100,
   PV_PAR_ENDURANCE: 20,
   DEFENSE_PAR_ENDURANCE: 0.5,
-  DEFENSE_ARMURE_COEFFICIENT: 0.35,
-  PV_ARMURE_COEFFICIENT: 5,
   DEGATS_BOSS_MIN_PCT: 0.12,
   ATTAQUE_BOSS_BASE: 2,
-  MULTIPLICATEUR_ATTAQUE_BOSS: 1.32,
   /*
    * Fight Boss : aucune durée de K.O. NGU.
    * KO_JUSQUA reste une colonne historique uniquement, toujours vidée.
    */
-  AVENTURE: {
-    NIVEAU_DEBLOCAGE: 2,
-    ENNEMIS_PAR_ZONE: 5,
-    COUT_ENTREE_BASE: 30,
-    CROISSANCE_COUT_ENTREE: 1.35,
-    MULTIPLICATEUR_PV_ENNEMI: 1.55,
-    MULTIPLICATEUR_ATTAQUE_ENNEMI: 1.34,
-    RECOMPENSE_POINTS_BASE: 2,
-    RECOMPENSE_PIECES_BASE: 4
-  },
-
   INVENTAIRE_CAPACITE_BASE: 18,
   INVENTAIRE_CAPACITE_MAX: 90,
 
