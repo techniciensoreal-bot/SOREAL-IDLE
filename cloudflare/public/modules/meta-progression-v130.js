@@ -488,93 +488,75 @@
         '</div>';
       }
 
-      function pageSpendExpIdleV1_(j){
-        const m=j&&j.systemes?j.systemes:{};
-        const r=m.resources||{};
-        const achats=m.resourcePurchases||{};
-        const verrousBoss=m.resourcePurchaseUnlock||{};
-        const newbie=m.newbieOffers||{};
-        const newbieCatalogueParRessource=newbie.catalog||{};
-        const newbieUtilisees=Array.isArray(newbie.used)?newbie.used:[];
-        const exp=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((m.currencies&&m.currencies.experience)||0);
-        const magicSysteme=systemeMetaParIdIdleV130_(j,'bloodMagic');
-        const r3Systeme=systemeMetaParIdIdleV130_(j,'hacks');
-        const ressources=[
-          {id:'energy',unlocked:Boolean(m.records&&window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(m.records.highestBoss)>=1)},
-          {id:'magic',unlocked:Boolean(magicSysteme&&magicSysteme.state&&magicSysteme.state.unlocked)},
-          {id:'r3',unlocked:Boolean(r3Systeme&&r3Systeme.state&&r3Systeme.state.unlocked)}
-        ];
+      /*
+       * 2026-09-24 (Norman : « Exp shop a trop de catégories. On s'y perd… Il y a des choses qu'on doit acheter très tôt, du genre le
+       * filtre à loot, mais il est perdu tout en bas. Un nouveau joueur ne le trouvera jamais. Je n'aime pas le blanc que tu as mis en
+       * fond. Utilise le même bleu que dans la bannière "Boutique EXP" ») : la page est découpée en ONGLETS (un seul à l'écran), le
+       * premier « 🚀 Débuts » regroupe les achats bon marché à faire tôt ; les cartes reprennent le bleu de la bannière de la page.
+       */
+      const IDLE_EXP_ONGLETS_V1=[
+        {id:'debuts',icone:'🚀',nom:'Débuts'},
+        {id:'energy',icone:'⚡',nom:'Énergie'},
+        {id:'magic',icone:'✨',nom:'Magie'},
+        {id:'r3',icone:'🧪',nom:'Ressource 3'},
+        {id:'aventure',icone:'⚔️',nom:'Aventure'},
+        {id:'slots',icone:'🎒',nom:'Slots & options'}
+      ];
+      /* Achats bon marché et utiles dès le début, dans l'ordre conseillé (du moins cher au plus cher). */
+      const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','boostRecycling','autoMerge','daycareSlot1','trainingAutoAdvance'];
+      const IDLE_EXP_STATS_AVENTURE_V1=['adventurePower','adventureToughness','adventureHp','adventureRegen'];
+      const IDLE_EXP_NOMS_V1={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
+      /* Une ligne d'explication pour les achats de l'onglet Débuts (effets déjà décrits dans le jeu : panneau d'inventaire, Basic Training). */
+      const IDLE_EXP_AIDES_V1={
+        inventorySpace:'Plus de places dans ton sac : les premières sont les moins chères.',
+        basicLootFilter:'Débloque le filtre de butin : choisis les types d’objets à ne plus ramasser (menu Inventory).',
+        boostRecycling:'Un boost utilisé peut revenir avec un palier de moins : +10 % de chance par achat, 50 % au maximum.',
+        autoMerge:'Fusionne automatiquement les doublons de ton équipement (menu Inventory).',
+        daycareSlot1:'Débloque le premier slot de l’Item Daycare.',
+        trainingAutoAdvance:'Basic Training passe tout seul à la compétence suivante.'
+      };
+      let idleExpOngletV1=(function(){try{return localStorage.getItem('soreal_idle_exp_onglet_v1')||'debuts';}catch(e){return 'debuts';}})();
 
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_(
-          '✨ Boutique EXP',
-          'Utilise ton EXP pour améliorer durablement la génération et la capacité de tes ressources.'
-        )+
-        '<style>'+
-          '.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;margin:0 0 14px;border-radius:16px;background:#17203f;color:#fff;border:1px solid #17203f;box-shadow:0 8px 18px rgba(23,32,63,.16)}'+
-          '.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900;letter-spacing:.02em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:7px 11px;border-radius:999px;background:#f1c65b;color:#17203f;font-size:18px;line-height:1;font-weight:1000;box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}'+
-          '.soreal-idle-exp-resource-v210{margin:16px 0 8px;padding:10px 13px;border-radius:12px;background:#e9edf7;color:#27334f;border-left:4px solid #5968ee;border-top:1px solid #d8deec;border-right:1px solid #d8deec;border-bottom:1px solid #d8deec;font-size:13px;font-weight:1000;letter-spacing:.01em}'+
-          '.soreal-idle-exp-stat-v210{margin:8px 0;padding:14px;border-radius:15px;background:#fff;color:#17203f;border:1px solid #d9dfeb;box-shadow:0 4px 13px rgba(31,41,70,.06)}'+
-          '.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#17203f;font-size:14px;font-weight:1000}.soreal-idle-exp-stat-head-v210>span{min-width:0}'+
-          '.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:5px 8px;border-radius:9px;background:#f1f3f8;color:#17203f;border:1px solid #e0e4ee}.soreal-idle-exp-current-v211 small{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#6f7789;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:14px;color:#17203f;font-weight:1000}'+
-          '.soreal-idle-exp-help-v210{margin:6px 0 12px;color:#596174;font-size:11px;line-height:1.5;font-weight:750}'+
-          '.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:7px}'+
-          '.soreal-idle-exp-buy-v210{appearance:none;min-height:48px;border:1px solid #243154;border-radius:11px;padding:8px 10px;background:#26345a;color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:3px;box-shadow:0 3px 8px rgba(31,41,70,.12);transition:transform .12s ease,background .12s ease,box-shadow .12s ease}'+
-          '.soreal-idle-exp-buy-v210:hover{background:#33436f;box-shadow:0 5px 12px rgba(31,41,70,.16);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:9px;line-height:1.25;color:#dce3f2 !important;opacity:1}'+
-          '.soreal-idle-exp-buy-v210.primary{background:#5968ee;border-color:#4d5bdd;color:#fff !important}.soreal-idle-exp-buy-v210.primary:hover{background:#4d5bdd}.soreal-idle-exp-buy-v210.offer{background:#fff4cf;border-color:#e5c86c;color:#5e4810 !important;box-shadow:none}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#5e4810 !important}.soreal-idle-exp-buy-v210.offer:hover{background:#ffedb2}'+
-          '.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:7px;align-items:end;margin-top:9px;padding-top:9px;border-top:1px solid #e5e8f0}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#6d7485;font-weight:900}.soreal-idle-exp-custom-v210 input{width:100%;height:43px;box-sizing:border-box;padding:9px 10px;border-radius:10px;border:1px solid #cfd6e3;background:#fff;color:#17203f;font-weight:900;outline:none}.soreal-idle-exp-custom-v210 input:focus{border-color:#5968ee;box-shadow:0 0 0 3px rgba(89,104,238,.12)}'+
-          '.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:#fffaf0;border:1px solid #eee0b8}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#5e4810;font-size:12px}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{margin:0 0 8px;color:#76642f;font-size:10px}'+
-          '.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:#f1f3f7;color:#596174;border:1px solid #e0e4ec;font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{background:#edf8f0;color:#326341;border-color:#cfe6d5}'+
-          '@media(max-width:560px){.soreal-idle-exp-stat-v210{padding:12px}.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 input{grid-column:1}.soreal-idle-exp-custom-v210 .soreal-idle-exp-buy-v210{grid-column:2}}'+
-        '</style>'+
-        '<div class="soreal-idle-exp-balance-v210"><span>⭐ EXP disponible</span><b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(exp)+'</b></div>'+
-        ressources.map(function(res){
-          const titre=libelleRessourceMetaIdleV130_(res.id);
-          if(!res.unlocked){
-            return '<div class="soreal-idle-exp-resource-v210">🔒 '+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(titre)+' · verrouillé</div>';
-          }
-          const x=r[res.id]||{};
-          const couts=achats[res.id]||{};
-          const verrousRessource=verrousBoss[res.id]||{};
-          const newbieCatalogueRessource=newbieCatalogueParRessource[res.id]||{};
-          return '<div class="soreal-idle-exp-resource-v210">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(titre)+'</div>'+
-            IDLE_SPEND_EXP_STATS_V1.map(function(stat){
-              return idleExpShopStatBlocIdleV1_(
-                res,
-                stat,
-                x,
-                couts[stat.id],
-                verrousRessource[stat.id],
-                newbieCatalogueRessource,
-                newbieUtilisees
-              );
-            }).join('');
-        }).join('')+idleExpShopAventureIdleV1_(m);
+      function idleExpOngletCourantV1_(){
+        return IDLE_EXP_ONGLETS_V1.some(function(o){return o.id===idleExpOngletV1;})?idleExpOngletV1:'debuts';
       }
-
-      function idleExpShopAventureIdleV1_(m){
+      window.__ongletExpShopIdleV1__=function(id){
+        if(!IDLE_EXP_ONGLETS_V1.some(function(o){return o.id===id;}))return;
+        idleExpOngletV1=id;
+        try{localStorage.setItem('soreal_idle_exp_onglet_v1',id);}catch(e){}
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const noms={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
-        const tous=Array.isArray(m.expShop)?m.expShop:[];
-        /* Auto-Activate Yggdrasil : section dédiée (cap de ressource requis), voir idleExpShopYggIdleV1_. */
-        const items=tous.filter(function(it){return !it.yggFruit;});
-        const rj=m.richJerks||{};
-        return '<div class="soreal-idle-exp-resource-v210">Aventure et divers</div>'+
-          items.map(function(it){
-            const fini=it.nextCost==null;
-            const restants=Array.isArray(it.remainingCosts)?it.remainingCosts:null;
-            let tiers=it.max!=null&&it.max>1?[1,5,10]:it.max===1?[1]:[1,10,100];
-            /* Prix variable (espaces d'inventaire) : montants réellement payés, et bouton « tout » pour les places restantes. */
-            if(restants&&restants.length>10)tiers=tiers.concat([restants.length]);
-            const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
-            return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+(noms[it.id]||H.idleHtml_(it.name))+'</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>'+H.idleEntier_(it.purchased)+(it.max!=null?' / '+H.idleEntier_(it.max):'')+'</strong></div></div>'+
-              (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':'<div class="soreal-idle-exp-actions-v210">'+tiers.map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(it.id)+'\','+q+')"><b>+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2)+'</b><small>×'+q+' · '+(restants?'total '+H.formatGrandNombreIdleV70_(coutTotal(q),2):'dès '+H.idleEntier_(it.nextCost))+' EXP</small></button>';}).join('')+'</div>')+
-              '</div>';
-          }).join('')+
-          ['attack','defense'].map(function(stat){
-            const niveau=stat==='attack'?rj.attackLevel:rj.defenseLevel;
-            return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+(stat==='attack'?'🗡️ Attaque':'🛡️ Défense')+' pour riches (Rich Jerks)</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>'+H.idleEntier_(niveau||0)+'</strong></div></div><div class="soreal-idle-exp-actions-v210">'+[1,10,100].map(function(q){return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRichJerksIdleV1__(\''+stat+'\','+q+')"><b>+'+H.idleEntier_((rj.pctPerLevel||10)*q)+' %</b><small>×'+q+' · '+H.idleEntier_((rj.cost||30)*q)+' EXP</small></button>';}).join('')+'</div></div>';
-          }).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit;}));
+        if(H.getIdleEtat())H.rendreIdleEtat_({ok:true,joueur:H.getIdleEtat()});
+      };
+
+      function idleExpShopItemCarteIdleV1_(it,aide){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const fini=it.nextCost==null;
+        const restants=Array.isArray(it.remainingCosts)?it.remainingCosts:null;
+        let tiers=it.max!=null&&it.max>1?[1,5,10]:it.max===1?[1]:[1,10,100];
+        /* Prix variable (espaces d'inventaire) : montants réellement payés, et bouton « tout » pour les places restantes. */
+        if(restants&&restants.length>10)tiers=tiers.concat([restants.length]);
+        const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
+        const boutons=tiers.map(function(q){
+          return `<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',${q})"><b>+${H.formatGrandNombreIdleV70_((it.gain||0)*q,2)}</b><small>×${q} · ${restants?'total '+H.formatGrandNombreIdleV70_(coutTotal(q),2):'dès '+H.idleEntier_(it.nextCost)} EXP</small></button>`;
+        }).join('');
+        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>${IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
+          (aide?`<div class="soreal-idle-exp-help-v210">${H.idleHtml_(aide)}</div>`:'')+
+          (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':`<div class="soreal-idle-exp-actions-v210">${boutons}</div>`)+
+          '</div>';
       }
+
+      function idleExpShopRichJerksIdleV1_(m){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const rj=m.richJerks||{};
+        return ['attack','defense'].map(function(stat){
+          const niveau=stat==='attack'?rj.attackLevel:rj.defenseLevel;
+          const boutons=[1,10,100].map(function(q){
+            return `<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRichJerksIdleV1__('${stat}',${q})"><b>+${H.idleEntier_((rj.pctPerLevel||10)*q)} %</b><small>×${q} · ${H.idleEntier_((rj.cost||30)*q)} EXP</small></button>`;
+          }).join('');
+          return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>${stat==='attack'?'🗡️ Attaque':'🛡️ Défense'} pour riches (Rich Jerks)</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>${H.idleEntier_(niveau||0)}</strong></div></div><div class="soreal-idle-exp-actions-v210">${boutons}</div></div>`;
+        }).join('');
+      }
+
       /* Wiki Experience, section Yggdrasil : activation automatique et gratuite ; cap Energy/Magic total >= 10x le coût d'activation. */
       function idleExpShopYggIdleV1_(items){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
@@ -582,11 +564,106 @@
         return '<div class="soreal-idle-exp-resource-v210">🌱 Yggdrasil : Auto-Activate</div>'+
           items.map(function(it){
             const fini=it.nextCost==null;
-            return '<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>'+H.idleHtml_(it.name)+'</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>'+H.formatGrandNombreIdleV70_(it.requiredCap||0)+' '+(it.resource==='magic'?'Magic':'Energy')+'</strong></div></div>'+
-              (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':'<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(it.id)+'\',1)"><b>Acheter</b><small>'+H.formatGrandNombreIdleV70_(it.nextCost)+' EXP</small></button></div>')+
+            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>${H.idleHtml_(it.name)}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>`+
+              (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':`<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',1)"><b>Acheter</b><small>${H.formatGrandNombreIdleV70_(it.nextCost)} EXP</small></button></div>`)+
               '</div>';
           }).join('');
       }
+
+      /* Achats de l'onglet Débuts encore abordables avec l'EXP actuelle (pastille sur l'onglet). */
+      function idleExpDebutsAbordablesIdleV1_(m,exp){
+        const tous=Array.isArray(m.expShop)?m.expShop:[];
+        return IDLE_EXP_DEBUTS_V1.filter(function(id){
+          const it=tous.find(function(x){return x.id===id;});
+          return it&&it.nextCost!=null&&it.nextCost<=exp;
+        }).length;
+      }
+
+      function idleExpShopContenuOngletIdleV1_(j,m,onglet){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const tous=Array.isArray(m.expShop)?m.expShop:[];
+        const parId=function(id){return tous.find(function(it){return it.id===id;});};
+        if(onglet==='debuts'){
+          const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(Boolean).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
+          return '<div class="soreal-idle-exp-intro-v212">🚀 <b>À acheter tôt.</b> Ces achats sont peu chers et rendent la partie bien plus confortable ; dans l’ordre conseillé.</div>'+cartes;
+        }
+        if(onglet==='energy'||onglet==='magic'||onglet==='r3'){
+          const magicSysteme=systemeMetaParIdIdleV130_(j,'bloodMagic');
+          const r3Systeme=systemeMetaParIdIdleV130_(j,'hacks');
+          const debloque=onglet==='energy'
+            ?Boolean(m.records&&H.idleNombre_(m.records.highestBoss)>=1)
+            :onglet==='magic'
+              ?Boolean(magicSysteme&&magicSysteme.state&&magicSysteme.state.unlocked)
+              :Boolean(r3Systeme&&r3Systeme.state&&r3Systeme.state.unlocked);
+          const titre=libelleRessourceMetaIdleV130_(onglet);
+          if(!debloque)return `<div class="soreal-idle-exp-lock-v210">🔒 ${H.idleHtml_(titre)} · verrouillé : il se débloque plus loin dans la partie.</div>`;
+          const x=(m.resources||{})[onglet]||{};
+          const couts=(m.resourcePurchases||{})[onglet]||{};
+          const verrous=(m.resourcePurchaseUnlock||{})[onglet]||{};
+          const newbie=m.newbieOffers||{};
+          const catalogue=((newbie.catalog||{})[onglet])||{};
+          const utilisees=Array.isArray(newbie.used)?newbie.used:[];
+          return IDLE_SPEND_EXP_STATS_V1.map(function(stat){
+            return idleExpShopStatBlocIdleV1_({id:onglet},stat,x,couts[stat.id],verrous[stat.id],catalogue,utilisees);
+          }).join('');
+        }
+        if(onglet==='aventure'){
+          return IDLE_EXP_STATS_AVENTURE_V1.map(parId).filter(Boolean).map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopRichJerksIdleV1_(m);
+        }
+        /* slots : tout le reste (hors Débuts et statistiques d'aventure), puis Yggdrasil */
+        const reste=tous.filter(function(it){
+          return !it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
+        });
+        return reste.map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit;}));
+      }
+
+      function pageSpendExpIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const m=j&&j.systemes?j.systemes:{};
+        const exp=H.idleEntier_((m.currencies&&m.currencies.experience)||0);
+        const onglet=idleExpOngletCourantV1_();
+        const abordables=idleExpDebutsAbordablesIdleV1_(m,exp);
+        const bleu='var(--nav-color,#0891b2)';
+        const fond1='color-mix(in srgb,'+bleu+' 60%,#0b1020)';
+        const fond2='color-mix(in srgb,'+bleu+' 38%,#1a2340)';
+        const css=[
+          `.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;margin:0 0 12px;border-radius:16px;background:linear-gradient(135deg,${fond1},${fond2});color:#fff;border:0;border-left:4px solid ${bleu};box-shadow:0 8px 24px color-mix(in srgb,${bleu} 35%,transparent)}`,
+          `.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900;letter-spacing:.02em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font-size:16px}`,
+          `.soreal-idle-exp-tabs-v212{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}`,
+          `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;padding:9px 12px;border-radius:12px;border:1px solid color-mix(in srgb,${bleu} 50%,transparent);background:${fond2};color:#e8f4f8;font-size:12px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,
+          `.soreal-idle-exp-tab-v212:hover{background:color-mix(in srgb,${bleu} 48%,#1a2340)}`,
+          `.soreal-idle-exp-tab-v212.actif{background:linear-gradient(135deg,${fond1},${bleu});border-color:#fff;color:#fff;box-shadow:0 4px 14px color-mix(in srgb,${bleu} 45%,transparent)}`,
+          `.soreal-idle-exp-pastille-v212{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#f5c451;color:#3a2a00;font-size:11px;font-weight:1000;display:inline-flex;align-items:center;justify-content:center}`,
+          `.soreal-idle-exp-intro-v212{margin:0 0 10px;padding:11px 13px;border-radius:12px;background:rgba(245,196,81,.13);border:1px solid rgba(245,196,81,.4);color:#f7e6b0;font-size:12px;line-height:1.5;font-weight:750}`,
+          `.soreal-idle-exp-resource-v210{margin:16px 0 8px;padding:10px 13px;border-radius:12px;background:${fond1};color:#fff;border-left:4px solid ${bleu};font-size:13px;font-weight:1000}`,
+          `.soreal-idle-exp-stat-v210{margin:8px 0;padding:14px;border-radius:15px;background:${fond2};color:#f2f8fb;border:1px solid color-mix(in srgb,${bleu} 45%,transparent);box-shadow:0 4px 13px rgba(0,0,0,.18)}`,
+          `.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff;font-size:14px;font-weight:1000}.soreal-idle-exp-stat-head-v210>span{min-width:0}`,
+          `.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:5px 8px;border-radius:9px;background:rgba(0,0,0,.24);color:#fff;border:1px solid rgba(255,255,255,.12)}.soreal-idle-exp-current-v211 small{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#b9d6e0;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:13px;color:#fff}`,
+          `.soreal-idle-exp-help-v210{margin:6px 0 12px;color:#b9d6e0;font-size:11px;line-height:1.5;font-weight:750}`,
+          `.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:7px}`,
+          `.soreal-idle-exp-buy-v210{appearance:none;min-height:48px;border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:8px 10px;background:${fond1};color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px}`,
+          `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 78%,#0b1020);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:10px;color:#cfe6ee !important;font-weight:800}`,
+          `.soreal-idle-exp-buy-v210.primary{background:${bleu};border-color:#fff}.soreal-idle-exp-buy-v210.primary:hover{background:color-mix(in srgb,${bleu} 80%,#fff)}.soreal-idle-exp-buy-v210.offer{background:rgba(245,196,81,.22);border-color:rgba(245,196,81,.6);color:#ffeeb5 !important}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#ffeeb5 !important}`,
+          `.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:7px;align-items:end;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.14)}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;font-weight:900;color:#b9d6e0}.soreal-idle-exp-custom-v210 input{min-width:0;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#fff;font-weight:800}`,
+          `.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:1px solid rgba(245,196,81,.32)}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#f7e6b0}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{color:#e9d9a3}`,
+          `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{background:rgba(52,199,89,.16);color:#a6f0bb;border-color:rgba(52,199,89,.35)}`,
+          `@media(max-width:560px){.soreal-idle-exp-stat-v210{padding:12px}.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:repeat(2,minmax(0,1fr))}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 .primary{grid-column:1/-1}.soreal-idle-exp-tab-v212{flex:1 1 calc(50% - 6px);justify-content:center}}`
+        ].join('');
+        const onglets=IDLE_EXP_ONGLETS_V1.map(function(o){
+          const actif=o.id===onglet;
+          const pastille=o.id==='debuts'&&abordables>0?`<span class="soreal-idle-exp-pastille-v212" title="Achats abordables">${abordables}</span>`:'';
+          return `<button type="button" class="soreal-idle-exp-tab-v212${actif?' actif':''}" aria-pressed="${actif}" onclick="window.__ongletExpShopIdleV1__('${o.id}')">${o.icone} ${o.nom}${pastille}</button>`;
+        }).join('');
+        return H.entetePageIdleV28_(
+          '✨ Boutique EXP',
+          'Utilise ton EXP pour améliorer durablement ta partie. Commence par l’onglet 🚀 Débuts.'
+        )+
+        '<style>'+css+'</style>'+
+        '<div class="soreal-idle-exp-balance-v210"><span>⭐ EXP disponible</span><b>'+H.formatGrandNombreIdleV70_(exp)+'</b></div>'+
+        '<div class="soreal-idle-exp-tabs-v212" role="tablist">'+onglets+'</div>'+
+        idleExpShopContenuOngletIdleV1_(j,m,onglet);
+      }
+
       function acheterExpShopIdleV1_(item,quantite){
         actionMetaIdleV130_({action:'buyExpShop',item:String(item),quantity:Math.max(1,Math.floor(Number(quantite))||1)});
       }

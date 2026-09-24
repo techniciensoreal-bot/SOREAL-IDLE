@@ -44,9 +44,14 @@ const snap = idleNguSnapshot(state, context, 2_000_000);
   assert.match(html, /15 ?000|15K|15,0/i, "récompense Evil du Basic Challenge (15 000 EXP)");
 }
 {
+  /* 2026-09-24 : Boutique EXP en onglets (un seul affiché à la fois ; « Débuts » par défaut). */
+  const debuts = api.pageSpendExpIdleV1_({ systemes: snap });
+  assert.match(debuts, /À acheter tôt/);
+  assert.match(debuts, /Filtre de butin basique/);
+  window.__ongletExpShopIdleV1__("aventure");
   const html = api.pageSpendExpIdleV1_({ systemes: snap });
-  assert.match(html, /Aventure et divers/);
   assert.match(html, /Rich Jerks/);
   assert.match(html, /buyExpShop|__acheterExpShopIdleV1__/);
+  window.__ongletExpShopIdleV1__("debuts");
 }
 console.log("idle-pages-render-2026-09-23 ok");

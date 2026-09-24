@@ -64,6 +64,7 @@ assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
 
 // Boutique EXP : section Auto-Activate séparée avec le cap requis.
 {
+  window.__ongletExpShopIdleV1__("slots");
   const shop = window.__SOREAL_IDLE_META_V130__.pageSpendExpIdleV1_({ systemes: idleNguSnapshot(state, ctx, T0) });
   const i = shop.indexOf("🌱 Yggdrasil : Auto-Activate");
   assert.ok(i > 0, "section dédiée");
