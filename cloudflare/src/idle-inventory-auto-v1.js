@@ -64,9 +64,16 @@
  *    Boost ; un objet sans plafond publié (Special inconnu) n'est pas une cible d'Auto Boost ;
  *  - un loadout dont un objet a disparu (fusionné, jeté, en garderie) laisse ce slot inchangé.
  *
- * Non modélisé : réglage « consommer ou non les boosts recyclés » (seul le comportement par défaut
- * documenté — ré-appliquer — existe), distinction en ligne / hors ligne du recyclage (ce moteur ne
- * distingue pas les deux), seconde arme (slot 6, absent de SOREAL).
+ * Réglage « consommer ou non les boosts recyclés » (2026-09-24) : « Build History 2018 », build .367
+ * (postérieur au .366 qui introduit la ré-application) : « Added setting to choose if Autoboost/
+ * A+clicking consumes recycled boosts or leaves them alone. » -> `consumeRecycled` (vrai par défaut =
+ * comportement du .366). Faux : un boost recyclé pendant un A + clic ou une passe d'Auto Boost reste
+ * dans le sac et n'est plus touché jusqu'à la fin de cette passe. Le wiki ne décrit aucun marqueur
+ * persistant : à la passe suivante c'est un boost ordinaire (aucun état inventé).
+ *
+ * Non modélisé : distinction en ligne / hors ligne du recyclage (page Boost : « does not affect [...]
+ * offline boost progress » ; ce moteur ne distingue pas les deux), seconde arme (slot 6, absent de
+ * SOREAL).
  *
  * Ce module n'importe rien d'idle-ngu-progression.js : les bonus lui sont passés déjà calculés
  * (`env`, construit par inventoryAutoEnvV1 dans idle-ngu-progression.js).
@@ -134,6 +141,8 @@ export function normalizeIdleInventoryAutoV1(raw) {
     /* Réglages de la page 2 des options : fusion / boost automatiques des slots d'automerge (actifs par défaut). */
     mergeSlotsMerge: src.mergeSlotsMerge === undefined ? true : Boolean(src.mergeSlotsMerge),
     mergeSlotsBoost: src.mergeSlotsBoost === undefined ? true : Boolean(src.mergeSlotsBoost),
+    /* Build .367 : A + clic / Auto Boost consomment (ré-appliquent) les boosts recyclés, ou les laissent. */
+    consumeRecycled: src.consumeRecycled === undefined ? true : Boolean(src.consumeRecycled),
     autoTransform: IDLE_BOOST_TYPES_V1.includes(src.autoTransform) ? src.autoTransform : "",
     mergeElapsed: Math.max(0, N(src.mergeElapsed, 0)),
     boostElapsed: Math.max(0, N(src.boostElapsed, 0)),
@@ -305,10 +314,26 @@ function boostInfoV1(s, id) {
   return { id: String(b.id), type: b.boostType, strength: N(b.strength, 0), slotIndex: slots.indexOf(String(b.id)) };
 }
 
-/* Boosts utilisables par A + clic / Auto Boost : ni protégés, ni rangés dans un slot d'automerge. */
-function usableBoostIdsV1(s) {
+/*
+ * Boosts utilisables par A + clic / Auto Boost : ni protégés, ni rangés dans un slot d'automerge, ni
+ * recyclés pendant la passe en cours quand le réglage « consumeRecycled » est coupé (`pass.skip`).
+ */
+function usableBoostIdsV1(s, pass) {
   const merge = new Set(mergeSlotIdsV1(s));
-  return bagItemsInOrderV1(s).filter((o) => o.kind === "boost" && !o.locked && !merge.has(String(o.id))).map((o) => String(o.id));
+  const skip = pass?.skip;
+  return bagItemsInOrderV1(s).filter((o) => o.kind === "boost" && !o.locked && !merge.has(String(o.id)) && !(skip && skip.has(String(o.id)))).map((o) => String(o.id));
+}
+
+/* État d'une passe A + clic / Auto Boost. */
+function boostPassV1(cfg) {
+  return { consume: cfg.consumeRecycled !== false, skip: new Set() };
+}
+
+/* Après un recyclage réussi : vrai si le boost doit être ré-appliqué tout de suite (réglage par défaut). */
+function reapplyRecycledV1(pass, id) {
+  if (!pass || pass.consume) return true;
+  pass.skip.add(String(id));
+  return false;
 }
 
 function roomV1(s, targetId, type) {
@@ -317,7 +342,7 @@ function roomV1(s, targetId, type) {
 }
 
 /* Applique chaque boost tant que la stat visée a de la marge ; un boost recyclé est ré-appliqué d'abord. */
-function boostTargetV1(s, targetId, boostIds, env, rng, stats) {
+function boostTargetV1(s, targetId, boostIds, env, rng, stats, pass) {
   const ctx = boostCtxV1(env);
   for (const id of boostIds) {
     for (;;) {
@@ -331,11 +356,12 @@ function boostTargetV1(s, targetId, boostIds, env, rng, stats) {
       stats.applied += 1;
       if (!idleInventoryRecycleBoostV1(s, info, env?.boostRecycleChance, rng)) break;
       stats.recycled += 1;
+      if (!reapplyRecycledV1(pass, id)) break;
     }
   }
 }
 
-function boostCubeV1(s, boostIds, env, rng, stats, recycle = true) {
+function boostCubeV1(s, boostIds, env, rng, stats, pass) {
   const ctx = boostCtxV1(env);
   for (const id of boostIds) {
     for (;;) {
@@ -347,8 +373,9 @@ function boostCubeV1(s, boostIds, env, rng, stats, recycle = true) {
         break;
       }
       stats.cube += 1;
-      if (!recycle || !idleInventoryRecycleBoostV1(s, info, env?.boostRecycleChance, rng)) break;
+      if (!idleInventoryRecycleBoostV1(s, info, env?.boostRecycleChance, rng)) break;
       stats.recycled += 1;
+      if (!reapplyRecycledV1(pass, id)) break;
     }
   }
 }
@@ -360,13 +387,14 @@ function targetFullyBoostedV1(s, targetId) {
 export function idleInventoryRunAutoBoostV1(s, env, rng = Math.random) {
   const cfg = cfgV1(s);
   const stats = { applied: 0, recycled: 0, cube: 0 };
+  const pass = boostPassV1(cfg);
   const targets = priorityTargetIdsV1(s, cfg.mergeSlotsBoost).filter((id) => {
     const o = s.inventory.find((x) => String(x.id) === id);
     return o && o.kind !== "boost";
   });
-  for (const t of targets) boostTargetV1(s, t, usableBoostIdsV1(s), env, rng, stats);
+  for (const t of targets) boostTargetV1(s, t, usableBoostIdsV1(s, pass), env, rng, stats, pass);
   /* Infinity Cube : « the cube being boosted if all other equipment is at maximum boost ». */
-  if (s.cube?.unlocked && targets.every((t) => targetFullyBoostedV1(s, t))) boostCubeV1(s, usableBoostIdsV1(s), env, rng, stats);
+  if (s.cube?.unlocked && targets.every((t) => targetFullyBoostedV1(s, t))) boostCubeV1(s, usableBoostIdsV1(s, pass), env, rng, stats, pass);
   if (stats.applied || stats.cube) {
     idleAdventureSyncInventorySlotsV1(s);
     bumpRevisionV1(s);
@@ -592,6 +620,7 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
     }
     if (payload.mergeSlotsMerge !== undefined) cfg.mergeSlotsMerge = out.mergeSlotsMerge = Boolean(payload.mergeSlotsMerge);
     if (payload.mergeSlotsBoost !== undefined) cfg.mergeSlotsBoost = out.mergeSlotsBoost = Boolean(payload.mergeSlotsBoost);
+    if (payload.consumeRecycled !== undefined) cfg.consumeRecycled = out.consumeRecycled = Boolean(payload.consumeRecycled);
     if (payload.autoTransform !== undefined) {
       const t = String(payload.autoTransform || "");
       if (t && !IDLE_BOOST_TYPES_V1.includes(t)) throw new Error("TYPE_BOOST_INVALIDE");
@@ -610,13 +639,14 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
   if (mode === "boostAll") {
     const target = String(payload.targetId || payload.itemId || "");
     const stats = { applied: 0, recycled: 0, cube: 0 };
+    const pass = boostPassV1(cfg);
     if (target === "cube") {
       if (!s.cube?.unlocked) throw new Error("CUBE_VERROUILLE");
-      boostCubeV1(s, usableBoostIdsV1(s), env, rng, stats);
+      boostCubeV1(s, usableBoostIdsV1(s, pass), env, rng, stats, pass);
     } else {
       const o = s.inventory.find((x) => String(x.id) === target);
       if (!o || o.kind === "boost") throw new Error("BOOST_INVALIDE");
-      boostTargetV1(s, target, usableBoostIdsV1(s), env, rng, stats);
+      boostTargetV1(s, target, usableBoostIdsV1(s, pass), env, rng, stats, pass);
     }
     if (stats.applied || stats.cube) { idleAdventureSyncInventorySlotsV1(s); bumpRevisionV1(s); }
     return stats;
@@ -677,6 +707,7 @@ export function idleInventoryAutoSnapshotV1(s, env) {
       autoBoost: cfg.autoBoost,
       mergeSlotsMerge: cfg.mergeSlotsMerge,
       mergeSlotsBoost: cfg.mergeSlotsBoost,
+      consumeRecycled: cfg.consumeRecycled,
       autoTransform: cfg.autoTransform
     },
     intervalSeconds: interval,
