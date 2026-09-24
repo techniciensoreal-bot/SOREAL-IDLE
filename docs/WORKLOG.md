@@ -1433,3 +1433,15 @@ Pages relues : Basic Training, Advanced Training, Augmentations, Broken Time Mac
 **Test** : `cloudflare/tests/deploy-workflow-hardening.test.mjs` (permissions, absence d'annulation hors commentaire, setup-node avant toute commande node/npx, ordre tests → build → dépendances vocales → déploiement → SHA vérifié → smoke réel). Rouge avant la correction, vert après. YAML validé avec js-yaml.
 
 **Non modifié** : actions non épinglées par SHA (`actions/checkout@v4`, `actions/setup-node@v4`) : risque de chaîne d'approvisionnement réel mais faible sur des actions officielles GitHub ; à traiter avec les trois dépôts en même temps si Norman le souhaite.
+
+## 2026-09-24 — Registre de couverture du wiki local (`docs/WIKI-COVERAGE.md`)
+
+Demande de Norman : confirmer que 100 % des données du wiki local sont dans le jeu, pour ne travailler ensuite que sur les manques. Trois outils dans `design/` (hors CI, ils lisent le miroir) : `wiki-number-coverage.mjs` (présence des nombres distinctifs de chaque page dans le code), `wiki-number-context.mjs` (contexte des absents), `wiki-boss-table-check.mjs` (table Boss Fights contre le moteur).
+
+**Résultat** : 79,5 % des nombres des pages de fonctionnalités, 95,9 % des ennemis, 89,9 % des zones existent comme littéraux dans le code ; la plupart des absents sont des valeurs calculées par des formules déjà implémentées (Advanced Training, facteur de temps de Rebirth, sorts Blood Magic, drop du Lonely Flubber vérifiés). **Ce n'est donc pas une preuve à 100 %**, seulement un détecteur de trous ; le registre distingue Calculé/Dérivé/Écart/À vérifier par page.
+
+**Écarts trouvés** :
+- **Boss Fights, boss 161 à 183** : le tableau du wiki est inférieur au moteur d'un facteur 100 puis 1 000, mais la fiche individuelle du boss 161 (`bf_power=1.984E+158`), celle du boss 181 (`1.984E+178`) et le HP Regen publié du boss 190 (3,052E+183) concordent avec le moteur : erreur du tableau, code inchangé. Boss 4 : valeur du vrai jeu conservée (déjà documenté).
+- **ITOPOD** : le moteur utilise des valeurs moyennes (PV 600, défense 10, sans le facteur aléatoire 0,8-1,2 ni la plage de PV 588-612 décrits par la page) : simplification connue, à décider.
+
+**Reste** : recalcul cellule par cellule des tables NGU, Cards, Boost, Augmentations, Hacks ; recontrôle du tableau des zones d'Adventure Mode ; décision ITOPOD. Voir la fin de `docs/WIKI-COVERAGE.md`.
