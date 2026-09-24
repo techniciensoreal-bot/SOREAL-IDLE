@@ -2309,6 +2309,8 @@
             'sorealIdleEnergieValeurV4'
           );
 
+        rafraichirEnergieGenereeIdleV1_();
+
         if(energieEl){
           energieEl.textContent=
             '(+'+
@@ -4323,6 +4325,30 @@
       }
 
 
+      /*
+       * 2026-09-24 (Norman : « au-dessus de la barre d'énergie, un compteur avec les mêmes chiffres que la barre verte, mais avec le total
+       * RÉELLEMENT GÉNÉRÉ et non le total actuel : ça permet de savoir combien il nous reste à partager ; avoir les deux informations est
+       * utile ») : barre verte = énergie disponible ; compteur = disponible + déjà placée (Basic Training et tous les autres systèmes).
+       */
+      function energieGenereeTotaleIdleV1_(){
+        if(!idleEtat)return 0;
+        return energieDisponibleIdleV9_()+
+          totalAllocationBasicTrainingIdleV120_()+
+          allocationMetaEnergieIdleV1_();
+      }
+
+      function texteEnergieGenereeIdleV1_(){
+        return '🔋 Généré : '+
+          formatEnergieIdleV50_(energieGenereeTotaleIdleV1_())+
+          ' / '+
+          idleEntier_(idleEtat&&idleEtat.energieMax);
+      }
+
+      function rafraichirEnergieGenereeIdleV1_(){
+        const el=document.getElementById('sorealIdleEnergieGenereeV1');
+        if(el&&idleEtat)el.textContent=texteEnergieGenereeIdleV1_();
+      }
+
       function rafraichirEnergieEtBoutonsIdleV9_(){
         if(!idleEtat){
           return;
@@ -4335,6 +4361,8 @@
           document.getElementById(
             'sorealIdleEnergieValeurV4'
           );
+
+        rafraichirEnergieGenereeIdleV1_();
 
         if(energieEl){
           energieEl.textContent =
@@ -12273,6 +12301,12 @@
               Tick : ${(dureeTickEnergieIdleV34_()/1000).toFixed(2)} s
               · +${idleEntier_(gainParTickEnergieIdleV34_())} ⚡
             </div>
+
+            <div
+              id="sorealIdleEnergieGenereeV1"
+              class="soreal-idle-energy-generated-v1"
+              title="Énergie déjà générée depuis le début du run : disponible (barre verte) + déjà placée"
+            >${texteEnergieGenereeIdleV1_()}</div>
 
             <div class="soreal-idle-energybar-wrap-v11">
               <div
