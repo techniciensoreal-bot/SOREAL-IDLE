@@ -14820,6 +14820,7 @@ let idleDialogueTimerV76=null;
             const target=trouver(payload.targetId);
             if(!target||target.kind==='boost')return false;
             const type=String(boost.boostType||'');
+            if(type==='special'&&target.kind!=='cube')return false;
             const q=1+Math.max(0,Math.min(100,idleNombre_(target.level)))/100;
             const cap=type==='power'
               ?idleNombre_(target.basePower)*q
@@ -17855,6 +17856,11 @@ function pageAventureIdleV28_(j){
         if(!boost||boost.kind!=='boost'||!cible||cible.kind==='boost')return;
 
         const type=String(boost.boostType||'');
+        /* 2026-09-24 (Norman) : un boost spécial ne remplit que les Specials du cube tuto/infini, jamais ceux d'un objet. */
+        if(type==='special'&&cible.kind!=='cube'){
+          toastIdleV5_('Un boost spécial ne peut remplir que le Cube : le boost n’est pas consommé.');
+          return;
+        }
         const q=1+Math.max(0,Math.min(100,idleNombre_(cible.level)))/100;
         let cap=0;
         let actuel=0;
@@ -18018,6 +18024,9 @@ function pageAventureIdleV28_(j){
           return 'equiper';
         }
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-260 */
+        if(source.kind==='boost'&&source.boostType==='special'&&occupant.kind!=='cube'){
+          return 'equiper';
+        }
         if(source.kind==='boost'&&(occupant.kind==='equipment'||occupant.kind==='special'||occupant.kind==='cube')){
           return 'booster';
         }

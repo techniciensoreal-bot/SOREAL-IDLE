@@ -2616,8 +2616,8 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
   if(!o||o.kind==="boost")return 0;
   const d=defById(o.definitionId);
   if(type==="special"){
-    const specialPiece=d?.kind==="set"&&Boolean(idleAdventureSetSpecialsV1(d.set,d.slot));
-    if(d?.kind!=="special"&&!specialPiece)return 0;
+    /* 2026-09-24 : seul le Tutorial Cube accepte un boost spécial (voir applyBoost). */
+    if(!idleAdventureSpecialBoostTargetV1(o))return 0;
     const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):idleAdventureBaseStatsV1(d.set,d.slot);
     const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
     return cap==null?Infinity:Math.max(0,cap-N(o.special));
@@ -3313,6 +3313,7 @@ function boostEffectivenessFactorV1(s){
   const completions=Math.min(39,I(s.setRewards.boostCompletions))*.02;
   return(1+completions)*(s.completedSets.badly?1.2:1)*(s.completedSets.construction?1.2:1);
 }
+function idleAdventureSpecialBoostTargetV1(o){return Boolean(o&&o.kind==="cube")}
 function applyBoost(s,boostId,targetId,ctx){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
   if(!b||b.kind!=="boost"||!o||o.kind==="boost")throw Error("BOOST_INVALIDE");
@@ -3328,11 +3329,12 @@ function applyBoost(s,boostId,targetId,ctx){
    * de ce type, laissant n'importe quelle arme/armure accumuler un
    * "special" sans aucune formule ni effet de jeu réel.
    */
-  if(type==="special"){
-    const cible=defById(o.definitionId);
-    const specialPiece=cible?.kind==="set"&&Boolean(idleAdventureSetSpecialsV1(cible.set,cible.slot));
-    if(cible?.kind!=="special"&&!specialPiece)throw Error("BOOST_SPECIAL_CIBLE_INVALIDE");
-  }
+  /*
+   * 2026-09-24 (Norman, vrai jeu) : « Les boosts spéciaux ne peuvent pas être utilisés pour remplir les statistiques spéciales des
+   * objets, mis à part le cube tuto/infini. » Seul le Tutorial Cube (kind "cube") accepte un boost spécial ici ; le Cube infini les
+   * reçoit par l'action « cube ». Équipement, accessoires et pièces de set à Special sont refusés.
+   */
+  if(type==="special"&&!idleAdventureSpecialBoostTargetV1(o))throw Error("BOOST_SPECIAL_CIBLE_INVALIDE");
   /*
    * V210 — un objet réellement terminé ne doit jamais avaler un boost
    * inutile. Avant ce garde, Math.min(cap, actuel+boost) gardait la même

@@ -177,12 +177,13 @@ assert.equal(idleInventoryMergeSlotCountV1({
   const anneau = addItem(s, "sewers:ring");
   equip(s, anneau.id, "accessory");
   const room = idleAdventureBoostRoomV1(s, anneau.id, "power");
-  assert.ok(room > 0 && room < 100 && idleAdventureBoostRoomV1(s, anneau.id, "special") > 0);
+  /* 2026-09-24 : les boosts spéciaux ne remplissent plus les Specials des objets (seul le cube tuto/infini les reçoit) : marge 0. */
+  assert.ok(room > 0 && room < 100 && idleAdventureBoostRoomV1(s, anneau.id, "special") === 0);
   addBoost(s, "toughness", 1000);
   addBoost(s, "power", 1000);
   const stats = idleInventoryRunAutoBoostV1(s, { boostRecycleChance: 0 }, never);
   assert.equal(stats.applied, 2);
-  assert.equal(stats.cube, 0, "pas de cube tant qu'une cible n'est pas au maximum (Special encore incomplet)");
+  assert.equal(stats.cube, 0, "plus aucun boost à donner au cube après la passe (les boosts spéciaux ne visent que le cube)");
   const w = s.inventory.find((x) => x.id === anneau.id);
   assert.ok(Math.abs(w.power - room) < 1e-9, "plafonné à la marge de la stat");
   assert.equal(idleAdventureBoostRoomV1(s, anneau.id, "power"), 0);
@@ -190,8 +191,8 @@ assert.equal(idleInventoryMergeSlotCountV1({
   addBoost(s, "power", 10);
   const avant = s.cube.power;
   const stats2 = idleInventoryRunAutoBoostV1(s, { boostRecycleChance: 0 }, never);
-  assert.equal(stats2.applied, 1);
-  assert.equal(stats2.cube, 1, "« the cube being boosted if all other equipment is at maximum boost »");
+  assert.equal(stats2.applied, 0, "2026-09-24 : le boost spécial ne va jamais sur l'équipement, et la puissance est déjà au plafond");
+  assert.equal(stats2.cube, 2, "« the cube being boosted if all other equipment is at maximum boost » : les deux boosts vont au cube");
   assert.ok(s.cube.power > avant);
 }
 

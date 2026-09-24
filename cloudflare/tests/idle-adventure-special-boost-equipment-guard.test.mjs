@@ -82,14 +82,16 @@ import {
   );
 }
 
-// 4) Une pièce de set qui a des Specials (Forest Set : Energy Power) accepte un Special Boost
+// 4) 2026-09-24 (Norman, vrai jeu) : « Les boosts spéciaux ne peuvent pas être utilisés pour remplir les statistiques spéciales des objets,
+//    mis à part le cube tuto/infini » : une pièce de set qui a des Specials (Forest Set : Energy Power) REFUSE désormais un Special Boost
+//    (avant le 2026-09-24 elle l'acceptait).
 {
   let s = normalizeIdleAdventureStateV47({});
   s.inventory = s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});
   s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 40 }, { bosses: 17 }, 1).state;
   const weaponId = s.inventory[0].id;
   s.inventory.push({ id: "bs", definitionId: "boost:special:1", name: "Boost special 1", kind: "boost", boostType: "special", strength: 1, level: 0 });
-  assert.doesNotThrow(() => applyIdleAdventureActionV47(s, { action: "boost", boostId: "bs", targetId: weaponId }, { bosses: 17 }, 1));
+  assert.throws(() => applyIdleAdventureActionV47(s, { action: "boost", boostId: "bs", targetId: weaponId }, { bosses: 17 }, 1), /BOOST_SPECIAL_CIBLE_INVALIDE/);
 }
 
 console.log("idle-adventure-special-boost-equipment-guard: OK");
