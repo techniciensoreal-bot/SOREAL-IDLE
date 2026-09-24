@@ -5675,7 +5675,14 @@ function crediterRecompensesAventure(state, avant) {
   appliquerConsommablesSetsAventureV1(state);
   const p = state.adventure?.permanent || {};
   const gain = (cle) => Math.max(0, num(p[cle], 0) - num(avant[cle], 0));
-  state.currencies.experience += gain("experience");
+  /*
+   * 2026-09-24 (audit, page Yggdrasil, Nerdy Formulas) : « EXPBonus is bonus applied to all experience
+   * gain (This can be found in Stat Breakdowns) : NGU EXP x (1 + RedHeart) x Fibonacci 987 x Digger EXP x
+   * Hacks EXP x Wish 61 x Cooking EXP ». L'EXP de l'aventure (drops de boss de zone, titans, bonus de
+   * complétion d'objets) était créditée brute ; seuls les boss de Fight Boss, l'ITOPOD, le Money Pit et
+   * le Fruit of Knowledge recevaient ce bonus.
+   */
+  state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
   state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier * heartApMultiplierV1(state);
@@ -5915,6 +5922,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         cubeBoostRate: Math.max(0.01, num(perkBonusesV1(state.systems.perks?.data?.levels).cubeBoostRate, 0.01)),
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
+        titanExpBonusKills:3*Math.max(0,Math.round((perkBonusesV1(state.systems.perks?.data?.levels).titanExpFirstKillsMultiplier-1)/0.5)),
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
         titanCooldownReductionSadisticMs:challengePermanentBonuses(state).titanRespawnReductionSadisticMs,
@@ -6304,6 +6312,9 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
     }
   }
+
+  /* « Bonus Titan EXP! » : le compteur des premières morts de chaque titan repart à zéro à chaque Rebirth. */
+  for(const tt of Object.values(state.adventure?.titans||{}))if(tt&&typeof tt==="object")tt.killsThisRebirth=0;
 
   // Gold and Blood are run currencies in NGU. Permanent currencies survive.
   state.currencies.gold=0;
