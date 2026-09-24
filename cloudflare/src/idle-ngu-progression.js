@@ -6232,6 +6232,13 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
   } else if (action === "allocateAugment") {
     setAugmentAllocationV214_(state,String(payload.pair||"scissors"),Boolean(payload.upgrade),num(payload.value,0),context);
+  } else if (action === "clearAugmentAllocations") {
+    /* « Tout retirer » (2026-09-24) : rend toute l'énergie placée dans les Augments et leurs Upgrades. */
+    if (!state.systems.augmentations?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    for (const [pairId, p] of Object.entries(state.systems.augmentations.data.pairs || {})) {
+      if (Math.max(0, num(p.energy, 0)) > 0) setAugmentAllocationV214_(state, pairId, false, 0, context);
+      if (Math.max(0, num(p.upgradeEnergy, 0)) > 0) setAugmentAllocationV214_(state, pairId, true, 0, context);
+    }
   } else if (action === "selectTrack") {
     if (String(payload.system || "") === "ngu") throw new Error("UTILISER_ALLOCATE_NGU");
     selectTrack(state, String(payload.system || ""), String(payload.track || ""));

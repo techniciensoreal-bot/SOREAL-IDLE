@@ -1156,6 +1156,42 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(label)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(current)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(max)+'</span></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+targets.map(function(value,index){const names=['0%','25%','50%','100%'];return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'allocate\',system:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(systemId)+'\',resource:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(resource)+'\',value:'+value+'})">'+names[index]+'</button>';}).join('')+'</div></div>';
       }
 
+      /*
+       * 2026-09-24 (Norman : « Augmentation ne fonctionne pas comme dans NGU IDLE. Il me semble qu'il y avait des + pour pouvoir y
+       * placer de l'énergie comme pour Basic Training. Là, si je clique sur 50 %, ça me retire l'énergie de Basic Training… »).
+       * Les boutons 0 / 25 / 50 / 100 % visaient un montant ABSOLU (une fraction du Cap) : « 50 % » d'un Cap de 500 prenait d'un coup
+       * les 250 unités libres, donc l'énergie Idle de Basic Training tombait à 0. Comme Basic Training : « + » / « − » placent ou
+       * retirent la valeur du champ Input (le serveur borne à l'énergie libre), « Max » place toute l'énergie libre, « Tout retirer »
+       * rend tout.
+       */
+      let montantAugmentIdleV1=125;
+      function montantAugmentLireIdleV1_(){
+        const el=document.getElementById('sorealIdleAugInputV1');
+        const n=Math.floor(Number(el&&el.value));
+        if(Number.isFinite(n)&&n>=1)montantAugmentIdleV1=n;
+        return montantAugmentIdleV1;
+      }
+      window.__saisirMontantAugmentIdleV1__=function(v){
+        const n=Math.floor(Number(v));
+        if(Number.isFinite(n)&&n>=1)montantAugmentIdleV1=n;
+      };
+      function ajusterAugmentIdleV1_(pairId,upgrade,mode){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'augmentations');
+        const pair=((s&&s.state&&s.state.data&&s.state.data.pairs)||{})[pairId]||{};
+        const current=Math.max(0,H.idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
+        const pas=montantAugmentLireIdleV1_();
+        const cap=Math.max(0,H.idleNombre_(j&&j.systemes&&j.systemes.resources&&j.systemes.resources.energy&&j.systemes.resources.energy.cap));
+        const value=mode==='plus'
+          ?current+pas
+          :mode==='moins'
+            ?Math.max(0,current-pas)
+            :Math.max(cap,current);
+        window.__actionMetaV47__({action:'allocateAugment',pair:pairId,upgrade:Boolean(upgrade),value:value});
+      }
+      window.__ajusterAugmentIdleV1__=ajusterAugmentIdleV1_;
+
       function pageAugmentationsIdleV48_(j){
         const sys=systemeMetaParIdIdleV130_(j,'augmentations');
         if(!sys||!sys.state||!sys.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
@@ -1171,11 +1207,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const pct=Math.max(0,Math.min(100,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'Upgrade':'Augment';
-          const values=[0,Math.floor(cap*.25),Math.floor(cap*.5),cap];
-          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+values.map(function(v,i){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__actionMetaV47__({action:\'allocateAugment\',pair:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\',upgrade:'+upgrade+',value:'+v+'})"':'disabled')+'>'+['0%','25%','50%','100%'][i]+'</button>';}).join('')+'</div></div>';
+          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+[['moins','−'],['plus','+'],['max','Max']].map(function(b){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Chaque Augment et chaque Upgrade possède sa propre allocation Energy et progresse en parallèle. Les niveaux sont remis à zéro au Rebirth.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+
+          '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="number" inputmode="numeric" min="1" step="1" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡ · + / − placent ou retirent la valeur de Input ; Max place toute l\'énergie libre.</div><div class="soreal-idle-bt-presets-v120"><button type="button" class="clear" onclick="window.__actionMetaV47__({action:\'clearAugmentAllocations\'})">Tout retirer</button></div></div>'+
           '<div style="display:grid;gap:10px;margin-top:10px">'+defs.map(function(def){const pair=pairs[def.id]||{};const mainOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(mainOk?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(def.upgrade?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+track(def,pair,true,upgradeOk)+'</div>';}).join('')+'</div>';
       }
 
