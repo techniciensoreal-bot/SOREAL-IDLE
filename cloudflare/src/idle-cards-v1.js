@@ -642,8 +642,9 @@ export function idleCardsMultiplierV1(state, typeId) {
  * Appliqué au résultat d'idleNguBonuses (un seul point d'entrée) :
  * A/D -> attaque et défense ; ADV -> stats d'aventure (mêmes trois champs que
  * les perks adventureStatsPct) ; DROPS ; GOLD ; PP ; DAYCARE ; HACKS ; WISHES
- * (affichage — advanceWishTrack applique sa propre copie). QP : exposé pour
- * Questing (cardsQpGainMultiplier), aucune source de QP de quête ici.
+ * (affichage — advanceWishTrack applique sa propre copie). QP : exposé
+ * (cardsQpGainMultiplier) et lu par la récompense des quêtes depuis le
+ * 2026-09-24 (questingEnvV1 -> idleQuestRewardV1, env.qpCardMultiplier).
  */
 export function idleCardsApplyToBonusesV1(state, bonuses) {
   const m = idleCardsMultipliersV1(state);
