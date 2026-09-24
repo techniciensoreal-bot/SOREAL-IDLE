@@ -41,6 +41,66 @@
           })
           .estAdminSorealIdle(SOREAL_SESSION);
       }
+      /*
+       * 2026-09-24 (Norman, développement uniquement) : deux parties, « A » (réelle, jamais réinitialisée) et « B » (réinitialisable,
+       * pour comparer à NGU IDLE). Le serveur dit si le sélecteur existe (compte administrateur + fonction active) et quelle partie
+       * la session joue ; changer de partie recharge la page (le jeton de session reste dans sessionStorage).
+       */
+      let idlePartieDevV1=null;
+      function rafraichirPartieDevIdleV1_(){
+        if(idlePartieDevV1!==null||!SOREAL_SESSION)return;
+        idlePartieDevV1={actif:false,partie:'a',charge:false};
+        google.script.run
+          .withSuccessHandler(function(res){
+            const avant=JSON.stringify(idlePartieDevV1);
+            idlePartieDevV1={
+              actif:Boolean(res&&res.ok&&res.actif),
+              partie:String(res&&res.partie||'a')==='b'?'b':'a',
+              charge:true
+            };
+            if(JSON.stringify(idlePartieDevV1)!==avant&&idleEtat){
+              rendreIdleEtat_({ok:true,joueur:idleEtat});
+            }
+          })
+          .withFailureHandler(function(){})
+          .obtenirPartieDevSorealIdle(SOREAL_SESSION);
+      }
+      function changerPartieDevIdleV1_(partie){
+        const cible=String(partie)==='b'?'b':'a';
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||idlePartieDevV1.partie===cible)return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){
+              location.reload();
+            }else{
+              toastIdleV5_('Impossible de changer de partie.');
+            }
+          })
+          .withFailureHandler(function(){
+            toastIdleV5_('Impossible de changer de partie.');
+          })
+          .definirPartieDevSorealIdle(SOREAL_SESSION,cible);
+      }
+      window.__changerPartieDevIdleV1__=changerPartieDevIdleV1_;
+      function rendrePartiesDevIdleV1_(){
+        const p=idlePartieDevV1;
+        if(!p||!p.actif)return '';
+        function bouton(cle,titre,detail){
+          const active=p.partie===cle;
+          return '<button type="button" class="soreal-idle-parties-dev-bouton-v1'+(active?' actif':'')+'" '+
+            (active?'disabled aria-pressed="true" ':'aria-pressed="false" onclick="window.__changerPartieDevIdleV1__(\''+cle+'\')" ')+'>'+
+            '<b>'+titre+'</b><span>'+detail+'</span></button>';
+        }
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🛠️ Développement — Parties</div>'+
+          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Uniquement pendant le développement. Deux parties indépendantes : la <b>A</b> est ta vraie partie (à ne jamais réinitialiser), la <b>B</b> se réinitialise à volonté pour comparer avec NGU IDLE. Le bouton de réinitialisation ci-dessous ne concerne que la partie active.</div>'+
+          '<div class="soreal-idle-parties-dev-v1">'+
+            bouton('a','Partie A','Ta vraie partie')+
+            bouton('b','Partie B','Comparaison NGU IDLE')+
+          '</div>'+
+          '<div style="font-size:12px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
+        '</div>';
+      }
       let idleTimerSession=null;
       let idleTimerEnergie=null;
       let idleAnimationFrameJeuV214=0;
@@ -19653,6 +19713,7 @@ function pageAventureIdleV28_(j){
           '⚙️ Settings',
           ''
         )+
+          rendrePartiesDevIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31 soreal-idle-info-titre-v1" '+
               'onclick="window.__toggleInfoOuvertIdleV1__()" '+
@@ -20594,6 +20655,15 @@ function pageAventureIdleV28_(j){
         }catch(e){
           console.error(
             'SOREAL IDLE post-render admin :',
+            e
+          );
+        }
+
+        try{
+          rafraichirPartieDevIdleV1_();
+        }catch(e){
+          console.error(
+            'SOREAL IDLE post-render parties dev :',
             e
           );
         }

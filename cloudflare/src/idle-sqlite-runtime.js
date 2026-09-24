@@ -26,6 +26,7 @@ import {
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
+import { idleDevSlotForUserV1, idleDevUserForSlotV1, idleDevAliasEmailV1 } from "./idle-dev-save-slots-v1.js";
 import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import {
   IDLE_ADVENTURE_ZONES,
@@ -2100,6 +2101,17 @@ function trouverLigneJoueurSorealIdle_(
   feuille,
   acces
 ) {
+  /*
+   * 2026-09-24 (développement uniquement) : partie « B » de Norman = autre ligne JOUEURS, retrouvée par une adresse alias
+   * (voir idle-dev-save-slots-v1.js). La partie « A » garde l'identité réelle, donc la ligne historique.
+   */
+  if (idleDevSlotForUserV1(acces && acces.user) === 'b') {
+    acces = Object.assign({}, acces, {
+      user: idleDevUserForSlotV1(acces.user, 'b'),
+      emailAutorise: idleDevAliasEmailV1(acces.emailAutorise, 'b')
+    });
+  }
+
   assurerColonnesIdentiteSorealIdle_(
     feuille
   );

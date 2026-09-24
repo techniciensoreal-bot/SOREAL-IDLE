@@ -1,5 +1,6 @@
 import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames } from "./idle-sqlite-runtime.js";
+import { idleDevSlotsAvailableV1, idleDevSlotForUserV1, idleDevNormalizeSlotV1 } from "./idle-dev-save-slots-v1.js";
 
 /*
  * SOREAL — Idle Coordinator (Durable Object dédié, 2026-09-09).
@@ -227,11 +228,38 @@ export class SorealIdleCoordinatorV1 {
       error.code = session.error;
       throw error;
     }
+    const operation = sv(payload?.operation);
+    const args = Array.isArray(payload?.args) ? payload.args : [];
+
+    /*
+     * 2026-09-24 (développement uniquement) : deux parties pour Norman (voir idle-dev-save-slots-v1.js). Le choix est porté par la
+     * session (idle_sessions.user_json.slot) et n'est honoré que si la fonction est active ET que le compte est l'administrateur :
+     * `enabled:false` dans le module ramène toutes les sessions sur la partie A sans autre nettoyage.
+     */
+    if (operation === "obtenirPartieDevSorealIdle") {
+      return { ok: true, actif: idleDevSlotsAvailableV1(session.user), partie: idleDevSlotForUserV1(session.user) };
+    }
+    if (operation === "definirPartieDevSorealIdle") {
+      if (!idleDevSlotsAvailableV1(session.user)) {
+        const error = new Error("PARTIES_DEV_INDISPONIBLES");
+        error.code = "PARTIES_DEV_INDISPONIBLES";
+        throw error;
+      }
+      const partie = idleDevNormalizeSlotV1(args.find(value => typeof value === "string" && /^[abAB]$/.test(value.trim())));
+      const user = Object.assign({}, session.user, { slot: partie });
+      this.sql.exec(
+        "UPDATE idle_sessions SET user_json=? WHERE session_token=?",
+        JSON.stringify(user),
+        sv(payload?.sessionToken)
+      );
+      return { ok: true, actif: true, partie };
+    }
+
     return runSorealIdleOperation(
       this.sql,
-      sv(payload?.operation),
-      Array.isArray(payload?.args) ? payload.args : [],
-      session.user
+      operation,
+      args,
+      Object.assign({}, session.user, { slot: idleDevSlotForUserV1(session.user) })
     );
   }
 
