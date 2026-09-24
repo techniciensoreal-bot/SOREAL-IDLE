@@ -7,7 +7,8 @@ import {
   idleAdventureBoostV1,
   idleAdventureAddItemV1,
   idleAdventureSpecialItemV1,
-  idleAdventureCubeTierV1
+  idleAdventureCubeTierV1,
+  IDLE_ADVENTURE_SPECIALS
 } from "./idle-adventure-v47.js";
 import {
   idleHeartV1,
@@ -1291,6 +1292,11 @@ function baseState(now) {
       setsCompleted: 0,
       totalRebirths: 0,
       highestGoldDrop: 0,
+      // « Sneaky Secret about Rebirthing » (2026-09-24) : Rebirths rapides consécutifs, 1 si réclamé.
+      speedrunStreak: 0,
+      speedrunSecretClaimed: 0,
+      // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
+      moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
       // vidé par applyRebirthResetV56_, exactement comme les autres champs
       // de records ci-dessus (highestBoss, totalRebirths...).
@@ -5080,6 +5086,54 @@ function moneyPitTierV48_(gold) {
   return tier;
 }
 
+/*
+ * Money Pit, « One-Time Bonuses » (2026-09-24, audit des pages-guides : la FAQ les cite, rien
+ * ne les versait). Seuils sur l'or TOTAL jeté (« sum over many tosses »), une fois chacun :
+ *  - 1E8  : +100 Max Health et +1 Health Regen d'Aventure (page Money Pit + FAQ « 100M+ gold :
+ *           +100 Max HP, +1 HP Regen ») ;
+ *  - 1E10 : +1 Energy Bar et +1 Magic Bar (pages Money Pit, Energy et Magic ; la FAQ, plus
+ *           ancienne, disait 1B) ;
+ *  - 1E11 : Looty McLootFace (page Money Pit, FAQ « ~100b? lootymclootyface ») ; niveau non
+ *           publié -> niveau de drop du catalogue (0). Non marqué versé tant que le sac est plein ;
+ *  - 1E12 : +100 EXP (page Money Pit).
+ * Non versé : le « +10 Power, +10 Toughness » du palier 1E8 (page Money Pit) que la FAQ donne
+ * à « +1 Adventure attack and defense » : sources contradictoires, laissé en suspens.
+ */
+const MONEY_PIT_ONE_TIME_BONUSES_V1 = Object.freeze([
+  Object.freeze({ bit: 1, gold: 1e8, adventureHp: 100, adventureRegen: 1 }),
+  Object.freeze({ bit: 2, gold: 1e10, energyBars: 1, magicBars: 1 }),
+  Object.freeze({ bit: 4, gold: 1e11, item: "lootyMcLootFace" }),
+  Object.freeze({ bit: 8, gold: 1e12, experience: 100 })
+]);
+
+function applyMoneyPitOneTimeBonusesV1(state) {
+  const total = Math.max(0, num(state.systems.moneyPit?.data?.totalGoldTossed, 0));
+  let mask = Math.max(0, int(state.records.moneyPitOneTimeMask, 0));
+  const out = [];
+  const adv = state.adventure && typeof state.adventure === "object" ? state.adventure : null;
+  const permanent = adv ? (adv.permanent = adv.permanent && typeof adv.permanent === "object" ? adv.permanent : {}) : null;
+  for (const b of MONEY_PIT_ONE_TIME_BONUSES_V1) {
+    if (total < b.gold || (mask & b.bit)) continue;
+    if (b.item) {
+      if (!adv) continue;
+      const def = IDLE_ADVENTURE_SPECIALS[b.item];
+      const livre = idleAdventureAddItemV1(adv, idleAdventureSpecialItemV1(b.item, int(def?.dropLevel, 0)));
+      if (!livre) continue;
+    } else if (!permanent) {
+      continue;
+    }
+    if (b.adventureHp) permanent.adventureHp = Math.max(0, num(permanent.adventureHp, 0)) + b.adventureHp;
+    if (b.adventureRegen) permanent.adventureRegen = Math.max(0, num(permanent.adventureRegen, 0)) + b.adventureRegen;
+    if (b.energyBars) permanent.energyBarsFlat = Math.max(0, num(permanent.energyBarsFlat, 0)) + b.energyBars;
+    if (b.magicBars) permanent.magicBarsFlat = Math.max(0, num(permanent.magicBarsFlat, 0)) + b.magicBars;
+    if (b.experience) state.currencies.experience = Math.max(0, num(state.currencies.experience, 0)) + b.experience;
+    mask |= b.bit;
+    out.push(b.gold);
+  }
+  state.records.moneyPitOneTimeMask = mask;
+  return out;
+}
+
 function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -5204,6 +5258,8 @@ function tossMoneyPit(state, now) {
   // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
   reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
 
+  const oneTime = applyMoneyPitOneTimeBonusesV1(state);
+
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
       state.currencies[k] += v;
@@ -5219,6 +5275,8 @@ function tossMoneyPit(state, now) {
     cooldownHours,
     nextAt:s.data.nextAt
   };
+  // Seuils d'or total des One-Time Bonuses versés par ce jet (hors `reward`, qui ne décrit que le tirage).
+  if (oneTime.length) resultat.oneTime = oneTime;
 
   const historique=Array.isArray(s.data.history)?s.data.history:[];
   historique.unshift({
@@ -5985,6 +6043,29 @@ function applyNaturalEnergyCapGrowthOnRebirth(state){
   return gain;
 }
 
+/*
+ * « Sneaky Secret about Rebirthing » (2026-09-24, audit des pages-guides). Page Rebirths :
+ * « Rebirthing 3 times in a row (each under 30 minutes long and each defeating boss 37+)
+ * Rewards the player with a special, one-time bonus of: 200 EXP, 1 Energy Power » ; mêmes
+ * chiffres sur Tips N' Tricks (achievement 148), Energy (« gives 1 Energy Power »), New Player
+ * Guide (Truth) et FAQ (« 200 exp »). Une Rebirth qui ne remplit pas les deux conditions remet
+ * la série à zéro. L'Energy Power va dans le même bonus « base » que le +5 du Forest (set).
+ */
+function applySpeedrunSecretOnRebirthV1(state,runSeconds,context){
+  const rec=state.records;
+  const rapide=runSeconds<1800&&Math.max(0,int(context.bosses,0))>=37;
+  rec.speedrunStreak=rapide?Math.max(0,int(rec.speedrunStreak,0))+1:0;
+  if(rec.speedrunStreak<3||num(rec.speedrunSecretClaimed,0)>=1)return false;
+  rec.speedrunSecretClaimed=1;
+  state.currencies.experience=Math.max(0,num(state.currencies.experience,0))+200;
+  const adv=state.adventure&&typeof state.adventure==="object"?state.adventure:null;
+  if(adv){
+    adv.permanent=adv.permanent&&typeof adv.permanent==="object"?adv.permanent:{};
+    adv.permanent.energyPowerFlat=Math.max(0,num(adv.permanent.energyPowerFlat,0))+1;
+  }
+  return true;
+}
+
 function applyRebirthResetV56_(state,context,t,options={}) {
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
   const rb=refreshRebirthState(state,context,t);
@@ -5999,6 +6080,8 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   if(!options.challengeId&&runSeconds>=3600){
     state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier*heartApMultiplierV1(state);
   }
+
+  applySpeedrunSecretOnRebirthV1(state,runSeconds,context);
 
   rb.lastNumber=rb.number;
   rb.number=committedNumber;
