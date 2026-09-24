@@ -1,5 +1,21 @@
 # WORKLOG — SOREAL-IDLE
 
+## ÉTAT COURANT
+
+*(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
+
+- **Tâche courante** : fiabilisation du pipeline de production (audit trois dépôts, étape IDLE). Fait : contrôle des dépendances vocales réelles avant déploiement, durcissement du workflow. Suite : mesurer le coût réel de `__idleBuildWorkbook(sql)`, puis fidélité NGU (points ambigus ci-dessous).
+- **SHA `main` vérifié** : `ff5fcec489e9c7e42e5aa525c3478270c41bbd40` (`origin/main` relu par `git fetch` avant le push ; base précédente `7c05a87`).
+- **Derniers commits du chantier** : `ff5fcec` (Node épinglé, droits minimaux, plus d'annulation d'un run en cours), `3db7b2a` (dépendances vocales réelles contrôlées avant le déploiement).
+- **Tests** : 288 fichiers `cloudflare/tests/*.test.mjs`, tous verts en local (Node 24) et dans la CI.
+- **Build** : `node cloudflare/build-standalone.mjs` + `node --check` des modules et de l'UI : vert dans la CI.
+- **CI** : run #571 (`ff5fcec`) terminé avec succès, chaque étape en succès : Setup Node, tests, build, Verify voice runtime dependencies, Deploy, Verify deployed Git SHA, smoke Chromium Piper.
+- **SHA réellement déployé** : `git:ff5fcec489e9c7e42e5aa525c3478270c41bbd40` (étape « Verify deployed Git SHA » : annotation `workers/message` égale au SHA attendu, version active à 100 %). Version ID Cloudflare non relevé ici (pas d'identifiants Cloudflare sur le poste de travail) ; le site sert `soreal-idle-ui.js?v=236`.
+- **Dernière anomalie** : aucune dans ce chantier. Historique : l'étape « Verify local neural dependencies » contrôlait un ancien pipeline vocal (corrigée en `3db7b2a`).
+- **Vérifications effectuées** : test rouge avant / vert après pour les deux commits ; contrôle vocal exécuté contre le vrai réseau (SRI, ONNX Runtime, modèle Tom) ; YAML validé (js-yaml).
+- **Problèmes ouverts, volontairement non traités** : diviseur 1E30 Evil/Sadistic (sens ambigu, impact d'équilibrage colossal) ; facteur temps du NGU Number, Rich Perks III/IV par difficulté, perks Iron Pill, Gold Multiplier de la Time Machine, paliers 12-16 du Money Pit, bonus 1E8 du Money Pit (+1 ou +10), AutoKill des titans, THE END, énigmes Beast/Exile/Death Note/GLOP, Effectiveness des objets : aucune source fiable, pas d'invention. Auto-hébergement du modèle Tom sur R2 : décision à prendre avec Norman. Actions GitHub non épinglées par SHA.
+- **Prochaine action exacte** : mesurer par instrumentation la fréquence et la durée de `__idleBuildWorkbook(sql)` sur un Durable Object réel de test (sans modifier le comportement), puis décider d'une optimisation compatible avec le modèle de synchronisation.
+
 /*
  * 2026-09-23 (audit) : ce fichier est un journal chronologique
  * append-only (les sections les plus RÉCENTES sont en BAS du fichier,
