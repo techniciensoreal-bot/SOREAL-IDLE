@@ -1616,6 +1616,16 @@ const SETS_OBJETS_V1=Object.freeze({
    */
   normalBonusAccs:{name:"Normal Bonus Accs Set",items:["tubaTime","cheeseGrater","skyBall","magicite","windupGear","sinusoidalWave","ghostTypewriter","gaudyShoulders","fTank","beardComb","randomCrayons","redLipstick","candyCornNecklace"],reward:{drop:.25}},
   /*
+   * "Evil Bonus Accs (Set)" (audit des objets, 2026-09-24) : les 8 accessoires propres aux
+   * zones Evil (ids 445 à 452, "Total Power 378 792 000"), chacun au niveau 100 ; "Bonus for
+   * Completion: +20% Adventure stats!". Pont setRewards.adventureStatsPct, lu comme facteur
+   * d'Adventure stats par idle-ngu-progression.js (même famille que les perks, quirks et
+   * souhaits "Adventure stats", combinés par produit comme eux). Le wiki ne dit pas si ce +20 %
+   * s'additionne aux autres sources ou les multiplie : convention du moteur (un facteur par
+   * source) conservée.
+   */
+  evilBonusAccs:{name:"Evil Bonus Accs Set",items:["edgyMagicite","creepyDoll","theExponential","rushmoreNose","throOdignslug","linkCable","handCursor","radMixtape"],reward:{adventureStatsPct:.20}},
+  /*
    * "Number (set)" : un seul objet (A Number) ; fiche "A Number" : "Merging
    * 'A Number' to level 100, will give you a permanent completion bonus of:
    * +10% NGU speed!" -- même setRewards.nguSpeedPct que Meta/Back To School.

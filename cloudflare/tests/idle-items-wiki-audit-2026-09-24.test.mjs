@@ -6,8 +6,10 @@ import {
   idleAdventureItemBaseValueV1,
   IDLE_ADVENTURE_ITEM_CATALOG_V1,
   IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1,
-  IDLE_ADVENTURE_SPECIALS
+  IDLE_ADVENTURE_SPECIALS,
+  IDLE_ADVENTURE_ITEM_SETS_V1
 } from "../src/idle-adventure-v47.js";
+import { normalizeIdleNguState, idleNguBonuses } from "../src/idle-ngu-progression.js";
 
 /*
  * Audit des objets du 2026-09-24 (script : 431 modèles "Template:Item data" du
@@ -99,6 +101,31 @@ import {
   t = applyIdleAdventureActionV47(t, { action: "addItem", definitionId: "glitchyLooty", level: 100 }, {}, 1).state;
   const gl = t.inventory.find((o) => o.definitionId === "glitchyLooty");
   assert.throws(() => applyIdleAdventureActionV47(t, { action: "transformAdventureItem", id: gl.id }, {}, 1), /TRANSFORMATION_INVALIDE/);
+}
+// --- 3. Evil Bonus Accs (Set) : +20 % Adventure stats (page "Evil Bonus Accs (Set)") ---
+{
+  const set = IDLE_ADVENTURE_ITEM_SETS_V1.evilBonusAccs;
+  assert.ok(set, "le set Evil Bonus Accs existe");
+  assert.deepEqual(set.items.map((d) => IDLE_ADVENTURE_ITEM_CATALOG_V1[d].wikiItemId), [445, 446, 447, 448, 449, 450, 451, 452]);
+  // "Total Power 378 792 000 / Total Toughness 378 792 000" = 2 x la somme des maxima du niveau 0.
+  const somme = (k) => set.items.reduce((a, d) => a + IDLE_ADVENTURE_ITEM_CATALOG_V1[d][k], 0);
+  assert.equal(somme("basePower") * 2, 378792000);
+  assert.equal(somme("baseToughness") * 2, 378792000);
+  assert.deepEqual(set.reward, { adventureStatsPct: 0.2 });
+  // Complétion : les 8 accessoires au niveau 100.
+  let s = createIdleAdventureStateV47();
+  for (const d of set.items.slice(0, 7)) s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: d, level: 100 }, {}, 1).state;
+  assert.ok(!s.completedSets.evilBonusAccs && !s.setRewards.adventureStatsPct, "7 sur 8 : pas de bonus");
+  s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: set.items[7], level: 100 }, {}, 1).state;
+  assert.ok(s.completedSets.evilBonusAccs, "8 sur 8 : set complété");
+  assert.equal(s.setRewards.adventureStatsPct, 0.2);
+  // Effet : facteur d'Adventure stats du moteur de progression.
+  const avant = normalizeIdleNguState({}, { bosses: 100 }, 0);
+  const apres = normalizeIdleNguState({}, { bosses: 100 }, 0);
+  apres.adventure = { ...(apres.adventure || {}), setRewards: { adventureStatsPct: 0.2 } };
+  const b0 = idleNguBonuses(avant), b1 = idleNguBonuses(apres);
+  assert.ok(Math.abs(b1.adventurePowerMultiplier / b0.adventurePowerMultiplier - 1.2) < 1e-9, "x1,2 sur la Power d'aventure");
+  assert.ok(Math.abs(b1.adventureToughnessMultiplier / b0.adventureToughnessMultiplier - 1.2) < 1e-9, "x1,2 sur la Toughness d'aventure");
 }
 
 console.log("idle-items-wiki-audit-2026-09-24: OK");
