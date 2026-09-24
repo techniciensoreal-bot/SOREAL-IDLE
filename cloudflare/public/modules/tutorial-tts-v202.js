@@ -31,6 +31,16 @@
   var PAUSE_CLOSE=String.fromCharCode(0xE001);
   var PAUSE_MARKER_RE=new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE);
   var PAUSE_MAX_MS=5000;
+  /*
+   * Voix pré-générées (Norman, 2026-09-24 : « les générer 1 fois et les rendre jouables sur le site via un format pas lourd »).
+   * Chaque bloc de texte (voir decouperNarration_) est identifié par une empreinte ; si /voice/manifest.json la connaît, le fichier
+   * /voice/<empreinte>.m4a (AAC mono, léger) est lu tel quel : aucun modèle à télécharger, aucun calcul. Sinon, repli sur Piper local.
+   * Les fichiers sont produits par cloudflare/tools/voice-generate.mjs avec CE MÊME découpage et CETTE MÊME empreinte.
+   */
+  var VOICE_DIR='voice/';
+  var VOICE_TAG='tom1';
+  var voiceManifest=null;
+  var voiceStats={fichiers:0,piper:0};
   var auto=false;
   var lastFingerprint='';
   var timer=0;
@@ -124,6 +134,83 @@
       }
     }catch(_){}
     return '';
+  }
+
+  /* Empreinte cyrb53 (53 bits) du texte normalisé + étiquette de voix : synchrone, identique en Node et dans le navigateur. */
+  function hashBloc_(text){
+    var str=VOICE_TAG+'|'+String(text||'').replace(/\s+/g,' ').trim();
+    var h1=0xdeadbeef,h2=0x41c6ce57;
+    for(var i=0;i<str.length;i+=1){
+      var ch=str.charCodeAt(i);
+      h1=Math.imul(h1^ch,2654435761);
+      h2=Math.imul(h2^ch,1597334677);
+    }
+    h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+    h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+    var n=4294967296*(2097151&h2)+(h1>>>0);
+    var hex=n.toString(16);
+    while(hex.length<14)hex='0'+hex;
+    return hex;
+  }
+
+  function chargerManifesteVoix_(){
+    if(voiceManifest)return voiceManifest;
+    voiceManifest=Promise.resolve()
+      .then(function(){return fetch(VOICE_DIR+'manifest.json',{cache:'no-cache'});})
+      .then(function(r){
+        if(!r||!r.ok)throw new Error('MANIFESTE_VOIX_'+(r&&r.status));
+        return r.json();
+      })
+      .then(function(m){
+        var set={};
+        (m&&Array.isArray(m.files)?m.files:[]).forEach(function(h){set[String(h)]=true;});
+        return set;
+      })
+      .catch(function(){return {};});
+    return voiceManifest;
+  }
+
+  /* Fichier pré-généré du bloc (Blob) ou null : l'appelant se rabat alors sur Piper. */
+  function blocPregenere_(text,expectedGeneration){
+    var hash=hashBloc_(text);
+    return chargerManifesteVoix_().then(function(set){
+      if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+      if(!set[hash])return null;
+      return fetch(VOICE_DIR+hash+'.m4a').then(function(r){
+        if(!r||!r.ok)return null;
+        return r.blob();
+      }).then(function(blob){
+        return blob&&blob.size?blob:null;
+      }).catch(function(){return null;});
+    });
+  }
+
+  function obtenirAudioBloc_(text,targetId,expectedGeneration,silent){
+    return blocPregenere_(text,expectedGeneration).then(function(blob){
+      if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+      if(blob){voiceStats.fichiers+=1;return blob;}
+      voiceStats.piper+=1;
+      return requestLocalNeuralAudio_(text,targetId,expectedGeneration,silent);
+    });
+  }
+
+  /*
+   * Texte lu pour une chronique de boss : titre, nom, notes de déblocage « (…) » du début, récit — avec les pauses du bloc affiché
+   * (voir histoireBossMarkupIdleV142_, qui utilise le même motif). Tous les endroits qui lisent une histoire de boss passent par ici :
+   * les blocs de texte, donc les fichiers de voix pré-générées, sont ainsi les mêmes partout.
+   */
+  var MOTIF_NOTE_BOSS=/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/;
+  function composerChronique_(nom,histoire){
+    var out='Chronique du boss '+PAUSE_OPEN+'450'+PAUSE_CLOSE+' '+String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
+    var narration=String(histoire||'').trim();
+    for(;;){
+      var m=narration.match(MOTIF_NOTE_BOSS);
+      if(!m)break;
+      out+='('+String(m[1]||'').trim()+') '+PAUSE_OPEN+'700'+PAUSE_CLOSE+' ';
+      narration=narration.slice(m[0].length).trim();
+    }
+    out+=narration;
+    return out.replace(/\s+/g,' ').trim();
   }
 
   function revokeObjectUrl_(src){
@@ -276,6 +363,14 @@
 
   function text_(panel){
     if(!panel)return '';
+    /* Panneau dont le texte lu est construit par le jeu à partir des données (voir texteVoixTutorielIdleV1_ dans soreal-idle-ui.js). */
+    if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-say')){
+      return String(panel.getAttribute('data-soreal-tts-say')||'').replace(/\s+/g,' ').trim();
+    }
+    /* Histoire d'un boss affichée seule (fiche du boss, collection) : lue comme la chronique complète (nom en attribut). */
+    if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-chronique')){
+      return composerChronique_(panel.getAttribute('data-soreal-tts-chronique'),panel.textContent);
+    }
     var clone=panel.cloneNode(true);
     clone.querySelectorAll('[data-soreal-tts-pause]').forEach(function(el){
       var ms=Math.max(0,Math.min(PAUSE_MAX_MS,parseInt(el.getAttribute('data-soreal-tts-pause'),10)||0));
@@ -513,7 +608,7 @@
       var assurer=function(i,silent){
         if(i<0||i>=steps.length)return null;
         if(!blobs[i]){
-          blobs[i]=requestLocalNeuralAudio_(steps[i].chunk,idCible,myGeneration,silent);
+          blobs[i]=obtenirAudioBloc_(steps[i].chunk,idCible,myGeneration,silent);
           blobs[i].catch(function(){});
         }
         return blobs[i];
@@ -696,6 +791,11 @@
       return narrate_(txt,'__manual_text__',null,true,audioSrc);
     },
     stop:stop_,
+    /* Outils du générateur de voix (cloudflare/tools/voice-generate.mjs) et des tests. */
+    planNarration:planNarration_,
+    hashBloc:hashBloc_,
+    composerChronique:composerChronique_,
+    voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper};},
     isSpeaking:function(){
       return Boolean(activeReadTarget||activeAudio||activeBufferSource);
     },

@@ -132,7 +132,8 @@ const lore=block(
 
 assert.ok(
   /* 2026-09-24 : toutes les notes du début, une par ligne entière (voir idle-narration-pauses-v1.test.mjs). */
-  lore.includes("const infoMatch=narration.match(/^\\(([^\\n]+)\\)[ \\t]*(?:\\n|$)\\s*/);")&&
+  lore.includes("separerNotesHistoireBossIdleV1_(histoire)")&&
+  ui.includes("const infoMatch=narration.match(/^\\(([^\\n]+)\\)[ \\t]*(?:\\n|$)\\s*/);")&&
   lore.includes("soreal-idle-boss-lore-info-v198")&&
   lore.includes("soreal-idle-boss-lore-histoire-v142"),
   "L'information entre parenthèses doit être séparée du récit."

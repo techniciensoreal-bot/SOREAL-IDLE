@@ -1524,3 +1524,13 @@ Demande de Norman : au-dessus de la barre d'énergie, un compteur au même forma
 ## 2026-09-24 — « Généré » placé en haut à droite, à la place du doublon
 
 Correction de ma première lecture : Norman voulait que « Généré » remplace le compteur du haut à droite (« (+1) 476 / 10946 ⚡ », doublon de la barre verte), pas une ligne de plus au-dessus de la barre. Maintenant : haut à droite = « 🔋 Généré : X / Cap » (disponible + déjà placé), la barre verte garde le disponible ; la ligne ajoutée et son style sont retirés ; le gain par tick reste visible dans « Tick : … · +N ⚡ » sous le titre. `soreal-idle-ui.js` `?v=246`. Test `idle-energy-generated-counter-v1` mis à jour.
+
+## 2026-09-24 — Voix pré-générées (Tom) au lieu de Piper dans le navigateur
+
+Demande de Norman : la voix IA générée à la volée ne lui plaît pas ; il veut « les générer 1 fois et les rendre jouables sur le site via un format pas lourd ». Choix : même voix Tom (Piper), générée ici, pour tout (chroniques de boss, tutoriels Norman & Sébastien, textes d'info).
+
+- **Outil** `cloudflare/tools/voice-generate.mjs` : navigateur sans écran → vrai module de narration + vrai Piper → ffmpeg AAC mono 32 kbps → `cloudflare/public/voice/<empreinte>.m4a` + `manifest.json`. Reprenable (un bloc déjà présent n'est pas régénéré). Résultat : 884 blocs (≈ 228 000 caractères), 53,6 Mo, servis comme fichiers statiques (assets Cloudflare).
+- **Client** `tutorial-tts-v202.js` (`?v=232`) : chaque bloc de texte a une empreinte (cyrb53 + « tom1 ») ; si `voice/manifest.json` la contient, le fichier est lu tel quel (aucun modèle de 60 Mo, aucun calcul), sinon repli sur Piper. Manifeste absent = repli, jamais d'erreur.
+- **Mêmes blocs partout** : la chronique de boss, la fiche du boss, la Collection et « Lire toute l'histoire » passent par `composerChronique_` (titre, nom, notes de déblocage, récit, mêmes pauses). Les panneaux d'explication (tutoriels, popups de nouveauté, Info, Norman & Sébastien) portent `data-soreal-tts-say` construit depuis les données ; l'en-tête « SOREAL IDLE », les icônes et « Page n / N » ne sont plus lus. Les infos de systèmes dont la description vient des données du jeu restent en repli Piper.
+- Test `idle-voice-pregenerated-v1` (empreinte, composition, couverture : chaque bloc de chaque chronique a son fichier).
+- Pour changer de voix plus tard : changer `VOICE_TAG` et relancer l'outil (les anciens fichiers deviennent orphelins).

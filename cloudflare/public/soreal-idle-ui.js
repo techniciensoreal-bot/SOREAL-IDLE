@@ -8977,20 +8977,7 @@
             if(s){
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-118 */
               if(systemeId==='moneyPit'){
-                info={
-                  icon:'🕳️',
-                  titre:'Money Pit & Roue journalière',
-                  intro:'Tu as débloqué un trou dans lequel jeter tout ton Or. Oui, tout. Excellente gestion financière.',
-                  menuCible:'moneyPit',
-                  libelleCible:'Ouvrir le Money Pit',
-                  bullets:[
-                    'Money Pit : avec au moins 100 000 Or, tu peux jeter TOUT l’Or que tu possèdes dans le puits. Plus la somme est énorme, plus le palier de récompenses possibles monte.',
-                    'Le puits te recrache un lot aléatoire selon le palier atteint, puis il doit se recharger avant le prochain lancer. Les lancers suivants du même run ont un temps de recharge plus long.',
-                    'Roue journalière : elle est accessible dans ce même menu. Quand elle est prête, fais-la tourner pour gagner un lot aléatoire, notamment de l’AP ou des graines.',
-                    'La roue revient sur un cycle de 24 heures. Plus tu accumules de tours au fil du temps, plus ses paliers de récompenses progressent.',
-                    'Repère visuel : le bouton Money Pit devient vert quand le puits est prêt, ou jaune quand la roue journalière est disponible.'
-                  ]
-                };
+                info=infoMoneyPitIdleV1_();
               }else if(systemeId!=='dailySpin'){
                 const menuCible=IDLE_MENU_PAR_SYSTEME_V1[systemeId]||null;
                 info=menuCible?{
@@ -9442,6 +9429,59 @@
         if(ancienFlottant)ancienFlottant.remove();
       }
 
+      /*
+       * Voix pré-générées (2026-09-24) : le texte LU par un panneau est construit ICI à partir des données (jamais relevé dans le DOM),
+       * posé sur le panneau (data-soreal-tts-say) et réutilisé tel quel par cloudflare/tools/voice-generate.mjs via
+       * window.__sorealVoiceTextesIdleV1__ : mêmes blocs de texte = mêmes fichiers audio. Les icônes, « Page n / N » et l'en-tête
+       * « SOREAL IDLE » ne sont plus lus.
+       */
+      function pauseVoixIdleV1_(ms){
+        return ' \uE000'+ms+'\uE001 ';
+      }
+
+      function texteVoixTutorielIdleV1_(page){
+        return String(page&&page.titre||'')+pauseVoixIdleV1_(450)+
+          (page&&page.sousTitre?String(page.sousTitre)+pauseVoixIdleV1_(450):'')+
+          (Array.isArray(page&&page.paragraphes)?page.paragraphes:[]).join(' ');
+      }
+
+      function texteVoixNouveauteIdleV1_(info){
+        return String(info&&info.titre||'')+pauseVoixIdleV1_(450)+
+          [String(info&&info.intro||''),String(info&&info.texte||'')]
+            .concat(Array.isArray(info&&info.bullets)?info.bullets:[])
+            .filter(function(t){return String(t).trim();})
+            .join(' ');
+      }
+
+      function infoMoneyPitIdleV1_(){
+        return {
+          icon:'🕳️',
+          titre:'Money Pit & Roue journalière',
+          intro:'Tu as débloqué un trou dans lequel jeter tout ton Or. Oui, tout. Excellente gestion financière.',
+          menuCible:'moneyPit',
+          libelleCible:'Ouvrir le Money Pit',
+          bullets:[
+            'Money Pit : avec au moins 100 000 Or, tu peux jeter TOUT l’Or que tu possèdes dans le puits. Plus la somme est énorme, plus le palier de récompenses possibles monte.',
+            'Le puits te recrache un lot aléatoire selon le palier atteint, puis il doit se recharger avant le prochain lancer. Les lancers suivants du même run ont un temps de recharge plus long.',
+            'Roue journalière : elle est accessible dans ce même menu. Quand elle est prête, fais-la tourner pour gagner un lot aléatoire, notamment de l’AP ou des graines.',
+            'La roue revient sur un cycle de 24 heures. Plus tu accumules de tours au fil du temps, plus ses paliers de récompenses progressent.',
+            'Repère visuel : le bouton Money Pit devient vert quand le puits est prêt, ou jaune quand la roue journalière est disponible.'
+          ]
+        };
+      }
+
+      /* Tous les textes d'explication connus d'avance (les systèmes dont la description vient des données du jeu restent en repli). */
+      window.__sorealVoiceTextesIdleV1__=function(){
+        const textes=[];
+        [TUTORIEL_DEBUT_JEU_PAGES_V1,TUTORIEL_PREMIER_BOSS_PAGES_V1,TUTORIEL_AVENTURE_PAGES_V1].forEach(function(pages){
+          pages.forEach(function(page){textes.push(texteVoixTutorielIdleV1_(page));});
+        });
+        const definitions=definitionsNouveautesIdleV75_();
+        Object.keys(definitions).forEach(function(cle){textes.push(texteVoixNouveauteIdleV1_(definitions[cle]));});
+        textes.push(texteVoixNouveauteIdleV1_(infoMoneyPitIdleV1_()));
+        return textes;
+      };
+
       function rendreTutorielPagesIdleV1_(){
         const etat=idleTutorielPagesEnCoursV1;
         if(!etat)return;
@@ -9460,7 +9500,7 @@
           document.body.appendChild(modal);
 
           modal.innerHTML=
-            '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true">'+
+            '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(page))+'">'+
               '<div class="soreal-idle-modal-top-v63">'+
                 '<div class="soreal-idle-modal-title-v63">'+
                   idleHtml_(page.titre||'')+
@@ -9512,6 +9552,8 @@
                 :'<button type="button" class="confirm" '+(dernier?'disabled style="visibility:hidden"':'')+' onclick="window.__tutorielPagesNaviguerV1__(1)">Suivant ▶</button>'
             )+
           '</div>';
+
+        root.setAttribute('data-soreal-tts-say',texteVoixTutorielIdleV1_(page));
 
         if(nouveau){
           positionnerTutoFlottantV1_(root);
@@ -9624,7 +9666,7 @@
           'soreal-idle-modal-backdrop-v63';
 
         modal.innerHTML=
-          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true">'+
+          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" data-soreal-tts-say="'+idleHtml_(texteVoixNouveauteIdleV1_(info))+'">'+
             '<div class="soreal-idle-modal-top-v63">'+
               '<div class="soreal-idle-modal-icon-v63">'+
                 idleHtml_(info.icon||'✨')+
@@ -10688,6 +10730,20 @@
       }
 
 
+      /* Notes de déblocage « (…) » en tête d'une histoire de boss + récit. Même découpage pour l'affichage et pour la voix pré-générée
+         (cloudflare/tools/voice-generate.mjs recopie ce motif : un test compare les deux). */
+      function separerNotesHistoireBossIdleV1_(histoire){
+        const notes=[];
+        let narration=String(histoire||'').trim();
+        for(;;){
+          const infoMatch=narration.match(/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/);
+          if(!infoMatch)break;
+          notes.push('('+String(infoMatch[1]||'').trim()+')');
+          narration=narration.slice(infoMatch[0].length).trim();
+        }
+        return {notes:notes,narration:narration};
+      }
+
       function histoireBossMarkupIdleV142_(
         j
       ){
@@ -10712,14 +10768,9 @@
          * fonctionnalité, d'une zone...), pas sur le boss : chacun prend la mise en page « note » (avant, seul le premier
          * paragraphe la recevait et les suivants finissaient dans le récit).
          */
-        const notesDeblocage=[];
-        let narration=histoire;
-        for(;;){
-          const infoMatch=narration.match(/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/);
-          if(!infoMatch)break;
-          notesDeblocage.push('('+String(infoMatch[1]||'').trim()+')');
-          narration=narration.slice(infoMatch[0].length).trim();
-        }
+        const separe=separerNotesHistoireBossIdleV1_(histoire);
+        const notesDeblocage=separe.notes;
+        const narration=separe.narration;
 
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142">
@@ -12557,7 +12608,7 @@
                 </div>
               </div>
 
-              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91">
+              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91"${b.histoire?' data-soreal-tts-chronique="'+idleHtml_(b.nom||'Boss')+'"':''}>
                 ${idleHtml_(
                   b.histoire||
                   'Aucune archive n’existe encore pour ce boss.'
@@ -13858,7 +13909,9 @@ let idleDialogueTimerV76=null;
                     (idleEntier_(e.numero)>0
                       ?'sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)
                       :'sorealIdleCollectionCreatureDescV206_'+idleEntier_(e.index))+
-                    '" class="soreal-idle-bestiary-desc-v110">'+idleHtml_(e.description)+'</div>'
+                    '" class="soreal-idle-bestiary-desc-v110"'+
+                    (idleEntier_(e.numero)>0?' data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"':'')+
+                    '>'+idleHtml_(e.description)+'</div>'
                   :''}
                 ${idleEntier_(e.numero)>0&&e.description
                   ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)+'">🔊 Lire cette chronique</button>'
@@ -14016,22 +14069,15 @@ let idleDialogueTimerV76=null;
             ?idleEtat.bossCatalogue
             :[];
 
-        const parties=catalogue
+        const connus=catalogue
           .filter(function(b){
             return b&&b.connu&&String(b.histoire||'').trim();
           })
           .sort(function(a,b){
             return idleEntier_(a.numero)-idleEntier_(b.numero);
-          })
-          .map(function(b){
-            return (
-              'Boss '+idleEntier_(b.numero)+
-              ', '+String(b.nom||'Boss')+'. '+
-              String(b.histoire||'').trim()
-            );
           });
 
-        if(!parties.length){
+        if(!connus.length){
           toastIdleV5_('Aucune chronique de boss débloquée.');
           return;
         }
@@ -14050,8 +14096,19 @@ let idleDialogueTimerV76=null;
           return;
         }
 
+        /*
+         * 2026-09-24 : chaque boss est composé EXACTEMENT comme sa chronique affichée (titre, nom, notes, récit, avec les mêmes pauses),
+         * séparé du suivant par 2 s : les blocs de texte sont donc ceux des voix pré-générées (aucun calcul, aucun modèle à charger).
+         */
+        const M=function(ms){return ' \uE000'+ms+'\uE001 ';};
+        const composerChronique=typeof tts.composerChronique==='function'
+          ?tts.composerChronique
+          :function(nom,histoire){return nom+' '+histoire;};
         tts.readText(
-          'Chroniques de boss. '+parties.join(' ')
+          'Chroniques de boss.'+M(1500)+
+          connus.map(function(b){
+            return composerChronique(String(b.nom||'Boss'),String(b.histoire||''));
+          }).join(M(2000))
         );
       }
 
@@ -19809,7 +19866,7 @@ function pageAventureIdleV28_(j){
             (entrees.length
               ?entrees.map(function(info,index){
                 const targetId='sorealIdleInfoRecapV203_'+index;
-                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1">'+
+                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1" data-soreal-tts-say="'+idleHtml_(texteVoixNouveauteIdleV1_(info))+'">'+
                   '<div class="soreal-idle-info-recap-head-v1">'+idleHtml_(info.icon||'✨')+' <b>'+idleHtml_(info.titre||'')+'</b></div>'+
                   (info.intro?'<div class="soreal-idle-info-recap-intro-v1">'+idleHtml_(info.intro)+'</div>':'')+
                   (info.texte?'<div>'+idleHtml_(info.texte)+'</div>':'')+
@@ -19830,7 +19887,7 @@ function pageAventureIdleV28_(j){
             (introsNormanSebastien.length
               ?introsNormanSebastien.map(function(info,index){
                 const targetId='sorealIdleNarrateursV203_'+index;
-                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1">'+
+                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(info))+'">'+
                   '<div class="soreal-idle-info-recap-head-v1">🎙️ <b>'+idleHtml_(info.groupe)+' · '+idleHtml_(info.titre)+'</b></div>'+
                   '<div style="font-size:10px;color:#7f8aa4;margin:4px 0 7px">Page '+idleEntier_(info.index)+' / '+idleEntier_(info.total)+(info.sousTitre?' · '+idleHtml_(info.sousTitre):'')+'</div>'+ 
                   '<div class="soreal-idle-info-recap-intro-v1">'+
