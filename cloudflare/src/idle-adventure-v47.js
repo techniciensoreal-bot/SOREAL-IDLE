@@ -1215,6 +1215,12 @@ pissedOffKey:{name:"Pissed Off Key",zone:"sky",slot:"special",unlock:"tower",bos
  */
 // wiki : "A Number" (Id 102, Consumable) -- GRB : "A Number lvl 0 (guaranteed)".
 aNumber:{name:"A Number",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/*
+ * wiki : "A Giant Seed" (Id 92, Consumable) -- Grand Corrupted Tree, Loot : "A Giant Seed lvl 0
+ * (guaranteed)". 2026-09-24 : vrai objet fusionnable du Seed (set) ; réutilisé une fois
+ * Yggdrasil débloqué, il donne max(1, ⌊L + L²/100⌋) graines (idleYggConsumeGiantSeedV1).
+ */
+giantSeed:{name:"A Giant Seed",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 // wiki : "UUG's Armpit Hair" (Id 141, Consumable) -- UUG : "UUG's Armpit Hair lvl 0 (guaranteed)".
 uugHair:{name:"UUG's Armpit Hair",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 // wiki : "Incriminating Evidence" (Id 294, Consumable) -- Greasy Nerd : "Incriminating Evidence lvl 1 - guaranteed".
@@ -1602,6 +1608,13 @@ const SETS_OBJETS_V1=Object.freeze({
    */
   number:{name:"Number Set",items:["aNumber"],reward:{nguSpeedPct:.10}},
   /*
+   * "Seed (set)" : un seul objet (A Giant Seed), "10 Premium samples of Icarus Proudbottom's
+   * Homemade Boom Boom Fertilizers!" ; fiche "A Giant Seed" : "the completion bonus grants 10
+   * poop" ; Build History 2018 : "Level 100 seed has set bonus which awards you with 10 poops".
+   * Versées une fois dans state.selloutEffects.poop (accorderConsommablesSetsV1).
+   */
+  seed:{name:"Seed Set",items:["giantSeed"],reward:{poop:10}},
+  /*
    * "Armpit (set)" : un seul objet (UUG's Armpit Hair), "+10% Beard Speed!" --
    * setRewards.beardSpeedPct, consommé par advanceBeardTrack()
    * (idle-ngu-progression.js), même terme que les Specials "Beard Speed".
@@ -1630,8 +1643,9 @@ const SETS_OBJETS_V1=Object.freeze({
    *  - Grey : "25% Faster Hacks!" ;
    *  - Rainbow : "+10% Mayo and Card Generation Speed!".
    * Brown ("every 10th poop ... will not be consumed") et Pink ("an additional Wish slot") :
-   * set complétable, mais AUCUN effet -- SOREAL n'a ni Poop (Yggdrasil) ni plusieurs slots de
-   * souhait ; rien n'est inventé à la place.
+   * aucun setReward, l'effet est lu directement sur completedSets (2026-09-24, commentaire mis
+   * à jour) : Brown par idleYggBrownHeartActiveV1 (idle-yggdrasil-extra-v1.js, chaque 10e Poop
+   * gratuite), Pink par wishSlotBreakdownV1 (idle-ngu-progression.js, +1 slot de souhait).
    */
   heartRed:{name:"Red Heart Set",items:["heartRed"],reward:{heartExpPct:.10}},
   heartYellow:{name:"Yellow Heart Set",items:["heartYellow"],reward:{heartApPct:.20}},
@@ -1942,6 +1956,7 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "skyBall":434,
   "pissedOffKey":172,
   "aNumber":102,
+  "giantSeed":92,
   "uugHair":141,
   "incriminatingEvidence":294,
   "severedUnicornHead":343,
@@ -2825,7 +2840,7 @@ function checkSets(s){
  * partir de pendingSetConsumablesV1). Une seule fois par set
  * (setConsumablesGrantedV1), y compris pour un set complété avant ce correctif.
  */
-const SET_REWARD_CONSUMABLES_V1=Object.freeze({energyPotionA:"energyPotionAlpha",energyPotionB:"energyPotionBeta",energyBarBar:"energyBarBar",magicPotionA:"magicPotionAlpha",magicPotionB:"magicPotionBeta",magicBarBar:"magicBarBar",luckyCharms:"luckyCharm",r3PotionAlpha:"resource3PotionAlpha",r3PotionBeta:"resource3PotionBeta",r3PotionDelta:"resource3PotionDelta"});
+const SET_REWARD_CONSUMABLES_V1=Object.freeze({energyPotionA:"energyPotionAlpha",energyPotionB:"energyPotionBeta",energyBarBar:"energyBarBar",magicPotionA:"magicPotionAlpha",magicPotionB:"magicPotionBeta",magicBarBar:"magicBarBar",luckyCharms:"luckyCharm",r3PotionAlpha:"resource3PotionAlpha",r3PotionBeta:"resource3PotionBeta",r3PotionDelta:"resource3PotionDelta",poop:"poop"});
 function accorderConsommablesSetsV1(s){
   if(!s.setConsumablesGrantedV1||typeof s.setConsumablesGrantedV1!=="object")s.setConsumablesGrantedV1={};
   if(!s.pendingSetConsumablesV1||typeof s.pendingSetConsumablesV1!=="object")s.pendingSetConsumablesV1={};
@@ -4200,6 +4215,21 @@ function rollKill(s,ctx){
     if(ring)out.push(ring);
   }
 
+  /*
+   * 2026-09-24 -- wiki « The Sky », Loot > Icarus Proudbottom : « Poop (0.05% base chance, up
+   * to 0.5% max) » ; fiche « Icarus Proudbottom » : « the only enemy in The Sky that drops
+   * Poop (base chance is 0.05%, the max chance is 0.5%) ». Une Poop par drop : cumulée dans
+   * permanent.poop, versée dans state.selloutEffects.poop par crediterRecompensesAventure.
+   */
+  let poop=0;
+  if(
+    !boss&&z.id==="sky"&&String(ctx.forceMobName||"")==="Icarus Proudbottom"&&
+    Math.random()<idleAdventureDropChanceV2(.0005,.005,dropMult,z)
+  ){
+    poop=1;
+    s.permanent.poop=I(s.permanent.poop)+poop;
+  }
+
   if(z.id==="tutorial"){
     const flubberBoss=I(ctx.bosses);
     if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){
@@ -4228,7 +4258,7 @@ function rollKill(s,ctx){
     }
   }
 
-  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience};
+  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience,poop};
 }
 
 /*
@@ -4683,6 +4713,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
     pendantForet(20,.1);
   }else if(id==="t2"){
+    // wiki Grand Corrupted Tree, Loot : "A Giant Seed lvl 0 (guaranteed)" -- objet fusionnable du Seed (set).
+    objet("giantSeed",Math.min(MAX,bonus));
     for(const type of ["power","toughness","special"]){const a=add(s,boost(type,10));if(a)out.push(a)}
     boosts("power",[[10,.1],[20,.08],[50,.05],[100,.05]]);
     boosts("toughness",[[10,.1],[20,.08],[50,.05],[100,.05]]);

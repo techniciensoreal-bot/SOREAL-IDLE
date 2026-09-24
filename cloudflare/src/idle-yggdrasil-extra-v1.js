@@ -25,11 +25,11 @@
  *    « 100 Q » de cap alors que la règle « 10x » donnerait 100 Qa) ;
  *  - QPRewardModifier du Fruit of Quirks : jamais défini par le wiki (page
  *    Questing : « then multiplied by other bonuses ») -> laissé à 1 ;
- *  - Seed (set) : « A Giant Seed » n'est pas un objet d'inventaire montable
- *    au niveau 100 dans SOREAL (objet de déblocage consommé) ;
- *  - Poop d'Icarus Proudbottom (The Sky, « 1-27 per day ») et de l'ITOPOD
- *    (« What a Crappy Perk », taux donnés seulement dans la colonne de
- *    recommandation) ;
+ *  - (fait le 2026-09-24 : A Giant Seed est un vrai objet, Seed (set) donne
+ *    10 Poop, la graine réutilisée donne des graines -- voir plus bas) ;
+ *  - (fait le 2026-09-24 : Poop d'Icarus Proudbottom en The Sky, tirée par
+ *    rollKill d'idle-adventure-v47.js, et de l'ITOPOD avec la perk 30, voir
+ *    idleYggItopodPoopV1) ;
  *  - souhait 60 « I wish Fruit of MacGuffin α also didn't suck » (+20 % par
  *    niveau, place dans l'arrondi non publiée).
  */
@@ -77,6 +77,78 @@ export function idleYggUsePoopV1(state) {
   const free = idleYggBrownHeartActiveV1(state) && fx.poopUsed % IDLE_YGG_BROWN_HEART_EVERY_V1 === 0;
   if (!free) fx.poop = idleYggPoopCountV1(state) - 1;
   return { factor: idleYggPoopFactorV1(state), consumed: !free, free, remaining: idleYggPoopCountV1(state) };
+}
+
+/* ---------- Poop de l'ITOPOD (2026-09-24) ---------- */
+
+/*
+ * Perk 30 « What a Crappy Perk » (page Perk Points, 25 PP, 1 niveau) : « This
+ * perk grants a tiny, tiny chance that the Pissed Off Dudes in the ITOPOD drop
+ * poop. It also works offline! » ; même ligne, colonne « Buy Early? » : « gives
+ * 1 poop every 9000 kills and additionally a 0.01% chance per kill for 1 poop ».
+ * Recoupé par la page Yggdrasil : « from the ITOPOD at a rate of 2-11 per day
+ * after buying the "What a Crappy Perk" perk » (≈ 9 500 à 52 000 kills par jour).
+ * Le taux de 0,01 % n'est pas présenté comme une « base chance » : il n'est pas
+ * multiplié par le Drop Chance.
+ */
+export const IDLE_YGG_ITOPOD_POOP_PERK_ID_V1 = 30;
+export const IDLE_YGG_ITOPOD_POOP_KILLS_V1 = 9000;
+export const IDLE_YGG_ITOPOD_POOP_CHANCE_V1 = 0.0001;
+/* Au-delà, le tirage kill par kill est remplacé par l'espérance (choix d'implémentation, gros rattrapages hors-ligne). */
+const ITOPOD_POOP_LOOP_MAX_V1 = 100000;
+
+export function idleYggItopodPoopV1(state, kills, rng = Math.random) {
+  const k = Math.max(0, I(kills, 0));
+  if (k <= 0) return 0;
+  if (I(state?.systems?.perks?.data?.levels?.[IDLE_YGG_ITOPOD_POOP_PERK_ID_V1], 0) < 1) return 0;
+  const fx = state.selloutEffects;
+  if (!fx || typeof fx !== "object") return 0;
+  const total = Math.max(0, I(fx.itopodPoopKills, 0)) + k;
+  let gain = Math.floor(total / IDLE_YGG_ITOPOD_POOP_KILLS_V1);
+  fx.itopodPoopKills = total - gain * IDLE_YGG_ITOPOD_POOP_KILLS_V1;
+  if (k <= ITOPOD_POOP_LOOP_MAX_V1) {
+    for (let i = 0; i < k; i++) if (rng() < IDLE_YGG_ITOPOD_POOP_CHANCE_V1) gain++;
+  } else {
+    const attendu = k * IDLE_YGG_ITOPOD_POOP_CHANCE_V1;
+    gain += Math.floor(attendu) + (rng() < attendu - Math.floor(attendu) ? 1 : 0);
+  }
+  if (gain > 0) fx.poop = idleYggPoopCountV1(state) + gain;
+  return gain;
+}
+
+/* ---------- A Giant Seed réutilisée (2026-09-24) ---------- */
+
+/*
+ * Fiche « A Giant Seed » : « If used again: ... X seeds have been added! » ;
+ * « A Giant Seed of level L gives max(1, ⌊L + L²/100⌋) seeds. For example, at
+ * level 50 you will get 75 seeds and at level 100, 200 seeds. » Page Yggdrasil,
+ * « Getting Seeds » : « 1 seed per item level, plus 1% bonus also per level
+ * (rounded down) ». Le premier usage (déblocage d'Yggdrasil) reste le drapeau
+ * unlockItems/consumeUnlock du moteur Aventure : cette action n'est possible
+ * qu'une fois Yggdrasil débloqué, et retire l'objet du sac.
+ */
+export function idleYggGiantSeedSeedsV1(level) {
+  const l = Math.max(0, I(level, 0));
+  return Math.max(1, Math.floor(l + (l * l) / 100));
+}
+
+export function idleYggConsumeGiantSeedV1(state, itemId) {
+  if (!state?.systems?.yggdrasil?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const adventure = state.adventure;
+  const inventaire = Array.isArray(adventure?.inventory) ? adventure.inventory : [];
+  const objet = inventaire.find((x) => x && x.id === String(itemId || ""));
+  if (!objet || objet.definitionId !== "giantSeed") throw new Error("GRAINE_GEANTE_INVALIDE");
+  /* Un objet verrouillé ne se consomme pas (même règle que la suppression côté client). */
+  if (objet.locked) throw new Error("OBJET_VERROUILLE");
+  const seeds = idleYggGiantSeedSeedsV1(objet.level);
+  adventure.inventory = inventaire.filter((x) => x !== objet);
+  if (adventure.equipment && Array.isArray(adventure.equipment.accessories)) {
+    adventure.equipment.accessories = adventure.equipment.accessories.filter((x) => x !== objet.id);
+  }
+  /* Le client n'accepte un inventaire serveur que si sa révision avance (même règle que le Daycare). */
+  adventure.revision = Math.max(0, I(adventure.revision, 0)) + 1;
+  state.currencies.seeds = Math.max(0, N(state.currencies.seeds, 0)) + seeds;
+  return { seeds, level: Math.max(0, I(objet.level, 0)) };
 }
 
 /* ---------- Auto-Activate (boutique EXP) ---------- */
@@ -224,6 +296,33 @@ export function idleYggFruitOfQuirksQpV1(tier, multipliers = 1) {
   return Math.ceil(Math.max(1, I(tier, 1)) * 3 * Math.max(0, N(multipliers, 1)));
 }
 
+/* ---------- Yggdrasil Harvest Light (2026-09-24) ---------- */
+
+/*
+ * 4G's Sellout Shop, « Yggdrasil Harvest Light » (50,000 AP) : « Buy this to
+ * have the Yggdrasil menu light up when fruit is fully grown and ready to be
+ * eaten of harvested » ; page Yggdrasil : « also light up for the first harvest
+ * of a rebirth » ; Build History 2018 : « if you have any fruit at the max tier
+ * that can't grow any further ». Lecture SOREAL (aucun nombre) : un fruit actif
+ * dont la croissance a atteint son tier (il ne pousse plus), ou un fruit prêt
+ * (au moins 1 h) dont la première récolte du Rebirth n'a pas encore eu lieu.
+ */
+export function idleYggHarvestLightOwnedV1(state) {
+  return Math.max(0, I(state?.selloutShop?.purchases?.yggdrasilHarvestLight, 0)) >= 1;
+}
+
+export function idleYggHarvestLightLitV1(state, fruitDefs) {
+  const data = state?.systems?.yggdrasil?.data;
+  if (!idleYggHarvestLightOwnedV1(state) || !state?.systems?.yggdrasil?.unlocked || !data?.fruits) return false;
+  return fruitDefs.some((def) => {
+    const f = data.fruits[def.id];
+    const tier = I(f?.tier, 0);
+    if (!f || !f.active || tier < 1 || !idleYggFruitUnlockedV1(state, def.id)) return false;
+    const heures = Math.max(0, N(f.growthHours, 0));
+    return heures >= tier || (Boolean(f.firstHarvestThisRun) && heures >= 1);
+  });
+}
+
 /* ---------- Instantané client ---------- */
 
 export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
@@ -240,6 +339,8 @@ export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
     nextFreePoopIn: brown ? IDLE_YGG_BROWN_HEART_EVERY_V1 - (used % IDLE_YGG_BROWN_HEART_EVERY_V1) : null,
     tierSeconds: idleYggTierSecondsV1(state),
     maxTier: deps.maxTier,
+    /* Yggdrasil Harvest Light : achetée, et allumée (menu Yggdrasil à faire briller). */
+    harvestLight: { owned: idleYggHarvestLightOwnedV1(state), lit: idleYggHarvestLightLitV1(state, fruitDefs) },
     fruits: Object.fromEntries(fruitDefs.map((def) => {
       const f = state?.systems?.yggdrasil?.data?.fruits?.[def.id] || {};
       const auto = autos[def.id];

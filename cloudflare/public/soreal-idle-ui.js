@@ -9702,6 +9702,11 @@
                 m.id==='moneyPit'&&couleurDisponibilite
                   ?(couleurDisponibilite==='#f1c40f'?' soreal-idle-nav-money-yellow-v1':' soreal-idle-nav-money-green-v1')
                   :'';
+              /* Yggdrasil Harvest Light (Sellout Shop) : même lueur verte que le Money Pit quand un fruit est prêt (serveur : yggExtra.harvestLight.lit). */
+              const yggExtraNav=j&&j.systemes&&j.systemes.yggExtra;
+              const classeRecolteYgg=
+                m.id==='yggdrasil'&&yggExtraNav&&yggExtraNav.harvestLight&&yggExtraNav.harvestLight.lit
+                  ?' soreal-idle-nav-money-green-v1':'';
 
               return `
                 <button
@@ -9714,7 +9719,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}"
                   style="--nav-color:${
                     couleurDisponibilite||IDLE_NAV_COULEURS_V1[m.id]||'#9aa5bb'
                   }"
@@ -18159,6 +18164,10 @@ function pageAventureIdleV28_(j){
         const boutonInstallerOs=(item.definitionId==='wandoos98'||item.definitionId==='wandoosXl')
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeWandoosCopy\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">💾 Installer l’OS</button>'
           :'';
+        /* A Giant Seed réutilisée (Yggdrasil débloqué) : max(1, ⌊L + L²/100⌋) graines, action méta consumeGiantSeed. */
+        const boutonSemerGraine=(item.definitionId==='giantSeed'&&!item.locked)
+          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
+          :'';
         const estVerrouille=Boolean(item.locked);
         const boutonVerrouiller=
           '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerVerrouObjetAdventureIdleV165__(\''+idleHtml_(id)+'\','+(estVerrouille?'false':'true')+')">'+
@@ -18179,6 +18188,7 @@ function pageAventureIdleV28_(j){
             boutonConsommer+
             boutonTransformer+
             boutonInstallerOs+
+            boutonSemerGraine+
             boutonComparer+
             boutonSupprimer+
           '</div>';
