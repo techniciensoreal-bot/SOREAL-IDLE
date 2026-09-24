@@ -25,7 +25,7 @@ function block(source,start,end){
 
 assert.ok(
   index.includes('/modules/adventure-scene-v79.js?v=202')&&
-  index.includes('/soreal-idle-ui.js?v=248'),
+  index.includes('/soreal-idle-ui.js?v=249'),
   "Le standalone doit charger les assets V200 de la barre Energie et des PV Aventure."
 );
 
@@ -35,10 +35,11 @@ const energyFn=block(
   "function demarrerTickerIdle_()"
 );
 
+/* 2026-09-24 : rebond à vitesse constante (voir idle-energy-tick-bounce-v1.test.mjs) au lieu d'un balayage à durée fixe. */
 assert.ok(
-  energyFn.includes("(max-valeur)*\n          progression")&&
+  energyFn.includes("largeurTickEnergieIdleV1_(")&&
   energyFn.includes("valeurVisuelle/max*100"),
-  "Pendant un tick, la barre doit balayer toute la portion valeur acquise -> cap."
+  "Pendant un tick, la barre part du remplissage, monte jusqu'au cap puis redescend."
 );
 
 assert.ok(
@@ -52,18 +53,18 @@ assert.ok(
   "L'ancien affichage valeur + fraction d'un seul point ne doit plus exister."
 );
 
-// Vérification mathématique exacte du comportement demandé.
-function pct(base,progress,max=500){
+// Début de tick : la barre est exactement au remplissage (101/500 = 20,2 %), sans imprécision IEEE-754.
+function pct(base,progress,max=500,gain=1){
   if(base>=max)return 100;
-  const visual=base+(max-base)*progress;
+  const cible=Math.min(max,base+gain);
+  const parcouru=2*max*progress;
+  const montee=Math.min(max,base+parcouru),descente=Math.max(0,parcouru-(max-base));
+  const visual=descente>0?Math.max(cible,montee-descente):montee;
   return visual/max*100;
 }
 assert.equal(pct(0,0),0);
-assert.equal(pct(0,1),100);
 assert.equal(pct(1,0),0.2);
-assert.equal(pct(1,1),100);
 assert.equal(pct(100,0),20);
-assert.equal(pct(100,1),100);
 assert.ok(
   Math.abs(pct(101,0)-20.2)<1e-9,
   "101/500 doit correspondre à 20.2% malgré les imprécisions IEEE-754."

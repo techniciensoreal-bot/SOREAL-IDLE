@@ -2341,7 +2341,8 @@
             energieDisponibleIdleV9_(),
             idleResteTickEnergieMsV114/
               Math.max(1,metaTickEnergie.dureeMs),
-            maxTotal
+            maxTotal,
+            metaTickEnergie.gain
           );
         }
 
@@ -3938,11 +3939,29 @@
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-80 */
+      /*
+       * Tick de la barre d'énergie — 2026-09-24 (Norman : « la trajectoire entre 400 et 1000 est la même que entre 0 et 1000 ou 999 et
+       * 1000 ; elle s'allonge mais ne se rétracte pas, la baisse est instantanée ; comme une balle qui rebondit »).
+       * À chaque tick la barre part du remplissage (valeur), monte jusqu'au cap PUIS redescend jusqu'au nouveau remplissage
+       * (valeur + gain du tick), les deux à VITESSE CONSTANTE : distance = temps, donc plus la barre est remplie, plus le rebond est
+       * court (comme une balle dont les rebonds raccourcissent). La vitesse est celle qui fait tenir l'aller-retour depuis 0 dans
+       * exactement un tick ; le reste du tick, la barre attend au nouveau remplissage. Au changement de tick elle est déjà au bon
+       * endroit : aucune bascule instantanée.
+       */
+      function largeurTickEnergieIdleV1_(valeur,gain,progression,max){
+        const cible=Math.min(max,valeur+Math.max(0,gain));
+        const parcouru=2*max*progression;
+        const montee=Math.min(max,valeur+parcouru);
+        const descente=Math.max(0,parcouru-(max-valeur));
+        return descente>0?Math.max(cible,montee-descente):montee;
+      }
+
       function mettreAJourBarreProgressionContinueV1_(
         element,
         valeurActuelle,
         progressionTick,
-        valeurMax
+        valeurMax,
+        gainTick
       ){
         if(!element)return;
 
@@ -3981,9 +4000,12 @@
           );
 
         const valeurVisuelle=
-          valeur+
-          (max-valeur)*
-          progression;
+          largeurTickEnergieIdleV1_(
+            valeur,
+            idleNombre_(gainTick),
+            progression,
+            max
+          );
 
         largeurBarreCombatIdleV121_(
           element,

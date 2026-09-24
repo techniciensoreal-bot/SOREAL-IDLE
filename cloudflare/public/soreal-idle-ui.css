@@ -1698,6 +1698,8 @@
           }
 
           .soreal-idle-energybar-v11{
+            /* Le rebond du tick est dessiné image par image (largeurTickEnergieIdleV1_) : aucune transition ne doit l'adoucir ni le retarder. */
+            transition:none !important;
             background:linear-gradient(90deg,#2fd86e,#7cff9e) !important;
             box-shadow:0 0 14px rgba(69,235,123,.38);
           }
