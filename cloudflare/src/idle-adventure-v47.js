@@ -4712,6 +4712,13 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
     for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
     pendantForet(20,.1);
+    /*
+     * 2026-09-24 (audit des pages-guides) : wiki GRB, Loot : « A busted copy of Wandoos 98 -
+     * guaranteed, 20% base chance for lvl 2-4, 80% for lvl 1 » (bonus de niveau No Rebirth
+     * non appliqué, note du wiki) ; infobox « guaranteed », New Player Guide (Truth) « a
+     * guaranteed drop from the first two Titans ». Avant : une seule copie au 1er kill.
+     */
+    objet("wandoos98",chance(.2)?2+I(Math.random()*3):1);
   }else if(id==="t2"){
     // wiki Grand Corrupted Tree, Loot : "A Giant Seed lvl 0 (guaranteed)" -- objet fusionnable du Seed (set).
     objet("giantSeed",Math.min(MAX,bonus));
@@ -4721,6 +4728,14 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     boosts("special",[[10,.1],[20,.08],[50,.08],[100,.05]]);
     if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5));if(a)out.push(a)}
     pendantForet(50,.1);
+    /*
+     * 2026-09-24 (audit des pages-guides) : copie de Wandoos 98 garantie à chaque kill, niveau
+     * 3-7 (infobox « guaranteed (3-7) », Template:Item data « GClvldrop = 3-7 », Loot « guaranteed »,
+     * New Player Guide (Truth) « a guaranteed drop from the first two Titans »). Non modélisé :
+     * le « 20% base chance for lvl 4-7 » de la section Loot (copie en plus, ou niveau 4-7 à la
+     * place ? le wiki ne tranche pas ; la page Wandoos dit « 4-7 »).
+     */
+    objet("wandoos98",3+I(Math.random()*5));
   }else if(id==="t3"){
     equip("scrap","paper",Math.min(MAX,bonus));
     equip("jake",pick(cinq),Math.min(MAX,bonus));
@@ -4831,7 +4846,8 @@ function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",tit
  * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
  */
-if(id==="t1"&&!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}
+/* 1er kill de GRB : Wandoos débloqué ; la copie elle-même vient de rollTitanLootV1 (garantie à chaque kill, 2026-09-24). */
+if(id==="t1"&&!s.unlockItems.wandoos98)s.unlockItems.wandoos98=true;
 if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1();drops.push(add(s,special(canne,niveauCanne)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
 const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
