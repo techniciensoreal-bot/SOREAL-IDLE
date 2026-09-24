@@ -7,7 +7,8 @@ import {
   idleAdventureBoostV1,
   idleAdventureAddItemV1,
   idleAdventureSpecialItemV1,
-  idleAdventureCubeTierV1
+  idleAdventureCubeTierV1,
+  IDLE_ADVENTURE_SPECIALS
 } from "./idle-adventure-v47.js";
 import {
   idleHeartV1,
@@ -1311,6 +1312,8 @@ function baseState(now) {
       /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
       portrait: "default",
       specialPrizeClaimed: 0,
+      // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
+      moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
       // vidé par applyRebirthResetV56_, exactement comme les autres champs
       // de records ci-dessus (highestBoss, totalRebirths...).
@@ -1934,7 +1937,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
 
@@ -5190,6 +5193,54 @@ function moneyPitTierV48_(gold) {
   return tier;
 }
 
+/*
+ * Money Pit, « One-Time Bonuses » (2026-09-24, audit des pages-guides : la FAQ les cite, rien
+ * ne les versait). Seuils sur l'or TOTAL jeté (« sum over many tosses »), une fois chacun :
+ *  - 1E8  : +100 Max Health et +1 Health Regen d'Aventure (page Money Pit + FAQ « 100M+ gold :
+ *           +100 Max HP, +1 HP Regen ») ;
+ *  - 1E10 : +1 Energy Bar et +1 Magic Bar (pages Money Pit, Energy et Magic ; la FAQ, plus
+ *           ancienne, disait 1B) ;
+ *  - 1E11 : Looty McLootFace (page Money Pit, FAQ « ~100b? lootymclootyface ») ; niveau non
+ *           publié -> niveau de drop du catalogue (0). Non marqué versé tant que le sac est plein ;
+ *  - 1E12 : +100 EXP (page Money Pit).
+ * Non versé : le « +10 Power, +10 Toughness » du palier 1E8 (page Money Pit) que la FAQ donne
+ * à « +1 Adventure attack and defense » : sources contradictoires, laissé en suspens.
+ */
+const MONEY_PIT_ONE_TIME_BONUSES_V1 = Object.freeze([
+  Object.freeze({ bit: 1, gold: 1e8, adventureHp: 100, adventureRegen: 1 }),
+  Object.freeze({ bit: 2, gold: 1e10, energyBars: 1, magicBars: 1 }),
+  Object.freeze({ bit: 4, gold: 1e11, item: "lootyMcLootFace" }),
+  Object.freeze({ bit: 8, gold: 1e12, experience: 100 })
+]);
+
+function applyMoneyPitOneTimeBonusesV1(state) {
+  const total = Math.max(0, num(state.systems.moneyPit?.data?.totalGoldTossed, 0));
+  let mask = Math.max(0, int(state.records.moneyPitOneTimeMask, 0));
+  const out = [];
+  const adv = state.adventure && typeof state.adventure === "object" ? state.adventure : null;
+  const permanent = adv ? (adv.permanent = adv.permanent && typeof adv.permanent === "object" ? adv.permanent : {}) : null;
+  for (const b of MONEY_PIT_ONE_TIME_BONUSES_V1) {
+    if (total < b.gold || (mask & b.bit)) continue;
+    if (b.item) {
+      if (!adv) continue;
+      const def = IDLE_ADVENTURE_SPECIALS[b.item];
+      const livre = idleAdventureAddItemV1(adv, idleAdventureSpecialItemV1(b.item, int(def?.dropLevel, 0)));
+      if (!livre) continue;
+    } else if (!permanent) {
+      continue;
+    }
+    if (b.adventureHp) permanent.adventureHp = Math.max(0, num(permanent.adventureHp, 0)) + b.adventureHp;
+    if (b.adventureRegen) permanent.adventureRegen = Math.max(0, num(permanent.adventureRegen, 0)) + b.adventureRegen;
+    if (b.energyBars) permanent.energyBarsFlat = Math.max(0, num(permanent.energyBarsFlat, 0)) + b.energyBars;
+    if (b.magicBars) permanent.magicBarsFlat = Math.max(0, num(permanent.magicBarsFlat, 0)) + b.magicBars;
+    if (b.experience) state.currencies.experience = Math.max(0, num(state.currencies.experience, 0)) + b.experience;
+    mask |= b.bit;
+    out.push(b.gold);
+  }
+  state.records.moneyPitOneTimeMask = mask;
+  return out;
+}
+
 function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -5315,6 +5366,8 @@ function tossMoneyPit(state, now) {
   // Bonus AP commun appliqué comme aux autres sources (page Arbitrary Points), arrondi inférieur.
   reward.ap = apWithBonusV1(state, Math.floor(Math.log10(cost)));
 
+  const oneTime = applyMoneyPitOneTimeBonusesV1(state);
+
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
       state.currencies[k] += v;
@@ -5330,6 +5383,8 @@ function tossMoneyPit(state, now) {
     cooldownHours,
     nextAt:s.data.nextAt
   };
+  // Seuils d'or total des One-Time Bonuses versés par ce jet (hors `reward`, qui ne décrit que le tirage).
+  if (oneTime.length) resultat.oneTime = oneTime;
 
   const historique=Array.isArray(s.data.history)?s.data.history:[];
   historique.unshift({
