@@ -49,15 +49,13 @@ function avecOfficeHat(niveau) {
     [["energyCapPct", 11.14, 15.82], ["energyPowerPct", 61.4, 108.2]]
   );
 
-  // 2026-09-24 (Norman, vrai jeu) : les boosts spéciaux ne remplissent PAS les Specials des objets (seul le cube tuto/infini les reçoit).
-  // Avant : « un gros Special Boost porte tous les Specials de la pièce à leur plafond ».
+  // un gros Special Boost porte tous les Specials de la pièce à leur plafond
   s.inventory.push({ id: "bs", definitionId: "boost:special:10000", name: "Boost special", kind: "boost", boostType: "special", strength: 10000, level: 0 });
-  assert.throws(
-    () => applyIdleAdventureActionV47(s, { action: "boost", boostId: "bs", targetId: hat.id }, { bosses: 100 }, 1),
-    /BOOST_SPECIAL_CIBLE_INVALIDE/,
-    "un boost spécial sur une pièce de set à Specials est refusé"
-  );
-  assert.equal(s.inventory.find((i) => i.id === hat.id).special, 11.14, "le Special de la pièce ne change pas");
+  const apres = applyIdleAdventureActionV47(s, { action: "boost", boostId: "bs", targetId: hat.id }, { bosses: 100 }, 1).state;
+  const hat2 = apres.inventory.find((i) => i.id === hat.id);
+  assert.ok(Math.abs(hat2.special - 15.82) < 1e-9, "plafonné à Max stat at lvl 0");
+  const snap2 = idleAdventureSnapshotV47(apres, 100).inventory.find((i) => i.id === hat.id);
+  assert.ok(Math.abs(snap2.specialsAll[1].value - 108.2) < 1e-9, "l'autre Special suit la même fraction : 100 % de son plafond");
 }
 {
   const s = avecOfficeHat(100);
