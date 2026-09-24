@@ -38,6 +38,7 @@ const neuf = () => normalizeIdleNguState({}, ctx, 0);
 // Advanced Training : Level^0.4 x 10 % sur la Power/Toughness d'AVENTURE, jamais sur Attack/Defense
 {
   const s = neuf();
+  s.systems.advancedTraining.unlocked = true; // 2026-09-24 : les niveaux d'AT sont sans effet menu verrouillé (page Banks)
   s.systems.advancedTraining.data.tracks.power.tempLevel = 1000;
   s.systems.advancedTraining.data.tracks.toughness.tempLevel = 10;
   const st = stats(s);
@@ -48,6 +49,7 @@ const neuf = () => normalizeIdleNguState({}, ctx, 0);
 // Block : (Level+50)/(Level+100)
 {
   const s = neuf();
+  s.systems.advancedTraining.unlocked = true; // 2026-09-24 (voir plus haut)
   s.systems.advancedTraining.data.tracks.block.tempLevel = 10;
   assert.ok(Math.abs(stats(s).blockReduction - 60 / 110) < 1e-9, "54,55 % au niveau 10 (wiki)");
 }

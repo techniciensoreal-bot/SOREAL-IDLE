@@ -1151,8 +1151,8 @@ function advanceWandoos(state, seconds, context, now) {
    * réelles chez SOREAL (IDLE_NGU_TRACKS.advancedTraining "wandoosEnergy"/
    * "wandoosMagic"), jamais lues par Wandoos jusqu'ici.
    */
-  const atEnergyDumpMultiplier = 1 + totalTrackLevel(state.systems.advancedTraining, "wandoosEnergy") * 0.01;
-  const atMagicDumpMultiplier = 1 + totalTrackLevel(state.systems.advancedTraining, "wandoosMagic") * 0.01;
+  const atEnergyDumpMultiplier = 1 + atLevelV1(state, "wandoosEnergy") * 0.01;
+  const atMagicDumpMultiplier = 1 + atLevelV1(state, "wandoosMagic") * 0.01;
   /*
    * "Energy/Magic Wandoos BEAST-a" (Quirks 15/16, wiki page "Wandoos") :
    * +2%/niveau chacun, Energy et Magic séparément.
@@ -4195,6 +4195,15 @@ function setNguTierV1(state, tier) {
   return { tier };
 }
 
+/*
+ * Niveaux d'Advanced Training effectifs : nuls tant que le menu AT est verrouillé (2026-09-24,
+ * page Banks : "banked Advanced Training levels do not have any effect until the AT menu is
+ * unlocked by completing Basic Training" ; page Rebirths : accès perdu au Rebirth).
+ */
+function atLevelV1(state, trackId) {
+  return state.systems.advancedTraining?.unlocked ? totalTrackLevel(state.systems.advancedTraining, trackId) : 0;
+}
+
 function trackBonusLevel(state, systemId, trackId) {
   return totalTrackLevel(state.systems[systemId], trackId);
 }
@@ -4286,9 +4295,9 @@ export function idleNguBonuses(raw) {
 
 function idleNguBonusesSansMacguffinV1(state) {
   const aug = idleNguAugmentationMultiplier(state);
-  const atPower = trackBonusLevel(state, "advancedTraining", "power");
-  const atToughness = trackBonusLevel(state, "advancedTraining", "toughness");
-  const atBlock = trackBonusLevel(state, "advancedTraining", "block");
+  const atPower = atLevelV1(state, "power");
+  const atToughness = atLevelV1(state, "toughness");
+  const atBlock = atLevelV1(state, "block");
   const ironPillPoints = Math.max(0, num(state.systems.bloodMagic?.data?.spells?.ironPill, 0));
   const nguFx = nguFxV1(state);
   const hackFx = hackFxV1(state);
@@ -6151,6 +6160,20 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   state.bank.timeMachineSpeed=Math.floor(tmSpeedLevelEnd*tmBankPct);
   state.bank.timeMachineGold=Math.floor(tmGoldLevelEnd*tmBankPct);
   state.bank.beards=Math.floor(beardTempLevelEnd*beardBankPct);
+  /*
+   * Advanced Training Level Bank (2026-09-24) : les Perks 36-40 / Quirks 20-24
+   * étaient catalogués mais aucun niveau d'AT n'était jamais retenu. Page Banks :
+   * "retain some percentage of your levels in Advanced Training ... when
+   * rebirthing" ; Perk 36 : "Saves 1% (rounded down) of Advanced Training levels".
+   * Même lecture que Time Machine : pourcentage cumulé du niveau de fin de run,
+   * par compétence d'AT ; state.bank.advancedTraining = total retenu.
+   */
+  const atBankPct=Math.max(0,(perkBankBonuses.atBankMultiplier-1)+(quirkBankBonuses.atBankMultiplier-1));
+  const atBanked={};
+  for(const [id,tr] of Object.entries(state.systems.advancedTraining?.data?.tracks||{})){
+    atBanked[id]=options.clearBanks?0:Math.floor(Math.max(0,num(tr.tempLevel,0))*atBankPct+1e-9);
+  }
+  state.bank.advancedTraining=Object.values(atBanked).reduce((s,v)=>s+v,0);
 
   if(options.clearBanks){
     state.bank.advancedTraining=0;
@@ -6222,6 +6245,18 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       const nextTrack=nextActiveId?s.data.tracks[nextActiveId]:null;
       if(nextTrack&&beardBank>0)nextTrack.tempLevel=beardBank;
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
+    }
+    if(def.id==="advancedTraining"&&s.data?.tracks){
+      /*
+       * Page Rebirths, "What do I lose" : "Advanced Training levels and access to
+       * the menu (until you get the basic training levels again)" ; page Banks :
+       * "banked Advanced Training levels do not have any effect until the AT menu
+       * is unlocked by completing Basic Training" -> menu reverrouillé (rouvert
+       * par la synchro quand basicTrainingComplete), niveaux retenus réinjectés.
+       */
+      for(const [id,tr] of Object.entries(s.data.tracks))tr.tempLevel=Math.max(0,int(atBanked[id],0));
+      s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
+      s.unlocked=false;
     }
   }
 

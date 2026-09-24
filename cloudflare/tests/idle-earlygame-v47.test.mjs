@@ -982,6 +982,7 @@ const fresh=(context={}, now=1_000_000)=>
     const expectedMultiplier=1+expectedPct/100;
 
     const powerState=fresh({},1_000_000);
+    powerState.systems.advancedTraining.unlocked=true; // 2026-09-24 : menu AT requis pour l'effet (page Banks)
     powerState.systems.advancedTraining.data.tracks.power.tempLevel=level;
     const attackBonus=idleNguBonuses(powerState).adventurePowerMultiplier;
     assert.equal(idleNguBonuses(powerState).attackMultiplier,idleNguBonuses(base).attackMultiplier,"Advanced Training n'agit pas sur Attack");
@@ -991,6 +992,7 @@ const fresh=(context={}, now=1_000_000)=>
     );
 
     const toughnessState=fresh({},1_000_000);
+    toughnessState.systems.advancedTraining.unlocked=true;
     toughnessState.systems.advancedTraining.data.tracks.toughness.tempLevel=level;
     const defenseBonus=idleNguBonuses(toughnessState).adventureToughnessMultiplier;
     assert.equal(idleNguBonuses(toughnessState).defenseMultiplier,idleNguBonuses(base).defenseMultiplier,"Advanced Training n'agit pas sur Defense");
