@@ -4,7 +4,9 @@ import {
   createIdleAdventureStateV47,
   normalizeIdleAdventureStateV47,
   idleAdventureItemBaseValueV1,
-  IDLE_ADVENTURE_ITEM_CATALOG_V1
+  IDLE_ADVENTURE_ITEM_CATALOG_V1,
+  IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1,
+  IDLE_ADVENTURE_SPECIALS
 } from "../src/idle-adventure-v47.js";
 
 /*
@@ -57,6 +59,46 @@ import {
     if (id === "jake:tie") continue;
     assert.ok(b.power <= d.basePower + 1e-6 && b.toughness <= d.baseToughness + 1e-6, `${id} : Base value > plafond niveau 0`);
   }
+}
+
+// --- 2. Ascensions (champs evolutionto des modèles, page Inventory : "ascends into a 0 lvl") ---
+{
+  const evo = IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1;
+  const chaine = (depart) => { const out = [depart]; while (evo[out[out.length - 1]]) out.push(evo[out[out.length - 1]]); return out; };
+  assert.deepEqual(chaine("forest:pendant"), ["forest:pendant", "ascendedForestPendant", "ascendedAscendedForestPendant", "ascendedX3Pendant", "ascendedX4Pendant", "ascendedX5Pendant", "ascendedX6Pendant", "ascendedX7Pendant", "ascendedX8Pendant", "ascendedX9Pendant"], "Forest Pendant : neuf ascensions");
+  assert.deepEqual(chaine("lootyMcLootFace"), ["lootyMcLootFace", "sirLooty", "kingLooty", "emperorLooty", "galacticHeraldLooty", "supremeIntelligenceLooty", "grandDemonLootzifer", "glitchyLooty"], "Looty : sept ascensions");
+  assert.equal(evo.wanderersCane, "candyCaneDestiny");
+  assert.equal(IDLE_ADVENTURE_ITEM_CATALOG_V1.ascendedX7Pendant.evolutionTo, "ascendedX8Pendant");
+  assert.equal(IDLE_ADVENTURE_ITEM_CATALOG_V1["forest:pendant"].evolutionTo, "ascendedForestPendant");
+  // Nouveaux objets : Id et stats des modèles.
+  const c = IDLE_ADVENTURE_ITEM_CATALOG_V1;
+  assert.deepEqual([c.ascendedX8Pendant.wikiItemId, c.grandDemonLootzifer.wikiItemId, c.ascendedX9Pendant.wikiItemId, c.glitchyLooty.wikiItemId], [430, 431, 504, 505]);
+  assert.deepEqual([c.ascendedX8Pendant.basePower, c.ascendedX9Pendant.basePower, c.grandDemonLootzifer.basePower, c.glitchyLooty.basePower], [1500000000, 3000000000, 1000000000, 3000000000]);
+  assert.equal(IDLE_ADVENTURE_SPECIALS.glitchyLooty.sMax, 26660, "LootzL : Drop Chance 26 660 % au niveau 0");
+  assert.equal(IDLE_ADVENTURE_SPECIALS.ascendedX9Pendant.sType, "hackSpeedPct");
+
+  let s = createIdleAdventureStateV47();
+  s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "ascendedX7Pendant", level: 99 }, {}, 1).state;
+  const x7 = s.inventory.find((o) => o.definitionId === "ascendedX7Pendant");
+  assert.throws(() => applyIdleAdventureActionV47(s, { action: "transformAdventureItem", id: x7.id }, {}, 1), /OBJET_NON_MAXE/);
+  s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "ascendedX7Pendant", level: 100 }, {}, 1).state;
+  const x7max = s.inventory.find((o) => o.definitionId === "ascendedX7Pendant" && o.level === 100);
+  const r = applyIdleAdventureActionV47(s, { action: "transformAdventureItem", id: x7max.id }, {}, 1);
+  assert.equal(r.result.definitionId, "ascendedX8Pendant");
+  assert.equal(r.result.level, 0, "l'objet ascensionné arrive au niveau 0");
+  assert.equal(r.result.power, 1500000000, "et à sa Base value");
+  assert.ok(!r.state.inventory.some((o) => o.id === x7max.id), "l'objet d'origine est consommé");
+  // Pièce de set : le Forest Pendant niveau 100 devient un Ascended Forest Pendant niveau 0.
+  let t = createIdleAdventureStateV47();
+  t = applyIdleAdventureActionV47(t, { action: "addItem", definitionId: "forest:pendant", level: 100 }, {}, 1).state;
+  const fp = t.inventory.find((o) => o.definitionId === "forest:pendant");
+  const r2 = applyIdleAdventureActionV47(t, { action: "transformAdventureItem", id: fp.id }, {}, 1);
+  assert.equal(r2.result.definitionId, "ascendedForestPendant");
+  assert.equal(r2.state.itemList["forest:pendant"].maxLevel, 100, "le Forest Pendant reste compté niveau 100 pour le set Forest");
+  // Fin de lignée : THE END non modélisé -> aucune transformation.
+  t = applyIdleAdventureActionV47(t, { action: "addItem", definitionId: "glitchyLooty", level: 100 }, {}, 1).state;
+  const gl = t.inventory.find((o) => o.definitionId === "glitchyLooty");
+  assert.throws(() => applyIdleAdventureActionV47(t, { action: "transformAdventureItem", id: gl.id }, {}, 1), /TRANSFORMATION_INVALIDE/);
 }
 
 console.log("idle-items-wiki-audit-2026-09-24: OK");

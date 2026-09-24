@@ -1402,6 +1402,20 @@ galacticHeraldLooty:{name:"GALACTIC HERALD LOOTY",zone:"",slot:"accessory",dropL
 ascendedX7Pendant:{name:"Ascended x7 Pendant",zone:"",slot:"accessory",dropLevel:50,p:400000000,t:400000000,sBase:40,sMax:40,sType:"r3CapPct",sExtra:[{type:"r3PowerPct",base:400,max0:400,max100:800},{type:"wishSpeedPct",base:40,max0:40,max100:80}]},
 // wiki : "SUPREME INTELLIGENCE LOOTY" (Id 389, Accessory) — Power/Toughness Max at lvl 0 = 500000000/500000000. Specials : Drop Chance (3000/3000/6000%), Energy Power (500000/500000/1000000%), Gold Drops (200000/200000/400000%), Magic Power (500000/500000/1000000%).
 supremeIntelligenceLooty:{name:"SUPREME INTELLIGENCE LOOTY",zone:"",slot:"accessory",dropLevel:50,p:500000000,t:500000000,sBase:3000,sMax:3000,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:500000,max0:500000,max100:1000000},{type:"goldDropsPct",base:200000,max0:200000,max100:400000},{type:"magicPowerPct",base:500000,max0:500000,max100:1000000}]},
+/*
+ * Ascensions finales (audit des objets, 2026-09-24) : ces quatre objets ne tombent nulle part ;
+ * on les obtient uniquement par ascension (ITEM_EVOLUTIONS_V1, transformAdventureItemV1). Valeurs
+ * des modèles "Template:Item data <objet>" (Base value = Max stat at lvl 0 pour chacun, x2 au
+ * niveau 100) ; pBase/tBase = Base value Power/Toughness. Specials dans l'ordre de la fiche.
+ */
+// wiki "Ascended x8 Pendant" (Id 430, Accessory, évolution de Ascended x7 Pendant) : Power/Toughness 1 500 000 000 ; Specials : Hack Speed (100/100/200%), Resource 3 Cap (100/100/200%), Wish Speed (100/100/200%).
+ascendedX8Pendant:{name:"Ascended x8 Pendant",zone:"",slot:"accessory",dropLevel:0,p:1500000000,t:1500000000,pBase:1500000000,tBase:1500000000,sBase:100,sMax:100,sType:"hackSpeedPct",sExtra:[{type:"r3CapPct",base:100,max0:100,max100:200},{type:"wishSpeedPct",base:100,max0:100,max100:200}]},
+// wiki "Ascended x9 Pendant" (Id 504, Accessory, évolution de Ascended x8 Pendant) : Power/Toughness 3 000 000 000 ; Specials : Hack Speed (200/200/400%), Resource 3 Cap (200/200/400%), Wish Speed (200/200/400%).
+ascendedX9Pendant:{name:"Ascended x9 Pendant",zone:"",slot:"accessory",dropLevel:0,p:3000000000,t:3000000000,pBase:3000000000,tBase:3000000000,sBase:200,sMax:200,sType:"hackSpeedPct",sExtra:[{type:"r3CapPct",base:200,max0:200,max100:400},{type:"wishSpeedPct",base:200,max0:200,max100:400}]},
+// wiki "GRAND DEMON LOOTZIFER" (Id 431, Accessory, évolution de SUPREME INTELLIGENCE LOOTY) : Power/Toughness 1 000 000 000 ; Specials : Drop Chance (6660/6660/13320%), Energy Power (3330000/3330000/6660000%), Gold Drops (666000/666000/1332000%), Magic Power (3330000/3330000/6660000%).
+grandDemonLootzifer:{name:"GRAND DEMON LOOTZIFER",zone:"",slot:"accessory",dropLevel:0,p:1000000000,t:1000000000,pBase:1000000000,tBase:1000000000,sBase:6660,sMax:6660,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:3330000,max0:3330000,max100:6660000},{type:"goldDropsPct",base:666000,max0:666000,max100:1332000},{type:"magicPowerPct",base:3330000,max0:3330000,max100:6660000}]},
+// wiki "LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt" (Id 505, Accessory, évolution de GRAND DEMON LOOTZIFER ; "Glitchy Looty" du Glossary) : Power/Toughness 3 000 000 000 ; Specials : Drop Chance (26660/26660/53320%), Energy Power (10000000/10000000/20000000%), Gold Drops (2200000/2200000/4400000%), Magic Power (10000000/10000000/20000000%).
+glitchyLooty:{name:"LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt",zone:"",slot:"accessory",dropLevel:0,p:3000000000,t:3000000000,pBase:3000000000,tBase:3000000000,sBase:26660,sMax:26660,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:10000000,max0:10000000,max100:20000000},{type:"goldDropsPct",base:2200000,max0:2200000,max100:4400000},{type:"magicPowerPct",base:10000000,max0:10000000,max100:20000000}]},
 // wiki : "A 9mm Beretta" (Id 366, Weapon) — Power/Toughness Max at lvl 0 = 1400000000/70000000. Specials : Augment Speed (750/750/1500%), NGU Speed (700/700/1400%), Resource 3 Cap (21/21/42%).
 beretta9mm:{name:"A 9mm Beretta",zone:"westworld",slot:"weapon",dropLevel:1,p:1400000000,t:70000000,sBase:750,sMax:750,sType:"augmentSpeedPct",sExtra:[{type:"nguSpeedPct",base:700,max0:700,max100:1400},{type:"r3CapPct",base:21,max0:21,max100:42}]},
 // wiki : "Edgy Magicite Crystal" (Id 445, Accessory) — Power/Toughness Max at lvl 0 = 666000/666000. Specials : Energy Power (6000/6000/12000%), Magic Cap (600/600/1200%), NGU Speed (250/250/500%).
@@ -2109,7 +2123,12 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "amplifier":429,
   "rawSlabOfWood":477,
   "tieOfApathy":478,
-  "titanEffigy":479
+  "titanEffigy":479,
+  // Ascensions finales (2026-09-24), Id des modèles "Template:Item data".
+  "ascendedX8Pendant":430,
+  "grandDemonLootzifer":431,
+  "ascendedX9Pendant":504,
+  "glitchyLooty":505
 });
 function wikiItemIdAdventureV1(definitionId){
   return Number(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1[String(definitionId||"")])||0;
@@ -2119,6 +2138,40 @@ const IDLE_ADVENTURE_SLOT_RANK_V1={weapon:0,head:1,chest:2,legs:3,boots:4};
 function idleAdventureSlotRankV1(slot){
   return IDLE_ADVENTURE_SLOT_RANK_V1[slot]!=null?IDLE_ADVENTURE_SLOT_RANK_V1[slot]:5;
 }
+/*
+ * Ascensions / évolutions d'objets (audit des objets, 2026-09-24). Source : champs
+ * `evolutionto` / `evolutionof` des modèles "Template:Item data", rendus sur chaque fiche
+ * "<objet> can be upgraded to <suivant> (level it to level 100 and CTRL + Click to transform
+ * it)". Niveau de l'objet obtenu : 0 (page Inventory : "Once the Forest Pendant reaches Level
+ * 100, it ascends into a 0 lvl 'Ascended Forest Pendant'" ; "it can Ascend again into a Level 0
+ * 'Ascended Ascended Forest Pendant'" ; même règle pour la lignée Looty, "Similar to the
+ * infamous Forest Pendant"). L'objet obtenu démarre à sa Base value (ITEM_BASE_VALUE_PT_V1).
+ * Non modélisés : Ascended x9 Pendant -> THE END #480 et LootzL...OOt -> THE END (485) (les
+ * morceaux de THE END n'existent pas dans SOREAL). A Small Gerbil -> Mysterious Grey Liquid garde
+ * sa condition propre (SADISTIC, fiche : "can only be transformed in SADISTIC difficulty").
+ */
+const ITEM_EVOLUTIONS_V1=Object.freeze({
+  "forest:pendant":"ascendedForestPendant",
+  ascendedForestPendant:"ascendedAscendedForestPendant",
+  ascendedAscendedForestPendant:"ascendedX3Pendant",
+  ascendedX3Pendant:"ascendedX4Pendant",
+  ascendedX4Pendant:"ascendedX5Pendant",
+  ascendedX5Pendant:"ascendedX6Pendant",
+  ascendedX6Pendant:"ascendedX7Pendant",
+  ascendedX7Pendant:"ascendedX8Pendant",
+  ascendedX8Pendant:"ascendedX9Pendant",
+  lootyMcLootFace:"sirLooty",
+  sirLooty:"kingLooty",
+  kingLooty:"emperorLooty",
+  emperorLooty:"galacticHeraldLooty",
+  galacticHeraldLooty:"supremeIntelligenceLooty",
+  supremeIntelligenceLooty:"grandDemonLootzifer",
+  grandDemonLootzifer:"glitchyLooty",
+  wanderersCane:"candyCaneDestiny",
+  flubber:"tripleFlubber",
+  smallGerbil:"mysteriousGreyLiquid"
+});
+export const IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1=ITEM_EVOLUTIONS_V1;
 export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
   const catalog={};
   for(const[setId,s]of Object.entries(SETS)){
@@ -2136,12 +2189,13 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
       catalog[`${setId}:${slot}`]=Object.freeze({
         kind:"equipment",set:setId,setName:s.name,slot,name:`${s.name} ${slot}`,
         wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
-        basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03
+        basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03,
+        evolutionTo:ITEM_EVOLUTIONS_V1[`${setId}:${slot}`]||""
       });
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
   }
   return catalog;
 })());
@@ -4969,29 +5023,23 @@ function consumeAdventureSkillItemV1(s,itemId){
 }
 function transformAdventureItemV1(s,itemId,ctx){
   const o=s.inventory.find(x=>x.id===String(itemId||""));
+  const cible=o?ITEM_EVOLUTIONS_V1[o.definitionId]:"";
   /*
-   * wiki "The Lonely Flubber" : "can be upgraded to The Triple Flubber (level it to level 100
-   * and CTRL + Click to transform it)". Le wiki ne publie pas le niveau de la Triple Flubber
-   * obtenue : niveau 0, même convention que la Grey Liquid ci-dessous (aucun niveau inventé).
+   * Ascension générique (ITEM_EVOLUTIONS_V1) : fiche de chaque objet, "level it to level 100 and
+   * CTRL + Click to transform it" ; l'objet obtenu arrive au niveau 0 (page Inventory, voir la
+   * table). The Lonely Flubber -> The Triple Flubber passe par ce même chemin (niveau 0 déjà
+   * retenu le 2026-09-23). A Small Gerbil -> Mysterious Grey Liquid : en plus, SADISTIC seulement
+   * (fiche : "A Small Gerbil can only be transformed in SADISTIC difficulty").
    */
-  if(o&&o.definitionId==="flubber"){
-    if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
-    retirerObjetAdventureV1(s,o.id);
-    const triple=special("tripleFlubber",0);
-    triple.id=`i${s.serial++}`;
-    const ajoute=add(s,triple);
-    if(!ajoute)throw Error("INVENTAIRE_PLEIN");
-    return ajoute;
-  }
-  if(!o||o.definitionId!=="smallGerbil")throw Error("TRANSFORMATION_INVALIDE");
+  if(!o||!cible)throw Error("TRANSFORMATION_INVALIDE");
   if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
-  if(String(ctx&&ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");
+  if(o.definitionId==="smallGerbil"&&String(ctx&&ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");
   retirerObjetAdventureV1(s,o.id);
-  const liquid=special("mysteriousGreyLiquid",0);
-  liquid.id=`i${s.serial++}`;
-  const added=add(s,liquid);
-  if(!added)throw Error("INVENTAIRE_PLEIN");
-  return added;
+  const obtenu=special(cible,0);
+  obtenu.id=`i${s.serial++}`;
+  const ajoute=add(s,obtenu);
+  if(!ajoute)throw Error("INVENTAIRE_PLEIN");
+  return ajoute;
 }
 function setBeastModeAdventureV1(s,enabled){
   if(!s.unlockFlags.beastModeUnlocked)throw Error("BEAST_MODE_VERROUILLE");

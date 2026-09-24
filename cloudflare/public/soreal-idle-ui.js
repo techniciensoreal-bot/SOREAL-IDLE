@@ -18155,8 +18155,15 @@ function pageAventureIdleV28_(j){
           item.definitionId==='smallGerbil'&&
           niveau>=100&&
           String(idleEtat&&idleEtat.systemes&&idleEtat.systemes.difficulty||'')==='extreme';
-        /* The Lonely Flubber niveau 100 -> The Triple Flubber (wiki : « level it to level 100 and CTRL + Click to transform it »). */
-        const peutTransformerFlubber=item.definitionId==='flubber'&&niveau>=100;
+        /*
+         * Ascensions (2026-09-24) : tout objet dont le catalogue serveur donne une évolution
+         * (itemCatalog[definitionId].evolutionTo : Forest Pendant -> Ascended... -> x9, lignée
+         * Looty, Wanderer's Cane, The Lonely Flubber) au niveau 100 (wiki : « level it to level
+         * 100 and CTRL + Click to transform it »).
+         */
+        const catalogueObjetsAdv=a&&a.itemCatalog&&typeof a.itemCatalog==='object'?a.itemCatalog:{};
+        const evolutionObjetAdv=catalogueObjetsAdv[item.definitionId]&&catalogueObjetsAdv[item.definitionId].evolutionTo;
+        const peutTransformerFlubber=item.definitionId!=='smallGerbil'&&Boolean(evolutionObjetAdv)&&niveau>=100;
         const boutonTransformer=(peutTransformerGerbil||peutTransformerFlubber)
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__transformerObjetAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🧪 Transformer</button>'
           :'';
