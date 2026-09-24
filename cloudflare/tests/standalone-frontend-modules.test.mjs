@@ -18,8 +18,8 @@ const modules=[
 
 let previous=index.indexOf('/standalone-bridge.js');
 assert.ok(previous>=0,"Le bridge standalone doit être chargé.");
-assert.ok(index.includes("/modules/ui.js?v=49"),"Le module UI extrait doit être chargé.");
-const extractedUi=index.indexOf("/modules/ui.js?v=49");
+assert.ok(index.includes("/modules/ui.js?v=50"),"Le module UI extrait doit être chargé.");
+const extractedUi=index.indexOf("/modules/ui.js?v=50");
 assert.ok(extractedUi>index.indexOf("/modules/runtime.js"),"Le module UI extrait doit être chargé après runtime.");
 
 for(const name of modules){

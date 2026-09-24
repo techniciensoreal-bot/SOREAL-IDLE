@@ -2,6 +2,10 @@
  * SOREAL IDLE standalone auxiliary frontend module.
  * Migrated from SOREAL-APP/cloudflare/features/idle/ui.html
  * during standalone frontend cutover.
+ *
+ * 2026-09-24 (Norman : « Le money pit a encore 2 fonctions qui s'écrasent. On a le money pit avec l'image (celui que je veux garder)
+ * et l'autre money pit, uniquement textuel (que je veux virer) ») : la page Money Pit + Daily Spin en texte seul (V49) est supprimée
+ * d'ici. Elle réécrivait la page à image de meta-progression-v130.js (pageMoneyPitDailySpinIdleV206_, l'unique page Money Pit).
  */
 (function(){
   'use strict';
@@ -15,7 +19,6 @@
   var lectureEnCours=false;
   var callbacks=[];
   var timerEnhance=0;
-  var timerCountdown=0;
   var dernierRoot=null;
 
   function nombre_(value){
@@ -152,15 +155,6 @@
     if(typeof fn==='function')fn(payload);
   }
 
-  function hookCollect_(id){
-    cacheAt=0;
-    if(typeof window.__collecterSystemeMetaIdleV130__==='function'){
-      window.__collecterSystemeMetaIdleV130__(id);
-      return;
-    }
-    hookAction_({action:'collect',system:id});
-  }
-
   function rendreAllocation_(joueur,systemId){
     var s=systeme_(joueur,systemId);
     var current=Math.max(0,nombre_(s&&s.state&&s.state.allocation&&s.state.allocation.energy));
@@ -234,82 +228,10 @@
     });
   }
 
-  function moneyEtat_(joueur){
-    var m=meta_(joueur);
-    var pit=systeme_(joueur,'moneyPit');
-    var spin=systeme_(joueur,'dailySpin');
-    var pitData=pit&&pit.state&&pit.state.data||{};
-    var spinData=spin&&spin.state&&spin.state.data||{};
-    return {
-      gold:Math.max(0,nombre_(m.currencies&&m.currencies.gold)),
-      pit:pit,
-      pitData:pitData,
-      spin:spin,
-      spinData:spinData
-    };
-  }
-
-  function rendreMoney_(root,joueur){
-    var x=moneyEtat_(joueur);
-    if(!x.pit||!x.pit.state||!x.pit.state.unlocked)return;
-
-    var now=Date.now();
-    var pitReady=now>=nombre_(x.pitData.nextAt);
-    var enough=x.gold>=100000;
-    var spinUnlocked=Boolean(x.spin&&x.spin.state&&x.spin.state.unlocked);
-    var spinReady=spinUnlocked&&now>=nombre_(x.spinData.readyAt);
-
-    root.setAttribute('data-soreal-feature','idle');
-    root.dataset.sorealIdleEarlyV49='money';
-    root.innerHTML=
-      '<div class="soreal-idle-v49-page">'+
-        '<header class="soreal-idle-v49-hero money"><div class="soreal-idle-v49-hero-icon">🕳️</div><div><span class="soreal-idle-v49-kicker">MONEY PIT + DAILY SPIN</span><h2>Le puits et la roue</h2><p>Deux systèmes liés, sur un seul écran. Le Money Pit ne prélève pas une somme choisie : il avale tout le Gold que tu possèdes au moment du clic.</p></div></header>'+
-        '<section class="soreal-idle-v49-card soreal-idle-v49-danger"><div class="soreal-idle-v49-card-head"><div><span class="soreal-idle-v49-kicker">MONEY PIT</span><h3>Jeter tout le Gold</h3></div><strong>'+formatNombre_(x.gold)+' Gold</strong></div>'+
-          '<div class="soreal-idle-v49-warning"><b>Attention :</b> si tu confirmes, ton Gold actuel tombe à <b>0</b>. Le minimum pour obtenir une récompense est 100 000 Gold.</div>'+
-          '<div class="soreal-idle-v49-stats"><span>Jets ce run <b>'+entier_(x.pitData.tossesThisRun)+'</b></span><span>Total jeté <b>'+formatNombre_(x.pitData.totalGoldTossed)+'</b></span><span>Récompenses <b>'+entier_(x.pitData.rewardIndex)+'</b></span></div>'+
-          '<div class="soreal-idle-v49-ready"><span>Recharge</span><b data-v49-countdown data-ready-at="'+nombre_(x.pitData.nextAt)+'">'+formatDuree_(nombre_(x.pitData.nextAt)-now)+'</b></div>'+
-          '<button type="button" class="soreal-idle-v49-primary danger" data-v49-action="pit" '+((pitReady&&enough)?'':'disabled')+'>'+(!pitReady?'Money Pit en recharge':!enough?'100 000 Gold minimum':'🕳️ Jeter '+formatNombre_(x.gold)+' Gold')+'</button>'+
-        '</section>'+
-        '<section class="soreal-idle-v49-card"><div class="soreal-idle-v49-card-head"><div><span class="soreal-idle-v49-kicker">DAILY SPIN</span><h3>Roue quotidienne</h3></div><strong>'+entier_(x.spinData.totalSpins)+' tirage(s)</strong></div>'+
-          (spinUnlocked
-            ?'<p>Un tirage revient toutes les 24 h. Jusqu’à 12 h de retard sont conservées et réduisent l’attente du tirage suivant.</p><div class="soreal-idle-v49-ready"><span>Prochain tirage</span><b data-v49-countdown data-ready-at="'+nombre_(x.spinData.readyAt)+'">'+formatDuree_(nombre_(x.spinData.readyAt)-now)+'</b></div><button type="button" class="soreal-idle-v49-primary" data-v49-action="spin" '+(spinReady?'':'disabled')+'>'+(spinReady?'🎡 Lancer la roue':'Roue en recharge')+'</button>'
-            :'<div class="soreal-idle-v49-warning neutral">🔒 Daily Spin se débloque avec le Money Pit.</div>')+
-        '</section>'+
-      '</div>';
-
-    root.addEventListener('click',function(event){
-      var button=event.target.closest('[data-v49-action]');
-      if(!button||button.disabled||!root.contains(button))return;
-      if(button.dataset.v49Action==='pit'){
-        root.classList.add('soreal-idle-v49-busy');
-        hookAction_({action:'moneyPit'});
-      }else if(button.dataset.v49Action==='spin'){
-        root.classList.add('soreal-idle-v49-busy');
-        hookCollect_('dailySpin');
-      }
-    });
-
-    demarrerCountdown_();
-  }
-
-  function demarrerCountdown_(){
-    if(timerCountdown)clearInterval(timerCountdown);
-    timerCountdown=setInterval(function(){
-      if(pageActive_()!=='moneyPit'){
-        clearInterval(timerCountdown);
-        timerCountdown=0;
-        return;
-      }
-      document.querySelectorAll('[data-v49-countdown]').forEach(function(el){
-        var at=nombre_(el.dataset.readyAt);
-        el.textContent=formatDuree_(at-Date.now());
-      });
-    },1000);
-  }
-
   function enhancer_(force){
     var page=pageActive_();
-    if(page!=='avance'&&page!=='moneyPit')return;
+    /* Money Pit : page retirée le 2026-09-24 (voir le commentaire en tête de fichier) ; seule la page Advanced Training reste ici. */
+    if(page!=='avance')return;
     var root=root_();
     if(!root)return;
     if(root.dataset.sorealIdleEarlyV49)return;
@@ -320,7 +242,6 @@
     obtenirEtat_(function(joueur){
       if(!joueur||!root.isConnected||root!==root_()||page!==pageActive_())return;
       if(page==='avance')rendreAdvanced_(root,joueur);
-      if(page==='moneyPit')rendreMoney_(root,joueur);
     },Boolean(force||nouveauRoot));
   }
 
@@ -339,7 +260,6 @@
     style.textContent='\
       .soreal-idle-v49-page{display:grid;gap:12px;padding-bottom:12px}\
       .soreal-idle-v49-hero{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:linear-gradient(135deg,rgba(82,62,166,.28),rgba(20,24,40,.9));box-shadow:0 14px 30px rgba(0,0,0,.18)}\
-      .soreal-idle-v49-hero.money{background:linear-gradient(135deg,rgba(115,76,29,.34),rgba(20,24,40,.92))}\
       .soreal-idle-v49-hero-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:17px;background:rgba(255,255,255,.09);font-size:31px}\
       .soreal-idle-v49-kicker{display:block;font-size:10px;font-weight:950;letter-spacing:.13em;color:#b8a6ff;margin-bottom:4px}\
       .soreal-idle-v49-hero h2,.soreal-idle-v49-card h3{margin:0;color:#fff}.soreal-idle-v49-hero h2{font-size:25px}.soreal-idle-v49-hero p,.soreal-idle-v49-card p{margin:6px 0 0;color:#aeb5c8;line-height:1.45}\
@@ -365,8 +285,7 @@
     systeme:systeme_,
     systemeDebloque:systemeDebloque_,
     allocationMax:allocationMax_,
-    formatDuree:formatDuree_,
-    moneyEtat:moneyEtat_
+    formatDuree:formatDuree_
   };
 
   installerStyle_();
