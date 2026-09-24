@@ -626,28 +626,45 @@
         const bleu='var(--nav-color,#0891b2)';
         const fond1='color-mix(in srgb,'+bleu+' 60%,#0b1020)';
         const fond2='color-mix(in srgb,'+bleu+' 38%,#1a2340)';
+        /*
+         * 2026-09-24 (Norman : « Mets 2 nuances de couleurs dans EXP Shop. Essaie de le rendre joli. Ça doit nous faire penser à un
+         * magasin ») : deux nuances = les deux extrémités du dégradé de la bannière (fond1 60 %, fond2 38 %), en alternance d'une carte
+         * à l'autre ; décor de boutique : auvent rayé à festons, caisse (EXP disponible) avec enseigne « OUVERT », rayons (onglets)
+         * suspendus, produits posés sur une étagère, boutons en étiquettes de prix, « épuisé » en tampon.
+         */
         const css=[
-          `.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;margin:0 0 12px;border-radius:16px;background:linear-gradient(135deg,${fond1},${fond2});color:#fff;border:0;border-left:4px solid ${bleu};box-shadow:0 8px 24px color-mix(in srgb,${bleu} 35%,transparent)}`,
-          `.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900;letter-spacing:.02em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font-size:16px}`,
-          `.soreal-idle-exp-tabs-v212{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}`,
-          `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;padding:9px 12px;border-radius:12px;border:1px solid color-mix(in srgb,${bleu} 50%,transparent);background:${fond2};color:#e8f4f8;font-size:12px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,
-          `.soreal-idle-exp-tab-v212:hover{background:color-mix(in srgb,${bleu} 48%,#1a2340)}`,
-          `.soreal-idle-exp-tab-v212.actif{background:linear-gradient(135deg,${fond1},${bleu});border-color:#fff;color:#fff;box-shadow:0 4px 14px color-mix(in srgb,${bleu} 45%,transparent)}`,
+          `.soreal-idle-exp-shop-v213{margin:0 0 14px;border-radius:18px;overflow:hidden;background:${fond2};border:1px solid color-mix(in srgb,${bleu} 55%,transparent);box-shadow:0 10px 26px rgba(0,0,0,.28)}`,
+          `.soreal-idle-exp-awning-v213{position:relative;height:30px;margin-bottom:14px;background:repeating-linear-gradient(90deg,${bleu} 0 26px,${fond1} 26px 52px)}`,
+          `.soreal-idle-exp-awning-v213::after{content:"";position:absolute;left:0;right:0;top:100%;height:14px;background:radial-gradient(circle at 13px 0,${bleu} 12.5px,transparent 13.5px) 0 0/52px 14px repeat-x,radial-gradient(circle at 13px 0,${fond1} 12.5px,transparent 13.5px) 26px 0/52px 14px repeat-x;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}`,
+          `.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 14px 12px;padding:12px 14px;border-radius:14px;background:${fond1};color:#fff;border:2px solid rgba(255,255,255,.22);box-shadow:inset 0 2px 8px rgba(0,0,0,.35)}`,
+          `.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900;letter-spacing:.03em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:6px 12px;border-radius:9px;background:#07111f;color:#7ff0c0;font-size:17px;font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em;box-shadow:inset 0 0 0 2px rgba(255,255,255,.14)}`,
+          `.soreal-idle-exp-open-v213{padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.3);color:#c9f7dd;font-size:9px;font-weight:1000;letter-spacing:.14em}`,
+          `.soreal-idle-exp-aisles-v213{display:flex;align-items:center;justify-content:space-between;margin:0 14px 4px;font-size:9px;font-weight:1000;letter-spacing:.16em;text-transform:uppercase;color:#a9cfdc}`,
+          `.soreal-idle-exp-tabs-v212{display:flex;gap:7px;flex-wrap:wrap;margin:0 14px 16px;padding-top:6px}`,
+          `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;position:relative;padding:9px 13px;border-radius:4px 4px 14px 14px;border:1px solid rgba(255,255,255,.22);background:${fond1};color:#e8f4f8;font-size:12px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,
+          `.soreal-idle-exp-tab-v212::before{content:"";position:absolute;left:50%;top:-8px;width:2px;height:8px;background:rgba(255,255,255,.4);transform:translateX(-50%)}`,
+          `.soreal-idle-exp-tab-v212:hover{background:color-mix(in srgb,${bleu} 72%,#0b1020)}`,
+          `.soreal-idle-exp-tab-v212.actif{background:${bleu};border-color:#fff;color:#fff;box-shadow:0 5px 14px color-mix(in srgb,${bleu} 55%,transparent)}`,
           `.soreal-idle-exp-pastille-v212{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#f5c451;color:#3a2a00;font-size:11px;font-weight:1000;display:inline-flex;align-items:center;justify-content:center}`,
-          `.soreal-idle-exp-intro-v212{margin:0 0 10px;padding:11px 13px;border-radius:12px;background:rgba(245,196,81,.13);border:1px solid rgba(245,196,81,.4);color:#f7e6b0;font-size:12px;line-height:1.5;font-weight:750}`,
+          `.soreal-idle-exp-shelves-v213{padding:0 14px 14px}`,
+          `.soreal-idle-exp-intro-v212{margin:0 0 12px;padding:11px 13px 11px 40px;position:relative;border-radius:12px;background:rgba(245,196,81,.13);border:2px dashed rgba(245,196,81,.5);color:#f7e6b0;font-size:12px;line-height:1.5;font-weight:750}.soreal-idle-exp-intro-v212::before{content:"🏷️";position:absolute;left:11px;top:9px;font-size:18px}`,
           `.soreal-idle-exp-resource-v210{margin:16px 0 8px;padding:10px 13px;border-radius:12px;background:${fond1};color:#fff;border-left:4px solid ${bleu};font-size:13px;font-weight:1000}`,
-          `.soreal-idle-exp-stat-v210{margin:8px 0;padding:14px;border-radius:15px;background:${fond2};color:#f2f8fb;border:1px solid color-mix(in srgb,${bleu} 45%,transparent);box-shadow:0 4px 13px rgba(0,0,0,.18)}`,
-          `.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff;font-size:14px;font-weight:1000}.soreal-idle-exp-stat-head-v210>span{min-width:0}`,
-          `.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:5px 8px;border-radius:9px;background:rgba(0,0,0,.24);color:#fff;border:1px solid rgba(255,255,255,.12)}.soreal-idle-exp-current-v211 small{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#b9d6e0;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:13px;color:#fff}`,
-          `.soreal-idle-exp-help-v210{margin:6px 0 12px;color:#b9d6e0;font-size:11px;line-height:1.5;font-weight:750}`,
-          `.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:7px}`,
-          `.soreal-idle-exp-buy-v210{appearance:none;min-height:48px;border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:8px 10px;background:${fond1};color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px}`,
-          `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 78%,#0b1020);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:10px;color:#cfe6ee !important;font-weight:800}`,
-          `.soreal-idle-exp-buy-v210.primary{background:${bleu};border-color:#fff}.soreal-idle-exp-buy-v210.primary:hover{background:color-mix(in srgb,${bleu} 80%,#fff)}.soreal-idle-exp-buy-v210.offer{background:rgba(245,196,81,.22);border-color:rgba(245,196,81,.6);color:#ffeeb5 !important}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#ffeeb5 !important}`,
-          `.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:7px;align-items:end;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.14)}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;font-weight:900;color:#b9d6e0}.soreal-idle-exp-custom-v210 input{min-width:0;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#fff;font-weight:800}`,
-          `.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:1px solid rgba(245,196,81,.32)}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#f7e6b0}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{color:#e9d9a3}`,
-          `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{background:rgba(52,199,89,.16);color:#a6f0bb;border-color:rgba(52,199,89,.35)}`,
-          `@media(max-width:560px){.soreal-idle-exp-stat-v210{padding:12px}.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:repeat(2,minmax(0,1fr))}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 .primary{grid-column:1/-1}.soreal-idle-exp-tab-v212{flex:1 1 calc(50% - 6px);justify-content:center}}`
+          `.soreal-idle-exp-stat-v210{position:relative;margin:0 0 16px;padding:0 0 12px;border-radius:14px 14px 4px 4px;background:${fond1};color:#f2f8fb;border:1px solid rgba(255,255,255,.14);border-bottom:7px solid ${bleu};box-shadow:0 7px 0 rgba(0,0,0,.3),0 12px 16px rgba(0,0,0,.18)}`,
+          `.soreal-idle-exp-shelves-v213>.soreal-idle-exp-stat-v210:nth-of-type(even){background:${fond2};border-color:rgba(255,255,255,.14);border-bottom-color:${fond1}}`,
+          `.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:13px 13px 0 0;background:rgba(0,0,0,.22);color:#fff;font-size:14px;font-weight:1000}.soreal-idle-exp-stat-head-v210>span{min-width:0}`,
+          `.soreal-idle-exp-stat-v210>:not(.soreal-idle-exp-stat-head-v210){margin-left:12px;margin-right:12px}`,
+          `.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:4px 8px;border-radius:8px;background:#07111f;color:#fff;border:1px solid rgba(255,255,255,.14)}.soreal-idle-exp-current-v211 small{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#9fc6d3;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:13px;color:#7ff0c0}`,
+          `.soreal-idle-exp-help-v210{margin-top:8px;margin-bottom:10px;color:#c2dde6;font-size:11px;line-height:1.5;font-weight:750}`,
+          `.soreal-idle-exp-stat-v210>.soreal-idle-exp-actions-v210:first-of-type{margin-top:10px}`,
+          `.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:8px}`,
+          `.soreal-idle-exp-buy-v210{appearance:none;position:relative;min-height:50px;border:1px solid rgba(255,255,255,.28);border-radius:6px 12px 12px 6px;padding:8px 10px 8px 22px;background:${bleu};color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;outline:1px dashed rgba(255,255,255,.35);outline-offset:-4px}`,
+          `.soreal-idle-exp-buy-v210::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:${fond2};box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}`,
+          `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 82%,#fff);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:10px;color:#e3f4fa !important;font-weight:900}`,
+          `.soreal-idle-exp-buy-v210.primary{background:#f5c451;border-color:#fff;color:#3a2a00 !important}.soreal-idle-exp-buy-v210.primary b,.soreal-idle-exp-buy-v210.primary small{color:#3a2a00 !important}.soreal-idle-exp-buy-v210.primary:hover{background:#ffd978}.soreal-idle-exp-buy-v210.offer{background:rgba(245,196,81,.22);border-color:rgba(245,196,81,.6);color:#ffeeb5 !important}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#ffeeb5 !important}`,
+          `.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:8px;align-items:end;margin-top:10px;padding-top:10px;border-top:2px dotted rgba(255,255,255,.2)}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;font-weight:900;color:#b9d6e0}.soreal-idle-exp-custom-v210 input{min-width:0;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#fff;font-weight:800}`,
+          `.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:2px dashed rgba(245,196,81,.4)}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#f7e6b0}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{color:#e9d9a3}`,
+          `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{width:fit-content;background:rgba(52,199,89,.14);color:#a6f0bb;border:2px solid rgba(52,199,89,.5);border-radius:8px;transform:rotate(-1.5deg);letter-spacing:.04em;text-transform:uppercase}`,
+          `@media(max-width:560px){.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:repeat(2,minmax(0,1fr))}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 .primary{grid-column:1/-1}.soreal-idle-exp-tab-v212{flex:1 1 calc(50% - 7px);justify-content:center}.soreal-idle-exp-tabs-v212,.soreal-idle-exp-aisles-v213{margin-left:10px;margin-right:10px}.soreal-idle-exp-balance-v210{margin-left:10px;margin-right:10px}.soreal-idle-exp-shelves-v213{padding:0 10px 12px}}`
         ].join('');
         const onglets=IDLE_EXP_ONGLETS_V1.map(function(o){
           const actif=o.id===onglet;
@@ -659,9 +676,13 @@
           'Utilise ton EXP pour améliorer durablement ta partie. Commence par l’onglet 🚀 Débuts.'
         )+
         '<style>'+css+'</style>'+
-        '<div class="soreal-idle-exp-balance-v210"><span>⭐ EXP disponible</span><b>'+H.formatGrandNombreIdleV70_(exp)+'</b></div>'+
-        '<div class="soreal-idle-exp-tabs-v212" role="tablist">'+onglets+'</div>'+
-        idleExpShopContenuOngletIdleV1_(j,m,onglet);
+        '<div class="soreal-idle-exp-shop-v213">'+
+          '<div class="soreal-idle-exp-awning-v213" aria-hidden="true"></div>'+
+          '<div class="soreal-idle-exp-balance-v210"><span>🪙 Ta caisse · EXP disponible</span><b>'+H.formatGrandNombreIdleV70_(exp)+'</b></div>'+
+          '<div class="soreal-idle-exp-aisles-v213"><span>🧭 Rayons</span><span class="soreal-idle-exp-open-v213">● OUVERT</span></div>'+
+          '<div class="soreal-idle-exp-tabs-v212" role="tablist">'+onglets+'</div>'+
+          '<div class="soreal-idle-exp-shelves-v213">'+idleExpShopContenuOngletIdleV1_(j,m,onglet)+'</div>'+
+        '</div>';
       }
 
       function acheterExpShopIdleV1_(item,quantite){

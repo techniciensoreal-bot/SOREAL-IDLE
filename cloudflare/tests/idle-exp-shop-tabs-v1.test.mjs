@@ -95,7 +95,7 @@ const TOUS = ["debuts", "energy", "magic", "r3", "aventure", "slots"];
   const css = html.slice(html.indexOf("<style>"), html.indexOf("</style>"));
   assert.ok(css.includes("var(--nav-color,#0891b2)"), "bleu de la bannière (couleur du menu Boutique EXP)");
   assert.ok(css.includes("60%,#0b1020") && css.includes("38%,#1a2340"), "mêmes dégradés que la bannière (page-head)");
-  assert.ok(!/background:#fff[;}]/i.test(css) && !/background:#(?:f[0-9a-f]{2}|f[0-9a-f]{5})[;}]/i.test(css.replace(/background:#f5c451;/,"")), "aucun fond blanc / clair (hors pastille dorée)");
+  assert.ok(!/background:#fff[;}]/i.test(css) && !/background:#(?:f[0-9a-f]{2}|f[0-9a-f]{5})[;}]/i.test(css.replace(/background:#(?:f5c451|ffd978)/g,"")), "aucun fond blanc / clair (hors pastille dorée)");
   assert.ok(!/background:#(?:e9edf7|f1f3f8|f1f3f7|fffaf0|fff4cf|edf8f0)/i.test(css));
 }
 

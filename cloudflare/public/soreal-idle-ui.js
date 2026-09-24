@@ -340,6 +340,35 @@
           :0;
       }
 
+      /*
+       * 2026-09-24 (Norman : « quand tous mes points sont générés et que j'en place dans Augmentation, le compteur continue à générer des
+       * points et retombe à 0 vers 17-20, puis recommence sans arrêt »). Le serveur ne laisse à l'énergie libre que
+       * Cap − (Basic Training + TOUS les systèmes qui en retiennent : Augmentations, NGU, Time Machine, Wishes…) ; le client, lui, ne
+       * retirait du Cap que Basic Training : avec toute l'énergie placée dans Augmentation il continuait donc à « générer » localement
+       * jusqu'à la prochaine synchronisation, qui ramenait la valeur du serveur (0). Somme lue dans le snapshot, comme le moteur.
+       */
+      function allocationMetaEnergieIdleV1_(){
+        const liste=
+          idleEtat&&
+          idleEtat.systemes&&
+          Array.isArray(idleEtat.systemes.systems)
+            ?idleEtat.systemes.systems
+            :[];
+
+        return liste.reduce(function(total,sys){
+          return total+
+            Math.max(
+              0,
+              idleNombre_(
+                sys&&
+                sys.state&&
+                sys.state.allocation&&
+                sys.state.allocation.energy
+              )
+            );
+        },0);
+      }
+
       function capBasicTrainingLocalIdleV120_(skill){
         if(!skill)return 1;
 
@@ -1045,7 +1074,8 @@
                 idleEntier_(
                   idleEtat.energieMax
                 )-
-                totalAllocationBasicTrainingIdleV120_()
+                totalAllocationBasicTrainingIdleV120_()-
+                allocationMetaEnergieIdleV1_()
               ),
               idleAvant-delta
             )
@@ -1124,8 +1154,12 @@
 
         idleEtat.energie=
           Math.min(
-            idleEntier_(
-              idleEtat.energieMax
+            Math.max(
+              0,
+              idleEntier_(
+                idleEtat.energieMax
+              )-
+              allocationMetaEnergieIdleV1_()
             ),
             idleEntier_(
               idleEtat.energie
@@ -2079,7 +2113,8 @@
           Math.max(
             0,
             maxTotal-
-            totalAllocationBasicTrainingIdleV120_()
+            totalAllocationBasicTrainingIdleV120_()-
+            allocationMetaEnergieIdleV1_()
           );
 
         const prod=
