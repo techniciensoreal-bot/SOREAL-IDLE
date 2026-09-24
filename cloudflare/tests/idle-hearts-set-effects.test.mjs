@@ -114,7 +114,9 @@ for (const id of ["heartRed", "heartYellow", "heartBrown", "heartGreen", "heartB
   near(b.mayoSpeed / a.mayoSpeed, 1.1, "mayo x1,10");
 }
 
-// ---------- Brown / Pink : sets complétés, aucun effet inventé (pas de Poop ni de slot de souhait) ----------
+// ---------- Brown / Pink : sets complétés sans setReward ----------
+// 2026-09-24 : leurs effets (Poop gratuite, slot de souhait) sont lus sur completedSets et
+// testés dans idle-yggdrasil-extra-poop et idle-wish-slots-sources.
 {
   for (const id of ["heartBrown", "heartPink"]) {
     const a = avecCoeur(id, 99).adventure.setRewards;

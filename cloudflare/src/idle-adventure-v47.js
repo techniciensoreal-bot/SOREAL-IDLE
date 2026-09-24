@@ -1626,8 +1626,9 @@ const SETS_OBJETS_V1=Object.freeze({
    *  - Grey : "25% Faster Hacks!" ;
    *  - Rainbow : "+10% Mayo and Card Generation Speed!".
    * Brown ("every 10th poop ... will not be consumed") et Pink ("an additional Wish slot") :
-   * set complétable, mais AUCUN effet -- SOREAL n'a ni Poop (Yggdrasil) ni plusieurs slots de
-   * souhait ; rien n'est inventé à la place.
+   * aucun setReward, l'effet est lu directement sur completedSets (2026-09-24, commentaire mis
+   * à jour) : Brown par idleYggBrownHeartActiveV1 (idle-yggdrasil-extra-v1.js, chaque 10e Poop
+   * gratuite), Pink par wishSlotBreakdownV1 (idle-ngu-progression.js, +1 slot de souhait).
    */
   heartRed:{name:"Red Heart Set",items:["heartRed"],reward:{heartExpPct:.10}},
   heartYellow:{name:"Yellow Heart Set",items:["heartYellow"],reward:{heartApPct:.20}},

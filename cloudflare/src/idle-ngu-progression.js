@@ -5644,16 +5644,11 @@ function titanFight(state, context, now) {
 function collectSystem(state, id, context, now) {
   if (id === "dailySpin") return spinDaily(state, now);
   if (id === "bloodMagic") return castBloodSpell(state, String(context.spell || "numberBoost"));
-  if (id === "yggdrasil") {
-    const s = state.systems.yggdrasil;
-    if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
-    const harvests = Math.floor(num(s.data.growth, 0));
-    if (harvests <= 0) throw new Error("RIEN_A_RECOLTER");
-    s.data.growth -= harvests;
-    state.currencies.seeds += harvests;
-    s.level += harvests;
-    return { harvests };
-  }
+  /*
+   * 2026-09-24 : l'ancienne branche « yggdrasil » (lecture d'un data.growth que
+   * plus rien n'écrit) est retirée. Les fruits se mangent / se récoltent un par
+   * un avec l'action useYggFruit.
+   */
   throw new Error("ACTION_NON_DISPONIBLE");
 }
 
