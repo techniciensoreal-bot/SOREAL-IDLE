@@ -1127,12 +1127,28 @@ function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
  * en Normal — documenté honnêtement, jamais un chiffre inventé. Le set XL
  * multiplie le tout par 0,9 (plancher réel de 27 min = 60 x 0,9 x 0,5).
  */
-function wandoosBootFractionV1(state, now) {
+function wandoosBootFractionV1(state, now, seconds = 0) {
   const hundredLevelsCount = Math.max(0, Math.min(5, int(state.challenge?.completionsTier?.difficile?.hundredLevels, 0)));
   /* Wandoos XL (set) : x0,9 sur la durée du boot (idle-wandoos-os-v1.js), cumulé multiplicativement avec les défis. */
-  const bootSeconds = 3600 * (1 - 0.10 * hundredLevelsCount) * idleWandoosBootMultiplierV1(state);
-  const elapsed = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
-  return clamp(elapsed / Math.max(1, bootSeconds), 0, 1);
+  const bootSeconds = Math.max(1, 3600 * (1 - 0.10 * hundredLevelsCount) * idleWandoosBootMultiplierV1(state));
+  const end = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
+  const span = Math.max(0, Math.min(end, num(seconds, 0)));
+  if (span <= 1e-9) {
+    const f = clamp(end / bootSeconds, 0, 1);
+    return { fraction: f, afterBootShare: end >= bootSeconds ? 1 : 0 };
+  }
+  /*
+   * 2026-09-24 (audit, page Wandoos, Boot-up : « The speed increase is linear, and ranges from 0-100% speed »)
+   * : une fenêtre de temps simulée d'un seul bloc (hors ligne, jusqu'à 30 jours) était multipliée par la
+   * vitesse de la FIN de fenêtre. On utilise la vitesse moyenne de la rampe linéaire sur la fenêtre, et la
+   * part de la fenêtre écoulée après le boot pour le +10 % du set Wandoos.
+   */
+  const start = end - span;
+  const rampEnd = Math.min(end, bootSeconds);
+  const rampStart = Math.min(start, bootSeconds);
+  const rampIntegral = (rampEnd * rampEnd - rampStart * rampStart) / (2 * bootSeconds);
+  const afterBoot = Math.max(0, end - Math.max(start, bootSeconds));
+  return { fraction: clamp((rampIntegral + afterBoot) / span, 0, 1), afterBootShare: afterBoot / span };
 }
 
 function advanceWandoos(state, seconds, context, now) {
@@ -1146,12 +1162,14 @@ function advanceWandoos(state, seconds, context, now) {
   const quirkBonuses = quirkBonusesV1(state.systems.quirks?.data?.levels);
   const totalOsLevel = Math.min(400,
     Math.max(0, perkBonuses.wandoosOsLevelBonus) +
-    Math.max(0, num(s.data.osLevels?.moneyPit, 0)) +
+    /* Souhait 4 « I wish money Pit didn't suck » : « Also maxes your money pit Wandoos level » (page Wishes / Money Pit : 100). */
+    (wishLevelV1(state, 4) >= 1 ? 100 : Math.max(0, num(s.data.osLevels?.moneyPit, 0))) +
     Math.max(0, num(s.data.osLevels?.consumed98, 0)) +
     Math.max(0, num(s.data.osLevels?.consumedXl, 0))
   );
   const osLevelMultiplier = wandoosOsLevelSpeedMultiplierV1(totalOsLevel);
-  const bootFraction = wandoosBootFractionV1(state, now);
+  const boot = wandoosBootFractionV1(state, now, seconds);
+  const bootFraction = boot.fraction;
   const beardWandoos = beardBonusMultiplier(state, "wandoos");
   const diggerWandoos = diggerBonuses(state).wandoos;
   const challengeWandoos = challengePermanentBonuses(state).wandoosSpeedChallengeMultiplier;
@@ -1178,9 +1196,7 @@ function advanceWandoos(state, seconds, context, now) {
    * Wandoos (set) (wiki "Wandoos" > Boot-up : "After booting-up, it gains a 10% speed boost by
    * maxing the Wandoos set") : +10 % uniquement une fois le boot terminé (bootFraction = 1).
    */
-  const wandoosSetMultiplier = bootFraction >= 1
-    ? 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0))
-    : 1;
+  const wandoosSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0)) * boot.afterBootShare;
 
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
   const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
@@ -2046,8 +2062,27 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.difficultyPeaks[state.difficulty] = Math.max(num(state.difficultyPeaks[state.difficulty], 0), bosses);
 
   state.rebirth = normalizeRebirthState(source.rebirth, state.runStartedAt, t);
+  applyYggQuickActivationV1(state, t);
   state.rebirth = refreshRebirthState(state, context, t);
   return state;
+}
+
+/*
+ * 2026-09-24 (audit, page Yggdrasil, Perk Points) : « Quicker Power Fruit Beta Activation » /
+ * « Quicker Fruit of Numbers Bonus Activation » (perks 16 et 17, 50 PP) : « The Fruit of Power Beta's
+ * bonus will automatically turn on after 30 minutes » (« Fruit of Power β and Fruit of Numbers' bonuses
+ * are only activated after eating that fruit at least once during the current rebirth, or by buying the
+ * respective quicker activation perk »). Leur bonus était vide : le multiplicateur n'était jamais
+ * actif sans avoir mangé le fruit. Les 30 minutes se comptent depuis le début du Rebirth.
+ */
+function applyYggQuickActivationV1(state, now) {
+  const ygg = state.systems.yggdrasil?.data;
+  if (!ygg) return;
+  const levels = state.systems.perks?.data?.levels || {};
+  const runSeconds = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
+  if (runSeconds < 1800) return;
+  if (num(levels[16], 0) >= 1) ygg.runPowerBetaActive = true;
+  if (num(levels[17], 0) >= 1) ygg.runNumbersActive = true;
 }
 
 function normalizeRebirthState(raw, runStartedAt, now) {
@@ -2151,6 +2186,18 @@ function bloodNumberMultiplier(state) {
   return Math.max(1, num(state.systems.bloodMagic?.data?.spells?.numberBoost, 1));
 }
 
+/*
+ * Page « Yggdrasil » : « Your Fruit of Numbers Bonus is based off your
+ * Invisible Fruit of Numbers Level^1.3 * 0.05% », actif seulement si le fruit
+ * a été mangé pendant ce Rebirth ; page « NUMBER » : facteur « Yggdrasil
+ * NUMBER Bonus ... if activated this rebirth » du PROCHAIN NUMBER.
+ */
+function yggFruitNumbersMultiplierV1(state) {
+  const ygg = state.systems.yggdrasil?.data;
+  if (!ygg || !ygg.runNumbersActive) return 1;
+  return 1 + Math.pow(Math.max(0, num(ygg.permanent?.numbersValue, 0)), 1.3) * 5e-4;
+}
+
 function refreshRebirthState(state, context, now) {
   const runSeconds = Math.max(0, (now - state.runStartedAt) / 1000);
   const rb = normalizeRebirthState(state.rebirth, state.runStartedAt, now);
@@ -2174,10 +2221,12 @@ function refreshRebirthState(state, context, now) {
     bloodMagicBonus: bloodNumberMultiplier(state),
     nguNumberBonus: nguFxV1(state).number,
     beardNumberBonus: beardBonusMultiplier(state, "number"),
-    yggNumberBonus: 1,
+    /* 2026-09-24 (page NUMBER) : Fruit of Numbers et Number Hack sont des facteurs du prochain NUMBER. */
+    yggNumberBonus: yggFruitNumbersMultiplierV1(state),
     /* NUMBER MacGuffin Fragment : bonus permanent (idle-macguffins-v1.js). */
     macguffinNumberBonus: macguffinEffectMultiplierV1(state, "number"),
-    hacksNumberBonus: 1,
+    /* Page Hacks : « Hacks do not affect Normal mode » (hackFxV1 renvoie 1 en Normal). */
+    hacksNumberBonus: hackFxV1(state).number,
     sadisticBossMultiplierBonus:
       perkBonusesV1(state.systems.perks?.data?.levels).sadisticBossMultiplierBonus +
       quirkBonusesV1(state.systems.quirks?.data?.levels).sadisticBossMultiplierBonus +
@@ -2227,7 +2276,26 @@ export function idleNguEffectiveResourceStat(raw, resource, stat) {
   return idleNguEffectiveResourceStatV1(state, resource, stat);
 }
 
+/*
+ * 2026-09-24 (audit de composition, pages Energy / Magic / Resource 3 / Experience > Spend EXP) :
+ * « Energy Power is limited to a maximum of 1E18 (4.84E18 when using potions) », « Capped at 1 Qi
+ * (1E18) before potion effects », Bars « 1E18 (2.2E18 when using an Energy Bar Bar) », Cap « 9E18 ».
+ * 4,84 = (2 x 1,1)^2 : le plafond s'applique au TOTAL (achats + bonus de perks, quirks, souhaits,
+ * équipement) AVANT les potions / Bar Bar, qui le multiplient ensuite. Le code ne plafonnait que
+ * les achats bruts (IDLE_NGU_RESOURCE_PURCHASES.hardCap) : les multiplicateurs les dépassaient sans limite.
+ */
+const RESOURCE_STAT_HARD_CAPS_V1 = Object.freeze({ power: 1e18, bars: 1e18, cap: 9e18 });
+
 function idleNguEffectiveResourceStatV1(state, resource, stat) {
+  const value = idleNguEffectiveResourceStatUncappedV1(state, resource, stat);
+  const hard = RESOURCE_STAT_HARD_CAPS_V1[stat];
+  if (!hard || (resource !== "energy" && resource !== "magic" && resource !== "r3")) return value;
+  const potionKey = stat === "power" ? `${resource}Power` : (stat === "bars" && resource !== "r3" ? `${resource}Bars` : "");
+  const potion = potionKey ? Math.max(1, num(idleSelloutPotionFactorV1(state, potionKey), 1)) : 1;
+  return value / potion > hard ? hard * potion : value;
+}
+
+function idleNguEffectiveResourceStatUncappedV1(state, resource, stat) {
   const raw = Math.max(0, num(state.resources?.[resource]?.[stat], 0));
   if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
   const bonuses = idleNguBonuses(state);
@@ -2433,7 +2501,16 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier*idleCardsMultiplierV1(state,"augments"); /* + Cards AUGS */
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
-  return base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
+  /*
+   * 2026-09-24 (audit de composition, page « Augmentations ») : « All
+   * Augmentation Upgrades ... cost Base Cost * n² in gold where n is the level
+   * you want to upgrade the augment to, and cost Base Cost * n in energy in the
+   * same manner as Augmentations » -- le coût en énergie (donc le temps à
+   * allocation/puissance égales, « Base Time » = 1er niveau) est multiplié par
+   * le niveau visé n, pour l'Augment comme pour son Upgrade. Il était constant.
+   */
+  const targetLevel = Math.max(1, int(upgrade ? pair.upgradeLevel : pair.level, 0) + 1);
+  return targetLevel * base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
@@ -3002,17 +3079,49 @@ function advanceTrackSystem(state, def, seconds) {
      * bars / 25 000, indépendant du niveau) rendait l'entraînement ~400 fois
      * trop rapide.
      */
+    /*
+     * 2026-09-24 (audit de composition) : (1) souhait 190 « I wish I was f**king done with
+     * Advanced Training forever! » (page Advanced Training : « allows all abilities to run at
+     * max speed (50 levels/second) without allocating energy ») ; (2) le spécial d'équipement
+     * « Advanced Training » (objets du build Build Advanced Training : « Gain Advance Training
+     * Speed ») multiplie la vitesse ; (3) les niveaux gagnés comptent dans le plafond de 100
+     * niveaux du défi 100 Levels (note de la page Challenges : « Advanced Training levels
+     * gained during a rebirth also count towards the 100 levels »).
+     */
+    if (wishLevelV1(state, 190) >= 1) {
+      for (const other of tracks) {
+        if ((other.id === "wandoosEnergy" || other.id === "wandoosMagic") && !state.systems.wandoos?.unlocked) continue;
+        const ot = s.data.tracks[other.id];
+        if (!ot) continue;
+        ot.progress = Math.max(0, num(ot.progress, 0)) + 50 * seconds;
+        let gainedFree = Math.floor(ot.progress);
+        const roomFree = challengeHundredLevelsRemaining(state);
+        if (gainedFree > roomFree) { gainedFree = roomFree; ot.progress = 0; }
+        else ot.progress -= gainedFree;
+        if (gainedFree > 0) {
+          ot.tempLevel = Math.max(0, Math.floor(num(ot.tempLevel, 0))) + gainedFree;
+          challengeHundredLevelsConsume(state, gainedFree);
+        }
+      }
+      s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
+      return;
+    }
     const alloc = Math.max(0, num(s.allocation.energy, 0));
     if (alloc <= 0) return;
     const baseSeconds = trackDef.id === "wandoosEnergy" || trackDef.id === "wandoosMagic" ? 20000 : 10000;
     const sqrtPower = Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power")));
-    const rate = (alloc * sqrtPower) / (baseSeconds * 1000); // unités de travail par seconde
+    const gearAtSpeed = gearPctV1(gearSpecialsV1(state), "advancedTrainingPct");
+    const rate = (alloc * sqrtPower * gearAtSpeed) / (baseSeconds * 1000); // unités de travail par seconde
     const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
     const work = Math.max(0, num(t.progress, 0)) * (level + 1) + rate * seconds;
     const step = nguLevelsFromWorkV1(level, work);
-    const gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+    let gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+    const roomAt = challengeHundredLevelsRemaining(state);
+    const cappedByPool = gained > roomAt;
+    if (cappedByPool) gained = roomAt;
+    challengeHundredLevelsConsume(state, gained);
     t.tempLevel = level + gained;
-    t.progress = gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
+    t.progress = cappedByPool || gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
   } else {
   let throughput = 0;
   for (const resource of def.resources) {
@@ -3193,16 +3302,22 @@ export function idleNguTimeMachineGoldPerSecond(raw) {
   return Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state)-diggerDrainTotal(state));
 }
 
-function ritualUnlocked(ritual, context) {
+function ritualUnlocked(ritual, context, state) {
   if (!ritual.unlockFlag) return true;
-  return Boolean(context.unlockFlags?.[ritual.unlockFlag]);
+  /*
+   * 2026-09-24 (page Blood Magic : « This ritual is unlocked by completing Troll Challenge 6 » ; page Challenges,
+   * Troll Challenge, Completion 6 : « A new Blood Magic Ritual! ») : le drapeau « trollChallenge6 » n'était posé nulle
+   * part, le rituel « Turn Yourself Inside Out » était donc inaccessible même après la 6e complétion.
+   */
+  if (ritual.unlockFlag === "trollChallenge6" && state && int(state.challenge?.completions?.troll, 0) >= 6) return true;
+  return Boolean(context?.unlockFlags?.[ritual.unlockFlag]);
 }
 
 function advanceBloodMagic(state, seconds, context) {
   const s = state.systems.bloodMagic;
   if (!s.unlocked || seconds <= 0) return;
   const ritual = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
-  if (!ritualUnlocked(ritual, context)) return;
+  if (!ritualUnlocked(ritual, context, state)) return;
   const rs = s.data.rituals[ritual.id];
 
   const magic = Math.max(0, num(s.allocation.magic, 0));
@@ -3285,7 +3400,14 @@ const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
  *   laissée telle quelle, documentée honnêtement plutôt que remplacée
  *   par une autre conversion tout aussi inventée.
  */
-const IRON_PILL_COOLDOWN_MS_V1 = Object.freeze({ normal: 11.5 * 3600000, difficile: 23.5 * 3600000, extreme: 47.5 * 3600000 });
+/*
+ * 2026-09-24 (audit de composition, page « Blood Magic ») : le tableau des sorts donne
+ * TROIS durées pour TROIS sorts différents -- Iron Pill 11,5 h, Blood MacGuffin α 23,5 h,
+ * Blood MacGuffin β 1 jour et 23,5 h -- jamais une durée par difficulté. L'ancienne table
+ * (11,5 / 23,5 / 47,5 h selon la difficulté) avait attribué les recharges des deux sorts
+ * MacGuffin à l'Iron Pill en Evil / Sadistic. Aucune page ne publie d'autre recharge.
+ */
+const IRON_PILL_COOLDOWN_MS_V1 = Object.freeze({ normal: 11.5 * 3600000, difficile: 11.5 * 3600000, extreme: 11.5 * 3600000 });
 
 function castBloodSpell(state, spell, now = 0) {
   const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
@@ -3909,8 +4031,14 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceGeneratedResources(state,secs,context);
   advanceAugmentations(state, secs, context);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
-  advanceTimeMachine(state, secs);
-  advanceBloodMagic(state, secs, context);
+  /*
+   * 2026-09-24 (page Rebirths, « What do I lose when I rebirth? ») : « Access to the Adventure, Augmentation, Time
+   * Machine, and Blood Magic tabs until their related bosses are beaten ». Le drapeau `unlocked` de ces systèmes
+   * reste vrai après un Rebirth (les Augmentations testaient déjà le boss) : la Time Machine produisait et se
+   * levelait, et Blood Magic tournait, dès le boss 1 d'un nouveau Rebirth.
+   */
+  if (num(context.bosses, 0) >= 30) advanceTimeMachine(state, secs);
+  if (num(context.bosses, 0) >= 37) advanceBloodMagic(state, secs, context);
   advanceYggdrasil(state, secs, nowMs(now));
   advanceWandoos(state, secs, context, now);
   advanceNgusV1(state, secs);
@@ -3930,6 +4058,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   tickSelloutEffectsV1(state, secs);
   reconcileResourceCurrents(state,context);
   state.updatedAt = nowMs(now);
+  applyYggQuickActivationV1(state, now);
   state.rebirth = refreshRebirthState(state, context, nowMs(now));
   idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now));
   return state;
@@ -4132,6 +4261,7 @@ function apBonusMultiplierV1(state) {
 function apWithBonusV1(state, base) {
   return Math.max(0, Math.floor(Math.max(0, num(base, 0)) * apBonusMultiplierV1(state) + 1e-9));
 }
+
 
 function nguSpeedMultiplierV1(state, resource) {
   const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
@@ -4362,9 +4492,6 @@ function idleNguBonusesSansMacguffinV1(state) {
   const powerBetaMultiplier = ygg.runPowerBetaActive
     ? 1 + Math.pow(Math.max(0,num(yggPermanent.powerBetaValue,0)),2)*5e-4
     : 1;
-  const fruitNumbersMultiplier = ygg.runNumbersActive
-    ? 1 + Math.pow(Math.max(0,num(yggPermanent.numbersValue,0)),1.3)*5e-4
-    : 1;
 
   const beardAttack = beardBonusMultiplier(state, "attackDefense");
   const beardNumber = beardBonusMultiplier(state, "number");
@@ -4380,13 +4507,15 @@ function idleNguBonusesSansMacguffinV1(state) {
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
   const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
   /*
-   * Page NUMBER : « The NUMBER for the next rebirth will be the product of the following factors » dont « NGU NUMBER
-   * Bonus » et « Beard NUMBER Bonus » : ces deux facteurs sont déjà dans state.rebirth.number (figé au Rebirth par
-   * idleNguRebirthPreviewV1) ; les multiplier une seconde fois en direct les comptait deux fois (seconde passe
-   * 2026-09-24). Fruit of Numbers et Number Hack restent appliqués en direct (choix historique, la page NUMBER les
-   * range aussi dans le produit du prochain Rebirth mais le pont n'est pas encore fait).
+   * 2026-09-24 (audit de composition, page « NUMBER ») : « The NUMBER for the
+   * next rebirth will be the product of the following factors » -- les bonus
+   * NGU Number, Beard NUMBER (Reverse Hitler), Yggdrasil (Fruit of Numbers),
+   * MacGuffin et Number Hack sont des FACTEURS DU PROCHAIN NUMBER, calculés
+   * dans refreshRebirthState. Ils étaient en plus multipliés ici au NUMBER
+   * courant (Beard et NGU comptés deux fois, Fruit et Hack appliqués au
+   * mauvais endroit). L'Attaque/Défense ne lit que le NUMBER courant.
    */
-  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * hackFx.number;
+  const number = Math.max(1e-300, state.rebirth.number);
   /*
    * Wiki NGU (page "Advanced Training", section Formulas) : "The Bonus%
    * for Adventure Power/Toughness is: Level^0.4 * 10" (vérifié cellule par
@@ -5220,7 +5349,7 @@ function selectRitual(state, ritualId, context) {
   const s = state.systems.bloodMagic;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const ritual = IDLE_NGU_BLOOD_RITUALS.find(x => x.id === ritualId);
-  if (!ritual || !ritualUnlocked(ritual, context)) throw new Error("RITUEL_VERROUILLE");
+  if (!ritual || !ritualUnlocked(ritual, context, state)) throw new Error("RITUEL_VERROUILLE");
   s.data.activeRitual = ritualId;
 }
 
@@ -5743,7 +5872,14 @@ function crediterRecompensesAventure(state, avant) {
   appliquerConsommablesSetsAventureV1(state);
   const p = state.adventure?.permanent || {};
   const gain = (cle) => Math.max(0, num(p[cle], 0) - num(avant[cle], 0));
-  state.currencies.experience += gain("experience");
+  /*
+   * 2026-09-24 (audit, page Yggdrasil, Nerdy Formulas) : « EXPBonus is bonus applied to all experience
+   * gain (This can be found in Stat Breakdowns) : NGU EXP x (1 + RedHeart) x Fibonacci 987 x Digger EXP x
+   * Hacks EXP x Wish 61 x Cooking EXP ». L'EXP de l'aventure (drops de boss de zone, titans, bonus de
+   * complétion d'objets) était créditée brute ; seuls les boss de Fight Boss, l'ITOPOD, le Money Pit et
+   * le Fruit of Knowledge recevaient ce bonus.
+   */
+  state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
   /*
@@ -6032,6 +6168,19 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      */
     crediterRecompensesAventure(state, avantRecompenses);
     result = applied.result || {};
+    /*
+     * 2026-09-24 (audit de composition, pages Broken Time Machine et Gold) : « This machine will produce gold
+     * based on the best gold drop that you have received in Adventure Mode. This number, along with the levels,
+     * resets upon rebirth » ; « (based on highest gold earned from a kill that rebirth) ». Rien n'alimentait
+     * cette valeur (bestGoldThisRun ne lisait que context.bestGold = 1 côté serveur) : la Time Machine ne
+     * produisait pratiquement aucun Or. On retient le plus gros drop d'Or d'un kill/titan de ce Rebirth, bonus
+     * d'Or inclus (le tableau des zones donne le drop « without bonus »).
+     */
+    {
+      const dropGold = Math.max(0, num(result?.gold, 0));
+      const tmData = state.systems.timeMachine?.data;
+      if (dropGold > 0 && tmData) tmData.bestGoldThisRun = Math.max(Math.max(0, num(tmData.bestGoldThisRun, 0)), dropGold);
+    }
     if (boostRecycleInv && result && typeof result === "object") result = Object.assign({}, result, { boostRecycled: boostRecycleInv });
     /* Questing (crochet 2/4) : objet de quête possible sur un vrai kill de zone (jamais sur un rejeu idempotent). */
     {
@@ -6265,6 +6414,19 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   rb.lastBosses=Math.max(0,int(context.bosses,0));
   rb.lastRunSeconds=runSeconds;
   rb.hasPreviousRun=true;
+  /*
+   * 2026-09-24 (pages « Evil difficulty » / « SADISTIC difficulty » /
+   * « Rebirths ») : « A rebirth that changes the difficulty is similar to
+   * starting a challenge - number and all last rebirth number factors are
+   * reset to 1 ». forceNumber n'est passé que dans ces deux cas (changement
+   * de difficulté, défi autre que Laser Sword) : les facteurs « prior boss »
+   * et « prior rebirth time » du prochain NUMBER repartent donc à 1.
+   */
+  if(forced!==null){
+    rb.lastBosses=0;
+    rb.lastRunSeconds=0;
+    rb.hasPreviousRun=false;
+  }
   rb.canRebirth=false;
 
   // "100 Levels Challenge" pool is explicitly "per rebirth" (audit

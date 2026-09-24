@@ -12,7 +12,8 @@ const src = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 assert.ok(src.includes("definitionBossSorealIdle_(index, 'normal')"), "boss : définition réelle");
 assert.ok(src.includes("fichePropre.maxHp") && src.includes("fichePropre.power"), "mobs : stats du bestiaire wiki");
 assert.ok(!src.includes("estBoss ? zone.t * 3 : zone.t"), "plus de PV inventés à partir de la toughness de zone");
-const v47 = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+/* 2026-09-24 : fins de ligne normalisées (le checkout Windows est en CRLF, ce qui faisait échouer la comparaison de chaîne multi-lignes ci-dessous). */
+const v47 = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8").split(String.fromCharCode(13,10)).join(String.fromCharCode(10));
 assert.ok(v47.includes("if(monsterIndex>=0){\n  const store=boss?s.zone.bossEncountersByIndex"), "rencontres comptées dès qu'un ennemi du bestiaire est tiré");
 const premier = IDLE_ADVENTURE_MOB_BESTIARY_V1.tutorial.normal[0];
 assert.equal(premier.name, "A Small Piece of Fluff");

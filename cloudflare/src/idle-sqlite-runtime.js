@@ -6853,6 +6853,34 @@ function statsCombatPrincipalSorealIdleV413_(
     multiplicateurPermanent:
       multiplicateurPermanent,
 
+    /*
+     * 2026-09-24 (audit de composition, Attack/Defense ~x1100 plus élevés
+     * dans NGU à niveaux d'entraînement identiques) : le client recalcule
+     * l'Attaque/Défense à chaque frame à partir des niveaux d'entraînement
+     * (soreal-idle-ui.js, progresserBasicTrainingLocalIdleV120_) avec des
+     * multiplicateurs codés à 1 et écrasait donc la valeur serveur (NUMBER,
+     * équipement, augments, Wandoos, perks, NGU...) : l'écran montrait
+     * l'entraînement brut. Le produit réellement appliqué ici est exposé
+     * pour que le client affiche/simule la même valeur que le serveur.
+     */
+    multiplicateurAttaqueTotal:
+      Math.max(
+        1e-300,
+        nombreSorealIdle_(
+          bonusMetaNgu.attackMultiplier,
+          1
+        )
+      ),
+
+    multiplicateurDefenseTotal:
+      Math.max(
+        1e-300,
+        nombreSorealIdle_(
+          bonusMetaNgu.defenseMultiplier,
+          1
+        )
+      ),
+
     equipement:
       profilEquipement
   };
@@ -9897,6 +9925,15 @@ function construireEtatJoueurSorealIdle_(
       multiplicateurPermanent:
         combatPrincipalEtat
           .multiplicateurPermanent,
+
+      /* 2026-09-24 : produit complet appliqué par le serveur (voir statsCombatPrincipalSorealIdleV413_). */
+      multiplicateurAttaqueTotal:
+        combatPrincipalEtat
+          .multiplicateurAttaqueTotal,
+
+      multiplicateurDefenseTotal:
+        combatPrincipalEtat
+          .multiplicateurDefenseTotal,
 
       multiplicateurEquipementAttaque:
         combatPrincipalEtat

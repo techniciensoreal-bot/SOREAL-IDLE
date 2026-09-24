@@ -73,6 +73,13 @@ assert.equal(
   cursor.systems.moneyPit.data.nextAt=1_000_000;
   const cles=new Set();
   let at=1_000_000;
+  /*
+   * 2026-09-24 : le test était aléatoire (40 tirages parmi 9 lots : ~2 % d'échec quand EXP ou Seeds ne sortait
+   * pas). Tirages régulièrement espacés : les 9 lots du palier 6 sortent chacun au moins une fois, sans hasard.
+   */
+  const randomAvantTirages=Math.random;
+  let tirage=0;
+  Math.random=()=>((tirage++%40)+0.5)/40;
   for(let i=0;i<40;i+=1){
     cursor.currencies.gold=1e15;
     // 2026-09-24 : test instable (~1 échec sur 100 : le palier 6 a 9 lots, EXP (7e) ou Seeds (9e)
@@ -90,6 +97,7 @@ assert.equal(
     cursor.systems.moneyPit.data.nextAt=at;
     at+=1;
   }
+  Math.random=randomAvantTirages;
   assert.ok(
     cles.has('experience')&&cles.has('seeds'),
     "Sur 40 tirages au palier 6, EXP et Seeds (les deux lots réels du wiki pour ce palier) doivent tous les deux apparaître au moins une fois."
