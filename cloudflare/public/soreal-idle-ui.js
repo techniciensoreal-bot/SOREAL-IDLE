@@ -8608,7 +8608,8 @@
         hacks:'hacks',
         wishes:'wishes',
         cards:'cards',
-        cooking:'cooking'
+        cooking:'cooking',
+        succes:'achievements'
       };
       const IDLE_MENU_PAR_SYSTEME_V1=Object.fromEntries(
         Object.entries(IDLE_SYSTEME_PAR_MENU_V1).map(function(paire){
@@ -9648,6 +9649,7 @@
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
+        {id:'succes',icon:'🎖️',nom:'Achievements'},
         {id:'spendExp',icon:'✨',nom:'EXP Shop'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
       ];
@@ -19725,6 +19727,8 @@ function pageAventureIdleV28_(j){
             return pageSystemeMetaIdleV130_(j,'cards','Cards');
           case 'cooking':
             return pageSystemeMetaIdleV130_(j,'cooking','Cooking');
+          case 'succes':
+            return pageSystemeMetaIdleV130_(j,'achievements','Achievements');
           case 'personnage':
             return pagePersonnageIdleV28_(j);
           case 'combat':
@@ -20086,8 +20090,10 @@ function pageAventureIdleV28_(j){
       let idleImageJoueurCacheV43={};
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-323 */
-      function urlJoueurR2IdleV1_(zone){
-        return '/api/idle/media/player?zone='+encodeURIComponent(String(zone||''));
+      function urlJoueurR2IdleV1_(zone,portrait){
+        /* Player Portraits (2026-09-24) : portrait choisi (fichier du wiki), repli serveur sur le défaut. */
+        return '/api/idle/media/player?zone='+encodeURIComponent(String(zone||''))+
+          (portrait?'&portrait='+encodeURIComponent(String(portrait)):'');
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-324 */
@@ -20101,12 +20107,12 @@ function pageAventureIdleV28_(j){
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-326 */
-      function chargerImageJoueurIdleV43_(numero,driveFileId,zone){
+      function chargerImageJoueurIdleV43_(numero,driveFileId,zone,portrait){
         const n=idleEntier_(numero)||1;
         const host=document.getElementById('sorealIdlePlayerImageHostV43');
         if(!host||!SOREAL_SESSION)return;
 
-        const cacheKey=String(zone||'')+':'+n;
+        const cacheKey=String(zone||'')+':'+n+':'+String(portrait||'');
         if(idleImageJoueurCacheV43[cacheKey]){
           host.innerHTML=
             markupImageCombatIdleV61_(
@@ -20120,7 +20126,7 @@ function pageAventureIdleV28_(j){
           return;
         }
 
-        const urlR2=urlJoueurR2IdleV1_(zone);
+        const urlR2=urlJoueurR2IdleV1_(zone,portrait);
         idleImageJoueurCacheV43[cacheKey]=urlR2;
         host.innerHTML=
           markupImageCombatIdleV61_(
@@ -20573,7 +20579,8 @@ function pageAventureIdleV28_(j){
             chargerImageJoueurIdleV43_(
               j.apparenceJoueur&&j.apparenceJoueur.numero,
               j.apparenceJoueur&&j.apparenceJoueur.driveFileId,
-              (aventureMetaIdleV47_(j)||{}).selectedZone
+              (aventureMetaIdleV47_(j)||{}).selectedZone,
+              j.systemes&&j.systemes.portraits&&j.systemes.portraits.selectedFile
             );
 
             demarrerBullesCombatIdleV76_(

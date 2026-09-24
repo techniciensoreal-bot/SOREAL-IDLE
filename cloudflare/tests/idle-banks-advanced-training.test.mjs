@@ -50,5 +50,12 @@ function avecAT(niveaux, perks) {
   assert.ok(idleNguBonuses(rouvert).adventurePowerMultiplier > 1);
 }
 
-// Niveaux de Wandoos dump : leurs bonus de dump dépendent aussi du menu (déjà lus via atLevelV1).
+// Perk 18 "Instant Advanced Training Levels!" : un niveau de CHAQUE compétence d'AT par niveau de perk, à chaque Rebirth
+// (page Advanced Training), en plus des niveaux retenus par la banque.
+{
+  const r = rebirthIdleNguState(avecAT({ power: 100 }, { 18: 5, 36: 10 }), ctx, HOUR);
+  const tr = r.systems.advancedTraining.data.tracks;
+  assert.equal(tr.power.tempLevel, 10 + 5, "banque 10 % de 100 + 5 du perk");
+  for (const id of ["toughness", "block", "wandoosEnergy", "wandoosMagic"]) assert.equal(tr[id].tempLevel, 5, id);
+}
 console.log("idle-banks-advanced-training OK");

@@ -1,3 +1,4 @@
+import { idlePortraitPickR2KeyV1 } from "./idle-portraits-v1.js";
 const IDLE_ADVENTURE_R2_PREFIX="idle/backgrounds/adventure/";
 const IDLE_ADVENTURE_R2_EXTENSIONS=Object.freeze(["webp","png","jpg","jpeg","avif"]);
 /*
@@ -1000,7 +1001,9 @@ async function playerImage_(request,env,url){
     return new Response("Média de joueur indisponible",{status:503,headers:{"cache-control":"no-store"}});
   }
   const keys=await objetsPlayerR2_(env);
-  const key=choisirCleJoueurR2_(keys,zone);
+  /* Player Portraits (2026-09-24, idle-portraits-v1.js) : portrait choisi ; sans fichier correspondant, comportement inchangé. */
+  const portrait=String(url.searchParams.get("portrait")||"").trim().slice(0,80);
+  const key=(portrait&&idlePortraitPickR2KeyV1(keys,portrait))||choisirCleJoueurR2_(keys,zone);
   if(!key)return new Response("Image de joueur introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }

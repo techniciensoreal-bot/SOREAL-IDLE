@@ -89,8 +89,15 @@ import {
   macguffinOnItopodKillsV1,
   macguffinEatFruitV1,
   applyMacguffinActionV1,
-  macguffinSnapshotV1
+  macguffinSnapshotV1,
+  macguffinPermanentPctV1
 } from "./idle-macguffins-v1.js";
+/* Player Portraits (2026-09-24) et Special Prize : idle-portraits-v1.js. */
+import {
+  IDLE_SPECIAL_PRIZE_AP_V1,
+  idlePortraitsSnapshotV1,
+  idlePortraitSelectV1
+} from "./idle-portraits-v1.js";
 /* Cards et Mayo (système complet dans idle-cards-v1.js). */
 import {
   createIdleCardsDataV1,
@@ -1301,6 +1308,9 @@ function baseState(now) {
       /* Secret de Rebirth "3 fois de suite < 30 min avec boss 37" (page Rebirths) : série en cours, bonus versé (0/1). */
       speedrunStreak: 0,
       speedrunBonusClaimed: 0,
+      /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
+      portrait: "default",
+      specialPrizeClaimed: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
       // vidé par applyRebirthResetV56_, exactement comme les autres champs
       // de records ci-dessus (highestBoss, totalRebirths...).
@@ -1696,10 +1706,11 @@ function migrateLegacyMetaToV47(raw, now) {
   // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
   const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const key of Object.keys(state.records)) {
-    if (key === "newbieOffersUsed") continue;
+    if (key === "newbieOffersUsed" || key === "portrait") continue;
     state.records[key] = Math.max(0, num(state.records[key], 0));
   }
   state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
+  state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
 
   state.challenge = Object.assign(state.challenge, src.challenge || {});
   state.challenge.completions = Object.assign(
@@ -1892,10 +1903,12 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const k of Object.keys(state.records)) {
-    if (k === "newbieOffersUsed") continue;
+    if (k === "newbieOffersUsed" || k === "portrait") continue;
     state.records[k] = Math.max(0, num(state.records[k], 0));
   }
   state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
+  /* Portrait de joueur choisi (idle-portraits-v1.js) : identifiant texte, pas un compteur. */
+  state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
 
   state.challenge = Object.assign(baseState(t).challenge, source.challenge || {});
   state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
@@ -4947,6 +4960,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     expShop: expShopSnapshotV1(state),
     /* Achievements (2026-09-24) : catalogue, succès débloqués, BP et facteur AP (idle-achievements-v1.js). */
     achievements: achievementsSnapshotV1(state),
+    /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
+    portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0),
     richJerks: {
       attackLevel: Math.max(0, int(state.bonuses.richJerksAttackLevel, 0)),
       defenseLevel: Math.max(0, int(state.bonuses.richJerksDefenseLevel, 0)),
@@ -5656,6 +5671,15 @@ function minRebirthSecondsV1(state) {
   return Math.max(0, MIN_REBIRTH_SECONDS - 10 * Math.min(6, wishLevelV1(state, 20)));
 }
 
+/* Conditions de déblocage des portraits de joueur (sets complétés, souhaits, fragments SEXY/SMART). */
+function portraitEnvV1(state) {
+  return {
+    completedSets: state.adventure?.completedSets || {},
+    wishLevel: id => wishLevelV1(state, id),
+    macguffinPct: id => macguffinPermanentPctV1(state, id)
+  };
+}
+
 function wishLevelsMapV1(state) {
   const out = {};
   const tracks = state.systems.wishes?.data?.tracks || {};
@@ -6026,6 +6050,16 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = richJerksAction(state, payload);
   } else if (action === "cooking") {
     result = applyIdleCookingActionV1(state, payload, t);
+  } else if (action === "portrait") {
+    /* Choix cosmétique du portrait de joueur ; seuls les portraits débloqués sont acceptés. */
+    state.records.portrait = idlePortraitSelectV1(payload.id, portraitEnvV1(state));
+    result = { portrait: state.records.portrait };
+  } else if (action === "specialPrize") {
+    /* Page Arbitrary Points / Tips N' Tricks : « Special Prize » = 50 000 AP, une seule fois, hors bonus d'AP. */
+    if (num(state.records.specialPrizeClaimed, 0) > 0) throw new Error("PRIX_SPECIAL_DEJA_RECLAME");
+    state.records.specialPrizeClaimed = 1;
+    state.currencies.ap += IDLE_SPECIAL_PRIZE_AP_V1;
+    result = { ap: IDLE_SPECIAL_PRIZE_AP_V1 };
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else if (action === "daycarePlace" || action === "daycareRemove") {
@@ -6254,7 +6288,13 @@ function applyRebirthResetV56_(state,context,t,options={}) {
        * is unlocked by completing Basic Training" -> menu reverrouillé (rouvert
        * par la synchro quand basicTrainingComplete), niveaux retenus réinjectés.
        */
-      for(const [id,tr] of Object.entries(s.data.tracks))tr.tempLevel=Math.max(0,int(atBanked[id],0));
+      /*
+       * Perk 18 "Instant Advanced Training Levels!" (page Advanced Training, tableau des Perks) :
+       * "Each level in this perk gives you a level of every Advanced Training ability at the
+       * start of every rebirth even before it is unlocked." (2026-09-24 : effet jamais lu jusqu'ici.)
+       */
+      const perkStartAt=Math.max(0,int(perkBankBonuses.advancedTrainingStartBonus,0));
+      for(const [id,tr] of Object.entries(s.data.tracks))tr.tempLevel=Math.max(0,int(atBanked[id],0))+perkStartAt;
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
       s.unlocked=false;
     }
