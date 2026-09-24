@@ -42,6 +42,13 @@ jobs:
           done
           node --check cloudflare/public/soreal-idle-ui.js
 
+      # Dépendances RÉELLES du runtime vocal (index.html, local-neural-piper-v1.js, idle-media-v1.js), lues dans les
+      # sources et non recopiées : empreinte SRI de piper_phonemize.js, ONNX Runtime et ses fichiers compagnons,
+      # wasm/data de piper_phonemize, modèle Tom et sa configuration. Avant le déploiement : une dépendance cassée
+      # bloque la publication au lieu d'être découverte après. Le smoke Chromium ci-dessous reste la preuve finale.
+      - name: Verify voice runtime dependencies
+        run: node cloudflare/tools/verify-voice-runtime-dependencies.mjs
+
       - name: Deploy SOREAL Idle Worker
         shell: bash
         env:
@@ -52,28 +59,6 @@ jobs:
           npx --yes wrangler@4.127.1 deploy \
             --config wrangler.jsonc \
             --message "git:$GITHUB_SHA"
-
-      - name: Verify local neural dependencies
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          urls=(
-            "https://cdn.jsdelivr.net/npm/piper-plus@0.7.0/src/index.js"
-            "https://cdn.jsdelivr.net/npm/@piper-plus/g2p@0.4.2/src/index.js"
-            "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"
-            "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx.json"
-            "https://huggingface.co/spaces/ayousanz/piper-plus-demo/resolve/main/models/multilingual-test-medium.onnx"
-            "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx.json"
-            "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx"
-            "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx.json"
-            "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR/gilles/low/fr_FR-gilles-low.onnx"
-          )
-
-          for url in "${urls[@]}"; do
-            echo "Checking $url"
-            curl --fail --silent --show-error --location --head --max-time 45 "$url" >/dev/null
-          done
 
       - name: Verify deployed Git SHA
         shell: bash
