@@ -1129,7 +1129,8 @@ function advanceWandoos(state, seconds, context, now) {
   const quirkBonuses = quirkBonusesV1(state.systems.quirks?.data?.levels);
   const totalOsLevel = Math.min(400,
     Math.max(0, perkBonuses.wandoosOsLevelBonus) +
-    Math.max(0, num(s.data.osLevels?.moneyPit, 0)) +
+    /* Souhait 4 « I wish money Pit didn't suck » : « Also maxes your money pit Wandoos level » (page Wishes / Money Pit : 100). */
+    (wishLevelV1(state, 4) >= 1 ? 100 : Math.max(0, num(s.data.osLevels?.moneyPit, 0))) +
     Math.max(0, num(s.data.osLevels?.consumed98, 0)) +
     Math.max(0, num(s.data.osLevels?.consumedXl, 0))
   );
@@ -1291,6 +1292,9 @@ function baseState(now) {
       setsCompleted: 0,
       totalRebirths: 0,
       highestGoldDrop: 0,
+      /* Secret des Rebirths rapides (page Rebirths) : série de Rebirths < 30 min avec le boss 37 vaincu, et récompense déjà obtenue (0/1). */
+      quickRebirthStreak: 0,
+      quickRebirthSecretClaimed: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
       // vidé par applyRebirthResetV56_, exactement comme les autres champs
       // de records ci-dessus (highestBoss, totalRebirths...).
@@ -1561,6 +1565,8 @@ function normalizeSystem(def, raw) {
       nextAt: Math.max(0, num(data.nextAt, 0)),
       lastTossAt: Math.max(0, num(data.lastTossAt, 0)),
       totalGoldTossed: Math.max(0, num(data.totalGoldTossed, 0)),
+      /* Bonus uniques par or total jeté (page Money Pit, « One-Time Bonuses ») déjà obtenus : { "1e8": true, ... }. */
+      oneTimeClaimed: data.oneTimeClaimed && typeof data.oneTimeClaimed === "object" ? clone(data.oneTimeClaimed) : {},
       history:Array.isArray(data.history)
         ?data.history.slice(0,20).map(entry=>({
             at:Math.max(0,num(entry?.at,0)),
@@ -2011,8 +2017,27 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.difficultyPeaks[state.difficulty] = Math.max(num(state.difficultyPeaks[state.difficulty], 0), bosses);
 
   state.rebirth = normalizeRebirthState(source.rebirth, state.runStartedAt, t);
+  applyYggQuickActivationV1(state, t);
   state.rebirth = refreshRebirthState(state, context, t);
   return state;
+}
+
+/*
+ * 2026-09-24 (audit, page Yggdrasil, Perk Points) : « Quicker Power Fruit Beta Activation » /
+ * « Quicker Fruit of Numbers Bonus Activation » (perks 16 et 17, 50 PP) : « The Fruit of Power Beta's
+ * bonus will automatically turn on after 30 minutes » (« Fruit of Power β and Fruit of Numbers' bonuses
+ * are only activated after eating that fruit at least once during the current rebirth, or by buying the
+ * respective quicker activation perk »). Leur bonus était vide : le multiplicateur n'était jamais
+ * actif sans avoir mangé le fruit. Les 30 minutes se comptent depuis le début du Rebirth.
+ */
+function applyYggQuickActivationV1(state, now) {
+  const ygg = state.systems.yggdrasil?.data;
+  if (!ygg) return;
+  const levels = state.systems.perks?.data?.levels || {};
+  const runSeconds = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
+  if (runSeconds < 1800) return;
+  if (num(levels[16], 0) >= 1) ygg.runPowerBetaActive = true;
+  if (num(levels[17], 0) >= 1) ygg.runNumbersActive = true;
 }
 
 function normalizeRebirthState(raw, runStartedAt, now) {
@@ -3947,6 +3972,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   tickSelloutEffectsV1(state, secs);
   reconcileResourceCurrents(state,context);
   state.updatedAt = nowMs(now);
+  applyYggQuickActivationV1(state, now);
   state.rebirth = refreshRebirthState(state, context, nowMs(now));
   return state;
 }
@@ -5284,17 +5310,56 @@ function tossMoneyPit(state, now) {
   // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
   reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
 
+  /*
+   * 2026-09-24 (audit, page Money Pit, « One-Time Bonuses », « TOTAL Gold Dropped ... This is sum
+   * over many tosses ») : 100 M -> Adventure +10 Power, +10 Toughness, +100 Max Health, +1 Health
+   * Regen ; 10 B -> +1 Energy Bar, +1 Magic Bar ; 100 B -> Looty McLootFace ; 1 T -> +100 EXP.
+   * Jamais implémentés jusqu'ici. L'EXP du palier 1 T est donnée sans multiplicateur : la note
+   * « EXP rewards are affected by EXP bonus » de la page ne vise que la colonne EXP des paliers.
+   */
+  const claimed = s.data.oneTimeClaimed && typeof s.data.oneTimeClaimed === "object" ? s.data.oneTimeClaimed : (s.data.oneTimeClaimed = {});
+  const totalTossed = num(s.data.totalGoldTossed, 0);
+  const perm = state.adventure.permanent;
+  const oneTimeBonuses = [];
+  if (totalTossed >= 1e8 && !claimed["1e8"]) {
+    claimed["1e8"] = true;
+    perm.adventurePower = Math.max(0, num(perm.adventurePower, 0)) + 10;
+    perm.adventureToughness = Math.max(0, num(perm.adventureToughness, 0)) + 10;
+    perm.adventureHp = Math.max(0, num(perm.adventureHp, 0)) + 100;
+    perm.adventureRegen = Math.max(0, num(perm.adventureRegen, 0)) + 1;
+    oneTimeBonuses.push({ at: 1e8, adventure: { power: 10, toughness: 10, hp: 100, regen: 1 } });
+  }
+  if (totalTossed >= 1e10 && !claimed["1e10"]) {
+    claimed["1e10"] = true;
+    perm.energyBarsFlat = Math.max(0, num(perm.energyBarsFlat, 0)) + 1;
+    perm.magicBarsFlat = Math.max(0, num(perm.magicBarsFlat, 0)) + 1;
+    oneTimeBonuses.push({ at: 1e10, energyBars: 1, magicBars: 1 });
+  }
+  let looty = null;
+  if (totalTossed >= 1e11 && !claimed["1e11"]) {
+    claimed["1e11"] = true;
+    looty = idleAdventureSpecialItemV1("lootyMcLootFace", 0);
+    oneTimeBonuses.push({ at: 1e11, item: "lootyMcLootFace" });
+  }
+  if (totalTossed >= 1e12 && !claimed["1e12"]) {
+    claimed["1e12"] = true;
+    state.currencies.experience = Math.max(0, num(state.currencies.experience, 0)) + 100;
+    oneTimeBonuses.push({ at: 1e12, experience: 100 });
+  }
+
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
       state.currencies[k] += v;
     }
   }
   if (boostGrant) idleAdventureAddItemV1(state.adventure, boostGrant);
+  if (looty) idleAdventureAddItemV1(state.adventure, looty);
 
   const resultat={
     cost,
     tier,
     reward,
+    oneTimeBonuses,
     boost:boostGrant ? { type: boostGrant.boostType, strength: boostGrant.strength } : null,
     cooldownHours,
     nextAt:s.data.nextAt
@@ -6614,5 +6679,23 @@ export function rebirthIdleNguState(raw,context={},now=Date.now(),options={}) {
     const req=idleNguDifficultyUnlockRequirementsV1(state,context);
     if(!req[requestedDifficulty].met)throw new Error("DIFFICULTE_VERROUILLEE");
   }
-  return applyRebirthResetV56_(state,context,t,changingDifficulty?{forceNumber:1,clearBanks:true,difficulty:requestedDifficulty}:{});
+  const bossesThisRun=Math.max(0,int(context.bosses,0));
+  const result=applyRebirthResetV56_(state,context,t,changingDifficulty?{forceNumber:1,clearBanks:true,difficulty:requestedDifficulty}:{});
+  /*
+   * 2026-09-24 (audit, page Rebirths, « Sneaky Secret about Rebirthing ») : « Rebirthing 3 times in a
+   * row (each under 30 minutes long and each defeating boss 37+) Rewards the player with a special,
+   * one-time bonus of: 200 EXP, 1 Energy Power » (FAQ : « Check your exp (Should be 200) »). Jamais
+   * implémenté. Seuls les Rebirths ordinaires comptent dans la série ; un changement de difficulté
+   * (assimilé à un démarrage de défi par le wiki) ne la modifie pas -- le wiki ne dit rien de plus.
+   */
+  if(!changingDifficulty){
+    const rec=result.records;
+    rec.quickRebirthStreak=runSeconds<1800&&bossesThisRun>=37?Math.max(0,int(rec.quickRebirthStreak,0))+1:0;
+    if(rec.quickRebirthStreak>=3&&!int(rec.quickRebirthSecretClaimed,0)){
+      rec.quickRebirthSecretClaimed=1;
+      result.currencies.experience+=200;
+      result.resources.energy.power=Math.min(1e18,num(result.resources.energy.power,1)+1);
+    }
+  }
+  return result;
 }
