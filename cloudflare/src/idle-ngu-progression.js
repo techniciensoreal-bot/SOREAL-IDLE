@@ -5587,7 +5587,9 @@ function questingEnvV1(state, context) {
     questDropsSetPct: Math.max(0, num(state.adventure?.setRewards?.questDropsSetPct, 0)),
     qpEarningsMultiplier: perks.qpEarningsMultiplier,
     apEarningsMultiplier: perks.apEarningsMultiplier * heartApMultiplierV1(state),
-    qpHackMultiplier: Math.max(0, num(hackFxV1(state).qpGain, 1))
+    qpHackMultiplier: Math.max(0, num(hackFxV1(state).qpGain, 1)),
+    /* Cartes QP « QP Gain » (idle-cards-v1.js, idleCardsApplyToBonusesV1). */
+    qpCardMultiplier: Math.max(0, num(bonuses.cardsQpGainMultiplier, 1))
   };
 }
 

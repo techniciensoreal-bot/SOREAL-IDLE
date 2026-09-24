@@ -69,6 +69,8 @@
         (u.autoBoost?'':verrou('1re complétion du No Equipment Challenge.'))+'</div>'+
     '</div>');
     lignes.push('<div class="soreal-idle-note-v4" style="margin-top:8px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b> · Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>');
+    lignes.push('<div style="margin-top:6px">'+caseACocher('♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
+      '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Décoché : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>');
     lignes.push('<div style="margin-top:10px"><b>🟦 Slots d’automerge : '+entier(s.mergeSlots)+' / '+entier(s.mergeSlotsMax)+'</b>'+
       (entier(s.mergeSlots)>0?'<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:5px">'+
         caseACocher('Fusion automatique',r.mergeSlotsMerge,'window.__inventaireAutoReglageV1__(\'mergeSlotsMerge\',this.checked)')+

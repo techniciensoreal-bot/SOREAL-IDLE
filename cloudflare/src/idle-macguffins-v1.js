@@ -628,6 +628,19 @@ export function macguffinAfterAdventureV1(state, before, result, opts = {}, rng 
 
 /* ---------- Gain de niveaux (Blood α/β, fruits α/β) ---------- */
 
+/*
+ * Non appliqués (audit du 2026-09-24, règle n°1 d'AGENTS.md) :
+ *  - souhaits 59 / 60 « I wish Blood MacGuffin α / Fruit of MacGuffin α also didn't suck »
+ *    (« improve the spell's outcome / the fruit's benefits by 20% per level », 10 niveaux) : le
+ *    résultat est un nombre entier de niveaux et aucune page ne dit où s'applique le facteur ni
+ *    comment il est arrondi (la formule ⌈…⌉ du fruit, page Yggdrasil, ne contient pas Wish_60 ;
+ *    celle du sort, page Blood Magic, est un ⌊…⌋). Pour 1 niveau x 1,2, plancher et plafond
+ *    donnent 1 ou 2 : écart de 100 %, donc rien n'est deviné ;
+ *  - perk 56 « Macguffin Daycare! » : aucune page ne publie la vitesse de Daycare d'un fragment
+ *    (les pages « … MacGuffin Fragment » sont des redirections, sans champ daycare) ;
+ *  - fragment Golden : voir IDLE_MACGUFFIN_TYPES_V1 (cible d'or non documentée).
+ */
+
 function pickTarget(state, data, mode, rng) {
   if (!data.equipped.length) return [];
   if (mode === "all") return data.equipped.slice();

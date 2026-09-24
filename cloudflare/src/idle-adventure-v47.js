@@ -1536,7 +1536,11 @@ heartRainbow:{name:"My Rainbow Heart",zone:"",slot:"accessory",dropLevel:0,sello
  * wiki "A busted copy of Wandoos XL" (Id 163, Consumable, aucune stat) : "lvl 20 from Titan
  * Walderp / lvl 3 in Badly Drawn World / lvl 8 in Boring-Ass Earth" (la page "Wandoos" écrit
  * "level 5" pour Badly Drawn World : on suit la fiche de l'objet et la page de la zone, qui
- * concordent sur 3). Consommé pour débloquer Wandoos XL puis pour monter le niveau d'OS XL
+ * concordent sur 3). Tranché le 2026-09-24 : quatre sources disent 3 contre une seule pour 5 --
+ * le modèle de données "Template:Item data A busted copy of Wandoos XL" (BDlvldrop = 3, source
+ * structurée d'où la fiche est générée), la fiche de l'objet, la section Loot de "Badly Drawn
+ * World" et le tableau des zones de "Adventure Mode" ("A busted copy of Wandoos XL (3)").
+ * Consommé pour débloquer Wandoos XL puis pour monter le niveau d'OS XL
  * (idle-hearts-v1.js, action méta consumeWandoosCopy).
  */
 wandoosXl:{name:"Wandoos XL",zone:"",slot:"special",dropLevel:20,p:0,t:0},

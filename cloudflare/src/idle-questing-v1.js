@@ -26,8 +26,9 @@
  *
  * Volontairement NON implémenté (effet non modélisable sans inventer) :
  *  - Quest Reminder (voyant du menu : relève du monolithe client) ;
- *  - cartes QP, Fruit of Quirks (Yggdrasil), montée de niveau des objets
- *    de quête en Daycare (48 h) : systèmes absents ou tenus par d'autres.
+ *  - Fruit of Quirks (Yggdrasil), montée de niveau des objets de quête en
+ *    Daycare (48 h) : systèmes absents ou tenus par d'autres.
+ * (Cartes QP : branchées le 2026-09-24, env.qpCardMultiplier.)
  */
 import { IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1 } from "./idle-quirks-v1.js";
@@ -233,7 +234,7 @@ export function idleQuestBankCapV1(state) {
  *    seulement ; page Arbitrary Points : 120 AP pour une Major active = (50 + 10) x 2, sans eux).
  *  - QP : x Perks (Fibonacci 233 +10 %, Better QP Rewards +0,2 %/niv., via env.qpEarningsMultiplier)
  *    x Souhait 47 (+2 %/niv.) x Mobster (+15 %) x objets de quête niveau 100 (+2 % chacun)
- *    x QP Hack (env.qpHackMultiplier) x Beast Butter (x2). CHOIX SOREAL : chaque source multiplie
+ *    x QP Hack (env.qpHackMultiplier) x cartes QP (env.qpCardMultiplier) x Beast Butter (x2). CHOIX SOREAL : chaque source multiplie
  *    les autres (le wiki ne donne pas l'ordre de cumul) ; arrondi à l'entier inférieur.
  *  - AP : base x2 si active, x bonus AP généraux (env.apEarningsMultiplier), arrondi inférieur
  *    ("the final AP value is rounded down", page Arbitrary Points ; 10 AP pour une Minor idle).
@@ -253,7 +254,13 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
     (state?.adventure?.completedSets?.mobster ? 1 + IDLE_QUEST_MOBSTER_SET_QP_PCT_V1 : 1) *
     idleHeartsQpMultiplierV1(state) /* Orange Heart (set) : "Quests give 20% more QP!" */ *
     (1 + IDLE_QUEST_ITEM_COMPLETION_QP_PCT_V1 * maxedCount) *
-    Math.max(0, N(env?.qpHackMultiplier, 1));
+    Math.max(0, N(env?.qpHackMultiplier, 1)) *
+    /*
+     * Cartes QP (2026-09-24) : page Cards, type « QP Gain (QP) » ; page Questing, « Other features :
+     * QP Hacks, QP Cards ». Même traitement que le QP Hack (facteur multiplicatif, CHOIX SOREAL
+     * d'empilement ci-dessus), calculé par idle-cards-v1.js (cardsQpGainMultiplier).
+     */
+    Math.max(0, N(env?.qpCardMultiplier, 1));
   /* Beast Butter : x2, x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
   const butterFactor = butter ? IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state) : 1;
   const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * butterFactor);

@@ -37,18 +37,23 @@ const t0 = 5_000_000;
   assert.match(html, /Slots d’automerge : 1 \/ 8/);
   assert.match(html, /Configurations d’équipement \(2 \/ 10\)/);
   assert.match(html, /Casque/);
+  /* 2026-09-24 : réglage « consommer les boosts recyclés » (Build History 2018, build .367), coché par défaut. */
+  assert.match(html, /<input type="checkbox" checked onchange="window\.__inventaireAutoReglageV1__\('consumeRecycled',this\.checked\)"> ♻️/);
 }
 window.__inventaireAutoReglageV1__("autoMerge", true);
 window.__inventaireAutoFiltreTypeV1__("head", true);
 window.__inventaireAutoLoadoutV1__("apply", 1);
+window.__inventaireAutoReglageV1__("consumeRecycled", false);
 assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
   { action: "inventoryAuto", mode: "settings", autoMerge: true },
   { action: "inventoryAuto", mode: "lootFilterType", slot: "head", filtered: true },
-  { action: "inventoryAuto", mode: "loadoutApply", index: 1 }
+  { action: "inventoryAuto", mode: "loadoutApply", index: 1 },
+  { action: "inventoryAuto", mode: "settings", consumeRecycled: false }
 ]);
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=1"></script>'));
+/* 2026-09-24 : ?v=1 -> ?v=2 (case « consumeRecycled » ajoutée au panneau). */
+assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=2"></script>'));
 assert.ok(index.indexOf("/modules/inventory-auto-v1.js") < index.indexOf("/soreal-idle-ui.js"), "chargé avant le monolithe, comme les autres modules");
 
 console.log("idle-inventory-auto-client ok");
