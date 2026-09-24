@@ -43,17 +43,15 @@
  *   (texte : "NGU.EXE HAS ENCOUNTERED AN ERROR AND MUST CLOSE") --
  *   `bonus:{}` est donc la valeur réelle, pas un renoncement.
  *
- * Volontairement exclus (système absent de SOREAL, jamais approximé) :
- * MacGuffin Daycare (56 ; 65-73 et 88 câblés le 2026-09-23, voir
- * idle-macguffins-v1.js), Quêtes/Idle Questing (87,89-92,104-106,
- * 145-148), Wishes (108-110,155-156,159-160), Cards/Mayo/Tags/Deck (161-
- * 216,138-143,146-150 quirks), Hack Milestones (113-115,217-219 --
- * mécanique de palier non identifiée avec certitude dans le temps
- * imparti), Resource 3 (95-103,122-124,132-134,141-143,226-228 -- pas de
- * 3e ressource entraînable chez SOREAL, seulement Energy/Magic), Iron Pill I/II
- * (84-85 -- multiplierait castBloodSpell's gain ironPill, hook non
- * construit dans ce round), respawn (93 -- aucune minuterie de
- * réapparition ennemie n'existe dans le modèle de combat SOREAL).
+ * État au 2026-09-24 (audit de seconde passe, design/audit-catalog-effects-read.mjs et le test
+ * idle-catalog-effects-read) : tout le tableau de la page Perk Points est au catalogue et chaque effet a
+ * un consommateur (nom, coût, cap et effet comparés au miroir par design/compare-catalogs-to-wiki.mjs).
+ * Ce que ce en-tête annonçait comme « absent » est câblé depuis : MacGuffins (65-73, 88), Quêtes (87,
+ * 89-92, 104-106, 145-148 : idle-questing-v1.js), Souhaits (108-110, 155-156, 159-160), Cartes (161-216 :
+ * idle-cards-v1.js), Hack Milestones (113-115, 217-219 : hackFxV1), Resource 3 (95-103, 122-124, 132-134,
+ * 141-143, 226-228 : r3*Pct), Iron Pill I/II (84-85 : ironPillMultiplier), respawn (93 : respawnRemaining).
+ * Seule exception non implémentée : perk 56 « Macguffin Daycare! » (aucune vitesse de Daycare publiée pour
+ * les fragments).
  *
  * Previously "Perks" was a single generic counter (one shared level,
  * exponential 1.55^level cost) with no per-item identity or real effect —

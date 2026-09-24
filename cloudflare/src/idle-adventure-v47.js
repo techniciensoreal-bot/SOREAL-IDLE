@@ -4640,7 +4640,14 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
    * avec le souhait « V2/3/4 Titans had better rewards » n'est pas publiée : facteurs multiplicatifs (choix SOREAL).
    */
   const perkTitanExp=I(rebirthKills)>0&&I(rebirthKills)<=Math.max(0,I(ctx&&ctx.titanExpBonusKills,0))?1.5:1;
+  /*
+   * 24 Hour Challenge (page Challenges) : « +10% EXP whenever you defeat boss 24 or higher (rounded down) (bonus also
+   * applies to Titans) » (+4 % Evil, +2 % Sadistic par complétion) ; guide du nouveau joueur : « completing make bosses
+   * and Titans give more exp ». Facteur multiplicatif avec les précédents (composition non publiée), arrondi inférieur.
+   */
   out.experience=Math.round(I(r.exp,0)*rewardMult*perkTitanExp);
+  const challengeExp=Math.max(0,N(ctx&&ctx.titanExpChallengePct,0));
+  if(challengeExp>0)out.experience=Math.floor(out.experience*(1+challengeExp));
   out.ap=I(r.ap,0);
   out.ppProgress=Math.round(I(r.ppProgress,0)*rewardMult);
   const qpDef=TITAN_QP_V1[id];
@@ -4832,7 +4839,45 @@ const TITAN_LOOT_CUBE_ROOT_V1=Object.freeze({id:"titan-evil",requiredDifficulty:
  */
 function canneWalderpV1(){return Math.random()<.01?["candyCaneDestiny",0]:["wanderersCane",10]}
 const TITAN_RANK_V1=Object.freeze({t1:1,t2:2,t3:3,t4:4,t5:5,t6:6,nerd:7,godmother:8,t7:9,hungers:10,lobster:11,amalgamate:12});
-function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;st.rebirthKills=I(st.rebirthKills)+1;/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
+/* Page Titans : « a cooldown period ... (with a minimum of 60 minutes) ... won't decrease it below the 60 min minimum ». */
+const TITAN_COOLDOWN_FLOOR_MS_V1=3600000;
+/*
+ * Produit des bonus de complétion de set portant sur une même clé de setRewards (facteurs SÉPARÉS et non additionnés).
+ * Page Yggdrasil, Fruit of Rage : « PPBonus is bonus applied to all Perk Points gain : NGU_PP x GreenHeartBonus x
+ * ItopodKeyBonus x PrettySetBonus x HalloweenieSetBonus x Digger_PP x Perk x Hacks_PP » : les quatre sets « PP earnings »
+ * (page ITOPOD : +20 %, +10 %, +10 %, +45 %) donnent 1,2 x 1,1 x 1,1 x 1,45 et non 1 + 0,85.
+ */
+export function idleAdventureSetRewardProductV1(adventure,key){
+  const done=adventure&&adventure.completedSets&&typeof adventure.completedSets==="object"?adventure.completedSets:{};
+  const total=N(adventure&&adventure.setRewards&&adventure.setRewards[key]);
+  let product=1;
+  let sum=0;
+  for(const table of [SETS,SETS_OBJETS_V1]){
+    for(const [id,def] of Object.entries(table)){
+      const v=N(def&&def.reward&&def.reward[key]);
+      if(done[id]&&v>0){product*=1+v;sum+=v}
+    }
+  }
+  /* État cohérent (setRewards = somme des sets complétés) : produit des facteurs ; sinon (injection directe, ancienne sauvegarde) : 1 + somme. */
+  return Math.abs(sum-total)<1e-9?product:1+Math.max(0,total);
+}
+/*
+ * Délai de réapparition (ms) d'un titan après un combat ou un Rebirth : délai de base moins 15 min par No Rebirth
+ * Challenge (Normal dès le titan 3, Evil dès le 7, Sadistic dès le 10), plancher 60 min. Retourne null tant que
+ * Walderp n'a pas fini toutes ses formes (`kills` = nombre de victoires), ou si le titan est inconnu.
+ */
+export function idleAdventureTitanCooldownMsV1(id,ctx,kills){
+  const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};
+  const key=aliases[id]||id;
+  const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===key);
+  if(!d)return null;
+  if(d.forms&&I(kills)<d.forms.length)return null;
+  const rank=TITAN_RANK_V1[key]||0;
+  const c=ctx||{};
+  const reduction=Math.max(0,(rank>=3?N(c.titanCooldownReductionMs,0):0)+(rank>=7?N(c.titanCooldownReductionEvilMs,0):0)+(rank>=10?N(c.titanCooldownReductionSadisticMs,0):0));
+  return Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(d.cooldown,0)-reduction);
+}
+function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;st.rebirthKills=I(st.rebirthKills)+1;/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));/* Page Titans : le délai ne descend jamais sous 60 minutes (TITAN_COOLDOWN_FLOOR_MS_V1). */if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
  * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
  * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.

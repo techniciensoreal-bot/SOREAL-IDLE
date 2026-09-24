@@ -7,7 +7,9 @@ import {
   idleAdventureBoostV1,
   idleAdventureAddItemV1,
   idleAdventureSpecialItemV1,
-  idleAdventureCubeTierV1
+  idleAdventureCubeTierV1,
+  idleAdventureTitanCooldownMsV1,
+  idleAdventureSetRewardProductV1
 } from "./idle-adventure-v47.js";
 import {
   idleHeartV1,
@@ -1924,7 +1926,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
 
@@ -2781,7 +2783,13 @@ const HACK_HARD_CAP_V1 = Object.freeze({ attackDefense: 7720, adventureStats: 76
 function advanceHackTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;
   const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonuses(state).hackSpeedMultiplier, 1));
-  const throughput = Math.max(0, num(system.allocation.r3, 0)) * resourceThroughput(state, "r3") * hackSpeedMultiplier;
+  /*
+   * Page Hacks, « Important Math » : temps = BaseSpeedDivider x 1.0078^level x (level+1) / (R3_allocated x R3_power x
+   * HackSpeedBonus). Les Bars de Resource 3 n'y figurent pas (page Resource 3 : « Bars : Increases the rate at which
+   * you generate Resource 3 until you hit your cap », « The output of each task is (points invested * Power) ») :
+   * seconde passe 2026-09-24, elles multipliaient à tort la vitesse des Hacks.
+   */
+  const throughput = Math.max(0, num(system.allocation.r3, 0)) * Math.max(1, idleNguEffectiveResourceStatV1(state, "r3", "power")) * hackSpeedMultiplier;
   if (throughput <= 0) return;
 
   let level = Math.max(0, int(track.level, 0));
@@ -2865,9 +2873,14 @@ function wishSecondsForLevelV1(state, trackDef, level, allocation, params) {
   const magAlloc = Math.max(0, num(allocation?.magic, 0));
   const r3Alloc = Math.max(0, num(allocation?.r3, 0));
   if (engAlloc <= 0 || magAlloc <= 0 || r3Alloc <= 0) return Infinity;
-  const engPower = Math.max(1, num(state.resources.energy?.power, 1));
-  const magPower = Math.max(1, num(state.resources.magic?.power, 1));
-  const r3Power = Math.max(1, num(state.resources.r3?.power, 1));
+  /*
+   * Page Wishes : « (Eng_Power x Eng_allocated x Mag_Power x Mag_allocated x Res3_Power x Res3_allocated)^0.17 ».
+   * Seconde passe 2026-09-24 : la Puissance est celle du jeu (achats EXP + perks + quirks + souhaits + équipement +
+   * potions...), pas la seule Puissance achetée : les Hacks, les Augments et les NGU lisaient déjà la Puissance effective.
+   */
+  const engPower = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
+  const magPower = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
+  const r3Power = Math.max(1, idleNguEffectiveResourceStatV1(state, "r3", "power"));
   const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier;
@@ -3450,7 +3463,7 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
     }else if(def.effect==="ap"){
       const ap=Math.floor(Math.ceil(factor*15*firstHarvestMultiplier));
       /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + YellowHeartAPBonus) ..." (arrondi inférieur). */
-      const apCoeur=Math.floor(ap*heartApMultiplierV1(state));
+      const apCoeur=apGainV1(state,ap);
       state.currencies.ap+=apCoeur;
       result.ap=apCoeur;
     }else if(def.effect==="pp"){
@@ -3717,8 +3730,8 @@ function advanceTowerV1(state, seconds, context) {
   const perks = perkBonusesV1(state.systems.perks?.data?.levels);
   const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
   const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79);
-  const ppMultiplier = (1 + Math.max(0, num(state.adventure?.setRewards?.itopodPpPct, 0))) * nguFxV1(state).pp * hackFxV1(state).pp * perks.ppEarningsMultiplier * diggerBonuses(state).pp
-    * idleCardsMultiplierV1(state, "pp") /* Cards PP (page ITOPOD, « PP Cards ») */;
+  /* Même PPBonus que le Fruit of Rage (sets multiplicatifs, NGU PP, Hacks PP, Diggers PP, Perks, Cards PP). */
+  const ppMultiplier = Math.max(0, num(bonuses.ppMultiplier, 1));
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
 
   const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor);
@@ -3759,7 +3772,8 @@ function advanceTowerV1(state, seconds, context) {
     const ap = Math.floor(d.apProgress);
     if (ap > 0) {
       d.apProgress -= ap;
-      state.currencies.ap += ap * perks.apEarningsMultiplier;
+      /* Page Arbitrary Points : les kills de l'ITOPOD sont exclus de toute majoration d'AP (Fibonacci 89 compris). */
+      state.currencies.ap += ap;
     }
   };
   const reachFloor = (floor) => {
@@ -4033,6 +4047,18 @@ const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 
 function heartApMultiplierV1(state) {
   return idleHeartsApMultiplierV1(state, gearSpecialsV1(state));
 }
+/*
+ * Page Arbitrary Points : « AP gained from all sources, except for ITOPOD kills and Special Prize, can be increased
+ * by : achievements (max 58.25 %), My Yellow Heart (max 20 %), Fibonacci Perk level 89 (2 %). Maximal bonus is
+ * 193.698 % (158.25 % * 120 % * 102 %) and the final AP value is rounded down to nearest integer. » : facteurs
+ * MULTIPLICATIFS, arrondi inférieur de la valeur finale. Les succès (achievements) n'existent pas dans SOREAL (aucun
+ * pourcentage n'est donc appliqué). Seconde passe 2026-09-24 : avant, le Fibonacci 89 était oublié presque partout
+ * et appliqué à tort aux kills de l'ITOPOD, et la plupart des sources ne floor-aient pas.
+ */
+function apGainV1(state, amount) {
+  const base = Math.max(0, num(amount, 0));
+  return Math.floor(base * perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier * heartApMultiplierV1(state));
+}
 
 function nguSpeedMultiplierV1(state, resource) {
   const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
@@ -4083,7 +4109,14 @@ function advanceNgusV1(state, seconds) {
     const power = Math.max(1, idleNguEffectiveResourceStatV1(state, def.resource, "power"));
     const base = nguParamsV1(tier, def.id).baseCost;
     const work = n.work + (alloc * power * speeds[def.resource] * seconds) / base;
-    const { gained, work: rest } = nguLevelsFromWorkV1(n.level, work);
+    let { gained, work: rest } = nguLevelsFromWorkV1(n.level, work);
+    /*
+     * Page NGU : « at max speed, meaning they gain 50 levels/s » ; page Energy : « the most a progress bar can gain is
+     * exactly 1 filling per tick, since there are 50 ticks per second, or 50 fills (or levels) per second ». Seconde
+     * passe 2026-09-24 : le plafond existait pour les barbes et Wandoos, pas pour les NGU. Le travail en trop est perdu.
+     */
+    const maxGain = Math.max(1, Math.ceil(50 * seconds));
+    if (gained > maxGain) { gained = maxGain; rest = 0; }
     n.work = rest;
     if (gained > 0) grantNguLevelsV1(state, tier, def.id, gained);
   }
@@ -4262,7 +4295,14 @@ function idleNguBonusesSansMacguffinV1(state) {
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
   const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
-  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber * nguFx.number * hackFx.number;
+  /*
+   * Page NUMBER : « The NUMBER for the next rebirth will be the product of the following factors » dont « NGU NUMBER
+   * Bonus » et « Beard NUMBER Bonus » : ces deux facteurs sont déjà dans state.rebirth.number (figé au Rebirth par
+   * idleNguRebirthPreviewV1) ; les multiplier une seconde fois en direct les comptait deux fois (seconde passe
+   * 2026-09-24). Fruit of Numbers et Number Hack restent appliqués en direct (choix historique, la page NUMBER les
+   * range aussi dans le produit du prochain Rebirth mais le pont n'est pas encore fait).
+   */
+  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * hackFx.number;
   /*
    * Wiki NGU (page "Advanced Training", section Formulas) : "The Bonus%
    * for Adventure Power/Toughness is: Level^0.4 * 10" (vérifié cellule par
@@ -4528,7 +4568,8 @@ function idleNguBonusesSansMacguffinV1(state) {
     wandoosSpeedMultiplier: beardWandoos * diggers.wandoos,
     beardGoldMultiplier: beardGold,
     beardNumberMultiplier: beardNumber,
-    ppMultiplier: nguFx.pp * hackFx.pp * perkBonuses.ppEarningsMultiplier * diggers.pp,
+    /* PPBonus (page Yggdrasil, Fruit of Rage) : sets « PP earnings » en facteurs séparés x NGU PP x Diggers x Perks x Hacks (cartes PP ajoutées par idleCardsApplyToBonusesV1). */
+    ppMultiplier: idleAdventureSetRewardProductV1(state.adventure, "itopodPpPct") * nguFx.pp * hackFx.pp * perkBonuses.ppEarningsMultiplier * diggers.pp,
     /* Aucun vrai NGU n'accélère Questing ni le Daycare (pistes inventées retirées). */
     questSpeedMultiplier: 1,
     /* Item Daycare (idle-daycare-v1.js) : vitesse (équipement, Fibonacci, souhait, Blind Evil/Sadistic, Digger, Hack) et facteur de temps. */
@@ -5224,7 +5265,7 @@ function tossMoneyPit(state, now) {
   }
 
   // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
-  reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
+  reward.ap = apGainV1(state, Math.max(0, Math.floor(Math.log10(cost))));
 
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
@@ -5331,8 +5372,8 @@ function spinDaily(state, now) {
     for (const [id, n] of Object.entries(choix.items)) idleSelloutApplyEffectV1(state, id, n);
   } else {
     reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
-    /* AP : majoré par My Yellow Heart (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
-    if (reward.ap) reward.ap = Math.floor(reward.ap * heartApMultiplierV1(state));
+    /* AP : majoration de la page Arbitrary Points (My Yellow Heart x Fibonacci 89), arrondi inférieur. */
+    if (reward.ap) reward.ap = apGainV1(state, reward.ap);
     for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
   }
 
@@ -5488,7 +5529,7 @@ function challengeAction(state, payload, context, now) {
       completions[id]=before+1;
       state.currencies.experience+=rewardExperience;
       /* Page Arbitrary Points : AP des défis majoré par My Yellow Heart, arrondi inférieur. */
-      state.currencies.ap+=Math.floor(rewardAp*heartApMultiplierV1(state));
+      state.currencies.ap+=apGainV1(state,rewardAp);
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
       if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
@@ -5561,12 +5602,13 @@ function crediterRecompensesAventure(state, avant) {
   state.currencies.experience += gain("experience");
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
-  state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier * heartApMultiplierV1(state);
+  state.currencies.ap += apGainV1(state, gain("ap"));
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
   /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
   const poop = Math.floor(gain("poop"));
   if (poop > 0) idleSelloutApplyEffectV1(state, "poop", poop);
-  const pp = gain("ppProgress") * diggerBonuses(state).pp;
+  /* Page Yggdrasil : « PPBonus is bonus applied to all Perk Points gain » : le PP des titans reçoit le même facteur que l'ITOPOD. */
+  const pp = gain("ppProgress") * Math.max(0, num(idleNguBonuses(state).ppMultiplier, 1));
   if (pp > 0) {
     const tower = state.systems.tower;
     if (!tower.data || typeof tower.data !== "object") tower.data = {};
@@ -5655,6 +5697,7 @@ function titanFight(state, context, now) {
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
       titanExpBonusKills:perkBonusesV1(state.systems.perks?.data?.levels).titanExpBonusKills,
+      titanExpChallengePct:challengePermanentBonuses(state).bossExpPct,
       goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
       dropMultiplierIncludesGear:true,
@@ -5800,6 +5843,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
         titanExpBonusKills: perkBonusesV1(state.systems.perks?.data?.levels).titanExpBonusKills,
+        titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
         titanCooldownReductionSadisticMs:challengePermanentBonuses(state).titanRespawnReductionSadisticMs,
@@ -6046,7 +6090,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
   if(!options.challengeId&&runSeconds>=3600){
-    state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier*heartApMultiplierV1(state);
+    state.currencies.ap+=apGainV1(state,Math.floor(runSeconds/500));
   }
 
   rb.lastNumber=rb.number;
@@ -6202,6 +6246,23 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   /* Perk 34 « Bonus Titan EXP! » : les premiers kills de CHAQUE titan sont comptés par Rebirth (page Experience). */
   for(const ts of Object.values(state.adventure?.titans||{}))if(ts&&typeof ts==="object")ts.rebirthKills=0;
+  /*
+   * Page Titans : « Rebirth will despawn currently living titans and starts a new cooldown timer from the moment of
+   * rebirth. » Chaque titan déjà vaincu repart avec son délai complet (réductions No Rebirth comprises, plancher 60 min)
+   * à partir du Rebirth. Walderp, tant que ses formes ne sont pas toutes vaincues, reste caché (pas de délai).
+   */
+  {
+    const bonusesTitans=challengePermanentBonuses(state);
+    for(const [tid,ts] of Object.entries(state.adventure?.titans||{})){
+      if(!ts||typeof ts!=="object"||int(ts.kills,0)<=0)continue;
+      const cooldown=idleAdventureTitanCooldownMsV1(tid,{
+        titanCooldownReductionMs:bonusesTitans.titanRespawnReductionMs,
+        titanCooldownReductionEvilMs:bonusesTitans.titanRespawnReductionEvilMs,
+        titanCooldownReductionSadisticMs:bonusesTitans.titanRespawnReductionSadisticMs
+      },ts.kills);
+      if(cooldown!==null)ts.nextAt=t+cooldown;
+    }
+  }
 
   // Gold and Blood are run currencies in NGU. Permanent currencies survive.
   state.currencies.gold=0;

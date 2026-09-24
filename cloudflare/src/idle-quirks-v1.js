@@ -33,20 +33,13 @@
  * (idle-ngu-progression.js, IDLE_WANDOOS_OS_V1/advanceWandoos) -- câblées
  * via les nouvelles clés wandoosEnergySpeedPct/wandoosMagicSpeedPct.
  *
- * Volontairement exclus (système absent de SOREAL, ou multiplicateur déjà
- * calculé mais jamais branché ailleurs dans ce fichier -- gap préexistant
- * hors périmètre de cette passe, jamais approximé) : NGU Evil/Sadistic
- * (les NGU réels existent depuis 2026-09-23 : quirks 14, 89, 93-98 ajoutés),
- * Daycare Slot (MacGuffin Slot 19/50 : câblés le 2026-09-23), Hack Milestones
- * (57-60,174-175), Wishes (54 et 56 câblés depuis : temps minimum, slot de
- * souhait), Cards/Mayo/Tags/
- * Deck (99-169 quasi intégralement), Resource 3 (47-49,67-69,86-88,183-
- * 185 -- pas de 3e ressource entraînable), Quêtes/Idle Questing (71),
- * Better
- * Blood Magic (91 -- production de sang non exposée comme taux
- * modifiable dans ce round), Even More Inventory Space (90 -- le
- * pipeline inventorySlotsFromPerks/FromChallenges n'a pas d'équivalent
- * FromQuirks câblé, hors périmètre).
+ * État au 2026-09-24 (audit de seconde passe, design/audit-catalog-effects-read.mjs et le test
+ * idle-catalog-effects-read) : tout le tableau de la page Quirk Points est au catalogue et chaque effet a
+ * un consommateur (nom, coût, cap et effet comparés au miroir par design/compare-catalogs-to-wiki.mjs).
+ * Les « exclusions » que cet en-tête annonçait sont câblées depuis : NGU Evil/Sadistic (14, 89, 93-98),
+ * MacGuffin Slots (19, 50), Hack Milestones (57-60, 174-175 : hackFxV1), Souhaits (54, 56), Cartes
+ * (99-169 : idle-cards-v1.js), Resource 3 (47-49, 67-69, 86-88, 183-185 : r3*Pct), Quêtes (71),
+ * Better Blood Magic (91 : bloodGainMultiplier), Even More Inventory Space (90 : inventorySlotBonus).
  *
  * Previously "Quirks" was buyTree(state, "quirks", "qp", 50) — a single
  * generic counter (one shared level, exponential 1.55^level cost) reused

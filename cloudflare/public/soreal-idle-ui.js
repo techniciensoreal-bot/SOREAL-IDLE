@@ -18884,6 +18884,7 @@ function pageAventureIdleV28_(j){
         extraDeckSize:{name:'Taille de deck supplémentaire',effect:'Augmente la taille du deck pour pouvoir conserver davantage de cartes. Maximum : 50 achats.'},
         mayoGenerator:{name:'Générateur de mayo',effect:'Permet de faire fonctionner un générateur de Mayo supplémentaire et augmente la vitesse de génération de Mayo de 2 % par emplacement. Maximum : 2 achats.'},
         extraTagSlot:{name:'Emplacement de tag supplémentaire',effect:'Débloque un emplacement de tag supplémentaire pour les cartes afin de favoriser celles que tu veux obtenir.'},
+        extraAccessorySlotEvil:{name:'Emplacement d’accessoire Evil',effect:'Un emplacement d’accessoire ordinaire, mais dont l’achat est arbitrairement verrouillé tant que tu n’es pas en difficulté Evil.'},
         extraAccessorySlot5:{name:'Dernier emplacement d’accessoire',effect:'Voilà, c’est le dernier emplacement d’accessoire achetable avec de l’AP. Après celui-ci, terminé.'},
 
         heartRed:{name:'Mon cœur rouge <3',effect:'Au niveau 100, son bonus complet de +10 % EXP s’applique sans devoir l’équiper.'},
