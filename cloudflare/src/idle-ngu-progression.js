@@ -1110,12 +1110,28 @@ function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
  * en Normal — documenté honnêtement, jamais un chiffre inventé. Le set XL
  * multiplie le tout par 0,9 (plancher réel de 27 min = 60 x 0,9 x 0,5).
  */
-function wandoosBootFractionV1(state, now) {
+function wandoosBootFractionV1(state, now, seconds = 0) {
   const hundredLevelsCount = Math.max(0, Math.min(5, int(state.challenge?.completionsTier?.difficile?.hundredLevels, 0)));
   /* Wandoos XL (set) : x0,9 sur la durée du boot (idle-wandoos-os-v1.js), cumulé multiplicativement avec les défis. */
-  const bootSeconds = 3600 * (1 - 0.10 * hundredLevelsCount) * idleWandoosBootMultiplierV1(state);
-  const elapsed = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
-  return clamp(elapsed / Math.max(1, bootSeconds), 0, 1);
+  const bootSeconds = Math.max(1, 3600 * (1 - 0.10 * hundredLevelsCount) * idleWandoosBootMultiplierV1(state));
+  const end = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
+  const span = Math.max(0, Math.min(end, num(seconds, 0)));
+  if (span <= 1e-9) {
+    const f = clamp(end / bootSeconds, 0, 1);
+    return { fraction: f, afterBootShare: end >= bootSeconds ? 1 : 0 };
+  }
+  /*
+   * 2026-09-24 (audit, page Wandoos, Boot-up : « The speed increase is linear, and ranges from 0-100% speed »)
+   * : une fenêtre de temps simulée d'un seul bloc (hors ligne, jusqu'à 30 jours) était multipliée par la
+   * vitesse de la FIN de fenêtre. On utilise la vitesse moyenne de la rampe linéaire sur la fenêtre, et la
+   * part de la fenêtre écoulée après le boot pour le +10 % du set Wandoos.
+   */
+  const start = end - span;
+  const rampEnd = Math.min(end, bootSeconds);
+  const rampStart = Math.min(start, bootSeconds);
+  const rampIntegral = (rampEnd * rampEnd - rampStart * rampStart) / (2 * bootSeconds);
+  const afterBoot = Math.max(0, end - Math.max(start, bootSeconds));
+  return { fraction: clamp((rampIntegral + afterBoot) / span, 0, 1), afterBootShare: afterBoot / span };
 }
 
 function advanceWandoos(state, seconds, context, now) {
@@ -1135,7 +1151,8 @@ function advanceWandoos(state, seconds, context, now) {
     Math.max(0, num(s.data.osLevels?.consumedXl, 0))
   );
   const osLevelMultiplier = wandoosOsLevelSpeedMultiplierV1(totalOsLevel);
-  const bootFraction = wandoosBootFractionV1(state, now);
+  const boot = wandoosBootFractionV1(state, now, seconds);
+  const bootFraction = boot.fraction;
   const beardWandoos = beardBonusMultiplier(state, "wandoos");
   const diggerWandoos = diggerBonuses(state).wandoos;
   const challengeWandoos = challengePermanentBonuses(state).wandoosSpeedChallengeMultiplier;
@@ -1162,9 +1179,7 @@ function advanceWandoos(state, seconds, context, now) {
    * Wandoos (set) (wiki "Wandoos" > Boot-up : "After booting-up, it gains a 10% speed boost by
    * maxing the Wandoos set") : +10 % uniquement une fois le boot terminé (bootFraction = 1).
    */
-  const wandoosSetMultiplier = bootFraction >= 1
-    ? 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0))
-    : 1;
+  const wandoosSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0)) * boot.afterBootShare;
 
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
   const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
