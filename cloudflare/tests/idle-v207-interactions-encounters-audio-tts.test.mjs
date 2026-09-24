@@ -50,7 +50,7 @@ assert.ok(ui.includes("jouerEffetAudioIdleV199_('uiClick')"));
 
 for(const token of [
   "function decouperNarration_",
-  "CHUNK_MAX=2000",
+  "CHUNK_MAX=600",
   "requestLocalNeuralAudio_",
   "__SOREAL_IDLE_LOCAL_NEURAL_V1__",
   "⚠️ Voix IA · "

@@ -16,7 +16,21 @@
   var KEY='soreal_idle_tutorial_tts_auto_v202';
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
   var READ_CLASS='soreal-idle-tts-read-v203';
-  var CHUNK_MAX=2000;
+  /*
+   * 2026-09-24 : 2000 -> 600 caractères. Avec l'ancienne valeur, un long récit était synthétisé d'un seul bloc (≈ 54 s d'attente
+   * mesurées pour 2000 caractères) ; en blocs de fin de phrase, le premier son arrive vite et le bloc suivant est généré pendant
+   * la lecture du précédent (voir narrate_).
+   */
+  var CHUNK_MAX=600;
+  /*
+   * Pauses demandées par le balisage (Norman, 2026-09-24) : un élément portant data-soreal-tts-pause="ms" est suivi d'un silence de
+   * ce nombre de millisecondes (plus long que la pause d'un point). Le texte lu contient un marqueur invisible (caractères de la
+   * zone privée) que la découpe transforme en vrai silence entre deux synthèses.
+   */
+  var PAUSE_OPEN=String.fromCharCode(0xE000);
+  var PAUSE_CLOSE=String.fromCharCode(0xE001);
+  var PAUSE_MARKER_RE=new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE);
+  var PAUSE_MAX_MS=5000;
   var auto=false;
   var lastFingerprint='';
   var timer=0;
@@ -134,7 +148,7 @@
           current='';
         }
         var cut=phrase.lastIndexOf(' ',CHUNK_MAX);
-        if(cut<500)cut=CHUNK_MAX;
+        if(cut<Math.floor(CHUNK_MAX/4))cut=CHUNK_MAX;
         chunks.push(phrase.slice(0,cut).trim());
         phrase=phrase.slice(cut).trim();
       }
@@ -150,6 +164,25 @@
 
     if(current)chunks.push(current);
     return chunks;
+  }
+
+  /*
+   * Texte (avec marqueurs de pause) -> étapes de lecture : {chunk:'…'} pour une synthèse, {pause:ms} pour un silence.
+   * Une pause n'est gardée qu'entre deux textes (jamais en tête ni en fin de lecture).
+   */
+  function planNarration_(value){
+    var parts=String(value||'').split(new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE));
+    var steps=[];
+    for(var i=0;i<parts.length;i+=1){
+      if(i%2===1){
+        var ms=Math.max(0,Math.min(PAUSE_MAX_MS,parseInt(parts[i],10)||0));
+        if(ms>0&&steps.length&&steps[steps.length-1].pause==null)steps.push({pause:ms});
+        continue;
+      }
+      decouperNarration_(parts[i]).forEach(function(chunk){steps.push({chunk:chunk});});
+    }
+    while(steps.length&&steps[steps.length-1].pause!=null)steps.pop();
+    return steps;
   }
 
   function updateReadButtons_(){
@@ -244,6 +277,12 @@
   function text_(panel){
     if(!panel)return '';
     var clone=panel.cloneNode(true);
+    clone.querySelectorAll('[data-soreal-tts-pause]').forEach(function(el){
+      var ms=Math.max(0,Math.min(PAUSE_MAX_MS,parseInt(el.getAttribute('data-soreal-tts-pause'),10)||0));
+      if(ms>0&&el.parentNode){
+        el.parentNode.insertBefore(document.createTextNode(' '+PAUSE_OPEN+ms+PAUSE_CLOSE+' '),el.nextSibling);
+      }
+    });
     clone.querySelectorAll(
       'button,input,select,textarea,script,style,.'
       +BUTTON_CLASS+',.'+READ_CLASS+
@@ -302,14 +341,14 @@
     });
   }
 
-  function requestLocalNeuralAudio_(text,targetId,expectedGeneration){
+  function requestLocalNeuralAudio_(text,targetId,expectedGeneration,silent){
     return waitLocalNeuralApi_().then(function(api){
       if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
       if(!api||typeof api.synthesize!=='function'){
         throw new Error('PIPER_LOCAL_API_INDISPONIBLE');
       }
 
-      var unsubscribe=typeof api.subscribe==='function'
+      var unsubscribe=typeof api.subscribe==='function'&&!silent
         ?api.subscribe(function(state){
           if(expectedGeneration===generation){
             afficherProgressionLocale_(state,targetId);
@@ -457,19 +496,45 @@
     if(mapped){
       task=playAudioPromise_(mapped,targetId,myGeneration);
     }else{
-      var chunks=decouperNarration_(text);
-      task=chunks.reduce(function(chain,chunk,index){
-        return chain.then(function(){
-          if(myGeneration!==generation)throw new Error('NARRATION_ANNULEE');
-          return requestLocalNeuralAudio_(
-            chunk,
-            String(targetId||'__manual_text__'),
-            myGeneration
-          );
-        }).then(function(blob){
+      /*
+       * Étapes = synthèses et silences (voir planNarration_). Le bloc suivant est généré PENDANT la lecture du précédent
+       * (préchargement d'un seul bloc d'avance) : les silences demandés ne sont plus noyés dans le temps de génération.
+       * Seule l'étape attendue affiche sa progression sur le bouton.
+       */
+      var steps=planNarration_(text);
+      var blobs={};
+      var idCible=String(targetId||'__manual_text__');
+      var prochainTexte=function(from){
+        for(var k=from;k<steps.length;k+=1){
+          if(steps[k].pause==null)return k;
+        }
+        return -1;
+      };
+      var assurer=function(i,silent){
+        if(i<0||i>=steps.length)return null;
+        if(!blobs[i]){
+          blobs[i]=requestLocalNeuralAudio_(steps[i].chunk,idCible,myGeneration,silent);
+          blobs[i].catch(function(){});
+        }
+        return blobs[i];
+      };
+      var attendre=function(ms){
+        return new Promise(function(resolve){setTimeout(resolve,ms);});
+      };
+      var jouer=function(i){
+        if(i>=steps.length)return Promise.resolve();
+        if(myGeneration!==generation)return Promise.reject(new Error('NARRATION_ANNULEE'));
+        var etape=steps[i];
+        if(etape.pause!=null){
+          assurer(prochainTexte(i+1),true);
+          return attendre(etape.pause).then(function(){return jouer(i+1);});
+        }
+        return assurer(i,false).then(function(blob){
+          assurer(prochainTexte(i+1),true);
           return playBlobWebAudioPromise_(blob,targetId,myGeneration);
-        });
-      },Promise.resolve());
+        }).then(function(){return jouer(i+1);});
+      };
+      task=jouer(0);
     }
 
     task.then(function(){

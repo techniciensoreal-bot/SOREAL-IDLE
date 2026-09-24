@@ -10675,23 +10675,28 @@
           ).trim();
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-148 */
-        let infoDeblocage='';
+        /*
+         * 2026-09-24 (Norman) : TOUS les paragraphes du début qui sont entre parenthèses sont des notes sur le jeu (déblocage d'une
+         * fonctionnalité, d'une zone...), pas sur le boss : chacun prend la mise en page « note » (avant, seul le premier
+         * paragraphe la recevait et les suivants finissaient dans le récit).
+         */
+        const notesDeblocage=[];
         let narration=histoire;
-        const infoMatch=histoire.match(/^\(([^\n]+)\)\s*/);
-
-        if(infoMatch){
-          infoDeblocage='('+String(infoMatch[1]||'').trim()+')';
-          narration=histoire.slice(infoMatch[0].length).trim();
+        for(;;){
+          const infoMatch=narration.match(/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/);
+          if(!infoMatch)break;
+          notesDeblocage.push('('+String(infoMatch[1]||'').trim()+')');
+          narration=narration.slice(infoMatch[0].length).trim();
         }
 
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142">
-            <div class="soreal-idle-boss-lore-title-v168">Chronique du boss</div>
-            <div class="soreal-idle-boss-lore-name-v184">${idleHtml_(nomBoss)}</div>
-            <div class="soreal-idle-boss-lore-ornament-v184">✦ ❦ ✦</div>
-            ${infoDeblocage
-              ?'<div class="soreal-idle-boss-lore-info-v198">'+idleHtml_(infoDeblocage)+'</div>'
-              :''}
+            <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450">Chronique du boss</div>
+            <div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">${idleHtml_(nomBoss)}</div>
+            <div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>
+            ${notesDeblocage.map(function(note){
+              return '<div class="soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700">'+idleHtml_(note)+'</div>';
+            }).join('')}
             ${narration
               ?'<div class="soreal-idle-boss-lore-histoire-v142">'+idleHtml_(narration)+'</div>'
               :''}
