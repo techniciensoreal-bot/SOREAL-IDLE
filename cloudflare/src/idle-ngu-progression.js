@@ -4464,6 +4464,8 @@ function idleNguBonusesSansMacguffinV1(state) {
       quirkExtraLevels: quirkBonuses.basicTrainingExtraLevels,
       wishExtraLevels: wishBonuses.basicTrainingExtraLevels
     }),
+    /* Wiki Experience > Misc « Training Auto Advance » (300 EXP) : effet dans advanceBasicTrainingStateV411. */
+    basicTrainingAutoAdvance: expShopPurchasedV1(state, "trainingAutoAdvance") >= 1,
     disableEquipment: equipmentDisabled,
     numberMultiplier: number,
     augmentationMultiplier: aug,
@@ -6274,8 +6276,10 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
  * d'accessoire (3 000 / 30 000 EXP), 1 slot de Digger (25 000 EXP), 3 slots de garderie (« Item Daycare ! »
  * 250, « Another Daycare Slots! » 25 000, « Another Another Daycare Slots! » 500 000 EXP, achat unique
  * chacun). Auto Merge, filtre de butin, loadouts, Boost Recycling et Inventory Merge Slot : voir
- * idle-inventory-auto-v1.js. Non modélisés : boutons personnalisés, Training Auto Advance, slots de
- * Beard. 2 slots MacGuffin (10 M / 100 M EXP).
+ * idle-inventory-auto-v1.js. Training Auto Advance (300 EXP) : idle-basic-training.js. Non modélisés :
+ * « Custom Input Button 1..4 » (50/100/500/1000 EXP) -- le wiki ne donne que nom et prix, aucun effet
+ * décrit (les boutons % du 4G's Sellout Shop disent seulement « work like the other custom buttons »),
+ * donc rien n'est inventé. 2 slots MacGuffin (10 M / 100 M EXP).
  */
 export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   adventurePower: Object.freeze({ name: "Adventure Power", cost: () => 3, gain: 1, max: null }),
@@ -6306,6 +6310,12 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),
   boostRecycling: Object.freeze({ name: "Boost Recycling", cost: () => 100, gain: 10, max: 5 }),
   inventoryMergeSlot: Object.freeze({ name: "Inventory Merge Slot!", cost: () => 1000, gain: 1, max: 1 }),
+  /*
+   * Wiki Experience, Misc (« these can only be purchased once ») : « Training Auto Advance » 300 EXP,
+   * « Automatically allocates energy each time a skill is unlocked while leaving the necessary cap for
+   * each skill » (effet : advanceBasicTrainingStateV411, option autoAdvance).
+   */
+  trainingAutoAdvance: Object.freeze({ name: "Training Auto Advance", cost: () => 300, gain: 1, max: 1 }),
   /* Wiki Experience, section Yggdrasil : 15 « Auto-Activate » (coût EXP + cap requis ; idle-yggdrasil-extra-v1.js). */
   ...idleYggAutoActivateExpShopEntriesV1()
 });

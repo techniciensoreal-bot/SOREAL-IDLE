@@ -346,12 +346,36 @@ export function advanceBasicTrainingSkillV411(
   };
 }
 
+/*
+ * Training Auto Advance (wiki « Experience » > Misc, 300 EXP, et « Basic
+ * Training » > Related Purchases) : « Automatically allocates energy each
+ * time a skill is unlocked while leaving the necessary cap for each skill. »
+ *
+ * Lecture retenue (la plus littérale ; le wiki ne donne rien de plus) : à
+ * l'instant où une compétence se débloque, l'énergie allouée à sa compétence
+ * prérequise AU-DELÀ de son cap lui est transférée ; la prérequise garde
+ * exactement son cap (« leaving the necessary cap »), donc sa vitesse reste
+ * maximale. L'énergie inactive n'est jamais prise : le total alloué ne
+ * change pas. Le transfert se répète en cascade à chaque déblocage suivant.
+ * La nouvelle compétence ne progresse qu'à partir de l'instant de son
+ * déblocage (calculé à partir de la vitesse constante de sa prérequise).
+ */
 export function advanceBasicTrainingStateV411(
   raw,
   now,
   maxOfflineSeconds=12*60*60,
-  levelsPerFill=1
+  levelsPerFill=1,
+  options={}
 ){
+  if(options&&options.autoAdvance){
+    return advanceBasicTrainingStateAutoV411_(
+      raw,
+      now,
+      maxOfflineSeconds,
+      levelsPerFill
+    );
+  }
+
   const current=Math.max(0,num(now,Date.now()));
   const state=normalizeBasicTrainingStateV411(raw,current);
 
@@ -386,6 +410,86 @@ export function advanceBasicTrainingStateV411(
       advanceBasicTrainingSkillV411(
         state.skills[def.id],
         seconds,
+        levelsPerFill
+      );
+  }
+
+  state.lastUpdateMs=current;
+
+  return {
+    state,
+    elapsedSeconds:seconds
+  };
+}
+
+function advanceBasicTrainingStateAutoV411_(
+  raw,
+  now,
+  maxOfflineSeconds,
+  levelsPerFill
+){
+  const current=Math.max(0,num(now,Date.now()));
+  const state=normalizeBasicTrainingStateV411(raw,current);
+
+  const elapsedMs=
+    Math.max(
+      0,
+      current-
+      Math.max(
+        0,
+        num(state.lastUpdateMs,current)
+      )
+    );
+
+  const seconds=
+    Math.min(
+      Math.max(0,num(maxOfflineSeconds,0)),
+      elapsedMs/1000
+    );
+
+  /* id -> { start (s dans la fenêtre), x0 (niveau au départ), rate (niv/s) } */
+  const timeline={};
+
+  for(const def of BASIC_TRAINING_V411.skills){
+    const skill=state.skills[def.id];
+    let start=0;
+
+    if(def.prerequisite){
+      const p=timeline[def.prerequisite];
+      const prev=state.skills[def.prerequisite];
+      const needed=int(def.prerequisiteLevel,0);
+
+      if(!p||int(prev.level,0)<needed){
+        skill.allocation=0;
+        continue;
+      }
+
+      if(p.x0<needed){
+        /* Déblocage pendant la fenêtre : transfert du surplus au-delà du cap. */
+        start=Math.min(
+          seconds,
+          p.start+(p.rate>0?(needed-p.x0)/p.rate:0)
+        );
+        const surplus=Math.max(0,int(prev.allocation,0)-Math.max(1,int(prev.cap,1)));
+        prev.allocation=int(prev.allocation,0)-surplus;
+        skill.allocation=surplus;
+      }
+    }
+
+    timeline[def.id]={
+      start,
+      x0:int(skill.level,0)+Math.max(0,Math.min(0.999999999,num(skill.progress,0))),
+      rate:levelsPerSecondForBasicTrainingSkillV411(
+        skill.allocation,
+        skill.cap,
+        levelsPerFill
+      )
+    };
+
+    state.skills[def.id]=
+      advanceBasicTrainingSkillV411(
+        skill,
+        Math.max(0,seconds-start),
         levelsPerFill
       );
   }
