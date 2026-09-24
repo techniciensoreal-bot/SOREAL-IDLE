@@ -10,8 +10,10 @@
  *
  * - Le gain d'EXP d'un repas ("Current Meal Exp Gain") : le wiki dit
  *   seulement que manger "permanently increase exp gains, up to a maximum
- *   of 300%" et que le gain courant est appliqué au "Total Exp Gain". Aucune
- *   formule ne relie l'efficacité du repas et les "Total Cooking Bonuses" au
+ *   of 300%" et que le gain courant est appliqué au "Total Exp Gain". La formule
+ *   vient du forum Steam (jshepler), voir idleCookingMealExpGainPctV1 (2026-09-24,
+ *   source externe). Ancien texte, avant cette formule :
+ *   Aucune formule ne relie l'efficacité du repas et les "Total Cooking Bonuses" au
  *   gain par repas. La capture Cooking-sample.png montre un seul point
  *   (efficacité +100 %, bonus 132 %, gain +0.66 %, total +100 %), insuffisant
  *   pour déduire une formule (linéarité, dépendance au total déjà acquis...).
@@ -356,11 +358,20 @@ export function idleCookingTimerV1(data, adventure, now) {
 }
 
 /*
- * Gain d'EXP du repas courant : NON PUBLIÉ par le wiki (voir l'en-tête du
- * fichier). null = "inconnu" ; ne jamais remplacer par une valeur approchée.
+ * Gain d'EXP du repas courant (en points de %), formule de jshepler (auteur des mods NGU)
+ * sur le forum Steam, fil « cooking » (NGU-Wiki\external\cooking-exp-formula.json, 2026-09-24) :
+ *   base = max(0,36, 1 - bonusExp^2)   (bonusExp = Total Exp Gain déjà acquis en fraction : +20 % -> 0,2)
+ *   gain = base x 0,005 x multiplicateur de cuisine x efficacité, ajouté (pas multiplié) au Total Exp Gain.
+ * Le maximum (base 1 : 1,32 x 0,005 = 0,66 %) recoupe l'exemple du wiki. Lecture retenue : « exp bonus » est le Total Exp
+ * Gain acquis ; la capture Cooking-sample.png (total +100 % et gain encore à 0,66 %) est plus ancienne que ce plancher.
+ * efficiency : fraction 0..1 ; totalBonusesMultiplier : 1,32 pour « 132 % » ; totalExpGainPct : 100 pour « +100 % ».
  */
-export function idleCookingMealExpGainPctV1(/* efficiency, totalBonusesMultiplier, totalExpGainPct */) {
-  return null;
+export function idleCookingMealExpGainPctV1(efficiency, totalBonusesMultiplier, totalExpGainPct) {
+  const eff = clamp(num(efficiency, 0), 0, 1);
+  const mult = Math.max(0, num(totalBonusesMultiplier, 0));
+  const bonus = Math.max(0, num(totalExpGainPct, 0)) / 100;
+  const base = Math.max(0.36, 1 - bonus * bonus);
+  return base * 0.005 * mult * eff * 100;
 }
 
 function synchroniserBonusExp(state, data) {

@@ -49,7 +49,7 @@ state.systems.cooking.data.levels[1] = 4;
   const html = api.pageSystemeMetaIdleV130_({ systemes: snap }, "cooking", "Cooking");
   assert.match(html, /Efficacité du repas/);
   assert.match(html, /Bonus de cuisine totaux<b>100,00 %/);
-  assert.match(html, /Gain d’EXP du repas<b>non documenté/);
+  assert.match(html, /Gain d’EXP du repas<b>\+\d+,\d\d %/, "gain sourcé (efficacité aléatoire du repas x 0,5 % au maximum)");
   assert.match(html, /Gain d’EXP total<b>\+0,00 % \/ 300 %/);
   assert.match(html, /Repas n°1/);
   assert.match(html, /Un repas toutes les 23,5 h/);
@@ -64,8 +64,8 @@ state.systems.cooking.data.levels[1] = 4;
 {
   const snap = idleNguSnapshot(state, ctx, t0 + 30 * H);
   const html = api.pageSystemeMetaIdleV130_({ systemes: snap }, "cooking", "Cooking");
-  assert.match(html, /Manger ! \(gain non documenté\)/);
-  assert.doesNotMatch(html, /__cuisineMangerIdleV1__\(\)/, "manger désactivé tant que le gain n'est pas sourcé");
+  assert.match(html, /__cuisineMangerIdleV1__\(\)/, "repas prêt : le bouton Manger est actif");
+  assert.doesNotMatch(html, /gain non documenté/);
 }
 
 /* Les boutons +/- envoient l'action serveur { action: "cooking", op: "setIngredient" }. */

@@ -58,11 +58,13 @@ assert.equal(cooking.data.bankAnchorAt, t0, "la minuterie démarre au déblocage
   assert.equal(r7.state.systems.cooking.data.levels[6], 3);
 }
 
-/* Manger : refusé tant que le gain par repas n'est pas sourcé, même repas prêt. */
-assert.throws(
-  () => applyIdleNguAction(state, { action: "cooking", op: "eat" }, ctx, t0 + 30 * H),
-  /COOKING_GAIN_REPAS_NON_DOCUMENTE/
-);
+/* Manger : gain par repas selon la formule sourcée (forum Steam), ajouté au Total Exp Gain. */
+{
+  const eaten = applyIdleNguAction(state, { action: "cooking", op: "eat" }, ctx, t0 + 30 * H);
+  const data = eaten.state.systems.cooking.data;
+  assert.ok(data.totalExpGainPct > 0 && data.totalExpGainPct <= 0.5 + 1e-9, "premier repas : au plus 0,5 % (bonus 100 %, base 1)");
+  assert.equal(data.mealsEaten, 1);
+}
 
 /* Snapshot : vue publique, sans cibles/poids/paires. */
 {
@@ -75,8 +77,8 @@ assert.throws(
   assert.equal(sys.state.data.unlockedSlots, 6);
   assert.equal(sys.state.data.ingredients[2].level, 7);
   assert.equal(sys.state.data.totalCookingBonusesPct, 100);
-  assert.equal(sys.state.data.mealExpGainPct, null);
-  assert.equal(sys.state.data.mealExpGainDocumented, false);
+  assert.ok(sys.state.data.mealExpGainPct > 0 && sys.state.data.mealExpGainPct <= 0.5 + 1e-9);
+  assert.equal(sys.state.data.mealExpGainDocumented, true);
   assert.equal(sys.state.data.totalExpGainMaxPct, 300);
   assert.equal(sys.state.data.timer.mealMs, 23.5 * H);
   assert.equal(sys.state.data.timer.readyInMs, 21.5 * H);

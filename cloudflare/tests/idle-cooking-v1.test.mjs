@@ -173,8 +173,13 @@ assert.equal(idleCookingUnlockedSlotsV1({ titans: { lobster: { kills: 3 }, amalg
   assert.equal(pain.bankedMs, 25.5 * H);
 }
 
-/* --- gain par repas : non publié par le wiki --- */
-assert.equal(idleCookingMealExpGainPctV1(1, 1.32, 100), null);
+/* --- gain par repas : formule jshepler (forum Steam), plancher de base 0,36 --- */
+assert.ok(Math.abs(idleCookingMealExpGainPctV1(1, 1.32, 0) - 0.66) < 1e-9, "premier repas, efficacité 100 %, bonus 132 % : +0,66 % (exemple du wiki)");
+assert.ok(Math.abs(idleCookingMealExpGainPctV1(1, 1.32, 20) - (1 - 0.04) * 0.66) < 1e-9, "total +20 % -> base 1 - 0,2^2");
+assert.ok(Math.abs(idleCookingMealExpGainPctV1(1, 1.32, 100) - 0.36 * 0.66) < 1e-9, "total +100 % -> base plancher 0,36");
+assert.ok(Math.abs(idleCookingMealExpGainPctV1(1, 1.32, 300) - 0.36 * 0.66) < 1e-9, "total +300 % -> 0,24 % (0,36 x 0,66 %)");
+assert.ok(Math.abs(idleCookingMealExpGainPctV1(0.5, 1, 0) - 0.25) < 1e-9, "efficacité 50 %, bonus 100 % : 0,25 %");
+assert.equal(idleCookingMealExpGainPctV1(0, 1.32, 0), 0);
 
 /* --- manger (gain injecté) : banque consommée, plafond 300 %, bonus EXP synchronisé --- */
 {

@@ -78,9 +78,13 @@ for (const [id, [n, b]] of Object.entries(ROSTER)) {
   assert.deepEqual(byName(B.duckduck.boss, "A SINGLE GRAPE"), { name: "A SINGLE GRAPE", type: "poison", attackRate: 1.2, power: 1e32, toughness: 1.1e32, hpRegen: 1e30, maxHp: 5.06e33 });
   // "Evil Mouse" : attack_rate=1, power=5E+12, hp=5E+14
   assert.equal(byName(B.evilverse.normal, "Evil Mouse").maxHp, 5e14);
-  // "BELDING" (Back To School) : type=grower, hp=6.25E+28
+  // "BELDING" (Back To School) : type=grower ; le wiki publie hp=6.25E+28, la source externe 3.25E+28 (le wiki a P/T/regen/PV x2 sur cette zone,
+  // ratio puissance mob / puissance Manual recommandée 1,21 contre 0,54-0,80 ailleurs) -> source appliquée le 2026-09-24.
   assert.equal(byName(B.backtoschool.boss, "BELDING").type, "grower");
-  assert.equal(byName(B.backtoschool.boss, "BELDING").maxHp, 6.25e28);
+  assert.equal(byName(B.backtoschool.boss, "BELDING").maxHp, 3.25e28);
+  assert.equal(byName(B.backtoschool.normal, "A Different Greasy Nerd").power, 3e26);
+  assert.equal(byName(B.construction.normal, "A Bulldozer").maxHp, 2.07e33);
+  assert.equal(byName(B.halloweenies.normal, "A Skeleton Inside a Body").type, "paralyze");
 }
 
 // 5. Zones sans stats sur le wiki (fiches stub ou absentes) : stats de NGU-Wiki/external/late-zone-enemies.json
