@@ -4473,7 +4473,7 @@ function idleNguBonusesSansMacguffinV1(state) {
     atBankMultiplierFromQuirks: quirkBonuses.atBankMultiplier,
     tmBankMultiplierFromQuirks: quirkBonuses.tmBankMultiplier,
     beardBankMultiplierFromQuirks: quirkBonuses.beardBankMultiplier,
-    titanExpFirstKillsMultiplierFromPerks: perkBonuses.titanExpFirstKillsMultiplier,
+    titanExpBonusKillsFromPerks: perkBonuses.titanExpBonusKills,
     bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier + challengeBonuses.bossExpPct,
     seedYieldMultiplierFromPerks: perkBonuses.seedYieldMultiplier,
     seedYieldMultiplierFromQuirks: quirkBonuses.seedYieldMultiplier,
@@ -5338,8 +5338,14 @@ function spinDaily(state, now) {
 
   s.level = totalBefore + 1;
   s.data.totalSpins = s.level;
-  // 24h cadence with up to 12h of lateness banked toward the next spin.
-  const bankedMs = Math.min(12 * 3600000, Math.max(0, now - previousReadyAt));
+  /*
+   * Cadence de 24 h, temps en retard « banké » vers le prochain tour. Plafond de banque : « maximum time banked by the
+   * daily spin system from 36 hours to 7 days » (4G's Sellout Shop, 7-Day Time Bank for Daily Spin!) : le plafond
+   * total (24 h de cadence + retard banké) passe de 36 h à 7 jours, soit 12 h puis 144 h de retard banké
+   * (lecture retenue : le retard banké de 12 h du code d'origine est bien 36 h - 24 h).
+   */
+  const bankCapMs = (state.selloutShop?.purchases?.dailySpinTimeBank > 0 ? 7 * 24 : 36) * 3600000 - 24 * 3600000;
+  const bankedMs = Math.min(bankCapMs, Math.max(0, now - previousReadyAt));
   s.data.readyAt = now + 24 * 3600000 - bankedMs;
 
   const resultat={
@@ -5648,6 +5654,7 @@ function titanFight(state, context, now) {
     },
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
+      titanExpBonusKills:perkBonusesV1(state.systems.perks?.data?.levels).titanExpBonusKills,
       goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
       dropMultiplierIncludesGear:true,
@@ -5792,6 +5799,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         cubeBoostRate: Math.max(0.01, num(perkBonusesV1(state.systems.perks?.data?.levels).cubeBoostRate, 0.01)),
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
+        titanExpBonusKills: perkBonusesV1(state.systems.perks?.data?.levels).titanExpBonusKills,
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
         titanCooldownReductionSadisticMs:challengePermanentBonuses(state).titanRespawnReductionSadisticMs,
@@ -6191,6 +6199,9 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
     }
   }
+
+  /* Perk 34 « Bonus Titan EXP! » : les premiers kills de CHAQUE titan sont comptés par Rebirth (page Experience). */
+  for(const ts of Object.values(state.adventure?.titans||{}))if(ts&&typeof ts==="object")ts.rebirthKills=0;
 
   // Gold and Blood are run currencies in NGU. Permanent currencies survive.
   state.currencies.gold=0;

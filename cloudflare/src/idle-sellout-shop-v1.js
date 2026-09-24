@@ -209,6 +209,8 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   extraBeardSlot: { passive: true },
   fasterWishes: { passive: true },
   autoNuker: { passive: true },
+  /* 7-Day Time Bank for Daily Spin! (2026-09-24) : lu par spinDaily (idle-ngu-progression.js), plafond de banque 36 h -> 7 jours. */
+  dailySpinTimeBank: { passive: true },
   /*
    * 2026-09-24 (seconde passe) : lu par idleDaycare (selloutSpeedBoost, x90 % du temps, page « Item Daycare » :
    * « ×90% from Daycare Speed Boost from 4G's Sellout Shop for 125k AP ») mais absent de cette table,

@@ -135,7 +135,13 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 31, name: "More Inventory Space I", effect: "Extra Inventory Space per level", cost: 2, cap: 12, bonus: { inventorySlotBonus: 1 } },
   { id: 32, name: "More Inventory Space II", effect: "Extra Inventory Space per level (pricier)", cost: 10, cap: 12, bonus: { inventorySlotBonus: 1 } },
   { id: 33, name: "Boosted Boosts II", effect: "Additional 2% stacking bonus to boost power per level", cost: 5, cap: 60, bonus: { boostPowerPct: 0.02 } },
-  { id: 34, name: "Bonus Titan EXP!", effect: "First 3 kills of each titan, each rebirth, grant +50% extra EXP per level", cost: 30, cap: 3, bonus: { titanExpFirstKillsPct: 0.50 } },
+  /*
+   * Page Experience : « +50% EXP from Titans. +3 kill per level that will benefit from this Perk » ; page
+   * Perk Points : « level 2 of this perk means the first 6 kills of each titan grants the 50% EXP bonus, every
+   * rebirth ». Le +50 % est donc FIXE et c'est le nombre de kills qui croît (3 par niveau) : l'ancien
+   * `titanExpFirstKillsPct: 0.5` par niveau n'était de toute façon lu par personne (audit 2026-09-24).
+   */
+  { id: 34, name: "Bonus Titan EXP!", effect: "First 3 kills of each titan, each rebirth, grant +50% extra EXP per level", cost: 30, cap: 3, bonus: { titanExpBonusKills: 3 } },
   { id: 35, name: "Bonus Boss Exp!", effect: "+2% bonus to exp dropped by bosses 24 and on, per level", cost: 20, cap: 25, bonus: { bossExpPct: 0.02 } },
   { id: 36, name: "Advanced Training Level Bank I", effect: "Saves 1% (rounded down) of Advanced Training levels gained per rebirth", cost: 3, cap: 10, bonus: { atBankPct: 0.01 } },
   { id: 37, name: "Advanced Training Level Bank II", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 10, cap: 10, bonus: { atBankPct: 0.01 } },
@@ -431,7 +437,8 @@ export function perkBonusesV1(levelsById) {
     atBankMultiplier: 1 + (totals.atBankPct || 0),
     tmBankMultiplier: 1 + (totals.tmBankPct || 0),
     beardBankMultiplier: 1 + (totals.beardBankPct || 0),
-    titanExpFirstKillsMultiplier: 1 + (totals.titanExpFirstKillsPct || 0),
+    /* Perk 34 : nombre de premiers kills de chaque titan, par Rebirth, qui reçoivent +50 % d'EXP (3 par niveau). */
+    titanExpBonusKills: totals.titanExpBonusKills || 0,
     bossExpMultiplier: 1 + (totals.bossExpPct || 0),
     /* Perks 19/20 : x3 chacun, multiplicatifs (page Yggdrasil). */
     fruitKnowledgeExpMultiplier: Math.pow(3, Math.max(0, totals.fruitKnowledgeExpPerks || 0)),
