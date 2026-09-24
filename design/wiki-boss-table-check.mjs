@@ -43,12 +43,14 @@ console.log("boss lus dans le wiki :", rows.size);
 
 const rel = (a, b) => Math.abs(a - b) / Math.max(Math.abs(b), 1e-300);
 let compared = 0, diffs = 0, unparsed = 0;
+const fixtures = [];
 const lines = [];
 for (const [n, [a, d, h]] of [...rows].sort((x, y) => x[0] - y[0])) {
   if (![a, d, h].every(Number.isFinite)) { unparsed++; continue; }
   const ref = nguBossStatsV1(n - 1, "normal");
   compared++;
   const bad = rel(ref.attaque, a) > 0.005 || rel(ref.defense, d) > 0.005 || rel(ref.pv, h) > 0.005;
+  if (!bad) fixtures.push([n, a, d, h]);
   if (bad) {
     diffs++;
     lines.push(`boss ${n}: wiki A${a.toExponential(3)} D${d.toExponential(3)} HP${h.toExponential(3)} | code A${ref.attaque.toExponential(3)} D${ref.defense.toExponential(3)} HP${ref.pv.toExponential(3)}`);
@@ -56,3 +58,5 @@ for (const [n, [a, d, h]] of [...rows].sort((x, y) => x[0] - y[0])) {
 }
 console.log("comparés", compared, "| écarts", diffs, "| illisibles", unparsed);
 console.log(lines.join("\n"));
+
+if (process.argv.includes("--fixtures")) console.log(JSON.stringify(fixtures));

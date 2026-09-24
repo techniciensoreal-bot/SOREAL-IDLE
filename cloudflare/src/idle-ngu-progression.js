@@ -2876,7 +2876,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
  * plus vite le niveau avance).
  */
 /* Page Hacks : niveau maximal de chaque Hack (au-delà, la barre repart sans augmenter le bonus). */
-const HACK_HARD_CAP_V1 = Object.freeze({ attackDefense: 7720, adventureStats: 7632, timeMachineSpeed: 7544, dropChance: 7544, augmentSpeed: 7456, energyNguSpeed: 7340, magicNguSpeed: 7340, bloodGain: 7252, qpGain: 7164, daycare: 7048, exp: 6960, number: 6873, pp: 6757, hackHack: 6757, wish: 6262 });
+export const HACK_HARD_CAP_V1 = Object.freeze({ attackDefense: 7720, adventureStats: 7632, timeMachineSpeed: 7544, dropChance: 7544, augmentSpeed: 7456, energyNguSpeed: 7340, magicNguSpeed: 7340, bloodGain: 7252, qpGain: 7164, daycare: 7048, exp: 6960, number: 6873, pp: 6757, hackHack: 6757, wish: 6262 });
 function advanceHackTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;
   const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonuses(state).hackSpeedMultiplier, 1));
