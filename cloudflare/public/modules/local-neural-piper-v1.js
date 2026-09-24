@@ -79,6 +79,44 @@ async function fetchModelWithProgress_(onProgress){
   return buffer.buffer;
 }
 
+/*
+ * 2026-09-24 (Norman : « Voix ia - 1060760 ») : le phonémiseur espeak-ng (WASM) lève une exception C++ que JavaScript ne voit
+ * que comme un NOMBRE (un pointeur mémoire, d'où « 1060760 » affiché tel quel) dès que le texte contient un demi-caractère
+ * UTF-16 isolé (moitié d'emoji coupée par un découpage ou une troncature). Reproduit en direct sur la version déployée :
+ * "\ud83d" et "x\ude00y" lèvent, alors que les emojis entiers, les espaces insécables et les 800 premiers caractères
+ * Unicode passent. On remplace donc tout demi-caractère isolé et tout caractère de contrôle par une espace avant de phonémiser.
+ */
+function sanitizeText_(text){
+  const source=String(text==null?"":text);
+  let out="";
+  for(let i=0;i<source.length;i++){
+    const code=source.charCodeAt(i);
+    if(code>=0xD800&&code<=0xDBFF){
+      const next=source.charCodeAt(i+1);
+      if(next>=0xDC00&&next<=0xDFFF){
+        out+=source[i]+source[i+1];
+        i+=1;
+      }else{
+        out+=" ";
+      }
+    }else if(code>=0xDC00&&code<=0xDFFF){
+      out+=" ";
+    }else if(code<0x20||code===0x7F){
+      out+=" ";
+    }else{
+      out+=source[i];
+    }
+  }
+  return out.replace(/\s+/g," ").trim();
+}
+
+/* Une exception C++ du WASM arrive comme un nombre : on la rend lisible au lieu d'afficher « 1060760 ». */
+function wasmError_(error,label){
+  if(error instanceof Error)return error;
+  if(typeof error==="number")return new Error(label+"_EXCEPTION_WASM_"+error);
+  return new Error(String(error&&error.message||error||label));
+}
+
 async function phonemize_(text,espeakVoice){
   if(typeof window.createPiperPhonemize!=="function"){
     throw new Error("PIPER_LOCAL_PHONEMIZER_UNAVAILABLE");
@@ -109,10 +147,12 @@ async function phonemize_(text,espeakVoice){
     }).then(function(module){
       module.callMain([
         "-l",espeakVoice,
-        "--input",JSON.stringify([{text:String(text||"").trim()}]),
+        "--input",JSON.stringify([{text:sanitizeText_(text)}]),
         "--espeak_data","/espeak-ng-data"
       ]);
-    }).catch(reject);
+    }).catch(function(error){
+      reject(wasmError_(error,"PIPER_LOCAL_PHONEMIZE"));
+    });
   });
 }
 
@@ -228,7 +268,7 @@ function normalizeEllipsis_(text){
 }
 
 async function synthesize_(text){
-  const value=normalizeEllipsis_(String(text||"").replace(/\s+/g," ").trim());
+  const value=normalizeEllipsis_(sanitizeText_(text));
   if(!value)throw new Error("PIPER_LOCAL_TEXT_REQUIRED");
 
   const engine=await engine_();
@@ -258,7 +298,12 @@ async function synthesize_(text){
       scales:new ort.Tensor("float32",Float32Array.from([noiseScale,lengthScale,noiseW]),[3])
     };
 
-    const results=await engine.session.run(feeds);
+    let results;
+    try{
+      results=await engine.session.run(feeds);
+    }catch(error){
+      throw wasmError_(error,"PIPER_LOCAL_INFERENCE");
+    }
     const outputName=engine.session.outputNames[0];
     const pcm=results[outputName]&&results[outputName].data;
     if(!pcm||!pcm.length){
