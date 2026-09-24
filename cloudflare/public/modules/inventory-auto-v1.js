@@ -137,11 +137,17 @@
     }
     var colonnes=sac.closest('.soreal-idle-v151-inventory-columns')||sac;
     var bloc=document.getElementById('soreal-idle-inventory-auto-v1');
+    /* 2026-09-24 (Norman) : le Coffre passe avant toutes les options (filtre de butin, etc.) ; sans Coffre, sous le sac. */
+    var titreCoffre=document.querySelector('.soreal-idle-coffre-titre-v1');
+    var coffre=titreCoffre&&titreCoffre.closest?titreCoffre.closest('.soreal-idle-section-v8'):null;
+    var repere=coffre&&coffre.parentNode===colonnes.parentNode?coffre:colonnes;
     if(!bloc){
       bloc=document.createElement('div');
       bloc.id='soreal-idle-inventory-auto-v1';
       bloc.className='soreal-idle-section-v8';
-      colonnes.parentNode.insertBefore(bloc,colonnes.nextSibling);
+    }
+    if(bloc.parentNode!==repere.parentNode||bloc.previousSibling!==repere){
+      repere.parentNode.insertBefore(bloc,repere.nextSibling);
     }
     if(bloc.contains(document.activeElement)&&document.activeElement.tagName==='SELECT')return;
     var contenu=panneau(dernierEtat);

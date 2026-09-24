@@ -19619,8 +19619,30 @@ function pageAventureIdleV28_(j){
         return sorties;
       }
 
+      /*
+       * 2026-09-24 (Norman) : « Info doit être un menu qui s'ouvre et se ferme, comme le coffre. De base, il doit être fermé. »
+       * Même mécanique que le Coffre : titre cliquable + chevron, état gardé dans localStorage, fermé tant que rien n'est stocké.
+       */
+      function idleInfoOuvertV1_(){
+        try{
+          return localStorage.getItem('soreal_idle_info_ouvert_v1')==='1';
+        }catch(e){
+          return false;
+        }
+      }
+
+      function toggleInfoOuvertIdleV1_(){
+        try{
+          localStorage.setItem('soreal_idle_info_ouvert_v1',idleInfoOuvertV1_()?'0':'1');
+        }catch(e){}
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+      }
+      window.__toggleInfoOuvertIdleV1__=toggleInfoOuvertIdleV1_;
+
       function pageParametresIdleV28_(j){
         const infosParMenu=idleInfosParMenuIdleV1_(j);
+        const infoOuvert=idleInfoOuvertV1_();
         const vus=idleMenusAckListeV1_(j);
         const entrees=vus
           .map(function(menuId){return infosParMenu[menuId];})
@@ -19632,7 +19654,13 @@ function pageAventureIdleV28_(j){
           ''
         )+
           '<div class="soreal-idle-section-v8">'+
-            '<div class="soreal-idle-window-title-v31">ℹ️ Info</div>'+
+            '<div class="soreal-idle-window-title-v31 soreal-idle-info-titre-v1" '+
+              'onclick="window.__toggleInfoOuvertIdleV1__()" '+
+              'role="button" tabindex="0" aria-expanded="'+(infoOuvert?'true':'false')+'">'+
+              '<span>ℹ️ Info</span>'+
+              '<span class="soreal-idle-coffre-chevron-v1">'+(infoOuvert?'▲':'▼')+'</span>'+
+            '</div>'+
+            (infoOuvert?
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications des menus déjà débloqués. Chaque texte peut être relu à voix haute avec la synthèse vocale de ton appareil.</div>'+
             (entrees.length
               ?entrees.map(function(info,index){
@@ -19670,7 +19698,7 @@ function pageAventureIdleV28_(j){
                 '</div>';
               }).join('')
               :'<div style="font-size:12px;color:#5b6178">Aucune intervention disponible pour l’instant.</div>'
-            )+
+            ):'')+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+

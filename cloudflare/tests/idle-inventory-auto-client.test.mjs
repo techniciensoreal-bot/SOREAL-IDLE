@@ -52,8 +52,16 @@ assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
 ]);
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-/* 2026-09-24 : ?v=1 -> ?v=2 (case « consumeRecycled » ajoutée au panneau). */
-assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=2"></script>'));
+/* 2026-09-24 : ?v=1 -> ?v=2 (case « consumeRecycled » ajoutée au panneau), puis ?v=3 (le panneau passe après le Coffre). */
+assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=3"></script>'));
 assert.ok(index.indexOf("/modules/inventory-auto-v1.js") < index.indexOf("/soreal-idle-ui.js"), "chargé avant le monolithe, comme les autres modules");
+
+/* 2026-09-24 (Norman) : le Coffre vient avant toutes les options (filtre de butin, etc.). */
+{
+  const src = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8");
+  assert.ok(src.includes("soreal-idle-coffre-titre-v1"), "le panneau se place après la section Coffre");
+  assert.ok(src.includes("repere.parentNode.insertBefore(bloc,repere.nextSibling)"), "inséré juste après le repère (Coffre, à défaut le sac)");
+  assert.ok(!src.includes("colonnes.parentNode.insertBefore(bloc,colonnes.nextSibling)"), "plus d'insertion directe sous le sac");
+}
 
 console.log("idle-inventory-auto-client ok");

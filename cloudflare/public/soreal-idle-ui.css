@@ -3324,7 +3324,8 @@
            * de la grille), avec un chevron indiquant l'état — même
            * apparence que les autres titres de section, juste interactif.
            */
-          .soreal-idle-coffre-titre-v1{
+          .soreal-idle-coffre-titre-v1,
+          .soreal-idle-info-titre-v1{
             cursor:pointer;
             display:flex;
             align-items:center;
