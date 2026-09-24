@@ -3572,7 +3572,7 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
     }else if(def.effect==="ap"){
       const ap=Math.floor(Math.ceil(factor*15*firstHarvestMultiplier));
       /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + YellowHeartAPBonus) ..." (arrondi inférieur). */
-      const apCoeur=Math.floor(ap*heartApMultiplierV1(state));
+      const apCoeur=apGainV1(state,ap);
       state.currencies.ap+=apCoeur;
       result.ap=apCoeur;
     }else if(def.effect==="pp"){
@@ -3875,7 +3875,8 @@ function advanceTowerV1(state, seconds, context) {
     const ap = Math.floor(d.apProgress);
     if (ap > 0) {
       d.apProgress -= ap;
-      state.currencies.ap += ap * perks.apEarningsMultiplier;
+      /* Page Arbitrary Points : les kills de l'ITOPOD sont exclus des bonus d'AP (Fibonacci 89 compris). */
+      state.currencies.ap += ap;
     }
   };
   const reachFloor = (floor) => {
@@ -4148,6 +4149,19 @@ const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 
  */
 function heartApMultiplierV1(state) {
   return idleHeartsApMultiplierV1(state, gearSpecialsV1(state));
+}
+
+/*
+ * 2026-09-24 (audit de composition, pages Arbitrary Points / Money Pit / Yggdrasil) : « Arbitrary points gained from
+ * all sources, except for ITOPOD kills and Special Prize, can be increased by : achievements, My Yellow Heart,
+ * Fibonacci Perk level 89 (2%) ... the final AP value is rounded down to nearest integer ». Chaque source appliquait
+ * une partie différente de ces facteurs (Money Pit aucun, Daily Spin / défis / Fruit of Arbitrariness le Yellow Heart
+ * seul, ITOPOD le perk Fibonacci à tort). Point d'entrée unique : Yellow Heart x Fibonacci 89, arrondi inférieur.
+ * Non modélisé : le bonus des Achievements (système absent).
+ */
+function apGainV1(state, base) {
+  const mult = perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier * heartApMultiplierV1(state);
+  return Math.floor(Math.max(0, num(base, 0)) * mult + 1e-9);
 }
 
 function nguSpeedMultiplierV1(state, resource) {
@@ -5348,7 +5362,7 @@ function tossMoneyPit(state, now) {
   }
 
   // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
-  reward.ap = Math.max(0, Math.floor(Math.log10(cost)));
+  reward.ap = apGainV1(state, Math.max(0, Math.floor(Math.log10(cost))));
 
   /*
    * 2026-09-24 (audit, page Money Pit, « One-Time Bonuses », « TOTAL Gold Dropped ... This is sum
@@ -5495,7 +5509,7 @@ function spinDaily(state, now) {
   } else {
     reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
     /* AP : majoré par My Yellow Heart (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
-    if (reward.ap) reward.ap = Math.floor(reward.ap * heartApMultiplierV1(state));
+    if (reward.ap) reward.ap = apGainV1(state, reward.ap);
     for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
   }
 
@@ -5645,7 +5659,7 @@ function challengeAction(state, payload, context, now) {
       completions[id]=before+1;
       state.currencies.experience+=rewardExperience;
       /* Page Arbitrary Points : AP des défis majoré par My Yellow Heart, arrondi inférieur. */
-      state.currencies.ap+=Math.floor(rewardAp*heartApMultiplierV1(state));
+      state.currencies.ap+=apGainV1(state,rewardAp);
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
       if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
@@ -5725,7 +5739,7 @@ function crediterRecompensesAventure(state, avant) {
   state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
-  state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier * heartApMultiplierV1(state);
+  state.currencies.ap += apGainV1(state, gain("ap"));
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
   /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
   const poop = Math.floor(gain("poop"));
@@ -6203,7 +6217,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
   if(!options.challengeId&&runSeconds>=3600){
-    state.currencies.ap+=Math.floor(runSeconds/500)*perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier*heartApMultiplierV1(state);
+    state.currencies.ap+=apGainV1(state,Math.floor(runSeconds/500));
   }
 
   rb.lastNumber=rb.number;
