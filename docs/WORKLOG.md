@@ -4,17 +4,17 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : confirmation des données du wiki local dans le jeu (registre `docs/WIKI-COVERAGE.md`). Fait : recalcul cellule par cellule de Boost, Augmentations, Blood Magic, NGU, Hacks, Cards, Gold Diggers, Boss Fights et zones d'Adventure Mode, chacune verrouillée par un test `idle-wiki-table-*`. Suite : tables Wandoos, Time Machine, Resource 3 / Energy / Magic ; décision ITOPOD.
-- **SHA `main` vérifié** : `6d0aff58250f11f62d2dd83814d02267bb1a50a3` (dernier commit de code ; les commits suivants ne touchent que `docs/`). `origin/main` relu par `git fetch` avant le push.
-- **Derniers commits du chantier** : `6d0aff5` (docs du registre), avant lui le lot de tests `idle-wiki-table-*` et `HACK_HARD_CAP_V1` exportée ; `ff5fcec` et `3db7b2a` (pipeline).
-- **Tests** : 297 fichiers `cloudflare/tests/*.test.mjs`, tous verts en local (Node 24) et dans la CI.
+- **Tâche courante** : confirmation des données du wiki local dans le jeu (registre `docs/WIKI-COVERAGE.md`). Fait : recalcul cellule par cellule de Wandoos, Time Machine, Boost, Augmentations, Blood Magic, NGU, Hacks, Cards, Gold Diggers, Boss Fights et zones d'Adventure Mode, chacune verrouillée par un test `idle-wiki-table-*` ; Energy / Magic / Resource 3 rattachées aux catalogues vérifiés. Suite : décision ITOPOD, puis manques sans source.
+- **SHA `main` vérifié** : `17e81d2be845a4b0d44bf6e9d98c811e422811bb` (dernier commit de code ; les commits suivants ne touchent que `docs/`). `origin/main` relu par `git fetch` avant le push.
+- **Derniers commits du chantier** : `17e81d2` (docs du registre), avant lui les tests `idle-wiki-table-wandoos` et `idle-wiki-table-time-machine` ; `6d0aff5` et le lot de tests `idle-wiki-table-*` (avec `HACK_HARD_CAP_V1` exportée) ; `ff5fcec` et `3db7b2a` (pipeline).
+- **Tests** : 300 fichiers `cloudflare/tests/*.test.mjs`, tous verts en local (Node 24) et dans la CI.
 - **Build** : `node cloudflare/build-standalone.mjs` + `node --check` des modules et de l'UI : vert dans la CI.
-- **CI** : run #572 (`6d0aff5`) terminé avec succès, chaque étape en succès : Setup Node, tests, build, Verify voice runtime dependencies, Deploy, Verify deployed Git SHA, smoke Chromium Piper.
-- **SHA réellement déployé** : `git:6d0aff58250f11f62d2dd83814d02267bb1a50a3` (étape « Verify deployed Git SHA » : annotation `workers/message` égale au SHA attendu, version active à 100 %). Version ID Cloudflare non relevé ici (pas d'identifiants Cloudflare sur le poste de travail) ; le site sert `soreal-idle-ui.js?v=236`.
+- **CI** : run #573 (`17e81d2`) terminé avec succès, chaque étape en succès : Setup Node, tests, build, Verify voice runtime dependencies, Deploy, Verify deployed Git SHA, smoke Chromium Piper.
+- **SHA réellement déployé** : `git:17e81d2be845a4b0d44bf6e9d98c811e422811bb` (étape « Verify deployed Git SHA » : annotation `workers/message` égale au SHA attendu, version active à 100 %). Version ID Cloudflare non relevé ici (pas d'identifiants Cloudflare sur le poste de travail) ; le site sert `soreal-idle-ui.js?v=236`.
 - **Dernière anomalie** : aucune dans ce chantier.
 - **Vérifications effectuées** : chaque test rouge sur l'ancien état ou vert par construction sur les valeurs du wiki ; contrôle vocal réel contre le réseau ; YAML validé ; coquilles du wiki consignées dans `NGU-Wiki/external/wiki-table-typos.json` (boss 161-183, rituel 8, Halloweenies, rareté des cartes).
 - **Problèmes ouverts, volontairement non traités** : diviseur 1E30 Evil/Sadistic (sens ambigu, impact d'équilibrage colossal) ; ITOPOD : moyennes au lieu du tirage aléatoire 0,8-1,2 (à décider) ; facteur temps du NGU Number, Rich Perks III/IV par difficulté, perks Iron Pill, Gold Multiplier de la Time Machine, paliers 12-16 du Money Pit, bonus 1E8 du Money Pit (+1 ou +10), AutoKill des titans, THE END, énigmes Beast/Exile/Death Note/GLOP, Effectiveness des objets, Tippi/Traitor (respawn, EXP, butin), types de mobs, Custom Input Buttons, fruits de Mayo, cartes Foil/End : aucune source fiable, pas d'invention. Auto-hébergement du modèle Tom sur R2 : décision à prendre avec Norman. Actions GitHub non épinglées par SHA.
-- **Prochaine action exacte** : recalculer avec le moteur les tables Wandoos, Time Machine et Resource 3 / Energy / Magic du wiki (même méthode : script `design/wiki-*-table-check.mjs`, fixtures, test `idle-wiki-table-*`), puis trancher ITOPOD avec Norman.
+- **Prochaine action exacte** : trancher ITOPOD avec Norman (moyenne actuelle contre tirage aléatoire 0,8-1,2 et PV 588-612), puis traiter les manques sans source à mesure que des données fiables arrivent (relevés dans NGU).
 
 ## Snapshot historique (2026-09-21) — narration V205
 
