@@ -1445,3 +1445,11 @@ Demande de Norman : confirmer que 100 % des données du wiki local sont dans le 
 - **ITOPOD** : le moteur utilise des valeurs moyennes (PV 600, défense 10, sans le facteur aléatoire 0,8-1,2 ni la plage de PV 588-612 décrits par la page) : simplification connue, à décider.
 
 **Reste** : recalcul cellule par cellule des tables NGU, Cards, Boost, Augmentations, Hacks ; recontrôle du tableau des zones d'Adventure Mode ; décision ITOPOD. Voir la fin de `docs/WIKI-COVERAGE.md`.
+
+## 2026-09-24 — Tables du wiki recalculées avec le moteur et verrouillées par des tests
+
+Suite du registre `docs/WIKI-COVERAGE.md` : les tables dont les nombres « manquaient » dans le code sont recalculées cellule par cellule avec les fonctions du moteur. Neuf tests `idle-wiki-table-*` (valeurs du wiki en fixtures, générées par les scripts `design/wiki-*-table-check.mjs`) : **Boost** (13 valeurs, exactes), **Augmentations** (7 paires x 8 valeurs), **Blood Magic** (8 rituels, ratios, sorts MacGuffin), **NGU** (48 lignes), **Hacks** (15 hacks), **Cards** (14 types), **Gold Diggers** (12 diggers, bonus global 67,848 %), **Boss Fights** (157 boss du tableau) et **zones d'Adventure Mode** (32 zones). Résultat : le moteur reproduit toutes ces tables ; aucun écart de code trouvé.
+
+**Coquilles du wiki** (consignées dans `NGU-Wiki/external/wiki-table-typos.json`, code inchangé) : Boss Fights boss 161 à 183 (tableau inférieur au moteur d'un facteur 100 puis 1 000, contredit par les fiches individuelles des boss et le HP Regen du boss 190), ratio « Gold Per Blood » du rituel 8 de Blood Magic (x10), Manual T des Halloweenies dans le tableau d'Adventure Mode (E31 au lieu de E29), texte « rareté 1,0 » de la page Cards (tableau calculé à 1,2 ou 1,14-1,17). `HACK_HARD_CAP_V1` est maintenant exportée pour être testée.
+
+**Reste** : tables Wandoos, Time Machine, Resource 3 / Energy / Magic non recalculées ici ; décision ITOPOD (moyenne contre tirage aléatoire) ; les manques sans source (Money Pit 12-16, THE END, Tippi/Traitor, types de mobs, capacités des titans, Custom Input Buttons, fruits de Mayo, cartes Foil/End).
