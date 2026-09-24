@@ -1272,8 +1272,25 @@
             :{};
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-20 */
-        const multiplicateurStuffAttaque=1;
-        const multiplicateurStuffDefense=1;
+        /*
+         * 2026-09-24 (audit de composition) : ces multiplicateurs étaient codés
+         * à 1, si bien que chaque frame remplaçait l'Attaque/Défense du serveur
+         * (NUMBER, équipement, augments, Wandoos, perks, NGU...) par
+         * l'entraînement brut. Le serveur expose désormais le produit qu'il
+         * applique (combatPrincipal.multiplicateurAttaqueTotal/DefenseTotal).
+         */
+        const multiplicateurCombatPositifIdleV1_=function(v){
+          const n=Number(v);
+          return Number.isFinite(n)&&n>0?n:1;
+        };
+        const multiplicateurStuffAttaque=
+          multiplicateurCombatPositifIdleV1_(
+            combatPrincipal.multiplicateurAttaqueTotal
+          );
+        const multiplicateurStuffDefense=
+          multiplicateurCombatPositifIdleV1_(
+            combatPrincipal.multiplicateurDefenseTotal
+          );
         const multiplicateurPermanent=1;
 
         const bonusBoutique=
