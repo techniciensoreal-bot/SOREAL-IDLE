@@ -17152,6 +17152,7 @@ function pageAventureIdleV28_(j){
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-242 */
       const IDLE_ADVENTURE_GESTE_SEUIL_PX_V196=32;
       const IDLE_ADVENTURE_DOUBLE_TAP_MS_V196=420;
+      let idleDernierClicDroitSourisMsV209=0;
 
       let idleAdventureGesteV196=null;
       let idleAdventureDernierTapIdV196='';
@@ -17460,6 +17461,37 @@ function pageAventureIdleV28_(j){
         element.classList.add('selected');
       }
 
+      /*
+       * Action rapide d'un objet du sac (2026-09-24, comme le clic droit de NGU Idle) :
+       * - une pièce identique (même definitionId) est déjà équipée -> fusion dans la pièce équipée ;
+       * - sinon -> équipement (remplace la pièce du slot).
+       * Les boosts ne sont pas concernés (retourne false). Réutilise la décision du glisser-déposer sur un slot.
+       */
+      function actionRapideObjetAdventureIdleV209_(id){
+        const objet=String(id||'');
+        if(!objet||!idleEtat)return false;
+        const a=aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const item=items.find(function(x){return String(x&&x.id)===objet;});
+        if(!item||item.kind==='boost')return false;
+
+        const equipement=a.equipment||{};
+        const idsEquipes=ADVENTURE_CORE_SLOTS_V138
+          .map(function(slot){return String(equipement[slot]||'');})
+          .concat(Array.isArray(equipement.accessories)?equipement.accessories.map(String):[])
+          .filter(Boolean);
+        if(idsEquipes.indexOf(objet)!==-1)return false;
+
+        const jumeau=idsEquipes
+          .map(function(idEquipe){return items.find(function(x){return String(x&&x.id)===idEquipe;});})
+          .find(function(x){return x&&x.kind!=='boost'&&x.definitionId===item.definitionId;});
+
+        nettoyerEtatDragAdventureIdleV138_();
+        if(jumeau)appliquerActionSlotAdventureIdleV138_(objet,String(jumeau.id));
+        else equiperParIdAdventureIdleV138_(objet);
+        return true;
+      }
+
       function executerTapObjetAdventureIdleV196_(element,id){
         if(!element)return;
         if(element.classList.contains('soreal-idle-v138-bag-card')){
@@ -17560,6 +17592,15 @@ function pageAventureIdleV28_(j){
         if(moved)return;
 
         if(estDoubleTapGesteAdventureIdleV196_(id,pointerType)){
+          /* 2026-09-24 : double tap rapide (téléphone) = action rapide équiper / fusionner, comme le clic droit sur PC.
+             Les boosts et les objets déjà équipés gardent l'ancien comportement (détails ; maintien long = détails). */
+          if(
+            element&&
+            element.classList.contains('soreal-idle-v138-bag-card')&&
+            actionRapideObjetAdventureIdleV209_(id)
+          ){
+            return;
+          }
           ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
           return;
         }
@@ -17581,6 +17622,7 @@ function pageAventureIdleV28_(j){
 
         document.addEventListener('pointerdown',function(event){
           if(event.isPrimary===false)return;
+          if(String(event.pointerType||'mouse')==='mouse'&&event.button===2)idleDernierClicDroitSourisMsV209=Date.now();
           if(String(event.pointerType||'mouse')==='mouse'&&event.button!==0)return;
 
           fermerPopupDetailsSiExterieurAdventureIdleV207_(event);
@@ -17639,8 +17681,16 @@ function pageAventureIdleV28_(j){
         },true);
 
         document.addEventListener('contextmenu',function(event){
-          if(!elementObjetGesteAdventureIdleV196_(event.target))return;
+          const element=elementObjetGesteAdventureIdleV196_(event.target);
+          if(!element)return;
           event.preventDefault();
+          /* Clic droit de la souris (PC) sur un objet du sac : action rapide équiper / fusionner. Un contextmenu tactile
+             (maintien long) n'est pas un clic droit : il reste géré par le composant de maintien long. */
+          const souris=
+            event.pointerType==='mouse'||
+            (!event.pointerType&&Date.now()-idleDernierClicDroitSourisMsV209<1500);
+          if(!souris||!element.classList.contains('soreal-idle-v138-bag-card'))return;
+          actionRapideObjetAdventureIdleV209_(idObjetGesteAdventureIdleV196_(element));
         },true);
 
         document.addEventListener('click',function(event){

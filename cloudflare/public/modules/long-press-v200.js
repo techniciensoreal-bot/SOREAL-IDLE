@@ -250,11 +250,25 @@
     clear_(s);
   },true);
 
+  /*
+   * 2026-09-24 : le clic droit de la souris (PC) n'est PAS un maintien. Il sert à l'action rapide de l'inventaire
+   * (équiper / fusionner, comme NGU Idle), gérée dans soreal-idle-ui.js. Seul un contextmenu tactile sert de signal de secours.
+   */
+  var dernierClicDroitSouris=0;
+  document.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button===2)dernierClicDroitSouris=Date.now();
+  },true);
+  function clicDroitSouris_(event){
+    if(event.pointerType==='mouse')return true;
+    return !event.pointerType&&Date.now()-dernierClicDroitSouris<1500;
+  }
+
   document.addEventListener('contextmenu',function(event){
     var target=cible_(event.target);
     if(!target)return;
 
     event.preventDefault();
+    if(clicDroitSouris_(event))return;
 
     /*
      * Android/Chrome peut considérer contextmenu comme le résultat du

@@ -53,7 +53,7 @@ assert.match(
 assert.match(
   ui,
   /if\(estDoubleTapGesteAdventureIdleV196_\(id,pointerType\)\)\{[\s\S]*?ouvrirDetailsObjetParGesteAdventureIdleV196_\(id\)/,
-  "Le double-tap doit ouvrir le même popup de statistiques."
+  "Double-tap : action rapide équiper/fusionner pour un objet du sac (2026-09-24), sinon (boost, objet équipé) le même popup de statistiques."
 );
 
 assert.doesNotMatch(
