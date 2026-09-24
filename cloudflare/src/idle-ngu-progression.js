@@ -3269,16 +3269,22 @@ export function idleNguTimeMachineGoldPerSecond(raw) {
   return Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state)-diggerDrainTotal(state));
 }
 
-function ritualUnlocked(ritual, context) {
+function ritualUnlocked(ritual, context, state) {
   if (!ritual.unlockFlag) return true;
-  return Boolean(context.unlockFlags?.[ritual.unlockFlag]);
+  /*
+   * 2026-09-24 (page Blood Magic : « This ritual is unlocked by completing Troll Challenge 6 » ; page Challenges,
+   * Troll Challenge, Completion 6 : « A new Blood Magic Ritual! ») : le drapeau « trollChallenge6 » n'était posé nulle
+   * part, le rituel « Turn Yourself Inside Out » était donc inaccessible même après la 6e complétion.
+   */
+  if (ritual.unlockFlag === "trollChallenge6" && state && int(state.challenge?.completions?.troll, 0) >= 6) return true;
+  return Boolean(context?.unlockFlags?.[ritual.unlockFlag]);
 }
 
 function advanceBloodMagic(state, seconds, context) {
   const s = state.systems.bloodMagic;
   if (!s.unlocked || seconds <= 0) return;
   const ritual = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
-  if (!ritualUnlocked(ritual, context)) return;
+  if (!ritualUnlocked(ritual, context, state)) return;
   const rs = s.data.rituals[ritual.id];
 
   const magic = Math.max(0, num(s.allocation.magic, 0));
@@ -5206,7 +5212,7 @@ function selectRitual(state, ritualId, context) {
   const s = state.systems.bloodMagic;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const ritual = IDLE_NGU_BLOOD_RITUALS.find(x => x.id === ritualId);
-  if (!ritual || !ritualUnlocked(ritual, context)) throw new Error("RITUEL_VERROUILLE");
+  if (!ritual || !ritualUnlocked(ritual, context, state)) throw new Error("RITUEL_VERROUILLE");
   s.data.activeRitual = ritualId;
 }
 
