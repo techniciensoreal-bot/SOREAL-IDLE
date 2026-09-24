@@ -209,6 +209,12 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   extraBeardSlot: { passive: true },
   fasterWishes: { passive: true },
   autoNuker: { passive: true },
+  /*
+   * 2026-09-24 (seconde passe) : lu par idleDaycare (selloutSpeedBoost, x90 % du temps, page « Item Daycare » :
+   * « ×90% from Daycare Speed Boost from 4G's Sellout Shop for 125k AP ») mais absent de cette table,
+   * donc jamais achetable : l'effet câblé restait inatteignable.
+   */
+  daycareSpeedBoost: { passive: true },
   /* Yggdrasil Harvest Light (2026-09-24) : lue depuis purchases (idleYggHarvestLightLitV1, menu client). */
   yggdrasilHarvestLight: { passive: true },
   /*

@@ -1309,6 +1309,9 @@ function baseState(now) {
     },
     bank: {
       advancedTraining: 0,
+      /* 2026-09-24 : niveaux d'Advanced Training retenus par piste, versés quand le Basic Training est complété. */
+      advancedTrainingTracks: {},
+      advancedTrainingPending: false,
       timeMachineSpeed: 0,
       timeMachineGold: 0,
       beards: 0
@@ -1699,6 +1702,12 @@ function migrateLegacyMetaToV47(raw, now) {
   state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(src.challenge?.activeTier) ? src.challenge.activeTier : "normal";
 
   state.bank.advancedTraining = Math.max(0, num(src.bank?.advancedTraining, 0));
+  state.bank.advancedTrainingTracks = {};
+  for (const def of IDLE_NGU_TRACKS.advancedTraining) {
+    const banked = Math.max(0, int(src.bank?.advancedTrainingTracks?.[def.id], 0));
+    if (banked > 0) state.bank.advancedTrainingTracks[def.id] = banked;
+  }
+  state.bank.advancedTrainingPending = Boolean(src.bank?.advancedTrainingPending);
   state.bank.timeMachineSpeed = Math.max(0, num(src.bank?.timeMachineSpeed, src.bank?.timeMachine || 0));
   state.bank.timeMachineGold = Math.max(0, num(src.bank?.timeMachineGold, 0));
   state.bank.beards = Math.max(0, num(src.bank?.beards, 0));
@@ -1905,7 +1914,13 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   {
     const perks = perkBonusesV1(state.systems.perks?.data?.levels);
     const wishes = wishBonusesV1(state.systems.wishes?.data?.tracks);
-    state.adventure.bonusDropLevelChance = perks.lootLevelChance;
+    /*
+     * 2026-09-24 (seconde passe) : perk 25 « The Loot Goblin's Blessing » (lootGoblinChance) était agrégé
+     * mais jamais lu. Page Inventory, Higher Level Drops : « a 1% chance that any item dropped at lvl 1 or
+     * higher gains +1 level. This can be bought 10 times and stacks with the Gaudy Set Bonus » -- ajouté
+     * au même tirage que le set Gaudy et Fibonacci 144 (dropLevelAdventureV2, idle-adventure-v47.js).
+     */
+    state.adventure.bonusDropLevelChance = Math.min(1, perks.lootLevelChance + perks.lootGoblinChance);
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
@@ -3719,9 +3734,15 @@ function advanceTowerV1(state, seconds, context) {
       const forceBoost = towerBoostStrengthV1(tier);
       /* Filtre de butin, Filter Boosts into Infinity Cube et transformation automatique (idle-inventory-auto-v1.js). */
       const invEnv = inventoryAutoEnvV1(state);
+      /*
+       * 2026-09-24 (seconde passe) : page Boost, « in the ITOPOD they drop at level 1 and can be affected by
+       * The Loot Goblin's Blessing and the Gaudy set bonus » -- même tirage +1 niveau que les drops de zone
+       * (dropLevelAdventureV2 : set Gaudy + bonusDropLevelChance = Loot Goblin + Fibonacci 144).
+       */
+      const levelUpChance = Math.min(1, Math.max(0, num(state.adventure?.setRewards?.extraDropLevelChance, 0)) + Math.max(0, num(state.adventure?.bonusDropLevelChance, 0)));
       for (let i = 0; i < Math.min(boosts, 200); i++) {
         const item = idleAdventureBoostV1(types[Math.floor(Math.random() * 3)], forceBoost);
-        item.level = 1;
+        item.level = Math.random() < levelUpChance ? 2 : 1;
         if (!idleInventoryReceiveDropV1(state.adventure, item, invEnv)) break;
       }
     }
@@ -3853,6 +3874,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
 
   advanceGeneratedResources(state,secs,context);
   advanceAugmentations(state, secs, context);
+  applyAdvancedTrainingBankV1(state, context);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
   advanceTimeMachine(state, secs);
   advanceBloodMagic(state, secs, context);
@@ -5961,6 +5983,25 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   return { state, result };
 }
 
+/*
+ * Page « Banks » : « banked Advanced Training levels do not have any effect until the AT menu is
+ * unlocked by completing Basic Training ». Les niveaux retenus au Rebirth (state.bank.advancedTrainingTracks)
+ * sont ajoutés aux pistes dès que le contexte signale le Basic Training complété, une seule fois par Rebirth.
+ */
+export function applyAdvancedTrainingBankV1(state, context = {}) {
+  const bank = state.bank;
+  if (!bank?.advancedTrainingPending || !context.basicTrainingComplete) return false;
+  const s = state.systems.advancedTraining;
+  if (!s?.data?.tracks) return false;
+  for (const [id, banked] of Object.entries(bank.advancedTrainingTracks || {})) {
+    const t = s.data.tracks[id];
+    if (t) t.tempLevel = Math.max(0, num(t.tempLevel, 0)) + Math.max(0, int(banked, 0));
+  }
+  s.tempLevel = Object.values(s.data.tracks).reduce((sum, t) => sum + Math.max(0, num(t.tempLevel, 0)), 0);
+  bank.advancedTrainingPending = false;
+  return true;
+}
+
 function resetRunSystem(def, s) {
   s.progress = 0;
   s.active = false;
@@ -6046,9 +6087,28 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   state.bank.timeMachineSpeed=Math.floor(tmSpeedLevelEnd*tmBankPct);
   state.bank.timeMachineGold=Math.floor(tmGoldLevelEnd*tmBankPct);
   state.bank.beards=Math.floor(beardTempLevelEnd*beardBankPct);
+  /*
+   * 2026-09-24 (seconde passe) : Advanced Training Level Bank I-V (perks 36-40, 1 %/niveau) et
+   * Adv. Training Level Bank I-V (quirks 20-24, 0,5 %/niveau) étaient agrégés mais jamais lus
+   * (atBankMultiplier). Page « Banks » : même règle cumulative que Time Machine/Beards, « saves 1%
+   * (rounded down) of your levels gained in Advanced Training when you rebirth », et « banked
+   * Advanced Training levels do not have any effect until the AT menu is unlocked by completing
+   * Basic Training » : versement différé (advancedTrainingPending, voir applyAdvancedTrainingBankV1).
+   */
+  const atBankPct=Math.max(0,Math.round(((perkBankBonuses.atBankMultiplier-1)+(quirkBankBonuses.atBankMultiplier-1))*1e9)/1e9);
+  state.bank.advancedTrainingTracks={};
+  for(const trackDef of IDLE_NGU_TRACKS.advancedTraining){
+    const end=Math.max(0,num(state.systems.advancedTraining?.data?.tracks?.[trackDef.id]?.tempLevel,0));
+    const banked=Math.floor(end*atBankPct);
+    if(banked>0)state.bank.advancedTrainingTracks[trackDef.id]=banked;
+  }
+  state.bank.advancedTraining=Object.values(state.bank.advancedTrainingTracks).reduce((sum,v)=>sum+v,0);
+  state.bank.advancedTrainingPending=state.bank.advancedTraining>0;
 
   if(options.clearBanks){
     state.bank.advancedTraining=0;
+    state.bank.advancedTrainingTracks={};
+    state.bank.advancedTrainingPending=false;
     state.bank.timeMachineSpeed=0;
     state.bank.timeMachineGold=0;
     state.bank.beards=0;
@@ -6078,6 +6138,18 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       s.active=false;
     }
     if(def.id==="augmentations")s.data=createAugmentationData();
+    if(def.id==="advancedTraining"&&s.data?.tracks){
+      /*
+       * 2026-09-24 (seconde passe) : perk 18 « Instant Advanced Training Levels! » (advancedTrainingStartBonus
+       * agrégé mais jamais lu). Page Perk Points : « At the start of every rebirth, Advanced Training will
+       * immediately be given an extra level! These levels affect your stats before the menu is even
+       * unlocked » ; page Advanced Training : « Each level in this perk gives you a level of every Advanced
+       * Training ability at the start of every rebirth even before it is unlocked. »
+       */
+      const instant=Math.max(0,int(perkBankBonuses.advancedTrainingStartBonus,0));
+      for(const t of Object.values(s.data.tracks))t.tempLevel=instant;
+      s.tempLevel=instant*Object.keys(s.data.tracks).length;
+    }
     if(def.id==="timeMachine"){
       const speedBank=Math.max(0,int(state.bank.timeMachineSpeed,0));
       const goldBank=Math.max(0,int(state.bank.timeMachineGold,0));
