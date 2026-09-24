@@ -107,8 +107,8 @@ function expectedEntryCount() {
   // 2026-09-23 : une zone sans images mais avec bestiaire wiki (beardverse) liste ses vrais ennemis.
   const beardverseEntries = entrees.filter(e => e.zone === "beardverse");
   assert.equal(beardverseEntries.length, IDLE_ADVENTURE_MOB_BESTIARY_V1.beardverse.normal.length + IDLE_ADVENTURE_MOB_BESTIARY_V1.beardverse.boss.length);
-  // Une zone sans bestiaire ni images (netherregions) garde un repli générique par rôle.
-  assert.equal(entrees.filter(e => e.zone === "netherregions").length, 2);
+  // 2026-09-24 : The Nether Regions a maintenant son bestiaire (source externe) : une entrée par ennemi.
+  assert.equal(entrees.filter(e => e.zone === "netherregions").length, IDLE_ADVENTURE_MOB_BESTIARY_V1.netherregions.normal.length + IDLE_ADVENTURE_MOB_BESTIARY_V1.netherregions.boss.length);
 }
 
 // --- Une rencontre sur un index précis débloque SEULEMENT l'entrée de cette image ---
@@ -152,17 +152,19 @@ function expectedEntryCount() {
   assert.equal(discovered.boss, 1, "Le flag boss=1 doit être exposé pour construire l'URL R2 /api/idle/media/mob?boss=1.");
 }
 
-// --- Zone sans catalogue (repli générique) : une simple rencontre suffit, comme avant ---
+// --- Zone sans images mais avec bestiaire (netherregions, 2026-09-24) : découverte par index de mob ---
 {
   const rawState = {
     version: IDLE_ADVENTURE_V47,
-    zone: { encounters: { netherregions: 5 }, bossEncounters: {} }
+    zone: { mobEncountersByIndex: { netherregions: { 0: 5 } }, bossEncountersByIndex: {} }
   };
   const entrees = buildEntries(rawState);
-  const beardverseMob = entrees.find(e => e.zone === "netherregions" && e.boss === 0);
-  assert.equal(beardverseMob.decouvert, true, "Repli générique : le compteur plat (encounters) doit toujours débloquer l'entrée pour les zones sans catalogue.");
-  assert.equal(beardverseMob.rencontres, 5);
-  assert.equal(beardverseMob.nom, IDLE_ADVENTURE_ZONES.find(z => z.id === "netherregions").name, "Repli générique : le nom affiché reste le vrai nom de zone, jamais un nom d'image inexistante.");
+  const premier = entrees.find(e => e.zone === "netherregions" && e.boss === 0 && e.index === 0);
+  assert.equal(premier.decouvert, true, "Une rencontre enregistrée sur l'index 0 débloque le premier ennemi de The Nether Regions.");
+  assert.equal(premier.rencontres, 5);
+  assert.equal(premier.nom, IDLE_ADVENTURE_MOB_BESTIARY_V1.netherregions.normal[0].name);
+  const autre = entrees.find(e => e.zone === "netherregions" && e.boss === 0 && e.index === 1);
+  assert.equal(autre.decouvert, false, "Les autres ennemis restent non découverts.");
 }
 
 console.log("idle-bestiaire-aventure-v47-rebuild: OK");

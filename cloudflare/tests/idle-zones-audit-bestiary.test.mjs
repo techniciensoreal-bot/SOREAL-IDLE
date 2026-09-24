@@ -27,7 +27,9 @@ const ROSTER = {
   badly: [6, 2], boring: [7, 1], chocolate: [10, 3], evilverse: [7, 2], pinkprincess: [6, 2],
   metaland: [6, 2], interdimensional: [6, 2], typozone: [6, 2], fadlands: [6, 2], jrpgville: [6, 2],
   radlands: [8, 2], backtoschool: [6, 2], westworld: [6, 2], breadverse: [6, 2], seventies: [6, 2],
-  halloweenies: [6, 2], construction: [6, 2], duckduck: [6, 2]
+  halloweenies: [6, 2], construction: [6, 2], duckduck: [6, 2],
+  // 2026-09-24 : stats issues de NGU-Wiki/external (les fiches du wiki sont des stubs sans stats).
+  netherregions: [6, 2], aethereansea: [17, 4]
 };
 for (const [id, [n, b]] of Object.entries(ROSTER)) {
   assert.equal(B[id].normal.length, n, `${id} : ${n} ennemis normaux (page de zone)`);
@@ -48,25 +50,20 @@ for (const [id, [n, b]] of Object.entries(ROSTER)) {
   assert.equal(monsterHpMaxForZoneV1WithMob(zone("westworld"), true, 0), 1.65e29);
 }
 
-// 3. The Rad-Lands : "attack_rate=?" sur 7 fiches -> null, jamais 0 inventé.
+// 3. The Rad-Lands : "attack_rate=?" sur 7 fiches du wiki, comblé le 2026-09-24 par NGU-Wiki/external/attack-rate-gaps.json
+//    (toutes les autres stats identiques à la source). Jamais de 0 inventé.
 {
   const rl = B.radlands.normal;
-  const inconnus = rl.filter((m) => m.attackRate === null).map((m) => m.name).sort();
-  assert.deepEqual(inconnus, [
-    "A Giant Vat of Plutonium-238", "A Massive Sealed Vault", "Lame Security Guard",
-    "Mutant Zombie Marie Curie", "Nuclear Power Pants", "Pair of Shades Wearing Shades", "Small Bart"
-  ]);
-  assert.equal(rl.some((m) => m.attackRate === 0), false, "aucun attackRate 0 inventé");
-  // Fiche "Small Bart" : power=2E+24, toughness=2E+24, hp_regen=2E+23, hp=2.1E+26
-  assert.deepEqual(byName(rl, "Small Bart"), { name: "Small Bart", type: "normal", attackRate: null, power: 2e24, toughness: 2e24, hpRegen: 2e23, maxHp: 2.1e26 });
-  // Fiche "A Wandering Gamma Ray" : attack_rate=1 (seule valeur publiée de la zone)
+  assert.equal(rl.some((m) => m.attackRate === null || m.attackRate === 0), false, "aucun attackRate inconnu ni 0");
+  // Fiche "Small Bart" : power=2E+24, toughness=2E+24, hp_regen=2E+23, hp=2.1E+26 ; attack_rate "?" -> 1 (source externe)
+  assert.deepEqual(byName(rl, "Small Bart"), { name: "Small Bart", type: "normal", attackRate: 1, power: 2e24, toughness: 2e24, hpRegen: 2e23, maxHp: 2.1e26 });
+  assert.equal(byName(rl, "A Massive Sealed Vault").attackRate, 1.2);
+  assert.equal(byName(rl, "A Giant Vat of Plutonium-238").attackRate, 1.1);
+  // Fiche "A Wandering Gamma Ray" : attack_rate=1 (publié par le wiki)
   assert.equal(byName(rl, "A Wandering Gamma Ray").attackRate, 1);
-  // La moyenne ignore les null (sinon 1/8 = 0.125).
-  assert.equal(idleAdventureBestiaryAverageV1(rl, "attackRate"), 1);
+  // La moyenne ignore toujours les valeurs inconnues.
   assert.equal(idleAdventureBestiaryAverageV1([{ x: null }, { x: undefined }], "x"), 0);
-  // attackRate inconnu -> facteur neutre 1.
-  const idxBart = rl.findIndex((m) => m.name === "Small Bart");
-  assert.equal(idleAdventureMobAttackFactorV1(zone("radlands"), false, idxBart), 1);
+  assert.equal(idleAdventureBestiaryAverageV1([{ x: null }, { x: 3 }], "x"), 3);
 }
 
 // 4. Échantillon de fiches relues (miroir ou live) -- toutes zones confondues.
@@ -86,14 +83,18 @@ for (const [id, [n, b]] of Object.entries(ROSTER)) {
   assert.equal(byName(B.backtoschool.boss, "BELDING").maxHp, 6.25e28);
 }
 
-// 5. Zones sans stats publiées : jamais de mob inventé.
+// 5. Zones sans stats sur le wiki (fiches stub ou absentes) : stats de NGU-Wiki/external/late-zone-enemies.json
+//    (source externe ngu-idle-calculators, contrôles de cohérence passés), jamais inventées.
 {
-  // The Nether Regions : fiches {{Enemy}} sans aucune stat Adventure (miroir + live).
-  assert.deepEqual(B.netherregions, { normal: [], boss: [] });
-  // The Aethereal Sea : aucune page pour ses 21 ennemis (miroir + live).
-  assert.equal(B.aethereansea, undefined);
-  // Repli zone-plat (oneHitP) plutôt qu'un PV inventé.
-  assert.equal(monsterHpMaxForZoneV1WithMob(zone("aethereansea"), false, 0), Math.floor(5.75e35));
+  assert.equal(B.netherregions.normal.length + B.netherregions.boss.length, 8);
+  assert.equal(B.aethereansea.normal.length + B.aethereansea.boss.length, 21);
+  assert.deepEqual(byName(B.netherregions.normal, "A Patch of Tulips"), { name: "A Patch of Tulips", type: "normal", attackRate: 1, power: 2.5e32, toughness: 2.5e32, hpRegen: 2.5e30, maxHp: 1.2e34 });
+  assert.deepEqual(byName(B.aethereansea.normal, "A Seagull"), { name: "A Seagull", type: "normal", attackRate: 1, power: 1.3e34, toughness: 1.3e34, hpRegen: 1.3e32, maxHp: 8.2e35 });
+  assert.equal(byName(B.aethereansea.boss, "THE CAPTAIN").type, "charger");
+  assert.equal(byName(B.netherregions.boss, "DAAN VAN DER VAAN JAANSEN").maxHp, 1.3e34);
+  // Les PV viennent du mob réel tiré, plus du repli zone-plat (oneHitP).
+  assert.equal(monsterHpMaxForZoneV1WithMob(zone("aethereansea"), false, 0), Math.floor(8.2e35));
+  assert.equal(monsterHpMaxForZoneV1WithMob(zone("netherregions"), false, 0), Math.floor(1.2e34));
 }
 
 // 6. Catalogue d'images R2 : seulement des zones existantes, jamais une zone inventée.
