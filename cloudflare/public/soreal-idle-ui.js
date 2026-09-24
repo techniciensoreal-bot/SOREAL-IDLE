@@ -1887,6 +1887,47 @@
         }
       }
 
+      /*
+       * 2026-09-24 (Norman : « quand on bat un boss, bien souvent, l'écran reste bloqué sur "Boss vaincu", il faut changer d'écran
+       * et revenir pour voir le nouveau boss »). Le client prédit la victoire avant que le serveur (qui fait foi) ne l'ait enregistrée :
+       * la synchronisation forcée unique lancée à ce moment revient alors « pas encore vaincu », l'état local est conservé
+       * (appliquerSynchroCombatSansReflowIdleV116_) et plus rien ne relançait de synchronisation, donc l'écran restait figé jusqu'à
+       * un changement de menu (qui recharge tout). On relance la synchronisation forcée toutes les 1,2 s tant que la victoire
+       * n'est pas confirmée (le rendu qui affiche le nouveau boss remet le drapeau à zéro et arrête la surveillance) ; au bout de
+       * 15 s sans confirmation on abandonne la prédiction locale et on adopte l'état du serveur au lieu de rester figé.
+       */
+      let idleVictoireSurveillanceV1=null;
+      function arreterSurveillanceVictoireBossIdleV1_(){
+        if(idleVictoireSurveillanceV1){
+          clearInterval(idleVictoireSurveillanceV1);
+          idleVictoireSurveillanceV1=null;
+        }
+      }
+      function surveillerConfirmationVictoireBossIdleV1_(){
+        arreterSurveillanceVictoireBossIdleV1_();
+        const debut=Date.now();
+        idleVictoireSurveillanceV1=setInterval(function(){
+          if(PAGE_ACTIVE!=='idle'||!idleEtat||!idleVictoireBossLocaleV49){
+            arreterSurveillanceVictoireBossIdleV1_();
+            return;
+          }
+          if(Date.now()-debut>15000){
+            arreterSurveillanceVictoireBossIdleV1_();
+            google.script.run
+              .withSuccessHandler(function(etat){
+                if(PAGE_ACTIVE!=='idle'||!idleVictoireBossLocaleV49||!etat||!etat.ok||!etat.joueur)return;
+                idleEtat=etat.joueur;
+                idleCombatArmeLocalV206=false;
+                rendreIdleEtat_({ok:true,joueur:etat.joueur});
+              })
+              .withFailureHandler(function(){})
+              .obtenirEtatSorealIdle(SOREAL_SESSION);
+            return;
+          }
+          synchroniserJeuIdleV7_(true);
+        },1200);
+      }
+
       function metaTickEnergieIdleV114_(){
         const prod=
           Math.max(
@@ -2571,6 +2612,7 @@
                 const apresBarreVide=function(){
                   transitionMortBossIdleV61_();
                   synchroniserJeuIdleV7_(true);
+                  surveillerConfirmationVictoireBossIdleV1_();
                 };
                 if(typeof requestAnimationFrame==='function'){
                   requestAnimationFrame(function(){
