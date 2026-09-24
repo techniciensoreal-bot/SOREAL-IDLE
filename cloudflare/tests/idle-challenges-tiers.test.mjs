@@ -6,6 +6,7 @@ import {
   idleNguChallengeBonuses,
   idleNguSnapshot
 } from "../src/idle-ngu-progression.js";
+import { idleAchievementsApMultiplierV1 } from "../src/idle-achievements-v1.js";
 
 /*
  * 2026-09-23 (audit, page Challenges) : défis Evil et Sadistic (compteurs, cibles, EXP/AP,
@@ -65,7 +66,12 @@ assert.equal(sad.noTimeMachine.reward.experience, 200000);
   const apAvant = s.currencies.ap;
   const done = applyIdleNguAction(s, { action: "challenge", mode: "complete", challenge: "twentyFourHours" }, { bosses: 200 }, 2_100_000);
   assert.equal(done.state.currencies.experience - expAvant, 400 * 3);
-  assert.equal(done.state.currencies.ap - apAvant, 5000 * 3);
+  /*
+   * 2026-09-24 : l'AP des défis reçoit désormais le bonus des succès (page Arbitrary Points ;
+   * ici boss 10..200 + "Rebirth once!" = 665 BP -> x1,0665), arrondi inférieur.
+   */
+  assert.equal(idleAchievementsApMultiplierV1(done.state), 1.0665);
+  assert.equal(done.state.currencies.ap - apAvant, 15997);
 }
 
 // Bonus permanents par difficulté

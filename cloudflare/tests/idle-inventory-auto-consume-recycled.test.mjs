@@ -19,6 +19,13 @@ import {
  * successfully recycled before moving to the next boost ».
  */
 const always = () => 0; // recyclage toujours réussi
+/*
+ * 2026-09-24 (audit des objets) : un objet neuf démarre à sa "Base value" publiée
+ * (Template:Item data). La Beardverse weapon démarre à 83 000 = son plafond : plus
+ * aucune place pour un boost. Les cibles deviennent GRB (Base value 690/0 pour un
+ * plafond 1 000/80, Base value 180/180 pour 250/250) et les attentes sont relatives
+ * à la valeur de départ.
+ */
 
 function adv() {
   const s = createIdleAdventureStateV47();
@@ -41,15 +48,16 @@ assert.equal(normalizeIdleInventoryAutoV1({ consumeRecycled: false }).consumeRec
 // A + clic, réglage coupé : le boost recyclé reste dans le sac, les autres boosts passent.
 {
   const s = adv();
-  const arme = addItem(s, "beardverse:weapon");
+  const arme = addItem(s, "grb:weapon");
+  const p0 = arme.power, t0 = arme.toughness;
   const b20 = addBoost(s, "power", 20);
   const t = addBoost(s, "toughness", 2);
   const st = { adventure: s };
   assert.deepEqual(applyIdleInventoryAutoActionV1(st, { mode: "settings", consumeRecycled: false }, {}), { consumeRecycled: false });
   const r = applyIdleInventoryAutoActionV1(st, { mode: "boostAll", targetId: arme.id }, { boostRecycleChance: 1 }, always);
   const w = st.adventure.inventory.find((x) => x.id === arme.id);
-  assert.equal(w.power, 20, "le Boost 20 est appliqué une fois, son recyclage (10) est laissé");
-  assert.equal(w.toughness, 2);
+  assert.equal(w.power, p0 + 20, "le Boost 20 est appliqué une fois, son recyclage (10) est laissé");
+  assert.equal(w.toughness, t0 + 2);
   assert.equal(r.applied, 2);
   assert.equal(r.recycled, 2);
   const restes = st.adventure.inventory.filter((x) => x.kind === "boost").map((x) => [x.id, x.boostType, x.strength]).sort();
@@ -60,9 +68,9 @@ assert.equal(normalizeIdleInventoryAutoV1({ consumeRecycled: false }).consumeRec
 // Auto Boost, réglage coupé : un boost recyclé sur la 1re cible n'est pas repris par la suivante.
 {
   const s = adv();
-  const arme = addItem(s, "beardverse:weapon");
+  const arme = addItem(s, "grb:weapon");
   Object.assign(s, applyIdleAdventureActionV47(s, { action: "equip", id: arme.id, slot: "weapon" }, {}).state);
-  const casque = addItem(s, "beardverse:head");
+  const casque = addItem(s, "grb:head");
   Object.assign(s, applyIdleAdventureActionV47(s, { action: "equip", id: casque.id, slot: "head" }, {}).state);
   addBoost(s, "power", 5);
   s.inventoryAuto.consumeRecycled = false;
@@ -80,11 +88,12 @@ assert.equal(normalizeIdleInventoryAutoV1({ consumeRecycled: false }).consumeRec
 // Réglage actif (défaut) : comportement inchangé, le recyclage est ré-appliqué aussitôt.
 {
   const s = adv();
-  const arme = addItem(s, "beardverse:weapon");
+  const arme = addItem(s, "grb:weapon");
+  const p0 = arme.power;
   addBoost(s, "power", 20);
   const st = { adventure: s };
   applyIdleInventoryAutoActionV1(st, { mode: "boostAll", targetId: arme.id }, { boostRecycleChance: 1 }, always);
-  assert.equal(st.adventure.inventory.find((x) => x.id === arme.id).power, 20 + 10 + 5 + 2 + 1);
+  assert.equal(st.adventure.inventory.find((x) => x.id === arme.id).power, p0 + 20 + 10 + 5 + 2 + 1);
 }
 
 console.log("idle-inventory-auto-consume-recycled: OK");

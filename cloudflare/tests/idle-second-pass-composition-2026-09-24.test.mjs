@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { idleAchievementsApMultiplierV1 } from "../src/idle-achievements-v1.js";
 import {
   normalizeIdleNguState,
   advanceIdleNguState,
@@ -7,7 +8,7 @@ import {
   idleNguBonuses,
   idleNguSnapshot
 } from "../src/idle-ngu-progression.js";
-import { idleAdventureTitanCooldownMsV1, normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSpecialItemV1, idleAdventureAddItemV1, IDLE_ADVENTURE_ASCENSION_CHAIN_V1, IDLE_ADVENTURE_SPECIALS } from "../src/idle-adventure-v47.js";
+import { idleAdventureTitanCooldownMsV1, normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSpecialItemV1, idleAdventureAddItemV1, IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1, IDLE_ADVENTURE_SPECIALS } from "../src/idle-adventure-v47.js";
 
 /*
  * Audit de seconde passe (2026-09-24), méthode de COMPOSITION :
@@ -69,7 +70,10 @@ function etatAvecFib89() {
   const demarre = applyIdleNguAction(s0, { action: "challenge", mode: "start", challenge: "basic" }, { bosses: 0 }, T0 + 500).state;
   const ap0 = demarre.currencies.ap;
   const r = applyIdleNguAction(demarre, { action: "challenge", mode: "complete", challenge: "basic" }, { bosses: 58 }, T0 + 1000).state;
-  assert.equal(r.currencies.ap - ap0, 2550);
+  /* 2026-09-24 (fusion avec main) : le bonus AP commun inclut aussi les succès (BP/10000) -> facteur relu sur l état obtenu. */
+  const succes = idleAchievementsApMultiplierV1(r);
+  assert.equal(r.currencies.ap - ap0, Math.floor(2500 * 1.02 * succes + 1e-9));
+  assert.ok(r.currencies.ap - ap0 >= 2550);
 }
 {
   /* Money Pit / roue : entiers, jamais fractionnaires. */
@@ -81,7 +85,8 @@ function etatAvecFib89() {
   Math.random = () => 0.1; // palier 0 : 50 AP
   try {
     const r = applyIdleNguAction(s, { action: "collect", system: "dailySpin" }, ctx, T0 + 1000);
-    assert.equal(r.result.reward.ap, 51, "50 x 1,02 = 51");
+    /* 2026-09-24 (fusion avec main) : x succes (BP/10000) en plus du Fibonacci 89. */
+    assert.equal(r.result.reward.ap, Math.floor(50 * 1.02 * idleAchievementsApMultiplierV1(r.state) + 1e-9), "50 x 1,02 x succes");
     assert.ok(Number.isInteger(r.state.currencies.ap));
   } finally { Math.random = avant; }
 }
@@ -183,11 +188,11 @@ function etatAvecFib89() {
 /* --- 10. Ascension des objets de niveau 100 (page Inventory + pages d'objets « can be upgraded to »). --- */
 {
   /* Chaque maillon existe, et le dernier x9 / la dernière Looty n'ont pas de suite. */
-  for (const [de, vers] of Object.entries(IDLE_ADVENTURE_ASCENSION_CHAIN_V1)) {
+  for (const [de, vers] of Object.entries(IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1)) {
     assert.ok(IDLE_ADVENTURE_SPECIALS[vers], `définition de ${vers} (suite de ${de})`);
   }
-  assert.equal(IDLE_ADVENTURE_ASCENSION_CHAIN_V1.ascendedX9Pendant, undefined);
-  assert.equal(IDLE_ADVENTURE_ASCENSION_CHAIN_V1.lootzLrtozl, undefined);
+  assert.equal(IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1.ascendedX9Pendant, undefined);
+  assert.equal(IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1.glitchyLooty, undefined);
 
   function ascendre(definitionId, niveau) {
     const s = normalizeIdleAdventureStateV47({});

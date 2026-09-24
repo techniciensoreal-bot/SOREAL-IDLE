@@ -43,21 +43,16 @@ function equipItemWithStat(definitionId, slot, power, toughness) {
   r = applyIdleAdventureActionV47(r.state, { action: "equip", id: item.id, slot }, { bosses: 17 }, 1);
   return r.state;
 }
+/*
+ * 2026-09-24 (audit des objets) : un objet neuf démarre à sa "Base value"
+ * publiée (Template:Item data) et cleanItem() ne descend jamais en dessous ;
+ * la Kokiri Blade (Base value 20) et le Forest Helmet (8) ne peuvent donc plus
+ * porter 0 ou 1 point. Pièce de test : l'Ascended Forest Pendant (Base value
+ * 0/0, plafond 100/100 au niveau 0, Power ET Toughness réels), équipée en
+ * accessoire, avec exactement les points voulus sur chaque axe.
+ */
 function equipWeaponWithStats(power, toughness) {
-  if (power > 0 && toughness === 0) return equipItemWithStat("forest:weapon", "weapon", power, 0);
-  if (toughness > 0 && power === 0) return equipItemWithStat("forest:head", "head", 0, toughness);
-  if (power === 0 && toughness === 0) return equipItemWithStat("forest:weapon", "weapon", 0, 0);
-  // Power et Toughness ensemble : une pièce de chaque.
-  let s = createIdleAdventureStateV47();
-  let r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "forest:weapon", level: 50 }, { bosses: 17 }, 1);
-  const weapon = r.state.inventory.find((i) => i.definitionId === "forest:weapon");
-  weapon.power = power;
-  r = applyIdleAdventureActionV47(r.state, { action: "addItem", definitionId: "forest:head", level: 50 }, { bosses: 17 }, 1);
-  const head = r.state.inventory.find((i) => i.definitionId === "forest:head");
-  head.toughness = toughness;
-  r = applyIdleAdventureActionV47(r.state, { action: "equip", id: weapon.id, slot: "weapon" }, { bosses: 17 }, 1);
-  r = applyIdleAdventureActionV47(r.state, { action: "equip", id: head.id, slot: "head" }, { bosses: 17 }, 1);
-  return r.state;
+  return equipItemWithStat("ascendedForestPendant", "accessory", power, toughness);
 }
 
 // --- Neutre sans équipement ---

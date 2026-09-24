@@ -57,8 +57,9 @@ assert.equal(
         assert.equal(res.state.adventure.permanent.adventurePower,5);
         assert.equal(res.state.adventure.permanent.adventureToughness,5);
       }
-      if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,50);
-      if(c.type==='adventureRegen')assert.equal(res.state.adventure.permanent.adventureRegen,0.5);
+      // 2026-09-24 : 1e9 d'or jeté franchit aussi le seuil 1E8 des One-Time Bonuses (+100 Max HP, +1 Regen).
+      if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,150);
+      if(c.type==='adventureRegen')assert.equal(res.state.adventure.permanent.adventureRegen,1.5);
       if(c.type==='experience')assert.equal(res.state.currencies.experience,2);
     }
   }finally{

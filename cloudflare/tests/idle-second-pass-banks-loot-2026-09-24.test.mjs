@@ -3,8 +3,7 @@ import {
   normalizeIdleNguState,
   advanceIdleNguState,
   rebirthIdleNguState,
-  applyIdleNguAction,
-  applyAdvancedTrainingBankV1
+  applyIdleNguAction
 } from "../src/idle-ngu-progression.js";
 import { idleSelloutShopEffectActiveV1 } from "../src/idle-sellout-shop-v1.js";
 
@@ -45,27 +44,16 @@ function withAt(levels, perks = {}, quirks = {}) {
   const quirks = { 20: 10 }; // 5 %
   const s = withAt({ power: 1000, toughness: 999, block: 3 }, perks, quirks);
   const r = rebirthIdleNguState(s, ctx, T0 + RUN);
-  assert.deepEqual(r.bank.advancedTrainingTracks, { power: 250, toughness: 249 }, "25 % de 1000 et floor(25 % de 999) ; 3 x 25 % = 0 non retenu");
   assert.equal(r.bank.advancedTraining, 499);
-  assert.equal(r.bank.advancedTrainingPending, true);
-  assert.equal(r.systems.advancedTraining.data.tracks.power.tempLevel, 0, "page Banks : aucun effet avant le déblocage de l'AT");
-
-  // Basic Training pas encore complété : rien n'est versé.
-  const pasEncore = advanceIdleNguState(r, 1, ctx, T0 + RUN + 1000);
-  assert.equal(pasEncore.systems.advancedTraining.data.tracks.power.tempLevel, 0);
-  assert.equal(pasEncore.bank.advancedTrainingPending, true);
-
-  // Basic Training complété : les niveaux retenus s'ajoutent, une seule fois.
-  const ok = advanceIdleNguState(pasEncore, 1, Object.assign({}, ctx, { basicTrainingComplete: true }), T0 + RUN + 2000);
-  assert.equal(ok.systems.advancedTraining.data.tracks.power.tempLevel, 250);
-  assert.equal(ok.systems.advancedTraining.data.tracks.toughness.tempLevel, 249);
-  assert.equal(ok.bank.advancedTrainingPending, false);
-  assert.equal(applyAdvancedTrainingBankV1(ok, { basicTrainingComplete: true }), false, "versement unique par Rebirth");
+  /* 2026-09-24 (fusion avec main) : un seul mécanisme de banque d AT (celui de main) : les niveaux retenus (250 et 249 ; block : 3 x 25 % = 0) sont réinjectés dans les pistes dès le Rebirth, menu reverrouillé (page Banks : sans effet avant le déblocage). */
+  assert.equal(r.systems.advancedTraining.data.tracks.power.tempLevel, 250);
+  assert.equal(r.systems.advancedTraining.data.tracks.toughness.tempLevel, 249);
+  assert.equal(r.systems.advancedTraining.data.tracks.block.tempLevel, 0);
+  assert.equal(r.systems.advancedTraining.unlocked, false, "menu d AT reverrouillé après le Rebirth");
 
   // Survit à la sérialisation (normalize).
   const round = normalizeIdleNguState(JSON.parse(JSON.stringify(r)), ctx, T0 + RUN);
-  assert.deepEqual(round.bank.advancedTrainingTracks, { power: 250, toughness: 249 });
-  assert.equal(round.bank.advancedTrainingPending, true);
+  assert.equal(round.bank.advancedTraining, 499);
 }
 
 /* --- Banks perdues en changeant de difficulté (page Banks : « lost when changing the difficulty level or starting a challenge »). --- */
@@ -73,8 +61,7 @@ function withAt(levels, perks = {}, quirks = {}) {
   const s = withAt({ power: 1000 }, { 36: 10 });
   s.difficulty = "difficile";
   const r = rebirthIdleNguState(s, ctx, T0 + RUN, { difficulty: "normal" });
-  assert.deepEqual(r.bank.advancedTrainingTracks, {});
-  assert.equal(r.bank.advancedTrainingPending, false);
+  assert.equal(r.bank.advancedTraining, 0);
 }
 
 /* --- Perk 25 : +1 %/niveau de chance de +1 niveau, cumulée avec Fibonacci 144 (+5 %). --- */
