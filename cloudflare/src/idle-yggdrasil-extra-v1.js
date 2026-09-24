@@ -25,8 +25,8 @@
  *    « 100 Q » de cap alors que la règle « 10x » donnerait 100 Qa) ;
  *  - QPRewardModifier du Fruit of Quirks : jamais défini par le wiki (page
  *    Questing : « then multiplied by other bonuses ») -> laissé à 1 ;
- *  - Seed (set) : « A Giant Seed » n'est pas un objet d'inventaire montable
- *    au niveau 100 dans SOREAL (objet de déblocage consommé) ;
+ *  - (fait le 2026-09-24 : A Giant Seed est un vrai objet, Seed (set) donne
+ *    10 Poop, la graine réutilisée donne des graines -- voir plus bas) ;
  *  - Poop d'Icarus Proudbottom (The Sky, « 1-27 per day ») et de l'ITOPOD
  *    (« What a Crappy Perk », taux donnés seulement dans la colonne de
  *    recommandation) ;
@@ -77,6 +77,41 @@ export function idleYggUsePoopV1(state) {
   const free = idleYggBrownHeartActiveV1(state) && fx.poopUsed % IDLE_YGG_BROWN_HEART_EVERY_V1 === 0;
   if (!free) fx.poop = idleYggPoopCountV1(state) - 1;
   return { factor: idleYggPoopFactorV1(state), consumed: !free, free, remaining: idleYggPoopCountV1(state) };
+}
+
+/* ---------- A Giant Seed réutilisée (2026-09-24) ---------- */
+
+/*
+ * Fiche « A Giant Seed » : « If used again: ... X seeds have been added! » ;
+ * « A Giant Seed of level L gives max(1, ⌊L + L²/100⌋) seeds. For example, at
+ * level 50 you will get 75 seeds and at level 100, 200 seeds. » Page Yggdrasil,
+ * « Getting Seeds » : « 1 seed per item level, plus 1% bonus also per level
+ * (rounded down) ». Le premier usage (déblocage d'Yggdrasil) reste le drapeau
+ * unlockItems/consumeUnlock du moteur Aventure : cette action n'est possible
+ * qu'une fois Yggdrasil débloqué, et retire l'objet du sac.
+ */
+export function idleYggGiantSeedSeedsV1(level) {
+  const l = Math.max(0, I(level, 0));
+  return Math.max(1, Math.floor(l + (l * l) / 100));
+}
+
+export function idleYggConsumeGiantSeedV1(state, itemId) {
+  if (!state?.systems?.yggdrasil?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const adventure = state.adventure;
+  const inventaire = Array.isArray(adventure?.inventory) ? adventure.inventory : [];
+  const objet = inventaire.find((x) => x && x.id === String(itemId || ""));
+  if (!objet || objet.definitionId !== "giantSeed") throw new Error("GRAINE_GEANTE_INVALIDE");
+  /* Un objet verrouillé ne se consomme pas (même règle que la suppression côté client). */
+  if (objet.locked) throw new Error("OBJET_VERROUILLE");
+  const seeds = idleYggGiantSeedSeedsV1(objet.level);
+  adventure.inventory = inventaire.filter((x) => x !== objet);
+  if (adventure.equipment && Array.isArray(adventure.equipment.accessories)) {
+    adventure.equipment.accessories = adventure.equipment.accessories.filter((x) => x !== objet.id);
+  }
+  /* Le client n'accepte un inventaire serveur que si sa révision avance (même règle que le Daycare). */
+  adventure.revision = Math.max(0, I(adventure.revision, 0)) + 1;
+  state.currencies.seeds = Math.max(0, N(state.currencies.seeds, 0)) + seeds;
+  return { seeds, level: Math.max(0, I(objet.level, 0)) };
 }
 
 /* ---------- Auto-Activate (boutique EXP) ---------- */

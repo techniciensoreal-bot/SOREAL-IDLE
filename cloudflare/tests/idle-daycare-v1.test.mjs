@@ -33,7 +33,9 @@ const near = (a, b, msg, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${msg}
   assert.equal(idleDaycareBaseHoursV1({ wikiItemId: 446 }), null);
   const ids = Object.values(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1);
   /* +13 le 2026-09-23 : 10 cœurs, Wandoos XL, Triple Flubber, Heroic Sigil (A Still-Beating Heart : pas de ligne "Daycare"). */
-  assert.equal(ids.filter((id) => t[id] != null).length, 314, "314 objets du dépôt ont un taux publié (les autres : daycare = ?).");
+  /* +1 le 2026-09-24 : A Giant Seed (Id 92, « one level every 24.0 hours ») devient un objet du dépôt. */
+  assert.equal(ids.filter((id) => t[id] != null).length, 315, "315 objets du dépôt ont un taux publié (les autres : daycare = ?).");
+  assert.equal(t[92], 24, "A Giant Seed : 24 h.");
 }
 
 // --- Slots (page Item Daycare : 6 au total) ---

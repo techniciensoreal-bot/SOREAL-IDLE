@@ -18109,6 +18109,10 @@ function pageAventureIdleV28_(j){
         const boutonInstallerOs=(item.definitionId==='wandoos98'||item.definitionId==='wandoosXl')
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeWandoosCopy\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">💾 Installer l’OS</button>'
           :'';
+        /* A Giant Seed réutilisée (Yggdrasil débloqué) : max(1, ⌊L + L²/100⌋) graines, action méta consumeGiantSeed. */
+        const boutonSemerGraine=(item.definitionId==='giantSeed'&&!item.locked)
+          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
+          :'';
         const estVerrouille=Boolean(item.locked);
         const boutonVerrouiller=
           '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerVerrouObjetAdventureIdleV165__(\''+idleHtml_(id)+'\','+(estVerrouille?'false':'true')+')">'+
@@ -18129,6 +18133,7 @@ function pageAventureIdleV28_(j){
             boutonConsommer+
             boutonTransformer+
             boutonInstallerOs+
+            boutonSemerGraine+
             boutonComparer+
             boutonSupprimer+
           '</div>';

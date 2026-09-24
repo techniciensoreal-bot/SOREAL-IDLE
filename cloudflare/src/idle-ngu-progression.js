@@ -143,7 +143,8 @@ import {
   idleYggPowerDeltaMultiplierV1,
   idleYggSeedUnitV1,
   idleYggFruitOfQuirksQpV1,
-  idleYggExtraSnapshotV1
+  idleYggExtraSnapshotV1,
+  idleYggConsumeGiantSeedV1
 } from "./idle-yggdrasil-extra-v1.js";
 
 /*
@@ -5890,6 +5891,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "consumeWandoosCopy") {
     /* Copie "A busted copy of Wandoos 98/XL" : +1 niveau d'OS ou déblocage de Wandoos XL (idle-wandoos-os-v1.js). */
     result = idleWandoosConsumeCopyV1(state, String(payload.itemId || payload.id || ""));
+  } else if (action === "consumeGiantSeed") {
+    /* A Giant Seed réutilisée : max(1, ⌊L + L²/100⌋) graines (idle-yggdrasil-extra-v1.js). */
+    result = idleYggConsumeGiantSeedV1(state, String(payload.itemId || payload.id || ""));
   } else if (action === "buyQuirk") {
     result = buyQuirkV1(state, payload.quirkId);
   } else if (/^quest[A-Z]/.test(action)) {
