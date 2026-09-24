@@ -758,7 +758,16 @@ const fresh=(context={}, now=1_000_000)=>
 
   const reborn=rebirthIdleNguState(state,{bosses:10,attackTrainingLevels:10000},300_000);
   assert.equal(reborn.challenge.active,"basic");
-  assert.ok(reborn.rebirth.number>=1);
+  /*
+   * 2026-09-24 : l'ancienne assertion (NUMBER >= 1) ne tenait que grâce au
+   * facteur « prior boss » 2^58 hérité du run d'avant le défi. Pages Evil /
+   * SADISTIC difficulty : démarrer un défi remet « number and all last
+   * rebirth number factors » à 1 ; un Rebirth de 4 min après 10 boss donne
+   * donc 2^10 x facteur de temps(4 min) x facteur d'entraînement 2, < 1
+   * (page Rebirths : le NUMBER peut baisser, facteur < 1 sous une heure).
+   */
+  const attendu=Math.pow(2,10)*idleNguRebirthTimeFactor(240)*2;
+  assert.ok(Math.abs(reborn.rebirth.number/attendu-1)<1e-9,`NUMBER ${reborn.rebirth.number} != ${attendu}`);
 }
 
 {

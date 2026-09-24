@@ -29,7 +29,15 @@ assert.equal(manger("powerAlpha", 4).state.systems.yggdrasil.data.runPowerAlphaV
   s.systems.yggdrasil.data.runNumbersActive = true;
   const base = normalizeIdleNguState({}, ctx, 0);
   const a = idleNguBonuses(s).attackMultiplier / idleNguBonuses(base).attackMultiplier;
-  assert.ok(Math.abs(a - (1 + 100 * 5e-4) * (1 + Math.pow(10, 1.3) * 5e-4)) < 1e-9);
+  /*
+   * 2026-09-24 (page NUMBER) : le Fruit of Numbers est un facteur du PROCHAIN
+   * NUMBER (« Yggdrasil NUMBER Bonus ... if activated this rebirth »), pas un
+   * multiplicateur direct de l'Attaque : ce test verrouillait l'ancien
+   * comportement (fruit appliqué à l'Attaque/Défense du run courant).
+   */
+  assert.ok(Math.abs(a - (1 + 100 * 5e-4)) < 1e-9, "seul Power β touche l'Attaque/Défense");
+  const n = normalizeIdleNguState(s, ctx, 0).rebirth.nextNumber / base.rebirth.nextNumber;
+  assert.ok(Math.abs(n - (1 + Math.pow(10, 1.3) * 5e-4)) < 1e-9, "Fruit of Numbers : facteur du prochain NUMBER");
 }
 
 // Rage : progression de PP (1 000 000 = 1 PP), Tier 4 -> 8 x 60 000 = 480 000

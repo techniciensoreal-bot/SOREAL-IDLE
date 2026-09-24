@@ -2114,6 +2114,18 @@ function bloodNumberMultiplier(state) {
   return Math.max(1, num(state.systems.bloodMagic?.data?.spells?.numberBoost, 1));
 }
 
+/*
+ * Page « Yggdrasil » : « Your Fruit of Numbers Bonus is based off your
+ * Invisible Fruit of Numbers Level^1.3 * 0.05% », actif seulement si le fruit
+ * a été mangé pendant ce Rebirth ; page « NUMBER » : facteur « Yggdrasil
+ * NUMBER Bonus ... if activated this rebirth » du PROCHAIN NUMBER.
+ */
+function yggFruitNumbersMultiplierV1(state) {
+  const ygg = state.systems.yggdrasil?.data;
+  if (!ygg || !ygg.runNumbersActive) return 1;
+  return 1 + Math.pow(Math.max(0, num(ygg.permanent?.numbersValue, 0)), 1.3) * 5e-4;
+}
+
 function refreshRebirthState(state, context, now) {
   const runSeconds = Math.max(0, (now - state.runStartedAt) / 1000);
   const rb = normalizeRebirthState(state.rebirth, state.runStartedAt, now);
@@ -2137,10 +2149,12 @@ function refreshRebirthState(state, context, now) {
     bloodMagicBonus: bloodNumberMultiplier(state),
     nguNumberBonus: nguFxV1(state).number,
     beardNumberBonus: beardBonusMultiplier(state, "number"),
-    yggNumberBonus: 1,
+    /* 2026-09-24 (page NUMBER) : Fruit of Numbers et Number Hack sont des facteurs du prochain NUMBER. */
+    yggNumberBonus: yggFruitNumbersMultiplierV1(state),
     /* NUMBER MacGuffin Fragment : bonus permanent (idle-macguffins-v1.js). */
     macguffinNumberBonus: macguffinEffectMultiplierV1(state, "number"),
-    hacksNumberBonus: 1,
+    /* Page Hacks : « Hacks do not affect Normal mode » (hackFxV1 renvoie 1 en Normal). */
+    hacksNumberBonus: hackFxV1(state).number,
     sadisticBossMultiplierBonus:
       perkBonusesV1(state.systems.perks?.data?.levels).sadisticBossMultiplierBonus +
       quirkBonusesV1(state.systems.quirks?.data?.levels).sadisticBossMultiplierBonus +
@@ -4225,9 +4239,7 @@ function idleNguBonusesSansMacguffinV1(state) {
   const powerBetaMultiplier = ygg.runPowerBetaActive
     ? 1 + Math.pow(Math.max(0,num(yggPermanent.powerBetaValue,0)),2)*5e-4
     : 1;
-  const fruitNumbersMultiplier = ygg.runNumbersActive
-    ? 1 + Math.pow(Math.max(0,num(yggPermanent.numbersValue,0)),1.3)*5e-4
-    : 1;
+  const fruitNumbersMultiplier = yggFruitNumbersMultiplierV1(state);
 
   const beardAttack = beardBonusMultiplier(state, "attackDefense");
   const beardNumber = beardBonusMultiplier(state, "number");
@@ -4240,7 +4252,17 @@ function idleNguBonusesSansMacguffinV1(state) {
   const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
   const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
   const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
-  const number = Math.max(1e-300, state.rebirth.number) * fruitNumbersMultiplier * beardNumber * nguFx.number * hackFx.number;
+  /*
+   * 2026-09-24 (audit de composition, page « NUMBER ») : « The NUMBER for the
+   * next rebirth will be the product of the following factors » -- les bonus
+   * NGU Number, Beard NUMBER (Reverse Hitler), Yggdrasil (Fruit of Numbers),
+   * MacGuffin et Number Hack sont des FACTEURS DU PROCHAIN NUMBER, calculés
+   * dans refreshRebirthState. Ils étaient en plus multipliés ici au NUMBER
+   * courant (Beard et NGU comptés deux fois, Fruit et Hack appliqués au
+   * mauvais endroit). L'Attaque/Défense ne lit que le NUMBER courant.
+   */
+  void fruitNumbersMultiplier;
+  const number = Math.max(1e-300, state.rebirth.number);
   /*
    * Wiki NGU (page "Advanced Training", section Formulas) : "The Bonus%
    * for Adventure Power/Toughness is: Level^0.4 * 10" (vérifié cellule par
@@ -6005,6 +6027,19 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   rb.lastBosses=Math.max(0,int(context.bosses,0));
   rb.lastRunSeconds=runSeconds;
   rb.hasPreviousRun=true;
+  /*
+   * 2026-09-24 (pages « Evil difficulty » / « SADISTIC difficulty » /
+   * « Rebirths ») : « A rebirth that changes the difficulty is similar to
+   * starting a challenge - number and all last rebirth number factors are
+   * reset to 1 ». forceNumber n'est passé que dans ces deux cas (changement
+   * de difficulté, défi autre que Laser Sword) : les facteurs « prior boss »
+   * et « prior rebirth time » du prochain NUMBER repartent donc à 1.
+   */
+  if(forced!==null){
+    rb.lastBosses=0;
+    rb.lastRunSeconds=0;
+    rb.hasPreviousRun=false;
+  }
   rb.canRebirth=false;
 
   // "100 Levels Challenge" pool is explicitly "per rebirth" (audit
