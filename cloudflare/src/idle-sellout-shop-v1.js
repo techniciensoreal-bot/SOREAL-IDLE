@@ -269,7 +269,9 @@ export function createSelloutEffectsV1(raw) {
     blackPens: Math.max(0, I(src.blackPens, 0)),
     /* Poop possédées et compteur de Poop utilisées (Brown Heart (set) : chaque 10e est gratuite). */
     poop: Math.max(0, I(src.poop, 0)),
-    poopUsed: Math.max(0, I(src.poopUsed, 0))
+    poopUsed: Math.max(0, I(src.poopUsed, 0)),
+    /* Kills ITOPOD accumulés vers la prochaine Poop garantie (perk 30, idle-yggdrasil-extra-v1.js). */
+    itopodPoopKills: Math.max(0, I(src.itopodPoopKills, 0))
   };
 }
 

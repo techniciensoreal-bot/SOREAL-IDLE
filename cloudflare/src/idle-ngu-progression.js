@@ -144,7 +144,8 @@ import {
   idleYggSeedUnitV1,
   idleYggFruitOfQuirksQpV1,
   idleYggExtraSnapshotV1,
-  idleYggConsumeGiantSeedV1
+  idleYggConsumeGiantSeedV1,
+  idleYggItopodPoopV1
 } from "./idle-yggdrasil-extra-v1.js";
 
 /*
@@ -3824,6 +3825,8 @@ function advanceLateSystems(state, seconds, context, now) {
   advanceTowerV1(state, seconds, context);
   /* MacGuffin ITOPOD Drops (perk 68) : les kills de ce tick alimentent le compteur MacGuffin. */
   macguffinOnItopodKillsV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
+  /* Perk 30 « What a Crappy Perk » : Poop de l'ITOPOD (1 tous les 9 000 kills + 0,01 % par kill). */
+  idleYggItopodPoopV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
 
   /* Cards et Mayo : vrai système (idle-cards-v1.js), remplace les cartes factices horaires. */
   advanceIdleCardsV1(state, seconds);
@@ -5530,6 +5533,9 @@ function crediterRecompensesAventure(state, avant) {
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
   state.currencies.ap += gain("ap") * perksGain.apEarningsMultiplier * heartApMultiplierV1(state);
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
+  /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
+  const poop = Math.floor(gain("poop"));
+  if (poop > 0) idleSelloutApplyEffectV1(state, "poop", poop);
   const pp = gain("ppProgress") * diggerBonuses(state).pp;
   if (pp > 0) {
     const tower = state.systems.tower;
@@ -5566,7 +5572,8 @@ function photoRecompensesAventure(state) {
     experience: num(p.experience, 0),
     gold: num(p.gold, 0),
     ap: num(p.ap, 0),
-    ppProgress: num(p.ppProgress, 0)
+    ppProgress: num(p.ppProgress, 0),
+    poop: num(p.poop, 0)
   };
 }
 

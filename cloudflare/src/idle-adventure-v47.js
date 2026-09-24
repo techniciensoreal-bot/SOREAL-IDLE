@@ -4211,6 +4211,21 @@ function rollKill(s,ctx){
     if(ring)out.push(ring);
   }
 
+  /*
+   * 2026-09-24 -- wiki « The Sky », Loot > Icarus Proudbottom : « Poop (0.05% base chance, up
+   * to 0.5% max) » ; fiche « Icarus Proudbottom » : « the only enemy in The Sky that drops
+   * Poop (base chance is 0.05%, the max chance is 0.5%) ». Une Poop par drop : cumulée dans
+   * permanent.poop, versée dans state.selloutEffects.poop par crediterRecompensesAventure.
+   */
+  let poop=0;
+  if(
+    !boss&&z.id==="sky"&&String(ctx.forceMobName||"")==="Icarus Proudbottom"&&
+    Math.random()<idleAdventureDropChanceV2(.0005,.005,dropMult,z)
+  ){
+    poop=1;
+    s.permanent.poop=I(s.permanent.poop)+poop;
+  }
+
   if(z.id==="tutorial"){
     const flubberBoss=I(ctx.bosses);
     if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){
@@ -4239,7 +4254,7 @@ function rollKill(s,ctx){
     }
   }
 
-  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience};
+  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience,poop};
 }
 
 /*

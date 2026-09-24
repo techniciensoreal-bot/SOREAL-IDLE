@@ -27,9 +27,9 @@
  *    Questing : « then multiplied by other bonuses ») -> laissé à 1 ;
  *  - (fait le 2026-09-24 : A Giant Seed est un vrai objet, Seed (set) donne
  *    10 Poop, la graine réutilisée donne des graines -- voir plus bas) ;
- *  - Poop d'Icarus Proudbottom (The Sky, « 1-27 per day ») et de l'ITOPOD
- *    (« What a Crappy Perk », taux donnés seulement dans la colonne de
- *    recommandation) ;
+ *  - (fait le 2026-09-24 : Poop d'Icarus Proudbottom en The Sky, tirée par
+ *    rollKill d'idle-adventure-v47.js, et de l'ITOPOD avec la perk 30, voir
+ *    idleYggItopodPoopV1) ;
  *  - souhait 60 « I wish Fruit of MacGuffin α also didn't suck » (+20 % par
  *    niveau, place dans l'arrondi non publiée).
  */
@@ -77,6 +77,43 @@ export function idleYggUsePoopV1(state) {
   const free = idleYggBrownHeartActiveV1(state) && fx.poopUsed % IDLE_YGG_BROWN_HEART_EVERY_V1 === 0;
   if (!free) fx.poop = idleYggPoopCountV1(state) - 1;
   return { factor: idleYggPoopFactorV1(state), consumed: !free, free, remaining: idleYggPoopCountV1(state) };
+}
+
+/* ---------- Poop de l'ITOPOD (2026-09-24) ---------- */
+
+/*
+ * Perk 30 « What a Crappy Perk » (page Perk Points, 25 PP, 1 niveau) : « This
+ * perk grants a tiny, tiny chance that the Pissed Off Dudes in the ITOPOD drop
+ * poop. It also works offline! » ; même ligne, colonne « Buy Early? » : « gives
+ * 1 poop every 9000 kills and additionally a 0.01% chance per kill for 1 poop ».
+ * Recoupé par la page Yggdrasil : « from the ITOPOD at a rate of 2-11 per day
+ * after buying the "What a Crappy Perk" perk » (≈ 9 500 à 52 000 kills par jour).
+ * Le taux de 0,01 % n'est pas présenté comme une « base chance » : il n'est pas
+ * multiplié par le Drop Chance.
+ */
+export const IDLE_YGG_ITOPOD_POOP_PERK_ID_V1 = 30;
+export const IDLE_YGG_ITOPOD_POOP_KILLS_V1 = 9000;
+export const IDLE_YGG_ITOPOD_POOP_CHANCE_V1 = 0.0001;
+/* Au-delà, le tirage kill par kill est remplacé par l'espérance (choix d'implémentation, gros rattrapages hors-ligne). */
+const ITOPOD_POOP_LOOP_MAX_V1 = 100000;
+
+export function idleYggItopodPoopV1(state, kills, rng = Math.random) {
+  const k = Math.max(0, I(kills, 0));
+  if (k <= 0) return 0;
+  if (I(state?.systems?.perks?.data?.levels?.[IDLE_YGG_ITOPOD_POOP_PERK_ID_V1], 0) < 1) return 0;
+  const fx = state.selloutEffects;
+  if (!fx || typeof fx !== "object") return 0;
+  const total = Math.max(0, I(fx.itopodPoopKills, 0)) + k;
+  let gain = Math.floor(total / IDLE_YGG_ITOPOD_POOP_KILLS_V1);
+  fx.itopodPoopKills = total - gain * IDLE_YGG_ITOPOD_POOP_KILLS_V1;
+  if (k <= ITOPOD_POOP_LOOP_MAX_V1) {
+    for (let i = 0; i < k; i++) if (rng() < IDLE_YGG_ITOPOD_POOP_CHANCE_V1) gain++;
+  } else {
+    const attendu = k * IDLE_YGG_ITOPOD_POOP_CHANCE_V1;
+    gain += Math.floor(attendu) + (rng() < attendu - Math.floor(attendu) ? 1 : 0);
+  }
+  if (gain > 0) fx.poop = idleYggPoopCountV1(state) + gain;
+  return gain;
 }
 
 /* ---------- A Giant Seed réutilisée (2026-09-24) ---------- */
