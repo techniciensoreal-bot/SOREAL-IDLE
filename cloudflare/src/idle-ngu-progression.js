@@ -5987,6 +5987,19 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      */
     crediterRecompensesAventure(state, avantRecompenses);
     result = applied.result || {};
+    /*
+     * 2026-09-24 (audit de composition, pages Broken Time Machine et Gold) : « This machine will produce gold
+     * based on the best gold drop that you have received in Adventure Mode. This number, along with the levels,
+     * resets upon rebirth » ; « (based on highest gold earned from a kill that rebirth) ». Rien n'alimentait
+     * cette valeur (bestGoldThisRun ne lisait que context.bestGold = 1 côté serveur) : la Time Machine ne
+     * produisait pratiquement aucun Or. On retient le plus gros drop d'Or d'un kill/titan de ce Rebirth, bonus
+     * d'Or inclus (le tableau des zones donne le drop « without bonus »).
+     */
+    {
+      const dropGold = Math.max(0, num(result?.gold, 0));
+      const tmData = state.systems.timeMachine?.data;
+      if (dropGold > 0 && tmData) tmData.bestGoldThisRun = Math.max(Math.max(0, num(tmData.bestGoldThisRun, 0)), dropGold);
+    }
     if (boostRecycleInv && result && typeof result === "object") result = Object.assign({}, result, { boostRecycled: boostRecycleInv });
     /* Questing (crochet 2/4) : objet de quête possible sur un vrai kill de zone (jamais sur un rejeu idempotent). */
     {
