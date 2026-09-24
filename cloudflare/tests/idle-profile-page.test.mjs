@@ -34,14 +34,16 @@ const state = normalizeIdleNguState({}, ctx, 0);
 state.adventure.completedSets.sewers = true;
 const snap = idleNguSnapshot(state, ctx, 0);
 const html = api.pageSystemeMetaIdleV130_({ systemes: snap }, "achievements", "Achievements");
-assert.match(html, /Succès<b>\d+ \/ 153<\/b>/);
+/* 2026-09-24 (anti-spoil) : ni « n / 153 », ni succès à venir, ni « ??? », ni « x / 50 » de portraits. */
+assert.match(html, /Succès<b>\d+<\/b>/);
+assert.doesNotMatch(html, /\/ 153|\/ 50|\?\?\?|⬜|➖/, "aucun total ni objectif à venir");
 assert.match(html, /Bonus Points<b>\d+ BP/);
-assert.match(html, /Player Portraits — 2 \/ 50/, "défaut + Sewers");
+assert.match(html, /Player Portraits — 2</, "défaut + Sewers");
 assert.match(html, /Special Prize/);
 assert.match(html, /__profilChoisirPortraitIdleV1__\('sewers'\)/, "portrait débloqué sélectionnable");
 assert.doesNotMatch(html, /__profilChoisirPortraitIdleV1__\('forest'\)/, "portrait verrouillé : pas de clic");
 assert.match(html, /__profilPrixSpecialIdleV1__\(\)/);
-assert.match(html, /\?\?\?/, "les secrets non débloqués restent masqués");
+assert.doesNotMatch(html, /disabled style="opacity:\.45"|🔒/, "aucun portrait verrouillé affiché");
 
 /* Les boutons envoient les actions serveur. */
 window.__SOREAL_IDLE_META_V130__ = Object.assign({}, api, { actionMetaIdleV130_: (p) => actions.push(p) });

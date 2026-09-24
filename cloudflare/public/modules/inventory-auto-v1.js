@@ -37,12 +37,50 @@
     if(typeof fn==='function')fn(Object.assign({action:'inventoryAuto',mode:mode},extra||{}));
   }
 
+  /*
+   * 2026-09-24 (Norman : « Dans les filtres, casque est toujours coché. Je n'arrive pas à le décocher. ») : actionMetaIdleV130_ ABANDONNE
+   * en silence toute action envoyée pendant qu'une autre action méta est en cours ; la case décochée à l'écran était alors remise à son
+   * ancienne valeur au rendu suivant, sans jamais avoir été enregistrée. Les réglages de ce panneau sont donc envoyés de façon FIABLE :
+   * la valeur voulue est mémorisée, renvoyée (jusqu’à 8 envois, toutes les ~1,5 s) tant que l'état du serveur ne la reflète pas, et le
+   * panneau affiche la valeur voulue en attendant.
+   */
+  var enAttente={};
+  function valeurServeur_(e){
+    var s=snap(dernierEtat);
+    if(!s)return undefined;
+    if(e.mode==='lootFilterType')return Boolean(s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[e.extra.slot]);
+    if(e.mode==='lootFilterItem')return Boolean(s.lootFilter&&Array.isArray(s.lootFilter.items)&&s.lootFilter.items.indexOf(e.extra.definitionId)!==-1);
+    if(e.mode==='settings'){var cle=Object.keys(e.extra)[0];return s.settings?s.settings[cle]:undefined;}
+    return undefined;
+  }
+  function valeurVoulue_(e){
+    if(e.mode==='lootFilterType'||e.mode==='lootFilterItem')return Boolean(e.extra.filtered);
+    var cle=Object.keys(e.extra)[0];return e.extra[cle];
+  }
+  function tenter_(cle){
+    var e=enAttente[cle];
+    if(!e)return;
+    if(valeurServeur_(e)===valeurVoulue_(e)){delete enAttente[cle];rendre();return;}
+    if(e.essais>=8){delete enAttente[cle];rendre();return;}
+    e.essais+=1;
+    action(e.mode,e.extra);
+    setTimeout(function(){rafraichir();setTimeout(function(){tenter_(cle);},300);},1200);
+  }
+  function envoyerFiable_(cle,mode,extra){
+    enAttente[cle]={mode:mode,extra:extra,essais:0};
+    tenter_(cle);
+  }
+  function voulu_(cle,valeurServeur){
+    var e=enAttente[cle];
+    return e?valeurVoulue_(e):valeurServeur;
+  }
+
   /* ---------- actions exposées au panneau ---------- */
-  window.__inventaireAutoReglageV1__=function(cle,valeur){var p={};p[cle]=valeur;action('settings',p);};
+  window.__inventaireAutoReglageV1__=function(cle,valeur){var p={};p[cle]=valeur;envoyerFiable_('r:'+cle,'settings',p);};
   window.__inventaireAutoModeClicV1__=function(v){modeClic=TOUCHES[v]?v:'';rendre();};
   window.__inventaireAutoBoosterCubeV1__=function(){action('boostAll',{targetId:'cube'});};
-  window.__inventaireAutoFiltreTypeV1__=function(slot,v){action('lootFilterType',{slot:String(slot),filtered:Boolean(v)});};
-  window.__inventaireAutoFiltreObjetV1__=function(def,v){action('lootFilterItem',{definitionId:String(def),filtered:Boolean(v)});};
+  window.__inventaireAutoFiltreTypeV1__=function(slot,v){envoyerFiable_('t:'+slot,'lootFilterType',{slot:String(slot),filtered:Boolean(v)});};
+  window.__inventaireAutoFiltreObjetV1__=function(def,v){envoyerFiable_('i:'+def,'lootFilterItem',{definitionId:String(def),filtered:Boolean(v)});};
   window.__inventaireAutoLoadoutV1__=function(op,index){
     if(op==='save'&&window.confirm&&!window.confirm('Enregistrer l’équipement actuel dans la configuration '+(entier(index)+1)+' ?'))return;
     action(op==='save'?'loadoutSave':'loadoutApply',{index:entier(index)});
@@ -93,7 +131,7 @@
     var types=s.lootFilterTypes||[];
     lignes.push('<div style="margin-top:10px"><b>🧹 Filtre de butin</b>'+
       (u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:5px">'+types.map(function(t){
-        return caseACocher(NOMS_TYPES[t]||t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t],'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
+        return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
       }).join('')+'</div>':verrou('Achat « Basic Loot Filter » dans la boutique EXP.'))+
       (u.lootFilterImproved?'<details style="margin-top:6px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
         (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+

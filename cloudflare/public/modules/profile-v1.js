@@ -31,20 +31,20 @@
     const liste=Array.isArray(a.list)?a.list:[];
     const faits=liste.filter(function(x){return x.unlocked;}).length;
     const ordre=Object.keys(GROUPES);
+    /*
+     * ANTI-SPOIL (Norman, 2026-09-24 : « le joueur ne doit voir que ce qu'il a débloqué ») : seuls les succès DÉJÀ obtenus sont listés ;
+     * ni les objectifs à venir, ni les succès secrets (« ??? »), ni le nombre total (« n / 153 »), ni les totaux par groupe.
+     */
     const groupes=ordre.map(function(g){
-      const items=liste.filter(function(x){return x.group===g;});
+      const items=liste.filter(function(x){return x.group===g&&x.unlocked;});
       if(!items.length)return '';
-      const ok=items.filter(function(x){return x.unlocked;}).length;
       const lignes=items.map(function(x){
-        const nom=(x.secret&&!x.unlocked)?'???':x.name;
-        return '<div class="soreal-idle-note-v4" style="margin-top:3px;opacity:'+(x.unlocked?'1':'.6')+'">'+
-          (x.unlocked?'✅':(x.tracked?'⬜':'➖'))+' '+html(nom)+' · '+nombre(x.bp)+' BP'+
-          (x.tracked?'':' (non mesurable ici)')+'</div>';
+        return '<div class="soreal-idle-note-v4" style="margin-top:3px">✅ '+html(x.name)+' · '+nombre(x.bp)+' BP</div>';
       }).join('');
-      return '<details class="soreal-idle-section-v8"><summary><b>'+html(GROUPES[g]||g)+'</b> — '+ok+' / '+items.length+'</summary>'+lignes+'</details>';
+      return '<details class="soreal-idle-section-v8"><summary><b>'+html(GROUPES[g]||g)+'</b> — '+items.length+'</summary>'+lignes+'</details>';
     }).join('');
     return '<div class="soreal-idle-summary-grid-v28">'+
-        '<div class="soreal-idle-summary-v28">Succès<b>'+faits+' / '+liste.length+'</b></div>'+
+        '<div class="soreal-idle-summary-v28">Succès<b>'+faits+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Bonus Points<b>'+nombre(a.bp)+' BP</b></div>'+
         '<div class="soreal-idle-summary-v28">Bonus d’AP<b>+'+pct((nombre(a.apMultiplier)-1)*100)+'</b></div>'+
       '</div>'+
@@ -55,15 +55,16 @@
   function blocPortraits(p){
     if(!p)return '';
     const liste=Array.isArray(p.list)?p.list:[];
-    const boutons=liste.map(function(x){
+    /* ANTI-SPOIL (2026-09-24) : uniquement les portraits déjà débloqués (pas de bouton verrouillé ni de condition). */
+    const boutons=liste.filter(function(x){return x.unlocked;}).map(function(x){
       const choisi=x.id===p.selected;
-      return '<button type="button" class="soreal-idle-expand-button-v25" title="'+html(x.condition)+'"'+
-        (x.unlocked?(choisi?' disabled':' onclick="window.__profilChoisirPortraitIdleV1__(\''+html(x.id)+'\')"'):' disabled style="opacity:.45"')+'>'+
-        (choisi?'✅ ':(x.unlocked?'':'🔒 '))+html(x.name)+'</button>';
+      return '<button type="button" class="soreal-idle-expand-button-v25"'+
+        (choisi?' disabled':' onclick="window.__profilChoisirPortraitIdleV1__(\''+html(x.id)+'\')"')+'>'+
+        (choisi?'✅ ':'')+html(x.name)+'</button>';
     }).join('');
     const prix=p.specialPrize||{};
     return '<div class="soreal-idle-section-v8">'+
-        '<div class="soreal-idle-window-title-v31">🖼️ Player Portraits — '+nombre(p.unlockedCount)+' / '+nombre(p.total)+'</div>'+
+        '<div class="soreal-idle-window-title-v31">🖼️ Player Portraits — '+nombre(p.unlockedCount)+'</div>'+
         '<div class="soreal-idle-note-v4">Portrait du héros en combat (cosmétique). Un portrait par set complété, plus les souhaits Weiner, Mayo et Sneak Preview et les fragments SEXY / SMART à 250 %.</div>'+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+boutons+'</div>'+
       '</div>'+
