@@ -13,17 +13,11 @@ import {normalizeIdleNguState,advanceIdleNguState,applyIdleNguAction,rebirthIdle
  * l'Or n'a JAMAIS été un lot réel de la roue.
  */
 const context={bosses:37,bestGold:0,basicTrainingComplete:true};
-/*
- * 2026-09-24 : les bonus uniques par or total jeté (page Money Pit, One-Time Bonuses : 1E8, 1E10, 1E11, 1E12)
- * sont désormais implémentés ; ce test isole les récompenses de PALIER, on les marque donc déjà obtenus.
- */
-const ONE_TIME_DEJA_OBTENUS={'1e8':true,'1e10':true,'1e11':true,'1e12':true};
-function sansBonusUniques(s){s.systems.moneyPit.data.oneTimeClaimed=Object.assign({},ONE_TIME_DEJA_OBTENUS);return s;}
 
 // --- Money Pit : le tirage n'est plus un cycle prévisible (rewardIndex) ---
 let state=normalizeIdleNguState({},context,1_000_000);
 state.currencies.gold=1e9;
-state=sansBonusUniques(normalizeIdleNguState(state,context,1_000_000));
+state=normalizeIdleNguState(state,context,1_000_000);
 assert.equal(
   state.systems.moneyPit.data.rewardIndex,
   undefined,
@@ -44,7 +38,7 @@ assert.equal(
     for(const c of cas){
       let cursor=normalizeIdleNguState({},context,1_000_000);
       cursor.currencies.gold=1e9;
-      cursor=sansBonusUniques(normalizeIdleNguState(cursor,context,1_000_000));
+      cursor=normalizeIdleNguState(cursor,context,1_000_000);
       const beforeInventory=cursor.adventure.inventory.length;
       Math.random=()=>c.random;
       const res=applyIdleNguAction(cursor,{action:'moneyPit'},context,1_000_000);
@@ -63,8 +57,9 @@ assert.equal(
         assert.equal(res.state.adventure.permanent.adventurePower,5);
         assert.equal(res.state.adventure.permanent.adventureToughness,5);
       }
-      if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,50);
-      if(c.type==='adventureRegen')assert.equal(res.state.adventure.permanent.adventureRegen,0.5);
+      // 2026-09-24 : 1e9 d'or jeté franchit aussi le seuil 1E8 des One-Time Bonuses (+100 Max HP, +1 Regen).
+      if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,150);
+      if(c.type==='adventureRegen')assert.equal(res.state.adventure.permanent.adventureRegen,1.5);
       if(c.type==='experience')assert.equal(res.state.currencies.experience,2);
     }
   }finally{

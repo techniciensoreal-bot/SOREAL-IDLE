@@ -149,7 +149,13 @@ assert.equal(idleInventoryMergeSlotCountV1({
 // --- A + clic : tous les boosts non protégés, recyclés ré-appliqués d'abord ---
 {
   const s = adv();
-  const arme = addItem(s, "beardverse:weapon");
+  /*
+   * 2026-09-24 (audit des objets) : un objet neuf démarre à sa "Base value" (Template:Item
+   * data) ; la Beardverse weapon démarre à son plafond (83 000), plus de place pour un boost.
+   * Cible : GRB weapon (Base value 690/0, plafond 1 000/80), attentes relatives au départ.
+   */
+  const arme = addItem(s, "grb:weapon");
+  const p0 = arme.power, t0 = arme.toughness;
   const b20 = addBoost(s, "power", 20);
   const protege = addBoost(s, "power", 50);
   protege.locked = true;
@@ -157,8 +163,8 @@ assert.equal(idleInventoryMergeSlotCountV1({
   const st = { adventure: s };
   const r = applyIdleInventoryAutoActionV1(st, { mode: "boostAll", targetId: arme.id }, { boostRecycleChance: 1 }, always);
   const w = st.adventure.inventory.find((x) => x.id === arme.id);
-  assert.equal(w.power, 20 + 10 + 5 + 2 + 1, "20 puis ses recyclages 10, 5, 2, 1");
-  assert.equal(w.toughness, 2 + 1);
+  assert.equal(w.power, p0 + 20 + 10 + 5 + 2 + 1, "20 puis ses recyclages 10, 5, 2, 1");
+  assert.equal(w.toughness, t0 + 2 + 1);
   assert.equal(r.applied, 7);
   assert.ok(st.adventure.inventory.some((x) => x.id === protege.id), "« Protected boosts will now be skipped »");
   assert.ok(!st.adventure.inventory.some((x) => x.id === b20.id || x.id === t.id));

@@ -2,24 +2,15 @@ import assert from "node:assert/strict";
 import {
   normalizeIdleNguState,
   advanceIdleNguState,
-  rebirthIdleNguState,
-  applyIdleNguAction,
-  idleNguBonuses
 } from "../src/idle-ngu-progression.js";
 import { createIdleAdventureStateV47, applyIdleAdventureActionV47 } from "../src/idle-adventure-v47.js";
 
 /*
- * 2026-09-24 -- audit de composition, pages « Advanced Training », « Banks »,
- * « Challenges » (100 Levels) :
- *  - Banks : « Advanced Training Level Bank » Perks (1 %/niveau) + Quirks
- *    (0,5 %/niveau), arrondi vers le bas, sur le niveau de fin de run de
- *    chaque capacite ; « banked AT levels do not have any effect until the AT
- *    menu is unlocked » ; perk 18 « Instant Advanced Training Levels! » : un
- *    niveau de chaque capacite par niveau du perk au debut de chaque Rebirth.
- *    Avant : rien n'ecrivait ces banques et le perk 18 n'etait jamais lu.
+ * 2026-09-24 -- audit de composition, pages « Advanced Training » et « Challenges » (100 Levels) :
  *  - Objets « Advanced Training » (Ring of Utility...) : vitesse d'AT, jamais lue.
  *  - Souhait 190 : toutes les capacites a 50 niveaux/s sans allocation.
  *  - Defi 100 Levels : les niveaux d'AT gagnes comptent dans les 100.
+ * (Les banques d'AT et le perk 18 sont testes dans idle-banks-advanced-training.)
  */
 const ctx = { bosses: 100, basicTrainingComplete: true };
 const T0 = 1_000_000;
@@ -82,51 +73,4 @@ function base(mutate) {
   assert.equal(r.challenge.hundredLevelsGained, total);
 }
 
-/* Banques + perk 18 au Rebirth. */
-{
-  const perks = (x) => { x.systems.perks.data.levels[36] = 10; x.systems.perks.data.levels[37] = 10; x.systems.perks.data.levels[18] = 3; };
-  const s = base((x) => {
-    perks(x);
-    x.systems.quirks.data = { levels: { 20: 4 } }; /* 4 x 0,5 % */
-    at(x, "power").tempLevel = 1000;
-    at(x, "toughness").tempLevel = 333;
-    at(x, "block").tempLevel = 7;
-  });
-  const r = rebirthIdleNguState(s, { ...ctx, bosses: 100 }, T0 + RUN);
-  /* Banque = (10 % + 10 % + 2 %) = 22 % du niveau de fin de run, arrondi vers le bas. */
-  assert.equal(r.bank.advancedTrainingTracks.power, 220);
-  assert.equal(r.bank.advancedTrainingTracks.toughness, 73);
-  assert.equal(r.bank.advancedTrainingTracks.block, 1);
-  assert.equal(at(r, "power").tempLevel, 220 + 3, "banque + 3 niveaux du perk 18");
-  assert.equal(at(r, "toughness").tempLevel, 73 + 3);
-  assert.equal(at(r, "block").tempLevel, 1 + 3);
-  assert.equal(at(r, "wandoosEnergy").tempLevel, 3, "le perk 18 donne un niveau de CHAQUE capacite");
-
-  /* Banques sans effet avant le deblocage d'AT ; le perk 18 compte deja. */
-  const bonus = (locked) => {
-    const c = JSON.parse(JSON.stringify(r));
-    c.systems.advancedTraining.unlocked = !locked;
-    return idleNguBonuses(c).adventurePowerMultiplier;
-  };
-  const mult = (lvl) => 1 + Math.pow(lvl, 0.4) * 0.1;
-  const ratio = (a, b) => Math.abs(a / b - 1) < 1e-9;
-  const flat = idleNguBonuses(normalizeIdleNguState({}, ctx, T0)).adventurePowerMultiplier;
-  assert.ok(ratio(bonus(true) / flat, mult(3)), "verrouille : seuls les 3 niveaux du perk 18 comptent");
-  assert.ok(ratio(bonus(false) / flat, mult(223)), "debloque : banque + perk 18");
-}
-
-/* Changement de difficulte : banques perdues (page Banks). */
-{
-  let s = normalizeIdleNguState(null, { bosses: 301 }, 0);
-  s.difficultyPeaks.normal = 301;
-  s.runStartedAt = 0;
-  s.bonuses.richJerksAttackLevel = 1000;
-  s.systems.perks.data.levels[5] = 100;
-  s.systems.perks.data.levels[36] = 10;
-  s.systems.advancedTraining.data.tracks.power.tempLevel = 1000;
-  const c = { bosses: 301, beastV4Beaten: true };
-  const r = applyIdleNguAction(s, { action: "difficulty", value: "difficile" }, c, 4 * 60 * 1000).state;
-  assert.deepEqual(r.bank.advancedTrainingTracks, {});
-  assert.equal(at(r, "power").tempLevel, 0);
-}
 console.log("idle-advanced-training-composition: OK");

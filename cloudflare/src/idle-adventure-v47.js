@@ -1402,6 +1402,20 @@ galacticHeraldLooty:{name:"GALACTIC HERALD LOOTY",zone:"",slot:"accessory",dropL
 ascendedX7Pendant:{name:"Ascended x7 Pendant",zone:"",slot:"accessory",dropLevel:50,p:400000000,t:400000000,sBase:40,sMax:40,sType:"r3CapPct",sExtra:[{type:"r3PowerPct",base:400,max0:400,max100:800},{type:"wishSpeedPct",base:40,max0:40,max100:80}]},
 // wiki : "SUPREME INTELLIGENCE LOOTY" (Id 389, Accessory) — Power/Toughness Max at lvl 0 = 500000000/500000000. Specials : Drop Chance (3000/3000/6000%), Energy Power (500000/500000/1000000%), Gold Drops (200000/200000/400000%), Magic Power (500000/500000/1000000%).
 supremeIntelligenceLooty:{name:"SUPREME INTELLIGENCE LOOTY",zone:"",slot:"accessory",dropLevel:50,p:500000000,t:500000000,sBase:3000,sMax:3000,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:500000,max0:500000,max100:1000000},{type:"goldDropsPct",base:200000,max0:200000,max100:400000},{type:"magicPowerPct",base:500000,max0:500000,max100:1000000}]},
+/*
+ * Ascensions finales (audit des objets, 2026-09-24) : ces quatre objets ne tombent nulle part ;
+ * on les obtient uniquement par ascension (ITEM_EVOLUTIONS_V1, transformAdventureItemV1). Valeurs
+ * des modèles "Template:Item data <objet>" (Base value = Max stat at lvl 0 pour chacun, x2 au
+ * niveau 100) ; pBase/tBase = Base value Power/Toughness. Specials dans l'ordre de la fiche.
+ */
+// wiki "Ascended x8 Pendant" (Id 430, Accessory, évolution de Ascended x7 Pendant) : Power/Toughness 1 500 000 000 ; Specials : Hack Speed (100/100/200%), Resource 3 Cap (100/100/200%), Wish Speed (100/100/200%).
+ascendedX8Pendant:{name:"Ascended x8 Pendant",zone:"",slot:"accessory",dropLevel:0,p:1500000000,t:1500000000,pBase:1500000000,tBase:1500000000,sBase:100,sMax:100,sType:"hackSpeedPct",sExtra:[{type:"r3CapPct",base:100,max0:100,max100:200},{type:"wishSpeedPct",base:100,max0:100,max100:200}]},
+// wiki "Ascended x9 Pendant" (Id 504, Accessory, évolution de Ascended x8 Pendant) : Power/Toughness 3 000 000 000 ; Specials : Hack Speed (200/200/400%), Resource 3 Cap (200/200/400%), Wish Speed (200/200/400%).
+ascendedX9Pendant:{name:"Ascended x9 Pendant",zone:"",slot:"accessory",dropLevel:0,p:3000000000,t:3000000000,pBase:3000000000,tBase:3000000000,sBase:200,sMax:200,sType:"hackSpeedPct",sExtra:[{type:"r3CapPct",base:200,max0:200,max100:400},{type:"wishSpeedPct",base:200,max0:200,max100:400}]},
+// wiki "GRAND DEMON LOOTZIFER" (Id 431, Accessory, évolution de SUPREME INTELLIGENCE LOOTY) : Power/Toughness 1 000 000 000 ; Specials : Drop Chance (6660/6660/13320%), Energy Power (3330000/3330000/6660000%), Gold Drops (666000/666000/1332000%), Magic Power (3330000/3330000/6660000%).
+grandDemonLootzifer:{name:"GRAND DEMON LOOTZIFER",zone:"",slot:"accessory",dropLevel:0,p:1000000000,t:1000000000,pBase:1000000000,tBase:1000000000,sBase:6660,sMax:6660,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:3330000,max0:3330000,max100:6660000},{type:"goldDropsPct",base:666000,max0:666000,max100:1332000},{type:"magicPowerPct",base:3330000,max0:3330000,max100:6660000}]},
+// wiki "LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt" (Id 505, Accessory, évolution de GRAND DEMON LOOTZIFER ; "Glitchy Looty" du Glossary) : Power/Toughness 3 000 000 000 ; Specials : Drop Chance (26660/26660/53320%), Energy Power (10000000/10000000/20000000%), Gold Drops (2200000/2200000/4400000%), Magic Power (10000000/10000000/20000000%).
+glitchyLooty:{name:"LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt",zone:"",slot:"accessory",dropLevel:0,p:3000000000,t:3000000000,pBase:3000000000,tBase:3000000000,sBase:26660,sMax:26660,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:10000000,max0:10000000,max100:20000000},{type:"goldDropsPct",base:2200000,max0:2200000,max100:4400000},{type:"magicPowerPct",base:10000000,max0:10000000,max100:20000000}]},
 // wiki : "A 9mm Beretta" (Id 366, Weapon) — Power/Toughness Max at lvl 0 = 1400000000/70000000. Specials : Augment Speed (750/750/1500%), NGU Speed (700/700/1400%), Resource 3 Cap (21/21/42%).
 beretta9mm:{name:"A 9mm Beretta",zone:"westworld",slot:"weapon",dropLevel:1,p:1400000000,t:70000000,sBase:750,sMax:750,sType:"augmentSpeedPct",sExtra:[{type:"nguSpeedPct",base:700,max0:700,max100:1400},{type:"r3CapPct",base:21,max0:21,max100:42}]},
 // wiki : "Edgy Magicite Crystal" (Id 445, Accessory) — Power/Toughness Max at lvl 0 = 666000/666000. Specials : Energy Power (6000/6000/12000%), Magic Cap (600/600/1200%), NGU Speed (250/250/500%).
@@ -1601,6 +1615,16 @@ const SETS_OBJETS_V1=Object.freeze({
    * 2 x la somme des p/t niveau 0 de ces 13 SPECIALS (vérifié).
    */
   normalBonusAccs:{name:"Normal Bonus Accs Set",items:["tubaTime","cheeseGrater","skyBall","magicite","windupGear","sinusoidalWave","ghostTypewriter","gaudyShoulders","fTank","beardComb","randomCrayons","redLipstick","candyCornNecklace"],reward:{drop:.25}},
+  /*
+   * "Evil Bonus Accs (Set)" (audit des objets, 2026-09-24) : les 8 accessoires propres aux
+   * zones Evil (ids 445 à 452, "Total Power 378 792 000"), chacun au niveau 100 ; "Bonus for
+   * Completion: +20% Adventure stats!". Pont setRewards.adventureStatsPct, lu comme facteur
+   * d'Adventure stats par idle-ngu-progression.js (même famille que les perks, quirks et
+   * souhaits "Adventure stats", combinés par produit comme eux). Le wiki ne dit pas si ce +20 %
+   * s'additionne aux autres sources ou les multiplie : convention du moteur (un facteur par
+   * source) conservée.
+   */
+  evilBonusAccs:{name:"Evil Bonus Accs Set",items:["edgyMagicite","creepyDoll","theExponential","rushmoreNose","throOdignslug","linkCable","handCursor","radMixtape"],reward:{adventureStatsPct:.20}},
   /*
    * "Number (set)" : un seul objet (A Number) ; fiche "A Number" : "Merging
    * 'A Number' to level 100, will give you a permanent completion bonus of:
@@ -2109,7 +2133,12 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "amplifier":429,
   "rawSlabOfWood":477,
   "tieOfApathy":478,
-  "titanEffigy":479
+  "titanEffigy":479,
+  // Ascensions finales (2026-09-24), Id des modèles "Template:Item data".
+  "ascendedX8Pendant":430,
+  "grandDemonLootzifer":431,
+  "ascendedX9Pendant":504,
+  "glitchyLooty":505
 });
 function wikiItemIdAdventureV1(definitionId){
   return Number(IDLE_ADVENTURE_WIKI_ITEM_IDS_V1[String(definitionId||"")])||0;
@@ -2119,6 +2148,40 @@ const IDLE_ADVENTURE_SLOT_RANK_V1={weapon:0,head:1,chest:2,legs:3,boots:4};
 function idleAdventureSlotRankV1(slot){
   return IDLE_ADVENTURE_SLOT_RANK_V1[slot]!=null?IDLE_ADVENTURE_SLOT_RANK_V1[slot]:5;
 }
+/*
+ * Ascensions / évolutions d'objets (audit des objets, 2026-09-24). Source : champs
+ * `evolutionto` / `evolutionof` des modèles "Template:Item data", rendus sur chaque fiche
+ * "<objet> can be upgraded to <suivant> (level it to level 100 and CTRL + Click to transform
+ * it)". Niveau de l'objet obtenu : 0 (page Inventory : "Once the Forest Pendant reaches Level
+ * 100, it ascends into a 0 lvl 'Ascended Forest Pendant'" ; "it can Ascend again into a Level 0
+ * 'Ascended Ascended Forest Pendant'" ; même règle pour la lignée Looty, "Similar to the
+ * infamous Forest Pendant"). L'objet obtenu démarre à sa Base value (ITEM_BASE_VALUE_PT_V1).
+ * Non modélisés : Ascended x9 Pendant -> THE END #480 et LootzL...OOt -> THE END (485) (les
+ * morceaux de THE END n'existent pas dans SOREAL). A Small Gerbil -> Mysterious Grey Liquid garde
+ * sa condition propre (SADISTIC, fiche : "can only be transformed in SADISTIC difficulty").
+ */
+const ITEM_EVOLUTIONS_V1=Object.freeze({
+  "forest:pendant":"ascendedForestPendant",
+  ascendedForestPendant:"ascendedAscendedForestPendant",
+  ascendedAscendedForestPendant:"ascendedX3Pendant",
+  ascendedX3Pendant:"ascendedX4Pendant",
+  ascendedX4Pendant:"ascendedX5Pendant",
+  ascendedX5Pendant:"ascendedX6Pendant",
+  ascendedX6Pendant:"ascendedX7Pendant",
+  ascendedX7Pendant:"ascendedX8Pendant",
+  ascendedX8Pendant:"ascendedX9Pendant",
+  lootyMcLootFace:"sirLooty",
+  sirLooty:"kingLooty",
+  kingLooty:"emperorLooty",
+  emperorLooty:"galacticHeraldLooty",
+  galacticHeraldLooty:"supremeIntelligenceLooty",
+  supremeIntelligenceLooty:"grandDemonLootzifer",
+  grandDemonLootzifer:"glitchyLooty",
+  wanderersCane:"candyCaneDestiny",
+  flubber:"tripleFlubber",
+  smallGerbil:"mysteriousGreyLiquid"
+});
+export const IDLE_ADVENTURE_ITEM_EVOLUTIONS_V1=ITEM_EVOLUTIONS_V1;
 export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
   const catalog={};
   for(const[setId,s]of Object.entries(SETS)){
@@ -2136,12 +2199,13 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
       catalog[`${setId}:${slot}`]=Object.freeze({
         kind:"equipment",set:setId,setName:s.name,slot,name:`${s.name} ${slot}`,
         wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
-        basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03
+        basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03,
+        evolutionTo:ITEM_EVOLUTIONS_V1[`${setId}:${slot}`]||""
       });
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
   }
   return catalog;
 })());
@@ -2375,33 +2439,105 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   // Amalgamate (set)
   "amalgamate:head":"Choffice Hat of Greed","amalgamate:chest":"Wooden Office Apron of Might","amalgamate:legs":"Papapapantstststs of Utility","amalgamate:boots":"A Shoe.","amalgamate:weapon":"UUG's Big Book of Insults","amalgamate:deathstick":"THE DEATHSTICK","amalgamate:corruptedLeaf":"A Corrupted Leaf","amalgamate:glued":"8 Old Accessories Glued Together"
 });
-function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:0,toughness:0,hp:0,regen:0,special:N(SET_ITEM_SPECIALS_V1[definitionId]?.[0]?.[1])}}
+/*
+ * "Base value" Power/Toughness des objets (audit des objets, 2026-09-24).
+ * Source : champs powervalbase / toughnessvalbase des 431 modèles
+ * "Template:Item data <objet>" (miroir local NGU-Wiki, NGU-Wiki\templates\), affichés
+ * "Base value" sur la fiche de chaque objet. La documentation du modèle
+ * (Template:Item data, champ "lvldrop" : "lvl of input stats (for Base Value)")
+ * précise que c'est la stat de l'objet tel qu'il tombe. Jusqu'ici un objet neuf
+ * démarrait à 0/0 (généralisation de la capture du Tutorial Cube, dont la Base
+ * value est bien 0) et une pièce de set tombée recevait une Power/Toughness
+ * TIRÉE AU HASARD entre 0 et son plafond (rollFreshEquipmentStatsV1, aucune
+ * source) : l'une et l'autre sont remplacées par la Base value publiée.
+ * Même règle que les Specials (départ = Base value, déjà appliquée) et que les
+ * cœurs (pBase/tBase dans leur définition, exclus de cette table).
+ * Table générée par script depuis les modèles ; seules les entrées non nulles
+ * sont listées (absence = 0/0, ex. Tutorial Cube, The Lonely Flubber).
+ * Cas limite : "A Regular Tie" (jake:tie) publie Toughness Base value 82 pour un
+ * "Max stat at lvl 0" de 81.5 ; cleanItem() ramène la valeur au plafond.
+ */
+const ITEM_BASE_VALUE_PT_V1=Object.freeze({
+  "training:weapon":[3,0],"training:head":[0,1],"training:chest":[0,1],"training:legs":[0,1],"training:boots":[0,1],"sewers:weapon":[2,0],
+  "sewers:head":[0,1],"sewers:chest":[0,3],"sewers:legs":[0,3],"sewers:boots":[0,3],"sewers:amulet":[1,1],"forest:weapon":[20,0],
+  "forest:head":[0,8],"forest:chest":[0,8],"forest:legs":[0,8],"forest:boots":[0,8],"forest:ring":[2,2],"cave:weapon":[120,0],
+  "cave:head":[0,28],"cave:chest":[0,28],"cave:legs":[0,28],"cave:boots":[0,28],"cave:ring":[2,2],"hsb:weapon":[305,0],
+  "hsb:head":[0,70],"hsb:chest":[0,70],"hsb:legs":[0,70],"hsb:boots":[0,70],"grb:weapon":[690,0],"grb:head":[180,180],
+  "grb:chest":[0,180],"grb:legs":[4,180],"grb:boots":[4,185],"grb:necklace":[63,63],"clock:weapon":[1480,0],"clock:head":[0,240],
+  "clock:chest":[0,260],"clock:legs":[0,360],"clock:boots":[0,360],"clock:alarm":[233,163],"2d:weapon":[2500,1],"2d:head":[0,314],
+  "2d:chest":[0,60],"2d:legs":[0,480],"2d:boots":[0,460],"2d:cube":[363,363],"spoopy:weapon":[5700,1],"spoopy:head":[0,614],
+  "spoopy:chest":[20,260],"spoopy:legs":[0,780],"spoopy:boots":[0,660],"spoopy:ring":[363,363],"jake:weapon":[8888,0],"jake:head":[0,966],
+  "jake:chest":[0,909],"jake:legs":[0,822],"jake:boots":[80,911],"jake:tie":[0,82],"jake:paperweight":[1000,1000],"gaudy:weapon":[13000,0],
+  "gaudy:head":[0,1300],"gaudy:chest":[0,1400],"gaudy:legs":[0,1400],"gaudy:boots":[0,1300],"mega:weapon":[44000,0],"mega:head":[0,5600],
+  "mega:chest":[0,5600],"mega:legs":[0,5700],"mega:boots":[300,5500],"beardverse:weapon":[83000,6000],"beardverse:head":[1100,12000],"beardverse:chest":[1100,12500],
+  "beardverse:legs":[1100,12500],"beardverse:boots":[1200,12500],"badly:weapon":[500000,25000],"badly:head":[0,60000],"badly:chest":[0,60000],"badly:legs":[0,60000],
+  "badly:boots":[0,60000],"stealth:weapon":[1000000,60000],"stealth:head":[5000,112000],"stealth:chest":[5000,115000],"stealth:legs":[5000,118000],"stealth:boots":[5000,122000],
+  "choco:weapon":[3800000,200000],"choco:head":[30000,352000],"choco:chest":[20000,370000],"choco:legs":[20000,355000],"choco:boots":[20000,366000],"uug:ringMight":[6666,6666],
+  "uug:ringUtility":[0,1000],"uug:ringEnergy":[1000,1000],"uug:ringMagic":[1000,1000],"wanderer:head":[1000,22000],"wanderer:chest":[1000,23000],"wanderer:legs":[1000,23000],
+  "wanderer:boots":[1000,24000],"rerednaw:head":[1000,21000],"rerednaw:chest":[1000,22000],"rerednaw:legs":[1000,23000],"rerednaw:boots":[1000,24000],"slimy:weapon":[2200000,100000],
+  "slimy:head":[11000,242000],"slimy:chest":[11000,250000],"slimy:legs":[10000,245000],"slimy:boots":[10000,240000],"edgy:weapon":[5600000,300000],"edgy:head":[40000,502000],
+  "edgy:chest":[30000,540000],"edgy:legs":[30000,555000],"edgy:amulet":[150000,150000],"edgyboots:left":[20000,516000],"edgyboots:right":[30000,516000],"bothedgy:boots":[60000,540000],
+  "pinkprincess:weapon":[7600000,440000],"pinkprincess:head":[60000,742000],"pinkprincess:chest":[60000,740000],"pinkprincess:legs":[50000,755000],"pinkprincess:boots":[30000,730000],"pinkprincess:amulet":[400000,400000],
+  "meta:weapon":[25000000,1200000],"meta:head":[150000,2200000],"meta:chest":[150000,2200000],"meta:legs":[150000,2200000],"meta:boots":[150000,2200000],"meta:charmInfinity":[888888,888888],
+  "meta:charm69":[696969,696969],"party:weapon":[50000000,2000000],"party:head":[250000,4500000],"party:chest":[250000,4500000],"party:legs":[250000,4500000],"party:boots":[250000,4500000],
+  "party:cup":[1500000,1000000],"party:whistle":[2000000,2000000],"typo:weapon":[160000000,6000000],"typo:head":[600000,15000000],"typo:chest":[600000,16000000],"typo:legs":[600000,15500000],
+  "typo:boots":[600000,15000000],"typo:asscessory":[12000000,12000000],"typo:eyeElxu":[6666666,6666666],"fad:weapon":[250000000,10000000],"fad:head":[900000,22000000],"fad:chest":[900000,24000000],
+  "fad:legs":[900000,23000000],"fad:boots":[900000,21000000],"fad:pokeymanCard":[19000000,19000000],"fad:krazyBonez":[20000000,20000000],"jrpg:weapon":[400000000,16000000],"jrpg:head":[1400000,38000000],
+  "jrpg:chest":[1500000,37000000],"jrpg:legs":[1500000,39000000],"jrpg:boots":[1500000,38000000],"jrpg:zipper":[21000000,23000000],"jrpg:wig":[30000000,30000000],"rad:weapon":[880000000,35000000],
+  "rad:head":[3300000,87000000],"rad:chest":[3400000,86000000],"rad:legs":[3500000,86000000],"rad:boots":[3400000,86000000],"rad:notDrugs":[90000000,90000000],"rad:gloveOfPower":[130000000,80000000],
+  "backtoschool:weapon":[1140000000,45000000],"backtoschool:head":[4600000,122000000],"backtoschool:chest":[4600000,122000000],"backtoschool:legs":[4600000,122000000],"backtoschool:boots":[4600000,122000000],"backtoschool:theS":[180000000,180000000],
+  "backtoschool:walkman":[126000000,90000000],"western:weapon":[1480000000,58000000],"western:head":[6000000,159000000],"western:chest":[6000000,160000000],"western:legs":[6000000,158000000],"western:boots":[6000000,162000000],
+  "western:corgi":[220000000,220000000],"western:bandana":[170000000,170000000],"bread:weapon":[3820000000,90000000],"bread:head":[13000000,380000000],"bread:chest":[13000000,382000000],"bread:legs":[13000000,383000000],
+  "bread:boots":[13000000,378000000],"bread:baguette":[3600000000,137000000],"bread:creamPie":[410000000,410000000],"bread:yeast":[380000000,380000000],"disco:weapon":[4860000000,137000000],"disco:head":[17500000,513000000],
+  "disco:chest":[17600000,512000000],"disco:legs":[17600000,514000000],"disco:boots":[17600000,516000000],"disco:vinylShard":[5000000000,110000000],"disco:whitePowder":[553000000,553000000],"disco:rollingPaper":[555000000,555000000],
+  "halloweenie:weapon":[7250000000,210000000],"halloweenie:head":[25300000,743000000],"halloweenie:chest":[25500000,740000000],"halloweenie:legs":[25500000,745000000],"halloweenie:boots":[25500000,744000000],"halloweenie:apple":[7020000000,137000000],
+  "halloweenie:toiletPaper":[643000000,643000000],"halloweenie:pandora":[651000000,651000000],"construction:weapon":[20510000000,300000000],"construction:head":[72600000,2055000000],"construction:chest":[72400000,2040000000],"construction:legs":[75900000,2030000000],
+  "construction:boots":[76000000,2060000000],"construction:hammer":[20000000000,400000000],"construction:toolbox":[1820000000,1820000000],"construction:levelLevel":[933000000,933000000],"duck:weapon":[28900000000,420000000],"duck:head":[100000000,2820000000],
+  "duck:chest":[100000000,2810000000],"duck:legs":[100000000,2870000000],"duck:boots":[100000000,2840000000],"duck:shotgun":[28500000000,550000000],"duck:ducktTape":[2540000000,2540000000],"duck:duckCaller":[1200000000,1200000000],
+  "dutch:weapon":[38200000000,600000000],"dutch:head":[140000000,3850000000],"dutch:chest":[140000000,3820000000],"dutch:legs":[140000000,3800000000],"dutch:boots":[140000000,3850000000],"dutch:tulip":[38000000000,600000000],
+  "dutch:netherlands":[2810000000,2810000000],"dutch:cheese":[3510000000,3510000000],"pirate:weapon":[69000000000,1000000000],"pirate:head":[240000000,5600000000],"pirate:chest":[250000000,5700000000],"pirate:legs":[240000000,5500000000],
+  "pirate:boots":[240000000,5500000000],"pirate:cutlass":[63000000000,1000000000],"pirate:eyepatch":[5900000000,5900000000],"pirate:compass":[5900000000,5900000000],"greasynerd:weapon":[11000000,600000],"greasynerd:head":[80000,1100000],
+  "greasynerd:chest":[80000,1120000],"greasynerd:legs":[50000,1200000],"greasynerd:boots":[80000,1200000],"mobster:weapon":[100000000,4000000],"mobster:head":[400000,10000000],"mobster:chest":[400000,10000000],
+  "mobster:legs":[400000,10000000],"mobster:boots":[400000,10000000],"mobster:garrote":[4000000,4000000],"mobster:brassKnuckles":[3500000,3500000],"exile:weapon":[620000000,25000000],"exile:head":[2200000,57000000],
+  "exile:chest":[2300000,60000000],"exile:legs":[2200000,59000000],"exile:boots":[2200000,58000000],"space:weapon":[1920000000,75000000],"space:head":[7800000,205000000],"space:chest":[7800000,205000000],
+  "space:legs":[7800000,205000000],"space:boots":[7800000,205000000],"space:manhole":[225000000,225000000],"space:redShirt":[300000000,1],"rock:weapon":[10510000000,300000000],"rock:head":[36600000,1075000000],
+  "rock:chest":[36600000,1075000000],"rock:legs":[36600000,1070000000],"rock:boots":[36600000,1080000000],"rock:rocket":[10150000000,200000000],"rock:petRock":[931000000,931000000],"rock:rollingStone":[933000000,933000000],
+  "amalgamate:weapon":[52000000000,800000000],"amalgamate:head":[170000000,4600000000],"amalgamate:chest":[4600000000,4600000000],"amalgamate:legs":[170000000,4600000000],"amalgamate:boots":[170000000,4600000000],"amalgamate:deathstick":[50000000000,800000000],
+  "amalgamate:corruptedLeaf":[3200000000,3200000000],"amalgamate:glued":[4600000000,4600000000],"tubaTime":[2,2],"cheeseGrater":[5,0],"magicite":[25,25],"windupGear":[80,80],
+  "ghostTypewriter":[300,300],"gaudyShoulders":[400,400],"fTank":[3000,3000],"wanderersCane":[170000,12000],"shrunkenVoodooDoll":[66666,66666],"pricelessVanGoghPainting":[30000,30000],
+  "smallGerbil":[100000,100000],"lootyMcLootFace":[2,2],"ascendedAscendedForestPendant":[200,200],"dragonWings":[82,82],"aBeanie":[0,1600],"ascendedX3Pendant":[40000,40000],
+  "beardHairStrand":[8000,8000],"uugSpecialRing":[12000,12000],"candyCaneDestiny":[170000,12000],"fannyPack":[15000,15000],"dorkyGlasses":[5000,5000],"kingLooty":[100000,100000],
+  "ascendedX4Pendant":[10000,10000],"stealthiestArmour":[8000,150000],"baldEgg":[33333,33333],"giantApple":[50000,50000],"powerPill":[250000,250000],"energyBarBarAccessory":[50000,50000],
+  "magicBarBarAccessory":[50000,50000],"ascendedX5Pendant":[400000,400000],"emperorLooty":[300000,300000],"ascendedX6Pendant":[20000000,20000000],"galacticHeraldLooty":[30000000,30000000],"ascendedX7Pendant":[400000000,400000000],
+  "supremeIntelligenceLooty":[500000000,500000000],"beretta9mm":[1400000000,70000000],"edgyMagicite":[666000,666000],"creepyDoll":[930000,930000],"theExponential":[2800000,2800000],"rushmoreNose":[5000000,5000000],
+  "throOdignslug":[17000000,17000000],"linkCable":[28000000,28000000],"handCursor":[35000000,35000000],"radMixtape":[100000000,100000000],"ordinaryCalculator":[250000,250000],"animeFigurine":[250000,250000],
+  "theD20":[250000,250000],"theD8":[250000,250000],"animeBodypillow":[500000,500000],"redMeeple":[500000,500000],"bagOfTrash":[500000,500000],"heartShapedPanties":[666666,666666],
+  "violinCase":[7000000,7000000],"molotovCocktail":[10000000,10000000],"godmothersRing":[15000000,15000000],"godmothersWand":[22000000,22000000],"leftFairyWing":[60000000,60000000],"theJoker":[66600000,66600000],
+  "antlersExile":[80000000,0],"tentacleExile":[110000000,100000000],"skipCard":[120000000,120000000],"antennaeExile":[100000000,100000000],"blackLotus":[150000000,150000000],"busterExile":[250000000,250000000],
+  "theCricket":[2100000000,90000000],"evilRubberDucky":[225000000,225000000],"gasGiant":[290000000,290000000],"carbonRod":[400000000,400000000],"kleinBottle":[380000000,380000000],"alienBugNest":[456000000,456000000],
+  "theKey":[456000000,456000000],"skippingStone":[1582000000,1582000000],"bedRock":[1576000000,1576000000],"rockCandy":[2679000000,2679000000],"brokenScissors":[2700000000,2700000000],"portableStairway":[4860000000,4860000000],
+  "amplifier":[4840000000,4840000000],"rawSlabOfWood":[6300000000,6300000000],"tieOfApathy":[8999999000,8999999000],"titanEffigy":[13000000000,13000000000]
+});
+function itemBaseValueAdventureV1(definitionId){
+  const d=SPECIALS[definitionId];
+  if(d&&(d.pBase!==undefined||d.tBase!==undefined))return[N(d.pBase),N(d.tBase)];
+  const v=ITEM_BASE_VALUE_PT_V1[definitionId];
+  return v?[N(v[0]),N(v[1])]:[0,0];
+}
+export function idleAdventureItemBaseValueV1(definitionId){const[p,t]=itemBaseValueAdventureV1(definitionId);return{power:p,toughness:t}}
+function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:itemBaseValueAdventureV1(definitionId)[0],toughness:itemBaseValueAdventureV1(definitionId)[1],hp:0,regen:0,special:N(SET_ITEM_SPECIALS_V1[definitionId]?.[0]?.[1])}}
 function rollFreshEquipmentStatsV1(o){
   if(!o||o.kind!=="equipment")return o;
   /*
-   * SET_ITEM_STATS_V1 contient les MAX du niveau 100. Le plafond niveau 0
-   * est donc /2, puis +1% de ce plafond par niveau (wiki Inventory).
-   * L'ancien tirage utilisait directement le max niveau 100 puis remultipliait
-   * par q, avant d'être re-clampé par cleanItem(). Résultat : beaucoup de
-   * drops étaient artificiellement collés au plafond. On tire désormais
-   * directement dans le vrai plafond du niveau courant.
+   * 2026-09-24 (audit des objets) : une pièce tombée garde sa "Base value"
+   * Power/Toughness publiée (déjà posée par item(), ITEM_BASE_VALUE_PT_V1),
+   * ramenée au plafond du niveau si besoin. L'ancien tirage pseudo-aléatoire
+   * entre 0 et le plafond (2026-09-19) n'avait aucune source wiki : retiré.
    */
   const base=idleAdventureBaseStatsV1(o.set,o.slot);
   const q=1+C(o.level,0,MAX)/100;
-  const pMax=Math.max(0,N(base&&base.baseP)*q);
-  const tMax=Math.max(0,N(base&&base.baseT)*q);
-  function roll(seed,max){
-    if(!(max>0))return 0;
-    let h=2166136261;
-    const txt=String(seed||"");
-    for(let i=0;i<txt.length;i+=1){
-      h^=txt.charCodeAt(i);
-      h=Math.imul(h,16777619);
-    }
-    return Math.floor(((h>>>0)/4294967296)*(Math.floor(max)+1));
-  }
-  o.power=roll(String(o.id)+":p",pMax);
-  o.toughness=roll(String(o.id)+":t",tMax);
+  o.power=Math.min(N(o.power),Math.max(0,N(base&&base.baseP)*q));
+  o.toughness=Math.min(N(o.toughness),Math.max(0,N(base&&base.baseT)*q));
   o.hp=o.power*3;
   o.regen=o.toughness*.03;
   return o;
@@ -2440,7 +2576,7 @@ function rollFreshEquipmentStatsV1(o){
  * plancher réelle, PAS 0. Ne change rien pour les SPECIALS sans sBase
  * (undefined -> N(undefined)=0, comportement identique à avant).
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:N(d.pBase),toughness:N(d.tBase),hp:0,regen:0,special:N(d.sBase)}}
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:itemBaseValueAdventureV1(id)[0],toughness:itemBaseValueAdventureV1(id)[1],hp:0,regen:0,special:N(d.sBase)}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,wikiItemId:wikiItemIdBoostV1(type,strength),name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -2539,7 +2675,10 @@ export function createIdleAdventureStateV47(){return base()}
  * seul l'excédent illégitime (accumulé via le bug, jamais via un vrai
  * boost sous les nouvelles règles) est retiré.
  */
-function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.wikiItemId=wikiItemIdAdventureV1(z.definitionId)||Number(z.wikiItemId)||0;z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));z.locked=Boolean(z.locked);const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
+function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.wikiItemId=wikiItemIdAdventureV1(z.definitionId)||Number(z.wikiItemId)||0;z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));z.locked=Boolean(z.locked);const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;
+// 2026-09-24 : jamais sous la "Base value" publiée (ITEM_BASE_VALUE_PT_V1) -- les objets créés avant ce correctif remontent à leur Base value au chargement, comme les Specials.
+const bv=itemBaseValueAdventureV1(z.definitionId);z.power=Math.max(z.power,bv[0]);z.toughness=Math.max(z.toughness,bv[1]);
+z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
 // PISTE 1 (2026-09-18) : même plafond que power/toughness pour le Special Bonus chiffré (baseS>0 uniquement -- ex. tutorialCube) ; les autres SPECIALS (baseS=0) restent non plafonnés, comportement inchangé.
 if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}
 /*
@@ -4718,6 +4857,13 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
     for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
     pendantForet(20,.1);
+    /*
+     * 2026-09-24 (audit des pages-guides) : wiki GRB, Loot : « A busted copy of Wandoos 98 -
+     * guaranteed, 20% base chance for lvl 2-4, 80% for lvl 1 » (bonus de niveau No Rebirth
+     * non appliqué, note du wiki) ; infobox « guaranteed », New Player Guide (Truth) « a
+     * guaranteed drop from the first two Titans ». Avant : une seule copie au 1er kill.
+     */
+    objet("wandoos98",chance(.2)?2+I(Math.random()*3):1);
   }else if(id==="t2"){
     // wiki Grand Corrupted Tree, Loot : "A Giant Seed lvl 0 (guaranteed)" -- objet fusionnable du Seed (set).
     objet("giantSeed",Math.min(MAX,bonus));
@@ -4727,6 +4873,14 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out){
     boosts("special",[[10,.1],[20,.08],[50,.08],[100,.05]]);
     if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5));if(a)out.push(a)}
     pendantForet(50,.1);
+    /*
+     * 2026-09-24 (audit des pages-guides) : copie de Wandoos 98 garantie à chaque kill, niveau
+     * 3-7 (infobox « guaranteed (3-7) », Template:Item data « GClvldrop = 3-7 », Loot « guaranteed »,
+     * New Player Guide (Truth) « a guaranteed drop from the first two Titans »). Non modélisé :
+     * le « 20% base chance for lvl 4-7 » de la section Loot (copie en plus, ou niveau 4-7 à la
+     * place ? le wiki ne tranche pas ; la page Wandoos dit « 4-7 »).
+     */
+    objet("wandoos98",3+I(Math.random()*5));
   }else if(id==="t3"){
     equip("scrap","paper",Math.min(MAX,bonus));
     equip("jake",pick(cinq),Math.min(MAX,bonus));
@@ -4837,7 +4991,8 @@ function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",tit
  * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
  */
-if(id==="t1"&&!s.unlockItems.wandoos98){s.unlockItems.wandoos98=true;drops.push(add(s,special("wandoos98",1)))}
+/* 1er kill de GRB : Wandoos débloqué ; la copie elle-même vient de rollTitanLootV1 (garantie à chaque kill, 2026-09-24). */
+if(id==="t1"&&!s.unlockItems.wandoos98)s.unlockItems.wandoos98=true;
 if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1();drops.push(add(s,special(canne,niveauCanne)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;
 const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
@@ -4856,6 +5011,8 @@ const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey,I(st.kill
  */
 if(id==="hungers")s.unlockFlags.itHungersDefeated=true;
 if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
+/* Achievements "Defeat THE BEAST V1..V4!" (2026-09-24) : palier vaincu, permanent (idle-achievements-v1.js). */
+if(id==="t6"&&tierKey)s.unlockFlags["beastDefeated_"+tierKey]=true;
 if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
 return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress,qp:recompenses.qp}}
 /*
@@ -4900,29 +5057,23 @@ function consumeAdventureSkillItemV1(s,itemId){
 }
 function transformAdventureItemV1(s,itemId,ctx){
   const o=s.inventory.find(x=>x.id===String(itemId||""));
+  const cible=o?ITEM_EVOLUTIONS_V1[o.definitionId]:"";
   /*
-   * wiki "The Lonely Flubber" : "can be upgraded to The Triple Flubber (level it to level 100
-   * and CTRL + Click to transform it)". Le wiki ne publie pas le niveau de la Triple Flubber
-   * obtenue : niveau 0, même convention que la Grey Liquid ci-dessous (aucun niveau inventé).
+   * Ascension générique (ITEM_EVOLUTIONS_V1) : fiche de chaque objet, "level it to level 100 and
+   * CTRL + Click to transform it" ; l'objet obtenu arrive au niveau 0 (page Inventory, voir la
+   * table). The Lonely Flubber -> The Triple Flubber passe par ce même chemin (niveau 0 déjà
+   * retenu le 2026-09-23). A Small Gerbil -> Mysterious Grey Liquid : en plus, SADISTIC seulement
+   * (fiche : "A Small Gerbil can only be transformed in SADISTIC difficulty").
    */
-  if(o&&o.definitionId==="flubber"){
-    if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
-    retirerObjetAdventureV1(s,o.id);
-    const triple=special("tripleFlubber",0);
-    triple.id=`i${s.serial++}`;
-    const ajoute=add(s,triple);
-    if(!ajoute)throw Error("INVENTAIRE_PLEIN");
-    return ajoute;
-  }
-  if(!o||o.definitionId!=="smallGerbil")throw Error("TRANSFORMATION_INVALIDE");
+  if(!o||!cible)throw Error("TRANSFORMATION_INVALIDE");
   if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
-  if(String(ctx&&ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");
+  if(o.definitionId==="smallGerbil"&&String(ctx&&ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");
   retirerObjetAdventureV1(s,o.id);
-  const liquid=special("mysteriousGreyLiquid",0);
-  liquid.id=`i${s.serial++}`;
-  const added=add(s,liquid);
-  if(!added)throw Error("INVENTAIRE_PLEIN");
-  return added;
+  const obtenu=special(cible,0);
+  obtenu.id=`i${s.serial++}`;
+  const ajoute=add(s,obtenu);
+  if(!ajoute)throw Error("INVENTAIRE_PLEIN");
+  return ajoute;
 }
 function setBeastModeAdventureV1(s,enabled){
   if(!s.unlockFlags.beastModeUnlocked)throw Error("BEAST_MODE_VERROUILLE");

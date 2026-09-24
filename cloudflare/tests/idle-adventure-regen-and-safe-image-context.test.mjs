@@ -31,10 +31,15 @@ assert.equal(
   1,
   "La regen de base Adventure doit rester 1/s."
 );
+/*
+ * 2026-09-24 (audit des objets) : un objet neuf démarre à sa "Base value"
+ * publiée (Template:Item data Cloth Leggings : toughnessvalbase = 1,
+ * regenvalbase = 0.03), plus à 0. Regen = 1 (base) + 1 x 0,03.
+ */
 assert.equal(
   snap.adventure.stats.regen,
-  1,
-  "Un objet de fixture créé à 0/maximum ne doit pas inventer de régén avant d'avoir réellement reçu des points de Toughness."
+  1.03,
+  "La régén de l'objet neuf vient de sa Base value (Toughness 1 -> +0,03/s), jamais d'une valeur inventée."
 );
 
 /*

@@ -754,8 +754,7 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(state.resources.energy.current,0);
   assert.equal(state.currencies.gold,0);
   assert.equal(state.systems.augmentations.data.pairs.scissors.level,0);
-  /* 2026-09-24 : la banque Advanced Training est aussi tenue par capacité (advancedTrainingTracks, page Banks) ; vide ici. */
-  assert.deepEqual(state.bank,{advancedTraining:0,advancedTrainingTracks:{},timeMachineSpeed:0,timeMachineGold:0,beards:0});
+  assert.deepEqual(state.bank,{advancedTraining:0,timeMachineSpeed:0,timeMachineGold:0,beards:0});
 
   const reborn=rebirthIdleNguState(state,{bosses:10,attackTrainingLevels:10000},300_000);
   assert.equal(reborn.challenge.active,"basic");
@@ -780,7 +779,9 @@ const fresh=(context={}, now=1_000_000)=>
   const completed=applyIdleNguAction(state,{action:"challenge",mode:"complete",challenge:"basic"},{bosses:58},20_000);
   assert.equal(completed.state.challenge.completions.basic,1);
   assert.equal(completed.state.currencies.experience,1500);
-  assert.equal(completed.state.currencies.ap,2500);
+  // 2026-09-24 : 2500 AP x bonus des succès (boss 10..50 + "Rebirth once!" = 80 BP -> x1,008,
+  // page Arbitrary Points), arrondi inférieur.
+  assert.equal(completed.state.currencies.ap,2520);
   assert.equal(completed.state.challenge.active,"");
 
   let quit=fresh(context,0);
@@ -899,7 +900,8 @@ const fresh=(context={}, now=1_000_000)=>
     const completed=applyIdleNguAction(started.state,{action:"challenge",mode:"complete",challenge:"laserSword"},{bosses:100},20_000);
     assert.equal(completed.state.challenge.completions.laserSword,1);
     assert.equal(completed.state.currencies.experience,3000);
-    assert.equal(completed.state.currencies.ap,3000);
+    // 2026-09-24 : 3000 AP x bonus des succès (boss 10..100 + "Rebirth once!" = 235 BP), arrondi inférieur.
+    assert.equal(completed.state.currencies.ap,3070);
   }
 
   // "Blind Challenge" : restriction purement visuelle (client), rien à
@@ -989,6 +991,7 @@ const fresh=(context={}, now=1_000_000)=>
     const expectedMultiplier=1+expectedPct/100;
 
     const powerState=fresh({},1_000_000);
+    powerState.systems.advancedTraining.unlocked=true; // 2026-09-24 : menu AT requis pour l'effet (page Banks)
     powerState.systems.advancedTraining.data.tracks.power.tempLevel=level;
     const attackBonus=idleNguBonuses(powerState).adventurePowerMultiplier;
     assert.equal(idleNguBonuses(powerState).attackMultiplier,idleNguBonuses(base).attackMultiplier,"Advanced Training n'agit pas sur Attack");
@@ -998,6 +1001,7 @@ const fresh=(context={}, now=1_000_000)=>
     );
 
     const toughnessState=fresh({},1_000_000);
+    toughnessState.systems.advancedTraining.unlocked=true;
     toughnessState.systems.advancedTraining.data.tracks.toughness.tempLevel=level;
     const defenseBonus=idleNguBonuses(toughnessState).adventureToughnessMultiplier;
     assert.equal(idleNguBonuses(toughnessState).defenseMultiplier,idleNguBonuses(base).defenseMultiplier,"Advanced Training n'agit pas sur Defense");

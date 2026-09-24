@@ -104,11 +104,14 @@ export const IDLE_SELLOUT_SHOP_CATALOG_V1 = Object.freeze([
   { id: "adventureAdvancer", category: "special3", name: "Adventure Advancer", effect: "Advances you to the furthest normal zone you can reach at the 20s mark of a rebirth.", cost: flatCost(65000), max: 1 },
   { id: "goToQuestZoneButton", category: "special3", name: "'Go To Quest Zone' Button", effect: "Unlocks a 'Go To Quest Zone' button which will send you to whatever Adventure Zone your Quest is on.", cost: flatCost(100000), max: 1 },
   /*
-   * "An Evil Accessory Slot" (500,000 AP, réservé à la difficulté Evil)
-   * délibérément omis : SOREAL IDLE n'a pas encore de difficulté
-   * Evil/Sadistic (scope "EARLY" déjà documenté, idle-adventure-v47.js).
-   * À réintégrer le jour où cette difficulté existe, pas avant.
+   * "An Evil Accessory Slot" (page 4G's Sellout Shop, Special 3 : 500 000 AP, « I arbitrarily
+   * locked buying this until you're in Evil difficulty »). Réintégré le 2026-09-24 (audit des
+   * pages-guides : la difficulté Evil existe désormais). Achat possible seulement en Evil
+   * (`minDifficulty`) ; une fois acheté l'emplacement sert aussi en Normal (Advanced Guide :
+   * « the evil-only accessory slot from the shop, too, which is usable in normal mode »).
+   * Builds : 6 slots d'accessoire viennent de cette boutique (4 en Special 2 + celui-ci + le dernier).
    */
+  { id: "extraAccessorySlotEvil", category: "special3", name: "An Evil Accessory Slot", effect: "It's like a regular Accessory slot, but I arbitrarily locked buying this until you're in Evil difficulty.", cost: flatCost(500000), max: 1, minDifficulty: "difficile" },
 
   // --- Special 4 ---
   { id: "extraDeckSize", category: "special4", name: "Extra Deck Size!", effect: "Unlock extra Deck size with this, to hold more lovely Cards! Max purchases: 50.", cost: flatCost(25000), max: 50 },
@@ -205,6 +208,7 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   extraAccessorySlot3: { passive: true },
   extraAccessorySlot4: { passive: true },
   extraAccessorySlot5: { passive: true },
+  extraAccessorySlotEvil: { passive: true },
   diggerSlots: { passive: true },
   extraBeardSlot: { passive: true },
   fasterWishes: { passive: true },
@@ -349,6 +353,8 @@ export function idleSelloutShopBuyV1(state, itemId, options = {}) {
   if (IDLE_SELLOUT_EFFECTS_V1[item.id]?.adventureItem && !options.adventureItemDelivered) {
     throw new Error("OBJET_AVENTURE_NON_LIVRE");
   }
+  /* Achat réservé à une difficulté (An Evil Accessory Slot) : Evil ou Sadistic, jamais en Normal. */
+  if (item.minDifficulty && (state.difficulty || "normal") === "normal") throw new Error("DIFFICULTE_REQUISE");
   const shop = state.selloutShop && typeof state.selloutShop === "object" ? state.selloutShop : { purchases: {} };
   const purchases = shop.purchases && typeof shop.purchases === "object" ? shop.purchases : {};
   const already = Math.max(0, I(purchases[item.id], 0));

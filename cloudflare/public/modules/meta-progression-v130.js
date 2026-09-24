@@ -1735,6 +1735,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='moneyPit')return pageMoneyPitDailySpinIdleV206_(j);
         /* Cooking : page rendue par modules/cooking-v1.js. */
         if(id==='cooking'&&window.__SOREAL_IDLE_COOKING_V1__)return window.__SOREAL_IDLE_COOKING_V1__.page(j);
+        /* Achievements + Player Portraits : page rendue par modules/profile-v1.js (2026-09-24). */
+        if(id==='achievements'&&window.__SOREAL_IDLE_PROFILE_V1__)return window.__SOREAL_IDLE_PROFILE_V1__.page(j);
 
         const s=
           systemeMetaParIdIdleV130_(

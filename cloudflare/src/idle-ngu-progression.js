@@ -7,7 +7,8 @@ import {
   idleAdventureBoostV1,
   idleAdventureAddItemV1,
   idleAdventureSpecialItemV1,
-  idleAdventureCubeTierV1
+  idleAdventureCubeTierV1,
+  IDLE_ADVENTURE_SPECIALS
 } from "./idle-adventure-v47.js";
 import {
   idleHeartV1,
@@ -18,6 +19,13 @@ import {
   idleHeartsHackSpeedMultiplierV1,
   idleHeartsPinkCompleteV1
 } from "./idle-hearts-v1.js";
+import {
+  IDLE_ACHIEVEMENTS_V1,
+  normalizeIdleAchievementsDataV1,
+  idleAchievementsEvaluateV1,
+  idleAchievementsBpV1,
+  idleAchievementsApMultiplierV1
+} from "./idle-achievements-v1.js";
 import {
   idleWandoosConsumeCopyV1,
   idleWandoosBootMultiplierV1,
@@ -82,8 +90,15 @@ import {
   macguffinOnItopodKillsV1,
   macguffinEatFruitV1,
   applyMacguffinActionV1,
-  macguffinSnapshotV1
+  macguffinSnapshotV1,
+  macguffinPermanentPctV1
 } from "./idle-macguffins-v1.js";
+/* Player Portraits (2026-09-24) et Special Prize : idle-portraits-v1.js. */
+import {
+  IDLE_SPECIAL_PRIZE_AP_V1,
+  idlePortraitsSnapshotV1,
+  idlePortraitSelectV1
+} from "./idle-portraits-v1.js";
 /* Cards et Mayo (système complet dans idle-cards-v1.js). */
 import {
   createIdleCardsDataV1,
@@ -1162,8 +1177,8 @@ function advanceWandoos(state, seconds, context, now) {
    * réelles chez SOREAL (IDLE_NGU_TRACKS.advancedTraining "wandoosEnergy"/
    * "wandoosMagic"), jamais lues par Wandoos jusqu'ici.
    */
-  const atEnergyDumpMultiplier = 1 + totalTrackLevel(state.systems.advancedTraining, "wandoosEnergy") * 0.01;
-  const atMagicDumpMultiplier = 1 + totalTrackLevel(state.systems.advancedTraining, "wandoosMagic") * 0.01;
+  const atEnergyDumpMultiplier = 1 + atLevelV1(state, "wandoosEnergy") * 0.01;
+  const atMagicDumpMultiplier = 1 + atLevelV1(state, "wandoosMagic") * 0.01;
   /*
    * "Energy/Magic Wandoos BEAST-a" (Quirks 15/16, wiki page "Wandoos") :
    * +2%/niveau chacun, Energy et Magic séparément.
@@ -1307,9 +1322,14 @@ function baseState(now) {
       setsCompleted: 0,
       totalRebirths: 0,
       highestGoldDrop: 0,
-      /* Secret des Rebirths rapides (page Rebirths) : série de Rebirths < 30 min avec le boss 37 vaincu, et récompense déjà obtenue (0/1). */
-      quickRebirthStreak: 0,
-      quickRebirthSecretClaimed: 0,
+      /* Secret de Rebirth "3 fois de suite < 30 min avec boss 37" (page Rebirths) : série en cours, bonus versé (0/1). */
+      speedrunStreak: 0,
+      speedrunBonusClaimed: 0,
+      /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
+      portrait: "default",
+      specialPrizeClaimed: 0,
+      // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
+      moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
       // vidé par applyRebirthResetV56_, exactement comme les autres champs
       // de records ci-dessus (highestBoss, totalRebirths...).
@@ -1328,8 +1348,6 @@ function baseState(now) {
     },
     bank: {
       advancedTraining: 0,
-      /* Niveaux d'Advanced Training banquiés par capacité (page Banks) : { power, toughness, block, wandoosEnergy, wandoosMagic }. */
-      advancedTrainingTracks: {},
       timeMachineSpeed: 0,
       timeMachineGold: 0,
       beards: 0
@@ -1580,8 +1598,6 @@ function normalizeSystem(def, raw) {
       nextAt: Math.max(0, num(data.nextAt, 0)),
       lastTossAt: Math.max(0, num(data.lastTossAt, 0)),
       totalGoldTossed: Math.max(0, num(data.totalGoldTossed, 0)),
-      /* Bonus uniques par or total jeté (page Money Pit, « One-Time Bonuses ») déjà obtenus : { "1e8": true, ... }. */
-      oneTimeClaimed: data.oneTimeClaimed && typeof data.oneTimeClaimed === "object" ? clone(data.oneTimeClaimed) : {},
       history:Array.isArray(data.history)
         ?data.history.slice(0,20).map(entry=>({
             at:Math.max(0,num(entry?.at,0)),
@@ -1653,6 +1669,8 @@ function normalizeSystem(def, raw) {
     s.data = normalizeMacguffinDataV1(src.data);
   } else if (def.id === "cards") {
     s.data = normalizeIdleCardsDataV1(src.data);
+  } else if (def.id === "achievements") {
+    s.data = normalizeIdleAchievementsDataV1(src.data);
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
     if (def.id === "wishes") normalizeWishSlotsV1(s, src.data);
@@ -1707,10 +1725,11 @@ function migrateLegacyMetaToV47(raw, now) {
   // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
   const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const key of Object.keys(state.records)) {
-    if (key === "newbieOffersUsed") continue;
+    if (key === "newbieOffersUsed" || key === "portrait") continue;
     state.records[key] = Math.max(0, num(state.records[key], 0));
   }
   state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
+  state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
 
   state.challenge = Object.assign(state.challenge, src.challenge || {});
   state.challenge.completions = Object.assign(
@@ -1903,10 +1922,12 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const k of Object.keys(state.records)) {
-    if (k === "newbieOffersUsed") continue;
+    if (k === "newbieOffersUsed" || k === "portrait") continue;
     state.records[k] = Math.max(0, num(state.records[k], 0));
   }
   state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
+  /* Portrait de joueur choisi (idle-portraits-v1.js) : identifiant texte, pas un compteur. */
+  state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
 
   state.challenge = Object.assign(baseState(t).challenge, source.challenge || {});
   state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
@@ -1932,7 +1953,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
 
@@ -2149,15 +2170,7 @@ export function calculateIdleNguNextNumber(input = {}) {
 function totalTrackLevel(system, trackId) {
   const t = system?.data?.tracks?.[trackId];
   if (!t) return 0;
-  /*
-   * 2026-09-24 (page Banks) : « banked Advanced Training levels do not have any effect until the
-   * AT menu is unlocked by completing Basic Training » -- les niveaux de banque (bankLevel) sont
-   * déjà dans tempLevel mais ne comptent dans les effets qu'une fois Advanced Training débloqué.
-   */
-  const dormantBank = system.id === "advancedTraining" && !system.unlocked
-    ? Math.min(Math.max(0, num(t.tempLevel, 0)), Math.max(0, num(t.bankLevel, 0)))
-    : 0;
-  return Math.max(0, num(t.level, 0) + num(t.tempLevel, 0) - dormantBank + num(t.permanentLevel, 0));
+  return Math.max(0, num(t.level, 0) + num(t.tempLevel, 0) + num(t.permanentLevel, 0));
 }
 
 function bloodNumberMultiplier(state) {
@@ -3571,8 +3584,8 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
       result.numbers=s.data.permanent.numbersValue;
     }else if(def.effect==="ap"){
       const ap=Math.floor(Math.ceil(factor*15*firstHarvestMultiplier));
-      /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + YellowHeartAPBonus) ..." (arrondi inférieur). */
-      const apCoeur=apGainV1(state,ap);
+      /* Page Yggdrasil, Fruit of Arbitrariness : "... x (1 + BP/10000) x (1 + YellowHeartAPBonus) x Perk_Fibo89" (arrondi inférieur). */
+      const apCoeur=apWithBonusV1(state,ap);
       state.currencies.ap+=apCoeur;
       result.ap=apCoeur;
     }else if(def.effect==="pp"){
@@ -3875,7 +3888,7 @@ function advanceTowerV1(state, seconds, context) {
     const ap = Math.floor(d.apProgress);
     if (ap > 0) {
       d.apProgress -= ap;
-      /* Page Arbitrary Points : les kills de l'ITOPOD sont exclus des bonus d'AP (Fibonacci 89 compris). */
+      /* Page Arbitrary Points : les kills de l'ITOPOD sont exclus des bonus AP (succès, Yellow Heart, Fibonacci 89). */
       state.currencies.ap += ap;
     }
   };
@@ -4021,7 +4034,53 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   state.updatedAt = nowMs(now);
   applyYggQuickActivationV1(state, now);
   state.rebirth = refreshRebirthState(state, context, nowMs(now));
+  idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now));
   return state;
+}
+
+/*
+ * Mesures des succès (idle-achievements-v1.js). Energy/Magic Power, Cap et Bar :
+ * valeurs totales effectives (achat + bonus), celles que le jeu affiche ("Obtain
+ * A Total Energy Cap of ..."). Boss : plus haut boss vaincu toutes difficultés
+ * ("Defeat Boss 10!"). The Beast V1-V4 = paliers Easy/Normal/Hard/Brutal (même
+ * lecture que "The Beast v4 beaten" -> beastBrutalDefeated).
+ */
+function achievementMetricsV1(state) {
+  const eff = (r, s) => idleNguEffectiveResourceStatV1(state, r, s);
+  const flags = state.adventure?.unlockFlags || {};
+  const peaks = state.difficultyPeaks || {};
+  return {
+    energyPower: eff("energy", "power"),
+    magicPower: eff("magic", "power"),
+    energyCap: eff("energy", "cap"),
+    magicCap: eff("magic", "cap"),
+    energyBars: eff("energy", "bars"),
+    magicBars: eff("magic", "bars"),
+    highestBoss: Math.max(0, num(state.records?.highestBoss, 0)),
+    totalRebirths: Math.max(0, num(state.records?.totalRebirths, 0)),
+    nguUnlocked: Boolean(state.systems.ngu?.unlocked),
+    yggdrasilUnlocked: Boolean(state.systems.yggdrasil?.unlocked),
+    beardsUnlocked: Boolean(state.systems.beards?.unlocked),
+    walderpFinal: Boolean(flags.walderpFinalDefeated),
+    beastV1: Boolean(flags.beastDefeated_easy),
+    beastV2: Boolean(flags.beastDefeated_normal),
+    beastV3: Boolean(flags.beastDefeated_hard),
+    beastV4: Boolean(flags.beastDefeated_brutal || flags.beastBrutalDefeated),
+    evilEntered: state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
+    speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0
+  };
+}
+
+function achievementsSnapshotV1(state) {
+  const unlocked = state.systems.achievements?.data?.unlocked || {};
+  return {
+    bp: idleAchievementsBpV1(state),
+    apMultiplier: idleAchievementsApMultiplierV1(state),
+    list: IDLE_ACHIEVEMENTS_V1.map(a => ({
+      id: a.id, group: a.group, name: a.name, bp: a.bp, threshold: a.threshold,
+      tracked: a.tracked, secret: a.secret, unlocked: unlocked[a.id] !== undefined
+    }))
+  };
 }
 
 export function syncIdleNguState(raw, context = {}, now = Date.now()) {
@@ -4156,19 +4215,27 @@ const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 
 function heartApMultiplierV1(state) {
   return idleHeartsApMultiplierV1(state, gearSpecialsV1(state));
 }
-
 /*
- * 2026-09-24 (audit de composition, pages Arbitrary Points / Money Pit / Yggdrasil) : « Arbitrary points gained from
- * all sources, except for ITOPOD kills and Special Prize, can be increased by : achievements, My Yellow Heart,
- * Fibonacci Perk level 89 (2%) ... the final AP value is rounded down to nearest integer ». Chaque source appliquait
- * une partie différente de ces facteurs (Money Pit aucun, Daily Spin / défis / Fruit of Arbitrariness le Yellow Heart
- * seul, ITOPOD le perk Fibonacci à tort). Point d'entrée unique : Yellow Heart x Fibonacci 89, arrondi inférieur.
- * Non modélisé : le bonus des Achievements (système absent).
+ * Bonus AP commun (2026-09-24). Page Arbitrary Points : "Arbitrary points gained
+ * from all sources, except for ITOPOD kills and Special Prize, can be increased
+ * by: Completing achievements ; My Yellow Heart item/set bonus ; Fibonacci Perk
+ * level 89 (2%)" -- "Maximal bonus is 193.698% (158.25% * 120% * 102%) and the
+ * final AP value is rounded down". Page Yggdrasil (Fruit of Arbitrariness) :
+ * "(1 + BP/10000) x (1 + YellowHeartAPBonus) x Perk_Fibo89". Avant ce correctif,
+ * les succès n'étaient appliqués nulle part et chaque source appliquait un
+ * sous-ensemble différent (défis/Money Pit/Daily Spin/fruit sans Fibonacci,
+ * Money Pit sans aucun bonus, ITOPOD avec Fibonacci alors qu'il est exclu).
  */
-function apGainV1(state, base) {
-  const mult = perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier * heartApMultiplierV1(state);
-  return Math.floor(Math.max(0, num(base, 0)) * mult + 1e-9);
+function apBonusMultiplierV1(state) {
+  return idleAchievementsApMultiplierV1(state) *
+    heartApMultiplierV1(state) *
+    perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier;
 }
+/* AP versée = arrondi inférieur de base x bonus ; la marge 1e-9 absorbe l'erreur binaire (50 000 x 1,023 = 51 150, pas 51 149). */
+function apWithBonusV1(state, base) {
+  return Math.max(0, Math.floor(Math.max(0, num(base, 0)) * apBonusMultiplierV1(state) + 1e-9));
+}
+
 
 function nguSpeedMultiplierV1(state, resource) {
   const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
@@ -4274,6 +4341,15 @@ function setNguTierV1(state, tier) {
   return { tier };
 }
 
+/*
+ * Niveaux d'Advanced Training effectifs : nuls tant que le menu AT est verrouillé (2026-09-24,
+ * page Banks : "banked Advanced Training levels do not have any effect until the AT menu is
+ * unlocked by completing Basic Training" ; page Rebirths : accès perdu au Rebirth).
+ */
+function atLevelV1(state, trackId) {
+  return state.systems.advancedTraining?.unlocked ? totalTrackLevel(state.systems.advancedTraining, trackId) : 0;
+}
+
 function trackBonusLevel(state, systemId, trackId) {
   return totalTrackLevel(state.systems[systemId], trackId);
 }
@@ -4365,9 +4441,9 @@ export function idleNguBonuses(raw) {
 
 function idleNguBonusesSansMacguffinV1(state) {
   const aug = idleNguAugmentationMultiplier(state);
-  const atPower = trackBonusLevel(state, "advancedTraining", "power");
-  const atToughness = trackBonusLevel(state, "advancedTraining", "toughness");
-  const atBlock = trackBonusLevel(state, "advancedTraining", "block");
+  const atPower = atLevelV1(state, "power");
+  const atToughness = atLevelV1(state, "toughness");
+  const atBlock = atLevelV1(state, "block");
   const ironPillPoints = Math.max(0, num(state.systems.bloodMagic?.data?.spells?.ironPill, 0));
   const nguFx = nguFxV1(state);
   const hackFx = hackFxV1(state);
@@ -4388,6 +4464,8 @@ function idleNguBonusesSansMacguffinV1(state) {
   const beardAttack = beardBonusMultiplier(state, "attackDefense");
   const beardNumber = beardBonusMultiplier(state, "number");
   const beardAdventure = beardBonusMultiplier(state, "adventure");
+  /* Evil Bonus Accs (Set) (2026-09-24, wiki : "+20% Adventure stats!") : setRewards.adventureStatsPct, un facteur de plus comme perks / quirks / souhaits. */
+  const evilAccsAdventureStats = 1 + Math.max(0, num(state.adventure?.setRewards?.adventureStatsPct, 0));
   const beardDrop = beardBonusMultiplier(state, "drop");
   const beardNgu = beardBonusMultiplier(state, "ngu");
   const beardWandoos = beardBonusMultiplier(state, "wandoos");
@@ -4487,6 +4565,7 @@ function idleNguBonusesSansMacguffinV1(state) {
       perkBonuses.adventureStatsMultiplier *
       quirkBonuses.adventureStatsMultiplier *
       wishBonuses.adventureStatsMultiplier *
+      evilAccsAdventureStats *
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
@@ -4502,6 +4581,7 @@ function idleNguBonusesSansMacguffinV1(state) {
       perkBonuses.adventureStatsMultiplier *
       quirkBonuses.adventureStatsMultiplier *
       wishBonuses.adventureStatsMultiplier *
+      evilAccsAdventureStats *
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
@@ -4512,6 +4592,7 @@ function idleNguBonusesSansMacguffinV1(state) {
       perkBonuses.adventureStatsMultiplier *
       quirkBonuses.adventureStatsMultiplier *
       wishBonuses.adventureStatsMultiplier *
+      evilAccsAdventureStats *
       beardAdventure *
       diggers.adventure *
       nguFx.adventure *
@@ -5023,6 +5104,10 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      */
     resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
     expShop: expShopSnapshotV1(state),
+    /* Achievements (2026-09-24) : catalogue, succès débloqués, BP et facteur AP (idle-achievements-v1.js). */
+    achievements: achievementsSnapshotV1(state),
+    /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
+    portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0),
     richJerks: {
       attackLevel: Math.max(0, int(state.bonuses.richJerksAttackLevel, 0)),
       defenseLevel: Math.max(0, int(state.bonuses.richJerksDefenseLevel, 0)),
@@ -5246,6 +5331,54 @@ function moneyPitTierV48_(gold) {
   return tier;
 }
 
+/*
+ * Money Pit, « One-Time Bonuses » (2026-09-24, audit des pages-guides : la FAQ les cite, rien
+ * ne les versait). Seuils sur l'or TOTAL jeté (« sum over many tosses »), une fois chacun :
+ *  - 1E8  : +100 Max Health et +1 Health Regen d'Aventure (page Money Pit + FAQ « 100M+ gold :
+ *           +100 Max HP, +1 HP Regen ») ;
+ *  - 1E10 : +1 Energy Bar et +1 Magic Bar (pages Money Pit, Energy et Magic ; la FAQ, plus
+ *           ancienne, disait 1B) ;
+ *  - 1E11 : Looty McLootFace (page Money Pit, FAQ « ~100b? lootymclootyface ») ; niveau non
+ *           publié -> niveau de drop du catalogue (0). Non marqué versé tant que le sac est plein ;
+ *  - 1E12 : +100 EXP (page Money Pit).
+ * Non versé : le « +10 Power, +10 Toughness » du palier 1E8 (page Money Pit) que la FAQ donne
+ * à « +1 Adventure attack and defense » : sources contradictoires, laissé en suspens.
+ */
+const MONEY_PIT_ONE_TIME_BONUSES_V1 = Object.freeze([
+  Object.freeze({ bit: 1, gold: 1e8, adventureHp: 100, adventureRegen: 1 }),
+  Object.freeze({ bit: 2, gold: 1e10, energyBars: 1, magicBars: 1 }),
+  Object.freeze({ bit: 4, gold: 1e11, item: "lootyMcLootFace" }),
+  Object.freeze({ bit: 8, gold: 1e12, experience: 100 })
+]);
+
+function applyMoneyPitOneTimeBonusesV1(state) {
+  const total = Math.max(0, num(state.systems.moneyPit?.data?.totalGoldTossed, 0));
+  let mask = Math.max(0, int(state.records.moneyPitOneTimeMask, 0));
+  const out = [];
+  const adv = state.adventure && typeof state.adventure === "object" ? state.adventure : null;
+  const permanent = adv ? (adv.permanent = adv.permanent && typeof adv.permanent === "object" ? adv.permanent : {}) : null;
+  for (const b of MONEY_PIT_ONE_TIME_BONUSES_V1) {
+    if (total < b.gold || (mask & b.bit)) continue;
+    if (b.item) {
+      if (!adv) continue;
+      const def = IDLE_ADVENTURE_SPECIALS[b.item];
+      const livre = idleAdventureAddItemV1(adv, idleAdventureSpecialItemV1(b.item, int(def?.dropLevel, 0)));
+      if (!livre) continue;
+    } else if (!permanent) {
+      continue;
+    }
+    if (b.adventureHp) permanent.adventureHp = Math.max(0, num(permanent.adventureHp, 0)) + b.adventureHp;
+    if (b.adventureRegen) permanent.adventureRegen = Math.max(0, num(permanent.adventureRegen, 0)) + b.adventureRegen;
+    if (b.energyBars) permanent.energyBarsFlat = Math.max(0, num(permanent.energyBarsFlat, 0)) + b.energyBars;
+    if (b.magicBars) permanent.magicBarsFlat = Math.max(0, num(permanent.magicBarsFlat, 0)) + b.magicBars;
+    if (b.experience) state.currencies.experience = Math.max(0, num(state.currencies.experience, 0)) + b.experience;
+    mask |= b.bit;
+    out.push(b.gold);
+  }
+  state.records.moneyPitOneTimeMask = mask;
+  return out;
+}
+
 function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -5368,44 +5501,10 @@ function tossMoneyPit(state, now) {
   }
 
   // Wiki (page Money Pit) : AP fixe en plus du tirage, floor(log10(gold)).
-  reward.ap = apGainV1(state, Math.max(0, Math.floor(Math.log10(cost))));
+  // Bonus AP commun appliqué comme aux autres sources (page Arbitrary Points), arrondi inférieur.
+  reward.ap = apWithBonusV1(state, Math.floor(Math.log10(cost)));
 
-  /*
-   * 2026-09-24 (audit, page Money Pit, « One-Time Bonuses », « TOTAL Gold Dropped ... This is sum
-   * over many tosses ») : 100 M -> Adventure +10 Power, +10 Toughness, +100 Max Health, +1 Health
-   * Regen ; 10 B -> +1 Energy Bar, +1 Magic Bar ; 100 B -> Looty McLootFace ; 1 T -> +100 EXP.
-   * Jamais implémentés jusqu'ici. L'EXP du palier 1 T est donnée sans multiplicateur : la note
-   * « EXP rewards are affected by EXP bonus » de la page ne vise que la colonne EXP des paliers.
-   */
-  const claimed = s.data.oneTimeClaimed && typeof s.data.oneTimeClaimed === "object" ? s.data.oneTimeClaimed : (s.data.oneTimeClaimed = {});
-  const totalTossed = num(s.data.totalGoldTossed, 0);
-  const perm = state.adventure.permanent;
-  const oneTimeBonuses = [];
-  if (totalTossed >= 1e8 && !claimed["1e8"]) {
-    claimed["1e8"] = true;
-    perm.adventurePower = Math.max(0, num(perm.adventurePower, 0)) + 10;
-    perm.adventureToughness = Math.max(0, num(perm.adventureToughness, 0)) + 10;
-    perm.adventureHp = Math.max(0, num(perm.adventureHp, 0)) + 100;
-    perm.adventureRegen = Math.max(0, num(perm.adventureRegen, 0)) + 1;
-    oneTimeBonuses.push({ at: 1e8, adventure: { power: 10, toughness: 10, hp: 100, regen: 1 } });
-  }
-  if (totalTossed >= 1e10 && !claimed["1e10"]) {
-    claimed["1e10"] = true;
-    perm.energyBarsFlat = Math.max(0, num(perm.energyBarsFlat, 0)) + 1;
-    perm.magicBarsFlat = Math.max(0, num(perm.magicBarsFlat, 0)) + 1;
-    oneTimeBonuses.push({ at: 1e10, energyBars: 1, magicBars: 1 });
-  }
-  let looty = null;
-  if (totalTossed >= 1e11 && !claimed["1e11"]) {
-    claimed["1e11"] = true;
-    looty = idleAdventureSpecialItemV1("lootyMcLootFace", 0);
-    oneTimeBonuses.push({ at: 1e11, item: "lootyMcLootFace" });
-  }
-  if (totalTossed >= 1e12 && !claimed["1e12"]) {
-    claimed["1e12"] = true;
-    state.currencies.experience = Math.max(0, num(state.currencies.experience, 0)) + 100;
-    oneTimeBonuses.push({ at: 1e12, experience: 100 });
-  }
+  const oneTime = applyMoneyPitOneTimeBonusesV1(state);
 
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {
@@ -5413,17 +5512,17 @@ function tossMoneyPit(state, now) {
     }
   }
   if (boostGrant) idleAdventureAddItemV1(state.adventure, boostGrant);
-  if (looty) idleAdventureAddItemV1(state.adventure, looty);
 
   const resultat={
     cost,
     tier,
     reward,
-    oneTimeBonuses,
     boost:boostGrant ? { type: boostGrant.boostType, strength: boostGrant.strength } : null,
     cooldownHours,
     nextAt:s.data.nextAt
   };
+  // Seuils d'or total des One-Time Bonuses versés par ce jet (hors `reward`, qui ne décrit que le tirage).
+  if (oneTime.length) resultat.oneTime = oneTime;
 
   const historique=Array.isArray(s.data.history)?s.data.history:[];
   historique.unshift({
@@ -5514,8 +5613,8 @@ function spinDaily(state, now) {
     for (const [id, n] of Object.entries(choix.items)) idleSelloutApplyEffectV1(state, id, n);
   } else {
     reward = choix.ap ? { ap: choix.ap } : { seeds: choix.seeds };
-    /* AP : majoré par My Yellow Heart (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
-    if (reward.ap) reward.ap = apGainV1(state, reward.ap);
+    /* AP : bonus AP commun (page Arbitrary Points : toutes les sources sauf ITOPOD), arrondi inférieur. */
+    if (reward.ap) reward.ap = apWithBonusV1(state, reward.ap);
     for (const [k, v] of Object.entries(reward)) state.currencies[k] += v;
   }
 
@@ -5664,8 +5763,8 @@ function challengeAction(state, payload, context, now) {
     if(rewarded){
       completions[id]=before+1;
       state.currencies.experience+=rewardExperience;
-      /* Page Arbitrary Points : AP des défis majoré par My Yellow Heart, arrondi inférieur. */
-      state.currencies.ap+=apGainV1(state,rewardAp);
+      /* Page Arbitrary Points : AP des défis majoré par le bonus AP commun, arrondi inférieur. */
+      state.currencies.ap+=apWithBonusV1(state,rewardAp);
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
       if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
@@ -5745,7 +5844,12 @@ function crediterRecompensesAventure(state, avant) {
   state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
-  state.currencies.ap += apGainV1(state, gain("ap"));
+  /*
+   * "the final AP value is rounded down" (page Arbitrary Points). LIMITE : l'arrondi
+   * porte sur le lot crédité par cet appel (boss d'Aventure, titans, sets), pas sur
+   * chaque événement -- le moteur d'Aventure ne transmet qu'un delta cumulé.
+   */
+  state.currencies.ap += apWithBonusV1(state, gain("ap"));
   state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
   /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
   const poop = Math.floor(gain("poop"));
@@ -5770,6 +5874,15 @@ function wishLevelV1(state, id) {
 /* Souhait 20 (« I didn't have to wait 3 minutes per rebirth ») : -10 s par niveau sur les 180 s minimum. */
 function minRebirthSecondsV1(state) {
   return Math.max(0, MIN_REBIRTH_SECONDS - 10 * Math.min(6, wishLevelV1(state, 20)));
+}
+
+/* Conditions de déblocage des portraits de joueur (sets complétés, souhaits, fragments SEXY/SMART). */
+function portraitEnvV1(state) {
+  return {
+    completedSets: state.adventure?.completedSets || {},
+    wishLevel: id => wishLevelV1(state, id),
+    macguffinPct: id => macguffinPermanentPctV1(state, id)
+  };
 }
 
 function wishLevelsMapV1(state) {
@@ -5808,7 +5921,7 @@ function questingEnvV1(state, context) {
     /* Heroic Sigil (set) : "Quest items drop 10% more often!" (SETS_OBJETS_V1.heroicSigil). */
     questDropsSetPct: Math.max(0, num(state.adventure?.setRewards?.questDropsSetPct, 0)),
     qpEarningsMultiplier: perks.qpEarningsMultiplier,
-    apEarningsMultiplier: perks.apEarningsMultiplier * heartApMultiplierV1(state),
+    apEarningsMultiplier: apBonusMultiplierV1(state),
     qpHackMultiplier: Math.max(0, num(hackFxV1(state).qpGain, 1)),
     /* Cartes QP « QP Gain » (idle-cards-v1.js, idleCardsApplyToBonusesV1). */
     qpCardMultiplier: Math.max(0, num(bonuses.cardsQpGainMultiplier, 1))
@@ -6156,6 +6269,16 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = richJerksAction(state, payload);
   } else if (action === "cooking") {
     result = applyIdleCookingActionV1(state, payload, t);
+  } else if (action === "portrait") {
+    /* Choix cosmétique du portrait de joueur ; seuls les portraits débloqués sont acceptés. */
+    state.records.portrait = idlePortraitSelectV1(payload.id, portraitEnvV1(state));
+    result = { portrait: state.records.portrait };
+  } else if (action === "specialPrize") {
+    /* Page Arbitrary Points / Tips N' Tricks : « Special Prize » = 50 000 AP, une seule fois, hors bonus d'AP. */
+    if (num(state.records.specialPrizeClaimed, 0) > 0) throw new Error("PRIX_SPECIAL_DEJA_RECLAME");
+    state.records.specialPrizeClaimed = 1;
+    state.currencies.ap += IDLE_SPECIAL_PRIZE_AP_V1;
+    result = { ap: IDLE_SPECIAL_PRIZE_AP_V1 };
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else if (action === "daycarePlace" || action === "daycareRemove") {
@@ -6223,7 +6346,25 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
   if(!options.challengeId&&runSeconds>=3600){
-    state.currencies.ap+=apGainV1(state,Math.floor(runSeconds/500));
+    state.currencies.ap+=apWithBonusV1(state,Math.floor(runSeconds/500));
+  }
+
+  /*
+   * "Sneaky Secret about Rebirthing" (2026-09-24), page Rebirths : "Rebirthing 3
+   * times in a row (each under 30 minutes long and each defeating boss 37+)
+   * Rewards the player with a special, one-time bonus of: 200 EXP, 1 Energy
+   * Power" -- page Achievements : "Speedrun 3 times in a row with rebirths under
+   * 30 minutes each, with boss 37 defeated!" (20 BP). Série remise à 0 par tout
+   * Rebirth qui ne remplit pas les deux conditions ; bonus versé une seule fois.
+   */
+  {
+    const rapide=runSeconds<30*60&&Math.max(0,int(context.bosses,0))>=37;
+    state.records.speedrunStreak=rapide?Math.max(0,int(state.records.speedrunStreak,0))+1:0;
+    if(rapide&&state.records.speedrunStreak>=3&&!(num(state.records.speedrunBonusClaimed,0)>0)){
+      state.records.speedrunBonusClaimed=1;
+      state.currencies.experience+=200;
+      state.resources.energy.power=Math.max(1,num(state.resources.energy.power,1))+1;
+    }
   }
 
   rb.lastNumber=rb.number;
@@ -6273,24 +6414,6 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     ?Math.max(0,num(beardsSys.data.tracks[beardActiveId].tempLevel,0))
     :0;
 
-  /*
-   * 2026-09-24 (page Banks, page Advanced Training) : les banques Perks/Quirks « Advanced
-   * Training Level Bank » (1 % / 0,5 % par niveau, arrondi vers le bas) conservent une part du
-   * niveau de FIN de run de chaque capacité pour le prochain Rebirth ; elles n'étaient jamais
-   * écrites. Le perk « Instant Advanced Training Levels! » (+1 niveau de chaque capacité par
-   * niveau du perk, au début de chaque Rebirth, même avant le déblocage) est ajouté au reset.
-   */
-  const atBankBonusPerk=perkBonusesV1(state.systems.perks?.data?.levels);
-  const atBankBonusQuirk=quirkBonusesV1(state.systems.quirks?.data?.levels);
-  const atBankPct=Math.max(0,(atBankBonusPerk.atBankMultiplier-1)+(atBankBonusQuirk.atBankMultiplier-1));
-  const atTracksEnd=state.systems.advancedTraining?.data?.tracks||{};
-  const atBankNext={};
-  for(const [trackId,tr] of Object.entries(atTracksEnd)){
-    atBankNext[trackId]=Math.floor(Math.max(0,num(tr.tempLevel,0))*atBankPct+1e-9);
-  }
-  state.bank.advancedTrainingTracks=options.clearBanks?{}:atBankNext;
-  state.bank.advancedTraining=Object.values(state.bank.advancedTrainingTracks).reduce((a,b)=>a+b,0);
-
   const beardConversion=convertActiveBeardOnRebirth(state,runSeconds);
   /* MacGuffin Fragments : les fragments équipés augmentent leur bonus permanent (idle-macguffins-v1.js). */
   const macguffinGain=macguffinApplyRebirthV1(state,runSeconds);
@@ -6303,6 +6426,20 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   state.bank.timeMachineSpeed=Math.floor(tmSpeedLevelEnd*tmBankPct);
   state.bank.timeMachineGold=Math.floor(tmGoldLevelEnd*tmBankPct);
   state.bank.beards=Math.floor(beardTempLevelEnd*beardBankPct);
+  /*
+   * Advanced Training Level Bank (2026-09-24) : les Perks 36-40 / Quirks 20-24
+   * étaient catalogués mais aucun niveau d'AT n'était jamais retenu. Page Banks :
+   * "retain some percentage of your levels in Advanced Training ... when
+   * rebirthing" ; Perk 36 : "Saves 1% (rounded down) of Advanced Training levels".
+   * Même lecture que Time Machine : pourcentage cumulé du niveau de fin de run,
+   * par compétence d'AT ; state.bank.advancedTraining = total retenu.
+   */
+  const atBankPct=Math.max(0,(perkBankBonuses.atBankMultiplier-1)+(quirkBankBonuses.atBankMultiplier-1));
+  const atBanked={};
+  for(const [id,tr] of Object.entries(state.systems.advancedTraining?.data?.tracks||{})){
+    atBanked[id]=options.clearBanks?0:Math.floor(Math.max(0,num(tr.tempLevel,0))*atBankPct+1e-9);
+  }
+  state.bank.advancedTraining=Object.values(atBanked).reduce((s,v)=>s+v,0);
 
   if(options.clearBanks){
     state.bank.advancedTraining=0;
@@ -6322,15 +6459,6 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   for(const def of IDLE_NGU_SYSTEMS){
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
-    if(def.id==="advancedTraining"){
-      const instantLevels=Math.max(0,int(atBankBonusPerk.advancedTrainingStartBonus,0));
-      for(const [trackId,tr] of Object.entries(s.data.tracks||{})){
-        const banked=Math.max(0,int(state.bank.advancedTrainingTracks?.[trackId],0));
-        tr.bankLevel=banked;
-        tr.tempLevel=banked+instantLevels;
-      }
-      s.tempLevel=Object.values(s.data.tracks||{}).reduce((sum,x)=>sum+x.tempLevel,0);
-    }
     if(def.id==="hacks"||def.id==="wishes")s.allocation={energy:0,magic:0,r3:0};
     /* Slots de souhaits : les souhaits placés restent, les ressources allouées sont perdues comme avant. */
     if(def.id==="wishes")for(const k of RESOURCE_KEYS)clearWishSlotAllocationsV1(s,k);
@@ -6383,6 +6511,24 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       const nextTrack=nextActiveId?s.data.tracks[nextActiveId]:null;
       if(nextTrack&&beardBank>0)nextTrack.tempLevel=beardBank;
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
+    }
+    if(def.id==="advancedTraining"&&s.data?.tracks){
+      /*
+       * Page Rebirths, "What do I lose" : "Advanced Training levels and access to
+       * the menu (until you get the basic training levels again)" ; page Banks :
+       * "banked Advanced Training levels do not have any effect until the AT menu
+       * is unlocked by completing Basic Training" -> menu reverrouillé (rouvert
+       * par la synchro quand basicTrainingComplete), niveaux retenus réinjectés.
+       */
+      /*
+       * Perk 18 "Instant Advanced Training Levels!" (page Advanced Training, tableau des Perks) :
+       * "Each level in this perk gives you a level of every Advanced Training ability at the
+       * start of every rebirth even before it is unlocked." (2026-09-24 : effet jamais lu jusqu'ici.)
+       */
+      const perkStartAt=Math.max(0,int(perkBankBonuses.advancedTrainingStartBonus,0));
+      for(const [id,tr] of Object.entries(s.data.tracks))tr.tempLevel=Math.max(0,int(atBanked[id],0))+perkStartAt;
+      s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
+      s.unlocked=false;
     }
   }
 
@@ -6763,23 +6909,5 @@ export function rebirthIdleNguState(raw,context={},now=Date.now(),options={}) {
     const req=idleNguDifficultyUnlockRequirementsV1(state,context);
     if(!req[requestedDifficulty].met)throw new Error("DIFFICULTE_VERROUILLEE");
   }
-  const bossesThisRun=Math.max(0,int(context.bosses,0));
-  const result=applyRebirthResetV56_(state,context,t,changingDifficulty?{forceNumber:1,clearBanks:true,difficulty:requestedDifficulty}:{});
-  /*
-   * 2026-09-24 (audit, page Rebirths, « Sneaky Secret about Rebirthing ») : « Rebirthing 3 times in a
-   * row (each under 30 minutes long and each defeating boss 37+) Rewards the player with a special,
-   * one-time bonus of: 200 EXP, 1 Energy Power » (FAQ : « Check your exp (Should be 200) »). Jamais
-   * implémenté. Seuls les Rebirths ordinaires comptent dans la série ; un changement de difficulté
-   * (assimilé à un démarrage de défi par le wiki) ne la modifie pas -- le wiki ne dit rien de plus.
-   */
-  if(!changingDifficulty){
-    const rec=result.records;
-    rec.quickRebirthStreak=runSeconds<1800&&bossesThisRun>=37?Math.max(0,int(rec.quickRebirthStreak,0))+1:0;
-    if(rec.quickRebirthStreak>=3&&!int(rec.quickRebirthSecretClaimed,0)){
-      rec.quickRebirthSecretClaimed=1;
-      result.currencies.experience+=200;
-      result.resources.energy.power=Math.min(1e18,num(result.resources.energy.power,1)+1);
-    }
-  }
-  return result;
+  return applyRebirthResetV56_(state,context,t,changingDifficulty?{forceNumber:1,clearBanks:true,difficulty:requestedDifficulty}:{});
 }

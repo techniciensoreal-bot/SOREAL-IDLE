@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguBonuses } from "../src/idle-ngu-progression.js";
+import { idleAchievementsApMultiplierV1 } from "../src/idle-achievements-v1.js";
 
 /* 2026-09-23 (wiki Daily Spin) : la roue donne aussi des potions, Lucky Charm, Bar Bar, Little Blue Pill (jackpots) ; chaque palier totalise 100 %. */
 const ctx = { bosses: 100 };
@@ -29,6 +30,8 @@ function spin(totalSpins, random) {
 {
   // palier 3, dernier lot : 50 000 AP
   const r = spin(30, 0.9999);
-  assert.equal(r.result.reward.ap, 50000);
+  /* 2026-09-24 : lot de 50 000 AP x bonus des succès (boss 10..100 = 230 BP, page Arbitrary Points), arrondi inférieur. */
+  assert.equal(idleAchievementsApMultiplierV1(r.state), 1.023);
+  assert.equal(r.result.reward.ap, 51150);
 }
 console.log("idle-daily-spin-items ok");
