@@ -3992,8 +3992,14 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceGeneratedResources(state,secs,context);
   advanceAugmentations(state, secs, context);
   advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
-  advanceTimeMachine(state, secs);
-  advanceBloodMagic(state, secs, context);
+  /*
+   * 2026-09-24 (page Rebirths, « What do I lose when I rebirth? ») : « Access to the Adventure, Augmentation, Time
+   * Machine, and Blood Magic tabs until their related bosses are beaten ». Le drapeau `unlocked` de ces systèmes
+   * reste vrai après un Rebirth (les Augmentations testaient déjà le boss) : la Time Machine produisait et se
+   * levelait, et Blood Magic tournait, dès le boss 1 d'un nouveau Rebirth.
+   */
+  if (num(context.bosses, 0) >= 30) advanceTimeMachine(state, secs);
+  if (num(context.bosses, 0) >= 37) advanceBloodMagic(state, secs, context);
   advanceYggdrasil(state, secs, nowMs(now));
   advanceWandoos(state, secs, context, now);
   advanceNgusV1(state, secs);
