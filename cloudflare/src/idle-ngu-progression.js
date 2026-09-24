@@ -2239,7 +2239,26 @@ export function idleNguEffectiveResourceStat(raw, resource, stat) {
   return idleNguEffectiveResourceStatV1(state, resource, stat);
 }
 
+/*
+ * 2026-09-24 (audit de composition, pages Energy / Magic / Resource 3 / Experience > Spend EXP) :
+ * « Energy Power is limited to a maximum of 1E18 (4.84E18 when using potions) », « Capped at 1 Qi
+ * (1E18) before potion effects », Bars « 1E18 (2.2E18 when using an Energy Bar Bar) », Cap « 9E18 ».
+ * 4,84 = (2 x 1,1)^2 : le plafond s'applique au TOTAL (achats + bonus de perks, quirks, souhaits,
+ * équipement) AVANT les potions / Bar Bar, qui le multiplient ensuite. Le code ne plafonnait que
+ * les achats bruts (IDLE_NGU_RESOURCE_PURCHASES.hardCap) : les multiplicateurs les dépassaient sans limite.
+ */
+const RESOURCE_STAT_HARD_CAPS_V1 = Object.freeze({ power: 1e18, bars: 1e18, cap: 9e18 });
+
 function idleNguEffectiveResourceStatV1(state, resource, stat) {
+  const value = idleNguEffectiveResourceStatUncappedV1(state, resource, stat);
+  const hard = RESOURCE_STAT_HARD_CAPS_V1[stat];
+  if (!hard || (resource !== "energy" && resource !== "magic" && resource !== "r3")) return value;
+  const potionKey = stat === "power" ? `${resource}Power` : (stat === "bars" && resource !== "r3" ? `${resource}Bars` : "");
+  const potion = potionKey ? Math.max(1, num(idleSelloutPotionFactorV1(state, potionKey), 1)) : 1;
+  return value / potion > hard ? hard * potion : value;
+}
+
+function idleNguEffectiveResourceStatUncappedV1(state, resource, stat) {
   const raw = Math.max(0, num(state.resources?.[resource]?.[stat], 0));
   if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
   const bonuses = idleNguBonuses(state);
