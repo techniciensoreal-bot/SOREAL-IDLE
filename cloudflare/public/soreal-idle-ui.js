@@ -20051,6 +20051,27 @@ function pageAventureIdleV28_(j){
        * 2026-09-24 (Norman) : « Info doit être un menu qui s'ouvre et se ferme, comme le coffre. De base, il doit être fermé. »
        * Même mécanique que le Coffre : titre cliquable + chevron, état gardé dans localStorage, fermé tant que rien n'est stocké.
        */
+      /*
+       * « Special Prize » — dans le jeu il vit dans « Info 'n Stuff » (Tips N' Tricks) : 50 000 AP, ou A PRETTY KITTY (qui donne aussi les AP) ;
+       * une seule fois, hors bonus d'AP. Le second clic répond « Nice try, greedypants ».
+       */
+      function carteSpecialPrizeIdleV1_(){
+        const portraits=idleEtat&&idleEtat.systemes&&idleEtat.systemes.portraits;
+        const prix=portraits&&portraits.specialPrize;
+        if(!prix)return '';
+        const ap=idleEntier_(prix.ap).toLocaleString('fr-FR');
+        const corps=prix.claimed
+          ?'<div class="soreal-idle-note-v4">Déjà récupéré ('+(prix.choice==='kitty'?'le joli chaton et ':'')+ap+' AP). Bien essayé, gourmand !</div>'
+          :'<div class="soreal-idle-note-v4">Une seule fois, au choix (sans bonus d’AP) :</div>'+
+            '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'ap\'})">💠 '+ap+' AP</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'kitty\'})">🐱 Un JOLI CHATON (+ '+ap+' AP)</button>'+
+            '</div>';
+        return '<div class="soreal-idle-info-recap-card-v1" id="sorealIdleSpecialPrizeV1">'+
+          '<div class="soreal-idle-info-recap-head-v1">🎁 <b>Special Prize</b></div>'+corps+
+        '</div>';
+      }
+
       function idleInfoOuvertV1_(){
         try{
           return localStorage.getItem('soreal_idle_info_ouvert_v1')==='1';
@@ -20090,6 +20111,7 @@ function pageAventureIdleV28_(j){
               '<span class="soreal-idle-coffre-chevron-v1">'+(infoOuvert?'▲':'▼')+'</span>'+
             '</div>'+
             (infoOuvert?
+            carteSpecialPrizeIdleV1_()+
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications des menus déjà débloqués. Chaque texte peut être relu à voix haute avec la synthèse vocale de ton appareil.</div>'+
             (entrees.length
               ?entrees.map(function(info,index){

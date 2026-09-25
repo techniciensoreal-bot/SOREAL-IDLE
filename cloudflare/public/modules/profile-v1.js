@@ -20,7 +20,6 @@
     if(meta&&typeof meta.actionMetaIdleV130_==='function')meta.actionMetaIdleV130_(payload);
   }
   window.__profilChoisirPortraitIdleV1__=function(id){action({action:'portrait',id:String(id)});};
-  window.__profilPrixSpecialIdleV1__=function(){action({action:'specialPrize'});};
 
   const GROUPES={
     energyPower:'Energy Power',magicPower:'Magic Power',energyCap:'Energy Cap',magicCap:'Magic Cap',
@@ -62,17 +61,10 @@
         (choisi?' disabled':' onclick="window.__profilChoisirPortraitIdleV1__(\''+html(x.id)+'\')"')+'>'+
         (choisi?'✅ ':'')+html(x.name)+'</button>';
     }).join('');
-    const prix=p.specialPrize||{};
     return '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">🖼️ Player Portraits — '+nombre(p.unlockedCount)+'</div>'+
         '<div class="soreal-idle-note-v4">Portrait du héros en combat (cosmétique). Un portrait par set complété, plus les souhaits Weiner, Mayo et Sneak Preview et les fragments SEXY / SMART à 250 %.</div>'+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+boutons+'</div>'+
-      '</div>'+
-      '<div class="soreal-idle-section-v8">'+
-        '<div class="soreal-idle-window-title-v31">🎁 Special Prize</div>'+
-        '<div class="soreal-idle-note-v4">Une seule fois : '+nombre(prix.ap).toLocaleString('fr-FR')+' AP (sans bonus d’AP).</div>'+
-        '<div style="margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25"'+(prix.claimed?' disabled':' onclick="window.__profilPrixSpecialIdleV1__()"')+'>'+
-          (prix.claimed?'Déjà récupéré':'Récupérer le Special Prize')+'</button></div>'+
       '</div>';
   }
 

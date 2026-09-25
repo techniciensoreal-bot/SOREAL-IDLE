@@ -118,7 +118,7 @@ export function idlePortraitSelectedIdV1(selectedId, env = {}) {
   return p && idlePortraitUnlockedV1(p, env) ? p.id : IDLE_PORTRAIT_DEFAULT_ID_V1;
 }
 
-export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false) {
+export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false, specialPrizeChoice = 0) {
   const selected = idlePortraitSelectedIdV1(selectedId, env);
   const list = IDLE_PORTRAITS_V1.map(p => ({
     id: p.id,
@@ -133,7 +133,7 @@ export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaime
     unlockedCount: list.filter(p => p.unlocked).length,
     total: list.length,
     list,
-    specialPrize: { ap: IDLE_SPECIAL_PRIZE_AP_V1, claimed: Boolean(specialPrizeClaimed) }
+    specialPrize: { ap: IDLE_SPECIAL_PRIZE_AP_V1, claimed: Boolean(specialPrizeClaimed), choice: Number(specialPrizeChoice) === 2 ? "kitty" : (specialPrizeClaimed ? "ap" : "") }
   };
 }
 

@@ -1330,6 +1330,8 @@ function baseState(now) {
       /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
       portrait: "default",
       specialPrizeClaimed: 0,
+      /* Choix du Special Prize : 0 aucun, 1 = 50 000 AP, 2 = joli chaton (il donne aussi les AP). Nombre : les records sont coercés en compteurs. */
+      specialPrizeChoice: 0,
       // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
       moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
@@ -5153,7 +5155,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     /* Achievements (2026-09-24) : catalogue, succès débloqués, BP et facteur AP (idle-achievements-v1.js). */
     achievements: achievementsSnapshotV1(state),
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
-    portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0),
+    portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0)),
     richJerks: {
       attackLevel: Math.max(0, int(state.bonuses.richJerksAttackLevel, 0)),
       defenseLevel: Math.max(0, int(state.bonuses.richJerksDefenseLevel, 0)),
@@ -6337,11 +6339,16 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     state.records.portrait = idlePortraitSelectV1(payload.id, portraitEnvV1(state));
     result = { portrait: state.records.portrait };
   } else if (action === "specialPrize") {
-    /* Page Arbitrary Points / Tips N' Tricks : « Special Prize » = 50 000 AP, une seule fois, hors bonus d'AP. */
+    /*
+     * Tips N' Tricks, « Special Prize » (menu Info) : deux choix — 50 000 AP, ou A PRETTY KITTY (« it gives you the AP too ») ; le second clic
+     * répond « Nice try, greedypants » (aucun deuxième prix). Hors bonus d'AP (page Arbitrary Points). Le chaton à nœud est un portrait de la
+     * garderie (cosmétique, pas encore dessiné dans SOREAL) : seul le choix est retenu.
+     */
     if (num(state.records.specialPrizeClaimed, 0) > 0) throw new Error("PRIX_SPECIAL_DEJA_RECLAME");
     state.records.specialPrizeClaimed = 1;
+    state.records.specialPrizeChoice = payload.choice === "kitty" ? 2 : 1;
     state.currencies.ap += IDLE_SPECIAL_PRIZE_AP_V1;
-    result = { ap: IDLE_SPECIAL_PRIZE_AP_V1 };
+    result = { ap: IDLE_SPECIAL_PRIZE_AP_V1, choice: state.records.specialPrizeChoice === 2 ? "kitty" : "ap" };
   } else if (action === "buyDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else if (action === "daycarePlace" || action === "daycareRemove") {

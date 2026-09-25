@@ -19,7 +19,7 @@ const page = ui.slice(ui.indexOf("function pageParametresIdleV28_(j)"), ui.index
 assert.match(page, /soreal-idle-info-titre-v1/);
 assert.match(page, /window\.__toggleInfoOuvertIdleV1__\(\)/);
 assert.match(page, /aria-expanded="'\+\(infoOuvert\?'true':'false'\)/);
-assert.match(page, /\(infoOuvert\?\s*'<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications/);
+assert.match(page, /\(infoOuvert\?\s*carteSpecialPrizeIdleV1_\(\)\+\s*'<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications/);
 assert.match(page, /Aucune intervention disponible pour l’instant\.<\/div>'\s*\):''\)\+/, "la liste (infos + Norman & Sébastien) est entièrement conditionnée");
 
 // Le titre reprend le style du Coffre.
