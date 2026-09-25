@@ -4248,6 +4248,37 @@
       }
 
 
+      /*
+       * 2026-09-25 (Norman : « sur PC, quand je maintiens A pour absorber les boosts, la page me replace toujours plus bas que l'inventaire »).
+       * Le rendu complet remplace toute la page ; l'inventaire fait maintenant partie de la page Aventure (longue, avec images et journal qui
+       * changent de hauteur après le rendu) : restaurer un scrollY absolu le laissait plus bas que le sac. On mémorise donc la position
+       * du sac À L'ÉCRAN (distance entre le haut de la fenêtre et le haut du sac) et on la rétablit après le rendu, puis encore quand la
+       * mise en page bouge (images, 2e passe) — sans jamais contrarier un défilement fait par le joueur entre-temps.
+       */
+      function ancreSacIdleV1_(){
+        const sac=document.getElementById('soreal-idle-v138-bag-section');
+        if(!sac)return null;
+        const r=sac.getBoundingClientRect();
+        /* Seulement si le sac est (au moins en partie) à l'écran : sinon le joueur regarde ailleurs, le scrollY habituel suffit. */
+        return r.bottom>0&&r.top<(window.innerHeight||0)?{haut:r.top}:null;
+      }
+      function restaurerAncreSacIdleV1_(ancre,xAvant,yAvant){
+        if(!ancre)return;
+        let dernierY=null;
+        function caler(){
+          const sac=document.getElementById('soreal-idle-v138-bag-section');
+          if(!sac)return;
+          /* Le joueur a défilé lui-même depuis notre dernier calage : on n'y touche plus. */
+          if(dernierY!==null&&Math.abs((window.scrollY||0)-dernierY)>2)return;
+          const ecart=sac.getBoundingClientRect().top-ancre.haut;
+          if(Math.abs(ecart)>1)window.scrollTo(xAvant,(window.scrollY||0)+ecart);
+          dernierY=window.scrollY||0;
+        }
+        caler();
+        setTimeout(caler,120);
+        setTimeout(caler,450);
+      }
+
       function conserverPositionIdleV24_(
         callback
       ){
@@ -20861,6 +20892,7 @@ function pageAventureIdleV28_(j){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-330 */
         const idleScrollXAvantRenduV1=window.scrollX||0;
         const idleScrollYAvantRenduV1=window.scrollY||0;
+        const idleAncreSacAvantRenduV1=ancreSacIdleV1_();
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-331 */
         const adventureRestPvAvantV2=idleEtat&&idleEtat.adventureRestPv;
@@ -21079,6 +21111,11 @@ function pageAventureIdleV28_(j){
             restaurerScrollJournalAventureIdleV1_();
 
             window.scrollTo(
+              idleScrollXAvantRenduV1,
+              idleScrollYAvantRenduV1
+            );
+            restaurerAncreSacIdleV1_(
+              idleAncreSacAvantRenduV1,
               idleScrollXAvantRenduV1,
               idleScrollYAvantRenduV1
             );

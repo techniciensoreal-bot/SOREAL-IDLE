@@ -1602,3 +1602,8 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - Média : `/api/idle/media/player?portrait=BadKittyDaycareBow` sert le fichier R2 désigné `idle/Kitty/BadKittyDaycareBow.webp` (hors dossier `idle/player/`). Si le fichier est absent de R2 : 404 (le client retombe alors sur son comportement habituel).
 - Carte Special Prize (Info) : mention du chaton dans les Player Portraits après le choix. `ui ?v=257`. Test `idle-special-prize-choice-v1` étendu.
 - **Compte de Norman** : le Special Prize réclamé avant l'existence du choix (`specialPrizeClaimed > 0`, aucun choix enregistré) débloque le portrait « Joli chaton » (règle générale côté serveur, sans écriture directe dans l'état du joueur). Un compte qui n'a pas encore réclamé le Special Prize choisit simplement « chaton » dans Info.
+
+## 2026-09-25 — Inventaire : la page ne saute plus sous le sac après A / D / Q / W / E
+
+- Norman (PC) : « quand je maintiens A pour absorber les boosts, la page me replace toujours plus bas que l'inventaire une fois l'action réalisée ». L'action `inventoryAuto` déclenche un rendu complet ; celui-ci rétablissait un `scrollY` ABSOLU, or l'inventaire est maintenant au bas de la page Aventure (longue, images et journal qui changent de hauteur après le rendu).
+- `ancreSacIdleV1_` / `restaurerAncreSacIdleV1_` : si le sac est à l'écran avant le rendu, on mémorise sa distance au haut de la fenêtre et on la rétablit après le rendu, puis à +120 ms et +450 ms (mise en page qui bouge) ; un défilement fait par le joueur entre-temps n'est plus contrarié. Sac hors écran : comportement habituel. `ui ?v=258`. Test `idle-inventory-scroll-anchor-v1`. Cause non reproduite en navigateur réel (session requise) : correction par ancrage, à confirmer.
