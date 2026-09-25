@@ -3758,7 +3758,8 @@ function synchroniserEntrainementBaseSorealIdleV41_(
       row[
         c.ESSENCE_RENAISSANCE - 1
       ],
-      collection
+      collection,
+      nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
     );
 
   row[c.FORCE - 1] =
@@ -6381,7 +6382,8 @@ function recalculerPuissanceCompleteSorealIdle_(
       row[
         c.ESSENCE_RENAISSANCE - 1
       ],
-      collection
+      collection,
+      nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
     );
 
   const ancienPv =
@@ -6703,7 +6705,8 @@ function statsCombatPrincipalSorealIdleV413_(
   equipement,
   ameliorations,
   essence,
-  collection
+  collection,
+  bossesRun
 ) {
   const etatStats =
     stats &&
@@ -6783,12 +6786,48 @@ function statsCombatPrincipalSorealIdleV413_(
       )
     );
 
+  /*
+   * 2026-09-25 (Norman, jeux côte à côte : « après un Rebirth NGU me fait retomber à 100 Attack / 100 Defense, alors que SOREAL m'en
+   * donne des milliers (209 K PV contre 1 010) ; les bonus accumulés ne se déverrouillent qu'en avançant dans les boss ») :
+   *  1. Wiki NUMBER : « multiplies your Attack and Defense from Basic Training » ; Basic Training : « natural attack and defense of 100,
+   *     with trainings giving a bonus equal to Level^1.3 x BaseValue ». Le 100 naturel n'est donc jamais multiplié : seuls les points
+   *     apportés par l'entraînement le sont (sans entraînement : 100 / 100, quel que soit le NUMBER).
+   *  2. L'équipement d'Aventure (« +1 % Attack/Defense par point de Power/Toughness ») n'existe qu'une fois Adventure débloquée, au boss 4
+   *     de CHAQUE run (wiki Rebirths : « Access to the Adventure... tabs until their related bosses are beaten ») : avant, son facteur
+   *     est retiré du produit. bossesRun absent (appel sans contexte) : rien n'est retiré.
+   */
+  const aventureDebloquee =
+    !Number.isFinite(Number(bossesRun)) ||
+    Number(bossesRun) >= REBIRTH_UNLOCK_BOSS_V1;
+
+  const facteurEquipementAttaque =
+    aventureDebloquee
+      ? 1
+      : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentAttackMultiplier, 1));
+
+  const facteurEquipementDefense =
+    aventureDebloquee
+      ? 1
+      : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentDefenseMultiplier, 1));
+
+  const multiplicateurAttaqueEffectif =
+    Math.max(
+      1e-300,
+      nombreSorealIdle_(bonusMetaNgu.attackMultiplier, 1)
+    ) / facteurEquipementAttaque;
+
+  const multiplicateurDefenseEffectif =
+    Math.max(
+      1e-300,
+      nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)
+    ) / facteurEquipementDefense;
+
   const attaque =
     Math.max(
       100,
-      Math.round(
+      100 + Math.round(
         (
-          attaqueEntrainement +
+          (attaqueEntrainement - 100) +
           Math.max(
             0,
             nombreSorealIdle_(
@@ -6807,32 +6846,20 @@ function statsCombatPrincipalSorealIdleV413_(
          * "Rebirths" : il peut monter OU baisser) ; NGU applique bien x0,33
          * après un Rebirth de 10 min. Plancher strictement positif seulement.
          */
-        Math.max(
-          1e-300,
-          nombreSorealIdle_(
-            bonusMetaNgu.attackMultiplier,
-            1
-          )
-        )
+        multiplicateurAttaqueEffectif
       )
     );
 
   const defense =
     Math.max(
       100,
-      Math.round(
-        defenseEntrainement *
+      100 + Math.round(
+        (defenseEntrainement - 100) *
         // Audit 2026-09-16 : équipement retiré du combat Fight Boss (voir
         // multiplicateurPermanent ci-dessus) — plus de fidélité NGU.
         1 *
         multiplicateurPermanent *
-        Math.max(
-          1e-300,
-          nombreSorealIdle_(
-            bonusMetaNgu.defenseMultiplier,
-            1
-          )
-        )
+        multiplicateurDefenseEffectif
       )
     );
 
@@ -6881,22 +6908,10 @@ function statsCombatPrincipalSorealIdleV413_(
      * pour que le client affiche/simule la même valeur que le serveur.
      */
     multiplicateurAttaqueTotal:
-      Math.max(
-        1e-300,
-        nombreSorealIdle_(
-          bonusMetaNgu.attackMultiplier,
-          1
-        )
-      ),
+      multiplicateurAttaqueEffectif,
 
     multiplicateurDefenseTotal:
-      Math.max(
-        1e-300,
-        nombreSorealIdle_(
-          bonusMetaNgu.defenseMultiplier,
-          1
-        )
-      ),
+      multiplicateurDefenseEffectif,
 
     equipement:
       profilEquipement
@@ -9784,7 +9799,8 @@ function construireEtatJoueurSorealIdle_(
       row[
         c.ESSENCE_RENAISSANCE - 1
       ],
-      collectionEtat
+      collectionEtat,
+      nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
     );
 
   return {
@@ -15592,6 +15608,7 @@ export function idleOperationNames(){
 }
 
 export const idleRuntimeTestHooks=Object.freeze({
+  statsCombatPrincipalSorealIdleV413_,
   CONFIG_SOREAL_IDLE,
   IDLE_PROTOCOL_VERSION,
   IDLE_NGU_META_VERSION,

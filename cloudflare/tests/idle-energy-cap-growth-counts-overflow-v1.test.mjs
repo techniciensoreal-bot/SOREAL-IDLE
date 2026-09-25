@@ -43,6 +43,24 @@ function jouer(secondes) {
   assert.equal(renaitre.rebirth.resourceGrowth.energyCapGain, 416);
 }
 
+// Capture de l'infobulle d'énergie de NGU (Norman, 2026-09-25) : « Max energy on this rebirth is capped at 916. On rebirth, you will have 1114 Energy. Every 20 Energy gained
+// grants 1 extra energy... You currently make 2 Energy per second... Current Rebirth Time 33:07 » : 33 min 07 s x 2/s = 3 974 -> +198 -> 916 + 198 = 1114.
+{
+  let s = normalizeIdleNguState({}, context, T0);
+  s.resources.energy.cap = 916;
+  s.resources.energy.current = 666;
+  s.resources.energy.speed = 2;
+  let t = T0;
+  for (let ecoule = 0; ecoule < 1987; ecoule += 60) {
+    const pas = Math.min(60, 1987 - ecoule);
+    t += pas * 1000;
+    s = advanceIdleNguState(s, pas, context, t);
+  }
+  assert.equal(s.resources.energy.generatedThisRun, 3974);
+  const renaitre = rebirthIdleNguState(s, context, t);
+  assert.equal(renaitre.resources.energy.cap, 1114, "infobulle NGU : « On rebirth, you will have 1114 Energy »");
+}
+
 // Le plafond mou de 100 000 est inchangé
 {
   const s = normalizeIdleNguState({}, context, T0);

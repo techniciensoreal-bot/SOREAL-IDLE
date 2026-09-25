@@ -44,21 +44,21 @@ const entrainement = 100 + Math.pow(1000, 1.3) * 150;
 
 {
   const etat = executer({ multiplicateurAttaqueTotal: 1067, multiplicateurDefenseTotal: 500 });
-  assert.equal(etat.puissance, Math.round(entrainement * 1067), "Attaque affichée = entraînement x produit serveur");
+  assert.equal(etat.puissance, 100 + Math.round((entrainement - 100) * 1067), "Attaque affichée = 100 naturel + entraînement x produit serveur");
   assert.equal(etat.force, etat.puissance);
-  assert.equal(etat.defense, Math.round(entrainement * 500), "Défense affichée = entraînement x produit serveur");
+  assert.equal(etat.defense, 100 + Math.round((entrainement - 100) * 500), "Défense affichée = 100 naturel + entraînement x produit serveur");
   assert.equal(etat.pvJoueurMax, etat.puissance * 10, "PV = 10 x Attaque (wiki Boss Fights)");
   assert.equal(etat.combatPrincipal.attaqueEntrainement, entrainement, "l'entraînement brut reste disponible");
 }
 {
   /* NUMBER < 1 après un Rebirth rapide : le plancher de 100 reste celui du serveur. */
   const etat = executer({ multiplicateurAttaqueTotal: 0.33, multiplicateurDefenseTotal: 0.33 });
-  assert.equal(etat.puissance, Math.max(100, Math.round(entrainement * 0.33)));
+  assert.equal(etat.puissance, Math.max(100, 100 + Math.round((entrainement - 100) * 0.33)));
 }
 {
   /* Ancien serveur (champ absent) : repli neutre x1, jamais NaN. */
   const etat = executer({});
-  assert.equal(etat.puissance, Math.round(entrainement));
+  assert.equal(etat.puissance, Math.round(entrainement), "x1 : 100 + (entraînement - 100) = entraînement");
 }
 
 /* Le serveur expose bien le produit qu'il applique. */
@@ -66,8 +66,8 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 const statsDebut = runtime.indexOf("function statsCombatPrincipalSorealIdleV413_(");
 const statsFin = runtime.indexOf("\n}\n", statsDebut);
 const stats = runtime.slice(statsDebut, statsFin);
-assert.match(stats, /multiplicateurAttaqueTotal:\s*Math\.max\(\s*1e-300,\s*nombreSorealIdle_\(\s*bonusMetaNgu\.attackMultiplier/);
-assert.match(stats, /multiplicateurDefenseTotal:\s*Math\.max\(\s*1e-300,\s*nombreSorealIdle_\(\s*bonusMetaNgu\.defenseMultiplier/);
+assert.match(stats, /multiplicateurAttaqueTotal:\s*multiplicateurAttaqueEffectif/);
+assert.match(stats, /multiplicateurDefenseTotal:\s*multiplicateurDefenseEffectif/);
 assert.match(runtime, /multiplicateurAttaqueTotal:\s*combatPrincipalEtat\s*\.multiplicateurAttaqueTotal/);
 assert.match(runtime, /multiplicateurDefenseTotal:\s*combatPrincipalEtat\s*\.multiplicateurDefenseTotal/);
 

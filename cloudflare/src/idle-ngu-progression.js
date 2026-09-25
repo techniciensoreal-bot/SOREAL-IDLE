@@ -4658,6 +4658,9 @@ function idleNguBonusesSansMacguffinV1(state) {
   /* Cards : bonus accumulés appliqués en un seul point sur le résultat (idleCardsApplyToBonusesV1). */
   return idleCardsApplyToBonusesV1(state, {
     attackMultiplier: attackMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
+    /* Part « équipement d'Aventure » du produit ci-dessus (Adventure n'existe qu'à partir du boss 4 de chaque run : voir statsCombatPrincipalSorealIdleV413_). */
+    equipmentAttackMultiplier,
+    equipmentDefenseMultiplier,
     defenseMultiplier:
       attackMultiplier *
       richJerksDefenseMultiplier *

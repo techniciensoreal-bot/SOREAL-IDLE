@@ -1418,12 +1418,13 @@
             )
           );
 
+        /* 2026-09-25 : le 100 naturel n'est jamais multiplié (wiki NUMBER : « from Basic Training »), comme côté serveur. */
         const attaqueArrondie=
           Math.max(
             100,
-            Math.round(
+            100+Math.round(
               (
-                attaque+
+                (attaque-100)+
                 bonusBoutique
               )*
               multiplicateurStuffAttaque*
@@ -1434,8 +1435,8 @@
         const defenseArrondie=
           Math.max(
             100,
-            Math.round(
-              defense*
+            100+Math.round(
+              (defense-100)*
               multiplicateurStuffDefense*
               multiplicateurPermanent
             )
@@ -9153,6 +9154,26 @@
         }catch(e){
           idleVusEnvoiEnCoursV1=false;
         }
+      }
+
+      /*
+       * 2026-09-25 (Norman : « il faut qu'on soit considéré comme un nouveau joueur quand on reset la partie : on doit revoir les popups une
+       * fois de nouveau ») : le reset total efface la ligne du joueur (donc profil.stats.vus côté serveur) ; ici on oublie ce que la page
+       * avait en mémoire (sinon « bienvenue », tutoriels et popups de menus restaient « vus » jusqu'au rechargement) et les caches locaux.
+       */
+      function idleVusOublierV1_(){
+        Object.keys(idleVusMemoireV1).forEach(function(id){delete idleVusMemoireV1[id];});
+        idleVusEnAttenteV1=[];
+        idleVusMigreV1='';
+        try{
+          Object.keys(localStorage).forEach(function(cle){
+            if(
+              cle.indexOf('soreal_idle_menus_ack_v1_')===0||
+              cle.indexOf('soreal_idle_bienvenue_v75_')===0||
+              cle.indexOf('soreal_idle_tutoriel_')===0
+            )localStorage.removeItem(cle);
+          });
+        }catch(e){}
       }
 
       function idleVuMarquerV1_(id){
@@ -19767,6 +19788,7 @@ function pageAventureIdleV28_(j){
             }
 
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-309 */
+            idleVusOublierV1_();
             idleEtat=null;
             idleCombatLogV70=[];
             idleCombatLogBossV70='';
