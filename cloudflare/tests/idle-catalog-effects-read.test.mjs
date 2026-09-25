@@ -20,11 +20,9 @@ for (const kind of ["perks", "quirks", "wishes"]) {
 const NON_DETECTES = {
   perks: {
     30: "lu par niveau dans idle-yggdrasil-extra-v1.js (Poop des kills ITOPOD)",
-    231: "perk-blague « ERROR » : aucun effet réel dans le texte du wiki"
   },
   quirks: {
-    13: "Beast's Fertilizer : lu par id dans idle-yggdrasil-extra-v1.js",
-    176: "quirk-blague « A PROBLEM HAS BEEN DETECTED » : aucun effet réel"
+    13: "Beast's Fertilizer : lu par id dans idle-yggdrasil-extra-v1.js"
   },
   wishes: {
     26: "portrait de joueur (cosmétique), aucun effet de jeu",

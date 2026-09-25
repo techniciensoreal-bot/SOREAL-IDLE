@@ -14847,7 +14847,7 @@ let idleDialogueTimerV76=null;
         'inventory','inventorySlots','equipment','itemList',
         'completedSets','setRewards','permanent','unlockItems','unlockFlags',
         'skillState','cube','cubeTier','inventoryCapacity','inventoryUsed',
-        'accessorySlotsCapacity','stats','trash','coffreSlots','secondWeaponUnlocked','dualWieldRatio'
+        'accessorySlotsCapacity','stats','trash','coffreSlots','secondWeaponUnlocked','dualWieldRatio','theEnd'
       ];
 
       function revisionAdventureServeurIdleV208_(a){
@@ -15135,7 +15135,8 @@ let idleDialogueTimerV76=null;
           cube:a.cube||{},
           cubeTier:a.cubeTier,
           accessorySlotsCapacity:idleEntier_(a.accessorySlotsCapacity||2),
-          secondWeaponUnlocked:Boolean(a.secondWeaponUnlocked)
+          secondWeaponUnlocked:Boolean(a.secondWeaponUnlocked),
+          theEnd:a.theEnd
         };
       }
 
@@ -15247,7 +15248,8 @@ let idleDialogueTimerV76=null;
               :'')+
             rendreSlotCubeInfiniAdventureIdleV1_(modele.cube,modele.cubeTier)+
           '</div>'+
-          accessoiresRendu.debordement;
+          accessoiresRendu.debordement+
+          (window.__SOREAL_IDLE_THE_END_UI_V1__?window.__SOREAL_IDLE_THE_END_UI_V1__.panelHtml({theEnd:modele.theEnd}):'');
       }
 
       function patchResumeInventaireIdleV160_(modele){
@@ -15270,6 +15272,7 @@ let idleDialogueTimerV76=null;
           'soreal-idle-v138-slot-legs',
           'soreal-idle-v138-slot-boots',
           'soreal-idle-v138-slot-weapon',
+          'soreal-idle-v138-slot-weapon2',
           'soreal-idle-v138-slot-cube'
         ];
         return classes.find(function(c){return node.classList.contains(c);})||'';
@@ -17370,6 +17373,7 @@ let idleDialogueTimerV76=null;
       window.__fusionnerObjetAdventureIdleV47__=fusionnerObjetAdventureIdleV47_;
       window.__boosterCubeAdventureIdleV47__=boosterCubeAdventureIdleV47_;
       window.__actionMetaV47__=actionMetaV47_;
+      window.__toastIdleV5__=toastIdleV5_;
       window.__setDiggerIdleV47__=setDiggerIdleV47_;
       window.__toggleDiggerIdleV47__=toggleDiggerIdleV47_;
 
@@ -19543,7 +19547,8 @@ function pageAventureIdleV28_(j){
                   (a.secondWeaponUnlocked||equipment.weapon2?rendreSlotPaperdollAdventureIdleV138_('weapon2','Seconde arme',itemById.get(String(equipment.weapon2))):'')+
                   rendreSlotCubeInfiniAdventureIdleV1_(cube,a.cubeTier)+
                 '</div>'+
-                accessoiresRendu.debordement;
+                accessoiresRendu.debordement+
+                (window.__SOREAL_IDLE_THE_END_UI_V1__?window.__SOREAL_IDLE_THE_END_UI_V1__.panelHtml(a):'');
               })()+
             '</div>'+
             '<div class="soreal-idle-section-v8" id="soreal-idle-v138-bag-section">'+

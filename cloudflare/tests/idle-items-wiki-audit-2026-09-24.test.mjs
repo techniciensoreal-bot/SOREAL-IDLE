@@ -97,10 +97,13 @@ import { normalizeIdleNguState, idleNguBonuses } from "../src/idle-ngu-progressi
   const r2 = applyIdleAdventureActionV47(t, { action: "transformAdventureItem", id: fp.id }, {}, 1);
   assert.equal(r2.result.definitionId, "ascendedForestPendant");
   assert.equal(r2.state.itemList["forest:pendant"].maxLevel, 100, "le Forest Pendant reste compté niveau 100 pour le set Forest");
-  // Fin de lignée : THE END non modélisé -> aucune transformation.
+  // Fin de lignée (2026-09-25) : GLITCHY LOOTY maxé -> pièce 485 de THE END (rangée à part), l'objet est consommé.
   t = applyIdleAdventureActionV47(t, { action: "addItem", definitionId: "glitchyLooty", level: 100 }, {}, 1).state;
   const gl = t.inventory.find((o) => o.definitionId === "glitchyLooty");
-  assert.throws(() => applyIdleAdventureActionV47(t, { action: "transformAdventureItem", id: gl.id }, {}, 1), /TRANSFORMATION_INVALIDE/);
+  const fin = applyIdleAdventureActionV47(t, { action: "transformAdventureItem", id: gl.id }, {}, 1);
+  assert.equal(fin.result.theEnd, true);
+  assert.equal(fin.state.inventory.some((o) => o.definitionId === "glitchyLooty"), false);
+  assert.ok(fin.state.theEnd.pieces["485"]);
 }
 // --- 3. Evil Bonus Accs (Set) : +20 % Adventure stats (page "Evil Bonus Accs (Set)") ---
 {

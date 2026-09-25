@@ -161,6 +161,14 @@
               }
               window.__SOREAL_IDLE_META_HOST_V130__.pousserEtatVersRuntimePartageIdleV1_();
 
+              if(window.__SOREAL_IDLE_THE_END_UI_V1__){
+                const aventureFin=window.__SOREAL_IDLE_META_HOST_V130__.aventureMetaIdleV47_(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat());
+                window.__SOREAL_IDLE_THE_END_UI_V1__.notifier(aventureFin);
+                if(res.resultat&&Array.isArray(res.resultat.text)&&payload&&payload.adventure&&payload.adventure.action==='theEndPlay'){
+                  window.__SOREAL_IDLE_THE_END_UI_V1__.ouvrirFin(res.resultat.text);
+                }
+              }
+
               if(
                 res.resultat &&
                 Object.keys(res.resultat).length
@@ -1485,11 +1493,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0);
         const spells=data.spells||{};
         const spellDefs=[['numberBoost','Number Boost',spells.numberBoost||1],['ironPill','Iron Pill',spells.ironPill||0],['counterfeitGold','Counterfeit Gold',spells.counterfeitGold||1],['bloodSpaghetti','Blood Spaghetti',spells.bloodSpaghetti||1]];
+        /* Dernier sort (THE END) : invisible sous 5e22 de sang, sauf si la pièce est déjà trouvée. */
+        const pieces494=snap.adventure&&snap.adventure.theEnd&&Array.isArray(snap.adventure.theEnd.pieces)&&snap.adventure.theEnd.pieces.some(function(p){return p.id===494;});
+        if(blood>=5e22||pieces494)spellDefs.push(['leeches','3%q6(;>_<,$H8e',null]);
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🩸 Blood Magic','Choisis un rituel, alloue de la Magic et laisse-le produire du Blood. Les sorts ci-dessous consomment tout le Blood disponible.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Blood<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
           allocationMetaIdleV48_(j,'bloodMagic','magic','Magic allouée')+
           '<h3 style="margin:16px 0 8px">Rituels</h3><div style="display:grid;gap:10px">'+defs.map(function(def){const r=rituals[def.id]||{};const unlocked=!def.unlockFlag||Boolean(flags[def.unlockFlag]);const active=data.activeRitual===def.id;return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(unlocked?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(r.completions||0)+' complété(s)</span></div><div style="font-size:12px;color:#aeb5c8;margin-top:5px">Coût '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.gold||0)+' Gold · +'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.blood||0)+' Blood</div><button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(unlocked?'onclick="window.__actionMetaV47__({action:\'selectRitual\',ritual:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})"':'disabled')+'>'+(active?'▶ Rituel actif':'Choisir ce rituel')+'</button></div>';}).join('')+'</div>'+
-          '<h3 style="margin:16px 0 8px">Blood Spells</h3><div style="display:grid;gap:10px">'+spellDefs.map(function(sp){return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(sp[1])+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(sp[2])+'</span></div><button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(blood>0?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp[0]+'\'})"':'disabled')+'>Utiliser tout le Blood</button></div>';}).join('')+'</div>';
+          '<h3 style="margin:16px 0 8px">Blood Spells</h3><div style="display:grid;gap:10px">'+spellDefs.map(function(sp){return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(sp[1])+'</b><span>'+(sp[2]===null?'':window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(sp[2]))+'</span></div><button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(blood>0?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp[0]+'\'})"':'disabled')+'>Utiliser tout le Blood</button></div>';}).join('')+'</div>';
       }
 
       function libelleRecompenseMetaV206_(entree){
@@ -1973,9 +1984,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
         const blocDeck=deck.length?deck.map(function(k,i){
           const cout=Object.keys(k.mayo||{}).map(function(id){return H.idleEntier_(k.mayo[id])+' '+H.idleHtml_(nomMayo[id]||id);}).join(', ');
-          return '<div class="soreal-idle-section-v8" style="margin:0'+(k.chonker?';border:2px solid #eab308':'')+'">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+(k.chonker?'🍔 Big Chonker · ':'')+H.idleHtml_(k.code)+' · '+H.idleHtml_(k.nom)+'</b><span>Tier '+H.idleEntier_(k.tier)+'</span></div>'+
-            '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">Bonus <b>+'+pct(k.bonusPct,3)+'</b> · rareté '+H.idleHtml_(k.rarityLabel)+' ('+H.idleNombre_(k.rarity).toFixed(3).replace('.',',')+') · coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>'+
+          return '<div class="soreal-idle-section-v8" style="margin:0'+(k.chonker?';border:2px solid #eab308':'')+(k.theEnd?';border:2px solid #ff3b3b':'')+'">'+
+            (k.theEnd
+              ?'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+'THE END</b></div>'+
+                '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>'
+              :'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+(k.chonker?'🍔 Big Chonker · ':'')+H.idleHtml_(k.code)+' · '+H.idleHtml_(k.nom)+'</b><span>Tier '+H.idleEntier_(k.tier)+'</span></div>'+
+                '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">Bonus <b>+'+pct(k.bonusPct,3)+'</b> · rareté '+H.idleHtml_(k.rarityLabel)+' ('+H.idleNombre_(k.rarity).toFixed(3).replace('.',',')+') · coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>')+
             '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">'+
               '<button type="button" class="soreal-idle-expand-button-v25" '+(k.canCast?'onclick="'+act({mode:'cast',cardId:k.id})+'"':'disabled')+'>✨ Lancer</button>'+
               '<button type="button" class="soreal-idle-expand-button-v25" '+(k.protected?'disabled':'onclick="'+act({mode:'yeet',cardId:k.id})+'"')+'>🗑️ Jeter</button>'+
@@ -2038,7 +2052,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             j,
             s,
             true
-          );
+          )+
+          (id==='hacks'&&s&&s.finalHack&&window.__SOREAL_IDLE_THE_END_UI_V1__?window.__SOREAL_IDLE_THE_END_UI_V1__.finalHackHtml(s.finalHack):'');
       }
 
 

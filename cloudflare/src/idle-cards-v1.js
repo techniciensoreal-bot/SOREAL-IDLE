@@ -66,6 +66,7 @@
  */
 import { idleHeartsCardMayoSpeedMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
+import { idleTheEndGrantV1, idleTheEndHasV1, IDLE_THE_END_CARD_CHANCE_V1, IDLE_THE_END_CARD_MAYO_V1 } from "./idle-the-end-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -558,6 +559,11 @@ function normalizeCardV1(raw) {
   if (total <= 0) return null;
   const tier = Math.max(1, I(raw.tier, 1));
   const rarity = Math.max(0.5, Math.min(1.2, N(raw.rarity, 1)));
+  if (raw.theEnd) {
+    const cout = {};
+    for (const id of MAYO_IDS) cout[id] = IDLE_THE_END_CARD_MAYO_V1;
+    return { id: String(raw.id || ""), type: raw.type, tier: 1, rarity: 1, mayo: cout, bonusPct: 0, protected: Boolean(raw.protected), chonker: false, theEnd: true };
+  }
   return {
     id: String(raw.id || ""),
     type: raw.type,
@@ -763,6 +769,13 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
       while (data[key] >= 1 && data.deck.length < mods.deckSize) {
         data.deck.push(idleCardsCreateCardV1(state, { rng, mods, chonker }));
         data[key] -= 1;
+        /* Carte THE END (page Cards, End Card) : ~1 % de chance, en Sadistic, à côté de n'importe quelle carte normale ; une seule à la fois, tant que la pièce manque. */
+        if (!chonker && state.difficulty === "extreme" && !idleTheEndHasV1(state.adventure, 492) && !data.deck.some((c) => c.theEnd) && rng() < IDLE_THE_END_CARD_CHANCE_V1) {
+          const cout = {};
+          for (const id of MAYO_IDS) cout[id] = IDLE_THE_END_CARD_MAYO_V1;
+          data.deck.push({ id: "carte-" + data.nextId, type: IDLE_CARDS_TYPES_V1[0].id, tier: 1, rarity: 1, mayo: cout, bonusPct: 0, protected: false, chonker: false, theEnd: true });
+          data.nextId += 1;
+        }
       }
       if (data[key] >= 1) data[key] -= Math.floor(data[key]);
     };
@@ -834,9 +847,15 @@ export function idleCardsActionV1(state, payload = {}, rng = Math.random) {
     }
     for (const [id, n] of Object.entries(card.mayo)) data.mayo[id] = I(data.mayo[id], 0) - n;
     data.deck.splice(index, 1);
+    data.stats.cast += 1;
+    if (card.theEnd) {
+      /* La carte THE END ne donne aucun bonus : elle apporte la pièce 492. */
+      idleTheEndGrantV1(state.adventure, 492, Date.now());
+      syncMayoCurrency(state, data);
+      return { cast: card.id, theEnd: true };
+    }
     state.bonuses.cards = normalizeIdleCardBonusesV1(state.bonuses.cards);
     state.bonuses.cards[card.type] += card.bonusPct;
-    data.stats.cast += 1;
     syncMayoCurrency(state, data);
     return { cast: card.id, type: card.type, bonusPct: card.bonusPct, totalPct: state.bonuses.cards[card.type] };
   }
@@ -965,8 +984,8 @@ export function idleCardsSnapshotV1(state) {
     })),
     deck: data.deck.map((c) => ({
       ...c,
-      code: TYPE_BY_ID[c.type].code,
-      nom: TYPE_BY_ID[c.type].nom,
+      code: c.theEnd ? "THE END" : TYPE_BY_ID[c.type].code,
+      nom: c.theEnd ? "THE END" : TYPE_BY_ID[c.type].nom,
       mayoTotal: Object.values(c.mayo).reduce((a, b) => a + b, 0),
       rarityLabel: idleCardRarityLabelV1(c.rarity),
       canCast: !c.protected && Object.entries(c.mayo).every(([id, n]) => data.mayo[id] >= n)

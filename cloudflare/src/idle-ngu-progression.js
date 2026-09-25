@@ -1,4 +1,14 @@
 import {
+  idleTheEndGrantV1,
+  idleTheEndHasV1,
+  idleTheEndDataV1,
+  idleTheEndCompleteV1,
+  IDLE_THE_END_FINAL_HACK_SECONDS_V1,
+  IDLE_THE_END_LAST_SPELL_BLOOD_V1,
+  IDLE_THE_END_TOWER_FIRST_FLOOR_V1,
+  IDLE_THE_END_TEXT_V1
+} from "./idle-the-end-v1.js";
+import {
   createIdleAdventureStateV47,
   normalizeIdleAdventureStateV47,
   applyIdleAdventureActionV47,
@@ -2102,8 +2112,46 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.rebirth = normalizeRebirthState(source.rebirth, state.runStartedAt, t);
   applyYggQuickActivationV1(state, t);
   state.rebirth = refreshRebirthState(state, context, t);
+  idleTheEndSyncV1(state, t);
   trackLeaderboardStatsV1(state);
   return state;
+}
+
+/*
+ * THE END (idle-the-end-v1.js) : pièces qui ne dépendent que de l'état — Perk 231 (482), Move 69 x69 (481), Quirk 176 (486), boss 300 vaincu en
+ * Sadistic (487), Wish 203 (490), Traitor (495). Les autres viennent de leur propre action (transformation, drop, carte, sort, Hack, ITOPOD).
+ */
+function idleTheEndSyncV1(state, now) {
+  const adv = state.adventure;
+  if (!adv || typeof adv !== "object") return;
+  if (int(state.systems.perks?.data?.levels?.[231], 0) > 0) idleTheEndGrantV1(adv, 482, now);
+  if (int(state.systems.quirks?.data?.levels?.[176], 0) > 0) idleTheEndGrantV1(adv, 486, now);
+  if (int(state.systems.wishes?.data?.tracks?.["203"]?.level, 0) >= 1) idleTheEndGrantV1(adv, 490, now);
+  if (adv.skillState?.endPiece481) idleTheEndGrantV1(adv, 481, now);
+  if (adv.unlockFlags?.traitorDefeated) idleTheEndGrantV1(adv, 495, now);
+  if (num(state.difficultyPeaks?.extreme, 0) >= 300) idleTheEndGrantV1(adv, 487, now);
+}
+
+/*
+ * Dernier Hack (page THE END, pièce 488) : « Once you level all other hacks to their maximums, this hack appears and begins leveling. It levels by
+ * itself, requiring no Resource 3, and takes 200,000 seconds (55.55 hours) to complete. » Progression : 1 seconde par seconde, hors ligne comprise.
+ */
+function idleTheEndFinalHackVisibleV1(state) {
+  const s = state.systems.hacks;
+  if (!s?.unlocked) return false;
+  const tracks = s.data?.tracks || {};
+  return Object.keys(HACK_HARD_CAP_V1).every(id => int(tracks[id]?.level, 0) >= HACK_HARD_CAP_V1[id]);
+}
+function advanceTheEndFinalHackV1(state, seconds) {
+  if (!(seconds > 0) || idleTheEndHasV1(state.adventure, 488) || !idleTheEndFinalHackVisibleV1(state)) return;
+  const d = idleTheEndDataV1(state.adventure);
+  d.finalHackSeconds = Math.min(IDLE_THE_END_FINAL_HACK_SECONDS_V1, d.finalHackSeconds + seconds);
+  if (d.finalHackSeconds >= IDLE_THE_END_FINAL_HACK_SECONDS_V1 - 1e-9) idleTheEndGrantV1(state.adventure, 488, Date.now());
+}
+export function idleTheEndFinalHackSnapshotV1(state) {
+  if (!idleTheEndFinalHackVisibleV1(state) && !idleTheEndHasV1(state.adventure, 488)) return undefined;
+  const seconds = idleTheEndHasV1(state.adventure, 488) ? IDLE_THE_END_FINAL_HACK_SECONDS_V1 : Math.max(0, num(state.adventure?.theEnd?.finalHackSeconds, 0));
+  return { name: "*-)$#E$GCUk&", seconds, total: IDLE_THE_END_FINAL_HACK_SECONDS_V1, done: seconds >= IDLE_THE_END_FINAL_HACK_SECONDS_V1 };
 }
 
 /*
@@ -3126,6 +3174,7 @@ function advanceTrackSystem(state, def, seconds) {
   if (!t) return;
 
   if (def.id === "hacks") {
+    advanceTheEndFinalHackV1(state, seconds);
     advanceHackTrack(state, s, trackDef, t, seconds);
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     return;
@@ -3479,7 +3528,9 @@ const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
   numberBoost: 1,
   ironPill: 100,
   bloodSpaghetti: 10000,
-  counterfeitGold: 1000000
+  counterfeitGold: 1000000,
+  /* Dernier sort (page THE END, pièce 494) : « blood requirement: 50 sextillion / 5e22 ». */
+  leeches: IDLE_THE_END_LAST_SPELL_BLOOD_V1
 });
 
 /*
@@ -3560,6 +3611,11 @@ function castBloodSpell(state, spell, now = 0) {
     spells.bloodSpaghetti = Math.max(1, 1 + pct / 100);
     state.currencies.blood = 0;
     return { spell, spent: blood, multiplier: spells.bloodSpaghetti };
+  }
+  if (spell === "leeches") {
+    state.currencies.blood = 0;
+    idleTheEndGrantV1(state.adventure, 494, Date.now());
+    return { spell, spent: blood };
   }
   throw new Error("SORT_SANG_INVALIDE");
 }
@@ -4003,6 +4059,11 @@ function advanceTowerV1(state, seconds, context) {
   const applyKills = (n, floor) => {
     if (!(n > 0)) return;
     const tier = towerTierV1(floor);
+    /* Pièce 491 (page THE END) : « Drop chance equal to 0.005% * (ITOPOD Level - 1449) » à chaque kill dès l'étage 1450 ; jamais deux fois. */
+    if (floor >= IDLE_THE_END_TOWER_FIRST_FLOOR_V1 && !idleTheEndHasV1(state.adventure, 491)) {
+      const p = Math.min(1, 0.00005 * (floor - (IDLE_THE_END_TOWER_FIRST_FLOOR_V1 - 1)));
+      if (Math.random() < 1 - Math.pow(1 - p, n)) idleTheEndGrantV1(state.adventure, 491, Date.now());
+    }
     d.kills += n;
     d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
     const boosts = Math.floor(d.boostProgress);
@@ -5323,6 +5384,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       kind: def.kind,
       resources: def.resources.slice(),
       unlock: unlockInfo(def, state, context),
+      ...(def.id === "hacks" ? { finalHack: idleTheEndFinalHackSnapshotV1(state) } : {}),
       tracks: (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleWishAccessibleV1(state, track.id) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
@@ -6341,6 +6403,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      */
     crediterRecompensesAventure(state, avantRecompenses);
     result = applied.result || {};
+    if (advActionInv === "theEndPlay" && idleTheEndCompleteV1(state.adventure)) result = Object.assign({}, result, { text: IDLE_THE_END_TEXT_V1 });
     /*
      * 2026-09-24 (audit de composition, pages Broken Time Machine et Gold) : « This machine will produce gold
      * based on the best gold drop that you have received in Adventure Mode. This number, along with the levels,
