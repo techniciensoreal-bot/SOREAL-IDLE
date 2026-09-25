@@ -440,6 +440,28 @@
           return;
         }
 
+        /*
+         * 2026-09-25 (Norman : « dans NGU, quand une barre est CAP elle ne clignote plus : elle reste complètement remplie de sa couleur ; ex.
+         * Attaque passive, barre rouge -> complètement rouge ») : énergie allouée >= cap = la barre se remplit à chaque tick (50 niveaux/s), soit
+         * un remplissage permanent (le wiki NGU : « barre entièrement rouge » quand une compétence est speedcap). Plus d'animation en dents de scie.
+         */
+        if(
+          skill&&
+          idleEntier_(skill.allocation)>0&&
+          idleEntier_(skill.allocation)>=Math.max(1,idleEntier_(skill.cap))
+        ){
+          if(bar.__idleBtAnimationV220){
+            bar.__idleBtAnimationV220.cancel();
+            bar.__idleBtAnimationV220=null;
+          }
+          bar.style.setProperty('transition','none','important');
+          bar.style.width='100%';
+          bar.style.transformOrigin='left center';
+          bar.style.transform='scaleX(1)';
+          delete bar.dataset.idleBtDurationV220;
+          return;
+        }
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-11 */
         const duration=
           Math.max(
@@ -2371,6 +2393,13 @@
               if(!(seconds>0)){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;}
                 el.style.width='0%';
+                return;
+              }
+              /* Vitesse maximale (1 niveau par tick, 50/s) : la barre est CAP, elle reste entièrement remplie au lieu de clignoter (Norman, 2026-09-25). */
+              if(seconds<=0.0201){
+                if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+                el.style.width='100%';
+                el.style.transform='scaleX(1)';
                 return;
               }
               const duration=Math.max(20,seconds*1000);
@@ -13798,9 +13827,12 @@ let idleDialogueTimerV76=null;
           );
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-170 */
+        /* Cap atteint (énergie allouée >= cap) : barre entièrement remplie, sans clignotement (voir animerBarreBasicTrainingIdleV220_). */
         const pourcentageInitial=
           vitesseInitiale>0
-            ?Math.max(0,Math.min(100,idleNombre_(skill.progress)*100))
+            ?(idleEntier_(skill.allocation)>0&&idleEntier_(skill.allocation)>=Math.max(1,idleEntier_(skill.cap))
+              ?100
+              :Math.max(0,Math.min(100,idleNombre_(skill.progress)*100)))
             :0;
 
         return `

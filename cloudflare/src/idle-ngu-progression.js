@@ -2398,6 +2398,13 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   return fillsPerSecond*Math.max(1,bars);
 }
 
+/*
+ * Énergie « obtenue » (2026-09-25, Norman : « quand je rebirth dans NGU, mon maximum d'énergie est de 916 contre 512 dans SOREAL IDLE, en faisant
+ * exactement la même chose dans les deux jeux »). Wiki (page Energy) : le cap augmente de 1 « every 20 Energy you get, at every rebirth ». 512 = 500 +
+ * ⌊250/20⌋ : SOREAL ne comptait que les 250 points qui remplissaient la réserve jusqu'au cap, puis plus rien, alors que la barre d'énergie de NGU
+ * continue de se remplir au cap et que chaque remplissage compte comme énergie obtenue (916 = 500 + ⌊8 3xx/20⌋). generatedThisRun compte donc TOUT
+ * ce que la barre produit (bars par remplissage), même la part perdue faute de place ; la réserve, elle, reste plafonnée au cap.
+ */
 function advanceGeneratedResources(state,seconds,context={}){
   if(seconds<=0)return;
   for(const resource of ["energy","magic","r3"]){
@@ -2405,7 +2412,7 @@ function advanceGeneratedResources(state,seconds,context={}){
     if(resource==="r3"&&!state.systems.hacks?.unlocked)continue;
     const r=state.resources[resource];
     const capacity=resourceCapacityForCurrent(state,resource,context);
-    if(capacity<=r.current+1e-12)continue;
+    const pleine=capacity<=r.current+1e-12;
     const perSecond=idleNguResourceGenerationPerSecond(state,resource);
     const bars=Math.max(1,idleNguEffectiveResourceStatV1(state,resource,"bars"));
     const fillsPerSecond=perSecond/bars;
@@ -2414,10 +2421,10 @@ function advanceGeneratedResources(state,seconds,context={}){
     r.fillProgress=clamp(fillTotal-fullFills,0,0.999999999999);
     if(fullFills<=0)continue;
     const possibleGain=fullFills*bars;
-    const gain=Math.min(possibleGain,Math.max(0,capacity-r.current));
+    const gain=pleine?0:Math.min(possibleGain,Math.max(0,capacity-r.current));
     r.current+=gain;
-    r.generatedThisRun+=gain;
-    if(gain+1e-12<possibleGain)r.fillProgress=0;
+    r.generatedThisRun+=possibleGain;
+    if(!pleine&&gain+1e-12<possibleGain)r.fillProgress=0;
   }
 }
 
