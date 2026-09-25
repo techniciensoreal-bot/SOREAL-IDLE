@@ -9043,6 +9043,11 @@
 
         if(id==='setsZones')return false;
 
+        /* Chat : présent seulement si SOREAL IDLE est ouvert dans APP/TV (la page parente répond) — sinon aucun bouton. */
+        if(id==='chat'){
+          return Boolean(window.__SOREAL_IDLE_CHAT_V1__&&window.__SOREAL_IDLE_CHAT_V1__.disponible());
+        }
+
         /* Shop : présent dès que l'un des deux magasins l'est (EXP Shop dès le premier boss, Boutique AP une fois débloquée). */
         if(id==='shop'){
           return menuDisponibleIdleV28_('spendExp',j)||menuDisponibleIdleV28_('sellout',j);
@@ -10159,6 +10164,7 @@
         spendExp:'#0891b2',
         shop:'#0891b2',
         classement:'#f59e0b',
+        chat:'#10b981',
         setsZones:'#0d9488',
         parametres:'#6b7280'
       };
@@ -10194,6 +10200,8 @@
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
         /* 2026-09-25 (Norman) : EXP Shop et Boutique AP réunis dans un seul menu « Shop », séparés par un onglet ; Classement juste à gauche de Settings. */
+        /* 2026-09-25 (Norman) : le Chat SOREAL (celui de APP/TV) dans le jeu ; ce bouton ouvre un panneau (modules/chat-v1.js), il ne change pas de page. */
+        {id:'chat',icon:'💬',nom:'Chat'},
         {id:'shop',icon:'🛍️',nom:'Shop'},
         {id:'classement',icon:'📊',nom:'Classement'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
@@ -10325,7 +10333,7 @@
                   data-menu-id-v1="${m.id}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
-                  ${m.icon} ${m.nom}
+                  ${m.icon} ${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}
                 </button>
               `;
             }).join('')}
@@ -10339,7 +10347,7 @@
 
       function menusVisiblesIdleV1_(j){
         return menusOrdonnesIdleV1_(j).filter(function(m){
-          return menuDisponibleIdleV28_(m.id,j);
+          return m.id!=='chat'&&menuDisponibleIdleV28_(m.id,j);
         }).map(function(m){return m.id;});
       }
 
@@ -21030,6 +21038,14 @@ function pageAventureIdleV28_(j){
         }
 
         jouerSonMenuIdleV1_();
+
+        if(menu==='chat'){
+          try{
+            if(idleEtat&&!idleMenuEstAcquisV1_(idleEtat,'chat'))idleMenuMarquerAcquisV1_(idleEtat,'chat');
+          }catch(e){}
+          window.__SOREAL_IDLE_CHAT_V1__.ouvrir();
+          return;
+        }
 
         const nouveauMenu=
           String(

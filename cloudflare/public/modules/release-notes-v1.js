@@ -8,8 +8,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.0',
+    courante:'1.1',
     versions:[
+      {
+        version:'1.1',
+        nom:'Le Chat',
+        date:'2026-09-25',
+        points:[
+          'Le Chat SOREAL est dans le jeu : c’est le même que dans APP et TV, celui où tout le monde parle.',
+          'Nouveau bouton « 💬 Chat » dans le menu : il ouvre le chat par-dessus le jeu, sans quitter ta partie. Un badge rouge indique les messages non lus.',
+          'Bouton « 🟢 N en ligne » : la liste des personnes en ligne et hors ligne, comme dans APP et TV.',
+          'Le chat du jeu est en texte ; les photos et les messages vocaux restent à voir dans APP ou TV.',
+          'Disponible quand SOREAL IDLE est ouvert depuis APP ou TV.'
+        ]
+      },
       {
         version:'1.0',
         nom:'Shop & Rangement',
