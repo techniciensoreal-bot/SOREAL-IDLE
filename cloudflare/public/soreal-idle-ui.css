@@ -7492,3 +7492,14 @@
   -webkit-user-select:none;
   user-select:none;
 }
+
+/* Onglets du menu Shop : chacun garde la couleur de sa boutique (EXP cyan, AP mauve). */
+.soreal-idle-collection-tab-v1.soreal-idle-shop-onglet-v1{
+  border:2px solid var(--onglet-couleur,#0891b2);
+  color:#e8eefb;
+}
+.soreal-idle-collection-tab-v1.soreal-idle-shop-onglet-v1.active{
+  background:var(--onglet-couleur,#0891b2);
+  color:#fff;
+  box-shadow:0 6px 16px color-mix(in srgb,var(--onglet-couleur,#0891b2) 45%,transparent);
+}

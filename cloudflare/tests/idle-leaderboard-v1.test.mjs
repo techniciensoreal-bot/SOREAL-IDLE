@@ -28,11 +28,25 @@ const norman = { email: "technicien.soreal@gmail.com", emailConnexion: "technici
 const sebastien = { email: "hodappsebastien@gmail.com", emailConnexion: "hodappsebastien@gmail.com", emails: ["hodappsebastien@gmail.com"], prenom: "Sébastien" };
 const op = (nom, user, ...args) => runSorealIdleOperation(sql, nom, ["x", ...args], user);
 
-// Deux comptes IDLE
+// Interrupteur d'accès (2026-09-25) : par défaut fermé, plus d'accès spécial pour Sébastien ; l'administrateur l'ouvre depuis les Paramètres
+const acces = (user) => runSorealIdleOperation(sql, "obtenirAccesSorealIdle", ["x"], user);
+assert.equal(acces(norman).autorise, true, "administrateur : toujours autorisé");
+assert.equal(acces(sebastien).autorise, false, "Sébastien n'a plus d'accès spécial : accès fermé par défaut");
+assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, true), /ACCES_REFUSE/);
 const etatNorman = op("obtenirEtatSorealIdle", norman).joueur;
+assert.deepEqual({ ...etatNorman.reglages }, { accesOuvert: false }, "réglage visible de l'administrateur, fermé par défaut");
+assert.equal(op("definirAccesOuvertSorealIdle", norman, true).accesOuvert, true);
+assert.equal(acces(sebastien).autorise, true, "accès ouvert : tout compte connecté est autorisé, comme les autres");
 const etatSeb = op("obtenirEtatSorealIdle", sebastien).joueur;
 assert.equal(etatNorman.classement.debloque, true, "administrateur : bouton visible");
-assert.equal(etatSeb.classement.debloque, false, "autres joueurs : bouton pas encore visible");
+assert.equal(etatSeb.classement.debloque, false, "autres joueurs : bouton Classement pas encore visible");
+assert.equal(etatSeb.reglages, null, "l'interrupteur n'est visible que de l'administrateur");
+assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, false), /ADMIN_REQUIS/);
+// Partie B de développement (adresse alias) et entrée sans nom : jamais au classement
+const normanB = Object.assign({}, norman, { slot: "b" });
+op("obtenirEtatSorealIdle", normanB);
+const inconnu = { email: "sans.nom@example.com", emailConnexion: "sans.nom@example.com", emails: ["sans.nom@example.com"], prenom: "Joueur" };
+op("obtenirEtatSorealIdle", inconnu);
 
 function regler(email, records, succes = 0) {
   const lignes = db.prepare("select rowid as id, row_json from idle_catalog where sheet_name='JOUEURS' and row_index>1").all();
@@ -84,5 +98,11 @@ assert.equal(c.entrees.filter((e) => !e.moi).length, 1);
 const r = op("definirOrdreMenusSorealIdle", norman, ["combat", "entrainement", "faux id!", "combat", "classement"]);
 assert.deepEqual(r.menuOrdre, ["combat", "entrainement", "classement"], "identifiants valides, sans doublon");
 assert.deepEqual(op("obtenirEtatSorealIdle", norman).joueur.profil.stats.menuOrdre, ["combat", "entrainement", "classement"]);
+
+// Fermer l'accès le cache à tout le monde (sauf à l'administrateur)
+assert.equal(op("definirAccesOuvertSorealIdle", norman, false).accesOuvert, false);
+assert.equal(acces(sebastien).autorise, false, "accès fermé : caché à tout le monde");
+assert.throws(() => op("obtenirEtatSorealIdle", sebastien), /ACCES_REFUSE/);
+assert.equal(acces(norman).autorise, true, "l'administrateur garde son accès");
 
 console.log("idle-leaderboard-v1: OK");

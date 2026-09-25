@@ -9827,9 +9827,21 @@
         return textes;
       };
 
+      /* Précharge la voix des pages suivantes d'un popup pendant la lecture de la page affichée : « Suivant » joue alors sans délai. */
+      function prechaufferVoixTutorielIdleV1_(etat){
+        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V203__;
+        if(!tts||typeof tts.prechauffer!=='function'||!etat)return;
+        [1,2].forEach(function(decalage){
+          const suivante=etat.pages[etat.index+decalage];
+          if(suivante)tts.prechauffer(texteVoixTutorielIdleV1_(suivante));
+        });
+      }
+
       function rendreTutorielPagesIdleV1_(){
         const etat=idleTutorielPagesEnCoursV1;
         if(!etat)return;
+
+        prechaufferVoixTutorielIdleV1_(etat);
 
         const page=etat.pages[etat.index];
         const dernier=etat.index>=etat.pages.length-1;
@@ -10308,7 +10320,7 @@
                       :''
                   }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}"
                   style="--nav-color:${
-                    couleurDisponibilite||IDLE_NAV_COULEURS_V1[m.id]||'#9aa5bb'
+                    couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   }"
                   data-menu-id-v1="${m.id}"
                   onclick="window.__menuIdleV28__('${m.id}')"
@@ -19733,10 +19745,16 @@ function pageAventureIdleV28_(j){
        * clic pour passer de l'un à l'autre. L'onglet Boutique AP n'existe qu'une fois cette boutique débloquée (rien à deviner).
        */
       let idleShopOngletV1='exp';
+      /* Le bouton « Shop » du menu prend la couleur de la boutique affichée (EXP cyan, AP mauve). */
+      function couleurBoutonShopIdleV1_(){
+        return idleShopOngletV1==='ap'?IDLE_NAV_COULEURS_V1.sellout:IDLE_NAV_COULEURS_V1.spendExp;
+      }
       function changerOngletShopIdleV1_(onglet){
         idleShopOngletV1=String(onglet)==='ap'?'ap':'exp';
         const root=document.querySelector('.soreal-idle-page-root-v28');
         if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        const bouton=document.querySelector('.soreal-idle-nav-v28 [data-menu-id-v1="shop"]');
+        if(bouton)bouton.style.setProperty('--nav-color',couleurBoutonShopIdleV1_());
       }
       window.__changerOngletShopIdleV1__=changerOngletShopIdleV1_;
 
@@ -19747,10 +19765,16 @@ function pageAventureIdleV28_(j){
         if(onglet==='ap'&&!apOk)onglet='exp';
         if(onglet==='exp'&&!expOk&&apOk)onglet='ap';
         const boutons=[];
-        if(expOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1'+(onglet==='exp'?' active':'')+'" onclick="window.__changerOngletShopIdleV1__(\'exp\')">✨ EXP Shop</button>');
-        if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1'+(onglet==='ap'?' active':'')+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP</button>');
+        /*
+         * Couleurs d'origine conservées (Norman : « le shop AP devait garder ses couleurs mauves, et son bouton aussi ») : la page du menu ne
+         * connaît plus que « shop » (cyan) ; chaque boutique repose donc sa propre couleur (--nav-color) et son onglet porte la sienne.
+         */
+        if(expOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='exp'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.spendExp+'" onclick="window.__changerOngletShopIdleV1__(\'exp\')">✨ EXP Shop</button>');
+        if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='ap'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.sellout+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP</button>');
         return (boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'')+
-          (onglet==='ap'?pageSelloutShopIdleV1_(j):pageSpendExpIdleV1_(j));
+          (onglet==='ap'
+            ?'<div style="--nav-color:'+IDLE_NAV_COULEURS_V1.sellout+'">'+pageSelloutShopIdleV1_(j)+'</div>'
+            :'<div style="--nav-color:'+IDLE_NAV_COULEURS_V1.spendExp+'">'+pageSpendExpIdleV1_(j)+'</div>');
       }
 
       /*
@@ -20800,6 +20824,18 @@ function pageAventureIdleV28_(j){
               :'<div style="font-size:12px;color:#5b6178">Aucune intervention disponible pour l’instant.</div>'
             ):'')+
           '</div>'+
+          (j&&j.reglages
+            ?'<div class="soreal-idle-section-v8" id="sorealIdleAccesAdminV1">'+
+              '<div class="soreal-idle-window-title-v31">🔑 Accès à SOREAL IDLE (administrateur)</div>'+
+              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">'+
+                'Activé : toute personne connectée à son compte sur APP ou TV a accès à SOREAL IDLE. Désactivé : SOREAL IDLE est caché à tout le monde, sauf à toi.'+
+              '</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerAccesOuvertIdleV1__()" '+
+                'style="'+(j.reglages.accesOuvert?'background:#166534;color:#fff':'background:#7f1d1d;color:#fff')+'">'+
+                (j.reglages.accesOuvert?'✅ Accès OUVERT à tous les comptes — désactiver':'⛔ Accès FERMÉ — activer pour tous les comptes')+
+              '</button>'+
+            '</div>'
+            :'')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
             '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V212</b></div>'+
@@ -20818,6 +20854,29 @@ function pageAventureIdleV28_(j){
             :''
           );
       }
+
+      /* Interrupteur d'accès à SOREAL IDLE (administrateur seulement) : ouvre / ferme l'accès de tous les comptes connectés. */
+      function basculerAccesOuvertIdleV1_(){
+        if(!idleEtat||!idleEtat.reglages||!SOREAL_SESSION)return;
+        const voulu=!idleEtat.reglages.accesOuvert;
+        if(voulu&&!window.confirm('Ouvrir SOREAL IDLE à toutes les personnes connectées à leur compte (APP / TV) ?'))return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){
+              idleEtat.reglages.accesOuvert=Boolean(res.accesOuvert);
+              toastIdleV5_(res.accesOuvert?'🔓 Accès ouvert à tous les comptes connectés.':'🔒 Accès fermé : SOREAL IDLE est caché à tout le monde.');
+              const root=document.querySelector('.soreal-idle-page-root-v28');
+              if(root&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+            }else{
+              toastIdleV5_((res&&res.message)||'Impossible de changer l’accès.');
+            }
+          })
+          .withFailureHandler(function(e){
+            toastIdleV5_((e&&e.message)||'Impossible de changer l’accès.');
+          })
+          .definirAccesOuvertSorealIdle(SOREAL_SESSION,voulu);
+      }
+      window.__basculerAccesOuvertIdleV1__=basculerAccesOuvertIdleV1_;
 
       function contenuMenuIdleV28_(j){
         switch(idleMenuActifV28){

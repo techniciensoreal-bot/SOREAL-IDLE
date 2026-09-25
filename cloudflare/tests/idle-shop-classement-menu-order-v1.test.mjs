@@ -40,7 +40,8 @@ const shop = ui.slice(ui.indexOf("function pageShopIdleV1_(j){"), ui.indexOf("co
 assert.match(shop, /let onglet=idleShopOngletV1==='ap'\?'ap':'exp';/);
 assert.ok(shop.includes("✨ EXP Shop") && shop.includes("🛍️ Boutique AP"));
 assert.ok(shop.includes("boutons.length>1"), "un seul magasin disponible : pas d'onglets");
-assert.ok(shop.includes("pageSelloutShopIdleV1_(j):pageSpendExpIdleV1_(j)"), "mêmes pages (même visuel) qu'avant");
+assert.ok(shop.includes("pageSelloutShopIdleV1_(j)") && shop.includes("pageSpendExpIdleV1_(j)"), "mêmes pages (même visuel) qu'avant");
+assert.ok(shop.includes("IDLE_NAV_COULEURS_V1.sellout") && shop.includes("IDLE_NAV_COULEURS_V1.spendExp"), "chaque boutique garde sa couleur (AP mauve), son onglet aussi");
 assert.match(ui, /case 'shop':\s*return pageShopIdleV1_\(j\);/);
 assert.match(ui, /ancien==='spendExp'\|\|ancien==='sellout'\?'shop':ancien/, "un ancien menu mémorisé ouvre Shop");
 assert.match(ui, /if\(id==='shop'\)\{\s*return menuDisponibleIdleV28_\('spendExp',j\)\|\|menuDisponibleIdleV28_\('sellout',j\);/);

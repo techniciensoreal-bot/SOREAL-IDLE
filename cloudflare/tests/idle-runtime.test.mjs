@@ -139,7 +139,7 @@ const {
   assert.deepEqual(
     emailsAutorisesSorealIdle_().sort(),
     [
-      "hodappsebastien@gmail.com",
+      /* 2026-09-25 : plus d'accès spécial pour Sébastien, il passe par l'interrupteur « accès ouvert » comme les autres comptes. */
       "reeeedruuuum@gmail.com",
       "technicien.soreal@gmail.com"
     ].sort()

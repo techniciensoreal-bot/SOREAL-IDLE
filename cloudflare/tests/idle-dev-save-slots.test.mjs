@@ -96,7 +96,8 @@ assert.deepEqual(Object.keys(lignes()), [ADMIN]);
 const autreSession = ouvrirSession(ADMIN, "Norman");
 assert.equal(appeler(autreSession, "obtenirPartieDevSorealIdle").partie, "a");
 
-// Un autre joueur autorisé n'a ni sélecteur, ni partie B.
+// Un autre joueur n'a ni sélecteur, ni partie B. Il n'a plus d'accès spécial (2026-09-25) : l'administrateur ouvre l'accès à tous les comptes connectés.
+appeler(norman, "definirAccesOuvertSorealIdle", [true]);
 const sebastien = ouvrirSession("hodappsebastien@gmail.com", "Sébastien");
 assert.deepEqual({ ...appeler(sebastien, "obtenirPartieDevSorealIdle") }, { ok: true, actif: false, partie: "a" });
 assert.throws(() => appeler(sebastien, "definirPartieDevSorealIdle", ["b"]), /PARTIES_DEV_INDISPONIBLES/);

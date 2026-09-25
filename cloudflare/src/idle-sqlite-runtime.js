@@ -26,7 +26,7 @@ import {
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
-import { idleDevSlotForUserV1, idleDevUserForSlotV1, idleDevAliasEmailV1 } from "./idle-dev-save-slots-v1.js";
+import { idleDevSlotForUserV1, idleDevUserForSlotV1, idleDevAliasEmailV1, IDLE_DEV_SAVE_SLOTS_V1 } from "./idle-dev-save-slots-v1.js";
 import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import {
   IDLE_ADVENTURE_ZONES,
@@ -91,6 +91,18 @@ const NGU_BOSS_NAMES_FR_V1 = new Map(
 
 let __idleRuntimeUser=null;
 let __idleWorkbook=null;
+/* Base SQL de l'appel en cours et interrupteur d'accès (idle_meta.acces_ouvert), lus à chaque appel. */
+let __idleSql=null;
+let __idleAccesOuvert=false;
+function __idleLireAccesOuvert(sql){
+  try{
+    const ligne=sqlRows(sql.exec("SELECT meta_value FROM idle_meta WHERE meta_key='acces_ouvert'"))[0];
+    return String(ligne&&ligne.meta_value)==="1";
+  }catch(_){
+    return false;
+  }
+}
+function accesOuvertSorealIdle_(){return __idleAccesOuvert===true;}
 const __idleCacheStore=new Map();
 
 function __idleKey(v){
@@ -512,10 +524,14 @@ const CONFIG_SOREAL_IDLE = {
    * Norman possède deux adresses historiques de connexion ; elles désignent
    * la même personne. Sébastien HODDAP est le seul autre joueur autorisé.
    */
+  /*
+   * 2026-09-25 (Norman) : « enlève l'accès spécial à Sébastien ; il doit avoir l'accès de la même manière que les autres, avec le bouton
+   * activé ». Seuls les deux comptes de Norman gardent un accès permanent ; tous les autres comptes connectés (APP / TV) passent par
+   * l'interrupteur « accès ouvert » des Paramètres (voir accesOuvertSorealIdle_).
+   */
   EMAILS_DEVELOPPEMENT: [
     'reeeedruuuum@gmail.com',
-    'technicien.soreal@gmail.com',
-    'hodappsebastien@gmail.com'
+    'technicien.soreal@gmail.com'
   ],
 
   COLONNES_JOUEURS: {
@@ -1993,12 +2009,17 @@ function verifierAccesSorealIdle_(
   const autorises =
     emailsAutorisesSorealIdle_();
 
+  /* Compte permanent (administrateur) ; sinon, interrupteur ouvert : tout compte connecté est autorisé, sous sa propre adresse. */
   const emailAutorise =
     emailsUtilisateur.find(
       function(email) {
         return autorises.indexOf(email) !== -1;
       }
-    ) || '';
+    ) || (
+      accesOuvertSorealIdle_()
+        ? String(emailsUtilisateur[0] || '')
+        : ''
+    );
 
   return {
     ok: true,
@@ -10438,6 +10459,15 @@ function construireEtatJoueurSorealIdle_(
         )
     },
 
+    /* Interrupteur d'accès à SOREAL IDLE : exposé uniquement au compte administrateur (bouton des Paramètres). */
+    reglages:
+      classementDebloqueSorealIdle_(
+        row[c.EMAIL_PRINCIPAL - 1],
+        row[c.EMAIL_CONNEXION - 1]
+      )
+        ? { accesOuvert: accesOuvertSorealIdle_() }
+        : null,
+
     profil: {
       dateDebut:
         new Date(dateDebutMs).toISOString(),
@@ -12318,6 +12348,57 @@ function marquerVusSorealIdle(
 
 /*
  * ------------------------------------------------------------------
+ * Accès à SOREAL IDLE (2026-09-25, Norman : « un bouton pour moi tout seul dans les paramètres : activer donne l'accès à toutes les personnes
+ * avec un compte connecté sur le site ; désactiver le cache à tout le monde »)
+ * ------------------------------------------------------------------
+ * Activé : tout compte connecté à APP / TV est autorisé (sous sa propre adresse). Désactivé : seuls les comptes de Norman. Réservé au compte
+ * administrateur ; par défaut désactivé.
+ */
+function definirAccesOuvertSorealIdle(
+  sessionToken,
+  actif
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const emails =
+    extraireEmailsUtilisateurSorealIdle_(
+      acces.user
+    );
+
+  if (emails.indexOf(ADMIN_SOREAL_IDLE_EMAIL) === -1) {
+    throw new Error(
+      'SOREAL_IDLE_ADMIN_REQUIS'
+    );
+  }
+
+  if (!__idleSql) {
+    throw new Error(
+      'SOREAL_IDLE_BASE_INDISPONIBLE'
+    );
+  }
+
+  const ouvert = actif === true || actif === 'true' || actif === 1 || actif === '1';
+
+  __idleSql.exec(
+    "INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_ouvert',?) "+
+    "ON CONFLICT(meta_key) DO UPDATE SET meta_value=excluded.meta_value",
+    ouvert ? '1' : '0'
+  );
+
+  __idleAccesOuvert = ouvert;
+
+  return {
+    ok: true,
+    accesOuvert: ouvert
+  };
+}
+
+
+/*
+ * ------------------------------------------------------------------
  * Ordre des boutons du menu (« Rangement des boutons », 2026-09-25)
  * ------------------------------------------------------------------
  */
@@ -12449,6 +12530,21 @@ function valeursClassementJoueurSorealIdle_(stats) {
   };
 }
 
+/*
+ * Ne comptent au classement que les joueurs connectés à leur compte (Norman, 2026-09-25) : ni la « partie B » de développement
+ * (adresse alias « nom+partieb@… »), ni une entrée sans vrai nom (« Joueur »).
+ */
+function joueurExclusClassementSorealIdle_(cle, nom) {
+  const email = String(cle || '').trim().toLowerCase();
+  const libelle = String(nom || '').trim().toLowerCase();
+  return (
+    !email ||
+    email.indexOf('+' + IDLE_DEV_SAVE_SLOTS_V1.aliasTag + '@') !== -1 ||
+    !libelle ||
+    libelle === 'joueur'
+  );
+}
+
 function obtenirClassementSorealIdle(
   sessionToken
 ) {
@@ -12481,6 +12577,11 @@ function obtenirClassementSorealIdle(
     const cle =
       String(registre.getCell(r, 1) || '').trim().toLowerCase();
     if (!cle) continue;
+    if (joueurExclusClassementSorealIdle_(cle, registre.getCell(r, 2))) {
+      /* Entrée enregistrée avant ces règles (partie B, « Joueur ») : retirée du registre. */
+      registre.getRange(r, 1, 1, 3).setValues([['', '', '']]);
+      continue;
+    }
     parCle.set(cle, {
       cle: cle,
       ligneRegistre: r,
@@ -12506,7 +12607,9 @@ function obtenirClassementSorealIdle(
     if (!cle) continue;
 
     const nom =
-      String(valeursLigne[c.NOM - 1] || '').trim() || 'Joueur';
+      String(valeursLigne[c.NOM - 1] || '').trim();
+
+    if (joueurExclusClassementSorealIdle_(cle, nom)) continue;
 
     const stats =
       statsJoueurSorealIdle_(
@@ -15904,6 +16007,7 @@ const IDLE_OPERATIONS={
   lancerSortSorealIdle,
   marquerVusSorealIdle,
   definirOrdreMenusSorealIdle,
+  definirAccesOuvertSorealIdle,
   obtenirClassementSorealIdle,
   nukerBossSorealIdle,
   obtenirAccesSorealIdle,
@@ -15989,13 +16093,19 @@ export function runSorealIdleOperation(sql,operation,args,user){
   if(op==="obtenirAccesSorealIdle"||op==="testerAccesSorealIdle"){
     __idleRuntimeUser=user||null;
     __idleWorkbook=null;
+    __idleSql=sql;
+    __idleAccesOuvert=__idleLireAccesOuvert(sql);
     try{
       return fn.apply(null,Array.isArray(args)?args:[]);
     }finally{
       __idleRuntimeUser=null;
       __idleWorkbook=null;
+      __idleSql=null;
     }
   }
+
+  __idleSql=sql;
+  __idleAccesOuvert=__idleLireAccesOuvert(sql);
 
   const sourceState=sqlRows(sql.exec(
     "SELECT COUNT(*) AS total,SUM(CASE WHEN status='DONE' THEN 1 ELSE 0 END) AS done "+
@@ -16042,5 +16152,6 @@ export function runSorealIdleOperation(sql,operation,args,user){
   }finally{
     __idleRuntimeUser=null;
     __idleWorkbook=null;
+    __idleSql=null;
   }
 }

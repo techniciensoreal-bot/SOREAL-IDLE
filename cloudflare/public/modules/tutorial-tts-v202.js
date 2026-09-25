@@ -51,6 +51,9 @@
   var activeBufferSource=null;
   var audioContext=null;
   var lastError='';
+  var retryAuGeste=false;
+  /* Diagnostic léger (2026-09-25) : combien de fois la narration automatique a été évaluée / démarrée, et pourquoi elle a été refusée. */
+  var diag={scans:0,demarrages:0,refus:'',dernierTexte:'',reessais:0};
 
   try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
 
@@ -170,19 +173,42 @@
     return voiceManifest;
   }
 
-  /* Fichier pré-généré du bloc (Blob) ou null : l'appelant se rabat alors sur Piper. */
-  function blocPregenere_(text,expectedGeneration){
+  /*
+   * Fichier pré-généré d'un bloc (Blob) ou null. Le résultat est gardé en mémoire par empreinte, indépendamment de la narration en cours :
+   * la page suivante d'un popup peut ainsi être préchargée pendant la lecture de la page affichée (voir prechauffer), et « Suivant » joue
+   * le son sans attendre le réseau (Norman, 2026-09-25 : « quand on fait suivant, ça met du temps avant que le son soit joué »).
+   */
+  var blocsFichiers={};
+  function chargerBlocFichier_(text){
     var hash=hashBloc_(text);
-    return chargerManifesteVoix_().then(function(set){
-      if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+    if(blocsFichiers[hash])return blocsFichiers[hash];
+    blocsFichiers[hash]=chargerManifesteVoix_().then(function(set){
       if(!set[hash])return null;
       return fetch(VOICE_DIR+hash+'.m4a').then(function(r){
         if(!r||!r.ok)return null;
         return r.blob();
       }).then(function(blob){
         return blob&&blob.size?blob:null;
-      }).catch(function(){return null;});
+      });
+    }).catch(function(){delete blocsFichiers[hash];return null;});
+    return blocsFichiers[hash];
+  }
+
+  /* Fichier pré-généré du bloc (Blob) ou null : l'appelant se rabat alors sur Piper. */
+  function blocPregenere_(text,expectedGeneration){
+    return chargerBlocFichier_(text).then(function(blob){
+      if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+      return blob;
     });
+  }
+
+  /* Précharge les fichiers de voix d'un texte (sans le lire) : appelé pour la page suivante d'un popup. */
+  function prechauffer_(value){
+    if(!supported_())return false;
+    planNarration_(String(value||'')).forEach(function(etape){
+      if(etape.chunk)chargerBlocFichier_(etape.chunk);
+    });
+    return true;
   }
 
   function obtenirAudioBloc_(text,targetId,expectedGeneration,silent){
@@ -577,9 +603,19 @@
   }
 
   function narrate_(text,targetId,target,force,explicitSource){
-    if((!force&&!auto)||!text||!supported_())return false;
+    if((!force&&!auto)||!text||!supported_()){
+      diag.refus=(!force&&!auto?'auto-off ':'')+(!text?'texte-vide ':'')+(!supported_()?'non-supporte':'');
+      return false;
+    }
+    diag.demarrages+=1;
 
+    /*
+     * stop_() efface l'empreinte du dernier texte lu : sans la restaurer, le passage suivant de scan_ croyait le texte NOUVEAU et relançait la
+     * narration depuis le début, à chaque mutation du jeu (les mêmes phrases repassaient en boucle — Norman, 2026-09-25).
+     */
+    var empreinteGardee=lastFingerprint;
     stop_();
+    lastFingerprint=empreinteGardee;
     var myGeneration=generation;
     lastError='';
     activeReadTarget=String(targetId||'__manual_text__');
@@ -639,7 +675,8 @@
     }).catch(function(error){
       if(myGeneration!==generation)return;
       activeReadTarget='';
-      lastFingerprint='';
+      /* Pas de relance automatique en boucle : on réessaiera au prochain geste (audio bloqué par le navigateur tant qu'aucun appui n'a eu lieu). */
+      retryAuGeste=true;
       updateReadButtons_();
       var message=String(error&&error.message||error||'VOIX_IA_INDISPONIBLE');
       if(message!=='NARRATION_ANNULEE')afficherErreur_(message,targetId);
@@ -649,8 +686,14 @@
   }
 
   function readVisible_(force){
+    diag.scans+=1;
     var panel=activePanel_();
-    if(!visible_(panel))return false;
+    if(!visible_(panel)){
+      diag.refus='panneau-invisible';
+      if(panel&&auto&&diag.reessais<8){diag.reessais+=1;setTimeout(schedule_,120);}
+      return false;
+    }
+    diag.reessais=0;
     var txt=text_(panel);
     if(!txt)return false;
     if(!force&&txt===lastFingerprint)return false;
@@ -734,9 +777,15 @@
     if(auto)readVisible_(false);
   }
 
+  /*
+   * 2026-09-25 : l'ancien anti-rebond (clearTimeout puis 70 ms) ne se déclenchait JAMAIS tant que le jeu modifiait la page plus souvent que
+   * toutes les 70 ms (compteur d'énergie, barres…) : la voix automatique d'un popup ne démarrait qu'à la première pause de ces mises à jour,
+   * d'où l'attente après « Suivant ». Une seule évaluation est désormais planifiée à la fois (elle a lieu au plus 70 ms après la première
+   * mutation, quoi qu'il arrive ensuite).
+   */
   function schedule_(){
-    clearTimeout(timer);
-    timer=setTimeout(scan_,70);
+    if(timer)return;
+    timer=setTimeout(function(){timer=0;scan_();},70);
   }
 
   function style_(){
@@ -775,7 +824,10 @@
     },true);
 
     document.addEventListener('pointerdown',function(){
-      if(auto)schedule_();
+      if(auto){
+        if(retryAuGeste){retryAuGeste=false;lastFingerprint='';}
+        schedule_();
+      }
     },{capture:true,passive:true});
     schedule_();
   }
@@ -784,6 +836,7 @@
     enabled:function(){return auto;},
     read:function(){lastFingerprint='';return readVisible_(true);},
     readTarget:lireCible_,
+    prechauffer:prechauffer_,
     readText:function(value,audioSrc){
       var txt=String(value||'').replace(/\s+/g,' ').trim();
       if(!txt)return false;
@@ -800,6 +853,7 @@
       return Boolean(activeReadTarget||activeAudio||activeBufferSource);
     },
     lastError:function(){return lastError;},
+    diagnostic:function(){return {scans:diag.scans,demarrages:diag.demarrages,refus:diag.refus,auto:auto,fingerprint:lastFingerprint.slice(0,30)};},
     audioState:function(){return audioContext?String(audioContext.state||'unknown'):'none';},
     setEnabled:function(value){
       auto=Boolean(value);
