@@ -260,6 +260,11 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
  * revu jusqu'ici : choisirCleMobR2_ (worker.js) a été élargi pour
  * reconnaître "boss" en infixe OU en suffixe, pas seulement en infixe.
  */
+/*
+ * NOTE 2026-09-24 : ce catalogue (anciens noms de fichiers d'illustrations « thème dépôt/entrepôt ») ne sert plus qu'à compter les créatures des zones
+ * sans bestiaire. Les NOMS affichés (combat, Collection) sont les vrais noms NGU de IDLE_ADVENTURE_MOB_BESTIARY_V1, et les images R2 portent déjà
+ * les vrais noms (Adv_<id>_<nom>.png) : l'image est choisie par NOM (idle-media-v1.js, choisirCleMobR2_), l'index n'est qu'un repli.
+ */
 export const IDLE_ADVENTURE_MOB_CATALOG_V1=Object.freeze({
   tutorial:{normal:["monster_box","pallet_goblin","scarecrow"],boss:["cardboard_foreman"]},
   sewers:{normal:["biobox_mimic","hazard_cone","mutant_rat"],boss:[]},

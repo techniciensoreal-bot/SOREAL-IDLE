@@ -312,7 +312,20 @@ function choisirObjetItemR2ParDefinition_(objects,definitionId,itemName="",slot=
   const target=Number(IDLE_ITEM_R2_ID_BY_DEFINITION[String(definitionId||"")])||0;
   return choisirObjetItemR2ParId_(objects,target,itemName,slot,setId);
 }
-function choisirObjetItemR2ParIdEtTier_(objects,itemId,tier,itemName="",slot="",setId=""){
+/*
+ * 2026-09-24 (Norman : le Cube evolue quand on le booste ; « avec la nouvelle image du R2 ») : si l'image du palier demande n'existe pas (dossier
+ * R2 incomplet : paliers 4, 8, 9 et 10 absents le 2026-09-24), on sert l'image du palier disponible LE PLUS PROCHE EN DESSOUS au lieu d'un 404
+ * (l'icone tombait sur l'emoji). Le jour ou le fichier du palier est ajoute, il est servi tel quel (aucun changement de code).
+ */
+export function choisirObjetItemR2ParIdEtTier_(objects,itemId,tier,itemName="",slot="",setId=""){
+  const demande=Math.max(0,Math.floor(Number(tier)||0));
+  for(let niveau=demande;niveau>=0;niveau--){
+    const trouve=choisirObjetItemR2ParIdEtTierExact_(objects,itemId,niveau,itemName,slot,setId);
+    if(trouve)return trouve;
+  }
+  return null;
+}
+function choisirObjetItemR2ParIdEtTierExact_(objects,itemId,tier,itemName="",slot="",setId=""){
   const target=Number(itemId)||0;
   const niveau=Math.max(0,Math.floor(Number(tier)||0));
   if(!target||!Array.isArray(objects))return null;
@@ -590,7 +603,31 @@ async function objetsDossierMobR2_(env,prefix){
  * reste essayÃ© en repli pour ne jamais casser un dossier qui ne serait
  * pas encore migrÃ© vers la nouvelle convention.
  */
-function choisirCleMobR2_(keys,boss,indexValue){
+/*
+ * 2026-09-24 (Norman : « je veux les vrais noms ; je changerai les images ») : les fichiers R2 portent DEJA les vrais noms NGU
+ * (Adv_<id>_<nom>.png), mais l'index du mob dans le bestiaire ne correspond pas toujours a l'index du fichier dans le dossier trie (les boss autres que
+ * le plus grand id, les fichiers absents ou en trop decalent le pool : « Fairy » affichait l'image de « Rat of Unusual Size »). Quand le client donne
+ * le NOM du mob (?name=), l'image est choisie par ce nom (seul cas d'egalite exacte apres normalisation) ; sans nom, ou sans fichier du meme nom,
+ * on retombe sur l'ancien choix par index.
+ */
+function slugMobR2_(valeur){
+  return String(valeur||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+}
+function slugFichierMobR2_(cle){
+  const fichier=String(cle).split("/").pop().replace(/\.[a-z0-9]+$/i,"").replace(/^Adv_\d+_/i,"");
+  return slugMobR2_(fichier);
+}
+export function choisirCleMobR2ParNom_(keys,nomValue){
+  const voulu=slugMobR2_(nomValue);
+  if(!voulu)return "";
+  return keys.slice().sort().find(k=>slugFichierMobR2_(k)===voulu)||"";
+}
+export function choisirCleMobR2_(keys,boss,indexValue,nomValue){
+  const parNom=choisirCleMobR2ParNom_(keys,nomValue);
+  if(parNom)return parNom;
+  return choisirCleMobR2Index_(keys,boss,indexValue);
+}
+function choisirCleMobR2Index_(keys,boss,indexValue){
   const idsParCle=new Map();
   for(const k of keys){
     const file=String(k).split("/").pop();
@@ -629,7 +666,8 @@ async function adventureMob_(request,env,url){
   const key=choisirCleMobR2_(
     keys,
     url.searchParams.get("boss")==="1",
-    url.searchParams.get("seed")
+    url.searchParams.get("seed"),
+    url.searchParams.get("name")
   );
   if(!key)return new Response("Image de monstre introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
 

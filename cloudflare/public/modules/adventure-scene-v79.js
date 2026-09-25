@@ -81,6 +81,8 @@
     p.set('zone',String(fight&&fight.zone||''));
     p.set('boss',fight&&fight.boss?'1':'0');
     p.set('seed',String(Math.max(0,int_(fight&&fight.monsterIndex))));
+    /* Le vrai nom NGU du mob (bestiaire) choisit son image par nom quand un fichier du meme nom existe (voir choisirCleMobR2_). */
+    if(fight&&fight.mobName)p.set('name',String(fight.mobName));
     return '/api/idle/media/mob?'+p.toString();
   }
 

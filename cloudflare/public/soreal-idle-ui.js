@@ -13973,7 +13973,7 @@ let idleDialogueTimerV76=null;
               idleEntier_(e.numero)>0
                 ?urlBossR2IdleV1_(idleEntier_(e.numero))
                 :(e.zone
-                  ?urlMobR2IdleV1_(e.zone,e.boss,e.index)
+                  ?urlMobR2IdleV1_(e.zone,e.boss,e.index,e.nom)
                   :(e.driveFileId
                     ?'https://lh3.googleusercontent.com/d/'+encodeURIComponent(e.driveFileId)+'=w600'
                     :String(e.image||'')));
@@ -20584,13 +20584,14 @@ function pageAventureIdleV28_(j){
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-324 */
-      function urlMobR2IdleV1_(zone,boss,index){
+      function urlMobR2IdleV1_(zone,boss,index,nom){
         const z=String(zone||'').trim();
         if(!z)return '';
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-325 */
         return '/api/idle/media/mob?zone='+encodeURIComponent(z)+
           '&boss='+(boss?'1':'0')+
-          '&seed='+encodeURIComponent(String(index||'0'));
+          '&seed='+encodeURIComponent(String(index||'0'))+
+          (nom?'&name='+encodeURIComponent(String(nom)):'');
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-326 */
