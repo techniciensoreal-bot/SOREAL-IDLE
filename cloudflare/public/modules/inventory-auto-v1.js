@@ -95,6 +95,19 @@
   }
   function verrou(texte){return '<div class="soreal-idle-note-v4" style="margin:4px 0 0">🔒 '+html(texte)+'</div>';}
 
+  /*
+   * 2026-09-24 (Norman : « les options de l'inventaire, dans le bas, doivent pouvoir se fermer/ouvrir comme le Coffre et Info ») : titre
+   * cliquable avec chevron ; fermé tant que rien n'est stocké (même mécanique et même style que le Coffre).
+   */
+  var CLE_OUVERT='soreal_idle_inv_auto_ouvert_v1';
+  function ouvert(){
+    try{return localStorage.getItem(CLE_OUVERT)==='1';}catch(e){return false;}
+  }
+  window.__inventaireAutoBasculerV1__=function(){
+    try{localStorage.setItem(CLE_OUVERT,ouvert()?'0':'1');}catch(e){}
+    rendre();
+  };
+
   function panneau(j){
     var s=snap(j);var a=aventure(j);
     if(!s||!a)return '';
@@ -148,7 +161,10 @@
         '</span></div>';
       }).join('')+'</div>':verrou('Boutique EXP (« 2 Loadout Slots! », « Another Loadout Slot! ») ou 4G’s Sellout Shop.'))+
     '</div>');
-    return '<div class="soreal-idle-window-title-v31">⚙️ Automatisation de l’inventaire</div>'+lignes.join('');
+    var estOuvert=ouvert();
+    return '<div class="soreal-idle-window-title-v31 soreal-idle-inv-auto-titre-v1" onclick="window.__inventaireAutoBasculerV1__()" role="button" tabindex="0" aria-expanded="'+(estOuvert?'true':'false')+'">'+
+      '<span>⚙️ Automatisation de l’inventaire</span><span class="soreal-idle-coffre-chevron-v1">'+(estOuvert?'▲':'▼')+'</span></div>'+
+      (estOuvert?lignes.join(''):'');
   }
 
   function style(){

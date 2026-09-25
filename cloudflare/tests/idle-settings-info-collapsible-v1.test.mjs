@@ -23,6 +23,6 @@ assert.match(page, /\(infoOuvert\?\s*'<div style="font-size:12px;color:#8b93ab;m
 assert.match(page, /Aucune intervention disponible pour l’instant\.<\/div>'\s*\):''\)\+/, "la liste (infos + Norman & Sébastien) est entièrement conditionnée");
 
 // Le titre reprend le style du Coffre.
-assert.match(css, /\.soreal-idle-coffre-titre-v1,\s*\.soreal-idle-info-titre-v1\s*\{/);
+assert.match(css, /\.soreal-idle-coffre-titre-v1,\s*\.soreal-idle-info-titre-v1,\s*\.soreal-idle-inv-auto-titre-v1\s*\{/);
 
 console.log("idle-settings-info-collapsible-v1: OK");

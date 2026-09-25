@@ -8698,7 +8698,7 @@
 
           if(sauve){
             idleMenuActifV28=
-              String(sauve);
+              String(sauve)==='inventaire'?'aventure':String(sauve);
           }
         }catch(e){}
       }
@@ -8849,9 +8849,8 @@
           return Boolean(j.aventure&&j.aventure.debloquee);
         }
 
-        if(id==='inventaire'){
-          return Boolean(j.inventaireDebloque);
-        }
+        /* 2026-09-24 : plus de menu « Inventory » — son contenu est sous Adventure (pageAventureIdleV28_). */
+        if(id==='inventaire')return false;
 
         if(id==='bestiaire'){
           return Boolean(j.bestiaire&&j.bestiaire.debloquee);
@@ -9907,7 +9906,6 @@
         entrainement:'#3b82f6',
         combat:'#ef4444',
         aventure:'#22c55e',
-        inventaire:'#f59e0b',
         bestiaire:'#14b8a6',
         renaissance:'#a855f7',
         augmentations:'#6366f1',
@@ -9944,7 +9942,6 @@
         {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
-        {id:'inventaire',icon:'🎒',nom:'Inventory'},
         {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
         {id:'bestiaire',icon:'🏆',nom:'Collection'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
@@ -14914,7 +14911,7 @@ let idleDialogueTimerV76=null;
 
       function patchInventaireAdventureIdleV160_(j,options){
         if(
-          idleMenuActifV28!=='inventaire'||
+          idleMenuActifV28!=='aventure'||
           !j||
           !aventureMetaIdleV47_(j)
         ){
@@ -16969,7 +16966,7 @@ function pageAventureIdleV28_(j){
             '<div class="soreal-idle-section-v8" style="text-align:center;padding:28px">'+
               '<div style="font-size:42px">🔒</div>'+
               '<div style="font-size:20px;font-weight:900;margin-top:8px">Adventure verrouillé</div>'+
-              '<div style="margin-top:8px;color:#aeb5c8">Bats le boss 4 pour débloquer Adventure et Inventory.</div>'+
+              '<div style="margin-top:8px;color:#aeb5c8">Bats le boss 4 pour débloquer Adventure (et son inventaire).</div>'+
             '</div>';
         }
         const selected=String(a.selectedZone||'safe');
@@ -17015,7 +17012,9 @@ function pageAventureIdleV28_(j){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-232 */
           (zone?rendreZoneCombatAdventureIdleV1_(a,j.nom):'')+
           (titans.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">👹 Titans</div><div style="display:grid;gap:8px">'+titans.map(function(t){const verrouille=t.progressionUnlocked===false;const kills=idleEntier_(t.state&&t.state.kills||0);return carteTitanAdventureIdleV145_(t,verrouille,kills);}).join('')+'</div></div>':'')+
-          (deblocagesDisponibles.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🔓 Objets de déblocage</div><div style="display:grid;gap:8px">'+deblocagesDisponibles.map(function(id){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[id];return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(120,255,180,.08);border:1px solid rgba(120,255,180,.3)"><span><b>'+idleHtml_(d.nom)+'</b><br><small>Débloque '+idleHtml_(d.systeme)+'</small></span><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__consommerDeblocageAdventureIdleV47__(\''+idleHtml_(id)+'\')">Utiliser</button></div>';}).join('')+'</div></div>':'');
+          (deblocagesDisponibles.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🔓 Objets de déblocage</div><div style="display:grid;gap:8px">'+deblocagesDisponibles.map(function(id){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[id];return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(120,255,180,.08);border:1px solid rgba(120,255,180,.3)"><span><b>'+idleHtml_(d.nom)+'</b><br><small>Débloque '+idleHtml_(d.systeme)+'</small></span><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__consommerDeblocageAdventureIdleV47__(\''+idleHtml_(id)+'\')">Utiliser</button></div>';}).join('')+'</div></div>':'')+
+          /* 2026-09-24 (Norman : « trop de menus sur téléphone ») : tout l'Inventory (équipement, sac, coffre, options) est maintenant sous la page Adventure. */
+          (j.inventaireDebloque?pageInventaireIdleV28_(j):'');
       }
 
 
@@ -18026,6 +18025,8 @@ function pageAventureIdleV28_(j){
         },true);
 
         document.addEventListener('soreal-longpress',function(event){
+          /* PC : le maintien du clic n'ouvre plus le popup (il se refermait au relâchement) — c'est le survol qui l'ouvre. */
+          if(event.detail&&event.detail.pointerType==='mouse')return;
           const element=elementObjetGesteAdventureIdleV196_(event.target);
           const id=idObjetGesteAdventureIdleV196_(element);
           if(!element||!id)return;
@@ -18071,6 +18072,120 @@ function pageAventureIdleV28_(j){
       }
 
       installerGestesInventaireAdventureIdleV196_();
+
+      /*
+       * PC — popup d'objet au SURVOL (Norman, 2026-09-24) : « quand on passe la souris sur un objet, le popup apparaît ; il disparaît quand
+       * on sort de la fenêtre du popup. Tant qu'on y reste, on a accès aux boutons (verrouiller…). » Souris seulement (le tactile garde le
+       * maintien long). Le popup s'ouvre à côté de l'objet ; un court délai de grâce laisse passer la souris de l'objet au popup.
+       */
+      let idleSurvolIdV1='';
+      let idleSurvolTimerOuvrirV1=0;
+      let idleSurvolTimerFermerV1=0;
+      let idleSurvolBloqueV1=false;
+
+      function survolPossibleIdleV1_(event){
+        if(!event||event.pointerType==='touch'||event.pointerType==='pen')return false;
+        if(window.matchMedia&&!window.matchMedia('(hover:hover) and (pointer:fine)').matches)return false;
+        return true;
+      }
+
+      function survolOccupeIdleV1_(){
+        return Boolean(
+          idleSurvolBloqueV1||
+          idleAdventureDragIdV138||
+          idleAdventureGesteV196||
+          idleAdventureComparerEnAttenteV183||
+          document.getElementById('soreal-idle-v138-details-compare-v183')
+        );
+      }
+
+      function annulerTimersSurvolIdleV1_(){
+        clearTimeout(idleSurvolTimerOuvrirV1);
+        clearTimeout(idleSurvolTimerFermerV1);
+        idleSurvolTimerOuvrirV1=0;
+        idleSurvolTimerFermerV1=0;
+      }
+
+      function fermerSurvolIdleV1_(){
+        annulerTimersSurvolIdleV1_();
+        if(!idleSurvolIdV1)return;
+        idleSurvolIdV1='';
+        if(popupDetailsObjetAdventureIdleOuvertV207_())fermerDetailsObjetAdventureIdleV1_();
+      }
+
+      function ouvrirSurvolIdleV1_(element,id){
+        if(survolOccupeIdleV1_()||!element||!element.isConnected)return;
+        if(!ouvrirDetailsObjetParGesteAdventureIdleV196_(id))return;
+        idleSurvolIdV1=id;
+        idleAdventureIgnorerClicJusquaV165=0; /* le survol ne doit pas avaler le premier clic */
+        const root=document.getElementById('soreal-idle-v138-details');
+        if(!root)return;
+        /* À côté de l'objet (à droite, sinon à gauche), sans le recouvrir : la souris peut passer de l'objet au popup. */
+        const r=element.getBoundingClientRect();
+        const largeur=root.offsetWidth||320;
+        const hauteur=root.offsetHeight||160;
+        const marge=8;
+        let left=r.right+4;
+        if(left+largeur>window.innerWidth-marge)left=r.left-largeur-4;
+        left=Math.min(Math.max(marge,left),Math.max(marge,window.innerWidth-largeur-marge));
+        const top=Math.min(Math.max(marge,r.top-6),Math.max(marge,window.innerHeight-hauteur-marge));
+        idleItemPopupPositionV1_={left:Math.round(left),top:Math.round(top)};
+        root.style.left=idleItemPopupPositionV1_.left+'px';
+        root.style.top=idleItemPopupPositionV1_.top+'px';
+      }
+
+      document.addEventListener('mouseover',function(event){
+        if(!survolPossibleIdleV1_(event))return;
+        const cible=event.target;
+        if(cibleDansPopupDetailsObjetAdventureIdleV207_(cible)){
+          clearTimeout(idleSurvolTimerFermerV1);
+          idleSurvolTimerFermerV1=0;
+          return;
+        }
+        const element=elementObjetGesteAdventureIdleV196_(cible);
+        const id=idObjetGesteAdventureIdleV196_(element);
+        if(element&&id){
+          clearTimeout(idleSurvolTimerFermerV1);
+          idleSurvolTimerFermerV1=0;
+          if(id===idleSurvolIdV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
+          clearTimeout(idleSurvolTimerOuvrirV1);
+          idleSurvolTimerOuvrirV1=setTimeout(function(){
+            idleSurvolTimerOuvrirV1=0;
+            ouvrirSurvolIdleV1_(element,id);
+          },110);
+          return;
+        }
+        /* ni objet ni popup : on ferme (avec un court délai de grâce) le popup ouvert par survol */
+        clearTimeout(idleSurvolTimerOuvrirV1);
+        idleSurvolTimerOuvrirV1=0;
+        if(idleSurvolIdV1&&!idleSurvolTimerFermerV1){
+          idleSurvolTimerFermerV1=setTimeout(function(){
+            idleSurvolTimerFermerV1=0;
+            fermerSurvolIdleV1_();
+          },200);
+        }
+      });
+
+      /* La souris quitte la fenêtre du navigateur */
+      document.documentElement.addEventListener('mouseleave',function(){
+        if(!idleSurvolIdV1)return;
+        clearTimeout(idleSurvolTimerFermerV1);
+        idleSurvolTimerFermerV1=setTimeout(function(){
+          idleSurvolTimerFermerV1=0;
+          fermerSurvolIdleV1_();
+        },200);
+      });
+
+      /* Presser un objet à la souris = glisser-déposer : le popup ne doit pas gêner, ni revenir avant le relâchement. */
+      document.addEventListener('pointerdown',function(event){
+        if(!survolPossibleIdleV1_(event))return;
+        if(!elementObjetGesteAdventureIdleV196_(event.target))return;
+        idleSurvolBloqueV1=true;
+        fermerSurvolIdleV1_();
+      },true);
+      document.addEventListener('pointerup',function(){
+        setTimeout(function(){idleSurvolBloqueV1=false;},60);
+      },true);
 
       function idSourceAdventureIdleV138_(event){
         return String(
@@ -20092,8 +20207,6 @@ function pageAventureIdleV28_(j){
             return pageAventureIdleV28_(j);
           case 'bestiaire':
             return pageBestiaireIdleV110_(j);
-          case 'inventaire':
-            return pageInventaireIdleV28_(j);
           case 'boutique':
             return pageBoutiqueIdleV28_(j);
           case 'sellout':

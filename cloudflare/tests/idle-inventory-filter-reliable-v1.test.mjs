@@ -51,7 +51,7 @@ const window = {
   },
   __SOREAL_IDLE_RUNTIME_V1__: { getState: () => Promise.resolve(etatServeur()), onRender() {} }
 };
-vm.runInNewContext(source, { window, document, setTimeout: setTimeoutSim, clearTimeout() {}, Promise, Object, Array, Math, Number, String, Boolean, Date, JSON });
+vm.runInNewContext(source, { window, document, localStorage: { getItem: () => "1", setItem() {} }, setTimeout: setTimeoutSim, clearTimeout() {}, Promise, Object, Array, Math, Number, String, Boolean, Date, JSON });
 const api = window.__SOREAL_IDLE_INVENTORY_AUTO_V1__;
 
 // L'utilisateur décoche « Casque » : les deux premiers envois sont abandonnés, le troisième passe.
@@ -78,5 +78,5 @@ assert.equal(serveur.actions.length, nombreEnvois, "plus aucun envoi une fois la
   assert.match(api.panneau(etatServeur()), /<input type="checkbox" checked onchange="window\.__inventaireAutoFiltreTypeV1__\('chest',this\.checked\)"> Torse/, "après abandon, l'affichage reflète le serveur");
 }
 
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/inventory-auto-v1.js?v=4"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/inventory-auto-v1.js?v=5"));
 console.log("idle-inventory-filter-reliable-v1: OK");

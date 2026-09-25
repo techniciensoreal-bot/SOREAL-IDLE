@@ -11,7 +11,8 @@ const actions = [];
 const noop = () => {};
 const document = { getElementById: () => null, addEventListener: noop, querySelectorAll: () => [], head: { appendChild: noop }, createElement: () => ({}) };
 const window = { document, addEventListener: noop, __actionMetaV47__: (p) => actions.push(p), confirm: () => true };
-const sandbox = { window, document, setTimeout: () => 0 };
+/* le panneau d'options est repliable (fermé par défaut) : ces vérifications lisent son contenu, donc panneau ouvert */
+const sandbox = { window, document, setTimeout: () => 0, localStorage: { getItem: () => "1", setItem() {} } };
 vm.runInNewContext(readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8"), sandbox);
 const api = window.__SOREAL_IDLE_INVENTORY_AUTO_V1__;
 assert.ok(api && typeof api.panneau === "function", "module chargé");
@@ -53,7 +54,7 @@ assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 /* 2026-09-24 : ?v=1 -> ?v=2 (case « consumeRecycled » ajoutée au panneau), puis ?v=3 (le panneau passe après le Coffre). */
-assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=4"></script>'));
+assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=5"></script>'));
 assert.ok(index.indexOf("/modules/inventory-auto-v1.js") < index.indexOf("/soreal-idle-ui.js"), "chargé avant le monolithe, comme les autres modules");
 
 /* 2026-09-24 (Norman) : le Coffre vient avant toutes les options (filtre de butin, etc.). */
