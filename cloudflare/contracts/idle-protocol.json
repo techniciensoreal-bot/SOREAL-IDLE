@@ -25,6 +25,8 @@
     "fusionnerObjetsSorealIdle",
     "lancerSortSorealIdle",
     "marquerVusSorealIdle",
+    "definirOrdreMenusSorealIdle",
+    "obtenirClassementSorealIdle",
     "nukerBossSorealIdle",
     "obtenirAccesSorealIdle",
     "obtenirEtatBoutiqueSorealIdle",

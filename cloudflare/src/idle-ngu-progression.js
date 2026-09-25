@@ -1330,6 +1330,14 @@ function baseState(now) {
       setsCompleted: 0,
       totalRebirths: 0,
       highestGoldDrop: 0,
+      /*
+       * Classement des joueurs (2026-09-25) : meilleur NUMBER obtenu à un Rebirth, EXP totale GAGNÉE (jamais diminuée par les achats), temps de jeu
+       * cumulé (secondes simulées, hors ligne compris) ; expLastSeen = dernière EXP observée, sert à repérer les gains entre deux normalisations.
+       */
+      bestNumber: 0,
+      totalExpEarned: 0,
+      expLastSeen: -1,
+      playSeconds: 0,
       /* Secret de Rebirth "3 fois de suite < 30 min avec boss 37" (page Rebirths) : série en cours, bonus versé (0/1). */
       speedrunStreak: 0,
       speedrunBonusClaimed: 0,
@@ -2074,7 +2082,24 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.rebirth = normalizeRebirthState(source.rebirth, state.runStartedAt, t);
   applyYggQuickActivationV1(state, t);
   state.rebirth = refreshRebirthState(state, context, t);
+  trackLeaderboardStatsV1(state);
   return state;
+}
+
+/*
+ * Statistiques du classement qui ne se déduisent pas de l'état courant (voir records.bestNumber / totalExpEarned / playSeconds) :
+ *  - EXP totale gagnée : chaque hausse de l'EXP depuis la dernière observation est un gain ; une baisse est un achat (ignoré). Les achats passent
+ *    par une action, qui normalise d'abord l'état : les gains précédents sont donc déjà comptés au moment de la dépense.
+ *  - Meilleur NUMBER : le NUMBER en cours vient d'un Rebirth ; comptes existants (au moins un Rebirth) initialisés à leur NUMBER actuel.
+ */
+function trackLeaderboardStatsV1(state) {
+  const r = state.records;
+  const exp = Math.max(0, num(state.currencies?.experience, 0));
+  const vue = num(r.expLastSeen, -1);
+  if (vue < 0) r.totalExpEarned = Math.max(num(r.totalExpEarned, 0), exp);
+  else if (exp > vue) r.totalExpEarned = num(r.totalExpEarned, 0) + (exp - vue);
+  r.expLastSeen = exp;
+  if (num(r.totalRebirths, 0) > 0) r.bestNumber = Math.max(num(r.bestNumber, 0), num(state.rebirth?.number, 0));
 }
 
 /*
@@ -4098,6 +4123,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
     ? 60
     : EARLY_GAME_MAX_OFFLINE_SECONDS;
   const secs = clamp(seconds, 0, offlineCap);
+  state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
 
   advanceGeneratedResources(state,secs,context);
   advanceAugmentations(state, secs, context);
@@ -6557,6 +6583,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
 
   rb.lastNumber=rb.number;
   rb.number=committedNumber;
+  state.records.bestNumber=Math.max(num(state.records.bestNumber,0),committedNumber);
   rb.lastBosses=Math.max(0,int(context.bosses,0));
   rb.lastRunSeconds=runSeconds;
   rb.hasPreviousRun=true;

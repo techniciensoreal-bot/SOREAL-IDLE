@@ -178,6 +178,13 @@ class IdleSheet {
 class IdleSpreadsheet {
   constructor(sheets){this.sheets=sheets;}
   getSheetByName(name){return this.sheets.get(String(name||""))||null;}
+  /* Feuille créée à la demande (ex. registre du classement) ; ses lignes modifiées sont enregistrées par __idleCommit. */
+  getOrCreateSheet(name){
+    const nom=String(name||"");
+    let feuille=this.sheets.get(nom);
+    if(!feuille){feuille=new IdleSheet(nom,[]);this.sheets.set(nom,feuille);}
+    return feuille;
+  }
 }
 
 const IDLE_CANONICAL_SHEET_NAMES_V1=Object.freeze({
@@ -4604,6 +4611,10 @@ function statsJoueurSorealIdle_(valeur) {
      */
     vus:Array.isArray(s.vus)
       ? Array.from(new Set(s.vus.map(function(id){return String(id||'').trim();}).filter(function(id){return id&&id.length<=80&&/^[A-Za-z0-9_:.-]+$/.test(id);}))).slice(0,500)
+      : [],
+    /* Ordre des boutons du menu choisi par le joueur (« Rangement des boutons ») : identifiants de menus, dans l'ordre voulu. */
+    menuOrdre:Array.isArray(s.menuOrdre)
+      ? Array.from(new Set(s.menuOrdre.map(function(id){return String(id||'').trim();}).filter(function(id){return id&&id.length<=40&&/^[A-Za-z0-9_-]+$/.test(id);}))).slice(0,80)
       : [],
     reposNumero:Math.max(1,Math.floor(nombreSorealIdle_(s.reposNumero,1))),
 
@@ -10414,6 +10425,19 @@ function construireEtatJoueurSorealIdle_(
         )
     },
 
+    /*
+     * Classement des joueurs (2026-09-25, Norman : « les autres ne doivent pas encore voir le bouton ; je le débloquerai avec un trophée de
+     * TV/APP, je te dirai lequel ») : verrou provisoire = administrateur seulement. Le déblocage par trophée viendra remplacer cette seule
+     * fonction (classementDebloqueSorealIdle_).
+     */
+    classement: {
+      debloque:
+        classementDebloqueSorealIdle_(
+          row[c.EMAIL_PRINCIPAL - 1],
+          row[c.EMAIL_CONNEXION - 1]
+        )
+    },
+
     profil: {
       dateDebut:
         new Date(dateDebutMs).toISOString(),
@@ -12289,6 +12313,297 @@ function marquerVusSorealIdle(
   } finally {
     lock.releaseLock();
   }
+}
+
+
+/*
+ * ------------------------------------------------------------------
+ * Ordre des boutons du menu (« Rangement des boutons », 2026-09-25)
+ * ------------------------------------------------------------------
+ */
+function definirOrdreMenusSorealIdle(
+  sessionToken,
+  ordre
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const lock =
+    LockService.getScriptLock();
+
+  if (!lock.tryLock(1800)) {
+    return {
+      ok: false,
+      message:
+        'Le jeu est occupé.'
+    };
+  }
+
+  try {
+    const feuille =
+      obtenirFeuilleJoueursSorealIdle_();
+
+    const ligne =
+      trouverLigneJoueurSorealIdle_(
+        feuille,
+        acces
+      );
+
+    assurerDonneesJeuSorealIdle_(
+      feuille,
+      ligne
+    );
+
+    const c =
+      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+
+    const cellule =
+      feuille.getRange(
+        ligne,
+        c.STATS_JSON
+      );
+
+    const stats =
+      statsJoueurSorealIdle_(
+        cellule.getValue()
+      );
+
+    stats.menuOrdre =
+      statsJoueurSorealIdle_(
+        JSON.stringify({menuOrdre:Array.isArray(ordre) ? ordre : []})
+      ).menuOrdre;
+
+    cellule.setValue(
+      JSON.stringify(
+        stats
+      )
+    );
+
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      menuOrdre: stats.menuOrdre
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+/*
+ * ------------------------------------------------------------------
+ * Classement des joueurs (2026-09-25)
+ * ------------------------------------------------------------------
+ * Norman : « tous les comptes IDLE doivent y apparaître ; quelqu'un qui reset sa partie reste présent, en bas du classement, avec les
+ * statistiques à 0 ; les autres ne disparaissent jamais tant que leurs parties sont actives ; classement par statistique ET classement
+ * global à points, dans des onglets du même menu ; le numéro du boss le plus élevé peut y figurer ».
+ * Registre (feuille CLASSEMENT : e-mail, nom, dernière vue) : un joueur dont la ligne a été effacée par un reset reste listé, à 0.
+ */
+const CLASSEMENT_STATS_SOREAL_IDLE_V1 = Object.freeze([
+  'boss',
+  'rebirths',
+  'number',
+  'exp',
+  'playSeconds',
+  'achievements'
+]);
+
+/* Verrou provisoire du bouton (voir le commentaire de construireEtatJoueurSorealIdle_) : administrateur seulement. */
+function classementDebloqueSorealIdle_(emailPrincipal, emailConnexion) {
+  const emails = [emailPrincipal, emailConnexion]
+    .map(function(e) { return String(e || '').trim().toLowerCase(); });
+  return emails.indexOf(ADMIN_SOREAL_IDLE_EMAIL) !== -1;
+}
+
+function valeursClassementJoueurSorealIdle_(stats) {
+  const meta =
+    stats && stats.metaNgu && typeof stats.metaNgu === 'object'
+      ? stats.metaNgu
+      : {};
+  const records =
+    meta.records && typeof meta.records === 'object'
+      ? meta.records
+      : {};
+  const succes =
+    meta.systems &&
+    meta.systems.achievements &&
+    meta.systems.achievements.data &&
+    meta.systems.achievements.data.unlocked &&
+    typeof meta.systems.achievements.data.unlocked === 'object'
+      ? Object.keys(meta.systems.achievements.data.unlocked).length
+      : 0;
+  const positif = function(v) {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  };
+  return {
+    boss: Math.floor(positif(records.highestBoss)),
+    rebirths: Math.floor(positif(records.totalRebirths)),
+    number: positif(records.bestNumber),
+    exp: positif(records.totalExpEarned),
+    playSeconds: Math.floor(positif(records.playSeconds)),
+    achievements: succes
+  };
+}
+
+function obtenirClassementSorealIdle(
+  sessionToken
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const c =
+    CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+
+  const feuille =
+    obtenirFeuilleJoueursSorealIdle_();
+
+  const moi =
+    String(acces.emailAutorise || '').trim().toLowerCase();
+
+  if (!classementDebloqueSorealIdle_(moi, '')) {
+    throw new Error(
+      'SOREAL_IDLE_CLASSEMENT_VERROUILLE'
+    );
+  }
+
+  const registre =
+    obtenirFeuilleClassementSorealIdle_();
+
+  const parCle = new Map();
+
+  for (let r = 2; r <= registre.getLastRow(); r += 1) {
+    const cle =
+      String(registre.getCell(r, 1) || '').trim().toLowerCase();
+    if (!cle) continue;
+    parCle.set(cle, {
+      cle: cle,
+      ligneRegistre: r,
+      nom: String(registre.getCell(r, 2) || '').trim(),
+      present: false,
+      valeurs: valeursClassementJoueurSorealIdle_(null)
+    });
+  }
+
+  const derniere = feuille.getLastRow();
+
+  for (let ligne = 2; ligne <= derniere; ligne += 1) {
+    const valeursLigne =
+      feuille.getRange(ligne, 1, 1, c.STATS_JSON).getValues()[0];
+
+    if (!valeursLigne.some(function(v) { return v !== '' && v != null; })) continue;
+
+    const emailPrincipal =
+      String(valeursLigne[c.EMAIL_PRINCIPAL - 1] || '').trim().toLowerCase();
+    const emailConnexion =
+      String(valeursLigne[c.EMAIL_CONNEXION - 1] || '').trim().toLowerCase();
+    const cle = emailPrincipal || emailConnexion;
+    if (!cle) continue;
+
+    const nom =
+      String(valeursLigne[c.NOM - 1] || '').trim() || 'Joueur';
+
+    const stats =
+      statsJoueurSorealIdle_(
+        valeursLigne[c.STATS_JSON - 1]
+      );
+
+    const entree =
+      parCle.get(cle) ||
+      { cle: cle, ligneRegistre: 0, nom: nom, present: false, valeurs: null };
+
+    entree.nom = nom;
+    entree.present = true;
+    entree.valeurs = valeursClassementJoueurSorealIdle_(stats);
+    entree.alias = emailConnexion;
+    parCle.set(cle, entree);
+  }
+
+  /* Registre : chaque joueur vu y est inscrit (ou son nom mis à jour) et n'en sort plus. */
+  let prochaineLigne = Math.max(2, registre.getLastRow() + 1);
+  parCle.forEach(function(entree) {
+    if (!entree.present) return;
+    const ligneRegistre = entree.ligneRegistre || prochaineLigne++;
+    registre.getRange(ligneRegistre, 1, 1, 3).setValues([[entree.cle, entree.nom, Date.now()]]);
+    entree.ligneRegistre = ligneRegistre;
+  });
+  if (registre.getLastRow() === 0 || String(registre.getCell(1, 1) || '') === '') {
+    registre.getRange(1, 1, 1, 3).setValues([['Email', 'Nom', 'Derniere vue']]);
+  }
+
+  const entrees = Array.from(parCle.values()).map(function(entree) {
+    return {
+      cle: entree.cle,
+      nom: entree.nom || 'Joueur',
+      moi: entree.cle === moi || entree.alias === moi,
+      valeurs: entree.valeurs || valeursClassementJoueurSorealIdle_(null)
+    };
+  });
+
+  const n = entrees.length;
+
+  /* Rang de chaque statistique (égalités : même rang, le suivant saute) ; points = n - rang + 1 ; global = somme des points. */
+  CLASSEMENT_STATS_SOREAL_IDLE_V1.forEach(function(nomStat) {
+    const tries = entrees.slice().sort(function(a, b) {
+      return (b.valeurs[nomStat] - a.valeurs[nomStat]) ||
+        String(a.nom).localeCompare(String(b.nom), 'fr');
+    });
+    tries.forEach(function(entree, i) {
+      entree.rangs = entree.rangs || {};
+      const precedent = i > 0 ? tries[i - 1] : null;
+      entree.rangs[nomStat] =
+        precedent && precedent.valeurs[nomStat] === entree.valeurs[nomStat]
+          ? precedent.rangs[nomStat]
+          : i + 1;
+    });
+  });
+
+  entrees.forEach(function(entree) {
+    entree.points = CLASSEMENT_STATS_SOREAL_IDLE_V1.reduce(function(total, nomStat) {
+      return total + (n - entree.rangs[nomStat] + 1);
+    }, 0);
+  });
+
+  const global = entrees.slice().sort(function(a, b) {
+    return (b.points - a.points) ||
+      (b.valeurs.boss - a.valeurs.boss) ||
+      String(a.nom).localeCompare(String(b.nom), 'fr');
+  });
+  global.forEach(function(entree, i) {
+    const precedent = i > 0 ? global[i - 1] : null;
+    entree.rang =
+      precedent && precedent.points === entree.points
+        ? precedent.rang
+        : i + 1;
+  });
+
+  return {
+    ok: true,
+    joueurs: n,
+    stats: CLASSEMENT_STATS_SOREAL_IDLE_V1.slice(),
+    entrees: entrees.map(function(entree) {
+      return {
+        nom: entree.nom,
+        moi: entree.moi,
+        rang: entree.rang,
+        points: entree.points,
+        rangs: entree.rangs,
+        valeurs: entree.valeurs
+      };
+    })
+  };
+}
+
+function obtenirFeuilleClassementSorealIdle_() {
+  return obtenirSpreadsheetSorealIdle_()
+    .getOrCreateSheet(
+      CONFIG_SOREAL_IDLE.FEUILLE_CLASSEMENT
+    );
 }
 
 
@@ -15588,6 +15903,8 @@ const IDLE_OPERATIONS={
   fusionnerObjetsSorealIdle,
   lancerSortSorealIdle,
   marquerVusSorealIdle,
+  definirOrdreMenusSorealIdle,
+  obtenirClassementSorealIdle,
   nukerBossSorealIdle,
   obtenirAccesSorealIdle,
   obtenirEtatBoutiqueSorealIdle,
