@@ -20737,12 +20737,54 @@ function pageAventureIdleV28_(j){
           ?'<div class="soreal-idle-note-v4">Déjà récupéré ('+(prix.choice==='kitty'?'le joli chaton et ':'')+ap+' AP). Bien essayé, gourmand !'+(prix.choice==='kitty'?' Ton chaton t’attend dans tes Player Portraits (Achievements).':'')+'</div>'
           :'<div class="soreal-idle-note-v4">Une seule fois, au choix (sans bonus d’AP) :</div>'+
             '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
-              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'ap\'})">💠 '+ap+' AP</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'kitty\'})">🐱 Un JOLI CHATON (+ '+ap+' AP)</button>'+
+              '<button type="button" class="soreal-idle-offre-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'ap\'})"><b>Offre unique</b><small>💠 '+ap+' AP</small></button>'+
+              '<button type="button" class="soreal-idle-offre-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'kitty\'})"><b>Offre unique</b><small>🐱 Un JOLI CHATON + '+ap+' AP</small></button>'+
             '</div>';
-        return '<div class="soreal-idle-info-recap-card-v1" id="sorealIdleSpecialPrizeV1">'+
-          '<div class="soreal-idle-info-recap-head-v1">🎁 <b>Special Prize</b></div>'+corps+
+        return '<div class="soreal-idle-offre-v1" id="sorealIdleSpecialPrizeV1">'+
+          '<div class="soreal-idle-offre-titre-v1">🎁 Special Prize</div>'+corps+
         '</div>';
+      }
+
+      /*
+       * Notes de mise à jour (Norman, 2026-09-25) : données dans modules/release-notes-v1.js (une entrée en tête à chaque mise à jour).
+       * Dépliées seulement à la demande ; l'état est mémorisé sur cet appareil.
+       */
+      function notesMajIdleV1_(){
+        const n=window.__SOREAL_IDLE_RELEASE_NOTES_V1__;
+        return n&&Array.isArray(n.versions)?n:{courante:'?',versions:[]};
+      }
+      function notesMajOuvertesIdleV1_(){
+        try{
+          return localStorage.getItem('soreal_idle_notes_maj_ouvert_v1')==='1';
+        }catch(e){
+          return false;
+        }
+      }
+      function basculerNotesMajIdleV1_(){
+        try{
+          localStorage.setItem('soreal_idle_notes_maj_ouvert_v1',notesMajOuvertesIdleV1_()?'0':'1');
+        }catch(e){}
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+      }
+      window.__basculerNotesMajIdleV1__=basculerNotesMajIdleV1_;
+      function htmlNotesMajIdleV1_(){
+        const notes=notesMajIdleV1_();
+        if(!notes.versions.length)return '';
+        const ouvert=notesMajOuvertesIdleV1_();
+        return '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-notes-maj-bouton-v1" aria-expanded="'+ouvert+'" '+
+            'onclick="window.__basculerNotesMajIdleV1__()">'+(ouvert?'▾':'▸')+' 📝 Notes de mise à jour</button>'+
+          (ouvert
+            ?'<div class="soreal-idle-notes-maj-v1">'+
+              notes.versions.map(function(v,i){
+                return '<div class="soreal-idle-notes-maj-version-v1'+(i===0?' derniere':'')+'">'+
+                  '<div class="soreal-idle-notes-maj-titre-v1"><b>Beta '+idleHtml_(v.version)+'</b> · '+idleHtml_(v.nom)+
+                    '<span>'+idleHtml_(v.date)+'</span></div>'+
+                  '<ul>'+v.points.map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul>'+
+                '</div>';
+              }).join('')+
+            '</div>'
+            :'');
       }
 
       function idleInfoOuvertV1_(){
@@ -20838,7 +20880,9 @@ function pageAventureIdleV28_(j){
             :'')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">V212</b></div>'+
+            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">Beta '+idleHtml_(notesMajIdleV1_().courante)+'</b>'+
+              (notesMajIdleV1_().versions[0]?' · '+idleHtml_(notesMajIdleV1_().versions[0].nom):'')+'</div>'+
+            htmlNotesMajIdleV1_()+
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+

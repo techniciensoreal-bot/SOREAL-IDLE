@@ -54,7 +54,7 @@ for(const token of ["readText:function(value,audioSrc)","sorealIdleBossChronique
   assert.ok((tts+ui).includes(token),"TTS chroniques Boss manquant: "+token);
 }
 
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'),"Settings doit afficher V208.");
+assert.ok(ui.includes('Build <b style="color:#dce5f3">Beta '),"Settings doit afficher V208.");
 new Function(ui);
 new Function("window","document",audio);
 new Function("window","document","localStorage",tts);

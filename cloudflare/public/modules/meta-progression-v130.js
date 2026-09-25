@@ -1627,8 +1627,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               rendreBoutonDailySpinIdleV203_(roueSt)+
             '</div>'+
           '</div>'+
-          '<div class="soreal-idle-section-v8">'+
-            '<div class="soreal-idle-window-title-v31">🎁 TON PRIX</div>'+
+          '<div class="soreal-idle-offre-v1">'+
+            '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
             '<div class="soreal-idle-prize-v206">'+
               (derniere
                 ?window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(derniere.prize)

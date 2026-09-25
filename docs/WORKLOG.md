@@ -1679,3 +1679,10 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - Règle (`verifierAccesSorealIdle_`) : comptes de Norman **toujours** ; les autres = interrupteur des Paramètres **activé ET** `user.idleTrophee === true`. Le drapeau est posé par le Worker TV (Durable Object : `trophy_unlocks` retrouvés par adresse/alias, ouvriers archivés inclus) sur l'identité déjà vérifiée, jamais lu depuis le navigateur ; `normalizeIdleLaunchUserV1` le conserve. Interrupteur désactivé → IDLE caché à tout le monde sauf Norman.
 - Le popup de félicitations (⚡ + texte) est géré côté APP/TV (voir leurs WORKLOG). Textes des Paramètres reformulés. `ui ?v=267`. Tests `idle-dev-save-slots`, `idle-leaderboard-v1` adaptés.
 - Le bouton Classement reste visible pour l'administrateur seul (choix du trophée de déblocage toujours en attente de Norman).
+
+## 2026-09-25 — Cadres « offre » (pointillés dorés) pour tout ce que le jeu offre
+
+- Norman : « j'aime bien les étiquettes des Offres débutant, avec les traits interrompus ; pareil pour tout ce que le jeu offre (Special Prize : 50 000 AP ou un joli chaton + 50 000 AP) ».
+- Classe globale `.soreal-idle-offre-v1` (même rendu que `.soreal-idle-exp-newbie-v210` : fond doré, contour `2px dashed`, titre 🎁) + boutons `.soreal-idle-offre-bouton-v1` (« Offre unique » + contenu). Appliquée au **Special Prize** (Info) et au **prix du Daily Spin** (« TON PRIX », Money Pit). Les Offres débutant du EXP Shop sont inchangées. Le jeu n'a pas d'autre cadeau/offre : Speedrun bonus n'a pas d'écran.
+- `ui ?v=268`, `meta-progression-v130.js ?v=202609251`. Test `idle-offer-frames-v1`.
+- **Version affichée** (Paramètres) : « Build V212 » → « Build **Beta 1.0** » (demande de Norman : cette version est la Beta 1.0). Tests qui vérifiaient l'ancien libellé adaptés.

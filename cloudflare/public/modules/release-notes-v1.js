@@ -1,0 +1,69 @@
+/*
+ * Notes de mise à jour de SOREAL IDLE (Norman, 2026-09-25) : « à partir de maintenant tu incrémenteras 1.1, 1.2, 1.3… avec un petit nom qui
+ * représente la mise à jour ; dans Settings, une "Note de mise à jour" avec un résumé de ce que la version apporte ».
+ *
+ * RÈGLE : à CHAQUE mise à jour visible par les joueurs, ajouter une entrée EN TÊTE de `versions` (numéro suivant, petit nom, date, résumé) et
+ * mettre `courante` à jour. Texte destiné aux joueurs : AUCUN spoil (ne jamais nommer un système encore verrouillé ni un total caché).
+ */
+(function(){
+  'use strict';
+  window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
+    courante:'1.0',
+    versions:[
+      {
+        version:'1.0',
+        nom:'Shop & Rangement',
+        date:'2026-09-25',
+        points:[
+          'Les deux boutiques sont réunies dans un seul menu « Shop », avec un onglet par boutique (EXP Shop par défaut, Boutique AP en un clic).',
+          'Menu réorganisable : maintiens ton doigt (ou la souris) sur un bouton pour passer en mode « Rangement des boutons », glisse-le entre deux autres, puis valide.',
+          'Les offres du jeu (offres débutant, Special Prize, prix du Daily Spin) ont désormais toutes la même étiquette dorée en pointillés.',
+          'Special Prize : deux choix, 50 000 AP ou un joli chaton (avec les 50 000 AP en plus).',
+          'Voix des popups d’information : la lecture automatique démarre et enchaîne sans délai, sans boucle.',
+          'Infobulle d’énergie comme dans NGU, avec les raccourcis R (récupérer l’énergie) et T (la magie, une fois débloquée).',
+          'Une case du coffre au trésor accueille le Tutorial Cube une fois maxxé.',
+          'Version affichée : Beta 1.0.'
+        ]
+      },
+      {
+        version:'0.9',
+        nom:'Confort de jeu',
+        date:'2026-09-25',
+        points:[
+          'Barre d’énergie : le tick garde une vitesse constante, et un compteur « Pleine dans… » indique quand elle sera pleine.',
+          'Le plafond d’énergie au Rebirth compte toute l’énergie obtenue pendant le run, comme dans NGU.',
+          'Attack et Defense repartent à 100 après un Rebirth ; les popups déjà vus reviennent après une réinitialisation complète.',
+          'Inventaire : la page ne saute plus quand tu utilises A / D / Q / W / E.',
+          'Collection : cartes de boss épurées et cliquables.',
+          'Barres au plafond (CAP) affichées pleines, comme dans NGU.'
+        ]
+      },
+      {
+        version:'0.8',
+        nom:'Second passage',
+        date:'2026-09-24',
+        points:[
+          'Deuxième relecture complète des chiffres du jeu contre le wiki de NGU : écarts corrigés.',
+          'Inventaire allégé, messages Aventure et Inventaire fusionnés, popup d’objet au survol sur PC, niveau affiché sur l’image des objets.',
+          'Augmentations : boutons « + / − / Max » et saisie libre, comme dans Basic Training.',
+          'Boutique EXP en onglets ; Boutique AP en mauve.',
+          'Voix pré-enregistrées pour la narration (plus rapides et plus stables).',
+          'Compteur « Généré » au-dessus de la barre d’énergie.',
+          'Deux parties de comparaison pendant le développement (invisibles pour les joueurs).'
+        ]
+      },
+      {
+        version:'0.7',
+        nom:'Fidélité au wiki',
+        date:'2026-09-23',
+        points:[
+          'Relecture systématique du jeu contre le wiki de NGU : entraînement, combats, butin, équipement et boosts recalés sur les vraies valeurs.',
+          'Le mode Aventure ne se fige plus, et les PV ne clignotent plus.',
+          'De nombreux systèmes du jeu complétés d’après le wiki (nouveaux contenus, boutiques, réglages avancés).',
+          'Aventure : image des créatures selon leur nom, zones et bestiaire vérifiés.',
+          'Sécurité renforcée sur l’ensemble du site.'
+        ]
+      }
+    ]
+  };
+})();

@@ -7503,3 +7503,27 @@
   color:#fff;
   box-shadow:0 6px 16px color-mix(in srgb,var(--onglet-couleur,#0891b2) 45%,transparent);
 }
+
+
+/*
+ * Norman (2026-09-25) : « j'aime bien les étiquettes des Offres débutant, avec les traits interrompus : pareil pour tout ce que le jeu offre
+ * (Special Prize, etc.) ». Même rendu que .soreal-idle-exp-newbie-v210 du EXP Shop : fond doré, contour en pointillés, titre 🎁, boutons « offre ».
+ */
+.soreal-idle-offre-v1{margin:10px 0;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:2px dashed rgba(245,196,81,.4);color:#e9d9a3;font-size:12px}
+.soreal-idle-offre-v1 .soreal-idle-note-v4,.soreal-idle-offre-v1 .soreal-idle-prize-v206{color:#e9d9a3}
+.soreal-idle-offre-titre-v1{margin-bottom:5px;font-size:13px;font-weight:900;color:#f7e6b0}
+.soreal-idle-offre-bouton-v1{appearance:none;position:relative;min-height:50px;flex:1 1 150px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:8px 10px 8px 22px;border:1px solid rgba(245,196,81,.6);border-radius:6px 12px 12px 6px;background:rgba(245,196,81,.22);color:#ffeeb5;text-align:left;cursor:pointer;font:inherit}
+.soreal-idle-offre-bouton-v1::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:rgba(245,196,81,.55)}
+.soreal-idle-offre-bouton-v1:hover{background:rgba(245,196,81,.32)}
+.soreal-idle-offre-bouton-v1 b{font-size:12px;line-height:1.1;color:#ffeeb5}
+.soreal-idle-offre-bouton-v1 small{font-size:11px;color:#ffeeb5;font-weight:900}
+
+/* Notes de mise à jour (Paramètres > Version) */
+.soreal-idle-notes-maj-bouton-v1{margin-top:8px}
+.soreal-idle-notes-maj-v1{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.soreal-idle-notes-maj-version-v1{padding:10px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);font-size:12px;color:#c9cee0}
+.soreal-idle-notes-maj-version-v1.derniere{border-color:rgba(94,217,255,.4);background:rgba(94,217,255,.06)}
+.soreal-idle-notes-maj-titre-v1{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;margin-bottom:6px;font-size:13px;color:#dce5f3}
+.soreal-idle-notes-maj-titre-v1 span{margin-left:auto;font-size:11px;color:#8b93ab}
+.soreal-idle-notes-maj-version-v1 ul{margin:0;padding-left:18px}
+.soreal-idle-notes-maj-version-v1 li{margin:3px 0;line-height:1.45}

@@ -20,7 +20,7 @@ const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v13
 assert.match(index,/\/soreal-idle-ui\.js\?v=\d+/);
 assert.match(index,/\/modules\/audio-effects-v199\.js\?v=\d+/);
 assert.match(index,/\/modules\/tutorial-tts-v202\.js\?v=\d+/);
-assert.ok(ui.includes('Build <b style="color:#dce5f3">V212</b>'));
+assert.ok(ui.includes('Build <b style="color:#dce5f3">Beta '));
 
 for(const token of [
   "sorealIdleSummaryApV210",

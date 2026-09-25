@@ -11,7 +11,7 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=267'),
+  index.includes('/soreal-idle-ui.js?v=269'),
   "Le shell doit charger une révision UI cache-bustée."
 );
 
@@ -74,7 +74,7 @@ for(const token of [
 }
 
 assert.ok(
-  ui.includes('Build <b style="color:#dce5f3">V212</b>'),
+  ui.includes('Build <b style="color:#dce5f3">Beta '),
   "Settings doit afficher le jalon V212."
 );
 
