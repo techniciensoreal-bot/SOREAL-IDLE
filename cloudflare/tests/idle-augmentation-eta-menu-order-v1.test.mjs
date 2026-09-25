@@ -16,8 +16,9 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
   const ids = [...bloc.matchAll(/\{id:'([A-Za-z]+)'/g)].map((m) => m[1]);
   assert.deepEqual(ids.slice(0, 3), ["entrainement", "augmentations", "combat"], "Augmentations entre Basic Training et Fight Boss");
   assert.equal(ids.filter((id) => id === "augmentations").length, 1);
-  assert.deepEqual(ids.slice(-3), ["spendExp", "sellout", "parametres"], "Boutique AP entre EXP Shop et Settings");
-  assert.equal(ids.filter((id) => id === "sellout").length, 1);
+  /* 2026-09-25 : EXP Shop et Boutique AP sont réunis dans « Shop » ; « Classement » est juste à gauche de Settings. */
+  assert.deepEqual(ids.slice(-3), ["shop", "classement", "parametres"], "Shop puis Classement, juste avant Settings");
+  assert.ok(!ids.includes("spendExp") && !ids.includes("sellout"), "plus de boutons EXP Shop / Boutique AP séparés");
 }
 
 // --- Moteur : sans Or, la barre reste pleine et le snapshot le dit ; avec l'Or, elle repart de 0 ---

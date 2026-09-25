@@ -22,7 +22,7 @@ const auto = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf
 const aventure = ui.slice(ui.indexOf("function pageAventureIdleV28_(j){"), ui.indexOf("function pageCollectionIdleV22_(j){"));
 assert.match(aventure.split("/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-233 */")[0], /\(j\.inventaireDebloque\?pageInventaireIdleV28_\(j\):''\);\s*\}\s*$/, "l'inventaire complet est le DERNIER bloc de la page Adventure");
 assert.ok(aventure.indexOf("rendreZoneCombatAdventureIdleV1_") < aventure.indexOf("pageInventaireIdleV28_(j)"), "sous tout ce qui existait déjà");
-assert.match(ui, /String\(sauve\)==='inventaire'\?'aventure':String\(sauve\)/, "un ancien menu mémorisé « inventaire » ouvre Adventure");
+assert.ok(ui.includes("ancien==='inventaire'") && ui.includes("?'aventure'"), "un ancien menu mémorisé « inventaire » ouvre Adventure");
 assert.match(ui, /idleMenuActifV28!=='aventure'\|\|\s*!j\|\|\s*!aventureMetaIdleV47_\(j\)/, "les mises à jour partielles de l'inventaire suivent la page Adventure");
 
 // --- B. Options de l'inventaire repliables (fermées par défaut) ---

@@ -7386,3 +7386,109 @@
   box-shadow:0 6px 22px rgba(0,0,0,.45);
   pointer-events:none;
 }
+
+/* Classement (2026-09-25) */
+.soreal-idle-classement-liste-v1{
+  display:grid;
+  gap:7px;
+}
+.soreal-idle-classement-ligne-v1{
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:13px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  color:#e8eefb;
+}
+.soreal-idle-classement-ligne-v1.moi{
+  border-color:rgba(245,158,11,.65);
+  background:rgba(245,158,11,.10);
+}
+.soreal-idle-classement-rang-v1{
+  text-align:center;
+  font-size:20px;
+  font-weight:1000;
+}
+.soreal-idle-classement-nom-v1{
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.soreal-idle-classement-nom-v1 em{
+  font-style:normal;
+  font-size:11px;
+  color:#f59e0b;
+}
+.soreal-idle-classement-valeur-v1{
+  text-align:right;
+  display:grid;
+  gap:1px;
+  font-variant-numeric:tabular-nums;
+}
+.soreal-idle-classement-valeur-v1 span{
+  font-size:11px;
+  color:#9fb0cf;
+}
+
+/* Rangement des boutons du menu (2026-09-25) : appui long sur un bouton ; glisser pour intercaler ; « Valider » seulement dans ce mode. */
+.soreal-idle-nav-v28.edition{
+  flex-wrap:wrap;
+  overflow-x:visible;
+  outline:2px dashed rgba(245,158,11,.75);
+  outline-offset:2px;
+  touch-action:none;
+}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28{
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  animation:sorealIdleNavTremblementV1 .55s ease-in-out infinite alternate;
+}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28.glisse{
+  opacity:.8;
+  transform:scale(1.08);
+  box-shadow:0 8px 22px rgba(0,0,0,.45);
+  animation:none;
+  cursor:grabbing;
+  z-index:2;
+}
+@keyframes sorealIdleNavTremblementV1{
+  from{transform:rotate(-1.2deg)}
+  to{transform:rotate(1.2deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28{animation:none}
+}
+.soreal-idle-nav-rangement-v1{
+  flex:1 0 100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:6px 4px 8px;
+  font-size:12px;
+  font-weight:800;
+  color:#7c4a03;
+}
+.soreal-idle-nav-valider-v1{
+  border:0;
+  border-radius:10px;
+  padding:9px 16px;
+  background:#22c55e;
+  color:#04140a;
+  font-size:13px;
+  font-weight:1000;
+  cursor:pointer;
+}
+
+.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+}

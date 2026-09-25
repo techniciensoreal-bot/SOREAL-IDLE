@@ -8901,8 +8901,11 @@
             );
 
           if(sauve){
+            const ancien=String(sauve);
             idleMenuActifV28=
-              String(sauve)==='inventaire'?'aventure':String(sauve);
+              ancien==='inventaire'
+                ?'aventure'
+                :(ancien==='spendExp'||ancien==='sellout'?'shop':ancien);
           }
         }catch(e){}
       }
@@ -9039,6 +9042,16 @@
         }
 
         if(id==='setsZones')return false;
+
+        /* Shop : présent dès que l'un des deux magasins l'est (EXP Shop dès le premier boss, Boutique AP une fois débloquée). */
+        if(id==='shop'){
+          return menuDisponibleIdleV28_('spendExp',j)||menuDisponibleIdleV28_('sellout',j);
+        }
+
+        /* Classement : verrou fourni par le serveur (provisoire : administrateur ; il passera à un trophée TV/APP). */
+        if(id==='classement'){
+          return Boolean(j.classement&&j.classement.debloque);
+        }
 
         if(id==='sellout'){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-114 */
@@ -9288,6 +9301,7 @@
           Object.keys(localStorage).forEach(function(cle){
             if(
               cle.indexOf('soreal_idle_menus_ack_v1_')===0||
+              cle.indexOf('soreal_idle_menu_ordre_v1_')===0||
               cle.indexOf('soreal_idle_bienvenue_v75_')===0||
               cle.indexOf('soreal_idle_tutoriel_')===0
             )localStorage.removeItem(cle);
@@ -9345,7 +9359,7 @@
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-119 */
-      const IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout'];
+      const IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout','shop'];
 
       function idleMenuEstAcquisV1_(j,menuId){
         return IDLE_MENUS_SANS_CLIGNOTEMENT_V1.indexOf(menuId)!==-1||
@@ -10131,6 +10145,8 @@
         cooking:'#c2410c',
         sellout:'#8b5cf6',
         spendExp:'#0891b2',
+        shop:'#0891b2',
+        classement:'#f59e0b',
         setsZones:'#0d9488',
         parametres:'#6b7280'
       };
@@ -10165,8 +10181,9 @@
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
-        {id:'spendExp',icon:'✨',nom:'EXP Shop'},
-        {id:'sellout',icon:'🛍️',nom:'Boutique AP'},
+        /* 2026-09-25 (Norman) : EXP Shop et Boutique AP réunis dans un seul menu « Shop », séparés par un onglet ; Classement juste à gauche de Settings. */
+        {id:'shop',icon:'🛍️',nom:'Shop'},
+        {id:'classement',icon:'📊',nom:'Classement'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
       ];
 
@@ -10199,8 +10216,59 @@
         return null;
       }
 
+      /*
+       * Ordre des boutons du menu (2026-09-25, Norman : « quand on maintient son doigt sur un bouton du menu, on passe en mode "Rangement des
+       * boutons" ; on glisse un bouton et on l'intercale entre deux autres ; un bouton pour valider, visible seulement dans ce mode »).
+       * L'ordre choisi vit côté serveur (profil.stats.menuOrdre, opération definirOrdreMenusSorealIdle) avec un cache local ; un menu qui
+       * n'est pas dans l'ordre enregistré (nouveau, ou débloqué plus tard) se place après le menu qui le précède dans l'ordre par défaut.
+       */
+      let idleMenuEditionV1=false;
+      let idleMenuOrdreTravailV1=null;
+      let idleMenuClicAvaleJusquaV1=0;
+
+      function idleMenuOrdreCleV1_(j){
+        return 'soreal_idle_menu_ordre_v1_'+generationJoueurIdleV75_(j);
+      }
+
+      function idleMenuOrdreEnregistreV1_(j){
+        const serveur=j&&j.profil&&j.profil.stats&&Array.isArray(j.profil.stats.menuOrdre)?j.profil.stats.menuOrdre:null;
+        if(serveur&&serveur.length)return serveur;
+        try{
+          const brut=JSON.parse(localStorage.getItem(idleMenuOrdreCleV1_(j))||'[]');
+          return Array.isArray(brut)?brut:[];
+        }catch(e){
+          return [];
+        }
+      }
+
+      function ordonnerMenusIdleV1_(defauts,ordre){
+        const ids=defauts.map(function(m){return m.id;});
+        const res=(Array.isArray(ordre)?ordre:[]).filter(function(id,i,tab){
+          return ids.indexOf(id)!==-1&&tab.indexOf(id)===i;
+        });
+        ids.forEach(function(id,i){
+          if(res.indexOf(id)!==-1)return;
+          let pos=0;
+          for(let k=i-1;k>=0;k-=1){
+            const p=res.indexOf(ids[k]);
+            if(p!==-1){pos=p+1;break;}
+          }
+          res.splice(pos,0,id);
+        });
+        return res.map(function(id){
+          return defauts.find(function(m){return m.id===id;});
+        });
+      }
+
+      function menusOrdonnesIdleV1_(j){
+        return ordonnerMenusIdleV1_(
+          IDLE_MENUS_V1,
+          idleMenuEditionV1&&idleMenuOrdreTravailV1?idleMenuOrdreTravailV1:idleMenuOrdreEnregistreV1_(j)
+        );
+      }
+
       function navigationIdleV28_(j){
-        const menus=IDLE_MENUS_V1;
+        const menus=menusOrdonnesIdleV1_(j);
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-134 */
         const menusVisibles=menus.filter(function(m){
@@ -10208,7 +10276,8 @@
         });
 
         return `
-          <div class="soreal-idle-nav-v28">
+          <div class="soreal-idle-nav-v28${idleMenuEditionV1?' edition':''}">
+            ${idleMenuEditionV1?htmlBandeauRangementMenuIdleV1_():''}
             ${menusVisibles.map(function(m){
 
               const nouveau=!idleMenuEstAcquisV1_(j,m.id);
@@ -10241,6 +10310,7 @@
                   style="--nav-color:${
                     couleurDisponibilite||IDLE_NAV_COULEURS_V1[m.id]||'#9aa5bb'
                   }"
+                  data-menu-id-v1="${m.id}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
                   ${m.icon} ${m.nom}
@@ -10256,10 +10326,156 @@
       let idleSwipeDebutYV1=null;
 
       function menusVisiblesIdleV1_(j){
-        return IDLE_MENUS_V1.filter(function(m){
+        return menusOrdonnesIdleV1_(j).filter(function(m){
           return menuDisponibleIdleV28_(m.id,j);
         }).map(function(m){return m.id;});
       }
+
+      function htmlBandeauRangementMenuIdleV1_(){
+        return '<div class="soreal-idle-nav-rangement-v1" data-idle-nav-rangement-v1>'+
+          '<span>↔️ <b>Rangement des boutons</b> — glisse un bouton entre deux autres</span>'+
+          '<button type="button" class="soreal-idle-nav-valider-v1" onclick="window.__validerRangementMenuIdleV1__()">✔ Valider</button>'+
+        '</div>';
+      }
+
+      function navMenuIdleV1_(){
+        return document.querySelector('.soreal-idle-nav-v28');
+      }
+
+      function ordreDepuisNavIdleV1_(){
+        const nav=navMenuIdleV1_();
+        if(!nav)return idleMenuOrdreTravailV1||[];
+        const visibles=Array.prototype.map.call(nav.querySelectorAll('[data-menu-id-v1]'),function(b){
+          return b.getAttribute('data-menu-id-v1');
+        });
+        const autres=(idleMenuOrdreTravailV1||[]).filter(function(id){return visibles.indexOf(id)===-1;});
+        return visibles.concat(autres);
+      }
+
+      function entrerRangementMenuIdleV1_(){
+        if(idleMenuEditionV1||!idleEtat)return;
+        idleMenuEditionV1=true;
+        idleMenuOrdreTravailV1=menusOrdonnesIdleV1_(idleEtat).map(function(m){return m.id;});
+        const nav=navMenuIdleV1_();
+        if(nav){
+          nav.classList.add('edition');
+          if(!nav.querySelector('[data-idle-nav-rangement-v1]')){
+            nav.insertAdjacentHTML('afterbegin',htmlBandeauRangementMenuIdleV1_());
+          }
+        }
+      }
+
+      function validerRangementMenuIdleV1_(){
+        if(!idleMenuEditionV1)return;
+        const ordre=ordreDepuisNavIdleV1_();
+        idleMenuEditionV1=false;
+        idleMenuOrdreTravailV1=null;
+        idleMenuClicAvaleJusquaV1=Date.now()+400;
+        try{
+          localStorage.setItem(idleMenuOrdreCleV1_(idleEtat),JSON.stringify(ordre));
+        }catch(e){}
+        if(idleEtat&&idleEtat.profil&&idleEtat.profil.stats)idleEtat.profil.stats.menuOrdre=ordre.slice();
+        const nav=navMenuIdleV1_();
+        if(nav){
+          nav.classList.remove('edition');
+          const bandeau=nav.querySelector('[data-idle-nav-rangement-v1]');
+          if(bandeau)bandeau.remove();
+        }
+        if(SOREAL_SESSION){
+          try{
+            google.script.run
+              .withSuccessHandler(function(res){
+                if(res&&res.ok&&idleEtat&&idleEtat.profil&&idleEtat.profil.stats&&Array.isArray(res.menuOrdre)){
+                  idleEtat.profil.stats.menuOrdre=res.menuOrdre;
+                }
+              })
+              .withFailureHandler(function(){})
+              .definirOrdreMenusSorealIdle(SOREAL_SESSION,ordre);
+          }catch(e){}
+        }
+      }
+      window.__validerRangementMenuIdleV1__=validerRangementMenuIdleV1_;
+
+      function installerRangementMenuIdleV1_(){
+        if(window.__sorealIdleRangementMenuV1)return;
+        window.__sorealIdleRangementMenuV1=true;
+        const DELAI_MAINTIEN_MS=600;
+        let minuterie=0;
+        let debut=null;
+        let glisse=null;
+
+        function boutonNav(cible){
+          return cible&&cible.closest?cible.closest('.soreal-idle-nav-button-v28[data-menu-id-v1]'):null;
+        }
+        function annulerMaintien(){
+          if(minuterie){clearTimeout(minuterie);minuterie=0;}
+          debut=null;
+        }
+        function commencerGlisse(bouton,ev){
+          if(glisse)return;
+          glisse={bouton:bouton,id:ev.pointerId};
+          bouton.classList.add('glisse');
+          try{bouton.setPointerCapture(ev.pointerId);}catch(e){}
+        }
+        function terminerGlisse(){
+          if(!glisse)return;
+          glisse.bouton.classList.remove('glisse');
+          try{glisse.bouton.releasePointerCapture(glisse.id);}catch(e){}
+          glisse=null;
+          idleMenuOrdreTravailV1=ordreDepuisNavIdleV1_();
+        }
+
+        document.addEventListener('pointerdown',function(ev){
+          const bouton=boutonNav(ev.target);
+          if(!bouton)return;
+          if(idleMenuEditionV1){
+            ev.preventDefault();
+            commencerGlisse(bouton,ev);
+            return;
+          }
+          if(ev.pointerType==='mouse'&&ev.button!==0)return;
+          annulerMaintien();
+          debut={x:ev.clientX,y:ev.clientY,bouton:bouton,id:ev.pointerId};
+          minuterie=setTimeout(function(){
+            minuterie=0;
+            if(!debut)return;
+            const b=debut.bouton;
+            const pid=debut.id;
+            debut=null;
+            idleMenuClicAvaleJusquaV1=Date.now()+700;
+            entrerRangementMenuIdleV1_();
+            if(navigator.vibrate){try{navigator.vibrate(25);}catch(e){}}
+            commencerGlisse(b,{pointerId:pid});
+          },DELAI_MAINTIEN_MS);
+        },true);
+
+        document.addEventListener('pointermove',function(ev){
+          if(debut&&(Math.abs(ev.clientX-debut.x)>10||Math.abs(ev.clientY-debut.y)>10))annulerMaintien();
+          if(!glisse)return;
+          ev.preventDefault();
+          const nav=navMenuIdleV1_();
+          if(!nav)return;
+          const sous=document.elementFromPoint(ev.clientX,ev.clientY);
+          const cible=boutonNav(sous);
+          if(!cible||cible===glisse.bouton)return;
+          const r=cible.getBoundingClientRect();
+          const avant=ev.clientX<r.left+r.width/2;
+          nav.insertBefore(glisse.bouton,avant?cible:cible.nextSibling);
+        },{passive:false});
+
+        ['pointerup','pointercancel'].forEach(function(nom){
+          document.addEventListener(nom,function(){
+            annulerMaintien();
+            terminerGlisse();
+          },true);
+        });
+
+        /* L'appui long ne doit ouvrir ni le menu contextuel du navigateur ni une sélection de texte sur les boutons du menu. */
+        document.addEventListener('contextmenu',function(ev){
+          if(boutonNav(ev.target))ev.preventDefault();
+        },true);
+      }
+      installerRangementMenuIdleV1_();
 
       function naviguerSwipeIdleV1_(direction){
         if(!idleEtat)return;
@@ -19512,6 +19728,150 @@ function pageAventureIdleV28_(j){
         return null;
       }
 
+      /*
+       * Menu « Shop » (2026-09-25, Norman) : EXP Shop et Boutique AP, même visuel qu'avant, séparés par un onglet ; EXP Shop par défaut, un
+       * clic pour passer de l'un à l'autre. L'onglet Boutique AP n'existe qu'une fois cette boutique débloquée (rien à deviner).
+       */
+      let idleShopOngletV1='exp';
+      function changerOngletShopIdleV1_(onglet){
+        idleShopOngletV1=String(onglet)==='ap'?'ap':'exp';
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+      }
+      window.__changerOngletShopIdleV1__=changerOngletShopIdleV1_;
+
+      function pageShopIdleV1_(j){
+        const expOk=menuDisponibleIdleV28_('spendExp',j);
+        const apOk=menuDisponibleIdleV28_('sellout',j);
+        let onglet=idleShopOngletV1==='ap'?'ap':'exp';
+        if(onglet==='ap'&&!apOk)onglet='exp';
+        if(onglet==='exp'&&!expOk&&apOk)onglet='ap';
+        const boutons=[];
+        if(expOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1'+(onglet==='exp'?' active':'')+'" onclick="window.__changerOngletShopIdleV1__(\'exp\')">✨ EXP Shop</button>');
+        if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1'+(onglet==='ap'?' active':'')+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP</button>');
+        return (boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'')+
+          (onglet==='ap'?pageSelloutShopIdleV1_(j):pageSpendExpIdleV1_(j));
+      }
+
+      /*
+       * Menu « Classement » (2026-09-25, Norman) : tous les comptes IDLE, classement global à points et par statistique (boss le plus élevé,
+       * Rebirths, meilleur NUMBER, EXP totale gagnée, temps de jeu, succès), onglets du même menu. Données : opération serveur
+       * obtenirClassementSorealIdle (le serveur calcule les rangs et les points).
+       */
+      const IDLE_CLASSEMENT_ONGLETS_V1=[
+        {id:'global',nom:'🏆 Global'},
+        {id:'boss',nom:'👹 Boss'},
+        {id:'rebirths',nom:'♻️ Rebirths'},
+        {id:'number',nom:'🔢 NUMBER'},
+        {id:'exp',nom:'⭐ EXP'},
+        {id:'playSeconds',nom:'⏱️ Temps de jeu'},
+        {id:'achievements',nom:'🎖️ Succès'}
+      ];
+      let idleClassementOngletV1='global';
+      const idleClassementV1={donnees:null,chargement:false,erreur:'',dernier:0};
+
+      function changerOngletClassementIdleV1_(onglet){
+        idleClassementOngletV1=String(onglet||'global');
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+      }
+      window.__changerOngletClassementIdleV1__=changerOngletClassementIdleV1_;
+
+      function chargerClassementIdleV1_(force){
+        if(idleClassementV1.chargement||!SOREAL_SESSION)return;
+        if(!force&&idleClassementV1.donnees&&Date.now()-idleClassementV1.dernier<30000)return;
+        idleClassementV1.chargement=true;
+        function rafraichirPage(){
+          const root=document.querySelector('.soreal-idle-page-root-v28');
+          if(root&&idleEtat&&idleMenuActifV28==='classement')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        }
+        try{
+          google.script.run
+            .withSuccessHandler(function(res){
+              idleClassementV1.chargement=false;
+              if(res&&res.ok){
+                idleClassementV1.donnees=res;
+                idleClassementV1.erreur='';
+                idleClassementV1.dernier=Date.now();
+              }else{
+                idleClassementV1.erreur=(res&&res.message)||'Classement indisponible.';
+              }
+              rafraichirPage();
+            })
+            .withFailureHandler(function(e){
+              idleClassementV1.chargement=false;
+              idleClassementV1.erreur=(e&&e.message)||'Classement indisponible.';
+              rafraichirPage();
+            })
+            .obtenirClassementSorealIdle(SOREAL_SESSION);
+        }catch(e){
+          idleClassementV1.chargement=false;
+          idleClassementV1.erreur='Classement indisponible.';
+        }
+      }
+      window.__actualiserClassementIdleV1__=function(){chargerClassementIdleV1_(true);};
+
+      function formaterDureeJeuIdleV1_(secondes){
+        let s=Math.max(0,Math.floor(idleNombre_(secondes)));
+        const j=Math.floor(s/86400);s-=j*86400;
+        const h=Math.floor(s/3600);s-=h*3600;
+        const m=Math.floor(s/60);
+        if(j>0)return j+' j '+h+' h '+m+' min';
+        if(h>0)return h+' h '+m+' min';
+        return m+' min';
+      }
+
+      function valeurClassementIdleV1_(stat,valeur){
+        if(stat==='playSeconds')return formaterDureeJeuIdleV1_(valeur);
+        if(stat==='boss')return 'Boss '+idleEntier_(valeur);
+        if(stat==='number'||stat==='exp')return formatGrandNombreIdleV70_(valeur);
+        return String(idleEntier_(valeur));
+      }
+
+      function pageClassementIdleV1_(j){
+        chargerClassementIdleV1_(false);
+        const d=idleClassementV1.donnees;
+        const onglet=IDLE_CLASSEMENT_ONGLETS_V1.some(function(o){return o.id===idleClassementOngletV1;})?idleClassementOngletV1:'global';
+        const tete=entetePageIdleV28_('📊 Classement','Tous les joueurs de SOREAL IDLE. Un joueur qui recommence sa partie reste listé, à zéro.');
+        const onglets='<div class="soreal-idle-collection-tabs-v1">'+
+          IDLE_CLASSEMENT_ONGLETS_V1.map(function(o){
+            return '<button type="button" class="soreal-idle-collection-tab-v1'+(onglet===o.id?' active':'')+'" onclick="window.__changerOngletClassementIdleV1__(\''+o.id+'\')">'+o.nom+'</button>';
+          }).join('')+
+        '</div>';
+        if(!d){
+          return tete+onglets+'<div class="soreal-idle-empty-v10">'+
+            idleHtml_(idleClassementV1.erreur||'Chargement du classement…')+
+          '</div>';
+        }
+        const entrees=Array.isArray(d.entrees)?d.entrees.slice():[];
+        let lignes;
+        if(onglet==='global'){
+          lignes=entrees.sort(function(a,b){return a.rang-b.rang||String(a.nom).localeCompare(String(b.nom),'fr');});
+        }else{
+          lignes=entrees.sort(function(a,b){
+            return (a.rangs&&a.rangs[onglet]||0)-(b.rangs&&b.rangs[onglet]||0)||String(a.nom).localeCompare(String(b.nom),'fr');
+          });
+        }
+        const corps=lignes.map(function(e){
+          const rang=onglet==='global'?e.rang:(e.rangs&&e.rangs[onglet]);
+          const medaille=rang===1?'🥇':(rang===2?'🥈':(rang===3?'🥉':rang));
+          const valeur=onglet==='global'
+            ?'<b>'+idleEntier_(e.points)+' pts</b><span>'+valeurClassementIdleV1_('boss',e.valeurs&&e.valeurs.boss)+'</span>'
+            :'<b>'+valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet])+'</b>';
+          return '<div class="soreal-idle-classement-ligne-v1'+(e.moi?' moi':'')+'">'+
+            '<div class="soreal-idle-classement-rang-v1">'+medaille+'</div>'+
+            '<div class="soreal-idle-classement-nom-v1">'+idleHtml_(e.nom)+(e.moi?' <em>(toi)</em>':'')+'</div>'+
+            '<div class="soreal-idle-classement-valeur-v1">'+valeur+'</div>'+
+          '</div>';
+        }).join('');
+        const detail=onglet==='global'
+          ?'<div class="soreal-idle-note-v4" style="margin:0 0 10px">Points : pour chaque statistique, le 1er reçoit autant de points qu’il y a de joueurs, le dernier 1 point ; le total classe les joueurs.</div>'
+          :'';
+        return tete+onglets+detail+
+          '<div class="soreal-idle-classement-liste-v1">'+corps+'</div>'+
+          '<div style="margin-top:12px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actualiserClassementIdleV1__()">↻ Actualiser</button></div>';
+      }
+
       function pageSpendExpIdleV1_(j){
         const api=window.__SOREAL_IDLE_META_V130__;
         if(api&&typeof api.pageSpendExpIdleV1_==='function'){
@@ -20473,6 +20833,10 @@ function pageAventureIdleV28_(j){
             return pageBoutiqueIdleV28_(j);
           case 'sellout':
             return pageSelloutShopIdleV1_(j);
+          case 'shop':
+            return pageShopIdleV1_(j);
+          case 'classement':
+            return pageClassementIdleV1_(j);
           case 'magie':
             return pageMagieIdleV90_(j);
           case 'renaissance':
@@ -20550,6 +20914,9 @@ function pageAventureIdleV28_(j){
 
 
       function menuIdleV28_(menu){
+        /* Mode « Rangement des boutons » : un appui ne change pas de page ; l'appui qui suit un maintien est avalé. */
+        if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1)return;
+
         if(
           !menuDisponibleIdleV28_(
             menu,
