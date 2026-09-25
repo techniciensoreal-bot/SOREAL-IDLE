@@ -22,17 +22,27 @@ assert.ok(!css.includes("soreal-idle-energy-generated-v1"), "style de l'ancienne
 const debut = ui.indexOf("function energieGenereeTotaleIdleV1_(){");
 const fin = ui.indexOf("function rafraichirEnergieEtBoutonsIdleV9_(){");
 const src = ui.slice(debut, fin);
-function calculer({ energie = 0, btAlloue = 0, metaAlloue = 0, max = 500 }) {
-  const fabrique = new Function("idleEtat", "energieDisponibleIdleV9_", "totalAllocationBasicTrainingIdleV120_", "allocationMetaEnergieIdleV1_", "formatEnergieIdleV50_", "idleEntier_",
+function calculer({ energie = 0, btAlloue = 0, metaAlloue = 0, max = 500, prod }) {
+  const fabrique = new Function("idleEtat", "energieDisponibleIdleV9_", "totalAllocationBasicTrainingIdleV120_", "allocationMetaEnergieIdleV1_", "formatEnergieIdleV50_", "idleEntier_", "idleNombre_",
     src + "\nreturn {total:energieGenereeTotaleIdleV1_,texte:texteEnergieGenereeIdleV1_};");
-  const etat = { energieMax: max };
-  const r = fabrique(etat, () => energie, () => btAlloue, () => metaAlloue, (v) => String(Math.floor(v)), (v) => Math.floor(Number(v) || 0));
+  const etat = { energieMax: max, productionSeconde: prod };
+  const r = fabrique(etat, () => energie, () => btAlloue, () => metaAlloue, (v) => String(Math.floor(v)), (v) => Math.floor(Number(v) || 0), (v) => Number(v) || 0);
   return { total: r.total(), texte: r.texte() };
 }
 assert.equal(calculer({ energie: 50, btAlloue: 200, metaAlloue: 250 }).total, 500, "50 dispo + 200 Basic Training + 250 ailleurs = 500 générés");
-assert.equal(calculer({ energie: 50, btAlloue: 200, metaAlloue: 250 }).texte, "🔋 Généré : 500 / 500");
+assert.equal(calculer({ energie: 50, btAlloue: 200, metaAlloue: 250 }).texte, "🔋 Généré : 500 / 500 · ✅ Énergie pleine");
 assert.equal(calculer({ energie: 250, btAlloue: 0, metaAlloue: 0 }).texte, "🔋 Généré : 250 / 500", "rien de placé : identique à la barre verte");
 assert.equal(calculer({ energie: 0, btAlloue: 0, metaAlloue: 0 }).total, 0);
+
+// Compteur de temps (Norman, 2026-09-25) : dans combien de temps toute l'énergie sera générée = (cap - déjà généré) / production par seconde.
+assert.equal(calculer({ energie: 250, max: 500, prod: 0.25 }).texte, "🔋 Généré : 250 / 500 · ⏱ Pleine dans 16 min 40 s");
+assert.equal(calculer({ energie: 78, max: 1000, prod: 1 }).texte, "🔋 Généré : 78 / 1000 · ⏱ Pleine dans 15 min 22 s", "exemple de Norman : 15 min 22 s");
+assert.equal(calculer({ energie: 100, btAlloue: 150, metaAlloue: 0, max: 500, prod: 1 }).texte, "🔋 Généré : 250 / 500 · ⏱ Pleine dans 4 min 10 s", "l'énergie déjà placée compte comme générée");
+assert.equal(calculer({ energie: 0, max: 5000, prod: 1 }).texte, "🔋 Généré : 0 / 5000 · ⏱ Pleine dans 1 h 23 min 20 s");
+assert.equal(calculer({ energie: 0, max: 200000, prod: 1 }).texte, "🔋 Généré : 0 / 200000 · ⏱ Pleine dans 2 j 7 h 33 min");
+assert.equal(calculer({ energie: 500, max: 500, prod: 1 }).texte, "🔋 Généré : 500 / 500 · ✅ Énergie pleine");
+assert.equal(calculer({ energie: 10, max: 500, prod: 0 }).texte, "🔋 Généré : 10 / 500", "sans production : pas de compteur");
+assert.equal(calculer({ energie: 0, max: 61, prod: 1 }).texte, "🔋 Généré : 0 / 61 · ⏱ Pleine dans 1 min 1 s");
 
 // Rafraîchi à chaque tick et à chaque action (les deux fonctions qui écrivent le haut du panneau d'énergie).
 assert.equal((ui.match(/energieEl\.textContent\s*=\s*texteEnergieGenereeIdleV1_\(\);/g) || []).length, 2, "mis à jour en même temps que la barre (tick local et rafraîchissement)");

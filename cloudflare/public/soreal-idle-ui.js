@@ -4395,11 +4395,40 @@
           allocationMetaEnergieIdleV1_();
       }
 
+      /*
+       * 2026-09-25 (Norman : « à côté de "Généré : 250/500", un compteur qui indique dans combien de temps toute l'énergie sera générée,
+       * par exemple 15 minutes 22 secondes ») : (cap - déjà généré) / production par seconde ; l'énergie déjà placée compte comme générée.
+       */
+      function formatDureeEnergieIdleV1_(secondes){
+        let s=Math.max(0,Math.ceil(Number(secondes)||0));
+        const j=Math.floor(s/86400);s-=j*86400;
+        const h=Math.floor(s/3600);s-=h*3600;
+        const m=Math.floor(s/60);s-=m*60;
+        const parties=[];
+        if(j>0)parties.push(j+' j');
+        if(j>0||h>0)parties.push(h+' h');
+        if(j>0||h>0||m>0)parties.push(m+' min');
+        if(j===0)parties.push(s+' s');
+        return parties.join(' ');
+      }
+
+      function texteTempsEnergiePleineIdleV1_(){
+        const max=idleEntier_(idleEtat&&idleEtat.energieMax);
+        const reste=max-energieGenereeTotaleIdleV1_();
+        if(!(max>0))return '';
+        if(reste<=0)return '✅ Énergie pleine';
+        const prod=idleNombre_(idleEtat&&idleEtat.productionSeconde);
+        if(!(prod>0))return '';
+        return '⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/prod);
+      }
+
       function texteEnergieGenereeIdleV1_(){
+        const temps=texteTempsEnergiePleineIdleV1_();
         return '🔋 Généré : '+
           formatEnergieIdleV50_(energieGenereeTotaleIdleV1_())+
           ' / '+
-          idleEntier_(idleEtat&&idleEtat.energieMax);
+          idleEntier_(idleEtat&&idleEtat.energieMax)+
+          (temps?' · '+temps:'');
       }
 
       function rafraichirEnergieEtBoutonsIdleV9_(){

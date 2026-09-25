@@ -7358,3 +7358,13 @@
     grid-template-columns:1fr;
   }
 }
+
+/* 2026-09-25 : le compteur « Généré : n / max · ⏱ Pleine dans … » est plus long ; il passe à la ligne proprement sur petit écran. */
+.soreal-idle-energy-head-v34{
+  flex-wrap:wrap;
+}
+.soreal-idle-energy-number-v34{
+  margin-left:auto;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
