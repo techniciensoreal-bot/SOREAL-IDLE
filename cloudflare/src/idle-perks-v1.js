@@ -4,6 +4,10 @@
  * Source: NGU Idle wiki (https://ngu-idle.fandom.com/wiki/Perk_Points),
  * indices 0-55 — the Normal-accessible portion of Page 1.
  *
+ * MISE À JOUR 2026-09-25 (Norman : « tu fais comme sur le wiki ») : le paragraphe ci-dessous (« aucun verrou de difficulté ») est PÉRIMÉ.
+ * Le wiki marque bien chaque perk « Evil only » / « Sadistic only » et la source tierce donne les mêmes verrous (0 écart sur 232 perks) :
+ * un perk n'est achetable, et son effet actif, que si la difficulté courante l'atteint. Voir idle-difficulty-gates-v1.js.
+ *
  * Extension (2026-09-18, Norman : "il faut tout faire" -- Evil/Sadistic
  * fidélité). Le déni précédent ("index 56 exclu jusqu'à ce qu'Evil
  * existe") reposait sur une lecture erronée du wiki : la colonne "Buy

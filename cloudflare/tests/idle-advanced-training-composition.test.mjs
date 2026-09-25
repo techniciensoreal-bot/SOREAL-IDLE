@@ -18,7 +18,7 @@ const RUN = 3 * 3600 * 1000;
 
 function at(state, id) { return state.systems.advancedTraining.data.tracks[id]; }
 function base(mutate) {
-  const s = normalizeIdleNguState({}, ctx, T0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
   s.systems.advancedTraining.unlocked = true;
   s.resources.energy.cap = 1000;
   s.resources.energy.current = 1000;

@@ -16,7 +16,7 @@ const ctx = { bosses: 300 };
 const act = (s, payload, context = ctx) => applyIdleNguAction(s, payload, context, 1_000_000).state;
 
 function base() {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   s.systems.wishes.unlocked = true;
   s.systems.hacks.unlocked = true;
   s.systems.bloodMagic.unlocked = true;

@@ -19,7 +19,7 @@ const near = (a, b, msg, eps = 1e-9) => assert.ok(Math.abs(a / b - 1) < eps, `${
 const act = (s, payload) => applyIdleNguAction(s, payload, ctx, 1_000_000).state;
 
 function base({ slots = 2, power = 1, stock = 1e6 } = {}) {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   s.systems.wishes.unlocked = true;
   s.systems.hacks.unlocked = true;
   s.systems.bloodMagic.unlocked = true;

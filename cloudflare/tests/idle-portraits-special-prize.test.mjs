@@ -14,7 +14,7 @@ import {
  * 250 %), Wishes (26, 75, 202) et Arbitrary Points / Tips N' Tricks (Special Prize : 50 000 AP, une fois).
  */
 const ctx = { bosses: 100, basicTrainingComplete: true };
-const fresh = () => normalizeIdleNguState({}, ctx, 0);
+const fresh = () => normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
 const snap = (s) => idleNguSnapshot(s, ctx, 0).portraits;
 const act = (s, p) => applyIdleNguAction(s, p, ctx, 1000);
 

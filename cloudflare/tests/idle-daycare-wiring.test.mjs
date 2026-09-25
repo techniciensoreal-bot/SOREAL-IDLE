@@ -24,7 +24,7 @@ const addItem = (s, definitionId, level = 0) => {
   return { state: r.state, id: r.result.id };
 };
 const fresh = (exp = 0) => {
-  const s = normalizeIdleNguState({}, ctx, T0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
   s.currencies.experience = exp;
   return s;
 };

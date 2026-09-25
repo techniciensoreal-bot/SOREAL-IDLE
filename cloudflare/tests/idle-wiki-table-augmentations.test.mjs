@@ -15,7 +15,7 @@ const WIKI = [
   ["minigun", "actualAmmo", 15625, 8e7, 1965200, 24, 1.25e12, 691200, 46],
   ["buster", "chargeShot", 390625, 1.6e9, 33408400, 28, 6.25e13, 8294400, 48],
   ["exoskeleton", "energyShield", 976.563e6, 1.8e16, 46771760000, 56, 3.125e18, 6635520000, 56],
-  ["laserSword", "quadLaser", 2.441e12, 2.3e19, 65480464000000, 68, 1.5625e20, 5308416000000, 68]
+  ["laserSword", "quadLaser", 2.441e12, 2.3e19, 65480464000000, 68, 1.5625e23, 5308416000000, 68] /* wiki : « 156.25 Sext » (sextillion = 1e21) ; corrigé le 2026-09-25, la valeur précédente était x1000 trop basse */
 ];
 const close = (a, b) => Math.abs(a - b) <= Math.abs(b) * 1e-6;
 

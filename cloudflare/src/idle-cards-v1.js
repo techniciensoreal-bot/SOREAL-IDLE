@@ -65,6 +65,7 @@
  * (« Mayo Infusers: x2, or x2.2 with Blue Heart Set »).
  */
 import { idleHeartsCardMayoSpeedMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
+import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -473,9 +474,9 @@ function foldEntries(entries, levelOf, acc) {
  */
 export function idleCardsModifiersV1(state) {
   const acc = { cardSpeed: 1, mayoSpeed: 1, tiers: {}, sums: {} };
-  const perkLevels = levelsOf(state?.systems?.perks?.data?.levels);
-  const quirkLevels = levelsOf(state?.systems?.quirks?.data?.levels);
-  const wishTracks = levelsOf(state?.systems?.wishes?.data?.tracks);
+  const perkLevels = levelsOf(idlePerkNiveauxV1(state));
+  const quirkLevels = levelsOf(idleQuirkNiveauxV1(state));
+  const wishTracks = levelsOf(idleWishTracksActifsV1(state));
   foldEntries(IDLE_CARDS_PERKS_V1, (id) => perkLevels[id], acc);
   foldEntries(IDLE_CARDS_QUIRKS_V1, (id) => quirkLevels[id], acc);
   foldEntries(Object.entries(IDLE_CARDS_WISH_EFFECTS_V1).map(([id, w]) => ({ id, levels: w.levels, bonus: w.bonus })), (id) => wishTracks[String(id)]?.level, acc);
@@ -769,6 +770,26 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
     if (mods.chonkers) spawnLoop("chonkerProgress", B.chonkerSeconds, true);
   }
   syncMayoCurrency(state, data);
+}
+
+/*
+ * Fruits de Mayo (Yggdrasil) : « Adds progress to the associated Mayo Generator » ; progression = T^1.1 x 0.025 x Poop x MayoSpeed (wiki Yggdrasil,
+ * Nerdy Formulas). `base` = T^1.1 x 0.025 x Poop ; on y applique la vitesse de mayo courante (perks, quirks, cartes... et le Mayo Infuser : « Affects
+ * Fruit reward »). La progression est en générateurs entiers (1 = un mayo) : la partie entière est créditée, le reste est gardé.
+ */
+export function idleCardsMayoFruitProgressV1(state, mayoId, base) {
+  if (!MAYO_IDS.includes(mayoId) || !state?.systems?.cards) return { progress: 0, whole: 0 };
+  const data = cardsData(state);
+  const mods = idleCardsModifiersV1(state);
+  const infused = N(state.selloutEffects?.remaining?.mayoInfuser, 0) > 0;
+  const factor = mods.mayoSpeed * (infused ? IDLE_CARDS_BASE_V1.mayoInfuserFactor * idleHeartsConsumableFactorV1(state) : 1);
+  const progress = Math.max(0, N(base, 0)) * factor;
+  const p = N(data.mayoProgress[mayoId], 0) + progress;
+  const whole = Math.floor(p);
+  data.mayo[mayoId] = I(data.mayo[mayoId], 0) + whole;
+  data.mayoProgress[mayoId] = p - whole;
+  syncMayoCurrency(state, data);
+  return { progress, whole };
 }
 
 /* Basic Challenge Sadistic : 1 mayo de chaque type par complétion, 5 à la dernière. */

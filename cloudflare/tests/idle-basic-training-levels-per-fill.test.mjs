@@ -44,7 +44,7 @@ assert.equal(levelsPerSecondForBasicTrainingSkillV411(500, 1000, 4), 100, "moiti
 
 // bonus agrégés depuis les vrais états perk / quirk / wish
 {
-  const state = normalizeIdleNguState({}, {}, 0);
+  const state = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   assert.equal(idleNguBonuses(state).basicTrainingLevelsPerFill, 1);
   state.systems.perks.data.levels[15] = 1;
   assert.equal(idleNguBonuses(state).basicTrainingLevelsPerFill, 2, "perk Double Basic Training");

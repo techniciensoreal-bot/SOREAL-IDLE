@@ -39,13 +39,13 @@ const act = (s, payload) => applyIdleNguAction(s, payload, ctx, 1_000_000).state
 
 // Verrouillé
 {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   const html = page({ systemes: idleNguSnapshot(s, ctx, 1_000_000) }, "wishes", "Wishes");
   assert.match(html, /Severed Unicorn/);
   assert.ok(!html.includes("allocateWishSlot"));
 }
 
-let s = normalizeIdleNguState({}, ctx, 1_000_000);
+let s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
 s.systems.wishes.unlocked = true;
 s.systems.hacks.unlocked = true;
 s.systems.bloodMagic.unlocked = true;

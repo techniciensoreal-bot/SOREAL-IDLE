@@ -97,7 +97,7 @@ export async function auditCatalogEffectsRead() {
   const report = { perks: [], quirks: [], wishes: [], sellout: [] };
 
   const mkState = (kind, levels) => {
-    const st = { systems: { perks: { data: { levels: {} } }, quirks: { data: { levels: {} } }, wishes: { data: { tracks: {} } } } };
+    const st = { difficulty: "extreme", systems: { perks: { data: { levels: {} } }, quirks: { data: { levels: {} } }, wishes: { data: { tracks: {} } } } };
     if (kind === "wishes") st.systems.wishes.data.tracks = Object.fromEntries(Object.entries(levels).map(([id, lv]) => [id, { level: lv }]));
     else st.systems[kind].data.levels = levels;
     return st;

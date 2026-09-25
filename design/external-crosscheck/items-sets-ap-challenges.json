@@ -1,0 +1,726 @@
+{
+  "meta": {
+    "generatedBy": "Sonnet (controle en lecture seule)",
+    "date": "2026-09-25",
+    "scope": "objets et sets, boutique AP (4G's Sellout Shop), defis",
+    "sources": [
+      "NGU-Wiki/pages + templates (reference n°1)",
+      "NGU-Wiki/external/third-party/ngu-idle-calculators-ts (GPL)",
+      "cloudflare/src/idle-adventure-v47.js, idle-adventure-set-specials-v1.js, idle-sellout-shop-v1.js, idle-ngu-progression.js, idle-achievements-v1.js, idle-sqlite-runtime.js, public/soreal-idle-ui.js"
+    ],
+    "method": "import direct des modules du jeu dans Node 24, extraction des fiches wiki (Id, stats, specials, drops, daycare, effectiveness), comparaison exhaustive par id ; scripts sous %TEMP%/claude/xc (hors depot)."
+  },
+  "summary": {
+    "objets": {
+      "pagesWikiObjets": 427,
+      "gabaritsItemData": 431,
+      "entreesJeu": 406,
+      "equipement": 284,
+      "specialsEtConsommables": 122,
+      "appariesParIdWiki": 406,
+      "valeursPowerToughnessComparees": 2136,
+      "valeursSpecialsComparees": 3816,
+      "ecartsPT": 0,
+      "ecartsSpecials": 0,
+      "ecartsBaseValue": 0,
+      "ecartsNiveauDrop": 1,
+      "absentsDuJeu": 21,
+      "evolutions": {
+        "wiki": 19,
+        "jeu": 19,
+        "ecarts": 0
+      },
+      "tauxDaycareComparees": 321,
+      "ecartsDaycare": 0,
+      "noms": {
+        "identiques": 388,
+        "francais": 12,
+        "articlesRetires": 6
+      }
+    },
+    "sets": {
+      "pagesWikiSets": 75,
+      "dontRedirections": 4,
+      "setsJeu": 46,
+      "setsObjetsJeu": 23,
+      "setsAvecPortrait": 42,
+      "comparesOK": 68,
+      "piecesEtTotauxPowerToughnessIdentiques": 44,
+      "totauxSpecialsIdentiques": 43,
+      "sansEntiteSetDansLeJeu": 3,
+      "setJeuSansPageWiki": 1,
+      "bonusNonCables": 1,
+      "bonusAmbigus": 1
+    },
+    "boutiqueAP": {
+      "lignesWiki": 75,
+      "entreesJeu": 81,
+      "ecartsPrixOuMax": 0,
+      "achetables": 67,
+      "nonAchetables": 14,
+      "packsArgentReelExclus": 8
+    },
+    "defis": {
+      "defisWikiParDifficulte": 11,
+      "defisJeu": 33,
+      "ecartsCiblesEXPAPMax": 0,
+      "restrictionsNonImplementees": 2,
+      "bonusPermanentsNonModelises": 2
+    },
+    "sourceTierce": {
+      "itemsTs": 487,
+      "setsTs": 73,
+      "apItemsTs": 75,
+      "challengesTs": 33,
+      "ecartsReelsVsWiki": 1,
+      "arrondis": 9,
+      "lacunes": 3
+    }
+  },
+  "A_manquants": {
+    "items_wiki_absents_du_jeu": [
+      {
+        "wikiId": 179,
+        "name": "A Crumpled Note",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/A Crumpled Note.json",
+        "note": "Indice de la Bete (drop niveau 100 du Skeleton Guardian)."
+      },
+      {
+        "wikiId": 180,
+        "name": "The First Clue",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/The First Clue.json",
+        "note": "Indice de la Bete (Ring of Apathy niveau 69 equipe puis UUG)."
+      },
+      {
+        "wikiId": 181,
+        "name": "The Second Clue",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/The Second Clue.json",
+        "note": "Indice de la Bete."
+      },
+      {
+        "wikiId": 182,
+        "name": "The Third Clue",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/The Third Clue.json",
+        "note": "Indice de la Bete."
+      },
+      {
+        "wikiId": 183,
+        "name": "The Final Clue!",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/The Final Clue!.json",
+        "note": "Indice de la Bete."
+      },
+      {
+        "wikiId": 288,
+        "name": "The Death Note",
+        "type": "Consumable",
+        "drops": [
+          "lvl 1 from Titan The Godmother (Easy+)"
+        ],
+        "source": "NGU-Wiki/pages/The Death Note.json",
+        "note": "Drop du Godmother (Easy+), niveau 1, consommable sans stats."
+      },
+      {
+        "wikiId": 335,
+        "name": "Seal of the Exile",
+        "type": "Weapon",
+        "drops": [],
+        "source": "NGU-Wiki/pages/Seal of the Exile.json",
+        "note": "Fiche wiki sans donnees (arme, pas de stats, pas de drop)."
+      },
+      {
+        "wikiId": 336,
+        "name": "Face of the Exile",
+        "type": "Consumable",
+        "drops": [
+          "lvl 100 from Titan The Exile (Easy+)"
+        ],
+        "source": "NGU-Wiki/pages/Face of the Exile.json",
+        "note": "Drop de l'Exile (Easy+), niveau 100, conditionne au set Exile complet (25 % fixe selon WORKLOG)."
+      },
+      {
+        "wikiId": 337,
+        "name": "Tentacle of the Exile (Clue)",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/Tentacle of the Exile (Clue).json",
+        "note": "Indice de l'Exile ; les accessoires homonymes (Tentacle 330, Antlers 328, Antennae 332, Buster 334) existent deja dans le jeu."
+      },
+      {
+        "wikiId": 338,
+        "name": "Antlers of the Exile (Clue)",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/Antlers of the Exile (Clue).json",
+        "note": "idem 337"
+      },
+      {
+        "wikiId": 339,
+        "name": "Buster of the Exile (Clue)",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/Buster of the Exile (Clue).json",
+        "note": "idem 337"
+      },
+      {
+        "wikiId": 340,
+        "name": "Antennae of the Exile (Clue)",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/Antennae of the Exile (Clue).json",
+        "note": "idem 337"
+      },
+      {
+        "wikiId": 341,
+        "name": "Sack of the Exile",
+        "type": "Consumable",
+        "drops": [
+          "lvl 100 from Titan The Exile (Easy+)"
+        ],
+        "source": "NGU-Wiki/pages/Sack of the Exile.json",
+        "note": "Drop de l'Exile (Easy+), niveau 100, conditionne au set Exile complet (2 % fixe selon WORKLOG)."
+      },
+      {
+        "wikiId": 342,
+        "name": "Blue Eyes Ultimate Chestplate",
+        "type": "Chest",
+        "drops": [
+          "lvl 0 from Titan The Exile (Easy+)"
+        ],
+        "source": "NGU-Wiki/pages/Blue Eyes Ultimate Chestplate.json",
+        "stats": [
+          {
+            "name": "Power",
+            "base": "5,500,000",
+            "lvl0": "5,500,000",
+            "lvl100": "11,000,000"
+          },
+          {
+            "name": "HP Max",
+            "base": "16,500,000",
+            "lvl0": "16,500,000",
+            "lvl100": "33,000,000"
+          },
+          {
+            "name": "Toughness",
+            "base": "160,000,000",
+            "lvl0": "160,000,000",
+            "lvl100": "320,000,000"
+          },
+          {
+            "name": "HP regen",
+            "base": "4,800,000",
+            "lvl0": "4,800,000",
+            "lvl100": "9,600,000"
+          }
+        ],
+        "specials": [
+          {
+            "name": "Hack Speed",
+            "base": "20%",
+            "lvl0": "20%",
+            "lvl100": "40%"
+          },
+          {
+            "name": "Resource 3 Cap",
+            "base": "120%",
+            "lvl0": "120%",
+            "lvl100": "240%"
+          },
+          {
+            "name": "Wish Speed",
+            "base": "25%",
+            "lvl0": "25%",
+            "lvl100": "50%"
+          }
+        ],
+        "daycare": "Blue Eyes Ultimate Chestplate will gain one level every 168.0 hours when put in the Daycare (base rate)",
+        "note": "Seule piece manquante avec de vraies stats. Troisieme source (ngu-idle-calculators-ts items.ts id 342) : Power 5 500 000, Toughness 160 000 000, R3 Cap 120, Wish Speed 25, Hack Speed 20 (= wiki niveau 0). Chaine secrete (Sack of the Exile 0,0001 % a l'ouverture selon WORKLOG)."
+      },
+      {
+        "wikiId": 367,
+        "name": "A Well Done Steak With Ketchup",
+        "type": "Consumable",
+        "drops": [
+          "lvl 1 in The Beardverse"
+        ],
+        "source": "NGU-Wiki/pages/A Well Done Steak With Ketchup.json",
+        "note": "Ingredient GLOP (Beardverse niveau 1)."
+      },
+      {
+        "wikiId": 368,
+        "name": "Pickle Ice Cream",
+        "type": "Consumable",
+        "drops": [
+          "lvl 1 in Clock Dimension"
+        ],
+        "source": "NGU-Wiki/pages/Pickle Ice Cream.json",
+        "note": "Ingredient GLOP (Clock Dimension niveau 1, debloque par GLOP Recipe)."
+      },
+      {
+        "wikiId": 369,
+        "name": "A Can of Surstromming",
+        "type": "Consumable",
+        "drops": [
+          "lvl 1 in Chocolate World"
+        ],
+        "source": "NGU-Wiki/pages/A Can of Surstromming.json",
+        "note": "Ingredient GLOP (Chocolate World niveau 1)."
+      },
+      {
+        "wikiId": 370,
+        "name": "A Jar of Marmite",
+        "type": "Consumable",
+        "drops": [
+          "lvl 1 in Pretty Pink Princess Land"
+        ],
+        "source": "NGU-Wiki/pages/A Jar of Marmite.json",
+        "note": "Ingredient GLOP (Pretty Pink Princess Land niveau 1)."
+      },
+      {
+        "wikiId": 371,
+        "name": "Pizza With Pineapple",
+        "type": "Consumable",
+        "drops": [
+          "lvl 1 in JRPGVille"
+        ],
+        "source": "NGU-Wiki/pages/Pizza With Pineapple.json",
+        "note": "Ingredient GLOP (JRPGVille niveau 1)."
+      },
+      {
+        "wikiId": 372,
+        "name": "GLOP",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/GLOP.json",
+        "note": "GLOP : melange des 5 ingredients (daycare 24 h/niveau)."
+      },
+      {
+        "wikiId": 387,
+        "name": "GLOP Recipe",
+        "type": "Consumable",
+        "drops": [],
+        "source": "NGU-Wiki/pages/GLOP Recipe.json",
+        "note": "Recette du GLOP."
+      }
+    ],
+    "autres_objets_absents": [
+      {
+        "name": "THE END (16 consommables, ids 480-495)",
+        "source": "wiki page 'THE END' ; ngu-idle-calculators-ts items.ts ids 481 et 483 seulement",
+        "note": "Fin du jeu non implementee (consommables sans stats). Non traite volontairement (voir WORKLOG)."
+      },
+      {
+        "name": "Fragments MacGuffin (22, ids 198-211, 228, 250, 289-291, 298-300)",
+        "source": "ngu-idle-calculators-ts (absents des pages Item du wiki)",
+        "note": "Geres par idle-macguffins-v1.js, pas comme objets d'inventaire : pas un manque."
+      },
+      {
+        "name": "Objets de quete (10, ids 278-287)",
+        "source": "ngu-idle-calculators-ts",
+        "note": "Geres par idle-questing-v1.js : pas un manque."
+      },
+      {
+        "name": "Boosts (39 = 3 types x 13 paliers, ids 1-39)",
+        "source": "ngu-idle-calculators-ts + wiki Boost",
+        "note": "Presents (IDLE_ADVENTURE_BOOSTS = 13 paliers)."
+      }
+    ],
+    "sets_wiki_sans_entite_set_dans_le_jeu": [
+      {
+        "wikiSet": "Tutorial Cube (set)",
+        "bonus": "10 000 AP + debloque l'Infinity Cube",
+        "gameHandling": "setRewards.ap +10000 et cube.unlocked dans record() (idle-adventure-v47.js) : effet present, pas de set dans IDLE_ADVENTURE_ITEM_SETS_V1"
+      },
+      {
+        "wikiSet": "Red Liquid (set)",
+        "bonus": "-20 % cooldown global ET idle attack",
+        "gameHandling": "flag unlockFlags.redLiquidMaxed lu par le client (800 ms) et idleAttackSeconds 0,8"
+      },
+      {
+        "wikiSet": "Purple Liquid (set)",
+        "bonus": "Beast Mode +50 % Power au lieu de +40 %",
+        "gameHandling": "flag unlockFlags.purpleLiquidMaxed lu par le client (1,5 au lieu de 1,4)"
+      }
+    ],
+    "ap_shop": [
+      {
+        "name": "Section Packs (Stupid Newbie, Ascended Newbie x4, Pack of Pissed Off Dudes, Resource 3 Pack, Sexy Player Fashion Pack)",
+        "note": "Exclus par decision de Norman (achats en argent reel / Kreds) ; le portrait pack (200 000 AP) n'est pas livre."
+      }
+    ],
+    "defis": [
+      {
+        "name": "Effets de Troll Challenge en cours de defi",
+        "source": "wiki Challenges > Trolls (9 petits trolls, 5 gros trolls, toutes les 120 s -> 75 s)",
+        "note": "Aucune implementation : le Troll Challenge n'a que 'offline desactive' comme restriction."
+      },
+      {
+        "name": "Restriction visuelle du Blind Challenge",
+        "source": "wiki Challenges > Blind",
+        "note": "Aucun masquage de nombres dans le client (aucune occurrence 'blind' dans soreal-idle-ui.js)."
+      }
+    ]
+  },
+  "B_ecarts": [
+    {
+      "id": "B01",
+      "domain": "objet",
+      "item": "A Battle Corgi (id 364, western:corgi)",
+      "field": "NGU Speed niveau 0",
+      "wiki": "500 % (points 6 000 000 => 600 %)",
+      "tierce": "600 (items.ts ENERGY/MAGIC_NGU_SPEED 600)",
+      "jeu": "[base 500, max0 500, max100 1200] (set-specials-v1 ligne 186)",
+      "verdict": "Coquille wiki reprise telle quelle par le jeu ; niveau 100 correct (1200 %). Sous-evalue de 100 points de % aux niveaux < 100.",
+      "impact": "faible"
+    },
+    {
+      "id": "B02",
+      "domain": "objet",
+      "item": "StnaP s'rerednaW (rerednaw:legs, id 157)",
+      "field": "Magic Bars / Magic Cap 'Base value'",
+      "wiki": "Base 1600 % / 170 % alors que niveau 0 = 800 % / 85 % et niveau 100 = 1600 % / 170 % (points 16 000 / 17 000 idem)",
+      "tierce": "non compare (pas de table par niveau)",
+      "jeu": "[magicBarsPct 1600,800,1600] [magicCapPct 170,85,170]",
+      "verdict": "Coquille wiki (base = max niveau 100). Dans le jeu la valeur demarre au-dessus du plafond de niveau 0 (1600 > 800 ; 170 > 85) et DECROIT avec les boosts jusqu'a 800/85 (formule base+(cap-base)*fraction). Jamais superieure a la valeur maximale reelle mais fausse en cours de montee.",
+      "impact": "faible a moyen (jusqu'a 2x la vraie valeur a bas niveau)"
+    },
+    {
+      "id": "B03",
+      "domain": "objet",
+      "item": "A Regular Tie (jake:tie, id 116)",
+      "field": "Toughness / HP regen 'Base value'",
+      "wiki": "Base 82 > max niveau 0 81,5 ; regen 2,46 > 2,445 (max100 163 / 4,89)",
+      "tierce": "82 (items.ts)",
+      "jeu": "base 82, plafond niveau 0 81,5",
+      "verdict": "Incoherence interne du wiki (base au-dessus du plafond). Aucun effet mesurable.",
+      "impact": "nul"
+    },
+    {
+      "id": "B04",
+      "domain": "objet",
+      "item": "Heart Shaped Panties (id 249)",
+      "field": "max niveau 100",
+      "wiki": "1333 (deux fois 667 = 1334)",
+      "tierce": "666,6666 (arrondi different)",
+      "jeu": "667 -> 1334",
+      "verdict": "Arrondi ; deja note dans WORKLOG.",
+      "impact": "nul"
+    },
+    {
+      "id": "B05",
+      "domain": "source_tierce",
+      "item": "ngu-idle-calculators-ts items.ts",
+      "field": "9 valeurs de Specials + 1 Toughness (Regular Tie 82/81,5, Beanie Magic Power 185/184,9, Heart Shaped Panties 666,6666/333,3333/6,666666, Infinity Charm 888,8888)",
+      "wiki": "valeurs arrondies",
+      "tierce": "valeurs non arrondies",
+      "jeu": "= wiki",
+      "verdict": "Arrondis uniquement (sauf B01).",
+      "impact": "nul"
+    },
+    {
+      "id": "B06",
+      "domain": "source_tierce",
+      "item": "sets.ts / items.ts",
+      "field": "Halloweenie (set) : ids 408-415",
+      "wiki": "8 objets (Neck Bolts ... A Giant Scythe)",
+      "tierce": "ItemSet HALLOWEEN reference les ids 408-415 mais items.ts n'a AUCUN objet 408-415",
+      "jeu": "8 pieces presentes",
+      "verdict": "Lacune de la source tierce (pas du jeu).",
+      "impact": "nul"
+    },
+    {
+      "id": "B07",
+      "domain": "source_tierce",
+      "item": "sets.ts",
+      "field": "DUCK : [496,497,498,499,450,451,452,453]",
+      "wiki": "Duck (set) = ids 496-503",
+      "tierce": "ids 450-453 dupliquent Link Cable / Hand Cursor / Rad Mixtape / Hardhat",
+      "jeu": "8 pieces correctes",
+      "verdict": "Bug de la source tierce.",
+      "impact": "nul"
+    },
+    {
+      "id": "B08",
+      "domain": "source_tierce",
+      "item": "items.ts boosts",
+      "field": "Boost 5000 dans The Breadverse",
+      "wiki": "page The Breadverse : Boost 5000 et Boost 10000",
+      "tierce": "Breadverse n'a que le 10000 (le 5000 est liste Fad/JRPG/Rad/BackToSchool/Western)",
+      "jeu": "5000 et 10000 (profil de butin)",
+      "verdict": "Le jeu suit le wiki ; la source tierce est incomplete.",
+      "impact": "nul"
+    },
+    {
+      "id": "B09",
+      "domain": "wiki_interne",
+      "item": "Corgi / Cheap Plastic Amulet / Bearded Axe / LootzL...OOt / Slimy Chest / The Number 7",
+      "field": "colonne Points differente de la colonne %",
+      "wiki": "[\"A Cheap Plastic Amulet/Energy Cap: 360%|360%|720% vs pts 3,600,000|36,000,000|72,000,000\",\"Bearded Axe/Beard Speed: 10%|10%|20% vs pts 1,000|10,000|20,000\",\"LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt/Drop Chance: 26,660%|26,660%|53,320% vs pts 26,600,000|266,600,000|533,200,000\",\"Slimy Chest/Magic Power: 1,400%|1,400%|2,800% vs pts 14,000,000|1,400,000|2,800,000\",\"The Number 7/Resource 3 Bars: 10%|10%|20% vs pts 10,000,000|10,000,000|200,000,000\"]",
+      "tierce": "valeurs % identiques au wiki",
+      "jeu": "utilise les %",
+      "verdict": "Coquilles de la colonne Points du wiki ; sans effet (le jeu n'utilise pas les points).",
+      "impact": "nul"
+    },
+    {
+      "id": "B10",
+      "domain": "nom",
+      "item": "catalogue d'objets / etat",
+      "field": "noms",
+      "wiki": "388 noms sur 406 identiques",
+      "tierce": "-",
+      "jeu": "12 noms francais (Training, Sewers) + 6 articles retires (Tutorial Cube, Tuba of Time, Wandoos 98, Beard Comb, Shrunken Voodoo Doll, Wandoos XL) ; IDLE_ADVENTURE_ITEM_CATALOG_V1 porte des noms generiques 'Sewers Set head'",
+      "verdict": "Choix documente (WORKLOG) ; sans effet de jeu.",
+      "impact": "nul"
+    },
+    {
+      "id": "B11",
+      "domain": "defi",
+      "item": "Evil No Equipment Challenge",
+      "field": "total d'emplacements",
+      "wiki": "page Challenges : 'Bonus MacGuffin Slot and 12 inventory spaces total' ; page Inventory : 24 au total",
+      "tierce": "-",
+      "jeu": "3 par completion + 9 a la derniere = 24",
+      "verdict": "Le jeu suit la page Inventory (la plus precise) ; la page Challenges est incoherente.",
+      "impact": "nul"
+    },
+    {
+      "id": "B12",
+      "domain": "boutique",
+      "item": "Emplacements d'accessoire de la boutique",
+      "field": "verrou Evil",
+      "wiki": "Inventory > Accessory Slots : '6 from the Sellout Shop (last two require Evil difficulty)' ; Sellout Shop : seul 'An Evil Accessory Slot' (Special 3) est marque verrouille",
+      "tierce": "-",
+      "jeu": "seul extraAccessorySlotEvil a minDifficulty ; extraAccessorySlot5 (750 000 AP, Special 4) achetable en Normal",
+      "verdict": "Ambigu : les deux pages divergent (voir section ambiguites).",
+      "impact": "moyen (750 000 AP)"
+    },
+    {
+      "id": "B13",
+      "domain": "set",
+      "item": "Red Liquid (set)",
+      "field": "texte",
+      "wiki": "page set : '-20 % on the global cooldown timer, AND for idle attack speed' ; page objet : '20 % global adventure cooldown as well as 20 % faster idle attack speed'",
+      "tierce": "-",
+      "jeu": "cooldown global 800 ms (x0,8) et idle attack 0,8 s (x0,8 => +25 % de vitesse)",
+      "verdict": "Ambigu (-20 % de duree vs +20 % de vitesse).",
+      "impact": "faible"
+    },
+    {
+      "id": "B15",
+      "domain": "objet",
+      "item": "A Severed Unicorn's Head (id 343)",
+      "field": "niveau de drop",
+      "wiki": "fiche objet : lvl 1 (Godmother Easy+) ; gabarit Item data GM1lvldrop = 1 ; section Loot du titan : lvl 0 garanti",
+      "tierce": "-",
+      "jeu": "niveau 0 (section Loot du titan)",
+      "verdict": "Desaccord entre deux pages du wiki, deja documente dans le code (idle-adventure-v47.js, commentaire severedUnicornHead).",
+      "impact": "faible"
+    },
+    {
+      "id": "B14",
+      "domain": "boutique",
+      "item": "Prix Resource 3 Potion delta",
+      "field": "prix",
+      "wiki": "40 000 AP (identique a beta, alpha = 4 000)",
+      "tierce": "-",
+      "jeu": "40 000",
+      "verdict": "Egal ; signale car surprenant (alpha 4 000 / delta 40 000 pour 1 jour, contre Energy delta 100 000).",
+      "impact": "nul"
+    }
+  ],
+  "C_non_branches": [
+    {
+      "id": "C01",
+      "domain": "equipement",
+      "effect": "Effectiveness des objets ('X is 100 % effective when you've slayed Boss #N')",
+      "detail": "160 objets sur 427 pages ont un seuil > 0 : Boss 20 = 8, 33 = 14, 58 = 9, 67 = 1, 82 = 31, 100 = 97 ; 199 objets seuil 0 ; 68 (consommables, accessoires speciaux) sans ligne. Seule formule publiee : page HSB (set) 'less than 100 % effective until Boss 20, effectiveness calculated as (Current Boss)/20 * 100'.",
+      "jeu": "aucune occurrence de 'effectiveness' dans le moteur : tout est a 100 % des le niveau",
+      "impact": "eleve (equilibrage de toute la progression Normal)",
+      "statut": "ambigu, a trancher"
+    },
+    {
+      "id": "C02",
+      "domain": "equipement",
+      "effect": "2e emplacement d'arme / Dual Wielding (Wish 28 : +5 % des stats de la 2e arme par niveau, Wish 45 : +5 % d'efficacite par niveau ; Evil Troll 4 debloque le souhait, Troll 6 = 'Improved Dual Wielding')",
+      "detail": "9 sets ont 2 armes (Bread baguette, Disco vinylShard, Halloweenie apple, Construction hammer, Duck shotgun, Dutch tulip, Pirate cutlass, Rock rocket, Amalgamate deathstick). Wiki : type Weapon. Source tierce player.ts : weaponTwoItem.ratio = 0,05*(niveau souhait 28 + niveau souhait 45) applique a toutes ses stats.",
+      "jeu": "wishes 28 et 45 ont bonus {} ; la 2e arme est un slot 'other' que le client range en accessoire : equipe a 100 % de ses stats (ex. Pirate cutlass 126 G Power) en consommant un emplacement d'accessoire (verifie par simulation : SLOT_INVALIDE en 'weapon', OK en 'accessory').",
+      "impact": "eleve (Evil/Sadistic tardif)",
+      "statut": "non branche + comportement divergent"
+    },
+    {
+      "id": "C03",
+      "domain": "equipement",
+      "effect": "Left / Right Edgy Boot (type Boots dans le wiki)",
+      "detail": "Le jeu les met en slot 'other' -> accessoires ; les deux peuvent etre portees ensemble et gonflent les accessoires.",
+      "jeu": "SLOT_INVALIDE en 'boots', accepte en 'accessory'",
+      "impact": "faible",
+      "statut": "divergent"
+    },
+    {
+      "id": "C04",
+      "domain": "equipement",
+      "effect": "Specials secondaires des accessoires ('SPECIALS' avec sExtra)",
+      "detail": "102 objets, 258 specials secondaires : ils restent a leur 'Base value' (moyenne 47 % du max niveau 100) meme au niveau 100 avec le premier special plein. Les pieces de set, elles, montent proportionnellement (idleAdventureSetSpecialsValuesV1).",
+      "jeu": "simulation : Small Gerbil niveau 100, special principal 12 000 -> magicCapPct 200 (max 1 200), magicPowerPct 2 000 (max 12 000)",
+      "impact": "eleve (Energy/Magic Power/Cap des accessoires, coeur du gameplay tardif)",
+      "statut": "partiel (choix de conception note dans le code, non tranche)"
+    },
+    {
+      "id": "C05",
+      "domain": "defi",
+      "effect": "Laser Sword Challenge : '+0,05' a la 1re et a la derniere completion",
+      "detail": "Voir ambiguites.",
+      "jeu": "laserSwordExponentStep = completions * 0,01 * rang",
+      "impact": "moyen",
+      "statut": "ambigu"
+    },
+    {
+      "id": "C06",
+      "domain": "defi",
+      "effect": "24 Hour Challenge, 1re completion : '+1 EXP whenever you defeat boss 24 or higher'",
+      "detail": "",
+      "jeu": "non modele (WORKLOG)",
+      "impact": "faible",
+      "statut": "non branche"
+    },
+    {
+      "id": "C07",
+      "domain": "defi",
+      "effect": "Troll Challenge : trolls periodiques (perte de la moitie des augments, du sang, du Time Machine, de l'or, de l'energie, de la magie, des niveaux Wandoos, NGU/Beards/Wandoos coupes, boss multiplier / (2 + completions))",
+      "detail": "Toutes les 120 s (completion 1) jusqu'a 75 s (completion 7).",
+      "jeu": "restriction 'troll' = offline desactive uniquement",
+      "impact": "moyen (le defi est bien plus facile)",
+      "statut": "non implemente"
+    },
+    {
+      "id": "C08",
+      "domain": "defi",
+      "effect": "Blind Challenge : nombres masques",
+      "detail": "",
+      "jeu": "aucun masquage cote client",
+      "impact": "faible",
+      "statut": "non implemente"
+    },
+    {
+      "id": "C09",
+      "domain": "set",
+      "effect": "Exile (set) : 'Unlocks something secret!'",
+      "detail": "Chaine Sack/Face/Seal of the Exile, 4 indices, Blue Eyes Ultimate Chestplate (id 342).",
+      "jeu": "absent",
+      "impact": "faible",
+      "statut": "non implemente (deja liste dans WORKLOG)"
+    },
+    {
+      "id": "C10",
+      "domain": "set",
+      "effect": "Western (set) : 'An Extra Drop in this zone!'",
+      "detail": "Aucune magnitude publiee.",
+      "jeu": "reward {} ; seul A 9mm Beretta (drop 'if Western (set) complete') est cable",
+      "impact": "faible",
+      "statut": "ambigu"
+    },
+    {
+      "id": "C11",
+      "domain": "boutique",
+      "effect": "14 lignes de la boutique AP sans effet (achat refuse : EFFET_BOUTIQUE_AP_INACTIF)",
+      "detail": "[[\"instaTrainingCap\",10000],[\"customEnergyMagicButtons\",25000],[\"moreCustomEnergyMagicButtons\",80000],[\"lazyItopodFloorShifter\",225000],[\"questReminder\",50000],[\"customIdleEnergyMagicButtons\",125000],[\"nguCapModifier\",100000],[\"daycareKittyArt\",250000],[\"customResource3Button\",50000],[\"anotherCustomResource3Button\",150000],[\"customIdleResource3Button\",150000],[\"resource3NameRandomizer\",100000],[\"adventureLight\",75000],[\"adventureAdvancer\",65000]]",
+      "jeu": "non achetables ; seuls Insta Training Cap, Lazy ITOPOD Floor Shifter et Adventure Advancer ont un effet de jeu (le reste est interface/cosmetique)",
+      "impact": "faible",
+      "statut": "non branche"
+    },
+    {
+      "id": "C12",
+      "domain": "boutique",
+      "effect": "Auto Nuker : interrupteur on/off et fonctionnement hors ligne",
+      "detail": "Wiki Secrets and Spoilers : 'Make sure you turn off auto-nuke' (un interrupteur existe dans le vrai jeu).",
+      "jeu": "minuterie setInterval cote client (10 s apres le debut du run puis toutes les 60 s), sans case a cocher, sans effet hors ligne",
+      "impact": "faible",
+      "statut": "partiel"
+    }
+  ],
+  "E_ambiguites": [
+    {
+      "id": "E01",
+      "topic": "Effectiveness des objets",
+      "lectures": [
+        "(Boss courant)/N x 100 % pour chaque N (20/33/58/67/82/100), generalisation de la seule formule publiee (HSB, N=20)",
+        "Boss courant = plus haut boss battu de la run en cours, ou record",
+        "N pour un objet a seuil 100 en Normal = ~la fin du contenu Normal : 97 objets tardifs seraient fortement reduits"
+      ],
+      "jeu": "100 % partout",
+      "recommandation": "Ne rien inventer (regle n°1) : traiter seulement la formule HSB (8 objets) ou laisser en l'etat ; l'ancrage 'Boss #N' n'est pas documente ailleurs."
+    },
+    {
+      "id": "E02",
+      "topic": "Laser Sword : '+0,05'",
+      "wiki": "Chaque completion : +0,01 pour Milk, +0,02 pour Cannon ... jusqu'au Laser Sword. 'First Completion Reward: Same bonus, but increases by 0.05!' ; 'Final Completion Reward: Same bonus, but increases by 0.05!'",
+      "lectures": [
+        "A : 1re et derniere completions donnent 0,05 (par rang) au lieu de 0,01 : 18 x 0,01 + 2 x 0,05 = 0,28 par rang a 20/20 (jeu : 0,20)",
+        "B : 1re et derniere ajoutent 0,05 en plus du 0,01 : 0,30 par rang",
+        "C (jeu) : 0,01 x completions seulement : 0,20"
+      ],
+      "impactChiffre": "Exposant de l'augment de rang r : + 0,08 r (A) ou + 0,10 r (B) a 20/20. Laser Sword (rang 6) : facteur L^0,48 (A) ou L^0,60 (B) sur le multiplicateur (L = niveau de l'augment).",
+      "jeu": "laserSwordExponentStep = completions * 0,01 ; exposant = base + step * rang (idle-ngu-progression.js:2603-2610)",
+      "recommandation": "Lecture A la plus litterale ('Same bonus, but increases by 0.05') ; a trancher avec un test de comparaison de la page Augmentations si Norman a des chiffres de reference."
+    },
+    {
+      "id": "E03",
+      "topic": "Regles du NUKE",
+      "wiki": "Boss Fights : 'You can instantly skip bosses with the nuke button, if you are strong enough to kill it - your defense must be at least 5x the attack of the boss.' ; Secrets and Spoilers : 'DO NOT nuke past the bosses' (le NUKE enchaine) ; Sellout : Auto Nuker toutes les minutes.",
+      "jeu": "idle-sqlite-runtime.js:11736-12012 : Attack joueur / 5 > Defense boss ET Defense joueur / 5 > Attack boss (deux comparaisons strictes), enchainement tant que vrai, arret au mur de Renaissance. Le commentaire cite BossController.nukeBosses() du jeu reel (non verifiable ici).",
+      "ecart": "Le wiki ne cite que la condition de Defense (>= 5 x) ; le jeu ajoute la condition d'Attack et rend les deux strictes : plus restrictif que le texte du wiki.",
+      "recommandation": "Garder (source de code reelle citee), signaler l'ecart avec le wiki."
+    },
+    {
+      "id": "E04",
+      "topic": "Emplacement 'Sellout Evil slot'",
+      "wiki": "Shop Special 3 : 500 000 AP, 'I arbitrarily locked buying this until you're in Evil difficulty' ; Advanced Guide : 'buy the evil-only accessory slot from the shop, too, which is usable in normal mode' ; Inventory : 'last two require Evil difficulty' (Special 3 ET Special 4).",
+      "jeu": "achat refuse seulement en difficulte Normal (Evil ET Sadistic autorises) ; une fois achete, actif en toutes difficultes ; le slot Special 4 (750 000 AP) n'est pas verrouille ; le calcul bonusSlots.accessory reprend les sources listees par la page Inventory (2 base, 2 EXP, 6 boutique, 3 Troll, perk, quirk, souhait 109 : 16).",
+      "ecart": "Sadistic : pas de regle publiee, le jeu l'autorise (logique : apres Evil). Special 4 : verrou Evil affirme seulement par la page Inventory.",
+      "recommandation": "Verrouiller aussi extraAccessorySlot5 en Evil si Norman retient la page Inventory ; sinon inchange."
+    },
+    {
+      "id": "E05",
+      "topic": "24 Hour Challenge : '(rounded down)'",
+      "wiki": "+10 % EXP (Normal), +4 % (Evil), +2 % (Sadistic) 'whenever you defeat boss 24 or higher (rounded down)'",
+      "jeu": "bossExpPct = 0,10 x completions (+0,04, +0,02) ; arrondi a l'entier inferieur de l'EXP finale",
+      "ecart": "Non tranche : arrondi de l'EXP ou du pourcentage.",
+      "recommandation": "Inchange."
+    },
+    {
+      "id": "E06",
+      "topic": "Beardverse (set)",
+      "wiki": "'10 % reduced penalty ... equipping multiple beards that use Energy or Magic'",
+      "jeu": "diviseur x0,9 (idle-ngu-progression.js:3068)",
+      "ecart": "Lecture 'penalite x 0,9'.",
+      "recommandation": "Inchange."
+    },
+    {
+      "id": "E07",
+      "topic": "Red Liquid : -20 % de duree ou +20 % de vitesse",
+      "jeu": "x0,8 sur la duree (= +25 % de vitesse)",
+      "recommandation": "Inchange (page du set : '-20 %')."
+    }
+  ],
+  "controles_sans_ecart": [
+    "406/406 objets du jeu : Power/Toughness (Base value, max niveau 0, max niveau 100) = fiche wiki",
+    "406/406 objets : specials (type, base, max niveau 0, max niveau 100) = fiche wiki (les 2 seuls '2nd X' fusionnes par somme)",
+    "43 sets a bonus : somme des specials max = 'Total Specials Max' de la page du set ; Power/Toughness totaux = pages de sets",
+    "42 sets avec portrait : composition (ids d'objets) = liste 'Items in ... (set)' du wiki",
+    "321 taux de Daycare = 'gain one level every X hours' du wiki",
+    "19 evolutions d'objets identiques (Forest Pendant -> x9, Looties, Cane, Flubber, Gerbil)",
+    "Boutique AP : 75 lignes du wiki (noms, effets, prix, paliers, maximum) = catalogue ; totaux de 'Extra Inventory Space' (1 411 500) et 'Loadout Slot' (560 000) retrouves",
+    "Defis : 33 lignes (11 defis x Normal/Evil/Sadistic) : complétions max, boss cible, pas par completion, EXP, AP = page Challenges ; recompenses permanentes cablees pour tous sauf C05-C08",
+    "Boosts : paliers par zone = ngu-idle-calculators-ts sauf Breadverse (le jeu suit le wiki)"
+  ]
+}

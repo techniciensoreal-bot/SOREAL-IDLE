@@ -135,7 +135,7 @@ function etatAvecFib89() {
 {
   const act = (s, payload) => applyIdleNguAction(s, payload, ctx, T0).state;
   function progresSouhait(niveauPerkEnergie) {
-    let s = normalizeIdleNguState({}, ctx, T0);
+    let s = normalizeIdleNguState({ difficulty: "difficile" }, ctx, T0);
     s.systems.wishes.unlocked = true;
     s.systems.hacks.unlocked = true;
     s.systems.bloodMagic.unlocked = true;

@@ -50,7 +50,9 @@ for (const [id, [a, b]] of Object.entries(BOSS_CHANCE)) {
 assert.equal(zone("typozone").oneHitP, 6.915e21);                 // {{BigNum|6.915e+21}}
 assert.equal(zone("fadlands").oneHitP, 3.562e22);                 // {{BigNum|3.562e+22}} (live)
 assert.equal(zone("radlands").oneHitP, 1.88575e26);               // {{BigNum|1.88575e+26}}
-assert.equal(zone("backtoschool").oneHitP, 5.23908333333333e28);  // {{BigNum|5.23908333333333e28}} (live)
+/* Back To School : le wiki publie 5.24e28, calculé sur des PV d'ennemis DOUBLÉS (6.25e28 x 0,838) ; les ennemis du jeu suivent la source tierce
+   (PV 3.25e28, cohérents avec la puissance Manual 5e26 du même tableau) -> One Hit ramené au même rapport que les zones voisines (0,838) : 2.72433e28. */
+assert.equal(zone("backtoschool").oneHitP, 2.72433e28);
 assert.equal(zone("westworld").oneHitP, 2.22158333333333e29);     // {{BigNum|2.22158333333333e29}}
 assert.equal(zone("seventies").oneHitP, 1.36e31);                 // "13.6 No (1.36E+31)"
 assert.equal(zone("halloweenies").oneHitP, 4.2e31);               // "42.0 Non (4.2E+31)"

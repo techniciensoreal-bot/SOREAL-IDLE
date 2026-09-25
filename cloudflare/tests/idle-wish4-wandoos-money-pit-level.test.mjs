@@ -6,9 +6,9 @@ import { normalizeIdleNguState, advanceIdleNguState, applyIdleNguAction } from "
  * didn't suck » : « (Also maxes your money pit Wandoos level if it's not yet at level 100.) ».
  */
 const ctx = { bosses: 58, bestGold: 1e6, adventurePower: 1e9 };
-const w = normalizeIdleNguState({}, ctx, 0);
+const w = normalizeIdleNguState({ difficulty: "difficile" }, ctx, 0); /* souhait 4 = Evil ; Wandoos y est ralenti de 1e12 */
 w.systems.wandoos.unlocked = true;
-w.systems.wandoos.allocation.energy = 1e6; /* vitesse de base 50 x 1e6 / 1e9 = 0,05 niveau/s */
+w.systems.wandoos.allocation.energy = 1e18; /* 1e6 x 1e12 (ralentissement Evil) : vitesse de base 0,05 niveau/s */
 const NOW = 10 * 3600 * 1000; /* 10 h apres le debut du run : boot termine */
 const total = (x) => x.systems.wandoos.data.dumpEnergyLevel + x.systems.wandoos.data.dumpEnergyProgress;
 const sans = total(advanceIdleNguState(w, 100, ctx, NOW));

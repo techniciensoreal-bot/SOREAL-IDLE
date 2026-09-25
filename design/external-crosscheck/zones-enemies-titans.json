@@ -1,0 +1,1819 @@
+{
+  "meta": {
+    "genere": "2026-09-25",
+    "rapport": "zones-enemies-titans.md",
+    "mission": "contrôle en lecture seule zones / ennemis / butin / titans / types de monstres",
+    "referenceN1": "wiki local NGU-Wiki/pages",
+    "sources": [
+      "NGU-Wiki/external/third-party/ngu-idle-calculators-ts/{zones,enemy}.ts (GPL, commit 42aafcb 2025-03-14)",
+      "sheet-boost-exp-zones.csv (NGU 1.220)",
+      "sheet-daily-gains.csv (NGU 1.260)",
+      "NGU-Wiki/external/*.json (README lu)"
+    ],
+    "scripts": "C:/Users/n0rma/AppData/Local/Temp/claude/zt/*.mjs (hors dépôt)",
+    "methode": "import direct de IDLE_ADVENTURE_MOB_BESTIARY_V1 / _ZONES / _TITANS / _ZONE_LOOT_PROFILE_V2 ; extraction de ZONE_GOLD_RANGES_V1 et ZONE_BOSS_EXP_CHANCE_V1 par lecture du source ; parsing des gabarits {{Enemy}}, {{Infobox Titan}} et des sections Loot du wiki ; évaluation de enemy.ts/zones.ts dans un bac à sable ; tolérance 0,5 % sur les nombres"
+  },
+  "resume": {
+    "ennemis": {
+      "dansLeJeu": 283,
+      "dansLaSource": 283,
+      "appariesSourceJeu": 283,
+      "ecartsJeuSource": {
+        "type": 1,
+        "statsOuAttackRate": 0
+      },
+      "ecartsJeuWiki": {
+        "backToSchoolEnnemis": 8,
+        "attackRate": 15,
+        "hpBulldozer": 1,
+        "troisGuysType": 1
+      },
+      "sansStatsAuWiki": {
+        "aethereal": 21,
+        "nether": 7,
+        "daanVanDerVaanJaansen": 1,
+        "total": 29
+      },
+      "attackRateInterrogationAuWiki": 14,
+      "ecartsWikiSourceEnnemisDistincts": 22
+    },
+    "zones": {
+      "zonesComparees": 32,
+      "bossChanceEtDeblocage": "identiques wiki/source/jeu (32/32)",
+      "boostsEtPlafonds": "forces et chances identiques au wiki et à la source (32/32) ; plafonds identiques à la source sauf Typo (8 % contre 9 %) et Fad (8 % contre 10 %), où le jeu suit le wiki",
+      "orDeZone": "identique au wiki (32/32) ; 2 écarts wiki/source (Sewers, Fad-lands)",
+      "expBossDeZone": "31/32 dans le jeu (Aethereal Sea absent)",
+      "butinManquantDansLeJeu": 6,
+      "coquillesOuOublisDeLaSourceSurLeButin": 11
+    },
+    "titans": {
+      "dansLeJeu": 12,
+      "dansLeWiki": 14,
+      "manquants": 2,
+      "seuilsManualIdleWikiVsJeu": "identiques pour les 12",
+      "recompensesEtRespawnWikiVsJeu": "identiques (EXP, AP, PP, or, QP, respawn)",
+      "ecartsRespawnSource": 1,
+      "capacitesModelisees": 0,
+      "titansAvecCapacitesPubliees": 10,
+      "titansSansCapacitePubliee": 4
+    },
+    "typesDeMonstres": {
+      "mecaniquesBranchees": 0,
+      "ennemisDeTypeNonNormal": 172,
+      "boss": 63
+    }
+  },
+  "A_manquants": [
+    {
+      "id": "A1",
+      "severite": "haute",
+      "sujet": "Titan 13 : TIPPI THE TUTORIAL MOUSE (absent du jeu : ni titan, ni zone)",
+      "stats": {
+        "wiki": {
+          "attackRate": null,
+          "power": 2e+34,
+          "toughness": 4e+34,
+          "hp": 2e+36,
+          "hpRegen": 1e+32,
+          "bestiary": 377
+        },
+        "source": {
+          "attackRate": 2,
+          "power": 2e+34,
+          "toughness": 4e+34,
+          "hp": 2e+36,
+          "hpRegen": 1e+32,
+          "bestiaire": 377
+        },
+        "verdict": "wiki et source identiques (attack_rate vide au wiki, 2 dans la source)"
+      },
+      "statsRecommandees": {
+        "wiki": {
+          "power": 4e+34,
+          "toughness": 1.5e+34
+        },
+        "source": {
+          "autokill": "aucun (canAutoKill = false pour les titans > 12)"
+        }
+      },
+      "deblocage": {
+        "wiki_page_titans": "boss 295 SADISTIC",
+        "wiki_page_tippi": "boss 296 SADISTIC",
+        "wiki_boss_fights": "296",
+        "jeu": "aucun"
+      },
+      "respawn": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "wiki vide ; calculateur ngu-idle-calculators : 0 (placeholder) ; sheet-daily-gains : aucune ligne (le tableur s'arrête à l'ID interne 33 = Amalgamate v4) ; tippi-comments : rien"
+      },
+      "exp": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "wiki vide ; calculateur : exp 0, or [0,0], AP 0, PPP 0, QP 0 ; un commentaire joueur (28/10/2021) affirme qu'il ne donne pas d'EXP (indice, pas une donnée)"
+      },
+      "butin": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "wiki : aucune section Loot ; seule fonction rapportée : sa mort débloque THE TRAITOR (fiche Traitor : 'You must also have defeated titan #13 at least once')"
+      },
+      "texteVictoire": "What a pathetic, rage filled creature. You wonder if there's a lesson to be learned here.........nope. nothing. Kill all the rats you want!",
+      "note": "Ajouté dans la version 1.260 (commentaire joueur) : le tableur 1.260 n'a pourtant pas de ligne."
+    },
+    {
+      "id": "A2",
+      "severite": "haute",
+      "sujet": "Titan 14 : THE TRAITOR (absent du jeu)",
+      "stats": {
+        "wiki": {
+          "attackRate": 1.8,
+          "power": 5e+34,
+          "toughness": 1e+35,
+          "hp": 2e+37,
+          "hpRegen": 1e+33
+        },
+        "source": {
+          "attackRate": 1.8,
+          "power": 5e+34,
+          "toughness": 1e+35,
+          "hp": 2e+37,
+          "hpRegen": 1e+33,
+          "bestiaire": 378
+        },
+        "verdict": "identiques"
+      },
+      "statsRecommandees": {
+        "wiki": {
+          "power": 1.5e+35,
+          "toughness": 4e+34,
+          "hp": 1.5e+35,
+          "regen": 1.5e+33
+        }
+      },
+      "deblocage": {
+        "wiki": "boss 300 SADISTIC (page titans et page du titan) ; la table 'Boss fights that unlock things' de Boss Fights écrit 301 ; il faut aussi avoir tué Tippi au moins une fois",
+        "jeu": "aucun"
+      },
+      "respawn": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE"
+      },
+      "exp": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "calculateur : tout à 0"
+      },
+      "butin": {
+        "valeur": "THE END (#495), drop fixe",
+        "sourcePubliee": "wiki (fiche + page THE END)",
+        "detail": "sa mort fixe aussi le nombre de Rebirths à 10 000 (débloque le dernier succès) ; aucun or/EXP/AP publié"
+      },
+      "capacitesSpeciales": {
+        "sourcePubliee": "wiki (liste qualitative, sans chiffres)",
+        "liste": [
+          "Power attacks",
+          "Réduit vos PV à un pourcentage fixé ('critical levels')",
+          "Accélère définitivement sa croissance de puissance (glows red)",
+          "Bouclier d'énergie qui annule les dégâts (MacGuffins verts)"
+        ]
+      }
+    },
+    {
+      "id": "A3",
+      "severite": "moyenne",
+      "sujet": "The Aethereal Sea : EXP de boss absent du jeu",
+      "wiki": "Exp 1,200 (taux non publié)",
+      "source": {
+        "amount": 1200,
+        "baseChance": 1.2e-8,
+        "maxChance": 0.15,
+        "note": "zones.ts : exp [1200, 0.0000012 %, 15 %]"
+      },
+      "jeu": null,
+      "valeurDisponible": true,
+      "tiers": "ngu-idle-calculators-ts/zones.ts (PIRATE) ; sheet-boost-exp-zones.csv ('Aethereal Sea Part 1' : Experience Drop 1200, EXP DC 0.0000012 %, max 15 %)"
+    },
+    {
+      "id": "A4",
+      "severite": "moyenne",
+      "sujet": "The Aethereal Sea : deux drops de boss absents du jeu (Ascended x6 Pendant, GALACTIC HERALD LOOTY)",
+      "wiki": "lvl 16, 'chance ?' pour les deux",
+      "source": {
+        "ascendedX6Pendant": {
+          "id": 295,
+          "baseChance": 4e-8,
+          "maxChance": 0.12,
+          "level": 16
+        },
+        "galacticHeraldLooty": {
+          "id": 296,
+          "baseChance": 1.8e-8,
+          "maxChance": 0.12,
+          "level": 16
+        }
+      },
+      "jeu": "aucune entrée specials dans le profil boss de aethereansea (Nether/Duck/Construction ont les mêmes deux objets)",
+      "valeurDisponible": true,
+      "tiers": "ngu-idle-calculators-ts/zones.ts (PIRATE otherDrops 295/296 : [0,0,4e-6 %,12 %,16] et [0,0,1.8e-6 %,12 %,16])"
+    },
+    {
+      "id": "A5",
+      "severite": "moyenne",
+      "sujet": "Ascended x3 Pendant (id 142, 'Ascended Ascended Ascended Pendant') absent des boss de Chocolate World, The Evilverse et Pretty Pink Princess Land",
+      "wiki": {
+        "chocolate": "lvl 0 (0,1 % + 0,0000001 % de chance de base, plafond 1 %)",
+        "evilverse": "lvl 1 (0,15 % + 0,00000001 %, plafond 1,5 %)",
+        "pinkprincess": "lvl 2 (0,15 % + 0,000000002 %, plafond 2 %)"
+      },
+      "source": {
+        "chocolate": "142 : boss 1e-7 %, cap 1 %, lvl 0",
+        "evilverse": "142 : boss 1e-8 %, cap 1,5 %, lvl 1",
+        "pinkprincess": "142 : boss 2e-9 %, cap 2 %, lvl 2",
+        "note": "la source ne garde que la petite composante (sans le 0,1 % / 0,15 % du wiki)"
+      },
+      "jeu": "absent des trois profils (l'objet existe, il est déjà lâché par Meta Land -> JRPGVille)",
+      "valeurDisponible": true,
+      "tiers": "wiki (valeurs complètes) ; calculateur zones.ts (composante minuscule seulement)"
+    },
+    {
+      "id": "A6",
+      "severite": "moyenne",
+      "sujet": "THE END : les 16 pièces n'existent pas (dont Amalgamate #483/#489/#493/#484, Traitor #495, boss 300 #487)",
+      "wiki": "page THE END : 16 consommables, sources listées",
+      "source": "aucune",
+      "jeu": "commentaire idle-adventure-v47.js : 'les morceaux de THE END n'existent pas dans SOREAL'",
+      "valeurDisponible": "partielle",
+      "tiers": "wiki uniquement (drop 'random' d'Amalgamate ; chances non publiées)"
+    },
+    {
+      "id": "A7",
+      "severite": "faible",
+      "sujet": "Boss-fight numéro de déblocage de Tippi/Traitor : le jeu n'a pas de zone 44/45",
+      "wiki": "Aethereal Sea (boss 269) puis Tippi (295/296) puis Traitor (300/301)",
+      "source": "zones 44 (tippi) et 45 (traitor) déclarées dans zones.ts avec 0 ennemi dans la liste (titan seul)",
+      "jeu": "la dernière zone est aethereansea"
+    }
+  ],
+  "B_ecarts": [
+    {
+      "id": "B1",
+      "severite": "haute",
+      "categorie": "ennemis",
+      "sujet": "Back To School : 8 ennemis, Power/Toughness/Regen/PV doublés au wiki",
+      "wiki": "A Different Greasy Nerd 6e26/6e26/6e25/6.1e28 ... BELDING 6.15e26/6.25e28",
+      "source": "3e26/3e26/3e25/3.1e28 ... 3.15e26/3.25e28",
+      "jeu": "suit la SOURCE dans le bestiaire (3e26...) mais oneHitP de la zone = 5,239e28 (calculé sur les valeurs doublées du wiki), soit 1,93x la valeur cohérente avec les mobs du jeu (2,72e28)",
+      "jeu_suit": "source (bestiaire) et wiki (oneHitP)",
+      "note": "Manual du jeu/wiki 5e26 : rapport mob/Power 0,61 avec la source, 1,21 avec le wiki (hors plage 0,54-0,80 des zones voisines) : la source est très probablement juste. Décision à trancher, incohérence interne du jeu à corriger."
+    },
+    {
+      "id": "B2",
+      "severite": "moyenne",
+      "categorie": "ennemis",
+      "sujet": "attack_rate : 15 ennemis où wiki (souvent la valeur par défaut 1) diffère de la source",
+      "wiki": "voir enemy_diffs",
+      "source": "1,1 / 1,2 / 14 / 1",
+      "jeu": "suit la source",
+      "jeu_suit": "source",
+      "note": "A Piano-Safe (exploder) : wiki 1, source et jeu 14 (l'attack_rate d'un exploder est son délai avant explosion : 5 à 14 s pour les 10 exploders). The Entire Bar, Pathetic Tumbleweed, Single Cow, Flying Spinelli Monster, Really Strict Nun, Nun's Ruler, Elevator Full of Blood, Candy Corn, Texas Chainsaw Mascara, Jigsaw, A MotherDucker, Totally a Duck, 3 Guys Carrying a Beam ; inverse : A Bearded Breaded Braid (wiki 1,1, source/jeu 1)."
+    },
+    {
+      "id": "B3",
+      "severite": "faible",
+      "categorie": "ennemis",
+      "sujet": "A Bulldozer (Construction Zone) : PV wiki 2,7e33, source et jeu 2,07e33",
+      "wiki": 2.7e+33,
+      "source": 2.07e+33,
+      "jeu": 2.07e+33,
+      "jeu_suit": "source",
+      "note": "les voisins de zone sont à 2,04-2,08e33 : coquille du wiki"
+    },
+    {
+      "id": "B4",
+      "severite": "faible",
+      "categorie": "ennemis",
+      "sujet": "3 Guys Carrying a Beam : type/stats",
+      "wiki": {
+        "type": "poison",
+        "attackRate": 1,
+        "power": 4e+31,
+        "toughness": 4.2e+31,
+        "hpRegen": 4.2e+30,
+        "hp": 2.05e+33
+      },
+      "source": {
+        "type": "normal",
+        "attackRate": 1.1,
+        "power": 4.04e+31,
+        "toughness": 4.24e+31,
+        "hpRegen": 4.24e+30,
+        "hp": 2.08e+33
+      },
+      "jeu": "identique à la source",
+      "jeu_suit": "source",
+      "note": "le wiki a recopié la ligne de A Construction Slob (poison, 4e31)"
+    },
+    {
+      "id": "B5",
+      "severite": "faible",
+      "categorie": "ennemis",
+      "sujet": "THE ELUSIVE C.S (boss, Boring-Ass Earth) : type",
+      "wiki": "poison/paralyze",
+      "source": "poison",
+      "jeu": "poison/paralyze",
+      "jeu_suit": "wiki",
+      "note": "seule divergence de type jeu/source sur 283 ennemis ; le tableur 1.220 (colonne Paralyzer?) ne tranche pas (0,2222 contre 0,333 calculé avec le type du jeu)"
+    },
+    {
+      "id": "B6",
+      "severite": "faible",
+      "categorie": "ennemis",
+      "sujet": "Rad-Lands : 7 attack_rate '?' au wiki, remplis par la source dans le jeu",
+      "wiki": "?",
+      "source": "1 / 1,1 / 1,2",
+      "jeu": "valeurs de la source",
+      "jeu_suit": "source",
+      "note": "Small Bart, Pair of Shades, Lame Security Guard, Giant Vat of Plutonium-238, Mutant Zombie Marie Curie, Nuclear Power Pants, Massive Sealed Vault. Aucun risque connu."
+    },
+    {
+      "id": "B7",
+      "severite": "haute",
+      "categorie": "titans",
+      "sujet": "AMALGAMATE : temps de réapparition, trois valeurs",
+      "wiki": "7:13:20 (433,33 min) sur la fiche et la page Titans",
+      "source": "7,45 h (447 min) dans zones/enemy.ts",
+      "tiers": "7,5 h dans sheet-daily-gains.csv (1.260)",
+      "jeu": "433,33 min (suit le wiki)",
+      "jeu_suit": "wiki",
+      "note": "les deux sources tierces indépendantes sont proches l'une de l'autre (7,45 / 7,5) et éloignées du wiki : à trancher (écart de 14 à 17 min par kill)"
+    },
+    {
+      "id": "B8",
+      "severite": "faible",
+      "categorie": "titans",
+      "sujet": "The Godmother : PP par kill",
+      "wiki": "fiche + page Titans : 300 000 ; section Loot de la page : 250 000",
+      "source": 300000,
+      "jeu": 300000,
+      "jeu_suit": "wiki (fiche) + source + tableur (PPP/respawn = 60 000 x 5 h)",
+      "note": "la ligne 'Perk Points 250,000' de la section Loot est une coquille"
+    },
+    {
+      "id": "B9",
+      "severite": "faible",
+      "categorie": "titans",
+      "sujet": "Walderp : attack rate",
+      "wiki": "3 pour les 5 formes",
+      "source": "3,2 / 3,15 / 3,1 / 3,05 / 3",
+      "jeu": "non modélisé (pas de combat de titan)",
+      "note": "P/T/regen/PV des 5 formes identiques entre wiki et source"
+    },
+    {
+      "id": "B10",
+      "severite": "faible",
+      "categorie": "titans",
+      "sujet": "The Godmother v2 : AutoKill regen",
+      "wiki": "1e18",
+      "source": "1e17",
+      "jeu": "non modélisé",
+      "note": "progression wiki 5e16 / 1e18 / 2e19 / 5e20 (x20, x20, x25) : la source a probablement une coquille"
+    },
+    {
+      "id": "B11",
+      "severite": "faible",
+      "categorie": "titans",
+      "sujet": "ROCK LOBSTER v2 : Power et Toughness inversés",
+      "wiki": {
+        "power": 6e+31,
+        "toughness": 2e+31
+      },
+      "source": {
+        "power": 2e+31,
+        "toughness": 6e+31
+      },
+      "jeu": "non modélisé",
+      "note": "la source respecte le rapport Toughness = 3 x Power des trois autres versions : coquille du wiki"
+    },
+    {
+      "id": "B12",
+      "severite": "moyenne",
+      "categorie": "titans",
+      "sujet": "Déblocage Tippi / Traitor : numéros de boss contradictoires au wiki",
+      "wiki": "Tippi 295 (page Titans) / 296 (page du titan et Boss Fights) ; Traitor 300 / 301 (Boss Fights)",
+      "source": "sans objet",
+      "jeu": "aucun titan"
+    },
+    {
+      "id": "B13",
+      "severite": "faible",
+      "categorie": "titans",
+      "sujet": "Walderp forme 5 : ligne Idle publiée par le wiki (2e7 / 6e6) alors que le commentaire du jeu dit qu'aucune valeur Idle n'existe",
+      "wiki": "Idle 2E7 / 6E6 + 'nearly impossible to idle'",
+      "source": "sans objet",
+      "jeu": "idleP/idleT absents",
+      "note": "sans conséquence tant que les titans sont des seuils Manual"
+    },
+    {
+      "id": "B14",
+      "severite": "moyenne",
+      "categorie": "titans",
+      "sujet": "Chaîne de déblocage inventée entre GRB, GCT, Jake, UUG (24/24/28 kills du titan précédent + drop consommé)",
+      "wiki": "un seul critère : le numéro de boss (Nerd/Godmother/Exile/Hungers : + quête)",
+      "source": "sans objet",
+      "jeu": "requiresTitan/requiresKills/requiresUnlock (choix SOREAL assumé)",
+      "note": "écart voulu, signalé pour mémoire"
+    },
+    {
+      "id": "B15",
+      "severite": "moyenne",
+      "categorie": "zones",
+      "sujet": "One Hit P des zones : définition hétérogène",
+      "wiki": "hp/0,8 + T/2 pour les zones jusqu'à 2D (bonus Idle 1,0), hp/1,2 + T/2 ensuite (bonus 1,5 du set Spoopy), ~0,55 pour les zones Sadistic",
+      "source": "formule oneHitPower = hp/(0,8 x modificateur) + toughness/2 (enemy.ts)",
+      "jeu": "valeurs du wiki recopiées telles quelles (rapport jeu / formule sur les mobs du jeu : 1,00 jusqu'à 2D, 0,67 de Ancient à Radlands, 1,29 Back To School, 1,07 West World, 0,51-0,52 Seventies/Halloweenies, 0,55 Aethereal Sea)",
+      "note": "aucun effet sur les PV réels des mobs (le jeu utilise le bestiaire) ; oneHitP n'est plus qu'un repli et un affichage"
+    },
+    {
+      "id": "B16",
+      "severite": "faible",
+      "categorie": "butin",
+      "sujet": "Or de zone : Sewers (wiki 800-1000 normal / 1600-2000 boss ; source 1600-2000 / 2400-3000) et Fad-lands normal (wiki 1,8e11-3e11 ; source 2,4e11-3e11)",
+      "wiki": "recopié par le jeu",
+      "source": "gold [400,600] pour Sewers, [6e10,1e11] pour Fad",
+      "jeu": "suit le wiki",
+      "jeu_suit": "wiki",
+      "note": "la source est basée sur 'x4 à x5 le montant de base' ; le wiki Fad-lands (1,8e11 minimum) casse ce rapport, probable coquille du wiki ; Sewers : wiki cohérent avec Tutorial x2, source non"
+    },
+    {
+      "id": "B17",
+      "severite": "faible",
+      "categorie": "butin",
+      "sujet": "Coquilles de la source repérées (le jeu suit le wiki, aucune action)",
+      "wiki": "valeurs justes",
+      "source": "The Sky Wandoos 98 : 3 % (wiki 0,3 %) ; Ancient Battlefield Dragon Wings : 1,5 % (wiki 0,15 %) ; Pretty Pink Princess boss set 0,1 % (wiki 0,01 %) ; Nether boss set 1.8e6 au lieu de 1.8e-6 ; plafond boosts Typo 9 % et Fad 10 % (wiki 8 %) ; Tutorial sans 'A Stick' (25 %) ; Boring sans 'The Stealthiest Armour' ; Chocolate sans Energy/Magic Bar Bar ; West World sans A 9mm Beretta ; zone Evilverse liste deux fois Evil Goblin au lieu d'Evil Gorgon",
+      "jeu": "identique au wiki",
+      "jeu_suit": "wiki",
+      "note": "confirme que le wiki reste la bonne référence pour le butin ; le calculateur est fiable pour les stats d'ennemis (283/283 ennemis du jeu retrouvés)"
+    }
+  ],
+  "C_non_branches": [
+    {
+      "id": "C1",
+      "severite": "haute",
+      "sujet": "Types de monstres (paralyze, charger, poison, rapid, exploder, grower) : transportés jusqu'au client mais sans aucun effet en combat",
+      "detail": "startZoneFight met mobType (et mobAttackFactor) dans s.fight ; soreal-idle-ui.js ne les lit pas (seuls mobPower, mobToughness, mobHpRegen, mobAttackRate, mobName sont utilisés) ; typeMob n'apparaît que dans la fiche Collection. Tout ennemi se comporte comme un 'normal' : un exploder (attack_rate 5 à 14 s) est donc un simple coup plus lent au lieu d'une explosion, un paralyzer ne paralyse pas, etc.",
+      "effectif": {
+        "total": 283,
+        "boss": 63,
+        "parType": {
+          "normal": 111,
+          "poison": 31,
+          "rapid": 46,
+          "charger": 42,
+          "exploder": 10,
+          "paralyze": 20,
+          "grower": 22,
+          "poison/paralyze": 1
+        }
+      },
+      "mecaniquesPubliees": "voir types_de_monstres"
+    },
+    {
+      "id": "C2",
+      "severite": "haute",
+      "sujet": "Titans : aucun combat simulé, seulement un seuil Power/Toughness Manual",
+      "detail": "titan() ne compare que stats.power/toughness aux seuils p/t ; attack_rate, PV, regen, autokill de la source et du wiki ne sont lus nulle part ; aucune des capacités ci-dessous n'existe.",
+      "capacitesWiki": {
+        "GRB": "Paralyze (1/7, 4 s ou 2 attaques, bloque moves et Idle) ; Bleed (2/7, retire de la regen, cumulable) ; Power Attack (2/7, x2) ; +1 % de force par attaque (tous les titans)",
+        "GCT": "Spores : dégâts sortants x2/3 15 s (1/7) ; dégâts entrants x1,5-4 15 s (1/7) ; Power Attack x1,5 (2/7)",
+        "Jake": "Locusts (1/5, 10 attaques rapides x0,5 espacées de 0,15 s) ; Power Attack x1,5 (2/5) ; Shirt-flapping (toutes les 20 attaques) désactive une compétence dans l'ordre Ultimate Attack, Heal, Piercing, Ultimate Buff, Strong, Offensive Buff",
+        "UUG": "Invincibility après la 1re attaque (énigme du Ring of Apathy) ; Power Growth x2 par tour ; Power Attack x1,5",
+        "Walderp": "Walderp Says (mauvaise attaque = explosion ~150 x sa puissance)",
+        "Beast": "toutes les 10 attaques dès la 3e : Hyper Red Anime Aura (regen x5), Power Smash (x2), Layer of Metal Armor (dégâts /3) ; V2+ Time Dilation ; V3+ Rubbery Slime (2 % réfléchis) ; V4 Rancid Fart (regen inversée)",
+        "Nerd": "Hack (dès la 7e attaque, +8 % de dégâts de base cumulable) ; Power Glove (dès la 3e, toutes les 8 : 1x puis 5x)",
+        "Godmother": "Explosions (dès la 3e attaque, toutes les 9 : 4 coups x25) ; Knee cap (dès la 8e, cooldowns /3 sur 2 attaques)",
+        "Exile": "dès la 3e attaque puis toutes les 10/9/8/7 attaques (V1-V4), compétence au hasard : Buster Arm blast (charge 1 attaque puis coup x6), Gores with antlers V2+ (regen inversée), Mind control V3+ (paralysie de 2 s), Life drain V4 (x2 et soigne 10 %)",
+        "HUNGERS_LOBSTER_AMALGAMATE_TIPPI": "aucune capacité publiée dans le miroir (fiches sans section skills) ; seul indice, page Titans : le titan 10 peut consommer un objet précis à chaque combat pour s'affaiblir",
+        "Traitor": "power attacks, PV critiques, croissance accélérée, bouclier d'énergie"
+      },
+      "valeursDisponibles": "attack_rate, P, T, PV, regen par version (wiki + source, identiques sauf B9-B11) ; AutoKill P/T/regen par version (wiki + source)"
+    },
+    {
+      "id": "C3",
+      "severite": "moyenne",
+      "sujet": "Réglage 'Automatically Kill Titans' et seuils d'AutoKill",
+      "detail": "source : Exile 24 kills manuels suffisent ; IT HUNGERS/ROCK LOBSTER/AMALGAMATE 5 kills ; Walderp forme 5 : 13M/7M/150k regen + 3 kills ; Tippi et Traitor jamais autokillables (canAutoKill = false pour id > 12). Le jeu n'a pas d'AutoKill (commentaire dans IDLE_ADVENTURE_TITANS)."
+    },
+    {
+      "id": "C4",
+      "severite": "moyenne",
+      "sujet": "Butin de titan volontairement non tiré",
+      "detail": "The First/Second/Third Clue (lvl 100, GCT/UUG/Jake), Heroic Sigil hors kill 1, Wandoos XL hors Walderp, Sack of the Exile (2 % fixe), Face of the Exile (25 % fixe), Blue Eyes Ultimate Chestplate (0,0001 %), THE END (Amalgamate/Traitor), ligne '20 % lvl 4-7' de GCT pour Wandoos 98. Les MacGuffin Fragments, le QP par souhait, l'EXP perk 34 et le multiplicateur du souhait 3 sont eux branchés (idle-macguffins-v1.js, creditTitanRewardsV1)."
+    },
+    {
+      "id": "C5",
+      "severite": "moyenne",
+      "sujet": "Contraintes de titans absentes",
+      "detail": "AMALGAMATE : versions accompagnées de GRB (Easy), GCT (Normal), Jake (Hard), UUG (Brutal) et Ring of Apathy requis en Brutal ; IT HUNGERS : objet consommé optionnellement à chaque combat ; requirement de regen (AutoKill) ; AMALGAMATE regen recommandée 8.7e30/1.98e32/1.67e32."
+    },
+    {
+      "id": "C6",
+      "severite": "faible",
+      "sujet": "Champ mobAttackFactor calculé par le serveur mais jamais lu par le client",
+      "detail": "idleAdventureMobAttackFactorV1 (facteur 0,2 à 3 d'après Power/Attack Rate relatifs) est stocké dans s.fight, sans consommateur dans soreal-idle-ui.js ; le client utilise directement mobPower et mobAttackRate."
+    }
+  ],
+  "trous_titans": {
+    "tippi": {
+      "id": "A1",
+      "severite": "haute",
+      "sujet": "Titan 13 : TIPPI THE TUTORIAL MOUSE (absent du jeu : ni titan, ni zone)",
+      "stats": {
+        "wiki": {
+          "attackRate": null,
+          "power": 2e+34,
+          "toughness": 4e+34,
+          "hp": 2e+36,
+          "hpRegen": 1e+32,
+          "bestiary": 377
+        },
+        "source": {
+          "attackRate": 2,
+          "power": 2e+34,
+          "toughness": 4e+34,
+          "hp": 2e+36,
+          "hpRegen": 1e+32,
+          "bestiaire": 377
+        },
+        "verdict": "wiki et source identiques (attack_rate vide au wiki, 2 dans la source)"
+      },
+      "statsRecommandees": {
+        "wiki": {
+          "power": 4e+34,
+          "toughness": 1.5e+34
+        },
+        "source": {
+          "autokill": "aucun (canAutoKill = false pour les titans > 12)"
+        }
+      },
+      "deblocage": {
+        "wiki_page_titans": "boss 295 SADISTIC",
+        "wiki_page_tippi": "boss 296 SADISTIC",
+        "wiki_boss_fights": "296",
+        "jeu": "aucun"
+      },
+      "respawn": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "wiki vide ; calculateur ngu-idle-calculators : 0 (placeholder) ; sheet-daily-gains : aucune ligne (le tableur s'arrête à l'ID interne 33 = Amalgamate v4) ; tippi-comments : rien"
+      },
+      "exp": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "wiki vide ; calculateur : exp 0, or [0,0], AP 0, PPP 0, QP 0 ; un commentaire joueur (28/10/2021) affirme qu'il ne donne pas d'EXP (indice, pas une donnée)"
+      },
+      "butin": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "wiki : aucune section Loot ; seule fonction rapportée : sa mort débloque THE TRAITOR (fiche Traitor : 'You must also have defeated titan #13 at least once')"
+      },
+      "texteVictoire": "What a pathetic, rage filled creature. You wonder if there's a lesson to be learned here.........nope. nothing. Kill all the rats you want!",
+      "note": "Ajouté dans la version 1.260 (commentaire joueur) : le tableur 1.260 n'a pourtant pas de ligne."
+    },
+    "traitor": {
+      "id": "A2",
+      "severite": "haute",
+      "sujet": "Titan 14 : THE TRAITOR (absent du jeu)",
+      "stats": {
+        "wiki": {
+          "attackRate": 1.8,
+          "power": 5e+34,
+          "toughness": 1e+35,
+          "hp": 2e+37,
+          "hpRegen": 1e+33
+        },
+        "source": {
+          "attackRate": 1.8,
+          "power": 5e+34,
+          "toughness": 1e+35,
+          "hp": 2e+37,
+          "hpRegen": 1e+33,
+          "bestiaire": 378
+        },
+        "verdict": "identiques"
+      },
+      "statsRecommandees": {
+        "wiki": {
+          "power": 1.5e+35,
+          "toughness": 4e+34,
+          "hp": 1.5e+35,
+          "regen": 1.5e+33
+        }
+      },
+      "deblocage": {
+        "wiki": "boss 300 SADISTIC (page titans et page du titan) ; la table 'Boss fights that unlock things' de Boss Fights écrit 301 ; il faut aussi avoir tué Tippi au moins une fois",
+        "jeu": "aucun"
+      },
+      "respawn": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE"
+      },
+      "exp": {
+        "valeur": null,
+        "sourcePubliee": "AUCUNE",
+        "detail": "calculateur : tout à 0"
+      },
+      "butin": {
+        "valeur": "THE END (#495), drop fixe",
+        "sourcePubliee": "wiki (fiche + page THE END)",
+        "detail": "sa mort fixe aussi le nombre de Rebirths à 10 000 (débloque le dernier succès) ; aucun or/EXP/AP publié"
+      },
+      "capacitesSpeciales": {
+        "sourcePubliee": "wiki (liste qualitative, sans chiffres)",
+        "liste": [
+          "Power attacks",
+          "Réduit vos PV à un pourcentage fixé ('critical levels')",
+          "Accélère définitivement sa croissance de puissance (glows red)",
+          "Bouclier d'énergie qui annule les dégâts (MacGuffins verts)"
+        ]
+      }
+    },
+    "resume": "Respawn, EXP, AP, PPP, or et butin de Tippi et du Traitor : AUCUNE source (wiki, calculateur ngu-idle-calculators, tableur sheet-daily-gains, commentaires) n'en publie. Stats de combat identiques wiki/source. Seuls le drop fixe THE END #495 du Traitor et les seuils recommandés (wiki) sont connus."
+  },
+  "types_de_monstres": {
+    "effectifs": {
+      "total": 283,
+      "boss": 63,
+      "parType": {
+        "normal": 111,
+        "poison": 31,
+        "rapid": 46,
+        "charger": 42,
+        "exploder": 10,
+        "paralyze": 20,
+        "grower": 22,
+        "poison/paralyze": 1
+      },
+      "ecart": "identique à la source (283 ennemis, mêmes types sauf The Elusive C.S)"
+    },
+    "attackRateParType": {
+      "source": {
+        "normal": "1 à 1,5 (moy. 1,14)",
+        "poison": "1 à 1,5",
+        "rapid": "0,8 à 1,3",
+        "charger": "1 à 1,3",
+        "paralyze": "1 à 1,25",
+        "grower": "1 à 1,3",
+        "exploder": "5 à 14 s (Fairy 5, Icarus 9, six à 12, Piano-Safe 14)"
+      },
+      "lecture": "l'attack_rate d'un exploder est le délai avant l'explosion, pas une cadence d'attaque"
+    },
+    "valeursPubliees": {
+      "paralyze": {
+        "wiki": "titans/compétences uniquement : GRB 4 s ou 2 attaques ; compétence Paralyze du joueur 3 s ; Exile 'Mind control' 2 s ; rien de chiffré pour l'ennemi normal de type paralyze",
+        "source": "ngu-idle-calculators : simple drapeau (Zone.paralyzeEnemies = part des ennemis paralyzers dans le roster, pondérée par la boss chance) ; tableur 1.220 : colonne 'Paralyzer?' = cette même part",
+        "verifie": "la part calculée avec les types du jeu reproduit la colonne du tableur pour 31 zones sur 32 (seule Boring-Ass Earth diverge : 0,222 au tableur contre 0,333 avec le type poison/paralyze du boss)"
+      },
+      "charger": {
+        "wiki": "Advanced Guide : la Toughness compte pour l'idle 'à cause des chargers et du poison' ; aucun chiffre",
+        "source": "aucune"
+      },
+      "poison": {
+        "wiki": "idem charger ; aucun chiffre",
+        "source": "aucune"
+      },
+      "rapid": {
+        "wiki": "'Rapid mechanic' cité en référence (Godmother) : série rapide de coups ; Jake : 10 coups à x0,5 toutes les 0,15 s (capacité de titan)",
+        "source": "aucune"
+      },
+      "exploder": {
+        "wiki": "Secrets and Spoilers : l'exploder le plus faible est Fairy (Forêt), environ 2500 dégâts ; succès 'Survive an attack from an exploder' ; Adventure Mode : l'Idle doit 'tuer n'importe quel exploder' ; Build History 2018 : temps d'explosion du Kitten 6 s -> 10 s",
+        "source": "attack_rate 5 à 14 = fuse (donnée des enemy.ts) ; oneHitPower = hp/(0,8 x mod) + toughness/2"
+      },
+      "grower": {
+        "wiki": "aucune description",
+        "source": "aucune (22 ennemis, dont 13 boss)"
+      }
+    },
+    "conclusion": "aucune source locale ne donne de multiplicateur de dégâts ni de durée pour poison, charger, rapid, grower ni de dégâts d'explosion au-delà de l'ordre de grandeur de Fairy ; seuls le délai d'explosion (attack_rate) et la présence du type par ennemi sont publiés."
+  },
+  "detail_ennemis_ecarts": [
+    {
+      "zone": "boring",
+      "ennemi": "THE ELUSIVE C.S (BOSS)",
+      "idBestiaire": 124,
+      "boss": true,
+      "champs": {
+        "type": {
+          "wiki": "poison/paralyze",
+          "source": "poison",
+          "jeu": "poison/paralyze"
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "A Different Greasy Nerd",
+      "idBestiaire": 348,
+      "boss": false,
+      "champs": {
+        "power": {
+          "wiki": 6e+26,
+          "source": 3e+26,
+          "jeu": 3e+26
+        },
+        "toughness": {
+          "wiki": 6e+26,
+          "source": 3e+26,
+          "jeu": 3e+26
+        },
+        "hpRegen": {
+          "wiki": 6e+25,
+          "source": 3e+25,
+          "jeu": 3e+25
+        },
+        "hp": {
+          "wiki": 6.1e+28,
+          "source": 3.1e+28,
+          "jeu": 3.1e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "Sentient Jock Strap",
+      "idBestiaire": 349,
+      "boss": false,
+      "champs": {
+        "power": {
+          "wiki": 6.02e+26,
+          "source": 3.02e+26,
+          "jeu": 3.02e+26
+        },
+        "toughness": {
+          "wiki": 6.02e+26,
+          "source": 3.02e+26,
+          "jeu": 3.02e+26
+        },
+        "hpRegen": {
+          "wiki": 6.02e+25,
+          "source": 3.02e+25,
+          "jeu": 3.02e+25
+        },
+        "hp": {
+          "wiki": 6.1e+28,
+          "source": 3.1e+28,
+          "jeu": 3.1e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "The Flying Spinelli Monster",
+      "idBestiaire": 350,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.1,
+          "jeu": 1.1
+        },
+        "power": {
+          "wiki": 6.04e+26,
+          "source": 3.04e+26,
+          "jeu": 3.04e+26
+        },
+        "toughness": {
+          "wiki": 6.04e+26,
+          "source": 3.04e+26,
+          "jeu": 3.04e+26
+        },
+        "hpRegen": {
+          "wiki": 6.04e+25,
+          "source": 3.04e+25,
+          "jeu": 3.04e+25
+        },
+        "hp": {
+          "wiki": 6.15e+28,
+          "source": 3.15e+28,
+          "jeu": 3.15e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "A Really Strict Nun",
+      "idBestiaire": 351,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.2,
+          "jeu": 1.2
+        },
+        "power": {
+          "wiki": 6.06e+26,
+          "source": 3.06e+26,
+          "jeu": 3.06e+26
+        },
+        "toughness": {
+          "wiki": 6.06e+26,
+          "source": 3.06e+26,
+          "jeu": 3.06e+26
+        },
+        "hpRegen": {
+          "wiki": 6.06e+25,
+          "source": 3.06e+25,
+          "jeu": 3.06e+25
+        },
+        "hp": {
+          "wiki": 6.15e+28,
+          "source": 3.15e+28,
+          "jeu": 3.15e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "The Nun's Ruler",
+      "idBestiaire": 352,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.2,
+          "jeu": 1.2
+        },
+        "power": {
+          "wiki": 6.08e+26,
+          "source": 3.08e+26,
+          "jeu": 3.08e+26
+        },
+        "toughness": {
+          "wiki": 6.08e+26,
+          "source": 3.08e+26,
+          "jeu": 3.08e+26
+        },
+        "hpRegen": {
+          "wiki": 6.08e+25,
+          "source": 3.08e+25,
+          "jeu": 3.08e+25
+        },
+        "hp": {
+          "wiki": 6.2e+28,
+          "source": 3.2e+28,
+          "jeu": 3.2e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "The Mystery Meat",
+      "idBestiaire": 353,
+      "boss": false,
+      "champs": {
+        "power": {
+          "wiki": 6.1e+26,
+          "source": 3.1e+26,
+          "jeu": 3.1e+26
+        },
+        "toughness": {
+          "wiki": 6.1e+26,
+          "source": 3.1e+26,
+          "jeu": 3.1e+26
+        },
+        "hpRegen": {
+          "wiki": 6.1e+25,
+          "source": 3.1e+25,
+          "jeu": 3.1e+25
+        },
+        "hp": {
+          "wiki": 6.2e+28,
+          "source": 3.2e+28,
+          "jeu": 3.2e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "WILLY (BOSS)",
+      "idBestiaire": 354,
+      "boss": true,
+      "champs": {
+        "power": {
+          "wiki": 6.12e+26,
+          "source": 3.12e+26,
+          "jeu": 3.12e+26
+        },
+        "toughness": {
+          "wiki": 6.12e+26,
+          "source": 3.12e+26,
+          "jeu": 3.12e+26
+        },
+        "hpRegen": {
+          "wiki": 6.12e+25,
+          "source": 3.12e+25,
+          "jeu": 3.12e+25
+        },
+        "hp": {
+          "wiki": 6.25e+28,
+          "source": 3.25e+28,
+          "jeu": 3.25e+28
+        }
+      }
+    },
+    {
+      "zone": "backtoschool",
+      "ennemi": "BELDING (BOSS)",
+      "idBestiaire": 355,
+      "boss": true,
+      "champs": {
+        "power": {
+          "wiki": 6.15e+26,
+          "source": 3.15e+26,
+          "jeu": 3.15e+26
+        },
+        "toughness": {
+          "wiki": 6.15e+26,
+          "source": 3.15e+26,
+          "jeu": 3.15e+26
+        },
+        "hpRegen": {
+          "wiki": 6.15e+25,
+          "source": 3.15e+25,
+          "jeu": 3.15e+25
+        },
+        "hp": {
+          "wiki": 6.25e+28,
+          "source": 3.25e+28,
+          "jeu": 3.25e+28
+        }
+      }
+    },
+    {
+      "zone": "westworld",
+      "ennemi": "The Entire Bar",
+      "idBestiaire": 358,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.1,
+          "jeu": 1.1
+        }
+      }
+    },
+    {
+      "zone": "westworld",
+      "ennemi": "A Pathetic Tumbleweed",
+      "idBestiaire": 359,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1.1,
+          "source": 1.2,
+          "jeu": 1.2
+        }
+      }
+    },
+    {
+      "zone": "westworld",
+      "ennemi": "A Single Cow",
+      "idBestiaire": 360,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1.1,
+          "source": 1.2,
+          "jeu": 1.2
+        }
+      }
+    },
+    {
+      "zone": "breadverse",
+      "ennemi": "A Bearded Breaded Braid",
+      "idBestiaire": 203,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1.1,
+          "source": 1,
+          "jeu": 1
+        }
+      }
+    },
+    {
+      "zone": "halloweenies",
+      "ennemi": "An Elevator Full of Blood",
+      "idBestiaire": 221,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.1,
+          "jeu": 1.1
+        }
+      }
+    },
+    {
+      "zone": "halloweenies",
+      "ennemi": "Candy Corn",
+      "idBestiaire": 222,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.2,
+          "jeu": 1.2
+        }
+      }
+    },
+    {
+      "zone": "halloweenies",
+      "ennemi": "TEXAS CHAINSAW MASCARA (BOSS)",
+      "idBestiaire": 223,
+      "boss": true,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.2,
+          "jeu": 1.2
+        }
+      }
+    },
+    {
+      "zone": "halloweenies",
+      "ennemi": "JIGSAW (BOSS)",
+      "idBestiaire": 224,
+      "boss": true,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.2,
+          "jeu": 1.2
+        }
+      }
+    },
+    {
+      "zone": "construction",
+      "ennemi": "A Bulldozer",
+      "idBestiaire": 228,
+      "boss": false,
+      "champs": {
+        "hp": {
+          "wiki": 2.7e+33,
+          "source": 2.07e+33,
+          "jeu": 2.07e+33
+        }
+      }
+    },
+    {
+      "zone": "construction",
+      "ennemi": "3 Guys Carrying a Beam",
+      "idBestiaire": 229,
+      "boss": false,
+      "champs": {
+        "type": {
+          "wiki": "poison",
+          "source": "normal",
+          "jeu": "normal"
+        },
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.1,
+          "jeu": 1.1
+        },
+        "power": {
+          "wiki": 4e+31,
+          "source": 4.04e+31,
+          "jeu": 4.04e+31
+        },
+        "toughness": {
+          "wiki": 4.2e+31,
+          "source": 4.24e+31,
+          "jeu": 4.24e+31
+        },
+        "hpRegen": {
+          "wiki": 4.2e+30,
+          "source": 4.24e+30,
+          "jeu": 4.24e+30
+        },
+        "hp": {
+          "wiki": 2.05e+33,
+          "source": 2.08e+33,
+          "jeu": 2.08e+33
+        }
+      }
+    },
+    {
+      "zone": "construction",
+      "ennemi": "A Piano-Safe",
+      "idBestiaire": 230,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 14,
+          "jeu": 14
+        }
+      }
+    },
+    {
+      "zone": "duckduck",
+      "ennemi": "A MotherDucker",
+      "idBestiaire": 237,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.1,
+          "jeu": 1.1
+        }
+      }
+    },
+    {
+      "zone": "duckduck",
+      "ennemi": "Totally a Duck",
+      "idBestiaire": 238,
+      "boss": false,
+      "champs": {
+        "attackRate": {
+          "wiki": 1,
+          "source": 1.2,
+          "jeu": 1.2
+        }
+      }
+    }
+  ],
+  "detail_attack_rate_interrogation_wiki": [
+    {
+      "zone": "radlands",
+      "ennemi": "Small Bart",
+      "idBestiaire": 191,
+      "source": 1,
+      "jeu": 1
+    },
+    {
+      "zone": "radlands",
+      "ennemi": "Pair of Shades Wearing Shades",
+      "idBestiaire": 197,
+      "source": 1,
+      "jeu": 1
+    },
+    {
+      "zone": "radlands",
+      "ennemi": "Lame Security Guard",
+      "idBestiaire": 194,
+      "source": 1,
+      "jeu": 1
+    },
+    {
+      "zone": "radlands",
+      "ennemi": "A Giant Vat of Plutonium-238",
+      "idBestiaire": 195,
+      "source": 1.1,
+      "jeu": 1.1
+    },
+    {
+      "zone": "radlands",
+      "ennemi": "Mutant Zombie Marie Curie",
+      "idBestiaire": 196,
+      "source": 1.2,
+      "jeu": 1.2
+    },
+    {
+      "zone": "radlands",
+      "ennemi": "Nuclear Power Pants",
+      "idBestiaire": 192,
+      "source": 1.2,
+      "jeu": 1.2
+    },
+    {
+      "zone": "radlands",
+      "ennemi": "A Massive Sealed Vault",
+      "idBestiaire": 199,
+      "source": 1.2,
+      "jeu": 1.2
+    }
+  ],
+  "detail_ennemis_sans_stats_wiki": [
+    {
+      "zone": "netherregions",
+      "ennemi": "A Patch of Tulips",
+      "idBestiaire": 241,
+      "source": {
+        "type": "normal",
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.5e+30,
+        "hp": 1.2e+34
+      },
+      "jeu": {
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.5e+30,
+        "hp": 1.2e+34,
+        "type": "normal"
+      }
+    },
+    {
+      "zone": "netherregions",
+      "ennemi": "A Random Lady",
+      "idBestiaire": 242,
+      "source": {
+        "type": "paralyze",
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.52e+30,
+        "hp": 1.2e+34
+      },
+      "jeu": {
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.52e+30,
+        "hp": 1.2e+34,
+        "type": "paralyze"
+      }
+    },
+    {
+      "zone": "netherregions",
+      "ennemi": "A Lost Canadian Moose :c",
+      "idBestiaire": 243,
+      "source": {
+        "type": "normal",
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.5e+30,
+        "hp": 1.2e+34
+      },
+      "jeu": {
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.5e+30,
+        "hp": 1.2e+34,
+        "type": "normal"
+      }
+    },
+    {
+      "zone": "netherregions",
+      "ennemi": "A 5 Bladed Windmill",
+      "idBestiaire": 244,
+      "source": {
+        "type": "charger",
+        "attackRate": 1.1,
+        "power": 2.54e+32,
+        "toughness": 2.54e+32,
+        "hpRegen": 2.54e+30,
+        "hp": 1.25e+34
+      },
+      "jeu": {
+        "attackRate": 1.1,
+        "power": 2.54e+32,
+        "toughness": 2.54e+32,
+        "hpRegen": 2.54e+30,
+        "hp": 1.25e+34,
+        "type": "charger"
+      }
+    },
+    {
+      "zone": "netherregions",
+      "ennemi": "A Jerk Cyclist",
+      "idBestiaire": 245,
+      "source": {
+        "type": "normal",
+        "attackRate": 1.2,
+        "power": 2.56e+32,
+        "toughness": 2.56e+32,
+        "hpRegen": 2.56e+30,
+        "hp": 1.25e+34
+      },
+      "jeu": {
+        "attackRate": 1.2,
+        "power": 2.56e+32,
+        "toughness": 2.56e+32,
+        "hpRegen": 2.56e+30,
+        "hp": 1.25e+34,
+        "type": "normal"
+      }
+    },
+    {
+      "zone": "netherregions",
+      "ennemi": "A Dutch Oven",
+      "idBestiaire": 246,
+      "source": {
+        "type": "normal",
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.5e+30,
+        "hp": 1.2e+34
+      },
+      "jeu": {
+        "attackRate": 1,
+        "power": 2.5e+32,
+        "toughness": 2.5e+32,
+        "hpRegen": 2.5e+30,
+        "hp": 1.2e+34,
+        "type": "normal"
+      }
+    },
+    {
+      "zone": "netherregions",
+      "ennemi": "THE GRAND DUTCH DUCHY",
+      "idBestiaire": 247,
+      "source": {
+        "type": "normal",
+        "attackRate": 1.2,
+        "power": 2.58e+32,
+        "toughness": 2.68e+32,
+        "hpRegen": 2.58e+30,
+        "hp": 1.3e+34
+      },
+      "jeu": {
+        "attackRate": 1.2,
+        "power": 2.58e+32,
+        "toughness": 2.68e+32,
+        "hpRegen": 2.58e+30,
+        "hp": 1.3e+34,
+        "type": "normal"
+      }
+    }
+  ],
+  "detail_butin_zones_ecarts": [
+    {
+      "zone": "tutorial",
+      "sujet": "setDrop.normal",
+      "wiki": null,
+      "source": {
+        "base": 0,
+        "cap": 0,
+        "lvl": 10
+      },
+      "jeu": {
+        "base": 0.25,
+        "level": 10
+      },
+      "note": "le jeu ajoute un butin normal absent de la source (voir wiki)"
+    },
+    {
+      "zone": "sewers",
+      "sujet": "goldNormal",
+      "wiki": [
+        800,
+        1000
+      ],
+      "source": [
+        1600,
+        2000
+      ],
+      "jeu": [
+        800,
+        1000
+      ],
+      "note": "jeu != source"
+    },
+    {
+      "zone": "sewers",
+      "sujet": "goldBoss",
+      "wiki": [
+        1600,
+        2000
+      ],
+      "source": [
+        2400,
+        3000
+      ],
+      "jeu": [
+        1600,
+        2000
+      ],
+      "note": "jeu != source"
+    },
+    {
+      "zone": "sky",
+      "sujet": "special#66.boss",
+      "wiki": null,
+      "source": {
+        "chance": 0.03,
+        "cap": 1,
+        "level": 0
+      },
+      "jeu": {
+        "chance": 0.003,
+        "cap": null,
+        "level": 0,
+        "gameId": "wandoos98"
+      },
+      "note": "chance jeu != source"
+    },
+    {
+      "zone": "ancient",
+      "sujet": "special#110.boss",
+      "wiki": null,
+      "source": {
+        "chance": 0.015,
+        "cap": 1,
+        "level": 4
+      },
+      "jeu": {
+        "chance": 0.0015,
+        "cap": null,
+        "level": 4,
+        "gameId": "dragonWings"
+      },
+      "note": "chance jeu != source"
+    },
+    {
+      "zone": "boring",
+      "sujet": "special#178.boss",
+      "wiki": null,
+      "source": null,
+      "jeu": {
+        "chance": 0.000001,
+        "cap": 0.005,
+        "level": 5,
+        "gameId": "stealthiestArmour"
+      },
+      "note": "objet du jeu absent de la source (à vérifier au wiki)"
+    },
+    {
+      "zone": "chocolate",
+      "sujet": "special#142.boss",
+      "wiki": null,
+      "source": {
+        "chance": 9.999999999999999e-10,
+        "cap": 0.01,
+        "level": 0
+      },
+      "jeu": null,
+      "note": "objet source absent du jeu pour cette zone"
+    },
+    {
+      "zone": "chocolate",
+      "sujet": "special#226.boss",
+      "wiki": null,
+      "source": null,
+      "jeu": {
+        "chance": 0.00018,
+        "cap": 0.12,
+        "level": 1,
+        "gameId": "energyBarBarAccessory"
+      },
+      "note": "objet du jeu absent de la source (à vérifier au wiki)"
+    },
+    {
+      "zone": "chocolate",
+      "sujet": "special#227.boss",
+      "wiki": null,
+      "source": null,
+      "jeu": {
+        "chance": 0.00018,
+        "cap": 0.12,
+        "level": 1,
+        "gameId": "magicBarBarAccessory"
+      },
+      "note": "objet du jeu absent de la source (à vérifier au wiki)"
+    },
+    {
+      "zone": "evilverse",
+      "sujet": "special#142.boss",
+      "wiki": null,
+      "source": {
+        "chance": 1e-10,
+        "cap": 0.015,
+        "level": 1
+      },
+      "jeu": null,
+      "note": "objet source absent du jeu pour cette zone"
+    },
+    {
+      "zone": "pinkprincess",
+      "sujet": "setDrop.boss",
+      "wiki": null,
+      "source": {
+        "base": 0.001,
+        "cap": 0.12,
+        "lvl": 1
+      },
+      "jeu": {
+        "base": 0.0001,
+        "cap": 0.12,
+        "level": 1
+      },
+      "note": "jeu != source (chance)"
+    },
+    {
+      "zone": "pinkprincess",
+      "sujet": "special#142.boss",
+      "wiki": null,
+      "source": {
+        "chance": 2.0000000000000002e-11,
+        "cap": 0.02,
+        "level": 2
+      },
+      "jeu": null,
+      "note": "objet source absent du jeu pour cette zone"
+    },
+    {
+      "zone": "typozone",
+      "sujet": "boosts[0].cap",
+      "wiki": {
+        "strength": 1000,
+        "base": 0.000022000000000000003,
+        "cap": 0.08
+      },
+      "source": {
+        "strength": 1000,
+        "base": 0.000022000000000000003,
+        "cap": 0.09
+      },
+      "jeu": {
+        "strength": 1000,
+        "base": 0.000022,
+        "cap": 0.08
+      },
+      "note": "plafond absent/différent dans le jeu"
+    },
+    {
+      "zone": "typozone",
+      "sujet": "boosts[1].cap",
+      "wiki": {
+        "strength": 2000,
+        "base": 0.000022000000000000003,
+        "cap": 0.08
+      },
+      "source": {
+        "strength": 2000,
+        "base": 0.000022000000000000003,
+        "cap": 0.09
+      },
+      "jeu": {
+        "strength": 2000,
+        "base": 0.000022,
+        "cap": 0.08
+      },
+      "note": "plafond absent/différent dans le jeu"
+    },
+    {
+      "zone": "fadlands",
+      "sujet": "goldNormal",
+      "wiki": [
+        180000000000,
+        300000000000
+      ],
+      "source": [
+        240000000000,
+        300000000000
+      ],
+      "jeu": [
+        180000000000,
+        300000000000
+      ],
+      "note": "jeu != source"
+    },
+    {
+      "zone": "fadlands",
+      "sujet": "boosts[0].cap",
+      "wiki": {
+        "strength": 2000,
+        "base": 0.000018,
+        "cap": 0.08
+      },
+      "source": {
+        "strength": 2000,
+        "base": 0.000018,
+        "cap": 0.1
+      },
+      "jeu": {
+        "strength": 2000,
+        "base": 0.000018,
+        "cap": 0.08
+      },
+      "note": "plafond absent/différent dans le jeu"
+    },
+    {
+      "zone": "fadlands",
+      "sujet": "boosts[1].cap",
+      "wiki": {
+        "strength": 5000,
+        "base": 0.000018,
+        "cap": 0.08
+      },
+      "source": {
+        "strength": 5000,
+        "base": 0.000018,
+        "cap": 0.1
+      },
+      "jeu": {
+        "strength": 5000,
+        "base": 0.000018,
+        "cap": 0.08
+      },
+      "note": "plafond absent/différent dans le jeu"
+    },
+    {
+      "zone": "radlands",
+      "sujet": "goldNormal",
+      "wiki": [
+        800000000000,
+        800000000000
+      ],
+      "source": [
+        800000000000,
+        1000000000000
+      ],
+      "jeu": [
+        800000000000,
+        1000000000000
+      ],
+      "note": "jeu != wiki"
+    },
+    {
+      "zone": "radlands",
+      "sujet": "goldBoss",
+      "wiki": [
+        1200000000000,
+        1200000000000
+      ],
+      "source": [
+        1200000000000,
+        1500000000000
+      ],
+      "jeu": [
+        1200000000000,
+        1500000000000
+      ],
+      "note": "jeu != wiki"
+    },
+    {
+      "zone": "westworld",
+      "sujet": "special#366.normal",
+      "wiki": null,
+      "source": null,
+      "jeu": {
+        "chance": 2e-8,
+        "cap": 0.12,
+        "level": 1,
+        "gameId": "beretta9mm"
+      },
+      "note": "objet du jeu absent de la source (à vérifier au wiki)"
+    },
+    {
+      "zone": "westworld",
+      "sujet": "special#366.boss",
+      "wiki": null,
+      "source": null,
+      "jeu": {
+        "chance": 6e-8,
+        "cap": 0.12,
+        "level": 1,
+        "gameId": "beretta9mm"
+      },
+      "note": "objet du jeu absent de la source (à vérifier au wiki)"
+    },
+    {
+      "zone": "netherregions",
+      "sujet": "setDrop.boss",
+      "wiki": null,
+      "source": {
+        "base": 18000,
+        "cap": 0.15,
+        "lvl": 1
+      },
+      "jeu": {
+        "base": 1.8e-8,
+        "cap": 0.15,
+        "level": 1
+      },
+      "note": "jeu != source (chance)"
+    },
+    {
+      "zone": "aethereansea",
+      "sujet": "bossExp",
+      "wiki": {
+        "amount": 1200,
+        "base": null,
+        "cap": null
+      },
+      "source": {
+        "amount": 1200,
+        "base": 1.2e-8,
+        "cap": 0.15
+      },
+      "jeu": null,
+      "note": "aucun EXP de boss dans le jeu"
+    },
+    {
+      "zone": "aethereansea",
+      "sujet": "special#295.boss",
+      "wiki": null,
+      "source": {
+        "chance": 4e-8,
+        "cap": 0.12,
+        "level": 16
+      },
+      "jeu": null,
+      "note": "objet source absent du jeu pour cette zone"
+    },
+    {
+      "zone": "aethereansea",
+      "sujet": "special#296.boss",
+      "wiki": null,
+      "source": {
+        "chance": 1.8e-8,
+        "cap": 0.12,
+        "level": 16
+      },
+      "jeu": null,
+      "note": "objet source absent du jeu pour cette zone"
+    }
+  ],
+  "detail_titans_wiki_vs_source": [
+    {
+      "titan": "t5",
+      "page": "Walderp",
+      "diffs": [
+        {
+          "topic": "v1.attackRate",
+          "wiki": 3,
+          "source": 3.2,
+          "game": null,
+          "note": "wiki != source"
+        },
+        {
+          "topic": "v2.attackRate",
+          "wiki": 3,
+          "source": 3.15,
+          "game": null,
+          "note": "wiki != source"
+        },
+        {
+          "topic": "v3.attackRate",
+          "wiki": 3,
+          "source": 3.1,
+          "game": null,
+          "note": "wiki != source"
+        },
+        {
+          "topic": "v4.attackRate",
+          "wiki": 3,
+          "source": 3.05,
+          "game": null,
+          "note": "wiki != source"
+        }
+      ]
+    },
+    {
+      "titan": "godmother",
+      "page": "The Godmother",
+      "diffs": [
+        {
+          "topic": "v2.autokill.regen",
+          "wiki": 1000000000000000000,
+          "source": 100000000000000000,
+          "game": null,
+          "note": "wiki != source"
+        }
+      ]
+    },
+    {
+      "titan": "lobster",
+      "page": "ROCK LOBSTER",
+      "diffs": [
+        {
+          "topic": "v2.power",
+          "wiki": 6e+31,
+          "source": 2e+31,
+          "game": null,
+          "note": "wiki != source"
+        },
+        {
+          "topic": "v2.toughness",
+          "wiki": 2e+31,
+          "source": 6e+31,
+          "game": null,
+          "note": "wiki != source"
+        }
+      ]
+    },
+    {
+      "titan": "amalgamate",
+      "page": "AMALGAMATE",
+      "diffs": [
+        {
+          "topic": "respawn(min)",
+          "wiki": 433.33,
+          "source": 447,
+          "game": 433.3333333333333,
+          "note": "wiki != source"
+        }
+      ]
+    }
+  ]
+}

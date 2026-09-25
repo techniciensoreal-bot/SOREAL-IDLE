@@ -20,9 +20,14 @@
  *  - « Challenges », Troll Challenge : « Completion 5 Reward(s) : A new fruit:
  *    The Fruit of Numbers! ».
  *
+ * FRUITS DE MAYO (ajoutés le 2026-09-25, contrôle croisé wiki + calculateur tiers) : 6 fruits, un par générateur de mayo. Activation
+ * « 10 Qa Energy or Magic » = 1e16 (Qa = 1e15 : « 60 Qa (6E16) » sur la page Wishes), Énergie pour Angry / Moldy / Cinco, Magie pour Sad /
+ * Ayyy LMayo / Pretty (page Experience, Auto-Activate) ; 10 graines de base ; T² x 250 000 graines par tier ; Auto-Activate 1 B EXP avec
+ * « 100 Q » de cap requis = 100 Qa (sur les 15 autres lignes le cap requis vaut exactement 10 x le coût d'activation) ; effet : progression du
+ * générateur de mayo associé = T^1.1 x 0.025 x Poop x MayoSpeed (Infuser inclus). Déblocage : le système Cards (aucune source ne le précise :
+ * décision documentée, sans elle les fruits seraient visibles dès Yggdrasil).
+ *
  * NON implémenté (valeur non exacte dans le wiki, ou système absent) :
- *  - fruits de Mayo (« 10 Qa Energy or Magic » ; la page Experience exige
- *    « 100 Q » de cap alors que la règle « 10x » donnerait 100 Qa) ;
  *  - QPRewardModifier du Fruit of Quirks : jamais défini par le wiki (page
  *    Questing : « then multiplied by other bonuses ») -> laissé à 1 ;
  *  - (fait le 2026-09-24 : A Giant Seed est un vrai objet, Seed (set) donne
@@ -35,6 +40,7 @@
  */
 
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
+import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -100,7 +106,7 @@ const ITOPOD_POOP_LOOP_MAX_V1 = 100000;
 export function idleYggItopodPoopV1(state, kills, rng = Math.random) {
   const k = Math.max(0, I(kills, 0));
   if (k <= 0) return 0;
-  if (I(state?.systems?.perks?.data?.levels?.[IDLE_YGG_ITOPOD_POOP_PERK_ID_V1], 0) < 1) return 0;
+  if (I(idlePerkNiveauxV1(state)[IDLE_YGG_ITOPOD_POOP_PERK_ID_V1], 0) < 1) return 0;
   const fx = state.selloutEffects;
   if (!fx || typeof fx !== "object") return 0;
   const total = Math.max(0, I(fx.itopodPoopKills, 0)) + k;
@@ -176,8 +182,36 @@ export const IDLE_YGG_AUTO_ACTIVATE_V1 = Object.freeze([
   Object.freeze({ fruit: "powerDelta", name: "Fruit of Power δ Auto-Activate", cost: 2e6, requiredCap: 5e10, resource: "energy" }),
   Object.freeze({ fruit: "watermelon", name: "Watermelon Auto-Activate", cost: 5e6, requiredCap: 2e11, resource: "magic" }),
   Object.freeze({ fruit: "macguffinBeta", name: "Fruit of MacGuffins β Auto-Activate", cost: 1.5e7, requiredCap: 1e12, resource: "energy" }),
-  Object.freeze({ fruit: "quirks", name: "Fruit of Quirks Auto-Activate", cost: 1e6, requiredCap: 4e11, resource: "magic" })
+  Object.freeze({ fruit: "quirks", name: "Fruit of Quirks Auto-Activate", cost: 1e6, requiredCap: 4e11, resource: "magic" }),
+  Object.freeze({ fruit: "angryMayo", name: "Fruit of Angry Mayo Auto-Activate", cost: 1e9, requiredCap: 1e17, resource: "energy" }),
+  Object.freeze({ fruit: "sadMayo", name: "Fruit of Sad Mayo Auto-Activate", cost: 1e9, requiredCap: 1e17, resource: "magic" }),
+  Object.freeze({ fruit: "moldyMayo", name: "Fruit of Moldy Mayo Auto-Activate", cost: 1e9, requiredCap: 1e17, resource: "energy" }),
+  Object.freeze({ fruit: "ayyMayo", name: "Fruit of Ayyy LMayo Auto-Activate", cost: 1e9, requiredCap: 1e17, resource: "magic" }),
+  Object.freeze({ fruit: "cincoMayo", name: "Fruit of Cinco De Mayo Auto-Activate", cost: 1e9, requiredCap: 1e17, resource: "energy" }),
+  Object.freeze({ fruit: "prettyMayo", name: "Fruit of Pretty Mayo Auto-Activate", cost: 1e9, requiredCap: 1e17, resource: "magic" })
 ]);
+
+/* Générateurs de mayo (idle-cards-v1.js) : fruit -> mayo associé. */
+export const IDLE_YGG_MAYO_FRUITS_V1 = Object.freeze([
+  Object.freeze({ id: "angryMayo", name: "Fruit of Angry Mayo", mayo: "angry", resource: "energy" }),
+  Object.freeze({ id: "sadMayo", name: "Fruit of Sad Mayo", mayo: "sad", resource: "magic" }),
+  Object.freeze({ id: "moldyMayo", name: "Fruit of Moldy Mayo", mayo: "moldy", resource: "energy" }),
+  Object.freeze({ id: "ayyMayo", name: "Fruit of Ayyy LMayo", mayo: "ayyLmayo", resource: "magic" }),
+  Object.freeze({ id: "cincoMayo", name: "Fruit of Cinco De Mayo", mayo: "cincoDeMayo", resource: "energy" }),
+  Object.freeze({ id: "prettyMayo", name: "Fruit of Pretty Mayo", mayo: "pretty", resource: "magic" })
+]);
+export const IDLE_YGG_MAYO_ACTIVATION_COST_V1 = 1e16;
+export const IDLE_YGG_MAYO_AUTO_COST_EXP_V1 = 1e9;
+export const IDLE_YGG_MAYO_AUTO_REQUIRED_CAP_V1 = 1e17;
+
+export function idleYggIsMayoFruitV1(fruitId) {
+  return IDLE_YGG_MAYO_FRUITS_V1.some((m) => m.id === fruitId);
+}
+
+/* Progression d'un fruit de Mayo mangé au tier T : T^1.1 x 0.025 x Poop (la vitesse de mayo est appliquée par idleCardsMayoFruitProgressV1). */
+export function idleYggMayoFruitBaseV1(tier, poopFactor = 1) {
+  return Math.pow(Math.max(1, I(tier, 1)), 1.1) * 0.025 * Math.max(1, N(poopFactor, 1));
+}
 
 export function idleYggAutoShopIdV1(fruitId) {
   const id = String(fruitId || "");
@@ -233,7 +267,7 @@ export const IDLE_YGG_FERTILIZER_QUIRK_ID_V1 = 13;
 export const IDLE_YGG_FERTILIZER_SECONDS_V1 = 60;
 
 export function idleYggTierSecondsV1(state) {
-  const level = Math.max(0, Math.min(3, I(state?.systems?.quirks?.data?.levels?.[IDLE_YGG_FERTILIZER_QUIRK_ID_V1], 0)));
+  const level = Math.max(0, Math.min(3, I(idleQuirkNiveauxV1(state)[IDLE_YGG_FERTILIZER_QUIRK_ID_V1], 0)));
   return IDLE_YGG_TIER_SECONDS_V1 - IDLE_YGG_FERTILIZER_SECONDS_V1 * level;
 }
 
@@ -249,7 +283,7 @@ export function idleYggQuickActivationV1(state, nowMs) {
   if (!data) return;
   const run = (N(nowMs, 0) - Math.max(0, N(state.runStartedAt, 0))) / 1000;
   if (run < IDLE_YGG_QUICK_ACTIVATION_SECONDS_V1) return;
-  const perks = state.systems?.perks?.data?.levels || {};
+  const perks = idlePerkNiveauxV1(state);
   if (I(perks[16], 0) >= 1) data.runPowerBetaActive = true;
   if (I(perks[17], 0) >= 1) data.runNumbersActive = true;
 }
@@ -261,6 +295,8 @@ export const IDLE_YGG_NUMBERS_TROLL_COMPLETIONS_V1 = 5;
 
 export function idleYggFruitUnlockedV1(state, fruitId) {
   if (fruitId === "numbers") return I(state?.challenge?.completions?.troll, 0) >= IDLE_YGG_NUMBERS_TROLL_COMPLETIONS_V1;
+  /* Fruits de Mayo : disponibles avec le système Cards. */
+  if (idleYggIsMayoFruitV1(fruitId)) return Boolean(state?.systems?.cards?.unlocked);
   return true;
 }
 

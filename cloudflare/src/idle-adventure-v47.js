@@ -188,7 +188,7 @@ export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"fadlands",name:"The Fad-lands",boss:182,p:7e20,t:4e20,oneHitP:3.562e22,idleP:1.5e21,idleT:1.1e21,bossChance:1/4,set:"fad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"jrpgville",name:"JRPGVille",boss:190,p:3e21,t:2.1e21,oneHitP:1.89e23,idleP:8e21,idleT:6e21,bossChance:1/4,set:"jrpg",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
 {id:"radlands",name:"The Rad-Lands",boss:200,p:3.2e24,t:1.4e24,oneHitP:1.88575e26,idleP:9.1e24,idleT:5.6e24,bossChance:1/5,set:"rad",dropLevel:1,avatarLevel:6,requiredDifficulty:"difficile"},
-{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,oneHitP:5.23908333333333e28,idleP:1.7e27,idleT:8.5e26,bossChance:1/4,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
+{id:"backtoschool",name:"Back To School",boss:125,p:5e26,t:2.5e26,oneHitP:2.72433e28,idleP:1.7e27,idleT:8.5e26,bossChance:1/4,set:"backtoschool",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"westworld",name:"The West World",boss:150,p:2.65e27,t:8.3e26,oneHitP:2.22158333333333e29,idleP:8e27,idleT:3.5e27,bossChance:1/4,set:"western",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"breadverse",name:"The Breadverse",boss:208,p:1.4e29,t:2.4e28,idleP:4.31e29,idleT:2.43e29,bossChance:1/4,set:"bread",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},
 {id:"seventies",name:"That 70's Zone",boss:216,p:5.1e29,t:7.6e28,oneHitP:1.36e31,idleP:1.5e30,idleT:6.5e29,bossChance:1/4,set:"disco",dropLevel:1,avatarLevel:6,requiredDifficulty:"extreme"},

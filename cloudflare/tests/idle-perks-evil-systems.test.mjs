@@ -22,7 +22,7 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
 
 // Iron Pill : le gain est multiplié par le perk
 {
-  const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, { bosses: 100 }, 1_000_000);
   s.systems.bloodMagic.unlocked = true;
   s.currencies.blood = 10000;
   s.systems.perks.data.levels[84] = 5;
@@ -32,7 +32,7 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
 
 // Respawn : facteurs multiplicatifs, plancher 0,34 s
 {
-  const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, { bosses: 100 }, 1_000_000);
   s.systems.perks.data.levels[93] = 100;
   const red = idleNguBonuses(s).respawnReduction;
   assert.ok(Math.abs(red - 0.1) < 1e-9, "100 niveaux de SPAWN FASTER = -10 %");
@@ -43,7 +43,7 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
   assert.equal(q.accessorySlotBonus, 1);
   assert.equal(q.wishMinTimeReductionSeconds, 1200);
   assert.equal(q.inventorySlotBonus, 24);
-  const st = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
+  const st = normalizeIdleNguState({ difficulty: "extreme" }, { bosses: 100 }, 1_000_000);
   st.systems.quirks.data = { levels: { 18: 1, 90: 24 } };
   const st2 = normalizeIdleNguState(st, { bosses: 100 }, 2_000_000);
   assert.equal(st2.adventure.bonusSlots.accessory, 1);
@@ -52,8 +52,8 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
 // Souhaits à effet réel : 20 (rebirth), 61 (EXP), 79 (PPP ITOPOD), 109 (slot d'accessoire), 111 (vitesse NGU Energy)
 {
   const ctx = { bosses: 100 };
-  const base = normalizeIdleNguState({}, ctx, 1_000_000);
-  const avecSouhaits = normalizeIdleNguState({}, ctx, 1_000_000);
+  const base = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
+  const avecSouhaits = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   const niveau = (id, level) => { avecSouhaits.systems.wishes.data.tracks[String(id)].level = level; };
   niveau(20, 6); niveau(61, 10); niveau(109, 1);
   assert.ok(Math.abs(idleNguBonuses(avecSouhaits).xpMultiplier / idleNguBonuses(base).xpMultiplier - 1.05) < 1e-9, "Souhait 61 : +0,5 % d'EXP par niveau");

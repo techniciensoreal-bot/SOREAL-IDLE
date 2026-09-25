@@ -23,7 +23,7 @@ const ctx = { bosses: 120 };
 const proche = (a, b, eps, msg) => assert.ok(Math.abs(a - b) <= eps, `${msg} (obtenu ${a}, attendu ${b})`);
 
 function etatDebloque(extra) {
-  const s = normalizeIdleNguState({}, ctx, T0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
   s.adventure.unlockFlags.walderpFinalDefeated = true;
   s.systems.macguffins.unlocked = true;
   if (extra) extra(s);
@@ -38,7 +38,7 @@ function fragment(s, type, level, equipped) {
 
 /* --- Verrouillage : rien avant la forme finale de Walderp --- */
 {
-  const s = normalizeIdleNguState({}, ctx, T0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
   assert.equal(macguffinSlotCountV1(s), 0);
   assert.deepEqual(macguffinOnZoneKillsV1(s, "sewers", 5000), [], "Aucun drop avant Walderp.");
   assert.throws(() => applyIdleNguAction(s, { action: "macguffin", op: "mergeAll", type: "energyPower" }, ctx, T0), /SYSTEME_VERROUILLE/);
@@ -315,6 +315,7 @@ function fragment(s, type, level, equipped) {
 /* Blood : gain des rituels. */
 {
   const prep = x => {
+    x.difficulty = "normal"; /* le calcul du sang dépend de la difficulté : ce test mesure le MacGuffin en Normal */
     x.systems.bloodMagic.unlocked = true;
     x.systems.bloodMagic.allocation.magic = 1e9;
     x.currencies.gold = 1e12;

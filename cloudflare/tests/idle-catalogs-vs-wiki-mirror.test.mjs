@@ -16,7 +16,10 @@ if (!fs.existsSync(`${MIROIR}/pages/Perk Points.json`)) {
   const r = await compare();
   const numeriques = (l) => / (coût|cap|niveaux|diviseur) :/.test(l);
   for (const k of ["perks", "quirks", "wishes"]) {
-    assert.deepEqual(r[k].filter(numeriques), [], `${k} : écarts chiffrés avec le wiki`);
+    /* Coquilles du wiki corrigées EN CONNAISSANCE DE CAUSE le 2026-09-25 (jeu = page de la fonctionnalité + source tierce) : souhaits 88 et 89
+       (1 niveau sur la page Wishes, 10 sur la page Resource 3), souhait 91 (texte affiché 1.00E+21, data-sort-value 1e23). */
+    const corriges = (l) => /^(88|89) .* niveaux :/.test(l) || /^91 .* diviseur :/.test(l);
+    assert.deepEqual(r[k].filter(numeriques).filter((l) => !corriges(l)), [], `${k} : écarts chiffrés avec le wiki`);
   }
   /* Écarts de texte connus et acceptés : la perk 56 (MacGuffin Daycare, non implémentée) et trois libellés. */
   const acceptes = [

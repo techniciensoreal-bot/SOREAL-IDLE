@@ -5,7 +5,7 @@
       'use strict';
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-3 */
-      const IDLE_TEST_VERSION='Version bêta';
+      const IDLE_TEST_VERSION='Ver. Beta local';
       const IDLE_UI_MILESTONE_V48_NGU_BALANCE=true;
       const IDLE_CLIENT_PROTOCOL_VERSION=1;
       let idleAutorise=false;

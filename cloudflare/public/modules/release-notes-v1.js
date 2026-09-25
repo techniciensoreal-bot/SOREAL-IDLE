@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.2',
+    courante:'1.3',
     versions:[
+      {
+        version:'1.3',
+        nom:'Fidèle au wiki',
+        date:'2026-09-25',
+        points:[
+          'Certaines options (Perks, Quirks, Wishes) ne sont plus achetables que dans la difficulté prévue par le wiki. Ce que tu as déjà acheté est conservé, mais reste inactif tant que la difficulté requise n’est pas atteinte.',
+          'Plusieurs valeurs corrigées d’après le wiki : niveaux et effets de quelques Wishes, gain d’or d’un objet d’aventure et une valeur de combat.',
+          'De nouveaux fruits deviennent disponibles dans Yggdrasil quand leur système est débloqué.'
+        ]
+      },
       {
         version:'1.2',
         nom:'Armures & Portraits',

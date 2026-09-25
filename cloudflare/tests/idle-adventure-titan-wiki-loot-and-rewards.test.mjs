@@ -125,7 +125,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
 
 // ---- Pont vers les vraies monnaies (EXP, or, AP, progression de PP) ----
 {
-  let s = normalizeIdleNguState({}, {}, 0);
+  let s = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   s.currencies.experience = 0;
   s.currencies.gold = 0;
   s.currencies.ap = 0;
@@ -152,7 +152,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
 
 // PP progress : 250 000 par kill de The Beast, 1 000 000 = 1 PP
 {
-  let s = normalizeIdleNguState({}, {}, 0);
+  let s = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   s.currencies.pp = 0;
   s.systems.tower.data = { ...(s.systems.tower.data || {}), ppProgress: 800000 };
   s.adventure.titans.t6 = { kills: 0, nextAt: 0 };
@@ -177,7 +177,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
 
 // Souhait 3 (meilleures récompenses V2/3/4) et souhait 73 (QP de The Beast)
 {
-  let st = normalizeIdleNguState({}, {}, 0);
+  let st = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   st.currencies.qp = 0;
   st.systems.wishes.data.tracks[3] = { level: 3 };
   st.systems.wishes.data.tracks[73] = { level: 1 };
@@ -203,7 +203,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
 }
 {
   // sans le souhait 73 : aucun QP ; niveau 1 du souhait 3 en Hard : x1,1 seulement
-  let st = normalizeIdleNguState({}, {}, 0);
+  let st = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   st.systems.wishes.data.tracks[3] = { level: 1 };
   st.adventure.titans.t6 = { kills: 0, nextAt: 0 };
   const avant = Math.random;

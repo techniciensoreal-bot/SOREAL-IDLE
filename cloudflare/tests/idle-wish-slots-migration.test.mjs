@@ -16,7 +16,7 @@ const act = (s, payload) => applyIdleNguAction(s, payload, ctx, 1_000_000).state
 const zero = { energy: 0, magic: 0, r3: 0 };
 
 function base() {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   s.systems.wishes.unlocked = true;
   s.systems.hacks.unlocked = true;
   s.systems.bloodMagic.unlocked = true;
@@ -29,7 +29,7 @@ function base() {
 
 // --- Nouvelle partie : 4 slots, le slot 1 porte le souhait par défaut, rien d'alloué ---
 {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   const slots = s.systems.wishes.data.slots;
   assert.equal(slots.length, 4);
   assert.equal(slots[0].wish, s.systems.wishes.data.activeTrack);

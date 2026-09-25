@@ -22,7 +22,7 @@ assert.equal(idleQuirkByIdV1(185).cost, 100000);
 
 // Resource 3 : multiplicateur lu par le moteur
 {
-  const s = normalizeIdleNguState({}, {}, 0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   const sans = idleNguBonuses(s).r3PowerMultiplier;
   s.systems.quirks.data = { levels: { 47: 50, 67: 50 } };
   assert.ok(Math.abs(idleNguBonuses(s).r3PowerMultiplier / sans - (1 + 0.5 + 0.5)) < 1e-9, "50 x 1 % + 50 x 1 %");
@@ -30,9 +30,9 @@ assert.equal(idleQuirkByIdV1(185).cost, 100000);
 
 // ITOPOD : +10 PPP de base par niveau du quirk 70
 {
-  const ctx = { bosses: 30, adventurePower: 1e6, adventureToughness: 1e6 };
+  const ctx = { bosses: 30, adventurePower: 1e60, adventureToughness: 1e60 }; /* Sadistic (quirk 70) : les étages de l ITOPOD démarrent à 2000 */
   const construire = (levels) => {
-    const s = normalizeIdleNguState({}, ctx, 0);
+    const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
     s.systems.tower = { unlocked: true, active: true, data: { floor: 0, killProgress: 0, kills: 0, ppProgress: 0 } };
     s.currencies.pp = 0;
     if (levels) s.systems.quirks.data = { levels };
@@ -40,7 +40,7 @@ assert.equal(idleQuirkByIdV1(185).cost, 100000);
   };
   const base = construire(null);
   const avec = construire({ 70: 10 });
-  assert.ok(base > 0 && Math.abs(avec / base - (200 + 100) / 200) < 1e-9, "(200 + 10 x 10) / 200 par kill");
+  assert.ok(base > 0 && Math.abs(avec / base - (2000 + 100) / 2000) < 1e-9, "(2000 + 10 x 10) / 2000 par kill (Sadistic : base 2000)");
 }
 
 console.log("idle-quirks-banks-r3-ppp-blood: OK");

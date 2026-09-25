@@ -32,6 +32,7 @@
 
 import { idleAdventureDropChanceV2 } from "./idle-adventure-v47.js";
 import { idleHeartsPurpleCompleteV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
+import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -241,9 +242,9 @@ function mgData(state) {
   if (!s.data || typeof s.data !== "object" || !Array.isArray(s.data.equipped)) s.data = normalizeMacguffinDataV1(s.data);
   return s.data;
 }
-function perkLevel(state, id) { return Math.max(0, I(state?.systems?.perks?.data?.levels?.[id], 0)); }
-function quirkLevel(state, id) { return Math.max(0, I(state?.systems?.quirks?.data?.levels?.[id], 0)); }
-function wishLevel(state, id) { return Math.max(0, I(state?.systems?.wishes?.data?.tracks?.[String(id)]?.level, 0)); }
+function perkLevel(state, id) { return Math.max(0, I(idlePerkNiveauxV1(state)[id], 0)); }
+function quirkLevel(state, id) { return Math.max(0, I(idleQuirkNiveauxV1(state)[id], 0)); }
+function wishLevel(state, id) { return Math.max(0, I(idleWishTracksActifsV1(state)[String(id)]?.level, 0)); }
 function completedSet(state, id) { return Boolean(state?.adventure?.completedSets?.[id]); }
 function tierCompletions(state, tier, id) { return Math.max(0, I(state?.challenge?.completionsTier?.[tier]?.[id], 0)); }
 

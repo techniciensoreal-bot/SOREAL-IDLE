@@ -1763,6 +1763,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Débloqué par A Severed Unicorn\'s Head (butin garanti de The Godmother).</div>';
         }
         const pistes=Array.isArray(sys.tracks)?sys.tracks:[];
+        /* Wiki : chaque souhait exige une difficulté (Evil ou Sadistic) ; à une difficulté plus basse la liste est vide. */
+        if(!pistes.length)return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Aucun souhait n’est disponible à cette difficulté pour l’instant.</div>';
         const systemes=Array.isArray(snap.systems)?snap.systems:[];
         const slots=Array.isArray(ws.slots)?ws.slots:[];
         const ressources=['energy','magic','r3'];

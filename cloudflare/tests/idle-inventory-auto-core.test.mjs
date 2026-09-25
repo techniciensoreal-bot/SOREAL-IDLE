@@ -61,6 +61,7 @@ assert.equal(idleInventoryAutoIntervalSecondsV1({ timerMultiplier: 0.5 * 0.5 }),
 assert.equal(idleInventoryLoadoutSlotsV1(1, 1, 7), 10, "Inventory : 10 loadouts au maximum (2 + 1 EXP, 7 Sellout).");
 assert.equal(idleInventoryLoadoutSlotsV1(1, 0, 0), 2, "« 2 Loadout Slots! » donne 2 slots.");
 assert.equal(idleInventoryMergeSlotCountV1({
+  difficulty: "extreme",
   bonuses: { expShop: { inventoryMergeSlot: 1 } },
   systems: { perks: { data: { levels: { 111: 1, 112: 1 } } }, quirks: { data: { levels: { 55: 1 } } } },
   selloutShop: { purchases: { inventoryMergeSlots: 4 } }

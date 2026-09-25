@@ -95,6 +95,7 @@ import {
   idleAdventureItemAtLevelV47
 } from "./idle-adventure-v47.js";
 import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
+import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -161,8 +162,8 @@ function cfgV1(s) {
 /* Slots d'automerge : boutique EXP (1), perks 111/112, quirk 55, Sellout Shop (4) ; 8 au maximum. */
 export function idleInventoryMergeSlotCountV1(state) {
   const exp = Math.min(1, Math.max(0, I(state?.bonuses?.expShop?.inventoryMergeSlot, 0)));
-  const perks = state?.systems?.perks?.data?.levels || {};
-  const quirks = state?.systems?.quirks?.data?.levels || {};
+  const perks = idlePerkNiveauxV1(state);
+  const quirks = idleQuirkNiveauxV1(state);
   const perk = Math.min(1, Math.max(0, I(perks[111], 0))) + Math.min(1, Math.max(0, I(perks[112], 0)));
   const quirk = Math.min(1, Math.max(0, I(quirks[55], 0)));
   const sellout = Math.min(4, Math.max(0, I(state?.selloutShop?.purchases?.inventoryMergeSlots, 0)));

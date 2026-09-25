@@ -1,0 +1,1377 @@
+{
+ "genere": "2026-09-25",
+ "mission": "controle en lecture seule, WISHES / HACKS / NGU / ADVANCED TRAINING / AUGMENTATIONS",
+ "sources": [
+  "NGU-Wiki/pages (Wishes, Hacks, NGU, Advanced Training, Augmentations + Energy, Magic, Resource 3, Questing, Blood Magic, Secrets and Spoilers)",
+  "ngu-idle-calculators-ts (wish, hacks, ngus, advTraining)",
+  "gear-optimizer (Wish, Hack, NGU, Augment)"
+ ],
+ "resume": {
+  "wishes": {
+   "total": 231,
+   "manquants_dans_jeu": 0,
+   "niveaux_jeu_egal_wiki": 231,
+   "niveaux_jeu_egal_tierce": 228,
+   "diviseur_jeu_egal_wiki_affiche": 231,
+   "diviseur_jeu_egal_wiki_et_tierce": 228,
+   "noms_identiques_wiki": 230,
+   "effets_numeriques_recoupes_tierce": "113 souhaits ont des props chiffrees : 112 concordent, 1 ecart (189)",
+   "branches": 225,
+   "non_branches": 6,
+   "partiellement_branches": 1,
+   "ids_non_branches": [
+    28,
+    44,
+    45,
+    59,
+    60,
+    203
+   ]
+  },
+  "hacks": {
+   "total": 15,
+   "concordent": 15
+  },
+  "ngu": {
+   "total": 48,
+   "jeu_egal_wiki": 48,
+   "jeu_egal_tierce": 32,
+   "ecarts_tierce": 16
+  },
+  "advancedTraining": {
+   "total": 5,
+   "concordent": 5
+  },
+  "augmentations": {
+   "total": 14,
+   "concordent": 13,
+   "ecarts": 1
+  }
+ },
+ "manquants": {
+  "catalogues": "aucun : les 231 souhaits, 15 hacks, 48 NGU (16 x 3 paliers), 5 pistes AT et 14 augments/upgrades sont presents",
+  "trous_59_60": {
+   "wiki": "texte : improve the spell outcome by 20% per level (59) / improve the fruit benefits by 20% per level (60), 10 niveaux, diviseur 4e20, Evil, total 2.2E22 (page Blood Magic, = 4e20 x 55) ; aucune formule de Blood Magic ni de Yggdrasil ne cite ces souhaits",
+   "tierce_ngu_idle_calculators": "entrees presentes (id 59 et 60, mode Evil, 10 niveaux, 4e20) mais props = [] : aucune Stat associee, donc effet non modelise",
+   "gear_optimizer": "aucune donnee de souhait dans les fichiers copies",
+   "jeu": "entrees presentes avec texte, niveaux et diviseur exacts, bonus = {} et non lues par idle-macguffins-v1.js",
+   "formule_a_choisir": "pas de formule publiee : hypothese la plus simple = niveaux gagnes x (1 + 0.2 x niveau du souhait), arrondi"
+  }
+ },
+ "ecarts": [
+  {
+   "categorie": "wishes",
+   "id": 91,
+   "nom": "I wish I had more Energy Power VI",
+   "champ": "speedDivider",
+   "jeu": 1e+21,
+   "wiki_tableau_affiche": 1e+21,
+   "wiki_data_sort_value": 1e+23,
+   "tierce_ngu_idle_calculators": 1e+23,
+   "verdict": "jeu probablement faux (x100 trop bas)",
+   "gravite": "haute",
+   "preuve": "La page Energy du wiki donne 5.5 Sp (5.5E24) = 1e23 x 55 (10 niveaux) ; tous les autres souhaits de la famille (92-97) sont a 1e23. La colonne affichee de la page Wishes (1.00E+21) est une coquille, data-sort-value et source tierce disent 1e23."
+  },
+  {
+   "categorie": "wishes",
+   "id": 192,
+   "nom": "I wish I could beat up more Bosses VII",
+   "champ": "speedDivider",
+   "jeu": 6e+25,
+   "wiki_tableau_affiche": 6e+25,
+   "wiki_data_sort_value": 4e+26,
+   "tierce_ngu_idle_calculators": 4e+26,
+   "verdict": "incertain (wiki interne contradictoire) ; la source tierce suit data-sort-value",
+   "gravite": "moyenne",
+   "preuve": "Aucune autre page ne donne le total pour ce souhait. 6e25 est monotone avec 191 (2e25) et 219 (1.8e26) ; 4e26 depasserait 219."
+  },
+  {
+   "categorie": "wishes",
+   "id": 204,
+   "nom": "I wish Titan 12 gave me some QP",
+   "champ": "speedDivider",
+   "jeu": 3e+26,
+   "wiki_tableau_affiche": 3e+26,
+   "wiki_data_sort_value": 1e+27,
+   "tierce_ngu_idle_calculators": 1e+27,
+   "verdict": "incertain ; la page Questing du wiki = 300 Sp (3E+26) = valeur du jeu",
+   "gravite": "basse",
+   "preuve": "Le jeu suit le texte du wiki (Wishes et Questing). La source tierce (mars 2025) et data-sort-value indiquent 1e27, peut-etre une valeur plus recente."
+  },
+  {
+   "categorie": "wishes",
+   "id": 88,
+   "nom": "I wish I had more Resource 3 Power V",
+   "champ": "levels",
+   "jeu": 1,
+   "wiki_page_wishes": 1,
+   "wiki_page_resource3": 10,
+   "tierce_ngu_idle_calculators": 10,
+   "verdict": "jeu faux : 10 niveaux (le 1 est une coquille de la page Wishes)",
+   "gravite": "haute",
+   "preuve": "Page Resource 3 : Levels 10, total 2.75E23 = 5e21 x 55. Effet +3% R3 Power par niveau : max reel +30% au lieu de +3%."
+  },
+  {
+   "categorie": "wishes",
+   "id": 89,
+   "nom": "I wish I had more Resource 3 Barfs V",
+   "champ": "levels",
+   "jeu": 1,
+   "wiki_page_wishes": 1,
+   "wiki_page_resource3": 10,
+   "tierce_ngu_idle_calculators": 10,
+   "verdict": "jeu faux : 10 niveaux",
+   "gravite": "haute",
+   "preuve": "Meme cas que 88 : +1.5% R3 Bars par niveau, max reel +15% au lieu de +1.5%. Le nom Barfs est un easter egg reel (page Secrets and Spoilers)."
+  },
+  {
+   "categorie": "wishes",
+   "id": 218,
+   "nom": "I wish I was stronger in Adventure mode VI",
+   "champ": "levels",
+   "jeu": 20,
+   "wiki": 20,
+   "tierce_ngu_idle_calculators": 10,
+   "verdict": "incertain : jeu = wiki ; la source tierce dit 10",
+   "gravite": "basse",
+   "preuve": "Le souhait 226 (Adventure VI part 2) a 10 niveaux ; la source tierce a peut-etre 218 a 10 apres un rebalancement."
+  },
+  {
+   "categorie": "wishes",
+   "id": 189,
+   "nom": "I wish I could beat up more bosses V",
+   "champ": "effet par niveau (statPct)",
+   "jeu": 0.01,
+   "wiki_texte": "1% more Attack/Defense per level",
+   "tierce_ngu_idle_calculators": 1,
+   "verdict": "jeu probablement faux : +100% Attack/Defense par niveau",
+   "gravite": "haute",
+   "preuve": "Source tierce : ATTACK 100 et DEFENSE 100, comme 191, 192 et 219 (tous +100%/niveau). Le texte wiki de 189 est la copie du texte du 188 (Adventure V, 1%). 20 niveaux : +2000% (source tierce) contre +20% (jeu)."
+  },
+  {
+   "categorie": "wishes",
+   "id": 202,
+   "nom": "I wish I was a sneak preview of Norman & Sébastien's next Idle game",
+   "champ": "nom",
+   "jeu": "I wish I was a sneak preview of Norman & Sébastien's next Idle game",
+   "wiki": "I wish I was a sneak preview of 4G's next Idle game",
+   "verdict": "ecart voulu (rebrand du studio)",
+   "gravite": "nulle"
+  },
+  {
+   "categorie": "wishes",
+   "id": null,
+   "nom": "Difficulte (Evil / Sadistic) des souhaits",
+   "champ": "difficulte",
+   "jeu": "aucune : tous les souhaits sont selectionnables (commentaire du catalogue : every wish 0-230 is Normal-accessible)",
+   "wiki": "les tableaux des pages Hacks, NGU, Energy, Magic, Resource 3, Questing, Blood Magic donnent Evil ou Sadistic pour chaque souhait cite",
+   "tierce_ngu_idle_calculators": "95 souhaits Evil, 136 Sadistic (champ mode)",
+   "verdict": "ecart de conception : 112/112 souhaits recoupes par les pages du wiki concordent avec la source tierce ; le jeu n impose aucune restriction de difficulte",
+   "gravite": "moyenne",
+   "ids_evil": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    80,
+    103,
+    105,
+    110,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    154,
+    155,
+    164,
+    169,
+    170,
+    190
+   ],
+   "ids_sadistic": [
+    79,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    104,
+    106,
+    107,
+    108,
+    109,
+    111,
+    112,
+    113,
+    114,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    165,
+    166,
+    167,
+    168,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223,
+    224,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230
+   ]
+  },
+  {
+   "categorie": "wishes",
+   "id": null,
+   "nom": "Echelle de temps de la formule des Wishes",
+   "champ": "temps par niveau",
+   "jeu": "secondes = diviseur x (niveau+1) / (produit des 6 termes)^0.17 / multiplicateurs, plancher 4 h (wishSecondsForLevelV1)",
+   "tierce_gear_optimizer": "la meme quantite est en TICKS (plancher = minutes x 60 x 50) donc secondes = ticks / 50",
+   "tierce_ngu_idle_calculators": "vitesse = produit^0.17 x bonus / (100/50) / (diviseur x (niveau+1)), plancher 4 h en secondes",
+   "wiki": "formule sans unite",
+   "verdict": "A TRANCHER PAR MESURE EN JEU : trois echelles incompatibles (jeu x1, gear-optimizer /50, calculators x2). Les Hacks du jeu, eux, divisent bien les ticks par 50.",
+   "gravite": "haute si gear-optimizer a raison (souhaits 50x trop lents jusqu au plancher de 4 h)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "augments",
+   "ecarts": [
+    "baseCost jeu=1e+40 tp=2e+38"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "wandoos",
+   "ecarts": [
+    "baseCost jeu=1e+40 tp=2e+38"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "respawn",
+   "ecarts": [
+    "baseCost jeu=1e+40 tp=2e+38"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "gold",
+   "ecarts": [
+    "baseCost jeu=1e+40 tp=2e+38"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "adventureAlpha",
+   "ecarts": [
+    "baseCost jeu=1e+41 tp=2e+39"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "powerAlpha",
+   "ecarts": [
+    "baseCost jeu=1e+42 tp=2e+40"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "dropChance",
+   "ecarts": [
+    "baseCost jeu=1e+43 tp=2e+41"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "magicNgu",
+   "ecarts": [
+    "baseCost jeu=1e+44 tp=2e+42"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "pp",
+   "ecarts": [
+    "baseCost jeu=1e+45 tp=2e+43"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "yggdrasil",
+   "ecarts": [
+    "baseCost jeu=1e+40 tp=2e+38"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "exp",
+   "ecarts": [
+    "baseCost jeu=1e+40 tp=2e+38"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "powerBeta",
+   "ecarts": [
+    "baseCost jeu=1e+41 tp=2e+39"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "number",
+   "ecarts": [
+    "baseCost jeu=1e+42 tp=2e+40"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "timeMachine",
+   "ecarts": [
+    "baseCost jeu=1e+43 tp=2e+41"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "energyNgu",
+   "ecarts": [
+    "baseCost jeu=1e+44 tp=2e+42"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "adventureBeta",
+   "ecarts": [
+    "baseCost jeu=1e+45 tp=2e+43"
+   ],
+   "verdict": "jeu = wiki ; la source tierce est 50x plus basse (2e38 au lieu de 1e40, etc.)",
+   "gravite": "basse (source tierce probablement perimee)"
+  },
+  {
+   "categorie": "ngu",
+   "tier": "sadistic",
+   "id": "wandoos",
+   "ecarts": [
+    "la source tierce donne 0.06 pour Energy Wandoos speed mais 0.1 pour Magic Wandoos speed ; le wiki et le jeu appliquent 0.06% aux deux"
+   ],
+   "verdict": "a verifier (probable coquille de la source tierce)",
+   "gravite": "basse"
+  }
+ ],
+ "non_branches": [
+  {
+   "id": 28,
+   "nom": "I wish I could dual wield weapons",
+   "levels": 10,
+   "effet": "2e arme, +5% des stats de la 2e arme par niveau",
+   "diviseur": 300000000000000000,
+   "note": "aucune trace de double arme (grep dual/offhand/secondWeapon nul)"
+  },
+  {
+   "id": 45,
+   "nom": "I wish I could dual wield weapons II",
+   "levels": 10,
+   "effet": "+5% d efficacite de la 2e arme par niveau",
+   "diviseur": 10000000000000000000,
+   "note": "idem 28"
+  },
+  {
+   "id": 59,
+   "nom": "I wish Blood MacGuffin α also didn't suck",
+   "levels": 10,
+   "effet": "+20% par niveau sur le resultat du sort Blood MacGuffin alpha",
+   "diviseur": 400000000000000000000,
+   "note": "idle-macguffins-v1.js ne lit que les souhaits 2, 24, 25"
+  },
+  {
+   "id": 60,
+   "nom": "I wish Fruit of MacGuffin α also didn't suck",
+   "levels": 10,
+   "effet": "+20% par niveau sur les bienfaits du fruit MacGuffin alpha",
+   "diviseur": 400000000000000000000,
+   "note": "idem"
+  },
+  {
+   "id": 44,
+   "nom": "I wish there was more cute Daycare Kitty Art",
+   "levels": 1,
+   "effet": "cosmetique (illustration du Daycare)",
+   "diviseur": 30000000000000000000,
+   "note": "sans effet mecanique connu"
+  },
+  {
+   "id": 203,
+   "nom": "ARE YOU SURE YOU WISH TO SHUT DOWN?",
+   "levels": 1,
+   "effet": "texte SHUT DOWN EVERYTHING ; effet non documente",
+   "diviseur": 1e+27,
+   "note": "aucun effet documente ni dans le wiki ni dans la source tierce"
+  },
+  {
+   "id": 4,
+   "nom": "I wish money Pit didn't suck",
+   "levels": 1,
+   "effet": "PARTIEL : le niveau Wandoos Money Pit passe a 100 (branche), mais les nouveaux paliers Money Pit a partir de e50 or (stats et seeds) n existent pas",
+   "diviseur": 6000000000000000,
+   "note": "moneyPitTierV48_ s arrete a 1e30"
+  }
+ ],
+ "statut_branchement_par_souhait": {
+  "0": [
+   "bonus catalogue"
+  ],
+  "1": [
+   "bonus catalogue"
+  ],
+  "2": [
+   "MacGuffin drop +1 (idle-macguffins-v1.js:339)"
+  ],
+  "3": [
+   "Titans XP/PP/QP (idle-adventure-v47.js:4806)"
+  ],
+  "4": [
+   "PARTIEL: Wandoos Money Pit niveau 100 (ngu-progression:1172) ; paliers Money Pit e50 absents"
+  ],
+  "5": [
+   "bonus catalogue"
+  ],
+  "6": [
+   "bonus catalogue"
+  ],
+  "7": [
+   "emplacements inventaire (regex)"
+  ],
+  "8": [
+   "MEGA BUFF cote client (public/soreal-idle-ui.js:16311)"
+  ],
+  "9": [
+   "bonus catalogue"
+  ],
+  "10": [
+   "bonus catalogue"
+  ],
+  "11": [
+   "bonus catalogue"
+  ],
+  "12": [
+   "bonus catalogue"
+  ],
+  "13": [
+   "bonus catalogue"
+  ],
+  "14": [
+   "bonus catalogue"
+  ],
+  "15": [
+   "bonus catalogue"
+  ],
+  "16": [
+   "bonus catalogue"
+  ],
+  "17": [
+   "bonus catalogue"
+  ],
+  "18": [
+   "bonus catalogue"
+  ],
+  "19": [
+   "bonus catalogue"
+  ],
+  "20": [
+   "temps mini rebirth (ngu-progression:6035)"
+  ],
+  "21": [
+   "bonus catalogue"
+  ],
+  "22": [
+   "emplacements inventaire (regex)"
+  ],
+  "23": [
+   "bonus catalogue"
+  ],
+  "24": [
+   "MacGuffin blood alpha slot 1 (macguffins:680)"
+  ],
+  "25": [
+   "MacGuffin fruit alpha slot 1 (macguffins:698)"
+  ],
+  "26": [
+   "portrait (portraits:80)"
+  ],
+  "27": [
+   "daycare 1%/niv (daycare:426, ngu-progression:7094)"
+  ],
+  "28": [],
+  "29": [
+   "bonus catalogue"
+  ],
+  "30": [
+   "bonus catalogue"
+  ],
+  "31": [
+   "bonus catalogue"
+  ],
+  "32": [
+   "bonus catalogue"
+  ],
+  "33": [
+   "bonus catalogue"
+  ],
+  "34": [
+   "bonus catalogue"
+  ],
+  "35": [
+   "bonus catalogue"
+  ],
+  "36": [
+   "bonus catalogue"
+  ],
+  "37": [
+   "bonus catalogue"
+  ],
+  "38": [
+   "bonus catalogue"
+  ],
+  "39": [
+   "bonus catalogue"
+  ],
+  "40": [
+   "QP Titan (adventure-v47 TITAN_QP_V1)"
+  ],
+  "41": [
+   "QP Titan"
+  ],
+  "42": [
+   "bonus catalogue"
+  ],
+  "43": [
+   "bonus catalogue"
+  ],
+  "44": [],
+  "45": [],
+  "46": [
+   "respawn -1%/niv (ngu-progression:4932)"
+  ],
+  "47": [
+   "bonus catalogue"
+  ],
+  "48": [
+   "bonus catalogue"
+  ],
+  "49": [
+   "bonus catalogue"
+  ],
+  "50": [
+   "bonus catalogue"
+  ],
+  "51": [
+   "bonus catalogue"
+  ],
+  "52": [
+   "bonus catalogue"
+  ],
+  "53": [
+   "bonus catalogue"
+  ],
+  "54": [
+   "bonus catalogue"
+  ],
+  "55": [
+   "bonus catalogue"
+  ],
+  "56": [
+   "bonus catalogue"
+  ],
+  "57": [
+   "emplacements inventaire (regex)"
+  ],
+  "58": [
+   "OH SHIT cote client (16312)"
+  ],
+  "59": [],
+  "60": [],
+  "61": [
+   "EXP global 0.5%/niv (ngu-progression:4758)"
+  ],
+  "62": [
+   "bonus catalogue"
+  ],
+  "63": [
+   "bonus catalogue"
+  ],
+  "64": [
+   "bonus catalogue"
+  ],
+  "65": [
+   "bonus catalogue"
+  ],
+  "66": [
+   "bonus catalogue"
+  ],
+  "67": [
+   "bonus catalogue"
+  ],
+  "68": [
+   "bonus catalogue"
+  ],
+  "69": [
+   "bonus catalogue"
+  ],
+  "70": [
+   "bonus catalogue"
+  ],
+  "71": [
+   "bonus catalogue"
+  ],
+  "72": [
+   "bonus catalogue"
+  ],
+  "73": [
+   "QP Titan"
+  ],
+  "74": [
+   "QP Titan"
+  ],
+  "75": [
+   "portrait"
+  ],
+  "76": [
+   "milestone hack QP (ngu-progression:4296)"
+  ],
+  "77": [
+   "milestone hack Number (4297)"
+  ],
+  "78": [
+   "milestone hack HackHack (4298)"
+  ],
+  "79": [
+   "ITOPOD PP +50/niv (3970)"
+  ],
+  "80": [
+   "bonus catalogue"
+  ],
+  "81": [
+   "bonus catalogue"
+  ],
+  "82": [
+   "bonus catalogue"
+  ],
+  "83": [
+   "bonus catalogue"
+  ],
+  "84": [
+   "bonus catalogue"
+  ],
+  "85": [
+   "bonus catalogue"
+  ],
+  "86": [
+   "bonus catalogue"
+  ],
+  "87": [
+   "bonus catalogue"
+  ],
+  "88": [
+   "bonus catalogue"
+  ],
+  "89": [
+   "bonus catalogue"
+  ],
+  "90": [
+   "bonus catalogue"
+  ],
+  "91": [
+   "bonus catalogue"
+  ],
+  "92": [
+   "bonus catalogue"
+  ],
+  "93": [
+   "bonus catalogue"
+  ],
+  "94": [
+   "bonus catalogue"
+  ],
+  "95": [
+   "bonus catalogue"
+  ],
+  "96": [
+   "bonus catalogue"
+  ],
+  "97": [
+   "bonus catalogue"
+  ],
+  "98": [
+   "bonus catalogue"
+  ],
+  "99": [
+   "bonus catalogue"
+  ],
+  "100": [
+   "QP Titan"
+  ],
+  "101": [
+   "bonus catalogue"
+  ],
+  "102": [
+   "bonus catalogue"
+  ],
+  "103": [
+   "bonus catalogue"
+  ],
+  "104": [
+   "bonus catalogue"
+  ],
+  "105": [
+   "bonus catalogue"
+  ],
+  "106": [
+   "bonus catalogue"
+  ],
+  "107": [
+   "boss mult Sadistic (2268)"
+  ],
+  "108": [
+   "boss mult Sadistic (2268)"
+  ],
+  "109": [
+   "slot accessoire (1983)"
+  ],
+  "110": [
+   "cube boost (6278, 7020)"
+  ],
+  "111": [
+   "vitesse NGU energie (4372)"
+  ],
+  "112": [
+   "idem"
+  ],
+  "113": [
+   "vitesse NGU magie (4372)"
+  ],
+  "114": [
+   "idem"
+  ],
+  "115": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "116": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "117": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "118": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "119": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "120": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "121": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "122": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "123": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "124": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "125": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "126": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "127": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "128": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "129": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "130": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "131": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "132": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "133": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "134": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "135": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "136": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "137": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "138": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "139": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "140": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "141": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "142": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "143": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "144": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "145": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "146": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "147": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "148": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "149": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "150": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "151": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "152": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "153": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "154": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "155": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "156": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "157": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "158": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "159": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "160": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "161": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "162": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "163": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "164": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "165": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "166": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "167": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "168": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "169": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "170": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "171": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "172": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "173": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "174": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "175": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "176": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "177": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "178": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "179": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "180": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "181": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "182": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "183": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "184": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "185": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "186": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "187": [
+   "QP Titan"
+  ],
+  "188": [
+   "bonus catalogue"
+  ],
+  "189": [
+   "bonus catalogue"
+  ],
+  "190": [
+   "AT full speed (3133)"
+  ],
+  "191": [
+   "bonus catalogue"
+  ],
+  "192": [
+   "bonus catalogue"
+  ],
+  "193": [
+   "bonus catalogue"
+  ],
+  "194": [
+   "bonus catalogue"
+  ],
+  "195": [
+   "bonus catalogue"
+  ],
+  "196": [
+   "bonus catalogue"
+  ],
+  "197": [
+   "bonus catalogue"
+  ],
+  "198": [
+   "bonus catalogue"
+  ],
+  "199": [
+   "bonus catalogue"
+  ],
+  "200": [
+   "bonus catalogue"
+  ],
+  "201": [
+   "bonus catalogue"
+  ],
+  "202": [
+   "portrait"
+  ],
+  "203": [],
+  "204": [
+   "QP Titan"
+  ],
+  "205": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "206": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "207": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "208": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "209": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "210": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "211": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "212": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "213": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "214": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "215": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "216": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "217": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "218": [
+   "bonus catalogue"
+  ],
+  "219": [
+   "bonus catalogue"
+  ],
+  "220": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "221": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "222": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "223": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "224": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "225": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "226": [
+   "bonus catalogue"
+  ],
+  "227": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "228": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "229": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ],
+  "230": [
+   "cartes (IDLE_CARDS_WISH_EFFECTS_V1)"
+  ]
+ },
+ "hacks": {
+  "concordance": "15/15 entrees identiques (effet par niveau, bonus de milestone, niveaux par milestone, diviseur, niveau max) entre le jeu, la page Hacks et la source tierce",
+  "ecarts": [],
+  "noms": "noms differents mais equivalents (Adventure Hack / Adventure Stats, QP Hack / QP Gain, Blood Hack / Blood Gain)",
+  "branchement": "les 15 effets sont lus (hackFxV1) ; reducteurs de milestone : perks 113/114/115/217/218/219, quirks 57/58/59/60/174/175, souhaits 76/77/78 conformes a la source tierce"
+ },
+ "advancedTraining": {
+  "concordance": "5/5 pistes : Power/Toughness = niveau^0.4 x 10 %, Block = (niveau+50)/(niveau+100), Wandoos Energy/Magic Dump = +1% par niveau, temps de base 10000 s (20000 s pour Wandoos), racine carree de la Puissance, 50 niveaux/s max",
+  "ecarts": [],
+  "note": "la source tierce ajoute que Power AT augmente aussi Max HP et Toughness AT la Regen : c est le cas dans le jeu (hp x multPower, regen x multToughness)."
+ },
+ "augmentations": {
+  "concordance": "13 lignes sur 14 (7 augments + 7 upgrades) : multiplicateur de base, or de base, secondes de base, boss de deblocage, exposant identiques au wiki ; or et energie recoupes par les formules de gear-optimizer",
+  "ecarts": [
+   {
+    "categorie": "augmentations",
+    "id": "quadLaser",
+    "nom": "Quadruple Sided Laser Sword (upgrade de laserSword)",
+    "champ": "baseGold",
+    "jeu": 156250000000000000000,
+    "wiki": "156.25 Sext = 1.5625e23 (Sext = sextillion = 1e21)",
+    "tierce_gear_optimizer": 1.5625e+23,
+    "verdict": "jeu faux, facteur 1000 (le test idle-wiki-table-augmentations.test.mjs ligne 18 fige aussi la mauvaise valeur)",
+    "gravite": "moyenne"
+   },
+   {
+    "categorie": "augmentations",
+    "id": "laserSwordChallenge",
+    "champ": "pas de l exposant par rang",
+    "jeu": "0.1 + 0.01 x completions (laserSwordExponentStep)",
+    "tierce_gear_optimizer": "0.1 + 0.05 des la 1re completion + 0.05 a 20 completions + 0.01 x completions",
+    "verdict": "a verifier : le jeu n a pas les deux paliers +0.05 ; pour un Laser Sword (rang 6) l exposant serait 1.96 au lieu de 1.66 des la 1re completion",
+    "gravite": "moyenne"
+   },
+   {
+    "categorie": "augmentations",
+    "id": "sadistic",
+    "champ": "diviseur de vitesse sadique",
+    "jeu": 2.5e+27,
+    "wiki": 2.5e+27,
+    "tierce_gear_optimizer": "2.083e27 (5e34/1.2, HACK non explique)",
+    "verdict": "jeu = wiki ; l ecart de 20% de gear-optimizer correspond sans doute au perk Welcome to Sadistic (+20% Aug speed), a verifier qu il est bien applique",
+    "gravite": "basse"
+   }
+  ]
+ }
+}

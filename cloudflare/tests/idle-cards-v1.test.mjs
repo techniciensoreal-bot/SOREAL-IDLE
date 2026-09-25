@@ -41,7 +41,7 @@ function seeded(seed = 1) {
 }
 const ctx = { bosses: 300 };
 function base() {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   s.systems.cards.unlocked = true;
   s.systems.perks.data.levels = s.systems.perks.data.levels || {};
   s.systems.quirks.data.levels = s.systems.quirks.data.levels || {};

@@ -10,7 +10,7 @@ const ctx = { bosses: 100 };
 const near = (a, b, m) => assert.ok(Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(b)), `${m} : ${a} != ${b}`);
 
 function pret(fruit, tier, mutate) {
-  const s = normalizeIdleNguState({}, ctx, 0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
   s.systems.yggdrasil.unlocked = true;
   const f = s.systems.yggdrasil.data.fruits[fruit];
   f.tier = tier;
@@ -31,9 +31,9 @@ const utiliser = (fruit, tier, mode = "eat", mutate) =>
     [["energy", 5e9, 7, 30000], ["magic", 20e9, 30, 50000], ["magic", 40e9, 7, 25000]],
     "Power δ 5 B Energy / 7 / T² x 30 000 ; Watermelon 20 B Magic / 30 / T² x 50 000 ; Quirks 40 B Magic / 7 / T² x 25 000"
   );
-  assert.equal(IDLE_NGU_YGG_FRUITS.length, 15, "12 fruits existants + 3 (les fruits de Mayo restent exclus : coût ambigu)");
-  assert.ok(!IDLE_NGU_YGG_FRUITS.some((f) => /mayo/i.test(f.id)));
-  const s = normalizeIdleNguState({}, ctx, 0);
+  assert.equal(IDLE_NGU_YGG_FRUITS.length, 21, "15 fruits + les 6 fruits de Mayo (2026-09-25 : wiki + source tierce)");
+  assert.equal(IDLE_NGU_YGG_FRUITS.filter((f) => /mayo/i.test(f.id)).length, 6);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
   for (const id of ["powerDelta", "watermelon", "quirks"]) assert.equal(s.systems.yggdrasil.data.fruits[id].tier, 0, `${id} présent dans une sauvegarde neuve`);
 }
 
@@ -41,8 +41,8 @@ const utiliser = (fruit, tier, mode = "eat", mutate) =>
 {
   const r = utiliser("powerDelta", 4);
   assert.equal(r.state.systems.yggdrasil.data.permanent.powerDeltaValue, 56);
-  const base = normalizeIdleNguState({}, ctx, 0);
-  const avec = normalizeIdleNguState({}, ctx, 0);
+  const base = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
+  const avec = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
   avec.systems.yggdrasil.data.permanent.powerDeltaValue = 56;
   near(idleNguBonuses(avec).attackMultiplier / idleNguBonuses(base).attackMultiplier, 1 + Math.pow(56, 1.3) * 1e-6, "Power δ");
 }
@@ -69,7 +69,7 @@ const utiliser = (fruit, tier, mode = "eat", mutate) =>
 
 // ---------- Fruit of Numbers : « Completion 5 Reward(s) : A new fruit » (Troll Challenge Normal) ----------
 {
-  const s = normalizeIdleNguState({}, ctx, 0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
   s.systems.yggdrasil.unlocked = true;
   s.currencies.seeds = 1e6;
   assert.throws(() => applyIdleNguAction(s, { action: "upgradeYggFruit", fruit: "numbers" }, ctx, 1), /FRUIT_NON_DEBLOQUE/);
@@ -81,7 +81,7 @@ const utiliser = (fruit, tier, mode = "eat", mutate) =>
 
 // ---------- Paliers : 10 sans Troll 3, 24 avec ; coût T² x base (Watermelon tier 1 = 50 000) ----------
 {
-  const s = normalizeIdleNguState({}, ctx, 0);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
   s.systems.yggdrasil.unlocked = true;
   s.currencies.seeds = 50000;
   const r = applyIdleNguAction(s, { action: "upgradeYggFruit", fruit: "watermelon" }, ctx, 1);

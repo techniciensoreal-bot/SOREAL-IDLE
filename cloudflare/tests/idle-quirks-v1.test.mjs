@@ -92,7 +92,7 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
 
 // --- Real purchase flow: buyQuirk action, real currency deduction, real per-quirk level tracking ---
 {
-  const state = normalizeIdleNguState({}, {}, 1_000_000);
+  const state = normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000);
   state.systems.quirks.unlocked = true;
   state.currencies.qp = 200;
 
@@ -119,7 +119,7 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
     "An unknown quirk id must be rejected explicitly, never silently ignored."
   );
 
-  const poor = normalizeIdleNguState({}, {}, 1_000_000);
+  const poor = normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000);
   poor.systems.quirks.unlocked = true;
   poor.currencies.qp = 0;
   assert.throws(
@@ -130,7 +130,7 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
 
 // --- idleNguBonuses actually folds purchased quirks into the shared aggregator ---
 {
-  const state = normalizeIdleNguState({}, {}, 1_000_000);
+  const state = normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000);
   state.systems.quirks.unlocked = true;
   state.currencies.qp = 1000;
   const withQuirk0 = applyIdleNguAction(state, { action: "buyQuirk", quirkId: 0 }, {}, 1_000_000).state;
@@ -138,13 +138,13 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
   assert.ok(Math.abs(bonuses.energyPowerMultiplier - 1.10) < 1e-9, "Purchased quirk bonuses must reach idleNguBonuses(), the single aggregator every other system already reads from.");
   assert.equal(bonuses.quirkBonuses.energyPowerMultiplier, bonuses.energyPowerMultiplier, "The raw quirkBonuses breakdown is also exposed, matching the existing perkBonuses pattern.");
 
-  const baseline = idleNguBonuses(normalizeIdleNguState({}, {}, 1_000_000));
+  const baseline = idleNguBonuses(normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000));
   assert.equal(baseline.energyPowerMultiplier, 1, "With no quirks or perks purchased, the multiplier must be exactly 1 (no regression for existing saves).");
 }
 
 // --- Stat-multiplier quirks actually move attackMultiplier ---
 {
-  const state = normalizeIdleNguState({}, {}, 1_000_000);
+  const state = normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000);
   state.systems.quirks.unlocked = true;
   state.currencies.qp = 1000;
   const before = idleNguBonuses(state);
@@ -163,7 +163,7 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
 // QUIRK_INTROUVABLE). Verrouille l'exposition, même gabarit que
 // diggerDefinitions (déjà exposé et déjà consommé par le client).
 {
-  const state = normalizeIdleNguState({}, {}, 1_000_000);
+  const state = normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000);
   const snapshot = idleNguSnapshot(state, {}, 1_000_000);
   assert.ok(
     Array.isArray(snapshot.perkDefinitions) && snapshot.perkDefinitions.length === IDLE_PERKS_CATALOG_V1.length,

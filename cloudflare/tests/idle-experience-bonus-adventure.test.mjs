@@ -24,7 +24,7 @@ function tuerT1(state, t) {
   } finally { Math.random = old; }
 }
 function neuf(mutate) {
-  const s = normalizeIdleNguState({}, ctx, T);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T);
   mutate?.(s);
   return s;
 }

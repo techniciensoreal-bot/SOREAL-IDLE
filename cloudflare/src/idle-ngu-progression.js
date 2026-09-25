@@ -95,6 +95,16 @@ import {
   macguffinSnapshotV1,
   macguffinPermanentPctV1
 } from "./idle-macguffins-v1.js";
+/* Verrous de difficulté des Perks et Quirks (wiki : « Evil only » / « Sadistic only »). */
+import {
+  IDLE_PERK_DIFFICULTE_V1,
+  IDLE_QUIRK_DIFFICULTE_V1,
+  IDLE_WISH_DIFFICULTE_V1,
+  idleDifficulteSuffisanteV1,
+  idlePerkNiveauxV1,
+  idleQuirkNiveauxV1,
+  idleWishTracksActifsV1
+} from "./idle-difficulty-gates-v1.js";
 /* Player Portraits (2026-09-24) et Special Prize : idle-portraits-v1.js. */
 import {
   IDLE_SPECIAL_PRIZE_AP_V1,
@@ -112,6 +122,7 @@ import {
   advanceIdleCardsV1,
   idleCardsActionV1,
   idleCardsGrantChallengeMayoV1,
+  idleCardsMayoFruitProgressV1,
   idleCardsSnapshotV1
 } from "./idle-cards-v1.js";
 import {
@@ -152,6 +163,10 @@ import {
 import {
   idleYggUsePoopV1,
   idleYggAutoActivateExpShopEntriesV1,
+  IDLE_YGG_MAYO_FRUITS_V1,
+  IDLE_YGG_MAYO_ACTIVATION_COST_V1,
+  idleYggIsMayoFruitV1,
+  idleYggMayoFruitBaseV1,
   idleYggActivationCostV1,
   idleYggAutoActivateV1,
   idleYggTierSecondsV1,
@@ -649,7 +664,7 @@ export const IDLE_NGU_AUGMENTATIONS = Object.freeze([
       id: "quadLaser",
       name: "Quadruple Sided Laser Sword",
       unlockBoss: 68,
-      baseGold: 1.5625e20,
+      baseGold: 1.5625e23, /* wiki Augmentations : « 156.25 Sext » (sextillion = 1e21) ; corrigé le 2026-09-25 (1,5625e20 était x1000 trop bas) */
       baseSeconds: 5308416000000
     }
   }
@@ -695,7 +710,9 @@ export const IDLE_NGU_YGG_FRUITS = Object.freeze([
   {id:"powerDelta",name:"Fruit of Power δ",resource:"energy",activationCost:5000000000,baseSeeds:7,tierCost:30000,effect:"powerDelta"},
   {id:"watermelon",name:"Watermelon",resource:"magic",activationCost:20000000000,baseSeeds:30,tierCost:50000,effect:"seeds"},
   {id:"macguffinBeta",name:"Fruit of MacGuffin β",resource:"energy",activationCost:100000000000,baseSeeds:8,tierCost:100000,effect:"macguffinBeta"},
-  {id:"quirks",name:"Fruit of Quirks",resource:"magic",activationCost:40000000000,baseSeeds:7,tierCost:25000,effect:"quirks",eatSeedUnit:"linear"}
+  {id:"quirks",name:"Fruit of Quirks",resource:"magic",activationCost:40000000000,baseSeeds:7,tierCost:25000,effect:"quirks",eatSeedUnit:"linear"},
+  /* Fruits de Mayo (2026-09-25) : 10 Qa Energy ou Magic / 10 graines / T² x 250 000 ; effet = progression du générateur de mayo associé. */
+  ...IDLE_YGG_MAYO_FRUITS_V1.map(m=>({id:m.id,name:m.name,resource:m.resource,activationCost:IDLE_YGG_MAYO_ACTIVATION_COST_V1,baseSeeds:10,tierCost:250000,effect:"mayo",mayo:m.mayo}))
 ]);
 
 export const IDLE_NGU_DIGGERS = Object.freeze([
@@ -1164,8 +1181,8 @@ function advanceWandoos(state, seconds, context, now) {
   const os = IDLE_WANDOOS_OS_V1[osId];
   const requirement = os.requirement[state.difficulty] || os.requirement.normal;
 
-  const perkBonuses = perkBonusesV1(state.systems.perks?.data?.levels);
-  const quirkBonuses = quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const perkBonuses = perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirkBonuses = quirkBonusesV1(idleQuirkNiveauxV1(state));
   const totalOsLevel = Math.min(400,
     Math.max(0, perkBonuses.wandoosOsLevelBonus) +
     /* Souhait 4 « I wish money Pit didn't suck » : « Also maxes your money pit Wandoos level » (page Wishes / Money Pit : 100). */
@@ -1968,8 +1985,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    * -- calculés mais jamais lus, les capacités étant des constantes.
    */
   {
-    const perks = perkBonusesV1(state.systems.perks?.data?.levels);
-    const wishes = wishBonusesV1(state.systems.wishes?.data?.tracks);
+    const perks = perkBonusesV1(idlePerkNiveauxV1(state));
+    const wishes = wishBonusesV1(idleWishTracksActifsV1(state));
     /*
      * 2026-09-24 (seconde passe) : perk 25 « The Loot Goblin's Blessing » (lootGoblinChance) était agrégé
      * mais jamais lu. Page Inventory, Higher Level Drops : « a 1% chance that any item dropped at lvl 1 or
@@ -1979,8 +1996,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.bonusDropLevelChance = Math.min(1, perks.lootLevelChance + perks.lootGoblinChance);
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     state.adventure.bonusSlots = {
-      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
-      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
+      inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
+      accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
     };
   }
 
@@ -2113,7 +2130,7 @@ function trackLeaderboardStatsV1(state) {
 function applyYggQuickActivationV1(state, now) {
   const ygg = state.systems.yggdrasil?.data;
   if (!ygg) return;
-  const levels = state.systems.perks?.data?.levels || {};
+  const levels = idlePerkNiveauxV1(state);
   const runSeconds = Math.max(0, (nowMs(now) - Math.max(0, num(state.runStartedAt, 0))) / 1000);
   if (runSeconds < 1800) return;
   if (num(levels[16], 0) >= 1) ygg.runPowerBetaActive = true;
@@ -2263,8 +2280,8 @@ function refreshRebirthState(state, context, now) {
     /* Page Hacks : « Hacks do not affect Normal mode » (hackFxV1 renvoie 1 en Normal). */
     hacksNumberBonus: hackFxV1(state).number,
     sadisticBossMultiplierBonus:
-      perkBonusesV1(state.systems.perks?.data?.levels).sadisticBossMultiplierBonus +
-      quirkBonusesV1(state.systems.quirks?.data?.levels).sadisticBossMultiplierBonus +
+      perkBonusesV1(idlePerkNiveauxV1(state)).sadisticBossMultiplierBonus +
+      quirkBonusesV1(idleQuirkNiveauxV1(state)).sadisticBossMultiplierBonus +
       0.001 * (wishLevelV1(state, 107) + wishLevelV1(state, 108))
   });
   rb.nextNumber = preview.nextNumber;
@@ -2552,7 +2569,7 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false) {
    * le niveau visé n, pour l'Augment comme pour son Upgrade. Il était constant.
    */
   const targetLevel = Math.max(1, int(upgrade ? pair.upgradeLevel : pair.level, 0) + 1);
-  return targetLevel * base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(state.systems.perks?.data?.levels).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
+  return targetLevel * base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(idlePerkNiveauxV1(state)).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
 }
 
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
@@ -2663,7 +2680,7 @@ function wishSlotBreakdownV1(state) {
     base: 1,
     trollEvil: int(state.challenge?.completionsTier?.difficile?.troll, 0) >= 7 ? 1 : 0,
     pinkHeart: idleHeartsPinkCompleteV1(state) ? 1 : 0,
-    quirk: Math.min(1, Math.max(0, int(quirkBonusesV1(state.systems.quirks?.data?.levels).wishSlotBonus, 0)))
+    quirk: Math.min(1, Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).wishSlotBonus, 0)))
   };
 }
 function wishSlotCountV1(state) {
@@ -2708,6 +2725,7 @@ function setWishSlotV1(state, slot, wishId) {
   if (id) {
     const def = (IDLE_NGU_TRACKS.wishes || []).find(x => x.id === id);
     if (!def) throw new Error("SOUHAIT_INVALIDE");
+    if (!idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, Number(id), state.difficulty)) throw new Error("DIFFICULTE_REQUISE");
     if (Math.max(0, int(s.data.tracks?.[id]?.level, 0)) >= Math.max(0, int(def.levels, 0))) throw new Error("SOUHAIT_TERMINE");
     if (s.data.slots.some((x, i) => i !== idx && x.wish === id)) throw new Error("SOUHAIT_DEJA_DANS_UN_SLOT");
   }
@@ -2829,7 +2847,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
     diggerSpeed *
     beardSpeedFromItems *
     beardSpeedFromSets *
-    quirkBonusesV1(state.systems.quirks?.data?.levels).beardSpeedMultiplier /
+    quirkBonusesV1(idleQuirkNiveauxV1(state)).beardSpeedMultiplier /
     (Math.max(1, num(trackDef.speedDivider, 1e8)) * Math.max(1, sameResourceCount));
 
   if (baseRate <= 0) return;
@@ -2994,8 +3012,8 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
 function wishSpeedParamsV1(state, system) {
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
   const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
-  const perkWish = perkBonusesV1(state.systems.perks?.data?.levels);
-  const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(state.systems.quirks?.data?.levels).wishMinTimeReductionSeconds);
+  const perkWish = perkBonusesV1(idlePerkNiveauxV1(state));
+  const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(idleQuirkNiveauxV1(state)).wishMinTimeReductionSeconds);
   const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish
     * idleCardsMultiplierV1(state, "wishes") /* Cards WISHES */);
   return { wishMinSeconds, speedMultiplier };
@@ -3093,7 +3111,7 @@ function advanceTrackSystem(state, def, seconds) {
       if (!slot || !slot.wish) continue;
       const wishDef = tracks.find(x => x.id === slot.wish);
       const wishState = s.data.tracks[slot.wish];
-      if (wishDef && wishState) advanceWishTrack(state, s, wishDef, wishState, seconds, slot.allocation, params);
+      if (wishDef && wishState && idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, Number(slot.wish), state.difficulty)) advanceWishTrack(state, s, wishDef, wishState, seconds, slot.allocation, params);
     }
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     return;
@@ -3443,7 +3461,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.completions += completions;
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
-  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(state.systems.quirks?.data?.levels).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
+  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
   challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
@@ -3520,7 +3538,7 @@ function castBloodSpell(state, spell, now = 0) {
   if (spell === "ironPill") {
     /* Wiki Blood Magic : Power/Toughness += Blood^0.25 (HP x3, regen x0,03), permanent -- gain ABSOLU, pas un pourcentage. */
     if (now > 0 && now < num(spells.ironPillReadyAt, 0)) throw new Error("SORT_EN_RECHARGE");
-    const gain = Math.pow(blood, 0.25) * perkBonusesV1(state.systems.perks?.data?.levels).ironPillMultiplier;
+    const gain = Math.pow(blood, 0.25) * perkBonusesV1(idlePerkNiveauxV1(state)).ironPillMultiplier;
     spells.ironPill += gain;
     if (now > 0) spells.ironPillReadyAt = now + (IRON_PILL_COOLDOWN_MS_V1[state.difficulty] || IRON_PILL_COOLDOWN_MS_V1.normal);
     state.currencies.blood = 0;
@@ -3641,8 +3659,8 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
   if(!f.active||f.growthHours<1)throw new Error("FRUIT_PAS_PRET");
   const grownTier=Math.max(1,Math.min(f.tier,Math.floor(f.growthHours)));
   const harvest=mode==="harvest";
-  const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
-  const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const perkBonuses=perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirkBonuses=quirkBonusesV1(idleQuirkNiveauxV1(state));
   const gearYgg=gearSpecialsV1(state);
   /* Seed Gains : (1 + Equip_SeedGain) x NGU_Ygg x Quirk_Seeds x Perk_Seeds (jamais Yggdrasil Yield). */
   const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil*gearPctV1(gearYgg,"seedGainPct");
@@ -3723,6 +3741,12 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
       /* Fruit of Power δ : ⌈⌈T^1.5⌉ x 7 x Poop x NGU_Ygg x Quirk_Ygg x Equip_YggYield x FirstHarvest⌉ niveaux permanents. */
       s.data.permanent.powerDeltaValue=Math.max(0,num(s.data.permanent.powerDeltaValue,0))+Math.ceil(factor*7*yieldFruit);
       result.powerDelta=s.data.permanent.powerDeltaValue;
+    }else if(def.effect==="mayo"){
+      /* Fruit de Mayo : T^1.1 x 0.025 x Poop x MayoSpeed (Infuser inclus) au générateur associé ; ni FirstHarvest ni NGU/Quirk Yggdrasil. */
+      const fxMayo=idleCardsMayoFruitProgressV1(state,def.mayo,idleYggMayoFruitBaseV1(grownTier,poop?poop.factor:1));
+      result.mayo=def.mayo;
+      result.mayoProgress=fxMayo.progress;
+      result.mayoGained=fxMayo.whole;
     }else if(def.effect==="quirks"){
       /* Fruit of Quirks : ⌈T x 3 x QPRewardModifier x Poop x Quirk_Ygg x Equip_YggYield x FirstHarvest⌉ (pas de NGU Yggdrasil). */
       const qp=idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
@@ -3816,7 +3840,7 @@ function availableDiggerSlots(state){
   const extra=Math.max(0,int(state.adventure?.setRewards?.diggerSlot,0));
   const challengeExtra=challengePermanentBonuses(state).diggerSlotBonus;
   /* Perks « A Digger Slot! » et boutique Sellout (6 slots) : calculés mais jamais lus jusqu'ici. */
-  const perkExtra=Math.max(0,int(perkBonusesV1(state.systems.perks?.data?.levels).diggerSlotBonus,0));
+  const perkExtra=Math.max(0,int(perkBonusesV1(idlePerkNiveauxV1(state)).diggerSlotBonus,0));
   const shopExtra=Math.max(0,Math.min(6,int(state.selloutShop?.purchases?.diggerSlots,0)));
   const expExtra=expShopPurchasedV1(state,"diggerSlot");
   return Math.max(1,Math.min(12,int(state.systems.diggers?.data?.slots,1)+extra+challengeExtra+perkExtra+shopExtra+expExtra));
@@ -3965,8 +3989,8 @@ function advanceTowerV1(state, seconds, context) {
   const auto = start === null || end === null;
   d.optimalFloor = optimal;
 
-  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
-  const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const perks = perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirks = quirkBonusesV1(idleQuirkNiveauxV1(state));
   const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79);
   /* Même PPBonus que le Fruit of Rage (sets multiplicatifs, NGU PP, Hacks PP, Diggers PP, Perks, Cards PP). */
   const ppMultiplier = Math.max(0, num(bonuses.ppMultiplier, 1));
@@ -4291,8 +4315,8 @@ function hackFxV1(state) {
   for (const def of IDLE_NGU_TRACKS.hacks || []) out[def.id] = 1;
   if (state.difficulty === "normal") return out;
   const tracks = state.systems.hacks?.data?.tracks || {};
-  const reduction = quirkBonusesV1(state.systems.quirks?.data?.levels).hackMilestoneReduction || {};
-  const perkReduction = Object.assign({}, perkBonusesV1(state.systems.perks?.data?.levels).hackMilestoneReduction || {});
+  const reduction = quirkBonusesV1(idleQuirkNiveauxV1(state)).hackMilestoneReduction || {};
+  const perkReduction = Object.assign({}, perkBonusesV1(idlePerkNiveauxV1(state)).hackMilestoneReduction || {});
   perkReduction.qpGain = (perkReduction.qpGain || 0) + wishLevelV1(state, 76);
   perkReduction.number = (perkReduction.number || 0) + wishLevelV1(state, 77);
   perkReduction.hackHack = (perkReduction.hackHack || 0) + wishLevelV1(state, 78);
@@ -4352,7 +4376,7 @@ function heartApMultiplierV1(state) {
 function apBonusMultiplierV1(state) {
   return idleAchievementsApMultiplierV1(state) *
     heartApMultiplierV1(state) *
-    perkBonusesV1(state.systems.perks?.data?.levels).apEarningsMultiplier;
+    perkBonusesV1(idlePerkNiveauxV1(state)).apEarningsMultiplier;
 }
 /* AP versée = arrondi inférieur de base x bonus ; la marge 1e-9 absorbe l'erreur binaire (50 000 x 1,023 = 51 150, pas 51 149). */
 function apWithBonusV1(state, base) {
@@ -4362,8 +4386,8 @@ function apWithBonusV1(state, base) {
 
 function nguSpeedMultiplierV1(state, resource) {
   const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
-  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
-  const quirks = quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const perks = perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirks = quirkBonusesV1(idleQuirkNiveauxV1(state));
   const fx = nguFxV1(state);
   const diggers = diggerBonuses(state);
   return Math.max(0,
@@ -4387,7 +4411,7 @@ function grantNguLevelsV1(state, tier, id, gained) {
   const data = state.systems.ngu.data;
   const n = data.ngus[tier][id];
   n.level = Math.min(IDLE_NGU_MAX_LEVEL_V1, n.level + Math.max(0, gained));
-  const quirkLevels = state.systems.quirks?.data?.levels || {};
+  const quirkLevels = idleQuirkNiveauxV1(state);
   if (tier === "sadistic" && num(quirkLevels[89], 0) > 0) grantNguLevelsV1(state, "evil", id, gained);
   else if (tier === "evil" && num(quirkLevels[14], 0) > 0) grantNguLevelsV1(state, "normal", id, gained);
 }
@@ -4538,7 +4562,7 @@ function convertActiveBeardOnRebirth(state, runSeconds) {
   if (!s?.unlocked || !s.data?.tracks) return { track: "", gained: 0, timeFactor: 0 };
   const ids = beardActiveIdsV1(state);
   const id = ids[0] || "";
-  const timeFactor = beardRebirthTimeFactor(runSeconds, perkBonusesV1(state.systems.perks?.data?.levels).beardTrimSpeedLevel);
+  const timeFactor = beardRebirthTimeFactor(runSeconds, perkBonusesV1(idlePerkNiveauxV1(state)).beardTrimSpeedLevel);
   let gained = 0;
   for (const activeId of ids) {
     const t = s.data.tracks[activeId];
@@ -4600,9 +4624,9 @@ function idleNguBonusesSansMacguffinV1(state) {
   const beardWandoos = beardBonusMultiplier(state, "wandoos");
   const beardGold = beardBonusMultiplier(state, "gold");
   const challengeBonuses=challengePermanentBonuses(state);
-  const perkBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
-  const quirkBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
-  const wishBonuses=wishBonusesV1(state.systems.wishes?.data?.tracks);
+  const perkBonuses=perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirkBonuses=quirkBonusesV1(idleQuirkNiveauxV1(state));
+  const wishBonuses=wishBonusesV1(idleWishTracksActifsV1(state));
   /*
    * 2026-09-24 (audit de composition, page « NUMBER ») : « The NUMBER for the
    * next rebirth will be the product of the following factors » -- les bonus
@@ -4929,7 +4953,7 @@ function respawnReductionV1(state, nguFx, adventureGear, perkBonuses) {
   const cap = state.difficulty === "extreme" ? 78 : state.difficulty === "difficile" ? 58 : 48;
   const itemsPct = Math.min(cap, Math.max(0, num(adventureGear.specials?.respawnReductionPct, 0) - Math.max(0, num(state.adventure?.setRewards?.respawn, 0)) * 100));
   const clockSet = 1 - Math.max(0, Math.min(1, num(state.adventure?.setRewards?.respawn, 0)));
-  const wishLevel = Math.max(0, Math.min(10, int(state.systems.wishes?.data?.tracks?.["46"]?.level, 0)));
+  const wishLevel = Math.max(0, Math.min(10, int(idleWishTracksActifsV1(state)["46"]?.level, 0)));
   const remaining = (1 - nguFx.respawnReduction) * clockSet * perkBonuses.respawnRemaining * (1 - wishLevel * 0.01) * (1 - itemsPct / 100);
   return clamp(1 - remaining, 0, 1 - 0.34 / 4);
 }
@@ -5218,7 +5242,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     wishSlots: wishSlotsSnapshotV1(state),
     cards: idleCardsSnapshotV1(state),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
-    yggFruits: clone(IDLE_NGU_YGG_FRUITS),
+    yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => !idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0)),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
     yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost }),
     diggerDefinitions: clone(IDLE_NGU_DIGGERS),
@@ -5237,8 +5261,9 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
      * échouant systématiquement (PERK_INTROUVABLE/QUIRK_INTROUVABLE).
      * Mêmes gabarit et clé que diggerDefinitions ci-dessus.
      */
-    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1),
-    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1),
+    /* Wiki : les Perks et Quirks « Evil only » / « Sadistic only » n'existent qu'à partir de cette difficulté (déjà possédés : gardés, inactifs). */
+    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
+    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)),
     /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
@@ -5295,7 +5320,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       kind: def.kind,
       resources: def.resources.slice(),
       unlock: unlockInfo(def, state, context),
-      tracks: (IDLE_NGU_TRACKS[def.id] || []).map(track => ({
+      tracks: (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, Number(track.id), state.difficulty) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
@@ -6001,7 +6026,7 @@ function crediterRecompensesAventure(state, avant) {
    */
   state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
   state.currencies.gold += gain("gold");
-  const perksGain = perkBonusesV1(state.systems.perks?.data?.levels);
+  const perksGain = perkBonusesV1(idlePerkNiveauxV1(state));
   /*
    * "the final AP value is rounded down" (page Arbitrary Points). LIMITE : l'arrondi
    * porte sur le lot crédité par cet appel (boss d'Aventure, titans, sets), pas sur
@@ -6028,7 +6053,7 @@ function crediterRecompensesAventure(state, avant) {
 /* Niveaux des souhaits (id -> niveau), lus par les récompenses de titans. */
 /* Niveau d'un souhait (0 si absent). */
 function wishLevelV1(state, id) {
-  return Math.max(0, int(state.systems.wishes?.data?.tracks?.[String(id)]?.level, 0));
+  return Math.max(0, int(idleWishTracksActifsV1(state)[String(id)]?.level, 0));
 }
 /* Souhait 20 (« I didn't have to wait 3 minutes per rebirth ») : -10 s par niveau sur les 180 s minimum. */
 function minRebirthSecondsV1(state) {
@@ -6067,7 +6092,7 @@ function portraitEnvV1(state) {
 
 function wishLevelsMapV1(state) {
   const out = {};
-  const tracks = state.systems.wishes?.data?.tracks || {};
+  const tracks = idleWishTracksActifsV1(state);
   for (const id of Object.keys(tracks)) out[id] = Math.max(0, int(tracks[id]?.level, 0));
   return out;
 }
@@ -6093,7 +6118,7 @@ function photoRecompensesAventure(state) {
 function questingEnvV1(state, context) {
   const bonuses = idleNguBonuses(state);
   const gear = idleAdventureEquipmentStatsV47(state.adventure);
-  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+  const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   return {
     respawnSeconds: Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1))),
     idleAttackSeconds: state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1,
@@ -6131,7 +6156,7 @@ function titanFight(state, context, now) {
     },
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
-      titanExpBonusKills:perkBonusesV1(state.systems.perks?.data?.levels).titanExpBonusKills,
+      titanExpBonusKills:perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct:challengePermanentBonuses(state).bossExpPct,
       goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
       dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
@@ -6184,6 +6209,7 @@ function buyPerkV1(state, perkId) {
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const perk = idlePerkByIdV1(int(perkId, -1));
   if (!perk) throw new Error("PERK_INTROUVABLE");
+  if (!idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, perk.id, state.difficulty)) throw new Error("DIFFICULTE_REQUISE");
   const levels = s.data && typeof s.data === "object" ? s.data.levels : null;
   const currentLevel = Math.max(0, int(levels?.[perk.id], 0));
   const cost = idlePerkNextCostV1(perk, currentLevel);
@@ -6209,6 +6235,7 @@ function buyQuirkV1(state, quirkId) {
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const quirk = idleQuirkByIdV1(int(quirkId, -1));
   if (!quirk) throw new Error("QUIRK_INTROUVABLE");
+  if (!idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, quirk.id, state.difficulty)) throw new Error("DIFFICULTE_REQUISE");
   const levels = s.data && typeof s.data === "object" ? s.data.levels : null;
   const currentLevel = Math.max(0, int(levels?.[quirk.id], 0));
   const cost = idleQuirkNextCostV1(quirk, currentLevel);
@@ -6274,10 +6301,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         difficulty: state.difficulty,
         goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),
         boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
-        cubeBoostRate: Math.max(0.01, num(perkBonusesV1(state.systems.perks?.data?.levels).cubeBoostRate, 0.01)),
+        cubeBoostRate: Math.max(0.01, num(perkBonusesV1(idlePerkNiveauxV1(state)).cubeBoostRate, 0.01)),
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
-        titanExpBonusKills: perkBonusesV1(state.systems.perks?.data?.levels).titanExpBonusKills,
+        titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
         titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
@@ -6650,8 +6677,8 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   const macguffinGain=macguffinApplyRebirthV1(state,runSeconds);
   const naturalEnergyCapGain=applyNaturalEnergyCapGrowthOnRebirth(state);
 
-  const perkBankBonuses=perkBonusesV1(state.systems.perks?.data?.levels);
-  const quirkBankBonuses=quirkBonusesV1(state.systems.quirks?.data?.levels);
+  const perkBankBonuses=perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirkBankBonuses=quirkBonusesV1(idleQuirkNiveauxV1(state));
   const tmBankPct=Math.max(0,(perkBankBonuses.tmBankMultiplier-1)+(quirkBankBonuses.tmBankMultiplier-1));
   const beardBankPct=Math.max(0,(perkBankBonuses.beardBankMultiplier-1)+(quirkBankBonuses.beardBankMultiplier-1));
   state.bank.timeMachineSpeed=Math.floor(tmSpeedLevelEnd*tmBankPct);
@@ -7016,7 +7043,7 @@ function inventoryAutoEnvV1(state) {
     macguffins: state.systems.macguffins?.data || null,
     boostCtx: () => ({
       boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
-      cubeBoostRate: Math.max(0.01, num(perkBonusesV1(state.systems.perks?.data?.levels).cubeBoostRate, 0.01)),
+      cubeBoostRate: Math.max(0.01, num(perkBonusesV1(idlePerkNiveauxV1(state)).cubeBoostRate, 0.01)),
       cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110))
     })
   };
@@ -7032,6 +7059,8 @@ function buyExpShopV1(state, payload) {
   if (!def) throw new Error("ACHAT_EXP_INCONNU");
   if (!state.bonuses.expShop || typeof state.bonuses.expShop !== "object") state.bonuses.expShop = {};
   /* Auto-Activate Yggdrasil : « Your total Energy or Magic cap must be 10x greater than the fruit's activation cost ». */
+  /* Auto-Activate d'un fruit de Mayo : seulement une fois le fruit disponible (système Cards). */
+  if (def.yggFruit && idleYggIsMayoFruitV1(def.yggFruit) && !idleYggFruitUnlockedV1(state, def.yggFruit)) throw new Error("ACHAT_VERROUILLE");
   if (def.requiredCap && !(expShopPurchasedV1(state, id) >= num(def.max, Infinity)) && idleNguEffectiveResourceStatV1(state, def.resource, "cap") < def.requiredCap) throw new Error("CAP_RESSOURCE_INSUFFISANT");
   const wanted = clamp(int(payload.quantity, 1), 1, 1000000);
   let bought = 0;
@@ -7056,7 +7085,7 @@ function buyExpShopV1(state, payload) {
 }
 
 function expShopSnapshotV1(state) {
-  return Object.entries(IDLE_NGU_EXP_SHOP_V1).map(([id, def]) => {
+  return Object.entries(IDLE_NGU_EXP_SHOP_V1).filter(([, def]) => !(def.yggFruit && idleYggIsMayoFruitV1(def.yggFruit) && !idleYggFruitUnlockedV1(state, def.yggFruit))).map(([id, def]) => {
     const purchased = expShopPurchasedV1(state, id);
     const entry = { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
     if (def.variableCost && def.max != null) {
@@ -7072,7 +7101,7 @@ function expShopSnapshotV1(state) {
 /* ===== Item Daycare : sources de bonus lues ici, formule dans idle-daycare-v1.js ===== */
 /* Sources de slots et de réduction de temps (peu coûteuses : lues aussi à chaque normalisation). */
 function daycareBaseInputsV1(state) {
-  const perks = perkBonusesV1(state.systems.perks?.data?.levels);
+  const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   const normal = state.challenge?.completions || {};
   const evil = state.challenge?.completionsTier?.difficile || {};
   const sadistic = state.challenge?.completionsTier?.extreme || {};

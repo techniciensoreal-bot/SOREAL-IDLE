@@ -19,13 +19,15 @@ const ctx = { bosses: 100 };
 const WIKI = {
   gold: [300, 1e6], powerAlpha: [500, 2e6], adventure: [600, 2e6], knowledge: [2000, 1e7], pomegranate: [2000, 3e6],
   luck: [8000, 5e7], powerBeta: [10000, 3e7], arbitrariness: [15000, 2e8], numbers: [20000, 1e8], rage: [100000, 5e9],
-  macguffinAlpha: [500000, 5e9], powerDelta: [2e6, 5e10], watermelon: [5e6, 2e11], macguffinBeta: [1.5e7, 1e12], quirks: [1e6, 4e11]
+  macguffinAlpha: [500000, 5e9], powerDelta: [2e6, 5e10], watermelon: [5e6, 2e11], macguffinBeta: [1.5e7, 1e12], quirks: [1e6, 4e11],
+  /* fruits de Mayo : 1 B EXP, cap requis « 100 Q » = 100 Qa = 10 x le coût d'activation (10 Qa = 1e16), comme les 15 autres lignes */
+  angryMayo: [1e9, 1e17], sadMayo: [1e9, 1e17], moldyMayo: [1e9, 1e17], ayyMayo: [1e9, 1e17], cincoMayo: [1e9, 1e17], prettyMayo: [1e9, 1e17]
 };
 
 // ---------- Catalogue de la boutique EXP ----------
 {
   const autos = Object.entries(IDLE_NGU_EXP_SHOP_V1).filter(([, d]) => d.yggFruit);
-  assert.equal(autos.length, 15);
+  assert.equal(autos.length, 21);
   for (const [id, d] of autos) {
     const fruit = IDLE_NGU_YGG_FRUITS.find((f) => f.id === d.yggFruit);
     assert.ok(fruit, id);

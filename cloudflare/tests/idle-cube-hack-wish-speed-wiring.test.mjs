@@ -26,7 +26,7 @@ import { IDLE_ADVENTURE_CUBE_TIERS_V1 } from "../src/idle-adventure-v47.js";
 }
 
 function stateWithCubeTier10(context, unlockedSystem) {
-  let state = normalizeIdleNguState({}, context, 1_000_000);
+  let state = normalizeIdleNguState({ difficulty: "extreme" }, context, 1_000_000);
   state.adventure.cube.power = 1e11; // seuil exact du tier 10
   state.adventure.cube.toughness = 0;
   state.systems[unlockedSystem].unlocked = true;
@@ -51,7 +51,7 @@ function stateWithCubeTier10(context, unlockedSystem) {
 {
   const context = { bosses: 200 };
   function hackState(withCube) {
-    let state = normalizeIdleNguState({}, context, 1_000_000);
+    let state = normalizeIdleNguState({ difficulty: "extreme" }, context, 1_000_000);
     state.systems.hacks.unlocked = true;
     state.systems.hacks.data.activeTrack = "attackDefense";
     state.systems.hacks.allocation.r3 = 10;
@@ -75,7 +75,7 @@ function stateWithCubeTier10(context, unlockedSystem) {
 {
   const context = { bosses: 200 };
   function wishState(withCube) {
-    let state = normalizeIdleNguState({}, context, 1_000_000);
+    let state = normalizeIdleNguState({ difficulty: "extreme" }, context, 1_000_000);
     state.systems.wishes.unlocked = true;
     state.systems.wishes.data.activeTrack = "1"; // wish id 1, "I Wish that wishes weren't so slow :c" -- speedDivider 1e15, 10 niveaux
     state.systems.wishes.allocation = { energy: 1, magic: 1, r3: 1 };

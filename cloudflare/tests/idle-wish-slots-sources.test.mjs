@@ -17,7 +17,7 @@ const act = (s, payload) => applyIdleNguAction(s, payload, ctx, 1_000_000).state
 const slots = (s) => idleNguSnapshot(s, ctx, 1_000_000).wishSlots;
 
 function base() {
-  const s = normalizeIdleNguState({}, ctx, 1_000_000);
+  const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   s.systems.wishes.unlocked = true;
   s.systems.hacks.unlocked = true;
   s.systems.bloodMagic.unlocked = true;
@@ -108,7 +108,7 @@ function base() {
   assert.throws(() => act(s, { action: "setWishSlot", slot: 1, wish: "5" }), /SOUHAIT_DEJA_DANS_UN_SLOT/);
   s.systems.wishes.data.tracks["0"].level = 1; // souhait 0 : 1 niveau
   assert.throws(() => act(s, { action: "setWishSlot", slot: 1, wish: "0" }), /SOUHAIT_TERMINE/);
-  const verrouille = normalizeIdleNguState({}, ctx, 1_000_000);
+  const verrouille = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   assert.throws(() => act(verrouille, { action: "setWishSlot", slot: 0, wish: "5" }), /SYSTEME_VERROUILLE/);
 }
 

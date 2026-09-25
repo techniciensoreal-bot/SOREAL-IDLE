@@ -132,6 +132,7 @@ assert.equal(IDLE_SELLOUT_EFFECTS_V1.questReminder, undefined, "Quest Reminder r
 
 // --- Formules ---
 const etat = (perkLevels = {}, quirkLevels = {}, wishLevels = {}, extra = {}) => ({
+  difficulty: "extreme",
   systems: {
     perks: { data: { levels: perkLevels } },
     quirks: { data: { levels: quirkLevels } },

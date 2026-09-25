@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "genere": "2026-09-25",
+    "mode": "lecture seule (aucun fichier du jeu ni du wiki modifie)",
+    "rapport": "cards-cooking-ygg.md",
+    "sources": {
+      "jeu": [
+        "cloudflare/src/idle-cards-v1.js",
+        "cloudflare/src/idle-macguffins-v1.js",
+        "cloudflare/src/idle-cooking-v1.js",
+        "cloudflare/src/idle-yggdrasil-extra-v1.js",
+        "cloudflare/src/idle-wandoos-os-v1.js",
+        "cloudflare/src/idle-hearts-v1.js",
+        "cloudflare/src/idle-questing-v1.js",
+        "cloudflare/src/idle-sellout-shop-v1.js",
+        "cloudflare/src/idle-portraits-v1.js",
+        "cloudflare/src/idle-ngu-progression.js (Beards, Diggers, Yggdrasil, Wandoos)"
+      ],
+      "wiki": [
+        "Cards (Mayo et Card redirigent ici)",
+        "MacGuffin Fragments",
+        "Cooking",
+        "Build Cooking",
+        "Yggdrasil",
+        "Experience (section Yggdrasil)",
+        "Beards Of Power",
+        "Gold Diggers",
+        "Wandoos",
+        "Blood Magic",
+        "4G's Sellout Shop",
+        "Perk Points",
+        "Quirk Points",
+        "Wishes",
+        "THE END",
+        "images/Cooking-sample.png"
+      ],
+      "tierce": [
+        "ngu-idle-calculators-ts/cards.ts",
+        "ngu-idle-calculators-ts/macguffins.ts",
+        "ngu-idle-calculators-ts/cooking.ts",
+        "ngu-idle-calculators-ts/yggdrasil.ts",
+        "ngu-idle-calculators-ts/beards.ts",
+        "ngu-idle-calculators-ts/diggers.ts",
+        "ngu-idle-calculators-ts/wandoos.ts",
+        "ngu-idle-calculators-ts/player.ts, playerData.ts, stat.ts, items.ts (identifiants et cibles)",
+        "external/cooking-exp-formula.json"
+      ]
+    },
+    "scripts_hors_depot": "C:\\Users\\n0rma\\AppData\\Local\\Temp\\claude\\...\\scratchpad\\xcheck\\ (cards-check.mjs, tier-table.mjs, tier-ids.mjs, ygg-check.mjs, cooking-sim.mjs, dig.mjs, cookgear.mjs)",
+    "echelle_gravite": ["gameplay", "moyenne", "faible", "cosmetique", "documentaire"],
+    "limites_tierce": {
+      "cooking.ts": "Aucune formule d'EXP par repas. Seulement le score (identique au wiki) et 20 plats / 20 ingredients avec unite et increment. Seule trace : player.ts:449 cookingExp = playerData.cooking.expBonus (champ de sauvegarde, jamais relu).",
+      "macguffins.ts": "Cibles de stat uniquement (Golden = Stat.GOLD_DROP). Aucune formule de gain par Rebirth.",
+      "beards.ts": "Bonus temporaire et permanent identiques au wiki ; la combinaison temp x perm est dans des helpers absents du dossier.",
+      "diggers.ts / wandoos.ts / yggdrasil.ts": "Formules d'effet seulement, ni couts d'activation ni seuils."
+    }
+  },
+  "resume_chiffre": {
+    "cartes": {
+      "constantes_C1_C4": "14/14 identiques (jeu, wiki, tierce)",
+      "bonus_par_mayo_tier1_rarete_0_8_et_1_2": "28/28 dans 0,0006 point",
+      "sources_de_tier_par_type_vs_player_ts": "0 ecart sur 14 types x 3 familles (perks, quirks, souhaits)",
+      "perks_161_216": "56/56 nom, cout, cap identiques au wiki",
+      "quirks_99_169": "71/71 identiques",
+      "souhaits_de_cartes": "95/95 nom et niveaux identiques ; souhait 75 (portrait) present ailleurs",
+      "totaux": "tiers 3/5/7 (PP 0/5/8, QP 3/0/8), vitesses x1,1585 et x1,2291, deck 15+15+15, tags 1,7+1,7+2,1 %"
+    },
+    "macguffins": "22/22 types, 10 groupes de formules, 22 slots, kills 720/1800 conformes ; 19 effets appliques, 2 sans effet (SEXY, SMART, conforme), 1 non branche (Golden)",
+    "cooking": "constantes de score, multiplicateurs x1,9481 / x2,007, 7 pieces d'equipement, timers conformes ; formule d'EXP : forum Steam seul",
+    "yggdrasil": "15/15 fruits et 15/15 Auto-Activate identiques (wiki + tierce) ; rendements 14/15 identiques (Fruit of Quirks) ; 6 fruits de Mayo absents",
+    "beards": "14/14 formules (temp + perm), 7/7 diviseurs, facteur de temps, 7 slots conformes",
+    "diggers": "12/12 diggers conformes ; bonus global plafond 67,8477 % (wiki 67,848 %)",
+    "wandoos": "3 OS, 9 seuils, niveau d'OS 0-400, perk 22 conformes"
+  },
+  "manquants": [
+    {
+      "id": "A1",
+      "domaine": "yggdrasil/cartes",
+      "objet": "6 fruits de Mayo (Angry, Sad, Moldy, Ayy Lmayo, Cinco de Mayo, Pretty)",
+      "statut": "absent du jeu, entierement specifiable",
+      "wiki": {
+        "cout_activation": "10 Qa Energy or Magic",
+        "graines_base": 10,
+        "cout_tier": "T^2 x 250 000",
+        "rendement": "progression du generateur associe = T^1,1 x 0,025 x Poop x MayoSpeed",
+        "NGU_Ygg_et_Yield": "non / non",
+        "auto_activate": "1 B EXP, cap requis 100 Q (Energy: Angry, Moldy, Cinco ; Magic: Sad, Ayyy LMayo, Pretty)",
+        "infuser": "Mayo Infuser : Affects Fruit reward (4G's Sellout Shop)"
+      },
+      "tierce": {
+        "ids": [15, 16, 17, 18, 19, 20],
+        "baseSeedFactor": 10,
+        "tierCost": 250000,
+        "rendement": "tier^1.1 x poop x mayoSpeed/100 x 0.025 (identique au wiki)",
+        "graines_mangees": "10 x (T + floor((T-1)/3)), points marques '?' par l'auteur"
+      },
+      "jeu": "non ajoute ; en-tetes d'idle-cards-v1.js:59, idle-yggdrasil-extra-v1.js:24 et idle-ngu-progression.js:693 citent une ambiguite du cout",
+      "resolution_ambiguite": {
+        "qa_vs_q": "100 Q = 100 Qa (1e17) : les 15 autres lignes Auto-Activate ont un cap egal a 10 x le cout d'activation, donc 10 Qa (1e16) x 10 = 100 Qa ; le wiki note Qa = E15 ailleurs ('60 Qa (6E16)')",
+        "energie_ou_magie": "par fruit : Angry E, Sad M, Moldy E, Ayy M, Cinco E, Pretty M",
+        "unite_du_rendement": "point de mayo (barre de progression 0..1) ; tier 24 sans Poop = 0,82 x MayoSpeed"
+      },
+      "reste_non_tranche": {
+        "graines_quand_mange": "deux candidats, floor(T^1,1) ou T + floor((T-1)/3), divergent aux tiers 4, 5, 7, 8, 10, 11, 13, 18, 21, 23, 24 (1 unite de base, soit 10 graines) ; ils collent tous deux aux 4 points sans '?' de la tierce (T = 15, 16, 19, 20)",
+        "graines_recolte": "standard, comme les autres fruits (note weird_seeds du wiki)"
+      },
+      "gravite": "moyenne",
+      "commentaire": "Aucun blocage technique : le jeu a deja le progres de mayo par generateur, mods.mayoSpeed, l'Infuser et la Poop. Pas de FirstHarvest dans la formule."
+    },
+    {
+      "id": "A2",
+      "domaine": "cartes",
+      "objet": "Cartes Foil (~1 %)",
+      "statut": "absent du jeu",
+      "wiki": "~1 % des drops, fond et bordure dores, aucune propriete speciale",
+      "tierce": "rien",
+      "jeu": "declare non implemente (idle-cards-v1.js:56-60)",
+      "gravite": "cosmetique",
+      "commentaire": "Un simple drapeau. Le wiki cite aussi des Permanent Foil Cards dans un pack payant du Sellout Shop : hors perimetre."
+    },
+    {
+      "id": "A3",
+      "domaine": "cartes",
+      "objet": "Carte End (Sadistic)",
+      "statut": "absent du jeu, bloque par un prerequis",
+      "wiki": "~1 % de chance, en plus d'une carte normale ; cout 99 de chacun des 6 mayos ; donne la piece THE END n. 492 ; reapparait pour remplacer une piece jetee ; recyclable (10 % minuteur, 20 % mayo)",
+      "tierce": "rien (CardKeys sans End ; tableau du wiki : End N/A)",
+      "jeu": "absent ; les 16 pieces de THE END n'existent pas (idle-adventure-v47.js:2164, 4854)",
+      "gravite": "faible",
+      "commentaire": "A traiter avec le systeme THE END et a garder invisible jusqu'en Sadistic (regle pas de spoilers)."
+    },
+    {
+      "id": "A4",
+      "domaine": "cooking",
+      "objet": "Noms des 20 plats et des 20 ingredients, unite et increment par niveau",
+      "statut": "absent du jeu (interface numerotee)",
+      "wiki": "capture Cooking-sample.png : Garlic Cloves, Snake Oil Bottle, MALK Cartons, Bread Loaves, Eggs Egg, Onion Onions, Candy Canes Canes ; plat Jello",
+      "tierce": "cooking.ts : 20 plats, 20 ingredients (increment 50 pour Hot Sauce, Coconut Milk, Lemon Juice ; 2 pour Rice ; 1 sinon) ; identique a la capture",
+      "jeu": "ingredients numerotes, niveaux 0-20 bruts",
+      "gravite": "cosmetique",
+      "commentaire": "Aucune mecanique manquante."
+    },
+    {
+      "id": "A5",
+      "domaine": "macguffins",
+      "objet": "Perk 56 Macguffin Daycare! et souhaits 59/60 (+20 % par niveau)",
+      "statut": "absents, sans source pour les combler",
+      "wiki": "perk 56 : MacGuffins dans les slots de garderie (aucune vitesse) ; souhaits 59/60 : +20 % par niveau, 10 niveaux",
+      "tierce": "perks.ts / wish.ts / yggdrasil.ts / macguffins.ts : aucun effet chiffre",
+      "jeu": "non appliques (idle-macguffins-v1.js:631-642)",
+      "gravite": "faible",
+      "commentaire": "Voir perks-quirks.md pour la perk 56."
+    }
+  ],
+  "ecarts": [
+    {
+      "id": "B1",
+      "domaine": "cooking",
+      "objet": "Formule d'EXP par repas et variable 'exp bonus'",
+      "cooking_ts_contient_la_formule": false,
+      "wiki": "plafond 300 % ; exemple de la capture : efficacite 100 %, bonus 132 %, gain +0,66 %, Total Exp Gain +100 %",
+      "source": "cooking-exp-formula.json (forum Steam, jshepler) : gain = clamp(base x 0,005 x mult, mult x 0,005 x 0,36, mult x 0,005) x efficacite, base = max(0,36, 1 - expBonus^2), ajoute au Total Exp Gain ; 'un bonus affiche de 120 % vaut 0,2'",
+      "jeu": "idleCookingMealExpGainPctV1 : expBonus = Total Exp Gain acquis affiche tel quel, part de 0 %, plafond 300 (XP x4)",
+      "lectures": [
+        {
+          "nom": "A (jeu actuel)",
+          "definition": "var = Total Exp Gain acquis, affiche tel quel",
+          "capture": "contredite (0,24 % au lieu de 0,66 %) sauf si la capture precede le plancher",
+          "plafond": "var 3, XP x4",
+          "affichage_depart": "+0 %"
+        },
+        {
+          "nom": "B (la plus economique)",
+          "definition": "var = accumulateur Cooking, affiche en forme multiplicateur (100 % + var x 100 %)",
+          "capture": "coherente sans hypothese (var 0, base 1, 0,66 %)",
+          "plafond": "affiche 300 % = var 2, XP x3",
+          "affichage_depart": "+100 %"
+        },
+        {
+          "nom": "C",
+          "definition": "var = bonus d'EXP total du joueur (toutes sources) moins 1",
+          "capture": "possible si l'EXP total etait ~x1",
+          "plafond": "inchange",
+          "affichage_depart": "inconnu",
+          "impact": "gain au plancher 0,24 % des ~x1,8 d'EXP total : gameplay tres different"
+        }
+      ],
+      "simulation_mult_2_007_eff_100": {
+        "repas_pour_var_0_5": 55,
+        "repas_pour_var_0_8_plancher": 109,
+        "repas_pour_var_1": 165,
+        "repas_pour_var_2": 442,
+        "repas_pour_var_3": 718,
+        "jours_var_3": 703
+      },
+      "test_qui_tranche": "Apres le premier repas (efficacite 100 %, bonus 132 %), le panneau affiche +100,66 % (B) ou +0,66 % (A).",
+      "gravite": "moyenne",
+      "commentaire": "La suite des gains par repas est identique en A et B ; seuls l'affichage (+0 % contre +100 %) et le plafond (x4 contre x3, atteint apres ~14 mois de repas quotidiens) different. La lecture C changerait le gameplay."
+    },
+    {
+      "id": "B2",
+      "domaine": "cartes",
+      "objet": "Tableau des paliers de tier de la page Cards",
+      "wiki": "annonce rarete 1,0 mais colle a la formule a rarete 1,2 (erreur max 0,0064 ; a 1,0 jusqu'a 0,18) ; colonne TOTAL : TM 78,71 (formule 78,97), GOLD 78,45 (78,97), ADV 6,79 (6,88), DAYCARE 4,98 (5,01), WISHES 3,96 (4,37) ; les 9 autres types a moins de 0,1 %",
+      "tierce": "cards.ts : meme formule",
+      "jeu": "suit la formule (bonus au tier 1 : 28/28)",
+      "gravite": "documentaire",
+      "commentaire": "Fautes du wiki. Vitesse des cartes 'x2,1157' = 2,1159 par le produit ; mayo 'x2,3273' = 2,3275. Aucune action cote jeu."
+    },
+    {
+      "id": "B3",
+      "domaine": "cartes",
+      "objet": "Libelle de la rarete 1,2",
+      "wiki": "Hot Damn 1,19-1,20, pas de libelle Chonker",
+      "tierce": "8e libelle 'Chonker' pour 1,2 exactement",
+      "jeu": "Hot Damn pour 1,2 (idleCardRarityLabelV1)",
+      "gravite": "cosmetique"
+    },
+    {
+      "id": "B4",
+      "domaine": "macguffins",
+      "objet": "Purple Heart et kills d'ITOPOD",
+      "wiki": "tableau Items : reduit les kills HORS ITOPOD de 20 % ; mais le minimum publie a l'ITOPOD (1 800) exige aussi le Purple Heart : 5000 x 0,8 x 0,75 x 0,75 x 0,8",
+      "tierce": "rien",
+      "jeu": "applique x0,8 aux deux (macguffinKillsRequiredV1) ; ITOPOD sans coeur = 2 250",
+      "gravite": "faible",
+      "commentaire": "Contradiction interne du wiki ; le jeu retient la lecture qui redonne les minima publies."
+    },
+    {
+      "id": "B5",
+      "domaine": "yggdrasil",
+      "objet": "Fruit of Quirks : QPRewardModifier",
+      "wiki": "ceil(T x 3 x QPRewardModifier x Poop x Quirk_Ygg x Equip_YggYield x FirstHarvest), modificateur non defini",
+      "tierce": "yggdrasil.ts:475-490 parametre qpRewardBonus = total du stat QUEST_REWARD (perk Better QP Rewards, cartes QP, QP Hack, souhait 47), sans QUEST_REWARD_ACTIVE",
+      "jeu": "idleYggFruitOfQuirksQpV1 laisse 1 ; le facteur equivalent existe deja (idleQuestRewardV1, qpMultiplier, idle-questing-v1.js:251)",
+      "gravite": "moyenne",
+      "commentaire": "Rendement sous-evalue du facteur QP complet. Composition exacte (Mobster, Orange Heart, objets de quete) non publiee."
+    },
+    {
+      "id": "B6",
+      "domaine": "macguffins",
+      "objet": "Cible du Golden MacGuffin",
+      "wiki": "aucune cible (MacGuffin Fragments, Adventure Mode, Badly Drawn World, Item List)",
+      "tierce": "macguffins.ts : Stat.GOLD_DROP ('goldDrops'), le meme stat que la Gold Drop Card et les equipements ; distinct de Stat.TIME_MACHINE (Golden Beard)",
+      "jeu": "bonus permanent calcule et affiche, effect: null, non applique",
+      "cible_probable": "adventureGoldMultiplier (celui de la carte GOLD, idle-cards-v1.js:658)",
+      "formule": "(L+1) x 0,005 % x T par Rebirth, sans branche L > 100",
+      "confiance": "moyenne-haute (source unique, cible nommee sans ambiguite)",
+      "gravite": "moyenne"
+    },
+    {
+      "id": "B7",
+      "domaine": "documentaire",
+      "objet": "Noms et commentaires",
+      "details": [
+        "Beards : 'Reverse Beard' (id defense) dans le jeu, 'The Reverse Hitler' dans le wiki ; ids internes sans lien avec l'effet (LadyBeard = pp)",
+        "macguffins.ts : 23e type fantome (id 14 Bibe MacGuffin, cle nomacguffin) ; wiki et jeu : 22 types",
+        "idle-macguffins-v1.js:76-77 dit le systeme de portraits absent ; idle-portraits-v1.js gere SEXY/SMART a 250 %",
+        "idle-ngu-progression.js:1094 donne 1+(niveau+1) x 0,04 pour le niveau d'OS Wandoos, le code (ligne 1121) renvoie niveau + 1 ; le wiki se contredit (+1604 % / 401x), la phrase explicite '401x' est celle du code",
+        "idle-cards-v1.js:59 et idle-yggdrasil-extra-v1.js:24 : l'ambiguite du cout des fruits de Mayo est levee (A1)"
+      ],
+      "gravite": "cosmetique"
+    },
+    {
+      "id": "B8",
+      "domaine": "beards/cartes/cooking",
+      "objet": "Points non verifiables faute de source",
+      "details": [
+        "Beards : combinaison temp x perm = (1 + temp) x (1 + perm) dans le jeu ; ni le wiki ni beards.ts (helpers absents) ne l'assemblent ; Armpit set multiplicatif, non documente",
+        "Cartes : rarete uniforme (la tierce le suppose aussi via rarityRate : appui indirect) ; nombre de types de mayo par carte uniforme 1..min(6, cout)",
+        "Cooking : loi de tirage des cibles et poids (uniforme dans les bornes du wiki), niveau initial des ingredients 0"
+      ],
+      "gravite": "documentaire"
+    }
+  ],
+  "non_branches": [
+    { "objet": "Golden MacGuffin", "etat": "calcule et affiche, jamais applique", "source_utilisable": "oui (B6)" },
+    { "objet": "Fruits de Mayo (6)", "etat": "absents", "source_utilisable": "oui, specification complete (A1)" },
+    { "objet": "Fruit of Quirks : QPRewardModifier", "etat": "force a 1", "source_utilisable": "oui (B5)" },
+    { "objet": "Cartes Foil", "etat": "absentes", "source_utilisable": "oui, cosmetique (A2)" },
+    { "objet": "Carte End", "etat": "absente", "source_utilisable": "oui mais bloquee par THE END (A3)" },
+    { "objet": "Perk 56 MacGuffin Daycare", "etat": "absente", "source_utilisable": "non" },
+    { "objet": "Souhaits 59/60", "etat": "non appliques", "source_utilisable": "non (arrondi inconnu)" },
+    { "objet": "Noms de plats et d'ingredients Cooking", "etat": "absents", "source_utilisable": "oui (cooking.ts), cosmetique" }
+  ],
+  "verifies_identiques": {
+    "cartes": ["14 constantes C1-C4", "sources de tier 14 types x 3 familles", "perks 161-216", "quirks 99-169", "souhaits de cartes", "tags (formule, 16,5 % max)", "deck 120", "vitesses x1,1585 / x1,2291", "cout mayo 5-13 et Chonkers 26-34", "Mayo Infuser x2 (x2,2 Blue Heart)"],
+    "macguffins": ["22 types et zones", "10 groupes de formules", "ratio de temps (0,03 a 104,86)", "22 slots", "kills 720 / 1 800", "Blood alpha et beta (formules, minima, cooldowns)", "tirage aleatoire (pool de base)"],
+    "cooking": ["constantes de score", "x1,9481 / x2,007", "7 pieces d'equipement", "repas 23,5 h / 22,5 h", "bank 24,5 h / 25,5 h", "slots 6 + 1 + 1"],
+    "yggdrasil": ["15 fruits : cout d'activation, ressource, graines, cout de tier", "15 Auto-Activate : cout EXP, cap, ressource", "tier max 10 puis 24", "formules de rendement (14/15)", "formules de graines"],
+    "beards": ["14 formules temp/perm", "7 diviseurs", "facteur de temps", "permanent = min(floor(sqrt(temp) x facteur), temp)", "7 slots"],
+    "diggers": ["12 diggers", "bonus global 25 % + 0,05 % x (N-500)^0,7", "plafond 67,848 %", "12 slots"],
+    "wandoos": ["3 formules d'OS", "9 seuils Normal/Evil/Sadistic", "niveau d'OS 0-400 (niveau + 1)", "perk 22 (+2 par niveau, cap 50)", "boot 1 h, minimum 27 min"]
+  }
+}

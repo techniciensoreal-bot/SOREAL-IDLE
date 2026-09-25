@@ -31,6 +31,7 @@
  * (Cartes QP : branchées le 2026-09-24, env.qpCardMultiplier.)
  */
 import { IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
+import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1 } from "./idle-quirks-v1.js";
 import { IDLE_WISHES_CATALOG_V1 } from "./idle-wishes-v1.js";
 import { IDLE_ADVENTURE_ZONES, idleAdventureMergeLevelV47 } from "./idle-adventure-v47.js";
@@ -129,7 +130,7 @@ export function idleQuestBonusTotalsV1(state) {
       totals[key] = (totals[key] || 0) + N(perLevel) * level;
     }
   };
-  const perkLevels = state?.systems?.perks?.data?.levels || {};
+  const perkLevels = idlePerkNiveauxV1(state);
   for (const perk of IDLE_PERKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(perk.cap, I(perkLevels[perk.id])));
     if (!level) continue;
@@ -142,12 +143,12 @@ export function idleQuestBonusTotalsV1(state) {
       }
     }
   }
-  const quirkLevels = state?.systems?.quirks?.data?.levels || {};
+  const quirkLevels = idleQuirkNiveauxV1(state);
   for (const quirk of IDLE_QUIRKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(quirk.cap, I(quirkLevels[quirk.id])));
     if (level) addKeys(quirk.bonus, level);
   }
-  const wishTracks = state?.systems?.wishes?.data?.tracks || {};
+  const wishTracks = idleWishTracksActifsV1(state);
   for (const wish of IDLE_WISHES_CATALOG_V1) {
     const level = Math.max(0, Math.min(wish.levels, I(wishTracks[String(wish.id)]?.level)));
     if (level) addKeys(wish.bonus, level);

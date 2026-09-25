@@ -1,0 +1,289 @@
+{
+  "_meta": {
+    "title": "Contrôle croisé FORMULES DU JOUEUR et ÉCONOMIE : source tierce (ngu-idle-calculators-ts + feuilles CSV + guide) contre SOREAL IDLE",
+    "date": "2026-09-25",
+    "mode": "lecture seule (aucun fichier du jeu modifié)",
+    "sources": [
+      "NGU-Wiki/external/third-party/ngu-idle-calculators-ts/{player,playerData,stat,resource,mode,zones,enemy,advTraining,yggdrasil,diggers,hacks,wish,perks,apItems}.ts",
+      "NGU-Wiki/external/third-party/sheet-daily-gains.csv (NGU 1.260) et sheet-boost-exp-zones.csv (NGU 1.220)",
+      "NGU-Wiki/external/third-party/gear-optimizer-Augment.js",
+      "https://sayolove.github.io/ngu-guide/en/mechanics/general-info/ (WebFetch)",
+      "Wiki local NGU-Wiki/pages : Daily Spin, Money Pit, ITOPOD, Titans, Questing, Blood Magic, Wishes, Respawn, Arbitrary Points, Gold Diggers, Fibonacci Perk, Boost, Resource 3"
+    ],
+    "limite_majeure": "Les fonctions de stats du joueur (totalPower, totalDropChance, totalExpBonus, totalAPBonus, totalRegen, totalHealth, totalEnergyCap..., getIdleAttackModifier, boostRecyclying) sont importées de '@/helpers/calculators' qui N'EST PAS dans le miroir. player.ts / playerData.ts ne contiennent donc que : les valeurs de base lues dans la sauvegarde, quelques formules d'import et les plafonds (max) des totaux. Aucune formule Attack/Defense/HP/Regen/Drop chance/EXP totale n'est vérifiable depuis cette source.",
+    "scripts": [
+      "C:/Users/n0rma/AppData/Local/Temp/claude/xcheck/spin.mjs",
+      "C:/Users/n0rma/AppData/Local/Temp/claude/xcheck/tower.mjs"
+    ],
+    "statuts": {
+      "OK": "formule identique (ou équivalente) dans le jeu",
+      "ECART": "le jeu fait autre chose que la source",
+      "ABSENT": "présent dans la source, absent du jeu",
+      "AMBIGU": "source, wiki et/ou jeu se contredisent ou la source est incomplète"
+    }
+  },
+  "resume_chiffre": {
+    "formules_source_cataloguees": 37,
+    "OK": 24,
+    "ECART": 6,
+    "ABSENT": 2,
+    "AMBIGU": 5,
+    "ecarts_listes": 22,
+    "ecarts_impact_gameplay_notable": ["E01", "E02", "E03", "E04", "E05", "E06"],
+    "daily_spin": {
+      "paliers_verifies": 8,
+      "paliers_identiques_au_wiki": 8,
+      "paliers_identiques_a_la_feuille_CSV": 7,
+      "palier_different_feuille": 3,
+      "chaque_palier_totalise_100_pct": true
+    }
+  },
+  "formules_source_et_statut": [
+    {"id": "F01", "domaine": "Advanced Training", "formule_source": "Power et Toughness d'Adventure : bonus % = Level^0.4 * 10 ; ce même bonus s'applique aussi à Health (Neckbeard) et Regen (Fu Manchu) (advTraining.ts)", "jeu": "idle-ngu-progression.js:4624 (atPowerBonus = 1 + L^0.4*0.1) puis adventurePower/ToughnessMultiplier appliqués à hp et regen dans idleAdventureCombatStatsV1 (:4978-5066)", "statut": "OK"},
+    {"id": "F02", "domaine": "Block Damage", "formule_source": "(L + 50) / (L + 100) (advTraining.ts)", "jeu": "blockReduction idle-ngu-progression.js:4733", "statut": "OK"},
+    {"id": "F03", "domaine": "Idle attack, un coup", "formule_source": "oneHitPower = HP/(0.8*mod) + Toughness/2 (enemy.ts AttackStat.oneHitPower) ; nombre de coups = max(ceil(oneHit/power),1)", "jeu": "towerHitsV1 idle-ngu-progression.js:3911 : dégâts moyens (facteur aléatoire 1.0) et PV moyens 600*1.05^f", "statut": "ECART", "ref_ecart": "E02"},
+    {"id": "F04", "domaine": "Idle attack modifier", "formule_source": "1.2 de base (feuille) ; getIdleAttackModifier(spoopy, nbSadNEC) non fourni ; wiki : 1.5 avec Spoopy, 1.8 avec SNEC", "jeu": "idle-adventure-v47.js:5278 (1.5 ou 1.2) x (1 + 0.02*SNEC + 0.10 si SNEC>=5) ; idle-ngu-progression.js:528", "statut": "AMBIGU", "ref_ecart": "E12"},
+    {"id": "F05", "domaine": "Idle attack cooldown", "formule_source": "1 s, 0.8 s avec Red Liquid (zones.ts getKillsPerHour)", "jeu": "idle-ngu-progression.js:3961 (interval)", "statut": "OK"},
+    {"id": "F06", "domaine": "ITOPOD étage optimal", "formule_source": "floor(log(power*idleMod/765)/log(1.05)) (zones.ts getOptimalFloor)", "jeu": "towerOptimalFloorV1 idle-ngu-progression.js:3916 (recherche binaire sur le modèle F03)", "statut": "ECART", "ref_ecart": "E02"},
+    {"id": "F07", "domaine": "ITOPOD coups par kill", "formule_source": "max(1.05^(niveau - log_1.05(power*mod/765)), 1) (réel, non entier)", "jeu": "ceil(600*1.05^f / dégâts) (entier)", "statut": "ECART", "ref_ecart": "E02"},
+    {"id": "F08", "domaine": "ITOPOD kills/heure", "formule_source": "floor(3600 / (ceil0.01(respawn) + cooldown*coups))", "jeu": "n = floor(temps / (respawn + interval*coups)) idle-ngu-progression.js:3986", "statut": "OK", "note": "arrondi 0.01 du respawn absent, effet négligeable"},
+    {"id": "F09", "domaine": "ITOPOD EXP par récompense", "formule_source": "palier<50 : 1 ; sinon floor(f/50)*(floor(f/50)-1)+2 (zones.ts setLevel)", "jeu": "towerExpForTierV1 idle-ngu-progression.js:3909 ((tier-1)(tier-2)+2, 1 et 2 aux paliers 1 et 2)", "statut": "OK"},
+    {"id": "F10", "domaine": "ITOPOD kills par EXP+1 AP", "formule_source": "max(20, 40 - ceil((f+1)/50))", "jeu": "towerKillsPerRewardV1 :3910 (40 - palier, 20 au-delà)", "statut": "OK", "note": "vérifié pour f=0,49,50,999 ; feuille : 443 EXP/j et 443 AP/j à l'étage 1 (17 280 kills/j / 39)"},
+    {"id": "F11", "domaine": "ITOPOD force du boost", "formule_source": "seuils 50:2 100:5 150:10 200:20 250:50 300:100 350:200 400:500 450:1000 700:2000 850:5000 1150:10000, chance 14 %", "jeu": "towerBoostStrengthV1 :3928 + n*0.14 :3985", "statut": "OK"},
+    {"id": "F12", "domaine": "ITOPOD PPP par kill", "formule_source": "floor( PPBonus/100 * pillMult * (étage + 200|700|2000 + bonusPPP) ) ; pillMult 2 (2.2 Blue Heart) ; bonusPPP = 10*quirk70 + 50*wish79", "jeu": "d.ppProgress += n*(ppBase+étage)*ppMultiplier, PP = floor(progress/1e6) :4006", "statut": "ECART", "ref_ecart": "E13", "note": "seul l'arrondi par kill diffère ; constantes identiques"},
+    {"id": "F13", "domaine": "Titans : EXP, AP, PP, QP, or", "formule_source": "GRB 35/10, GCT 60/15, Jake 200/50, UUG 300/60, Walderp 500/70, Beast 750 EXP 250k PPP 1 QP, Nerd 1100/250k/1, Godmother 1500/300k/2, Exile 2500/400k/3, IT Hungers 4000/500k/4, Rock Lobster 6000/700k/5, Amalgamate 8000/1M/6 ; or [min,max] idem", "jeu": "TITAN_REWARDS_V1 idle-adventure-v47.js:4779 et TITAN_QP_V1 :4800", "statut": "OK"},
+    {"id": "F14", "domaine": "Titans : EXP x défis 24 h", "formule_source": "EXP * expBonus/100 * (1 + 0.10*n24 + 0.04*n24evil + 0.02*n24sad)", "jeu": "bossExpPct additif idle-ngu-progression.js:526 et idle-adventure-v47.js:4821-4822", "statut": "OK"},
+    {"id": "F15", "domaine": "Titans : QP", "formule_source": "qpBonus * QP / 100 si le souhait du titan est complet (enemy.ts getQP) ; qpBonus = totalQuestRewardBonus", "jeu": "creditTitanRewardsV1 :4801 puis crediterRecompensesAventure idle-ngu-progression.js:6011 : x perks.qpEarningsMultiplier seulement", "statut": "ECART", "ref_ecart": "E03"},
+    {"id": "F16", "domaine": "Titans : cooldown", "formule_source": "max(1 h, cooldown - 15 min * nbNRC) ; Amalgamate 7.45 h", "jeu": "idle-adventure-v47.js:5030 et :5065 (min 60 min, NRC par rang) ; Amalgamate 433.33 min", "statut": "AMBIGU", "ref_ecart": "E07"},
+    {"id": "F17", "domaine": "Titans v2/3/4", "formule_source": "commentaire : EXP, PP, QP, AP multipliés par 1, 1.1, 1.2, 1.3 selon la version", "jeu": "1 + 0.1*min(niveau souhait 3, rang) sur EXP, PP, QP (wiki)", "statut": "AMBIGU", "ref_ecart": "E14"},
+    {"id": "F18", "domaine": "Recyclage des boosts", "formule_source": "somme sur la table [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000] : boostSum = boostSum*p + valeur (chaîne)", "jeu": "idleInventoryRecycleBoostV1 idle-inventory-auto-v1.js:293 (le boost revient un palier plus bas avec proba p)", "statut": "OK", "note": "même espérance : v + p*(v1 + p*(v2 ...)) ; 2000 -> 3888 à 100 %"},
+    {"id": "F19", "domaine": "Questing", "formule_source": "minor = 10 + 2*perk87 + perk148 + wish102 ; major = 50 + perk147 + wish101 ; diviseur idle = 8 - perk91 - perk92 - 2*perk105 - perk106 ; feuille : temps = 20*items*(respawn+cooldown)/drop, items 50-59 (moy. 54.5), 7 h 50 par major", "jeu": "idle-questing-v1.js:57-68, 171-215 ; réel : 8 - reductions, plancher 3", "statut": "OK"},
+    {"id": "F20", "domaine": "Yggdrasil : coûts, graines de base", "formule_source": "coût tier T = base*T^2 (Gold 1, Power a 10, Adventure 25, Knowledge 40, Pomegranate 60, Luck 100, Power b 150, Arbitrariness 170, Numbers 200, Rage 2000, MacGuffin a 15000, Power d 30000, Watermelon 50000, MacGuffin b 100000, Quirks 25000, Mayo 250000) ; facteurs de graines 5,3,3,5,6,7,30,8,7,10", "jeu": "IDLE_NGU_YGG_FRUITS idle-ngu-progression.js:676-698 (yggTierUpgradeCost :3561)", "statut": "OK", "note": "Mayo (id 15-20) absent du jeu, voir E20"},
+    {"id": "F21", "domaine": "Yggdrasil : rendements", "formule_source": "Gold ceil(ceil(T^1.5)*30*FH*poop) min de GPS ; Power a: X^1.5 ; Adventure floor(f*BaseToughness^0.2*ym) ; Knowledge floor(ceil(f*5*ym)*3*3*EXP) ; Luck ceil(f*0.7*ym)*0.05 ; Power b level^2*0.05 ; Arbitrariness floor(ceil(f*15)*AP) ; Numbers level^1.3*0.05 ; Rage ceil(f*60000*ppBonus) ; Mac a *0.5, b *0.1 ; Power d level^1.3*0.0001 ; Quirks ceil(T*3*qpBonus)", "jeu": "useYggFruit idle-ngu-progression.js:3635-3735 et idle-yggdrasil-extra-v1.js:274-297", "statut": "OK", "note": "sauf Quirks (qpBonus non appliqué) : E04 ; BaseToughness ambigu : E19"},
+    {"id": "F22", "domaine": "Drop chance Fruit of Luck", "formule_source": "yggdrasilDropChance = totalLuck/20 + 100 (%)", "jeu": "luckDropPct += ceil(...)*0.05 :3691, facteur (1+luckDropPct/100)", "statut": "OK"},
+    {"id": "F23", "domaine": "Fibonacci Perk", "formule_source": "1:E/M power 10 % ; 2:E cap ; 3:M cap ; 5:E NGU 5 ; 8:M NGU 5 ; 13:PP 5 ; 21:bars 10 ; 34:adv 13 ; 55:daycare 5 ; 89:AP 2 ; 144:+1 niveau 5 % ; 233:QP 10 ; 377:A/D 377 ; 610:quêtes 50 ; 987:EXP 5", "jeu": "idle-perks-v1.js:282-297 (statPct 3.77 = 377 %)", "statut": "OK"},
+    {"id": "F24", "domaine": "Wishes : vitesse", "formule_source": "vitesse = (Pe*Ae*Pm*Am*Pr*Ar)^0.17 * wishSpeed% / (100/50) / (diviseur*(niveau+1)) ; temps = max((1-prog)/vitesse, tempsMin*(1-prog))", "jeu": "wishSecondsForLevelV1 idle-ngu-progression.js:3025 : diviseur*(niveau+1) / P^0.17 / mult (sans le facteur 50 ticks)", "statut": "ECART", "ref_ecart": "E01"},
+    {"id": "F25", "domaine": "Wishes : temps minimum et slots", "formule_source": "4 h - 24 s*(perk109 + perk110 + quirk54) ; slots = 1 + quirk56 + (troll evil>=7) + pinkHeart ; wishSpeed AP shop +25 %", "jeu": "wishSpeedParamsV1 :3010-3018 ; wishSlotBreakdownV1 :2661", "statut": "OK"},
+    {"id": "F26", "domaine": "Dual wield", "formule_source": "weapon2.ratio = 0.05*wish28 + 0.05*wish45", "jeu": "seconde arme absente ; souhaits 28 et 45 sans effet (idle-wishes-v1.js:80,97 bonus {})", "statut": "ABSENT", "ref_ecart": "E06"},
+    {"id": "F27", "domaine": "Hacks", "formule_source": "bonus = (100 + base*L) * milestoneBonus^floor(L/(baseMilestone - reduction)) ; secondes = ceil(base*a^L*(L+1)*100/(cap*pow*hs))/100*2, a = 1.0078 ; plafonds 7720 7632 7544 7544 7456 7340 7340 7252 7164 7048 6960 6873 6757 6757 6262", "jeu": "hackFxV1 :4289 ; advanceHackTrack :2922 (/50) ; HACK_HARD_CAP_V1 :2921", "statut": "OK"},
+    {"id": "F28", "domaine": "Gold Diggers", "formule_source": "drop/wandoos/blood 150+L ; stat 200+L^3 ; adventure 110+L/2 ; NGU/beards 120+L ; PP 110+L ; daycare 105+0.1L ; EXP 105+0.5L (x global)", "jeu": "diggerBonuses idle-ngu-progression.js:3870", "statut": "OK"},
+    {"id": "F29", "domaine": "Augmentations : coûts", "formule_source": "or aug = 1e4*20^min(4,i)*1000^max(0,i-4) (i=5 : 1.8e16, i=6 : 2.3e19) ; upgrade = 1e7*50^i... x n^2 ; énergie 400 s * 17^i (upgrade 12^i), facteur 0.5 si NAC>=5", "jeu": "IDLE_NGU_AUGMENTATIONS idle-ngu-progression.js:543-640, augmentationGoldCost :2524", "statut": "OK", "note": "diviseur Sadistic : E09"},
+    {"id": "F30", "domaine": "Plafonds des ressources", "formule_source": "playerData.ts : Energy/Magic Power max 1e18, Cap max 9e18 ; guide : Bars 1e18 ; pas de max pour Res3 dans playerData.ts", "jeu": "RESOURCE_STAT_HARD_CAPS_V1 idle-ngu-progression.js:2318 (power 1e18, bars 1e18, cap 9e18, aussi Res3)", "statut": "OK", "note": "Res3 : E18"},
+    {"id": "F31", "domaine": "Drop chance : racine cubique", "formule_source": "id de zone >= 20 : base = cbrt(dropChance/100) ; chance boost = min(max, base_zone*base) ; chance EXP idem x bossChance", "jeu": "idleAdventureDropChanceV2 idle-adventure-v47.js:4217 (zoneUsesCubeRootDropV2 : Chocolate + zones Evil/Sad)", "statut": "OK"},
+    {"id": "F32", "domaine": "Blood Magic : Drop chance / Time Machine", "formule_source": "bloodMagicDropChance = ceil(log2(sang/10000)) ; bloodMagicTimeMachine = ceil(log2(sang/1e6)^2)", "jeu": "castBloodSpell :3531,3538 : (log2(sang/1e4)+1) % et (log2(sang/1e6)+1)^2 % (wiki)", "statut": "AMBIGU", "ref_ecart": "E05"},
+    {"id": "F33", "domaine": "AP : sources de la feuille daily-gains", "formule_source": "Daily Save 200, Money Pit floor(log10 or) x jets, Rebirth 1 AP/500 s (>1 h), ITOPOD 1 AP par cycle, Daily Spin, titans 10-70", "jeu": "Money Pit :5657 ; Rebirth :6579 ; ITOPOD :4014 ; Daily Spin :5744 ; titans :4779", "statut": "ABSENT", "ref_ecart": "E16", "note": "seul le 'Manually saving' (200 AP/jour) n'a pas d'équivalent"},
+    {"id": "F34", "domaine": "Daily Spin (table)", "formule_source": "feuille sheet-daily-gains.csv : AP moyen 65, 223, 426, 461, 1000, 1488, 2220, 2775", "jeu": "IDLE_DAILY_SPIN_REWARDS_V1 idle-ngu-progression.js:5744", "statut": "AMBIGU", "ref_ecart": "E10"},
+    {"id": "F35", "domaine": "Money Pit", "formule_source": "feuille : AP = log10(or) par jet", "jeu": "reward.ap = floor(log10(cost)) :5657 ; table de récompenses 11 paliers identique au wiki", "statut": "OK"},
+    {"id": "F36", "domaine": "Guide général : modificateurs de difficulté", "formule_source": "Evil : A/D /1e30, Augs 2.5e12, TM 1e12, Blood 1e9, boss 1.5^n, PPP 700 ; Sadistic : Augs 1e15, TM 1e12, Blood 1e13, boss 1.2^n, PPP 2000", "jeu": "dividers :1438-1441 ; boss :2168 (1.5, 1.2) ; PPP :3970", "statut": "OK", "note": "Sadistic : le guide donne des rapports relatifs à Evil (1e15, 1e12, 1e13), le jeu des valeurs absolues 2.5e27, 1e24, 1e22 : équivalentes"},
+    {"id": "F37", "domaine": "Cartes, mayo, cuisine, MacGuffins, sets", "formule_source": "cardTier*, cardTagged* (player.ts:220-445), fruits de Mayo, cooking.ts", "jeu": "non contrôlé ici (autre domaine)", "statut": "OK", "note": "hors périmètre de ce rapport ; les tiers de cartes de player.ts sont listés dans le .md"}
+  ],
+  "ecarts": [
+    {
+      "id": "E01", "categorie": "A", "gravite": "haute", "statut": "ECART",
+      "titre": "Vitesse des Wishes : facteur 50 ticks/s absent",
+      "source": "wish.ts:46-50 : vitesse = P^0.17 * wishSpeed / (100/50) / (diviseur*(niveau+1)), soit 50*P^0.17*(wishSpeed/100)/(diviseur*(niveau+1)) par seconde, avec wishSpeed en % (100 = x1). Temps par niveau (s) = diviseur*(niveau+1) / (50 * P^0.17 * mult), plancher 4 h.",
+      "jeu": "idle-ngu-progression.js:3025 : rawSeconds = diviseur*(niveau+1) / P^0.17 / mult, plancher 4 h. Pas de /50. Les Hacks, eux, divisent bien par 50 (ligne 2944).",
+      "cohérence": "Le wiki donne la formule par tick (le bug de précision flottante à 7 j 17 h 12 min est un phénomène de ticks). Hacks et Wishes de la source convertissent tous deux ticks -> secondes par un facteur 50 ; le jeu ne le fait que pour les Hacks.",
+      "impact": "Tout souhait dont le temps brut dépasse 4 h est calculé 50 fois plus lent dans le jeu que dans la source. Les souhaits sous le plancher de 4 h ne changent pas.",
+      "incertitude": "moyenne : demande une mesure (temps d'un souhait connu dans le vrai NGU)",
+      "action_suggeree": "vérifier avec une capture NGU (temps affiché d'un souhait, puissance et allocations connues) ; si confirmé, diviser rawSeconds par 50"
+    },
+    {
+      "id": "E02", "categorie": "A", "gravite": "moyenne", "statut": "ECART",
+      "titre": "ITOPOD : modèle de un-coup et étage optimal décalé de +5 étages",
+      "source": "zones.ts:238-244 et 262-266 : étage optimal = floor(log_1.05(power*idleMod/765)) ; 765 = 612/0.8 (PV max, dégâts min) ; oneHitPower = HP/(0.8*mod) + T/2. Coups/kill = max(1.05^(niveau - étageOptimal réel), 1).",
+      "jeu": "idle-ngu-progression.js:3911-3927 : PV 600*1.05^f (moyenne), défense 10*1.05^f, dégâts moyens (facteur 1.0) ; un coup si power - 5*1.05^f >= 500*1.05^f pour idle 1.2 (soit power >= 505*1.05^f) ; coups = ceil(...)",
+      "chiffres": "seuil 100 % un-coup : source 637.5*1.05^f (idle 1.2) ; jeu 505*1.05^f ; écart = log_1.05(637.5/505) = 4.8 étages. Vérifié par script sur 27 cas (power 1e3-1e30, idle 1.2/1.5/1.8) : écart de 4 à 5 étages, toujours en faveur du joueur. Table du wiki (510 à l'étage 0 avec Spoopy) = 765/1.5, identique à la source, pas au jeu (405).",
+      "impact": "étage optimal, donc PPP/kill (200+étage), palier d'EXP/AP, force des boosts : le joueur idle 5 étages plus haut que dans NGU ; un palier de 50 étages est franchi 10 % plus tôt.",
+      "incertitude": "faible sur le constat ; le choix moyenne/pire cas est une décision de conception (le wiki décrit un facteur aléatoire 0.8-1.2)",
+      "action_suggeree": "décider : garder le modèle moyen (documenter) ou aligner sur 765/mod pour l'étage optimal affiché"
+    },
+    {
+      "id": "E03", "categorie": "A", "gravite": "moyenne", "statut": "ECART",
+      "titre": "QP des Titans : seul le multiplicateur des perks est appliqué",
+      "source": "enemy.ts:218-223 getQP(wishes, qpBonus) = qpBonus*QP/100 ; player.ts totalQuestRewardBonus est le même total que pour les quêtes",
+      "jeu": "idle-ngu-progression.js:6011 : state.currencies.qp += gain('qp') * perksGain.qpEarningsMultiplier. Les quêtes (idle-questing-v1.js:250-266) appliquent en plus souhait 47, Mobster, Orange Heart, objets de quête niveau 100, QP Hack, cartes QP.",
+      "impact": "QP des Titans 6-12 (1 à 6 QP de base) sous-évalué de tout le reste du bonus QP",
+      "incertitude": "moyenne : la formule complète de totalQuestRewardBonus n'est pas dans le miroir",
+      "action_suggeree": "réutiliser le multiplicateur QP des quêtes (hors bonus propres à la quête : active x2, Beast Butter)"
+    },
+    {
+      "id": "E04", "categorie": "A", "gravite": "moyenne", "statut": "ECART",
+      "titre": "Fruit of Quirks : QPRewardModifier non appliqué",
+      "source": "yggdrasil.ts (FruitOfQuirks.fruitYield) : ceil(T * (1+FH/10) * poop * yieldSansNGU * qpRewardBonus/100 * 3)",
+      "jeu": "idle-yggdrasil-extra-v1.js:295 : ceil(T*3*multipliers) ; commentaire 'QPRewardModifier non publié -> 1'",
+      "impact": "QP du fruit sous-évalué du bonus QP total",
+      "incertitude": "faible : la source le définit (qpRewardBonus), le wiki dit seulement 'multiplied by other bonuses'",
+      "action_suggeree": "passer le multiplicateur QP des quêtes en argument"
+    },
+    {
+      "id": "E05", "categorie": "C", "gravite": "moyenne", "statut": "AMBIGU",
+      "titre": "Blood Spaghetti et Counterfeit Gold : source et wiki divergent",
+      "source": "player.ts:197-198 : dropChance = ceil(log2(sang/10000)) ; timeMachine = ceil(log2(sang/1e6)^2)",
+      "wiki": "Blood Magic : (log2(sang/10000)+1) % et (log2(sang/1e6)+1)^2 %",
+      "jeu": "idle-ngu-progression.js:3531 et 3538 (suit le wiki)",
+      "chiffres": "sang=1e9 : Counterfeit Gold wiki 120.3 % contre source 100 % ; sang=1e4 (minimum) : Spaghetti wiki 1 % contre source 0 % ; sang=2e4 : 2 % contre 1 %",
+      "incertitude": "la source est tirée du code du jeu (sauvegarde) ; le wiki peut avoir un +1 approximatif",
+      "action_suggeree": "trancher avec une capture (bonus affiché pour une quantité de sang connue)"
+    },
+    {
+      "id": "E06", "categorie": "A", "gravite": "moyenne", "statut": "ABSENT",
+      "titre": "Seconde arme (Dual Wielding) : ratio des souhaits 28 et 45",
+      "source": "player.ts:954 : weaponTwoItem.ratio = 0.05*wish28 + 0.05*wish45",
+      "jeu": "aucun slot de seconde arme (idle-inventory-auto-v1.js:12,75 'absente de SOREAL') ; souhaits 28 et 45 sans effet",
+      "impact": "20 niveaux de souhaits sans effet ; jusqu'à +100 % des stats de la seconde arme",
+      "action_suggeree": "backlog : slot de seconde arme (Troll Evil 4 et 6 débloquent les souhaits)"
+    },
+    {
+      "id": "E07", "categorie": "C", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "Cooldown d'Amalgamate : 7.45 h (source) contre 7 h 13 min 20 s (wiki, jeu)",
+      "source": "enemy.ts Titan AMALGAMATE respawnTime 7.45",
+      "wiki": "Titans : 7:13:20", "jeu": "idle-adventure-v47.js:649 : (433+1/3) min",
+      "action_suggeree": "aucune (le wiki prime)"
+    },
+    {
+      "id": "E08", "categorie": "C", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "PPP d'IT HUNGERS et ROCK LOBSTER : la page ITOPOD contredit toutes les autres sources",
+      "wiki": "ITOPOD, 'Other income' : 600 000 et 800 000 ; pages Titans, IT HUNGERS, ROCK LOBSTER : 500 000 et 700 000",
+      "source": "enemy.ts : 500 000 et 700 000 (feuille CSV : idem pour les 4 autres)",
+      "jeu": "idle-adventure-v47.js:4789-4790 : 500 000 et 700 000",
+      "action_suggeree": "aucune ; noter la coquille de la page ITOPOD"
+    },
+    {
+      "id": "E09", "categorie": "C", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "Diviseur Sadistic des Augmentations : 2.5e27 (wiki, jeu) contre 2.08e27 (source)",
+      "source": "gear-optimizer-Augment.js : énergie de base version 3 = 5e34/1.2 avec le commentaire 'HACK: why do we need to divide by 1.2' ; rapport à la version Normal 2e7 = 2.083e27",
+      "jeu": "idle-ngu-progression.js:1439 : 2.5e27",
+      "impact": "20 % de vitesse d'Augmentation en Sadistic",
+      "action_suggeree": "aucune sans mesure ; le facteur 1.2 pourrait venir d'un bonus caché du jeu"
+    },
+    {
+      "id": "E10", "categorie": "B", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "Daily Spin palier 3 : la feuille vaut 461 AP, la table du wiki (et du jeu) 561",
+      "source": "sheet-daily-gains.csv : 461 sans jackpot, 711 avec ; 461 = 0.37*300 + 0.25*600 + 0.10*2000",
+      "wiki_jeu": "3 000 AP à 10 % : 561 et 811",
+      "lecture": "la feuille (1.260) utilise 2000 au lieu de 3000 pour le lot à 10 % du palier 3 : coquille de la feuille (les paliers 1 et 2 suivent la suite 1000, 2000, 3000)",
+      "action_suggeree": "aucune"
+    },
+    {
+      "id": "E11", "categorie": "B", "gravite": "triviale", "statut": "AMBIGU",
+      "titre": "Prix des consommables dans la feuille : Little Blue Pill 2250 et Beast Butter 8000",
+      "source": "sheet-daily-gains.csv (colonne 'AP value')",
+      "jeu": "idle-sellout-shop-v1.js:55-60 : LBP 2500 (x1000), 20000 (x10000), 175000 (x100000) ; Butter 10000, 90000 (x10), 800000 (x100)",
+      "lecture": "8000 = prix unitaire du lot de 100 ; 2250 ne correspond à aucun lot actuel (ancien prix)",
+      "action_suggeree": "aucune"
+    },
+    {
+      "id": "E12", "categorie": "C", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "Idle attack modifier : combinaison Spoopy et Sadistic No Equipment",
+      "source": "getIdleAttackModifier(spoopy, sadNEC) absent du miroir ; feuille : 1.2 de base",
+      "wiki": "ITOPOD : 1.2 de base, 1.5 Spoopy maxé, 1.8 avec SNEC (table 'avec SNEC' = 1.2 x la valeur Spoopy)",
+      "jeu": "1.5 ou 1.2, multiplié par (1 + 0.02*n + 0.10 à n=5) : 1.8 avec Spoopy et 5 SNEC, mais 1.44 avec 5 SNEC sans Spoopy",
+      "action_suggeree": "confirmer si SNEC agit seul (1.8) ou sur Spoopy (1.8 = 1.5 x 1.2)"
+    },
+    {
+      "id": "E13", "categorie": "A", "gravite": "triviale", "statut": "ECART",
+      "titre": "PPP par kill : arrondi par kill de la source contre cumul fractionnaire du jeu",
+      "source": "zones.ts getPPPPerKill : .floor() sur chaque kill",
+      "jeu": "idle-ngu-progression.js:4006 cumule des fractions",
+      "chiffres": "étage 1, bonus 137 % : 275 par kill (source) contre 275.37 (jeu) : +0.13 %",
+      "action_suggeree": "aucune"
+    },
+    {
+      "id": "E14", "categorie": "C", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "Titans v2/v3/v4 : multiplicateur systématique (commentaire de la source) ou lié au souhait 3 (wiki)",
+      "source": "enemy.ts:88-90 : commentaire 'if more than one, exp, pp, qp, ap are 1, 1.1, 1.2, 1.3 multiplied'",
+      "wiki": "souhait 3 : +10 % / +20 % / +30 % (EXP, PP, QP), pages des titans : 'if the wish is researched'",
+      "jeu": "1 + 0.1*min(niveau du souhait, rang) sur EXP, PP, QP (idle-adventure-v47.js:4806)",
+      "action_suggeree": "aucune (le wiki prime)"
+    },
+    {
+      "id": "E15", "categorie": "C", "gravite": "triviale", "statut": "AMBIGU",
+      "titre": "Perk 'Bonus Titan EXP!' : bug documenté",
+      "wiki": "Experience : 'Bugged, AK while the game is open does not decrease the count so it will benefit all the online AKs' ; feuille : facteur 1.024 'Accounts for Titan EXP Perk bug'",
+      "jeu": "+50 % sur les 3*niveau premiers kills par Rebirth, sans le bug",
+      "action_suggeree": "aucune"
+    },
+    {
+      "id": "E16", "categorie": "A", "gravite": "triviale", "statut": "ABSENT",
+      "titre": "AP : sauvegarde manuelle (200 AP par jour)",
+      "source": "sheet-daily-gains.csv 'Daily Save 200' ; wiki Arbitrary Points",
+      "jeu": "aucun équivalent (sauvegarde serveur)",
+      "action_suggeree": "aucune ou petit bonus quotidien si voulu"
+    },
+    {
+      "id": "E17", "categorie": "A", "gravite": "basse", "statut": "ABSENT",
+      "titre": "Money Pit : paliers 12-16 (souhait 4), 'Equip +1 LVL' et +10 Power/Toughness du seuil 1E8",
+      "wiki": "Money Pit, Additional Tiers et One-Time Bonuses",
+      "jeu": "table limitée à 11 paliers ; equip et +10/+10 non modélisés (idle-ngu-progression.js:5497-5504 le documente)",
+      "action_suggeree": "déjà documenté dans le code"
+    },
+    {
+      "id": "E18", "categorie": "C", "gravite": "triviale", "statut": "AMBIGU",
+      "titre": "Plafonds de Resource 3",
+      "source": "playerData.ts : max défini pour Energy et Magic seulement",
+      "wiki": "Resource 3 : Power 1E18, Cap 9E18, Bars 1E18",
+      "jeu": "appliqués aux trois ressources",
+      "action_suggeree": "aucune"
+    },
+    {
+      "id": "E19", "categorie": "C", "gravite": "basse", "statut": "AMBIGU",
+      "titre": "Fruit of Adventure : définition de BaseToughness",
+      "source": "yggdrasil.ts : floor(f*ym*baseToughness^0.2), baseToughness = valeur importée de la sauvegarde",
+      "wiki": "'BaseToughness = Can be seen via the Spend EXP menu'",
+      "jeu": "idle-ngu-progression.js:3677 : Toughness avec équipement et permanents, sans multiplicateurs",
+      "action_suggeree": "confirmer que la valeur du menu Spend EXP inclut l'équipement"
+    },
+    {
+      "id": "E20", "categorie": "A", "gravite": "basse", "statut": "ABSENT",
+      "titre": "Fruits de Mayo (Angry, Sad, Moldy, Ayy, Cinco de, Pretty)",
+      "source": "yggdrasil.ts : tier^1.1 * poop * mayoSpeed/100 * 0.025 ; graines 10*(T + floor((T-1)/3)) (formule marquée incertaine par l'auteur) ; coût 250000*T^2",
+      "jeu": "absents (idle-ngu-progression.js:693, coût d'activation ambigu)",
+      "action_suggeree": "aucune tant que le coût d'activation n'est pas tranché"
+    },
+    {
+      "id": "E21", "categorie": "C", "gravite": "triviale", "statut": "AMBIGU",
+      "titre": "Réduction No Rebirth des titans : sans restriction (source) ou par rang (wiki)",
+      "source": "enemy.ts getRespawnTime : max(1, cooldown - nbNRC/4) où nbNRC = normal + evil + sadistic",
+      "wiki": "Normal dès Jake, Evil dès Greasy Nerd, Sadistic dès IT HUNGERS",
+      "jeu": "par rang (idle-adventure-v47.js:5064)",
+      "action_suggeree": "aucune (le wiki prime, et le cas ne se présente pas en jeu normal)"
+    },
+    {
+      "id": "E22", "categorie": "A", "gravite": "triviale", "statut": "ECART",
+      "titre": "Respawn : arrondi au centième supérieur (source) absent du jeu",
+      "source": "zones.ts getKillsPerHour : respawn.round(2, CEILING)",
+      "jeu": "idle-ngu-progression.js:3960 (respawn) : Math.max(0.34, ...) sans arrondi",
+      "action_suggeree": "aucune"
+    }
+  ],
+  "daily_spin": {
+    "seuils_de_spins": [0, 7, 14, 30, 60, 120, 180, 365],
+    "gratuit": true,
+    "cadence_h": 24,
+    "banque_h": {"defaut": 36, "avec_7_jours": 168},
+    "prix_ap_boutique_des_consommables_utilises_par_la_feuille": {
+      "energyPotionAlpha": 5000, "magicPotionAlpha": 5000, "energyPotionBeta": 10000, "magicPotionBeta": 10000,
+      "luckyCharm": 5000, "superLuckyCharm": 50000, "energyBarBar": 10000, "magicBarBar": 10000,
+      "macguffinMuffin": 50000, "energyPotionDelta": 100000, "magicPotionDelta": 100000,
+      "beastButter": {"feuille": 8000, "jeu_unite": 10000, "jeu_lot_100": 8000},
+      "littleBluePill_par_1000": {"feuille": 2250, "jeu": 2500}
+    },
+    "paliers": [
+      {"palier": 0, "lots": "50 AP 70 % ; 100 AP 30 %", "ap_moyen_jeu": 65, "ap_moyen_feuille": 65, "avec_jackpot_AP_jeu": 65, "avec_jackpot_AP_feuille": 65, "valeur_consommables_jeu": 0, "valeur_consommables_feuille": 0},
+      {"palier": 1, "lots": "100 AP 53 % ; 200 AP 35 % ; 1000 AP 10 % ; Potion E alpha 1 % ; Potion M alpha 1 %", "ap_moyen_jeu": 223, "ap_moyen_feuille": 223, "avec_jackpot_AP_jeu": 223, "avec_jackpot_AP_feuille": 223, "valeur_consommables_jeu": 100, "valeur_consommables_feuille": 100},
+      {"palier": 2, "lots": "200 AP 53 % ; 400 AP 30 % ; 2000 AP 10 % ; potions E/M alpha et beta, Lucky Charm, Energy/Magic Bar Bar 1 % chacun", "ap_moyen_jeu": 426, "ap_moyen_feuille": 426, "avec_jackpot_AP_jeu": 426, "avec_jackpot_AP_feuille": 426, "valeur_consommables_jeu": 550, "valeur_consommables_feuille": 550},
+      {"palier": 3, "lots": "300 AP 37 % ; 600 AP 25 % ; 3000 AP 10 % ; alpha x2 2 % ; beta 1 % ; Charm 2 % ; Bar Bar 2 % ; 20 graines 10 % ; 2 poop 5 % ; jackpot consommables 0.5 % ; 50000 AP 0.5 %", "ap_moyen_jeu": 561, "ap_moyen_feuille": 461, "avec_jackpot_AP_jeu": 811, "avec_jackpot_AP_feuille": 711, "valeur_consommables_jeu": 900, "valeur_consommables_feuille": 900, "ecart": "E10"},
+      {"palier": 4, "lots": "500 AP 50 % ; 1000 AP 25 % ; 5000 AP 10 % ; 7 consommables 1 % ; 100 graines 5 % ; 5 poop 1 % ; jackpot 0.5 % ; 75000 AP 0.5 % ; potions delta 0.5 % chacune", "ap_moyen_jeu": 1000, "ap_moyen_feuille": 1000, "avec_jackpot_AP_jeu": 1375, "avec_jackpot_AP_feuille": 1375, "valeur_consommables_jeu": 1550, "valeur_consommables_feuille": 1550},
+      {"palier": 5, "lots": "800 AP 36 % ; 1600 AP 25 % ; 8000 AP 10 % ; alpha/Charm/Bar Bar 2 % ; beta 1 % ; 400 graines 10 % ; 10 poop 5 % ; jackpot 0.5 % ; 100000 AP 0.5 % ; delta 0.5 %", "ap_moyen_jeu": 1488, "ap_moyen_feuille": 1488, "avec_jackpot_AP_jeu": 1988, "avec_jackpot_AP_feuille": 1988, "valeur_consommables_jeu": 1900, "valeur_consommables_feuille": 1900},
+      {"palier": 6, "lots": "1200 AP 35 % ; 2400 AP 25 % ; 12000 AP 10 % ; lots x2 ; 2000 graines 10 % ; 25 poop 5 % ; delta 1 % ; jackpot 0.5 % ; 150000 AP 0.5 %", "ap_moyen_jeu": 2220, "ap_moyen_feuille": 2220, "avec_jackpot_AP_jeu": 2970, "avec_jackpot_AP_feuille": 2970, "valeur_consommables_jeu": 3800, "valeur_consommables_feuille": 3800},
+      {"palier": 7, "lots": "1500 AP 35 % ; 3000 AP 25 % ; 15000 AP 10 % ; lots x2 ; 5000 graines 10 % (bug wiki repris) ; 25 poop 5 % ; delta 1 % ; jackpot 0.5 % ; 175000 AP 0.5 %", "ap_moyen_jeu": 2775, "ap_moyen_feuille": 2775, "avec_jackpot_AP_jeu": 3650, "avec_jackpot_AP_feuille": 3650, "valeur_consommables_jeu": 3800, "valeur_consommables_feuille": 3800}
+    ],
+    "jackpot_consommables": {
+      "valeur_tier7_ap_jeu": 1107500,
+      "valeur_tier7_ap_feuille": 1100250,
+      "note": "0.5 % x 1 100 250 = 5 501.25 (case 'AP Total' de la feuille) ; la différence de 7 250 vient de Beast Butter (3 x 2 000) et Little Blue Pill (5 x 250)"
+    },
+    "verification": "8 paliers sur 8 : somme des poids = 100 %, tous les lots et chances identiques à la page Daily Spin du wiki ; 7 paliers sur 8 identiques à la feuille (voir E10). Script : Temp/claude/xcheck/spin.mjs"
+  }
+}

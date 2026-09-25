@@ -43,7 +43,7 @@ const acheter = (s, item, quantity = 1) => applyIdleNguAction(s, { action: "buyE
 {
   const s = acheter(fresh(30000), "diggerSlot").state;
   const snap = idleNguSnapshot(s, ctx, 3_000_000);
-  assert.ok(Array.isArray(snap.expShop) && snap.expShop.length === Object.keys(IDLE_NGU_EXP_SHOP_V1).length);
+  assert.ok(Array.isArray(snap.expShop) && snap.expShop.length === Object.values(IDLE_NGU_EXP_SHOP_V1).filter((d) => !(d.yggFruit && /Mayo$/.test(d.yggFruit))).length, "les Auto-Activate des fruits de Mayo n'apparaissent qu'avec Cards");
   assert.equal(snap.expShop.find((x) => x.id === "diggerSlot").purchased, 1);
   assert.equal(snap.richJerks.cost, 30);
 }

@@ -23,7 +23,7 @@ const avecAleatoire = (valeur, fn) => {
 };
 
 function base(sets = { sewers: true }) {
-  let s = normalizeIdleNguState({}, ctx, T0);
+  let s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
   s.adventure.unlockItems = Object.assign({}, s.adventure.unlockItems, { heroicSigil: true });
   s.adventure.completedSets = Object.assign({}, sets);
   return normalizeIdleNguState(s, ctx, T0);
@@ -31,7 +31,7 @@ function base(sets = { sewers: true }) {
 
 // --- Déblocage : Heroic Sigil -> Questing -> Quirks ---
 {
-  const verrouille = normalizeIdleNguState({}, ctx, T0);
+  const verrouille = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
   assert.equal(verrouille.systems.questing.unlocked, false);
   assert.throws(() => act(verrouille, { action: "questStart" }), /SYSTEME_VERROUILLE/);
   assert.equal(idleNguSnapshot(verrouille, ctx, T0).questing.unlocked, false);
@@ -235,7 +235,7 @@ let enQuete;
   assert.match(html, /Bits of String/);
   assert.match(html, /Égouts/);
   assert.match(html, /50/);
-  const verrou = window.__SOREAL_IDLE_QUESTING_V1__.page({ systemes: idleNguSnapshot(normalizeIdleNguState({}, ctx, T0), ctx, T0) });
+  const verrou = window.__SOREAL_IDLE_QUESTING_V1__.page({ systemes: idleNguSnapshot(normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0), ctx, T0) });
   assert.match(verrou, /verrouillé/);
   const api = window.__questingIdleV1__;
   api.demarrer(true); api.remettre(); api.terminer(); api.abandonner(); api.idle(true); api.prefs({ useButter: false }); api.fusionner("sewers", 0, 0); api.allerZone("sewers");

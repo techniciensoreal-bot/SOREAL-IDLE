@@ -1,0 +1,219 @@
+{
+ "meta": {
+  "genere": "2026-09-25",
+  "sources": {
+   "jeu": [
+    "cloudflare/src/idle-perks-v1.js",
+    "cloudflare/src/idle-quirks-v1.js",
+    "cloudflare/src/idle-cards-v1.js (perks 161-216, quirks 99-169)"
+   ],
+   "wiki": [
+    "Perk Points",
+    "Quirk Points",
+    "Fibonacci Perk",
+    "MacGuffin Fragments",
+    "THE END"
+   ],
+   "tierce": [
+    "ngu-idle-calculators-ts/perks.ts",
+    "ngu-idle-calculators-ts/quirks.ts"
+   ]
+  },
+  "note_tierce": "perks.ts/quirks.ts ne contiennent NI coût NI niveau max : seulement id, nom, mode de difficulté et valeur(s) par niveau. Coût/cap ne peuvent donc être contrôlés que contre le wiki."
+ },
+ "perks": {
+  "manquants": [
+   {
+    "id": 56,
+    "nom_wiki": "Macguffin Daycare!",
+    "nom_tierce": "Macguffin Daycare!",
+    "cout_wiki": 5000,
+    "cap_wiki": 1,
+    "effet_wiki": "With this perk, the Daycare Kitty can use her power of happiness to improve your ancient cosmic artifacts! c:",
+    "difficulte_tierce": "Evil",
+    "stats_tierce": [],
+    "note_wiki": "Evil only"
+   }
+  ],
+  "ecarts": [
+   {
+    "id": 90,
+    "nom": "Improved Quest Looting",
+    "type": "effet_tierce",
+    "detail": "QUEST_DROP: tierce 0.5 / jeu 50",
+    "wiki": {
+     "cout": 200,
+     "cap": 30
+    },
+    "tierce": {
+     "mode": "Evil",
+     "stats": [
+      [
+       "QUEST_DROP",
+       0.5
+      ]
+     ]
+    },
+    "jeu": {
+     "cout": 200,
+     "cap": 30,
+     "bonus": {
+      "questDropsPct": 0.5
+     }
+    },
+    "gravite": "aucune (convention d'unité)",
+    "commentaire": "questDropsPct=0.5 est en pourcent et lu /100 ; effet réel 0.5%/niveau = wiki = tierce"
+   },
+   {
+    "id": 94,
+    "nom": "The Fibonacci Perk",
+    "type": "nom_tierce",
+    "detail": "tierce \"Fibonacci Perk\" / jeu \"The Fibonacci Perk\"",
+    "wiki": {
+     "cout": 500,
+     "cap": 1597
+    },
+    "tierce": {
+     "mode": "Normal",
+     "stats": []
+    },
+    "jeu": {
+     "cout": 500,
+     "cap": 1597,
+     "bonus": {}
+    },
+    "gravite": "cosmétique",
+    "commentaire": "'Fibonacci Perk' (tierce) / 'The Fibonacci Perk' (wiki, jeu)"
+   },
+   {
+    "id": 94,
+    "nom": "The Fibonacci Perk",
+    "type": "nom_wiki_vs_tierce",
+    "detail": "wiki \"The Fibonacci Perk\" / tierce \"Fibonacci Perk\"",
+    "wiki": {
+     "cout": 500,
+     "cap": 1597
+    },
+    "tierce": {
+     "mode": "Normal",
+     "stats": []
+    },
+    "jeu": {
+     "cout": 500,
+     "cap": 1597,
+     "bonus": {}
+    },
+    "gravite": "cosmétique",
+    "commentaire": "idem"
+   },
+   {
+    "id": 203,
+    "nom": "Faster Mayo Generation II",
+    "type": "effet_tierce",
+    "detail": "MAYO_SPEED: tierce 0 / jeu 0.4; CARD_SPEED: tierce 0.4 / jeu 0",
+    "wiki": {
+     "cout": 2000000,
+     "cap": 10
+    },
+    "tierce": {
+     "mode": "Sadistic",
+     "stats": [
+      [
+       "CARD_SPEED",
+       0.4
+      ]
+     ]
+    },
+    "jeu": {
+     "cout": 2000000,
+     "cap": 10,
+     "bonus": {
+      "mayoSpeedPct": 0.004
+     }
+    },
+    "gravite": "aucune (erreur de la source tierce)",
+    "commentaire": "la tierce met CARD_SPEED au lieu de MAYO_SPEED ; wiki et jeu : Mayo"
+   }
+  ],
+  "effets_non_branches": [],
+  "resume": {
+   "total_ids_union": 232,
+   "wiki": 232,
+   "tierce": 232,
+   "jeu": 231,
+   "noms_concordent_wiki": "231/231",
+   "couts_concordent_wiki": "231/231",
+   "caps_concordent_wiki": "231/231",
+   "effets_comparables_tierce": 116,
+   "effets_concordent_tierce": "114/116",
+   "branches": 230,
+   "non_branches": 0,
+   "effets_concordent_tierce_apres_analyse": "116/116 (les 2 écarts bruts sont des artefacts : unité et erreur de la tierce)",
+   "note": "231 perks au jeu sur 232 (manque 56). Les 230 perks à effet sont tous lus par du code de jeu ; 231 = blague sans effet."
+  }
+ },
+ "perks_tableau": 232,
+ "quirks": {
+  "manquants": [],
+  "ecarts": [],
+  "effets_non_branches": [],
+  "resume": {
+   "total_ids_union": 186,
+   "wiki": 186,
+   "tierce": 186,
+   "jeu": 186,
+   "noms_concordent_wiki": "186/186",
+   "couts_concordent_wiki": "186/186",
+   "caps_concordent_wiki": "186/186",
+   "effets_comparables_tierce": 91,
+   "effets_concordent_tierce": "91/91",
+   "branches": 185,
+   "non_branches": 0,
+   "note": "186/186 quirks au jeu. 185 à effet lus ; 176 = blague sans effet."
+  }
+ },
+ "quirks_tableau": 186,
+ "difficulte": {
+  "constat": "Colonne wiki 'Buy Early?'/'Note' = 'Evil only'/'Sadistic only' concorde à 100% avec le champ `mode` de la source tierce (perks 65 Normal/85 Evil/82 Sadistic ; quirks 27/55/104). Le jeu n'a aucun champ de difficulté et ne bloque ni l'achat ni l'effet (buyPerkV1/buyQuirkV1).",
+  "perks": {
+   "Normal": 65,
+   "Evil": 85,
+   "Sadistic": 82
+  },
+  "quirks": {
+   "Normal": 27,
+   "Evil": 55,
+   "Sadistic": 104
+  }
+ },
+ "ambigus": [
+  {
+   "id": "perk 90",
+   "detail": "clé questDropsPct=0.5 par niveau en POURCENT (lue /100 dans idle-questing-v1.js:196), alors que les autres clés *Pct sont des fractions (0.01 = 1%). Effet correct (0.5%/niv, tierce 0.5, wiki 0.5%) mais piège de convention."
+  },
+  {
+   "id": "perk 203",
+   "detail": "source tierce : Faster Mayo Generation II porte CARD_SPEED 0.4 au lieu de MAYO_SPEED (faute de frappe probable). Wiki et jeu : vitesse de MAYO 0.4%/niv. Le jeu a raison."
+  },
+  {
+   "id": "perk 144",
+   "detail": "le commentaire d'en-tête d'idle-perks-v1.js dit que Aug Speed +20% et NGU Speed +20% sont omis de `bonus`, mais le code les contient (augmentSpeedPct, nguSpeed*Pct = 0.2) et ils sont lus (idle-ngu-progression.js:2555 et NGU speed). Commentaire périmé, pas le code. Les 3 sources concordent."
+  },
+  {
+   "id": "perk 56",
+   "detail": "Macguffin Daycare! : wiki (Perk Points) coût 5000, cap 1, 'Evil only' ; effet (page MacGuffin Fragments) : 'Allow MacGuffins to be put in daycare slots'. Source tierce : mode Evil, aucun stat. Aucune valeur de vitesse/niveaux dans aucune source."
+  },
+  {
+   "id": "perk 231 / quirk 176",
+   "detail": "blagues sans effet dans le wiki ET la source tierce ; la page THE END les relie aux pièces #482 (perk 231, 'NGU.EXE WILL NOW CLOSE.') et #486 (quirk 176, 'A FATAL EXCEPTION HAS OCCURED.'). Le jeu SOREAL n'a pas les pièces THE END."
+  },
+  {
+   "id": "perk 34",
+   "detail": "wiki : bug connu (l'auto-kill de Titans à l'ouverture ne décrémente pas le compteur). Non répliqué dans le jeu, et c'est normal."
+  },
+  {
+   "id": "difficulté",
+   "detail": "voir jsonOut.difficulte : l'hypothèse du code ('Buy Early?' = simple conseil) est contredite par la source tierce (champ mode + appliesToGameMode) et par la page MacGuffin Fragments (colonne Difficulty pour les perks 56,65-73,88)."
+  }
+ ]
+}
