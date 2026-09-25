@@ -47,6 +47,6 @@ function essayer(cible, typeBoost) {
   r = essayer(Object.assign({}, epee, { baseToughness: 80 }), "toughness");
   assert.equal(r.envoyes.length, 1, "Toughness présente et non remplie : accepté");
 }
-assert.match(ui, /if\(target\.fullyMaxed\|\|cap<=1e-9\|\|actuel>=cap-1e-9\)return false;/, "pas d'application optimiste sans statistique");
+assert.match(ui, /if\(target\.fullyMaxed\|\|cap<=1e-9\|\|\(specialsRestants===null\?actuel>=cap-1e-9:!specialsRestants\)\)return false;/, "pas d'application optimiste sans statistique (ni quand tous les Specials sont pleins)");
 
 console.log("idle-boost-refused-without-stat-v1: OK");

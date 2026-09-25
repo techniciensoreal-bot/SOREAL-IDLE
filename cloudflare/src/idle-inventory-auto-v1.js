@@ -92,7 +92,8 @@ import {
   idleAdventureInventoryCapacityV1,
   idleAdventureInventoryUsedV1,
   idleAdventureBoostRoomV1,
-  idleAdventureItemAtLevelV47
+  idleAdventureItemAtLevelV47,
+  IDLE_SECOND_WEAPON_SLOTS_V1
 } from "./idle-adventure-v47.js";
 import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -115,7 +116,7 @@ export const IDLE_LOOT_FILTER_TYPES_V1 = Object.freeze(["head", "chest", "legs",
 /* Page Inventory, Inventory Shortcuts : « Q for Power, W for Toughness, and E for Special ». */
 export const IDLE_BOOST_TYPES_V1 = Object.freeze(["power", "toughness", "special"]);
 
-const CORE_SLOTS = ["head", "chest", "legs", "boots", "weapon"];
+const CORE_SLOTS = ["head", "chest", "legs", "boots", "weapon", "weapon2"];
 const EPS = 1e-9;
 
 /* ---------- état persistant (vit dans state.adventure.inventoryAuto) ---------- */
@@ -443,6 +444,8 @@ export function idleInventoryTransformBoostV1(s, itemId, type, env) {
 function basicFilterTypeV1(o) {
   if (!o || o.kind === "boost" || o.consumable) return "";
   if (CORE_SLOTS.includes(o.slot)) return o.slot;
+  /* Les secondes armes des sets tardifs sont de type Weapon sur le wiki. */
+  if (IDLE_SECOND_WEAPON_SLOTS_V1.includes(o.slot)) return "weapon";
   if (o.kind === "cube") return "accessory";
   if (o.slot === "special" || o.slot === "consumable") return "";
   return "accessory";

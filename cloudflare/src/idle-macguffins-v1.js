@@ -76,10 +76,11 @@ export const IDLE_MACGUFFIN_FORMULAS_V1 = Object.freeze({
  *    (page Blood Magic, "Other features", avec Blood Digger / Blood Hack) ;
  *  - SEXY / SMART : aucun effet (seulement un portrait à 250 %, système
  *    de portraits absent) ;
- *  - Golden : AUCUNE page ne précise quel multiplicateur d'or il alimente
- *    (drops d'or d'Aventure ? production de la Time Machine ?) : le bonus
- *    permanent est calculé et affiché mais volontairement NON branché
- *    (règle n°1 d'AGENTS.md, jamais deviné).
+ *  - Golden : AUCUNE page du wiki ne précise quel multiplicateur d'or il alimente.
+ *    Source tierce (thecaligarmo/ngu-idle-calculators, macguffins.ts : « Golden
+ *    MacGuffin » -> Stat.GOLD_DROP, la même stat que le perk Golden Showers) : il
+ *    alimente les Gold Drops, soit adventureGoldMultiplier (branché le 2026-09-25 ;
+ *    source unique, à recouper si le wiki se précise).
  */
 export const IDLE_MACGUFFIN_TYPES_V1 = Object.freeze([
   { id: "energyPower", item: 198, name: "Energy Power MacGuffin Fragment", nom: "Fragment MacGuffin Energy Power", zone: "sewers", formula: "power", effect: "energyPower", effet: "Energy Power" },
@@ -93,7 +94,7 @@ export const IDLE_MACGUFFIN_TYPES_V1 = Object.freeze([
   { id: "sexy", item: 206, name: "SEXY MacGuffin Fragment", nom: "Fragment MacGuffin SEXY (ex-Energy Beard)", zone: "avsp", formula: "standard", effect: null, effet: "Aucun effet (portrait à 250 %)" },
   { id: "smart", item: 207, name: "SMART MacGuffin Fragment", nom: "Fragment MacGuffin SMART (ex-Magic Beard)", zone: "mega", formula: "standard", effect: null, effet: "Aucun effet (portrait à 250 %)" },
   { id: "dropChance", item: 208, name: "Drop Chance MacGuffin Fragment", nom: "Fragment MacGuffin Drop Chance", zone: "beardverse", formula: "standard", effect: "dropChance", effet: "Drop Chance" },
-  { id: "golden", item: 209, name: "Golden MacGuffin Fragment", nom: "Fragment MacGuffin Golden", zone: "badly", formula: "golden", effect: null, effet: "Or (cible non documentée par le wiki : non appliqué)" },
+  { id: "golden", item: 209, name: "Golden MacGuffin Fragment", nom: "Fragment MacGuffin Golden", zone: "badly", formula: "golden", effect: "goldDrops", effet: "Gold Drops (or des drops d'Aventure ; source tierce)" },
   { id: "augment", item: 210, name: "Augment MacGuffin Fragment", nom: "Fragment MacGuffin Augment", zone: "boring", formula: "augment", effect: "augmentSpeed", effet: "Vitesse des Augments" },
   { id: "stat", item: 228, name: "Stat MacGuffin Fragment", nom: "Fragment MacGuffin Stat", zone: "chocolate", requiresSet: "choco", formula: "stat", effect: "stat", effet: "Attack et Defense" },
   { id: "energyWandoos", item: 211, name: "Energy Wandoos MacGuffin Fragment", nom: "Fragment MacGuffin Energy Wandoos", zone: "evilverse", formula: "wandoos", effect: "energyWandoos", effet: "Vitesse du Dump Energy de Wandoos" },
@@ -376,7 +377,7 @@ export function macguffinPermanentPctV1(state, typeId) {
 export function macguffinEffectMultipliersV1(state) {
   const out = {
     energyPower: 1, magicPower: 1, energyCap: 1, magicCap: 1, energyBars: 1, magicBars: 1,
-    energyNgu: 1, magicNgu: 1, energyWandoos: 1, magicWandoos: 1, dropChance: 1,
+    energyNgu: 1, magicNgu: 1, energyWandoos: 1, magicWandoos: 1, dropChance: 1, goldDrops: 1,
     augmentSpeed: 1, stat: 1, adventure: 1, number: 1, blood: 1, r3Power: 1, r3Cap: 1, r3Bars: 1
   };
   const perm = state?.systems?.macguffins?.data?.permanent;
@@ -410,6 +411,7 @@ export function macguffinApplyToBonusesV1(bonuses, state) {
   mul("adventurePowerMultiplier", m.adventure);
   mul("adventureToughnessMultiplier", m.adventure);
   mul("dropMultiplier", m.dropChance);
+  mul("adventureGoldMultiplier", m.goldDrops);
   mul("energyPowerMultiplier", m.energyPower);
   mul("energyCapMultiplier", m.energyCap);
   mul("energyBarsMultiplier", m.energyBars);
@@ -639,7 +641,7 @@ export function macguffinAfterAdventureV1(state, before, result, opts = {}, rng 
  *    donnent 1 ou 2 : écart de 100 %, donc rien n'est deviné ;
  *  - perk 56 « Macguffin Daycare! » : aucune page ne publie la vitesse de Daycare d'un fragment
  *    (les pages « … MacGuffin Fragment » sont des redirections, sans champ daycare) ;
- *  - fragment Golden : voir IDLE_MACGUFFIN_TYPES_V1 (cible d'or non documentée).
+ *  - fragment Golden : voir IDLE_MACGUFFIN_TYPES_V1 (Gold Drops, source tierce : voir le commentaire du haut).
  */
 
 function pickTarget(state, data, mode, rng) {

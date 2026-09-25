@@ -92,8 +92,8 @@ assert.doesNotThrow(() => applyIdleNguAction(etat("extreme"), { action: "buyQuir
   // catalogue exposé : rien en Normal (pas de spoil), les souhaits Evil en Evil, tout en Sadistic
   const nb = (d) => idleNguSnapshot(s(d), ctx, 0).systems.find((x) => x.id === "wishes").tracks.length;
   assert.equal(nb("normal"), 0);
-  assert.equal(nb("difficile"), 95);
-  assert.equal(nb("extreme"), 231);
+  assert.equal(nb("difficile"), 93, "95 souhaits Evil moins Dual Wielding I et II (Troll Challenges Evil 4 et 6)");
+  assert.equal(nb("extreme"), 229);
 }
 
 // --- Corrections de valeurs issues du contrôle croisé du 2026-09-25 (wiki + source tierce) ---

@@ -71,7 +71,7 @@ for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlo
   assert.ok(!selects[1].includes('<option value="1"'), "souhait déjà dans un autre slot");
   // 100 % du slot 2 = cap - 100 (déjà alloué au slot 1).
   assert.ok(html.includes("action:'allocateWishSlot',slot:1,resource:'energy',value:900"));
-  assert.ok(html.includes("Tous les souhaits (231)"));
+  assert.ok(html.includes("Tous les souhaits (229)"), "231 souhaits moins Dual Wielding I et II, qui exigent les Troll Challenges Evil 4 et 6 (page Wishes)");
 }
 
 console.log("idle-wish-slots-page-render: OK");

@@ -236,7 +236,7 @@ function fragment(s, type, level, equipped) {
   const avec = etatDebloque(s => {
     s.systems.macguffins.data.permanent = {
       energyPower: 50, magicPower: 20, energyCap: 30, magicCap: 40, energyBar: 10, magicBar: 60,
-      dropChance: 100, stat: 25, adventure: 400, r3Power: 5, r3Cap: 6, r3Bar: 7, golden: 999, sexy: 999, smart: 999
+      dropChance: 100, stat: 25, adventure: 400, r3Power: 5, r3Cap: 6, r3Bar: 7, golden: 100, sexy: 999, smart: 999
     };
   });
   const b0 = idleNguBonuses(base);
@@ -257,8 +257,8 @@ function fragment(s, type, level, equipped) {
   proche(ratio("r3PowerMultiplier"), 1.05, 1e-9, "R3 Power");
   proche(ratio("r3CapMultiplier"), 1.06, 1e-9, "R3 Cap");
   proche(ratio("r3BarsMultiplier"), 1.07, 1e-9, "R3 Bars");
-  proche(ratio("xpMultiplier"), 1, 1e-12, "Golden/SEXY/SMART : aucun autre effet");
-  proche(ratio("adventureGoldMultiplier"), 1, 1e-12, "Golden non branché (cible non documentée)");
+  proche(ratio("xpMultiplier"), 1, 1e-12, "Golden/SEXY/SMART : aucun autre effet sur l'EXP");
+  proche(ratio("adventureGoldMultiplier"), 2, 1e-9, "Golden -> Gold Drops (source tierce macguffins.ts, 2026-09-25)");
   /* Consommateur réel : la stat effective de ressource. */
   base.resources.energy.power = 10;
   avec.resources.energy.power = 10;

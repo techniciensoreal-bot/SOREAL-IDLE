@@ -17,7 +17,10 @@
         points:[
           'Certaines options (Perks, Quirks, Wishes) ne sont plus achetables que dans la difficulté prévue par le wiki. Ce que tu as déjà acheté est conservé, mais reste inactif tant que la difficulté requise n’est pas atteinte.',
           'Plusieurs valeurs corrigées d’après le wiki : niveaux et effets de quelques Wishes, gain d’or d’un objet d’aventure et une valeur de combat.',
-          'De nouveaux fruits deviennent disponibles dans Yggdrasil quand leur système est débloqué.'
+          'De nouveaux fruits deviennent disponibles dans Yggdrasil quand leur système est débloqué.',
+          'Les Special Boosts se comportent comme dans le jeu d’origine : ils apportent des points qui remplissent les Specials d’un objet dans l’ordre de sa fiche, et tous les Specials d’un objet (y compris ceux des accessoires) montent maintenant. Les objets déjà en sac ne perdent rien.',
+          'Un bonus d’objet qui n’était pas encore branché est maintenant actif.',
+          'Nouveau slot d’équipement pour certaines armes, quand les conditions du jeu sont remplies.'
         ]
       },
       {

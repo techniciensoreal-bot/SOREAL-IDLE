@@ -14847,7 +14847,7 @@ let idleDialogueTimerV76=null;
         'inventory','inventorySlots','equipment','itemList',
         'completedSets','setRewards','permanent','unlockItems','unlockFlags',
         'skillState','cube','cubeTier','inventoryCapacity','inventoryUsed',
-        'accessorySlotsCapacity','stats','trash','coffreSlots'
+        'accessorySlotsCapacity','stats','trash','coffreSlots','secondWeaponUnlocked','dualWieldRatio'
       ];
 
       function revisionAdventureServeurIdleV208_(a){
@@ -15134,7 +15134,8 @@ let idleDialogueTimerV76=null;
           utilise:utilise,
           cube:a.cube||{},
           cubeTier:a.cubeTier,
-          accessorySlotsCapacity:idleEntier_(a.accessorySlotsCapacity||2)
+          accessorySlotsCapacity:idleEntier_(a.accessorySlotsCapacity||2),
+          secondWeaponUnlocked:Boolean(a.secondWeaponUnlocked)
         };
       }
 
@@ -15241,6 +15242,9 @@ let idleDialogueTimerV76=null;
             rendreSlotPaperdollAdventureIdleV138_(
               'weapon','Arme',modele.itemById.get(String(modele.equipment.weapon))
             )+
+            (modele.secondWeaponUnlocked||modele.equipment.weapon2
+              ?rendreSlotPaperdollAdventureIdleV138_('weapon2','Seconde arme',modele.itemById.get(String(modele.equipment.weapon2)))
+              :'')+
             rendreSlotCubeInfiniAdventureIdleV1_(modele.cube,modele.cubeTier)+
           '</div>'+
           accessoiresRendu.debordement;
@@ -15538,10 +15542,16 @@ let idleDialogueTimerV76=null;
               }
               a.equipment.accessories.push(id);
             }
+          }else if(slot==='weapon2'){
+            if(!a.secondWeaponUnlocked)return false;
+            if(String(item.slot||'')!=='weapon'&&ADVENTURE_SECOND_WEAPON_SLOTS_V1.indexOf(String(item.slot||''))===-1)return false;
+            if(String(a.equipment.weapon||'')===id)a.equipment.weapon='';
+            a.equipment.weapon2=id;
           }else if(
             ADVENTURE_CORE_SLOTS_V138.indexOf(slot)!==-1&&
             String(item.slot||'')===slot
           ){
+            if(String(a.equipment.weapon2||'')===id)a.equipment.weapon2='';
             a.equipment[slot]=id;
           }else{
             return false;
@@ -15635,7 +15645,8 @@ let idleDialogueTimerV76=null;
                   ?idleNombre_(target.special)
                   :0;
             /* Objet sans cette statistique (plafond 0) ou statistique pleine : aucune application optimiste (2026-09-24). */
-            if(target.fullyMaxed||cap<=1e-9||actuel>=cap-1e-9)return false;
+            const specialsRestants=type==='special'?specialAcceptePlusDeBoostIdleV1_(target):null;
+            if(target.fullyMaxed||cap<=1e-9||(specialsRestants===null?actuel>=cap-1e-9:!specialsRestants))return false;
             target._idlePendingV160=txId||1;
             a.inventory=a.inventory.filter(function(x){
               return String(x&&x.id)!==String(boost.id);
@@ -17788,11 +17799,14 @@ function pageAventureIdleV28_(j){
 
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-234 */
-      const ADVENTURE_CORE_SLOTS_V138=['head','chest','legs','boots','weapon'];
+      const ADVENTURE_CORE_SLOTS_V138=['head','chest','legs','boots','weapon','weapon2'];
+      /* Seconde arme (Dual Wielding) : les 9 secondes armes des sets tardifs ne vont que dans ce slot (idle-adventure-v47.js, IDLE_SECOND_WEAPON_SLOTS_V1). */
+      const ADVENTURE_SECOND_WEAPON_SLOTS_V1=['baguette','vinylShard','apple','hammer','shotgun','tulip','cutlass','rocket','deathstick'];
 
       function emplacementEquipementAdventureIdleV138_(item){
         const slot=String(item&&item.slot||'');
-        return ADVENTURE_CORE_SLOTS_V138.indexOf(slot)!==-1?slot:'accessory';
+        if(ADVENTURE_SECOND_WEAPON_SLOTS_V1.indexOf(slot)!==-1)return 'weapon2';
+        return slot!=='weapon2'&&ADVENTURE_CORE_SLOTS_V138.indexOf(slot)!==-1?slot:'accessory';
       }
 
       function urlImageObjetAdventureIdleV138_(item){
@@ -18126,6 +18140,11 @@ function pageAventureIdleV28_(j){
 
         if(cible.hasAttribute('data-idle-coffre-drop-v180')){
           actionAdventureIdleV47_({action:'coffreDeposer',id:source});
+          return;
+        }
+
+        if(cible.getAttribute('data-equip-slot-v180')==='weapon2'&&decisionActionSlotAdventureIdleV138_(source,String(cible.getAttribute('data-occupant-id')||''))==='equiper'){
+          equiperObjetAdventureIdleV47_(source,'weapon2');
           return;
         }
 
@@ -18838,9 +18857,10 @@ function pageAventureIdleV28_(j){
           toastIdleV5_('Cet objet n’a pas de statistique '+nomStat+' à remplir : le boost n’est pas consommé.');
           return;
         }
+        const specialsRestants=type==='special'?specialAcceptePlusDeBoostIdleV1_(cible):null;
         if(
           cible.fullyMaxed||
-          actuel>=cap-1e-9
+          (specialsRestants===null?actuel>=cap-1e-9:!specialsRestants)
         ){
           toastIdleV5_('Cette statistique est déjà au maximum : le boost n’est pas consommé.');
           return;
@@ -19011,6 +19031,13 @@ function pageAventureIdleV28_(j){
         else equiperParIdAdventureIdleV138_(sourceId);
       }
 
+      /* Special Boost (2026-09-25) : un objet accepte encore un boost tant qu'UN de ses Specials n'est pas plein (les points remplissent les Specials dans l'ordre de la fiche). */
+      function specialAcceptePlusDeBoostIdleV1_(item){
+        const tous=item&&Array.isArray(item.specialsAll)?item.specialsAll:null;
+        if(!tous||!tous.length)return null;
+        return tous.some(function(sv){return idleNombre_(sv.value)+1e-9<idleNombre_(sv.max);});
+      }
+
       function deposerSurSlotAdventureIdleV138_(event,slotName,occupantId){
         if(event){event.preventDefault();event.stopPropagation();}
         const id=idSourceAdventureIdleV138_(event);
@@ -19127,7 +19154,7 @@ function pageAventureIdleV28_(j){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-270 */
         const equipement=a&&a.equipment||{};
         const estEquipe=
-          ['head','chest','legs','boots','weapon'].some(function(slot){return String(equipement[slot]||'')===id;}) ||
+          ['head','chest','legs','boots','weapon','weapon2'].some(function(slot){return String(equipement[slot]||'')===id;}) ||
           (Array.isArray(equipement.accessories)&&equipement.accessories.includes(id));
         const boutonDesequiper=estEquipe
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__desequiperObjetAdventureIdleV47__(\''+idleHtml_(id)+'\')">🔓 Déséquiper</button>'
@@ -19513,6 +19540,7 @@ function pageAventureIdleV28_(j){
                   rendreSlotPaperdollAdventureIdleV138_('legs','Pantalon',itemById.get(String(equipment.legs)))+
                   rendreSlotPaperdollAdventureIdleV138_('boots','Bottes',itemById.get(String(equipment.boots)))+
                   rendreSlotPaperdollAdventureIdleV138_('weapon','Arme',itemById.get(String(equipment.weapon)))+
+                  (a.secondWeaponUnlocked||equipment.weapon2?rendreSlotPaperdollAdventureIdleV138_('weapon2','Seconde arme',itemById.get(String(equipment.weapon2))):'')+
                   rendreSlotCubeInfiniAdventureIdleV1_(cube,a.cubeTier)+
                 '</div>'+
                 accessoiresRendu.debordement;

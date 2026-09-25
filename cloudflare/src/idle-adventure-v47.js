@@ -1,4 +1,5 @@
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
+import { idleSpecialPointsRatioV1 } from "./idle-adventure-special-points-v1.js";
 export const IDLE_ADVENTURE_V47="ADVENTURE-V47-NGU-EARLY";
 const MAX=100, H=3600000;
 const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b)=>Math.max(a,Math.min(b,N(v,a))),X=v=>JSON.parse(JSON.stringify(v));
@@ -651,7 +652,19 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   normal:{p:5.6e33,t:2.1e33},
   hard:{p:2.13e34,t:6.11e33},
   brutal:{p:4.12e34,t:1e34}
-}}
+}},
+/*
+ * 2026-09-25 : 13e et 14e titans (Sadistic). Pages « TIPPI THE TUTORIAL MOUSE » et « THE TRAITOR (titan) » du wiki + tableau de la page Titans.
+ * Seuils = « Recommended stats to defeat titan » (même lecture que les autres titans) : Tippi 40 Dc Power (4E+34) / 15 Dc Toughness (1,5E+34),
+ * le Traitor 150 Dc (1,5E+35) / 40 Dc (4E+34) ; le wiki y ajoute HP 1,5E+35 et Regen 1,5E+33 pour le Traitor (non testés : seuls Power et
+ * Toughness le sont pour tous les titans). Déblocage : boss 296 pour Tippi (la page du titan et le tableau de la page Titans se contredisent :
+ * 296 contre 295 ; on suit la page du titan), boss 300 pour le Traitor + Tippi tué au moins une fois. Respawn, EXP, AP, or et butin de
+ * Tippi : rien de publié (« the only purpose this titan serves is that you have to kill it at least once to unlock the Traitor » = un commentaire) ;
+ * même chose pour le respawn du Traitor : on applique le plancher du wiki (« a minimum of 60 minutes »), rien d'inventé de plus.
+ * secret : ni nom ni carte tant que le titan n'est pas accessible.
+ */
+{id:"tippi",name:"TIPPI THE TUTORIAL MOUSE",boss:296,sadisticOnly:true,secret:true,cooldown:H,p:4e34,t:1.5e34,drop:"",avatarLevel:6},
+{id:"traitor",name:"THE TRAITOR",boss:300,sadisticOnly:true,secret:true,cooldown:H,p:1.5e35,t:4e34,drop:"",avatarLevel:6,requiresTitan:"tippi",requiresKills:1}
 ]);
 const SETS={
 /*
@@ -1129,12 +1142,10 @@ export function idleAdventureItemStatsMaxV1(set,slot){
  * ([{type,base,max0,max100}]) : leur "Base value" wiki (valeur garantie par
  * le simple fait d'équiper l'objet, SANS boost) alimente l'agrégat
  * `specialsByType`/`specials` ci-dessous (idleAdventureEquipmentStatsV47).
- * Ces bonus `sExtra` ne sont PAS individuellement boostables : le wiki NGU
- * ne documente nulle part de mécanisme choisissant QUEL Special d'un objet
- * multi-bonus reçoit un Boost donné, et SOREAL n'a qu'un unique boostType
- * "special" par objet — inventer une UI de ciblage par sous-stat serait une
- * nouvelle mécanique non demandée. Signalé comme choix de conception dans le
- * rapport final, pas un oubli.
+ * MISE À JOUR 2026-09-25 : les bonus `sExtra` SONT boostables — un Special Boost verse des POINTS dans les Specials de l'objet dans l'ordre de la fiche
+ * (le 1er jusqu'à son plafond, puis le suivant ; wiki Build Cooking : « 30 Special Boosts before you can start leveling the Energy Power boost »), avec
+ * le ratio points/valeur de chaque Special (idle-adventure-special-points-v1.js). Valeurs courantes : `special` (1er) et `specialExtra` (les suivants),
+ * voir idleAdventureSpecialsListV1. L'ancien choix (sExtra figés à leur Base value) est abandonné.
  */
 const SPECIALS=Object.freeze({
 /*
@@ -2530,7 +2541,7 @@ function itemBaseValueAdventureV1(definitionId){
   return v?[N(v[0]),N(v[1])]:[0,0];
 }
 export function idleAdventureItemBaseValueV1(definitionId){const[p,t]=itemBaseValueAdventureV1(definitionId);return{power:p,toughness:t}}
-function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:itemBaseValueAdventureV1(definitionId)[0],toughness:itemBaseValueAdventureV1(definitionId)[1],hp:0,regen:0,special:N(SET_ITEM_SPECIALS_V1[definitionId]?.[0]?.[1])}}
+function item(id,set,slot,lv=0){const s=SETS[set];const definitionId=`${set}:${slot}`;const realName=SET_ITEM_NAMES_V1[definitionId];return{id,definitionId,wikiItemId:wikiItemIdAdventureV1(definitionId),name:realName||`${s.name} ${slot}`,kind:"equipment",set,slot,level:C(lv,0,MAX),power:itemBaseValueAdventureV1(definitionId)[0],toughness:itemBaseValueAdventureV1(definitionId)[1],hp:0,regen:0,special:N(SET_ITEM_SPECIALS_V1[definitionId]?.[0]?.[1]),...(SET_ITEM_SPECIALS_V1[definitionId]?.length>1?{specialExtra:SET_ITEM_SPECIALS_V1[definitionId].slice(1).map(x=>N(x[1]))}:{})}}
 function rollFreshEquipmentStatsV1(o){
   if(!o||o.kind!=="equipment")return o;
   /*
@@ -2581,7 +2592,7 @@ function rollFreshEquipmentStatsV1(o){
  * plancher réelle, PAS 0. Ne change rien pour les SPECIALS sans sBase
  * (undefined -> N(undefined)=0, comportement identique à avant).
  */
-function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:itemBaseValueAdventureV1(id)[0],toughness:itemBaseValueAdventureV1(id)[1],hp:0,regen:0,special:N(d.sBase)}}
+function special(id,lv=0){const d=SPECIALS[id];if(!d)throw Error("SPECIAL_INVALIDE");return{id,definitionId:id,wikiItemId:wikiItemIdAdventureV1(id),name:d.name,kind:d.cube?"cube":"special",slot:d.slot,zone:d.zone,set:d.set||"",consumable:Boolean(d.consumable),level:C(lv,0,MAX),power:itemBaseValueAdventureV1(id)[0],toughness:itemBaseValueAdventureV1(id)[1],hp:0,regen:0,special:N(d.sBase),...(Array.isArray(d.sExtra)&&d.sExtra.length?{specialExtra:d.sExtra.map(e=>N(e.base))}:{})}}
 function boost(type,strength){if(!["power","toughness","special"].includes(type)||!BOOSTS.includes(+strength))throw Error("BOOST_INVALIDE");return{id:`boost:${type}:${strength}:${Math.random()}`,definitionId:`boost:${type}:${strength}`,wikiItemId:wikiItemIdBoostV1(type,strength),name:`Boost ${type} ${strength}`,kind:"boost",boostType:type,strength:+strength,level:0}}
 /*
  * Norman (2026-09-14) : "Regarde bien le wiki pour voir les % de
@@ -2623,9 +2634,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
   if(type==="special"){
     const specialPiece=d?.kind==="set"&&Boolean(idleAdventureSetSpecialsV1(d.set,d.slot));
     if(d?.kind!=="special"&&!specialPiece)return 0;
-    const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):idleAdventureBaseStatsV1(d.set,d.slot);
-    const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
-    return cap==null?Infinity:Math.max(0,cap-N(o.special));
+    return idleAdventureSpecialsRoomPointsV1(o);
   }
   if(type!=="power"&&type!=="toughness")return 0;
   const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
@@ -2652,7 +2661,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",accessories:[]},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -2731,6 +2740,7 @@ if(d?.kind==="set"){
   const realName=SET_ITEM_NAMES_V1[`${d.set}:${d.slot}`];
   if(realName)z.name=realName;
 }
+idleAdventureNormaliserSpecialsExtraV1(z);
 return z}
 /* Migration 2026-09-23 : l'ancienne pièce "edgy:boots" (BOTH Edgy Boots) devient "bothedgy:boots". */
 function migrerEdgyBootsV1(s){
@@ -2796,6 +2806,13 @@ s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSet
  * une nouvelle remise à zéro complète.
  */
 if(s.fight.active&&s.fight.zone&&s.fight.zone!==s.selectedZone){s.fight=X(base().fight)}
+/* Seconde arme : slot toujours présent ; les secondes armes rangées en accessoires par l'ancienne version (100 % de leurs stats) sont migrées. */
+s.dualWieldRatio=Math.min(1,Math.max(0,N(s.dualWieldRatio)));
+s.equipment=Object.assign({},s.equipment);
+s.equipment.weapon2=typeof s.equipment.weapon2==="string"?s.equipment.weapon2:"";
+{const acc=Array.isArray(s.equipment.accessories)?s.equipment.accessories:[];const armes=acc.filter(id=>IDLE_SECOND_WEAPON_SLOTS_V1.includes(s.inventory.find(x=>x.id===id)?.slot));
+if(armes.length){s.equipment.accessories=acc.filter(id=>!armes.includes(id));if(!s.equipment.weapon2&&s.dualWieldRatio>0)s.equipment.weapon2=armes[0]}
+if(s.equipment.weapon2&&(!s.inventory.some(x=>x.id===s.equipment.weapon2)||s.equipment.weapon2===s.equipment.weapon))s.equipment.weapon2=""}
 /*
  * Auto-réparation des sauvegardes déjà en cours :
  * - une pièce actuellement verte/pleinement boostée doit immédiatement
@@ -2877,19 +2894,85 @@ const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slot
  * comment un boost se répartit entre plusieurs Specials).
  */
 function idleAdventureSetSpecialsV1(set,slot){return SET_ITEM_SPECIALS_V1[`${set}:${slot}`]||null}
+/*
+ * Specials d'un objet, SPECIAL PAR SPECIAL (2026-09-25). Définition : pièce de set = SET_ITEM_SPECIALS_V1 ; accessoire = sType/sBase/sMax puis sExtra.
+ * Valeur courante : le 1er Special est le scalaire `special` de l'objet, les suivants sont dans `specialExtra` (départ = Base value).
+ * Un Special Boost remplit les Specials DANS L'ORDRE de la fiche (le 1er jusqu'à son plafond, puis le suivant) et il apporte des POINTS :
+ * valeur = points / ratio (idle-adventure-special-points-v1.js). Wiki, page Build Cooking : « if you have a Level 0 Chef's Apron, you need
+ * to add 30 Special Boosts to it before you can start leveling the Energy Power boost » ; page Item data : « Base Points / Max Points ».
+ */
+function idleAdventureSpecialsDefsV1(o){
+  const d=defById(o&&o.definitionId);
+  if(!d)return[];
+  let list=[];
+  if(d.kind==="set"){
+    const l=idleAdventureSetSpecialsV1(d.set,d.slot);
+    if(l)list=l.map(([type,base,max0,max100])=>({type,base:N(base),max0:N(max0),max100:N(max100)}));
+  }else if(d.kind==="special"){
+    const sp=SPECIALS[d.id];
+    if(sp&&sp.sType){
+      list=[{type:sp.sType,base:N(sp.sBase),max0:N(sp.sMax),max100:N(sp.sMax)*2}];
+      for(const e of sp.sExtra||[])list.push({type:e.type,base:N(e.base),max0:N(e.max0),max100:N(e.max100)});
+    }
+  }
+  return list.map((x,i)=>({...x,ratio:idleSpecialPointsRatioV1(o.definitionId,i)}));
+}
+function idleAdventureSpecialsListV1(o){
+  const defs=idleAdventureSpecialsDefsV1(o);
+  if(!defs.length)return[];
+  const q=1+C(N(o.level),0,MAX)/100;
+  const extra=Array.isArray(o.specialExtra)?o.specialExtra:[];
+  return defs.map((s,i)=>{
+    const cap=s.max0*q;
+    let cur=i===0?N(o.special):(extra[i-1]===undefined||extra[i-1]===null?s.base:N(extra[i-1]));
+    cur=Math.max(s.base,cur);
+    if(cap>1e-12)cur=Math.min(cap,cur);
+    return{type:s.type,value:cur,max:cap,base:s.base,ratio:s.ratio};
+  });
+}
+/* Compat : les pièces de set exposent leurs Specials (type, valeur, plafond) comme avant. */
 function idleAdventureSetSpecialsValuesV1(o){
   const d=defById(o&&o.definitionId);
-  const list=d?.kind==="set"?idleAdventureSetSpecialsV1(d.set,d.slot):null;
-  if(!list||!list.length)return[];
-  const q=1+C(N(o.level),0,MAX)/100;
-  const [,base0,max0]=list[0];
-  const cap0=max0*q;
-  const fraction=cap0-base0>1e-12?C((N(o.special)-base0)/(cap0-base0),0,1):0;
-  return list.map(([type,base,max],i)=>{
-    const cap=max*q;
-    const value=i===0?Math.min(cap,Math.max(base,N(o.special))):base+(cap-base)*fraction;
-    return{type,value,max:cap};
-  });
+  return d?.kind==="set"?idleAdventureSpecialsListV1(o).map(({type,value,max})=>({type,value,max})):[];
+}
+/* Place d'un Special Boost (en points) : vrai Special chiffré ? sinon (aucune magnitude wiki) l'ancien comportement sans plafond. */
+function idleAdventureSpecialsCappedV1(o){const l=idleAdventureSpecialsListV1(o);return l.length>0&&l[0].max>1e-12}
+function idleAdventureSpecialsRoomPointsV1(o){
+  if(!idleAdventureSpecialsCappedV1(o))return Infinity;
+  return idleAdventureSpecialsListV1(o).reduce((a,s)=>a+Math.max(0,s.max-s.value)*s.ratio,0);
+}
+function idleAdventureApplySpecialPointsV1(o,points){
+  const list=idleAdventureSpecialsListV1(o);
+  const extra=list.slice(1).map(s=>s.value);
+  let p=Math.max(0,N(points));
+  let first=list[0].value;
+  for(let i=0;i<list.length&&p>1e-12;i++){
+    const s=list[i];
+    const cur=i===0?first:extra[i-1];
+    const room=Math.max(0,s.max-cur)*s.ratio;
+    if(!(room>1e-12))continue;
+    const take=Math.min(p,room);
+    const nv=Math.min(s.max,cur+take/s.ratio);
+    if(i===0)first=nv;else extra[i-1]=nv;
+    p-=take;
+  }
+  o.special=first;
+  if(list.length>1)o.specialExtra=extra;
+}
+/* Normalisation d'un objet chargé : tableau specialExtra cohérent ; ancienne sauvegarde = les autres Specials des pièces de set suivaient la fraction du 1er (migration une seule fois). */
+function idleAdventureNormaliserSpecialsExtraV1(z){
+  const defs=idleAdventureSpecialsDefsV1(z);
+  if(defs.length<2){if("specialExtra"in z)delete z.specialExtra;return}
+  const q=1+C(N(z.level),0,MAX)/100;
+  let extra;
+  if(Array.isArray(z.specialExtra)){
+    extra=defs.slice(1).map((s,i)=>{const v=Number(z.specialExtra[i]);const cap=s.max0*q;return Math.min(cap>1e-12?cap:Infinity,Math.max(s.base,Number.isFinite(v)?v:s.base))});
+  }else{
+    const d=defById(z.definitionId),d0=defs[0],cap0=d0.max0*q;
+    const fraction=d?.kind==="set"&&cap0-d0.base>1e-12?C((N(z.special)-d0.base)/(cap0-d0.base),0,1):0;
+    extra=defs.slice(1).map(s=>s.base+(s.max0*q-s.base)*fraction);
+  }
+  z.specialExtra=extra;
 }
 function idleAdventureBaseStatsV1(set,slot){if(!SETS[set])return{baseP:0,baseT:0,baseS:0};const{p,t}=idleAdventureItemStatsMaxV1(set,slot);const sp=idleAdventureSetSpecialsV1(set,slot);return{baseP:p/2,baseT:t/2,baseS:sp?sp[0][2]:0}}
 /*
@@ -2937,7 +3020,7 @@ function idleAdventureObjetPleinementMaxeV1(o){
       :{baseP:0,baseT:0,baseS:0};
   const pOk=!(N(base.baseP)>0)||N(o.power)+1e-9>=N(base.baseP)*2;
   const tOk=!(N(base.baseT)>0)||N(o.toughness)+1e-9>=N(base.baseT)*2;
-  const sOk=!(N(base.baseS)>0)||N(o.special)+1e-9>=N(base.baseS)*2;
+  const sOk=!(N(base.baseS)>0)||idleAdventureSpecialsListV1(o).every(sv=>sv.value+1e-9>=sv.max);
   return pOk&&tOk&&sOk;
 }
 function estDefinitionBoostAdventureV183_(definitionId){
@@ -3037,10 +3120,21 @@ function inventoryCapacityAdventureV1(s){return INVENTORY_CAPACITY_BASE_V1+Math.
  * n'existe pas ou de laisser le tableau illimité comme avant ce correctif.
  */
 const ACCESSORY_SLOTS_BASE_V1=2;
+/*
+ * Seconde arme (Dual Wielding, 2026-09-25) : pages Wishes (28 et 45), Builds (« You gain access to a 2nd weapon slot thanks to the Dual Wielding
+ * Wish ») et Evil Troll Challenge 4 / 6. « Each level will yield +5% of the 2nd weapon's stats to your overall equipment bonus » (souhait 28) et
+ * « an additional 5% effectiveness to the 2nd weapon slot » (souhait 45) : ratio = 0,05 x (niveau 28 + niveau 45), maximum 1 (source tierce
+ * player.ts, identique), synchronisé dans state.dualWieldRatio par le moteur NGU. Le ratio s'applique à toutes les stats de l'objet (Power,
+ * Toughness, HP, Regen, Special, Specials). Les 9 secondes armes des sets tardifs (type Weapon sur le wiki, slot propre dans SOREAL) ne
+ * s'équipent QUE dans ce slot ; n'importe quelle arme y va aussi. Le Bloody Cleaver / les set bonus ne comptent que l'arme principale.
+ */
+export const IDLE_SECOND_WEAPON_SLOTS_V1=Object.freeze(["baguette","vinylShard","apple","hammer","shotgun","tulip","cutlass","rocket","deathstick"]);
+function estArmeAdventureV1(o){return Boolean(o)&&(o.slot==="weapon"||IDLE_SECOND_WEAPON_SLOTS_V1.includes(o.slot))}
+function secondeArmeDebloqueeAdventureV1(s){return N(s&&s.dualWieldRatio)>0}
 function accessorySlotsCapacityAdventureV1(s){return ACCESSORY_SLOTS_BASE_V1+Math.max(0,I(s&&s.bonusSlots&&s.bonusSlots.accessory))}
 function equippedIdsAdventureV1(s){
   const ids=new Set();
-  ["head","chest","legs","boots","weapon"].forEach(slot=>{if(s.equipment[slot])ids.add(s.equipment[slot])});
+  ["head","chest","legs","boots","weapon","weapon2"].forEach(slot=>{if(s.equipment[slot])ids.add(s.equipment[slot])});
   (Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).forEach(id=>{if(id)ids.add(id)});
   return ids;
 }
@@ -3152,7 +3246,7 @@ function merge(s,a,b){
     throw Error("BOOST_DEJA_COMPLETE");
   }
 
-  for(const slot of ["head","chest","legs","boots","weapon"]){
+  for(const slot of ["head","chest","legs","boots","weapon","weapon2"]){
     if(s.equipment[slot]===B.id)s.equipment[slot]=A.id;
   }
   if(Array.isArray(s.equipment.accessories)&&s.equipment.accessories.includes(B.id)){
@@ -3165,6 +3259,7 @@ function merge(s,a,b){
   A.power=Math.max(N(A.power),N(B.power));
   A.toughness=Math.max(N(A.toughness),N(B.toughness));
   A.special=Math.max(N(A.special),N(B.special));
+  if(Array.isArray(A.specialExtra)||Array.isArray(B.specialExtra)){const n=Math.max(A.specialExtra?.length||0,B.specialExtra?.length||0);A.specialExtra=Array.from({length:n},(_,i)=>Math.max(N(A.specialExtra?.[i]),N(B.specialExtra?.[i])))}
   s.inventory=s.inventory.filter(x=>x.id!==B.id);
   record(s,A);
   return A;
@@ -3177,7 +3272,7 @@ function merge(s,a,b){
  * plus bas) — cette garde reste une sécurité défensive, pas le mécanisme
  * principal.
  */
-function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==="boost"||o.consumable||(o.kind==="cube"&&s.cube.unlocked))throw Error("EQUIPEMENT_INVALIDE");if(slot==="accessory"){if(!s.equipment.accessories.includes(id)){
+function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==="boost"||o.consumable||(o.kind==="cube"&&s.cube.unlocked))throw Error("EQUIPEMENT_INVALIDE");if(slot==="accessory"){if(IDLE_SECOND_WEAPON_SLOTS_V1.includes(o.slot))throw Error("SLOT_INVALIDE");if(!s.equipment.accessories.includes(id)){
   /*
    * UUG's Rings (set) reste l'exception déjà documentée plus haut (V144) :
    * ses 5 anneaux sont COÉQUIPABLES simultanément et ne consomment jamais
@@ -3191,7 +3286,9 @@ function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==
     if(generaux>=accessorySlotsCapacityAdventureV1(s))throw Error("EMPLACEMENT_ACCESSOIRE_PLEIN");
   }
   s.equipment.accessories.push(id)
-}return}if(!["head","chest","legs","boots","weapon"].includes(slot)||o.slot!==slot)throw Error("SLOT_INVALIDE");s.equipment[slot]=id}
+}return}
+if(slot==="weapon2"){if(!secondeArmeDebloqueeAdventureV1(s))throw Error("SECONDE_ARME_VERROUILLEE");if(!estArmeAdventureV1(o))throw Error("SLOT_INVALIDE");if(s.equipment.weapon===id)s.equipment.weapon="";s.equipment.weapon2=id;return}
+if(!["head","chest","legs","boots","weapon"].includes(slot)||o.slot!==slot)throw Error("SLOT_INVALIDE");if(s.equipment.weapon2===id)s.equipment.weapon2="";s.equipment[slot]=id}
 /*
  * Norman (2026-09-11) : "je n'arrive plus à jeter des items ni à déséquiper
  * des items." Confirmé : aucune action "unequip" n'a jamais existé côté
@@ -3212,7 +3309,7 @@ function unequip(s,id,targetIndex){
 
   let trouve=false;
 
-  for(const slot of ["head","chest","legs","boots","weapon"]){
+  for(const slot of ["head","chest","legs","boots","weapon","weapon2"]){
     if(s.equipment[slot]===id){
       s.equipment[slot]="";
       trouve=true;
@@ -3378,13 +3475,13 @@ function applyBoost(s,boostId,targetId,ctx){
      * déjà être kind==="special" (vérifié plus haut), donc aucune arme/
      * armure de set ne peut recevoir ce boost, plafonné ou non.
      */
-    const d=defById(o.definitionId);
-    const base=d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):(d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):null);
-    const cap=base&&base.baseS>0?base.baseS*(1+C(N(o.level),0,MAX)/100):null;
-    if(cap!=null&&N(o[type])>=cap-1e-9){
-      throw Error("BOOST_STAT_DEJA_MAX");
+    /* Special Boost (2026-09-25) : des POINTS, versés dans les Specials de l'objet dans l'ordre de la fiche (voir idleAdventureSpecialsDefsV1). */
+    if(idleAdventureSpecialsCappedV1(o)){
+      if(!(idleAdventureSpecialsRoomPointsV1(o)>1e-9))throw Error("BOOST_STAT_DEJA_MAX");
+      idleAdventureApplySpecialPointsV1(o,added);
+    }else{
+      o[type]=N(o[type])+added;
     }
-    o[type]=cap!=null?Math.min(cap,N(o[type])+added):N(o[type])+added;
   }
   s.inventory=s.inventory.filter(x=>x.id!==b.id);
   record(s,o);
@@ -3518,7 +3615,7 @@ function trashPutAdventureV1(s,id){
    * Il doit donc fonctionner aussi depuis le popup d'un objet équipé :
    * on le déséquipe atomiquement avant de le déplacer vers la Trash.
    */
-  for(const slot of ["head","chest","legs","boots","weapon"]){
+  for(const slot of ["head","chest","legs","boots","weapon","weapon2"]){
     if(s.equipment[slot]===o.id)s.equipment[slot]="";
   }
   if(Array.isArray(s.equipment.accessories)){
@@ -5025,7 +5122,7 @@ const TITAN_LOOT_CUBE_ROOT_V1=Object.freeze({id:"titan-evil",requiredDifficulty:
  * ce 1 % n'est pas multiplié par le bonus de drop.
  */
 function canneWalderpV1(){return Math.random()<.01?["candyCaneDestiny",0]:["wanderersCane",10]}
-const TITAN_RANK_V1=Object.freeze({t1:1,t2:2,t3:3,t4:4,t5:5,t6:6,nerd:7,godmother:8,t7:9,hungers:10,lobster:11,amalgamate:12});
+const TITAN_RANK_V1=Object.freeze({t1:1,t2:2,t3:3,t4:4,t5:5,t6:6,nerd:7,godmother:8,t7:9,hungers:10,lobster:11,amalgamate:12,tippi:13,traitor:14});
 /* Page Titans : « a cooldown period ... (with a minimum of 60 minutes) ... won't decrease it below the 60 min minimum ». */
 const TITAN_COOLDOWN_FLOOR_MS_V1=3600000;
 /*
@@ -5088,6 +5185,8 @@ const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey,st.rebirt
  * appelant.
  */
 if(id==="hungers")s.unlockFlags.itHungersDefeated=true;
+/* Tippi / Traitor (2026-09-25) : le Traitor vaincu pose un flag permanent ; le moteur NGU fixe alors les Rebirths à 10 000 (page THE TRAITOR (titan)). */
+if(id==="traitor")s.unlockFlags.traitorDefeated=true;
 if(id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
 /* Achievements "Defeat THE BEAST V1..V4!" (2026-09-24) : palier vaincu, permanent (idle-achievements-v1.js). */
 if(id==="t6"&&tierKey)s.unlockFlags["beastDefeated_"+tierKey]=true;
@@ -5117,7 +5216,7 @@ function retirerObjetAdventureV1(s,itemId){
   const id=String(itemId||"");
   const o=s.inventory.find(x=>x.id===id);
   if(!o)throw Error("OBJET_INTROUVABLE");
-  for(const slot of ["head","chest","legs","boots","weapon"]){
+  for(const slot of ["head","chest","legs","boots","weapon","weapon2"]){
     if(s.equipment[slot]===id)s.equipment[slot]="";
   }
   s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(x=>x!==id);
@@ -5219,15 +5318,7 @@ function idleAdventureSpecialsByTypeV1(equipped){
   const out={};
   const add=(type,value)=>{if(!type)return;out[type]=N(out[type])+N(value)};
   for(const o of equipped){
-    const def=defById(o.definitionId);
-    if(def?.kind==="set"){
-      for(const sv of idleAdventureSetSpecialsValuesV1(o))add(sv.type,sv.value);
-      continue;
-    }
-    const d=def?.kind==="special"?SPECIALS[def.id]:null;
-    if(!d)continue;
-    if(d.sType)add(d.sType,o.special);
-    if(Array.isArray(d.sExtra))for(const ex of d.sExtra)add(ex.type,ex.base);
+    for(const sv of idleAdventureSpecialsListV1(o))add(sv.type,sv.value);
   }
   return out;
 }
@@ -5235,8 +5326,11 @@ export function idleAdventureEquipmentStatsV47(raw){
   const s=normalizeIdleAdventureStateV47(raw);
   const ids=[s.equipment.head,s.equipment.chest,s.equipment.legs,s.equipment.boots,s.equipment.weapon,...(s.equipment.accessories||[])].filter(Boolean);
   const equipped=s.inventory.filter(x=>ids.includes(x.id));
-  const basePower=equipped.reduce((a,x)=>a+N(x.power),0)+N(s.setRewards.adventurePower);
-  const baseToughness=equipped.reduce((a,x)=>a+N(x.toughness),0)+N(s.setRewards.adventureToughness);
+  /* Seconde arme : ses stats comptent à hauteur de dualWieldRatio (0,05 x niveaux des souhaits 28 et 45). */
+  const arme2=s.equipment.weapon2&&!ids.includes(s.equipment.weapon2)?s.inventory.find(x=>x.id===s.equipment.weapon2):null;
+  const ratio2=arme2?Math.min(1,Math.max(0,N(s.dualWieldRatio))):0;
+  const basePower=equipped.reduce((a,x)=>a+N(x.power),0)+ratio2*N(arme2&&arme2.power)+N(s.setRewards.adventurePower);
+  const baseToughness=equipped.reduce((a,x)=>a+N(x.toughness),0)+ratio2*N(arme2&&arme2.toughness)+N(s.setRewards.adventureToughness);
   /*
    * hp/regen par objet (2026-09-15, Norman : "les items qu'on loot...
    * doivent procurer de la regen de vie") — dérivés directement de
@@ -5245,8 +5339,8 @@ export function idleAdventureEquipmentStatsV47(raw){
    * ainsi TOUT objet déjà en inventaire (créé avant ce correctif, donc
    * sans ces champs) en bénéficie immédiatement, sans migration de save.
    */
-  const equippedHp=equipped.reduce((a,x)=>a+N(x.power)*3,0);
-  const equippedRegen=equipped.reduce((a,x)=>a+N(x.toughness)*.03,0);
+  const equippedHp=equipped.reduce((a,x)=>a+N(x.power)*3,0)+ratio2*N(arme2&&arme2.power)*3;
+  const equippedRegen=equipped.reduce((a,x)=>a+N(x.toughness)*.03,0)+ratio2*N(arme2&&arme2.toughness)*.03;
   /*
    * La stat d'équipement doit rester canonique et indépendante de la zone.
    * Exemple réel signalé : un pantalon +0,03 HP Regen affichait +0,15 en
@@ -5256,6 +5350,7 @@ export function idleAdventureEquipmentStatsV47(raw){
    * le tick client de repos.
    */
   const specialsByType=idleAdventureSpecialsByTypeV1(equipped);
+  if(ratio2>0)for(const [type,value] of Object.entries(idleAdventureSpecialsByTypeV1([arme2])))specialsByType[type]=N(specialsByType[type])+ratio2*N(value);
   const cubePowerContribution=idleAdventureCubeSoftcapV1(s.cube.power,basePower);
   const cubeToughnessContribution=idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness);
   return{
@@ -5265,7 +5360,7 @@ export function idleAdventureEquipmentStatsV47(raw){
     cubeToughnessContribution,
     hp:equippedHp+N(s.setRewards.adventureHp),
     regen:equippedRegen+N(s.setRewards.adventureRegen),
-    special:equipped.reduce((a,x)=>a+N(x.special),0),
+    special:equipped.reduce((a,x)=>a+N(x.special),0)+ratio2*N(arme2&&arme2.special),
     specialsByType,
     specials:{
       /* 2026-09-23 : tous les types agrégés (Resource 3, Wish/Hack/Wandoos/Augment Speed, Move Cooldowns...) sont exposés, pas seulement la liste historique ci-dessous. */
@@ -5312,7 +5407,7 @@ function snapshotItemAdventureV1(o){
     :(d?.kind==="special"
       ?idleAdventureSpecialBaseStatsV1(d.id)
       :{baseP:0,baseT:0,baseS:0});
-  const specialsPiece=d?.kind==="set"?idleAdventureSetSpecialsValuesV1(o):[];
+  const specialsPiece=d?.kind==="set"||d?.kind==="special"?idleAdventureSpecialsListV1(o).map(({type,value,max})=>({type,value,max})):[];
   const specialType=d?.kind==="special"?SPECIALS[d.id]?.sType:(specialsPiece.length?specialsPiece[0].type:undefined);
   return{
     ...o,
@@ -5338,7 +5433,7 @@ export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks
  * serveur au clic. Un titan n'est réellement accessible que si les DEUX
  * conditions sont vraies.
  */
-titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.boss)&&titanGate(s,t),visual:{source:"avatar-level",level:I(t.avatarLevel,1),fallback:"emoji"},state:X(s.titans[t.id]||{kills:0,nextAt:0})})),/*
+titans:IDLE_ADVENTURE_TITANS.filter(t=>!t.secret||I(s.titans[t.id]?.kills)>0||(I(bosses)>=I(t.boss)&&titanGate(s,t))).map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.boss)&&titanGate(s,t),visual:{source:"avatar-level",level:I(t.avatarLevel,1),fallback:"emoji"},state:X(s.titans[t.id]||{kills:0,nextAt:0})})),/*
  * Norman (2026-09-18, en direct, capture d'écran de son propre Tutorial
  * Cube) : "je vois que mon tutorial cube n'a toujours pas de stats
  * special." Cause confirmée (2e partie, côté client cette fois) :
@@ -5355,5 +5450,5 @@ titans:IDLE_ADVENTURE_TITANS.map(t=>({...t,progressionUnlocked:I(bosses)>=I(t.bo
  * client de reproduire EXACTEMENT le même calcul X/MAX que pour Power/
  * Toughness, avec le vrai label.
  */
-inventory:X(s.inventory).map(snapshotItemAdventureV1),trash:s.trash?snapshotItemAdventureV1(s.trash):null,coffreSlots:idleAdventureCoffreSlotsV1(s).filter(x=>x&&x.decouvert),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),stats:idleAdventureEquipmentStatsV47(s)}}
+inventory:X(s.inventory).map(snapshotItemAdventureV1),trash:s.trash?snapshotItemAdventureV1(s.trash):null,coffreSlots:idleAdventureCoffreSlotsV1(s).filter(x=>x&&x.decouvert),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),secondWeaponUnlocked:secondeArmeDebloqueeAdventureV1(s),dualWieldRatio:N(s.dualWieldRatio),stats:idleAdventureEquipmentStatsV47(s)}}
 export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");const clientMutationId=String(p.clientMutationId||"").slice(0,160);if(clientMutationId){const deja=s.recentClientMutations.find(x=>x&&String(x.id)===clientMutationId);if(deja){syncInventorySlotsAdventureV2(s);return{state:s,result:deja.result==null?deja.result:X(deja.result),duplicate:true}}}let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id),p.targetIndex);else if(a==="boost"&&p.toCube===true)result=cube(s,String(p.boostId),ctx);else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId),ctx);else if(a==="cube")result=cube(s,String(p.boostId),ctx);else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="setLock")result=setLockAdventureV1(s,String(p.id||p.itemId),p.locked);else if(a==="trashPut")result=trashPutAdventureV1(s,String(p.id||p.itemId));else if(a==="trashRecover")result=trashRecoverAdventureV1(s);else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else throw Error("ACTION_AVENTURE_INCONNUE");s.revision=Math.max(0,I(s.revision))+1;if(clientMutationId){s.recentClientMutations.push({id:clientMutationId,result:result==null?result:X(result),revision:s.revision});if(s.recentClientMutations.length>64)s.recentClientMutations=s.recentClientMutations.slice(-64)}syncInventorySlotsAdventureV2(s);return{state:s,result}}

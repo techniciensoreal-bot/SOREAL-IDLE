@@ -68,9 +68,21 @@ export function idleWishTracksActifsV1(state) {
   const tracks = state?.systems?.wishes?.data?.tracks;
   const out = {};
   if (!tracks || typeof tracks !== "object") return out;
-  const rang = idleRangDifficulteV1(state?.difficulty);
   for (const [id, t] of Object.entries(tracks)) {
-    if ((IDLE_WISH_DIFFICULTE_V1[Number(id)] || 0) <= rang) out[id] = t;
+    if (idleWishAccessibleV1(state, id)) out[id] = t;
   }
   return out;
+}
+
+/*
+ * Page Wishes, « Wish upgrades > Challenges » : « Evil Troll Challenge 4 : Unlock the Dual Wielding Wish » (souhait 28) et « Evil Troll Challenge 6 :
+ * Unlock Improved Dual Wielding » (souhait 45). id -> nombre de complétions du Troll Challenge Evil requis.
+ */
+export const IDLE_WISH_TROLL_EVIL_V1 = Object.freeze({ 28: 4, 45: 6 });
+
+/* Souhait accessible : difficulté suffisante ET, pour les souhaits de double arme, le Troll Challenge Evil requis. */
+export function idleWishAccessibleV1(state, id) {
+  if (!idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, id, state?.difficulty)) return false;
+  const troll = IDLE_WISH_TROLL_EVIL_V1[Number(id)];
+  return !troll || Math.floor(Number(state?.challenge?.completionsTier?.difficile?.troll) || 0) >= troll;
 }

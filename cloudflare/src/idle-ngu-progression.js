@@ -103,7 +103,8 @@ import {
   idleDifficulteSuffisanteV1,
   idlePerkNiveauxV1,
   idleQuirkNiveauxV1,
-  idleWishTracksActifsV1
+  idleWishTracksActifsV1,
+  idleWishAccessibleV1
 } from "./idle-difficulty-gates-v1.js";
 /* Player Portraits (2026-09-24) et Special Prize : idle-portraits-v1.js. */
 import {
@@ -1995,6 +1996,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
      */
     state.adventure.bonusDropLevelChance = Math.min(1, perks.lootLevelChance + perks.lootGoblinChance);
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
+    /* Dual Wielding : ratio de la seconde arme = 0,05 x (niveau du souhait 28 + niveau du souhait 45), maximum 1 (wiki Wishes ; source tierce player.ts). */
+    state.adventure.dualWieldRatio = Math.min(1, 0.05 * (Math.max(0, wishLevelV1(state, 28)) + Math.max(0, wishLevelV1(state, 45))));
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
       accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
@@ -2725,7 +2728,7 @@ function setWishSlotV1(state, slot, wishId) {
   if (id) {
     const def = (IDLE_NGU_TRACKS.wishes || []).find(x => x.id === id);
     if (!def) throw new Error("SOUHAIT_INVALIDE");
-    if (!idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, Number(id), state.difficulty)) throw new Error("DIFFICULTE_REQUISE");
+    if (!idleWishAccessibleV1(state, id)) throw new Error("DIFFICULTE_REQUISE");
     if (Math.max(0, int(s.data.tracks?.[id]?.level, 0)) >= Math.max(0, int(def.levels, 0))) throw new Error("SOUHAIT_TERMINE");
     if (s.data.slots.some((x, i) => i !== idx && x.wish === id)) throw new Error("SOUHAIT_DEJA_DANS_UN_SLOT");
   }
@@ -3111,7 +3114,7 @@ function advanceTrackSystem(state, def, seconds) {
       if (!slot || !slot.wish) continue;
       const wishDef = tracks.find(x => x.id === slot.wish);
       const wishState = s.data.tracks[slot.wish];
-      if (wishDef && wishState && idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, Number(slot.wish), state.difficulty)) advanceWishTrack(state, s, wishDef, wishState, seconds, slot.allocation, params);
+      if (wishDef && wishState && idleWishAccessibleV1(state, slot.wish)) advanceWishTrack(state, s, wishDef, wishState, seconds, slot.allocation, params);
     }
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     return;
@@ -5320,7 +5323,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       kind: def.kind,
       resources: def.resources.slice(),
       unlock: unlockInfo(def, state, context),
-      tracks: (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleDifficulteSuffisanteV1(IDLE_WISH_DIFFICULTE_V1, Number(track.id), state.difficulty) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
+      tracks: (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleWishAccessibleV1(state, track.id) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
@@ -6315,6 +6318,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       t
     );
     state.adventure = applied.state;
+    /* THE TRAITOR vaincu : « sets your number of rebirths to 10,000, allowing you to complete the final achievement » (page THE TRAITOR (titan)). */
+    if (state.adventure?.unlockFlags?.traitorDefeated) state.records.totalRebirths = Math.max(num(state.records.totalRebirths, 0), 10000);
     /*
      * Butin des kills/titans : filtre de butin, Filter Boosts into Infinity Cube, transformation
      * automatique. Boost manuel (objet ou cube) : recyclage (page Boost, boutique EXP + Basic Challenge).

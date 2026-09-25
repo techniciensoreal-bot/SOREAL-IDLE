@@ -38,9 +38,11 @@ assert.deepEqual(IDLE_MACGUFFIN_RANDOM_BASE_POOL_V1.slice().sort(),
   ["dropChance", "energyBar", "energyCap", "energyNgu", "energyPower", "magicBar", "magicCap", "magicNgu", "magicPower", "sexy", "smart"],
   "Tirage aléatoire : Energy/Magic Cap/Pow/Bars/NGU/SEXY/SMART + Drop.");
 assert.equal(IDLE_MACGUFFIN_MAX_SLOTS_V1, 22);
-for (const id of ["sexy", "smart", "golden"]) {
+for (const id of ["sexy", "smart"]) {
   assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === id).effect, null, `${id} : aucun effet branché.`);
 }
+
+assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "golden").effect, "goldDrops", "Golden : Gold Drops (source tierce, 2026-09-25).");
 
 /* --- Ratio de temps T : tableau "Time / Bonus" (arrondi à 2 décimales du wiki) --- */
 const h = 3600;
