@@ -7368,3 +7368,21 @@
   text-align:right;
   font-variant-numeric:tabular-nums;
 }
+
+/* Infobulle de l'énergie (comme NGU : encadré clair, texte sombre). */
+.soreal-idle-energie-infobulle-v1{
+  position:fixed;
+  z-index:10060;
+  box-sizing:border-box;
+  padding:9px 11px;
+  border:2px solid #1d3247;
+  border-radius:4px;
+  background:#f6f7fa;
+  color:#111;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.4;
+  white-space:pre-line;
+  box-shadow:0 6px 22px rgba(0,0,0,.45);
+  pointer-events:none;
+}

@@ -4461,6 +4461,125 @@
           (temps?' · '+temps:'');
       }
 
+      /*
+       * Infobulle de l'énergie — exactement celle de NGU (capture de Norman, 2026-09-25) : plafond du run, énergie au prochain Rebirth,
+       * règle « 1 énergie de plus tous les 20 obtenus (jusqu'à 100 000) », production par seconde, vitesse et ticks par remplissage, prochain
+       * palier de vitesse, raccourci R. Les chiffres viennent du serveur (j.systemes.resourceInfo.energy), jamais recalculés ici.
+       */
+      function nombreInfobulleIdleV1_(v,decimales){
+        const n=idleNombre_(v);
+        return n.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:decimales||0});
+      }
+
+      function texteInfobulleEnergieIdleV1_(info){
+        if(!info)return '';
+        const lignes=[
+          'Énergie max sur ce Rebirth : plafonnée à '+nombreInfobulleIdleV1_(info.capRun)+'.',
+          'Au Rebirth, tu auras '+nombreInfobulleIdleV1_(info.capAfterRebirth)+(idleNombre_(info.capAfterRebirth)>=2?' énergies.':' énergie.'),
+          'Toutes les 20 énergies obtenues ajoutent 1 énergie à ton max au Rebirth, jusqu’à 100 000.',
+          'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+(idleNombre_(info.perSecond)>=2?' énergies':' énergie')+' par seconde.',
+          '',
+          'Vitesse d’énergie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill)+' ticks. '+
+            (info.nextSpeed!=null
+              ?'Prochain palier de vitesse : '+nombreInfobulleIdleV1_(info.nextSpeed,1)+'.'
+              :'Vitesse maximale : la barre se remplit à chaque tick.'),
+          '',
+          'RACCOURCI : appuie sur R pour récupérer l’énergie de toutes les fonctions sauf l’entraînement.'
+        ];
+        return lignes.join('\n');
+      }
+
+      function infoEnergieIdleV1_(){
+        return idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceInfo
+          ?idleEtat.systemes.resourceInfo.energy
+          :null;
+      }
+
+      function fermerInfobulleEnergieIdleV1_(){
+        const el=document.getElementById('sorealIdleEnergieInfobulleV1');
+        if(el)el.remove();
+      }
+
+      function ouvrirInfobulleEnergieIdleV1_(ancre){
+        const texte=texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+        if(!texte||!ancre)return;
+        fermerInfobulleEnergieIdleV1_();
+        const el=document.createElement('div');
+        el.id='sorealIdleEnergieInfobulleV1';
+        el.className='soreal-idle-energie-infobulle-v1';
+        el.setAttribute('role','tooltip');
+        el.textContent=texte;
+        document.body.appendChild(el);
+        const r=ancre.getBoundingClientRect();
+        const largeur=Math.min(320,window.innerWidth-16);
+        el.style.width=largeur+'px';
+        el.style.left=Math.max(8,Math.min(window.innerWidth-largeur-8,r.left))+'px';
+        const hauteur=el.offsetHeight;
+        const dessous=r.bottom+6;
+        el.style.top=(dessous+hauteur<=window.innerHeight-8?dessous:Math.max(8,r.top-hauteur-6))+'px';
+      }
+
+      function rafraichirInfobulleEnergieIdleV1_(){
+        const el=document.getElementById('sorealIdleEnergieInfobulleV1');
+        if(el)el.textContent=texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+      }
+
+      function installerInfobulleEnergieIdleV1_(){
+        if(window.__sorealIdleInfobulleEnergieV1)return;
+        window.__sorealIdleInfobulleEnergieV1=true;
+        function panneau(cible){
+          return cible&&cible.closest?cible.closest('.soreal-idle-energy-panel-v34'):null;
+        }
+        /* PC : l'infobulle suit le survol du panneau, comme dans NGU. */
+        document.addEventListener('mouseover',function(ev){
+          if(ev.pointerType==='touch')return;
+          const p=panneau(ev.target);
+          if(p&&!panneau(ev.relatedTarget))ouvrirInfobulleEnergieIdleV1_(p);
+        });
+        document.addEventListener('mouseout',function(ev){
+          if(panneau(ev.target)&&!panneau(ev.relatedTarget))fermerInfobulleEnergieIdleV1_();
+        });
+        /* Téléphone : un appui sur le panneau l'ouvre, un appui ailleurs la ferme. */
+        document.addEventListener('click',function(ev){
+          const p=panneau(ev.target);
+          const ouverte=document.getElementById('sorealIdleEnergieInfobulleV1');
+          if(p&&window.matchMedia&&window.matchMedia('(hover:none)').matches){
+            if(ouverte)fermerInfobulleEnergieIdleV1_();else ouvrirInfobulleEnergieIdleV1_(p);
+          }else if(ouverte&&!window.matchMedia('(hover:hover)').matches){
+            fermerInfobulleEnergieIdleV1_();
+          }
+        });
+        setInterval(rafraichirInfobulleEnergieIdleV1_,1000);
+      }
+      installerInfobulleEnergieIdleV1_();
+
+      /*
+       * Raccourcis NGU : « Tap R to reclaim Energy from all features except training » (Energy) ; « Pressing T will reclaim all allocated Magic
+       * from all features » (Magic). Le serveur (action reclaimResource) laisse Basic Training réservé.
+       */
+      function installerRaccourcisReprendreIdleV1_(){
+        if(window.__sorealIdleRaccourcisReprendreV1)return;
+        window.__sorealIdleRaccourcisReprendreV1=true;
+        document.addEventListener('keydown',function(ev){
+          if(ev.ctrlKey||ev.metaKey||ev.altKey||ev.repeat)return;
+          const cible=ev.target;
+          if(cible&&(cible.tagName==='INPUT'||cible.tagName==='TEXTAREA'||cible.tagName==='SELECT'||cible.isContentEditable))return;
+          if(PAGE_ACTIVE!=='idle'||!idleEtat||!SOREAL_SESSION)return;
+          const touche=String(ev.key||'').toLowerCase();
+          if(touche!=='r'&&touche!=='t')return;
+          const ressource=touche==='r'?'energy':'magic';
+          if(ressource==='magic'&&!(idleEtat.systemes&&idleEtat.systemes.resourceInfo&&idleEtat.systemes.resourceInfo.magic))return;
+          ev.preventDefault();
+          if(typeof window.__actionMetaV47__==='function'){
+            window.__actionMetaV47__({action:'reclaimResource',resource:ressource});
+            toastIdleV5_(ressource==='energy'
+              ?'⚡ Énergie récupérée (sauf entraînement).'
+              :'🔮 Magie récupérée.');
+          }
+        });
+      }
+      installerRaccourcisReprendreIdleV1_();
+
       function rafraichirEnergieEtBoutonsIdleV9_(){
         if(!idleEtat){
           return;

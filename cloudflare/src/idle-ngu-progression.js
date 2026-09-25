@@ -5089,6 +5089,10 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
       id,
       { ...r, capBase: r.cap, cap: idleNguEffectiveResourceStatV1(state, id, "cap") }
     ])),
+    resourceInfo: Object.fromEntries(
+      RESOURCE_KEYS.filter(resource => !(resource === "magic" && !state.systems.bloodMagic?.unlocked) && !(resource === "r3" && !state.systems.hacks?.unlocked))
+        .map(resource => [resource, resourceInfoV1(state, resource, context)])
+    ),
     resourceBudget: Object.fromEntries(
       RESOURCE_KEYS.map(resource=>[resource,idleNguResourceBudget(state,resource,context)])
     ),
@@ -6479,6 +6483,32 @@ function resetRunSystem(def, s) {
     }
     s.tempLevel = 0;
   }
+}
+
+/*
+ * Infobulle d'énergie de NGU (capture de Norman, 2026-09-25) : « Max energy on this rebirth is capped at 916. On rebirth, you will have 1114
+ * Energy. Every 20 Energy gained grants 1 extra energy to your max upon rebirth, up to 100,000. You currently make 2 Energy per second.
+ * Current Energy Speed is 2, meaning the bar fills every 25 ticks. Next Speed Increase is at 2.1 Energy Speed. »
+ * Mêmes formules que le moteur (génération, croissance du cap au Rebirth) : le client n'en recalcule aucune.
+ */
+function resourceInfoV1(state, resource, context = {}) {
+  const r = state.resources[resource];
+  if (!r) return null;
+  const speed = clamp(idleNguEffectiveResourceStatV1(state, resource, "speed"), 0.1, 50);
+  const ticksPerFill = Math.max(1, Math.ceil(50 / speed - 1e-9));
+  const capRun = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
+  const generated = Math.max(0, num(r.generatedThisRun, 0));
+  const room = Math.max(0, 100000 - Math.min(100000, num(r.cap, 0)));
+  const capGain = resource === "energy" ? Math.min(Math.floor(generated / 20), room) : 0;
+  return {
+    capRun,
+    capAfterRebirth: capRun + capGain,
+    capGain,
+    perSecond: idleNguResourceGenerationPerSecond(state, resource),
+    speed,
+    ticksPerFill,
+    nextSpeed: ticksPerFill > 1 ? Math.ceil((50 / (ticksPerFill - 1)) * 10 - 1e-9) / 10 : null
+  };
 }
 
 function applyNaturalEnergyCapGrowthOnRebirth(state){

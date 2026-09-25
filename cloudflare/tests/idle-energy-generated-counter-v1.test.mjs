@@ -20,7 +20,7 @@ assert.ok(!css.includes("soreal-idle-energy-generated-v1"), "style de l'ancienne
 
 // Calcul : généré = disponible (barre verte) + déjà placé (Basic Training + tous les systèmes).
 const debut = ui.indexOf("function energieGenereeTotaleIdleV1_(){");
-const fin = ui.indexOf("function rafraichirEnergieEtBoutonsIdleV9_(){");
+const fin = ui.indexOf("function nombreInfobulleIdleV1_(v,decimales){");
 const src = ui.slice(debut, fin);
 function calculer({ energie = 0, btAlloue = 0, metaAlloue = 0, max = 500, prod }) {
   const fabrique = new Function("idleEtat", "energieDisponibleIdleV9_", "totalAllocationBasicTrainingIdleV120_", "allocationMetaEnergieIdleV1_", "formatEnergieIdleV50_", "idleEntier_", "idleNombre_",
