@@ -7085,3 +7085,90 @@
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
 }
+
+/*
+ * 2026-09-25 (Norman) : carte de boss = image plein cadre (sans bords noirs sur les côtés) + nom centré, rien d'autre ; un clic ouvre la fiche
+ * (statistiques + chronique).
+ */
+.soreal-idle-bestiary-card-v110.boss-card{
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  -webkit-tap-highlight-color:transparent;
+}
+.soreal-idle-bestiary-card-v110.boss-card:hover,
+.soreal-idle-bestiary-card-v110.boss-card:focus-visible{
+  border-color:rgba(184,164,255,.45);
+  outline:none;
+}
+.soreal-idle-bestiary-card-v110.boss-card .soreal-idle-bestiary-image-v120{
+  margin:0;
+  border-radius:0;
+  height:auto;
+  aspect-ratio:1/1;
+  background:#0d1421;
+}
+.soreal-idle-bestiary-card-v110.boss-card .soreal-idle-bestiary-image-v120 img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.soreal-idle-bestiary-card-v110.boss-card .boss-name{
+  margin:0;
+  padding:9px 8px 10px;
+  text-align:center;
+}
+
+.soreal-idle-boss-fiche-v1{
+  width:min(520px,94vw);
+}
+.soreal-idle-boss-fiche-image-v1{
+  flex:0 0 auto;
+  max-height:38vh;
+  overflow:hidden;
+  background:#0d1421;
+}
+.soreal-idle-boss-fiche-image-v1 img{
+  display:block;
+  width:100%;
+  max-height:38vh;
+  object-fit:cover;
+  object-position:center top;
+}
+.soreal-idle-boss-fiche-stats-v1{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-bottom:12px;
+}
+.soreal-idle-boss-fiche-stats-v1 > div{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:11px;
+  background:rgba(255,255,255,.05);
+  font-size:12px;
+  color:#aeb9cf;
+}
+.soreal-idle-boss-fiche-stats-v1 b{
+  color:#f1f5fc;
+  font-variant-numeric:tabular-nums;
+}
+.soreal-idle-boss-fiche-titre-v1{
+  margin:4px 0 6px;
+  font-size:12px;
+  font-weight:1000;
+  color:#dbe3f3;
+}
+.soreal-idle-boss-fiche-histoire-v1{
+  margin:0 0 10px;
+  font-size:12px;
+  line-height:1.55;
+  color:#c4cfe2;
+  white-space:pre-line;
+}

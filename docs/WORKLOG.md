@@ -1607,3 +1607,11 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 
 - Norman (PC) : « quand je maintiens A pour absorber les boosts, la page me replace toujours plus bas que l'inventaire une fois l'action réalisée ». L'action `inventoryAuto` déclenche un rendu complet ; celui-ci rétablissait un `scrollY` ABSOLU, or l'inventaire est maintenant au bas de la page Aventure (longue, images et journal qui changent de hauteur après le rendu).
 - `ancreSacIdleV1_` / `restaurerAncreSacIdleV1_` : si le sac est à l'écran avant le rendu, on mémorise sa distance au haut de la fenêtre et on la rétablit après le rendu, puis à +120 ms et +450 ms (mise en page qui bouge) ; un défilement fait par le joueur entre-temps n'est plus contrarié. Sac hors écran : comportement habituel. `ui ?v=258`. Test `idle-inventory-scroll-anchor-v1`. Cause non reproduite en navigateur réel (session requise) : correction par ancrage, à confirmer.
+
+## 2026-09-25 — Collection : plus d'onglet Aventure, cartes de boss épurées et cliquables
+
+- Norman : « dans Collection, enlève les mobs Aventure (ce sont les mêmes que les Boss) ; les boss n'affichent pas le texte en dessous : juste leur nom, centré, sans bords noirs sur les côtés de l'image ; cartes cliquables pour afficher statistiques et chroniques ».
+- Onglet « Aventure » retiré de Collection (Boss · Équipement · Sets). Un ancien onglet mémorisé « aventure » retombe sur Boss. Les données d'Aventure du serveur ne sont pas modifiées.
+- Carte de boss : image plein cadre (`object-fit:cover`, carré, sans marge ni bande) et nom centré, plus de type / statistiques / chronique / bouton de lecture sur la carte.
+- Clic (ou Entrée/Espace) : fiche `sorealIdleBossCollectionModalV1` — image, statistiques (PV, Attaque, Défense, Régénération si présente, EXP, Rencontres) et chronique avec le bouton « 🔊 Lire cette chronique » (mêmes attributs `data-soreal-tts-*` : les voix pré-générées s'appliquent). Le serveur n'envoie que les boss découverts : rien à deviner (anti-spoil), un boss non découvert n'ouvre rien.
+- `ui ?v=259`. Test `idle-collection-boss-cards-v1`.

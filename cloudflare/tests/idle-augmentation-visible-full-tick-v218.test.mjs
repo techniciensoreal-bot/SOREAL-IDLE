@@ -33,7 +33,7 @@ assert.match(
   "La durée du cycle doit rester exactement liée à la durée réelle du niveau, plafonnée à 50 Hz."
 );
 assert.ok(
-  index.includes("/soreal-idle-ui.js?v=258"),
+  index.includes("/soreal-idle-ui.js?v=259"),
   "Le shell doit forcer le chargement d'une révision cache-bustée après V213."
 );
 
