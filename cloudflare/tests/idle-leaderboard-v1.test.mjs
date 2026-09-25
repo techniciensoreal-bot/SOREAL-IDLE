@@ -25,7 +25,9 @@ const feuille = (nom, lignes) => lignes.forEach((l, i) => sql.exec("INSERT INTO 
 feuille("JOUEURS", [HEADERS]);
 feuille("IDLE_BOUTIQUE", [["Type", "CoutBase", "Croissance", "BonusParNiveau"], ["production", 20, 1.6, 1], ["capacite", 20, 1.6, 1], ["puissance", 20, 1.6, 1]]);
 const norman = { email: "technicien.soreal@gmail.com", emailConnexion: "technicien.soreal@gmail.com", emails: ["technicien.soreal@gmail.com"], prenom: "Norman" };
-const sebastien = { email: "hodappsebastien@gmail.com", emailConnexion: "hodappsebastien@gmail.com", emails: ["hodappsebastien@gmail.com"], prenom: "Sébastien" };
+/* idleTrophee : drapeau posé par le Worker TV (trophée « Assiduité de bronze » débloqué), jamais par le navigateur. */
+const sebastien = { email: "hodappsebastien@gmail.com", emailConnexion: "hodappsebastien@gmail.com", emails: ["hodappsebastien@gmail.com"], prenom: "Sébastien", idleTrophee: true };
+const sansTrophee = { email: "sans.trophee@example.com", emailConnexion: "sans.trophee@example.com", emails: ["sans.trophee@example.com"], prenom: "Sans", idleTrophee: false };
 const op = (nom, user, ...args) => runSorealIdleOperation(sql, nom, ["x", ...args], user);
 
 // Interrupteur d'accès (2026-09-25) : par défaut fermé, plus d'accès spécial pour Sébastien ; l'administrateur l'ouvre depuis les Paramètres
@@ -36,7 +38,9 @@ assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, true), /ACCES_
 const etatNorman = op("obtenirEtatSorealIdle", norman).joueur;
 assert.deepEqual({ ...etatNorman.reglages }, { accesOuvert: false }, "réglage visible de l'administrateur, fermé par défaut");
 assert.equal(op("definirAccesOuvertSorealIdle", norman, true).accesOuvert, true);
-assert.equal(acces(sebastien).autorise, true, "accès ouvert : tout compte connecté est autorisé, comme les autres");
+assert.equal(acces(sebastien).autorise, true, "accès ouvert : le détenteur du trophée Assiduité de bronze est autorisé, comme les autres");
+assert.equal(acces(sansTrophee).autorise, false, "accès ouvert mais pas de trophée : pas d'accès");
+assert.equal(acces(Object.assign({}, sansTrophee, { idleTrophee: "true" })).autorise, false, "seul le drapeau booléen posé par TV compte");
 const etatSeb = op("obtenirEtatSorealIdle", sebastien).joueur;
 assert.equal(etatNorman.classement.debloque, true, "administrateur : bouton visible");
 assert.equal(etatSeb.classement.debloque, false, "autres joueurs : bouton Classement pas encore visible");
@@ -45,7 +49,7 @@ assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, false), /ADMIN
 // Partie B de développement (adresse alias) et entrée sans nom : jamais au classement
 const normanB = Object.assign({}, norman, { slot: "b" });
 op("obtenirEtatSorealIdle", normanB);
-const inconnu = { email: "sans.nom@example.com", emailConnexion: "sans.nom@example.com", emails: ["sans.nom@example.com"], prenom: "Joueur" };
+const inconnu = { email: "sans.nom@example.com", emailConnexion: "sans.nom@example.com", emails: ["sans.nom@example.com"], prenom: "Joueur", idleTrophee: true };
 op("obtenirEtatSorealIdle", inconnu);
 
 function regler(email, records, succes = 0) {

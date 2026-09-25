@@ -2009,14 +2009,19 @@ function verifierAccesSorealIdle_(
   const autorises =
     emailsAutorisesSorealIdle_();
 
-  /* Compte permanent (administrateur) ; sinon, interrupteur ouvert : tout compte connecté est autorisé, sous sa propre adresse. */
+  /*
+   * Compte permanent (administrateur) ; sinon, interrupteur ouvert ET trophée « Assiduité de bronze » (Norman, 2026-09-25) : le drapeau
+   * user.idleTrophee est posé par le Worker TV à partir des trophées débloqués (jamais fourni par le navigateur), y compris pour les
+   * personnes qui ne travaillent plus ici. Le compte est alors autorisé sous sa propre adresse.
+   */
   const emailAutorise =
     emailsUtilisateur.find(
       function(email) {
         return autorises.indexOf(email) !== -1;
       }
     ) || (
-      accesOuvertSorealIdle_()
+      accesOuvertSorealIdle_() &&
+      user && user.idleTrophee === true
         ? String(emailsUtilisateur[0] || '')
         : ''
     );
@@ -12351,8 +12356,8 @@ function marquerVusSorealIdle(
  * Accès à SOREAL IDLE (2026-09-25, Norman : « un bouton pour moi tout seul dans les paramètres : activer donne l'accès à toutes les personnes
  * avec un compte connecté sur le site ; désactiver le cache à tout le monde »)
  * ------------------------------------------------------------------
- * Activé : tout compte connecté à APP / TV est autorisé (sous sa propre adresse). Désactivé : seuls les comptes de Norman. Réservé au compte
- * administrateur ; par défaut désactivé.
+ * Activé : tout compte connecté à APP / TV qui a le trophée « Assiduité de bronze » est autorisé (sous sa propre adresse, même s'il ne travaille plus
+ * ici). Désactivé : seuls les comptes de Norman. Réservé au compte administrateur ; par défaut désactivé.
  */
 function definirAccesOuvertSorealIdle(
   sessionToken,

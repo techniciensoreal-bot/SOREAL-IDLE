@@ -20828,11 +20828,11 @@ function pageAventureIdleV28_(j){
             ?'<div class="soreal-idle-section-v8" id="sorealIdleAccesAdminV1">'+
               '<div class="soreal-idle-window-title-v31">🔑 Accès à SOREAL IDLE (administrateur)</div>'+
               '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">'+
-                'Activé : toute personne connectée à son compte sur APP ou TV a accès à SOREAL IDLE. Désactivé : SOREAL IDLE est caché à tout le monde, sauf à toi.'+
+                'Activé : toute personne qui a déjà le trophée « Assiduité de bronze » (même si elle ne travaille plus ici) a accès à SOREAL IDLE, et le reçoit avec un popup de félicitations dans APP / TV. Désactivé : SOREAL IDLE est caché à tout le monde, sauf à toi.'+
               '</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerAccesOuvertIdleV1__()" '+
                 'style="'+(j.reglages.accesOuvert?'background:#166534;color:#fff':'background:#7f1d1d;color:#fff')+'">'+
-                (j.reglages.accesOuvert?'✅ Accès OUVERT à tous les comptes — désactiver':'⛔ Accès FERMÉ — activer pour tous les comptes')+
+                (j.reglages.accesOuvert?'✅ Accès OUVERT (trophée Assiduité de bronze) — désactiver':'⛔ Accès FERMÉ — activer pour les détenteurs du trophée')+
               '</button>'+
             '</div>'
             :'')+
@@ -20859,12 +20859,12 @@ function pageAventureIdleV28_(j){
       function basculerAccesOuvertIdleV1_(){
         if(!idleEtat||!idleEtat.reglages||!SOREAL_SESSION)return;
         const voulu=!idleEtat.reglages.accesOuvert;
-        if(voulu&&!window.confirm('Ouvrir SOREAL IDLE à toutes les personnes connectées à leur compte (APP / TV) ?'))return;
+        if(voulu&&!window.confirm('Ouvrir SOREAL IDLE à toutes les personnes qui ont le trophée Assiduité de bronze (même celles qui ne travaillent plus ici) ?'))return;
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){
               idleEtat.reglages.accesOuvert=Boolean(res.accesOuvert);
-              toastIdleV5_(res.accesOuvert?'🔓 Accès ouvert à tous les comptes connectés.':'🔒 Accès fermé : SOREAL IDLE est caché à tout le monde.');
+              toastIdleV5_(res.accesOuvert?'🔓 Accès ouvert aux détenteurs du trophée Assiduité de bronze.':'🔒 Accès fermé : SOREAL IDLE est caché à tout le monde.');
               const root=document.querySelector('.soreal-idle-page-root-v28');
               if(root&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
             }else{

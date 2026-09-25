@@ -43,7 +43,8 @@ function normalizeIdleLaunchUserV1(user) {
   const name = sv(user.name || user.displayName || prenom);
   const role = sv(user.role || user.type || "");
   if (!email && !emailConnexion && !emails.length && !prenom && !name) return null;
-  return { email, emailConnexion, emails, prenom, name, role };
+  /* idleTrophee : posé par le Worker TV (trophée « Assiduité de bronze » débloqué) ; seul un booléen vrai est conservé. */
+  return { email, emailConnexion, emails, prenom, name, role, idleTrophee: user.idleTrophee === true };
 }
 
 function idleOpaqueTokenV1(prefix) {

@@ -47,8 +47,8 @@ for (let i = 0; i < 15; i += 1) sql.exec("INSERT INTO migration_sources(source_k
 const HEADERS = ["ID","Nom","Niveau","XP","Énergie","Énergie max","Prod/s","Force","Endurance","Organisation","Puissance","Boss actuel","PV boss","PV boss max","Boss vaincus","Dernière synchro","Public","Rang","Email principal","Email connexion","Pièces","Inventaire JSON","Équipement JSON","Améliorations JSON","Renaissances","Essence renaissance","PV joueur","PV joueur max","KO jusqu'à","Zone aventure","Progression aventure JSON","Points aventure","Dernière action aventure","Matériaux","Collection JSON","Date début","Capacité inventaire","Stats JSON"];
 sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES('JOUEURS',1,?,?)", JSON.stringify(HEADERS), Date.now());
 
-function ouvrirSession(email, prenom) {
-  const user = { email, emailConnexion: email, emails: [email], prenom };
+function ouvrirSession(email, prenom, extra = {}) {
+  const user = { email, emailConnexion: email, emails: [email], prenom, ...extra };
   const ticket = coordinator.createLaunchTicketV1({ source: "tv", user });
   assert.equal(ticket.ok, true);
   const session = coordinator.consumeLaunchTicketV1(ticket.ticket);
@@ -96,9 +96,9 @@ assert.deepEqual(Object.keys(lignes()), [ADMIN]);
 const autreSession = ouvrirSession(ADMIN, "Norman");
 assert.equal(appeler(autreSession, "obtenirPartieDevSorealIdle").partie, "a");
 
-// Un autre joueur n'a ni sélecteur, ni partie B. Il n'a plus d'accès spécial (2026-09-25) : l'administrateur ouvre l'accès à tous les comptes connectés.
+// Un autre joueur n'a ni sélecteur, ni partie B. Il n'a plus d'accès spécial (2026-09-25) : l'administrateur ouvre l'accès aux détenteurs du trophée Assiduité de bronze (user.idleTrophee, posé par TV).
 appeler(norman, "definirAccesOuvertSorealIdle", [true]);
-const sebastien = ouvrirSession("hodappsebastien@gmail.com", "Sébastien");
+const sebastien = ouvrirSession("hodappsebastien@gmail.com", "Sébastien", { idleTrophee: true });
 assert.deepEqual({ ...appeler(sebastien, "obtenirPartieDevSorealIdle") }, { ok: true, actif: false, partie: "a" });
 assert.throws(() => appeler(sebastien, "definirPartieDevSorealIdle", ["b"]), /PARTIES_DEV_INDISPONIBLES/);
 
