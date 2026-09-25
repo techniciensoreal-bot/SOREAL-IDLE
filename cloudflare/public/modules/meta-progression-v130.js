@@ -1106,7 +1106,7 @@
 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-303 */
 function pagePerksIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'perks');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⭐ Perks','Maîtrises permanentes achetées avec des Points de Perk (PP).')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⭐ Perks','Avantages permanents achetés avec des Points de Perk (PP).')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.perkDefinitions)?j.systemes.perkDefinitions:[];
         const pp=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.pp||0):0;
@@ -1131,7 +1131,7 @@ function pagePerksIdleV1_(j){
 
 function pageQuirksIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'quirks');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('📚 Quirks','Procédures permanentes achetées avec des Points de Quirk (QP).')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('📚 Quirks','Particularités permanentes achetées avec des Points de Quirk (QP).')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.quirkDefinitions)?j.systemes.quirkDefinitions:[];
         const qp=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.qp||0):0;

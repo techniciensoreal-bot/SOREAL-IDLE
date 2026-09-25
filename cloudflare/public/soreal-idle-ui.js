@@ -8598,7 +8598,7 @@
               '<div class="soreal-idle-modal-info-v63">'+
                 '<strong>Le cycle recommence.</strong><br>'+
                 'Boss du run, niveaux de Basic Training et progressions temporaires du run seront remis à zéro.<br><br>'+
-                '<strong>Conservé :</strong> inventaire, équipement, sets, collection, progression Aventure, capacité du sac, boutique, Essence et toutes les métaprogressions permanentes (NGU, Maîtrises, Procédures, Hacks, Wishes, cartes, artefacts…).'+
+                '<strong>Conservé :</strong> inventaire, équipement, sets, collection, progression Aventure, capacité du sac et toutes les progressions permanentes (NGU, Perks, Quirks, Hacks, Wishes, Cards, MacGuffins…).'+
               '</div>'+
             '</div>'+
             '<div class="soreal-idle-modal-actions-v63">'+
@@ -8903,31 +8903,6 @@
               'Certaines entrées sont beaucoup plus difficiles à découvrir que les autres.'
             ]
           },
-          boutique:{
-            icon:'🪙',
-            titre:'Améliorations débloquées',
-            intro:'Les pièces gagnées sur les boss peuvent enfin servir.',
-            menuCible:'boutique',
-            libelleCible:'Aller aux améliorations',
-            bullets:[
-              'Achète des améliorations permanentes.',
-              'Production, capacité et puissance deviennent de vrais leviers de progression.'
-            ]
-          },
-          magie:{
-            icon:'🔮',
-            titre:'Mana & Magie débloqués',
-            intro:'Quelque chose d’étrange vient de s’allumer dans le dépôt.',
-            menuCible:'magie',
-            libelleCible:'Aller à la magie',
-            bullets:[
-              'Une barre de mana est maintenant disponible.',
-              'Le magasin de magie permet d’apprendre ton premier sort : Soin de fortune.',
-              'Le mana revient lentement et chaque sort possède son propre cooldown.',
-              'Certains ennemis semblent réagir de manière étrange à l’énergie vitale. À toi d’expérimenter.'
-            ]
-          },
-
           combat_auto:{
             icon:'🤖',
             titre:'Aventure AUTO débloquée',
@@ -8947,7 +8922,7 @@
             libelleCible:'Aller à la Renaissance',
             bullets:[
               'Une Renaissance sacrifie une partie de ta progression.',
-              'En échange, l’Essence SOREAL accélère les cycles suivants.'
+              'En échange, ton NOMBRE grandit : il multiplie ton Attaque et ta Défense et accélère les cycles suivants.'
             ]
           }
         };
@@ -9315,7 +9290,7 @@
         {
           titre:'Équipement',
           paragraphes:[
-            'Des ennemis vont apparaître aléatoirement toutes les quelques secondes quand tu sors de la Zone Sûre. Combattre des ennemis en Aventure fait tomber de l’équipement, que tu peux équiper dans le tout nouveau menu INVENTAIRE que tu as aussi débloqué ! L’équipement peut booster tes stats en Aventure ainsi que tes stats principales d’Attaque/Défense, et plus tard, offrir des bonus spéciaux du tonnerre !'
+            'Des ennemis vont apparaître aléatoirement toutes les quelques secondes quand tu sors de la Zone Sûre. Combattre des ennemis en Aventure fait tomber de l’équipement, que tu peux équiper dans ton INVENTAIRE, juste en dessous dans cette même page Aventure ! L’équipement peut booster tes stats en Aventure ainsi que tes stats principales d’Attaque/Défense, et plus tard, offrir des bonus spéciaux du tonnerre !'
           ]
         },
         {
@@ -14748,23 +14723,7 @@ let idleDialogueTimerV76=null;
       }
 
       function patchResumeInventaireIdleV160_(modele){
-        const root=document.querySelector(
-          '.soreal-idle-page-root-v28 .soreal-idle-summary-grid-v28'
-        );
-        if(!root||!modele)return;
-        const valeurs=root.querySelectorAll('b');
-        if(valeurs[0])valeurs[0].textContent=modele.utilise+' / '+modele.capacite;
-        if(valeurs[1]){
-          valeurs[1].textContent=
-            formatGrandNombreIdleV70_(modele.cube.power||0)+
-            ' / '+
-            formatGrandNombreIdleV70_(modele.cube.toughness||0);
-        }
-        if(valeurs[2]){
-          valeurs[2].textContent=
-            String(Object.keys(modele.a.completedSets||{}).length);
-        }
-
+        if(!modele)return;
         const titreSac=document.querySelector(
           '#soreal-idle-v138-bag-section .soreal-idle-window-title-v31'
         );
@@ -15757,7 +15716,7 @@ let idleDialogueTimerV76=null;
         {id:'heal',label:'Soin',icon:'❤️',btIndex:2,cooldown:15000},
         {id:'offensiveBuff',label:'Puissance',icon:'🔶',btIndex:3,cooldown:45000},
         {id:'charge',label:'Charge',icon:'⚡',btIndex:4,cooldown:30000},
-        {id:'ultimateBuff',label:'Ult. Buff',icon:'✨',btIndex:5,cooldown:45000}
+        {id:'ultimateBuff',label:'Bonus ultime',icon:'✨',btIndex:5,cooldown:45000}
       ]);
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-195 */
       const IDLE_ADVENTURE_ADVANCED_SKILLS_V4=Object.freeze([
@@ -18995,15 +18954,9 @@ function pageAventureIdleV28_(j){
         const capacite=idleEntier_(a.inventoryCapacity||24);
         const utilise=idleEntier_(a.inventoryUsed!=null?a.inventoryUsed:sacItems.filter(Boolean).length);
 
-        return entetePageIdleV28_(
-          '🎒 Inventory',
-          'Glisse un objet pour l’équiper, le fusionner ou le booster. Deux objets incompatibles échangent leur place ; tu peux donc organiser librement tout le sac.'
-        )+
-          '<div class="soreal-idle-summary-grid-v28">'+
-            '<div class="soreal-idle-summary-v28">Sac<b>'+utilise+' / '+capacite+'</b></div>'+
-            '<div class="soreal-idle-summary-v28">Cube<b>'+formatGrandNombreIdleV70_(cube.power||0)+' / '+formatGrandNombreIdleV70_(cube.toughness||0)+'</b></div>'+
-            '<div class="soreal-idle-summary-v28">Sets<b>'+Object.keys(a.completedSets||{}).length+'</b></div>'+
-          '</div>'+
+        /* 2026-09-24 (Norman : « fenêtre inutile… supprime pour gagner de la place ») : ni bandeau « Inventory », ni cadres Sac / Cube / Sets
+           (le sac s'affiche dans son titre, le Cube dans son emplacement, les sets dans la Collection). */
+        return ''+
           '<div class="soreal-idle-v151-inventory-columns">'+
             '<div class="soreal-idle-section-v8 soreal-idle-v138-equipment-sticky"><div class="soreal-idle-window-title-v31">🧍 Équipement</div>'+
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-280 */
@@ -19811,11 +19764,9 @@ function pageAventureIdleV28_(j){
                   '<li>❌ Niveau & XP</li>'+
                   '<li>❌ Énergie & entraînements</li>'+
                   '<li>❌ Boss & progression</li>'+
-                  '<li>❌ Pièces & boutique</li>'+
                   '<li>❌ Inventaire & équipement</li>'+
-                  '<li>❌ Forge & matériaux</li>'+
                   '<li>❌ Aventure & collections</li>'+
-                  '<li>❌ Renaissances & Essence</li>'+
+                  '<li>❌ Renaissances</li>'+
                   '<li>❌ Statistiques</li>'+
                   '<li>❌ Date de début</li>'+
                 '</ul>'+

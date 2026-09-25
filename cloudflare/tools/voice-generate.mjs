@@ -7,7 +7,7 @@
  * jeu) et le vrai Piper (WASM) pour synthétiser chaque bloc, puis ffmpeg encode en AAC mono. Le script est REPRENABLE : un bloc
  * dont le fichier existe déjà n'est pas régénéré.
  *
- *   node cloudflare/tools/voice-generate.mjs [--limit N] [--workers N] [--bitrate 32k] [--url https://…] [--dry]
+ *   node cloudflare/tools/voice-generate.mjs [--limit N] [--workers N] [--bitrate 32k] [--url https://…] [--dry] [--prune]
  *
  * Environnement :
  *   SOREAL_PLAYWRIGHT_DIR  dossier où « playwright-core » est installé (défaut : dossier courant)
@@ -37,6 +37,7 @@ const LIMITE = Number(arg("limit", 0)) || 0;
 const TRAVAILLEURS = Math.max(1, Number(arg("workers", 3)) || 3);
 const DEBIT = String(arg("bitrate", "32k"));
 const A_SEC = Boolean(arg("dry", false));
+const ELAGUER = Boolean(arg("prune", false));
 const FFMPEG = process.env.SOREAL_FFMPEG || "ffmpeg";
 
 function lireJson(rel) {
@@ -114,6 +115,12 @@ async function main() {
   const totalCaracteres = blocs.reduce((n, b) => n + b.texte.length, 0);
   const restants = blocs.filter((b) => !fs.existsSync(path.join(SORTIE, b.hash + ".m4a")));
   console.log(`${boss.length} chroniques -> ${blocs.length} blocs (${totalCaracteres} caractères), ${restants.length} à générer`);
+  if (ELAGUER && !A_SEC) {
+    const utiles = new Set(blocs.map((b) => b.hash));
+    const orphelins = fs.readdirSync(SORTIE).filter((f) => f.endsWith(".m4a") && !f.includes(".tmp") && !utiles.has(f.slice(0, -4)));
+    orphelins.forEach((f) => fs.unlinkSync(path.join(SORTIE, f)));
+    console.log(orphelins.length + " fichier(s) orphelin(s) supprimé(s)");
+  }
   if (A_SEC) {
     await navigateur.close();
     return;

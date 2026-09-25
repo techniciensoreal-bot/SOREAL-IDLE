@@ -39,7 +39,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"attaque_renforcee",
       group:"attack",
-      name:"Attaque renforcée",
+      name:"Attaque puissante",
       baseCap:30000,
       baseValue:2000,
       prerequisite:"attaque_reguliere",
@@ -48,7 +48,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"contre_palette",
       group:"attack",
-      name:"Contre-palette",
+      name:"Parade",
       baseCap:50000,
       baseValue:10000,
       prerequisite:"attaque_renforcee",
@@ -57,7 +57,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"percee_quai",
       group:"attack",
-      name:"Percée de quai",
+      name:"Attaque perçante",
       baseCap:70000,
       baseValue:50000,
       prerequisite:"contre_palette",
@@ -66,7 +66,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"ultime_soreal",
       group:"attack",
-      name:"Ultime SOREAL",
+      name:"Attaque ultime",
       baseCap:100000,
       baseValue:200000,
       prerequisite:"percee_quai",
@@ -85,7 +85,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"defense_renforcee",
       group:"defense",
-      name:"Défense renforcée",
+      name:"Bonus défensif",
       baseCap:15000,
       baseValue:1000,
       prerequisite:"blocage",
@@ -94,7 +94,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"recuperation",
       group:"defense",
-      name:"Récupération",
+      name:"Soin",
       baseCap:30000,
       baseValue:2000,
       prerequisite:"defense_renforcee",
@@ -103,7 +103,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"boost_offensif",
       group:"defense",
-      name:"Boost offensif",
+      name:"Bonus offensif",
       baseCap:50000,
       baseValue:10000,
       prerequisite:"recuperation",
@@ -112,7 +112,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"charge_logistique",
       group:"defense",
-      name:"Charge logistique",
+      name:"Charge",
       baseCap:70000,
       baseValue:50000,
       prerequisite:"boost_offensif",
@@ -121,7 +121,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
     Object.freeze({
       id:"ultime_logistique",
       group:"defense",
-      name:"Ultime logistique",
+      name:"Bonus ultime",
       baseCap:100000,
       baseValue:200000,
       prerequisite:"charge_logistique",
