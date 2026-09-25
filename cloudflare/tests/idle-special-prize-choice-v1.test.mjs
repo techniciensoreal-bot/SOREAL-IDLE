@@ -49,6 +49,11 @@ assert.equal(prix(agir(frais(), { action: "specialPrize" }).state).choice, "ap")
   s = agir(s, { action: "portrait", id: "kitty" }).state;
   assert.equal(idleNguSnapshot(s, ctx, 0).portraits.selected, "kitty", "sélectionnable");
   assert.throws(() => agir(agir(frais(), { action: "specialPrize", choice: "ap" }).state, { action: "portrait", id: "kitty" }), /PORTRAIT_VERROUILLE/);
+  // Special Prize réclamé avant l'existence du choix (records.specialPrizeClaimed = 1, aucun choix enregistré) : le chaton est offert.
+  const ancien = frais();
+  ancien.records.specialPrizeClaimed = 1;
+  ancien.records.specialPrizeChoice = 0;
+  assert.equal(chaton(ancien).unlocked, true, "ancien compte ayant déjà réclamé : chaton débloqué");
   const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
   assert.ok(media.includes("IDLE_PORTRAIT_KITTY_R2_KEY_V1") && media.includes("badkittydaycarebow"), "route média : fichier R2 désigné");
   assert.ok(readFileSync("cloudflare/src/idle-portraits-v1.js", "utf8").includes('"idle/Kitty/BadKittyDaycareBow.webp"'));

@@ -5937,7 +5937,11 @@ function portraitEnvV1(state) {
     completedSets: state.adventure?.completedSets || {},
     wishLevel: id => wishLevelV1(state, id),
     macguffinPct: id => macguffinPermanentPctV1(state, id),
-    specialPrizeChoice: num(state.records.specialPrizeChoice, 0)
+    /*
+     * Special Prize réclamé AVANT l'existence du choix (pas de choix enregistré) : le joueur n'a pas pu prendre le chaton, il le reçoit
+     * (Norman, 2026-09-25 : « débloque le chaton sur mon compte, je ne l'ai pas choisi car il n'était pas là »).
+     */
+    specialPrizeChoice: num(state.records.specialPrizeChoice, 0) || (num(state.records.specialPrizeClaimed, 0) > 0 ? 2 : 0)
   };
 }
 
