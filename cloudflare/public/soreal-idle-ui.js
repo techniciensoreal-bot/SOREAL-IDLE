@@ -3940,20 +3940,15 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-80 */
       /*
-       * Tick de la barre d'énergie — 2026-09-24 (Norman : « la trajectoire entre 400 et 1000 est la même que entre 0 et 1000 ou 999 et
-       * 1000 ; elle s'allonge mais ne se rétracte pas, la baisse est instantanée ; comme une balle qui rebondit »).
-       * À chaque tick la barre part du remplissage (valeur), monte jusqu'au cap PUIS redescend jusqu'au nouveau remplissage
-       * (valeur + gain du tick), les deux à VITESSE CONSTANTE : distance = temps, donc plus la barre est remplie, plus le rebond est
-       * court (comme une balle dont les rebonds raccourcissent). La vitesse est celle qui fait tenir l'aller-retour depuis 0 dans
-       * exactement un tick ; le reste du tick, la barre attend au nouveau remplissage. Au changement de tick elle est déjà au bon
-       * endroit : aucune bascule instantanée.
+       * Tick de la barre d'énergie — 2026-09-25 (Norman : « la barre démarre de 0 et va taper jusqu'au 500 ; elle repart INSTANTANÉMENT de 1
+       * et va taper dans 500 ; elle repart instantanément de 2… Pas d'animation de 500 vers 3 »).
+       * Pendant un tick, la barre monte en ligne droite du remplissage actuel (valeur) jusqu'au cap (max), à VITESSE CONSTANTE (le cap
+       * atteint depuis 0 tombe pile à la fin du tick ; plus le remplissage est haut, plus le trajet est court et la barre « tape » le cap
+       * tôt, puis y reste). Au tick suivant elle repart d'un coup du nouveau remplissage (valeur + gain) : aucune descente animée.
+       * Le paramètre gain n'entre pas dans le calcul (le prochain départ est simplement le prochain « valeur »).
        */
       function largeurTickEnergieIdleV1_(valeur,gain,progression,max){
-        const cible=Math.min(max,valeur+Math.max(0,gain));
-        const parcouru=2*max*progression;
-        const montee=Math.min(max,valeur+parcouru);
-        const descente=Math.max(0,parcouru-(max-valeur));
-        return descente>0?Math.max(cible,montee-descente):montee;
+        return Math.min(max,valeur+max*progression);
       }
 
       function mettreAJourBarreProgressionContinueV1_(

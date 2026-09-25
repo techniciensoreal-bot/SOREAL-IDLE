@@ -1590,3 +1590,8 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - Le choix est mémorisé dans `records.specialPrizeChoice` (0 aucun, 1 AP, 2 chaton ; nombre car les `records` sont coercés en compteurs par `normalizeIdleNguState`) et renvoyé en `portraits.specialPrize.choice`. Le portrait chaton (cosmétique de la garderie) n'est pas encore dessiné : seul le choix est retenu.
 - `ui ?v=255`. Test `idle-special-prize-choice-v1` ; `idle-profile-page` et `idle-settings-info-collapsible-v1` adaptés.
 - **Écarts NGU restants (analyse, non modifiés)** : bonus EXP de premier kill des boss (FTBE : table moteur [2,3,4,10,3×16] conservée, à vérifier en jeu sur boss 4 et 21–23) ; sens du diviseur Evil/Sadistic (appliqué aux stats du boss ; à inverser côté joueur seulement sur accord) ; formule d'EXP du Cooking (ambiguë).
+
+## 2026-09-25 — Barre d'énergie : plus de descente animée
+
+- Norman : le « rebond » (montée puis descente animée) n'est pas ce qu'il voulait. Voulu : la barre démarre de 0 et va taper le cap (500) ; elle repart INSTANTANÉMENT de 1 et retape 500 ; puis de 2, de 3… sans aucune animation de 500 vers 1/2/3.
+- `largeurTickEnergieIdleV1_` : `min(cap, valeur + cap × progression)` — montée seule, à vitesse constante depuis le remplissage actuel (le cap est touché à (cap − valeur)/cap du tick puis la barre y reste) ; au tick suivant elle repart d'un coup du nouveau remplissage. Transition CSS toujours retirée. `ui ?v=256`. Test `idle-energy-tick-bounce-v1` réécrit.

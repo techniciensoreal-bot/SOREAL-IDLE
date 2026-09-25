@@ -2,53 +2,40 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 /*
- * Norman (2026-09-24) : « Je n'aime pas comment tique la barre d'énergie. Ils devaient partir à chaque fois de l'endroit où se situe le
- * remplissage. Exemple 400/1000 : la trajectoire entre 400 et 1000 est la même que entre 0 et 1000 ou entre 999 et 1000. Elle s'allonge
- * mais ne se rétracte pas visuellement… il n'y a que la montée qui est fluide, la baisse est instantanée. Plus elle se remplit et moins
- * vite la barre devra aller rejoindre le 1000, un peu comme une balle qui rebondit. »
+ * Norman (2026-09-25) : « La barre démarre de 0 et va taper jusqu'au 500. Elle repart instantanément de 1 et va taper dans 500, elle repart
+ * instantanément de 2 et va taper dans 500… Pas d'animation de 500 vers 3, pas d'animation de 500 vers 2 etc. »
+ * (remplace la version « balle qui rebondit » du 2026-09-24 : montée puis descente animée).
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 const src = ui.match(/function largeurTickEnergieIdleV1_\(valeur,gain,progression,max\)\{[\s\S]*?\n      \}\n/)[0];
 const largeur = new Function(src + "return largeurTickEnergieIdleV1_;")();
-const MAX = 1000;
-const pas = 1e-3;
-const courbe = (v, g) => Array.from({ length: 1001 }, (_, i) => largeur(v, g, i * pas, MAX));
+const MAX = 500;
 
-for (const [v, g] of [[0, 1], [400, 1], [400, 25], [900, 5], [999, 1], [0, 300]]) {
-  const c = courbe(v, g);
-  const cible = Math.min(MAX, v + g);
-  assert.equal(c[0], v, `le tick part exactement du remplissage (${v})`);
-  assert.equal(c[1000], cible, `et finit exactement au nouveau remplissage (${cible}) : pas de saut au tick suivant`);
-  assert.equal(Math.max(...c), MAX, "le rebond va jusqu'au cap");
-  // Continuité : aucun saut instantané, ni à la montée ni à la descente (vitesse constante = 2 x cap par tick).
-  const vitesse = 2 * MAX * pas;
-  for (let i = 1; i < c.length; i += 1) {
-    assert.ok(Math.abs(c[i] - c[i - 1]) <= vitesse + 1e-9, `pas ${i} : variation ${c[i] - c[i - 1]} <= ${vitesse}`);
+for (const v of [0, 1, 2, 3, 250, 499]) {
+  assert.equal(largeur(v, 1, 0, MAX), v, `le tick ${v} démarre exactement au remplissage`);
+  assert.equal(largeur(v, 1, 1, MAX), MAX, `et tape dans ${MAX} avant la fin du tick`);
+  let precedent = -Infinity;
+  let atteint = -1;
+  for (let i = 0; i <= 1000; i += 1) {
+    const x = largeur(v, 1, i / 1000, MAX);
+    assert.ok(x >= precedent - 1e-9, "la barre ne redescend jamais pendant le tick");
+    assert.ok(x <= MAX + 1e-9, "elle ne dépasse pas le cap");
+    if (atteint < 0 && x === MAX) atteint = i / 1000;
+    precedent = x;
   }
-  // La barre ne se rétracte QUE de façon fluide : la descente est strictement à vitesse constante.
-  const iMax = c.indexOf(MAX);
-  const descente = c.slice(iMax).filter((x, i, a) => i > 0 && a[i - 1] > cible && x >= cible).map((x, i, a) => (i === 0 ? null : a[i - 1] - x)).filter((d) => d !== null && d > 1e-9);
-  assert.ok(descente.slice(0, -1).every((d) => Math.abs(d - vitesse) < 1e-6), "descente à vitesse constante");
+  // Vitesse constante : le cap est touché à (cap - valeur) / cap du tick, puis la barre y reste.
+  assert.ok(Math.abs(atteint - (MAX - v) / MAX) <= 0.001 + 1e-9, `cap touché à ${atteint} du tick pour un départ à ${v}`);
 }
 
-// Plus la barre est remplie, plus le rebond est COURT (même vitesse, distance plus petite) — comme une balle qui rebondit.
-const dureeRebond = (v, g) => {
-  const c = courbe(v, g);
-  const cible = Math.min(MAX, v + g);
-  const fin = c.findIndex((x, i) => i > 0 && x === cible && c[i - 1] > cible);
-  return fin < 0 ? 0 : fin;
-};
-const d0 = dureeRebond(0, 1), d400 = dureeRebond(400, 1), d999 = dureeRebond(998, 1);
-assert.ok(d0 > d400 && d400 > d999, `durées de rebond décroissantes : ${d0} > ${d400} > ${d999}`);
-assert.ok(Math.abs(d400 / d0 - 0.6) < 0.01, "depuis 400/1000 : 60 % du trajet complet, à la même vitesse");
+// Enchaînement 0 → 500, 1 → 500, 2 → 500, 3 → 500 : le départ suivant est instantané (aucune valeur intermédiaire entre 500 et 1).
+const suite = [0, 1, 2, 3].flatMap((v) => [largeur(v, 1, 0, MAX), largeur(v, 1, 1, MAX)]);
+assert.deepEqual(suite, [0, 500, 1, 500, 2, 500, 3, 500]);
 
-// Cap atteint : la barre reste pleine.
-assert.equal(largeur(1000, 5, 0.5, MAX), 1000);
-
-// Le client passe le gain du tick, et aucune transition CSS ne retarde ni n'adoucit le rebond.
-assert.match(ui, /maxTotal,\s*metaTickEnergie\.gain\s*\);/);
+// Aucune transition CSS ne transforme le retour en animation.
 assert.match(css, /\.soreal-idle-energybar-v11\{\s*\/\*[^*]*\*\/\s*transition:none !important;/);
+// Le client passe toujours le gain du tick (signature inchangée).
+assert.match(ui, /maxTotal,\s*metaTickEnergie\.gain\s*\);/);
 
 console.log("idle-energy-tick-bounce-v1 OK");

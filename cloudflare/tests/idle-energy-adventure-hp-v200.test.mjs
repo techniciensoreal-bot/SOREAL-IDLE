@@ -25,7 +25,7 @@ function block(source,start,end){
 
 assert.ok(
   index.includes('/modules/adventure-scene-v79.js?v=202')&&
-  index.includes('/soreal-idle-ui.js?v=255'),
+  index.includes('/soreal-idle-ui.js?v=256'),
   "Le standalone doit charger les assets V200 de la barre Energie et des PV Aventure."
 );
 
@@ -39,7 +39,7 @@ const energyFn=block(
 assert.ok(
   energyFn.includes("largeurTickEnergieIdleV1_(")&&
   energyFn.includes("valeurVisuelle/max*100"),
-  "Pendant un tick, la barre part du remplissage, monte jusqu'au cap puis redescend."
+  "Pendant un tick, la barre part du remplissage et monte jusqu au cap (aucune descente animee)."
 );
 
 assert.ok(
