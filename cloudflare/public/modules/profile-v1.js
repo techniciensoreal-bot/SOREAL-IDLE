@@ -57,13 +57,20 @@
     /* ANTI-SPOIL (2026-09-24) : uniquement les portraits déjà débloqués (pas de bouton verrouillé ni de condition). */
     const boutons=liste.filter(function(x){return x.unlocked;}).map(function(x){
       const choisi=x.id===p.selected;
-      return '<button type="button" class="soreal-idle-expand-button-v25"'+
+      /* Vignette = l'image R2 du portrait ; sans image : silhouette en grand, centrée. */
+      const vignette='<span class="idle-portrait-thumb-v1">'+
+        '<img src="/api/idle/media/player?portrait='+encodeURIComponent(x.file)+'" alt="" loading="lazy" draggable="false" '+
+          'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'flex\'">'+
+        '<span class="idle-emoji-fallback-v1" data-n="1" style="display:none">🧑</span></span>';
+      return '<button type="button" class="soreal-idle-expand-button-v25 idle-portrait-btn-v1"'+
         (choisi?' disabled':' onclick="window.__profilChoisirPortraitIdleV1__(\''+html(x.id)+'\')"')+'>'+
-        (choisi?'✅ ':'')+html(x.name)+'</button>';
+        vignette+'<span>'+(choisi?'✅ ':'')+html(x.name)+'</span></button>';
     }).join('');
+    const auto=p.auto?'<div class="soreal-idle-note-v4" style="margin-top:8px">🛡️ Les 4 pièces du set <b>'+html(p.auto.name)+'</b> sont équipées : ton héros en porte l’armure. Retire une pièce pour retrouver ton portrait choisi.</div>':'';
     return '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">🖼️ Player Portraits — '+nombre(p.unlockedCount)+'</div>'+
         '<div class="soreal-idle-note-v4">Portrait du héros en combat (cosmétique). Un portrait par set complété, plus les souhaits Weiner, Mayo et Sneak Preview et les fragments SEXY / SMART à 250 %.</div>'+
+        auto+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+boutons+'</div>'+
       '</div>';
   }

@@ -1043,7 +1043,10 @@ async function playerImage_(request,env,url){
   const portrait=String(url.searchParams.get("portrait")||"").trim().slice(0,80);
   /* Joli chaton du Special Prize : fichier R2 designe (dossier idle/Kitty/, hors idle/player/). */
   const chaton=portrait&&portrait.toLowerCase().replace(/[^a-z0-9]+/g,"")==="badkittydaycarebow";
-  const key=chaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:((portrait&&idlePortraitPickR2KeyV1(keys,portrait))||choisirCleJoueurR2_(keys,zone));
+  /* Repli (portrait automatique d'un set équipé sans image dans R2) : le portrait choisi par le joueur, puis le défaut. */
+  const repli=String(url.searchParams.get("fallback")||"").trim().slice(0,80);
+  const repliChaton=repli&&repli.toLowerCase().replace(/[^a-z0-9]+/g,"")==="badkittydaycarebow";
+  const key=chaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:((portrait&&idlePortraitPickR2KeyV1(keys,portrait))||(repliChaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:(repli&&idlePortraitPickR2KeyV1(keys,repli)))||choisirCleJoueurR2_(keys,zone));
   if(!key)return new Response("Image de joueur introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }

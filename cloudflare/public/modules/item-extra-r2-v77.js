@@ -217,7 +217,7 @@
     st.textContent=
       '.soreal-idle-v77-item-wrap{position:relative;display:grid;place-items:center;width:100%;height:100%}'+
       '.soreal-idle-v77-item-image{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.28))}'+
-      '.soreal-idle-v77-item-fallback{display:grid;place-items:center;width:100%;height:100%}'+
+      '.soreal-idle-v77-item-fallback{display:grid;place-items:center;width:100%;height:100%;font-size:44px;line-height:1;text-align:center}'+
       '.soreal-idle-v77-item-card-image{width:74px;height:74px;float:left;margin:0 12px 8px 0;border-radius:12px;overflow:hidden;background:rgba(255,255,255,.04)}';
     document.head.appendChild(st);
   }

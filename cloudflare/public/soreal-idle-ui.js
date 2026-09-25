@@ -17836,21 +17836,41 @@ function pageAventureIdleV28_(j){
         return iconeBaseObjetAdventureIdleV138_(item)+badgesNiveauObjetIdleV1_(item);
       }
 
+      /*
+       * Emoji de repli d'un objet dont l'image manque (Norman, 2026-09-25) : « mets-le bien grand et centré dans sa case ; s'ils sont plusieurs,
+       * fais au mieux pour qu'on les voie bien ». Le nombre de symboles (data-n) règle la taille : 1 = grand, 2 = un peu moins, 3+ = sur deux lignes.
+       */
+      function nombreEmojisIdleV1_(texte){
+        const brut=String(texte==null?'':texte).replace(/\s+/g,'');
+        if(!brut)return 0;
+        try{
+          if(typeof Intl!=='undefined'&&Intl.Segmenter){
+            return Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(brut)).length;
+          }
+        }catch(e){}
+        return Array.from(brut).length;
+      }
+      function emojiRepliObjetIdleV1_(emoji){
+        const n=Math.min(4,Math.max(1,nombreEmojisIdleV1_(emoji)));
+        return '<span class="idle-emoji-fallback-v1" data-n="'+n+'" style="display:none">'+idleHtml_(String(emoji==null?'':emoji).split(' ').join(''))+'</span>';
+      }
+      const ONERROR_EMOJI_OBJET_IDLE_V1="onerror=\"this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex'\"";
+
       function iconeBaseObjetAdventureIdleV138_(item){
         if(item&&item.kind==='boost'){
           return '<img class="idle-boost-icon-v1" src="'+idleHtml_(urlImageBoostAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
-            'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
-            '<span style="display:none">⚡</span>';
+            ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
+            emojiRepliObjetIdleV1_('⚡');
         }
         if(item&&item.kind==='cube'){
           return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
-            'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
-            '<span style="display:none">🧊</span>';
+            ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
+            emojiRepliObjetIdleV1_('🧊');
         }
         if(!item||!item.set)return iconeSlotAdventureIdleV138_(item&&item.slot);
         return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
-          'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\'">'+
-          '<span style="display:none">'+iconeSlotAdventureIdleV138_(item.slot)+'</span>';
+          ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
+          emojiRepliObjetIdleV1_(iconeSlotAdventureIdleV138_(item.slot));
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-235 */
@@ -21374,10 +21394,11 @@ function pageAventureIdleV28_(j){
       let idleImageJoueurCacheV43={};
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-323 */
-      function urlJoueurR2IdleV1_(zone,portrait){
-        /* Player Portraits (2026-09-24) : portrait choisi (fichier du wiki), repli serveur sur le défaut. */
+      function urlJoueurR2IdleV1_(zone,portrait,repli){
+        /* Player Portraits (2026-09-24) : portrait choisi (fichier du wiki), repli serveur sur le défaut. Portrait automatique d'un set équipé : repli = portrait choisi. */
         return '/api/idle/media/player?zone='+encodeURIComponent(String(zone||''))+
-          (portrait?'&portrait='+encodeURIComponent(String(portrait)):'');
+          (portrait?'&portrait='+encodeURIComponent(String(portrait)):'')+
+          (repli?'&fallback='+encodeURIComponent(String(repli)):'');
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-324 */
@@ -21392,12 +21413,12 @@ function pageAventureIdleV28_(j){
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-326 */
-      function chargerImageJoueurIdleV43_(numero,driveFileId,zone,portrait){
+      function chargerImageJoueurIdleV43_(numero,driveFileId,zone,portrait,repli){
         const n=idleEntier_(numero)||1;
         const host=document.getElementById('sorealIdlePlayerImageHostV43');
         if(!host||!SOREAL_SESSION)return;
 
-        const cacheKey=String(zone||'')+':'+n+':'+String(portrait||'');
+        const cacheKey=String(zone||'')+':'+n+':'+String(portrait||'')+':'+String(repli||'');
         if(idleImageJoueurCacheV43[cacheKey]){
           host.innerHTML=
             markupImageCombatIdleV61_(
@@ -21411,7 +21432,7 @@ function pageAventureIdleV28_(j){
           return;
         }
 
-        const urlR2=urlJoueurR2IdleV1_(zone,portrait);
+        const urlR2=urlJoueurR2IdleV1_(zone,portrait,repli);
         idleImageJoueurCacheV43[cacheKey]=urlR2;
         host.innerHTML=
           markupImageCombatIdleV61_(
@@ -21880,7 +21901,9 @@ function pageAventureIdleV28_(j){
               j.apparenceJoueur&&j.apparenceJoueur.numero,
               j.apparenceJoueur&&j.apparenceJoueur.driveFileId,
               (aventureMetaIdleV47_(j)||{}).selectedZone,
-              j.systemes&&j.systemes.portraits&&j.systemes.portraits.selectedFile
+              /* 4 pièces d'un même set équipées : portrait du set (repli : portrait choisi) ; sinon le portrait choisi. */
+              j.systemes&&j.systemes.portraits&&(j.systemes.portraits.auto?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile),
+              j.systemes&&j.systemes.portraits&&j.systemes.portraits.auto?j.systemes.portraits.selectedFile:''
             );
 
             demarrerBullesCombatIdleV76_(

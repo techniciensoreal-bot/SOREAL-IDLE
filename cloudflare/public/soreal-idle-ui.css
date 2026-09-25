@@ -7527,3 +7527,45 @@
 .soreal-idle-notes-maj-titre-v1 span{margin-left:auto;font-size:11px;color:#8b93ab}
 .soreal-idle-notes-maj-version-v1 ul{margin:0;padding-left:18px}
 .soreal-idle-notes-maj-version-v1 li{margin:3px 0;line-height:1.45}
+
+/*
+ * Emoji de repli d'un objet sans image (Norman, 2026-09-25) : grand et centré dans sa case (64 px, comme les images). data-n = nombre de symboles :
+ * 1 grand ; 2 un peu moins pour tenir côte à côte ; 3 et plus sur deux lignes.
+ */
+.idle-emoji-fallback-v1{
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  align-content:center;
+  width:64px;
+  height:64px;
+  margin:0 auto;
+  text-align:center;
+  line-height:1;
+  font-size:46px;
+  font-style:normal;
+}
+.idle-emoji-fallback-v1[data-n="2"]{font-size:30px;gap:0}
+.idle-emoji-fallback-v1[data-n="3"],
+.idle-emoji-fallback-v1[data-n="4"]{font-size:26px;gap:0}
+.soreal-idle-v138-bag-card>span.idle-emoji-fallback-v1,
+.soreal-idle-v138-slot-icon>span.idle-emoji-fallback-v1{font-size:46px}
+.soreal-idle-v138-bag-card>span.idle-emoji-fallback-v1[data-n="2"],
+.soreal-idle-v138-slot-icon>span.idle-emoji-fallback-v1[data-n="2"]{font-size:30px}
+.soreal-idle-v138-bag-card>span.idle-emoji-fallback-v1[data-n="3"],
+.soreal-idle-v138-bag-card>span.idle-emoji-fallback-v1[data-n="4"],
+.soreal-idle-v138-slot-icon>span.idle-emoji-fallback-v1[data-n="3"],
+.soreal-idle-v138-slot-icon>span.idle-emoji-fallback-v1[data-n="4"]{font-size:26px}
+.soreal-idle-v77-item-fallback{font-size:44px;line-height:1;text-align:center}
+
+/* Sélecteur de portraits : vignette R2 + nom */
+.idle-portrait-btn-v1{display:inline-flex;flex-direction:column;align-items:center;gap:4px;padding:6px;min-width:84px}
+.idle-portrait-thumb-v1{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.05)}
+.idle-portrait-thumb-v1 img{width:64px;height:64px;object-fit:contain}
+.idle-portrait-thumb-v1 .idle-emoji-fallback-v1{width:64px;height:64px;font-size:44px}
+
+/* 4 symboles ou plus : plus petits pour rester dans la case de 64 px (2 par ligne) */
+.idle-emoji-fallback-v1[data-n="4"],
+.soreal-idle-v138-bag-card>span.idle-emoji-fallback-v1[data-n="4"],
+.soreal-idle-v138-slot-icon>span.idle-emoji-fallback-v1[data-n="4"]{font-size:21px}
+.idle-emoji-fallback-v1{overflow:hidden}

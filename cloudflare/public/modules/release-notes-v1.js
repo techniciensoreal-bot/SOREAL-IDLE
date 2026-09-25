@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.1',
+    courante:'1.2',
     versions:[
+      {
+        version:'1.2',
+        nom:'Armures & Portraits',
+        date:'2026-09-25',
+        points:[
+          'Quand tu portes les 4 pièces d’un même set (tête, torse, jambes, bottes), quel que soit leur niveau, ton héros prend automatiquement l’apparence de ce set. Retire une pièce et ton portrait choisi revient.',
+          'Le choix des portraits (Achievements) montre maintenant l’image de chaque portrait.',
+          'Quand l’image d’un objet manque, un emoji s’affiche à sa place, bien grand et centré dans sa case ; s’il y en a plusieurs, ils sont réduits pour tenir tous dans la case.'
+        ]
+      },
       {
         version:'1.1',
         nom:'Le Chat',

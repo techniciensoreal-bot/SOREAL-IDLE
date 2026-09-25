@@ -125,8 +125,20 @@ export function idlePortraitSelectedIdV1(selectedId, env = {}) {
   return p && idlePortraitUnlockedV1(p, env) ? p.id : IDLE_PORTRAIT_DEFAULT_ID_V1;
 }
 
+/*
+ * Portrait automatique (Norman, 2026-09-25) : « dès qu'on a les 4 pièces d'un set équipées, peu importe le niveau, l'image du joueur devient celle
+ * avec l'armure qui correspond ». env.equippedSet = identifiant du set dont les 4 pièces (head, chest, legs, boots) sont portées ; le portrait
+ * du set (même identifiant) prend alors le pas sur le choix manuel — sans avoir à compléter le set — et le choix manuel revient quand on retire une pièce.
+ */
+export function idlePortraitForEquippedSetV1(setId) {
+  const id = String(setId || "");
+  if (!id) return null;
+  return IDLE_PORTRAITS_V1.find(p => p.unlock.type === SET && p.unlock.set === id) || null;
+}
+
 export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false, specialPrizeChoice = 0) {
   const selected = idlePortraitSelectedIdV1(selectedId, env);
+  const auto = idlePortraitForEquippedSetV1(env.equippedSet);
   const list = IDLE_PORTRAITS_V1.map(p => ({
     id: p.id,
     file: p.file,
@@ -137,6 +149,7 @@ export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaime
   return {
     selected,
     selectedFile: idlePortraitByIdV1(selected).file,
+    auto: auto ? { id: auto.id, file: auto.file, name: auto.name, set: String(env.equippedSet) } : null,
     unlockedCount: list.filter(p => p.unlocked).length,
     total: list.length,
     list,
