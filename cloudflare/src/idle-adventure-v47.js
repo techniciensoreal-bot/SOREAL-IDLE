@@ -2813,6 +2813,15 @@ for(const o of s.inventory){
     s.itemList[o.definitionId]=info;
   }
 }
+if(s.unlockFlags&&s.unlockFlags.tutorialCubeMaxed&&!s.coffre.tutorialCube&&!s.unlockFlags.tutorialCubeCoffreV1){
+  s.unlockFlags.tutorialCubeCoffreV1=true;
+  /* Compte ayant déjà transformé son Tutorial Cube en Cube de l'infini avant l'existence de la case : trophée rangé, au niveau maximum. */
+  const trophee=special("tutorialCube",MAX);
+  const b=idleAdventureSpecialBaseStatsV1("tutorialCube");
+  trophee.power=N(b.baseP)*2;trophee.toughness=N(b.baseT)*2;trophee.special=N(b.baseS)*2;
+  trophee.hp=trophee.power*3;trophee.regen=trophee.toughness*.03;
+  s.coffre.tutorialCube=cleanItem(trophee)||trophee;
+}
 for(const o of Object.values(s.coffre||{})){
   if(o&&o.definitionId&&idleAdventureObjetPleinementMaxeV1(o)){
     const info=s.itemList[o.definitionId]||{maxLevel:I(o.level,-1),seen:true};
@@ -2964,6 +2973,8 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
  * copie de l'inventaire ET de l'équipement plutôt que de la laisser
  * traîner, inéquipable et sans usage, dans le sac.
  */
+/* Coffre (Norman, 2026-09-25) : le Tutorial Cube maxxé ne disparaît pas, il est rangé dans sa case du Coffre. */
+if(!s.coffre.tutorialCube&&!s.unlockFlags.tutorialCubeCoffreV1){const trophee=cleanItem({...o});if(trophee){s.coffre.tutorialCube=trophee;s.unlockFlags.tutorialCubeCoffreV1=true}}
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
 /* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
@@ -3436,12 +3447,25 @@ function idleAdventureCubeSoftcapV1(cubeStat,base){const b=Math.max(0,N(base)),c
  * seuls objets déjà obtenus — les trous et les cases jamais découvertes
  * ("?") restent visibles et distincts.
  */
+/*
+ * 2026-09-25 (Norman : « dans le Coffre au trésor, il faut un emplacement pour le Tutorial Cube quand il est maxxé ») : le Tutorial Cube (objet
+ * « special », cube:true) a sa propre case, après les cases d'équipement ; même règle de rangement (réellement maxé, non équipé, case libre).
+ */
+const IDLE_ADVENTURE_COFFRE_SPECIAUX_V1=Object.freeze(["tutorialCube"]);
+function idleAdventureCoffreAccepteV1(definitionId){
+  const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[definitionId];
+  return Boolean(def)&&(def.kind==="equipment"||IDLE_ADVENTURE_COFFRE_SPECIAUX_V1.includes(definitionId));
+}
 function idleAdventureCoffreSlotsV1(s){
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
-    .filter(([,def])=>def.kind==="equipment")
+    .filter(([definitionId])=>idleAdventureCoffreAccepteV1(definitionId))
+    .sort(([a,da],[b,db])=>(da.kind==="equipment"?0:1)-(db.kind==="equipment"?0:1))
     .map(([definitionId,def])=>{
       const occupant=s.coffre[definitionId]||null;
-      const connu=Boolean(s.itemList[definitionId]?.seen);
+      /* Tutorial Cube : sa case n'apparaît qu'une fois maxxé (Norman : « quand il est maxxé ») — jamais avant, rien à deviner. */
+      const connu=definitionId==="tutorialCube"
+        ?Boolean(occupant||s.unlockFlags?.tutorialCubeMaxed)
+        :Boolean(s.itemList[definitionId]?.seen);
       return{
         definitionId,
         set:def.set,setName:def.setName,slot:def.slot,name:def.name,wikiItemId:def.wikiItemId||0,
@@ -3536,10 +3560,8 @@ function coffreDeposer(s,id){
   if(idx<0)throw Error("OBJET_INTROUVABLE");
   const o=s.inventory[idx];
   if(equippedIdsAdventureV1(s).has(o.id))throw Error("OBJET_EQUIPE");
-  if(o.kind!=="equipment")throw Error("OBJET_NON_ELIGIBLE_COFFRE");
+  if(!idleAdventureCoffreAccepteV1(o.definitionId))throw Error("OBJET_NON_ELIGIBLE_COFFRE");
   if(!idleAdventureObjetPleinementMaxeV1(o))throw Error("OBJET_NON_MAXE");
-  const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[o.definitionId];
-  if(!def||def.kind!=="equipment")throw Error("OBJET_NON_ELIGIBLE_COFFRE");
   if(s.coffre[o.definitionId])throw Error("CASE_DEJA_OCCUPEE");
   s.inventory.splice(idx,1);
   s.coffre[o.definitionId]=o;

@@ -43,7 +43,7 @@ assert.match(badges({ level: 100, fullyMaxed: true }), /idle-lvl-badge-v1 max/);
 // Posé sur l'image de tous les objets rendus par iconeObjetAdventureIdleV138_ (sac, équipement, accessoires, corbeille, collection, coffre)
 assert.match(extraire("function iconeObjetAdventureIdleV138_(item){"), /iconeBaseObjetAdventureIdleV138_\(item\)\+badgesNiveauObjetIdleV1_\(item\)/);
 assert.match(ui, /kind:'equipment',level:niveau\}/, "collection : niveau sur l'image");
-assert.match(ui, /const pseudoItem=\{set:s\.set,slot:s\.slot,name:s\.name,level:100\};/, "coffre : niveau sur l'image");
+assert.ok(ui.includes("const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};"), "coffre : niveau sur l'image");
 
 // Même prérequis que le Coffre : le serveur calcule fullyMaxed avec la fonction du Coffre (et un boost, sans stats, l'est au niveau 100)
 const serveur = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");

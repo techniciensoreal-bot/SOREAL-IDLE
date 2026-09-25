@@ -19310,7 +19310,7 @@ function pageAventureIdleV28_(j){
               '</div>';
             }
             const item=s.item||{};
-            const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100};
+            const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
             return '<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
               'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
