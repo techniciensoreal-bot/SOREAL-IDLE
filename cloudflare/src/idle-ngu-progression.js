@@ -981,6 +981,12 @@ function createTimeMachineData() {
     speedProgress: 0,
     goldLevel: 0,
     goldProgress: 0,
+    /*
+     * Niveaux cibles (écran Broken Time Machine, champ « Target », 0 = désactivé) : une fois le niveau atteint, l'allocation de la piste
+     * (Energy pour Machine Speed, Magic pour Gold Multiplier) est retirée automatiquement (Norman, 2026-09-25, d'après sa capture du jeu).
+     */
+    speedTarget: 0,
+    goldTarget: 0,
     bestGoldThisRun: 0,
     highestBossEver: 0,
     producedThisRun: 0
@@ -1543,9 +1549,11 @@ function normalizeSystem(def, raw) {
     s.data.trainUpgrade = Boolean(data.trainUpgrade);
   } else if (def.id === "timeMachine") {
     s.data = Object.assign(createTimeMachineData(), src.data || {});
-    for (const key of ["speedLevel", "speedProgress", "goldLevel", "goldProgress", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
+    for (const key of ["speedLevel", "speedProgress", "goldLevel", "goldProgress", "speedTarget", "goldTarget", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
       s.data[key] = Math.max(0, num(s.data[key], 0));
     }
+    s.data.speedTarget = Math.floor(s.data.speedTarget);
+    s.data.goldTarget = Math.floor(s.data.goldTarget);
   } else if (def.id === "bloodMagic") {
     s.data = createBloodMagicData();
     const data = src.data && typeof src.data === "object" ? src.data : {};
@@ -3215,6 +3223,58 @@ function tmLevelGoldCost(targetLevel) {
   return 5000000 * Math.max(1, targetLevel);
 }
 
+function tmTargetReached(target, level) {
+  return num(target, 0) > 0 && num(level, 0) >= num(target, 0);
+}
+
+/* Niveau cible atteint : l'énergie (vitesse) ou la magie (Gold) allouée à la Time Machine est rendue automatiquement. */
+function tmApplyTargets(state) {
+  const s = state.systems.timeMachine;
+  const d = s.data;
+  if (tmTargetReached(d.speedTarget, d.speedLevel) && num(s.allocation.energy, 0) > 0) {
+    setAllocation(state, "timeMachine", "energy", 0);
+    d.speedProgress = 0;
+  }
+  if (tmTargetReached(d.goldTarget, d.goldLevel) && num(s.allocation.magic, 0) > 0) {
+    setAllocation(state, "timeMachine", "magic", 0);
+    d.goldProgress = 0;
+  }
+}
+
+/*
+ * Vue de l'écran Broken Time Machine (mêmes rubriques que le jeu : Gold per Bar Fill, Bar Fills per second, Blood Magic GPS Bonus, NGU GPS
+ * Multiplier, Challenge Multiplier, Highest Boss Multiplier, Gold Multiplier, Machine Speed GPS Multiplier, Beard GPS Multiplier, Gross / Net GPS).
+ * Ce sont EXACTEMENT les facteurs de idleNguTimeMachineGrossGoldPerSecond, jamais une seconde formule ; les pourcentages du jeu valent
+ * multiplicateur x 100. Les barres sont la progression vers le niveau suivant (temps déjà écoulé / durée du niveau).
+ */
+function timeMachineViewV1(state) {
+  const s = state.systems.timeMachine;
+  const d = s.data;
+  const speedLevel = Math.max(0, num(d.speedLevel, 0));
+  const goldLevel = Math.max(0, num(d.goldLevel, 0));
+  const fill = (progress, step) => (Number.isFinite(step) && step > 0 ? Math.max(0, Math.min(1, num(progress, 0) / step)) : 0);
+  const speedStep = tmLevelSeconds(state, "energy", speedLevel + 1);
+  const goldStep = state.systems.bloodMagic?.unlocked ? tmLevelSeconds(state, "magic", goldLevel + 1) : Infinity;
+  const highestBoss = Math.max(1, Math.min(274, num(d.highestBossEver, 0) - 27));
+  return {
+    goldPerBarFill: Math.max(0, num(d.bestGoldThisRun, 0)),
+    barFillsPerSecond: speedLevel < 50 ? Math.min(50, 1 + speedLevel) : 50,
+    bloodMagicMultiplier: Math.max(1, num(state.systems.bloodMagic.data.spells.counterfeitGold, 1)),
+    nguMultiplier: nguFxV1(state).timeMachine,
+    challengeMultiplier: challengePermanentBonuses(state).timeMachineGoldMultiplier,
+    highestBossMultiplier: highestBoss,
+    goldMultiplier: 1 + goldLevel,
+    machineSpeedMultiplier: speedLevel < 50 ? 1 : 1 + (speedLevel - 49),
+    beardMultiplier: beardBonusMultiplier(state, "gold"),
+    grossGps: idleNguTimeMachineGrossGoldPerSecond(state),
+    netGps: idleNguTimeMachineGoldPerSecond(state),
+    speedFill: fill(d.speedProgress, speedStep),
+    goldFill: fill(d.goldProgress, goldStep),
+    speedTarget: Math.max(0, Math.floor(num(d.speedTarget, 0))),
+    goldTarget: Math.max(0, Math.floor(num(d.goldTarget, 0)))
+  };
+}
+
 function advanceTimeMachine(state, seconds) {
   const s = state.systems.timeMachine;
   if (!s.unlocked || seconds <= 0) return;
@@ -3234,7 +3294,7 @@ function advanceTimeMachine(state, seconds) {
   let energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
   if (Number.isFinite(energyStep)) {
     d.speedProgress += seconds;
-    while (d.speedProgress >= energyStep && guard < 100000) {
+    while (d.speedProgress >= energyStep && guard < 100000 && !tmTargetReached(d.speedTarget, d.speedLevel)) {
       guard++;
       const cost = tmLevelGoldCost(d.speedLevel + 1);
       if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) { d.speedProgress = energyStep; break; }
@@ -3252,7 +3312,7 @@ function advanceTimeMachine(state, seconds) {
     let magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
     if (Number.isFinite(magicStep)) {
       d.goldProgress += seconds;
-      while (d.goldProgress >= magicStep && guard < 100000) {
+      while (d.goldProgress >= magicStep && guard < 100000 && !tmTargetReached(d.goldTarget, d.goldLevel)) {
         guard++;
         const cost = tmLevelGoldCost(d.goldLevel + 1);
         if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) { d.goldProgress = magicStep; break; }
@@ -3265,6 +3325,8 @@ function advanceTimeMachine(state, seconds) {
       }
     }
   }
+
+  tmApplyTargets(state);
 
   const gps = idleNguTimeMachineGoldPerSecond(state);
   const gain = gps * seconds;
@@ -5154,6 +5216,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     expShop: expShopSnapshotV1(state),
     /* Achievements (2026-09-24) : catalogue, succès débloqués, BP et facteur AP (idle-achievements-v1.js). */
     achievements: achievementsSnapshotV1(state),
+    /* Écran Broken Time Machine (facteurs du GPS, barres, niveaux cibles). */
+    timeMachineView: state.systems.timeMachine?.unlocked ? timeMachineViewV1(state) : null,
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
     portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0)),
     richJerks: {
@@ -6249,6 +6313,15 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       num(payload.value, 0),
       context
     );
+  } else if (action === "setTimeMachineTarget") {
+    /* Champ « Target » de la Time Machine : niveau à atteindre (0 = aucun) ; à l'atteinte l'allocation de la piste est retirée. */
+    const tm = state.systems.timeMachine;
+    if (!tm?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    const track = String(payload.track || "");
+    if (track !== "speed" && track !== "gold") throw new Error("PISTE_INCONNUE");
+    const value = Math.max(0, Math.min(1e9, Math.floor(num(payload.value, 0))));
+    tm.data[track === "speed" ? "speedTarget" : "goldTarget"] = value;
+    tmApplyTargets(state);
   } else if (action === "reclaimResource") {
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
   } else if (action === "allocateAugment") {

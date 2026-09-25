@@ -1389,18 +1389,88 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<div style="display:grid;gap:10px;margin-top:10px">'+defs.map(function(def){const pair=pairs[def.id]||{};const mainOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(mainOk?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(def.upgrade?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+track(def,pair,true,upgradeOk)+'</div>';}).join('')+'</div>';
       }
 
-      function pageTimeMachineIdleV48_(j){
+      /*
+       * Broken Time Machine (2026-09-25, d'après la capture du jeu fournie par Norman) : bandeau « BROKEN TIME MACHINE », deux pistes
+       * (Machine Speed en vert = Energy ; Gold Multiplier en jaune = Magic) avec barre de progression vers le niveau suivant, boutons + / −,
+       * champ « Target » (niveau cible ; à l'atteinte l'allocation de la piste est retirée, 0 = aucun), ressource allouée et niveau ;
+       * panneau gris des facteurs du GPS. + / − placent ou retirent la valeur du champ Input (comme Basic Training et les Augmentations) ;
+       * Max place toute la ressource libre de la piste. Les facteurs viennent de j.systemes.timeMachineView (mêmes valeurs que le calcul du GPS).
+       */
+      function ajusterTimeMachineIdleV1_(ressource,mode){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
         const s=systemeMetaParIdIdleV130_(j,'timeMachine');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⏱️ Time Machine','La Time Machine transforme la progression du run en Gold par seconde.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 30 pour débloquer la Time Machine.</div>';
-        const snap=j&&j.systemes||{};
+        const current=Math.max(0,H.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation[ressource]));
+        const pas=Math.max(1,Math.floor(Number((document.getElementById('sorealIdleTmInputV1')||{}).value)||montantAugmentIdleV1));
+        if(Number.isFinite(pas)&&pas>=1)montantAugmentIdleV1=pas;
+        const value=mode==='plus'
+          ?current+pas
+          :mode==='moins'
+            ?Math.max(0,current-pas)
+            :Math.max(current,allocationMaxMetaIdleV48_(j,'timeMachine',ressource));
+        window.__actionMetaV47__({action:'allocate',system:'timeMachine',resource:ressource,value:value});
+      }
+      window.__ajusterTimeMachineIdleV1__=ajusterTimeMachineIdleV1_;
+      window.__cibleTimeMachineIdleV1__=function(piste,valeur){
+        const n=Math.max(0,Math.floor(Number(valeur)||0));
+        window.__actionMetaV47__({action:'setTimeMachineTarget',track:String(piste),value:n});
+      };
+
+      function pageTimeMachineIdleV48_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const s=systemeMetaParIdIdleV130_(j,'timeMachine');
+        if(!s||!s.state||!s.state.unlocked)return H.entetePageIdleV28_('⏱️ Time Machine','La Time Machine transforme la progression du run en Gold par seconde.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 30 pour débloquer la Time Machine.</div>';
         const data=s.state.data||{};
-        const bonus=snap.bonuses||{};
+        const vue=(j&&j.systemes&&j.systemes.timeMachineView)||{};
         const magic=systemeMetaParIdIdleV130_(j,'bloodMagic');
         const magicOk=Boolean(magic&&magic.state&&magic.state.unlocked);
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⏱️ Time Machine','Energy augmente la vitesse de la machine. À partir du boss 37, Magic augmente le multiplicateur de Gold.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">GPS net<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(bonus.timeMachineGoldPerSecond||0)+'</b></div><div class="soreal-idle-summary-v28">Vitesse<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(data.speedLevel||0)+'</b></div><div class="soreal-idle-summary-v28">Gold level<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(data.goldLevel||0)+'</b></div><div class="soreal-idle-summary-v28">Produit ce run<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(data.producedThisRun||0)+'</b></div></div>'+
-          '<div style="display:grid;gap:10px">'+allocationMetaIdleV48_(j,'timeMachine','energy','Energy → vitesse')+(magicOk?allocationMetaIdleV48_(j,'timeMachine','magic','Magic → Gold'):'<div class="soreal-idle-section-v8" style="margin:0;text-align:center">🔒 Magic se débloque avec Blood Magic au boss 37.</div>')+'</div>'+
-          '<div class="soreal-idle-section-v8"><div style="font-size:12px;color:#aeb5c8">Meilleur Gold du run : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(data.bestGoldThisRun||0)+'</b> · Boss record : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(data.highestBossEver||0)+'</b></div></div>';
+        const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
+        const pct=function(mult){return Number(H.idleNombre_(mult)*100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
+        const alloue=function(r){return Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation[r]));};
+        const piste=function(cle,titre,ressource,libelleAlloc,niveau,fill,cible,verrou){
+          const largeur=Math.max(0,Math.min(100,H.idleNombre_(fill)*100));
+          return '<section class="soreal-idle-tm-piste-v1 '+cle+(verrou?' locked':'')+'">'+
+            '<div class="soreal-idle-tm-titre-v1">'+H.idleHtml_(titre)+'</div>'+
+            (verrou
+              ?'<div class="soreal-idle-tm-verrou-v1">🔒 Magic se débloque avec Blood Magic au boss 37.</div>'
+              :'<div class="soreal-idle-tm-ligne-v1">'+
+                '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
+                '<div class="soreal-idle-tm-boutons-v1">'+
+                  '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'plus\')">+</button>'+
+                  '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'moins\')">−</button>'+
+                  '<button type="button" class="max" title="Placer toute la ressource libre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'max\')">Max</button>'+
+                '</div>'+
+                '<div class="soreal-idle-tm-col-v1"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(cle==='vitesse'?'speed':'gold')+'\',this.value)"></div>'+
+                '<div class="soreal-idle-tm-col-v1"><span>'+H.idleHtml_(libelleAlloc)+'</span><b>'+nombre(alloue(ressource))+'</b></div>'+
+                '<div class="soreal-idle-tm-col-v1"><span>Niveau</span><b>'+nombre(niveau)+'</b></div>'+
+              '</div>')+
+          '</section>';
+        };
+        const stat=function(libelle,valeur){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b>'+valeur+'</b></div>';};
+        return '<div class="soreal-idle-tm-v1">'+
+          '<header class="soreal-idle-tm-entete-v1"><h1>Broken Time Machine</h1><p>(Loot that money again and again and again and...)</p></header>'+
+          '<div class="soreal-idle-tm-input-v1"><label for="sorealIdleTmInputV1">Input</label><input id="sorealIdleTmInputV1" type="number" inputmode="numeric" min="1" step="1" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)"><span>+ / − placent ou retirent cette valeur ; Max place toute la ressource libre.</span></div>'+
+          piste('vitesse','Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false)+
+          piste('or','Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,!magicOk)+
+          '<section class="soreal-idle-tm-stats-v1">'+
+            '<div class="soreal-idle-tm-stats-grille-v1">'+
+              '<div>'+
+                stat('Or par remplissage de barre',nombre(vue.goldPerBarFill))+
+                stat('Remplissages de barre par seconde',nombre(vue.barFillsPerSecond))+
+                stat('Bonus GPS Blood Magic',pct(vue.bloodMagicMultiplier))+
+                stat('Multiplicateur GPS NGU',pct(vue.nguMultiplier))+
+                stat('Multiplicateur des défis',pct(vue.challengeMultiplier))+
+              '</div>'+
+              '<div>'+
+                stat('Multiplicateur du meilleur boss',nombre(vue.highestBossMultiplier))+
+                stat('Multiplicateur d’or',nombre(vue.goldMultiplier))+
+                stat('Multiplicateur GPS de la vitesse',nombre(vue.machineSpeedMultiplier))+
+                stat('Multiplicateur GPS de la Barbe',pct(vue.beardMultiplier))+
+              '</div>'+
+            '</div>'+
+            '<div class="soreal-idle-tm-gps-v1"><div>GPS brut : <b>'+nombre(vue.grossGps)+'</b></div><div>GPS net : <b>'+nombre(vue.netGps)+'</b></div></div>'+
+          '</section>'+
+        '</div>';
       }
 
       function pageBloodMagicIdleV48_(j){

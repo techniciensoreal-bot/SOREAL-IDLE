@@ -7172,3 +7172,189 @@
   color:#c4cfe2;
   white-space:pre-line;
 }
+
+/*
+ * Broken Time Machine (2026-09-25) : palette de la capture du jeu — bandeau bleu acier, piste Machine Speed verte, piste Gold Multiplier
+ * jaune, panneau des facteurs gris ; barres à fond blanc, texte noir gras, boutons blancs cerclés de sombre.
+ */
+.soreal-idle-tm-v1{
+  display:grid;
+  gap:10px;
+  color:#111;
+  font-weight:800;
+}
+.soreal-idle-tm-v1 > *{
+  border:3px solid #1d3247;
+  border-radius:12px;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 2px 0 rgba(0,0,0,.35);
+}
+.soreal-idle-tm-entete-v1{
+  background:#5f86ab;
+  text-align:center;
+  padding:12px 12px 10px;
+  color:#0d1b2a;
+}
+.soreal-idle-tm-entete-v1 h1{
+  margin:0;
+  font-size:clamp(22px,6vw,34px);
+  line-height:1.05;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  font-family:Impact,'Arial Black',system-ui,sans-serif;
+  font-weight:900;
+  color:#0b1622;
+}
+.soreal-idle-tm-entete-v1 p{
+  margin:5px 0 0;
+  font-size:11px;
+  text-transform:uppercase;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+.soreal-idle-tm-input-v1{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:7px 10px;
+  background:#c1c1c1;
+  font-size:12px;
+}
+.soreal-idle-tm-input-v1 input,
+.soreal-idle-tm-col-v1 input{
+  width:110px;
+  box-sizing:border-box;
+  padding:5px 7px;
+  border:2px solid #1d3247;
+  border-radius:4px;
+  background:#fff;
+  color:#111;
+  font-weight:800;
+  font-size:13px;
+  text-align:center;
+}
+.soreal-idle-tm-input-v1 span{
+  font-size:11px;
+  font-weight:700;
+  color:#333;
+}
+.soreal-idle-tm-piste-v1{
+  padding:10px 12px 12px;
+}
+.soreal-idle-tm-piste-v1.vitesse{ background:#a5dfb4; }
+.soreal-idle-tm-piste-v1.or{ background:#ebe89b; }
+.soreal-idle-tm-titre-v1{
+  font-size:14px;
+  font-weight:900;
+  text-align:left;
+  padding-left:4px;
+  margin-bottom:8px;
+}
+.soreal-idle-tm-ligne-v1{
+  display:grid;
+  grid-template-columns:minmax(120px,1fr) auto auto auto auto;
+  gap:10px;
+  align-items:end;
+}
+.soreal-idle-tm-barre-v1{
+  height:26px;
+  align-self:center;
+  border:2px solid #1d3247;
+  background:#fff;
+  overflow:hidden;
+}
+.soreal-idle-tm-remplissage-v1{
+  height:100%;
+  background:#59d08b;
+}
+.soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1{
+  background:#fdfba7;
+}
+.soreal-idle-tm-boutons-v1{
+  display:flex;
+  gap:5px;
+  align-self:center;
+}
+.soreal-idle-tm-boutons-v1 button{
+  min-width:34px;
+  height:32px;
+  padding:0 8px;
+  border:2px solid #1d3247;
+  border-radius:5px;
+  background:#fff;
+  color:#111;
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+}
+.soreal-idle-tm-boutons-v1 button.max{
+  font-size:11px;
+}
+.soreal-idle-tm-boutons-v1 button:active{
+  background:#dfe6ee;
+}
+.soreal-idle-tm-col-v1{
+  display:grid;
+  gap:4px;
+  justify-items:center;
+  text-align:center;
+  font-size:12px;
+}
+.soreal-idle-tm-col-v1 span{
+  font-weight:900;
+}
+.soreal-idle-tm-col-v1 b{
+  font-size:13px;
+  min-height:26px;
+  display:flex;
+  align-items:center;
+}
+.soreal-idle-tm-col-v1 input{
+  width:84px;
+}
+.soreal-idle-tm-verrou-v1{
+  padding:10px 4px;
+  font-size:13px;
+}
+.soreal-idle-tm-stats-v1{
+  background:#c1c1c1;
+  padding:12px 14px;
+}
+.soreal-idle-tm-stats-grille-v1{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px 18px;
+  font-size:12px;
+  line-height:1.5;
+}
+.soreal-idle-tm-stats-grille-v1 b{
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.soreal-idle-tm-stats-grille-v1 span{
+  font-weight:900;
+}
+.soreal-idle-tm-gps-v1{
+  display:flex;
+  justify-content:space-around;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+  font-size:15px;
+  font-weight:900;
+}
+@media(max-width:640px){
+  .soreal-idle-tm-ligne-v1{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+  .soreal-idle-tm-barre-v1{
+    grid-column:1/-1;
+  }
+  .soreal-idle-tm-boutons-v1{
+    grid-column:1/-1;
+    justify-content:flex-start;
+  }
+  .soreal-idle-tm-stats-grille-v1{
+    grid-template-columns:1fr;
+  }
+}
