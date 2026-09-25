@@ -5936,7 +5936,8 @@ function portraitEnvV1(state) {
   return {
     completedSets: state.adventure?.completedSets || {},
     wishLevel: id => wishLevelV1(state, id),
-    macguffinPct: id => macguffinPermanentPctV1(state, id)
+    macguffinPct: id => macguffinPermanentPctV1(state, id),
+    specialPrizeChoice: num(state.records.specialPrizeChoice, 0)
   };
 }
 

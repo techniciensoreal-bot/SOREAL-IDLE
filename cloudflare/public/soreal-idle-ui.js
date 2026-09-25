@@ -20056,7 +20056,7 @@ function pageAventureIdleV28_(j){
         if(!prix)return '';
         const ap=idleEntier_(prix.ap).toLocaleString('fr-FR');
         const corps=prix.claimed
-          ?'<div class="soreal-idle-note-v4">Déjà récupéré ('+(prix.choice==='kitty'?'le joli chaton et ':'')+ap+' AP). Bien essayé, gourmand !</div>'
+          ?'<div class="soreal-idle-note-v4">Déjà récupéré ('+(prix.choice==='kitty'?'le joli chaton et ':'')+ap+' AP). Bien essayé, gourmand !'+(prix.choice==='kitty'?' Ton chaton t’attend dans tes Player Portraits (Achievements).':'')+'</div>'
           :'<div class="soreal-idle-note-v4">Une seule fois, au choix (sans bonus d’AP) :</div>'+
             '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'specialPrize\',choice:\'ap\'})">💠 '+ap+' AP</button>'+

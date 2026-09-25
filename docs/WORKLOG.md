@@ -1595,3 +1595,9 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 
 - Norman : le « rebond » (montée puis descente animée) n'est pas ce qu'il voulait. Voulu : la barre démarre de 0 et va taper le cap (500) ; elle repart INSTANTANÉMENT de 1 et retape 500 ; puis de 2, de 3… sans aucune animation de 500 vers 1/2/3.
 - `largeurTickEnergieIdleV1_` : `min(cap, valeur + cap × progression)` — montée seule, à vitesse constante depuis le remplissage actuel (le cap est touché à (cap − valeur)/cap du tick puis la barre y reste) ; au tick suivant elle repart d'un coup du nouveau remplissage. Transition CSS toujours retirée. `ui ?v=256`. Test `idle-energy-tick-bounce-v1` réécrit.
+
+## 2026-09-25 — Special Prize : le choix « chaton » débloque le portrait « Joli chaton »
+
+- Norman : « utilise le choix aussi pour le chat ; l'image du Kitty qu'on débloque est idle/Kitty/BadKittyDaycareBow.webp ». Nouveau portrait `kitty` (« Joli chaton ») dans `idle-portraits-v1.js`, débloqué uniquement si `records.specialPrizeChoice === 2` (choix chaton ; le choix AP ne le donne pas) ; sélectionnable comme les autres portraits (Achievements).
+- Média : `/api/idle/media/player?portrait=BadKittyDaycareBow` sert le fichier R2 désigné `idle/Kitty/BadKittyDaycareBow.webp` (hors dossier `idle/player/`). Si le fichier est absent de R2 : 404 (le client retombe alors sur son comportement habituel).
+- Carte Special Prize (Info) : mention du chaton dans les Player Portraits après le choix. `ui ?v=257`. Test `idle-special-prize-choice-v1` étendu.

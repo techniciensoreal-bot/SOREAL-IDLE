@@ -37,6 +37,23 @@ assert.equal(prix(agir(frais(), { action: "specialPrize" }).state).choice, "ap")
   assert.equal(normalizeIdleNguState(JSON.parse(JSON.stringify(s)), ctx, 0).records.specialPrizeChoice, 2);
 }
 
+// Le choix « chaton » débloque le portrait « Joli chaton » (image R2 idle/Kitty/BadKittyDaycareBow.webp) ; le choix « AP » ne le débloque pas
+{
+  const chaton = (s) => idleNguSnapshot(s, ctx, 0).portraits.list.find((p) => p.id === "kitty");
+  assert.equal(chaton(frais()).unlocked, false, "verrouillé au départ");
+  assert.equal(chaton(frais()).file, "BadKittyDaycareBow");
+  assert.equal(chaton(agir(frais(), { action: "specialPrize", choice: "ap" }).state).unlocked, false, "choix AP : pas de chaton");
+  let s = agir(frais(), { action: "specialPrize", choice: "kitty" }).state;
+  assert.equal(chaton(s).unlocked, true, "choix chaton : portrait débloqué");
+  s = normalizeIdleNguState(JSON.parse(JSON.stringify(s)), ctx, 0);
+  s = agir(s, { action: "portrait", id: "kitty" }).state;
+  assert.equal(idleNguSnapshot(s, ctx, 0).portraits.selected, "kitty", "sélectionnable");
+  assert.throws(() => agir(agir(frais(), { action: "specialPrize", choice: "ap" }).state, { action: "portrait", id: "kitty" }), /PORTRAIT_VERROUILLE/);
+  const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
+  assert.ok(media.includes("IDLE_PORTRAIT_KITTY_R2_KEY_V1") && media.includes("badkittydaycarebow"), "route média : fichier R2 désigné");
+  assert.ok(readFileSync("cloudflare/src/idle-portraits-v1.js", "utf8").includes('"idle/Kitty/BadKittyDaycareBow.webp"'));
+}
+
 // Client : la carte est dans le menu Info (toujours visible quand Info est ouvert), plus dans Achievements
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.match(ui, /function carteSpecialPrizeIdleV1_\(\)\{/);
