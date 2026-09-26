@@ -4,7 +4,7 @@ Dossier R2 : `soreal/idle/player/`. Format : **webp**. Nom : `portrait-<id>.webp
 
 Généré le 2026-09-26 à partir de `cloudflare/src/idle-portraits-v1.js` (fonction `idlePortraitNomFichierV1`).
 
-## À ajouter (32 portraits sans image dans R2)
+## Ajoutés (32 portraits : tous présents dans R2 depuis le 2026-09-26, format webp, vérifiés en ligne)
 
 | Portrait | Nom du fichier à créer |
 |---|---|
