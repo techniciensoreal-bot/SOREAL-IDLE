@@ -1831,3 +1831,27 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - Norman : « un son pour + − et CAP, 3 sons différents en rapport avec ce qu'ils font ». `audio-effects-v199.js ?v=212` : `btPlus` (deux « bloups » qui montent + brillance : on ajoute), `btMinus` (deux « bloups » qui descendent, plus mats : on retire), `btCap` (charge en dents de scie qui monte de 180 à 900 Hz, puis « ding » aigu à 1568/2093 Hz avec un souffle : plafond atteint). Groupe `bt-adjust` (un événement plus récent remplace l'ancien : pas d'empilement quand on enchaîne les clics), 350 à 450 ms de péremption.
 - Branchement : `ajusterBasicTrainingIdleV120_` joue le son seulement si l'allocation change vraiment (`delta !== 0`) : rien quand il n'y a pas d'énergie Idle à allouer. Vérifié dans le navigateur : + -> `btPlus`, − -> `btMinus`, Cap -> `btCap`, + sans énergie -> aucun son.
 - Test `idle-basic-training-button-sounds-v1` (contexte audio factice : les trois sons planifient de vraies notes, sont tous différents, + monte, − descend, Cap finit par un aigu). `soreal-idle-ui.js ?v=283`, `release-notes-v1.js ?v=15`.
+
+---
+
+## 2026-09-26 — Audit approfondi SOREAL-IDLE (lecture seule du code)
+
+- **Tâche** : audit en profondeur du dépôt uniquement, sans correction fonctionnelle.
+- **main vérifié avant audit** : `6f195e28bc89b60b61f4bfe85eecef28ca67d1d2` (Beta 2.4).
+- **CI/build/déploiement vérifiés** : GitHub Actions run #631 (`36237160436`) entièrement vert : suite complète, build standalone, dépendances voix, déploiement Cloudflare, vérification SHA et smoke Piper Chromium.
+- **Production vérifiée par la CI** : Worker version `cce7d280-5f12-4017-98b7-3939c0affa4c`, annotation de déploiement correspondant à `6f195e28bc89b60b61f4bfe85eecef28ca67d1d2`, trafic 100 %.
+- **Tests** : 362 fichiers `cloudflare/tests/*.test.mjs` présents ; aucun E2E navigateur général du jeu, seulement le smoke production Piper.
+- **État GitHub** : branche `main` non protégée ; aucun ruleset ; aucun palier staging dans ce dépôt.
+- **Constats prioritaires** :
+  1. Déploiement production avant les contrôles post-déploiement et aucun rollback automatique ; runs #587 et #588 ont déployé et validé le SHA avant d'échouer au smoke Piper.
+  2. Dépendance exécutable `onnxruntime-web` chargée depuis jsDelivr sans SRI via import map, alors que le Bearer de session est en `sessionStorage`.
+  3. Durable Object unique `idFromName("global")` pour tous les joueurs ; chaque opération reconstruit tout `idle_catalog` via un SELECT global. Les clients synchronisent typiquement toutes les 15 s (minimum 5 s) : risque de montée en charge.
+  4. Contrat `idle-protocol.json` verrouille la version et les noms d'opérations mais pas les schémas d'arguments/réponses.
+  5. Monolithes importants : `soreal-idle-ui.js` ~749 ko / 22 688 lignes, `idle-sqlite-runtime.js` ~371 ko / 16 252 lignes, plus `idle-adventure-v47.js` et `idle-ngu-progression.js` > 380 ko.
+  6. Pas de CI navigateur couvrant les parcours critiques de jeu ; de nombreux tests UI sont des gardes Node/source.
+  7. Valeurs actives encore non sourcées NGU à trancher, notamment plafond Basic Training hors ligne 12 h et plusieurs constantes historiques (PV/défense/capacités inventaire).
+  8. Documentation de reprise incohérente : résumé supérieur du WORKLOG obsolète ; `AGENTS.md` annonce encore `cancel-in-progress: true` alors que le workflow réel est `false` ; README/commentaires réseau ne reflètent pas complètement le standalone actuel.
+- **Vérifications positives** : ticket standalone 90 s à usage unique, session Bearer 8 h, ancien fallback HTTP par clé interne retiré ; opérations administrateur sensibles revalident l'identité côté serveur ; 47 des 50 derniers runs `main` sont verts.
+- **Dernière anomalie connue issue de l'audit** : le pipeline peut laisser momentanément en production un SHA dont le run finit rouge si un contrôle post-déploiement échoue.
+- **Prochaine action précise proposée** : traiter d'abord la chaîne de livraison, un seul problème à la fois : séparer validation pré-production et promotion, ajouter rollback automatique ou promotion atomique, puis protéger `main` avec contrôles requis. Ne pas mélanger ce chantier avec les refactors moteur/UI.
+
