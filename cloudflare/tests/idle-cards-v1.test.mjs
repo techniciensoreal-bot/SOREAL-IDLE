@@ -157,7 +157,14 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   assert.ok(s.systems.cards.data.spawnProgress < 1, "aucune carte stockée en attente");
   // Via le moteur complet (advanceIdleNguState) aussi.
   let t = base();
-  t = advanceIdleNguState(t, 2 * 3600, ctx, 1_000_000 + 2 * 3600 * 1000);
+  /* Hasard figé : le moteur complet tire avec Math.random ; sans cela ce test échouait environ 3 fois sur 100 (3 cartes au lieu de 2), ce qui bloquait un déploiement en CI (2026-09-26). */
+  const hasardOrigine = Math.random;
+  Math.random = seeded(4);
+  try {
+    t = advanceIdleNguState(t, 2 * 3600, ctx, 1_000_000 + 2 * 3600 * 1000);
+  } finally {
+    Math.random = hasardOrigine;
+  }
   assert.equal(t.systems.cards.data.deck.length, 2);
 }
 

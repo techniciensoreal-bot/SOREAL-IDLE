@@ -9950,6 +9950,7 @@
         const definitions=definitionsNouveautesIdleV75_();
         Object.keys(definitions).forEach(function(cle){textes.push(texteVoixNouveauteIdleV1_(definitions[cle]));});
         textes.push(texteVoixNouveauteIdleV1_(infoMoneyPitIdleV1_()));
+        textes.push(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);
         return textes;
       };
 
@@ -10101,9 +10102,31 @@
         rendreTutorielPagesIdleV1_();
       }
 
+      /*
+       * Après le popup du sandwich (Norman, 2026-09-26) : « une voix se lance en arrière-plan : "Oui, je sais… Tu te dis, mais qu'est-ce que c'est que cette merde avec des chiffres
+       * partout et des dessins d'enfants… d'ailleurs j'ai comme preuve cette dame qui a un mot à nous dire. À vous madame" — puis une voix de femme, qu'on grille que c'est un robot :
+       * "J'ADORE SOREAL IDLE, CROYEZ TOUT CE QU'IL VOUS DIT" ». Les deux morceaux sont des fichiers pré-générés (la dame = voix « Siwis », reconnue par le texte exact de son bloc : estVoixFemme).
+       * Lue seulement si la voix IA automatique est activée (le choix du joueur est respecté).
+       */
+      const VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1=
+        'Oui, je sais… Tu te dis : mais qu’est-ce que c’est que cette merde, avec des chiffres partout et des dessins d’enfants ? Je me suis dit pareil la première fois. '+
+        'Mais persiste, et tu vas voir qu’il est vraiment bien. D’ailleurs, j’ai comme preuve cette dame qui a un mot à nous dire. À vous, madame :'+
+        pauseVoixIdleV1_(900)+
+        'J’ADORE SOREAL IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.';
+
+      function lancerVoixArrierePlanSandwichIdleV1_(){
+        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+        if(!tts||typeof tts.readText!=='function'||typeof tts.enabled!=='function'||!tts.enabled())return;
+        setTimeout(function(){
+          try{tts.readText(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);}catch(e){}
+        },1500);
+      }
+
       function tutorielPagesFermerV1_(){
         const etat=idleTutorielPagesEnCoursV1;
         if(etat)idleTutorielPagesMarquerVuV1_(etat.cle);
+        /* Le sandwich est la dernière page du tutoriel de début : la voix de fond ne part que si le joueur l'a atteinte. */
+        if(etat&&etat.pages===TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1)lancerVoixArrierePlanSandwichIdleV1_();
 
         retirerChromeTutorielV1_();
         idleTutorielPagesEnCoursV1=null;

@@ -54,7 +54,7 @@ assert.match(tts, /if\(blob\)\{voiceStats\.fichiers\+=1;return blob;\}\s*voiceSt
 assert.match(tts, /VOICE_DIR\+'manifest\.json'/);
 assert.match(tts, /VOICE_DIR\+hash\+'\.m4a'/);
 assert.match(tts, /catch\(function\(\)\{return \{\};\}\)/, "manifeste absent -> Piper, pas d'erreur");
-assert.match(tts, /planNarration:planNarration_,\s*hashBloc:hashBloc_,\s*composerChronique:composerChronique_/);
+assert.match(tts, /planNarration:planNarration_,\s*hashBloc:hashBloc_,\s*estVoixFemme:estVoixFemme_,\s*composerChronique:composerChronique_/);
 
 // --- Histoires de boss lues seules (fiche du boss, collection) : mêmes blocs que la chronique ---
 assert.match(tts, /panel\.hasAttribute\('data-soreal-tts-chronique'\)/);

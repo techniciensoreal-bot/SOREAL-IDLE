@@ -38,7 +38,15 @@
    * Les fichiers sont produits par cloudflare/tools/voice-generate.mjs avec CE MÊME découpage et CETTE MÊME empreinte.
    */
   var VOICE_DIR='voice/';
-  var VOICE_TAG='tom1';
+  var VOICE_TAG='tom2';
+  /*
+   * Voix de femme (Norman, 2026-09-26) : la seule réplique lue par la dame après le popup du sandwich. Son bloc est reconnu par son texte exact ; le générateur de voix
+   * (cloudflare/tools/voice-generate.mjs) la synthétise avec le modèle « Siwis » au lieu de Tom. Aucun modèle n'est chargé par le jeu : c'est un fichier pré-généré comme les autres.
+   */
+  var TEXTES_VOIX_FEMME=['J’ADORE SOREAL IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.'];
+  function estVoixFemme_(chunk){
+    return TEXTES_VOIX_FEMME.indexOf(String(chunk||'').trim())>=0;
+  }
   var voiceManifest=null;
   var voiceStats={fichiers:0,piper:0};
   var auto=false;
@@ -849,6 +857,7 @@
     /* Outils du générateur de voix (cloudflare/tools/voice-generate.mjs) et des tests. */
     planNarration:planNarration_,
     hashBloc:hashBloc_,
+    estVoixFemme:estVoixFemme_,
     composerChronique:composerChronique_,
     voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper};},
     isSpeaking:function(){

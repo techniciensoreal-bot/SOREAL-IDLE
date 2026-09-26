@@ -100,4 +100,24 @@ assert.equal(signatures.size, 10, "aucun son identique à un autre");
   assert.ok(executer.includes("jouerEffetAudioIdleV199_('timeMachine');"), "joué quand on confirme la renaissance");
 }
 
+// --- défaite (Norman, 2026-09-26 : « un son plus adapté à une perte de combat ») : un K.O. puis une élégie mineure qui redescend ---
+{
+  const d = moteur.builders.defeat;
+  assert.equal(d.duree, 1900);
+  const c = contexteEspion();
+  d.construire(c);
+  const debuts = c.journal.filter((x) => x[1] === "start").map((x) => x[2]);
+  assert.ok(debuts.length >= 12, "le coup, le souffle, quatre notes en deux timbres et le bourdon");
+  assert.ok(Math.max(...debuts) >= 1.3, "la dernière note grave arrive à la fin");
+  const fins = c.journal.filter((x) => x[1] === "ramp" && x[0] === "gain.gain").map((x) => x[3]);
+  assert.ok(Math.max(...fins) <= 1.9 + 0.2, "ne dépasse pas sa durée");
+  assert.ok(!signatures.has(JSON.stringify(c.journal)), "distinct des sons de boss");
+  // les quatre notes de l'élégie descendent : la (440), fa (349), ré (294), la grave (220)
+  const notes = c.journal.filter((x) => x[0] === "osc.freq" && x[1] === "set").map((x) => x[2]);
+  for (const f of [440, 349, 294, 220]) assert.ok(notes.includes(f), "note " + f);
+  const source = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
+  assert.ok(source.includes("function defaiteConstruire_(c){") && source.includes("return jouerWebAudio_(1900,defaiteConstruire_);"));
+  assert.ok(!source.includes("frequency:600,frequencyEnd:85,decay:2.2,delay:.10"), "l'ancien son (simple descente grave) est remplacé");
+}
+
 console.log("idle-boss-sounds-cycle-v1: OK");

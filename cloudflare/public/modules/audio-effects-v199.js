@@ -530,16 +530,31 @@
     });
   }
 
-  function defaite_(){
-    return jouerWebAudio_(920,function(c){
-      tonal_(c,{type:"sawtooth",from:350,to:92,duration:.62,volume:.062});
-      tonal_(c,{type:"triangle",from:205,to:60,duration:.78,volume:.082,delay:.055});
-      tonal_(c,{type:"sine",from:86,to:43,duration:.54,volume:.105,delay:.19});
-      bruit_(c,{
-        duration:.42,volume:.066,
-        frequency:600,frequencyEnd:85,decay:2.2,delay:.10
+  /*
+   * Défaite (Norman, 2026-09-26 : « le son quand on perd un combat doit être plus adapté à une perte de combat ») : un K.O. suivi d'une petite élégie. Un coup sourd qui
+   * fait craquer, puis quatre notes tristes en mineur qui redescendent (la, fa, ré, la grave qui s'affaisse) sur un bourdon qui s'éteint. Rien de commun avec la fuite
+   * (les « wah-wah » comiques) ni avec la victoire (fanfare).
+   */
+  function defaiteConstruire_(c){
+    {
+      /* le coup */
+      tonal_(c,{type:"sine",from:120,to:38,duration:.55,volume:.125});
+      tonal_(c,{type:"triangle",from:220,to:70,duration:.4,volume:.06,delay:.02});
+      bruit_(c,{duration:.30,volume:.075,frequency:1100,frequencyEnd:120,decay:2.2});
+      bruit_(c,{duration:.10,volume:.030,delay:.05,filterType:"highpass",frequency:3500,decay:2.5});
+      /* l'élégie */
+      [[440,.42,.30],[349,.72,.30],[294,1.02,.30],[220,1.32,.62]].forEach(function(n,i){
+        var dernier=i===3;
+        nappe_(c,{type:"triangle",from:n[0],to:dernier?n[0]*.9:n[0],duration:n[2]+.12,volume:.050,attack:.04,delay:n[1],vibRate:5.5,vibDepth:dernier?4:2});
+        nappe_(c,{type:"sine",from:n[0]/2,to:dernier?n[0]*.45:n[0]/2,duration:n[2]+.12,volume:.030,attack:.05,delay:n[1]});
       });
-    });
+      /* le bourdon qui s'éteint */
+      nappe_(c,{type:"sine",from:55,to:44,duration:1.8,volume:.045,attack:.15,delay:.1});
+    }
+  }
+
+  function defaite_(){
+    return jouerWebAudio_(1900,defaiteConstruire_);
   }
 
   /*
@@ -917,7 +932,8 @@
     /* Constructeurs bruts (vérifications hors ligne : rendu dans un OfflineAudioContext). */
     builders:{
       bossSounds:SONS_BOSS.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
-      timeMachine:{duree:3000,construire:voyageTempsConstruire_}
+      timeMachine:{duree:3000,construire:voyageTempsConstruire_},
+      defeat:{duree:1900,construire:defaiteConstruire_}
     },
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},

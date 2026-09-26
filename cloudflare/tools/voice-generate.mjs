@@ -38,7 +38,11 @@ function arg(nom, defaut) {
 const URL_SITE = String(arg("url", "https://soreal-idle.technicien-soreal.workers.dev/"));
 const LIMITE = Number(arg("limit", 0)) || 0;
 const TRAVAILLEURS = Math.max(1, Number(arg("workers", 3)) || 3);
-const DEBIT = String(arg("bitrate", "32k"));
+/* 96 kbit/s (2026-09-26) : à 32 kbit/s, la voix de Tom (44,1 kHz) avait un effet « quelque chose dans la gorge » dû à l'encodage. */
+const DEBIT = String(arg("bitrate", "96k"));
+/* Voix de femme (bloc reconnu par estVoixFemme du module de narration) : modèle Piper « fr_FR-siwis-medium » (fichier .onnx et .onnx.json côte à côte) fourni par SOREAL_VOICE_FEMME_MODEL. */
+const MODELE_FEMME = process.env.SOREAL_VOICE_FEMME_MODEL || "";
+const REGLAGES_FEMME = { noise_scale: 0.8, noise_w: 1.0, length_scale: 1.08 };
 const A_SEC = Boolean(arg("dry", false));
 const ELAGUER = Boolean(arg("prune", false));
 const ASTERISQUES = Boolean(arg("asterisques", false));
@@ -79,12 +83,20 @@ function encoder(wav, m4a) {
 
 function ecrireManifeste() {
   const fichiers = fs.readdirSync(SORTIE).filter((f) => f.endsWith(".m4a") && !f.includes(".tmp")).map((f) => f.slice(0, -4)).sort();
-  fs.writeFileSync(path.join(SORTIE, "manifest.json"), JSON.stringify({ v: 1, voice: "tom1", format: "m4a-aac-mono", files: fichiers }) + "\n");
+  fs.writeFileSync(path.join(SORTIE, "manifest.json"), JSON.stringify({ v: 1, voice: "tom2", format: "m4a-aac-mono", files: fichiers }) + "\n");
   return fichiers.length;
 }
 
-async function ouvrirPage(navigateur) {
+async function ouvrirPage(navigateur, femme = false) {
   const page = await navigateur.newPage();
+  if (femme) {
+    if (!MODELE_FEMME || !fs.existsSync(MODELE_FEMME)) throw new Error("voix de femme : définir SOREAL_VOICE_FEMME_MODEL (fr_FR-siwis-medium.onnx)");
+    const config = JSON.parse(fs.readFileSync(MODELE_FEMME + ".json", "utf8"));
+    config.inference = Object.assign({}, config.inference || {}, REGLAGES_FEMME);
+    const modele = fs.readFileSync(MODELE_FEMME);
+    await page.route("**/api/idle/media/piper-model.onnx.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(config) }));
+    await page.route("**/api/idle/media/piper-model.onnx", (route) => route.fulfill({ status: 200, contentType: "application/octet-stream", body: modele }));
+  }
   /* Le module de narration et l'interface LOCAUX (découpage, empreinte, textes à jour) remplacent ceux du site ; tout le reste vient du site. */
   for (const [motif, fichier] of [["**/modules/tutorial-tts-v202.js*", "modules/tutorial-tts-v202.js"], ["**/soreal-idle-ui.js*", "soreal-idle-ui.js"], ["**/modules/local-neural-piper-v1.js*", "modules/local-neural-piper-v1.js"]]) {
     await page.route(motif, (route) => route.fulfill({ status: 200, contentType: "text/javascript", body: fs.readFileSync(path.join(PUBLIC, fichier), "utf8") }));
@@ -115,7 +127,7 @@ async function main() {
         if (!vus.has(h)) vus.set(h, etape.chunk);
       }
     }
-    return [...vus.entries()].map(([hash, texte]) => ({ hash, texte }));
+    return [...vus.entries()].map(([hash, texte]) => ({ hash, texte, femme: Boolean(tts.estVoixFemme && tts.estVoixFemme(texte)) }));
   }, boss);
 
   const totalCaracteres = blocs.reduce((n, b) => n + b.texte.length, 0);
@@ -138,7 +150,9 @@ async function main() {
       if (!A_SEC && fs.existsSync(p)) fs.unlinkSync(p);
     }
   }
-  const restants = blocs.filter((b) => !fs.existsSync(path.join(SORTIE, b.hash + ".m4a")));
+  const manquants = blocs.filter((b) => !fs.existsSync(path.join(SORTIE, b.hash + ".m4a")));
+  const restantsFemme = manquants.filter((b) => b.femme);
+  const restants = manquants.filter((b) => !b.femme);
   console.log(`${boss.length} chroniques -> ${blocs.length} blocs (${totalCaracteres} caractères), ${restants.length} à générer`);
   if (ELAGUER && !A_SEC) {
     const utiles = new Set(blocs.map((b) => b.hash));
@@ -184,6 +198,27 @@ async function main() {
   const pages = [page0];
   for (let k = 1; k < Math.min(TRAVAILLEURS, Math.max(1, restants.length)); k += 1) pages.push(await ouvrirPage(navigateur));
   await Promise.all(pages.map((p, k) => travailleur(p, k + 1)));
+
+  /* Blocs de la voix de femme : une page à part avec le modèle de la dame. */
+  if (restantsFemme.length) {
+    const pageFemme = await ouvrirPage(navigateur, true);
+    for (const { hash, texte } of restantsFemme) {
+      const base64 = await pageFemme.evaluate(async (t) => {
+        const blob = await window.__SOREAL_IDLE_LOCAL_NEURAL_V1__.synthesize(t);
+        const buf = new Uint8Array(await blob.arrayBuffer());
+        let s = "";
+        for (let k = 0; k < buf.length; k += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(k, k + 0x8000));
+        return btoa(s);
+      }, texte);
+      const wav = path.join(SORTIE, hash + ".tmp.wav");
+      const tmp = path.join(SORTIE, hash + ".tmp.m4a");
+      fs.writeFileSync(wav, Buffer.from(base64, "base64"));
+      encoder(wav, tmp);
+      fs.renameSync(tmp, path.join(SORTIE, hash + ".m4a"));
+      fs.unlinkSync(wav);
+      console.log("voix de femme :", hash, JSON.stringify(texte.slice(0, 60)));
+    }
+  }
   await navigateur.close();
 
   const n = ecrireManifeste();

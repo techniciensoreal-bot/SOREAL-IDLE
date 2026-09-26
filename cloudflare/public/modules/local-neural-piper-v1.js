@@ -285,8 +285,20 @@ var PRONONCIATIONS_=[
   /* « Vas-y » est épelé « vas i-grec » : on l'écrit comme il se dit (Norman, 2026-09-26). */
   [/\bVas[-\u2010\u2011\u2013]y\b/gi,"Vazi"],
   /* « EXP » était lu « expe » ; il se dit « expérience » (Norman, 2026-09-26). */
-  [/\bEXP\b/g,"expérience"]
+  [/\bEXP\b/g,"expérience"],
+  /* Le nom du jeu se dit « Soréalle Ailledeulle » (Norman, 2026-09-26 : « il prononce mal le nom du jeu »). */
+  [/\bSOREAL\b/gi,"Soréalle"],
+  [/\bIDLE\b/gi,"Ailledeulle"]
 ];
+
+/*
+ * Voix de Tom (Norman, 2026-09-26 : « T3-tom-lent est bien ») : plus stable (moins de bruit dans la génération) et un peu plus lente que les réglages d'origine du modèle
+ * (bruit 0,667 / durée 1 / bruit-largeur 0,8), qui donnaient un effet « quelque chose dans la gorge ». Appliqué d'après le jeu de données du modèle (« tom ») : la voix de
+ * femme du passage « J'adore SOREAL IDLE » garde ses propres réglages (ceux de son fichier de configuration).
+ */
+var REGLAGES_VOIX_={
+  tom:{noise_scale:0.55,length_scale:1.07,noise_w:0.7}
+};
 function normalizePronunciation_(text){
   var t=String(text);
   for(var i=0;i<PRONONCIATIONS_.length;i++)t=t.replace(PRONONCIATIONS_[i][0],PRONONCIATIONS_[i][1]);
@@ -332,7 +344,7 @@ async function synthesize_(text){
     const config=engine.config||{};
     const espeakVoice=(config.espeak&&config.espeak.voice)||"fr";
     const sampleRate=(config.audio&&config.audio.sample_rate)||22050;
-    const inference=config.inference||{};
+    const inference=Object.assign({},config.inference||{},REGLAGES_VOIX_[String(config.dataset||"")]||{});
     const noiseScale=inference.noise_scale!=null?inference.noise_scale:DEFAULT_NOISE_SCALE_V1;
     const lengthScale=inference.length_scale!=null?inference.length_scale:DEFAULT_LENGTH_SCALE_V1;
     const noiseW=inference.noise_w!=null?inference.noise_w:DEFAULT_NOISE_W_V1;

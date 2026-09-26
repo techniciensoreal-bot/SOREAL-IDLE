@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.2',
+    courante:'3.3',
     versions:[
+      {
+        version:'3.3',
+        nom:'Une voix plus claire',
+        date:'2026-09-26',
+        points:[
+          'La voix de Tom est plus stable et un peu plus lente, et toutes les voix sont enregistrées en meilleure qualité : plus d’effet « quelque chose dans la gorge ».',
+          'Le nom du jeu est prononcé comme il se doit : « Soréalle Ailledeulle ».',
+          'Après le popup du sandwich, une voix se lance en arrière-plan… et une dame a un petit mot à dire.',
+          'Le son quand on perd un combat est plus adapté : un coup sourd, puis une petite mélodie triste qui redescend.'
+        ]
+      },
       {
         version:'3.2',
         nom:'Un cri, une berceuse',
