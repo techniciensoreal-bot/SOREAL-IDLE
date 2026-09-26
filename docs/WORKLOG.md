@@ -1795,3 +1795,17 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - **Restent moins généreux que NGU** (non modélisés) : la colonne « Equip +1 LVL / Daycare » des paliers 2 et plus, et les paliers 12 à 16 (wish). **À confirmer** : la récompense « Adv Stat » ajoute +N à la fois au Power ET à la Toughness (le wiki dit « Power and Toughness stats » sans préciser si c'est l'un ou l'autre au hasard) ; si NGU n'en donne qu'un, nous doublons.
 - Constat de la comparaison Attack (captures Norman) : base Basic Training identique (67,7 M contre 67 711 Million) ; NGU applique exactement base × (1 + Power / 100) : équipement ×112 % (Power 12) et ×110 % (Toughness 10) contre ×109 % (Power 9) chez nous ; seule la différence d'équipement porté explique l'écart, rien à corriger côté formule.
 - Test `idle-money-pit-phrases-layout-v1` ; `meta-progression-v130.js ?v=202609261`, `release-notes-v1.js ?v=11`.
+
+### 2026-09-26 — Beta 2.1 : le tutoriel du début se place tout seul
+
+- Norman : à chaque page du tutoriel « Norman & Sébastien », le jeu doit ouvrir le bon menu, défiler vers ce dont on parle et poser la fenêtre à l'endroit qui ne le cache pas (PC et téléphone). `modules/tutorial-framing-v1.js` (?v=1), appelé après l'affichage de la fenêtre flottante ; chaque page du début porte un `cadrage` :
+  - Objectif -> `stats` : Basic Training, les cases Nombre / Attack / Defense… juste sous la barre de menus (tout en haut), fenêtre juste sous ces cases ;
+  - Énergie et Énergie Idle -> `energie` : la barre verte en haut, fenêtre juste dessous ;
+  - Basic Training et Bien joué -> `barres` : Attaque passive et Blocage visibles dans le bas de l'écran, fenêtre en haut sans cacher le cadre d'Attaque passive (même disposition sur les deux pages) ; sur un écran trop petit pour les deux, au moins Attaque passive, juste sous la fenêtre ;
+  - Saisie personnalisée -> `saisie` : le cadre bleu Basic Training tout en haut, fenêtre sous le bouton « Tout retirer » ;
+  - Défense -> `blocage` : Blocage en bas de l'écran, fenêtre juste au-dessus ;
+  - Fight Boss -> `fight` : bascule sur l'écran Fight Boss, fenêtre juste au-dessus du cadre rouge ;
+  - page finale et pages d'accroche : aucun cadrage, rien ne bouge.
+- Le placement se recalcule sur les vraies positions à l'écran (jamais de pixels fixes), avec des passes de contrôle après 16 / 250 / 700 ms (hauteur de la fenêtre, redessin) et au redimensionnement ; une fenêtre déplacée à la main n'est plus replacée avant la page suivante. Rejeu de test uniquement en local (`__SOREAL_IDLE_TUTO_REJOUER_V1__(page)`), rien n'est marqué comme vu.
+- Vérifié dans le navigateur, pages 2 à 10, à 1024×768 et 375×812 : écarts mesurés ≤ 2 px sur « juste en dessous / juste au-dessus », cases du haut à 69 px (sous la barre de menus), Attaque passive jamais sous la fenêtre, Blocage entièrement visible dans les deux formats, dernière page sans défilement.
+- Test `idle-tutorial-framing-v1`. `soreal-idle-ui.js ?v=280`, `release-notes-v1.js ?v=12`.

@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.0',
+    courante:'2.1',
     versions:[
+      {
+        version:'2.1',
+        nom:'Le tutoriel qui guide',
+        date:'2026-09-26',
+        points:[
+          'Le tutoriel du début se place tout seul : le jeu ouvre le bon menu et fait défiler l’écran vers ce dont Norman & Sébastien parlent.',
+          'La fenêtre d’explication se pose juste à côté de l’élément concerné, sans le cacher, sur PC comme sur téléphone.',
+          'Tu peux toujours la déplacer à la main : elle ne bouge plus avant la page suivante.'
+        ]
+      },
       {
         version:'2.0',
         nom:'Le Puits qui rote',

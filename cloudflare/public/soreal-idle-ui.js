@@ -9511,48 +9511,56 @@
         },
         {
           titre:'Objectif',
+          cadrage:'stats',
           paragraphes:[
             'Donc, ton objectif principal dans SOREAL IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin ! En haut, en dessous de la grosse barre verte, tu vois tes deux stats principales, Attaque et Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.'
           ]
         },
         {
           titre:'Énergie',
+          cadrage:'energie',
           paragraphes:[
             'En parlant de la grosse barre verte, elle représente ton énergie. Tu génères de l’Énergie à chaque fois que la barre verte se remplit, jusqu’à atteindre le plafond, qui est de 500 pour l’instant. Et l’Énergie sera la clé pour faire grimper tes chiffres d’Attaque et de Défense.'
           ]
         },
         {
           titre:'Basic Training',
+          cadrage:'barres',
           paragraphes:[
             'C’est là que les choses se passent. Si tu sélectionnes Basic Training dans le menu en haut, tu pourras augmenter ton attaque et ta défense (quelle surprise). Pour t’entraîner, tu assignes ton Énergie à une tâche ! Vas-y, clique sur le bouton « + » à côté de « Attaque passive » et regarde ce qui se passe.'
           ]
         },
         {
           titre:'Bien joué',
+          cadrage:'barres',
           paragraphes:[
             'Si tu as bien fait, la barre devrait être en train de se remplir, et ton Attaque devrait grimper maintenant. Tape-toi dans le dos pour te féliciter. Pas trop bas quand même, ce serait bizarre. Si tu cliques sur le bouton -, tu peux retirer cette énergie et la mettre ailleurs.'
           ]
         },
         {
           titre:'Énergie Idle',
+          cadrage:'energie',
           paragraphes:[
             'La grosse barre verte, représente ton energie d\'entrainement disponible. C’est la quantité d’Énergie que tu n’as assignée nulle part et qui traîne à rien faire comme une bonne grosse feignasse. Ton « Plafond d’Énergie » c’est la somme de toute ton Énergie, qu’elle soit idle ou assignée.'
           ]
         },
         {
           titre:'Saisie personnalisée',
+          cadrage:'saisie',
           paragraphes:[
             'Quand tu cliques sur le bouton + pour assigner de l’Énergie à une tâche, le jeu va essayer d’assigner une quantité d’Énergie égale au chiffre saisi en haut. En cliquant sur ces boutons bizarres en haut, tu changes la quantité stockée dans la saisie, et tu peux aussi entrer un chiffre personnalisé toi-même dans la barre.'
           ]
         },
         {
           titre:'Défense',
+          cadrage:'blocage',
           paragraphes:[
             'Avoir la force d’un transpalette électrique mais en carton, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Donc, il va falloir entraîner la compétence « Blocage » dans le menu Basic Training aussi. Si toute ton Énergie est allouée à l’Attaque passive, il va falloir en retirer un peu.'
           ]
         },
         {
           titre:'Fight Boss',
+          cadrage:'fight',
           paragraphes:[
             'Quand tes stats seront assez hautes, va jeter un œil au menu Fight Boss, et tu pourras mettre ta puissance à l’épreuve. En commençant par un adversaire particulièrement vicieux... Un Petit Bout de Peluche.'
           ]
@@ -9966,8 +9974,24 @@
           positionnerTutoFlottantV1_(root);
         }
 
+        /* Cadrage de la page (menu, défilement, place de la fenêtre) : modules/tutorial-framing-v1.js. */
+        if(window.__SOREAL_IDLE_TUTO_CADRAGE_V1__){
+          window.__SOREAL_IDLE_TUTO_CADRAGE_V1__.appliquer(page.cadrage||'',root,{
+            menuActif:function(){return idleMenuActifV28;},
+            allerMenu:function(menu){menuIdleV28_(menu);}
+          });
+        }
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-125 */
         activerGlisserTutoFlottantV1_(root);
+      }
+
+      /* Essai en local uniquement (serveur de développement) : rejoue le tutoriel du début à la page voulue, sans rien marquer comme vu. */
+      if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){
+        window.__SOREAL_IDLE_TUTO_REJOUER_V1__=function(index){
+          idleTutorielPagesEnCoursV1={pages:TUTORIEL_DEBUT_JEU_PAGES_V1,index:Math.max(0,Math.floor(Number(index)||0)),cle:'rejeu-local'};
+          rendreTutorielPagesIdleV1_();
+        };
       }
 
       function demarrerTutorielPagesIdleV1_(pages,cle){
