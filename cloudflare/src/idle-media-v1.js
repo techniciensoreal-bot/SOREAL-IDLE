@@ -1,4 +1,5 @@
 import { idlePortraitPickR2KeyV1, IDLE_PORTRAIT_KITTY_R2_KEY_V1 } from "./idle-portraits-v1.js";
+import { idleItopodRosterReponseV1, idleItopodImagePartageeV1 } from "./idle-itopod-roster-v1.js";
 const IDLE_ADVENTURE_R2_PREFIX="idle/backgrounds/adventure/";
 const IDLE_ADVENTURE_R2_EXTENSIONS=Object.freeze(["webp","png","jpg","jpeg","avif"]);
 /*
@@ -1149,6 +1150,8 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/boss",
     "/api/idle/media/player",
     "/api/idle/media/banner",
+    "/api/idle/media/roster",
+    "/api/idle/media/shared",
     "/api/idle/media/piper-model.onnx",
     "/api/idle/media/piper-model.onnx.json",
     "/api/idle/media/debug-list"
@@ -1167,5 +1170,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/boss")return bossImage_(request,env,url);
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/roster")return idleItopodRosterReponseV1(request,env);
+  if(url.pathname==="/api/idle/media/shared")return idleItopodImagePartageeV1(request,env,url);
   return adventureZone_(request,env,url);
 }

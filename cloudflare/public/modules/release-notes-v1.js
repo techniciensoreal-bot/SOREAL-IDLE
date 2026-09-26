@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.4',
+    courante:'1.5',
     versions:[
+      {
+        version:'1.5',
+        nom:'L’équipe s’invite',
+        date:'2026-09-26',
+        points:[
+          'Des visages familiers apparaissent parmi les ennemis : ils portent les prénoms de l’équipe, avec leur avatar. La liste grandit toute seule avec l’équipe (à découvrir en jeu).',
+          'Les décors Level 1 à Level 6 des profils servent de fond et changent au fil de la progression.',
+          'Norman et Sébastien y sont toujours.'
+        ]
+      },
       {
         version:'1.4',
         nom:'Menus, Voix & Filtres',

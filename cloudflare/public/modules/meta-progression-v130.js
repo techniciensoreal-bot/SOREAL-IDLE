@@ -1182,6 +1182,7 @@ function pageItopodIdleV1_(j){
           '🏢 ITOPOD',
           'Infinite Tower of Pissed-Off Dudes — chaque 10 ennemis vaincus fait monter d’un étage ; (200 + Étage) PPP par kill (700 en Evil, 2000 en Sadistic), 1 000 000 PPP = 1 PP. Sur l’étage de fin, 10 kills te ramènent à l’étage de départ.'
         )+
+        (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(d):'')+
         '<div class="soreal-idle-summary-grid-v28">'+
           '<div class="soreal-idle-summary-v28">Étage<b>'+etage+'</b></div>'+
           '<div class="soreal-idle-summary-v28">PP disponibles<b>'+pp+'</b></div>'+
