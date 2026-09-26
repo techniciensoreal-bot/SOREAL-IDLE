@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.8',
+    courante:'1.9',
     versions:[
+      {
+        version:'1.9',
+        nom:'Le détail du calcul',
+        date:'2026-09-26',
+        points:[
+          'Touche la case Attack ou Defense en haut de l’écran : le calcul complet s’affiche, facteur par facteur (Basic Training et bonus actifs).',
+          'Le détail se met à jour en direct pendant que tu t’entraînes, et ne montre que les bonus réellement actifs.',
+          'Ces chiffres sont exactement ceux que le jeu utilise en combat : ils servent à comparer ta progression avec le jeu d’origine.'
+        ]
+      },
       {
         version:'1.8',
         nom:'Signaler un bug',

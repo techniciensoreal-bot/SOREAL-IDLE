@@ -6736,6 +6736,25 @@ function profilEquipementCombatPrincipalSorealIdleV413_(
 }
 
 
+/*
+ * Panneau Detail de l Attack / Defense (Norman, 2026-09-26) : les facteurs exposes par le moteur NGU (bonusMetaNgu.facteursStats), tels qu'appliques.
+ * Ce qui s'applique en plus (MacGuffins, Cards...) est deduit : autres = produit reellement applique / produit des facteurs listes, si bien que le produit
+ * affiche est toujours exactement celui du serveur. Avant le boss 4 du run, l'equipement d'Aventure est retire du produit (voir statsCombatPrincipal...).
+ */
+function detailStatsCombatSorealIdle_(facteurs, produitApplique, retirerEquipement) {
+  const liste = (Array.isArray(facteurs) ? facteurs : [])
+    .filter(function(x) { return x && !(retirerEquipement && x.id === 'equipement'); })
+    .map(function(x) { return { id: String(x.id), label: String(x.label), valeur: nombreSorealIdle_(x.valeur, 1) }; });
+  const produitListe = liste.reduce(function(a, x) { return a * x.valeur; }, 1);
+  const autres = produitListe > 0 && Number.isFinite(produitListe) ? produitApplique / produitListe : 1;
+  return {
+    facteurs: liste,
+    autres: Number.isFinite(autres) && autres > 0 ? autres : 1,
+    produit: produitApplique,
+    equipementRetire: Boolean(retirerEquipement)
+  };
+}
+
 function statsCombatPrincipalSorealIdleV413_(
   stats,
   inventaire,
@@ -6949,6 +6968,21 @@ function statsCombatPrincipalSorealIdleV413_(
 
     multiplicateurDefenseTotal:
       multiplicateurDefenseEffectif,
+
+    /* Panneau de detail (clic sur Attack / Defense) : facteurs un par un, voir detailStatsCombatSorealIdle_. */
+    detailStats: {
+      attaque: detailStatsCombatSorealIdle_(
+        bonusMetaNgu.facteursStats && bonusMetaNgu.facteursStats.attaque,
+        multiplicateurAttaqueEffectif,
+        !aventureDebloquee
+      ),
+      defense: detailStatsCombatSorealIdle_(
+        bonusMetaNgu.facteursStats && bonusMetaNgu.facteursStats.defense,
+        multiplicateurDefenseEffectif,
+        !aventureDebloquee
+      ),
+      equipement: bonusMetaNgu.facteursStats ? bonusMetaNgu.facteursStats.equipement : null
+    },
 
     equipement:
       profilEquipement
@@ -9938,6 +9972,9 @@ function construireEtatJoueurSorealIdle_(
       multiplicateurDefenseTotal:
         combatPrincipalEtat
           .multiplicateurDefenseTotal,
+      detailStats:
+        combatPrincipalEtat
+          .detailStats,
 
       multiplicateurEquipementAttaque:
         combatPrincipalEtat

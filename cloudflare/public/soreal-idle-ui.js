@@ -302,6 +302,8 @@
         };
       }
       let idleEtat=null;
+      /* Lecture seule de l'état courant pour les modules (panneau Détail Attack/Defense, modules/stats-detail-v1.js). */
+      window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};
 
       let idleBasicTrainingSaveTimerV120=null;
       let idleBasicTrainingSaveBusyV120=false;

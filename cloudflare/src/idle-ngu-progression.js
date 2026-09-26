@@ -4770,8 +4770,49 @@ function idleNguBonusesSansMacguffinV1(state) {
   const equipmentAttackMultiplier = 1 + Math.max(0, num(adventureGear.power, 0)) * 0.01;
   const equipmentDefenseMultiplier = 1 + Math.max(0, num(adventureGear.toughness, 0)) * 0.01;
 
+  /*
+   * Panneau « Détail de l'Attack / Defense » (Norman, 2026-09-26) : les facteurs multipliés ci-dessus, tels qu'appliqués, pour les afficher un par un
+   * (les mêmes variables : aucun second calcul). Ce qui s'applique après (MacGuffins, Cards) est déduit côté serveur (« autres »).
+   */
+  const facteursCommunsStats = [
+    { id: "number", label: "NUMBER", valeur: number },
+    { id: "beard", label: "Beard", valeur: beardAttack },
+    { id: "augmentations", label: "Augmentations", valeur: aug },
+    { id: "powerAlpha", label: "Fruit of Power α", valeur: powerAlphaMultiplier },
+    { id: "powerBeta", label: "Fruit of Power β", valeur: powerBetaMultiplier },
+    { id: "powerDelta", label: "Fruit of Power δ", valeur: idleYggPowerDeltaMultiplierV1(ygg) },
+    { id: "diggers", label: "Diggers", valeur: diggers.stats },
+    { id: "perks", label: "Perks", valeur: perkBonuses.statMultiplier },
+    { id: "quirks", label: "Quirks", valeur: quirkBonuses.statMultiplier },
+    { id: "wishes", label: "Wishes", valeur: wishBonuses.statMultiplier },
+    { id: "ngu", label: "NGU", valeur: nguFx.attackDefense },
+    { id: "hacks", label: "Hacks", valeur: hackFx.attackDefense },
+    { id: "wandoos", label: "Wandoos", valeur: wandoosCombatMultiplierV1(state) }
+  ];
+  const facteursStats = {
+    attaque: [
+      ...facteursCommunsStats,
+      { id: "richJerks", label: "Attack Boost for Rich Jerks", valeur: richJerksAttackMultiplier },
+      { id: "equipement", label: "Équipement porté", valeur: equipmentAttackMultiplier }
+    ],
+    defense: [
+      ...facteursCommunsStats,
+      { id: "richJerks", label: "Defense Boost for Rich Jerks", valeur: richJerksDefenseMultiplier },
+      { id: "equipement", label: "Équipement porté", valeur: equipmentDefenseMultiplier }
+    ],
+    /* Points portés (boosts appliqués et Infinity Cube compris) : 1 point de Power = +1 % d'Attack, 1 point de Toughness = +1 % de Defense. */
+    equipement: {
+      power: num(adventureGear.power, 0),
+      toughness: num(adventureGear.toughness, 0),
+      cubePower: num(adventureGear.cubePowerContribution, 0),
+      cubeToughness: num(adventureGear.cubeToughnessContribution, 0),
+      desactive: equipmentDisabled
+    }
+  };
+
   /* Cards : bonus accumulés appliqués en un seul point sur le résultat (idleCardsApplyToBonusesV1). */
   return idleCardsApplyToBonusesV1(state, {
+    facteursStats,
     attackMultiplier: attackMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
     /* Part « équipement d'Aventure » du produit ci-dessus (Adventure n'existe qu'à partir du boss 4 de chaque run : voir statsCombatPrincipalSorealIdleV413_). */
     equipmentAttackMultiplier,
