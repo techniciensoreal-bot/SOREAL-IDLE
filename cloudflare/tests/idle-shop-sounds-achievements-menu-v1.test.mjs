@@ -99,4 +99,25 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
   assert.ok(ui.includes("window.__nomJoueurIdleV1__=function(){"), "le jeu expose le nom du joueur à la scène");
 }
 
+// --- Aventure Idle Mode OFF : un son par bouton de compétence ; double tap sur une pièce équipée = A + clic (boost) ---
+{
+  const ids = [];
+  for (const m of ui.matchAll(/\{id:'([A-Za-z0-9]+)',label:'[^']+',icon:'[^']+'(?:,btIndex:\d+)?,cooldown:\d+/g)) ids.push(m[1]);
+  assert.equal(ids.length, 17, "17 boutons de compétence dans le jeu : " + ids.join(","));
+  for (const id of ids) {
+    assert.ok(audio.includes('{id:"' + id + '",duree:'), "un son pour la compétence " + id);
+  }
+  assert.ok(audio.includes('DEFINITIONS["skill_"+son.id]={group:"adventure-skill"') && audio.includes('JOUEURS["skill_"+son.id]=jouerCompetence_(son);'), "sons déclarés et jouables (skill_<id>)");
+  assert.ok(audio.includes("skills:SONS_COMPETENCE.map("), "exposés pour le rendu hors ligne");
+  const util = ui.slice(ui.indexOf("function utiliserCompetenceAdventureIdleV3_(id){"), ui.indexOf("attaqueBase=group==='attack';"));
+  assert.ok(util.indexOf("cooldownRestantAdventureIdleV3_(def.id,maintenant)>0") < util.length && !util.includes("jouerEffetAudioIdleV199_('skill_'"), "le son est joué après les garde-fous (recharge, verrou)");
+  const debutCompetence = ui.indexOf("function utiliserCompetenceAdventureIdleV3_(id){");
+  const posCooldown = ui.indexOf("idleAdventureManualStateV3.cooldownUntil[def.id]=", debutCompetence);
+  const apres = ui.slice(posCooldown, posCooldown + 400);
+  assert.ok(apres.includes("jouerEffetAudioIdleV199_('skill_'+def.id);"), "le son part quand la compétence est lancée");
+  const dt = ui.slice(ui.indexOf("function boosterObjetEquipeAdventureIdleV1_(id){"), ui.indexOf("function executerTapObjetAdventureIdleV196_(element,id){"));
+  assert.ok(dt.includes("action:'inventoryAuto',mode:'boostAll',targetId:objet") && dt.includes("item.kind==='boost'"), "boost de la pièce équipée (jamais un boost)");
+  assert.ok(/boosterObjetEquipeAdventureIdleV1_\(id\)\s*\)\{\s*return;/.test(ui), "branché sur le double tap des pièces équipées");
+}
+
 console.log("idle-shop-sounds-achievements-menu-v1 OK");

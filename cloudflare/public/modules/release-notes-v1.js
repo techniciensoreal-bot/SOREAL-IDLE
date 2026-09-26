@@ -24,7 +24,9 @@
           'Équiper un objet fait maintenant un bruit : froissement de sangle, cliquetis de boucle et petit « toc ».',
           'Les joueurs de SOREAL sont toujours vus « Pseudo (Prénom) » ; les autres joueurs par leur pseudo, ou par le prénom de leur compte Google s’ils n’en ont pas choisi.',
           'Ton pseudo remplace « Joueur » au-dessus de ton portrait dans Fight Boss.',
-          'En aventure, le nom du monstre (boss de zone compris) tient sur une seule ligne.'
+          'En aventure, le nom du monstre (boss de zone compris) tient sur une seule ligne.',
+          'En aventure, chaque bouton d’attaque, de défense et de bonus a son propre bruit (coup d’épée, parade, bouclier, soin, rugissement…).',
+          'Un double tap sur une pièce équipée applique tes boosts dessus, comme A + clic sur ordinateur.'
         ]
       },
       {

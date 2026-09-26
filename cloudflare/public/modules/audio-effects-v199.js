@@ -864,6 +864,143 @@
     });
   }
 
+  /*
+   * Compétences du mode Aventure, Idle Mode OFF (Norman, 2026-09-26 : « pour chacune des attaques, blocage etc., un son qui colle à ce que fait le bouton »). Un son court et distinct par bouton,
+   * joué quand la compétence part réellement (pas quand elle est en recharge ou verrouillée). Identifiants = ceux des boutons (IDLE_ADVENTURE_MANUAL_* / ADVANCED_SKILLS du jeu).
+   */
+  var SONS_COMPETENCE=[
+    /* Attaque : un coup d'épée vif */
+    {id:"regular",duree:350,construire:function(c){
+      bruit_(c,{duration:.12,volume:.10,filterType:"bandpass",frequency:2200,frequencyEnd:6000,q:.9,decay:2});
+      tonal_(c,{type:"square",from:340,to:120,duration:.09,volume:.055,delay:.05});
+      bruit_(c,{duration:.05,volume:.075,delay:.06,filterType:"lowpass",frequency:700,decay:2.6});
+    }},
+    /* Forte : un coup lourd qui claque */
+    {id:"strong",duree:550,construire:function(c){
+      bruit_(c,{duration:.10,volume:.06,filterType:"highpass",frequency:3500,decay:2.4});
+      tonal_(c,{type:"sine",from:130,to:48,duration:.30,volume:.13,delay:.03});
+      bruit_(c,{duration:.16,volume:.070,delay:.03,filterType:"lowpass",frequency:900,decay:2.2});
+    }},
+    /* Parade : le choc métallique d'une lame qui dévie un coup (clang), puis un éclat */
+    {id:"parry",duree:800,construire:function(c){
+      [[1250,.05],[1250*2.76,.030],[1250*5.4,.016]].forEach(function(p,i){
+        tonal_(c,{type:"sine",from:p[0],to:p[0]*.996,duration:.55-i*.12,volume:p[1]});
+      });
+      bruit_(c,{duration:.06,volume:.055,filterType:"highpass",frequency:4200,decay:2.8});
+      tonal_(c,{type:"triangle",from:2600,to:2000,duration:.20,volume:.020,delay:.05});
+    }},
+    /* Perçante : un sifflement fin qui monte, une pointe qui transperce */
+    {id:"piercing",duree:450,construire:function(c){
+      nappe_(c,{type:"sine",from:900,to:3400,duration:.22,volume:.045,attack:.02});
+      nappe_(c,{type:"triangle",from:1800,to:5200,duration:.20,volume:.020,attack:.02});
+      bruit_(c,{duration:.06,volume:.05,delay:.19,filterType:"highpass",frequency:5500,decay:2.8});
+      tonal_(c,{type:"sine",from:220,to:90,duration:.14,volume:.05,delay:.20});
+    }},
+    /* Ultime : la charge monte, puis une explosion */
+    {id:"ultimate",duree:1100,construire:function(c){
+      nappe_(c,{type:"sawtooth",from:140,to:900,duration:.42,volume:.035,attack:.30});
+      bruitMonte_(c,{duration:.42,volume:.05,filterType:"bandpass",frequency:600,frequencyEnd:4200,q:.8,pow:2});
+      tonal_(c,{type:"sine",from:95,to:32,duration:.55,volume:.16,delay:.42});
+      bruit_(c,{duration:.45,volume:.09,delay:.42,filterType:"lowpass",frequency:1400,frequencyEnd:300,decay:1.8});
+      bruit_(c,{duration:.20,volume:.04,delay:.44,filterType:"highpass",frequency:5000,decay:2.4});
+    }},
+    /* Blocage : le bouclier encaisse, un « toc » sourd et un petit tintement de métal */
+    {id:"block",duree:450,construire:function(c){
+      tonal_(c,{type:"sine",from:190,to:85,duration:.16,volume:.12});
+      bruit_(c,{duration:.07,volume:.05,filterType:"lowpass",frequency:800,decay:2.4});
+      tonal_(c,{type:"sine",from:760,to:740,duration:.22,volume:.030,delay:.03});
+      tonal_(c,{type:"sine",from:760*2.76,to:760*2.76,duration:.08,volume:.012,delay:.03});
+    }},
+    /* Défense : une aura bleue qui se referme, souffle doux qui monte puis scintille */
+    {id:"defensiveBuff",duree:800,construire:function(c){
+      nappe_(c,{type:"sine",from:330,to:660,duration:.55,volume:.045,attack:.30});
+      nappe_(c,{type:"triangle",from:495,to:990,duration:.55,volume:.020,attack:.30});
+      tonal_(c,{type:"sine",from:1320,to:1320,duration:.30,volume:.020,delay:.42});
+      bruit_(c,{duration:.18,volume:.012,delay:.45,filterType:"highpass",frequency:7000,decay:2.4});
+    }},
+    /* Soin : trois notes douces qui montent, chaudes */
+    {id:"heal",duree:950,construire:function(c){
+      [[523,0],[659,.16],[784,.32]].forEach(function(p){
+        nappe_(c,{type:"sine",from:p[0],to:p[0]*1.004,duration:.50,volume:.040,attack:.05,delay:p[1],vibRate:5,vibDepth:3});
+        nappe_(c,{type:"sine",from:p[0]*2,to:p[0]*2,duration:.30,volume:.012,attack:.04,delay:p[1]});
+      });
+      bruit_(c,{duration:.30,volume:.008,delay:.45,filterType:"highpass",frequency:7500,decay:2.4});
+    }},
+    /* Puissance : une flamme orange qui gronde et monte */
+    {id:"offensiveBuff",duree:800,construire:function(c){
+      nappe_(c,{type:"sawtooth",from:180,to:520,duration:.45,volume:.030,attack:.25});
+      bruitMonte_(c,{duration:.40,volume:.05,filterType:"lowpass",frequency:500,frequencyEnd:2500,pow:1.6});
+      tonal_(c,{type:"sine",from:220,to:110,duration:.22,volume:.09,delay:.40});
+      bruit_(c,{duration:.16,volume:.04,delay:.40,filterType:"bandpass",frequency:1800,decay:2.2});
+    }},
+    /* Charge : une accumulation d'énergie qui vrille, puis un déclic quand elle est prête */
+    {id:"charge",duree:1000,construire:function(c){
+      nappe_(c,{type:"sawtooth",from:70,to:300,duration:.70,volume:.050,attack:.55,vibRate:14,vibDepth:8});
+      bruitMonte_(c,{duration:.70,volume:.065,filterType:"bandpass",frequency:300,frequencyEnd:3000,q:1.4,pow:2.4});
+      tonal_(c,{type:"square",from:1400,to:1400,duration:.05,volume:.030,delay:.74});
+      tonal_(c,{type:"sine",from:2100,to:2100,duration:.16,volume:.030,delay:.76});
+    }},
+    /* Bonus ultime : une pluie d'étincelles magiques en arpège rapide */
+    {id:"ultimateBuff",duree:900,construire:function(c){
+      [1047,1319,1568,2093,2637].forEach(function(f,i){
+        tonal_(c,{type:"sine",from:f,to:f*1.002,duration:.32,volume:.030,delay:i*.075});
+        tonal_(c,{type:"sine",from:f*2.01,to:f*2.01,duration:.16,volume:.010,delay:i*.075});
+      });
+      bruit_(c,{duration:.30,volume:.014,delay:.30,filterType:"highpass",frequency:8000,frequencyEnd:11000,decay:2.2});
+    }},
+    /* Paralysie : un arc électrique qui crépite puis se fige */
+    {id:"paralyze",duree:750,construire:function(c){
+      [0,.05,.11,.15,.22,.27].forEach(function(t,i){
+        bruit_(c,{duration:.035,volume:.05,delay:t,filterType:"highpass",frequency:3000+i*400,decay:2.6});
+        tonal_(c,{type:"square",from:120+i*45,to:80,duration:.05,volume:.02,delay:t});
+      });
+      tonal_(c,{type:"sine",from:1500,to:400,duration:.28,volume:.03,delay:.30});
+      tonal_(c,{type:"triangle",from:3200,to:3200,duration:.05,volume:.02,delay:.58});
+    }},
+    /* Hyper Regen : trois pulsations vertes qui montent, comme un cœur qui se régénère */
+    {id:"hyperRegen",duree:900,construire:function(c){
+      [[392,0],[494,.20],[587,.40]].forEach(function(p){
+        tonal_(c,{type:"sine",from:p[0]*.8,to:p[0],duration:.16,volume:.07,delay:p[1]});
+        tonal_(c,{type:"sine",from:p[0]*1.6,to:p[0]*2,duration:.12,volume:.02,delay:p[1]});
+      });
+      nappe_(c,{type:"sine",from:196,to:294,duration:.75,volume:.028,attack:.35});
+    }},
+    /* Beast Mode : un grondement de bête, rauque, avec un rugissement qui monte */
+    {id:"beastMode",duree:1100,construire:function(c){
+      nappe_(c,{type:"sawtooth",from:75,to:52,duration:.85,volume:.06,attack:.12,vibRate:26,vibDepth:9});
+      nappe_(c,{type:"square",from:150,to:98,duration:.75,volume:.020,attack:.10,vibRate:22,vibDepth:12});
+      bruit_(c,{duration:.7,volume:.05,filterType:"bandpass",frequency:600,frequencyEnd:250,q:.8,decay:1.2});
+      bruit_(c,{duration:.10,volume:.05,filterType:"lowpass",frequency:700,decay:2.2});
+    }},
+    /* Mega Buff : un accord puissant qui gonfle, avec un éclat lumineux */
+    {id:"megaBuff",duree:1300,construire:function(c){
+      [262,330,392,523].forEach(function(f,i){
+        nappe_(c,{type:"triangle",from:f,to:f*1.003,duration:.9,volume:.040,attack:.35,delay:i*.03});
+        nappe_(c,{type:"sine",from:f*2,to:f*2,duration:.7,volume:.012,attack:.30,delay:i*.03});
+      });
+      tonal_(c,{type:"sine",from:2093,to:2093,duration:.5,volume:.025,delay:.40});
+      tonal_(c,{type:"sine",from:2637,to:2637,duration:.5,volume:.020,delay:.48});
+      bruit_(c,{duration:.3,volume:.015,delay:.42,filterType:"highpass",frequency:7000,decay:2.2});
+    }},
+    /* Oh Shit : une alarme affolée, deux tons qui s'alternent vite */
+    {id:"ohShit",duree:750,construire:function(c){
+      [0,.13,.26,.39,.52].forEach(function(t,i){
+        tonal_(c,{type:"square",from:i%2?660:990,to:i%2?640:960,duration:.11,volume:.035,delay:t});
+      });
+      tonal_(c,{type:"sine",from:90,to:60,duration:.5,volume:.06,delay:.05});
+    }},
+    /* Move 69 : un sifflet à coulisse malicieux qui monte puis retombe, avec un « boing » */
+    {id:"move69",duree:900,construire:function(c){
+      nappe_(c,{type:"sine",from:300,to:1300,duration:.32,volume:.05,attack:.04,vibRate:7,vibDepth:20});
+      nappe_(c,{type:"sine",from:1300,to:420,duration:.32,volume:.05,attack:.02,delay:.32,vibRate:7,vibDepth:20});
+      tonal_(c,{type:"triangle",from:180,to:520,duration:.12,volume:.06,delay:.66});
+      tonal_(c,{type:"triangle",from:520,to:150,duration:.20,volume:.05,delay:.76});
+    }}
+  ];
+  function jouerCompetence_(son){
+    return function(){return jouerWebAudio_(son.duree,son.construire);};
+  }
+
   var JOUEURS={
     fight:voixFight_,
     bossAppear:gongBoss_,
@@ -955,6 +1092,11 @@
       });
   }
 
+  SONS_COMPETENCE.forEach(function(son){
+    DEFINITIONS["skill_"+son.id]={group:"adventure-skill",priority:58,maxAgeMs:700};
+    JOUEURS["skill_"+son.id]=jouerCompetence_(son);
+  });
+
   function demander_(name){
     name=String(name||"");
     var def=DEFINITIONS[name];
@@ -1004,6 +1146,7 @@
       defeat:{duree:1900,construire:defaiteConstruire_},
       purchaseGold:{duree:1000,construire:orConstruire_},
       equip:{duree:520,construire:equipConstruire_},
+      skills:SONS_COMPETENCE.map(function(x){return{nom:x.id,duree:x.duree,construire:x.construire};}),
       purchaseGem:{duree:1300,construire:gemmeConstruire_}
     },
     fight:function(){return demander_("fight");},

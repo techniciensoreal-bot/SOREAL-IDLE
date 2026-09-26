@@ -16741,6 +16741,10 @@ let idleDialogueTimerV76=null;
 
         idleAdventureManualStateV3.cooldownUntil[def.id]=
           maintenant+cooldownDureeAdventureIdleV4_(def,a);
+        /* Un son propre à chaque bouton (modules/audio-effects-v199.js : skill_<id>). */
+        jouerEffetAudioIdleV199_('skill_'+def.id);
+        /* Un son propre à chaque bouton (modules/audio-effects-v199.js : skill_<id>). */
+        jouerEffetAudioIdleV199_(skill_+def.id);
 
         if(group==='attack'){
           if(def.id==='parry'){
@@ -18545,6 +18549,24 @@ function pageAventureIdleV28_(j){
         return true;
       }
 
+      /*
+       * Double tap sur une pièce ÉQUIPÉE = même effet que « A + clic » sur ordinateur (Norman, 2026-09-26 : « quand on double tape sur une pièce équipée, ça doit avoir le même effet que
+       * CTRL + A sur PC ») : applique les boosts du sac à cette pièce (action inventoryAuto / boostAll, la même que modules/inventory-auto-v1.js).
+       */
+      function boosterObjetEquipeAdventureIdleV1_(id){
+        const objet=String(id||'');
+        if(!objet||!idleEtat)return false;
+        const a=aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const item=items.find(function(x){return String(x&&x.id)===objet;});
+        if(!item||item.kind==='boost')return false;
+        const envoyer=window.__actionMetaV47__;
+        if(typeof envoyer!=='function')return false;
+        nettoyerEtatDragAdventureIdleV138_();
+        envoyer({action:'inventoryAuto',mode:'boostAll',targetId:objet});
+        return true;
+      }
+
       function executerTapObjetAdventureIdleV196_(element,id){
         if(!element)return;
         if(element.classList.contains('soreal-idle-v138-bag-card')){
@@ -18651,6 +18673,13 @@ function pageAventureIdleV28_(j){
             element&&
             element.classList.contains('soreal-idle-v138-bag-card')&&
             actionRapideObjetAdventureIdleV209_(id)
+          ){
+            return;
+          }
+          if(
+            element&&
+            !element.classList.contains('soreal-idle-v138-bag-card')&&
+            boosterObjetEquipeAdventureIdleV1_(id)
           ){
             return;
           }
