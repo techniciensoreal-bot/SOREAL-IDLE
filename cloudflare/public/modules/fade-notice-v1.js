@@ -40,7 +40,8 @@ function suivante(){
   var el=document.createElement('div');
   el.id='soreal-idle-fade-notice-v1';
   el.setAttribute('aria-live','polite');
-  el.innerHTML='<div class="titre">'+esc(n.titre)+'</div>'+n.lignes.map(function(l){return '<div class="ligne">'+esc(l)+'</div>';}).join('');
+  if(n.accent){el.style.borderColor=n.accent;el.style.boxShadow='0 12px 40px rgba(0,0,0,.55),0 0 30px '+n.accent+'55';}
+  el.innerHTML='<div class="titre"'+(n.accent?' style="color:'+n.accent+'"':'')+'>'+esc(n.titre)+'</div>'+n.lignes.map(function(l){return '<div class="ligne">'+esc(l)+'</div>';}).join('');
   document.body.appendChild(el);
   requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add('on');});});
   setTimeout(function(){el.classList.remove('on');},n.dureeMs);
@@ -49,7 +50,8 @@ function suivante(){
 
 window.__sorealFadeNoticeV1__=function(titre,lignes,options){
   var duree=options&&Number(options.dureeMs)>0?Number(options.dureeMs):4500;
-  file.push({titre:String(titre||''),lignes:(Array.isArray(lignes)?lignes:[]).map(String).filter(Boolean),dureeMs:duree});
+  var accent=options&&/^#[0-9a-fA-F]{3,8}$/.test(String(options.accent||''))?String(options.accent):'';
+  file.push({titre:String(titre||''),lignes:(Array.isArray(lignes)?lignes:[]).map(String).filter(Boolean),dureeMs:duree,accent:accent});
   suivante();
 };
 })();

@@ -122,7 +122,7 @@ for(const forbidden of [
 assert.ok(
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
   index.includes('<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=11')&&
+  index.includes('/modules/local-neural-piper-v1.js?v=12')&&
   index.includes('/modules/tutorial-tts-v202.js?v=233'),
   "Le phonémiseur espeak-ng et le contrôleur de narration doivent être épinglés et cache-bustés."
 );

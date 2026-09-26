@@ -7,7 +7,8 @@
  *   barres  : Attaque passive et Blocage visibles dans le bas de l'écran, la fenêtre en haut sans cacher le cadre d'Attaque passive ;
  *   saisie  : le cadre bleu Basic Training tout en haut, la fenêtre sous le bouton « Tout retirer » ;
  *   blocage : Blocage bien visible, la fenêtre juste au-dessus ;
- *   fight   : l'écran Fight Boss, la fenêtre juste en dessous du bouton Fight.
+ *   fight   : l'écran Fight Boss, la fenêtre juste en dessous du bouton Fight ;
+ *   bas     : la fenêtre tout en bas de l'écran (pages qui suivent une annonce en fondu), rien ne bouge.
  * PC (écran large) : « stats » montre la barre verte tout en haut puis les cases en dessous ; « energie1 » (première page Énergie) ne bouge rien ; fenêtre
  * centrée comme sur téléphone. Fight Boss (PC et téléphone) : fenêtre juste en dessous du bouton Fight.
  * Les pages sans cadrage ne bougent rien. Une fenêtre déplacée à la main n'est plus replacée avant la page suivante.
@@ -124,6 +125,12 @@ var CADRAGES={
       if(top-P-8<haut)window.scrollBy(0,top-(haut+P+8));/* …sauf si la fenêtre n'a pas la place au-dessus */
       poser(r,ligne.getBoundingClientRect().top-P-8);
     }
+  },
+  /* Fenêtre tout en bas de l'écran (Norman, 2026-09-26) : elle ne gêne pas l'annonce en fondu (menu débloqué) qui s'affiche en haut ; rien ne bouge sur la page. */
+  bas:{
+    menu:null,
+    pret:function(){return true;},
+    placer:function(r){poser(r,hauteurFenetre());}
   },
   fight:{
     menu:'combat',

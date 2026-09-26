@@ -30,6 +30,8 @@
     btMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
     menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
+    purchase:{group:"purchase",priority:30,maxAgeMs:900},
+    achievement:{group:"achievement",priority:88,maxAgeMs:3500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
@@ -350,6 +352,38 @@
   }
 
   /*
+   * Achat (Norman, 2026-09-26) : « un bruit de caisse enregistreuse quand on effectue un achat ». Un « clac » sec de tiroir-caisse, puis le « ding » à deux
+   * notes de la clochette (partiels métalliques), et un petit tintement de pièces.
+   */
+  function caisse_(){
+    return jouerWebAudio_(950,function(c){
+      bruit_(c,{duration:.06,volume:.052,delay:0,filterType:"bandpass",frequency:1900,frequencyEnd:900,q:1.3,decay:3});
+      tonal_(c,{type:"square",from:160,to:78,duration:.07,volume:.030});
+      [[1976,.46,.050,.10],[2637,.62,.056,.18]].forEach(function(p){
+        tonal_(c,{type:"sine",from:p[0],to:p[0]*1.001,duration:p[1],volume:p[2],delay:p[3]});
+        tonal_(c,{type:"sine",from:p[0]*2.76,to:p[0]*2.76,duration:p[1]*.45,volume:p[2]*.30,delay:p[3]});
+        tonal_(c,{type:"triangle",from:p[0]*1.5,to:p[0]*1.5,duration:p[1]*.55,volume:p[2]*.16,delay:p[3]});
+      });
+      bruit_(c,{duration:.12,volume:.022,delay:.36,filterType:"highpass",frequency:6200,frequencyEnd:8800,decay:2.2});
+      bruit_(c,{duration:.09,volume:.016,delay:.50,filterType:"highpass",frequency:7000,frequencyEnd:9500,decay:2.4});
+    });
+  }
+
+  /* Succès débloqué : petite fanfare montante (trois notes en tierces) suivie d'un scintillement. */
+  function succes_(){
+    return jouerWebAudio_(1300,function(c){
+      [[523,.30,.048,0],[659,.30,.048,.14],[784,.32,.050,.28],[1047,.62,.056,.44]].forEach(function(p){
+        tonal_(c,{type:"triangle",from:p[0],to:p[0]*1.003,duration:p[1],volume:p[2],delay:p[3]});
+        tonal_(c,{type:"sine",from:p[0]*2,to:p[0]*2,duration:p[1]*.6,volume:p[2]*.30,delay:p[3]});
+      });
+      [[2093,.30,.020,.60],[2637,.30,.018,.68],[3136,.36,.016,.76]].forEach(function(p){
+        tonal_(c,{type:"sine",from:p[0],to:p[0],duration:p[1],volume:p[2],delay:p[3]});
+      });
+      bruit_(c,{duration:.26,volume:.012,delay:.60,filterType:"highpass",frequency:6800,frequencyEnd:9500,decay:2.4});
+    });
+  }
+
+  /*
    * Basic Training (Norman, 2026-09-26) : trois sons pour +, − et Cap, chacun en rapport avec ce qu'il fait.
    *   +   : on ajoute de l'énergie -> petit « bloup » qui monte, brillant ;
    *   −   : on la retire            -> petit « bloup » qui redescend, plus mat ;
@@ -528,6 +562,8 @@
     btMinus:btMoins_,
     btCap:btCap_,
     menuUnlock:menuDebloque_,
+    purchase:caisse_,
+    achievement:succes_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
     mergeArmor:fusionArmure_,
@@ -646,6 +682,8 @@
     btMinus:function(){return demander_("btMinus");},
     btCap:function(){return demander_("btCap");},
     menuUnlock:function(){return demander_("menuUnlock");},
+    purchase:function(){return demander_("purchase");},
+    achievement:function(){return demander_("achievement");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
     mergeArmor:function(){return demander_("mergeArmor");},

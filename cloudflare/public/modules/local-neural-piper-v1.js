@@ -283,7 +283,9 @@ var PRONONCIATIONS_=[
   [/\bFight Boss\b/gi,"Faïte Bosse"],
   [/\bFight\b/g,"Faïte"],
   /* « Vas-y » est épelé « vas i-grec » : on l'écrit comme il se dit (Norman, 2026-09-26). */
-  [/\bVas[-\u2010\u2011\u2013]y\b/gi,"Vazi"]
+  [/\bVas[-\u2010\u2011\u2013]y\b/gi,"Vazi"],
+  /* « EXP » était lu « expe » ; il se dit « expérience » (Norman, 2026-09-26). */
+  [/\bEXP\b/g,"expérience"]
 ];
 function normalizePronunciation_(text){
   var t=String(text);

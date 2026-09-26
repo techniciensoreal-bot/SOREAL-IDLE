@@ -8,8 +8,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.6',
+    courante:'2.7',
     versions:[
+      {
+        version:'2.7',
+        nom:'Ça sonne, ça brille',
+        date:'2026-09-26',
+        points:[
+          'Chaque achat fait maintenant le bruit d’une caisse enregistreuse : le tiroir qui claque, puis le petit « ding ». Un achat refusé reste silencieux.',
+          'Quand tu débloques un succès, une annonce apparaît puis disparaît toute seule, avec sa couleur, son emoji et une petite fanfare.',
+          'La page Achievements est plus vivante : chaque catégorie a son emoji et sa couleur.',
+          'Tutoriel : pendant la page Objectif, les cases Attack et Defense clignotent, et le résumé du haut est réorganisé (Nombre, Rebirths, Attack, Defense, Gold, EXP, Run).',
+          'La fenêtre qui commente ton premier boss vaincu se place en bas de l’écran pour ne pas gêner les annonces, et la voix dit « expérience » au lieu de « expe ».'
+        ]
+      },
       {
         version:'2.6',
         nom:'Boss vaincu, pour de bon',

@@ -19,6 +19,10 @@ assert.equal(normaliser("vas-y maintenant"), "Vazi maintenant");
 assert.equal(normaliser("Vas\u2011y !"), "Vazi !", "trait d'union insécable");
 assert.equal(normaliser("Tu vas y arriver"), "Tu vas y arriver", "« vas y » sans trait d'union n'est pas touché");
 assert.equal(normaliser("Vasy"), "Vasy");
+/* « EXP » était lu « expe » : il se dit « expérience » (Norman, 2026-09-26). */
+assert.equal(normaliser("tu gagnes de l'EXP"), "tu gagnes de l'expérience");
+assert.equal(normaliser("le menu EXP Shop"), "le menu expérience Shop");
+assert.equal(normaliser("Exposition et EXPERT"), "Exposition et EXPERT", "seul le mot EXP est remplacé");
 assert.ok(piper.includes("normalizeEllipsis_(normalizeAsterisks_(normalizePronunciation_(sanitizeText_(text))))"), "appliqué à la synthèse, avant l'empreinte du texte (inchangée)");
 
 // 2. Pause des points de suspension : « . + . »

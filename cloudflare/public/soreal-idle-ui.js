@@ -9560,6 +9560,7 @@
         {
           titre:'Objectif',
           cadrage:'stats',
+          clignote:'stats-attaque-defense',
           paragraphes:[
             'Donc, ton objectif principal dans SOREAL IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin ! En haut, en dessous de la grosse barre verte, tu vois tes deux stats principales, Attaque et Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.'
           ]
@@ -9697,24 +9698,28 @@
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-122 */
       const TUTORIEL_PREMIER_BOSS_PAGES_V1=[
         {
+          cadrage:'bas',
           titre:'Norman & Sébastien',
           paragraphes:[
             'Oh hé, cool, tu as écrasé Un Petit Bout de Peluche. Plus important : ce sandwich est fantastique ! Jambon fromage et sauce mayonnaise volé à un ouvrier dans le frigo. Miam.'
           ]
         },
         {
+          cadrage:'bas',
           titre:'Récompenses',
           paragraphes:[
             'Donc tuer des boss apporte quelques récompenses importantes : d’abord, tu gagnes de l’EXP. L’EXP sert à acheter des pouvoirs permanents dans le menu EXP Shop, qui vient aussi de se débloquer. Tu devrais voir un joli bouton bleu dans la barre en haut.'
           ]
         },
         {
+          cadrage:'bas',
           titre:'Conseil de pro',
           paragraphes:[
             'Il y a plein de trucs à acheter avec l’EXP, mais ne panique pas ! Notre conseil de pro : achète les offres spéciales qui augmentent la vitesse de remplissage de la barre d’Énergie. On les a faites spécifiquement pour des débutants comme toi... ne le prends pas mal.'
           ]
         },
         {
+          cadrage:'bas',
           titre:'Norman & Sébastien',
           seulementPrecedent:true,
           paragraphes:[
@@ -13086,6 +13091,10 @@
               <b id="sorealIdleSummaryNumberV50">${formatGrandNombreIdleV70_(number)}</b>
             </div>
             <div class="soreal-idle-summary-v28">
+              ♻️ Rebirths
+              <b id="sorealIdleSummaryRebirthsV210">${formatGrandNombreIdleV70_(rebirths)}</b>
+            </div>
+            <div class="soreal-idle-summary-v28">
               ⚔️ Attack
               <b id="sorealIdleSummaryAttackV50">${formatGrandNombreIdleV70_(combat.attaque||j.puissance||0)}</b>
             </div>
@@ -13107,10 +13116,6 @@
                   <b id="sorealIdleSummaryApV210">${formatGrandNombreIdleV70_(monnaies.ap||0)}</b>
                 </div>`
               :''}
-            <div class="soreal-idle-summary-v28">
-              ♻️ Rebirths
-              <b id="sorealIdleSummaryRebirthsV210">${formatGrandNombreIdleV70_(rebirths)}</b>
-            </div>
             <div class="soreal-idle-summary-v28">
               ⏱️ Run
               <b id="sorealIdleSummaryRunV1">${formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j))}</b>
@@ -22219,6 +22224,11 @@ function pageAventureIdleV28_(j){
             );
 
             annoncerNouveauxMenusIdleV1_(j);
+
+            /* Succès débloqués : annonce en fondu + fanfare (modules/achievement-notice-v1.js). */
+            if(window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__){
+              window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));
+            }
 
             if(
               idleMenuActifV28==='aventure' &&

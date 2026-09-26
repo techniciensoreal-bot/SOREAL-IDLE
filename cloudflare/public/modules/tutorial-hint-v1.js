@@ -16,7 +16,9 @@ var DELAI_SUIVANT_MS=45000;
 var CIBLES={
   'attaque-plus':{groupe:'attack',rang:1},
   'attaque-moins':{groupe:'attack',rang:2},
-  'blocage-plus':{groupe:'defense',rang:1}
+  'blocage-plus':{groupe:'defense',rang:1},
+  /* Page « Objectif » : les deux cases Attack et Defense du résumé clignotent pendant que la fenêtre est ouverte. */
+  'stats-attaque-defense':{cases:['sorealIdleSummaryAttackV50','sorealIdleSummaryDefenseV50']}
 };
 var CLIGNOTE='',ATTENDRE='',BALAYAGE=0,DEBLOQUE=0;
 
@@ -29,7 +31,12 @@ function installerStyle(){
       '0%,100%{box-shadow:0 0 0 0 rgba(255,214,90,0);transform:scale(1);filter:brightness(1)}'+
       '50%{box-shadow:0 0 0 5px rgba(255,214,90,.7),0 0 18px 6px rgba(255,214,90,.8);transform:scale(1.18);filter:brightness(1.4)}'+
     '}'+
-    '.'+CLASSE+'{animation:sorealIdleTutoIndiceV1 .9s ease-in-out infinite;position:relative;z-index:2;border-color:#ffd65a!important}';
+    '@keyframes sorealIdleTutoIndiceCaseV1{'+
+      '0%,100%{box-shadow:0 0 0 0 rgba(255,214,90,0);transform:scale(1);background-color:#f6f8fb}'+
+      '50%{box-shadow:0 0 0 4px rgba(255,214,90,.85),0 0 16px 4px rgba(255,214,90,.7);transform:scale(1.05);background-color:#fff4c7}'+
+    '}'+
+    '.'+CLASSE+'{animation:sorealIdleTutoIndiceV1 .9s ease-in-out infinite;position:relative;z-index:2;border-color:#ffd65a!important}'+
+    '.soreal-idle-summary-v28.'+CLASSE+'{animation-name:sorealIdleTutoIndiceCaseV1}';
   document.head.appendChild(s);
 }
 
@@ -45,14 +52,25 @@ function bouton(nom){
   return c&&l?l.querySelector('.soreal-idle-bt-actions-v120 button:nth-child('+c.rang+')'):null;
 }
 
+/* Éléments qui clignotent pour une cible : le bouton, ou les deux cases du résumé (la case = le cadre qui contient le chiffre). */
+function elementsCible(nom){
+  var c=CIBLES[nom];
+  if(!c)return [];
+  if(c.cases){
+    return c.cases.map(function(id){var b=document.getElementById(id);return b&&b.parentElement;}).filter(Boolean);
+  }
+  var b=bouton(nom);
+  return b?[b]:[];
+}
+
 function allocation(nom){
   var l=ligne(nom),a=l&&l.querySelector('.soreal-idle-bt-allocation-v120');
   return a?(parseInt(String(a.textContent||'').replace(/[^0-9]/g,''),10)||0):0;
 }
 
-function retirerClignotement(sauf){
+function retirerClignotement(garder){
   var liste=document.querySelectorAll('.'+CLASSE);
-  for(var i=0;i<liste.length;i++)if(liste[i]!==sauf)liste[i].classList.remove(CLASSE);
+  for(var i=0;i<liste.length;i++)if(!garder||garder.indexOf(liste[i])<0)liste[i].classList.remove(CLASSE);
 }
 
 function arreterBalayage(){
@@ -66,9 +84,9 @@ function balayer(){
     arreterBalayage();
     return;
   }
-  var cible=bouton(CLIGNOTE);
-  retirerClignotement(cible);
-  if(cible&&!cible.classList.contains(CLASSE))cible.classList.add(CLASSE);
+  var cibles=elementsCible(CLIGNOTE);
+  retirerClignotement(cibles);
+  cibles.forEach(function(e){if(!e.classList.contains(CLASSE))e.classList.add(CLASSE);});
 }
 
 /* Le « Suivant » caché revient si le joueur n'arrive pas à cliquer (plus d'énergie, Cap déjà atteint…). */

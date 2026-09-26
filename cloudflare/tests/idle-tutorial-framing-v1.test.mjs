@@ -34,7 +34,7 @@ const src = readFileSync("cloudflare/public/modules/tutorial-framing-v1.js", "ut
 const fen = { addEventListener() {}, innerWidth: 1024, innerHeight: 768 };
 vm.runInNewContext(src, { window: fen, document: { addEventListener() {}, querySelector: () => null }, setTimeout, clearTimeout, requestAnimationFrame: (f) => f(), getComputedStyle: () => ({ top: "6px" }) });
 const api = fen.__SOREAL_IDLE_TUTO_CADRAGE_V1__;
-assert.deepEqual([...api.cadrages].sort(), ["barres", "blocage", "energie", "energie1", "fight", "saisie", "stats"]);
+assert.deepEqual([...api.cadrages].sort(), ["barres", "bas", "blocage", "energie", "energie1", "fight", "saisie", "stats"]);
 for (const [regle, morceau] of [
   ["Basic Training (stats) : menu entrainement", "stats:{\n    menu:'entrainement'"],
   ["Fight Boss : menu combat", "fight:{\n    menu:'combat'"],
@@ -50,7 +50,7 @@ for (const [regle, morceau] of [
   ["barres : fenêtre en haut, Attaque passive dessous", "if(V-8-distance>=haut+P+8)"],
   ["fenêtre déplacée à la main : plus replacée", "data-cadre-deplace"]
 ]) assert.ok(src.includes(morceau), regle);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=2"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=3"));
 
 /*
  * Norman (2026-09-26) : page « Basic Training » sans « Passer » ni « Suivant », le + d'Attaque passive clignote et le clic passe à « Bien joué » ; là c'est le −
@@ -64,14 +64,41 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   assert.ok(page("Basic Training").includes("clignote:'attaque-plus'") && page("Basic Training").includes("attendre:'attaque-plus'"), "Basic Training : + d'Attaque passive, clic obligatoire");
   assert.ok(page("Bien joué").includes("clignote:'attaque-moins'") && !page("Bien joué").includes("attendre:"), "Bien joué : − d'Attaque passive, facultatif");
   assert.ok(page("Défense").includes("clignote:'blocage-plus'") && !page("Défense").includes("attendre:"), "Défense : + de Blocage");
-  for (const titre of ["Objectif", "Énergie", "Énergie Idle", "Saisie personnalisée", "Fight Boss"]) assert.equal(page(titre).includes("clignote:"), false, titre + " : rien ne clignote");
+  for (const titre of ["Énergie", "Énergie Idle", "Saisie personnalisée", "Fight Boss"]) assert.equal(page(titre).includes("clignote:"), false, titre + " : rien ne clignote");
   assert.ok(ui.includes("'<button type=\"button\" '+(page.attendre?'disabled style=\"visibility:hidden\" ':'')+'onclick=\"window.__tutorielPagesFermerV1__()\">'"), "pas de « Passer » sur la page qui attend un clic");
   assert.ok(ui.includes("((dernier||page.attendre)?'disabled style=\"visibility:hidden\"':'')"), "pas de « Suivant » non plus");
   assert.ok(ui.includes("window.__SOREAL_IDLE_TUTO_INDICE_V1__.appliquer(page.clignote||'',page.attendre||'')"));
   assert.ok(hint.includes("'attaque-plus':{groupe:'attack',rang:1}") && hint.includes("'attaque-moins':{groupe:'attack',rang:2}") && hint.includes("'blocage-plus':{groupe:'defense',rang:1}"));
   assert.ok(hint.includes("window.__tutorielPagesNaviguerV1__(1)") && hint.includes("allocation(page)>avant"), "le clic passe à la page suivante seulement si l'énergie est vraiment affectée");
   assert.ok(hint.includes("DELAI_SUIVANT_MS=45000"), "le « Suivant » revient si le clic est impossible : jamais bloqué");
-  assert.ok(index.includes('/modules/tutorial-hint-v1.js?v=1') && index.indexOf("tutorial-hint-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "le module est chargé avant le jeu");
+  assert.ok(index.includes('/modules/tutorial-hint-v1.js?v=2') && index.indexOf("tutorial-hint-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "le module est chargé avant le jeu");
+}
+
+
+/*
+ * Norman (2026-09-26) : pendant la page « Objectif », les cases Attack et Defense clignotent ; le résumé est réordonné (2 par ligne sur téléphone) :
+ * Nombre, Rebirths / Attack, Defense / Gold, EXP / Run ; les pages du premier boss s'affichent en bas de l'écran (l'annonce en fondu est en haut).
+ */
+{
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const hint = readFileSync("cloudflare/public/modules/tutorial-hint-v1.js", "utf8");
+  const framing = readFileSync("cloudflare/public/modules/tutorial-framing-v1.js", "utf8");
+  const i0 = ui.indexOf("titre:'Objectif',");
+  assert.ok(ui.slice(i0, ui.indexOf("paragraphes:", i0)).includes("clignote:'stats-attaque-defense'"), "Objectif : Attack et Defense clignotent");
+  assert.ok(hint.includes("'stats-attaque-defense':{cases:['sorealIdleSummaryAttackV50','sorealIdleSummaryDefenseV50']}"));
+  assert.ok(hint.includes("sorealIdleTutoIndiceCaseV1"), "clignotement doux pour les cases du résumé");
+
+  const g0 = ui.indexOf('<div class="soreal-idle-summary-grid-v28">\n            <div class="soreal-idle-summary-v28">\n              🔢 Nombre');
+  assert.ok(g0 > 0);
+  const grille = ui.slice(g0, ui.indexOf("      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-155 */", g0));
+  const ordre = ["SummaryNumberV50", "SummaryRebirthsV210", "SummaryAttackV50", "SummaryDefenseV50", "SummaryGoldV50", "SummaryExpV50", "SummaryApV210", "SummaryRunV1"].map((id) => grille.indexOf("sorealIdle" + id));
+  assert.ok(ordre.every((n) => n > 0), "toutes les cases sont présentes");
+  assert.deepEqual([...ordre].sort((a, b) => a - b), ordre, "ordre : Nombre, Rebirths, Attack, Defense, Gold, EXP, AP (si visible), Run en dernier");
+
+  const b0 = ui.indexOf("const TUTORIEL_PREMIER_BOSS_PAGES_V1=[");
+  const premierBoss = ui.slice(b0, ui.indexOf("function idleTutorielPagesDejaVuLocalV1_(cle){"));
+  assert.equal((premierBoss.match(/cadrage:'bas',/g) || []).length, 4, "les 4 pages du premier boss sont posées en bas de l'écran");
+  assert.ok(framing.includes("bas:{") && framing.includes("placer:function(r){poser(r,hauteurFenetre());}"), "cadrage « bas » : tout en bas, rien ne bouge");
 }
 
 console.log("idle-tutorial-framing-v1: OK");

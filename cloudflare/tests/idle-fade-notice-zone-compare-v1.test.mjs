@@ -14,7 +14,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.match(notice, /pointer-events:none/);
 assert.match(notice, /transition:opacity/);
 assert.match(notice, /window\.__sorealFadeNoticeV1__=function\(titre,lignes,options\)/);
-assert.ok(index.includes("/modules/fade-notice-v1.js?v=1"));
+assert.ok(index.includes("/modules/fade-notice-v1.js?v=2"));
 assert.ok(index.indexOf("fade-notice-v1.js") < index.indexOf("/soreal-idle-ui.js"), "chargée avant l'interface");
 
 // Détection : set complété et Tutorial Cube (premier état = référence, rien d'annoncé au chargement)
