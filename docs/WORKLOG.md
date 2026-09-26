@@ -2004,3 +2004,6 @@ Audit repris depuis l'état réel du dépôt, sans reprendre l'ancien verdict co
 - Le volume actuel des assets n'est pas proche de la limite Cloudflare de fichiers et le bundle Worker reste très loin de la limite de taille.
 - Aucun correctif fonctionnel effectué dans cet audit.
 
+## 2026-09-26 — APK bloqué à 94 %
+
+Norman : « sur l'apk, je bloque à 94 % de chargement ». Cause : hors APP/TV, sans session ni identifiant client Google (`googleClientId` vide dans `/api/v1/bootstrap`), `startV1` s'arrête sur « Ouvre SOREAL IDLE depuis SOREAL APP ou SOREAL TV » ; la fausse barre de progression (plafonnée à 94 %) restait affichée. `standalone-bridge.js?v=4` masque la barre et dit clairement que la connexion directe n'est pas encore ouverte. L'APK ne peut jouer qu'après création de l'identifiant client Google (en attente de Norman).

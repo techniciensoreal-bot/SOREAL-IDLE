@@ -323,7 +323,9 @@
         if(clientId){
           await afficherConnexionGoogleV1(clientId,"");
         }else{
-          statusV1("Ouvre SOREAL IDLE depuis SOREAL APP ou SOREAL TV.",true);
+          /* Pas de connexion Google configurée : plus de fausse barre de chargement bloquée à 94 %, un message clair. */
+          masquerProgressionV1();
+          statusV1("La connexion directe n’est pas encore ouverte. Ouvre SOREAL IDLE depuis SOREAL APP ou SOREAL TV.",true);
         }
         return;
       }

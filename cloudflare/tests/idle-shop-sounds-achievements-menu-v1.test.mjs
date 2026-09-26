@@ -83,4 +83,11 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
 }
 
 // --- Le texte de narration ne dépend pas d'un second texte : voir idle-voice-pregenerated-v1 (histoire du boss 4) ---
+// --- Sans identifiant client Google : pas de barre de chargement figée à 94 %, un message clair (APK) ---
+{
+  const pont = readFileSync("cloudflare/public/standalone-bridge.js", "utf8");
+  const i = pont.indexOf("La connexion directe n");
+  assert.ok(i > 0 && pont.slice(i - 260, i).includes("masquerProgressionV1();"), "la progression est masquée avec le message");
+}
+
 console.log("idle-shop-sounds-achievements-menu-v1 OK");
