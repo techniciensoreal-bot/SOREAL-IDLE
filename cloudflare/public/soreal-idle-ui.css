@@ -6929,6 +6929,13 @@
             font-size:8px;
             font-weight:850;
           }
+          /* « Cap : 2500 ⚡ · prochain : 2249 » plus grand (2026-09-26, Norman). */
+          .soreal-idle-bt-meta-v120{
+            font-size:13px;
+            font-weight:900;
+            color:#b4c1d8;
+          }
+          .soreal-idle-bt-meta-v120 strong{color:#eef4fc}
 
           .soreal-idle-bt-meta-v120{
             display:flex;

@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.6',
+    courante:'1.7',
     versions:[
+      {
+        version:'1.7',
+        nom:'Boutons réactifs',
+        date:'2026-09-26',
+        points:[
+          'Les boutons répondent dès le premier clic : une action envoyée pendant qu’une autre est en cours n’est plus perdue, elle est mise en file. Un double clic reste un seul achat.',
+          'Les fenêtres de nouveauté d’un menu n’ont plus qu’un bouton : « Continuer ».',
+          'Un système avancé n’affiche plus que les bonus qu’il t’a apportés depuis le début de la partie, au lieu de la ligne de ressources.',
+          'Textes retouchés : « Appuie sur Fight », Coffre, Basic Training (la ligne « Cap : … · prochain : … » est plus grande) ; le bloc Equipment Bonuses du bas de l’Aventure est retiré.'
+        ]
+      },
       {
         version:'1.6',
         nom:'Sets & Annonces',

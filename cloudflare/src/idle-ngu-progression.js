@@ -1661,6 +1661,7 @@ function normalizeSystem(def, raw) {
           }))
         :[]
     };
+    s.data.rewardsTotal = moneyPitTotauxNormalisesV1(data.rewardsTotal, s.data.history);
   } else if (def.id === "dailySpin") {
     const data = src.data && typeof src.data === "object" ? src.data : {};
     s.data = {
@@ -5621,6 +5622,35 @@ function applyMoneyPitOneTimeBonusesV1(state) {
   return out;
 }
 
+/*
+ * Bonus TOTAUX apportés par le Money Pit depuis le début de la partie (2026-09-26, Norman : « il ne faudrait que les bonus totaux que le Money Pit
+ * nous a apportés depuis le début »). L'historique ne garde que 20 jets : les totaux sont cumulés à part (data.rewardsTotal) ; pour une sauvegarde
+ * d'avant, ils partent de l'historique disponible.
+ */
+const MONEY_PIT_TOTAL_KEYS_V1 = Object.freeze(["adventureStats", "adventureHp", "adventureRegen", "cubePower", "cubeToughness", "cubeBoth", "experience", "seeds", "wandoosLevels", "ap", "boosts", "energyBars", "magicBars"]);
+function moneyPitTotalsVideV1() {
+  const t = {};
+  for (const k of MONEY_PIT_TOTAL_KEYS_V1) t[k] = 0;
+  return t;
+}
+function moneyPitAjouterTotauxV1(totals, reward, boost) {
+  for (const k of MONEY_PIT_TOTAL_KEYS_V1) {
+    if (k !== "boosts" && reward && Number.isFinite(Number(reward[k]))) totals[k] += Number(reward[k]);
+  }
+  if (boost) totals.boosts += 1;
+}
+function moneyPitTotauxDepuisHistoriqueV1(history) {
+  const t = moneyPitTotalsVideV1();
+  for (const e of Array.isArray(history) ? history : []) moneyPitAjouterTotauxV1(t, e && e.reward, e && e.boost);
+  return t;
+}
+function moneyPitTotauxNormalisesV1(raw, history) {
+  if (!raw || typeof raw !== "object") return moneyPitTotauxDepuisHistoriqueV1(history);
+  const t = moneyPitTotalsVideV1();
+  for (const k of MONEY_PIT_TOTAL_KEYS_V1) t[k] = Math.max(0, num(raw[k], 0));
+  return t;
+}
+
 function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -5747,6 +5777,21 @@ function tossMoneyPit(state, now) {
   reward.ap = apWithBonusV1(state, Math.floor(Math.log10(cost)));
 
   const oneTime = applyMoneyPitOneTimeBonusesV1(state);
+  /* Totaux depuis le début : le jet, puis les bonus uniques versés par ce jet. */
+  {
+    const totaux = moneyPitTotauxNormalisesV1(s.data.rewardsTotal, s.data.history);
+    moneyPitAjouterTotauxV1(totaux, reward, boostGrant);
+    for (const seuil of oneTime) {
+      const b = MONEY_PIT_ONE_TIME_BONUSES_V1.find(x => x.gold === seuil);
+      if (!b) continue;
+      totaux.adventureHp += num(b.adventureHp, 0);
+      totaux.adventureRegen += num(b.adventureRegen, 0);
+      totaux.energyBars += num(b.energyBars, 0);
+      totaux.magicBars += num(b.magicBars, 0);
+      totaux.experience += num(b.experience, 0);
+    }
+    s.data.rewardsTotal = totaux;
+  }
 
   for (const [k, v] of Object.entries(reward)) {
     if (Object.prototype.hasOwnProperty.call(state.currencies, k)) {

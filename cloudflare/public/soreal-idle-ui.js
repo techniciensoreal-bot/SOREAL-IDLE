@@ -10105,28 +10105,11 @@
                 )+
               '</div>'+
             '</div>'+
-            '<div class="soreal-idle-modal-actions-v63" style="grid-template-columns:'+
-              (
-                info.menuCible
-                  ?'1fr 1fr'
-                  :'1fr'
-              )+
-              '">'+
+            /* Un seul bouton (2026-09-26, Norman : « ça n'a plus lieu d'être, il me faut juste Continuer ») : le popup s'ouvre déjà dans le menu concerné. */
+            '<div class="soreal-idle-modal-actions-v63" style="grid-template-columns:1fr">'+
               '<button type="button" class="soreal-idle-modal-button-v63 cancel" onclick="window.__fermerPopupNouveauteIdleV75__()">'+
                 idleHtml_(info.bouton||'Continuer')+
               '</button>'+
-              (
-                info.menuCible
-                  ?'<button type="button" class="soreal-idle-modal-button-v63 confirm" onclick="window.__allerDepuisPopupNouveauteIdleV106__(\''+
-                    idleHtml_(info.menuCible)+
-                    '\')">'+
-                    idleHtml_(
-                      info.libelleCible||
-                      'Voir la nouveauté'
-                    )+
-                    '</button>'
-                  :''
-              )+
             '</div>'+
           '</div>';
 
@@ -13934,7 +13917,7 @@ let idleDialogueTimerV76=null;
         return `
           ${entetePageIdleV28_(
             '⚔️ Fight Boss',
-            'Appuie sur Start. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant.'
+            'Appuie sur Fight. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant.'
           )}
 
           <div class="soreal-idle-card-v4 soreal-idle-boss-current-v35">
@@ -14430,12 +14413,6 @@ let idleDialogueTimerV76=null;
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.25)">1/4</button>
               <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
             </div>
-          </div>
-
-          <div class="soreal-idle-bt-help-v120">
-            Les niveaux gagnés préparent une baisse du Cap pour la prochaine Renaissance,
-            jusqu’à −10 % par compétence et par cycle. Pendant le run, le Cap reste fixe.
-            L’énergie placée au-dessus du Cap n’accélère jamais la barre au-delà de 50 niveaux/s.
           </div>
 
           ${groupeBasicTrainingIdleV120_(
@@ -19695,8 +19672,7 @@ function pageAventureIdleV28_(j){
             '<div class="soreal-idle-item-popup-drag-v1" id="soreal-idle-v138-details-drag"><span>⠿</span><button type="button" class="soreal-idle-item-popup-close-v1" onclick="window.__fermerDetailsObjetAdventureIdleV1__()" aria-label="Fermer" title="Fermer">✕</button></div>'+
             '<div class="soreal-idle-item-popup-body-v1" id="soreal-idle-v138-details-body"></div>'+
           '</div>'+
-          rendreCoffreAdventureIdleV1_(Array.isArray(a.coffreSlots)?a.coffreSlots:[])+
-          rendreBonusEquipementAdventureIdleV1_(a);
+          rendreCoffreAdventureIdleV1_(Array.isArray(a.coffreSlots)?a.coffreSlots:[]);
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-281 */
@@ -19762,7 +19738,7 @@ function pageAventureIdleV28_(j){
             'onclick="window.__clicCoffreAdventureIdleV1__()"'+
             '>'+
             '<div>🗄️</div>'+
-            '<div>Glisse un objet réellement maxé ici pour le ranger dans sa case (au toucher : touche l’objet puis le Coffre)</div>'+
+            '<div>Glisse un objet réellement maxé ici pour le ranger dans sa case</div>'+
           '</div>'+
           (ouvert?'<div style="margin-top:10px">'+grille+'</div>':'')+
         '</div>';

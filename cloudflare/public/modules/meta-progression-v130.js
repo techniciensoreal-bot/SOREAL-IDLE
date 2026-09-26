@@ -57,7 +57,45 @@
         }
       }
 
+      /*
+       * Boutons réactifs (2026-09-26, Norman : « quand on effectue un achat, il faut souvent s'y reprendre à 2 fois ; pareil pour le Money Pit et la
+       * roue »). Une action envoyée pendant qu'une autre était en cours (le jeu en envoie régulièrement en arrière-plan) était ABANDONNÉE en
+       * silence : le clic ne faisait rien. Elle est maintenant mise en file et envoyée dès que le canal se libère. Exceptions : les actions de
+       * combat de zone (leur cadence est gérée à part, elles doivent rester abandonnées) et le doublon exact de l'action en cours dans les 700 ms
+       * (double clic : un seul achat).
+       */
+      let idleMetaFileV1=[];
+      let idleMetaTimerFileV1=0;
+      let idleMetaDernierEnvoiV1={cle:'',at:0};
+      function cleActionMetaV1_(payload){try{return JSON.stringify(payload||{});}catch(_e){return '';}}
+      function actionCombatZoneMetaV1_(payload){
+        return Boolean(payload&&payload.action==='adventure'&&payload.adventure&&
+          ['startZoneFight','resolveZoneFight','loseZoneFight','zoneKill'].indexOf(payload.adventure.action)!==-1);
+      }
+      function viderFileActionsMetaV1_(){
+        idleMetaTimerFileV1=0;
+        if(idleMetaBusyV130){
+          idleMetaTimerFileV1=setTimeout(viderFileActionsMetaV1_,60);
+          return;
+        }
+        const suivante=idleMetaFileV1.shift();
+        if(suivante)actionMetaNoyauIdleV130_(suivante);
+        if(idleMetaFileV1.length&&!idleMetaTimerFileV1)idleMetaTimerFileV1=setTimeout(viderFileActionsMetaV1_,60);
+      }
       function actionMetaIdleV130_(payload){
+        if(idleMetaBusyV130&&SOREAL_SESSION&&!actionCombatZoneMetaV1_(payload)){
+          const cle=cleActionMetaV1_(payload);
+          if(cle&&cle===idleMetaDernierEnvoiV1.cle&&Date.now()-idleMetaDernierEnvoiV1.at<700)return;
+          if(cle&&idleMetaFileV1.some(function(x){return cleActionMetaV1_(x)===cle;}))return;
+          idleMetaFileV1.push(payload);
+          if(idleMetaFileV1.length>12)idleMetaFileV1.shift();
+          if(!idleMetaTimerFileV1)idleMetaTimerFileV1=setTimeout(viderFileActionsMetaV1_,60);
+          return;
+        }
+        actionMetaNoyauIdleV130_(payload);
+      }
+
+      function actionMetaNoyauIdleV130_(payload){
         if(
           idleMetaBusyV130 ||
           !SOREAL_SESSION
@@ -66,6 +104,7 @@
           return;
         }
 
+        idleMetaDernierEnvoiV1={cle:cleActionMetaV1_(payload),at:Date.now()};
         idleMetaBusyV130=true;
 
         window.__SOREAL_IDLE_META_HOST_V130__.appelerProgressionIdleCloudflareV1_(
@@ -1001,6 +1040,40 @@
       }
 
 
+      /*
+       * Money Pit (2026-09-26, Norman : « il ne faudrait que les bonus totaux que le Money Pit nous a apportés depuis le début de la partie ») :
+       * remplace le bandeau « Progression permanente » (EXP, PP, QP, Or…) au-dessus du puits. Totaux cumulés côté serveur (data.rewardsTotal).
+       */
+      function bandeauMoneyPitIdleV1_(data){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const t=data&&data.rewardsTotal&&typeof data.rewardsTotal==='object'?data.rewardsTotal:{};
+        const n=function(k){return Math.max(0,Number(t[k])||0);};
+        const f=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
+        const lignes=[];
+        if(n('adventureStats'))lignes.push('⚔️ +'+f(n('adventureStats'))+' Power et Toughness d’Aventure');
+        if(n('adventureHp'))lignes.push('❤️ +'+f(n('adventureHp'))+' PV max d’Aventure');
+        if(n('adventureRegen'))lignes.push('🩹 +'+f(n('adventureRegen'),2)+' Regen d’Aventure');
+        if(n('cubePower')||n('cubeToughness')||n('cubeBoth')){
+          const morceaux=[];
+          if(n('cubePower'))morceaux.push('+'+f(n('cubePower'))+' Power');
+          if(n('cubeToughness'))morceaux.push('+'+f(n('cubeToughness'))+' Toughness');
+          if(n('cubeBoth'))morceaux.push('+'+f(n('cubeBoth'))+' des deux');
+          lignes.push('🧊 Cube : '+morceaux.join(' · '));
+        }
+        if(n('experience'))lignes.push('✨ +'+f(n('experience'))+' EXP');
+        if(n('ap'))lignes.push('🎟️ +'+f(n('ap'))+' AP');
+        if(n('seeds'))lignes.push('🌱 +'+f(n('seeds'))+' graines');
+        if(n('wandoosLevels'))lignes.push('💻 +'+f(n('wandoosLevels'))+' niveaux de Wandoos');
+        if(n('boosts'))lignes.push('🚀 '+f(n('boosts'))+' boost(s) obtenu(s)');
+        if(n('energyBars')||n('magicBars'))lignes.push('📊 +'+f(n('energyBars'))+' barre(s) d’Energy · +'+f(n('magicBars'))+' barre(s) de Magic');
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31 gold">🕳️ Bonus obtenus grâce au Money Pit</div>'+
+          (lignes.length
+            ?'<div style="display:grid;gap:5px;margin-top:6px">'+lignes.map(function(l){return '<div class="soreal-idle-note-v4" style="margin:0">'+H.idleHtml_(l)+'</div>';}).join('')+'</div>'
+            :'<div class="soreal-idle-note-v4">Aucun bonus pour l’instant : jette ton Or dans le puits.</div>')+
+        '</div>';
+      }
+
       function bandeauMetaIdleV130_(j){
         const m=
           j&&j.systemes
@@ -1612,7 +1685,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '🕳️ Money Pit & 🎡 Roue journalière',
             'Balance tout ton Or durement gagné dedans.'
           )+
-          bandeauMetaIdleV130_(j)+
+          bandeauMoneyPitIdleV1_(pitData)+
           '<style>'+
             '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
             '.soreal-idle-money-scene-v206>img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover}'+
@@ -1649,7 +1722,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">🎡 TABLE DES RÉCOMPENSES · TIER '+tier+'</div>'+
-            '<div style="font-size:11px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>. Les récompenses affichées sont celles réellement disponibles dans SOREAL IDLE.</div>'+
+            '<div style="font-size:11px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
             '<table class="soreal-idle-reward-table-v206"><tbody>'+
               table.map(function(x){return '<tr><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x)+'</td></tr>';}).join('')+
             '</tbody></table>'+

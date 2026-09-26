@@ -28,6 +28,7 @@ assert.equal(idleItopodCleR2V1("/assets/shared/avatars/level-1/a.webp?v=3", "sha
 assert.equal(idleItopodCleR2V1("/assets/shared/avatars/../secret/a.webp", "shared/avatars/"), "");
 assert.equal(idleItopodCleR2V1("/assets/idle/items/a.webp", "shared/avatars/"), "");
 assert.equal(idleItopodCleR2V1("/assets/shared/avatars/level-1/a.exe", "shared/avatars/"), "");
+assert.equal(idleItopodCleR2V1("/assets/shared/avatars/level-5/02_paladin_sacr%C3%A9.webp?v=1", "shared/avatars/"), "shared/avatars/level-5/02_paladin_sacré.webp", "accents acceptés");
 assert.equal(idleItopodCleR2V1("//shared/avatars/level-1/a.webp", "shared/avatars/"), "shared/avatars/level-1/a.webp");
 
 // Liste : prénoms et avatars, sans e-mail, sans le profil d'accueil ; Norman et Sébastien toujours là

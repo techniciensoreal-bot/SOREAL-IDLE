@@ -25,7 +25,7 @@ export function idleItopodCleR2V1(url, prefix) {
   try { k = decodeURIComponent(k); } catch (_) { return ""; }
   k = k.replace(/^\/+/, "").replace(/^assets\//, "");
   if (!k.startsWith(prefix) || k.includes("..") || k.includes("//") || !/\.(webp|png|jpe?g|gif)$/i.test(k)) return "";
-  return /^[A-Za-z0-9 _.\-\/()'’]{1,240}$/.test(k) ? k : "";
+  return /^[\p{L}\p{N} _.\-\/()'’]{1,240}$/u.test(k) ? k : "";
 }
 
 /* Liste des ouvriers { nom, avatar } à partir de la réponse de /api/cosmetiques-equipe. Dédoublonnée sur le prénom, triée. */
