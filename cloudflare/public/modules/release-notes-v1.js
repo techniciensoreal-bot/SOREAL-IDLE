@@ -19,7 +19,8 @@
           'Les chiffres de vie sous les images du combat de boss sont bien plus beaux : pastille brillante et barre épaisse avec reflet.',
           'Le bouton Adventure clignote en rouge quand on est mis K.O. en aventure, pour indiquer qu’il faut relancer une zone.',
           'La zone d’entraînement s’appelle maintenant « Zone Tutoriel ».',
-          'Dans les fenêtres d’explication, un titre répété (comme « Le NOMBRE ») n’est plus relu à chaque page : la voix ne le dit qu’au début.'
+          'Dans les fenêtres d’explication, un titre répété (comme « Le NOMBRE ») n’est plus relu à chaque page : la voix ne le dit qu’au début.',
+          'L’encart « Magie — aucun sort appris » qui apparaissait pendant le combat de boss est retiré : il n’y a pas de sorts à lancer en plein combat.'
         ]
       },
       {

@@ -1943,3 +1943,7 @@ Norman : bruit du début de combat ; « Zone Tutoriel » ; titres répétés des
 - **Retraits** : partie B (`idle-dev-save-slots-v1.js`, opérations `obtenirPartieDev`/`definirPartieDev`, section Settings, styles, appariement d'alias dans le moteur, tests) ; bouton et fenêtre « Réinitialiser TOUS les joueurs » **et** l'opération serveur `reinitialiserTousLesComptesSorealIdle` (retirée du contrat ; l'APP a son propre snapshot, mis à jour dans le même chantier). Le reset de SA propre partie reste. Une éventuelle ligne de l'ancienne partie B (adresse `+partieb@`) reste dans la base (non supprimée : donnée de production) mais n'apparaît jamais au classement.
 - **Accès** : les deux interrupteurs étaient déjà indépendants (`acces_ouvert` = détenteurs du trophée, `acces_public` = comptes Google) ; test ajouté pour chaque combinaison (public seul, trophée seul, aucun, administrateur toujours admis).
 - **CI** : `?v=` ui 292, audio 218, css 2. Test : `idle-fight-hp-ko-cleanup-v1` (nouveau).
+
+## 2026-09-26 — Retrait de l'encart Magie du combat de boss (Beta 3.4, ?v=293)
+
+Norman : « il n'y a pas de magie sous cette forme à lancer en combat fight boss dans NGU IDLE, donc supprime ». `barreSortsCombatIdleV90_` (encart « 🔮 Magie / Aucun sort appris » et sorts rapides) et son CSS sont retirés ; l'onglet Magie est inchangé. Point ajouté à l'entrée 3.4 des notes de mise à jour. Test : `idle-no-combat-quick-spells`.

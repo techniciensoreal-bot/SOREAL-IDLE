@@ -12648,66 +12648,6 @@
       }
 
 
-      function barreSortsCombatIdleV90_(
-        j
-      ){
-        const magie=
-          j&&j.magie
-            ?j.magie
-            :null;
-
-        if(
-          !magie ||
-          !magie.debloquee
-        ){
-          return '';
-        }
-
-        const sorts=
-          Array.isArray(
-            magie.sorts
-          )
-            ?magie.sorts.filter(
-                function(sort){
-                  return sort.achete;
-                }
-              )
-            :[];
-
-        if(!sorts.length){
-          return `
-            <div class="soreal-idle-quick-spells-v90">
-              <div class="soreal-idle-quick-spells-title-v90">
-                🔮 Magie
-              </div>
-              <div class="soreal-idle-note-v4">
-                Aucun sort appris. Ouvre l’onglet Magie.
-              </div>
-            </div>
-          `;
-        }
-
-        return `
-          <div class="soreal-idle-quick-spells-v90">
-            <div class="soreal-idle-quick-spells-title-v90">
-              🔮 Sorts rapides
-            </div>
-
-            <div class="soreal-idle-quick-spells-grid-v90">
-              ${sorts.map(
-                function(sort){
-                  return boutonsCibleSortIdleV90_(
-                    sort,
-                    true
-                  );
-                }
-              ).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-
       function pageMagieIdleV90_(
         j
       ){
@@ -14246,8 +14186,6 @@ let idleDialogueTimerV76=null;
               id="sorealIdleBossRespawnV100"
               class="soreal-idle-boss-respawn-v100 ready"
             ></div>
-
-            ${barreSortsCombatIdleV90_(j)}
 
             <div class="soreal-idle-reward-v8">
               <span class="soreal-idle-chip-v8">

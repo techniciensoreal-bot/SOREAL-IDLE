@@ -5910,29 +5910,6 @@
             cursor:not-allowed;
           }
 
-          .soreal-idle-quick-spells-v90{
-            margin-top:11px;
-            padding:10px;
-            border-radius:13px;
-            background:#111526;
-            border:1px solid rgba(157,128,227,.12);
-          }
-
-          .soreal-idle-quick-spells-title-v90{
-            margin-bottom:7px;
-            color:#cbbce8;
-            font-size:9px;
-            font-weight:1000;
-            text-transform:uppercase;
-            letter-spacing:.08em;
-          }
-
-          .soreal-idle-quick-spells-grid-v90{
-            display:flex;
-            flex-wrap:wrap;
-            gap:6px;
-          }
-
           .soreal-idle-quick-spell-v90{
             position:relative;
             min-width:76px;
