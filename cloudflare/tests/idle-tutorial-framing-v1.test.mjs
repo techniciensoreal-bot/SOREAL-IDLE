@@ -10,7 +10,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const bloc = ui.slice(ui.indexOf("const TUTORIEL_DEBUT_JEU_PAGES_V1=["), ui.indexOf("const TUTORIEL_AVENTURE_PAGES_V1=["));
 
 // 1. Une page = un cadrage, selon la demande
-const attendu = [["Objectif", "stats"], ["Énergie", "energie"], ["Basic Training", "barres"], ["Bien joué", "barres"], ["Énergie Idle", "energie"], ["Saisie personnalisée", "saisie"], ["Défense", "blocage"], ["Fight Boss", "fight"]];
+const attendu = [["Objectif", "stats"], ["Énergie", "energie1"], ["Basic Training", "barres"], ["Bien joué", "barres"], ["Énergie Idle", "energie"], ["Saisie personnalisée", "saisie"], ["Défense", "blocage"], ["Fight Boss", "fight"]];
 for (const [titre, cadrage] of attendu) {
   assert.ok(bloc.includes(`titre:'${titre}',\n          cadrage:'${cadrage}',`), titre + " -> " + cadrage);
 }
@@ -34,7 +34,7 @@ const src = readFileSync("cloudflare/public/modules/tutorial-framing-v1.js", "ut
 const fen = { addEventListener() {}, innerWidth: 1024, innerHeight: 768 };
 vm.runInNewContext(src, { window: fen, document: { addEventListener() {}, querySelector: () => null }, setTimeout, clearTimeout, requestAnimationFrame: (f) => f(), getComputedStyle: () => ({ top: "6px" }) });
 const api = fen.__SOREAL_IDLE_TUTO_CADRAGE_V1__;
-assert.deepEqual([...api.cadrages].sort(), ["barres", "blocage", "energie", "fight", "saisie", "stats"]);
+assert.deepEqual([...api.cadrages].sort(), ["barres", "blocage", "energie", "energie1", "fight", "saisie", "stats"]);
 for (const [regle, morceau] of [
   ["Basic Training (stats) : menu entrainement", "stats:{\n    menu:'entrainement'"],
   ["Fight Boss : menu combat", "fight:{\n    menu:'combat'"],
@@ -42,9 +42,13 @@ for (const [regle, morceau] of [
   ["fenêtre sous la barre verte", "poser(r,$('.soreal-idle-energybar-wrap-v11').getBoundingClientRect().bottom+8)"],
   ["fenêtre sous « Tout retirer »", "$('.soreal-idle-bt-toolbar-v120 button.clear').getBoundingClientRect().bottom+8"],
   ["Blocage : fenêtre juste au-dessus", "poser(r,ligne.getBoundingClientRect().top-P-8)"],
-  ["Fight Boss : fenêtre juste au-dessus du cadre", "poser(r,cadre.getBoundingClientRect().top-P-8)"],
+  ["Fight Boss : fenêtre juste en dessous du bouton Fight (PC et téléphone)", "poser(r,rb.bottom+8)"],
+  ["Fight Boss : le texte défile si la place manque", "limiterHauteur(r,V-8-(rb.bottom+8))"],
+  ["PC : Objectif montre la barre verte tout en haut", "amenerEn(estLarge()&&panneau?panneau:g,hautSur())"],
+  ["PC : la page Énergie ne bouge rien", "immobile:function(){return estLarge();}"],
+  ["fenêtre centrée comme sur téléphone", "racine.style.left=Math.max(8,Math.round((large-w)/2))+'px'"],
   ["barres : fenêtre en haut, Attaque passive dessous", "if(V-8-distance>=haut+P+8)"],
   ["fenêtre déplacée à la main : plus replacée", "data-cadre-deplace"]
 ]) assert.ok(src.includes(morceau), regle);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=1"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=2"));
 console.log("idle-tutorial-framing-v1: OK");

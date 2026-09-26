@@ -10,7 +10,9 @@ import { readFileSync } from "node:fs";
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
 // La surveillance démarre juste après la synchronisation forcée de la victoire.
-assert.match(ui, /transitionMortBossIdleV61_\(\);\s*synchroniserJeuIdleV7_\(true\);\s*surveillerConfirmationVictoireBossIdleV1_\(\);/);
+assert.match(ui, /transitionMortBossIdleV61_\(\);\s*const synchroniserVictoire=function\(\)\{\s*synchroniserJeuIdleV7_\(true\);\s*surveillerConfirmationVictoireBossIdleV1_\(\);\s*\};/);
+// Norman (2026-09-26) : les allocations d'entraînement en attente partent avant la synchronisation (sinon le serveur calcule avec d'anciennes stats)
+assert.ok(ui.includes("if(idleBasicTrainingDirtyV120||idleBasicTrainingSaveBusyV120){") && ui.includes("attendreEnvoi"));
 
 const debut = ui.indexOf("function arreterSurveillanceVictoireBossIdleV1_()");
 const fin = ui.indexOf("function metaTickEnergieIdleV114_()");

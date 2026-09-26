@@ -264,7 +264,23 @@ async function engine_(){
  * On normalise donc vers "." (dont la pause fonctionne) avant phonémisation.
  */
 function normalizeEllipsis_(text){
-  return text.replace(/\.{2,}|…/g,".");
+  /* Norman (2026-09-26) : la pause d'un « … » doit valoir « . + . » : deux points, donc deux pauses de point. */
+  return text.replace(/\.{2,}|…/g,". .");
+}
+
+/*
+ * Prononciation (Norman, 2026-09-26) : « Norman » est dit « Normand » : on écrit « Normanne » ; « Fight Boss » est mal lu : « Faïte Bosse ».
+ * Appliqué au texte envoyé à la synthèse seulement : l'empreinte des blocs (donc le mapping des fichiers audio) ne change pas.
+ */
+var PRONONCIATIONS_=[
+  [/\bNorman\b/g,"Normanne"],
+  [/\bFight Boss\b/gi,"Faïte Bosse"],
+  [/\bFight\b/g,"Faïte"]
+];
+function normalizePronunciation_(text){
+  var t=String(text);
+  for(var i=0;i<PRONONCIATIONS_.length;i++)t=t.replace(PRONONCIATIONS_[i][0],PRONONCIATIONS_[i][1]);
+  return t;
 }
 
 /*
@@ -289,7 +305,7 @@ function normalizeAsterisks_(text){
 }
 
 async function synthesize_(text){
-  const value=normalizeEllipsis_(normalizeAsterisks_(sanitizeText_(text)));
+  const value=normalizeEllipsis_(normalizeAsterisks_(normalizePronunciation_(sanitizeText_(text))));
   if(!value)throw new Error("PIPER_LOCAL_TEXT_REQUIRED");
 
   const engine=await engine_();

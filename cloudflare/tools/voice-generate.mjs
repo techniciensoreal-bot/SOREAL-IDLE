@@ -10,6 +10,7 @@
  *   node cloudflare/tools/voice-generate.mjs [--limit N] [--workers N] [--bitrate 32k] [--url https://…] [--dry] [--prune] [--asterisques] [--only-first]
  *   --asterisques : régénère les blocs dont le texte contient « * » (bruitages comme *BLOUM* : Piper épelait « astérisque »).
  *   --only-first  : avec --asterisques, ne régénère que le tout premier de ces blocs (le son d'intro).
+ *   --motifs "<regex>" : régénère les blocs dont le texte correspond (ex. après un changement de prononciation : "Norman|Fight|\\.\\.\\.|…").
  *
  * Environnement :
  *   SOREAL_PLAYWRIGHT_DIR  dossier où « playwright-core » est installé (défaut : dossier courant)
@@ -41,6 +42,7 @@ const DEBIT = String(arg("bitrate", "32k"));
 const A_SEC = Boolean(arg("dry", false));
 const ELAGUER = Boolean(arg("prune", false));
 const ASTERISQUES = Boolean(arg("asterisques", false));
+const MOTIFS = arg("motifs", "") === true ? "" : String(arg("motifs", ""));
 const SEULEMENT_LE_PREMIER = Boolean(arg("only-first", false));
 const FFMPEG = process.env.SOREAL_FFMPEG || "ffmpeg";
 
@@ -123,6 +125,15 @@ async function main() {
     console.log(`${cibles.length} bloc(s) avec astérisque, ${retenus.length} à régénérer`);
     for (const b of retenus) {
       console.log("  ->", b.hash, JSON.stringify(b.texte.slice(0, 90)));
+      const p = path.join(SORTIE, b.hash + ".m4a");
+      if (!A_SEC && fs.existsSync(p)) fs.unlinkSync(p);
+    }
+  }
+  if (MOTIFS) {
+    const re = new RegExp(MOTIFS, "i");
+    const cibles = blocs.filter((b) => re.test(b.texte));
+    console.log(`${cibles.length} bloc(s) correspondent à /${MOTIFS}/, à régénérer`);
+    for (const b of cibles) {
       const p = path.join(SORTIE, b.hash + ".m4a");
       if (!A_SEC && fs.existsSync(p)) fs.unlinkSync(p);
     }

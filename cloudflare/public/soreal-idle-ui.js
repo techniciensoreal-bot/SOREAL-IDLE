@@ -2691,8 +2691,33 @@
 
                 const apresBarreVide=function(){
                   transitionMortBossIdleV61_();
-                  synchroniserJeuIdleV7_(true);
-                  surveillerConfirmationVictoireBossIdleV1_();
+                  const synchroniserVictoire=function(){
+                    synchroniserJeuIdleV7_(true);
+                    surveillerConfirmationVictoireBossIdleV1_();
+                  };
+                  /*
+                   * Norman (2026-09-26) : « parfois, quand on bat un boss, il reste sur Boss vaincu et nous rend le même boss ». Le combat est prédit ici avec
+                   * les niveaux d'entraînement du moment ; si les allocations récentes ne sont pas encore parties, le serveur (qui fait foi) calcule avec
+                   * d'anciennes stats et ne confirme pas la victoire. On envoie donc d'abord les allocations en attente (1,5 s au plus), puis on synchronise.
+                   */
+                  if(idleBasicTrainingDirtyV120||idleBasicTrainingSaveBusyV120){
+                    if(idleBasicTrainingSaveTimerV120){
+                      clearTimeout(idleBasicTrainingSaveTimerV120);
+                      idleBasicTrainingSaveTimerV120=null;
+                    }
+                    if(!idleBasicTrainingSaveBusyV120)envoyerAllocationsBasicTrainingIdleV120_();
+                    const debutAttente=Date.now();
+                    const attendreEnvoi=function(){
+                      if((!idleBasicTrainingSaveBusyV120&&!idleBasicTrainingDirtyV120)||Date.now()-debutAttente>1500){
+                        synchroniserVictoire();
+                        return;
+                      }
+                      setTimeout(attendreEnvoi,60);
+                    };
+                    attendreEnvoi();
+                  }else{
+                    synchroniserVictoire();
+                  }
                 };
                 if(typeof requestAnimationFrame==='function'){
                   requestAnimationFrame(function(){
@@ -9518,7 +9543,7 @@
         },
         {
           titre:'Énergie',
-          cadrage:'energie',
+          cadrage:'energie1',
           paragraphes:[
             'En parlant de la grosse barre verte, elle représente ton énergie. Tu génères de l’Énergie à chaque fois que la barre verte se remplit, jusqu’à atteindre le plafond, qui est de 500 pour l’instant. Et l’Énergie sera la clé pour faire grimper tes chiffres d’Attaque et de Défense.'
           ]
@@ -9647,7 +9672,7 @@
         {
           titre:'Norman & Sébastien',
           paragraphes:[
-            'Oh hé, cool, tu as écrasé Un Petit Bout de Peluche. Plus important : ce sandwich est fantastique ! Jambon fumé et dinde, fromage suisse et sauce miel-moutarde sur un pain ciabatta. Miam.'
+            'Oh hé, cool, tu as écrasé Un Petit Bout de Peluche. Plus important : ce sandwich est fantastique ! Jambon fromage et sauce mayonnaise volé à un ouvrier dans le frigo. Miam.'
           ]
         },
         {
@@ -9843,7 +9868,9 @@
       }
 
       function texteVoixTutorielIdleV1_(page){
-        return String(page&&page.titre||'')+pauseVoixIdleV1_(450)+
+        /* Le titre « Norman & Sébastien » n'a pas de sens à l'oral (Norman, 2026-09-26) : seul le texte est lu. */
+        const titreLu=String(page&&page.titre||'')==='Norman & Sébastien'?'':String(page&&page.titre||'');
+        return (titreLu?titreLu+pauseVoixIdleV1_(450):'')+
           (page&&page.sousTitre?String(page.sousTitre)+pauseVoixIdleV1_(450):'')+
           (Array.isArray(page&&page.paragraphes)?page.paragraphes:[]).join(' ');
       }
@@ -9997,6 +10024,15 @@
       function demarrerTutorielPagesIdleV1_(pages,cle){
         if(!Array.isArray(pages)||!pages.length)return;
         if(idleTutorielPagesDejaVuV1_(cle))return;
+
+        /*
+         * Déjà en cours (Norman, 2026-09-26 : « j'ai cliqué sur Shop sans fermer le popup Récompenses : il est reparti de Norman & Sébastien ») :
+         * cette fonction est rappelée à chaque rendu ; on reprend la page où l'on était (et on réaffiche la fenêtre si un autre popup l'a retirée).
+         */
+        if(idleTutorielPagesEnCoursV1&&idleTutorielPagesEnCoursV1.cle===cle){
+          if(!document.getElementById('sorealIdleTutorielFlottantV1')&&!document.getElementById('sorealIdleTutorielPagesModalV1'))rendreTutorielPagesIdleV1_();
+          return;
+        }
 
         idleTutorielPagesEnCoursV1={pages:pages,index:0,cle:cle};
 

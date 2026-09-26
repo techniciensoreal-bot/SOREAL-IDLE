@@ -7,7 +7,9 @@
  *   barres  : Attaque passive et Blocage visibles dans le bas de l'écran, la fenêtre en haut sans cacher le cadre d'Attaque passive ;
  *   saisie  : le cadre bleu Basic Training tout en haut, la fenêtre sous le bouton « Tout retirer » ;
  *   blocage : Blocage bien visible, la fenêtre juste au-dessus ;
- *   fight   : l'écran Fight Boss, la fenêtre juste au-dessus du cadre rouge.
+ *   fight   : l'écran Fight Boss, la fenêtre juste en dessous du bouton Fight.
+ * PC (écran large) : « stats » montre la barre verte tout en haut puis les cases en dessous ; « energie1 » (première page Énergie) ne bouge rien ; fenêtre
+ * centrée comme sur téléphone. Fight Boss (PC et téléphone) : fenêtre juste en dessous du bouton Fight.
  * Les pages sans cadrage ne bougent rien. Une fenêtre déplacée à la main n'est plus replacée avant la page suivante.
  */
 (function(){
@@ -28,6 +30,9 @@ function hautSur(){
   return (isFinite(top)?top:0)+nav.offsetHeight+6;
 }
 
+/* Écran large : PC / tablette. */
+function estLarge(){return (window.innerWidth||document.documentElement.clientWidth||0)>=700;}
+
 function hauteurFenetre(){return window.innerHeight||document.documentElement.clientHeight||700;}
 
 /* Fait défiler la page pour amener le haut de l'élément à `y` (pixels depuis le haut de l'écran). */
@@ -36,14 +41,22 @@ function amenerEn(elt,y){
   window.scrollBy(0,elt.getBoundingClientRect().top-y);
 }
 
+/* Si la fenêtre est plus haute que la place disponible, son texte défile (au lieu de recouvrir ce dont elle parle). */
+function limiterHauteur(racine,disponible){
+  var corps=racine.querySelector('.soreal-idle-tuto-flottant-corps-v1');
+  if(!corps)return;
+  corps.style.maxHeight='';
+  var exces=racine.offsetHeight-disponible;
+  if(exces>0){corps.style.boxSizing='border-box';corps.style.maxHeight=Math.max(60,corps.offsetHeight-exces)+'px';}
+}
+
 function poser(racine,top){
   var haut=hauteurFenetre(),h=racine.offsetHeight||160,w=racine.offsetWidth||300;
   var t=Math.max(8,Math.min(haut-h-8,Math.round(top)));
   racine.style.top=t+'px';
-  /* Côté droit sur un grand écran (comme au départ), centrée sur un petit. */
+  /* Centrée, sur PC comme sur téléphone (mêmes endroits). */
   var large=window.innerWidth||document.documentElement.clientWidth||400;
-  var left=large>=700?Math.max(8,large-w-8):Math.max(8,Math.round((large-w)/2));
-  racine.style.left=left+'px';
+  racine.style.left=Math.max(8,Math.round((large-w)/2))+'px';
 }
 
 /* Ce qu'il faut pour chaque cadrage : le menu, les éléments à attendre, puis la mise en place. */
@@ -53,9 +66,22 @@ var CADRAGES={
     pret:function(){return $('.soreal-idle-summary-grid-v28')&&$('.soreal-idle-nav-v28');},
     placer:function(r){
       var g=$('.soreal-idle-summary-grid-v28');
-      amenerEn(g,hautSur());
+      /* PC : la barre verte tout en haut, les cases en dessous ; téléphone : les cases tout en haut. */
+      var panneau=$('.soreal-idle-energy-panel-v34');
+      amenerEn(estLarge()&&panneau?panneau:g,hautSur());
       poser(r,g.getBoundingClientRect().bottom+8);
     }
+  },
+  /* Première page Énergie : sur PC on ne bouge rien (la fenêtre est déjà sous les cases, la barre verte est en haut) ; sur téléphone : sous la barre verte. */
+  energie1:{
+    menu:null,
+    pret:function(){return $('.soreal-idle-energy-panel-v34')&&$('.soreal-idle-energybar-wrap-v11')&&$('.soreal-idle-nav-v28');},
+    placer:function(r){
+      if(estLarge())return;
+      amenerEn($('.soreal-idle-energy-panel-v34'),hautSur());
+      poser(r,$('.soreal-idle-energybar-wrap-v11').getBoundingClientRect().bottom+8);
+    },
+    immobile:function(){return estLarge();}
   },
   energie:{
     menu:null,
@@ -101,12 +127,21 @@ var CADRAGES={
   },
   fight:{
     menu:'combat',
-    pret:function(){return $('.soreal-idle-page-head-v28')&&$('.soreal-idle-nav-v28');},
+    pret:function(){return $('.soreal-idle-page-head-v28')&&$('#sorealIdleBossStartV100')&&$('.soreal-idle-nav-v28');},
     placer:function(r){
-      var cadre=$('.soreal-idle-page-head-v28');
-      var haut=hautSur(),P=r.offsetHeight||160;
-      window.scrollBy(0,cadre.getBoundingClientRect().top-(haut+P+8));
-      poser(r,cadre.getBoundingClientRect().top-P-8);
+      var cadre=$('.soreal-idle-page-head-v28'),bouton=$('#sorealIdleBossStartV100');
+      var haut=hautSur(),V=hauteurFenetre();
+      r.querySelectorAll&&limiterHauteur(r,9999);
+      var P=r.offsetHeight||160;
+      /* Le cadre Fight Boss en haut de l'écran ; si la fenêtre (sous le bouton Fight) déborde en bas, on remonte la page, sans faire sortir le bouton par le haut. */
+      amenerEn(cadre,haut);
+      var rb=bouton.getBoundingClientRect();
+      var debord=rb.bottom+8+P-(V-8);
+      if(debord>0)window.scrollBy(0,Math.min(debord,Math.max(0,rb.top-haut)));
+      rb=bouton.getBoundingClientRect();
+      /* Page trop courte pour remonter davantage : le texte de la fenêtre défile dans la place restante. */
+      limiterHauteur(r,V-8-(rb.bottom+8));
+      poser(r,rb.bottom+8);
     }
   }
 };
@@ -123,6 +158,7 @@ function appliquer(nom,racine,ctx){
   if(!cadrage||!racine)return;
   COURANT={nom:nom,racine:racine,ctx:ctx||{}};
   racine.removeAttribute('data-cadre-deplace');
+  limiterHauteur(racine,99999);/* enlève une limite de hauteur posée par un cadrage précédent */
   var essais=0;
   function tenter(){
     ATTENTE=0;
@@ -130,6 +166,9 @@ function appliquer(nom,racine,ctx){
     var menuOk=!cadrage.menu||!ctx||typeof ctx.menuActif!=='function'||ctx.menuActif()===cadrage.menu;
     if(!menuOk&&essais===0&&ctx&&typeof ctx.allerMenu==='function')ctx.allerMenu(cadrage.menu);
     essais++;
+    if(menuOk&&cadrage.immobile&&cadrage.immobile()){
+      return;/* rien ne bouge sur cette page */
+    }
     if(menuOk&&cadrage.pret()){
       /* La première passe fait défiler et place ; les suivantes corrigent si la page a bougé. */
       cadrage.placer(racine);

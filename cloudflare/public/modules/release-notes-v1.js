@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.1',
+    courante:'2.2',
     versions:[
+      {
+        version:'2.2',
+        nom:'La voix et le tuto au poil',
+        date:'2026-09-26',
+        points:[
+          'Tutoriel du début : sur PC, la première page montre la barre verte tout en haut avec les cases en dessous, la fenêtre est centrée comme sur téléphone, et la page Fight Boss place la fenêtre juste sous le bouton Fight.',
+          'Le tutoriel ne repart plus de la première page quand tu cliques ailleurs sans l’avoir fermé.',
+          'Voix : Norman se prononce enfin « Normanne », les points de suspension marquent une vraie pause, Fight Boss est mieux prononcé et le titre « Norman & Sébastien » n’est plus lu.',
+          'Une phrase de Norman & Sébastien a été réécrite, et le passage au boss suivant après une victoire est plus fiable.'
+        ]
+      },
       {
         version:'2.1',
         nom:'Le tutoriel qui guide',
