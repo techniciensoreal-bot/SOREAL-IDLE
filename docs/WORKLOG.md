@@ -1761,3 +1761,9 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - **Mail** : le Worker (`idleBugMailV1`) transmet le rapport à une passerelle Google Apps Script (`integrations/idle-bug-mail/`), destinataire `reeeedruuuum@gmail.com` et objet « Soreal IDLE Bug signalé » figés dans `Code.gs`. Secrets `SOREAL_IDLE_BUG_MAIL_URL` / `SOREAL_IDLE_BUG_MAIL_SECRET` à poser par Norman (`wrangler secret put`) ; sans eux, les signalements sont enregistrés et lisibles dans Settings > Signalements reçus. L'adresse e-mail du joueur n'est jamais renvoyée au navigateur.
 - **Basic Training** : boutons + (vert), − (rouge), Cap (bleu) plus grands, avec relief.
 - Test : `idle-bug-report-v1`. `soreal-idle-ui.js ?v=278`, `bug-report-v1.js ?v=1`, `release-notes-v1.js ?v=9`.
+
+### 2026-09-26 — Signalements sans mail (retour de Norman)
+
+- Plus de mail : passerelle Apps Script (`integrations/idle-bug-mail/`), `idleBugMailV1` du Worker et opération `marquerBugMailSorealIdle` supprimés. Le signalement est enregistré (`idle_bug_reports`) ; le joueur voit « Signalement envoyé. Merci ! ».
+- Administrateur : Settings > « Signalements reçus » liste les 50 derniers, avec un bouton « Supprimer (réglé) » à double clic de confirmation ; nouvelle opération `supprimerBugSorealIdle` (admin seulement). Vérifié sur le serveur local avec le vrai moteur : message vide refusé, envoi, lecture, suppression.
+- `bug-report-v1.js ?v=2`. Aucun secret Cloudflare à poser (les deux secrets `SOREAL_IDLE_BUG_MAIL_*` n'ont jamais été créés).

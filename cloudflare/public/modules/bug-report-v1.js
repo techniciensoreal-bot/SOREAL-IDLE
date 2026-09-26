@@ -1,6 +1,5 @@
 /*
- * SOREAL IDLE — « Signaler un bug » (Norman, 2026-09-26) : bouton dans Settings ; un mail « Soreal IDLE Bug signalé » part vers Norman avec le message de
- * la personne (voir integrations/idle-bug-mail/README.md). Impossible d'envoyer sans message. La saisie vit dans une fenêtre hors de #app : le rendu
+ * SOREAL IDLE — « Signaler un bug » (Norman, 2026-09-26) : bouton dans Settings ; le message est enregistré ; Norman les lit (et les supprime une fois réglés) dans Settings > Signalements reçus. Impossible d'envoyer sans message. La saisie vit dans une fenêtre hors de #app : le rendu
  * complet du jeu remplace #app en continu et effacerait le texte en cours d'écriture.
  */
 (function(){
@@ -82,7 +81,7 @@ function ouvrir(){
         .withSuccessHandler(function(res){
           if(res&&res.ok){
             retour.className='retour ok';
-            retour.textContent=res.mailEnvoye===true?'Signalement envoyé. Merci !':'Signalement enregistré. Merci !';
+            retour.textContent='Signalement envoyé. Merci !';
             setTimeout(fermer,1800);
           }else{echec(res&&res.message);}
         })
@@ -111,8 +110,18 @@ function voirRapports(){
         zone.className='';
         zone.innerHTML=l.length?l.map(function(b){
           var c=b.contexte||{};
-          return '<div class="rapport"><small>#'+esc(b.id)+' · '+esc(new Date(Number(b.at)||0).toLocaleString('fr-BE'))+' · '+esc(b.prenom||'?')+(c.version?' · Beta '+esc(c.version):'')+(c.menu?' · '+esc(c.menu):'')+' · mail : '+esc(b.mail||'—')+'</small>'+esc(b.message)+'</div>';
+          return '<div class="rapport"><small>#'+esc(b.id)+' · '+esc(new Date(Number(b.at)||0).toLocaleString('fr-BE'))+' · '+esc(b.prenom||'?')+(c.version?' · Beta '+esc(c.version):'')+(c.menu?' · '+esc(c.menu):'')+'</small>'+esc(b.message)+'<div class="actions"><button type="button" class="supprimer" data-bug-id="'+esc(b.id)+'">🗑 Supprimer (réglé)</button></div></div>';
         }).join(''):'<div class="aide">Aucun signalement pour l’instant.</div>';
+        Array.prototype.forEach.call(zone.querySelectorAll('button.supprimer'),function(bt){
+          bt.addEventListener('click',function(){
+            if(bt.getAttribute('data-armed')!=='1'){bt.setAttribute('data-armed','1');bt.textContent='Confirmer la suppression ?';return;}
+            bt.disabled=true;
+            google.script.run
+              .withSuccessHandler(function(){var carte=bt.closest('.rapport');if(carte)carte.remove();if(!zone.querySelector('.rapport'))zone.innerHTML='<div class="aide">Aucun signalement pour l’instant.</div>';})
+              .withFailureHandler(function(e){bt.disabled=false;bt.textContent=(e&&e.message)||'Suppression impossible';})
+              .supprimerBugSorealIdle(window.SOREAL_SESSION||(typeof SOREAL_SESSION!=='undefined'?SOREAL_SESSION:''),Number(bt.getAttribute('data-bug-id')));
+          });
+        });
       })
       .withFailureHandler(function(e){zone.textContent=(e&&e.message)||'Lecture impossible.';})
       .lireBugsSorealIdle(window.SOREAL_SESSION||(typeof SOREAL_SESSION!=='undefined'?SOREAL_SESSION:''));

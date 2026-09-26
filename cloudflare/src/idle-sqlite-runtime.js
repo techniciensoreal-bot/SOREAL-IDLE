@@ -15989,8 +15989,8 @@ function deblocagesSorealIdle_() {
 
 
 /*
- * Signalement de bug (2026-09-26, Norman). Le message est enregistre ici (table idle_bug_reports, jamais perdu) ; l'envoi du mail est fait par le Worker
- * (idle-worker-entry-v1.js) a partir de `rapport`, qui n'est jamais renvoye au navigateur. Limite : 5 signalements par heure et par compte, 2000 caracteres.
+ * Signalement de bug (2026-09-26, Norman). Pas de mail : le message est enregistre ici (table idle_bug_reports), l'administrateur les lit dans Settings et
+ * les supprime une fois le souci regle. Limite : 5 signalements par heure et par compte, 2000 caracteres.
  */
 const IDLE_BUG_MAX_CHARS_V1 = 2000;
 const IDLE_BUG_MAX_PAR_HEURE_V1 = 5;
@@ -16015,16 +16015,7 @@ function signalerBugSorealIdle(sessionToken, message, contexte) {
   }
   __idleSql.exec("INSERT INTO idle_bug_reports(at,email,prenom,message,contexte,mail_status) VALUES(?,?,?,?,?,'en attente')", maintenant, email, prenom, texte, JSON.stringify(ctx));
   const id = Number(sqlRows(__idleSql.exec("SELECT last_insert_rowid() AS id"))[0].id);
-  return { ok: true, id, rapport: { id, at: maintenant, email, prenom, message: texte, contexte: ctx } };
-}
-
-/* Statut du mail d'un signalement (appele par le Worker apres l'envoi). */
-function marquerBugMailSorealIdle(sessionToken, id, statut) {
-  const acces = exigerAccesSorealIdle_(sessionToken);
-  if (!__idleSql) return { ok: false };
-  const email = String(acces.emailAutorise || (acces.user && acces.user.email) || '').trim().toLowerCase();
-  __idleSql.exec("UPDATE idle_bug_reports SET mail_status=? WHERE id=? AND email=?", String(statut || '').slice(0, 80), Number(id) || 0, email);
-  return { ok: true };
+  return { ok: true, id };
 }
 
 /* Derniers signalements (administrateur seulement). */
@@ -16034,7 +16025,16 @@ function lireBugsSorealIdle(sessionToken) {
   if (!__idleSql) return { ok: true, bugs: [] };
   __idleSql.exec("CREATE TABLE IF NOT EXISTS idle_bug_reports(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER, email TEXT, prenom TEXT, message TEXT, contexte TEXT, mail_status TEXT)");
   const rows = sqlRows(__idleSql.exec("SELECT id,at,email,prenom,message,contexte,mail_status FROM idle_bug_reports ORDER BY id DESC LIMIT 50"));
-  return { ok: true, bugs: rows.map((r) => ({ id: r.id, at: r.at, prenom: r.prenom, message: r.message, contexte: safeJson(r.contexte, {}), mail: r.mail_status })) };
+  return { ok: true, bugs: rows.map((r) => ({ id: r.id, at: r.at, prenom: r.prenom, message: r.message, contexte: safeJson(r.contexte, {}) })) };
+}
+
+/* Suppression d'un signalement regle (administrateur seulement). */
+function supprimerBugSorealIdle(sessionToken, id) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (String(acces.emailAutorise || '').toLowerCase() !== ADMIN_SOREAL_IDLE_EMAIL) throw new Error('SOREAL_IDLE_ADMIN_REQUIS');
+  if (!__idleSql) return { ok: true };
+  __idleSql.exec("DELETE FROM idle_bug_reports WHERE id=?", Number(id) || 0);
+  return { ok: true };
 }
 
 const IDLE_OPERATIONS={
@@ -16073,8 +16073,8 @@ const IDLE_OPERATIONS={
   reinitialiserTousLesComptesSorealIdle,
   renaitreSorealIdle,
   signalerBugSorealIdle,
-  marquerBugMailSorealIdle,
   lireBugsSorealIdle,
+  supprimerBugSorealIdle,
   sauvegarderDispositionInventaireSorealIdle,
   selectionnerBossSorealIdle,
   synchroniserSorealIdle,
