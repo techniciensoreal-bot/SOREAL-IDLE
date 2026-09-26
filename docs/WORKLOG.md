@@ -2007,3 +2007,7 @@ Audit repris depuis l'état réel du dépôt, sans reprendre l'ancien verdict co
 ## 2026-09-26 — APK bloqué à 94 %
 
 Norman : « sur l'apk, je bloque à 94 % de chargement ». Cause : hors APP/TV, sans session ni identifiant client Google (`googleClientId` vide dans `/api/v1/bootstrap`), `startV1` s'arrête sur « Ouvre SOREAL IDLE depuis SOREAL APP ou SOREAL TV » ; la fausse barre de progression (plafonnée à 94 %) restait affichée. `standalone-bridge.js?v=4` masque la barre et dit clairement que la connexion directe n'est pas encore ouverte. L'APK ne peut jouer qu'après création de l'identifiant client Google (en attente de Norman).
+
+## 2026-09-26 — Identifiant client Google configuré
+
+Le client OAuth « SOREAL IDLE web » (projet Google Cloud `soreal-idle`, origine JavaScript autorisée https://soreal-idle.technicien-soreal.workers.dev, vérifiée dans la console) est renseigné dans `wrangler.jsonc` (`GOOGLE_CLIENT_ID`, identifiant public). Le bouton « Se connecter avec Google » apparaît hors APP/TV ; l'accès des autres joueurs reste fermé tant que l'interrupteur « Accès PUBLIC » est fermé.

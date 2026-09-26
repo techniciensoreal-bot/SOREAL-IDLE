@@ -13,7 +13,7 @@
   "vars": {
     // Identifiant client Google (public, pas un secret) pour « Se connecter avec Google » : à créer dans Google Cloud Console (client OAuth « Application Web »,
     // origine JavaScript autorisée : https://soreal-idle.technicien-soreal.workers.dev). Vide = connexion Google désactivée (le bouton n'est alors pas proposé).
-    "GOOGLE_CLIENT_ID": ""
+    "GOOGLE_CLIENT_ID": "462323067770-8slb5eqiu6im2d1p4lma4ba6sr870b33.apps.googleusercontent.com"
   },
   "services": [
     {
