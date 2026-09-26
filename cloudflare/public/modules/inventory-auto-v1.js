@@ -48,6 +48,8 @@
   function valeurServeur_(e){
     var s=snap(dernierEtat);
     if(!s)return undefined;
+    /* Zone changée entre-temps : la valeur voulue ne concerne plus le filtre affiché, on abandonne l'envoi. */
+    if((e.mode==='lootFilterType'||e.mode==='lootFilterItem')&&e.extra.zone&&s.lootFilterZone&&e.extra.zone!==s.lootFilterZone)return valeurVoulue_(e);
     if(e.mode==='lootFilterType')return Boolean(s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[e.extra.slot]);
     if(e.mode==='lootFilterItem')return Boolean(s.lootFilter&&Array.isArray(s.lootFilter.items)&&s.lootFilter.items.indexOf(e.extra.definitionId)!==-1);
     if(e.mode==='settings'){var cle=Object.keys(e.extra)[0];return s.settings?s.settings[cle]:undefined;}
@@ -79,8 +81,9 @@
   window.__inventaireAutoReglageV1__=function(cle,valeur){var p={};p[cle]=valeur;envoyerFiable_('r:'+cle,'settings',p);};
   window.__inventaireAutoModeClicV1__=function(v){modeClic=TOUCHES[v]?v:'';rendre();};
   window.__inventaireAutoBoosterCubeV1__=function(){action('boostAll',{targetId:'cube'});};
-  window.__inventaireAutoFiltreTypeV1__=function(slot,v){envoyerFiable_('t:'+slot,'lootFilterType',{slot:String(slot),filtered:Boolean(v)});};
-  window.__inventaireAutoFiltreObjetV1__=function(def,v){envoyerFiable_('i:'+def,'lootFilterItem',{definitionId:String(def),filtered:Boolean(v)});};
+  function zoneFiltre_(){var s=snap(dernierEtat);return s&&s.lootFilterZone?String(s.lootFilterZone):'';}
+  window.__inventaireAutoFiltreTypeV1__=function(slot,v){var z=zoneFiltre_();var extra={slot:String(slot),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('t:'+z+':'+slot,'lootFilterType',extra);};
+  window.__inventaireAutoFiltreObjetV1__=function(def,v){var z=zoneFiltre_();var extra={definitionId:String(def),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('i:'+z+':'+def,'lootFilterItem',extra);};
   window.__inventaireAutoLoadoutV1__=function(op,index){
     if(op==='save'&&window.confirm&&!window.confirm('Enregistrer l’équipement actuel dans la configuration '+(entier(index)+1)+' ?'))return;
     action(op==='save'?'loadoutSave':'loadoutApply',{index:entier(index)});
@@ -142,9 +145,11 @@
       (a.cube&&a.cube.unlocked?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoBoosterCubeV1__()">🧊 Tous les boosts dans le Cube</button>':'')+
       '<span class="soreal-idle-note-v4" style="margin:0">Au clavier : maintiens A, D, Q, W ou E puis clique sur un objet.</span></div>');
     var types=s.lootFilterTypes||[];
-    lignes.push('<div style="margin-top:10px"><b>🧹 Filtre de butin</b>'+
+    var zonesAv=aventure(dernierEtat)&&Array.isArray(aventure(dernierEtat).zones)?aventure(dernierEtat).zones:[];
+    var zoneNom=(zonesAv.find(function(z){return z&&z.id===s.lootFilterZone;})||{}).name||s.lootFilterZone||'';
+    lignes.push('<div style="margin-top:10px"><b>🧹 Filtre de butin</b>'+(zoneNom?' <span style="font-size:12px;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':'')+
       (u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:5px">'+types.map(function(t){
-        return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
+        return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+zoneFiltre_()+':'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
       }).join('')+'</div>':verrou('Achat « Basic Loot Filter » dans la boutique EXP.'))+
       (u.lootFilterImproved?'<details style="margin-top:6px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
         (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+

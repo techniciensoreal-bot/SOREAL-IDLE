@@ -129,13 +129,42 @@ function normalizeLoadoutV1(raw) {
   return out;
 }
 
+/* Un filtre { types, items } nettoyé. */
+function normalizeFilterV1(filtre) {
+  const src = filtre && typeof filtre === "object" ? filtre : {};
+  const types = {};
+  for (const t of IDLE_LOOT_FILTER_TYPES_V1) if (src.types && src.types[t]) types[t] = true;
+  const items = {};
+  for (const [k, v] of Object.entries(src.items && typeof src.items === "object" ? src.items : {})) if (v) items[String(k)] = true;
+  return { types, items };
+}
+
+const ZONE_ID_RE = /^[a-z0-9_-]{1,40}$/i;
+
+/*
+ * Filtres de butin PAR ZONE (2026-09-26, Norman : « les filtres de butin doivent être liés à la zone où on les active ; si je change de zone,
+ * ça doit mettre le filtre adéquat »). `lootFilters` : zone -> filtre. `lootFilter` reste le filtre par défaut : celui des sauvegardes d'avant
+ * (rien n'est perdu) et de toute zone sans réglage propre. Régler un filtre dans une zone crée le filtre de CETTE zone (copie du filtre en vigueur).
+ */
+export function idleInventoryFilterZoneV1(s, hint) {
+  const h = String(hint || "");
+  if (ZONE_ID_RE.test(h) && h !== "safe") return h;
+  const sel = String(s?.selectedZone || "");
+  if (ZONE_ID_RE.test(sel) && sel !== "safe") return sel;
+  const last = String(s?.lastCombatZone || "");
+  return ZONE_ID_RE.test(last) && last !== "safe" ? last : "tutorial";
+}
+function lootFilterOfZoneV1(cfg, zone) {
+  return cfg.lootFilters[zone] || cfg.lootFilter;
+}
+
 export function normalizeIdleInventoryAutoV1(raw) {
   const src = raw && typeof raw === "object" ? raw : {};
-  const filtre = src.lootFilter && typeof src.lootFilter === "object" ? src.lootFilter : {};
-  const types = {};
-  for (const t of IDLE_LOOT_FILTER_TYPES_V1) if (filtre.types && filtre.types[t]) types[t] = true;
-  const items = {};
-  for (const [k, v] of Object.entries(filtre.items && typeof filtre.items === "object" ? filtre.items : {})) if (v) items[String(k)] = true;
+  const { types, items } = normalizeFilterV1(src.lootFilter);
+  const lootFilters = {};
+  for (const [zone, filtre] of Object.entries(src.lootFilters && typeof src.lootFilters === "object" ? src.lootFilters : {}).slice(0, 80)) {
+    if (ZONE_ID_RE.test(zone)) lootFilters[zone] = normalizeFilterV1(filtre);
+  }
   const loadouts = Array.from({ length: IDLE_INVENTORY_LOADOUTS_MAX_V1 }, (_, i) => normalizeLoadoutV1(Array.isArray(src.loadouts) ? src.loadouts[i] : null));
   return {
     autoMerge: Boolean(src.autoMerge),
@@ -149,6 +178,7 @@ export function normalizeIdleInventoryAutoV1(raw) {
     mergeElapsed: Math.max(0, N(src.mergeElapsed, 0)),
     boostElapsed: Math.max(0, N(src.boostElapsed, 0)),
     lootFilter: { types, items },
+    lootFilters,
     loadouts
   };
 }
@@ -451,11 +481,21 @@ function basicFilterTypeV1(o) {
   return "accessory";
 }
 
-function filteredV1(cfg, env, o) {
+/* Filtre à modifier pour une zone : le sien, créé au besoin comme copie du filtre en vigueur (au plus 80 zones). */
+function filterToEditV1(cfg, zone) {
+  if (!cfg.lootFilters[zone]) {
+    const base = lootFilterOfZoneV1(cfg, zone);
+    cfg.lootFilters[zone] = { types: { ...base.types }, items: { ...base.items } };
+  }
+  return cfg.lootFilters[zone];
+}
+
+function filteredV1(cfg, env, o, zone) {
   if (!o) return false;
-  if (env?.lootFilterImproved && cfg.lootFilter.items[String(o.definitionId)]) return true;
+  const filtre = lootFilterOfZoneV1(cfg, zone);
+  if (env?.lootFilterImproved && filtre.items[String(o.definitionId)]) return true;
   const t = basicFilterTypeV1(o);
-  if (env?.lootFilterBasic && t && cfg.lootFilter.types[t]) return true;
+  if (env?.lootFilterBasic && t && filtre.types[t]) return true;
   return false;
 }
 
@@ -486,7 +526,7 @@ function disposeFilteredV1(s, o, env) {
  */
 export function idleInventoryReceiveDropV1(s, item, env) {
   const cfg = cfgV1(s);
-  if (filteredV1(cfg, env, item)) {
+  if (filteredV1(cfg, env, item, idleInventoryFilterZoneV1(s, env?.filterZone))) {
     idleAdventureRecordItemV1(s, item);
     if (item.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked) {
       s.inventory.push(item);
@@ -504,9 +544,10 @@ export function idleInventoryProcessNewDropsV1(s, beforeIds, env) {
   const cfg = cfgV1(s);
   const before = beforeIds instanceof Set ? beforeIds : new Set(beforeIds || []);
   const out = { filtered: 0, cube: 0, transformed: 0 };
+  const zone = idleInventoryFilterZoneV1(s, env?.filterZone);
   for (const o of s.inventory.slice()) {
     if (before.has(String(o.id))) continue;
-    if (filteredV1(cfg, env, o)) {
+    if (filteredV1(cfg, env, o, zone)) {
       if (o.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked) out.cube += 1;
       disposeFilteredV1(s, o, env);
       out.filtered += 1;
@@ -665,16 +706,20 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
     if (!env?.lootFilterBasic) throw new Error("FILTRE_BASIQUE_VERROUILLE");
     const t = String(payload.slot || "");
     if (!IDLE_LOOT_FILTER_TYPES_V1.includes(t)) throw new Error("TYPE_FILTRE_INVALIDE");
-    if (payload.filtered) cfg.lootFilter.types[t] = true; else delete cfg.lootFilter.types[t];
-    return { slot: t, filtered: Boolean(cfg.lootFilter.types[t]) };
+    const zone = idleInventoryFilterZoneV1(s, payload.zone);
+    const filtre = filterToEditV1(cfg, zone);
+    if (payload.filtered) filtre.types[t] = true; else delete filtre.types[t];
+    return { slot: t, zone, filtered: Boolean(filtre.types[t]) };
   }
   if (mode === "lootFilterItem") {
     if (!env?.lootFilterImproved) throw new Error("FILTRE_AMELIORE_VERROUILLE");
     const d = String(payload.definitionId || "");
     /* L'Item List ne propose que les objets déjà découverts. */
     if (!s.itemList?.[d]?.seen) throw new Error("OBJET_NON_DECOUVERT");
-    if (payload.filtered) cfg.lootFilter.items[d] = true; else delete cfg.lootFilter.items[d];
-    return { definitionId: d, filtered: Boolean(cfg.lootFilter.items[d]) };
+    const zone = idleInventoryFilterZoneV1(s, payload.zone);
+    const filtre = filterToEditV1(cfg, zone);
+    if (payload.filtered) filtre.items[d] = true; else delete filtre.items[d];
+    return { definitionId: d, zone, filtered: Boolean(filtre.items[d]) };
   }
   throw new Error("MODE_INVENTAIRE_AUTO_INCONNU");
 }
@@ -695,6 +740,8 @@ export function idleInventoryAutoSnapshotV1(s, env) {
   const slots = Math.max(0, I(env?.loadoutSlots, 0));
   const byId = new Map((Array.isArray(s?.inventory) ? s.inventory : []).map((o) => [String(o.id), o]));
   const nom = (id) => (id && byId.has(String(id)) ? String(byId.get(String(id)).name || "") : "");
+  const zoneFiltre = idleInventoryFilterZoneV1(s, env?.filterZone);
+  const filtreZone = lootFilterOfZoneV1(cfg, zoneFiltre);
   return {
     unlocked: {
       autoMerge: Boolean(env?.autoMergeUnlocked),
@@ -725,10 +772,12 @@ export function idleInventoryAutoSnapshotV1(s, env) {
     loadouts: cfg.loadouts.slice(0, slots).map((lo) => (lo ? {
       items: [...CORE_SLOTS.map((slot) => ({ slot, id: lo[slot], name: nom(lo[slot]) })), ...lo.accessories.map((id) => ({ slot: "accessory", id, name: nom(id) }))].filter((x) => x.id)
     } : null)),
-    lootFilter: { types: X(cfg.lootFilter.types), items: Object.keys(cfg.lootFilter.items) },
+    /* Filtre de la zone où se trouve le joueur (un changement de zone change le filtre affiché ET appliqué). */
+    lootFilterZone: zoneFiltre,
+    lootFilter: { types: X(filtreZone.types), items: Object.keys(filtreZone.items) },
     lootFilterTypes: [...IDLE_LOOT_FILTER_TYPES_V1],
     filterable: env?.lootFilterImproved
-      ? Object.entries(s?.itemList || {}).filter(([, v]) => v && v.seen).map(([d]) => ({ definitionId: d, name: nomDefinitionV1(s, d), filtered: Boolean(cfg.lootFilter.items[d]) }))
+      ? Object.entries(s?.itemList || {}).filter(([, v]) => v && v.seen).map(([d]) => ({ definitionId: d, name: nomDefinitionV1(s, d), filtered: Boolean(filtreZone.items[d]) }))
       : []
   };
 }

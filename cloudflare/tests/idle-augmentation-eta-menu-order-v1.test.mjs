@@ -17,7 +17,7 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
   assert.deepEqual(ids.slice(0, 3), ["entrainement", "augmentations", "combat"], "Augmentations entre Basic Training et Fight Boss");
   assert.equal(ids.filter((id) => id === "augmentations").length, 1);
   /* 2026-09-25 : EXP Shop et Boutique AP sont réunis dans « Shop » ; « Classement » est juste à gauche de Settings. */
-  assert.deepEqual(ids.slice(-3), ["shop", "classement", "parametres"], "Shop puis Classement, juste avant Settings");
+  assert.deepEqual(ids.slice(-5), ["shop", "classement", "bestiaire", "chat", "parametres"], "Shop, puis Classement, Collection et Chat (sans effet sur la progression) juste avant Settings");
   assert.ok(!ids.includes("spendExp") && !ids.includes("sellout"), "plus de boutons EXP Shop / Boutique AP séparés");
 }
 

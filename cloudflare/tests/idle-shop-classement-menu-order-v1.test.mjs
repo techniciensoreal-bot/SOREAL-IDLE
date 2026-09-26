@@ -14,7 +14,7 @@ const IDLE_MENUS_V1 = new Function(bloc + "return IDLE_MENUS_V1;")();
 const ids = IDLE_MENUS_V1.map((m) => m.id);
 
 // Menus : Shop remplace EXP Shop + Boutique AP ; Classement juste avant Settings
-assert.deepEqual(ids.slice(-3), ["shop", "classement", "parametres"]);
+assert.deepEqual(ids.slice(-5), ["shop", "classement", "bestiaire", "chat", "parametres"]);
 assert.ok(!ids.includes("spendExp") && !ids.includes("sellout"));
 
 // Ordre : les identifiants enregistrés d'abord, les menus absents de l'ordre à leur place par défaut (après leur prédécesseur)

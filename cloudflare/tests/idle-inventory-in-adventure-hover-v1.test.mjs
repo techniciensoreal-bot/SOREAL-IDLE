@@ -54,7 +54,9 @@ assert.match(css, /\.soreal-idle-inv-auto-titre-v1\s*\{/, "même style que le Co
 // --- C. Popup au survol (souris) ---
 assert.match(ui, /if\(event\.detail&&event\.detail\.pointerType==='mouse'\)return;/, "le maintien du clic (souris) n'ouvre plus le popup");
 assert.match(ui, /function survolPossibleIdleV1_\(event\)\{[\s\S]{0,300}\(hover:hover\) and \(pointer:fine\)/, "seulement avec une vraie souris");
-assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,1400}ouvrirSurvolIdleV1_\(element,id\)/, "survol d'un objet : ouverture");
+assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,1400}planifierSurvolIdleV1_\(element,id\)/, "survol d'un objet : ouverture après un délai");
+assert.match(ui, /IDLE_SURVOL_DELAI_MS_V1=1000;/, "1 seconde à l'arrêt avant d'ouvrir le popup");
+assert.match(ui, /document\.addEventListener\('mousemove',function\(event\)\{\s*if\(!idleSurvolEnAttenteV1/, "chaque mouvement de la souris relance la seconde d'attente");
 assert.match(ui, /cibleDansPopupDetailsObjetAdventureIdleV207_\(cible\)\)\{\s*clearTimeout\(idleSurvolTimerFermerV1\)/, "tant que la souris est dans le popup : il reste ouvert");
 assert.match(ui, /fermerSurvolIdleV1_\(\);\s*\},200\)/, "sortie de l'objet et du popup : fermeture après un court délai de grâce");
 assert.match(ui, /document\.documentElement\.addEventListener\('mouseleave'/, "sortie de la fenêtre du navigateur : fermeture");

@@ -82,7 +82,7 @@ for (const id of ["improvedLootFilter", "autoMergeBoostTimers", "loadoutSlot", "
 
   // Filtre basique : réglage accepté seulement une fois acheté
   t = act(t, { action: "inventoryAuto", mode: "lootFilterType", slot: "head", filtered: true }).state;
-  assert.equal(t.adventure.inventoryAuto.lootFilter.types.head, true);
+  assert.equal(t.adventure.inventoryAuto.lootFilters[t.adventure.selectedZone === "safe" ? t.adventure.lastCombatZone : t.adventure.selectedZone].types.head, true, "le filtre est réglé pour la zone courante");
   assert.throws(() => act(t, { action: "inventoryAuto", mode: "lootFilterItem", definitionId: "sewers:weapon", filtered: true }), /FILTRE_AMELIORE_VERROUILLE/);
 
   // Recyclage d'un boost appliqué à la main (100 % : il revient au palier inférieur dans la même case)

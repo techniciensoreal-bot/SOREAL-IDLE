@@ -17,7 +17,7 @@ const narration=fs.readFileSync(
 for(const token of [
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
   '<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>',
-  '<script type="module" src="/modules/local-neural-piper-v1.js?v=7"></script>',
+  '<script type="module" src="/modules/local-neural-piper-v1.js?v=8"></script>',
   '/modules/tutorial-tts-v202.js?v=233'
 ]){
   assert.ok(index.includes(token),"Piper local index manquant: "+token);
@@ -32,11 +32,11 @@ for(const forbidden of [
 
 assert.ok(
   index.indexOf('piper_phonemize.js')<
-  index.indexOf('/modules/local-neural-piper-v1.js?v=7'),
+  index.indexOf('/modules/local-neural-piper-v1.js?v=8'),
   "Le phonémiseur espeak-ng doit être chargé avant le module Piper local."
 );
 assert.ok(
-  index.indexOf('/modules/local-neural-piper-v1.js?v=7')<
+  index.indexOf('/modules/local-neural-piper-v1.js?v=8')<
   index.indexOf('/modules/tutorial-tts-v202.js?v=233'),
   "Le module Piper local doit être déclaré avant le contrôleur de narration."
 );
@@ -107,7 +107,7 @@ for(const token of [
   const vraie=new Error("déjà lisible");
   assert.equal(wasmError_(vraie,"X"),vraie);
   assert.ok(local.includes("JSON.stringify([{text:sanitizeText_(text)}])"),"le texte envoyé à espeak-ng est nettoyé");
-  assert.ok(local.includes("normalizeEllipsis_(sanitizeText_(text))"),"la synthèse nettoie aussi le texte");
+  assert.ok(local.includes("normalizeEllipsis_(normalizeAsterisks_(sanitizeText_(text)))"),"la synthèse nettoie aussi le texte");
 }
 
 for(const forbidden of [

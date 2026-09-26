@@ -8,8 +8,21 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.3',
+    courante:'1.4',
     versions:[
+      {
+        version:'1.4',
+        nom:'Menus, Voix & Filtres',
+        date:'2026-09-26',
+        points:[
+          'Dans le menu, les boutons qui ne font pas progresser le jeu (Collection, Chat…) sont maintenant tout à droite, juste avant Settings, à l’écart des systèmes qui le font. Si tu as rangé tes boutons toi-même, ton ordre est conservé.',
+          'La voix ne prononce plus « astérisque » : les bruitages comme *BLOUM* sont lus comme un mot. Le son d’introduction et les récits concernés ont été refaits.',
+          'Les fenêtres de statistiques des objets sont plus compactes. La comparaison fonctionne maintenant sur téléphone : la première fenêtre s’efface pendant que tu choisis le deuxième objet, puis les deux s’affichent l’une sous l’autre.',
+          'Sur PC, la fenêtre d’un objet n’apparaît plus instantanément au survol : il faut laisser la souris immobile 1 seconde.',
+          'Les filtres de butin sont maintenant propres à chaque zone : en changeant de zone, le filtre de cette zone s’affiche et s’applique. Tes anciens réglages servent de point de départ à toutes les zones.',
+          'Quand tu absorbes des boosts en maintenant A, l’écran ne saute plus vers le haut avant de revenir à sa place.'
+        ]
+      },
       {
         version:'1.3',
         nom:'Fidèle au wiki',

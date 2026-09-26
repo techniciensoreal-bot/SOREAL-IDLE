@@ -10176,7 +10176,6 @@
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
         {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
-        {id:'bestiaire',icon:'🏆',nom:'Collection'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
         {id:'avance',icon:'🏋️',nom:'Advanced Training'},
         {id:'machine',icon:'⏱️',nom:'Time Machine'},
@@ -10199,11 +10198,17 @@
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
-        /* 2026-09-25 (Norman) : EXP Shop et Boutique AP réunis dans un seul menu « Shop », séparés par un onglet ; Classement juste à gauche de Settings. */
+        /* 2026-09-25 (Norman) : EXP Shop et Boutique AP réunis dans un seul menu « Shop », séparés par un onglet. */
+        {id:'shop',icon:'🛍️',nom:'Shop'},
+        /*
+         * 2026-09-26 (Norman) : « Classement, Collection, Chat : tout à droite, juste à gauche de Settings. Ce ne sont pas des mécaniques qui apportent
+         * quelque chose à la progression du jeu, elles doivent être moins proches des autres systèmes qui le permettent. » Ordre par défaut ; l'ordre
+         * enregistré par un joueur (rangement des boutons) reste prioritaire.
+         */
+        {id:'classement',icon:'📊',nom:'Classement'},
+        {id:'bestiaire',icon:'🏆',nom:'Collection'},
         /* 2026-09-25 (Norman) : le Chat SOREAL (celui de APP/TV) dans le jeu ; ce bouton ouvre un panneau (modules/chat-v1.js), il ne change pas de page. */
         {id:'chat',icon:'💬',nom:'Chat'},
-        {id:'shop',icon:'🛍️',nom:'Shop'},
-        {id:'classement',icon:'📊',nom:'Classement'},
         {id:'parametres',icon:'⚙️',nom:'Settings'}
       ];
 
@@ -18639,6 +18644,22 @@ function pageAventureIdleV28_(j){
         if(popupDetailsObjetAdventureIdleOuvertV207_())fermerDetailsObjetAdventureIdleV1_();
       }
 
+      /*
+       * Délai d'ouverture (2026-09-26, Norman : « le popup ne doit pas apparaître instantanément ; après 1 seconde à l'arrêt, alors il le montre »,
+       * sur PC) : la seconde repart à chaque mouvement de la souris sur l'objet.
+       */
+      const IDLE_SURVOL_DELAI_MS_V1=1000;
+      let idleSurvolEnAttenteV1=null;
+      function planifierSurvolIdleV1_(element,id){
+        clearTimeout(idleSurvolTimerOuvrirV1);
+        idleSurvolEnAttenteV1={element:element,id:id};
+        idleSurvolTimerOuvrirV1=setTimeout(function(){
+          idleSurvolTimerOuvrirV1=0;
+          idleSurvolEnAttenteV1=null;
+          ouvrirSurvolIdleV1_(element,id);
+        },IDLE_SURVOL_DELAI_MS_V1);
+      }
+
       function ouvrirSurvolIdleV1_(element,id){
         if(survolOccupeIdleV1_()||!element||!element.isConnected)return;
         if(!ouvrirDetailsObjetParGesteAdventureIdleV196_(id))return;
@@ -18674,11 +18695,9 @@ function pageAventureIdleV28_(j){
           clearTimeout(idleSurvolTimerFermerV1);
           idleSurvolTimerFermerV1=0;
           if(id===idleSurvolIdV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
-          clearTimeout(idleSurvolTimerOuvrirV1);
-          idleSurvolTimerOuvrirV1=setTimeout(function(){
-            idleSurvolTimerOuvrirV1=0;
-            ouvrirSurvolIdleV1_(element,id);
-          },110);
+          /* Un autre objet : le popup du précédent se ferme tout de suite, le nouveau n'apparaît qu'après l'arrêt. */
+          if(idleSurvolIdV1&&id!==idleSurvolIdV1)fermerSurvolIdleV1_();
+          planifierSurvolIdleV1_(element,id);
           return;
         }
         /* ni objet ni popup : on ferme (avec un court délai de grâce) le popup ouvert par survol */
@@ -18690,6 +18709,13 @@ function pageAventureIdleV28_(j){
             fermerSurvolIdleV1_();
           },200);
         }
+      });
+
+      document.addEventListener('mousemove',function(event){
+        if(!idleSurvolEnAttenteV1||!idleSurvolTimerOuvrirV1)return;
+        if(!survolPossibleIdleV1_(event))return;
+        const element=elementObjetGesteAdventureIdleV196_(event.target);
+        if(element&&element===idleSurvolEnAttenteV1.element)planifierSurvolIdleV1_(idleSurvolEnAttenteV1.element,idleSurvolEnAttenteV1.id);
       });
 
       /* La souris quitte la fenêtre du navigateur */
@@ -19315,6 +19341,9 @@ function pageAventureIdleV28_(j){
         fermerComparaisonObjetAdventureIdleV183_();
         idleAdventureComparerPremierV183=String(id||'');
         idleAdventureComparerEnAttenteV183=true;
+        /* Le popup cachait le sac (surtout sur téléphone) : on le masque pendant le choix du deuxième objet, il revient avec la comparaison. */
+        const popup=document.getElementById('soreal-idle-v138-details');
+        if(popup)popup.style.display='none';
         toastIdleV5_('Choisis maintenant le deuxième objet à comparer.');
       }
       function ouvrirComparaisonObjetAdventureIdleV183_(secondId){
@@ -19351,13 +19380,25 @@ function pageAventureIdleV28_(j){
         document.body.appendChild(clone);
 
         const marge=8;
-        const largeur=Math.max(140,Math.floor((window.innerWidth-marge*3)/2));
-        root.style.width=Math.min(320,largeur)+'px';
-        clone.style.width=Math.min(320,largeur)+'px';
-        root.style.left=marge+'px';
-        clone.style.left=Math.max(marge,window.innerWidth-Math.min(320,largeur)-marge)+'px';
-        root.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-root.offsetHeight-marge))+'px';
-        clone.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-clone.offsetHeight-marge))+'px';
+        if(window.innerWidth<=600){
+          /* Petit écran : les deux popups s'empilent, pleine largeur (côte à côte ils étaient trop étroits). */
+          const pleine=window.innerWidth-marge*2;
+          root.style.width=pleine+'px';
+          clone.style.width=pleine+'px';
+          root.style.left=marge+'px';
+          clone.style.left=marge+'px';
+          const haut=Math.max(marge,Math.min(root.offsetTop||marge,Math.round(window.innerHeight*0.06)));
+          root.style.top=haut+'px';
+          clone.style.top=Math.max(marge,Math.min(haut+root.offsetHeight+marge,window.innerHeight-clone.offsetHeight-marge))+'px';
+        }else{
+          const largeur=Math.max(140,Math.floor((window.innerWidth-marge*3)/2));
+          root.style.width=Math.min(280,largeur)+'px';
+          clone.style.width=Math.min(280,largeur)+'px';
+          root.style.left=marge+'px';
+          clone.style.left=Math.max(marge,window.innerWidth-Math.min(280,largeur)-marge)+'px';
+          root.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-root.offsetHeight-marge))+'px';
+          clone.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-clone.offsetHeight-marge))+'px';
+        }
 
         activerGlisserPopupObjetAdventureIdleV1_(root);
         activerGlisserPopupObjetAdventureIdleV1_(clone);
@@ -21696,6 +21737,22 @@ function pageAventureIdleV28_(j){
         const idleScrollXAvantRenduV1=window.scrollX||0;
         const idleScrollYAvantRenduV1=window.scrollY||0;
         const idleAncreSacAvantRenduV1=ancreSacIdleV1_();
+        /*
+         * Aucun saut au rendu (2026-09-26, Norman : « au moment d'absorber les boosts en maintenant A, l'image fait un saut en haut avant de se
+         * repositionner ; je ne veux pas de saut ») : remplacer le contenu de la page la raccourcit un instant, le navigateur ramène alors le défilement
+         * en haut avant que le calage ci-dessous ne le rétablisse. On retient donc la hauteur du document pendant le rendu, puis on la relâche.
+         */
+        try{
+          if(document.body){
+            document.body.style.minHeight='';
+            const hauteurAvantRendu=Math.max(document.documentElement.scrollHeight||0,document.body.scrollHeight||0);
+            if(hauteurAvantRendu>0){
+              document.body.style.minHeight=hauteurAvantRendu+'px';
+              clearTimeout(window.__idleRelacherHauteurTimerV1__);
+              window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';},700);
+            }
+          }
+        }catch(_e){}
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-331 */
         const adventureRestPvAvantV2=idleEtat&&idleEtat.adventureRestPv;

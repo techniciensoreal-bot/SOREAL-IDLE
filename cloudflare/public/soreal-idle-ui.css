@@ -3260,14 +3260,18 @@
             border-radius:8px;
           }
           .soreal-idle-item-popup-v1.idle-compare-v183{
-            width:min(320px,calc(50vw - 12px));
+            width:min(280px,calc(50vw - 12px));
+          }
+          /* Comparaison sur petit écran : les deux popups s'empilent, pleine largeur */
+          @media (max-width:600px){
+            .soreal-idle-item-popup-v1.idle-compare-v183{width:calc(100vw - 16px)}
           }
 
           .soreal-idle-item-popup-v1{
             position:fixed;
             z-index:2600;
-            width:min(320px,calc(100vw - 16px));
-            border-radius:16px;
+            width:min(280px,calc(100vw - 16px));
+            border-radius:12px;
             background:#182236;
             border:1px solid rgba(166,188,229,.18);
             box-shadow:0 18px 40px rgba(5,10,25,.45);
@@ -3278,7 +3282,7 @@
             display:flex;
             align-items:center;
             justify-content:space-between;
-            padding:7px 10px;
+            padding:3px 8px;
             background:linear-gradient(135deg,#202d45,#2a3b59);
             color:#8fa3c9;
             cursor:grab;
@@ -3311,14 +3315,23 @@
           }
 
           .soreal-idle-item-popup-body-v1{
-            padding:14px;
+            padding:8px 10px 10px;
             color:#dce5f3;
           }
 
           .soreal-idle-item-popup-body-v1 .soreal-idle-window-title-v31{
             background:linear-gradient(135deg,#202d45,#2a3b59);
             color:#edf3fc;
+            font-size:14px;
+            line-height:1.2;
+            padding:5px 8px;
+            margin:0;
           }
+          /* Popup d'objet compact (2026-09-26, Norman : « plus compact », la comparaison manquait de place sur téléphone) : une stat par ligne, fine. */
+          .soreal-idle-item-popup-body-v1 .soreal-idle-v138-details-level{font-size:11px;margin-top:3px}
+          .soreal-idle-item-popup-body-v1 .soreal-idle-v138-details-stats{gap:3px;margin-top:6px}
+          .soreal-idle-item-popup-body-v1 .soreal-idle-v138-details-stat{flex:1 1 100%;padding:2px 8px;font-size:12px;border-radius:7px;gap:6px;line-height:1.25}
+          .soreal-idle-item-popup-v1.idle-compare-v183 .soreal-idle-v138-details-stat{font-size:11px;padding:2px 6px}
 
           /*
            * Norman (2026-09-14) : "Je veux pouvoir fermer le coffre ou
@@ -3568,12 +3581,17 @@
           .soreal-idle-item-popup-actions-v165{
             display:grid;
             grid-template-columns:repeat(2,minmax(0,1fr));
-            gap:8px;
-            margin-top:12px;
+            gap:5px;
+            margin-top:8px;
           }
           .soreal-idle-item-popup-actions-v165 button{
             width:100%;
             margin:0;
+            padding:4px 6px;
+            min-height:0;
+            font-size:12px;
+            line-height:1.25;
+            border-radius:8px;
           }
           .soreal-idle-item-popup-actions-v165 button:disabled{
             opacity:.38;

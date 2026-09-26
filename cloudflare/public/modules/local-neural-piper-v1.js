@@ -267,8 +267,29 @@ function normalizeEllipsis_(text){
   return text.replace(/\.{2,}|…/g,".");
 }
 
+/*
+ * Astérisques (2026-09-26, Norman : « il prononce astérisque ») : *BLOUM* est un bruitage, pas du texte à épeler. Le mot entre astérisques
+ * est lu comme un mot (majuscules ramenées à « Bloum ») suivi d'une pause ; tout astérisque restant est supprimé.
+ */
+function normalizeAsterisks_(text){
+  return text
+    .replace(/\*([^*\n]+)\*/g,function(_,inner){
+      var mot=String(inner).trim();
+      if(!mot)return " ";
+      /* Bruitage tout en majuscules : un mot, puis une pause. Simple mise en valeur : le mot tel quel. */
+      if(mot===mot.toUpperCase()&&mot!==mot.toLowerCase()){
+        mot=mot.charAt(0)+mot.slice(1).toLowerCase();
+        return /[.!?…]$/.test(mot)?mot+" ":mot+". ";
+      }
+      return mot+" ";
+    })
+    .replace(/\*/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
 async function synthesize_(text){
-  const value=normalizeEllipsis_(sanitizeText_(text));
+  const value=normalizeEllipsis_(normalizeAsterisks_(sanitizeText_(text)));
   if(!value)throw new Error("PIPER_LOCAL_TEXT_REQUIRED");
 
   const engine=await engine_();
