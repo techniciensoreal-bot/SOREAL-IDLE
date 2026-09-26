@@ -1951,3 +1951,10 @@ Norman : « il n'y a pas de magie sous cette forme à lancer en combat fight bos
 ## 2026-09-26 — APK SOREAL IDLE construit (TWA)
 
 Norman : « APK : oui tu peux ». Outils installés hors dépôt dans `%USERPROFILE%\.bubblewrap` (JDK 17 Temurin, SDK Android 35, Bubblewrap via npx) ; clé de signature `android/soreal-idle-release.keystore` créée (ignorée par git, copie de secours dans `.bubblewrap`, mot de passe dans `.bubblewrap\soreal-idle-keystore-password.txt`). `twa-manifest.json` : ajout de `splashScreenFadeOutDuration` et `enableSiteSettingsShortcut` (requis par le gabarit Gradle). APK signé `app-release-signed.apk` (3,8 Mo, `apksigner verify` OK). `/.well-known/assetlinks.json` ajouté avec l'empreinte SHA-256 de la clé. Test : `idle-pwa-manifest-v1`.
+
+## 2026-09-26 — IDLE Beta 3.5 « Ça tinte » : menu Achievements au 1er succès, sons d'achat or / gemme
+
+Norman : « le menu Achievements n'apparaît qu'au premier achievement débloqué » ; « un bruit de Gold quand on achète dans EXP Shop, un bruit de pierre précieuse pour l'AP ».
+- Menu Achievements : `menuDisponibleIdleV28_` renvoie faux tant qu'aucun succès de `j.systemes.achievements.list` n'est débloqué.
+- Sons : `purchaseGold` (tas de pièces + « ding », action `buyExpShop`) et `purchaseGem` (carillon de cristal à partiels inharmoniques, action `sellShopBuy` = Boutique AP) dans `audio-effects-v199.js` ; `purchase-sound-v1.js` choisit le son par action, la caisse reste pour tous les autres achats. Échantillons rendus dans `Documents\SOREAL-voix-a-ecouter\sons-jeu` (E, F).
+- Notes 3.5 (sans nommer la Boutique AP), `?v=294` / audio `219` / achat `2` / notes `21`. Test : `idle-shop-sounds-achievements-menu-v1`.

@@ -32,6 +32,8 @@
     btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
     menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
     purchase:{group:"purchase",priority:30,maxAgeMs:900},
+    purchaseGold:{group:"purchase",priority:30,maxAgeMs:1000},
+    purchaseGem:{group:"purchase",priority:30,maxAgeMs:1300},
     menuNav:{group:"ui-nav",priority:20,maxAgeMs:400},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
@@ -623,6 +625,44 @@
     });
   }
 
+  /*
+   * Achat dans l'EXP Shop (Norman, 2026-09-26 : « un bruit de Gold ») : une poignée de pièces d'or qui tintent en tas (sept tintements métalliques brefs, de plus en plus serrés),
+   * puis le « ding » plein d'une grosse pièce. Distinct de la caisse enregistreuse des autres achats.
+   */
+  function orConstruire_(c){
+    [[0,2350,.050],[.075,3100,.045],[.13,2650,.050],[.19,3500,.040],[.235,2900,.050],[.30,2450,.050],[.36,3300,.038]].forEach(function(p){
+      tonal_(c,{type:"sine",from:p[1],to:p[1]*.985,duration:.16,volume:p[2],delay:p[0]});
+      tonal_(c,{type:"sine",from:p[1]*2.76,to:p[1]*2.76,duration:.07,volume:p[2]*.45,delay:p[0]});
+      bruit_(c,{duration:.035,volume:p[2]*.7,delay:p[0],filterType:"highpass",frequency:5000,decay:3});
+    });
+    tonal_(c,{type:"sine",from:1568,to:1568*1.001,duration:.55,volume:.055,delay:.42});
+    tonal_(c,{type:"sine",from:1568*2.76,to:1568*2.76,duration:.20,volume:.020,delay:.42});
+    tonal_(c,{type:"triangle",from:1568*1.5,to:1568*1.5,duration:.30,volume:.010,delay:.42});
+    bruit_(c,{duration:.16,volume:.016,delay:.44,filterType:"highpass",frequency:6800,frequencyEnd:9000,decay:2.2});
+  }
+  function orJouer_(){
+    return jouerWebAudio_(1000,orConstruire_);
+  }
+
+  /*
+   * Achat dans la Boutique AP (Norman, 2026-09-26 : « un bruit de pierre précieuse ») : carillon de cristal, trois notes qui montent, chacune avec les partiels inharmoniques du verre
+   * (2,32 ; 4,25 ; 6,63) et une longue résonance, puis un scintillement aigu. Aucun son de métal : c'est une gemme qu'on fait tinter.
+   */
+  function gemmeConstruire_(c){
+    [[0,1319,.050],[.11,1760,.046],[.22,2349,.050]].forEach(function(p){
+      [[1,1,.95],[2.32,.35,.55],[4.25,.16,.32],[6.63,.08,.20]].forEach(function(h){
+        tonal_(c,{type:"sine",from:p[1]*h[0],to:p[1]*h[0]*1.0004,duration:h[2],volume:p[2]*h[1],delay:p[0]});
+      });
+    });
+    tonal_(c,{type:"sine",from:3520,to:3520,duration:.85,volume:.012,delay:.30});
+    tonal_(c,{type:"sine",from:3529,to:3529,duration:.85,volume:.012,delay:.30});
+    tonal_(c,{type:"sine",from:4699,to:4699,duration:.55,volume:.010,delay:.42});
+    bruit_(c,{duration:.30,volume:.012,delay:.26,filterType:"highpass",frequency:8000,frequencyEnd:11000,decay:2.4});
+  }
+  function gemmeJouer_(){
+    return jouerWebAudio_(1300,gemmeConstruire_);
+  }
+
   /* Succès débloqué : petite fanfare montante (trois notes en tierces) suivie d'un scintillement. */
   function succes_(){
     return jouerWebAudio_(1300,function(c){
@@ -818,6 +858,8 @@
     btCap:btCap_,
     menuUnlock:menuDebloque_,
     purchase:caisse_,
+    purchaseGold:orJouer_,
+    purchaseGem:gemmeJouer_,
     menuNav:menuNav_,
     achievement:succes_,
     chestOpen:coffreOuverture_,
@@ -939,7 +981,9 @@
     builders:{
       bossSounds:SONS_BOSS.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
       timeMachine:{duree:3000,construire:voyageTempsConstruire_},
-      defeat:{duree:1900,construire:defaiteConstruire_}
+      defeat:{duree:1900,construire:defaiteConstruire_},
+      purchaseGold:{duree:1000,construire:orConstruire_},
+      purchaseGem:{duree:1300,construire:gemmeConstruire_}
     },
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},
@@ -954,6 +998,8 @@
     btCap:function(){return demander_("btCap");},
     menuUnlock:function(){return demander_("menuUnlock");},
     purchase:function(){return demander_("purchase");},
+    purchaseGold:function(){return demander_("purchaseGold");},
+    purchaseGem:function(){return demander_("purchaseGem");},
     menuNav:function(){return demander_("menuNav");},
     achievement:function(){return demander_("achievement");},
     chestOpen:function(){return demander_("chestOpen");},

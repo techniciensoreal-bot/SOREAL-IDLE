@@ -9123,6 +9123,12 @@
           return Boolean(j.renaissance&&j.renaissance.debloquee);
         }
 
+        /* Achievements (Norman, 2026-09-26) : le menu n'apparaît qu'au premier succès débloqué. */
+        if(id==='succes'){
+          const succes=j.systemes&&j.systemes.achievements;
+          if(!(succes&&Array.isArray(succes.list)&&succes.list.some(function(a){return a&&a.unlocked;})))return false;
+        }
+
         const systemeId=IDLE_SYSTEME_PAR_MENU_V1[id];
         if(!systemeId)return false;
 

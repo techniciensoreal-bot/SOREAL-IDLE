@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.4',
+    courante:'3.5',
     versions:[
+      {
+        version:'3.5',
+        nom:'Ça tinte',
+        date:'2026-09-26',
+        points:[
+          'Le menu Achievements n’apparaît qu’à ton premier succès débloqué.',
+          'Chaque achat dans la boutique d’EXP fait maintenant tinter un tas de pièces d’or.',
+          'Une autre boutique a son propre bruit d’achat : un carillon de cristal, comme une pierre précieuse qu’on fait tinter.'
+        ]
+      },
       {
         version:'3.4',
         nom:'Ça sent la bagarre',

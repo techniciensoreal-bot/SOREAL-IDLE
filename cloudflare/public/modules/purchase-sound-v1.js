@@ -31,10 +31,22 @@ function estAchat(nom,args,resultat){
   return false;
 }
 
-function jouer(){
+/* Son propre à certaines actions (Norman, 2026-09-26) : EXP Shop = pièces d'or ; Boutique AP = pierre précieuse ; tous les autres achats gardent la caisse enregistreuse. */
+var SON_PAR_ACTION={buyExpShop:'purchaseGold',sellShopBuy:'purchaseGem'};
+
+function sonAchat(nom,args){
+  if(nom==='agirProgressionSorealIdle'){
+    var payload=Array.isArray(args)?args[1]:null;
+    var action=payload&&typeof payload==='object'?String(payload.action||''):'';
+    if(SON_PAR_ACTION[action])return SON_PAR_ACTION[action];
+  }
+  return 'purchase';
+}
+
+function jouer(son){
   try{
     var audio=window.__SOREAL_IDLE_AUDIO_V199__;
-    if(audio&&typeof audio.play==='function')audio.play('purchase');
+    if(audio&&typeof audio.play==='function')audio.play(son||'purchase');
   }catch(_){}
 }
 
@@ -61,7 +73,7 @@ function envelopper(){
           var args=Array.prototype.slice.call(arguments);
           var nom=String(prop);
           runner.withSuccessHandler(function(resultat){
-            try{if(estAchat(nom,args,resultat))jouer();}catch(_){}
+            try{if(estAchat(nom,args,resultat))jouer(sonAchat(nom,args));}catch(_){}
             if(succes)succes(resultat);
           });
           runner[nom].apply(runner,args);
@@ -82,5 +94,5 @@ if(!envelopper()){
   var minuteur=setInterval(function(){if(envelopper()||++essais>40)clearInterval(minuteur);},100);
 }
 
-window.__SOREAL_IDLE_PURCHASE_SOUND_V1__={estAchat:estAchat,operations:Object.keys(OPERATIONS),actions:Object.keys(ACTIONS)};
+window.__SOREAL_IDLE_PURCHASE_SOUND_V1__={estAchat:estAchat,sonAchat:sonAchat,operations:Object.keys(OPERATIONS),actions:Object.keys(ACTIONS)};
 })();
