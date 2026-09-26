@@ -25,6 +25,8 @@
     victory:{group:"combat-end",priority:105,maxAgeMs:2200},
     nuke:{group:"combat-action",priority:110,maxAgeMs:1200},
     defeat:{group:"combat-end",priority:100,maxAgeMs:2800},
+    flee:{group:"combat-end",priority:95,maxAgeMs:2400},
+    menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
@@ -302,6 +304,48 @@
     });
   }
 
+  /*
+   * Fuite (Norman, 2026-09-26 : « un son de lose qui représente la fuite ») : petit « wah-wah-wah-waaah » qui descend, sur un timbre de cuivre
+   * un peu ridicule (triangle + sinus), sans rien de commun avec la défaite grave ni avec la fanfare de victoire.
+   */
+  function fuite_(){
+    return jouerWebAudio_(1150,function(c){
+      [
+        [392,370,.20,.062,0],
+        [349,330,.20,.062,.24],
+        [311,294,.20,.062,.48],
+        [262,196,.55,.070,.72]
+      ].forEach(function(p){
+        tonal_(c,{type:"triangle",from:p[0],to:p[1],duration:p[2],volume:p[3],delay:p[4]});
+        tonal_(c,{type:"sine",from:p[0]*.5,to:p[1]*.5,duration:p[2],volume:p[3]*.55,delay:p[4]});
+      });
+      /* le dernier « waaah » glisse vers le bas avec un léger tremblement */
+      tonal_(c,{type:"sine",from:196,to:150,duration:.42,volume:.030,delay:.95});
+    });
+  }
+
+  /*
+   * Nouveau menu débloqué (Norman, 2026-09-26 : « un petit bruit de victoire, pas le même que pour les boss ») : un éclat de clochettes aigu qui monte
+   * (do-mi-sol-do en haut du clavier), très court, sans la fanfare des boss.
+   */
+  function menuDebloque_(){
+    return jouerWebAudio_(760,function(c){
+      [
+        [1047,.16,.040,0],
+        [1319,.16,.040,.09],
+        [1568,.18,.042,.18],
+        [2093,.34,.046,.29]
+      ].forEach(function(p){
+        tonal_(c,{type:"sine",from:p[0],to:p[0]*1.002,duration:p[1],volume:p[2],delay:p[3]});
+        tonal_(c,{type:"triangle",from:p[0]*2,to:p[0]*2,duration:p[1]*.6,volume:p[2]*.28,delay:p[3]});
+      });
+      bruit_(c,{
+        duration:.22,volume:.014,delay:.30,
+        filterType:"highpass",frequency:6200,frequencyEnd:9000,decay:2.4
+      });
+    });
+  }
+
   function coffreOuverture_(){
     return jouerWebAudio_(470,function(c){
       bruit_(c,{
@@ -442,6 +486,8 @@
     victory:victoireBoss_,
     nuke:nuke_,
     defeat:defaite_,
+    flee:fuite_,
+    menuUnlock:menuDebloque_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
     mergeArmor:fusionArmure_,
@@ -555,6 +601,8 @@
     victory:function(){return demander_("victory");},
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
+    flee:function(){return demander_("flee");},
+    menuUnlock:function(){return demander_("menuUnlock");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
     mergeArmor:function(){return demander_("mergeArmor");},

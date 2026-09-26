@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.2',
+    courante:'2.3',
     versions:[
+      {
+        version:'2.3',
+        nom:'Fuite et nouveaux menus',
+        date:'2026-09-26',
+        points:[
+          'Quand tu prends la fuite, l’image du boss ne se recharge plus et son bruit d’arrivée ne se rejoue plus : un petit son de défaite comique marque la fuite.',
+          'Chaque nouveau menu débloqué est annoncé par un message qui apparaît et disparaît, avec un petit bruit de victoire différent de celui des boss.',
+          'Le message ne peut pas être cliqué : il ne gêne jamais le jeu.'
+        ]
+      },
       {
         version:'2.2',
         nom:'La voix et le tuto au poil',

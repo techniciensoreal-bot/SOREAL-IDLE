@@ -263,9 +263,15 @@ async function engine_(){
  * vérifié en comparant les flux de phonèmes bruts en conditions réelles.
  * On normalise donc vers "." (dont la pause fonctionne) avant phonémisation.
  */
+/*
+ * Norman (2026-09-26) : la pause d'un « … » doit valoir « . + . ». Écrire deux points de suite ne rallonge rien (mesuré : le phonémiseur les fusionne, ≈ 0,5 s
+ * comme un point seul) : le « … » devient donc un point suivi d'un marqueur de coupure ; la synthèse lit chaque morceau séparément et pose entre eux un silence
+ * qui, ajouté à la pause naturelle du point, fait l'équivalent de deux points.
+ */
+var COUPURE_ELLIPSE_="\uE100";
+var SILENCE_ELLIPSE_MS_=1000;
 function normalizeEllipsis_(text){
-  /* Norman (2026-09-26) : la pause d'un « … » doit valoir « . + . » : deux points, donc deux pauses de point. */
-  return text.replace(/\.{2,}|…/g,". .");
+  return text.replace(/\.{2,}|…/g,".");
 }
 
 /*
@@ -321,30 +327,51 @@ async function synthesize_(text){
   try{
     const config=engine.config||{};
     const espeakVoice=(config.espeak&&config.espeak.voice)||"fr";
-    const phonemeIds=await phonemize_(value,espeakVoice);
-
     const sampleRate=(config.audio&&config.audio.sample_rate)||22050;
     const inference=config.inference||{};
     const noiseScale=inference.noise_scale!=null?inference.noise_scale:DEFAULT_NOISE_SCALE_V1;
     const lengthScale=inference.length_scale!=null?inference.length_scale:DEFAULT_LENGTH_SCALE_V1;
     const noiseW=inference.noise_w!=null?inference.noise_w:DEFAULT_NOISE_W_V1;
 
-    const feeds={
-      input:new ort.Tensor("int64",BigInt64Array.from(phonemeIds.map(BigInt)),[1,phonemeIds.length]),
-      input_lengths:new ort.Tensor("int64",BigInt64Array.from([BigInt(phonemeIds.length)]),[1]),
-      scales:new ort.Tensor("float32",Float32Array.from([noiseScale,lengthScale,noiseW]),[3])
+    /* Un morceau de texte -> échantillons audio. */
+    const inferer=async function(morceau){
+      const phonemeIds=await phonemize_(morceau,espeakVoice);
+      const feeds={
+        input:new ort.Tensor("int64",BigInt64Array.from(phonemeIds.map(BigInt)),[1,phonemeIds.length]),
+        input_lengths:new ort.Tensor("int64",BigInt64Array.from([BigInt(phonemeIds.length)]),[1]),
+        scales:new ort.Tensor("float32",Float32Array.from([noiseScale,lengthScale,noiseW]),[3])
+      };
+      let results;
+      try{
+        results=await engine.session.run(feeds);
+      }catch(error){
+        throw wasmError_(error,"PIPER_LOCAL_INFERENCE");
+      }
+      const outputName=engine.session.outputNames[0];
+      const donnees=results[outputName]&&results[outputName].data;
+      if(!donnees||!donnees.length){
+        throw new Error("PIPER_LOCAL_AUDIO_EMPTY");
+      }
+      return donnees;
     };
 
-    let results;
-    try{
-      results=await engine.session.run(feeds);
-    }catch(error){
-      throw wasmError_(error,"PIPER_LOCAL_INFERENCE");
-    }
-    const outputName=engine.session.outputNames[0];
-    const pcm=results[outputName]&&results[outputName].data;
-    if(!pcm||!pcm.length){
-      throw new Error("PIPER_LOCAL_AUDIO_EMPTY");
+    const morceaux=value.split(COUPURE_ELLIPSE_).map(function(m){return m.trim();}).filter(Boolean);
+    if(!morceaux.length)throw new Error("PIPER_LOCAL_TEXT_REQUIRED");
+    let pcm;
+    if(morceaux.length===1){
+      pcm=await inferer(morceaux[0]);
+    }else{
+      const parties=[];
+      for(let i=0;i<morceaux.length;i++)parties.push(await inferer(morceaux[i]));
+      const silence=Math.round(sampleRate*SILENCE_ELLIPSE_MS_/1000);
+      let total=0;
+      for(let i=0;i<parties.length;i++)total+=parties[i].length+(i<parties.length-1?silence:0);
+      pcm=new Float32Array(total);
+      let pos=0;
+      for(let i=0;i<parties.length;i++){
+        pcm.set(parties[i],pos);
+        pos+=parties[i].length+(i<parties.length-1?silence:0);
+      }
     }
 
     const wavBuffer=pcm2wav_(pcm,sampleRate);

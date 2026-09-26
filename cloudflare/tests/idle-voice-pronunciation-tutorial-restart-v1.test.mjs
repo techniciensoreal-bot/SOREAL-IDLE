@@ -17,8 +17,9 @@ assert.ok(piper.includes("normalizeEllipsis_(normalizeAsterisks_(normalizePronun
 
 // 2. Pause des points de suspension : « . + . »
 const ell = new Function("text", "return (" + piper.match(/function normalizeEllipsis_\(text\)\{[\s\S]*?\n\}/)[0].replace(/^function normalizeEllipsis_\(text\)/, "function(text)") + ")(text);");
-assert.equal(ell("Hmm... bon"), "Hmm. . bon");
-assert.equal(ell("Hmm… bon"), "Hmm. . bon");
+assert.equal(ell("Hmm... bon"), "Hmm.\uE100 bon");
+assert.equal(ell("Hmm… bon"), "Hmm.\uE100 bon");
+assert.ok(piper.includes('value.split(COUPURE_ELLIPSE_)') && piper.includes("SILENCE_ELLIPSE_MS_=1000"), "chaque morceau est lu séparément, avec un silence ajouté entre eux");
 
 // 3. Titre « Norman & Sébastien » non lu, les autres titres oui
 const fn = ui.slice(ui.indexOf("function pauseVoixIdleV1_(ms){"), ui.indexOf("function texteVoixNouveauteIdleV1_(info){"));

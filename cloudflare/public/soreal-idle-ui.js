@@ -10179,6 +10179,34 @@
       }
 
 
+      /*
+       * Menu débloqué (Norman, 2026-09-26) : à chaque nouveau menu, une annonce en fondu (celle des autres annonces) et un petit bruit de victoire,
+       * différent de celui des boss. « Vu » est mémorisé côté serveur (idleVuMarquerV1_) : une annonce par menu et par joueur. La toute première fois
+       * (joueur existant ou nouveau), les menus déjà disponibles sont seulement notés, sans annonce.
+       */
+      function annoncerNouveauxMenusIdleV1_(j){
+        if(!j||typeof window.__sorealFadeNoticeV1__!=='function')return;
+        const dispo=IDLE_MENUS_V1.filter(function(m){
+          return m&&m.id&&menuDisponibleIdleV28_(m.id,j);
+        });
+        if(!dispo.length)return;
+        if(!idleVuConnuV1_(j,'menus-annonces-init')){
+          idleVuMarquerV1_('menus-annonces-init');
+          dispo.forEach(function(m){idleVuMarquerV1_('menu-annonce:'+m.id);});
+          return;
+        }
+        const nouveaux=dispo.filter(function(m){
+          return !idleVuConnuV1_(j,'menu-annonce:'+m.id);
+        });
+        if(!nouveaux.length)return;
+        nouveaux.forEach(function(m){idleVuMarquerV1_('menu-annonce:'+m.id);});
+        jouerEffetAudioIdleV199_('menuUnlock');
+        nouveaux.forEach(function(m){
+          window.__sorealFadeNoticeV1__('🔓 Nouveau menu débloqué !',[(m.icon?m.icon+' ':'')+m.nom],{dureeMs:3800});
+        });
+      }
+      window.__annoncerNouveauxMenusIdleV1__=annoncerNouveauxMenusIdleV1_;
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-128 */
       function gererPopupsProgressionIdleV75_(j){
         if(!j)return;
@@ -13548,6 +13576,13 @@
       window.__definirCombatBossIdleV39__=
         definirCombatBossIdleV39_;
 
+      /* Fuite voulue par le joueur (bouton) : le son de fuite ne joue que s'il y a un combat à fuir. */
+      window.__fuirBossIdleV1__=function(){
+        const enCombat=Boolean(idleEtat&&idleEtat.combatBossActif);
+        definirCombatBossIdleV39_(false);
+        if(enCombat)jouerEffetAudioIdleV199_('flee');
+      };
+
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-164 */
       let idleNukeEnCoursV1=false;
@@ -14150,7 +14185,7 @@ let idleDialogueTimerV76=null;
               <button
                 type="button"
                 class="soreal-idle-boss-control-v39 stop"
-                onclick="window.__definirCombatBossIdleV39__(false)"
+                onclick="window.__fuirBossIdleV1__()"
                 ${j.combatBossActif?'':'disabled'}
               >
                 🏃 Fuite
@@ -21409,10 +21444,16 @@ function pageAventureIdleV28_(j){
           return '';
         }
 
+        /*
+         * Fondu + gong seulement quand l'IMAGE change : la clé est son adresse. Avant, la page Fight Boss (clé = nom du boss) et la mise à jour de
+         * l'image (clé = numéro du boss) se relayaient avec deux clés différentes : chaque rendu, dont celui d'une Fuite, refaisait le fondu et rejouait
+         * le son d'apparition du boss (Norman, 2026-09-26).
+         */
+        void cle;
         const fade=
           classeFonduImageIdleV61_(
             type,
-            cle||fileId||url
+            url
           );
 
         return (
@@ -21425,7 +21466,7 @@ function pageAventureIdleV28_(j){
           idleHtml_(url)+
           '" alt="'+
           idleHtml_(alt||'')+
-          '" loading="eager" decoding="async" fetchpriority="high" '+
+          '" loading="eager" decoding="'+(fade?'async':'sync')+'" fetchpriority="high" '+
           (
             fade
               ?"onload=\"this.classList.add('visible')\""
@@ -21719,6 +21760,12 @@ function pageAventureIdleV28_(j){
 
         const cacheKey=
           String(numero);
+
+        {
+          const dejaAffichee=host.querySelector('img');
+          const urlAttendue=idleBossImageCacheV36[cacheKey]||urlBossR2IdleV1_(numero);
+          if(dejaAffichee&&urlAttendue&&dejaAffichee.getAttribute('src')===urlAttendue)return;
+        }
 
         if(
           idleBossImageCacheV36[cacheKey]
@@ -22137,6 +22184,8 @@ function pageAventureIdleV28_(j){
             gererTutorielPremierBossIdleV1_(
               j
             );
+
+            annoncerNouveauxMenusIdleV1_(j);
 
             if(
               idleMenuActifV28==='aventure' &&

@@ -17,7 +17,7 @@ const narration=fs.readFileSync(
 for(const token of [
   '"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"',
   '<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>',
-  '<script type="module" src="/modules/local-neural-piper-v1.js?v=9"></script>',
+  '<script type="module" src="/modules/local-neural-piper-v1.js?v=10"></script>',
   '/modules/tutorial-tts-v202.js?v=233'
 ]){
   assert.ok(index.includes(token),"Piper local index manquant: "+token);
@@ -32,11 +32,11 @@ for(const forbidden of [
 
 assert.ok(
   index.indexOf('piper_phonemize.js')<
-  index.indexOf('/modules/local-neural-piper-v1.js?v=9'),
+  index.indexOf('/modules/local-neural-piper-v1.js?v=10'),
   "Le phonémiseur espeak-ng doit être chargé avant le module Piper local."
 );
 assert.ok(
-  index.indexOf('/modules/local-neural-piper-v1.js?v=9')<
+  index.indexOf('/modules/local-neural-piper-v1.js?v=10')<
   index.indexOf('/modules/tutorial-tts-v202.js?v=233'),
   "Le module Piper local doit être déclaré avant le contrôleur de narration."
 );
@@ -75,9 +75,9 @@ for(const token of [
     "text",
     "return (" + local.match(/function normalizeEllipsis_\(text\)\{[\s\S]*?\n\}/)[0].replace(/^function normalizeEllipsis_\(text\)/,"function(text)") + ")(text);"
   );
-  assert.equal(normalizeEllipsis_("Bonjour... Ca va ?"),"Bonjour. . Ca va ?","Trois points : la pause d'un « . + . » (Norman, 2026-09-26)");
-  assert.equal(normalizeEllipsis_("Bonjour… Ca va ?"),"Bonjour. . Ca va ?","Le caractère unicode … donne la même pause");
-  assert.equal(normalizeEllipsis_("Attends.... vraiment ?"),"Attends. . vraiment ?","Une suite de 4 points donne la même pause");
+  assert.equal(normalizeEllipsis_("Bonjour... Ca va ?"),"Bonjour.\uE100 Ca va ?","Trois points : la pause d'un « . + . » (Norman, 2026-09-26)");
+  assert.equal(normalizeEllipsis_("Bonjour… Ca va ?"),"Bonjour.\uE100 Ca va ?","Le caractère unicode … donne la même pause");
+  assert.equal(normalizeEllipsis_("Attends.... vraiment ?"),"Attends.\uE100 vraiment ?","Une suite de 4 points donne la même pause");
   assert.equal(normalizeEllipsis_("Bonjour. Ca va ?"),"Bonjour. Ca va ?","Un point simple ne doit pas être altéré");
 }
 
