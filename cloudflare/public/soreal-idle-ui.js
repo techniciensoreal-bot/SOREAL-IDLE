@@ -3341,6 +3341,22 @@
       function appliquerSynchroCombatSansReflowIdleV116_(
         joueurServeur
       ){
+        /*
+         * Norman (2026-09-26) : « je tue un petit bout de peluche, ça met Boss vaincu et au bout de 7 secondes j'ai de nouveau le même boss ».
+         * Cause (lue dans le code) : le client prédit la victoire un peu AVANT le serveur (qui calcule le combat à l'heure du serveur). Tant que le
+         * serveur n'a pas fini de tuer le boss, sa réponse dit « combat encore actif » alors que le client n'est plus armé : la « garde fantôme » ci-dessous
+         * ordonnait alors au serveur d'ARRÊTER le combat en lui recopiant les PV du boss du client (0) ; hors combat, un boss à 0 PV est restauré à son
+         * maximum (invariant V184) : victoire perdue, même boss. Pendant une victoire prédite, on laisse donc le serveur terminer son combat ; la
+         * surveillance de victoire relance la synchronisation jusqu'à la confirmation (ou 15 s).
+         */
+        if(
+          joueurServeur &&
+          joueurServeur.combatBossActif &&
+          idleVictoireBossLocaleV49
+        ){
+          return true;
+        }
+
         if(
           joueurServeur &&
           joueurServeur.combatBossActif &&

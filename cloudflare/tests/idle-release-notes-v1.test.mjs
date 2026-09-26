@@ -7,8 +7,8 @@ const window = {};
 vm.runInNewContext(readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8"), { window });
 const n = JSON.parse(JSON.stringify(window.__SOREAL_IDLE_RELEASE_NOTES_V1__));
 
-assert.equal(n.courante, "2.5");
-assert.deepEqual(n.versions.map((v) => v.version), ["2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0", "0.9", "0.8", "0.7"], "1.2, 1.1 puis rétroactif 1.0, 0.9, 0.8, 0.7 (plus récente en tête)");
+assert.equal(n.courante, "2.6");
+assert.deepEqual(n.versions.map((v) => v.version), ["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0", "0.9", "0.8", "0.7"], "1.2, 1.1 puis rétroactif 1.0, 0.9, 0.8, 0.7 (plus récente en tête)");
 assert.equal(n.versions[0].version, n.courante, "la version courante est la première entrée");
 for (const v of n.versions) {
   assert.ok(v.nom && /^\d{4}-\d{2}-\d{2}$/.test(v.date) && v.points.length >= 3, "chaque version : petit nom, date, résumé : " + v.version);

@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.5',
+    courante:'2.6',
     versions:[
+      {
+        version:'2.6',
+        nom:'Boss vaincu, pour de bon',
+        date:'2026-09-26',
+        points:[
+          'Correction : quand tu battais un boss, l’écran « Boss vaincu » pouvait être suivi, quelques secondes plus tard, du même boss revenu à pleine vie. La victoire est maintenant toujours validée avant de passer au boss suivant.',
+          'Le jeu laisse le temps au serveur de confirmer le coup fatal au lieu d’arrêter son combat trop tôt.',
+          'Si la confirmation tarde vraiment, l’écran se met à jour tout seul après quelques secondes au lieu de rester bloqué.'
+        ]
+      },
       {
         version:'2.5',
         nom:'Le doigt sur le bouton',

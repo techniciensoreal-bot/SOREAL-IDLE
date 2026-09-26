@@ -30,4 +30,19 @@ assert.match(bloc, /rendreIdleEtat_\(\{ok:true,joueur:etat\.joueur\}\)/);
 // Le rendu complet remet toujours le drapeau à zéro (ce qui arrête la surveillance).
 assert.match(ui, /pousserEtatVersRuntimePartageIdleV1_\(\);\s*idleVictoireBossLocaleV49=false;/);
 
+/*
+ * Norman (2026-09-26, « Boss vaincu puis, 7 s plus tard, le même boss ») : la garde fantôme ne doit pas couper le combat du serveur pendant une victoire
+ * prédite (le serveur, un peu en retard, dit « combat actif » : l'arrêter lui recopie 0 PV de boss, restaurés au maximum hors combat).
+ */
+{
+  const debutGarde = ui.indexOf("function appliquerSynchroCombatSansReflowIdleV116_(");
+  const garde = ui.slice(debutGarde, debutGarde + 3200);
+  const iVictoire = garde.indexOf("joueurServeur.combatBossActif &&\n          idleVictoireBossLocaleV49");
+  const iFantome = garde.indexOf("!idleCombatArmeLocalV206");
+  assert.ok(debutGarde > 0 && iVictoire > 0 && iFantome > iVictoire, "la victoire prédite passe avant la garde fantôme");
+  assert.ok(garde.slice(iVictoire, iFantome).includes("return true;"), "et ne renvoie AUCUN arrêt de combat au serveur");
+  const serveur = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  assert.ok(serveur.includes("!combatBossActif &&\n    bossPv<=1e-9"), "invariant serveur : hors combat, un boss à 0 PV est restauré (d'où le risque si le combat est coupé trop tôt)");
+}
+
 console.log("idle-boss-victory-watchdog-v1: OK");
