@@ -24,6 +24,8 @@
     "fusionnerObjetSorealIdle",
     "fusionnerObjetsSorealIdle",
     "lancerSortSorealIdle",
+    "lireBugsSorealIdle",
+    "marquerBugMailSorealIdle",
     "marquerVusSorealIdle",
     "definirAccesOuvertSorealIdle",
     "definirOrdreMenusSorealIdle",
@@ -39,6 +41,7 @@
     "renaitreSorealIdle",
     "sauvegarderDispositionInventaireSorealIdle",
     "selectionnerBossSorealIdle",
+    "signalerBugSorealIdle",
     "synchroniserSorealIdle",
     "testerAccesSorealIdle"
   ]

@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.7',
+    courante:'1.8',
     versions:[
+      {
+        version:'1.8',
+        nom:'Signaler un bug',
+        date:'2026-09-26',
+        points:[
+          'Nouveau bouton « Signaler un bug » dans Settings : écris ce qui ne va pas, ton message est envoyé à Norman. Le bouton reste grisé tant que le message est vide.',
+          'Les boutons + , − et Cap de Basic Training sont plus grands et colorés (vert, rouge, bleu) pour qu’on voie tout de suite où ça se passe.',
+          'La version du jeu et le menu ouvert sont ajoutés automatiquement à ton message.'
+        ]
+      },
       {
         version:'1.7',
         nom:'Boutons réactifs',

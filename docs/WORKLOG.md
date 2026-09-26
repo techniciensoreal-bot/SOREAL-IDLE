@@ -1754,3 +1754,10 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - **Liste des ouvriers (ITOPOD)** : la liaison de service fonctionne en production (22 ouvriers) ; Mickaël manquait d'avatar (accent dans le chemin R2 : `é` refusé par la validation de clé) : corrigé (Unicode accepté).
 - **Portraits de set** : 17 portraits sur 49 ont leur image dans R2 ; les autres sont bien liés dans le code (`idle-portraits-v1.js`) mais leurs fichiers sont introuvables sous les noms attendus (`Portrait_<fichier du wiki>.png`), donc l'image du héros ne change pas (Training, Sewers, HSB, Clock, 2D, Spoopy, Gaudy, Mega, Beardverse, Badly Drawn, Stealth, Choco, Edgy, Pretty Pink Princess, Meta, Party, Typo, JRPG, Rad, Back To School, Western, Space, Bread, Disco, Rock, Construction, Duck, Dutch, Amalgamate, Pirate, SEXY, SMART).
 - `soreal-idle-ui.js ?v=277`, `meta-progression-v130.js ?v=202609255`, `release-notes-v1.js ?v=8`.
+
+### 2026-09-26 — Beta 1.8 : « Signaler un bug » + boutons + / − / Cap visibles
+
+- **Signaler un bug** (Settings) : fenêtre avec zone de texte, bouton Envoyer grisé tant que le message est vide (2000 caractères max, 5 par heure et par compte). Opérations moteur `signalerBugSorealIdle`, `marquerBugMailSorealIdle`, `lireBugsSorealIdle` (lecture réservée à l'administrateur) ; table `idle_bug_reports`.
+- **Mail** : le Worker (`idleBugMailV1`) transmet le rapport à une passerelle Google Apps Script (`integrations/idle-bug-mail/`), destinataire `reeeedruuuum@gmail.com` et objet « Soreal IDLE Bug signalé » figés dans `Code.gs`. Secrets `SOREAL_IDLE_BUG_MAIL_URL` / `SOREAL_IDLE_BUG_MAIL_SECRET` à poser par Norman (`wrangler secret put`) ; sans eux, les signalements sont enregistrés et lisibles dans Settings > Signalements reçus. L'adresse e-mail du joueur n'est jamais renvoyée au navigateur.
+- **Basic Training** : boutons + (vert), − (rouge), Cap (bleu) plus grands, avec relief.
+- Test : `idle-bug-report-v1`. `soreal-idle-ui.js ?v=278`, `bug-report-v1.js ?v=1`, `release-notes-v1.js ?v=9`.

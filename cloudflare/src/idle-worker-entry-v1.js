@@ -128,10 +128,53 @@ async function idleCallV1(request, env) {
     return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
   }
 
-  return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
+  const reponse = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
     method: "POST",
     body: JSON.stringify({ sessionToken, operation, args })
   });
+  if (operation === "signalerBugSorealIdle") return idleBugMailV1(reponse, env, sessionToken);
+  return reponse;
+}
+
+/*
+ * Signalement de bug (2026-09-26, Norman) : le mail « Soreal IDLE Bug signalé » part vers la passerelle Apps Script (integrations/idle-bug-mail/Code.gs)
+ * dont l'adresse est le secret SOREAL_IDLE_BUG_MAIL_URL (secret optionnel SOREAL_IDLE_BUG_MAIL_SECRET). Le signalement est de toute façon enregistré
+ * par le moteur ; sans secret configuré, ou si l'envoi échoue, le joueur voit « enregistré » et l'administrateur le retrouve dans Settings.
+ * `rapport` (adresse e-mail comprise) n'est jamais renvoyé au navigateur.
+ */
+export const IDLE_BUG_MAIL_OBJET_V1 = "Soreal IDLE Bug signal\u00e9";
+export async function idleBugMailV1(reponse, env, sessionToken, fetchFn = fetch) {
+  const data = await reponse.clone().json().catch(() => null);
+  if (!reponse.ok || !data || !data.ok || !data.rapport) return reponse;
+  const rapport = data.rapport;
+  delete data.rapport;
+  data.mailEnvoye = false;
+  const url = String(env?.SOREAL_IDLE_BUG_MAIL_URL || "").trim();
+  if (url) {
+    try {
+      const ctrl = new AbortController();
+      const minuteur = setTimeout(() => ctrl.abort(), 9000);
+      const r = await fetchFn(url, {
+        method: "POST",
+        headers: { "content-type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ secret: String(env?.SOREAL_IDLE_BUG_MAIL_SECRET || ""), subject: IDLE_BUG_MAIL_OBJET_V1, rapport }),
+        signal: ctrl.signal
+      });
+      clearTimeout(minuteur);
+      const j = await r.json().catch(() => null);
+      data.mailEnvoye = Boolean(r.ok && j && j.ok);
+    } catch (_) {
+      data.mailEnvoye = false;
+    }
+    /* Statut du mail, gardé avec le signalement (échec sans importance : le signalement est déjà enregistré). */
+    try {
+      await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
+        method: "POST",
+        body: JSON.stringify({ sessionToken, operation: "marquerBugMailSorealIdle", args: [data.id, data.mailEnvoye ? "envoy\u00e9" : "\u00e9chec"] })
+      });
+    } catch (_) { /* ignoré */ }
+  }
+  return idleJsonV1(data);
 }
 
 export default {

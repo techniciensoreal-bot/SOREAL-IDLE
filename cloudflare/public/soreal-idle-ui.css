@@ -7016,6 +7016,28 @@
             cursor:default;
           }
 
+          /*
+           * Boutons + / − / Cap bien visibles (2026-09-26, Norman : « qu'on sache directement que c'est là que ça se passe ») : grands, colorés
+           * (+ vert, − rouge, Cap bleu), avec un relief et un retour au toucher.
+           */
+          .soreal-idle-bt-actions-v120{gap:7px}
+          .soreal-idle-bt-actions-v120 button{
+            min-height:44px;
+            font-size:22px;
+            line-height:1;
+            font-weight:1000;
+            border-radius:12px;
+            border:2px solid transparent;
+            box-shadow:0 3px 0 rgba(0,0,0,.4);
+            transition:filter .12s ease,transform .08s ease,box-shadow .08s ease;
+            touch-action:manipulation;
+          }
+          .soreal-idle-bt-actions-v120 button:nth-child(1){background:linear-gradient(180deg,#2f9a57,#1f6b3a);border-color:#5fe08e;color:#f0fff5}
+          .soreal-idle-bt-actions-v120 button:nth-child(2){background:linear-gradient(180deg,#b73a4c,#7a2733);border-color:#ff7f92;color:#fff1f3}
+          .soreal-idle-bt-actions-v120 button:nth-child(3){background:linear-gradient(180deg,#3d72d6,#2a4f96);border-color:#8bb8ff;color:#f0f6ff;font-size:16px;letter-spacing:.02em}
+          .soreal-idle-bt-actions-v120 button:hover:not(:disabled){filter:brightness(1.18)}
+          .soreal-idle-bt-actions-v120 button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+
           .soreal-idle-bestiary-image-v120{
             height:150px;
             margin:-3px -3px 8px;

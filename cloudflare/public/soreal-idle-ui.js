@@ -21053,6 +21053,7 @@ function pageAventureIdleV28_(j){
               (notesMajIdleV1_().versions[0]?' · '+idleHtml_(notesMajIdleV1_().versions[0].nom):'')+'</div>'+
             htmlNotesMajIdleV1_()+
           '</div>'+
+          (window.__SOREAL_IDLE_BUG_REPORT_V1__?window.__SOREAL_IDLE_BUG_REPORT_V1__.html(estAdminSorealIdle_()):'')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+
