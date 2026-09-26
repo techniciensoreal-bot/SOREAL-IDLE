@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.3',
+    courante:'2.4',
     versions:[
+      {
+        version:'2.4',
+        nom:'Trois petits sons',
+        date:'2026-09-26',
+        points:[
+          'Les boutons + , − et Cap de Basic Training ont chacun leur petit son : un « bloup » qui monte pour ajouter de l’énergie, un « bloup » qui redescend pour la retirer, et une charge qui monte suivie d’un « ding » pour Cap.',
+          'Le son ne se joue que si l’énergie affectée change vraiment.',
+          'Comme les autres sons du jeu, ils se coupent d’eux-mêmes quand tu enchaînes les clics : jamais d’empilement.'
+        ]
+      },
       {
         version:'2.3',
         nom:'Fuite et nouveaux menus',

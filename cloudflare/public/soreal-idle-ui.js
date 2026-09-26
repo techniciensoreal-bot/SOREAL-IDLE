@@ -1086,6 +1086,13 @@
           );
         }
 
+        /* Sons de +, − et Cap (2026-09-26) : seulement si l'allocation change vraiment. */
+        if(delta!==0){
+          jouerEffetAudioIdleV199_(
+            action==='plus'?'btPlus':action==='moins'?'btMinus':'btCap'
+          );
+        }
+
         skill.allocation=
           cible;
 

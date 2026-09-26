@@ -26,6 +26,9 @@
     nuke:{group:"combat-action",priority:110,maxAgeMs:1200},
     defeat:{group:"combat-end",priority:100,maxAgeMs:2800},
     flee:{group:"combat-end",priority:95,maxAgeMs:2400},
+    btPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
+    btMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
+    btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
     menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
@@ -346,6 +349,40 @@
     });
   }
 
+  /*
+   * Basic Training (Norman, 2026-09-26) : trois sons pour +, − et Cap, chacun en rapport avec ce qu'il fait.
+   *   +   : on ajoute de l'énergie -> petit « bloup » qui monte, brillant ;
+   *   −   : on la retire            -> petit « bloup » qui redescend, plus mat ;
+   *   Cap : on remplit jusqu'au plafond -> une charge qui monte en puissance, puis un « ding » de plein.
+   */
+  function btPlus_(){
+    return jouerWebAudio_(220,function(c){
+      tonal_(c,{type:"triangle",from:440,to:660,duration:.08,volume:.052});
+      tonal_(c,{type:"triangle",from:660,to:990,duration:.10,volume:.048,delay:.06});
+      tonal_(c,{type:"sine",from:1320,to:1480,duration:.08,volume:.018,delay:.10});
+    });
+  }
+
+  function btMoins_(){
+    return jouerWebAudio_(220,function(c){
+      tonal_(c,{type:"triangle",from:620,to:390,duration:.09,volume:.048});
+      tonal_(c,{type:"sine",from:390,to:230,duration:.12,volume:.050,delay:.06});
+    });
+  }
+
+  function btCap_(){
+    return jouerWebAudio_(560,function(c){
+      tonal_(c,{type:"sawtooth",from:180,to:900,duration:.26,volume:.034});
+      tonal_(c,{type:"square",from:360,to:1400,duration:.22,volume:.012,delay:.04});
+      tonal_(c,{type:"sine",from:1568,to:1568,duration:.30,volume:.046,delay:.27});
+      tonal_(c,{type:"triangle",from:2093,to:2093,duration:.20,volume:.020,delay:.29});
+      bruit_(c,{
+        duration:.14,volume:.014,delay:.28,
+        filterType:"highpass",frequency:6000,frequencyEnd:9000,decay:2.4
+      });
+    });
+  }
+
   function coffreOuverture_(){
     return jouerWebAudio_(470,function(c){
       bruit_(c,{
@@ -487,6 +524,9 @@
     nuke:nuke_,
     defeat:defaite_,
     flee:fuite_,
+    btPlus:btPlus_,
+    btMinus:btMoins_,
+    btCap:btCap_,
     menuUnlock:menuDebloque_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
@@ -602,6 +642,9 @@
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
     flee:function(){return demander_("flee");},
+    btPlus:function(){return demander_("btPlus");},
+    btMinus:function(){return demander_("btMinus");},
+    btCap:function(){return demander_("btCap");},
     menuUnlock:function(){return demander_("menuUnlock");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
