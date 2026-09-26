@@ -509,8 +509,11 @@
             pointer-events:none;
           }
 
+          /* Éclat blanc retiré (Norman, 2026-09-26) : jamais affiché, jamais animé. */
+          .soreal-idle-energybar-shine-v11,
           .soreal-idle-energybar-shine-v11.tick{
-            animation:sorealIdleEnergyShineV11 .32s ease-out;
+            display:none !important;
+            animation:none !important;
           }
 
           @keyframes sorealIdleEnergyShineV11{

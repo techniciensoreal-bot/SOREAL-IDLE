@@ -105,4 +105,29 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   assert.equal(conception.histoire, surcharge, "design/ngu-boss-stories-fr.json (id 4) = texte affiché dans le jeu");
 }
 
+// --- Popups des systèmes génériques (Perks, Achievements…) : une voix pré-enregistrée pour chaque système du catalogue (Norman, 2026-09-26 : « la voix ne se lance pas et le jeu a ramé ») ---
+{
+  const morceau = (debut, fin) => ui.slice(ui.indexOf(debut), ui.indexOf(fin, ui.indexOf(debut)));
+  const codeUi = [
+    morceau("function pauseVoixIdleV1_(ms){", "function texteVoixTutorielIdleV1_("),
+    morceau("function texteVoixNouveauteIdleV1_(info){", "function infoMoneyPitIdleV1_(){"),
+    morceau("function infoSystemeGeneriqueIdleV1_(s,menuCible){", "/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-117 */"),
+    "return {info:infoSystemeGeneriqueIdleV1_,texte:texteVoixNouveauteIdleV1_};"
+  ].join(String.fromCharCode(10));
+  const api = new Function(codeUi)();
+  const { IDLE_NGU_SYSTEMS } = await import("../src/idle-ngu-progression.js");
+  const manifeste = JSON.parse(readFileSync("cloudflare/public/voice/manifest.json", "utf8"));
+  const fichiers = new Set(manifeste.files);
+  const menus = ui.slice(ui.indexOf("const IDLE_SYSTEME_PAR_MENU_V1={"), ui.indexOf("const IDLE_MENU_PAR_SYSTEME_V1"));
+  let verifies = 0;
+  for (const systeme of IDLE_NGU_SYSTEMS) {
+    if (systeme.id === "moneyPit" || systeme.id === "dailySpin" || !menus.includes("'" + systeme.id + "'")) continue;
+    const texte = api.texte(api.info({ id: systeme.id, name: systeme.name, icon: systeme.icon, kind: systeme.kind }, "menu"));
+    for (const h of plan(texte).filter((e) => e.chunk != null).map((e) => hash(e.chunk))) assert.ok(fichiers.has(h), "voix manquante pour le popup du système " + systeme.id);
+    verifies += 1;
+  }
+  assert.ok(verifies >= 15, "les systèmes génériques sont bien couverts : " + verifies);
+  assert.ok(ui.includes("window.__sorealVoiceTextesSystemesIdleV1__=function(systemes){") && readFileSync("cloudflare/tools/voice-generate.mjs", "utf8").includes("__sorealVoiceTextesSystemesIdleV1__(systemes)"), "l'outil de génération lit ces textes");
+}
+
 console.log("idle-voice-pregenerated-v1 OK");

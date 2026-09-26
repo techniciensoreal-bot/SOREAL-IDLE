@@ -11,10 +11,10 @@ const achat = readFileSync("cloudflare/public/modules/purchase-sound-v1.js", "ut
 
 // --- Menu Achievements : caché tant qu'aucun succès n'est débloqué ---
 {
-  const i = ui.indexOf("if(id==='succes'){");
+  const i = ui.indexOf("function menuSuccesVisibleIdleV1_(j){");
   assert.ok(i > 0, "règle propre au menu Achievements");
-  const bloc = ui.slice(i, ui.indexOf("const systemeId=IDLE_SYSTEME_PAR_MENU_V1[id];", i));
-  assert.ok(/j\.systemes\.achievements/.test(bloc) && /\.list\.some\(function\(a\)\{return a&&a\.unlocked;\}\)/.test(bloc) && /return false;/.test(bloc), "faux tant qu'aucun succès n'est débloqué");
+  const bloc = ui.slice(i, ui.indexOf("function generationJoueurIdleV75_(", i));
+  assert.ok(bloc.includes("j.systemes.achievements") && bloc.includes(".list.some(function(a){return a&&a.unlocked;})"), "vrai seulement quand au moins un succès est débloqué");
 }
 
 // --- Sons d'achat : or (EXP Shop), gemme (Boutique AP), caisse pour les autres ---
@@ -118,6 +118,19 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
   const dt = ui.slice(ui.indexOf("function boosterObjetEquipeAdventureIdleV1_(id){"), ui.indexOf("function executerTapObjetAdventureIdleV196_(element,id){"));
   assert.ok(dt.includes("action:'inventoryAuto',mode:'boostAll',targetId:objet") && dt.includes("item.kind==='boost'"), "boost de la pièce équipée (jamais un boost)");
   assert.ok(/boosterObjetEquipeAdventureIdleV1_\(id\)\s*\)\{\s*return;/.test(ui), "branché sur le double tap des pièces équipées");
+}
+
+// --- Zoom interdit ; plus d'éclat blanc sur la barre verte ; popup Achievements au premier succès ---
+{
+  const index = readFileSync("cloudflare/public/index.html", "utf8");
+  const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
+  assert.ok(index.includes("maximum-scale=1,user-scalable=no"), "viewport : zoom désactivé");
+  assert.ok(index.includes("touch-action:pan-x pan-y") && index.includes('"gesturestart"'), "pincement et double tap coupés");
+  assert.ok(!index.includes("sorealIdleEnergyShineV11") && !ui.includes('id="sorealIdleEnergyShineV11"'), "l'éclat blanc n'est plus dans la barre");
+  assert.ok(/soreal-idle-energybar-shine-v11,\s*\.soreal-idle-energybar-shine-v11\.tick\{\s*display:none !important;/.test(css), "l'éclat est masqué même s'il subsistait");
+  assert.ok(/function jouerEclatEnergieTickIdleV13_\(\)\{[^}]*?return;/.test(ui), "plus d'animation d'éclat à chaque tick");
+  assert.ok(ui.includes("(s.id!=='achievements'||menuSuccesVisibleIdleV1_(j))"), "la nouveauté Achievements (popup + voix) n'existe qu'au premier succès");
+  assert.ok(ui.includes("if(id==='succes'&&!menuSuccesVisibleIdleV1_(j))return false;"), "le menu Achievements suit la même règle");
 }
 
 console.log("idle-shop-sounds-achievements-menu-v1 OK");

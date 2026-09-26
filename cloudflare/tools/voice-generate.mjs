@@ -22,6 +22,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { IDLE_NGU_SYSTEMS } from "../src/idle-ngu-progression.js";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 const RACINE = path.resolve(ICI, "..", "..");
@@ -114,10 +115,11 @@ async function main() {
   const page0 = await ouvrirPage(navigateur);
 
   /* 1) Textes à lire -> blocs (dédoublonnés par empreinte). */
-  const blocs = await page0.evaluate((liste) => {
+  const systemes = IDLE_NGU_SYSTEMS.map((d) => ({ id: d.id, name: d.name, icon: d.icon, kind: d.kind }));
+  const blocs = await page0.evaluate(({ liste, systemes }) => {
     const tts = window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
     const M = (ms) => " " + String.fromCharCode(0xe000) + ms + String.fromCharCode(0xe001) + " ";
-    const textes = ["Chroniques de boss." + M(1500), ...window.__sorealVoiceTextesIdleV1__()];
+    const textes = ["Chroniques de boss." + M(1500), ...window.__sorealVoiceTextesIdleV1__(), ...window.__sorealVoiceTextesSystemesIdleV1__(systemes)];
     for (const b of liste) textes.push(tts.composerChronique(b.nom, b.histoire));
     const vus = new Map();
     for (const t of textes) {
@@ -128,7 +130,7 @@ async function main() {
       }
     }
     return [...vus.entries()].map(([hash, texte]) => ({ hash, texte, femme: Boolean(tts.estVoixFemme && tts.estVoixFemme(texte)) }));
-  }, boss);
+  }, { liste: boss, systemes });
 
   const totalCaracteres = blocs.reduce((n, b) => n + b.texte.length, 0);
   if (ASTERISQUES) {

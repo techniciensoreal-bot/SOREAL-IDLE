@@ -3978,6 +3978,8 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-79 */
       function jouerEclatEnergieTickIdleV13_(){
+        /* Plus d'éclat blanc qui traverse la barre verte à chaque tick (Norman, 2026-09-26 : « je ne le veux pas »). */
+        return;
         const shine=document.getElementById('sorealIdleEnergyShineV11');
         if(!shine)return;
 
@@ -9153,10 +9155,7 @@
         }
 
         /* Achievements (Norman, 2026-09-26) : le menu n'apparaît qu'au premier succès débloqué. */
-        if(id==='succes'){
-          const succes=j.systemes&&j.systemes.achievements;
-          if(!(succes&&Array.isArray(succes.list)&&succes.list.some(function(a){return a&&a.unlocked;})))return false;
-        }
+        if(id==='succes'&&!menuSuccesVisibleIdleV1_(j))return false;
 
         const systemeId=IDLE_SYSTEME_PAR_MENU_V1[id];
         if(!systemeId)return false;
@@ -9173,6 +9172,12 @@
         return Boolean(
           systeme&&systeme.unlock&&systeme.unlock.unlocked
         );
+      }
+
+      /* Le menu Achievements n'apparaît qu'au premier succès débloqué (Norman, 2026-09-26). */
+      function menuSuccesVisibleIdleV1_(j){
+        const succes=j&&j.systemes&&j.systemes.achievements;
+        return Boolean(succes&&Array.isArray(succes.list)&&succes.list.some(function(a){return a&&a.unlocked;}));
       }
 
       function generationJoueurIdleV75_(
@@ -9257,7 +9262,9 @@
               s&&
               s.id&&
               s.unlock&&
-              s.unlock.unlocked
+              s.unlock.unlocked&&
+              /* Achievements : disponible (donc popup + voix) seulement une fois le menu apparu, au premier succès débloqué. */
+              (s.id!=='achievements'||menuSuccesVisibleIdleV1_(j))
             ){
               disponibles.push(
                 'meta:'+String(s.id)
@@ -9267,6 +9274,27 @@
         }
 
         return disponibles;
+      }
+
+      /*
+       * Texte d'explication d'un système « générique » (Perks, Quirks, Achievements…). Fonction pure : le popup l'affiche ET la génération des voix pré-enregistrées (voice-generate.mjs) la
+       * lit pour chaque système du catalogue. Sans cela, ces popups n'avaient pas de fichier audio : repli sur la voix locale (lourde, jeu qui rame, souvent en erreur sur téléphone).
+       */
+      function infoSystemeGeneriqueIdleV1_(s,menuCible){
+        return {
+          icon:s.icon||'✨',
+          titre:(s.name||'Nouveau système')+' débloqué',
+          intro:'Une nouvelle couche de progression est disponible.',
+          menuCible:menuCible,
+          libelleCible:'Ouvrir le système',
+          bullets:[
+            s.desc||'Ce système améliore ta progression.',
+            'Son état est sauvegardé dans le moteur partagé SOREAL IDLE.',
+            s.kind==='permanent'
+              ?'Cette progression est permanente entre les Renaissances.'
+              :'Vérifie ce qui est conservé ou banké lors d’une Renaissance.'
+          ]
+        };
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-117 */
@@ -9294,20 +9322,7 @@
                 info=infoMoneyPitIdleV1_();
               }else if(systemeId!=='dailySpin'){
                 const menuCible=IDLE_MENU_PAR_SYSTEME_V1[systemeId]||null;
-                info=menuCible?{
-                  icon:s.icon||'✨',
-                  titre:(s.name||'Nouveau système')+' débloqué',
-                  intro:'Une nouvelle couche de progression est disponible.',
-                  menuCible:menuCible,
-                  libelleCible:'Ouvrir le système',
-                  bullets:[
-                    s.desc||'Ce système améliore ta progression.',
-                    'Son état est sauvegardé dans le moteur partagé SOREAL IDLE.',
-                    s.kind==='permanent'
-                      ?'Cette progression est permanente entre les Renaissances.'
-                      :'Vérifie ce qui est conservé ou banké lors d’une Renaissance.'
-                  ]
-                }:null;
+                info=menuCible?infoSystemeGeneriqueIdleV1_(s,menuCible):null;
               }
             }
           }
@@ -9933,6 +9948,15 @@
         textes.push(texteVoixNouveauteIdleV1_(infoMoneyPitIdleV1_()));
         textes.push(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);
         return textes;
+      };
+
+      /* Textes des popups de système générique, pour chaque système du catalogue serveur (liste {id,name,icon,kind} fournie par l'outil de génération). */
+      window.__sorealVoiceTextesSystemesIdleV1__=function(systemes){
+        return (Array.isArray(systemes)?systemes:[]).filter(function(s){
+          return s&&s.id&&s.id!=='moneyPit'&&s.id!=='dailySpin'&&IDLE_MENU_PAR_SYSTEME_V1[s.id];
+        }).map(function(s){
+          return texteVoixNouveauteIdleV1_(infoSystemeGeneriqueIdleV1_(s,IDLE_MENU_PAR_SYSTEME_V1[s.id]));
+        });
       };
 
       /* Précharge la voix des pages suivantes d'un popup pendant la lecture de la page affichée : « Suivant » joue alors sans délai. */
@@ -13004,10 +13028,6 @@
               <div
                 id="sorealIdleEnergyBarV11"
                 class="soreal-idle-energybar-v11"
-              ></div>
-              <div
-                id="sorealIdleEnergyShineV11"
-                class="soreal-idle-energybar-shine-v11"
               ></div>
               <div
                 id="sorealIdleEnergyOverlayV1"
