@@ -170,14 +170,29 @@ function normaliserV1(value) {
 }
 
 /*
- * Choix du fichier R2 (dossier idle/player/) pour un portrait : le nom du fichier du wiki, avec ou
- * sans préfixe (ex. « Portrait_PlayerAPportrait16.png »), comparé sans casse ni séparateurs.
+ * Nom de fichier simple à donner à l'image d'un portrait dans R2 (dossier idle/player/), fixé par Norman (2026-09-26) : « portrait-<id>.webp »
+ * (ex. portrait-training.webp, portrait-forest-bonus-1.webp). La liste complète est dans docs/PORTRAITS-NOMS-FICHIERS.md.
+ */
+export function idlePortraitNomFichierV1(id) {
+  return "portrait-" + String(id || "") + ".webp";
+}
+
+/*
+ * Choix du fichier R2 (dossier idle/player/) pour un portrait. `portraitFile` est le nom du fichier du wiki (ou l'identifiant). Ordre :
+ *  1. le nom simple « portrait-<id> » (n'importe quelle extension) ;
+ *  2. le nom du fichier du wiki, avec ou sans préfixe (ex. « Portrait_PlayerAPportrait16.png »), sans casse ni séparateurs.
  * Renvoie "" si aucun fichier ne correspond (l'appelant retombe alors sur son comportement par défaut).
  */
 export function idlePortraitPickR2KeyV1(keys, portraitFile) {
   const cible = normaliserV1(portraitFile);
   if (!cible || !Array.isArray(keys)) return "";
   const base = k => normaliserV1(String(k).split("/").pop().replace(/\.[^.]+$/, ""));
+  const entree = IDLE_PORTRAITS_V1.find(p => normaliserV1(p.file) === cible || normaliserV1(p.id) === cible);
+  if (entree) {
+    const simple = normaliserV1(idlePortraitNomFichierV1(entree.id).replace(/\.webp$/, ""));
+    const trouve = keys.find(k => base(k) === simple);
+    if (trouve) return trouve;
+  }
   const exact = keys.find(k => base(k) === cible);
   if (exact) return exact;
   return keys.find(k => base(k).endsWith(cible)) || "";

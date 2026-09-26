@@ -1767,3 +1767,8 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - Plus de mail : passerelle Apps Script (`integrations/idle-bug-mail/`), `idleBugMailV1` du Worker et opération `marquerBugMailSorealIdle` supprimés. Le signalement est enregistré (`idle_bug_reports`) ; le joueur voit « Signalement envoyé. Merci ! ».
 - Administrateur : Settings > « Signalements reçus » liste les 50 derniers, avec un bouton « Supprimer (réglé) » à double clic de confirmation ; nouvelle opération `supprimerBugSorealIdle` (admin seulement). Vérifié sur le serveur local avec le vrai moteur : message vide refusé, envoi, lecture, suppression.
 - `bug-report-v1.js ?v=2`. Aucun secret Cloudflare à poser (les deux secrets `SOREAL_IDLE_BUG_MAIL_*` n'ont jamais été créés).
+
+### 2026-09-26 — Portraits : nom de fichier simple par portrait
+
+- Norman : « relie les portraits aux bons noms, donne-moi le nom de chaque fichier, ce seront des webp ». Convention `portrait-<id>.webp` dans `idle/player/` (`idlePortraitNomFichierV1`) ; `idlePortraitPickR2KeyV1` cherche d'abord ce nom (toute extension), puis l'ancien nom du wiki : les 18 images déjà présentes continuent de marcher, un nouveau fichier l'emporte sur l'ancien. Le média `/api/idle/media/player` et le client n'ont pas changé.
+- Liste complète (32 à ajouter, 18 présents) : `docs/PORTRAITS-NOMS-FICHIERS.md`. Test : `idle-portraits-noms-fichiers-v1`.
