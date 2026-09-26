@@ -12431,7 +12431,8 @@ function noterPassageIdleV1_(acces) {
     noterPassageProfilIdleV1(__idleSql, {
       email: emailProfilSorealIdle_(acces),
       externe: Boolean(acces.user && acces.user.externe === true),
-      googleName: acces.user && acces.user.externe === true ? acces.user.name : ''
+      googleName: acces.user && acces.user.externe === true ? acces.user.name : '',
+      prenom: acces.user && acces.user.externe !== true ? String(acces.user.prenom || '').trim() : ''
     });
   } catch (_) {
     /* le profil est un confort : une erreur ici ne doit jamais empêcher de jouer */
@@ -12448,12 +12449,13 @@ function identiteJoueurSorealIdle_(acces) {
   }
   const pseudo = profil ? profil.pseudo : '';
   const prenom = externe ? '' : String((acces && acces.user && acces.user.prenom) || '').trim();
+  const profilAffiche = { pseudo: pseudo, externe: externe, googleName: profil ? profil.googleName : '', prenom: profil ? profil.prenom : '' };
   return {
     externe: externe,
     pseudo: pseudo,
     prenom: prenom,
     /* Nom vu des autres : « Pseudo (Prénom) » pour un ouvrier, « Pseudo » pour un externe. */
-    nomAffiche: libelleJoueurIdleV1({ pseudo: pseudo, externe: externe }, prenom) || 'Joueur',
+    nomAffiche: libelleJoueurIdleV1(profilAffiche, prenom) || 'Joueur',
     /* L'adresse n'est montrée qu'au joueur externe lui-même (compte Google utilisé). */
     email: externe ? emailProfilSorealIdle_(acces) : ''
   };
@@ -12724,10 +12726,13 @@ function obtenirClassementSorealIdle(
     );
   }
 
+  /* Le prénom de l'ouvrier qui ouvre le classement est mémorisé tout de suite (son nom peut ainsi s'afficher « Pseudo (Prénom) » dès cette page). */
+  noterPassageIdleV1_(acces);
+
   const registre =
     obtenirFeuilleClassementSorealIdle_();
 
-  /* Pseudos (2026-09-26) : un externe n'est vu que par son pseudo ; un ouvrier avec pseudo apparaît « Pseudo (Prénom) » ; un externe sans pseudo reste « Joueur », donc hors classement. */
+  /* Pseudos (2026-09-26) : un externe n'est vu que par son pseudo (sans pseudo : le prénom de son compte Google) ; un ouvrier apparaît « Pseudo (Prénom) », prénom obligatoire. */
   const profils = __idleSql ? profilsParEmailIdleV1(__idleSql) : new Map();
   const nomAffiche = function(cle, nomLigne) {
     return libelleJoueurIdleV1(profils.get(String(cle || '').trim().toLowerCase()), nomLigne);

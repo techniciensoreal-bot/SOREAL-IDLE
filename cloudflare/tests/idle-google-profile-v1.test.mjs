@@ -28,6 +28,12 @@ const ADMIN = "technicien.soreal@gmail.com";
   assert.equal(libelleJoueurIdleV1({ pseudo: "zoé", externe: false }, "Zoé"), "zoé", "pseudo identique au prénom : pas de doublon");
   assert.equal(libelleJoueurIdleV1({ pseudo: "", externe: false }, "Zoé"), "Zoé", "sans pseudo : le prénom");
   assert.equal(libelleJoueurIdleV1(null, "Joueur"), "Joueur");
+  /* Norman (2026-09-26) : « Redrum (Joueur) » au lieu de « Redrum (Norman) » : un ouvrier a obligatoirement son prénom entre parenthèses ; un externe sans pseudo est vu par son prénom Google. */
+  assert.equal(libelleJoueurIdleV1({ pseudo: "Redrum", externe: false, prenom: "Norman" }, "Joueur"), "Redrum (Norman)", "le prénom du profil l'emporte sur le nom de ligne « Joueur »");
+  assert.equal(libelleJoueurIdleV1({ pseudo: "Redrum", externe: false, prenom: "" }, "Joueur"), "Redrum", "prénom inconnu : jamais « (Joueur) »");
+  assert.equal(libelleJoueurIdleV1({ pseudo: "", externe: false, prenom: "Norman" }, "Joueur"), "Norman", "sans pseudo : le prénom");
+  assert.equal(libelleJoueurIdleV1({ pseudo: "", externe: true, googleName: "Marie Dupont" }, "Joueur"), "Marie", "externe sans pseudo : prénom du compte Google");
+  assert.equal(libelleJoueurIdleV1({ pseudo: "Zozo", externe: true, googleName: "Marie Dupont" }, "Joueur"), "Zozo", "externe avec pseudo : le pseudo seul");
 }
 
 // ---------------------------------------------------------------- jeton Google
@@ -129,7 +135,7 @@ appeler(zoe, "definirAutoBossSuivantSorealIdle", [true]);
 const idZoe = appeler(zoe, "obtenirIdentiteSorealIdle");
 assert.equal(idZoe.externe, true);
 assert.equal(idZoe.pseudo, "");
-assert.equal(idZoe.nomAffiche, "Joueur");
+assert.equal(idZoe.nomAffiche, "Zoé", "externe sans pseudo : le prénom de son compte Google");
 assert.equal(idZoe.email, "zoe.joueuse@gmail.com", "il voit son propre compte Google");
 assert.equal(erreur(() => appeler(zoe, "definirAccesPublicSorealIdle", [false])), "SOREAL_IDLE_ADMIN_REQUIS");
 assert.equal(erreur(() => appeler(zoe, "listerJoueursExternesSorealIdle")), "SOREAL_IDLE_ADMIN_REQUIS");
@@ -159,6 +165,22 @@ assert.equal(appeler(alice, "definirPseudoSorealIdle", ["Al Capone"]).nomAffiche
 assert.equal(appeler(alice, "obtenirIdentiteSorealIdle").externe, false);
 assert.equal(appeler(alice, "obtenirIdentiteSorealIdle").email, "", "l'adresse d'un ouvrier n'est pas exposée");
 assert.equal(appeler(alice, "definirPseudoSorealIdle", ["Zozo la Reine"]).code, "PSEUDO_PRIS", "l'unicité vaut aussi pour les ouvriers");
+
+// Cas de Norman : une ligne créée d'abord par une connexion Google (nom « Joueur »), puis la même adresse arrive par APP / TV avec son prénom
+{
+  const google = sessionGoogle("redrum.test@gmail.com", "Norman Test");
+  assert.equal(appeler(google, "definirPseudoSorealIdle", ["Redrum"]).ok, true);
+  const app = sessionApp("redrum.test@gmail.com", "Norman", { idleTrophee: true });
+  assert.equal(appeler(app, "obtenirAccesSorealIdle").externe, false, "arrivé par APP / TV : ouvrier");
+  const identite = appeler(app, "obtenirIdentiteSorealIdle");
+  assert.equal(identite.nomAffiche, "Redrum (Norman)", "ouvrier : pseudo (prénom)");
+  const profils = db.prepare("SELECT prenom,externe FROM idle_profiles WHERE email='redrum.test@gmail.com'").all();
+  assert.equal(profils[0].prenom, "Norman", "le prénom est mémorisé dans le profil");
+  assert.equal(profils[0].externe, 0);
+  const classement = appeler(admin, "obtenirClassementSorealIdle");
+  const noms = classement.entrees.map((j) => j.nom);
+  assert.ok(!noms.some((n) => /(Joueur)/.test(n)), "aucun « (Joueur) » dans le classement : " + noms.join(" | "));
+}
 
 // l'administrateur voit adresse + nom Google + pseudo des externes
 {

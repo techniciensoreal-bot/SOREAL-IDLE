@@ -7,7 +7,11 @@
  *
  *  - joueur externe  = connecté par Google, sans compte SOREAL : il n'est vu des autres que par son pseudo (jamais son nom Google ni son adresse) ;
  *  - ouvrier         = arrivé par APP / TV : « Pseudo (Prénom) » ;
- *  - sans pseudo     = le nom de la ligne du joueur (« Joueur » pour un externe, ce qui le laisse hors classement tant qu'il n'a pas choisi).
+ *  - sans pseudo     = un ouvrier est vu par son prénom ; un externe par le prénom de son compte Google (Norman, 2026-09-26 : « s'ils ne mettent pas de pseudo, mets leur
+ *                      prénom via le compte Google »).
+ *
+ * Un ouvrier a OBLIGATOIREMENT son prénom entre parenthèses (« Pseudo (Prénom) »). Le prénom vient de sa session APP / TV et est mémorisé dans son profil : le nom de la ligne du
+ * joueur peut être resté « Joueur » (ligne créée un jour par une connexion Google), il n'est plus la source du prénom.
  *
  * Table idle_profiles (une ligne par adresse e-mail) : pseudo affiché, clé de pseudo (unicité sans accents ni majuscules), drapeau externe, nom Google (visible
  * de l'administrateur seulement). Le pseudo survit à une réinitialisation de la partie (il n'est pas dans l'état du jeu).
@@ -58,6 +62,12 @@ export function assurerTableProfilsIdleV1(sql) {
     "email TEXT PRIMARY KEY,pseudo TEXT NOT NULL DEFAULT '',pseudo_key TEXT NOT NULL DEFAULT '',externe INTEGER NOT NULL DEFAULT 0," +
     "google_name TEXT NOT NULL DEFAULT '',first_seen INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL DEFAULT 0)"
   );
+  /* Colonne ajoutée après coup (prénom de l'ouvrier, issu de sa session APP / TV) ; l'erreur « existe déjà » est normale. */
+  try {
+    sql.exec("ALTER TABLE idle_profiles ADD COLUMN prenom TEXT NOT NULL DEFAULT ''");
+  } catch (_) {
+    /* colonne déjà présente */
+  }
   sql.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_idle_profiles_pseudo ON idle_profiles(pseudo_key) WHERE pseudo_key<>''");
 }
 
@@ -65,9 +75,9 @@ export function lireProfilIdleV1(sql, email) {
   const cle = emailV1(email);
   if (!cle) return null;
   assurerTableProfilsIdleV1(sql);
-  const ligne = sqlRows(sql.exec("SELECT email,pseudo,pseudo_key,externe,google_name,first_seen,updated_at FROM idle_profiles WHERE email=?", cle))[0];
+  const ligne = sqlRows(sql.exec("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", cle))[0];
   return ligne
-    ? { email: ligne.email, pseudo: texteV1(ligne.pseudo), externe: Number(ligne.externe) === 1, googleName: texteV1(ligne.google_name), premiereVue: Number(ligne.first_seen || 0) }
+    ? { email: ligne.email, pseudo: texteV1(ligne.pseudo), externe: Number(ligne.externe) === 1, googleName: texteV1(ligne.google_name), prenom: texteV1(ligne.prenom), premiereVue: Number(ligne.first_seen || 0) }
     : null;
 }
 
@@ -75,25 +85,39 @@ export function lireProfilIdleV1(sql, email) {
  * Enregistre le passage d'un joueur (adresse, joueur externe ou non, nom Google). N'écrit que ce qui change. Un joueur arrivé par APP / TV n'est jamais rétrogradé
  * en « externe », et un externe qui passe ensuite par APP / TV devient ouvrier (son pseudo est conservé).
  */
-export function noterPassageProfilIdleV1(sql, { email, externe, googleName }, maintenant = Date.now()) {
+export function noterPassageProfilIdleV1(sql, { email, externe, googleName, prenom }, maintenant = Date.now()) {
   const cle = emailV1(email);
   if (!cle) return null;
   assurerTableProfilsIdleV1(sql);
   const actuel = lireProfilIdleV1(sql, cle);
   const nom = texteV1(googleName).slice(0, 80);
+  /* Le prénom n'est retenu que pour un ouvrier (session APP / TV) et jamais s'il est vide ou générique (« Joueur »). */
+  const prenomOuvrier = externe ? "" : prenomUtileV1(prenom).slice(0, 40);
   if (!actuel) {
     sql.exec(
-      "INSERT INTO idle_profiles(email,pseudo,pseudo_key,externe,google_name,first_seen,updated_at) VALUES(?,?,?,?,?,?,?)",
-      cle, "", "", externe ? 1 : 0, nom, maintenant, maintenant
+      "INSERT INTO idle_profiles(email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at) VALUES(?,?,?,?,?,?,?,?)",
+      cle, "", "", externe ? 1 : 0, nom, prenomOuvrier, maintenant, maintenant
     );
     return lireProfilIdleV1(sql, cle);
   }
   const nouveauExterne = externe ? actuel.externe : false;
   const nouveauNom = nom || actuel.googleName;
-  if (nouveauExterne !== actuel.externe || nouveauNom !== actuel.googleName) {
-    sql.exec("UPDATE idle_profiles SET externe=?,google_name=?,updated_at=? WHERE email=?", nouveauExterne ? 1 : 0, nouveauNom, maintenant, cle);
+  const nouveauPrenom = prenomOuvrier || actuel.prenom;
+  if (nouveauExterne !== actuel.externe || nouveauNom !== actuel.googleName || nouveauPrenom !== actuel.prenom) {
+    sql.exec("UPDATE idle_profiles SET externe=?,google_name=?,prenom=?,updated_at=? WHERE email=?", nouveauExterne ? 1 : 0, nouveauNom, nouveauPrenom, maintenant, cle);
   }
   return lireProfilIdleV1(sql, cle);
+}
+
+/* Un prénom exploitable : non vide et pas le nom générique « Joueur ». */
+function prenomUtileV1(valeur) {
+  const prenom = texteV1(valeur);
+  return prenom && prenom.toLowerCase() !== "joueur" ? prenom : "";
+}
+
+/* Premier prénom d'un nom Google complet (« Norman Dupont » -> « Norman »). */
+function premierPrenomV1(nomComplet) {
+  return texteV1(nomComplet).split(/\s+/)[0] || "";
 }
 
 /* Enregistre le pseudo d'un joueur. Retourne { ok:true, pseudo } ou { ok:false, code, message }. Le pseudo est unique (sans accents ni majuscules). */
@@ -113,22 +137,28 @@ export function definirPseudoProfilIdleV1(sql, email, brut, maintenant = Date.no
   return { ok: true, pseudo: verifie.pseudo };
 }
 
-/* Nom montré aux autres joueurs (classement, listes) : voir l'en-tête. nomLigne = prénom (ouvrier) ou « Joueur » (externe). */
+/*
+ * Nom montré aux autres joueurs (classement, listes) : voir l'en-tête. nomLigne = nom de la ligne du joueur (souvent son prénom, mais « Joueur » si la ligne a été créée par une
+ * connexion Google).
+ *  - externe : son pseudo ; sans pseudo, le prénom de son compte Google ;
+ *  - ouvrier : « Pseudo (Prénom) », prénom obligatoire ; sans pseudo, son prénom seul. Si aucun prénom n'est connu, le pseudo seul (jamais « (Joueur) »).
+ */
 export function libelleJoueurIdleV1(profil, nomLigne) {
   const ligne = texteV1(nomLigne);
   const pseudo = texteV1(profil && profil.pseudo);
-  if (!pseudo) return ligne;
-  if (profil && profil.externe) return pseudo;
-  if (!ligne || ligne.toLowerCase() === pseudo.toLowerCase()) return pseudo;
-  return pseudo + " (" + ligne + ")";
+  if (profil && profil.externe) return pseudo || premierPrenomV1(profil.googleName) || ligne;
+  const prenom = prenomUtileV1(profil && profil.prenom) || prenomUtileV1(ligne);
+  if (!pseudo) return prenom || ligne;
+  if (!prenom || prenom.toLowerCase() === pseudo.toLowerCase()) return pseudo;
+  return pseudo + " (" + prenom + ")";
 }
 
 /* Tous les profils, indexés par adresse (classement). */
 export function profilsParEmailIdleV1(sql) {
   assurerTableProfilsIdleV1(sql);
   const carte = new Map();
-  for (const ligne of sqlRows(sql.exec("SELECT email,pseudo,externe,google_name FROM idle_profiles"))) {
-    carte.set(emailV1(ligne.email), { email: emailV1(ligne.email), pseudo: texteV1(ligne.pseudo), externe: Number(ligne.externe) === 1, googleName: texteV1(ligne.google_name) });
+  for (const ligne of sqlRows(sql.exec("SELECT email,pseudo,externe,google_name,prenom FROM idle_profiles"))) {
+    carte.set(emailV1(ligne.email), { email: emailV1(ligne.email), pseudo: texteV1(ligne.pseudo), externe: Number(ligne.externe) === 1, googleName: texteV1(ligne.google_name), prenom: texteV1(ligne.prenom) });
   }
   return carte;
 }
