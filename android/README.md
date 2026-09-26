@@ -20,3 +20,5 @@ Construction (Bubblewrap ; depuis PowerShell, avec `BUBBLEWRAP_KEYSTORE_PASSWORD
     npx @bubblewrap/cli build --manifest=twa-manifest.json --skipPwaValidation
 
 Résultat : `app-release-signed.apk` (installable). L'étape finale « bundle .aab » (Play Store) échoue faute de `jarsigner` dans le PATH : sans importance pour l'APK.
+
+**Barre de navigation Android (2026-09-26)** : avec `targetSdkVersion 35+`, Android impose l'affichage bord à bord et ignore `navigationColor` : la barre du bas apparaissait blanche. Après `bubblewrap update`, remplacer `targetSdkVersion 36` par `targetSdkVersion 34` dans `app/build.gradle` (fichier généré, non versionné) avant de construire, avec un `appVersionCode` supérieur dans `twa-manifest.json` pour que le téléphone accepte la mise à jour (même clé de signature).

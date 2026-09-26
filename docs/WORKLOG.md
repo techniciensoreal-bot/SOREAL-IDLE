@@ -2011,3 +2011,7 @@ Norman : « sur l'apk, je bloque à 94 % de chargement ». Cause : hors APP/TV, 
 ## 2026-09-26 — Identifiant client Google configuré
 
 Le client OAuth « SOREAL IDLE web » (projet Google Cloud `soreal-idle`, origine JavaScript autorisée https://soreal-idle.technicien-soreal.workers.dev, vérifiée dans la console) est renseigné dans `wrangler.jsonc` (`GOOGLE_CLIENT_ID`, identifiant public). Le bouton « Se connecter avec Google » apparaît hors APP/TV ; l'accès des autres joueurs reste fermé tant que l'interrupteur « Accès PUBLIC » est fermé.
+
+## 2026-09-26 — APK 1.0.1 : barre du bas de la couleur du jeu
+
+Norman : « la barre dans le bas est blanche, elle empêche de voir les boutons du téléphone ». Cause : `targetSdkVersion 36` impose le bord à bord (Android 15+), la couleur de barre du manifeste TWA est ignorée. APK reconstruit avec `targetSdkVersion 34` (bloc `navigationColor` #0b1b39 alors respecté), `versionCode 2`, même signature (empreinte inchangée, `assetlinks.json` toujours valable). Méthode dans `android/README.md`. L'affichage « ordinateur » vu plus tôt venait du réglage Chrome « Site pour ordinateur » (résolu par Norman).

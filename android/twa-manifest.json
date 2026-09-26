@@ -17,8 +17,8 @@
   "iconUrl": "https://soreal-idle.technicien-soreal.workers.dev/icons/icon-512.png",
   "maskableIconUrl": "https://soreal-idle.technicien-soreal.workers.dev/icons/icon-maskable-512.png",
   "webManifestUrl": "https://soreal-idle.technicien-soreal.workers.dev/manifest.webmanifest",
-  "appVersionName": "1.0.0",
-  "appVersionCode": 1,
+  "appVersionName": "1.0.1",
+  "appVersionCode": 2,
   "signingKey": {
     "path": "./soreal-idle-release.keystore",
     "alias": "soreal-idle"
