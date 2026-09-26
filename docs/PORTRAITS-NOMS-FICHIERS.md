@@ -41,27 +41,31 @@ Généré le 2026-09-26 à partir de `cloudflare/src/idle-portraits-v1.js` (fonc
 | SEXY ! | `portrait-sexy.webp` |
 | SMART | `portrait-smart.webp` |
 
-## Déjà présents (fonctionnent avec leur ancien nom ; tu peux les renommer pareil si tu veux tout uniformiser)
+## À renommer dans R2 (18 fichiers dont le nom ne dit pas quel set c'est)
 
-| Portrait | Nom simple possible | Ancien nom cherché par le jeu |
+Relevé le 2026-09-26 (nom réel lu dans R2 par le jeu). Le jeu accepte toute extension : inutile de convertir en webp, renomme seulement (`portrait-<id>.png` fonctionne). Dès que le nouveau nom existe, il l'emporte sur l'ancien.
+
+| Portrait | Nom actuel dans R2 | Nouveau nom |
 |---|---|---|
-| Portrait par défaut | `portrait-default.webp` | `PlayerAPportrait16` |
-| Forest | `portrait-forest.webp` | `PlayerAPportrait19` |
-| Forest (bonus 1) | `portrait-forest-bonus-1.webp` | `PlayerAPportrait20` |
-| Forest (bonus 2) | `portrait-forest-bonus-2.webp` | `PlayerAPportrait21` |
-| Cave | `portrait-cave.webp` | `PlayerAPportrait22` |
-| GRB | `portrait-grb.webp` | `PlayerAPportrait24` |
-| Jake | `portrait-jake.webp` | `PlayerAPportrait28` |
-| Wanderer's | `portrait-wanderer.webp` | `PlayerPortrait-Wanderer` |
-| S'rerednaW | `portrait-rerednaw.webp` | `PlayerPortrait-Rerednaw` |
-| Slimy | `portrait-slimy.webp` | `PlayerPortrait-Slimy` |
-| Greasy Nerd | `portrait-greasynerd.webp` | `PlayerPortrait-GreasyNerd` |
-| Mobster | `portrait-mobster.webp` | `PlayerPortrait-Mobster` |
-| Fad | `portrait-fad.webp` | `PlayerPortrait-Fadzone` |
-| Exile | `portrait-exile.webp` | `PlayerPortrait-Exile` |
-| Halloweenie | `portrait-halloweenie.webp` | `PlayerPortrait Halloween` |
-| Souhait « Sneak Preview » | `portrait-wish-sneak-preview.webp` | `Player portrait - sneak preview` |
-| Souhait « Oscar Meyer Weiner » | `portrait-wish-weiner.webp` | `PlayerPortrait-Weiner` |
-| Souhait « Mayo » | `portrait-wish-mayo.webp` | `PlayerPortrait-Mayo` |
+| Portrait par défaut | `Portrait_PlayerAPportrait16.png` | `portrait-default.png` |
+| Forest | `Portrait_PlayerAPportrait19.png` | `portrait-forest.png` |
+| Forest (bonus 1) | `Portrait_PlayerAPportrait20.png` | `portrait-forest-bonus-1.png` |
+| Forest (bonus 2) | `Portrait_PlayerAPportrait21.png` | `portrait-forest-bonus-2.png` |
+| Cave | `Portrait_PlayerAPportrait22.png` | `portrait-cave.png` |
+| GRB | `Portrait_PlayerAPportrait24.png` | `portrait-grb.png` |
+| Jake | `Portrait_PlayerAPportrait28.png` | `portrait-jake.png` |
+| Wanderer's | `Portrait_PlayerPortrait-Wanderer.png` | `portrait-wanderer.png` |
+| S'rerednaW | `Portrait_PlayerPortrait-Rerednaw.png` | `portrait-rerednaw.png` |
+| Slimy | `Portrait_PlayerPortrait-Slimy.png` | `portrait-slimy.png` |
+| Greasy Nerd | `Portrait_PlayerPortrait-GreasyNerd.png` | `portrait-greasynerd.png` |
+| Mobster | `Portrait_PlayerPortrait-Mobster.png` | `portrait-mobster.png` |
+| Fad | `Portrait_PlayerPortrait-Fadzone.png` | `portrait-fad.png` |
+| Exile | `Portrait_PlayerPortrait-Exile.png` | `portrait-exile.png` |
+| Halloweenie | `Portrait_PlayerPortrait_Halloween.png` | `portrait-halloweenie.png` |
+| Souhait « Sneak Preview » | `Portrait_Player_portrait_-_sneak_preview.png` | `portrait-wish-sneak-preview.png` |
+| Souhait « Oscar Meyer Weiner » | `Portrait_PlayerPortrait-Weiner.png` | `portrait-wish-weiner.png` |
+| Souhait « Mayo » | `Portrait_PlayerPortrait-Mayo.png` | `portrait-wish-mayo.png` |
+
+Tous les autres portraits ont déjà leur nom `portrait-<id>.webp`.
 
 Le joli chaton (Special Prize) reste `idle/Kitty/BadKittyDaycareBow.webp`.

@@ -23,5 +23,5 @@ assert.equal(idlePortraitPickR2KeyV1(["idle/player/portrait-sewers.webp"], "Play
 
 // La liste donnée à Norman couvre les 49 portraits du dossier idle/player/
 const doc = readFileSync("docs/PORTRAITS-NOMS-FICHIERS.md", "utf8");
-for (const n of noms) assert.ok(doc.includes("`" + n + "`"), n + " dans docs/PORTRAITS-NOMS-FICHIERS.md");
+for (const n of noms) assert.ok(doc.includes("`" + n.replace(/.webp$/, "") + "."), n + " (ou son extension actuelle) dans docs/PORTRAITS-NOMS-FICHIERS.md");
 console.log("idle-portraits-noms-fichiers-v1: OK");
