@@ -1640,6 +1640,41 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
 
+      /*
+       * Phrases du Puits (Norman, 2026-09-26 : « les petites phrases humoristiques, traduites en français »). Le wiki NGU ne publie que trois messages du
+       * Puits : le boost (« The Pit belches and spits out a Toughness Boost 1! », donné par Norman), « The Pit belches and it smells awful » (Wandoos déjà au
+       * maximum) et la graine avant Yggdrasil (« A giant green seed shoots out of the pit and lands by your feet! Before you can grab it, it hops back into
+       * the pit! WTF was that?? ») : ceux-là sont traduits fidèlement. Les autres phrases sont écrites par SOREAL dans le même ton (une par récompense).
+       * Le choix entre deux variantes est fixé par l'heure du jet (la même phrase à chaque affichage).
+       */
+      function phraseMoneyPitIdleV1_(entree,j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const nb=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
+        const reward=entree&&entree.reward&&typeof entree.reward==='object'?entree.reward:{};
+        const variante=Math.abs(Math.floor(Number(entree&&entree.at)||0))%2;
+        const choisir=function(a,b){return variante?b:a;};
+        if(entree&&entree.boost){
+          const type=String(entree.boost.type||'');
+          const nom=type==='power'?'Power':(type==='toughness'?'Toughness':(type==='special'?'Spécial':type));
+          return 'Le Puits rote et recrache un Boost '+nom+' '+nb(entree.boost.strength||0)+' !';
+        }
+        if(reward.seeds){
+          const ygg=systemeMetaParIdIdleV130_(j,'yggdrasil');
+          const debloque=Boolean(ygg&&(ygg.unlocked||(ygg.state&&ygg.state.unlocked)));
+          return debloque
+            ?choisir('Une graine jaillit du Puits et vous atterrit sur le pied : +'+nb(reward.seeds)+' graines !','Le Puits vous crache une poignée de graines à la figure : +'+nb(reward.seeds)+' graines !')
+            :'Une énorme graine verte jaillit du Puits et atterrit à vos pieds ! Avant que vous puissiez l’attraper, elle rebondit dans le Puits ! C’était QUOI, ça ?!';
+        }
+        if(Object.prototype.hasOwnProperty.call(reward,'wandoosLevels')&&!reward.wandoosLevels)return 'Le Puits rote… et ça sent affreusement mauvais.';
+        if(reward.wandoosLevels)return choisir('Le Puits rote et ça sent le vieil ordinateur : +'+reward.wandoosLevels+' niveau(x) Wandoos !','Le Puits ronronne comme un vieux disque dur : +'+reward.wandoosLevels+' niveau(x) Wandoos !');
+        if(reward.adventureStats)return choisir('Le Puits rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventureStats)+' Power et Toughness !','Le Puits vous crache de la force brute sur les bottes : +'+nb(reward.adventureStats)+' Power et Toughness !');
+        if(reward.adventureHp)return choisir('Le Puits gargouille et vous gonfle les muscles : +'+nb(reward.adventureHp)+' PV max !','Le Puits hoquette et vous voilà bien plus solide : +'+nb(reward.adventureHp)+' PV max !');
+        if(reward.adventureRegen)return choisir('Le Puits soupire un air tiède qui referme vos petits bobos : +'+nb(reward.adventureRegen,2)+' de régénération !','Le Puits tousse un nuage réparateur : +'+nb(reward.adventureRegen,2)+' de régénération !');
+        if(reward.cubePower||reward.cubeToughness||reward.cubeBoth)return choisir('Le Puits crache un truc brillant qui se met à vibrer dans votre sac !','Le Puits rote et quelque chose de mystérieux se met à briller de bonheur !');
+        if(reward.experience)return choisir('Le Puits tousse un petit nuage d’expérience : +'+nb(reward.experience)+' EXP !','Le Puits recrache un sac brillant : +'+nb(reward.experience)+' EXP !');
+        return 'Le Puits rote… et ne recrache rien de reconnaissable.';
+      }
+
       function historiqueMoneyPitIdleV206_(pit,roue){
         const pitData=pit&&pit.state&&pit.state.data||{};
         const roueData=roue&&roue.state&&roue.state.data||{};
@@ -1649,6 +1684,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           lignes.push({
             at:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(x.at),
             source:'🕳️ Money Pit',
+            entree:x,
             detail:'Palier '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(x.tier)+' · '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(x.cost||0)+' Or',
             prize:libelleRecompenseMetaV206_(x)
           });
@@ -1689,18 +1725,20 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<style>'+
             '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
             '.soreal-idle-money-scene-v206>img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover}'+
-            '.soreal-idle-money-action-v206{position:absolute;z-index:3;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.82);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.38);text-align:center;min-width:170px;backdrop-filter:blur(3px)}'+
-            '.soreal-idle-money-pit-action-v206{left:48%;bottom:5%;transform:translateX(-50%)}'+
-            '.soreal-idle-money-spin-action-v206{right:3%;top:40%;min-width:155px}'+
+            '.soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}'+
+            '.soreal-idle-money-action-v206{flex:1 1 0;min-width:0;box-sizing:border-box;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.5);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.28);text-align:center}'+
             '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+
             '.soreal-idle-money-action-title-v206{font-size:13px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
             '.soreal-idle-money-action-note-v206{font-size:10px;color:#d5e1f5;margin-top:2px}'+
             '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
             '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:11px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
-            '@media(max-width:620px){.soreal-idle-money-action-v206{min-width:0;width:42%;padding:6px}.soreal-idle-money-pit-action-v206{left:42%;bottom:3%}.soreal-idle-money-spin-action-v206{right:2%;top:38%;width:35%}.soreal-idle-money-action-title-v206{font-size:11px}.soreal-idle-money-action-note-v206{font-size:9px}}'+
+            '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:12px}.soreal-idle-money-action-note-v206{font-size:9px}}'+
           '</style>'+
           '<div class="soreal-idle-money-scene-v206">'+
             '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
+          '</div>'+
+          /* 2026-09-26 (Norman) : les deux boutons sous l'image, chacun sur la moitié de sa largeur. */
+          '<div class="soreal-idle-money-actions-v206">'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
               '<div class="soreal-idle-money-action-title-v206">Balance ton argent</div>'+
               '<div class="soreal-idle-money-action-note-v206">Le puits prend tout ton Or actuel.</div>'+
@@ -1716,7 +1754,10 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
             '<div class="soreal-idle-prize-v206">'+
               (derniere
-                ?window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(derniere.prize)
+                ?(derniere.entree
+                  ?window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(phraseMoneyPitIdleV1_(derniere.entree,j))+
+                    '<span class="soreal-idle-prize-detail-v1">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(derniere.prize)+'</span>'
+                  :window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(derniere.prize))
                 :'Aucun prix obtenu pour l’instant.')+
             '</div>'+
           '</div>'+

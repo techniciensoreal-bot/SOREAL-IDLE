@@ -184,12 +184,12 @@ const fresh=(context={}, now=1_000_000)=>
   const first=applyIdleNguAction(state,{action:"moneyPit"},context,1_000_000);
   assert.equal(first.result.cost,1e9);
   assert.equal(first.result.tier,3);
-  assert.equal(first.result.cooldownHours,1);
+  assert.equal(first.result.cooldownHours,2,"wiki Money Pit : après le premier jet, 2 heures");
   const secondAt=first.result.nextAt;
   first.state.currencies.gold=1e7;
   const second=applyIdleNguAction(first.state,{action:"moneyPit"},context,secondAt);
   assert.equal(second.result.cost,1e7);
-  assert.equal(second.result.cooldownHours,2);
+  assert.equal(second.result.cooldownHours,3,"puis 3 heures");
 }
 
 {

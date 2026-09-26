@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.9',
+    courante:'2.0',
     versions:[
+      {
+        version:'2.0',
+        nom:'Le Puits qui rote',
+        date:'2026-09-26',
+        points:[
+          'Des phrases humoristiques en français accompagnent maintenant certains tirages de récompenses.',
+          'Sur la page de ces tirages, les deux boutons passent sous l’illustration, chacun sur la moitié de sa largeur.',
+          'Le texte du prix gagné est enfin lisible : foncé sur fond jaune.',
+          'Les temps de recharge de ces tirages suivent exactement ceux du jeu d’origine.'
+        ]
+      },
       {
         version:'1.9',
         nom:'Le détail du calcul',

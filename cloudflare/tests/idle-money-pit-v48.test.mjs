@@ -11,13 +11,13 @@ assert.equal(first.result.tier,3);
 assert.equal(first.state.systems.moneyPit.data.tossesThisRun,1);
 assert.equal(first.state.systems.moneyPit.data.lastTossAt,1_000_000);
 assert.equal(first.state.currencies.gold,0);
-assert.equal(first.result.nextAt,1_000_000+3600000);
+assert.equal(first.result.nextAt,1_000_000+2*3600000,"wiki Money Pit : 2 heures apres le premier jet");
 
 first.state.currencies.gold=1e7;
 const secondAt=first.result.nextAt;
 const second=applyIdleNguAction(first.state,{action:'moneyPit'},context,secondAt);
 assert.equal(second.result.cost,1e7);
-assert.equal(second.result.cooldownHours,2);
+assert.equal(second.result.cooldownHours,3);
 assert.equal(second.state.systems.moneyPit.data.tossesThisRun,2);
 
 const rebirthAt=secondAt+20*60*1000;

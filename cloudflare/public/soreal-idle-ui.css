@@ -7564,7 +7564,10 @@
  * (Special Prize, etc.) ». Même rendu que .soreal-idle-exp-newbie-v210 du EXP Shop : fond doré, contour en pointillés, titre 🎁, boutons « offre ».
  */
 .soreal-idle-offre-v1{margin:10px 0;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:2px dashed rgba(245,196,81,.4);color:#e9d9a3;font-size:12px}
-.soreal-idle-offre-v1 .soreal-idle-note-v4,.soreal-idle-offre-v1 .soreal-idle-prize-v206{color:#e9d9a3}
+.soreal-idle-offre-v1 .soreal-idle-note-v4{color:#e9d9a3}
+/* Ton prix (2026-09-26, Norman : « écriture un peu jaune sur case jaune ») : texte foncé sur le fond jaune, comme prévu. */
+.soreal-idle-offre-v1 .soreal-idle-prize-v206{color:#19160b}
+.soreal-idle-offre-v1 .soreal-idle-prize-v206 .soreal-idle-prize-detail-v1{display:block;margin-top:6px;font-size:12px;font-weight:700;color:#3b3212}
 .soreal-idle-offre-titre-v1{margin-bottom:5px;font-size:13px;font-weight:900;color:#f7e6b0}
 .soreal-idle-offre-bouton-v1{appearance:none;position:relative;min-height:50px;flex:1 1 150px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:8px 10px 8px 22px;border:1px solid rgba(245,196,81,.6);border-radius:6px 12px 12px 6px;background:rgba(245,196,81,.22);color:#ffeeb5;text-align:left;cursor:pointer;font:inherit}
 .soreal-idle-offre-bouton-v1::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:rgba(245,196,81,.55)}

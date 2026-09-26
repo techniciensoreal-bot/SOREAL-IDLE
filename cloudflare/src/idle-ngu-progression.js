@@ -5708,7 +5708,13 @@ function tossMoneyPit(state, now) {
   s.data.tossesThisRun = tosses + 1;
   s.data.lastTossAt = now;
   s.data.totalGoldTossed = Math.max(0, num(s.data.totalGoldTossed, 0)) + cost;
-  const cooldownHours = 1 + tosses;
+  /*
+   * Wiki Money Pit : « The initial cooldown for feeding the Money Pit is one hour. The cooldown period increases by another hour every time you feed it,
+   * so after the first feeding, you have to wait 2 hours until you can feed it again, then 3 after the next, then 4, etc. » : après le k-ième jet du
+   * run, l'attente est de k + 1 heures (la première heure est celle d'avant le premier jet, voir la remise à zéro au Rebirth : dernier jet + 1 h).
+   * Corrigé le 2026-09-26 : le code attendait k heures (1 h après le premier jet), soit une heure de trop généreuse à chaque palier.
+   */
+  const cooldownHours = 2 + tosses;
   s.data.nextAt = now + cooldownHours * 3600000;
   s.level = Math.max(0, int(s.level, 0)) + 1;
 
