@@ -22,11 +22,11 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=214')&&
+  index.includes('/modules/audio-effects-v199.js?v=215')&&
   index.includes('/modules/long-press-v200.js?v=201')&&
-  index.includes('/soreal-idle-ui.js?v=289')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=214')<
-    index.indexOf('/soreal-idle-ui.js?v=289'),
+  index.includes('/soreal-idle-ui.js?v=290')&&
+  index.indexOf('/modules/audio-effects-v199.js?v=215')<
+    index.indexOf('/soreal-idle-ui.js?v=290'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 
@@ -83,7 +83,8 @@ assert.ok(
   audio.includes('tonal_(c,{type:"sine",from:55,to:46,duration:2.10')&&
   audio.includes("[[1568,1760],[1661,1865],[1760,1976],[2093,2349]]")&&
   audio.includes("[[659,.50],[784,.70],[988,.90],[932,1.10],[880,1.30],[740,1.50],[659,1.72]]")&&
-  audio.includes("return jouerWebAudio_(2300,function(c){")&&
+  audio.includes("function bossPsycho_(c){")&&
+  audio.includes('{nom:"psycho",duree:2300,construire:bossPsycho_}')&&
   !audio.includes("function frappe_(delay,force)"),
   "L'apparition du boss doit jouer une ambiance d'horreur à la Psycho, avec une petite mélodie."
 );

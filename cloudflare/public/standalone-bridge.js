@@ -253,7 +253,7 @@
     masquerProgressionV1();
     statusV1(message||"",Boolean(message&&/pas encore|impossible|refus/i.test(message)));
     const zone=zoneConnexionV1();
-    zone.innerHTML='<div style="margin-bottom:10px">Connecte-toi avec ton compte Google pour jouer.</div><div id="standaloneGoogleBouton" style="display:flex;justify-content:center;min-height:44px"></div>';
+    zone.innerHTML='<div style="margin-bottom:10px">Connecte-toi avec ton compte Google pour jouer.</div><div id="standaloneGoogleBouton" style="display:flex;justify-content:center;min-height:44px"></div><div style="margin-top:12px;font-size:11px"><a href="/confidentialite" target="_blank" rel="noopener" style="color:#7fb2ff">Politique de confidentialité</a></div>';
     /* Google Identity Services complète window.google ; le pont Apps Script (google.script.run) doit y rester. */
     const pontScript=Object.getOwnPropertyDescriptor(window.google.script,"run");
     const espace=window.google;

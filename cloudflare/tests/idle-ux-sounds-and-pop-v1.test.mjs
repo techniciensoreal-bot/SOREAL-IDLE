@@ -85,10 +85,13 @@ const lire = (rel) => readFileSync(rel, "utf8");
 
 console.log("idle-ux-sounds-and-pop-v1: OK");
 
-/* Norman (2026-09-26) : « le son du boss se répète 2 fois » : une seule lecture par apparition (deux adresses d'image pour le même boss). */
+/* Norman (2026-09-26) : « le son du boss se répète 2 fois » puis « quand on fuit il ne faut pas le rejouer » : un seul son par NOUVEAU boss (identité du boss, pas adresse d'image). */
 {
   const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-  assert.ok(ui.includes("let idleDernierGongBossV1=0;"));
-  assert.ok(ui.includes("if(maintenantGong-idleDernierGongBossV1>4500){\n              idleDernierGongBossV1=maintenantGong;\n              jouerEffetAudioIdleV199_('bossAppear');"), "le gong ne repart pas dans les 4,5 s");
+  assert.ok(ui.includes("let idleDernierGongBossV1='';"));
+  assert.ok(ui.includes("String(idImageBossCanoniqueIdleV181_(idleEtat)||'')+'|'+\n              String(idleEtat&&idleEtat.bossActuel||'');"), "identité = numéro + nom du boss");
+  assert.ok(ui.includes("if(identiteGongBoss!==idleDernierGongBossV1){\n              idleDernierGongBossV1=identiteGongBoss;\n              jouerEffetAudioIdleV199_('bossAppear');"));
   assert.equal(ui.split("jouerEffetAudioIdleV199_('bossAppear')").length - 1, 1, "un seul site d'appel");
+  const fuite = ui.slice(ui.indexOf("window.__fuirBossIdleV1__=function(){"), ui.indexOf("let idleNukeEnCoursV1=false;"));
+  assert.ok(!fuite.includes("bossAppear"), "la fuite ne rejoue pas le son du boss");
 }

@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.0',
+    courante:'3.1',
     versions:[
+      {
+        version:'3.1',
+        nom:'Dix boss, dix cris',
+        date:'2026-09-26',
+        points:[
+          'Chaque nouveau boss a son propre bruit d’apparition : dix sons différents (film d’horreur, glas, rugissement, cor de guerre, battements de cœur, orgue, tonnerre, sirène, chœur fantôme, portail). Une fois les dix entendus, on repart du premier.',
+          'Quand tu fuis, le bruit du boss n’est plus rejoué : il ne se joue que pour un nouveau boss.',
+          'Quand tu renais, un bruit de machine à voyager dans le temps t’accompagne.'
+        ]
+      },
       {
         version:'3.0',
         nom:'Un seul gong',

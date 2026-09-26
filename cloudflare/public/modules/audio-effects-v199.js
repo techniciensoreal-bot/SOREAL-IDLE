@@ -22,6 +22,7 @@
   var DEFINITIONS={
     fight:{group:"combat-start",priority:90,maxAgeMs:1600},
     bossAppear:{group:"combat-boss",priority:75,maxAgeMs:2400},
+    timeMachine:{group:"rebirth",priority:100,maxAgeMs:3500},
     victory:{group:"combat-end",priority:105,maxAgeMs:2200},
     nuke:{group:"combat-action",priority:110,maxAgeMs:1200},
     defeat:{group:"combat-end",priority:100,maxAgeMs:2800},
@@ -230,14 +231,77 @@
     });
   }
 
-  function gongBoss_(){
+  /*
+   * Sons d'apparition des boss (Norman, 2026-09-26 : « fais-en 9 autres, tous différents, un différent à chaque boss ; quand ils ont tous été joués, on repart au
+   * premier »). Dix sons, joués dans l'ordre à chaque nouveau boss ; le rang du prochain est mémorisé sur l'appareil (localStorage) pour que la suite continue
+   * d'une visite à l'autre.
+   */
+  var CLE_GONG_BOSS="soreal_idle_boss_gong_index_v1";
+
+  /* Nappe : comme tonal_, mais avec une attaque lente réglable et un vibrato (pour orgue, chœur, cor, rugissement). */
+  function nappe_(c,o){
+    var start=c.currentTime+Math.max(0,Number(o.delay)||0);
+    var d=Math.max(.05,Number(o.duration)||1);
+    var a=Math.min(d*.8,Math.max(.01,Number(o.attack)||.05));
+    var osc=c.createOscillator();
+    var g=c.createGain();
+    g.gain.setValueAtTime(.0001,start);
+    g.gain.exponentialRampToValueAtTime(Math.max(.0002,Number(o.volume)||.04),start+a);
+    g.gain.exponentialRampToValueAtTime(.0001,start+d);
+    osc.type=o.type||"sine";
+    osc.frequency.setValueAtTime(Math.max(20,Number(o.from)||220),start);
+    if(o.to&&Number(o.to)>0)osc.frequency.exponentialRampToValueAtTime(Math.max(20,Number(o.to)),start+d);
+    if(o.detune)osc.detune.setValueAtTime(Number(o.detune)||0,start);
+    if(o.vibRate){
+      var lfo=c.createOscillator();
+      var lg=c.createGain();
+      lfo.frequency.setValueAtTime(Number(o.vibRate)||5,start);
+      lg.gain.setValueAtTime(Number(o.vibDepth)||4,start);
+      lfo.connect(lg);
+      lg.connect(osc.frequency);
+      lfo.start(start);
+      lfo.stop(start+d+.05);
+    }
+    osc.connect(g);
+    g.connect(master||c.destination);
+    osc.start(start);
+    osc.stop(start+d+.05);
+  }
+
+  /* Souffle qui MONTE (enveloppe inversée de bruit_) : montée de tension, aspiration. */
+  function bruitMonte_(c,o){
+    var start=c.currentTime+Math.max(0,Number(o.delay)||0);
+    var d=Math.max(.05,Number(o.duration)||1);
+    var frames=Math.max(1,Math.floor(c.sampleRate*d));
+    var buffer=c.createBuffer(1,frames,c.sampleRate);
+    var data=buffer.getChannelData(0);
+    var pw=Math.max(.3,Number(o.pow)||2);
+    for(var i=0;i<frames;i+=1){
+      data[i]=(Math.random()*2-1)*Math.pow(i/frames,pw);
+    }
+    var src=c.createBufferSource();
+    src.buffer=buffer;
+    var filter=c.createBiquadFilter();
+    filter.type=o.filterType||"bandpass";
+    filter.frequency.setValueAtTime(Math.max(40,Number(o.frequency)||500),start);
+    if(o.q!=null)filter.Q.setValueAtTime(Math.max(.01,Number(o.q)||1),start);
+    if(o.frequencyEnd)filter.frequency.exponentialRampToValueAtTime(Math.max(40,Number(o.frequencyEnd)),start+d);
+    var g=c.createGain();
+    g.gain.setValueAtTime(Math.max(.0002,Number(o.volume)||.05),start);
+    g.connect(master||c.destination);
+    src.connect(filter);
+    filter.connect(g);
+    src.start(start);
+  }
+
+  function bossPsycho_(c){
     /*
      * Apparition d'un boss (Norman, 2026-09-26) : « un truc genre film d'horreur, à la Psycho mais mélodieux en même temps ».
      *   1. bourdon sub-grave qui gronde ;
      *   2. quatre coups d'archet aigus et grinçants (violons désaccordés l'un contre l'autre), en rafale ;
      *   3. une petite comptine de boîte à musique en mi mineur, avec un si bémol qui grince, qui redescend et s'éteint.
      */
-    return jouerWebAudio_(2300,function(c){
+    {
       tonal_(c,{type:"sine",from:55,to:46,duration:2.10,volume:.070});
       tonal_(c,{type:"triangle",from:82,to:73,duration:1.70,volume:.030,delay:.06});
       [[1568,1760],[1661,1865],[1760,1976],[2093,2349]].forEach(function(p,i){
@@ -252,7 +316,170 @@
         tonal_(c,{type:"sine",from:n[0]*1.005,to:n[0]*1.005,duration:dur,volume:.018,delay:n[1]});
         tonal_(c,{type:"sine",from:n[0]*2.76,to:n[0]*2.76,duration:dur*.4,volume:.008,delay:n[1]});
       });
+    }
+  }
+
+  /* 2. Glas : trois coups de cloche funèbre, de plus en plus graves, sur un bourdon. */
+  function bossGlas_(c){
+    tonal_(c,{type:"sine",from:55,to:50,duration:2.2,volume:.040});
+    [[196,0],[185,.65],[174,1.3]].forEach(function(b,i){
+      var v=.050-i*.008;
+      [[1,1,.9],[2.0,.5,.7],[2.76,.35,.5],[5.4,.2,.3],[8.93,.1,.2]].forEach(function(p){
+        tonal_(c,{type:"sine",from:b[0]*p[0],to:b[0]*p[0]*.997,duration:.4+p[2]*.7,volume:v*p[1],delay:b[1]});
+      });
+      bruit_(c,{duration:.05,volume:.02,delay:b[1],filterType:"highpass",frequency:3000,decay:2.5});
     });
+  }
+
+  /* 3. Rugissement : grognement rauque (dents de scie modulées) et souffle grave. */
+  function bossRugissement_(c){
+    nappe_(c,{type:"sawtooth",from:78,to:52,duration:1.7,volume:.050,attack:.12,vibRate:26,vibDepth:16});
+    nappe_(c,{type:"sawtooth",from:117,to:70,duration:1.6,volume:.030,attack:.15,delay:.05,vibRate:31,vibDepth:20});
+    tonal_(c,{type:"sine",from:48,to:34,duration:1.9,volume:.060});
+    bruit_(c,{duration:1.5,volume:.050,filterType:"bandpass",frequency:380,frequencyEnd:900,q:1.4,decay:.9});
+    bruit_(c,{duration:.6,volume:.035,delay:1.2,filterType:"lowpass",frequency:500,frequencyEnd:120,decay:1.2});
+  }
+
+  /* 4. Cor de guerre : deux appels de cuivres, le second à la quinte. */
+  function bossCor_(c){
+    nappe_(c,{type:"sawtooth",from:110,to:112,duration:1.0,volume:0.053,attack:.18});
+    nappe_(c,{type:"sawtooth",from:220,to:224,duration:1.0,volume:0.030,attack:.2,detune:6});
+    nappe_(c,{type:"sawtooth",from:146,to:165,duration:1.2,volume:0.060,attack:.2,delay:1.0});
+    nappe_(c,{type:"sawtooth",from:330,to:332,duration:1.2,volume:0.027,attack:.22,delay:1.0,detune:-6});
+    nappe_(c,{type:"sine",from:82.5,to:82.5,duration:1.2,volume:0.045,attack:.2,delay:1.0});
+    bruit_(c,{duration:2.0,volume:0.018,filterType:"bandpass",frequency:900,q:.8,decay:.5});
+  }
+
+  /* 5. Battements de cœur qui s'accélèrent, sur une montée de tension. */
+  function bossCoeur_(c){
+    [0,.16,.70,.86,1.30,1.44,1.80,1.92].forEach(function(t,i){
+      var fort=i%2===0;
+      tonal_(c,{type:"sine",from:70,to:38,duration:.18,volume:fort?.11:.08,delay:t});
+      bruit_(c,{duration:.06,volume:fort?.04:.03,delay:t,filterType:"lowpass",frequency:300,decay:2});
+    });
+    nappe_(c,{type:"sine",from:180,to:1100,duration:2.0,volume:.012,attack:1.2,vibRate:6,vibDepth:8});
+    nappe_(c,{type:"sawtooth",from:60,to:240,duration:2.0,volume:.010,attack:1.2});
+  }
+
+  /* 6. Orgue : accord mineur avec un triton, qui enfle puis s'éteint. */
+  function bossOrgue_(c){
+    [[110,.019],[130.8,.016],[155.6,.016],[220,.013]].forEach(function(n){
+      nappe_(c,{type:"sawtooth",from:n[0],to:n[0],duration:2.2,volume:n[1],attack:.5,vibRate:5,vibDepth:1.2});
+      nappe_(c,{type:"triangle",from:n[0]*2,to:n[0]*2,duration:2.2,volume:n[1]*.7,attack:.55,vibRate:5.3,vibDepth:1.5});
+    });
+    nappe_(c,{type:"sine",from:55,to:55,duration:2.2,volume:.065,attack:.4});
+    nappe_(c,{type:"sine",from:311,to:311,duration:1.3,volume:.010,attack:.5,delay:.9,vibRate:6,vibDepth:2});
+  }
+
+  /* 7. Tonnerre : craquement sec puis grondement qui roule. */
+  function bossTonnerre_(c){
+    bruit_(c,{duration:.10,volume:.09,filterType:"highpass",frequency:2500,decay:2.5});
+    bruit_(c,{duration:2.1,volume:.10,delay:.05,filterType:"lowpass",frequency:700,frequencyEnd:70,decay:1.1});
+    bruit_(c,{duration:1.4,volume:.07,delay:.55,filterType:"lowpass",frequency:500,frequencyEnd:60,decay:1.3});
+    tonal_(c,{type:"sine",from:42,to:30,duration:2.0,volume:.090,delay:.08});
+  }
+
+  /* 8. Sirène : quatre montées et descentes d'alarme, sur un grave. */
+  function bossSirene_(c){
+    [0,.55,1.1,1.65].forEach(function(t,i){
+      var monte=i%2===0;
+      tonal_(c,{type:"sawtooth",from:monte?380:900,to:monte?900:380,duration:.55,volume:.030,delay:t});
+      tonal_(c,{type:"square",from:monte?190:450,to:monte?450:190,duration:.55,volume:.012,delay:t});
+    });
+    tonal_(c,{type:"sine",from:60,to:40,duration:2.1,volume:.05});
+  }
+
+  /* 9. Chœur fantôme : voix aiguës qui enflent en la mineur, avec un souffle. */
+  function bossChoeur_(c){
+    [[220,.030],[261.6,.026],[329.6,.024],[440,.012]].forEach(function(n,i){
+      nappe_(c,{type:"sine",from:n[0],to:n[0],duration:2.2,volume:n[1],attack:.7,vibRate:5+i*.2,vibDepth:3});
+      nappe_(c,{type:"sine",from:n[0],to:n[0],duration:2.2,volume:n[1]*.6,attack:.75,detune:7,vibRate:5.4+i*.2,vibDepth:3});
+    });
+    bruit_(c,{duration:2.1,volume:.012,filterType:"bandpass",frequency:1300,q:2.5,decay:.5});
+    nappe_(c,{type:"sine",from:1760,to:1790,duration:1.3,volume:.006,attack:.5,delay:.8});
+  }
+
+  /* 10. Portail : déchirure laser qui tombe, impact grave, puis étincelles. */
+  function bossPortail_(c){
+    tonal_(c,{type:"sawtooth",from:2000,to:60,duration:.55,volume:.035});
+    tonal_(c,{type:"square",from:1100,to:50,duration:.5,volume:.015,delay:.08});
+    bruit_(c,{duration:.5,volume:.03,filterType:"highpass",frequency:6000,frequencyEnd:1500,decay:1.4});
+    tonal_(c,{type:"sine",from:62,to:30,duration:1.2,volume:.12,delay:.5});
+    bruit_(c,{duration:1.0,volume:.06,delay:.5,filterType:"lowpass",frequency:800,frequencyEnd:100,decay:1.6});
+    [1568,1976,2637,3136].forEach(function(f,i){
+      tonal_(c,{type:"sine",from:f,to:f,duration:.3,volume:.012,delay:1.1+i*.15});
+    });
+  }
+
+  var SONS_BOSS=[
+    {nom:"psycho",duree:2300,construire:bossPsycho_},
+    {nom:"glas",duree:2300,construire:bossGlas_},
+    {nom:"rugissement",duree:2100,construire:bossRugissement_},
+    {nom:"cor",duree:2300,construire:bossCor_},
+    {nom:"coeur",duree:2200,construire:bossCoeur_},
+    {nom:"orgue",duree:2300,construire:bossOrgue_},
+    {nom:"tonnerre",duree:2300,construire:bossTonnerre_},
+    {nom:"sirene",duree:2300,construire:bossSirene_},
+    {nom:"choeur",duree:2300,construire:bossChoeur_},
+    {nom:"portail",duree:2200,construire:bossPortail_}
+  ];
+
+  function rangGongBoss_(){
+    try{
+      var n=parseInt(localStorage.getItem(CLE_GONG_BOSS),10);
+      if(isFinite(n)&&n>=0)return n%SONS_BOSS.length;
+    }catch(_){}
+    return 0;
+  }
+
+  function memoriserGongBoss_(rang){
+    try{localStorage.setItem(CLE_GONG_BOSS,String((rang+1)%SONS_BOSS.length));}catch(_){}
+  }
+
+  var dernierSonBoss="";
+
+  function gongBoss_(){
+    var rang=rangGongBoss_();
+    var son=SONS_BOSS[rang];
+    dernierSonBoss=son.nom;
+    memoriserGongBoss_(rang);
+    return jouerWebAudio_(son.duree,son.construire);
+  }
+
+  /*
+   * Rebirth (Norman, 2026-09-26) : « un bruit comme une machine à voyage dans le temps ». Un mécanisme qui s'emballe (ronronnement qui monte, engrenages qui
+   * accélèrent, aspiration), puis le saut : déchirure, impact grave, et l'arrivée en douceur (carillon et petit clac).
+   */
+  function voyageTempsConstruire_(c){
+    {
+      nappe_(c,{type:"sawtooth",from:70,to:1500,duration:1.5,volume:.028,attack:.5,vibRate:12,vibDepth:40});
+      nappe_(c,{type:"square",from:55,to:900,duration:1.5,volume:.012,attack:.5,delay:.1,vibRate:18,vibDepth:30});
+      nappe_(c,{type:"sine",from:200,to:3000,duration:1.5,volume:.015,attack:.6,vibRate:22,vibDepth:120});
+      var t=0;
+      var dt=.17;
+      while(t<1.4){
+        bruit_(c,{duration:.035,volume:.03,delay:t,filterType:"highpass",frequency:2500,decay:3});
+        tonal_(c,{type:"square",from:900,to:700,duration:.03,volume:.008,delay:t});
+        t+=dt;
+        dt=Math.max(.03,dt*.87);
+      }
+      bruitMonte_(c,{duration:1.4,volume:.07,delay:.1,filterType:"bandpass",frequency:400,frequencyEnd:7000,q:.8,pow:2.2});
+      [1.15,1.25,1.33,1.40].forEach(function(d){
+        bruit_(c,{duration:.03,volume:.03,delay:d,filterType:"highpass",frequency:5000,decay:2});
+      });
+      tonal_(c,{type:"sine",from:2600,to:50,duration:.55,volume:.05,delay:1.5});
+      tonal_(c,{type:"sawtooth",from:1200,to:40,duration:.5,volume:.03,delay:1.5});
+      bruit_(c,{duration:.6,volume:.08,delay:1.5,filterType:"lowpass",frequency:1500,frequencyEnd:120,decay:1.5});
+      tonal_(c,{type:"sine",from:60,to:28,duration:1.0,volume:.12,delay:1.5});
+      bruit_(c,{duration:.1,volume:.03,delay:2.05,filterType:"lowpass",frequency:400,decay:2});
+      [[1047,.6],[1568,.5],[2093,.5]].forEach(function(n,i){
+        tonal_(c,{type:"sine",from:n[0],to:n[0],duration:n[1],volume:.02,delay:2.1+i*.08});
+      });
+    }
+  }
+
+  function voyageTemps_(){
+    return jouerWebAudio_(3000,voyageTempsConstruire_);
   }
 
   /* Changement de menu : une petite note de clochette douce, agréable à l'oreille (deux notes qui montent, très légères). */
@@ -566,6 +793,7 @@
   var JOUEURS={
     fight:voixFight_,
     bossAppear:gongBoss_,
+    timeMachine:voyageTemps_,
     victory:victoireBoss_,
     nuke:nuke_,
     defeat:defaite_,
@@ -692,8 +920,15 @@
   window.__SOREAL_IDLE_AUDIO_V199__={
     unlock:debloquer_,
     play:demander_,
+    /* Constructeurs bruts (vérifications hors ligne : rendu dans un OfflineAudioContext). */
+    builders:{
+      bossSounds:SONS_BOSS.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
+      timeMachine:{duree:3000,construire:voyageTempsConstruire_}
+    },
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},
+    timeMachine:function(){return demander_("timeMachine");},
+    dernierSonBoss:function(){return dernierSonBoss;},
     victory:function(){return demander_("victory");},
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},

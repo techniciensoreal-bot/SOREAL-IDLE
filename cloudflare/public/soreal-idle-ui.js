@@ -8757,6 +8757,9 @@
 
         idleRenaissanceEnCoursV14=true;
 
+        /* Rebirth (Norman, 2026-09-26) : un bruit de machine à voyager dans le temps. */
+        jouerEffetAudioIdleV199_('timeMachine');
+
         const bouton=
           document.querySelector(
             '.soreal-idle-rebirth-button-v14'
@@ -21533,7 +21536,7 @@ function pageAventureIdleV28_(j){
 
 
       let idleDerniereImageBossV61='';
-      let idleDernierGongBossV1=0;
+      let idleDernierGongBossV1='';
       let idleDerniereImageJoueurV61='';
       let idlePreloadsCombatV61={};
 
@@ -21559,13 +21562,15 @@ function pageAventureIdleV28_(j){
           ){
             idleDerniereImageBossV61=key;
             /*
-             * Un seul gong par apparition (Norman, 2026-09-26 : « le son du boss se répète 2 fois »). Au premier rendu l'image du boss vient de bossImage / du
-             * fichier Drive, puis la mise à jour la refait avec l'adresse R2 : deux adresses pour le même boss, donc deux « changements d'image ». Le son dure
-             * 2,3 s : on ne le rejoue pas s'il vient de partir.
+             * Un seul gong par NOUVEAU boss (Norman, 2026-09-26 : « le son se répète 2 fois », puis « quand on fuit, il ne faut pas que le son du boss soit
+             * rejoué »). Le son est lié à l'identité du boss (numéro + nom), pas à l'adresse de son image : l'image est dessinée deux fois (adresse Drive puis
+             * R2), et une fuite ou une reprise du combat redessine la même image sans que ce soit un nouveau boss.
              */
-            const maintenantGong=Date.now();
-            if(maintenantGong-idleDernierGongBossV1>4500){
-              idleDernierGongBossV1=maintenantGong;
+            const identiteGongBoss=
+              String(idImageBossCanoniqueIdleV181_(idleEtat)||'')+'|'+
+              String(idleEtat&&idleEtat.bossActuel||'');
+            if(identiteGongBoss!==idleDernierGongBossV1){
+              idleDernierGongBossV1=identiteGongBoss;
               jouerEffetAudioIdleV199_('bossAppear');
             }
             return ' soreal-idle-image-fade-v61';

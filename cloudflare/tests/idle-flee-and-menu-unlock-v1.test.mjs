@@ -32,5 +32,5 @@ assert.ok(annonce.includes("jouerEffetAudioIdleV199_('menuUnlock')") && annonce.
 assert.ok(ui.includes("annoncerNouveauxMenusIdleV1_(j);"), "appelée à chaque rendu");
 const fade = readFileSync("cloudflare/public/modules/fade-notice-v1.js", "utf8");
 assert.ok(fade.includes("pointer-events:none"), "jamais cliquable");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/audio-effects-v199.js?v=214"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/audio-effects-v199.js?v=215"));
 console.log("idle-flee-and-menu-unlock-v1: OK");
