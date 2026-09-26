@@ -180,6 +180,29 @@ assert.equal(appeler(zoe, "obtenirAccesSorealIdle").autorise, false);
 appeler(admin, "definirAccesPublicSorealIdle", [true]);
 assert.equal(appeler(zoe, "obtenirIdentiteSorealIdle").pseudo, "Zozo la Reine", "pseudo conservé");
 
+// les deux interrupteurs sont indépendants (Norman, 2026-09-26 : « si j'ouvre l'accès au public, ça n'ouvre pas forcément l'accès aux détenteurs du trophée, et vice versa »)
+{
+  // public ouvert, trophée fermé : un ouvrier détenteur du trophée reste dehors, l'externe joue
+  appeler(admin, "definirAccesOuvertSorealIdle", [false]);
+  appeler(admin, "definirAccesPublicSorealIdle", [true]);
+  assert.equal(appeler(zoe, "obtenirAccesSorealIdle").autorise, true, "public ouvert : l'externe joue");
+  assert.equal(coordinator.createLaunchTicketV1({ source: "tv", user: { email: "alice@example.com", prenom: "Alice", idleTrophee: true } }).ok, false, "trophée fermé : le détenteur reste dehors");
+  assert.equal(appeler(alice, "obtenirAccesSorealIdle").autorise, false, "une session ouvrier déjà ouverte est refusée à l'appel suivant");
+  // trophée ouvert, public fermé : le détenteur joue, l'externe reste dehors
+  appeler(admin, "definirAccesOuvertSorealIdle", [true]);
+  appeler(admin, "definirAccesPublicSorealIdle", [false]);
+  assert.equal(appeler(alice, "obtenirAccesSorealIdle").autorise, true, "trophée ouvert : le détenteur joue");
+  assert.equal(appeler(zoe, "obtenirAccesSorealIdle").autorise, false, "public fermé : l'externe reste dehors");
+  // les deux fermés : seul l'administrateur
+  appeler(admin, "definirAccesOuvertSorealIdle", [false]);
+  assert.equal(appeler(alice, "obtenirAccesSorealIdle").autorise, false);
+  assert.equal(appeler(zoe, "obtenirAccesSorealIdle").autorise, false);
+  assert.equal(appeler(admin, "obtenirAccesSorealIdle").autorise, true, "l'administrateur passe toujours");
+  // remise dans l'état attendu par la suite du test
+  appeler(admin, "definirAccesOuvertSorealIdle", [true]);
+  appeler(admin, "definirAccesPublicSorealIdle", [true]);
+}
+
 // un externe n'adopte jamais une ligne d'après son nom : une ligne « Joueur » sans adresse reste intacte
 {
   const nb = () => sql.exec("SELECT COUNT(*) AS n FROM idle_players")[0].n;

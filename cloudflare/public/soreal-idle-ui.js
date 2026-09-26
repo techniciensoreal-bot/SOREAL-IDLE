@@ -46,66 +46,6 @@
           })
           .estAdminSorealIdle(SOREAL_SESSION);
       }
-      /*
-       * 2026-09-24 (Norman, développement uniquement) : deux parties, « A » (réelle, jamais réinitialisée) et « B » (réinitialisable,
-       * pour comparer à NGU IDLE). Le serveur dit si le sélecteur existe (compte administrateur + fonction active) et quelle partie
-       * la session joue ; changer de partie recharge la page (le jeton de session reste dans sessionStorage).
-       */
-      let idlePartieDevV1=null;
-      function rafraichirPartieDevIdleV1_(){
-        if(idlePartieDevV1!==null||!SOREAL_SESSION)return;
-        idlePartieDevV1={actif:false,partie:'a',charge:false};
-        google.script.run
-          .withSuccessHandler(function(res){
-            const avant=JSON.stringify(idlePartieDevV1);
-            idlePartieDevV1={
-              actif:Boolean(res&&res.ok&&res.actif),
-              partie:String(res&&res.partie||'a')==='b'?'b':'a',
-              charge:true
-            };
-            if(JSON.stringify(idlePartieDevV1)!==avant&&idleEtat){
-              rendreIdleEtat_({ok:true,joueur:idleEtat});
-            }
-          })
-          .withFailureHandler(function(){})
-          .obtenirPartieDevSorealIdle(SOREAL_SESSION);
-      }
-      function changerPartieDevIdleV1_(partie){
-        const cible=String(partie)==='b'?'b':'a';
-        if(!idlePartieDevV1||!idlePartieDevV1.actif||idlePartieDevV1.partie===cible)return;
-        google.script.run
-          .withSuccessHandler(function(res){
-            if(res&&res.ok){
-              location.reload();
-            }else{
-              toastIdleV5_('Impossible de changer de partie.');
-            }
-          })
-          .withFailureHandler(function(){
-            toastIdleV5_('Impossible de changer de partie.');
-          })
-          .definirPartieDevSorealIdle(SOREAL_SESSION,cible);
-      }
-      window.__changerPartieDevIdleV1__=changerPartieDevIdleV1_;
-      function rendrePartiesDevIdleV1_(){
-        const p=idlePartieDevV1;
-        if(!p||!p.actif)return '';
-        function bouton(cle,titre,detail){
-          const active=p.partie===cle;
-          return '<button type="button" class="soreal-idle-parties-dev-bouton-v1'+(active?' actif':'')+'" '+
-            (active?'disabled aria-pressed="true" ':'aria-pressed="false" onclick="window.__changerPartieDevIdleV1__(\''+cle+'\')" ')+'>'+
-            '<b>'+titre+'</b><span>'+detail+'</span></button>';
-        }
-        return '<div class="soreal-idle-section-v8">'+
-          '<div class="soreal-idle-window-title-v31">🛠️ Développement — Parties</div>'+
-          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Uniquement pendant le développement. Deux parties indépendantes : la <b>A</b> est ta vraie partie (à ne jamais réinitialiser), la <b>B</b> se réinitialise à volonté pour comparer avec NGU IDLE. Le bouton de réinitialisation ci-dessous ne concerne que la partie active.</div>'+
-          '<div class="soreal-idle-parties-dev-v1">'+
-            bouton('a','Partie A','Ta vraie partie')+
-            bouton('b','Partie B','Comparaison NGU IDLE')+
-          '</div>'+
-          '<div style="font-size:12px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
-        '</div>';
-      }
       let idleTimerSession=null;
       let idleTimerEnergie=null;
       let idleAnimationFrameJeuV214=0;
@@ -9908,9 +9848,15 @@
         return ' \uE000'+ms+'\uE001 ';
       }
 
-      function texteVoixTutorielIdleV1_(page){
+      /*
+       * Titre répété (Norman, 2026-09-26 : « quand un menu a plusieurs fois le même nom dans les popups informatifs, il ne doit pas le répéter à chaque fois qu'on fait Suivant : "Le NOMBRE"
+       * ne se prononce qu'au début du popup ») : si la page précédente du même popup porte le même titre, il n'est pas relu.
+       */
+      function texteVoixTutorielIdleV1_(page,precedente){
         /* Le titre « Norman & Sébastien » n'a pas de sens à l'oral (Norman, 2026-09-26) : seul le texte est lu. */
-        const titreLu=String(page&&page.titre||'')==='Norman & Sébastien'?'':String(page&&page.titre||'');
+        const titrePage=String(page&&page.titre||'');
+        const titreRepete=Boolean(precedente&&String(precedente.titre||'')===titrePage);
+        const titreLu=(titrePage==='Norman & Sébastien'||titreRepete)?'':titrePage;
         return (titreLu?titreLu+pauseVoixIdleV1_(450):'')+
           (page&&page.sousTitre?String(page.sousTitre)+pauseVoixIdleV1_(450):'')+
           (Array.isArray(page&&page.paragraphes)?page.paragraphes:[]).join(' ');
@@ -9945,7 +9891,7 @@
       window.__sorealVoiceTextesIdleV1__=function(){
         const textes=[];
         [TUTORIEL_DEBUT_JEU_PAGES_V1,TUTORIEL_PREMIER_BOSS_PAGES_V1,TUTORIEL_AVENTURE_PAGES_V1].forEach(function(pages){
-          pages.forEach(function(page){textes.push(texteVoixTutorielIdleV1_(page));});
+          pages.forEach(function(page,index){textes.push(texteVoixTutorielIdleV1_(page,pages[index-1]));});
         });
         const definitions=definitionsNouveautesIdleV75_();
         Object.keys(definitions).forEach(function(cle){textes.push(texteVoixNouveauteIdleV1_(definitions[cle]));});
@@ -9960,7 +9906,7 @@
         if(!tts||typeof tts.prechauffer!=='function'||!etat)return;
         [1,2].forEach(function(decalage){
           const suivante=etat.pages[etat.index+decalage];
-          if(suivante)tts.prechauffer(texteVoixTutorielIdleV1_(suivante));
+          if(suivante)tts.prechauffer(texteVoixTutorielIdleV1_(suivante,etat.pages[etat.index+decalage-1]));
         });
       }
 
@@ -9984,7 +9930,7 @@
           document.body.appendChild(modal);
 
           modal.innerHTML=
-            '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(page))+'">'+
+            '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(page,etat.pages[etat.index-1]))+'">'+
               '<div class="soreal-idle-modal-top-v63">'+
                 '<div class="soreal-idle-modal-title-v63">'+
                   idleHtml_(page.titre||'')+
@@ -10038,7 +9984,7 @@
             )+
           '</div>';
 
-        root.setAttribute('data-soreal-tts-say',texteVoixTutorielIdleV1_(page));
+        root.setAttribute('data-soreal-tts-say',texteVoixTutorielIdleV1_(page,etat.pages[etat.index-1]));
 
         if(nouveau){
           positionnerTutoFlottantV1_(root);
@@ -10400,6 +10346,15 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-133 */
       let idleAdventureKoAlertV1=false;
+
+      /* Pose tout de suite la classe rouge clignotante sur le bouton Adventure (sans attendre le prochain rendu du menu) quand on est mis K.O. hors du menu Adventure. */
+      function marquerBoutonAventureKoIdleV1_(){
+        if(idleMenuActifV28==='aventure')return;
+        try{
+          const bouton=document.querySelector('.soreal-idle-nav-button-v28[data-menu-id-v1="aventure"]');
+          if(bouton)bouton.classList.add('soreal-idle-nav-adventure-ko-v1');
+        }catch(e){}
+      }
 
       function idleCouleurMoneyPitNavV1_(j){
         const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
@@ -17192,6 +17147,7 @@ let idleDialogueTimerV76=null;
           idleEtat.adventureRestPv=0;
           memoriserRestPvIdleV1_(0);
           idleAdventureKoAlertV1=true;
+          marquerBoutonAventureKoIdleV1_();
           ajouterLogAventureIdleV1_(
             'enemy',
             'Vous avez été mis K.O. par '+nom+' ! Retour à la Safe Zone…'
@@ -20814,171 +20770,6 @@ function pageAventureIdleV28_(j){
         executerResetTotalIdleV67_;
 
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-311 */
-      let idleResetTousJoueursAdminEnCoursV1=false;
-
-      function fermerPopupResetTousJoueursAdminIdleV1_(){
-        const modal=
-          document.getElementById(
-            'sorealIdleResetTousJoueursAdminModalV1'
-          );
-
-        if(modal){
-          modal.remove();
-        }
-      }
-
-      function ouvrirPopupResetTousJoueursAdminIdleV1_(){
-        if(
-          idleResetTousJoueursAdminEnCoursV1 ||
-          !estAdminSorealIdle_()
-        ){
-          return;
-        }
-
-        fermerPopupResetTousJoueursAdminIdleV1_();
-
-        const modal=
-          document.createElement('div');
-
-        modal.id=
-          'sorealIdleResetTousJoueursAdminModalV1';
-
-        modal.className=
-          'soreal-idle-modal-backdrop-v63';
-
-        modal.innerHTML=
-          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" aria-label="Réinitialiser tous les joueurs">'+
-            '<div class="soreal-idle-modal-top-v63">'+
-              '<div class="soreal-idle-modal-icon-v63">💣</div>'+
-              '<div class="soreal-idle-modal-title-v63">Reset TOUS les joueurs ?</div>'+
-              '<div class="soreal-idle-modal-gain-v63">Pas seulement ton propre compte</div>'+
-            '</div>'+
-            '<div class="soreal-idle-modal-body-v63">'+
-              '<div class="soreal-idle-modal-info-v63">'+
-                'Cette action efface <strong>la progression de TOUS les joueurs actuels</strong> de SOREAL IDLE, y compris la tienne.'+
-                '<div class="soreal-idle-total-reset-warning-v67">⚠️ Irréversible. Chacun repartira comme lors d’une première connexion.</div>'+
-                '<div id="sorealIdleResetTousJoueursAdminStatusV1" style="margin-top:9px;color:#d7b4ba;font-size:10px;font-weight:900;text-align:center"></div>'+
-              '</div>'+
-            '</div>'+
-            '<div class="soreal-idle-modal-actions-v63">'+
-              '<button type="button" class="soreal-idle-modal-button-v63 cancel" onclick="window.__fermerPopupResetTousJoueursAdminIdleV1__()">Annuler</button>'+
-              '<button id="sorealIdleResetTousJoueursAdminConfirmV1" type="button" class="soreal-idle-modal-button-v63 confirm soreal-idle-total-reset-final-v67" onclick="window.__executerResetTousJoueursAdminIdleV1__()">🗑️ Tout réinitialiser</button>'+
-            '</div>'+
-          '</div>';
-
-        modal.addEventListener(
-          'click',
-          function(event){
-            if(event.target===modal){
-              fermerPopupResetTousJoueursAdminIdleV1_();
-            }
-          }
-        );
-
-        document.body.appendChild(modal);
-      }
-
-      function executerResetTousJoueursAdminIdleV1_(){
-        if(
-          idleResetTousJoueursAdminEnCoursV1 ||
-          !SOREAL_SESSION ||
-          !estAdminSorealIdle_()
-        ){
-          return;
-        }
-
-        idleResetTousJoueursAdminEnCoursV1=true;
-
-        const bouton=
-          document.getElementById(
-            'sorealIdleResetTousJoueursAdminConfirmV1'
-          );
-
-        if(bouton){
-          bouton.disabled=true;
-          bouton.textContent='⏳ Suppression…';
-        }
-
-        google.script.run
-          .withSuccessHandler(function(res){
-            idleResetTousJoueursAdminEnCoursV1=false;
-
-            if(!res||!res.ok){
-              if(bouton){
-                bouton.disabled=false;
-                bouton.textContent='🗑️ Tout réinitialiser';
-              }
-
-              const statut=
-                document.getElementById(
-                  'sorealIdleResetTousJoueursAdminStatusV1'
-                );
-
-              if(statut){
-                statut.textContent=
-                  res&&res.message
-                    ?res.message
-                    :'Impossible de réinitialiser les comptes.';
-              }
-
-              return;
-            }
-
-            const statut=
-              document.getElementById(
-                'sorealIdleResetTousJoueursAdminStatusV1'
-              );
-
-            if(statut){
-              statut.textContent=
-                (res.message||'Tous les comptes ont été réinitialisés.')+
-                ' Rechargement…';
-            }
-
-            idleEtat=null;
-            idleCombatLogV70=[];
-            idleCombatLogBossV70='';
-
-            setTimeout(function(){
-              fermerPopupResetTousJoueursAdminIdleV1_();
-              chargerSorealIdleNatifV4_();
-            },900);
-          })
-          .withFailureHandler(function(e){
-            idleResetTousJoueursAdminEnCoursV1=false;
-
-            if(bouton){
-              bouton.disabled=false;
-              bouton.textContent='🗑️ Tout réinitialiser';
-            }
-
-            const statut=
-              document.getElementById(
-                'sorealIdleResetTousJoueursAdminStatusV1'
-              );
-
-            if(statut){
-              statut.textContent=
-                e&&e.message
-                  ?e.message
-                  :'Erreur serveur pendant le reset.';
-            }
-          })
-          .reinitialiserTousLesComptesSorealIdle(
-            SOREAL_SESSION
-          );
-      }
-
-      window.__ouvrirPopupResetTousJoueursAdminIdleV1__=
-        ouvrirPopupResetTousJoueursAdminIdleV1_;
-
-      window.__fermerPopupResetTousJoueursAdminIdleV1__=
-        fermerPopupResetTousJoueursAdminIdleV1_;
-
-      window.__executerResetTousJoueursAdminIdleV1__=
-        executerResetTousJoueursAdminIdleV1_;
-
 
       function pagePersonnageIdleV28_(j){
         return `
@@ -21253,7 +21044,6 @@ function pageAventureIdleV28_(j){
           '⚙️ Settings',
           ''
         )+
-          rendrePartiesDevIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31 soreal-idle-info-titre-v1" '+
               'onclick="window.__toggleInfoOuvertIdleV1__()" '+
@@ -21288,7 +21078,7 @@ function pageAventureIdleV28_(j){
             (introsNormanSebastien.length
               ?introsNormanSebastien.map(function(info,index){
                 const targetId='sorealIdleNarrateursV203_'+index;
-                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(info))+'">'+
+                return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(info,index>0&&introsNormanSebastien[index-1].groupe===info.groupe?introsNormanSebastien[index-1]:null))+'">'+
                   '<div class="soreal-idle-info-recap-head-v1">🎙️ <b>'+idleHtml_(info.groupe)+' · '+idleHtml_(info.titre)+'</b></div>'+
                   '<div style="font-size:10px;color:#7f8aa4;margin:4px 0 7px">Page '+idleEntier_(info.index)+' / '+idleEntier_(info.total)+(info.sousTitre?' · '+idleHtml_(info.sousTitre):'')+'</div>'+ 
                   '<div class="soreal-idle-info-recap-intro-v1">'+
@@ -21335,15 +21125,7 @@ function pageAventureIdleV28_(j){
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+
             '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTotalIdleV67__()">💣 Réinitialiser entièrement SOREAL IDLE</button>'+
-          '</div>'+
-          (estAdminSorealIdle_()
-            ?'<div class="soreal-idle-section-v8">'+
-              '<div class="soreal-idle-window-title-v31">🔧 Admin</div>'+
-              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface la progression de TOUS les joueurs actuels de SOREAL IDLE (pas seulement la tienne). Chacun repartira comme lors d’une première connexion. Action irréversible.</div>'+
-              '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTousJoueursAdminIdleV1__()">💣 Réinitialiser TOUS les joueurs</button>'+
-            '</div>'
-            :''
-          );
+          '</div>';
       }
 
       /* Interrupteur d'accès à SOREAL IDLE (administrateur seulement) : ouvre / ferme l'accès de tous les comptes connectés. */
@@ -22298,15 +22080,6 @@ function pageAventureIdleV28_(j){
         }catch(e){
           console.error(
             'SOREAL IDLE post-render admin :',
-            e
-          );
-        }
-
-        try{
-          rafraichirPartieDevIdleV1_();
-        }catch(e){
-          console.error(
-            'SOREAL IDLE post-render parties dev :',
             e
           );
         }

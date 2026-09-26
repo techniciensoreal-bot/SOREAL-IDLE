@@ -3361,32 +3361,6 @@
           }
 
           /* 2026-09-24 (développement) : sélecteur des deux parties A / B dans Paramètres. */
-          .soreal-idle-parties-dev-v1{
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:8px;
-          }
-          .soreal-idle-parties-dev-bouton-v1{
-            display:flex;
-            flex-direction:column;
-            gap:2px;
-            padding:10px 12px;
-            border-radius:12px;
-            border:1px solid #3a4260;
-            background:#1a2035;
-            color:#dce5f3;
-            text-align:left;
-            cursor:pointer;
-          }
-          .soreal-idle-parties-dev-bouton-v1 span{
-            font-size:11px;
-            color:#8b93ab;
-          }
-          .soreal-idle-parties-dev-bouton-v1.actif{
-            border-color:#6ab0ff;
-            background:#22304f;
-            cursor:default;
-          }
 
           .soreal-idle-v138-slot-head{grid-area:head}
           .soreal-idle-v138-slot-chest{grid-area:chest}
@@ -7626,3 +7600,78 @@
 .soreal-idle-v138-bag-card>span.idle-emoji-fallback-v1[data-n="4"],
 .soreal-idle-v138-slot-icon>span.idle-emoji-fallback-v1[data-n="4"]{font-size:21px}
 .idle-emoji-fallback-v1{overflow:hidden}
+
+/*
+ * Chiffres de vie du duel (Norman, 2026-09-26 : « beaucoup plus beaux ») : le compteur « ❤️ PV / PV MAX » devient une pastille brillante (rouge braise pour le boss, verte pour le
+ * joueur), plus grande, chiffres alignés ; la barre est plus épaisse, avec un reflet et un liseré. Purement visuel : mêmes éléments, mêmes identifiants (le tick de combat les met à jour).
+ */
+.soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
+  display:block !important;
+  width:max-content;
+  max-width:100%;
+  margin:8px auto 0 !important;
+  padding:4px 14px 5px;
+  border-radius:999px;
+  color:#fff;
+  font-weight:1000;
+  letter-spacing:.03em;
+  font-variant-numeric:tabular-nums;
+  line-height:1.15;
+  white-space:nowrap;
+  box-sizing:border-box;
+  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,0) 52%),linear-gradient(135deg,#2a1020,#5a1a2c);
+  border:1px solid rgba(255,130,150,.55);
+  box-shadow:0 3px 10px rgba(122,18,36,.35),inset 0 1px 0 rgba(255,255,255,.28);
+  text-shadow:0 1px 0 rgba(0,0,0,.65),0 0 10px rgba(255,120,140,.65);
+}
+.soreal-idle-duel-hp-v41 #sorealIdleJoueurPvV15.soreal-idle-note-v4{
+  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,0) 52%),linear-gradient(135deg,#0f2a1c,#1a5a38);
+  border-color:rgba(120,235,165,.55);
+  box-shadow:0 3px 10px rgba(30,120,70,.35),inset 0 1px 0 rgba(255,255,255,.28);
+  text-shadow:0 1px 0 rgba(0,0,0,.65),0 0 10px rgba(120,255,180,.6);
+}
+.soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
+  font-size:clamp(11px,2.7vw,17px) !important;
+}
+.soreal-idle-duel-hp-v41 .soreal-idle-bossbar-wrap-v7,
+.soreal-idle-duel-hp-v41 .soreal-idle-playerbar-wrap-v15{
+  height:17px;
+  margin-top:9px;
+  padding:2px;
+  box-sizing:border-box;
+  border-radius:999px;
+  background:linear-gradient(180deg,#0c0f1c,#1b2036);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.65),0 1px 0 rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7,
+.soreal-idle-duel-hp-v41 .soreal-idle-playerbar-v15{
+  position:relative;
+  min-width:0;
+}
+.soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7::after,
+.soreal-idle-duel-hp-v41 .soreal-idle-playerbar-v15::after{
+  content:"";
+  position:absolute;
+  left:4px;
+  right:4px;
+  top:1px;
+  height:38%;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0));
+  pointer-events:none;
+}
+
+/*
+ * Aventure : le bouton clignote en rouge quand on est mis K.O. (Norman, 2026-09-26 : « le bouton Adventure clignote en rouge quand on meurt en aventure, pour nous indiquer qu'on doit
+ * relancer une zone »). La classe est posée par le jeu (idleAdventureKoAlertV1) ; elle disparaît dès qu'on ouvre le menu Adventure.
+ */
+@keyframes sorealIdleNavKoV1{
+  0%,100%{background:#fde2e2;color:#a51d1d;box-shadow:0 0 0 0 rgba(239,68,68,.80);}
+  50%{background:#ef4444;color:#fff;box-shadow:0 0 0 8px rgba(239,68,68,0);}
+}
+.soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{
+  border-color:#ef4444 !important;
+  animation:sorealIdleNavKoV1 .85s ease-in-out infinite !important;
+}

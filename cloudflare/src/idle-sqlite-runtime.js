@@ -29,7 +29,6 @@ import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
 } from "./idle-profile-v1.js";
-import { idleDevSlotForUserV1, idleDevUserForSlotV1, idleDevAliasEmailV1, IDLE_DEV_SAVE_SLOTS_V1 } from "./idle-dev-save-slots-v1.js";
 import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import {
   IDLE_ADVENTURE_ZONES,
@@ -2151,17 +2150,6 @@ function trouverLigneJoueurSorealIdle_(
   feuille,
   acces
 ) {
-  /*
-   * 2026-09-24 (développement uniquement) : partie « B » de Norman = autre ligne JOUEURS, retrouvée par une adresse alias
-   * (voir idle-dev-save-slots-v1.js). La partie « A » garde l'identité réelle, donc la ligne historique.
-   */
-  if (idleDevSlotForUserV1(acces && acces.user) === 'b') {
-    acces = Object.assign({}, acces, {
-      user: idleDevUserForSlotV1(acces.user, 'b'),
-      emailAutorise: idleDevAliasEmailV1(acces.emailAutorise, 'b')
-    });
-  }
-
   assurerColonnesIdentiteSorealIdle_(
     feuille
   );
@@ -12700,14 +12688,14 @@ function valeursClassementJoueurSorealIdle_(stats) {
 
 /*
  * Ne comptent au classement que les joueurs connectés à leur compte (Norman, 2026-09-25) : ni la « partie B » de développement
- * (adresse alias « nom+partieb@… »), ni une entrée sans vrai nom (« Joueur »).
+ * (ancienne « partie B », retirée : sa ligne éventuelle, adresse alias « nom+partieb@… », n'apparaît jamais), ni une entrée sans vrai nom (« Joueur »).
  */
 function joueurExclusClassementSorealIdle_(cle, nom) {
   const email = String(cle || '').trim().toLowerCase();
   const libelle = String(nom || '').trim().toLowerCase();
   return (
     !email ||
-    email.indexOf('+' + IDLE_DEV_SAVE_SLOTS_V1.aliasTag + '@') !== -1 ||
+    email.indexOf('+partieb@') !== -1 ||
     !libelle ||
     libelle === 'joueur'
   );
@@ -13161,7 +13149,7 @@ const ADMIN_SOREAL_IDLE_EMAIL = 'technicien.soreal@gmail.com';
  * rendu de la page Settings. Ce point d'entrée dédié, minimal (aucune
  * lecture de feuille), donne au client une réponse SERVEUR autoritaire
  * et indépendante de ce handshake -- la même comparaison que
- * reinitialiserTousLesComptesSorealIdle ci-dessous, jamais un second
+ * les autres opérations réservées à l'administrateur, jamais un second
  * critère dupliqué.
  */
 function estAdminSorealIdle(
@@ -13180,76 +13168,6 @@ function estAdminSorealIdle(
   };
 }
 
-function reinitialiserTousLesComptesSorealIdle(
-  sessionToken
-) {
-  const acces =
-    exigerAccesSorealIdle_(
-      sessionToken
-    );
-
-  if (
-    String(acces.emailAutorise || '').toLowerCase() !==
-    ADMIN_SOREAL_IDLE_EMAIL
-  ) {
-    throw new Error(
-      'SOREAL_IDLE_ADMIN_REQUIS'
-    );
-  }
-
-  const lock =
-    LockService.getScriptLock();
-
-  if (!lock.tryLock(10000)) {
-    return {
-      ok: false,
-      code: 'SOREAL_IDLE_OCCUPE',
-      retryable: true,
-      message:
-        'Le moteur termine encore une action. Réessaie dans un instant.'
-    };
-  }
-
-  try {
-    const feuille =
-      obtenirFeuilleJoueursSorealIdle_();
-
-    const c =
-      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-
-    const derniereLigne =
-      feuille.getLastRow();
-
-    let comptesEffaces = 0;
-
-    if (derniereLigne >= 2) {
-      feuille
-        .getRange(
-          2,
-          1,
-          derniereLigne - 1,
-          c.STATS_JSON
-        )
-        .clearContent();
-
-      comptesEffaces = derniereLigne - 1;
-    }
-
-    SpreadsheetApp.flush();
-
-    return {
-      ok: true,
-      resetComplet: true,
-      comptesEffaces: comptesEffaces,
-      message:
-        'Tous les comptes SOREAL IDLE ont été réinitialisés (' +
-        comptesEffaces +
-        ' compte(s)).'
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
 
 
 function reinitialiserCompteCompletSorealIdle(
@@ -16246,7 +16164,6 @@ const IDLE_OPERATIONS={
   recyclerObjetSorealIdle,
   recyclerObjetsSorealIdle,
   reinitialiserCompteCompletSorealIdle,
-  reinitialiserTousLesComptesSorealIdle,
   renaitreSorealIdle,
   signalerBugSorealIdle,
   lireBugsSorealIdle,

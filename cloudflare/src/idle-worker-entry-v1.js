@@ -143,7 +143,7 @@ async function idleCallV1(request, env) {
    * repli "clé interne" (x-soreal-idle-internal-key, même secret que le
    * proxy avatar/debug-list) qui faisait confiance à un `user.email`
    * fourni tel quel par l'appelant -- aucune preuve de session, juste une
-   * égalité de chaîne plus loin (reinitialiserTousLesComptesSorealIdle
+   * égalité de chaîne plus loin (une opération d'administration
    * comparait `acces.emailAutorise==='technicien.soreal@gmail.com'`).
    * Recherche exhaustive (TV, APP, IDLE) : AUCUN appelant légitime --
    * TV/APP appellent le Durable Object directement via le binding

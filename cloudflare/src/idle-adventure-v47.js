@@ -91,7 +91,7 @@ const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b
  */
 export const IDLE_ADVENTURE_ZONES=Object.freeze([
 {id:"safe",name:"Zone sûre",boss:4,p:0,t:0,set:"",dropLevel:0,avatarLevel:1},
-{id:"tutorial",name:"Tutoriel",boss:4,p:10,t:10,oneHitP:129.5,idleP:13,idleT:13,bossChance:1/4,set:"training",dropLevel:10,avatarLevel:1},
+{id:"tutorial",name:"Zone Tutoriel",boss:4,p:10,t:10,oneHitP:129.5,idleP:13,idleT:13,bossChance:1/4,set:"training",dropLevel:10,avatarLevel:1},
 {id:"sewers",name:"Égouts",boss:7,p:12,t:12,oneHitP:194,idleP:21,idleT:21,bossChance:1/4,set:"sewers",dropLevel:4,avatarLevel:1},
 {id:"forest",name:"Forêt",boss:17,p:35,t:35,oneHitP:1134,idleP:53,idleT:53,bossChance:2/9,set:"forest",dropLevel:1,avatarLevel:2},
 {id:"cave",name:"Grotte aux multiples choses",boss:37,p:150,t:150,oneHitP:3811,idleP:200,idleT:200,bossChance:3/16,set:"cave",dropLevel:0,avatarLevel:2},

@@ -61,7 +61,7 @@ assert.ok(fightStart>=0&&fightEnd>fightStart);
 const fightBlock=audio.slice(fightStart,fightEnd);
 assert.ok(!fightBlock.includes("SpeechSynthesisUtterance"),"Fight ne doit plus lancer de voix TTS.");
 assert.ok(!fightBlock.includes('"FIGHT!"'),"Fight ne doit plus prononcer FIGHT.");
-assert.ok(fightBlock.includes("jouerWebAudio_(310"),"Fight doit conserver un impact court WebAudio.");
+assert.ok(fightBlock.includes("jouerWebAudio_(950"),"Fight doit conserver un son WebAudio (lames, tambours, cuivres).");
 
 let meta=normalizeIdleNguState(null,{},Date.now());
 assert.equal(Boolean(meta.selloutShop&&meta.selloutShop.unlockedEver),false);

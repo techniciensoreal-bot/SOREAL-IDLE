@@ -1931,3 +1931,15 @@ Norman : « T3-tom-lent est bien » ; « il prononce mal le nom du jeu : c'est S
 - **Défaite** : nouveau son (`defaiteConstruire_`, 1,9 s) : coup sourd + K.O., quatre notes tristes en mineur qui redescendent (la, fa, ré, la grave qui s'affaisse), bourdon qui s'éteint.
 - **CI** : `idle-cards-v1` échouait environ 3 fois sur 100 (3 cartes au lieu de 2 : `Math.random` du moteur complet) — probable cause du déploiement 3.1 en échec ; hasard figé dans le test.
 - Tests : `idle-voice-tom-tuned-and-femme-v1` (nouveau), `idle-voice-pregenerated-v1`, `idle-boss-sounds-cycle-v1` (défaite), `idle-cards-v1`, notes 3.3. `?v=` ui 291, audio 217, tts 235, piper 13.
+
+## 2026-09-26 — Beta 3.4 « Ça sent la bagarre » (+ retraits)
+
+Norman : bruit du début de combat ; « Zone Tutoriel » ; titres répétés des popups d'info non relus ; bouton Adventure rouge clignotant au K.O. ; chiffres de vie du duel plus beaux ; retirer la partie B et « Réinitialiser TOUS les joueurs » (nettoyage complet) ; accès public et accès détenteurs du trophée indépendants.
+- **Bruit de combat** (`voixFight_`, 0,95 s) : entrechoquement de lames (partiels inharmoniques + éclat de bruit aigu), trois coups de tambour de guerre en crescendo, court appel de cuivres.
+- **Zone Tutoriel** : `IDLE_ADVENTURE_ZONES` `tutorial` → « Zone Tutoriel » (comme « Zone sûre »).
+- **Voix, titres répétés** : `texteVoixTutorielIdleV1_(page, precedente)` ne relit pas le titre si la page précédente du même popup a le même (ex. « Le NOMBRE » ×3) ; s'applique au rendu, au préchauffage, à la liste du générateur et aux cartes de Settings. Le titre est un bloc séparé : aucun fichier de voix à regénérer (`voice-generate --dry` : 0 à générer).
+- **K.O. en aventure** : `soreal-idle-nav-adventure-ko-v1` était posée par le jeu depuis longtemps mais n'avait AUCUN style ; ajout de l'animation rouge (`sorealIdleNavKoV1`) et de `marquerBoutonAventureKoIdleV1_` (pose immédiate sans attendre le rendu) ; elle s'arrête à l'ouverture du menu Adventure.
+- **PV du duel** : pastille brillante (rouge braise pour le boss, verte pour le joueur, chiffres tabulaires, taille adaptative), barre plus épaisse avec liseré et reflet ; mêmes éléments et identifiants (le tick de combat continue). Vérifié en local.
+- **Retraits** : partie B (`idle-dev-save-slots-v1.js`, opérations `obtenirPartieDev`/`definirPartieDev`, section Settings, styles, appariement d'alias dans le moteur, tests) ; bouton et fenêtre « Réinitialiser TOUS les joueurs » **et** l'opération serveur `reinitialiserTousLesComptesSorealIdle` (retirée du contrat ; l'APP a son propre snapshot, mis à jour dans le même chantier). Le reset de SA propre partie reste. Une éventuelle ligne de l'ancienne partie B (adresse `+partieb@`) reste dans la base (non supprimée : donnée de production) mais n'apparaît jamais au classement.
+- **Accès** : les deux interrupteurs étaient déjà indépendants (`acces_ouvert` = détenteurs du trophée, `acces_public` = comptes Google) ; test ajouté pour chaque combinaison (public seul, trophée seul, aucun, administrateur toujours admis).
+- **CI** : `?v=` ui 292, audio 218, css 2. Test : `idle-fight-hp-ko-cleanup-v1` (nouveau).

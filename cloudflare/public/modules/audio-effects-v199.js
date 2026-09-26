@@ -214,20 +214,26 @@
     });
   }
 
+  /*
+   * Début de combat (Norman, 2026-09-26 : « un truc plus en rapport avec le combat qui commence ») : deux lames qui s'entrechoquent (éclat métallique aigu), trois coups de
+   * tambour de guerre qui montent en force, puis un court appel de cuivres. Même son sur ordinateur et téléphone, aucune voix (V210).
+   */
   function voixFight_(){
-    /*
-     * V210 — même son sur ordinateur et téléphone. La version desktop
-     * ajoutait encore une annonce vocale au petit impact WebAudio,
-     * alors que les WebView mobiles ne jouaient que l'impact court.
-     * La voix est retirée : un seul cue synthétique, identique partout.
-     */
-    return jouerWebAudio_(310,function(c){
-      tonal_(c,{type:"sawtooth",from:86,to:44,duration:.24,volume:.070});
-      tonal_(c,{type:"sine",from:58,to:34,duration:.29,volume:.105,delay:.01});
-      bruit_(c,{
-        duration:.13,volume:.034,delay:.015,
-        filterType:"lowpass",frequency:760,frequencyEnd:130,decay:2.5
+    return jouerWebAudio_(950,function(c){
+      /* les lames */
+      [[1500,.030],[1500*2.76,.018],[1500*5.4,.010]].forEach(function(p,i){
+        tonal_(c,{type:"sine",from:p[0],to:p[0]*.996,duration:.42-i*.08,volume:p[1]});
       });
+      tonal_(c,{type:"square",from:2600,to:1900,duration:.09,volume:.014});
+      bruit_(c,{duration:.13,volume:.060,filterType:"highpass",frequency:4500,decay:2.4});
+      /* les tambours de guerre */
+      [[.12,.100],[.36,.095],[.60,.140]].forEach(function(d){
+        tonal_(c,{type:"sine",from:98,to:44,duration:.24,volume:d[1],delay:d[0]});
+        bruit_(c,{duration:.10,volume:d[1]*.30,delay:d[0],filterType:"lowpass",frequency:420,decay:2.2});
+      });
+      /* l'appel de cuivres */
+      nappe_(c,{type:"sawtooth",from:196,to:294,duration:.42,volume:.028,attack:.05,delay:.52});
+      nappe_(c,{type:"sawtooth",from:392,to:588,duration:.42,volume:.014,attack:.06,delay:.52,detune:5});
     });
   }
 

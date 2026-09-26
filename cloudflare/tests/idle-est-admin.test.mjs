@@ -20,7 +20,7 @@ const source = fs.readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
 const start = source.indexOf("function estAdminSorealIdle(");
 assert.ok(start >= 0, "estAdminSorealIdle introuvable.");
-const end = source.indexOf("\nfunction reinitialiserTousLesComptesSorealIdle(", start);
+const end = source.indexOf("\nfunction reinitialiserCompteCompletSorealIdle(", start);
 assert.ok(end > start, "Fin de estAdminSorealIdle introuvable.");
 const body = source.slice(start, end);
 

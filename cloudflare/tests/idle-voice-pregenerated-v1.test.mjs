@@ -65,7 +65,7 @@ assert.match(ui, /class="soreal-idle-bestiary-desc-v110"'\+\s*\(idleEntier_\(e\.
 // --- Panneaux d'explication : le texte lu est construit à partir des données (attribut), jamais relevé dans le DOM ---
 assert.match(tts, /panel\.hasAttribute\('data-soreal-tts-say'\)/);
 assert.equal((ui.match(/data-soreal-tts-say="'\+idleHtml_\(texteVoix/g) || []).length, 4, "tutoriel long, popup nouveauté, carte Info, carte Norman & Sébastien");
-assert.match(ui, /root\.setAttribute\('data-soreal-tts-say',texteVoixTutorielIdleV1_\(page\)\);/, "tutoriel flottant");
+assert.match(ui, /root\.setAttribute\('data-soreal-tts-say',texteVoixTutorielIdleV1_\(page,etat\.pages\[etat\.index-1\]\)\);/, "tutoriel flottant");
 assert.match(ui, /window\.__sorealVoiceTextesIdleV1__=function\(\)\{/);
 assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /window\.__sorealVoiceTextesIdleV1__\(\)/);
 

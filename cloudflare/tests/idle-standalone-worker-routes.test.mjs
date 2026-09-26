@@ -130,7 +130,7 @@ function envV1() {
     method: "POST",
     headers: { "content-type": "application/json", "x-soreal-idle-internal-key": "secret" },
     body: JSON.stringify({
-      operation: "reinitialiserTousLesComptesSorealIdle",
+      operation: "definirAccesOuvertSorealIdle",
       args: [],
       user: { email: "technicien.soreal@gmail.com" }
     })

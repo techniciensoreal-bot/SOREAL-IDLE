@@ -8,8 +8,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.3',
+    courante:'3.4',
     versions:[
+      {
+        version:'3.4',
+        nom:'Ça sent la bagarre',
+        date:'2026-09-26',
+        points:[
+          'Quand un combat commence, le bruit est plus en rapport : deux lames qui s’entrechoquent, trois coups de tambour de guerre, puis un appel de cuivres.',
+          'Les chiffres de vie sous les images du combat de boss sont bien plus beaux : pastille brillante et barre épaisse avec reflet.',
+          'Le bouton Adventure clignote en rouge quand on est mis K.O. en aventure, pour indiquer qu’il faut relancer une zone.',
+          'La zone d’entraînement s’appelle maintenant « Zone Tutoriel ».',
+          'Dans les fenêtres d’explication, un titre répété (comme « Le NOMBRE ») n’est plus relu à chaque page : la voix ne le dit qu’au début.'
+        ]
+      },
       {
         version:'3.3',
         nom:'Une voix plus claire',

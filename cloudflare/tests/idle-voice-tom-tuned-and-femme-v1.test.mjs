@@ -54,4 +54,24 @@ const fermer = ui.slice(ui.indexOf("function tutorielPagesFermerV1_(){"), ui.ind
 assert.ok(fermer.includes("etat.pages===TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1"), "seulement après le tutoriel de début, dernière page atteinte (le sandwich)");
 assert.ok(ui.includes("textes.push(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);"), "le passage est pré-généré comme les autres textes");
 
+
+// --- titre répété (Norman, 2026-09-26) : « Le NOMBRE » n'est prononcé qu'au début du popup ---
+{
+  const a = ui.indexOf("function texteVoixTutorielIdleV1_(page,precedente){");
+  const b = ui.indexOf("function texteVoixNouveauteIdleV1_(info){");
+  const corps = ui.slice(a, b);
+  const texte = new Function("pauseVoixIdleV1_", corps + "\nreturn texteVoixTutorielIdleV1_;")((ms) => " |" + ms + "| ");
+  const p1 = { titre: "Le NOMBRE", paragraphes: ["Un."] };
+  const p2 = { titre: "Le NOMBRE", paragraphes: ["Deux."] };
+  const p3 = { titre: "Le NOMBRE", paragraphes: ["Trois."] };
+  const p4 = { titre: "Quand faire un Rebirth ?", paragraphes: ["Quatre."] };
+  assert.equal(texte(p1, undefined), "Le NOMBRE |450| Un.", "première page : le titre est lu");
+  assert.equal(texte(p2, p1), "Deux.", "même titre que la page précédente : pas relu");
+  assert.equal(texte(p3, p2), "Trois.");
+  assert.equal(texte(p4, p3), "Quand faire un Rebirth ? |450| Quatre.", "nouveau titre : lu");
+  assert.equal(texte({ titre: "Norman & Sébastien", paragraphes: ["Salut."] }, undefined), "Salut.", "règle précédente conservée");
+  // les textes envoyés au générateur suivent la même règle
+  assert.ok(ui.includes("textes.push(texteVoixTutorielIdleV1_(page,pages[index-1]));"));
+}
+
 console.log("idle-voice-tom-tuned-and-femme-v1: OK");

@@ -21,7 +21,7 @@ for (const titre of ["LE COMMENCEMENT", "Norman & Sébastien"]) {
   assert.ok(i >= 0 && !bloc.slice(i, i + 200).includes("cadrage:"), titre);
 }
 // la voix (textes lus) ne dépend pas du cadrage
-assert.ok(ui.includes("function texteVoixTutorielIdleV1_(page){") && !/texteVoixTutorielIdleV1_[\s\S]{0,400}cadrage/.test(ui.slice(ui.indexOf("function texteVoixTutorielIdleV1_"), ui.indexOf("function texteVoixTutorielIdleV1_") + 500)));
+assert.ok(ui.includes("function texteVoixTutorielIdleV1_(page,precedente){") && !/texteVoixTutorielIdleV1_[\s\S]{0,400}cadrage/.test(ui.slice(ui.indexOf("function texteVoixTutorielIdleV1_"), ui.indexOf("function texteVoixTutorielIdleV1_") + 500)));
 
 // 2. Appel après affichage de la fenêtre flottante, avec le menu actif et le changement de menu
 assert.ok(ui.includes("window.__SOREAL_IDLE_TUTO_CADRAGE_V1__.appliquer(page.cadrage||'',root,{"));
