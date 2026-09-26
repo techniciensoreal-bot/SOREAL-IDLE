@@ -9558,6 +9558,8 @@
         {
           titre:'Basic Training',
           cadrage:'barres',
+          clignote:'attaque-plus',
+          attendre:'attaque-plus',
           paragraphes:[
             'C’est là que les choses se passent. Si tu sélectionnes Basic Training dans le menu en haut, tu pourras augmenter ton attaque et ta défense (quelle surprise). Pour t’entraîner, tu assignes ton Énergie à une tâche ! Vas-y, clique sur le bouton « + » à côté de « Attaque passive » et regarde ce qui se passe.'
           ]
@@ -9565,6 +9567,7 @@
         {
           titre:'Bien joué',
           cadrage:'barres',
+          clignote:'attaque-moins',
           paragraphes:[
             'Si tu as bien fait, la barre devrait être en train de se remplir, et ton Attaque devrait grimper maintenant. Tape-toi dans le dos pour te féliciter. Pas trop bas quand même, ce serait bizarre. Si tu cliques sur le bouton -, tu peux retirer cette énergie et la mettre ailleurs.'
           ]
@@ -9586,6 +9589,7 @@
         {
           titre:'Défense',
           cadrage:'blocage',
+          clignote:'blocage-plus',
           paragraphes:[
             'Avoir la force d’un transpalette électrique mais en carton, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Donc, il va falloir entraîner la compétence « Blocage » dans le menu Basic Training aussi. Si toute ton Énergie est allouée à l’Attaque passive, il va falloir en retirer un peu.'
           ]
@@ -9994,11 +9998,12 @@
           '</div>'+
           '<div class="soreal-idle-tuto-flottant-actions-v1">'+
             '<button type="button" '+(premier?'disabled':'')+' onclick="window.__tutorielPagesNaviguerV1__(-1)">◀ Précédent</button>'+
-            '<button type="button" onclick="window.__tutorielPagesFermerV1__()">'+(dernier?'Terminé ✔':'Passer')+'</button>'+
+            /* Page « il faut cliquer » (page.attendre) : ni « Passer » ni « Suivant » ; c'est le clic sur le bouton qui clignote qui fait avancer (modules/tutorial-hint-v1.js). */
+            '<button type="button" '+(page.attendre?'disabled style="visibility:hidden" ':'')+'onclick="window.__tutorielPagesFermerV1__()">'+(dernier?'Terminé ✔':'Passer')+'</button>'+
             (
               (dernier&&page.seulementPrecedent)
                 ?'<button type="button" class="confirm" onclick="window.__tutorielPagesFermerV1__()">Terminé ✔</button>'
-                :'<button type="button" class="confirm" '+(dernier?'disabled style="visibility:hidden"':'')+' onclick="window.__tutorielPagesNaviguerV1__(1)">Suivant ▶</button>'
+                :'<button type="button" class="confirm" '+((dernier||page.attendre)?'disabled style="visibility:hidden"':'')+' onclick="window.__tutorielPagesNaviguerV1__(1)">Suivant ▶</button>'
             )+
           '</div>';
 
@@ -10014,6 +10019,11 @@
             menuActif:function(){return idleMenuActifV28;},
             allerMenu:function(menu){menuIdleV28_(menu);}
           });
+        }
+
+        /* Bouton qui clignote (et clic obligatoire sur la page « Basic Training ») : modules/tutorial-hint-v1.js. */
+        if(window.__SOREAL_IDLE_TUTO_INDICE_V1__){
+          window.__SOREAL_IDLE_TUTO_INDICE_V1__.appliquer(page.clignote||'',page.attendre||'');
         }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-125 */

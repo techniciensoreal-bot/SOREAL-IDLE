@@ -13,6 +13,12 @@ assert.equal(normaliser("Salut, c’est Norman & Sébastien."), "Salut, c’est 
 assert.equal(normaliser("Va au menu Fight Boss !"), "Va au menu Faïte Bosse !");
 assert.equal(normaliser("le fight boss"), "le Faïte Bosse", "sans casse");
 assert.equal(normaliser("Normandie et Normandy"), "Normandie et Normandy", "seul le mot Norman est remplacé");
+/* « Vas-y » était épelé « vas i-grec » (Norman, 2026-09-26) : il se dit « Vazi ». */
+assert.equal(normaliser("Vas-y, clique sur le bouton"), "Vazi, clique sur le bouton");
+assert.equal(normaliser("vas-y maintenant"), "Vazi maintenant");
+assert.equal(normaliser("Vas\u2011y !"), "Vazi !", "trait d'union insécable");
+assert.equal(normaliser("Tu vas y arriver"), "Tu vas y arriver", "« vas y » sans trait d'union n'est pas touché");
+assert.equal(normaliser("Vasy"), "Vasy");
 assert.ok(piper.includes("normalizeEllipsis_(normalizeAsterisks_(normalizePronunciation_(sanitizeText_(text))))"), "appliqué à la synthèse, avant l'empreinte du texte (inchangée)");
 
 // 2. Pause des points de suspension : « . + . »

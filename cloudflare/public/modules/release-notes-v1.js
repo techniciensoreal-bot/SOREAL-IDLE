@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.4',
+    courante:'2.5',
     versions:[
+      {
+        version:'2.5',
+        nom:'Le doigt sur le bouton',
+        date:'2026-09-26',
+        points:[
+          'Tutoriel du début : à la page Basic Training, le bouton + d’Attaque passive clignote pour te montrer où cliquer. Il faut cliquer dessus pour passer à la suite, il n’y a plus de bouton « Passer » à cette page.',
+          'Ensuite le bouton − clignote, mais tu n’es pas obligé de l’utiliser. Plus loin, à la page Défense, c’est le + de Blocage qui clignote.',
+          'La voix dit maintenant « Vazi » au lieu de « Vas i-grec ».'
+        ]
+      },
       {
         version:'2.4',
         nom:'Trois petits sons',

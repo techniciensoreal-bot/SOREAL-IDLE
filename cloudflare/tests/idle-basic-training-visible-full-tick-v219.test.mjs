@@ -34,6 +34,6 @@ assert.doesNotMatch(
   "La progression mécanique ne doit plus tronquer la barre au dernier frame avant 100 %."
 );
 
-assert.ok(index.includes("/soreal-idle-ui.js?v=283"),"Le shell doit charger une révision UI cache-bustée.");
+assert.ok(index.includes("/soreal-idle-ui.js?v=284"),"Le shell doit charger une révision UI cache-bustée.");
 
 console.log("idle Basic Training full visual ticks V220: OK");

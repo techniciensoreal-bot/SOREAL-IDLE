@@ -1855,3 +1855,10 @@ Norman : « trop de menus, surtout sur téléphone » ; « toute la partie d'Inv
 - **Dernière anomalie connue issue de l'audit** : le pipeline peut laisser momentanément en production un SHA dont le run finit rouge si un contrôle post-déploiement échoue.
 - **Prochaine action précise proposée** : traiter d'abord la chaîne de livraison, un seul problème à la fois : séparer validation pré-production et promotion, ajouter rollback automatique ou promotion atomique, puis protéger `main` avec contrôles requis. Ne pas mélanger ce chantier avec les refactors moteur/UI.
 
+
+## 2026-09-26 — Beta 2.5 « Le doigt sur le bouton » : tutoriel qui montre où cliquer, « Vas-y » = « Vazi »
+
+- **Voix** : « Vas-y » était épelé « vas i-grec » ; règle de prononciation ajoutée (synthèse seulement, empreintes inchangées) `Vas-y` -> `Vazi` (trait d'union simple ou insécable, sans casse). 3 blocs régénérés (`voice-generate.mjs --motifs "[Vv]as-y"` : le tuto « Basic Training » et deux histoires de boss), manifeste inchangé (879 fichiers).
+- **Tutoriel du début** (`modules/tutorial-hint-v1.js`, nouveau) : page *Basic Training* : le + d'Attaque passive clignote, ni « Passer » ni « Suivant » ; le clic (l'énergie affectée doit vraiment augmenter) passe à *Bien joué*. Sur *Bien joué* le − clignote mais on peut continuer sans. Sur *Défense* le + de Blocage clignote. Les autres pages : rien ne clignote. Filet : si le clic est impossible (plus d'énergie, cap atteint), « Suivant » réapparaît après 45 s. Le clignotement est reposé toutes les 250 ms (la liste est redessinée souvent) et s'éteint avec la fenêtre.
+- Vérifié en local (serveur de dev) : page Basic Training -> boutons cachés, le + d'Attaque passive clignote ; clic -> « Bien joué », allocation 125, − clignote ; 3 × Suivant -> Défense, + de Blocage clignote, aucun clignotement sur Énergie Idle ni Saisie.
+- Version : Beta 2.5, note de version, `?v=` (`soreal-idle-ui.js` 284, `release-notes` 16, `local-neural-piper` 11, module tuto 1), tests épinglés mis à jour.
