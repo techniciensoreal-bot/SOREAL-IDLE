@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.9',
+    courante:'3.0',
     versions:[
+      {
+        version:'3.0',
+        nom:'Un seul gong',
+        date:'2026-09-26',
+        points:[
+          'Le bruit d’apparition d’un boss ne se joue plus qu’une seule fois.',
+          'Auparavant, l’image du boss se rechargeait une seconde fois juste après son apparition et relançait le son : c’est corrigé.',
+          'Rappel : ton pseudo se choisit dans Settings, section Profil.'
+        ]
+      },
       {
         version:'2.9',
         nom:'Ton nom, ton pseudo',

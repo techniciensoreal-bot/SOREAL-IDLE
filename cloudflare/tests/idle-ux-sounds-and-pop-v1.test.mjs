@@ -84,3 +84,11 @@ const lire = (rel) => readFileSync(rel, "utf8");
 }
 
 console.log("idle-ux-sounds-and-pop-v1: OK");
+
+/* Norman (2026-09-26) : « le son du boss se répète 2 fois » : une seule lecture par apparition (deux adresses d'image pour le même boss). */
+{
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(ui.includes("let idleDernierGongBossV1=0;"));
+  assert.ok(ui.includes("if(maintenantGong-idleDernierGongBossV1>4500){\n              idleDernierGongBossV1=maintenantGong;\n              jouerEffetAudioIdleV199_('bossAppear');"), "le gong ne repart pas dans les 4,5 s");
+  assert.equal(ui.split("jouerEffetAudioIdleV199_('bossAppear')").length - 1, 1, "un seul site d'appel");
+}

@@ -21533,6 +21533,7 @@ function pageAventureIdleV28_(j){
 
 
       let idleDerniereImageBossV61='';
+      let idleDernierGongBossV1=0;
       let idleDerniereImageJoueurV61='';
       let idlePreloadsCombatV61={};
 
@@ -21557,7 +21558,16 @@ function pageAventureIdleV28_(j){
             idleDerniereImageBossV61!==key
           ){
             idleDerniereImageBossV61=key;
-            jouerEffetAudioIdleV199_('bossAppear');
+            /*
+             * Un seul gong par apparition (Norman, 2026-09-26 : « le son du boss se répète 2 fois »). Au premier rendu l'image du boss vient de bossImage / du
+             * fichier Drive, puis la mise à jour la refait avec l'adresse R2 : deux adresses pour le même boss, donc deux « changements d'image ». Le son dure
+             * 2,3 s : on ne le rejoue pas s'il vient de partir.
+             */
+            const maintenantGong=Date.now();
+            if(maintenantGong-idleDernierGongBossV1>4500){
+              idleDernierGongBossV1=maintenantGong;
+              jouerEffetAudioIdleV199_('bossAppear');
+            }
             return ' soreal-idle-image-fade-v61';
           }
 
