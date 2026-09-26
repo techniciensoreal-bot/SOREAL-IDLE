@@ -56,7 +56,11 @@ export function normaliserPseudoIdleV1(brut) {
   return { ok: true, pseudo, cle };
 }
 
+/* La table n'est vérifiée qu'une fois par connexion SQL (cette fonction est appelée à chaque lecture de profil). */
+const TABLES_PROFILS_PRETES_V1 = new WeakSet();
+
 export function assurerTableProfilsIdleV1(sql) {
+  if (sql && typeof sql === "object" && TABLES_PROFILS_PRETES_V1.has(sql)) return;
   sql.exec(
     "CREATE TABLE IF NOT EXISTS idle_profiles(" +
     "email TEXT PRIMARY KEY,pseudo TEXT NOT NULL DEFAULT '',pseudo_key TEXT NOT NULL DEFAULT '',externe INTEGER NOT NULL DEFAULT 0," +
@@ -69,6 +73,7 @@ export function assurerTableProfilsIdleV1(sql) {
     /* colonne déjà présente */
   }
   sql.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_idle_profiles_pseudo ON idle_profiles(pseudo_key) WHERE pseudo_key<>''");
+  if (sql && typeof sql === "object") TABLES_PROFILS_PRETES_V1.add(sql);
 }
 
 export function lireProfilIdleV1(sql, email) {
@@ -113,6 +118,17 @@ export function noterPassageProfilIdleV1(sql, { email, externe, googleName, pren
 function prenomUtileV1(valeur) {
   const prenom = texteV1(valeur);
   return prenom && prenom.toLowerCase() !== "joueur" ? prenom : "";
+}
+
+/*
+ * Nom du joueur dans le jeu (plaque « JOUEUR » du combat, journaux) : son pseudo ; sans pseudo, son prénom (ouvrier) ou le prénom de son compte Google (externe) ; à défaut le nom de la ligne.
+ * Ce n'est pas le nom du classement (« Pseudo (Prénom) »).
+ */
+export function nomJeuJoueurIdleV1(profil, nomLigne) {
+  const pseudo = texteV1(profil && profil.pseudo);
+  if (pseudo) return pseudo;
+  const prenom = profil && profil.externe ? premierPrenomV1(profil.googleName) : prenomUtileV1(profil && profil.prenom);
+  return prenom || prenomUtileV1(nomLigne) || texteV1(nomLigne);
 }
 
 /* Premier prénom d'un nom Google complet (« Norman Dupont » -> « Norman »). */

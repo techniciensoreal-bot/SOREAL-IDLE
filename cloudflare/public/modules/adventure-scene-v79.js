@@ -204,6 +204,22 @@
     if(img&&img.getAttribute('src')!==url)img.setAttribute('src',url);
   }
 
+
+  /* Fait tenir un nom sur une ligne : la police rétrécit par demi-pixel (jusqu'à 8 px) tant que le texte dépasse la largeur disponible. */
+  function uneLigneIdleV1_(el){
+    if(!el)return;
+    try{
+      el.style.removeProperty('font-size');
+      var taille=parseFloat(window.getComputedStyle(el).fontSize)||15;
+      var essais=0;
+      while(el.scrollWidth>el.clientWidth+0.5&&taille>8&&essais<30){
+        taille-=0.5;
+        essais+=1;
+        el.style.fontSize=taille+'px';
+      }
+    }catch(_){}
+  }
+
   function stats_(root,a){
     var stats=a&&a.stats||{};
     var rewards=a&&a.setRewards||{};
@@ -213,7 +229,10 @@
     var enemy=root.querySelector('.soreal-idle-v79-enemy-card');
     if(!player||!enemy)return;
     var playerName=player.querySelector('.soreal-idle-v79-card-name');
-    if(playerName)playerName.textContent='Joueur';
+    if(playerName){
+      playerName.textContent=typeof window.__nomJoueurIdleV1__==='function'?String(window.__nomJoueurIdleV1__()||'Joueur'):'Joueur';
+      uneLigneIdleV1_(playerName);
+    }
     var basePower=10+number_(rewards.adventurePower);
     var baseToughness=10+number_(rewards.adventureToughness);
     var baseHp=50+number_(rewards.adventureHp);
@@ -252,7 +271,9 @@
     }
     enemy.style.visibility=active?'visible':'hidden';
     if(!active)return;
-    enemy.querySelector('.soreal-idle-v79-card-name').textContent=String(fight.mobName||'Ennemi')+(fight.boss?' (BOSS)':'');
+    var nomMonstre=enemy.querySelector('.soreal-idle-v79-card-name');
+    nomMonstre.textContent=String(fight.mobName||'Ennemi')+(fight.boss?' (BOSS)':'');
+    uneLigneIdleV1_(nomMonstre);
     var enemyValues={power:fight.mobPower,toughness:fight.mobToughness,hp:fight.monsterHpMax,regen:fight.mobHpRegen,type:fight.mobType||'normal'};
     Object.keys(enemyValues).forEach(function(key){
       var value=enemy.querySelector('[data-enemy-stat="'+key+'"]');
@@ -396,6 +417,8 @@
       .soreal-idle-v79-arena{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:8px 10px 10px}.soreal-idle-v79-adventure-media{align-self:center;max-width:380px}.soreal-idle-v79-combat-health{display:grid;gap:5px;max-width:620px;width:100%;margin:0 auto}.soreal-idle-v79-combat-health .soreal-idle-v79-card-health{margin:0;padding:0 2px;text-align:center}.soreal-idle-v79-combat-health .soreal-idle-playerbar-wrap-v15,.soreal-idle-v79-combat-health .soreal-idle-bossbar-wrap-v7{width:100%;max-width:none}.soreal-idle-v79-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-width:620px;width:100%;margin:0 auto}.soreal-idle-v79-adventure-media{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:1/1;background:#05080d;border-radius:14px;overflow:hidden;border:1px solid rgba(166,188,229,.10);box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}.soreal-idle-v79-adventure-fallback{display:grid;place-items:center;font-size:72px;color:#8590a5;width:100%;height:100%}\
       .soreal-idle-v79-adventure-copy{padding:7px 12px;border-bottom:1px solid rgba(166,188,229,.10);background:linear-gradient(135deg,color-mix(in srgb,var(--nav-color,#22c55e) 18%,#202d45),#182236 64%,#121b2b);font-family:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif}.soreal-idle-v79-adventure-copy span{font-size:10px;font-weight:800;letter-spacing:.16em;color:color-mix(in srgb,var(--nav-color,#22c55e) 82%,#ffffff);text-shadow:0 0 14px color-mix(in srgb,var(--nav-color,#22c55e) 30%,transparent)}.soreal-idle-v79-adventure-copy h2{margin:3px 0 0;color:#f4f7ff;font-size:18px;font-weight:750;letter-spacing:.015em}\
       .soreal-idle-v79-stat-card{display:flex;flex-direction:column;min-width:0;padding:9px 10px 8px;background:linear-gradient(155deg,#26344f 0%,#1b273d 55%,#162136 100%);color:#dce5f3;border:1px solid rgba(166,188,229,.16);border-radius:16px;box-shadow:0 10px 24px rgba(5,9,18,.24),inset 0 1px 0 rgba(255,255,255,.04);font-family:"Segoe UI Variable Text","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;font-size:13px}.soreal-idle-v79-player-card{border-top:3px solid var(--nav-color,#22c55e);box-shadow:0 10px 24px rgba(5,9,18,.24),0 0 18px color-mix(in srgb,var(--nav-color,#22c55e) 8%,transparent),inset 0 1px 0 rgba(255,255,255,.04)}.soreal-idle-v79-enemy-card{border-top:3px solid #d95b68}.soreal-idle-v79-card-name{font-family:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;font-weight:800;font-size:15px;line-height:1.2;letter-spacing:.018em;color:#f5f7fc;min-height:34px;padding:1px 0 9px;margin-bottom:8px;border-bottom:1px solid rgba(166,188,229,.10);overflow-wrap:anywhere}.soreal-idle-v79-stat-lines{display:grid;gap:6px;line-height:1.3}.soreal-idle-v79-stat-lines>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0;white-space:nowrap;color:#aebbd4;font-size:12.5px}.soreal-idle-v79-stat-label{flex:1 1 auto;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis}.soreal-idle-v79-stat-value{display:inline-flex;flex:0 0 auto;align-items:baseline;justify-content:flex-end;gap:0;white-space:nowrap;text-align:right}.soreal-idle-v79-stat-lines b{color:#f4f7ff;font-size:13px;font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:.01em}.soreal-idle-v79-stat-bonus{margin-left:0!important;color:#55e188!important;font-weight:800!important}.soreal-idle-v79-stat-cube{margin-left:0!important;color:#a98cff!important;font-weight:800!important}.soreal-idle-v79-safe-regen{color:#55e188!important;text-shadow:0 0 10px rgba(85,225,136,.20)}.soreal-idle-v79-card-health{margin-top:auto;padding-top:8px;text-align:center}.soreal-idle-v79-stat-card .soreal-idle-playerbar-wrap-v15,.soreal-idle-v79-stat-card .soreal-idle-bossbar-wrap-v7{width:100%;max-width:none}.soreal-idle-v79-stat-card .soreal-idle-adventure-player-pv-label-v1,.soreal-idle-v79-stat-card .soreal-idle-v79-adventure-mob-pv{color:#dce5f3;text-shadow:none;font-family:"Segoe UI Variable Text","Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums}\
+      /* Nom du monstre et du joueur sur une seule ligne (Norman 2026-09-26), police reduite au besoin par uneLigneIdleV1_ */\
+      .soreal-idle-v79-stat-card .soreal-idle-v79-card-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}\
       @media(max-width:700px){.soreal-idle-v79-arena{gap:5px;padding:6px}.soreal-idle-v79-adventure-media{width:min(100%,250px);margin:auto}.soreal-idle-v79-stat-card{padding:7px 8px}.soreal-idle-v79-card-name{min-height:0;padding-bottom:5px;margin-bottom:4px;font-size:12px}.soreal-idle-v79-stat-lines{gap:2px}.soreal-idle-v79-stat-lines>div{font-size:10px}.soreal-idle-v79-stat-lines b{font-size:10.5px}.soreal-idle-v79-adventure-copy{padding:6px 9px}.soreal-idle-v79-adventure-copy h2{font-size:14px;margin-top:1px}.soreal-idle-v79-adventure-copy span{font-size:8px}.soreal-idle-v79-combat-health{gap:3px}.soreal-idle-v79-adventure-mob-pv,.soreal-idle-v79-stat-card .soreal-idle-adventure-player-pv-label-v1{font-size:10px;margin-bottom:1px}.soreal-idle-v79-stats-grid{gap:5px}}@media(max-width:470px){.soreal-idle-v79-adventure-media{width:min(100%,210px)}.soreal-idle-v79-stats-grid{grid-template-columns:1fr 1fr}.soreal-idle-v79-stat-lines>div{font-size:9px;gap:2px}.soreal-idle-v79-stat-lines b{font-size:9.5px}.soreal-idle-v79-card-name{font-size:11px}.soreal-idle-v79-arena{padding:4px}.soreal-idle-v79-adventure-scene{margin-bottom:7px}}\
       .soreal-idle-v79-adventure-safe-wrap{position:absolute;inset:0;z-index:1;pointer-events:none;background:#05080d}\
       .soreal-idle-v79-adventure-safe-image{display:none;width:100%;height:100%;object-fit:cover}\

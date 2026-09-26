@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
-import { normaliserPseudoIdleV1, idlePseudoCleV1, libelleJoueurIdleV1 } from "../src/idle-profile-v1.js";
+import { normaliserPseudoIdleV1, idlePseudoCleV1, libelleJoueurIdleV1, nomJeuJoueurIdleV1 } from "../src/idle-profile-v1.js";
 import { verifierJetonGoogleIdleV1, reinitialiserCacheClesGoogleIdleV1 } from "../src/idle-google-auth-v1.js";
 
 /*
@@ -177,6 +177,9 @@ assert.equal(appeler(alice, "definirPseudoSorealIdle", ["Zozo la Reine"]).code, 
   const profils = db.prepare("SELECT prenom,externe FROM idle_profiles WHERE email='redrum.test@gmail.com'").all();
   assert.equal(profils[0].prenom, "Norman", "le prénom est mémorisé dans le profil");
   assert.equal(profils[0].externe, 0);
+  /* Plaque « JOUEUR » du combat (Norman, 2026-09-26 : « joueur 2 fois au lieu de mon pseudo ») : le pseudo, jamais « Joueur » */
+  const profilRedrum = db.prepare("SELECT pseudo,externe,google_name AS googleName,prenom FROM idle_profiles WHERE email='redrum.test@gmail.com'").get();
+  assert.equal(nomJeuJoueurIdleV1({ pseudo: profilRedrum.pseudo, externe: profilRedrum.externe === 1, googleName: profilRedrum.googleName, prenom: profilRedrum.prenom }, "Joueur"), "Redrum", "le nom dans le jeu est le pseudo");
   const classement = appeler(admin, "obtenirClassementSorealIdle");
   const noms = classement.entrees.map((j) => j.nom);
   assert.ok(!noms.some((n) => /(Joueur)/.test(n)), "aucun « (Joueur) » dans le classement : " + noms.join(" | "));
@@ -263,6 +266,17 @@ assert.equal(appeler(zoe, "obtenirIdentiteSorealIdle").pseudo, "Zozo la Reine", 
   const coord = readFileSync(new URL("../src/index-idle-coordinator-v1.js", import.meta.url), "utf8");
   assert.ok(coord.includes('path === "/__soreal-idle-v1/google-session-create"'));
   assert.ok(!/externe/.test(coord.slice(coord.indexOf("function normalizeIdleLaunchUserV1"), coord.indexOf("class SorealIdleCoordinatorV1"))), "normalizeIdleLaunchUserV1 ne transmet jamais le drapeau externe");
+}
+
+// --- Nom montré dans le jeu (plaque du combat) ---
+assert.equal(nomJeuJoueurIdleV1({ pseudo: "Redrum", externe: false, prenom: "Norman" }, "Joueur"), "Redrum", "pseudo d'abord");
+assert.equal(nomJeuJoueurIdleV1({ pseudo: "", externe: false, prenom: "Norman" }, "Joueur"), "Norman", "sans pseudo : le prénom");
+assert.equal(nomJeuJoueurIdleV1({ pseudo: "", externe: true, googleName: "Marie Dupont" }, "Joueur"), "Marie", "externe sans pseudo : prénom Google");
+assert.equal(nomJeuJoueurIdleV1(null, "Norman"), "Norman", "sans profil : le nom de la ligne");
+assert.equal(nomJeuJoueurIdleV1({ pseudo: "", externe: false, prenom: "" }, "Joueur"), "Joueur", "rien d'autre de connu");
+{
+  const runtime = readFileSync(new URL("../src/idle-sqlite-runtime.js", import.meta.url), "utf8");
+  assert.ok(runtime.includes("nom: nomJeuDepuisLigneSorealIdle_(row, c),"), "l'état du joueur envoyé au jeu porte son pseudo");
 }
 
 console.log("idle-google-profile-v1: OK");

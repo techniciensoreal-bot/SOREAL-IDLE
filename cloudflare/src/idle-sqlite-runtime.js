@@ -27,7 +27,7 @@ import {
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import {
-  definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
+  definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
 } from "./idle-profile-v1.js";
 import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import {
@@ -9899,10 +9899,8 @@ function construireEtatJoueurSorealIdle_(
         row[c.ID - 1] || ''
       ),
 
-    nom:
-      String(
-        row[c.NOM - 1] || ''
-      ),
+    /* Nom montré dans le jeu : pseudo, sinon prénom (Norman, 2026-09-26 : « joueur 2 fois au lieu de mon pseudo »). */
+    nom: nomJeuDepuisLigneSorealIdle_(row, c),
 
     // Compatibility field only. SOREAL IDLE has no global player level.
     niveau:1,
@@ -12459,6 +12457,18 @@ function identiteJoueurSorealIdle_(acces) {
     /* L'adresse n'est montrée qu'au joueur externe lui-même (compte Google utilisé). */
     email: externe ? emailProfilSorealIdle_(acces) : ''
   };
+}
+
+function nomJeuDepuisLigneSorealIdle_(row, c) {
+  const nomLigne = String(row[c.NOM - 1] || '');
+  if (!__idleSql) return nomLigne;
+  try {
+    const email = normaliserEmailSorealIdle_(row[c.EMAIL_PRINCIPAL - 1] || row[c.EMAIL_CONNEXION - 1] || '');
+    const profil = email ? lireProfilIdleV1(__idleSql, email) : null;
+    return profil ? nomJeuJoueurIdleV1(profil, nomLigne) : nomLigne;
+  } catch (_) {
+    return nomLigne;
+  }
 }
 
 function obtenirIdentiteSorealIdle(sessionToken) {

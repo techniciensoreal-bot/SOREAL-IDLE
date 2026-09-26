@@ -90,4 +90,13 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
   assert.ok(i > 0 && pont.slice(i - 260, i).includes("masquerProgressionV1();"), "la progression est masquée avec le message");
 }
 
+// --- Aventure : nom du monstre / du joueur sur une seule ligne ; plaque du joueur = pseudo ---
+{
+  const scene = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");
+  assert.ok(scene.includes(".soreal-idle-v79-stat-card .soreal-idle-v79-card-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis"), "nom sur une seule ligne");
+  assert.ok(scene.includes("uneLigneIdleV1_(nomMonstre);") && scene.includes("uneLigneIdleV1_(playerName);"), "la police rétrécit pour que le nom tienne");
+  assert.ok(scene.includes("window.__nomJoueurIdleV1__()") && !scene.includes("playerName.textContent='Joueur'"), "la scène Adventure affiche le pseudo, plus « Joueur »");
+  assert.ok(ui.includes("window.__nomJoueurIdleV1__=function(){"), "le jeu expose le nom du joueur à la scène");
+}
+
 console.log("idle-shop-sounds-achievements-menu-v1 OK");

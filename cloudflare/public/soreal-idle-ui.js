@@ -13430,6 +13430,11 @@
       }
 
 
+      /* Nom du joueur dans le jeu (pseudo), lu par la scène Adventure (modules/adventure-scene-v79.js). */
+      window.__nomJoueurIdleV1__=function(){
+        return String(idleEtat&&idleEtat.nom||'Joueur');
+      };
+
       window.__ouvrirCarteBossIdleV91__=
         ouvrirCarteBossIdleV91_;
 
