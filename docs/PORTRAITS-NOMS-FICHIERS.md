@@ -41,7 +41,9 @@ Généré le 2026-09-26 à partir de `cloudflare/src/idle-portraits-v1.js` (fonc
 | SEXY ! | `portrait-sexy.webp` |
 | SMART | `portrait-smart.webp` |
 
-## À renommer dans R2 (18 fichiers dont le nom ne dit pas quel set c'est)
+## Non renommés (décision de Norman, 2026-09-26 : « laisse comme ça, tant pis pour les noms »)
+
+18 fichiers gardent leur ancien nom ; le jeu les retrouve très bien. Le tableau ne sert que de référence si tu veux les renommer un jour.
 
 Relevé le 2026-09-26 (nom réel lu dans R2 par le jeu). Le jeu accepte toute extension : inutile de convertir en webp, renomme seulement (`portrait-<id>.png` fonctionne). Dès que le nouveau nom existe, il l'emporte sur l'ancien.
 
