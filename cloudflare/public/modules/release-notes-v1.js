@@ -8,8 +8,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.5',
+    courante:'1.6',
     versions:[
+      {
+        version:'1.6',
+        nom:'Sets & Annonces',
+        date:'2026-09-26',
+        points:[
+          'Quand tu complètes un set, une annonce apparaît en fondu (sans cliquer) et confirme le bonus obtenu.',
+          'Dans la Collection, l’onglet Sets met le bonus du set bien en évidence : doré tant qu’il n’est pas obtenu, vert une fois obtenu.',
+          'Quand ton Tutorial Cube devient l’Infinity Cube, une annonce t’explique ce qui vient de se passer.',
+          'Les flèches gauche / droite des zones sont aussi efficaces que le menu déroulant : changer de zone en plein combat l’interrompt.',
+          'Comparer refonctionne à la souris sur PC.'
+        ]
+      },
       {
         version:'1.5',
         nom:'L’équipe s’invite',

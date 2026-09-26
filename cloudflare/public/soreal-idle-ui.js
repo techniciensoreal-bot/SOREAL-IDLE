@@ -4329,6 +4329,49 @@
       }
 
 
+      /*
+       * Annonces en fondu (2026-09-26, Norman) : set complété (« est-ce qu'on a bien les récompenses ? ») et Tutorial Cube devenu Infinity Cube
+       * (« les gens ne vont pas comprendre ce qu'il s'est passé »). On compare l'état de l'Aventure à chaque seconde ; le premier état observé sert
+       * de référence (rien n'est annoncé au chargement pour ce qui était déjà acquis).
+       */
+      let idleEvenementsVusV1=null;
+      function surveillerEvenementsAventureIdleV1_(){
+        const a=idleEtat?aventureMetaIdleV47_(idleEtat):null;
+        if(!a||typeof a!=='object')return;
+        const complets=a.completedSets&&typeof a.completedSets==='object'?Object.keys(a.completedSets).filter(function(k){return a.completedSets[k];}):[];
+        const cube=Boolean(a.cube&&a.cube.unlocked);
+        if(idleEvenementsVusV1===null){
+          idleEvenementsVusV1={sets:new Set(complets),cube:cube};
+          return;
+        }
+        const notice=window.__sorealFadeNoticeV1__;
+        complets.forEach(function(setId){
+          if(idleEvenementsVusV1.sets.has(setId))return;
+          idleEvenementsVusV1.sets.add(setId);
+          if(typeof notice!=='function')return;
+          let def=null;
+          try{def=catalogueSetsCollectionIdleV164_(a)[setId]||null;}catch(_e){}
+          const libelle=def&&def.reward?libelleRecompenseSetAdventureIdleV163_(def.reward):'';
+          notice('🧩 Set complété : '+String((def&&def.name)||setId),[libelle?'Bonus obtenu : '+libelle:'Bonus du set obtenu !']);
+        });
+        if(cube&&!idleEvenementsVusV1.cube){
+          idleEvenementsVusV1.cube=true;
+          if(typeof notice==='function'){
+            notice('🧊 Infinity Cube débloqué !',[
+              'Ton Tutorial Cube a atteint le niveau 100 : il s’est transformé en Infinity Cube.',
+              'Il prend place à côté de ton arme. Glisse-y tes boosts : ils sont convertis en Power et Toughness, sans limite.'
+            ],{dureeMs:7000});
+          }
+        }else if(!cube){
+          idleEvenementsVusV1.cube=false;
+        }
+      }
+      if(!window.__SOREAL_IDLE_EVENEMENTS_AVENTURE_V1__){
+        window.__SOREAL_IDLE_EVENEMENTS_AVENTURE_V1__=setInterval(function(){
+          try{surveillerEvenementsAventureIdleV1_();}catch(_e){}
+        },1000);
+      }
+
       function toastIdleV5_(message){
         const el=
           document.getElementById(
@@ -16056,15 +16099,47 @@ let idleDialogueTimerV76=null;
           .catch(function(error){if(typeof echec==='function')echec(error);});
       }
 
+      /*
+       * Choix de zone FIABLE (2026-09-26, Norman : « la flèche droite / gauche n'interrompt pas le combat ; le nom de la zone change mais on
+       * continue de combattre dans l'ancienne »). actionMetaIdleV130_ ABANDONNE en silence toute action envoyée pendant qu'une autre est en cours
+       * (le combat en envoie en continu) : le nom choisi s'affichait (état local) mais le serveur ne changeait jamais de zone. Le choix est donc
+       * mémorisé et renvoyé tant que le canal est occupé (le dernier choix l'emporte), pour les flèches comme pour le menu déroulant.
+       */
+      let idleZoneCibleEnAttenteV1='';
+      let idleZoneTimerV1=0;
+      let idleZoneEssaisV1=0;
+      function envoyerChoixZoneFiableIdleV1_(){
+        clearTimeout(idleZoneTimerV1);
+        idleZoneTimerV1=0;
+        if(!idleZoneCibleEnAttenteV1)return;
+        const api=window.__SOREAL_IDLE_META_V130__;
+        if(api&&typeof api.estOccupeIdleV130_==='function'&&api.estOccupeIdleV130_()&&idleZoneEssaisV1<80){
+          idleZoneEssaisV1+=1;
+          idleZoneTimerV1=setTimeout(envoyerChoixZoneFiableIdleV1_,120);
+          return;
+        }
+        const cible=idleZoneCibleEnAttenteV1;
+        idleZoneCibleEnAttenteV1='';
+        actionAdventureIdleV47_({action:'selectZone',zone:cible});
+      }
       function selectionnerZoneAdventureIdleV47_(id){
         const cible=String(id||'safe');
         const a=aventureMetaIdleV47_(idleEtat);
         if(a){
+          /*
+           * Changer de zone interrompt le combat en cours : le serveur le vide, mais la synchronisation client garde le combat LOCAL tant qu'il est
+           * actif (appliquerSynchroCombatSansReflowIdleV116_) — la zone affichée changeait, le combat continuait dans l'ancienne. On l'arrête ici.
+           */
+          if(a.fight&&a.fight.active&&String(a.fight.zone||'')!==cible){
+            a.fight={active:false,zone:'',monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};
+          }
           a.selectedZone=cible;
           patchZoneAdventureSansReflowIdleV1_(idleEtat);
           pousserEtatVersRuntimePartageIdleV1_();
         }
-        actionAdventureIdleV47_({action:'selectZone',zone:cible});
+        idleZoneCibleEnAttenteV1=cible;
+        idleZoneEssaisV1=0;
+        envoyerChoixZoneFiableIdleV1_();
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-187 */
@@ -17667,10 +17742,14 @@ function pageAventureIdleV28_(j){
           }).join('');
 
           const completeCollection=Boolean(total>0&&verts===total);
+          /* Bonus du set en évidence (2026-09-26, Norman) : cadre doré à obtenir, vert une fois obtenu (niveau 100 sur toutes les pièces). */
+          const obtenu=Boolean(completed[setId]);
           const recompenseHtml=setDef.reward
-            ?'<div class="soreal-idle-collection-reward-v32">Récompense NGU au niveau 100 : <strong>'+
-                idleHtml_(libelleRecompenseSetAdventureIdleV163_(setDef.reward))+
-              '</strong></div>'
+            ?'<div class="soreal-idle-collection-bonus-v1'+(obtenu?' obtenu':'')+'">'+
+                '<div class="titre">'+(obtenu?'✅ Bonus du set obtenu':'🎁 Bonus du set')+'</div>'+
+                '<div class="texte">'+idleHtml_(libelleRecompenseSetAdventureIdleV163_(setDef.reward))+'</div>'+
+                (obtenu?'':'<div class="condition">S’obtient quand les '+total+' pièces sont au niveau 100.</div>')+
+              '</div>'
             :'';
           return '<div class="soreal-idle-collection-zone-v32">'+
             '<div class="soreal-idle-collection-zone-head-v32">'+
@@ -18592,6 +18671,18 @@ function pageAventureIdleV28_(j){
 
         document.addEventListener('click',function(event){
 
+          /*
+           * Comparer (2026-09-26, Norman : « Comparer ne fonctionne plus sur PC, à la souris ») : le tap qui choisit le deuxième objet ouvre la
+           * comparaison au relâchement (pointerup), puis le navigateur envoie le « click » : cet objet étant hors des popups, il les refermait aussitôt.
+           * Un clic qui suit de moins de 750 ms un geste sur un objet (idleAdventureIgnorerClicJusquaV165) n'est pas un clic « à l'extérieur ».
+           */
+          if(Date.now()<idleAdventureIgnorerClicJusquaV165){
+            if(elementObjetGesteAdventureIdleV196_(event.target)){
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            return;
+          }
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-246 */
           fermerPopupDetailsSiExterieurAdventureIdleV207_(event);
 

@@ -10,6 +10,12 @@
   "main": "cloudflare/src/idle-worker-entry-v1.js",
   "compatibility_date": "2026-08-28",
   "compatibility_flags": ["nodejs_compat"],
+  "services": [
+    {
+      "binding": "SOREAL_TV_API",
+      "service": "soreal-tv"
+    }
+  ],
   "r2_buckets": [
     {
       "binding": "SOREAL_R2",

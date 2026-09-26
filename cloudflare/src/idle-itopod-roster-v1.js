@@ -60,12 +60,22 @@ let cache = { at: 0, valeur: null };
 const DUREE_CACHE_MS = 10 * 60 * 1000;
 
 /* Réponse JSON { ok, workers:[{nom, avatar}], decors:{1..6:[clé]} } ; en cas d'échec de TV, la liste réduite aux deux toujours présents. */
-export async function idleItopodRosterReponseV1(request, env, fetchFn = fetch) {
+export async function idleItopodRosterReponseV1(request, env, fetchFn) {
   const maintenant = Date.now();
   if (cache.valeur && maintenant - cache.at < DUREE_CACHE_MS) return jsonReponse(cache.valeur);
   let cosmetics = null;
   try {
-    const r = await fetchFn(IDLE_ITOPOD_TV_ORIGIN_V1 + "/api/cosmetiques-equipe", { headers: { accept: "application/json" }, cf: { cacheEverything: true, cacheTtl: 300 } });
+    /*
+     * Liaison de service SOREAL_TV_API (wrangler.jsonc) : un Worker ne peut pas appeler un autre Worker par son adresse workers.dev (erreur 1042,
+     * constatée en production le 2026-09-26), il passe par la liaison. Repli sur l'adresse publique pour les tests et le développement local.
+     */
+    const url = IDLE_ITOPOD_TV_ORIGIN_V1 + "/api/cosmetiques-equipe";
+    const init = { headers: { accept: "application/json" } };
+    const r = fetchFn
+      ? await fetchFn(url, init)
+      : env && env.SOREAL_TV_API && typeof env.SOREAL_TV_API.fetch === "function"
+        ? await env.SOREAL_TV_API.fetch(new Request(url, init))
+        : await fetch(url, { ...init, cf: { cacheEverything: true, cacheTtl: 300 } });
     if (r.ok) cosmetics = await r.json();
   } catch (_) { /* liste réduite */ }
   let cles = [];

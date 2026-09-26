@@ -1529,6 +1529,12 @@
           .soreal-idle-collection-zone-head-v32{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
           .soreal-idle-collection-zone-name-v32{font-size:12px;font-weight:1000;color:#293552}
           .soreal-idle-collection-reward-v32{margin-top:4px;font-size:10px;color:#6b7285;font-weight:850}
+          .soreal-idle-collection-bonus-v1{margin:8px 0 6px;padding:8px 12px;border-radius:12px;border:2px solid #d9a521!important;background:linear-gradient(135deg,#fff7dc,#ffe9a8)!important;color:#5a4200!important;box-shadow:0 2px 8px rgba(217,165,33,.28)}
+          .soreal-idle-collection-bonus-v1 .titre{font-size:12px;font-weight:1000;letter-spacing:.03em;text-transform:uppercase}
+          .soreal-idle-collection-bonus-v1 .texte{margin-top:2px;font-size:15px;font-weight:1000;color:#3f2d00}
+          .soreal-idle-collection-bonus-v1 .condition{margin-top:3px;font-size:11px;font-weight:800;opacity:.75}
+          .soreal-idle-collection-bonus-v1.obtenu{border-color:#2f9e5b!important;background:linear-gradient(135deg,#e3f7ea,#c6efd4)!important;color:#1a5233!important;box-shadow:0 2px 8px rgba(47,158,91,.28)}
+          .soreal-idle-collection-bonus-v1.obtenu .texte{color:#123f26}
           .soreal-idle-collection-count-v32{padding:5px 8px;border-radius:999px;background:#fff;font-size:10px;font-weight:1000}
           .soreal-idle-collection-count-v32.done{background:#dff3e5;color:#25653b}
           .soreal-idle-collection-slots-v32{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:9px}
