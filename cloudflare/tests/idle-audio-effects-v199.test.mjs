@@ -22,11 +22,11 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=213')&&
+  index.includes('/modules/audio-effects-v199.js?v=214')&&
   index.includes('/modules/long-press-v200.js?v=201')&&
-  index.includes('/soreal-idle-ui.js?v=286')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=213')<
-    index.indexOf('/soreal-idle-ui.js?v=286'),
+  index.includes('/soreal-idle-ui.js?v=287')&&
+  index.indexOf('/modules/audio-effects-v199.js?v=214')<
+    index.indexOf('/soreal-idle-ui.js?v=287'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 
@@ -78,12 +78,14 @@ assert.ok(
 );
 
 assert.ok(
-  audio.includes("bourdon sub-grave dissonant")&&
-  audio.includes('tonal_(c,{type:"sine",from:48,to:41,duration:1.68')&&
-  audio.includes('tonal_(c,{type:"sine",from:51,to:44,duration:1.62')&&
-  audio.includes("filterType:\"bandpass\",frequency:1850,frequencyEnd:290")&&
+  /* Norman (2026-09-26) : « un truc genre film d'horreur, à la Psycho mais mélodieux » : bourdon + coups d'archet aigus + comptine de boîte à musique en mineur. */
+  audio.includes("à la Psycho mais mélodieux")&&
+  audio.includes('tonal_(c,{type:"sine",from:55,to:46,duration:2.10')&&
+  audio.includes("[[1568,1760],[1661,1865],[1760,1976],[2093,2349]]")&&
+  audio.includes("[[659,.50],[784,.70],[988,.90],[932,1.10],[880,1.30],[740,1.50],[659,1.72]]")&&
+  audio.includes("return jouerWebAudio_(2300,function(c){")&&
   !audio.includes("function frappe_(delay,force)"),
-  "L'apparition du boss doit jouer une courte ambiance horrifique, plus un double gong."
+  "L'apparition du boss doit jouer une ambiance d'horreur à la Psycho, avec une petite mélodie."
 );
 
 assert.ok(

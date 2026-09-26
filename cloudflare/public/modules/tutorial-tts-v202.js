@@ -55,7 +55,9 @@
   /* Diagnostic léger (2026-09-25) : combien de fois la narration automatique a été évaluée / démarrée, et pourquoi elle a été refusée. */
   var diag={scans:0,demarrages:0,refus:'',dernierTexte:'',reessais:0};
 
-  try{auto=localStorage.getItem(KEY)==='1';}catch(_){}
+  /* Activée de base (Norman, 2026-09-26) : le joueur la coupe s'il le veut ; son choix (« 0 » ou « 1 ») est mémorisé. */
+  auto=true;
+  try{auto=localStorage.getItem(KEY)!=='0';}catch(_){}
 
   function audioContextCtor_(){
     try{return window.AudioContext||window.webkitAudioContext||null;}catch(_){return null;}

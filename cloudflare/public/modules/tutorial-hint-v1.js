@@ -18,7 +18,9 @@ var CIBLES={
   'attaque-moins':{groupe:'attack',rang:2},
   'blocage-plus':{groupe:'defense',rang:1},
   /* Page « Objectif » : les deux cases Attack et Defense du résumé clignotent pendant que la fenêtre est ouverte. */
-  'stats-attaque-defense':{cases:['sorealIdleSummaryAttackV50','sorealIdleSummaryDefenseV50']}
+  'stats-attaque-defense':{cases:['sorealIdleSummaryAttackV50','sorealIdleSummaryDefenseV50']},
+  /* Page « Énergie » : la grosse barre verte clignote. */
+  'energie-barre':{selecteur:'.soreal-idle-energybar-wrap-v11'}
 };
 var CLIGNOTE='',ATTENDRE='',BALAYAGE=0,DEBLOQUE=0;
 
@@ -36,7 +38,12 @@ function installerStyle(){
       '50%{box-shadow:0 0 0 4px rgba(255,214,90,.85),0 0 16px 4px rgba(255,214,90,.7);transform:scale(1.05);background-color:#fff4c7}'+
     '}'+
     '.'+CLASSE+'{animation:sorealIdleTutoIndiceV1 .9s ease-in-out infinite;position:relative;z-index:2;border-color:#ffd65a!important}'+
-    '.soreal-idle-summary-v28.'+CLASSE+'{animation-name:sorealIdleTutoIndiceCaseV1}';
+    '@keyframes sorealIdleTutoIndiceBarreV1{'+
+      '0%,100%{box-shadow:0 0 0 0 rgba(255,214,90,0);filter:brightness(1)}'+
+      '50%{box-shadow:0 0 0 4px rgba(255,214,90,.9),0 0 22px 6px rgba(255,214,90,.75);filter:brightness(1.35)}'+
+    '}'+
+    '.soreal-idle-summary-v28.'+CLASSE+'{animation-name:sorealIdleTutoIndiceCaseV1}'+
+    '.soreal-idle-energybar-wrap-v11.'+CLASSE+'{animation-name:sorealIdleTutoIndiceBarreV1;border-radius:14px}';
   document.head.appendChild(s);
 }
 
@@ -56,6 +63,7 @@ function bouton(nom){
 function elementsCible(nom){
   var c=CIBLES[nom];
   if(!c)return [];
+  if(c.selecteur)return Array.prototype.slice.call(document.querySelectorAll(c.selecteur));
   if(c.cases){
     return c.cases.map(function(id){var b=document.getElementById(id);return b&&b.parentElement;}).filter(Boolean);
   }

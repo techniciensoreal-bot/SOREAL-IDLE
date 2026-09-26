@@ -118,9 +118,9 @@
     var lignes=[];
     lignes.push('<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+
       '<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?' · prochain dans '+duree(s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',u.autoMerge)+
-        (u.autoMerge?'':verrou('Achat « Auto Merge » dans la boutique EXP.'))+'</div>'+
+        (u.autoMerge?'':verrou('Achat « Auto Merge (fusion automatique) » dans la Boutique EXP (menu Shop).'))+'</div>'+
       '<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?' · prochain dans '+duree(s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',u.autoBoost)+
-        (u.autoBoost?'':verrou('1re complétion du No Equipment Challenge.'))+'</div>'+
+        (u.autoBoost?'':verrou('1re complétion du No Equipment Challenge (menu Challenges).'))+'</div>'+
     '</div>');
     lignes.push('<div class="soreal-idle-note-v4" style="margin-top:8px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b> · Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>');
     lignes.push('<div style="margin-top:6px">'+caseACocher('♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
@@ -130,7 +130,7 @@
         caseACocher('Fusion automatique',r.mergeSlotsMerge,'window.__inventaireAutoReglageV1__(\'mergeSlotsMerge\',this.checked)')+
         caseACocher('Boost automatique',r.mergeSlotsBoost,'window.__inventaireAutoReglageV1__(\'mergeSlotsBoost\',this.checked)')+
       '</div><div class="soreal-idle-note-v4" style="margin:4px 0 0">Les premières cases du sac (contour bleu) : aucun butin n’y tombe, dépose-y les objets à faire monter.</div>':
-      verrou('Boutique EXP, perks ITOPOD, quirk ou 4G’s Sellout Shop.'))+'</div>');
+      verrou('Boutique EXP (« Slot d’automerge »), menu Perks, menu Quirks ou Boutique AP (« Emplacements de fusion d’inventaire »).'))+'</div>');
     var optionsTransfo=[['','Désactivée'],['power','Power'],['toughness','Toughness'],['special','Special']].map(function(o){
       return '<option value="'+o[0]+'"'+(r.autoTransform===o[0]?' selected':'')+'>'+o[1]+'</option>';
     }).join('');
@@ -150,10 +150,10 @@
     lignes.push('<div style="margin-top:10px"><b>🧹 Filtre de butin</b>'+(zoneNom?' <span style="font-size:12px;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':'')+
       (u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:5px">'+types.map(function(t){
         return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+zoneFiltre_()+':'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
-      }).join('')+'</div>':verrou('Achat « Basic Loot Filter » dans la boutique EXP.'))+
+      }).join('')+'</div>':verrou('Achat « Filtre de butin basique » dans la Boutique EXP (menu Shop).'))+
       (u.lootFilterImproved?'<details style="margin-top:6px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
         (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+
-      '</div></details>':verrou('Filtre objet par objet : « Improved Loot Filter » (4G’s Sellout Shop).'))+
+      '</div></details>':verrou('Filtre objet par objet : « Filtre de butin amélioré » (Boutique AP, menu Shop).'))+
       (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin:4px 0 0">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'')+
     '</div>');
     var los=Array.isArray(s.loadouts)?s.loadouts:[];
@@ -164,7 +164,7 @@
           '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'save\','+i+')">Enregistrer</button>'+
           (lo?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'apply\','+i+')">Équiper</button>':'')+
         '</span></div>';
-      }).join('')+'</div>':verrou('Boutique EXP (« 2 Loadout Slots! », « Another Loadout Slot! ») ou 4G’s Sellout Shop.'))+
+      }).join('')+'</div>':verrou('Boutique EXP (« 2 emplacements de configuration », « Autre emplacement de configuration ») ou Boutique AP (« Emplacement de configuration »).'))+
     '</div>');
     var estOuvert=ouvert();
     return '<div class="soreal-idle-window-title-v31 soreal-idle-inv-auto-titre-v1" onclick="window.__inventaireAutoBasculerV1__()" role="button" tabindex="0" aria-expanded="'+(estOuvert?'true':'false')+'">'+

@@ -64,14 +64,14 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   assert.ok(page("Basic Training").includes("clignote:'attaque-plus'") && page("Basic Training").includes("attendre:'attaque-plus'"), "Basic Training : + d'Attaque passive, clic obligatoire");
   assert.ok(page("Bien joué").includes("clignote:'attaque-moins'") && !page("Bien joué").includes("attendre:"), "Bien joué : − d'Attaque passive, facultatif");
   assert.ok(page("Défense").includes("clignote:'blocage-plus'") && !page("Défense").includes("attendre:"), "Défense : + de Blocage");
-  for (const titre of ["Énergie", "Énergie Idle", "Saisie personnalisée", "Fight Boss"]) assert.equal(page(titre).includes("clignote:"), false, titre + " : rien ne clignote");
+  for (const titre of ["Énergie Idle", "Saisie personnalisée", "Fight Boss"]) assert.equal(page(titre).includes("clignote:"), false, titre + " : rien ne clignote");
   assert.ok(ui.includes("'<button type=\"button\" '+(page.attendre?'disabled style=\"visibility:hidden\" ':'')+'onclick=\"window.__tutorielPagesFermerV1__()\">'"), "pas de « Passer » sur la page qui attend un clic");
   assert.ok(ui.includes("((dernier||page.attendre)?'disabled style=\"visibility:hidden\"':'')"), "pas de « Suivant » non plus");
   assert.ok(ui.includes("window.__SOREAL_IDLE_TUTO_INDICE_V1__.appliquer(page.clignote||'',page.attendre||'')"));
   assert.ok(hint.includes("'attaque-plus':{groupe:'attack',rang:1}") && hint.includes("'attaque-moins':{groupe:'attack',rang:2}") && hint.includes("'blocage-plus':{groupe:'defense',rang:1}"));
   assert.ok(hint.includes("window.__tutorielPagesNaviguerV1__(1)") && hint.includes("allocation(page)>avant"), "le clic passe à la page suivante seulement si l'énergie est vraiment affectée");
   assert.ok(hint.includes("DELAI_SUIVANT_MS=45000"), "le « Suivant » revient si le clic est impossible : jamais bloqué");
-  assert.ok(index.includes('/modules/tutorial-hint-v1.js?v=2') && index.indexOf("tutorial-hint-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "le module est chargé avant le jeu");
+  assert.ok(index.includes('/modules/tutorial-hint-v1.js?v=3') && index.indexOf("tutorial-hint-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "le module est chargé avant le jeu");
 }
 
 
@@ -99,6 +99,16 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   const premierBoss = ui.slice(b0, ui.indexOf("function idleTutorielPagesDejaVuLocalV1_(cle){"));
   assert.equal((premierBoss.match(/cadrage:'bas',/g) || []).length, 4, "les 4 pages du premier boss sont posées en bas de l'écran");
   assert.ok(framing.includes("bas:{") && framing.includes("placer:function(r){poser(r,hauteurFenetre());}"), "cadrage « bas » : tout en bas, rien ne bouge");
+}
+
+
+/* Norman (2026-09-26) : sur la page « Énergie » (la grosse barre verte), c'est la grosse barre verte qui clignote. */
+{
+  const ui2 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const hint2 = readFileSync("cloudflare/public/modules/tutorial-hint-v1.js", "utf8");
+  const i = ui2.indexOf("titre:'Énergie',");
+  assert.ok(ui2.slice(i, ui2.indexOf("paragraphes:", i)).includes("clignote:'energie-barre'"), "Énergie : la grosse barre verte clignote");
+  assert.ok(hint2.includes("'energie-barre':{selecteur:'.soreal-idle-energybar-wrap-v11'}") && hint2.includes("sorealIdleTutoIndiceBarreV1"));
 }
 
 console.log("idle-tutorial-framing-v1: OK");

@@ -23,8 +23,11 @@ const t0 = 5_000_000;
   const snap = idleNguSnapshot(normalizeIdleNguState({}, ctx, t0), ctx, t0);
   const html = api.panneau({ systemes: snap });
   assert.match(html, /Automatisation de l’inventaire/);
-  assert.match(html, /🔒 Achat « Auto Merge » dans la boutique EXP\./);
-  assert.match(html, /🔒 1re complétion du No Equipment Challenge\./);
+  assert.match(html, /🔒 Achat « Auto Merge \(fusion automatique\) » dans la Boutique EXP \(menu Shop\)\./);
+/* Norman (2026-09-26) : les noms cités doivent être ceux du jeu (« 4G’s Sellout Shop » n'existe plus : c'est la Boutique AP, dans le menu Shop). */
+assert.doesNotMatch(html, /4G|Sellout|Loot Filter|Loadout Slot/, "aucun ancien nom anglais / 4G dans les textes de verrou");
+assert.match(html, /Boutique AP/);
+  assert.match(html, /🔒 1re complétion du No Equipment Challenge \(menu Challenges\)\./);
   assert.match(html, /Slots d’automerge : 0 \/ 8/);
   assert.match(html, /Minuteur : <b>1 h 00 min<\/b>/);
 }
@@ -54,7 +57,7 @@ assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 /* 2026-09-24 : ?v=1 -> ?v=2 (case « consumeRecycled » ajoutée au panneau), puis ?v=3 (le panneau passe après le Coffre). */
-assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=6"></script>'));
+assert.ok(index.includes('<script src="/modules/inventory-auto-v1.js?v=7"></script>'));
 assert.ok(index.indexOf("/modules/inventory-auto-v1.js") < index.indexOf("/soreal-idle-ui.js"), "chargé avant le monolithe, comme les autres modules");
 
 /* 2026-09-24 (Norman) : le Coffre vient avant toutes les options (filtre de butin, etc.). */

@@ -8,8 +8,22 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.7',
+    courante:'2.8',
     versions:[
+      {
+        version:'2.8',
+        nom:'Frissons et petits détails',
+        date:'2026-09-26',
+        points:[
+          'Le badge tout en haut du jeu affiche maintenant le vrai numéro de version (Beta 2.8).',
+          'Quand un boss apparaît, le bruit devient une petite scène de film d’horreur : bourdon grave, coups d’archet aigus et une comptine de boîte à musique qui grince.',
+          'Un petit son doux et agréable accompagne chaque changement de menu.',
+          'Quand tu ajoutes de l’énergie avec + (ou Cap), le chiffre « Énergie affectée » gonfle une fois pour te montrer que c’est bien pris en compte.',
+          'Tutoriel : sur la page qui parle de la grosse barre verte, c’est elle qui clignote.',
+          'La voix IA automatique est activée de base ; tu peux toujours la couper, ton choix est retenu.',
+          'Automatisation de l’inventaire : les noms cités correspondent maintenant à ceux du jeu (Boutique EXP, Boutique AP, menus Shop, Perks, Quirks, Challenges).'
+        ]
+      },
       {
         version:'2.7',
         nom:'Ça sonne, ça brille',

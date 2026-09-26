@@ -21,7 +21,7 @@
 
   var DEFINITIONS={
     fight:{group:"combat-start",priority:90,maxAgeMs:1600},
-    bossAppear:{group:"combat-boss",priority:75,maxAgeMs:2200},
+    bossAppear:{group:"combat-boss",priority:75,maxAgeMs:2400},
     victory:{group:"combat-end",priority:105,maxAgeMs:2200},
     nuke:{group:"combat-action",priority:110,maxAgeMs:1200},
     defeat:{group:"combat-end",priority:100,maxAgeMs:2800},
@@ -31,6 +31,7 @@
     btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
     menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
     purchase:{group:"purchase",priority:30,maxAgeMs:900},
+    menuNav:{group:"ui-nav",priority:20,maxAgeMs:400},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
@@ -230,26 +231,37 @@
   }
 
   function gongBoss_(){
-    return jouerWebAudio_(1750,function(c){
-      /*
-       * V203 — plus de gong. Court sting d'horreur synthétique :
-       * bourdon sub-grave dissonant, battements très proches, note
-       * descendante et souffle filtré. Les fréquences volontairement
-       * désaccordées créent une tension sans embarquer le moindre MP3.
-       */
-      tonal_(c,{type:"sine",from:48,to:41,duration:1.68,volume:.105});
-      tonal_(c,{type:"sine",from:51,to:44,duration:1.62,volume:.070,delay:.025});
-      tonal_(c,{type:"triangle",from:76,to:69,duration:1.38,volume:.052,delay:.08});
-      tonal_(c,{type:"sawtooth",from:214,to:82,duration:1.26,volume:.024,delay:.12});
-      tonal_(c,{type:"sine",from:311,to:147,duration:.92,volume:.019,delay:.24});
-      bruit_(c,{
-        duration:1.18,volume:.033,delay:.10,
-        filterType:"bandpass",frequency:1850,frequencyEnd:290,q:1.15,decay:1.45
+    /*
+     * Apparition d'un boss (Norman, 2026-09-26) : « un truc genre film d'horreur, à la Psycho mais mélodieux en même temps ».
+     *   1. bourdon sub-grave qui gronde ;
+     *   2. quatre coups d'archet aigus et grinçants (violons désaccordés l'un contre l'autre), en rafale ;
+     *   3. une petite comptine de boîte à musique en mi mineur, avec un si bémol qui grince, qui redescend et s'éteint.
+     */
+    return jouerWebAudio_(2300,function(c){
+      tonal_(c,{type:"sine",from:55,to:46,duration:2.10,volume:.070});
+      tonal_(c,{type:"triangle",from:82,to:73,duration:1.70,volume:.030,delay:.06});
+      [[1568,1760],[1661,1865],[1760,1976],[2093,2349]].forEach(function(p,i){
+        var d=i*.115;
+        tonal_(c,{type:"sawtooth",from:p[0],to:p[1],duration:.17,volume:.020,delay:d});
+        tonal_(c,{type:"sawtooth",from:p[0]*1.012,to:p[1]*1.012,duration:.17,volume:.018,delay:d});
+        bruit_(c,{duration:.16,volume:.020,delay:d,filterType:"bandpass",frequency:3400,frequencyEnd:2300,q:2.2,decay:1.6});
       });
-      bruit_(c,{
-        duration:.44,volume:.050,delay:.88,
-        filterType:"lowpass",frequency:430,frequencyEnd:72,q:.55,decay:2.5
+      [[659,.50],[784,.70],[988,.90],[932,1.10],[880,1.30],[740,1.50],[659,1.72]].forEach(function(n,i){
+        var dur=i===6?.62:.42;
+        tonal_(c,{type:"sine",from:n[0],to:n[0],duration:dur,volume:.030,delay:n[1]});
+        tonal_(c,{type:"sine",from:n[0]*1.005,to:n[0]*1.005,duration:dur,volume:.018,delay:n[1]});
+        tonal_(c,{type:"sine",from:n[0]*2.76,to:n[0]*2.76,duration:dur*.4,volume:.008,delay:n[1]});
       });
+    });
+  }
+
+  /* Changement de menu : une petite note de clochette douce, agréable à l'oreille (deux notes qui montent, très légères). */
+  function menuNav_(){
+    return jouerWebAudio_(260,function(c){
+      tonal_(c,{type:"sine",from:587,to:589,duration:.16,volume:.030});
+      tonal_(c,{type:"triangle",from:1174,to:1176,duration:.10,volume:.008});
+      tonal_(c,{type:"sine",from:880,to:882,duration:.22,volume:.030,delay:.07});
+      tonal_(c,{type:"triangle",from:1760,to:1764,duration:.12,volume:.008,delay:.07});
     });
   }
 
@@ -563,6 +575,7 @@
     btCap:btCap_,
     menuUnlock:menuDebloque_,
     purchase:caisse_,
+    menuNav:menuNav_,
     achievement:succes_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
@@ -665,6 +678,13 @@
     amorcerAudioDepuisGeste_();
   }
 
+  /* Navigation : un clic sur un bouton de menu qui change de menu joue une petite note (jamais pour le menu déjà ouvert). */
+  document.addEventListener("click",function(ev){
+    var b=ev.target&&ev.target.closest?ev.target.closest(".soreal-idle-nav-button-v28"):null;
+    if(!b||b.classList.contains("active")||b.closest(".edition"))return;
+    demander_("menuNav");
+  },{capture:true,passive:true});
+
   document.addEventListener("pointerdown",debloquer_,{capture:true,passive:true});
   document.addEventListener("touchstart",debloquer_,{capture:true,passive:true});
   document.addEventListener("click",debloquer_,{capture:true,passive:true});
@@ -683,6 +703,7 @@
     btCap:function(){return demander_("btCap");},
     menuUnlock:function(){return demander_("menuUnlock");},
     purchase:function(){return demander_("purchase");},
+    menuNav:function(){return demander_("menuNav");},
     achievement:function(){return demander_("achievement");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},

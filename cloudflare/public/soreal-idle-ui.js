@@ -5,7 +5,12 @@
       'use strict';
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-3 */
-      const IDLE_TEST_VERSION='Ver. Beta local';
+      const IDLE_TEST_VERSION='Version bêta';
+      /* Badge du haut : le vrai numéro de version (Beta 2.7…), celui des notes de mise à jour (Norman, 2026-09-26 : « garde bien les bons numéros »). */
+      function versionBadgeIdleV1_(){
+        const n=window.__SOREAL_IDLE_RELEASE_NOTES_V1__;
+        return n&&n.courante?'Beta '+n.courante:IDLE_TEST_VERSION;
+      }
       const IDLE_UI_MILESTONE_V48_NGU_BALANCE=true;
       const IDLE_CLIENT_PROTOCOL_VERSION=1;
       let idleAutorise=false;
@@ -1816,7 +1821,7 @@
               <div class="soreal-idle-kicker-v4">Prototype privé</div>
               <div class="soreal-idle-title-v4">SOREAL IDLE</div>
               <div class="soreal-idle-sub-v4">Le moteur a renvoyé une erreur.</div>
-              <div class="soreal-idle-badge-v4">🔒 ${IDLE_TEST_VERSION}</div>
+              <div class="soreal-idle-badge-v4">🔒 ${versionBadgeIdleV1_()}</div>
             </div>
             <div class="soreal-idle-status-v4 error">
               ${idleHtml_(message||'Erreur inconnue')}
@@ -9568,6 +9573,7 @@
         {
           titre:'Énergie',
           cadrage:'energie1',
+          clignote:'energie-barre',
           paragraphes:[
             'En parlant de la grosse barre verte, elle représente ton énergie. Tu génères de l’Énergie à chaque fois que la barre verte se remplit, jusqu’à atteindre le plafond, qui est de 500 pour l’instant. Et l’Énergie sera la clé pour faire grimper tes chiffres d’Attaque et de Défense.'
           ]
@@ -22084,7 +22090,7 @@ function pageAventureIdleV28_(j){
                   :'<div style="height:170px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:1000">SOREAL IDLE</div>'
               }
               <div class="soreal-idle-badge-v4">
-                🔒 ${IDLE_TEST_VERSION}
+                🔒 ${versionBadgeIdleV1_()}
               </div>
             </div>
 
