@@ -4,17 +4,18 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : confirmation des données du wiki local dans le jeu (registre `docs/WIKI-COVERAGE.md`). Fait : recalcul cellule par cellule de Wandoos, Time Machine, Boost, Augmentations, Blood Magic, NGU, Hacks, Cards, Gold Diggers, Boss Fights et zones d'Adventure Mode, chacune verrouillée par un test `idle-wiki-table-*` ; Energy / Magic / Resource 3 rattachées aux catalogues vérifiés. Suite : décision ITOPOD, puis manques sans source.
-- **SHA `main` vérifié** : `17e81d2be845a4b0d44bf6e9d98c811e422811bb` (dernier commit de code ; les commits suivants ne touchent que `docs/`). `origin/main` relu par `git fetch` avant le push.
-- **Derniers commits du chantier** : `17e81d2` (docs du registre), avant lui les tests `idle-wiki-table-wandoos` et `idle-wiki-table-time-machine` ; `6d0aff5` et le lot de tests `idle-wiki-table-*` (avec `HACK_HARD_CAP_V1` exportée) ; `ff5fcec` et `3db7b2a` (pipeline).
-- **Tests** : 300 fichiers `cloudflare/tests/*.test.mjs`, tous verts en local (Node 24) et dans la CI.
-- **Build** : `node cloudflare/build-standalone.mjs` + `node --check` des modules et de l'UI : vert dans la CI.
-- **CI** : run #573 (`17e81d2`) terminé avec succès, chaque étape en succès : Setup Node, tests, build, Verify voice runtime dependencies, Deploy, Verify deployed Git SHA, smoke Chromium Piper.
-- **SHA réellement déployé** : `git:17e81d2be845a4b0d44bf6e9d98c811e422811bb` (étape « Verify deployed Git SHA » : annotation `workers/message` égale au SHA attendu, version active à 100 %). Version ID Cloudflare non relevé ici (pas d'identifiants Cloudflare sur le poste de travail) ; le site sert `soreal-idle-ui.js?v=236`.
-- **Dernière anomalie** : aucune dans ce chantier.
-- **Vérifications effectuées** : chaque test rouge sur l'ancien état ou vert par construction sur les valeurs du wiki ; contrôle vocal réel contre le réseau ; YAML validé ; coquilles du wiki consignées dans `NGU-Wiki/external/wiki-table-typos.json` (boss 161-183, rituel 8, Halloweenies, rareté des cartes).
-- **Problèmes ouverts, volontairement non traités** : diviseur 1E30 Evil/Sadistic (sens ambigu, impact d'équilibrage colossal) ; ITOPOD : moyennes au lieu du tirage aléatoire 0,8-1,2 (à décider) ; facteur temps du NGU Number, Rich Perks III/IV par difficulté, perks Iron Pill, Gold Multiplier de la Time Machine, paliers 12-16 du Money Pit, bonus 1E8 du Money Pit (+1 ou +10), AutoKill des titans, THE END, énigmes Beast/Exile/Death Note/GLOP, Effectiveness des objets, Tippi/Traitor (respawn, EXP, butin), types de mobs, Custom Input Buttons, fruits de Mayo, cartes Foil/End : aucune source fiable, pas d'invention. Auto-hébergement du modèle Tom sur R2 : décision à prendre avec Norman. Actions GitHub non épinglées par SHA.
-- **Prochaine action exacte** : trancher ITOPOD avec Norman (moyenne actuelle contre tirage aléatoire 0,8-1,2 et PV 588-612), puis traiter les manques sans source à mesure que des données fiables arrivent (relevés dans NGU).
+- **Tâche courante** : audit approfondi de SOREAL-IDLE après les mises à jour Beta 2.5 à 3.5 ; audit uniquement, aucun correctif fonctionnel appliqué.
+- **SHA `main` vérifié avant le commit documentaire d'audit** : `a47386ce95fa3ff8899f266646ff776129168689` (Beta 3.5, suite : bruit d'achat réellement déclenché, PV du duel, narration de la souris, son d'équipement).
+- **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
+- **Tests** : 368 fichiers `cloudflare/tests/*.test.mjs` ; run de production #646 entièrement vert.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #646.
+- **CI** : run #646 (`a47386ce95fa3ff8899f266646ff776129168689`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:a47386ce95fa3ff8899f266646ff776129168689`, version Cloudflare `2fe4b050-1360-4168-aab2-8e68de1e5132`, routage 100 %.
+- **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
+- **Dernière anomalie / état notable** : la connexion Google est implémentée mais **désactivée dans la production vérifiée** : le log du déploiement #646 expose `env.GOOGLE_CLIENT_ID ("")`. Le bouton Google ne peut donc pas apparaître tant que cette valeur reste vide.
+- **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
+- **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
+- **Prochaine action exacte** : traiter d'abord, séparément, la chaîne de livraison production : empêcher qu'un SHA non validé par les smokes puisse rester servi (validation avant promotion ou rollback automatique), puis protéger `main`. Ensuite seulement durcir l'auth Google avant de renseigner `GOOGLE_CLIENT_ID`.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
@@ -1966,3 +1967,40 @@ Norman : « le menu Achievements n'apparaît qu'au premier achievement débloqu�
 - **Narration « Une Petite Souris »** : le jeu remplace l'histoire du boss n°4 par un texte propre (`index===3` dans `idle-sqlite-runtime.js`) ; les voix avaient été générées depuis `design/ngu-boss-stories-fr.json`, qui différait : un bloc sans fichier, repli sur Piper, erreur. Le JSON est aligné sur le jeu, 1 voix régénérée (`voice-generate.mjs --prune`), test d'égalité dans `idle-voice-pregenerated-v1`. L'erreur affichée sur le bouton reste 9 s (au lieu de 3,5 s) et 60 caractères.
 - **Son d'équipement** : effet `equip` (froissement, cliquetis de boucle, « toc »), joué à l'équipement depuis Adventure (bouton, glisser-déposer), l'ancien inventaire et les MacGuffins. Échantillon G dans `sons-jeu`.
 - Versions : `?v=296`, audio `220`, achat `3`, notes `23`, css `4`, tts `236`, macguffins `2`.
+
+---
+
+## 2026-09-26 — Nouvel audit approfondi après Beta 3.5
+
+Audit repris depuis l'état réel du dépôt, sans reprendre l'ancien verdict comme acquis.
+
+### État vérifié
+- `main` fonctionnel audité : `a47386ce95fa3ff8899f266646ff776129168689`.
+- CI production : run #646 entièrement vert.
+- Production : SHA `a47386ce95fa3ff8899f266646ff776129168689`, version Cloudflare `2fe4b050-1360-4168-aab2-8e68de1e5132`, 100 % du trafic.
+- 368 tests ; 48 succès et 2 échecs sur les 50 derniers runs de `main`. Le run #638 a échoué aux tests avant tout déploiement.
+- Branche `main` : non protégée ; aucun ruleset.
+- Workflow : toujours un seul environnement, sans staging ; le smoke Chromium est toujours postérieur à `wrangler deploy`, sans rollback.
+- Worker : 1456,51 KiB non compressé, startup 7 ms. Assets : 934 fichiers au déploiement #646. Dossier voix : 882 fichiers, ~179,1 MB ; les assets ne sont pas incorporés dans la taille du Worker.
+
+### Nouveaux constats liés à Beta 2.9–3.5
+1. **Google est implémenté mais pas activé en production** : `env.GOOGLE_CLIENT_ID ("")` est confirmé dans le log #646.
+2. **Identité Google** : le JWT est correctement vérifié (RS256, `kid`, signature, `iss`, `aud`, `exp`, `nbf`, e-mail vérifié, `sub`), mais `sub` est ensuite jeté par `createGoogleSessionV1` et les parties/profils externes restent indexés par e-mail.
+3. **Sessions Google** : Bearer valable 14 jours, persisté en `localStorage`. Le risque d'une injection/supply-chain est donc nettement plus grave qu'avec la session APP/TV de 8 h en `sessionStorage`.
+4. **Endpoint Google public** : aucun rate-limit. Un `kid` inconnu force un nouveau fetch JWKS même si le cache est chaud ; après activation, cela permettrait de provoquer des appels sortants répétés. Chaque login Google valide crée aussi une nouvelle ligne de session de 14 jours, sans limitation par compte.
+5. **CSP/supply-chain** : CSP toujours limitée à `object-src`, `base-uri`, `frame-ancestors`; ONNX Runtime reste chargé depuis jsDelivr via import map sans SRI, Google GIS est chargé dynamiquement, Piper JS a bien une SRI.
+6. **TWA/APK** : manifest PWA, TWA, icônes et `.well-known/assetlinks.json` sont versionnés ; le keystore/APK sont correctement ignorés. En revanche le workflow ne surveille pas `android/**` et ne construit/vérifie pas l'APK : l'artefact signé local n'est donc pas reproductiblement vérifiable depuis GitHub.
+7. **Scalabilité** : tous les joueurs continuent à partager `idFromName("global")`; chaque opération normale reconstruit tout `idle_catalog`. L'ouverture au public augmente le risque de contention et le blast radius d'un client bruyant.
+8. **Tests** : la suite Node/SQLite/crypto Google est substantielle, mais il n'existe toujours pas de parcours E2E navigateur général (connexion Google réelle, jeu, sauvegarde/rechargement, inventaire, combat). Le seul smoke navigateur de production reste centré sur Piper.
+9. **Contrat** : `idle-protocol.json` reflète les noms d'opérations et la version, mais pas les schémas d'arguments/réponses/erreurs.
+10. **Fidélité NGU** : restent actives et non sourcées les constantes historiques `PV_JOUEUR_BASE=100`, `PV_PAR_ENDURANCE=20`, `DEFENSE_PAR_ENDURANCE=0.5`, `DEGATS_BOSS_MIN_PCT=0.12`, capacités inventaire 18/90 et plafond Basic Training hors ligne 12 h. `docs/WIKI-COVERAGE.md` est obsolète : il marque encore THE END non implémenté alors que le module et ses tests existent.
+11. **Documentation** : `AGENTS.md` dit encore `cancel-in-progress:true` alors que le workflow réel est `false`; README et le commentaire de tête du Worker décrivent encore l'ancien modèle où le navigateur n'appelle pas directement le Worker.
+
+### Positif / vérifié
+- Auth Google : vérification cryptographique sérieuse ; usurpation de charge, `alg:none`, mauvais destinataire, expiration et signature incorrecte couverts par tests.
+- Les deux accès (trophée APP/TV et Google public) sont indépendants et revérifiés côté serveur à chaque opération.
+- Le reset global de tous les joueurs et la partie B ont été retirés du contrat/code actif.
+- `android/.gitignore` protège le keystore et les artefacts signés.
+- Le volume actuel des assets n'est pas proche de la limite Cloudflare de fichiers et le bundle Worker reste très loin de la limite de taille.
+- Aucun correctif fonctionnel effectué dans cet audit.
+
