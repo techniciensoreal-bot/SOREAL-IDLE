@@ -28,6 +28,8 @@ const sv = v => String(v == null ? "" : v).trim();
 
 const IDLE_LAUNCH_TICKET_TTL_MS_V1 = 90 * 1000;
 const IDLE_SESSION_TTL_MS_V1 = 8 * 60 * 60 * 1000;
+/* Session d'un joueur connecté par Google (hors APP / TV) : il revient sans se reconnecter à chaque fois. */
+const IDLE_GOOGLE_SESSION_TTL_MS_V1 = 14 * 24 * 60 * 60 * 1000;
 
 function normalizeIdleLaunchUserV1(user) {
   if (!user || typeof user !== "object") return null;
@@ -201,6 +203,46 @@ export class SorealIdleCoordinatorV1 {
       sessionToken,
       expiresAt
     };
+  }
+
+  /*
+   * Connexion par Google (2026-09-26, Norman : SOREAL IDLE jouable sans APP / TV). Appelée UNIQUEMENT par le Worker, après vérification du jeton d'identité Google
+   * (idle-google-auth-v1.js) : l'adresse reçue est donc déjà celle d'un compte Google vérifié. L'utilisateur de la session porte le drapeau `externe`, que seul ce
+   * chemin peut poser (normalizeIdleLaunchUserV1 le retire des tickets APP / TV). Le droit de jouer est décidé à chaque appel par le moteur (accès public ouvert
+   * par l'administrateur, ou adresse de l'administrateur).
+   */
+  createGoogleSessionV1(payload) {
+    const email = sv(payload?.email).toLowerCase();
+    if (!email || !email.includes("@")) return { ok: false, error: "IDLE_GOOGLE_USER_REQUIRED" };
+    const user = {
+      email,
+      emailConnexion: email,
+      emails: [email],
+      prenom: "Joueur",
+      name: sv(payload?.nom).slice(0, 80),
+      role: "externe",
+      externe: true,
+      idleTrophee: false
+    };
+    const now = Date.now();
+    this.pruneStandaloneAuthV1(now);
+    const sessionToken = idleOpaqueTokenV1("ils");
+    const expiresAt = now + IDLE_GOOGLE_SESSION_TTL_MS_V1;
+    this.sql.exec(
+      "INSERT INTO idle_sessions(session_token,user_json,created_at,expires_at,revoked_at) VALUES(?,?,?,?,NULL)",
+      sessionToken,
+      JSON.stringify(user),
+      now,
+      expiresAt
+    );
+    return { ok: true, sessionToken, expiresAt };
+  }
+
+  revokeSessionV1(sessionTokenValue) {
+    const sessionToken = sv(sessionTokenValue);
+    if (!sessionToken) return { ok: false, error: "IDLE_SESSION_REQUIRED" };
+    this.sql.exec("UPDATE idle_sessions SET revoked_at=? WHERE session_token=?", Date.now(), sessionToken);
+    return { ok: true };
   }
 
   standaloneSessionV1(sessionTokenValue) {
@@ -420,6 +462,15 @@ export class SorealIdleCoordinatorV1 {
         status: result.ok ? 200 : 401,
         headers: { "cache-control": "no-store" }
       });
+    }
+    if (path === "/__soreal-idle-v1/google-session-create") {
+      const p = await request.json().catch(() => ({}));
+      const result = this.createGoogleSessionV1(p);
+      return Response.json(result, { status: result.ok ? 200 : 400, headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/session-revoke") {
+      const p = await request.json().catch(() => ({}));
+      return Response.json(this.revokeSessionV1(p?.sessionToken), { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/session-validate") {
       const p = await request.json().catch(() => ({}));

@@ -36,7 +36,7 @@ assert.equal(acces(norman).autorise, true, "administrateur : toujours autorisé"
 assert.equal(acces(sebastien).autorise, false, "Sébastien n'a plus d'accès spécial : accès fermé par défaut");
 assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, true), /ACCES_REFUSE/);
 const etatNorman = op("obtenirEtatSorealIdle", norman).joueur;
-assert.deepEqual({ ...etatNorman.reglages }, { accesOuvert: false }, "réglage visible de l'administrateur, fermé par défaut");
+assert.deepEqual({ ...etatNorman.reglages }, { accesOuvert: false, accesPublic: false }, "réglage visible de l'administrateur, fermé par défaut");
 assert.equal(op("definirAccesOuvertSorealIdle", norman, true).accesOuvert, true);
 assert.equal(acces(sebastien).autorise, true, "accès ouvert : le détenteur du trophée Assiduité de bronze est autorisé, comme les autres");
 assert.equal(acces(sansTrophee).autorise, false, "accès ouvert mais pas de trophée : pas d'accès");

@@ -1,5 +1,6 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
+import { verifierJetonGoogleIdleV1 } from "./idle-google-auth-v1.js";
 
 /*
  * Ce Worker n'est jamais appelé directement par un navigateur — seul le
@@ -53,13 +54,15 @@ function idleJsonV1(payload, status = 200) {
  * Tant que ce ticket n'est pas câblé, /api/v1/session refuse explicitement
  * l'accès au lieu de retomber silencieusement sur l'ancien bridge APP/TV.
  */
-function idleBootstrapV1(request) {
+function idleBootstrapV1(request, env) {
   const url = new URL(request.url);
   return idleJsonV1({
     ok: true,
     service: "soreal-idle",
     standalone: true,
     protocol: 1,
+    /* Identifiant client Google (public) : vide tant que la connexion Google n'est pas configurée -> le bouton n'est pas proposé. */
+    googleClientId: String(env?.GOOGLE_CLIENT_ID || "").trim(),
     sessionEndpoint: url.origin + "/api/v1/session",
     callEndpoint: url.origin + "/api/v1/call"
   });
@@ -96,6 +99,33 @@ async function idleSessionV1(request, env) {
   return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/launch-ticket-consume", {
     method: "POST",
     body: JSON.stringify({ ticket })
+  });
+}
+
+/*
+ * Connexion par Google (2026-09-26, Norman : « la personne doit se connecter avec son gmail »). Le navigateur envoie le jeton d'identité reçu de Google ; il est
+ * vérifié ici (signature, destinataire, expiration, adresse vérifiée) puis une session IDLE est ouverte pour cette adresse. Le droit de jouer reste décidé par le
+ * moteur à chaque appel (accès public ouvert par l'administrateur).
+ */
+async function idleGoogleLoginV1(request, env) {
+  const body = await request.json().catch(() => null);
+  const verification = await verifierJetonGoogleIdleV1(body?.credential, { clientId: env?.GOOGLE_CLIENT_ID });
+  if (!verification.ok) {
+    const status = verification.code === "GOOGLE_NON_CONFIGURE" ? 503 : verification.code === "GOOGLE_CLES_INDISPONIBLES" ? 502 : 401;
+    return idleJsonV1({ ok: false, error: verification.code }, status);
+  }
+  return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/google-session-create", {
+    method: "POST",
+    body: JSON.stringify({ email: verification.email, nom: verification.nom, sub: verification.sub })
+  });
+}
+
+async function idleLogoutV1(request, env) {
+  const sessionToken = idleBearerV1(request);
+  if (!sessionToken) return idleJsonV1({ ok: true });
+  return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-revoke", {
+    method: "POST",
+    body: JSON.stringify({ sessionToken })
   });
 }
 
@@ -143,7 +173,7 @@ export default {
 
 
     if (request.method === "GET" && url.pathname === "/api/v1/bootstrap") {
-      return idleBootstrapV1(request);
+      return idleBootstrapV1(request, env);
     }
 
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
@@ -191,6 +221,14 @@ export default {
 
     if (request.method === "POST" && url.pathname === "/api/v1/session") {
       return idleSessionV1(request, env);
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/v1/google-login") {
+      return idleGoogleLoginV1(request, env);
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/v1/logout") {
+      return idleLogoutV1(request, env);
     }
 
     if (request.method === "POST" && url.pathname === "/api/v1/call") {

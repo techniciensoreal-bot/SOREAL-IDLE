@@ -21114,6 +21114,106 @@ function pageAventureIdleV28_(j){
       }
       window.__toggleInfoOuvertIdleV1__=toggleInfoOuvertIdleV1_;
 
+      /*
+       * Profil et pseudo (2026-09-26, Norman : « la possibilité de choisir un Pseudo dans les paramètres ; c'est ce pseudo qui est utilisé pour les gens qui jouent en dehors
+       * de SOREAL APP et TV ; si c'est un ouvrier, il peut afficher un pseudo, mais on voit son prénom entre parenthèses »). Le serveur valide et garantit l'unicité.
+       */
+      function htmlProfilPseudoIdleV1_(j){
+        const id=j&&j.identite;
+        if(!id)return '';
+        const google=Boolean(id.externe);
+        return '<div class="soreal-idle-section-v8" id="sorealIdleProfilPseudoV1">'+
+          '<div class="soreal-idle-window-title-v31">👤 Profil</div>'+
+          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">'+
+            (google
+              ?'Les autres joueurs te voient uniquement sous ton pseudo (jamais ton nom Google ni ton adresse).'
+              :'Tu peux choisir un pseudo : les autres te verront « Pseudo ('+idleHtml_(id.prenom||'Prénom')+') ».')+
+          '</div>'+
+          '<div style="font-size:13px;color:#dce5f3;margin-bottom:8px">Nom affiché : <b>'+idleHtml_(id.nomAffiche||'Joueur')+'</b></div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
+            '<input id="sorealIdlePseudoChampV1" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ton pseudo (3 à 20 caractères)" value="'+idleHtml_(id.pseudo||'')+'" '+
+              'style="flex:1 1 180px;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(129,176,255,.35);background:#0d1830;color:#eef5ff;font-size:14px">'+
+            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__enregistrerPseudoIdleV1__()">Enregistrer</button>'+
+          '</div>'+
+          (google
+            ?'<div style="font-size:11px;color:#7f8aa4;margin-top:10px">Connecté avec Google : '+idleHtml_(id.email||'')+'</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" style="margin-top:8px" onclick="window.__deconnexionGoogleIdleV1__()">Se déconnecter</button>'
+            :'')+
+        '</div>';
+      }
+
+      function enregistrerPseudoIdleV1_(){
+        const champ=document.getElementById('sorealIdlePseudoChampV1');
+        if(!champ||!SOREAL_SESSION)return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){
+              if(idleEtat)idleEtat.identite=Object.assign({},idleEtat.identite||{},res);
+              toastIdleV5_('✅ Pseudo enregistré : '+(res.nomAffiche||res.pseudo||''));
+              const root=document.querySelector('.soreal-idle-page-root-v28');
+              if(root&&idleEtat&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+            }else{
+              toastIdleV5_((res&&res.message)||'Ce pseudo ne peut pas être utilisé.');
+            }
+          })
+          .withFailureHandler(function(e){
+            toastIdleV5_((e&&e.message)||'Impossible d’enregistrer le pseudo.');
+          })
+          .definirPseudoSorealIdle(SOREAL_SESSION,champ.value);
+      }
+      window.__enregistrerPseudoIdleV1__=enregistrerPseudoIdleV1_;
+
+      function deconnexionGoogleIdleV1_(){
+        const pont=window.__SOREAL_IDLE_STANDALONE_V1__;
+        if(pont&&typeof pont.logout==='function')pont.logout();
+      }
+      window.__deconnexionGoogleIdleV1__=deconnexionGoogleIdleV1_;
+
+      /* Accès public (administrateur) : les personnes connectées par Google peuvent jouer ; la liste montre leur adresse et leur nom Google. */
+      function basculerAccesPublicIdleV1_(){
+        if(!idleEtat||!idleEtat.reglages||!SOREAL_SESSION)return;
+        const voulu=!idleEtat.reglages.accesPublic;
+        if(voulu&&!window.confirm('Ouvrir SOREAL IDLE à toute personne qui se connecte avec un compte Google, sans passer par APP / TV ?'))return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){
+              idleEtat.reglages.accesPublic=Boolean(res.accesPublic);
+              toastIdleV5_(res.accesPublic?'🌍 Accès public ouvert (connexion Google).':'🔒 Accès public fermé.');
+              const root=document.querySelector('.soreal-idle-page-root-v28');
+              if(root&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+            }else{
+              toastIdleV5_((res&&res.message)||'Impossible de changer l’accès public.');
+            }
+          })
+          .withFailureHandler(function(e){
+            toastIdleV5_((e&&e.message)||'Impossible de changer l’accès public.');
+          })
+          .definirAccesPublicSorealIdle(SOREAL_SESSION,voulu);
+      }
+      window.__basculerAccesPublicIdleV1__=basculerAccesPublicIdleV1_;
+
+      function chargerJoueursGoogleIdleV1_(){
+        const zone=document.getElementById('sorealIdleJoueursGoogleV1');
+        if(!zone||!SOREAL_SESSION)return;
+        zone.textContent='Chargement…';
+        google.script.run
+          .withSuccessHandler(function(res){
+            const liste=res&&res.ok&&Array.isArray(res.joueurs)?res.joueurs:[];
+            zone.innerHTML=liste.length
+              ?liste.map(function(x){
+                return '<div style="padding:6px 0;border-top:1px solid rgba(129,176,255,.15);font-size:12px;color:#dce5f3">'+
+                  '<b>'+idleHtml_(x.pseudo||'(pas encore de pseudo)')+'</b> · '+idleHtml_(x.nomGoogle||'')+
+                  '<div style="color:#7f8aa4;font-size:11px">'+idleHtml_(x.email)+'</div></div>';
+              }).join('')
+              :'<div style="font-size:12px;color:#7f8aa4">Aucun joueur connecté par Google pour l’instant.</div>';
+          })
+          .withFailureHandler(function(e){
+            zone.textContent=(e&&e.message)||'Impossible de charger la liste.';
+          })
+          .listerJoueursExternesSorealIdle(SOREAL_SESSION);
+      }
+      window.__chargerJoueursGoogleIdleV1__=chargerJoueursGoogleIdleV1_;
+
       function pageParametresIdleV28_(j){
         const infosParMenu=idleInfosParMenuIdleV1_(j);
         const infoOuvert=idleInfoOuvertV1_();
@@ -21176,6 +21276,7 @@ function pageAventureIdleV28_(j){
               :'<div style="font-size:12px;color:#5b6178">Aucune intervention disponible pour l’instant.</div>'
             ):'')+
           '</div>'+
+          htmlProfilPseudoIdleV1_(j)+
           (j&&j.reglages
             ?'<div class="soreal-idle-section-v8" id="sorealIdleAccesAdminV1">'+
               '<div class="soreal-idle-window-title-v31">🔑 Accès à SOREAL IDLE (administrateur)</div>'+
@@ -21186,6 +21287,15 @@ function pageAventureIdleV28_(j){
                 'style="'+(j.reglages.accesOuvert?'background:#166534;color:#fff':'background:#7f1d1d;color:#fff')+'">'+
                 (j.reglages.accesOuvert?'✅ Accès OUVERT (trophée Assiduité de bronze) — désactiver':'⛔ Accès FERMÉ — activer pour les détenteurs du trophée')+
               '</button>'+
+              '<div style="font-size:12px;color:#8b93ab;margin:14px 0 10px">'+
+                'Accès public : activé, toute personne qui se connecte avec un compte Google peut jouer sans passer par APP / TV (elle est vue des autres sous son pseudo). Désactivé : la connexion Google est acceptée mais le jeu reste fermé.'+
+              '</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerAccesPublicIdleV1__()" '+
+                'style="'+(j.reglages.accesPublic?'background:#166534;color:#fff':'background:#7f1d1d;color:#fff')+'">'+
+                (j.reglages.accesPublic?'🌍 Accès PUBLIC ouvert (Google) — fermer':'⛔ Accès PUBLIC fermé — ouvrir aux comptes Google')+
+              '</button>'+
+              '<div style="margin-top:12px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__chargerJoueursGoogleIdleV1__()">👥 Voir les joueurs connectés par Google</button></div>'+
+              '<div id="sorealIdleJoueursGoogleV1" style="margin-top:8px"></div>'+
             '</div>'
             :'')+
           '<div class="soreal-idle-section-v8">'+

@@ -10,6 +10,11 @@
   "main": "cloudflare/src/idle-worker-entry-v1.js",
   "compatibility_date": "2026-08-28",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    // Identifiant client Google (public, pas un secret) pour « Se connecter avec Google » : à créer dans Google Cloud Console (client OAuth « Application Web »,
+    // origine JavaScript autorisée : https://soreal-idle.technicien-soreal.workers.dev). Vide = connexion Google désactivée.
+    "GOOGLE_CLIENT_ID": ""
+  },
   "services": [
     {
       "binding": "SOREAL_TV_API",

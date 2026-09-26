@@ -26,6 +26,9 @@ import {
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
+import {
+  definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
+} from "./idle-profile-v1.js";
 import { idleDevSlotForUserV1, idleDevUserForSlotV1, idleDevAliasEmailV1, IDLE_DEV_SAVE_SLOTS_V1 } from "./idle-dev-save-slots-v1.js";
 import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import {
@@ -103,6 +106,20 @@ function __idleLireAccesOuvert(sql){
   }
 }
 function accesOuvertSorealIdle_(){return __idleAccesOuvert===true;}
+/*
+ * Accès public (2026-09-26, Norman : SOREAL IDLE jouable sans APP / TV, en se connectant avec son compte Google) : interrupteur DISTINCT de l'accès ouvert aux
+ * détenteurs du trophée. Fermé par défaut ; à l'ouvrir, toute personne connectée par Google peut jouer (idle_meta.acces_public).
+ */
+let __idleAccesPublic=false;
+function __idleLireAccesPublic(sql){
+  try{
+    const ligne=sqlRows(sql.exec("SELECT meta_value FROM idle_meta WHERE meta_key='acces_public'"))[0];
+    return String(ligne&&ligne.meta_value)==="1";
+  }catch(_){
+    return false;
+  }
+}
+function accesPublicSorealIdle_(){return __idleAccesPublic===true;}
 const __idleCacheStore=new Map();
 
 function __idleKey(v){
@@ -2024,6 +2041,15 @@ function verifierAccesSorealIdle_(
       user && user.idleTrophee === true
         ? String(emailsUtilisateur[0] || '')
         : ''
+    ) || (
+      /*
+       * Joueur connecté par Google (drapeau posé uniquement par le Worker IDLE après vérification du jeton Google) : autorisé sous sa propre adresse quand
+       * l'administrateur a ouvert l'accès public.
+       */
+      accesPublicSorealIdle_() &&
+      user && user.externe === true
+        ? String(emailsUtilisateur[0] || '')
+        : ''
     );
 
   return {
@@ -2082,10 +2108,13 @@ function obtenirAccesSorealIdle(
     };
   }
 
+  noterPassageIdleV1_(acces);
+
   return {
     ok: true,
     autorise: true,
     protocolVersion: IDLE_PROTOCOL_VERSION,
+    externe: Boolean(acces.user && acces.user.externe === true),
     utilisateur: {
       prenom:
         String(
@@ -2235,8 +2264,10 @@ function trouverLigneJoueurSorealIdle_(
         valeurs[i][c.NOM - 1] || ''
       ).trim();
 
+    /* Un joueur externe (Google) n'adopte jamais une ligne d'après son nom : uniquement d'après son adresse e-mail. */
     if (
       !ligneParNom &&
+      !(acces.user && acces.user.externe === true) &&
       nom &&
       prenom &&
       nom.toLowerCase() ===
@@ -10507,8 +10538,13 @@ function construireEtatJoueurSorealIdle_(
         row[c.EMAIL_PRINCIPAL - 1],
         row[c.EMAIL_CONNEXION - 1]
       )
-        ? { accesOuvert: accesOuvertSorealIdle_() }
+        ? { accesOuvert: accesOuvertSorealIdle_(), accesPublic: accesPublicSorealIdle_() }
         : null,
+
+    /* Pseudo et nom affiché du joueur (Paramètres) ; voir idle-profile-v1.js. */
+    identite: identiteJoueurSorealIdle_(
+      { user: __idleRuntimeUser, emailAutorise: String(row[c.EMAIL_PRINCIPAL - 1] || '') }
+    ),
 
     profil: {
       dateDebut:
@@ -12390,6 +12426,96 @@ function marquerVusSorealIdle(
 
 /*
  * ------------------------------------------------------------------
+ * Profil du joueur : pseudo, joueur externe (2026-09-26) — voir idle-profile-v1.js
+ * ------------------------------------------------------------------
+ */
+function emailProfilSorealIdle_(acces) {
+  return normaliserEmailSorealIdle_(
+    (acces && acces.user && (acces.user.email || acces.user.emailConnexion)) ||
+    (acces && acces.emailAutorise)
+  );
+}
+
+/* Enregistre le passage du joueur (adresse, externe ou non, nom Google) ; jamais bloquant pour le jeu. */
+function noterPassageIdleV1_(acces) {
+  if (!__idleSql) return;
+  try {
+    noterPassageProfilIdleV1(__idleSql, {
+      email: emailProfilSorealIdle_(acces),
+      externe: Boolean(acces.user && acces.user.externe === true),
+      googleName: acces.user && acces.user.externe === true ? acces.user.name : ''
+    });
+  } catch (_) {
+    /* le profil est un confort : une erreur ici ne doit jamais empêcher de jouer */
+  }
+}
+
+function identiteJoueurSorealIdle_(acces) {
+  const externe = Boolean(acces && acces.user && acces.user.externe === true);
+  let profil = null;
+  try {
+    profil = __idleSql ? lireProfilIdleV1(__idleSql, emailProfilSorealIdle_(acces)) : null;
+  } catch (_) {
+    profil = null;
+  }
+  const pseudo = profil ? profil.pseudo : '';
+  const prenom = externe ? '' : String((acces && acces.user && acces.user.prenom) || '').trim();
+  return {
+    externe: externe,
+    pseudo: pseudo,
+    prenom: prenom,
+    /* Nom vu des autres : « Pseudo (Prénom) » pour un ouvrier, « Pseudo » pour un externe. */
+    nomAffiche: libelleJoueurIdleV1({ pseudo: pseudo, externe: externe }, prenom) || 'Joueur',
+    /* L'adresse n'est montrée qu'au joueur externe lui-même (compte Google utilisé). */
+    email: externe ? emailProfilSorealIdle_(acces) : ''
+  };
+}
+
+function obtenirIdentiteSorealIdle(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  return Object.assign({ ok: true }, identiteJoueurSorealIdle_(acces));
+}
+
+function definirPseudoSorealIdle(sessionToken, pseudo) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) throw new Error('SOREAL_IDLE_BASE_INDISPONIBLE');
+  noterPassageIdleV1_(acces);
+  const resultat = definirPseudoProfilIdleV1(__idleSql, emailProfilSorealIdle_(acces), pseudo);
+  if (!resultat.ok) return { ok: false, code: resultat.code, message: resultat.message };
+  return Object.assign({ ok: true }, identiteJoueurSorealIdle_(acces));
+}
+
+function exigerAdministrateurSorealIdle_(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (extraireEmailsUtilisateurSorealIdle_(acces.user).indexOf(ADMIN_SOREAL_IDLE_EMAIL) === -1) {
+    throw new Error('SOREAL_IDLE_ADMIN_REQUIS');
+  }
+  if (!__idleSql) throw new Error('SOREAL_IDLE_BASE_INDISPONIBLE');
+  return acces;
+}
+
+/* Interrupteur d'accès public (joueurs connectés par Google) : administrateur seulement, fermé par défaut. */
+function definirAccesPublicSorealIdle(sessionToken, actif) {
+  exigerAdministrateurSorealIdle_(sessionToken);
+  const ouvert = actif === true || actif === 'true' || actif === 1 || actif === '1';
+  __idleSql.exec(
+    "INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public',?) "+
+    "ON CONFLICT(meta_key) DO UPDATE SET meta_value=excluded.meta_value",
+    ouvert ? '1' : '0'
+  );
+  __idleAccesPublic = ouvert;
+  return { ok: true, accesPublic: ouvert };
+}
+
+/* Joueurs connectés par Google : l'administrateur voit leur adresse et leur nom Google (les autres joueurs ne voient que le pseudo). */
+function listerJoueursExternesSorealIdle(sessionToken) {
+  exigerAdministrateurSorealIdle_(sessionToken);
+  return { ok: true, joueurs: listerJoueursExternesIdleV1(__idleSql) };
+}
+
+
+/*
+ * ------------------------------------------------------------------
  * Accès à SOREAL IDLE (2026-09-25, Norman : « un bouton pour moi tout seul dans les paramètres : activer donne l'accès à toutes les personnes
  * avec un compte connecté sur le site ; désactiver le cache à tout le monde »)
  * ------------------------------------------------------------------
@@ -12613,13 +12739,19 @@ function obtenirClassementSorealIdle(
   const registre =
     obtenirFeuilleClassementSorealIdle_();
 
+  /* Pseudos (2026-09-26) : un externe n'est vu que par son pseudo ; un ouvrier avec pseudo apparaît « Pseudo (Prénom) » ; un externe sans pseudo reste « Joueur », donc hors classement. */
+  const profils = __idleSql ? profilsParEmailIdleV1(__idleSql) : new Map();
+  const nomAffiche = function(cle, nomLigne) {
+    return libelleJoueurIdleV1(profils.get(String(cle || '').trim().toLowerCase()), nomLigne);
+  };
+
   const parCle = new Map();
 
   for (let r = 2; r <= registre.getLastRow(); r += 1) {
     const cle =
       String(registre.getCell(r, 1) || '').trim().toLowerCase();
     if (!cle) continue;
-    if (joueurExclusClassementSorealIdle_(cle, registre.getCell(r, 2))) {
+    if (joueurExclusClassementSorealIdle_(cle, nomAffiche(cle, registre.getCell(r, 2)))) {
       /* Entrée enregistrée avant ces règles (partie B, « Joueur ») : retirée du registre. */
       registre.getRange(r, 1, 1, 3).setValues([['', '', '']]);
       continue;
@@ -12627,7 +12759,8 @@ function obtenirClassementSorealIdle(
     parCle.set(cle, {
       cle: cle,
       ligneRegistre: r,
-      nom: String(registre.getCell(r, 2) || '').trim(),
+      nom: nomAffiche(cle, String(registre.getCell(r, 2) || '').trim()),
+      nomBrut: String(registre.getCell(r, 2) || '').trim(),
       present: false,
       valeurs: valeursClassementJoueurSorealIdle_(null)
     });
@@ -12648,8 +12781,9 @@ function obtenirClassementSorealIdle(
     const cle = emailPrincipal || emailConnexion;
     if (!cle) continue;
 
-    const nom =
+    const nomBrut =
       String(valeursLigne[c.NOM - 1] || '').trim();
+    const nom = nomAffiche(cle, nomBrut);
 
     if (joueurExclusClassementSorealIdle_(cle, nom)) continue;
 
@@ -12660,9 +12794,10 @@ function obtenirClassementSorealIdle(
 
     const entree =
       parCle.get(cle) ||
-      { cle: cle, ligneRegistre: 0, nom: nom, present: false, valeurs: null };
+      { cle: cle, ligneRegistre: 0, nom: nom, nomBrut: nomBrut, present: false, valeurs: null };
 
     entree.nom = nom;
+    entree.nomBrut = nomBrut;
     entree.present = true;
     entree.valeurs = valeursClassementJoueurSorealIdle_(stats);
     entree.alias = emailConnexion;
@@ -12674,7 +12809,7 @@ function obtenirClassementSorealIdle(
   parCle.forEach(function(entree) {
     if (!entree.present) return;
     const ligneRegistre = entree.ligneRegistre || prochaineLigne++;
-    registre.getRange(ligneRegistre, 1, 1, 3).setValues([[entree.cle, entree.nom, Date.now()]]);
+    registre.getRange(ligneRegistre, 1, 1, 3).setValues([[entree.cle, entree.nomBrut, Date.now()]]);
     entree.ligneRegistre = ligneRegistre;
   });
   if (registre.getLastRow() === 0 || String(registre.getCell(1, 1) || '') === '') {
@@ -16099,6 +16234,10 @@ const IDLE_OPERATIONS={
   marquerVusSorealIdle,
   definirOrdreMenusSorealIdle,
   definirAccesOuvertSorealIdle,
+  definirAccesPublicSorealIdle,
+  definirPseudoSorealIdle,
+  listerJoueursExternesSorealIdle,
+  obtenirIdentiteSorealIdle,
   obtenirClassementSorealIdle,
   nukerBossSorealIdle,
   obtenirAccesSorealIdle,
@@ -16189,6 +16328,7 @@ export function runSorealIdleOperation(sql,operation,args,user){
     __idleWorkbook=null;
     __idleSql=sql;
     __idleAccesOuvert=__idleLireAccesOuvert(sql);
+    __idleAccesPublic=__idleLireAccesPublic(sql);
     try{
       return fn.apply(null,Array.isArray(args)?args:[]);
     }finally{
@@ -16200,6 +16340,7 @@ export function runSorealIdleOperation(sql,operation,args,user){
 
   __idleSql=sql;
   __idleAccesOuvert=__idleLireAccesOuvert(sql);
+  __idleAccesPublic=__idleLireAccesPublic(sql);
 
   const sourceState=sqlRows(sql.exec(
     "SELECT COUNT(*) AS total,SUM(CASE WHEN status='DONE' THEN 1 ELSE 0 END) AS done "+

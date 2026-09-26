@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.8',
+    courante:'2.9',
     versions:[
+      {
+        version:'2.9',
+        nom:'Ton nom, ton pseudo',
+        date:'2026-09-26',
+        points:[
+          'Nouveau dans Settings : une section Profil pour choisir ton pseudo (3 à 20 caractères, unique). C’est le nom que les autres joueurs verront.',
+          'Si tu joues depuis SOREAL APP ou TV, ton prénom reste affiché entre parenthèses à côté de ton pseudo.',
+          'Ton pseudo est gardé même si tu réinitialises ta partie.'
+        ]
+      },
       {
         version:'2.8',
         nom:'Frissons et petits détails',
