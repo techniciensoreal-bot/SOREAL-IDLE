@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.1',
+    courante:'3.2',
     versions:[
+      {
+        version:'3.2',
+        nom:'Un cri, une berceuse',
+        date:'2026-09-26',
+        points:[
+          'Le premier bruit de boss ne garde que les quatre coups d’archet aigus du début.',
+          'Le bourdon et la petite comptine qui les accompagnaient forment maintenant un boss à part entière : la boîte à musique. Elle remplace le dixième bruit.',
+          'SOREAL IDLE peut désormais s’installer comme une vraie application (icône, plein écran) depuis ton navigateur.'
+        ]
+      },
       {
         version:'3.1',
         nom:'Dix boss, dix cris',

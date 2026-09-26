@@ -42,13 +42,15 @@ const moteur = nouveauMoteur({});
 const sons = moteur.builders.bossSounds;
 assert.equal(sons.length, 10, "le son d'origine + 9 nouveaux");
 assert.equal(new Set(sons.map((s) => s.nom)).size, 10, "dix noms différents");
-assert.equal(sons[0].nom, "psycho", "le premier est le son d'origine (film d'horreur)");
+assert.equal(sons[0].nom, "psycho", "le premier est le film d'horreur (les quatre coups d'archet seuls)");
+assert.equal(sons[9].nom, "boite-a-musique", "le dixième : bourdon + comptine (l'accompagnement du psycho)");
+assert.ok(!sons.some((s) => s.nom === "portail"), "plus de portail");
 const signatures = new Set();
 for (const son of sons) {
   const c = contexteEspion();
   son.construire(c);
   assert.ok(c.journal.length > 10, son.nom + " : produit du son");
-  assert.ok(son.duree >= 2000 && son.duree <= 2400, son.nom + " : durée annoncée cohérente avec la file (maxAge 2,4 s)");
+  assert.ok(son.duree >= 800 && son.duree <= 2400, son.nom + " : durée annoncée cohérente avec la file (maxAge 2,4 s)");
   const fins = c.journal.filter((x) => x[1] === "ramp" && x[0] === "gain.gain").map((x) => x[3]);
   assert.ok(Math.max(...fins) <= son.duree / 1000 + 0.15, son.nom + " : ne dépasse pas sa durée (" + Math.max(...fins) + " s)");
   signatures.add(JSON.stringify(c.journal));

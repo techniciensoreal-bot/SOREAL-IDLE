@@ -296,27 +296,18 @@
 
   function bossPsycho_(c){
     /*
-     * Apparition d'un boss (Norman, 2026-09-26) : « un truc genre film d'horreur, à la Psycho mais mélodieux en même temps ».
-     *   1. bourdon sub-grave qui gronde ;
-     *   2. quatre coups d'archet aigus et grinçants (violons désaccordés l'un contre l'autre), en rafale ;
-     *   3. une petite comptine de boîte à musique en mi mineur, avec un si bémol qui grince, qui redescend et s'éteint.
+     * 1. Psycho (Norman, 2026-09-26 : « un truc genre film d'horreur, à la Psycho » ; puis : « refais le 1 avec juste le son du début, pas les bruits derrière ») :
+     * uniquement les quatre coups d'archet aigus et grinçants du début (violons désaccordés l'un contre l'autre), en rafale, le dernier tenu un instant. Le bourdon et la
+     * comptine qui les accompagnaient forment le son 10 (boîte à musique).
      */
-    {
-      tonal_(c,{type:"sine",from:55,to:46,duration:2.10,volume:.070});
-      tonal_(c,{type:"triangle",from:82,to:73,duration:1.70,volume:.030,delay:.06});
-      [[1568,1760],[1661,1865],[1760,1976],[2093,2349]].forEach(function(p,i){
-        var d=i*.115;
-        tonal_(c,{type:"sawtooth",from:p[0],to:p[1],duration:.17,volume:.020,delay:d});
-        tonal_(c,{type:"sawtooth",from:p[0]*1.012,to:p[1]*1.012,duration:.17,volume:.018,delay:d});
-        bruit_(c,{duration:.16,volume:.020,delay:d,filterType:"bandpass",frequency:3400,frequencyEnd:2300,q:2.2,decay:1.6});
-      });
-      [[659,.50],[784,.70],[988,.90],[932,1.10],[880,1.30],[740,1.50],[659,1.72]].forEach(function(n,i){
-        var dur=i===6?.62:.42;
-        tonal_(c,{type:"sine",from:n[0],to:n[0],duration:dur,volume:.030,delay:n[1]});
-        tonal_(c,{type:"sine",from:n[0]*1.005,to:n[0]*1.005,duration:dur,volume:.018,delay:n[1]});
-        tonal_(c,{type:"sine",from:n[0]*2.76,to:n[0]*2.76,duration:dur*.4,volume:.008,delay:n[1]});
-      });
-    }
+    [[1568,1760],[1661,1865],[1760,1976],[2093,2349]].forEach(function(p,i){
+      var d=i*.115;
+      var dernier=i===3;
+      var duree=dernier?.42:.17;
+      tonal_(c,{type:"sawtooth",from:p[0],to:p[1],duration:duree,volume:dernier?.058:.062,delay:d});
+      tonal_(c,{type:"sawtooth",from:p[0]*1.012,to:p[1]*1.012,duration:duree,volume:dernier?.052:.056,delay:d});
+      bruit_(c,{duration:.16,volume:.050,delay:d,filterType:"bandpass",frequency:3400,frequencyEnd:2300,q:2.2,decay:1.6});
+    });
   }
 
   /* 2. Glas : trois coups de cloche funèbre, de plus en plus graves, sur un bourdon. */
@@ -399,20 +390,23 @@
     nappe_(c,{type:"sine",from:1760,to:1790,duration:1.3,volume:.006,attack:.5,delay:.8});
   }
 
-  /* 10. Portail : déchirure laser qui tombe, impact grave, puis étincelles. */
-  function bossPortail_(c){
-    tonal_(c,{type:"sawtooth",from:2000,to:60,duration:.55,volume:.035});
-    tonal_(c,{type:"square",from:1100,to:50,duration:.5,volume:.015,delay:.08});
-    bruit_(c,{duration:.5,volume:.03,filterType:"highpass",frequency:6000,frequencyEnd:1500,decay:1.4});
-    tonal_(c,{type:"sine",from:62,to:30,duration:1.2,volume:.12,delay:.5});
-    bruit_(c,{duration:1.0,volume:.06,delay:.5,filterType:"lowpass",frequency:800,frequencyEnd:100,decay:1.6});
-    [1568,1976,2637,3136].forEach(function(f,i){
-      tonal_(c,{type:"sine",from:f,to:f,duration:.3,volume:.012,delay:1.1+i*.15});
+  /*
+   * 10. Boîte à musique (Norman, 2026-09-26 : le « Portail » donnait l'impression d'un secret débloqué ; les bruits qui accompagnaient le Psycho « peuvent servir pour
+   * un boss à elles seules ») : un bourdon sub-grave qui gronde, et une petite comptine de boîte à musique en mi mineur, avec un si bémol qui grince, qui redescend et s'éteint.
+   */
+  function bossBoiteAMusique_(c){
+    tonal_(c,{type:"sine",from:55,to:46,duration:2.10,volume:.070});
+    tonal_(c,{type:"triangle",from:82,to:73,duration:1.70,volume:.030,delay:.06});
+    [[659,.10],[784,.32],[988,.54],[932,.76],[880,.98],[740,1.20],[659,1.42]].forEach(function(n,i){
+      var dur=i===6?.62:.42;
+      tonal_(c,{type:"sine",from:n[0],to:n[0],duration:dur,volume:.030,delay:n[1]});
+      tonal_(c,{type:"sine",from:n[0]*1.005,to:n[0]*1.005,duration:dur,volume:.018,delay:n[1]});
+      tonal_(c,{type:"sine",from:n[0]*2.76,to:n[0]*2.76,duration:dur*.4,volume:.008,delay:n[1]});
     });
   }
 
   var SONS_BOSS=[
-    {nom:"psycho",duree:2300,construire:bossPsycho_},
+    {nom:"psycho",duree:900,construire:bossPsycho_},
     {nom:"glas",duree:2300,construire:bossGlas_},
     {nom:"rugissement",duree:2100,construire:bossRugissement_},
     {nom:"cor",duree:2300,construire:bossCor_},
@@ -421,7 +415,7 @@
     {nom:"tonnerre",duree:2300,construire:bossTonnerre_},
     {nom:"sirene",duree:2300,construire:bossSirene_},
     {nom:"choeur",duree:2300,construire:bossChoeur_},
-    {nom:"portail",duree:2200,construire:bossPortail_}
+    {nom:"boite-a-musique",duree:2300,construire:bossBoiteAMusique_}
   ];
 
   function rangGongBoss_(){
