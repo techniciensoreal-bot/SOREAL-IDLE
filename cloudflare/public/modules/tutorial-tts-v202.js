@@ -331,13 +331,13 @@
         if(!button.dataset.sorealTtsOriginalLabel){
           button.dataset.sorealTtsOriginalLabel=String(button.textContent||'🔊 Lire ce texte');
         }
-        button.textContent='⚠️ Voix IA · '+lastError.slice(0,32);
+        button.textContent='⚠️ Voix IA · '+lastError.slice(0,60);
         button.title='Erreur voix IA : '+lastError;
         setTimeout(function(){
           if(button&&button.isConnected&&button.dataset.sorealTtsReading!=='1'){
             button.textContent=button.dataset.sorealTtsOriginalLabel;
           }
-        },3500);
+        },9000);
       });
     }
   }

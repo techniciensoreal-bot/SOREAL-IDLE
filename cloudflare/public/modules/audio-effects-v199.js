@@ -33,6 +33,7 @@
     menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
     purchase:{group:"purchase",priority:30,maxAgeMs:900},
     purchaseGold:{group:"purchase",priority:30,maxAgeMs:1000},
+    equip:{group:"inventory-equip",priority:52,maxAgeMs:700},
     purchaseGem:{group:"purchase",priority:30,maxAgeMs:1300},
     menuNav:{group:"ui-nav",priority:20,maxAgeMs:400},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
@@ -626,6 +627,24 @@
   }
 
   /*
+   * Équiper un objet (Norman, 2026-09-26 : « quand on équipe quelque chose, il faut un son aussi ») : froissement de cuir/sangle, cliquetis métallique de la boucle qui se ferme, puis un petit
+   * « toc » sourd quand la pièce se met en place.
+   */
+  function equipConstruire_(c){
+    bruit_(c,{duration:.11,volume:.030,filterType:"bandpass",frequency:1400,frequencyEnd:2600,q:.9,decay:1.6});
+    [[.10,1850,.036],[.16,2470,.030]].forEach(function(p){
+      tonal_(c,{type:"sine",from:p[1],to:p[1]*.99,duration:.10,volume:p[2],delay:p[0]});
+      tonal_(c,{type:"sine",from:p[1]*2.76,to:p[1]*2.76,duration:.04,volume:p[2]*.4,delay:p[0]});
+      bruit_(c,{duration:.03,volume:p[2]*.8,delay:p[0],filterType:"highpass",frequency:5200,decay:3});
+    });
+    tonal_(c,{type:"sine",from:150,to:70,duration:.16,volume:.070,delay:.24});
+    bruit_(c,{duration:.06,volume:.024,delay:.24,filterType:"lowpass",frequency:520,decay:2.4});
+  }
+  function equipJouer_(){
+    return jouerWebAudio_(520,equipConstruire_);
+  }
+
+  /*
    * Achat dans l'EXP Shop (Norman, 2026-09-26 : « un bruit de Gold ») : une poignée de pièces d'or qui tintent en tas (sept tintements métalliques brefs, de plus en plus serrés),
    * puis le « ding » plein d'une grosse pièce. Distinct de la caisse enregistreuse des autres achats.
    */
@@ -859,6 +878,7 @@
     menuUnlock:menuDebloque_,
     purchase:caisse_,
     purchaseGold:orJouer_,
+    equip:equipJouer_,
     purchaseGem:gemmeJouer_,
     menuNav:menuNav_,
     achievement:succes_,
@@ -983,6 +1003,7 @@
       timeMachine:{duree:3000,construire:voyageTempsConstruire_},
       defeat:{duree:1900,construire:defaiteConstruire_},
       purchaseGold:{duree:1000,construire:orConstruire_},
+      equip:{duree:520,construire:equipConstruire_},
       purchaseGem:{duree:1300,construire:gemmeConstruire_}
     },
     fight:function(){return demander_("fight");},
@@ -999,6 +1020,7 @@
     menuUnlock:function(){return demander_("menuUnlock");},
     purchase:function(){return demander_("purchase");},
     purchaseGold:function(){return demander_("purchaseGold");},
+    equip:function(){return demander_("equip");},
     purchaseGem:function(){return demander_("purchaseGem");},
     menuNav:function(){return demander_("menuNav");},
     achievement:function(){return demander_("achievement");},

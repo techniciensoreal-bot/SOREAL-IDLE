@@ -40,7 +40,10 @@
     const fn=window.__actionMetaV47__;
     if(typeof fn==='function')fn(Object.assign({action:'macguffin',op:op},extra||{}));
   }
-  window.__macguffinEquiperV1__=function(uid){action('equip',{uid:String(uid)});};
+  window.__macguffinEquiperV1__=function(uid){
+    try{if(window.__SOREAL_IDLE_AUDIO_V199__)window.__SOREAL_IDLE_AUDIO_V199__.play('equip');}catch(_){}
+    action('equip',{uid:String(uid)});
+  };
   window.__macguffinRetirerV1__=function(uid){action('unequip',{uid:String(uid)});};
   window.__macguffinFusionnerTypeV1__=function(type){action('mergeAll',{type:String(type)});};
   window.__macguffinJeterV1__=function(uid){

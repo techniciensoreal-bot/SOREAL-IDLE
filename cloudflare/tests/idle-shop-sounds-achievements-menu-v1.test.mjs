@@ -36,4 +36,51 @@ for (const nom of ["purchaseGold", "purchaseGem"]) {
 }
 assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !/function gemmeConstruire_[\s\S]{0,900}type:"square"/.test(audio), "la gemme est un carillon de cristal (partiels inharmoniques), sans son de métal");
 
+// --- Transport réel : les actions de progression passent par window.__SOREAL_IDLE_CALL_V1__ (promesse), pas par google.script.run ---
+{
+  const joues = [];
+  let reponse = { ok: true, joueur: {} };
+  const fenetre = {
+    __SOREAL_IDLE_AUDIO_V199__: { play: (n) => joues.push(n) },
+    __SOREAL_IDLE_CALL_V1__: async () => reponse
+  };
+  new Function("window", "setInterval", "clearInterval", "Promise", achat)(fenetre, () => 0, () => {}, Promise);
+  const attendre = () => new Promise((r) => setTimeout(r, 5));
+  const res = await fenetre.__SOREAL_IDLE_CALL_V1__("agirProgressionSorealIdle", ["s", { action: "buyExpShop", item: "x", quantity: 1 }]);
+  assert.equal(res, reponse, "la réponse d'origine est rendue telle quelle");
+  await attendre();
+  assert.deepEqual(joues, ["purchaseGold"], "achat EXP Shop par l'appel direct : pièces d'or");
+  await fenetre.__SOREAL_IDLE_CALL_V1__("agirProgressionSorealIdle", ["s", { action: "sellShopBuy", itemId: "x" }]);
+  await attendre();
+  assert.deepEqual(joues, ["purchaseGold", "purchaseGem"], "achat Boutique AP par l'appel direct : gemme");
+  await fenetre.__SOREAL_IDLE_CALL_V1__("agirProgressionSorealIdle", ["s", { action: "buyPerk", perkId: 1 }]);
+  await attendre();
+  assert.equal(joues[2], "purchase", "autre achat : caisse");
+  reponse = { ok: false };
+  await fenetre.__SOREAL_IDLE_CALL_V1__("agirProgressionSorealIdle", ["s", { action: "buyExpShop" }]);
+  await attendre();
+  assert.equal(joues.length, 3, "achat refusé : muet");
+  assert.equal(fenetre.__SOREAL_IDLE_CALL_V1__.__sorealAchat, true);
+}
+
+// --- Équiper un objet : son « equip » (Adventure, ancien inventaire, MacGuffins) ---
+{
+  assert.ok(audio.includes('equip:{group:"inventory-equip"') && audio.includes("equip:equipJouer_") && audio.includes('equip:function(){return demander_("equip");}') && audio.includes("equip:{duree:520,construire:equipConstruire_}"), "son equip déclaré, jouable, exposé");
+  const eq1 = ui.slice(ui.indexOf("function equiperObjetAdventureIdleV47_(id,slot){"), ui.indexOf("function desequiperObjetAdventureIdleV47_("));
+  assert.ok(eq1.includes("jouerEffetAudioIdleV199_('equip');"), "équiper depuis Adventure (bouton, glisser-déposer, équiper par identifiant) joue le son");
+  const eq2 = ui.slice(ui.indexOf("function equiperObjetIdleV10_("), ui.indexOf("const inventaire=", ui.indexOf("function equiperObjetIdleV10_(")));
+  assert.ok(eq2.includes("jouerEffetAudioIdleV199_('equip');"), "équiper depuis l'ancien inventaire joue le son");
+  assert.ok(readFileSync("cloudflare/public/modules/macguffins-v1.js", "utf8").includes("play('equip')"), "équiper un MacGuffin joue le son");
+}
+
+// --- Chiffres de vie du duel : ne dépassent jamais de la pastille (police qui rétrécit, puis retour à la ligne en dernier recours) ---
+{
+  const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
+  const fit = ui.slice(ui.indexOf("function ajusterVieDuelIdleV1_("), ui.indexOf("window.addEventListener('resize',function(){", ui.indexOf("function ajusterVieDuelIdleV1_(")));
+  assert.ok(fit.includes("element.scrollWidth>element.clientWidth+0.5") && fit.includes("taille-=0.5") && fit.includes("'white-space','normal','important'"), "ajustement de la police puis repli sur deux lignes");
+  assert.ok(ui.includes("ajusterVieDuelIdleV1_(element,change);"), "appelé à chaque mise à jour du texte de combat");
+  assert.ok(/soreal-idle-duel-hp-v41 \.soreal-idle-note-v4\{\s+overflow:hidden;/.test(css), "la pastille ne laisse rien sortir");
+}
+
+// --- Le texte de narration ne dépend pas d'un second texte : voir idle-voice-pregenerated-v1 (histoire du boss 4) ---
 console.log("idle-shop-sounds-achievements-menu-v1 OK");

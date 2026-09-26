@@ -17,7 +17,11 @@
         points:[
           'Le menu Achievements n’apparaît qu’à ton premier succès débloqué.',
           'Chaque achat dans la boutique d’EXP fait maintenant tinter un tas de pièces d’or.',
-          'Une autre boutique a son propre bruit d’achat : un carillon de cristal, comme une pierre précieuse qu’on fait tinter.'
+          'Une autre boutique a son propre bruit d’achat : un carillon de cristal, comme une pierre précieuse qu’on fait tinter.',
+          'Le bruit d’achat de la boutique d’EXP se fait maintenant bien entendre (le son n’était pas déclenché).',
+          'Les chiffres de vie du duel ne dépassent plus de leur pastille, même avec de très grands nombres.',
+          'La narration du boss « Une Petite Souris » se lit maintenant en entier.',
+          'Équiper un objet fait maintenant un bruit : froissement de sangle, cliquetis de boucle et petit « toc ».'
         ]
       },
       {

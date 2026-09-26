@@ -94,4 +94,15 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   assert.ok(existsSync("cloudflare/public/voice/manifest.json"));
 }
 
+// --- Norman (2026-09-26) : « la narration de Une petite souris s'arrête après le nom, avec une erreur » : le jeu remplace l'histoire du boss n°4 par un texte à lui ; les voix doivent être
+// générées depuis CE texte (sinon aucun fichier, repli sur Piper, erreur). ---
+{
+  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const i = rt.indexOf("index===3");
+  const d = rt.indexOf('"', i);
+  const surcharge = rt.slice(d + 1, rt.indexOf('"' + String.fromCharCode(10), d + 1));
+  const conception = chargerBoss().find((b) => b.id === 4);
+  assert.equal(conception.histoire, surcharge, "design/ngu-boss-stories-fr.json (id 4) = texte affiché dans le jeu");
+}
+
 console.log("idle-voice-pregenerated-v1 OK");

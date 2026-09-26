@@ -7652,3 +7652,11 @@
   border-color:#ef4444 !important;
   animation:sorealIdleNavKoV1 .85s ease-in-out infinite !important;
 }
+
+/*
+ * Chiffres de vie du duel qui ne dépassent jamais (Norman, 2026-09-26) : la pastille garde son aspect et sa taille de départ ; l'ajustement exact (police qui rétrécit seulement si le texte est
+ * plus large que la pastille) est fait par ajusterVieDuelIdleV1_ (soreal-idle-ui.js). Rien ne sort de sa boîte.
+ */
+.soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
+  overflow:hidden;
+}

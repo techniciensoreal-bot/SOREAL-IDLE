@@ -2034,16 +2034,43 @@
             texte||''
           );
 
-        if(
-          element.textContent===
-          valeur
-        ){
-          return;
-        }
-
-        element.textContent=
-          valeur;
+        const change=element.textContent!==valeur;
+        if(change)element.textContent=valeur;
+        ajusterVieDuelIdleV1_(element,change);
       }
+
+      /*
+       * Les chiffres de vie du duel ne dépassent jamais de leur pastille (Norman, 2026-09-26 : « l'écriture de la vie dans les nouvelles barres dépasse ; ne les change pas mais fais en sorte que
+       * ça ne dépasse jamais »). Même pastille, même taille de départ ; la police ne fait que rétrécir, par demi-pixel, tant que le texte est plus large que la pastille (cas des très grands
+       * nombres ou du texte de régénération). Recalculé quand le texte ou la largeur de la carte change.
+       */
+      function ajusterVieDuelIdleV1_(element,change){
+        try{
+          const parent=element.parentElement;
+          if(!parent||!parent.classList||!parent.classList.contains('soreal-idle-duel-hp-v41'))return;
+          const largeur=String(parent.clientWidth);
+          if(!change&&element.getAttribute('data-fit-largeur')===largeur)return;
+          element.setAttribute('data-fit-largeur',largeur);
+          element.style.removeProperty('font-size');
+          element.style.removeProperty('white-space');
+          element.style.removeProperty('overflow-wrap');
+          let taille=parseFloat(window.getComputedStyle(element).fontSize)||12;
+          let essais=0;
+          while(element.scrollWidth>element.clientWidth+0.5&&taille>7&&essais<30){
+            taille-=0.5;
+            essais+=1;
+            element.style.setProperty('font-size',taille+'px','important');
+          }
+          /* Cas extrême (texte très long dans une carte très étroite) : le texte passe sur deux lignes plutôt que de sortir de la pastille. */
+          if(element.scrollWidth>element.clientWidth+0.5){
+            element.style.setProperty('white-space','normal','important');
+            element.style.setProperty('overflow-wrap','anywhere','important');
+          }
+        }catch(e){}
+      }
+      window.addEventListener('resize',function(){
+        document.querySelectorAll('.soreal-idle-duel-hp-v41 > .soreal-idle-note-v4').forEach(function(el){ajusterVieDuelIdleV1_(el,true);});
+      });
 
 
       /*
@@ -7313,6 +7340,8 @@
         ){
           return;
         }
+
+        jouerEffetAudioIdleV199_('equip');
 
         const inventaire=
           Array.isArray(
@@ -17427,6 +17456,7 @@ let idleDialogueTimerV76=null;
       window.__transformerObjetAdventureIdleV4__=transformerObjetAdventureIdleV4_;
 
       function equiperObjetAdventureIdleV47_(id,slot){
+        jouerEffetAudioIdleV199_('equip');
         actionAdventureIdleV47_({action:'equip',id:String(id||''),slot:String(slot||'')});
       }
 

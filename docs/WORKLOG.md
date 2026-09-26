@@ -1958,3 +1958,11 @@ Norman : « le menu Achievements n'apparaît qu'au premier achievement débloqu�
 - Menu Achievements : `menuDisponibleIdleV28_` renvoie faux tant qu'aucun succès de `j.systemes.achievements.list` n'est débloqué.
 - Sons : `purchaseGold` (tas de pièces + « ding », action `buyExpShop`) et `purchaseGem` (carillon de cristal à partiels inharmoniques, action `sellShopBuy` = Boutique AP) dans `audio-effects-v199.js` ; `purchase-sound-v1.js` choisit le son par action, la caisse reste pour tous les autres achats. Échantillons rendus dans `Documents\SOREAL-voix-a-ecouter\sons-jeu` (E, F).
 - Notes 3.5 (sans nommer la Boutique AP), `?v=294` / audio `219` / achat `2` / notes `21`. Test : `idle-shop-sounds-achievements-menu-v1`.
+
+## 2026-09-26 — IDLE Beta 3.5 (suite) : bruit d'achat réellement déclenché, PV du duel, narration de la souris, son d'équipement
+
+- **Bruit d'achat EXP Shop muet** : les actions de progression passent par `window.__SOREAL_IDLE_CALL_V1__` (promesse), pas par `google.script.run` ; `purchase-sound-v1.js` enveloppe maintenant aussi cet appel (comme le pont Apps Script). Vaut pour l'or, la gemme et la caisse. Test avec le vrai transport dans `idle-shop-sounds-achievements-menu-v1`.
+- **Chiffres de vie du duel** : `ajusterVieDuelIdleV1_` (dans `texteCombatIdleV121_`) fait rétrécir la police, par demi-pixel jusqu'à 7 px, tant que le texte dépasse la pastille, puis passe à deux lignes en dernier recours ; même aspect au départ. Mesuré en navigateur sans tête (200–360 px).
+- **Narration « Une Petite Souris »** : le jeu remplace l'histoire du boss n°4 par un texte propre (`index===3` dans `idle-sqlite-runtime.js`) ; les voix avaient été générées depuis `design/ngu-boss-stories-fr.json`, qui différait : un bloc sans fichier, repli sur Piper, erreur. Le JSON est aligné sur le jeu, 1 voix régénérée (`voice-generate.mjs --prune`), test d'égalité dans `idle-voice-pregenerated-v1`. L'erreur affichée sur le bouton reste 9 s (au lieu de 3,5 s) et 60 caractères.
+- **Son d'équipement** : effet `equip` (froissement, cliquetis de boucle, « toc »), joué à l'équipement depuis Adventure (bouton, glisser-déposer), l'ancien inventaire et les MacGuffins. Échantillon G dans `sons-jeu`.
+- Versions : `?v=296`, audio `220`, achat `3`, notes `23`, css `4`, tts `236`, macguffins `2`.

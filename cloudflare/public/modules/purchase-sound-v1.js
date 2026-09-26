@@ -88,10 +88,33 @@ function envelopper(){
   return true;
 }
 
-if(!envelopper()){
-  /* Le pont google.script.run peut être posé un peu après : on réessaie brièvement. */
+/*
+ * Deuxième point de passage (Norman, 2026-09-26 : « je n'entends pas le bruit d'achat dans EXP Shop ») : les actions de progression (EXP Shop, Perks, Quirks, Boutique AP…) ne passent pas par
+ * google.script.run mais par l'appel direct window.__SOREAL_IDLE_CALL_V1__(operation, args) (promesse), posé par standalone-bridge.js ou cloudflare-bridge.js. Il est enveloppé de la même façon.
+ */
+function envelopperAppel(){
+  var origine=window.__SOREAL_IDLE_CALL_V1__;
+  if(typeof origine!=='function')return false;
+  if(origine.__sorealAchat)return true;
+  var nouveau=function(nom,args){
+    var promesse=origine.apply(this,arguments);
+    try{
+      Promise.resolve(promesse).then(function(resultat){
+        try{if(estAchat(String(nom),args,resultat))jouer(sonAchat(String(nom),args));}catch(_){}
+      },function(){});
+    }catch(_){}
+    return promesse;
+  };
+  nouveau.__sorealAchat=true;
+  window.__SOREAL_IDLE_CALL_V1__=nouveau;
+  return true;
+}
+
+var pontsPoses=[envelopper(),envelopperAppel()];
+if(!(pontsPoses[0]&&pontsPoses[1])){
+  /* Les ponts peuvent être posés un peu après : on réessaie brièvement. */
   var essais=0;
-  var minuteur=setInterval(function(){if(envelopper()||++essais>40)clearInterval(minuteur);},100);
+  var minuteur=setInterval(function(){var a=envelopper(),b=envelopperAppel();if((a&&b)||++essais>40)clearInterval(minuteur);},100);
 }
 
 window.__SOREAL_IDLE_PURCHASE_SOUND_V1__={estAchat:estAchat,sonAchat:sonAchat,operations:Object.keys(OPERATIONS),actions:Object.keys(ACTIONS)};
