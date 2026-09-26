@@ -30,5 +30,7 @@
   "minSdkVersion": 21,
   "fullScopeUrl": "https://soreal-idle.technicien-soreal.workers.dev/",
   "shortcuts": [],
-  "generatorApp": "bubblewrap-cli"
+  "generatorApp": "bubblewrap-cli",
+  "splashScreenFadeOutDuration": 300,
+  "enableSiteSettingsShortcut": true
 }

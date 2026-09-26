@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "be.soreal.idle",
+      "sha256_cert_fingerprints": [
+        "23:ED:2D:54:36:C0:9A:93:E0:E8:5D:94:FE:9D:CC:2E:1A:92:07:D4:A3:39:F7:35:4C:FD:29:48:E7:3B:8E:8A"
+      ]
+    }
+  }
+]

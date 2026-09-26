@@ -10,10 +10,13 @@ par Chrome et fonctionne.
 - Le site sert `/manifest.webmanifest` et `/icons/*` (dossier `cloudflare/public`).
 - **Jamais dans le dépôt** : le fichier de clé de signature (`soreal-idle-release.keystore`) et son mot de passe. Ils restent sur l'ordinateur de Norman ; les perdre empêche de
   publier des mises à jour de l'APK sous le même nom. Le `.gitignore` de ce dossier l'exclut.
-- `cloudflare/public/.well-known/assetlinks.json` (empreinte SHA-256 de la clé de signature) : à ajouter après la création de la clé, pour que l'application s'ouvre sans barre
-  d'adresse.
+- `cloudflare/public/.well-known/assetlinks.json` : empreinte SHA-256 de la clé de signature (créée le 2026-09-26), pour que l'application s'ouvre sans barre d'adresse. Si la clé change, mettre cette empreinte à jour.
+- Outils de construction installés sur le PC de Norman dans `%USERPROFILE%\.bubblewrap` (JDK 17, SDK Android, mot de passe de la clé) : hors dépôt.
 
-Construction (Bubblewrap, nécessite JDK 17 + Android SDK, installés par Bubblewrap lui-même) :
+Construction (Bubblewrap ; depuis PowerShell, avec `BUBBLEWRAP_KEYSTORE_PASSWORD` et `BUBBLEWRAP_KEY_PASSWORD` définis, et `$env:PATH="$PWD;$env:PATH"`) :
 
     cd android
-    npx @bubblewrap/cli build --manifest=twa-manifest.json
+    npx @bubblewrap/cli update --manifest=twa-manifest.json --skipVersionUpgrade
+    npx @bubblewrap/cli build --manifest=twa-manifest.json --skipPwaValidation
+
+Résultat : `app-release-signed.apk` (installable). L'étape finale « bundle .aab » (Play Store) échoue faute de `jarsigner` dans le PATH : sans importance pour l'APK.

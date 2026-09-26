@@ -5,3 +5,15 @@ app-release-*.apk
 app-release-*.aab
 build/
 .gradle/
+# fichiers générés par Bubblewrap (régénérables : npx @bubblewrap/cli update)
+app/
+gradle/
+gradlew
+gradlew.bat
+build.gradle
+settings.gradle
+gradle.properties
+manifest-checksum.txt
+store_icon.png
+*.idsig
+*.apk

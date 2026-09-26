@@ -31,4 +31,12 @@ assert.ok(twa.signingKey.path.endsWith(".keystore"));
 const ignore = readFileSync("android/.gitignore", "utf8");
 assert.ok(ignore.includes("*.keystore") && ignore.includes("*.jks"), "la clé de signature n'entre jamais dans le dépôt");
 
+// Liens d'application (Digital Asset Links) : l'APK signé s'ouvre sans barre d'adresse (empreinte SHA-256 de la clé de signature de be.soreal.idle)
+const liens = JSON.parse(readFileSync("cloudflare/public/.well-known/assetlinks.json", "utf8"));
+assert.equal(liens[0].target.namespace, "android_app");
+assert.equal(liens[0].target.package_name, twa.packageId);
+assert.ok(liens[0].relation.includes("delegate_permission/common.handle_all_urls"));
+assert.match(liens[0].target.sha256_cert_fingerprints[0], /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/);
+assert.ok(ignore.includes("*.apk"), "les APK générés n'entrent pas dans le dépôt");
+
 console.log("idle-pwa-manifest-v1: OK");

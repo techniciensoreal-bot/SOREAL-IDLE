@@ -1947,3 +1947,7 @@ Norman : bruit du début de combat ; « Zone Tutoriel » ; titres répétés des
 ## 2026-09-26 — Retrait de l'encart Magie du combat de boss (Beta 3.4, ?v=293)
 
 Norman : « il n'y a pas de magie sous cette forme à lancer en combat fight boss dans NGU IDLE, donc supprime ». `barreSortsCombatIdleV90_` (encart « 🔮 Magie / Aucun sort appris » et sorts rapides) et son CSS sont retirés ; l'onglet Magie est inchangé. Point ajouté à l'entrée 3.4 des notes de mise à jour. Test : `idle-no-combat-quick-spells`.
+
+## 2026-09-26 — APK SOREAL IDLE construit (TWA)
+
+Norman : « APK : oui tu peux ». Outils installés hors dépôt dans `%USERPROFILE%\.bubblewrap` (JDK 17 Temurin, SDK Android 35, Bubblewrap via npx) ; clé de signature `android/soreal-idle-release.keystore` créée (ignorée par git, copie de secours dans `.bubblewrap`, mot de passe dans `.bubblewrap\soreal-idle-keystore-password.txt`). `twa-manifest.json` : ajout de `splashScreenFadeOutDuration` et `enableSiteSettingsShortcut` (requis par le gabarit Gradle). APK signé `app-release-signed.apk` (3,8 Mo, `apksigner verify` OK). `/.well-known/assetlinks.json` ajouté avec l'empreinte SHA-256 de la clé. Test : `idle-pwa-manifest-v1`.
