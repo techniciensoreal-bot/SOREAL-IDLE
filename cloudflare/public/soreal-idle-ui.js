@@ -9495,7 +9495,14 @@
               cle.indexOf('soreal_idle_menus_ack_v1_')===0||
               cle.indexOf('soreal_idle_menu_ordre_v1_')===0||
               cle.indexOf('soreal_idle_bienvenue_v75_')===0||
-              cle.indexOf('soreal_idle_tutoriel_')===0
+              cle.indexOf('soreal_idle_tutoriel_')===0||
+              /*
+               * Norman (2026-09-27) : « les voix n'ont pas été jouées automatiquement pour les boss [après reset]. »
+               * La mémoire "chronique de boss déjà lue" (tutorial-tts-v202.js, CHRONICLE_LU_KEY) vit dans ce même
+               * localStorage, jamais touchée par le Rebirth (action serveur normale) -- mais un reset TOTAL doit,
+               * comme les autres popups ci-dessus, faire réapparaître ces voix.
+               */
+              cle==='soreal_idle_boss_chronique_lue_v1'
             )localStorage.removeItem(cle);
           });
         }catch(e){}
