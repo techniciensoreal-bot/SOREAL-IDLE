@@ -1,5 +1,12 @@
 import { sqlRows, safeJson, jsonText } from "./core/sqlite-core.js";
 import {
+  idleDevSlotForUserV1,
+  idleDevUserForSlotV1,
+  idleDevAliasEmailV1,
+  idleDevSlotsAvailableV1,
+  idleDevNormalizeSlotV1
+} from "./idle-dev-save-slots-v1.js";
+import {
   BASIC_TRAINING_V411,
   createBasicTrainingStateV411,
   normalizeBasicTrainingStateV411,
@@ -2157,6 +2164,13 @@ function trouverLigneJoueurSorealIdle_(
   feuille,
   acces
 ) {
+  if (idleDevSlotForUserV1(acces && acces.user) === 'b') {
+    acces = Object.assign({}, acces, {
+      user: idleDevUserForSlotV1(acces.user, 'b'),
+      emailAutorise: idleDevAliasEmailV1(acces.emailAutorise, 'b')
+    });
+  }
+
   assurerColonnesIdentiteSorealIdle_(
     feuille
   );
@@ -13190,6 +13204,44 @@ function estAdminSorealIdle(
   };
 }
 
+/*
+ * Sélecteur « Partie B » (2026-09-27, Norman, restauré -- voir idle-dev-save-slots-v1.js) : réservé au compte
+ * administrateur. La partie effectivement jouée est mémorisée sur la session (idle_sessions.user_json.slot),
+ * jamais sur le compte lui-même : changer d'appareil ou se reconnecter revient toujours sur la partie A.
+ */
+function obtenirPartieDevSorealIdle(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  return {
+    ok: true,
+    actif: idleDevSlotsAvailableV1(acces.user),
+    partie: idleDevSlotForUserV1(acces.user)
+  };
+}
+
+function definirPartieDevSorealIdle(sessionToken, partie) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!idleDevSlotsAvailableV1(acces.user)) throw new Error('PARTIES_DEV_INDISPONIBLES');
+  if (!__idleSql) throw new Error('SOREAL_IDLE_BASE_INDISPONIBLE');
+
+  const token = String(sessionToken || '').trim();
+  const cible = idleDevNormalizeSlotV1(partie);
+  const ligne = sqlRows(
+    __idleSql.exec('SELECT user_json FROM idle_sessions WHERE session_token=?', token)
+  )[0];
+  if (!ligne) return { ok: false, error: 'IDLE_SESSION_INVALID' };
+
+  let user = {};
+  try { user = JSON.parse(String(ligne.user_json || '{}')); } catch (_e) {}
+  user.slot = cible;
+  __idleSql.exec(
+    'UPDATE idle_sessions SET user_json=? WHERE session_token=?',
+    JSON.stringify(user),
+    token
+  );
+
+  return { ok: true, actif: true, partie: cible };
+}
+
 
 
 function reinitialiserCompteCompletSorealIdle(
@@ -16193,7 +16245,9 @@ const IDLE_OPERATIONS={
   sauvegarderDispositionInventaireSorealIdle,
   selectionnerBossSorealIdle,
   synchroniserSorealIdle,
-  testerAccesSorealIdle
+  testerAccesSorealIdle,
+  obtenirPartieDevSorealIdle,
+  definirPartieDevSorealIdle
 };
 
 export function idleOperationNames(){

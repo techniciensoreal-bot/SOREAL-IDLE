@@ -7675,3 +7675,34 @@
 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
   overflow:hidden;
 }
+
+/*
+ * 2026-09-27 (Norman revient sur le retrait du 2026-09-26) : sélecteur des deux parties A / B
+ * dans Paramètres. Repris à l'identique de la version retirée le 2026-09-26.
+ */
+.soreal-idle-parties-dev-v1{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.soreal-idle-parties-dev-bouton-v1{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #3a4260;
+  background:#1a2035;
+  color:#dce5f3;
+  text-align:left;
+  cursor:pointer;
+}
+.soreal-idle-parties-dev-bouton-v1 span{
+  font-size:11px;
+  color:#8b93ab;
+}
+.soreal-idle-parties-dev-bouton-v1.actif{
+  border-color:#6ab0ff;
+  background:#22304f;
+  cursor:default;
+}
