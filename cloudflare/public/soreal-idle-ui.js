@@ -19357,7 +19357,12 @@ function pageAventureIdleV28_(j){
           const hpMaxAtteint=baseHp>0&&itemHp+1e-9>=maxHp;
           const regenMaxAtteint=baseRegen>0&&itemRegen+1e-9>=maxRegen;
 
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-268 */
+          /*
+           * Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-268 -- Ordre (2026-09-27, Norman : « Dans NGU, c'est Power / Max HP /
+           * Toughness / HP Regen ») : Power et Max HP se boostent avec les boosts oranges (Power), Toughness et HP Regen avec les
+           * boosts bleus (Toughness) -- l'ordre affiché regroupe donc les deux paires par boost, comme sur le wiki NGU, plutôt que
+           * Power/Toughness/MaxHP/Regen (ordre "brut" du moteur, qui sépare les deux paires).
+           */
           statsHtml=
             '<div class="soreal-idle-v138-details-stats">'+
               (basePower>0
@@ -19367,17 +19372,17 @@ function pageAventureIdleV28_(j){
                 '</b></div>'
                 :''
               )+
-              (baseToughness>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxToughness)+
-                '</b></div>'
-                :''
-              )+
               (baseHp>0
                 ?'<div class="soreal-idle-v138-details-stat"><span>Max HP</span><b>'+
                   '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
                   ' / '+formatGrandNombreIdleV70_(maxHp)+
+                '</b></div>'
+                :''
+              )+
+              (baseToughness>0
+                ?'<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+
+                  '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
+                  ' / '+formatGrandNombreIdleV70_(maxToughness)+
                 '</b></div>'
                 :''
               )+
