@@ -14185,7 +14185,7 @@ let idleDialogueTimerV76=null;
                         j.apparenceJoueur&&j.apparenceJoueur.driveFileId,
                         '',
                         j.nom||'Joueur',
-                        '',
+                        'soreal-idle-player-image-v41',
                         String(
                           j.apparenceJoueur&&
                           j.apparenceJoueur.numero||1
@@ -21807,7 +21807,7 @@ function pageAventureIdleV28_(j){
               '',
               idleImageJoueurCacheV43[cacheKey],
               'Joueur',
-              '',
+              'soreal-idle-player-image-v41',
               String(n)
             );
           return;
@@ -21821,7 +21821,7 @@ function pageAventureIdleV28_(j){
             '',
             urlR2,
             'Joueur',
-            '',
+            'soreal-idle-player-image-v41',
             String(n)
           );
       }

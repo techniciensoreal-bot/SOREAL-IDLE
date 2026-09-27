@@ -1735,6 +1735,10 @@
            * case exactement comme celui du joueur.
            */
           .soreal-idle-boss-image-v35{width:100%;height:100%;object-fit:cover;border-radius:14px;margin:0;background:#21172b;display:block}
+          /* Norman (2026-09-27) : seule l'image du joueur en Fight Boss n'avait pas ses propres bords arrondis (elle reposait
+             uniquement sur overflow:hidden du parent .soreal-idle-duel-portrait-v41 -- insuffisant selon certains moteurs de rendu).
+             Même convention que .soreal-idle-boss-image-v35 : le radius est aussi porté par l'<img> lui-même. */
+          .soreal-idle-player-image-v41{border-radius:14px}
           .soreal-idle-collection-slots-v32{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
 
 
