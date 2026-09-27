@@ -3585,6 +3585,16 @@
             cursor:not-allowed;
           }
 
+          .soreal-idle-v138-bag-indice-v1{
+            font-size:12.5px;
+            line-height:1.4;
+            color:#aeb5c8;
+            background:rgba(255,255,255,.05);
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:8px;
+            padding:8px 10px;
+            margin-bottom:8px;
+          }
           .soreal-idle-v138-bag-heading-v165{
             display:flex;
             align-items:center;
@@ -7165,7 +7175,7 @@
 }
 .soreal-idle-boss-fiche-stats-v1{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:7px;
   margin-bottom:12px;
 }
@@ -7686,7 +7696,7 @@
  */
 .soreal-idle-parties-dev-v1{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:8px;
 }
 .soreal-idle-parties-dev-bouton-v1{
