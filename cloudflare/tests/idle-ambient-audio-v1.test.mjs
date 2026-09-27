@@ -4,8 +4,11 @@ import vm from "node:vm";
 
 /*
  * Norman (2026-09-27) : « Dès qu'on déverrouille le mode aventure, les sons placés dans [R2 idle/ambient/]
- * doivent être joués presque tout le temps. Il peut arriver qu'aucun ne soit joué mais ça doit être rare. Tu
- * pourras jouer jusqu'à 2 sons en même temps. Le niveau sonore ne doit pas être trop fort de base. »
+ * doivent être joués presque tout le temps. Il peut arriver qu'aucun ne soit joué mais ça doit être rare. Le
+ * niveau sonore ne doit pas être trop fort de base. »
+ *
+ * Revirement le même jour : « Je ne veux plus que 2 sons soient joués en même temps... 1 seul à la fois. » -- un
+ * seul créneau désormais (l'ancien créneau secondaire, qui permettait un second fichier simultané, est retiré).
  */
 const src = readFileSync("cloudflare/public/modules/ambient-audio-v1.js", "utf8");
 
@@ -82,25 +85,21 @@ const attendre = () => new Promise((r) => setTimeout(r, 5));
   assert.equal(appelsFetch.length, 0);
 }
 
-// --- verifier(true) : jusqu'à 2 créneaux, chacun tire la liste puis démarre un fichier ---
+// --- verifier(true) : un seul créneau, jamais deux fichiers en même temps ---
 {
   const originalRandom = Math.random;
-  Math.random = () => 0.99; // > toutes les probabilités de silence : les deux créneaux jouent
+  Math.random = () => 0.99; // > la probabilité de silence : le créneau joue
   try {
     const { api, timers, appelsFetch, instances } = fabriquer(volumeApiFactice(0.35));
     api.verifier(true);
-    assert.equal(timers.length, 2, "deux créneaux (principal + secondaire), jamais plus");
+    assert.equal(timers.length, 1, "un seul créneau, jamais un second (plus de « jusqu'à 2 en même temps »)");
     timers.slice().forEach((t) => t.fn());
     await attendre();
     assert.equal(appelsFetch.length >= 1, true);
     assert.ok(appelsFetch.every((u) => u === "/api/idle/media/ambient-list"));
-    assert.equal(instances.length, 2, "les deux créneaux ont chacun démarré un fichier");
-    for (const audio of instances) {
-      assert.match(audio.src, /^\/api\/idle\/media\/ambient\?key=idle%2Fambient%2F/);
-      assert.equal(audio.paused, false, "lecture lancée");
-    }
-    // Jamais le même fichier joué deux fois en même temps.
-    assert.notEqual(instances[0].src, instances[1].src);
+    assert.equal(instances.length, 1, "un seul fichier démarré à la fois");
+    assert.match(instances[0].src, /^\/api\/idle\/media\/ambient\?key=idle%2Fambient%2F/);
+    assert.equal(instances[0].paused, false, "lecture lancée");
   } finally {
     Math.random = originalRandom;
   }
@@ -109,14 +108,14 @@ const attendre = () => new Promise((r) => setTimeout(r, 5));
 // --- verifier(true) : silence probable -> aucun fichier ne démarre tout de suite, un minuteur de reprise est posé ---
 {
   const originalRandom = Math.random;
-  Math.random = () => 0.01; // < toutes les probabilités de silence
+  Math.random = () => 0.01; // < la probabilité de silence
   try {
     const { api, timers, instances } = fabriquer(volumeApiFactice(0.35));
     api.verifier(true);
     timers.slice().forEach((t) => t.fn());
     await attendre();
     assert.equal(instances.length, 0, "silence : rien ne joue");
-    assert.ok(timers.length >= 2, "un minuteur de reprise est reposé pour chaque créneau resté silencieux");
+    assert.ok(timers.length >= 1, "un minuteur de reprise est reposé pour le créneau resté silencieux");
   } finally {
     Math.random = originalRandom;
   }
@@ -132,7 +131,7 @@ const attendre = () => new Promise((r) => setTimeout(r, 5));
     api.verifier(true);
     timers.slice().forEach((t) => t.fn());
     await attendre();
-    assert.equal(instances.length, 2);
+    assert.equal(instances.length, 1);
     volumeApi.getAmbiance = () => 0.9;
     volumeApi._declencher();
     for (const audio of instances) assert.equal(audio.volume, 0.9, "volume ambiance ajusté en direct sur les fichiers déjà en cours");
@@ -150,7 +149,7 @@ const attendre = () => new Promise((r) => setTimeout(r, 5));
     api.verifier(true);
     timers.slice().forEach((t) => t.fn());
     await attendre();
-    assert.equal(instances.length, 2);
+    assert.equal(instances.length, 1);
     api.verifier(false);
     for (const audio of instances) assert.equal(audio.paused, true, "tout est mis en pause à la reverrouillage");
     assert.equal(timers.length, 0, "aucun minuteur ne subsiste");

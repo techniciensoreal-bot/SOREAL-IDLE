@@ -11112,6 +11112,28 @@ function construireEtatJoueurSorealIdle_(
           : 0
     },
 
+    /*
+     * Norman (2026-09-27) : « Parfois, je meurs en mode aventure et dans le journal de combat, ma mort n'apparaît
+     * pas. » Cause : le combat automatique d'Aventure (Beta 3.6, en ligne comme hors ligne) se résout entièrement
+     * côté serveur -- une défaite au combat auto ne passe jamais par terminerCombatAdventureLocalV2_ (client), qui
+     * est le SEUL endroit qui alimente le journal. progression.autoAventureHorsLigne était déjà calculé ici mais
+     * jamais renvoyé au client (jeté à chaque appel) : exposé ci-dessous pour que le client puisse enfin logger
+     * une défaite auto qu'il n'a jamais vue passer. `defaites` est dérivé (combats-victoires) : le serveur ne
+     * compte jamais les défaites d'un combat normal (seul un boss auto raté incrémente bossEchecs).
+     */
+    autoAventureHorsLigne:
+      progression && progression.autoAventureHorsLigne
+        ? (function(a){
+            const combats=nombreSorealIdle_(a.combats,0);
+            const victoires=nombreSorealIdle_(a.victoires,0);
+            return {
+              combats:combats,
+              victoires:victoires,
+              defaites:Math.max(0,combats-victoires)
+            };
+          })(progression.autoAventureHorsLigne)
+        : null,
+
     syncSecondes:
       Math.max(
         5,

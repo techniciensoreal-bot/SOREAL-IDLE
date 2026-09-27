@@ -96,7 +96,34 @@
     return '<label style="display:flex;align-items:center;gap:7px;cursor:'+(actif===false?'default':'pointer')+';opacity:'+(actif===false?'.55':'1')+'">'+
       '<input type="checkbox" '+(coche?'checked ':'')+(actif===false?'disabled ':'')+'onchange="'+onchange+'"> '+libelle+'</label>';
   }
-  function verrou(texte){return '<div class="soreal-idle-note-v4" style="margin:4px 0 0">🔒 '+html(texte)+'</div>';}
+  /*
+   * Norman (2026-09-27) : « les améliorations qu'on peut acheter via un menu soit achetable également
+   * directement à l'endroit où on doit l'utiliser. Exemple le filtre. » Achat en place, réservé aux
+   * améliorations vendues à un SEUL endroit sans ambiguïté (Boutique EXP ou Boutique AP) : les mêmes appels
+   * globaux que les vraies pages Boutique (__acheterExpShopIdleV1__, __actionMetaIdleV130__) sont réutilisés
+   * tels quels, jamais une nouvelle route d'achat. Les améliorations à sources multiples (Perks/Quirks/Boutique
+   * EXP/Boutique AP selon le cas) ou obtenues par une complétion de Challenge (jamais un achat) restent
+   * seulement indiquées en texte : acheter au hasard la mauvaise source, ou "acheter" un Challenge, serait faux.
+   */
+  function acheterEnPlace(achat){
+    if(!achat)return '';
+    if(achat.type==='exp'){
+      return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__acheterExpShopIdleV1__(\''+html(achat.item)+'\',1)">🪙 Acheter ('+entier(achat.cout)+' EXP)</button>';
+    }
+    if(achat.type==='ap'){
+      return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'sellShopBuy\',itemId:\''+html(achat.item)+'\'})">💎 Acheter ('+formatGrandNombre(achat.cout)+' AP)</button>';
+    }
+    return '';
+  }
+  function formatGrandNombre(n){
+    n=Number(n)||0;
+    return n>=1000?Math.round(n/1000)+'k':String(entier(n));
+  }
+  function verrou(texte,achat){
+    return '<div class="soreal-idle-note-v4" style="margin:4px 0 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+      '<span>🔒 '+html(texte)+'</span>'+acheterEnPlace(achat)+
+    '</div>';
+  }
 
   /*
    * 2026-09-24 (Norman : « les options de l'inventaire, dans le bas, doivent pouvoir se fermer/ouvrir comme le Coffre et Info ») : titre
@@ -129,7 +156,7 @@
     lignes.push(section('🤖 Automatisation',
       '<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+
         '<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?' · prochain dans '+duree(s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',u.autoMerge)+
-          (u.autoMerge?'':verrou('Achat « Auto Merge (fusion automatique) » dans la Boutique EXP (menu Shop).'))+'</div>'+
+          (u.autoMerge?'':verrou('Achat « Auto Merge (fusion automatique) » dans la Boutique EXP (menu Shop).',{type:'exp',item:'autoMerge',cout:200}))+'</div>'+
         '<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?' · prochain dans '+duree(s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',u.autoBoost)+
           (u.autoBoost?'':verrou('1re complétion du No Equipment Challenge (menu Challenges).'))+'</div>'+
       '</div>'+
@@ -170,10 +197,10 @@
     lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:12px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
       (u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap">'+types.map(function(t){
         return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+zoneFiltre_()+':'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
-      }).join('')+'</div>':verrou('Achat « Filtre de butin basique » dans la Boutique EXP (menu Shop).'))+
+      }).join('')+'</div>':verrou('Achat « Filtre de butin basique » dans la Boutique EXP (menu Shop).',{type:'exp',item:'basicLootFilter',cout:20}))+
       (u.lootFilterImproved?'<details style="margin-top:10px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
         (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+
-      '</div></details>':verrou('Filtre objet par objet : « Filtre de butin amélioré » (Boutique AP, menu Shop).'))+
+      '</div></details>':verrou('Filtre objet par objet : « Filtre de butin amélioré » (Boutique AP, menu Shop).',{type:'ap',item:'improvedLootFilter',cout:100000}))+
       (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin-top:8px">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'')
     ));
 

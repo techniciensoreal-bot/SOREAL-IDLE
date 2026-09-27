@@ -37,7 +37,7 @@ assert.match(tts, /audio=new Audio\(src\);\s*audio\.preload='auto';\s*audio\.vol
 assert.match(tts, /try\{gain\.disconnect\(\);\}catch\(_\)\{\}/, "le GainNode est bien nettoyé (pas de fuite) comme le node source");
 
 // --- Chargement : audio-volume-v1.js avant tout ce qui joue du son ; ambient-audio-v1.js avant le jeu ---
-for (const m of ["/modules/audio-volume-v1.js?v=3", "/modules/ambient-audio-v1.js?v=1"]) assert.ok(index.includes(m), m);
+for (const m of ["/modules/audio-volume-v1.js?v=3", "/modules/ambient-audio-v1.js?v=2"]) assert.ok(index.includes(m), m);
 assert.ok(
   index.indexOf("/modules/audio-volume-v1.js") < index.indexOf("/modules/audio-effects-v199.js") &&
   index.indexOf("/modules/audio-volume-v1.js") < index.indexOf("/modules/tutorial-tts-v202.js"),

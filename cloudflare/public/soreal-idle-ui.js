@@ -11073,6 +11073,30 @@
         }
         dessinerJournalAventureIdleV1_();
       }
+
+      /*
+       * Norman (2026-09-27) : « Parfois, je meurs en mode aventure et dans le journal de combat, ma mort
+       * n'apparaît pas. » Cause : une mort par combat automatique (en ligne ou hors ligne) se résout entièrement
+       * côté serveur, jamais via terminerCombatAdventureLocalV2_ (le seul autre endroit qui alimente le journal).
+       * j.autoAventureHorsLigne (combats/victoires/defaites) est le delta calculé PAR CE SYNC UNIQUEMENT (jamais
+       * cumulatif) -- on ne le traite donc qu'une fois par réponse serveur réellement nouvelle (serveurTs change à
+       * chaque appel), pour ne jamais logger deux fois le même lot en cas de nouveaux rendus sans nouvelle synchro.
+       */
+      let idleDerniereSyncAutoDefaiteAventureV1_=0;
+      function verifierDefaiteAutoAventureIdleV1_(j){
+        const ts=idleNombre_(j&&j.serveurTs);
+        if(!ts||ts===idleDerniereSyncAutoDefaiteAventureV1_)return;
+        idleDerniereSyncAutoDefaiteAventureV1_=ts;
+        const infos=j&&j.autoAventureHorsLigne;
+        const defaites=Math.max(0,idleEntier_(infos&&infos.defaites));
+        if(defaites<=0)return;
+        ajouterLogAventureIdleV1_(
+          'enemy',
+          defaites>1
+            ?'⚔️ Combat automatique : tu as été mis K.O. '+defaites+' fois pendant ton absence.'
+            :'⚔️ Combat automatique : tu as été mis K.O. pendant ton absence.'
+        );
+      }
       /* Rendu d'une ligne, partagé entre le journal live (dessinerJournalAventureIdleV1_) et le rendu complet de la page Aventure (même markup dupliqué avant ce correctif). */
       function rendreLigneJournalAventureIdleV1_(l){
         const suffixeCritique=l.critique?' <span class="soreal-idle-adventure-log-crit-v1">💥 Coup critique !</span>':'';
@@ -22508,6 +22532,8 @@ function pageAventureIdleV28_(j){
             if(window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__){
               window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__.verifier(Boolean(j&&j.aventure&&j.aventure.debloquee));
             }
+
+            verifierDefaiteAutoAventureIdleV1_(j);
 
             if(
               idleMenuActifV28==='aventure' &&

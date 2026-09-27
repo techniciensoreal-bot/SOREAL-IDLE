@@ -271,8 +271,15 @@
     }
     enemy.style.visibility=active?'visible':'hidden';
     if(!active)return;
+    /*
+     * Norman (2026-09-27) : « je voudrais quelque chose de plus chouette pour indiquer que c'est le Boss de
+     * zone. Et si possible sur une ligne » -- le simple suffixe texte " (BOSS)" (moins compact qu'un badge,
+     * concurrence le nom pour la largeur disponible) est remplacé par une petite couronne dorée devant le nom,
+     * dans la même ligne (voir .soreal-idle-v79-boss-crown-v1 ci-dessous, un simple <span> en ligne avec le nom) ;
+     * uneLigneIdleV1_ continue de rétrécir la police si besoin, sur le nom ET la couronne (un seul bloc de texte).
+     */
     var nomMonstre=enemy.querySelector('.soreal-idle-v79-card-name');
-    nomMonstre.textContent=String(fight.mobName||'Ennemi')+(fight.boss?' (BOSS)':'');
+    nomMonstre.innerHTML=(fight.boss?'<span class="soreal-idle-v79-boss-crown-v1" title="Boss de zone">👑</span>':'')+html_(fight.mobName||'Ennemi');
     uneLigneIdleV1_(nomMonstre);
     var enemyValues={power:fight.mobPower,toughness:fight.mobToughness,hp:fight.monsterHpMax,regen:fight.mobHpRegen,type:fight.mobType||'normal'};
     Object.keys(enemyValues).forEach(function(key){
@@ -425,6 +432,8 @@
       .soreal-idle-v79-adventure-mob-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2}\
       .soreal-idle-v79-adventure-mob{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.55))}\
       .soreal-idle-v79-adventure-mob-boss-tag{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:900;padding:5px 12px;border-radius:999px;background:rgba(255,196,60,.22);color:#ffcf5c;text-shadow:0 1px 3px rgba(0,0,0,.5);z-index:1}\
+      .soreal-idle-v79-boss-crown-v1{display:inline-block;margin-right:.32em;filter:drop-shadow(0 0 4px rgba(255,196,60,.75));animation:sorealIdleBossCrownPulseV1 1.8s ease-in-out infinite}\
+      @keyframes sorealIdleBossCrownPulseV1{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}\
       .soreal-idle-v79-adventure-mob.impact-boss-v46{animation:sorealIdleBossHitV46 .26s ease-out}\
       \
       .soreal-idle-v79-adventure-enemy-row{display:flex;flex-direction:column;align-items:center;width:100%}\

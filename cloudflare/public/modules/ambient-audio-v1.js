@@ -1,17 +1,15 @@
 /*
  * SOREAL IDLE — sons d'ambiance en Aventure (Norman, 2026-09-27) : « Je vais placer plusieurs sons d'ambiance
  * dans mon R2 soreal/idle/ambient/. Dès qu'on déverrouille le mode aventure, les sons placés dans ce dossier
- * doivent être joués presque tout le temps. Il peut arriver qu'aucun ne soit joué mais ça doit être rare. Tu
- * pourras jouer jusqu'à 2 sons en même temps. Le niveau sonore ne doit pas être trop fort de base. »
+ * doivent être joués presque tout le temps. Il peut arriver qu'aucun ne soit joué mais ça doit être rare. Le
+ * niveau sonore ne doit pas être trop fort de base. »
  *
  * Fichiers déposés directement dans R2 par Norman (aucun build local, aucune liste figée en dur) : la liste
  * vient de /api/idle/media/ambient-list, chaque fichier de /api/idle/media/ambient?key=... (idle-media-v1.js).
  *
- * Deux créneaux indépendants plutôt que « toujours les deux en même temps » (jamais demandé) : le créneau
- * PRINCIPAL redémarre presque toujours (silence rare, ~8% de chance à chaque fin de morceau) -- quelque chose
- * joue donc quasiment en permanence ; le créneau SECONDAIRE reste silencieux la plupart du temps et ne se
- * relance qu'occasionnellement (~35% de chance), ce qui crée le « jusqu'à 2 en même temps » sans que ce soit la
- * norme. Un vrai double silence (les deux créneaux muets en même temps) reste possible mais rare par construction.
+ * Correctif 2026-09-27 (même jour, Norman revient sur son idée initiale) : « Je ne veux plus que 2 sons soient
+ * joués en même temps... 1 seul à la fois. » Un seul créneau désormais (silence rare, ~8% de chance à chaque fin
+ * de morceau) -- quelque chose joue quasiment en permanence, jamais deux fichiers superposés.
  */
 (function(){
   'use strict';
@@ -20,8 +18,7 @@
   var FADE_MS=1500;
   var SILENCE_MIN_MS=4000,SILENCE_MAX_MS=13000;
   var CRENEAUX=[
-    {id:'principal',probabiliteSilence:0.08},
-    {id:'secondaire',probabiliteSilence:0.65}
+    {id:'principal',probabiliteSilence:0.08}
   ];
 
   var cles=null;

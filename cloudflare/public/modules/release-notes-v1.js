@@ -8,8 +8,38 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.0',
+    courante:'4.3',
     versions:[
+      {
+        version:'4.3',
+        nom:'Une couronne, un seul son',
+        date:'2026-09-27',
+        points:[
+          'En Aventure, le boss de zone se distingue maintenant par une petite couronne dorée devant son nom, sur une seule ligne.',
+          'Les sons d’ambiance en Aventure ne se superposent plus : un seul à la fois, jamais deux en même temps.',
+          'Le silence occasionnel entre deux sons d’ambiance reste rare, comme avant.'
+        ]
+      },
+      {
+        version:'4.2',
+        nom:'Achète où tu en as besoin',
+        date:'2026-09-27',
+        points:[
+          'Dans Automatisation de l’inventaire, certaines améliorations verrouillées (Auto Merge, Filtre de butin basique, Filtre de butin amélioré) ont maintenant un bouton « Acheter » directement sur place.',
+          'Le bouton achète exactement la même chose que dans la boutique correspondante, au même prix.',
+          'Les améliorations disponibles à plusieurs endroits différents, ou obtenues par un Challenge, restent indiquées en texte comme avant.'
+        ]
+      },
+      {
+        version:'4.1',
+        nom:'Le journal n’oublie plus',
+        date:'2026-09-27',
+        points:[
+          'Une mort en Aventure pendant un combat automatique (en ligne comme hors ligne) apparaît maintenant dans le journal de combat, comme une mort en combat manuel.',
+          'Avant ce correctif, seule une mort vue en direct était notée : une défaite pendant ton absence passait inaperçue dans le journal.',
+          'Plusieurs défaites automatiques d’affilée sont résumées en une seule ligne, avec leur nombre.'
+        ]
+      },
       {
         version:'4.0',
         nom:'Rangé par zone',
