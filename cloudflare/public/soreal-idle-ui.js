@@ -11705,7 +11705,7 @@
          */
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}">
-            <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450">Chronique du boss</div>
+            <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>
             ${notesDeblocage.map(function(note){

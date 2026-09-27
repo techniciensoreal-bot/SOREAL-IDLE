@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.7',
+    courante:'3.8',
     versions:[
+      {
+        version:'3.8',
+        nom:'Silence, on écoute',
+        date:'2026-09-27',
+        points:[
+          'Le narrateur ne dit plus "Chronique du boss" avant de raconter une histoire de boss : redondant avec le nom qui suit juste après.',
+          'Ce titre reste affiché à l’écran, seule la voix change.',
+          'Vrai partout où une histoire de boss est racontée : à la rencontre, en relisant la fiche d’un boss, et dans "Lire toute l’histoire".'
+        ]
+      },
       {
         version:'3.7',
         nom:'Clic, clic, boss !',

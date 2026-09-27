@@ -32,15 +32,16 @@ assert.equal(hash("Bonjour."), hash("  Bonjour.  "));
 assert.equal(hash("Bonjour   tout\nle monde."), hash("Bonjour tout le monde."));
 assert.notEqual(hash("Bonjour."), hash("Bonjour !"));
 
-// --- Composition d'une chronique = balisage affiché (titre, nom, notes, récit, mêmes pauses) ---
+// --- Composition d'une chronique = balisage affiché (nom, notes, récit, mêmes pauses) -- Norman (2026-09-27) : le narrateur ne dit plus
+//     "Chronique du boss" (redondant, le titre reste affiché à l'écran mais n'est plus prononcé, data-soreal-tts-ignore). ---
 assert.deepEqual(plan(composer("Gorgonzola", "Il était une fois.")), [
-  { chunk: "Chronique du boss" }, { pause: 450 }, { chunk: "Gorgonzola" }, { pause: 1100 }, { chunk: "Il était une fois." }
+  { chunk: "Gorgonzola" }, { pause: 1100 }, { chunk: "Il était une fois." }
 ]);
 assert.deepEqual(plan(composer("Gorgonzola", "(Zone débloquée !)\n\n(Autre note.)\n\nRécit. (pas une note)")), [
-  { chunk: "Chronique du boss" }, { pause: 450 }, { chunk: "Gorgonzola" }, { pause: 1100 },
+  { chunk: "Gorgonzola" }, { pause: 1100 },
   { chunk: "(Zone débloquée ! )" }, { pause: 700 }, { chunk: "(Autre note. )" }, { pause: 700 }, { chunk: "Récit. (pas une note)" }
 ]);
-assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450"/);
+assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss/);
 assert.match(ui, /soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100"/);
 assert.match(ui, /soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700"/);
 
@@ -91,13 +92,11 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
     for (const h of blocs(composer(b.nom, b.histoire))) if (!fichiers.has(h)) manquants.push("boss " + b.id);
   }
   /*
-   * Norman (2026-09-27) : nouveau texte pour le boss n°4 (Tippy). Voix pré-générée PAS encore régénérée -- cet
-   * environnement n'a pas d'accès réseau vers soreal-idle.technicien-soreal.workers.dev/huggingface.co (mêmes
-   * refus EGRESS_BLOCKED que pour le texte du popup « Le NOMBRE », commit c867069). Tolérance ciblée, temporaire :
-   * seul "boss 4" est accepté manquant ; tout AUTRE bloc sans fichier fait toujours échouer ce test. À refaire
-   * depuis un environnement autorisé : node cloudflare/tools/voice-generate.mjs --motifs "Tippy" --prune
+   * Norman (2026-09-27) : les deux voix laissées en attente faute d'accès réseau (boss n°4 "Tippy", commit
+   * 251c846 ; texte du popup « Le NOMBRE », commit c867069) ont été régénérées depuis un poste avec accès réseau
+   * (node cloudflare/tools/voice-generate.mjs --prune) -- retour à la couverture stricte, sans tolérance.
    */
-  assert.deepEqual(manquants, ["boss 4"], "blocs sans fichier audio : relancer node cloudflare/tools/voice-generate.mjs --motifs \"Tippy\" --prune");
+  assert.deepEqual(manquants, [], "blocs sans fichier audio : relancer node cloudflare/tools/voice-generate.mjs");
   assert.ok(existsSync("cloudflare/public/voice/manifest.json"));
 }
 
