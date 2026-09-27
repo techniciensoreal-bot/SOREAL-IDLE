@@ -24,4 +24,17 @@ assert.ok(src.indexOf("uneLigneIdleV1_(nomMonstre);", i) > i, "uneLigneIdleV1_ s
 assert.match(src, /\.soreal-idle-v79-boss-crown-v1\{[^}]*filter:drop-shadow\([^)]+\)[^}]*animation:sorealIdleBossCrownPulseV1/);
 assert.match(src, /@keyframes sorealIdleBossCrownPulseV1\{/);
 
+/*
+ * Norman (2026-09-27, même jour) : « Sur les boss de Zone, il y a un cadre doré qui se superpose à l'image en
+ * aventure... il faut que la phrase avec l'émoji de dragon soit sur 1 seule ligne. Pas 2. » C'est le badge doré
+ * flottant sur l'image du monstre (.soreal-idle-v79-adventure-mob-boss-tag, « 🐉 Boss de zone »), pas la couronne
+ * ci-dessus (qui est devant le nom) : sans white-space:nowrap, le texte pouvait retomber sur deux lignes.
+ */
+{
+  const j = src.indexOf(".soreal-idle-v79-adventure-mob-boss-tag{");
+  assert.ok(j > 0, "règle du badge doré introuvable");
+  const bloc = src.slice(j, src.indexOf("}\\", j) + 1);
+  assert.match(bloc, /white-space:nowrap/, "le badge « 🐉 Boss de zone » doit tenir sur une seule ligne");
+}
+
 console.log("idle-adventure-boss-crown-v1: OK");

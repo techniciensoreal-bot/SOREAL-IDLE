@@ -8,8 +8,28 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.3',
+    courante:'4.5',
     versions:[
+      {
+        version:'4.5',
+        nom:'Entendu une fois, jamais deux',
+        date:'2026-09-27',
+        points:[
+          'Correction : l’histoire d’un boss pouvait se relancer depuis le début après un Rebirth si elle avait été interrompue avant la fin la fois précédente. Elle ne se relance plus automatiquement, quoi qu’il arrive, une fois entendue.',
+          'Le bouton « Lire la chronique » reste toujours disponible pour la réécouter à la demande.',
+          'Le badge doré « Boss de zone » sur l’image du monstre, en Aventure, tient maintenant sur une seule ligne.'
+        ]
+      },
+      {
+        version:'4.4',
+        nom:'Même volume pour tous',
+        date:'2026-09-27',
+        points:[
+          'Les sons d’ambiance en Aventure sont désormais compensés automatiquement pour sonner à un niveau comparable, quel que soit le fichier joué.',
+          'Le curseur « Ambiance » des Paramètres continue de régler le volume global par-dessus, identique pour tous les sons.',
+          'Rien à faire de ton côté : la compensation se calcule toute seule au premier passage de chaque fichier.'
+        ]
+      },
       {
         version:'4.3',
         nom:'Une couronne, un seul son',

@@ -720,10 +720,17 @@
     /*
      * Capturé ICI (avant tout await) plutôt que relu sur le DOM à la fin : la narration d'une longue chronique peut durer plusieurs
      * secondes, pendant lesquelles le boss courant peut changer (fui, vaincu) et le panneau pointer vers un autre identifiant, voire
-     * disparaître. Mémorisé seulement si la lecture va au bout (voir task.then plus bas) : une narration arrêtée en cours de route
-     * (bouton « Arrêter », nouveau scan qui change de panneau) ne compte jamais comme « entendue ».
+     * disparaître.
+     *
+     * Correctif 2026-09-27 (Norman, après un Rebirth : « il me relit le texte du premier boss. Il ne doit lire le texte qu'à la
+     * première rencontre... jamais 2 fois. ») : marqué « lue » ICI, DÈS LE DÉMARRAGE, plutôt qu'uniquement si la lecture va au bout
+     * (task.then plus bas, ancien comportement) -- une narration interrompue en cours de route (bouton « Arrêter », changement de
+     * panneau, navigation ailleurs) ne redéclenchait jamais le flag, donc rejouait tout depuis le début à la prochaine occasion
+     * (un Rebirth ramène justement le joueur devant le boss 1). « À la première rencontre » = dès que la lecture démarre, jamais
+     * seulement si elle finit.
      */
     var chroniqueBossIdEnCours=String(targetId||'')===CHRONICLE_PANEL_ID?chroniqueBossId_(target):'';
+    if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
 
     var mapped=audioSourceFor_(targetId,target,explicitSource);
     var task;
@@ -784,7 +791,7 @@
       if(myGeneration!==generation)return;
       activeReadTarget='';
       updateReadButtons_();
-      if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
+      /* marquerChroniqueLue_ est déjà posé dès le démarrage (voir plus haut) : rien à refaire ici même si la lecture va au bout. */
     }).catch(function(error){
       termine();
       if(myGeneration!==generation)return;

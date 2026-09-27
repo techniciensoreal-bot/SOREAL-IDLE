@@ -97,18 +97,24 @@ assert.match(
 }
 
 // 3. Intégration avec narrate_ : l'identifiant est capturé AVANT toute attente asynchrone (le boss courant peut changer pendant une longue
-//    lecture), et n'est mémorisé comme "lu" que dans la branche de succès -- jamais sur erreur/annulation (narration interrompue = pas comptée).
+//    lecture), et marqué "lu" DÈS LE DÉMARRAGE de la narration -- pas seulement si elle va au bout.
+//
+//    Correctif 2026-09-27 (Norman, après un Rebirth : « il me relit le texte du premier boss... jamais 2 fois ») : l'ancien
+//    comportement (marqué "lu" uniquement à la fin d'une lecture réussie) faisait qu'une narration interrompue en cours de route
+//    (bouton Arrêter, changement de panneau, navigation ailleurs) ne posait jamais le flag -- donc rejouait tout depuis le début à
+//    la prochaine occasion, un Rebirth ramenant justement le joueur devant le boss 1. « À la première rencontre » = dès que la
+//    lecture démarre, jamais seulement si elle finit.
 {
   const narrate = tts.slice(tts.indexOf("function narrate_("), tts.indexOf("function readVisible_("));
   assert.match(
     narrate,
-    /var chroniqueBossIdEnCours=String\(targetId\|\|''\)===CHRONICLE_PANEL_ID\?chroniqueBossId_\(target\):'';/,
-    "l'identifiant du boss doit être capturé au tout début de narrate_, avant toute étape asynchrone"
+    /var chroniqueBossIdEnCours=String\(targetId\|\|''\)===CHRONICLE_PANEL_ID\?chroniqueBossId_\(target\):'';\s*\n\s*if\(chroniqueBossIdEnCours\)marquerChroniqueLue_\(chroniqueBossIdEnCours\);/,
+    "l'identifiant du boss doit être capturé ET marqué lu au tout début de narrate_, avant toute étape asynchrone"
   );
   const succes = narrate.slice(narrate.indexOf("task.then(function(){"), narrate.indexOf("}).catch(function(error){"));
-  assert.ok(succes.includes("if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);"), "marqué lu uniquement à la fin d'une lecture réussie");
+  assert.ok(!succes.includes("marquerChroniqueLue_("), "plus besoin de remarquer à la fin : déjà fait au démarrage");
   const echec = narrate.slice(narrate.indexOf("}).catch(function(error){"));
-  assert.ok(!echec.includes("marquerChroniqueLue_"), "jamais marqué lu dans la branche d'erreur/annulation");
+  assert.ok(!echec.includes("marquerChroniqueLue_("), "jamais un second marquage dans la branche d'erreur/annulation non plus");
 }
 
 // 4. Le bouton manuel « Lire la chronique » reste, lui, toujours disponible : lireCible_ ne consulte jamais la mémoire "déjà lue".

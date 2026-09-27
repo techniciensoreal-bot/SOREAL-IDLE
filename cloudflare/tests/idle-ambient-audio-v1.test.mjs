@@ -184,4 +184,123 @@ const attendre = () => new Promise((r) => setTimeout(r, 5));
   }
 }
 
+/*
+ * Norman (2026-09-27, même jour) : « Comment je peux faire pour que mes sons soient tous au même volume. Pour pas
+ * devoir augmenter, baisser le son suivant le son d'ambiance en cours ? » Chaque fichier est analysé une fois
+ * (RMS via Web Audio decodeAudioData) et son volume compensé par un gain individuel, mémorisé en localStorage
+ * (clé R2 -> gain) pour ne jamais recalculer le même fichier deux fois sur ce navigateur.
+ */
+function fabriquerAvecAnalyse(volumeApi, cles, options) {
+  options = options || {};
+  FakeAudio.instances = [];
+  const timers = [];
+  let prochainId = 1;
+  const fakeSetTimeout = (fn, delai) => {
+    const id = prochainId++;
+    const entree = { id, delai };
+    entree.fn = () => { const i = timers.indexOf(entree); if (i >= 0) timers.splice(i, 1); fn(); };
+    timers.push(entree);
+    return id;
+  };
+  const fakeClearTimeout = (id) => { const i = timers.findIndex((t) => t.id === id); if (i >= 0) timers.splice(i, 1); };
+  const appelsFetch = [];
+  const fakeFetch = async (url) => {
+    appelsFetch.push(url);
+    if (url === "/api/idle/media/ambient-list") return { ok: true, json: async () => ({ ok: true, cles: cles || ["idle/ambient/faible.mp3"] }) };
+    return { ok: true, arrayBuffer: async () => new ArrayBuffer(8) };
+  };
+  // RMS factice contrôlé par le test : simule un fichier trop faible (rms < cible) -> gain > 1 attendu.
+  const rms = options.rms == null ? 0.01 : options.rms;
+  const channel = new Float32Array(1000).fill(rms);
+  const fakeAudioBuffer = { numberOfChannels: 1, getChannelData: () => channel };
+  const fakeCtx = { decodeAudioData: async () => fakeAudioBuffer };
+  const FakeAudioContext = function () { return fakeCtx; };
+  const stockLocal = new Map();
+  const fakeLocalStorage = {
+    getItem: (k) => (stockLocal.has(k) ? stockLocal.get(k) : null),
+    setItem: (k, v) => stockLocal.set(k, String(v))
+  };
+  let horloge = 0;
+  const FakeDate = { now: () => horloge };
+  const filesRaf = [];
+  const fakeRaf = (fn) => { filesRaf.push(fn); return filesRaf.length; };
+  const window = { __SOREAL_IDLE_AUDIO_VOLUME_V1__: volumeApi, AudioContext: options.sansAudioContext ? undefined : FakeAudioContext };
+  vm.runInNewContext(src, {
+    window, fetch: fakeFetch, Audio: FakeAudio, localStorage: fakeLocalStorage,
+    setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout,
+    requestAnimationFrame: fakeRaf, Date: FakeDate, Math, Promise, Array, Boolean, Object, Float32Array, encodeURIComponent
+  });
+  function terminerFondus() {
+    horloge += 5000;
+    const file = filesRaf.splice(0, filesRaf.length);
+    file.forEach((fn) => fn());
+  }
+  return { api: window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__, timers, appelsFetch, instances: FakeAudio.instances, terminerFondus, stockLocal };
+}
+
+// --- Un fichier trop faible (RMS très inférieur à la cible) est compensé par un gain > 1, sans jamais dépasser 1 (borne HTMLMediaElement.volume). ---
+{
+  const originalRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    const { api, timers, instances, terminerFondus } = fabriquerAvecAnalyse(volumeApiFactice(0.9), undefined, { rms: 0.01 });
+    api.verifier(true);
+    timers.slice().forEach((t) => t.fn());
+    await attendre();
+    terminerFondus();
+    await attendre();
+    terminerFondus();
+    assert.equal(instances.length, 1);
+    assert.ok(instances[0].volume > 0.9, "fichier faible -> compensé au-dessus du volume ambiance brut");
+    assert.ok(instances[0].volume <= 1, "jamais au-dessus de 1 (HTMLMediaElement.volume ne l'accepte pas)");
+  } finally {
+    Math.random = originalRandom;
+  }
+}
+
+// --- Le gain calculé est mémorisé en localStorage (clé R2 -> gain) : jamais recalculé au fichier suivant. ---
+{
+  const originalRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    const { api, timers, appelsFetch, terminerFondus, stockLocal } = fabriquerAvecAnalyse(volumeApiFactice(0.5), ["idle/ambient/x.mp3"], { rms: 0.03 });
+    api.verifier(true);
+    timers.slice().forEach((t) => t.fn());
+    await attendre();
+    terminerFondus();
+    assert.ok(stockLocal.has("soreal_idle_ambient_gain_v1:idle/ambient/x.mp3"), "gain mémorisé sous la clé R2 du fichier");
+    const appelsAnalyseAvant = appelsFetch.filter((u) => u.includes("/api/idle/media/ambient?key=")).length;
+    assert.ok(appelsAnalyseAvant >= 1, "le fichier a bien été récupéré pour analyse la première fois");
+
+    // Relance verifier(false) puis verifier(true) : le MÊME localStorage (stockLocal) simule un navigateur qui a déjà vu ce fichier.
+    api.verifier(false);
+    api.verifier(true);
+    timers.slice().forEach((t) => t.fn());
+    await attendre();
+    const appelsAnalyseApres = appelsFetch.filter((u) => u.includes("/api/idle/media/ambient?key=")).length;
+    assert.equal(appelsAnalyseApres, appelsAnalyseAvant, "aucun nouveau fetch d'analyse : le gain connu est relu directement du localStorage");
+  } finally {
+    Math.random = originalRandom;
+  }
+}
+
+// --- Sans AudioContext disponible (vieux navigateur) : jamais d'erreur, gain neutre (1), le son joue quand même. ---
+{
+  const originalRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    const { api, timers, instances, terminerFondus } = fabriquerAvecAnalyse(volumeApiFactice(0.4), undefined, { sansAudioContext: true });
+    assert.doesNotThrow(() => {
+      api.verifier(true);
+      timers.slice().forEach((t) => t.fn());
+    });
+    await attendre();
+    terminerFondus();
+    assert.equal(instances.length, 1);
+    assert.ok(instances[0].volume > 0, "le son joue quand même, sans normalisation possible");
+  } finally {
+    Math.random = originalRandom;
+  }
+}
+
 console.log("idle-ambient-audio-v1: OK");
