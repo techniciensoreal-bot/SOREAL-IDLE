@@ -9915,6 +9915,39 @@
             box-shadow:0 18px 40px rgba(5,10,25,.45);
             overflow:hidden;
             color:#e9f0f8;
+            transition:width .22s ease,height .22s ease,border-radius .22s ease;
+          }
+          /*
+           * Norman (2026-09-27) : « quand on clique en dehors du popup d'info, le popup devient tout petit mais
+           * continue à jouer la voix. Si on reclique dessus, il reprend sa taille normale. » On ne touche jamais
+           * display/visibility/opacity de la racine ici : tutorial-tts-v202.js s'en sert pour savoir si ce popup
+           * est "visible" et ne doit donc jamais la voir disparaître pendant que la narration continue.
+           */
+          .soreal-idle-tuto-flottant-v1.reduit{
+            width:52px;
+            height:52px;
+            border-radius:50%;
+            cursor:pointer;
+          }
+          .soreal-idle-tuto-flottant-v1.reduit .soreal-idle-tuto-flottant-drag-v1,
+          .soreal-idle-tuto-flottant-v1.reduit .soreal-idle-tuto-flottant-titre-v1,
+          .soreal-idle-tuto-flottant-v1.reduit .soreal-idle-tuto-flottant-corps-v1,
+          .soreal-idle-tuto-flottant-v1.reduit .soreal-idle-tuto-flottant-actions-v1{
+            display:none;
+          }
+          .soreal-idle-tuto-flottant-v1.reduit::after{
+            content:'🔊';
+            position:absolute;
+            inset:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            animation:sorealIdleTutoReduitPulseV1 1.6s ease-in-out infinite;
+          }
+          @keyframes sorealIdleTutoReduitPulseV1{
+            0%,100%{opacity:.7}
+            50%{opacity:1}
           }
           .soreal-idle-tuto-flottant-drag-v1{
             display:flex;
@@ -9949,7 +9982,7 @@
           }
           .soreal-idle-tuto-flottant-actions-v1{
             display:grid;
-            grid-template-columns:1fr 1fr 1fr;
+            grid-template-columns:repeat(3,minmax(0,1fr));
             gap:6px;
             padding:0 10px 10px;
           }
@@ -10031,6 +10064,29 @@
         };
         poignee.addEventListener('mousedown',surDebut);
         poignee.addEventListener('touchstart',surDebut,{passive:false});
+      }
+
+      /*
+       * Norman (2026-09-27) : « quand on clique en dehors du popup d'info le popup devienne tout petit mais
+       * continue à jouer la voix. Si on reclique dessus, il reprend sa taille normale. » Un seul écouteur
+       * global (jamais reposé à chaque rendu) : un clic dans #sorealIdleTutorielFlottantV1 alors qu'il est
+       * réduit le restaure ; un clic ailleurs le réduit. Jamais de display/visibility/opacity touchés (voir
+       * commentaire de la classe .reduit ci-dessus) : la narration en cours n'est jamais interrompue.
+       */
+      let idleTutoFlottantReductionInstalleeV1=false;
+      function installerReductionTutoFlottantV1_(){
+        if(idleTutoFlottantReductionInstalleeV1)return;
+        idleTutoFlottantReductionInstalleeV1=true;
+        document.addEventListener('click',function(ev){
+          const root=document.getElementById('sorealIdleTutorielFlottantV1');
+          if(!root)return;
+          const dedans=ev.target&&ev.target.closest&&ev.target.closest('#sorealIdleTutorielFlottantV1');
+          if(dedans){
+            if(root.classList.contains('reduit'))root.classList.remove('reduit');
+            return;
+          }
+          root.classList.add('reduit');
+        },true);
       }
 
       function retirerChromeTutorielV1_(){
@@ -10175,6 +10231,8 @@
           root.className='soreal-idle-tuto-flottant-v1';
           document.body.appendChild(root);
         }
+        root.classList.remove('reduit');/* changer de page rouvre le popup en taille normale */
+        installerReductionTutoFlottantV1_();
 
         root.innerHTML=
           '<div class="soreal-idle-tuto-flottant-drag-v1"><span>⠿</span><span>SOREAL IDLE</span></div>'+
@@ -19953,6 +20011,19 @@ function pageAventureIdleV28_(j){
         '</div>';
       }
 
+      /* 2026-09-27 (Norman : « uniquement quand on est dans la zone tutoriel... une phrase qui explique aux gens
+         comment ça fonctionne ») : mécanique vérifiée dans inventory-auto-v1.js (double-tap = équiper/fusionner ;
+         touche A + clic, ou double-tap sur un objet déjà équipé = booster) — jamais une touche « 1 », qui n'existe pas. */
+      function indiceSacZoneTutorielIdleV1_(a){
+        const selectionnee=String((a&&a.selectedZone)||'safe').trim().toLowerCase();
+        const zone=selectionnee==='safe'?(String((a&&a.lastCombatZone)||'tutorial').trim().toLowerCase()||'tutorial'):selectionnee;
+        if(zone!=='tutorial')return '';
+        return '<div class="soreal-idle-v138-bag-indice-v1">'+
+          '💡 Double-tapez un objet du sac pour l’équiper (ou le fusionner s’il en existe déjà un identique). '+
+          'Une fois équipé, maintenez la touche A et cliquez dessus (ou double-tapez-le sur mobile) pour lui appliquer vos boosts.'+
+        '</div>';
+      }
+
       function pageInventaireIdleV28_(j){
         const a=aventureMetaIdleV47_(j);
         if(!a||!j.inventaireDebloque){
@@ -19994,6 +20065,7 @@ function pageAventureIdleV28_(j){
               })()+
             '</div>'+
             '<div class="soreal-idle-section-v8" id="soreal-idle-v138-bag-section">'+
+              indiceSacZoneTutorielIdleV1_(a)+
               '<div class="soreal-idle-v138-bag-heading-v165">'+
                 '<div class="soreal-idle-window-title-v31">🎒 Sac ('+utilise+' / '+capacite+')</div>'+
                 rendreTrashAdventureIdleV165_(a.trash)+

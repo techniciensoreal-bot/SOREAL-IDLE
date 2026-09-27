@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.8',
+    courante:'3.9',
     versions:[
+      {
+        version:'3.9',
+        nom:'Petit et bien rangé',
+        date:'2026-09-27',
+        points:[
+          'La fenêtre d’explication se réduit en petite bulle quand tu cliques en dehors : la voix continue de parler, et rien n’est bloqué pendant ce temps. Reclique dessus pour la remettre à sa taille normale.',
+          'Correction : Settings pouvait déborder sur la droite de l’écran sur certains comptes.',
+          'En Zone Tutoriel, une phrase au-dessus du sac rappelle comment équiper, fusionner et booster tes objets.'
+        ]
+      },
       {
         version:'3.8',
         nom:'Silence, on écoute',
