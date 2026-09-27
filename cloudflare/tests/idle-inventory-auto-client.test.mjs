@@ -28,7 +28,7 @@ const t0 = 5_000_000;
 assert.doesNotMatch(html, /4G|Sellout|Loot Filter|Loadout Slot/, "aucun ancien nom anglais / 4G dans les textes de verrou");
 assert.match(html, /Boutique AP/);
   assert.match(html, /🔒 1re complétion du No Equipment Challenge \(menu Challenges\)\./);
-  assert.match(html, /Slots d’automerge : 0 \/ 8/);
+  assert.match(html, /Slots d’automerge · 0 \/ 8/);
   assert.match(html, /Minuteur : <b>1 h 00 min<\/b>/);
 }
 {
@@ -38,8 +38,8 @@ assert.match(html, /Boutique AP/);
   const snap = idleNguSnapshot(s, ctx, t0);
   const html = api.panneau({ systemes: snap });
   assert.doesNotMatch(html, /Achat « Auto Merge »/);
-  assert.match(html, /Slots d’automerge : 1 \/ 8/);
-  assert.match(html, /Configurations d’équipement \(2 \/ 10\)/);
+  assert.match(html, /Slots d’automerge · 1 \/ 8/);
+  assert.match(html, /Configurations d’équipement · 2 \/ 10/);
   assert.match(html, /Casque/);
   /* 2026-09-24 : réglage « consommer les boosts recyclés » (Build History 2018, build .367), coché par défaut. */
   assert.match(html, /<input type="checkbox" checked onchange="window\.__inventaireAutoReglageV1__\('consumeRecycled',this\.checked\)"> ♻️/);

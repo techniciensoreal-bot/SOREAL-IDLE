@@ -48,7 +48,7 @@ assert.match(auto, /window\.__inventaireAutoBasculerV1__=function\(\)\{/);
   }
 }
 assert.match(auto, /var estOuvert=ouvert\(\);/);
-assert.match(auto, /\(estOuvert\?lignes\.join\(''\):''\)/, "les options ne sont rendues que si le panneau est ouvert");
+assert.match(auto, /\(estOuvert\?'<div class="soreal-idle-inv-auto-sections-v1">'\+lignes\.join\(''\)\+'<\/div>':''\)/, "les options ne sont rendues que si le panneau est ouvert");
 assert.match(css, /\.soreal-idle-inv-auto-titre-v1\s*\{/, "même style que le Coffre et Info");
 
 // --- C. Popup au survol (souris) ---
