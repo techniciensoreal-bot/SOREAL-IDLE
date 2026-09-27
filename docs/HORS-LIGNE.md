@@ -27,20 +27,20 @@ qu'on a certains loots, en étant hors ligne. » Sources : miroir local du wiki 
 | Énergie, Magie, Augmentations, Advanced Training, Time Machine, Blood Magic, Yggdrasil, Wandoos, NGU, Beards, Hacks, Wishes, Money Pit / Daily Spin, Cooking, Cards, Daycare, Questing, Auto Merge / Auto Boost (minuteurs) | oui | oui : un seul rattrapage commun `advanceIdleNguState` (temps écoulé depuis la dernière synchronisation) | conforme ; plafond **30 jours** (le wiki n'en donne pas) |
 | Défis 24 Hour / 100 Levels / Troll | pas de hors-ligne | rattrapage plafonné à 60 s | conforme |
 | Basic Training | oui | oui, mais **plafonné à 12 h** (`PROGRESSION_HORS_LIGNE_MAX_SECONDES`) | écart : plafond inventé, différent des autres systèmes |
-| ITOPOD hors ligne | oui, sans y être ; ≥ 650 Power | oui, mais seulement si l'ITOPOD est **actif** (`tower.active`) | écart : NGU ne demande pas d'y être au moment de fermer |
-| Drops MacGuffin de l'ITOPOD (perk) hors ligne | oui, placés dans l'inventaire au retour | compteur MacGuffin alimenté par les kills (`macguffinOnItopodKillsV1`) | à vérifier : dépôt effectif dans l'inventaire |
-| **Titans en Auto-Kill hors ligne** | oui, sans butin | **absent** : l'Auto-Kill est « hors périmètre » (`idle-adventure-v47.js`) | manque |
+| ITOPOD hors ligne | oui, sans y être ; ≥ 650 Power | **corrigé (2026-09-27)** : `tower.active` retiré, exige 650 de Power d'Aventure au total (`ITOPOD_MIN_POWER_V1`) | conforme |
+| Drops MacGuffin de l'ITOPOD (perk) hors ligne | oui, placés dans l'inventaire au retour | **confirmé (2026-09-27)** : `macguffinOnItopodKillsV1` dépose bien dans `systems.macguffins.data.inventory` ; ne s'atteignait pas hors ligne avant le correctif ITOPOD ci-dessus | conforme |
+| **Titans en Auto-Kill hors ligne** | oui, sans butin | **absent** : l'Auto-Kill est « hors périmètre » (`idle-adventure-v47.js`) | manque — bloqué (2026-09-27) : accès à `ngu-idle.fandom.com` refusé par la politique réseau de cet environnement (EGRESS_BLOCKED), impossible de lire les seuils P/T/Regen d'Auto-Kill par titan sans les inventer |
 | Butin d'Aventure hors ligne | jamais | l'Aventure est pilotée par le client (rien hors ligne) | conforme |
 | Butin de boss principal hors ligne | n'existe pas | **existait** (tirage d'objet à chaque victoire, y compris quand le serveur résout un combat en cours) | corrigé aujourd'hui : plus aucun objet de boss (voir `WORKLOG.md`) |
 | Combat de boss principal en cours à la fermeture | non documenté | le serveur continue le combat jusqu'à sa fin (victoire ou défaite) puis s'arrête sur le boss suivant | à confirmer par Norman en jouant les deux jeux |
-| Boost du Cube de l'infini hors ligne | oui | **absent** du rattrapage | manque |
+| Boost du Cube de l'infini hors ligne | oui | **absent** du rattrapage | manque — bloqué (2026-09-27) : page wiki « Boost » à relire pour savoir exactement ce que ce boost mesure avant de coder quoi que ce soit (même accès réseau refusé) |
 | Anciennes mécaniques (AUTO-Aventure hors ligne, mana) | n'existent pas | code présent mais désactivé (`LEGACY_DISABLED`) | à supprimer (voir `AUDIT-CHIFFRES.md`) |
+| Plafond de rattrapage hors ligne de Basic Training | aucun publié | **corrigé (2026-09-27)** : aligné sur 30 jours comme les autres systèmes (`EARLY_GAME_MAX_OFFLINE_SECONDS`), au lieu des 12 h inventées | conforme (par cohérence interne, faute de source) |
 
-## Proposition (rien de ce qui suit n'est fait)
+## Proposition (état au 2026-09-27)
 
-1. Titans en Auto-Kill hors ligne : ajouter le réglage et le rattrapage (EXP / AP / PP, aucun objet) — demande les stats minimales de chaque titan
-   (déjà dans le miroir : pages de titans et *Adventure Mode*).
-2. ITOPOD hors ligne sans être actif : lever la condition `tower.active` et exiger 650 de Power d'Aventure.
-3. Aligner le plafond de Basic Training sur celui des autres systèmes (ou trouver la source d'un plafond réel).
-4. Cube de l'infini : boost calculé hors ligne.
-5. Vérifier le dépôt des MacGuffins de l'ITOPOD dans l'inventaire au retour.
+1. **Fait** — ITOPOD hors ligne sans être actif : `tower.active` retiré, 650 de Power d'Aventure exigés (commit `fix(idle): l'ITOPOD progresse hors ligne sans y être « actif »`).
+2. **Fait** — Basic Training : plafond aligné sur celui des autres systèmes (30 jours) (commit `fix(idle): aligne le plafond hors ligne de Basic Training sur les autres systèmes`).
+3. **Fait** — Vérifié : les MacGuffins de l'ITOPOD sont bien déposés dans l'inventaire au retour (conséquence du correctif n°1, testé dans `idle-itopod-offline-without-active.test.mjs`).
+4. **Non fait, bloqué** — Titans en Auto-Kill hors ligne : demande les seuils P/T/Regen d'Auto-Kill par titan (page *Adventure Mode*, colonne « AutoKill »), jamais lus jusqu'ici (seuls Manual et Idle P/T le sont, `idle-adventure-v47.js` ligne ~508 : « AutoKill hors périmètre de ce correctif »). Accès à `ngu-idle.fandom.com` refusé par la politique réseau de cette session (`EGRESS_BLOCKED`) — à refaire depuis un environnement autorisé à sortir vers ce domaine, ou avec les valeurs relevées manuellement par Norman.
+5. **Non fait, bloqué** — Cube de l'infini : boost calculé hors ligne. Nécessite de relire la page wiki « Boost » pour connaître le mécanisme exact avant d'écrire quoi que ce soit (même blocage réseau que le point 4).
