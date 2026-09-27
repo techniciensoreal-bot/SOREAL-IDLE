@@ -6294,6 +6294,17 @@ function questingEnvV1(state, context) {
   };
 }
 
+/*
+ * Marque filtered:true sur chaque entrée de result.drops dont l'id est listé dans filteredIds
+ * (idleInventoryProcessNewDropsV1) -- le drop reste dans le journal du client (Norman veut le
+ * voir, marqué "(filtré)"), il n'est simplement jamais resté dans l'inventaire réel.
+ */
+function marquerDropsFiltresV1(result, filteredIds) {
+  if (!result || !Array.isArray(result.drops) || !Array.isArray(filteredIds) || !filteredIds.length) return;
+  const ids = new Set(filteredIds.map(String));
+  for (const d of result.drops) if (d && ids.has(String(d.id))) d.filtered = true;
+}
+
 function titanFight(state, context, now) {
   const s = state.systems.titans;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -6331,7 +6342,10 @@ function titanFight(state, context, now) {
   );
   state.adventure = applied.state;
   /* Butin du titan : filtre de butin / cube / transformation automatique (idle-inventory-auto-v1.js). */
-  if (!applied.duplicate) idleInventoryProcessNewDropsV1(state.adventure, idsAvantTitan, inventoryAutoEnvV1(state));
+  if (!applied.duplicate) {
+    const filtrage = idleInventoryProcessNewDropsV1(state.adventure, idsAvantTitan, inventoryAutoEnvV1(state));
+    marquerDropsFiltresV1(applied.result, filtrage.filteredIds);
+  }
   crediterRecompensesAventure(state, avantRecompenses);
 
   const titanState = state.adventure?.titans?.t1 || { kills: 0, nextAt: 0 };
@@ -6485,7 +6499,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     let boostRecycleInv = null;
     if (!applied.duplicate) {
       const invEnv = inventoryAutoEnvV1(state);
-      if (advActionInv === "zoneKill" || advActionInv === "resolveZoneFight" || advActionInv === "titan") idleInventoryProcessNewDropsV1(state.adventure, idsAvantAventure, invEnv);
+      if (advActionInv === "zoneKill" || advActionInv === "resolveZoneFight" || advActionInv === "titan") {
+        const filtrage = idleInventoryProcessNewDropsV1(state.adventure, idsAvantAventure, invEnv);
+        marquerDropsFiltresV1(applied.result, filtrage.filteredIds);
+      }
       boostRecycleInv = idleInventoryManualBoostAfterV1(state.adventure, boostManuelAvant, invEnv);
     }
     /* Expérience, or, AP et progression de PP : voir crediterRecompensesAventure. */

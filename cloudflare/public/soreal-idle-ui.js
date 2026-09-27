@@ -10884,26 +10884,35 @@
       let idleAdventureLogResumeTimerV1_=null;
       const IDLE_ADVENTURE_LOG_RESUME_MS_V1=6000;
 
-      function ajouterLogAventureIdleV1_(type,texte,rareteClasse){
+      /*
+       * critique (2026-09-27, Norman : « Quand on met ou recoit un coup critique ») : suffixe
+       * visuel distinct sur la ligne de dégâts, jamais un type à part -- la ligne garde sa
+       * couleur habituelle (manual/player/enemy), seul "💥 Coup critique !" accroche l'œil.
+       */
+      function ajouterLogAventureIdleV1_(type,texte,rareteClasse,critique){
         const classe=String(rareteClasse||'');
         idleAdventureLogV1.push({
           type:String(type||'system'),
           texte:String(texte||''),
-          rareteClasse:/^idle-loot-rarity-[0-6]$/.test(classe)?classe:''
+          rareteClasse:/^idle-loot-rarity-[0-6]$/.test(classe)?classe:'',
+          critique:Boolean(critique)
         });
         if(idleAdventureLogV1.length>80){
           idleAdventureLogV1.splice(0,idleAdventureLogV1.length-80);
         }
         dessinerJournalAventureIdleV1_();
       }
+      /* Rendu d'une ligne, partagé entre le journal live (dessinerJournalAventureIdleV1_) et le rendu complet de la page Aventure (même markup dupliqué avant ce correctif). */
+      function rendreLigneJournalAventureIdleV1_(l){
+        const suffixeCritique=l.critique?' <span class="soreal-idle-adventure-log-crit-v1">💥 Coup critique !</span>':'';
+        return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+suffixeCritique+'</div>';
+      }
       function dessinerJournalAventureIdleV1_(){
         const host=document.getElementById('sorealIdleAdventureLogV1');
         if(!host)return;
         attacherEcouteurScrollJournalAventureIdleV1_(host);
         host.innerHTML=idleAdventureLogV1.length
-          ?idleAdventureLogV1.map(function(l){
-              return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+'</div>';
-            }).join('')
+          ?idleAdventureLogV1.map(rendreLigneJournalAventureIdleV1_).join('')
           :'<div class="soreal-idle-adventure-log-line-v1 system">Le journal commencera au prochain combat.</div>';
         if(idleAdventureLogAutoScrollV1_)host.scrollTop=host.scrollHeight;
       }
@@ -16704,13 +16713,27 @@ let idleDialogueTimerV76=null;
       }
       window.__basculerIdleModeAdventureIdleV3__=basculerIdleModeAdventureIdleV3_;
 
-      function appliquerHealAdventureIdleV4_(a,fight){
+      /*
+       * Journal de combat, mode manuel (2026-09-27, Norman : « Quand je passe en mode manuel, je
+       * ne vois pas l'indication de mes attaques dans le journal de combat. Je veux une phrase en
+       * verte. "Redrum lance soin" avec explications. ») : def optionnel (le skill qui a déclenché
+       * le soin -- « heal » ou « ohShit ») pour nommer l'action comme les lignes d'attaque le font déjà.
+       */
+      function appliquerHealAdventureIdleV4_(a,fight,def){
         const max=Math.max(0,idleNombre_(fight&&fight.playerHpMax));
         if(fight&&fight.active&&max>0){
+          const avant=idleNombre_(fight.playerHp);
           fight.playerHp=Math.min(
             max,
-            idleNombre_(fight.playerHp)+max*.15
+            avant+max*.15
           );
+          const soigne=Math.round(fight.playerHp-avant);
+          if(soigne>0){
+            ajouterLogAventureIdleV1_(
+              'manual',
+              (idleEtat&&idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Soin')+' : +'+soigne+' PV !'
+            );
+          }
           pousserEtatVersRuntimePartageIdleV1_();
           return true;
         }
@@ -16768,9 +16791,10 @@ let idleDialogueTimerV76=null;
         );
         fight.monsterHp=Math.max(0,avant-degats);
         impactMonstreAdventureIdleV1_();
+        /* Mode manuel, en vert -- distinct du bleu 'player' de l'attaque idle automatique (Norman, 2026-09-27). */
         ajouterLogAventureIdleV1_(
-          'player',
-          (def&&def.label?def.label:'Attaque')+' : '+
+          'manual',
+          (idleEtat&&idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Attaque')+' : '+
           idleEntier_(degats)+' dégâts sur '+
           libelleEnnemiAdventureIdleV1_(fight)+' !'
         );
@@ -16839,7 +16863,7 @@ let idleDialogueTimerV76=null;
         }else if(group==='defense'&&def.id==='defensiveBuff'){
           idleAdventureManualStateV3.defensiveBuffUntil=maintenant+15000;
         }else if(group==='defense'&&def.id==='heal'){
-          appliquerHealAdventureIdleV4_(a,fight);
+          appliquerHealAdventureIdleV4_(a,fight,def);
         }else if(group==='defense'&&def.id==='offensiveBuff'){
           idleAdventureManualStateV3.offensiveBuffUntil=maintenant+15000;
         }else if(group==='defense'&&def.id==='charge'){
@@ -16875,7 +16899,7 @@ let idleDialogueTimerV76=null;
               definitionCompetenceAdventureIdleV3_('ultimateBuff'),a
             );
         }else if(def.id==='ohShit'){
-          appliquerHealAdventureIdleV4_(a,fight);
+          appliquerHealAdventureIdleV4_(a,fight,def);
           appliquerParalyzeAdventureIdleV4_(maintenant);
           appliquerHyperRegenAdventureIdleV4_(a,fight,maintenant);
           idleAdventureManualStateV3.cooldownUntil.heal=
@@ -17636,9 +17660,7 @@ let idleDialogueTimerV76=null;
           '<div class="soreal-idle-section-v8">'+
             '<div id="sorealIdleAdventureLogV1" class="soreal-idle-adventure-log-v1">'+
               (idleAdventureLogV1.length
-                ?idleAdventureLogV1.map(function(l){
-                    return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+'</div>';
-                  }).join('')
+                ?idleAdventureLogV1.map(rendreLigneJournalAventureIdleV1_).join('')
                 :'<div class="soreal-idle-adventure-log-line-v1 system">Le journal commencera au prochain combat.</div>'
               )+
             '</div>'+

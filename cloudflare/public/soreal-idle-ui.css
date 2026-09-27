@@ -5171,6 +5171,18 @@
           .soreal-idle-adventure-log-line-v1.player{color:#9edbff}
           .soreal-idle-adventure-log-line-v1.enemy{color:#f0a6b2}
           .soreal-idle-adventure-log-line-v1.system{color:#dbe5f4;font-weight:800}
+          /*
+           * Couleurs par type d'événement (2026-09-27, Norman : « des couleurs différentes pour
+           * toutes actions différentes. Jaune pour l'or, une autre couleur pour les objets. »).
+           * manual (vert) : action manuelle du joueur (Idle Mode OFF) -- distincte de "player"
+           * (bleu, réservé à l'attaque idle automatique) pour qu'on voie tout de suite qu'une
+           * ligne vient d'un clic, pas du pilote automatique.
+           */
+          .soreal-idle-adventure-log-line-v1.manual{color:#7ee787}
+          .soreal-idle-adventure-log-line-v1.gold{color:#f0d38b}
+          .soreal-idle-adventure-log-line-v1.loot{color:#e2b699}
+          /* Coup critique (donné ou reçu) : la ligne de dégâts reste de sa couleur habituelle (manual/player/enemy), seul ce suffixe accroche l'œil. */
+          .soreal-idle-adventure-log-crit-v1{color:#ff9d4d;font-weight:900}
           .soreal-idle-adventure-manual-v3{margin:6px 0 8px;display:grid;gap:6px}
           .soreal-idle-adventure-idle-toggle-v3{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(166,188,229,.18);border-radius:12px;background:linear-gradient(180deg,#26344f,#182236);color:#dce5f3;font:800 12px/1 "Segoe UI Variable Text","Segoe UI",system-ui;cursor:pointer}
           .soreal-idle-adventure-idle-toggle-v3 b{min-width:38px;padding:5px 7px;border-radius:999px;background:#8b2635;color:#fff;font-variant-numeric:tabular-nums}

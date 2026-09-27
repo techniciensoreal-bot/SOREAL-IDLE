@@ -274,16 +274,21 @@
                       const classeLog=rarete
                         ?rarete.replace('idle-rarity-','idle-loot-rarity-')
                         :'';
+                      /*
+                       * (filtré) (2026-09-27, Norman : « Quand un objet tombe et que le filtre est activé pour ce type de pièce,
+                       * le journal de combat doit indiqué (filtré) à côté de l'objet. ») : marqué serveur (idle-inventory-auto-v1.js,
+                       * idleInventoryProcessNewDropsV1) -- l'objet est bien apparu, mais n'est jamais resté dans le sac.
+                       */
                       window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
-                        'system',
-                        (objet&&(objet.name||objet.nom)||'Un objet')+' obtenu !',
+                        'loot',
+                        (objet&&(objet.name||objet.nom)||'Un objet')+' obtenu !'+(objet&&objet.filtered?' (filtré)':''),
                         classeLog
                       );
                     });
                   }
                   if(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.gold)>0){
                     window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
-                      'system',
+                      'gold',
                       '+ '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.gold)+' or ! Chouette !'
                     );
                   }
