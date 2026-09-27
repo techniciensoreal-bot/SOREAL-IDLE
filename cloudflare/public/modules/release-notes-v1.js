@@ -8,8 +8,21 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.5',
+    courante:'3.6',
     versions:[
+      {
+        version:'3.6',
+        nom:'Clic, clic, boss !',
+        date:'2026-09-27',
+        points:[
+          'En Fight Boss, la régénération de PV affichée à côté des barres de vie n’a plus de chiffre après la virgule.',
+          'Le portrait du joueur en Fight Boss a maintenant des coins arrondis, comme celui du boss.',
+          'Le prochain boss apparaît plus vite après une victoire.',
+          'Les voix des boss se relancent bien après une réinitialisation complète de la partie.',
+          'La narration du boss « Une Petite Souris » a été retouchée.',
+          'Deux parties de comparaison pendant le développement (invisibles pour les joueurs) sont de retour.'
+        ]
+      },
       {
         version:'3.5',
         nom:'Ça tinte',
