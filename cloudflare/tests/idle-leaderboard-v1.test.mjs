@@ -30,15 +30,18 @@ const sebastien = { email: "hodappsebastien@gmail.com", emailConnexion: "hodapps
 const sansTrophee = { email: "sans.trophee@example.com", emailConnexion: "sans.trophee@example.com", emails: ["sans.trophee@example.com"], prenom: "Sans", idleTrophee: false };
 const op = (nom, user, ...args) => runSorealIdleOperation(sql, nom, ["x", ...args], user);
 
-// Interrupteur d'accès (2026-09-25) : par défaut fermé, plus d'accès spécial pour Sébastien ; l'administrateur l'ouvre depuis les Paramètres
+// Interrupteur d'accès (2026-09-25) : par défaut fermé pour les autres comptes ; l'administrateur l'ouvre depuis les Paramètres.
+// 2026-09-27 (Norman) : revirement -- Sébastien redevient un compte à accès permanent (EMAILS_DEVELOPPEMENT), qui ne dépend plus du tout
+// de cet interrupteur ni du trophée. Il n'est cependant toujours pas l'administrateur (ADMIN_SOREAL_IDLE_EMAIL reste réservé à Norman) :
+// il a désormais accès au jeu (ACCES_REFUSE ne se déclenche plus pour lui), mais pas le droit de manier l'interrupteur (ADMIN_REQUIS).
 const acces = (user) => runSorealIdleOperation(sql, "obtenirAccesSorealIdle", ["x"], user);
 assert.equal(acces(norman).autorise, true, "administrateur : toujours autorisé");
-assert.equal(acces(sebastien).autorise, false, "Sébastien n'a plus d'accès spécial : accès fermé par défaut");
-assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, true), /ACCES_REFUSE/);
+assert.equal(acces(sebastien).autorise, true, "Sébastien : accès permanent d'office, quel que soit l'état de l'interrupteur ou du trophée");
+assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, true), /ADMIN_REQUIS/);
 const etatNorman = op("obtenirEtatSorealIdle", norman).joueur;
 assert.deepEqual({ ...etatNorman.reglages }, { accesOuvert: false, accesPublic: false }, "réglage visible de l'administrateur, fermé par défaut");
 assert.equal(op("definirAccesOuvertSorealIdle", norman, true).accesOuvert, true);
-assert.equal(acces(sebastien).autorise, true, "accès ouvert : le détenteur du trophée Assiduité de bronze est autorisé, comme les autres");
+assert.equal(acces(sebastien).autorise, true, "toujours autorisé (accès permanent, indépendant de l'interrupteur qu'on vient d'ouvrir ici)");
 assert.equal(acces(sansTrophee).autorise, false, "accès ouvert mais pas de trophée : pas d'accès");
 assert.equal(acces(Object.assign({}, sansTrophee, { idleTrophee: "true" })).autorise, false, "seul le drapeau booléen posé par TV compte");
 const etatSeb = op("obtenirEtatSorealIdle", sebastien).joueur;
@@ -118,10 +121,11 @@ const r = op("definirOrdreMenusSorealIdle", norman, ["combat", "entrainement", "
 assert.deepEqual(r.menuOrdre, ["combat", "entrainement", "classement"], "identifiants valides, sans doublon");
 assert.deepEqual(op("obtenirEtatSorealIdle", norman).joueur.profil.stats.menuOrdre, ["combat", "entrainement", "classement"]);
 
-// Fermer l'accès le cache à tout le monde (sauf à l'administrateur)
+// Fermer l'accès le cache aux comptes qui en dépendaient (sauf à l'administrateur et à Sébastien, tous deux permanents)
 assert.equal(op("definirAccesOuvertSorealIdle", norman, false).accesOuvert, false);
-assert.equal(acces(sebastien).autorise, false, "accès fermé : caché à tout le monde");
-assert.throws(() => op("obtenirEtatSorealIdle", sebastien), /ACCES_REFUSE/);
+assert.equal(acces(inconnu).autorise, false, "accès fermé : caché à un compte qui ne dépendait que de l'interrupteur + trophée");
+assert.throws(() => op("obtenirEtatSorealIdle", inconnu), /ACCES_REFUSE/);
 assert.equal(acces(norman).autorise, true, "l'administrateur garde son accès");
+assert.equal(acces(sebastien).autorise, true, "Sébastien garde son accès permanent même l'interrupteur fermé");
 
 console.log("idle-leaderboard-v1: OK");

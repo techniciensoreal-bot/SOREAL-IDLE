@@ -134,14 +134,18 @@ const {
 
 
 
-// Accès privé : deux personnes seulement (Norman a deux alias e-mail).
+// Accès privé : Norman (deux alias e-mail) et Sébastien (trois alias e-mail, accès d'office depuis le 2026-09-27).
 {
   assert.deepEqual(
     emailsAutorisesSorealIdle_().sort(),
     [
-      /* 2026-09-25 : plus d'accès spécial pour Sébastien, il passe par l'interrupteur « accès ouvert » comme les autres comptes. */
       "reeeedruuuum@gmail.com",
-      "technicien.soreal@gmail.com"
+      "technicien.soreal@gmail.com",
+      /* 2026-09-27 (Norman) : revirement sur la décision du 2026-09-25 ci-dessus -- Sébastien a de nouveau un accès permanent, quel que
+         soit l'état du trophée « Assiduité de bronze » ou de l'interrupteur « accès ouvert ». */
+      "hodappsebastien@gmail.com",
+      "distribution.soreal@gmail.com",
+      "distribution.soreal@rsumb.be"
     ].sort()
   );
 }

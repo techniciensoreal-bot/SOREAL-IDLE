@@ -545,16 +545,25 @@ const CONFIG_SOREAL_IDLE = {
   /*
    * SOREAL IDLE reste strictement privé.
    * Norman possède deux adresses historiques de connexion ; elles désignent
-   * la même personne. Sébastien HODDAP est le seul autre joueur autorisé.
+   * la même personne.
    */
   /*
    * 2026-09-25 (Norman) : « enlève l'accès spécial à Sébastien ; il doit avoir l'accès de la même manière que les autres, avec le bouton
    * activé ». Seuls les deux comptes de Norman gardent un accès permanent ; tous les autres comptes connectés (APP / TV) passent par
    * l'interrupteur « accès ouvert » des Paramètres (voir accesOuvertSorealIdle_).
+   *
+   * 2026-09-27 (Norman) : « Sébastien n'a plus l'accès au jeu... Lui a l'accès d'office » — revirement explicite sur la décision du
+   * 2026-09-25 ci-dessus : Sébastien redevient un compte à accès permanent, qui ne dépend plus du trophée « Assiduité de bronze » ni de
+   * l'interrupteur « accès ouvert ». Ses trois adresses connues (voir planning-trophy-alarm-entry-v1.js côté SOREAL-TV, où elles sont
+   * déjà mises en alias entre elles pour la recherche du trophée) sont toutes listées ici pour couvrir chaque façon dont sa session peut
+   * se présenter.
    */
   EMAILS_DEVELOPPEMENT: [
     'reeeedruuuum@gmail.com',
-    'technicien.soreal@gmail.com'
+    'technicien.soreal@gmail.com',
+    'hodappsebastien@gmail.com',
+    'distribution.soreal@gmail.com',
+    'distribution.soreal@rsumb.be'
   ],
 
   COLONNES_JOUEURS: {
