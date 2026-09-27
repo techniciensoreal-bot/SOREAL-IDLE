@@ -646,8 +646,15 @@ const CONFIG_SOREAL_IDLE = {
   INVENTAIRE_CAPACITE_BASE: 18,
   INVENTAIRE_CAPACITE_MAX: 90,
 
+  /*
+   * 2026-09-27 (docs/HORS-LIGNE.md, proposition 3) : le wiki ne publie aucun plafond de
+   * rattrapage hors ligne pour Basic Training (contrairement au 12 h qui vivait ici avant,
+   * inventé -- docs/AUDIT-CHIFFRES.md). Aligné sur le seul plafond réellement utilisé
+   * ailleurs par le moteur (EARLY_GAME_MAX_OFFLINE_SECONDS, idle-ngu-progression.js), 30
+   * jours, plutôt que de garder un nombre à part sans source.
+   */
   PROGRESSION_HORS_LIGNE_MAX_SECONDES:
-    12 * 60 * 60
+    30 * 24 * 60 * 60
 };
 
 
