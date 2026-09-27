@@ -68,11 +68,17 @@
        * que boost/merge (juste appliquée en masse) ; transformBoost ne change que l'objet boost affiché
        * dans le sac, jamais l'équipement -- aucune catégorie de patch supplémentaire n'est donc nécessaire
        * pour lui (patchResumeInventaireIdleV160_/patchGrilleSacInventaireIdleV160_ suffisent, toujours
-       * appliquées sans condition par patchInventaireAdventureIdleV160_). Les autres modes (réglages,
-       * filtre de butin, configurations d'équipement) ne touchent jamais la grille du sac : ils gardent
-       * le rendu complet, inchangé.
+       * appliquées sans condition par patchInventaireAdventureIdleV160_).
+       *
+       * 2026-09-27 (Norman, à nouveau : « quand on coche un filtre... il y a un effet de clignotement ») : les modes
+       * réglages (settings) et filtre de butin (lootFilterType/lootFilterItem) ne touchent jamais la grille du sac
+       * NI l'équipement, mais retombaient pourtant sur le même rendu complet que le reste -- leur panneau
+       * (« Automatisation de l'inventaire ») ne vit QUE sur la page Aventure (ancré au sac), donc jamais affiché tant
+       * que ce n'est pas le menu actif : mêmes conditions de sécurité que boostAll/mergeAll/transformBoost, ajoutés
+       * ici pour la même raison. Les configurations d'équipement (loadoutSave/loadoutApply) restent au rendu complet :
+       * elles rééquipent potentiellement toute la tenue, donc changent réellement la grille/l'équipement affiché.
        */
-      var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1={boostAll:'boost',mergeAll:'merge',transformBoost:''};
+      var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1={boostAll:'boost',mergeAll:'merge',transformBoost:'',settings:'',lootFilterType:'',lootFilterItem:''};
       function actionPatchInventaireAutoV1_(payload){
         if(!payload||payload.action!=='inventoryAuto')return null;
         const mode=String(payload.mode||'');
@@ -330,6 +336,26 @@
                     (nomsSystemesDeblocageV1[res.resultat.flag]||res.resultat.flag)+
                     ' débloqué !'
                   );
+                }
+
+                /*
+                 * Norman (2026-09-27) : « Quand on balance son argent dans le money pit, il n'y a pas de son. ni quand on
+                 * tourne la roue. ils doivent avoir leurs propres sons. » Joué dès l'action elle-même, jamais conditionné
+                 * à l'obtention d'un lot (res.resultat.reward peut être vide un tour sur deux).
+                 */
+                if(payload&&payload.action==='moneyPit'){
+                  try{
+                    if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.moneyPit==='function'){
+                      window.__SOREAL_IDLE_AUDIO_V199__.moneyPit();
+                    }
+                  }catch(_e){}
+                }
+                if(payload&&payload.action==='collect'&&payload.system==='dailySpin'){
+                  try{
+                    if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.dailySpin==='function'){
+                      window.__SOREAL_IDLE_AUDIO_V199__.dailySpin();
+                    }
+                  }catch(_e){}
                 }
 
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-297 */
@@ -1099,13 +1125,13 @@
         const n=function(k){return Math.max(0,Number(t[k])||0);};
         const f=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
         const lignes=[];
-        if(n('adventureStats'))lignes.push('⚔️ +'+f(n('adventureStats'))+' Power et Toughness d’Aventure');
+        if(n('adventureStats'))lignes.push('⚔️ +'+f(n('adventureStats'))+' Puissance et Endurance d’Aventure');
         if(n('adventureHp'))lignes.push('❤️ +'+f(n('adventureHp'))+' PV max d’Aventure');
-        if(n('adventureRegen'))lignes.push('🩹 +'+f(n('adventureRegen'),2)+' Regen d’Aventure');
+        if(n('adventureRegen'))lignes.push('🩹 +'+f(n('adventureRegen'),2)+' Regen PV d’Aventure');
         if(n('cubePower')||n('cubeToughness')||n('cubeBoth')){
           const morceaux=[];
-          if(n('cubePower'))morceaux.push('+'+f(n('cubePower'))+' Power');
-          if(n('cubeToughness'))morceaux.push('+'+f(n('cubeToughness'))+' Toughness');
+          if(n('cubePower'))morceaux.push('+'+f(n('cubePower'))+' Puissance');
+          if(n('cubeToughness'))morceaux.push('+'+f(n('cubeToughness'))+' Endurance');
           if(n('cubeBoth'))morceaux.push('+'+f(n('cubeBoth'))+' des deux');
           lignes.push('🧊 Cube : '+morceaux.join(' · '));
         }
@@ -1645,29 +1671,31 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const morceaux=[];
         const reward=entree.reward&&typeof entree.reward==='object'?entree.reward:{};
         if(entree.boost){
+          const typeBoost=String(entree.boost.type||'');
+          const nomBoost=typeBoost==='power'?'Puissance':(typeBoost==='toughness'?'Endurance':(typeBoost==='special'?'Spécial':typeBoost));
           morceaux.push(
-            'Boost '+String(entree.boost.type||'')+
+            'Boost '+nomBoost+
             ' +'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(entree.boost.strength||0)
           );
         }
         if(reward.adventureStats){
           morceaux.push(
             '+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventureStats)+
-            ' Power/Toughness Aventure'
+            ' Puissance/Endurance Aventure'
           );
         }
         if(reward.adventureHp){
           morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventureHp)+' PV max Aventure');
         }
         if(reward.adventureRegen){
-          morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventureRegen,2)+' regen Aventure');
+          morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventureRegen,2)+' Regen PV Aventure');
         }
         if(reward.ap)morceaux.push(window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.ap)+' AP');
         if(reward.experience)morceaux.push(window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.experience)+' EXP');
         if(reward.seeds)morceaux.push(window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.seeds)+' graines');
-        if(reward.cubePower)morceaux.push('+'+reward.cubePower+' Cube Power');
-        if(reward.cubeToughness)morceaux.push('+'+reward.cubeToughness+' Cube Toughness');
-        if(reward.cubeBoth)morceaux.push('+'+reward.cubeBoth+' Cube Power et Toughness');
+        if(reward.cubePower)morceaux.push('+'+reward.cubePower+' Cube Puissance');
+        if(reward.cubeToughness)morceaux.push('+'+reward.cubeToughness+' Cube Endurance');
+        if(reward.cubeBoth)morceaux.push('+'+reward.cubeBoth+' Cube Puissance et Endurance');
         if(reward.wandoosLevels)morceaux.push('+'+reward.wandoosLevels+' niveau(x) Wandoos');
         if(reward.items){
           const NOMS={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'crottin (sans effet)',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
@@ -1718,7 +1746,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const choisir=function(a,b){return variante?b:a;};
         if(entree&&entree.boost){
           const type=String(entree.boost.type||'');
-          const nom=type==='power'?'Power':(type==='toughness'?'Toughness':(type==='special'?'Spécial':type));
+          const nom=type==='power'?'Puissance':(type==='toughness'?'Endurance':(type==='special'?'Spécial':type));
           return 'Le Puits rote et recrache un Boost '+nom+' '+nb(entree.boost.strength||0)+' !';
         }
         if(reward.seeds){
@@ -1730,7 +1758,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         }
         if(Object.prototype.hasOwnProperty.call(reward,'wandoosLevels')&&!reward.wandoosLevels)return 'Le Puits rote… et ça sent affreusement mauvais.';
         if(reward.wandoosLevels)return choisir('Le Puits rote et ça sent le vieil ordinateur : +'+reward.wandoosLevels+' niveau(x) Wandoos !','Le Puits ronronne comme un vieux disque dur : +'+reward.wandoosLevels+' niveau(x) Wandoos !');
-        if(reward.adventureStats)return choisir('Le Puits rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventureStats)+' Power et Toughness !','Le Puits vous crache de la force brute sur les bottes : +'+nb(reward.adventureStats)+' Power et Toughness !');
+        if(reward.adventureStats)return choisir('Le Puits rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventureStats)+' Puissance et Endurance !','Le Puits vous crache de la force brute sur les bottes : +'+nb(reward.adventureStats)+' Puissance et Endurance !');
         if(reward.adventureHp)return choisir('Le Puits gargouille et vous gonfle les muscles : +'+nb(reward.adventureHp)+' PV max !','Le Puits hoquette et vous voilà bien plus solide : +'+nb(reward.adventureHp)+' PV max !');
         if(reward.adventureRegen)return choisir('Le Puits soupire un air tiède qui referme vos petits bobos : +'+nb(reward.adventureRegen,2)+' de régénération !','Le Puits tousse un nuage réparateur : +'+nb(reward.adventureRegen,2)+' de régénération !');
         if(reward.cubePower||reward.cubeToughness||reward.cubeBoth)return choisir('Le Puits crache un truc brillant qui se met à vibrer dans votre sac !','Le Puits rote et quelque chose de mystérieux se met à briller de bonheur !');

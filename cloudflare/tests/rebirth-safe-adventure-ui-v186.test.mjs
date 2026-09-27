@@ -65,11 +65,11 @@ assert.doesNotMatch(
 // Adventure stat cards: one row, label left, complete value on right.
 assert.match(
   scene,
-  /data-player-stat="power"><span class="soreal-idle-v79-stat-label">Power<\/span><span class="soreal-idle-v79-stat-value">/
+  /data-player-stat="power"><span class="soreal-idle-v79-stat-label">Puissance<\/span><span class="soreal-idle-v79-stat-value">/
 );
 assert.match(
   scene,
-  /data-player-stat="toughness"><span class="soreal-idle-v79-stat-label">Toughness<\/span><span class="soreal-idle-v79-stat-value">/
+  /data-player-stat="toughness"><span class="soreal-idle-v79-stat-label">Endurance<\/span><span class="soreal-idle-v79-stat-value">/
 );
 assert.match(scene,/justify-content:space-between/);
 assert.match(scene,/\.soreal-idle-v79-stat-value\{[^}]*justify-content:flex-end[^}]*white-space:nowrap[^}]*text-align:right/);

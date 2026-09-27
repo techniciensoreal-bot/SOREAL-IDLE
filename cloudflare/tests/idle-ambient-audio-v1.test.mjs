@@ -52,8 +52,9 @@ function fabriquer(volumeApi, cles) {
   const filesRaf = [];
   const fakeRaf = (fn) => { filesRaf.push(fn); return filesRaf.length; };
   const window = { __SOREAL_IDLE_AUDIO_VOLUME_V1__: volumeApi };
+  const fakeDocument = { addEventListener() {} };
   vm.runInNewContext(src, {
-    window, fetch: fakeFetch, Audio: FakeAudio,
+    window, document: fakeDocument, fetch: fakeFetch, Audio: FakeAudio,
     setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout,
     requestAnimationFrame: fakeRaf, Date: FakeDate, Math, Promise, Array, Boolean, encodeURIComponent
   });
@@ -213,7 +214,42 @@ function fabriquerAvecAnalyse(volumeApi, cles, options) {
   const rms = options.rms == null ? 0.01 : options.rms;
   const channel = new Float32Array(1000).fill(rms);
   const fakeAudioBuffer = { numberOfChannels: 1, getChannelData: () => channel };
-  const fakeCtx = { decodeAudioData: async () => fakeAudioBuffer };
+
+  /*
+   * GainNode/MediaElementAudioSourceNode factices (2026-09-27, correctif « les sons trop faibles doivent être
+   * augmentés ») : un vrai GainNode peut porter un gain > 1 (amplification réelle), contrairement à `.volume`
+   * (0 à 1 seulement) -- ces classes tracent les gains appliqués/ramper pour que le test puisse vérifier une
+   * vraie amplification, pas seulement une atténuation moins sévère.
+   */
+  class FakeGainNode {
+    constructor(ctx) {
+      this.context = ctx;
+      const self = this;
+      this.gain = {
+        value: 1,
+        setValueAtTime(v) { self.gain.value = v; },
+        linearRampToValueAtTime(v) { self.gain.value = v; },
+        cancelScheduledValues() {}
+      };
+      this.connections = [];
+    }
+    connect(dest) { this.connections.push(dest); }
+    disconnect() { this.connections = []; }
+  }
+  class FakeMediaElementSource {
+    constructor(audio) { this.audio = audio; this.connections = []; }
+    connect(dest) { this.connections.push(dest); }
+  }
+  const gainNodesCrees = [];
+  const fakeCtx = {
+    currentTime: 0,
+    state: options.suspenduSansGeste ? "suspended" : "running",
+    resume() { fakeCtx.state = "running"; return Promise.resolve(); },
+    destination: {},
+    decodeAudioData: async () => fakeAudioBuffer,
+    createMediaElementSource: (audio) => new FakeMediaElementSource(audio),
+    createGain() { const g = new FakeGainNode(fakeCtx); gainNodesCrees.push(g); return g; }
+  };
   const FakeAudioContext = function () { return fakeCtx; };
   const stockLocal = new Map();
   const fakeLocalStorage = {
@@ -224,9 +260,10 @@ function fabriquerAvecAnalyse(volumeApi, cles, options) {
   const FakeDate = { now: () => horloge };
   const filesRaf = [];
   const fakeRaf = (fn) => { filesRaf.push(fn); return filesRaf.length; };
+  const fakeDocument = { addEventListener() {} };
   const window = { __SOREAL_IDLE_AUDIO_VOLUME_V1__: volumeApi, AudioContext: options.sansAudioContext ? undefined : FakeAudioContext };
   vm.runInNewContext(src, {
-    window, fetch: fakeFetch, Audio: FakeAudio, localStorage: fakeLocalStorage,
+    window, document: fakeDocument, fetch: fakeFetch, Audio: FakeAudio, localStorage: fakeLocalStorage,
     setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout,
     requestAnimationFrame: fakeRaf, Date: FakeDate, Math, Promise, Array, Boolean, Object, Float32Array, encodeURIComponent
   });
@@ -235,15 +272,20 @@ function fabriquerAvecAnalyse(volumeApi, cles, options) {
     const file = filesRaf.splice(0, filesRaf.length);
     file.forEach((fn) => fn());
   }
-  return { api: window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__, timers, appelsFetch, instances: FakeAudio.instances, terminerFondus, stockLocal };
+  return { api: window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__, timers, appelsFetch, instances: FakeAudio.instances, terminerFondus, stockLocal, gainNodesCrees, fakeCtx };
 }
 
-// --- Un fichier trop faible (RMS très inférieur à la cible) est compensé par un gain > 1, sans jamais dépasser 1 (borne HTMLMediaElement.volume). ---
+/*
+ * Norman (2026-09-27, correctif) : « il faut que les sons trop faibles soient augmentés et que les sons trop
+ * forts soient diminués. Je veux vraiment qu'on ne remarque pas de différence de son. » `.volume` ne peut
+ * qu'atténuer (0 à 1) -- un fichier réellement faible doit être VRAIMENT amplifié (gain > 1) via un GainNode Web
+ * Audio, jamais seulement "moins coupé" en plafonnant `.volume` à 1.
+ */
 {
   const originalRandom = Math.random;
   Math.random = () => 0.99;
   try {
-    const { api, timers, instances, terminerFondus } = fabriquerAvecAnalyse(volumeApiFactice(0.9), undefined, { rms: 0.01 });
+    const { api, timers, instances, terminerFondus, gainNodesCrees } = fabriquerAvecAnalyse(volumeApiFactice(0.9), undefined, { rms: 0.01 });
     api.verifier(true);
     timers.slice().forEach((t) => t.fn());
     await attendre();
@@ -251,8 +293,29 @@ function fabriquerAvecAnalyse(volumeApi, cles, options) {
     await attendre();
     terminerFondus();
     assert.equal(instances.length, 1);
-    assert.ok(instances[0].volume > 0.9, "fichier faible -> compensé au-dessus du volume ambiance brut");
-    assert.ok(instances[0].volume <= 1, "jamais au-dessus de 1 (HTMLMediaElement.volume ne l'accepte pas)");
+    assert.equal(instances[0].volume, 0.9, "`.volume` ne porte plus que le curseur Ambiance, jamais la compensation");
+    assert.equal(gainNodesCrees.length, 1, "un GainNode Web Audio doit être créé pour la piste");
+    assert.ok(gainNodesCrees[0].gain.value > 1, "fichier faible -> vraiment amplifié (gain > 1 sur le GainNode, pas juste moins atténué)");
+    assert.ok(gainNodesCrees[0].connections.length >= 1, "le GainNode doit être connecté à la destination audio");
+  } finally {
+    Math.random = originalRandom;
+  }
+}
+
+// --- Un fichier trop fort (RMS très supérieur à la cible) est réduit (gain < 1 sur le GainNode). ---
+{
+  const originalRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    const { api, timers, terminerFondus, gainNodesCrees } = fabriquerAvecAnalyse(volumeApiFactice(0.5), undefined, { rms: 0.9 });
+    api.verifier(true);
+    timers.slice().forEach((t) => t.fn());
+    await attendre();
+    terminerFondus();
+    await attendre();
+    terminerFondus();
+    assert.equal(gainNodesCrees.length, 1);
+    assert.ok(gainNodesCrees[0].gain.value < 1, "fichier trop fort -> réduit (gain < 1)");
   } finally {
     Math.random = originalRandom;
   }

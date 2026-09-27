@@ -18,6 +18,15 @@
  * un gain individuel pour viser une sonie cible commune -- le curseur "Ambiance" des Paramètres règle ensuite le
  * niveau global par-dessus, identique pour tous les fichiers. Le gain calculé est mémorisé (clé R2 -> gain) en
  * localStorage : jamais recalculé au fichier suivant les fois d'après, sur ce navigateur.
+ *
+ * Correctif 2026-09-27 (même jour, Norman : « il faut que les sons trop faibles soient augmentés et que les sons
+ * trop forts soient diminués. Je veux vraiment qu'on ne remarque pas de différence de son. ») : `<audio>.volume`
+ * ne peut QU'ATTÉNUER (0 à 1, jamais au-delà du niveau natif du fichier) -- un fichier trop faible calculait bien
+ * un gain > 1, mais `Math.min(1, v*gain)` l'empêchait de jamais dépasser le volume déjà réglé par le curseur : le
+ * fichier restait perceptiblement plus faible, jamais réellement amplifié. La compensation passe donc par un
+ * GainNode Web Audio (MediaElementAudioSourceNode -> GainNode -> destination), qui peut réellement multiplier le
+ * signal au-delà de 1 -- `<audio>.volume` ne sert plus qu'au curseur "Ambiance" et au fondu, jamais à la
+ * compensation elle-même.
  */
 (function(){
   'use strict';
@@ -29,7 +38,9 @@
     {id:'principal',probabiliteSilence:0.08}
   ];
   var GAIN_CLE_PREFIX_V1='soreal_idle_ambient_gain_v1:';
-  var GAIN_MIN_V1=0.3,GAIN_MAX_V1=2.5,GAIN_CIBLE_RMS_V1=0.15;
+  /* Plage élargie (2026-09-27) : un GainNode Web Audio peut réellement amplifier (contrairement à `.volume`),
+     donc un fichier très faible peut désormais être vraiment ramené au niveau cible, pas seulement "moins coupé". */
+  var GAIN_MIN_V1=0.2,GAIN_MAX_V1=5,GAIN_CIBLE_RMS_V1=0.15;
 
   var cles=null;
   var chargementEnCours=null;
@@ -69,6 +80,22 @@
     try{ctxAnalyse_=new AC();}catch(_){ctxAnalyse_=null;}
     return ctxAnalyse_;
   }
+
+  /*
+   * Même AudioContext que l'analyse, réutilisé pour la lecture (source -> GainNode -> destination) : c'est ce
+   * GainNode, jamais `.volume`, qui applique la compensation de sonie (peut dépasser 1, contrairement à `.volume`).
+   * Un AudioContext démarre suspendu tant qu'aucun geste utilisateur n'a eu lieu -- débloqué au même titre que le
+   * reste de l'audio du jeu (audio-effects-v199.js).
+   */
+  function debloquerContexteLecture_(){
+    var ctx=ctxAnalyse_lazy_();
+    if(ctx&&ctx.state==='suspended'){
+      try{ctx.resume();}catch(_){}
+    }
+  }
+  document.addEventListener('pointerdown',debloquerContexteLecture_,{capture:true,passive:true});
+  document.addEventListener('touchstart',debloquerContexteLecture_,{capture:true,passive:true});
+  document.addEventListener('click',debloquerContexteLecture_,{capture:true,passive:true});
 
   function gainConnu_(cle){
     if(Object.prototype.hasOwnProperty.call(gains_,cle))return gains_[cle];
@@ -112,8 +139,10 @@
       .catch(function(){return 1;});
   }
 
+  /* Fondu du volume de base (curseur "Ambiance" + entrée/sortie de piste) : jamais la compensation de sonie,
+     qui vit dans le GainNode et ne doit pas se remettre à zéro à chaque changement de curseur. */
   function fondu_(audio,cible,duree){
-    var debut=Date.now(),depart=0;
+    var debut=Date.now(),depart=audio?audio.volume:0;
     function pas(){
       if(!audio||audio.paused)return;
       var t=Math.min(1,(Date.now()-debut)/duree);
@@ -121,6 +150,36 @@
       if(t<1)requestAnimationFrame(pas);
     }
     pas();
+  }
+
+  /* Rampe douce du GainNode de compensation (jamais un saut brusque, même quand le gain change après coup). */
+  function ramperGain_(gainNode,cible,dureeSec){
+    if(!gainNode)return;
+    try{
+      var ctx=gainNode.context;
+      var maintenant=ctx.currentTime;
+      gainNode.gain.cancelScheduledValues(maintenant);
+      gainNode.gain.setValueAtTime(gainNode.gain.value,maintenant);
+      gainNode.gain.linearRampToValueAtTime(Math.max(0,cible),maintenant+Math.max(.05,dureeSec));
+    }catch(_){}
+  }
+
+  /* Relie l'élément <audio> à un GainNode Web Audio pour permettre une vraie amplification (au-delà de 1),
+     jamais possible avec `.volume` seul. Repli : lecture directe (comme avant), compensation coupée au max à 1. */
+  function relierGainLecture_(audio){
+    var ctx=ctxAnalyse_lazy_();
+    if(!ctx)return null;
+    try{
+      debloquerContexteLecture_();
+      var source=ctx.createMediaElementSource(audio);
+      var gainNode=ctx.createGain();
+      gainNode.gain.value=1;
+      source.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      return gainNode;
+    }catch(_){
+      return null;
+    }
   }
 
   function planifierSuivant_(slot){
@@ -150,6 +209,8 @@
       slot.cle=cle;
       var gainConnuAvant=gainConnu_(cle);
       slot.gain=gainConnuAvant!=null?gainConnuAvant:1;
+      slot.gainNode=relierGainLecture_(audio);
+      if(slot.gainNode)slot.gainNode.gain.value=slot.gain;
       audio.onended=function(){
         if(slot.audio!==audio)return;
         slot.audio=null;
@@ -172,16 +233,19 @@
           slot.minuterie=setTimeout(function(){slot.minuterie=0;jouerSuivant_(slot);},2000);
         });
       }
-      fondu_(audio,Math.min(1,volumeAmbiance_()*slot.gain),FADE_MS);
+      /* Repli sans Web Audio (createMediaElementSource indisponible/refusé) : la compensation ne peut plus
+         qu'atténuer, comme avant ce correctif -- toujours mieux qu'aucune compensation. */
+      fondu_(audio,slot.gainNode?volumeAmbiance_():Math.min(1,volumeAmbiance_()*slot.gain),FADE_MS);
       /* Fichier jamais encore analysé : analyse en tâche de fond (n'attend jamais avant de démarrer la lecture),
-         corrige le volume EN DOUCEUR si ce même fichier joue encore une fois le gain connu, et le mémorise pour
-         toutes les prochaines lectures (sur ce navigateur). */
+         corrige la compensation EN DOUCEUR (rampe du GainNode, jamais un saut) si ce même fichier joue encore une
+         fois le gain connu, et le mémorise pour toutes les prochaines lectures (sur ce navigateur). */
       if(gainConnuAvant==null){
         analyserGain_(url).then(function(gain){
           enregistrerGain_(cle,gain);
           if(slot.audio===audio&&slot.cle===cle){
             slot.gain=gain;
-            fondu_(audio,Math.min(1,volumeAmbiance_()*gain),800);
+            if(slot.gainNode)ramperGain_(slot.gainNode,gain,.8);
+            else fondu_(audio,Math.min(1,volumeAmbiance_()*gain),800);
           }
         });
       }
@@ -191,7 +255,9 @@
   function appliquerVolume_(){
     var v=volumeAmbiance_();
     slots.forEach(function(slot){
-      if(slot.audio)slot.audio.volume=Math.min(1,v*(slot.gain||1));
+      if(!slot.audio)return;
+      /* Le GainNode porte déjà la compensation : le curseur ne règle plus que le volume de base de l'élément. */
+      slot.audio.volume=slot.gainNode?v:Math.min(1,v*(slot.gain||1));
     });
   }
 
@@ -215,6 +281,10 @@
         slot.audio.onended=null;
         slot.audio.onerror=null;
         slot.audio=null;
+      }
+      if(slot.gainNode){
+        try{slot.gainNode.disconnect();}catch(_){}
+        slot.gainNode=null;
       }
     });
     slots=[];

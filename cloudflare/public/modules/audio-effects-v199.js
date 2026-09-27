@@ -65,7 +65,14 @@
      * fade out apparait. » Groupe/priorité distincts de "menu-unlock" et "achievement" (pas le même déclencheur, jamais l'un à
      * la place de l'autre dans la file).
      */
-    setComplete:{group:"set-complete",priority:82,maxAgeMs:3200}
+    setComplete:{group:"set-complete",priority:82,maxAgeMs:3200},
+    /*
+     * Norman (2026-09-27) : « Quand on balance son argent dans le money pit, il n'y a pas de son. ni quand on
+     * tourne la roue. ils doivent avoir leurs propres sons. » Groupes distincts (jamais l'un à la place de
+     * l'autre dans la file).
+     */
+    moneyPit:{group:"money-pit",priority:60,maxAgeMs:2200},
+    dailySpin:{group:"daily-spin",priority:60,maxAgeMs:3200}
   };
 
   function contexte_(){
@@ -651,6 +658,45 @@
   }
 
   /*
+   * Money Pit (2026-09-27, Norman : « Quand on balance son argent dans le money pit... il n'y a pas de son. » ) : une poignée de pièces
+   * qui tombent et roulent, de plus en plus étouffées, puis un écho grave qui s'enfonce -- le puits qui avale l'argent. Distinct du bruit
+   * de caisse enregistreuse (achat) et du tintement d'or de l'EXP Shop (orConstruire_) : ici tout descend et se perd dans le vide, rien ne
+   * remonte.
+   */
+  function moneyPitConstruire_(c){
+    [[0,1900,.048],[.09,1500,.044],[.17,1150,.040],[.25,880,.036],[.34,650,.032]].forEach(function(p){
+      tonal_(c,{type:"sine",from:p[1],to:p[1]*.9,duration:.14,volume:p[2]});
+      bruit_(c,{duration:.05,volume:p[2]*.6,delay:p[0],filterType:"highpass",frequency:2800,decay:2.8});
+    });
+    tonal_(c,{type:"sine",from:210,to:55,duration:1.0,volume:.095,delay:.48});
+    bruit_(c,{duration:.9,volume:.055,delay:.48,filterType:"lowpass",frequency:650,frequencyEnd:90,decay:1.5});
+  }
+  function moneyPit_(){
+    return jouerWebAudio_(1500,moneyPitConstruire_);
+  }
+
+  /*
+   * Daily Spin (2026-09-27, Norman : « ni quand on tourne la roue. ») : le cliquet de la roue qui tourne vite puis ralentit (petits « tics »
+   * de plus en plus espacés), et le « ding » final qui marque l'arrêt sur un lot.
+   */
+  function dailySpinConstruire_(c){
+    var t=0;
+    var dt=.045;
+    while(t<1.55){
+      tonal_(c,{type:"square",from:1450,to:1250,duration:.025,volume:.032,delay:t});
+      bruit_(c,{duration:.02,volume:.020,filterType:"highpass",frequency:3600,decay:3.2,delay:t});
+      dt=Math.min(.30,dt*1.17);
+      t+=dt;
+    }
+    tonal_(c,{type:"sine",from:1568,to:1568,duration:.48,volume:.052,delay:t+.05});
+    tonal_(c,{type:"sine",from:1568*2,to:1568*2,duration:.30,volume:.018,delay:t+.05});
+    tonal_(c,{type:"triangle",from:2093,to:2093,duration:.34,volume:.026,delay:t+.09});
+  }
+  function dailySpin_(){
+    return jouerWebAudio_(2200,dailySpinConstruire_);
+  }
+
+  /*
    * Achat (Norman, 2026-09-26) : « un bruit de caisse enregistreuse quand on effectue un achat ». Un « clac » sec de tiroir-caisse, puis le « ding » à deux
    * notes de la clochette (partiels métalliques), et un petit tintement de pièces.
    */
@@ -1104,7 +1150,9 @@
     boostSpecial:boostSpecial_,
     boostAllAbsorption:boostAllAbsorption_,
     purchaseRefused:achatRefuse_,
-    setComplete:setComplet_
+    setComplete:setComplet_,
+    moneyPit:moneyPit_,
+    dailySpin:dailySpin_
   };
 
   function retirerPerimes_(){
@@ -1225,7 +1273,9 @@
       equip:{duree:520,construire:equipConstruire_},
       skills:SONS_COMPETENCE.map(function(x){return{nom:x.id,duree:x.duree,construire:x.construire};}),
       purchaseGem:{duree:1300,construire:gemmeConstruire_},
-      setComplete:{duree:1080,construire:setCompletConstruire_}
+      setComplete:{duree:1080,construire:setCompletConstruire_},
+      moneyPit:{duree:1500,construire:moneyPitConstruire_},
+      dailySpin:{duree:2200,construire:dailySpinConstruire_}
     },
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},
@@ -1256,6 +1306,8 @@
     boostSpecial:function(){return demander_("boostSpecial");},
     boostAllAbsorption:function(){return demander_("boostAllAbsorption");},
     setComplete:function(){return demander_("setComplete");},
+    moneyPit:function(){return demander_("moneyPit");},
+    dailySpin:function(){return demander_("dailySpin");},
     debugState:function(){
       return {
         active:actif?actif.name:"",

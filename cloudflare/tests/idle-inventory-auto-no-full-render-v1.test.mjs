@@ -18,11 +18,17 @@ import { readFileSync } from "node:fs";
  */
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 
-// 1. La fonction de classification existe et couvre exactement les 3 modes concernés.
+/*
+ * 2026-09-27 (Norman, à nouveau : « Quand on ouvre et ferme le coffre, il y a un effet de clignotement... quand on
+ * coche un filtre. Part à la traque de ces sauts d'images et neutralise-les. ») : réglages (settings) et filtre de
+ * butin (lootFilterType/lootFilterItem) ajoutés à la classification, pour la même raison exacte que boostAll/
+ * mergeAll/transformBoost -- leur panneau ne vit que sur la page Aventure, jamais affiché ailleurs.
+ */
+// 1. La fonction de classification existe et couvre exactement les 6 modes concernés.
 assert.match(
   meta,
-  /var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1=\{boostAll:'boost',mergeAll:'merge',transformBoost:''\};/,
-  "boostAll/mergeAll/transformBoost doivent être mappés vers un patch ciblé"
+  /var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1=\{boostAll:'boost',mergeAll:'merge',transformBoost:'',settings:'',lootFilterType:'',lootFilterItem:''\};/,
+  "boostAll/mergeAll/transformBoost/settings/lootFilterType/lootFilterItem doivent être mappés vers un patch ciblé"
 );
 
 // 2. Comportement réel de la classification (exécutée hors navigateur).
@@ -38,12 +44,14 @@ assert.match(
   assert.equal(classifier({ action: "inventoryAuto", mode: "boostAll", targetId: "cube" }), "boost", "boost vers le Cube -> patch comme 'boost' aussi (même action côté equip unique)");
   assert.equal(classifier({ action: "inventoryAuto", mode: "mergeAll", itemId: "abc" }), "merge", "D + clic (fusionner) -> patch comme 'merge'");
   assert.equal(classifier({ action: "inventoryAuto", mode: "transformBoost", itemId: "abc", type: "power" }), "", "Q/W/E + clic (transformer) -> patch générique (pas de catégorie équipement/bonus)");
+  assert.equal(classifier({ action: "inventoryAuto", mode: "settings", autoMerge: true }), "", "case à cocher réglages -> patch générique, jamais le rendu complet");
+  assert.equal(classifier({ action: "inventoryAuto", mode: "lootFilterType", slot: "head", filtered: true }), "", "case à cocher filtre de butin (type) -> patch générique");
+  assert.equal(classifier({ action: "inventoryAuto", mode: "lootFilterItem", definitionId: "abc", filtered: true }), "", "case à cocher filtre de butin (objet) -> patch générique");
 
-  // Les modes qui ne touchent jamais la grille du sac gardent le rendu complet (non régression du reste du panneau).
+  // Les configurations d'équipement rééquipent potentiellement toute la tenue : elles gardent le rendu complet.
   for (const payload of [
-    { action: "inventoryAuto", mode: "settings", autoMerge: true },
-    { action: "inventoryAuto", mode: "lootFilterType", slot: "head", filtered: true },
     { action: "inventoryAuto", mode: "loadoutSave", index: 0 },
+    { action: "inventoryAuto", mode: "loadoutApply", index: 0 },
     { action: "adventure", adventure: { action: "boost" } },
     null,
     undefined
@@ -73,7 +81,7 @@ assert.match(
 
 // 4. Cache-bust cohérent (index.html + tests qui vérifient ce numéro).
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes("/modules/meta-progression-v130.js?v=202609271"));
+assert.ok(index.includes("/modules/meta-progression-v130.js?v=202609274"));
 assert.ok(!index.includes("/modules/meta-progression-v130.js?v=202609261"));
 
 console.log("idle-inventory-auto-no-full-render-v1: OK");

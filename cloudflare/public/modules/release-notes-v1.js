@@ -8,8 +8,28 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.6',
+    courante:'4.8',
     versions:[
+      {
+        version:'4.8',
+        nom:'Puissance, Endurance, Regen PV',
+        date:'2026-09-27',
+        points:[
+          'Le Money Pit et la Roue quotidienne ont désormais leur propre son quand on y joue.',
+          'Les sons d’ambiance trop faibles sont maintenant vraiment amplifiés (pas seulement moins coupés) ; les sons trop forts restent réduits comme avant.',
+          '« Power », « Toughness » et « HP Regen » sont traduits en français (Puissance, Endurance, Regen PV) partout dans les statistiques d’objet et d’Aventure.'
+        ]
+      },
+      {
+        version:'4.7',
+        nom:'Plus de saut ni de clignotement',
+        date:'2026-09-27',
+        points:[
+          'Ouvrir ou fermer le Coffre ne fait plus sauter la page.',
+          'Cocher un filtre de butin, ou changer un réglage d’Automatisation de l’inventaire, ne recharge plus toute la page.',
+          'Changer d’onglet (Collection, Shop), rouvrir les Notes de mise à jour ou l’encart Infos : même chose, plus de saut.'
+        ]
+      },
       {
         version:'4.6',
         nom:'Un son pour la collection complète',

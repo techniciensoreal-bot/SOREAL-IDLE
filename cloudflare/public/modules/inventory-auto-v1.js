@@ -173,15 +173,15 @@
       verrou('Boutique EXP (« Slot d’automerge »), menu Perks, menu Quirks ou Boutique AP (« Emplacements de fusion d’inventaire »).')
     ));
 
-    var optionsTransfo=[['','Désactivée'],['power','Power'],['toughness','Toughness'],['special','Special']].map(function(o){
+    var optionsTransfo=[['','Désactivée'],['power','Puissance'],['toughness','Endurance'],['special','Spécial']].map(function(o){
       return '<option value="'+o[0]+'"'+(r.autoTransform===o[0]?' selected':'')+'>'+o[1]+'</option>';
     }).join('');
     lignes.push(section('🔀 Transformation des boosts',
-      (u.boostTransform?'<div class="soreal-idle-note-v4">Q/W/E + clic sur un boost : Power / Toughness / Special'+(u.boostTransformFree?' (sans perte de palier).':', au prix d’un palier (le niveau repart à 0).')+'</div>':verrou('1re complétion du 100 Levels Challenge.'))+
+      (u.boostTransform?'<div class="soreal-idle-note-v4">Q/W/E + clic sur un boost : Puissance / Endurance / Spécial'+(u.boostTransformFree?' (sans perte de palier).':', au prix d’un palier (le niveau repart à 0).')+'</div>':verrou('1re complétion du 100 Levels Challenge.'))+
       (u.autoTransform?'<label style="display:flex;gap:8px;align-items:center;margin-top:8px">Boosts reçus : <select onchange="window.__inventaireAutoReglageV1__(\'autoTransform\',this.value)">'+optionsTransfo+'</select></label>':'')
     ));
 
-    var optionsClic=[['','Normale'],['a','A · Booster tout'],['d','D · Fusionner tout']].concat(u.boostTransform?[['q','Q · Transformer en Power'],['w','W · Transformer en Toughness'],['e','E · Transformer en Special']]:[]).map(function(o){
+    var optionsClic=[['','Normale'],['a','A · Booster tout'],['d','D · Fusionner tout']].concat(u.boostTransform?[['q','Q · Transformer en Puissance'],['w','W · Transformer en Endurance'],['e','E · Transformer en Spécial']]:[]).map(function(o){
       return '<option value="'+o[0]+'"'+(modeClic===o[0]?' selected':'')+'>'+o[1]+'</option>';
     }).join('');
     lignes.push(section('👆 Action au clic',

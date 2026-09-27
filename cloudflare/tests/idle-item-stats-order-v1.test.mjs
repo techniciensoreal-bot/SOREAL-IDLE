@@ -13,7 +13,7 @@ const fin = ui.indexOf("Special Bonus: ", debut);
 assert.ok(fin !== -1 && fin > debut, "la fin du bloc (bonus spéciaux) a bien été trouvée");
 const bloc = ui.slice(debut, fin);
 
-const ordre = ["<span>Power</span>", "<span>Max HP</span>", "<span>Toughness</span>", "<span>HP Regen</span>"];
+const ordre = ["<span>Puissance</span>", "<span>PV Max</span>", "<span>Endurance</span>", "<span>Regen PV</span>"];
 let curseur = -1;
 for (const label of ordre) {
   const position = bloc.indexOf(label);
@@ -22,6 +22,6 @@ for (const label of ordre) {
   curseur = position;
 }
 // Les bonus spéciaux (Special / Special Bonus) restent après les 4 stats de base (bornes du bloc analysé ci-dessus).
-assert.ok(fin > curseur, "les bonus spéciaux restent affichés après Power/Max HP/Toughness/HP Regen");
+assert.ok(fin > curseur, "les bonus spéciaux restent affichés après Puissance/PV Max/Endurance/Regen PV");
 
 console.log("idle-item-stats-order-v1: OK");

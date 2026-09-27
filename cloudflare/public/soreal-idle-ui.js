@@ -4437,6 +4437,44 @@
         });
       }
 
+      /*
+       * Norman (2026-09-27) : « Quand on ouvre et ferme le coffre, il y a un effet de clignotement. Il y en a plusieurs
+       * dans le jeu... Part à la traque de ces sauts d'images et neutralise-les. La page ne doit jamais faire de saut ou
+       * se déplacer sauf pendant les tutoriaux ou si c'est explicitement demandé. »
+       *
+       * Cause : chaque bascule d'onglet/panneau à l'intérieur d'une page (Coffre ouvert/fermé, pagination Coffre/Collection,
+       * onglets Shop/Classement, notes de mise à jour, encart Infos, sauvegarde du pseudo, interrupteurs admin) remplace
+       * .soreal-idle-page-root-v28 en entier (root.innerHTML=contenuMenuIdleV28_(...)) sans AUCUNE protection de défilement
+       * -- contrairement au rendu complet (rendreIdleEtat_) qui, lui, gèle la hauteur du document pendant le remplacement
+       * et restaure le défilement après coup (ancreSacIdleV1_/restaurerAncreSacIdleV1_, déjà en place depuis 2026-09-26).
+       * Une page qui se raccourcit (ex. fermer le Coffre) fait alors automatiquement redescendre le défilement du
+       * navigateur avant que rien ne le rétablisse -- exactement le saut/clignotement décrit. Cette fonction applique la
+       * même protection à ces remplacements locaux, au lieu de dupliquer la logique à chaque site d'appel.
+       */
+      function rafraichirMenuRacineIdleV28_(){
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(!root||!idleEtat)return;
+        const xAvant=window.scrollX||0;
+        const yAvant=window.scrollY||0;
+        const ancreAvant=ancreSacIdleV1_();
+        try{
+          if(document.body){
+            document.body.style.minHeight='';
+            const hauteurAvant=Math.max(document.documentElement.scrollHeight||0,document.body.scrollHeight||0);
+            if(hauteurAvant>0){
+              document.body.style.minHeight=hauteurAvant+'px';
+              clearTimeout(window.__idleRelacherHauteurTimerV1__);
+              window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';},700);
+            }
+          }
+        }catch(_e){}
+        root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        requestAnimationFrame(function(){
+          window.scrollTo(xAvant,yAvant);
+          restaurerAncreSacIdleV1_(ancreAvant,xAvant,yAvant);
+        });
+      }
+
 
       /*
        * Annonces en fondu (2026-09-26, Norman) : set complété (« est-ce qu'on a bien les récompenses ? ») et Tutorial Cube devenu Infinity Cube
@@ -14805,7 +14843,7 @@ let idleDialogueTimerV76=null;
       function changerOngletCollectionIdleV1_(onglet){
         idleCollectionOngletV1=String(onglet||'boss');
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__changerOngletCollectionIdleV1__=changerOngletCollectionIdleV1_;
 
@@ -14903,7 +14941,7 @@ let idleDialogueTimerV76=null;
       function changerPageCollectionEquipementV1_(page){
         idlePageCollectionEquipementV1=Math.max(1,idleEntier_(page)||1);
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__changerPageCollectionEquipementV1__=changerPageCollectionEquipementV1_;
 
@@ -14957,7 +14995,7 @@ let idleDialogueTimerV76=null;
           :'';
 
         const cubeHtml=cube&&cube.unlocked
-          ?'<div class="soreal-idle-collection-cube-v1">🧊 <b>Cube de l’infini</b> — Power '+formatGrandNombreIdleV70_(cube.power||0)+' · Toughness '+formatGrandNombreIdleV70_(cube.toughness||0)+'</div>'
+          ?'<div class="soreal-idle-collection-cube-v1">🧊 <b>Cube de l’infini</b> — Puissance '+formatGrandNombreIdleV70_(cube.power||0)+' · Endurance '+formatGrandNombreIdleV70_(cube.toughness||0)+'</div>'
           :'';
 
         const grilleEquipement='<div class="soreal-idle-collection-grid-v1">'+
@@ -14998,7 +15036,7 @@ let idleDialogueTimerV76=null;
                 :'')+
               '<div class="soreal-idle-collection-card-details-v1" id="soreal-idle-collection-details-'+idleHtml_(id)+'" style="display:none">'+
                 (estStatBearing
-                  ?'<div>Power '+formatGrandNombreIdleV70_(puissance)+'</div><div>Toughness '+formatGrandNombreIdleV70_(solidite)+'</div>'
+                  ?'<div>Puissance '+formatGrandNombreIdleV70_(puissance)+'</div><div>Endurance '+formatGrandNombreIdleV70_(solidite)+'</div>'
                   :'<div>Objet spécial</div>')+
               '</div>'+
             '</div>';
@@ -17877,10 +17915,10 @@ let idleDialogueTimerV76=null;
               const seuils=difficultes[cle]||{};
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-225 */
               const idleInfo=(seuils.idleP!=null&&seuils.idleT!=null)
-                ?' · Idle Power '+formatGrandNombreIdleV70_(seuils.idleP)+' · Idle Toughness '+formatGrandNombreIdleV70_(seuils.idleT)
+                ?' · Puissance Idle '+formatGrandNombreIdleV70_(seuils.idleP)+' · Endurance Idle '+formatGrandNombreIdleV70_(seuils.idleT)
                 :'';
               return '<option value="'+idleHtml_(cle)+'" title="'+
-                'Power '+formatGrandNombreIdleV70_(seuils.p||0)+' · Toughness '+formatGrandNombreIdleV70_(seuils.t||0)+idleInfo+
+                'Puissance '+formatGrandNombreIdleV70_(seuils.p||0)+' · Endurance '+formatGrandNombreIdleV70_(seuils.t||0)+idleInfo+
                 '">'+idleHtml_(IDLE_TITAN_DIFFICULTY_LABELS_V145[cle]||cle)+'</option>';
             }).join('')+
           '</select>'
@@ -17939,9 +17977,9 @@ function pageAventureIdleV28_(j){
                     const active=String(z.id)===selected;
                     /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-231 */
                     const idleInfo=(z.idleP!=null&&z.idleT!=null)
-                      ?' · Idle Power '+formatGrandNombreIdleV70_(z.idleP)+' · Idle Toughness '+formatGrandNombreIdleV70_(z.idleT)
+                      ?' · Puissance Idle '+formatGrandNombreIdleV70_(z.idleP)+' · Endurance Idle '+formatGrandNombreIdleV70_(z.idleT)
                       :'';
-                    return '<button type="button" data-zone-id="'+idleHtml_(z.id)+'" class="team-sort-option'+(active?' active':'')+'" title="Power '+formatGrandNombreIdleV70_(z.p||0)+' · Toughness '+formatGrandNombreIdleV70_(z.t||0)+idleInfo+'" onclick="window.__selectionnerZoneAdventureIdleV47__(\''+idleHtml_(z.id)+'\');window.__toggleMenuZoneAdventureIdleV1__();">'+
+                    return '<button type="button" data-zone-id="'+idleHtml_(z.id)+'" class="team-sort-option'+(active?' active':'')+'" title="Puissance '+formatGrandNombreIdleV70_(z.p||0)+' · Endurance '+formatGrandNombreIdleV70_(z.t||0)+idleInfo+'" onclick="window.__selectionnerZoneAdventureIdleV47__(\''+idleHtml_(z.id)+'\');window.__toggleMenuZoneAdventureIdleV1__();">'+
                       '<span>'+idleHtml_(z.name||z.id)+'</span>'+
                       (active?'<span class="team-sort-option-arrow">✓</span>':'')+
                     '</button>';
@@ -19363,7 +19401,7 @@ function pageAventureIdleV28_(j){
          * garde ne refusait que « plafond > 0 et atteint » : le boost était consommé côté client puis refusé par le serveur et rendu.
          */
         if(cap<=1e-9){
-          const nomStat=type==='power'?'Power':type==='toughness'?'Toughness':'Special';
+          const nomStat=type==='power'?'Puissance':type==='toughness'?'Endurance':'Spécial';
           toastIdleV5_('Cet objet n’a pas de statistique '+nomStat+' à remplir : le boost n’est pas consommé.');
           return;
         }
@@ -19424,8 +19462,8 @@ function pageAventureIdleV28_(j){
             '<img src="'+idleHtml_(urlImageCubeInfiniAdventureIdleV1_(palier))+'" alt="Infinity Cube Tier '+palier+'" style="width:92px;height:92px;object-fit:contain">'+
           '</div>'+
           '<div class="soreal-idle-v138-details-stats">'+
-            '<div class="soreal-idle-v138-details-stat"><span>Power</span><b>'+formatGrandNombreIdleV70_(cube.power||0)+'</b></div>'+
-            '<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+formatGrandNombreIdleV70_(cube.toughness||0)+'</b></div>'+
+            '<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>'+formatGrandNombreIdleV70_(cube.power||0)+'</b></div>'+
+            '<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>'+formatGrandNombreIdleV70_(cube.toughness||0)+'</b></div>'+
             '<div class="soreal-idle-v138-details-stat"><span>Total stats</span><b>'+formatGrandNombreIdleV70_(total)+'</b></div>'+
             (suivant
               ?'<div class="soreal-idle-v138-details-stat"><span>Prochain tier</span><b>'+formatGrandNombreIdleV70_(suivant.seuil||0)+'</b></div>'
@@ -19614,28 +19652,28 @@ function pageAventureIdleV28_(j){
           statsHtml=
             '<div class="soreal-idle-v138-details-stats">'+
               (basePower>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Power</span><b>'+
+                ?'<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>'+
                   '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.power))+'</span>'+
                   ' / '+formatGrandNombreIdleV70_(maxPower)+
                 '</b></div>'
                 :''
               )+
               (baseHp>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Max HP</span><b>'+
+                ?'<div class="soreal-idle-v138-details-stat"><span>PV Max</span><b>'+
                   '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
                   ' / '+formatGrandNombreIdleV70_(maxHp)+
                 '</b></div>'
                 :''
               )+
               (baseToughness>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+
+                ?'<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>'+
                   '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
                   ' / '+formatGrandNombreIdleV70_(maxToughness)+
                 '</b></div>'
                 :''
               )+
               (baseRegen>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>HP Regen</span><b>'+
+                ?'<div class="soreal-idle-v138-details-stat"><span>Regen PV</span><b>'+
                   '<span class="soreal-idle-v138-stat-value-v1'+(regenMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemRegen,2)+'</span>'+
                   ' / '+formatGrandNombreIdleV70_(maxRegen,2)+
                 '</b></div>'
@@ -19991,7 +20029,7 @@ function pageAventureIdleV28_(j){
         const entree=
           IDLE_SPECIAL_BONUS_TYPES_V1_.find(function(e){return e[0]===type;});
 
-        return entree?entree[1]:String(type||'Special');
+        return entree?entree[1]:String(type||'Spécial');
       }
 
       function rendreBonusEquipementAdventureIdleV1_(a){
@@ -20003,10 +20041,10 @@ function pageAventureIdleV28_(j){
         const specials=stats.specials||{};
 
         const lignes=
-          (power>0?'<div class="soreal-idle-v138-details-stat"><span>Power</span><b>+'+formatGrandNombreIdleV70_(power)+'</b></div>':'')+
-          (toughness>0?'<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>+'+formatGrandNombreIdleV70_(toughness)+'</b></div>':'')+
-          (hp>0?'<div class="soreal-idle-v138-details-stat"><span>Max Health</span><b>+'+formatGrandNombreIdleV70_(hp)+'</b></div>':'')+
-          (regen>0?'<div class="soreal-idle-v138-details-stat"><span>Health Regen/s</span><b>+'+formatGrandNombreIdleV70_(regen,2)+'</b></div>':'');
+          (power>0?'<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>+'+formatGrandNombreIdleV70_(power)+'</b></div>':'')+
+          (toughness>0?'<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>+'+formatGrandNombreIdleV70_(toughness)+'</b></div>':'')+
+          (hp>0?'<div class="soreal-idle-v138-details-stat"><span>PV Max</span><b>+'+formatGrandNombreIdleV70_(hp)+'</b></div>':'')+
+          (regen>0?'<div class="soreal-idle-v138-details-stat"><span>Regen PV/s</span><b>+'+formatGrandNombreIdleV70_(regen,2)+'</b></div>':'');
 
         const specialLignes=IDLE_SPECIAL_BONUS_TYPES_V1_
           .map(function(e){
@@ -20111,7 +20149,7 @@ function pageAventureIdleV28_(j){
       function changerPageCoffreV1_(page){
         idlePageCoffreV1=Math.max(1,idleEntier_(page)||1);
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__changerPageCoffreV1__=changerPageCoffreV1_;
 
@@ -20205,7 +20243,7 @@ function pageAventureIdleV28_(j){
           localStorage.setItem('soreal_idle_coffre_ouvert_v1',actuel?'0':'1');
         }catch(e){}
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__toggleCoffreOuvertAdventureIdleV1__=toggleCoffreOuvertAdventureIdleV1_;
 
@@ -20247,8 +20285,8 @@ function pageAventureIdleV28_(j){
         const tier=idleEntier_(cubeTier&&cubeTier.tier);
         const titre=idleHtml_(
           'Cube de l’infini · Palier '+tier+
-          ' · Power '+formatGrandNombreIdleV70_(cube.power||0)+
-          ' · Toughness '+formatGrandNombreIdleV70_(cube.toughness||0)
+          ' · Puissance '+formatGrandNombreIdleV70_(cube.power||0)+
+          ' · Endurance '+formatGrandNombreIdleV70_(cube.toughness||0)
         );
 
         return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-cube" data-idle-cube-drop-v180 '+
@@ -20352,7 +20390,7 @@ function pageAventureIdleV28_(j){
       function changerOngletShopIdleV1_(onglet){
         idleShopOngletV1=String(onglet)==='ap'?'ap':'exp';
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
         const bouton=document.querySelector('.soreal-idle-nav-v28 [data-menu-id-v1="shop"]');
         if(bouton)bouton.style.setProperty('--nav-color',couleurBoutonShopIdleV1_());
       }
@@ -20398,7 +20436,7 @@ function pageAventureIdleV28_(j){
       function changerOngletClassementIdleV1_(onglet){
         idleClassementOngletV1=String(onglet||'global');
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__changerOngletClassementIdleV1__=changerOngletClassementIdleV1_;
 
@@ -20408,7 +20446,7 @@ function pageAventureIdleV28_(j){
         idleClassementV1.chargement=true;
         function rafraichirPage(){
           const root=document.querySelector('.soreal-idle-page-root-v28');
-          if(root&&idleEtat&&idleMenuActifV28==='classement')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+          if(root&&idleEtat&&idleMenuActifV28==='classement')rafraichirMenuRacineIdleV28_();
         }
         try{
           google.script.run
@@ -21201,7 +21239,7 @@ function pageAventureIdleV28_(j){
           localStorage.setItem('soreal_idle_notes_maj_ouvert_v1',notesMajOuvertesIdleV1_()?'0':'1');
         }catch(e){}
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__basculerNotesMajIdleV1__=basculerNotesMajIdleV1_;
 
@@ -21279,7 +21317,7 @@ function pageAventureIdleV28_(j){
           localStorage.setItem('soreal_idle_info_ouvert_v1',idleInfoOuvertV1_()?'0':'1');
         }catch(e){}
         const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__toggleInfoOuvertIdleV1__=toggleInfoOuvertIdleV1_;
 
@@ -21320,7 +21358,7 @@ function pageAventureIdleV28_(j){
               if(idleEtat)idleEtat.identite=Object.assign({},idleEtat.identite||{},res);
               toastIdleV5_('✅ Pseudo enregistré : '+(res.nomAffiche||res.pseudo||''));
               const root=document.querySelector('.soreal-idle-page-root-v28');
-              if(root&&idleEtat&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+              if(root&&idleEtat&&idleMenuActifV28==='parametres')rafraichirMenuRacineIdleV28_();
             }else{
               toastIdleV5_((res&&res.message)||'Ce pseudo ne peut pas être utilisé.');
             }
@@ -21349,7 +21387,7 @@ function pageAventureIdleV28_(j){
               idleEtat.reglages.accesPublic=Boolean(res.accesPublic);
               toastIdleV5_(res.accesPublic?'🌍 Accès public ouvert (connexion Google).':'🔒 Accès public fermé.');
               const root=document.querySelector('.soreal-idle-page-root-v28');
-              if(root&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+              if(root&&idleMenuActifV28==='parametres')rafraichirMenuRacineIdleV28_();
             }else{
               toastIdleV5_((res&&res.message)||'Impossible de changer l’accès public.');
             }
@@ -21382,6 +21420,34 @@ function pageAventureIdleV28_(j){
           .listerJoueursExternesSorealIdle(SOREAL_SESSION);
       }
       window.__chargerJoueursGoogleIdleV1__=chargerJoueursGoogleIdleV1_;
+
+      /*
+       * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi. Et
+       * avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Préférence PERSONNELLE (jamais
+       * réservée à l'administrateur) : n'importe quel joueur qui a le classement débloqué peut se cacher des autres
+       * -- il continue de se voir lui-même (voir obtenirClassementSorealIdle, côté serveur).
+       */
+      function basculerClassementVisibleIdleV1_(voulu){
+        if(!idleEtat||!idleEtat.classement||!SOREAL_SESSION)return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){
+              idleEtat.classement.visible=Boolean(res.classementVisible);
+              toastIdleV5_(res.classementVisible?'🏆 Visible des autres dans le classement.':'🙈 Caché des autres dans le classement.');
+            }else{
+              toastIdleV5_((res&&res.message)||'Impossible de changer cette préférence.');
+              const root=document.querySelector('.soreal-idle-page-root-v28');
+              if(root&&idleMenuActifV28==='parametres')rafraichirMenuRacineIdleV28_();
+            }
+          })
+          .withFailureHandler(function(e){
+            toastIdleV5_((e&&e.message)||'Impossible de changer cette préférence.');
+            const root=document.querySelector('.soreal-idle-page-root-v28');
+            if(root&&idleMenuActifV28==='parametres')rafraichirMenuRacineIdleV28_();
+          })
+          .definirClassementVisibleSorealIdle(SOREAL_SESSION,Boolean(voulu));
+      }
+      window.__basculerClassementVisibleIdleV1__=basculerClassementVisibleIdleV1_;
 
       function pageParametresIdleV28_(j){
         const infosParMenu=idleInfosParMenuIdleV1_(j);
@@ -21446,6 +21512,18 @@ function pageAventureIdleV28_(j){
             ):'')+
           '</div>'+
           htmlProfilPseudoIdleV1_(j)+
+          (j&&j.classement&&j.classement.debloque
+            ?'<div class="soreal-idle-section-v8">'+
+              '<div class="soreal-idle-window-title-v31">🏆 Classement</div>'+
+              '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#c9d3ee">'+
+                '<input type="checkbox" '+(j.classement.visible!==false?'checked ':'')+'onchange="window.__basculerClassementVisibleIdleV1__(this.checked)"> '+
+                'Apparaître dans le classement pour les autres joueurs'+
+              '</label>'+
+              '<div style="font-size:12px;color:#8b93ab;margin-top:8px">'+
+                'Décoché : ton nom n’apparaît plus dans le classement vu par les autres joueurs. Tu continues de voir ta propre place normalement.'+
+              '</div>'+
+            '</div>'
+            :'')+
           (j&&j.reglages
             ?'<div class="soreal-idle-section-v8" id="sorealIdleAccesAdminV1">'+
               '<div class="soreal-idle-window-title-v31">🔑 Accès à SOREAL IDLE (administrateur)</div>'+
@@ -21493,7 +21571,7 @@ function pageAventureIdleV28_(j){
               idleEtat.reglages.accesOuvert=Boolean(res.accesOuvert);
               toastIdleV5_(res.accesOuvert?'🔓 Accès ouvert aux détenteurs du trophée Assiduité de bronze.':'🔒 Accès fermé : SOREAL IDLE est caché à tout le monde.');
               const root=document.querySelector('.soreal-idle-page-root-v28');
-              if(root&&idleMenuActifV28==='parametres')root.innerHTML=contenuMenuIdleV28_(idleEtat);
+              if(root&&idleMenuActifV28==='parametres')rafraichirMenuRacineIdleV28_();
             }else{
               toastIdleV5_((res&&res.message)||'Impossible de changer l’accès.');
             }

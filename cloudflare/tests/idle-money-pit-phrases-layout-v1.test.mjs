@@ -25,8 +25,8 @@ const src = ui.slice(ui.indexOf("function phraseMoneyPitIdleV1_(entree,j){"), ui
 const H = { formatGrandNombreIdleV70_: (v, d) => (d ? Number(v).toFixed(d) : String(v)) };
 let ygg = null;
 const phrase = new Function("window", "systemeMetaParIdIdleV130_", src + "\nreturn phraseMoneyPitIdleV1_;")({ __SOREAL_IDLE_META_HOST_V130__: H }, () => ygg);
-assert.equal(phrase({ at: 0, boost: { type: "toughness", strength: 1 }, reward: { ap: 5 } }), "Le Puits rote et recrache un Boost Toughness 1 !");
-assert.equal(phrase({ at: 1, boost: { type: "power", strength: 5 }, reward: {} }), "Le Puits rote et recrache un Boost Power 5 !");
+assert.equal(phrase({ at: 0, boost: { type: "toughness", strength: 1 }, reward: { ap: 5 } }), "Le Puits rote et recrache un Boost Endurance 1 !");
+assert.equal(phrase({ at: 1, boost: { type: "power", strength: 5 }, reward: {} }), "Le Puits rote et recrache un Boost Puissance 5 !");
 assert.equal(phrase({ at: 0, reward: { wandoosLevels: 0, ap: 15 } }), "Le Puits rote… et ça sent affreusement mauvais.");
 assert.ok(phrase({ at: 0, reward: { seeds: 10 } }).startsWith("Une énorme graine verte jaillit du Puits"), "graine avant le déblocage : la phrase du wiki, sans nommer le système");
 assert.equal(phrase({ at: 0, reward: { seeds: 10 } }).includes("Yggdrasil"), false);

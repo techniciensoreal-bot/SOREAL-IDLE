@@ -78,7 +78,7 @@ assert.match(runtime, /detailStats:\s*combatPrincipalEtat\s*\.detailStats/);
   vm.runInNewContext(src, { window: fenetre, document: { getElementById: () => null, addEventListener() {}, head: { appendChild() {} }, createElement: () => ({}) } });
   const html = fenetre.__SOREAL_IDLE_STATS_DETAIL_V1__.contenu("attaque");
   assert.ok(html.includes("Équipement porté") && html.includes("×1,0894") && html.includes("+8,94 %"));
-  assert.ok(html.includes("Power porté : 8,94") && html.includes("boosts appliqués compris"));
+  assert.ok(html.includes("Puissance porté : 8,94") && html.includes("boosts appliqués compris"));
   assert.equal(html.includes("Wandoos"), false, "un facteur neutre n'est jamais nommé");
   assert.equal(html.includes("NUMBER"), false);
   assert.ok(html.includes("2 autres facteurs à ×1"), "les neutres sont comptés");
@@ -86,5 +86,5 @@ assert.match(runtime, /detailStats:\s*combatPrincipalEtat\s*\.detailStats/);
 }
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(ui.includes("window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};"));
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/stats-detail-v1.js?v=1"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/stats-detail-v1.js?v=2"));
 console.log("idle-stats-detail-v1: OK");

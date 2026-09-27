@@ -38,7 +38,7 @@ function essayer(cible, typeBoost) {
   const epee = { kind: "equipment", level: 0, basePower: 20, baseToughness: 0, baseSpecial: 0, power: 2, toughness: 0, special: 0 };
   let r = essayer(epee, "toughness");
   assert.equal(r.envoyes.length, 0, "aucune action envoyée : le boost n'est pas consommé");
-  assert.match(r.toasts[0], /pas de statistique Toughness/);
+  assert.match(r.toasts[0], /pas de statistique Endurance/);
   r = essayer(epee, "power");
   assert.equal(r.envoyes.length, 1, "Power non rempli : accepté");
   r = essayer(Object.assign({}, epee, { power: 20 }), "power");

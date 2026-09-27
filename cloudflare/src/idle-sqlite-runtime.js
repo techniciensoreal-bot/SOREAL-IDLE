@@ -4682,6 +4682,11 @@ function statsJoueurSorealIdle_(valeur) {
     combatBossActif:Boolean(s.combatBossActif),
     autoBossSuivant:s.autoBossSuivant!==false,
     /*
+     * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi. Et
+     * avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Visible par défaut.
+     */
+    classementVisible:s.classementVisible!==false,
+    /*
      * 2026-09-24 (Norman : « quand on rebirth, on a encore les popups quand on va dans les menus ; ils ne doivent arriver qu'une fois,
      * pareil pour les textes d'accueil ») : identifiants des popups, tutoriels et textes d'accueil DÉJÀ montrés. Côté serveur (et non
      * seulement dans le navigateur) : ni une Renaissance, ni un autre appareil, ni un stockage local vidé ne les rejouent.
@@ -10547,7 +10552,15 @@ function construireEtatJoueurSorealIdle_(
         classementDebloqueSorealIdle_(
           row[c.EMAIL_PRINCIPAL - 1],
           row[c.EMAIL_CONNEXION - 1]
-        )
+        ),
+      /*
+       * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi.
+       * Et avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Préférence PERSONNELLE
+       * (jamais réservée à l'administrateur, contrairement à `reglages`) : visible par défaut, désactivable par
+       * chaque joueur pour lui-même. N'exclut jamais son propre affichage à ses propres yeux (voir
+       * obtenirClassementSorealIdle) -- seulement de la vue des autres.
+       */
+      visible: statsEtat.classementVisible
     },
 
     /* Interrupteur d'accès à SOREAL IDLE : exposé uniquement au compte administrateur (bouton des Paramètres). */
@@ -12541,6 +12554,84 @@ function enregistrerClicsSorealIdle(
   }
 }
 
+/*
+ * Visibilité personnelle au classement (Norman, 2026-09-27 : « Je ne veux pas apparaitre dans le classement pour
+ * les autres. Uniquement moi. Et avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. ») :
+ * préférence PERSONNELLE, disponible à n'importe quel joueur pour lui-même (jamais réservée à l'administrateur,
+ * contrairement à definirAccesOuvertSorealIdle/definirAccesPublicSorealIdle) -- même patron léger que
+ * enregistrerClicsSorealIdle (un verrou, une lecture/écriture de STATS_JSON, aucun calcul de jeu). Le joueur qui se
+ * cache continue de se voir lui-même dans son propre classement (voir obtenirClassementSorealIdle) -- seulement
+ * caché des autres.
+ */
+function definirClassementVisibleSorealIdle(
+  sessionToken,
+  visible
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const lock =
+    LockService.getScriptLock();
+
+  if (!lock.tryLock(1800)) {
+    return {
+      ok: false,
+      message:
+        'Le jeu est occupé.'
+    };
+  }
+
+  try {
+    const feuille =
+      obtenirFeuilleJoueursSorealIdle_();
+
+    const ligne =
+      trouverLigneJoueurSorealIdle_(
+        feuille,
+        acces
+      );
+
+    assurerDonneesJeuSorealIdle_(
+      feuille,
+      ligne
+    );
+
+    const c =
+      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+
+    const cellule =
+      feuille.getRange(
+        ligne,
+        c.STATS_JSON
+      );
+
+    const stats =
+      statsJoueurSorealIdle_(
+        cellule.getValue()
+      );
+
+    stats.classementVisible =
+      visible === true || visible === 'true' || visible === 1 || visible === '1';
+
+    cellule.setValue(
+      JSON.stringify(
+        stats
+      )
+    );
+
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      classementVisible: stats.classementVisible
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 
 /*
  * ------------------------------------------------------------------
@@ -12908,6 +12999,7 @@ function obtenirClassementSorealIdle(
       nom: nomAffiche(cle, String(registre.getCell(r, 2) || '').trim()),
       nomBrut: String(registre.getCell(r, 2) || '').trim(),
       present: false,
+      visible: true,
       valeurs: valeursClassementJoueurSorealIdle_(null)
     });
   }
@@ -12940,12 +13032,18 @@ function obtenirClassementSorealIdle(
 
     const entree =
       parCle.get(cle) ||
-      { cle: cle, ligneRegistre: 0, nom: nom, nomBrut: nomBrut, present: false, valeurs: null };
+      { cle: cle, ligneRegistre: 0, nom: nom, nomBrut: nomBrut, present: false, visible: true, valeurs: null };
 
     entree.nom = nom;
     entree.nomBrut = nomBrut;
     entree.present = true;
     entree.valeurs = valeursClassementJoueurSorealIdle_(stats);
+    /*
+     * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. » Le joueur qui se
+     * cache reste dans le registre (son historique n'est jamais perdu) mais n'est jamais renvoyé à un AUTRE
+     * spectateur (filtré plus bas, sur entree.visible, sauf pour lui-même).
+     */
+    entree.visible = stats.classementVisible !== false;
     entree.alias = emailConnexion;
     parCle.set(cle, entree);
   }
@@ -12962,14 +13060,20 @@ function obtenirClassementSorealIdle(
     registre.getRange(1, 1, 1, 3).setValues([['Email', 'Nom', 'Derniere vue']]);
   }
 
-  const entrees = Array.from(parCle.values()).map(function(entree) {
-    return {
-      cle: entree.cle,
-      nom: entree.nom || 'Joueur',
-      moi: entree.cle === moi || entree.alias === moi,
-      valeurs: entree.valeurs || valeursClassementJoueurSorealIdle_(null)
-    };
-  });
+  const entrees = Array.from(parCle.values())
+    .filter(function(entree) {
+      const cestMoi = entree.cle === moi || entree.alias === moi;
+      /* Caché par son propre choix (Paramètres) : invisible pour tout le monde sauf lui-même. */
+      return entree.visible !== false || cestMoi;
+    })
+    .map(function(entree) {
+      return {
+        cle: entree.cle,
+        nom: entree.nom || 'Joueur',
+        moi: entree.cle === moi || entree.alias === moi,
+        valeurs: entree.valeurs || valeursClassementJoueurSorealIdle_(null)
+      };
+    });
 
   const n = entrees.length;
 
@@ -16370,7 +16474,8 @@ const IDLE_OPERATIONS={
   testerAccesSorealIdle,
   obtenirPartieDevSorealIdle,
   definirPartieDevSorealIdle,
-  enregistrerClicsSorealIdle
+  enregistrerClicsSorealIdle,
+  definirClassementVisibleSorealIdle
 };
 
 export function idleOperationNames(){

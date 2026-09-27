@@ -74,7 +74,7 @@ function contenu(cle){
     if(f.id==='equipement'&&eq){
       var pts=cle==='attaque'?nb(eq.power):nb(eq.toughness);
       var cube=cle==='attaque'?nb(eq.cubePower):nb(eq.cubeToughness);
-      note='<small>'+(cle==='attaque'?'Power':'Toughness')+' porté : '+String(Math.round(pts*100)/100).replace('.',',')+(cube>0?' (dont '+String(Math.round(cube*100)/100).replace('.',',')+' de l’Infinity Cube)':'')+' · boosts appliqués compris · 1 point = +1 %</small>';
+      note='<small>'+(cle==='attaque'?'Puissance':'Endurance')+' porté : '+String(Math.round(pts*100)/100).replace('.',',')+(cube>0?' (dont '+String(Math.round(cube*100)/100).replace('.',',')+' de l’Infinity Cube)':'')+' · boosts appliqués compris · 1 point = +1 %</small>';
     }
     lignes+='<tr><td>'+esc(f.label)+note+'</td><td class="v">'+facteur(v)+'<small>'+pct(v)+'</small></td></tr>';
   });

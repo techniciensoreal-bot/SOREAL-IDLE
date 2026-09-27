@@ -116,6 +116,26 @@ c = op("obtenirClassementSorealIdle", norman);
 assert.equal(c.joueurs, 2);
 assert.equal(c.entrees.filter((e) => !e.moi).length, 1);
 
+/*
+ * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi. Et
+ * avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Préférence personnelle, disponible
+ * à n'importe quel joueur (jamais réservée à l'administrateur) : caché des AUTRES, jamais de lui-même.
+ */
+c = op("obtenirClassementSorealIdle", norman);
+assert.equal(c.joueurs, 2, "par défaut : tout le monde visible");
+assert.equal(op("definirClassementVisibleSorealIdle", sebastien, false).classementVisible, false, "n'importe quel joueur peut se cacher, pas seulement l'administrateur");
+c = op("obtenirClassementSorealIdle", norman);
+assert.equal(c.joueurs, 1, "Sébastien caché : n'apparaît plus dans le classement vu par Norman");
+assert.equal(c.entrees.filter((e) => !e.moi).length, 0, "aucune entrée pour Sébastien");
+assert.equal(op("definirClassementVisibleSorealIdle", sebastien, true).classementVisible, true, "peut se rendre à nouveau visible");
+c = op("obtenirClassementSorealIdle", norman);
+assert.equal(c.joueurs, 2, "de retour dans le classement une fois réactivé");
+assert.equal(op("definirClassementVisibleSorealIdle", norman, false).classementVisible, false);
+c = op("obtenirClassementSorealIdle", norman);
+assert.equal(c.joueurs, 2, "caché ou non, un joueur continue toujours de se voir lui-même");
+assert.equal(c.entrees.find((e) => e.moi).nom, "Norman", "Norman se voit toujours lui-même après s'être caché");
+assert.equal(op("definirClassementVisibleSorealIdle", norman, true).classementVisible, true, "remis visible pour la suite du test");
+
 // Ordre des menus enregistré (Rangement des boutons)
 const r = op("definirOrdreMenusSorealIdle", norman, ["combat", "entrainement", "faux id!", "combat", "classement"]);
 assert.deepEqual(r.menuOrdre, ["combat", "entrainement", "classement"], "identifiants valides, sans doublon");
