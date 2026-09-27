@@ -23,4 +23,30 @@ for (const selecteur of [".soreal-idle-parties-dev-v1", ".soreal-idle-boss-fiche
   assert.ok(!bloc.includes("grid-template-columns:1fr 1fr;"), selecteur + " : plus de piste bare 1fr");
 }
 
+/*
+ * Norman (2026-09-27, suite) : le débordement persistait après la correction des grilles ci-dessus -- deuxième cause
+ * trouvée : plusieurs boutons pleine largeur (`width:100%`) avec `padding`/`border` mais SANS `box-sizing:border-box`
+ * (le défaut CSS, `content-box`, ajoute le padding/la bordure EN PLUS de 100% -- donc au-delà du conteneur). Le bouton
+ * « Réinitialiser entièrement » (`.soreal-idle-danger-button-v67`, page Paramètres, tout en bas) en est un exemple direct.
+ */
+for (const selecteur of [
+  ".soreal-idle-danger-button-v67",
+  ".soreal-idle-zone-custom-v1 .team-sort-trigger",
+  ".soreal-idle-zone-custom-v1 .team-sort-option",
+  ".soreal-idle-zone-button-v16",
+  ".soreal-idle-rebirth-button-v14",
+  ".soreal-idle-item-popup-actions-v165 button",
+  ".soreal-idle-action-button-v50",
+  ".soreal-idle-boss-card-image-v91"
+]) {
+  const i = css.indexOf(selecteur + "{");
+  assert.ok(i >= 0, selecteur + " introuvable");
+  const bloc = css.slice(i, css.indexOf("}", i));
+  assert.match(bloc, /width:100%/, selecteur + " : toujours pleine largeur");
+  assert.match(bloc, /box-sizing:border-box/, selecteur + " : padding/bordure ne doivent jamais dépasser 100% du conteneur");
+}
+
+// Filet de sécurité général (pas seulement en media query mobile) : un débordement horizontal oublié est coupé, jamais scrollable/décentré.
+assert.match(css, /^html,body\{overflow-x:hidden\}$/m, "filet de sécurité overflow-x sur html/body, hors media query mobile");
+
 console.log("idle-settings-overflow-fix-v1: OK");

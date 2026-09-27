@@ -1,4 +1,8 @@
 /* SOREAL IDLE — extracted native UI stylesheet. */
+/* Norman (2026-09-27) : « l'interface déborde à droite, pas centrée (Settings coupé) ». Filet de sécurité général (pas
+   seulement en media query mobile, voir plus bas) : un enfant qui déborde encore (bug de box-sizing oublié) ne doit
+   jamais élargir la page ni casser le centrage -- coupé plutôt que scrollable/décalé horizontalement. */
+html,body{overflow-x:hidden}
 .soreal-idle-native-v4{
             width:min(1100px,100%);
             margin:0 auto;
@@ -819,7 +823,7 @@
            */
           .soreal-idle-zone-custom-v1.team-sort-custom{position:relative;flex:1;min-width:0}
           .soreal-idle-zone-custom-v1 .team-sort-trigger{
-            width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+            width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;
             border:1px solid rgba(255,255,255,.14);border-radius:13px;
             background:rgba(255,255,255,.045);color:#e9f0f8;
             padding:12px 13px;font-size:11px;font-weight:900;text-align:left;cursor:pointer;
@@ -835,7 +839,7 @@
           }
           .soreal-idle-zone-custom-v1.open .team-sort-menu{display:block}
           .soreal-idle-zone-custom-v1 .team-sort-option{
-            width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+            width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;
             border:0;border-radius:10px;background:transparent;color:#dce6f1;
             padding:11px 10px;text-align:left;font-size:11px;font-weight:850;cursor:pointer;
           }
@@ -2076,6 +2080,7 @@
 
           .soreal-idle-zone-button-v16{
             width:100%;
+            box-sizing:border-box;
             margin-top:10px;
             border:0;
             border-radius:12px;
@@ -2264,6 +2269,7 @@
 
           .soreal-idle-rebirth-button-v14{
             width:100%;
+            box-sizing:border-box;
             margin-top:14px;
             appearance:none;
             border:0;
@@ -3573,6 +3579,7 @@
           }
           .soreal-idle-item-popup-actions-v165 button{
             width:100%;
+            box-sizing:border-box;
             margin:0;
             padding:4px 6px;
             min-height:0;
@@ -4016,6 +4023,7 @@
 
           .soreal-idle-action-button-v50{
             width:100%;
+            box-sizing:border-box;
             min-height:30px;
             border:0;
             border-radius:8px;
@@ -4871,6 +4879,7 @@
 
           .soreal-idle-danger-button-v67{
             width:100%;
+            box-sizing:border-box;
             margin-top:11px;
             appearance:none;
             border:1px solid rgba(239,103,118,.30);
@@ -5973,6 +5982,7 @@
 
           .soreal-idle-boss-card-image-v91{
             width:100%;
+            box-sizing:border-box;
             height:clamp(220px,45vw,390px);
             overflow:hidden;
             border-radius:14px;

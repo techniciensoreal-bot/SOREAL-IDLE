@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.1',
+    courante:'5.2',
     versions:[
+      {
+        version:'5.2',
+        nom:'Silence sur les parenthèses',
+        date:'2026-09-27',
+        points:[
+          'Le narrateur ne lit plus jamais le texte entre parenthèses.',
+          'Correction d’une scène qui pouvait perdre sa synchronisation image/texte.',
+          'Une scène spéciale ou l’introduction interrompue en cours de route sera rejouée depuis le tout début au prochain lancement.',
+          'Correction d’un débordement de l’interface sur la droite qui pouvait couper certains boutons (dont Paramètres).'
+        ]
+      },
       {
         version:'5.1',
         nom:'Ça continue même caché',
