@@ -294,6 +294,25 @@
                   }
                 }
 
+                /*
+                 * Son spécial d'absorption totale (2026-09-27, Norman : « Quand un objet absorbe tous
+                 * les boosts possible, il faut un son spécial pour cette action. ») : « A + clic »/
+                 * double tap (mode:'boostAll') -- son joué seulement si au moins un boost a réellement
+                 * été absorbé (stats.applied/cube, idle-inventory-auto-v1.js), jamais sur un clic à vide.
+                 */
+                if(
+                  payload&&
+                  payload.action==='inventoryAuto'&&
+                  payload.mode==='boostAll'&&
+                  (window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.applied)>0||window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.cube)>0)
+                ){
+                  try{
+                    if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.boostAllAbsorption==='function'){
+                      window.__SOREAL_IDLE_AUDIO_V199__.boostAllAbsorption();
+                    }
+                  }catch(_e){}
+                }
+
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-296 */
                 if(
                   payload&&

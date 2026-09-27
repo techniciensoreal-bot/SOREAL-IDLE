@@ -22,10 +22,10 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=221')&&
+  index.includes('/modules/audio-effects-v199.js?v=222')&&
   index.includes('/modules/long-press-v200.js?v=201')&&
   index.includes('/soreal-idle-ui.js?v=300')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=221')<
+  index.indexOf('/modules/audio-effects-v199.js?v=222')<
     index.indexOf('/soreal-idle-ui.js?v=300'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
@@ -48,7 +48,8 @@ for(const method of [
   "mergeWeapon:fusionArme_",
   "boostPower:boostPower_",
   "boostToughness:boostToughness_",
-  "boostSpecial:boostSpecial_"
+  "boostSpecial:boostSpecial_",
+  "boostAllAbsorption:boostAllAbsorption_"
 ]){
   assert.ok(audio.includes(method),"Effet audio manquant: "+method);
 }
