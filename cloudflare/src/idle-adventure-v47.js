@@ -2662,7 +2662,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -2794,7 +2794,7 @@ if(Array.isArray(s.coffre)){
 }else{
   s.coffre={};
 }
-s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.setRewards=Object.assign(base().setRewards,s.setRewards||{});synchroniserCompletionsBoostAdventureV183_(s);s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.skillState=Object.assign(base().skillState,s.skillState&&typeof s.skillState==="object"?s.skillState:{});s.skillState.move69Uses=C(I(s.skillState.move69Uses),0,69);s.skillState.endPiece481=Boolean(s.skillState.endPiece481||s.skillState.move69Uses>=69);s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
+s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.autoPortraitSet=typeof s.autoPortraitSet==="string"?s.autoPortraitSet:"";s.setRewards=Object.assign(base().setRewards,s.setRewards||{});synchroniserCompletionsBoostAdventureV183_(s);s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.skillState=Object.assign(base().skillState,s.skillState&&typeof s.skillState==="object"?s.skillState:{});s.skillState.move69Uses=C(I(s.skillState.move69Uses),0,69);s.skillState.endPiece481=Boolean(s.skillState.endPiece481||s.skillState.move69Uses>=69);s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
 /*
  * Auto-guérison (Norman, 2026-09-09) : "j'ai été en safe zone et l'ennemi
  * est toujours présent." selectZone ne vidait jamais un combat actif
@@ -3064,11 +3064,42 @@ s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.acce
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
 /* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
 function appliquerRecompenseSetV1(s,reward){for(const [k,v] of Object.entries(reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(reward.experience);if(N(reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(reward.ap);if(N(reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(reward.energySpeed);if(N(reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(reward.energyPower);if(N(reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(reward.energyBars);if(N(reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(reward.magicPower);if(N(reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(reward.magicBars);if(N(reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(reward.magicCap);for(const k of ["r3PowerFlat","r3CapFlat","r3BarsFlat"])if(N(reward[k])>0)s.permanent[k]=N(s.permanent[k])+N(reward[k])}
+const PORTRAIT_ARMOR_SLOTS_V1=["head","chest","legs","boots","weapon"];
 function checkSets(s){
   for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
   /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
   for(const [id,d] of Object.entries(SETS_OBJETS_V1)){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
   accorderConsommablesSetsV1(s);
+}
+/*
+ * Portrait automatique par set équipé (Norman, 2026-09-27) : "il ne faut pas qu'on perde nos images de
+ * portrait quand on retire une pièce d'armure. Il faut qu'on ait remplacé entièrement le set porté pour
+ * que l'image change." Un set complet inclut désormais l'arme (tête/torse/jambes/bottes/arme), en
+ * respectant les slots RÉELS de chaque set (SETS[id].slots ci-dessus) plutôt qu'une liste fixe -- Edgy n'a
+ * pas de bottes, Wanderer's et S'rerednaW n'ont pas d'arme, ils restent donc détectables sans ces pièces.
+ * s.autoPortraitSet ne se met à jour QUE quand un set complet différent est identifié : retirer une pièce
+ * (le calcul redevient "") ne l'efface jamais -- c'est la mémoire qui rend le portrait "collant".
+ */
+function armureCompleteSetIdV1(s){
+  const eq=s.equipment||{};
+  for(const [id,d] of Object.entries(SETS)){
+    const requis=d.slots.filter(slot=>PORTRAIT_ARMOR_SLOTS_V1.includes(slot));
+    if(!requis.length)continue;
+    const complet=requis.every(slot=>{
+      const wornId=eq[slot];
+      if(!wornId)return false;
+      const piece=s.inventory.find(x=>x&&x.id===wornId);
+      if(!piece||piece.kind!=="equipment"||!piece.set)return false;
+      const pieceSet=piece.set==="bothedgy"?"edgy":String(piece.set);
+      return pieceSet===id;
+    });
+    if(complet)return id;
+  }
+  return "";
+}
+function rafraichirAutoPortraitSetV1(s){
+  const set=armureCompleteSetIdV1(s);
+  if(set)s.autoPortraitSet=set;
 }
 /*
  * Consommables donnés par la complétion d'un set (2026-09-23) : Forest (2
@@ -3290,7 +3321,7 @@ function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==
   s.equipment.accessories.push(id)
 }return}
 if(slot==="weapon2"){if(!secondeArmeDebloqueeAdventureV1(s))throw Error("SECONDE_ARME_VERROUILLEE");if(!estArmeAdventureV1(o))throw Error("SLOT_INVALIDE");if(s.equipment.weapon===id)s.equipment.weapon="";s.equipment.weapon2=id;return}
-if(!["head","chest","legs","boots","weapon"].includes(slot)||o.slot!==slot)throw Error("SLOT_INVALIDE");if(s.equipment.weapon2===id)s.equipment.weapon2="";s.equipment[slot]=id}
+if(!["head","chest","legs","boots","weapon"].includes(slot)||o.slot!==slot)throw Error("SLOT_INVALIDE");if(s.equipment.weapon2===id)s.equipment.weapon2="";s.equipment[slot]=id;rafraichirAutoPortraitSetV1(s)}
 /*
  * Norman (2026-09-11) : "je n'arrive plus à jeter des items ni à déséquiper
  * des items." Confirmé : aucune action "unequip" n'a jamais existé côté

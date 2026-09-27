@@ -126,9 +126,12 @@ export function idlePortraitSelectedIdV1(selectedId, env = {}) {
 }
 
 /*
- * Portrait automatique (Norman, 2026-09-25) : « dès qu'on a les 4 pièces d'un set équipées, peu importe le niveau, l'image du joueur devient celle
- * avec l'armure qui correspond ». env.equippedSet = identifiant du set dont les 4 pièces (head, chest, legs, boots) sont portées ; le portrait
- * du set (même identifiant) prend alors le pas sur le choix manuel — sans avoir à compléter le set — et le choix manuel revient quand on retire une pièce.
+ * Portrait automatique (Norman, 2026-09-25 ; complété 2026-09-27) : « dès qu'on a les pièces d'un set
+ * équipées, peu importe le niveau, l'image du joueur devient celle avec l'armure qui correspond ».
+ * env.equippedSet = dernier set complet équipé (tête/torse/jambes/bottes/arme, selon les slots réels du
+ * set -- voir armureCompleteSetIdV1 dans idle-adventure-v47.js), sans avoir à compléter le set. Depuis le
+ * 2026-09-27, ce set reste mémorisé même après avoir retiré une pièce : retirer une pièce ne fait plus
+ * revenir au choix manuel, seul l'équipement d'un set complet DIFFÉRENT remplace le portrait automatique.
  */
 export function idlePortraitForEquippedSetV1(setId) {
   const id = String(setId || "");

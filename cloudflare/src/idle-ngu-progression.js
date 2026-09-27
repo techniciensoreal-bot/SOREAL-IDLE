@@ -6218,24 +6218,16 @@ function minRebirthSecondsV1(state) {
 }
 
 /* Conditions de déblocage des portraits de joueur (sets complétés, souhaits, fragments SEXY/SMART). */
-/* Set dont les 4 pièces d'armure (tête, torse, jambes, bottes) sont équipées, quel que soit leur niveau ; "" sinon. Les BOTH Edgy Boots comptent pour le set Edgy. */
-export function equippedFullSetIdV1(adv) {
-  const eq = adv?.equipment || {};
-  const inv = Array.isArray(adv?.inventory) ? adv.inventory : [];
-  let premier = "";
-  for (const slot of ["head", "chest", "legs", "boots"]) {
-    const piece = eq[slot] ? inv.find(x => x && x.id === eq[slot]) : null;
-    if (!piece || piece.kind !== "equipment" || !piece.set) return "";
-    const set = piece.set === "bothedgy" ? "edgy" : String(piece.set);
-    if (!premier) premier = set;
-    else if (set !== premier) return "";
-  }
-  return premier;
-}
-
+/*
+ * Portrait automatique par set équipé (Norman, 2026-09-27) : calculé et mémorisé côté moteur d'aventure
+ * (armureCompleteSetIdV1/rafraichirAutoPortraitSetV1 dans idle-adventure-v47.js, mis à jour uniquement à
+ * l'équipement d'une pièce). state.adventure.autoPortraitSet ne s'efface jamais quand une pièce est
+ * retirée -- retirer une pièce ne fait donc plus perdre le portrait, seul l'équipement d'un set COMPLET
+ * différent le remplace.
+ */
 function portraitEnvV1(state) {
   return {
-    equippedSet: equippedFullSetIdV1(state.adventure),
+    equippedSet: state.adventure?.autoPortraitSet || "",
     completedSets: state.adventure?.completedSets || {},
     wishLevel: id => wishLevelV1(state, id),
     macguffinPct: id => macguffinPermanentPctV1(state, id),

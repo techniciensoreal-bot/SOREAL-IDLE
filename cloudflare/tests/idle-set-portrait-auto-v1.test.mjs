@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { createIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureEquipItemV1 } from "../src/idle-adventure-v47.js";
-import { equippedFullSetIdV1 } from "../src/idle-ngu-progression.js";
+import { createIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureEquipItemV1, idleAdventureUnequipItemV1 } from "../src/idle-adventure-v47.js";
 import { idlePortraitsSnapshotV1, idlePortraitForEquippedSetV1, IDLE_PORTRAITS_V1 } from "../src/idle-portraits-v1.js";
 
 /*
- * Norman (2026-09-25) : « dès qu'on a les 4 pièces d'un set équipées, peu importe le niveau, l'image du joueur devient celle avec l'armure qui
- * correspond » (dossier R2 idle/player/) ; « quand il manque une image pour un objet, un emoji bien grand et centré dans sa case ».
+ * Norman (2026-09-25, complété 2026-09-27) : « dès qu'on a les pièces d'un set équipées, peu importe le
+ * niveau, l'image du joueur devient celle avec l'armure qui correspond » (dossier R2 idle/player/) ; « il
+ * ne faut pas qu'on perde nos images de portrait quand on retire une pièce d'armure, il faut avoir
+ * remplacé entièrement le set porté pour que l'image change » ; un set complet inclut désormais l'arme
+ * (tête/torse/jambes/bottes/arme), selon les slots réels de chaque set (SETS[id].slots).
  */
-function equiper(definitions) {
-  let s = createIdleAdventureStateV47();
+function equiper(s, definitions) {
   for (const [def, niveau] of definitions) {
     s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: def, level: niveau }, {}, Date.now()).state;
     const o = s.inventory.filter((x) => x.definitionId === def).at(-1);
@@ -17,16 +18,40 @@ function equiper(definitions) {
   }
   return s;
 }
+function nouvelEtat(definitions) {
+  return equiper(createIdleAdventureStateV47(), definitions);
+}
 
-// 4 pièces du même set, niveaux quelconques : le set est détecté
-const complet = equiper([["training:head", 1], ["training:chest", 37], ["training:legs", 100], ["training:boots", 5]]);
-assert.equal(equippedFullSetIdV1(complet), "training");
-// 3 pièces seulement, ou un set mélangé : rien
-assert.equal(equippedFullSetIdV1(equiper([["training:head", 1], ["training:chest", 1], ["training:legs", 1]])), "");
-assert.equal(equippedFullSetIdV1(equiper([["training:head", 1], ["training:chest", 1], ["training:legs", 1], ["sewers:boots", 1]])), "");
-assert.equal(equippedFullSetIdV1({}), "");
-// Les BOTH Edgy Boots comptent pour le set Edgy
-assert.equal(equippedFullSetIdV1(equiper([["edgy:head", 1], ["edgy:chest", 1], ["edgy:legs", 1], ["bothedgy:boots", 1]])), "edgy");
+// 5 pièces du même set (arme incluse), niveaux quelconques : le set est détecté
+let complet = nouvelEtat([["training:head", 1], ["training:chest", 37], ["training:legs", 100], ["training:boots", 5], ["training:weapon", 1]]);
+assert.equal(complet.autoPortraitSet, "training");
+// 4 pièces seulement (arme manquante) : pas encore détecté, l'arme est désormais obligatoire
+assert.equal(nouvelEtat([["training:head", 1], ["training:chest", 1], ["training:legs", 1], ["training:boots", 1]]).autoPortraitSet, "");
+// Set mélangé, ou état neuf : rien
+assert.equal(nouvelEtat([["training:head", 1], ["training:chest", 1], ["training:legs", 1], ["sewers:boots", 1], ["training:weapon", 1]]).autoPortraitSet, "");
+assert.equal(createIdleAdventureStateV47().autoPortraitSet, "");
+
+// Retirer une pièce ne fait plus perdre le portrait automatique : il reste mémorisé (Norman, 2026-09-27)
+idleAdventureUnequipItemV1(complet, complet.equipment.head);
+assert.equal(complet.equipment.head, "", "la pièce est bien retirée");
+assert.equal(complet.autoPortraitSet, "training", "le portrait automatique reste mémorisé après le retrait d'une pièce");
+idleAdventureUnequipItemV1(complet, complet.equipment.weapon);
+assert.equal(complet.autoPortraitSet, "training", "toujours mémorisé même en ayant retiré l'arme");
+
+// Équiper un set COMPLET différent remplace le portrait mémorisé
+complet = equiper(complet, [["sewers:head", 1], ["sewers:chest", 1], ["sewers:legs", 1], ["sewers:boots", 1], ["sewers:weapon", 1]]);
+assert.equal(complet.autoPortraitSet, "sewers", "un set complet différent remplace le portrait mémorisé");
+
+// Slots réels par set (wiki, jamais une liste fixe inventée) : Edgy n'a pas de bottes, détecté sans elles
+assert.equal(
+  nouvelEtat([["edgy:head", 1], ["edgy:chest", 1], ["edgy:legs", 1], ["edgy:weapon", 1]]).autoPortraitSet,
+  "edgy"
+);
+// Wanderer's n'a pas d'arme, détecté sans elle
+assert.equal(
+  nouvelEtat([["wanderer:head", 1], ["wanderer:chest", 1], ["wanderer:legs", 1], ["wanderer:boots", 1]]).autoPortraitSet,
+  "wanderer"
+);
 
 // Le portrait automatique est celui du set (sans avoir complété le set) ; le choix manuel est conservé
 {
