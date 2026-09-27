@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.5',
+    courante:'4.6',
     versions:[
+      {
+        version:'4.6',
+        nom:'Un son pour la collection complète',
+        date:'2026-09-27',
+        points:[
+          'Compléter un set d’objets déclenche maintenant un petit son de victoire, en même temps que l’annonce à l’écran.',
+          'Ce son est nouveau : différent de celui d’un boss vaincu ou d’un menu débloqué.',
+          'Rien d’autre ne change : l’annonce du bonus obtenu reste identique.'
+        ]
+      },
       {
         version:'4.5',
         nom:'Entendu une fois, jamais deux',

@@ -4461,6 +4461,8 @@
           let def=null;
           try{def=catalogueSetsCollectionIdleV164_(a)[setId]||null;}catch(_e){}
           const libelle=def&&def.reward?libelleRecompenseSetAdventureIdleV163_(def.reward):'';
+          /* Norman (2026-09-27) : « je veux un son de victoire en même temps que la notification fade in fade out apparait. » */
+          jouerEffetAudioIdleV199_('setComplete');
           notice('🧩 Set complété : '+String((def&&def.name)||setId),[libelle?'Bonus obtenu : '+libelle:'Bonus du set obtenu !']);
         });
         if(cube&&!idleEvenementsVusV1.cube){

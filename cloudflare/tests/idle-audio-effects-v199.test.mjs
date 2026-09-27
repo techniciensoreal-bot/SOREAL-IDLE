@@ -22,11 +22,11 @@ const worker=fs.readFileSync(
 ).replace(/\r\n/g,"\n");
 
 assert.ok(
-  index.includes('/modules/audio-effects-v199.js?v=223')&&
+  index.includes('/modules/audio-effects-v199.js?v=224')&&
   index.includes('/modules/long-press-v200.js?v=201')&&
-  index.includes('/soreal-idle-ui.js?v=305')&&
-  index.indexOf('/modules/audio-effects-v199.js?v=223')<
-    index.indexOf('/soreal-idle-ui.js?v=305'),
+  index.includes('/soreal-idle-ui.js?v=306')&&
+  index.indexOf('/modules/audio-effects-v199.js?v=224')<
+    index.indexOf('/soreal-idle-ui.js?v=306'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 
@@ -49,7 +49,8 @@ for(const method of [
   "boostPower:boostPower_",
   "boostToughness:boostToughness_",
   "boostSpecial:boostSpecial_",
-  "boostAllAbsorption:boostAllAbsorption_"
+  "boostAllAbsorption:boostAllAbsorption_",
+  "setComplete:setComplet_"
 ]){
   assert.ok(audio.includes(method),"Effet audio manquant: "+method);
 }
@@ -111,9 +112,23 @@ assert.ok(
   ui.includes("jouerEffetAudioIdleV199_('nuke')")&&
   ui.includes("jouerEffetAudioIdleV199_('defeat')")&&
   ui.includes("jouerEffetAudioIdleV199_('chestOpen')")&&
-  ui.includes("jouerEffetAudioIdleV199_('chestClose')"),
+  ui.includes("jouerEffetAudioIdleV199_('chestClose')")&&
+  ui.includes("jouerEffetAudioIdleV199_('setComplete')"),
   "Toutes les transitions existantes doivent passer par V199."
 );
+
+{
+  // Norman (2026-09-27) : le son de set complété doit partir en même temps que l'annonce en fondu, jamais après ni avant.
+  const start=ui.indexOf("complets.forEach(function(setId){");
+  const end=ui.indexOf("if(cube&&!idleEvenementsVusV1.cube){",start);
+  const bloc=ui.slice(start,end);
+  const sonAt=bloc.indexOf("jouerEffetAudioIdleV199_('setComplete')");
+  const noticeAt=bloc.indexOf("notice('🧩 Set complété");
+  assert.ok(
+    sonAt>=0&&noticeAt>sonAt,
+    "Le son de set complété doit être déclenché juste avant l'annonce en fondu."
+  );
+}
 
 assert.ok(
   ui.includes("function cueAudioMutationInventaireIdleV199_(a,payload)")&&
@@ -209,7 +224,17 @@ engine.boostPower();
 state=engine.debugState();
 assert.ok(state.pending.length<=2,"La file ne doit jamais dépasser deux sons en attente.");
 
-await new Promise(resolve=>setTimeout(resolve,320));
+await new Promise(resolve=>setTimeout(resolve,2600));
+
+assert.ok(typeof engine.setComplete==="function","setComplete doit être exposé par le moteur V199.");
+state=engine.debugState();
+assert.equal(state.active,"","Rien ne doit plus être actif avant le test de setComplete.");
+engine.setComplete();
+state=engine.debugState();
+assert.equal(state.active,"setComplete","Le son de set complété doit démarrer immédiatement s'il n'y a rien d'actif.");
+await new Promise(resolve=>setTimeout(resolve,1150));
+state=engine.debugState();
+assert.equal(state.active,"","Le son de set complété doit se terminer proprement.");
 
 new Function(audio);
 new Function(ui);

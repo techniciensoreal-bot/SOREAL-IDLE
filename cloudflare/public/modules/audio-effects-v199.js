@@ -59,7 +59,13 @@
      * soit pour effectuer un achat dans le jeu. » Groupe/priorité distincts de "purchase" (jamais l'un à la
      * place de l'autre dans la file : un achat soit réussit, soit est refusé, jamais les deux).
      */
-    purchaseRefused:{group:"purchase-refused",priority:30,maxAgeMs:900}
+    purchaseRefused:{group:"purchase-refused",priority:30,maxAgeMs:900},
+    /*
+     * Norman (2026-09-27) : « Quand on complete un set, je veux un son de victoire en même temps que la notification fade in
+     * fade out apparait. » Groupe/priorité distincts de "menu-unlock" et "achievement" (pas le même déclencheur, jamais l'un à
+     * la place de l'autre dans la file).
+     */
+    setComplete:{group:"set-complete",priority:82,maxAgeMs:3200}
   };
 
   function contexte_(){
@@ -623,6 +629,28 @@
   }
 
   /*
+   * Set complété (Norman, 2026-09-27 : « Quand on complete un set, je veux un son de victoire en même temps que la notification fade in fade out
+   * apparait. Crée en 1 pour l'occasion. ») : un petit « clic » sec (la dernière pièce du set qui s'emboîte), puis un arpège ascendant à cinq notes
+   * en accord majeur complet, plus riche et plus long que la clochette de menu débloqué (menuDebloque_, 4 notes) et sans reprendre la fanfare des
+   * boss (victoireBoss_, timbre triangle) : ici en sinusoïdale pure avec un harmonique triangle discret, et un scintillement final plus large.
+   */
+  function setCompletConstruire_(c){
+    tonal_(c,{type:"square",from:1200,to:880,duration:.05,volume:.048});
+    bruit_(c,{duration:.05,volume:.030,filterType:"highpass",frequency:3000,decay:3});
+    [[523,.16,.09],[659,.17,.16],[784,.18,.23],[1047,.20,.30],[1319,.40,.39]].forEach(function(p,i){
+      tonal_(c,{type:"sine",from:p[0],to:p[0]*1.002,duration:p[1],volume:.046-i*.004,delay:p[2]});
+      tonal_(c,{type:"triangle",from:p[0]*2,to:p[0]*2,duration:p[1]*.5,volume:.014,delay:p[2]});
+    });
+    bruit_(c,{
+      duration:.32,volume:.017,delay:.42,
+      filterType:"highpass",frequency:7000,frequencyEnd:10500,decay:2.1
+    });
+  }
+  function setComplet_(){
+    return jouerWebAudio_(1080,setCompletConstruire_);
+  }
+
+  /*
    * Achat (Norman, 2026-09-26) : « un bruit de caisse enregistreuse quand on effectue un achat ». Un « clac » sec de tiroir-caisse, puis le « ding » à deux
    * notes de la clochette (partiels métalliques), et un petit tintement de pièces.
    */
@@ -1075,7 +1103,8 @@
     boostToughness:boostToughness_,
     boostSpecial:boostSpecial_,
     boostAllAbsorption:boostAllAbsorption_,
-    purchaseRefused:achatRefuse_
+    purchaseRefused:achatRefuse_,
+    setComplete:setComplet_
   };
 
   function retirerPerimes_(){
@@ -1195,7 +1224,8 @@
       purchaseGold:{duree:1000,construire:orConstruire_},
       equip:{duree:520,construire:equipConstruire_},
       skills:SONS_COMPETENCE.map(function(x){return{nom:x.id,duree:x.duree,construire:x.construire};}),
-      purchaseGem:{duree:1300,construire:gemmeConstruire_}
+      purchaseGem:{duree:1300,construire:gemmeConstruire_},
+      setComplete:{duree:1080,construire:setCompletConstruire_}
     },
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},
@@ -1225,6 +1255,7 @@
     boostToughness:function(){return demander_("boostToughness");},
     boostSpecial:function(){return demander_("boostSpecial");},
     boostAllAbsorption:function(){return demander_("boostAllAbsorption");},
+    setComplete:function(){return demander_("setComplete");},
     debugState:function(){
       return {
         active:actif?actif.name:"",
