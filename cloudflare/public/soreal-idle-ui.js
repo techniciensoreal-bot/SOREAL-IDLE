@@ -1491,6 +1491,36 @@
         return Math.max(0,Math.floor(idleNombre_(v)));
       }
 
+      /*
+       * Saisie fractionnaire (2026-09-27, Norman) : "1/8" dans un champ Input (Basic Training,
+       * Augmentations, Time Machine) doit se transformer, à la validation ou en cliquant en
+       * dehors du champ, en 1/8 de l'énergie idle libre du joueur -- pas un montant absolu tapé
+       * au hasard. "n/d" -> Math.floor(energieLibre * n/d), jamais moins que 1. Renvoie null si
+       * le texte n'est pas une fraction "n/d" (l'appelant retombe alors sur le parsing normal).
+       */
+      function idleParseFractionEnergieV1_(valeur,energieLibre){
+        const texte=String(valeur==null?'':valeur).trim();
+        const m=texte.match(/^(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)$/);
+        if(!m)return null;
+        const n=Number(m[1].replace(',','.'));
+        const d=Number(m[2].replace(',','.'));
+        if(!Number.isFinite(n)||!Number.isFinite(d)||d<=0||n<0)return null;
+        return Math.max(1,Math.floor(Math.max(0,idleNombre_(energieLibre))*(n/d)));
+      }
+
+      /*
+       * Branché sur onblur/onchange d'un input "Input" (Basic Training/Augmentations/Time
+       * Machine) : si la valeur tapée est une fraction "n/d", la réécrit en toutes lettres
+       * (le joueur voit tout de suite le vrai montant, jamais "1/8" qui resterait affiché).
+       * Sans effet si ce n'est pas une fraction (nombre déjà entier, champ vide...).
+       */
+      function idleResoudreFractionInputV1_(input){
+        if(!input)return;
+        const resolu=idleParseFractionEnergieV1_(input.value,idleEtat&&idleEtat.energie);
+        if(resolu!=null)input.value=String(resolu);
+      }
+      window.__resoudreFractionInputIdleV1__=idleResoudreFractionInputV1_;
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-23 */
       function pousserEtatVersRuntimePartageIdleV1_(){
         if(
@@ -14527,11 +14557,10 @@ let idleDialogueTimerV76=null;
               <label for="sorealIdleTrainingInputV120">Input</label>
               <input
                 id="sorealIdleTrainingInputV120"
-                type="number"
-                inputmode="numeric"
-                min="1"
-                step="1"
+                type="text"
                 value="125"
+                title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l'énergie idle libre à la validation)"
+                onblur="window.__resoudreFractionInputIdleV1__(this)"
               >
             </div>
 
