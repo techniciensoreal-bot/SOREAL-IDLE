@@ -95,7 +95,8 @@ function combatSky(mobName, rng, dropMultiplier = 1) {
   s.selloutEffects.itopodPoopKills = 8999;
   const avant = Math.random;
   Math.random = () => 0.5; // aucun jet de 0,01 % : seule la Poop garantie compte
-  try { s = advanceIdleNguState(s, 3600, ctx, T0 + 3600 * 1000); }
+  /* docs/HORS-LIGNE.md, proposition 2 : l'ITOPOD exige 650 de Power d'Aventure au total. */
+  try { s = advanceIdleNguState(s, 3600, { ...ctx, adventurePower: 1e6, adventureToughness: 1e6 }, T0 + 3600 * 1000); }
   finally { Math.random = avant; }
   const tuees = s.systems.tower.data.kills;
   assert.ok(tuees >= 1, "l'ITOPOD tue au moins un ennemi en une heure");

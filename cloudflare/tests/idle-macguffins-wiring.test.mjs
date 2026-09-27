@@ -153,7 +153,8 @@ function fragment(s, type, level, equipped) {
   s.systems.tower.active = true;
   s.systems.tower.data = { kills: 0 };
   s.systems.macguffins.data.itopodKills = 4999;
-  s = advanceIdleNguState(s, 3600, ctx, T0 + 3600 * 1000);
+  /* docs/HORS-LIGNE.md, proposition 2 : l'ITOPOD exige 650 de Power d'Aventure au total. */
+  s = advanceIdleNguState(s, 3600, { ...ctx, adventurePower: 1e6, adventureToughness: 1e6 }, T0 + 3600 * 1000);
   const tuees = s.systems.tower.data.kills;
   assert.ok(tuees >= 1, "L'ITOPOD doit tuer au moins un ennemi en une heure.");
   assert.equal(s.systems.macguffins.data.inventory.length, 1, "Le 5000e kill ITOPOD donne un fragment.");

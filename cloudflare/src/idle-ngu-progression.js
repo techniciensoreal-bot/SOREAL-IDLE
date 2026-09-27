@@ -4022,9 +4022,19 @@ function towerMilestonePpV1(floor) {
   return floor % 100 === 0 ? floor / 10 : 1 + Math.floor(floor / 100);
 }
 
+/*
+ * Page ITOPOD / Build History .398 (docs/HORS-LIGNE.md, proposition 2) : contrairement
+ * à l'Aventure classique, la progression de l'ITOPOD (en ligne comme hors ligne) n'exige
+ * pas d'y être « actif » -- seulement l'ITOPOD débloqué et 650 de Power d'Aventure au
+ * total (de quoi tuer l'étage 1 en un coup). Le réglage « active » (généré par le même
+ * bouton Activer/Désactiver que les autres systèmes) ne conditionne donc plus cette
+ * progression ; il reste dans l'état sauvegardé pour compat mais n'est plus lu ici.
+ */
+const ITOPOD_MIN_POWER_V1 = 650;
+
 function advanceTowerV1(state, seconds, context) {
   const tower = state.systems.tower;
-  if (!tower.unlocked || !tower.active || !(seconds > 0)) return;
+  if (!tower.unlocked || !(seconds > 0)) return;
   const d = tower.data;
   d.kills = Math.max(0, int(d.kills, 0));
   if (d.killsOnFloor === undefined) {
@@ -4039,7 +4049,9 @@ function advanceTowerV1(state, seconds, context) {
 
   const gear = idleAdventureEquipmentStatsV47(state.adventure);
   const bonuses = idleNguBonuses(state);
-  const power = Math.max(10, idleAdventureCombatStatsV1(gear, context, bonuses).power);
+  const powerRaw = idleAdventureCombatStatsV1(gear, context, bonuses).power;
+  if (!(powerRaw >= ITOPOD_MIN_POWER_V1)) return;
+  const power = Math.max(10, powerRaw);
   const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
   const respawn = Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1)));
   const interval = state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1;
