@@ -18,8 +18,9 @@ const debut = ui.indexOf("function arreterSurveillanceVictoireBossIdleV1_()");
 const fin = ui.indexOf("function metaTickEnergieIdleV114_()");
 const bloc = ui.slice(debut, fin);
 assert.ok(debut > 0 && fin > debut);
-// Relance forcée toutes les 1,2 s tant que le drapeau de victoire locale est levé.
-assert.match(bloc, /setInterval\(function\(\)\{[\s\S]*synchroniserJeuIdleV7_\(true\);\s*\},1200\)/);
+// Relance forcée toutes les 0,4 s tant que le drapeau de victoire locale est levé (Norman, 2026-09-27 : réduit de 1,2 s
+// pour raccourcir l'attente avant l'apparition du boss suivant).
+assert.match(bloc, /setInterval\(function\(\)\{[\s\S]*synchroniserJeuIdleV7_\(true\);\s*\},400\)/);
 // S'arrête quand le rendu remet le drapeau à zéro, quand on quitte IDLE ou qu'il n'y a plus d'état.
 assert.match(bloc, /PAGE_ACTIVE!=='idle'\|\|!idleEtat\|\|!idleVictoireBossLocaleV49/);
 // Au bout de 15 s : abandon de la prédiction, rechargement complet de l'état serveur et rendu.

@@ -1997,8 +1997,10 @@
        * et revenir pour voir le nouveau boss »). Le client prédit la victoire avant que le serveur (qui fait foi) ne l'ait enregistrée :
        * la synchronisation forcée unique lancée à ce moment revient alors « pas encore vaincu », l'état local est conservé
        * (appliquerSynchroCombatSansReflowIdleV116_) et plus rien ne relançait de synchronisation, donc l'écran restait figé jusqu'à
-       * un changement de menu (qui recharge tout). On relance la synchronisation forcée toutes les 1,2 s tant que la victoire
-       * n'est pas confirmée (le rendu qui affiche le nouveau boss remet le drapeau à zéro et arrête la surveillance) ; au bout de
+       * un changement de menu (qui recharge tout). On relance la synchronisation forcée toutes les 0,4 s (Norman, 2026-09-27 :
+       * « presque 10 secondes d'attente avant que le boss suivant apparaisse » -- 1,2 s laissait jusqu'à 1,2 s de « retard
+       * d'affichage » en plus du retard déjà pris par le serveur lui-même à confirmer la victoire) tant que la victoire n'est
+       * pas confirmée (le rendu qui affiche le nouveau boss remet le drapeau à zéro et arrête la surveillance) ; au bout de
        * 15 s sans confirmation on abandonne la prédiction locale et on adopte l'état du serveur au lieu de rester figé.
        */
       let idleVictoireSurveillanceV1=null;
@@ -2030,7 +2032,7 @@
             return;
           }
           synchroniserJeuIdleV7_(true);
-        },1200);
+        },400);
       }
 
       function metaTickEnergieIdleV114_(){
