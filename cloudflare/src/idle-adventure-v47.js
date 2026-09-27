@@ -3595,10 +3595,35 @@ function idleAdventureCoffreAccepteV1(definitionId){
   const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[definitionId];
   return Boolean(def)&&def.kind==="equipment";
 }
+/*
+ * Norman (2026-09-27) : « J'aimerai qu'on puisse trier le coffre par ordre de Zone, pièce (tete, bijoux, ...) ».
+ * Rang de zone = position du set dans IDLE_ADVENTURE_ZONES (déjà dans l'ordre de progression wiki, boss croissant) ;
+ * un set peut appartenir à plusieurs entrées (aucun cas actuel) -- on garde la première rencontrée. Rang de pièce =
+ * idleAdventureSlotRankV1, déjà utilisé pour trier les pièces d'un même set (weapon/head/chest/legs/boots puis
+ * accessoires). Rien n'est révélé de plus qu'avant : seul l'ORDRE des cases change, chaque case garde son propre
+ * `decouvert` (Règle n°2).
+ */
+const IDLE_ADVENTURE_SET_ZONE_RANK_V1=Object.freeze((()=>{
+  const rang={};
+  IDLE_ADVENTURE_ZONES.forEach((z,i)=>{
+    if(z&&z.set&&!(z.set in rang))rang[z.set]=i;
+  });
+  return rang;
+})());
+function idleAdventureCoffreZoneRankV1(setId){
+  const r=IDLE_ADVENTURE_SET_ZONE_RANK_V1[setId];
+  return r!=null?r:Number.MAX_SAFE_INTEGER;
+}
 function idleAdventureCoffreSlotsV1(s){
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
     .filter(([definitionId])=>idleAdventureCoffreAccepteV1(definitionId))
-    .sort(([a,da],[b,db])=>(da.kind==="equipment"?0:1)-(db.kind==="equipment"?0:1))
+    .sort(([a,da],[b,db])=>{
+      const zoneA=idleAdventureCoffreZoneRankV1(da.set),zoneB=idleAdventureCoffreZoneRankV1(db.set);
+      if(zoneA!==zoneB)return zoneA-zoneB;
+      const slotA=idleAdventureSlotRankV1(da.slot),slotB=idleAdventureSlotRankV1(db.slot);
+      if(slotA!==slotB)return slotA-slotB;
+      return a<b?-1:a>b?1:0;
+    })
     .map(([definitionId,def])=>{
       const occupant=s.coffre[definitionId]||null;
       const connu=Boolean(s.itemList[definitionId]?.seen);

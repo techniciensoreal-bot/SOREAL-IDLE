@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.9',
+    courante:'4.0',
     versions:[
+      {
+        version:'4.0',
+        nom:'Rangé par zone',
+        date:'2026-09-27',
+        points:[
+          'Le Coffre trie maintenant ses cases dans l’ordre des zones d’Adventure.',
+          'À l’intérieur d’une même zone, l’ordre suit le type de pièce : arme, tête, torse, jambes, bottes, puis accessoires.',
+          'Volume d’ambiance et de voix par défaut ajustés pour un rendu plus discret dès la première ouverture.'
+        ]
+      },
       {
         version:'3.9',
         nom:'Petit et bien rangé',
