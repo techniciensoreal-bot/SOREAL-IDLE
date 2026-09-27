@@ -72,6 +72,14 @@ assert.match(ui, /root\.setAttribute\('data-soreal-tts-say',texteVoixTutorielIdl
 assert.match(ui, /window\.__sorealVoiceTextesIdleV1__=function\(\)\{/);
 assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /window\.__sorealVoiceTextesIdleV1__\(\)/);
 
+// --- Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire » (scène boss 18) -- ces 5
+//     textes doivent désormais faire partie de la couverture de voice-generate.mjs, jamais un repli Piper systématique. ---
+{
+  const fonction = ui.slice(ui.indexOf("window.__sorealVoiceTextesIdleV1__=function(){"), ui.indexOf("window.__sorealVoiceTextesSystemesIdleV1__=function"));
+  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window\.__SOREAL_IDLE_STORY_POPUP_V1__\.etapes==='function'/, "les 5 textes de la scène boss 18 doivent être ajoutés à la couverture de voix pré-générées");
+  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_V1__\.etapes\(\)\.forEach\(function\(etape\)\{textes\.push\(etape\.texte\);\}\);/);
+}
+
 // --- « Lire toute l'histoire » : même composition que la chronique affichée ---
 {
   const f = ui.slice(ui.indexOf("function lireHistoireCompleteBossIdleV206_(){"), ui.indexOf("window.__lireHistoireCompleteBossIdleV206__="));

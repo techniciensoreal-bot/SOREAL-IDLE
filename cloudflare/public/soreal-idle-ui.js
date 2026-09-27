@@ -10214,6 +10214,14 @@
         Object.keys(definitions).forEach(function(cle){textes.push(texteVoixNouveauteIdleV1_(definitions[cle]));});
         textes.push(texteVoixNouveauteIdleV1_(infoMoneyPitIdleV1_()));
         textes.push(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);
+        /*
+         * Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire » (scène boss 18) --
+         * ces 5 textes n'étaient dans AUCUNE liste couverte par voice-generate.mjs, donc toujours un repli
+         * Piper (synthèse en direct, lente) au lieu d'un fichier pré-généré.
+         */
+        if(window.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes==='function'){
+          window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes().forEach(function(etape){textes.push(etape.texte);});
+        }
         return textes;
       };
 

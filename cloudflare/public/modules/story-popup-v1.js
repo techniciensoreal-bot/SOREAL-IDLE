@@ -48,6 +48,16 @@ function dureeApprox_(texte){
   return s;
 }
 
+/*
+ * Norman (2026-09-27) : « il y a un long écran noir avant qu'elle ne lise la suite ». Cause : une fois la
+ * narration RÉELLEMENT terminée (le rappel de readText, ecoule = sa vraie durée), le code attendait encore
+ * Math.max(0,plancher-ecoule) -- tout le temps qu'il restait jusqu'au plancher approximatif (14 car/s), alors
+ * que le joueur avait déjà fini d'entendre le texte. Ce plancher ne doit servir qu'à éviter un cut brutal si la
+ * narration se termine anormalement vite (échec, voix indisponible) -- jamais à retarder après une lecture
+ * normale. Grâce fixe et courte à la place.
+ */
+var PAUSE_MIN_APRES_LECTURE_MS=500;
+
 function urlImage_(index){
   return '/api/idle/media/story?id='+encodeURIComponent(STORY_ID)+'&index='+encodeURIComponent(String(index));
 }
@@ -112,7 +122,27 @@ function considerer_(j){
   demarrer_();
 }
 
+/*
+ * Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire ». Cause : ces 5 textes ne
+ * faisaient partie d'AUCUNE liste couverte par la génération de voix (voir voice-generate.mjs, prechauffer_
+ * dans tutorial-tts-v202.js), donc jamais de fichier pré-généré -- repli systématique sur Piper (synthèse
+ * neurale EN DIRECT dans le navigateur), lente au premier démarrage. Comme pour les pages de tutoriel
+ * (prechaufferVoixTutorielIdleV1_), la voix de l'étape suivante est préchargée (jamais jouée) pendant que
+ * l'étape affichée est encore en cours, sans jamais interrompre la narration active (prechauffer_ met en
+ * cache par empreinte, indépendamment de la lecture -- voir son commentaire dans tutorial-tts-v202.js).
+ */
+function prechaufferEtape_(i){
+  if(i<0||i>=ETAPES.length)return;
+  try{
+    var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+    if(tts&&typeof tts.prechauffer==='function')tts.prechauffer(ETAPES[i].texte);
+  }catch(_e){}
+}
+
 function demarrer_(){
+  /* Tête de départ pour la première étape : lancé avant même le montage du DOM (installerStyle_/overlay). */
+  prechaufferEtape_(0);
+  prechaufferEtape_(1);
   installerStyle_();
   var overlay=document.createElement('div');
   overlay.id=OVERLAY_ID;
@@ -157,6 +187,7 @@ function demarrer_(){
     var texte=ETAPES[i].texte;
     afficherImage_(i+1);
     texteEl.textContent=texte;
+    prechaufferEtape_(i+1);
 
     var appele=false;
     var suivant=function(){
@@ -166,7 +197,6 @@ function demarrer_(){
     };
 
     var plancher=dureeApprox_(texte);
-    var debut=Date.now();
     /* Filet de sécurité : narrate_ appelle toujours son rappel exactement une fois (succès, échec ou voix indisponible) --
        voir tutorial-tts-v202.js -- mais un délai généreux au-delà du plancher couvre tout autre imprévu sans bloquer le joueur. */
     var securite=setTimeout(suivant,plancher+30000);
@@ -176,9 +206,10 @@ function demarrer_(){
       var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
       if(tts&&typeof tts.readText==='function'){
         demarreTts=tts.readText(texte,undefined,function(){
-          var ecoule=Date.now()-debut;
+          /* Lecture réellement terminée : juste une petite grâce avant de passer à la suite, jamais toute la
+             durée restante jusqu'au plancher (voir PAUSE_MIN_APRES_LECTURE_MS). */
           clearTimeout(securite);
-          setTimeout(suivant,Math.max(0,plancher-ecoule));
+          setTimeout(suivant,PAUSE_MIN_APRES_LECTURE_MS);
         });
       }
     }catch(_e){

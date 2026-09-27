@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.3',
+    courante:'5.4',
     versions:[
+      {
+        version:'5.4',
+        nom:'Plus vite, sans coupure',
+        date:'2026-09-27',
+        points:[
+          'La voix de la scène spéciale du boss 18 démarre beaucoup plus vite (voix préchargée à l’avance).',
+          'Plus de long silence entre deux images de cette scène une fois la lecture terminée.',
+          'Petites optimisations internes de la narration vocale.'
+        ]
+      },
       {
         version:'5.3',
         nom:'Pendant ton absence, pour de vrai',

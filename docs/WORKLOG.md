@@ -2086,3 +2086,15 @@ Norman : « Je n'ai pas le popup en relançant le jeu comme indiqué dans la 5.0
 Tests : `idle-offline-summary-energy-real-v1` (nouveau), `idle-story-popup-magicien-v1` (cas 9/10), `idle-boss-reward-footer-v1`, `idle-audio-effects-v199`/`idle-inventory-gestures-v200`/`idle-info-money-pit-v204`/`idle-augmentation-visible-full-tick-v218`/`idle-basic-training-visible-full-tick-v219`/`idle-energy-adventure-hp-v200` (cache-bust).
 
 Versions : ui `312`, story-popup `3`, css `10`, notes `37`, Beta `5.3`.
+
+## 2026-09-27 (suite) — IDLE Beta 5.4 « Plus vite, sans coupure »
+
+Norman : « La voix met très longtemps avant de commencer à lire le texte. Ensuite il y a un long écran noir avant qu'elle ne lise la suite. »
+
+- **Voix lente à démarrer** : les 5 textes de la scène « Le Magicien et la Grotte » (boss 18) n'étaient dans AUCUNE liste couverte par `voice-generate.mjs` -- toujours un repli sur Piper (synthèse neurale EN DIRECT dans le navigateur, lente au démarrage), jamais de fichier pré-généré. Ajoutés à `window.__sorealVoiceTextesIdleV1__()` (soreal-idle-ui.js) via `window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes()`. Comme pour les autres textes de cette liste, les fichiers restent à générer depuis un poste avec accès réseau (`node cloudflare/tools/voice-generate.mjs`).
+- **Long écran noir entre deux images** : `story-popup-v1.js` attendait, après la fin RÉELLE de la narration (le rappel de `readText`), `Math.max(0,plancher-ecoule)` -- tout le temps restant jusqu'au plancher approximatif (14 caractères/seconde), alors que le joueur avait déjà fini d'entendre le texte. Ce plancher ne doit servir qu'à éviter un cut brutal si la narration se termine anormalement vite (échec, voix indisponible) -- remplacé par une grâce fixe courte (`PAUSE_MIN_APRES_LECTURE_MS`, 500 ms).
+- **Préchargement** : comme pour les pages de tutoriel (`prechaufferVoixTutorielIdleV1_`), l'étape suivante est préchargée (`tts.prechauffer`, jamais joué, sans interrompre la narration active) pendant que l'étape affichée est encore en cours -- réduit encore le délai de démarrage des étapes 2 à 5, une fois les fichiers pré-générés.
+
+Tests : `idle-story-popup-magicien-v1` (nouveau cas 11 : préchargement + grâce courte après lecture réelle), `idle-voice-pregenerated-v1` (nouvelle vérification du branchement), cache-bust (`idle-audio-effects-v199`, `idle-inventory-gestures-v200`, `idle-info-money-pit-v204`, `idle-augmentation-visible-full-tick-v218`, `idle-basic-training-visible-full-tick-v219`, `idle-energy-adventure-hp-v200`).
+
+Versions : ui `313`, story-popup `4`, notes `38`, Beta `5.4`.

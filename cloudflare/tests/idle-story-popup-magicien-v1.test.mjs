@@ -71,7 +71,8 @@ function fabriquerHorloge() {
       meilleur[1].fn();
       return true;
     },
-    enAttente() { return taches.size; }
+    enAttente() { return taches.size; },
+    delaisEnAttente() { return [...taches.values()].map((t) => t.ms); }
   };
 }
 
@@ -227,6 +228,41 @@ function charger(window, document, horloge) {
   assert.ok(iBloc > 0, "le bloc « Outils de test » doit être gardé par estAdminSorealIdle_()");
   const bloc = page.slice(iBloc, page.indexOf("__SOREAL_IDLE_STORY_POPUP_V1__.rejouer()", iBloc) + 60);
   assert.match(bloc, /window\.__SOREAL_IDLE_STORY_POPUP_V1__&&window\.__SOREAL_IDLE_STORY_POPUP_V1__\.rejouer\(\)/, "le bouton doit appeler rejouer() sur le module d'histoire");
+}
+
+// 11. Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire » + « long écran noir avant
+//     qu'elle ne lise la suite ». Préchargement de l'étape suivante pendant la lecture (jamais une lecture
+//     interrompue), et une fois la lecture RÉELLEMENT terminée, une grâce fixe courte -- jamais toute la durée
+//     restante jusqu'au plancher approximatif.
+{
+  const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
+  const prechauffeAppels = [];
+  window_.__SOREAL_IDLE_TUTORIAL_TTS_V209__ = {
+    prechauffer(texte) { prechauffeAppels.push(texte); return true; },
+    readText(texte, _audioSrc, onDone) {
+      // Lecture "instantanée" (fichier déjà en cache/préchargé) : le rappel arrive tout de suite.
+      onDone();
+      return true;
+    }
+  };
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  const api = charger(window_, document_, horloge);
+
+  // Préchargement des étapes 0 et 1 dès l'ouverture, avant même le montage du DOM.
+  api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
+  const etapes = api.etapes();
+  assert.deepEqual(prechauffeAppels, [etapes[0].texte, etapes[1].texte, etapes[1].texte], "étapes 0 et 1 préchargées au démarrage, étape 1 repréchargée (sans effet, déjà en cache) dès le début de l'étape 0");
+
+  // Une fois la lecture "terminée" (onDone synchrone ci-dessus), l'attente avant l'étape suivante doit être une
+  // grâce fixe courte (PAUSE_MIN_APRES_LECTURE_MS), jamais liée à la longueur du texte (le plancher dépasserait 4 s).
+  const delais = horloge.delaisEnAttente();
+  assert.ok(delais.length > 0 && delais.every((ms) => ms <= 600), "attente courte après une lecture réellement terminée, jamais le plancher complet : " + JSON.stringify(delais));
+
+  while (horloge.avancer()) {}
+  // Chaque étape suivante doit elle aussi avoir été préchargée en cours de route (étapes 2, 3, 4).
+  assert.ok(prechauffeAppels.includes(etapes[2].texte) && prechauffeAppels.includes(etapes[3].texte) && prechauffeAppels.includes(etapes[4].texte), "chaque étape suivante est préchargée pendant la lecture de la précédente");
 }
 
 console.log("idle-story-popup-magicien-v1: OK");
