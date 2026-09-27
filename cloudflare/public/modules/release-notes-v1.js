@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.5',
+    courante:'3.6',
     versions:[
+      {
+        version:'3.6',
+        nom:'Absence contrôlée',
+        date:'2026-09-27',
+        points:[
+          'Une nouvelle option de combat automatique permet d’engager, en ligne comme hors ligne, certains adversaires déjà avancés que tu es assez fort pour vaincre.',
+          'Certains systèmes de fin de partie continuent de progresser même quand tu n’y es pas, hors ligne compris, dès que tu es assez puissant.',
+          'Basic Training rattrape maintenant une absence aussi longue que les autres systèmes du jeu.'
+        ]
+      },
       {
         version:'3.5',
         nom:'Ça tinte',
