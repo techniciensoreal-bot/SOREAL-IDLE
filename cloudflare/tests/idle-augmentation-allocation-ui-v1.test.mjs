@@ -62,7 +62,8 @@ const alloue = (s, pair = "scissors", upgrade = false) => s.systems.augmentation
 // --- Client : − / + / Max par piste, Input, énergie libre, Tout retirer ; plus de 0/25/50/100 % ---
 const module_ = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const page = module_.slice(module_.indexOf("function pageAugmentationsIdleV48_(j)"), module_.indexOf("function pageTimeMachineIdleV48_(j)"));
-assert.ok(page.includes("[['moins','−'],['plus','+'],['max','Max']]"));
+assert.ok(page.includes("[['plus','+'],['moins','−'],['max','Max']]"), "+ avant − avant Max, comme Basic Training et Time Machine (2026-09-27)");
+assert.ok(page.includes('class="soreal-idle-bt-actions-v120"'), "réutilise le style +vert/−rouge/Maxbleu de Basic Training, pas le bouton générique bleu");
 assert.ok(page.includes("window.__ajusterAugmentIdleV1__("));
 assert.ok(!page.includes("['0%','25%','50%','100%']"), "les pourcentages du Cap ont disparu des Augmentations");
 assert.match(page, /id="sorealIdleAugInputV1"/);
