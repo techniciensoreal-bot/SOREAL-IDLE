@@ -53,7 +53,13 @@
      * haute que boostPower/Toughness/Special (même groupe : peut les interrompre) puisque c'est un
      * événement plus gros, pas une simple absorption individuelle.
      */
-    boostAllAbsorption:{group:"inventory-boost",priority:65,maxAgeMs:1500}
+    boostAllAbsorption:{group:"inventory-boost",priority:65,maxAgeMs:1500},
+    /*
+     * Norman (2026-09-27) : « Je veux un bruit qui indique qu'on a pas assez d'argent ou d'ap ou quoi que ce
+     * soit pour effectuer un achat dans le jeu. » Groupe/priorité distincts de "purchase" (jamais l'un à la
+     * place de l'autre dans la file : un achat soit réussit, soit est refusé, jamais les deux).
+     */
+    purchaseRefused:{group:"purchase-refused",priority:30,maxAgeMs:900}
   };
 
   function contexte_(){
@@ -738,6 +744,15 @@
     });
   }
 
+  /* Achat refusé (ressources insuffisantes) : deux petits « buzz » graves qui redescendent, nettement négatif. */
+  function achatRefuse_(){
+    return jouerWebAudio_(260,function(c){
+      tonal_(c,{type:"square",from:180,to:120,duration:.10,volume:.045});
+      tonal_(c,{type:"square",from:150,to:90,duration:.12,volume:.040,delay:.09});
+      bruit_(c,{duration:.08,volume:.020,delay:0,filterType:"lowpass",frequency:900,frequencyEnd:400,decay:3});
+    });
+  }
+
   function coffreOuverture_(){
     return jouerWebAudio_(470,function(c){
       bruit_(c,{
@@ -1059,7 +1074,8 @@
     boostPower:boostPower_,
     boostToughness:boostToughness_,
     boostSpecial:boostSpecial_,
-    boostAllAbsorption:boostAllAbsorption_
+    boostAllAbsorption:boostAllAbsorption_,
+    purchaseRefused:achatRefuse_
   };
 
   function retirerPerimes_(){

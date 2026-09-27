@@ -117,7 +117,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
   const ui = lire("cloudflare/public/soreal-idle-ui.js");
   assert.ok(ui.includes("window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));"), "vérification à chaque rendu, clé par joueur");
   const index = lire("cloudflare/public/index.html");
-  for (const m of ["/modules/purchase-sound-v1.js?v=3", "/modules/achievement-notice-v1.js?v=1"]) assert.ok(index.includes(m), m);
+  for (const m of ["/modules/purchase-sound-v1.js?v=4", "/modules/achievement-notice-v1.js?v=1"]) assert.ok(index.includes(m), m);
   assert.ok(index.indexOf("/modules/audio-effects-v199.js") < index.indexOf("/modules/purchase-sound-v1.js") && index.indexOf("/modules/purchase-sound-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "chargés avant le jeu, après le son");
   const fade = lire("cloudflare/public/modules/fade-notice-v1.js");
   assert.ok(fade.includes("options.accent") && fade.includes("n.accent"), "l'annonce en fondu accepte une couleur d'accent");

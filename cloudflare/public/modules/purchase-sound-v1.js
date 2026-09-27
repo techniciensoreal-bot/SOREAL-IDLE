@@ -2,8 +2,15 @@
  * SOREAL IDLE — bruit de caisse enregistreuse à chaque achat (Norman, 2026-09-26).
  *
  * Point de passage unique : tout achat du jeu est un appel serveur (google.script.run). Ce module enveloppe `google.script.run` : quand un appel d'achat
- * revient RÉUSSI (`ok:true` — un achat refusé, faute de moyens par exemple, répond `ok:false` et reste muet), le son « purchase » est joué. Il n'y a donc aucun
- * appel à ajouter dans les dizaines de boutons d'achat, présents ou futurs ; il suffit de déclarer ici le nom de l'opération ou de l'action.
+ * revient RÉUSSI (`ok:true`), le son « purchase » est joué. Il n'y a donc aucun appel à ajouter dans les dizaines de boutons d'achat, présents ou futurs ;
+ * il suffit de déclarer ici le nom de l'opération ou de l'action.
+ *
+ * Norman (2026-09-27) : « Je veux un bruit qui indique qu'on a pas assez d'argent ou d'ap ou quoi que ce soit pour effectuer un achat. » Même point de
+ * passage, mais côté ÉCHEC cette fois : un `ok:false` ne revient jamais au success handler ici (callIdleV1/jsonFetchV1, standalone-bridge.js, LÈVE une
+ * Error dès que `data.ok===false` -- confirmé en lisant le code, pas supposé -- et son message est alors exactement `data.message`, donc le code d'erreur
+ * serveur tel que "OR_INSUFFISANT"), donc c'est le FAILURE handler qu'il faut inspecter, pas le success handler. Toute opération d'achat (OPERATIONS) est
+ * un stub legacy toujours désactivé (SOREAL_IDLE_V47_LEGACY_DISABLED, jamais lié aux ressources) : seules les actions de progression (ACTIONS, via
+ * agirProgressionSorealIdle) peuvent réellement être refusées pour faute de moyens.
  */
 (function(){
 'use strict';
@@ -29,6 +36,21 @@ function estAchat(nom,args,resultat){
     return Boolean(payload&&typeof payload==='object'&&ACTIONS[String(payload.action||'')]);
   }
   return false;
+}
+
+/* Codes « ressource insuffisante » (idle-ngu-progression.js, throw new Error(...)) -- jamais ACHAT_AU_MAXIMUM ni un verrou de niveau/palier, qui ne sont pas une histoire d'argent. */
+var CODES_RESSOURCE_INSUFFISANTE={
+  EXP_INSUFFISANTE:1,EXP_INSUFFISANT:1,OR_INSUFFISANT:1,SANG_INSUFFISANT:1,
+  GRAINES_INSUFFISANTES:1,RESSOURCE_YGG_INSUFFISANTE:1,GPS_INSUFFISANT:1,MONNAIE_INSUFFISANTE:1
+};
+
+/* `erreur` est l'Error levée à l'échec (jamais un `resultat` -- voir note plus haut) : seul son .message porte le code serveur. */
+function estAchatRefuse(nom,args,erreur){
+  if(!erreur)return false;
+  if(nom!=='agirProgressionSorealIdle')return false;
+  var payload=Array.isArray(args)?args[1]:null;
+  if(!(payload&&typeof payload==='object'&&ACTIONS[String(payload.action||'')]))return false;
+  return Boolean(CODES_RESSOURCE_INSUFFISANTE[String(erreur.message||'')]);
 }
 
 /* Son propre à certaines actions (Norman, 2026-09-26) : EXP Shop = pièces d'or ; Boutique AP = pierre précieuse ; tous les autres achats gardent la caisse enregistreuse. */
@@ -60,13 +82,14 @@ function envelopper(){
   var nouveau=function(){
     var runner=origine.call(script);
     var succes=null;
+    var echec=null;
     var proxy=new Proxy({},{
       get:function(_cible,prop){
         if(prop==='withSuccessHandler'){
           return function(fn){succes=typeof fn==='function'?fn:null;return proxy;};
         }
         if(prop==='withFailureHandler'){
-          return function(fn){runner.withFailureHandler(fn);return proxy;};
+          return function(fn){echec=typeof fn==='function'?fn:null;return proxy;};
         }
         if(prop==='then')return undefined;
         return function(){
@@ -75,6 +98,10 @@ function envelopper(){
           runner.withSuccessHandler(function(resultat){
             try{if(estAchat(nom,args,resultat))jouer(sonAchat(nom,args));}catch(_){}
             if(succes)succes(resultat);
+          });
+          runner.withFailureHandler(function(erreur){
+            try{if(estAchatRefuse(nom,args,erreur))jouer('purchaseRefused');}catch(_){}
+            if(echec)echec(erreur);
           });
           runner[nom].apply(runner,args);
           return proxy;
@@ -101,7 +128,9 @@ function envelopperAppel(){
     try{
       Promise.resolve(promesse).then(function(resultat){
         try{if(estAchat(String(nom),args,resultat))jouer(sonAchat(String(nom),args));}catch(_){}
-      },function(){});
+      },function(erreur){
+        try{if(estAchatRefuse(String(nom),args,erreur))jouer('purchaseRefused');}catch(_){}
+      });
     }catch(_){}
     return promesse;
   };
