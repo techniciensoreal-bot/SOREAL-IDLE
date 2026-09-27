@@ -32,15 +32,16 @@ assert.equal(hash("Bonjour."), hash("  Bonjour.  "));
 assert.equal(hash("Bonjour   tout\nle monde."), hash("Bonjour tout le monde."));
 assert.notEqual(hash("Bonjour."), hash("Bonjour !"));
 
-// --- Composition d'une chronique = balisage affiché (titre, nom, notes, récit, mêmes pauses) ---
+// --- Composition d'une chronique = balisage affiché (nom, notes, récit, mêmes pauses) -- Norman (2026-09-27) : le narrateur ne dit plus
+//     "Chronique du boss" (redondant, le titre reste affiché à l'écran mais n'est plus prononcé, data-soreal-tts-ignore). ---
 assert.deepEqual(plan(composer("Gorgonzola", "Il était une fois.")), [
-  { chunk: "Chronique du boss" }, { pause: 450 }, { chunk: "Gorgonzola" }, { pause: 1100 }, { chunk: "Il était une fois." }
+  { chunk: "Gorgonzola" }, { pause: 1100 }, { chunk: "Il était une fois." }
 ]);
 assert.deepEqual(plan(composer("Gorgonzola", "(Zone débloquée !)\n\n(Autre note.)\n\nRécit. (pas une note)")), [
-  { chunk: "Chronique du boss" }, { pause: 450 }, { chunk: "Gorgonzola" }, { pause: 1100 },
+  { chunk: "Gorgonzola" }, { pause: 1100 },
   { chunk: "(Zone débloquée ! )" }, { pause: 700 }, { chunk: "(Autre note. )" }, { pause: 700 }, { chunk: "Récit. (pas une note)" }
 ]);
-assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450"/);
+assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss/);
 assert.match(ui, /soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100"/);
 assert.match(ui, /soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700"/);
 

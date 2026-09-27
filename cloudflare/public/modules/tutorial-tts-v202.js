@@ -241,13 +241,17 @@
   }
 
   /*
-   * Texte lu pour une chronique de boss : titre, nom, notes de déblocage « (…) » du début, récit — avec les pauses du bloc affiché
+   * Texte lu pour une chronique de boss : nom, notes de déblocage « (…) » du début, récit — avec les pauses du bloc affiché
    * (voir histoireBossMarkupIdleV142_, qui utilise le même motif). Tous les endroits qui lisent une histoire de boss passent par ici :
    * les blocs de texte, donc les fichiers de voix pré-générées, sont ainsi les mêmes partout.
+   *
+   * Norman (2026-09-27) : « le narrateur ne doit pas dire "Chronique du boss", c'est redondant ». Le titre visuel « Chronique du boss »
+   * reste affiché à l'écran (soreal-idle-boss-lore-title-v168) -- seule la voix ne le prononce plus, ici et dans le panneau de lecture
+   * automatique (soreal-idle-ui.js, marqué data-soreal-tts-ignore).
    */
   var MOTIF_NOTE_BOSS=/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/;
   function composerChronique_(nom,histoire){
-    var out='Chronique du boss '+PAUSE_OPEN+'450'+PAUSE_CLOSE+' '+String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
+    var out=String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
     var narration=String(histoire||'').trim();
     for(;;){
       var m=narration.match(MOTIF_NOTE_BOSS);

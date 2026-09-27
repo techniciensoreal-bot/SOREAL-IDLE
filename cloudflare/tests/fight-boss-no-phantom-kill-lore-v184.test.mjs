@@ -80,7 +80,8 @@ assert.ok(
   "La chronique du boss doit rester sous les trois boutons."
 );
 
-assert.match(ui,/soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450">Chronique du boss/);
+/* Norman (2026-09-27) : le titre reste affiché, mais n'est plus prononcé par le narrateur (redondant avec le nom du boss juste après). */
+assert.match(ui,/soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss/);
 assert.match(ui,/soreal-idle-boss-lore-name-v184/);
 assert.match(css,/color:#d8ad50/);
 assert.match(css,/font-family:Georgia,"Palatino Linotype","Book Antiqua",Palatino,serif/);

@@ -2051,3 +2051,12 @@ Versions : release-notes `28`, Beta `3.6` (notes sans nommer les systèmes conce
 ## 2026-09-27 (suite) — Voix régénérées pour les 2 textes laissés en attente (accès réseau)
 
 Un agent cloud avait changé deux textes (blague du popup « Le NOMBRE », commit `c867069` ; nouveau texte du boss n°4 « Tippy », commit `251c846`) mais ne pouvait pas régénérer leur voix pré-enregistrée (bac à sable sans accès réseau vers le site de prod ni huggingface.co). Fait depuis ce poste (accès réseau disponible) : `node cloudflare/tools/voice-generate.mjs --workers 2 --prune`. Les 2 fichiers manquants sont générés, les 2 orphelins de l'ancien texte du NOMBRE supprimés. Test `idle-voice-pregenerated-v1` : tolérance temporaire retirée, couverture stricte à nouveau vérifiée.
+
+## 2026-09-27 (suite) — IDLE Beta 3.8 « Silence, on écoute » : le narrateur ne dit plus « Chronique du boss »
+
+Norman : « quand le narrateur raconte l'histoire des boss, j'aimerai qu'il ne dise pas "Chronique du boss", c'est redondant ». Le titre visuel reste affiché à l'écran (`soreal-idle-boss-lore-title-v168`), seule la voix change :
+- `composerChronique_` (`modules/tutorial-tts-v202.js`) ne prépend plus « Chronique du boss » + pause : le texte commence directement par le nom du boss. Source unique pour les voix pré-générées, la fiche/collection d'un boss (« Lire cette histoire ») et « Lire toute l'histoire ».
+- Panneau de lecture automatique à la rencontre d'un boss (`soreal-idle-boss-lore-title-v168`, Fight Boss) : marqué `data-soreal-tts-ignore` au lieu de `data-soreal-tts-pause="450"` — le titre reste visible, la lecture par balayage du DOM (mécanisme séparé de `composerChronique_`) le saute désormais.
+- 1 fichier voix pré-générée devenu orphelin (l'ancien bloc partagé « Chronique du boss ») supprimé (`--prune`).
+
+Versions : ui `303`, tts `238`, notes `29`, Beta `3.8`.

@@ -41,8 +41,8 @@ assert.deepEqual(plan("A" + marque(99999) + "B")[1], { pause: 5000 }, "pause pla
 assert.match(tts, /assurer\(prochainTexte\(i\+1\),true\);/);
 assert.match(tts, /el\.getAttribute\('data-soreal-tts-pause'\)/);
 
-// --- Balisage de la chronique ---
-assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450"/);
+// --- Balisage de la chronique -- Norman (2026-09-27) : le titre reste affiché mais n'est plus prononcé (redondant). ---
+assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss/);
 assert.match(ui, /soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100"/);
 assert.match(ui, /soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore/);
 
