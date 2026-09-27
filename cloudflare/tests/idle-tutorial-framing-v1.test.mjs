@@ -34,10 +34,14 @@ const src = readFileSync("cloudflare/public/modules/tutorial-framing-v1.js", "ut
 const fen = { addEventListener() {}, innerWidth: 1024, innerHeight: 768 };
 vm.runInNewContext(src, { window: fen, document: { addEventListener() {}, querySelector: () => null }, setTimeout, clearTimeout, requestAnimationFrame: (f) => f(), getComputedStyle: () => ({ top: "6px" }) });
 const api = fen.__SOREAL_IDLE_TUTO_CADRAGE_V1__;
-assert.deepEqual([...api.cadrages].sort(), ["barres", "bas", "blocage", "energie", "energie1", "fight", "saisie", "stats"]);
+assert.deepEqual([...api.cadrages].sort(), ["barres", "bas", "blocage", "energie", "energie1", "expEnergie", "fight", "saisie", "stats"]);
 for (const [regle, morceau] of [
   ["Basic Training (stats) : menu entrainement", "stats:{\n    menu:'entrainement'"],
   ["Fight Boss : menu combat", "fight:{\n    menu:'combat'"],
+  ["Conseil de pro (expEnergie) : menu shop", "expEnergie:{\n    menu:'shop'"],
+  ["Conseil de pro : bascule l'onglet Shop vers EXP Shop", "window.__changerOngletShopIdleV1__('exp')"],
+  ["Conseil de pro : bascule l'onglet EXP Shop vers Energie", "window.__ongletExpShopIdleV1__('energy')"],
+  ["Conseil de pro : fenêtre sous la dernière offre unique (ou l'onglet, à défaut)", "poser(r,base+8)"],
   ["fenêtre sous les cases du haut", "poser(r,g.getBoundingClientRect().bottom+8)"],
   ["fenêtre sous la barre verte", "poser(r,$('.soreal-idle-energybar-wrap-v11').getBoundingClientRect().bottom+8)"],
   ["fenêtre sous « Tout retirer »", "$('.soreal-idle-bt-toolbar-v120 button.clear').getBoundingClientRect().bottom+8"],
@@ -50,7 +54,7 @@ for (const [regle, morceau] of [
   ["barres : fenêtre en haut, Attaque passive dessous", "if(V-8-distance>=haut+P+8)"],
   ["fenêtre déplacée à la main : plus replacée", "data-cadre-deplace"]
 ]) assert.ok(src.includes(morceau), regle);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=3"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=4"));
 
 /*
  * Norman (2026-09-26) : page « Basic Training » sans « Passer » ni « Suivant », le + d'Attaque passive clignote et le clic passe à « Bien joué » ; là c'est le −
@@ -97,8 +101,16 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
 
   const b0 = ui.indexOf("const TUTORIEL_PREMIER_BOSS_PAGES_V1=[");
   const premierBoss = ui.slice(b0, ui.indexOf("function idleTutorielPagesDejaVuLocalV1_(cle){"));
-  assert.equal((premierBoss.match(/cadrage:'bas',/g) || []).length, 4, "les 4 pages du premier boss sont posées en bas de l'écran");
+  assert.equal((premierBoss.match(/cadrage:'bas',/g) || []).length, 3, "3 des 4 pages du premier boss sont posées en bas de l'écran (la 4e, « Conseil de pro », ouvre Shop/Energie)");
   assert.ok(framing.includes("bas:{") && framing.includes("placer:function(r){poser(r,hauteurFenetre());}"), "cadrage « bas » : tout en bas, rien ne bouge");
+
+  /*
+   * Norman (2026-09-27) : « je voudrais qu'on soit directement dans le shop, onglet Energie avec le popup
+   * placé juste en dessous des offres uniques » -- page « Conseil de pro » (qui parle des achats EXP).
+   */
+  const iConseil = ui.indexOf("titre:'Conseil de pro',");
+  assert.ok(iConseil > 0, "page « Conseil de pro » introuvable");
+  assert.ok(ui.slice(ui.lastIndexOf("cadrage:", iConseil), iConseil).includes("cadrage:'expEnergie',"), "Conseil de pro : cadrage expEnergie");
 }
 
 

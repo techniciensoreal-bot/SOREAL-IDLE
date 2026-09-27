@@ -9863,7 +9863,7 @@
           ]
         },
         {
-          cadrage:'bas',
+          cadrage:'expEnergie',
           titre:'Conseil de pro',
           paragraphes:[
             'Il y a plein de trucs à acheter avec l’EXP, mais ne panique pas ! Notre conseil de pro : achète les offres spéciales qui augmentent la vitesse de remplissage de la barre d’Énergie. On les a faites spécifiquement pour des débutants comme toi... ne le prends pas mal.'

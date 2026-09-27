@@ -132,6 +132,38 @@ var CADRAGES={
     pret:function(){return true;},
     placer:function(r){poser(r,hauteurFenetre());}
   },
+  /*
+   * Norman (2026-09-27) : « je voudrais qu'on soit directement dans le shop, onglet Energie avec le popup placé
+   * juste en dessous des offres uniques » (page « Conseil de pro » du tutoriel, qui parle des achats EXP).
+   * Bascule elle-même les deux onglets internes de Shop (EXP Shop, puis Energie) -- `menu` ne gère que le menu
+   * de premier niveau, ces onglets internes n'ont pas d'autre accroche existante.
+   */
+  expEnergie:{
+    menu:'shop',
+    pret:function(){
+      var ongletExp=$('.soreal-idle-shop-onglet-v1[onclick*="\'exp\'"]');
+      if(!ongletExp)return false;/* page Shop pas encore rendue */
+      if(!ongletExp.classList.contains('active')){
+        if(typeof window.__changerOngletShopIdleV1__==='function')window.__changerOngletShopIdleV1__('exp');
+        return false;/* le changement d'onglet redessine la page : on revérifie au prochain passage */
+      }
+      var ongletEnergie=$('.soreal-idle-exp-tab-v212[onclick*="\'energy\'"]');
+      if(!ongletEnergie)return false;
+      if(!ongletEnergie.classList.contains('actif')){
+        if(typeof window.__ongletExpShopIdleV1__==='function')window.__ongletExpShopIdleV1__('energy');
+        return false;
+      }
+      return true;
+    },
+    placer:function(r){
+      var offres=document.querySelectorAll('.soreal-idle-exp-newbie-v210');
+      var cible=offres.length?offres[offres.length-1]:$('.soreal-idle-exp-tab-v212.actif');
+      var haut=hautSur();
+      amenerEn(cible,haut);
+      var base=cible?cible.getBoundingClientRect().bottom:haut+40;
+      poser(r,base+8);
+    }
+  },
   fight:{
     menu:'combat',
     pret:function(){return $('.soreal-idle-page-head-v28')&&$('#sorealIdleBossStartV100')&&$('.soreal-idle-nav-v28');},
