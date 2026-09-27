@@ -8,9 +8,15 @@
   'use strict';
   if(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__)return;
 
-  var CLE_VOIX='soreal_idle_volume_voix_v1';
-  var CLE_AMBIANCE='soreal_idle_volume_ambiance_v1';
-  /* Norman (2026-09-27, après coup) : « De base, Ambiance doit être sur 2% et voix sur 40% ». */
+  /*
+   * Norman (2026-09-27, après coup) : « De base, Ambiance doit être sur 2% et voix sur 40% » -- PUIS (même jour) :
+   * « vérifie que tout le monde ait bien Ambiance sur 2% et voix sur 40% de base. Il faut que ceux qui ont déjà
+   * lancé le jeu aient aussi ces réglages. » Un ancien réglage stocké en localStorage (n'importe quelle valeur,
+   * même déjà personnalisée) primait sur tout nouveau défaut -- les clés passent donc de v1 à v2 pour que CHAQUE
+   * navigateur reparte sur ces nouveaux défauts une bonne fois, qu'il ait ou non déjà touché les curseurs.
+   */
+  var CLE_VOIX='soreal_idle_volume_voix_v2';
+  var CLE_AMBIANCE='soreal_idle_volume_ambiance_v2';
   var DEFAUT_VOIX=0.4;
   var DEFAUT_AMBIANCE=0.02;
 

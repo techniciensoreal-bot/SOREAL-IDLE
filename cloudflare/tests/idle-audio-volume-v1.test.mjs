@@ -27,12 +27,33 @@ function fabriquer() {
   assert.equal(api.getAmbiance(), 0.02, "ambiance : 2% par défaut");
 }
 
+// --- Norman (même jour, après coup) : « vérifie que tout le monde ait bien Ambiance sur 2% et voix sur 40% de
+// base. Il faut que ceux qui ont déjà lancé le jeu aient aussi ces réglages. » Un ancien réglage (même déjà
+// personnalisé par le joueur) stocké sous les anciennes clés v1 ne doit plus jamais être lu : les clés sont
+// passées à v2, donc CHAQUE navigateur -- qu'il ait ou non déjà ouvert Paramètres -- repart sur les nouveaux
+// défauts, une bonne fois.
+{
+  const stock = new Map([
+    ["soreal_idle_volume_voix_v1", "1"],
+    ["soreal_idle_volume_ambiance_v1", "0.35"]
+  ]);
+  const localStorage = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
+  const window = {};
+  vm.runInNewContext(src, { window, localStorage });
+  const api = window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+  assert.equal(api.getVoix(), 0.4, "un ancien réglage v1 (même 100%) est ignoré -> nouveau défaut 40%");
+  assert.equal(api.getAmbiance(), 0.02, "un ancien réglage v1 (même 35%) est ignoré -> nouveau défaut 2%");
+}
+assert.match(src, /soreal_idle_volume_voix_v2/);
+assert.match(src, /soreal_idle_volume_ambiance_v2/);
+assert.ok(!src.includes("soreal_idle_volume_voix_v1'") && !src.includes("soreal_idle_volume_ambiance_v1'"), "plus aucune lecture/écriture sous les anciennes clés v1");
+
 // --- Lecture/écriture, bornée à [0,1], persistée ---
 {
   const { api, stock } = fabriquer();
   api.setVoix(0.6);
   assert.equal(api.getVoix(), 0.6);
-  assert.equal(stock.get("soreal_idle_volume_voix_v1"), "0.6");
+  assert.equal(stock.get("soreal_idle_volume_voix_v2"), "0.6");
   api.setAmbiance(1.4);
   assert.equal(api.getAmbiance(), 1, "borné à 1 même si une valeur plus grande est passée");
   api.setAmbiance(-0.2);
@@ -41,7 +62,7 @@ function fabriquer() {
 
 // --- Une valeur stockée corrompue ou hors-borne ne casse jamais la lecture ---
 {
-  const stock = new Map([["soreal_idle_volume_voix_v1", "abc"]]);
+  const stock = new Map([["soreal_idle_volume_voix_v2", "abc"]]);
   const localStorage = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
   const window = {};
   vm.runInNewContext(src, { window, localStorage });
