@@ -9678,7 +9678,7 @@
         {
           titre:'Le NOMBRE',
           paragraphes:[
-            'Genre, beaucoup plus énorme que ce que t’as dans le pantalon. Hein ptite bite ! (Si t’es une femme, c’est valable pour toi aussi)'
+            'Genre beaucoup plus gros que la plus grosse de tes copines.'
           ]
         },
         {

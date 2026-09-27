@@ -37,8 +37,8 @@ assert.ok(
   "L'ancien terme Renaissance ne doit plus être utilisé seul dans ce tutoriel."
 );
 assert.ok(
-  tuto.includes("Genre, beaucoup plus énorme que ce que t’as dans le pantalon. Hein ptite bite ! (Si t’es une femme, c’est valable pour toi aussi)"),
-  "La nouvelle blague du NOMBRE doit être présente."
+  tuto.includes("Genre beaucoup plus gros que la plus grosse de tes copines."),
+  "La blague du NOMBRE (2026-09-27) doit être présente."
 );
 assert.ok(
   tuto.includes("Tu peux vérifier depuis combien de temps ton Rebirth est en cours dans la barre au-dessus."),
