@@ -11536,8 +11536,14 @@
         const notesDeblocage=separe.notes;
         const narration=separe.narration;
 
+        /*
+         * data-soreal-chronique-boss-id (Norman, 2026-09-27) : identifiant STABLE du boss dont dépend la lecture automatique une seule fois
+         * (modules/tutorial-tts-v202.js, panneauChroniqueBoss_). j.bossId (même valeur que bossCatalogue[].numero) est utilisé plutôt que le
+         * nom pour éviter toute ambiguïté ; ce panneau reste rendu en continu tant que l'écran Boss est affiché, contrairement aux popups de
+         * tutoriel qui ne sont créés qu'une fois.
+         */
         return `
-          <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142">
+          <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}">
             <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-pause="450">Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>

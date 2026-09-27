@@ -17,6 +17,16 @@
   var BUTTON_CLASS='soreal-idle-tuto-tts-v202';
   var READ_CLASS='soreal-idle-tts-read-v203';
   /*
+   * Chronique de boss lue automatiquement une seule fois (Norman, 2026-09-27) : « à la toute première rencontre. Ensuite elle ne doit plus
+   * être rejouée à moins qu'on décide de la rejouer. Après un Rebirth, elle ne doit plus être jouée. » Le panneau (id fixe ci-dessous) reste
+   * rendu en continu tant que l'écran Boss est affiché (contrairement aux popups de tutoriel, créés une seule fois puis retirés) : sans
+   * mémoire dédiée, il repasserait pour « nouveau » à chaque scan. La mémoire vit en localStorage (jamais touchée par un Rebirth, qui est une
+   * action serveur) et est indexée par data-soreal-chronique-boss-id (identifiant stable posé par soreal-idle-ui.js), jamais par le texte : le
+   * bouton manuel « Lire la chronique » (data-soreal-tts-target) reste toujours disponible, lui, quel que soit l'état de cette mémoire.
+   */
+  var CHRONICLE_PANEL_ID='sorealIdleBossChroniqueV206';
+  var CHRONICLE_LU_KEY='soreal_idle_boss_chronique_lue_v1';
+  /*
    * 2026-09-24 : 2000 -> 600 caractères. Avec l'ancienne valeur, un long récit était synthétisé d'un seul bloc (≈ 54 s d'attente
    * mesurées pour 2000 caractères) ; en blocs de fin de phrase, le premier son arrive vite et le bloc suivant est généré pendant
    * la lecture du précédent (voir narrate_).
@@ -370,11 +380,61 @@
     return true;
   }
 
+  function chroniqueBossId_(panel){
+    return panel&&panel.getAttribute
+      ?String(panel.getAttribute('data-soreal-chronique-boss-id')||'').trim()
+      :'';
+  }
+
+  function chroniquesLues_(){
+    try{
+      var raw=localStorage.getItem(CHRONICLE_LU_KEY);
+      var arr=raw?JSON.parse(raw):[];
+      return Array.isArray(arr)?arr:[];
+    }catch(_){
+      return [];
+    }
+  }
+
+  function chroniqueDejaLue_(id){
+    return Boolean(id)&&chroniquesLues_().indexOf(id)>=0;
+  }
+
+  function marquerChroniqueLue_(id){
+    if(!id)return;
+    try{
+      var arr=chroniquesLues_();
+      if(arr.indexOf(id)<0){
+        arr.push(id);
+        localStorage.setItem(CHRONICLE_LU_KEY,JSON.stringify(arr));
+      }
+    }catch(_){}
+  }
+
+  /*
+   * Candidat de narration automatique pour la chronique de boss : null tant que l'identifiant du boss courant est absent (panneau non
+   * rendu) OU déjà mémorisé comme lu -- dans ce dernier cas, scan_ ne trouve alors AUCUN panneau actif et ne relance rien (comportement
+   * identique à « rien à lire »), sans jamais empêcher le bouton manuel de fonctionner.
+   */
+  function panneauChroniqueBoss_(){
+    var panel=document.getElementById(CHRONICLE_PANEL_ID);
+    if(!panel)return null;
+    var id=chroniqueBossId_(panel);
+    if(!id||chroniqueDejaLue_(id))return null;
+    return panel;
+  }
+
+  /*
+   * Ordre de priorité : un popup de tutoriel (créé/retiré du DOM, jamais simplement masqué) passe TOUJOURS avant la chronique de boss, ce
+   * qui garantit à la fois qu'elle ne se lance jamais tant qu'un tutoriel est affiché et qu'un seul son ne joue jamais à la fois (Norman,
+   * 2026-09-27) -- le moteur de lecture lui-même (narrate_/stop_) n'autorise de toute façon qu'une narration active à la fois.
+   */
   function activePanel_(){
     return (
       document.getElementById('sorealIdleTutorielFlottantV1')||
       document.querySelector('#sorealIdleTutorielPagesModalV1 .soreal-idle-modal-card-v63')||
       document.querySelector('#sorealIdleNouveauteModalV75 .soreal-idle-modal-card-v63')||
+      panneauChroniqueBoss_()||
       null
     );
   }
@@ -631,6 +691,14 @@
     activeReadTarget=String(targetId||'__manual_text__');
     updateReadButtons_();
 
+    /*
+     * Capturé ICI (avant tout await) plutôt que relu sur le DOM à la fin : la narration d'une longue chronique peut durer plusieurs
+     * secondes, pendant lesquelles le boss courant peut changer (fui, vaincu) et le panneau pointer vers un autre identifiant, voire
+     * disparaître. Mémorisé seulement si la lecture va au bout (voir task.then plus bas) : une narration arrêtée en cours de route
+     * (bouton « Arrêter », nouveau scan qui change de panneau) ne compte jamais comme « entendue ».
+     */
+    var chroniqueBossIdEnCours=String(targetId||'')===CHRONICLE_PANEL_ID?chroniqueBossId_(target):'';
+
     var mapped=audioSourceFor_(targetId,target,explicitSource);
     var task;
 
@@ -682,6 +750,7 @@
       if(myGeneration!==generation)return;
       activeReadTarget='';
       updateReadButtons_();
+      if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
     }).catch(function(error){
       if(myGeneration!==generation)return;
       activeReadTarget='';
