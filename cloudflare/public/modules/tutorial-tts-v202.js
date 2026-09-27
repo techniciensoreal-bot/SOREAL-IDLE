@@ -77,6 +77,12 @@
   auto=true;
   try{auto=localStorage.getItem(KEY)!=='0';}catch(_){}
 
+  /* Norman (2026-09-27) : curseur de volume de la voix dans Paramètres (modules/audio-volume-v1.js). */
+  function volumeVoix_(){
+    var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+    return r?r.getVoix():1;
+  }
+
   function audioContextCtor_(){
     try{return window.AudioContext||window.webkitAudioContext||null;}catch(_){return null;}
   }
@@ -585,13 +591,17 @@
         if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
         var source=ctx.createBufferSource();
         source.buffer=buffer;
-        source.connect(ctx.destination);
+        var gain=ctx.createGain();
+        gain.gain.value=volumeVoix_();
+        source.connect(gain);
+        gain.connect(ctx.destination);
         activeBufferSource=source;
 
         var done=false;
         function clear_(){
           if(activeBufferSource===source)activeBufferSource=null;
           try{source.disconnect();}catch(_){}
+          try{gain.disconnect();}catch(_){}
         }
 
         source.onended=function(){
@@ -625,6 +635,7 @@
       try{
         audio=new Audio(src);
         audio.preload='auto';
+        audio.volume=volumeVoix_();
       }catch(_){
         revokeObjectUrl_(src);
         reject(new Error('AUDIO_CREATION_ECHOUEE'));

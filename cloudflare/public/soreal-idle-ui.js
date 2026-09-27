@@ -21106,6 +21106,49 @@ function pageAventureIdleV28_(j){
         if(root&&idleEtat)root.innerHTML=contenuMenuIdleV28_(idleEtat);
       }
       window.__basculerNotesMajIdleV1__=basculerNotesMajIdleV1_;
+
+      /*
+       * Norman (2026-09-27) : « Tu dois ajouter dans paramètres, des barres de son pour régler le volume des
+       * voix et le volume d'ambiance. » Pas de re-rendu de la page à chaque glissement du curseur (perdrait le
+       * focus/le geste en cours) : on ajuste juste le module concerné + le pourcentage affiché.
+       */
+      window.__reglerVolumeIdleV1__=function(type,valeur){
+        const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+        if(!r)return;
+        const v=Math.max(0,Math.min(100,idleEntier_(valeur)))/100;
+        if(type==='ambiance'){
+          r.setAmbiance(v);
+          const label=document.getElementById('sorealIdleVolumeAmbianceValeurV1');
+          if(label)label.textContent=Math.round(v*100)+'%';
+        }else{
+          r.setVoix(v);
+          const label=document.getElementById('sorealIdleVolumeVoixValeurV1');
+          if(label)label.textContent=Math.round(v*100)+'%';
+        }
+      };
+      function htmlReglagesAudioIdleV1_(){
+        const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+        const voix=Math.round((r?r.getVoix():1)*100);
+        const ambiance=Math.round((r?r.getAmbiance():.35)*100);
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🔊 Audio</div>'+
+          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Règle le volume de la voix (narration) et celui des sons d’ambiance en Aventure.</div>'+
+          '<div style="margin-bottom:12px">'+
+            '<label style="display:flex;justify-content:space-between;font-size:12px;color:#dce5f3;margin-bottom:4px">'+
+              '<span>🎙️ Voix</span><span id="sorealIdleVolumeVoixValeurV1">'+voix+'%</span>'+
+            '</label>'+
+            '<input type="range" min="0" max="100" value="'+voix+'" '+
+              'oninput="window.__reglerVolumeIdleV1__(\'voix\',this.value)" style="width:100%">'+
+          '</div>'+
+          '<div>'+
+            '<label style="display:flex;justify-content:space-between;font-size:12px;color:#dce5f3;margin-bottom:4px">'+
+              '<span>🎶 Ambiance</span><span id="sorealIdleVolumeAmbianceValeurV1">'+ambiance+'%</span>'+
+            '</label>'+
+            '<input type="range" min="0" max="100" value="'+ambiance+'" '+
+              'oninput="window.__reglerVolumeIdleV1__(\'ambiance\',this.value)" style="width:100%">'+
+          '</div>'+
+        '</div>';
+      }
       function htmlNotesMajIdleV1_(){
         const notes=notesMajIdleV1_();
         if(!notes.versions.length)return '';
@@ -21326,6 +21369,7 @@ function pageAventureIdleV28_(j){
               '<div id="sorealIdleJoueursGoogleV1" style="margin-top:8px"></div>'+
             '</div>'
             :'')+
+          htmlReglagesAudioIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
             '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">Beta '+idleHtml_(notesMajIdleV1_().courante)+'</b>'+
@@ -22386,6 +22430,11 @@ function pageAventureIdleV28_(j){
             /* Succès débloqués : annonce en fondu + fanfare (modules/achievement-notice-v1.js). */
             if(window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__){
               window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));
+            }
+
+            /* Sons d'ambiance dès qu'Aventure est débloqué (Norman, 2026-09-27 -- modules/ambient-audio-v1.js). */
+            if(window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__){
+              window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__.verifier(Boolean(j&&j.aventure&&j.aventure.debloquee));
             }
 
             if(

@@ -12,6 +12,15 @@ const IDLE_ADVENTURE_R2_EXTENSIONS=Object.freeze(["webp","png","jpg","jpeg","avi
  */
 const IDLE_ADVENTURE_MOBS_R2_PREFIX="idle/aventure/";
 /*
+ * Sons d'ambiance en Aventure (Norman, 2026-09-27 : « je vais placer plusieurs sons d'ambiance dans mon R2
+ * soreal/idle/ambient/ »). "soreal" est le nom du bucket R2 lui-même (wrangler.jsonc, bucket_name:"soreal") --
+ * jamais répété dans les clés, comme les autres préfixes de ce fichier (idle/aventure/, idle/backgrounds/...) :
+ * la clé réelle est donc idle/ambient/<fichier>. Norman dépose les fichiers directement dans R2 (pas de build
+ * local, pas de manifeste versionné) : la liste est donc énumérée en direct par R2 .list(), jamais figée en dur.
+ */
+const IDLE_AMBIANT_R2_PREFIX="idle/ambient/";
+const IDLE_AMBIANT_R2_EXTENSIONS=Object.freeze(["mp3","ogg","m4a","wav","opus","aac"]);
+/*
  * Correctif 2026-09-17 (Norman a réorganisé idle/aventure/ avec les
  * vrais noms de zone NGU, fichiers Adv_<id>_<nom réel>.png numérotés sur
  * la même plage globale 1-301 que idle/bosses/) : les anciens noms de
@@ -654,6 +663,57 @@ function choisirCleMobR2Index_(keys,boss,indexValue){
   const index=((rawIndex%pool.length)+pool.length)%pool.length;
   return pool[index];
 }
+let idleAmbiantObjectsCache=null;
+async function objetsAmbianceR2_(env){
+  const now=Date.now();
+  if(idleAmbiantObjectsCache&&now-idleAmbiantObjectsCache.at<300000)return idleAmbiantObjectsCache.value;
+
+  let objects=[],cursor=undefined;
+  do{
+    const opts={prefix:IDLE_AMBIANT_R2_PREFIX,limit:1000};
+    if(cursor)opts.cursor=cursor;
+    const listed=await env.SOREAL_R2.list(opts);
+    if(listed&&Array.isArray(listed.objects))objects=objects.concat(listed.objects.map(o=>o.key));
+    cursor=listed&&listed.truncated&&listed.cursor?listed.cursor:undefined;
+  }while(cursor&&objects.length<2000);
+
+  objects=objects.filter(key=>{
+    const ext=String(key).split(".").pop().toLowerCase();
+    return IDLE_AMBIANT_R2_EXTENSIONS.includes(ext);
+  }).sort();
+
+  idleAmbiantObjectsCache={at:now,value:objects};
+  return objects;
+}
+function typeMediaAmbianceR2_(key){
+  const ext=String(key||"").split(".").pop().toLowerCase();
+  return {mp3:"audio/mpeg",ogg:"audio/ogg",m4a:"audio/mp4",wav:"audio/wav",opus:"audio/opus",aac:"audio/aac"}[ext]||"application/octet-stream";
+}
+/* Liste des sons d'ambiance disponibles (clés R2) : le client tire dedans au hasard, jamais un fichier codé en dur. */
+async function ambianceListe_(request,env){
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"){
+    return Response.json({ok:false,cles:[]},{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const cles=await objetsAmbianceR2_(env);
+  return Response.json({ok:true,cles},{headers:mediaHeaders_({},300)});
+}
+/* Un fichier d'ambiance donné : la clé doit être sous IDLE_AMBIANT_R2_PREFIX (jamais un accès R2 arbitraire via ce paramètre). */
+async function ambianceFichier_(request,env,url){
+  const cle=String(url.searchParams.get("key")||"").trim();
+  if(!cle.startsWith(IDLE_AMBIANT_R2_PREFIX)||cle.includes("..")){
+    return new Response("Clé invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Média d'ambiance indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const object=await env.SOREAL_R2.get(cle);
+  if(!object)return new Response("Son d'ambiance introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  const headers=new Headers();
+  if(typeof object.writeHttpMetadata==="function")object.writeHttpMetadata(headers);
+  if(!headers.has("content-type"))headers.set("content-type",typeMediaAmbianceR2_(cle));
+  headers.set("x-soreal-idle-r2-key",String(cle));
+  return new Response(request.method==="HEAD"?null:object.body,{status:200,headers:mediaHeaders_(headers,3600)});
+}
 async function adventureMob_(request,env,url){
   const zone=String(url.searchParams.get("zone")||"").trim().toLowerCase();
   const folder=IDLE_ADVENTURE_MOB_FOLDERS[zone];
@@ -1178,6 +1238,8 @@ export async function traiterRequeteIdleMedia(request,env){
   const url=new URL(request.url);
   const routes=new Set([
     "/api/idle/media/adventure-zone",
+    "/api/idle/media/ambient-list",
+    "/api/idle/media/ambient",
     "/api/idle/media/avatar",
     "/api/idle/media/item",
     "/api/idle/media/mob",
@@ -1198,6 +1260,8 @@ export async function traiterRequeteIdleMedia(request,env){
     return new Response("Méthode non autorisée",{status:405,headers:{allow:"GET, HEAD","cache-control":"no-store"}});
   }
   if(url.pathname==="/api/idle/media/debug-list")return debugListeR2_(request,env,url);
+  if(url.pathname==="/api/idle/media/ambient-list")return ambianceListe_(request,env);
+  if(url.pathname==="/api/idle/media/ambient")return ambianceFichier_(request,env,url);
   if(url.pathname===IDLE_PIPER_MODEL_ROUTE_V1||url.pathname===IDLE_PIPER_MODEL_CONFIG_ROUTE_V1)return piperModelProxy_(request,url);
   if(url.pathname==="/api/idle/media/avatar")return avatarProxy_(request,url,env);
   if(url.pathname==="/api/idle/media/item")return itemSet_(request,env,url);
