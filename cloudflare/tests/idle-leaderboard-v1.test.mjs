@@ -74,15 +74,30 @@ const nom = (x) => x.nom;
 const moi = c.entrees.find((e) => e.moi);
 assert.equal(moi.nom, "Norman");
 const seb = c.entrees.find((e) => !e.moi);
-// Rangs par statistique : Sébastien devant en boss et EXP ; Norman devant en Rebirths, NUMBER, temps, succès
-assert.deepEqual({ ...seb.rangs }, { boss: 1, rebirths: 2, number: 2, exp: 1, playSeconds: 2, achievements: 2 });
-assert.deepEqual({ ...moi.rangs }, { boss: 2, rebirths: 1, number: 1, exp: 2, playSeconds: 1, achievements: 1 });
-// Points : rang r -> (2 - r + 1) ; global = somme
+// Rangs par statistique : Sébastien devant en boss et EXP ; Norman devant en Rebirths, NUMBER, temps, succès ;
+// Clics/Tap (2026-09-27) : aucun des deux n'a cliqué dans ce test -> égalité, rang 1 pour les deux, et surtout EXCLU du
+// calcul des points ci-dessous (un compteur brut sans anti-triche ne doit pas fausser le classement Global).
+assert.deepEqual({ ...seb.rangs }, { boss: 1, rebirths: 2, number: 2, exp: 1, playSeconds: 2, achievements: 2, clics: 1 });
+assert.deepEqual({ ...moi.rangs }, { boss: 2, rebirths: 1, number: 1, exp: 2, playSeconds: 1, achievements: 1, clics: 1 });
+// Points : rang r -> (2 - r + 1) ; global = somme (clics n'y entre jamais)
 assert.equal(seb.points, 2 + 1 + 1 + 2 + 1 + 1);
 assert.equal(moi.points, 1 + 2 + 2 + 1 + 2 + 2);
 assert.equal(moi.rang, 1);
 assert.equal(seb.rang, 2);
 assert.equal(seb.valeurs.boss, 55, "numéro du boss le plus élevé (pas d'anti-spoil dans le classement)");
+
+// Clics/Tap (2026-09-27, Norman) : compteur cumulatif, sans effet sur les points/rang Global.
+assert.equal(op("enregistrerClicsSorealIdle", sebastien, 3).clicsTotal, 3);
+assert.equal(op("enregistrerClicsSorealIdle", sebastien, 4).clicsTotal, 7, "cumulatif entre deux appels");
+c = op("obtenirClassementSorealIdle", norman);
+const sebApresClics = c.entrees.find((e) => !e.moi);
+const moiApresClics = c.entrees.find((e) => e.moi);
+assert.equal(sebApresClics.valeurs.clics, 7);
+assert.equal(moiApresClics.valeurs.clics, 0);
+assert.equal(sebApresClics.rangs.clics, 1, "devant sur cet onglet");
+assert.equal(moiApresClics.rangs.clics, 2);
+assert.equal(moiApresClics.rang, 1, "le classement Global n'a pas bougé : les clics n'y comptent pas");
+assert.equal(moiApresClics.points, 1 + 2 + 2 + 1 + 2 + 2, "points Global inchangés (clics exclu de la somme)");
 
 // Un joueur qui reset reste présent, à 0, tout en bas
 op("reinitialiserCompteCompletSorealIdle", sebastien);
@@ -90,7 +105,7 @@ c = op("obtenirClassementSorealIdle", norman);
 assert.equal(c.joueurs, 2, "le joueur réinitialisé reste listé");
 const apres = c.entrees.find((e) => e.nom === "Sébastien" || !e.moi);
 assert.ok(apres, "présent");
-assert.deepEqual({ ...apres.valeurs }, { boss: 0, rebirths: 0, number: 0, exp: 0, playSeconds: 0, achievements: 0 });
+assert.deepEqual({ ...apres.valeurs }, { boss: 0, rebirths: 0, number: 0, exp: 0, playSeconds: 0, achievements: 0, clics: 0 });
 assert.equal(apres.rang, 2, "en bas du classement");
 // Puis il rejoue : nouvelle partie, toujours dans le classement (une seule entrée)
 op("obtenirEtatSorealIdle", sebastien);

@@ -46,10 +46,10 @@ assert.match(ui, /case 'shop':\s*return pageShopIdleV1_\(j\);/);
 assert.match(ui, /ancien==='spendExp'\|\|ancien==='sellout'\?'shop':ancien/, "un ancien menu mémorisé ouvre Shop");
 assert.match(ui, /if\(id==='shop'\)\{\s*return menuDisponibleIdleV28_\('spendExp',j\)\|\|menuDisponibleIdleV28_\('sellout',j\);/);
 
-// Classement : verrou fourni par le serveur, onglets global + 6 statistiques
+// Classement : verrou fourni par le serveur, onglets global + 7 statistiques (dont Clics/Tap, 2026-09-27)
 assert.match(ui, /if\(id==='classement'\)\{\s*return Boolean\(j\.classement&&j\.classement\.debloque\);/);
 const onglets = ui.slice(ui.indexOf("const IDLE_CLASSEMENT_ONGLETS_V1=["), ui.indexOf("];", ui.indexOf("const IDLE_CLASSEMENT_ONGLETS_V1=[")));
-assert.deepEqual([...onglets.matchAll(/id:'([A-Za-z]+)'/g)].map((m) => m[1]), ["global", "boss", "rebirths", "number", "exp", "playSeconds", "achievements"]);
+assert.deepEqual([...onglets.matchAll(/id:'([A-Za-z]+)'/g)].map((m) => m[1]), ["global", "boss", "rebirths", "number", "exp", "playSeconds", "achievements", "clics"]);
 assert.match(ui, /\.obtenirClassementSorealIdle\(SOREAL_SESSION\)/);
 
 // Rangement des boutons : maintien -> mode ; « Valider » seulement dans ce mode ; enregistrement serveur

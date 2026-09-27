@@ -9481,6 +9481,57 @@
       }
 
       /*
+       * Catégorie « Clics/Tap » du classement (Norman, 2026-09-27 : « le nombre de cliques de souris Droite/gauche effectué dans
+       * l'appli. Et les taps pareils, dans la même catégorie... même si quelqu'un triche, ca n'est pas grave »). Compteur brut,
+       * jamais anti-triche par conception. On accumule en mémoire et on envoie le total par lots (même patron que idleVusEnvoyerV1_
+       * ci-dessus), jamais un appel serveur par clic.
+       */
+      let idleClicsEnAttenteV1=0;
+      let idleClicsEnvoiEnCoursV1=false;
+
+      function idleClicsEnvoyerV1_(){
+        if(idleClicsEnvoiEnCoursV1||idleClicsEnAttenteV1<=0||!SOREAL_SESSION)return;
+        const lot=idleClicsEnAttenteV1;
+        idleClicsEnAttenteV1=0;
+        idleClicsEnvoiEnCoursV1=true;
+        try{
+          google.script.run
+            .withSuccessHandler(function(){
+              idleClicsEnvoiEnCoursV1=false;
+              if(idleClicsEnAttenteV1>0)idleClicsEnvoyerV1_();
+            })
+            .withFailureHandler(function(){
+              idleClicsEnvoiEnCoursV1=false;
+              idleClicsEnAttenteV1+=lot;
+            })
+            .enregistrerClicsSorealIdle(SOREAL_SESSION,lot);
+        }catch(e){
+          idleClicsEnvoiEnCoursV1=false;
+          idleClicsEnAttenteV1+=lot;
+        }
+      }
+
+      let idleClicsEnvoiMinuterieV1=null;
+      function idleClicMarquerV1_(){
+        idleClicsEnAttenteV1+=1;
+        if(!idleClicsEnvoiMinuterieV1){
+          idleClicsEnvoiMinuterieV1=setTimeout(function(){
+            idleClicsEnvoiMinuterieV1=null;
+            idleClicsEnvoyerV1_();
+          },4000);
+        }
+      }
+
+      document.addEventListener('mousedown',function(ev){
+        if(PAGE_ACTIVE!=='idle')return;
+        if(ev.button===0||ev.button===2)idleClicMarquerV1_();
+      },true);
+      document.addEventListener('touchstart',function(){
+        if(PAGE_ACTIVE!=='idle')return;
+        idleClicMarquerV1_();
+      },{capture:true,passive:true});
+
+      /*
        * 2026-09-25 (Norman : « il faut qu'on soit considéré comme un nouveau joueur quand on reset la partie : on doit revoir les popups une
        * fois de nouveau ») : le reset total efface la ligne du joueur (donc profil.stats.vus côté serveur) ; ici on oublie ce que la page
        * avait en mémoire (sinon « bienvenue », tutoriels et popups de menus restaient « vus » jusqu'au rechargement) et les caches locaux.
@@ -20251,7 +20302,8 @@ function pageAventureIdleV28_(j){
         {id:'number',nom:'🔢 NUMBER'},
         {id:'exp',nom:'⭐ EXP'},
         {id:'playSeconds',nom:'⏱️ Temps de jeu'},
-        {id:'achievements',nom:'🎖️ Succès'}
+        {id:'achievements',nom:'🎖️ Succès'},
+        {id:'clics',nom:'🖱️ Clics/Tap'}
       ];
       let idleClassementOngletV1='global';
       const idleClassementV1={donnees:null,chargement:false,erreur:'',dernier:0};

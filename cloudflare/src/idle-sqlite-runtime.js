@@ -4660,6 +4660,8 @@ function statsJoueurSorealIdle_(valeur) {
     lootsObtenus:Math.max(0,Math.floor(nombreSorealIdle_(s.lootsObtenus,0))),
     objetsRecycles:Math.max(0,Math.floor(nombreSorealIdle_(s.objetsRecycles,0))),
     fusions:Math.max(0,Math.floor(nombreSorealIdle_(s.fusions,0))),
+    /* Norman (2026-09-27) : catégorie « Clics/Tap » du classement -- compteur brut, jamais anti-triche (« même si quelqu'un triche, ca n'est pas grave »). */
+    clicsTotal:Math.max(0,Math.floor(nombreSorealIdle_(s.clicsTotal,0))),
     forge:Math.max(0,Math.floor(nombreSorealIdle_(s.forge,0))),
     materiauxDepenses:Math.max(0,Math.floor(nombreSorealIdle_(s.materiauxDepenses,0))),
     extensionsSac:Math.max(0,Math.floor(nombreSorealIdle_(s.extensionsSac,0))),
@@ -12432,6 +12434,84 @@ function marquerVusSorealIdle(
 
 
 /*
+ * Catégorie « Clics/Tap » du classement (Norman, 2026-09-27 : « le nombre de cliques de souris Droite/gauche effectué
+ * dans l'appli. Et les taps pareils, dans la même catégorie... même si quelqu'un triche, ca n'est pas grave »). Compteur
+ * brut cumulatif, jamais anti-triche par conception -- même patron léger que marquerVusSorealIdle (un verrou, une lecture/
+ * écriture de STATS_JSON, aucun calcul de jeu). Le client accumule en mémoire et envoie le total par lots (voir
+ * idleClicsEnvoyerV1_ dans soreal-idle-ui.js), jamais un appel par clic.
+ */
+function enregistrerClicsSorealIdle(
+  sessionToken,
+  delta
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const lock =
+    LockService.getScriptLock();
+
+  if (!lock.tryLock(1800)) {
+    return {
+      ok: false,
+      message:
+        'Le jeu est occupé.'
+    };
+  }
+
+  try {
+    const feuille =
+      obtenirFeuilleJoueursSorealIdle_();
+
+    const ligne =
+      trouverLigneJoueurSorealIdle_(
+        feuille,
+        acces
+      );
+
+    assurerDonneesJeuSorealIdle_(
+      feuille,
+      ligne
+    );
+
+    const c =
+      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+
+    const cellule =
+      feuille.getRange(
+        ligne,
+        c.STATS_JSON
+      );
+
+    const stats =
+      statsJoueurSorealIdle_(
+        cellule.getValue()
+      );
+
+    stats.clicsTotal =
+      stats.clicsTotal +
+      Math.max(0, Math.floor(nombreSorealIdle_(delta, 0)));
+
+    cellule.setValue(
+      JSON.stringify(
+        stats
+      )
+    );
+
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      clicsTotal: stats.clicsTotal
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+/*
  * ------------------------------------------------------------------
  * Profil du joueur : pseudo, joueur externe (2026-09-26) — voir idle-profile-v1.js
  * ------------------------------------------------------------------
@@ -12681,6 +12761,16 @@ const CLASSEMENT_STATS_SOREAL_IDLE_V1 = Object.freeze([
   'achievements'
 ]);
 
+/*
+ * Norman (2026-09-27) : catégorie « Clics/Tap », comptée à part -- un compteur brut, jamais anti-triche, ne doit
+ * pas fausser le classement Global (qui reflète la vraie progression). Son propre rang est bien calculé (onglet
+ * dédié côté client), mais exclu de la somme de points qui fait le classement Global ci-dessous.
+ */
+const CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1 = Object.freeze(['clics']);
+const CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1 = Object.freeze(
+  CLASSEMENT_STATS_SOREAL_IDLE_V1.concat(CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1)
+);
+
 /* Verrou provisoire du bouton (voir le commentaire de construireEtatJoueurSorealIdle_) : administrateur seulement. */
 function classementDebloqueSorealIdle_(emailPrincipal, emailConnexion) {
   const emails = [emailPrincipal, emailConnexion]
@@ -12715,7 +12805,8 @@ function valeursClassementJoueurSorealIdle_(stats) {
     number: positif(records.bestNumber),
     exp: positif(records.totalExpEarned),
     playSeconds: Math.floor(positif(records.playSeconds)),
-    achievements: succes
+    achievements: succes,
+    clics: Math.floor(positif(stats && stats.clicsTotal))
   };
 }
 
@@ -12852,7 +12943,7 @@ function obtenirClassementSorealIdle(
   const n = entrees.length;
 
   /* Rang de chaque statistique (égalités : même rang, le suivant saute) ; points = n - rang + 1 ; global = somme des points. */
-  CLASSEMENT_STATS_SOREAL_IDLE_V1.forEach(function(nomStat) {
+  CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1.forEach(function(nomStat) {
     const tries = entrees.slice().sort(function(a, b) {
       return (b.valeurs[nomStat] - a.valeurs[nomStat]) ||
         String(a.nom).localeCompare(String(b.nom), 'fr');
@@ -12889,7 +12980,7 @@ function obtenirClassementSorealIdle(
   return {
     ok: true,
     joueurs: n,
-    stats: CLASSEMENT_STATS_SOREAL_IDLE_V1.slice(),
+    stats: CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1.slice(),
     entrees: entrees.map(function(entree) {
       return {
         nom: entree.nom,
@@ -16247,7 +16338,8 @@ const IDLE_OPERATIONS={
   synchroniserSorealIdle,
   testerAccesSorealIdle,
   obtenirPartieDevSorealIdle,
-  definirPartieDevSorealIdle
+  definirPartieDevSorealIdle,
+  enregistrerClicsSorealIdle
 };
 
 export function idleOperationNames(){
