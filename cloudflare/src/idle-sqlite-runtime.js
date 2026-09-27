@@ -646,8 +646,15 @@ const CONFIG_SOREAL_IDLE = {
   INVENTAIRE_CAPACITE_BASE: 18,
   INVENTAIRE_CAPACITE_MAX: 90,
 
+  /*
+   * Norman (2026-09-27, correctif docs/HORS-LIGNE.md point 3) : ce plafond était à 12 h, un chiffre inventé sans
+   * source wiki (le wiki NGU ne publie aucune durée maximale de rattrapage hors ligne, ni pour Basic Training ni
+   * pour aucun autre système), et incohérent avec tous les autres systèmes de SOREAL déjà plafonnés à 30 jours
+   * (EARLY_GAME_MAX_OFFLINE_SECONDS, idle-ngu-progression.js). Aligné sur cette même valeur : Basic Training
+   * n'est pas un cas particulier, il rattrape autant de temps que le reste du jeu.
+   */
   PROGRESSION_HORS_LIGNE_MAX_SECONDES:
-    12 * 60 * 60
+    30 * 24 * 60 * 60
 };
 
 
