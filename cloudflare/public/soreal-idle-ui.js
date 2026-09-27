@@ -9411,6 +9411,15 @@
         idleVusEnvoyerV1_();
       }
 
+      /*
+       * Pont pour les modules externes (2026-09-27, popup d'histoire plein écran) : la mémoire
+       * « vu une seule fois » (localStorage + profil.stats.vus serveur, marquerVusSorealIdle)
+       * vit dans cette clôture. Plutôt que de dupliquer la file d'attente/l'envoi côté module,
+       * modules/story-popup-v1.js appelle ce pont pour réutiliser exactement le même mécanisme
+       * que les popups de menus/tutoriels (idleVuConnuV1_/idleVuMarquerV1_ ci-dessus).
+       */
+      window.__soreal_idle_marquer_vu_v1__=idleVuMarquerV1_;
+
       /* Identifiant serveur d'un tutoriel : sa clé locale sans le joueur (« soreal_idle_tutoriel_aventure_v1_<joueur> » -> « tuto:tutoriel_aventure »). */
       function idleVuIdTutorielV1_(cle){
         return 'tuto:'+String(cle).replace(/^soreal_idle_/,'').replace(/_v\d+_.*$/,'');
@@ -21965,6 +21974,16 @@ function pageAventureIdleV28_(j){
           );
 
         const j=idleEtat;
+
+        /*
+         * Cinématique « Le Magicien et la Grotte » (2026-09-27) : vérifiée à CHAQUE rendu d'état,
+         * quel que soit le menu affiché -- le boss 17 peut être vaincu pendant que le joueur est
+         * sur un autre menu (le combat continue côté serveur). Le module gère lui-même l'idempotence
+         * (popup plein écran indépendant du rendu de page, jamais recréé si déjà en cours).
+         */
+        if(window.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_V1__.considerer==='function'){
+          window.__SOREAL_IDLE_STORY_POPUP_V1__.considerer(j);
+        }
 
         initialiserCoupsCombatIdleV116_();
 
