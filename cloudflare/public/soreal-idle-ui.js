@@ -113,6 +113,7 @@
       let idleTimerSession=null;
       let idleTimerEnergie=null;
       let idleAnimationFrameJeuV214=0;
+      let idleTimerJeuArrierePlanV1=0;
       let idleDernierImpactBossV46=0;
       let idleDernierImpactJoueurV46=0;
 
@@ -4168,6 +4169,24 @@
           }
         }
         frameJeuV214_();
+
+        /*
+         * Norman (2026-09-27) : « Le mode aventure doit continuer à farmer des objets quand l'application est en
+         * fond. » requestAnimationFrame est entièrement SUSPENDU par le navigateur dès que l'onglet devient
+         * invisible (garanti par la spec, jamais un simple ralentissement) : tout le tick de jeu local (combat
+         * auto d'Aventure, Fight Boss...) s'arrêtait donc net en arrière-plan, alors que la session reste bien
+         * active (ce n'est pas "hors ligne" : l'app tourne toujours, juste cachée). Un setInterval, lui, continue
+         * de se déclencher en arrière-plan (ralenti par le navigateur, jamais suspendu comme rAF) : il prend le
+         * relais du même tick UNIQUEMENT pendant que l'onglet est caché, jamais en double avec rAF quand il est
+         * visible.
+         */
+        if(idleTimerJeuArrierePlanV1){
+          clearInterval(idleTimerJeuArrierePlanV1);
+          idleTimerJeuArrierePlanV1=0;
+        }
+        idleTimerJeuArrierePlanV1=setInterval(function(){
+          if(document.hidden&&PAGE_ACTIVE==='idle')mettreAJourJeuIdleLocalV7_();
+        },1000);
 
         if(
           window.__sorealIdleSyncTimerV7

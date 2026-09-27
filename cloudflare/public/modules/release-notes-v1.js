@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.0',
+    courante:'5.1',
     versions:[
+      {
+        version:'5.1',
+        nom:'Ça continue même caché',
+        date:'2026-09-27',
+        points:[
+          'Le combat automatique d’Aventure ne s’arrête plus quand l’application passe en arrière-plan (écran éteint, autre appli au premier plan).',
+          'Tant que l’application reste ouverte en arrière-plan, tu continues de progresser et de looter normalement.',
+          'Rien ne change si l’application est complètement fermée : la progression reprend à la reconnexion, comme avant.'
+        ]
+      },
       {
         version:'5.0',
         nom:'Le résumé de ton absence',
