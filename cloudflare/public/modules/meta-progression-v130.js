@@ -58,6 +58,29 @@
       }
 
       /*
+       * Raccourcis clavier A/D/Q/W/E de l'inventaire (modules/inventory-auto-v1.js, action:'inventoryAuto')
+       * mutent l'inventaire d'Aventure exactement comme les actions equip/unequip/merge/boost/cube déjà
+       * ci-dessous exemptées du rendu complet (estMutationInventaireAdventureV1) -- mais sous payload.action
+       * ==='inventoryAuto', jamais 'adventure', donc jamais reconnues par ce test. Elles retombaient sur
+       * rendreIdleEtat_ (page ENTIÈRE remplacée) à chaque raccourci : en maintenant A pour absorber
+       * plusieurs boosts d'affilée, l'image de l'objet clignotait et la page sautait brièvement en haut
+       * avant de se replacer (Norman, 2026-09-27). boostAll/mergeAll suivent exactement la même mécanique
+       * que boost/merge (juste appliquée en masse) ; transformBoost ne change que l'objet boost affiché
+       * dans le sac, jamais l'équipement -- aucune catégorie de patch supplémentaire n'est donc nécessaire
+       * pour lui (patchResumeInventaireIdleV160_/patchGrilleSacInventaireIdleV160_ suffisent, toujours
+       * appliquées sans condition par patchInventaireAdventureIdleV160_). Les autres modes (réglages,
+       * filtre de butin, configurations d'équipement) ne touchent jamais la grille du sac : ils gardent
+       * le rendu complet, inchangé.
+       */
+      var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1={boostAll:'boost',mergeAll:'merge',transformBoost:''};
+      function actionPatchInventaireAutoV1_(payload){
+        if(!payload||payload.action!=='inventoryAuto')return null;
+        const mode=String(payload.mode||'');
+        if(!Object.prototype.hasOwnProperty.call(IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1,mode))return null;
+        return IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1[mode];
+      }
+
+      /*
        * Boutons réactifs (2026-09-26, Norman : « quand on effectue un achat, il faut souvent s'y reprendre à 2 fois ; pareil pour le Money Pit et la
        * roue »). Une action envoyée pendant qu'une autre était en cours (le jeu en envoie régulièrement en arrière-plan) était ABANDONNÉE en
        * silence : le clic ne faisait rien. Elle est maintenant mise en file et envoyée dès que le canal se libère. Exceptions : les actions de
@@ -151,9 +174,11 @@
                 payload.adventure&&
                 window.__SOREAL_IDLE_META_HOST_V130__.estMutationInventaireAdventureIdleV160_(payload.adventure)
               );
+              const actionPatchInventaireAutoV1=actionPatchInventaireAutoV1_(payload);
+              const estMutationInventaireAutoV1=actionPatchInventaireAutoV1!=null;
 
               if(!estCycleCombatZoneV1){
-                if(estMutationInventaireAdventureV1){
+                if(estMutationInventaireAdventureV1||estMutationInventaireAutoV1){
                   const aventureFraicheV1=window.__SOREAL_IDLE_META_HOST_V130__.aventureMetaIdleV47_(joueurMetaProtegeV208);
                   const aventureCouranteV1=window.__SOREAL_IDLE_META_HOST_V130__.aventureMetaIdleV47_(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat());
                   const fightLocalV1=aventureCouranteV1&&aventureCouranteV1.fight&&aventureCouranteV1.fight.active
@@ -171,7 +196,7 @@
                   window.__SOREAL_IDLE_META_HOST_V130__.patchInventaireAdventureIdleV160_(
                     window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat(),
                     {
-                      action:payload.adventure.action,
+                      action:estMutationInventaireAdventureV1?payload.adventure.action:actionPatchInventaireAutoV1,
                       confirmed:true
                     }
                   );
