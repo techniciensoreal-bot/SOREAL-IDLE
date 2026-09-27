@@ -8738,6 +8738,13 @@ function appliquerProgressionEnergieSorealIdle_(
       )
     );
 
+  /*
+   * Norman (2026-09-27) : « Quand on relance le jeu on doit avoir un résumé de ce qu'on a eu. EXP, AP, Loot,
+   * ATTACK, DEFENSE... » -- l'AP gagné hors ligne était déjà calculé (pointsAventureAuto ci-dessus, incrémenté à
+   * chaque victoire auto puis persisté) mais jamais renvoyé au client : seul le delta compte pour le résumé.
+   */
+  const pointsAventureAutoAvant = pointsAventureAuto;
+
   let progressionAventureAuto =
     progressionAventureSorealIdle_(
       row[
@@ -9451,6 +9458,13 @@ function appliquerProgressionEnergieSorealIdle_(
     niveauxGagnes:
       progressionNiveau
         .niveauxGagnes,
+
+    apGagne:
+      Math.max(
+        0,
+        pointsAventureAuto -
+          pointsAventureAutoAvant
+      ),
 
     dropsRecents:
       dropsRecents.concat(
@@ -11120,6 +11134,18 @@ function construireEtatJoueurSorealIdle_(
         progression
           ? nombreSorealIdle_(
               progression.koSubis,
+              0
+            )
+          : 0,
+
+      /*
+       * Norman (2026-09-27) : « Quand on relance le jeu on doit avoir un résumé de ce qu'on a eu. EXP, AP,
+       * Loot, ATTACK, DEFENSE... » -- l'AP gagné hors ligne (combats auto d'Aventure) manquait ici.
+       */
+      apGagne:
+        progression
+          ? nombreSorealIdle_(
+              progression.apGagne,
               0
             )
           : 0

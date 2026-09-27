@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.9',
+    courante:'5.0',
     versions:[
+      {
+        version:'5.0',
+        nom:'Le résumé de ton absence',
+        date:'2026-09-27',
+        points:[
+          'Relancer le jeu affiche maintenant un popup qui résume ce que tu as eu pendant ton absence : EXP, AP, boss battus, dégâts, objets obtenus...',
+          'Ce popup reste affiché jusqu’à ce que tu cliques sur « Fermer » — il ne disparaît plus seul.',
+          'Il n’apparaît que s’il y a vraiment quelque chose à raconter : pas de popup vide pour un simple rechargement.'
+        ]
+      },
       {
         version:'4.9',
         nom:'Dix façons de gagner',

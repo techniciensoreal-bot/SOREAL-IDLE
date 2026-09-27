@@ -22211,6 +22211,28 @@ function pageAventureIdleV28_(j){
 
       let idleDernierResumeHorsLigneV64=0;
 
+      /*
+       * Norman (2026-09-27) : « Quand on relance le jeu on doit avoir un résumé de ce qu'on a eu. EXP, AP,
+       * Loot, ATTACK, DEFENSE, ... ce qu'on a eu quoi. Avec un popup a fermer »
+       *
+       * Avant ce correctif : un simple toast (messageFlottantIdleV32_), sans bouton, qui disparaissait seul
+       * après 1,8 s et ne parlait QUE de l'énergie produite -- jamais l'EXP, l'AP, les niveaux, les boss battus,
+       * les combats auto d'Aventure ni le loot, pourtant déjà calculés côté serveur (progressionHorsLigne).
+       * Remplacé par un vrai popup modal (même famille que la confirmation de Renaissance,
+       * .soreal-idle-modal-backdrop-v63) qui reste affiché jusqu'à ce qu'on le ferme volontairement.
+       */
+      function fermerResumeHorsLigneIdleV64_(){
+        const modal=document.getElementById('sorealIdleResumeHorsLigneModalV64');
+        if(modal)modal.remove();
+      }
+      window.__fermerResumeHorsLigneIdleV64__=fermerResumeHorsLigneIdleV64_;
+
+      function ligneResumeHorsLigneIdleV64_(icone,texte){
+        return '<div class="soreal-idle-modal-info-v63" style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'+
+          '<span style="font-size:16px">'+icone+'</span><span>'+texte+'</span>'+
+        '</div>';
+      }
+
       function afficherResumeHorsLigneIdleV64_(
         j
       ){
@@ -22228,16 +22250,32 @@ function pageAventureIdleV28_(j){
           return;
         }
 
+        const auto=j&&j.autoAventureHorsLigne?j.autoAventureHorsLigne:null;
+        const drops=Array.isArray(p.dropsRecents)?p.dropsRecents:[];
+
+        const produite=idleNombre_(p.energieProduite);
+        const depensee=idleNombre_(p.energieDepenseeAventure);
+        const perdue=idleNombre_(p.energiePerdueAuPlafond);
+        const xp=idleNombre_(p.xpGagnee);
+        const niveaux=idleEntier_(p.niveauxGagnes);
+        const ap=idleNombre_(p.apGagne);
+        const bossBattus=idleEntier_(p.bossBattus);
+        const degats=idleNombre_(p.degats);
+        const degatsRecus=idleNombre_(p.degatsRecus);
+        const koSubis=idleEntier_(p.koSubis);
+        const victoiresAuto=auto?idleEntier_(auto.victoires):0;
+        const defaitesAuto=auto?idleEntier_(auto.defaites):0;
+
+        /* Rien de notable à raconter (juste quelques secondes d'absence, énergie nulle) : pas de popup pour rien. */
+        const rienAVoir=
+          produite<=0&&xp<=0&&ap<=0&&bossBattus<=0&&
+          victoiresAuto<=0&&defaitesAuto<=0&&drops.length<=0;
+        if(rienAVoir)return;
+
         const signature=
-          idleEntier_(
-            p.secondes
-          )+
-          ':'+
-          Math.round(
-            idleNombre_(
-              p.energieProduite
-            )*10
-          );
+          idleEntier_(p.secondes)+':'+Math.round(produite*10)+':'+
+          Math.round(xp)+':'+Math.round(ap)+':'+bossBattus+':'+
+          victoiresAuto+':'+defaitesAuto+':'+drops.length;
 
         if(
           String(
@@ -22250,51 +22288,65 @@ function pageAventureIdleV28_(j){
         idleDernierResumeHorsLigneV64=
           signature;
 
-        const produite=
-          idleNombre_(
-            p.energieProduite
-          );
-
-        const depensee=
-          idleNombre_(
-            p.energieDepenseeAventure
-          );
-
-        const perdue=
-          idleNombre_(
-            p.energiePerdueAuPlafond
-          );
-
-        let texte=
-          '⚡ Hors ligne : +'+
-          formatEnergieIdleV50_(
-            produite
-          )+
-          ' énergie produite';
-
-        if(depensee>0){
-          texte+=
-            ' · -'+
-            formatEnergieIdleV50_(
-              depensee
-            )+
-            ' dépensée en aventure AUTO';
+        const lignes=[];
+        lignes.push(ligneResumeHorsLigneIdleV64_('⚡','+'+formatEnergieIdleV50_(produite)+' énergie produite'));
+        if(depensee>0)lignes.push(ligneResumeHorsLigneIdleV64_('🗺️','-'+formatEnergieIdleV50_(depensee)+' dépensée en Aventure AUTO'));
+        if(perdue>0)lignes.push(ligneResumeHorsLigneIdleV64_('🌊',formatEnergieIdleV50_(perdue)+' perdue au-delà du maximum'));
+        if(xp>0)lignes.push(ligneResumeHorsLigneIdleV64_('✨','+'+formatGrandNombreIdleV70_(xp)+' EXP'));
+        if(niveaux>0)lignes.push(ligneResumeHorsLigneIdleV64_('📈','+'+niveaux+' niveau(x) de Basic Training'));
+        if(ap>0)lignes.push(ligneResumeHorsLigneIdleV64_('🎟️','+'+formatGrandNombreIdleV70_(ap)+' AP'));
+        if(bossBattus>0)lignes.push(ligneResumeHorsLigneIdleV64_('👹','+'+bossBattus+' boss vaincu(s)'));
+        if(victoiresAuto>0||defaitesAuto>0){
+          let texteAuto='Aventure AUTO : '+victoiresAuto+' victoire(s)';
+          if(defaitesAuto>0)texteAuto+=' · '+defaitesAuto+' défaite(s)';
+          lignes.push(ligneResumeHorsLigneIdleV64_('⚔️',texteAuto));
+        }
+        if(degats>0||degatsRecus>0){
+          lignes.push(ligneResumeHorsLigneIdleV64_('🗡️','Dégâts infligés '+formatGrandNombreIdleV70_(degats)+' · reçus '+formatGrandNombreIdleV70_(degatsRecus)+(koSubis>0?' · K.O. ×'+koSubis:'')));
+        }
+        if(drops.length>0){
+          const objets=drops.slice(0,12).map(function(objet){
+            const nom=idleHtml_((objet&&(objet.name||objet.nom))||'Objet');
+            const puissance=idleNombre_(objet&&objet.basePower);
+            const endurance=idleNombre_(objet&&objet.baseToughness);
+            let details='';
+            if(puissance>0||endurance>0){
+              const morceaux=[];
+              if(puissance>0)morceaux.push('Puissance '+formatGrandNombreIdleV70_(puissance));
+              if(endurance>0)morceaux.push('Endurance '+formatGrandNombreIdleV70_(endurance));
+              details=' <small style="color:#8b93ab">('+morceaux.join(' · ')+')</small>';
+            }
+            return '<div style="margin-left:24px">• '+nom+details+'</div>';
+          }).join('');
+          lignes.push(ligneResumeHorsLigneIdleV64_('🎁','+'+drops.length+' objet(s) obtenu(s) :')+objets);
         }
 
-        if(perdue>0){
-          texte+=
-            ' · '+
-            formatEnergieIdleV50_(
-              perdue
-            )+
-            ' au-delà du maximum';
-        }
+        fermerResumeHorsLigneIdleV64_();
+
+        const modal=document.createElement('div');
+        modal.id='sorealIdleResumeHorsLigneModalV64';
+        modal.className='soreal-idle-modal-backdrop-v63';
+        modal.innerHTML=
+          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" aria-label="Résumé de ton absence">'+
+            '<div class="soreal-idle-modal-top-v63">'+
+              '<div class="soreal-idle-modal-icon-v63">🕒</div>'+
+              '<div class="soreal-idle-modal-title-v63">Pendant ton absence</div>'+
+            '</div>'+
+            '<div class="soreal-idle-modal-body-v63">'+
+              lignes.join('')+
+            '</div>'+
+            '<div class="soreal-idle-modal-actions-v63" style="grid-template-columns:1fr">'+
+              '<button type="button" class="soreal-idle-modal-button-v63 confirm" onclick="window.__fermerResumeHorsLigneIdleV64__()">Fermer</button>'+
+            '</div>'+
+          '</div>';
+
+        modal.addEventListener('click',function(event){
+          if(event.target===modal)fermerResumeHorsLigneIdleV64_();
+        });
 
         setTimeout(
           function(){
-            messageFlottantIdleV32_(
-              texte
-            );
+            document.body.appendChild(modal);
           },
           250
         );
