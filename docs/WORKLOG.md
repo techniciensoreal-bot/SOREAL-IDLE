@@ -2047,3 +2047,7 @@ Norman, en réponse à l'audit `docs/HORS-LIGNE.md` (« Est-ce que la manière d
 Vérifié en passant : les MacGuffins de l'ITOPOD (perk dédié) étaient déjà correctement déposés dans l'inventaire hors ligne (point « à vérifier » de l'audit du 24/09, résolu sans correctif).
 
 Versions : release-notes `28`, Beta `3.6` (notes sans nommer les systèmes concernés, anti-spoil).
+
+## 2026-09-27 (suite) — Voix régénérées pour les 2 textes laissés en attente (accès réseau)
+
+Un agent cloud avait changé deux textes (blague du popup « Le NOMBRE », commit `c867069` ; nouveau texte du boss n°4 « Tippy », commit `251c846`) mais ne pouvait pas régénérer leur voix pré-enregistrée (bac à sable sans accès réseau vers le site de prod ni huggingface.co). Fait depuis ce poste (accès réseau disponible) : `node cloudflare/tools/voice-generate.mjs --workers 2 --prune`. Les 2 fichiers manquants sont générés, les 2 orphelins de l'ancien texte du NOMBRE supprimés. Test `idle-voice-pregenerated-v1` : tolérance temporaire retirée, couverture stricte à nouveau vérifiée.

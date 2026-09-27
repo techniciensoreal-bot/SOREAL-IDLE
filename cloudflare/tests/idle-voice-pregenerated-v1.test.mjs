@@ -91,13 +91,11 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
     for (const h of blocs(composer(b.nom, b.histoire))) if (!fichiers.has(h)) manquants.push("boss " + b.id);
   }
   /*
-   * Norman (2026-09-27) : nouveau texte pour le boss n°4 (Tippy). Voix pré-générée PAS encore régénérée -- cet
-   * environnement n'a pas d'accès réseau vers soreal-idle.technicien-soreal.workers.dev/huggingface.co (mêmes
-   * refus EGRESS_BLOCKED que pour le texte du popup « Le NOMBRE », commit c867069). Tolérance ciblée, temporaire :
-   * seul "boss 4" est accepté manquant ; tout AUTRE bloc sans fichier fait toujours échouer ce test. À refaire
-   * depuis un environnement autorisé : node cloudflare/tools/voice-generate.mjs --motifs "Tippy" --prune
+   * Norman (2026-09-27) : les deux voix laissées en attente faute d'accès réseau (boss n°4 "Tippy", commit
+   * 251c846 ; texte du popup « Le NOMBRE », commit c867069) ont été régénérées depuis un poste avec accès réseau
+   * (node cloudflare/tools/voice-generate.mjs --prune) -- retour à la couverture stricte, sans tolérance.
    */
-  assert.deepEqual(manquants, ["boss 4"], "blocs sans fichier audio : relancer node cloudflare/tools/voice-generate.mjs --motifs \"Tippy\" --prune");
+  assert.deepEqual(manquants, [], "blocs sans fichier audio : relancer node cloudflare/tools/voice-generate.mjs");
   assert.ok(existsSync("cloudflare/public/voice/manifest.json"));
 }
 
