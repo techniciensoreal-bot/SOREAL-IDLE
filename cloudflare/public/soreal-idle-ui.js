@@ -3008,6 +3008,8 @@
           );
 
         if(joueurPvEl){
+          /* Norman (2026-09-27) : PV joueur rétrécissait en boucle pendant la
+           * regen faute de décimale (comme le PV boss, bossEnRegenV174). */
           const regenJoueurVisibleV176=
             regenPvFightBossNguParSecondeV164_(
               idleEtat.defense
@@ -3016,23 +3018,10 @@
           texteCombatIdleV121_(
             joueurPvEl,
             '❤️ '+
-            formatGrandNombreIdleV70_(
-              idleEtat.pvJoueur
-            )+
+            (regenJoueurVisibleV176>0&&idleNombre_(idleEtat.pvJoueur)>0?formaterDecimalesFixesIdleV1_(idleEtat.pvJoueur,2):formatGrandNombreIdleV70_(idleEtat.pvJoueur))+
             ' / '+
-            formatGrandNombreIdleV70_(
-              idleEtat.pvJoueurMax
-            )+
-            (
-              regenJoueurVisibleV176>0
-                ?' · ↗ +'+
-                  formaterDecimalesFixesIdleV1_(
-                    regenJoueurVisibleV176,
-                    2
-                  )+
-                  '/s'
-                :''
-            )
+            formatGrandNombreIdleV70_(idleEtat.pvJoueurMax)+
+            (regenJoueurVisibleV176>0?' · ↗ +'+formaterDecimalesFixesIdleV1_(regenJoueurVisibleV176,2)+'/s':'')
           );
         }
 
