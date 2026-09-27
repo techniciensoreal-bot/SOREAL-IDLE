@@ -531,10 +531,10 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * pour ce Titan mais n'est jamais chiffré par le wiki). Champ idleP/idleT
  * volontairement absent sur t7 plus bas, jamais inventé.
  */
-{id:"t1",name:"GRB",boss:58,cooldown:H,p:1300,t:1300,idleP:2300,idleT:2100,drop:"aNumber",unlock:"ngu",avatarLevel:3},
-{id:"t2",name:"Grand Corrupted Tree",boss:66,cooldown:H,p:5000,t:4000,idleP:6000,idleT:5000,drop:"giantSeed",unlock:"yggdrasil",avatarLevel:4,requiresTitan:"t1",requiresKills:24,requiresUnlock:"ngu"},
-{id:"t3",name:"Jake From Accounting",boss:82,cooldown:2*H,p:14000,t:12000,idleP:22000,idleT:14000,drop:"scrapPaper",unlock:"diggers",avatarLevel:5,requiresTitan:"t2",requiresKills:24,requiresUnlock:"yggdrasil"},
-{id:"t4",name:"UUG",boss:100,cooldown:2*H,p:400000,t:300000,idleP:600000,idleT:400000,drop:"uugHair",unlock:"beards",flag:"ringOfApathyMaxed",avatarLevel:6,requiresTitan:"t3",requiresKills:28,requiresUnlock:"diggers"},
+{id:"t1",name:"GRB",boss:58,cooldown:H,p:1300,t:1300,idleP:2300,idleT:2100,autoKillP:3000,autoKillT:2500,drop:"aNumber",unlock:"ngu",avatarLevel:3},
+{id:"t2",name:"Grand Corrupted Tree",boss:66,cooldown:H,p:5000,t:4000,idleP:6000,idleT:5000,autoKillP:9000,autoKillT:7000,drop:"giantSeed",unlock:"yggdrasil",avatarLevel:4,requiresTitan:"t1",requiresKills:24,requiresUnlock:"ngu"},
+{id:"t3",name:"Jake From Accounting",boss:82,cooldown:2*H,p:14000,t:12000,idleP:22000,idleT:14000,autoKillP:25000,autoKillT:15000,drop:"scrapPaper",unlock:"diggers",avatarLevel:5,requiresTitan:"t2",requiresKills:24,requiresUnlock:"yggdrasil"},
+{id:"t4",name:"UUG",boss:100,cooldown:2*H,p:400000,t:300000,idleP:600000,idleT:400000,autoKillP:800000,autoKillT:400000,drop:"uugHair",unlock:"beards",flag:"ringOfApathyMaxed",avatarLevel:6,requiresTitan:"t3",requiresKills:28,requiresUnlock:"diggers"},
 /*
  * V144 — Norman (2026-09-11) : "pas le choix", suite du monde Normal
  * après les 4 zones simples. Manual P/T (Form 1 pour Walderp, 4 paliers
@@ -584,13 +584,13 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   {p:1600000,t:800000},
   {p:2400000,t:1500000},
   {p:3200000,t:2300000},
-  {p:4000000,t:3000000}
+  {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000}
 ]},
 {id:"t6",name:"The Beast",boss:132,cooldown:3.5*H,drop:"heroicSigil",avatarLevel:6,difficulties:{
-  easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8},
-  normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9},
-  hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10},
-  brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11}
+  easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9},
+  normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9,autoKillP:2.5e10,autoKillT:1.6e10},
+  hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10,autoKillP:2.5e11,autoKillT:1.6e11},
+  brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11,autoKillP:2.5e12,autoKillT:1.6e12}
 }},
 /*
  * The Exile (2026-09-18, Norman : "il faut tout faire" -- prérequis
@@ -601,7 +601,10 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * autre titan de cette liste n'est encore gated par difficulté non plus).
  * Respawn 330 minutes = 5.5*H. 4 paliers (Easy/Normal/Hard/Brutal), p/t =
  * stats "Manual" recommandées du wiki (même convention que The Beast
- * ci-dessus, pas les stats AutoKill). drop="stillBeatingHeart" (guaranteed
+ * ci-dessus). AutoKill (2026-09-27, correctif hors-ligne) : voir
+ * advanceTitanAutoKillV1 -- seuils autoKillP/autoKillT/autoKillKills ci-
+ * dessous, page "The Exile" (24 manual kills en alternative aux stats).
+ * drop="stillBeatingHeart" (guaranteed
  * lvl 4, débloque Cards -- wiki : "guaranteed to drop A Still-Beating
  * Heart, which unlocks Cards"). Butin complet (Exile (set), Hat of Greed,
  * Blue Eyes White Chestplate, etc.) volontairement HORS périmètre de ce
@@ -609,10 +612,10 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * condition de déblocage Sadistic ; le butin sera une passe séparée.
  */
 {id:"t7",name:"The Exile",boss:190,evilOnly:true,cooldown:5.5*H,drop:"stillBeatingHeart",avatarLevel:6,difficulties:{
-  easy:{p:2.3e22,t:1.2e22},
-  normal:{p:3.72e23,t:1.56e23},
-  hard:{p:7.45e24,t:3.55e24},
-  brutal:{p:2.2e26,t:1.0e26}
+  easy:{p:2.3e22,t:1.2e22,autoKillP:1e23,autoKillT:5e22,autoKillKills:24},
+  normal:{p:3.72e23,t:1.56e23,autoKillP:2e24,autoKillT:1e24,autoKillKills:24},
+  hard:{p:7.45e24,t:3.55e24,autoKillP:4e25,autoKillT:2e25,autoKillKills:24},
+  brutal:{p:2.2e26,t:1.0e26,autoKillP:7.5e26,autoKillT:3.7e26,autoKillKills:24}
 }},
 /*
  * 2026-09-23 (audit, page Titans + page de chaque titan) : Greasy Nerd (7e), The Godmother
@@ -625,34 +628,34 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * le Ring of Apathy (AMALGAMATE Brutal), TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
  */
 {id:"nerd",name:"Greasy Nerd",boss:125,evilOnly:true,cooldown:4.5*H,drop:"incriminatingEvidence",avatarLevel:6,difficulties:{
-  easy:{p:1.37e14,t:8.9e13,idleP:3e14,idleT:2e14},
-  normal:{p:3.2e15,t:1.6e15,idleP:6e15,idleT:4e15},
-  hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16},
-  brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18}
+  easy:{p:1.37e14,t:8.9e13,idleP:3e14,idleT:2e14,autoKillP:5e14,autoKillT:2.5e14},
+  normal:{p:3.2e15,t:1.6e15,idleP:6e15,idleT:4e15,autoKillP:1e16,autoKillT:5e15},
+  hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16,autoKillP:2e17,autoKillT:1e17},
+  brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18,autoKillP:5e18,autoKillT:2.5e18}
 }},
 {id:"godmother",name:"The Godmother",boss:166,evilOnly:true,cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
-  easy:{p:1.7e18,t:7e17},
-  normal:{p:3.9e19,t:1.5e19},
-  hard:{p:6.6e20,t:3.5e20},
-  brutal:{p:1.5e22,t:6.4e21}
+  easy:{p:1.7e18,t:7e17,autoKillP:5e18,autoKillT:2.5e18},
+  normal:{p:3.9e19,t:1.5e19,autoKillP:1e20,autoKillT:5e19},
+  hard:{p:6.6e20,t:3.5e20,autoKillP:2e21,autoKillT:1e21},
+  brutal:{p:1.5e22,t:6.4e21,autoKillP:5e22,autoKillT:2.5e22}
 }},
 {id:"hungers",name:"IT HUNGERS",boss:175,sadisticOnly:true,cooldown:6.5*H,drop:"",avatarLevel:6,difficulties:{
-  easy:{p:1.55e28,t:3e27},
-  normal:{p:1.3e29,t:3.6e28},
-  hard:{p:7.83e29,t:1.61e29},
-  brutal:{p:3.95e30,t:9e29}
+  easy:{p:1.55e28,t:3e27,autoKillP:4e28,autoKillT:2e28,autoKillKills:5},
+  normal:{p:1.3e29,t:3.6e28,autoKillP:3.2e29,autoKillT:1.6e29,autoKillKills:5},
+  hard:{p:7.83e29,t:1.61e29,autoKillP:2e30,autoKillT:1e30,autoKillKills:5},
+  brutal:{p:3.95e30,t:9e29,autoKillP:1e31,autoKillT:5e30,autoKillKills:5}
 }},
 {id:"lobster",name:"ROCK LOBSTER",boss:224,sadisticOnly:true,cooldown:7*H,drop:"",avatarLevel:6,difficulties:{
-  easy:{p:1.1e31,t:4e30},
-  normal:{p:6e31,t:1.8e31},
-  hard:{p:2.4e32,t:8.6e31},
-  brutal:{p:7.5e32,t:2.5e32}
+  easy:{p:1.1e31,t:4e30,autoKillP:1.8e31,autoKillT:6e30,autoKillKills:5},
+  normal:{p:6e31,t:1.8e31,autoKillP:9e31,autoKillT:3e31,autoKillKills:5},
+  hard:{p:2.4e32,t:8.6e31,autoKillP:3.6e32,autoKillT:1.2e32,autoKillKills:5},
+  brutal:{p:7.5e32,t:2.5e32,autoKillP:1.1e33,autoKillT:3.6e32,autoKillKills:5}
 }},
 {id:"amalgamate",name:"AMALGAMATE",boss:248,sadisticOnly:true,cooldown:(433+1/3)/60*H,drop:"",avatarLevel:6,difficulties:{
-  easy:{p:1.47e33,t:4.7e32},
-  normal:{p:5.6e33,t:2.1e33},
-  hard:{p:2.13e34,t:6.11e33},
-  brutal:{p:4.12e34,t:1e34}
+  easy:{p:1.47e33,t:4.7e32,autoKillP:3e33,autoKillT:1e33,autoKillKills:5},
+  normal:{p:5.6e33,t:2.1e33,autoKillP:1.2e34,autoKillT:4e33,autoKillKills:5},
+  hard:{p:2.13e34,t:6.11e33,autoKillP:3.6e34,autoKillT:1.2e34,autoKillKills:5},
+  brutal:{p:4.12e34,t:1e34,autoKillP:7.2e34,autoKillT:2.4e34,autoKillKills:5}
 }},
 /*
  * 2026-09-25 : 13e et 14e titans (Sadistic). Pages « TIPPI THE TUTORIAL MOUSE » et « THE TRAITOR (titan) » du wiki + tableau de la page Titans.
@@ -2662,7 +2665,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},autoKillTitansEnabled:false,fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -4961,6 +4964,100 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
   s.permanent.qp=N(s.permanent.qp)+out.qp;
   return out;
 }
+
+/*
+ * Auto-Kill des Titans, en ligne ET hors ligne (Norman, 2026-09-27 -- correctif 1/4 de docs/HORS-LIGNE.md, wiki NGU
+ * page "Titans" : « Once you have the minimum required strength to auto-kill them, you can turn on "Automatically
+ * Kill Titans" in the settings. This will enable to automatically fight them while online and offline as soon as
+ * the cooldown period is over » ; « no items drop while you are offline »). Appelée à CHAQUE syncIdleNguState
+ * (idle-ngu-progression.js), donc au même rythme que la partie est en ligne (poll régulier) ou après une longue
+ * absence (rattrapage) -- même code, même comportement, comme le décrit le wiki.
+ *
+ * Seuils autoKillP/autoKillT/autoKillKills : voir le commentaire de chaque titan plus haut dans ce fichier (source
+ * = section "Recommended stats"/tableau de sa page wiki, ligne "AutoKill"). Titans sans seuil publié (TIPPI, THE
+ * TRAITOR) ou sans seuil sur le palier concerné (Walderp, formes 1 à 4) : jamais éligibles, ignorés ci-dessous.
+ *
+ * Simplifications assumées (documentées, pas des manques accidentels) :
+ *  - le gain de force de 1 % par attaque du titan ("All titans grow in strength by 1% per attack") n'est pas
+ *    modélisé -- SOREAL ne modélise déjà pas cette croissance pour les combats Manual/Idle non plus (aucune
+ *    régression propre à ce correctif) ;
+ *  - le "Health Regen" listé à côté de certains seuils AutoKill n'est jamais vérifié -- SOREAL ne modélise le
+ *    combat de titan que par un seuil Power/Toughness statique (fonction titan() ci-dessus), jamais par une
+ *    simulation dans la durée ; ce champ est donc sans effet ici, pour la même raison qu'il l'est déjà pour les
+ *    seuils Manual/Idle existants ;
+ *  - Walderp : réservé au joueur ayant déjà vaincu sa forme finale au moins une fois manuellement
+ *    (unlockFlags.walderpFinalDefeated) -- le butin garanti de cette 1re victoire (la canne, le déblocage
+ *    MacGuffins) n'est jamais accordé par Auto-Kill, uniquement par un combat manuel.
+ *
+ * Aucun objet ne tombe (ni butin garanti, ni tirage aléatoire) : seuls l'or, l'EXP, l'AP, la PP-progress et le QP
+ * sont crédités, via creditTitanRewardsV1 -- jamais rollTitanLootV1 ni les objets garantis spéciaux (Wandoos 98,
+ * canne de Walderp) que titan() (combat manuel) accorde en plus.
+ */
+export function advanceTitanAutoKillV1(s,ctx,seconds,t){
+  if(!s||!(seconds>0)||!s.autoKillTitansEnabled)return{kills:0};
+  const debut=t-seconds*1000;
+  const stats=ctx&&ctx.stats||{};
+  let totalKills=0;
+  for(const d of IDLE_ADVENTURE_TITANS){
+    if(I(ctx.bosses)<d.boss)continue;
+    if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))continue;
+    if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")continue;
+    if(d.flag&&!s.unlockFlags[d.flag])continue;
+    if(!titanGate(s,d))continue;
+    const st=s.titans[d.id]||{kills:0,nextAt:0};
+    /*
+     * Le palier (Easy/Normal/Hard/Brutal) n'est PAS le même concept que ctx.difficulty (Normal/Evil/Sadistic, le
+     * mode de difficulté du run) -- confusion corrigée le 2026-09-27 (le premier jet réutilisait ctx.difficulty à
+     * tort, ce qui bloquait l'alternative "N kills" pour tout palier autre que Normal/Evil/Sadistic pris au pied
+     * de la lettre). Auto-Kill choisit lui-même le palier le plus élevé auquel le joueur est déjà éligible
+     * (stats OU kills), comme un combat manuel choisirait toujours le palier le plus payant -- cohérent avec le
+     * wiki ("to maximize the EXP gain").
+     */
+    let tier=null,tierKey="";
+    if(d.forms){
+      if(st.kills<d.forms.length||!s.unlockFlags.walderpFinalDefeated)continue;
+      const essai=d.forms[d.forms.length-1];
+      if(N(essai.autoKillP)>0&&N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT)tier=essai;
+    }else if(d.difficulties){
+      for(const cle of ["brutal","hard","normal","easy"]){
+        const essai=d.difficulties[cle];
+        if(!essai||!(N(essai.autoKillP)>0))continue;
+        const dejaKills=Math.max(0,I((st.difficultyKills||{})[cle],0));
+        const statsOk=N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT;
+        const killsOk=essai.autoKillKills&&dejaKills>=essai.autoKillKills;
+        if(statsOk||killsOk){tier=essai;tierKey=cle;break;}
+      }
+    }else if(N(d.autoKillP)>0&&N(stats.power)>=d.autoKillP&&N(stats.toughness)>=d.autoKillT){
+      tier=d;
+    }
+    if(!tier)continue;
+    let cursor=Math.max(debut,N(st.nextAt,0));
+    let cycles=0;
+    while(cursor<=t&&cycles<2000){
+      cycles+=1;
+      st.kills=I(st.kills,0)+1;
+      st.rebirthKills=I(st.rebirthKills,0)+1;
+      if(tierKey){
+        if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};
+        st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+1;
+      }
+      creditTitanRewardsV1(s,d.id,ctx,tierKey,st.rebirthKills);
+      const cooldown=idleAdventureTitanCooldownMsV1(d.id,ctx,st.kills);
+      cursor+=Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(cooldown,d.cooldown));
+    }
+    if(cycles>0){
+      st.nextAt=cursor;
+      s.titans[d.id]=st;
+      totalKills+=cycles;
+      /* Mêmes drapeaux permanents que titan() (combat manuel), posés indépendamment du butin (achievements, déblocages Evil/Sadistic). */
+      if(d.id==="hungers")s.unlockFlags.itHungersDefeated=true;
+      if(d.id==="t6"&&tierKey)s.unlockFlags["beastDefeated_"+tierKey]=true;
+      if(d.id==="t6"&&tierKey==="brutal")s.unlockFlags.beastBrutalDefeated=true;
+      if(d.id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
+    }
+  }
+  return{kills:totalKills};
+}
 /*
  * Butin des titans -- sections "Loot" des pages wiki (miroir local NGU-Wiki,
  * 2026-09-23). Les taux "base chance" sont multipliés par le multiplicateur de
@@ -5204,7 +5301,7 @@ export function idleAdventureTitanCooldownMsV1(id,ctx,kills){
   const reduction=Math.max(0,(rank>=3?N(c.titanCooldownReductionMs,0):0)+(rank>=7?N(c.titanCooldownReductionEvilMs,0):0)+(rank>=10?N(c.titanCooldownReductionSadisticMs,0):0));
   return Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(d.cooldown,0)-reduction);
 }
-function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;st.rebirthKills=I(st.rebirthKills)+1;/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));/* Page Titans : le délai ne descend jamais sous 60 minutes (TITAN_COOLDOWN_FLOOR_MS_V1). */if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
+function titan(s,id,ctx,t,difficulty){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(N(q.power)<tier.p||N(q.toughness)<tier.t)throw Error("PUISSANCE_INSUFFISANTE");st.kills++;st.rebirthKills=I(st.rebirthKills)+1;if(tierKey){if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+1}/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));/* Page Titans : le délai ne descend jamais sous 60 minutes (TITAN_COOLDOWN_FLOOR_MS_V1). */if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
  * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
  * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
@@ -5308,6 +5405,16 @@ function setBeastModeAdventureV1(s,enabled){
   if(!s.unlockFlags.beastModeUnlocked)throw Error("BEAST_MODE_VERROUILLE");
   s.skillState.beastMode=Boolean(enabled);
   return{beastMode:s.skillState.beastMode};
+}
+/*
+ * « Automatically Kill Titans » (Norman, 2026-09-27, wiki page Titans) : réglage global, aucun prérequis pour
+ * l'activer (il ne se passe simplement rien tant qu'aucun titan n'atteint son seuil AutoKill). L'exécution réelle
+ * (vérification des seuils, kills, récompenses) vit dans advanceTitanAutoKillV1, appelée à chaque synchronisation
+ * (syncIdleNguState), donc aussi bien en ligne qu'hors ligne -- exactement le comportement décrit par le wiki.
+ */
+function setAutoKillTitansV1(s,enabled){
+  s.autoKillTitansEnabled=Boolean(enabled);
+  return{autoKillTitansEnabled:s.autoKillTitansEnabled};
 }
 function useMove69AdventureV1(s){
   if(!s.unlockFlags.move69Unlocked)throw Error("MOVE_69_VERROUILLE");
@@ -5503,4 +5610,4 @@ titans:IDLE_ADVENTURE_TITANS.filter(t=>!t.secret||I(s.titans[t.id]?.kills)>0||(I
  * Toughness, avec le vrai label.
  */
 inventory:X(s.inventory).map(snapshotItemAdventureV1),trash:s.trash?snapshotItemAdventureV1(s.trash):null,coffreSlots:idleAdventureCoffreSlotsV1(s).filter(x=>x&&x.decouvert),equipment:X(s.equipment),itemList:Object.fromEntries(Object.entries(X(s.itemList)).map(([k,v])=>[k,{...v,maxed:idleAdventureNiveauEstMaxV1(v?.maxLevel),fullyMaxed:Boolean(v?.fullyMaxed)}])),itemCatalog:IDLE_ADVENTURE_ITEM_CATALOG_V1,setCatalog:Object.fromEntries(Object.entries(SETS).map(([id,d])=>[id,{id,name:d.name,source:d.source,slots:[...d.slots],reward:X(d.reward)}])),completedSets:X(s.completedSets),setRewards:X(s.setRewards),unlockItems:X(s.unlockItems),unlockFlags:X(s.unlockFlags),skillState:X(s.skillState),cube:X(s.cube),cubeTier:idleAdventureCubeTierV1(s.cube),fight:X(s.fight),inventorySlots:X(syncInventorySlotsAdventureV2(s)),inventoryCapacity:inventoryCapacityAdventureV1(s),inventoryUsed:inventoryUsedAdventureV1(s),accessorySlotsCapacity:accessorySlotsCapacityAdventureV1(s),theEnd:idleTheEndSnapshotV1(s),secondWeaponUnlocked:secondeArmeDebloqueeAdventureV1(s),dualWieldRatio:N(s.dualWieldRatio),stats:idleAdventureEquipmentStatsV47(s)}}
-export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");const clientMutationId=String(p.clientMutationId||"").slice(0,160);if(clientMutationId){const deja=s.recentClientMutations.find(x=>x&&String(x.id)===clientMutationId);if(deja){syncInventorySlotsAdventureV2(s);return{state:s,result:deja.result==null?deja.result:X(deja.result),duplicate:true}}}let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id),p.targetIndex);else if(a==="boost"&&p.toCube===true)result=cube(s,String(p.boostId),ctx);else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId),ctx);else if(a==="cube")result=cube(s,String(p.boostId),ctx);else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="setLock")result=setLockAdventureV1(s,String(p.id||p.itemId),p.locked);else if(a==="trashPut")result=trashPutAdventureV1(s,String(p.id||p.itemId));else if(a==="trashRecover")result=trashRecoverAdventureV1(s);else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else if(a==="theEndPlay")result={endings:idleTheEndPlayV1(s,t).endings};else throw Error("ACTION_AVENTURE_INCONNUE");s.revision=Math.max(0,I(s.revision))+1;if(clientMutationId){s.recentClientMutations.push({id:clientMutationId,result:result==null?result:X(result),revision:s.revision});if(s.recentClientMutations.length>64)s.recentClientMutations=s.recentClientMutations.slice(-64)}syncInventorySlotsAdventureV2(s);return{state:s,result}}
+export function applyIdleAdventureActionV47(raw,p={},ctx={},t=Date.now()){const s=normalizeIdleAdventureStateV47(raw),a=String(p.action||p.mode||"");const clientMutationId=String(p.clientMutationId||"").slice(0,160);if(clientMutationId){const deja=s.recentClientMutations.find(x=>x&&String(x.id)===clientMutationId);if(deja){syncInventorySlotsAdventureV2(s);return{state:s,result:deja.result==null?deja.result:X(deja.result),duplicate:true}}}let result;if(a==="selectZone"){const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===p.zone);if(!z||!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))throw Error("ZONE_VERROUILLEE");if(s.fight.active&&s.fight.zone!==z.id){s.fight=X(base().fight)}s.selectedZone=z.id;result={zone:z.id}}else if(a==="addItem"){const d=defById(p.definitionId);if(!d)throw Error("DEFINITION_INVALIDE");result=add(s,d.kind==="set"?item(`i${s.serial++}`,d.set,d.slot,p.level):special(d.id,p.level))}else if(a==="merge")result=merge(s,String(p.a),String(p.b));else if(a==="equip")result=equip(s,String(p.id),String(p.slot));else if(a==="unequip")result=unequip(s,String(p.id),p.targetIndex);else if(a==="boost"&&p.toCube===true)result=cube(s,String(p.boostId),ctx);else if(a==="boost")result=applyBoost(s,String(p.boostId),String(p.targetId),ctx);else if(a==="cube")result=cube(s,String(p.boostId),ctx);else if(a==="discard")result=discard(s,String(p.id||p.itemId));else if(a==="setLock")result=setLockAdventureV1(s,String(p.id||p.itemId),p.locked);else if(a==="trashPut")result=trashPutAdventureV1(s,String(p.id||p.itemId));else if(a==="trashRecover")result=trashRecoverAdventureV1(s);else if(a==="coffreDeposer")result=coffreDeposer(s,String(p.id||p.itemId));else if(a==="coffreRetirer")result=coffreRetirer(s,String(p.id||p.itemId));else if(a==="reorderInventory")result=reorderInventoryAdventureV2(s,String(p.sourceId||p.id),String(p.targetId||""),p.targetIndex);else if(a==="zoneKill")result=rollKill(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="startZoneFight")result=startZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats,restHp:p.restHp}));else if(a==="resolveZoneFight")result=resolveZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="loseZoneFight")result=loseZoneFight(s,Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}));else if(a==="titan")result=titan(s,String(p.titan||p.titanId),Object.assign({},ctx,{stats:p.stats||ctx.stats||ctx.adventureStats}),t,String(p.difficulty||""));else if(a==="titanFound")result=titanFound(s,String(p.titan||p.titanId),t);else if(a==="consumeUnlock")result=consume(s,String(p.item||p.itemId));else if(a==="consumeSkillItem")result=consumeAdventureSkillItemV1(s,String(p.id||p.itemId));else if(a==="transformAdventureItem")result=transformAdventureItemV1(s,String(p.id||p.itemId),ctx);else if(a==="setBeastMode")result=setBeastModeAdventureV1(s,p.enabled);else if(a==="setAutoKillTitans")result=setAutoKillTitansV1(s,p.enabled);else if(a==="useMove69")result=useMove69AdventureV1(s);else if(a==="theEndPlay")result={endings:idleTheEndPlayV1(s,t).endings};else throw Error("ACTION_AVENTURE_INCONNUE");s.revision=Math.max(0,I(s.revision))+1;if(clientMutationId){s.recentClientMutations.push({id:clientMutationId,result:result==null?result:X(result),revision:s.revision});if(s.recentClientMutations.length>64)s.recentClientMutations=s.recentClientMutations.slice(-64)}syncInventorySlotsAdventureV2(s);return{state:s,result}}

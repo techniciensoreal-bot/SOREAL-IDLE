@@ -63,9 +63,10 @@ assert.deepEqual(
     {p:1600000,t:800000},
     {p:2400000,t:1500000},
     {p:3200000,t:2300000},
-    {p:4000000,t:3000000}
+    /* AutoKill (2026-09-27, correctif docs/HORS-LIGNE.md point 1) : seule la forme finale (répétable) en a un publié (wiki, page Walderp : "forms 1-4 cannot autokill"). */
+    {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000}
   ],
-  "Les 5 formes doivent être les vrais seuils Manual P/T du wiki, jamais inventés."
+  "Les 5 formes doivent être les vrais seuils Manual (+ AutoKill sur la finale) du wiki, jamais inventés."
 );
 assert.equal(t5.requiresTitan,undefined,"Pas de palier de chaîne anti-skip inventé pour t5.");
 assert.equal(t5.p,undefined,"t5 n'a plus de p/t plat — les seuils viennent exclusivement de forms[].");

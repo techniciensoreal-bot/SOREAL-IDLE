@@ -19,6 +19,7 @@ import {
   idleAdventureSpecialItemV1,
   idleAdventureCubeTierV1,
   idleAdventureTitanCooldownMsV1,
+  advanceTitanAutoKillV1,
   idleAdventureSetRewardProductV1,
   IDLE_ADVENTURE_SPECIALS
 } from "./idle-adventure-v47.js";
@@ -4183,6 +4184,30 @@ function towerSetFloorsV1(state, payload) {
 }
 
 function advanceLateSystems(state, seconds, context, now) {
+  /*
+   * Auto-Kill des Titans (Norman, 2026-09-27, correctif 1/4 de docs/HORS-LIGNE.md) : mêmes stats de combat que
+   * l'ITOPOD ci-dessous (idleAdventureCombatStatsV1), mêmes bonus de récompense/cooldown que le combat manuel
+   * (titanFight, plus haut dans ce fichier) -- reconstruits ici pour que l'avancement automatique (en ligne comme
+   * hors ligne, puisque cette fonction est appelée à chaque syncIdleNguState) donne EXACTEMENT les mêmes
+   * récompenses qu'un kill manuel, à l'exception du butin (jamais accordé par Auto-Kill, cf. le commentaire
+   * d'advanceTitanAutoKillV1).
+   */
+  {
+    const titanChallengeBonuses = challengePermanentBonuses(state);
+    const gearTitans = idleAdventureEquipmentStatsV47(state.adventure);
+    const combatTitans = idleAdventureCombatStatsV1(gearTitans, context, idleNguBonuses(state));
+    advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
+      stats: { power: combatTitans.power, toughness: combatTitans.toughness },
+      wishLevels: wishLevelsMapV1(state),
+      titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
+      titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
+      goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),
+      titanCooldownReductionMs: titanChallengeBonuses.titanRespawnReductionMs,
+      titanCooldownReductionEvilMs: titanChallengeBonuses.titanRespawnReductionEvilMs,
+      titanCooldownReductionSadisticMs: titanChallengeBonuses.titanRespawnReductionSadisticMs
+    }), seconds, now);
+  }
+
   const killsItopodAvant = Math.max(0, int(state.systems.tower?.data?.kills, 0));
   advanceTowerV1(state, seconds, context);
   /* MacGuffin ITOPOD Drops (perk 68) : les kills de ce tick alimentent le compteur MacGuffin. */
