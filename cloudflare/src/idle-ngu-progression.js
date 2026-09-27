@@ -4025,7 +4025,7 @@ function towerMilestonePpV1(floor) {
 
 function advanceTowerV1(state, seconds, context) {
   const tower = state.systems.tower;
-  if (!tower.unlocked || !tower.active || !(seconds > 0)) return;
+  if (!tower.unlocked || !(seconds > 0)) return;
   const d = tower.data;
   d.kills = Math.max(0, int(d.kills, 0));
   if (d.killsOnFloor === undefined) {
@@ -4042,6 +4042,15 @@ function advanceTowerV1(state, seconds, context) {
   const bonuses = idleNguBonuses(state);
   const power = Math.max(10, idleAdventureCombatStatsV1(gear, context, bonuses).power);
   const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
+  /*
+   * Hors ligne (ou en ligne, menu ITOPOD fermé) sans être "actif" (Norman, 2026-09-27, correctif docs/HORS-LIGNE.md
+   * point 2 -- wiki NGU, Build History .398 : « the ITOPOD ... progress hors ligne sans y être, tant que l'ITOPOD
+   * est débloqué et qu'on peut tuer l'étage 1 en un coup (~650 Power) ». towerHitsV1(power, idleBonus, 0) <= 1 EST
+   * exactement cette condition -- même formule que la progression manuelle ci-dessous, aucun seuil "650" inventé
+   * ni dupliqué : tower.active reste nécessaire seulement pour choisir/suivre un intervalle de niveaux à l'écran,
+   * jamais comme condition de progression en elle-même.
+   */
+  if (!tower.active && towerHitsV1(power, idleBonus, 0) > 1) return;
   const respawn = Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1)));
   const interval = state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1;
   const optimal = towerOptimalFloorV1(power, idleBonus);
