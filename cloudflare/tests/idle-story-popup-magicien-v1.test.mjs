@@ -194,4 +194,39 @@ function charger(window, document, horloge) {
   assert.deepEqual(window_.__soreal_idle_marquer_vu_v1__appels, ["histoire:magicienEtLaGrotte"], "Passer = fin volontaire -> marqué vu");
 }
 
+// 9. rejouer() (Norman, 2026-09-27 : « je dois vérifier que c'est bien réglé ») : force le montage de la scène
+//    sans dépendre du boss courant ni du flag "vu", et sans jamais monter deux fois en même temps.
+{
+  const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  const api = charger(window_, document_, horloge);
+
+  api.rejouer();
+  assert.equal(document_.body.children.length, 1, "rejouer() monte la scène même sans avoir jamais atteint le boss 18");
+  api.rejouer();
+  assert.equal(document_.body.children.length, 1, "un second appel pendant que la scène tourne ne monte jamais un second popup");
+
+  while (horloge.avancer()) {}
+  assert.deepEqual(window_.__soreal_idle_marquer_vu_v1__appels, ["histoire:magicienEtLaGrotte"], "rejouer() marque vu comme une vraie lecture complète");
+
+  // Une fois terminée, rejouer() doit pouvoir remonter la scène (vérification répétée par l'administrateur).
+  api.rejouer();
+  assert.equal(document_.body.children.length, 2, "rejouer() peut remonter la scène une fois la précédente terminée");
+}
+
+// 10. Bouton Paramètres (administrateur seulement) pour vérifier la scène sans devoir y rejouer.
+{
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const debut = ui.indexOf("function pageParametresIdleV28_(j){");
+  const fin = ui.indexOf("\n      }\n\n      /* Interrupteur d'accès à SOREAL IDLE", debut);
+  assert.ok(debut > 0 && fin > debut, "pageParametresIdleV28_ introuvable");
+  const page = ui.slice(debut, fin);
+  const iBloc = page.indexOf("(estAdminSorealIdle_()");
+  assert.ok(iBloc > 0, "le bloc « Outils de test » doit être gardé par estAdminSorealIdle_()");
+  const bloc = page.slice(iBloc, page.indexOf("__SOREAL_IDLE_STORY_POPUP_V1__.rejouer()", iBloc) + 60);
+  assert.match(bloc, /window\.__SOREAL_IDLE_STORY_POPUP_V1__&&window\.__SOREAL_IDLE_STORY_POPUP_V1__\.rejouer\(\)/, "le bouton doit appeler rejouer() sur le module d'histoire");
+}
+
 console.log("idle-story-popup-magicien-v1: OK");

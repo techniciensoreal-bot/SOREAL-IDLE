@@ -7799,6 +7799,31 @@ function appliquerProgressionEnergieSorealIdle_(
       row[c.STATS_JSON - 1]
     );
 
+  /*
+   * Norman (2026-09-27) : « Je n'ai pas le popup en relançant le jeu comme indiqué dans la 5.0 ».
+   * Cause : depuis la V55 (l'énergie n'avance plus qu'une fois, via le moteur NGU ci-dessous),
+   * `energieTheoriqueProduite` était resté figé à 0 (mort depuis la migration -- voir le commentaire
+   * SOREAL_IDLE_V55_NO_LEGACY_ENERGY_TICKS plus bas) ET `gainNetEnergie` se soustrayait de LUI-MÊME
+   * (nouvelleEnergie et energie venaient tous deux de l'état déjà synchronisé par syncIdleNguState,
+   * jamais de l'état d'AVANT) : toujours 0, quelle que soit la production réelle pendant l'absence.
+   * Avec le combat Fight Boss coupé au relancement (stopBossOnOpen, voir plus bas dans ce fichier) et
+   * donc xp/bossBattus/dégâts eux aussi à 0 hors Aventure AUTO, plus rien ne pouvait jamais rendre le
+   * popup non-vide pour une simple absence sans Aventure AUTO active. L'énergie d'avant synchro
+   * (avant que syncIdleNguState ne la fasse avancer) est donc capturée ICI, pour calculer un vrai delta.
+   */
+  const energieAvantSyncNguV1 =
+    Math.max(
+      0,
+      nombreSorealIdle_(
+        statsRessourceV55.metaNgu &&
+        statsRessourceV55.metaNgu.resources &&
+        statsRessourceV55.metaNgu.resources.energy
+          ? statsRessourceV55.metaNgu.resources.energy.current
+          : row[c.ENERGIE - 1],
+        0
+      )
+    );
+
   const collectionRessourceV55 =
     parserJsonSorealIdle_(
       row[c.COLLECTION_JSON - 1],
@@ -8250,7 +8275,13 @@ function appliquerProgressionEnergieSorealIdle_(
   const fractionEnergieHistorique = 0;
   const resteEnergieAvantProgressionMs = 0;
   statsCombat.energieTickResteMs = 0;
-  const energieTheoriqueProduite = 0;
+  /* Production brute réelle (avant toute dépense Aventure AUTO plus bas) : energie - energieAvantSyncNguV1, jamais 0 en dur. */
+  const energieTheoriqueProduite =
+    Math.max(
+      0,
+      energie -
+      energieAvantSyncNguV1
+    );
   let nouvelleEnergie = energie;
   const energieApresProduction = nouvelleEnergie;
   let energieStockeeParProduction = 0;
@@ -9364,9 +9395,10 @@ function appliquerProgressionEnergieSorealIdle_(
       energieDepenseeAventureAuto
     );
 
+  /* Net réel : depuis l'énergie d'AVANT synchro (energieAvantSyncNguV1), jamais depuis "energie" (déjà l'état d'APRÈS -- toujours 0 sinon). */
   const gainNetEnergie =
     nouvelleEnergie -
-    energie;
+    energieAvantSyncNguV1;
 
   niveau=1;
   xp=Math.max(0,nombreSorealIdle_(statsCombat.metaNgu.currencies.experience,0));

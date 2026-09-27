@@ -21590,6 +21590,13 @@ function pageAventureIdleV28_(j){
             htmlNotesMajIdleV1_()+
           '</div>'+
           (window.__SOREAL_IDLE_BUG_REPORT_V1__?window.__SOREAL_IDLE_BUG_REPORT_V1__.html(estAdminSorealIdle_()):'')+
+          (estAdminSorealIdle_()
+            ?'<div class="soreal-idle-section-v8">'+
+              '<div class="soreal-idle-window-title-v31">🧪 Outils de test (administrateur)</div>'+
+              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir une scène spéciale sans devoir y rejouer -- utile pour vérifier un correctif.</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__SOREAL_IDLE_STORY_POPUP_V1__&&window.__SOREAL_IDLE_STORY_POPUP_V1__.rejouer()">🔁 Revoir « Le Magicien et la Grotte » (scène boss 18)</button>'+
+            '</div>'
+            :'')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
             '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+

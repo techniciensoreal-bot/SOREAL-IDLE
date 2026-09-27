@@ -197,6 +197,7 @@ function demarrer_(){
 function terminer_(overlay){
   /* Vu seulement ici (fin réelle, ou clic sur « Passer » -- jamais une simple fermeture de l'app en cours de route). */
   marquerVu_();
+  enCours=false;
   overlay.classList.remove('soreal-idle-histoire-visible-v1');
   setTimeout(function(){
     if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);
@@ -205,6 +206,18 @@ function terminer_(overlay){
 
 window.__SOREAL_IDLE_STORY_POPUP_V1__={
   considerer:considerer_,
+  /*
+   * Norman (2026-09-27) : « Est-ce que tu peux faire pop l'animation à la mort du boss 17 quand je
+   * lance le jeu ? Ça a bugué quand je l'ai eu et je dois vérifier que c'est bien réglé. » Rejoue la
+   * scène à la demande (bouton Paramètres, administrateur seulement), sans toucher au flag "vu" ni
+   * dépendre du boss courant -- utile pour vérifier un correctif sans devoir refaire tout le jeu
+   * jusqu'au boss 18.
+   */
+  rejouer:function(){
+    if(enCours)return;
+    enCours=true;
+    demarrer_();
+  },
   /* Outils de test. */
   dejaVu:dejaVu_,
   dureeApprox:dureeApprox_,

@@ -23,6 +23,17 @@ const bas = ui.slice(ui.indexOf('<div class="soreal-idle-reward-v8">'), ui.index
 assert.match(bas, /XP/);
 assert.ok(!bas.includes("🪙") && !bas.includes("pieces"), "plus d'or affiché en bas de Fight Boss");
 
+/*
+ * Norman (2026-09-27) : « il y a +1xp, ça date du vieux soreal idle » -- le chiffre est déjà le vrai XP du
+ * wiki (vérifié ci-dessus), mais l'habillage du badge (.soreal-idle-chip-v8) était resté un pavé clair
+ * d'une ancienne version light-theme, tranchant sur le dégradé sombre de la carte Fight Boss depuis.
+ */
+const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
+const chipDebut = css.indexOf(".soreal-idle-chip-v8{");
+const chip = css.slice(chipDebut, css.indexOf("}", chipDebut));
+assert.ok(!chip.includes("#f0f2ff") && !chip.includes("#303b91"), "le badge XP ne doit plus utiliser les couleurs claires de l'ancienne version");
+assert.match(chip, /color:#fff/, "texte clair pour rester lisible sur le dégradé sombre de la carte Fight Boss");
+
 const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 assert.ok(!/pieces \+=\s*Math\.max\(\s*1,\s*Math\.round\(\s*recompensePiecesBossSorealIdle_\(\s*boss/.test(runtime), "un boss principal ne donne plus de « pièces »");
 assert.ok(!runtime.includes("genererObjetBossSorealIdle_(\n            bossCombatIndex") && !runtime.includes("genererObjetBossSorealIdle_(\n            bossIndexNuke"), "un boss principal ne lâche plus d'objet");

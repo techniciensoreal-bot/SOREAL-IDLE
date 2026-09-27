@@ -261,11 +261,20 @@ html,body{overflow-x:hidden}
             margin-top:12px;
           }
 
+          /*
+           * Norman (2026-09-27) : « il y a +1xp, ça date du vieux soreal idle » -- ce badge (récompense XP
+           * du boss courant, en bas de la carte Fight Boss) est un résidu visuel : fond clair/texte foncé
+           * d'une ancienne version light-theme de la page, resté tel quel alors que la carte Fight Boss
+           * (.soreal-idle-boss-current-v35) est passée à un dégradé sombre -- il tranchait comme un pavé
+           * blanc sur fond violet. Le chiffre lui-même est déjà le vrai XP du wiki NGU (correctif du
+           * 17/09) : seule l'habillage change ici, jamais la valeur affichée.
+           */
           .soreal-idle-chip-v8{
             padding:7px 10px;
             border-radius:999px;
-            background:#f0f2ff;
-            color:#303b91;
+            background:rgba(255,255,255,.14);
+            border:1px solid rgba(255,255,255,.22);
+            color:#fff;
             font-size:12px;
             font-weight:900;
           }

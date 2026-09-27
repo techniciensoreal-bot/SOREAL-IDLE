@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.2',
+    courante:'5.3',
     versions:[
+      {
+        version:'5.3',
+        nom:'Pendant ton absence, pour de vrai',
+        date:'2026-09-27',
+        points:[
+          'Le popup de résumé au retour affiche maintenant la vraie énergie produite pendant ton absence.',
+          'Nettoyage visuel du badge de récompense en bas de Fight Boss.',
+          'Un nouvel outil (administrateur) permet de revoir une scène spéciale déjà vue pour vérifier un correctif.'
+        ]
+      },
       {
         version:'5.2',
         nom:'Silence sur les parenthèses',
