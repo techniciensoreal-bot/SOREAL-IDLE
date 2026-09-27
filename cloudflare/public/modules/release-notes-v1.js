@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.4',
+    courante:'5.5',
     versions:[
+      {
+        version:'5.5',
+        nom:'Ça répond au doigt et à l’œil',
+        date:'2026-09-27',
+        points:[
+          'Les boutons +, − et Max des Augmentations réagissent maintenant instantanément, avec le même son que Basic Training.',
+          'Le chiffre d’énergie placée bouge sans attendre la réponse du serveur.',
+          'Petites optimisations internes sur les allocations d’énergie.'
+        ]
+      },
       {
         version:'5.4',
         nom:'Plus vite, sans coupure',

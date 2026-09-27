@@ -69,8 +69,13 @@ assert.ok(!page.includes("['0%','25%','50%','100%']"), "les pourcentages du Cap 
 assert.match(page, /id="sorealIdleAugInputV1"/);
 assert.match(page, /Énergie libre :/);
 assert.match(page, /clearAugmentAllocations/);
-assert.match(module_, /const value=mode==='plus'\s*\?current\+pas\s*:mode==='moins'\s*\?Math\.max\(0,current-pas\)\s*:Math\.max\(cap,current\);/);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609274"));
+assert.match(module_, /const cible=mode==='plus'\s*\?current\+Math\.min\(pas,idleAvant\)\s*:mode==='moins'\s*\?Math\.max\(0,current-pas\)\s*:current\+idleAvant;/);
+// Norman (2026-09-27) : « je veux le même son et la même animation ... que dans basic training, mais dans augmentation » -- même mise à
+// jour optimiste locale (avant la réponse serveur) et même famille de sons (btPlus/btMinus/btCap) que ajusterBasicTrainingIdleV120_.
+assert.match(module_, /const son=mode==='plus'\?'btPlus':mode==='moins'\?'btMinus':'btCap';/);
+assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]\(\);/);
+assert.match(module_, /H\.rendreIdleEtat_\(\{ok:true,joueur:j\}\);/);
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609275"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 
@@ -78,6 +83,8 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
 {
   const vm = await import("node:vm");
   const sent = [];
+  const rendus = [];
+  const sons = [];
   let etat = null;
   const els = {};
   const H = {
@@ -86,38 +93,65 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
     idleHtml_: (v) => String(v),
     formatGrandNombreIdleV70_: (v) => String(v),
     entetePageIdleV28_: (t) => "<h1>" + t + "</h1>",
-    getIdleEtat: () => etat
+    getIdleEtat: () => etat,
+    rendreIdleEtat_: (r) => rendus.push(r)
   };
-  const window = { __SOREAL_IDLE_META_HOST_V130__: H, __actionMetaV47__: (p) => sent.push(p) };
+  const audio = {
+    btPlus: () => sons.push("btPlus"),
+    btMinus: () => sons.push("btMinus"),
+    btCap: () => sons.push("btCap")
+  };
+  const window = { __SOREAL_IDLE_META_HOST_V130__: H, __SOREAL_IDLE_AUDIO_V199__: audio, __actionMetaV47__: (p) => sent.push(p) };
   const document = { getElementById: (id) => els[id] || null };
   vm.runInNewContext(module_, { window, document, performance: { now: () => 0 }, console, Math, Number, Object, Array, Boolean, String, JSON, Date, setTimeout, clearTimeout });
-  etat = {
+  const fabriquerEtat = () => ({
     energie: 250,
     systemes: {
-      systems: [{ id: "augmentations", state: { unlocked: true, data: { pairs: { scissors: { level: 3, energy: 100, upgradeLevel: 0, upgradeEnergy: 0 } } } } }],
+      systems: [{ id: "augmentations", state: { unlocked: true, allocation: { energy: 100 }, data: { pairs: { scissors: { level: 3, energy: 100, upgradeLevel: 0, upgradeEnergy: 0 } } } } }],
       augmentations: [{ id: "scissors", name: "Safety Scissors", unlockBoss: 17, progressPct: 0.5, upgradeProgressPct: 0, upgrade: { unlockBoss: 37 } }],
       resources: { energy: { cap: 500 } },
       records: { highestBoss: 40 }, currencies: { gold: 1000 }, bonuses: { augmentationMultiplier: 1.5 }
     }
-  };
+  });
+  etat = fabriquerEtat();
   const html = window.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_(etat, "augmentations", "Augmentations");
   assert.match(html, /Énergie libre : <b>250<\/b>/);
   assert.equal((html.match(/__ajusterAugmentIdleV1__/g) || []).length, 6, "3 boutons pour l'Augment et 3 pour l'Upgrade");
   assert.ok(!html.includes("25%") && !html.includes("50%"));
-  // clics : Input = 40 -> + = 100 + 40, − = 100 − 40, Max = Cap
+
+  // « + » (Input = 40) : mise à jour optimiste locale IMMÉDIATE (avant même l'envoi réseau), même son que Basic Training.
   els.sorealIdleAugInputV1 = { value: "40" };
   window.__ajusterAugmentIdleV1__("scissors", false, "plus");
+  assert.deepEqual(sent.map((p) => [p.action, p.pair, p.upgrade, p.value]), [["allocateAugment", "scissors", false, 140]]);
+  assert.equal(etat.systemes.systems[0].state.data.pairs.scissors.energy, 140, "la piste est mise à jour localement, sans attendre le serveur");
+  assert.equal(etat.energie, 210, "l'énergie idle restante baisse immédiatement (250 − 40)");
+  assert.deepEqual(sons, ["btPlus"], "même son que le + de Basic Training");
+  assert.equal(rendus.length, 1, "un rendu immédiat, avant la réponse serveur");
+
+  // « − » : même chose, son btMinus, part de la valeur déjà mise à jour localement (140).
   window.__ajusterAugmentIdleV1__("scissors", false, "moins");
+  assert.equal(sent.at(-1).value, 100, "140 − 40");
+  assert.equal(etat.systemes.systems[0].state.data.pairs.scissors.energy, 100);
+  assert.equal(etat.energie, 250, "l'énergie rendue est restituée immédiatement");
+  assert.deepEqual(sons, ["btPlus", "btMinus"]);
+
+  // « Max » : place toute l'énergie idle actuellement connue du client dans la piste (le serveur reste l'arbitre final).
   window.__ajusterAugmentIdleV1__("scissors", false, "max");
+  assert.equal(sent.at(-1).value, 350, "100 + 250 (toute l'énergie idle libre)");
+  assert.equal(etat.energie, 0);
+  assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "Max joue le même son que le Cap de Basic Training");
+
+  // Aucune énergie idle restante : un « + » sur l'Upgrade ne change rien, donc aucun son ni rendu supplémentaire (mais l'action part quand même).
+  const rendusAvant = rendus.length;
   window.__ajusterAugmentIdleV1__("scissors", true, "plus");
-  assert.deepEqual(sent.map((p) => [p.action, p.pair, p.upgrade, p.value]), [
-    ["allocateAugment", "scissors", false, 140],
-    ["allocateAugment", "scissors", false, 60],
-    ["allocateAugment", "scissors", false, 500],
-    ["allocateAugment", "scissors", true, 40]
-  ]);
+  assert.equal(sent.at(-1).value, 0, "plus d'énergie idle libre à placer");
+  assert.equal(rendus.length, rendusAvant, "aucun rendu optimiste quand rien ne change réellement");
+  assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "aucun son supplémentaire quand rien ne change réellement");
+
+  // Input invalide : on garde le dernier montant valide.
+  etat = fabriquerEtat();
   els.sorealIdleAugInputV1 = { value: "" };
   window.__ajusterAugmentIdleV1__("scissors", false, "plus");
-  assert.equal(sent.at(-1).value, 140, "Input invalide : on garde le dernier montant valide");
+  assert.equal(sent.at(-1).value, 140, "Input invalide : on garde le dernier montant valide (40)");
 }
 console.log("idle-augmentation-allocation-ui-v1 (rendu): OK");

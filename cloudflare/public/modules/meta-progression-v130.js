@@ -1468,6 +1468,15 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const n=Math.floor(Number(v));
         if(Number.isFinite(n)&&n>=1)montantAugmentIdleV1=n;
       };
+      /*
+       * Norman (2026-09-27) : « Je veux le même son et la même animation sur le bouton + et le chiffre qui reçoit les
+       * points d'énergie que dans basic training mais dans augmentation. » Avant ce correctif, le clic attendait le
+       * bruit du réseau (rendreIdleEtat_ complet, appelé seulement à la réponse serveur) pour que la barre/le chiffre
+       * ne bouge, et aucun son n'était joué -- exactement comme ajusterBasicTrainingIdleV120_ (soreal-idle-ui.js) :
+       * mise à jour optimiste locale IMMÉDIATE (pair.energy/upgradeEnergy, énergie idle restante) + même son
+       * (btPlus/btMinus/btCap) que Basic Training, avant même l'envoi au serveur. La confirmation serveur suit
+       * normalement (actionMetaNoyauIdleV130_) et corrige la valeur si besoin.
+       */
       function ajusterAugmentIdleV1_(pairId,upgrade,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -1475,12 +1484,28 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const pair=((s&&s.state&&s.state.data&&s.state.data.pairs)||{})[pairId]||{};
         const current=Math.max(0,H.idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
         const pas=montantAugmentLireIdleV1_();
-        const cap=Math.max(0,H.idleNombre_(j&&j.systemes&&j.systemes.resources&&j.systemes.resources.energy&&j.systemes.resources.energy.cap));
-        const value=mode==='plus'
-          ?current+pas
+        const idleAvant=Math.max(0,H.idleNombre_(j&&j.energie));
+        const cible=mode==='plus'
+          ?current+Math.min(pas,idleAvant)
           :mode==='moins'
             ?Math.max(0,current-pas)
-            :Math.max(cap,current);
+            :current+idleAvant;
+        const value=Math.max(0,H.idleEntier_(cible));
+        const delta=value-current;
+
+        if(delta!==0){
+          try{
+            const audio=window.__SOREAL_IDLE_AUDIO_V199__;
+            const son=mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap';
+            if(audio&&typeof audio[son]==='function')audio[son]();
+          }catch(_e){}
+
+          if(pair)pair[upgrade?'upgradeEnergy':'energy']=value;
+          if(s&&s.state&&s.state.allocation)s.state.allocation.energy=Math.max(0,H.idleNombre_(s.state.allocation.energy)+delta);
+          if(j)j.energie=Math.max(0,idleAvant-delta);
+          H.rendreIdleEtat_({ok:true,joueur:j});
+        }
+
         window.__actionMetaV47__({action:'allocateAugment',pair:pairId,upgrade:Boolean(upgrade),value:value});
       }
       window.__ajusterAugmentIdleV1__=ajusterAugmentIdleV1_;

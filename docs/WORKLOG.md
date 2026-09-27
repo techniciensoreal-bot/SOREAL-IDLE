@@ -2098,3 +2098,14 @@ Norman : « La voix met très longtemps avant de commencer à lire le texte. Ens
 Tests : `idle-story-popup-magicien-v1` (nouveau cas 11 : préchargement + grâce courte après lecture réelle), `idle-voice-pregenerated-v1` (nouvelle vérification du branchement), cache-bust (`idle-audio-effects-v199`, `idle-inventory-gestures-v200`, `idle-info-money-pit-v204`, `idle-augmentation-visible-full-tick-v218`, `idle-basic-training-visible-full-tick-v219`, `idle-energy-adventure-hp-v200`).
 
 Versions : ui `313`, story-popup `4`, notes `38`, Beta `5.4`.
+
+## 2026-09-27 (suite) — IDLE Beta 5.5 « Ça répond au doigt et à l'œil »
+
+Norman (après avoir signalé « impossible de placer de l'énergie » dans Augmentations) : « Je veux le même son et la même animation sur le bouton + et le chiffre qui reçoit les points d'énergie que dans basic training mais dans augmentation. »
+
+- **Diagnostic du signalement précédent** : le mécanisme d'allocation lui-même fonctionne (vérifié de bout en bout avec un vrai moteur SQLite en test : l'énergie baisse bien après un « + »). Le vrai problème est que `ajusterAugmentIdleV1_` (`meta-progression-v130.js`) attendait la réponse serveur (rendu complet différé) avant que quoi que ce soit ne bouge visuellement, et ne jouait aucun son — contrairement à `ajusterBasicTrainingIdleV120_` (`soreal-idle-ui.js`), qui met à jour la piste ET l'énergie idle restante localement, IMMÉDIATEMENT, avec un son (`btPlus`/`btMinus`/`btCap`), avant même d'envoyer la mutation au serveur.
+- **Correctif** : `ajusterAugmentIdleV1_` fait maintenant exactement pareil -- mise à jour optimiste locale de la piste (Augment/Upgrade) et de l'énergie idle restante, même famille de sons que Basic Training (`+`→btPlus, `−`→btMinus, `Max`→btCap, uniquement si l'allocation change vraiment), puis envoi normal au serveur qui reste l'arbitre final (corrige si besoin à sa réponse, comme avant). Le bouton « Max » cible maintenant `piste + énergie idle libre connue du client` au lieu d'envoyer directement le Cap total (le serveur bornait déjà correctement, mais la valeur envoyée doit désormais correspondre exactement à ce qui est affiché localement).
+
+Tests : `idle-augmentation-allocation-ui-v1` (réécrit : mise à jour optimiste, sons, aucun rendu/son quand rien ne change réellement), `idle-inventory-auto-no-full-render-v1` (cache-bust).
+
+Versions : meta-progression `202609275`, notes `39`, Beta `5.5`.
