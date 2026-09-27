@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.8',
+    courante:'4.9',
     versions:[
+      {
+        version:'4.9',
+        nom:'Dix façons de gagner',
+        date:'2026-09-27',
+        points:[
+          'Vaincre un boss en Fight Boss joue maintenant l’un de dix sons de victoire différents, chacun à son tour.',
+          'Une fois les dix entendus, le cycle recommence au premier — jamais deux fois le même son de suite.',
+          'La mémoire de ce cycle vit sur ton appareil, comme pour les sons d’apparition des boss.'
+        ]
+      },
       {
         version:'4.8',
         nom:'Puissance, Endurance, Regen PV',

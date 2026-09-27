@@ -522,28 +522,176 @@
     });
   }
 
-  function victoireBoss_(){
-    return jouerWebAudio_(980,function(c){
-      /*
-       * V206 — fanfare originale très courte : sensation "coffre/victoire"
-       * sans reprendre de mélodie existante. Quatre notes ascendantes,
-       * accord final et éclat cristallin.
-       */
-      [
-        [392,.18,.052,0],
-        [494,.18,.052,.13],
-        [587,.20,.055,.26],
-        [784,.42,.070,.40]
-      ].forEach(function(p){
-        tonal_(c,{type:"triangle",from:p[0],to:p[0]*1.008,duration:p[1],volume:p[2],delay:p[3]});
-      });
-      tonal_(c,{type:"sine",from:988,to:1047,duration:.38,volume:.034,delay:.44});
-      tonal_(c,{type:"sine",from:1175,to:1319,duration:.30,volume:.023,delay:.50});
-      bruit_(c,{
-        duration:.16,volume:.018,delay:.47,
-        filterType:"highpass",frequency:5200,frequencyEnd:7600,decay:2.8
+  /*
+   * 1. Fanfare de cristal (V206) — fanfare originale très courte : sensation "coffre/victoire" sans reprendre de
+   * mélodie existante. Quatre notes ascendantes, accord final et éclat cristallin.
+   */
+  function victoireFanfareConstruire_(c){
+    [
+      [392,.18,.052,0],
+      [494,.18,.052,.13],
+      [587,.20,.055,.26],
+      [784,.42,.070,.40]
+    ].forEach(function(p){
+      tonal_(c,{type:"triangle",from:p[0],to:p[0]*1.008,duration:p[1],volume:p[2],delay:p[3]});
+    });
+    tonal_(c,{type:"sine",from:988,to:1047,duration:.38,volume:.034,delay:.44});
+    tonal_(c,{type:"sine",from:1175,to:1319,duration:.30,volume:.023,delay:.50});
+    bruit_(c,{
+      duration:.16,volume:.018,delay:.47,
+      filterType:"highpass",frequency:5200,frequencyEnd:7600,decay:2.8
+    });
+  }
+
+  /*
+   * 9 autres sons de victoire (2026-09-27, Norman : « crée 9 Autres sons de victoires. Quand on bat un boss de
+   * Fight Boss. ils doivent tous être en rapport avec la victoire mais sans être ressemblants. Ils devront tous
+   * être joué dans l'ordre avant de recommencer au premier »). Même mécanique de rotation que les 10 sons
+   * d'apparition de boss (SONS_BOSS/gongBoss_) : chacun garde un thème "victoire" (fanfare, cloche, cuivres,
+   * acclamation...) mais avec un timbre, un rythme ou une structure clairement différents des autres.
+   */
+
+  /* 2. Cuivres triomphants : accord majeur qui gonfle (cor + trompette), impact grave. */
+  function victoireCuivresConstruire_(c){
+    nappe_(c,{type:"sawtooth",from:130.8,to:132,duration:.85,volume:.050,attack:.04});
+    nappe_(c,{type:"sawtooth",from:164.8,to:166,duration:.85,volume:.044,attack:.05});
+    nappe_(c,{type:"sawtooth",from:196,to:198,duration:.85,volume:.050,attack:.04});
+    nappe_(c,{type:"triangle",from:261.6,to:264,duration:.85,volume:.028,attack:.06});
+    tonal_(c,{type:"sine",from:65,to:65,duration:.5,volume:.09});
+    bruit_(c,{duration:.12,volume:.05,filterType:"lowpass",frequency:600,decay:2});
+  }
+  function victoireCuivres_(){
+    return jouerWebAudio_(950,victoireCuivresConstruire_);
+  }
+
+  /* 3. Carillon de cloches : trois notes de cloche qui descendent, riches en harmoniques, résonance longue. */
+  function victoireCarillonConstruire_(c){
+    [[1568,0],[1244,.22],[988,.44]].forEach(function(p){
+      [[1,1,.9],[2.0,.4,.7],[2.76,.2,.5],[5.4,.1,.35]].forEach(function(h){
+        tonal_(c,{type:"sine",from:p[0]*h[0],to:p[0]*h[0]*.998,duration:.5+h[2]*.5,volume:.052*h[1],delay:p[1]});
       });
     });
+  }
+  function victoireCarillon_(){
+    return jouerWebAudio_(1300,victoireCarillonConstruire_);
+  }
+
+  /* 4. Acclamation : un souffle qui monte comme une foule qui exulte, puis un accord bref qui l'accompagne. */
+  function victoireFouleConstruire_(c){
+    bruitMonte_(c,{duration:.48,volume:.065,filterType:"bandpass",frequency:400,frequencyEnd:3200,q:.7,pow:1.6});
+    [523,659,784].forEach(function(f){
+      tonal_(c,{type:"triangle",from:f,to:f*1.01,duration:.40,volume:.048,delay:.45});
+    });
+    bruit_(c,{duration:.3,volume:.026,delay:.5,filterType:"highpass",frequency:5000,decay:2});
+  }
+  function victoireFoule_(){
+    return jouerWebAudio_(950,victoireFouleConstruire_);
+  }
+
+  /* 5. Arpège éclair façon "niveau terminé" : cinq notes rapides qui montent puis un accord tenu. */
+  function victoireArpegeConstruire_(c){
+    [523,659,784,1047,1319].forEach(function(f,i){
+      tonal_(c,{type:"square",from:f,to:f,duration:.09,volume:.032,delay:i*.06});
+    });
+    [659,784,988].forEach(function(f){
+      tonal_(c,{type:"triangle",from:f,to:f,duration:.5,volume:.038,delay:.35});
+    });
+  }
+  function victoireArpege_(){
+    return jouerWebAudio_(950,victoireArpegeConstruire_);
+  }
+
+  /* 6. Fanfare royale : trois appels de trompette identiques puis un quatrième plus long, comme une annonce. */
+  function victoireTrompettesConstruire_(c){
+    [[0,.14,false],[.18,.14,false],[.36,.14,false],[.60,.42,true]].forEach(function(p){
+      tonal_(c,{type:"sawtooth",from:392,to:392,duration:p[1],volume:p[2]?.070:.048,delay:p[0]});
+      tonal_(c,{type:"sawtooth",from:587,to:587,duration:p[1],volume:p[2]?.048:.028,delay:p[0]});
+    });
+    bruit_(c,{duration:.16,volume:.015,delay:.6,filterType:"highpass",frequency:6000,decay:2.2});
+  }
+  function victoireTrompettes_(){
+    return jouerWebAudio_(1100,victoireTrompettesConstruire_);
+  }
+
+  /* 7. Jingle chiptune : petite mélodie carrée façon jeu 8 bits, vive et bondissante. */
+  function victoireChiptuneConstruire_(c){
+    [[659,0,.11],[784,.11,.11],[988,.22,.11],[1319,.33,.26]].forEach(function(p){
+      tonal_(c,{type:"square",from:p[0],to:p[0],duration:p[2],volume:.032,delay:p[1]});
+    });
+    tonal_(c,{type:"square",from:1568,to:1568,duration:.2,volume:.020,delay:.60});
+  }
+  function victoireChiptune_(){
+    return jouerWebAudio_(850,victoireChiptuneConstruire_);
+  }
+
+  /* 8. Impact orchestral + chœur : un coup grave sourd suivi d'un chœur qui enfle doucement. */
+  function victoireChoeurConstruire_(c){
+    tonal_(c,{type:"sine",from:80,to:60,duration:.30,volume:.10});
+    bruit_(c,{duration:.15,volume:.06,filterType:"lowpass",frequency:900,decay:2.4});
+    [392,494,587].forEach(function(f){
+      nappe_(c,{type:"sine",from:f,to:f*1.004,duration:1.1,volume:.030,attack:.5,vibRate:5,vibDepth:3,delay:.1});
+    });
+  }
+  function victoireChoeur_(){
+    return jouerWebAudio_(1300,victoireChoeurConstruire_);
+  }
+
+  /* 9. Boîte à musique scintillante : cinq notes de clochette légères, aiguës, qui rebondissent. */
+  function victoireBoiteConstruire_(c){
+    [[1319,0],[1568,.12],[2093,.24],[1568,.36],[2637,.48]].forEach(function(p){
+      tonal_(c,{type:"sine",from:p[0],to:p[0]*1.002,duration:.22,volume:.030,delay:p[1]});
+      tonal_(c,{type:"triangle",from:p[0]*2,to:p[0]*2,duration:.12,volume:.010,delay:p[1]});
+    });
+  }
+  function victoireBoite_(){
+    return jouerWebAudio_(800,victoireBoiteConstruire_);
+  }
+
+  /* 10. Roulement de caisse claire + cymbale : la tension monte puis explose en un éclat de cuivre. */
+  function victoireRouleauConstruire_(c){
+    bruit_(c,{duration:.5,volume:.048,filterType:"bandpass",frequency:500,q:1.2,decay:.4});
+    bruit_(c,{duration:.35,volume:.070,delay:.5,filterType:"highpass",frequency:4000,frequencyEnd:6000,decay:1.4});
+    tonal_(c,{type:"sawtooth",from:261.6,to:264,duration:.6,volume:.058,delay:.5});
+    tonal_(c,{type:"sine",from:65,to:65,duration:.5,volume:.09,delay:.5});
+  }
+  function victoireRouleau_(){
+    return jouerWebAudio_(1150,victoireRouleauConstruire_);
+  }
+
+  var CLE_VICTOIRE_BOSS="soreal_idle_victoire_boss_index_v1";
+  var SONS_VICTOIRE=[
+    {nom:"fanfare-cristal",duree:980,construire:victoireFanfareConstruire_},
+    {nom:"cuivres",duree:950,construire:victoireCuivresConstruire_},
+    {nom:"carillon",duree:1300,construire:victoireCarillonConstruire_},
+    {nom:"foule",duree:950,construire:victoireFouleConstruire_},
+    {nom:"arpege",duree:950,construire:victoireArpegeConstruire_},
+    {nom:"trompettes",duree:1100,construire:victoireTrompettesConstruire_},
+    {nom:"chiptune",duree:850,construire:victoireChiptuneConstruire_},
+    {nom:"choeur",duree:1300,construire:victoireChoeurConstruire_},
+    {nom:"boite-a-musique",duree:800,construire:victoireBoiteConstruire_},
+    {nom:"rouleau-cymbale",duree:1150,construire:victoireRouleauConstruire_}
+  ];
+
+  function rangVictoireBoss_(){
+    try{
+      var n=parseInt(localStorage.getItem(CLE_VICTOIRE_BOSS),10);
+      if(isFinite(n)&&n>=0)return n%SONS_VICTOIRE.length;
+    }catch(_){}
+    return 0;
+  }
+
+  function memoriserVictoireBoss_(rang){
+    try{localStorage.setItem(CLE_VICTOIRE_BOSS,String((rang+1)%SONS_VICTOIRE.length));}catch(_){}
+  }
+
+  var dernierSonVictoire="";
+
+  function victoireBoss_(){
+    var rang=rangVictoireBoss_();
+    var son=SONS_VICTOIRE[rang];
+    dernierSonVictoire=son.nom;
+    memoriserVictoireBoss_(rang);
+    return jouerWebAudio_(son.duree,son.construire);
   }
 
   function nuke_(){
@@ -1267,6 +1415,7 @@
     /* Constructeurs bruts (vérifications hors ligne : rendu dans un OfflineAudioContext). */
     builders:{
       bossSounds:SONS_BOSS.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
+      victorySounds:SONS_VICTOIRE.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
       timeMachine:{duree:3000,construire:voyageTempsConstruire_},
       defeat:{duree:1900,construire:defaiteConstruire_},
       purchaseGold:{duree:1000,construire:orConstruire_},
@@ -1281,6 +1430,7 @@
     bossAppear:function(){return demander_("bossAppear");},
     timeMachine:function(){return demander_("timeMachine");},
     dernierSonBoss:function(){return dernierSonBoss;},
+    dernierSonVictoire:function(){return dernierSonVictoire;},
     victory:function(){return demander_("victory");},
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
