@@ -3122,7 +3122,7 @@
                 ?' · ↗ +'+
                   formaterDecimalesFixesIdleV1_(
                     regenJoueurVisibleV176,
-                    2
+                    0
                   )+
                   '/s'
                 :''
@@ -3200,7 +3200,7 @@
                 ?' · ↗ +'+
                   formaterDecimalesFixesIdleV1_(
                     idleEtat.regenBoss,
-                    2
+                    0
                   )+
                   '/s'
                 :''
