@@ -255,18 +255,25 @@
    * reste affiché à l'écran (soreal-idle-boss-lore-title-v168) -- seule la voix ne le prononce plus, ici et dans le panneau de lecture
    * automatique (soreal-idle-ui.js, marqué data-soreal-tts-ignore).
    */
+  /*
+   * Norman (2026-09-27) : « il ne faut pas lire ce qu'il y a entre parenthèses ». La note de déblocage « (…) » en tête du récit
+   * reste affichée à l'écran (histoireBossMarkupIdleV142_) mais n'est plus prononcée du tout -- avant ce correctif elle était
+   * réinjectée dans le texte lu juste après avoir été détectée, ce qui la faisait lire quand même. Règle générale : AUCUN texte
+   * entre parenthèses n'est jamais lu, pas seulement cette note de déblocage.
+   */
   var MOTIF_NOTE_BOSS=/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/;
   function composerChronique_(nom,histoire){
     var out=String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
     var narration=String(histoire||'').trim();
-    for(;;){
-      var m=narration.match(MOTIF_NOTE_BOSS);
-      if(!m)break;
-      out+='('+String(m[1]||'').trim()+') '+PAUSE_OPEN+'700'+PAUSE_CLOSE+' ';
-      narration=narration.slice(m[0].length).trim();
-    }
-    out+=narration;
+    var m=narration.match(MOTIF_NOTE_BOSS);
+    if(m)narration=narration.slice(m[0].length).trim();
+    out+=retirerParentheses_(narration);
     return out.replace(/\s+/g,' ').trim();
+  }
+
+  /* Aucun texte entre parenthèses n'est jamais lu à voix haute (Norman, 2026-09-27), quel que soit son contenu ou sa position. */
+  function retirerParentheses_(texte){
+    return String(texte||'').replace(/\([^)]*\)/g,' ');
   }
 
   function revokeObjectUrl_(src){
@@ -438,8 +445,17 @@
    * Ordre de priorité : un popup de tutoriel (créé/retiré du DOM, jamais simplement masqué) passe TOUJOURS avant la chronique de boss, ce
    * qui garantit à la fois qu'elle ne se lance jamais tant qu'un tutoriel est affiché et qu'un seul son ne joue jamais à la fois (Norman,
    * 2026-09-27) -- le moteur de lecture lui-même (narrate_/stop_) n'autorise de toute façon qu'une narration active à la fois.
+   *
+   * Norman (2026-09-27, boss 18) : « Rien n'était synchro et ça changeait d'image alors que le texte n'avait pas été lu ». Cause réelle :
+   * le popup d'histoire plein écran (story-popup-v1.js, #sorealIdleHistoirePopupV1) lit lui-même son texte via readText, MAIS l'écran
+   * Fight Boss (boss 18) est déjà rendu dessous pendant ce temps -- son propre panneau de chronique (CHRONICLE_PANEL_ID) était alors
+   * détecté ici comme panneau actif et relançait une narration automatique concurrente, qui annulait (stop_/generation) celle du popup
+   * en plein milieu : le popup avançait quand même à l'étape suivante (son rappel onDone est toujours appelé, même annulé) sans que le
+   * texte ait fini d'être lu. Le popup d'histoire passe donc AVANT tout, comme un tutoriel : aucune chronique auto ne doit tourner tant
+   * qu'il est ouvert.
    */
   function activePanel_(){
+    if(document.getElementById('sorealIdleHistoirePopupV1'))return null;
     return (
       document.getElementById('sorealIdleTutorielFlottantV1')||
       document.querySelector('#sorealIdleTutorielPagesModalV1 .soreal-idle-modal-card-v63')||
@@ -471,7 +487,7 @@
     if(!panel)return '';
     /* Panneau dont le texte lu est construit par le jeu à partir des données (voir texteVoixTutorielIdleV1_ dans soreal-idle-ui.js). */
     if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-say')){
-      return String(panel.getAttribute('data-soreal-tts-say')||'').replace(/\s+/g,' ').trim();
+      return retirerParentheses_(String(panel.getAttribute('data-soreal-tts-say')||'')).replace(/\s+/g,' ').trim();
     }
     /* Histoire d'un boss affichée seule (fiche du boss, collection) : lue comme la chronique complète (nom en attribut). */
     if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-chronique')){
@@ -489,7 +505,7 @@
       +BUTTON_CLASS+',.'+READ_CLASS+
       ',[aria-hidden="true"],[data-soreal-tts-ignore],[data-soreal-tts-target]'
     ).forEach(function(el){el.remove();});
-    return String(clone.textContent||'').replace(/\s+/g,' ').trim();
+    return retirerParentheses_(String(clone.textContent||'')).replace(/\s+/g,' ').trim();
   }
 
   function localNeuralApi_(){

@@ -10399,6 +10399,17 @@
       function tutorielPagesFermerV1_(){
         const etat=idleTutorielPagesEnCoursV1;
         if(etat)idleTutorielPagesMarquerVuV1_(etat.cle);
+        /*
+         * Norman (2026-09-27) : « Si on ne termine pas l'introduction complète, elle sera rejouée au prochain
+         * lancement du jeu depuis le début ». « Bienvenue » (le flag qui empêche gererPopupsProgressionIdleV75_
+         * de relancer l'intro) n'est donc marqué ICI, qu'une fois le tutoriel de début réellement fermé -- jamais
+         * dès son ouverture -- pour que quitter en plein milieu la rejoue depuis le début.
+         */
+        if(etat&&etat.pages===TUTORIEL_DEBUT_JEU_PAGES_V1&&idleEtat){
+          const cleBienvenue='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(idleEtat);
+          try{localStorage.setItem(cleBienvenue,JSON.stringify(true));}catch(e){}
+          idleVuMarquerV1_('bienvenue');
+        }
         /* Le sandwich est la dernière page du tutoriel de début : la voix de fond ne part que si le joueur l'a atteinte. */
         if(etat&&etat.pages===TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1)lancerVoixArrierePlanSandwichIdleV1_();
 
@@ -10561,14 +10572,21 @@
 
         if(idleTutorielPagesDejaVuLocalV1_(cle)||idleVuConnuV1_(j,'bienvenue'))return;
 
-        try{
-          localStorage.setItem(cle,JSON.stringify(true));
-        }catch(e){}
-        idleVuMarquerV1_('bienvenue');
+        if(!Boolean(j&&j.profil&&j.profil.nouveauJoueur)){
+          /* Aucune intro à jouer pour un joueur déjà existant : rien à rejouer, donc marqué vu tout de suite. */
+          try{
+            localStorage.setItem(cle,JSON.stringify(true));
+          }catch(e){}
+          idleVuMarquerV1_('bienvenue');
+          return;
+        }
 
-        if(!Boolean(j&&j.profil&&j.profil.nouveauJoueur))return;
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-129 */
+        /*
+         * Norman (2026-09-27) : « Si on ne termine pas l'introduction complète, elle sera rejouée au prochain
+         * lancement du jeu depuis le début ». « bienvenue » n'est donc PAS marqué ici : seulement quand le
+         * tutoriel de début se termine réellement (tutorielPagesFermerV1_), pour qu'un abandon en cours de
+         * route relance cette fonction (et donc l'intro depuis sa toute première page) au prochain lancement.
+         */
         demarrerTutorielPagesIdleV1_(
           TUTORIEL_DEBUT_JEU_PAGES_V1,
           'soreal_idle_tutoriel_debut_v1_'+cle

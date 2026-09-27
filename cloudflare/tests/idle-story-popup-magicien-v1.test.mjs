@@ -123,7 +123,7 @@ function charger(window, document, horloge) {
   assert.equal(api.dejaVu(null), false);
 }
 
-// 5. considerer : ne se déclenche QUE sur bossSelection===18 et jamais vu ; idempotent (un seul appel au pont "marquer vu").
+// 5. considerer : ne se déclenche QUE sur bossSelection===18 et jamais vu ; idempotent (un seul montage).
 {
   const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
   window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
@@ -136,16 +136,20 @@ function charger(window, document, horloge) {
   assert.equal(window_.__soreal_idle_marquer_vu_v1__appels.length, 0, "boss 17 : pas de déclenchement");
   assert.equal(document_.body.children.length, 0, "aucun popup monté avant le boss 18");
 
-  // Boss 18, jamais vu : déclenche, marque vu IMMÉDIATEMENT (avant même le montage visible).
+  // Boss 18, jamais vu : déclenche, monte le popup, mais NE marque PAS vu tout de suite (Norman, 2026-09-27 :
+  // un abandon en cours de route ne doit jamais être considéré comme vu).
   api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
-  assert.deepEqual(window_.__soreal_idle_marquer_vu_v1__appels, ["histoire:magicienEtLaGrotte"], "marqué vu une seule fois, dès le déclenchement");
+  assert.equal(window_.__soreal_idle_marquer_vu_v1__appels.length, 0, "pas encore marqué vu : la scène vient juste de commencer");
   assert.equal(document_.body.children.length, 1, "le popup est monté dans document.body");
 
   // Rappels suivants (nouveaux polls d'état pendant que le popup tourne) : jamais un second déclenchement.
   api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
   api.considerer({ bossSelection: 18, profil: { stats: { vus: ["histoire:magicienEtLaGrotte"] } } });
-  assert.equal(window_.__soreal_idle_marquer_vu_v1__appels.length, 1, "jamais un second appel au pont \"marquer vu\" tant que le popup est en cours");
   assert.equal(document_.body.children.length, 1, "jamais un second popup monté");
+
+  // La scène se déroule jusqu'au bout (5 étapes, sans TTS ici -> plancher de durée) : marqué vu SEULEMENT à la fin.
+  while (horloge.avancer()) {}
+  assert.deepEqual(window_.__soreal_idle_marquer_vu_v1__appels, ["histoire:magicienEtLaGrotte"], "marqué vu une seule fois, seulement à la fin réelle de la scène");
 }
 
 // 6. considerer : un compte où l'histoire est déjà marquée vue (rechargement après un Rebirth, un autre appareil) ne rejoue jamais rien.
@@ -158,6 +162,36 @@ function charger(window, document, horloge) {
   api.considerer({ bossSelection: 18, profil: { stats: { vus: ["histoire:magicienEtLaGrotte"] } } });
   assert.equal(window_.__soreal_idle_marquer_vu_v1__appels.length, 0, "déjà vu -> aucun déclenchement");
   assert.equal(document_.body.children.length, 0, "aucun popup monté");
+}
+
+// 7. Quitter en plein milieu (le jeu s'arrête, plus aucun timer n'avance jamais) : jamais marqué vu -> sera rejoué depuis le début.
+{
+  const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  const api = charger(window_, document_, horloge);
+
+  api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
+  // Seulement les deux premières étapes jouées, puis abandon (fermeture de l'app) : aucun "vu" n'a jamais été envoyé.
+  horloge.avancer();
+  horloge.avancer();
+  assert.equal(window_.__soreal_idle_marquer_vu_v1__appels.length, 0, "scène abandonnée en cours de route -> jamais marquée vue");
+}
+
+// 8. Cliquer sur « Passer » termine la scène (comme la voir jusqu'au bout) : marqué vu.
+{
+  const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  const api = charger(window_, document_, horloge);
+
+  api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
+  const overlay = document_.body.children[0];
+  const bouton = overlay.querySelector(".soreal-idle-histoire-passer-v1");
+  bouton.listeners.click[0]();
+  assert.deepEqual(window_.__soreal_idle_marquer_vu_v1__appels, ["histoire:magicienEtLaGrotte"], "Passer = fin volontaire -> marqué vu");
 }
 
 console.log("idle-story-popup-magicien-v1: OK");

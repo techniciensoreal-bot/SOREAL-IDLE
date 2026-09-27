@@ -104,11 +104,11 @@ function considerer_(j){
   if(dejaVu_(j))return;
   enCours=true;
   /*
-   * Marqué vu IMMÉDIATEMENT (avant même le premier fondu), comme les autres popups « une seule
-   * fois » de ce jeu (bienvenue, menus) : un rechargement en plein milieu de l'histoire ne doit
-   * jamais la rejouer depuis le début.
+   * Norman (2026-09-27) : « Si on ne termine pas l'introduction complète [ou cette scène], elle sera
+   * rejouée au prochain lancement du jeu depuis le début ». Contrairement aux popups « une seule fois »
+   * classiques (bienvenue, menus), marqué vu SEULEMENT à la fin réelle (terminer_), jamais au démarrage :
+   * quitter le jeu en plein milieu de cette séquence à 5 images ne doit jamais la considérer comme vue.
    */
-  marquerVu_();
   demarrer_();
 }
 
@@ -195,6 +195,8 @@ function demarrer_(){
 }
 
 function terminer_(overlay){
+  /* Vu seulement ici (fin réelle, ou clic sur « Passer » -- jamais une simple fermeture de l'app en cours de route). */
+  marquerVu_();
   overlay.classList.remove('soreal-idle-histoire-visible-v1');
   setTimeout(function(){
     if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);
