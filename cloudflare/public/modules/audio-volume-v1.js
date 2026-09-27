@@ -10,9 +10,9 @@
 
   var CLE_VOIX='soreal_idle_volume_voix_v1';
   var CLE_AMBIANCE='soreal_idle_volume_ambiance_v1';
-  /* « Le niveau sonore ne doit pas être trop fort de base » -- la voix, elle, garde son niveau habituel (100%) tant que Norman n'y touche pas. */
-  var DEFAUT_VOIX=1;
-  var DEFAUT_AMBIANCE=0.35;
+  /* Norman (2026-09-27, après coup) : « De base, Ambiance doit être sur 2% et voix sur 40% ». */
+  var DEFAUT_VOIX=0.4;
+  var DEFAUT_AMBIANCE=0.02;
 
   function lire_(cle,defaut){
     try{

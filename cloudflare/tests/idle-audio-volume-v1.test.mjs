@@ -20,11 +20,11 @@ function fabriquer() {
   return { api: window.__SOREAL_IDLE_AUDIO_VOLUME_V1__, stock };
 }
 
-// --- Valeurs par défaut : ambiance modérée d'entrée de jeu, voix inchangée (100%) ---
+// --- Valeurs par défaut (Norman, 2026-09-27, après coup : « De base, Ambiance doit être sur 2% et voix sur 40% ») ---
 {
   const { api } = fabriquer();
-  assert.equal(api.getVoix(), 1, "voix : 100% par défaut, jamais touchée tant que Norman ne règle rien");
-  assert.equal(api.getAmbiance(), 0.35, "ambiance : modérée par défaut (« pas trop fort de base »)");
+  assert.equal(api.getVoix(), 0.4, "voix : 40% par défaut");
+  assert.equal(api.getAmbiance(), 0.02, "ambiance : 2% par défaut");
 }
 
 // --- Lecture/écriture, bornée à [0,1], persistée ---
@@ -45,7 +45,7 @@ function fabriquer() {
   const localStorage = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
   const window = {};
   vm.runInNewContext(src, { window, localStorage });
-  assert.equal(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.getVoix(), 1, "valeur stockée invalide -> repli sur le défaut");
+  assert.equal(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.getVoix(), 0.4, "valeur stockée invalide -> repli sur le défaut");
 }
 
 // --- Écouteurs notifiés à chaque changement (voix et ambiance) ---
