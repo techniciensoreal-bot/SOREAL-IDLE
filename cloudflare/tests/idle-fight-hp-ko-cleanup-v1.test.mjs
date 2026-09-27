@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-09-26) : son de combat qui commence ; « Zone Tutoriel » ; PV du duel plus beaux ; bouton Adventure rouge clignotant après un K.O. ; retrait de la partie B et du bouton
@@ -42,16 +42,15 @@ assert.ok(ui.includes("function marquerBoutonAventureKoIdleV1_(){") && ui.includ
 assert.ok(ui.includes("m.id==='aventure'&&idleAdventureKoAlertV1&&idleMenuActifV28!=='aventure'"), "aussi au rendu du menu, tant qu'on n'a pas rouvert Adventure");
 assert.ok(ui.includes("if(nouveauMenu==='aventure')idleAdventureKoAlertV1=false;"), "s'arrête quand on ouvre Adventure");
 
-// --- partie B et « Réinitialiser TOUS les joueurs » retirés ---
-assert.ok(!existsSync("cloudflare/src/idle-dev-save-slots-v1.js"));
+// --- « Réinitialiser TOUS les joueurs » retiré (la partie B, retirée ce même jour, a été redemandée et restaurée le
+// 2026-09-27 -- voir idle-dev-save-slots.test.mjs / idle-dev-save-slots-client.test.mjs) ---
 for (const [nom, source] of [["ui", ui], ["moteur", runtime], ["coordinateur", coord]]) {
-  for (const interdit of ["PartieDev", "idleDevSlot", "idleDevAlias", "idle-dev-save-slots", "ResetTousJoueurs", "reinitialiserTousLesComptesSorealIdle"]) {
+  for (const interdit of ["ResetTousJoueurs", "reinitialiserTousLesComptesSorealIdle"]) {
     assert.ok(!source.includes(interdit), nom + " ne contient plus « " + interdit + " »");
   }
 }
 assert.ok(!contract.operations.includes("reinitialiserTousLesComptesSorealIdle"), "opération retirée du contrat");
-assert.ok(!css.includes("parties-dev"), "style retiré");
-assert.ok(runtime.includes("email.indexOf('+partieb@') !== -1"), "une éventuelle ligne de l'ancienne partie B reste hors classement");
+assert.ok(runtime.includes("email.indexOf('+partieb@') !== -1"), "une éventuelle ligne de la partie B reste hors classement");
 assert.ok(ui.includes("Réinitialisation complète"), "le reset de SA propre partie reste");
 
 console.log("idle-fight-hp-ko-cleanup-v1: OK");

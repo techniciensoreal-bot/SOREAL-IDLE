@@ -4023,6 +4023,16 @@ function towerMilestonePpV1(floor) {
   return floor % 100 === 0 ? floor / 10 : 1 + Math.floor(floor / 100);
 }
 
+/*
+ * Page ITOPOD / Build History .398 (docs/HORS-LIGNE.md, proposition 2) : contrairement
+ * à l'Aventure classique, la progression de l'ITOPOD (en ligne comme hors ligne) n'exige
+ * pas d'y être « actif » -- seulement l'ITOPOD débloqué et 650 de Power d'Aventure au
+ * total (de quoi tuer l'étage 1 en un coup). Le réglage « active » (généré par le même
+ * bouton Activer/Désactiver que les autres systèmes) ne conditionne donc plus cette
+ * progression ; il reste dans l'état sauvegardé pour compat mais n'est plus lu ici.
+ */
+const ITOPOD_MIN_POWER_V1 = 650;
+
 function advanceTowerV1(state, seconds, context) {
   const tower = state.systems.tower;
   if (!tower.unlocked || !(seconds > 0)) return;
@@ -4040,7 +4050,9 @@ function advanceTowerV1(state, seconds, context) {
 
   const gear = idleAdventureEquipmentStatsV47(state.adventure);
   const bonuses = idleNguBonuses(state);
-  const power = Math.max(10, idleAdventureCombatStatsV1(gear, context, bonuses).power);
+  const powerRaw = idleAdventureCombatStatsV1(gear, context, bonuses).power;
+  if (!(powerRaw >= ITOPOD_MIN_POWER_V1)) return;
+  const power = Math.max(10, powerRaw);
   const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
   /*
    * Hors ligne (ou en ligne, menu ITOPOD fermé) sans être "actif" (Norman, 2026-09-27, correctif docs/HORS-LIGNE.md
@@ -6316,6 +6328,17 @@ function questingEnvV1(state, context) {
   };
 }
 
+/*
+ * Marque filtered:true sur chaque entrée de result.drops dont l'id est listé dans filteredIds
+ * (idleInventoryProcessNewDropsV1) -- le drop reste dans le journal du client (Norman veut le
+ * voir, marqué "(filtré)"), il n'est simplement jamais resté dans l'inventaire réel.
+ */
+function marquerDropsFiltresV1(result, filteredIds) {
+  if (!result || !Array.isArray(result.drops) || !Array.isArray(filteredIds) || !filteredIds.length) return;
+  const ids = new Set(filteredIds.map(String));
+  for (const d of result.drops) if (d && ids.has(String(d.id))) d.filtered = true;
+}
+
 function titanFight(state, context, now) {
   const s = state.systems.titans;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -6353,7 +6376,10 @@ function titanFight(state, context, now) {
   );
   state.adventure = applied.state;
   /* Butin du titan : filtre de butin / cube / transformation automatique (idle-inventory-auto-v1.js). */
-  if (!applied.duplicate) idleInventoryProcessNewDropsV1(state.adventure, idsAvantTitan, inventoryAutoEnvV1(state));
+  if (!applied.duplicate) {
+    const filtrage = idleInventoryProcessNewDropsV1(state.adventure, idsAvantTitan, inventoryAutoEnvV1(state));
+    marquerDropsFiltresV1(applied.result, filtrage.filteredIds);
+  }
   crediterRecompensesAventure(state, avantRecompenses);
 
   const titanState = state.adventure?.titans?.t1 || { kills: 0, nextAt: 0 };
@@ -6507,7 +6533,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     let boostRecycleInv = null;
     if (!applied.duplicate) {
       const invEnv = inventoryAutoEnvV1(state);
-      if (advActionInv === "zoneKill" || advActionInv === "resolveZoneFight" || advActionInv === "titan") idleInventoryProcessNewDropsV1(state.adventure, idsAvantAventure, invEnv);
+      if (advActionInv === "zoneKill" || advActionInv === "resolveZoneFight" || advActionInv === "titan") {
+        const filtrage = idleInventoryProcessNewDropsV1(state.adventure, idsAvantAventure, invEnv);
+        marquerDropsFiltresV1(applied.result, filtrage.filteredIds);
+      }
       boostRecycleInv = idleInventoryManualBoostAfterV1(state.adventure, boostManuelAvant, invEnv);
     }
     /* Expérience, or, AP et progression de PP : voir crediterRecompensesAventure. */

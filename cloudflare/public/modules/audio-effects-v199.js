@@ -45,7 +45,15 @@
     uiClick:{group:"ui-click",priority:15,maxAgeMs:180},
     boostPower:{group:"inventory-boost",priority:55,maxAgeMs:1100},
     boostToughness:{group:"inventory-boost",priority:55,maxAgeMs:1100},
-    boostSpecial:{group:"inventory-boost",priority:60,maxAgeMs:1100}
+    boostSpecial:{group:"inventory-boost",priority:60,maxAgeMs:1100},
+    /*
+     * Absorption de TOUS les boosts possibles d'un coup (2026-09-27, Norman : « Quand un objet
+     * absorbe tous les boosts possible, il faut un son spécial pour cette action. ») -- « A + clic »
+     * (PC) ou double tap (mobile) sur une pièce équipée, ou sur le Cube de l'infini. Priorité plus
+     * haute que boostPower/Toughness/Special (même groupe : peut les interrompre) puisque c'est un
+     * événement plus gros, pas une simple absorption individuelle.
+     */
+    boostAllAbsorption:{group:"inventory-boost",priority:65,maxAgeMs:1500}
   };
 
   function contexte_(){
@@ -865,6 +873,29 @@
   }
 
   /*
+   * Absorption de TOUS les boosts possibles (2026-09-27, Norman) : plus gros événement qu'un
+   * boostPower_/boostToughness_/boostSpecial_ isolé -- une charge qui monte, en écho des trois
+   * flaveurs (grave/électrique/cristallin), puis un accord final éclatant qui marque le "plein".
+   */
+  function boostAllAbsorption_(){
+    return jouerWebAudio_(820,function(c){
+      tonal_(c,{type:"sine",from:90,to:64,duration:.22,volume:.075});
+      tonal_(c,{type:"sawtooth",from:150,to:560,duration:.24,volume:.036,delay:.06});
+      bruit_(c,{
+        duration:.16,volume:.028,delay:.20,
+        filterType:"highpass",frequency:2400,frequencyEnd:5200,decay:1.4
+      });
+      [523,659,784,1047].forEach(function(f,i){
+        tonal_(c,{type:"triangle",from:f,to:f,duration:.26,volume:.042-i*.005,delay:.32+i*.05});
+      });
+      bruit_(c,{
+        duration:.22,volume:.026,delay:.34,
+        filterType:"bandpass",frequency:3400,frequencyEnd:6800,q:1.0,decay:1.6
+      });
+    });
+  }
+
+  /*
    * Compétences du mode Aventure, Idle Mode OFF (Norman, 2026-09-26 : « pour chacune des attaques, blocage etc., un son qui colle à ce que fait le bouton »). Un son court et distinct par bouton,
    * joué quand la compétence part réellement (pas quand elle est en recharge ou verrouillée). Identifiants = ceux des boutons (IDLE_ADVENTURE_MANUAL_* / ADVANCED_SKILLS du jeu).
    */
@@ -1027,7 +1058,8 @@
     uiClick:clicInterface_,
     boostPower:boostPower_,
     boostToughness:boostToughness_,
-    boostSpecial:boostSpecial_
+    boostSpecial:boostSpecial_,
+    boostAllAbsorption:boostAllAbsorption_
   };
 
   function retirerPerimes_(){
@@ -1176,6 +1208,7 @@
     boostPower:function(){return demander_("boostPower");},
     boostToughness:function(){return demander_("boostToughness");},
     boostSpecial:function(){return demander_("boostSpecial");},
+    boostAllAbsorption:function(){return demander_("boostAllAbsorption");},
     debugState:function(){
       return {
         active:actif?actif.name:"",

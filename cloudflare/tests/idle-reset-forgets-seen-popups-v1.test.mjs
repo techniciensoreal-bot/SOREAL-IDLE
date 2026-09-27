@@ -5,6 +5,9 @@ import { readFileSync } from "node:fs";
  * Norman (2026-09-25) : « Je t'ai demandé de ne pas montrer plusieurs fois les popups quand on les a déjà vus. Mais il faut qu'on soit considéré
  * comme un nouveau joueur quand on reset la partie : à ce moment, il faut qu'on les voit une fois de nouveau. »
  * Le serveur efface déjà la ligne du joueur (donc profil.stats.vus) ; côté page, la mémoire des « vus » et les caches locaux doivent l'être aussi.
+ *
+ * Norman (2026-09-27) : « J'ai aussi l'impression que les voix n'ont pas été jouées automatiquement pour les boss. Alors que j'ai reset ma
+ * partie. » Cause : soreal_idle_boss_chronique_lue_v1 (tutorial-tts-v202.js, mémoire "chronique déjà lue") n'était pas dans la liste ci-dessous.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const debut = ui.indexOf("function idleVusOublierV1_(){");
@@ -17,6 +20,7 @@ const stockage = {
   "soreal_idle_bienvenue_v75_J001|2026": "true",
   "soreal_idle_tutoriel_debut_v1_x": "true",
   soreal_idle_tutoriel_aventure_v1_J001: "true",
+  soreal_idle_boss_chronique_lue_v1: "[1,2,3]",
   sorealIdleAutoAventureV30: "1",
   soreal_idle_info_ouvert_v1: "1"
 };

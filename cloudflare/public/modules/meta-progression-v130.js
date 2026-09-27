@@ -274,19 +274,43 @@
                       const classeLog=rarete
                         ?rarete.replace('idle-rarity-','idle-loot-rarity-')
                         :'';
+                      /*
+                       * (filtré) (2026-09-27, Norman : « Quand un objet tombe et que le filtre est activé pour ce type de pièce,
+                       * le journal de combat doit indiqué (filtré) à côté de l'objet. ») : marqué serveur (idle-inventory-auto-v1.js,
+                       * idleInventoryProcessNewDropsV1) -- l'objet est bien apparu, mais n'est jamais resté dans le sac.
+                       */
                       window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
-                        'system',
-                        (objet&&(objet.name||objet.nom)||'Un objet')+' obtenu !',
+                        'loot',
+                        (objet&&(objet.name||objet.nom)||'Un objet')+' obtenu !'+(objet&&objet.filtered?' (filtré)':''),
                         classeLog
                       );
                     });
                   }
                   if(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.gold)>0){
                     window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
-                      'system',
+                      'gold',
                       '+ '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.gold)+' or ! Chouette !'
                     );
                   }
+                }
+
+                /*
+                 * Son spécial d'absorption totale (2026-09-27, Norman : « Quand un objet absorbe tous
+                 * les boosts possible, il faut un son spécial pour cette action. ») : « A + clic »/
+                 * double tap (mode:'boostAll') -- son joué seulement si au moins un boost a réellement
+                 * été absorbé (stats.applied/cube, idle-inventory-auto-v1.js), jamais sur un clic à vide.
+                 */
+                if(
+                  payload&&
+                  payload.action==='inventoryAuto'&&
+                  payload.mode==='boostAll'&&
+                  (window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.applied)>0||window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.cube)>0)
+                ){
+                  try{
+                    if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.boostAllAbsorption==='function'){
+                      window.__SOREAL_IDLE_AUDIO_V199__.boostAllAbsorption();
+                    }
+                  }catch(_e){}
                 }
 
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-296 */
@@ -1275,7 +1299,6 @@ function pageItopodIdleV1_(j){
         const fin=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.endFloor==null?optimal:d.endFloor);
         const ppProgress=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.ppProgress));
         const pp=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.pp)||0);
-        const actif=Boolean(s.state.active);
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_(
           '🏢 ITOPOD',
           'Infinite Tower of Pissed-Off Dudes — chaque 10 ennemis vaincus fait monter d’un étage ; (200 + Étage) PPP par kill (700 en Evil, 2000 en Sadistic), 1 000 000 PPP = 1 PP. Sur l’étage de fin, 10 kills te ramènent à l’étage de départ.'
@@ -1298,11 +1321,6 @@ function pageItopodIdleV1_(j){
           '</div>'+
           '<div class="soreal-idle-note-v4" style="margin-top:5px">'+
             '🔷 Progression PP : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(ppProgress)+' / 1 000 000</b>'+
-          '</div>'+
-          '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
-            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__toggleSystemeMetaIdleV130__(\'tower\')">'+
-              (actif?'⏸️ Désactiver':'▶️ Activer')+
-            '</button>'+
           '</div>'+
           '<div class="soreal-idle-note-v4" style="margin-top:9px">Étages : '+(auto?'automatique (montée jusqu’à l’étage optimal)':'départ '+debut+' → fin '+fin)+'</div>'+
           '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:6px">'+
@@ -1488,12 +1506,32 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const pct=Math.max(0,Math.min(100,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'Upgrade':'Augment';
-          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+[['moins','−'],['plus','+'],['max','Max']].map(function(b){return '<button type="button" class="soreal-idle-expand-button-v25" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Chaque Augment et chaque Upgrade possède sa propre allocation Energy et progresse en parallèle. Les niveaux sont remis à zéro au Rebirth.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+
-          '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="number" inputmode="numeric" min="1" step="1" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡ · + / − placent ou retirent la valeur de Input ; Max place toute l\'énergie libre.</div><div class="soreal-idle-bt-presets-v120"><button type="button" class="clear" onclick="window.__actionMetaV47__({action:\'clearAugmentAllocations\'})">Tout retirer</button></div></div>'+
-          '<div style="display:grid;gap:10px;margin-top:10px">'+defs.map(function(def){const pair=pairs[def.id]||{};const mainOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(mainOk?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(def.upgrade?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+track(def,pair,true,upgradeOk)+'</div>';}).join('')+'</div>';
+          '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡ · + / − placent ou retirent la valeur de Input ; Max place toute l\'énergie libre.</div><div class="soreal-idle-bt-presets-v120"><button type="button" class="clear" onclick="window.__actionMetaV47__({action:\'clearAugmentAllocations\'})">Tout retirer</button></div></div>'+
+          /*
+           * Anti-spoil (2026-09-27, Norman + AGENTS.md règle n°2) : IDLE_NGU_AUGMENTATIONS est déjà trié par unlockBoss croissant
+           * (idle-ngu-progression.js), donc « débloqués + le prochain » est juste une troncature à la première paire non débloquée
+           * (exactement le même principe que groupeBasicTrainingIdleV120_/premierVerrouille, soreal-idle-ui.js). La paire encore
+           * verrouillée montrée ensuite n'affiche ni son nom, ni son seuil ("Boss N") -- jamais une condition en clair, comme la
+           * ligne verrouillée de Basic Training (icone + « ??????? »).
+           */
+          (function(){
+            const premierVerrouilleIndex=defs.findIndex(function(def){return boss<window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);});
+            const defsVisibles=premierVerrouilleIndex<0?defs:defs.slice(0,premierVerrouilleIndex+1);
+            return '<div style="display:grid;gap:10px;margin-top:10px">'+defsVisibles.map(function(def){
+              const pair=pairs[def.id]||{};
+              const mainOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);
+              if(!mainOk){
+                return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><div style="display:flex;justify-content:space-between;gap:8px"><b>🔒 ???????</b></div><div style="font-size:12px;color:#aeb5c8;margin-top:4px">Augment verrouillé.</div></div>';
+              }
+              const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
+              /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
+              return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:12px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
+            }).join('')+'</div>';
+          })();
       }
 
       /*
@@ -1556,7 +1594,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const stat=function(libelle,valeur){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b>'+valeur+'</b></div>';};
         return '<div class="soreal-idle-tm-v1">'+
           '<header class="soreal-idle-tm-entete-v1"><h1>Broken Time Machine</h1><p>(Loot that money again and again and again and...)</p></header>'+
-          '<div class="soreal-idle-tm-input-v1"><label for="sorealIdleTmInputV1">Input</label><input id="sorealIdleTmInputV1" type="number" inputmode="numeric" min="1" step="1" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)"><span>+ / − placent ou retirent cette valeur ; Max place toute la ressource libre.</span></div>'+
+          '<div class="soreal-idle-tm-input-v1"><label for="sorealIdleTmInputV1">Input</label><input id="sorealIdleTmInputV1" type="text" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"><span>+ / − placent ou retirent cette valeur ; Max place toute la ressource libre.</span></div>'+
           piste('vitesse','Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false)+
           piste('or','Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,!magicOk)+
           '<section class="soreal-idle-tm-stats-v1">'+

@@ -672,9 +672,20 @@
     });
   }
 
-  function narrate_(text,targetId,target,force,explicitSource){
+  /*
+   * onDone (2026-09-27, popup d'histoire plein écran « Le Magicien et la Grotte ») : rappel
+   * optionnel invoqué exactement une fois quand CETTE lecture se termine -- succès, échec, ou
+   * refus immédiat (voix coupée/non supportée) -- jamais si une narration plus récente l'a
+   * remplacée avant la fin (myGeneration!==generation, comme le reste de cette fonction). Un
+   * appelant qui a besoin de savoir QUAND la voix a fini de lire (pas seulement si elle a
+   * démarré) n'a sinon aucun moyen de le savoir : la valeur de retour de narrate_/readText
+   * reste un booléen synchrone (« a démarré »), jamais une promesse.
+   */
+  function narrate_(text,targetId,target,force,explicitSource,onDone){
+    var termine=function(){if(typeof onDone==='function')onDone();};
     if((!force&&!auto)||!text||!supported_()){
       diag.refus=(!force&&!auto?'auto-off ':'')+(!text?'texte-vide ':'')+(!supported_()?'non-supporte':'');
+      termine();
       return false;
     }
     diag.demarrages+=1;
@@ -747,11 +758,20 @@
     }
 
     task.then(function(){
+      /*
+       * termine() (onDone) fire ICI, avant la garde de génération : un appelant qui a passé un
+       * rappel attend la FIN de sa propre lecture, même si une narration plus récente (scan
+       * automatique d'un autre panneau, par exemple) l'a entre-temps remplacée -- sinon ce
+       * rappel ne serait jamais invoqué et l'appelant (le popup d'histoire) resterait bloqué
+       * indéfiniment. Les effets de bord ci-dessous restent gardés par génération comme avant.
+       */
+      termine();
       if(myGeneration!==generation)return;
       activeReadTarget='';
       updateReadButtons_();
       if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
     }).catch(function(error){
+      termine();
       if(myGeneration!==generation)return;
       activeReadTarget='';
       /* Pas de relance automatique en boucle : on réessaiera au prochain geste (audio bloqué par le navigateur tant qu'aucun appui n'a eu lieu). */
@@ -916,11 +936,18 @@
     read:function(){lastFingerprint='';return readVisible_(true);},
     readTarget:lireCible_,
     prechauffer:prechauffer_,
-    readText:function(value,audioSrc){
+    /*
+     * onDone (2026-09-27, popup d'histoire) : optionnel, invoqué exactement une fois quand
+     * CETTE lecture se termine (succès, échec ou voix indisponible) -- voir narrate_.
+     */
+    readText:function(value,audioSrc,onDone){
       var txt=String(value||'').replace(/\s+/g,' ').trim();
-      if(!txt)return false;
+      if(!txt){
+        if(typeof onDone==='function')onDone();
+        return false;
+      }
       lastFingerprint='';
-      return narrate_(txt,'__manual_text__',null,true,audioSrc);
+      return narrate_(txt,'__manual_text__',null,true,audioSrc,onDone);
     },
     stop:stop_,
     /* Outils du générateur de voix (cloudflare/tools/voice-generate.mjs) et des tests. */

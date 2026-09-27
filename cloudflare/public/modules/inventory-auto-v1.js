@@ -111,65 +111,88 @@
     rendre();
   };
 
+  /*
+   * Sections (2026-09-27, Norman : « Tout est trop compacté. Crée des petites catégories. Tout doit
+   * être clair. ») : chaque réglage vit désormais dans une carte à part, titrée, plutôt qu'empilé
+   * dans une seule liste verticale plate. Aucune règle de jeu ne change ici, uniquement le rendu.
+   */
+  function section(titre,contenu){
+    return '<section class="soreal-idle-inv-auto-section-v1"><div class="soreal-idle-inv-auto-section-titre-v1">'+titre+'</div>'+contenu+'</section>';
+  }
+
   function panneau(j){
     var s=snap(j);var a=aventure(j);
     if(!s||!a)return '';
     var u=s.unlocked||{},r=s.settings||{};
     var lignes=[];
-    lignes.push('<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+
-      '<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?' · prochain dans '+duree(s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',u.autoMerge)+
-        (u.autoMerge?'':verrou('Achat « Auto Merge (fusion automatique) » dans la Boutique EXP (menu Shop).'))+'</div>'+
-      '<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?' · prochain dans '+duree(s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',u.autoBoost)+
-        (u.autoBoost?'':verrou('1re complétion du No Equipment Challenge (menu Challenges).'))+'</div>'+
-    '</div>');
-    lignes.push('<div class="soreal-idle-note-v4" style="margin-top:8px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b> · Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>');
-    lignes.push('<div style="margin-top:6px">'+caseACocher('♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
-      '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Décoché : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>');
-    lignes.push('<div style="margin-top:10px"><b>🟦 Slots d’automerge : '+entier(s.mergeSlots)+' / '+entier(s.mergeSlotsMax)+'</b>'+
-      (entier(s.mergeSlots)>0?'<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:5px">'+
+
+    lignes.push(section('🤖 Automatisation',
+      '<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+
+        '<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?' · prochain dans '+duree(s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',u.autoMerge)+
+          (u.autoMerge?'':verrou('Achat « Auto Merge (fusion automatique) » dans la Boutique EXP (menu Shop).'))+'</div>'+
+        '<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?' · prochain dans '+duree(s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',u.autoBoost)+
+          (u.autoBoost?'':verrou('1re complétion du No Equipment Challenge (menu Challenges).'))+'</div>'+
+      '</div>'+
+      '<div class="soreal-idle-note-v4" style="margin-top:10px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b><br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>'+
+      '<div style="margin-top:10px">'+caseACocher('♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
+        '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Décoché : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>'
+    ));
+
+    lignes.push(section('🟦 Slots d’automerge · '+entier(s.mergeSlots)+' / '+entier(s.mergeSlotsMax),
+      entier(s.mergeSlots)>0?('<div style="display:flex;gap:14px;flex-wrap:wrap">'+
         caseACocher('Fusion automatique',r.mergeSlotsMerge,'window.__inventaireAutoReglageV1__(\'mergeSlotsMerge\',this.checked)')+
         caseACocher('Boost automatique',r.mergeSlotsBoost,'window.__inventaireAutoReglageV1__(\'mergeSlotsBoost\',this.checked)')+
-      '</div><div class="soreal-idle-note-v4" style="margin:4px 0 0">Les premières cases du sac (contour bleu) : aucun butin n’y tombe, dépose-y les objets à faire monter.</div>':
-      verrou('Boutique EXP (« Slot d’automerge »), menu Perks, menu Quirks ou Boutique AP (« Emplacements de fusion d’inventaire »).'))+'</div>');
+      '</div><div class="soreal-idle-note-v4" style="margin-top:6px">Les premières cases du sac (contour bleu) : aucun butin n’y tombe, dépose-y les objets à faire monter.</div>'):
+      verrou('Boutique EXP (« Slot d’automerge »), menu Perks, menu Quirks ou Boutique AP (« Emplacements de fusion d’inventaire »).')
+    ));
+
     var optionsTransfo=[['','Désactivée'],['power','Power'],['toughness','Toughness'],['special','Special']].map(function(o){
       return '<option value="'+o[0]+'"'+(r.autoTransform===o[0]?' selected':'')+'>'+o[1]+'</option>';
     }).join('');
-    lignes.push('<div style="margin-top:10px"><b>🔀 Transformation des boosts</b>'+
-      (u.boostTransform?'<div class="soreal-idle-note-v4" style="margin:4px 0 0">Q/W/E + clic sur un boost : Power / Toughness / Special'+(u.boostTransformFree?' (sans perte de palier).':', au prix d’un palier (le niveau repart à 0).')+'</div>':verrou('1re complétion du 100 Levels Challenge.'))+
-      (u.autoTransform?'<label style="display:flex;gap:8px;align-items:center;margin-top:5px">Boosts reçus : <select onchange="window.__inventaireAutoReglageV1__(\'autoTransform\',this.value)">'+optionsTransfo+'</select></label>':'')+
-    '</div>');
+    lignes.push(section('🔀 Transformation des boosts',
+      (u.boostTransform?'<div class="soreal-idle-note-v4">Q/W/E + clic sur un boost : Power / Toughness / Special'+(u.boostTransformFree?' (sans perte de palier).':', au prix d’un palier (le niveau repart à 0).')+'</div>':verrou('1re complétion du 100 Levels Challenge.'))+
+      (u.autoTransform?'<label style="display:flex;gap:8px;align-items:center;margin-top:8px">Boosts reçus : <select onchange="window.__inventaireAutoReglageV1__(\'autoTransform\',this.value)">'+optionsTransfo+'</select></label>':'')
+    ));
+
     var optionsClic=[['','Normale'],['a','A · Booster tout'],['d','D · Fusionner tout']].concat(u.boostTransform?[['q','Q · Transformer en Power'],['w','W · Transformer en Toughness'],['e','E · Transformer en Special']]:[]).map(function(o){
       return '<option value="'+o[0]+'"'+(modeClic===o[0]?' selected':'')+'>'+o[1]+'</option>';
     }).join('');
-    lignes.push('<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label style="display:flex;gap:8px;align-items:center"><b>👆 Action au clic</b> <select onchange="window.__inventaireAutoModeClicV1__(this.value)">'+optionsClic+'</select></label>'+
-      (a.cube&&a.cube.unlocked?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoBoosterCubeV1__()">🧊 Tous les boosts dans le Cube</button>':'')+
-      '<span class="soreal-idle-note-v4" style="margin:0">Au clavier : maintiens A, D, Q, W ou E puis clique sur un objet.</span></div>');
+    lignes.push(section('👆 Action au clic',
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
+        '<label style="display:flex;gap:8px;align-items:center"><select onchange="window.__inventaireAutoModeClicV1__(this.value)">'+optionsClic+'</select></label>'+
+        (a.cube&&a.cube.unlocked?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoBoosterCubeV1__()">🧊 Tous les boosts dans le Cube</button>':'')+
+      '</div><div class="soreal-idle-note-v4" style="margin-top:8px">Au clavier : maintiens A, D, Q, W ou E puis clique sur un objet.</div>'
+    ));
+
     var types=s.lootFilterTypes||[];
     var zonesAv=aventure(dernierEtat)&&Array.isArray(aventure(dernierEtat).zones)?aventure(dernierEtat).zones:[];
     var zoneNom=(zonesAv.find(function(z){return z&&z.id===s.lootFilterZone;})||{}).name||s.lootFilterZone||'';
-    lignes.push('<div style="margin-top:10px"><b>🧹 Filtre de butin</b>'+(zoneNom?' <span style="font-size:12px;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':'')+
-      (u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:5px">'+types.map(function(t){
+    lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:12px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
+      (u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap">'+types.map(function(t){
         return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+zoneFiltre_()+':'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
       }).join('')+'</div>':verrou('Achat « Filtre de butin basique » dans la Boutique EXP (menu Shop).'))+
-      (u.lootFilterImproved?'<details style="margin-top:6px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
+      (u.lootFilterImproved?'<details style="margin-top:10px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
         (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+
       '</div></details>':verrou('Filtre objet par objet : « Filtre de butin amélioré » (Boutique AP, menu Shop).'))+
-      (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin:4px 0 0">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'')+
-    '</div>');
+      (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin-top:8px">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'')
+    ));
+
     var los=Array.isArray(s.loadouts)?s.loadouts:[];
-    lignes.push('<div style="margin-top:10px"><b>🎽 Configurations d’équipement ('+entier(s.loadoutSlots)+' / '+entier(s.loadoutsMax)+')</b>'+
-      (los.length?'<div style="display:grid;gap:6px;margin-top:5px">'+los.map(function(lo,i){
+    lignes.push(section('🎽 Configurations d’équipement · '+entier(s.loadoutSlots)+' / '+entier(s.loadoutsMax),
+      los.length?('<div style="display:grid;gap:8px">'+los.map(function(lo,i){
         var contenu=lo&&lo.items&&lo.items.length?lo.items.map(function(x){return html(x.name||'objet absent');}).join(', '):'vide';
         return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><span><b>'+(i+1)+'.</b> <span style="font-size:12px;color:#aeb5c8">'+contenu+'</span></span><span style="display:flex;gap:6px">'+
           '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'save\','+i+')">Enregistrer</button>'+
           (lo?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'apply\','+i+')">Équiper</button>':'')+
         '</span></div>';
-      }).join('')+'</div>':verrou('Boutique EXP (« 2 emplacements de configuration », « Autre emplacement de configuration ») ou Boutique AP (« Emplacement de configuration »).'))+
-    '</div>');
+      }).join('')+'</div>'):
+      verrou('Boutique EXP (« 2 emplacements de configuration », « Autre emplacement de configuration ») ou Boutique AP (« Emplacement de configuration »).')
+    ));
+
     var estOuvert=ouvert();
     return '<div class="soreal-idle-window-title-v31 soreal-idle-inv-auto-titre-v1" onclick="window.__inventaireAutoBasculerV1__()" role="button" tabindex="0" aria-expanded="'+(estOuvert?'true':'false')+'">'+
       '<span>⚙️ Automatisation de l’inventaire</span><span class="soreal-idle-coffre-chevron-v1">'+(estOuvert?'▲':'▼')+'</span></div>'+
-      (estOuvert?lignes.join(''):'');
+      (estOuvert?'<div class="soreal-idle-inv-auto-sections-v1">'+lignes.join('')+'</div>':'');
   }
 
   function style(){
@@ -178,7 +201,16 @@
     st.id='soreal-idle-inventory-auto-style-v1';
     st.textContent='.idle-merge-slot-v1{outline:3px solid #3b82f6;outline-offset:-3px}'+
       '.idle-merge-slot-v1.idle-item-locked-v165{outline-color:#8b5cf6}'+
-      '#soreal-idle-inventory-auto-v1 select{padding:4px 6px;border-radius:8px}';
+      '#soreal-idle-inventory-auto-v1 select{padding:4px 6px;border-radius:8px}'+
+      /*
+       * Petites catégories (2026-09-27, Norman : « Tout est trop compacté. Crée des petites
+       * catégories. Tout doit être clair. ») : chaque réglage dans sa propre carte, un peu de
+       * respiration entre elles, un titre qui se détache clairement du contenu.
+       */
+      '.soreal-idle-inv-auto-sections-v1{display:grid;gap:10px;margin-top:10px}'+
+      '.soreal-idle-inv-auto-section-v1{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(166,188,229,.14)}'+
+      '.soreal-idle-inv-auto-section-titre-v1{font:800 13px/1.25 "Segoe UI Variable Text","Segoe UI",system-ui;color:#dce5f3;margin-bottom:9px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}'+
+      '.soreal-idle-inv-auto-section-v1 .soreal-idle-note-v4{color:#aeb5c8;line-height:1.5}';
     document.head.appendChild(st);
   }
 

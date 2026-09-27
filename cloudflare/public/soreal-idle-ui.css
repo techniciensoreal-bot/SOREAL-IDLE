@@ -1735,6 +1735,10 @@
            * case exactement comme celui du joueur.
            */
           .soreal-idle-boss-image-v35{width:100%;height:100%;object-fit:cover;border-radius:14px;margin:0;background:#21172b;display:block}
+          /* Norman (2026-09-27) : seule l'image du joueur en Fight Boss n'avait pas ses propres bords arrondis (elle reposait
+             uniquement sur overflow:hidden du parent .soreal-idle-duel-portrait-v41 -- insuffisant selon certains moteurs de rendu).
+             Même convention que .soreal-idle-boss-image-v35 : le radius est aussi porté par l'<img> lui-même. */
+          .soreal-idle-player-image-v41{border-radius:14px}
           .soreal-idle-collection-slots-v32{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
 
 
@@ -5171,6 +5175,18 @@
           .soreal-idle-adventure-log-line-v1.player{color:#9edbff}
           .soreal-idle-adventure-log-line-v1.enemy{color:#f0a6b2}
           .soreal-idle-adventure-log-line-v1.system{color:#dbe5f4;font-weight:800}
+          /*
+           * Couleurs par type d'événement (2026-09-27, Norman : « des couleurs différentes pour
+           * toutes actions différentes. Jaune pour l'or, une autre couleur pour les objets. »).
+           * manual (vert) : action manuelle du joueur (Idle Mode OFF) -- distincte de "player"
+           * (bleu, réservé à l'attaque idle automatique) pour qu'on voie tout de suite qu'une
+           * ligne vient d'un clic, pas du pilote automatique.
+           */
+          .soreal-idle-adventure-log-line-v1.manual{color:#7ee787}
+          .soreal-idle-adventure-log-line-v1.gold{color:#f0d38b}
+          .soreal-idle-adventure-log-line-v1.loot{color:#e2b699}
+          /* Coup critique (donné ou reçu) : la ligne de dégâts reste de sa couleur habituelle (manual/player/enemy), seul ce suffixe accroche l'œil. */
+          .soreal-idle-adventure-log-crit-v1{color:#ff9d4d;font-weight:900}
           .soreal-idle-adventure-manual-v3{margin:6px 0 8px;display:grid;gap:6px}
           .soreal-idle-adventure-idle-toggle-v3{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(166,188,229,.18);border-radius:12px;background:linear-gradient(180deg,#26344f,#182236);color:#dce5f3;font:800 12px/1 "Segoe UI Variable Text","Segoe UI",system-ui;cursor:pointer}
           .soreal-idle-adventure-idle-toggle-v3 b{min-width:38px;padding:5px 7px;border-radius:999px;background:#8b2635;color:#fff;font-variant-numeric:tabular-nums}
@@ -7662,4 +7678,35 @@
  */
 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
   overflow:hidden;
+}
+
+/*
+ * 2026-09-27 (Norman revient sur le retrait du 2026-09-26) : sélecteur des deux parties A / B
+ * dans Paramètres. Repris à l'identique de la version retirée le 2026-09-26.
+ */
+.soreal-idle-parties-dev-v1{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.soreal-idle-parties-dev-bouton-v1{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #3a4260;
+  background:#1a2035;
+  color:#dce5f3;
+  text-align:left;
+  cursor:pointer;
+}
+.soreal-idle-parties-dev-bouton-v1 span{
+  font-size:11px;
+  color:#8b93ab;
+}
+.soreal-idle-parties-dev-bouton-v1.actif{
+  border-color:#6ab0ff;
+  background:#22304f;
+  cursor:default;
 }

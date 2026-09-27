@@ -46,6 +46,70 @@
           })
           .estAdminSorealIdle(SOREAL_SESSION);
       }
+      /*
+       * 2026-09-27 (Norman revient sur le retrait du 2026-09-26) : « J'aimerai avoir une partie B
+       * dans paramètres. Mais cette partie B ne serait pas reprise dans le classement. ça me
+       * permettra de tester des choses. » Repris à l'identique de la version retirée
+       * (idle-dev-save-slots-v1.js) : deux parties, « A » (réelle, jamais réinitialisée par ce
+       * mécanisme) et « B » (réinitialisable à volonté, exclue du classement). Le serveur dit si le
+       * sélecteur existe (compte administrateur + fonction active) et quelle partie la session
+       * joue ; changer de partie recharge la page (le jeton de session reste dans sessionStorage).
+       */
+      let idlePartieDevV1=null;
+      function rafraichirPartieDevIdleV1_(){
+        if(idlePartieDevV1!==null||!SOREAL_SESSION)return;
+        idlePartieDevV1={actif:false,partie:'a',charge:false};
+        google.script.run
+          .withSuccessHandler(function(res){
+            const avant=JSON.stringify(idlePartieDevV1);
+            idlePartieDevV1={
+              actif:Boolean(res&&res.ok&&res.actif),
+              partie:String(res&&res.partie||'a')==='b'?'b':'a',
+              charge:true
+            };
+            if(JSON.stringify(idlePartieDevV1)!==avant&&idleEtat){
+              rendreIdleEtat_({ok:true,joueur:idleEtat});
+            }
+          })
+          .withFailureHandler(function(){})
+          .obtenirPartieDevSorealIdle(SOREAL_SESSION);
+      }
+      function changerPartieDevIdleV1_(partie){
+        const cible=String(partie)==='b'?'b':'a';
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||idlePartieDevV1.partie===cible)return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){
+              location.reload();
+            }else{
+              toastIdleV5_('Impossible de changer de partie.');
+            }
+          })
+          .withFailureHandler(function(){
+            toastIdleV5_('Impossible de changer de partie.');
+          })
+          .definirPartieDevSorealIdle(SOREAL_SESSION,cible);
+      }
+      window.__changerPartieDevIdleV1__=changerPartieDevIdleV1_;
+      function rendrePartiesDevIdleV1_(){
+        const p=idlePartieDevV1;
+        if(!p||!p.actif)return '';
+        function bouton(cle,titre,detail){
+          const active=p.partie===cle;
+          return '<button type="button" class="soreal-idle-parties-dev-bouton-v1'+(active?' actif':'')+'" '+
+            (active?'disabled aria-pressed="true" ':'aria-pressed="false" onclick="window.__changerPartieDevIdleV1__(\''+cle+'\')" ')+'>'+
+            '<b>'+titre+'</b><span>'+detail+'</span></button>';
+        }
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🛠️ Développement — Parties</div>'+
+          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Uniquement pendant le développement. Deux parties indépendantes : la <b>A</b> est ta vraie partie (à ne jamais réinitialiser), la <b>B</b> se réinitialise à volonté pour comparer avec NGU IDLE. Le bouton de réinitialisation ci-dessous ne concerne que la partie active.</div>'+
+          '<div class="soreal-idle-parties-dev-v1">'+
+            bouton('a','Partie A','Ta vraie partie')+
+            bouton('b','Partie B','Comparaison NGU IDLE')+
+          '</div>'+
+          '<div style="font-size:12px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
+        '</div>';
+      }
       let idleTimerSession=null;
       let idleTimerEnergie=null;
       let idleAnimationFrameJeuV214=0;
@@ -1491,6 +1555,36 @@
         return Math.max(0,Math.floor(idleNombre_(v)));
       }
 
+      /*
+       * Saisie fractionnaire (2026-09-27, Norman) : "1/8" dans un champ Input (Basic Training,
+       * Augmentations, Time Machine) doit se transformer, à la validation ou en cliquant en
+       * dehors du champ, en 1/8 de l'énergie idle libre du joueur -- pas un montant absolu tapé
+       * au hasard. "n/d" -> Math.floor(energieLibre * n/d), jamais moins que 1. Renvoie null si
+       * le texte n'est pas une fraction "n/d" (l'appelant retombe alors sur le parsing normal).
+       */
+      function idleParseFractionEnergieV1_(valeur,energieLibre){
+        const texte=String(valeur==null?'':valeur).trim();
+        const m=texte.match(/^(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)$/);
+        if(!m)return null;
+        const n=Number(m[1].replace(',','.'));
+        const d=Number(m[2].replace(',','.'));
+        if(!Number.isFinite(n)||!Number.isFinite(d)||d<=0||n<0)return null;
+        return Math.max(1,Math.floor(Math.max(0,idleNombre_(energieLibre))*(n/d)));
+      }
+
+      /*
+       * Branché sur onblur/onchange d'un input "Input" (Basic Training/Augmentations/Time
+       * Machine) : si la valeur tapée est une fraction "n/d", la réécrit en toutes lettres
+       * (le joueur voit tout de suite le vrai montant, jamais "1/8" qui resterait affiché).
+       * Sans effet si ce n'est pas une fraction (nombre déjà entier, champ vide...).
+       */
+      function idleResoudreFractionInputV1_(input){
+        if(!input)return;
+        const resolu=idleParseFractionEnergieV1_(input.value,idleEtat&&idleEtat.energie);
+        if(resolu!=null)input.value=String(resolu);
+      }
+      window.__resoudreFractionInputIdleV1__=idleResoudreFractionInputV1_;
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-23 */
       function pousserEtatVersRuntimePartageIdleV1_(){
         if(
@@ -1903,8 +1997,10 @@
        * et revenir pour voir le nouveau boss »). Le client prédit la victoire avant que le serveur (qui fait foi) ne l'ait enregistrée :
        * la synchronisation forcée unique lancée à ce moment revient alors « pas encore vaincu », l'état local est conservé
        * (appliquerSynchroCombatSansReflowIdleV116_) et plus rien ne relançait de synchronisation, donc l'écran restait figé jusqu'à
-       * un changement de menu (qui recharge tout). On relance la synchronisation forcée toutes les 1,2 s tant que la victoire
-       * n'est pas confirmée (le rendu qui affiche le nouveau boss remet le drapeau à zéro et arrête la surveillance) ; au bout de
+       * un changement de menu (qui recharge tout). On relance la synchronisation forcée toutes les 0,4 s (Norman, 2026-09-27 :
+       * « presque 10 secondes d'attente avant que le boss suivant apparaisse » -- 1,2 s laissait jusqu'à 1,2 s de « retard
+       * d'affichage » en plus du retard déjà pris par le serveur lui-même à confirmer la victoire) tant que la victoire n'est
+       * pas confirmée (le rendu qui affiche le nouveau boss remet le drapeau à zéro et arrête la surveillance) ; au bout de
        * 15 s sans confirmation on abandonne la prédiction locale et on adopte l'état du serveur au lieu de rester figé.
        */
       let idleVictoireSurveillanceV1=null;
@@ -1936,7 +2032,7 @@
             return;
           }
           synchroniserJeuIdleV7_(true);
-        },1200);
+        },400);
       }
 
       function metaTickEnergieIdleV114_(){
@@ -3021,7 +3117,7 @@
             (regenJoueurVisibleV176>0&&idleNombre_(idleEtat.pvJoueur)>0?formaterDecimalesFixesIdleV1_(idleEtat.pvJoueur,2):formatGrandNombreIdleV70_(idleEtat.pvJoueur))+
             ' / '+
             formatGrandNombreIdleV70_(idleEtat.pvJoueurMax)+
-            (regenJoueurVisibleV176>0?' · ↗ +'+formaterDecimalesFixesIdleV1_(regenJoueurVisibleV176,2)+'/s':'')
+            (regenJoueurVisibleV176>0?' · ↗ +'+formaterDecimalesFixesIdleV1_(regenJoueurVisibleV176,0)+'/s':'')
           );
         }
 
@@ -3095,7 +3191,7 @@
                 ?' · ↗ +'+
                   formaterDecimalesFixesIdleV1_(
                     idleEtat.regenBoss,
-                    2
+                    0
                   )+
                   '/s'
                 :''
@@ -9374,6 +9470,57 @@
       }
 
       /*
+       * Catégorie « Clics/Tap » du classement (Norman, 2026-09-27 : « le nombre de cliques de souris Droite/gauche effectué dans
+       * l'appli. Et les taps pareils, dans la même catégorie... même si quelqu'un triche, ca n'est pas grave »). Compteur brut,
+       * jamais anti-triche par conception. On accumule en mémoire et on envoie le total par lots (même patron que idleVusEnvoyerV1_
+       * ci-dessus), jamais un appel serveur par clic.
+       */
+      let idleClicsEnAttenteV1=0;
+      let idleClicsEnvoiEnCoursV1=false;
+
+      function idleClicsEnvoyerV1_(){
+        if(idleClicsEnvoiEnCoursV1||idleClicsEnAttenteV1<=0||!SOREAL_SESSION)return;
+        const lot=idleClicsEnAttenteV1;
+        idleClicsEnAttenteV1=0;
+        idleClicsEnvoiEnCoursV1=true;
+        try{
+          google.script.run
+            .withSuccessHandler(function(){
+              idleClicsEnvoiEnCoursV1=false;
+              if(idleClicsEnAttenteV1>0)idleClicsEnvoyerV1_();
+            })
+            .withFailureHandler(function(){
+              idleClicsEnvoiEnCoursV1=false;
+              idleClicsEnAttenteV1+=lot;
+            })
+            .enregistrerClicsSorealIdle(SOREAL_SESSION,lot);
+        }catch(e){
+          idleClicsEnvoiEnCoursV1=false;
+          idleClicsEnAttenteV1+=lot;
+        }
+      }
+
+      let idleClicsEnvoiMinuterieV1=null;
+      function idleClicMarquerV1_(){
+        idleClicsEnAttenteV1+=1;
+        if(!idleClicsEnvoiMinuterieV1){
+          idleClicsEnvoiMinuterieV1=setTimeout(function(){
+            idleClicsEnvoiMinuterieV1=null;
+            idleClicsEnvoyerV1_();
+          },4000);
+        }
+      }
+
+      document.addEventListener('mousedown',function(ev){
+        if(PAGE_ACTIVE!=='idle')return;
+        if(ev.button===0||ev.button===2)idleClicMarquerV1_();
+      },true);
+      document.addEventListener('touchstart',function(){
+        if(PAGE_ACTIVE!=='idle')return;
+        idleClicMarquerV1_();
+      },{capture:true,passive:true});
+
+      /*
        * 2026-09-25 (Norman : « il faut qu'on soit considéré comme un nouveau joueur quand on reset la partie : on doit revoir les popups une
        * fois de nouveau ») : le reset total efface la ligne du joueur (donc profil.stats.vus côté serveur) ; ici on oublie ce que la page
        * avait en mémoire (sinon « bienvenue », tutoriels et popups de menus restaient « vus » jusqu'au rechargement) et les caches locaux.
@@ -9388,7 +9535,14 @@
               cle.indexOf('soreal_idle_menus_ack_v1_')===0||
               cle.indexOf('soreal_idle_menu_ordre_v1_')===0||
               cle.indexOf('soreal_idle_bienvenue_v75_')===0||
-              cle.indexOf('soreal_idle_tutoriel_')===0
+              cle.indexOf('soreal_idle_tutoriel_')===0||
+              /*
+               * Norman (2026-09-27) : « les voix n'ont pas été jouées automatiquement pour les boss [après reset]. »
+               * La mémoire "chronique de boss déjà lue" (tutorial-tts-v202.js, CHRONICLE_LU_KEY) vit dans ce même
+               * localStorage, jamais touchée par le Rebirth (action serveur normale) -- mais un reset TOTAL doit,
+               * comme les autres popups ci-dessus, faire réapparaître ces voix.
+               */
+              cle==='soreal_idle_boss_chronique_lue_v1'
             )localStorage.removeItem(cle);
           });
         }catch(e){}
@@ -9399,6 +9553,15 @@
         if(idleVusEnAttenteV1.indexOf(id)===-1)idleVusEnAttenteV1.push(id);
         idleVusEnvoyerV1_();
       }
+
+      /*
+       * Pont pour les modules externes (2026-09-27, popup d'histoire plein écran) : la mémoire
+       * « vu une seule fois » (localStorage + profil.stats.vus serveur, marquerVusSorealIdle)
+       * vit dans cette clôture. Plutôt que de dupliquer la file d'attente/l'envoi côté module,
+       * modules/story-popup-v1.js appelle ce pont pour réutiliser exactement le même mécanisme
+       * que les popups de menus/tutoriels (idleVuConnuV1_/idleVuMarquerV1_ ci-dessus).
+       */
+      window.__soreal_idle_marquer_vu_v1__=idleVuMarquerV1_;
 
       /* Identifiant serveur d'un tutoriel : sa clé locale sans le joueur (« soreal_idle_tutoriel_aventure_v1_<joueur> » -> « tuto:tutoriel_aventure »). */
       function idleVuIdTutorielV1_(cle){
@@ -9658,7 +9821,7 @@
         {
           titre:'Le NOMBRE',
           paragraphes:[
-            'Genre, beaucoup plus énorme que ce que t’as dans le pantalon. Hein ptite bite ! (Si t’es une femme, c’est valable pour toi aussi)'
+            'Genre beaucoup plus gros que la plus grosse de tes copines.'
           ]
         },
         {
@@ -10834,26 +10997,35 @@
       let idleAdventureLogResumeTimerV1_=null;
       const IDLE_ADVENTURE_LOG_RESUME_MS_V1=6000;
 
-      function ajouterLogAventureIdleV1_(type,texte,rareteClasse){
+      /*
+       * critique (2026-09-27, Norman : « Quand on met ou recoit un coup critique ») : suffixe
+       * visuel distinct sur la ligne de dégâts, jamais un type à part -- la ligne garde sa
+       * couleur habituelle (manual/player/enemy), seul "💥 Coup critique !" accroche l'œil.
+       */
+      function ajouterLogAventureIdleV1_(type,texte,rareteClasse,critique){
         const classe=String(rareteClasse||'');
         idleAdventureLogV1.push({
           type:String(type||'system'),
           texte:String(texte||''),
-          rareteClasse:/^idle-loot-rarity-[0-6]$/.test(classe)?classe:''
+          rareteClasse:/^idle-loot-rarity-[0-6]$/.test(classe)?classe:'',
+          critique:Boolean(critique)
         });
         if(idleAdventureLogV1.length>80){
           idleAdventureLogV1.splice(0,idleAdventureLogV1.length-80);
         }
         dessinerJournalAventureIdleV1_();
       }
+      /* Rendu d'une ligne, partagé entre le journal live (dessinerJournalAventureIdleV1_) et le rendu complet de la page Aventure (même markup dupliqué avant ce correctif). */
+      function rendreLigneJournalAventureIdleV1_(l){
+        const suffixeCritique=l.critique?' <span class="soreal-idle-adventure-log-crit-v1">💥 Coup critique !</span>':'';
+        return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+suffixeCritique+'</div>';
+      }
       function dessinerJournalAventureIdleV1_(){
         const host=document.getElementById('sorealIdleAdventureLogV1');
         if(!host)return;
         attacherEcouteurScrollJournalAventureIdleV1_(host);
         host.innerHTML=idleAdventureLogV1.length
-          ?idleAdventureLogV1.map(function(l){
-              return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+'</div>';
-            }).join('')
+          ?idleAdventureLogV1.map(rendreLigneJournalAventureIdleV1_).join('')
           :'<div class="soreal-idle-adventure-log-line-v1 system">Le journal commencera au prochain combat.</div>';
         if(idleAdventureLogAutoScrollV1_)host.scrollTop=host.scrollHeight;
       }
@@ -14062,7 +14234,7 @@ let idleDialogueTimerV76=null;
                         j.apparenceJoueur&&j.apparenceJoueur.driveFileId,
                         '',
                         j.nom||'Joueur',
-                        '',
+                        'soreal-idle-player-image-v41',
                         String(
                           j.apparenceJoueur&&
                           j.apparenceJoueur.numero||1
@@ -14507,11 +14679,10 @@ let idleDialogueTimerV76=null;
               <label for="sorealIdleTrainingInputV120">Input</label>
               <input
                 id="sorealIdleTrainingInputV120"
-                type="number"
-                inputmode="numeric"
-                min="1"
-                step="1"
+                type="text"
                 value="125"
+                title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l'énergie idle libre à la validation)"
+                onblur="window.__resoudreFractionInputIdleV1__(this)"
               >
             </div>
 
@@ -16655,13 +16826,27 @@ let idleDialogueTimerV76=null;
       }
       window.__basculerIdleModeAdventureIdleV3__=basculerIdleModeAdventureIdleV3_;
 
-      function appliquerHealAdventureIdleV4_(a,fight){
+      /*
+       * Journal de combat, mode manuel (2026-09-27, Norman : « Quand je passe en mode manuel, je
+       * ne vois pas l'indication de mes attaques dans le journal de combat. Je veux une phrase en
+       * verte. "Redrum lance soin" avec explications. ») : def optionnel (le skill qui a déclenché
+       * le soin -- « heal » ou « ohShit ») pour nommer l'action comme les lignes d'attaque le font déjà.
+       */
+      function appliquerHealAdventureIdleV4_(a,fight,def){
         const max=Math.max(0,idleNombre_(fight&&fight.playerHpMax));
         if(fight&&fight.active&&max>0){
+          const avant=idleNombre_(fight.playerHp);
           fight.playerHp=Math.min(
             max,
-            idleNombre_(fight.playerHp)+max*.15
+            avant+max*.15
           );
+          const soigne=Math.round(fight.playerHp-avant);
+          if(soigne>0){
+            ajouterLogAventureIdleV1_(
+              'manual',
+              (idleEtat&&idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Soin')+' : +'+soigne+' PV !'
+            );
+          }
           pousserEtatVersRuntimePartageIdleV1_();
           return true;
         }
@@ -16719,9 +16904,10 @@ let idleDialogueTimerV76=null;
         );
         fight.monsterHp=Math.max(0,avant-degats);
         impactMonstreAdventureIdleV1_();
+        /* Mode manuel, en vert -- distinct du bleu 'player' de l'attaque idle automatique (Norman, 2026-09-27). */
         ajouterLogAventureIdleV1_(
-          'player',
-          (def&&def.label?def.label:'Attaque')+' : '+
+          'manual',
+          (idleEtat&&idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Attaque')+' : '+
           idleEntier_(degats)+' dégâts sur '+
           libelleEnnemiAdventureIdleV1_(fight)+' !'
         );
@@ -16790,7 +16976,7 @@ let idleDialogueTimerV76=null;
         }else if(group==='defense'&&def.id==='defensiveBuff'){
           idleAdventureManualStateV3.defensiveBuffUntil=maintenant+15000;
         }else if(group==='defense'&&def.id==='heal'){
-          appliquerHealAdventureIdleV4_(a,fight);
+          appliquerHealAdventureIdleV4_(a,fight,def);
         }else if(group==='defense'&&def.id==='offensiveBuff'){
           idleAdventureManualStateV3.offensiveBuffUntil=maintenant+15000;
         }else if(group==='defense'&&def.id==='charge'){
@@ -16826,7 +17012,7 @@ let idleDialogueTimerV76=null;
               definitionCompetenceAdventureIdleV3_('ultimateBuff'),a
             );
         }else if(def.id==='ohShit'){
-          appliquerHealAdventureIdleV4_(a,fight);
+          appliquerHealAdventureIdleV4_(a,fight,def);
           appliquerParalyzeAdventureIdleV4_(maintenant);
           appliquerHyperRegenAdventureIdleV4_(a,fight,maintenant);
           idleAdventureManualStateV3.cooldownUntil.heal=
@@ -17587,9 +17773,7 @@ let idleDialogueTimerV76=null;
           '<div class="soreal-idle-section-v8">'+
             '<div id="sorealIdleAdventureLogV1" class="soreal-idle-adventure-log-v1">'+
               (idleAdventureLogV1.length
-                ?idleAdventureLogV1.map(function(l){
-                    return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+'</div>';
-                  }).join('')
+                ?idleAdventureLogV1.map(rendreLigneJournalAventureIdleV1_).join('')
                 :'<div class="soreal-idle-adventure-log-line-v1 system">Le journal commencera au prochain combat.</div>'
               )+
             '</div>'+
@@ -19337,7 +19521,12 @@ function pageAventureIdleV28_(j){
           const hpMaxAtteint=baseHp>0&&itemHp+1e-9>=maxHp;
           const regenMaxAtteint=baseRegen>0&&itemRegen+1e-9>=maxRegen;
 
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-268 */
+          /*
+           * Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-268 -- Ordre (2026-09-27, Norman : « Dans NGU, c'est Power / Max HP /
+           * Toughness / HP Regen ») : Power et Max HP se boostent avec les boosts oranges (Power), Toughness et HP Regen avec les
+           * boosts bleus (Toughness) -- l'ordre affiché regroupe donc les deux paires par boost, comme sur le wiki NGU, plutôt que
+           * Power/Toughness/MaxHP/Regen (ordre "brut" du moteur, qui sépare les deux paires).
+           */
           statsHtml=
             '<div class="soreal-idle-v138-details-stats">'+
               (basePower>0
@@ -19347,17 +19536,17 @@ function pageAventureIdleV28_(j){
                 '</b></div>'
                 :''
               )+
-              (baseToughness>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxToughness)+
-                '</b></div>'
-                :''
-              )+
               (baseHp>0
                 ?'<div class="soreal-idle-v138-details-stat"><span>Max HP</span><b>'+
                   '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
                   ' / '+formatGrandNombreIdleV70_(maxHp)+
+                '</b></div>'
+                :''
+              )+
+              (baseToughness>0
+                ?'<div class="soreal-idle-v138-details-stat"><span>Toughness</span><b>'+
+                  '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
+                  ' / '+formatGrandNombreIdleV70_(maxToughness)+
                 '</b></div>'
                 :''
               )+
@@ -20102,7 +20291,8 @@ function pageAventureIdleV28_(j){
         {id:'number',nom:'🔢 NUMBER'},
         {id:'exp',nom:'⭐ EXP'},
         {id:'playSeconds',nom:'⏱️ Temps de jeu'},
-        {id:'achievements',nom:'🎖️ Succès'}
+        {id:'achievements',nom:'🎖️ Succès'},
+        {id:'clics',nom:'🖱️ Clics/Tap'}
       ];
       let idleClassementOngletV1='global';
       const idleClassementV1={donnees:null,chargement:false,erreur:'',dernier:0};
@@ -21065,6 +21255,7 @@ function pageAventureIdleV28_(j){
           '⚙️ Settings',
           ''
         )+
+          rendrePartiesDevIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31 soreal-idle-info-titre-v1" '+
               'onclick="window.__toggleInfoOuvertIdleV1__()" '+
@@ -21666,7 +21857,7 @@ function pageAventureIdleV28_(j){
               '',
               idleImageJoueurCacheV43[cacheKey],
               'Joueur',
-              '',
+              'soreal-idle-player-image-v41',
               String(n)
             );
           return;
@@ -21680,7 +21871,7 @@ function pageAventureIdleV28_(j){
             '',
             urlR2,
             'Joueur',
-            '',
+            'soreal-idle-player-image-v41',
             String(n)
           );
       }
@@ -21955,6 +22146,16 @@ function pageAventureIdleV28_(j){
 
         const j=idleEtat;
 
+        /*
+         * Cinématique « Le Magicien et la Grotte » (2026-09-27) : vérifiée à CHAQUE rendu d'état,
+         * quel que soit le menu affiché -- le boss 17 peut être vaincu pendant que le joueur est
+         * sur un autre menu (le combat continue côté serveur). Le module gère lui-même l'idempotence
+         * (popup plein écran indépendant du rendu de page, jamais recréé si déjà en cours).
+         */
+        if(window.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_V1__.considerer==='function'){
+          window.__SOREAL_IDLE_STORY_POPUP_V1__.considerer(j);
+        }
+
         initialiserCoupsCombatIdleV116_();
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-332 */
@@ -22101,6 +22302,15 @@ function pageAventureIdleV28_(j){
         }catch(e){
           console.error(
             'SOREAL IDLE post-render admin :',
+            e
+          );
+        }
+
+        try{
+          rafraichirPartieDevIdleV1_();
+        }catch(e){
+          console.error(
+            'SOREAL IDLE post-render parties dev :',
             e
           );
         }

@@ -1,5 +1,12 @@
 import { sqlRows, safeJson, jsonText } from "./core/sqlite-core.js";
 import {
+  idleDevSlotForUserV1,
+  idleDevUserForSlotV1,
+  idleDevAliasEmailV1,
+  idleDevSlotsAvailableV1,
+  idleDevNormalizeSlotV1
+} from "./idle-dev-save-slots-v1.js";
+import {
   BASIC_TRAINING_V411,
   createBasicTrainingStateV411,
   normalizeBasicTrainingStateV411,
@@ -2157,6 +2164,13 @@ function trouverLigneJoueurSorealIdle_(
   feuille,
   acces
 ) {
+  if (idleDevSlotForUserV1(acces && acces.user) === 'b') {
+    acces = Object.assign({}, acces, {
+      user: idleDevUserForSlotV1(acces.user, 'b'),
+      emailAutorise: idleDevAliasEmailV1(acces.emailAutorise, 'b')
+    });
+  }
+
   assurerColonnesIdentiteSorealIdle_(
     feuille
   );
@@ -4646,6 +4660,8 @@ function statsJoueurSorealIdle_(valeur) {
     lootsObtenus:Math.max(0,Math.floor(nombreSorealIdle_(s.lootsObtenus,0))),
     objetsRecycles:Math.max(0,Math.floor(nombreSorealIdle_(s.objetsRecycles,0))),
     fusions:Math.max(0,Math.floor(nombreSorealIdle_(s.fusions,0))),
+    /* Norman (2026-09-27) : catégorie « Clics/Tap » du classement -- compteur brut, jamais anti-triche (« même si quelqu'un triche, ca n'est pas grave »). */
+    clicsTotal:Math.max(0,Math.floor(nombreSorealIdle_(s.clicsTotal,0))),
     forge:Math.max(0,Math.floor(nombreSorealIdle_(s.forge,0))),
     materiauxDepenses:Math.max(0,Math.floor(nombreSorealIdle_(s.materiauxDepenses,0))),
     extensionsSac:Math.max(0,Math.floor(nombreSorealIdle_(s.extensionsSac,0))),
@@ -12418,6 +12434,84 @@ function marquerVusSorealIdle(
 
 
 /*
+ * Catégorie « Clics/Tap » du classement (Norman, 2026-09-27 : « le nombre de cliques de souris Droite/gauche effectué
+ * dans l'appli. Et les taps pareils, dans la même catégorie... même si quelqu'un triche, ca n'est pas grave »). Compteur
+ * brut cumulatif, jamais anti-triche par conception -- même patron léger que marquerVusSorealIdle (un verrou, une lecture/
+ * écriture de STATS_JSON, aucun calcul de jeu). Le client accumule en mémoire et envoie le total par lots (voir
+ * idleClicsEnvoyerV1_ dans soreal-idle-ui.js), jamais un appel par clic.
+ */
+function enregistrerClicsSorealIdle(
+  sessionToken,
+  delta
+) {
+  const acces =
+    exigerAccesSorealIdle_(
+      sessionToken
+    );
+
+  const lock =
+    LockService.getScriptLock();
+
+  if (!lock.tryLock(1800)) {
+    return {
+      ok: false,
+      message:
+        'Le jeu est occupé.'
+    };
+  }
+
+  try {
+    const feuille =
+      obtenirFeuilleJoueursSorealIdle_();
+
+    const ligne =
+      trouverLigneJoueurSorealIdle_(
+        feuille,
+        acces
+      );
+
+    assurerDonneesJeuSorealIdle_(
+      feuille,
+      ligne
+    );
+
+    const c =
+      CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+
+    const cellule =
+      feuille.getRange(
+        ligne,
+        c.STATS_JSON
+      );
+
+    const stats =
+      statsJoueurSorealIdle_(
+        cellule.getValue()
+      );
+
+    stats.clicsTotal =
+      stats.clicsTotal +
+      Math.max(0, Math.floor(nombreSorealIdle_(delta, 0)));
+
+    cellule.setValue(
+      JSON.stringify(
+        stats
+      )
+    );
+
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      clicsTotal: stats.clicsTotal
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+/*
  * ------------------------------------------------------------------
  * Profil du joueur : pseudo, joueur externe (2026-09-26) — voir idle-profile-v1.js
  * ------------------------------------------------------------------
@@ -12667,6 +12761,16 @@ const CLASSEMENT_STATS_SOREAL_IDLE_V1 = Object.freeze([
   'achievements'
 ]);
 
+/*
+ * Norman (2026-09-27) : catégorie « Clics/Tap », comptée à part -- un compteur brut, jamais anti-triche, ne doit
+ * pas fausser le classement Global (qui reflète la vraie progression). Son propre rang est bien calculé (onglet
+ * dédié côté client), mais exclu de la somme de points qui fait le classement Global ci-dessous.
+ */
+const CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1 = Object.freeze(['clics']);
+const CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1 = Object.freeze(
+  CLASSEMENT_STATS_SOREAL_IDLE_V1.concat(CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1)
+);
+
 /* Verrou provisoire du bouton (voir le commentaire de construireEtatJoueurSorealIdle_) : administrateur seulement. */
 function classementDebloqueSorealIdle_(emailPrincipal, emailConnexion) {
   const emails = [emailPrincipal, emailConnexion]
@@ -12701,7 +12805,8 @@ function valeursClassementJoueurSorealIdle_(stats) {
     number: positif(records.bestNumber),
     exp: positif(records.totalExpEarned),
     playSeconds: Math.floor(positif(records.playSeconds)),
-    achievements: succes
+    achievements: succes,
+    clics: Math.floor(positif(stats && stats.clicsTotal))
   };
 }
 
@@ -12838,7 +12943,7 @@ function obtenirClassementSorealIdle(
   const n = entrees.length;
 
   /* Rang de chaque statistique (égalités : même rang, le suivant saute) ; points = n - rang + 1 ; global = somme des points. */
-  CLASSEMENT_STATS_SOREAL_IDLE_V1.forEach(function(nomStat) {
+  CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1.forEach(function(nomStat) {
     const tries = entrees.slice().sort(function(a, b) {
       return (b.valeurs[nomStat] - a.valeurs[nomStat]) ||
         String(a.nom).localeCompare(String(b.nom), 'fr');
@@ -12875,7 +12980,7 @@ function obtenirClassementSorealIdle(
   return {
     ok: true,
     joueurs: n,
-    stats: CLASSEMENT_STATS_SOREAL_IDLE_V1.slice(),
+    stats: CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1.slice(),
     entrees: entrees.map(function(entree) {
       return {
         nom: entree.nom,
@@ -13188,6 +13293,44 @@ function estAdminSorealIdle(
       String(acces.emailAutorise || '').toLowerCase() ===
       ADMIN_SOREAL_IDLE_EMAIL
   };
+}
+
+/*
+ * Sélecteur « Partie B » (2026-09-27, Norman, restauré -- voir idle-dev-save-slots-v1.js) : réservé au compte
+ * administrateur. La partie effectivement jouée est mémorisée sur la session (idle_sessions.user_json.slot),
+ * jamais sur le compte lui-même : changer d'appareil ou se reconnecter revient toujours sur la partie A.
+ */
+function obtenirPartieDevSorealIdle(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  return {
+    ok: true,
+    actif: idleDevSlotsAvailableV1(acces.user),
+    partie: idleDevSlotForUserV1(acces.user)
+  };
+}
+
+function definirPartieDevSorealIdle(sessionToken, partie) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!idleDevSlotsAvailableV1(acces.user)) throw new Error('PARTIES_DEV_INDISPONIBLES');
+  if (!__idleSql) throw new Error('SOREAL_IDLE_BASE_INDISPONIBLE');
+
+  const token = String(sessionToken || '').trim();
+  const cible = idleDevNormalizeSlotV1(partie);
+  const ligne = sqlRows(
+    __idleSql.exec('SELECT user_json FROM idle_sessions WHERE session_token=?', token)
+  )[0];
+  if (!ligne) return { ok: false, error: 'IDLE_SESSION_INVALID' };
+
+  let user = {};
+  try { user = JSON.parse(String(ligne.user_json || '{}')); } catch (_e) {}
+  user.slot = cible;
+  __idleSql.exec(
+    'UPDATE idle_sessions SET user_json=? WHERE session_token=?',
+    JSON.stringify(user),
+    token
+  );
+
+  return { ok: true, actif: true, partie: cible };
 }
 
 
@@ -15042,7 +15185,7 @@ function bossCatalogueSorealIdle_() {
 
         histoire:
           index===3
-            ?"Alors que tu te tournes vers la sortie de cette 'pièce', tu remarques une petite souris marron. D'une voix stridente, elle couine : BIENVENUE dans SOREAL IDLE ! Moi c'est Tippy... Si t'es prê-' Sa petite voix de merde, te donne envie de lui péter la gueule... le besoin de vaincre CHAQUE ennemi sur ton chemin, quoi qu'il arrive. Tu peux commencer avec cette souris et arracher sa tête de con."
+            ?"Alors que tu te tournes vers la sortie de cette 'pièce', tu remarques une petite souris marron. D'une voix stridente, elle couine : BIENVENUE dans SOREAL IDLE ! Moi c'est Tippy. Sa petite voix de merde, te donne envie de lui péter la gueule... le besoin de vaincre CHAQUE ennemi sur ton chemin, quoi qu'il arrive. Tu peux commencer avec cette souris et arracher sa tête de con."
             :String(
                 ligne.Histoire || ''
               ).trim(),
@@ -16193,7 +16336,10 @@ const IDLE_OPERATIONS={
   sauvegarderDispositionInventaireSorealIdle,
   selectionnerBossSorealIdle,
   synchroniserSorealIdle,
-  testerAccesSorealIdle
+  testerAccesSorealIdle,
+  obtenirPartieDevSorealIdle,
+  definirPartieDevSorealIdle,
+  enregistrerClicsSorealIdle
 };
 
 export function idleOperationNames(){

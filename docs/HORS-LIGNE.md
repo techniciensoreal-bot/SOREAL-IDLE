@@ -35,6 +35,7 @@ qu'on a certains loots, en étant hors ligne. » Sources : miroir local du wiki 
 | Combat de boss principal en cours à la fermeture | non documenté | le serveur continue le combat jusqu'à sa fin (victoire ou défaite) puis s'arrête sur le boss suivant | à confirmer par Norman en jouant les deux jeux |
 | Boost du Cube de l'infini hors ligne | oui, aucune formule publiée | **absent** du rattrapage | manque, bloqué par « pas de valeur inventée » (voir point 4 ci-dessous) |
 | Anciennes mécaniques (AUTO-Aventure hors ligne, mana) | n'existent pas | code présent mais désactivé (`LEGACY_DISABLED`) | à supprimer (voir `AUDIT-CHIFFRES.md`) |
+| Plafond de rattrapage hors ligne de Basic Training | aucun publié | **corrigé (2026-09-27)** : aligné sur 30 jours comme les autres systèmes (`EARLY_GAME_MAX_OFFLINE_SECONDS`), au lieu des 12 h inventées | conforme (par cohérence interne, faute de source) |
 
 ## Suivi (2026-09-27, Norman : « traite le point 1, ensuite 2, ensuite 3 et termine avec le 4 »)
 

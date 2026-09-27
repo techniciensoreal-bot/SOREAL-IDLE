@@ -96,7 +96,7 @@ assert.ok(ui.includes("purpleLiquidMaxed?1.5:1.4"), "Beast Mode +40 % (+50 % Pur
 const usage = block(ui, "function utiliserCompetenceAdventureIdleV3_(", "window.__utiliserCompetenceAdventureIdleV3__");
 assert.ok(usage.includes("blockUntil=maintenant+3000"), "Block : 3 s");
 assert.ok(usage.includes("defensiveBuffUntil=maintenant+15000") && usage.includes("offensiveBuffUntil=maintenant+15000") && usage.includes("ultimateBuffUntil=maintenant+15000"), "Buffs : 15 s");
-assert.ok(ui.includes("idleNombre_(fight.playerHp)+max*.15"), "Heal : 15 % des PV max");
+assert.ok(ui.includes("avant+max*.15"), "Heal : 15 % des PV max");
 assert.ok(ui.includes("enemyParalyzedUntil,maintenant+3000"), "Paralyze : 3 s");
 assert.ok(ui.includes("hyperRegenUntil,maintenant+5000") && ui.includes("secondes+hyperSecondes*4"), "Hyper Regen : regen x5 (500 %) pendant 5 s");
 assert.ok(ui.includes("(idleAdventureIdleModeV3?1.2:1)"), "Idle Mode : HP regen +20 %");

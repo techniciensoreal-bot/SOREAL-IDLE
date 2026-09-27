@@ -539,16 +539,24 @@ export function idleInventoryReceiveDropV1(s, item, env) {
   return added ? autoTransformV1(s, cfg, env, added) : null;
 }
 
-/* Drops d'une action d'Aventure (kill de zone, titan) : objets apparus depuis `beforeIds`. */
+/*
+ * Drops d'une action d'Aventure (kill de zone, titan) : objets apparus depuis `beforeIds`.
+ * filteredIds (2026-09-27, Norman : « Quand un objet tombe et que le filtre est activé pour ce
+ * type de pièce, le journal de combat doit indiqué (filtré) à côté de l'objet. ») : les id des
+ * objets retirés ici existent encore dans le `drops` déjà renvoyé par applyIdleAdventureActionV47
+ * (calculé AVANT ce filtrage) -- l'appelant (idle-ngu-progression.js) les recoupe pour marquer
+ * chaque entrée correspondante `filtered:true` plutôt que de les faire disparaître du journal.
+ */
 export function idleInventoryProcessNewDropsV1(s, beforeIds, env) {
   const cfg = cfgV1(s);
   const before = beforeIds instanceof Set ? beforeIds : new Set(beforeIds || []);
-  const out = { filtered: 0, cube: 0, transformed: 0 };
+  const out = { filtered: 0, cube: 0, transformed: 0, filteredIds: [] };
   const zone = idleInventoryFilterZoneV1(s, env?.filterZone);
   for (const o of s.inventory.slice()) {
     if (before.has(String(o.id))) continue;
     if (filteredV1(cfg, env, o, zone)) {
       if (o.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked) out.cube += 1;
+      out.filteredIds.push(String(o.id));
       disposeFilteredV1(s, o, env);
       out.filtered += 1;
     } else if (autoTransformV1(s, cfg, env, o) !== o) {

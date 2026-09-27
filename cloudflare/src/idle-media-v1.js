@@ -314,7 +314,7 @@ function choisirObjetItemR2ParDefinition_(objects,definitionId,itemName="",slot=
   return choisirObjetItemR2ParId_(objects,target,itemName,slot,setId);
 }
 /*
- * 2026-09-24 (Norman : le Cube evolue quand on le booste ; « avec la nouvelle image du R2 ») : si l'image du palier demande n'existe pas (dossier
+ * 2026-09-24 (Norman : le Cube evolue quand on le booste ; ï¿½ avec la nouvelle image du R2 ï¿½) : si l'image du palier demande n'existe pas (dossier
  * R2 incomplet : paliers 4, 8, 9 et 10 absents le 2026-09-24), on sert l'image du palier disponible LE PLUS PROCHE EN DESSOUS au lieu d'un 404
  * (l'icone tombait sur l'emoji). Le jour ou le fichier du palier est ajoute, il est servi tel quel (aucun changement de code).
  */
@@ -605,9 +605,9 @@ async function objetsDossierMobR2_(env,prefix){
  * pas encore migrÃ© vers la nouvelle convention.
  */
 /*
- * 2026-09-24 (Norman : « je veux les vrais noms ; je changerai les images ») : les fichiers R2 portent DEJA les vrais noms NGU
+ * 2026-09-24 (Norman : ï¿½ je veux les vrais noms ; je changerai les images ï¿½) : les fichiers R2 portent DEJA les vrais noms NGU
  * (Adv_<id>_<nom>.png), mais l'index du mob dans le bestiaire ne correspond pas toujours a l'index du fichier dans le dossier trie (les boss autres que
- * le plus grand id, les fichiers absents ou en trop decalent le pool : « Fairy » affichait l'image de « Rat of Unusual Size »). Quand le client donne
+ * le plus grand id, les fichiers absents ou en trop decalent le pool : ï¿½ Fairy ï¿½ affichait l'image de ï¿½ Rat of Unusual Size ï¿½). Quand le client donne
  * le NOM du mob (?name=), l'image est choisie par ce nom (seul cas d'egalite exacte apres normalisation) ; sans nom, ou sans fichier du meme nom,
  * on retombe sur l'ancien choix par index.
  */
@@ -1044,11 +1044,47 @@ async function playerImage_(request,env,url){
   const portrait=String(url.searchParams.get("portrait")||"").trim().slice(0,80);
   /* Joli chaton du Special Prize : fichier R2 designe (dossier idle/Kitty/, hors idle/player/). */
   const chaton=portrait&&portrait.toLowerCase().replace(/[^a-z0-9]+/g,"")==="badkittydaycarebow";
-  /* Repli (portrait automatique d'un set équipé sans image dans R2) : le portrait choisi par le joueur, puis le défaut. */
+  /* Repli (portrait automatique d'un set ï¿½quipï¿½ sans image dans R2) : le portrait choisi par le joueur, puis le dï¿½faut. */
   const repli=String(url.searchParams.get("fallback")||"").trim().slice(0,80);
   const repliChaton=repli&&repli.toLowerCase().replace(/[^a-z0-9]+/g,"")==="badkittydaycarebow";
   const key=chaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:((portrait&&idlePortraitPickR2KeyV1(keys,portrait))||(repliChaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:(repli&&idlePortraitPickR2KeyV1(keys,repli)))||choisirCleJoueurR2_(keys,zone));
   if(!key)return new Response("Image de joueur introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  return reponseObjetR2_(request,env,{key});
+}
+/*
+ * CinÃ©matiques d'histoire (2026-09-27, demande Norman : Â« Le Magicien et la Grotte Â», popup
+ * plein Ã©cran avant le boss 18) : un dossier R2 par histoire, sous idle/story/<id>/ (ex.
+ * idle/story/MagicienEtLaGrotte/), chaque image jouÃ©e dans l'ordre alphabÃ©tique de son nom
+ * de fichier -- convention numÃ©rique attendue cÃ´tÃ© dÃ©pÃ´t R2 (1_..., 2_..., ...) pour que le
+ * tri lexicographique donne le bon ordre, comme les dossiers Adv_<id>_<nom> dÃ©jÃ  en place.
+ * MÃªme lister/servir que les autres dossiers R2 Ã  plat (objetsDossierMobR2_/reponseObjetR2_),
+ * jamais une nouvelle logique de cache.
+ */
+const IDLE_STORY_R2_PREFIX="idle/story/";
+async function objetsStoryR2_(env,id){
+  return objetsDossierMobR2_(env,IDLE_STORY_R2_PREFIX+id+"/");
+}
+export function choisirCleStoryR2_(keys,index){
+  const n=Math.floor(Number(index)||0);
+  if(n<1||!Array.isArray(keys)||!keys.length)return "";
+  const triees=keys.slice().sort();
+  return triees[n-1]||"";
+}
+async function storyImage_(request,env,url){
+  const id=String(url.searchParams.get("id")||"").trim();
+  if(!/^[A-Za-z0-9_-]{1,80}$/.test(id)){
+    return new Response("Histoire IDLE invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  const index=String(url.searchParams.get("index")||"").trim();
+  if(!/^[1-9][0-9]?$/.test(index)){
+    return new Response("Index d'histoire invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("MÃ©dia d'histoire indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const keys=await objetsStoryR2_(env,id);
+  const key=choisirCleStoryR2_(keys,index);
+  if(!key)return new Response("Image d'histoire introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }
 async function objetsBossR2_(env){
@@ -1152,6 +1188,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/banner",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
+    "/api/idle/media/story",
     "/api/idle/media/piper-model.onnx",
     "/api/idle/media/piper-model.onnx.json",
     "/api/idle/media/debug-list"
@@ -1170,6 +1207,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/boss")return bossImage_(request,env,url);
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/roster")return idleItopodRosterReponseV1(request,env);
   if(url.pathname==="/api/idle/media/shared")return idleItopodImagePartageeV1(request,env,url);
   return adventureZone_(request,env,url);

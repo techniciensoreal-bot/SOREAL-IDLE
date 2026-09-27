@@ -32,7 +32,7 @@ for(const token of [
   "Voix IA auto OFF",
   "data-soreal-tts-target",
   "readTarget:lireCible_",
-  "readText:function(value,audioSrc)",
+  "readText:function(value,audioSrc,onDone)",
   "function stop_()",
   "⏹ Arrêter la narration",
   "stop:stop_",

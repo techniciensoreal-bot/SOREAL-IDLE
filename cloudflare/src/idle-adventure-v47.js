@@ -2835,15 +2835,14 @@ for(const o of s.inventory){
     s.itemList[o.definitionId]=info;
   }
 }
-if(s.unlockFlags&&s.unlockFlags.tutorialCubeMaxed&&!s.coffre.tutorialCube&&!s.unlockFlags.tutorialCubeCoffreV1){
-  s.unlockFlags.tutorialCubeCoffreV1=true;
-  /* Compte ayant déjà transformé son Tutorial Cube en Cube de l'infini avant l'existence de la case : trophée rangé, au niveau maximum. */
-  const trophee=special("tutorialCube",MAX);
-  const b=idleAdventureSpecialBaseStatsV1("tutorialCube");
-  trophee.power=N(b.baseP)*2;trophee.toughness=N(b.baseT)*2;trophee.special=N(b.baseS)*2;
-  trophee.hp=trophee.power*3;trophee.regen=trophee.toughness*.03;
-  s.coffre.tutorialCube=cleanItem(trophee)||trophee;
-}
+/*
+ * 2026-09-27 (Norman revient sur le choix du 2026-09-25) : le Tutorial Cube maxé ne va plus
+ * dans une case dédiée du Coffre, il disparaît -- voir record() ci-dessous. Migration inverse :
+ * une sauvegarde qui porte déjà ce trophée (posé par l'ancienne version) le perd à la prochaine
+ * ouverture, sans jamais retirer la place elle-même (IDLE_ADVENTURE_COFFRE_SPECIAUX_V1 ne le
+ * liste plus du tout, plus bas dans ce fichier).
+ */
+if(s.coffre&&s.coffre.tutorialCube)delete s.coffre.tutorialCube;
 for(const o of Object.values(s.coffre||{})){
   if(o&&o.definitionId&&idleAdventureObjetPleinementMaxeV1(o)){
     const info=s.itemList[o.definitionId]||{maxLevel:I(o.level,-1),seen:true};
@@ -3060,9 +3059,15 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
  * le Cube, qui n'est alors plus jamais équipé/déplacé). Retire toute
  * copie de l'inventaire ET de l'équipement plutôt que de la laisser
  * traîner, inéquipable et sans usage, dans le sac.
+ *
+ * 2026-09-27 (Norman, revient sur le choix du 2026-09-25 ci-dessous) : « je voudrais qu'il
+ * disparaisse et qu'il ne soit plus possible de le looter à partir de ce moment-là. Il n'y a
+ * plus que l'infinity cube. [...] Il ne doit même pas y avoir la place pour le tutorial cube. »
+ * Le Tutorial Cube ne va donc plus dans une case dédiée du Coffre (ancien commentaire du
+ * 2026-09-25 : « le Tutorial Cube maxxé ne disparaît pas, il est rangé dans sa case du Coffre »,
+ * retiré) -- il disparaît purement et simplement, comme n'importe quel objet consommé. Le
+ * verrou contre un nouveau drop vit dans rollSpecialAdventureV2 (même fichier).
  */
-/* Coffre (Norman, 2026-09-25) : le Tutorial Cube maxxé ne disparaît pas, il est rangé dans sa case du Coffre. */
-if(!s.coffre.tutorialCube&&!s.unlockFlags.tutorialCubeCoffreV1){const trophee=cleanItem({...o});if(trophee){s.coffre.tutorialCube=trophee;s.unlockFlags.tutorialCubeCoffreV1=true}}
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
 s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
 /* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
@@ -3581,13 +3586,14 @@ function idleAdventureCubeSoftcapV1(cubeStat,base){const b=Math.max(0,N(base)),c
  * ("?") restent visibles et distincts.
  */
 /*
- * 2026-09-25 (Norman : « dans le Coffre au trésor, il faut un emplacement pour le Tutorial Cube quand il est maxxé ») : le Tutorial Cube (objet
- * « special », cube:true) a sa propre case, après les cases d'équipement ; même règle de rangement (réellement maxé, non équipé, case libre).
+ * 2026-09-25 (Norman : « dans le Coffre au trésor, il faut un emplacement pour le Tutorial Cube quand il est maxxé ») : le Tutorial Cube avait
+ * sa propre case, après les cases d'équipement. Retiré le 2026-09-27 (Norman revient sur ce choix : « il ne doit même pas y avoir la place pour
+ * le tutorial cube ») -- IDLE_ADVENTURE_COFFRE_SPECIAUX_V1 (et la case dédiée qu'elle générait) a été retirée ; le Coffre n'accepte plus que les
+ * objets « equipment » du catalogue, comme avant le 2026-09-25.
  */
-const IDLE_ADVENTURE_COFFRE_SPECIAUX_V1=Object.freeze(["tutorialCube"]);
 function idleAdventureCoffreAccepteV1(definitionId){
   const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[definitionId];
-  return Boolean(def)&&(def.kind==="equipment"||IDLE_ADVENTURE_COFFRE_SPECIAUX_V1.includes(definitionId));
+  return Boolean(def)&&def.kind==="equipment";
 }
 function idleAdventureCoffreSlotsV1(s){
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
@@ -3595,10 +3601,7 @@ function idleAdventureCoffreSlotsV1(s){
     .sort(([a,da],[b,db])=>(da.kind==="equipment"?0:1)-(db.kind==="equipment"?0:1))
     .map(([definitionId,def])=>{
       const occupant=s.coffre[definitionId]||null;
-      /* Tutorial Cube : sa case n'apparaît qu'une fois maxxé (Norman : « quand il est maxxé ») — jamais avant, rien à deviner. */
-      const connu=definitionId==="tutorialCube"
-        ?Boolean(occupant||s.unlockFlags?.tutorialCubeMaxed)
-        :Boolean(s.itemList[definitionId]?.seen);
+      const connu=Boolean(s.itemList[definitionId]?.seen);
       return{
         definitionId,
         set:def.set,setName:def.setName,slot:def.slot,name:def.name,wikiItemId:def.wikiItemId||0,
@@ -4431,6 +4434,13 @@ function rollSpecialAdventureV2(s,z,def,dropMult,mobName){
   if(!ids.every(x=>SPECIALS[x]))return null;
   if(def.requiresCompletedSet&&!s.completedSets[String(def.requiresCompletedSet)])return null;
   if(def.mobName&&String(mobName||"")!==String(def.mobName))return null;
+  /*
+   * Tutorial Cube (2026-09-27, Norman : « il ne soit plus possible de le looter à partir de ce
+   * moment-là. Il n'y a plus que l'infinity cube. ») : une fois maxé, l'Infinity Cube prend sa
+   * place définitivement -- aucune nouvelle copie ne doit plus jamais retomber, même par ce
+   * pool de drop de boss de zone (Sewers, 10 %, record() -> idle-adventure-v47.js).
+   */
+  if(ids.includes("tutorialCube")&&s.unlockFlags?.tutorialCubeMaxed)return null;
 
   const firstGuaranteed=Boolean(ids.length===1&&def.firstGuaranteed&&!s.itemList[ids[0]]?.seen);
   if(!firstGuaranteed&&Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
