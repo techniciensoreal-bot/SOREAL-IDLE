@@ -68,4 +68,25 @@ function setupZone(s) {
   }
 }
 
+// --- Une fois le Tutorial Cube maxé (Infinity Cube débloqué), plus AUCUN kill de boss ne peut en faire retomber un, même à random()=0. ---
+// Norman (2026-09-27) : « il ne soit plus possible de le looter à partir de ce moment-là. Il n'y a plus que l'infinity cube. »
+{
+  let s = normalizeIdleAdventureStateV47({});
+  s = setupZone(s);
+  s.cube.unlocked = true;
+  s.unlockFlags.tutorialCubeMaxed = true;
+  const originalRandom = Math.random;
+  Math.random = () => 0; // toujours "réussite" si le verrou n'existait pas
+  try {
+    const r = applyIdleAdventureActionV47(s, { action: "zoneKill" }, { bosses: 7, forceBoss: true, stats: {} }, 1);
+    assert.equal(
+      r.result.drops.some(d => d && d.definitionId === "tutorialCube"),
+      false,
+      "Une fois tutorialCubeMaxed posé, plus aucun Tutorial Cube ne doit retomber, même random()=0."
+    );
+  } finally {
+    Math.random = originalRandom;
+  }
+}
+
 console.log("idle-adventure-tutorial-cube-drop-rate: OK");
