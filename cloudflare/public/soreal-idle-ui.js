@@ -16769,8 +16769,6 @@ let idleDialogueTimerV76=null;
           maintenant+cooldownDureeAdventureIdleV4_(def,a);
         /* Un son propre à chaque bouton (modules/audio-effects-v199.js : skill_<id>). */
         jouerEffetAudioIdleV199_('skill_'+def.id);
-        /* Un son propre à chaque bouton (modules/audio-effects-v199.js : skill_<id>). */
-        jouerEffetAudioIdleV199_(skill_+def.id);
 
         if(group==='attack'){
           if(def.id==='parry'){
