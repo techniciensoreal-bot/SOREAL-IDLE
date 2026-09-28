@@ -25,13 +25,15 @@ function fabriquerElement() {
       if (sel === "img") return this._img;
       if (sel === ".soreal-idle-histoire-texte-v1") return this._texte;
       if (sel === ".soreal-idle-histoire-passer-v1") return this._bouton;
+      if (sel === ".soreal-idle-histoire-chargement-v1") return this._chargement;
       return null;
     },
     set innerHTML(_v) {
-      // Le module construit img/texte/bouton via innerHTML puis les relit par querySelector : on les fabrique ici.
+      // Le module construit img/texte/bouton/chargement via innerHTML puis les relit par querySelector : on les fabrique ici.
       this._img = fabriquerElement();
       this._texte = fabriquerElement();
       this._bouton = fabriquerElement();
+      this._chargement = fabriquerElement();
     },
     set src(v) { this._src = v; this._srcHistorique = this._srcHistorique || []; this._srcHistorique.push(v); if (typeof this.onload === "function") this.onload(); },
     get src() { return this._src; },
@@ -263,6 +265,23 @@ function charger(window, document, horloge) {
   while (horloge.avancer()) {}
   // Chaque étape suivante doit elle aussi avoir été préchargée en cours de route (étapes 2, 3, 4).
   assert.ok(prechauffeAppels.includes(etapes[2].texte) && prechauffeAppels.includes(etapes[3].texte) && prechauffeAppels.includes(etapes[4].texte), "chaque étape suivante est préchargée pendant la lecture de la précédente");
+}
+
+// 12. Norman (2026-09-28) : « l'écran reste noir avec juste le texte » pendant l'attente de l'image/la voix --
+//     un indicateur de chargement tourne tant que l'image n'est pas arrivée, et disparaît dès qu'elle l'est.
+{
+  const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  charger(window_, document_, horloge).considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
+  const overlay = document_.body.children[0];
+  const chargement = overlay.querySelector(".soreal-idle-histoire-chargement-v1");
+  assert.ok(chargement, "l'indicateur de chargement doit exister dans le popup");
+  // Le minuteur de 260 ms (fondu avant de changer la source) n'a pas encore tourné : toujours affiché.
+  assert.ok(chargement.classList.contains("soreal-idle-histoire-chargement-visible-v1"), "affiché tant que l'image n'est pas arrivée");
+  horloge.avancer(); // déclenche le minuteur de 260 ms -> img.src= -> onload synchrone dans ce bac à sable
+  assert.ok(!chargement.classList.contains("soreal-idle-histoire-chargement-visible-v1"), "masqué dès que l'image a fini de charger");
 }
 
 console.log("idle-story-popup-magicien-v1: OK");

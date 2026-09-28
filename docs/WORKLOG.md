@@ -2109,3 +2109,15 @@ Norman (après avoir signalé « impossible de placer de l'énergie » dans Augm
 Tests : `idle-augmentation-allocation-ui-v1` (réécrit : mise à jour optimiste, sons, aucun rendu/son quand rien ne change réellement), `idle-inventory-auto-no-full-render-v1` (cache-bust).
 
 Versions : meta-progression `202609275`, notes `39`, Beta `5.5`.
+
+## 2026-09-28 — IDLE Beta 5.6 « Un peu de patience visuelle »
+
+Norman : « La scène n'est pas arrangée. Il y a toujours des lenteurs entre les scènes. L'écran reste noir avec juste le texte et il faut 10 secondes pour que l'image apparaisse et que le narrateur commence. »
+
+- **État réel de la cause de fond** : le vrai correctif (les 5 textes de la scène pré-générés en voix, au lieu du repli Piper synthétisé en direct dans le navigateur) reste posé côté code depuis Beta 5.4 (branchement dans `window.__sorealVoiceTextesIdleV1__()`), mais les fichiers audio eux-mêmes n'ont jamais pu être générés : `node cloudflare/tools/voice-generate.mjs` a besoin d'un accès réseau vers le site déployé ET vers Hugging Face (modèle Piper), tous deux bloqués depuis ce bac à sable (vérifié en direct : `curl` vers le site de prod et vers `cdn.jsdelivr.net`/`huggingface.co` échouent avec un refus explicite du proxy de sortie -- même limitation documentée le 2026-09-27 pour les voix de Tippy/Le NOMBRE). C'est la cause des lenteurs encore présentes : tant que ce script n'a pas tourné depuis un poste avec accès réseau, chaque étape retombe sur Piper (synthèse neurale lente au démarrage).
+- **Ce qui peut être fait depuis ici en attendant** : un indicateur de chargement (`story-popup-v1.js`) tourne désormais pendant l'attente de l'image (et donc pendant l'essentiel de l'attente de la voix, qui commence en parallèle) -- l'écran ne paraît plus figé/cassé, même si le délai réel n'a pas changé.
+- **Action requise pour corriger le fond** : lancer `node cloudflare/tools/voice-generate.mjs --prune` depuis un poste avec accès réseau (comme documenté le 2026-09-27) pour générer les 5 fichiers de voix manquants de "Le Magicien et la Grotte".
+
+Tests : `idle-story-popup-magicien-v1` (nouveau cas 12 : indicateur de chargement affiché/masqué).
+
+Versions : story-popup `5`, notes `40`, Beta `5.6`.

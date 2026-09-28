@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.5',
+    courante:'5.6',
     versions:[
+      {
+        version:'5.6',
+        nom:'Un peu de patience visuelle',
+        date:'2026-09-28',
+        points:[
+          'Un indicateur de chargement tourne désormais pendant les temps d’attente de la scène spéciale du boss 18.',
+          'L’écran ne semble plus figé le temps que l’image et la voix arrivent.',
+          'Petits ajustements visuels supplémentaires.'
+        ]
+      },
       {
         version:'5.5',
         nom:'Ça répond au doigt et à l’œil',

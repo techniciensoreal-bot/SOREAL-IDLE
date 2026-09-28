@@ -102,7 +102,24 @@ function installerStyle_(){
       'position:absolute;top:14px;right:16px;background:rgba(255,255,255,.08);'+
       'color:#c7d3ea;border:1px solid rgba(255,255,255,.22);border-radius:999px;'+
       'padding:6px 14px;font:700 12px/1 system-ui,sans-serif;cursor:pointer;'+
-    '}';
+    '}'+
+    /*
+     * Norman (2026-09-28) : « il y a toujours des lenteurs entre les scènes. L'écran reste noir avec juste le
+     * texte et il faut 10 secondes pour que l'image apparaisse et que le narrateur commence. » La cause réelle
+     * (synthèse vocale Piper en direct faute de fichiers pré-générés, voir prechaufferEtape_ plus bas) ne peut
+     * pas être corrigée depuis ce bac à sable (aucun accès réseau vers le site déployé ni vers Hugging Face,
+     * nécessaires pour lancer voice-generate.mjs) -- seul un poste avec accès réseau le peut. En attendant, un
+     * indicateur de chargement évite que l'écran figé ne paraisse cassé pendant l'attente.
+     */
+    '#'+OVERLAY_ID+' .soreal-idle-histoire-chargement-v1{'+
+      'position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;'+
+      'border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:#c7d3ea;'+
+      'opacity:0;transition:opacity .2s ease;pointer-events:none;'+
+    '}'+
+    '#'+OVERLAY_ID+' .soreal-idle-histoire-chargement-v1.soreal-idle-histoire-chargement-visible-v1{'+
+      'opacity:1;animation:soreal-idle-histoire-spin-v1 .9s linear infinite;'+
+    '}'+
+    '@keyframes soreal-idle-histoire-spin-v1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
   document.head.appendChild(style);
 }
 
@@ -148,6 +165,7 @@ function demarrer_(){
   overlay.id=OVERLAY_ID;
   overlay.innerHTML=
     '<button type="button" class="soreal-idle-histoire-passer-v1">Passer ›</button>'+
+    '<div class="soreal-idle-histoire-chargement-v1"></div>'+
     '<img alt="">'+
     '<div class="soreal-idle-histoire-texte-v1"></div>';
   document.body.appendChild(overlay);
@@ -155,6 +173,7 @@ function demarrer_(){
   var img=overlay.querySelector('img');
   var texteEl=overlay.querySelector('.soreal-idle-histoire-texte-v1');
   var boutonPasser=overlay.querySelector('.soreal-idle-histoire-passer-v1');
+  var chargementEl=overlay.querySelector('.soreal-idle-histoire-chargement-v1');
 
   var passageDemande=false;
   boutonPasser.addEventListener('click',function(){
@@ -173,10 +192,17 @@ function demarrer_(){
 
   function afficherImage_(index){
     img.style.opacity='0';
+    if(chargementEl)chargementEl.classList.add('soreal-idle-histoire-chargement-visible-v1');
     setTimeout(function(){
       if(passageDemande)return;
-      img.onload=function(){img.style.opacity='1';};
-      img.onerror=function(){img.style.opacity='1';};
+      img.onload=function(){
+        img.style.opacity='1';
+        if(chargementEl)chargementEl.classList.remove('soreal-idle-histoire-chargement-visible-v1');
+      };
+      img.onerror=function(){
+        img.style.opacity='1';
+        if(chargementEl)chargementEl.classList.remove('soreal-idle-histoire-chargement-visible-v1');
+      };
       img.src=urlImage_(index);
     },260);
   }
