@@ -5,26 +5,29 @@
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
 - **Tâche courante** : corriger la barre de progression de la Time Machine qui restait visuellement figée malgré une allocation d'Energy. Cause vérifiée : `timeMachineView.speedFill/goldFill` progresse côté serveur, mais la synchro sans changement structurel ne patchait que les stats générales et jamais les barres Time Machine.
-- **SHA `main` vérifié avant le commit documentaire d'audit** : `a47386ce95fa3ff8899f266646ff776129168689` (Beta 3.5, suite : bruit d'achat réellement déclenché, PV du duel, narration de la souris, son d'équipement).
+- **SHA `main` fonctionnel vérifié** : `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` (PR #20, correctif barre Time Machine).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
-- **Tests** : 368 fichiers `cloudflare/tests/*.test.mjs` ; run de production #646 entièrement vert.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #646.
-- **CI** : run #646 (`a47386ce95fa3ff8899f266646ff776129168689`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
-- **SHA réellement déployé** : `git:a47386ce95fa3ff8899f266646ff776129168689`, version Cloudflare `2fe4b050-1360-4168-aab2-8e68de1e5132`, routage 100 %.
+- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #681 ; le nouveau test `idle-time-machine-live-bar-refresh.test.mjs` passe.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #681.
+- **CI** : run #681 (`3a7f13947fdae0bb3a4850b2bbfe7120cffe2897`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:3a7f13947fdae0bb3a4850b2bbfe7120cffe2897`, version Cloudflare `10c41733-6c2f-41c6-bdcf-1be2fd06f6d8`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
 - **Dernière anomalie / état notable** : la connexion Google est implémentée mais **désactivée dans la production vérifiée** : le log du déploiement #646 expose `env.GOOGLE_CLIENT_ID ("")`. Le bouton Google ne peut donc pas apparaître tant que cette valeur reste vide.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider le correctif Time Machine de la branche `fix/time-machine-live-bar`, le merger sur `main`, puis vérifier suite complète, build, CI, déploiement Cloudflare et SHA réellement servi avant de déclarer le bug réglé.
+- **Prochaine action exacte** : vérification manuelle en production par Norman : ouvrir Broken Time Machine avec de l'Energy allouée et confirmer que la barre évolue désormais sans changer de menu. Si elle reste figée, instrumenter la valeur reçue de `timeMachineView.speedFill` côté client.
 
-### Correctif Time Machine en cours — 2026-09-28
+### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
 - Référence NGU vérifiée : la progression Machine Speed consomme Energy × Power et peut être très lente au début ; la mécanique serveur actuelle reste donc inchangée.
 - Cause du bug utilisateur : le serveur renvoie bien `timeMachineView.speedFill/goldFill`, mais une synchro sans changement structurel appelle seulement `patcherResumeStatsIdleV28_`; le DOM de Broken Time Machine conserve alors la largeur du rendu initial.
 - Commit correctif : `492b2f4c20740ea07b830f417a94d2b0ab99c162` — patch DOM des barres après chaque synchro non structurelle, précision 4 décimales.
 - Commit test : `19845d72f40334fd280e15b2e093b60f4d319b69` — garde de non-régression `idle-time-machine-live-bar-refresh.test.mjs`.
-- Tests/build/CI : en attente de validation de branche / `main`.
-- Déploiement : aucun changement de production revendiqué à ce stade.
+- Merge PR #20 : `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` présent sur `main`.
+- Tests/build/CI : run #681 entièrement SUCCESS, y compris `idle-time-machine-live-bar-refresh.test.mjs`.
+- Déploiement : Cloudflare SUCCESS ; SHA `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` vérifié à 100 %, version `10c41733-6c2f-41c6-bdcf-1be2fd06f6d8`.
+- Smoke production Chromium/Piper : SUCCESS.
+- Vérification manuelle du mouvement visuel de la barre avec la sauvegarde réelle de Norman : encore à confirmer par l'utilisateur.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
