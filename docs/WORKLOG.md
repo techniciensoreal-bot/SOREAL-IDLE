@@ -9,13 +9,13 @@
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
 - **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #681 ; le nouveau test `idle-time-machine-live-bar-refresh.test.mjs` passe.
 - **Build** : standalone + `node --check` des modules/UI verts dans le run #681.
-- **CI** : run #681 (`3a7f13947fdae0bb3a4850b2bbfe7120cffe2897`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
-- **SHA réellement déployé** : `git:3a7f13947fdae0bb3a4850b2bbfe7120cffe2897`, version Cloudflare `10c41733-6c2f-41c6-bdcf-1be2fd06f6d8`, routage 100 %.
+- **CI** : run #683 (`c561a429311a4527abfc357922cfd489949b0ace`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:c561a429311a4527abfc357922cfd489949b0ace`, version Cloudflare `2c659bf5-67bb-4184-99bf-8ba60663ecc2`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : CI #682 en échec sur `idle-shop-sounds-achievements-menu-v1.test.mjs` : ancien test exige encore explicitement `user-scalable=no` / zoom désactivé (`AssertionError: viewport : zoom désactivé`). Le code d’accessibilité est sur `main`, mais aucun déploiement n’a eu lieu car la suite s’est arrêtée avant le build.
+- **Dernière anomalie / état notable** : l'échec CI #682 a été corrigé par la PR #22 ; CI #683 et déploiement production sont verts. Reste à traiter séparément la performance Lighthouse (rapport utilisateur : 44/100, plusieurs `/api/v1/call` ~157 Ko).
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider puis fusionner la branche `fix/lighthouse-accessibility`, vérifier tests/build/CI/déploiement/SHA production, puis traiter séparément la performance Lighthouse (appels `/api/v1/call` ~157 Ko) sans mélanger les causes.
+- **Prochaine action exacte** : analyser la taille des réponses de synchronisation `/api/v1/call` et réduire uniquement les données statiques/répétitives si cela peut être fait sans changer le contrat gameplay.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -36,7 +36,9 @@
 - Commit zoom : `ab9295ddd98cd92c8d91192479f375661502048a` — retire `user-scalable=no`, `maximum-scale=1` et les bloqueurs JS de pinch/Ctrl+molette.
 - Commit landmark : `b97e0421efd6f37dcb4b2cc5d1a7097805d28bc1` — les trois rendus racine du jeu utilisent désormais `<main>`.
 - Test ajouté : `237dd9b90d4bd4ca3e0c70b066e91fcbd63bb85b` — `idle-lighthouse-accessibility.test.mjs`.
-- Tests/build/CI/déploiement : en attente de validation.
+- PR #21 fusionnée puis ancien test contradictoire corrigé via PR #22.
+- CI #683 : SUCCESS complet ; `idle-lighthouse-accessibility.test.mjs` OK.
+- Production : SHA `c561a429311a4527abfc357922cfd489949b0ace`, version Cloudflare `2c659bf5-67bb-4184-99bf-8ba60663ecc2`, routage 100 %.
 
 ### Échec CI accessibilité — 2026-09-28
 - Run #682 sur `73172ebb2558ed867d7a5344f471faea397d92eb` : **FAIL** pendant `Run test suite`.
