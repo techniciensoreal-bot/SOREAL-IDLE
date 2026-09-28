@@ -5,17 +5,17 @@
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
 - **Tâche courante** : améliorer la performance de chargement initial signalée par Lighthouse (44/100) sans modifier le gameplay : CSS principal découvert plus tôt, scripts classiques SOREAL différés, démarrage après `DOMContentLoaded`.
-- **SHA `main` fonctionnel vérifié** : `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` (PR #20, correctif barre Time Machine).
+- **SHA `main` fonctionnel vérifié** : `1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade` (accessibilité Lighthouse + optimisation chargement initial + corrections de tests historiques).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
-- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #681 ; le nouveau test `idle-time-machine-live-bar-refresh.test.mjs` passe.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #681.
-- **CI** : run #683 (`c561a429311a4527abfc357922cfd489949b0ace`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
-- **SHA réellement déployé** : `git:c561a429311a4527abfc357922cfd489949b0ace`, version Cloudflare `2c659bf5-67bb-4184-99bf-8ba60663ecc2`, routage 100 %.
+- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #687 ; `idle-lighthouse-accessibility.test.mjs` et `idle-initial-load-defer.test.mjs` passent.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #687.
+- **CI** : run #687 (`1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade`, version Cloudflare `7d5aaedd-2b18-446f-a262-c70ba105ad8a`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : CI #686 en échec avant build sur `idle-meta-progression-module.test.mjs:100` : la mise à jour du test a introduit une regex JavaScript invalide (`SyntaxError: Invalid regular expression flags`). Aucun déploiement n'a eu lieu.
+- **Dernière anomalie / état notable** : aucune erreur CI/build/déploiement connue sur le dernier SHA fonctionnel. Les appels périodiques `/api/v1/call` renvoient encore l’état complet ; le rapport utilisateur observait ~157 Ko par réponse, mais ce point n’a pas été modifié faute de mesure prouvant qu’il est la cause du score Lighthouse 44.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : remplacer l’assertion regex fautive de `idle-meta-progression-module.test.mjs` par une vérification littérale du tag `defer`, puis relancer la CI complète.
+- **Prochaine action exacte** : refaire un Lighthouse authentifié sur la page réellement utilisée par Norman pour mesurer les nouveaux scores et identifier les audits Performance/Best Practices encore rouges ; ne pas modifier le protocole de synchro avant cette mesure.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -53,7 +53,10 @@
 - Commit `0e802e9acd304d4539eecfb2f1d7afd737c371a6` : CSS principal déplacé dans le `head`, scripts classiques same-origin passés en `defer`, démarrage standalone reporté à `DOMContentLoaded`, bannière initiale en `fetchpriority="high"`.
 - Dépendance Piper externe laissée bloquante volontairement pour préserver le global attendu par le module local.
 - Test ajouté : `9c6db74fc572227ba4688a795dcec58a435c6308` — `idle-initial-load-defer.test.mjs`.
-- Tests/build/CI/déploiement : en attente.
+- PR #23 fusionnée ; tests historiques adaptés via PR #24, #25 et #26.
+- CI #687 : SUCCESS complet.
+- Production : SHA `1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade`, version Cloudflare `7d5aaedd-2b18-446f-a262-c70ba105ad8a`, routage 100 %.
+- Smoke Chromium/Piper : SUCCESS.
 
 ### Échec CI performance — 2026-09-28
 - Run #684 sur `39a302e02ade75176260443d12196367002285e1` : **FAIL** pendant la suite de tests.
