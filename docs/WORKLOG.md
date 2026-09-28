@@ -4,7 +4,7 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : corriger le dernier défaut Lighthouse d'accessibilité sur le texte de prérequis Basic Training verrouillé. Cause réelle : `opacity:.52` appliquée au parent `.soreal-idle-bt-row-v120.locked`, qui dégradait la couleur effective malgré `#d1d5db`.
+- **Tâche courante** : audit et correction ciblés des freezes iPhone/Safari iOS. Deux hotspots confirmés : boucle visible lourde exécutée au rythme `requestAnimationFrame` (~60 Hz) et analyse d'ambiance `fetch -> arrayBuffer -> decodeAudioData()` sur Web Audio.
 - **SHA `main` fonctionnel vérifié** : `7af71b8c728040df56066c3869ff5a3d7d519a3b` (correctif final du contraste effectif des prérequis Basic Training verrouillés).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
 - **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #688 ; `idle-lighthouse-accessibility.test.mjs` passe avec la garde sur l’opacité des lignes verrouillées.
@@ -15,7 +15,7 @@
 - **Dernière anomalie / état notable** : aucune erreur CI/build/déploiement connue sur le dernier SHA fonctionnel. Le dernier défaut Lighthouse d’accessibilité identifié (prérequis Basic Training à 3.98:1) a été corrigé à la source en supprimant l’opacité héritée du parent sur le texte.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : refaire un Lighthouse authentifié sur la page réellement utilisée pour confirmer le score d’accessibilité et identifier uniquement les éventuels audits encore rouges.
+- **Prochaine action exacte** : valider la branche `fix/ios-freeze-hotspots`, fusionner si verte, vérifier CI/build/déploiement/SHA, puis faire tester la stabilité sur iPhone.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -87,6 +87,14 @@
 - CI #688 : SUCCESS complet ; `idle-lighthouse-accessibility.test.mjs` OK.
 - Production : SHA `7af71b8c728040df56066c3869ff5a3d7d519a3b`, version Cloudflare `36ef21fd-809f-42da-887c-af30c262afb1`, routage 100 %.
 - Smoke Chromium/Piper : SUCCESS.
+
+### Correctifs freeze iPhone/Safari en cours — 2026-09-28
+- `main` de départ : `244f58d3b8ab507f1a34726b1350d588d7454d94`.
+- Hotspot 1 : `mettreAJourJeuIdleLocalV7_()` était exécutée à chaque frame via `requestAnimationFrame` (souvent ~60 Hz), avec de nombreuses lectures/écritures DOM et calculs combat/Basic Training. Commit `5d9a0c90c5722714b1c2a1c535d609a798bfbd68` : plafonnement des mises à jour lourdes à 15 Hz ; la progression reste basée sur le temps réel écoulé (`dt`).
+- Hotspot 2 : l'ambiance analysait chaque nouveau fichier par `fetch -> arrayBuffer -> AudioContext.decodeAudioData()`. Commit `6401cd3fd768579c1f3c6a79c2795ed1f7c405f1` : sur iPhone/iPadOS/WKWebView, l'ambiance reste lue via `HTMLAudio` mais l'analyse/amplification Web Audio est désactivée.
+- Le farming Adventure en arrière-plan n'est pas supprimé par ces changements.
+- Test ajouté : `e0aed0f920edd96e817cea79a70c8cfc9026f37a` — `idle-ios-freeze-guards.test.mjs`.
+- Validation CI/build/déploiement : en attente.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
