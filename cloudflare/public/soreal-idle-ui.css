@@ -6913,7 +6913,18 @@ html,body{overflow-x:hidden}
           }
 
           .soreal-idle-bt-row-v120.locked{
+            /*
+             * Ne pas réduire l'opacité de toute la ligne : cela mélangeait
+             * aussi le texte de prérequis avec le fond (#152035) et ramenait
+             * son contraste réel sous 4.5:1 malgré une couleur CSS claire.
+             */
+            opacity:1;
+          }
+          .soreal-idle-bt-row-v120.locked > :not(.soreal-idle-bt-main-v120){
             opacity:.52;
+          }
+          .soreal-idle-bt-row-v120.locked .soreal-idle-bt-name-v120{
+            opacity:.62;
           }
 
           .soreal-idle-bt-name-v120{
