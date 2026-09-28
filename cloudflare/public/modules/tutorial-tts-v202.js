@@ -228,11 +228,21 @@
     });
   }
 
-  /* Précharge les fichiers de voix d'un texte (sans le lire) : appelé pour la page suivante d'un popup. */
+  /*
+   * Précharge les fichiers de voix d'un texte (sans le lire) : appelé pour la page suivante d'un popup.
+   * Norman (2026-09-28) : quand aucun fichier pré-généré n'existe pour un bloc, la synthèse Piper elle-même
+   * est aussi préchauffée en arrière-plan (voir requestLocalNeuralAudio_/blocsPiperCache_ ci-dessus), jamais
+   * seulement son fichier -- sinon la lecture réelle repart toujours de zéro au moment de lire.
+   */
   function prechauffer_(value){
     if(!supported_())return false;
     planNarration_(String(value||'')).forEach(function(etape){
-      if(etape.chunk)chargerBlocFichier_(etape.chunk);
+      if(!etape.chunk)return;
+      var texte=etape.chunk;
+      chargerBlocFichier_(texte).then(function(blob){
+        if(blob)return;
+        requestLocalNeuralAudio_(texte,'',generation,true).catch(function(){});
+      });
     });
     return true;
   }
@@ -558,11 +568,30 @@
     });
   }
 
+  /*
+   * Norman (2026-09-28) : « c'est vraiment le début du texte qui pose problème. La lecture doit démarrer
+   * beaucoup plus vite. » Une fois la fin de chaque étape bien calée (Beta 5.7), il restait ~10 s avant même
+   * le DÉBUT de la lecture : prechauffer_ (Beta 5.4) ne vérifiait que le manifeste des fichiers pré-générés
+   * (toujours vides pour cette scène, faute d'accès réseau pour voice-generate.mjs) -- jamais la synthèse
+   * Piper elle-même, qui reste donc lancée à froid au moment exact où la lecture démarre. Ce cache partagé,
+   * indexé par empreinte de texte (comme chargerBlocFichier_ plus haut), permet à prechauffer_ de lancer la
+   * synthèse Piper en AVANCE pendant la lecture de l'étape précédente : à l'étape suivante, le blob est déjà
+   * prêt (ou en cours) au lieu de repartir de zéro.
+   */
+  var blocsPiperCache_={};
   function requestLocalNeuralAudio_(text,targetId,expectedGeneration,silent){
+    var hash=hashBloc_(text);
     return waitLocalNeuralApi_().then(function(api){
       if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
       if(!api||typeof api.synthesize!=='function'){
         throw new Error('PIPER_LOCAL_API_INDISPONIBLE');
+      }
+
+      if(blocsPiperCache_[hash]){
+        return blocsPiperCache_[hash].then(function(blob){
+          if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
+          return blob;
+        });
       }
 
       var unsubscribe=typeof api.subscribe==='function'&&!silent
@@ -573,10 +602,16 @@
         })
         :function(){};
 
-      return Promise.resolve(api.synthesize(String(text||'')))
+      var synthese=Promise.resolve(api.synthesize(String(text||'')))
+        .then(function(blob){
+          if(!blob||!blob.size)throw new Error('PIPER_LOCAL_AUDIO_VIDE');
+          return blob;
+        });
+      blocsPiperCache_[hash]=synthese.catch(function(err){delete blocsPiperCache_[hash];throw err;});
+
+      return synthese
         .then(function(blob){
           if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
-          if(!blob||!blob.size)throw new Error('PIPER_LOCAL_AUDIO_VIDE');
           return blob;
         })
         .finally(function(){

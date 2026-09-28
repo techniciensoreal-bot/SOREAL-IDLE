@@ -2132,3 +2132,15 @@ Norman : « La scène défile super vite et je n'ai pas de voix. »
 Tests : `idle-story-popup-magicien-v1` (cas 11 revu avec un `Date.now` simulé pour distinguer lecture réelle/échec instantané ; nouveau cas 11bis pour l'échec instantané).
 
 Versions : story-popup `6`, notes `41`, Beta `5.7`.
+
+## 2026-09-28 (suite) — IDLE Beta 5.8 « La voix se lance plus tôt »
+
+Norman, après avoir confirmé que la fin de chaque étape est désormais bien calée (Beta 5.7) : « quand la première image de l'histoire s'affiche, le temps met une dizaine de secondes à se jouer [...] c'est vraiment le début du texte qui pose problème ici. La lecture doit démarrer beaucoup plus vite. »
+
+- **Cause** : `prechauffer_` (`tutorial-tts-v202.js`, Beta 5.4) ne vérifiait que le manifeste des fichiers de voix pré-générés -- toujours vide pour cette scène, faute d'accès réseau pour lancer `voice-generate.mjs`. Il ne préchauffait jamais la synthèse Piper elle-même : la lecture réelle relançait donc systématiquement une synthèse à froid (~10 s) au moment exact où elle devait démarrer.
+- **Correctif** : `requestLocalNeuralAudio_` met désormais en cache sa synthèse par empreinte de texte (`blocsPiperCache_`, même principe que `chargerBlocFichier_` pour les fichiers pré-générés). `prechauffer_` lance cette synthèse en arrière-plan dès qu'aucun fichier pré-généré n'est trouvé pour un bloc : à la lecture réelle de l'étape suivante, le blob est déjà prêt (ou en cours) au lieu d'être resynthétisé de zéro.
+- Une fois les fichiers pré-générés créés (`node cloudflare/tools/voice-generate.mjs --prune`, toujours en attente d'un poste avec accès réseau), ce chemin Piper ne sera plus emprunté du tout et ce correctif deviendra inutile mais restera inoffensif.
+
+Tests : nouveau `idle-tts-piper-prechauffage-v1` (comportemental, bac à sable réel du module : préchauffer un texte puis le lire ne synthétise qu'une fois ; un texte différent est bien synthétisé séparément), cache-bust (`idle-tutorial-tts-v202`, `idle-local-piper-neural`).
+
+Versions : tts `241`, notes `42`, Beta `5.8`.

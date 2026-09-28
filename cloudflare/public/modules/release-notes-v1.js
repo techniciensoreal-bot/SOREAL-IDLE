@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.7',
+    courante:'5.8',
     versions:[
+      {
+        version:'5.8',
+        nom:'La voix se lance plus tôt',
+        date:'2026-09-28',
+        points:[
+          'Le début de la voix de la scène spéciale du boss 18 démarre nettement plus vite.',
+          'Optimisation du préchargement de la narration entre deux étapes.',
+          'Petits ajustements supplémentaires sur la synthèse vocale.'
+        ]
+      },
       {
         version:'5.7',
         nom:'On reprend le bon rythme',
