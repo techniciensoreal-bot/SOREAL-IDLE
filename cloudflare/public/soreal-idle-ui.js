@@ -1797,7 +1797,7 @@
 
         document.getElementById('app').innerHTML=
           header()+
-          `<section class="soreal-idle-native-v4">
+          `<main class="soreal-idle-native-v4">
             <div class="soreal-idle-hero-v4">
               <div class="soreal-idle-kicker-v4">SOREAL</div>
               <div class="soreal-idle-title-v4">SOREAL IDLE</div>
@@ -1839,7 +1839,7 @@
                 Connexion au moteur…
               </div>
             </div>
-          </section>`;
+          </main>`;
 
         demarrerAnimationChargementIdleV55_();
       }
@@ -1851,7 +1851,7 @@
 
         document.getElementById('app').innerHTML=
           header()+
-          `<section class="soreal-idle-native-v4">
+          `<main class="soreal-idle-native-v4">
             <div class="soreal-idle-hero-v4">
               <div class="soreal-idle-kicker-v4">Prototype privé</div>
               <div class="soreal-idle-title-v4">SOREAL IDLE</div>
@@ -1861,7 +1861,7 @@
             <div class="soreal-idle-status-v4 error">
               ${idleHtml_(message||'Erreur inconnue')}
             </div>
-          </section>`;
+          </main>`;
       }
 
       let idleDernierTickLocalV40=Date.now();
@@ -22605,7 +22605,7 @@ function pageAventureIdleV28_(j){
 
         document.getElementById('app').innerHTML=
           header()+
-          `<section class="soreal-idle-native-v4">
+          `<main class="soreal-idle-native-v4">
             <div class="soreal-idle-hero-v4 soreal-idle-hero-banner-v95">
               ${
                 j.banniereDriveFileId
@@ -22634,7 +22634,7 @@ function pageAventureIdleV28_(j){
             <div class="soreal-idle-page-root-v28" style="--nav-color:${idleHtml_(IDLE_NAV_COULEURS_V1[idleMenuActifV28]||'#5b6b93')}">
               ${contenuMenuIdleV28_(j)}
             </div>
-          </section>`;
+          </main>`;
 
         if(
           idleMenuActifV28==='moneyPit'&&

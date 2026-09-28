@@ -4416,8 +4416,9 @@ html,body{overflow-x:hidden}
           }
 
           body.soreal-idle-active-v47 .soreal-idle-nav-button-v28.active{
-            background:var(--nav-color,#2b4165) !important;
-            color:#f4f8ff !important;
+            /* Contraste WCAG : assombrit la teinte du menu actif sans perdre son identité visuelle. */
+            background:color-mix(in srgb,var(--nav-color,#2b4165) 68%,#000 32%) !important;
+            color:#fff !important;
             box-shadow:0 6px 16px color-mix(in srgb,var(--nav-color,#2b4165) 55%,transparent) !important;
           }
 
@@ -6924,7 +6925,7 @@ html,body{overflow-x:hidden}
           .soreal-idle-bt-lock-v120,
           .soreal-idle-bt-meta-v120{
             margin-top:5px;
-            color:#8291aa;
+            color:#d1d5db;
             font-size:8px;
             font-weight:850;
           }
