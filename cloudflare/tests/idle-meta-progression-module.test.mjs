@@ -97,7 +97,7 @@ assert.doesNotMatch(
 
 // --- le script du nouveau module doit être chargé avant le monolithe ---
 const indexHtml = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(indexHtml.includes('<script defer src="/modules/meta-progression-v130.js?v=202609275"></script>'));
+assert.ok(indexHtml.includes('<script defer src="/modules/meta-progression-v130.js?v='), "module méta chargé en defer avec cache-buster");
 const posModule = indexHtml.indexOf("/modules/meta-progression-v130.js");
 const posMonolithe = indexHtml.indexOf("/soreal-idle-ui.js");
 assert.ok(posModule > -1 && posMonolithe > -1 && posModule < posMonolithe);
