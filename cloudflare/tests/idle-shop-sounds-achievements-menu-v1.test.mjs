@@ -120,12 +120,12 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
   assert.ok(/boosterObjetEquipeAdventureIdleV1_\(id\)\s*\)\{\s*return;/.test(ui), "branché sur le double tap des pièces équipées");
 }
 
-// --- Zoom interdit ; plus d'éclat blanc sur la barre verte ; popup Achievements au premier succès ---
+// --- Zoom accessible ; plus d'éclat blanc sur la barre verte ; popup Achievements au premier succès ---
 {
   const index = readFileSync("cloudflare/public/index.html", "utf8");
   const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-  assert.ok(index.includes("maximum-scale=1,user-scalable=no"), "viewport : zoom désactivé");
-  assert.ok(index.includes("touch-action:pan-x pan-y") && index.includes('"gesturestart"'), "pincement et double tap coupés");
+  assert.ok(!index.includes("user-scalable=no") && !index.includes("maximum-scale=1"), "viewport : zoom navigateur autorisé");
+  assert.ok(!index.includes("touch-action:pan-x pan-y") && !index.includes('"gesturestart"'), "aucun bloqueur JS/CSS du pincement");
   assert.ok(!index.includes("sorealIdleEnergyShineV11") && !ui.includes('id="sorealIdleEnergyShineV11"'), "l'éclat blanc n'est plus dans la barre");
   assert.ok(/soreal-idle-energybar-shine-v11,\s*\.soreal-idle-energybar-shine-v11\.tick\{\s*display:none !important;/.test(css), "l'éclat est masqué même s'il subsistait");
   assert.ok(/function jouerEclatEnergieTickIdleV13_\(\)\{[^}]*?return;/.test(ui), "plus d'animation d'éclat à chaque tick");
