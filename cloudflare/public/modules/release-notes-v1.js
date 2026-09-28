@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.8',
+    courante:'5.9',
     versions:[
+      {
+        version:'5.9',
+        nom:'Les images d’objets retrouvées',
+        date:'2026-09-28',
+        points:[
+          'Correction de la recherche d’image de certains objets spéciaux, qui pouvait manquer une image pourtant bien ajoutée.',
+          'Les objets spéciaux sont désormais reconnus par leur identifiant exact plutôt que par leur nom seul.',
+          'Petits ajustements supplémentaires sur l’affichage des objets.'
+        ]
+      },
       {
         version:'5.8',
         nom:'La voix se lance plus tôt',

@@ -2144,3 +2144,29 @@ Norman, après avoir confirmé que la fin de chaque étape est désormais bien c
 Tests : nouveau `idle-tts-piper-prechauffage-v1` (comportemental, bac à sable réel du module : préchauffer un texte puis le lire ne synthétise qu'une fois ; un texte différent est bien synthétisé séparément), cache-bust (`idle-tutorial-tts-v202`, `idle-local-piper-neural`).
 
 Versions : tts `241`, notes `42`, Beta `5.8`.
+
+## 2026-09-28 (suite) — IDLE Beta 5.9 « Les images d'objets retrouvées »
+
+Norman : « J'ai ajouté Item_0432_Tuba_of_Time.webp dans items sur le R2. Mais l'image n'est pas prise
+en compte. Il faut que le jeu cherche les items par ID. » Il a lui-même identifié la cause exacte :
+`item-specials-early-v75.js` construisait l'URL média avec `set=specials-early&name=tubaTime` — ni le
+vrai nom NGU (`Tuba of Time`), ni surtout `wikiItemId`, alors que le fichier R2 suit la convention
+`Item_<ID wiki>_<nom>.<ext>`.
+
+Vérification côté moteur (idle-adventure-v47.js, IDLE_ADVENTURE_WIKI_ITEM_IDS_V1.tubaTime, couvert par
+idle-wiki-item-ids.test.mjs) : chaque objet spécial transporte déjà `wikiItemId` (432 pour Tuba of
+Time) depuis le serveur vers le client — rien à ajouter côté moteur. Vérification côté Worker média
+(idle-media-v1.js, itemSet_) : la résolution par `wikiItemId` exact (choisirObjetItemR2ParId_) est déjà
+prioritaire sur la résolution floue par nom — rien à ajouter côté route non plus. Le seul maillon
+manquant était purement client : `item-specials-early-v75.js` ne transmettait jamais ce `wikiItemId`
+pourtant déjà disponible sur chaque objet.
+
+Fix : `urlImage_` reçoit maintenant l'objet complet et ajoute `wikiItemId=<objet.wikiItemId>` à l'URL
+quand il est connu (`name` reste l'id SOREAL camelCase, jamais le vrai nom espacé — le Worker rejette
+tout paramètre contenant un espace). Sans wikiItemId sur l'objet (ancien snapshot), le comportement
+précédent est conservé à l'identique (aucune régression).
+
+Tests : cloudflare/tests/idle-specials-early-image-wiki-id-v1.test.mjs (nouveau : assertions statiques
++ comportement réel de urlImage_ avec/sans wikiItemId). Suite complète : 410/410 OK.
+
+Versions : release-notes-v1.js v43, Beta 5.9.

@@ -102,9 +102,14 @@
     })||null;
   }
 
-  function urlImage_(id){
+  function urlImage_(id,objet){
     var pack=SPECIAL_PACKS_V76[id]||'specials-early';
-    return '/api/idle/media/item?set='+encodeURIComponent(pack)+'&name='+encodeURIComponent(id);
+    var p=new URLSearchParams();
+    p.set('set',pack);
+    p.set('name',id);
+    var wikiItemId=objet&&objet.wikiItemId;
+    if(wikiItemId)p.set('wikiItemId',String(wikiItemId));
+    return '/api/idle/media/item?'+p.toString();
   }
 
   function binder_(img,fallback){
@@ -122,7 +127,7 @@
 
   function installer_(host,objet,id,alt,mode){
     if(!host||!SPECIALS_V75[id])return;
-    var url=urlImage_(id);
+    var url=urlImage_(id,objet);
     if(host.dataset.v75SpecialId===id)return;
 
     var fallbackTexte=String(host.textContent||'').trim()||'🎁';
