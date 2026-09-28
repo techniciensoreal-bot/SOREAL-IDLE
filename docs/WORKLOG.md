@@ -4,7 +4,7 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : améliorer la performance de chargement initial signalée par Lighthouse (44/100) sans modifier le gameplay : CSS principal découvert plus tôt, scripts classiques SOREAL différés, démarrage après `DOMContentLoaded`.
+- **Tâche courante** : corriger le dernier défaut Lighthouse d'accessibilité sur le texte de prérequis Basic Training verrouillé. Cause réelle : `opacity:.52` appliquée au parent `.soreal-idle-bt-row-v120.locked`, qui dégradait la couleur effective malgré `#d1d5db`.
 - **SHA `main` fonctionnel vérifié** : `1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade` (accessibilité Lighthouse + optimisation chargement initial + corrections de tests historiques).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
 - **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #687 ; `idle-lighthouse-accessibility.test.mjs` et `idle-initial-load-defer.test.mjs` passent.
@@ -15,7 +15,7 @@
 - **Dernière anomalie / état notable** : aucune erreur CI/build/déploiement connue sur le dernier SHA fonctionnel. Les appels périodiques `/api/v1/call` renvoient encore l’état complet ; le rapport utilisateur observait ~157 Ko par réponse, mais ce point n’a pas été modifié faute de mesure prouvant qu’il est la cause du score Lighthouse 44.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : refaire un Lighthouse authentifié sur la page réellement utilisée par Norman pour mesurer les nouveaux scores et identifier les audits Performance/Best Practices encore rouges ; ne pas modifier le protocole de synchro avant cette mesure.
+- **Prochaine action exacte** : valider la branche `fix/locked-prerequisite-contrast`, fusionner si verte, puis vérifier CI/build/déploiement/SHA avant de considérer l’accessibilité corrigée.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -77,6 +77,13 @@
 - Erreur exacte : `idle-meta-progression-module.test.mjs:100` — `SyntaxError: Invalid regular expression flags`.
 - Cause : échappement incorrect dans la regex du test ajouté pour `defer` ; le code de production n’a pas été exécuté ni déployé.
 - Correction prévue : assertion `indexHtml.includes(...)` littérale, plus simple et non ambiguë.
+
+### Correctif contraste prérequis verrouillés en cours — 2026-09-28
+- Audit utilisateur : contraste mesuré 3.98:1 sur les textes « Requiert 15K niveaux... », couleur effective ~`#777e8b` sur `#152035`.
+- Vérification code : la couleur déclarée est déjà `#d1d5db`, mais le parent `.soreal-idle-bt-row-v120.locked` applique `opacity:.52`, ce qui assombrit effectivement le texte.
+- Commit `dad774d0affc7c400065973958bcc53980041cbd` : parent verrouillé remis à opacité 1 ; seuls les contrôles non textuels restent atténués, et le nom verrouillé reste légèrement atténué séparément.
+- Commit test `930e6c6e4900c2175dc84ad1b32f4244b1aceb4f` : garde de non-régression dans `idle-lighthouse-accessibility.test.mjs`.
+- Tests/build/CI/déploiement : en attente.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
