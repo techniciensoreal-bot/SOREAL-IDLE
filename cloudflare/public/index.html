@@ -20,6 +20,7 @@
   <meta name="theme-color" content="#0b1b39">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/soreal-idle-ui.css?v=10">
   <title>SOREAL IDLE</title>
   <style>
     /* Accessibilité : laisser le navigateur gérer le zoom/pinch. */
@@ -83,6 +84,7 @@
         <img
           class="soreal-idle-loading-banner"
           src="https://drive.google.com/thumbnail?id=1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb&sz=w1200"
+          fetchpriority="high"
           alt="SOREAL IDLE"
         >
         <div class="soreal-idle-loading-title">SOREAL IDLE</div>
@@ -119,46 +121,45 @@
       };
     })();
   </script>
-  <link rel="stylesheet" href="/soreal-idle-ui.css?v=10">
-  <script src="/standalone-bridge.js?v=4"></script>
-  <script src="/modules/runtime.js"></script>
-  <script src="/modules/ui.js?v=50"></script>
-  <script src="/modules/adventure-scene-v79.js?v=2025"></script>
-  <script src="/modules/interaction-repair-v79.js"></script>
-  <script src="/modules/basic-training-stability-v121.js"></script>
-  <script src="/modules/item-images-r2-v74.js"></script>
-  <script src="/modules/item-specials-early-v75.js"></script>
-  <script src="/modules/item-infinity-cubes-r2-v78.js"></script>
-  <script src="/modules/item-extra-r2-v77.js"></script>
-  <script src="/modules/item-presentation-v1.js"></script>
-  <script src="/modules/number-format-v1.js"></script>
-  <script src="/modules/time-format-v1.js"></script>
-  <script src="/modules/text-helpers-v1.js"></script>
-  <script src="/modules/inventory-presentation-v1.js"></script>
-  <script src="/modules/text-transforms-v1.js"></script>
-  <script src="/modules/release-notes-v1.js?v=43"></script>
-  <script src="/modules/chat-v1.js?v=1"></script>
-  <script src="/modules/meta-progression-v130.js?v=202609275"></script>
-  <script src="/modules/the-end-ui-v1.js?v=1"></script>
-  <script src="/modules/fade-notice-v1.js?v=2"></script>
-  <script src="/modules/bug-report-v1.js?v=2"></script>
-  <script src="/modules/stats-detail-v1.js?v=2"></script>
-  <script src="/modules/rebirth-live-v1.js?v=1"></script>
-  <script src="/modules/tutorial-framing-v1.js?v=4"></script>
-  <script src="/modules/tutorial-hint-v1.js?v=3"></script>
-  <script src="/modules/itopod-scene-v1.js?v=1"></script>
-  <script src="/modules/cooking-v1.js?v=1"></script>
-  <script src="/modules/profile-v1.js?v=4"></script>
-  <script src="/modules/questing-v1.js?v=1"></script>
-  <script src="/modules/macguffins-v1.js?v=2"></script>
-  <script src="/modules/inventory-auto-v1.js?v=9"></script>
-  <script src="/modules/audio-volume-v1.js?v=3"></script>
-  <script src="/modules/audio-effects-v199.js?v=226"></script>
-  <script src="/modules/purchase-sound-v1.js?v=4"></script>
-  <script src="/modules/alloc-pop-v1.js?v=1"></script>
-  <script src="/modules/achievement-notice-v1.js?v=1"></script>
-  <script src="/modules/ambient-audio-v1.js?v=4"></script>
-  <script src="/modules/long-press-v200.js?v=201"></script>
+  <script defer src="/standalone-bridge.js?v=4"></script>
+  <script defer src="/modules/runtime.js"></script>
+  <script defer src="/modules/ui.js?v=50"></script>
+  <script defer src="/modules/adventure-scene-v79.js?v=2025"></script>
+  <script defer src="/modules/interaction-repair-v79.js"></script>
+  <script defer src="/modules/basic-training-stability-v121.js"></script>
+  <script defer src="/modules/item-images-r2-v74.js"></script>
+  <script defer src="/modules/item-specials-early-v75.js"></script>
+  <script defer src="/modules/item-infinity-cubes-r2-v78.js"></script>
+  <script defer src="/modules/item-extra-r2-v77.js"></script>
+  <script defer src="/modules/item-presentation-v1.js"></script>
+  <script defer src="/modules/number-format-v1.js"></script>
+  <script defer src="/modules/time-format-v1.js"></script>
+  <script defer src="/modules/text-helpers-v1.js"></script>
+  <script defer src="/modules/inventory-presentation-v1.js"></script>
+  <script defer src="/modules/text-transforms-v1.js"></script>
+  <script defer src="/modules/release-notes-v1.js?v=43"></script>
+  <script defer src="/modules/chat-v1.js?v=1"></script>
+  <script defer src="/modules/meta-progression-v130.js?v=202609275"></script>
+  <script defer src="/modules/the-end-ui-v1.js?v=1"></script>
+  <script defer src="/modules/fade-notice-v1.js?v=2"></script>
+  <script defer src="/modules/bug-report-v1.js?v=2"></script>
+  <script defer src="/modules/stats-detail-v1.js?v=2"></script>
+  <script defer src="/modules/rebirth-live-v1.js?v=1"></script>
+  <script defer src="/modules/tutorial-framing-v1.js?v=4"></script>
+  <script defer src="/modules/tutorial-hint-v1.js?v=3"></script>
+  <script defer src="/modules/itopod-scene-v1.js?v=1"></script>
+  <script defer src="/modules/cooking-v1.js?v=1"></script>
+  <script defer src="/modules/profile-v1.js?v=4"></script>
+  <script defer src="/modules/questing-v1.js?v=1"></script>
+  <script defer src="/modules/macguffins-v1.js?v=2"></script>
+  <script defer src="/modules/inventory-auto-v1.js?v=9"></script>
+  <script defer src="/modules/audio-volume-v1.js?v=3"></script>
+  <script defer src="/modules/audio-effects-v199.js?v=226"></script>
+  <script defer src="/modules/purchase-sound-v1.js?v=4"></script>
+  <script defer src="/modules/alloc-pop-v1.js?v=1"></script>
+  <script defer src="/modules/achievement-notice-v1.js?v=1"></script>
+  <script defer src="/modules/ambient-audio-v1.js?v=4"></script>
+  <script defer src="/modules/long-press-v200.js?v=201"></script>
   <!--
     2026-09-23 (audit) : ni ort.min.mjs (via cet importmap) ni
     piper_phonemize.js ci-dessous n'avaient de Subresource Integrity --
@@ -179,9 +180,13 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>
   <script type="module" src="/modules/local-neural-piper-v1.js?v=13"></script>
-  <script src="/modules/tutorial-tts-v202.js?v=241"></script>
-  <script src="/modules/story-popup-v1.js?v=6"></script>
-  <script src="/soreal-idle-ui.js?v=313"></script>
-  <script>window.__SOREAL_IDLE_STANDALONE_V1__.start();</script>
+  <script defer src="/modules/tutorial-tts-v202.js?v=241"></script>
+  <script defer src="/modules/story-popup-v1.js?v=6"></script>
+  <script defer src="/soreal-idle-ui.js?v=313"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded",function(){
+      window.__SOREAL_IDLE_STANDALONE_V1__.start();
+    },{once:true});
+  </script>
 </body>
 </html>
