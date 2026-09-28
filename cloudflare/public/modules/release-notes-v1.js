@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.6',
+    courante:'5.7',
     versions:[
+      {
+        version:'5.7',
+        nom:'On reprend le bon rythme',
+        date:'2026-09-28',
+        points:[
+          'Correction d’un défilement trop rapide de la scène spéciale du boss 18 quand la voix ne joue pas.',
+          'Le texte reste maintenant affiché assez longtemps pour être lu, même sans voix.',
+          'Réglages fins supplémentaires sur le rythme de cette scène.'
+        ]
+      },
       {
         version:'5.6',
         nom:'Un peu de patience visuelle',

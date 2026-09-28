@@ -2121,3 +2121,14 @@ Norman : « La scène n'est pas arrangée. Il y a toujours des lenteurs entre le
 Tests : `idle-story-popup-magicien-v1` (nouveau cas 12 : indicateur de chargement affiché/masqué).
 
 Versions : story-popup `5`, notes `40`, Beta `5.6`.
+
+## 2026-09-28 (suite) — IDLE Beta 5.7 « On reprend le bon rythme »
+
+Norman : « La scène défile super vite et je n'ai pas de voix. »
+
+- **Régression introduite par Beta 5.4** : la grâce fixe courte après `readText` (`PAUSE_MIN_APRES_LECTURE_MS`, 500 ms) partait du principe que le rappel de `readText` ne peut arriver qu'après une vraie lecture. Faux : ce même rappel arrive AUSSI en cas d'échec ou de voix indisponible (voir le commentaire de `narrate_` dans `tutorial-tts-v202.js` : « succès, échec, ou refus immédiat »). Sans voix pré-générée pour cette scène (toujours bloqué par l'absence d'accès réseau dans ce bac à sable, voir Beta 5.4/5.6), chaque tentative de lecture échouait quasi instantanément, et les 5 étapes défilaient en 2-3 secondes au lieu du temps de lecture normal.
+- **Correctif** : la grâce courte ne s'applique désormais que si un temps significatif (`800 ms`) s'est réellement écoulé entre le lancement de la lecture et son rappel -- preuve qu'un son a effectivement commencé à jouer. En dessous de ce seuil (échec/voix indisponible), on retombe sur l'ancien comportement (le plancher approximatif de lecture, 4 à 30 s selon la longueur du texte) : le texte reste affiché assez longtemps pour être lu même sans voix, au lieu de défiler.
+
+Tests : `idle-story-popup-magicien-v1` (cas 11 revu avec un `Date.now` simulé pour distinguer lecture réelle/échec instantané ; nouveau cas 11bis pour l'échec instantané).
+
+Versions : story-popup `6`, notes `41`, Beta `5.7`.

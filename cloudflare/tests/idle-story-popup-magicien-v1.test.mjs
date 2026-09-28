@@ -234,8 +234,8 @@ function charger(window, document, horloge) {
 
 // 11. Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire » + « long écran noir avant
 //     qu'elle ne lise la suite ». Préchargement de l'étape suivante pendant la lecture (jamais une lecture
-//     interrompue), et une fois la lecture RÉELLEMENT terminée, une grâce fixe courte -- jamais toute la durée
-//     restante jusqu'au plancher approximatif.
+//     interrompue), et une fois la lecture RÉELLEMENT terminée (un temps significatif s'est écoulé), une grâce
+//     fixe courte -- jamais toute la durée restante jusqu'au plancher approximatif.
 {
   const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
   window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
@@ -243,7 +243,9 @@ function charger(window, document, horloge) {
   window_.__SOREAL_IDLE_TUTORIAL_TTS_V209__ = {
     prechauffer(texte) { prechauffeAppels.push(texte); return true; },
     readText(texte, _audioSrc, onDone) {
-      // Lecture "instantanée" (fichier déjà en cache/préchargé) : le rappel arrive tout de suite.
+      // Lecture qui a RÉELLEMENT pris du temps (le mock avance l'horloge fictive avant de rappeler) : simulé
+      // ici en avançant Date.now (le module lit le vrai Date.now global, jamais injecté dans le bac à sable).
+      dateNowFictif += 3000;
       onDone();
       return true;
     }
@@ -252,19 +254,52 @@ function charger(window, document, horloge) {
   const horloge = fabriquerHorloge();
   const api = charger(window_, document_, horloge);
 
-  // Préchargement des étapes 0 et 1 dès l'ouverture, avant même le montage du DOM.
+  let dateNowFictif = Date.now();
+  const dateNowOriginal = Date.now;
+  Date.now = () => dateNowFictif;
+  try {
+    // Préchargement des étapes 0 et 1 dès l'ouverture, avant même le montage du DOM.
+    api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
+    const etapes = api.etapes();
+    assert.deepEqual(prechauffeAppels, [etapes[0].texte, etapes[1].texte, etapes[1].texte], "étapes 0 et 1 préchargées au démarrage, étape 1 repréchargée (sans effet, déjà en cache) dès le début de l'étape 0");
+
+    // Lecture réellement jouée (3 s simulées ci-dessus) : l'attente avant l'étape suivante doit être une grâce
+    // fixe courte (PAUSE_MIN_APRES_LECTURE_MS), jamais liée à la longueur du texte (le plancher dépasserait 4 s).
+    const delais = horloge.delaisEnAttente();
+    assert.ok(delais.length > 0 && delais.every((ms) => ms <= 600), "attente courte après une lecture réellement terminée, jamais le plancher complet : " + JSON.stringify(delais));
+
+    while (horloge.avancer()) {}
+    // Chaque étape suivante doit elle aussi avoir été préchargée en cours de route (étapes 2, 3, 4).
+    assert.ok(prechauffeAppels.includes(etapes[2].texte) && prechauffeAppels.includes(etapes[3].texte) && prechauffeAppels.includes(etapes[4].texte), "chaque étape suivante est préchargée pendant la lecture de la précédente");
+  } finally {
+    Date.now = dateNowOriginal;
+  }
+}
+
+// 11bis. Norman (2026-09-28) : « la scène défile super vite et je n'ai pas de voix » -- régression du correctif
+//        précédent : le rappel de readText arrive AUSSI quand la lecture échoue ou n'a jamais démarré (voix
+//        indisponible, erreur réseau), pas seulement à la fin d'une vraie lecture. Une lecture qui échoue
+//        QUASI INSTANTANÉMENT ne doit jamais bénéficier de la grâce courte : on retombe sur le plancher complet
+//        (au moins le temps de LIRE le texte à l'écran, même sans voix).
+{
+  const window_ = { __soreal_idle_marquer_vu_v1__appels: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.__soreal_idle_marquer_vu_v1__appels.push(id);
+  window_.__SOREAL_IDLE_TUTORIAL_TTS_V209__ = {
+    prechauffer() { return true; },
+    readText(texte, _audioSrc, onDone) {
+      // Échec/voix indisponible : le rappel arrive immédiatement, sans que le moindre son n'ait joué.
+      onDone();
+      return true;
+    }
+  };
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  const api = charger(window_, document_, horloge);
   api.considerer({ bossSelection: 18, profil: { stats: { vus: [] } } });
-  const etapes = api.etapes();
-  assert.deepEqual(prechauffeAppels, [etapes[0].texte, etapes[1].texte, etapes[1].texte], "étapes 0 et 1 préchargées au démarrage, étape 1 repréchargée (sans effet, déjà en cache) dès le début de l'étape 0");
 
-  // Une fois la lecture "terminée" (onDone synchrone ci-dessus), l'attente avant l'étape suivante doit être une
-  // grâce fixe courte (PAUSE_MIN_APRES_LECTURE_MS), jamais liée à la longueur du texte (le plancher dépasserait 4 s).
   const delais = horloge.delaisEnAttente();
-  assert.ok(delais.length > 0 && delais.every((ms) => ms <= 600), "attente courte après une lecture réellement terminée, jamais le plancher complet : " + JSON.stringify(delais));
-
-  while (horloge.avancer()) {}
-  // Chaque étape suivante doit elle aussi avoir été préchargée en cours de route (étapes 2, 3, 4).
-  assert.ok(prechauffeAppels.includes(etapes[2].texte) && prechauffeAppels.includes(etapes[3].texte) && prechauffeAppels.includes(etapes[4].texte), "chaque étape suivante est préchargée pendant la lecture de la précédente");
+  const plancherAttendu = api.dureeApprox(api.etapes()[0].texte);
+  assert.ok(delais.includes(plancherAttendu), "échec quasi instantané -> retombe sur le plancher complet, jamais la grâce courte : " + JSON.stringify(delais));
 }
 
 // 12. Norman (2026-09-28) : « l'écran reste noir avec juste le texte » pendant l'attente de l'image/la voix --

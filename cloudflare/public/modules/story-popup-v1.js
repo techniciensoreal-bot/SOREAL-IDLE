@@ -227,15 +227,27 @@ function demarrer_(){
        voir tutorial-tts-v202.js -- mais un délai généreux au-delà du plancher couvre tout autre imprévu sans bloquer le joueur. */
     var securite=setTimeout(suivant,plancher+30000);
 
+    /*
+     * Norman (2026-09-28) : « la scène défile super vite et je n'ai pas de voix ». Régression du correctif
+     * précédent (grâce fixe courte après readText, voir PAUSE_MIN_APRES_LECTURE_MS) : le rappel de readText
+     * arrive AUSSI quand la lecture échoue ou n'a jamais pu démarrer (voix indisponible, erreur réseau...),
+     * pas seulement à la fin d'une vraie lecture -- rien ne les distingue à part le temps réellement écoulé.
+     * Une grâce fixe courte appliquée à un échec quasi instantané faisait défiler les 5 étapes en 2-3
+     * secondes, sans le moindre son. La grâce courte ne s'applique donc plus que si un temps significatif
+     * s'est écoulé (preuve qu'un son a réellement commencé à jouer) ; sinon on retombe sur l'ancien
+     * comportement (le plancher complet), qui laisse au moins le temps de LIRE le texte à l'écran même sans voix.
+     */
+    var PLANCHER_LECTURE_REELLE_MS=800;
+    var debut=Date.now();
     var demarreTts=false;
     try{
       var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
       if(tts&&typeof tts.readText==='function'){
         demarreTts=tts.readText(texte,undefined,function(){
-          /* Lecture réellement terminée : juste une petite grâce avant de passer à la suite, jamais toute la
-             durée restante jusqu'au plancher (voir PAUSE_MIN_APRES_LECTURE_MS). */
+          var ecoule=Date.now()-debut;
           clearTimeout(securite);
-          setTimeout(suivant,PAUSE_MIN_APRES_LECTURE_MS);
+          var attente=ecoule>=PLANCHER_LECTURE_REELLE_MS?PAUSE_MIN_APRES_LECTURE_MS:Math.max(0,plancher-ecoule);
+          setTimeout(suivant,attente);
         });
       }
     }catch(_e){
