@@ -4,7 +4,7 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : corriger les défauts Lighthouse confirmés sur SOREAL-IDLE : contraste du menu actif, contraste des textes Basic Training verrouillés, zoom mobile bloqué et disparition du landmark `<main>` après rendu.
+- **Tâche courante** : améliorer la performance de chargement initial signalée par Lighthouse (44/100) sans modifier le gameplay : CSS principal découvert plus tôt, scripts classiques SOREAL différés, démarrage après `DOMContentLoaded`.
 - **SHA `main` fonctionnel vérifié** : `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` (PR #20, correctif barre Time Machine).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
 - **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #681 ; le nouveau test `idle-time-machine-live-bar-refresh.test.mjs` passe.
@@ -15,7 +15,7 @@
 - **Dernière anomalie / état notable** : l'échec CI #682 a été corrigé par la PR #22 ; CI #683 et déploiement production sont verts. Reste à traiter séparément la performance Lighthouse (rapport utilisateur : 44/100, plusieurs `/api/v1/call` ~157 Ko).
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : analyser la taille des réponses de synchronisation `/api/v1/call` et réduire uniquement les données statiques/répétitives si cela peut être fait sans changer le contrat gameplay.
+- **Prochaine action exacte** : valider la branche `perf/defer-initial-assets`, fusionner si verte, puis vérifier CI/build/déploiement/SHA. Ensuite seulement réévaluer si le trafic périodique `/api/v1/call` justifie un protocole de synchronisation compact.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -46,6 +46,14 @@
 - Cause : test historique devenu contradictoire avec la nouvelle exigence Lighthouse/accessibilité qui réautorise le zoom.
 - Build, déploiement et vérification SHA : non exécutés.
 - Prochaine correction : mettre à jour ce test historique pour exiger le zoom autorisé, sans modifier d’autre comportement.
+
+### Optimisation chargement initial en cours — 2026-09-28
+- `main` de départ : `f9bbbb2144489bfeaf409788e6861caa59474390`.
+- Constat : `soreal-idle-ui.js` pèse ~792 Ko et plus de 40 scripts sont déclarés dans la page ; la feuille CSS principale était découverte seulement en bas du `body`.
+- Commit `0e802e9acd304d4539eecfb2f1d7afd737c371a6` : CSS principal déplacé dans le `head`, scripts classiques same-origin passés en `defer`, démarrage standalone reporté à `DOMContentLoaded`, bannière initiale en `fetchpriority="high"`.
+- Dépendance Piper externe laissée bloquante volontairement pour préserver le global attendu par le module local.
+- Test ajouté : `9c6db74fc572227ba4688a795dcec58a435c6308` — `idle-initial-load-defer.test.mjs`.
+- Tests/build/CI/déploiement : en attente.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
