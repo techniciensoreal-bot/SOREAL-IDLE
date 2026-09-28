@@ -3801,6 +3801,56 @@
       }
 
 
+
+      /*
+       * Time Machine — la progression est calculée côté serveur et revient à chaque
+       * synchronisation. Un changement de speedFill/goldFill n'est pas structurel :
+       * sans patch DOM dédié, l'écran gardait donc la largeur du rendu initial
+       * jusqu'à un changement de menu ou de niveau.
+       */
+      function patcherBarresTimeMachineIdleV1_(j){
+        if(
+          idleMenuActifV28!=='machine' ||
+          !j ||
+          !j.systemes ||
+          !j.systemes.timeMachineView
+        ){
+          return;
+        }
+
+        const vue=j.systemes.timeMachineView;
+        [
+          ['vitesse',vue.speedFill],
+          ['or',vue.goldFill]
+        ].forEach(function(entree){
+          const remplissage=document.querySelector(
+            '.soreal-idle-tm-piste-v1.'+
+            entree[0]+
+            ' .soreal-idle-tm-remplissage-v1'
+          );
+          if(!remplissage)return;
+
+          const pct=Math.max(
+            0,
+            Math.min(
+              100,
+              idleNombre_(entree[1])*100
+            )
+          );
+
+          remplissage.style.width=pct.toFixed(4)+'%';
+          remplissage.setAttribute('aria-valuenow',pct.toFixed(4));
+
+          const barre=remplissage.parentElement;
+          if(barre){
+            barre.title='Progression : '+pct.toLocaleString(
+              'fr-FR',
+              {minimumFractionDigits:2,maximumFractionDigits:4}
+            )+' %';
+          }
+        });
+      }
+
       function synchroniserJeuIdleV7_(
         force
       ){
@@ -3974,6 +4024,9 @@
                 });
               }else{
                 patcherResumeStatsIdleV28_(
+                  idleEtat
+                );
+                patcherBarresTimeMachineIdleV1_(
                   idleEtat
                 );
               }
