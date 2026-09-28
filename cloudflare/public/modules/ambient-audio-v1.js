@@ -50,6 +50,23 @@
   var gains_={};
   var ctxAnalyse_=null;
 
+  /*
+   * Safari iOS / WKWebView : éviter Web Audio pour l'ambiance.
+   * Des décodages répétés via decodeAudioData peuvent faire monter fortement
+   * l'usage mémoire sur iOS. Sur ces appareils on garde la lecture HTMLAudio
+   * native et on désactive uniquement l'analyse/amplification Web Audio.
+   */
+  function estIOSWebKit_(){
+    try{
+      var ua=String(navigator.userAgent||'');
+      var plateforme=String(navigator.platform||'');
+      return /iPad|iPhone|iPod/.test(ua) ||
+        (plateforme==='MacIntel' && Number(navigator.maxTouchPoints||0)>1);
+    }catch(_){
+      return false;
+    }
+  }
+
   function volumeAmbiance_(){
     var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
     return r?r.getAmbiance():0.35;
@@ -74,6 +91,7 @@
   }
 
   function ctxAnalyse_lazy_(){
+    if(estIOSWebKit_())return null;
     if(ctxAnalyse_)return ctxAnalyse_;
     var AC=window.AudioContext||window.webkitAudioContext;
     if(!AC)return null;
@@ -130,6 +148,7 @@
   }
 
   function analyserGain_(url){
+    if(estIOSWebKit_())return Promise.resolve(1);
     var ctx=ctxAnalyse_lazy_();
     if(!ctx)return Promise.resolve(1);
     return fetch(url,{cache:'force-cache'})
