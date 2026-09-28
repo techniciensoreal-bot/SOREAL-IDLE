@@ -4213,8 +4213,29 @@
         }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-81 */
-        function frameJeuV214_(){
-          mettreAJourJeuIdleLocalV7_();
+        /*
+         * iPhone/Safari : la boucle visible tournait auparavant au rythme natif
+         * de requestAnimationFrame (souvent 60 Hz) alors que les barres du jeu
+         * sont conçues pour ~15 tics/s. Le calcul reste basé sur le temps réel
+         * écoulé (dt), donc plafonner les mises à jour lourdes à 15 Hz réduit
+         * fortement les lectures/écritures DOM sans ralentir la progression.
+         */
+        let dernierFrameJeuVisibleV214=0;
+        const intervalleFrameJeuVisibleV214=1000/15;
+        function frameJeuV214_(timestamp){
+          const maintenantFrame=
+            Number.isFinite(Number(timestamp))
+              ?Number(timestamp)
+              :(typeof performance!=='undefined'&&performance.now?performance.now():Date.now());
+
+          if(
+            !dernierFrameJeuVisibleV214 ||
+            maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214
+          ){
+            dernierFrameJeuVisibleV214=maintenantFrame;
+            mettreAJourJeuIdleLocalV7_();
+          }
+
           if(PAGE_ACTIVE==='idle'){
             idleAnimationFrameJeuV214=requestAnimationFrame(frameJeuV214_);
           }else{
