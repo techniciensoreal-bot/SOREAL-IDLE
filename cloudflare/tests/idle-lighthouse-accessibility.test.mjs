@@ -31,4 +31,16 @@ assert.match(
   "locked Basic Training requirement text must use the accessible light gray"
 );
 
+
+assert.ok(
+  css.includes(".soreal-idle-bt-row-v120.locked{") &&
+  css.includes("opacity:1;"),
+  "locked Basic Training row must not dim prerequisite text through parent opacity"
+);
+assert.ok(
+  css.includes(".soreal-idle-bt-row-v120.locked > :not(.soreal-idle-bt-main-v120)") &&
+  css.includes("opacity:.52;"),
+  "non-text locked controls may remain visually dimmed"
+);
+
 console.log("idle-lighthouse-accessibility: OK");
