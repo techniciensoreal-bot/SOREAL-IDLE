@@ -12,10 +12,10 @@
 - **CI** : run #683 (`c561a429311a4527abfc357922cfd489949b0ace`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
 - **SHA réellement déployé** : `git:c561a429311a4527abfc357922cfd489949b0ace`, version Cloudflare `2c659bf5-67bb-4184-99bf-8ba60663ecc2`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : l'échec CI #682 a été corrigé par la PR #22 ; CI #683 et déploiement production sont verts. Reste à traiter séparément la performance Lighthouse (rapport utilisateur : 44/100, plusieurs `/api/v1/call` ~157 Ko).
+- **Dernière anomalie / état notable** : CI #684 en échec avant build sur `idle-inventory-auto-client.test.mjs:60` : le test exigeait l'ancien tag exact `<script src="/modules/inventory-auto-v1.js?v=9"></script>` et ne reconnaît pas l'ajout volontaire de `defer`. Aucun déploiement de l'optimisation performance n'a eu lieu.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider la branche `perf/defer-initial-assets`, fusionner si verte, puis vérifier CI/build/déploiement/SHA. Ensuite seulement réévaluer si le trafic périodique `/api/v1/call` justifie un protocole de synchronisation compact.
+- **Prochaine action exacte** : mettre à jour uniquement le test historique `idle-inventory-auto-client.test.mjs` pour accepter/exiger le chargement `defer`, relancer la CI, puis vérifier build/déploiement/SHA avant toute autre optimisation.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -54,6 +54,13 @@
 - Dépendance Piper externe laissée bloquante volontairement pour préserver le global attendu par le module local.
 - Test ajouté : `9c6db74fc572227ba4688a795dcec58a435c6308` — `idle-initial-load-defer.test.mjs`.
 - Tests/build/CI/déploiement : en attente.
+
+### Échec CI performance — 2026-09-28
+- Run #684 sur `39a302e02ade75176260443d12196367002285e1` : **FAIL** pendant la suite de tests.
+- Nouveau test `idle-initial-load-defer.test.mjs` : **OK**.
+- Erreur exacte : `idle-inventory-auto-client.test.mjs:60` attend l'ancien tag sans `defer` pour `inventory-auto-v1.js?v=9`.
+- Build/déploiement/SHA : non exécutés.
+- Cause : garde historique trop stricte sur la chaîne HTML, pas une régression fonctionnelle détectée.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
