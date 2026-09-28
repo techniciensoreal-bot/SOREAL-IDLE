@@ -4,7 +4,7 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : corriger la barre de progression de la Time Machine qui restait visuellement figée malgré une allocation d'Energy. Cause vérifiée : `timeMachineView.speedFill/goldFill` progresse côté serveur, mais la synchro sans changement structurel ne patchait que les stats générales et jamais les barres Time Machine.
+- **Tâche courante** : corriger les défauts Lighthouse confirmés sur SOREAL-IDLE : contraste du menu actif, contraste des textes Basic Training verrouillés, zoom mobile bloqué et disparition du landmark `<main>` après rendu.
 - **SHA `main` fonctionnel vérifié** : `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` (PR #20, correctif barre Time Machine).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
 - **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #681 ; le nouveau test `idle-time-machine-live-bar-refresh.test.mjs` passe.
@@ -15,7 +15,7 @@
 - **Dernière anomalie / état notable** : la connexion Google est implémentée mais **désactivée dans la production vérifiée** : le log du déploiement #646 expose `env.GOOGLE_CLIENT_ID ("")`. Le bouton Google ne peut donc pas apparaître tant que cette valeur reste vide.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : vérification manuelle en production par Norman : ouvrir Broken Time Machine avec de l'Energy allouée et confirmer que la barre évolue désormais sans changer de menu. Si elle reste figée, instrumenter la valeur reçue de `timeMachineView.speedFill` côté client.
+- **Prochaine action exacte** : valider puis fusionner la branche `fix/lighthouse-accessibility`, vérifier tests/build/CI/déploiement/SHA production, puis traiter séparément la performance Lighthouse (appels `/api/v1/call` ~157 Ko) sans mélanger les causes.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -28,6 +28,15 @@
 - Déploiement : Cloudflare SUCCESS ; SHA `3a7f13947fdae0bb3a4850b2bbfe7120cffe2897` vérifié à 100 %, version `10c41733-6c2f-41c6-bdcf-1be2fd06f6d8`.
 - Smoke production Chromium/Piper : SUCCESS.
 - Vérification manuelle du mouvement visuel de la barre avec la sauvegarde réelle de Norman : encore à confirmer par l'utilisateur.
+
+### Correctifs Lighthouse accessibilité en cours — 2026-09-28
+- `main` de départ : `eecc56e6565e97b39a394a7d65273a1a59fbf19d`.
+- Rapport utilisateur : Performance 44, Accessibilité 77, Best Practices 73, SEO 92 ; défauts confirmés sur contraste, zoom et landmark.
+- Commit contraste : `7cb1b82116660c7098964b37cd775c1444b8574c` — assombrit la couleur active du menu et éclaircit les textes de verrouillage Basic Training.
+- Commit zoom : `ab9295ddd98cd92c8d91192479f375661502048a` — retire `user-scalable=no`, `maximum-scale=1` et les bloqueurs JS de pinch/Ctrl+molette.
+- Commit landmark : `b97e0421efd6f37dcb4b2cc5d1a7097805d28bc1` — les trois rendus racine du jeu utilisent désormais `<main>`.
+- Test ajouté : `237dd9b90d4bd4ca3e0c70b066e91fcbd63bb85b` — `idle-lighthouse-accessibility.test.mjs`.
+- Tests/build/CI/déploiement : en attente de validation.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
