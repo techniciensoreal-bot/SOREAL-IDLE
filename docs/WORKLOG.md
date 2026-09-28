@@ -12,7 +12,7 @@
 - **CI** : run #681 (`3a7f13947fdae0bb3a4850b2bbfe7120cffe2897`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
 - **SHA réellement déployé** : `git:3a7f13947fdae0bb3a4850b2bbfe7120cffe2897`, version Cloudflare `10c41733-6c2f-41c6-bdcf-1be2fd06f6d8`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : la connexion Google est implémentée mais **désactivée dans la production vérifiée** : le log du déploiement #646 expose `env.GOOGLE_CLIENT_ID ("")`. Le bouton Google ne peut donc pas apparaître tant que cette valeur reste vide.
+- **Dernière anomalie / état notable** : CI #682 en échec sur `idle-shop-sounds-achievements-menu-v1.test.mjs` : ancien test exige encore explicitement `user-scalable=no` / zoom désactivé (`AssertionError: viewport : zoom désactivé`). Le code d’accessibilité est sur `main`, mais aucun déploiement n’a eu lieu car la suite s’est arrêtée avant le build.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
 - **Prochaine action exacte** : valider puis fusionner la branche `fix/lighthouse-accessibility`, vérifier tests/build/CI/déploiement/SHA production, puis traiter séparément la performance Lighthouse (appels `/api/v1/call` ~157 Ko) sans mélanger les causes.
@@ -37,6 +37,13 @@
 - Commit landmark : `b97e0421efd6f37dcb4b2cc5d1a7097805d28bc1` — les trois rendus racine du jeu utilisent désormais `<main>`.
 - Test ajouté : `237dd9b90d4bd4ca3e0c70b066e91fcbd63bb85b` — `idle-lighthouse-accessibility.test.mjs`.
 - Tests/build/CI/déploiement : en attente de validation.
+
+### Échec CI accessibilité — 2026-09-28
+- Run #682 sur `73172ebb2558ed867d7a5344f471faea397d92eb` : **FAIL** pendant `Run test suite`.
+- Erreur exacte : `idle-shop-sounds-achievements-menu-v1.test.mjs:127` — `AssertionError [ERR_ASSERTION]: viewport : zoom désactivé`.
+- Cause : test historique devenu contradictoire avec la nouvelle exigence Lighthouse/accessibilité qui réautorise le zoom.
+- Build, déploiement et vérification SHA : non exécutés.
+- Prochaine correction : mettre à jour ce test historique pour exiger le zoom autorisé, sans modifier d’autre comportement.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
