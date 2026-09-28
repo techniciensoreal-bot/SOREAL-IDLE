@@ -12,10 +12,10 @@
 - **CI** : run #683 (`c561a429311a4527abfc357922cfd489949b0ace`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
 - **SHA réellement déployé** : `git:c561a429311a4527abfc357922cfd489949b0ace`, version Cloudflare `2c659bf5-67bb-4184-99bf-8ba60663ecc2`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : CI #685 en échec avant build sur `idle-meta-progression-module.test.mjs` : le test exige encore l'ancien tag exact sans `defer` pour `meta-progression-v130.js`. Le nouveau test de performance passe ; aucun déploiement n'a eu lieu.
+- **Dernière anomalie / état notable** : CI #686 en échec avant build sur `idle-meta-progression-module.test.mjs:100` : la mise à jour du test a introduit une regex JavaScript invalide (`SyntaxError: Invalid regular expression flags`). Aucun déploiement n'a eu lieu.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : mettre à jour uniquement `idle-meta-progression-module.test.mjs` pour exiger le script `meta-progression-v130.js` avec `defer`, puis relancer la CI complète.
+- **Prochaine action exacte** : remplacer l’assertion regex fautive de `idle-meta-progression-module.test.mjs` par une vérification littérale du tag `defer`, puis relancer la CI complète.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -68,6 +68,12 @@
 - `idle-inventory-auto-client.test.mjs` : corrigé et passé avant l’échec suivant.
 - Nouvelle erreur : `idle-meta-progression-module.test.mjs` attend le tag `meta-progression-v130.js` sans attribut `defer`.
 - Build/déploiement/SHA : non exécutés.
+
+### Échec CI performance #686 — 2026-09-28
+- Run #686 sur `d9e5abdce7a8e1a64f305dd7766aae8f9a593685` : **FAIL**.
+- Erreur exacte : `idle-meta-progression-module.test.mjs:100` — `SyntaxError: Invalid regular expression flags`.
+- Cause : échappement incorrect dans la regex du test ajouté pour `defer` ; le code de production n’a pas été exécuté ni déployé.
+- Correction prévue : assertion `indexHtml.includes(...)` littérale, plus simple et non ambiguë.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
