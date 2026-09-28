@@ -5,17 +5,17 @@
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
 - **Tâche courante** : corriger le dernier défaut Lighthouse d'accessibilité sur le texte de prérequis Basic Training verrouillé. Cause réelle : `opacity:.52` appliquée au parent `.soreal-idle-bt-row-v120.locked`, qui dégradait la couleur effective malgré `#d1d5db`.
-- **SHA `main` fonctionnel vérifié** : `1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade` (accessibilité Lighthouse + optimisation chargement initial + corrections de tests historiques).
+- **SHA `main` fonctionnel vérifié** : `7af71b8c728040df56066c3869ff5a3d7d519a3b` (correctif final du contraste effectif des prérequis Basic Training verrouillés).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
-- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #687 ; `idle-lighthouse-accessibility.test.mjs` et `idle-initial-load-defer.test.mjs` passent.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #687.
-- **CI** : run #687 (`1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
-- **SHA réellement déployé** : `git:1e38b9d8e31ef02932bdb36892d0e2d58fdf1ade`, version Cloudflare `7d5aaedd-2b18-446f-a262-c70ba105ad8a`, routage 100 %.
+- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #688 ; `idle-lighthouse-accessibility.test.mjs` passe avec la garde sur l’opacité des lignes verrouillées.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #688.
+- **CI** : run #688 (`7af71b8c728040df56066c3869ff5a3d7d519a3b`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:7af71b8c728040df56066c3869ff5a3d7d519a3b`, version Cloudflare `36ef21fd-809f-42da-887c-af30c262afb1`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : aucune erreur CI/build/déploiement connue sur le dernier SHA fonctionnel. Les appels périodiques `/api/v1/call` renvoient encore l’état complet ; le rapport utilisateur observait ~157 Ko par réponse, mais ce point n’a pas été modifié faute de mesure prouvant qu’il est la cause du score Lighthouse 44.
+- **Dernière anomalie / état notable** : aucune erreur CI/build/déploiement connue sur le dernier SHA fonctionnel. Le dernier défaut Lighthouse d’accessibilité identifié (prérequis Basic Training à 3.98:1) a été corrigé à la source en supprimant l’opacité héritée du parent sur le texte.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider la branche `fix/locked-prerequisite-contrast`, fusionner si verte, puis vérifier CI/build/déploiement/SHA avant de considérer l’accessibilité corrigée.
+- **Prochaine action exacte** : refaire un Lighthouse authentifié sur la page réellement utilisée pour confirmer le score d’accessibilité et identifier uniquement les éventuels audits encore rouges.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -83,7 +83,10 @@
 - Vérification code : la couleur déclarée est déjà `#d1d5db`, mais le parent `.soreal-idle-bt-row-v120.locked` applique `opacity:.52`, ce qui assombrit effectivement le texte.
 - Commit `dad774d0affc7c400065973958bcc53980041cbd` : parent verrouillé remis à opacité 1 ; seuls les contrôles non textuels restent atténués, et le nom verrouillé reste légèrement atténué séparément.
 - Commit test `930e6c6e4900c2175dc84ad1b32f4244b1aceb4f` : garde de non-régression dans `idle-lighthouse-accessibility.test.mjs`.
-- Tests/build/CI/déploiement : en attente.
+- PR #27 fusionnée sur `main`.
+- CI #688 : SUCCESS complet ; `idle-lighthouse-accessibility.test.mjs` OK.
+- Production : SHA `7af71b8c728040df56066c3869ff5a3d7d519a3b`, version Cloudflare `36ef21fd-809f-42da-887c-af30c262afb1`, routage 100 %.
+- Smoke Chromium/Piper : SUCCESS.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
