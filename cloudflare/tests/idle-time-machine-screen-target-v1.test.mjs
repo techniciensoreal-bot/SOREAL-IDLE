@@ -46,6 +46,21 @@ const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
   assert.ok(vue.netGps <= vue.grossGps);
 }
 
+// 1b. ETA serveur : dérivé de la même durée que la progression réelle
+{
+  let s = etatTm();
+  s = agir(s, { action: "allocate", system: "timeMachine", resource: "energy", value: 1000 });
+  s.resources.energy.power = 1e6; /* niveau 1 = 1 seconde */
+  let vue = idleNguSnapshot(s, ctx, 0).timeMachineView;
+  assert.equal(vue.speedEtaSeconds, 1, "ETA niveau 1 calculé par tmLevelSeconds");
+  s.systems.timeMachine.data.speedProgress = 0.4;
+  vue = idleNguSnapshot(s, ctx, 0).timeMachineView;
+  assert.ok(Math.abs(vue.speedEtaSeconds - 0.6) < 1e-9, "ETA = durée réelle - progression réelle");
+  s.systems.timeMachine.allocation.energy = 0;
+  vue = idleNguSnapshot(s, ctx, 0).timeMachineView;
+  assert.equal(vue.speedEtaSeconds, null, "aucune ETA sans allocation");
+}
+
 // 2. Vue verrouillée : aucune donnée (anti-spoil)
 {
   const debut = { bosses: 0 };
@@ -117,6 +132,9 @@ for (const attendu of ["Broken Time Machine", "Vitesse de la machine", "Multipli
   assert.ok(page.includes(attendu), "libellé « " + attendu + " » présent");
 }
 assert.ok(page.includes("__ajusterTimeMachineIdleV1__") && page.includes("__cibleTimeMachineIdleV1__"));
+assert.ok(page.includes("vue.speedEtaSeconds") && page.includes("vue.goldEtaSeconds"), "ETA serveur affichée sur les deux pistes");
+assert.ok(page.includes("data-tm-eta-track") && page.includes("Fin de la barre dans"), "compte à rebours présent sous les barres");
+assert.ok(meta.includes("mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap'"), "Broken Time Machine réutilise exactement les sons Basic Training + / - / Max");
 assert.match(meta, /action:'setTimeMachineTarget'/);
 assert.ok(!/allocationMetaIdleV48_\(j,'timeMachine'/.test(page), "les presets 0/25/50/100 % n'y sont plus");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
@@ -170,5 +188,10 @@ let etat = null;
   window.__cibleTimeMachineIdleV1__("gold", "33");
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "setTimeMachineTarget", track: "gold", value: 33 });
 }
+
+const uiSource = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+assert.ok(uiSource.includes("function actualiserCompteReboursTimeMachineIdleV1_()"), "compte à rebours live présent");
+assert.ok(uiSource.includes("actualiserCompteReboursTimeMachineIdleV1_();"), "compte à rebours rafraîchi par le ticker visible");
+assert.ok(uiSource.includes("jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_"), "helper audio partagé exposé au module Time Machine");
 
 console.log("idle-time-machine-screen-target-v1: OK");

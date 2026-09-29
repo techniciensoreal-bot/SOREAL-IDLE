@@ -2357,6 +2357,8 @@
           maintenantTick
         );
 
+        actualiserCompteReboursTimeMachineIdleV1_();
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-35 */
         if(!idleEtat.combatBossActif){
           const regenPvSecJoueurReposV1=
@@ -3808,6 +3810,35 @@
        * sans patch DOM dédié, l'écran gardait donc la largeur du rendu initial
        * jusqu'à un changement de menu ou de niveau.
        */
+      function formaterEtaTimeMachineIdleV1_(secondes){
+        const total=Math.max(0,Math.ceil(idleNombre_(secondes)));
+        if(total<=0)return '0 s';
+        const h=Math.floor(total/3600);
+        const m=Math.floor((total%3600)/60);
+        const s=total%60;
+        if(h>0)return h+' h '+String(m).padStart(2,'0')+' min '+String(s).padStart(2,'0')+' s';
+        if(m>0)return m+' min '+String(s).padStart(2,'0')+' s';
+        return s+' s';
+      }
+
+      function actualiserCompteReboursTimeMachineIdleV1_(){
+        if(idleMenuActifV28!=='machine')return;
+        const maintenant=Date.now();
+        document.querySelectorAll('.soreal-idle-tm-eta-v1[data-tm-eta-seconds]').forEach(function(el){
+          const brut=el.dataset.tmEtaSeconds;
+          if(brut==='')return;
+          if(!el.dataset.tmEtaAt)el.dataset.tmEtaAt=String(maintenant);
+          const base=Math.max(0,idleNombre_(brut));
+          const at=idleNombre_(el.dataset.tmEtaAt)||maintenant;
+          const restant=Math.max(0,base-(maintenant-at)/1000);
+          const secondesAffichees=Math.ceil(restant);
+          if(el.dataset.tmEtaLast!==String(secondesAffichees)){
+            el.dataset.tmEtaLast=String(secondesAffichees);
+            el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
+          }
+        });
+      }
+
       function patcherBarresTimeMachineIdleV1_(j){
         if(
           idleMenuActifV28!=='machine' ||
@@ -3820,8 +3851,8 @@
 
         const vue=j.systemes.timeMachineView;
         [
-          ['vitesse',vue.speedFill],
-          ['or',vue.goldFill]
+          ['vitesse',vue.speedFill,vue.speedEtaSeconds],
+          ['or',vue.goldFill,vue.goldEtaSeconds]
         ].forEach(function(entree){
           const remplissage=document.querySelector(
             '.soreal-idle-tm-piste-v1.'+
@@ -3847,6 +3878,21 @@
               'fr-FR',
               {minimumFractionDigits:2,maximumFractionDigits:4}
             )+' %';
+          }
+
+          const eta=document.querySelector(
+            '.soreal-idle-tm-piste-v1.'+
+            entree[0]+
+            ' .soreal-idle-tm-eta-v1'
+          );
+          if(eta){
+            const etaValide=Number.isFinite(Number(entree[2]));
+            eta.dataset.tmEtaSeconds=etaValide?String(Math.max(0,idleNombre_(entree[2]))):'';
+            eta.dataset.tmEtaAt=String(Date.now());
+            eta.dataset.tmEtaLast='';
+            eta.textContent=etaValide
+              ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])
+              :'Alloue une ressource pour démarrer la barre';
           }
         });
       }
@@ -20471,7 +20517,8 @@ function pageAventureIdleV28_(j){
         patchInventaireAdventureIdleV160_:patchInventaireAdventureIdleV160_,
         appelerProgressionIdleCloudflareV1_:appelerProgressionIdleCloudflareV1_,
         patchZoneAdventureSansReflowIdleV1_:patchZoneAdventureSansReflowIdleV1_,
-        idleRareteClasseObjetAdventureIdleV1_:idleRareteClasseObjetAdventureIdleV1_
+        idleRareteClasseObjetAdventureIdleV1_:idleRareteClasseObjetAdventureIdleV1_,
+        jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_
       };
 
       function pageSystemeMetaIdleV130_(j,id,titre){

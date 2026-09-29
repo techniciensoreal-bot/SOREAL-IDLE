@@ -7321,12 +7321,24 @@ html,body{overflow-x:hidden}
   gap:10px;
   align-items:end;
 }
+.soreal-idle-tm-barre-wrap-v1{
+  display:grid;
+  gap:4px;
+  min-width:0;
+}
 .soreal-idle-tm-barre-v1{
   height:26px;
   align-self:center;
   border:2px solid #1d3247;
   background:#fff;
   overflow:hidden;
+}
+.soreal-idle-tm-eta-v1{
+  min-height:16px;
+  font-size:11px;
+  font-weight:850;
+  color:#1d3247;
+  font-variant-numeric:tabular-nums;
 }
 .soreal-idle-tm-remplissage-v1{
   height:100%;
@@ -7412,8 +7424,11 @@ html,body{overflow-x:hidden}
   .soreal-idle-tm-ligne-v1{
     grid-template-columns:1fr 1fr 1fr;
   }
-  .soreal-idle-tm-barre-v1{
+  .soreal-idle-tm-barre-wrap-v1{
     grid-column:1/-1;
+  }
+  .soreal-idle-tm-barre-v1{
+    grid-column:auto;
   }
   .soreal-idle-tm-boutons-v1{
     grid-column:1/-1;
