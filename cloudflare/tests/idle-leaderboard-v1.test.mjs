@@ -46,8 +46,8 @@ assert.equal(acces(sansTrophee).autorise, false, "accès ouvert mais pas de trop
 assert.equal(acces(Object.assign({}, sansTrophee, { idleTrophee: "true" })).autorise, false, "seul le drapeau booléen posé par TV compte");
 const etatSeb = op("obtenirEtatSorealIdle", sebastien).joueur;
 assert.equal(etatNorman.classement.debloque, true, "administrateur : bouton visible");
-assert.equal(etatSeb.classement.debloque, false, "autres joueurs : bouton Classement pas encore visible");
-assert.equal(etatSeb.reglages, null, "l'interrupteur n'est visible que de l'administrateur");
+assert.equal(etatSeb.classement.debloque, true, "autres joueurs : bouton Classement visible");
+assert.equal(etatSeb.reglages, null, "les réglages administrateur restent réservés à l'administrateur");
 assert.throws(() => op("definirAccesOuvertSorealIdle", sebastien, false), /ADMIN_REQUIS/);
 // Partie B de développement (adresse alias) et entrée sans nom : jamais au classement
 const normanB = Object.assign({}, norman, { slot: "b" });
@@ -68,8 +68,11 @@ function regler(email, records, succes = 0) {
 regler("technicien.soreal@gmail.com", { highestBoss: 40, totalRebirths: 5, bestNumber: 1200, totalExpEarned: 9000, playSeconds: 7200 }, 12);
 regler("hodappsebastien@gmail.com", { highestBoss: 55, totalRebirths: 2, bestNumber: 300, totalExpEarned: 20000, playSeconds: 3600 }, 4);
 
-// Seul l'administrateur reçoit le classement
-assert.throws(() => op("obtenirClassementSorealIdle", sebastien), /CLASSEMENT_VERROUILLE/);
+// Tous les joueurs autorisés reçoivent le classement
+let cSeb = op("obtenirClassementSorealIdle", sebastien);
+assert.equal(cSeb.ok, true);
+assert.equal(cSeb.joueurs, 2);
+assert.equal(cSeb.entrees.find((e) => e.moi).nom, "Sébastien");
 let c = op("obtenirClassementSorealIdle", norman);
 assert.equal(c.ok, true);
 assert.equal(c.joueurs, 2);
