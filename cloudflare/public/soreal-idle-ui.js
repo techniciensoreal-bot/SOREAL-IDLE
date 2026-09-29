@@ -2357,6 +2357,7 @@
           maintenantTick
         );
 
+        assurerPisteMagicTimeMachineIdleV1_();
         actualiserCompteReboursTimeMachineIdleV1_();
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-35 */
@@ -3819,6 +3820,32 @@
         if(h>0)return h+' h '+String(m).padStart(2,'0')+' min '+String(s).padStart(2,'0')+' s';
         if(m>0)return m+' min '+String(s).padStart(2,'0')+' s';
         return s+' s';
+      }
+
+      function assurerPisteMagicTimeMachineIdleV1_(){
+        if(idleMenuActifV28!=='machine'||!idleEtat||!idleEtat.systemes)return;
+
+        const systemes=Array.isArray(idleEtat.systemes.systems)
+          ?idleEtat.systemes.systems
+          :[];
+        const bloodMagic=systemes.find(function(s){
+          return s&&s.id==='bloodMagic';
+        });
+        const magicDebloquee=Boolean(
+          bloodMagic&&
+          bloodMagic.state&&
+          bloodMagic.state.unlocked
+        );
+
+        if(!magicDebloquee)return;
+
+        const pisteMagic=document.querySelector(
+          '.soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1'
+        );
+
+        if(!pisteMagic){
+          rafraichirMenuRacineIdleV28_();
+        }
       }
 
       function actualiserCompteReboursTimeMachineIdleV1_(){
