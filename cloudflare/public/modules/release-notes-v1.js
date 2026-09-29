@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.5',
+    courante:'6.6',
     versions:[
+      {
+        version:'6.6',
+        nom:'Une seule et même interface',
+        date:'2026-09-29',
+        points:[
+          'Augmentations utilise maintenant les mêmes boutons, la même taille et la même animation que Basic Training, avec les mêmes raccourcis Energy Cap / Idle.',
+          'Un autre écran d’allocation garde son apparence actuelle, mais répond désormais aussi vite que Basic Training, avec le même son et la même animation sur les chiffres alloués.',
+          'Blood Magic ne fonctionnait pas correctement : refait avec les mêmes commandes que Basic Training, plus un bouton Cap/+/− sur chaque rituel.',
+          'Basic Training, Augmentations et Blood Magic affichent maintenant le temps restant avant le prochain niveau ou rituel.'
+        ]
+      },
       {
         version:'6.5',
         nom:'Magie, la barre reprend vie',

@@ -60,7 +60,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
   const css = lire("cloudflare/public/modules/alloc-pop-v1.js");
   assert.ok(css.includes("sorealIdleAllocPopV1") && css.includes("scale(1.9)") && css.includes(".55s ease-out 1"), "animation de gonflement, une seule itération");
   const index = lire("cloudflare/public/index.html");
-  assert.ok(index.includes("/modules/alloc-pop-v1.js?v=1"));
+  assert.ok(index.includes("/modules/alloc-pop-v1.js?v=2"));
 }
 
 // ---------- voix IA auto : ON de base ----------

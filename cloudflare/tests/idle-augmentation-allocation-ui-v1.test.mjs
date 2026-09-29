@@ -75,7 +75,7 @@ assert.match(module_, /const cible=mode==='plus'\s*\?current\+Math\.min\(pas,idl
 assert.match(module_, /const son=mode==='plus'\?'btPlus':mode==='moins'\?'btMinus':'btCap';/);
 assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]\(\);/);
 assert.match(module_, /H\.rendreIdleEtat_\(\{ok:true,joueur:j\}\);/);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609275"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609276"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 

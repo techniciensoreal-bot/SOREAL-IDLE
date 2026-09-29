@@ -3386,6 +3386,35 @@ function timeMachineViewV1(state) {
   };
 }
 
+/*
+ * Norman (2026-09-29) : « pour chaque barre, il faut un temps pour compléter un niveau qui
+ * s'affiche. » Blood Magic n'exposait aucune donnée de progression au client (seul
+ * bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS) -- le catalogue statique, jamais l'avancement réel).
+ * Même formule EXACTE qu'advanceBloodMagic (secondsPerCompletion), en lecture seule, pour le
+ * rituel ACTIF uniquement -- seul lui progresse réellement (data.activeRitual, un seul rituel à la
+ * fois côté serveur).
+ */
+function bloodMagicViewV1(state) {
+  const s = state.systems.bloodMagic;
+  if (!s || !s.unlocked) return null;
+  const ritual = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
+  const rs = (s.data.rituals || {})[ritual.id] || { progress: 0 };
+  const magic = Math.max(0, num(s.allocation && s.allocation.magic, 0));
+  const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
+  const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
+  const dutchSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
+  const secondsPerCompletion = magic > 0
+    ? ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier
+    : null;
+  return {
+    activeRitual: ritual.id,
+    secondsPerCompletion,
+    etaSeconds: secondsPerCompletion != null
+      ? Math.max(0, secondsPerCompletion - Math.max(0, num(rs.progress, 0)))
+      : null
+  };
+}
+
 function advanceTimeMachine(state, seconds) {
   const s = state.systems.timeMachine;
   if (!s.unlocked || seconds <= 0) return;
@@ -5443,6 +5472,7 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     wishSlots: wishSlotsSnapshotV1(state),
     cards: idleCardsSnapshotV1(state),
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
+    bloodMagicView: bloodMagicViewV1(state),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => !idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0)),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
     yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost }),

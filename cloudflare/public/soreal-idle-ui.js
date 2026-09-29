@@ -621,6 +621,12 @@
               skill.id
             );
 
+          const eta=
+            document.getElementById(
+              'sorealIdleBtEtaV120_'+
+              skill.id
+            );
+
           const bar=
             document.getElementById(
               'sorealIdleBtBarV120_'+
@@ -688,6 +694,13 @@
                 .toFixed(2)
                 .replace('.',',')+
               ' niv/s';
+          }
+
+          if(eta){
+            eta.textContent=
+              texteEtaBasicTrainingIdleV1_(
+                vitesse
+              );
           }
 
           if(bar){
@@ -3944,6 +3957,19 @@
        * sans patch DOM dédié, l'écran gardait donc la largeur du rendu initial
        * jusqu'à un changement de menu ou de niveau.
        */
+      /*
+       * Norman (2026-09-29) : « pour chaque barre, il faut un temps pour compléter un niveau qui
+       * s'affiche. » Basic Training est la RÉFÉRENCE demandée pour les autres écrans (Augmentation,
+       * Time Machine, Blood Magic), mais n'affichait lui-même aucune durée -- alors que
+       * vitesseBasicTrainingLocalIdleV120_ calcule déjà skill.levelsPerSecond côté client (rien à
+       * ajouter côté serveur) : 1 niveau prend simplement 1/levelsPerSecond secondes.
+       */
+      function texteEtaBasicTrainingIdleV1_(niveauxParSeconde){
+        const v=Math.max(0,idleNombre_(niveauxParSeconde));
+        if(!(v>0))return '⏱ Aucune énergie allouée';
+        return '⏱ '+formaterEtaTimeMachineIdleV1_(1/v)+' par niveau';
+      }
+
       function formaterEtaTimeMachineIdleV1_(secondes){
         const total=Math.max(0,Math.ceil(idleNombre_(secondes)));
         if(total<=0)return '0 s';
@@ -15418,6 +15444,9 @@ let idleDialogueTimerV76=null;
                   >
                     ${idleEntier_(skill.nextCap||skill.cap)}
                   </strong>
+                </span>
+                <span id="sorealIdleBtEtaV120_${idleHtml_(skill.id)}">
+                  ${texteEtaBasicTrainingIdleV1_(vitesseInitiale)}
                 </span>
               </div>
             </div>

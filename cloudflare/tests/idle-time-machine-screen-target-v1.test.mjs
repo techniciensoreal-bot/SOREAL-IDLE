@@ -151,7 +151,15 @@ const hote = {
   idleEntier_: (v) => Math.max(0, Math.floor(Number(v) || 0)),
   formatGrandNombreIdleV70_: (v) => String(v),
   entetePageIdleV28_: (t) => "<h1>" + t + "</h1>",
-  appelerProgressionIdleCloudflareV1_() {}
+  appelerProgressionIdleCloudflareV1_() {},
+  /*
+   * 2026-09-29 : ajusterTimeMachineIdleV1_ est devenu optimiste (comme Basic Training/
+   * Augmentation, Norman : « je veux garder le visuel actuel, mais je veux le son lié aux
+   * plus et moins de basic training et l'animation de l'énergie allouée de basic training
+   * également ») -- il appelle désormais rendreIdleEtat_ avant même l'envoi au serveur.
+   */
+  rendreIdleEtat_() {},
+  jouerEffetAudioIdleV199_() {}
 };
 const window = { __SOREAL_IDLE_META_HOST_V130__: hote, __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (x) => String(x) }, __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v) }, document: { getElementById: () => null } };
 const sandbox = { window, document: window.document, SOREAL_SESSION: null };
@@ -183,6 +191,14 @@ let etat = null;
   etat = { systemes: idleNguSnapshot(s, ctx, 0) };
   window.__ajusterTimeMachineIdleV1__("energy", "plus");
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1250 });
+  /*
+   * 2026-09-29 : ajusterTimeMachineIdleV1_ est désormais optimiste (mutation locale immédiate de
+   * s.state.allocation, comme Basic Training/Augmentation) -- l'appel "+" ci-dessus a donc déjà fait
+   * passer l'allocation LOCALE à 1250 dans `etat`. Un nouvel `etat` frais (allocation=1000) est donc
+   * refabriqué ici pour tester le bouton "−" en isolation, plutôt que de façon cumulative.
+   */
+  s.systems.timeMachine.allocation.energy = 1000;
+  etat = { systemes: idleNguSnapshot(s, ctx, 0) };
   window.__ajusterTimeMachineIdleV1__("energy", "moins");
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 750 });
   window.__cibleTimeMachineIdleV1__("gold", "33");

@@ -34,9 +34,17 @@ function gonfler(el){
   el.addEventListener('animationend',function fin(){el.classList.remove(CLASSE);el.removeEventListener('animationend',fin);});
 }
 
+/*
+ * Norman (2026-09-29) : le même gonflement pour Time Machine / Blood Magic ("l'animation de
+ * l'énergie allouée de basic training"), SANS toucher à leur visuel actuel -- .soreal-idle-bt-
+ * allocation-v120 porte aussi de vraies règles CSS (couleur/taille/graisse, soreal-idle-ui.css),
+ * qui casseraient l'apparence existante de ces écrans si on la leur imposait juste pour l'animation.
+ * [data-idle-alloc-pop-v1] est un simple crochet, sans AUCUNE règle visuelle propre : n'importe quel
+ * écran peut l'ajouter à son propre chiffre sans changer son style.
+ */
 function balayer(){
   planifie=false;
-  var liste=document.querySelectorAll('.soreal-idle-bt-allocation-v120');
+  var liste=document.querySelectorAll('.soreal-idle-bt-allocation-v120,[data-idle-alloc-pop-v1]');
   var maintenant=Date.now();
   for(var i=0;i<liste.length;i++){
     var el=liste[i];
@@ -55,7 +63,7 @@ function planifier(){
 }
 
 document.addEventListener('click',function(ev){
-  var b=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button'):null;
+  var b=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,[data-idle-alloc-pop-trigger-v1] button'):null;
   if(b)actionJusqua=Date.now()+FENETRE_MS;
 },true);
 

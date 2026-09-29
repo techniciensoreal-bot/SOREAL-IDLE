@@ -1441,13 +1441,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return Math.max(0,cap-usedOther);
       }
 
-      function allocationMetaIdleV48_(j,systemId,resource,label){
-        const s=systemeMetaParIdIdleV130_(j,systemId);
-        const current=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation[resource]||0));
-        const max=allocationMaxMetaIdleV48_(j,systemId,resource);
-        const targets=[0,.25,.5,1].map(function(p){return Math.floor(max*p);});
-        return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(label)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(current)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(max)+'</span></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+targets.map(function(value,index){const names=['0%','25%','50%','100%'];return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'allocate\',system:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(systemId)+'\',resource:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(resource)+'\',value:'+value+'})">'+names[index]+'</button>';}).join('')+'</div></div>';
-      }
+      /*
+       * Supprimé (2026-09-29) : allocationMetaIdleV48_ (boutons 0/25/50/100% d'un montant ABSOLU)
+       * était le dernier survivant du défaut déjà diagnostiqué pour Augmentation le 2026-09-24
+       * ("ça me retire l'énergie de Basic Training") -- Blood Magic était son seul appelant restant,
+       * remplacé ci-dessous par le même schéma Input + Cap/1/2/1/4 + Idle que Basic Training/
+       * Augmentation. Plus aucun appelant (grep vérifié) : retiré plutôt que laissé mort.
+       */
 
       /*
        * 2026-09-24 (Norman : « Augmentation ne fonctionne pas comme dans NGU IDLE. Il me semble qu'il y avait des + pour pouvoir y
@@ -1468,6 +1468,24 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const n=Math.floor(Number(v));
         if(Number.isFinite(n)&&n>=1)montantAugmentIdleV1=n;
       };
+      /*
+       * Norman (2026-09-29) : « les boutons Energy Cap ; Cap, 1/2, 1/4 et IDLE Cap, 1/2, 1/4 » --
+       * mêmes raccourcis que la barre d'outils de Basic Training (presetBasicTrainingIdleV120_,
+       * soreal-idle-ui.js), qui ne fait qu'écrire l'Input : "cap" part du plafond d'énergie total
+       * (idleEtat.energieMax), "idle" part de l'énergie idle actuellement libre (idleEtat.energie).
+       * Mêmes deux sources, jamais une valeur inventée pour Augmentation.
+       */
+      function presetAugmentIdleV1_(source,fraction){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const input=document.getElementById('sorealIdleAugInputV1');
+        if(!input)return;
+        const base=source==='idle'?H.idleEntier_(j&&j.energie):H.idleEntier_(j&&j.energieMax);
+        const valeur=Math.max(1,Math.floor(base*Math.max(0,Number(fraction)||0)));
+        input.value=String(valeur);
+        window.__saisirMontantAugmentIdleV1__(valeur);
+      }
+      window.__presetAugmentIdleV1__=presetAugmentIdleV1_;
       /*
        * Norman (2026-09-27) : « Je veux le même son et la même animation sur le bouton + et le chiffre qui reçoit les
        * points d'énergie que dans basic training mais dans augmentation. » Avant ce correctif, le clic attendait le
@@ -1557,11 +1575,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const pct=Math.max(0,Math.min(100,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'Upgrade':'Augment';
-          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+' ⚡</span></div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+          return '<div style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Chaque Augment et chaque Upgrade possède sa propre allocation Energy et progresse en parallèle. Les niveaux sont remis à zéro au Rebirth.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+'</b></div><div class="soreal-idle-summary-v28">Multiplicateur<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">Boss max<b>'+boss+'</b></div></div>'+
-          '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡ · + / − placent ou retirent la valeur de Input ; Max place toute l\'énergie libre.</div><div class="soreal-idle-bt-presets-v120"><button type="button" class="clear" onclick="window.__actionMetaV47__({action:\'clearAugmentAllocations\'})">Tout retirer</button></div></div>'+
+          '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡ · + / − placent ou retirent la valeur de Input ; Max place toute l\'énergie libre.</div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Cap</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__actionMetaV47__({action:\'clearAugmentAllocations\'})">Tout retirer</button></div></div>'+
           /*
            * Anti-spoil (2026-09-27, Norman + AGENTS.md règle n°2) : IDLE_NGU_AUGMENTATIONS est déjà trié par unlockBoss croissant
            * (idle-ngu-progression.js), donc « débloqués + le prochain » est juste une troncature à la première paire non débloquée
@@ -1592,6 +1612,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * panneau gris des facteurs du GPS. + / − placent ou retirent la valeur du champ Input (comme Basic Training et les Augmentations) ;
        * Max place toute la ressource libre de la piste. Les facteurs viennent de j.systemes.timeMachineView (mêmes valeurs que le calcul du GPS).
        */
+      /*
+       * Norman (2026-09-29) : « je veux garder le visuel actuel [de Time Machine], mais je veux le
+       * son lié aux plus et moins de basic training et l'animation de l'énergie allouée de basic
+       * training également. » Le son (btPlus/btMinus/btCap) était déjà présent -- ce qui manquait
+       * était la mise à jour OPTIMISTE locale (comme ajusterAugmentIdleV1_/ajusterBasicTrainingIdleV120_) :
+       * avant ce correctif, le clic attendait la réponse serveur (actionMetaNoyauIdleV130_) avant
+       * que la barre/le chiffre ne bouge, exactement le symptôme "menus plus lents que Basic
+       * Training". Magie : mutée sur idleEtat.systemes.resources.magic.current (le même champ que
+       * le remplissage au compte-goutte de la Beta 6.5, pour rester cohérent avec lui).
+       */
       function ajusterTimeMachineIdleV1_(ressource,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -1604,11 +1634,24 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           :mode==='moins'
             ?Math.max(0,current-pas)
             :Math.max(current,allocationMaxMetaIdleV48_(j,'timeMachine',ressource));
-        if(value!==current&&H.jouerEffetAudioIdleV199_){
-          H.jouerEffetAudioIdleV199_(
-            mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap'
-          );
+        const delta=value-current;
+
+        if(delta!==0){
+          if(H.jouerEffetAudioIdleV199_){
+            H.jouerEffetAudioIdleV199_(
+              mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap'
+            );
+          }
+          if(s&&s.state&&s.state.allocation)s.state.allocation[ressource]=value;
+          if(ressource==='energy'){
+            if(j)j.energie=Math.max(0,H.idleNombre_(j.energie)-delta);
+          }else if(ressource==='magic'){
+            const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+            if(ressourceMagie)ressourceMagie.current=Math.max(0,H.idleNombre_(ressourceMagie.current)-delta);
+          }
+          H.rendreIdleEtat_({ok:true,joueur:j});
         }
+
         window.__actionMetaV47__({action:'allocate',system:'timeMachine',resource:ressource,value:value});
       }
       window.__ajusterTimeMachineIdleV1__=ajusterTimeMachineIdleV1_;
@@ -1658,7 +1701,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                   '<button type="button" class="max" title="Placer toute la ressource libre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'max\')">Max</button>'+
                 '</div>'+
                 '<div class="soreal-idle-tm-col-v1"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(cle==='vitesse'?'speed':'gold')+'\',this.value)"></div>'+
-                '<div class="soreal-idle-tm-col-v1"><span>'+H.idleHtml_(libelleAlloc)+'</span><b>'+nombre(alloue(ressource))+'</b></div>'+
+                '<div class="soreal-idle-tm-col-v1"><span>'+H.idleHtml_(libelleAlloc)+'</span><b id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</b></div>'+
                 '<div class="soreal-idle-tm-col-v1"><span>Niveau</span><b>'+nombre(niveau)+'</b></div>'+
               '</div>')+
           '</section>';
@@ -1690,6 +1733,94 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         '</div>';
       }
 
+      /*
+       * Norman (2026-09-29) : « Dans Blood magic, la manière dont tu l'as reproduit, ça n'est pas
+       * opérationnel. » Cause : allocationMetaIdleV48_ (boutons 0/25/50/100% d'un montant ABSOLU) est
+       * exactement le défaut déjà diagnostiqué et corrigé pour Augmentation le 2026-09-24 (voir le
+       * commentaire juste au-dessus de cette fonction) -- jamais corrigé pour Blood Magic, resté sur
+       * l'ancien helper générique. Remplacé par le même schéma Input + Cap/1/2/1/4 + Idle (Basic
+       * Training/Augmentation), optimiste comme ajusterAugmentIdleV1_/ajusterTimeMachineIdleV1_.
+       */
+      function ajusterBloodMagicIdleV1_(mode){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
+        const current=Math.max(0,H.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation.magic));
+        const pas=Math.max(1,Math.floor(Number((document.getElementById('sorealIdleBloodInputV1')||{}).value)||montantAugmentIdleV1));
+        if(Number.isFinite(pas)&&pas>=1)montantAugmentIdleV1=pas;
+        const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+        const idleAvant=Math.max(0,H.idleNombre_(ressourceMagie&&ressourceMagie.current));
+        const cible=mode==='plus'
+          ?current+Math.min(pas,idleAvant)
+          :mode==='moins'
+            ?Math.max(0,current-pas)
+            :current+idleAvant;
+        const value=Math.max(0,H.idleEntier_(cible));
+        const delta=value-current;
+
+        if(delta!==0){
+          if(H.jouerEffetAudioIdleV199_){
+            H.jouerEffetAudioIdleV199_(
+              mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap'
+            );
+          }
+          if(s&&s.state&&s.state.allocation)s.state.allocation.magic=value;
+          if(ressourceMagie)ressourceMagie.current=Math.max(0,idleAvant-delta);
+          H.rendreIdleEtat_({ok:true,joueur:j});
+        }
+
+        window.__actionMetaV47__({action:'allocate',system:'bloodMagic',resource:'magic',value:value});
+      }
+      window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;
+
+      function viderBloodMagicIdleV1_(){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
+        const current=Math.max(0,H.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation.magic));
+        if(current<=0)return;
+        if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_('btMinus');
+        if(s&&s.state&&s.state.allocation)s.state.allocation.magic=0;
+        const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+        if(ressourceMagie)ressourceMagie.current=Math.max(0,H.idleNombre_(ressourceMagie.current)+current);
+        H.rendreIdleEtat_({ok:true,joueur:j});
+        window.__actionMetaV47__({action:'allocate',system:'bloodMagic',resource:'magic',value:0});
+      }
+      window.__viderBloodMagicIdleV1__=viderBloodMagicIdleV1_;
+
+      /* Même raccourcis que la barre d'outils de Basic Training/Augmentation : "cap" part du plafond réel de Magic, "idle" part de la Magic actuellement libre. */
+      function presetBloodMagicIdleV1_(source,fraction){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const input=document.getElementById('sorealIdleBloodInputV1');
+        if(!input)return;
+        const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+        const base=source==='idle'?H.idleEntier_(ressourceMagie&&ressourceMagie.current):H.idleEntier_(ressourceMagie&&ressourceMagie.cap);
+        const valeur=Math.max(1,Math.floor(base*Math.max(0,Number(fraction)||0)));
+        input.value=String(valeur);
+      }
+      window.__presetBloodMagicIdleV1__=presetBloodMagicIdleV1_;
+
+      /*
+       * Norman : « Je pense que Blood Magic nécessite des boutons Cap + et - également », pour
+       * chaque rituel (capture NGU jointe). Le serveur n'a qu'UNE SEULE allocation Magic partagée,
+       * versée au rituel ACTIF (data.activeRitual, selectRitual) -- jamais une réserve indépendante
+       * par rituel. Le bouton d'un rituel non actif l'active donc d'abord (comme le ferait le joueur
+       * en cliquant "Choisir ce rituel"), puis applique le même ajustement que la barre d'outils
+       * principale -- aucune capacité serveur inventée, seulement le même modèle déjà réel.
+       */
+      function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
+        if(s&&s.state&&s.state.data&&s.state.data.activeRitual!==ritualId){
+          s.state.data.activeRitual=ritualId;
+          window.__actionMetaV47__({action:'selectRitual',ritual:ritualId});
+        }
+        ajusterBloodMagicIdleV1_(mode);
+      }
+      window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
+
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
         if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🩸 Blood Magic','Magic alimente des rituels qui produisent du Blood.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 37 pour débloquer Magic et Blood Magic.</div>';
@@ -1705,10 +1836,37 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         /* Dernier sort (THE END) : invisible sous 5e22 de sang, sauf si la pièce est déjà trouvée. */
         const pieces494=snap.adventure&&snap.adventure.theEnd&&Array.isArray(snap.adventure.theEnd.pieces)&&snap.adventure.theEnd.pieces.some(function(p){return p.id===494;});
         if(blood>=5e22||pieces494)spellDefs.push(['leeches','3%q6(;>_<,$H8e',null]);
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🩸 Blood Magic','Choisis un rituel, alloue de la Magic et laisse-le produire du Blood. Les sorts ci-dessous consomment tout le Blood disponible.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Blood<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
-          allocationMetaIdleV48_(j,'bloodMagic','magic','Magic allouée')+
-          '<h3 style="margin:16px 0 8px">Rituels</h3><div style="display:grid;gap:10px">'+defs.map(function(def){const r=rituals[def.id]||{};const unlocked=!def.unlockFlag||Boolean(flags[def.unlockFlag]);const active=data.activeRitual===def.id;return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(unlocked?'1':'.55')+'"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(r.completions||0)+' complété(s)</span></div><div style="font-size:12px;color:#aeb5c8;margin-top:5px">Coût '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.gold||0)+' Gold · +'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.blood||0)+' Blood</div><button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(unlocked?'onclick="window.__actionMetaV47__({action:\'selectRitual\',ritual:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})"':'disabled')+'>'+(active?'▶ Rituel actif':'Choisir ce rituel')+'</button></div>';}).join('')+'</div>'+
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const allocMagicActuelle=Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.magic));
+        const ressourceMagie=snap.resources&&snap.resources.magic;
+        const magicLibre=Math.max(0,H.idleNombre_(ressourceMagie&&ressourceMagie.current));
+        const bmView=snap.bloodMagicView||null;
+        const toolbar='<div class="soreal-idle-bt-toolbar-v120">'+
+          '<div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">Input</label><input id="sorealIdleBloodInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
+          '<div class="soreal-idle-bt-info-v1">Magic libre : <b>'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée au rituel actif : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮 · + / − placent ou retirent la valeur de Input sur le rituel choisi ; Cap place toute la Magic libre.</div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Magic Cap</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',1)">Cap</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.25)">1/4</button></div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Idle</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderBloodMagicIdleV1__()">Tout retirer</button></div>'+
+        '</div>';
+        const rituelsHtml=defs.map(function(def){
+          const r=rituals[def.id]||{};
+          const unlocked=!def.unlockFlag||Boolean(flags[def.unlockFlag]);
+          const active=data.activeRitual===def.id;
+          const etaTexte=active&&bmView&&bmView.activeRitual===def.id&&bmView.etaSeconds!=null
+            ?'⏱ '+formatDureeAugmentIdleV1_(bmView.etaSeconds)+' avant le prochain rituel complété'
+            :(active?'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.':'');
+          return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(unlocked?'1':'.55')+'">'+
+            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(def.name||def.id)+(active?' ▶':'')+'</b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
+            '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">Coût '+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold · +'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</div>'+
+            (etaTexte?'<div style="font-size:12px;color:#c7d2fe;margin:3px 0">'+H.idleHtml_(etaTexte)+'</div>':'')+
+            (unlocked
+              ?'<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+H.idleHtml_(def.id)+'\',\'plus\')">+</button><button type="button" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+H.idleHtml_(def.id)+'\',\'moins\')">−</button><button type="button" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+H.idleHtml_(def.id)+'\',\'cap\')">Cap</button></div>'
+              :'<button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" disabled>🔒 Verrouillé</button>')+
+          '</div>';
+        }).join('');
+        return H.entetePageIdleV28_('🩸 Blood Magic','Choisis un rituel, alloue de la Magic et laisse-le produire du Blood. Les sorts ci-dessous consomment tout le Blood disponible.')+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Blood<b>'+H.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">Gold<b>'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
+          toolbar+
+          '<h3 style="margin:16px 0 8px">Rituels</h3><div style="display:grid;gap:10px">'+rituelsHtml+'</div>'+
           '<h3 style="margin:16px 0 8px">Blood Spells</h3><div style="display:grid;gap:10px">'+spellDefs.map(function(sp){return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(sp[1])+'</b><span>'+(sp[2]===null?'':window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(sp[2]))+'</span></div><button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(blood>0?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp[0]+'\'})"':'disabled')+'>Utiliser tout le Blood</button></div>';}).join('')+'</div>';
       }
 
