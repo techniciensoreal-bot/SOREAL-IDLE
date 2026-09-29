@@ -2403,3 +2403,13 @@ Norman : « Tu n'as pas arrangé la barre énergie et magie.. Je ne veux plus qu
 - Tests : `idle-energy-tick-bounce-v1.test.mjs` réécrit (verrouillait l'ancien rebond, verrouille maintenant le remplissage direct simple) ; `idle-smooth-visual-rendering.test.mjs`/`idle-magic-smooth-fill-v1.test.mjs` mis à jour (le rendu RAF séparé n'existe plus) ; `idle-energy-adventure-hp-v200.test.mjs` mis à jour pour la nouvelle signature. Suite complète : 423/423 OK.
 
 Versions : ui `319`, css `12`, notes `51`, Beta `6.7`.
+
+## 2026-09-29 (suite) — IDLE Beta 6.8 « Statistiques du Cube, plus lisibles » : « (+0 cube) » n'apparaît plus
+
+Norman : « Est-ce que tu as des travaux en cours mais non push ? ... j'ai demandé plusieurs choses et je ne les vois pas. Comme par exemple ne plus avoir (+0 cube) mais juste (+0) » — précisé : le cadre de statistiques du joueur en mode Aventure, sous l'image du monstre.
+
+- **Cause réelle** (`modules/adventure-scene-v79.js`, `playerStat()`) : le tag "cube" du Power/Toughness n'apparaît déjà que si `cube>0` (jamais pour une contribution nulle) -- mais `format_(cube,precision)` arrondit à l'entier le plus proche (`Intl.NumberFormat`, `maximumFractionDigits` par défaut 0). Une contribution Cube réelle mais petite (ex. 0,4 après le softcap) passait donc la garde `cube>0` (vraie) tout en s'AFFICHANT « 0 » une fois arrondie : littéralement « (+0 cube) » à l'écran malgré la garde. Même défaut potentiel sur le tag « bonus » juste au-dessus (même formatage, même arrondi).
+- **Correctif** : la garde compare désormais le texte RÉELLEMENT affiché (déjà arrondi via `format_`) à `"0"`, pas seulement la valeur brute à 0 -- pour les deux tags (bonus et cube). Une vraie contribution reste affichée normalement dès qu'elle compte une fois arrondie.
+- Tests : nouveau `idle-adventure-player-stat-cube-zero-v1.test.mjs` (garde source vérifiée + la prémisse du bug rejouée avec le vrai formateur `Intl.NumberFormat` : 0,4 s'arrondit bien à "0"). Suite complète : 424/424 OK.
+
+Versions : scène Aventure `2026`, notes `52`, Beta `6.8`.

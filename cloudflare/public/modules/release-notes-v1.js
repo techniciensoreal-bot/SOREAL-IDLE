@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.7',
+    courante:'6.8',
     versions:[
+      {
+        version:'6.8',
+        nom:'Statistiques du Cube, plus lisibles',
+        date:'2026-09-29',
+        points:[
+          'Le cadre de statistiques en mode Aventure n’affiche plus « (+0 cube) » quand la contribution du Cube est trop petite pour se voir arrondie.',
+          'Le vrai bonus s’affiche toujours normalement dès qu’il est assez grand pour compter.',
+          'Aucun autre changement sur ce cadre.'
+        ]
+      },
       {
         version:'6.7',
         nom:'Énergie et Magie, sans à-coups',

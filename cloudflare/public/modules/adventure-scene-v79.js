@@ -243,6 +243,15 @@
     var selectedZone=String(a&&a.selectedZone||'safe');
     var safeMultiplier=a&&a.setRewards&&a.setRewards.safeZoneRegen10x?10:5;
     var effectiveRegen=selectedZone==='safe'?totalRegen*safeMultiplier:totalRegen;
+    /*
+     * Norman (2026-09-29) : « ne plus avoir (+0 cube) mais juste (+0) ». Cause réelle : cube>0
+     * passait déjà (ex. une contribution Cube de 0,4 après le softcap) mais format_(cube,precision)
+     * arrondit à l'entier le plus proche (maximumFractionDigits par défaut 0) -- "0,4" s'affichait
+     * donc littéralement "(+0 cube)", une contribution réelle mais illisible sous cette forme. Le
+     * repère "cube" n'a de sens que si un chiffre non nul l'accompagne : on compare désormais le
+     * texte déjà FORMATÉ (celui réellement affiché) à "0", exactement comme le fait déjà le tag
+     * .soreal-idle-v79-stat-bonus juste au-dessus pour le même genre d'arrondi.
+     */
     function playerStat(key,base,total,precision,cubeContribution){
       var line=player.querySelector('[data-player-stat="'+key+'"]');
       if(!line)return;
@@ -250,9 +259,11 @@
       var bonus=Math.max(0,total-base-cube);
       line.querySelector('.soreal-idle-v79-stat-base').textContent=format_(base,precision);
       var extra=line.querySelector('.soreal-idle-v79-stat-bonus');
-      if(extra)extra.textContent=bonus>0?' (+'+format_(bonus,precision)+')':'';
+      var bonusTexte=format_(bonus,precision);
+      if(extra)extra.textContent=bonus>0&&bonusTexte!=='0'?' (+'+bonusTexte+')':'';
       var cubeExtra=line.querySelector('.soreal-idle-v79-stat-cube');
-      if(cubeExtra)cubeExtra.textContent=cube>0?' (+'+format_(cube,precision)+' cube)':'';
+      var cubeTexte=format_(cube,precision);
+      if(cubeExtra)cubeExtra.textContent=cube>0&&cubeTexte!=='0'?' (+'+cubeTexte+' cube)':'';
     }
     playerStat('power',basePower,number_(stats.power),0,cubePower);
     playerStat('toughness',baseToughness,number_(stats.toughness),0,cubeToughness);
