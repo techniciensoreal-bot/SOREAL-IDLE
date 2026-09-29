@@ -5,17 +5,17 @@
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
 - **Tâche courante** : restaurer la fluidité visuelle après le plafonnement du tick lourd à 15 Hz, sans réintroduire les freezes iPhone/Safari.
-- **SHA `main` fonctionnel vérifié** : `98ead43501554c67879fc559882d3c2802504881` avant correctif de fluidité.
+- **SHA `main` fonctionnel vérifié** : `0e092bfa84d79b65a9876541cc57ea0a28ee5458` pour le correctif de fluidité ; déployé et SHA vérifié dans le run #695, mais smoke Piper en échec.
 - **Derniers commits effectués sur `fix/smooth-visual-rendering`** : `bd8056bf` (rendu visuel léger découplé du tick lourd), `351a27dd` (test de non-régression).
-- **Tests** : `idle-smooth-visual-rendering.test.mjs` ajouté ; CI complète encore à vérifier.
-- **Build** : pas encore vérifié pour cette branche.
-- **CI** : pas encore exécutée pour le correctif de fluidité.
+- **Tests** : suite complète verte dans le run #695, incluant `idle-smooth-visual-rendering.test.mjs`.
+- **Build** : standalone + vérifications syntaxiques verts dans le run #695.
+- **CI** : run #695 globalement FAILURE uniquement sur le smoke Piper ; tests/build/déploiement/vérification SHA SUCCESS.
 - **SHA réellement déployé** : `git:63b69c181f6852e3ea91238025045f5299c2a1f4` ; étape GitHub Actions « Verify deployed Git SHA » SUCCESS dans le run #694.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : la simulation visible reste volontairement à 15 Hz, mais la barre d'énergie était elle aussi dessinée seulement à 15 Hz. Le correctif projette uniquement son rendu à chaque `requestAnimationFrame`, sans muter l'état du jeu.
+- **Dernière anomalie / état notable** : smoke Piper #695 en échec après déploiement : HTTP 502 sur `https://soreal-idle.technicien-soreal.workers.dev/api/idle/media/piper-model.onnx`, erreur `PIPER_LOCAL_MODEL_FETCH_FAILED_502`. Aucun lien direct avec le correctif de fluidité détecté.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider la branche, ouvrir une PR, fusionner, vérifier tests/build/CI/déploiement/SHA puis tester visuellement la fluidité en production.
+- **Prochaine action exacte** : relancer le job #695 pour vérifier si le 502 Piper était transitoire ; ne considérer le correctif comme totalement vérifié qu'après smoke vert.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -2293,3 +2293,13 @@ Versions : release-notes-v1.js v43, Beta 5.9.
 - PR #33 fusionnée : `63b69c181f6852e3ea91238025045f5299c2a1f4`.
 - CI #694 : SUCCESS complet (tests, build, dépendances voix, déploiement Cloudflare, vérification SHA, smoke Piper Chromium).
 - Production : SHA `63b69c181f6852e3ea91238025045f5299c2a1f4` vérifié par l'étape de contrôle du déploiement.
+
+### Fluidité visuelle — run #695 — anomalie CI
+- PR #34 fusionnée sur `main` : `0e092bfa84d79b65a9876541cc57ea0a28ee5458`.
+- Tests : SUCCESS, y compris `idle-smooth-visual-rendering.test.mjs`.
+- Build : SUCCESS.
+- Déploiement Cloudflare : SUCCESS.
+- Vérification SHA déployé : SUCCESS.
+- Smoke Piper/Chromium : FAILURE.
+- Erreur exacte : HTTP 502 sur `/api/idle/media/piper-model.onnx`, puis `PIPER_LOCAL_MODEL_FETCH_FAILED_502` dans `idle-piper-production-origin.smoke.mjs:74`.
+- Cette panne intervient dans le chargement du modèle vocal, après validation du déploiement du correctif de fluidité.
