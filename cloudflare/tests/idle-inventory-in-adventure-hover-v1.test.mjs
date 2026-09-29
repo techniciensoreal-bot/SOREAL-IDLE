@@ -52,16 +52,31 @@ assert.match(auto, /\(estOuvert\?'<div class="soreal-idle-inv-auto-sections-v1">
 assert.match(css, /\.soreal-idle-inv-auto-titre-v1\s*\{/, "même style que le Coffre et Info");
 
 // --- C. Popup au survol (souris) ---
+/*
+ * Norman (2026-09-29) : « Il y a maintenant 2 fenêtre popup au survol d'un objet avec la souris.
+ * Le popup instantané et celui qui met 1 secondes à s'ouvrir. Supprimer completement celui qui
+ * met 1sec a s'ouvrir. » Choix retenu : un seul popup, le popup complet (boutons compris), ouvert
+ * SANS délai au survol -- le délai d'1 s (et l'infobulle instantanée séparée qui faisait doublon
+ * avec lui) sont entièrement retirés.
+ */
 assert.match(ui, /if\(event\.detail&&event\.detail\.pointerType==='mouse'\)return;/, "le maintien du clic (souris) n'ouvre plus le popup");
 assert.match(ui, /function survolPossibleIdleV1_\(event\)\{[\s\S]{0,300}\(hover:hover\) and \(pointer:fine\)/, "seulement avec une vraie souris");
-assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,1400}planifierSurvolIdleV1_\(element,id\)/, "survol d'un objet : ouverture après un délai");
-assert.match(ui, /IDLE_SURVOL_DELAI_MS_V1=1000;/, "1 seconde à l'arrêt avant d'ouvrir le popup");
-assert.match(ui, /document\.addEventListener\('mousemove',function\(event\)\{\s*if\(!idleSurvolEnAttenteV1/, "chaque mouvement de la souris relance la seconde d'attente");
+assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,900}ouvrirSurvolIdleV1_\(element,id\)/, "survol d'un objet : ouverture directe, sans délai");
+assert.ok(!ui.includes("IDLE_SURVOL_DELAI_MS_V1"), "plus aucun délai d'ouverture au survol");
+assert.ok(!ui.includes("planifierSurvolIdleV1_"), "plus de minuteur d'ouverture différée");
+assert.ok(!ui.includes("idleSurvolEnAttenteV1"), "plus d'état 'en attente' (rien à attendre)");
+assert.ok(!/mousemove[\s\S]{0,80}idleSurvolEnAttenteV1/.test(ui), "plus besoin de relancer une attente à chaque mouvement de la souris (les autres écouteurs mousemove, glisser une fenêtre, restent)");
 assert.match(ui, /cibleDansPopupDetailsObjetAdventureIdleV207_\(cible\)\)\{\s*clearTimeout\(idleSurvolTimerFermerV1\)/, "tant que la souris est dans le popup : il reste ouvert");
-assert.match(ui, /fermerSurvolIdleV1_\(\);\s*\},200\)/, "sortie de l'objet et du popup : fermeture après un court délai de grâce");
+assert.match(ui, /fermerSurvolIdleV1_\(\);\s*\},200\)/, "sortie de l'objet et du popup : fermeture après un court délai de grâce (jamais un délai d'ouverture)");
 assert.match(ui, /document\.documentElement\.addEventListener\('mouseleave'/, "sortie de la fenêtre du navigateur : fermeture");
 assert.match(ui, /idleAdventureDragIdV138\|\|\s*idleAdventureGesteV196\|\|\s*idleAdventureComparerEnAttenteV183/, "pas de popup pendant un glisser-déposer ni une comparaison");
 assert.match(ui, /if\(left\+largeur>window\.innerWidth-marge\)left=r\.left-largeur-4;/, "le popup s'ouvre à côté de l'objet (à gauche s'il n'y a pas de place à droite)");
 assert.match(ui, /idleAdventureIgnorerClicJusquaV165=0;/, "le survol n'avale pas le premier clic");
+
+// --- D. L'ancienne infobulle instantanée séparée (doublon avec le popup complet) n'existe plus du tout. ---
+assert.ok(!ui.includes("function installerInfobulleObjetAdventureIdleV1_("), "plus d'infobulle séparée : un seul popup au survol");
+assert.ok(!ui.includes("function ouvrirInfobulleObjetAdventureIdleV1_("));
+assert.ok(!ui.includes("sorealIdleItemInfobulleV1"));
+assert.ok(!css.includes("soreal-idle-item-infobulle-v1"), "plus de style pour une infobulle qui n'existe plus");
 
 console.log("idle-inventory-in-adventure-hover-v1 OK");

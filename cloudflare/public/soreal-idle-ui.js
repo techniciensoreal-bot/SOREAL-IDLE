@@ -19705,12 +19705,18 @@ function pageAventureIdleV28_(j){
       installerGestesInventaireAdventureIdleV196_();
 
       /*
-       * PC — popup d'objet au SURVOL (Norman, 2026-09-24) : « quand on passe la souris sur un objet, le popup apparaît ; il disparaît quand
-       * on sort de la fenêtre du popup. Tant qu'on y reste, on a accès aux boutons (verrouiller…). » Souris seulement (le tactile garde le
-       * maintien long). Le popup s'ouvre à côté de l'objet ; un court délai de grâce laisse passer la souris de l'objet au popup.
+       * PC — popup d'objet au SURVOL (Norman, 2026-09-24 ; délai d'1s ajouté le 2026-09-26 ; délai
+       * retiré le 2026-09-29 : « Il y a maintenant 2 fenêtre popup au survol d'un objet avec la
+       * souris. Le popup instantané et celui qui met 1 secondes à s'ouvrir. Supprimer completement
+       * celui qui met 1sec a s'ouvrir. » Réponse choisie par Norman : plus JAMAIS deux popups --
+       * l'ancienne infobulle instantanée séparée (installerInfobulleObjetAdventureIdleV1_, stats
+       * seules, sans bouton) est retirée, et c'est désormais le popup COMPLET
+       * (soreal-idle-v138-details, boutons Équiper/Utiliser/Transformer...) qui s'ouvre au survol,
+       * SANS délai. Souris seulement (le tactile garde le maintien long/double-tap). Le popup
+       * s'ouvre à côté de l'objet ; un court délai de grâce à la FERMETURE laisse passer la souris
+       * de l'objet au popup.
        */
       let idleSurvolIdV1='';
-      let idleSurvolTimerOuvrirV1=0;
       let idleSurvolTimerFermerV1=0;
       let idleSurvolBloqueV1=false;
 
@@ -19730,34 +19736,12 @@ function pageAventureIdleV28_(j){
         );
       }
 
-      function annulerTimersSurvolIdleV1_(){
-        clearTimeout(idleSurvolTimerOuvrirV1);
-        clearTimeout(idleSurvolTimerFermerV1);
-        idleSurvolTimerOuvrirV1=0;
-        idleSurvolTimerFermerV1=0;
-      }
-
       function fermerSurvolIdleV1_(){
-        annulerTimersSurvolIdleV1_();
+        clearTimeout(idleSurvolTimerFermerV1);
+        idleSurvolTimerFermerV1=0;
         if(!idleSurvolIdV1)return;
         idleSurvolIdV1='';
         if(popupDetailsObjetAdventureIdleOuvertV207_())fermerDetailsObjetAdventureIdleV1_();
-      }
-
-      /*
-       * Délai d'ouverture (2026-09-26, Norman : « le popup ne doit pas apparaître instantanément ; après 1 seconde à l'arrêt, alors il le montre »,
-       * sur PC) : la seconde repart à chaque mouvement de la souris sur l'objet.
-       */
-      const IDLE_SURVOL_DELAI_MS_V1=1000;
-      let idleSurvolEnAttenteV1=null;
-      function planifierSurvolIdleV1_(element,id){
-        clearTimeout(idleSurvolTimerOuvrirV1);
-        idleSurvolEnAttenteV1={element:element,id:id};
-        idleSurvolTimerOuvrirV1=setTimeout(function(){
-          idleSurvolTimerOuvrirV1=0;
-          idleSurvolEnAttenteV1=null;
-          ouvrirSurvolIdleV1_(element,id);
-        },IDLE_SURVOL_DELAI_MS_V1);
       }
 
       function ouvrirSurvolIdleV1_(element,id){
@@ -19795,27 +19779,18 @@ function pageAventureIdleV28_(j){
           clearTimeout(idleSurvolTimerFermerV1);
           idleSurvolTimerFermerV1=0;
           if(id===idleSurvolIdV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
-          /* Un autre objet : le popup du précédent se ferme tout de suite, le nouveau n'apparaît qu'après l'arrêt. */
+          /* Un autre objet : le popup du précédent se ferme, le nouveau s'ouvre aussitôt (plus aucun délai). */
           if(idleSurvolIdV1&&id!==idleSurvolIdV1)fermerSurvolIdleV1_();
-          planifierSurvolIdleV1_(element,id);
+          ouvrirSurvolIdleV1_(element,id);
           return;
         }
         /* ni objet ni popup : on ferme (avec un court délai de grâce) le popup ouvert par survol */
-        clearTimeout(idleSurvolTimerOuvrirV1);
-        idleSurvolTimerOuvrirV1=0;
         if(idleSurvolIdV1&&!idleSurvolTimerFermerV1){
           idleSurvolTimerFermerV1=setTimeout(function(){
             idleSurvolTimerFermerV1=0;
             fermerSurvolIdleV1_();
           },200);
         }
-      });
-
-      document.addEventListener('mousemove',function(event){
-        if(!idleSurvolEnAttenteV1||!idleSurvolTimerOuvrirV1)return;
-        if(!survolPossibleIdleV1_(event))return;
-        const element=elementObjetGesteAdventureIdleV196_(event.target);
-        if(element&&element===idleSurvolEnAttenteV1.element)planifierSurvolIdleV1_(idleSurvolEnAttenteV1.element,idleSurvolEnAttenteV1.id);
       });
 
       /* La souris quitte la fenêtre du navigateur */
@@ -19838,6 +19813,7 @@ function pageAventureIdleV28_(j){
       document.addEventListener('pointerup',function(){
         setTimeout(function(){idleSurvolBloqueV1=false;},60);
       },true);
+
 
       function idSourceAdventureIdleV138_(event){
         return String(
@@ -20182,12 +20158,6 @@ function pageAventureIdleV28_(j){
         if(id)fusionnerSiPossibleAdventureIdleV138_(id,String(cibleId||''));
       }
 
-      /*
-       * Norman (2026-09-29) : extrait du corps de afficherDetailsObjetAdventureIdleV138_
-       * (comportement inchangé) pour être réutilisé par l'infobulle de survol PC
-       * (installerInfobulleObjetAdventureIdleV1_) sans dupliquer ~85 lignes de calcul
-       * de stats -- une seule source de vérité pour les deux affichages.
-       */
       function statsHtmlObjetAdventureIdleV138_(item){
         if(!(item.kind==='equipment'||item.kind==='special'||item.kind==='cube'))return '';
         const niveau=idleEntier_(item.level);
@@ -20530,93 +20500,13 @@ function pageAventureIdleV28_(j){
       window.__fermerDetailsObjetAdventureIdleV1__=fermerDetailsObjetAdventureIdleV1_;
 
       /*
-       * Norman (2026-09-29) : « Sur PC, j'aimerais que les statistiques des items apparaissent instantanément au
-       * passage de la souris. Le popup doit toujours se situer en haut à gauche/droite ou en bas à gauche/droite
-       * suivant la place disponible à l'écran. Il ne doit pas couvrir l'objet qu'on affiche. Il ne doit pas être
-       * directement sur la souris. »
-       *
-       * Infobulle de survol légère (lecture seule, pas d'actions), séparée du popup interactif existant
-       * (afficherDetailsObjetAdventureIdleV138_, ouvert par appui long 600 ms -- long-press-v200.js -- ou tap, avec
-       * boutons Équiper/Vendre/Verrouiller…) qui reste inchangé. Réutilise statsHtmlObjetAdventureIdleV138_ (même
-       * source que le popup, jamais un second calcul de stats) et elementObjetGesteAdventureIdleV196_/
-       * idObjetGesteAdventureIdleV196_ (mêmes emplacements que le popup : sac, paperdoll, accessoires).
-       *
-       * Positionnement : ancrée à un COIN de l'emplacement survolé (jamais sur son rectangle, donc jamais sur
-       * l'objet ni sous le curseur qui vient de l'atteindre) ; les 4 coins possibles (haut-droite, haut-gauche,
-       * bas-droite, bas-gauche) sont essayés dans cet ordre, le premier qui tient entièrement dans la fenêtre est
-       * retenu.
+       * Norman (2026-09-29) : « Il y a maintenant 2 fenêtre popup au survol d'un objet avec la
+       * souris [...] Supprimer completement celui qui met 1sec a s'ouvrir. » L'infobulle de survol
+       * légère (2026-09-29, lecture seule, séparée du popup interactif) est retirée : le popup
+       * interactif complet (afficherDetailsObjetAdventureIdleV138_) s'ouvre désormais directement
+       * au survol, sans délai -- voir le bloc "PC — popup d'objet au SURVOL" plus haut. Plus jamais
+       * deux popups distincts au survol d'un objet.
        */
-      function fermerInfobulleObjetAdventureIdleV1_(){
-        const el=document.getElementById('sorealIdleItemInfobulleV1');
-        if(el)el.remove();
-      }
-
-      function calculerPositionInfobulleObjetAdventureIdleV1_(largeur,hauteur,ancreRect){
-        const marge=10;
-        const vw=window.innerWidth,vh=window.innerHeight;
-        const candidats=[
-          {top:ancreRect.top-hauteur-marge,left:ancreRect.right+marge},
-          {top:ancreRect.top-hauteur-marge,left:ancreRect.left-largeur-marge},
-          {top:ancreRect.bottom+marge,left:ancreRect.right+marge},
-          {top:ancreRect.bottom+marge,left:ancreRect.left-largeur-marge}
-        ];
-        const tient=function(c){
-          return c.top>=4&&c.left>=4&&c.top+hauteur<=vh-4&&c.left+largeur<=vw-4;
-        };
-        const choix=candidats.find(tient)||candidats[0];
-        return {
-          top:Math.max(4,Math.min(vh-hauteur-4,choix.top)),
-          left:Math.max(4,Math.min(vw-largeur-4,choix.left))
-        };
-      }
-
-      function ouvrirInfobulleObjetAdventureIdleV1_(element){
-        const id=idObjetGesteAdventureIdleV196_(element);
-        const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
-        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
-        const item=id?items.find(function(x){return String(x&&x.id)===id;}):null;
-        const stats=item?statsHtmlObjetAdventureIdleV138_(item):'';
-        if(!item||!stats){
-          fermerInfobulleObjetAdventureIdleV1_();
-          return;
-        }
-        fermerInfobulleObjetAdventureIdleV1_();
-        const el=document.createElement('div');
-        el.id='sorealIdleItemInfobulleV1';
-        el.className='soreal-idle-item-infobulle-v1';
-        el.setAttribute('role','tooltip');
-        const niveau=idleEntier_(item.level);
-        el.innerHTML=
-          '<div class="soreal-idle-item-infobulle-nom-v1">'+idleHtml_(item.name||item.nom||'')+
-            (niveau>0?' <span class="soreal-idle-item-infobulle-niveau-v1">Niv. '+niveau+'/100</span>':'')+
-          '</div>'+stats;
-        document.body.appendChild(el);
-        const pos=calculerPositionInfobulleObjetAdventureIdleV1_(
-          el.offsetWidth,el.offsetHeight,element.getBoundingClientRect()
-        );
-        el.style.left=pos.left+'px';
-        el.style.top=pos.top+'px';
-      }
-
-      function installerInfobulleObjetAdventureIdleV1_(){
-        if(window.__sorealIdleInfobulleObjetV1)return;
-        window.__sorealIdleInfobulleObjetV1=true;
-        document.addEventListener('mouseover',function(ev){
-          if(ev.pointerType==='touch')return;
-          if(popupDetailsObjetAdventureIdleOuvertV207_())return;
-          const element=elementObjetGesteAdventureIdleV196_(ev.target);
-          if(!element)return;
-          if(elementObjetGesteAdventureIdleV196_(ev.relatedTarget)===element)return;
-          ouvrirInfobulleObjetAdventureIdleV1_(element);
-        });
-        document.addEventListener('mouseout',function(ev){
-          const element=elementObjetGesteAdventureIdleV196_(ev.target);
-          if(!element)return;
-          if(elementObjetGesteAdventureIdleV196_(ev.relatedTarget)===element)return;
-          fermerInfobulleObjetAdventureIdleV1_();
-        });
-      }
-      installerInfobulleObjetAdventureIdleV1_();
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-273 */
       function clicCibleAdventureIdleV138_(slotName,occupantId){

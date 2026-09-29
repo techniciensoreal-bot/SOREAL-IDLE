@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.2',
+    courante:'7.3',
     versions:[
+      {
+        version:'7.3',
+        nom:'Un seul popup à la fois',
+        date:'2026-09-29',
+        points:[
+          'Sur PC, un seul popup s’ouvre désormais au survol d’un objet (avant, deux apparaissaient l’un après l’autre).',
+          'C’est le popup complet, avec ses boutons, qui s’ouvre directement au survol, sans délai.',
+          'Il se ferme normalement quand tu quittes l’objet et le popup.'
+        ]
+      },
       {
         version:'7.2',
         nom:'Un sac bien rangé',
