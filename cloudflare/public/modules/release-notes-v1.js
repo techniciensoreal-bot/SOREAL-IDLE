@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.1',
+    courante:'6.2',
     versions:[
+      {
+        version:'6.2',
+        nom:'Forêt, la tenue au grand complet',
+        date:'2026-09-29',
+        points:[
+          'Le portrait automatique du set Forêt évolue maintenant avec le niveau de l’équipement porté.',
+          'Les 5 pièces à niveau 50 minimum débloquent une nouvelle variante du portrait.',
+          'Les 5 pièces au niveau 100 débloquent la variante la plus avancée.'
+        ]
+      },
       {
         version:'6.1',
         nom:'Objets, l’image retrouvée',

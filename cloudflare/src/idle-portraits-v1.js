@@ -33,8 +33,16 @@ const TABLE_V1 = [
   ["training", "PlayerAPportrait17", "Training", { type: SET, set: "training" }],
   ["sewers", "PlayerAPportrait18", "Sewers", { type: SET, set: "sewers" }],
   ["forest", "PlayerAPportrait19", "Forest", { type: SET, set: "forest" }],
-  ["forest-bonus-1", "PlayerAPportrait20", "Forest (bonus 1)", { type: SET, set: "forest" }],
-  ["forest-bonus-2", "PlayerAPportrait21", "Forest (bonus 2)", { type: SET, set: "forest" }],
+  /*
+   * Norman (2026-09-29) : « une fois que les 5 pièces sont montées au niveau 50 mini, ce soit ...20
+   * qui soit utilisée. Une fois que les 5 pièces sont au niveau 100, il faut ...21. » minTier ne
+   * conditionne QUE le choix du portrait AUTOMATIQUE (idlePortraitForEquippedSetV1, en dessous) --
+   * le déblocage manuel dans la galerie (idlePortraitUnlockedV1) reste inchangé : les deux bonus
+   * restent choisissables dès le set Forest complété (peu importe le niveau), comme le wiki le
+   * décrit déjà (« the set Forest gives you in addition the two bonus profiles »).
+   */
+  ["forest-bonus-1", "PlayerAPportrait20", "Forest (bonus 1)", { type: SET, set: "forest", minTier: 50 }],
+  ["forest-bonus-2", "PlayerAPportrait21", "Forest (bonus 2)", { type: SET, set: "forest", minTier: 100 }],
   ["cave", "PlayerAPportrait22", "Cave", { type: SET, set: "cave" }],
   ["hsb", "PlayerAPportrait23", "HSB", { type: SET, set: "hsb" }],
   ["grb", "PlayerAPportrait24", "GRB", { type: SET, set: "grb" }],
@@ -133,15 +141,24 @@ export function idlePortraitSelectedIdV1(selectedId, env = {}) {
  * 2026-09-27, ce set reste mémorisé même après avoir retiré une pièce : retirer une pièce ne fait plus
  * revenir au choix manuel, seul l'équipement d'un set complet DIFFÉRENT remplace le portrait automatique.
  */
-export function idlePortraitForEquippedSetV1(setId) {
+export function idlePortraitForEquippedSetV1(setId, tier = 0) {
   const id = String(setId || "");
   if (!id) return null;
-  return IDLE_PORTRAITS_V1.find(p => p.unlock.type === SET && p.unlock.set === id) || null;
+  const candidats = IDLE_PORTRAITS_V1.filter(p => p.unlock.type === SET && p.unlock.set === id);
+  if (!candidats.length) return null;
+  const t = Number(tier) || 0;
+  let meilleur = null;
+  for (const p of candidats) {
+    const seuil = Number(p.unlock.minTier) || 0;
+    if (seuil > t) continue;
+    if (!meilleur || seuil > (Number(meilleur.unlock.minTier) || 0)) meilleur = p;
+  }
+  return meilleur || candidats[0];
 }
 
 export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false, specialPrizeChoice = 0) {
   const selected = idlePortraitSelectedIdV1(selectedId, env);
-  const auto = idlePortraitForEquippedSetV1(env.equippedSet);
+  const auto = idlePortraitForEquippedSetV1(env.equippedSet, env.equippedSetTier);
   const list = IDLE_PORTRAITS_V1.map(p => ({
     id: p.id,
     file: p.file,

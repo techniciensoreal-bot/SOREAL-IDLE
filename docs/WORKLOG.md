@@ -2331,3 +2331,15 @@ Norman : « J'ai toujours l'émoji à la place de Tuba of time » (après le cor
 - Tests : nouveau `idle-adventure-special-item-image-v1.test.mjs` (Tuba of Time obtient une vraie image, une pièce de set continue de fonctionner, un objet sans set ni wikiItemId garde l'émoji — aucune régression) et `idle-adventure-item-hover-tooltip-v1.test.mjs` (positionnement jamais sur l'objet dans 3 scénarios d'écran, PC uniquement, jamais par-dessus le popup interactif, même calcul de stats que le popup, fermeture au départ du survol). Suite complète : 419/419 OK.
 
 Versions : ui `315`, css `11`, notes `45`, Beta `6.1`.
+
+## 2026-09-29 (suite) — IDLE Beta 6.2 « Forêt, la tenue au grand complet » : portrait automatique par palier de niveau
+
+Norman : « Le set de la fôret, affiche l'image idle/player/Portrait_PlayerAPportrait19.webp. Je voudrais qu'une fois que les 5 pièces soient montées au niveau 50 mini, ce soit l'image idle/player/Portrait_PlayerAPportrait20.png qui soit utilisée. Une fois que les 5 pièces sont au niveau 100, il faut l'image idle/player/Portrait_PlayerAPportrait21.png »
+
+- **Cause** : `idlePortraitForEquippedSetV1(setId)` (portrait automatique par set équipé) ne recevait que l'identifiant du set, jamais le niveau des pièces -- pour Forest (3 portraits dans le catalogue : de base + 2 « bonus » du wiki), `.find()` renvoyait toujours la première entrée (le portrait de base), quel que soit le niveau réel de l'armure.
+- **Correctif moteur** (`idle-adventure-v47.js`) : `armureCompleteSetIdV1`/`rafraichirAutoPortraitSetV1` calculent désormais aussi `autoPortraitTier` = le plus petit niveau parmi les pièces du set actuellement équipées (le maillon faible, pas une moyenne). Mémorisé comme le set lui-même (« collant » : retirer une pièce ne perd ni le set ni le palier).
+- **Correctif catalogue** (`idle-portraits-v1.js`) : `forest-bonus-1`/`forest-bonus-2` portent désormais `minTier:50`/`100` (condition qui ne s'applique QU'au choix automatique, jamais au déblocage manuel dans la galerie -- le wiki dit que les deux bonus sont choisissables dès le set Forest complété, peu importe le niveau, et ça reste vrai). `idlePortraitForEquippedSetV1(setId, tier)` choisit la variante au seuil le plus élevé encore atteint ; pour tout autre set (une seule entrée, pas de seuil), le comportement est strictement inchangé.
+- Nom de fichier R2 non affecté : `idlePortraitPickR2KeyV1` ignore déjà l'extension lors de la résolution (`.webp` pour 19, `.png` pour 20/21 fonctionnent identiquement).
+- Tests : nouveau `idle-forest-portrait-tiers-v1.test.mjs` (calcul du tier par le maillon faible, bascule 0/50/100 sur le portrait automatique, propagation bout en bout via `idlePortraitsSnapshotV1`, déblocage galerie inchangé, tier mémorisé après retrait d'une pièce). Suite complète : 420/420 OK.
+
+Versions : notes `46`, Beta `6.2`.

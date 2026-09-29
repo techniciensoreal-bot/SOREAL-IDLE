@@ -2665,7 +2665,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},autoKillTitansEnabled:false,fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",autoPortraitTier:0,setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},autoKillTitansEnabled:false,fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -2797,7 +2797,7 @@ if(Array.isArray(s.coffre)){
 }else{
   s.coffre={};
 }
-s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.autoPortraitSet=typeof s.autoPortraitSet==="string"?s.autoPortraitSet:"";s.setRewards=Object.assign(base().setRewards,s.setRewards||{});synchroniserCompletionsBoostAdventureV183_(s);s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.skillState=Object.assign(base().skillState,s.skillState&&typeof s.skillState==="object"?s.skillState:{});s.skillState.move69Uses=C(I(s.skillState.move69Uses),0,69);s.skillState.endPiece481=Boolean(s.skillState.endPiece481||s.skillState.move69Uses>=69);s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
+s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSets=s.completedSets&&typeof s.completedSets==="object"?s.completedSets:{};s.autoPortraitSet=typeof s.autoPortraitSet==="string"?s.autoPortraitSet:"";s.autoPortraitTier=C(I(s.autoPortraitTier),0,100);s.setRewards=Object.assign(base().setRewards,s.setRewards||{});synchroniserCompletionsBoostAdventureV183_(s);s.permanent=Object.assign(base().permanent,s.permanent||{});s.unlockItems=s.unlockItems&&typeof s.unlockItems==="object"?s.unlockItems:{};s.unlockFlags=s.unlockFlags&&typeof s.unlockFlags==="object"?s.unlockFlags:{};s.skillState=Object.assign(base().skillState,s.skillState&&typeof s.skillState==="object"?s.skillState:{});s.skillState.move69Uses=C(I(s.skillState.move69Uses),0,69);s.skillState.endPiece481=Boolean(s.skillState.endPiece481||s.skillState.move69Uses>=69);s.cube=Object.assign(base().cube,s.cube||{});s.titans=s.titans&&typeof s.titans==="object"?s.titans:{};s.fight=Object.assign(base().fight,s.fight&&typeof s.fight==="object"?s.fight:{});const lastCombatCandidate=String(s.lastCombatZone||(s.selectedZone!=="safe"?s.selectedZone:"tutorial"));s.lastCombatZone=IDLE_ADVENTURE_ZONES.some(z=>z.id===lastCombatCandidate&&z.id!=="safe")?lastCombatCandidate:"tutorial";
 /*
  * Auto-guérison (Norman, 2026-09-09) : "j'ai été en safe zone et l'ennemi
  * est toujours présent." selectZone ne vidait jamais un combat actif
@@ -3088,26 +3088,39 @@ function checkSets(s){
  * s.autoPortraitSet ne se met à jour QUE quand un set complet différent est identifié : retirer une pièce
  * (le calcul redevient "") ne l'efface jamais -- c'est la mémoire qui rend le portrait "collant".
  */
+/*
+ * Norman (2026-09-29) : « Le set de la forêt affiche l'image ...19. Je
+ * voudrais qu'une fois que les 5 pièces soient montées au niveau 50 mini,
+ * ce soit ...20 qui soit utilisée. Une fois que les 5 pièces sont au
+ * niveau 100, il faut ...21. » tier = plus petit niveau parmi les pièces
+ * du set actuellement équipées (le maillon faible) ; idle-portraits-v1.js
+ * (idlePortraitForEquippedSetV1) choisit la variante Forest la plus
+ * avancée dont le seuil est atteint. Calculé pour tout set (inoffensif
+ * pour ceux qui n'ont qu'un seul portrait, jamais de variante à seuil).
+ */
 function armureCompleteSetIdV1(s){
   const eq=s.equipment||{};
   for(const [id,d] of Object.entries(SETS)){
     const requis=d.slots.filter(slot=>PORTRAIT_ARMOR_SLOTS_V1.includes(slot));
     if(!requis.length)continue;
+    let tier=100;
     const complet=requis.every(slot=>{
       const wornId=eq[slot];
       if(!wornId)return false;
       const piece=s.inventory.find(x=>x&&x.id===wornId);
       if(!piece||piece.kind!=="equipment"||!piece.set)return false;
       const pieceSet=piece.set==="bothedgy"?"edgy":String(piece.set);
-      return pieceSet===id;
+      if(pieceSet!==id)return false;
+      tier=Math.min(tier,I(piece.level));
+      return true;
     });
-    if(complet)return id;
+    if(complet)return{id,tier};
   }
-  return "";
+  return null;
 }
 function rafraichirAutoPortraitSetV1(s){
-  const set=armureCompleteSetIdV1(s);
-  if(set)s.autoPortraitSet=set;
+  const r=armureCompleteSetIdV1(s);
+  if(r){s.autoPortraitSet=r.id;s.autoPortraitTier=r.tier;}
 }
 /*
  * Consommables donnés par la complétion d'un set (2026-09-23) : Forest (2

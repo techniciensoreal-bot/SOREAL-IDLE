@@ -6280,6 +6280,7 @@ function minRebirthSecondsV1(state) {
 function portraitEnvV1(state) {
   return {
     equippedSet: state.adventure?.autoPortraitSet || "",
+    equippedSetTier: state.adventure?.autoPortraitTier || 0,
     completedSets: state.adventure?.completedSets || {},
     wishLevel: id => wishLevelV1(state, id),
     macguffinPct: id => macguffinPermanentPctV1(state, id),
