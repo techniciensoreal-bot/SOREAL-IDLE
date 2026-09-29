@@ -107,13 +107,12 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
    * (node cloudflare/tools/voice-generate.mjs --prune) -- retour à la couverture stricte, sans tolérance.
    *
    * Norman (2026-09-27, suite) : « il ne faut pas lire ce qu'il y a entre parenthèses » -- composerChronique_ ne
-   * réinjecte plus la note de déblocage « (…) » dans le texte lu (voir tutorial-tts-v202.js). Toute chronique de
-   * boss dont le récit contient une parenthèse a donc une empreinte différente : tolérance TEMPORAIRE ci-dessous
-   * (même bac à sable sans accès réseau vers le site de prod ni huggingface.co que pour Tippy/Le NOMBRE) --
-   * à retirer une fois `node cloudflare/tools/voice-generate.mjs --prune` lancé depuis un poste avec accès réseau.
+   * réinjecte plus la note de déblocage « (…) » dans le texte lu (voir tutorial-tts-v202.js). Les chroniques de
+   * boss concernées (empreinte changée) et les 5 textes de la scène du boss 18 ont été régénérés depuis un poste
+   * avec accès réseau (node cloudflare/tools/voice-generate.mjs --prune, 2026-09-29) -- retour à la couverture
+   * stricte, sans tolérance.
    */
-  const TOLERANCE_PARENTHESES_V1=["boss 5","boss 16","boss 67","boss 79","boss 93","boss 98","boss 116","boss 120","boss 126","boss 150","boss 156","boss 168","boss 183","boss 191","boss 191","boss 198","boss 201","boss 206","boss 238","boss 241","boss 249","boss 255","boss 257","boss 262","boss 271"];
-  assert.deepEqual(manquants.filter((m)=>!TOLERANCE_PARENTHESES_V1.includes(m)), [], "blocs sans fichier audio (hors tolérance parenthèses) : relancer node cloudflare/tools/voice-generate.mjs");
+  assert.deepEqual(manquants, [], "blocs sans fichier audio : relancer node cloudflare/tools/voice-generate.mjs");
   assert.ok(existsSync("cloudflare/public/voice/manifest.json"));
 }
 
