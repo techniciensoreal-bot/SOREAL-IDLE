@@ -4,7 +4,7 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : Broken Time Machine — faire apparaître immédiatement la piste Magic/Gold Multiplier lorsqu’elle se débloque pendant que l’écran est déjà ouvert.
+- **Tâche courante** : ajouter la barre globale bleue de Magic sous l’Énergie d’entraînement, visible dans tous les menus dès que Magic est débloquée.
 - **SHA `main` fonctionnel vérifié** : `eda80d2f324e3886635ebe99beb215926f6e94ce` (Broken Time Machine : apparition live de la piste Magic après déblocage).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
 - **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #691 ; `idle-time-machine-live-bar-refresh.test.mjs` et `idle-time-machine-screen-target-v1.test.mjs` OK.
@@ -15,7 +15,7 @@
 - **Dernière anomalie / état notable** : aucun échec CI/build/déploiement connu. Le cas où Magic se débloque pendant que Broken Time Machine est déjà ouvert est corrigé : si l’état serveur est débloqué mais la piste jaune absente du DOM, le menu se reconstruit automatiquement.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : vérification manuelle en production : rester sur Broken Time Machine au moment du déblocage Magic et confirmer que la piste jaune apparaît sans changer de menu.
+- **Prochaine action exacte** : valider la branche `fix/persistent-magic-resource-bar`, fusionner si verte, puis vérifier CI/build/déploiement/SHA et confirmer que la barre bleue Magic apparaît sous Energy dans tous les menus.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -119,6 +119,14 @@
 - CI #691 : SUCCESS complet ; tests Time Machine OK.
 - Production : SHA `eda80d2f324e3886635ebe99beb215926f6e94ce`, version Cloudflare `09031187-259c-4eb2-9b3c-91124e1babda`, routage 100 %.
 - Smoke Chromium/Piper : SUCCESS.
+
+### Barre globale Magic en cours — 2026-09-29
+- Correction de compréhension : le besoin concerne la barre bleue de la ressource Magic dans le shell global, sous « Énergie d'entraînement », pas la piste jaune Gold Multiplier de Broken Time Machine.
+- Cause : `rendreBarreEnergiePersistanteIdleV1_` ne rendait que le panneau Energy ; aucun HTML global Magic n’existait.
+- Commit `8332dad92d8adde472db0d27acb1fd5d26836d31` : ajout du panneau Magic global conditionné par `resourceInfo.magic`, valeurs disponible/cap, production/s, barre remplie selon la ressource disponible, et garde de déblocage live.
+- Commit `e7482f337aeb6a3dd29c0adf59b68d79d8aaeba8` : style bleu dédié de la barre Magic.
+- Commit test `3bac4cd630025920b74d09a44890eb6b4e9206dd` : garde de non-régression `idle-persistent-magic-resource-bar.test.mjs`.
+- CI/build/déploiement : en attente.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
