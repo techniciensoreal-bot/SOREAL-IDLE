@@ -1124,10 +1124,29 @@ const IDLE_STORY_R2_PREFIX="idle/story/";
 async function objetsStoryR2_(env,id){
   return objetsDossierMobR2_(env,IDLE_STORY_R2_PREFIX+id+"/");
 }
+/*
+ * Norman (2026-09-29) : « L'image 10 est lue trop tôt dans l'histoire et ça fausse tout les
+ * textes. » Cause confirmée en sondant R2 en direct (MagicienEtLeGrotte2) : les fichiers
+ * s'appellent 1.webp .. 10.webp (jamais zéro-remplis), et le tri alphabétique pur plaçait
+ * "10.webp" juste après "1.webp" (ordre lexicographique de chaînes, pas numérique) -- décalant
+ * TOUTES les images suivantes d'un cran. Sans incidence sur la première histoire (5 images, jamais
+ * deux chiffres) : c'est la dixième image de la deuxième histoire qui a fait apparaître ce bug
+ * latent. Tri désormais par la valeur NUMÉRIQUE du préfixe du nom de fichier (1, 2, ..., 10),
+ * conforme à la convention documentée (AGENTS.md : "1_...", "2_..." -- jamais garantie
+ * zéro-remplie) ; repli alphabétique si un nom ne commence pas par un nombre.
+ */
+function numeroPrefixeFichierR2_(cle){
+  const base=String(cle).split("/").pop()||"";
+  const m=/^(\d+)/.exec(base);
+  return m?Number(m[1]):Infinity;
+}
 export function choisirCleStoryR2_(keys,index){
   const n=Math.floor(Number(index)||0);
   if(n<1||!Array.isArray(keys)||!keys.length)return "";
-  const triees=keys.slice().sort();
+  const triees=keys.slice().sort((a,b)=>{
+    const na=numeroPrefixeFichierR2_(a),nb=numeroPrefixeFichierR2_(b);
+    return na!==nb?na-nb:String(a).localeCompare(String(b));
+  });
   return triees[n-1]||"";
 }
 async function storyImage_(request,env,url){

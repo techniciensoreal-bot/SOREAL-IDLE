@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.3',
+    courante:'7.4',
     versions:[
+      {
+        version:'7.4',
+        nom:'Les images dans le bon ordre',
+        date:'2026-09-29',
+        points:[
+          'Correction d’une scène spéciale récente : une image apparaissait trop tôt, ce qui décalait toutes les suivantes.',
+          'Ses images s’enchaînent maintenant dans le bon ordre, du début à la fin.',
+          'Aucun autre changement sur cette scène.'
+        ]
+      },
       {
         version:'7.3',
         nom:'Un seul popup à la fois',

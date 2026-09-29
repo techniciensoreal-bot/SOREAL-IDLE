@@ -22,6 +22,32 @@ import { traiterRequeteIdleMedia, choisirCleStoryR2_ } from "../src/idle-media-v
   assert.equal(choisirCleStoryR2_([], 1), "");
 }
 
+/*
+ * Norman (2026-09-29) : « L'image 10 est lue trop tôt dans l'histoire et ça fausse tout les
+ * textes. » Reproduit avec les VRAIS noms de fichiers de MagicienEtLeGrotte2 (1.webp .. 10.webp,
+ * jamais zéro-remplis, sondés en direct sur R2) : un tri alphabétique de chaînes plaçait
+ * "10.webp" en 2e position (juste après "1.webp"), avant "2.webp" .. "9.webp". Le tri doit être
+ * NUMÉRIQUE sur le préfixe du nom de fichier, quel que soit l'ordre de découverte R2 (list()
+ * peut renvoyer les clés dans n'importe quel ordre).
+ */
+{
+  const keys = [
+    "idle/story/MagicienEtLeGrotte2/5.webp",
+    "idle/story/MagicienEtLeGrotte2/1.webp",
+    "idle/story/MagicienEtLeGrotte2/10.webp",
+    "idle/story/MagicienEtLeGrotte2/2.webp",
+    "idle/story/MagicienEtLeGrotte2/9.webp",
+    "idle/story/MagicienEtLeGrotte2/3.webp",
+    "idle/story/MagicienEtLeGrotte2/4.webp",
+    "idle/story/MagicienEtLeGrotte2/6.webp",
+    "idle/story/MagicienEtLeGrotte2/7.webp",
+    "idle/story/MagicienEtLeGrotte2/8.webp"
+  ];
+  for (let i = 1; i <= 10; i++) {
+    assert.equal(choisirCleStoryR2_(keys, i), "idle/story/MagicienEtLeGrotte2/" + i + ".webp", "index " + i + " doit renvoyer le fichier " + i + ".webp, pas un voisin décalé par un tri alphabétique");
+  }
+}
+
 // Route : id invalide (traversal, caractères hors charte) -> 400, jamais atteindre R2.
 {
   const response = await traiterRequeteIdleMedia(
