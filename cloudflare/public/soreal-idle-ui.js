@@ -20471,7 +20471,8 @@ function pageAventureIdleV28_(j){
         patchInventaireAdventureIdleV160_:patchInventaireAdventureIdleV160_,
         appelerProgressionIdleCloudflareV1_:appelerProgressionIdleCloudflareV1_,
         patchZoneAdventureSansReflowIdleV1_:patchZoneAdventureSansReflowIdleV1_,
-        idleRareteClasseObjetAdventureIdleV1_:idleRareteClasseObjetAdventureIdleV1_
+        idleRareteClasseObjetAdventureIdleV1_:idleRareteClasseObjetAdventureIdleV1_,
+        jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_
       };
 
       function pageSystemeMetaIdleV130_(j,id,titre){
