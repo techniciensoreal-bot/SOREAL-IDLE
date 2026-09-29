@@ -33,4 +33,24 @@ assert.ok(
   "la largeur doit refléter la progression serveur avec assez de précision pour les premiers niveaux lents"
 );
 
+
+assert.ok(
+  ui.includes("function assurerPisteMagicTimeMachineIdleV1_()"),
+  "Broken Time Machine doit détecter le déblocage live de Magic"
+);
+assert.ok(
+  ui.includes("bloodMagic.state&&") &&
+  ui.includes("bloodMagic.state.unlocked"),
+  "le déblocage live s'appuie sur l'état serveur Blood Magic"
+);
+assert.ok(
+  ui.includes("'.soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1'"),
+  "la garde vérifie si la piste jaune est réellement absente du DOM"
+);
+assert.ok(
+  ui.includes("if(!pisteMagic){") &&
+  ui.includes("rafraichirMenuRacineIdleV28_();"),
+  "si Magic est débloquée mais la piste absente, le menu Time Machine est reconstruit"
+);
+
 console.log("idle-time-machine-live-bar-refresh: OK");
