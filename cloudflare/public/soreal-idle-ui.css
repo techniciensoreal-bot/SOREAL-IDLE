@@ -1687,9 +1687,9 @@ html,body{overflow-x:hidden}
             box-shadow:0 8px 20px rgba(24,76,145,.20);
           }
 
-          .soreal-idle-magicbar-v1{
+          .soreal-idle-energybar-v11.soreal-idle-magicbar-v1{
             background:linear-gradient(90deg,#2f8cff,#73c7ff) !important;
-            box-shadow:0 0 14px rgba(47,140,255,.42);
+            box-shadow:0 0 14px rgba(47,140,255,.42) !important;
           }
 
 .soreal-idle-energy-panel-v34{
