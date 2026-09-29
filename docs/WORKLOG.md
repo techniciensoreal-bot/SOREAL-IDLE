@@ -4,18 +4,18 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : rendre le classement accessible à tous les joueurs autorisés de SOREAL IDLE, tout en conservant les réglages d'accès réservés à l'administrateur.
-- **SHA `main` fonctionnel vérifié** : `99879a8074756881f9b1c2b9a086abc938b5d3b9` avant correctif classement public.
+- **Tâche courante** : classement public livré et vérifié ; tous les joueurs autorisés voient le menu Classement et peuvent charger le classement.
+- **SHA `main` fonctionnel vérifié** : `63b69c181f6852e3ea91238025045f5299c2a1f4` (PR #33, classement public).
 - **Derniers commits effectués sur `fix/public-leaderboard`** : `3b16dee0` (classement public côté serveur + séparation du contrôle admin), `6d59afff` (test de non-régression).
-- **Tests** : test `idle-leaderboard-v1.test.mjs` adapté ; exécution CI complète encore à vérifier.
-- **Build** : pas encore vérifié pour cette branche.
-- **CI** : pas encore exécutée pour le correctif classement public.
-- **SHA réellement déployé** : `git:9af02db329509ba67fd0c065fe4cd167a68dbc13`, version Cloudflare `c40af982-83bd-43d8-ab9e-ab1bb02867a6`, routage 100 %.
+- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #694 ; `idle-leaderboard-v1.test.mjs` couvre désormais l'accès d'un joueur non-admin.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #694.
+- **CI** : run #694 (`63b69c181f6852e3ea91238025045f5299c2a1f4`) SUCCESS complet.
+- **SHA réellement déployé** : `git:63b69c181f6852e3ea91238025045f5299c2a1f4` ; étape GitHub Actions « Verify deployed Git SHA » SUCCESS dans le run #694.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : cause identifiée : `classementDebloqueSorealIdle_` était encore limité à `ADMIN_SOREAL_IDLE_EMAIL`, et `obtenirClassementSorealIdle` rejetait les autres joueurs. Le correctif retire ces deux verrous sans ouvrir `reglages` aux non-admins.
+- **Dernière anomalie / état notable** : aucune erreur connue. Le verrou provisoire administrateur du classement a été retiré ; les réglages `accesOuvert/accesPublic` restent réservés à l'administrateur via un contrôle séparé.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : ouvrir une PR, exécuter/valider la CI complète, fusionner sur `main`, puis vérifier le SHA réellement déployé en production.
+- **Prochaine action exacte** : vérification manuelle avec un compte joueur non-admin : confirmer que le bouton Classement est visible et que les onglets se chargent normalement.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -2284,3 +2284,12 @@ Tests : cloudflare/tests/idle-specials-early-image-wiki-id-v1.test.mjs (nouveau 
 + comportement réel de urlImage_ avec/sans wikiItemId). Suite complète : 410/410 OK.
 
 Versions : release-notes-v1.js v43, Beta 5.9.
+
+### Classement public — 2026-09-29
+- Cause : `classementDebloqueSorealIdle_` ne renvoyait vrai que pour `ADMIN_SOREAL_IDLE_EMAIL`, et `obtenirClassementSorealIdle` rejetait explicitement les autres comptes.
+- Correctif : classement débloqué pour tout joueur déjà autorisé à entrer dans SOREAL IDLE ; garde serveur de lecture supprimée.
+- Sécurité : séparation du contrôle administrateur avec `estAdministrateurSorealIdle_` afin que `reglages.accesOuvert/accesPublic` ne deviennent pas publics.
+- Commits branche : `3b16dee0`, `6d59afff`, documentation `7dee92df`.
+- PR #33 fusionnée : `63b69c181f6852e3ea91238025045f5299c2a1f4`.
+- CI #694 : SUCCESS complet (tests, build, dépendances voix, déploiement Cloudflare, vérification SHA, smoke Piper Chromium).
+- Production : SHA `63b69c181f6852e3ea91238025045f5299c2a1f4` vérifié par l'étape de contrôle du déploiement.
