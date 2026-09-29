@@ -44,10 +44,17 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
   // (qui compare aussi le prototype, différent entre realms, même à propriétés égales).
   const fn = (a) => JSON.parse(JSON.stringify(fnVm(a)));
 
-  assert.deepEqual(fn({ combats: 5, victoires: 3 }), { combats: 5, victoires: 3, defaites: 2 }, "3 victoires sur 5 combats -> 2 défaites");
-  assert.deepEqual(fn({ combats: 4, victoires: 4 }), { combats: 4, victoires: 4, defaites: 0 }, "aucune défaite -> 0, jamais négatif");
-  assert.deepEqual(fn({ combats: 0, victoires: 0 }), { combats: 0, victoires: 0, defaites: 0 }, "aucun combat auto -> tout à 0");
-  assert.deepEqual(fn({}), { combats: 0, victoires: 0, defaites: 0 }, "objet incomplet -> jamais NaN grâce à nombreSorealIdle_");
+  assert.deepEqual(fn({ combats: 5, victoires: 3 }), { combats: 5, victoires: 3, defaites: 2, derniereDefaite: null }, "3 victoires sur 5 combats -> 2 défaites");
+  assert.deepEqual(fn({ combats: 4, victoires: 4 }), { combats: 4, victoires: 4, defaites: 0, derniereDefaite: null }, "aucune défaite -> 0, jamais négatif");
+  assert.deepEqual(fn({ combats: 0, victoires: 0 }), { combats: 0, victoires: 0, defaites: 0, derniereDefaite: null }, "aucun combat auto -> tout à 0");
+  assert.deepEqual(fn({}), { combats: 0, victoires: 0, defaites: 0, derniereDefaite: null }, "objet incomplet -> jamais NaN grâce à nombreSorealIdle_");
+
+  // --- derniereDefaite (monstre/zone/ko) : propagée telle quelle quand fournie par le simulateur. ---
+  assert.deepEqual(
+    fn({ combats: 3, victoires: 2, derniereDefaite: { monstre: "Gluant", zone: "Forêt", boss: false, ko: true } }),
+    { combats: 3, victoires: 2, defaites: 1, derniereDefaite: { monstre: "Gluant", zone: "Forêt", boss: false, ko: true } },
+    "le récit de la dernière défaite (monstre/zone/ko) doit être propagé au client"
+  );
 }
 
 console.log("idle-adventure-auto-defeat-log-v1: OK");

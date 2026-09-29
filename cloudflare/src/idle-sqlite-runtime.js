@@ -8797,6 +8797,14 @@ function appliquerProgressionEnergieSorealIdle_(
   let energieDepenseeAventureAuto = 0;
   let creneauxAutoHorsLigne = 0;
   let limiteAutoHorsLigneAtteinte = false;
+  /*
+   * Norman (2026-09-29) : « le combat doit être calculé comme s'il avait
+   * eu lieu... il devra pouvoir lire dans le journal de combat la manière
+   * dont il est mort. » Seule la DERNIÈRE défaite est utile à raconter
+   * (celle qui a arrêté le farm) : le monstre et la zone qui ont eu raison
+   * du joueur, affichés par verifierDefaiteAutoAventureIdleV1_ (client).
+   */
+  let derniereDefaiteAuto = null;
 
   if (
     ecouleReel >= 20 &&
@@ -8850,11 +8858,24 @@ function appliquerProgressionEnergieSorealIdle_(
           )
         );
 
+      /*
+       * Norman (2026-09-29) : « Je veux qu'on puisse farmer le mode
+       * aventure tout en étant hors ligne avec quelques contraintes. 8h
+       * maximum de farming hors ligne. » Plafond local à ce bloc
+       * uniquement (n'affecte jamais l'énergie ni les autres systèmes,
+       * qui restent sur ecoulePrisEnCompte/sa propre limite générale).
+       */
+      const ecoulePrisEnCompteAventureAuto =
+        Math.min(
+          ecoulePrisEnCompte,
+          8 * 60 * 60
+        );
+
       const creneauxDisponibles =
         Math.max(
           0,
           Math.floor(
-            ecoulePrisEnCompte /
+            ecoulePrisEnCompteAventureAuto /
             intervalle
           )
         );
@@ -8916,7 +8937,7 @@ function appliquerProgressionEnergieSorealIdle_(
       };
 
       const totalAutoMs =
-        ecoulePrisEnCompte *
+        ecoulePrisEnCompteAventureAuto *
         1000;
 
       const intervalleAutoMs =
@@ -8938,6 +8959,19 @@ function appliquerProgressionEnergieSorealIdle_(
                 .INVENTAIRE_CAPACITE_BASE
             )
           )
+        );
+
+      /*
+       * Norman (2026-09-29) : « Jamais plus de 70% des cases de
+       * l'inventaire. Il faut toujours une place disponible pour les
+       * loots titans etc. » Plafond dédié au farm hors ligne uniquement
+       * -- un loot obtenu manuellement (en ligne) continue de remplir le
+       * sac jusqu'à 100%, seul ce farm automatique et invisible s'arrête
+       * plus tôt pour laisser de la place.
+       */
+      const capaciteSacFarmHorsLigneV1 =
+        Math.floor(
+          capaciteSac * 0.7
         );
 
       for (
@@ -9150,6 +9184,20 @@ function appliquerProgressionEnergieSorealIdle_(
             tempsLimiteAuto
           )
         ) {
+          derniereDefaiteAuto = {
+            monstre:
+              String(
+                (monstreAuto && monstreAuto.nom) || ''
+              ),
+            zone:
+              String(
+                (zoneAuto && zoneAuto.nom) || ''
+              ),
+            boss: combatBoss,
+            /* K.O. réel (le joueur a été vaincu) plutôt qu'un simple abandon faute de temps. */
+            ko: tempsKoAuto <= tempsLimiteAuto
+          };
+
           if (combatBoss) {
             etatZone.progressionBoss = 0;
             etatZone.bossEchecs += 1;
@@ -9277,7 +9325,7 @@ function appliquerProgressionEnergieSorealIdle_(
             inventaire,
             equipement
           ) <
-          capaciteSac
+          capaciteSacFarmHorsLigneV1
         ) {
           inventaire.push(
             lootAuto
@@ -9513,7 +9561,9 @@ function appliquerProgressionEnergieSorealIdle_(
       creneaux:
         creneauxAutoHorsLigne,
       limiteAtteinte:
-        limiteAutoHorsLigneAtteinte
+        limiteAutoHorsLigneAtteinte,
+      derniereDefaite:
+        derniereDefaiteAuto
     }
   };
 }
@@ -11197,10 +11247,22 @@ function construireEtatJoueurSorealIdle_(
         ? (function(a){
             const combats=nombreSorealIdle_(a.combats,0);
             const victoires=nombreSorealIdle_(a.victoires,0);
+            const d=a.derniereDefaite&&typeof a.derniereDefaite==="object"?a.derniereDefaite:null;
             return {
               combats:combats,
               victoires:victoires,
-              defaites:Math.max(0,combats-victoires)
+              defaites:Math.max(0,combats-victoires),
+              /*
+               * Norman (2026-09-29) : « il devra pouvoir lire dans le journal de combat la manière dont il est
+               * mort. » Le monstre/zone/type de LA dernière défaite (celle qui a arrêté le farm) : null si le
+               * lot n'a comporté aucune défaite.
+               */
+              derniereDefaite:d?{
+                monstre:String(d.monstre||""),
+                zone:String(d.zone||""),
+                boss:Boolean(d.boss),
+                ko:Boolean(d.ko)
+              }:null
             };
           })(progression.autoAventureHorsLigne)
         : null,

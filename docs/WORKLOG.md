@@ -2343,3 +2343,15 @@ Norman : « Le set de la fôret, affiche l'image idle/player/Portrait_PlayerAPpo
 - Tests : nouveau `idle-forest-portrait-tiers-v1.test.mjs` (calcul du tier par le maillon faible, bascule 0/50/100 sur le portrait automatique, propagation bout en bout via `idlePortraitsSnapshotV1`, déblocage galerie inchangé, tier mémorisé après retrait d'une pièce). Suite complète : 420/420 OK.
 
 Versions : notes `46`, Beta `6.2`.
+
+## 2026-09-29 (suite) — IDLE Beta 6.3 « L'aventure continue sans toi » : farm hors ligne d'Aventure, 8h max, 70% du sac, mort possible
+
+Norman : « J'aimerai changer une règle par rapport à NGU IDLE. Je veux qu'à la reconnexion au jeu après un certain laps de temps, que le jeu calcule ce qu'on aurait dû looter. En gros, je veux une simulation que le mode aventure tourne même le jeu fermé. » Précisé ensuite : 8h maximum (pas 12h), jamais plus de 70% du sac (toujours de la place pour les loots Titans etc.), et le combat doit être calculé « comme s'il avait vraiment eu lieu » -- le joueur peut mourir, avec le récit dans le journal de combat.
+
+- **Découverte en investiguant** : un simulateur de combat automatique d'Aventure hors ligne existe DÉJÀ, substantiel (`appliquerProgressionEnergieSorealIdle_`, `idle-sqlite-runtime.js`) : combats/loots/XP simulés tick par tick sur la dernière zone de combat active (`lastCombatZone`), avec les mêmes formules que le combat visible. Norman avait déjà signalé le 27/09 qu'une défaite hors ligne n'apparaissait pas dans le journal (corrigé partiellement : `defaites` comptée et affichée, mais sans dire QUI a tué le joueur). Ce n'était donc pas une nouvelle fonctionnalité à construire, mais 3 contraintes à ajouter à l'existant.
+- **8h max** : nouveau plafond local (`ecoulePrisEnCompteAventureAuto`) au bloc Aventure AUTO uniquement -- n'affecte jamais l'énergie ni les autres systèmes hors ligne (restés sur leurs propres plafonds généraux).
+- **70% du sac** : `capaciteSacFarmHorsLigneV1 = capaciteSac * 0.7`, plafond dédié à CE farm ; un loot obtenu en jouant normalement continue de remplir le sac jusqu'à 100 %.
+- **Mort réelle + récit** : la défaite qui arrête le farm capture désormais le monstre, la zone, et si c'est un vrai K.O. (plutôt qu'un simple abandon faute de temps) — `derniereDefaiteAuto`, propagé jusqu'au client. Le journal de combat affiche désormais « 💀 Tu as été mis K.O. par *<monstre>* (*<zone>*) pendant ton absence. » au lieu du message générique précédent (conservé en repli si le champ est absent).
+- Tests : nouveau `idle-adventure-offline-farm-limits-v1.test.mjs` (les 3 contraintes câblées au bon endroit — vérification à la source, une simulation de bout en bout de cette boucle de ~1700 lignes dépassant ce qu'un test unitaire raisonnable doit couvrir, même principe que `idle-adventure-auto-defeat-log-v1`) ; `idle-adventure-auto-defeat-log-v1`/`-client-v1` mis à jour pour le nouveau champ `derniereDefaite`. Suite complète : 421/421 OK.
+
+Versions : ui `316`, notes `47`, Beta `6.3`.

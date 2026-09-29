@@ -11572,6 +11572,25 @@
         const infos=j&&j.autoAventureHorsLigne;
         const defaites=Math.max(0,idleEntier_(infos&&infos.defaites));
         if(defaites<=0)return;
+        /*
+         * Norman (2026-09-29) : « il devra pouvoir lire dans le journal de combat la manière dont il est mort. »
+         * derniereDefaite (monstre/zone/ko de la défaite qui a arrêté le farm) précise le récit générique
+         * ci-dessous quand le serveur le fournit ; sinon (anciens clients, ou champ manquant) le message
+         * générique reste identique au comportement historique.
+         */
+        const d=infos&&infos.derniereDefaite;
+        const cible=d?[d.monstre,d.zone].filter(Boolean).join(' · '):'';
+        if(cible){
+          const suffixe=defaites>1?' ('+defaites+' défaites au total pendant ton absence)':'';
+          ajouterLogAventureIdleV1_(
+            'enemy',
+            (d.ko
+              ?'💀 Tu as été mis K.O. par '+cible+' pendant ton absence.'
+              :'⏱️ Le combat contre '+cible+' a traîné trop longtemps pendant ton absence : le farm automatique s’est arrêté.')+
+              suffixe
+          );
+          return;
+        }
         ajouterLogAventureIdleV1_(
           'enemy',
           defaites>1

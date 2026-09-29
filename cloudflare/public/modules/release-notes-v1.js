@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.2',
+    courante:'6.3',
     versions:[
+      {
+        version:'6.3',
+        nom:'L’aventure continue sans toi',
+        date:'2026-09-29',
+        points:[
+          'Le combat automatique d’Aventure continue de farmer pendant ton absence, dans la limite de 8 heures.',
+          'Les butins récupérés pendant l’absence s’arrêtent avant de trop remplir ton sac, pour toujours garder de la place.',
+          'Si le combat aurait mal tourné pendant ton absence, tu le retrouveras raconté dans le journal de combat à ton retour.'
+        ]
+      },
       {
         version:'6.2',
         nom:'Forêt, la tenue au grand complet',
