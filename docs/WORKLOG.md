@@ -5,17 +5,17 @@
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
 - **Tâche courante** : Broken Time Machine — réutiliser les sons Basic Training pour `+ / − / Max` et afficher un compte à rebours jusqu’au remplissage complet de chaque barre, dérivé de la formule serveur réelle.
-- **SHA `main` fonctionnel vérifié** : `b849bc497a0a49e39c107033864d9fb6bfcd4a98` (réduction des hotspots de freeze iPhone/Safari).
+- **SHA `main` fonctionnel vérifié** : `8a58b2a0df094b2777447492566dc0dcaa85c4b0` (Broken Time Machine : sons Basic Training + ETA live).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
-- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #689 ; nouveau test `idle-ios-freeze-guards.test.mjs` OK.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #689.
-- **CI** : run #689 (`b849bc497a0a49e39c107033864d9fb6bfcd4a98`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
-- **SHA réellement déployé** : `git:b849bc497a0a49e39c107033864d9fb6bfcd4a98`, version Cloudflare `2f85b9c9-36dd-45a3-a275-fb6a39bf6983`, routage 100 %.
+- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #690 ; `idle-time-machine-screen-target-v1.test.mjs` et `idle-time-machine-live-bar-refresh.test.mjs` OK.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #690.
+- **CI** : run #690 (`8a58b2a0df094b2777447492566dc0dcaa85c4b0`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:8a58b2a0df094b2777447492566dc0dcaa85c4b0`, version Cloudflare `7d40fa0a-964a-46c4-aef7-61ec65950484`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : aucun échec CI/build/déploiement connu. Deux risques iPhone/Safari ont été réduits : tick visible lourd plafonné à 15 Hz et analyse `decodeAudioData()` de l'ambiance désactivée sur iOS/iPadOS/WKWebView.
+- **Dernière anomalie / état notable** : aucun échec CI/build/déploiement connu. Broken Time Machine réutilise désormais les sons Basic Training pour `+ / − / Max` et affiche un compte à rebours live recalé sur l’ETA serveur réelle.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider la branche `feat/time-machine-sounds-eta`, fusionner si verte, puis vérifier CI/build/déploiement/SHA et tester Broken Time Machine en production.
+- **Prochaine action exacte** : vérification manuelle en production : confirmer les trois sons `+ / − / Max` et le compte à rebours des deux pistes Broken Time Machine.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -105,7 +105,10 @@
 - ETA serveur : `timeMachineViewV1` expose désormais `speedEtaSeconds` / `goldEtaSeconds`, calculés comme `tmLevelSeconds(...) - progression` ; aucune formule NGU dupliquée côté client.
 - UI : compte à rebours affiché sous chaque barre ; décrément local entre deux synchronisations serveur, recalé à chaque nouveau snapshot.
 - Tests : `idle-time-machine-screen-target-v1.test.mjs` étendu pour couvrir ETA, sons et rafraîchissement live.
-- Validation CI/build/déploiement : en attente.
+- PR #29 fusionnée sur `main`.
+- CI #690 : SUCCESS complet ; tests Time Machine OK.
+- Production : SHA `8a58b2a0df094b2777447492566dc0dcaa85c4b0`, version Cloudflare `7d40fa0a-964a-46c4-aef7-61ec65950484`, routage 100 %.
+- Smoke Chromium/Piper : SUCCESS.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
