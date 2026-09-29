@@ -3744,46 +3744,17 @@ html,body{overflow-x:hidden}
 
 
           /*
-           * ===== COMBAT PAR IMPACT V116 =====
-           * Norman (2026-09-14) : "que la barre de vie descende
-           * progressivement. Tu l'as fait en aventure mais pas contre les
-           * boss." Même traitement qu'en Aventure (voir commentaire plus
-           * bas, #sorealIdleAdventureFightBarV1/JoueurBarV1) : une
-           * transition étalée sur toute la durée d'un coup au lieu d'un
-           * saut sec de 0,08s — chaque barre reprend la cadence réelle du
-           * combattant qui la fait bouger (IDLE_HIT_JOUEUR_MS_V116=850 pour
-           * les PV du boss, qui baissent aux coups du joueur ;
-           * IDLE_HIT_BOSS_MS_V116=1000 pour les PV du joueur, qui baissent
-           * aux coups du boss).
+           * Norman (2026-09-29) : « La barre de vie des boss rame quand elle diminue. Avant elle
+           * était très fluide. » Les deux règles transition:none !important qu'il y avait ici
+           * ("COMBAT PAR IMPACT V116", 2026-09-14) avaient un sens tant que le tick de jeu tournait
+           * à la fréquence native de l'écran (souvent 60 Hz) -- assez de "marches" par seconde pour
+           * paraître fluide sans transition. Depuis le plafonnement du tick lourd à 15 Hz
+           * (2026-09-28, pour les freezes iPhone/Safari), ce forçage ne laissait plus que 15 marches
+           * par seconde, visiblement saccadées. Retirées : la transition de base ci-dessus (width
+           * .35s linear / .28s linear) fait de nouveau tout le lissage, pour le Combat de boss
+           * numéroté comme pour l'Aventure (mêmes classes .soreal-idle-bossbar-v7/
+           * .soreal-idle-playerbar-v15) -- même principe que la barre d'Énergie/Magie (Beta 6.7).
            */
-          .soreal-idle-bossbar-v7{
-            transition:none !important;
-            will-change:width;
-          }
-          .soreal-idle-playerbar-v15{
-            transition:none !important;
-            will-change:width;
-          }
-
-          /*
-           * Correctif 2026-09-14 (Norman : "la barre de vie ne descend
-           * plus par à-coup, elle descend de manière fluide") — le combat
-           * d'Aventure réutilise les mêmes classes .soreal-idle-bossbar-v7/
-           * .soreal-idle-playerbar-v15 que le Combat de boss numéroté, dont
-           * la transition très courte (0,08s, "COMBAT PAR IMPACT" ci-dessus)
-           * donne un effet de "coup sec" volontaire là-bas — mais en
-           * Aventure (coups espacés de 700ms, IDLE_ADVENTURE_FIGHT_HIT_MS_V1)
-           * ça se traduit par un saut instantané suivi d'une pause immobile
-           * jusqu'au coup suivant, perçu comme "par à-coups". Ces deux ids
-           * spécifiques (uniquement l'écran Aventure) reprennent une
-           * transition étalée sur toute la durée d'un coup, pour un
-           * mouvement continu — le Combat de boss numéroté n'est pas
-           * concerné, sa règle générale ci-dessus reste inchangée.
-           */
-          #sorealIdleAdventureFightBarV1,
-          #sorealIdleAdventureJoueurBarV1{
-            transition:none !important;
-          }
 
           /* ===== AUTO BOSS + VICTOIRE V49 ===== */
           .soreal-idle-auto-next-v49{

@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.4',
+    courante:'7.5',
     versions:[
+      {
+        version:'7.5',
+        nom:'Ça descend en douceur',
+        date:'2026-09-29',
+        points:[
+          'La barre de vie des boss ne saccade plus quand elle diminue : elle redescend de façon fluide, comme avant.',
+          'Les zones de saisie « Input » gardent maintenant le dernier chiffre écrit, même après un rechargement de la page.',
+          'Cette valeur est désormais partagée entre Basic Training, Augmentations, Blood Magic et les autres écrans d’allocation.'
+        ]
+      },
       {
         version:'7.4',
         nom:'Les images dans le bon ordre',

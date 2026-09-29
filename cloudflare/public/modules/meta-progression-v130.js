@@ -1458,7 +1458,25 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * retirent la valeur du champ Input (le serveur borne à l'énergie libre), « Max » place toute l'énergie libre, « Tout retirer »
        * rend tout.
        */
-      let montantAugmentIdleV1=125;
+      /*
+       * Norman (2026-09-29) : « Je veux que les zones de saisies Input conservent le dernier
+       * chiffre écrit. » Avant ce correctif, la valeur tapée ne survivait qu'en mémoire (perdue à
+       * chaque rechargement de page) et Basic Training avait sa PROPRE zone Input, jamais reliée à
+       * celle-ci : elle affichait "125" en dur dans son modèle HTML (soreal-idle-ui.js), donc
+       * chaque re-rendu complet de la page (la synchro périodique d'environ 15 s, entre autres)
+       * effaçait ce que le joueur venait de taper. Une seule valeur, désormais partagée par les
+       * QUATRE zones Input (Basic Training, Augmentations, Blood Magic, Time Machine -- exactement
+       * comme elles partageaient déjà cette variable entre elles trois) et persistée dans
+       * localStorage : elle survit à un re-rendu, à un changement de menu ET à un rechargement.
+       */
+      let montantAugmentIdleV1=(function(){
+        try{
+          const v=Math.floor(Number(localStorage.getItem('soreal_idle_montant_input_v1')));
+          return Number.isFinite(v)&&v>=1?v:125;
+        }catch(_e){
+          return 125;
+        }
+      })();
       function montantAugmentLireIdleV1_(){
         const el=document.getElementById('sorealIdleAugInputV1');
         const n=Math.floor(Number(el&&el.value));
@@ -1467,8 +1485,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
       window.__saisirMontantAugmentIdleV1__=function(v){
         const n=Math.floor(Number(v));
-        if(Number.isFinite(n)&&n>=1)montantAugmentIdleV1=n;
+        if(Number.isFinite(n)&&n>=1){
+          montantAugmentIdleV1=n;
+          try{localStorage.setItem('soreal_idle_montant_input_v1',String(n));}catch(_e){}
+        }
       };
+      window.__lireMontantAugmentIdleV1__=function(){return montantAugmentIdleV1;};
       /*
        * Norman (2026-09-29) : « les boutons Energy Cap ; Cap, 1/2, 1/4 et IDLE Cap, 1/2, 1/4 » --
        * mêmes raccourcis que la barre d'outils de Basic Training (presetBasicTrainingIdleV120_,

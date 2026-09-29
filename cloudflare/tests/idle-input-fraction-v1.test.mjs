@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import vm from "node:vm";
 
 /*
  * Norman (2026-09-27) : « Dans les input où on peut choisir la valeur qu'on désire, je veux
@@ -30,7 +31,7 @@ const augMod = readFileSync("cloudflare/public/modules/meta-progression-v130.js"
 //    (un input type="number" rejette le caractère "/" avant même que l'utilisateur ait fini de taper)
 //    et branchés sur le résolveur de fraction via onblur.
 assert.match(ui, /id="sorealIdleTrainingInputV120"[\s\S]{0,120}type="text"/, "Basic Training : input en texte, pas en nombre");
-assert.match(ui, /id="sorealIdleTrainingInputV120"[\s\S]{0,220}onblur="window\.__resoudreFractionInputIdleV1__\(this\)"/, "Basic Training : branché sur le résolveur de fraction");
+assert.match(ui, /id="sorealIdleTrainingInputV120"[\s\S]{0,600}onblur="window\.__resoudreFractionInputIdleV1__\(this\);/, "Basic Training : branché sur le résolveur de fraction");
 assert.match(augMod, /id="sorealIdleAugInputV1" type="text"/, "Augmentations : input en texte, pas en nombre");
 assert.match(augMod, /id="sorealIdleAugInputV1"[\s\S]{0,260}onblur="window\.__resoudreFractionInputIdleV1__\(this\)/, "Augmentations : branché sur le résolveur de fraction");
 assert.match(augMod, /id="sorealIdleTmInputV1" type="text"/, "Time Machine : input en texte, pas en nombre");
@@ -38,5 +39,83 @@ assert.match(augMod, /id="sorealIdleTmInputV1"[\s\S]{0,260}onblur="window\.__res
 
 // 3. Le résolveur global est bien exposé (pont pour les autres modules).
 assert.match(ui, /window\.__resoudreFractionInputIdleV1__=idleResoudreFractionInputV1_;/);
+
+/*
+ * 4. Norman (2026-09-29) : « Je veux que les zones de saisies Input conservent le dernier chiffre
+ * écrit. » Basic Training affichait "125" en dur dans son modèle HTML -- chaque re-rendu complet
+ * de la page (la synchro périodique, entre autres) effaçait donc ce que le joueur venait de taper,
+ * jamais persisté nulle part. La valeur doit désormais venir de la même source partagée et
+ * persistée (localStorage) que les trois autres champs Input, et la mettre à jour dès la frappe
+ * (oninput), pas seulement à la validation (onblur).
+ */
+assert.ok(!ui.includes('value="125"'), "plus de valeur \"125\" figée en dur dans le modèle HTML de Basic Training");
+assert.match(ui, /id="sorealIdleTrainingInputV120"[\s\S]{0,260}value="\$\{idleHtml_\(String\(window\.__lireMontantAugmentIdleV1__\?window\.__lireMontantAugmentIdleV1__\(\):125\)\)\}"/, "la valeur initiale vient de la valeur partagée persistée, jamais figée en dur");
+assert.match(ui, /id="sorealIdleTrainingInputV120"[\s\S]{0,600}oninput="window\.__saisirMontantAugmentIdleV1__&&window\.__saisirMontantAugmentIdleV1__\(this\.value\)"/, "Basic Training doit aussi persister dès la frappe (oninput), pas seulement à la validation");
+
+// 5. La valeur partagée (module Augmentations/Blood Magic/Time Machine) est bien lue depuis
+//    localStorage au chargement, et chaque saisie la ré-écrit -- comportement testé en exécutant
+//    réellement le module dans un bac à sable avec un faux localStorage.
+{
+  function chargerAvecStockage(stockage) {
+    const window_ = {};
+    const document_ = { getElementById: () => null };
+    const sandbox = {
+      window: window_,
+      document: document_,
+      localStorage: stockage,
+      SOREAL_SESSION: null,
+      Math, Number, Object, Array, Boolean, String, JSON, Date, console
+    };
+    vm.createContext(sandbox);
+    try {
+      vm.runInContext(augMod, sandbox);
+    } catch (_e) {
+      // Le module dépend d'autres globales absentes de ce bac à sable minimal (window.__SOREAL_IDLE_META_HOST_V130__, etc.) :
+      // seules les deux fonctions exposées avant tout appel réel à ces dépendances nous intéressent ici.
+    }
+    return window_;
+  }
+
+  // localStorage vide -> repli sur 125 (comportement historique, jamais un autre nombre inventé).
+  {
+    const stockage = { v: null, getItem() { return this.v; }, setItem(_k, x) { this.v = x; } };
+    const w = chargerAvecStockage(stockage);
+    assert.equal(w.__lireMontantAugmentIdleV1__(), 125, "rien en localStorage -> repli sur 125");
+  }
+
+  // localStorage contient une valeur déjà écrite lors d'une session précédente -> reprise telle quelle.
+  {
+    const stockage = { v: "777", getItem() { return this.v; }, setItem(_k, x) { this.v = x; } };
+    const w = chargerAvecStockage(stockage);
+    assert.equal(w.__lireMontantAugmentIdleV1__(), 777, "la valeur d'une session précédente doit être reprise au chargement");
+  }
+
+  // localStorage corrompu/non numérique -> jamais un plantage, repli sur 125.
+  {
+    const stockage = { v: "pas-un-nombre", getItem() { return this.v; }, setItem(_k, x) { this.v = x; } };
+    const w = chargerAvecStockage(stockage);
+    assert.equal(w.__lireMontantAugmentIdleV1__(), 125, "valeur corrompue en localStorage -> repli sur 125, jamais un plantage");
+  }
+
+  // Saisir une nouvelle valeur la persiste immédiatement dans localStorage (survivra donc à un rechargement).
+  {
+    const stockage = { v: null, getItem() { return this.v; }, setItem(_k, x) { this.v = x; } };
+    const w = chargerAvecStockage(stockage);
+    w.__saisirMontantAugmentIdleV1__("450");
+    assert.equal(w.__lireMontantAugmentIdleV1__(), 450);
+    assert.equal(stockage.v, "450", "la saisie doit être écrite dans localStorage, pas seulement gardée en mémoire");
+  }
+
+  // Une saisie invalide (vide, négative, non numérique) est ignorée : ni la valeur ni localStorage ne changent.
+  {
+    const stockage = { v: "300", getItem() { return this.v; }, setItem(_k, x) { this.v = x; } };
+    const w = chargerAvecStockage(stockage);
+    w.__saisirMontantAugmentIdleV1__("abc");
+    w.__saisirMontantAugmentIdleV1__("-5");
+    w.__saisirMontantAugmentIdleV1__("");
+    assert.equal(w.__lireMontantAugmentIdleV1__(), 300, "saisie invalide -> valeur précédente conservée");
+    assert.equal(stockage.v, "300", "saisie invalide -> localStorage jamais écrasé");
+  }
+}
 
 console.log("idle-input-fraction-v1: OK");

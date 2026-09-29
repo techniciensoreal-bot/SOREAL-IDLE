@@ -1017,11 +1017,16 @@
             'sorealIdleTrainingInputV120'
           );
 
+        const repli=
+          window.__lireMontantAugmentIdleV1__
+            ?window.__lireMontantAugmentIdleV1__()
+            :1;
+
         return Math.max(
           1,
           idleEntier_(
             input&&input.value
-          )||1
+          )||repli
         );
       }
 
@@ -2177,8 +2182,19 @@
       function largeurBarreVieCombatIdleV163_(element,pourcentage){
         if(!element)return;
         const pct=Math.max(0,Math.min(100,idleNombre_(pourcentage)));
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-30 */
-        element.style.setProperty('transition','none','important');
+        /*
+         * Norman (2026-09-29) : « La barre de vie des boss rame quand elle diminue. Avant elle
+         * était très fluide. » Ce forçage inline de transition:none (V163, "COMBAT PAR IMPACT
+         * V116") avait un sens tant que le tick de jeu tournait à la fréquence native de l'écran
+         * (souvent 60 Hz) : poser la largeur brute assez souvent SUFFISAIT à paraître fluide sans
+         * aucune transition. Depuis le plafonnement du tick lourd à 15 Hz (2026-09-28, pour les
+         * freezes iPhone/Safari), ce même forçage ne laisse plus que 15 "marches" par seconde
+         * visibles à l'écran -- d'où l'effet de saccade. Retiré, comme la barre d'Énergie/Magie
+         * (Beta 6.7, idle-energy-adventure-hp-v200.test.mjs) : on pose la largeur directement
+         * depuis la valeur réellement connue, SANS interpolation inventée ici ; c'est uniquement la
+         * transition CSS de .soreal-idle-bossbar-v7/.soreal-idle-playerbar-v15 (soreal-idle-ui.css)
+         * qui fait le lissage visuel, exactement le même principe déjà éprouvé pour l'Énergie/Magie.
+         */
         largeurBarreCombatIdleV121_(element,pct);
       }
 
@@ -15358,9 +15374,10 @@ let idleDialogueTimerV76=null;
               <input
                 id="sorealIdleTrainingInputV120"
                 type="text"
-                value="125"
+                value="${idleHtml_(String(window.__lireMontantAugmentIdleV1__?window.__lireMontantAugmentIdleV1__():125))}"
                 title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l'énergie idle libre à la validation)"
-                onblur="window.__resoudreFractionInputIdleV1__(this)"
+                oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
+                onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
               >
             </div>
 
