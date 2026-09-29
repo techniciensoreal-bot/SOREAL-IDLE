@@ -3317,6 +3317,42 @@ html,body{overflow-x:hidden}
             overflow:hidden;
           }
 
+          /*
+           * Norman (2026-09-29) : infobulle de survol PC (lecture seule, jamais sur l'objet ni sous la souris --
+           * voir installerInfobulleObjetAdventureIdleV1_, Soreal_Idle_UI.html). Même thème que le popup interactif
+           * (soreal-idle-item-popup-v1) pour que .soreal-idle-v138-details-stat (fond clair transparent) reste
+           * lisible ; pointer-events:none pour ne jamais voler le survol à la grille sous-jacente.
+           */
+          .soreal-idle-item-infobulle-v1{
+            position:fixed;
+            z-index:10060;
+            box-sizing:border-box;
+            width:min(280px,calc(100vw - 16px));
+            padding:10px 12px;
+            border-radius:12px;
+            background:#182236;
+            border:1px solid rgba(166,188,229,.18);
+            box-shadow:0 18px 40px rgba(5,10,25,.45);
+            color:#e7ecf7;
+            pointer-events:none;
+          }
+
+          .soreal-idle-item-infobulle-nom-v1{
+            font-size:14px;
+            font-weight:900;
+            color:#f2f8fd;
+          }
+
+          .soreal-idle-item-infobulle-niveau-v1{
+            color:#8b93ab;
+            font-size:12px;
+            font-weight:700;
+          }
+
+          .soreal-idle-item-infobulle-v1 .soreal-idle-v138-details-stats{
+            margin-top:8px;
+          }
+
           .soreal-idle-item-popup-drag-v1{
             display:flex;
             align-items:center;

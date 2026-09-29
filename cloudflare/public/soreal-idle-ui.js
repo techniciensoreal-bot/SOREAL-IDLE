@@ -18872,7 +18872,24 @@ function pageAventureIdleV28_(j){
             ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
             emojiRepliObjetIdleV1_('🧊');
         }
-        if(!item||!item.set)return iconeSlotAdventureIdleV138_(item&&item.slot);
+        /*
+         * Norman (2026-09-29) : « J'ai toujours l'émoji à la place de Tuba of
+         * Time » -- alors que l'image existe bien sur le R2 et que le Worker
+         * média la résout correctement par wikiItemId (vérifié en direct en
+         * production). Cause réelle : ce chemin de rendu (le seul utilisé par
+         * le paperdoll/les accessoires Aventure -- item-specials-early-v75.js
+         * et item-images-r2-v74.js ciblent des classes d'un ancien écran
+         * d'équipement, jamais celui-ci) exigeait `item.set` pour même
+         * tenter une image. Un Special (Tuba of Time, Cheese Grater…) n'a
+         * jamais de `.set` (exclusif aux pièces d'équipement de set) --
+         * repli immédiat et permanent sur l'émoji générique du slot, quelle
+         * que soit la disponibilité réelle de l'image. `wikiItemId` (déjà
+         * transporté par TOUT objet du catalogue, cleanItem) est un
+         * identifiant tout aussi valide pour urlImageObjetAdventureIdleV138_ ;
+         * le repli `onerror` vers l'émoji reste inchangé si l'image manque
+         * vraiment.
+         */
+        if(!item||!(item.set||item.wikiItemId))return iconeSlotAdventureIdleV138_(item&&item.slot);
         return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
           ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
           emojiRepliObjetIdleV1_(iconeSlotAdventureIdleV138_(item.slot));
@@ -20101,6 +20118,96 @@ function pageAventureIdleV28_(j){
         if(id)fusionnerSiPossibleAdventureIdleV138_(id,String(cibleId||''));
       }
 
+      /*
+       * Norman (2026-09-29) : extrait du corps de afficherDetailsObjetAdventureIdleV138_
+       * (comportement inchangé) pour être réutilisé par l'infobulle de survol PC
+       * (installerInfobulleObjetAdventureIdleV1_) sans dupliquer ~85 lignes de calcul
+       * de stats -- une seule source de vérité pour les deux affichages.
+       */
+      function statsHtmlObjetAdventureIdleV138_(item){
+        if(!(item.kind==='equipment'||item.kind==='special'||item.kind==='cube'))return '';
+        const niveau=idleEntier_(item.level);
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-264 */
+        const basePower=idleNombre_(item.basePower);
+        const baseToughness=idleNombre_(item.baseToughness);
+        const q=1+niveau/100;
+        const maxPower=basePower*q;
+        const maxToughness=baseToughness*q;
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-265 */
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-266 */
+        const powerMaxAtteint=basePower>0&&idleNombre_(item.power)+1e-9>=maxPower;
+        const toughnessMaxAtteint=baseToughness>0&&idleNombre_(item.toughness)+1e-9>=maxToughness;
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-267 */
+        const itemHp=idleNombre_(item.power)*3;
+        const itemRegen=idleNombre_(item.toughness)*.03;
+        const baseHp=basePower*3;
+        const baseRegen=baseToughness*.03;
+        const maxHp=baseHp*q;
+        const maxRegen=baseRegen*q;
+        const hpMaxAtteint=baseHp>0&&itemHp+1e-9>=maxHp;
+        const regenMaxAtteint=baseRegen>0&&itemRegen+1e-9>=maxRegen;
+
+        /*
+         * Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-268 -- Ordre (2026-09-27, Norman : « Dans NGU, c'est Power / Max HP /
+         * Toughness / HP Regen ») : Power et Max HP se boostent avec les boosts oranges (Power), Toughness et HP Regen avec les
+         * boosts bleus (Toughness) -- l'ordre affiché regroupe donc les deux paires par boost, comme sur le wiki NGU, plutôt que
+         * Power/Toughness/MaxHP/Regen (ordre "brut" du moteur, qui sépare les deux paires).
+         */
+        return '<div class="soreal-idle-v138-details-stats">'+
+            (basePower>0
+              ?'<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.power))+'</span>'+
+                ' / '+formatGrandNombreIdleV70_(maxPower)+
+              '</b></div>'
+              :''
+            )+
+            (baseHp>0
+              ?'<div class="soreal-idle-v138-details-stat"><span>PV Max</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
+                ' / '+formatGrandNombreIdleV70_(maxHp)+
+              '</b></div>'
+              :''
+            )+
+            (baseToughness>0
+              ?'<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
+                ' / '+formatGrandNombreIdleV70_(maxToughness)+
+              '</b></div>'
+              :''
+            )+
+            (baseRegen>0
+              ?'<div class="soreal-idle-v138-details-stat"><span>Regen PV</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(regenMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemRegen,2)+'</span>'+
+                ' / '+formatGrandNombreIdleV70_(maxRegen,2)+
+              '</b></div>'
+              :''
+            )+
+            (function(){
+              /* Pièces de set : tous leurs Specials (valeur actuelle / plafond du niveau), audit NGU 2026-09-23. */
+              if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
+                return item.specialsAll.map(function(sv){
+                  const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
+                  return '<div class="soreal-idle-v138-details-stat"><span>Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
+                    '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
+                    ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
+                  '</b></div>';
+                }).join('');
+              }
+              /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-269 */
+              const baseSpecial=idleNombre_(item.baseSpecial);
+              if(!(baseSpecial>0))return'';
+              const maxSpecial=baseSpecial*q;
+              const specialMaxAtteint=idleNombre_(item.special)+1e-9>=maxSpecial;
+              const label=idleLabelSpecialBonusV1_(item.specialType);
+              return '<div class="soreal-idle-v138-details-stat"><span>Special Bonus: '+idleHtml_(label)+'</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(specialMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.special))+'</span>'+
+                ' / '+formatGrandNombreIdleV70_(maxSpecial)+
+              '</b></div>';
+            })()+
+          '</div>';
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-262 */
       function afficherDetailsObjetAdventureIdleV138_(itemId){
         const root=document.getElementById('soreal-idle-v138-details');
@@ -20119,91 +20226,7 @@ function pageAventureIdleV28_(j){
         }
 
         const niveau=idleEntier_(item.level);
-        let statsHtml='';
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-263 */
-        if(item.kind==='equipment'||item.kind==='special'||item.kind==='cube'){
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-264 */
-          const basePower=idleNombre_(item.basePower);
-          const baseToughness=idleNombre_(item.baseToughness);
-          const q=1+niveau/100;
-          const maxPower=basePower*q;
-          const maxToughness=baseToughness*q;
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-265 */
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-266 */
-          const powerMaxAtteint=basePower>0&&idleNombre_(item.power)+1e-9>=maxPower;
-          const toughnessMaxAtteint=baseToughness>0&&idleNombre_(item.toughness)+1e-9>=maxToughness;
-
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-267 */
-          const itemHp=idleNombre_(item.power)*3;
-          const itemRegen=idleNombre_(item.toughness)*.03;
-          const baseHp=basePower*3;
-          const baseRegen=baseToughness*.03;
-          const maxHp=baseHp*q;
-          const maxRegen=baseRegen*q;
-          const hpMaxAtteint=baseHp>0&&itemHp+1e-9>=maxHp;
-          const regenMaxAtteint=baseRegen>0&&itemRegen+1e-9>=maxRegen;
-
-          /*
-           * Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-268 -- Ordre (2026-09-27, Norman : « Dans NGU, c'est Power / Max HP /
-           * Toughness / HP Regen ») : Power et Max HP se boostent avec les boosts oranges (Power), Toughness et HP Regen avec les
-           * boosts bleus (Toughness) -- l'ordre affiché regroupe donc les deux paires par boost, comme sur le wiki NGU, plutôt que
-           * Power/Toughness/MaxHP/Regen (ordre "brut" du moteur, qui sépare les deux paires).
-           */
-          statsHtml=
-            '<div class="soreal-idle-v138-details-stats">'+
-              (basePower>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.power))+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxPower)+
-                '</b></div>'
-                :''
-              )+
-              (baseHp>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>PV Max</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxHp)+
-                '</b></div>'
-                :''
-              )+
-              (baseToughness>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxToughness)+
-                '</b></div>'
-                :''
-              )+
-              (baseRegen>0
-                ?'<div class="soreal-idle-v138-details-stat"><span>Regen PV</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(regenMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemRegen,2)+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxRegen,2)+
-                '</b></div>'
-                :''
-              )+
-              (function(){
-                /* Pièces de set : tous leurs Specials (valeur actuelle / plafond du niveau), audit NGU 2026-09-23. */
-                if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
-                  return item.specialsAll.map(function(sv){
-                    const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
-                    return '<div class="soreal-idle-v138-details-stat"><span>Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
-                      '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
-                      ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
-                    '</b></div>';
-                  }).join('');
-                }
-                /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-269 */
-                const baseSpecial=idleNombre_(item.baseSpecial);
-                if(!(baseSpecial>0))return'';
-                const maxSpecial=baseSpecial*q;
-                const specialMaxAtteint=idleNombre_(item.special)+1e-9>=maxSpecial;
-                const label=idleLabelSpecialBonusV1_(item.specialType);
-                return '<div class="soreal-idle-v138-details-stat"><span>Special Bonus: '+idleHtml_(label)+'</span><b>'+
-                  '<span class="soreal-idle-v138-stat-value-v1'+(specialMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.special))+'</span>'+
-                  ' / '+formatGrandNombreIdleV70_(maxSpecial)+
-                '</b></div>';
-              })()+
-            '</div>';
-        }
+        const statsHtml=statsHtmlObjetAdventureIdleV138_(item);
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-270 */
         const equipement=a&&a.equipment||{};
@@ -20441,6 +20464,95 @@ function pageAventureIdleV28_(j){
         afficherDetailsObjetAdventureIdleV138_('');
       }
       window.__fermerDetailsObjetAdventureIdleV1__=fermerDetailsObjetAdventureIdleV1_;
+
+      /*
+       * Norman (2026-09-29) : « Sur PC, j'aimerais que les statistiques des items apparaissent instantanément au
+       * passage de la souris. Le popup doit toujours se situer en haut à gauche/droite ou en bas à gauche/droite
+       * suivant la place disponible à l'écran. Il ne doit pas couvrir l'objet qu'on affiche. Il ne doit pas être
+       * directement sur la souris. »
+       *
+       * Infobulle de survol légère (lecture seule, pas d'actions), séparée du popup interactif existant
+       * (afficherDetailsObjetAdventureIdleV138_, ouvert par appui long 600 ms -- long-press-v200.js -- ou tap, avec
+       * boutons Équiper/Vendre/Verrouiller…) qui reste inchangé. Réutilise statsHtmlObjetAdventureIdleV138_ (même
+       * source que le popup, jamais un second calcul de stats) et elementObjetGesteAdventureIdleV196_/
+       * idObjetGesteAdventureIdleV196_ (mêmes emplacements que le popup : sac, paperdoll, accessoires).
+       *
+       * Positionnement : ancrée à un COIN de l'emplacement survolé (jamais sur son rectangle, donc jamais sur
+       * l'objet ni sous le curseur qui vient de l'atteindre) ; les 4 coins possibles (haut-droite, haut-gauche,
+       * bas-droite, bas-gauche) sont essayés dans cet ordre, le premier qui tient entièrement dans la fenêtre est
+       * retenu.
+       */
+      function fermerInfobulleObjetAdventureIdleV1_(){
+        const el=document.getElementById('sorealIdleItemInfobulleV1');
+        if(el)el.remove();
+      }
+
+      function calculerPositionInfobulleObjetAdventureIdleV1_(largeur,hauteur,ancreRect){
+        const marge=10;
+        const vw=window.innerWidth,vh=window.innerHeight;
+        const candidats=[
+          {top:ancreRect.top-hauteur-marge,left:ancreRect.right+marge},
+          {top:ancreRect.top-hauteur-marge,left:ancreRect.left-largeur-marge},
+          {top:ancreRect.bottom+marge,left:ancreRect.right+marge},
+          {top:ancreRect.bottom+marge,left:ancreRect.left-largeur-marge}
+        ];
+        const tient=function(c){
+          return c.top>=4&&c.left>=4&&c.top+hauteur<=vh-4&&c.left+largeur<=vw-4;
+        };
+        const choix=candidats.find(tient)||candidats[0];
+        return {
+          top:Math.max(4,Math.min(vh-hauteur-4,choix.top)),
+          left:Math.max(4,Math.min(vw-largeur-4,choix.left))
+        };
+      }
+
+      function ouvrirInfobulleObjetAdventureIdleV1_(element){
+        const id=idObjetGesteAdventureIdleV196_(element);
+        const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const item=id?items.find(function(x){return String(x&&x.id)===id;}):null;
+        const stats=item?statsHtmlObjetAdventureIdleV138_(item):'';
+        if(!item||!stats){
+          fermerInfobulleObjetAdventureIdleV1_();
+          return;
+        }
+        fermerInfobulleObjetAdventureIdleV1_();
+        const el=document.createElement('div');
+        el.id='sorealIdleItemInfobulleV1';
+        el.className='soreal-idle-item-infobulle-v1';
+        el.setAttribute('role','tooltip');
+        const niveau=idleEntier_(item.level);
+        el.innerHTML=
+          '<div class="soreal-idle-item-infobulle-nom-v1">'+idleHtml_(item.name||item.nom||'')+
+            (niveau>0?' <span class="soreal-idle-item-infobulle-niveau-v1">Niv. '+niveau+'/100</span>':'')+
+          '</div>'+stats;
+        document.body.appendChild(el);
+        const pos=calculerPositionInfobulleObjetAdventureIdleV1_(
+          el.offsetWidth,el.offsetHeight,element.getBoundingClientRect()
+        );
+        el.style.left=pos.left+'px';
+        el.style.top=pos.top+'px';
+      }
+
+      function installerInfobulleObjetAdventureIdleV1_(){
+        if(window.__sorealIdleInfobulleObjetV1)return;
+        window.__sorealIdleInfobulleObjetV1=true;
+        document.addEventListener('mouseover',function(ev){
+          if(ev.pointerType==='touch')return;
+          if(popupDetailsObjetAdventureIdleOuvertV207_())return;
+          const element=elementObjetGesteAdventureIdleV196_(ev.target);
+          if(!element)return;
+          if(elementObjetGesteAdventureIdleV196_(ev.relatedTarget)===element)return;
+          ouvrirInfobulleObjetAdventureIdleV1_(element);
+        });
+        document.addEventListener('mouseout',function(ev){
+          const element=elementObjetGesteAdventureIdleV196_(ev.target);
+          if(!element)return;
+          if(elementObjetGesteAdventureIdleV196_(ev.relatedTarget)===element)return;
+          fermerInfobulleObjetAdventureIdleV1_();
+        });
+      }
+      installerInfobulleObjetAdventureIdleV1_();
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-273 */
       function clicCibleAdventureIdleV138_(slotName,occupantId){

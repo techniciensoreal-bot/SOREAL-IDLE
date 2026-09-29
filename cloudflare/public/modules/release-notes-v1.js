@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.0',
+    courante:'6.1',
     versions:[
+      {
+        version:'6.1',
+        nom:'Objets, l’image retrouvée',
+        date:'2026-09-29',
+        points:[
+          'Certains objets spéciaux d’Aventure affichaient un simple symbole au lieu de leur vraie image, même quand elle existait bien : corrigé.',
+          'Sur ordinateur, les statistiques d’un objet s’affichent désormais instantanément au survol de la souris.',
+          'Cette nouvelle bulle d’info se place intelligemment autour de l’objet pour ne jamais le cacher ni rester sous le curseur.'
+        ]
+      },
       {
         version:'6.0',
         nom:'Magie, les bonnes infos',
