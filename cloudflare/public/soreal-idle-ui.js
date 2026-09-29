@@ -20809,6 +20809,15 @@ function pageAventureIdleV28_(j){
               indiceSacZoneTutorielIdleV1_(a)+
               '<div class="soreal-idle-v138-bag-heading-v165">'+
                 '<div class="soreal-idle-window-title-v31">🎒 Sac ('+utilise+' / '+capacite+')</div>'+
+                /*
+                 * Norman (2026-09-29) : « J'aimerai un bouton pour trier l'inventaire [...] il ne
+                 * serait pas dévérouillé de base. » Achat EXP Shop (section Débuts) : jamais affiché
+                 * avant l'achat (AGENTS.md règle n°2 -- aucun cadenas ni prix ici, seulement dans le
+                 * Shop lui-même, comme les autres achats de cette section).
+                 */
+                (j.systemes&&j.systemes.inventoryAuto&&j.systemes.inventoryAuto.unlocked&&j.systemes.inventoryAuto.unlocked.sortInventory
+                  ?'<button type="button" class="soreal-idle-expand-button-v25" title="Range ton sac par catégorie : bijoux, armes, tête, torse, jambes, pieds, objets divers, puis boosts." onclick="window.__actionMetaV47__({action:\'inventoryAuto\',mode:\'sortInventory\'})">🗂️ Trier</button>'
+                  :'')+
                 rendreTrashAdventureIdleV165_(a.trash)+
               '</div>'+
               rendreGrilleSacAdventureIdleV1_(sacItems,capacite)+

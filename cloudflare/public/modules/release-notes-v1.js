@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.1',
+    courante:'7.2',
     versions:[
+      {
+        version:'7.2',
+        nom:'Un sac bien rangé',
+        date:'2026-09-29',
+        points:[
+          'Nouvel achat dans la Boutique EXP (section Débuts, 200 EXP) : un bouton « Trier » pour le sac.',
+          'Il range automatiquement tes objets par catégorie : bijoux, armes, tête, torse, jambes, pieds, objets divers, puis boosts.',
+          'Tes slots d’automerge, réglés à la main, ne sont jamais touchés par ce tri.'
+        ]
+      },
       {
         version:'7.1',
         nom:'Vraiment la même taille',

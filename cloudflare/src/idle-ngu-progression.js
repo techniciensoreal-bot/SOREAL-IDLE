@@ -7296,6 +7296,14 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    * +10 % (« Capped at 50% » = 5 achats), « Inventory Merge Slot! » 1000.
    */
   autoMerge: Object.freeze({ name: "Auto Merge", cost: () => 200, gain: 1, max: 1 }),
+  /*
+   * Norman (2026-09-29) : « J'aimerai un bouton pour trier l'inventaire [...] il ne serait pas
+   * dévérouillé de base, mais tu peux l'ajouter dans le shop, dans la section débutant. Il coute
+   * 200 EXP. » Fonctionnalité SOREAL originale, absente du wiki NGU Idle (le tri manuel/drag & drop
+   * du sac existe déjà côté serveur, mais aucun bouton "tout trier" n'existe dans le jeu réel) --
+   * coût donné directement par Norman, jamais tiré du wiki.
+   */
+  sortInventory: Object.freeze({ name: "Sort Inventory", cost: () => 200, gain: 1, max: 1 }),
   basicLootFilter: Object.freeze({ name: "Basic Loot Filter", cost: () => 20, gain: 1, max: 1 }),
   loadoutSlots: Object.freeze({ name: "2 Loadout Slots!", cost: () => 1000, gain: 2, max: 1 }),
   loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),
@@ -7325,6 +7333,7 @@ function inventoryAutoEnvV1(state) {
   const hundredMax = IDLE_NGU_NORMAL_CHALLENGES.find((d) => d.id === "hundredLevels")?.max || 5;
   return {
     autoMergeUnlocked: expShopPurchasedV1(state, "autoMerge") >= 1,
+    sortInventoryUnlocked: expShopPurchasedV1(state, "sortInventory") >= 1,
     autoBoostUnlocked: Boolean(ch.autoBoost),
     timerMultiplier: Math.max(0, num(ch.autoMergeTimeMultiplier, 1)) * (int(sellout.autoMergeBoostTimers, 0) >= 1 ? 0.5 : 1),
     boostRecycleChance: idleInventoryBoostRecycleChanceV1(expShopPurchasedV1(state, "boostRecycling"), ch.boostRecycleChance),

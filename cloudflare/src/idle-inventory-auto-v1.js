@@ -481,6 +481,42 @@ function basicFilterTypeV1(o) {
   return "accessory";
 }
 
+/*
+ * Tri "Trier l'inventaire" (Norman, 2026-09-29) : « bijoux en premier, armes, tete, torse, jambes,
+ * pieds, objets divers, boost (Power, Toughness et en dernier special) ». Réutilise EXACTEMENT la
+ * classification de basicFilterTypeV1 (déjà la distinction du jeu réel entre les 5 slots d'armure/
+ * arme et "accessory" -- le nom NGU pour tout ce qui n'est pas un de ces 5 slots, "bijoux" ici) :
+ * aucune sous-distinction bague/amulette/breloque n'existe dans le modèle de données, donc aucune
+ * n'est inventée. "" (boosts/consommables/objets spéciaux) devient "objets divers", juste avant les
+ * boosts.
+ */
+const IDLE_SORT_INVENTORY_RANK_V1 = Object.freeze({ accessory: 0, weapon: 1, head: 2, chest: 3, legs: 4, boots: 5 });
+function sortRankInventoryV1(o) {
+  if (o && o.kind === "boost") {
+    const i = IDLE_BOOST_TYPES_V1.indexOf(String(o.boostType || ""));
+    return 7 + (i < 0 ? IDLE_BOOST_TYPES_V1.length : i);
+  }
+  const t = basicFilterTypeV1(o);
+  return t && IDLE_SORT_INVENTORY_RANK_V1[t] != null ? IDLE_SORT_INVENTORY_RANK_V1[t] : 6;
+}
+
+/*
+ * Réordonne s.inventorySlots par catégorie (tri stable : deux objets de même catégorie gardent leur
+ * ordre relatif actuel). Les slots d'automerge (les s.mergeSlots premières cases, curées à la main
+ * par le joueur -- voir syncInventorySlotsAdventureV2/idle-adventure-v47.js) ne sont jamais touchés.
+ */
+function sortInventorySlotsV1(s) {
+  const slots = idleAdventureSyncInventorySlotsV1(s);
+  const cap = slots.length;
+  const mergeSlots = Math.max(0, Math.min(cap, I(s.mergeSlots)));
+  const byId = new Map((Array.isArray(s.inventory) ? s.inventory : []).map((o) => [String(o.id), o]));
+  const ids = slots.slice(mergeSlots).filter(Boolean);
+  ids.sort((a, b) => sortRankInventoryV1(byId.get(a)) - sortRankInventoryV1(byId.get(b)));
+  for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
+  s.inventorySlots = slots;
+  return slots;
+}
+
 /* Filtre à modifier pour une zone : le sien, créé au besoin comme copie du filtre en vigueur (au plus 80 zones). */
 function filterToEditV1(cfg, zone) {
   if (!cfg.lootFilters[zone]) {
@@ -719,6 +755,12 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
     if (payload.filtered) filtre.types[t] = true; else delete filtre.types[t];
     return { slot: t, zone, filtered: Boolean(filtre.types[t]) };
   }
+  if (mode === "sortInventory") {
+    if (!env?.sortInventoryUnlocked) throw new Error("TRI_INVENTAIRE_VERROUILLE");
+    sortInventorySlotsV1(s);
+    bumpRevisionV1(s);
+    return { sorted: true };
+  }
   if (mode === "lootFilterItem") {
     if (!env?.lootFilterImproved) throw new Error("FILTRE_AMELIORE_VERROUILLE");
     const d = String(payload.definitionId || "");
@@ -759,7 +801,8 @@ export function idleInventoryAutoSnapshotV1(s, env) {
       filterBoostsIntoCube: Boolean(env?.filterBoostsIntoCube),
       boostTransform: Boolean(env?.boostTransformUnlocked),
       boostTransformFree: Boolean(env?.boostTransformFree),
-      autoTransform: Boolean(env?.boostTransformFree)
+      autoTransform: Boolean(env?.boostTransformFree),
+      sortInventory: Boolean(env?.sortInventoryUnlocked)
     },
     settings: {
       autoMerge: cfg.autoMerge,
