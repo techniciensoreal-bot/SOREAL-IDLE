@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.7',
+    courante:'7.8',
     versions:[
+      {
+        version:'7.8',
+        nom:'Un double tap, tout est avalé',
+        date:'2026-09-29',
+        points:[
+          'Un double tap sur le Cube de l’infini lui fait absorber tous les boosts de ton sac d’un coup.',
+          'C’est le même effet que A + clic sur ordinateur, avec le même son d’absorption.',
+          'Un simple tap ouvre toujours les détails du Cube, avec un très léger délai pour laisser le temps au double tap.'
+        ]
+      },
       {
         version:'7.7',
         nom:'La voix tient le rythme',

@@ -20052,9 +20052,48 @@ function pageAventureIdleV28_(j){
         activerGlisserPopupObjetAdventureIdleV1_(root);
       }
 
-      function clicCubeAdventureIdleV138_(){
+      /*
+       * Double tap sur le Cube de l'infini = il absorbe tous les boosts du sac (Norman, 2026-09-29 :
+       * « quand on double tape sur le cube de l'infini il doit absorber tous les boosts »). Même
+       * principe que le double tap sur une pièce équipée (boosterObjetEquipeAdventureIdleV1_) et que
+       * « A + clic » sur le Cube (modules/inventory-auto-v1.js) : action inventoryAuto / boostAll,
+       * cible « cube » -- déjà gérée côté serveur (idle-inventory-auto-v1.js), aucune règle nouvelle.
+       * Tactile/stylet seulement, comme les objets (estDoubleTapGesteAdventureIdleV196_) : la souris
+       * garde « A + clic ». Le popup de détails n'est ouvert qu'une fois la fenêtre de double tap
+       * écoulée : sinon il recouvrirait le Cube et le second tap tomberait dessus.
+       */
+      let idleCubeDernierTapMsV1=0;
+      let idleCubeDetailsTimerV1=0;
+      function absorberTousBoostsCubeAdventureIdleV1_(){
+        const envoyer=window.__actionMetaV47__;
+        if(typeof envoyer!=='function')return false;
+        nettoyerEtatDragAdventureIdleV138_();
+        envoyer({action:'inventoryAuto',mode:'boostAll',targetId:'cube'});
+        return true;
+      }
+      function clicCubeAdventureIdleV138_(event){
         if(!idleAdventureSelectionIdV138){
-          afficherDetailsCubeInfiniAdventureIdleV220_();
+          /* Certains Safari envoient un « click » sans pointerType : repli sur le type de pointeur principal de l'appareil. */
+          const typePointeur=event&&typeof event.pointerType==='string'&&event.pointerType
+            ?event.pointerType
+            :(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches?'touch':'mouse');
+          if(typePointeur==='mouse'){
+            afficherDetailsCubeInfiniAdventureIdleV220_();
+            return;
+          }
+          const maintenant=Date.now();
+          if(maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
+            idleCubeDernierTapMsV1=0;
+            clearTimeout(idleCubeDetailsTimerV1);
+            absorberTousBoostsCubeAdventureIdleV1_();
+            return;
+          }
+          idleCubeDernierTapMsV1=maintenant;
+          clearTimeout(idleCubeDetailsTimerV1);
+          idleCubeDetailsTimerV1=setTimeout(function(){
+            idleCubeDernierTapMsV1=0;
+            afficherDetailsCubeInfiniAdventureIdleV220_();
+          },IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30);
           return;
         }
         const id=idleAdventureSelectionIdV138;
@@ -20886,7 +20925,7 @@ function pageAventureIdleV28_(j){
           'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurCubeAdventureIdleV138__(event)" '+
-          'onclick="window.__clicCubeAdventureIdleV138__()"'+
+          'onclick="window.__clicCubeAdventureIdleV138__(event)"'+
           '>'+
           '<div class="soreal-idle-v138-slot-icon" title="'+titre+'">'+
             '<img src="'+idleHtml_(urlImageCubeInfiniAdventureIdleV1_(tier))+'" alt="" loading="lazy" '+
