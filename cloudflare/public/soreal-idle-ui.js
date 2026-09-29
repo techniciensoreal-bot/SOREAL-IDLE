@@ -4292,6 +4292,140 @@
       }
 
 
+      /*
+       * Rendu visuel fluide V221 — 2026-09-29.
+       * La simulation complète reste plafonnée à 15 Hz pour éviter le coût DOM/calcul
+       * qui provoquait des freezes sur iPhone/Safari. En revanche, la barre d'énergie
+       * peut être interpolée à la fréquence native de requestAnimationFrame sans
+       * muter l'état du jeu : on projette seulement le tick courant à partir du
+       * dernier état autoritatif local.
+       */
+      function rafraichirVisuelsFluidesIdleV221_(){
+        if(
+          !idleEtat ||
+          PAGE_ACTIVE!=='idle' ||
+          (typeof document!=='undefined'&&document.hidden)
+        ){
+          return;
+        }
+
+        if(
+          typeof window!=='undefined' &&
+          window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ){
+          return;
+        }
+
+        const energyBarEl=
+          document.getElementById(
+            'sorealIdleEnergyBarV11'
+          );
+
+        if(!energyBarEl)return;
+
+        const metaTickEnergie=
+          metaTickEnergieIdleV114_();
+
+        const dureeMs=
+          Math.max(
+            1,
+            idleNombre_(
+              metaTickEnergie.dureeMs
+            )
+          );
+
+        const gain=
+          Math.max(
+            0,
+            idleNombre_(
+              metaTickEnergie.gain
+            )
+          );
+
+        const depuisDernierTickLourdMs=
+          Math.max(
+            0,
+            Math.min(
+              1000,
+              Date.now()-
+              idleDernierTickLocalV40
+            )
+          );
+
+        const tempsProjeteMs=
+          Math.max(
+            0,
+            idleResteTickEnergieMsV114+
+            depuisDernierTickLourdMs
+          );
+
+        const ticksProjetes=
+          Math.max(
+            0,
+            Math.floor(
+              (
+                tempsProjeteMs+
+                1e-7
+              )/
+              dureeMs
+            )
+          );
+
+        const resteProjeteMs=
+          Math.max(
+            0,
+            tempsProjeteMs-
+            ticksProjetes*
+            dureeMs
+          );
+
+        const maxTotal=
+          Math.max(
+            0,
+            idleNombre_(
+              idleEtat.energieMax
+            )
+          );
+
+        const maxStockable=
+          Math.max(
+            0,
+            maxTotal-
+            totalAllocationBasicTrainingIdleV120_()-
+            allocationMetaEnergieIdleV1_()
+          );
+
+        const energieProjetee=
+          Math.min(
+            maxStockable,
+            Math.max(
+              0,
+              idleNombre_(
+                idleEtat.energie
+              )+
+              ticksProjetes*
+              gain
+            )
+          );
+
+        const energieDisponibleProjetee=
+          Math.max(
+            0,
+            energieProjetee-
+            energieReserveeIdleV23_()
+          );
+
+        mettreAJourBarreProgressionContinueV1_(
+          energyBarEl,
+          energieDisponibleProjetee,
+          resteProjeteMs/dureeMs,
+          maxTotal,
+          gain
+        );
+      }
+
+
       function demarrerTickerIdle_(){
         if(idleTimerEnergie){
           clearInterval(idleTimerEnergie);
@@ -4325,6 +4459,12 @@
             dernierFrameJeuVisibleV214=maintenantFrame;
             mettreAJourJeuIdleLocalV7_();
           }
+
+          /*
+           * Le rendu léger tourne à la fréquence native de l'écran, indépendamment
+           * du tick lourd ci-dessus. Il ne change aucune donnée de gameplay.
+           */
+          rafraichirVisuelsFluidesIdleV221_();
 
           if(PAGE_ACTIVE==='idle'){
             idleAnimationFrameJeuV214=requestAnimationFrame(frameJeuV214_);
