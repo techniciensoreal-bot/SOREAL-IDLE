@@ -7106,24 +7106,14 @@ html,body{overflow-x:hidden}
           .soreal-idle-bt-actions-v120 button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 
           /*
-           * Norman (2026-09-29) : « Les boutons dans Augmentation et dans blood magic sont énormes.
-           * Je les voulais comme dans basic training. » Même couleurs/relief/retour au toucher que
-           * Basic Training (rien ne change ci-dessus, qui reste la référence sur SA page, avec très
-           * peu de lignes affichées à la fois) -- seule la TAILLE est réduite ici, pour les écrans où
-           * ce même trio +/-/Cap se répète une fois par carte (jusqu'à une dizaine d'Augments, 8
-           * rituels) : à taille pleine, répété autant de fois dans un espace plus étroit, il écrase
-           * le reste de la carte au lieu de simplement "montrer où ça se passe".
+           * Norman (2026-09-29, répété) : « J'ai demandé des boutons de la même taille que ceux de
+           * Basic training pour + - et Cap. Ils sont toujours énormes dans Augmentations et Blood
+           * magic. » Un premier passage (même jour) avait introduit une variante réduite (30px de
+           * hauteur, 15px de police) au lieu de la taille identique demandée -- un compromis jamais
+           * validé par Norman, qui répète la même demande. Cette variante est retirée : Augmentation
+           * et Blood Magic utilisent désormais exactement .soreal-idle-bt-actions-v120, sans aucun
+           * modificateur de taille, comme Basic Training (voir meta-progression-v130.js).
            */
-          .soreal-idle-bt-actions-v120.compact-v1{gap:5px}
-          .soreal-idle-bt-actions-v120.compact-v1 button{
-            min-height:30px;
-            font-size:15px;
-            border-radius:8px;
-            border-width:1px;
-            box-shadow:0 2px 0 rgba(0,0,0,.4);
-          }
-          .soreal-idle-bt-actions-v120.compact-v1 button:nth-child(3){font-size:12px}
-          .soreal-idle-bt-actions-v120.compact-v1 button:active:not(:disabled){transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 
           .soreal-idle-bestiary-image-v120{
             height:150px;

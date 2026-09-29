@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.0',
+    courante:'7.1',
     versions:[
+      {
+        version:'7.1',
+        nom:'Vraiment la même taille',
+        date:'2026-09-29',
+        points:[
+          'Les boutons +, − et Cap d’Augmentations et de Blood Magic sont enfin exactement à la même taille que ceux de Basic Training.',
+          'Blood Magic affiche maintenant une barre de progression pour le rituel actif, comme les autres écrans d’allocation.',
+          'Sur un autre écran d’allocation, + n’ajoute plus jamais d’énergie ou de Magie au-delà de ce qui est réellement libre.'
+        ]
+      },
       {
         version:'7.0',
         nom:'Une nouvelle scène spéciale',

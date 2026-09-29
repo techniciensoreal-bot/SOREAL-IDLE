@@ -63,7 +63,14 @@ const alloue = (s, pair = "scissors", upgrade = false) => s.systems.augmentation
 const module_ = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const page = module_.slice(module_.indexOf("function pageAugmentationsIdleV48_(j)"), module_.indexOf("function pageTimeMachineIdleV48_(j)"));
 assert.ok(page.includes("[['plus','+'],['moins','−'],['max','Max']]"), "+ avant − avant Max, comme Basic Training et Time Machine (2026-09-27)");
-assert.ok(page.includes('class="soreal-idle-bt-actions-v120 compact-v1"'), "réutilise le style +vert/−rouge/Maxbleu de Basic Training (en taille compacte, répété une fois par carte), pas le bouton générique bleu");
+/*
+ * Norman (2026-09-29, répété) : « J'ai demandé des boutons de la même taille que ceux de Basic
+ * training... Ils sont toujours énormes dans Augmentations et Blood magic. » La variante réduite
+ * .compact-v1 (introduite le même jour, jamais demandée par Norman) est retirée : même classe EXACTE
+ * que Basic Training, sans modificateur de taille.
+ */
+assert.ok(page.includes('class="soreal-idle-bt-actions-v120"'), "réutilise le style +vert/−rouge/Maxbleu de Basic Training, pas le bouton générique bleu");
+assert.ok(!page.includes("compact-v1"), "plus de variante de taille réduite : taille strictement identique à Basic Training");
 assert.ok(page.includes("window.__ajusterAugmentIdleV1__("));
 assert.ok(!page.includes("['0%','25%','50%','100%']"), "les pourcentages du Cap ont disparu des Augmentations");
 assert.match(page, /id="sorealIdleAugInputV1"/);
@@ -84,7 +91,7 @@ assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]
 assert.match(module_, /function rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\)\{/);
 assert.match(module_, /rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\);/);
 assert.ok(!module_.includes("H.rendreIdleEtat_({ok:true,joueur:j});"), "plus de rendu complet à chaque clic +/-/Cap");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609277"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609278"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 

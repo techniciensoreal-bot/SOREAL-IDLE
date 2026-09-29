@@ -188,7 +188,8 @@ let etat = null;
   window.__actionMetaV47__ = (p) => actions.push(p);
   window.document.getElementById = (id) => (id === "sorealIdleTmInputV1" ? { value: "250" } : null);
   s.systems.timeMachine.allocation.energy = 1000;
-  etat = { systemes: idleNguSnapshot(s, ctx, 0) };
+  /* j.energie = énergie Idle LIBRE (pas encore allouée), distincte de resources.energy.current : généreuse ici pour ne pas interférer avec ce test d'arithmétique +/-. */
+  etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 5000 };
   window.__ajusterTimeMachineIdleV1__("energy", "plus");
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1250 });
   /*
@@ -198,11 +199,39 @@ let etat = null;
    * refabriqué ici pour tester le bouton "−" en isolation, plutôt que de façon cumulative.
    */
   s.systems.timeMachine.allocation.energy = 1000;
-  etat = { systemes: idleNguSnapshot(s, ctx, 0) };
+  etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 5000 };
   window.__ajusterTimeMachineIdleV1__("energy", "moins");
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 750 });
   window.__cibleTimeMachineIdleV1__("gold", "33");
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "setTimeMachineTarget", track: "gold", value: 33 });
+
+  /*
+   * Norman (2026-09-29) : « Dans Time machine, Il me permet d'ajouter de l'énergie même si je n'en
+   * ai pas. elle est ensuite retirée mais il ne doit même pas l'accepter. » "+" ne doit jamais
+   * ajouter plus que l'énergie/Magie IDLE LIBRE réelle -- même plafond que Basic Training/Augmentation
+   * (Math.min(input,libre)), jamais un ajout optimiste suivi d'une correction serveur.
+   */
+  {
+    // Aucune énergie libre du tout : "+" ne doit RIEN ajouter (pas même en partie).
+    s.systems.timeMachine.allocation.energy = 1000;
+    etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 0 };
+    window.__ajusterTimeMachineIdleV1__("energy", "plus");
+    assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1000 }, "aucune énergie libre -> l'allocation ne doit pas bouger, jamais 1250 puis corrigée");
+
+    // Moins d'énergie libre que l'Input demandé (250) : plafonné à ce qui est réellement libre (60), jamais 250.
+    s.systems.timeMachine.allocation.energy = 1000;
+    etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 60 };
+    window.__ajusterTimeMachineIdleV1__("energy", "plus");
+    assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1060 }, "plafonné à l'énergie libre réelle (60), jamais l'Input demandé en entier (250)");
+
+    // Même plafond côté Magic (resources.magic.current, déjà porté par idleNguSnapshot).
+    const sMagicRare = etatTm();
+    sMagicRare.systems.timeMachine.allocation.magic = 500;
+    sMagicRare.resources.magic.current = 20;
+    etat = { systemes: idleNguSnapshot(sMagicRare, ctx, 0), energie: 5000 };
+    window.__ajusterTimeMachineIdleV1__("magic", "plus");
+    assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "magic", value: 520 }, "plafonné à la Magic libre réelle (20), jamais l'Input demandé en entier (250)");
+  }
 }
 
 const uiSource = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");

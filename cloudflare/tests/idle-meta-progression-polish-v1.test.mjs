@@ -11,16 +11,19 @@ const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 
-// --- 1. Boutons compacts : même famille visuelle que Basic Training, taille réduite pour les écrans à cartes répétées. ---
+/*
+ * --- 1. Boutons : taille strictement identique à Basic Training, pas une variante réduite. ---
+ * Norman (2026-09-29, répété le même jour) : « J'ai demandé des boutons de la même taille que ceux
+ * de Basic training pour + - et Cap. Ils sont toujours énormes dans Augmentations et Blood magic. »
+ * Une variante .compact-v1 (30px/15px, plus petite que les 44px/22px de Basic Training) avait été
+ * introduite ici -- jamais demandée, retirée : Augmentation et Blood Magic utilisent maintenant
+ * exactement .soreal-idle-bt-actions-v120, sans aucun modificateur.
+ */
 {
-  assert.match(css, /\.soreal-idle-bt-actions-v120\.compact-v1 button\{/, "variante compacte du bouton +/-/Cap introuvable");
-  const debut = css.indexOf(".soreal-idle-bt-actions-v120.compact-v1 button{");
-  const fin = css.indexOf("}", debut);
-  const regle = css.slice(debut, fin);
-  assert.match(regle, /min-height:30px/, "hauteur nettement réduite face aux 44px de Basic Training");
-  assert.match(regle, /font-size:15px/, "police réduite face aux 22px de Basic Training");
-  // Les couleurs (+ vert, − rouge, Cap bleu) restent celles de Basic Training : jamais redéfinies ici.
-  assert.ok(!/background:/.test(regle), "la variante compacte ne redéfinit aucune couleur -- elle réutilise celles de Basic Training");
+  assert.ok(!css.includes("compact-v1"), "la variante de taille réduite ne doit plus exister dans la feuille de style");
+  assert.ok(!meta.includes("compact-v1"), "ni être appliquée par le module (Augmentation/Blood Magic)");
+  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "Augmentation utilise la classe EXACTE de Basic Training");
+  assert.ok(meta.includes('class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" onclick="window.__ajusterRituelBloodMagicIdleV1__'), "Blood Magic aussi");
 }
 
 // --- 2. Sons thématiques : Time Machine (horloge) et Blood Magic (pouls grave) distincts de Basic Training. ---

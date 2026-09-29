@@ -2593,6 +2593,55 @@
           );
         }
 
+        /*
+         * Barre de progression cyclique partagée (0 -> 100 % puis retour à 0, en boucle infinie tant
+         * que la durée du cycle ne change pas) -- extraite le 2026-09-29 pour être réutilisée par
+         * Blood Magic (Norman : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »),
+         * qui n'a qu'un seul rituel actif à la fois, contrairement à la boucle par def d'Augmentation
+         * ci-dessous. Comportement inchangé pour Augmentation (Historique V8, bloc-41).
+         */
+        function animerBarreCycliqueIdleV217_(el,seconds,progress){
+          if(!(seconds>0)){
+            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;}
+            el.style.width='0%';
+            return;
+          }
+          /* Vitesse maximale (1 niveau par tick, 50/s) : la barre est CAP, elle reste entièrement remplie au lieu de clignoter (Norman, 2026-09-25). */
+          if(seconds<=0.0201){
+            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+            el.style.width='100%';
+            el.style.transform='scaleX(1)';
+            return;
+          }
+          const duration=Math.max(20,seconds*1000);
+          if(!el.__idleAugAnimationV217||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
+            if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
+            el.style.width='100%';
+            /*
+             * Cycles longs (≥ 2 s) : remplissage linéaire honnête 0 -> 100 % puis retour à 0 (Norman, 2026-09-24 : la barre restait pleine
+             * ~26 % du cycle). Les paliers d'affichage ne servent qu'aux cycles très courts, échantillonnés à 15 Hz (voir V220).
+             */
+            const animation=el.animate(
+              seconds>=2
+                ?[
+                  {transform:'scaleX(0)',offset:0},
+                  {transform:'scaleX(1)',offset:1}
+                ]
+                :[
+                  {transform:'scaleX(0)',offset:0},
+                  {transform:'scaleX(0)',offset:.08},
+                  {transform:'scaleX(1)',offset:.72},
+                  {transform:'scaleX(1)',offset:.98},
+                  {transform:'scaleX(0)',offset:1}
+                ],
+              {duration:duration,iterations:Infinity,easing:'linear'}
+            );
+            animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(progress)))*duration;
+            el.__idleAugAnimationV217=animation;
+            el.dataset.idleAugDurationV217=String(duration);
+          }
+        }
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-39 */
         const augVisual=idleEtat.__augmentationsVisualV215;
         if(augVisual&&PAGE_ACTIVE==='idle'){
@@ -2615,48 +2664,25 @@
                 el.style.transform='scaleX(1)';
                 return;
               }
-              if(!(seconds>0)){
-                if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;}
-                el.style.width='0%';
-                return;
-              }
-              /* Vitesse maximale (1 niveau par tick, 50/s) : la barre est CAP, elle reste entièrement remplie au lieu de clignoter (Norman, 2026-09-25). */
-              if(seconds<=0.0201){
-                if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
-                el.style.width='100%';
-                el.style.transform='scaleX(1)';
-                return;
-              }
-              const duration=Math.max(20,seconds*1000);
-              if(!el.__idleAugAnimationV217||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
-                if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
-                el.style.width='100%';
-                /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-41 */
-                /*
-                 * Cycles longs (≥ 2 s) : remplissage linéaire honnête 0 -> 100 % puis retour à 0 (Norman, 2026-09-24 : la barre restait pleine
-                 * ~26 % du cycle). Les paliers d'affichage ne servent qu'aux cycles très courts, échantillonnés à 15 Hz (voir V220).
-                 */
-                const animation=el.animate(
-                  seconds>=2
-                    ?[
-                      {transform:'scaleX(0)',offset:0},
-                      {transform:'scaleX(1)',offset:1}
-                    ]
-                    :[
-                      {transform:'scaleX(0)',offset:0},
-                      {transform:'scaleX(0)',offset:.08},
-                      {transform:'scaleX(1)',offset:.72},
-                      {transform:'scaleX(1)',offset:.98},
-                      {transform:'scaleX(0)',offset:1}
-                    ],
-                  {duration:duration,iterations:Infinity,easing:'linear'}
-                );
-                animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(x[1])))*duration;
-                el.__idleAugAnimationV217=animation;
-                el.dataset.idleAugDurationV217=String(duration);
-              }
+              animerBarreCycliqueIdleV217_(el,seconds,x[1]);
             });
           });
+        }
+
+        /*
+         * Blood Magic : barre de progression du rituel actif vers sa prochaine complétion (Norman,
+         * 2026-09-29 : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »). Un seul
+         * rituel progresse réellement à la fois (bloodMagicViewV1, idle-ngu-progression.js) : un seul
+         * élément à patcher, jamais une boucle par rituel comme Augmentation.
+         */
+        const bloodVisual=idleEtat.__bloodMagicVisualV1;
+        if(bloodVisual&&PAGE_ACTIVE==='idle'){
+          const el=document.querySelector('[data-idle-blood-bar-v1="'+bloodVisual.ritual+'"]');
+          if(el){
+            const seconds=idleNombre_(bloodVisual.secondsPerCompletion);
+            const progress=seconds>0?Math.max(0,Math.min(.999999,1-idleNombre_(bloodVisual.etaSeconds)/seconds)):0;
+            animerBarreCycliqueIdleV217_(el,seconds,progress);
+          }
         }
 
         const summaryEnergieEl=

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
+import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot, advanceIdleNguState } from "../src/idle-ngu-progression.js";
 
 /*
  * Norman (2026-09-29) : « Je veux que Augmentation utilise exactement la même interface que Basic
@@ -55,8 +55,9 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
     "rangée Idle: 1/2/1/4"
   );
 
-  // Même classe de bouton que Basic Training (taille identique, pas une redéfinition parallèle).
-  assert.match(meta, /class="soreal-idle-bt-actions-v120 compact-v1"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "les boutons +/−/Max d'Augmentation utilisent la même famille de style que Basic Training, en taille compacte (Norman, 2026-09-29 : boutons énormes)");
+  // Même classe de bouton que Basic Training, SANS modificateur : taille strictement identique, pas une redéfinition parallèle.
+  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "les boutons +/−/Max d'Augmentation utilisent EXACTEMENT la même classe que Basic Training (Norman, 2026-09-29 : « toujours énormes » -- la variante compact-v1 n'était pas ce qui avait été demandé)");
+  assert.ok(!meta.includes("compact-v1"), "la variante de taille réduite a été retirée : plus aucune trace dans le module");
 
   // Le chiffre d'énergie allouée gonfle désormais (alloc-pop-v1.js), comme Basic Training.
   assert.match(meta, /<span id="sorealIdleAugAllocV1_'\+window\.__SOREAL_IDLE_META_HOST_V130__\.idleHtml_\(def\.id\)\+'_'\+\(upgrade\?'upgrade':'main'\)\+'" class="soreal-idle-bt-allocation-v120">/, "le chiffre d'énergie allouée doit porter la classe d'animation de Basic Training");
@@ -158,6 +159,65 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   // Verrouillé (Magic non débloquée) -> pas de vue (anti-spoil, même principe que timeMachineView).
   const verrou = normalizeIdleNguState({}, { bosses: 0 }, 0);
   assert.equal(idleNguSnapshot(verrou, { bosses: 0 }, 0).bloodMagicView, null);
+}
+
+// --- 8. Blood Magic : barre de progression visible pour le rituel actif (Norman, 2026-09-29 : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »). ---
+{
+  const ctx = { bosses: 40 };
+  let s = normalizeIdleNguState({}, ctx, 1000);
+  s.systems.bloodMagic.unlocked = true;
+  s.resources.magic.cap = 100000;
+  s.resources.magic.current = 50000;
+  s = applyIdleNguAction(s, { action: "allocate", system: "bloodMagic", resource: "magic", value: 1000 }, ctx, 2000).state;
+  s = advanceIdleNguState(s, 500, ctx, 2500); // 500 s écoulées sur 2000 s -> 25 % de progression
+  const snap = idleNguSnapshot(s, ctx, 2500);
+  assert.equal(snap.bloodMagicView.secondsPerCompletion, 2000);
+  assert.ok(Math.abs(snap.bloodMagicView.etaSeconds - 1500) < 1e-6, "500 s déjà écoulées sur 2000 s");
+
+  let etatVisual = null;
+  const H = {
+    idleNombre_: (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; },
+    idleEntier_: (v) => Math.max(0, Math.floor(Number(v) || 0)),
+    idleHtml_: (v) => String(v),
+    formatGrandNombreIdleV70_: (v) => String(v),
+    entetePageIdleV28_: (t) => "<h1>" + t + "</h1>",
+    getIdleEtat: () => etatVisual
+  };
+  const window_ = { __SOREAL_IDLE_META_HOST_V130__: H };
+  const document_ = { getElementById: () => null };
+  const vm = await import("node:vm");
+  vm.runInNewContext(meta, { window: window_, document: document_, performance: { now: () => 0 }, console, Math, Number, Object, Array, Boolean, String, JSON, Date, setTimeout, clearTimeout });
+
+  const etat = { systemes: snap };
+  etatVisual = etat;
+  const html = window_.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_(etat, "bloodMagic", "Blood Magic");
+
+  // Vue de progression posée sur idleEtat, comme __augmentationsVisualV215 -- lue à chaque tick par soreal-idle-ui.js.
+  assert.equal(etat.__bloodMagicVisualV1.ritual, "tack");
+  assert.equal(etat.__bloodMagicVisualV1.secondsPerCompletion, 2000);
+  assert.equal(etat.__bloodMagicVisualV1.etaSeconds, snap.bloodMagicView.etaSeconds);
+
+  // Barre visible pour le rituel actif, à la bonne classe (même famille qu'Augmentation), avec le pourcentage initial correct (25 %).
+  assert.match(html, /<div class="soreal-idle-bt-track-v120"><div data-idle-blood-bar-v1="tack" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX\(0\.25\)/);
+
+  // Un rituel non actif (jamais celui sélectionné) n'affiche aucune barre -- lui seul ne progresse pas réellement.
+  assert.ok(!html.includes('data-idle-blood-bar-v1="papercuts"'), "seul le rituel actif a une barre de progression");
+
+  // Verrouillé (aucune Magic allouée) -> pas de vue de progression, jamais une valeur inventée.
+  let s2 = normalizeIdleNguState({}, ctx, 1000);
+  s2.systems.bloodMagic.unlocked = true;
+  const etat2 = { systemes: idleNguSnapshot(s2, ctx, 1000) };
+  etatVisual = etat2;
+  window_.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_(etat2, "bloodMagic", "Blood Magic");
+  assert.equal(etat2.__bloodMagicVisualV1, null, "aucune Magic allouée -> pas de vue de progression inventée");
+}
+
+// --- 9. La barre cyclique de Blood Magic réutilise le même moteur d'animation qu'Augmentation (patch DOM à chaque tick, jamais un rendu complet). ---
+{
+  assert.match(ui, /function animerBarreCycliqueIdleV217_\(el,seconds,progress\)\{/, "moteur d'animation partagé introuvable");
+  assert.match(ui, /const bloodVisual=idleEtat\.__bloodMagicVisualV1;/, "le ticker principal doit lire la vue Blood Magic à chaque tick");
+  assert.match(ui, /document\.querySelector\('\[data-idle-blood-bar-v1="'\+bloodVisual\.ritual\+'"\]'\)/, "le patch doit cibler la barre du rituel actif");
+  assert.match(ui, /animerBarreCycliqueIdleV217_\(el,seconds,progress\);/, "le patch Blood Magic doit réutiliser le même moteur qu'Augmentation, pas une redéfinition parallèle");
 }
 
 console.log("idle-meta-progression-basic-training-parity-v1: OK");
