@@ -3374,6 +3374,12 @@ function timeMachineViewV1(state) {
     netGps: idleNguTimeMachineGoldPerSecond(state),
     speedFill: fill(d.speedProgress, speedStep),
     goldFill: fill(d.goldProgress, goldStep),
+    speedEtaSeconds: Number.isFinite(speedStep)
+      ? Math.max(0, speedStep - Math.max(0, num(d.speedProgress, 0)))
+      : null,
+    goldEtaSeconds: Number.isFinite(goldStep)
+      ? Math.max(0, goldStep - Math.max(0, num(d.goldProgress, 0)))
+      : null,
     speedTarget: Math.max(0, Math.floor(num(d.speedTarget, 0))),
     goldTarget: Math.max(0, Math.floor(num(d.goldTarget, 0)))
   };
