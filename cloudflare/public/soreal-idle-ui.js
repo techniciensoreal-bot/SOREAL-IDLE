@@ -1869,6 +1869,16 @@
       let idleDernierTickBasicTrainingV166=Date.now();
       const IDLE_BASIC_TRAINING_RATTRAPAGE_MAX_MS_V166=12*60*60*1000;
       let idleResteTickEnergieMsV114=0;
+      /*
+       * Norman (2026-09-29) : « La barre de magie doit avoir le même comportement [au compte-goutte
+       * que l'énergie]. » L'énergie avance localement tick par tick (idleEtat.energie, ci-dessus)
+       * entre deux synchronisations serveur -- la Magie, elle, ne lisait QUE l'instantané serveur
+       * (idleEtat.systemes.resources.magic.current), repeint identique à 15 Hz jusqu'à la prochaine
+       * synchro (~15s) : aucun mouvement visible entre les deux, un vrai bond d'un coup à chaque
+       * synchro plutôt qu'un remplissage progressif. Même horloge de reste de tick que l'Énergie,
+       * dédiée à la Magie.
+       */
+      let idleResteTickMagieMsV1=0;
 
 
       function actualiserCooldownBossIdleV100_(
@@ -2047,6 +2057,45 @@
           );
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-29 */
+        const minimumMs=20;
+
+        const gain=
+          Math.max(
+            1,
+            Math.ceil(
+              prod*minimumMs/1000-
+              1e-12
+            )
+          );
+
+        const dureeMs=
+          Math.max(
+            minimumMs,
+            1000*gain/prod
+          );
+
+        return {
+          gain:gain,
+          dureeMs:dureeMs
+        };
+      }
+
+      /*
+       * Même mécanique que metaTickEnergieIdleV114_ (taille/durée d'un tick local, sous la barre
+       * minimale de 20ms), mais lue depuis resourceInfo.magic.perSecond -- jamais idleEtat.
+       * productionSeconde, propre à l'Énergie.
+       */
+      function metaTickMagieIdleV1_(){
+        const infoMagie=
+          idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceInfo&&
+          idleEtat.systemes.resourceInfo.magic;
+
+        const prod=
+          Math.max(
+            0.01,
+            idleNombre_(infoMagie&&infoMagie.perSecond)||0.25
+          );
+
         const minimumMs=20;
 
         const gain=
@@ -2338,6 +2387,89 @@
               energieAvantTick+
               1e-9
             );
+        }
+
+        /*
+         * Norman (2026-09-29) : même remplissage au compte-goutte pour la Magie -- mêmes calculs que
+         * l'Énergie ci-dessus, mais sur idleEtat.systemes.resources.magic.current (jamais de champ
+         * plat idleEtat.magie*, déjà pris par l'ancien système de sorts). Le plafond de croissance
+         * local est current+freeCapacity (resourceBudget.magic, déjà fourni par le serveur) : freeCapacity
+         * inclut déjà l'allocation, jamais recalculée ici.
+         *
+         * Garde resourceInfo.magic (jamais juste resources.magic/resourceBudget.magic) : la snapshot
+         * serveur expose TOUJOURS resources.magic/resourceBudget.magic, même Magie verrouillée (Blood
+         * Magic non débloquée) -- seul resourceInfo.magic est filtré par le serveur selon le
+         * déblocage. Sans cette garde, un joueur sans Blood Magic verrait sa Magie avancer toute seule
+         * en fond, au taux de repli 0.25/s de metaTickMagieIdleV1_ (aucune production réelle).
+         */
+        {
+          const ressourceMagieEtat=
+            idleEtat.systemes&&idleEtat.systemes.resources&&idleEtat.systemes.resources.magic;
+          const budgetMagieEtat=
+            idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
+          const infoMagieEtat=
+            idleEtat.systemes&&idleEtat.systemes.resourceInfo&&idleEtat.systemes.resourceInfo.magic;
+
+          if(ressourceMagieEtat&&budgetMagieEtat&&infoMagieEtat){
+            const magieAvantTick=
+              Math.max(0,idleNombre_(ressourceMagieEtat.current));
+
+            const maxLocalMagie=
+              Math.max(
+                magieAvantTick,
+                magieAvantTick+idleNombre_(budgetMagieEtat.freeCapacity)
+              );
+
+            const magieAuPlafond=magieAvantTick>=maxLocalMagie;
+
+            if(magieAuPlafond){
+              idleResteTickMagieMsV1=0;
+            }else{
+              idleResteTickMagieMsV1+=ecouleTickMs;
+            }
+
+            const metaTickMagie=metaTickMagieIdleV1_();
+
+            const ticksMagie=
+              magieAuPlafond
+                ?0
+                :Math.max(
+                    0,
+                    Math.floor(
+                      (idleResteTickMagieMsV1+1e-7)/
+                      metaTickMagie.dureeMs
+                    )
+                  );
+
+            if(ticksMagie>0){
+              idleResteTickMagieMsV1=
+                Math.max(
+                  0,
+                  idleResteTickMagieMsV1-
+                  ticksMagie*metaTickMagie.dureeMs
+                );
+
+              ressourceMagieEtat.current=
+                Math.min(
+                  maxLocalMagie,
+                  Math.floor(
+                    magieAvantTick+
+                    ticksMagie*metaTickMagie.gain+
+                    1e-9
+                  )
+                );
+
+              if(idleNombre_(ressourceMagieEtat.current)>=maxLocalMagie){
+                idleResteTickMagieMsV1=0;
+              }
+            }else{
+              ressourceMagieEtat.current=
+                Math.floor(
+                  magieAvantTick+
+                  1e-9
+                );
+            }
+          }
         }
 
         actualiserManaSortsIdleV90_(
@@ -4423,6 +4555,70 @@
           maxTotal,
           gain
         );
+
+        /*
+         * Même interpolation RAF pour la Magie (Norman, 2026-09-29). ressourceMagieEtat.current est
+         * déjà la quantité DISPONIBLE (le serveur clamp current à cap-allocated-réservé, cf.
+         * idleNguResourceBudget : available===current) -- aucune soustraction d'allocation à refaire
+         * ici, contrairement à l'Énergie ci-dessus (dont le champ plat le nécessite).
+         */
+        const magicBarEl=
+          document.getElementById(
+            'sorealIdleMagicBarV1'
+          );
+
+        const ressourceMagieVisu=
+          idleEtat.systemes&&idleEtat.systemes.resources&&idleEtat.systemes.resources.magic;
+        const infoMagieVisu=
+          idleEtat.systemes&&idleEtat.systemes.resourceInfo&&idleEtat.systemes.resourceInfo.magic;
+        const budgetMagieVisu=
+          idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
+
+        if(magicBarEl&&ressourceMagieVisu&&infoMagieVisu&&budgetMagieVisu){
+          const metaTickMagie=
+            metaTickMagieIdleV1_();
+
+          const dureeMsMagie=
+            Math.max(1,idleNombre_(metaTickMagie.dureeMs));
+
+          const gainMagie=
+            Math.max(0,idleNombre_(metaTickMagie.gain));
+
+          const tempsProjeteMagieMs=
+            Math.max(0,idleResteTickMagieMsV1+depuisDernierTickLourdMs);
+
+          const ticksProjetesMagie=
+            Math.max(0,Math.floor((tempsProjeteMagieMs+1e-7)/dureeMsMagie));
+
+          const resteProjeteMagieMs=
+            Math.max(0,tempsProjeteMagieMs-ticksProjetesMagie*dureeMsMagie);
+
+          const magieCourante=
+            Math.max(0,idleNombre_(ressourceMagieVisu.current));
+
+          const maxLocalMagieVisu=
+            Math.max(
+              magieCourante,
+              magieCourante+idleNombre_(budgetMagieVisu.freeCapacity)
+            );
+
+          const magieDisponibleProjetee=
+            Math.min(
+              maxLocalMagieVisu,
+              Math.max(0,magieCourante+ticksProjetesMagie*gainMagie)
+            );
+
+          const maxMagieTotal=
+            Math.max(0,idleNombre_(infoMagieVisu.capRun));
+
+          mettreAJourBarreProgressionContinueV1_(
+            magicBarEl,
+            magieDisponibleProjetee,
+            resteProjeteMagieMs/dureeMsMagie,
+            maxMagieTotal,
+            gainMagie
+          );
+        }
       }
 
 
@@ -4977,9 +5173,19 @@
       }
 
       /*
-       * Infobulle de l'énergie — exactement celle de NGU (capture de Norman, 2026-09-25) : plafond du run, énergie au prochain Rebirth,
-       * règle « 1 énergie de plus tous les 20 obtenus (jusqu'à 100 000) », production par seconde, vitesse et ticks par remplissage, prochain
-       * palier de vitesse, raccourci R. Les chiffres viennent du serveur (j.systemes.resourceInfo.energy), jamais recalculés ici.
+       * Infobulle de l'énergie — à l'origine une transcription exacte de NGU (capture de Norman,
+       * 2026-09-25). Corrigé le 2026-09-29 (Norman : « j'ai 100000 d'énergie et je ne peux pas
+       * monter au dessus... l'intitulé doit être corrigé ») : la 1re ligne ("plafonnée à X") se lisait
+       * comme un mur absolu, surtout combinée à la 3e ligne qui répète le même "100 000" pour un
+       * joueur qui n'a encore aucun bonus de Plafond (Perks/Quirks/Souhaits) ni acheté de Plafond
+       * contre de l'EXP -- alors qu'aucun des deux (ni resourceCapacityForCurrent/
+       * idleNguEffectiveResourceStatV1 côté serveur, hardCap réel 9e18, ni IDLE_NGU_RESOURCE_PURCHASES.
+       * energy.cap, achetable dès le boss 17) ne bloque réellement la croissance au-delà de 100 000 --
+       * seule la croissance NATURELLE (+1 tous les 20 obtenus) s'arrête à ce nombre précis, exactement
+       * comme documenté sur le wiki. Reformulé pour distinguer clairement "ton maximum ACTUEL" (qui
+       * continue de grandir par d'autres moyens) de cette seule croissance passive. Aucun chiffre
+       * inventé : mêmes valeurs qu'avant (info.capRun/capAfterRebirth), toujours fournies par le
+       * serveur (j.systemes.resourceInfo.energy).
        */
       function nombreInfobulleIdleV1_(v,decimales){
         const n=idleNombre_(v);
@@ -4989,9 +5195,9 @@
       function texteInfobulleEnergieIdleV1_(info){
         if(!info)return '';
         const lignes=[
-          'Énergie max sur ce Rebirth : plafonnée à '+nombreInfobulleIdleV1_(info.capRun)+'.',
+          'Ton maximum d’énergie ACTUEL sur ce Rebirth : '+nombreInfobulleIdleV1_(info.capRun)+' (pas un plafond absolu : achète du Plafond contre de l’EXP, ou obtiens des Perks/Quirks/Souhaits d’Énergie, pour continuer à le faire grandir).',
           'Au Rebirth, tu auras '+nombreInfobulleIdleV1_(info.capAfterRebirth)+(idleNombre_(info.capAfterRebirth)>=2?' énergies.':' énergie.'),
-          'Toutes les 20 énergies obtenues ajoutent 1 énergie à ton max au Rebirth, jusqu’à 100 000.',
+          'Croissance naturelle au Rebirth : toutes les 20 énergies obtenues ajoutent 1 énergie à ton max, mais SEULEMENT cette croissance-ci s’arrête à 100 000 — au-delà, seuls le Plafond (EXP) et tes bonus la font encore grandir.',
           'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+(idleNombre_(info.perSecond)>=2?' énergies':' énergie')+' par seconde.',
           '',
           'Vitesse d’énergie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill)+' ticks. '+
@@ -5032,7 +5238,7 @@
       function texteInfobulleMagieIdleV1_(info){
         if(!info)return '';
         const lignes=[
-          'Magie max sur ce Rebirth : plafonnée à '+nombreInfobulleIdleV1_(info.capRun)+'.',
+          'Ton maximum de Magie ACTUEL sur ce Rebirth : '+nombreInfobulleIdleV1_(info.capRun)+' (pas un plafond absolu : achète du Plafond contre de l’EXP, ou obtiens des Perks/Quirks/Souhaits de Magie, pour continuer à le faire grandir).',
           'Au Rebirth, tu auras '+nombreInfobulleIdleV1_(info.capAfterRebirth)+' de Magie.',
           'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+' de Magie par seconde.',
           '',
@@ -5193,12 +5399,17 @@
         const systemesRessources=idleEtat.systemes||{};
         const infoMagic=systemesRessources.resourceInfo&&systemesRessources.resourceInfo.magic;
         const ressourceMagic=systemesRessources.resources&&systemesRessources.resources.magic;
-        const budgetMagic=systemesRessources.resourceBudget&&systemesRessources.resourceBudget.magic;
 
         if(infoMagic&&ressourceMagic){
-          const magicDisponible=budgetMagic
-            ?Math.max(0,idleNombre_(budgetMagic.available))
-            :Math.max(0,idleNombre_(ressourceMagic.current));
+          /*
+           * Norman (2026-09-29) : remplissage au compte-goutte pour la Magie. ressourceMagic.current
+           * avance désormais localement tick par tick (bloc dédié plus haut dans cette fonction,
+           * comme idleEtat.energie) -- il doit donc primer sur budgetMagic.available, un instantané
+           * figé de la dernière synchro serveur (les deux valent la même chose AU MOMENT d'une synchro,
+           * cf. idleNguResourceBudget : available===current, seule ressourceMagic.current continue de
+           * bouger entre deux synchros).
+           */
+          const magicDisponible=Math.max(0,idleNombre_(ressourceMagic.current));
           const magicCap=Math.max(0,idleNombre_(infoMagic.capRun));
           const magicValeur=document.getElementById('sorealIdleMagicValeurV1');
           const magicOverlay=document.getElementById('sorealIdleMagicOverlayV1');
@@ -5219,12 +5430,14 @@
               formatEnergieIdleV50_(magicCap);
           }
           if(magicBar){
-            magicBar.style.width=
-              (
-                magicCap>0
-                  ?Math.max(0,Math.min(100,magicDisponible/magicCap*100))
-                  :0
-              ).toFixed(4)+'%';
+            mettreAJourBarreProgressionContinueV1_(
+              magicBar,
+              magicDisponible,
+              idleResteTickMagieMsV1/
+                Math.max(1,metaTickMagieIdleV1_().dureeMs),
+              magicCap,
+              metaTickMagieIdleV1_().gain
+            );
           }
           if(magicSpeed){
             magicSpeed.textContent=

@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.4',
+    courante:'6.5',
     versions:[
+      {
+        version:'6.5',
+        nom:'Magie, la barre reprend vie',
+        date:'2026-09-29',
+        points:[
+          'La barre de Magie se remplit désormais progressivement, comme la barre d’Énergie, au lieu d’avancer par à-coups.',
+          'Les infobulles d’Énergie et de Magie précisent maintenant clairement que le nombre affiché n’est pas un plafond absolu.',
+          'Ces infobulles indiquent les vrais moyens d’aller plus haut : dépenser de l’EXP pour du Plafond, ou obtenir des Perks/Quirks/Souhaits.'
+        ]
+      },
       {
         version:'6.4',
         nom:'L’aventure continue, pour de vrai cette fois',

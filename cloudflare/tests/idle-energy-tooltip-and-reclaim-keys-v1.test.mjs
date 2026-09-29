@@ -7,6 +7,13 @@ import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progress
  * « Max energy on this rebirth is capped at 916. On rebirth, you will have 1114 Energy. Every 20 Energy gained grants 1 extra energy to your max
  * upon rebirth, up to 100,000. You currently make 2 Energy per second. Current Energy Speed is 2, meaning the bar fills every 25 ticks. Next Speed
  * Increase is at 2.1 Energy Speed. SHORTCUT: Tap R to reclaim Energy from all features except training. »
+ *
+ * Reformulé le 2026-09-29 (Norman : « j'ai 100000 d'énergie et je ne peux pas monter au dessus...
+ * l'intitulé doit être corrigé ») : la 1re ligne se lisait comme un plafond absolu -- alors que rien
+ * ne bloque réellement la croissance au-delà (Plafond achetable contre de l'EXP dès le boss 17,
+ * hardCap réel 9e18 ; Perks/Quirks/Souhaits d'énergie). Seule la croissance NATURELLE (+1 tous les 20
+ * obtenus) s'arrête à 100 000, exactement comme documenté sur le wiki -- désormais dit explicitement.
+ * Mêmes chiffres qu'avant (capRun/capAfterRebirth), aucune valeur inventée.
  */
 const context = { bosses: 4 };
 
@@ -49,12 +56,16 @@ const texte = new Function("idleNombre_", ui.slice(debut, fin) + "return texteIn
 const t = texte({ capRun: 916, capAfterRebirth: 1114, perSecond: 2, speed: 2, ticksPerFill: 25, nextSpeed: 2.1 });
 const normaliser = (x) => x.split(String.fromCharCode(0x202f)).join(' ').split(String.fromCharCode(0xa0)).join(' ');
 for (const attendu of [
-  'plafonnée à 916.', 'tu auras 1 114 énergies.', '1 énergie à ton max au Rebirth, jusqu’à 100 000.', 'Tu produis actuellement 2 énergies par seconde.',
+  'Ton maximum d’énergie ACTUEL sur ce Rebirth : 916', 'tu auras 1 114 énergies.', 'cette croissance-ci s’arrête à 100 000', 'Tu produis actuellement 2 énergies par seconde.',
   'Vitesse d’énergie actuelle : 2, la barre se remplit tous les 25 ticks.', 'Prochain palier de vitesse : 2,1.', 'RACCOURCI : appuie sur R pour récupérer l’énergie de toutes les fonctions sauf l’entraînement.'
 ]) {
   assert.ok(normaliser(t).includes(attendu), "« " + attendu + " » dans l'infobulle");
 }
 assert.ok(texte({ capRun: 500, capAfterRebirth: 500, perSecond: 50, speed: 50, ticksPerFill: 1, nextSpeed: null }).includes("Vitesse maximale"));
+assert.ok(
+  /pas un plafond absolu/.test(t) && /Plafond contre de l’EXP/.test(t) && /Perks\/Quirks\/Souhaits/.test(t),
+  "le texte doit dire explicitement que le maximum affiché n'est pas un mur absolu, et nommer un vrai moyen d'aller plus haut"
+);
 assert.match(ui, /touche!=='r'&&touche!=='t'/);
 assert.match(ui, /action:'reclaimResource',resource:ressource/);
 assert.match(ui, /ressource=touche==='r'\?'energy':'magic'/);

@@ -42,7 +42,7 @@ const normaliser = (x) => x.split(String.fromCharCode(0x202f)).join(" ").split(S
 
 assert.notEqual(normaliser(texteMagie), normaliser(texteEnergie), "le texte Magie doit différer du texte Énergie");
 for (const attendu of [
-  "Magie max sur ce Rebirth : plafonnée à 200.",
+  "Ton maximum de Magie ACTUEL sur ce Rebirth : 200",
   "Au Rebirth, tu auras 200 de Magie.",
   "Tu produis actuellement 3,5 de Magie par seconde.",
   "Vitesse de Magie actuelle : 3, la barre se remplit tous les 17 ticks.",
@@ -57,6 +57,10 @@ assert.equal(
   "la croissance de plafond « tous les 20 obtenus » est propre à l'Énergie, jamais inventée pour la Magie"
 );
 assert.ok(texte.magie({ capRun: 50, capAfterRebirth: 50, perSecond: 50, speed: 50, ticksPerFill: 1, nextSpeed: null }).includes("Vitesse maximale"));
+assert.ok(
+  /pas un plafond absolu/.test(texteMagie) && /Perks\/Quirks\/Souhaits/.test(texteMagie),
+  "même correctif que l'Énergie (2026-09-29) : le maximum de Magie affiché n'est pas non plus un mur absolu"
+);
 
 // --- Le survol détecte le panneau réellement ciblé (Magie vs Énergie), jamais un texte figé ---
 assert.match(
