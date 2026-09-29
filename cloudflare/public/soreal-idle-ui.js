@@ -2589,10 +2589,7 @@
           mettreAJourBarreProgressionContinueV1_(
             energyBarEl,
             energieDisponibleIdleV9_(),
-            idleResteTickEnergieMsV114/
-              Math.max(1,metaTickEnergie.dureeMs),
-            maxTotal,
-            metaTickEnergie.gain
+            maxTotal
           );
         }
 
@@ -4381,23 +4378,19 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-80 */
       /*
-       * Tick de la barre d'énergie — 2026-09-25 (Norman : « la barre démarre de 0 et va taper jusqu'au 500 ; elle repart INSTANTANÉMENT de 1
-       * et va taper dans 500 ; elle repart instantanément de 2… Pas d'animation de 500 vers 3 »).
-       * Pendant un tick, la barre monte en ligne droite du remplissage actuel (valeur) jusqu'au cap (max), à VITESSE CONSTANTE (le cap
-       * atteint depuis 0 tombe pile à la fin du tick ; plus le remplissage est haut, plus le trajet est court et la barre « tape » le cap
-       * tôt, puis y reste). Au tick suivant elle repart d'un coup du nouveau remplissage (valeur + gain) : aucune descente animée.
-       * Le paramètre gain n'entre pas dans le calcul (le prochain départ est simplement le prochain « valeur »).
+       * Barre d'Énergie/Magie — Norman (2026-09-25) voulait un « vrai tic » qui tape le cap puis
+       * repart instantanément (largeurTickEnergieIdleV1_, retiré). Norman (2026-09-29, revirement
+       * assumé, même principe déjà admis pour la barre d'XP de Basic Training le 2026-09-17) :
+       * « Je ne veux plus qu'elle tique !!! elle doit simplement se remplir et se vider quand on
+       * place de l'énergie. Aucune animation de tique par seconde. » La largeur est donc désormais
+       * posée directement à partir de la valeur RÉELLEMENT connue (aucune interpolation de tick
+       * inventée côté client) ; la transition CSS de .soreal-idle-energybar-v11
+       * (transition:width .12s linear, soreal-idle-ui.css) fait tout le lissage visuel.
        */
-      function largeurTickEnergieIdleV1_(valeur,gain,progression,max){
-        return Math.min(max,valeur+max*progression);
-      }
-
       function mettreAJourBarreProgressionContinueV1_(
         element,
         valeurActuelle,
-        progressionTick,
-        valeurMax,
-        gainTick
+        valeurMax
       ){
         if(!element)return;
 
@@ -4421,231 +4414,12 @@
             )
           );
 
-        if(valeur>=max){
-          largeurBarreCombatIdleV121_(element,100);
-          return;
-        }
-
-        const progression=
-          Math.max(
-            0,
-            Math.min(
-              1,
-              idleNombre_(progressionTick)
-            )
-          );
-
-        const valeurVisuelle=
-          largeurTickEnergieIdleV1_(
-            valeur,
-            idleNombre_(gainTick),
-            progression,
-            max
-          );
-
         largeurBarreCombatIdleV121_(
           element,
-          valeurVisuelle/max*100
+          valeur/max*100
         );
       }
 
-
-      /*
-       * Rendu visuel fluide V221 — 2026-09-29.
-       * La simulation complète reste plafonnée à 15 Hz pour éviter le coût DOM/calcul
-       * qui provoquait des freezes sur iPhone/Safari. En revanche, la barre d'énergie
-       * peut être interpolée à la fréquence native de requestAnimationFrame sans
-       * muter l'état du jeu : on projette seulement le tick courant à partir du
-       * dernier état autoritatif local.
-       */
-      function rafraichirVisuelsFluidesIdleV221_(){
-        if(
-          !idleEtat ||
-          PAGE_ACTIVE!=='idle' ||
-          (typeof document!=='undefined'&&document.hidden)
-        ){
-          return;
-        }
-
-        if(
-          typeof window!=='undefined' &&
-          window.matchMedia &&
-          window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ){
-          return;
-        }
-
-        const energyBarEl=
-          document.getElementById(
-            'sorealIdleEnergyBarV11'
-          );
-
-        if(!energyBarEl)return;
-
-        const metaTickEnergie=
-          metaTickEnergieIdleV114_();
-
-        const dureeMs=
-          Math.max(
-            1,
-            idleNombre_(
-              metaTickEnergie.dureeMs
-            )
-          );
-
-        const gain=
-          Math.max(
-            0,
-            idleNombre_(
-              metaTickEnergie.gain
-            )
-          );
-
-        const depuisDernierTickLourdMs=
-          Math.max(
-            0,
-            Math.min(
-              1000,
-              Date.now()-
-              idleDernierTickLocalV40
-            )
-          );
-
-        const tempsProjeteMs=
-          Math.max(
-            0,
-            idleResteTickEnergieMsV114+
-            depuisDernierTickLourdMs
-          );
-
-        const ticksProjetes=
-          Math.max(
-            0,
-            Math.floor(
-              (
-                tempsProjeteMs+
-                1e-7
-              )/
-              dureeMs
-            )
-          );
-
-        const resteProjeteMs=
-          Math.max(
-            0,
-            tempsProjeteMs-
-            ticksProjetes*
-            dureeMs
-          );
-
-        const maxTotal=
-          Math.max(
-            0,
-            idleNombre_(
-              idleEtat.energieMax
-            )
-          );
-
-        const maxStockable=
-          Math.max(
-            0,
-            maxTotal-
-            totalAllocationBasicTrainingIdleV120_()-
-            allocationMetaEnergieIdleV1_()
-          );
-
-        const energieProjetee=
-          Math.min(
-            maxStockable,
-            Math.max(
-              0,
-              idleNombre_(
-                idleEtat.energie
-              )+
-              ticksProjetes*
-              gain
-            )
-          );
-
-        const energieDisponibleProjetee=
-          Math.max(
-            0,
-            energieProjetee-
-            energieReserveeIdleV23_()
-          );
-
-        mettreAJourBarreProgressionContinueV1_(
-          energyBarEl,
-          energieDisponibleProjetee,
-          resteProjeteMs/dureeMs,
-          maxTotal,
-          gain
-        );
-
-        /*
-         * Même interpolation RAF pour la Magie (Norman, 2026-09-29). ressourceMagieEtat.current est
-         * déjà la quantité DISPONIBLE (le serveur clamp current à cap-allocated-réservé, cf.
-         * idleNguResourceBudget : available===current) -- aucune soustraction d'allocation à refaire
-         * ici, contrairement à l'Énergie ci-dessus (dont le champ plat le nécessite).
-         */
-        const magicBarEl=
-          document.getElementById(
-            'sorealIdleMagicBarV1'
-          );
-
-        const ressourceMagieVisu=
-          idleEtat.systemes&&idleEtat.systemes.resources&&idleEtat.systemes.resources.magic;
-        const infoMagieVisu=
-          idleEtat.systemes&&idleEtat.systemes.resourceInfo&&idleEtat.systemes.resourceInfo.magic;
-        const budgetMagieVisu=
-          idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
-
-        if(magicBarEl&&ressourceMagieVisu&&infoMagieVisu&&budgetMagieVisu){
-          const metaTickMagie=
-            metaTickMagieIdleV1_();
-
-          const dureeMsMagie=
-            Math.max(1,idleNombre_(metaTickMagie.dureeMs));
-
-          const gainMagie=
-            Math.max(0,idleNombre_(metaTickMagie.gain));
-
-          const tempsProjeteMagieMs=
-            Math.max(0,idleResteTickMagieMsV1+depuisDernierTickLourdMs);
-
-          const ticksProjetesMagie=
-            Math.max(0,Math.floor((tempsProjeteMagieMs+1e-7)/dureeMsMagie));
-
-          const resteProjeteMagieMs=
-            Math.max(0,tempsProjeteMagieMs-ticksProjetesMagie*dureeMsMagie);
-
-          const magieCourante=
-            Math.max(0,idleNombre_(ressourceMagieVisu.current));
-
-          const maxLocalMagieVisu=
-            Math.max(
-              magieCourante,
-              magieCourante+idleNombre_(budgetMagieVisu.freeCapacity)
-            );
-
-          const magieDisponibleProjetee=
-            Math.min(
-              maxLocalMagieVisu,
-              Math.max(0,magieCourante+ticksProjetesMagie*gainMagie)
-            );
-
-          const maxMagieTotal=
-            Math.max(0,idleNombre_(infoMagieVisu.capRun));
-
-          mettreAJourBarreProgressionContinueV1_(
-            magicBarEl,
-            magieDisponibleProjetee,
-            resteProjeteMagieMs/dureeMsMagie,
-            maxMagieTotal,
-            gainMagie
-          );
-        }
-      }
 
 
       function demarrerTickerIdle_(){
@@ -4681,12 +4455,6 @@
             dernierFrameJeuVisibleV214=maintenantFrame;
             mettreAJourJeuIdleLocalV7_();
           }
-
-          /*
-           * Le rendu léger tourne à la fréquence native de l'écran, indépendamment
-           * du tick lourd ci-dessus. Il ne change aucune donnée de gameplay.
-           */
-          rafraichirVisuelsFluidesIdleV221_();
 
           if(PAGE_ACTIVE==='idle'){
             idleAnimationFrameJeuV214=requestAnimationFrame(frameJeuV214_);
@@ -5459,10 +5227,7 @@
             mettreAJourBarreProgressionContinueV1_(
               magicBar,
               magicDisponible,
-              idleResteTickMagieMsV1/
-                Math.max(1,metaTickMagieIdleV1_().dureeMs),
-              magicCap,
-              metaTickMagieIdleV1_().gain
+              magicCap
             );
           }
           if(magicSpeed){

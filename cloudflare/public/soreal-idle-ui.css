@@ -1731,8 +1731,17 @@ html,body{overflow-x:hidden}
           }
 
           .soreal-idle-energybar-v11{
-            /* Le rebond du tick est dessiné image par image (largeurTickEnergieIdleV1_) : aucune transition ne doit l'adoucir ni le retarder. */
-            transition:none !important;
+            /*
+             * Norman (2026-09-25) : voulait un "vrai tic" qui tape le cap puis repart instantanément
+             * (transition:none). Norman (2026-09-29, revirement assumé -- même principe déjà admis
+             * pour la barre d'XP de Basic Training le 2026-09-17, voir .soreal-idle-bt-fill-v120 plus
+             * haut) : "Je ne veux plus qu'elle tique !!! elle doit simplement se remplir et se vider
+             * quand on place de l'énergie. Aucune animation de tique par seconde." La barre (Énergie
+             * ET Magie, qui partage cette classe) se contente donc désormais de la transition de base
+             * (transition:width .12s linear, héritée de la règle .soreal-idle-energybar-v11 plus haut
+             * dans ce fichier) : une largeur posée directement à chaque valeur connue, jamais de
+             * rebond/reset animé.
+             */
             background:linear-gradient(90deg,#2fd86e,#7cff9e) !important;
             box-shadow:0 0 14px rgba(69,235,123,.38);
           }

@@ -2,40 +2,61 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 /*
- * Norman (2026-09-25) : « La barre démarre de 0 et va taper jusqu'au 500. Elle repart instantanément de 1 et va taper dans 500, elle repart
- * instantanément de 2 et va taper dans 500… Pas d'animation de 500 vers 3, pas d'animation de 500 vers 2 etc. »
- * (remplace la version « balle qui rebondit » du 2026-09-24 : montée puis descente animée).
+ * Norman (2026-09-25) : « La barre démarre de 0 et va taper jusqu'au 500. Elle repart instantanément
+ * de 1 et va taper dans 500... » (remplaçait la version « balle qui rebondit » du 2026-09-24) --
+ * demande initiale d'un « vrai tic » qui rebondit, implémentée alors par largeurTickEnergieIdleV1_.
+ *
+ * Norman (2026-09-29, revirement assumé -- même principe déjà admis pour la barre d'XP de Basic
+ * Training le 2026-09-17, voir .soreal-idle-bt-fill-v120 dans soreal-idle-ui.css) : « Tu n'as pas
+ * arrangé la barre énergie et magie.. Je ne veux plus qu'elle tique !!! elle doit simplement se
+ * remplir et se vider quand on place de l'énergie. Aucune animation de tique par seconde. »
+ * largeurTickEnergieIdleV1_ (et le rendu RAF V221 qui l'interpolait à la fréquence de l'écran) sont
+ * retirés : la barre affiche directement la valeur réellement connue, lissée par la seule
+ * transition CSS de base (transition:width .12s linear, .soreal-idle-energybar-v11).
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
-const src = ui.match(/function largeurTickEnergieIdleV1_\(valeur,gain,progression,max\)\{[\s\S]*?\n      \}\n/)[0];
-const largeur = new Function(src + "return largeurTickEnergieIdleV1_;")();
-const MAX = 500;
+assert.ok(!ui.includes("function largeurTickEnergieIdleV1_("), "l'ancienne fonction de rebond par tick ne doit plus être déclarée");
+assert.ok(!ui.includes("function rafraichirVisuelsFluidesIdleV221_("), "le rendu RAF qui interpolait le rebond n'a plus lieu d'être, sans rebond à lisser");
 
-for (const v of [0, 1, 2, 3, 250, 499]) {
-  assert.equal(largeur(v, 1, 0, MAX), v, `le tick ${v} démarre exactement au remplissage`);
-  assert.equal(largeur(v, 1, 1, MAX), MAX, `et tape dans ${MAX} avant la fin du tick`);
-  let precedent = -Infinity;
-  let atteint = -1;
-  for (let i = 0; i <= 1000; i += 1) {
-    const x = largeur(v, 1, i / 1000, MAX);
-    assert.ok(x >= precedent - 1e-9, "la barre ne redescend jamais pendant le tick");
-    assert.ok(x <= MAX + 1e-9, "elle ne dépasse pas le cap");
-    if (atteint < 0 && x === MAX) atteint = i / 1000;
-    precedent = x;
-  }
-  // Vitesse constante : le cap est touché à (cap - valeur) / cap du tick, puis la barre y reste.
-  assert.ok(Math.abs(atteint - (MAX - v) / MAX) <= 0.001 + 1e-9, `cap touché à ${atteint} du tick pour un départ à ${v}`);
+const debut = ui.indexOf("function mettreAJourBarreProgressionContinueV1_(");
+const fin = ui.indexOf("function demarrerTickerIdle_()", debut);
+assert.ok(debut > 0 && fin > debut, "mettreAJourBarreProgressionContinueV1_ introuvable");
+const fn = ui.slice(debut, fin);
+
+// Signature simplifiée : plus de progression/gain de tick, seulement (élément, valeur, max).
+assert.match(fn, /function mettreAJourBarreProgressionContinueV1_\(\s*element,\s*valeurActuelle,\s*valeurMax\s*\)\{/);
+
+// Rejoue la fonction réelle dans un sandbox pour vérifier le comportement "simplement se remplir/vider".
+const sandbox = {
+  idleNombre_: (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; },
+  largeurBarreCombatIdleV121_: (el, pct) => { el.dernierPourcentage = pct; }
+};
+const rejouee = new Function(
+  "idleNombre_", "largeurBarreCombatIdleV121_",
+  fn + "\nreturn mettreAJourBarreProgressionContinueV1_;"
+)(sandbox.idleNombre_, sandbox.largeurBarreCombatIdleV121_);
+
+// La barre reflète directement valeur/max, quel que soit un éventuel 4e/5e argument fourni par erreur (ignorés).
+for (const [valeur, max, attendu] of [[0, 500, 0], [101, 500, 20.2], [250, 500, 50], [500, 500, 100], [600, 500, 100]]) {
+  const el = {};
+  rejouee(el, valeur, max, 999999 /* ancien paramètre "progression", doit être ignoré */, 42 /* ancien "gain", ignoré */);
+  assert.ok(Math.abs(el.dernierPourcentage - attendu) < 1e-9, `valeur=${valeur}/max=${max} -> ${attendu}%, obtenu ${el.dernierPourcentage}%`);
 }
 
-// Enchaînement 0 → 500, 1 → 500, 2 → 500, 3 → 500 : le départ suivant est instantané (aucune valeur intermédiaire entre 500 et 1).
-const suite = [0, 1, 2, 3].flatMap((v) => [largeur(v, 1, 0, MAX), largeur(v, 1, 1, MAX)]);
-assert.deepEqual(suite, [0, 500, 1, 500, 2, 500, 3, 500]);
+// Cap à 0 ou négatif : toujours vide, jamais une division par zéro qui produirait NaN.
+{
+  const el = {};
+  rejouee(el, 10, 0);
+  assert.equal(el.dernierPourcentage, 0);
+}
 
-// Aucune transition CSS ne transforme le retour en animation.
-assert.match(css, /\.soreal-idle-energybar-v11\{\s*\/\*[^*]*\*\/\s*transition:none !important;/);
-// Le client passe toujours le gain du tick (signature inchangée).
-assert.match(ui, /maxTotal,\s*metaTickEnergie\.gain\s*\);/);
+// La transition CSS fait tout le lissage : plus aucune règle ne doit la couper avec transition:none.
+assert.ok(
+  !css.includes("transition:none !important;\n            background:linear-gradient(90deg,#2fd86e"),
+  "aucune règle ne doit forcer transition:none sur la barre d'Énergie/Magie"
+);
+assert.match(css, /\.soreal-idle-energybar-v11\{[\s\S]{0,300}?transition:width \.12s linear;/, "transition de base présente, seule responsable du lissage visuel");
 
-console.log("idle-energy-tick-bounce-v1 OK");
+console.log("idle-energy-tick-bounce-v1 OK (barre simple, sans tic, Norman 2026-09-29)");

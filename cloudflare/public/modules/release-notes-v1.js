@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.6',
+    courante:'6.7',
     versions:[
+      {
+        version:'6.7',
+        nom:'Énergie et Magie, sans à-coups',
+        date:'2026-09-29',
+        points:[
+          'La barre d’Énergie et la barre de Magie ne tiquent plus : elles se remplissent et se vident simplement, sans à-coups.',
+          'Fini le petit bond répété qui touchait le haut de la barre puis repartait d’un coup.',
+          'Le remplissage reste progressif à chaque énergie gagnée, juste sans cette animation en dents de scie.'
+        ]
+      },
       {
         version:'6.6',
         nom:'Une seule et même interface',

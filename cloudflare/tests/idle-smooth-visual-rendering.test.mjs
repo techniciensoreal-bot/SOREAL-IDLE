@@ -1,36 +1,36 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+/*
+ * Ce fichier testait à l'origine (2026-09-29, plus tôt) un rendu RAF séparé
+ * (rafraichirVisuelsFluidesIdleV221_) qui interpolait le rebond de tick de la barre d'Énergie/Magie
+ * à la fréquence native de l'écran. Norman (même jour, revirement assumé) : « Je ne veux plus qu'elle
+ * tique !!! elle doit simplement se remplir et se vider quand on place de l'énergie. Aucune animation
+ * de tique par seconde. » -- le rebond lui-même a été retiré (voir idle-energy-tick-bounce-v1.test.mjs),
+ * donc plus rien à interpoler entre deux tics lourds : le rendu RAF séparé est retiré avec lui.
+ */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
-// La simulation lourde reste volontairement plafonnée à 15 Hz.
+// La simulation lourde reste volontairement plafonnée à 15 Hz (coût DOM/calcul, freezes iPhone/Safari).
 assert.ok(ui.includes("const intervalleFrameJeuVisibleV214=1000/15;"));
 assert.ok(ui.includes("maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214"));
 assert.ok(ui.includes("mettreAJourJeuIdleLocalV7_();"));
 
-// Le rendu visuel léger est exécuté à chaque requestAnimationFrame, en dehors du garde 15 Hz.
+// Plus de second rendu séparé à la fréquence native de l'écran : la boucle rAF ne fait plus que le tic lourd.
+assert.ok(!ui.includes("function rafraichirVisuelsFluidesIdleV221_("), "le rendu fluide séparé (V221) doit être retiré, plus rien à interpoler sans le rebond de tick");
+assert.ok(!ui.includes("rafraichirVisuelsFluidesIdleV221_();"), "plus aucun appel à ce rendu retiré");
+
 const loopStart = ui.indexOf("function frameJeuV214_(timestamp)");
 const loopEnd = ui.indexOf("requestAnimationFrame(frameJeuV214_)", loopStart);
 const loop = ui.slice(loopStart, loopEnd);
-const heavyGuardEnd = loop.indexOf("rafraichirVisuelsFluidesIdleV221_();");
 assert.ok(loopStart >= 0 && loopEnd > loopStart, "boucle rAF présente");
-assert.ok(heavyGuardEnd >= 0, "rendu fluide appelé à chaque frame");
-assert.ok(
-  loop.indexOf("mettreAJourJeuIdleLocalV7_();") < heavyGuardEnd,
-  "tick lourd puis rendu visuel léger séparé"
+assert.match(loop, /mettreAJourJeuIdleLocalV7_\(\);\s*\}\s*\n\s*if\(PAGE_ACTIVE==='idle'\)\{/, "la boucle rAF ne déclenche plus que le tic lourd, rien d'autre entre les deux");
+
+// La barre d'Énergie/Magie est posée directement depuis la valeur connue -- aucune interpolation de tick.
+assert.match(
+  ui,
+  /function mettreAJourBarreProgressionContinueV1_\(\s*element,\s*valeurActuelle,\s*valeurMax\s*\)\{/,
+  "signature simplifiée : plus de paramètre de progression/gain de tick à interpoler"
 );
 
-// L'interpolation visuelle ne doit pas faire avancer l'état de gameplay.
-const helperStart = ui.indexOf("function rafraichirVisuelsFluidesIdleV221_()");
-const helperEnd = ui.indexOf("function demarrerTickerIdle_()", helperStart);
-const helper = ui.slice(helperStart, helperEnd);
-assert.ok(helperStart >= 0 && helperEnd > helperStart, "helper de rendu fluide présent");
-assert.ok(helper.includes("Date.now()-"));
-assert.ok(helper.includes("idleDernierTickLocalV40"));
-assert.ok(helper.includes("mettreAJourBarreProgressionContinueV1_("));
-assert.ok(!/idleEtat\.energie\s*=/.test(helper), "le rendu ne mute pas l'énergie");
-assert.ok(!/idleResteTickEnergieMsV114\s*=/.test(helper), "le rendu ne mute pas l'horloge du tick");
-assert.ok(!helper.includes("progresserBasicTrainingLocalIdleV120_("), "aucun calcul lourd Basic Training");
-assert.ok(!helper.includes("progresserZoneFightLocalIdleV1_("), "aucun calcul lourd de combat");
-
-console.log("idle-smooth-visual-rendering: OK");
+console.log("idle-smooth-visual-rendering: OK (rendu RAF séparé retiré, plus de barre qui tique)");

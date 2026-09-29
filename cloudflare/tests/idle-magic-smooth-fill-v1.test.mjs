@@ -6,13 +6,19 @@ import { readFileSync } from "node:fs";
  * mais le résultat n'est toujours pas affiché. La barre de magie doit avoir le même comportement. »
  *
  * L'Énergie avance déjà localement tick par tick (idleEtat.energie, mettreAJourJeuIdleLocalV7_) entre
- * deux synchros serveur, puis se projette en plus à la fréquence native de l'écran
- * (rafraichirVisuelsFluidesIdleV221_, V221) -- d'où son remplissage visiblement progressif. La Magie
- * ne lisait QUE l'instantané serveur (resources.magic.current), repeint identique à 15 Hz jusqu'à la
- * synchro suivante (~15s) : aucun mouvement visible entre les deux, un bond d'un coup à chaque synchro.
+ * deux synchros serveur -- d'où son remplissage visiblement progressif. La Magie ne lisait QUE
+ * l'instantané serveur (resources.magic.current), repeint identique à 15 Hz jusqu'à la synchro
+ * suivante (~15s) : aucun mouvement visible entre les deux, un bond d'un coup à chaque synchro.
  *
- * Ce test vérifie que la Magie a désormais EXACTEMENT le même double mécanisme que l'Énergie, sur ses
- * propres champs (jamais idleEtat.magie*, déjà pris par l'ancien système de sorts/mana).
+ * Ce test vérifie que la Magie a désormais le même mécanisme d'avancement local que l'Énergie, sur
+ * ses propres champs (jamais idleEtat.magie*, déjà pris par l'ancien système de sorts/mana).
+ *
+ * Correctif 2026-09-29 (suite, revirement assumé) : ce fichier testait aussi une interpolation RAF
+ * séparée (rafraichirVisuelsFluidesIdleV221_) qui projetait la Magie à la fréquence de l'écran --
+ * retirée avec le rebond de tick de la barre elle-même (Norman : « Je ne veux plus qu'elle tique !!!
+ * elle doit simplement se remplir et se vider... Aucune animation de tique par seconde », voir
+ * idle-energy-tick-bounce-v1.test.mjs). L'avancement local au tick lourd (section ci-dessous) reste
+ * la seule mécanique de remplissage progressif désormais.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
@@ -53,22 +59,8 @@ assert.ok(ui.includes("let idleResteTickMagieMsV1=0;"));
   assert.match(bloc, /idleResteTickMagieMsV1\+=ecouleTickMs/, "doit accumuler le même écoulement réel que l'Énergie (ecouleTickMs)");
 }
 
-// --- Rendu fluide RAF (rafraichirVisuelsFluidesIdleV221_) : projette la Magie aussi, sans muter l'état de jeu ---
-{
-  const debutFn = ui.indexOf("function rafraichirVisuelsFluidesIdleV221_(){");
-  const finFn = ui.indexOf("function demarrerTickerIdle_(){", debutFn);
-  assert.ok(debutFn > 0 && finFn > debutFn, "rafraichirVisuelsFluidesIdleV221_ introuvable");
-  const fn = ui.slice(debutFn, finFn);
-
-  assert.match(fn, /document\.getElementById\(\s*'sorealIdleMagicBarV1'\s*\)/, "doit cibler la barre de Magie en plus de celle d'Énergie");
-  assert.match(fn, /if\(magicBarEl&&ressourceMagieVisu&&infoMagieVisu&&budgetMagieVisu\)\{/, "même garde de déblocage que le tick lourd");
-  assert.match(fn, /mettreAJourBarreProgressionContinueV1_\(\s*magicBarEl,/, "réutilise le même helper générique que la barre d'Énergie");
-
-  // Invariant déjà vérifié pour l'Énergie par idle-smooth-visual-rendering.test.mjs : l'interpolation ne doit
-  // muter AUCUN état de jeu, énergie ou magie.
-  assert.ok(!/ressourceMagieVisu\.current\s*=/.test(fn), "le rendu fluide ne doit pas muter la Magie (projection uniquement)");
-  assert.ok(!/idleResteTickMagieMsV1\s*=/.test(fn), "le rendu fluide ne doit pas muter l'horloge du tick de Magie");
-}
+// --- Le rendu RAF séparé (et son rebond à interpoler) n'existe plus du tout ---
+assert.ok(!ui.includes("function rafraichirVisuelsFluidesIdleV221_("), "retiré avec le rebond de tick, plus rien à interpoler à la fréquence de l'écran");
 
 // --- Rendu 15 Hz (rafraichirEnergieEtBoutonsIdleV9_) : la barre de Magie lit désormais le total LOCAL vivant, jamais l'instantané figé ---
 {

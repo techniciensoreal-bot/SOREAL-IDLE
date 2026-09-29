@@ -25,7 +25,7 @@ function block(source,start,end){
 
 assert.ok(
   index.includes('/modules/adventure-scene-v79.js?v=202')&&
-  index.includes('/soreal-idle-ui.js?v=318'),
+  index.includes('/soreal-idle-ui.js?v=319'),
   "Le standalone doit charger les assets V200 de la barre Energie et des PV Aventure."
 );
 
@@ -35,41 +35,44 @@ const energyFn=block(
   "function demarrerTickerIdle_()"
 );
 
-/* 2026-09-24 : rebond à vitesse constante (voir idle-energy-tick-bounce-v1.test.mjs) au lieu d'un balayage à durée fixe. */
+/*
+ * 2026-09-29 (Norman, revirement assumé -- remplace le rebond du 2026-09-24, voir WORKLOG.md) :
+ * « Je ne veux plus qu'elle tique !!! elle doit simplement se remplir et se vider quand on place
+ * de l'énergie. Aucune animation de tique par seconde. » largeurTickEnergieIdleV1_ (le rebond
+ * "monte jusqu'au cap puis repart instantanément") est retiré : la largeur est désormais posée
+ * directement à partir de la valeur réellement connue, la transition CSS de
+ * .soreal-idle-energybar-v11 (soreal-idle-ui.css) fait tout le lissage visuel.
+ */
 assert.ok(
-  energyFn.includes("largeurTickEnergieIdleV1_(")&&
-  energyFn.includes("valeurVisuelle/max*100"),
-  "Pendant un tick, la barre part du remplissage et monte jusqu au cap (aucune descente animee)."
+  !ui.includes("function largeurTickEnergieIdleV1_("),
+  "l'ancienne fonction de rebond par tick ne doit plus être déclarée (son nom peut rester en commentaire historique)"
+);
+
+assert.match(
+  energyFn,
+  /largeurBarreCombatIdleV121_\(\s*element,\s*valeur\/max\*100\s*\);/,
+  "la largeur doit être posée directement depuis la valeur connue, sans interpolation de tick inventée"
 );
 
 assert.ok(
-  energyFn.includes("if(valeur>=max){")&&
-  energyFn.includes("largeurBarreCombatIdleV121_(element,100);"),
-  "Au cap la barre doit rester pleine sans progression supplémentaire."
+  !/progressionTick|gainTick/.test(energyFn),
+  "les paramètres de rebond par tick ne doivent plus exister dans la signature"
 );
 
-assert.ok(
-  !energyFn.includes("((valeur+progression)/max)*100"),
-  "L'ancien affichage valeur + fraction d'un seul point ne doit plus exister."
+// Cap à 0 ou négatif : barre vide, jamais NaN.
+assert.match(
+  energyFn,
+  /if\(max<=0\)\{\s*largeurBarreCombatIdleV121_\(element,0\);\s*return;\s*\}/,
+  "cap à 0 -> barre vide, jamais NaN"
 );
 
-// Début de tick : la barre est exactement au remplissage (101/500 = 20,2 %), sans imprécision IEEE-754.
-function pct(base,progress,max=500,gain=1){
-  if(base>=max)return 100;
-  const cible=Math.min(max,base+gain);
-  const parcouru=2*max*progress;
-  const montee=Math.min(max,base+parcouru),descente=Math.max(0,parcouru-(max-base));
-  const visual=descente>0?Math.max(cible,montee-descente):montee;
-  return visual/max*100;
-}
-assert.equal(pct(0,0),0);
-assert.equal(pct(1,0),0.2);
-assert.equal(pct(100,0),20);
+// La transition CSS (jamais transition:none) fait tout le lissage visuel : aucun override ne doit la couper.
+const css=fs.readFileSync(new URL("../public/soreal-idle-ui.css",import.meta.url),"utf8");
 assert.ok(
-  Math.abs(pct(101,0)-20.2)<1e-9,
-  "101/500 doit correspondre à 20.2% malgré les imprécisions IEEE-754."
+  !css.includes("transition:none !important;\n            background:linear-gradient(90deg,#2fd86e"),
+  "aucune règle ne doit plus forcer transition:none sur la barre d'Énergie/Magie"
 );
-assert.equal(pct(500,0),100);
+assert.match(css,/\.soreal-idle-energybar-v11\{[\s\S]{0,300}?transition:width \.12s linear;/,"la transition de base doit rester active pour lisser les mises à jour");
 
 const ticker=block(
   ui,
