@@ -78,6 +78,12 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   const fonction = ui.slice(ui.indexOf("window.__sorealVoiceTextesIdleV1__=function(){"), ui.indexOf("window.__sorealVoiceTextesSystemesIdleV1__=function"));
   assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window\.__SOREAL_IDLE_STORY_POPUP_V1__\.etapes==='function'/, "les 5 textes de la scène boss 18 doivent être ajoutés à la couverture de voix pré-générées");
   assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_V1__\.etapes\(\)\.forEach\(function\(etape\)\{textes\.push\(etape\.texte\);\}\);/);
+  /*
+   * Deuxième histoire (Norman, 2026-09-29) : mêmes obligations que la première -- les 10 textes ne
+   * doivent jamais retomber sur le repli Piper systématique faute de faire partie de cette couverture.
+   */
+  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_2_V1__&&typeof window\.__SOREAL_IDLE_STORY_POPUP_2_V1__\.etapes==='function'/, "les 10 textes de la deuxième histoire doivent être ajoutés à la couverture de voix pré-générées");
+  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_2_V1__\.etapes\(\)\.forEach\(function\(etape\)\{textes\.push\(etape\.texte\);\}\);/);
 }
 
 // --- « Lire toute l'histoire » : même composition que la chronique affichée ---

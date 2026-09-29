@@ -10623,6 +10623,9 @@
         if(window.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes==='function'){
           window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes().forEach(function(etape){textes.push(etape.texte);});
         }
+        if(window.__SOREAL_IDLE_STORY_POPUP_2_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_2_V1__.etapes==='function'){
+          window.__SOREAL_IDLE_STORY_POPUP_2_V1__.etapes().forEach(function(etape){textes.push(etape.texte);});
+        }
         return textes;
       };
 
@@ -17973,6 +17976,15 @@ let idleDialogueTimerV76=null;
             'Vous avez vaincu '+nom+' !'
           );
           idleAdventureResolutionPendingV2='resolveZoneFight';
+          /*
+           * Deuxième histoire (Norman, 2026-09-29) : déclenchée par la mort d'un boss de ZONE
+           * Aventure précis (« A Fifth Giant Mole »), un évènement éphémère résolu ici -- jamais un
+           * champ d'état persistant comme bossSelection pour la première histoire. On capture donc
+           * fight.mobName/fight.boss avant que fight.active ne soit remis à false plus bas.
+           */
+          if(window.__SOREAL_IDLE_STORY_POPUP_2_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_2_V1__.considerer==='function'){
+            window.__SOREAL_IDLE_STORY_POPUP_2_V1__.considerer(fight.mobName,Boolean(fight.boss),idleEtat);
+          }
         }else{
           idleEtat.adventureRestPv=0;
           memoriserRestPvIdleV1_(0);
@@ -22206,6 +22218,7 @@ function pageAventureIdleV28_(j){
               '<div class="soreal-idle-window-title-v31">🧪 Outils de test (administrateur)</div>'+
               '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir une scène spéciale sans devoir y rejouer -- utile pour vérifier un correctif.</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__SOREAL_IDLE_STORY_POPUP_V1__&&window.__SOREAL_IDLE_STORY_POPUP_V1__.rejouer()">🔁 Revoir « Le Magicien et la Grotte » (scène boss 18)</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__SOREAL_IDLE_STORY_POPUP_2_V1__&&window.__SOREAL_IDLE_STORY_POPUP_2_V1__.rejouer()">🔁 Revoir « Le Magicien et la Grotte 2 » (boss de zone Aventure)</button>'+
             '</div>'
             :'')+
           '<div class="soreal-idle-section-v8">'+

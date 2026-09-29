@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.9',
+    courante:'7.0',
     versions:[
+      {
+        version:'7.0',
+        nom:'Une nouvelle scène spéciale',
+        date:'2026-09-29',
+        points:[
+          'Une nouvelle scène spéciale se déclenche en Aventure, à la victoire contre un certain boss de zone.',
+          'Comme la précédente, elle n’apparaît qu’une seule fois et peut être passée avec le bouton « Passer ».',
+          'Un nouvel outil (administrateur) permet de la revoir pour vérifier un correctif.'
+        ]
+      },
       {
         version:'6.9',
         nom:'Augmentations et Blood Magic, réglages fins',
