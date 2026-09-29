@@ -2357,6 +2357,7 @@
           maintenantTick
         );
 
+        assurerBarreMagicPersistanteIdleV1_();
         assurerPisteMagicTimeMachineIdleV1_();
         actualiserCompteReboursTimeMachineIdleV1_();
 
@@ -3822,6 +3823,22 @@
         return s+' s';
       }
 
+      function assurerBarreMagicPersistanteIdleV1_(){
+        if(!idleEtat||!idleEtat.systemes)return;
+        const infoMagic=
+          idleEtat.systemes.resourceInfo&&
+          idleEtat.systemes.resourceInfo.magic;
+
+        if(!infoMagic)return;
+
+        if(!document.getElementById('sorealIdleMagicBarV1')){
+          rendreIdleEtat_({
+            ok:true,
+            joueur:idleEtat
+          });
+        }
+      }
+
       function assurerPisteMagicTimeMachineIdleV1_(){
         if(idleMenuActifV28!=='machine'||!idleEtat||!idleEtat.systemes)return;
 
@@ -4985,6 +5002,53 @@
             idleEntier_(
               idleEtat.energieMax
             );
+        }
+
+        const systemesRessources=idleEtat.systemes||{};
+        const infoMagic=systemesRessources.resourceInfo&&systemesRessources.resourceInfo.magic;
+        const ressourceMagic=systemesRessources.resources&&systemesRessources.resources.magic;
+        const budgetMagic=systemesRessources.resourceBudget&&systemesRessources.resourceBudget.magic;
+
+        if(infoMagic&&ressourceMagic){
+          const magicDisponible=budgetMagic
+            ?Math.max(0,idleNombre_(budgetMagic.available))
+            :Math.max(0,idleNombre_(ressourceMagic.current));
+          const magicCap=Math.max(0,idleNombre_(infoMagic.capRun));
+          const magicValeur=document.getElementById('sorealIdleMagicValeurV1');
+          const magicOverlay=document.getElementById('sorealIdleMagicOverlayV1');
+          const magicBar=document.getElementById('sorealIdleMagicBarV1');
+          const magicSpeed=document.getElementById('sorealIdleMagicSpeedV1');
+
+          if(magicValeur){
+            magicValeur.textContent=
+              'Disponible : '+
+              formatEnergieIdleV50_(magicDisponible)+
+              ' / '+
+              formatEnergieIdleV50_(magicCap);
+          }
+          if(magicOverlay){
+            magicOverlay.textContent=
+              formatEnergieIdleV50_(magicDisponible)+
+              ' / '+
+              formatEnergieIdleV50_(magicCap);
+          }
+          if(magicBar){
+            magicBar.style.width=
+              (
+                magicCap>0
+                  ?Math.max(0,Math.min(100,magicDisponible/magicCap*100))
+                  :0
+              ).toFixed(4)+'%';
+          }
+          if(magicSpeed){
+            magicSpeed.textContent=
+              'Production : +'+
+              idleNombre_(infoMagic.perSecond).toLocaleString(
+                'fr-FR',
+                {maximumFractionDigits:2}
+              )+
+              '/s · T pour récupérer';
+          }
         }
 
         /* V13 : la barre représente uniquement le temps avant le prochain tic. */
@@ -13482,6 +13546,26 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-153 */
       function rendreBarreEnergiePersistanteIdleV1_(j){
+        const systemes=j&&j.systemes?j.systemes:{};
+        const infoMagic=systemes.resourceInfo&&systemes.resourceInfo.magic
+          ?systemes.resourceInfo.magic
+          :null;
+        const ressourceMagic=systemes.resources&&systemes.resources.magic
+          ?systemes.resources.magic
+          :null;
+        const budgetMagic=systemes.resourceBudget&&systemes.resourceBudget.magic
+          ?systemes.resourceBudget.magic
+          :null;
+        const magicDisponible=budgetMagic
+          ?Math.max(0,idleNombre_(budgetMagic.available))
+          :Math.max(0,idleNombre_(ressourceMagic&&ressourceMagic.current));
+        const magicCap=infoMagic
+          ?Math.max(0,idleNombre_(infoMagic.capRun))
+          :Math.max(0,idleNombre_(ressourceMagic&&ressourceMagic.cap));
+        const magicPct=magicCap>0
+          ?Math.max(0,Math.min(100,magicDisponible/magicCap*100))
+          :0;
+
         return `
           <div class="soreal-idle-energy-panel-v34">
             <div class="soreal-idle-energy-head-v34">
@@ -13518,6 +13602,45 @@
               </div>
             </div>
           </div>
+
+          ${infoMagic&&ressourceMagic?`
+            <div class="soreal-idle-energy-panel-v34 soreal-idle-magic-panel-v1">
+              <div class="soreal-idle-energy-head-v34">
+                <div class="soreal-idle-energy-title-v34">
+                  🔮 Magie
+                </div>
+
+                <div
+                  id="sorealIdleMagicValeurV1"
+                  class="soreal-idle-energy-number-v34"
+                >
+                  Disponible : ${formatEnergieIdleV50_(magicDisponible)} / ${formatEnergieIdleV50_(magicCap)}
+                </div>
+              </div>
+
+              <div
+                id="sorealIdleMagicSpeedV1"
+                class="soreal-idle-energy-speed-v34"
+              >
+                Production : +${idleNombre_(infoMagic.perSecond).toLocaleString('fr-FR',{maximumFractionDigits:2})}/s
+                · T pour récupérer
+              </div>
+
+              <div class="soreal-idle-energybar-wrap-v11 soreal-idle-magicbar-wrap-v1">
+                <div
+                  id="sorealIdleMagicBarV1"
+                  class="soreal-idle-energybar-v11 soreal-idle-magicbar-v1"
+                  style="width:${magicPct.toFixed(4)}%"
+                ></div>
+                <div
+                  id="sorealIdleMagicOverlayV1"
+                  class="soreal-idle-energybar-overlay-v1"
+                >
+                  ${formatEnergieIdleV50_(magicDisponible)} / ${formatEnergieIdleV50_(magicCap)}
+                </div>
+              </div>
+            </div>
+          `:''}
         `;
       }
 
