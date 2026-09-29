@@ -1681,7 +1681,18 @@ html,body{overflow-x:hidden}
           }
 
           /* ===== BARRE DE TICK ÉNERGIE V34 ===== */
-          .soreal-idle-energy-panel-v34{
+          .soreal-idle-magic-panel-v1{
+            margin-top:-6px;
+            background:linear-gradient(135deg,#17345f,#285d9b);
+            box-shadow:0 8px 20px rgba(24,76,145,.20);
+          }
+
+          .soreal-idle-magicbar-v1{
+            background:linear-gradient(90deg,#2f8cff,#73c7ff) !important;
+            box-shadow:0 0 14px rgba(47,140,255,.42);
+          }
+
+.soreal-idle-energy-panel-v34{
             margin:0 0 14px;
             padding:12px 13px;
             border-radius:14px;
