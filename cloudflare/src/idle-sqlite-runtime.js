@@ -10611,7 +10611,7 @@ function construireEtatJoueurSorealIdle_(
 
     /* Interrupteur d'accès à SOREAL IDLE : exposé uniquement au compte administrateur (bouton des Paramètres). */
     reglages:
-      classementDebloqueSorealIdle_(
+      estAdministrateurSorealIdle_(
         row[c.EMAIL_PRINCIPAL - 1],
         row[c.EMAIL_CONNEXION - 1]
       )
@@ -12951,8 +12951,12 @@ const CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1 = Object.freeze(
   CLASSEMENT_STATS_SOREAL_IDLE_V1.concat(CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1)
 );
 
-/* Verrou provisoire du bouton (voir le commentaire de construireEtatJoueurSorealIdle_) : administrateur seulement. */
-function classementDebloqueSorealIdle_(emailPrincipal, emailConnexion) {
+/* Classement public pour tous les joueurs ayant accès à SOREAL IDLE. */
+function classementDebloqueSorealIdle_() {
+  return true;
+}
+
+function estAdministrateurSorealIdle_(emailPrincipal, emailConnexion) {
   const emails = [emailPrincipal, emailConnexion]
     .map(function(e) { return String(e || '').trim().toLowerCase(); });
   return emails.indexOf(ADMIN_SOREAL_IDLE_EMAIL) !== -1;
@@ -13021,12 +13025,6 @@ function obtenirClassementSorealIdle(
 
   const moi =
     String(acces.emailAutorise || '').trim().toLowerCase();
-
-  if (!classementDebloqueSorealIdle_(moi, '')) {
-    throw new Error(
-      'SOREAL_IDLE_CLASSEMENT_VERROUILLE'
-    );
-  }
 
   /* Le prénom de l'ouvrier qui ouvre le classement est mémorisé tout de suite (son nom peut ainsi s'afficher « Pseudo (Prénom) » dès cette page). */
   noterPassageIdleV1_(acces);
