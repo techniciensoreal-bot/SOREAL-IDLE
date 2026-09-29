@@ -1,4 +1,4 @@
-# Progression hors ligne : SOREAL IDLE comparé à NGU Idle (2026-09-24, mis à jour le 2026-09-27)
+# Progression hors ligne : SOREAL IDLE comparé à NGU Idle (2026-09-24, mis à jour le 2026-09-29)
 
 Question de Norman : « Est-ce que la manière dont le jeu fonctionne quand il est fermé correspond à celle de NGU ? Je sais qu'on tue les titans, ou
 qu'on a certains loots, en étant hors ligne. » Sources : miroir local du wiki (pages *Inventory*, *Adventure Mode*, *Titans*, *Build History* 2018,
@@ -30,7 +30,7 @@ qu'on a certains loots, en étant hors ligne. » Sources : miroir local du wiki 
 | ITOPOD hors ligne | oui, sans y être ; ≥ 650 Power | oui depuis le 2026-09-27, dès que `towerHitsV1(power,idleBonus,0)<=1` (= 650 Power) | conforme (corrigé) |
 | Drops MacGuffin de l'ITOPOD (perk) hors ligne | oui, placés dans l'inventaire au retour | confirmé le 2026-09-27 : `macguffinOnItopodKillsV1` dépose bien dans l'inventaire | conforme |
 | **Titans en Auto-Kill hors ligne** | oui, sans butin | présent depuis le 2026-09-27 (`advanceTitanAutoKillV1`), sans butin | conforme (corrigé) |
-| Butin d'Aventure hors ligne | jamais | l'Aventure est pilotée par le client (rien hors ligne) | conforme |
+| Butin d'Aventure hors ligne | jamais | **changement de règle voulu par Norman (2026-09-29)**, voir suivi 6 : farm automatique de la dernière zone de combat, plafonné 8h / 70% de l'inventaire, mort réelle possible | écart **assumé**, pas un manque (Norman : « je veux changer une règle par rapport à NGU IDLE ») |
 | Butin de boss principal hors ligne | n'existe pas | **existait** (tirage d'objet à chaque victoire, y compris quand le serveur résout un combat en cours) | corrigé aujourd'hui : plus aucun objet de boss (voir `WORKLOG.md`) |
 | Combat de boss principal en cours à la fermeture | non documenté | le serveur continue le combat jusqu'à sa fin (victoire ou défaite) puis s'arrête sur le boss suivant | à confirmer par Norman en jouant les deux jeux |
 | Boost du Cube de l'infini hors ligne | oui, aucune formule publiée | **absent** du rattrapage | manque, bloqué par « pas de valeur inventée » (voir point 4 ci-dessous) |
@@ -69,3 +69,27 @@ qu'on a certains loots, en étant hors ligne. » Sources : miroir local du wiki 
    déposés dans l'inventaire dès qu'ils tombent hors ligne (`macguffinOnItopodKillsV1` → `dropRandom`/`addDrop` →
    `data.inventory.push(frag)`). Le point « à vérifier » de l'audit du 24/09 est donc résolu : ce n'était pas un
    manque.
+6. **Fait (2026-09-29)** — Farm automatique de zone d'Aventure hors ligne, changement de règle EXPLICITEMENT
+   demandé par Norman (« J'aimerais changer une règle par rapport à NGU IDLE... le mode aventure tourne même le
+   jeu fermé »), donc un écart **voulu**, pas une divergence accidentelle avec le wiki (contrairement aux autres
+   lignes de ce tableau, qui visent la conformité). Contraintes fixées par Norman en clarification directe :
+   8h de farm hors ligne maximum, jamais plus de 70% de l'inventaire rempli par ce farm (toujours une place pour
+   le butin de titan etc.), zone ciblée = `lastCombatZone`, combat réellement calculé (mort possible, avec le
+   monstre/la zone lisibles dans le journal de combat à la reconnexion).
+   Premier essai (Beta 6.3) construit par erreur sur l'ancien simulateur LEGACY (`idle-sqlite-runtime.js`,
+   `j.aventure`, zones à ID numérique) : un système jamais utilisé par aucun joueur réel, dont le déclencheur
+   n'était d'ailleurs jamais activé nulle part dans le code — entièrement inerte, symptôme signalé par Norman
+   (« Je ne loot pas en étant hors ligne »). Reconstruit sur le VRAI système (`state.adventure`,
+   `IDLE_ADVENTURE_ZONES`, `rollKill`) : `advanceAdventureZoneAutoFarmOfflineV1`
+   (`cloudflare/src/idle-adventure-v47.js`), câblé dans `advanceLateSystems`
+   (`cloudflare/src/idle-ngu-progression.js`) derrière un seuil de 5 minutes (empêche un double calcul pendant
+   une partie EN LIGNE, où le client simule déjà le combat en temps réel).
+   Simplification assumée et documentée (même principe que la croissance de force des titans, non modélisée par
+   `advanceTitanAutoKillV1`) : le combat de zone réel est CLIENT-autoritaire pour le timing exact coup par coup
+   (aucun client ne tourne hors ligne) — ce simulateur reproduit donc les mêmes formules de dégâts/intervalles que
+   `Soreal_Idle_UI.html`, mais résout chaque combat analytiquement (temps jusqu'à 0 PV, avec régénération) plutôt
+   que coup par coup avec le facteur aléatoire (0,8-1,2) par coup, remplacé par sa moyenne — jamais une valeur de
+   jeu inventée (Power, Toughness, PV, régénération, butin restent exactement les vraies formules déjà sourcées
+   ailleurs dans ce fichier), seulement une méthode de résolution différente pour rester bornée en CPU sur
+   potentiellement des centaines de combats simulés en une seule reconnexion. Tests :
+   `idle-adventure-offline-farm-limits-v1.test.mjs`, `idle-adventure-auto-defeat-log-v1.test.mjs`.

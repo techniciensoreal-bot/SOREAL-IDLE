@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.3',
+    courante:'6.4',
     versions:[
+      {
+        version:'6.4',
+        nom:'L’aventure continue, pour de vrai cette fois',
+        date:'2026-09-29',
+        points:[
+          'Le combat automatique d’Aventure pendant ton absence, annoncé la dernière fois, restait silencieux : il farme désormais vraiment.',
+          'L’or, l’expérience et les butins récoltés pendant ton absence sont bien crédités à ton retour.',
+          'Le récit d’une défaite pendant ton absence (le monstre, la zone) s’affiche enfin correctement dans le journal de combat.'
+        ]
+      },
       {
         version:'6.3',
         nom:'L’aventure continue sans toi',

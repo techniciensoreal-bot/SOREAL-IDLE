@@ -20,6 +20,7 @@ import {
   idleAdventureCubeTierV1,
   idleAdventureTitanCooldownMsV1,
   advanceTitanAutoKillV1,
+  advanceAdventureZoneAutoFarmOfflineV1,
   idleAdventureSetRewardProductV1,
   IDLE_ADVENTURE_SPECIALS
 } from "./idle-adventure-v47.js";
@@ -4219,12 +4220,12 @@ function advanceLateSystems(state, seconds, context, now) {
    * récompenses qu'un kill manuel, à l'exception du butin (jamais accordé par Auto-Kill, cf. le commentaire
    * d'advanceTitanAutoKillV1).
    */
+  const gearAventure = idleAdventureEquipmentStatsV47(state.adventure);
+  const combatAventure = idleAdventureCombatStatsV1(gearAventure, context, idleNguBonuses(state));
   {
     const titanChallengeBonuses = challengePermanentBonuses(state);
-    const gearTitans = idleAdventureEquipmentStatsV47(state.adventure);
-    const combatTitans = idleAdventureCombatStatsV1(gearTitans, context, idleNguBonuses(state));
     advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
-      stats: { power: combatTitans.power, toughness: combatTitans.toughness },
+      stats: { power: combatAventure.power, toughness: combatAventure.toughness },
       wishLevels: wishLevelsMapV1(state),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
@@ -4233,6 +4234,48 @@ function advanceLateSystems(state, seconds, context, now) {
       titanCooldownReductionEvilMs: titanChallengeBonuses.titanRespawnReductionEvilMs,
       titanCooldownReductionSadisticMs: titanChallengeBonuses.titanRespawnReductionSadisticMs
     }), seconds, now);
+  }
+
+  /*
+   * Farm automatique de zone d'Aventure hors ligne (advanceAdventureZoneAutoFarmOfflineV1,
+   * idle-adventure-v47.js) : mêmes stats de combat réelles que l'Auto-Kill Titan ci-dessus et le
+   * combat manuel (Power/Toughness/HP/Regen/specials, idleAdventureCombatStatsV1), même filtrage
+   * auto-inventaire que les kills en ligne (idleInventoryProcessNewDropsV1) appliqué sur le lot
+   * entier de drops accumulés pendant l'absence.
+   *
+   * Garde des 5 minutes (SEUIL_FARM_OFFLINE_SEC) : cette fonction est appelée à CHAQUE sync, y
+   * compris pendant une partie EN LIGNE (poll régulier, ~15s -- syncSecondes). Le combat de zone réel
+   * est déjà simulé par le CLIENT en direct (startZoneFight/resolveZoneFight, cf. le commentaire de
+   * resolveZoneFight dans idle-adventure-v47.js) : sans ce seuil, ce simulateur tournerait EN PLUS,
+   * en parallèle, à chaque sync online -- doublant butin/or/exp pendant toute partie active. Le
+   * déclenchement reste bien automatique dès qu'une zone est sélectionnée (Norman : « Dès qu'une zone
+   * est sélectionnée, l'auto combat est toujours actif »), seulement après un écart réel depuis le
+   * dernier sync, jamais pendant.
+   */
+  const SEUIL_FARM_OFFLINE_SEC = 5 * 60;
+  if (seconds >= SEUIL_FARM_OFFLINE_SEC) {
+    const idsAvantFarm = idleInventoryIdsV1(state.adventure);
+    const resumeFarm = advanceAdventureZoneAutoFarmOfflineV1(state.adventure, Object.assign({}, context, {
+      stats: {
+        power: combatAventure.power,
+        toughness: combatAventure.toughness,
+        hp: combatAventure.hp,
+        regen: combatAventure.regen,
+        specials: combatAventure.specials
+      },
+      dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
+      dropMultiplierIncludesGear: true,
+      goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1))
+    }), seconds, now);
+    idleInventoryProcessNewDropsV1(state.adventure, idsAvantFarm, inventoryAutoEnvV1(state));
+    /*
+     * Résumé de CE seul sync (jamais persisté) : lu et retiré par idle-sqlite-runtime.js
+     * (construireEtatJoueurSorealIdle_, autoFarmAventureEtat) avant l'écriture de STATS_JSON, pour
+     * alimenter j.autoAventureHorsLigne côté client (verifierDefaiteAutoAventureIdleV1_).
+     */
+    if (resumeFarm && (resumeFarm.kills > 0 || resumeFarm.derniereDefaite)) {
+      state.adventure.lastAutoFarmSummaryV1 = resumeFarm;
+    }
   }
 
   const killsItopodAvant = Math.max(0, int(state.systems.tower?.data?.kills, 0));

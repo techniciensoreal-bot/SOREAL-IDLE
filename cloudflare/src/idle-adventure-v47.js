@@ -5107,6 +5107,143 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
   return{kills:totalKills};
 }
 /*
+ * Farm automatique d'Aventure hors ligne (Norman, 2026-09-29) : « à la reconnexion... que le jeu
+ * calcule ce qu'on aurait dû looter... le mode aventure tourne même le jeu fermé... 12h », précisé
+ * ensuite en 3 contraintes fermes : 8h maximum hors ligne ; jamais plus de 70% de l'inventaire
+ * (toujours une place pour le butin de titan etc.) ; « le combat doit être calculé comme s'il avait
+ * eu lieu » -- un vrai risque de mort, avec le monstre et la zone lisibles dans le journal. Zone
+ * ciblée = lastCombatZone (Norman : « La dernière zone de combat active et la zone actuellement
+ * sélectionnée revient exactement au même. C'est donc bien la dernière zone de combat active. »),
+ * PAS s.selectedZone seul -- ce dernier retombe à "safe" après une défaite (loseZoneFight) alors que
+ * lastCombatZone survit, exactement le cas où il ne faut pas perdre la zone à refarmer.
+ *
+ * Premier essai (2026-09-29, Beta 6.3) : construit à tort sur le simulateur LEGACY
+ * (idle-sqlite-runtime.js, j.aventure, zones à ID NUMÉRIQUE table IDLE_ZONES) -- un système
+ * entièrement différent, jamais utilisé par aucun joueur réel (le sélecteur de zone réel, vérifié
+ * dans Soreal_Idle_UI.html, lit partout j.systemes.adventure.selectedZone, CE fichier). Son
+ * déclencheur (statsAuto.autoAventure/autoAventureZone) n'est d'ailleurs jamais mis à vrai nulle
+ * part -- switch mort depuis le premier jour, jamais exécuté. Cette version cible directement le
+ * VRAI système (state.adventure, IDLE_ADVENTURE_ZONES, rollKill) et se déclenche sur lastCombatZone
+ * -- « Dès qu'une zone est sélectionnée, l'auto combat est toujours actif », donc aucun interrupteur
+ * séparé à vérifier.
+ *
+ * Combat de zone réel = client-autoritaire pour le TIMING (cf. resolveZoneFight plus haut : "seul le
+ * client simule les coups en temps réel, le serveur ne fait qu'ouvrir/fermer le combat"). Hors ligne,
+ * aucun client ne tourne : les fonctions ci-dessous reproduisent donc les MÊMES formules que
+ * Soreal_Idle_UI.html (degatsJoueurAdventureIdleV2_/degatsEnnemiAdventureIdleV2_/intervalles/regen de
+ * combat), copiées ici car normalement propres au client. Simplification assumée et documentée
+ * (même principe que la croissance de force des titans non modélisée par advanceTitanAutoKillV1
+ * ci-dessus) : le facteur aléatoire par coup (0.8-1.2, facteurAleatoireDegatsAdventureIdleV2_) est
+ * remplacé par sa moyenne (1.0) -- chaque combat est résolu analytiquement (temps jusqu'à 0 PV des
+ * deux côtés, régén comprise) plutôt que coup par coup, pour rester borné en CPU face à
+ * potentiellement des centaines de combats simulés en une seule reconnexion.
+ */
+function degatsJoueurMoyenAdventureAutoV1(power,toughness,idleBonus){
+  return Math.max(0,Math.max(0,N(power)-N(toughness)/2)*Math.max(0,N(idleBonus)||1));
+}
+function degatsEnnemiMoyenAdventureAutoV1(power,toughness){
+  const p=Math.max(0,N(power));
+  return Math.max(p*.1,p-N(toughness)/2);
+}
+function idleAttackMultiplierAdventureAutoV1(stats){
+  const sp=stats&&stats.specials;
+  const serveur=sp&&Number(sp.idleAttackMultiplier);
+  if(serveur>0)return serveur;
+  return sp&&sp.idleAttack?1.5:1.2;
+}
+export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
+  const AUCUN={kills:0,gold:0,experience:0,drops:0,derniereDefaite:null};
+  if(!s||!(seconds>0))return AUCUN;
+  const zoneId=String(s.lastCombatZone||"");
+  if(!zoneId||zoneId==="safe")return AUCUN;
+  const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===zoneId);
+  if(!z||z.id==="safe")return AUCUN;
+  if(!unlockedZone(z,ctx.bosses,ctx.difficulty,ctx.difficultyPeaks))return AUCUN;
+  /*
+   * lastCombatZone vaut TOUJOURS "tutorial" par défaut (base()/normalizeIdleAdventureStateV47, y
+   * compris pour un joueur qui n'a jamais ouvert l'onglet Aventure) -- un simple `bosses>=4` (tutorial
+   * débloqué) ne suffit donc pas à savoir si le joueur a RÉELLEMENT déjà combattu là-bas. Sans cette
+   * garde, un joueur qui n'a jamais touché l'Aventure se retrouverait à la farmer tout seul dès qu'il
+   * atteint le boss 4 -- confirmé en pratique : plusieurs tests indépendants (idle-boss-ap,
+   * idle-drop-chance-no-double-count, idle-itopod-boost-drops) construisent un état frais puis
+   * avancent l'horloge de plus de 5 minutes avant la première vraie action, ce qui suffisait à
+   * déclencher un farm fantôme et fausser leurs compteurs. zone.kills/zone.encounters ne sont peuplés
+   * QUE par un vrai combat (rollKill/startZoneFight) : la présence d'AU MOINS une entrée est le signal
+   * le plus proche de « ce joueur a déjà vraiment combattu en Aventure ».
+   */
+  const aDejaCombattuEnAventure=s.zone&&((s.zone.kills&&Object.keys(s.zone.kills).length>0)||(s.zone.encounters&&Object.keys(s.zone.encounters).length>0));
+  if(!aDejaCombattuEnAventure)return AUCUN;
+
+  /* Un combat déjà en cours au moment de la mise hors-ligne n'a aucune issue connue côté serveur (seul le client simule les coups) : abandonné sans butin ni pénalité plutôt que deviné. */
+  if(s.fight&&s.fight.active)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};
+  s.selectedZone=zoneId;
+
+  const stats=ctx.stats||{};
+  const playerHpMax=Math.max(0,N(stats.hp));
+  if(!(playerHpMax>0))return AUCUN;
+  const playerRegenSec=Math.max(0,N(stats.regen))*1.2;
+  const attackIntervalSec=(s.unlockFlags&&s.unlockFlags.redLiquidMaxed?800:1000)/1000;
+  const idleBonus=idleAttackMultiplierAdventureAutoV1(stats);
+  const capaciteFarm=Math.floor(inventoryCapacityAdventureV1(s)*.7);
+  const RESPAWN_SEC=4000/1000;
+
+  const capSec=Math.min(seconds,8*60*60);
+  let elapsed=0,playerHp=playerHpMax;
+  let kills=0,gold=0,experience=0,drops=0,derniereDefaite=null,cycles=0;
+
+  while(elapsed<capSec&&cycles<4000){
+    cycles+=1;
+    if(inventoryUsedAdventureV1(s)>=capaciteFarm)break;
+
+    const boss=Math.random()<(z.bossChance!=null?z.bossChance:.25);
+    const bestiaryZone=IDLE_ADVENTURE_MOB_BESTIARY_V1[z.id];
+    const catalogueZone=IDLE_ADVENTURE_MOB_CATALOG_V1[z.id]||{normal:[],boss:[]};
+    const poolIndex=boss?catalogueZone.boss:catalogueZone.normal;
+    const bestiaryPool=bestiaryZone?(boss?bestiaryZone.boss:bestiaryZone.normal):null;
+    const poolLen=(bestiaryPool&&bestiaryPool.length)||(poolIndex&&poolIndex.length)||0;
+    const monsterIndex=poolLen?Math.floor(Math.random()*poolLen):-1;
+    const mobEntry=idleAdventureMobBestiaryEntryV1(z,boss,monsterIndex);
+    const monsterHpMax=monsterHpMaxForZoneV1WithMob(z,boss,monsterIndex);
+    const mobPower=mobEntry?N(mobEntry.power):0;
+    const mobToughness=mobEntry?N(mobEntry.toughness):0;
+    const mobHpRegen=mobEntry?N(mobEntry.hpRegen):0;
+    const mobName=mobEntry?String(mobEntry.name||""):"";
+    const ennemiIntervalSec=Math.max(.1,N(mobEntry&&mobEntry.attackRate)||1);
+
+    const playerDps=degatsJoueurMoyenAdventureAutoV1(stats.power,mobToughness,idleBonus)/attackIntervalSec;
+    const monsterDps=degatsEnnemiMoyenAdventureAutoV1(mobPower,stats.toughness)/ennemiIntervalSec;
+    const netVersMonstre=playerDps-mobHpRegen;
+    const netVersJoueur=monsterDps-playerRegenSec;
+    const tempsTuerMonstre=netVersMonstre>0?monsterHpMax/netVersMonstre:Infinity;
+    const tempsTuerJoueur=netVersJoueur>0?playerHp/netVersJoueur:Infinity;
+
+    if(!Number.isFinite(tempsTuerMonstre)&&!Number.isFinite(tempsTuerJoueur)){
+      /* Ni le joueur ni le monstre ne peuvent l'emporter (régén >= dégâts des deux côtés) : farm à l'arrêt, rien de plus à simuler. */
+      break;
+    }
+
+    if(tempsTuerJoueur<=tempsTuerMonstre){
+      derniereDefaite={monstre:mobName,zone:String(z.name||z.id||""),boss,ko:true};
+      s.selectedZone="safe";
+      break;
+    }
+
+    elapsed+=tempsTuerMonstre+RESPAWN_SEC;
+    playerHp=netVersJoueur>0
+      ?Math.max(0,playerHp-netVersJoueur*tempsTuerMonstre)
+      :Math.min(playerHpMax,playerHp-netVersJoueur*tempsTuerMonstre);
+
+    const avantOr=N(s.permanent.gold),avantExp=N(s.permanent.experience);
+    const resultat=rollKill(s,Object.assign({},ctx,{forceBoss:boss,forceMobName:mobName}));
+    kills+=1;
+    gold+=Math.max(0,N(s.permanent.gold)-avantOr);
+    experience+=Math.max(0,N(s.permanent.experience)-avantExp);
+    drops+=Array.isArray(resultat.drops)?resultat.drops.length:0;
+  }
+
+  return{kills,gold,experience,drops,derniereDefaite};
+}
+/*
  * Butin des titans -- sections "Loot" des pages wiki (miroir local NGU-Wiki,
  * 2026-09-23). Les taux "base chance" sont multipliés par le multiplicateur de
  * drop comme partout ailleurs. "lvl a-b" = niveau tiré uniformément entre a et

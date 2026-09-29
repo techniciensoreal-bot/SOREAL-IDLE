@@ -9907,6 +9907,25 @@ function construireEtatJoueurSorealIdle_(
       Date.now()
     );
 
+  /*
+   * Norman (2026-09-29) : « Je ne loot pas en étant hors ligne. » Cause : le farm auto d'Aventure
+   * hors ligne (Beta 6.3) avait été câblé sur l'ancien système legacy (j.aventure, zones à ID
+   * numérique, ce bloc-ci) dont le déclencheur (statsAuto.autoAventure/autoAventureZone, plus haut
+   * dans cette fonction) n'est en réalité JAMAIS mis à vrai nulle part dans le code -- un
+   * interrupteur mort depuis toujours, jamais le vrai système utilisé par un joueur (le vrai
+   * sélecteur de zone, vérifié dans Soreal_Idle_UI.html, lit partout j.systemes.adventure.
+   * selectedZone). Remplacé par advanceAdventureZoneAutoFarmOfflineV1 (idle-adventure-v47.js), câblé
+   * dans advanceLateSystems (idle-ngu-progression.js) sur le VRAI système -- son résumé de ce SEUL
+   * sync est déposé ici sur metaNguEtat.adventure.lastAutoFarmSummaryV1 puis retiré avant la
+   * persistance (JSON.stringify(statsEtat) juste en dessous), pour ne jamais polluer la sauvegarde
+   * -- même principe "delta de ce sync uniquement, jamais persisté" que l'ancien
+   * progression.autoAventureHorsLigne ci-dessous (qui reste construit mais ne peut plus jamais avoir
+   * de contenu, ce même interrupteur mort ne s'activant jamais).
+   */
+  const autoFarmAventureEtat =
+    (metaNguEtat.adventure && metaNguEtat.adventure.lastAutoFarmSummaryV1) || null;
+  if (metaNguEtat.adventure) delete metaNguEtat.adventure.lastAutoFarmSummaryV1;
+
   statsEtat.metaNgu = metaNguEtat;
 
   const energieMetaEtat=metaNguEtat.resources&&metaNguEtat.resources.energy
@@ -11243,11 +11262,11 @@ function construireEtatJoueurSorealIdle_(
      * compte jamais les défaites d'un combat normal (seul un boss auto raté incrémente bossEchecs).
      */
     autoAventureHorsLigne:
-      progression && progression.autoAventureHorsLigne
+      autoFarmAventureEtat
         ? (function(a){
-            const combats=nombreSorealIdle_(a.combats,0);
-            const victoires=nombreSorealIdle_(a.victoires,0);
+            const victoires=Math.max(0,nombreSorealIdle_(a.kills,0));
             const d=a.derniereDefaite&&typeof a.derniereDefaite==="object"?a.derniereDefaite:null;
+            const combats=victoires+(d?1:0);
             return {
               combats:combats,
               victoires:victoires,
@@ -11255,7 +11274,8 @@ function construireEtatJoueurSorealIdle_(
               /*
                * Norman (2026-09-29) : « il devra pouvoir lire dans le journal de combat la manière dont il est
                * mort. » Le monstre/zone/type de LA dernière défaite (celle qui a arrêté le farm) : null si le
-               * lot n'a comporté aucune défaite.
+               * lot n'a comporté aucune défaite. Source : advanceAdventureZoneAutoFarmOfflineV1 (VRAI système
+               * d'Aventure, idle-adventure-v47.js), voir le commentaire sur autoFarmAventureEtat plus haut.
                */
               derniereDefaite:d?{
                 monstre:String(d.monstre||""),
@@ -11264,7 +11284,7 @@ function construireEtatJoueurSorealIdle_(
                 ko:Boolean(d.ko)
               }:null
             };
-          })(progression.autoAventureHorsLigne)
+          })(autoFarmAventureEtat)
         : null,
 
     syncSecondes:
