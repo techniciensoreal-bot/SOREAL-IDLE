@@ -1031,6 +1031,13 @@ function createBloodMagicData() {
   return {
     rituals,
     activeRitual: "tack",
+    /*
+     * Plus grand stock de Blood jamais atteint (2026-09-29, anti-spoil AGENTS.md règle n°2) : l'écran Blood Magic
+     * n'affiche un sort qu'une fois son « Minimum Blood Required » (wiki, page Blood Magic) atteint. Comme chaque
+     * sort dépense TOUT le Blood, il faut mémoriser ce pic pour qu'un sort découvert ne disparaisse pas après en
+     * avoir lancé un autre. Survit au Rebirth (une découverte reste acquise).
+     */
+    bloodPeak: 0,
     spells: {
       numberBoost: 1,
       ironPill: 0,
@@ -1605,6 +1612,7 @@ function normalizeSystem(def, raw) {
     }
     if (IDLE_NGU_BLOOD_RITUALS.some(r => r.id === data.activeRitual)) s.data.activeRitual = data.activeRitual;
     s.data.spells = Object.assign(createBloodMagicData().spells, data.spells || {});
+    s.data.bloodPeak = Math.max(0, num(data.bloodPeak, 0));
   } else if (def.id === "yggdrasil") {
     s.data = createYggdrasilData();
     const data = src.data && typeof src.data === "object" ? src.data : {};
@@ -3552,6 +3560,7 @@ function advanceBloodMagic(state, seconds, context) {
   rs.level += completions;
   state.currencies.gold -= completions * ritual.gold;
   state.currencies.blood += completions * ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
+  s.data.bloodPeak = Math.max(num(s.data.bloodPeak, 0), state.currencies.blood);
   challengeHundredLevelsConsume(state, completions);
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
@@ -5471,7 +5480,8 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
     /* Slots de souhaits (page Wishes, 4 au maximum) : un souhait et une allocation par slot. */
     wishSlots: wishSlotsSnapshotV1(state),
     cards: idleCardsSnapshotV1(state),
-    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS),
+    /* Anti-spoil (AGENTS.md règle n°2, 2026-09-29) : jamais un rituel encore verrouillé dans la liste -- sa simple présence (nom, coût, taille de la liste) révélerait ce qui reste à débloquer. */
+    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS.filter(def => ritualUnlocked(def, context, state))),
     bloodMagicView: bloodMagicViewV1(state),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => !idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0)),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
@@ -7036,7 +7046,9 @@ function applyRebirthResetV56_(state,context,t,options={}) {
     }
     if(def.id==="bloodMagic"){
       const permanent=clone(s.data.spells);
+      const bloodPeak=Math.max(0,num(s.data.bloodPeak,0),num(state.currencies.blood,0));
       s.data=createBloodMagicData();
+      s.data.bloodPeak=bloodPeak;
       s.data.spells.ironPill=Math.max(0,num(permanent.ironPill,0));
       s.data.spells.ironPillReadyAt=Math.max(0,num(permanent.ironPillReadyAt,0));
     }

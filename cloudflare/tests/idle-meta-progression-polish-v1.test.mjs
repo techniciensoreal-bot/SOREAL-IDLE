@@ -23,7 +23,7 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
   assert.ok(!css.includes("compact-v1"), "la variante de taille réduite ne doit plus exister dans la feuille de style");
   assert.ok(!meta.includes("compact-v1"), "ni être appliquée par le module (Augmentation/Blood Magic)");
   assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "Augmentation utilise la classe EXACTE de Basic Training");
-  assert.ok(meta.includes('class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" onclick="window.__ajusterRituelBloodMagicIdleV1__'), "Blood Magic aussi");
+  assert.ok(meta.includes('class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (l’active s’il ne l’est pas)" onclick="window.__ajusterRituelBloodMagicIdleV1__'), "Blood Magic aussi");
 }
 
 // --- 2. Sons thématiques : Time Machine (horloge) et Blood Magic (pouls grave) distincts de Basic Training. ---

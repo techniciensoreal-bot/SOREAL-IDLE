@@ -7827,3 +7827,147 @@ html,body{overflow-x:hidden}
   background:#22304f;
   cursor:default;
 }
+
+/*
+ * Refonte Augmentations / Time Machine / Blood Magic (Norman, 2026-09-29) : « plus clairs dans leur manière d'être utilisés, savoir à quoi
+ * sert chaque chose ». Un bloc « À quoi ça sert ? » repliable (résumé + étapes numérotées) commun aux trois pages, une légende des boutons
+ * Input / Cap / Idle, un sous-titre par piste et par sort.
+ */
+.soreal-idle-aide-v1{
+  margin:0 0 12px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(99,102,241,.10);
+  border:1px solid rgba(129,140,248,.35);
+  color:#dfe6fb;
+  font-size:13px;
+  line-height:1.45;
+}
+.soreal-idle-aide-v1 > summary{
+  cursor:pointer;
+  font-weight:900;
+  color:#f3f6ff;
+  list-style:none;
+}
+.soreal-idle-aide-v1 > summary::-webkit-details-marker{display:none}
+.soreal-idle-aide-v1 > summary::after{
+  content:"▾";
+  float:right;
+  opacity:.7;
+  transition:transform .15s ease;
+}
+.soreal-idle-aide-v1:not([open]) > summary::after{transform:rotate(-90deg)}
+.soreal-idle-aide-resume-v1{
+  margin:8px 0 6px;
+  font-weight:700;
+}
+.soreal-idle-aide-etapes-v1{
+  margin:0;
+  padding:0;
+  list-style:none;
+  counter-reset:aide;
+  display:grid;
+  gap:6px;
+}
+.soreal-idle-aide-etapes-v1 li{
+  counter-increment:aide;
+  position:relative;
+  padding-left:28px;
+}
+.soreal-idle-aide-etapes-v1 li::before{
+  content:counter(aide);
+  position:absolute;
+  left:0;
+  top:1px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#4f46e5;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.soreal-idle-aide-legende-v1{
+  margin:0 0 8px;
+  font-size:12px;
+  line-height:1.45;
+  color:#aeb9d4;
+}
+.soreal-idle-aide-legende-v1 b{color:#e8eefb}
+.soreal-idle-aug-soustitre-v1{
+  font-size:11px;
+  color:#93a3c8;
+  margin:2px 0 4px;
+}
+.soreal-idle-aug-piste-v1.upgrade{
+  border-top:1px dashed rgba(148,163,209,.25);
+  padding-top:6px;
+}
+
+/* Time Machine : palette claire de la capture du jeu. */
+.soreal-idle-tm-v1 .soreal-idle-aide-v1{
+  background:#dbe6f1;
+  color:#111;
+  border:3px solid #1d3247;
+  border-radius:12px;
+  font-weight:700;
+}
+.soreal-idle-tm-v1 .soreal-idle-aide-v1 > summary{color:#0b1622}
+.soreal-idle-tm-v1 .soreal-idle-aide-etapes-v1 li::before{background:#1d3247}
+.soreal-idle-tm-soustitre-v1{
+  font-size:11px;
+  font-weight:800;
+  color:#1d3247;
+  padding-left:4px;
+  margin:-4px 0 8px;
+}
+.soreal-idle-tm-stats-titre-v1{
+  font-size:13px;
+  font-weight:900;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+
+/* Blood Magic : même bloc d'aide, dans la palette lie-de-vin. */
+.soreal-idle-bloodmagic-v1 .soreal-idle-aide-v1{
+  background:rgba(107,31,43,.20);
+  border-color:rgba(139,38,53,.45);
+  color:#ecd9dc;
+}
+.soreal-idle-bloodmagic-v1 .soreal-idle-aide-etapes-v1 li::before{background:#8b2635}
+.soreal-idle-bloodmagic-v1 .soreal-idle-aide-legende-v1{color:#c9adb2}
+.soreal-idle-bloodmagic-v1 .soreal-idle-aide-legende-v1 b{color:#f4e3e6}
+.soreal-idle-blood-titre-v1 small{
+  font-size:11px;
+  font-weight:700;
+  opacity:.7;
+  margin-left:6px;
+}
+.soreal-idle-blood-ritual-desc-v1{
+  font-size:12px;
+  color:#c9adb2;
+  margin-top:5px;
+}
+.soreal-idle-blood-ritual-desc-v1 b{color:#f4e3e6}
+.soreal-idle-blood-sort-desc-v1{
+  font-size:12px;
+  color:#c9adb2;
+  margin-top:6px;
+  line-height:1.45;
+}
+.soreal-idle-blood-sort-apercu-v1{
+  font-size:12px;
+  font-weight:800;
+  color:#f4d6a8;
+  margin-top:5px;
+}
+
+/* Time Machine : le thème global colore tous les <b> en blanc (body.soreal-idle-active-v47 b) -- illisible sur les fonds clairs de la capture (chiffres alloués, niveaux, légende). */
+body.soreal-idle-active-v47 .soreal-idle-tm-v1 b,
+body.soreal-idle-active-v47 .soreal-idle-tm-v1 strong{
+  color:#111;
+}

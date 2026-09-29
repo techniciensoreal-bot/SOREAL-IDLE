@@ -108,6 +108,20 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
     for (const h of blocs(composer(b.nom, b.histoire))) if (!fichiers.has(h)) manquants.push("boss " + b.id);
   }
   /*
+   * Norman (2026-09-29) : « La scène numéro 2 bug… Régénérer les voix pour que ça colle aux images. » Les 10 textes
+   * de la deuxième histoire (story-popup-2-v1.js) n'avaient JAMAIS eu de fichier pré-généré : chaque étape retombait
+   * sur la synthèse Piper locale (lente, démarrage tardif, donc texte/image/voix décalés). Couverture stricte des
+   * DEUX histoires : chaque bloc de chaque étape doit avoir son fichier.
+   */
+  for (const [nom, fichierModule] of [["histoire 1", "story-popup-v1.js"], ["histoire 2", "story-popup-2-v1.js"]]) {
+    const source = readFileSync("cloudflare/public/modules/" + fichierModule, "utf8");
+    const etapes = new Function("return [" + source.match(/var ETAPES=\[([\s\S]*?)\n\];/)[1] + "]")();
+    assert.ok(etapes.length >= 5, nom + " : étapes lues");
+    etapes.forEach((etape, i) => {
+      for (const h of blocs(etape.texte)) if (!fichiers.has(h)) manquants.push(nom + " étape " + (i + 1));
+    });
+  }
+  /*
    * Norman (2026-09-27) : les deux voix laissées en attente faute d'accès réseau (boss n°4 "Tippy", commit
    * 251c846 ; texte du popup « Le NOMBRE », commit c867069) ont été régénérées depuis un poste avec accès réseau
    * (node cloudflare/tools/voice-generate.mjs --prune) -- retour à la couverture stricte, sans tolérance.

@@ -8,8 +8,29 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.5',
+    courante:'7.7',
     versions:[
+      {
+        version:'7.7',
+        nom:'La voix tient le rythme',
+        date:'2026-09-29',
+        points:[
+          'La deuxième histoire a maintenant ses propres voix enregistrées, comme la première : plus d’attente au début de chaque scène.',
+          'La voix démarre tout de suite et reste calée sur l’image affichée à chaque étape.',
+          'Aucun changement dans les textes ni dans les images.'
+        ]
+      },
+      {
+        version:'7.6',
+        nom:'Des menus qui expliquent tout',
+        date:'2026-09-29',
+        points:[
+          'Chaque menu d’allocation (Energy / Magic) a maintenant un bloc « À quoi ça sert ? » : un résumé, puis les étapes pour l’utiliser. Il se replie d’un clic.',
+          'Les boutons Input, Cap, 1/2, 1/4, Idle, + et − sont expliqués juste au-dessus, et chaque piste indique ce qu’elle consomme et ce qu’elle apporte.',
+          'Les sorts de sang affichent leur effet, ce que donnerait un lancer maintenant et leur recharge. Ils n’apparaissent qu’une fois découverts.',
+          'Les éléments encore inaccessibles n’apparaissent plus du tout dans ces menus.'
+        ]
+      },
       {
         version:'7.5',
         nom:'Ça descend en douceur',
