@@ -4,18 +4,18 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : classement public livré et vérifié ; tous les joueurs autorisés voient le menu Classement et peuvent charger le classement.
-- **SHA `main` fonctionnel vérifié** : `63b69c181f6852e3ea91238025045f5299c2a1f4` (PR #33, classement public).
-- **Derniers commits effectués sur `fix/public-leaderboard`** : `3b16dee0` (classement public côté serveur + séparation du contrôle admin), `6d59afff` (test de non-régression).
-- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #694 ; `idle-leaderboard-v1.test.mjs` couvre désormais l'accès d'un joueur non-admin.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #694.
-- **CI** : run #694 (`63b69c181f6852e3ea91238025045f5299c2a1f4`) SUCCESS complet.
+- **Tâche courante** : restaurer la fluidité visuelle après le plafonnement du tick lourd à 15 Hz, sans réintroduire les freezes iPhone/Safari.
+- **SHA `main` fonctionnel vérifié** : `98ead43501554c67879fc559882d3c2802504881` avant correctif de fluidité.
+- **Derniers commits effectués sur `fix/smooth-visual-rendering`** : `bd8056bf` (rendu visuel léger découplé du tick lourd), `351a27dd` (test de non-régression).
+- **Tests** : `idle-smooth-visual-rendering.test.mjs` ajouté ; CI complète encore à vérifier.
+- **Build** : pas encore vérifié pour cette branche.
+- **CI** : pas encore exécutée pour le correctif de fluidité.
 - **SHA réellement déployé** : `git:63b69c181f6852e3ea91238025045f5299c2a1f4` ; étape GitHub Actions « Verify deployed Git SHA » SUCCESS dans le run #694.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : aucune erreur connue. Le verrou provisoire administrateur du classement a été retiré ; les réglages `accesOuvert/accesPublic` restent réservés à l'administrateur via un contrôle séparé.
+- **Dernière anomalie / état notable** : la simulation visible reste volontairement à 15 Hz, mais la barre d'énergie était elle aussi dessinée seulement à 15 Hz. Le correctif projette uniquement son rendu à chaque `requestAnimationFrame`, sans muter l'état du jeu.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : vérification manuelle avec un compte joueur non-admin : confirmer que le bouton Classement est visible et que les onglets se chargent normalement.
+- **Prochaine action exacte** : valider la branche, ouvrir une PR, fusionner, vérifier tests/build/CI/déploiement/SHA puis tester visuellement la fluidité en production.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
