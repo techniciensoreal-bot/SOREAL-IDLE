@@ -32,9 +32,9 @@ assert.ok(
   "la garde Magic globale doit être exécutée par le ticker"
 );
 assert.ok(
-  css.includes(".soreal-idle-magicbar-v1{") &&
+  css.includes(".soreal-idle-energybar-v11.soreal-idle-magicbar-v1{") &&
   css.includes("linear-gradient(90deg,#2f8cff,#73c7ff)"),
-  "la ressource Magic doit utiliser un remplissage bleu"
+  "la ressource Magic doit utiliser un sélecteur plus spécifique que la barre Energy verte"
 );
 
 console.log("idle-persistent-magic-resource-bar: OK");
