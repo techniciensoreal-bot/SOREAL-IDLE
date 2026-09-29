@@ -2310,3 +2310,13 @@ Versions : release-notes-v1.js v43, Beta 5.9.
 - Premier passage #695 : tests/build/deploy/SHA SUCCESS, smoke Piper FAILURE sur HTTP 502 du modèle.
 - Rerun du même job et du même SHA : SUCCESS complet, y compris smoke Piper/Chromium.
 - Version Cloudflare vérifiée après rerun : `aa3b7159-6ba5-4dd0-bf1f-56f8fa89d8c6`.
+
+## 2026-09-29 (suite) — IDLE Beta 6.0 « Magie, les bonnes infos » : infobulle Magie = infos Énergie
+
+Norman : « Au survol de la souris sur la barre "Magie", les infos sont les mêmes que pour Energie. »
+
+- **Cause** : le panneau Magie (`soreal-idle-magic-panel-v1`) partage la classe `.soreal-idle-energy-panel-v34` avec le panneau Énergie (même style de carte). Le survol détectait bien « un panneau ressource », mais `ouvrirInfobulleEnergieIdleV1_` appelait toujours `texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_())`, quel que soit le panneau réellement survolé.
+- **Correctif** : le panneau survolé est identifié (`estPanneauMagie`, test de la classe `soreal-idle-magic-panel-v1`) et affiche désormais ses propres chiffres. Nouvelle fonction `texteInfobulleMagieIdleV1_` (même source serveur générique `resourceInfoV1`, `idle-ngu-progression.js`) : plafond du run, plafond au Rebirth, production/s, vitesse et ticks, raccourci T. La ligne « +1 tous les 20 obtenus » reste propre à l'Énergie (`capGain` vaut 0 pour la Magie côté serveur, jamais copiée/inventée pour la Magie). Le type de ressource affichée est mémorisé sur l'infobulle (`dataset.ressource`) pour que le rafraîchissement périodique (1 s) affiche toujours le bon texte.
+- Tests : nouveau `idle-magic-tooltip-v1.test.mjs` (texte Magie distinct du texte Énergie, sans la ligne de croissance de plafond, détection du panneau par sa classe). Suite complète : 417/417 OK.
+
+Versions : ui `314`, notes `44`, Beta `6.0`.

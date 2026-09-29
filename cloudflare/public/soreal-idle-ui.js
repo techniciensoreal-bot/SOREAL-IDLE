@@ -5010,18 +5010,57 @@
           :null;
       }
 
+      /*
+       * Norman (2026-09-29) : « Au survol de la souris sur la barre "Magie",
+       * les infos sont les mêmes que pour Énergie. » Cause : le panneau
+       * Magie partage la classe .soreal-idle-energy-panel-v34 avec le
+       * panneau Énergie (même style de carte) -- le survol détectait bien
+       * "un panneau ressource", mais ouvrirInfobulleEnergieIdleV1_ affichait
+       * toujours le texte ÉNERGIE, quel que soit le panneau réellement
+       * survolé. Même source serveur que l'énergie (resourceInfoV1,
+       * générique par ressource) : seule la croissance du plafond "+1 tous
+       * les 20 obtenus" est propre à l'Énergie (capGain=0 pour la Magie,
+       * idle-ngu-progression.js) -- absente ici, jamais inventée pour la
+       * Magie.
+       */
+      function infoMagieIdleV1_(){
+        return idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceInfo
+          ?idleEtat.systemes.resourceInfo.magic
+          :null;
+      }
+
+      function texteInfobulleMagieIdleV1_(info){
+        if(!info)return '';
+        const lignes=[
+          'Magie max sur ce Rebirth : plafonnée à '+nombreInfobulleIdleV1_(info.capRun)+'.',
+          'Au Rebirth, tu auras '+nombreInfobulleIdleV1_(info.capAfterRebirth)+' de Magie.',
+          'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+' de Magie par seconde.',
+          '',
+          'Vitesse de Magie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill)+' ticks. '+
+            (info.nextSpeed!=null
+              ?'Prochain palier de vitesse : '+nombreInfobulleIdleV1_(info.nextSpeed,1)+'.'
+              :'Vitesse maximale : la barre se remplit à chaque tick.'),
+          '',
+          'RACCOURCI : appuie sur T pour récupérer toute la Magie allouée dans toutes les fonctions.'
+        ];
+        return lignes.join('\n');
+      }
+
       function fermerInfobulleEnergieIdleV1_(){
         const el=document.getElementById('sorealIdleEnergieInfobulleV1');
         if(el)el.remove();
       }
 
-      function ouvrirInfobulleEnergieIdleV1_(ancre){
-        const texte=texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+      function ouvrirInfobulleEnergieIdleV1_(ancre,estMagie){
+        const texte=estMagie
+          ?texteInfobulleMagieIdleV1_(infoMagieIdleV1_())
+          :texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
         if(!texte||!ancre)return;
         fermerInfobulleEnergieIdleV1_();
         const el=document.createElement('div');
         el.id='sorealIdleEnergieInfobulleV1';
         el.className='soreal-idle-energie-infobulle-v1';
+        el.dataset.ressource=estMagie?'magic':'energy';
         el.setAttribute('role','tooltip');
         el.textContent=texte;
         document.body.appendChild(el);
@@ -5036,7 +5075,11 @@
 
       function rafraichirInfobulleEnergieIdleV1_(){
         const el=document.getElementById('sorealIdleEnergieInfobulleV1');
-        if(el)el.textContent=texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+        if(!el)return;
+        const estMagie=el.dataset.ressource==='magic';
+        el.textContent=estMagie
+          ?texteInfobulleMagieIdleV1_(infoMagieIdleV1_())
+          :texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
       }
 
       function installerInfobulleEnergieIdleV1_(){
@@ -5045,11 +5088,14 @@
         function panneau(cible){
           return cible&&cible.closest?cible.closest('.soreal-idle-energy-panel-v34'):null;
         }
+        function estPanneauMagie(p){
+          return Boolean(p&&p.classList&&p.classList.contains('soreal-idle-magic-panel-v1'));
+        }
         /* PC : l'infobulle suit le survol du panneau, comme dans NGU. */
         document.addEventListener('mouseover',function(ev){
           if(ev.pointerType==='touch')return;
           const p=panneau(ev.target);
-          if(p&&!panneau(ev.relatedTarget))ouvrirInfobulleEnergieIdleV1_(p);
+          if(p&&!panneau(ev.relatedTarget))ouvrirInfobulleEnergieIdleV1_(p,estPanneauMagie(p));
         });
         document.addEventListener('mouseout',function(ev){
           if(panneau(ev.target)&&!panneau(ev.relatedTarget))fermerInfobulleEnergieIdleV1_();
@@ -5059,7 +5105,7 @@
           const p=panneau(ev.target);
           const ouverte=document.getElementById('sorealIdleEnergieInfobulleV1');
           if(p&&window.matchMedia&&window.matchMedia('(hover:none)').matches){
-            if(ouverte)fermerInfobulleEnergieIdleV1_();else ouvrirInfobulleEnergieIdleV1_(p);
+            if(ouverte)fermerInfobulleEnergieIdleV1_();else ouvrirInfobulleEnergieIdleV1_(p,estPanneauMagie(p));
           }else if(ouverte&&!window.matchMedia('(hover:hover)').matches){
             fermerInfobulleEnergieIdleV1_();
           }

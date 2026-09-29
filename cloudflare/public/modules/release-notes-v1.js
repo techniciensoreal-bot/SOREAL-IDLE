@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.9',
+    courante:'6.0',
     versions:[
+      {
+        version:'6.0',
+        nom:'Magie, les bonnes infos',
+        date:'2026-09-29',
+        points:[
+          'La bulle d’info au survol de la barre Magie affichait par erreur les mêmes chiffres que l’Énergie : elle montre maintenant ses propres chiffres (plafond, production, vitesse).',
+          'Raccourci rappelé au survol : T récupère toute la Magie allouée dans toutes les fonctions.',
+          'Petits ajustements supplémentaires sur l’affichage des ressources.'
+        ]
+      },
       {
         version:'5.9',
         nom:'Les images d’objets retrouvées',
