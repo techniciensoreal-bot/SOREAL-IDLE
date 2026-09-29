@@ -5,17 +5,17 @@
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
 - **Tâche courante** : Broken Time Machine — faire apparaître immédiatement la piste Magic/Gold Multiplier lorsqu’elle se débloque pendant que l’écran est déjà ouvert.
-- **SHA `main` fonctionnel vérifié** : `8a58b2a0df094b2777447492566dc0dcaa85c4b0` (Broken Time Machine : sons Basic Training + ETA live).
+- **SHA `main` fonctionnel vérifié** : `eda80d2f324e3886635ebe99beb215926f6e94ce` (Broken Time Machine : apparition live de la piste Magic après déblocage).
 - **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
-- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #690 ; `idle-time-machine-screen-target-v1.test.mjs` et `idle-time-machine-live-bar-refresh.test.mjs` OK.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #690.
-- **CI** : run #690 (`8a58b2a0df094b2777447492566dc0dcaa85c4b0`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
-- **SHA réellement déployé** : `git:8a58b2a0df094b2777447492566dc0dcaa85c4b0`, version Cloudflare `7d40fa0a-964a-46c4-aef7-61ec65950484`, routage 100 %.
+- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #691 ; `idle-time-machine-live-bar-refresh.test.mjs` et `idle-time-machine-screen-target-v1.test.mjs` OK.
+- **Build** : standalone + `node --check` des modules/UI verts dans le run #691.
+- **CI** : run #691 (`eda80d2f324e3886635ebe99beb215926f6e94ce`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **SHA réellement déployé** : `git:eda80d2f324e3886635ebe99beb215926f6e94ce`, version Cloudflare `09031187-259c-4eb2-9b3c-91124e1babda`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : aucun échec CI/build/déploiement connu. Broken Time Machine réutilise désormais les sons Basic Training pour `+ / − / Max` et affiche un compte à rebours live recalé sur l’ETA serveur réelle.
+- **Dernière anomalie / état notable** : aucun échec CI/build/déploiement connu. Le cas où Magic se débloque pendant que Broken Time Machine est déjà ouvert est corrigé : si l’état serveur est débloqué mais la piste jaune absente du DOM, le menu se reconstruit automatiquement.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : valider la branche `fix/time-machine-magic-live-unlock`, fusionner si verte, puis vérifier CI/build/déploiement/SHA et tester le déblocage Magic sans changer de menu.
+- **Prochaine action exacte** : vérification manuelle en production : rester sur Broken Time Machine au moment du déblocage Magic et confirmer que la piste jaune apparaît sans changer de menu.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
@@ -115,7 +115,10 @@
 - Cause : certaines synchronisations de combat mettent bien `idleEtat` à jour mais retournent via le chemin « sans reflow », donc le DOM courant garde l’ancien rendu avec seulement la piste Energy.
 - Commit `5001610edb77e51ec6dacdbb2459f21a2902c643` : garde `assurerPisteMagicTimeMachineIdleV1_` ; si Blood Magic/Magic est débloquée dans l’état mais que la piste jaune est absente du DOM, le menu courant est reconstruit automatiquement.
 - Commit test `4234b92c8410e2f84e33c3bafc9c1cc000f76f82` : non-régression dans `idle-time-machine-live-bar-refresh.test.mjs`.
-- CI/build/déploiement : en attente.
+- PR #30 fusionnée sur `main`.
+- CI #691 : SUCCESS complet ; tests Time Machine OK.
+- Production : SHA `eda80d2f324e3886635ebe99beb215926f6e94ce`, version Cloudflare `09031187-259c-4eb2-9b3c-91124e1babda`, routage 100 %.
+- Smoke Chromium/Piper : SUCCESS.
 
 ## Snapshot historique (2026-09-21) — narration V205
 
