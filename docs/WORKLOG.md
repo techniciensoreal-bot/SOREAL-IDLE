@@ -4,18 +4,18 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
-- **Tâche courante** : ajouter la barre globale bleue de Magic sous l’Énergie d’entraînement, visible dans tous les menus dès que Magic est débloquée.
-- **SHA `main` fonctionnel vérifié** : `9af02db329509ba67fd0c065fe4cd167a68dbc13` (barre globale bleue Magic sous l’Énergie d’entraînement).
-- **Derniers commits fonctionnels vérifiés** : `a47386ce`, `ba9d1bf9` (Beta 3.5), `0d121534` (APK/TWA + assetlinks), `1eab325f` / `1dfced29` (Beta 3.4), `c5e24c56` (Beta 3.3), `ec912164` (Beta 3.2), `2b9c2659` / `6fc39c45` (Beta 3.1), `4ba4a8bc` (Beta 2.9 Google/pseudo).
-- **Tests** : suite complète `cloudflare/tests/*.test.mjs` verte dans le run #692 ; `idle-persistent-magic-resource-bar.test.mjs` OK.
-- **Build** : standalone + `node --check` des modules/UI verts dans le run #692.
-- **CI** : run #692 (`9af02db329509ba67fd0c065fe4cd167a68dbc13`) SUCCESS : tests, build, vérification dépendances voix, déploiement, vérification SHA, smoke Piper Chromium.
+- **Tâche courante** : rendre le classement accessible à tous les joueurs autorisés de SOREAL IDLE, tout en conservant les réglages d'accès réservés à l'administrateur.
+- **SHA `main` fonctionnel vérifié** : `99879a8074756881f9b1c2b9a086abc938b5d3b9` avant correctif classement public.
+- **Derniers commits effectués sur `fix/public-leaderboard`** : `3b16dee0` (classement public côté serveur + séparation du contrôle admin), `6d59afff` (test de non-régression).
+- **Tests** : test `idle-leaderboard-v1.test.mjs` adapté ; exécution CI complète encore à vérifier.
+- **Build** : pas encore vérifié pour cette branche.
+- **CI** : pas encore exécutée pour le correctif classement public.
 - **SHA réellement déployé** : `git:9af02db329509ba67fd0c065fe4cd167a68dbc13`, version Cloudflare `c40af982-83bd-43d8-ab9e-ab1bb02867a6`, routage 100 %.
 - **Mesures de déploiement #646** : 934 assets détectés, 10 nouveaux/modifiés uploadés ; Worker `Total Upload` 1456,51 KiB (gzip 329,10 KiB), startup 7 ms.
-- **Dernière anomalie / état notable** : aucun échec CI/build/déploiement connu. La ressource Magic dispose maintenant de sa propre barre bleue persistante sous l’Énergie d’entraînement, visible dans tous les menus dès que `resourceInfo.magic` existe.
+- **Dernière anomalie / état notable** : cause identifiée : `classementDebloqueSorealIdle_` était encore limité à `ADMIN_SOREAL_IDLE_EMAIL`, et `obtenirClassementSorealIdle` rejetait les autres joueurs. Le correctif retire ces deux verrous sans ouvrir `reglages` aux non-admins.
 - **Vérifications effectuées** : `main` réel, protection/rulesets, 50 derniers runs, workflow réel, logs de production, modules Google/session/profil, PWA/TWA/assetlinks, contrat inter-apps, architecture Durable Object/SQLite, tests navigateur, documentation NGU et constantes historiques.
 - **Problèmes ouverts prioritaires** : `main` non protégée et aucun ruleset ; pas de staging ; smoke navigateur après déploiement et pas de rollback automatique ; authentification Google à durcir avant activation (identité encore indexée par e-mail au lieu de `sub`, session Bearer 14 jours en `localStorage`, aucun rate-limit et refresh JWKS forcé sur `kid` inconnu) ; Durable Object global unique + reconstruction de tout `idle_catalog` à chaque opération ; contrat JSON sans schémas args/réponses ; aucun E2E gameplay/Google complet ; constantes NGU historiques encore actives et non sourcées ; `WIKI-COVERAGE.md`, `AGENTS.md` et README partiellement obsolètes ; APK signé non reconstruit/vérifié par la CI.
-- **Prochaine action exacte** : vérification manuelle en production : confirmer que la barre bleue Magic apparaît sous l’Énergie d’entraînement dans plusieurs menus et que disponible/cap se mettent à jour après allocation/récupération.
+- **Prochaine action exacte** : ouvrir une PR, exécuter/valider la CI complète, fusionner sur `main`, puis vérifier le SHA réellement déployé en production.
 
 ### Correctif Time Machine livré — 2026-09-28
 - `main` de départ vérifié : `331cd59535bf0c492a0986053c419a9ee24bd01e`.
