@@ -20992,7 +20992,15 @@ function pageAventureIdleV28_(j){
         appelerProgressionIdleCloudflareV1_:appelerProgressionIdleCloudflareV1_,
         patchZoneAdventureSansReflowIdleV1_:patchZoneAdventureSansReflowIdleV1_,
         idleRareteClasseObjetAdventureIdleV1_:idleRareteClasseObjetAdventureIdleV1_,
-        jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_
+        jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_,
+        /*
+         * Norman (2026-09-29) : « j'ai l'impression que la réactivité n'est pas aussi bonne que dans
+         * basic training. » Exposé pour qu'Augmentation/Blood Magic puissent rafraîchir la barre
+         * d'Énergie/Magie principale sans passer par un rendreIdleEtat_ complet (qui régénère TOUT
+         * le menu affiché à chaque clic +/-/Cap -- beaucoup plus lourd qu'un patch DOM ciblé, comme
+         * ajusterBasicTrainingIdleV120_ le fait déjà).
+         */
+        rafraichirEnergieEtBoutonsIdleV9_:rafraichirEnergieEtBoutonsIdleV9_
       };
 
       function pageSystemeMetaIdleV130_(j,id,titre){

@@ -56,7 +56,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   );
 
   // Même classe de bouton que Basic Training (taille identique, pas une redéfinition parallèle).
-  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "les boutons +/−/Max d'Augmentation utilisent la même classe CSS que Basic Training");
+  assert.match(meta, /class="soreal-idle-bt-actions-v120 compact-v1"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "les boutons +/−/Max d'Augmentation utilisent la même famille de style que Basic Training, en taille compacte (Norman, 2026-09-29 : boutons énormes)");
 
   // Le chiffre d'énergie allouée gonfle désormais (alloc-pop-v1.js), comme Basic Training.
   assert.match(meta, /<span id="sorealIdleAugAllocV1_'\+window\.__SOREAL_IDLE_META_HOST_V130__\.idleHtml_\(def\.id\)\+'_'\+\(upgrade\?'upgrade':'main'\)\+'" class="soreal-idle-bt-allocation-v120">/, "le chiffre d'énergie allouée doit porter la classe d'animation de Basic Training");
@@ -68,9 +68,17 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   const debut = meta.indexOf("function ajusterTimeMachineIdleV1_(ressource,mode){");
   const fin = meta.indexOf("window.__ajusterTimeMachineIdleV1__=ajusterTimeMachineIdleV1_;", debut);
   const handler = meta.slice(debut, fin);
-  assert.match(handler, /H\.jouerEffetAudioIdleV199_\(/, "le son btPlus/btMinus/btCap doit toujours être joué");
+  assert.match(handler, /H\.jouerEffetAudioIdleV199_\(/, "un son doit toujours être joué au clic (2026-09-29 : tmPlus/tmMinus/tmCap, un thème horloge propre, plus les sons Basic Training)");
   assert.match(handler, /s\.state\.allocation\[ressource\]=value/, "mise à jour locale IMMÉDIATE de l'allocation (optimiste), comme ajusterAugmentIdleV1_");
-  assert.match(handler, /H\.rendreIdleEtat_\(\{ok:true,joueur:j\}\)/, "un re-rendu doit avoir lieu AVANT l'envoi réseau, jamais après seulement");
+  /*
+   * 2026-09-29 (suite, Norman : « j'ai l'impression que la réactivité n'est pas aussi bonne que dans
+   * basic training ») : un rendreIdleEtat_ complet à chaque clic a été remplacé par un patch DOM
+   * ciblé (le chiffre alloué de la piste + la barre d'Énergie/Magie principale), le même correctif
+   * de fond qu'Augmentation/Blood Magic ci-dessous.
+   */
+  assert.ok(!handler.includes("H.rendreIdleEtat_({ok:true,joueur:j})"), "plus de rendu complet à chaque clic");
+  assert.match(handler, /const allocSpan=document\.getElementById\('sorealIdleTmAllocV1_'\+cleAlloc\);/, "patch ciblé du chiffre alloué de CETTE piste");
+  assert.match(handler, /if\(typeof H\.rafraichirEnergieEtBoutonsIdleV9_==='function'\)H\.rafraichirEnergieEtBoutonsIdleV9_\(\);/, "la barre d'Énergie/Magie principale est rafraîchie via le même helper que Basic Training");
   // Le visuel .soreal-idle-tm-* n'est pas touché : toujours ses propres classes, jamais celles de Basic Training.
   assert.ok(meta.includes("soreal-idle-tm-piste-v1"), "le visuel Time Machine reste inchangé");
 
@@ -104,20 +112,28 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
     "rangée Idle: 1/2/1/4/Tout retirer"
   );
   assert.ok(
-    meta.includes("__ajusterRituelBloodMagicIdleV1__(\\''+H.idleHtml_(def.id)+'\\',\\'plus\\')"),
+    meta.includes("ajusterRituelBloodMagicIdleV1__(\\''+idHtml+'\\',\\'plus\\')"),
     "chaque rituel doit avoir son propre bouton +"
   );
 }
 
-// --- 6. Blood Magic : câblage optimiste réel (mutation locale + rendreIdleEtat_ AVANT le réseau), comme les autres écrans corrigés. ---
+// --- 6. Blood Magic : câblage optimiste réel (mutation locale + patch DOM ciblé AVANT le réseau), comme les autres écrans corrigés. ---
 {
   const debut = meta.indexOf("function ajusterBloodMagicIdleV1_(mode){");
   const fin = meta.indexOf("window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;", debut);
   const handler = meta.slice(debut, fin);
   assert.match(handler, /s\.state\.allocation\.magic=value/);
   assert.match(handler, /ressourceMagie\.current=Math\.max\(0,idleAvant-delta\)/, "la Magic libre doit être décrémentée localement, comme l'énergie de Basic Training");
-  assert.match(handler, /H\.rendreIdleEtat_\(\{ok:true,joueur:j\}\)/);
+  // 2026-09-29 (suite) : même correctif de réactivité qu'Augmentation/Time Machine -- patch ciblé, plus de rendu complet.
+  assert.ok(!handler.includes("H.rendreIdleEtat_({ok:true,joueur:j})"), "plus de rendu complet à chaque clic");
+  assert.match(handler, /rafraichirAllocationBloodMagicIdleV1_\(value\);/, "patch ciblé du chiffre alloué + de la barre principale");
   assert.match(handler, /window\.__actionMetaV47__\(\{action:'allocate',system:'bloodMagic',resource:'magic',value:value\}\)/);
+
+  const debutPatch = meta.indexOf("function rafraichirAllocationBloodMagicIdleV1_(value){");
+  const finPatch = meta.indexOf("function ajusterBloodMagicIdleV1_(mode){", debutPatch);
+  const patch = meta.slice(debutPatch, finPatch);
+  assert.match(patch, /document\.getElementById\('sorealIdleBloodAllocV1'\)/);
+  assert.match(patch, /if\(typeof H\.rafraichirEnergieEtBoutonsIdleV9_==='function'\)H\.rafraichirEnergieEtBoutonsIdleV9_\(\);/);
 }
 
 // --- 7. Blood Magic : le rituel actif a désormais une vraie durée avant complétion (côté serveur, formule d'advanceBloodMagic). ---

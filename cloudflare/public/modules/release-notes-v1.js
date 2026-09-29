@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.8',
+    courante:'6.9',
     versions:[
+      {
+        version:'6.9',
+        nom:'Augmentations et Blood Magic, réglages fins',
+        date:'2026-09-29',
+        points:[
+          'Les boutons d’Augmentations et de Blood Magic sont redimensionnés : même style que Basic Training, mais adapté à un écran avec beaucoup de cartes.',
+          'Ces deux écrans répondent maintenant aussi vite que Basic Training.',
+          'Le + / − d’un autre écran d’allocation et de Blood Magic ont chacun leur propre son, dans l’esprit de leur écran.',
+          'Blood Magic a un nouveau décor plus sombre et évocateur.'
+        ]
+      },
       {
         version:'6.8',
         nom:'Statistiques du Cube, plus lisibles',

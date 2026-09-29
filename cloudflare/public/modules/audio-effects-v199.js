@@ -30,6 +30,12 @@
     btPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     btMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
+    tmPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
+    tmMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
+    tmCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
+    bloodPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
+    bloodMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
+    bloodCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
     menuUnlock:{group:"menu-unlock",priority:85,maxAgeMs:3000},
     purchase:{group:"purchase",priority:30,maxAgeMs:900},
     purchaseGold:{group:"purchase",priority:30,maxAgeMs:1000},
@@ -966,6 +972,62 @@
     });
   }
 
+  /*
+   * Norman (2026-09-29) : « Je veux des sons différents pour le + et - de Time machine et pareil
+   * pour Blood magic. Ca doit être en rapport avec le theme du menu. » Réutilisent le même moteur
+   * (tonal_/bruit_) que Basic Training, mais avec un timbre propre à chaque thème plutôt que le
+   * même son partout.
+   *
+   * Time Machine : un « tic » mécanique d'horloge (clic filtré en bande étroite, comme un rouage),
+   * qui avance ou recule ; Cap = deux tics rapprochés (rattrapage) puis un carillon de cloche.
+   */
+  function tmPlus_(){
+    return jouerWebAudio_(180,function(c){
+      bruit_(c,{duration:.03,volume:.052,filterType:"bandpass",frequency:2600,frequencyEnd:2200,decay:1.6,q:6});
+      tonal_(c,{type:"square",from:880,to:880,duration:.03,volume:.016,delay:.002});
+    });
+  }
+  function tmMoins_(){
+    return jouerWebAudio_(180,function(c){
+      bruit_(c,{duration:.03,volume:.052,filterType:"bandpass",frequency:1900,frequencyEnd:1500,decay:1.6,q:6});
+      tonal_(c,{type:"square",from:520,to:520,duration:.03,volume:.016,delay:.002});
+    });
+  }
+  function tmCap_(){
+    return jouerWebAudio_(520,function(c){
+      bruit_(c,{duration:.025,volume:.046,filterType:"bandpass",frequency:2200,frequencyEnd:2200,decay:1.8,q:6});
+      bruit_(c,{duration:.025,volume:.046,filterType:"bandpass",frequency:2200,frequencyEnd:2200,decay:1.8,q:6,delay:.09});
+      tonal_(c,{type:"sine",from:1568,to:1568,duration:.42,volume:.040,delay:.16});
+      tonal_(c,{type:"sine",from:3136,to:3136,duration:.30,volume:.015,delay:.18});
+    });
+  }
+
+  /*
+   * Blood Magic : un « pouls » grave et sourd (sinusoïde basse + bruit passe-bas étouffé), jamais
+   * brillant comme Basic Training -- + monte légèrement, − redescend ; Cap = une montée plus large
+   * façon rituel qui s'accomplit, toujours grave, jamais un simple « ding » clair.
+   */
+  function bloodPlus_(){
+    return jouerWebAudio_(220,function(c){
+      tonal_(c,{type:"sine",from:110,to:150,duration:.14,volume:.052});
+      bruit_(c,{duration:.10,volume:.020,delay:.02,filterType:"lowpass",frequency:500,frequencyEnd:250,decay:2.6});
+    });
+  }
+  function bloodMoins_(){
+    return jouerWebAudio_(220,function(c){
+      tonal_(c,{type:"sine",from:150,to:95,duration:.16,volume:.050});
+      bruit_(c,{duration:.10,volume:.018,delay:.03,filterType:"lowpass",frequency:400,frequencyEnd:180,decay:2.8});
+    });
+  }
+  function bloodCap_(){
+    return jouerWebAudio_(560,function(c){
+      tonal_(c,{type:"sawtooth",from:70,to:130,duration:.30,volume:.036});
+      tonal_(c,{type:"sine",from:130,to:130,duration:.34,volume:.028,delay:.22});
+      bruit_(c,{duration:.30,volume:.030,delay:0,filterType:"lowpass",frequency:700,frequencyEnd:200,decay:2.2});
+      bruit_(c,{duration:.12,volume:.015,delay:.26,filterType:"lowpass",frequency:300,frequencyEnd:120,decay:2.6});
+    });
+  }
+
   /* Achat refusé (ressources insuffisantes) : deux petits « buzz » graves qui redescendent, nettement négatif. */
   function achatRefuse_(){
     return jouerWebAudio_(260,function(c){
@@ -1280,6 +1342,12 @@
     btPlus:btPlus_,
     btMinus:btMoins_,
     btCap:btCap_,
+    tmPlus:tmPlus_,
+    tmMinus:tmMoins_,
+    tmCap:tmCap_,
+    bloodPlus:bloodPlus_,
+    bloodMinus:bloodMoins_,
+    bloodCap:bloodCap_,
     menuUnlock:menuDebloque_,
     purchase:caisse_,
     purchaseGold:orJouer_,
@@ -1438,6 +1506,12 @@
     btPlus:function(){return demander_("btPlus");},
     btMinus:function(){return demander_("btMinus");},
     btCap:function(){return demander_("btCap");},
+    tmPlus:function(){return demander_("tmPlus");},
+    tmMinus:function(){return demander_("tmMinus");},
+    tmCap:function(){return demander_("tmCap");},
+    bloodPlus:function(){return demander_("bloodPlus");},
+    bloodMinus:function(){return demander_("bloodMinus");},
+    bloodCap:function(){return demander_("bloodCap");},
     menuUnlock:function(){return demander_("menuUnlock");},
     purchase:function(){return demander_("purchase");},
     purchaseGold:function(){return demander_("purchaseGold");},

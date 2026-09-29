@@ -63,7 +63,7 @@ const alloue = (s, pair = "scissors", upgrade = false) => s.systems.augmentation
 const module_ = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const page = module_.slice(module_.indexOf("function pageAugmentationsIdleV48_(j)"), module_.indexOf("function pageTimeMachineIdleV48_(j)"));
 assert.ok(page.includes("[['plus','+'],['moins','−'],['max','Max']]"), "+ avant − avant Max, comme Basic Training et Time Machine (2026-09-27)");
-assert.ok(page.includes('class="soreal-idle-bt-actions-v120"'), "réutilise le style +vert/−rouge/Maxbleu de Basic Training, pas le bouton générique bleu");
+assert.ok(page.includes('class="soreal-idle-bt-actions-v120 compact-v1"'), "réutilise le style +vert/−rouge/Maxbleu de Basic Training (en taille compacte, répété une fois par carte), pas le bouton générique bleu");
 assert.ok(page.includes("window.__ajusterAugmentIdleV1__("));
 assert.ok(!page.includes("['0%','25%','50%','100%']"), "les pourcentages du Cap ont disparu des Augmentations");
 assert.match(page, /id="sorealIdleAugInputV1"/);
@@ -74,8 +74,17 @@ assert.match(module_, /const cible=mode==='plus'\s*\?current\+Math\.min\(pas,idl
 // jour optimiste locale (avant la réponse serveur) et même famille de sons (btPlus/btMinus/btCap) que ajusterBasicTrainingIdleV120_.
 assert.match(module_, /const son=mode==='plus'\?'btPlus':mode==='moins'\?'btMinus':'btCap';/);
 assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]\(\);/);
-assert.match(module_, /H\.rendreIdleEtat_\(\{ok:true,joueur:j\}\);/);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609276"));
+/*
+ * 2026-09-29 (Norman : « j'ai l'impression que la réactivité n'est pas aussi bonne que dans basic
+ * training. Le jeu m'a l'air plus lent. ») : un rendreIdleEtat_ complet à chaque clic régénère TOUT
+ * le menu affiché -- remplacé par un patch DOM ciblé (rafraichirAllocationAugmentIdleV1_), comme
+ * Basic Training le fait déjà depuis le début. La confirmation serveur (actionMetaNoyauIdleV130_)
+ * continue de redessiner tout dès la réponse, donc aucune perte de cohérence.
+ */
+assert.match(module_, /function rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\)\{/);
+assert.match(module_, /rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\);/);
+assert.ok(!module_.includes("H.rendreIdleEtat_({ok:true,joueur:j});"), "plus de rendu complet à chaque clic +/-/Cap");
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202609277"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 
@@ -84,9 +93,13 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   const vm = await import("node:vm");
   const sent = [];
   const rendus = [];
+  const patchsBarre = [];
   const sons = [];
   let etat = null;
-  const els = {};
+  const els = {
+    sorealIdleAugAllocV1_scissors_main: { textContent: "" },
+    sorealIdleAugEnergieLibreV1: { textContent: "" }
+  };
   const H = {
     idleNombre_: (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; },
     idleEntier_: (v) => Math.floor(Number(v) || 0),
@@ -94,7 +107,9 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
     formatGrandNombreIdleV70_: (v) => String(v),
     entetePageIdleV28_: (t) => "<h1>" + t + "</h1>",
     getIdleEtat: () => etat,
-    rendreIdleEtat_: (r) => rendus.push(r)
+    rendreIdleEtat_: (r) => rendus.push(r),
+    /* 2026-09-29 : remplace rendreIdleEtat_ pour le patch ciblé -- voir rafraichirAllocationAugmentIdleV1_. */
+    rafraichirEnergieEtBoutonsIdleV9_: () => patchsBarre.push(true)
   };
   const audio = {
     btPlus: () => sons.push("btPlus"),
@@ -115,7 +130,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   });
   etat = fabriquerEtat();
   const html = window.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_(etat, "augmentations", "Augmentations");
-  assert.match(html, /Énergie libre : <b>250<\/b>/);
+  assert.match(html, /Énergie libre : <b id="sorealIdleAugEnergieLibreV1">250<\/b>/);
   assert.equal((html.match(/__ajusterAugmentIdleV1__/g) || []).length, 6, "3 boutons pour l'Augment et 3 pour l'Upgrade");
   assert.ok(!html.includes("25%") && !html.includes("50%"));
 
@@ -126,7 +141,10 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   assert.equal(etat.systemes.systems[0].state.data.pairs.scissors.energy, 140, "la piste est mise à jour localement, sans attendre le serveur");
   assert.equal(etat.energie, 210, "l'énergie idle restante baisse immédiatement (250 − 40)");
   assert.deepEqual(sons, ["btPlus"], "même son que le + de Basic Training");
-  assert.equal(rendus.length, 1, "un rendu immédiat, avant la réponse serveur");
+  assert.equal(rendus.length, 0, "plus de rendu complet du tout sur ce chemin (2026-09-29, réactivité)");
+  assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "140 ⚡", "le chiffre alloué est patché directement, sans rendu complet");
+  assert.equal(els.sorealIdleAugEnergieLibreV1.textContent, "210", "l'énergie libre affichée est patchée directement aussi");
+  assert.equal(patchsBarre.length, 1, "la barre d'Énergie principale est rafraîchie via le même patch ciblé que Basic Training");
 
   // « − » : même chose, son btMinus, part de la valeur déjà mise à jour localement (140).
   window.__ajusterAugmentIdleV1__("scissors", false, "moins");
@@ -134,18 +152,23 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   assert.equal(etat.systemes.systems[0].state.data.pairs.scissors.energy, 100);
   assert.equal(etat.energie, 250, "l'énergie rendue est restituée immédiatement");
   assert.deepEqual(sons, ["btPlus", "btMinus"]);
+  assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "100 ⚡");
+  assert.equal(els.sorealIdleAugEnergieLibreV1.textContent, "250");
+  assert.equal(patchsBarre.length, 2);
 
   // « Max » : place toute l'énergie idle actuellement connue du client dans la piste (le serveur reste l'arbitre final).
   window.__ajusterAugmentIdleV1__("scissors", false, "max");
   assert.equal(sent.at(-1).value, 350, "100 + 250 (toute l'énergie idle libre)");
   assert.equal(etat.energie, 0);
   assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "Max joue le même son que le Cap de Basic Training");
+  assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "350 ⚡");
+  assert.equal(rendus.length, 0, "toujours aucun rendu complet, même pour Cap/Max");
 
-  // Aucune énergie idle restante : un « + » sur l'Upgrade ne change rien, donc aucun son ni rendu supplémentaire (mais l'action part quand même).
-  const rendusAvant = rendus.length;
+  // Aucune énergie idle restante : un « + » sur l'Upgrade ne change rien, donc aucun son ni patch supplémentaire (mais l'action part quand même).
+  const patchsAvant = patchsBarre.length;
   window.__ajusterAugmentIdleV1__("scissors", true, "plus");
   assert.equal(sent.at(-1).value, 0, "plus d'énergie idle libre à placer");
-  assert.equal(rendus.length, rendusAvant, "aucun rendu optimiste quand rien ne change réellement");
+  assert.equal(patchsBarre.length, patchsAvant, "aucun patch optimiste quand rien ne change réellement");
   assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "aucun son supplémentaire quand rien ne change réellement");
 
   // Input invalide : on garde le dernier montant valide.

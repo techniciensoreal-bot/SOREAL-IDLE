@@ -7105,6 +7105,26 @@ html,body{overflow-x:hidden}
           .soreal-idle-bt-actions-v120 button:hover:not(:disabled){filter:brightness(1.18)}
           .soreal-idle-bt-actions-v120 button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 
+          /*
+           * Norman (2026-09-29) : « Les boutons dans Augmentation et dans blood magic sont énormes.
+           * Je les voulais comme dans basic training. » Même couleurs/relief/retour au toucher que
+           * Basic Training (rien ne change ci-dessus, qui reste la référence sur SA page, avec très
+           * peu de lignes affichées à la fois) -- seule la TAILLE est réduite ici, pour les écrans où
+           * ce même trio +/-/Cap se répète une fois par carte (jusqu'à une dizaine d'Augments, 8
+           * rituels) : à taille pleine, répété autant de fois dans un espace plus étroit, il écrase
+           * le reste de la carte au lieu de simplement "montrer où ça se passe".
+           */
+          .soreal-idle-bt-actions-v120.compact-v1{gap:5px}
+          .soreal-idle-bt-actions-v120.compact-v1 button{
+            min-height:30px;
+            font-size:15px;
+            border-radius:8px;
+            border-width:1px;
+            box-shadow:0 2px 0 rgba(0,0,0,.4);
+          }
+          .soreal-idle-bt-actions-v120.compact-v1 button:nth-child(3){font-size:12px}
+          .soreal-idle-bt-actions-v120.compact-v1 button:active:not(:disabled){transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+
           .soreal-idle-bestiary-image-v120{
             height:150px;
             margin:-3px -3px 8px;
@@ -7493,6 +7513,66 @@ html,body{overflow-x:hidden}
   .soreal-idle-tm-stats-grille-v1{
     grid-template-columns:1fr;
   }
+}
+
+/*
+ * Blood Magic (Norman, 2026-09-29) : « Décore la page blood magic pour qu'elle ait l'air plus
+ * sanglante sans pour autant qu'elle soit toute rouge. » Palette lie-de-vin très sombre et
+ * désaturée (jamais un rouge vif ni un aplat) mélangée au thème sombre existant : un fond en
+ * dégradé qui évoque une pièce mal éclairée plutôt qu'une mare de sang, un liseré grenat en haut
+ * de chaque carte, et de discrètes « gouttes » suspendues au sommet des cartes de rituel -- assez
+ * subtiles pour ne jamais gêner la lecture des chiffres.
+ */
+.soreal-idle-bloodmagic-v1{
+  position:relative;
+  padding:14px 12px 6px;
+  margin:0 -12px;
+  border-radius:16px;
+  background:
+    radial-gradient(ellipse 140% 60% at 50% 0%,rgba(107,31,43,.22),transparent 65%),
+    linear-gradient(180deg,#1c0d10 0%,#130a0d 55%,#0d0708 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+.soreal-idle-bloodmagic-v1 h1,
+.soreal-idle-bloodmagic-v1 h3{
+  color:#f2dfe2;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.soreal-idle-bloodmagic-v1 h3{
+  border-bottom:1px solid rgba(139,38,53,.45);
+  padding-bottom:6px;
+}
+.soreal-idle-bloodmagic-v1 .soreal-idle-section-v8{
+  position:relative;
+  background:linear-gradient(165deg,#221116 0%,#1a0e11 100%);
+  border:1px solid rgba(139,38,53,.28);
+  border-top:2px solid #6b1f2b;
+  overflow:hidden;
+}
+/* Deux gouttes discrètes, jamais identiques, suspendues au liseré du haut de carte. */
+.soreal-idle-bloodmagic-v1 .soreal-idle-section-v8::before,
+.soreal-idle-bloodmagic-v1 .soreal-idle-section-v8::after{
+  content:"";
+  position:absolute;
+  top:-1px;
+  width:5px;
+  height:11px;
+  background:#6b1f2b;
+  border-radius:0 0 50% 50%;
+  opacity:.55;
+  pointer-events:none;
+}
+.soreal-idle-bloodmagic-v1 .soreal-idle-section-v8::before{left:22px;height:9px}
+.soreal-idle-bloodmagic-v1 .soreal-idle-section-v8::after{left:46px;height:14px}
+.soreal-idle-bloodmagic-v1 .soreal-idle-summary-v28{
+  background:linear-gradient(165deg,#221116,#1a0e11);
+  border:1px solid rgba(139,38,53,.28);
+}
+.soreal-idle-bloodmagic-v1 .soreal-idle-bt-toolbar-v120{
+  background:rgba(43,10,16,.35);
+  border:1px solid rgba(139,38,53,.30);
+  border-radius:14px;
+  padding:10px;
 }
 
 /* 2026-09-25 : le compteur « Généré : n / max · ⏱ Pleine dans … » est plus long ; il passe à la ligne proprement sur petit écran. */
