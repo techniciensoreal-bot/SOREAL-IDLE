@@ -1604,6 +1604,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           :mode==='moins'
             ?Math.max(0,current-pas)
             :Math.max(current,allocationMaxMetaIdleV48_(j,'timeMachine',ressource));
+        if(value!==current&&H.jouerEffetAudioIdleV199_){
+          H.jouerEffetAudioIdleV199_(
+            mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap'
+          );
+        }
         window.__actionMetaV47__({action:'allocate',system:'timeMachine',resource:ressource,value:value});
       }
       window.__ajusterTimeMachineIdleV1__=ajusterTimeMachineIdleV1_;
@@ -1623,14 +1628,30 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
         const pct=function(mult){return Number(H.idleNombre_(mult)*100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
         const alloue=function(r){return Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation[r]));};
-        const piste=function(cle,titre,ressource,libelleAlloc,niveau,fill,cible,verrou){
+        const formaterEta=function(secondes){
+          const total=Math.max(0,Math.ceil(H.idleNombre_(secondes)));
+          if(total<=0)return '0 s';
+          const h=Math.floor(total/3600);
+          const m=Math.floor((total%3600)/60);
+          const s=total%60;
+          if(h>0)return h+' h '+String(m).padStart(2,'0')+' min '+String(s).padStart(2,'0')+' s';
+          if(m>0)return m+' min '+String(s).padStart(2,'0')+' s';
+          return s+' s';
+        };
+        const piste=function(cle,titre,ressource,libelleAlloc,niveau,fill,cible,verrou,etaSecondes){
           const largeur=Math.max(0,Math.min(100,H.idleNombre_(fill)*100));
+          const etaValide=Number.isFinite(Number(etaSecondes));
           return '<section class="soreal-idle-tm-piste-v1 '+cle+(verrou?' locked':'')+'">'+
             '<div class="soreal-idle-tm-titre-v1">'+H.idleHtml_(titre)+'</div>'+
             (verrou
               ?'<div class="soreal-idle-tm-verrou-v1">🔒 Magic se débloque avec Blood Magic au boss 37.</div>'
               :'<div class="soreal-idle-tm-ligne-v1">'+
-                '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
+                '<div class="soreal-idle-tm-barre-wrap-v1">'+
+                  '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
+                  '<div class="soreal-idle-tm-eta-v1" data-tm-eta-track="'+cle+'" data-tm-eta-seconds="'+(etaValide?Math.max(0,H.idleNombre_(etaSecondes)):'')+'">'+
+                    (etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre')+
+                  '</div>'+
+                '</div>'+
                 '<div class="soreal-idle-tm-boutons-v1">'+
                   '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'plus\')">+</button>'+
                   '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'moins\')">−</button>'+
@@ -1646,8 +1667,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return '<div class="soreal-idle-tm-v1">'+
           '<header class="soreal-idle-tm-entete-v1"><h1>Broken Time Machine</h1><p>(Loot that money again and again and again and...)</p></header>'+
           '<div class="soreal-idle-tm-input-v1"><label for="sorealIdleTmInputV1">Input</label><input id="sorealIdleTmInputV1" type="text" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"><span>+ / − placent ou retirent cette valeur ; Max place toute la ressource libre.</span></div>'+
-          piste('vitesse','Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false)+
-          piste('or','Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,!magicOk)+
+          piste('vitesse','Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds)+
+          piste('or','Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,!magicOk,vue.goldEtaSeconds)+
           '<section class="soreal-idle-tm-stats-v1">'+
             '<div class="soreal-idle-tm-stats-grille-v1">'+
               '<div>'+
