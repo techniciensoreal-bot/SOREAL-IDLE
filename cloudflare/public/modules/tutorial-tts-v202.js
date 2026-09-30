@@ -211,18 +211,44 @@
    * le son sans attendre le réseau (Norman, 2026-09-25 : « quand on fait suivant, ça met du temps avant que le son soit joué »).
    */
   var blocsFichiers={};
+  /*
+   * Voix générées depuis le menu Admin (2026-09-30) : stockées sur R2 (route /api/idle/media/voice?h=<empreinte>), PRIORITAIRES sur le
+   * fichier statique de même empreinte (voix réaliste générée sur le PC de l'administrateur, contre Piper pour les fichiers du dossier
+   * voice/). Seules les empreintes déclarées par l'histoire jouée (enregistrerVoixDynamiques) sont demandées à R2 : aucune requête
+   * inutile pour les autres textes du jeu. Repli : fichier statique, puis Piper.
+   */
+  var voixDynamiques={};
+  function enregistrerVoixDynamiques_(liste){
+    (Array.isArray(liste)?liste:[]).forEach(function(h){
+      h=String(h||'');
+      if(!/^[0-9a-f]{14}$/.test(h))return;
+      voixDynamiques[h]=true;
+      delete blocsFichiers[h];
+    });
+  }
   function chargerBlocFichier_(text){
     var hash=hashBloc_(text);
     if(blocsFichiers[hash])return blocsFichiers[hash];
-    blocsFichiers[hash]=chargerManifesteVoix_().then(function(set){
-      if(!set[hash])return null;
-      return fetch(VOICE_DIR+hash+'.m4a').then(function(r){
+    var statique=function(){
+      return chargerManifesteVoix_().then(function(set){
+        if(!set[hash])return null;
+        return fetch(VOICE_DIR+hash+'.m4a').then(function(r){
+          if(!r||!r.ok)return null;
+          return r.blob();
+        }).then(function(blob){
+          return blob&&blob.size?blob:null;
+        });
+      });
+    };
+    var source=voixDynamiques[hash]
+      ?fetch('api/idle/media/voice?h='+hash).then(function(r){
         if(!r||!r.ok)return null;
         return r.blob();
       }).then(function(blob){
         return blob&&blob.size?blob:null;
-      });
-    }).catch(function(){delete blocsFichiers[hash];return null;});
+      }).catch(function(){return null;}).then(function(blob){return blob||statique();})
+      :statique();
+    blocsFichiers[hash]=source.catch(function(){delete blocsFichiers[hash];return null;});
     return blocsFichiers[hash];
   }
 
@@ -1042,6 +1068,7 @@
     read:function(){lastFingerprint='';return readVisible_(true);},
     readTarget:lireCible_,
     prechauffer:prechauffer_,
+    enregistrerVoixDynamiques:enregistrerVoixDynamiques_,
     /*
      * onDone (2026-09-27, popup d'histoire) : optionnel, invoqué exactement une fois quand
      * CETTE lecture se termine (succès, échec ou voix indisponible) -- voir narrate_.

@@ -14,7 +14,8 @@ const IDLE_MENUS_V1 = new Function(bloc + "return IDLE_MENUS_V1;")();
 const ids = IDLE_MENUS_V1.map((m) => m.id);
 
 // Menus : Shop remplace EXP Shop + Boutique AP ; Classement juste avant Settings
-assert.deepEqual(ids.slice(-5), ["shop", "classement", "bestiaire", "chat", "parametres"]);
+assert.deepEqual(ids.filter((id) => id !== "admin").slice(-5), ["shop", "classement", "bestiaire", "chat", "parametres"]); /* « admin » (2026-09-30) : visible seulement de l'administrateur, tout à la fin */
+assert.equal(ids[ids.length - 1], "admin");
 assert.ok(!ids.includes("spendExp") && !ids.includes("sellout"));
 
 // Ordre : les identifiants enregistrés d'abord, les menus absents de l'ordre à leur place par défaut (après leur prédécesseur)

@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.2',
+    courante:'8.3',
     versions:[
+      {
+        version:'8.3',
+        nom:'Les scènes se racontent autrement',
+        date:'2026-09-30',
+        points:[
+          'Les scènes spéciales peuvent maintenant être créées et modifiées en dehors du jeu par son administrateur : images, textes, et boss qui déclenche chaque scène.',
+          'Une scène se joue toujours une seule fois, à la mort du boss choisi, avec une voix qui passe à l’image suivante dès que le texte est lu.',
+          'Les deux premières scènes sont conservées telles quelles : tu ne les reverras pas si tu les as déjà vues.',
+          'Les scènes ne se déclenchent plus qu’à la mort d’un boss de Fight Boss.'
+        ]
+      },
       {
         version:'8.2',
         nom:'Le chaudron prend son temps',

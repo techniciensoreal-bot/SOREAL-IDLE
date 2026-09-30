@@ -9741,6 +9741,9 @@
 
         if(id==='setsZones')return false;
 
+        /* Admin : jamais visible d'un autre joueur (le serveur refuse de toute façon chaque opération d'administration). */
+        if(id==='admin')return estAdminSorealIdle_();
+
         /* Chat : présent seulement si SOREAL IDLE est ouvert dans APP/TV (la page parente répond) — sinon aucun bouton. */
         if(id==='chat'){
           return Boolean(window.__SOREAL_IDLE_CHAT_V1__&&window.__SOREAL_IDLE_CHAT_V1__.disponible());
@@ -10161,7 +10164,7 @@
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-119 */
-      const IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout','shop'];
+      const IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout','shop','admin'];
 
       function idleMenuEstAcquisV1_(j,menuId){
         return IDLE_MENUS_SANS_CLIGNOTEMENT_V1.indexOf(menuId)!==-1||
@@ -10710,16 +10713,10 @@
         textes.push(texteVoixNouveauteIdleV1_(infoMoneyPitIdleV1_()));
         textes.push(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);
         /*
-         * Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire » (scène boss 18) --
-         * ces 5 textes n'étaient dans AUCUNE liste couverte par voice-generate.mjs, donc toujours un repli
-         * Piper (synthèse en direct, lente) au lieu d'un fichier pré-généré.
+         * Histoires plein écran (2026-09-30) : elles sont désormais créées dans le menu Admin (base serveur), plus dans le code ; leurs
+         * voix sont générées depuis ce menu (bouton « Générer les voix », voix réaliste sur le PC de l'administrateur) et stockées sur
+         * R2 -- elles ne font donc plus partie de cette couverture statique.
          */
-        if(window.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes==='function'){
-          window.__SOREAL_IDLE_STORY_POPUP_V1__.etapes().forEach(function(etape){textes.push(etape.texte);});
-        }
-        if(window.__SOREAL_IDLE_STORY_POPUP_2_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_2_V1__.etapes==='function'){
-          window.__SOREAL_IDLE_STORY_POPUP_2_V1__.etapes().forEach(function(etape){textes.push(etape.texte);});
-        }
         return textes;
       };
 
@@ -11048,7 +11045,7 @@
       function annoncerNouveauxMenusIdleV1_(j){
         if(!j||typeof window.__sorealFadeNoticeV1__!=='function')return;
         const dispo=IDLE_MENUS_V1.filter(function(m){
-          return m&&m.id&&menuDisponibleIdleV28_(m.id,j);
+          return m&&m.id&&m.id!=='admin'&&menuDisponibleIdleV28_(m.id,j);
         });
         if(!dispo.length)return;
         if(!idleVuConnuV1_(j,'menus-annonces-init')){
@@ -11150,7 +11147,8 @@
         classement:'#f59e0b',
         chat:'#10b981',
         setsZones:'#0d9488',
-        parametres:'#6b7280'
+        parametres:'#6b7280',
+        admin:'#dc2626'
       };
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-132 */
@@ -11193,7 +11191,9 @@
         {id:'bestiaire',icon:'🏆',nom:'Collection'},
         /* 2026-09-25 (Norman) : le Chat SOREAL (celui de APP/TV) dans le jeu ; ce bouton ouvre un panneau (modules/chat-v1.js), il ne change pas de page. */
         {id:'chat',icon:'💬',nom:'Chat'},
-        {id:'parametres',icon:'⚙️',nom:'Settings'}
+        {id:'parametres',icon:'⚙️',nom:'Settings'},
+        /* Menu Admin (2026-09-30, Norman) : visible UNIQUEMENT par l'administrateur (voir menuDisponibleIdleV28_). */
+        {id:'admin',icon:'🛠️',nom:'Admin'}
       ];
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-133 */
@@ -18071,15 +18071,7 @@ let idleDialogueTimerV76=null;
             'Vous avez vaincu '+nom+' !'
           );
           idleAdventureResolutionPendingV2='resolveZoneFight';
-          /*
-           * Deuxième histoire (Norman, 2026-09-29) : déclenchée par la mort d'un boss de ZONE
-           * Aventure précis (« A Fifth Giant Mole »), un évènement éphémère résolu ici -- jamais un
-           * champ d'état persistant comme bossSelection pour la première histoire. On capture donc
-           * fight.mobName/fight.boss avant que fight.active ne soit remis à false plus bas.
-           */
-          if(window.__SOREAL_IDLE_STORY_POPUP_2_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_2_V1__.considerer==='function'){
-            window.__SOREAL_IDLE_STORY_POPUP_2_V1__.considerer(fight.mobName,Boolean(fight.boss),idleEtat);
-          }
+          /* Les histoires ne se déclenchent plus sur un boss de zone Aventure (Norman, 2026-09-30 : « uniquement ceux de Fight Boss »). */
         }else{
           idleEtat.adventureRestPv=0;
           memoriserRestPvIdleV1_(0);
@@ -22249,9 +22241,8 @@ function pageAventureIdleV28_(j){
           (estAdminSorealIdle_()
             ?'<div class="soreal-idle-section-v8">'+
               '<div class="soreal-idle-window-title-v31">🧪 Outils de test (administrateur)</div>'+
-              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir une scène spéciale sans devoir y rejouer -- utile pour vérifier un correctif.</div>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__SOREAL_IDLE_STORY_POPUP_V1__&&window.__SOREAL_IDLE_STORY_POPUP_V1__.rejouer()">🔁 Revoir « Le Magicien et la Grotte » (scène boss 18)</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__SOREAL_IDLE_STORY_POPUP_2_V1__&&window.__SOREAL_IDLE_STORY_POPUP_2_V1__.rejouer()">🔁 Revoir « Le Magicien et la Grotte 2 » (boss de zone Aventure)</button>'+
+              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Les scènes spéciales (histoires) se créent, se modifient et se revoient dans le menu <b>Admin</b>.</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__menuIdleV28__(\'admin\')">🛠️ Ouvrir le menu Admin</button>'+
             '</div>'
             :'')+
           '<div class="soreal-idle-section-v8">'+
@@ -22290,6 +22281,8 @@ function pageAventureIdleV28_(j){
             return pageEntrainementIdleV28_(j);
           case 'parametres':
             return pageParametresIdleV28_(j);
+          case 'admin':
+            return window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__?window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.page(j):'';
           case 'aventure':
             return pageAventureIdleV28_(j);
           case 'bestiaire':
@@ -23120,13 +23113,13 @@ function pageAventureIdleV28_(j){
         const j=idleEtat;
 
         /*
-         * Cinématique « Le Magicien et la Grotte » (2026-09-27) : vérifiée à CHAQUE rendu d'état,
+         * Histoires plein écran (2026-09-27, éditables dans le menu Admin depuis le 2026-09-30) : vérifiées à CHAQUE rendu d'état,
          * quel que soit le menu affiché -- le boss 17 peut être vaincu pendant que le joueur est
          * sur un autre menu (le combat continue côté serveur). Le module gère lui-même l'idempotence
          * (popup plein écran indépendant du rendu de page, jamais recréé si déjà en cours).
          */
-        if(window.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window.__SOREAL_IDLE_STORY_POPUP_V1__.considerer==='function'){
-          window.__SOREAL_IDLE_STORY_POPUP_V1__.considerer(j);
+        if(window.__SOREAL_IDLE_STORY_ENGINE_V1__&&typeof window.__SOREAL_IDLE_STORY_ENGINE_V1__.considerer==='function'){
+          window.__SOREAL_IDLE_STORY_ENGINE_V1__.considerer(j);
         }
 
         initialiserCoupsCombatIdleV116_();

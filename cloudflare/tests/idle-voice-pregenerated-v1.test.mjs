@@ -72,18 +72,17 @@ assert.match(ui, /root\.setAttribute\('data-soreal-tts-say',texteVoixTutorielIdl
 assert.match(ui, /window\.__sorealVoiceTextesIdleV1__=function\(\)\{/);
 assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /window\.__sorealVoiceTextesIdleV1__\(\)/);
 
-// --- Norman (2026-09-27) : « la voix met très longtemps avant de commencer à lire » (scène boss 18) -- ces 5
-//     textes doivent désormais faire partie de la couverture de voice-generate.mjs, jamais un repli Piper systématique. ---
+// --- Histoires plein écran (2026-09-30) : créées dans le menu Admin (base serveur), plus dans le code. Leurs voix sont générées depuis ce menu
+//     (studio local, Chatterbox) et stockées sur R2 : elles ne font plus partie de la couverture statique de voice-generate.mjs. ---
 {
   const fonction = ui.slice(ui.indexOf("window.__sorealVoiceTextesIdleV1__=function(){"), ui.indexOf("window.__sorealVoiceTextesSystemesIdleV1__=function"));
-  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_V1__&&typeof window\.__SOREAL_IDLE_STORY_POPUP_V1__\.etapes==='function'/, "les 5 textes de la scène boss 18 doivent être ajoutés à la couverture de voix pré-générées");
-  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_V1__\.etapes\(\)\.forEach\(function\(etape\)\{textes\.push\(etape\.texte\);\}\);/);
-  /*
-   * Deuxième histoire (Norman, 2026-09-29) : mêmes obligations que la première -- les 10 textes ne
-   * doivent jamais retomber sur le repli Piper systématique faute de faire partie de cette couverture.
-   */
-  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_2_V1__&&typeof window\.__SOREAL_IDLE_STORY_POPUP_2_V1__\.etapes==='function'/, "les 10 textes de la deuxième histoire doivent être ajoutés à la couverture de voix pré-générées");
-  assert.match(fonction, /window\.__SOREAL_IDLE_STORY_POPUP_2_V1__\.etapes\(\)\.forEach\(function\(etape\)\{textes\.push\(etape\.texte\);\}\);/);
+  assert.ok(!fonction.includes("STORY_POPUP"), "plus aucune histoire codée en dur dans la couverture statique");
+  // Le module de narration lit d'abord la voix R2 d'une empreinte déclarée par l'histoire jouée, puis le fichier statique, puis Piper.
+  assert.match(tts, /function enregistrerVoixDynamiques_\(liste\)/);
+  assert.match(tts, /enregistrerVoixDynamiques:enregistrerVoixDynamiques_,/);
+  assert.match(tts, /fetch\('api\/idle\/media\/voice\?h='\+hash\)/, "voix R2 par empreinte");
+  assert.match(tts, /blob\|\|statique\(\)/, "repli sur le fichier statique quand la voix R2 est absente");
+  assert.match(tts, /voixDynamiques\[hash\]\s*\?fetch/, "seules les empreintes déclarées interrogent R2");
 }
 
 // --- « Lire toute l'histoire » : même composition que la chronique affichée ---
@@ -106,20 +105,6 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   for (const h of blocs("Chroniques de boss." + marque(1500))) if (!fichiers.has(h)) manquants.push("intro");
   for (const b of chargerBoss()) {
     for (const h of blocs(composer(b.nom, b.histoire))) if (!fichiers.has(h)) manquants.push("boss " + b.id);
-  }
-  /*
-   * Norman (2026-09-29) : « La scène numéro 2 bug… Régénérer les voix pour que ça colle aux images. » Les 10 textes
-   * de la deuxième histoire (story-popup-2-v1.js) n'avaient JAMAIS eu de fichier pré-généré : chaque étape retombait
-   * sur la synthèse Piper locale (lente, démarrage tardif, donc texte/image/voix décalés). Couverture stricte des
-   * DEUX histoires : chaque bloc de chaque étape doit avoir son fichier.
-   */
-  for (const [nom, fichierModule] of [["histoire 1", "story-popup-v1.js"], ["histoire 2", "story-popup-2-v1.js"]]) {
-    const source = readFileSync("cloudflare/public/modules/" + fichierModule, "utf8");
-    const etapes = new Function("return [" + source.match(/var ETAPES=\[([\s\S]*?)\n\];/)[1] + "]")();
-    assert.ok(etapes.length >= 5, nom + " : étapes lues");
-    etapes.forEach((etape, i) => {
-      for (const h of blocs(etape.texte)) if (!fichiers.has(h)) manquants.push(nom + " étape " + (i + 1));
-    });
   }
   /*
    * Norman (2026-09-27) : les deux voix laissées en attente faute d'accès réseau (boss n°4 "Tippy", commit

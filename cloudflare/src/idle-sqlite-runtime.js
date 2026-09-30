@@ -33,6 +33,7 @@ import {
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
+import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
 } from "./idle-profile-v1.js";
@@ -16565,7 +16566,55 @@ function supprimerBugSorealIdle(sessionToken, id) {
   return { ok: true };
 }
 
+/*
+ * Histoires plein écran éditables (voir idle-histoires-v1.js). Joueur : obtenirHistoireBossSorealIdle -- UNIQUEMENT l'histoire du boss
+ * demandé (jamais la liste : anti-spoil). Administrateur (technicien.soreal@gmail.com) : lister / enregistrer / supprimer.
+ */
+function exigerAdminHistoiresSorealIdle_(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (String(acces.emailAutorise || '').toLowerCase() !== ADMIN_SOREAL_IDLE_EMAIL) throw new Error('SOREAL_IDLE_ADMIN_REQUIS');
+  if (!__idleSql) throw new Error('SOREAL_IDLE_SQL_ABSENT');
+  return acces;
+}
+
+function obtenirHistoireBossSorealIdle(sessionToken, boss) {
+  exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: true, histoire: null };
+  return { ok: true, histoire: histoireDuBossV1(__idleSql, boss) };
+}
+
+function listerHistoiresAdminSorealIdle(sessionToken) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  const boss = [];
+  for (const [numero, nom] of NGU_BOSS_NAMES_FR_V1) boss.push({ numero, nom });
+  boss.sort((a, b) => a.numero - b.numero);
+  return { ok: true, histoires: lireHistoiresV1(__idleSql), boss };
+}
+
+function enregistrerHistoireAdminSorealIdle(sessionToken, histoire) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  try {
+    return { ok: true, histoire: enregistrerHistoireV1(__idleSql, histoire) };
+  } catch (e) {
+    const code = String(e && e.message || e);
+    if (code === 'HISTOIRE_BOSS_DEJA_UTILISE') return { ok: false, code, message: 'Ce boss a déjà une histoire active : « ' + String(e.autre || '') + ' ». Change son boss ou désactive-la d’abord.' };
+    if (/^HISTOIRE_/.test(code)) return { ok: false, code, message: code };
+    throw e;
+  }
+}
+
+function supprimerHistoireAdminSorealIdle(sessionToken, id) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  /* L'identifiant arrive soit en texte, soit dans un objet { id } (le pont client ajoute la session au premier argument de type texte). */
+  supprimerHistoireV1(__idleSql, id && typeof id === 'object' ? id.id : id);
+  return { ok: true };
+}
+
 const IDLE_OPERATIONS={
+  obtenirHistoireBossSorealIdle,
+  listerHistoiresAdminSorealIdle,
+  enregistrerHistoireAdminSorealIdle,
+  supprimerHistoireAdminSorealIdle,
   agirProgressionSorealIdle,
   definirAllocationsEntrainementSorealIdle,
   acheterAmeliorationSorealIdle,

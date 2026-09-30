@@ -165,12 +165,69 @@ async function idleCallV1(request, env) {
   return reponse;
 }
 
+/*
+ * Téléversements du menu Admin (2026-09-30) : images d'histoire et voix générées, vers R2. Réservés à l'administrateur : le jeton de
+ * session (Bearer) est vérifié par le moteur (opération estAdminSorealIdle, même règle que les autres outils d'administration) AVANT
+ * de lire le corps de la requête.
+ */
+const IDLE_UPLOAD_MAX_IMAGE_V1 = 8 * 1024 * 1024;
+const IDLE_UPLOAD_MAX_VOIX_V1 = 12 * 1024 * 1024;
+const IDLE_UPLOAD_TYPES_V1 = { webp: "image/webp", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif" };
+
+async function idleEstAdminV1(request, env) {
+  const sessionToken = idleBearerV1(request);
+  if (!sessionToken) return false;
+  const reponse = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
+    method: "POST",
+    body: JSON.stringify({ sessionToken, operation: "estAdminSorealIdle", args: [sessionToken] })
+  });
+  if (!reponse || !reponse.ok) return false;
+  const donnees = await reponse.json().catch(() => null);
+  return Boolean(donnees && donnees.ok && donnees.isAdmin === true);
+}
+
+async function idleUploadAdminV1(request, env, url) {
+  if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+  if (!env?.SOREAL_R2 || typeof env.SOREAL_R2.put !== "function") return idleJsonV1({ ok: false, error: "R2_INDISPONIBLE" }, 503);
+  const estVoix = url.pathname === "/api/v1/voice-upload";
+  const max = estVoix ? IDLE_UPLOAD_MAX_VOIX_V1 : IDLE_UPLOAD_MAX_IMAGE_V1;
+  const annonce = Number(request.headers.get("content-length") || 0);
+  if (annonce > max) return idleJsonV1({ ok: false, error: "FICHIER_TROP_GROS" }, 413);
+  let cle = "";
+  let type = "";
+  let fichier = "";
+  if (estVoix) {
+    const h = String(url.searchParams.get("h") || "").trim();
+    if (!/^[0-9a-f]{14}$/.test(h)) return idleJsonV1({ ok: false, error: "EMPREINTE_INVALIDE" }, 400);
+    cle = "idle/voix/" + h + ".m4a";
+    type = "audio/mp4";
+    fichier = h;
+  } else {
+    const id = String(url.searchParams.get("id") || "").trim();
+    const ext = String(url.searchParams.get("ext") || "").trim().toLowerCase();
+    if (!/^[A-Za-z0-9_-]{1,60}$/.test(id)) return idleJsonV1({ ok: false, error: "HISTOIRE_ID_INVALIDE" }, 400);
+    if (!IDLE_UPLOAD_TYPES_V1[ext]) return idleJsonV1({ ok: false, error: "TYPE_IMAGE_INVALIDE" }, 400);
+    fichier = Date.now().toString(36) + Math.random().toString(36).slice(2, 7) + "." + ext;
+    cle = "idle/story/" + id + "/" + fichier;
+    type = IDLE_UPLOAD_TYPES_V1[ext];
+  }
+  const octets = await request.arrayBuffer();
+  if (!octets.byteLength) return idleJsonV1({ ok: false, error: "FICHIER_VIDE" }, 400);
+  if (octets.byteLength > max) return idleJsonV1({ ok: false, error: "FICHIER_TROP_GROS" }, 413);
+  await env.SOREAL_R2.put(cle, octets, { httpMetadata: { contentType: type } });
+  return idleJsonV1({ ok: true, file: fichier, bytes: octets.byteLength });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const mediaResponse = await traiterRequeteIdleMedia(request, env);
     if (mediaResponse) return mediaResponse;
 
+
+    if (request.method === "POST" && (url.pathname === "/api/v1/story-upload" || url.pathname === "/api/v1/voice-upload")) {
+      return idleUploadAdminV1(request, env, url);
+    }
 
     if (request.method === "GET" && url.pathname === "/api/v1/bootstrap") {
       return idleBootstrapV1(request, env);

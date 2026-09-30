@@ -1166,6 +1166,41 @@ async function storyImage_(request,env,url){
   if(!key)return new Response("Image d'histoire introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }
+/*
+ * Images d'histoire téléversées depuis le menu Admin (2026-09-30) : servies par leur NOM exact (idle/story/<id>/<fichier>), jamais par
+ * position dans un listing -- l'ordre des étapes est porté par l'histoire elle-même (idle-histoires-v1.js). Les deux premières histoires
+ * gardent la route par index ci-dessus (leurs images historiques).
+ */
+export const IDLE_STORY_FILE_RE_V1=/^[A-Za-z0-9_.-]{1,90}$/;
+export const IDLE_VOICE_HASH_RE_V1=/^[0-9a-f]{14}$/;
+async function storyImageFichier_(request,env,url){
+  const id=String(url.searchParams.get("id")||"").trim();
+  const f=String(url.searchParams.get("f")||"").trim();
+  if(!/^[A-Za-z0-9_-]{1,80}$/.test(id)||!IDLE_STORY_FILE_RE_V1.test(f)||f.includes("..")){
+    return new Response("Image d'histoire invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Média d'histoire indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  return reponseObjetR2_(request,env,{key:IDLE_STORY_R2_PREFIX+id+"/"+f});
+}
+/* Voix générées depuis le menu Admin : idle/voix/<empreinte>.m4a (l'empreinte est celle des fichiers de voix pré-générés du jeu). */
+async function voixHistoire_(request,env,url){
+  const h=String(url.searchParams.get("h")||"").trim();
+  if(!IDLE_VOICE_HASH_RE_V1.test(h)){
+    return new Response("Voix invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Voix indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const full=await env.SOREAL_R2.get("idle/voix/"+h+".m4a");
+  if(!full)return new Response("Voix introuvable",{status:404,headers:{"cache-control":"no-store"}});
+  const headers=new Headers();
+  headers.set("content-type","audio/mp4");
+  if(full.httpEtag)headers.set("etag",full.httpEtag);
+  /* Cache court : régénérer une voix (même empreinte) doit se voir vite. */
+  return new Response(request.method==="HEAD"?null:full.body,{status:200,headers:mediaHeaders_(headers,60)});
+}
 async function objetsBossR2_(env){
   return objetsDossierMobR2_(env,IDLE_BOSSES_R2_PREFIX);
 }
@@ -1270,6 +1305,8 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/roster",
     "/api/idle/media/shared",
     "/api/idle/media/story",
+    "/api/idle/media/story-image",
+    "/api/idle/media/voice",
     "/api/idle/media/piper-model.onnx",
     "/api/idle/media/piper-model.onnx.json",
     "/api/idle/media/debug-list"
@@ -1291,6 +1328,8 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);
+  if(url.pathname==="/api/idle/media/voice")return voixHistoire_(request,env,url);
   if(url.pathname==="/api/idle/media/roster")return idleItopodRosterReponseV1(request,env);
   if(url.pathname==="/api/idle/media/shared")return idleItopodImagePartageeV1(request,env,url);
   return adventureZone_(request,env,url);
