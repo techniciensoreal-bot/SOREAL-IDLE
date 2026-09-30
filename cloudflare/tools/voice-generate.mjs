@@ -98,8 +98,8 @@ async function ouvrirPage(navigateur, femme = false) {
     await page.route("**/api/idle/media/piper-model.onnx.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(config) }));
     await page.route("**/api/idle/media/piper-model.onnx", (route) => route.fulfill({ status: 200, contentType: "application/octet-stream", body: modele }));
   }
-  /* Le module de narration et l'interface LOCAUX (découpage, empreinte, textes à jour) remplacent ceux du site ; tout le reste vient du site. */
-  for (const [motif, fichier] of [["**/modules/tutorial-tts-v202.js*", "modules/tutorial-tts-v202.js"], ["**/soreal-idle-ui.js*", "soreal-idle-ui.js"], ["**/modules/local-neural-piper-v1.js*", "modules/local-neural-piper-v1.js"]]) {
+  /* Le module de narration, l'interface et les modules d'histoires LOCAUX (découpage, empreinte, textes à jour : sinon le site déployé fournirait d'anciens textes d'histoire) remplacent ceux du site ; tout le reste vient du site. */
+  for (const [motif, fichier] of [["**/modules/tutorial-tts-v202.js*", "modules/tutorial-tts-v202.js"], ["**/soreal-idle-ui.js*", "soreal-idle-ui.js"], ["**/modules/local-neural-piper-v1.js*", "modules/local-neural-piper-v1.js"], ["**/modules/story-popup-v1.js*", "modules/story-popup-v1.js"], ["**/modules/story-popup-2-v1.js*", "modules/story-popup-2-v1.js"]]) {
     await page.route(motif, (route) => route.fulfill({ status: 200, contentType: "text/javascript", body: fs.readFileSync(path.join(PUBLIC, fichier), "utf8") }));
   }
   await page.goto(URL_SITE, { waitUntil: "domcontentloaded", timeout: 90000 });

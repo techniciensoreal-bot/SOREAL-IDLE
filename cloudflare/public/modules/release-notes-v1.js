@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.1',
+    courante:'8.2',
     versions:[
+      {
+        version:'8.2',
+        nom:'Le chaudron prend son temps',
+        date:'2026-09-30',
+        points:[
+          'Dans la deuxième histoire, le passage où le sorcier verse la cannette dans son chaudron reste maintenant affiché sur la bonne image.',
+          'L’image suivante n’arrive que quand il te tend la potion.',
+          'Les voix de ces deux passages ont été réenregistrées pour coller au nouveau découpage.'
+        ]
+      },
       {
         version:'8.1',
         nom:'Une histoire racontée une fois pour toutes',

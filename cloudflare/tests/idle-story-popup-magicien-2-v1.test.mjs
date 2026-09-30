@@ -113,8 +113,11 @@ const MOB = "A Fifth Giant Mole";
   assert.match(etapes[0].texte, /grommelant/);
   assert.match(etapes[1].texte, /WHOUMPF/);
   assert.match(etapes[2].texte, /Gorgone/);
-  assert.match(etapes[3].texte, /à court de cette came\.$/, "image 4 s'arrête avant le chaudron (pas de duplication avec l'image 5)");
-  assert.match(etapes[4].texte, /^Stupéfait, tu le vois verser la cannette/, "image 5 commence directement par le chaudron, sans répéter le texte de l'image 4");
+  /* Norman (2026-09-30) : « ça passe trop vite à l'image 5 » -- le passage du chaudron (Stupéfait… te fait signe d'approcher) reste affiché pendant l'image 4 (le sorcier verse la cannette) ; l'image 5 (la gorgée) ne commence qu'à « Bon, je peux pas résoudre… ». */
+  assert.match(etapes[3].texte, /à court de cette came\. Stupéfait, tu le vois verser la cannette dans son chaudron/, "image 4 : le sorcier applaudit PUIS verse la cannette");
+  assert.match(etapes[3].texte, /puis te fait signe d'approcher\.$/, "image 4 se termine au signe d'approcher");
+  assert.ok(!etapes[4].texte.includes("Stupéfait") && !etapes[4].texte.includes("chaudron"), "image 5 ne répète pas le passage du chaudron");
+  assert.match(etapes[4].texte, /^« Bon, je peux pas résoudre tes problèmes de mémoire/, "image 5 commence à la réplique du sorcier");
   assert.match(etapes[4].texte, /prends une gorgée\.$/);
   assert.match(etapes[5].texte, /sirop contre la toux/);
   assert.match(etapes[6].texte, /tu ne sais pas voler/);
