@@ -84,15 +84,19 @@ assert.match(source, /moteur\.jouer\(versLecteur_\(h\),\{marquerVu:false\}\)/, "
 assert.match(source, /<input type="file" id="sorealIdleAdminFichiersV1"[^>]*multiple/, "plusieurs images d'un coup");
 // --- Bouton « ▶ Écouter » sur chaque étape (Norman, 2026-09-30 : « un bouton play sur chaque case pour écouter uniquement celle-là ») ---
 assert.match(source, /data-adm-e="ecouter" data-i="'\+i\+'"/, "un bouton d'écoute par étape");
-assert.match(source, /t\.readText\(texte,undefined,surFin\)/, "lit uniquement le texte de CETTE étape");
+assert.match(source, /segmentsDeEtape_\(etape\|\|\{\}\)/, "lit uniquement le texte de CETTE étape (ses segments de voix)");
 assert.match(source, /if\(ecoute\.index===i\)\{arreterEcoute_\(\);return;\}/, "le même bouton arrête la lecture");
 assert.match(source, /enregistrerVoixDynamiques\(edition\.voix\|\|\[\]\)/, "utilise la voix générée quand elle existe");
 assert.match(source, /voix du studio pas encore générée, lecture avec la voix de secours/, "signale la voix de secours");
+// --- Balises de voix (Norman, 2026-09-30 : « faire intervenir la femme pour certaines phrases : (homme) (femme) ») ---
+assert.match(source, /Astuce : écris <b>\(femme\)<\/b> ou <b>\(homme\)<\/b>/, "l'éditeur explique les balises");
+assert.match(source, /moteur\.segmenter\(etape\.texte,etape\.parleur\)\.segments/, "mêmes segments que le lecteur");
+assert.match(source, /blocsDeTexte_\(seg\.texte\)\.forEach\(function\(b\)\{b\.parleur=seg\.voix;blocs\.push\(b\);\}\)/, "chaque bloc de voix retient la voix de son segment");
+assert.match(source, /t\.readText\(segments\[k\]\.texte,undefined,function\(\)\{lire\(k\+1\);\}\)/, "l'écoute d'une étape enchaîne ses segments");
 // --- Deux voix (Norman, 2026-09-30 : « faire intervenir une femme de temps en temps ») ---
 assert.match(source, /data-adm-parleur/, "choix du parleur par étape");
 assert.match(source, /\['femme','👩 Femme'\]/);
 assert.match(source, /voix:parleur==='femme'\?'femme':'homme'/, "la voix choisie est transmise au studio");
-assert.match(source, /b\.parleur=e\.parleur\|\|'narrateur'/, "chaque bloc de voix retient le parleur de son étape");
 const studio = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");
 assert.match(studio, /VOIX_FICHIERS = \{"homme": "homme\.wav", "femme": "femme\.wav"\}/);
 assert.match(studio, /kwargs\["audio_prompt_path"\] = reference/, "chaque voix imite un extrait de voix FRANÇAISE (pas d'accent anglais)");

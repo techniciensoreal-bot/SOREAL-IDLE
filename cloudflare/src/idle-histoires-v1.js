@@ -207,6 +207,6 @@ export function histoireDuBossV1(sql, boss) {
     titre: h.titre,
     vuId: h.vuId || "histoire:" + h.id,
     voix: h.voix,
-    etapes: h.etapes.map((e) => ({ texte: e.texte, imageUrl: urlImageEtapeV1(h.id, e.image) }))
+    etapes: h.etapes.map((e) => ({ texte: e.texte, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur }))
   };
 }

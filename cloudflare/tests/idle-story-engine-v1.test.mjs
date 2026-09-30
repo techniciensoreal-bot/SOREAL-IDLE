@@ -163,6 +163,52 @@ const HISTOIRE = {
   assert.deepEqual(lus, ["Premier texte.", "Troisième texte."], "une étape sans texte n'appelle pas la voix (image affichée le temps minimal)");
 }
 
+// 5b. Balises de voix (Norman, 2026-09-30) : « (femme) » / « (homme) » dans le texte ; jamais affichées ; lues segment par segment.
+{
+  const api = charger({}, fabriquerDocument(), fabriquerHorloge());
+  const seg = (t, p) => JSON.parse(JSON.stringify(api.segmenter(t, p)));
+  assert.deepEqual(seg("Bonjour tout le monde."), { affiche: "Bonjour tout le monde.", segments: [{ voix: "homme", texte: "Bonjour tout le monde." }] });
+  assert.deepEqual(
+    seg("Le sorcier dit : (femme) Approche, mon petit. (homme) Puis il se tut. (Fin de la phrase)"),
+    {
+      affiche: "Le sorcier dit : Approche, mon petit. Puis il se tut. (Fin de la phrase)",
+      segments: [
+        { voix: "homme", texte: "Le sorcier dit :" },
+        { voix: "femme", texte: "Approche, mon petit." },
+        { voix: "homme", texte: "Puis il se tut. (Fin de la phrase)" }
+      ]
+    },
+    "les balises changent la voix et disparaissent ; les autres parenthèses restent du texte"
+  );
+  assert.deepEqual(seg("(femme) Elle parle seule.").segments, [{ voix: "femme", texte: "Elle parle seule." }]);
+  assert.deepEqual(seg("Texte (FEMME) A ( homme ) B").segments.map((s) => s.voix), ["homme", "femme", "homme"], "insensible à la casse et aux espaces");
+  assert.deepEqual(seg("  (femme)  (homme)  ").segments, [], "que des balises : rien à lire");
+  assert.equal(seg("Voix par défaut", "femme").segments[0].voix, "femme", "avant la première balise : la voix de départ de l'étape");
+  assert.equal(seg("(homme) Lui. (femme) Elle.", "femme").segments[0].voix, "homme", "une balise au début l'emporte sur la voix de départ");
+}
+
+// 5c. Lecture : chaque segment est lu avec SA propre demande de voix, dans l'ordre ; le texte affiché n'a plus de balises ; étape suivante après le dernier segment.
+{
+  const lus = [];
+  const window_ = {
+    __SOREAL_IDLE_TUTORIAL_TTS_V209__: {
+      prechauffer() {},
+      readText(texte, _a, fin) { lus.push(texte); fin(); return true; }
+    }
+  };
+  const document_ = fabriquerDocument();
+  const horloge = fabriquerHorloge();
+  const api = charger(window_, document_, horloge);
+  api.jouer({ id: "d", vuId: "histoire:d", voix: [], etapes: [
+    { texte: "Le sorcier : (femme) Viens ici. (homme) Il soupire.", imageUrl: "", parleur: "narrateur" },
+    { texte: "Fin.", imageUrl: "", parleur: "femme" }
+  ] }, { marquerVu: false });
+  const texteEl = document_.body.children[0].querySelector(".soreal-idle-histoire-texte-v1");
+  assert.equal(texteEl._texte_content, "Le sorcier : Viens ici. Il soupire.", "le texte affiché n'a plus de balises");
+  while (horloge.avancer()) {}
+  assert.deepEqual(lus, ["Le sorcier :", "Viens ici.", "Il soupire.", "Fin."], "un appel de voix par segment, dans l'ordre");
+}
+
 // 6. considerer : « à la mort du boss N » = bossSelection N+1 ; une seule interrogation par boss ; jamais si déjà vue.
 {
   const appels = [];

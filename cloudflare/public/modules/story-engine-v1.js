@@ -95,11 +95,40 @@ function tts_(){
   try{return window.__SOREAL_IDLE_TUTORIAL_TTS_V209__||null;}catch(_e){return null;}
 }
 
+/*
+ * Balises de voix dans le texte (Norman, 2026-09-30 : « faire intervenir la femme pour certaines phrases, avec une balise (homme)
+ * (femme) »). « (femme) » fait lire ce qui suit par la voix de femme, « (homme) » par la voix d'homme (narrateur), jusqu'à la balise
+ * suivante ; avant la première balise, la voix par défaut de l'étape (« Qui parle »). Les balises ne s'affichent jamais à l'écran ;
+ * toute autre parenthèse du texte reste un texte normal. Renvoie { affiche, segments:[{voix:'homme'|'femme', texte}] }.
+ */
+var BALISE_VOIX_RE=/\(\s*(homme|femme)\s*\)/gi;
+function segmenter_(texte,parleurParDefaut){
+  var brut=String(texte==null?'':texte);
+  var voix=parleurParDefaut==='femme'?'femme':'homme';
+  var segments=[];
+  var dernier=0;
+  var m;
+  BALISE_VOIX_RE.lastIndex=0;
+  function ajouter(fin){
+    var t=brut.slice(dernier,fin).replace(/\s+/g,' ').trim();
+    if(t)segments.push({voix:voix,texte:t});
+  }
+  while((m=BALISE_VOIX_RE.exec(brut))){
+    ajouter(m.index);
+    voix=m[1].toLowerCase()==='femme'?'femme':'homme';
+    dernier=m.index+m[0].length;
+  }
+  ajouter(brut.length);
+  return {affiche:segments.map(function(s){return s.texte;}).join(' '),segments:segments};
+}
+
 function prechaufferEtape_(etapes,i){
   if(i<0||i>=etapes.length)return;
   try{
     var t=tts_();
-    if(t&&typeof t.prechauffer==='function'&&etapes[i].texte)t.prechauffer(etapes[i].texte);
+    if(t&&typeof t.prechauffer==='function'){
+      segmenter_(etapes[i].texte,etapes[i].parleur).segments.forEach(function(s){t.prechauffer(s.texte);});
+    }
   }catch(_e){}
   /* Image de l'étape suivante chargée pendant la lecture de l'étape affichée. */
   try{
@@ -177,7 +206,8 @@ function jouer_(histoire,options){
   function etape_(i){
     if(passageDemande)return;
     if(i>=etapes.length){terminer_(overlay,histoire,options);return;}
-    var texte=String(etapes[i].texte||'');
+    var decoupe=segmenter_(etapes[i].texte,etapes[i].parleur);
+    var texte=decoupe.affiche;
     afficherImage_(etapes[i].imageUrl);
     texteEl.textContent=texte;
     prechaufferEtape_(etapes,i+1);
@@ -201,21 +231,30 @@ function jouer_(histoire,options){
     var PLANCHER_LECTURE_REELLE_MS=800;
     var debut=Date.now();
     var demarreTts=false;
-    if(texte){
+    /* Fin de toute la lecture de l'étape (tous ses segments). */
+    var finLecture=function(){
+      var ecoule=Date.now()-debut;
+      clearTimeout(securite);
+      var attente=ecoule>=PLANCHER_LECTURE_REELLE_MS?PAUSE_MIN_APRES_LECTURE_MS:Math.max(0,plancher-ecoule);
+      setTimeout(suivant,attente);
+    };
+    /* Les segments (une voix chacun) se lisent l'un après l'autre ; le suivant démarre dès que le précédent est fini. */
+    var lireSegment=function(k){
+      if(passageDemande)return;
+      if(k>=decoupe.segments.length){finLecture();return;}
+      var ok=false;
       try{
         var t=tts_();
         if(t&&typeof t.readText==='function'){
-          demarreTts=t.readText(texte,undefined,function(){
-            var ecoule=Date.now()-debut;
-            clearTimeout(securite);
-            var attente=ecoule>=PLANCHER_LECTURE_REELLE_MS?PAUSE_MIN_APRES_LECTURE_MS:Math.max(0,plancher-ecoule);
-            setTimeout(suivant,attente);
-          });
+          ok=t.readText(decoupe.segments[k].texte,undefined,function(){lireSegment(k+1);});
         }
       }catch(_e){
-        demarreTts=false;
+        ok=false;
       }
-    }
+      if(k===0)demarreTts=ok;
+      else if(!ok)finLecture();
+    };
+    if(decoupe.segments.length)lireSegment(0);
 
     if(!demarreTts){
       clearTimeout(securite);
@@ -269,6 +308,7 @@ window.__SOREAL_IDLE_STORY_ENGINE_V1__={
   enCours:function(){return enCours;},
   /* Outils de test. */
   dejaVu:dejaVu_,
-  dureeApprox:dureeApprox_
+  dureeApprox:dureeApprox_,
+  segmenter:segmenter_
 };
 })();

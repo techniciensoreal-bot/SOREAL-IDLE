@@ -90,8 +90,25 @@ function blocsDeTexte_(texte){
 
 var PARLEURS=[['narrateur','🎙 Narrateur'],['femme','👩 Femme']];
 
+/* Segments de voix d'une étape (balises (homme) / (femme) dans le texte) : la même découpe que le lecteur. */
+function segmentsDeEtape_(etape){
+  var moteur=window.__SOREAL_IDLE_STORY_ENGINE_V1__;
+  if(moteur&&typeof moteur.segmenter==='function')return moteur.segmenter(etape.texte,etape.parleur).segments;
+  var t=String(etape.texte||'').replace(/\s+/g,' ').trim();
+  return t?[{voix:etape.parleur==='femme'?'femme':'homme',texte:t}]:[];
+}
+
+/* Blocs de voix d'une étape, chacun avec la voix de son segment. */
+function blocsDeEtape_(etape){
+  var blocs=[];
+  segmentsDeEtape_(etape).forEach(function(seg){
+    blocsDeTexte_(seg.texte).forEach(function(b){b.parleur=seg.voix;blocs.push(b);});
+  });
+  return blocs;
+}
+
 function statutVoixEtape_(etape,voix){
-  var blocs=blocsDeTexte_(etape.texte);
+  var blocs=blocsDeEtape_(etape);
   if(!blocs.length)return {total:0,prets:0};
   var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
   return {total:blocs.length,prets:prets};
@@ -296,9 +313,10 @@ function etapeHtml_(e,i){
       (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
       '<div style="flex:1;min-width:0">'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer l’image':'Choisir une image')+'</button>'+
-        '<label>Qui parle</label><select data-adm-parleur="'+i+'">'+PARLEURS.map(function(p){return '<option value="'+p[0]+'"'+((e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
+        '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+PARLEURS.map(function(p){return '<option value="'+p[0]+'"'+((e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
         '<label>Texte lu à voix haute</label>'+
         '<textarea data-adm-texte="'+i+'" placeholder="Colle ici le texte de cette image…">'+esc_(e.texte)+'</textarea>'+
+        '<div class="soreal-idle-adm-meta-v1" style="margin-top:4px">Astuce : écris <b>(femme)</b> ou <b>(homme)</b> dans le texte pour changer de voix à cet endroit. Les balises ne s’affichent pas à l’écran.</div>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -502,7 +520,7 @@ function genererVoix_(){
   if(erreur){afficherEtat_(erreur,true);return;}
   var toutes=Boolean((document.getElementById('sorealIdleAdminToutesV1')||{}).checked);
   var vus={},blocs=[];
-  edition.etapes.forEach(function(e){blocsDeTexte_(e.texte).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;b.parleur=e.parleur||'narrateur';blocs.push(b);}});});
+  edition.etapes.forEach(function(e){blocsDeEtape_(e).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});});
   if(!blocs.length){afficherEtat_('Aucun texte à lire : colle d’abord le texte des étapes.',true);return;}
   var aFaire=blocs.filter(function(b){return toutes||(edition.voix||[]).indexOf(b.hash)===-1;});
   if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
@@ -572,8 +590,8 @@ function ecouterEtape_(i){
   arreterEcoute_();
   lireChamps_();
   var etape=edition.etapes[i];
-  var texte=String(etape&&etape.texte||'').trim();
-  if(!texte){afficherEtat_('Étape '+(i+1)+' : pas de texte à écouter.',true);return;}
+  var segments=segmentsDeEtape_(etape||{});
+  if(!segments.length){afficherEtat_('Étape '+(i+1)+' : pas de texte à écouter.',true);return;}
   try{if(typeof t.enregistrerVoixDynamiques==='function')t.enregistrerVoixDynamiques(edition.voix||[]);}catch(_e){}
   var s=statutVoixEtape_(etape,edition.voix||[]);
   afficherEtat_(s.total&&s.prets>=s.total?'':'Étape '+(i+1)+' : voix du studio pas encore générée, lecture avec la voix de secours du jeu.');
@@ -586,9 +604,15 @@ function ecouterEtape_(i){
     fini=true;
     if(ecoute.index===i){ecoute.index=-1;remettreBoutonsEcoute_();}
   };
-  var demarre=false;
-  try{demarre=t.readText(texte,undefined,surFin);}catch(_e){demarre=false;}
-  if(!demarre)surFin();
+  /* Les segments (une voix chacun) se lisent l'un après l'autre ; arrêter l'écoute coupe la suite. */
+  var lire=function(k){
+    if(ecoute.index!==i)return;
+    if(k>=segments.length){surFin();return;}
+    var demarre=false;
+    try{demarre=t.readText(segments[k].texte,undefined,function(){lire(k+1);});}catch(_e){demarre=false;}
+    if(!demarre&&k===0)surFin();
+  };
+  lire(0);
 }
 
 /* ---------- événements de l'éditeur ---------- */

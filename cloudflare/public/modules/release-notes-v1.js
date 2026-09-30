@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.5',
+    courante:'8.6',
     versions:[
+      {
+        version:'8.6',
+        nom:'Deux voix dans la même phrase',
+        date:'2026-09-30',
+        points:[
+          'Dans une histoire, une balise (femme) ou (homme) écrite dans le texte change de voix à cet endroit : la même image peut faire parler un homme, puis une femme, puis de nouveau un homme.',
+          'Les balises ne s’affichent jamais à l’écran et la lecture passe d’une voix à l’autre sans coupure.',
+          'Sans balise, rien ne change : tout le texte est lu avec la voix choisie pour l’étape.'
+        ]
+      },
       {
         version:'8.5',
         nom:'Écouter une étape à la fois',

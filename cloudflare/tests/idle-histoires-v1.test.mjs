@@ -98,7 +98,7 @@ function baseVide() {
   assert.equal(histoireDuBossV1(sql, 0), null);
   const h = histoireDuBossV1(sql, 90);
   assert.equal(h.id, "secrete");
-  assert.deepEqual(h.etapes, [{ texte: "Texte secret", imageUrl: "/api/idle/media/story-image?id=secrete&f=z.png" }]);
+  assert.deepEqual(h.etapes, [{ texte: "Texte secret", imageUrl: "/api/idle/media/story-image?id=secrete&f=z.png", parleur: "narrateur" }], "le lecteur reçoit aussi la voix de départ de l'étape (balises de voix dans le texte)");
   assert.ok(!JSON.stringify(histoireDuBossV1(sql, 17)).includes("Texte secret"), "l'histoire d'un autre boss ne contient rien de la secrète");
   const un = histoireDuBossV1(sql, 17);
   assert.equal(un.etapes[0].imageUrl, "/api/idle/media/story?id=MagicienEtLaGrotte&index=1");
