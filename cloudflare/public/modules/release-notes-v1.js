@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.8',
+    courante:'7.9',
     versions:[
+      {
+        version:'7.9',
+        nom:'Des coups nets en Aventure',
+        date:'2026-09-30',
+        points:[
+          'Le correctif précédent sur la fluidité de la barre de vie des boss touchait aussi les combats d’Aventure par erreur.',
+          'En Aventure, les coups sont de nouveau nets : la vie baisse immédiatement à chaque coup.',
+          'La barre de vie des boss (Fight Boss) reste bien fluide, sans revenir en arrière sur ce point.'
+        ]
+      },
       {
         version:'7.8',
         nom:'Un double tap, tout est avalé',

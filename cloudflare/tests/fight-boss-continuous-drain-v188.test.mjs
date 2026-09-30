@@ -24,10 +24,10 @@ assert.doesNotMatch(fight,/coupsDusIdleV116_|IDLE_HIT_(?:JOUEUR|BOSS)_MS_V116/,"
  * fluide. » Le forçage transition:none ci-dessous avait un sens à 60 Hz (fréquence native, avant
  * le plafonnement du tick lourd à 15 Hz, 2026-09-28, pour les freezes iPhone/Safari) : assez de
  * marches par seconde pour paraître fluide sans transition. À 15 Hz, ce même forçage rend la
- * baisse des PV visiblement saccadée. Retiré : la transition CSS de .soreal-idle-bossbar-v7/
- * .soreal-idle-playerbar-v15 (soreal-idle-ui.css) fait maintenant tout le lissage -- même principe
- * que la barre d'Énergie/Magie (Beta 6.7, idle-energy-adventure-hp-v200.test.mjs), qui pose déjà
- * la largeur directement depuis la valeur connue sans transition:none ni interpolation inventée.
+ * baisse des PV visiblement saccadée en Combat de boss numéroté. Retiré de la FONCTION JS (jamais
+ * de transition:none inline ici) : c'est désormais le CSS qui décide, par élément (voir plus bas :
+ * lissé pour le Combat de boss, net pour l'Aventure, qui doit garder ses coups espacés de 700ms
+ * sans lissage -- Norman, 2026-09-30, correction du correctif du 09-29).
  */
 const largeurBarreVieCombat = ui.slice(
   ui.indexOf("function largeurBarreVieCombatIdleV163_("),
@@ -51,12 +51,28 @@ assert.match(
   "Le serveur Fight Boss doit rester fondé sur un drain continu."
 );
 
-// La transition CSS de base (jamais coupée par un !important plus loin) fait le lissage visuel.
+/*
+ * Norman (2026-09-30) : « tu as également changé le comportement de la barre de vie des mobs en
+ * mode aventure. Les coups sont nets en aventure [...] pour fight boss, ça descend
+ * progressivement. Répare ça et attention à ne plus reproduire cette régression. » Le Combat de
+ * boss numéroté (classes .soreal-idle-bossbar-v7/.soreal-idle-playerbar-v15, SANS override d'id)
+ * doit rester lissé par la transition de base ; l'Aventure (mêmes classes, mais avec les ids
+ * #sorealIdleAdventureFightBarV1/#sorealIdleAdventureJoueurBarV1 -- voir adventure-scene-v79.js)
+ * doit retrouver son saut net d'origine (un coup toutes les 700ms, IDLE_ADVENTURE_FIGHT_HIT_MS_V1),
+ * jamais lissé comme le Combat de boss (dégâts appliqués en continu, dt par dt, sans notion de
+ * "coup"). Une règle sur la CLASSE réappliquerait le bug des deux côtés à la fois : elle doit
+ * rester sur les deux IDS Aventure spécifiquement, jamais sur .soreal-idle-bossbar-v7/
+ * .soreal-idle-playerbar-v15 en général.
+ */
 const css = readFileSync(new URL("../public/soreal-idle-ui.css", import.meta.url), "utf8");
-assert.match(css, /\.soreal-idle-bossbar-v7\{[^}]*transition:width \.35s linear/, "transition de base attendue sur la barre de vie du boss");
-assert.match(css, /\.soreal-idle-playerbar-v15\{[^}]*transition:width \.28s linear/, "transition de base attendue sur la barre de vie du joueur");
-assert.ok(!/\.soreal-idle-bossbar-v7\{\s*transition:none\s*!important/.test(css), "plus de transition:none forcée sur la barre du boss");
-assert.ok(!/\.soreal-idle-playerbar-v15\{\s*transition:none\s*!important/.test(css), "plus de transition:none forcée sur la barre du joueur");
-assert.ok(!css.includes("#sorealIdleAdventureFightBarV1,\n          #sorealIdleAdventureJoueurBarV1{\n            transition:none !important;"), "plus de transition:none forcée sur les barres d'Aventure non plus");
+assert.match(css, /\.soreal-idle-bossbar-v7\{[^}]*transition:width \.35s linear/, "transition de base attendue sur la barre de vie du boss (Combat de boss numéroté, lissé)");
+assert.match(css, /\.soreal-idle-playerbar-v15\{[^}]*transition:width \.28s linear/, "transition de base attendue sur la barre de vie du joueur (Combat de boss numéroté, lissé)");
+assert.ok(!/\.soreal-idle-bossbar-v7\{\s*transition:none\s*!important/.test(css), "la CLASSE ne doit jamais forcer transition:none (affecterait aussi le Combat de boss numéroté)");
+assert.ok(!/\.soreal-idle-playerbar-v15\{\s*transition:none\s*!important/.test(css), "la CLASSE ne doit jamais forcer transition:none (affecterait aussi le Combat de boss numéroté)");
+assert.match(
+  css,
+  /#sorealIdleAdventureFightBarV1,\s*#sorealIdleAdventureJoueurBarV1\{\s*transition:none !important;\s*\}/,
+  "l'Aventure doit garder des coups nets (transition:none), ciblée par ID, jamais par la classe partagée"
+);
 
 console.log("Fight Boss continuous drain parity: OK");

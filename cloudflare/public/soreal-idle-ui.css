@@ -3745,16 +3745,29 @@ html,body{overflow-x:hidden}
 
           /*
            * Norman (2026-09-29) : « La barre de vie des boss rame quand elle diminue. Avant elle
-           * était très fluide. » Les deux règles transition:none !important qu'il y avait ici
-           * ("COMBAT PAR IMPACT V116", 2026-09-14) avaient un sens tant que le tick de jeu tournait
-           * à la fréquence native de l'écran (souvent 60 Hz) -- assez de "marches" par seconde pour
+           * était très fluide. » Le forçage transition:none !important qu'il y avait ici sur
+           * .soreal-idle-bossbar-v7/.soreal-idle-playerbar-v15 (partagées par le Combat de boss
+           * numéroté ET par l'Aventure) avait un sens tant que le tick de jeu tournait à la
+           * fréquence native de l'écran (souvent 60 Hz) -- assez de "marches" par seconde pour
            * paraître fluide sans transition. Depuis le plafonnement du tick lourd à 15 Hz
            * (2026-09-28, pour les freezes iPhone/Safari), ce forçage ne laissait plus que 15 marches
-           * par seconde, visiblement saccadées. Retirées : la transition de base ci-dessus (width
-           * .35s linear / .28s linear) fait de nouveau tout le lissage, pour le Combat de boss
-           * numéroté comme pour l'Aventure (mêmes classes .soreal-idle-bossbar-v7/
-           * .soreal-idle-playerbar-v15) -- même principe que la barre d'Énergie/Magie (Beta 6.7).
+           * par seconde, visiblement saccadées, sur le Combat de boss. Retiré ici (règle de base :
+           * width .35s linear / .28s linear) : même principe que la barre d'Énergie/Magie (Beta 6.7).
+           *
+           * Norman (2026-09-30, correction du correctif ci-dessus) : « tu as également changé le
+           * comportement de la barre de vie des mobs en mode aventure. Les coups sont nets en
+           * aventure [...] pour fight boss, ça descend progressivement. » Retirer la règle de base
+           * touchait AUSSI l'Aventure (mêmes classes), qui doit au contraire garder des coups nets
+           * -- un coup toutes les 700ms (IDLE_ADVENTURE_FIGHT_HIT_MS_V1), jamais un lissage continu
+           * comme le Combat de boss numéroté (dégâts appliqués en continu, dt par dt). D'où cette
+           * règle ID-spécifique (jamais .soreal-idle-bossbar-v7/.soreal-idle-playerbar-v15 en
+           * général, qui resterait fluide pour le Combat de boss) : SEULS les deux éléments de
+           * l'écran Aventure retrouvent le saut net d'origine.
            */
+          #sorealIdleAdventureFightBarV1,
+          #sorealIdleAdventureJoueurBarV1{
+            transition:none !important;
+          }
 
           /* ===== AUTO BOSS + VICTOIRE V49 ===== */
           .soreal-idle-auto-next-v49{
