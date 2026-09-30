@@ -2498,6 +2498,45 @@
                   1e-9
                 );
             }
+
+            /*
+             * Norman (2026-09-30) : « La magie ne monte pas progressivement comme l'énergie. Elle
+             * monte par 20 tous les x secondes. » La valeur (ressourceMagieEtat.current ci-dessus)
+             * avançait déjà correctement au compte-goutte, tick par tick -- mais rien dans CE tick
+             * ne poussait cette valeur vers la barre/le texte affichés : seule
+             * rafraichirEnergieEtBoutonsIdleV9_() les mettait à jour, jamais appelée depuis la
+             * boucle de jeu (seulement au clic sur un bouton) contrairement à la barre d'Énergie
+             * juste au-dessus (sorealIdleEnergyBarV11, mise à jour à CHAQUE tick). Entre deux
+             * synchros complètes avec le serveur (~15 s), la barre restait donc figée à l'ancienne
+             * valeur jusqu'au prochain rendu complet -- perçu comme "un saut de 20 toutes les 15 s".
+             * Mêmes éléments que rafraichirEnergieEtBoutonsIdleV9_ (jamais un second calcul).
+             */
+            const magicValeurTickEl=document.getElementById('sorealIdleMagicValeurV1');
+            const magicOverlayTickEl=document.getElementById('sorealIdleMagicOverlayV1');
+            const magicBarTickEl=document.getElementById('sorealIdleMagicBarV1');
+            const magicDisponibleTick=Math.max(0,idleNombre_(ressourceMagieEtat.current));
+            const magicCapTick=Math.max(0,idleNombre_(infoMagieEtat.capRun));
+
+            if(magicValeurTickEl){
+              magicValeurTickEl.textContent=
+                'Disponible : '+
+                formatEnergieIdleV50_(magicDisponibleTick)+
+                ' / '+
+                formatEnergieIdleV50_(magicCapTick);
+            }
+            if(magicOverlayTickEl){
+              magicOverlayTickEl.textContent=
+                formatEnergieIdleV50_(magicDisponibleTick)+
+                ' / '+
+                formatEnergieIdleV50_(magicCapTick);
+            }
+            if(magicBarTickEl){
+              mettreAJourBarreProgressionContinueV1_(
+                magicBarTickEl,
+                magicDisponibleTick,
+                magicCapTick
+              );
+            }
           }
         }
 

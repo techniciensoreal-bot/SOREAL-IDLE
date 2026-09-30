@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.9',
+    courante:'8.0',
     versions:[
+      {
+        version:'8.0',
+        nom:'La magie au compte-goutte, pour de vrai',
+        date:'2026-09-30',
+        points:[
+          'La barre de Magie se remplissait par bonds toutes les quinze secondes au lieu d’avancer en continu.',
+          'Elle se remplit maintenant vraiment au compte-goutte, exactement comme l’Énergie.',
+          'Le nombre affiché au-dessus de la barre suit lui aussi ce même rythme.'
+        ]
+      },
       {
         version:'7.9',
         nom:'Des coups nets en Aventure',

@@ -77,4 +77,46 @@ assert.ok(!ui.includes("function rafraichirVisuelsFluidesIdleV221_("), "retiré 
   assert.match(fn, /mettreAJourBarreProgressionContinueV1_\(\s*magicBar,/, "la barre de Magie doit utiliser le même helper continu que l'Énergie, jamais un simple style.width=X%");
 }
 
+/*
+ * Norman (2026-09-30) : « La magie ne monte pas progressivement comme l'énergie. Elle monte par 20
+ * tous les x secondes. Le compteur doit fonctionner comme celui de énergie. » La valeur avançait
+ * déjà correctement tick par tick (bloc ci-dessus), mais rafraichirEnergieEtBoutonsIdleV9_ (qui la
+ * pousse vers la barre/le texte affichés) n'était JAMAIS appelée depuis mettreAJourJeuIdleLocalV7_
+ * -- seulement au clic sur un bouton. Entre deux synchros serveur (~15 s), la valeur avançait donc
+ * en mémoire sans que rien ne rafraîchisse l'écran : un bond visible à chaque synchro complète,
+ * exactement comme avant le premier correctif "compte-goutte". Ce test verrouille le fait que le
+ * TICK LOURD LUI-MÊME pousse la valeur vers l'écran, comme il le fait déjà pour l'Énergie
+ * (sorealIdleEnergyBarV11, juste au-dessus dans la même fonction) -- jamais seulement au clic.
+ */
+{
+  const debutFn = ui.indexOf("function mettreAJourJeuIdleLocalV7_(){");
+  const finFn = ui.indexOf("function appliquerSynchroCombatSansReflowIdleV116_(", debutFn);
+  assert.ok(debutFn > 0 && finFn > debutFn, "mettreAJourJeuIdleLocalV7_ introuvable");
+  const fn = ui.slice(debutFn, finFn);
+
+  const debutBloc = fn.indexOf("const ressourceMagieEtat=");
+  const bloc = fn.slice(debutBloc, fn.indexOf("actualiserManaSortsIdleV90_(", debutBloc));
+
+  assert.match(
+    bloc,
+    /document\.getElementById\('sorealIdleMagicBarV1'\)/,
+    "le tick lourd doit lui-même toucher la barre de Magie, pas seulement le clic sur un bouton"
+  );
+  assert.match(
+    bloc,
+    /mettreAJourBarreProgressionContinueV1_\(\s*magicBarTickEl,\s*magicDisponibleTick,\s*magicCapTick\s*\)/,
+    "doit utiliser le même helper continu que l'Énergie, à chaque tick, pas seulement à la synchro"
+  );
+  assert.match(
+    bloc,
+    /document\.getElementById\('sorealIdleMagicValeurV1'\)/,
+    "le texte \"Disponible : X / Y\" doit lui aussi suivre le tick lourd, pas seulement le clic"
+  );
+  assert.match(
+    bloc,
+    /magicDisponibleTick=Math\.max\(0,idleNombre_\(ressourceMagieEtat\.current\)\)/,
+    "doit lire la même valeur vivante que celle mutée juste au-dessus dans ce même tick, jamais un second calcul"
+  );
+}
+
 console.log("idle-magic-smooth-fill-v1: OK");
