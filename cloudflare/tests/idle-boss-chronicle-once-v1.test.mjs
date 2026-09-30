@@ -10,6 +10,14 @@ import { readFileSync } from "node:fs";
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
+// 0. Pont de LECTURE server-side (symétrique au pont d'écriture __soreal_idle_marquer_vu_v1__ déjà exposé) : sans lui, tutorial-tts-v202.js
+//    ne peut jamais savoir qu'un identifiant "vu" a déjà été confirmé par le serveur (donc sur un autre appareil).
+assert.match(
+  ui,
+  /window\.__soreal_idle_vu_connu_v1__=function\(id\)\{return idleVuConnuV1_\(idleEtat,id\);\};/,
+  "le pont de lecture doit exposer idleVuConnuV1_ (mémoire + profil.stats.vus serveur), jamais un second calcul"
+);
+
 // 1. Le panneau porte un identifiant stable de boss, posé côté serveur/UI (jamais le texte, qui peut se répéter).
 assert.match(
   ui,
@@ -115,6 +123,62 @@ assert.match(
   assert.ok(!succes.includes("marquerChroniqueLue_("), "plus besoin de remarquer à la fin : déjà fait au démarrage");
   const echec = narrate.slice(narrate.indexOf("}).catch(function(error){"));
   assert.ok(!echec.includes("marquerChroniqueLue_("), "jamais un second marquage dans la branche d'erreur/annulation non plus");
+}
+
+/*
+ * 3bis. Norman (2026-09-30) : « Quand je joue sur le PC et qu'ensuite je joue sur le téléphone, il
+ * me relit certains textes de boss. Pas les premiers, mais les derniers que j'ai tué. » La mémoire
+ * localStorage seule ne survit jamais à un changement d'appareil : chroniqueDejaLue_/
+ * marquerChroniqueLue_ doivent aussi consulter/alimenter le pont "vu" server-side
+ * (window.__soreal_idle_vu_connu_v1__/__soreal_idle_marquer_vu_v1__), préfixé "chronique:" pour
+ * ne jamais entrer en collision avec les autres familles d'identifiants "vus" (menu:, tuto:...).
+ */
+{
+  const constantes = tts.slice(
+    tts.indexOf("var CHRONICLE_PANEL_ID="),
+    tts.indexOf("var voiceManifest=null;")
+  );
+  const fonctions = tts.slice(
+    tts.indexOf("function chroniqueBossId_(panel){"),
+    tts.indexOf("function buttonHost_(panel){")
+  );
+
+  const storage = {};
+  const fakeLocalStorage = {
+    getItem: (k) => (Object.prototype.hasOwnProperty.call(storage, k) ? storage[k] : null),
+    setItem: (k, v) => { storage[k] = String(v); }
+  };
+
+  const fabrique = new Function(
+    "localStorage", "document", "window",
+    constantes + "\n" + fonctions + "\nreturn {marquerChroniqueLue_, chroniqueDejaLue_};"
+  );
+
+  // Un autre appareil (pas de localStorage partagé) mais où le serveur connaît déjà l'identifiant "chronique:12" : doit être reconnu comme déjà lu.
+  {
+    const connus = { "chronique:12": true };
+    const window_ = { __soreal_idle_vu_connu_v1__: (id) => Boolean(connus[id]) };
+    const api = fabrique(fakeLocalStorage, {}, window_);
+    assert.equal(api.chroniqueDejaLue_("12"), true, "le pont serveur doit suffire, même sans mémoire locale pour cet appareil");
+  }
+
+  // Marquer une chronique lue doit appeler le pont serveur avec l'id préfixé "chronique:", pas seulement écrire en local.
+  {
+    const appels = [];
+    const window_ = { __soreal_idle_marquer_vu_v1__: (id) => appels.push(id) };
+    const api = fabrique(fakeLocalStorage, {}, window_);
+    api.marquerChroniqueLue_("13");
+    assert.deepEqual(appels, ["chronique:13"], "doit appeler le pont serveur avec l'id préfixé, comme les autres familles \"vus\" (menu:, tuto:...)");
+  }
+
+  // Pont serveur absent (module chargé avant soreal-idle-ui.js, ou contexte de test minimal) : jamais un plantage, repli sur le local seul.
+  {
+    const window_ = {};
+    const api = fabrique(fakeLocalStorage, {}, window_);
+    assert.equal(api.chroniqueDejaLue_("14"), false, "pont absent -> pas de plantage, juste \"pas encore lu\"");
+    api.marquerChroniqueLue_("14"); // ne doit jamais lever d'exception
+    assert.equal(api.chroniqueDejaLue_("14"), true, "le repli local doit quand même fonctionner sans le pont serveur");
+  }
 }
 
 // 4. Le bouton manuel « Lire la chronique » reste, lui, toujours disponible : lireCible_ ne consulte jamais la mémoire "déjà lue".

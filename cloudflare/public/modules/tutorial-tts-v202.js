@@ -20,9 +20,15 @@
    * Chronique de boss lue automatiquement une seule fois (Norman, 2026-09-27) : « à la toute première rencontre. Ensuite elle ne doit plus
    * être rejouée à moins qu'on décide de la rejouer. Après un Rebirth, elle ne doit plus être jouée. » Le panneau (id fixe ci-dessous) reste
    * rendu en continu tant que l'écran Boss est affiché (contrairement aux popups de tutoriel, créés une seule fois puis retirés) : sans
-   * mémoire dédiée, il repasserait pour « nouveau » à chaque scan. La mémoire vit en localStorage (jamais touchée par un Rebirth, qui est une
-   * action serveur) et est indexée par data-soreal-chronique-boss-id (identifiant stable posé par soreal-idle-ui.js), jamais par le texte : le
-   * bouton manuel « Lire la chronique » (data-soreal-tts-target) reste toujours disponible, lui, quel que soit l'état de cette mémoire.
+   * mémoire dédiée, il repasserait pour « nouveau » à chaque scan. Indexée par data-soreal-chronique-boss-id (identifiant stable posé par
+   * soreal-idle-ui.js), jamais par le texte : le bouton manuel « Lire la chronique » (data-soreal-tts-target) reste toujours disponible, lui,
+   * quel que soit l'état de cette mémoire.
+   *
+   * Norman (2026-09-30) : « en passant du PC au téléphone, il me relit les derniers boss tués. » La mémoire vivait UNIQUEMENT en localStorage
+   * (jamais touchée par un Rebirth, qui est une action serveur -- but recherché à l'origine) : correct pour le Rebirth, mais invisible pour
+   * un autre appareil. Complétée par le même pont "vu" server-side que les popups de menus/tutoriels/histoire (voir chroniqueDejaLue_/
+   * marquerChroniqueLue_ plus bas) -- lui non plus n'est jamais remis à zéro par un Rebirth (seule une réinitialisation totale le fait), donc
+   * la garantie d'origine reste intacte, en plus de survivre au changement d'appareil.
    */
   var CHRONICLE_PANEL_ID='sorealIdleBossChroniqueV206';
   var CHRONICLE_LU_KEY='soreal_idle_boss_chronique_lue_v1';
@@ -423,8 +429,30 @@
     }
   }
 
+  /*
+   * Norman (2026-09-30) : « Quand je joue sur le PC et qu'ensuite je joue sur le téléphone, il me
+   * relit certains textes de boss. Pas les premiers, mais les derniers que j'ai tué. » La mémoire
+   * localStorage ci-dessus reste (rapide, disponible avant même le premier état serveur reçu), mais
+   * elle est maintenant complétée par le même pont "vu" server-side que les popups de menus/
+   * tutoriels/histoire (window.__soreal_idle_vu_connu_v1__/__soreal_idle_marquer_vu_v1__,
+   * soreal-idle-ui.js) -- lui n'est remis à zéro que par une réinitialisation TOTALE, jamais par un
+   * Rebirth (même garantie que voulait le choix du 2026-09-27), mais il survit en plus au
+   * changement d'appareil. Préfixe "chronique:" pour ne jamais entrer en collision avec les autres
+   * familles d'identifiants "vus" (menu:, tuto:, histoire:...).
+   */
+  function chroniqueVuIdV1_(id){
+    return 'chronique:'+id;
+  }
+
   function chroniqueDejaLue_(id){
-    return Boolean(id)&&chroniquesLues_().indexOf(id)>=0;
+    if(!id)return false;
+    if(chroniquesLues_().indexOf(id)>=0)return true;
+    try{
+      return typeof window.__soreal_idle_vu_connu_v1__==='function'&&
+        Boolean(window.__soreal_idle_vu_connu_v1__(chroniqueVuIdV1_(id)));
+    }catch(_){
+      return false;
+    }
   }
 
   function marquerChroniqueLue_(id){
@@ -434,6 +462,11 @@
       if(arr.indexOf(id)<0){
         arr.push(id);
         localStorage.setItem(CHRONICLE_LU_KEY,JSON.stringify(arr));
+      }
+    }catch(_){}
+    try{
+      if(typeof window.__soreal_idle_marquer_vu_v1__==='function'){
+        window.__soreal_idle_marquer_vu_v1__(chroniqueVuIdV1_(id));
       }
     }catch(_){}
   }

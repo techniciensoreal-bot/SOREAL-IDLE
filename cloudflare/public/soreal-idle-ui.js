@@ -10103,6 +10103,19 @@
        * que les popups de menus/tutoriels (idleVuConnuV1_/idleVuMarquerV1_ ci-dessus).
        */
       window.__soreal_idle_marquer_vu_v1__=idleVuMarquerV1_;
+      /*
+       * Norman (2026-09-30) : « Quand je joue sur le PC et qu'ensuite je joue sur le téléphone, il
+       * me relit certains textes de boss. Pas les premiers, mais les derniers que j'ai tué. » Cause
+       * : la mémoire « chronique de boss déjà lue automatiquement » (tutorial-tts-v202.js,
+       * CHRONICLE_LU_KEY) vivait uniquement en localStorage, jamais envoyée au serveur (choix
+       * délibéré du 2026-09-27 pour qu'un Rebirth ne la rejoue pas -- mais l'effet de bord jamais
+       * anticipé : aucun autre appareil ne peut la connaître). Seuls les boss récents/frontière
+       * (encore affichés à l'écran Fight Boss) le laissaient remarquer, d'où « pas les premiers,
+       * les derniers ». Pont de LECTURE symétrique à celui d'écriture ci-dessus : permet à
+       * tutorial-tts-v202.js de vérifier l'état serveur (jamais remis à zéro par un Rebirth, comme
+       * documenté plus haut) sans dupliquer idleVuConnuV1_/idleVusMemoireV1 dans ce module.
+       */
+      window.__soreal_idle_vu_connu_v1__=function(id){return idleVuConnuV1_(idleEtat,id);};
 
       /* Identifiant serveur d'un tutoriel : sa clé locale sans le joueur (« soreal_idle_tutoriel_aventure_v1_<joueur> » -> « tuto:tutoriel_aventure »). */
       function idleVuIdTutorielV1_(cle){

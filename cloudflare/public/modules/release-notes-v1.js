@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.0',
+    courante:'8.1',
     versions:[
+      {
+        version:'8.1',
+        nom:'Une histoire racontée une fois pour toutes',
+        date:'2026-09-30',
+        points:[
+          'Passer du PC au téléphone (ou l’inverse) pouvait faire relire certaines histoires de boss déjà entendues.',
+          'Ce souvenir est maintenant partagé entre tous tes appareils, comme le reste de ta progression.',
+          'Une Renaissance ne les fait toujours pas rejouer.'
+        ]
+      },
       {
         version:'8.0',
         nom:'La magie au compte-goutte, pour de vrai',
