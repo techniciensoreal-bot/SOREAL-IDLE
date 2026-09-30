@@ -186,6 +186,45 @@ async function idleEstAdminV1(request, env) {
   return Boolean(donnees && donnees.ok && donnees.isAdmin === true);
 }
 
+/*
+ * Purge des voix R2 inutiles (Norman, 2026-09-30 : « vérifie bien que les anciennes soient supprimées pour gagner de la place ») : supprime de
+ * idle/voix/ tout fichier dont l'empreinte n'apparaît dans AUCUNE histoire (liste « voix » de chaque histoire, lue par le moteur via
+ * l'opération d'administration listerHistoiresAdminSorealIdle). Réservée à l'administrateur ; ne touche jamais aux images ni aux autres
+ * dossiers. « dry » (=1) : compte seulement, ne supprime rien.
+ */
+async function idlePurgerVoixAdminV1(request, env, url) {
+  if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+  if (!env?.SOREAL_R2 || typeof env.SOREAL_R2.list !== "function" || typeof env.SOREAL_R2.delete !== "function") return idleJsonV1({ ok: false, error: "R2_INDISPONIBLE" }, 503);
+  const sessionToken = idleBearerV1(request);
+  const reponse = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
+    method: "POST",
+    body: JSON.stringify({ sessionToken, operation: "listerHistoiresAdminSorealIdle", args: [sessionToken] })
+  });
+  const donnees = reponse && reponse.ok ? await reponse.json().catch(() => null) : null;
+  if (!donnees || !donnees.ok || !Array.isArray(donnees.histoires)) return idleJsonV1({ ok: false, error: "HISTOIRES_ILLISIBLES" }, 502);
+  const utiles = new Set();
+  for (const h of donnees.histoires) for (const hash of Array.isArray(h.voix) ? h.voix : []) utiles.add(String(hash));
+  const aSupprimer = [];
+  let gardees = 0;
+  let octetsLiberes = 0;
+  let cursor;
+  do {
+    const options = { prefix: "idle/voix/", limit: 1000 };
+    if (cursor) options.cursor = cursor;
+    const listed = await env.SOREAL_R2.list(options);
+    for (const o of (listed && listed.objects) || []) {
+      const hash = String(o.key).slice("idle/voix/".length).replace(/\.m4a$/, "");
+      if (utiles.has(hash)) gardees += 1;
+      else { aSupprimer.push(o.key); octetsLiberes += Number(o.size) || 0; }
+    }
+    cursor = listed && listed.truncated && listed.cursor ? listed.cursor : undefined;
+  } while (cursor);
+  if (url.searchParams.get("dry") !== "1") {
+    for (let i = 0; i < aSupprimer.length; i += 500) await env.SOREAL_R2.delete(aSupprimer.slice(i, i + 500));
+  }
+  return idleJsonV1({ ok: true, supprimees: aSupprimer.length, gardees, octetsLiberes, simulation: url.searchParams.get("dry") === "1" });
+}
+
 async function idleUploadAdminV1(request, env, url) {
   if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
   if (!env?.SOREAL_R2 || typeof env.SOREAL_R2.put !== "function") return idleJsonV1({ ok: false, error: "R2_INDISPONIBLE" }, 503);
@@ -224,6 +263,10 @@ export default {
     const mediaResponse = await traiterRequeteIdleMedia(request, env);
     if (mediaResponse) return mediaResponse;
 
+
+    if (request.method === "POST" && url.pathname === "/api/v1/voice-purge") {
+      return idlePurgerVoixAdminV1(request, env, url);
+    }
 
     if (request.method === "POST" && (url.pathname === "/api/v1/story-upload" || url.pathname === "/api/v1/voice-upload")) {
       return idleUploadAdminV1(request, env, url);

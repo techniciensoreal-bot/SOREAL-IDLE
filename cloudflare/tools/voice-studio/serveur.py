@@ -52,6 +52,38 @@ MAX_SEGMENT = 240
 _modele = None
 _verrou = threading.Lock()
 
+# Prononciations voulues par Norman (reprises de modules/local-neural-piper-v1.js, PRONONCIATIONS_) : le nom du jeu, « Norman »,
+# « Fight Boss », « EXP »… s'écrivent comme ils se disent. Appliquées au texte envoyé à la synthèse seulement.
+PRONONCIATIONS = [
+    (re.compile(r"\bNorman\b"), "Normanne"),
+    (re.compile(r"\bFight Boss\b", re.I), "Faïte Bosse"),
+    (re.compile(r"\bFight\b"), "Faïte"),
+    (re.compile(r"\bVas[-\u2010\u2011\u2013]y\b", re.I), "Vazi"),
+    (re.compile(r"\bEXP\b"), "expérience"),
+    (re.compile(r"\bSOREAL\b", re.I), "Soréalle"),
+    (re.compile(r"\bIDLE\b", re.I), "Ailledeulle"),
+]
+
+
+def normaliser_texte(texte):
+    """Prononciations + bruitages *BLOUM* (un mot puis une pause, jamais « astérisque ») + points de suspension unifiés."""
+    t = str(texte)
+    for motif, remplacement in PRONONCIATIONS:
+        t = motif.sub(remplacement, t)
+
+    def bruitage(m):
+        mot = m.group(1).strip()
+        if not mot:
+            return " "
+        if mot == mot.upper() and mot != mot.lower():
+            mot = mot[0] + mot[1:].lower()
+            return mot + " " if re.search(r"[.!?…]$", mot) else mot + ". "
+        return mot + " "
+
+    t = re.sub(r"\*([^*\n]+)\*", bruitage, t).replace("*", " ")
+    t = t.replace("\u2026", "...")
+    return re.sub(r"\s+", " ", t).strip()
+
 
 def ffmpeg_exe():
     try:
@@ -67,6 +99,10 @@ def charger_modele():
         import torch
         from chatterbox.mtl_tts import ChatterboxMultilingualTTS
         appareil = "cuda" if torch.cuda.is_available() else "cpu"
+        # Plusieurs instances du studio sur la même carte (génération en parallèle) : chacune plafonne sa mémoire (SOREAL_VOIX_MEMOIRE, fraction
+        # de la carte, ex. 0.45) pour que l'allocateur libère son cache au lieu de déborder en mémoire partagée (tout devient alors très lent).
+        if appareil == "cuda" and os.environ.get("SOREAL_VOIX_MEMOIRE"):
+            torch.cuda.set_per_process_memory_fraction(float(os.environ["SOREAL_VOIX_MEMOIRE"]))
         print("Chargement du modèle Chatterbox sur", appareil, "(première fois : téléchargement de quelques Go)…", flush=True)
         try:
             _modele = ChatterboxMultilingualTTS.from_pretrained(device=appareil, t3_model="v3")
@@ -103,7 +139,59 @@ def decouper(texte):
     return [s for s in segments if s]
 
 
+# Sous ce nombre de caractères, Chatterbox plante (« CUDA device-side assert », le contexte GPU est alors perdu) : « Zones » ou « Bien joué »
+# seuls ne passent pas, « Zones. Zones. » passe. Un texte très court est donc dit DEUX fois, et on ne garde que la première fois.
+TEXTE_COURT = 20
+
+
+def garder_premiere_prononciation(wav, sr):
+    """Coupe l'audio de « X. X. » au silence qui sépare les deux prononciations (repli : la première moitié)."""
+    import torch
+    x = wav.squeeze(0).float()
+    n = x.shape[0]
+    fenetre = max(1, int(sr * 0.02))
+    nb = n // fenetre
+    if nb < 10:
+        return wav
+    rms = x[: nb * fenetre].reshape(nb, fenetre).pow(2).mean(dim=1).sqrt()
+    seuil = float(rms.max()) * 0.04
+    calme = (rms < seuil).tolist()
+    parole_vue = 0
+    minimum_silence = int(0.12 / 0.02)
+    i = 0
+    coupe = None
+    while i < nb:
+        if not calme[i]:
+            parole_vue += 1
+            i += 1
+            continue
+        j = i
+        while j < nb and calme[j]:
+            j += 1
+        # un vrai silence intermédiaire : assez de parole avant, assez long, et de la parole après
+        if parole_vue >= 8 and (j - i) >= minimum_silence and j < nb - 5:
+            coupe = i
+            break
+        i = j
+    if coupe is None:
+        coupe = nb // 2
+    fin = min(n, (coupe + 3) * fenetre)
+    return wav[:, :fin]
+
+
 def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
+    import torch
+    texte = normaliser_texte(texte)
+    if not texte:
+        raise ValueError("texte vide après normalisation")
+    if len(texte) < TEXTE_COURT:
+        court = texte.rstrip(" .!?…,;:") or texte
+        wav, sr = synthetiser_long(court + ". " + court + ".", voix, exaggeration, cfg)
+        return garder_premiere_prononciation(wav, sr), sr
+    return synthetiser_long(texte, voix, exaggeration, cfg)
+
+
+def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     import torch
     m = charger_modele()
     morceaux = []
@@ -116,6 +204,8 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
                 kwargs["audio_prompt_path"] = reference
             wav = m.generate(segment, **kwargs)
             wav = wav.detach().cpu()
+            if torch.cuda.is_available() and os.environ.get("SOREAL_VOIX_MEMOIRE"):
+                torch.cuda.empty_cache()
             if wav.dim() == 1:
                 wav = wav.unsqueeze(0)
             morceaux.extend([wav, silence])
@@ -178,6 +268,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path.split("?")[0] != "/synthese":
             return self._json(404, {"ok": False, "error": "introuvable"})
+        texte = ""
         try:
             taille = int(self.headers.get("Content-Length", "0"))
             donnees = json.loads(self.rfile.read(min(taille, 65536)).decode("utf-8"))
@@ -186,13 +277,23 @@ class Gestionnaire(BaseHTTPRequestHandler):
                 return self._json(400, {"ok": False, "error": "texte vide ou trop long"})
             voix = "femme" if donnees.get("voix") == "femme" else "homme"
             wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", 0.5), donnees.get("cfg", 0.5))
+            duree = float(wav.shape[-1]) / float(sr)
             audio = vers_m4a(wav, sr)
         except Exception as e:  # noqa: BLE001
-            print("Erreur de synthèse :", e, file=sys.stderr, flush=True)
-            return self._json(500, {"ok": False, "error": str(e)})
+            message = str(e)
+            print("Erreur de synthèse :", message[:300], "| texte :", repr(texte[:160]), file=sys.stderr, flush=True)
+            self._json(500, {"ok": False, "error": message[:600]})
+            # Une erreur CUDA « device-side assert » corrompt le contexte GPU pour de bon : on quitte, un superviseur (lancer-robuste)
+            # relance le studio propre ; le générateur de voix attend son retour et retente le bloc.
+            if "CUDA" in message or "device-side" in message:
+                threading.Timer(0.5, lambda: os._exit(3)).start()
+            return
         self.send_response(200)
         self._cors()
         self.send_header("Content-Type", "audio/mp4")
+        # Durée de l'audio (secondes) : le générateur de voix s'en sert pour écarter une synthèse tronquée ou qui boucle.
+        self.send_header("X-Duree-Secondes", "%.2f" % duree)
+        self.send_header("Access-Control-Expose-Headers", "X-Duree-Secondes")
         self.send_header("Content-Length", str(len(audio)))
         self.end_headers()
         self.wfile.write(audio)

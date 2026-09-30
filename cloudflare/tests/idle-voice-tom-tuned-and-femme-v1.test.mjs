@@ -24,11 +24,11 @@ assert.deepEqual(JSON.parse(JSON.stringify(reglages)), { tom: { noise_scale: 0.5
 assert.ok(piper.includes('const inference=Object.assign({},config.inference||{},REGLAGES_VOIX_[String(config.dataset||"")]||{});'), "appliqué d'après le jeu de données du modèle (« tom ») ; la dame garde sa configuration");
 
 // --- nouvelle marque de voix : toutes les empreintes changent, rien de l'ancienne voix ne peut être mélangé ---
-assert.ok(tts.includes("var VOICE_TAG='tom2';"));
-assert.ok(generateur.includes('voice: "tom2"'));
+assert.ok(tts.includes("var VOICE_TAG='cb1';"));
+assert.ok(generateur.includes('voice: ETIQUETTE || "cb1"'));
 assert.ok(generateur.includes('const DEBIT = String(arg("bitrate", "96k"));'), "96 kbit/s par défaut");
 const manifeste = JSON.parse(readFileSync("cloudflare/public/voice/manifest.json", "utf8"));
-assert.equal(manifeste.voice, "tom2", "fichiers du jeu = voix v2");
+assert.equal(manifeste.voice, "cb1", "fichiers du jeu = voix Chatterbox (Tom et Siwis)");
 
 // --- la dame ---
 const debut = tts.indexOf("var TEXTES_VOIX_FEMME=");

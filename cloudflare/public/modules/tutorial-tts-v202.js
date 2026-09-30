@@ -54,7 +54,7 @@
    * Les fichiers sont produits par cloudflare/tools/voice-generate.mjs avec CE MÊME découpage et CETTE MÊME empreinte.
    */
   var VOICE_DIR='voice/';
-  var VOICE_TAG='tom2';
+  var VOICE_TAG='cb1';
   /*
    * Voix de femme (Norman, 2026-09-26) : la seule réplique lue par la dame après le popup du sandwich. Son bloc est reconnu par son texte exact ; le générateur de voix
    * (cloudflare/tools/voice-generate.mjs) la synthétise avec le modèle « Siwis » au lieu de Tom. Aucun modèle n'est chargé par le jeu : c'est un fichier pré-généré comme les autres.
@@ -212,11 +212,13 @@
    */
   var blocsFichiers={};
   /*
-   * Voix générées depuis le menu Admin (2026-09-30) : stockées sur R2 (route /api/idle/media/voice?h=<empreinte>), PRIORITAIRES sur le
-   * fichier statique de même empreinte (voix réaliste générée sur le PC de l'administrateur, contre Piper pour les fichiers du dossier
-   * voice/). Seules les empreintes déclarées par l'histoire jouée (enregistrerVoixDynamiques) sont demandées à R2 : aucune requête
-   * inutile pour les autres textes du jeu. Repli : fichier statique, puis Piper.
+   * TOUTES les voix pré-générées sont sur R2 (Norman, 2026-09-30 : « j'aurais aimé qu'elles soient sur le R2, ça me paraît plus logique ») :
+   * fichier idle/voix/<empreinte>.m4a, servi par la route /api/idle/media/voice?h=<empreinte>. Le petit fichier voice/manifest.json (dans
+   * le dépôt) liste les empreintes qui existent : on ne demande à R2 que les blocs dont la voix existe, aucune requête inutile. Les voix
+   * des histoires du menu Admin ne sont pas dans ce manifeste : l'histoire jouée déclare ses empreintes (enregistrerVoixDynamiques).
+   * Sans voix pour un bloc (ou R2 injoignable), repli sur Piper.
    */
+  var VOICE_ROUTE='api/idle/media/voice?h=';
   var voixDynamiques={};
   function enregistrerVoixDynamiques_(liste){
     (Array.isArray(liste)?liste:[]).forEach(function(h){
@@ -226,28 +228,20 @@
       delete blocsFichiers[h];
     });
   }
+  function chargerVoixR2_(hash){
+    return fetch(VOICE_ROUTE+hash).then(function(r){
+      if(!r||!r.ok)return null;
+      return r.blob();
+    }).then(function(blob){
+      return blob&&blob.size?blob:null;
+    });
+  }
   function chargerBlocFichier_(text){
     var hash=hashBloc_(text);
     if(blocsFichiers[hash])return blocsFichiers[hash];
-    var statique=function(){
-      return chargerManifesteVoix_().then(function(set){
-        if(!set[hash])return null;
-        return fetch(VOICE_DIR+hash+'.m4a').then(function(r){
-          if(!r||!r.ok)return null;
-          return r.blob();
-        }).then(function(blob){
-          return blob&&blob.size?blob:null;
-        });
-      });
-    };
     var source=voixDynamiques[hash]
-      ?fetch('api/idle/media/voice?h='+hash).then(function(r){
-        if(!r||!r.ok)return null;
-        return r.blob();
-      }).then(function(blob){
-        return blob&&blob.size?blob:null;
-      }).catch(function(){return null;}).then(function(blob){return blob||statique();})
-      :statique();
+      ?chargerVoixR2_(hash).catch(function(){return null;})
+      :chargerManifesteVoix_().then(function(set){return set[hash]?chargerVoixR2_(hash):null;});
     blocsFichiers[hash]=source.catch(function(){delete blocsFichiers[hash];return null;});
     return blocsFichiers[hash];
   }

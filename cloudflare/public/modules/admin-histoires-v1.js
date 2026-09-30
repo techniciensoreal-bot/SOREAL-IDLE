@@ -175,7 +175,9 @@ function listeHtml_(){
   if(!etat.charge&&!etat.erreur)return '<div class="soreal-idle-adm-meta-v1">Chargement des histoires…</div>';
   if(etat.erreur)return '<div class="adm-erreur-v1">'+esc_(etat.erreur)+'</div><div class="soreal-idle-adm-actions-v1"><button type="button" class="soreal-idle-adm-btn-v1" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.recharger()">Réessayer</button></div>';
   var html='<div class="soreal-idle-adm-meta-v1" style="margin-bottom:10px">Une histoire se joue <b>une seule fois par joueur</b>, à la mort du boss choisi (Fight Boss). Chaque étape = une image + un texte lu à voix haute ; on passe à l’image suivante dès que la lecture est terminée.</div>'+
-    '<div class="soreal-idle-adm-actions-v1" style="margin:0 0 12px"><button type="button" class="soreal-idle-adm-btn-v1 primaire" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.nouvelle()">＋ Nouvelle histoire</button></div>';
+    '<div class="soreal-idle-adm-actions-v1" style="margin:0 0 12px"><button type="button" class="soreal-idle-adm-btn-v1 primaire" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.nouvelle()">＋ Nouvelle histoire</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" title="Supprime du stockage les fichiers de voix que plus aucune histoire n’utilise (anciennes voix, textes modifiés)" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.purgerVoix()">🧹 Supprimer les voix inutiles</button></div>'+
+      '<div class="soreal-idle-adm-meta-v1" id="sorealIdleAdminPurgeV1" style="margin-bottom:10px"></div>';
   if(!etat.histoires.length)html+='<div class="soreal-idle-adm-meta-v1">Aucune histoire pour le moment.</div>';
   etat.histoires.forEach(function(h){
     var v=statutVoixHistoire_(h);
@@ -194,6 +196,27 @@ function listeHtml_(){
 function rafraichirListe_(){
   var el=document.getElementById(LISTE_ID);
   if(el)el.innerHTML=listeHtml_();
+}
+
+/* Supprime de R2 les voix qu'aucune histoire n'utilise : d'abord un comptage (rien n'est supprimé), puis confirmation. */
+function purgerVoix_(){
+  var zone=document.getElementById('sorealIdleAdminPurgeV1');
+  function message(t){if(zone)zone.textContent=t;}
+  function appeler(dry){
+    return fetch('/api/v1/voice-purge'+(dry?'?dry=1':''),{method:'POST',headers:{authorization:'Bearer '+jeton_()}})
+      .then(function(r){return r.json().catch(function(){return null;}).then(function(d){
+        if(!r.ok||!d||!d.ok)throw new Error((d&&d.error)||('Refusé ('+r.status+')'));
+        return d;
+      });});
+  }
+  message('Comptage des voix inutiles…');
+  appeler(true).then(function(d){
+    var mo=(d.octetsLiberes/1048576).toFixed(1).replace('.',',');
+    if(!d.supprimees){message('Rien à nettoyer : les '+d.gardees+' voix stockées sont toutes utilisées.');return;}
+    if(!window.confirm('Supprimer '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' de voix inutile'+(d.supprimees>1?'s':'')+' ('+mo+' Mo) ? Les '+d.gardees+' voix utilisées sont conservées.')){message('Nettoyage annulé.');return;}
+    message('Suppression…');
+    return appeler(false).then(function(f){message('✔ '+f.supprimees+' fichier'+(f.supprimees>1?'s':'')+' supprimé'+(f.supprimees>1?'s':'')+' ('+mo+' Mo libérés), '+f.gardees+' conservé'+(f.gardees>1?'s':'')+'.');});
+  }).catch(function(e){message('Nettoyage impossible : '+(e&&e.message?e.message:e));});
 }
 
 function charger_(){
@@ -468,6 +491,11 @@ function enregistrer_(){
   lireChamps_();
   var erreur=valider_();
   if(erreur){afficherEtat_(erreur,true);return Promise.resolve(false);}
+  /* Les empreintes de voix d'un texte modifié ou supprimé ne servent plus : elles sont retirées ici (le nettoyage supprimera leurs fichiers). */
+  var actuelles={};
+  edition.etapes.forEach(function(e){blocsDeEtape_(e).forEach(function(b){actuelles[b.hash]=1;});});
+  /* Sans le module de narration on ne peut pas recalculer les empreintes : on ne touche à rien. */
+  if(tts_()&&typeof tts_().planNarration==='function')edition.voix=(edition.voix||[]).filter(function(h){return actuelles[h];});
   afficherEtat_('Enregistrement…');
   return appel_('enregistrerHistoireAdminSorealIdle',[edition]).then(function(res){
     if(!res||res.ok===false){afficherEtat_((res&&res.message)||'Enregistrement refusé.',true);return false;}
@@ -651,6 +679,7 @@ window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__={
   page:page_,
   recharger:function(){etat.charge=false;etat.erreur='';charger_();rafraichirListe_();},
   nouvelle:nouvelle_,
+  purgerVoix:purgerVoix_,
   /* Outils de test. */
   urlImage:urlImage_,
   nouvelId:nouvelId_,

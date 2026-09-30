@@ -6,5 +6,11 @@ if not exist "%PY%" (
   pause
   exit /b 1
 )
+:boucle
 "%PY%" "%~dp0serveur.py"
+rem Code 3 = erreur CUDA irrecuperable : le studio est relance tout seul.
+if errorlevel 3 (
+  echo Studio redemarre apres une erreur GPU...
+  goto boucle
+)
 pause
