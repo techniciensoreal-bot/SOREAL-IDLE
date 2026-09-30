@@ -56,6 +56,9 @@ function baseVide() {
   const sql = baseVide();
   const h = enregistrerHistoireV1(sql, { id: "essai-1", titre: "  Mon essai ", boss: 30, actif: true, etapes: [{ texte: "Bonjour\r\nmonde", image: "abc.webp" }, { texte: "", image: "legacy:2" }] });
   assert.equal(h.titre, "Mon essai");
+  assert.deepEqual(h.etapes.map((e) => e.parleur), ["narrateur", "narrateur"], "par défaut, le narrateur parle");
+  const duo = enregistrerHistoireV1(sql, { id: "duo", titre: "Duo", etapes: [{ texte: "a", parleur: "femme" }, { texte: "b", parleur: "n'importe quoi" }] });
+  assert.deepEqual(duo.etapes.map((e) => e.parleur), ["femme", "narrateur"], "une voix de femme au choix par étape, toute autre valeur = narrateur");
   assert.equal(h.etapes[0].texte, "Bonjour\nmonde");
   assert.equal(lireHistoiresV1(sql).find((x) => x.id === "essai-1").boss, 30);
   assert.throws(() => normaliserHistoireV1({ id: "../x", titre: "a", etapes: [{ texte: "t" }] }), /HISTOIRE_ID_INVALIDE/);

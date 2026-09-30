@@ -61,6 +61,8 @@ function regler(email, records, succes = 0) {
   const arr = JSON.parse(l.row_json);
   const stats = JSON.parse(arr[37]);
   Object.assign(stats.metaNgu.records, records);
+  /* 2026-09-30 : le classement « Temps de jeu » lit le temps ACTIF (stats.tempsActifSec, battementSorealIdle), plus records.playSeconds (temps écoulé du moteur, rattrapage hors-ligne compris). */
+  if (records.playSeconds !== undefined) stats.tempsActifSec = records.playSeconds;
   stats.metaNgu.systems.achievements.data.unlocked = Object.fromEntries(Array.from({ length: succes }, (_, i) => ["a" + i, 1]));
   arr[37] = JSON.stringify(stats);
   db.prepare("update idle_catalog set row_json=? where rowid=?").run(JSON.stringify(arr), l.id);

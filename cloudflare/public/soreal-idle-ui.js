@@ -21111,7 +21111,7 @@ function pageAventureIdleV28_(j){
         {id:'rebirths',nom:'♻️ Rebirths'},
         {id:'number',nom:'🔢 NUMBER'},
         {id:'exp',nom:'⭐ EXP'},
-        {id:'playSeconds',nom:'⏱️ Temps de jeu'},
+        {id:'playSeconds',nom:'⏱️ Temps de jeu actif'},
         {id:'achievements',nom:'🎖️ Succès'},
         {id:'clics',nom:'🖱️ Clics/Tap'}
       ];
@@ -22461,6 +22461,27 @@ function pageAventureIdleV28_(j){
         });
       }
 
+
+      /*
+       * Ce que fait le joueur, pour le chat SOREAL IDLE (modules/chat-v1.js) : zone d'Aventure farmée en combat automatique, boss combattu,
+       * et ce que CE joueur a déjà découvert (zones connues, boss le plus haut) -- le chat n'affiche le nom d'une zone ou le numéro d'un
+       * boss d'un AUTRE joueur que si le lecteur les connaît (anti-spoil, AGENTS.md règle n°2).
+       */
+      window.__SOREAL_IDLE_ACTIVITE_V1__=function(){
+        const j=idleEtat;
+        if(!j)return null;
+        const a=aventureMetaIdleV47_(j);
+        const zones=(a&&Array.isArray(a.zones)?a.zones:[])
+          .filter(function(z){return z&&idleEntier_(z.id)>0;})
+          .map(function(z){return {id:idleEntier_(z.id),nom:String(z.name||'')};});
+        let farm=null;
+        if(idleAutoAventureV30){
+          const z=zones.find(function(x){return x.id===idleEntier_(idleAutoZoneV30);});
+          if(z)farm={zoneId:z.id,zoneNom:z.nom};
+        }
+        const records=j.systemes&&j.systemes.records;
+        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss)};
+      };
 
       window.__menuIdleV28__=
         menuIdleV28_;

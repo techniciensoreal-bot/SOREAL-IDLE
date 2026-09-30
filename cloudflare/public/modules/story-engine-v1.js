@@ -152,12 +152,13 @@ function jouer_(histoire,options){
     overlay.classList.add('soreal-idle-histoire-visible-v1');
   });
 
+  /* Une étape sans image garde l'image précédente à l'écran (utile pour enchaîner deux voix sur la même image). */
   function afficherImage_(url){
-    img.style.opacity='0';
     if(!url){
       if(chargementEl)chargementEl.classList.remove('soreal-idle-histoire-chargement-visible-v1');
       return;
     }
+    img.style.opacity='0';
     if(chargementEl)chargementEl.classList.add('soreal-idle-histoire-chargement-visible-v1');
     setTimeout(function(){
       if(passageDemande)return;

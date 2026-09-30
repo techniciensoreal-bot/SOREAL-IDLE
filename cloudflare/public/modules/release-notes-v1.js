@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.3',
+    courante:'8.4',
     versions:[
+      {
+        version:'8.4',
+        nom:'Un chat rien que pour nous',
+        date:'2026-09-30',
+        points:[
+          'Le chat est maintenant réservé aux joueurs de SOREAL IDLE, directement dans le jeu : plus de lien avec le chat des autres applications.',
+          'Le bouton « en ligne » montre qui joue en ce moment, et ce qu’il fait (par exemple « Farm dans une zone d’Aventure »). Tu ne vois le nom d’une zone ou d’un boss que si tu l’as déjà découvert.',
+          'Le temps de jeu comparé entre joueurs ne compte plus que le temps où tu joues vraiment (page ouverte et utilisée) : le temps passé hors du jeu ne le fait plus monter. Le compteur repart de zéro pour tout le monde.',
+          'Les histoires peuvent maintenant mélanger une voix d’homme et une voix de femme.'
+        ]
+      },
       {
         version:'8.3',
         nom:'Les scènes se racontent autrement',

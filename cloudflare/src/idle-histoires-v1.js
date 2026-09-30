@@ -126,7 +126,8 @@ export function normaliserHistoireV1(brut) {
   const etapes = etapesBrutes.map((e) => {
     const image = String(e && e.image != null ? e.image : "").trim();
     if (image && !IDLE_HISTOIRE_IMAGE_RE_V1.test(image)) throw new Error("HISTOIRE_IMAGE_INVALIDE");
-    return { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), image };
+    /* Qui parle : le narrateur (défaut) ou une voix de femme (Norman, 2026-09-30 : « faire intervenir une femme de temps en temps »). */
+    return { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), image, parleur: e && e.parleur === "femme" ? "femme" : "narrateur" };
   });
   const voix = Array.from(new Set((Array.isArray(h.voix) ? h.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_HISTOIRE_HASH_RE_V1.test(x)))).slice(0, 400);
   /* Identifiant « vu » (profil.stats.vus) : conservé tel quel pour les deux premières histoires, déjà mémorisé chez les joueurs. */

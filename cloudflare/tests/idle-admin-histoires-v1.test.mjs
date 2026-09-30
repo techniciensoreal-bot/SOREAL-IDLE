@@ -82,5 +82,14 @@ assert.match(source, /appel_\('enregistrerHistoireAdminSorealIdle',\[edition\]\)
 assert.match(source, /appel_\('supprimerHistoireAdminSorealIdle',\[\{id:h\.id\}\]\)/, "l'identifiant part dans un objet (le pont ajoute la session au premier argument texte)");
 assert.match(source, /moteur\.jouer\(versLecteur_\(h\),\{marquerVu:false\}\)/, "« Jouer » / « Tester » ne marque jamais l'histoire comme vue");
 assert.match(source, /<input type="file" id="sorealIdleAdminFichiersV1"[^>]*multiple/, "plusieurs images d'un coup");
+// --- Deux voix (Norman, 2026-09-30 : « faire intervenir une femme de temps en temps ») ---
+assert.match(source, /data-adm-parleur/, "choix du parleur par étape");
+assert.match(source, /\['femme','👩 Femme'\]/);
+assert.match(source, /voix:parleur==='femme'\?'femme':'homme'/, "la voix choisie est transmise au studio");
+assert.match(source, /b\.parleur=e\.parleur\|\|'narrateur'/, "chaque bloc de voix retient le parleur de son étape");
+const studio = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");
+assert.match(studio, /VOIX_FICHIERS = \{"homme": "homme\.wav", "femme": "femme\.wav"\}/);
+assert.match(studio, /kwargs\["audio_prompt_path"\] = reference/, "chaque voix imite un extrait de voix FRANÇAISE (pas d'accent anglais)");
+assert.match(readFileSync("cloudflare/tools/voice-studio/installer.bat", "utf8"), /creer_references\.py/, "extraits de référence créés à l'installation");
 
 console.log("idle-admin-histoires-v1: OK");

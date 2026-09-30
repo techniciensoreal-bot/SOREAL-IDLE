@@ -34,6 +34,7 @@ import {
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
+import { battementV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
 } from "./idle-profile-v1.js";
@@ -4672,6 +4673,12 @@ function statsJoueurSorealIdle_(valeur) {
     fusions:Math.max(0,Math.floor(nombreSorealIdle_(s.fusions,0))),
     /* Norman (2026-09-27) : catégorie « Clics/Tap » du classement -- compteur brut, jamais anti-triche (« même si quelqu'un triche, ca n'est pas grave »). */
     clicsTotal:Math.max(0,Math.floor(nombreSorealIdle_(s.clicsTotal,0))),
+    /*
+     * Temps de jeu ACTIF en secondes (Norman, 2026-09-30 : « dans Classement, les gens ne font que monter alors qu'ils ne jouent pas »).
+     * Incrémenté par battementSorealIdle uniquement quand le joueur interagit réellement avec la page visible. Remplace, pour le
+     * classement, records.playSeconds (temps écoulé du moteur, rattrapage hors-ligne compris).
+     */
+    tempsActifSec:Math.max(0,nombreSorealIdle_(s.tempsActifSec,0)),
     forge:Math.max(0,Math.floor(nombreSorealIdle_(s.forge,0))),
     materiauxDepenses:Math.max(0,Math.floor(nombreSorealIdle_(s.materiauxDepenses,0))),
     extensionsSac:Math.max(0,Math.floor(nombreSorealIdle_(s.extensionsSac,0))),
@@ -13071,7 +13078,8 @@ function valeursClassementJoueurSorealIdle_(stats) {
     rebirths: Math.floor(positif(records.totalRebirths)),
     number: positif(records.bestNumber),
     exp: positif(records.totalExpEarned),
-    playSeconds: Math.floor(positif(records.playSeconds)),
+    /* Temps de jeu ACTIF (battementSorealIdle), plus le temps écoulé du moteur : voir statsJoueurSorealIdle_.tempsActifSec. */
+    playSeconds: Math.floor(positif(stats && stats.tempsActifSec)),
     achievements: succes,
     clics: Math.floor(positif(stats && stats.clicsTotal))
   };
@@ -16610,7 +16618,89 @@ function supprimerHistoireAdminSorealIdle(sessionToken, id) {
   return { ok: true };
 }
 
+/*
+ * Chat et présence de SOREAL IDLE (voir idle-chat-v1.js), temps de jeu ACTIF (Norman, 2026-09-30).
+ *
+ * battementSorealIdle : appelé par le jeu toutes les ~20 s. Il (1) marque le joueur « en ligne sur SOREAL IDLE » avec ce qu'il fait,
+ * (2) crédite le temps de jeu ACTIF -- uniquement les secondes écoulées depuis le battement précédent, et seulement si le joueur a
+ * réellement interagi avec la page visible (jamais le rattrapage hors-ligne, qui faisait monter le classement sans jouer).
+ */
+function battementSorealIdle(sessionToken, info) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: true, enLigne: [], dernierChatId: 0 };
+  const identite = identiteJoueurSorealIdle_(acces);
+  const i = info && typeof info === 'object' ? info : {};
+  const resultat = battementV1(__idleSql, {
+    email: emailProfilSorealIdle_(acces),
+    nom: identite.nomAffiche,
+    admin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL,
+    actif: i.actif === true,
+    activite: i.activite
+  });
+
+  if (resultat.gain > 0) {
+    const lock = LockService.getScriptLock();
+    if (lock.tryLock(1800)) {
+      try {
+        const feuille = obtenirFeuilleJoueursSorealIdle_();
+        const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+        assurerDonneesJeuSorealIdle_(feuille, ligne);
+        const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+        const cellule = feuille.getRange(ligne, c.STATS_JSON);
+        const stats = statsJoueurSorealIdle_(cellule.getValue());
+        stats.tempsActifSec = stats.tempsActifSec + resultat.gain;
+        cellule.setValue(JSON.stringify(stats));
+        SpreadsheetApp.flush();
+      } finally {
+        lock.releaseLock();
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    enLigne: resultat.enLigne,
+    dernierChatId: dernierIdChatV1(__idleSql),
+    moi: identite.nomAffiche,
+    estAdmin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL
+  };
+}
+
+function lireChatSorealIdle(sessionToken, options) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: true, items: [] };
+  const o = options && typeof options === 'object' ? options : {};
+  return { ok: true, items: lireChatV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: emailProfilSorealIdle_(acces) }) };
+}
+
+function envoyerChatSorealIdle(sessionToken, message) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: false, message: 'Chat indisponible.' };
+  const identite = identiteJoueurSorealIdle_(acces);
+  /* Le texte arrive soit seul, soit dans un objet { message } (le pont client ajoute la session au premier argument de type texte). */
+  const texte = message && typeof message === 'object' ? message.message : message;
+  return envoyerChatV1(__idleSql, {
+    email: emailProfilSorealIdle_(acces),
+    nom: identite.nomAffiche,
+    admin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL,
+    texte
+  });
+}
+
+/* Modération : l'administrateur peut retirer un message. */
+function supprimerMessageChatSorealIdle(sessionToken, id) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (String(acces.emailAutorise || '').toLowerCase() !== ADMIN_SOREAL_IDLE_EMAIL) throw new Error('SOREAL_IDLE_ADMIN_REQUIS');
+  if (!__idleSql) return { ok: true };
+  supprimerMessageChatV1(__idleSql, id && typeof id === 'object' ? id.id : id);
+  return { ok: true };
+}
+
 const IDLE_OPERATIONS={
+  battementSorealIdle,
+  lireChatSorealIdle,
+  envoyerChatSorealIdle,
+  supprimerMessageChatSorealIdle,
   obtenirHistoireBossSorealIdle,
   listerHistoiresAdminSorealIdle,
   enregistrerHistoireAdminSorealIdle,

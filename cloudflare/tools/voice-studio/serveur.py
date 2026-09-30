@@ -7,12 +7,16 @@ licence MIT, gratuit) sur ta carte graphique. Le menu Admin du jeu (bouton « G�
 récupère un fichier audio m4a, puis le téléverse sur le site. Rien ne quitte ton PC sauf ce fichier audio final.
 
   GET  /ping      -> {"ok":true,"modele":"chatterbox","gpu":"NVIDIA ..."}
-  POST /synthese  -> corps JSON {"texte":"...","exaggeration":0.5,"cfg":0.5} ; réponse : audio/mp4 (AAC mono)
+  POST /synthese  -> corps JSON {"texte":"...","voix":"homme"|"femme","exaggeration":0.5,"cfg":0.5} ; réponse : audio/mp4 (AAC mono)
+
+Deux voix : « homme » (narrateur) et « femme ». Chacune imite un court extrait de voix FRANÇAISE (voix/homme.wav, voix/femme.wav dans
+le dossier du studio) : c'est ce qui supprime l'accent anglais de la voix par défaut de Chatterbox. Les extraits par défaut sont
+produits par creer_references.py (voix Piper françaises libres « Tom » et « Siwis ») ; tu peux les remplacer par tes propres extraits.
 
 Variables d'environnement (facultatives) :
   SOREAL_VOIX_PORT        port d'écoute (défaut 8765)
   SOREAL_VOIX_ORIGINES    origines autorisées, séparées par des virgules (défaut : le site en ligne + localhost)
-  SOREAL_VOIX_REFERENCE   chemin d'un extrait audio de 6 à 15 s : la voix générée imite cet extrait (sinon voix par défaut)
+  SOREAL_VOIX_DOSSIER     dossier des extraits de référence (défaut : <studio>/voix)
   SOREAL_VOIX_DEBIT       débit AAC (défaut 96k)
 """
 import io
@@ -27,7 +31,16 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("SOREAL_VOIX_PORT", "8765"))
 DEBIT = os.environ.get("SOREAL_VOIX_DEBIT", "96k")
-REFERENCE = os.environ.get("SOREAL_VOIX_REFERENCE", "").strip() or None
+DOSSIER_VOIX = os.environ.get("SOREAL_VOIX_DOSSIER", "").strip() or os.path.join(
+    os.environ.get("USERPROFILE", os.path.expanduser("~")), "soreal-voice-studio", "voix")
+VOIX_FICHIERS = {"homme": "homme.wav", "femme": "femme.wav"}
+
+
+def reference_voix(voix):
+    """Chemin de l'extrait de référence de la voix demandée (None s'il n'existe pas : voix par défaut de Chatterbox)."""
+    nom = VOIX_FICHIERS.get(voix if voix in VOIX_FICHIERS else "homme")
+    chemin = os.path.join(DOSSIER_VOIX, nom)
+    return chemin if os.path.isfile(chemin) else None
 ORIGINES = [o.strip() for o in os.environ.get(
     "SOREAL_VOIX_ORIGINES",
     "https://soreal-idle.technicien-soreal.workers.dev,http://localhost:8787,http://127.0.0.1:8787"
@@ -90,7 +103,7 @@ def decouper(texte):
     return [s for s in segments if s]
 
 
-def synthetiser(texte, exaggeration=0.5, cfg=0.5):
+def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     import torch
     m = charger_modele()
     morceaux = []
@@ -98,8 +111,9 @@ def synthetiser(texte, exaggeration=0.5, cfg=0.5):
     with _verrou:
         for segment in decouper(texte):
             kwargs = {"language_id": "fr", "exaggeration": float(exaggeration), "cfg_weight": float(cfg)}
-            if REFERENCE:
-                kwargs["audio_prompt_path"] = REFERENCE
+            reference = reference_voix(voix)
+            if reference:
+                kwargs["audio_prompt_path"] = reference
             wav = m.generate(segment, **kwargs)
             wav = wav.detach().cpu()
             if wav.dim() == 1:
@@ -157,7 +171,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
                 gpu = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
             except Exception:
                 gpu = "inconnu"
-            return self._json(200, {"ok": True, "modele": "chatterbox", "gpu": gpu, "reference": bool(REFERENCE)})
+            return self._json(200, {"ok": True, "modele": "chatterbox", "gpu": gpu,
+                                    "voix": {"homme": bool(reference_voix("homme")), "femme": bool(reference_voix("femme"))}})
         self._json(404, {"ok": False, "error": "introuvable"})
 
     def do_POST(self):
@@ -169,7 +184,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             texte = str(donnees.get("texte", "")).strip()
             if not texte or len(texte) > MAX_TEXTE:
                 return self._json(400, {"ok": False, "error": "texte vide ou trop long"})
-            wav, sr = synthetiser(texte, donnees.get("exaggeration", 0.5), donnees.get("cfg", 0.5))
+            voix = "femme" if donnees.get("voix") == "femme" else "homme"
+            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", 0.5), donnees.get("cfg", 0.5))
             audio = vers_m4a(wav, sr)
         except Exception as e:  # noqa: BLE001
             print("Erreur de synthèse :", e, file=sys.stderr, flush=True)

@@ -1,49 +1,46 @@
 /*
- * Chat SOREAL dans SOREAL IDLE (Norman, 2026-09-25) : « le chat normal, celui dans lequel tout le monde parle, mais accessible dans SOREAL IDLE,
- * avec le bouton des gens en ligne ».
+ * Chat et joueurs en ligne de SOREAL IDLE (Norman, 2026-09-30) : « supprimer le chat tel qu'il est. Un chat uniquement réservé aux gens
+ * qui jouent au jeu, accessible via le jeu, pour voir qui est en ligne SUR SOREAL IDLE (APP et TV ne doivent pas nous signaler en
+ * ligne), avec des infos en plus du genre "Farm dans <zone d'Aventure>". »
  *
- * Aucune donnée n'est dupliquée : c'est le salon « général » de APP/TV. SOREAL IDLE tourne dans un cadre de APP ou de TV et ne reçoit jamais la
- * session de l'application (isolation voulue) ; il demande donc à la PAGE PARENTE, par postMessage, de lire / envoyer avec sa propre session :
- *   IDLE -> parent : {soreal:'idle-chat-v1', id, op, args}   op = hello | list | send | presence
- *   parent -> IDLE : {soreal:'idle-chat-v1', id, ok, data | error}
- * Le parent (APP: Soreal_App_html.html, TV: TV_67_JS_Idle_Launcher.html) ne répond qu'à SON cadre IDLE, ne touche jamais au salon Responsables
- * et borne les arguments. Hors cadre (adresse directe du jeu) le chat est simplement indisponible : aucun bouton.
+ * Remplace l'ancien chat, qui relayait le salon « général » de APP/TV par la page parente (postMessage) : plus aucun lien avec APP/TV.
+ * Tout passe par le serveur de SOREAL IDLE (idle-chat-v1.js) : un joueur est « en ligne » tant que SON JEU envoie un battement
+ * (toutes les ~20 s) ; ouvrir APP ou TV n'y change rien. Le même battement sert au temps de jeu ACTIF du classement : il dit si le
+ * joueur a réellement interagi (clic, tap, clavier) avec la page visible dans les 2 dernières minutes.
+ *
+ * Anti-spoil (AGENTS.md règle n°2) : le nom d'une zone d'Aventure ou le numéro d'un boss combattu par UN AUTRE joueur n'est montré que
+ * si TU les as déjà découverts ; sinon « Farm en Aventure » / « Combat un boss ».
  *
  * Le panneau vit hors de #app (le rendu complet du jeu remplace #app en continu et effacerait la saisie).
  */
 (function(){
   'use strict';
 
-  const PROTOCOLE='idle-chat-v1';
-  const CLE_VU='soreal_idle_chat_vu_v1';
-  const INTERVALLE_OUVERT_MS=3000;
-  const INTERVALLE_FOND_MS=15000;
-  const INTERVALLE_PRESENCE_MS=15000;
+  const CLE_VU='soreal_idle_chat_vu_v2';
+  const BATTEMENT_MS=20000;
+  const INTERVALLE_OUVERT_MS=4000;
+  const FENETRE_ACTIVITE_MS=120000;
   const MAX_MESSAGES=200;
 
   let dispo=false;
-  let moiEmail='';
-  let moiNom='';
   let items=[];
   let dernierId=0;
   let vuId=0;
   let nonLus=0;
   let ouvert=false;
   let panneauPresence=false;
-  let modePresence='online';
-  let presence={enLigne:[],horsLigne:[]};
+  let enLigne=[];
+  let estAdmin=false;
   let envoiEnCours=false;
+  let timerBattement=null;
   let timerListe=null;
-  let timerPresence=null;
-  let seq=0;
-  const attentes={};
+  let derniereInteraction=0;
 
   function echapper(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-
   function lireVu(){
     try{return Math.max(0,Number(localStorage.getItem(CLE_VU))||0);}catch(e){return 0;}
   }
@@ -51,62 +48,86 @@
     try{localStorage.setItem(CLE_VU,String(n));}catch(e){}
   }
 
-  /* ---------- pont vers la page parente ---------- */
-  window.addEventListener('message',function(event){
-    if(event.source!==window.parent)return;
-    const d=event.data;
-    if(!d||typeof d!=='object'||d.soreal!==PROTOCOLE||!d.id)return;
-    const a=attentes[d.id];
-    if(!a)return;
-    delete attentes[d.id];
-    clearTimeout(a.t);
-    if(d.ok)a.res(d.data);
-    else a.rej(new Error(String(d.error||'Chat indisponible')));
+  /* ---------- appels au serveur du jeu ---------- */
+  function appel(nom,args){
+    const f=window.__SOREAL_IDLE_CALL_V1__;
+    if(typeof f!=='function')return Promise.reject(new Error('Connexion au jeu indisponible.'));
+    return Promise.resolve(f(nom,args||[]));
+  }
+
+  /* ---------- activité du joueur (temps de jeu actif + « Farm dans… ») ---------- */
+  ['pointerdown','keydown','touchstart','wheel'].forEach(function(type){
+    document.addEventListener(type,function(){derniereInteraction=Date.now();},{capture:true,passive:true});
   });
 
-  function appelParent(op,args){
-    return new Promise(function(res,rej){
-      if(window.parent===window){rej(new Error('hors cadre'));return;}
-      const id=++seq;
-      const t=setTimeout(function(){delete attentes[id];rej(new Error('Le chat ne répond pas.'));},10000);
-      attentes[id]={res:res,rej:rej,t:t};
-      try{
-        window.parent.postMessage({soreal:PROTOCOLE,id:id,op:op,args:args||{}},'*');
-      }catch(e){
-        delete attentes[id];clearTimeout(t);rej(e);
-      }
-    });
+  function estActif(){
+    return document.visibilityState==='visible'&&derniereInteraction>0&&(Date.now()-derniereInteraction)<=FENETRE_ACTIVITE_MS;
+  }
+
+  function contexteJeu(){
+    try{
+      const f=window.__SOREAL_IDLE_ACTIVITE_V1__;
+      return typeof f==='function'?f():null;
+    }catch(e){return null;}
+  }
+
+  /* Ce que fait le joueur, dans le format attendu par le serveur (normaliserActiviteV1). */
+  function activiteActuelle(){
+    const c=contexteJeu();
+    if(!c)return {t:'libre'};
+    if(c.farm&&c.farm.zoneId)return {t:'farm',zoneId:c.farm.zoneId,zoneNom:c.farm.zoneNom||''};
+    if(c.boss>0)return {t:'boss',boss:c.boss};
+    return {t:'libre'};
+  }
+
+  /* Texte montré aux autres, sans jamais révéler ce que le lecteur n'a pas encore découvert. */
+  function texteActivite(u){
+    if(!u.actif)return '💤 Inactif';
+    const a=u.activite||{t:'libre'};
+    const c=contexteJeu()||{zones:[],bossMax:0};
+    if(a.t==='farm'){
+      const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(a.zoneId);});
+      return connue&&a.zoneNom?'⚔️ Farm dans '+a.zoneNom:'⚔️ Farm en Aventure';
+    }
+    if(a.t==='boss'){
+      return a.boss>0&&a.boss<=Number(c.bossMax||0)+1?'👹 Combat le boss '+a.boss:'👹 Combat un boss';
+    }
+    return '🎮 En jeu';
+  }
+
+  function battement(){
+    return appel('battementSorealIdle',[{actif:estActif(),activite:activiteActuelle()}]).then(function(res){
+      if(!res||res.ok===false)return;
+      enLigne=Array.isArray(res.enLigne)?res.enLigne:[];
+      estAdmin=Boolean(res.estAdmin);
+      rendrePresence();
+      if(Number(res.dernierChatId)>dernierId)chargerRecents().catch(function(){});
+    }).catch(function(){});
   }
 
   /* ---------- messages ---------- */
-  function texteMessage(m){
-    const brut=String(m==null?'':m).replace(/[​-‍﻿]/g,'').trim();
-    if(/\[\[\s*SOREAL_PHOTO/i.test(brut))return '📷 Photo (à voir dans le chat de APP ou de TV)';
-    if(/\[\[\s*SOREAL_AUDIO/i.test(brut))return '🎤 Message vocal (à écouter dans le chat de APP ou de TV)';
-    if(/^\[\[\s*SOREAL_[A-Z_]+\s*:/i.test(brut))return '📎 Pièce jointe (à ouvrir dans le chat de APP ou de TV)';
-    return brut;
-  }
-
   function normaliserItems(liste){
     return (Array.isArray(liste)?liste:[]).map(function(it){
       return {
         id:Number(it&&it.id)||0,
         nom:String(it&&it.nom||''),
-        email:String(it&&it.email||'').toLowerCase(),
-        heure:String(it&&it.heure||''),
-        date:String(it&&it.date||''),
-        message:String(it&&it.message||''),
-        couleur:/^#[0-9a-f]{6}$/i.test(String(it&&it.profil&&it.profil.couleur||''))?String(it.profil.couleur):''
+        at:Number(it&&it.at)||0,
+        admin:Boolean(it&&it.admin),
+        moi:Boolean(it&&it.moi),
+        message:String(it&&it.message||'')
       };
     }).filter(function(it){return it.id>0;});
   }
 
-  function estMoi(it){
-    return Boolean(moiEmail&&it.email&&it.email===moiEmail);
+  function heure(at){
+    if(!at)return '';
+    const d=new Date(at);
+    const hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    return d.toDateString()===new Date().toDateString()?hm:d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+hm;
   }
 
   function recalculerNonLus(){
-    nonLus=items.filter(function(it){return it.id>vuId&&!estMoi(it);}).length;
+    nonLus=items.filter(function(it){return it.id>vuId&&!it.moi;}).length;
     majBadge();
   }
 
@@ -124,9 +145,8 @@
   }
 
   function chargerRecents(){
-    return appelParent('list',dernierId?{apresId:dernierId,limite:100}:{limite:40}).then(function(data){
-      const nouveaux=normaliserItems(data&&data.items);
-      const change=ajouterItems(nouveaux);
+    return appel('lireChatSorealIdle',[dernierId?{apresId:dernierId,limite:100}:{limite:40}]).then(function(data){
+      const change=ajouterItems(normaliserItems(data&&data.items));
       if(change){
         if(ouvert){
           vuId=dernierId;ecrireVu(vuId);
@@ -171,6 +191,7 @@
       '#sorealIdleChatV1 .sic-msg.moi{align-self:flex-end;background:rgba(94,217,255,.16)}'+
       '#sorealIdleChatV1 .sic-nom{font-size:12px;font-weight:900;margin-bottom:2px}'+
       '#sorealIdleChatV1 .sic-heure{margin-left:6px;font-size:10px;font-weight:400;color:#8b93ab}'+
+      '#sorealIdleChatV1 .sic-suppr{margin-left:8px;border:0;background:transparent;color:#fca5a5;font-size:12px;padding:0}'+
       '#sorealIdleChatV1 .sic-txt{font-size:14px;line-height:1.4;white-space:pre-wrap}'+
       '#sorealIdleChatV1 .sic-vide{margin:auto;color:#8b93ab;font-size:13px;text-align:center}'+
       '#sorealIdleChatV1 .sic-saisie{display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.1)}'+
@@ -178,23 +199,25 @@
       '#sorealIdleChatV1 .sic-envoyer{background:linear-gradient(90deg,#5ed9ff,#7cf0c6);border:0;color:#04202b}'+
       '#sorealIdleChatV1 .sic-envoyer:disabled{opacity:.5}'+
       '#sorealIdleChatV1 .sic-presence{position:absolute;inset:0;overflow-y:auto;padding:10px 12px;background:#0f1729}'+
-      '#sorealIdleChatV1 .sic-onglets{display:flex;gap:8px;margin-bottom:10px}'+
-      '#sorealIdleChatV1 .sic-ligne{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}'+
+      '#sorealIdleChatV1 .sic-ligne{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}'+
       '#sorealIdleChatV1 .sic-point{width:10px;height:10px;border-radius:50%;background:#64748b;flex:none}'+
       '#sorealIdleChatV1 .sic-point.on{background:#22c55e;box-shadow:0 0 8px #22c55e}'+
-      '#sorealIdleChatV1 .sic-dernier{margin-left:auto;font-size:11px;color:#8b93ab}'+
-      '#sorealIdleChatV1 .sic-admin{margin-left:6px;padding:1px 6px;border-radius:6px;background:#7c3aed;color:#fff;font-size:10px;font-weight:900}';
+      '#sorealIdleChatV1 .sic-point.away{background:#f59e0b}'+
+      '#sorealIdleChatV1 .sic-activite{margin-left:auto;font-size:12px;color:#9fb0cf;text-align:right}'+
+      '#sorealIdleChatV1 .sic-admin{margin-left:6px;padding:1px 6px;border-radius:6px;background:#7c3aed;color:#fff;font-size:10px;font-weight:900}'+
+      '#sorealIdleChatV1 .sic-note{font-size:11px;color:#8b93ab;margin:0 0 8px}';
     document.head.appendChild(st);
   }
 
   function elListe(){return document.querySelector('#sorealIdleChatV1 .sic-liste');}
 
   function htmlMessage(it){
-    const moi=estMoi(it);
-    return '<div class="sic-msg'+(moi?' moi':'')+'" data-id="'+it.id+'">'+
-      '<div class="sic-nom"'+(it.couleur?' style="color:'+it.couleur+'"':'')+'>'+echapper(moi?'Moi':(it.nom||'?'))+
-        '<span class="sic-heure">'+echapper(it.heure)+'</span></div>'+
-      '<div class="sic-txt">'+echapper(texteMessage(it.message))+'</div>'+
+    return '<div class="sic-msg'+(it.moi?' moi':'')+'" data-id="'+it.id+'">'+
+      '<div class="sic-nom">'+echapper(it.moi?'Moi':(it.nom||'?'))+(it.admin?'<span class="sic-admin">ADMIN</span>':'')+
+        '<span class="sic-heure">'+echapper(heure(it.at))+'</span>'+
+        (estAdmin?'<button type="button" class="sic-suppr" data-sic="suppr" data-id="'+it.id+'" aria-label="Supprimer ce message" title="Supprimer ce message">🗑</button>':'')+
+      '</div>'+
+      '<div class="sic-txt">'+echapper(it.message)+'</div>'+
     '</div>';
   }
 
@@ -211,32 +234,18 @@
     const bouton=document.querySelector('#sorealIdleChatV1 .sic-btn-presence');
     if(bouton){
       bouton.classList.toggle('actif',panneauPresence);
-      bouton.textContent='🟢 '+presence.enLigne.length+' en ligne';
+      bouton.textContent='🟢 '+enLigne.length+' en ligne';
     }
     if(!zone)return;
     zone.hidden=!panneauPresence;
     if(!panneauPresence)return;
-    const liste=modePresence==='online'?presence.enLigne:presence.horsLigne;
     zone.innerHTML=
-      '<div class="sic-onglets">'+
-        '<button type="button" class="sic-btn'+(modePresence==='online'?' actif':'')+'" data-sic="online">🟢 En ligne ('+presence.enLigne.length+')</button>'+
-        '<button type="button" class="sic-btn'+(modePresence==='offline'?' actif':'')+'" data-sic="offline">⚪ Hors ligne ('+presence.horsLigne.length+')</button>'+
-      '</div>'+
-      (liste.length?liste.map(function(u){
-        return '<div class="sic-ligne"><span class="sic-point'+(modePresence==='online'?' on':'')+'"></span>'+
-          '<span>'+echapper(u.nom||u.email||'?')+(u.moi?' (moi)':'')+(u.admin?'<span class="sic-admin">ADMIN</span>':'')+'</span>'+
-          '<span class="sic-dernier">'+echapper(modePresence==='online'?'maintenant':(u.derniereActivite||'Jamais connecté'))+'</span></div>';
-      }).join(''):'<div class="sic-vide">'+(modePresence==='online'?'Personne en ligne':'Personne hors ligne')+'</div>');
-  }
-
-  function chargerPresence(){
-    return appelParent('presence').then(function(data){
-      presence={
-        enLigne:Array.isArray(data&&data.enLigne)?data.enLigne:[],
-        horsLigne:Array.isArray(data&&data.horsLigne)?data.horsLigne:[]
-      };
-      rendrePresence();
-    }).catch(function(){});
+      '<p class="sic-note">Joueurs connectés à SOREAL IDLE en ce moment (seuls ceux qui ont le jeu ouvert apparaissent).</p>'+
+      (enLigne.length?enLigne.map(function(u){
+        return '<div class="sic-ligne"><span class="sic-point '+(u.actif?'on':'away')+'"></span>'+
+          '<span>'+echapper(u.nom||'?')+(u.moi?' (moi)':'')+(u.admin?'<span class="sic-admin">ADMIN</span>':'')+'</span>'+
+          '<span class="sic-activite">'+echapper(texteActivite(u))+'</span></div>';
+      }).join(''):'<div class="sic-vide">Personne en ligne</div>');
   }
 
   function envoyer(){
@@ -248,16 +257,25 @@
     if(!message)return;
     envoiEnCours=true;
     if(bouton)bouton.disabled=true;
-    appelParent('send',{message:message}).then(function(){
+    appel('envoyerChatSorealIdle',[{message:message}]).then(function(res){
+      if(res&&res.ok===false)throw new Error(res.message||'Message refusé.');
       champ.value='';
       return chargerRecents();
     }).catch(function(e){
-      try{window.alert('⚠️ '+e.message);}catch(_){}
+      try{window.alert('⚠️ '+(e&&e.message?e.message:e));}catch(_){}
     }).then(function(){
       envoiEnCours=false;
       if(bouton)bouton.disabled=false;
       champ.focus();
     });
+  }
+
+  function supprimerMessage(id){
+    if(!estAdmin||!window.confirm('Supprimer ce message pour tout le monde ?'))return;
+    appel('supprimerMessageChatSorealIdle',[{id:id}]).then(function(){
+      items=items.filter(function(it){return it.id!==id;});
+      rendreMessages(false);
+    }).catch(function(e){try{window.alert('⚠️ '+(e&&e.message?e.message:e));}catch(_){}});
   }
 
   function ouvrir(){
@@ -268,11 +286,11 @@
     el.id='sorealIdleChatV1';
     el.setAttribute('role','dialog');
     el.setAttribute('aria-modal','true');
-    el.setAttribute('aria-label','Chat SOREAL');
+    el.setAttribute('aria-label','Chat SOREAL IDLE');
     el.innerHTML=
       '<div class="sic-fen">'+
         '<div class="sic-tete">'+
-          '<div class="sic-titre">💬 Chat SOREAL</div>'+
+          '<div class="sic-titre">💬 Chat SOREAL IDLE</div>'+
           '<button type="button" class="sic-btn sic-btn-presence" data-sic="presence">🟢 … en ligne</button>'+
           '<button type="button" class="sic-btn" data-sic="fermer" aria-label="Fermer le chat">✕</button>'+
         '</div>'+
@@ -292,8 +310,8 @@
       const a=c.getAttribute('data-sic');
       if(a==='fermer')fermer();
       else if(a==='envoyer')envoyer();
-      else if(a==='presence'){panneauPresence=!panneauPresence;rendrePresence();if(panneauPresence)chargerPresence();}
-      else if(a==='online'||a==='offline'){modePresence=a;rendrePresence();}
+      else if(a==='suppr')supprimerMessage(Number(c.getAttribute('data-id')));
+      else if(a==='presence'){panneauPresence=!panneauPresence;rendrePresence();if(panneauPresence)battement();}
     });
     el.addEventListener('keydown',function(event){
       if(event.key==='Enter'&&!event.shiftKey&&event.target&&event.target.tagName==='TEXTAREA'){
@@ -308,31 +326,26 @@
     rendreMessages(true);
     rendrePresence();
     vuId=dernierId;ecrireVu(vuId);recalculerNonLus();
-    chargerRecents().then(function(){rendreMessages(true);});
-    chargerPresence();
-    demarrerTimers();
+    chargerRecents().then(function(){rendreMessages(true);}).catch(function(){});
+    battement();
+    demarrerTimerListe();
   }
 
   function fermer(){
     ouvert=false;
     const el=document.getElementById('sorealIdleChatV1');
     if(el&&el.parentNode)el.parentNode.removeChild(el);
-    demarrerTimers();
+    demarrerTimerListe();
   }
 
-  function demarrerTimers(){
+  /* Messages : interrogés seulement panneau ouvert (en arrière-plan, le battement signale un nouveau message). */
+  function demarrerTimerListe(){
     clearInterval(timerListe);timerListe=null;
-    clearInterval(timerPresence);timerPresence=null;
-    if(!dispo)return;
+    if(!dispo||!ouvert)return;
     timerListe=setInterval(function(){
       if(document.hidden)return;
       chargerRecents().catch(function(){});
-    },ouvert?INTERVALLE_OUVERT_MS:INTERVALLE_FOND_MS);
-    if(ouvert){
-      timerPresence=setInterval(function(){
-        if(!document.hidden)chargerPresence();
-      },INTERVALLE_PRESENCE_MS);
-    }
+    },INTERVALLE_OUVERT_MS);
   }
 
   /* Échap ferme le chat. */
@@ -342,22 +355,23 @@
 
   /* ---------- démarrage ---------- */
   function demarrer(tentative){
-    if(dispo||window.parent===window)return;
-    appelParent('hello').then(function(data){
-      moiEmail=String(data&&data.email||'').toLowerCase();
-      moiNom=String(data&&data.nom||'');
-      dispo=true;
-      vuId=lireVu();
-      return chargerRecents().catch(function(){}).then(function(){
-        /* Première utilisation sur cet appareil : pas de « non lus » pour tout l'historique. */
-        if(!vuId&&dernierId){vuId=dernierId;ecrireVu(vuId);}
-        recalculerNonLus();
-        demarrerTimers();
-        if(typeof window.__SOREAL_IDLE_CHAT_MAJ_MENU__==='function')window.__SOREAL_IDLE_CHAT_MAJ_MENU__();
-      });
-    }).catch(function(){
-      if((tentative||0)<3)setTimeout(function(){demarrer((tentative||0)+1);},4000);
+    if(dispo)return;
+    if(typeof window.__SOREAL_IDLE_CALL_V1__!=='function'||!(window.__SOREAL_IDLE_STANDALONE_V1__&&window.__SOREAL_IDLE_STANDALONE_V1__.session&&window.__SOREAL_IDLE_STANDALONE_V1__.session())){
+      if((tentative||0)<60)setTimeout(function(){demarrer((tentative||0)+1);},2000);
+      return;
+    }
+    dispo=true;
+    vuId=lireVu();
+    battement().then(function(){
+      return chargerRecents().catch(function(){});
+    }).then(function(){
+      /* Première utilisation sur cet appareil : pas de « non lus » pour tout l'historique. */
+      if(!vuId&&dernierId){vuId=dernierId;ecrireVu(vuId);}
+      recalculerNonLus();
+      if(typeof window.__SOREAL_IDLE_CHAT_MAJ_MENU__==='function')window.__SOREAL_IDLE_CHAT_MAJ_MENU__();
     });
+    /* Même onglet en arrière-plan : le battement continue (le joueur reste « en ligne », mais pas « actif »). */
+    timerBattement=setInterval(battement,BATTEMENT_MS);
   }
 
   window.__SOREAL_IDLE_CHAT_V1__={
@@ -365,7 +379,11 @@
     ouvrir:ouvrir,
     fermer:fermer,
     badgeHtml:badgeHtml,
-    demarrer:function(){demarrer(0);}
+    demarrer:function(){demarrer(0);},
+    /* Outils de test. */
+    texteActivite:texteActivite,
+    estActif:estActif,
+    activiteActuelle:activiteActuelle
   };
   demarrer(0);
 })();

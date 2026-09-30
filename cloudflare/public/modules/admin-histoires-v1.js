@@ -88,6 +88,8 @@ function blocsDeTexte_(texte){
   });
 }
 
+var PARLEURS=[['narrateur','🎙 Narrateur'],['femme','👩 Femme']];
+
 function statutVoixEtape_(etape,voix){
   var blocs=blocsDeTexte_(etape.texte);
   if(!blocs.length)return {total:0,prets:0};
@@ -245,7 +247,7 @@ document.addEventListener('click',function(ev){
 function copie_(h){return JSON.parse(JSON.stringify(h));}
 
 function nouvelle_(){
-  ouvrirEditeur_({id:nouvelId_('histoire'),titre:'',boss:null,actif:true,voix:[],etapes:[{texte:'',image:''}]},true);
+  ouvrirEditeur_({id:nouvelId_('histoire'),titre:'',boss:null,actif:true,voix:[],etapes:[{texte:'',image:'',parleur:'narrateur'}]},true);
 }
 
 function ouvrirEditeur_(h,estNouvelle){
@@ -289,9 +291,10 @@ function etapeHtml_(e,i){
       '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'">🗑</button>'+
     '</div>'+
     '<div class="adm-etape-corps-v1">'+
-      (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image</div>')+
+      (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
       '<div style="flex:1;min-width:0">'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer l’image':'Choisir une image')+'</button>'+
+        '<label>Qui parle</label><select data-adm-parleur="'+i+'">'+PARLEURS.map(function(p){return '<option value="'+p[0]+'"'+((e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
         '<label>Texte lu à voix haute</label>'+
         '<textarea data-adm-texte="'+i+'" placeholder="Colle ici le texte de cette image…">'+esc_(e.texte)+'</textarea>'+
       '</div>'+
@@ -358,6 +361,10 @@ function lireChamps_(){
     var i=Number(ta.getAttribute('data-adm-texte'));
     if(edition.etapes[i])edition.etapes[i].texte=ta.value;
   });
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-parleur]'),function(sel){
+    var i=Number(sel.getAttribute('data-adm-parleur'));
+    if(edition.etapes[i])edition.etapes[i].parleur=sel.value;
+  });
 }
 
 function deplacer_(i,delta){
@@ -417,7 +424,7 @@ function ajouterImages_(){
       suite=suite.then(function(){
         afficherEtat_('Téléversement '+(faits+1)+'/'+fichiers.length+' : '+f.name+'…');
         return televerserImage_(f).then(function(nom){
-          edition.etapes.push({texte:'',image:nom});
+          edition.etapes.push({texte:'',image:nom,parleur:'narrateur'});
           faits+=1;
           rafraichirEtapes_();
         });
@@ -471,8 +478,8 @@ function verifierStudio_(){
   });
 }
 
-function synthetiser_(texte){
-  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte})})
+function synthetiser_(texte,parleur){
+  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte,voix:parleur==='femme'?'femme':'homme'})})
     .then(function(r){
       if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
       return r.blob();
@@ -493,7 +500,7 @@ function genererVoix_(){
   if(erreur){afficherEtat_(erreur,true);return;}
   var toutes=Boolean((document.getElementById('sorealIdleAdminToutesV1')||{}).checked);
   var vus={},blocs=[];
-  edition.etapes.forEach(function(e){blocsDeTexte_(e.texte).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});});
+  edition.etapes.forEach(function(e){blocsDeTexte_(e.texte).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;b.parleur=e.parleur||'narrateur';blocs.push(b);}});});
   if(!blocs.length){afficherEtat_('Aucun texte à lire : colle d’abord le texte des étapes.',true);return;}
   var aFaire=blocs.filter(function(b){return toutes||(edition.voix||[]).indexOf(b.hash)===-1;});
   if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
@@ -508,7 +515,7 @@ function genererVoix_(){
       if(generation.annule)throw new Error('__annule__');
       generation.texte='🎙 Génération des voix : '+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_();
-      return synthetiser_(b.texte).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
+      return synthetiser_(b.texte,b.parleur).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
         if(voix.indexOf(b.hash)===-1)voix.push(b.hash);
         edition.voix=voix.slice();
         fait+=1;
@@ -544,7 +551,7 @@ document.addEventListener('click',function(ev){
   if(g){
     var act=g.getAttribute('data-adm-g');
     if(act==='fermer'){fermerEditeur_();return;}
-    if(act==='ajouter'){lireChamps_();edition.etapes.push({texte:'',image:''});rafraichirEtapes_();return;}
+    if(act==='ajouter'){lireChamps_();edition.etapes.push({texte:'',image:'',parleur:'narrateur'});rafraichirEtapes_();return;}
     if(act==='images'){ajouterImages_();return;}
     if(act==='enregistrer'){enregistrer_();return;}
     if(act==='tester'){lireChamps_();var err=valider_();if(err){afficherEtat_(err,true);return;}jouer_(edition);return;}

@@ -112,7 +112,7 @@ const HISTOIRE = {
   assert.equal(api.jouer(HISTOIRE), false, "jamais deux lectures en même temps");
   while (horloge.avancer()) {}
   const overlay = document_.body.children[0];
-  assert.deepEqual(overlay.querySelector("img")._srcHistorique, [HISTOIRE.etapes[0].imageUrl, HISTOIRE.etapes[1].imageUrl], "chaque étape affiche son image (une étape sans image n'en affiche pas)");
+  assert.deepEqual(overlay.querySelector("img")._srcHistorique, [HISTOIRE.etapes[0].imageUrl, HISTOIRE.etapes[1].imageUrl], "chaque étape affiche son image ; une étape sans image garde la précédente (pas de nouvelle image, pas de clignotement)");
   assert.deepEqual(window_.vus, ["histoire:essai"], "marqué vu une seule fois, à la fin réelle");
   assert.equal(api.enCours(), false);
 }
