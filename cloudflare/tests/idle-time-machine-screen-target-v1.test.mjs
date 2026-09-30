@@ -151,7 +151,8 @@ const hote = {
   idleEntier_: (v) => Math.max(0, Math.floor(Number(v) || 0)),
   formatGrandNombreIdleV70_: (v) => String(v),
   entetePageIdleV28_: (t) => "<h1>" + t + "</h1>",
-  appelerProgressionIdleCloudflareV1_() {},
+  /* Chantier réactivité (2026-09-30) : les allocations partent en différé par l'envoi groupé -> l'hôte reçoit la charge utile. */
+  appelerProgressionIdleCloudflareV1_(payload, ok) { actions.push(payload); if (typeof ok === "function") ok({ ok: false }); },
   /*
    * 2026-09-29 : ajusterTimeMachineIdleV1_ est devenu optimiste (comme Basic Training/
    * Augmentation, Norman : « je veux garder le visuel actuel, mais je veux le son lié aux
@@ -162,7 +163,8 @@ const hote = {
   jouerEffetAudioIdleV199_() {}
 };
 const window = { __SOREAL_IDLE_META_HOST_V130__: hote, __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (x) => String(x) }, __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v) }, document: { getElementById: () => null } };
-const sandbox = { window, document: window.document, SOREAL_SESSION: null };
+const sandbox = { window, document: window.document, SOREAL_SESSION: "jeton", setTimeout, clearTimeout, performance };
+const attendreEnvoi = () => new Promise((r) => setTimeout(r, 130));
 vm.runInNewContext(meta, sandbox);
 const api = window.__SOREAL_IDLE_META_V130__;
 let etat = null;
@@ -185,12 +187,12 @@ let etat = null;
   assert.match(html, /__cibleTimeMachineIdleV1__\('speed',this\.value\)/);
   // + / − envoient l'allocation actuelle ± Input
   window.__SOREAL_IDLE_META_HOST_V130__ = Object.assign({}, hote);
-  window.__actionMetaV47__ = (p) => actions.push(p);
   window.document.getElementById = (id) => (id === "sorealIdleTmInputV1" ? { value: "250" } : null);
   s.systems.timeMachine.allocation.energy = 1000;
   /* j.energie = énergie Idle LIBRE (pas encore allouée), distincte de resources.energy.current : généreuse ici pour ne pas interférer avec ce test d'arithmétique +/-. */
   etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 5000 };
   window.__ajusterTimeMachineIdleV1__("energy", "plus");
+  await attendreEnvoi();
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1250 });
   /*
    * 2026-09-29 : ajusterTimeMachineIdleV1_ est désormais optimiste (mutation locale immédiate de
@@ -201,8 +203,10 @@ let etat = null;
   s.systems.timeMachine.allocation.energy = 1000;
   etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 5000 };
   window.__ajusterTimeMachineIdleV1__("energy", "moins");
+  await attendreEnvoi();
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 750 });
   window.__cibleTimeMachineIdleV1__("gold", "33");
+  await attendreEnvoi();
   assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "setTimeMachineTarget", track: "gold", value: 33 });
 
   /*
@@ -216,12 +220,14 @@ let etat = null;
     s.systems.timeMachine.allocation.energy = 1000;
     etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 0 };
     window.__ajusterTimeMachineIdleV1__("energy", "plus");
+    await attendreEnvoi();
     assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1000 }, "aucune énergie libre -> l'allocation ne doit pas bouger, jamais 1250 puis corrigée");
 
     // Moins d'énergie libre que l'Input demandé (250) : plafonné à ce qui est réellement libre (60), jamais 250.
     s.systems.timeMachine.allocation.energy = 1000;
     etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 60 };
     window.__ajusterTimeMachineIdleV1__("energy", "plus");
+    await attendreEnvoi();
     assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1060 }, "plafonné à l'énergie libre réelle (60), jamais l'Input demandé en entier (250)");
 
     // Même plafond côté Magic (resources.magic.current, déjà porté par idleNguSnapshot).
@@ -230,6 +236,7 @@ let etat = null;
     sMagicRare.resources.magic.current = 20;
     etat = { systemes: idleNguSnapshot(sMagicRare, ctx, 0), energie: 5000 };
     window.__ajusterTimeMachineIdleV1__("magic", "plus");
+    await attendreEnvoi();
     assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "magic", value: 520 }, "plafonné à la Magic libre réelle (20), jamais l'Input demandé en entier (250)");
   }
 }

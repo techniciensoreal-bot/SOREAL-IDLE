@@ -1384,6 +1384,8 @@ function acheterQuirkIdleV1_(quirkId){
 function pageChallengesIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'challenges');
         if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏁 Défis','Défis à restriction, pour des récompenses permanentes.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        /* Page détaillée (textes français, restrictions, récompenses par complétion) : modules/challenges-v1.js. */
+        if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof window.__SOREAL_IDLE_DEFIS_V1__.page==='function')return window.__SOREAL_IDLE_DEFIS_V1__.page(j);
         const defs=j&&j.systemes&&Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
         const actif=defs.find(function(d){return d&&d.active;})||null;
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏁 Défis'+(defs[0]&&defs[0].tier==='difficile'?' (Evil)':defs[0]&&defs[0].tier==='extreme'?' (Sadistic)':''),'Démarre un défi débloqué, atteins son objectif de boss, puis valide-le pour la récompense. Un seul défi actif à la fois. Les défis Evil et Sadistic ont leurs propres compteurs et récompenses.')+
@@ -1543,6 +1545,144 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
       }
 
+      /*
+       * ===== Allocations rapides (chantier « réactivité », Norman 2026-09-30) =====
+       * « L'interface n'est pas réactive : quand on retire ou remet l'énergie dans Augmentations, ça met du temps. Tout doit être aussi
+       * rapide que Basic Training. » Cause : chaque clic attendait l'aller-retour serveur (file d'actions en série, puis rendu complet de
+       * la page) avant de mettre à jour durée, barre et compte à rebours. Basic Training, lui, applique tout EN LOCAL, envoie en différé
+       * l'état voulu (un seul envoi pour une rafale de clics) et recolle la réponse sans tout redessiner. Même principe ici :
+       *  1. le clic modifie l'état local et recalcule tout de suite ce qui en dépend (durée d'un niveau = K / allocation, barre, compte à
+       *     rebours), avec les constantes K envoyées par le serveur (secondsK, speedK…) -- jamais une seconde formule inventée ;
+       *  2. l'allocation part en différé (70 ms), UNE seule fois par cible (la dernière valeur voulue), un envoi à la fois ;
+       *  3. la réponse est recollée SANS redessiner la page si elle confirme ce que l'écran montre ; sinon (refus, plafond) rendu complet.
+       */
+      const IDLE_ALLOC_RAPIDE_V1={file:new Map(),timer:0,enCours:false,ancien:null};
+      function cleAllocRapideV1_(p){
+        return String(p.action)+':'+String(p.system||'')+':'+String(p.resource||p.pair||p.track||p.ritual||'')+':'+(p.upgrade?'u':'m');
+      }
+      function planifierAllocRapideV1_(delai){
+        const R=IDLE_ALLOC_RAPIDE_V1;
+        if(R.timer)clearTimeout(R.timer);
+        R.timer=setTimeout(viderAllocRapideV1_,Math.max(15,delai||70));
+      }
+      /* Met une action d'allocation en attente ; la même cible est écrasée (dernière valeur voulue), en fin de file pour garder l'ordre. */
+      function envoyerAllocRapideV1_(payload,delai){
+        if(typeof SOREAL_SESSION==='undefined'||!SOREAL_SESSION)return;
+        const R=IDLE_ALLOC_RAPIDE_V1;
+        if(payload.action==='clearAugmentAllocations'){
+          Array.from(R.file.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.file.delete(c);});
+        }
+        const cle=cleAllocRapideV1_(payload);
+        R.file.delete(cle);
+        R.file.set(cle,payload);
+        planifierAllocRapideV1_(delai);
+      }
+      function viderAllocRapideV1_(){
+        const R=IDLE_ALLOC_RAPIDE_V1;
+        R.timer=0;
+        if(R.enCours)return;
+        const suivant=R.file.entries().next();
+        if(suivant.done)return;
+        const cle=suivant.value[0];
+        const payload=suivant.value[1];
+        R.file.delete(cle);
+        R.enCours=true;
+        window.__SOREAL_IDLE_META_HOST_V130__.appelerProgressionIdleCloudflareV1_(
+          payload,
+          function(res){
+            R.enCours=false;
+            reconcilierAllocRapideV1_(res);
+            if(R.file.size)planifierAllocRapideV1_(20);
+          },
+          function(){
+            R.enCours=false;
+            /* Échec réseau : on remet l'action (sauf si une valeur plus récente l'a déjà remplacée) et on réessaie. */
+            if(!R.file.has(cle))R.file.set(cle,payload);
+            planifierAllocRapideV1_(1200);
+          }
+        );
+      }
+      window.__envoyerAllocRapideIdleV1__=envoyerAllocRapideV1_;
+      window.__allocRapideEtatIdleV1__=function(){return {enAttente:IDLE_ALLOC_RAPIDE_V1.file.size,enCours:IDLE_ALLOC_RAPIDE_V1.enCours,timer:Boolean(IDLE_ALLOC_RAPIDE_V1.timer)};};
+
+      /* Empreinte des allocations de tous les systèmes : ce que le joueur a demandé, à comparer à ce que le serveur confirme. */
+      function empreinteAllocationsMetaV1_(j){
+        const liste=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+        return liste.map(function(x){
+          const st=(x&&x.state)||{};
+          const pairs=st.data&&st.data.pairs;
+          const extra=pairs?Object.keys(pairs).map(function(k){return k+':'+(pairs[k]&&pairs[k].energy)+'/'+(pairs[k]&&pairs[k].upgradeEnergy);}).join(','):'';
+          const rituel=st.data&&st.data.activeRitual?st.data.activeRitual:'';
+          return String(x&&x.id)+'='+JSON.stringify(st.allocation||{})+extra+rituel;
+        }).join('|');
+      }
+      function niveauxAugmentsMetaV1_(j){
+        const s=systemeMetaParIdIdleV130_(j,'augmentations');
+        const pairs=s&&s.state&&s.state.data&&s.state.data.pairs||{};
+        return Object.keys(pairs).map(function(k){return k+':'+pairs[k].level+'/'+pairs[k].upgradeLevel;}).join(',');
+      }
+
+      /*
+       * Réponse du serveur à une allocation. Une réponse plus ancienne que la valeur affichée est ignorée (la dernière réconcilie) ; une
+       * réponse qui confirme l'écran met à jour les vues serveur (durées, progression) SANS redessiner la page ; une divergence
+       * (refus, plafond, niveau cible atteint) redessine tout, comme avant.
+       */
+      function reconcilierAllocRapideV1_(res){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const R=IDLE_ALLOC_RAPIDE_V1;
+        if(!res||!res.ok||!res.joueur)return;
+        if(R.file.size||R.timer)return;
+        const j=H.getIdleEtat();
+        if(!j)return;
+        const srv=H.protegerJoueurServeurInventaireIdleV208_(res.joueur);
+        if(empreinteAllocationsMetaV1_(j)!==empreinteAllocationsMetaV1_(srv)){
+          H.setIdleEtat(srv);
+          H.rendreIdleEtat_({ok:true,joueur:srv});
+          return;
+        }
+        const niveauxAvant=niveauxAugmentsMetaV1_(j);
+        const ressourcesLocales=j.systemes&&j.systemes.resources;
+        j.systemes=srv.systemes;
+        if(ressourcesLocales&&j.systemes)j.systemes.resources=ressourcesLocales;
+        if(niveauxAugmentsMetaV1_(j)!==niveauxAvant&&typeof H.rafraichirMenuRacineIdleV28_==='function'){
+          H.rafraichirMenuRacineIdleV28_();
+          return;
+        }
+        try{pageAugmentationsIdleV48_(j);}catch(_e){}
+        try{if(j.systemes&&j.systemes.bloodMagicView)pageBloodMagicIdleV48_(j);}catch(_e){}
+        if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j);
+      }
+
+      /*
+       * Recalcul local d'une piste à allocation A : durée d'un niveau = K / A ; la progression (en SECONDES) ne change pas quand on
+       * change l'allocation, donc fraction' = secondes / durée'. Renvoie { seconds, progress } (seconds = 0 sans allocation).
+       */
+      function recalculerPisteAllocIdleV1_(k,progressSecondes,alloc){
+        const a=Math.max(0,Number(alloc)||0);
+        if(!(k>0)||!(a>0))return {seconds:0,progress:0};
+        const seconds=k/a;
+        return {seconds:seconds,progress:Math.max(0,Math.min(.999999,(Math.max(0,progressSecondes)||0)/seconds))};
+      }
+      window.__recalculerPisteAllocIdleV1__=recalculerPisteAllocIdleV1_;
+
+      /* Fait avancer d'abord les barres d'Augmentations du temps écoulé, puis repart de « maintenant » : tous les repères restent cohérents. */
+      function rebaserVisuelAugmentsIdleV1_(visual){
+        if(!visual||!visual.defs)return;
+        const maintenant=performance.now();
+        const ecoule=Math.max(0,(maintenant-visual.at)/1000);
+        Object.keys(visual.defs).forEach(function(id){
+          const d=visual.defs[id];
+          [['progress','seconds','waiting'],['upgradeProgress','upgradeSeconds','upgradeWaiting']].forEach(function(c){
+            const sec=Number(d[c[1]])||0;
+            if(sec>0&&!d[c[2]]){
+              const total=(Number(d[c[0]])||0)*sec+ecoule;
+              d[c[0]]=(total%sec)/sec;
+            }
+          });
+        });
+        visual.at=maintenant;
+      }
+
       function ajusterAugmentIdleV1_(pairId,upgrade,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -1569,12 +1709,76 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           if(pair)pair[upgrade?'upgradeEnergy':'energy']=value;
           if(s&&s.state&&s.state.allocation)s.state.allocation.energy=Math.max(0,H.idleNombre_(s.state.allocation.energy)+delta);
           if(j)j.energie=Math.max(0,idleAvant-delta);
+          recalculerAugmentLocalIdleV1_(j,pairId,upgrade,value);
           rafraichirAllocationAugmentIdleV1_(pairId,upgrade,value);
         }
 
-        window.__actionMetaV47__({action:'allocateAugment',pair:pairId,upgrade:Boolean(upgrade),value:value});
+        envoyerAllocRapideV1_({action:'allocateAugment',pair:pairId,upgrade:Boolean(upgrade),value:value});
       }
       window.__ajusterAugmentIdleV1__=ajusterAugmentIdleV1_;
+
+      /*
+       * Recalcule tout de suite, pour la piste modifiée, la durée d'un niveau, la barre et le compte à rebours (le ticker de
+       * soreal-idle-ui.js les redessine à son prochain passage, donc quasi instantanément) : durée = K / allocation, avec K (secondsK)
+       * fourni par le serveur. Les autres pistes gardent leur animation en cours (rebasées sur « maintenant »).
+       */
+      /* « Tout retirer » : rend toute l'Energy des Augments d'un coup, en local d'abord (durées, barres, énergie libre), puis un seul envoi. */
+      function viderAugmentsIdleV1_(){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'augmentations');
+        if(!s||!s.state)return;
+        const pairs=(s.state.data&&s.state.data.pairs)||{};
+        let rendu=0;
+        Object.keys(pairs).forEach(function(id){
+          const p=pairs[id];
+          ['energy','upgradeEnergy'].forEach(function(cle){
+            const v=Math.max(0,H.idleNombre_(p&&p[cle]));
+            if(!(v>0))return;
+            rendu+=v;
+            p[cle]=0;
+            recalculerAugmentLocalIdleV1_(j,id,cle==='upgradeEnergy',0);
+            rafraichirAllocationAugmentIdleV1_(id,cle==='upgradeEnergy',0);
+          });
+        });
+        if(s.state.allocation)s.state.allocation.energy=0;
+        if(rendu>0){
+          try{
+            const audio=window.__SOREAL_IDLE_AUDIO_V199__;
+            if(audio&&typeof audio.btMinus==='function')audio.btMinus();
+          }catch(_e){}
+          if(j)j.energie=Math.max(0,H.idleNombre_(j.energie))+rendu;
+          if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
+        }
+        envoyerAllocRapideV1_({action:'clearAugmentAllocations'});
+      }
+      window.__viderAugmentsIdleV1__=viderAugmentsIdleV1_;
+
+      function recalculerAugmentLocalIdleV1_(j,pairId,upgrade,alloc){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const defs=j&&j.systemes&&Array.isArray(j.systemes.augmentations)?j.systemes.augmentations:[];
+        const def=defs.find(function(x){return x&&x.id===pairId;});
+        const visual=j&&j.__augmentationsVisualV215;
+        const d=visual&&visual.defs&&visual.defs[pairId];
+        if(!def||!d)return;
+        const k=H.idleNombre_(upgrade?def.upgradeSecondsK:def.secondsK);
+        if(!(k>0))return;
+        rebaserVisuelAugmentsIdleV1_(visual);
+        const cleP=upgrade?'upgradeProgress':'progress';
+        const cleS=upgrade?'upgradeSeconds':'seconds';
+        const cleW=upgrade?'upgradeWaiting':'waiting';
+        const ancienSec=H.idleNombre_(d[cleS]);
+        /* Progression actuelle en secondes : celle de l'écran si la piste tournait, sinon celle du serveur. */
+        const progSec=ancienSec>0?H.idleNombre_(d[cleP])*ancienSec:H.idleNombre_(upgrade?def.upgradeProgressSeconds:def.progressSeconds);
+        const nouveau=recalculerPisteAllocIdleV1_(k,progSec,alloc);
+        d[cleS]=nouveau.seconds;
+        d[cleP]=nouveau.progress;
+        d[cleW]=false;
+        def[upgrade?'upgradeSecondsPerLevel':'secondsPerLevel']=nouveau.seconds>0?nouveau.seconds:null;
+        def[upgrade?'upgradeProgressPct':'progressPct']=nouveau.progress;
+        const texte=document.querySelector('[data-idle-aug-parniveau-v1="'+pairId+':'+(upgrade?'upgrade':'main')+'"]');
+        if(texte)texte.textContent=nouveau.seconds>0?'⏱ '+formatDureeAugmentIdleV1_(nouveau.seconds)+' par niveau · ':'';
+      }
 
       /*
        * 2026-09-24 (Norman) : « il faudrait le temps indiqué pour qu'elle prenne un niveau ». Durée d'un niveau, coût en Or, et — tant
@@ -1641,6 +1845,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
       function pageAugmentationsIdleV48_(j){
         const sys=systemeMetaParIdIdleV130_(j,'augmentations');
+        /* No Augmentations Challenge : « the augmentations feature is entirely off-limits for the duration of this challenge ». */
+        if(j&&j.systemes&&j.systemes.challenge&&j.systemes.challenge.active==='noAugmentations')return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Menu interdit pendant le défi.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🚫 No Augmentations Challenge : le menu Augmentations est interdit tant que le défi est en cours. Termine-le ou abandonne-le pour y retourner.</div>';
         if(!sys||!sys.state||!sys.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
         const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[],pairs=(sys.state.data||{}).pairs||{};
         const boss=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
@@ -1655,7 +1861,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'Upgrade':'Augment';
           const sousTitre=upgrade?'Multiplie le bonus de l’Augment · coûte de l’Or et de l’Energy':'Bonus d’Attack et de Defense · coûte de l’Or';
-          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+'<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'">'+(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)>0?'⏱ '+formatDureeAugmentIdleV1_(upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel)+' par niveau · ':'')+'</span>💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Renforce ton Attack et ta Defense en y investissant de l’Energy et de l’Or.')+
           carteAideMenuIdleV1_('augmentations','Chaque Augment te donne un multiplicateur d’Attack et de Defense. Les multiplicateurs de tous tes Augments s’additionnent.',[
@@ -1669,7 +1875,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           legendeAllocationIdleV1_('Energy',true)+
           '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Cap</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
-          '<div class="soreal-idle-bt-presets-v120"><span>Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__actionMetaV47__({action:\'clearAugmentAllocations\'})">Tout retirer</button></div></div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAugmentsIdleV1__()">Tout retirer</button></div></div>'+
           /*
            * Anti-spoil (2026-09-27, Norman + AGENTS.md règle n°2) : IDLE_NGU_AUGMENTATIONS est déjà trié par unlockBoss croissant
            * (idle-ngu-progression.js), donc « débloqués + le prochain » est juste une troncature à la première paire non débloquée
@@ -1710,6 +1916,39 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * Training". Magie : mutée sur idleEtat.systemes.resources.magic.current (le même champ que
        * le remplissage au compte-goutte de la Beta 6.5, pour rester cohérent avec lui).
        */
+      /*
+       * Time Machine : recalcul local de la piste modifiée (Energy = vitesse, Magic = or). Durée du niveau = K / allocation (K : speedK /
+       * goldK fournis par le serveur), progression en secondes inchangée. Les deux pistes sont d'abord avancées du temps écoulé, puis le
+       * tout repart de « maintenant » ; la barre et le compte à rebours sont repeints tout de suite (patcherBarresTimeMachineIdleV1_).
+       */
+      function rebaserVueTimeMachineIdleV1_(vue){
+        const maintenant=Date.now();
+        const ecoule=Math.max(0,(maintenant-(vue.__at||maintenant))/1000);
+        [['speed','speedEtaSeconds'],['gold','goldEtaSeconds']].forEach(function(c){
+          const eta=vue[c[1]];
+          if(eta===null||eta===undefined||!Number.isFinite(Number(eta)))return;
+          const avance=Math.min(ecoule,Math.max(0,Number(eta)));
+          vue[c[0]+'ProgressSeconds']=Math.max(0,Number(vue[c[0]+'ProgressSeconds'])||0)+avance;
+          vue[c[1]]=Math.max(0,Number(eta)-avance);
+        });
+        vue.__at=maintenant;
+      }
+      function recalculerTimeMachineLocalIdleV1_(j,ressource,alloc){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const vue=j&&j.systemes&&j.systemes.timeMachineView;
+        if(!vue)return;
+        const piste=ressource==='energy'?'speed':'gold';
+        const k=H.idleNombre_(vue[piste+'K']);
+        if(!(k>0))return;
+        rebaserVueTimeMachineIdleV1_(vue);
+        const progSec=H.idleNombre_(vue[piste+'ProgressSeconds']);
+        const nouveau=recalculerPisteAllocIdleV1_(k,progSec,alloc);
+        vue[piste+'Fill']=nouveau.progress;
+        vue[piste+'EtaSeconds']=nouveau.seconds>0?Math.max(0,nouveau.seconds-progSec):null;
+        if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j);
+      }
+      window.__recalculerTimeMachineLocalIdleV1__=recalculerTimeMachineLocalIdleV1_;
+
       function ajusterTimeMachineIdleV1_(ressource,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -1770,12 +2009,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
         }
 
-        window.__actionMetaV47__({action:'allocate',system:'timeMachine',resource:ressource,value:value});
+        if(delta!==0)recalculerTimeMachineLocalIdleV1_(j,ressource,value);
+        envoyerAllocRapideV1_({action:'allocate',system:'timeMachine',resource:ressource,value:value});
       }
       window.__ajusterTimeMachineIdleV1__=ajusterTimeMachineIdleV1_;
       window.__cibleTimeMachineIdleV1__=function(piste,valeur){
         const n=Math.max(0,Math.floor(Number(valeur)||0));
-        window.__actionMetaV47__({action:'setTimeMachineTarget',track:String(piste),value:n});
+        envoyerAllocRapideV1_({action:'setTimeMachineTarget',track:String(piste),value:n});
       };
 
       function pageTimeMachineIdleV48_(j){
@@ -1784,6 +2024,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!s||!s.state||!s.state.unlocked)return H.entetePageIdleV28_('⏱️ Time Machine','La Time Machine transforme la progression du run en Gold par seconde.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 30 pour débloquer la Time Machine.</div>';
         const data=s.state.data||{};
         const vue=(j&&j.systemes&&j.systemes.timeMachineView)||{};
+        /* Repère de temps de la vue serveur : sert au recalcul local de la progression au clic (rebaserVueTimeMachineIdleV1_). */
+        if(vue&&!vue.__at)vue.__at=Date.now();
         const magic=systemeMetaParIdIdleV130_(j,'bloodMagic');
         const magicOk=Boolean(magic&&magic.state&&magic.state.unlocked);
         const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
@@ -1819,7 +2061,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               ?'<div class="soreal-idle-tm-verrou-v1">🔒 Magic se débloque avec Blood Magic au boss 37.</div>'
               :'<div class="soreal-idle-tm-ligne-v1">'+
                 '<div class="soreal-idle-tm-barre-wrap-v1">'+
-                  '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
+                  '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" data-tm-fill0="'+(largeur/100).toFixed(6)+'" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
                   '<div class="soreal-idle-tm-eta-v1" data-tm-eta-track="'+cle+'" data-tm-eta-seconds="'+(etaValide?Math.max(0,H.idleNombre_(etaSecondes)):'')+'">'+
                     (etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre')+
                   '</div>'+
@@ -1895,6 +2137,42 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
       }
 
+      /*
+       * Blood Magic : recalcul local du rituel actif. Durée d'une complétion = K / Magic allouée (K : secondsK, fourni par le serveur).
+       * Le visuel (barre + compte à rebours) est mis à jour tout de suite ; le ticker de soreal-idle-ui.js le repeint.
+       */
+      function recalculerBloodLocalIdleV1_(j,alloc){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const vue=j&&j.systemes&&j.systemes.bloodMagicView;
+        if(!vue)return;
+        const k=H.idleNombre_(vue.secondsK);
+        if(!(k>0))return;
+        const visuel=j.__bloodMagicVisualV1;
+        const maintenant=performance.now();
+        let progSec;
+        if(visuel&&H.idleNombre_(visuel.secondsPerCompletion)>0){
+          const ecoule=Math.max(0,(maintenant-(visuel.at||maintenant))/1000);
+          const sec=H.idleNombre_(visuel.secondsPerCompletion);
+          progSec=Math.min(sec,(1-H.idleNombre_(visuel.etaSeconds)/sec)*sec+ecoule);
+        }else{
+          progSec=H.idleNombre_(vue.progressSeconds);
+        }
+        const nouveau=recalculerPisteAllocIdleV1_(k,progSec,alloc);
+        vue.secondsPerCompletion=nouveau.seconds>0?nouveau.seconds:null;
+        vue.etaSeconds=nouveau.seconds>0?Math.max(0,nouveau.seconds-progSec):null;
+        vue.progressSeconds=progSec;
+        j.__bloodMagicVisualV1=nouveau.seconds>0
+          ?{ritual:vue.activeRitual,secondsPerCompletion:nouveau.seconds,etaSeconds:vue.etaSeconds,at:maintenant}
+          :null;
+        const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+vue.activeRitual);
+        if(ligne){
+          ligne.style.display='';
+          ligne.textContent=nouveau.seconds>0
+            ?'⏱ '+formatDureeAugmentIdleV1_(vue.etaSeconds)+' avant le prochain rituel complété'
+            :'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.';
+        }
+      }
+
       function ajusterBloodMagicIdleV1_(mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -1920,10 +2198,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           }
           if(s&&s.state&&s.state.allocation)s.state.allocation.magic=value;
           if(ressourceMagie)ressourceMagie.current=Math.max(0,idleAvant-delta);
+          recalculerBloodLocalIdleV1_(j,value);
           rafraichirAllocationBloodMagicIdleV1_(value);
         }
 
-        window.__actionMetaV47__({action:'allocate',system:'bloodMagic',resource:'magic',value:value});
+        envoyerAllocRapideV1_({action:'allocate',system:'bloodMagic',resource:'magic',value:value});
       }
       window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;
 
@@ -1937,8 +2216,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(s&&s.state&&s.state.allocation)s.state.allocation.magic=0;
         const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
         if(ressourceMagie)ressourceMagie.current=Math.max(0,H.idleNombre_(ressourceMagie.current)+current);
+        recalculerBloodLocalIdleV1_(j,0);
         rafraichirAllocationBloodMagicIdleV1_(0);
-        window.__actionMetaV47__({action:'allocate',system:'bloodMagic',resource:'magic',value:0});
+        envoyerAllocRapideV1_({action:'allocate',system:'bloodMagic',resource:'magic',value:0});
       }
       window.__viderBloodMagicIdleV1__=viderBloodMagicIdleV1_;
 
@@ -1963,6 +2243,27 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * en cliquant "Choisir ce rituel"), puis applique le même ajustement que la barre d'outils
        * principale -- aucune capacité serveur inventée, seulement le même modèle déjà réel.
        */
+      /* Bascule locale du rituel actif : la durée de base de chaque rituel est dans le catalogue, donc K(nouveau) = K(ancien) x base(nouveau) / base(ancien). */
+      function basculerRituelLocalIdleV1_(j,s,ancienId,ritualId){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const vue=j&&j.systemes&&j.systemes.bloodMagicView;
+        const catalogue=(j&&j.systemes&&Array.isArray(j.systemes.bloodRituals))?j.systemes.bloodRituals:[];
+        const ancien=catalogue.find(function(r){return r&&r.id===ancienId;});
+        const nouveau=catalogue.find(function(r){return r&&r.id===ritualId;});
+        if(!vue||!ancien||!nouveau||!(H.idleNombre_(ancien.baseSeconds)>0))return;
+        const magie=Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.magic));
+        const k=H.idleNombre_(vue.secondsK)*H.idleNombre_(nouveau.baseSeconds)/H.idleNombre_(ancien.baseSeconds);
+        const rit=s.state.data.rituals&&s.state.data.rituals[ritualId];
+        const progSec=Math.max(0,H.idleNombre_(rit&&rit.progress));
+        const calc=recalculerPisteAllocIdleV1_(k,progSec,magie);
+        vue.activeRitual=ritualId;
+        vue.secondsK=k;
+        vue.progressSeconds=progSec;
+        vue.secondsPerCompletion=calc.seconds>0?calc.seconds:null;
+        vue.etaSeconds=calc.seconds>0?Math.max(0,calc.seconds-progSec):null;
+        j.__bloodMagicVisualV1=calc.seconds>0?{ritual:ritualId,secondsPerCompletion:calc.seconds,etaSeconds:vue.etaSeconds,at:performance.now()}:null;
+      }
+
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -1970,16 +2271,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const ancienId=s&&s.state&&s.state.data&&s.state.data.activeRitual;
         if(s&&s.state&&s.state.data&&ancienId!==ritualId){
           s.state.data.activeRitual=ritualId;
-          window.__actionMetaV47__({action:'selectRitual',ritual:ritualId});
-          /* Patch ciblé du marqueur "▶" : retire l'ancien rituel actif, pose le nouveau -- jamais un rendu complet juste pour ça. */
-          if(ancienId){
-            const ancienMarqueur=document.getElementById('sorealIdleBloodMarkerV1_'+ancienId);
-            if(ancienMarqueur)ancienMarqueur.textContent='';
-            const ancienneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+ancienId);
-            if(ancienneEta){ancienneEta.textContent='';ancienneEta.style.display='none';}
-          }
-          const nouveauMarqueur=document.getElementById('sorealIdleBloodMarkerV1_'+ritualId);
-          if(nouveauMarqueur)nouveauMarqueur.textContent=' ▶';
+          basculerRituelLocalIdleV1_(j,s,ancienId,ritualId);
+          envoyerAllocRapideV1_({action:'selectRitual',ritual:ritualId});
+          ajusterBloodMagicIdleV1_(mode);
+          /* Un seul redessin LOCAL du menu (aucun aller-retour réseau) : la barre passe sur le nouveau rituel. */
+          if(typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
+          return;
         }
         ajusterBloodMagicIdleV1_(mode);
       }
@@ -2044,7 +2341,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
          * mais pour un seul élément : seul le rituel ACTIF progresse réellement (bloodMagicViewV1).
          */
         if(bmView&&bmView.secondsPerCompletion!=null){
-          H.getIdleEtat().__bloodMagicVisualV1={ritual:bmView.activeRitual,secondsPerCompletion:bmView.secondsPerCompletion,etaSeconds:bmView.etaSeconds};
+          H.getIdleEtat().__bloodMagicVisualV1={ritual:bmView.activeRitual,secondsPerCompletion:bmView.secondsPerCompletion,etaSeconds:bmView.etaSeconds,at:performance.now()};
         }else{
           H.getIdleEtat().__bloodMagicVisualV1=null;
         }

@@ -2737,6 +2737,14 @@
             const seconds=idleNombre_(bloodVisual.secondsPerCompletion);
             const progress=seconds>0?Math.max(0,Math.min(.999999,1-idleNombre_(bloodVisual.etaSeconds)/seconds)):0;
             animerBarreCycliqueIdleV217_(el,seconds,progress);
+            /* Compte à rebours « avant le prochain rituel » : suit la même horloge que la barre (mis à jour à chaque passage, plus figé). */
+            const ligneBlood=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
+            if(ligneBlood&&seconds>0&&typeof window.__formatDureeAugmentIdleV1__==='function'){
+              const ecouleBlood=Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000);
+              const restantBlood=(((idleNombre_(bloodVisual.etaSeconds)-ecouleBlood)%seconds)+seconds)%seconds;
+              const texteBlood='⏱ '+window.__formatDureeAugmentIdleV1__(restantBlood||seconds)+' avant le prochain rituel complété';
+              if(ligneBlood.textContent!==texteBlood)ligneBlood.textContent=texteBlood;
+            }
           }
         }
 
@@ -4116,6 +4124,17 @@
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
           }
+          /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros. */
+          const pisteEl=el.closest?el.closest('.soreal-idle-tm-piste-v1'):null;
+          const barreEl=pisteEl?pisteEl.querySelector('.soreal-idle-tm-remplissage-v1'):null;
+          if(barreEl&&barreEl.dataset.tmFill0!==undefined&&base>0){
+            const fill0=Math.max(0,Math.min(1,idleNombre_(barreEl.dataset.tmFill0)));
+            if(fill0<1){
+              const fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
+              const largeurTm=(fill*100).toFixed(2)+'%';
+              if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
+            }
+          }
         });
       }
 
@@ -4150,6 +4169,7 @@
           );
 
           remplissage.style.width=pct.toFixed(4)+'%';
+          remplissage.dataset.tmFill0=(pct/100).toFixed(6);
           remplissage.setAttribute('aria-valuenow',pct.toFixed(4));
 
           const barre=remplissage.parentElement;
@@ -4916,6 +4936,8 @@
       }
 
       function toastIdleV5_(message){
+        /* Codes d'erreur des défis -> phrase française (modules/challenges-v1.js). */
+        if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof message==='string')message=window.__SOREAL_IDLE_DEFIS_V1__.traduire(message);
         const el=
           document.getElementById(
             'sorealIdleToastV5'
@@ -7960,6 +7982,10 @@
         objetId
       ){
         libererFocusIdleV24_();
+        if(equipementBloqueParDefiIdleV1_()){
+          refuserEquipementDefiIdleV1_();
+          return;
+        }
 
         if(
           !idleEtat ||
@@ -9906,10 +9932,227 @@
       }
 
       /*
+       * Panneaux explicatifs des systèmes (Norman, 2026-09-30 : « pour achievements, time machine, blood magic etc., c'est toujours le
+       * même panneau : génère des panneaux explicatifs explicites pour chaque système qui se débloque »). Un texte par système, écrit
+       * d'après SA page du wiki NGU Idle (Achievements, Advanced Training, Augmentations, Broken Time Machine, Blood Magic, Wandoos, NGU,
+       * Yggdrasil, Gold Diggers, Beards, ITOPOD, Perks, Challenges, Titans, MacGuffin Fragments, Item Daycare, Questing, Quirks, Hacks,
+       * Wishes, Cards, Cooking, pages consultées le 2026-09-30) : rien d'autre que ce que ces pages publient, aucune valeur inventée.
+       * Anti-spoil (AGENTS.md règle n°2) : chaque texte n'explique QUE le système qui vient de se débloquer -- jamais un autre système,
+       * un boss ou un objet encore inconnu, jamais un total. Ces textes sont aussi lus à voix haute (voix pré-générées) : phrases courtes.
+       */
+      const TEXTES_SYSTEMES_IDLE_V1={
+        achievements:{
+          intro:'Les Achievements sont des objectifs qui te rapportent des points bonus.',
+          bullets:[
+            'Chaque succès accompli te donne des points bonus.',
+            'Ces points bonus augmentent ton gain d’AP : un pour cent de plus pour chaque tranche de cent points bonus.',
+            'Les succès sont rangés par catégorie dans ce menu.'
+          ]
+        },
+        augmentations:{
+          intro:'Les Augmentations te donnent un multiplicateur d’Attack et de Defense.',
+          bullets:[
+            'Place de l’Energy sur un Augment : plus il en reçoit, plus sa barre se remplit vite.',
+            'Quand la barre est pleine, l’Augment gagne un niveau si tu as assez d’Or.',
+            'Chaque Augment a une Upgrade qui multiplie son bonus.',
+            'Les multiplicateurs de tous tes Augments s’additionnent, et tout est remis à zéro à chaque Renaissance.'
+          ]
+        },
+        advancedTraining:{
+          intro:'L’Advanced Training te permet de dépenser de l’Energy pour améliorer tes capacités d’Aventure.',
+          bullets:[
+            'Place de l’Energy dans une capacité : elle gagne des niveaux.',
+            'Tu améliores ta puissance et ton endurance en Aventure.',
+            'Ces bonus ont des rendements décroissants : chaque niveau demande un peu plus de temps que le précédent.'
+          ]
+        },
+        timeMachine:{
+          intro:'La Time Machine produit de l’Or toute seule, en rejouant le meilleur drop d’Or que tu as obtenu en Aventure.',
+          bullets:[
+            'Place de l’Energy sur la vitesse de la machine : sa barre se remplit plus vite, et chaque remplissage te rapporte de l’Or.',
+            'Chaque niveau coûte de l’Or et de l’Energy, et un peu plus cher que le précédent.',
+            'Ton meilleur boss vaincu multiplie aussi l’Or produit.',
+            'Les niveaux de la machine sont remis à zéro à chaque Renaissance.'
+          ]
+        },
+        bloodMagic:{
+          intro:'Blood Magic transforme de la Magic et de l’Or en Blood, que tu dépenses ensuite dans des sorts.',
+          bullets:[
+            'Choisis un rituel et place-y de la Magic : plus il en reçoit, plus vite il se termine. Chaque rituel terminé dépense de l’Or et produit du Blood.',
+            'Le sort le plus courant ajoute un au multiplicateur de ton nombre pour chaque Blood dépensé : c’est ce qui te donne un plus gros nombre à la Renaissance.',
+            'Lancer un sort utilise tout ton Blood d’un coup.',
+            'Le Blood est remis à zéro à chaque Renaissance.'
+          ]
+        },
+        wandoos:{
+          intro:'Wandoos est un système d’exploitation médiocre, mais il multiplie ton attaque et ta défense quand tu y déverses de l’Energy et de la Magic.',
+          bullets:[
+            'Déverse de l’Energy et de la Magic dedans pour faire monter ses niveaux.',
+            'Au début il ne sert pas à grand-chose, car ses bonus sont faibles. Il devient important plus tard dans le jeu.',
+            'À chaque Renaissance, il lui faut environ une heure pour atteindre sa pleine vitesse, sans que tu aies besoin d’être connecté.',
+            'Wandoos reste débloqué après une Renaissance, mais les niveaux d’Energy et de Magic sont perdus.'
+          ]
+        },
+        ngu:{
+          intro:'Les NGU te permettent de répartir ton Energy et ta Magic dans plusieurs NGU, qui te donnent des bonus.',
+          bullets:[
+            'Choisis dans quel NGU envoyer chacune de tes ressources.',
+            'Chaque NGU gagne des niveaux, et chaque niveau coûte plus cher que le précédent.',
+            'Les NGU restent débloqués et gardent leurs niveaux après une Renaissance.'
+          ]
+        },
+        yggdrasil:{
+          intro:'Yggdrasil est l’arbre du monde : tu y fais pousser des fruits qui donnent des récompenses quand tu les manges.',
+          bullets:[
+            'Dépense des graines pour faire monter un fruit de palier : chaque palier de plus lui permet de pousser une heure de plus sans que tu aies à le manger.',
+            'Active un fruit en payant son coût en Energy ou en Magic : ce coût est retiré temporairement de ton plafond, puis récupéré grâce à ta production.',
+            'Un fruit qui a poussé au moins une heure peut être mangé pour sa récompense spéciale, ou récolté pour doubler les graines gagnées.',
+            'À la Renaissance, tes graines, tes fruits débloqués et tes paliers sont conservés. Les fruits en train de pousser sont perdus : mange-les avant.'
+          ]
+        },
+        diggers:{
+          intro:'Les Gold Diggers te font sacrifier une partie de ton Or par seconde pour gagner des bonus dans plusieurs domaines du jeu.',
+          bullets:[
+            'Paie de l’Or pour débloquer un Digger et pour le faire monter de niveau.',
+            'Active un Digger pour recevoir son bonus. En échange, il retire en permanence une petite part de ton Or par seconde.',
+            'Tu ne peux activer qu’autant de Diggers que tu as d’emplacements.',
+            'Monter les Diggers de niveau augmente aussi le bonus de tous les Diggers, même ceux que tu n’actives pas.'
+          ]
+        },
+        beards:{
+          intro:'Les Beards sont des barbes qui te donnent des bonus temporaires.',
+          bullets:[
+            'Chaque barbe donne un type de bonus différent.',
+            'Tu ne peux avoir actives qu’autant de barbes que tu as d’emplacements.',
+            'À la Renaissance, si une barbe est active, une partie de son bonus temporaire devient permanente. Plus la Renaissance arrive tard, plus cette part est grande.'
+          ]
+        },
+        tower:{
+          intro:'L’ITOPOD est une tour infinie : tu y combats des ennemis étage après étage pour gagner des points de perk et de l’expérience.',
+          bullets:[
+            'Choisis ton étage de départ et ton étage de fin.',
+            'Chaque dizaine d’ennemis vaincus te fait monter d’un étage.',
+            'Si tu meurs, ou si tu bats dix ennemis à ton étage de fin, tu retournes à ton étage de départ.',
+            'Plus tu montes, plus les ennemis sont forts, mais plus tu gagnes de progression vers les points de perk.'
+          ]
+        },
+        perks:{
+          intro:'Les Perks sont des améliorations que tu achètes avec les points de perk gagnés dans la tour.',
+          bullets:[
+            'Dépense tes points de perk dans ce menu.',
+            'Chaque perk a un coût et un niveau maximum.',
+            'Certains perks s’achètent une seule fois, d’autres niveau par niveau.',
+            'Certains perks donnent un bonus permanent.'
+          ]
+        },
+        challenges:{
+          intro:'Les Challenges sont des défis à relever, qui te donnent des récompenses.',
+          bullets:[
+            'Lancer un défi te fait faire une Renaissance : ton nombre revient à un.',
+            'Tu peux quitter un défi quand tu veux, sans aucune pénalité à part le temps perdu.',
+            'Chaque défi peut être réussi plusieurs fois.',
+            'Les récompenses sont les plus grosses à la première et à la dernière réussite.'
+          ]
+        },
+        titans:{
+          intro:'Les Titans sont des boss plus costauds de l’Aventure, chacun dans sa propre zone.',
+          bullets:[
+            'Tu peux combattre un Titan à tout moment, tant qu’il n’est pas en temps de repos.',
+            'Un Titan vaincu te donne de l’expérience et des objets, comme de l’équipement ou des boosts. Ensuite, il a un temps de repos avant de revenir.',
+            'Si tu perds, tu retournes à la zone de départ. Le temps de repos ne se remet pas à zéro : tu peux réessayer autant que tu veux.',
+            'À chaque Renaissance, les Titans vivants disparaissent et un nouveau temps de repos commence. Chaque Titan devient plus fort à chaque attaque : garde de la marge de puissance.'
+          ]
+        },
+        macguffins:{
+          intro:'Les MacGuffins sont des objets uniques qui te donnent des bonus permanents à chaque Renaissance.',
+          bullets:[
+            'Trouve des fragments en combattant dans les zones de l’Aventure : chaque zone compte tes victoires, et le fragment tombe quand le compteur est atteint.',
+            'Équipe tes MacGuffins dans ton inventaire : tu ne peux en porter que selon ton nombre d’emplacements.',
+            'Ils montent de niveau sans limite.',
+            'Le bonus permanent grandit quand tu fais une Renaissance avec un fragment équipé.'
+          ]
+        },
+        daycare:{
+          intro:'La Garderie fait monter tes objets de niveau sans que tu aies à les fusionner.',
+          bullets:[
+            'Elle est utile pour les objets difficiles ou très longs à monter de niveau.',
+            'Le petit chat de la garderie s’occupe de tes objets : le temps pour gagner un niveau dépend de chaque objet.',
+            'Tu ne peux mettre qu’un seul exemplaire de chaque objet.',
+            'Fusionner un objet dans un emplacement de la garderie ne fait rien.'
+          ]
+        },
+        questing:{
+          intro:'Les quêtes te donnent des points de quête en échange d’objets que tu ramasses en Aventure.',
+          bullets:[
+            'Lance une quête, puis ramasse l’objet de quête : il tombe dans une zone d’Aventure précise.',
+            'Tu peux aussi activer le mode inactif pour avancer lentement sans ramasser l’objet toi-même.',
+            'Terminer une quête te donne des points de quête.',
+            'Une quête en cours continue après une Renaissance, et tu peux l’abandonner quand tu veux.'
+          ]
+        },
+        quirks:{
+          intro:'Les Quirks sont des améliorations que tu achètes avec des points de quête.',
+          bullets:[
+            'Les points de quête se gagnent en faisant des quêtes.',
+            'Dépense-les dans ce menu pour acheter des bonus.',
+            'Certains Quirks améliorent ta puissance, ta capacité ou tes barres d’Energy et de Magic, et d’autres augmentent tes gains d’Or.',
+            'Certains Quirks ont plusieurs niveaux, et le prix est indiqué pour chaque niveau.'
+          ]
+        },
+        hacks:{
+          intro:'Les Hacks sont des programmes que tu fais monter de niveau pour booster définitivement d’autres statistiques du jeu.',
+          bullets:[
+            'Répartis ta ressource entre les Hacks disponibles pour les faire monter de niveau.',
+            'Chaque Hack donne un petit bonus par niveau, et des paliers de niveaux offrent en plus un bonus supplémentaire.',
+            'Un Hack touche par exemple l’attaque et la défense, les statistiques d’Aventure ou les chances de butin.'
+          ]
+        },
+        wishes:{
+          intro:'Les Wishes sont des souhaits que tu fais exaucer en y mettant tes ressources.',
+          bullets:[
+            'Pour exaucer un souhait, alloue-lui un peu de chacune de tes ressources : un souhait prend au minimum quatre heures.',
+            'Mettre beaucoup de ressources dans un seul souhait rapporte de moins en moins. Il vaut mieux allouer peu de chaque, et répartir sur plusieurs souhaits si tu as plusieurs emplacements.',
+            'Tu commences avec un seul emplacement de souhait.',
+            'Les souhaits te donnent des bonus.'
+          ]
+        },
+        cards:{
+          intro:'Les Cards sont des bonus permanents que tu joues depuis ton paquet.',
+          bullets:[
+            'Tu reçois une carte toutes les heures, sauf si ton paquet est plein.',
+            'Pour lancer une carte, il faut de la mayonnaise : le coût est écrit sur la carte.',
+            'Une carte lancée disparaît, mais son bonus reste permanent.',
+            'Tu peux aussi détruire une carte, ou la protéger pour ne pas la lancer ni la détruire par erreur.'
+          ]
+        },
+        cooking:{
+          intro:'La cuisine te permet d’augmenter définitivement ton gain d’expérience.',
+          bullets:[
+            'Tu peux manger un plat environ une fois toutes les vingt-quatre heures. Si tu ne le manges pas, le temps s’accumule pour les repas suivants.',
+            'Ajuste la quantité de chaque ingrédient pour rendre le plat le plus efficace possible.',
+            'Équipe ton matériel de cuisine avant de manger pour augmenter les bonus.',
+            'Quand tu manges le plat, son gain s’ajoute à ton gain d’expérience total, et un nouveau plat est généré.'
+          ]
+        }
+      };
+
+      /*
        * Texte d'explication d'un système « générique » (Perks, Quirks, Achievements…). Fonction pure : le popup l'affiche ET la génération des voix pré-enregistrées (voice-generate.mjs) la
        * lit pour chaque système du catalogue. Sans cela, ces popups n'avaient pas de fichier audio : repli sur la voix locale (lourde, jeu qui rame, souvent en erreur sur téléphone).
        */
       function infoSystemeGeneriqueIdleV1_(s,menuCible){
+        /* Texte explicite du système (TEXTES_SYSTEMES_IDLE_V1) ; le texte générique ci-dessous n'est qu'un repli pour un système sans texte. */
+        const t=TEXTES_SYSTEMES_IDLE_V1[s.id];
+        if(t){
+          return {
+            icon:s.icon||'✨',
+            titre:(s.name||'Nouveau système')+' débloqué',
+            intro:t.intro,
+            menuCible:menuCible,
+            libelleCible:'Aller à '+(s.name||'ce système'),
+            bullets:t.bullets.slice()
+          };
+        }
         return {
           icon:s.icon||'✨',
           titre:(s.name||'Nouveau système')+' débloqué',
@@ -16587,6 +16830,7 @@ let idleDialogueTimerV76=null;
         };
 
         if(action==='equip'){
+          if(equipementBloqueParDefiIdleV1_())return false;
           const item=trouver(id);
           const slot=String(payload.slot||'');
           if(!item||item.kind==='boost')return false;
@@ -17086,8 +17330,21 @@ let idleDialogueTimerV76=null;
         envoyerProchaineMutationInventaireIdleV160_();
       }
 
+      /* No Equipment Challenge (page Challenges) : rien ne peut être équipé tant que le défi est actif (le serveur refuse aussi). */
+      function equipementBloqueParDefiIdleV1_(){
+        const c=idleEtat&&idleEtat.systemes&&idleEtat.systemes.challenge;
+        return Boolean(c&&c.active==='noEquipment');
+      }
+      function refuserEquipementDefiIdleV1_(){
+        toastIdleV5_('🚫 No Equipment Challenge : impossible d’équiper quoi que ce soit pendant ce défi.');
+      }
+
       function actionAdventureIdleV47_(payload){
         const action=payload||{};
+        if(action.action==='equip'&&equipementBloqueParDefiIdleV1_()){
+          refuserEquipementDefiIdleV1_();
+          return;
+        }
         if(estMutationInventaireAdventureIdleV160_(action)){
           enfilerMutationInventaireIdleV160_(action);
           return;
@@ -18412,6 +18669,10 @@ let idleDialogueTimerV76=null;
       window.__transformerObjetAdventureIdleV4__=transformerObjetAdventureIdleV4_;
 
       function equiperObjetAdventureIdleV47_(id,slot){
+        if(equipementBloqueParDefiIdleV1_()){
+          refuserEquipementDefiIdleV1_();
+          return;
+        }
         jouerEffetAudioIdleV199_('equip');
         actionAdventureIdleV47_({action:'equip',id:String(id||''),slot:String(slot||'')});
       }
@@ -21037,7 +21298,10 @@ function pageAventureIdleV28_(j){
          * le menu affiché à chaque clic +/-/Cap -- beaucoup plus lourd qu'un patch DOM ciblé, comme
          * ajusterBasicTrainingIdleV120_ le fait déjà).
          */
-        rafraichirEnergieEtBoutonsIdleV9_:rafraichirEnergieEtBoutonsIdleV9_
+        rafraichirEnergieEtBoutonsIdleV9_:rafraichirEnergieEtBoutonsIdleV9_,
+        /* Chantier « réactivité » (2026-09-30) : recalcul local des barres Time Machine et redessin local d'un menu, sans aller-retour serveur. */
+        patcherBarresTimeMachineIdleV1_:patcherBarresTimeMachineIdleV1_,
+        rafraichirMenuRacineIdleV28_:rafraichirMenuRacineIdleV28_
       };
 
       function pageSystemeMetaIdleV130_(j,id,titre){
@@ -23373,6 +23637,11 @@ function pageAventureIdleV28_(j){
             /* Succès débloqués : annonce en fondu + fanfare (modules/achievement-notice-v1.js). */
             if(window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__){
               window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));
+            }
+
+            /* Défis : annonce de fin de défi, trolls, mode aveugle (modules/challenges-v1.js). */
+            if(window.__SOREAL_IDLE_DEFIS_V1__){
+              try{window.__SOREAL_IDLE_DEFIS_V1__.verifier(j);}catch(_e){}
             }
 
             /* Sons d'ambiance dès qu'Aventure est débloqué (Norman, 2026-09-27 -- modules/ambient-audio-v1.js). */

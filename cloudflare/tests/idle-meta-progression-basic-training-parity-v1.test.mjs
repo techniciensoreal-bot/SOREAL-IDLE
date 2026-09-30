@@ -128,7 +128,8 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   // 2026-09-29 (suite) : même correctif de réactivité qu'Augmentation/Time Machine -- patch ciblé, plus de rendu complet.
   assert.ok(!handler.includes("H.rendreIdleEtat_({ok:true,joueur:j})"), "plus de rendu complet à chaque clic");
   assert.match(handler, /rafraichirAllocationBloodMagicIdleV1_\(value\);/, "patch ciblé du chiffre alloué + de la barre principale");
-  assert.match(handler, /window\.__actionMetaV47__\(\{action:'allocate',system:'bloodMagic',resource:'magic',value:value\}\)/);
+  assert.match(handler, /envoyerAllocRapideV1_\(\{action:'allocate',system:'bloodMagic',resource:'magic',value:value\}\)/, "envoi groupé en différé (chantier réactivité), plus d'attente serveur");
+  assert.match(handler, /recalculerBloodLocalIdleV1_\(j,value\)/, "durée et barre recalculées tout de suite");
 
   const debutPatch = meta.indexOf("function rafraichirAllocationBloodMagicIdleV1_(value){");
   const finPatch = meta.indexOf("function ajusterBloodMagicIdleV1_(mode){", debutPatch);

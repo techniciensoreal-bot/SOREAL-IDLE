@@ -499,6 +499,12 @@ function createChallengeTiersV1(raw){
   return out;
 }
 
+function laserSwordStepV1(done){
+  const n=Math.max(0,Math.min(20,int(done,0)));
+  if(n<=0)return 0;
+  return 0.05+Math.max(0,Math.min(n,19)-1)*0.01+(n>=20?0.05:0);
+}
+
 function challengePermanentBonuses(state){
   const c=state?.challenge?.completions||{};
   const e=state?.challenge?.completionsTier?.difficile||{};
@@ -524,8 +530,13 @@ function challengePermanentBonuses(state){
     /* No Augs : +10 % (1re, Normal), Evil +5 % par complétion et +25 % supplémentaires à la dernière. */
     augmentationSpeedMultiplier:1+(noAugs>0?0.10:0)+noAugsEvil*0.05+(noAugsEvil>=5?0.25:0),
     augmentationCostMultiplier:noAugs>=5?0.5:1,
-    /* Laser Sword (Normal) : +0,01 x rang de l'augment (Milk = 1) à l'exposant, par complétion. */
-    laserSwordExponentStep:k(c,"laserSword")*0.01,
+    /*
+     * Laser Sword (Normal), page Challenges : « Each completion will raise the bonus by 0.01 for milk, 0.02 for cannon, and so
+     * on » ; « First Completion Reward: Same bonus, but increases by 0.05! » et « Final Completion Reward: Same bonus, but
+     * increases by 0.05! ». Lecture retenue : la 1re et la 20e complétion ajoutent 0,05 (au lieu de 0,01) x rang de l'augment
+     * (Milk = 1) à l'exposant ; les 18 autres 0,01. Total à 20 complétions : 0,28 x rang.
+     */
+    laserSwordExponentStep:laserSwordStepV1(k(c,"laserSword")),
     /* No Equipment : +8 slots par complétion (+10 à la dernière, 50 au total) en Normal ; Evil : +3 par complétion et +9 à la dernière (24 au total, page Inventory). */
     inventorySlots:noEquipment*8+(noEquipment>=5?10:0)+k(e,"noEquipment")*3+(k(e,"noEquipment")>=5?9:0),
     autoBoost:noEquipment>0,
@@ -1295,6 +1306,8 @@ function advanceWandoos(state, seconds, context, now) {
 function wandoosCombatMultiplierV1(state) {
   const s = state.systems.wandoos;
   if (!s?.unlocked) return 1;
+  /* Gros troll « Wandoos just blue-screened » : plus de bonus Wandoos jusqu'au Rebirth. */
+  if (trollFlagsV1(state).wandoos) return 1;
   const osId = IDLE_WANDOOS_OS_V1[s.data?.os] ? s.data.os : "98";
   const os = IDLE_WANDOOS_OS_V1[osId];
   const e = Math.max(0, num(s.data?.dumpEnergyLevel, 0));
@@ -1399,7 +1412,8 @@ function baseState(now) {
       completions: Object.fromEntries(IDLE_NGU_NORMAL_CHALLENGES.map(def=>[def.id,0])),
       startedAt: 0,
       bestMs: {},
-      hundredLevelsGained: 0
+      hundredLevelsGained: 0,
+      troll: createTrollStateV1()
     },
     bank: {
       advancedTraining: 0,
@@ -1799,6 +1813,7 @@ function migrateLegacyMetaToV47(raw, now) {
   state.challenge.bestMs = Object.assign({},src.challenge?.bestMs || {});
   state.challenge.completionsTier = createChallengeTiersV1(src.challenge?.completionsTier);
   state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(src.challenge?.activeTier) ? src.challenge.activeTier : "normal";
+  state.challenge.troll = createTrollStateV1(src.challenge?.troll);
 
   state.bank.advancedTraining = Math.max(0, num(src.bank?.advancedTraining, 0));
   state.bank.timeMachineSpeed = Math.max(0, num(src.bank?.timeMachineSpeed, src.bank?.timeMachine || 0));
@@ -1993,6 +2008,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
   state.challenge.completionsTier = createChallengeTiersV1(source.challenge?.completionsTier);
   state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(source.challenge?.activeTier) ? source.challenge.activeTier : "normal";
+  state.challenge.troll = createTrollStateV1(source.challenge?.troll);
   state.bank = Object.assign(baseState(t).bank, source.bank || {});
   state.bonuses = Object.assign(baseState(t).bonuses, source.bonuses || {});
   state.bonuses.cards = normalizeIdleCardBonusesV1(source.bonuses?.cards);
@@ -2246,7 +2262,8 @@ export function calculateIdleNguNextNumber(input = {}) {
    */
   const base = input.difficulty === "extreme" ? 1.2 + Math.max(0, num(input.sadisticBossMultiplierBonus, 0)) : input.difficulty === "difficile" ? 1.5 : 2;
 
-  const currentBossFactor = safePow(base, bosses);
+  /* Gros troll « I just divided your boss multiplier by X » (voir trollBossDividerV1). */
+  const currentBossFactor = safePow(base, bosses) / Math.max(1, num(input.bossFactorDivider, 1));
   const priorBossFactor = hasPreviousRun ? safePow(base, lastBosses) : 1;
   const currentTimeFactor = idleNguRebirthTimeFactor(runSeconds);
   const priorTimeFactor = hasPreviousRun ? idleNguRebirthTimeFactor(lastRunSeconds) : 1;
@@ -2326,6 +2343,7 @@ function refreshRebirthState(state, context, now) {
      * ci-dessus). Lit maintenant la vraie difficulté active.
      */
     difficulty: state.difficulty,
+    bossFactorDivider: trollBossDividerV1(state),
     bosses: context.bosses,
     lastBosses: rb.lastBosses,
     runSeconds,
@@ -2606,16 +2624,22 @@ function augmentationGoldCost(state,def,level,upgrade=false) {
   return base*challengePermanentBonuses(state).augmentationCostMultiplier;
 }
 
-function augmentationSecondsForNextLevel(state, def, upgrade = false) {
+/*
+ * allocOverride (2026-09-30, chantier « réactivité ») : durée qu'aurait le niveau à cette allocation d'Energy, sans rien modifier. Toute
+ * durée de niveau vaut K / allocation (K ne dépend que du niveau, de la puissance et des multiplicateurs, jamais de l'allocation) : le
+ * client reçoit K (secondsK) et recalcule tout seul durée, barre et compte à rebours au moment du clic, sans attendre le serveur.
+ */
+function augmentationSecondsForNextLevel(state, def, upgrade = false, allocOverride = null) {
   const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
   const perTrack=Math.max(0,num(upgrade?pair.upgradeEnergy:pair.energy,0));
   const legacy=Math.max(0,num(state.systems.augmentations.allocation.energy,0));
-  const allocation=perTrack>0?perTrack:(
+  let allocation=perTrack>0?perTrack:(
     def.id===state.systems.augmentations.data.activePair &&
     Boolean(upgrade)===Boolean(state.systems.augmentations.data.trainUpgrade)
       ?legacy
       :0
   );
+  if(allocOverride!=null)allocation=Math.max(0,num(allocOverride,0));
   if (allocation <= 0) return Infinity;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
@@ -3316,8 +3340,8 @@ function advanceTrackSystem(state, def, seconds) {
  * quasi instantané (~1s), une régression bien plus grave que le simple
  * "pas de scaling par niveau" repéré par l'audit.
  */
-function tmLevelSeconds(state, resource, targetLevel) {
-  const alloc = Math.max(0, num(state.systems.timeMachine.allocation[resource], 0));
+function tmLevelSeconds(state, resource, targetLevel, allocOverride = null) {
+  const alloc = allocOverride != null ? Math.max(0, num(allocOverride, 0)) : Math.max(0, num(state.systems.timeMachine.allocation[resource], 0));
   if (alloc <= 0) return Infinity;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
   const n = Math.max(1, targetLevel);
@@ -3390,8 +3414,17 @@ function timeMachineViewV1(state) {
       ? Math.max(0, goldStep - Math.max(0, num(d.goldProgress, 0)))
       : null,
     speedTarget: Math.max(0, Math.floor(num(d.speedTarget, 0))),
-    goldTarget: Math.max(0, Math.floor(num(d.goldTarget, 0)))
+    goldTarget: Math.max(0, Math.floor(num(d.goldTarget, 0))),
+    /* Chantier « réactivité » : durée du niveau à 1 Energy / 1 Magic (K) et progression en secondes -> recalcul local au clic. */
+    speedK: finiOuNullV1(tmLevelSeconds(state, "energy", speedLevel + 1, 1)),
+    goldK: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmLevelSeconds(state, "magic", goldLevel + 1, 1)) : null,
+    speedProgressSeconds: Math.max(0, num(d.speedProgress, 0)),
+    goldProgressSeconds: Math.max(0, num(d.goldProgress, 0))
   };
+}
+
+function finiOuNullV1(v) {
+  return Number.isFinite(v) ? v : null;
 }
 
 /*
@@ -3419,7 +3452,10 @@ function bloodMagicViewV1(state) {
     secondsPerCompletion,
     etaSeconds: secondsPerCompletion != null
       ? Math.max(0, secondsPerCompletion - Math.max(0, num(rs.progress, 0)))
-      : null
+      : null,
+    /* Chantier « réactivité » : durée d'une complétion à 1 Magic (K) et progression en secondes -> recalcul local au clic. */
+    secondsK: ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, power) / dutchSetMultiplier,
+    progressSeconds: Math.max(0, num(rs.progress, 0))
   };
 }
 
@@ -4339,13 +4375,110 @@ function advanceLateSystems(state, seconds, context, now) {
  */
 const IDLE_CHALLENGE_OFFLINE_DISABLED_IDS = Object.freeze(["twentyFourHours", "hundredLevels", "troll"]);
 
+/*
+ * Troll Challenge (page Challenges, section « Trolls », relue le 2026-09-30) : « Every so often I'm gonna mess with you
+ * in some way. » Délai entre deux trolls selon la complétion en cours (« trolls every 120 seconds » à 75 s : 120, 110,
+ * 100, 90, 85, 80, 75). « Every fifth troll is a big troll ». Le chrono compte le temps de jeu actif (hors ligne
+ * désactivé). Les petits trolls sont instantanés ; les gros restent actifs « until rebirth » (drapeaux state.challenge.troll.flags).
+ * Les trolls purement visuels (message boxes, dessin du chaton, navigation aléatoire à 75 %) sont joués par le client
+ * d'après le troll renvoyé dans state.challenge.troll.last.
+ */
+export const IDLE_TROLL_INTERVALS_S_V1 = Object.freeze([120, 110, 100, 90, 85, 80, 75]);
+const IDLE_TROLL_SMALL_V1 = Object.freeze(["augments", "blood", "timeMachine", "gold", "boxes", "energy", "magic", "wandoos", "kitty"]);
+const IDLE_TROLL_BIG_V1 = Object.freeze(["ngu", "beards", "menu", "ruin", "wandoosOff", "bossDivider"]);
+/* « All small trolls except kitty and boxes » (gros troll « I basically ruined everything just now »). */
+const IDLE_TROLL_RUIN_V1 = Object.freeze(["augments", "blood", "timeMachine", "gold", "energy", "magic", "wandoos"]);
+
+function createTrollStateV1(raw) {
+  const f = raw?.flags || {};
+  const last = raw?.last && typeof raw.last === "object" ? raw.last : null;
+  return {
+    timer: Math.max(0, num(raw?.timer, 0)),
+    count: Math.max(0, int(raw?.count, 0)),
+    flags: { ngu: Boolean(f.ngu), beards: Boolean(f.beards), wandoos: Boolean(f.wandoos), menu: Boolean(f.menu), bossDivider: Boolean(f.bossDivider) },
+    last: last ? { id: String(last.id || ""), big: Boolean(last.big), seq: Math.max(0, int(last.seq, 0)) } : null
+  };
+}
+function trollFlagsV1(state) {
+  return state?.challenge?.active === "troll" ? (state.challenge.troll?.flags || {}) : {};
+}
+function trollIntervalSecondsV1(state) {
+  const done = Math.max(0, int(challengeCompletionsV1(state, challengeTierV1(state))?.troll, 0));
+  return IDLE_TROLL_INTERVALS_S_V1[Math.min(IDLE_TROLL_INTERVALS_S_V1.length - 1, done)];
+}
+function clearActiveDiggersV1(state) {
+  const d = state.systems.diggers?.data?.diggers;
+  if (d) for (const x of Object.values(d)) x.active = false;
+}
+function applyTrollEffectV1(state, id) {
+  if (id === "augments") {
+    for (const pair of Object.values(state.systems.augmentations?.data?.pairs || {})) {
+      pair.level = Math.floor(Math.max(0, num(pair.level, 0)) / 2);
+      pair.upgradeLevel = Math.floor(Math.max(0, num(pair.upgradeLevel, 0)) / 2);
+    }
+  } else if (id === "blood") {
+    state.currencies.blood = 0;
+    const sp = state.systems.bloodMagic?.data?.spells;
+    if (sp) sp.numberBoost = 1;
+  } else if (id === "timeMachine") {
+    const tm = state.systems.timeMachine?.data;
+    if (tm) { tm.speedLevel = 0; tm.speedProgress = 0; tm.goldLevel = 0; tm.goldProgress = 0; }
+    clearActiveDiggersV1(state);
+  } else if (id === "gold") {
+    state.currencies.gold = 0;
+  } else if (id === "energy" || id === "magic") {
+    const r = state.resources[id];
+    if (r) { r.current = 0; r.fillProgress = 0; }
+  } else if (id === "wandoos") {
+    const w = state.systems.wandoos?.data;
+    if (w) { w.dumpEnergyLevel = 0; w.dumpMagicLevel = 0; w.dumpEnergyProgress = 0; w.dumpMagicProgress = 0; }
+  }
+}
+function fireTrollV1(state) {
+  const t = state.challenge.troll;
+  t.count += 1;
+  const big = t.count % 5 === 0;
+  const pool = big ? IDLE_TROLL_BIG_V1 : IDLE_TROLL_SMALL_V1;
+  const id = pool[Math.min(pool.length - 1, Math.floor(Math.random() * pool.length))];
+  if (id === "ngu") { t.flags.ngu = true; clearActiveDiggersV1(state); }
+  else if (id === "beards") { t.flags.beards = true; clearActiveDiggersV1(state); }
+  else if (id === "menu") t.flags.menu = true;
+  else if (id === "wandoosOff") t.flags.wandoos = true;
+  else if (id === "bossDivider") t.flags.bossDivider = true;
+  else if (id === "ruin") for (const sub of IDLE_TROLL_RUIN_V1) applyTrollEffectV1(state, sub);
+  else applyTrollEffectV1(state, id);
+  t.last = { id, big, seq: (t.last?.seq || 0) + 1 };
+}
+/* Diviseur du multiplicateur de boss du prochain NUMBER : « divides boss multiplier for NUMBER by 2 + Troll Challenge completions ». */
+function trollBossDividerV1(state) {
+  if (!trollFlagsV1(state).bossDivider) return 1;
+  return 2 + Math.max(0, int(challengeCompletionsV1(state, challengeTierV1(state))?.troll, 0));
+}
+function advanceTrollChallengeV1(state, seconds) {
+  if (state.challenge?.active !== "troll" || !(seconds > 0)) return;
+  if (!state.challenge.troll) state.challenge.troll = createTrollStateV1();
+  const t = state.challenge.troll;
+  t.timer += seconds;
+  const interval = trollIntervalSecondsV1(state);
+  let garde = 0;
+  while (t.timer >= interval && garde++ < 20) {
+    t.timer -= interval;
+    fireTrollV1(state);
+  }
+}
+/* Gros troll « I just broke your NGU's » : aucun bonus NGU jusqu'au prochain Rebirth. */
+function trollNguOffV1(state) { return Boolean(trollFlagsV1(state).ngu); }
+
 export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()) {
   const state = normalizeIdleNguState(raw, context, now);
   const offlineCap = IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active)
     ? 60
     : EARLY_GAME_MAX_OFFLINE_SECONDS;
   const secs = clamp(seconds, 0, offlineCap);
+  /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. */
+  if (state.challenge?.active === "twentyFourHours" && seconds > secs && state.challenge.startedAt > 0) state.challenge.startedAt += (clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS) - secs) * 1000;
   state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
+  advanceTrollChallengeV1(state, secs);
 
   advanceGeneratedResources(state,secs,context);
   advanceAugmentations(state, secs, context);
@@ -4380,6 +4513,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   applyYggQuickActivationV1(state, now);
   state.rebirth = refreshRebirthState(state, context, nowMs(now));
   idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now));
+  autoCompleteChallengeV1(state, context, nowMs(now));
   return state;
 }
 
@@ -4530,7 +4664,7 @@ function hackFxV1(state) {
 
 /* Effets de tous les NGU (ratios) -- neutres sous le No NGU Challenge. */
 function nguFxV1(state) {
-  if (state.challenge?.active === "noNgu") return nguEffectsV1({}, state.difficulty);
+  if (state.challenge?.active === "noNgu" || trollNguOffV1(state)) return nguEffectsV1({}, state.difficulty);
   return nguEffectsV1(nguLevelsMapV1(state), state.difficulty);
 }
 
@@ -4616,7 +4750,7 @@ function grantNguLevelsV1(state, tier, id, gained) {
 
 function advanceNgusV1(state, seconds) {
   const s = state.systems.ngu;
-  if (!s?.unlocked || seconds <= 0 || state.challenge?.active === "noNgu") return;
+  if (!s?.unlocked || seconds <= 0) return;
   const tier = s.data.tier;
   if (!nguActiveTiersV1(state.difficulty).includes(tier)) return;
   const speeds = {
@@ -4648,7 +4782,6 @@ function advanceNgusV1(state, seconds) {
 function setNguAllocationV1(state, nguId, value, context = {}, tierArg) {
   const s = state.systems.ngu;
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
-  if (state.challenge?.active === "noNgu") throw new Error("DEFI_SANS_NGU");
   const def = IDLE_NGU_CATALOG_V1.find(x => x.id === nguId);
   if (!def) throw new Error("NGU_INVALIDE");
   const tier = tierArg || s.data.tier;
@@ -4714,6 +4847,8 @@ function beardSoftLevel(level, exponent, scalar) {
 function beardBonusMultiplier(state, role) {
   const s = state.systems.beards;
   if (!s?.unlocked) return 1;
+  /* Gros troll « I just broke your Beards » : aucun bonus de barbe jusqu'au Rebirth. */
+  if (trollFlagsV1(state).beards) return 1;
   const def = (IDLE_NGU_TRACKS.beards || []).find(x => x.beardRole === role);
   if (!def || !beardTrackUnlocked(state, def)) return 1;
   const t = s.data?.tracks?.[def.id] || {};
@@ -5472,6 +5607,11 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
         upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0,
         secondsPerLevel: Number.isFinite(neededMain) ? neededMain : null,
         upgradeSecondsPerLevel: Number.isFinite(neededUpgrade) ? neededUpgrade : null,
+        /* Chantier « réactivité » : durée du niveau à 1 Energy (K) et progression en secondes -> le client recalcule seul au clic. */
+        secondsK: finiOuNullV1(augmentationSecondsForNextLevel(state, def, false, 1)),
+        upgradeSecondsK: def.upgrade ? finiOuNullV1(augmentationSecondsForNextLevel(state, def, true, 1)) : null,
+        progressSeconds: Math.max(0, num(pair.progress, 0)),
+        upgradeProgressSeconds: Math.max(0, num(pair.upgradeProgress, 0)),
         levelsPerSecond: Number.isFinite(neededMain) && neededMain > 0 ? Math.min(50,1/neededMain) : 0,
         upgradeLevelsPerSecond: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.min(50,1/neededUpgrade) : 0
       });
@@ -6187,6 +6327,7 @@ function challengeTargetBoss(def,completion) {
 function challengeSnapshotDefinitions(state,context={}) {
   const tier=challengeTierV1(state);
   const completions=challengeCompletionsV1(state,tier);
+  /* Anti-spoil (AGENTS.md, règle n°2) : un défi encore verrouillé n'est jamais envoyé au client. */
   return challengeDefsForTierV1(tier).map(def=>{
     const completion=Math.max(0,int(completions?.[def.id],0));
     return Object.assign({},clone(def),{
@@ -6196,7 +6337,33 @@ function challengeSnapshotDefinitions(state,context={}) {
       targetBoss:challengeTargetBoss(def,completion),
       active:state.challenge.active===def.id
     });
-  });
+  }).filter(def=>def.unlocked||def.active||def.completion>0);
+}
+
+/*
+ * Fin d'un défi (page Challenges : « Win Condition(s): Defeat Boss #58 »). Dans le jeu, le défi se termine tout seul dès que
+ * la condition est remplie : plus besoin d'un bouton « Valider ». Le résultat est mémorisé dans state.challenge.lastCompletion
+ * pour que le client l'annonce.
+ */
+function autoCompleteChallengeV1(state, context, now) {
+  const active = String(state.challenge?.active || "");
+  if (!active || !state.systems.challenges?.unlocked) return;
+  const tier = challengeTierV1(state);
+  const def = challengeDefinition(active, tier);
+  if (!def) return;
+  const done = Math.max(0, int(challengeCompletionsV1(state, tier)?.[active], 0));
+  if (active === "laserSword") {
+    const need = 2 + done;
+    const pair = laserSwordPair(state);
+    if (pair.level < need || pair.upgradeLevel < need) return;
+  } else {
+    const target = challengeTargetBoss(def, done);
+    if (!(target > 0) || num(context?.bosses, 0) < target) return;
+  }
+  try {
+    const res = challengeAction(state, { mode: "complete", challenge: active }, context || {}, now);
+    state.challenge.lastCompletion = Object.assign({}, res, { seq: Math.max(0, int(state.challenge.lastCompletion?.seq, 0)) + 1, at: now });
+  } catch (_) { /* condition de temps ratée (24 Hour) : le défi reste actif jusqu'à abandon */ }
 }
 
 function challengeAction(state, payload, context, now) {
@@ -6208,6 +6375,7 @@ function challengeAction(state, payload, context, now) {
     state.challenge.active="";
     state.challenge.activeTier="normal";
     state.challenge.startedAt=0;
+    state.challenge.troll=createTrollStateV1();
     return {stopped:Boolean(stopped),challenge:stopped};
   }
 
@@ -6218,6 +6386,11 @@ function challengeAction(state, payload, context, now) {
   const completions=challengeCompletionsV1(state,tier);
 
   if(mode==="complete"){
+    /* Le défi se termine seul (autoCompleteChallengeV1) : un « valider » tardif renvoie simplement le résultat déjà obtenu. */
+    if(state.challenge.active!==id&&state.challenge.lastCompletion?.completed===id&&num(now,0)-num(state.challenge.lastCompletion.at,0)<120000){
+      const {seq,at,...deja}=state.challenge.lastCompletion;
+      return deja;
+    }
     if(state.challenge.active!==id)throw new Error("DEFI_NON_ACTIF");
     const before=Math.max(0,int(completions[id],0));
     const target=challengeTargetBoss(def,before);
@@ -6250,6 +6423,7 @@ function challengeAction(state, payload, context, now) {
     state.challenge.active="";
     state.challenge.activeTier="normal";
     state.challenge.startedAt=0;
+    state.challenge.troll=createTrollStateV1();
     return {
       completed:id,
       tier,
@@ -6275,6 +6449,7 @@ function challengeAction(state, payload, context, now) {
     clearBanks:!isLaserSword,
     challengeId:id
   });
+  state.challenge.troll=createTrollStateV1();
 
   return {
     started:id,
@@ -6604,6 +6779,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
         titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
+        /* No Equipment Challenge : rien ne peut être équipé tant que le défi est actif (idle-adventure-v47.js, action equip). */
+        equipmentLocked: state.challenge?.active === "noEquipment",
         titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
         titanCooldownReductionMs:challengePermanentBonuses(state).titanRespawnReductionMs,
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
@@ -6953,6 +7130,8 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   // "100 Levels Challenge" pool is explicitly "per rebirth" (audit
   // 2026-09-16) — reset on every rebirth, not just when that challenge starts.
   state.challenge.hundredLevelsGained=0;
+  /* Gros trolls : « until rebirth » -> les drapeaux tombent à chaque Rebirth (le chrono des trolls continue). */
+  if(state.challenge.troll)state.challenge.troll.flags=createTrollStateV1().flags;
   /* Sellout Shop : les potions beta sont perdues au Rebirth (wiki). */
   if (state.selloutEffects) state.selloutEffects.beta = {};
 
@@ -7345,6 +7524,7 @@ function inventoryAutoEnvV1(state) {
   const hundredMax = IDLE_NGU_NORMAL_CHALLENGES.find((d) => d.id === "hundredLevels")?.max || 5;
   return {
     autoMergeUnlocked: expShopPurchasedV1(state, "autoMerge") >= 1,
+    equipmentLocked: state.challenge?.active === "noEquipment",
     sortInventoryUnlocked: expShopPurchasedV1(state, "sortInventory") >= 1,
     autoBoostUnlocked: Boolean(ch.autoBoost),
     timerMultiplier: Math.max(0, num(ch.autoMergeTimeMultiplier, 1)) * (int(sellout.autoMergeBoostTimers, 0) >= 1 ? 0.5 : 1),

@@ -132,14 +132,15 @@ const ngu = (state, tier, id) => state.systems.ngu.data.ngus[tier][id];
   assert.ok(b.dropMultiplier > 1 && b.xpMultiplier > 1);
 }
 
-// --- Le No NGU Challenge neutralise les effets et bloque l'allocation ---
+// --- Le No NGU Challenge neutralise les effets (l'allocation reste possible) ---
 {
   const s = unlocked((st) => {
     st.systems.ngu.data.ngus.normal.powerAlpha.level = 100;
     st.challenge.active = "noNgu";
   });
   assert.equal(idleNguBonuses(s).nguEffects.attackDefense, 1);
-  assert.throws(() => act(s, { action: "allocateNgu", ngu: "powerAlpha", value: 10 }), /DEFI_SANS_NGU/);
+  /* Page Challenges : « NGUs provide absolutely no bonuses! » -- seuls les bonus sont coupés, on peut toujours allouer. */
+  assert.doesNotThrow(() => act(s, { action: "allocateNgu", ngu: "powerAlpha", value: 10 }));
 }
 
 // --- Renaissance : les niveaux restent, les allocations sont rendues ---

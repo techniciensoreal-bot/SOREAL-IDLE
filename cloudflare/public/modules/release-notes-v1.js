@@ -8,8 +8,39 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.6',
+    courante:'8.9',
     versions:[
+      {
+        version:'8.9',
+        nom:'Les défis comme dans le jeu d’origine',
+        date:'2026-09-30',
+        points:[
+          'Le menu Défis a été refait d’après le wiki : pour chaque défi, une description, ses restrictions, sa condition de victoire et la liste de ses récompenses, en français.',
+          'Un défi se termine tout seul dès que son objectif est atteint, avec une annonce des récompenses. Un défi encore verrouillé n’apparaît jamais.',
+          'Les restrictions sont réellement appliquées : impossible d’équiper quoi que ce soit pendant un défi sans équipement, menus fermés ou Renaissances interdites quand le défi l’exige.',
+          'Les défis à surprises frappent maintenant à intervalles réguliers, avec un coup plus sévère tous les cinq coups, et le défi aveugle masque de plus en plus de nombres au fil des réussites.'
+        ]
+      },
+      {
+        version:'8.8',
+        nom:'Un jeu qui répond tout de suite',
+        date:'2026-09-30',
+        points:[
+          'Les menus où l’on répartit de l’énergie ou de la magie répondent maintenant instantanément : retirer ou remettre de la ressource met à jour les durées et les barres sur-le-champ.',
+          'Les clics rapprochés sont regroupés en un seul envoi au serveur, sans rien alourdir.',
+          'Les chronos des barres avancent en continu, comme dans Basic Training.'
+        ]
+      },
+      {
+        version:'8.7',
+        nom:'Un panneau pour chaque système',
+        date:'2026-09-30',
+        points:[
+          'Chaque nouveau système qui se débloque a maintenant son propre panneau explicatif : à quoi il sert, comment l’utiliser, et ce qu’il devient à la Renaissance quand c’est connu.',
+          'Ces panneaux sont lus à voix haute, et remplacent le panneau identique qui s’affichait pour tous les systèmes.',
+          'Toutes les voix du jeu ont été réenregistrées avec de nouvelles voix plus naturelles : un narrateur et une voix de femme.'
+        ]
+      },
       {
         version:'8.6',
         nom:'Deux voix dans la même phrase',
