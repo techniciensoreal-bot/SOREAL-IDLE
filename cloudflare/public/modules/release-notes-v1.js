@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.4',
+    courante:'8.5',
     versions:[
+      {
+        version:'8.5',
+        nom:'Écouter une étape à la fois',
+        date:'2026-09-30',
+        points:[
+          'Chaque étape d’une histoire a maintenant son propre bouton pour l’écouter seule, sans lancer toute la scène.',
+          'Le bouton devient « Arrêter » pendant la lecture ; relancer une autre étape coupe la précédente.',
+          'Si la voix réaliste d’une étape n’est pas encore générée, la lecture se fait avec la voix de secours et te le signale.'
+        ]
+      },
       {
         version:'8.4',
         nom:'Un chat rien que pour nous',

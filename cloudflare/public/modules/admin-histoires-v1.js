@@ -264,6 +264,7 @@ function ouvrirEditeur_(h,estNouvelle){
 }
 
 function fermerEditeur_(){
+  arreterEcoute_();
   if(generation.enCours){generation.annule=true;}
   var el=document.getElementById(EDITEUR_ID);
   if(el&&el.parentNode)el.parentNode.removeChild(el);
@@ -286,6 +287,7 @@ function etapeHtml_(e,i){
   return '<div class="adm-etape-v1" data-adm-etape="'+i+'">'+
     '<div class="adm-etape-tete-v1"><b>Étape '+(i+1)+'</b>'+voix+
       '<span style="flex:1"></span>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-e="ecouter" data-i="'+i+'" title="Écouter uniquement cette étape">▶ Écouter</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="haut" data-i="'+i+'"'+(i===0?' disabled':'')+'>⬆</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="bas" data-i="'+i+'"'+(i===edition.etapes.length-1?' disabled':'')+'>⬇</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'">🗑</button>'+
@@ -541,6 +543,54 @@ function genererVoix_(){
   });
 }
 
+/* ---------- écoute d'UNE étape ---------- */
+
+var ecoute={index:-1};
+
+function boutonEcoute_(i){
+  var r=document.getElementById(EDITEUR_ID);
+  return r?r.querySelector('[data-adm-e="ecouter"][data-i="'+i+'"]'):null;
+}
+
+function remettreBoutonsEcoute_(){
+  var r=document.getElementById(EDITEUR_ID);
+  if(!r)return;
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="ecouter"]'),function(b){b.textContent='▶ Écouter';});
+}
+
+function arreterEcoute_(){
+  ecoute.index=-1;
+  try{var t=tts_();if(t&&typeof t.stop==='function')t.stop();}catch(_e){}
+  remettreBoutonsEcoute_();
+}
+
+/* Joue uniquement le texte de l'étape i, avec la voix générée si elle existe (sinon la voix de secours du jeu, signalée). */
+function ecouterEtape_(i){
+  var t=tts_();
+  if(!t||typeof t.readText!=='function'){afficherEtat_('Lecture vocale indisponible sur cet appareil.',true);return;}
+  if(ecoute.index===i){arreterEcoute_();return;}
+  arreterEcoute_();
+  lireChamps_();
+  var etape=edition.etapes[i];
+  var texte=String(etape&&etape.texte||'').trim();
+  if(!texte){afficherEtat_('Étape '+(i+1)+' : pas de texte à écouter.',true);return;}
+  try{if(typeof t.enregistrerVoixDynamiques==='function')t.enregistrerVoixDynamiques(edition.voix||[]);}catch(_e){}
+  var s=statutVoixEtape_(etape,edition.voix||[]);
+  afficherEtat_(s.total&&s.prets>=s.total?'':'Étape '+(i+1)+' : voix du studio pas encore générée, lecture avec la voix de secours du jeu.');
+  ecoute.index=i;
+  var b=boutonEcoute_(i);
+  if(b)b.textContent='⏹ Arrêter';
+  var fini=false;
+  var surFin=function(){
+    if(fini)return;
+    fini=true;
+    if(ecoute.index===i){ecoute.index=-1;remettreBoutonsEcoute_();}
+  };
+  var demarre=false;
+  try{demarre=t.readText(texte,undefined,surFin);}catch(_e){demarre=false;}
+  if(!demarre)surFin();
+}
+
 /* ---------- événements de l'éditeur ---------- */
 
 document.addEventListener('click',function(ev){
@@ -561,6 +611,8 @@ document.addEventListener('click',function(ev){
     var i=Number(e.getAttribute('data-i'));
     var a=e.getAttribute('data-adm-e');
     lireChamps_();
+    if(a==='ecouter'){ecouterEtape_(i);return;}
+    arreterEcoute_();
     if(a==='haut')deplacer_(i,-1);
     else if(a==='bas')deplacer_(i,1);
     else if(a==='image')choisirImage_(i);
