@@ -34,15 +34,15 @@ const stats = (o = {}) => ({
     systems: { achievements: { data: { unlocked: o.succes || {} } } },
     adventure: { titans: o.titans || {} },
     challenge: { completions: o.defis || {}, completionsTier: {} },
-    records: { totalRebirths: o.rebirths || 0 }
+    records: { totalRebirths: o.rebirths || 0, highestBoss: o.boss || 0 }
   },
   classementVisible: o.visible
 });
 
 // 1. Instantané.
 {
-  const i = instantaneJoueurV1({ bossVaincus: 12, stats: stats({ succes: { a: 1, b: 2 }, titans: { t1: { kills: 2 }, t2: { kills: 0 } }, defis: { troll: 3 }, rebirths: 4 }) });
-  assert.equal(i.boss, 12);
+  const i = instantaneJoueurV1({ stats: stats({ boss: 12, succes: { a: 1, b: 2 }, titans: { t1: { kills: 2 }, t2: { kills: 0 } }, defis: { troll: 3 }, rebirths: 4 }) });
+  assert.equal(i.bossMax, 12);
   assert.deepEqual(i.succes, ["a", "b"]);
   assert.deepEqual(i.titans, { t1: 2 });
   assert.deepEqual(i.defis, { "normal:troll": 3 });
@@ -53,10 +53,10 @@ const stats = (o = {}) => ({
 {
   const sql = baseVide();
   const base = { email: "a@x.fr", nom: "Alice" };
-  const i0 = instantaneJoueurV1({ bossVaincus: 5, stats: stats({ succes: { a: 1 } }) });
+  const i0 = instantaneJoueurV1({ stats: stats({ boss: 5, succes: { a: 1 } }) });
   assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: i0, now: T0 }), 0, "le premier battement ne publie rien");
   assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: i0, now: T0 + 20000 }), 0, "aucun changement : rien");
-  const i1 = instantaneJoueurV1({ bossVaincus: 6, stats: stats({ succes: { a: 1, b: 2 }, titans: { t1: { kills: 1 } } }) });
+  const i1 = instantaneJoueurV1({ stats: stats({ boss: 6, succes: { a: 1, b: 2 }, titans: { t1: { kills: 1 } } }) });
   assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: i1, now: T0 + 40000 }), 3);
   const flux = lireFluxV1(sql, { email: "a@x.fr" });
   assert.deepEqual(flux.map((f) => f.type), ["boss", "succes", "titan"]);
@@ -66,13 +66,28 @@ const stats = (o = {}) => ({
   assert.equal(dernierIdFluxV1(sql), flux[2].id);
 }
 
+// 2b. Seuls les boss JAMAIS vaincus sont annoncés : refaire les boss 1..N après un Rebirth n'annonce rien.
+{
+  const sql = baseVide();
+  const base = { email: "r@x.fr", nom: "Rémi" };
+  const snap = (boss, rebirths) => instantaneJoueurV1({ bossVaincus: 0, stats: stats({ boss, rebirths }) });
+  enregistrerJalonsV1(sql, { ...base, instantane: snap(30, 1), now: T0 });
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: snap(30, 1), now: T0 + 1 }), 0);
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: snap(30, 2), now: T0 + 2 }), 1, "le Rebirth est annoncé, pas les boss refaits");
+  assert.equal(lireFluxV1(sql, {}).filter((e) => e.type === "boss").length, 0);
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: snap(31, 2), now: T0 + 3 }), 1, "boss 31 jamais vaincu : annoncé");
+  assert.deepEqual(lireFluxV1(sql, {}).filter((e) => e.type === "boss").map((e) => e.donnees.boss), [31]);
+  /* Ancien instantané sans record : aucune annonce à tort. */
+  assert.equal(evenementsV1({ boss: 80, succes: [], titans: {}, defis: {}, rebirths: 0 }, snap(31, 0)).length, 0);
+}
+
 // 3. Retrait du classement : rien n'est publié, et pas de rattrapage au retour.
 {
   const sql = baseVide();
   const base = { email: "a@x.fr", nom: "Alice" };
-  enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ bossVaincus: 1, stats: stats() }), now: T0 });
-  assert.equal(enregistrerJalonsV1(sql, { ...base, visible: false, instantane: instantaneJoueurV1({ bossVaincus: 9, stats: stats() }), now: T0 + 1 }), 0);
-  assert.equal(enregistrerJalonsV1(sql, { ...base, visible: true, instantane: instantaneJoueurV1({ bossVaincus: 9, stats: stats() }), now: T0 + 2 }), 0, "pas de rattrapage");
+  enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ stats: stats({ boss: 1 }) }), now: T0 });
+  assert.equal(enregistrerJalonsV1(sql, { ...base, visible: false, instantane: instantaneJoueurV1({ stats: stats({ boss: 9 }) }), now: T0 + 1 }), 0);
+  assert.equal(enregistrerJalonsV1(sql, { ...base, visible: true, instantane: instantaneJoueurV1({ stats: stats({ boss: 9 }) }), now: T0 + 2 }), 0, "pas de rattrapage");
   assert.equal(dernierIdFluxV1(sql), 0);
 }
 
@@ -80,7 +95,7 @@ const stats = (o = {}) => ({
 {
   const succes = {};
   for (let k = 0; k < 10; k++) succes["s" + k] = 1;
-  const ev = evenementsV1(instantaneJoueurV1({ stats: stats() }), instantaneJoueurV1({ bossVaincus: 3, stats: stats({ succes, rebirths: 1, titans: { t1: { kills: 1 }, t2: { kills: 1 }, t3: { kills: 1 }, t4: { kills: 1 } } }) }));
+  const ev = evenementsV1(instantaneJoueurV1({ stats: stats() }), instantaneJoueurV1({ stats: stats({ boss: 3, succes, rebirths: 1, titans: { t1: { kills: 1 }, t2: { kills: 1 }, t3: { kills: 1 }, t4: { kills: 1 } } }) }));
   assert.ok(ev.filter((e) => e.type === "succes").length <= 3);
   assert.ok(ev.length <= IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
 
@@ -93,9 +108,9 @@ const stats = (o = {}) => ({
   assert.equal(enregistrerJalonsV1(sql, { ...base, activite: { t: "farm", zoneId: 4, zoneNom: "Forêt" }, now: T0 + IDLE_FLUX_DELAI_FARM_MS_V1 * 3 }), 1);
 
   const s2 = baseVide();
-  enregistrerJalonsV1(s2, { email: "z@x.fr", nom: "Z", instantane: instantaneJoueurV1({ bossVaincus: 0, stats: stats() }), now: T0 });
+  enregistrerJalonsV1(s2, { email: "z@x.fr", nom: "Z", instantane: instantaneJoueurV1({ stats: stats({ boss: 0 }) }), now: T0 });
   for (let n = 1; n <= IDLE_FLUX_MAX_LIGNES_V1 + 20; n++) {
-    enregistrerJalonsV1(s2, { email: "z@x.fr", nom: "Z", instantane: instantaneJoueurV1({ bossVaincus: n, stats: stats() }), now: T0 + n });
+    enregistrerJalonsV1(s2, { email: "z@x.fr", nom: "Z", instantane: instantaneJoueurV1({ stats: stats({ boss: n }) }), now: T0 + n });
   }
   assert.ok(s2.exec("SELECT COUNT(*) AS n FROM idle_flux")[0].n <= IDLE_FLUX_MAX_LIGNES_V1, "le fil est borné");
 }

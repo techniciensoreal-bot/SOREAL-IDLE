@@ -30,7 +30,7 @@ export function assurerFluxV1(sql) {
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 
 /*
- * Instantané des jalons d'un joueur, lu dans sa ligne (boss vaincus + stats.metaNgu). Tout est réduit à des identifiants et des compteurs.
+ * Instantané des jalons d'un joueur, lu dans sa ligne (record de boss + stats.metaNgu). Tout est réduit à des identifiants et des compteurs.
  */
 export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const m = stats && typeof stats === "object" && stats.metaNgu && typeof stats.metaNgu === "object" ? stats.metaNgu : {};
@@ -48,7 +48,8 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     for (const [id, n] of Object.entries((ch.completionsTier && ch.completionsTier[tier]) || {})) if (N(n) > 0) defis[tier + ":" + id] = Math.floor(N(n));
   }
   return {
-    boss: Math.max(0, Math.floor(N(bossVaincus, 0))),
+    /* Record permanent (jamais remis à 0 par un Rebirth) : seul un boss JAMAIS vaincu auparavant est annoncé, pas les boss refaits à chaque run. */
+    bossMax: Math.max(0, Math.floor(N(m.records && m.records.highestBoss, 0))),
     succes,
     titans,
     defis,
@@ -64,7 +65,8 @@ export function evenementsV1(avant, apres, noms = {}) {
   if (!avant || !apres) return [];
   const nom = (f, x) => { try { return String((typeof f === "function" ? f(x) : "") || "").slice(0, 80); } catch (_e) { return ""; } };
   const ev = [];
-  if (apres.boss > avant.boss) ev.push({ type: "boss", donnees: { boss: apres.boss, nom: nom(noms.boss, apres.boss) } });
+  /* Ancien instantané sans record (compteur de run) : pas de comparaison cette fois-ci, pour ne rien annoncer à tort. */
+  if (Number.isFinite(avant.bossMax) && apres.bossMax > avant.bossMax) ev.push({ type: "boss", donnees: { boss: apres.bossMax, nom: nom(noms.boss, apres.bossMax) } });
   const connus = new Set(avant.succes || []);
   let nbSucces = 0;
   for (const id of apres.succes || []) {
