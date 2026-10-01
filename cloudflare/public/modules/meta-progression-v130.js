@@ -1829,7 +1829,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const value=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
           const pct=Math.max(0,Math.min(100,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
-          const label=upgrade?'Upgrade':'Augment';
+          const label=upgrade?'⬆️ Upgrade':'💪 Augment';
           const sousTitre=upgrade?'Multiplie le bonus de l’Augment · coûte de l’Or et de l’Energy':'Bonus d’Attack et de Defense · coûte de l’Or';
           return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+'<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
@@ -1864,7 +1864,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:12px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
+              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_AUGMENTS_V1[def.id]?IDLE_ICONES_AUGMENTS_V1[def.id]+' ':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:12px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
             }).join('')+'</div>';
           })();
       }
@@ -2262,6 +2262,10 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         woodchipper:'Faire un câlin à une déchiqueteuse',
         insideOut:'Se retourner comme un gant'
       };
+      /* Dessins (émojis) pour que les menus parlent d'eux-mêmes (Norman, 2026-10-01). */
+      const IDLE_ICONES_AUGMENTS_V1={scissors:'✂️',milk:'🥛',cannon:'💥',minigun:'🔫',buster:'⚡',exoskeleton:'🦾',laserSword:'🗡️',insideOut:'🌀'};
+      const IDLE_ICONES_SORTS_V1={numberBoost:'🔢',ironPill:'💊',bloodSpaghetti:'🍝',counterfeitGold:'💰',leeches:'🪱'};
+      const IDLE_ICONES_RITUELS_V1={tack:'📍',papercuts:'📄',hickey:'💋',barbedWire:'⛓️',bloodBank:'🏦',decapitation:'💀',woodchipper:'🪵',insideOut:'🌀'};
       window.__idleBloodInfosOuvertesV1=window.__idleBloodInfosOuvertesV1||{};
       window.__basculerInfoSortBloodIdleV1__=function(id,bouton){
         const ouvert=!window.__idleBloodInfosOuvertesV1[id];
@@ -2362,7 +2366,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             ?'<div class="soreal-idle-bt-track-v120"><div data-idle-blood-bar-v1="'+idHtml+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;background:#9a2138;transition:none"></div></div>'
             :'';
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="soreal-idle-section-v8" style="margin:0;opacity:'+(unlocked?'1':'.55')+'">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
+            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b>−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             barre+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:12px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
@@ -2381,7 +2385,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const infos=(sp.desc?'<div class="soreal-idle-blood-sort-desc-v1">'+H.idleHtml_(sp.desc)+'</div>':'')+(sp.apercu?'<div class="soreal-idle-blood-sort-apercu-v1">'+H.idleHtml_(sp.apercu)+'</div>':'');
           const ouvert=Boolean(window.__idleBloodInfosOuvertesV1&&window.__idleBloodInfosOuvertesV1[sp.id]);
           return '<div class="soreal-idle-blood-sort-v1" data-sort="'+idSort+'">'+
-            '<div class="soreal-idle-blood-sort-tete-v1"><b>'+H.idleHtml_(sp.nom)+'</b>'+(infos?'<button type="button" class="soreal-idle-blood-info-v1" title="Voir les effets" aria-expanded="'+(ouvert?'true':'false')+'" onclick="window.__basculerInfoSortBloodIdleV1__(\''+idSort+'\',this)">i</button>':'')+'</div>'+
+            '<div class="soreal-idle-blood-sort-tete-v1"><b>'+(IDLE_ICONES_SORTS_V1[sp.id]?IDLE_ICONES_SORTS_V1[sp.id]+' ':'')+H.idleHtml_(sp.nom)+'</b>'+(infos?'<button type="button" class="soreal-idle-blood-info-v1" title="Voir les effets" aria-expanded="'+(ouvert?'true':'false')+'" onclick="window.__basculerInfoSortBloodIdleV1__(\''+idSort+'\',this)">i</button>':'')+'</div>'+
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+

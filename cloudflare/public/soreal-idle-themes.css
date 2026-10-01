@@ -372,3 +372,33 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .sore
   background:linear-gradient(180deg,#ffd75a,#ff8a1a)!important;color:#2a1200!important;border:0!important;border-radius:0!important;
   clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);font-weight:900;letter-spacing:.06em;
 }
+
+/* ====================== DESSINS : emojis en filigrane pour que les menus parlent d'eux-mêmes ====================== */
+/* Augmentations : gros dessin de l'augmentation en filigrane sur sa carte, éclair et flammes sur le titre. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-section-v8[data-icone]::after{
+  content:attr(data-icone);position:absolute;right:10px;top:38%;transform:translateY(-50%) rotate(-12deg);
+  font-size:74px;line-height:1;opacity:.10;pointer-events:none;filter:saturate(1.4);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-section-v8[data-icone]>*{position:relative;z-index:1}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-page-head-v28::before{
+  content:"⚡🔥";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:44px;letter-spacing:6px;opacity:.28;pointer-events:none;
+  filter:drop-shadow(0 0 12px rgba(255,140,30,.9));
+}
+/* Fight Boss : épées croisées et crânes en filigrane dans l'arène. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35{position:relative;overflow:hidden}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35::before{
+  content:"⚔️";position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:230px;line-height:1;opacity:.045;pointer-events:none;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35::after{
+  content:"💀";position:absolute;right:8px;bottom:6px;font-size:54px;opacity:.08;pointer-events:none;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35>*{position:relative;z-index:1}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28::before{
+  content:"🛡️⚔️👹";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:34px;letter-spacing:6px;opacity:.30;pointer-events:none;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28{position:relative}
+/* Blood Magic : gouttes et symboles dans l'en-tête. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal-idle-page-head-v28{position:relative}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal-idle-page-head-v28::after{
+  content:"🩸🦇🕯️";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:30px;letter-spacing:6px;opacity:.32;pointer-events:none;
+}
