@@ -2518,11 +2518,7 @@
             const magicCapTick=Math.max(0,idleNombre_(infoMagieEtat.capRun));
 
             if(magicValeurTickEl){
-              magicValeurTickEl.textContent=
-                'Disponible : '+
-                formatEnergieIdleV50_(magicDisponibleTick)+
-                ' / '+
-                formatEnergieIdleV50_(magicCapTick);
+              magicValeurTickEl.textContent=texteMagieGenereeIdleV1_();
             }
             if(magicOverlayTickEl){
               magicOverlayTickEl.textContent=
@@ -2770,6 +2766,7 @@
 
         if(vitesseEl){
           vitesseEl.textContent=
+            texteProductionIdleV1_(idleEtat&&idleEtat.productionSeconde)+
             'Tick : '+
             (
               dureeTickEnergieIdleV34_()/
@@ -5060,6 +5057,55 @@
         return '⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/prod);
       }
 
+      /*
+       * Norman (2026-09-30) : « pour la barre énergie et magie, les données doivent être les mêmes... tout doit être identique entre les 2 barres
+       * mis à part les couleurs et le nom ». La Magie affiche donc les mêmes lignes que l'Énergie : « Généré : X / Y · Pleine dans … » (X = magie
+       * disponible + magie déjà placée, comme pour l'énergie) et « Tick : … · +N 🔮 ».
+       */
+      function allocationMetaMagieIdleV1_(){
+        const liste=
+          idleEtat&&
+          idleEtat.systemes&&
+          Array.isArray(idleEtat.systemes.systems)
+            ?idleEtat.systemes.systems
+            :[];
+        return liste.reduce(function(total,sys){
+          return total+Math.max(0,idleNombre_(sys&&sys.state&&sys.state.allocation&&sys.state.allocation.magic));
+        },0);
+      }
+
+      function donneesMagieGenereeIdleV1_(){
+        const sy=idleEtat&&idleEtat.systemes;
+        const info=sy&&sy.resourceInfo&&sy.resourceInfo.magic;
+        const ressource=sy&&sy.resources&&sy.resources.magic;
+        if(!info||!ressource)return null;
+        const cap=Math.max(0,idleNombre_(info.capRun));
+        const generee=Math.min(cap,Math.max(0,idleNombre_(ressource.current))+allocationMetaMagieIdleV1_());
+        return {cap:cap,generee:generee,parSeconde:Math.max(0,idleNombre_(info.perSecond))};
+      }
+
+      function texteMagieGenereeIdleV1_(){
+        const m=donneesMagieGenereeIdleV1_();
+        if(!m)return '';
+        const reste=m.cap-m.generee;
+        let temps='';
+        if(m.cap>0){
+          if(reste<=0)temps='✅ Magie pleine';
+          else if(m.parSeconde>0)temps='⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/m.parSeconde);
+        }
+        return '🔮 Généré : '+formatEnergieIdleV50_(m.generee)+' / '+idleEntier_(m.cap)+(temps?' · '+temps:'');
+      }
+
+      function texteProductionIdleV1_(parSeconde){
+        return 'Production : +'+idleNombre_(parSeconde).toLocaleString('fr-FR',{maximumFractionDigits:2})+'/s · ';
+      }
+
+      function texteTickMagieIdleV1_(){
+        const t=metaTickMagieIdleV1_();
+        const m=donneesMagieGenereeIdleV1_();
+        return texteProductionIdleV1_(m?m.parSeconde:0)+'Tick : '+(t.dureeMs/1000).toFixed(t.dureeMs>=1000?2:3)+' s · +'+idleEntier_(t.gain)+' 🔮';
+      }
+
       function texteEnergieGenereeIdleV1_(){
         const temps=texteTempsEnergiePleineIdleV1_();
         return '🔋 Généré : '+
@@ -5314,11 +5360,7 @@
           const magicSpeed=document.getElementById('sorealIdleMagicSpeedV1');
 
           if(magicValeur){
-            magicValeur.textContent=
-              'Disponible : '+
-              formatEnergieIdleV50_(magicDisponible)+
-              ' / '+
-              formatEnergieIdleV50_(magicCap);
+            magicValeur.textContent=texteMagieGenereeIdleV1_();
           }
           if(magicOverlay){
             magicOverlay.textContent=
@@ -5334,13 +5376,7 @@
             );
           }
           if(magicSpeed){
-            magicSpeed.textContent=
-              'Production : +'+
-              idleNombre_(infoMagic.perSecond).toLocaleString(
-                'fr-FR',
-                {maximumFractionDigits:2}
-              )+
-              '/s · T pour récupérer';
+            magicSpeed.textContent=texteTickMagieIdleV1_();
           }
         }
 
@@ -14134,7 +14170,7 @@
               id="sorealIdleEnergySpeedV34"
               class="soreal-idle-energy-speed-v34"
             >
-              Tick : ${(dureeTickEnergieIdleV34_()/1000).toFixed(2)} s
+              ${texteProductionIdleV1_(j.productionSeconde)}Tick : ${(dureeTickEnergieIdleV34_()/1000).toFixed(2)} s
               · +${idleEntier_(gainParTickEnergieIdleV34_())} ⚡
             </div>
 
@@ -14163,7 +14199,7 @@
                   id="sorealIdleMagicValeurV1"
                   class="soreal-idle-energy-number-v34"
                 >
-                  Disponible : ${formatEnergieIdleV50_(magicDisponible)} / ${formatEnergieIdleV50_(magicCap)}
+                  ${texteMagieGenereeIdleV1_()}
                 </div>
               </div>
 
@@ -14171,8 +14207,7 @@
                 id="sorealIdleMagicSpeedV1"
                 class="soreal-idle-energy-speed-v34"
               >
-                Production : +${idleNombre_(infoMagic.perSecond).toLocaleString('fr-FR',{maximumFractionDigits:2})}/s
-                · T pour récupérer
+                ${texteTickMagieIdleV1_()}
               </div>
 
               <div class="soreal-idle-energybar-wrap-v11 soreal-idle-magicbar-wrap-v1">

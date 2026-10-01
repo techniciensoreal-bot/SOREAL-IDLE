@@ -104,7 +104,7 @@ function contenuLocal(fichier) {
   if (ETIQUETTE && fichier === "modules/tutorial-tts-v202.js") {
     const avant = texte;
     texte = texte.replace(/var VOICE_TAG='[^']*';/, "var VOICE_TAG='" + ETIQUETTE.replace(/[^A-Za-z0-9_-]/g, "") + "';");
-    if (texte === avant) throw new Error("VOICE_TAG introuvable dans le module de narration");
+    if (texte === avant && !/var VOICE_TAG='[^']*';/.test(texte)) throw new Error("VOICE_TAG introuvable dans le module de narration");
   }
   return texte;
 }
