@@ -4037,6 +4037,8 @@
       function texteEtaBasicTrainingIdleV1_(niveauxParSeconde){
         const v=Math.max(0,idleNombre_(niveauxParSeconde));
         if(!(v>0))return '⏱ Aucune énergie allouée';
+        /* Norman (2026-10-01) : une barre plafonnée (50 niveaux/s) n'écrit plus « 1 s par niveau » mais « 50 niveaux par seconde ». */
+        if(v>1)return '⏱ '+v.toLocaleString('fr-FR',{maximumFractionDigits:2})+' niveaux par seconde';
         return '⏱ '+formaterEtaTimeMachineIdleV1_(1/v)+' par niveau';
       }
 
