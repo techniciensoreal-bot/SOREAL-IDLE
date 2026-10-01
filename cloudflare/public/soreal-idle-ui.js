@@ -2765,20 +2765,7 @@
           );
 
         if(vitesseEl){
-          vitesseEl.textContent=
-            texteProductionIdleV1_(idleEtat&&idleEtat.productionSeconde)+
-            'Tick : '+
-            (
-              dureeTickEnergieIdleV34_()/
-              1000
-            ).toFixed(
-              dureeTickEnergieIdleV34_()>=1000
-                ?2
-                :3
-            )+
-            ' s · +'+
-            gainParTickEnergieIdleV34_()+
-            ' ⚡';
+          vitesseEl.textContent=texteNiveauParSecondeIdleV1_(idleEtat&&idleEtat.productionSeconde);
         }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-42 */
@@ -5093,25 +5080,24 @@
           if(reste<=0)temps='✅ Magie pleine';
           else if(m.parSeconde>0)temps='⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/m.parSeconde);
         }
-        return '🔮 Généré : '+formatEnergieIdleV50_(m.generee)+' / '+idleEntier_(m.cap)+(temps?' · '+temps:'');
+        return '🔮 Reste à générer : '+formatEnergieIdleV50_(Math.max(0,reste))+(temps?' · '+temps:'');
       }
 
-      function texteProductionIdleV1_(parSeconde){
-        return 'Production : +'+idleNombre_(parSeconde).toLocaleString('fr-FR',{maximumFractionDigits:2})+'/s · ';
+      /* Norman (2026-10-01) : « Niveau par seconde » à la place de « Tick » et « Production », identique pour l'Énergie et la Magie. */
+      function texteNiveauParSecondeIdleV1_(parSeconde){
+        return 'Niveau par seconde : +'+idleNombre_(parSeconde).toLocaleString('fr-FR',{maximumFractionDigits:2})+'/s';
       }
 
       function texteTickMagieIdleV1_(){
-        const t=metaTickMagieIdleV1_();
         const m=donneesMagieGenereeIdleV1_();
-        return texteProductionIdleV1_(m?m.parSeconde:0)+'Tick : '+(t.dureeMs/1000).toFixed(t.dureeMs>=1000?2:3)+' s · +'+idleEntier_(t.gain)+' 🔮';
+        return texteNiveauParSecondeIdleV1_(m?m.parSeconde:0);
       }
 
       function texteEnergieGenereeIdleV1_(){
         const temps=texteTempsEnergiePleineIdleV1_();
-        return '🔋 Généré : '+
-          formatEnergieIdleV50_(energieGenereeTotaleIdleV1_())+
-          ' / '+
-          idleEntier_(idleEtat&&idleEtat.energieMax)+
+        const reste=Math.max(0,idleEntier_(idleEtat&&idleEtat.energieMax)-energieGenereeTotaleIdleV1_());
+        return '🔋 Reste à générer : '+
+          formatEnergieIdleV50_(reste)+
           (temps?' · '+temps:'');
       }
 
@@ -14170,8 +14156,7 @@
               id="sorealIdleEnergySpeedV34"
               class="soreal-idle-energy-speed-v34"
             >
-              ${texteProductionIdleV1_(j.productionSeconde)}Tick : ${(dureeTickEnergieIdleV34_()/1000).toFixed(2)} s
-              · +${idleEntier_(gainParTickEnergieIdleV34_())} ⚡
+              ${texteNiveauParSecondeIdleV1_(j.productionSeconde)}
             </div>
 
             <div class="soreal-idle-energybar-wrap-v11">
