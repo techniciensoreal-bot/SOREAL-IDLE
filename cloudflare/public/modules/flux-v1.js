@@ -19,6 +19,7 @@
   const PX_PAR_SEC=46;
 
   let items=[];
+  let chats=[];
   let dernier=0;
   let replie=false;
   let bandeau=null;
@@ -91,6 +92,12 @@
     return 'il y a '+Math.round(m/60)+' h';
   }
 
+  /* Messages du chat : publics, donc sans filtre de découverte ; coupés pour tenir dans le bandeau. */
+  function texteChat(m){
+    const t=String(m||'').replace(/\s+/g,' ').trim();
+    return t.length>90?t.slice(0,89)+'…':t;
+  }
+
   function visibles(){
     const ctx=contexte();
     const sortie=[];
@@ -98,6 +105,10 @@
       const p=phrase(it,ctx);
       if(p)sortie.push({id:it.id,at:it.at,icone:p.icone,texte:p.texte,moi:it.moi});
     });
+    chats.forEach(function(m){
+      if(m.message)sortie.push({id:'c'+m.id,at:m.at,icone:'💬',texte:(m.moi?'Toi':m.nom)+' : '+texteChat(m.message),moi:m.moi,chat:true});
+    });
+    sortie.sort(function(a,b){return a.at-b.at;});
     return sortie;
   }
 
@@ -231,6 +242,25 @@
     return true;
   }
 
+  /* Nouveaux messages du chat (modules/chat-v1.js) : au chargement, seuls ceux des 10 dernières minutes. */
+  function recevoirChat(liste,initial){
+    const limite=Date.now()-10*60*1000;
+    const connus=new Set(chats.map(function(m){return m.id;}));
+    let ajoute=false;
+    (Array.isArray(liste)?liste:[]).forEach(function(m){
+      if(!m||!m.id||connus.has(m.id)||(initial&&Number(m.at)<limite))return;
+      chats.push({id:m.id,at:Number(m.at)||Date.now(),nom:String(m.nom||'Joueur'),message:String(m.message||''),moi:Boolean(m.moi)});
+      ajoute=true;
+    });
+    if(!ajoute)return false;
+    chats.sort(function(a,b){return a.id-b.id;});
+    if(chats.length>MAX_ITEMS)chats=chats.slice(chats.length-MAX_ITEMS);
+    if(!bandeau)construire();
+    rendreBandeau();
+    majPanneaux();
+    return true;
+  }
+
   /* ---------- panneau dans la page Chat ---------- */
   function htmlPanneau(){
     const liste=visibles().slice(-12).reverse();
@@ -246,11 +276,13 @@
 
   window.__SOREAL_IDLE_FLUX_V1__={
     recevoir:recevoir,
+    recevoirChat:recevoirChat,
     dernier:function(){return dernier;},
     phrase:phrase,
     htmlPanneau:htmlPanneau,
     majPanneaux:majPanneaux,
     construire:construire,
+    visibles:visibles,
     items:function(){return items.slice();}
   };
 

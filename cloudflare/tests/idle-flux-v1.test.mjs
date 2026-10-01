@@ -102,7 +102,8 @@ const stats = (o = {}) => ({
 
 // 5. Phrases côté lecteur : aucun spoil.
 {
-  const sandbox = { window: {}, document: { readyState: "complete", addEventListener() {}, getElementById() { return null; }, querySelectorAll() { return []; }, createElement() { return {}; }, body: {}, head: {} }, localStorage: { getItem() { return null; }, setItem() {} }, requestAnimationFrame() { return 1; } };
+  const noeud = () => ({ style: {}, setAttribute() {}, appendChild() {}, addEventListener() {}, querySelector() { return noeud(); }, querySelectorAll() { return []; }, getBoundingClientRect() { return { width: 0 }; }, classList: { toggle() {} } });
+  const sandbox = { window: {}, document: { readyState: "complete", addEventListener() {}, getElementById() { return null; }, querySelectorAll() { return []; }, createElement: noeud, body: { appendChild() {}, contains() { return true; }, classList: { toggle() {} } }, head: { appendChild() {} } }, localStorage: { getItem() { return null; }, setItem() {} }, requestAnimationFrame() { return 1; }, Date, Set };
   vm.runInNewContext(readFileSync("cloudflare/public/modules/flux-v1.js", "utf8"), sandbox);
   const { phrase } = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
   const debutant = { zones: [], bossMax: 0, connus: { boss: {}, titan: {}, succes: {}, menus: {} } };
@@ -125,6 +126,14 @@ const stats = (o = {}) => ({
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, expert).texte, "Mickaël farme dans Égouts");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, debutant).texte, "Mickaël farme en Aventure", "zone inconnue : générique");
   assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu viens de vaincre Gros Rat");
+
+  // Messages du chat dans le bandeau : récents seulement au chargement, texte coupé.
+  const f = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
+  const now = Date.now();
+  f.recevoirChat([{ id: 1, at: now - 3_600_000, nom: "Vieux", message: "ancien" }, { id: 2, at: now - 1000, nom: "Léa", message: "salut ".repeat(40), moi: false }], true);
+  const vus = f.visibles();
+  assert.equal(vus.length, 1, "un message vieux de plus de 10 min n'est pas rejoué au chargement");
+  assert.ok(vus[0].chat && vus[0].texte.startsWith("Léa : salut") && vus[0].texte.length <= 100);
 }
 
 // 6. Câblage : contrat, index, battement, page Chat.
@@ -135,6 +144,7 @@ const stats = (o = {}) => ({
   assert.ok(index.includes("/modules/flux-v1.js"));
   assert.ok(index.indexOf("/modules/flux-v1.js") < index.indexOf("/modules/chat-v1.js"));
   const chat = readFileSync("cloudflare/public/modules/chat-v1.js", "utf8");
+  assert.ok(chat.includes("recevoirChat"));
   assert.ok(chat.includes("apresFlux") && chat.includes("__SOREAL_IDLE_FLUX_V1__") && chat.includes("data-flux-panneau-v1"));
   const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
   assert.ok(rt.includes("enregistrerJalonsV1") && rt.includes("lireFluxSorealIdle,"));

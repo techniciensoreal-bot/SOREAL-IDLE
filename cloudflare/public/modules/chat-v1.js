@@ -153,7 +153,10 @@
 
   function chargerRecents(){
     return appel('lireChatSorealIdle',[dernierId?{apresId:dernierId,limite:100}:{limite:40}]).then(function(data){
-      const change=ajouterItems(normaliserItems(data&&data.items));
+      const recus=normaliserItems(data&&data.items);
+      const premier=!dernierId;
+      const change=ajouterItems(recus);
+      if(window.__SOREAL_IDLE_FLUX_V1__)window.__SOREAL_IDLE_FLUX_V1__.recevoirChat(recus,premier);
       if(change){
         if(ouvert){
           vuId=dernierId;ecrireVu(vuId);
