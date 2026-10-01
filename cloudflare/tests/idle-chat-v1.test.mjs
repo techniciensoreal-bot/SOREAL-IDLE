@@ -113,9 +113,16 @@ function charger({ interaction = true, visible = true, contexte = null, appelEch
   assert.ok(mod.includes("Joueurs connectés à SOREAL IDLE"));
 }
 
-// 7. Menu : bouton Chat (panneau, pas une page), badge, activité exposée au chat, classement = temps de jeu ACTIF.
+// 7. Menu : bouton Chat, PAGE du menu en pleine page (2026-10-01 : plus de fenêtre volante), badge, activité exposée au chat, classement = temps de jeu ACTIF.
 assert.ok(ui.includes("{id:'chat',icon:'💬',nom:'Chat'}"));
-assert.ok(ui.includes("window.__SOREAL_IDLE_CHAT_V1__.ouvrir()"));
+assert.ok(ui.includes("case 'chat':") && ui.includes("window.__SOREAL_IDLE_CHAT_V1__.pageHtml()"), "page du menu Chat");
+assert.ok(!ui.includes("window.__SOREAL_IDLE_CHAT_V1__.ouvrir()"), "plus d'ouverture en fenêtre volante");
+{
+  const mod2 = readFileSync("cloudflare/public/modules/chat-v1.js", "utf8");
+  assert.ok(!mod2.includes("position:fixed") && !mod2.includes('aria-modal'), "le chat n'est plus un dialogue plein écran");
+  assert.ok(mod2.includes("function apresRendu()") && mod2.includes("function pageHtml()"), "monté dans la page après chaque rendu");
+  assert.ok(mod2.includes("elChat"), "le chat est construit une fois et re-monté (garde la saisie)");
+}
 assert.ok(ui.includes("window.__SOREAL_IDLE_CHAT_V1__.badgeHtml()"));
 assert.ok(ui.includes("m.id!=='chat'&&menuDisponibleIdleV28_(m.id,j)"));
 assert.ok(ui.includes("window.__SOREAL_IDLE_ACTIVITE_V1__=function(){"));

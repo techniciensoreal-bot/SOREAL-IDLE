@@ -11,7 +11,8 @@
  * Anti-spoil (AGENTS.md règle n°2) : le nom d'une zone d'Aventure ou le numéro d'un boss combattu par UN AUTRE joueur n'est montré que
  * si TU les as déjà découverts ; sinon « Farm en Aventure » / « Combat un boss ».
  *
- * Le panneau vit hors de #app (le rendu complet du jeu remplace #app en continu et effacerait la saisie).
+ * Le chat est une PAGE du menu (2026-10-01) : construit une fois puis re-monté après chaque rendu (voir pageHtml / apresRendu), pour que le rendu
+ * complet du jeu n'efface ni la saisie ni la position de lecture.
  */
 (function(){
   'use strict';
@@ -175,37 +176,40 @@
     if(document.getElementById('sorealIdleChatStyleV1'))return;
     const st=document.createElement('style');
     st.id='sorealIdleChatStyleV1';
+    /* Norman (2026-10-01) : le chat n'est plus une fenêtre volante mais une page du menu (couleurs du thème « chat », --th-*). */
     st.textContent=
       '.soreal-idle-chat-badge-v1{display:inline-block;margin-left:5px;min-width:18px;padding:1px 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;line-height:1.3;text-align:center}'+
-      '#sorealIdleChatV1{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,8,20,.62);font-family:inherit}'+
-      '#sorealIdleChatV1 .sic-fen{width:min(560px,100%);height:min(86dvh,720px);display:flex;flex-direction:column;background:#0f1729;border:1px solid rgba(94,217,255,.3);border-radius:16px 16px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.5);color:#dce5f3;overflow:hidden}'+
-      '@media(min-width:700px){#sorealIdleChatV1{align-items:center}#sorealIdleChatV1 .sic-fen{border-radius:16px}}'+
-      '#sorealIdleChatV1 .sic-tete{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(94,217,255,.07)}'+
-      '#sorealIdleChatV1 .sic-titre{flex:1;font-size:15px;font-weight:900}'+
+      '#sorealIdleChatV1{font-family:inherit;color:var(--th-ink,#e8fffb)}'+
+      '#sorealIdleChatV1 .sic-fen{display:flex;flex-direction:column;height:min(76dvh,760px);min-height:380px;background:linear-gradient(165deg,var(--th-bg,#1d2a3a),var(--th-bg2,#0f1623));border:1px solid var(--th-line,rgba(94,234,212,.42));border-radius:22px;box-shadow:0 10px 30px -14px var(--th-glow,rgba(94,234,212,.4));overflow:hidden}'+
+      '#sorealIdleChatV1 .sic-tete{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--th-line,rgba(255,255,255,.1));background:rgba(94,234,212,.08)}'+
+      '#sorealIdleChatV1 .sic-titre{flex:1;font-size:15px;font-weight:900;letter-spacing:.04em}'+
       '#sorealIdleChatV1 button{cursor:pointer;font:inherit}'+
-      '#sorealIdleChatV1 .sic-btn{min-height:36px;padding:0 12px;border-radius:10px;border:1px solid rgba(94,217,255,.35);background:rgba(94,217,255,.1);color:#cfe6f7;font-size:13px;font-weight:800}'+
-      '#sorealIdleChatV1 .sic-btn.actif{background:#166534;border-color:#4ade80;color:#fff}'+
+      '#sorealIdleChatV1 .sic-btn{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--th-line,rgba(94,234,212,.4));background:rgba(94,234,212,.12);color:var(--th-ink,#cfe6f7);font-size:13px;font-weight:800}'+
+      '#sorealIdleChatV1 .sic-btn.actif{background:linear-gradient(180deg,#8ff7e6,#25b9a4);border-color:#8ff7e6;color:#04201b}'+
       '#sorealIdleChatV1 .sic-corps{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}'+
-      '#sorealIdleChatV1 .sic-liste{flex:1;min-height:0;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}'+
-      '#sorealIdleChatV1 .sic-msg{max-width:86%;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.07);align-self:flex-start;word-break:break-word}'+
-      '#sorealIdleChatV1 .sic-msg.moi{align-self:flex-end;background:rgba(94,217,255,.16)}'+
-      '#sorealIdleChatV1 .sic-nom{font-size:12px;font-weight:900;margin-bottom:2px}'+
-      '#sorealIdleChatV1 .sic-heure{margin-left:6px;font-size:10px;font-weight:400;color:#8b93ab}'+
+      '#sorealIdleChatV1 .sic-liste{flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}'+
+      '#sorealIdleChatV1 .sic-msg{max-width:84%;padding:8px 12px;border-radius:18px 18px 18px 4px;background:rgba(255,255,255,.08);align-self:flex-start;word-break:break-word}'+
+      '#sorealIdleChatV1 .sic-msg.moi{align-self:flex-end;border-radius:18px 18px 4px 18px;background:linear-gradient(135deg,rgba(94,234,212,.28),rgba(244,114,182,.20))}'+
+      '#sorealIdleChatV1 .sic-nom{font-size:12px;font-weight:900;margin-bottom:2px;color:#8ff7e6}'+
+      '#sorealIdleChatV1 .sic-msg.moi .sic-nom{color:#ffc2e0}'+
+      '#sorealIdleChatV1 .sic-heure{margin-left:6px;font-size:10px;font-weight:400;color:var(--th-dim,#8b93ab)}'+
       '#sorealIdleChatV1 .sic-suppr{margin-left:8px;border:0;background:transparent;color:#fca5a5;font-size:12px;padding:0}'+
       '#sorealIdleChatV1 .sic-txt{font-size:14px;line-height:1.4;white-space:pre-wrap}'+
-      '#sorealIdleChatV1 .sic-vide{margin:auto;color:#8b93ab;font-size:13px;text-align:center}'+
-      '#sorealIdleChatV1 .sic-saisie{display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.1)}'+
-      '#sorealIdleChatV1 textarea{flex:1;min-height:40px;max-height:110px;resize:none;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0b1220;color:#fff;font:inherit;font-size:15px}'+
-      '#sorealIdleChatV1 .sic-envoyer{background:linear-gradient(90deg,#5ed9ff,#7cf0c6);border:0;color:#04202b}'+
+      '#sorealIdleChatV1 .sic-vide{margin:auto;color:var(--th-dim,#8b93ab);font-size:13px;text-align:center}'+
+      '#sorealIdleChatV1 .sic-saisie{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--th-line,rgba(255,255,255,.1))}'+
+      '#sorealIdleChatV1 textarea{flex:1;min-height:42px;max-height:110px;resize:none;padding:9px 14px;border-radius:20px;border:1px solid var(--th-line,rgba(255,255,255,.2));background:rgba(0,0,0,.35);color:#fff;font:inherit;font-size:14px}'+
+      '#sorealIdleChatV1 .sic-envoyer{background:linear-gradient(180deg,#8ff7e6,#25b9a4);border:0;color:#04201b}'+
       '#sorealIdleChatV1 .sic-envoyer:disabled{opacity:.5}'+
-      '#sorealIdleChatV1 .sic-presence{position:absolute;inset:0;overflow-y:auto;padding:10px 12px;background:#0f1729}'+
+      '#sorealIdleChatV1 .sic-presence{position:absolute;inset:0;overflow-y:auto;padding:10px 12px;background:linear-gradient(165deg,var(--th-bg,#1d2a3a),var(--th-bg2,#0f1623))}'+
       '#sorealIdleChatV1 .sic-ligne{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}'+
       '#sorealIdleChatV1 .sic-point{width:10px;height:10px;border-radius:50%;background:#64748b;flex:none}'+
       '#sorealIdleChatV1 .sic-point.on{background:#22c55e;box-shadow:0 0 8px #22c55e}'+
       '#sorealIdleChatV1 .sic-point.away{background:#f59e0b}'+
-      '#sorealIdleChatV1 .sic-activite{margin-left:auto;font-size:12px;color:#9fb0cf;text-align:right}'+
+      '#sorealIdleChatV1 .sic-activite{margin-left:auto;font-size:12px;color:var(--th-dim,#9fb0cf);text-align:right}'+
       '#sorealIdleChatV1 .sic-admin{margin-left:6px;padding:1px 6px;border-radius:6px;background:#7c3aed;color:#fff;font-size:10px;font-weight:900}'+
-      '#sorealIdleChatV1 .sic-note{font-size:11px;color:#8b93ab;margin:0 0 8px}';
+      '#sorealIdleChatV1 .sic-note{font-size:11px;color:var(--th-dim,#8b93ab);margin:0 0 8px}'+
+      /* Grand écran : la liste des joueurs en ligne reste affichée à droite de la conversation. */
+      '@media(min-width:900px){#sorealIdleChatV1 .sic-corps{flex-direction:row}#sorealIdleChatV1 .sic-liste{flex:1}#sorealIdleChatV1 .sic-presence{position:static;inset:auto;flex:0 0 280px;border-left:1px solid var(--th-line,rgba(255,255,255,.1))}#sorealIdleChatV1 .sic-presence[hidden]{display:block}#sorealIdleChatV1 .sic-btn-presence{display:none}}';
     document.head.appendChild(st);
   }
 
@@ -237,8 +241,9 @@
       bouton.textContent='🟢 '+enLigne.length+' en ligne';
     }
     if(!zone)return;
-    zone.hidden=!panneauPresence;
-    if(!panneauPresence)return;
+    const grandEcran=window.matchMedia&&window.matchMedia('(min-width:900px)').matches;
+    zone.hidden=!panneauPresence&&!grandEcran;
+    if(zone.hidden)return;
     zone.innerHTML=
       '<p class="sic-note">Joueurs connectés à SOREAL IDLE en ce moment (seuls ceux qui ont le jeu ouvert apparaissent).</p>'+
       (enLigne.length?enLigne.map(function(u){
@@ -278,21 +283,21 @@
     }).catch(function(e){try{window.alert('⚠️ '+(e&&e.message?e.message:e));}catch(_){}});
   }
 
-  function ouvrir(){
-    if(!dispo||ouvert)return;
-    css();
-    ouvert=true;
+  /*
+   * Page du menu Chat (Norman, 2026-10-01 : « le chat ne soit plus une fenêtre volante mais un menu en pleine page, comme les autres pages »).
+   * Le rendu complet du jeu remplace le contenu de la page à chaque mise à jour : le chat est donc construit UNE fois (elChat) et RE-MONTÉ dans
+   * l'emplacement que la page lui réserve (pageHtml / apresRendu), ce qui garde le texte en cours de frappe et la position de lecture.
+   */
+  let elChat=null;
+
+  function construire(){
     const el=document.createElement('div');
     el.id='sorealIdleChatV1';
-    el.setAttribute('role','dialog');
-    el.setAttribute('aria-modal','true');
-    el.setAttribute('aria-label','Chat SOREAL IDLE');
     el.innerHTML=
       '<div class="sic-fen">'+
         '<div class="sic-tete">'+
           '<div class="sic-titre">💬 Chat SOREAL IDLE</div>'+
           '<button type="button" class="sic-btn sic-btn-presence" data-sic="presence">🟢 … en ligne</button>'+
-          '<button type="button" class="sic-btn" data-sic="fermer" aria-label="Fermer le chat">✕</button>'+
         '</div>'+
         '<div class="sic-corps">'+
           '<div class="sic-liste"></div>'+
@@ -304,12 +309,10 @@
         '</div>'+
       '</div>';
     el.addEventListener('click',function(event){
-      if(event.target===el){fermer();return;}
       const c=event.target&&event.target.closest?event.target.closest('[data-sic]'):null;
       if(!c)return;
       const a=c.getAttribute('data-sic');
-      if(a==='fermer')fermer();
-      else if(a==='envoyer')envoyer();
+      if(a==='envoyer')envoyer();
       else if(a==='suppr')supprimerMessage(Number(c.getAttribute('data-id')));
       else if(a==='presence'){panneauPresence=!panneauPresence;rendrePresence();if(panneauPresence)battement();}
     });
@@ -321,20 +324,46 @@
     });
     /* Les raccourcis clavier du jeu (A, D, R, T…) ne doivent pas se déclencher pendant la frappe. */
     ['keyup','keypress'].forEach(function(t){el.addEventListener(t,function(e){e.stopPropagation();});});
-    document.body.appendChild(el);
-    panneauPresence=false;
-    rendreMessages(true);
-    rendrePresence();
-    vuId=dernierId;ecrireVu(vuId);recalculerNonLus();
-    chargerRecents().then(function(){rendreMessages(true);}).catch(function(){});
-    battement();
-    demarrerTimerListe();
+    return el;
   }
 
+  /* HTML de l'emplacement réservé par la page du menu. */
+  function pageHtml(){
+    return '<div id="sorealIdleChatPageV1" data-idle-chat-page="1"></div>';
+  }
+
+  /* À appeler après chaque rendu de la page : monte (ou remonte) le chat dans son emplacement ; le quitte proprement si la page n'est plus affichée. */
+  function apresRendu(){
+    const place=document.getElementById('sorealIdleChatPageV1');
+    if(!place){
+      if(ouvert){ouvert=false;demarrerTimerListe();}
+      return;
+    }
+    if(!dispo)return;
+    css();
+    const premiereFois=!elChat;
+    if(!elChat)elChat=construire();
+    if(elChat.parentNode!==place)place.appendChild(elChat);
+    const etaitOuvert=ouvert;
+    ouvert=true;
+    rendreMessages(premiereFois||!etaitOuvert);
+    rendrePresence();
+    vuId=dernierId;ecrireVu(vuId);recalculerNonLus();
+    if(!etaitOuvert){
+      chargerRecents().then(function(){rendreMessages(true);}).catch(function(){});
+      battement();
+      demarrerTimerListe();
+    }
+  }
+
+  /* Compatibilité : « ouvrir » va simplement sur la page du menu Chat. */
+  function ouvrir(){
+    if(!dispo)return;
+    if(typeof window.__menuIdleV28__==='function')window.__menuIdleV28__('chat');
+  }
   function fermer(){
     ouvert=false;
-    const el=document.getElementById('sorealIdleChatV1');
-    if(el&&el.parentNode)el.parentNode.removeChild(el);
+    if(elChat&&elChat.parentNode)elChat.parentNode.removeChild(elChat);
     demarrerTimerListe();
   }
 
@@ -347,11 +376,6 @@
       chargerRecents().catch(function(){});
     },INTERVALLE_OUVERT_MS);
   }
-
-  /* Échap ferme le chat. */
-  document.addEventListener('keydown',function(event){
-    if(event.key==='Escape'&&ouvert)fermer();
-  },true);
 
   /* ---------- démarrage ---------- */
   function demarrer(tentative){
@@ -378,6 +402,8 @@
     disponible:function(){return dispo;},
     ouvrir:ouvrir,
     fermer:fermer,
+    pageHtml:pageHtml,
+    apresRendu:apresRendu,
     badgeHtml:badgeHtml,
     demarrer:function(){demarrer(0);},
     /* Outils de test. */

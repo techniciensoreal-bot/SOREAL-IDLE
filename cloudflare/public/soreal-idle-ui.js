@@ -21712,6 +21712,13 @@ function pageAventureIdleV28_(j){
             return pageParametresIdleV28_(j);
           case 'admin':
             return window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__?window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.page(j):'';
+          case 'chat':
+            /* Emplacement du chat ; le module le monte juste après le rendu (il garde la saisie entre deux rendus). */
+            if(window.__SOREAL_IDLE_CHAT_V1__&&typeof window.__SOREAL_IDLE_CHAT_V1__.pageHtml==='function'){
+              Promise.resolve().then(function(){try{window.__SOREAL_IDLE_CHAT_V1__.apresRendu();}catch(_e){}});
+              return entetePageIdleV28_('💬 Chat','Discute avec les autres joueurs de SOREAL IDLE et vois qui est en ligne.')+window.__SOREAL_IDLE_CHAT_V1__.pageHtml();
+            }
+            return '';
           case 'aventure':
             return pageAventureIdleV28_(j);
           case 'bestiaire':
@@ -21815,12 +21822,11 @@ function pageAventureIdleV28_(j){
 
         jouerSonMenuIdleV1_();
 
+        /* Chat : page du menu comme les autres (plus de fenêtre volante) ; le module monte son contenu dans la page (contenuMenuIdleV28_). */
         if(menu==='chat'){
           try{
             if(idleEtat&&!idleMenuEstAcquisV1_(idleEtat,'chat'))idleMenuMarquerAcquisV1_(idleEtat,'chat');
           }catch(e){}
-          window.__SOREAL_IDLE_CHAT_V1__.ouvrir();
-          return;
         }
 
         const nouveauMenu=
