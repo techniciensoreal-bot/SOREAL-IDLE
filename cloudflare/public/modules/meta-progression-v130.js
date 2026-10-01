@@ -2284,7 +2284,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             actuel:'Bonus actuel : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)),
             apercu:blood>0?'En le lançant maintenant : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)+Math.floor(blood)):''},
           {id:'ironPill',nom:'Iron Pill',visible:bloodPeak>=100||depense('ironPill')>0,
-            desc:'Augmente pour toujours tes stats d’Adventure : Puissance et Endurance +Blood^0,25 (PV : ×3, Regen PV : ×0,03 de ce gain). Recharge de 11,5 h.',
+            desc:'Augmente pour toujours tes stats d’Adventure. Avec G = Blood^0,25 : Puissance +G, Endurance +G, PV +3 × G, Regen PV +0,03 × G. Recharge de 11,5 h.',
             actuel:'Total acquis : +'+nb(depense('ironPill'),2),
             apercu:'',recharge:rechargeIron},
           {id:'bloodSpaghetti',nom:'Blood Spaghetti',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
