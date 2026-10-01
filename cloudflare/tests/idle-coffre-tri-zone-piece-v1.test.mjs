@@ -28,7 +28,11 @@ const rangSlotDe = (slot) => (rangSlot[slot] != null ? rangSlot[slot] : 5);
 // pièce, jamais mélangé.
 const MAX = Number.MAX_SAFE_INTEGER;
 let dernierZone = -1, dernierSlotDansZone = -1;
-for (const slot of slots) {
+/*
+ * 2026-10-01 : les pièces des sets de titans (GRB, Jake...) ne sont plus mêlées aux sets sans zone : elles forment le groupe « titan »
+ * (voir idle-coffre-specials-v1). Cette vérification de l'ordre zone puis pièce ne porte donc que sur le groupe « zone ».
+ */
+for (const slot of slots.filter((x) => x.groupe === "zone")) {
   const z = rangZone[slot.set] != null ? rangZone[slot.set] : MAX;
   if (z !== dernierZone) {
     assert.ok(z > dernierZone, "les zones ne reculent jamais : " + slot.definitionId);

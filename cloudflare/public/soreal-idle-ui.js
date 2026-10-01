@@ -20263,10 +20263,18 @@ function pageAventureIdleV28_(j){
         const debutPageCoffre=(idlePageCoffreV1-1)*IDLE_PAGINATION_TAILLE_V1;
         const slotsPage=slots.slice(debutPageCoffre,debutPageCoffre+IDLE_PAGINATION_TAILLE_V1);
 
+        /* Norman (2026-10-01) : cases regroupées (zones, titans, cœurs, Looty, pendentifs...) avec un titre de section ; seules les cases déjà découvertes sont listées, donc jamais de titre de groupe encore inconnu. */
+        let groupePrecedent=debutPageCoffre>0&&slots[debutPageCoffre-1]?String(slots[debutPageCoffre-1].groupeNom||''):null;
         const grille='<div class="soreal-idle-collection-grid-v1">'+
           slotsPage.map(function(s){
+            let titre='';
+            const nomGroupe=String(s.groupeNom||'');
+            if(nomGroupe&&nomGroupe!==groupePrecedent){
+              titre='<div style="grid-column:1/-1;font-weight:700;font-size:13px;margin:8px 0 2px;color:#dce5f3">'+idleHtml_(nomGroupe)+'</div>';
+            }
+            groupePrecedent=nomGroupe;
             if(!s.occupe){
-              return '<div class="soreal-idle-collection-card-v1">'+
+              return titre+'<div class="soreal-idle-collection-card-v1">'+
                 '<div class="soreal-idle-collection-card-icon-v1"><span>⬜</span></div>'+
                 '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
                 '<div class="soreal-idle-collection-card-level-v1">Pas encore rangé</div>'+
@@ -20275,7 +20283,7 @@ function pageAventureIdleV28_(j){
             const item=s.item||{};
             const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
-            return '<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
+            return titre+'<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
               'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
               'title="Cliquer pour reprendre l’objet et pouvoir le rééquiper">'+
               '<div class="soreal-idle-collection-check-v1" title="Niveau maximum">✔</div>'+

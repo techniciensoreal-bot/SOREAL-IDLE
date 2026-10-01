@@ -3609,8 +3609,71 @@ function idleAdventureCoffreAccepteV1(definitionId){
   const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[definitionId];
   if(!def)return false;
   if(def.kind==="equipment")return true;
-  return def.kind==="special"&&def.slot!=="special"&&def.slot!=="consumable";
+  return def.kind==="special"&&def.slot!=="consumable";
 }
+/*
+ * Norman (2026-10-01, suite) : « Chaque objet doit avoir une place. Regroupe les objets des titans ensemble, les objets coeur etc. Mais tout
+ * doit avoir une place prévue (même si on ne les voit pas tout de suite). Les coeurs doivent apparaître quand on achète le premier coeur,
+ * mais pas les autres cases de coeur pour ne pas spoil. » Chaque case porte donc un GROUPE (zone, titan, coeur, looty, pendentif, autre) ;
+ * la case existe toujours côté moteur, mais n'est envoyée au client qu'une fois l'objet vu (decouvert), jamais avant.
+ *
+ * Butins de titans : liste lue dans rollTitanLootV1 (objet("...") et listes de butin de chaque titan) ; le test
+ * idle-coffre-specials-v1 vérifie qu'aucun objet distribué par un titan n'est absent de cette table.
+ */
+const IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1=Object.freeze({
+  t1:["aNumber","wandoos98"],
+  t2:["giantSeed"],
+  t3:["stapler","ascendedForestPendant"],
+  t4:["uugHair","uugSpecialRing"],
+  t5:["wanderersCane","wandoosXl","fannyPack","dorkyGlasses"],
+  t6:["heroicSigil","ascendedX3Pendant","baldEgg","shrunkenVoodooDoll","pricelessVanGoghPainting","giantApple","powerPill","smallGerbil"],
+  nerd:["incriminatingEvidence","ordinaryCalculator","animeFigurine","ascendedX4Pendant","theD20","theD8","animeBodypillow","redMeeple","bagOfTrash","heartShapedPanties"],
+  godmother:["severedUnicornHead","kingLooty","violinCase","molotovCocktail","godmothersRing","godmothersWand","leftFairyWing","rightFairyWing"],
+  t7:["stillBeatingHeart","theJoker","antlersExile","creditCard","tentacleExile","skipCard","antennaeExile","blackLotus","busterExile"],
+  hungers:["theCricket","ascendedX5Pendant","emperorLooty","evilRubberDucky","gasGiant","carbonRod","kleinBottle","alienBugNest","theKey"],
+  lobster:["ascendedX6Pendant","galacticHeraldLooty","skippingStone","bedRock","rockCandy","brokenScissors","portableStairway","amplifier"],
+  amalgamate:["ascendedX7Pendant","supremeIntelligenceLooty","rawSlabOfWood","tieOfApathy","titanEffigy"]
+});
+const IDLE_ADVENTURE_COFFRE_COEURS_V1=Object.freeze(["heartRed","heartYellow","heartBrown","heartGreen","heartBlue","heartPurple","heartOrange","heartGrey","heartPink","heartRainbow"]);
+const IDLE_ADVENTURE_COFFRE_LOOTY_V1=Object.freeze(["lootyMcLootFace","sirLooty","grandDemonLootzifer","glitchyLooty"]);
+const IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1=Object.freeze(["ascendedAscendedForestPendant","ascendedX8Pendant","ascendedX9Pendant"]);
+const IDLE_ADVENTURE_COFFRE_GROUPES_V1=Object.freeze([
+  {id:"zone",nom:""},
+  {id:"titan",nom:"👹 Objets des titans"},
+  {id:"coeur",nom:"💗 Cœurs"},
+  {id:"looty",nom:"🐱 Looty"},
+  {id:"pendentif",nom:"🏅 Pendentifs ascendés"},
+  {id:"autre",nom:"📦 Autres objets"}
+]);
+/* groupe + rang d'un objet : { groupe, rang (zone ou titan), titanId, zoneNom } */
+const IDLE_ADVENTURE_COFFRE_PLACE_V1=Object.freeze((()=>{
+  const titans=[...IDLE_ADVENTURE_TITANS].sort((a,b)=>N(a.boss)-N(b.boss));
+  const rangTitan={};
+  titans.forEach((t,i)=>{rangTitan[t.id]=i;});
+  const titanDe={};
+  for(const t of titans)for(const id of(IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1[t.id]||[]))if(!(id in titanDe))titanDe[id]=t.id;
+  const zoneParId=Object.fromEntries(IDLE_ADVENTURE_ZONES.map((z,i)=>[z.id,{i,nom:z.name}]));
+  const zoneParSet={};
+  IDLE_ADVENTURE_ZONES.forEach((z,i)=>{if(z.set&&!(z.set in zoneParSet))zoneParSet[z.set]={i,nom:z.name};});
+  const place={};
+  for(const[id,def]of Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)){
+    let groupe="autre",rang=0,titanId="",zoneNom="";
+    if(def.kind==="equipment"){
+      const z=zoneParSet[def.set];
+      const src=SETS[def.set]&&SETS[def.set].source;
+      if(z){groupe="zone";rang=z.i;zoneNom=z.nom;}
+      else if(src&&src in rangTitan){groupe="titan";rang=rangTitan[src];titanId=src;}
+    }else if(def.kind==="special"){
+      if(id in titanDe){groupe="titan";titanId=titanDe[id];rang=rangTitan[titanId];}
+      else if(def.zone&&zoneParId[def.zone]){groupe="zone";rang=zoneParId[def.zone].i;zoneNom=zoneParId[def.zone].nom;}
+      else if(IDLE_ADVENTURE_COFFRE_COEURS_V1.includes(id)){groupe="coeur";rang=IDLE_ADVENTURE_COFFRE_COEURS_V1.indexOf(id);}
+      else if(IDLE_ADVENTURE_COFFRE_LOOTY_V1.includes(id)){groupe="looty";rang=IDLE_ADVENTURE_COFFRE_LOOTY_V1.indexOf(id);}
+      else if(IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1.includes(id)){groupe="pendentif";rang=IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1.indexOf(id);}
+    }
+    place[id]=Object.freeze({groupe,rang,titanId,zoneNom});
+  }
+  return place;
+})());
 /* Rang d'une case : zone de progression (set de la zone pour l'équipement, zone de butin pour un special ; sans zone connue = en dernier). */
 const IDLE_ADVENTURE_ZONE_ID_RANK_V1=Object.freeze((()=>{
   const rang={};
@@ -3638,12 +3701,14 @@ function idleAdventureCoffreZoneRankV1(setId,zoneId){
   return r!=null?r:Number.MAX_SAFE_INTEGER;
 }
 function idleAdventureCoffreSlotsV1(s){
+  const ordreGroupe=Object.fromEntries(IDLE_ADVENTURE_COFFRE_GROUPES_V1.map((g,i)=>[g.id,i]));
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
     .filter(([definitionId])=>idleAdventureCoffreAccepteV1(definitionId))
     .sort(([a,da],[b,db])=>{
-      const zoneA=idleAdventureCoffreZoneRankV1(da.set,da.zone),zoneB=idleAdventureCoffreZoneRankV1(db.set,db.zone);
-      if(zoneA!==zoneB)return zoneA-zoneB;
-      /* Dans une zone : l'équipement du set d'abord (arme, tête, torse...), puis les objets spéciaux dans l'ordre du catalogue. */
+      const pa=IDLE_ADVENTURE_COFFRE_PLACE_V1[a],pb=IDLE_ADVENTURE_COFFRE_PLACE_V1[b];
+      if(pa.groupe!==pb.groupe)return ordreGroupe[pa.groupe]-ordreGroupe[pb.groupe];
+      if(pa.rang!==pb.rang)return pa.rang-pb.rang;
+      /* Dans une zone ou chez un titan : l'équipement du set d'abord (arme, tête, torse...), puis les objets spéciaux dans l'ordre du catalogue. */
       const specialA=da.kind==="special"?1:0,specialB=db.kind==="special"?1:0;
       if(specialA!==specialB)return specialA-specialB;
       if(specialA){
@@ -3657,9 +3722,14 @@ function idleAdventureCoffreSlotsV1(s){
     .map(([definitionId,def])=>{
       const occupant=s.coffre[definitionId]||null;
       const connu=Boolean(s.itemList[definitionId]?.seen);
+      const place=IDLE_ADVENTURE_COFFRE_PLACE_V1[definitionId];
+      const groupe=IDLE_ADVENTURE_COFFRE_GROUPES_V1.find(g=>g.id===place.groupe);
       return{
         definitionId,
         set:def.set,setName:def.setName,slot:def.slot,name:def.name,wikiItemId:def.wikiItemId||0,
+        groupe:place.groupe,
+        /* Titre de section : nom de la zone (équipement et butins de zone) ou du groupe ; le client ne l'affiche qu'avec une case découverte. */
+        groupeNom:place.groupe==="zone"?place.zoneNom:groupe.nom,
         decouvert:connu,
         occupe:Boolean(occupant),
         item:occupant?{...occupant,maxed:true,basePower:def.basePower,baseToughness:def.baseToughness}:null
