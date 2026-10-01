@@ -2250,6 +2250,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
       window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
 
+      /* Noms français des rituels de Blood Magic (Norman, 2026-10-01 : « traduits aussi le nom des rituels ») ; le moteur garde les noms du wiki. */
+      const IDLE_BLOOD_NOMS_RITUELS_V1={
+        tack:'Se piquer avec une punaise',
+        papercuts:'Cinquante coupures de papier',
+        hickey:'Un énorme suçon',
+        barbedWire:'Avaler un bol de fil barbelé',
+        bloodBank:'Braquage de la banque du sang',
+        decapitation:'Se décapiter soi-même',
+        woodchipper:'Faire un câlin à une déchiqueteuse',
+        insideOut:'Se retourner comme un gant'
+      };
       window.__idleBloodInfosOuvertesV1=window.__idleBloodInfosOuvertesV1||{};
       window.__basculerInfoSortBloodIdleV1__=function(id,bouton){
         const ouvert=!window.__idleBloodInfosOuvertesV1[id];
@@ -2350,7 +2361,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             ?'<div class="soreal-idle-bt-track-v120"><div data-idle-blood-bar-v1="'+idHtml+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;background:#9a2138;transition:none"></div></div>'
             :'';
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="soreal-idle-section-v8" style="margin:0;opacity:'+(unlocked?'1':'.55')+'">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
+            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b>−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             barre+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:12px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
