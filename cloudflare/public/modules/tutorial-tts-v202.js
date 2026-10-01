@@ -45,7 +45,6 @@
    */
   var PAUSE_OPEN=String.fromCharCode(0xE000);
   var PAUSE_CLOSE=String.fromCharCode(0xE001);
-  var PAUSE_MARKER_RE=new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE);
   var PAUSE_MAX_MS=5000;
   /*
    * Voix pré-générées (Norman, 2026-09-24 : « les générer 1 fois et les rendre jouables sur le site via un format pas lourd »).
@@ -996,7 +995,20 @@
     return narrate_(txt,id,target,true);
   }
 
+  /*
+   * 2026-10-01 (coût CPU : le jeu modifie la page à ~15 Hz) : test peu coûteux de « y a-t-il quelque chose à lire ou à mettre à jour ? »
+   * (popup/panneau de narration, bouton « Lire ce texte », lecture en cours). Sans ça, scan_ ne fait de toute façon rien (renderButton_
+   * sort sans panneau, updateReadButtons_ n'a aucun bouton, readVisible_ refuse) : on évite donc de planifier et de lancer un scan à chaque
+   * mutation du jeu hors popup. Comportement inchangé dès qu'un popup tutoriel / une chronique est affiché.
+   */
+  function quelqueChoseALire_(){
+    return Boolean(activeReadTarget)||
+      Boolean(activePanel_())||
+      Boolean(document.querySelector('.'+READ_CLASS+'[data-soreal-tts-target]'));
+  }
+
   function scan_(){
+    if(!quelqueChoseALire_())return;
     renderButton_();
     updateReadButtons_();
     if(auto)readVisible_(false);
@@ -1033,7 +1045,7 @@
 
   function init_(){
     style_();
-    new MutationObserver(schedule_).observe(
+    new MutationObserver(function(){if(quelqueChoseALire_())schedule_();}).observe(
       document.body,
       {childList:true,subtree:true,characterData:true}
     );
@@ -1101,10 +1113,6 @@
 
   window.__SOREAL_IDLE_TUTORIAL_TTS_V209__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V208__=api;
-  window.__SOREAL_IDLE_TUTORIAL_TTS_V207__=api;
-  window.__SOREAL_IDLE_TUTORIAL_TTS_V206__=api;
-  window.__SOREAL_IDLE_TUTORIAL_TTS_V205__=api;
-  window.__SOREAL_IDLE_TUTORIAL_TTS_V204__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V203__=api;
   window.__SOREAL_IDLE_TUTORIAL_TTS_V202__=api;
 

@@ -59,8 +59,12 @@ const lire = (rel) => readFileSync(rel, "utf8");
 
   const css = lire("cloudflare/public/modules/alloc-pop-v1.js");
   assert.ok(css.includes("sorealIdleAllocPopV1") && css.includes("scale(1.9)") && css.includes(".55s ease-out 1"), "animation de gonflement, une seule itération");
+  /* 2026-10-01 : plus d'observateur permanent sur le document ; branché seulement après un clic d'allocation, puis déconnecté. */
+  assert.equal((css.match(/\.observe\(/g) || []).length, 1, "un seul point d'observation");
+  assert.ok(css.indexOf(".observe(") > css.indexOf("function activerObservateur"), "observe() n'est appelé que depuis activerObservateur (fenêtre d'activité)");
+  assert.ok(css.includes(".disconnect()") && css.includes("setTimeout(desactiverObservateur"), "déconnexion à la fin de la fenêtre d'activité");
   const index = lire("cloudflare/public/index.html");
-  assert.ok(index.includes("/modules/alloc-pop-v1.js?v=2"));
+  assert.ok(index.includes("/modules/alloc-pop-v1.js?v=3"));
 }
 
 // ---------- voix IA auto : ON de base ----------

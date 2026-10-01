@@ -5,7 +5,7 @@ import { normalizeIdleNguState, syncIdleNguState, idleNguSnapshot } from "../src
 
 /*
  * Page Cooking (modules/cooking-v1.js) rendue depuis un vrai snapshot :
- * verrou IT HUNGERS, 8 lignes d'ingrédients (slots 7/8 verrouillés), valeurs
+ * verrou IT HUNGERS, 6 lignes d'ingrédients (slots 7/8 masqués tant que verrouillés), valeurs
  * affichées par le vrai écran, bouton Manger désactivé tant que le gain par
  * repas n'est pas sourcé, et chargement du module avant le monolithe.
  */
@@ -37,7 +37,8 @@ const t0 = 5_000_000;
 {
   const snap = idleNguSnapshot(normalizeIdleNguState({}, ctx, t0), ctx, t0);
   const html = api.pageSystemeMetaIdleV130_({ systemes: snap }, "cooking", "Cooking");
-  assert.match(html, /Système verrouillé : vaincs le titan IT HUNGERS/);
+  assert.match(html, /Rien à afficher pour le moment/);
+  assert.doesNotMatch(html, /IT HUNGERS|🔒|verrouill|Cooking/i, "anti-spoil : ni condition, ni titre, ni cadenas");
 }
 
 let state = normalizeIdleNguState({}, ctx, t0);
@@ -50,14 +51,14 @@ state.systems.cooking.data.levels[1] = 4;
   assert.match(html, /Efficacité du repas/);
   assert.match(html, /Bonus de cuisine totaux<b>100,00 %/);
   assert.match(html, /Gain d’EXP du repas<b>\+\d+,\d\d %/, "gain sourcé (efficacité aléatoire du repas x 0,5 % au maximum)");
-  assert.match(html, /Gain d’EXP total<b>\+0,00 % \/ 300 %/);
+  assert.match(html, /Gain d’EXP total<b>\+0,00 %<\/b>/);
+  assert.doesNotMatch(html, /0,00 % \/ 300/, "anti-spoil : pas de total maximal");
   assert.match(html, /Repas n°1/);
   assert.match(html, /Un repas toutes les 23,5 h/);
   assert.match(html, /max 24,5 h/);
   assert.match(html, /prêt dans 21:30:00/);
-  assert.equal((html.match(/Ingrédient n°/g) || []).length, 8);
-  assert.match(html, /vaincre ROCK LOBSTER/);
-  assert.match(html, /vaincre AMALGAMATE/);
+  assert.equal((html.match(/Ingrédient n°/g) || []).length, 6, "les emplacements 7 et 8 encore verrouillés n'apparaissent pas");
+  assert.doesNotMatch(html, /ROCK LOBSTER|AMALGAMATE|🔒|verrouill/i);
   assert.match(html, /<b>4<\/b> \/ 20/);
   assert.doesNotMatch(html, /__cuisineMangerIdleV1__/, "pas de repas prêt");
 }

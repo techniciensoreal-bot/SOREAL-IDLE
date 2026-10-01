@@ -485,11 +485,6 @@ export function idleAdventureBestiaryAverageV1(list,key){
  * que ses voisins de zone, comme le vrai wiki le documente) devient enfin
  * visible côté SOREAL.
  */
-export function idleAdventureMobScaleV1(z,bestiaryZone){
-  const avgHp=idleAdventureBestiaryAverageV1(bestiaryZone&&bestiaryZone.normal,"maxHp");
-  if(!avgHp)return 0;
-  return N(z.oneHitP||z.t)/avgHp;
-}
 export const IDLE_ADVENTURE_TITANS=Object.freeze([
 /*
  * Re-audit 2026-09-13 (Norman : "boss ennemis pas pareil en aventure") :

@@ -33,12 +33,16 @@ assert.match(
 );
 
 assert.ok(
-  html.includes('<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js"'),
-  "Piper phonemizer remains blocking to preserve its global before the local module"
+  html.includes('<script async src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-'),
+  "Piper phonemizer is async (non-blocking for the parser) and keeps its integrity attribute"
 );
 assert.ok(
-  !html.includes('<script defer src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js"'),
-  "do not reorder the Piper global dependency"
+  !/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@diffusionstudio/.test(html),
+  "no blocking (neither async nor defer) classic CDN script"
+);
+assert.ok(
+  readFileSync("cloudflare/public/modules/local-neural-piper-v1.js", "utf8").includes("attendrePhonemizer_"),
+  "local-neural-piper-v1.js must wait for the async createPiperPhonemize global"
 );
 
 console.log("idle-initial-load-defer: OK");

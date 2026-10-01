@@ -11,7 +11,6 @@
         const n=window.__SOREAL_IDLE_RELEASE_NOTES_V1__;
         return n&&n.courante?'Beta '+n.courante:IDLE_TEST_VERSION;
       }
-      const IDLE_UI_MILESTONE_V48_NGU_BALANCE=true;
       const IDLE_CLIENT_PROTOCOL_VERSION=1;
       let idleAutorise=false;
       let idleVerificationEnCours=false;
@@ -114,8 +113,6 @@
       let idleTimerEnergie=null;
       let idleAnimationFrameJeuV214=0;
       let idleTimerJeuArrierePlanV1=0;
-      let idleDernierImpactBossV46=0;
-      let idleDernierImpactJoueurV46=0;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-6 */
       let idlePopupActifV75=false;
@@ -134,117 +131,6 @@
       let idleCompensationImpactJoueurV117=null;
       let idleCompensationImpactBossV117=null;
 
-      function tirerImpactEquilibreIdleV117_(
-        acteur
-      ){
-        const joueur=
-          acteur==='joueur';
-
-        const compensation=
-          joueur
-            ?idleCompensationImpactJoueurV117
-            :idleCompensationImpactBossV117;
-
-        if(
-          compensation!==null &&
-          Number.isFinite(compensation)
-        ){
-          if(joueur){
-            idleCompensationImpactJoueurV117=null;
-          }else{
-            idleCompensationImpactBossV117=null;
-          }
-
-          return {
-            multiplicateur:
-              compensation,
-            critique:false
-          };
-        }
-
-        const critique=
-          Math.random()<.11;
-
-        const premier=
-          critique
-            ?1.45+Math.random()*.25
-            :.65+Math.random()*.70;
-
-        const suivant=
-          Math.max(
-            .30,
-            Math.min(
-              1.70,
-              2-premier
-            )
-          );
-
-        if(joueur){
-          idleCompensationImpactJoueurV117=
-            suivant;
-        }else{
-          idleCompensationImpactBossV117=
-            suivant;
-        }
-
-        return {
-          multiplicateur:
-            premier,
-          critique:
-            critique
-        };
-      }
-
-      function sommeImpactsAleatoiresIdleV117_(
-        acteur,
-        baseParCoup,
-        nombre
-      ){
-        let degats=0;
-        let critiques=0;
-        const multiplicateurs=[];
-
-        const n=
-          Math.max(
-            0,
-            idleEntier_(
-              nombre
-            )
-          );
-
-        for(let i=0;i<n;i+=1){
-          const impact=
-            tirerImpactEquilibreIdleV117_(
-              acteur
-            );
-
-          degats+=
-            Math.max(
-              0,
-              idleNombre_(
-                baseParCoup
-              )*
-              impact.multiplicateur
-            );
-
-          multiplicateurs.push(
-            impact.multiplicateur
-          );
-
-          if(impact.critique){
-            critiques+=1;
-          }
-        }
-
-        return {
-          valeur:
-            degats,
-          critiques:
-            critiques,
-          multiplicateurs:
-            multiplicateurs
-        };
-      }
 
       function initialiserCoupsCombatIdleV116_(){
         if(!idleEtat||!idleEtat.combatBossActif){
@@ -1663,9 +1549,7 @@
         /* Styles extracted to /soreal-idle-ui.css (V7 bulk split). */
       }
 
-      let idleLoadingProgressV55=8;
       let idleLoadingTimerV55=null;
-      let idleLoadingDotsV55=0;
 
       function arreterAnimationChargementIdleV55_(){
         if(idleLoadingTimerV55){
@@ -1674,192 +1558,6 @@
           );
           idleLoadingTimerV55=null;
         }
-      }
-
-
-      function majChargementIdleV55_(
-        progression,
-        message
-      ){
-        idleLoadingProgressV55=
-          Math.max(
-            idleLoadingProgressV55,
-            Math.min(
-              98,
-              idleNombre_(
-                progression
-              )
-            )
-          );
-
-        const fill=
-          document.getElementById(
-            'sorealIdleLoadingFillV55'
-          );
-
-        const percent=
-          document.getElementById(
-            'sorealIdleLoadingPercentV55'
-          );
-
-        const statut=
-          document.getElementById(
-            'sorealIdleLoadingStatusV55'
-          );
-
-        if(fill){
-          fill.style.width=
-            idleLoadingProgressV55+
-            '%';
-        }
-
-        if(percent){
-          percent.textContent=
-            Math.floor(
-              idleLoadingProgressV55
-            )+
-            ' %';
-        }
-
-        if(
-          statut &&
-          message
-        ){
-          statut.textContent=
-            String(message);
-        }
-      }
-
-
-      function demarrerAnimationChargementIdleV55_(){
-        arreterAnimationChargementIdleV55_();
-
-        idleLoadingTimerV55=
-          setInterval(function(){
-            if(
-              PAGE_ACTIVE!=='idle'
-            ){
-              arreterAnimationChargementIdleV55_();
-              return;
-            }
-
-            /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-25 */
-            if(idleLoadingProgressV55<55){
-              idleLoadingProgressV55+=
-                2.4;
-            }else if(
-              idleLoadingProgressV55<78
-            ){
-              idleLoadingProgressV55+=
-                1.25;
-            }else if(
-              idleLoadingProgressV55<91
-            ){
-              idleLoadingProgressV55+=
-                .48;
-            }else if(
-              idleLoadingProgressV55<94
-            ){
-              idleLoadingProgressV55+=
-                .12;
-            }
-
-            idleLoadingDotsV55=
-              (
-                idleLoadingDotsV55+1
-              )%4;
-
-            const fill=
-              document.getElementById(
-                'sorealIdleLoadingFillV55'
-              );
-
-            const percent=
-              document.getElementById(
-                'sorealIdleLoadingPercentV55'
-              );
-
-            const dots=
-              document.getElementById(
-                'sorealIdleLoadingDotsV55'
-              );
-
-            if(fill){
-              fill.style.width=
-                idleLoadingProgressV55+
-                '%';
-            }
-
-            if(percent){
-              percent.textContent=
-                Math.floor(
-                  idleLoadingProgressV55
-                )+
-                ' %';
-            }
-
-            if(dots){
-              dots.textContent=
-                '.'.repeat(
-                  idleLoadingDotsV55
-                );
-            }
-          },300);
-      }
-
-
-      function rendreIdleChargement_(){
-        styleIdle_();
-
-        idleLoadingProgressV55=8;
-
-        document.getElementById('app').innerHTML=
-          header()+
-          `<main class="soreal-idle-native-v4">
-            <div class="soreal-idle-hero-v4">
-              <div class="soreal-idle-kicker-v4">SOREAL</div>
-              <div class="soreal-idle-title-v4">SOREAL IDLE</div>
-              <div class="soreal-idle-sub-v4">
-                Chargement de ton personnage
-                <span
-                  id="sorealIdleLoadingDotsV55"
-                  class="soreal-idle-loading-dots-v55"
-                ></span>
-              </div>
-            </div>
-
-            <div class="soreal-idle-loading-v55">
-              <div class="soreal-idle-loading-head-v55">
-                <div class="soreal-idle-loading-title-v55">
-                  Initialisation du jeu
-                </div>
-
-                <div
-                  id="sorealIdleLoadingPercentV55"
-                  class="soreal-idle-loading-percent-v55"
-                >
-                  8 %
-                </div>
-              </div>
-
-              <div class="soreal-idle-loading-track-v55">
-                <div
-                  id="sorealIdleLoadingFillV55"
-                  class="soreal-idle-loading-fill-v55"
-                  style="width:8%"
-                ></div>
-              </div>
-
-              <div
-                id="sorealIdleLoadingStatusV55"
-                class="soreal-idle-loading-status-v55"
-              >
-                Connexion au moteur…
-              </div>
-            </div>
-          </main>`;
-
-        demarrerAnimationChargementIdleV55_();
       }
 
 
@@ -2635,7 +2333,6 @@
           );
 
         if(energyBarEl){
-          if(ticksEnergie>0)jouerEclatEnergieTickIdleV13_();
 
           mettreAJourBarreProgressionContinueV1_(
             energyBarEl,
@@ -4020,7 +3717,6 @@
       }
 
 
-
       /*
        * Time Machine — la progression est calculée côté serveur et revient à chaque
        * synchronisation. Un changement de speedFill/goldFill n'est pas structurel :
@@ -4425,17 +4121,6 @@
       }
 
 
-      function dureeTickEnergieIdleV34_(){
-        return Math.max(
-          1,
-          Math.round(
-            metaTickEnergieIdleV114_()
-              .dureeMs
-          )
-        );
-      }
-
-
       function gainParTickEnergieIdleV34_(){
         return Math.max(
           1,
@@ -4448,20 +4133,6 @@
 
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-79 */
-      function jouerEclatEnergieTickIdleV13_(){
-        /* Plus d'éclat blanc qui traverse la barre verte à chaque tick (Norman, 2026-09-26 : « je ne le veux pas »). */
-        return;
-        const shine=document.getElementById('sorealIdleEnergyShineV11');
-        if(!shine)return;
-
-        shine.classList.remove('tick');
-        void shine.offsetWidth;
-        shine.classList.add('tick');
-
-        setTimeout(function(){
-          if(shine)shine.classList.remove('tick');
-        },320);
-      }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-80 */
       /*
@@ -4506,7 +4177,6 @@
           valeur/max*100
         );
       }
-
 
 
       function demarrerTickerIdle_(){
@@ -4620,35 +4290,6 @@
       }
 
 
-      function coutIdleV5_(j,type){
-        const couts=
-          j&&j.coutsEntrainement
-            ?j.coutsEntrainement
-            :{};
-
-        const direct=
-          idleNombre_(couts[type]);
-
-        if(direct>0)return direct;
-
-        const niveau=
-          type==='force'
-            ?idleNombre_(j&&j.force)
-            :type==='endurance'
-              ?idleNombre_(j&&j.endurance)
-              :idleNombre_(j&&j.organisation);
-
-        return coutBaseEntrainementIdleV73_(
-          j
-        )*
-        Math.max(
-          1,
-          Math.floor(
-            niveau||1
-          )
-        );
-      }
-
       function coutNiveauxIdleV7_(
         niveau,
         quantite
@@ -4735,43 +4376,6 @@
           idleAchatsEnvoyesV23
         );
       }
-
-
-      function peutAcheterIdleV5_(j,type){
-        if(!j)return false;
-
-        const energieReservee=
-          energieReserveeIdleV23_();
-
-        const niveauBase=
-          type==='force'
-            ?idleEntier_(j.force)+
-              idleEntier_(idleAchatsEnvoyesV23.force)+
-              idleEntier_(idleAchatsEnAttenteV7.force)
-            :type==='endurance'
-              ?idleEntier_(j.endurance)+
-                idleEntier_(idleAchatsEnvoyesV23.endurance)+
-                idleEntier_(idleAchatsEnAttenteV7.endurance)
-              :idleEntier_(j.organisation)+
-                idleEntier_(idleAchatsEnvoyesV23.organisation)+
-                idleEntier_(idleAchatsEnAttenteV7.organisation);
-
-        const prochainCout=
-          coutBaseEntrainementIdleV73_(
-            j
-          )*
-          Math.max(
-            1,
-            niveauBase
-          );
-
-        return (
-          idleNombre_(j.energie) -
-          energieReservee
-        ) >= prochainCout;
-      }
-
-
 
 
       function libererFocusIdleV24_(){
@@ -4984,11 +4588,6 @@
             )
           )
         );
-      }
-
-
-      function energieReserveeIdleV9_(){
-        return energieReserveeIdleV23_();
       }
 
 
@@ -6768,7 +6367,6 @@
         }
       }
 
-      let idleEquipementEnCoursV10=false;
 
       function objetEquipeIdleV10_(
         j,
@@ -6991,7 +6589,6 @@
           .join('');
       }
 
-      let idleForgeActionV25=false;
 
       function forgerEquipementIdleV25_(
         slot
@@ -7170,141 +6767,7 @@
       }
 
 
-      function agrandirSacIdleV25_(){
-        if(
-          !SOREAL_SESSION ||
-          !idleEtat
-        ){
-          return;
-        }
-
-        const cout=
-          Math.max(
-            1,
-            idleEntier_(
-              idleEtat
-                .coutExtensionInventaire
-            )
-          );
-
-        if(
-          idleEntier_(
-            idleEtat.materiaux
-          )<cout
-        ){
-          messageFlottantIdleV32_(
-            '❌ Pas assez de matériaux.'
-          );
-          return;
-        }
-
-        const meta=
-          idleEtat.inventaireMeta||{
-            base:18,
-            pas:6,
-            coutBase:25,
-            croissance:1.85,
-            max:90
-          };
-
-        if(
-          idleEntier_(
-            idleEtat.inventaireCapacite
-          )>=
-          idleEntier_(
-            meta.max
-          )
-        ){
-          messageFlottantIdleV32_(
-            '❌ Capacité maximale.'
-          );
-          return;
-        }
-
-        idleEtat.materiaux=
-          Math.max(
-            0,
-            idleEntier_(
-              idleEtat.materiaux
-            )-
-            cout
-          );
-
-        idleEtat.inventaireCapacite=
-          Math.min(
-            idleEntier_(
-              meta.max
-            ),
-            idleEntier_(
-              idleEtat.inventaireCapacite
-            )+
-            idleEntier_(
-              meta.pas
-            )
-          );
-
-        idleEtat.inventaireLibre=
-          Math.max(
-            0,
-            idleEntier_(
-              idleEtat.inventaireCapacite
-            )-
-            idleEntier_(
-              idleEtat.inventaireUtilise
-            )
-          );
-
-        const extensions=
-          Math.max(
-            0,
-            Math.floor(
-              (
-                idleEntier_(
-                  idleEtat.inventaireCapacite
-                )-
-                idleEntier_(
-                  meta.base
-                )
-              )/
-              Math.max(
-                1,
-                idleEntier_(
-                  meta.pas
-                )
-              )
-            )
-          );
-
-        idleEtat.coutExtensionInventaire=
-          Math.max(
-            1,
-            Math.round(
-              idleNombre_(
-                meta.coutBase
-              )*
-              Math.pow(
-                Math.max(
-                  1,
-                  idleNombre_(
-                    meta.croissance
-                  )
-                ),
-                extensions
-              )
-            )
-          );
-
-        planifierRenduOptimisteIdleV60_();
-
-        ajouterActionRapideIdleV60_(
-          'bag',
-          1
-        );
-      }
-
-
       window.__forgerEquipementIdleV25__=forgerEquipementIdleV25_;
-      window.__agrandirSacIdleV25__=agrandirSacIdleV25_;
 
 
       function rendreSlotEquipeIdleV10_(
@@ -8001,7 +7464,6 @@
       }
 
 
-
       function equiperObjetIdleV10_(
         objetId
       ){
@@ -8160,9 +7622,6 @@
           '🛡️ Équipé'
         );
       }
-
-
-      let idleBoutiqueEnCoursV12=false;
 
 
       function acheterAmeliorationIdleV12_(
@@ -8425,18 +7884,6 @@
       }
 
 
-
-
-
-      let idleLootActionV21=false;
-
-      function statutLootIdleV21_(texte,type){
-        const el=document.getElementById('sorealIdleLootStatusV21');
-        if(!el)return;
-        el.className='soreal-idle-loot-status-v21 show '+(type||'error');
-        el.textContent=String(texte||'');
-      }
-
       function objetsEncoreEnAttenteRecycleV38_(){
         return idleRecycleQueueV38.concat(
           idleRecycleInflightV38
@@ -8670,19 +8117,6 @@
       }
 
 
-      function recyclerLootIdleV21_(
-        objetId
-      ){
-        recyclerObjetsOptimisteIdleV32_(
-          [
-            String(
-              objetId || ''
-            )
-          ]
-        );
-      }
-
-
       window.__recyclerObjetsOptimisteIdleV32__=
         recyclerObjetsOptimisteIdleV32_;
 
@@ -8855,7 +8289,6 @@
       }
 
 
-      window.__recyclerLootIdleV21__=recyclerLootIdleV21_;
       window.__fusionnerLootIdleV21__=fusionnerLootIdleV21_;
 
 
@@ -8870,12 +8303,6 @@
       let idleAutoTimerV30=null;
       let idleAutoCountdownTimerV62=null;
       let idleAutoCountdownFinV62=0;
-
-
-      function niveauCombatAutoIdleV30_(j){
-        void j;
-        return 0;
-      }
 
 
       function combatAutoDebloqueIdleV30_(j){
@@ -9585,7 +9012,6 @@
         renaitreIdleV14_;
 
 
-
       const CLE_MENU_IDLE_V28=
         'sorealIdleMenuActifV28';
 
@@ -9596,42 +9022,55 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-107 */
       function texte69LolIdleV183_(texte){const a=window.__SOREAL_IDLE_TEXT_TRANSFORMS_V1__;return a&&a.texte69Lol?a.texte69Lol(texte):String(texte||'');}
+      /* Observer « 69 lol » bon marché : on ne regarde que les nœuds texte contenant « 69 »
+         (les ticks à 15 Hz réécrivent du texte en continu), jamais de balayage complet du body
+         hors installation initiale, et un nœud n'est traité qu'une fois par rafale de mutations. */
+      function noeudTexte69LolIdleV183_(node){
+        if(!node||node.nodeType!==Node.TEXT_NODE)return;
+        const avant=node.nodeValue;
+        if(!avant||avant.indexOf('69')<0)return;
+        const parent=node.parentElement;
+        if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;
+        const apres=texte69LolIdleV183_(avant);
+        if(apres!==avant)node.nodeValue=apres;
+      }
       function appliquer69LolNoeudIdleV183_(racine){
         if(!racine||!document.body.classList.contains('soreal-idle-active-v47'))return;
+        if(racine.nodeType===Node.TEXT_NODE){
+          noeudTexte69LolIdleV183_(racine);
+          return;
+        }
         const walker=document.createTreeWalker(
           racine,
-          NodeFilter.SHOW_TEXT
+          NodeFilter.SHOW_TEXT,
+          {acceptNode:function(n){
+            return n.nodeValue&&n.nodeValue.indexOf('69')>=0
+              ?NodeFilter.FILTER_ACCEPT
+              :NodeFilter.FILTER_REJECT;
+          }}
         );
         const nodes=[];
         while(walker.nextNode())nodes.push(walker.currentNode);
-        nodes.forEach(function(node){
-          const parent=node.parentElement;
-          if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;
-          const avant=node.nodeValue;
-          const apres=texte69LolIdleV183_(avant);
-          if(apres!==avant)node.nodeValue=apres;
-        });
+        nodes.forEach(noeudTexte69LolIdleV183_);
       }
       function installer69LolIdleV183_(){
         if(document.body.dataset.idle69LolV183==='1')return;
         document.body.dataset.idle69LolV183='1';
         const observer=new MutationObserver(function(mutations){
           if(!document.body.classList.contains('soreal-idle-active-v47'))return;
+          const vus=new Set();
           mutations.forEach(function(m){
             if(m.type==='characterData'){
               const node=m.target;
-              const parent=node.parentElement;
-              if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;
-              const apres=texte69LolIdleV183_(node.nodeValue);
-              if(apres!==node.nodeValue)node.nodeValue=apres;
+              if(vus.has(node))return;
+              vus.add(node);
+              noeudTexte69LolIdleV183_(node);
             }else{
               Array.from(m.addedNodes||[]).forEach(function(node){
-                if(node.nodeType===Node.TEXT_NODE){
-                  const apres=texte69LolIdleV183_(node.nodeValue);
-                  if(apres!==node.nodeValue)node.nodeValue=apres;
-                }else if(node.nodeType===Node.ELEMENT_NODE){
-                  appliquer69LolNoeudIdleV183_(node);
-                }
+                if(vus.has(node))return;
+                vus.add(node);
+                if(node.nodeType===Node.TEXT_NODE)noeudTexte69LolIdleV183_(node);
+                else if(node.nodeType===Node.ELEMENT_NODE)appliquer69LolNoeudIdleV183_(node);
               });
             }
           });
@@ -9723,15 +9162,6 @@
         if(racine)racine.scrollLeft=0;
       }
 
-
-      function niveauRequisMenuIdleV29_(
-        menu,
-        j
-      ){
-        void menu;
-        void j;
-        return 1;
-      }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-111 */
       const IDLE_SYSTEME_PAR_MENU_V1={
@@ -11843,59 +11273,6 @@
           :String(Math.round(idleNombre_(valeur)));
       }
 
-      function barreXpIdleV70_(
-        j
-      ){
-        const xp=
-          Math.max(
-            0,
-            idleNombre_(
-              j&&j.xp
-            )
-          );
-
-        const requis=
-          Math.max(
-            1,
-            idleNombre_(
-              j&&j.xpRequise
-            )
-          );
-
-        const pct=
-          Math.max(
-            0,
-            Math.min(
-              100,
-              xp/requis*100
-            )
-          );
-
-        return `
-          <div class="soreal-idle-xp-panel-v70">
-            <div class="soreal-idle-xp-head-v70">
-              <span>
-                ⭐ EXPÉRIENCE · Niveau
-                <strong id="sorealIdleXpNiveauV70">${idleEntier_(j&&j.niveau)}</strong>
-              </span>
-
-              <span id="sorealIdleXpTexteV70">
-                ${formatGrandNombreIdleV70_(xp)}
-                / ${formatGrandNombreIdleV70_(requis)} XP
-              </span>
-            </div>
-
-            <div class="soreal-idle-xp-track-v70">
-              <div
-                id="sorealIdleXpFillV70"
-                class="soreal-idle-xp-fill-v70"
-                style="width:${pct}%"
-              ></div>
-            </div>
-          </div>
-        `;
-      }
-
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-139 */
       let idleAdventureLogV1=[];
@@ -12497,46 +11874,6 @@
         viderJournalCombatIdleV70_;
 
 
-      function journalCombatMarkupIdleV70_(){
-        return `
-          <div class="soreal-idle-combat-log-v70">
-            <div class="soreal-idle-combat-log-head-v70">
-              <span>📜 Journal de combat</span>
-              <button
-                type="button"
-                class="soreal-idle-log-clear-v70"
-                onclick="window.__viderJournalCombatIdleV70__()"
-              >Effacer</button>
-            </div>
-
-            <div
-              id="sorealIdleCombatLogBodyV70"
-              class="soreal-idle-combat-log-body-v70"
-            >
-              ${
-                idleCombatLogV70.length
-                  ?idleCombatLogV70.map(
-                      function(ligne){
-                        return (
-                          '<div class="soreal-idle-combat-log-line-v70 '+
-                          idleHtml_(ligne.type)+
-                          '">'+
-                          '<span style="opacity:.55">['+
-                          idleHtml_(ligne.heure)+
-                          ']</span> '+
-                          idleHtml_(ligne.texte)+
-                          '</div>'
-                        );
-                      }
-                    ).join('')
-                  :'<div class="soreal-idle-combat-log-line-v70 system">Le journal commencera au lancement du combat.</div>'
-              }
-            </div>
-          </div>
-        `;
-      }
-
-
       function labelCapaciteBossIdleV70_(
         capacite
       ){
@@ -12579,7 +11916,7 @@
         }
 
         if(type==='sceau'){
-          return '🔒 Sceau · -'+
+          return '⛓️ Sceau · -'+
             idleNombre_(c.valeur)+
             '% dégâts jusqu’à Rupture SOREAL';
         }
@@ -13837,16 +13174,8 @@
           !magie ||
           !magie.debloquee
         ){
-          return `
-            ${entetePageIdleV28_(
-              '🔮 Magie',
-              'La magie n’est pas encore disponible.'
-            )}
-
-            <div class="soreal-idle-empty-v21">
-              🔒 Niveau ${idleEntier_(magie&&magie.niveauRequis||4)}
-            </div>
-          `;
+          /* ANTI-SPOIL : menu verrouillé = rien d'affiché (le menu est de toute façon masqué). */
+          return '';
         }
 
         const sorts=
@@ -14640,8 +13969,6 @@
         combattreDepuisCarteBossIdleV91_;
 
 
-      let idleCombatBossActionV39=false;
-      let idleAutoBossActionV49=false;
       let idleVictoireBossLocaleV49=false;
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-158 */
       let idleCombatArmeLocalV206=false;
@@ -14982,7 +14309,6 @@
         if(depuis<10)return false;
         return !dernier||maintenant-dernier>=60000;
       }
-      window.__autoNukeDueIdleV1__=autoNukeDueIdleV1_;
       setInterval(function(){
         try{
           const j=idleEtat;
@@ -15038,9 +14364,6 @@
 
       window.__definirAutoBossSuivantIdleV49__=
         definirAutoBossSuivantIdleV49_;
-
-
-      let idleSelectionBossEnCoursV37=false;
 
 
       function selectionnerBossIdleV37_(
@@ -15443,84 +14766,14 @@ let idleDialogueTimerV76=null;
       }
 
 
-      function ligneEntrainementIdleV28_(
-        j,
-        type,
-        emoji,
-        nom,
-        description
-      ){
-        const niveau=
-          type==='force'
-            ?j.force
-            :type==='endurance'
-              ?j.endurance
-              :j.organisation;
-
-        return `
-          <div class="soreal-idle-training-row-v5">
-            <div>
-              <div class="soreal-idle-training-name-v5">
-                ${emoji} ${nom} · niveau ${idleEntier_(niveau)}
-                <span id="sorealIdlePendingV7_${type}"></span>
-              </div>
-              <div class="soreal-idle-training-meta-v5">
-                ${description}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="soreal-idle-training-button-v5"
-              data-idle-training="${type}"
-              onclick="window.__acheterEntrainementIdleV5__('${type}')"
-              ${peutAcheterIdleV5_(j,type)?'':'disabled'}
-            >
-              ${idleEntier_(coutIdleV5_(j,type))} ⚡
-            </button>
-          </div>
-        `;
-      }
-
-
       function skillBasicTrainingIdleV120_(
         j,
         skill
       ){
         if(!skill)return '';
 
-        if(!skill.unlocked){
-          const precedent=
-            (
-              j.basicTraining &&
-              Array.isArray(j.basicTraining.skills)
-            )
-              ?j.basicTraining.skills.find(function(x){
-                  return x.id===skill.prerequisite;
-                })
-              :null;
-
-          return `
-            <div class="soreal-idle-bt-row-v120 locked">
-              <div class="soreal-idle-bt-main-v120">
-                <div class="soreal-idle-bt-name-v120">
-                  🔒 ???????
-                </div>
-                <div class="soreal-idle-bt-lock-v120">
-                  Requiert ${formatGrandNombreIdleV70_(skill.prerequisiteLevel)}
-                  niveaux en ${idleHtml_(precedent&&precedent.name||'compétence précédente')}.
-                </div>
-              </div>
-              <div class="soreal-idle-bt-level-v120">0</div>
-              <div class="soreal-idle-bt-allocation-v120">0 ⚡</div>
-              <div class="soreal-idle-bt-actions-v120">
-                <button disabled>+</button>
-                <button disabled>−</button>
-                <button disabled>Cap</button>
-              </div>
-            </div>
-          `;
-        }
+        /* ANTI-SPOIL (AGENTS.md règle n°2) : une compétence encore verrouillée n'apparaît pas du tout. */
+        if(!skill.unlocked)return '';
 
         const vitesseInitiale=
           Math.max(
@@ -15738,21 +14991,15 @@ let idleDialogueTimerV76=null;
       window.__changerOngletCollectionIdleV1__=changerOngletCollectionIdleV1_;
 
       function rendreCollectionCreaturesIdleV1_(entrees,vide){
+        /* ANTI-SPOIL (AGENTS.md règle n°2) : seules les entrées découvertes sont affichées, jamais de carte « ??? ». */
+        entrees=entrees.filter(function(e){return e&&e.decouvert;});
         if(!entrees.length){
           return '<div class="soreal-idle-empty-v10">'+idleHtml_(vide)+'</div>';
         }
 
         return '<div class="soreal-idle-bestiary-grid-v110">'+
           entrees.map(function(e){
-            if(!e||!e.decouvert){
-              return `
-                <div class="soreal-idle-bestiary-card-v110 unknown">
-                  <div class="soreal-idle-bestiary-emoji-v110">❔</div>
-                  <div class="soreal-idle-bestiary-name-v110">???????</div>
-                  <div class="soreal-idle-bestiary-type-v110">Entrée inconnue</div>
-                </div>
-              `;
-            }
+            if(!e||!e.decouvert)return '';
 
             /*
              * 2026-09-25 (Norman) : les cartes de boss n'affichent que l'image (plein cadre, sans bords) et le nom centré ; un clic ouvre
@@ -15893,12 +15140,7 @@ let idleDialogueTimerV76=null;
             const def=catalog[id];
             const info=itemList[id];
 
-            if(!info){
-              return '<div class="soreal-idle-collection-card-v1 locked">'+
-                '<div class="soreal-idle-collection-card-icon-v1"><span>❔</span></div>'+
-                '<div class="soreal-idle-collection-card-name-v1">???</div>'+
-              '</div>';
-            }
+            if(!info)return '';
 
             const niveau=idleEntier_(info.maxLevel);
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-175 */
@@ -16079,17 +15321,7 @@ let idleDialogueTimerV76=null;
                 entrees:[]
               };
 
-        if(!b.debloquee){
-          return `
-            ${entetePageIdleV28_(
-              '🏆 ???????',
-              'Ce registre n’est pas encore accessible.'
-            )}
-            <div class="soreal-idle-empty-v10">
-              🔒 Niveau ${idleEntier_(b.niveauRequis||2)} requis.
-            </div>
-          `;
-        }
+        if(!b.debloquee)return '';
 
         const entrees=
           Array.isArray(b.entrees)
@@ -16138,7 +15370,6 @@ let idleDialogueTimerV76=null;
       }
 
 
-      
       function aventureMetaIdleV47_(j){
         return j&&j.systemes&&j.systemes.adventure&&typeof j.systemes.adventure==='object'
           ?j.systemes.adventure
@@ -16813,18 +16044,6 @@ let idleDialogueTimerV76=null;
         },0);
       }
 
-      function objetEquipeIdleV165_(a,itemId){
-        const id=String(itemId||'');
-        const eq=a&&a.equipment||{};
-        if(!id)return false;
-        if(
-          ADVENTURE_CORE_SLOTS_V138.some(function(slot){
-            return String(eq[slot]||'')===id;
-          })
-        )return true;
-        return (Array.isArray(eq.accessories)?eq.accessories:[])
-          .some(function(x){return String(x||'')===id;});
-      }
 
       function copieIdleV165_(value){
         if(value==null)return value;
@@ -17488,9 +16707,6 @@ let idleDialogueTimerV76=null;
       window.__zoneAdventureSuivanteV1__=zoneAdventureSuivanteV1_;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-189 */
-      function combattreZoneAdventureIdleV47_(){
-        actionAdventureIdleV47_({action:'zoneKill'});
-      }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-190 */
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-191 */
@@ -17506,7 +16722,6 @@ let idleDialogueTimerV76=null;
         );
       }
       const IDLE_ADVENTURE_RESPAWN_MS_V1=4000;
-      const IDLE_ADVENTURE_PLAYER_HIT_MS_V2=1000;
       let idleAdventureFightNextPlayerHitV2=0;
       let idleAdventureFightNextEnemyHitV2=0;
       let idleAdventureFightLastRegenAtV2=0;
@@ -18078,10 +17293,8 @@ let idleDialogueTimerV76=null;
         const label=def.id==='move69'
           ?def.label+' · '+Math.max(0,idleEntier_(a&&a.skillState&&a.skillState.move69Uses))+'/69'
           :def.label;
-        const titreVerrouillage=
-          !unlocked&&def.id==='regular'
-            ?'Attaque régulière se débloque à 5000 niveaux d’Attaque passive.'
-            :'';
+        /* ANTI-SPOIL (règle n°2) : aucune condition de déblocage dans l'infobulle d'une compétence verrouillée. */
+        const titreVerrouillage='';
         return '<button type="button" class="soreal-idle-adventure-skill-v3'+
           (unlocked?'':' locked')+'" data-adventure-skill="'+idleHtml_(def.id)+'" '+
           (titreVerrouillage?'title="'+idleHtml_(titreVerrouillage)+'" ':'')+
@@ -18600,17 +17813,6 @@ let idleDialogueTimerV76=null;
         },260);
       }
 
-      function impactsEchelonneesAdventureIdleV1_(nombre){
-        const total=Math.max(1,idleEntier_(nombre)||1);
-
-        for(let i=0;i<total;i+=1){
-          if(i===0){
-            impactMonstreAdventureIdleV1_();
-          }else{
-            setTimeout(impactMonstreAdventureIdleV1_,i*110);
-          }
-        }
-      }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-208 */
       function affronterTitanAdventureIdleV47_(id,difficulty){
@@ -18757,9 +17959,7 @@ let idleDialogueTimerV76=null;
       }
       window.__toggleMenuZoneAdventureIdleV1__=toggleMenuZoneAdventureIdleV1_;
 
-      window.__idleAdventureActionV47__=actionAdventureIdleV47_;
       window.__selectionnerZoneAdventureIdleV47__=selectionnerZoneAdventureIdleV47_;
-      window.__combattreZoneAdventureIdleV47__=combattreZoneAdventureIdleV47_;
       window.__affronterTitanAdventureIdleV47__=affronterTitanAdventureIdleV47_;
       window.__equiperObjetAdventureIdleV47__=equiperObjetAdventureIdleV47_;
       window.__equiperParIdAdventureIdleV138__=equiperParIdAdventureIdleV138_;
@@ -18851,12 +18051,8 @@ function pageAventureIdleV28_(j){
         const zones=a&&Array.isArray(a.zones)?a.zones:[];
         const debloquee=aventureDebloqueeIdleV47_(j);
         if(!a||!debloquee){
-          return entetePageIdleV28_('🗺️ Adventure','Le premier vrai terrain de loot de SOREAL IDLE.')+
-            '<div class="soreal-idle-section-v8" style="text-align:center;padding:28px">'+
-              '<div style="font-size:42px">🔒</div>'+
-              '<div style="font-size:20px;font-weight:900;margin-top:8px">Adventure verrouillé</div>'+
-              '<div style="margin-top:8px;color:#aeb5c8">Bats le boss 4 pour débloquer Adventure (et son inventaire).</div>'+
-            '</div>';
+          /* ANTI-SPOIL (règle n°2) : Adventure encore fermé = rien d'affiché (ni cadenas, ni condition). */
+          return '';
         }
         const selected=String(a.selectedZone||'safe');
         const zone=zones.find(function(z){return z&&z.id===selected;})||zones.find(function(z){return z&&z.unlocked;})||null;
@@ -19304,7 +18500,6 @@ function pageAventureIdleV28_(j){
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-235 */
-      const IDLE_RARETE_SEUILS_V1=[0.76,1.61,2.47,3.33,4.19,5.04];
       function idleRareteClasseObjetAdventureIdleV1_(item){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.rarete?a.rarete(item):'';}
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-236 */
@@ -20190,14 +19385,6 @@ function pageAventureIdleV28_(j){
         }
       }
 
-      function debutDragAdventureIdleV138_(event,itemId){
-        terminerEtatGesteAdventureIdleV196_();
-        idleAdventureDragIdV138=String(itemId||'');
-        if(event&&event.dataTransfer){
-          event.dataTransfer.effectAllowed='move';
-          try{event.dataTransfer.setData('text/plain',idleAdventureDragIdV138);}catch(e){}
-        }
-      }
 
       function survolCibleAdventureIdleV138_(event){
         if(event){
@@ -20527,19 +19714,6 @@ function pageAventureIdleV28_(j){
         return tous.some(function(sv){return idleNombre_(sv.value)+1e-9<idleNombre_(sv.max);});
       }
 
-      function deposerSurSlotAdventureIdleV138_(event,slotName,occupantId){
-        if(event){event.preventDefault();event.stopPropagation();}
-        const id=idSourceAdventureIdleV138_(event);
-        nettoyerEtatDragAdventureIdleV138_();
-        if(id)appliquerActionSlotAdventureIdleV138_(id,String(occupantId||''));
-      }
-
-      function deposerSurCarteAdventureIdleV138_(event,cibleId){
-        if(event){event.preventDefault();event.stopPropagation();}
-        const id=idSourceAdventureIdleV138_(event);
-        nettoyerEtatDragAdventureIdleV138_();
-        if(id)fusionnerSiPossibleAdventureIdleV138_(id,String(cibleId||''));
-      }
 
       function statsHtmlObjetAdventureIdleV138_(item){
         if(!(item.kind==='equipment'||item.kind==='special'||item.kind==='cube'))return '';
@@ -20892,16 +20066,6 @@ function pageAventureIdleV28_(j){
        */
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-273 */
-      function clicCibleAdventureIdleV138_(slotName,occupantId){
-        void slotName;
-        if(Date.now()<idleAdventureIgnorerClicJusquaV165)return;
-        const occupant=String(occupantId||'');
-        if(!occupant)return;
-        const element=document.querySelector(
-          '.soreal-idle-v138-slot[data-occupant-id="'+occupant+'"]'
-        );
-        if(element)executerTapSlotAdventureIdleV196_(element);
-      }
 
       function clicTrashAdventureIdleV138_(){
         if(idleAdventureSelectionIdV138){
@@ -20915,31 +20079,9 @@ function pageAventureIdleV28_(j){
       }
       window.__clicTrashAdventureIdleV138__=clicTrashAdventureIdleV138_;
 
-      function clicCarteAdventureIdleV138_(event,itemId){
-        if(Date.now()<idleAdventureIgnorerClicJusquaV165){
-          if(event){event.preventDefault();event.stopPropagation();}
-          return;
-        }
 
-        const id=String(itemId||'');
-        const element=
-          event&&event.currentTarget
-            ?event.currentTarget
-            :document.querySelector(
-                '.soreal-idle-v138-bag-card[data-item-id="'+id+'"]'
-              );
-
-        if(element)executerTapCarteAdventureIdleV196_(element,id);
-      }
-
-      window.__debutDragAdventureIdleV138__=debutDragAdventureIdleV138_;
-      window.__finDragAdventureIdleV138__=nettoyerEtatDragAdventureIdleV138_;
       window.__survolCibleAdventureIdleV138__=survolCibleAdventureIdleV138_;
       window.__quitterCibleAdventureIdleV138__=quitterCibleAdventureIdleV138_;
-      window.__deposerSurSlotAdventureIdleV138__=deposerSurSlotAdventureIdleV138_;
-      window.__deposerSurCarteAdventureIdleV138__=deposerSurCarteAdventureIdleV138_;
-      window.__clicCibleAdventureIdleV138__=clicCibleAdventureIdleV138_;
-      window.__clicCarteAdventureIdleV138__=clicCarteAdventureIdleV138_;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-274 */
       const IDLE_PAGINATION_TAILLE_V1=60;
@@ -21041,8 +20183,8 @@ function pageAventureIdleV28_(j){
       function pageInventaireIdleV28_(j){
         const a=aventureMetaIdleV47_(j);
         if(!a||!j.inventaireDebloque){
-          return entetePageIdleV28_('🎒 Inventory','L’équipement Adventure est stocké ici.')+
-            '<div class="soreal-idle-section-v8" style="text-align:center;padding:28px"><div style="font-size:42px">🔒</div><b>Inventory se débloque avec Adventure au boss 4.</b></div>';
+          /* ANTI-SPOIL (règle n°2) : Inventory verrouillé = rien d'affiché. */
+          return '';
         }
 
         const items=Array.isArray(a.inventory)?a.inventory:[];
@@ -21113,6 +20255,8 @@ function pageAventureIdleV28_(j){
       window.__changerPageCoffreV1__=changerPageCoffreV1_;
 
       function rendreCoffreAdventureIdleV1_(slots){
+        /* ANTI-SPOIL (règle n°2) : seules les cases déjà découvertes sont listées (ni « ??? », ni total). */
+        slots=slots.filter(function(s){return s&&s.decouvert;});
         const occupees=slots.filter(function(s){return s&&s.occupe;}).length;
         const totalPagesCoffre=Math.max(1,Math.ceil(slots.length/IDLE_PAGINATION_TAILLE_V1));
         if(idlePageCoffreV1>totalPagesCoffre)idlePageCoffreV1=totalPagesCoffre;
@@ -21121,12 +20265,6 @@ function pageAventureIdleV28_(j){
 
         const grille='<div class="soreal-idle-collection-grid-v1">'+
           slotsPage.map(function(s){
-            if(!s.decouvert){
-              return '<div class="soreal-idle-collection-card-v1 locked">'+
-                '<div class="soreal-idle-collection-card-icon-v1"><span>❔</span></div>'+
-                '<div class="soreal-idle-collection-card-name-v1">???</div>'+
-              '</div>';
-            }
             if(!s.occupe){
               return '<div class="soreal-idle-collection-card-v1">'+
                 '<div class="soreal-idle-collection-card-icon-v1"><span>⬜</span></div>'+
@@ -21261,7 +20399,6 @@ function pageAventureIdleV28_(j){
           '</div>'+
         '</div>';
       }
-
 
 
       /*
@@ -21583,16 +20720,16 @@ function pageAventureIdleV28_(j){
         moreCustomEnergyMagicButtons:{name:'Plus de boutons % Énergie/Magie',effect:'Débloque un second jeu de boutons % personnalisés pour les entrées Énergie et Magie.'},
         yggdrasilHarvestLight:{name:'Alerte de récolte Yggdrasil',effect:'Fait s’illuminer le menu Yggdrasil lorsqu’un fruit est totalement mûr et prêt à être mangé ou récolté.'},
         dailySpinTimeBank:{name:'Banque de 7 jours pour la roue journalière',effect:'Étend la durée maximale mise en réserve par la roue journalière de 36 heures à 7 jours.'},
-        loadoutSlot:{name:'Emplacement de configuration',effect:'Ajoute un emplacement de configuration. Maximum : 7 achats.'},
-        extraBeardSlot:{name:'Emplacement de barbe supplémentaire',effect:'Ajoute une barbe pour Beards of Power. Maximum : 4 achats ; le premier emplacement coûte moins cher.'},
+        loadoutSlot:{name:'Emplacement de configuration',effect:'Ajoute un emplacement de configuration.'},
+        extraBeardSlot:{name:'Emplacement de barbe supplémentaire',effect:'Ajoute une barbe pour Beards of Power. Le premier emplacement coûte moins cher.'},
         filterBoostsIntoCube:{name:'Envoyer les boosts filtrés dans le Cube de l’infini',effect:'Les boosts filtrés sont fusionnés dans le Cube de l’infini. Les boosts appliqués ainsi ne sont pas recyclés.'},
         lazyItopodFloorShifter:{name:'Réglage automatique de l’étage ITOPOD',effect:'Vérifie ton étage optimal après chaque kill et ajuste automatiquement l’étage de l’ITOPOD.'},
 
         extraAccessorySlot1:{name:'Emplacement d’accessoire supplémentaire',effect:'Ajoute 1 emplacement d’accessoire.'},
         daycareSpeedBoost:{name:'Accélération de la garderie',effect:'Les objets placés en garderie gagnent leurs niveaux 10 % plus vite.'},
         extraAccessorySlot2:{name:'Encore un emplacement d’accessoire',effect:'Ajoute encore 1 emplacement d’accessoire. Oui, encore.'},
-        diggerSlots:{name:'Emplacements Gold Digger',effect:'Ajoute 1 emplacement de Digger. Maximum : 6 achats ; le premier coûte moins cher.'},
-        macguffinSlot:{name:'Emplacement MacGuffin',effect:'Ajoute 1 emplacement MacGuffin. Maximum : 11 achats ; les deux premiers coûtent moins cher.'},
+        diggerSlots:{name:'Emplacements Gold Digger',effect:'Ajoute 1 emplacement de Digger. Le premier coûte moins cher.'},
+        macguffinSlot:{name:'Emplacement MacGuffin',effect:'Ajoute 1 emplacement MacGuffin. Les deux premiers coûtent moins cher.'},
         questReminder:{name:'Rappel de quête',effect:'Fait s’illuminer le menu Questing lorsqu’une quête est prête à être rendue.'},
         fasterQuesting:{name:'Quêtes plus rapides',effect:'Permet de gagner les Major Quests 20 % plus vite.'},
         extendedQuestBank:{name:'Banque de quêtes étendue',effect:'Augmente le plafond de Major Quests de 10 à 50.'},
@@ -21608,16 +20745,16 @@ function pageAventureIdleV28_(j){
         customIdleResource3Button:{name:'Bouton % Idle Ressource 3',effect:'Débloque un bouton % Idle personnalisé pour Ressource 3.'},
         resource3NameRandomizer:{name:'Nom aléatoire de Ressource 3',effect:'Débloque un réglage qui change aléatoirement le nom de Ressource 3 à chaque Rebirth, parmi plus de 200 noms.'},
         fasterWishes:{name:'Wishes plus rapides',effect:'Accélère les Wishes de 25 %.'},
-        inventoryMergeSlots:{name:'Emplacements de fusion d’inventaire',effect:'Débloque un emplacement supplémentaire de fusion d’inventaire. Maximum : 4 achats.'},
+        inventoryMergeSlots:{name:'Emplacements de fusion d’inventaire',effect:'Débloque un emplacement supplémentaire de fusion d’inventaire.'},
         adventureLight:{name:'Alerte Adventure',effect:'Fait s’illuminer le bouton Adventure lorsque tu es dans une Safe Zone.'},
         adventureAdvancer:{name:'Avancement Adventure',effect:'Au bout de 20 secondes d’un Rebirth, te déplace vers la zone normale la plus avancée que tu peux atteindre.'},
         goToQuestZoneButton:{name:'Bouton « Aller à la zone de quête »',effect:'Débloque un bouton qui t’envoie directement dans la zone Adventure de ta quête.'},
 
-        extraDeckSize:{name:'Taille de deck supplémentaire',effect:'Augmente la taille du deck pour pouvoir conserver davantage de cartes. Maximum : 50 achats.'},
-        mayoGenerator:{name:'Générateur de mayo',effect:'Permet de faire fonctionner un générateur de Mayo supplémentaire et augmente la vitesse de génération de Mayo de 2 % par emplacement. Maximum : 2 achats.'},
+        extraDeckSize:{name:'Taille de deck supplémentaire',effect:'Augmente la taille du deck pour pouvoir conserver davantage de cartes.'},
+        mayoGenerator:{name:'Générateur de mayo',effect:'Permet de faire fonctionner un générateur de Mayo supplémentaire et augmente la vitesse de génération de Mayo de 2 % par emplacement.'},
         extraTagSlot:{name:'Emplacement de tag supplémentaire',effect:'Débloque un emplacement de tag supplémentaire pour les cartes afin de favoriser celles que tu veux obtenir.'},
-        extraAccessorySlotEvil:{name:'Emplacement d’accessoire Evil',effect:'Un emplacement d’accessoire ordinaire, mais dont l’achat est arbitrairement verrouillé tant que tu n’es pas en difficulté Evil.'},
-        extraAccessorySlot5:{name:'Dernier emplacement d’accessoire',effect:'Voilà, c’est le dernier emplacement d’accessoire achetable avec de l’AP. Après celui-ci, terminé.'},
+        extraAccessorySlotEvil:{name:'Emplacement d’accessoire supplémentaire',effect:'Ajoute 1 emplacement d’accessoire.'},
+        extraAccessorySlot5:{name:'Emplacement d’accessoire supplémentaire',effect:'Ajoute 1 emplacement d’accessoire.'},
 
         heartRed:{name:'Mon cœur rouge <3',effect:'Au niveau 100, son bonus complet de +10 % EXP s’applique sans devoir l’équiper.'},
         heartYellow:{name:'Mon cœur jaune <3',effect:'Au niveau 100, son bonus complet de +20 % AP s’applique sans devoir l’équiper.'},
@@ -21662,7 +20799,8 @@ function pageAventureIdleV28_(j){
       function pageSelloutShopIdleV1_(j){
         const systemes=(j&&j.systemes)||{};
         const shop=systemes.selloutShop||{catalog:[],purchases:{}};
-        const catalogue=Array.isArray(shop.catalog)?shop.catalog:[];
+        /* ANTI-SPOIL (règle n°2) : un achat dont l'effet n'est pas encore actif n'apparaît pas (ni cadenas, ni prix). */
+        const catalogue=(Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return item&&item.effectActive===true;});
         const ap=idleEntier_(systemes.currencies&&systemes.currencies.ap||0);
 
         const parCategorie={};
@@ -21682,13 +20820,11 @@ function pageAventureIdleV28_(j){
           const effetActif=item.effectActive===true;
           const abordable=effetActif&&!auMax&&ap>=item.nextCost;
           const texte=traductionSelloutIdleV210_(item);
-          const compteur=item.max!=null?' ('+idleEntier_(item.purchased)+'/'+idleEntier_(item.max)+')':(item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'');
+          const compteur=item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'';
           return '<div class="soreal-idle-exp-stat-v210">'+
             '<div class="soreal-idle-exp-stat-head-v210"><span>'+idleHtml_(texte.name)+compteur+'</span></div>'+
             '<div class="soreal-idle-exp-help-v210">'+idleHtml_(texte.effect)+'</div>'+
-            (!effetActif
-              ?'<div class="soreal-idle-exp-lock-v210" title="Cet effet sera activé dans un prochain palier">🔒 Effet pas encore actif · '+formatGrandNombreIdleV70_(item.nextCost||0)+' AP</div>'
-              :auMax
+            (auMax
                 ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
                 :'<div class="soreal-idle-exp-actions-v210">'+
                   '<button type="button" class="soreal-idle-exp-buy-v210" '+(abordable?'':'disabled ')+
@@ -22086,7 +21222,6 @@ function pageAventureIdleV28_(j){
 
       window.__executerResetTotalIdleV67__=
         executerResetTotalIdleV67_;
-
 
 
       function pagePersonnageIdleV28_(j){
@@ -22971,58 +22106,6 @@ function pageAventureIdleV28_(j){
 
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-322 */
-      function impactsEchelonnesIdleV136_(id,type,nombre){
-        const total=
-          Math.max(
-            1,
-            idleEntier_(nombre)||1
-          );
-
-        for(let i=0;i<total;i+=1){
-          if(i===0){
-            impactIdleV46_(id,type);
-          }else{
-            setTimeout(
-              function(){
-                impactIdleV46_(id,type);
-              },
-              i*110
-            );
-          }
-        }
-      }
-
-
-      function impactIdleV46_(id,type){
-        const el=
-          document.getElementById(id);
-
-        if(!el)return;
-
-        if(
-          !idleEtat ||
-          !idleEtat.combatBossActif ||
-          idleVictoireBossLocaleV49 ||
-          idleNombre_(idleEtat.bossPv)<=0
-        ){
-          return;
-        }
-
-        const classe=
-          type==='joueur'
-            ?'impact-joueur-v46'
-            :'impact-boss-v46';
-
-        el.classList.remove(classe);
-        void el.offsetWidth;
-        el.classList.add(classe);
-
-        setTimeout(function(){
-          if(el){
-            el.classList.remove(classe);
-          }
-        },260);
-      }
 
 
       function nettoyerImpactsIdleV50_(){
@@ -23688,8 +22771,6 @@ function pageAventureIdleV28_(j){
       }
 
 
-
-
       function basculerVersIdleSansReflowV104_(
         res
       ){
@@ -24059,50 +23140,6 @@ function pageAventureIdleV28_(j){
         };
       }
 
-      function verifierAccesIdleNatifV4_(){
-        if(idleVerificationEnCours)return;
-        if(!SOREAL_SESSION)return;
-
-        idleVerificationEnCours=true;
-
-        google.script.run
-          .withSuccessHandler(function(res){
-            idleVerificationEnCours=false;
-            idleAutorise=Boolean(
-              res &&
-              res.ok &&
-              res.autorise
-            );
-
-            afficherBoutonIdle_(idleAutorise);
-          })
-          .withFailureHandler(function(){
-            idleVerificationEnCours=false;
-            idleAutorise=false;
-            afficherBoutonIdle_(false);
-          })
-          .obtenirAccesSorealIdle(SOREAL_SESSION);
-      }
-
-      function attendreSessionIdleNatifV4_(){
-        afficherBoutonIdle_(false);
-
-        if(idleTimerSession){
-          clearInterval(idleTimerSession);
-        }
-
-        idleTimerSession=setInterval(function(){
-          if(!SOREAL_SESSION)return;
-
-          clearInterval(idleTimerSession);
-          idleTimerSession=null;
-          verifierAccesIdleNatifV4_();
-        },500);
-        requestAnimationFrame(function(){
-          
-        });
-
-      }
 
       window.__acheterEntrainementIdleV5__=
         acheterEntrainementIdleV5_;

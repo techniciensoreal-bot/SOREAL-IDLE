@@ -26,7 +26,7 @@ function makeFakeSqlStorage(sharedTables) {
     tables,
     exec(query, ...bindings) {
       const q = query.replace(/\s+/g, " ").trim();
-      if (q.startsWith("CREATE TABLE") || q.startsWith("CREATE INDEX")) return [];
+      if (q.startsWith("CREATE TABLE") || q.startsWith("CREATE INDEX") || q.startsWith("DROP INDEX")) return [];
       if (q.startsWith("DELETE FROM idle_players")) {
         tables.idle_players.clear();
         return [];

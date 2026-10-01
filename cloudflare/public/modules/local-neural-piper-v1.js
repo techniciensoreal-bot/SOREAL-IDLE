@@ -117,7 +117,24 @@ function wasmError_(error,label){
   return new Error(String(error&&error.message||error||label));
 }
 
+/*
+ * 2026-10-01 : piper_phonemize.js (CDN) est chargé en `async` dans index.html pour ne plus bloquer le parseur au démarrage. Son global
+ * createPiperPhonemize peut donc ne pas être défini à l'instant précis où une synthèse est demandée : on l'attend (au plus 15 s)
+ * au lieu d'échouer tout de suite. Si le script ne se charge jamais (CDN hors ligne), l'erreur historique est conservée.
+ */
+function attendrePhonemizer_(){
+  if(typeof window.createPiperPhonemize==="function")return Promise.resolve(true);
+  return new Promise(function(resolve){
+    const debut=Date.now();
+    const id=setInterval(function(){
+      if(typeof window.createPiperPhonemize==="function"){clearInterval(id);resolve(true);return;}
+      if(Date.now()-debut>15000){clearInterval(id);resolve(false);}
+    },50);
+  });
+}
+
 async function phonemize_(text,espeakVoice){
+  if(typeof window.createPiperPhonemize!=="function")await attendrePhonemizer_();
   if(typeof window.createPiperPhonemize!=="function"){
     throw new Error("PIPER_LOCAL_PHONEMIZER_UNAVAILABLE");
   }

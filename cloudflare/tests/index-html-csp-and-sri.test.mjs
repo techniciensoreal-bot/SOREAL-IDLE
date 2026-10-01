@@ -34,7 +34,7 @@ assert.ok(
 );
 
 const piperMatch = html.match(
-  /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@diffusionstudio\/piper-wasm@1\.0\.0\/build\/piper_phonemize\.js" integrity="(sha384-[A-Za-z0-9+/]{64}=*)" crossorigin="anonymous"><\/script>/
+  /<script async src="https:\/\/cdn\.jsdelivr\.net\/npm\/@diffusionstudio\/piper-wasm@1\.0\.0\/build\/piper_phonemize\.js" integrity="(sha384-[A-Za-z0-9+/]{64}=*)" crossorigin="anonymous"><\/script>/
 );
 assert.ok(
   piperMatch,

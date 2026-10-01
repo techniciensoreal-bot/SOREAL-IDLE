@@ -83,7 +83,8 @@
     const titre='📋 Quêtes';
     const sous='La Bête te confie des quêtes : rapporte des objets de quête trouvés dans une zone d’Aventure pour gagner des QP (Quirks) et de l’AP.';
     if(!s||!s.state||!s.state.unlocked||!data||!data.unlocked){
-      return h.entetePageIdleV28_(titre,sous)+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé (utilise le Heroic Sigil de The Beast).</div>';
+      /* ANTI-SPOIL (AGENTS.md règle n°2) : ni titre, ni condition de déblocage tant que le système n'est pas ouvert. */
+      return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
     }
     const qp=j.systemes.currencies?ent(j.systemes.currencies.qp):0;
     const rp=data.rewardPreview||{};

@@ -60,8 +60,8 @@
     const snap=j&&j.systemes&&j.systemes.macguffins||null;
     const titre='🧩 Fragments MacGuffin';
     if(!snap||!snap.unlocked){
-      return H().entetePageIdleV28_(titre,'Des artefacts qui renforcent ton personnage de façon permanente à chaque Rebirth.')+
-        '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats la forme finale de Walderp pour débloquer les MacGuffins.</div>';
+      /* ANTI-SPOIL (AGENTS.md règle n°2) : ni titre, ni condition de déblocage tant que le système n'est pas ouvert. */
+      return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
     }
     const types={};
     (snap.types||[]).forEach(function(t){types[t.id]=t;});
@@ -74,7 +74,7 @@
     const slotsLibres=entier(snap.slots)-equipes.length;
 
     const resume='<div class="soreal-idle-summary-grid-v28">'+
-      '<div class="soreal-idle-summary-v28">Emplacements<b>'+equipes.length+' / '+entier(snap.slots)+'</b></div>'+
+      '<div class="soreal-idle-summary-v28">Emplacements<b>'+equipes.length+' équipé(s) · '+Math.max(0,slotsLibres)+' libre(s)</b></div>'+
       '<div class="soreal-idle-summary-v28">Niveau des drops<b>'+entier(snap.dropLevel)+'</b></div>'+
       '<div class="soreal-idle-summary-v28">Ratio de temps (run '+duree(snap.runSeconds)+')<b>x'+grand(snap.timeRatio,2)+'</b></div>'+
       '<div class="soreal-idle-summary-v28">MacGuffin Muffin<b>'+(snap.muffinActive?'actif (x2)':'—')+'</b></div>'+
@@ -109,7 +109,10 @@
 
     const perm=snap.permanent||{};
     const blocBonus='<h3 style="margin:16px 0 8px">Bonus permanents</h3><div class="soreal-idle-section-v8" style="margin:0"><div style="display:grid;gap:4px;font-size:13px">'+
-      (snap.types||[]).map(function(t){
+      (snap.types||[]).filter(function(t){
+        /* ANTI-SPOIL : seuls les types déjà découverts (bonus acquis, équipé ou en réserve) sont listés. */
+        return nombre(perm[t.id])>0||typesEquipes[t.id]||inventaire.some(function(x){return x.type===t.id;});
+      }).map(function(t){
         const source=t.zone?(ZONES[t.zone]||t.zone):(TITANS[t.titan]||t.titan||'');
         return '<div style="display:flex;justify-content:space-between;gap:8px"><span>'+html(t.nom)+' <span style="color:#aeb5c8">('+html(source)+')</span></span><b>+'+pct(perm[t.id])+'</b></div>';
       }).join('')+
@@ -119,7 +122,7 @@
     const it=snap.itopod||{};
     const blocCompteurs='<h3 style="margin:16px 0 8px">Compteurs de drop</h3><div class="soreal-idle-section-v8" style="margin:0">'+
       '<div class="soreal-idle-note-v4">🗺️ Zone : '+(zc.type?html(ZONES[zc.zone]||zc.zone)+' → '+html(nomType(zc.type))+' : <b>'+grand(zc.kills)+' / '+grand(zc.required)+'</b> kills':'aucune zone à fragment en cours ('+grand(zc.required)+' kills par fragment)')+'</div>'+
-      '<div class="soreal-idle-note-v4" style="margin-top:5px">🏢 ITOPOD : '+(it.enabled?'<b>'+grand(it.kills)+' / '+grand(it.required)+'</b> kills (fragment aléatoire)':'🔒 perk « MacGuffin ITOPOD Drops! » requise')+'</div>'+
+      (it.enabled?'<div class="soreal-idle-note-v4" style="margin-top:5px">🏢 ITOPOD : <b>'+grand(it.kills)+' / '+grand(it.required)+'</b> kills (fragment aléatoire)</div>':'')+
       '<div style="font-size:12px;color:#aeb5c8;margin-top:6px">Le compteur de zone repart de zéro quand tu quittes la zone ; celui de l’ITOPOD est conservé.</div>'+
     '</div>';
 
@@ -127,22 +130,22 @@
     const maintenant=Date.now();
     const sort=function(cle,nom,texte){
       const s=bs[cle]||{};
-      if(!s.unlocked)return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.6"><b>'+nom+'</b><div style="font-size:12px;color:#aeb5c8;margin-top:5px">🔒 Perk ITOPOD requise.</div></div>';
+      if(!s.unlocked)return '';/* ANTI-SPOIL : un sort encore indisponible n'apparaît pas (ni nom, ni condition). */
       const attente=Math.max(0,nombre(s.readyAt)-maintenant);
       const pret=attente<=0&&entier(s.levelsPreview)>0&&equipes.length>0;
       return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+nom+'</b><span>+'+entier(s.levelsPreview)+' niveau(x)</span></div>'+
         '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+texte+' Minimum '+grand(s.minimum)+' Blood ; consomme tout le Blood.'+(attente>0?' Recharge : '+duree(attente/1000)+'.':'')+'</div>'+
         '<div style="margin-top:9px">'+bouton('Lancer','window.__macguffinSortV1__(\''+cle+'\')',pret)+'</div></div>';
     };
-    const blocSorts='<h3 style="margin:16px 0 8px">Sorts de Blood</h3><div style="display:grid;gap:10px">'+
-      sort('alpha','Blood MacGuffin α',(bs.alpha&&bs.alpha.firstSlot?'Monte le premier fragment équipé.':'Monte un fragment équipé au hasard.'))+
-      sort('beta','Blood MacGuffin β','Monte tous les fragments équipés.')+
-    '</div>';
+    const sortsHtml=sort('alpha','Blood MacGuffin α',(bs.alpha&&bs.alpha.firstSlot?'Monte le premier fragment équipé.':'Monte un fragment équipé au hasard.'))+
+      sort('beta','Blood MacGuffin β','Monte tous les fragments équipés.');
+    const blocSorts=sortsHtml?'<h3 style="margin:16px 0 8px">Sorts de Blood</h3><div style="display:grid;gap:10px">'+sortsHtml+'</div>':'';
 
     const sb=snap.slotBreakdown||{};
-    const blocSlots='<h3 style="margin:16px 0 8px">Emplacements ('+entier(snap.slots)+' / '+entier(snap.maxSlots)+')</h3><div class="soreal-idle-section-v8" style="margin:0;font-size:13px;display:grid;gap:3px">'+
-      [['Déblocage',sb.base,1],['Boutique EXP',sb.expShop,2],['Perks ITOPOD',sb.perks,3],['Quirks',sb.quirks,2],['Edgy Set',sb.edgySet,1],['Troll Challenge Evil (2e)',sb.trollEvil,1],['No Equipment Challenge Evil (5e)',sb.noEquipmentEvil,1],['4G’s Sellout Shop',sb.sellout,11]].map(function(l){
-        return '<div style="display:flex;justify-content:space-between"><span>'+l[0]+'</span><b>'+entier(l[1])+' / '+l[2]+'</b></div>';
+    const blocSlots='<h3 style="margin:16px 0 8px">Emplacements ('+entier(snap.slots)+')</h3><div class="soreal-idle-section-v8" style="margin:0;font-size:13px;display:grid;gap:3px">'+
+      [['Déblocage',sb.base,1],['Boutique EXP',sb.expShop,2],['Perks ITOPOD',sb.perks,3],['Quirks',sb.quirks,2],['Edgy Set',sb.edgySet,1],['Troll Challenge Evil (2e)',sb.trollEvil,1],['No Equipment Challenge Evil (5e)',sb.noEquipmentEvil,1],['4G’s Sellout Shop',sb.sellout,11]].filter(function(l){return entier(l[1])>0;}).map(function(l){
+        /* ANTI-SPOIL : seules les sources déjà obtenues sont listées, sans maximum. */
+        return '<div style="display:flex;justify-content:space-between"><span>'+l[0]+'</span><b>'+entier(l[1])+'</b></div>';
       }).join('')+'</div>';
 
     return H().entetePageIdleV28_(titre,'Équipe des fragments puis fais un Rebirth : chaque fragment équipé augmente définitivement son bonus. Fusionne les copies d’un même type pour monter son niveau (sans plafond).')+

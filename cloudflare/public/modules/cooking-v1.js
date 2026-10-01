@@ -36,10 +36,8 @@
 
   function ligneIngredient(ing,min,max){
     const n=Number(ing.index)+1;
-    if(!ing.unlocked){
-      return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><b>Ingrédient n°'+n+'</b>'+
-        '<div class="soreal-idle-note-v4" style="margin-top:5px">🔒 Emplacement verrouillé ('+(n===7?'vaincre ROCK LOBSTER':'vaincre AMALGAMATE')+').</div></div>';
-    }
+    /* ANTI-SPOIL (AGENTS.md règle n°2) : un emplacement encore verrouillé n'apparaît pas du tout (ni cadenas, ni condition). */
+    if(!ing.unlocked)return '';
     const niveau=Math.max(min,Math.min(max,Math.floor(nombre(ing.level))));
     return '<div class="soreal-idle-section-v8" style="margin:0">'+
       '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'+
@@ -59,7 +57,8 @@
     const titre='🍲 Cooking';
     const sous='Une fois par jour environ, équilibre les ingrédients du repas puis mange-le pour augmenter définitivement tes gains d’EXP (jusqu’à +300 %).';
     if(!s||!s.state||!s.state.unlocked){
-      return entete(titre,sous)+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé : vaincs le titan IT HUNGERS.</div>';
+      /* ANTI-SPOIL : système pas encore débloqué -> aucune condition, aucun titre. */
+      return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
     }
     const d=s.state.data||{};
     const min=nombre(d.levelMin),max=nombre(d.levelMax)||20;
@@ -93,7 +92,7 @@
         '<div class="soreal-idle-summary-v28">Efficacité du repas<b>'+pct(d.efficiencyPct)+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Bonus de cuisine totaux<b>'+pct(d.totalCookingBonusesPct)+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Gain d’EXP du repas<b>'+(gainConnu?'+'+pct(d.mealExpGainPct):'non documenté')+'</b></div>'+
-        '<div class="soreal-idle-summary-v28">Gain d’EXP total<b>+'+pct(d.totalExpGainPct)+' / '+nombre(d.totalExpGainMaxPct)+' %</b></div>'+
+        '<div class="soreal-idle-summary-v28">Gain d’EXP total<b>+'+pct(d.totalExpGainPct)+'</b></div>'+
       '</div>'+
       '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">🥘 Repas n°'+Math.max(0,Math.floor(nombre(d.mealNumber)))+'</div>'+

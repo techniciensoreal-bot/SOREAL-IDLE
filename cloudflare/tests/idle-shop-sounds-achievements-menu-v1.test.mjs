@@ -128,7 +128,7 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
   assert.ok(!index.includes("touch-action:pan-x pan-y") && !index.includes('"gesturestart"'), "aucun bloqueur JS/CSS du pincement");
   assert.ok(!index.includes("sorealIdleEnergyShineV11") && !ui.includes('id="sorealIdleEnergyShineV11"'), "l'éclat blanc n'est plus dans la barre");
   assert.ok(/soreal-idle-energybar-shine-v11,\s*\.soreal-idle-energybar-shine-v11\.tick\{\s*display:none !important;/.test(css), "l'éclat est masqué même s'il subsistait");
-  assert.ok(/function jouerEclatEnergieTickIdleV13_\(\)\{[^}]*?return;/.test(ui), "plus d'animation d'éclat à chaque tick");
+  assert.ok(!ui.includes("jouerEclatEnergieTickIdleV13_"), "plus d'animation d'éclat à chaque tick (fonction et appel supprimés)");
   assert.ok(ui.includes("(s.id!=='achievements'||menuSuccesVisibleIdleV1_(j))"), "la nouveauté Achievements (popup + voix) n'existe qu'au premier succès");
   assert.ok(ui.includes("if(id==='succes'&&!menuSuccesVisibleIdleV1_(j))return false;"), "le menu Achievements suit la même règle");
 }

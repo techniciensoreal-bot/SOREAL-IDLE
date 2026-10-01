@@ -16,7 +16,7 @@ assert.ok(!index.includes("e.ctrlKey)e.preventDefault()"));
 // Lighthouse / axe: the rendered game must keep one main landmark.
 const outerMain = (ui.match(/<main class="soreal-idle-native-v4">/g) || []).length;
 const legacyOuterSection = (ui.match(/<section class="soreal-idle-native-v4">/g) || []).length;
-assert.equal(outerMain, 3, "loading, error and game renderings must use <main>");
+assert.equal(outerMain, 2, "error and game renderings must use <main> (l'écran de chargement mort a été retiré)");
 assert.equal(legacyOuterSection, 0, "rendered app must not drop the main landmark");
 
 // Lighthouse / axe: confirmed low-contrast styles are corrected.

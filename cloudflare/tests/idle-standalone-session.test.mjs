@@ -9,7 +9,7 @@ function fakeSqlV1() {
     sessions,
     exec(query, ...bindings) {
       const q = String(query).replace(/\s+/g, " ").trim();
-      if (q.startsWith("CREATE TABLE") || q.startsWith("CREATE INDEX")) return [];
+      if (q.startsWith("CREATE TABLE") || q.startsWith("CREATE INDEX") || q.startsWith("DROP INDEX")) return [];
       if (q === "DELETE FROM idle_launch_tickets WHERE expires_at<?") {
         const [cutoff] = bindings;
         for (const [key, row] of tickets) if (Number(row.expires_at) < Number(cutoff)) tickets.delete(key);

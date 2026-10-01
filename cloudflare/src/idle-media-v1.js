@@ -318,10 +318,6 @@ function choisirObjetItemR2ParId_(objects,itemId,itemName="",slot="",setId=""){
     .sort((a,b)=>b.score-a.score||a.stem.length-b.stem.length||String(a.key).localeCompare(String(b.key)));
   return ranked[0]?.object||null;
 }
-function choisirObjetItemR2ParDefinition_(objects,definitionId,itemName="",slot="",setId=""){
-  const target=Number(IDLE_ITEM_R2_ID_BY_DEFINITION[String(definitionId||"")])||0;
-  return choisirObjetItemR2ParId_(objects,target,itemName,slot,setId);
-}
 /*
  * 2026-09-24 (Norman : le Cube evolue quand on le booste ; � avec la nouvelle image du R2 �) : si l'image du palier demande n'existe pas (dossier
  * R2 incomplet : paliers 4, 8, 9 et 10 absents le 2026-09-24), on sert l'image du palier disponible LE PLUS PROCHE EN DESSOUS au lieu d'un 404

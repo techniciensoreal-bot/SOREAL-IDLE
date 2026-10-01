@@ -210,7 +210,7 @@
         rendreAllocation_(joueur,'advancedTraining')+
         '<section class="soreal-idle-v49-card"><div class="soreal-idle-v49-card-head"><div><span class="soreal-idle-v49-kicker">PISTE ACTIVE</span><h3>Objectif d’entraînement</h3></div></div><div class="soreal-idle-v49-tracks">'+visibles.map(rendreTrack_).join('')+'</div></section>'+
         (!wandoosOk
-          ?'<section class="soreal-idle-v49-card soreal-idle-v49-locked"><strong>🔒 Wandoos dumps</strong><p>Les pistes Wandoos restent cachées jusqu’au vrai déblocage de Wandoos. Aucun raccourci n’est créé ici.</p></section>'
+          ?''/* ANTI-SPOIL (AGENTS.md règle n°2) : rien sur Wandoos tant qu'il n'est pas débloqué. */
           :'<section class="soreal-idle-v49-card soreal-idle-v49-unlocked"><strong>💻 Wandoos débloqué</strong><p>Les deux pistes de dump sont maintenant disponibles avec les pistes Adventure.</p></section>')+
       '</div>';
 

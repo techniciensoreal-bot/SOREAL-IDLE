@@ -62,13 +62,47 @@ function planifier(){
   (window.requestAnimationFrame||setTimeout)(balayer);
 }
 
+/*
+ * 2026-10-01 (coût CPU à 15 Hz) : l'observateur de mutations ne tourne plus en permanence sur tout le document. Il n'est branché que
+ * pendant la fenêtre d'activité qui suit un clic d'allocation (FENETRE_MS), puis déconnecté. Au moment du clic (phase de capture,
+ * donc AVANT que l'action ne change le chiffre), on enregistre la valeur actuelle de chaque compteur : c'est la référence que
+ * `balayer` compare ensuite. Le comportement visible (gonflement unique quand le chiffre augmente après un clic) est inchangé.
+ */
+var observateur=null;
+var observateurActif=false;
+var minuterie=0;
+
+function enregistrerBase(){
+  var liste=document.querySelectorAll('.soreal-idle-bt-allocation-v120,[data-idle-alloc-pop-v1]');
+  for(var i=0;i<liste.length;i++){
+    var el=liste[i];
+    precedent[el.id||('rang'+i)]=valeur(el);
+  }
+}
+
+function desactiverObservateur(){
+  minuterie=0;
+  if(observateur&&observateurActif){observateur.disconnect();observateurActif=false;}
+}
+
+function activerObservateur(){
+  if(typeof MutationObserver!=='function')return;
+  if(!observateur)observateur=new MutationObserver(planifier);
+  if(!observateurActif){
+    observateur.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+    observateurActif=true;
+  }
+  if(minuterie)clearTimeout(minuterie);
+  minuterie=setTimeout(desactiverObservateur,FENETRE_MS+150);
+}
+
 document.addEventListener('click',function(ev){
   var b=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,[data-idle-alloc-pop-trigger-v1] button'):null;
-  if(b)actionJusqua=Date.now()+FENETRE_MS;
+  if(!b)return;
+  actionJusqua=Date.now()+FENETRE_MS;
+  enregistrerBase();
+  activerObservateur();
 },true);
 
-if(typeof MutationObserver==='function'){
-  new MutationObserver(planifier).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
-}
 window.__SOREAL_IDLE_ALLOC_POP_V1__={balayer:balayer};
 })();

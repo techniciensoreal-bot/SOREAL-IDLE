@@ -38,7 +38,8 @@ for (const classe of ["soreal-idle-exp-shop-v213", "soreal-idle-exp-awning-v213"
 assert.match(ap, /api\.boutiqueCssIdleV1_\(\)/, "CSS partagé avec la Boutique EXP");
 assert.match(ui, /window\.__ongletApShopIdleV1__=function\(id\)/, "rayons (onglets) par catégorie");
 assert.ok(!ap.includes("soreal-idle-shop-card-v12"), "l'ancienne présentation en cartes plates est retirée");
-assert.match(ap, /🔒 Effet pas encore actif/, "les effets inactifs restent signalés");
+assert.ok(!ap.includes("Effet pas encore actif"), "anti-spoil : aucun cadenas ni prix pour un effet inactif");
+assert.match(ap, /item.effectActive===true/, "seuls les achats dont l'effet est actif sont listés");
 assert.match(meta, /function idleBoutiqueCssIdleV1_\(\)\{[\s\S]*?var\(--nav-color,#0891b2\)/, "la couleur vient de --nav-color : une seule feuille de style pour les deux boutiques");
 assert.match(meta, /const css=idleBoutiqueCssIdleV1_\(\);/, "la Boutique EXP utilise la même fonction");
 assert.match(meta, /boutiqueCssIdleV1_:idleBoutiqueCssIdleV1_/);

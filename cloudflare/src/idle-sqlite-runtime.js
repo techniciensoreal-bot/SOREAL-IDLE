@@ -490,14 +490,6 @@ const CacheService={
     };
   }
 };
-const Utilities={
-  getUuid(){return crypto.randomUUID();},
-  base64Encode(bytes){
-    let s="";
-    for(const b of Array.from(bytes||[]))s+=String.fromCharCode(Number(b)&255);
-    return btoa(s);
-  }
-};
 function __idleEmptyIterator(){
   return {hasNext(){return false;},next(){throw new Error("NO_FILE");}};
 }
@@ -3368,7 +3360,6 @@ function construireAventureSorealIdle_(
                 zone.id - 1
               ).bossVaincu;
 
-        const niveauRequisZone = 0;
         const bossRequisZone =
           bossUnlocksNgu[Math.max(0,zone.id-1)] ||
           (137 + Math.max(0,zone.id-16)*8);
@@ -4673,6 +4664,8 @@ function statsJoueurSorealIdle_(valeur) {
     fusions:Math.max(0,Math.floor(nombreSorealIdle_(s.fusions,0))),
     /* Norman (2026-09-27) : catégorie « Clics/Tap » du classement -- compteur brut, jamais anti-triche (« même si quelqu'un triche, ca n'est pas grave »). */
     clicsTotal:Math.max(0,Math.floor(nombreSorealIdle_(s.clicsTotal,0))),
+    /* Horodatage (ms) du dernier enregistrerClicsSorealIdle : sert à plafonner le delta de clics par seconde écoulée. */
+    clicsDernierMs:Math.max(0,Math.floor(nombreSorealIdle_(s.clicsDernierMs,0))),
     /*
      * Temps de jeu ACTIF en secondes (Norman, 2026-09-30 : « dans Classement, les gens ne font que monter alors qu'ils ne jouent pas »).
      * Incrémenté par battementSorealIdle uniquement quand le joueur interagit réellement avec la page visible. Remplace, pour le
@@ -5306,16 +5299,6 @@ function construireBestiaireSorealIdle_(
     (adventureStateBestiaireV1.zone &&
       adventureStateBestiaireV1.zone.bossEncountersByIndex) ||
     {};
-  function nomAffichageMobSorealIdleV1_(base) {
-    return String(base || '')
-      .split('_')
-      .filter(Boolean)
-      .map(function(mot) {
-        return mot.charAt(0).toUpperCase() + mot.slice(1);
-      })
-      .join(' ') || 'Créature';
-  }
-
   /*
    * Norman (2026-09-17) : "je veux que ce soit ALL the boss names, ALL
    * the mob names [...] les MEMES noms [que le vrai NGU] [...] tout ce
@@ -8676,9 +8659,6 @@ function appliquerProgressionEnergieSorealIdle_(
        * (colonnes inventées de la feuille IDLE_BOSS) : supprimés.
        */
 
-      const bossVaincuIndex =
-        bossCombatIndex;
-
       if (!ancienBoss) {
         bossVaincus += 1;
         bossBattusMaintenant += 1;
@@ -9788,11 +9768,6 @@ function construireEtatJoueurSorealIdle_(
       )
     );
 
-  const attaqueBossEtat =
-    attaqueBossSorealIdle_(
-      row[c.BOSS_VAINCUS - 1]
-    );
-
   /*
    * Champs legacy conservés dans la réponse pour compatibilité avec de
    * vieux clients, mais le système K.O. Fight Boss n'existe plus.
@@ -9874,17 +9849,6 @@ function construireEtatJoueurSorealIdle_(
 
   const bossSelectionIndex =
     bossVaincusEtat;
-
-  const renaissancesEtat =
-    Math.max(
-      0,
-      Math.floor(
-        nombreSorealIdle_(
-          row[c.RENAISSANCES - 1],
-          0
-        )
-      )
-    );
 
   const attaqueBossSelection =
     attaqueBossSorealIdle_(
@@ -12210,15 +12174,6 @@ function nukerBossSorealIdle(
         )
       );
 
-    const dropMultiplierNuke =
-      Math.max(
-        1,
-        nombreSorealIdle_(
-          bonusNguNuke.dropMultiplier,
-          1
-        )
-      );
-
     const defeated = [];
     const dropsRecents = [];
     let xpGagnee = 0;
@@ -12681,9 +12636,25 @@ function enregistrerClicsSorealIdle(
         cellule.getValue()
       );
 
-    stats.clicsTotal =
-      stats.clicsTotal +
-      Math.max(0, Math.floor(nombreSorealIdle_(delta, 0)));
+    /*
+     * Plafond par appel (audit 2026-10) : le delta vient du client et alimente le classement. Au plus 50 clics par
+     * seconde écoulée depuis le dernier enregistrement (écoulé borné à 1 h), avec un minimum de 200 par appel (premier
+     * appel, lots courts). Jamais Infinity/NaN : on retombe sur le total précédent.
+     */
+    const maintenantClics = Date.now();
+    const ecouleSec = stats.clicsDernierMs > 0
+      ? Math.min(3600, Math.max(0, (maintenantClics - stats.clicsDernierMs) / 1000))
+      : 0;
+    const plafondClics = Math.max(200, Math.floor(ecouleSec * 50));
+    const deltaClics = Math.min(
+      plafondClics,
+      Math.max(0, Math.floor(nombreSorealIdle_(delta, 0)))
+    );
+    const totalClics = stats.clicsTotal + deltaClics;
+    if (Number.isFinite(totalClics) && totalClics <= Number.MAX_SAFE_INTEGER) {
+      stats.clicsTotal = totalClics;
+    }
+    stats.clicsDernierMs = maintenantClics;
 
     cellule.setValue(
       JSON.stringify(
@@ -14537,7 +14508,9 @@ function agirProgressionSorealIdle(
         experienceMetaAction
       );
 
-    if(applique.result&&applique.result.challengeReset){
+    /* Rejeu d'un clientMutationId déjà appliqué : le résultat mémorisé est renvoyé, mais aucun effet de bord n'est rejoué. */
+    const rejeuMutation=Boolean(applique.duplicate);
+    if(!rejeuMutation&&applique.result&&applique.result.challengeReset){
       const maintenantDefi=Date.now();
       stats.entrainementBase=rebirthBasicTrainingStateV411(
         stats.entrainementBase,
@@ -14580,6 +14553,7 @@ function agirProgressionSorealIdle(
     }
 
     if (
+      !rejeuMutation &&
       applique.result &&
       applique.result.materialsRequested
     ) {
@@ -14610,6 +14584,13 @@ function agirProgressionSorealIdle(
       )
     };
   } catch (erreur) {
+    /*
+     * Des setValue ont pu être faits avant l'exception : l'opération a échoué, donc AUCUNE écriture partielle
+     * ne doit être committée (la réponse ok:false vue par le client ne change pas).
+     */
+    if (__idleWorkbook) {
+      for (const feuilleSale of __idleWorkbook.sheets.values()) feuilleSale.dirtyRows.clear();
+    }
     return {
       ok:false,
       code:'ERREUR_META_PROGRESSION',
@@ -15208,59 +15189,6 @@ function lireTableSorealIdle_(nomFeuille) {
     nom,
     lignes
   );
-}
-
-
-function viderCacheDonneesSorealIdle_() {
-  const cache =
-    CacheService.getScriptCache();
-
-  [
-    'IDLE_BOSS',
-    'IDLE_ZONES',
-    'IDLE_LOOTS',
-    'IDLE_SETS',
-    'IDLE_COLLECTIONS',
-    'IDLE_REPOS',
-    'IDLE_APPARENCES',
-    'IDLE_RARETES',
-    'IDLE_DEBLOCAGES',
-    'IDLE_BOUTIQUE',
-    'IDLE_SORTS',
-    'CONFIG'
-  ].forEach(function(nom) {
-    cache.remove(
-      'SOREAL_IDLE_TABLE_V18_' + nom
-    );
-  });
-
-  /*
-   * V18 oubliait cet index Drive.
-   */
-  cache.remove(
-    'SOREAL_IDLE_AVENTURE_IMAGES_V18'
-  );
-
-  /*
-   * Cache des recherches de boss par nom ajouté en V19.
-   */
-  try {
-    cache.removeAll(
-      Object.keys(
-        __SOREAL_IDLE_BOSS_IMAGES_MEMO_V19__
-      ).map(function(cle) {
-        return (
-          'SOREAL_IDLE_BOSS_IMAGE_V19_' +
-          cle
-        );
-      })
-    );
-  } catch (e) {}
-
-  __SOREAL_IDLE_TABLE_MEMO_V19__ = {};
-  __SOREAL_IDLE_PARAMS_MEMO_V19__ = null;
-  __SOREAL_IDLE_PARAMS_MEMO_TS_V19__ = 0;
-  __SOREAL_IDLE_BOSS_IMAGES_MEMO_V19__ = {};
 }
 
 
@@ -16812,7 +16740,7 @@ let __idleLegacyRepairDoneV1=false;
 
 export function runSorealIdleOperation(sql,operation,args,user){
   const op=String(operation||"");
-  const fn=IDLE_OPERATIONS[op];
+  const fn=Object.hasOwn(IDLE_OPERATIONS,op)?IDLE_OPERATIONS[op]:undefined;
   if(typeof fn!=="function")throw new Error("SOREAL_IDLE_OPERATION_INCONNUE");
 
   /*
@@ -16880,6 +16808,8 @@ export function runSorealIdleOperation(sql,operation,args,user){
   __idleWorkbook=workbook;
   try{
     const result=fn.apply(null,Array.isArray(args)?args:[]);
+    /* La section critique doit rester synchrone (voir idle-run-operation-sync-critical-section.test.mjs). */
+    if(result&&typeof result.then==="function")throw new Error("SOREAL_IDLE_OPERATION_ASYNC_INTERDITE");
     __idleCommit(sql,workbook);
     return result;
   }finally{

@@ -121,9 +121,9 @@ for(const forbidden of [
 
 assert.ok(
   index.includes('"onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"')&&
-  index.includes('<script src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>')&&
-  index.includes('/modules/local-neural-piper-v1.js?v=13')&&
-  index.includes('/modules/tutorial-tts-v202.js?v=243'),
+  index.includes('<script async src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>')&&
+  index.includes('/modules/local-neural-piper-v1.js?v=14')&&
+  index.includes('/modules/tutorial-tts-v202.js?v=244'),
   "Le phonémiseur espeak-ng et le contrôleur de narration doivent être épinglés et cache-bustés."
 );
 assert.ok(
@@ -133,6 +133,14 @@ assert.ok(
 
 new Function("window","document","localStorage",narration);
 new Function(ui);
+
+/* 2026-10-01 : scan paresseux (le jeu modifie la page à ~15 Hz) : rien n'est planifié ni scanné hors popup / bouton de lecture / lecture en cours. */
+assert.ok(narration.includes("function quelqueChoseALire_()"), "test de présence d'un contenu à lire");
+assert.ok(/function scan_\(\)\{\s*if\(!quelqueChoseALire_\(\)\)return;\s*renderButton_\(\);/.test(narration), "scan_ sort tout de suite quand il n'y a rien à lire");
+assert.ok(narration.includes("new MutationObserver(function(){if(quelqueChoseALire_())schedule_();})"), "l'observateur ne planifie un scan que s'il y a quelque chose à lire");
+assert.ok(!narration.includes("PAUSE_MARKER_RE"), "constante morte retirée");
+for (const mort of ["V204", "V205", "V206", "V207"]) assert.ok(!narration.includes("__SOREAL_IDLE_TUTORIAL_TTS_" + mort + "__"), "alias mort retiré : " + mort);
+for (const vivant of ["V203", "V202"]) assert.ok(narration.includes("__SOREAL_IDLE_TUTORIAL_TTS_" + vivant + "__"), "alias encore utilisé par soreal-idle-ui.js : " + vivant);
 
 console.log(
   "SOREAL IDLE narration V210: OK — voix unique (Tom), Web Audio, aucun SpeechSynthesis/TTS cloud."

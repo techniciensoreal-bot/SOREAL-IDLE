@@ -16,7 +16,7 @@
         date:'2026-09-30',
         points:[
           'Le menu Défis a été refait d’après le wiki : pour chaque défi, une description, ses restrictions, sa condition de victoire et la liste de ses récompenses, en français.',
-          'Un défi se termine tout seul dès que son objectif est atteint, avec une annonce des récompenses. Un défi encore verrouillé n’apparaît jamais.',
+          'Un défi se termine tout seul dès que son objectif est atteint, avec une annonce des récompenses. Un défi que tu n’as pas encore ouvert n’apparaît jamais.',
           'Les restrictions sont réellement appliquées : impossible d’équiper quoi que ce soit pendant un défi sans équipement, menus fermés ou Renaissances interdites quand le défi l’exige.',
           'Les défis à surprises frappent maintenant à intervalles réguliers, avec un coup plus sévère tous les cinq coups, et le défi aveugle masque de plus en plus de nombres au fil des réussites.'
         ]
@@ -492,9 +492,9 @@
         nom:'Achète où tu en as besoin',
         date:'2026-09-27',
         points:[
-          'Dans Automatisation de l’inventaire, certaines améliorations verrouillées (Auto Merge, Filtre de butin basique, Filtre de butin amélioré) ont maintenant un bouton « Acheter » directement sur place.',
-          'Le bouton achète exactement la même chose que dans la boutique correspondante, au même prix.',
-          'Les améliorations disponibles à plusieurs endroits différents, ou obtenues par un Challenge, restent indiquées en texte comme avant.'
+          'Dans Automatisation de l’inventaire, les améliorations déjà obtenues sont regroupées par catégories claires.',
+          'Chaque réglage vit dans sa propre carte titrée.',
+          'Une carte n’apparaît que lorsque l’amélioration correspondante est obtenue.'
         ]
       },
       {

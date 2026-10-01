@@ -201,8 +201,6 @@ export const IDLE_YGG_MAYO_FRUITS_V1 = Object.freeze([
   Object.freeze({ id: "prettyMayo", name: "Fruit of Pretty Mayo", mayo: "pretty", resource: "magic" })
 ]);
 export const IDLE_YGG_MAYO_ACTIVATION_COST_V1 = 1e16;
-export const IDLE_YGG_MAYO_AUTO_COST_EXP_V1 = 1e9;
-export const IDLE_YGG_MAYO_AUTO_REQUIRED_CAP_V1 = 1e17;
 
 export function idleYggIsMayoFruitV1(fruitId) {
   return IDLE_YGG_MAYO_FRUITS_V1.some((m) => m.id === fruitId);

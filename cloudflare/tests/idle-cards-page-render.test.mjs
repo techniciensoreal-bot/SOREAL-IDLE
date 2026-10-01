@@ -33,7 +33,8 @@ const ctx = { bosses: 300 };
 let state = normalizeIdleNguState({}, ctx, 1_000_000);
 {
   const html = page({ systemes: idleNguSnapshot(state, ctx, 1_000_000) }, "cards", "Cards");
-  assert.match(html, /Still-Beating Heart/, "verrouillé tant que le cœur n'est pas consommé");
+  assert.match(html, /Rien à afficher pour le moment/, "page neutre tant que le cœur n'est pas consommé");
+  assert.doesNotMatch(html, /🔒|verrouill|Still-Beating|Exile/i, "anti-spoil : aucune condition de déblocage");
 }
 
 state.systems.cards.unlocked = true;

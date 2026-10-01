@@ -22,23 +22,12 @@ const src = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8
 assert.ok(src.includes("window.__acheterExpShopIdleV1__(\\''+html(achat.item)+'\\',1)"), "EXP : même appel global que la page Boutique EXP (acheterExpShopIdleV1_)");
 assert.ok(src.includes("window.__actionMetaIdleV130__({action:\\'sellShopBuy\\',itemId:\\''+html(achat.item)+'\\'})"), "AP : même appel global que la page Boutique AP (action sellShopBuy)");
 
-// --- Les trois cas propres (une seule source, un coût fixe) ont bien un achat en place câblé. ---
-assert.match(src, /verrou\('Achat « Auto Merge \(fusion automatique\) » dans la Boutique EXP \(menu Shop\)\.',\{type:'exp',item:'autoMerge',cout:200\}\)/);
-assert.match(src, /verrou\('Achat « Filtre de butin basique » dans la Boutique EXP \(menu Shop\)\.',\{type:'exp',item:'basicLootFilter',cout:20\}\)/, "l'exemple de Norman : le filtre");
-assert.match(src, /verrou\('Filtre objet par objet : « Filtre de butin amélioré » \(Boutique AP, menu Shop\)\.',\{type:'ap',item:'improvedLootFilter',cout:100000\}\)/);
-
-// --- Les cas ambigus (plusieurs sources possibles) ou de Challenge (jamais un achat) restent SANS bouton. ---
-for (const texteSansAchat of [
-  "'1re complétion du No Equipment Challenge (menu Challenges).'",
-  "'1re complétion du 100 Levels Challenge.'",
-  "'Boutique EXP (« Slot d’automerge »), menu Perks, menu Quirks ou Boutique AP (« Emplacements de fusion d’inventaire »).'",
-  "'Boutique EXP (« 2 emplacements de configuration », « Autre emplacement de configuration ») ou Boutique AP (« Emplacement de configuration »).'"
-]) {
-  const i = src.indexOf(texteSansAchat);
-  assert.ok(i > 0, "texte introuvable : " + texteSansAchat);
-  const appelVerrou = src.slice(src.lastIndexOf("verrou(", i), i + texteSansAchat.length + 1);
-  assert.ok(!appelVerrou.includes(",{type:"), "ne doit jamais recevoir de spec d'achat (source ambiguë ou Challenge) : " + texteSansAchat);
-}
+// --- ANTI-SPOIL (AGENTS.md règle n°2, 2026-10-01) : une amélioration non obtenue n'apparaît plus du tout (ni texte de condition, ni
+// achat en place) : verrou() ne rend plus rien et plus aucun appel ne lui passe de texte ni de spec d'achat. Le helper
+// acheterEnPlace() est conservé (testé ci-dessous) pour un futur rendu conditionné à la découverte de l'achat. ---
+assert.match(src, /function verrou\(\)\{return '';\}/, "verrou() est neutralisé");
+assert.ok(!/verrou\('/.test(src), "plus aucun texte de condition passé à verrou()");
+assert.ok(!src.includes("🔒"), "aucun cadenas dans le panneau d'automatisation");
 
 // --- Comportement isolé de verrou()/acheterEnPlace() : bouton présent seulement avec un achat, jamais sans. ---
 {
@@ -57,8 +46,7 @@ for (const texteSansAchat of [
   assert.match(acheterEnPlace({ type: "ap", item: "improvedLootFilter", cout: 100000 }), /__actionMetaIdleV130__\(\{action:'sellShopBuy',itemId:'improvedLootFilter'\}\)/);
   assert.match(acheterEnPlace({ type: "ap", item: "improvedLootFilter", cout: 100000 }), /Acheter \(100k AP\)<\/button>$/, "grand nombre abrégé, comme ailleurs dans le jeu");
 
-  assert.ok(!verrou("texte seul").includes("<button"), "verrou() sans second argument : jamais de bouton (comportement historique préservé)");
-  assert.ok(verrou("texte", { type: "exp", item: "x", cout: 1 }).includes("<button"), "verrou() avec un achat : le bouton est bien inclus");
+  assert.equal(verrou(), "", "verrou() ne rend plus rien (anti-spoil)");
 }
 
 console.log("idle-inventory-auto-buy-in-place-v1: OK");

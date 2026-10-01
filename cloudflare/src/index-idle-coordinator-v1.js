@@ -68,12 +68,15 @@ export class SorealIdleCoordinatorV1 {
     );
     this.sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_players_email_primary ON idle_players(lower(email_primary))");
     this.sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_players_email_login ON idle_players(lower(email_login))");
+    // __idleCommit supprime/relit idle_players par source_row à chaque écriture de la feuille JOUEURS.
+    this.sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_players_source_row ON idle_players(source_row)");
     this.sql.exec(
       "CREATE TABLE IF NOT EXISTS idle_catalog (" +
       "sheet_name TEXT NOT NULL,row_index INTEGER NOT NULL,row_json TEXT NOT NULL,updated_at INTEGER NOT NULL," +
       "PRIMARY KEY(sheet_name, row_index))"
     );
-    this.sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_catalog_sheet ON idle_catalog(sheet_name, row_index)");
+    // Index redondant : identique à la clé primaire (sheet_name,row_index) de idle_catalog.
+    this.sql.exec("DROP INDEX IF EXISTS idx_idle_catalog_sheet");
     /*
      * Schéma exact confirmé en direct via une route de diagnostic
      * ponctuelle sur l'objet principal (2026-09-09) avant d'écrire cette

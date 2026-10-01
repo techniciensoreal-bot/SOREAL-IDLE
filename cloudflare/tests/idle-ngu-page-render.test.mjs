@@ -40,7 +40,8 @@ let state = normalizeIdleNguState({}, context, 1_000_000);
 {
   const snap = idleNguSnapshot(state, context, 1_000_000);
   const html = page({ systemes: snap }, "ngu", "NGU");
-  assert.match(html, /Débloqué par A Number/);
+  assert.match(html, /Rien à afficher pour le moment/);
+  assert.doesNotMatch(html, /🔒|verrouill|A Number|Débloqué/i, "anti-spoil : aucune condition de déblocage");
 }
 
 state.adventure.unlockItems.aNumber = true;

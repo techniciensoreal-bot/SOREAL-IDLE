@@ -41,7 +41,8 @@ const act = (s, payload) => applyIdleNguAction(s, payload, ctx, 1_000_000).state
 {
   const s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
   const html = page({ systemes: idleNguSnapshot(s, ctx, 1_000_000) }, "wishes", "Wishes");
-  assert.match(html, /Severed Unicorn/);
+  assert.match(html, /Rien à afficher pour le moment/);
+  assert.doesNotMatch(html, /🔒|verrouill|Severed Unicorn/i, "anti-spoil : aucune condition de déblocage");
   assert.ok(!html.includes("allocateWishSlot"));
 }
 
@@ -57,8 +58,9 @@ for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlo
 
 {
   const html = page({ systemes: idleNguSnapshot(s, ctx, 1_000_000) }, "wishes", "Wishes");
-  assert.ok(html.includes("Slots débloqués<b>2 / 4</b>"));
-  assert.equal((html.match(/🔒 Slot \d/g) || []).length, 2, "slots 3 et 4 verrouillés");
+  assert.ok(html.includes("Slots débloqués<b>2</b>"));
+  assert.ok(!html.includes("2 / 4"), "anti-spoil : pas de total de slots");
+  assert.ok(!/🔒|Slot 3|Slot 4|verrouill/.test(html), "slots 3 et 4 encore verrouillés : absents (anti-spoil)");
   assert.equal((html.match(/action:'setWishSlot'/g) || []).length, 2, "un sélecteur par slot débloqué");
   assert.equal((html.match(/action:'allocateWishSlot'/g) || []).length, 2 * 3 * 4, "4 boutons par ressource et par slot");
   assert.ok(html.includes("Slot 1 · I Wish that wishes weren't so slow :c"));

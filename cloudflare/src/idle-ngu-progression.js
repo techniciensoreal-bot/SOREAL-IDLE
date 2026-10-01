@@ -2141,6 +2141,11 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.rebirth = refreshRebirthState(state, context, t);
   idleTheEndSyncV1(state, t);
   trackLeaderboardStatsV1(state);
+  /* Idempotence générique des actions (clientMutationId) : 64 dernières entrées {id,result}. */
+  state.recentClientMutations = (Array.isArray(source.recentClientMutations) ? source.recentClientMutations : [])
+    .filter((x) => x && typeof x.id === "string" && x.id)
+    .map((x) => ({ id: x.id.slice(0, 160), result: x.result === undefined ? null : x.result }))
+    .slice(-64);
   return state;
 }
 
@@ -2468,12 +2473,6 @@ function idleNguEffectiveResourceStatUncappedV1(state, resource, stat) {
   return raw;
 }
 
-function resourceThroughput(state, resource) {
-  const power = idleNguEffectiveResourceStatV1(state, resource, "power");
-  const bars = idleNguEffectiveResourceStatV1(state, resource, "bars");
-  return Math.max(1, power) * Math.max(1, bars);
-}
-
 function totalAllocated(state, resource, exceptId = "") {
   let total = 0;
   for (const def of IDLE_NGU_SYSTEMS) {
@@ -2611,11 +2610,6 @@ function reclaimAllocatedResource(state,resource,context={}){
     Math.max(0,idleNguEffectiveResourceStatV1(state,resource,"cap")-externalResourceAllocation(context,resource))
   );
   return {resource,released,current:r.current};
-}
-
-function augmentationPair(state) {
-  const system = state.systems.augmentations;
-  return IDLE_NGU_AUGMENTATIONS.find(x => x.id === system.data.activePair) || IDLE_NGU_AUGMENTATIONS[0];
 }
 
 function augmentationGoldCost(state,def,level,upgrade=false) {
@@ -4835,10 +4829,6 @@ function atLevelV1(state, trackId) {
   return state.systems.advancedTraining?.unlocked ? totalTrackLevel(state.systems.advancedTraining, trackId) : 0;
 }
 
-function trackBonusLevel(state, systemId, trackId) {
-  return totalTrackLevel(state.systems[systemId], trackId);
-}
-
 function beardSoftLevel(level, exponent, scalar) {
   const l = Math.max(0, num(level, 0));
   return l <= 1000 ? l : Math.pow(l, exponent) * scalar;
@@ -6729,6 +6719,18 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   const action = String(payload.action || "").trim();
   let result = {};
 
+  /*
+   * clientMutationId optionnel (string <= 160) : un même identifiant déjà vu parmi les 64 dernières actions renvoie le
+   * résultat mémorisé sans rejouer l'action. L'action "adventure" garde son propre mécanisme (idle-adventure-v47.js).
+   */
+  const clientMutationId = action !== "adventure" && typeof payload.clientMutationId === "string"
+    ? payload.clientMutationId.slice(0, 160)
+    : "";
+  if (clientMutationId) {
+    const deja = state.recentClientMutations.find((x) => x && x.id === clientMutationId);
+    if (deja) return { state, result: clone(deja.result === undefined ? null : deja.result), duplicate: true };
+  }
+
   if (action === "adventure") {
     const avantRecompenses = photoRecompensesAventure(state);
     const macguffinAvant = macguffinAdventureBeforeV1(state.adventure);
@@ -7020,6 +7022,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
 
   state.updatedAt = t;
   state.rebirth = refreshRebirthState(state, context, t);
+  if (clientMutationId) {
+    state.recentClientMutations.push({ id: clientMutationId, result: result === undefined ? null : clone(result) });
+    if (state.recentClientMutations.length > 64) state.recentClientMutations = state.recentClientMutations.slice(-64);
+  }
   return { state, result };
 }
 

@@ -566,9 +566,6 @@
     tonal_(c,{type:"sine",from:65,to:65,duration:.5,volume:.09});
     bruit_(c,{duration:.12,volume:.05,filterType:"lowpass",frequency:600,decay:2});
   }
-  function victoireCuivres_(){
-    return jouerWebAudio_(950,victoireCuivresConstruire_);
-  }
 
   /* 3. Carillon de cloches : trois notes de cloche qui descendent, riches en harmoniques, résonance longue. */
   function victoireCarillonConstruire_(c){
@@ -578,9 +575,6 @@
       });
     });
   }
-  function victoireCarillon_(){
-    return jouerWebAudio_(1300,victoireCarillonConstruire_);
-  }
 
   /* 4. Acclamation : un souffle qui monte comme une foule qui exulte, puis un accord bref qui l'accompagne. */
   function victoireFouleConstruire_(c){
@@ -589,9 +583,6 @@
       tonal_(c,{type:"triangle",from:f,to:f*1.01,duration:.40,volume:.048,delay:.45});
     });
     bruit_(c,{duration:.3,volume:.026,delay:.5,filterType:"highpass",frequency:5000,decay:2});
-  }
-  function victoireFoule_(){
-    return jouerWebAudio_(950,victoireFouleConstruire_);
   }
 
   /* 5. Arpège éclair façon "niveau terminé" : cinq notes rapides qui montent puis un accord tenu. */
@@ -603,9 +594,6 @@
       tonal_(c,{type:"triangle",from:f,to:f,duration:.5,volume:.038,delay:.35});
     });
   }
-  function victoireArpege_(){
-    return jouerWebAudio_(950,victoireArpegeConstruire_);
-  }
 
   /* 6. Fanfare royale : trois appels de trompette identiques puis un quatrième plus long, comme une annonce. */
   function victoireTrompettesConstruire_(c){
@@ -615,9 +603,6 @@
     });
     bruit_(c,{duration:.16,volume:.015,delay:.6,filterType:"highpass",frequency:6000,decay:2.2});
   }
-  function victoireTrompettes_(){
-    return jouerWebAudio_(1100,victoireTrompettesConstruire_);
-  }
 
   /* 7. Jingle chiptune : petite mélodie carrée façon jeu 8 bits, vive et bondissante. */
   function victoireChiptuneConstruire_(c){
@@ -625,9 +610,6 @@
       tonal_(c,{type:"square",from:p[0],to:p[0],duration:p[2],volume:.032,delay:p[1]});
     });
     tonal_(c,{type:"square",from:1568,to:1568,duration:.2,volume:.020,delay:.60});
-  }
-  function victoireChiptune_(){
-    return jouerWebAudio_(850,victoireChiptuneConstruire_);
   }
 
   /* 8. Impact orchestral + chœur : un coup grave sourd suivi d'un chœur qui enfle doucement. */
@@ -638,9 +620,6 @@
       nappe_(c,{type:"sine",from:f,to:f*1.004,duration:1.1,volume:.030,attack:.5,vibRate:5,vibDepth:3,delay:.1});
     });
   }
-  function victoireChoeur_(){
-    return jouerWebAudio_(1300,victoireChoeurConstruire_);
-  }
 
   /* 9. Boîte à musique scintillante : cinq notes de clochette légères, aiguës, qui rebondissent. */
   function victoireBoiteConstruire_(c){
@@ -649,9 +628,6 @@
       tonal_(c,{type:"triangle",from:p[0]*2,to:p[0]*2,duration:.12,volume:.010,delay:p[1]});
     });
   }
-  function victoireBoite_(){
-    return jouerWebAudio_(800,victoireBoiteConstruire_);
-  }
 
   /* 10. Roulement de caisse claire + cymbale : la tension monte puis explose en un éclat de cuivre. */
   function victoireRouleauConstruire_(c){
@@ -659,9 +635,6 @@
     bruit_(c,{duration:.35,volume:.070,delay:.5,filterType:"highpass",frequency:4000,frequencyEnd:6000,decay:1.4});
     tonal_(c,{type:"sawtooth",from:261.6,to:264,duration:.6,volume:.058,delay:.5});
     tonal_(c,{type:"sine",from:65,to:65,duration:.5,volume:.09,delay:.5});
-  }
-  function victoireRouleau_(){
-    return jouerWebAudio_(1150,victoireRouleauConstruire_);
   }
 
   var CLE_VICTOIRE_BOSS="soreal_idle_victoire_boss_index_v1";

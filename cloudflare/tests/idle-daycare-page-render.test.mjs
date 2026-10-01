@@ -38,7 +38,8 @@ const T0 = 1_000_000;
 let state = normalizeIdleNguState({}, ctx, T0);
 {
   const html = page({ systemes: idleNguSnapshot(state, ctx, T0) }, "daycare", "Item Daycare");
-  assert.match(html, /Achète « Item Daycare ! » \(250 EXP\)/, "verrouillé sans slot");
+  assert.match(html, /Rien à afficher pour le moment/, "page neutre sans slot");
+  assert.doesNotMatch(html, /🔒|verrouill|250 EXP|Item Daycare|boutique/i, "anti-spoil : aucune condition de déblocage");
 }
 state.currencies.experience = 1000;
 state = applyIdleNguAction(state, { action: "buyExpShop", item: "daycareSlot1" }, ctx, T0).state;

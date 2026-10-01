@@ -601,13 +601,11 @@
           '<div class="soreal-idle-exp-help-v210">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat.explication||'')+'</div>'+
           (!achat
             ?'<div class="soreal-idle-note-v4">Indisponible.</div>'
-            :verrouille
-              ?'<div class="soreal-idle-exp-lock-v210">🔒 Atteins le Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(verrou.neededBosses)+' pour débloquer cet achat.</div>'
-              :auMax
-                ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
-                :idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat)+
-                  idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat)+
-                  idleExpShopNewbieOffersIdleV1_(res.id,stat.id,(newbieCatalogue&&newbieCatalogue[stat.id])||null,newbieUtilisees)
+            :auMax
+              ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
+              :idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat)+
+                idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat)+
+                idleExpShopNewbieOffersIdleV1_(res.id,stat.id,(newbieCatalogue&&newbieCatalogue[stat.id])||null,newbieUtilisees)
           )+
         '</div>';
       }
@@ -901,9 +899,10 @@
 
 
       function rendrePistesSystemeMetaIdleV131_(s){
+        /* ANTI-SPOIL (AGENTS.md règle n°2) : une piste encore verrouillée n'apparaît pas du tout (ni cadenas, ni « Verrouillée »). */
         const pistes=
           Array.isArray(s&&s.tracks)
-            ?s.tracks
+            ?s.tracks.filter(function(p){return p&&p.unlocked!==false;})
             :[];
 
         if(!pistes.length){
@@ -920,25 +919,19 @@
                 window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st.tempLevel)+
                 window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st.permanentLevel);
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-300 */
-              const verrouillee=p.unlocked===false;
-
               return '<button type="button" class="soreal-idle-expand-button-v25" style="'+
                 (p.active?'outline:2px solid rgba(255,255,255,.65);':'')+
-                (verrouillee?'opacity:.55;':'')+
                 '" '+
-                (verrouillee
-                  ?'disabled'
-                  :'onclick="window.__selectionnerPisteMetaIdleV131__(\''+
-                    window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.id)+
-                    '\',\''+
-                    window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(p.id)+
-                    '\')"'
-                )+
+                'onclick="window.__selectionnerPisteMetaIdleV131__(\''+
+                  window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.id)+
+                  '\',\''+
+                  window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(p.id)+
+                  '\')"'+
                 '>'+
-                (verrouillee?'🔒 ':p.active?'▶️ ':'')+
+                (p.active?'▶️ ':'')+
                 window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(p.name||p.id)+
-                (verrouillee?'':' · '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(niveau))+
-                '<br><small>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(verrouillee?'Verrouillée':(p.effect||''))+'</small>'+
+                ' · '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(niveau)+
+                '<br><small>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(p.effect||'')+'</small>'+
               '</button>';
             }).join('')+
           '</div>'+
@@ -1037,23 +1030,8 @@
         const st=
           s.state||{};
 
-        const verrou=
-          !unlocked
-            ?[
-                s.unlock&&s.unlock.bosses
-                  ?'Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(s.unlock.bosses)
-                  :'',
-                s.unlock&&s.unlock.rebirths
-                  ?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(s.unlock.rebirths)+' Renaissance(s)'
-                  :'',
-                s.unlock&&s.unlock.sets
-                  ?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(s.unlock.sets)+' set(s) complété(s)'
-                  :'',
-                s.unlock&&s.unlock.difficulty
-                  ?'Difficulté '+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.unlock.difficulty)
-                  :''
-              ].filter(Boolean).join(' · ')
-            :'';
+        /* ANTI-SPOIL (AGENTS.md règle n°2) : un système encore verrouillé n'a ni carte, ni cadenas, ni condition de déblocage. */
+        if(!unlocked)return '';
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-302 */
         const collecte=[
@@ -1062,20 +1040,13 @@
           'bloodMagic'
         ].indexOf(s.id)!==-1;
 
-        return '<div class="soreal-idle-section-v8" style="'+
-          (!unlocked?'opacity:.62':'')+
-          '">'+
+        return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">'+
             window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.icon||'⚙️')+' '+
             window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.name||s.id)+
-            (unlocked?'':' 🔒')+
           '</div>'+
           '<div class="soreal-idle-note-v4">'+
-            window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(
-              unlocked
-                ?s.desc||''
-                :'Déblocage : '+verrou
-            )+
+            window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.desc||'')+
           '</div>'+
           (unlocked
             ?'<div class="soreal-idle-note-v4" style="margin-top:7px">'+
@@ -1195,7 +1166,7 @@
       function pageYggdrasilIdleV47_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'yggdrasil');
-        if(!s||!s.state||!s.state.unlocked)return H.entetePageIdleV28_('🌱 Yggdrasil','Fais pousser des fruits pendant plusieurs heures.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Trouve la Giant Seed pour débloquer Yggdrasil.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const data=s.state.data||{};
         const fruits=data.fruits||{};
         const m=j&&j.systemes?j.systemes:{};
@@ -1224,6 +1195,7 @@
             const pret=Boolean(f.active)&&(Number(f.growthHours)||0)>=1;
             const cout=e.activationCost!=null?e.activationCost:(def.activationCost||0);
             const verrou=e.unlocked===false&&!(f.tier>0);
+            if(verrou)return '';/* ANTI-SPOIL : un fruit encore verrouillé n'apparaît pas du tout. */
             const ressource=noms[def.resource]||H.idleHtml_(def.resource||'energy');
             const auto=e.autoActivate
               ?'<span style="color:#8fe0a0">⚡ Auto-Activate</span>'
@@ -1231,7 +1203,6 @@
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(def.name||def.id)+'</b><span>Tier '+tier+'</span></div>'+
               '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+
-                (verrou?'🔒 Débloqué par la 5e complétion du Troll Challenge · ':'')+
                 'Croissance '+H.formatterHeuresIdleV47_(growth)+' / '+H.formatterHeuresIdleV47_(H.idleEntier_(f.tier||0)*tierSec/3600)+
                 ' · activation '+(cout>0?H.formatGrandNombreIdleV70_(cout)+' '+ressource:'gratuite')+
                 (e.nextTierCost!=null?' · tier suivant '+H.formatGrandNombreIdleV70_(e.nextTierCost)+' graines':(e.nextTierCost===null?' · tier max':''))+
@@ -1250,20 +1221,20 @@
 
       function pageDiggersIdleV47_(j){
         const s=systemeMetaParIdIdleV130_(j,'diggers');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⛏️ Gold Diggers','Transforme le GPS de la Time Machine en bonus permanents.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Trouve le Scrap of Paper pour débloquer les Gold Diggers.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const data=s.state.data||{};
         const diggers=data.diggers||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.diggerDefinitions)?j.systemes.diggerDefinitions:[];
         const active=Object.keys(diggers).filter(function(id){return diggers[id]&&diggers[id].active;}).length;
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⛏️ Gold Diggers','Monte leur niveau maximum puis choisis le niveau actif. Les Diggers consomment le GPS produit par la Time Machine.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Slots<b>'+active+' / '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(data.slots||1)+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Slots<b>'+active+' actif(s) · '+Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(data.slots||1)-active)+' libre(s)</b></div></div>'+
           '<div style="display:grid;gap:10px">'+defs.map(function(def){const d=diggers[def.id]||{};const run=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.runLevel||0);const max=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.maxLevel||0);return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+run+' / '+max+'</span></div><div style="font-size:12px;color:#aeb5c8;margin-top:5px">Drain base '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.drain||0)+' GPS · cap '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.cap||0)+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})">Max +1</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.max(0,run-1)+')">−</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.min(max,run+1)+')">+</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__toggleDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+(!d.active)+')">'+(d.active?'Désactiver':'Activer')+'</button></div></div>';}).join('')+'</div>';
       }
 
 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-303 */
 function pagePerksIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'perks');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⭐ Perks','Avantages permanents achetés avec des Points de Perk (PP).')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.perkDefinitions)?j.systemes.perkDefinitions:[];
         const pp=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.pp||0):0;
@@ -1288,7 +1259,7 @@ function pagePerksIdleV1_(j){
 
 function pageQuirksIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'quirks');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('📚 Quirks','Particularités permanentes achetées avec des Points de Quirk (QP).')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.quirkDefinitions)?j.systemes.quirkDefinitions:[];
         const qp=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.qp||0):0;
@@ -1314,7 +1285,7 @@ function pageQuirksIdleV1_(j){
 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-304 */
 function pageItopodIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'tower');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏢 ITOPOD','Infinite Tower of Pissed-Off Dudes — grimpe les étages, gagne des PP.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const d=(s.state.data)||{};
         const etage=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.floor);
         const kills=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.kills);
@@ -1383,7 +1354,7 @@ function acheterQuirkIdleV1_(quirkId){
 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-305 */
 function pageChallengesIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'challenges');
-        if(!s||!s.state||!s.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🏁 Défis','Défis à restriction, pour des récompenses permanentes.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Système verrouillé.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         /* Page détaillée (textes français, restrictions, récompenses par complétion) : modules/challenges-v1.js. */
         if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof window.__SOREAL_IDLE_DEFIS_V1__.page==='function')return window.__SOREAL_IDLE_DEFIS_V1__.page(j);
         const defs=j&&j.systemes&&Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
@@ -1398,12 +1369,11 @@ function pageChallengesIdleV1_(j){
             :'')+
           '<div style="display:grid;gap:10px">'+defs.map(function(def){
             const statut=
-              !def.unlocked?'🔒 Verrouillé'
-              :!def.implemented?'🚧 En préparation'
+              !def.implemented?'🚧 En préparation'
               :def.active?'▶️ Actif'
               :'✅ Prêt';
             const peutDemarrer=Boolean(def.unlocked)&&Boolean(def.implemented)&&!actif;
-            return '<div class="soreal-idle-section-v8" style="margin:0'+(def.unlocked?'':';opacity:.62')+'">'+
+            return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.completion||0)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.max||0)+'</span></div>'+
               '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+statut+
                 (def.targetBoss?' · Objectif boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.targetBoss):'')+
@@ -1663,7 +1633,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const seconds=k/a;
         return {seconds:seconds,progress:Math.max(0,Math.min(.999999,(Math.max(0,progressSecondes)||0)/seconds))};
       }
-      window.__recalculerPisteAllocIdleV1__=recalculerPisteAllocIdleV1_;
 
       /* Fait avancer d'abord les barres d'Augmentations du temps écoulé, puis repart de « maintenant » : tous les repères restent cohérents. */
       function rebaserVisuelAugmentsIdleV1_(visual){
@@ -1847,7 +1816,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const sys=systemeMetaParIdIdleV130_(j,'augmentations');
         /* No Augmentations Challenge : « the augmentations feature is entirely off-limits for the duration of this challenge ». */
         if(j&&j.systemes&&j.systemes.challenge&&j.systemes.challenge.active==='noAugmentations')return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Menu interdit pendant le défi.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🚫 No Augmentations Challenge : le menu Augmentations est interdit tant que le défi est en cours. Termine-le ou abandonne-le pour y retourner.</div>';
-        if(!sys||!sys.state||!sys.state.unlocked)return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Les Augmentations renforcent uniquement le run en cours.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 17 pour débloquer Augmentations.</div>';
+        if(!sys||!sys.state||!sys.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[],pairs=(sys.state.data||{}).pairs||{};
         const boss=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
         window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().__augmentationsVisualV215={
@@ -1947,7 +1916,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         vue[piste+'EtaSeconds']=nouveau.seconds>0?Math.max(0,nouveau.seconds-progSec):null;
         if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j);
       }
-      window.__recalculerTimeMachineLocalIdleV1__=recalculerTimeMachineLocalIdleV1_;
 
       function ajusterTimeMachineIdleV1_(ressource,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
@@ -2021,7 +1989,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       function pageTimeMachineIdleV48_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'timeMachine');
-        if(!s||!s.state||!s.state.unlocked)return H.entetePageIdleV28_('⏱️ Time Machine','La Time Machine transforme la progression du run en Gold par seconde.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 30 pour débloquer la Time Machine.</div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const data=s.state.data||{};
         const vue=(j&&j.systemes&&j.systemes.timeMachineView)||{};
         /* Repère de temps de la vue serveur : sert au recalcul local de la progression au clic (rebaserVueTimeMachineIdleV1_). */
@@ -2058,7 +2026,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-tm-titre-v1">'+H.idleHtml_(titre)+'</div>'+
             '<div class="soreal-idle-tm-soustitre-v1">'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'</div>'+
             (verrou
-              ?'<div class="soreal-idle-tm-verrou-v1">🔒 Magic se débloque avec Blood Magic au boss 37.</div>'
+              ?''
               :'<div class="soreal-idle-tm-ligne-v1">'+
                 '<div class="soreal-idle-tm-barre-wrap-v1">'+
                   '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" data-tm-fill0="'+(largeur/100).toFixed(6)+'" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
@@ -2284,7 +2252,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
-        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1">'+window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🩸 Blood Magic','Magic alimente des rituels qui produisent du Blood.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Bats le boss 37 pour débloquer Magic et Blood Magic.</div></div>';
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1"><div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div></div>';
         const snap=j&&j.systemes||{};
         const defs=Array.isArray(snap.bloodRituals)?snap.bloodRituals:[];
         const data=s.state.data||{};
@@ -2632,12 +2600,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return H.formatGrandNombreIdleV70_(n/86400/365,1)+' ans';
       }
 
+      /* Plafond (cap) d'une ressource dans un snapshot : partagé par les pages NGU et Wishes (auparavant dupliqué sous le nom capDe). */
+      function capRessourceMetaIdleV1_(snap,ressource){
+        return Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.resources&&snap.resources[ressource]&&snap.resources[ressource].cap||0));
+      }
+
       function pageNguIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const titre=H.entetePageIdleV28_('♾️ NGU','Chaque NGU a sa propre allocation et progresse en parallèle. Les niveaux persistent à travers les Rebirths ; l\'énergie et la magie allouées sont rendues au Rebirth.');
         const sys=systemeMetaParIdIdleV130_(j,'ngu');
         if(!sys||!sys.state||!sys.state.unlocked){
-          return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Débloqué par A Number (Gordon Ramsay Bolton).</div>';
+          return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         }
         const snap=(j&&j.systemes)||{};
         const ng=snap.ngus||{};
@@ -2646,9 +2619,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const courant=ng.tier||'normal';
         const liste=(ng.tiers&&ng.tiers[courant])||[];
         const systemes=Array.isArray(snap.systems)?snap.systems:[];
-        function capDe(ressource){
-          return Math.max(0,H.idleNombre_(snap.resources&&snap.resources[ressource]&&snap.resources[ressource].cap||0));
-        }
+        function capDe(ressource){return capRessourceMetaIdleV1_(snap,ressource);}
         function alloueAutres(ressource,exceptId){
           let total=0;
           systemes.forEach(function(x){
@@ -2684,6 +2655,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const cap=capDe(n.resource);
           const dispo=Math.max(0,cap-alloueAutres(n.resource,n.id));
           const verrou=n.resource==='magic'&&!ng.magicUnlocked;
+          if(verrou)return '';/* ANTI-SPOIL : un NGU Magic non débloqué n'apparaît pas du tout. */
           const valeurs=[0,Math.floor(dispo*.25),Math.floor(dispo*.5),Math.floor(dispo)];
           const pct=Math.max(0,Math.min(100,H.idleNombre_(n.progress)*100));
           const symbole=n.resource==='magic'?'✨':'⚡';
@@ -2693,7 +2665,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(verrou?'.55':'1')+'">'+
             '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+H.idleHtml_(n.name)+' · Niv. '+H.formatGrandNombreIdleV70_(n.level)+'</b><span>'+H.formatGrandNombreIdleV70_(n.allocation)+' '+symbole+'</span></div>'+
             '<div style="font-size:12px;color:#aeb5c8">'+H.idleHtml_(n.effect)+' : <b>'+(n.id==='respawn'?'-':'+')+H.formatGrandNombreIdleV70_(n.effectPct,2)+' %</b>'+
-            (n.secondsPerLevel!==null&&n.secondsPerLevel!==undefined?' · prochain niveau ≈ '+dureeLongueNguIdleV1_(n.secondsPerLevel):(verrou?' · Magic verrouillée':' · aucune allocation'))+'</div>'+
+            (n.secondsPerLevel!==null&&n.secondsPerLevel!==undefined?' · prochain niveau ≈ '+dureeLongueNguIdleV1_(n.secondsPerLevel):' · aucune allocation')+'</div>'+
             '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;background:#6366f1;transition:none"></div></div>'+
             '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+boutons+'</div></div>';
         }
@@ -2720,7 +2692,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const snap=(j&&j.systemes)||{};
         const ws=snap.wishSlots||null;
         if(!sys||!sys.state||!sys.state.unlocked||!ws){
-          return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Débloqué par A Severed Unicorn\'s Head (butin garanti de The Godmother).</div>';
+          return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         }
         const pistes=Array.isArray(sys.tracks)?sys.tracks:[];
         /* Wiki : chaque souhait exige une difficulté (Evil ou Sadistic) ; à une difficulté plus basse la liste est vide. */
@@ -2728,9 +2700,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const systemes=Array.isArray(snap.systems)?snap.systems:[];
         const slots=Array.isArray(ws.slots)?ws.slots:[];
         const ressources=['energy','magic','r3'];
-        function capDe(r){
-          return Math.max(0,H.idleNombre_(snap.resources&&snap.resources[r]&&snap.resources[r].cap||0));
-        }
+        function capDe(r){return capRessourceMetaIdleV1_(snap,r);}
         function alloueAilleurs(r,indexSlot){
           let total=0;
           systemes.forEach(function(x){
@@ -2745,19 +2715,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const occupes={};
         slots.forEach(function(sl){if(sl.unlocked&&sl.wish)occupes[sl.wish]=sl.index;});
         const src=ws.sources||{};
-        const coche=function(v){return v?'✔':'✗';};
         const resume=
           '<div class="soreal-idle-summary-grid-v28">'+
-            '<div class="soreal-idle-summary-v28">Slots débloqués<b>'+H.idleEntier_(ws.slotCount)+' / '+H.idleEntier_(ws.maxSlots)+'</b></div>'+
+            '<div class="soreal-idle-summary-v28">Slots débloqués<b>'+H.idleEntier_(ws.slotCount)+'</b></div>'+
             '<div class="soreal-idle-summary-v28">Temps minimum par niveau<b>'+dureeLongueNguIdleV1_(ws.minSecondsPerLevel)+'</b></div>'+
             '<div class="soreal-idle-summary-v28">Vitesse des souhaits<b>x'+H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(ws.speedMultiplier)),2)+'</b></div>'+
           '</div>'+
-          '<div class="soreal-idle-note-v4" style="margin:8px 0 12px">Sources des slots : base ✔ · Troll Challenge Evil (7e complétion) '+coche(src.trollEvil)+' · My Pink Heart niveau 100 '+coche(src.pinkHeart)+' · Quirk « A Wish Slot! » '+coche(src.quirk)+'</div>';
+          /* ANTI-SPOIL : seules les sources de slot déjà obtenues sont citées (jamais celles qui restent à débloquer). */
+          '<div class="soreal-idle-note-v4" style="margin:8px 0 12px">Sources des slots obtenues : base'+(src.trollEvil?' · Troll Challenge Evil':'')+(src.pinkHeart?' · My Pink Heart':'')+(src.quirk?' · Quirk « A Wish Slot! »':'')+'</div>';
         function carte(sl){
           const numero=sl.index+1;
-          if(!sl.unlocked){
-            return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><b>🔒 Slot '+numero+'</b><div style="font-size:12px;color:#aeb5c8;margin-top:4px">Slot verrouillé. Sources : Troll Challenge Evil (7e complétion), My Pink Heart au niveau 100, Quirk « A Wish Slot! ».</div></div>';
-          }
+          if(!sl.unlocked)return '';/* ANTI-SPOIL : un slot encore verrouillé n'apparaît pas (ni cadenas, ni sources). */
           const options=['<option value=""'+(sl.wish?'':' selected')+'>— Aucun souhait —</option>'].concat(pistes.filter(function(p){
             const st=p.state||{};
             const fini=H.idleNombre_(st.level)>=H.idleNombre_(p.levels);
@@ -2778,12 +2746,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 :'Alloue de l\'Énergie, de la Magie ET de la Ressource 3 pour progresser.');
           const allocations=ressources.map(function(r){
             const verrou=(r==='magic'&&!ws.magicUnlocked)||(r==='r3'&&!ws.r3Unlocked);
+            if(verrou)return '';/* ANTI-SPOIL : une ressource non débloquée n'apparaît pas. */
             const dispo=Math.max(0,capDe(r)-alloueAilleurs(r,sl.index));
             const valeurs=[0,Math.floor(dispo*.25),Math.floor(dispo*.5),Math.floor(dispo)];
             const boutons=valeurs.map(function(v,i){
               return '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou?'disabled':'onclick="window.__actionMetaIdleV130__({action:\'allocateWishSlot\',slot:'+sl.index+',resource:\''+r+'\',value:'+v+'})"')+'>'+['0%','25%','50%','100%'][i]+'</button>';
             }).join('');
-            return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px"><span>'+libelleRessourceMetaIdleV130_(r)+(verrou?' 🔒':'')+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
+            return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px"><span>'+libelleRessourceMetaIdleV130_(r)+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">'+boutons+'</div></div>';
           }).join('');
           return '<div class="soreal-idle-section-v8" style="margin:0">'+
@@ -2815,7 +2784,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const s=systemeMetaParIdIdleV130_(j,'daycare');
         const d=(j&&j.systemes&&j.systemes.daycare)||null;
         if(!s||!s.state||!s.state.unlocked||!d){
-          return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Achète « Item Daycare ! » (250 EXP) dans la boutique EXP pour ouvrir la garderie.</div>';
+          return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         }
         const pct=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v)*100,2)+' %';};
         const objets=Array.isArray(d.items)?d.items:[];
@@ -2883,7 +2852,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const titre=H.entetePageIdleV28_('🃏 Cards','Une carte arrive toutes les heures tant que le deck n\'est pas plein. Lance une carte en payant son coût en mayo : son bonus devient permanent (conservé au Rebirth). Les cartes protégées ne peuvent être ni lancées ni jetées.');
         const c=(j&&j.systemes&&j.systemes.cards)||null;
         if(!c||!c.unlocked){
-          return titre+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🔒 Consomme A Still-Beating Heart (drop garanti de The Exile) pour débloquer les Cards.</div>';
+          return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         }
         const act=function(extra){
           return 'window.__actionMetaV47__('+H.idleHtml_(JSON.stringify(Object.assign({action:'cards'},extra)))+')';
