@@ -257,3 +257,118 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-name-text-v65{
   white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.15;font-size:13px;
 }
+
+/* ====================== HUD COMMUN : l'interface du haut, qui prend le thème de la page active ====================== */
+/*
+ * Norman (2026-10-01) : « retravaille l'interface en haut » et « les cases fixes à toutes les pages prennent l'apparence de la page active ».
+ * Le bandeau, la navigation, les jauges d'Énergie et de Magie et les tuiles de chiffres sont fixes sur toutes les pages : ils lisent ici des
+ * variables de couleur (--th-*) que chaque menu redéfinit. Sans thème propre, le thème par défaut (bleu acier) s'applique.
+ * Le thème de la page active est détecté par :has() sur le conteneur du jeu (le data-menu de la page se met à jour à chaque affichage).
+ */
+body.soreal-idle-active-v47 .soreal-idle-native-v4{
+  --th-a:#5aa2ff;--th-b:#7c6bff;--th-c:#38d6c4;--th-bg:#16203a;--th-bg2:#0d1426;--th-line:rgba(110,150,255,.38);--th-ink:#e6eeff;--th-dim:#8fa3cf;--th-num:#ffffff;--th-glow:rgba(90,162,255,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="augmentations"]){
+  --th-a:#ffc21a;--th-b:#ff6a1a;--th-c:#ff2d7a;--th-bg:#26112a;--th-bg2:#130813;--th-line:rgba(255,138,26,.5);--th-ink:#ffe6c4;--th-dim:#d9a37a;--th-num:#ffe08a;--th-glow:rgba(255,138,26,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="combat"]){
+  --th-a:#ff4a3a;--th-b:#5aa2ff;--th-c:#ffd54a;--th-bg:#1a0d16;--th-bg2:#0b0a14;--th-line:rgba(255,90,70,.5);--th-ink:#ffe3df;--th-dim:#cf9a9a;--th-num:#ffffff;--th-glow:rgba(255,74,58,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="sang"]){
+  --th-a:#e0243d;--th-b:#8f0f22;--th-c:#ff6a7a;--th-bg:#2c0c13;--th-bg2:#190609;--th-line:rgba(220,50,70,.55);--th-ink:#ffdde1;--th-dim:#d79aa3;--th-num:#ffe3e7;--th-glow:rgba(224,36,61,.5);
+}
+/* Bandeau : cadre lumineux à la couleur de la page. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hero-banner-v95{
+  border:0!important;border-bottom:3px solid transparent!important;
+  border-image:linear-gradient(90deg,var(--th-b),var(--th-a),var(--th-c),var(--th-a),var(--th-b)) 1!important;
+  border-radius:0!important;
+  box-shadow:0 14px 34px -14px var(--th-glow)!important;
+  position:relative;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hero-banner-v95 .soreal-idle-badge-v4{
+  background:linear-gradient(135deg,var(--th-bg),var(--th-bg2))!important;
+  border:1px solid var(--th-line)!important;color:var(--th-ink)!important;border-radius:0!important;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);padding:6px 16px!important;letter-spacing:.08em;
+}
+/* Navigation : onglets de jeu, l'onglet actif s'allume. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28{
+  background:linear-gradient(180deg,var(--th-bg2),transparent)!important;
+  border-bottom:1px solid var(--th-line)!important;padding-bottom:8px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
+  background:linear-gradient(180deg,var(--th-bg),var(--th-bg2))!important;
+  border:1px solid var(--th-line)!important;border-left:3px solid var(--nav-color,var(--th-a))!important;
+  border-radius:0!important;color:var(--th-ink)!important;font-weight:900;letter-spacing:.03em;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 100%,0 100%);
+  box-shadow:none!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active{
+  background:linear-gradient(180deg,var(--th-a),var(--th-b))!important;
+  color:#10101a!important;text-shadow:0 1px 0 rgba(255,255,255,.35);
+  filter:drop-shadow(0 0 10px var(--th-glow));
+}
+/* Jauges d'Énergie et de Magie : cadres à crochets d'angle, titre en capitales, barres vitrées. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34{
+  position:relative;
+  background:
+    radial-gradient(ellipse 80% 120% at 0% 0%,color-mix(in srgb,var(--th-a) 14%,transparent),transparent 70%),
+    linear-gradient(165deg,var(--th-bg),var(--th-bg2))!important;
+  border:1px solid var(--th-line)!important;border-radius:6px!important;
+  box-shadow:0 8px 22px -12px var(--th-glow),inset 0 0 0 1px rgba(255,255,255,.03)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34::before,
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34::after{
+  content:"";position:absolute;width:14px;height:14px;pointer-events:none;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34::before{top:-1px;left:-1px;border-top:3px solid var(--th-a);border-left:3px solid var(--th-a)}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34::after{bottom:-1px;right:-1px;border-bottom:3px solid var(--th-a);border-right:3px solid var(--th-a)}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-title-v34{
+  text-transform:uppercase;letter-spacing:.1em;font-weight:1000;color:var(--th-ink)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-number-v34{color:var(--th-ink)!important}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-speed-v34{color:var(--th-dim)!important;letter-spacing:.04em}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energybar-wrap-v11{
+  border-radius:0!important;background:#05060c!important;
+  box-shadow:inset 0 0 0 1px var(--th-line),inset 0 3px 8px rgba(0,0,0,.8);
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);overflow:hidden;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energybar-v11{
+  border-radius:0!important;
+  box-shadow:inset 0 8px 10px rgba(255,255,255,.28),inset 0 -6px 8px rgba(0,0,0,.28),0 0 14px var(--th-glow);
+}
+/* Tuiles de chiffres : plaquettes HUD, valeur lumineuse, trait d'accent en bas. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28{
+  background:linear-gradient(165deg,var(--th-bg),var(--th-bg2))!important;
+  border:1px solid var(--th-line)!important;border-bottom:3px solid var(--th-a)!important;border-radius:4px!important;
+  color:var(--th-dim)!important;text-transform:uppercase;letter-spacing:.07em;font-size:10px;
+  box-shadow:0 6px 16px -10px var(--th-glow);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28 b{
+  color:var(--th-num)!important;font-size:16px;letter-spacing:.02em;text-shadow:0 0 10px var(--th-glow);text-transform:none;
+}
+
+/* ====================== FIGHT BOSS : chronique du boss ====================== */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-lore-v142{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,200,90,.14),transparent 70%),
+    linear-gradient(180deg,#241811 0%,#120c09 100%)!important;
+  border:1px solid rgba(255,196,90,.55)!important;border-radius:4px!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.55),inset 0 0 0 4px rgba(0,0,0,.35),inset 0 0 0 5px rgba(255,196,90,.25)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-lore-title-v168{
+  color:#ffcf6a!important;letter-spacing:.3em;text-transform:uppercase;text-shadow:0 0 12px rgba(255,190,70,.6);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-lore-name-v184{
+  font-size:22px;letter-spacing:.04em;
+  background:linear-gradient(90deg,#fff2c0,#ffcf6a 50%,#ff8a4a);-webkit-background-clip:text;background-clip:text;color:transparent!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-lore-histoire-v142{
+  font-family:Georgia,"Times New Roman",serif;font-size:15px;line-height:1.7;color:#f1e3c8!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-lore-histoire-v142::first-letter{
+  color:#ffcf6a;font-size:2.4em;float:left;line-height:.9;padding:2px 8px 0 0;text-shadow:0 0 10px rgba(255,150,40,.6);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-tts-read-v203{
+  background:linear-gradient(180deg,#ffd75a,#ff8a1a)!important;color:#2a1200!important;border:0!important;border-radius:0!important;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);font-weight:900;letter-spacing:.06em;
+}
