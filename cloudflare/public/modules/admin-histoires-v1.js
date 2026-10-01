@@ -328,6 +328,7 @@ function etapeHtml_(e,i){
     '<div class="adm-etape-tete-v1"><b>Étape '+(i+1)+'</b>'+voix+
       '<span style="flex:1"></span>'+
       '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-e="ecouter" data-i="'+i+'" title="Écouter uniquement cette étape">▶ Écouter</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="generer" data-i="'+i+'" title="Générer (ou régénérer) la voix de cette étape seulement">🎙 Générer la voix</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="haut" data-i="'+i+'"'+(i===0?' disabled':'')+'>⬆</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="bas" data-i="'+i+'"'+(i===edition.etapes.length-1?' disabled':'')+'>⬇</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'">🗑</button>'+
@@ -365,6 +366,7 @@ function dessinerEditeur_(){
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="images">🖼 Ajouter plusieurs images d’un coup</button></div>'+
       '<input type="file" id="sorealIdleAdminFichierV1" accept="image/webp,image/png,image/jpeg,image/gif" style="display:none">'+
       '<input type="file" id="sorealIdleAdminFichiersV1" accept="image/webp,image/png,image/jpeg,image/gif" multiple style="display:none">'+
+      '<div id="sorealIdleAdminPronBlocV1">'+prononciationsHtml_()+'</div>'+
       '<div class="adm-etat-v1" id="sorealIdleAdminEtatV1"></div>'+
     '</div>'+
     '<div class="adm-pied-v1">'+
@@ -526,7 +528,43 @@ function verifierStudio_(){
   });
 }
 
+/*
+ * Corrections de prononciation (Norman, 2026-10-01 : « corriger la prononciation d'un mot, par exemple zinzin que le studio lit
+ * « zinne zinne » au lieu de « zain zain » »). Liste {mot, dit} gardée sur ce PC (c'est lui qui génère les voix). Le remplacement
+ * se fait UNIQUEMENT au moment d'envoyer le texte au studio : le texte affiché et l'empreinte (hash) du bloc ne changent jamais,
+ * donc aucune voix déjà générée n'est invalidée -- il suffit de régénérer les cases concernées.
+ */
+var CLE_PRONONCIATIONS='soreal_idle_admin_prononciations_v1';
+
+function lirePrononciations_(){
+  try{
+    var brut=localStorage.getItem(CLE_PRONONCIATIONS);
+    var liste=brut?JSON.parse(brut):[];
+    return Array.isArray(liste)?liste.filter(function(x){return x&&typeof x.mot==='string'&&typeof x.dit==='string'&&x.mot.trim()&&x.dit.trim();}):[];
+  }catch(_e){return [];}
+}
+
+function ecrirePrononciations_(liste){
+  try{localStorage.setItem(CLE_PRONONCIATIONS,JSON.stringify(liste));}catch(_e){}
+}
+
+function echapperRegex_(m){return String(m).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+/* Remplace chaque occurrence du mot entier (sans tenir compte de la casse ni des accents composés) par sa prononciation. */
+function appliquerPrononciations_(texte,liste){
+  var t=String(texte==null?'':texte);
+  (liste||[]).slice().sort(function(a,b){return b.mot.length-a.mot.length;}).forEach(function(c){
+    var mot=String(c.mot).trim(),dit=String(c.dit).trim();
+    if(!mot||!dit)return;
+    var re;
+    try{re=new RegExp('(?<![\\p{L}\\p{N}])'+echapperRegex_(mot)+'(?![\\p{L}\\p{N}])','giu');}catch(_e){return;}
+    t=t.replace(re,function(){return dit;});
+  });
+  return t;
+}
+
 function synthetiser_(texte,parleur){
+  texte=appliquerPrononciations_(texte,lirePrononciations_());
   return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte,voix:parleur==='femme'?'femme':'homme'})})
     .then(function(r){
       if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
@@ -541,20 +579,17 @@ function televerserVoix_(hash,blob){
     });});
 }
 
-function genererVoix_(){
-  if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
-  lireChamps_();
-  var erreur=valider_();
-  if(erreur){afficherEtat_(erreur,true);return;}
-  var toutes=Boolean((document.getElementById('sorealIdleAdminToutesV1')||{}).checked);
-  var vus={},blocs=[];
-  edition.etapes.forEach(function(e){blocsDeEtape_(e).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});});
-  if(!blocs.length){afficherEtat_('Aucun texte à lire : colle d’abord le texte des étapes.',true);return;}
-  var aFaire=blocs.filter(function(b){return toutes||(edition.voix||[]).indexOf(b.hash)===-1;});
-  if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
+function libelleBoutonsGenerer_(){
+  var b=document.getElementById('sorealIdleAdminBtnVoixV1');
+  if(b)b.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer les voix';
+  var r=document.getElementById(EDITEUR_ID);
+  if(r)Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer la voix';});
+}
+
+/* Génère (studio) puis téléverse (R2) les blocs donnés, enregistre l'histoire ; commun au bouton global et au bouton d'une étape. */
+function lancerGeneration_(aFaire){
   generation={enCours:true,annule:false,texte:''};
-  var bouton=document.getElementById('sorealIdleAdminBtnVoixV1');
-  if(bouton)bouton.textContent='⏹ Arrêter';
+  libelleBoutonsGenerer_();
   var fait=0;
   var voix=(edition.voix||[]).slice();
   var suite=enregistrer_().then(function(ok){if(!ok)throw new Error('__stop__');});
@@ -575,7 +610,7 @@ function genererVoix_(){
     generation.texte='Enregistrement des voix…';afficherEtat_();
     return enregistrer_();
   }).then(function(){
-    afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Tester » pour écouter.');
+    afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Tester » ou « Écouter » pour entendre.');
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);
     if(msg==='__stop__')return;
@@ -583,10 +618,96 @@ function genererVoix_(){
     afficherEtat_(msg==='__annule__'?'Génération arrêtée ('+fait+' voix déjà prêtes, enregistrées).':'Échec de la génération : '+msg,msg!=='__annule__');
   }).then(function(){
     generation={enCours:false,annule:false,texte:''};
-    var b=document.getElementById('sorealIdleAdminBtnVoixV1');
-    if(b)b.textContent='🎙 Générer les voix';
+    libelleBoutonsGenerer_();
     afficherEtat_();
   });
+}
+
+function genererVoix_(){
+  if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+  lireChamps_();
+  var erreur=valider_();
+  if(erreur){afficherEtat_(erreur,true);return;}
+  var toutes=Boolean((document.getElementById('sorealIdleAdminToutesV1')||{}).checked);
+  var vus={},blocs=[];
+  edition.etapes.forEach(function(e){blocsDeEtape_(e).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});});
+  if(!blocs.length){afficherEtat_('Aucun texte à lire : colle d’abord le texte des étapes.',true);return;}
+  var aFaire=blocs.filter(function(b){return toutes||(edition.voix||[]).indexOf(b.hash)===-1;});
+  if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
+  lancerGeneration_(aFaire);
+}
+
+/* Norman (2026-10-01) : un bouton par case pour générer la voix de cette étape seulement (toujours régénérée, même si elle existe déjà). */
+function genererEtape_(i){
+  if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+  lireChamps_();
+  var erreur=valider_();
+  if(erreur){afficherEtat_(erreur,true);return;}
+  var etape=edition.etapes[i];
+  var vus={},blocs=[];
+  blocsDeEtape_(etape||{}).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});
+  if(!blocs.length){afficherEtat_('Étape '+(i+1)+' : pas de texte à lire.',true);return;}
+  afficherEtat_('Étape '+(i+1)+' : génération de '+blocs.length+' bloc'+(blocs.length>1?'s':'')+'…');
+  lancerGeneration_(blocs);
+}
+
+/* ---------- corrections de prononciation (écran de l'éditeur) ---------- */
+
+function prononciationsHtml_(){
+  var liste=lirePrononciations_();
+  return '<h3 style="margin:18px 0 0">🗣 Prononciation <span style="font-weight:400;font-size:13px;color:#a9b6d8">(corriger un mot mal lu)</span></h3>'+
+    '<div class="soreal-idle-adm-meta-v1">Écris le mot tel qu’il est dans le texte, et comment il doit se prononcer, écrit comme on le dit (ex. <b>zinzin</b> → <b>zain zain</b>). Le texte affiché ne change pas ; ensuite, régénère les cases concernées.</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
+      '<input type="text" id="sorealIdleAdminPronMotV1" placeholder="Mot (ex. zinzin)" style="flex:1;min-width:120px">'+
+      '<input type="text" id="sorealIdleAdminPronDitV1" placeholder="Se prononce (ex. zain zain)" style="flex:1;min-width:140px">'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-g="pron-ajouter">＋ Ajouter</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="pron-tester" title="Écouter la prononciation saisie, avec le studio">▶ Tester</button>'+
+    '</div>'+
+    '<div id="sorealIdleAdminPronListeV1">'+(liste.length?liste.map(function(c,k){
+      return '<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="flex:1"><b>'+esc_(c.mot)+'</b> → '+esc_(c.dit)+'</span>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-p="tester" data-k="'+k+'">▶</button>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-p="suppr" data-k="'+k+'">🗑</button></div>';
+    }).join(''):'<div class="soreal-idle-adm-meta-v1" style="margin-top:6px">Aucune correction pour l’instant.</div>')+'</div>';
+}
+
+function rafraichirPrononciations_(){
+  var el=document.getElementById('sorealIdleAdminPronBlocV1');
+  if(el)el.innerHTML=prononciationsHtml_();
+}
+
+/* Écoute directe d'une prononciation avec le studio (sans rien téléverser). */
+var essaiPron={audio:null};
+function essayerPrononciation_(dit){
+  dit=String(dit||'').trim();
+  if(!dit){afficherEtat_('Écris d’abord comment le mot se prononce.',true);return;}
+  afficherEtat_('Essai de prononciation : « '+dit+' »…');
+  /* Le texte saisi est déjà la prononciation : pas de seconde correction. */
+  fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:dit,voix:'homme'})})
+    .then(function(r){
+      if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
+      return r.blob();
+    }).then(function(blob){
+      try{if(essaiPron.audio)essaiPron.audio.pause();}catch(_e){}
+      var url=URL.createObjectURL(blob);
+      essaiPron.audio=new Audio(url);
+      essaiPron.audio.onended=function(){URL.revokeObjectURL(url);};
+      essaiPron.audio.play();
+      afficherEtat_('');
+    }).catch(function(e){afficherEtat_('Essai impossible : '+(e&&e.message?e.message:e),true);});
+}
+
+function ajouterPrononciation_(){
+  var mot=String((document.getElementById('sorealIdleAdminPronMotV1')||{}).value||'').trim();
+  var dit=String((document.getElementById('sorealIdleAdminPronDitV1')||{}).value||'').trim();
+  if(!mot||!dit){afficherEtat_('Remplis le mot et sa prononciation.',true);return;}
+  var liste=lirePrononciations_().filter(function(c){return c.mot.toLowerCase()!==mot.toLowerCase();});
+  liste.push({mot:mot,dit:dit});
+  ecrirePrononciations_(liste);
+  lireChamps_();
+  var concernees=[];
+  (edition.etapes||[]).forEach(function(e,i){if(appliquerPrononciations_(e.texte,[{mot:mot,dit:dit}])!==String(e.texte||''))concernees.push(i+1);});
+  rafraichirPrononciations_();
+  afficherEtat_('✔ « '+mot+' » se lira « '+dit+' ».'+(concernees.length?' Utilisé dans l’étape'+(concernees.length>1?'s ':' ')+concernees.join(', ')+' : clique sur « 🎙 Générer la voix » de '+(concernees.length>1?'ces cases':'cette case')+'.':' Aucune étape de cette histoire ne contient ce mot.'));
 }
 
 /* ---------- écoute d'UNE étape ---------- */
@@ -658,12 +779,22 @@ document.addEventListener('click',function(ev){
     if(act==='enregistrer'){enregistrer_();return;}
     if(act==='tester'){lireChamps_();var err=valider_();if(err){afficherEtat_(err,true);return;}jouer_(edition);return;}
     if(act==='voix'){genererVoix_();return;}
+    if(act==='pron-ajouter'){ajouterPrononciation_();return;}
+    if(act==='pron-tester'){essayerPrononciation_((document.getElementById('sorealIdleAdminPronDitV1')||{}).value);return;}
+  }
+  var pr=ev.target.closest('[data-adm-p]');
+  if(pr){
+    var listePr=lirePrononciations_();
+    var kPr=Number(pr.getAttribute('data-k'));
+    if(pr.getAttribute('data-adm-p')==='tester'){if(listePr[kPr])essayerPrononciation_(listePr[kPr].dit);return;}
+    if(pr.getAttribute('data-adm-p')==='suppr'){listePr.splice(kPr,1);ecrirePrononciations_(listePr);rafraichirPrononciations_();afficherEtat_('Correction supprimée.');return;}
   }
   if(e){
     var i=Number(e.getAttribute('data-i'));
     var a=e.getAttribute('data-adm-e');
     lireChamps_();
     if(a==='ecouter'){ecouterEtape_(i);return;}
+    if(a==='generer'){genererEtape_(i);return;}
     arreterEcoute_();
     if(a==='haut')deplacer_(i,-1);
     else if(a==='bas')deplacer_(i,1);
@@ -680,6 +811,7 @@ window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__={
   recharger:function(){etat.charge=false;etat.erreur='';charger_();rafraichirListe_();},
   nouvelle:nouvelle_,
   purgerVoix:purgerVoix_,
+  appliquerPrononciations:appliquerPrononciations_,
   /* Outils de test. */
   urlImage:urlImage_,
   nouvelId:nouvelId_,
