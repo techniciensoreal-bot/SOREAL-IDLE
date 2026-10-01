@@ -89,16 +89,17 @@ assert.match(source, /if\(ecoute\.index===i\)\{arreterEcoute_\(\);return;\}/, "l
 assert.match(source, /enregistrerVoixDynamiques\(edition\.voix\|\|\[\]\)/, "utilise la voix générée quand elle existe");
 assert.match(source, /voix du studio pas encore générée, lecture avec la voix de secours/, "signale la voix de secours");
 // --- Balises de voix (Norman, 2026-09-30 : « faire intervenir la femme pour certaines phrases : (homme) (femme) ») ---
-assert.match(source, /Astuce : écris <b>\(femme\)<\/b> ou <b>\(homme\)<\/b>/, "l'éditeur explique les balises");
+assert.match(source, /Astuce : écris <b>\(femme\)<\/b>, <b>\(homme\)<\/b>/, "l'éditeur explique les balises (et liste celles des voix nommées)");
 assert.match(source, /moteur\.segmenter\(etape\.texte,etape\.parleur\)\.segments/, "mêmes segments que le lecteur");
 assert.match(source, /blocsDeTexte_\(seg\.texte\)\.forEach\(function\(b\)\{b\.parleur=seg\.voix;blocs\.push\(b\);\}\)/, "chaque bloc de voix retient la voix de son segment");
 assert.match(source, /t\.readText\(segments\[k\]\.texte,undefined,function\(\)\{lire\(k\+1\);\}\)/, "l'écoute d'une étape enchaîne ses segments");
 // --- Deux voix (Norman, 2026-09-30 : « faire intervenir une femme de temps en temps ») ---
 assert.match(source, /data-adm-parleur/, "choix du parleur par étape");
 assert.match(source, /\['femme','👩 Femme'\]/);
-assert.match(source, /voix:parleur==='femme'\?'femme':'homme'/, "la voix choisie est transmise au studio");
+assert.match(source, /voix:voixStudio_\(parleur\)/, "la voix choisie est transmise au studio");
+assert.match(source, /parleur==='femme'\?'femme':'homme'/, "repli narrateur / femme si la voix n'est pas nommée");
 const studio = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");
-assert.match(studio, /VOIX_FICHIERS = \{"homme": "homme\.wav", "femme": "femme\.wav"\}/);
+assert.match(studio, /VOIX_ID_RE = re\.compile\(r"\^\[a-z0-9-\]\{1,32\}\$"\)/, "voix du studio : « homme », « femme » et les voix nommées voix/<identifiant>.wav");
 assert.match(studio, /kwargs\["audio_prompt_path"\] = reference/, "chaque voix imite un extrait de voix FRANÇAISE (pas d'accent anglais)");
 assert.match(readFileSync("cloudflare/tools/voice-studio/installer.bat", "utf8"), /creer_references\.py/, "extraits de référence créés à l'installation");
 

@@ -101,21 +101,29 @@ function tts_(){
  * suivante ; avant la première balise, la voix par défaut de l'étape (« Qui parle »). Les balises ne s'affichent jamais à l'écran ;
  * toute autre parenthèse du texte reste un texte normal. Renvoie { affiche, segments:[{voix:'homme'|'femme', texte}] }.
  */
-var BALISE_VOIX_RE=/\(\s*(homme|femme)\s*\)/gi;
+/* Voix nommées (Norman, 2026-10-01) : le registre modules/voix-nommees-v1.js donne les identifiants valides ; « (marseille) » etc. sont des balises comme « (femme) ». */
+function idsVoix_(){
+  var reg=window.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
+  var ids=['homme','femme'];
+  if(reg&&Array.isArray(reg.liste))reg.liste.forEach(function(v){if(v&&/^[a-z0-9-]{1,32}$/.test(v.id)&&ids.indexOf(v.id)===-1)ids.push(v.id);});
+  return ids;
+}
 function segmenter_(texte,parleurParDefaut){
   var brut=String(texte==null?'':texte);
-  var voix=parleurParDefaut==='femme'?'femme':'homme';
+  var ids=idsVoix_();
+  var BALISE_VOIX_RE=new RegExp('\\(\\s*('+ids.join('|')+')\\s*\\)','gi');
+  var defaut=String(parleurParDefaut||'').toLowerCase();
+  var voix=ids.indexOf(defaut)!==-1?defaut:'homme';
   var segments=[];
   var dernier=0;
   var m;
-  BALISE_VOIX_RE.lastIndex=0;
   function ajouter(fin){
     var t=brut.slice(dernier,fin).replace(/\s+/g,' ').trim();
     if(t)segments.push({voix:voix,texte:t});
   }
   while((m=BALISE_VOIX_RE.exec(brut))){
     ajouter(m.index);
-    voix=m[1].toLowerCase()==='femme'?'femme':'homme';
+    voix=m[1].toLowerCase();
     dernier=m.index+m[0].length;
   }
   ajouter(brut.length);

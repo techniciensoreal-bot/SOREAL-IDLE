@@ -88,7 +88,17 @@ function blocsDeTexte_(texte){
   });
 }
 
-var PARLEURS=[['narrateur','🎙 Narrateur'],['femme','👩 Femme']];
+/* Voix proposées par étape : narrateur, femme, puis les voix nommées du registre (modules/voix-nommees-v1.js). */
+function voixNommees_(){
+  var reg=window.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
+  return reg&&Array.isArray(reg.liste)?reg.liste:[];
+}
+function parleurs_(){
+  return [['narrateur','🎙 Narrateur'],['femme','👩 Femme']].concat(voixNommees_().map(function(v){return [v.id,'🎭 '+v.nom];}));
+}
+function voixStudio_(parleur){
+  return voixNommees_().some(function(v){return v.id===parleur;})?parleur:(parleur==='femme'?'femme':'homme');
+}
 
 /* Segments de voix d'une étape (balises (homme) / (femme) dans le texte) : la même découpe que le lecteur. */
 function segmentsDeEtape_(etape){
@@ -337,10 +347,10 @@ function etapeHtml_(e,i){
       (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
       '<div style="flex:1;min-width:0">'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer l’image':'Choisir une image')+'</button>'+
-        '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+PARLEURS.map(function(p){return '<option value="'+p[0]+'"'+((e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
+        '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+parleurs_().map(function(p){return '<option value="'+p[0]+'"'+((e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
         '<label>Texte lu à voix haute</label>'+
         '<textarea data-adm-texte="'+i+'" placeholder="Colle ici le texte de cette image…">'+esc_(e.texte)+'</textarea>'+
-        '<div class="soreal-idle-adm-meta-v1" style="margin-top:4px">Astuce : écris <b>(femme)</b> ou <b>(homme)</b> dans le texte pour changer de voix à cet endroit. Les balises ne s’affichent pas à l’écran.</div>'+
+        '<div class="soreal-idle-adm-meta-v1" style="margin-top:4px">Astuce : écris <b>(femme)</b>, <b>(homme)</b>'+voixNommees_().map(function(v){return ', <b>('+esc_(v.id)+')</b>';}).join('')+' dans le texte pour changer de voix à cet endroit. Les balises ne s’affichent pas à l’écran.</div>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -565,7 +575,7 @@ function appliquerPrononciations_(texte,liste){
 
 function synthetiser_(texte,parleur){
   texte=appliquerPrononciations_(texte,lirePrononciations_());
-  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte,voix:parleur==='femme'?'femme':'homme'})})
+  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte,voix:voixStudio_(parleur)})})
     .then(function(r){
       if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
       return r.blob();

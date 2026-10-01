@@ -17,7 +17,8 @@ export const IDLE_HISTOIRE_ID_RE_V1 = /^[A-Za-z0-9_-]{1,60}$/;
 export const IDLE_HISTOIRE_IMAGE_RE_V1 = /^(legacy:\d{1,2}|[A-Za-z0-9_.-]{1,90})$/;
 export const IDLE_HISTOIRE_HASH_RE_V1 = /^[0-9a-f]{14}$/;
 export const IDLE_HISTOIRE_MAX_ETAPES_V1 = 80;
-export const IDLE_HISTOIRE_MAX_TEXTE_V1 = 4000;
+export const IDLE_HISTOIRE_VOIX_ID_RE_V1 = /^[a-z0-9-]{1,32}$/;
+const IDLE_HISTOIRE_MAX_TEXTE_V1 = 4000;
 export const IDLE_HISTOIRE_BOSS_MAX_V1 = 999;
 
 /* Textes d'origine des deux premières histoires (rédaction SOREAL, fournis par Norman). */
@@ -127,7 +128,10 @@ export function normaliserHistoireV1(brut) {
     const image = String(e && e.image != null ? e.image : "").trim();
     if (image && !IDLE_HISTOIRE_IMAGE_RE_V1.test(image)) throw new Error("HISTOIRE_IMAGE_INVALIDE");
     /* Qui parle : le narrateur (défaut) ou une voix de femme (Norman, 2026-09-30 : « faire intervenir une femme de temps en temps »). */
-    return { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), image, parleur: e && e.parleur === "femme" ? "femme" : "narrateur" };
+    /* Voix nommées (Norman, 2026-10-01) : l'identifiant d'une voix du registre modules/voix-nommees-v1.js (lettres minuscules, chiffres, tirets). */
+    const parleurBrut = e && typeof e.parleur === "string" ? e.parleur.trim() : "";
+    const parleur = parleurBrut === "femme" ? "femme" : parleurBrut !== "narrateur" && IDLE_HISTOIRE_VOIX_ID_RE_V1.test(parleurBrut) ? parleurBrut : "narrateur";
+    return { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), image, parleur };
   });
   const voix = Array.from(new Set((Array.isArray(h.voix) ? h.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_HISTOIRE_HASH_RE_V1.test(x)))).slice(0, 400);
   /* Identifiant « vu » (profil.stats.vus) : conservé tel quel pour les deux premières histoires, déjà mémorisé chez les joueurs. */

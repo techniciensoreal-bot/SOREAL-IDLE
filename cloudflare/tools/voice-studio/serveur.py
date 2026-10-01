@@ -33,13 +33,24 @@ PORT = int(os.environ.get("SOREAL_VOIX_PORT", "8765"))
 DEBIT = os.environ.get("SOREAL_VOIX_DEBIT", "96k")
 DOSSIER_VOIX = os.environ.get("SOREAL_VOIX_DOSSIER", "").strip() or os.path.join(
     os.environ.get("USERPROFILE", os.path.expanduser("~")), "soreal-voice-studio", "voix")
-VOIX_FICHIERS = {"homme": "homme.wav", "femme": "femme.wav"}
+VOIX_ID_RE = re.compile(r"^[a-z0-9-]{1,32}$")
+
+
+def voix_disponibles():
+    """Identifiants des voix qui ont un extrait de référence (homme, femme et les voix nommées : voix/<identifiant>.wav)."""
+    try:
+        return sorted(f[:-4] for f in os.listdir(DOSSIER_VOIX) if f.endswith(".wav") and VOIX_ID_RE.match(f[:-4]))
+    except OSError:
+        return []
 
 
 def reference_voix(voix):
-    """Chemin de l'extrait de référence de la voix demandée (None s'il n'existe pas : voix par défaut de Chatterbox)."""
-    nom = VOIX_FICHIERS.get(voix if voix in VOIX_FICHIERS else "homme")
-    chemin = os.path.join(DOSSIER_VOIX, nom)
+    """Chemin de l'extrait de référence de la voix demandée ; une voix inconnue retombe sur « homme » (None si même celui-ci manque :
+    voix par défaut de Chatterbox)."""
+    nom = voix if isinstance(voix, str) and VOIX_ID_RE.match(voix) else "homme"
+    chemin = os.path.join(DOSSIER_VOIX, nom + ".wav")
+    if not os.path.isfile(chemin):
+        chemin = os.path.join(DOSSIER_VOIX, "homme.wav")
     return chemin if os.path.isfile(chemin) else None
 ORIGINES = [o.strip() for o in os.environ.get(
     "SOREAL_VOIX_ORIGINES",
@@ -262,7 +273,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             except Exception:
                 gpu = "inconnu"
             return self._json(200, {"ok": True, "modele": "chatterbox", "gpu": gpu,
-                                    "voix": {"homme": bool(reference_voix("homme")), "femme": bool(reference_voix("femme"))}})
+                                    "voix": {"homme": bool(reference_voix("homme")), "femme": bool(reference_voix("femme"))},
+                                    "voixNommees": voix_disponibles()})
         self._json(404, {"ok": False, "error": "introuvable"})
 
     def do_POST(self):
@@ -275,7 +287,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
             texte = str(donnees.get("texte", "")).strip()
             if not texte or len(texte) > MAX_TEXTE:
                 return self._json(400, {"ok": False, "error": "texte vide ou trop long"})
-            voix = "femme" if donnees.get("voix") == "femme" else "homme"
+            voix = donnees.get("voix") if isinstance(donnees.get("voix"), str) and VOIX_ID_RE.match(donnees.get("voix")) else "homme"
             wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", 0.5), donnees.get("cfg", 0.5))
             duree = float(wav.shape[-1]) / float(sr)
             audio = vers_m4a(wav, sr)
