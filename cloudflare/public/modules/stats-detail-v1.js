@@ -39,15 +39,15 @@ function style(){
   st.id='soreal-idle-stats-detail-style-v1';
   st.textContent=
     '.soreal-idle-summary-v28:has(#sorealIdleSummaryAttackV50),.soreal-idle-summary-v28:has(#sorealIdleSummaryDefenseV50){cursor:pointer;position:relative}'+
-    '.soreal-idle-summary-v28:has(#sorealIdleSummaryAttackV50)::after,.soreal-idle-summary-v28:has(#sorealIdleSummaryDefenseV50)::after{content:"ⓘ";position:absolute;top:6px;right:9px;font-size:11px;opacity:.55}'+
+    '.soreal-idle-summary-v28:has(#sorealIdleSummaryAttackV50)::after,.soreal-idle-summary-v28:has(#sorealIdleSummaryDefenseV50)::after{content:"ⓘ";position:absolute;top:6px;right:9px;font-size:13px;opacity:.55}'+
     '#soreal-idle-stats-detail-v1{position:fixed;inset:0;z-index:100003;background:rgba(4,8,18,.78);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}'+
     '#soreal-idle-stats-detail-v1 .boite{width:min(520px,100%);max-height:100%;overflow:auto;background:#182236;border:1px solid rgba(166,188,229,.25);border-radius:16px;padding:16px;color:#dce5f3;box-shadow:0 18px 50px rgba(0,0,0,.6)}'+
     '#soreal-idle-stats-detail-v1 h3{margin:0 0 4px;font-size:18px}'+
-    '#soreal-idle-stats-detail-v1 .aide{font-size:12px;color:#8fa3c9;margin:0 0 10px}'+
+    '#soreal-idle-stats-detail-v1 .aide{font-size:14px;color:#8fa3c9;margin:0 0 10px}'+
     '#soreal-idle-stats-detail-v1 table{width:100%;border-collapse:collapse;font-size:14px}'+
     '#soreal-idle-stats-detail-v1 td{padding:6px 4px;border-bottom:1px solid rgba(166,188,229,.12);vertical-align:top}'+
     '#soreal-idle-stats-detail-v1 td.v{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}'+
-    '#soreal-idle-stats-detail-v1 td small{display:block;color:#8fa3c9;font-size:11px;margin-top:2px}'+
+    '#soreal-idle-stats-detail-v1 td small{display:block;color:#8fa3c9;font-size:13px;margin-top:2px}'+
     '#soreal-idle-stats-detail-v1 tr.total td{font-weight:800;border-bottom:0;padding-top:10px;font-size:15px}'+
     '#soreal-idle-stats-detail-v1 .actions{display:flex;justify-content:flex-end;margin-top:12px}'+
     '#soreal-idle-stats-detail-v1 button{padding:9px 16px;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#22314d;color:#eef4fc;font:600 14px system-ui,sans-serif;cursor:pointer}';

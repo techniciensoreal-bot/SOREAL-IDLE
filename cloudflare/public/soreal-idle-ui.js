@@ -101,12 +101,12 @@
         }
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">🛠️ Développement — Parties</div>'+
-          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Uniquement pendant le développement. Deux parties indépendantes : la <b>A</b> est ta vraie partie (à ne jamais réinitialiser), la <b>B</b> se réinitialise à volonté pour comparer avec NGU IDLE. Le bouton de réinitialisation ci-dessous ne concerne que la partie active.</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Uniquement pendant le développement. Deux parties indépendantes : la <b>A</b> est ta vraie partie (à ne jamais réinitialiser), la <b>B</b> se réinitialise à volonté pour comparer avec NGU IDLE. Le bouton de réinitialisation ci-dessous ne concerne que la partie active.</div>'+
           '<div class="soreal-idle-parties-dev-v1">'+
             bouton('a','Partie A','Ta vraie partie')+
             bouton('b','Partie B','Comparaison NGU IDLE')+
           '</div>'+
-          '<div style="font-size:12px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
+          '<div style="font-size:14px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
         '</div>';
       }
       let idleTimerSession=null;
@@ -8764,11 +8764,11 @@
               </div>
               <div class="soreal-idle-rebirth-stat-v14">
                 <div class="soreal-idle-rebirth-stat-label-v14">NUMBER au Rebirth</div>
-                <div class="soreal-idle-rebirth-stat-value-v14">${formatGrandNombreIdleV70_(prochain)}</div>
+                <div class="soreal-idle-rebirth-stat-value-v14${prochain>actuel*1.0000001?' hausse':(prochain<actuel/1.0000001?' baisse':'')}">${formatGrandNombreIdleV70_(prochain)}</div>
               </div>
               <div class="soreal-idle-rebirth-stat-v14">
                 <div class="soreal-idle-rebirth-stat-label-v14">Variation</div>
-                <div class="soreal-idle-rebirth-stat-value-v14">×${ratio.toFixed(3)}</div>
+                <div class="soreal-idle-rebirth-stat-value-v14">×${ratio>=1000?formatGrandNombreIdleV70_(ratio,3):ratio.toFixed(3)}</div>
               </div>
             </div>
             ${
@@ -10202,7 +10202,7 @@
             cursor:grab;
             user-select:none;
             touch-action:none;
-            font-size:12px;
+            font-size:14px;
             letter-spacing:1px;
           }
           .soreal-idle-tuto-flottant-drag-v1:active{cursor:grabbing}
@@ -10217,7 +10217,7 @@
           .soreal-idle-tuto-flottant-corps-v1{
             padding:6px 14px 12px;
             font-family:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
-            font-size:13.5px;
+            font-size:15px;
             line-height:1.55;
             color:#cfd8ea;
             max-height:38vh;
@@ -10233,7 +10233,7 @@
             border:0;
             border-radius:9px;
             padding:7px 4px;
-            font-size:12px;
+            font-size:14px;
             font-weight:700;
             cursor:pointer;
             background:rgba(255,255,255,.08);
@@ -13213,7 +13213,7 @@
 
                     <div>
                       ${idleHtml_(sort.nom||'Sort')}
-                      <div style="margin-top:2px;color:#8999b1;font-size:8px">
+                      <div style="margin-top:2px;color:#8999b1;font-size:11px">
                         ${
                           achete
                             ?'✓ APPRIS'
@@ -19548,7 +19548,7 @@ function pageAventureIdleV28_(j){
               :'<div class="soreal-idle-v138-details-stat"><span>Tier</span><b>MAX</b></div>')+
           '</div>'+
           (bonus.length
-            ?'<div style="margin-top:10px;font-size:12px;color:#aeb5c8"><b>Bonus du tier</b><br>'+bonus.map(idleHtml_).join('<br>')+'</div>'
+            ?'<div style="margin-top:10px;font-size:14px;color:#aeb5c8"><b>Bonus du tier</b><br>'+bonus.map(idleHtml_).join('<br>')+'</div>'
             :'');
         root.style.display='block';
         positionnerPopupObjetAdventureIdleV1_(root);
@@ -20259,7 +20259,7 @@ function pageAventureIdleV28_(j){
             let titre='';
             const nomGroupe=String(s.groupeNom||'');
             if(nomGroupe&&nomGroupe!==groupePrecedent){
-              titre='<div style="grid-column:1/-1;font-weight:700;font-size:13px;margin:8px 0 2px;color:#dce5f3">'+idleHtml_(nomGroupe)+'</div>';
+              titre='<div style="grid-column:1/-1;font-weight:700;font-size:15px;margin:8px 0 2px;color:#dce5f3">'+idleHtml_(nomGroupe)+'</div>';
             }
             groupePrecedent=nomGroupe;
             if(!s.occupe){
@@ -21187,7 +21187,7 @@ function pageAventureIdleV28_(j){
                   '<li>❌ Date de début</li>'+
                 '</ul>'+
                 '<div class="soreal-idle-total-reset-warning-v67">⚠️ Irréversible. Après le reset, le jeu recréera ton compte exactement comme lors d’une première connexion.</div>'+
-                '<div id="sorealIdleResetTotalStatusV67" style="margin-top:9px;color:#d7b4ba;font-size:10px;font-weight:900;text-align:center"></div>'+
+                '<div id="sorealIdleResetTotalStatusV67" style="margin-top:9px;color:#d7b4ba;font-size:12px;font-weight:900;text-align:center"></div>'+
               '</div>'+
             '</div>'+
             '<div class="soreal-idle-modal-actions-v63">'+
@@ -21371,16 +21371,16 @@ function pageAventureIdleV28_(j){
         const ambiance=Math.round((r?r.getAmbiance():.35)*100);
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">🔊 Audio</div>'+
-          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Règle le volume de la voix (narration) et celui des sons d’ambiance en Aventure.</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Règle le volume de la voix (narration) et celui des sons d’ambiance en Aventure.</div>'+
           '<div style="margin-bottom:12px">'+
-            '<label style="display:flex;justify-content:space-between;font-size:12px;color:#dce5f3;margin-bottom:4px">'+
+            '<label style="display:flex;justify-content:space-between;font-size:14px;color:#dce5f3;margin-bottom:4px">'+
               '<span>🎙️ Voix</span><span id="sorealIdleVolumeVoixValeurV1">'+voix+'%</span>'+
             '</label>'+
             '<input type="range" min="0" max="100" value="'+voix+'" '+
               'oninput="window.__reglerVolumeIdleV1__(\'voix\',this.value)" style="width:100%">'+
           '</div>'+
           '<div>'+
-            '<label style="display:flex;justify-content:space-between;font-size:12px;color:#dce5f3;margin-bottom:4px">'+
+            '<label style="display:flex;justify-content:space-between;font-size:14px;color:#dce5f3;margin-bottom:4px">'+
               '<span>🎶 Ambiance</span><span id="sorealIdleVolumeAmbianceValeurV1">'+ambiance+'%</span>'+
             '</label>'+
             '<input type="range" min="0" max="100" value="'+ambiance+'" '+
@@ -21434,19 +21434,19 @@ function pageAventureIdleV28_(j){
         const google=Boolean(id.externe);
         return '<div class="soreal-idle-section-v8" id="sorealIdleProfilPseudoV1">'+
           '<div class="soreal-idle-window-title-v31">👤 Profil</div>'+
-          '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">'+
             (google
               ?'Les autres joueurs te voient uniquement sous ton pseudo (jamais ton nom Google ni ton adresse).'
               :'Tu peux choisir un pseudo : les autres te verront « Pseudo ('+idleHtml_(id.prenom||'Prénom')+') ».')+
           '</div>'+
-          '<div style="font-size:13px;color:#dce5f3;margin-bottom:8px">Nom affiché : <b>'+idleHtml_(id.nomAffiche||'Joueur')+'</b></div>'+
+          '<div style="font-size:15px;color:#dce5f3;margin-bottom:8px">Nom affiché : <b>'+idleHtml_(id.nomAffiche||'Joueur')+'</b></div>'+
           '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
             '<input id="sorealIdlePseudoChampV1" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ton pseudo (3 à 20 caractères)" value="'+idleHtml_(id.pseudo||'')+'" '+
               'style="flex:1 1 180px;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(129,176,255,.35);background:#0d1830;color:#eef5ff;font-size:14px">'+
             '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__enregistrerPseudoIdleV1__()">Enregistrer</button>'+
           '</div>'+
           (google
-            ?'<div style="font-size:11px;color:#7f8aa4;margin-top:10px">Connecté avec Google : '+idleHtml_(id.email||'')+'</div>'+
+            ?'<div style="font-size:13px;color:#7f8aa4;margin-top:10px">Connecté avec Google : '+idleHtml_(id.email||'')+'</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" style="margin-top:8px" onclick="window.__deconnexionGoogleIdleV1__()">Se déconnecter</button>'
             :'')+
         '</div>';
@@ -21511,11 +21511,11 @@ function pageAventureIdleV28_(j){
             const liste=res&&res.ok&&Array.isArray(res.joueurs)?res.joueurs:[];
             zone.innerHTML=liste.length
               ?liste.map(function(x){
-                return '<div style="padding:6px 0;border-top:1px solid rgba(129,176,255,.15);font-size:12px;color:#dce5f3">'+
+                return '<div style="padding:6px 0;border-top:1px solid rgba(129,176,255,.15);font-size:14px;color:#dce5f3">'+
                   '<b>'+idleHtml_(x.pseudo||'(pas encore de pseudo)')+'</b> · '+idleHtml_(x.nomGoogle||'')+
-                  '<div style="color:#7f8aa4;font-size:11px">'+idleHtml_(x.email)+'</div></div>';
+                  '<div style="color:#7f8aa4;font-size:13px">'+idleHtml_(x.email)+'</div></div>';
               }).join('')
-              :'<div style="font-size:12px;color:#7f8aa4">Aucun joueur connecté par Google pour l’instant.</div>';
+              :'<div style="font-size:14px;color:#7f8aa4">Aucun joueur connecté par Google pour l’instant.</div>';
           })
           .withFailureHandler(function(e){
             zone.textContent=(e&&e.message)||'Impossible de charger la liste.';
@@ -21575,7 +21575,7 @@ function pageAventureIdleV28_(j){
             '</div>'+
             (infoOuvert?
             carteSpecialPrizeIdleV1_()+
-            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Revoir les explications des menus déjà débloqués. Chaque texte peut être relu à voix haute avec la synthèse vocale de ton appareil.</div>'+
+            '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Revoir les explications des menus déjà débloqués. Chaque texte peut être relu à voix haute avec la synthèse vocale de ton appareil.</div>'+
             (entrees.length
               ?entrees.map(function(info,index){
                 const targetId='sorealIdleInfoRecapV203_'+index;
@@ -21593,16 +21593,16 @@ function pageAventureIdleV28_(j){
                   '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+targetId+'">🔊 Lire ce texte</button>'+
                 '</div>';
               }).join('')
-              :'<div style="font-size:12px;color:#5b6178">Aucun panneau d’information consulté pour l’instant.</div>'
+              :'<div style="font-size:14px;color:#5b6178">Aucun panneau d’information consulté pour l’instant.</div>'
             )+
             '<div class="soreal-idle-window-title-v31" style="margin-top:16px">🎙️ Norman & Sébastien</div>'+
-            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Retrouve ici toutes les pages des introductions et tutoriels de Norman & Sébastien déjà rencontrées dans ta partie. Tu peux tout relire ou lancer le Text-to-Speech page par page.</div>'+
+            '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Retrouve ici toutes les pages des introductions et tutoriels de Norman & Sébastien déjà rencontrées dans ta partie. Tu peux tout relire ou lancer le Text-to-Speech page par page.</div>'+
             (introsNormanSebastien.length
               ?introsNormanSebastien.map(function(info,index){
                 const targetId='sorealIdleNarrateursV203_'+index;
                 return '<div id="'+targetId+'" class="soreal-idle-info-recap-card-v1" data-soreal-tts-say="'+idleHtml_(texteVoixTutorielIdleV1_(info,index>0&&introsNormanSebastien[index-1].groupe===info.groupe?introsNormanSebastien[index-1]:null))+'">'+
                   '<div class="soreal-idle-info-recap-head-v1">🎙️ <b>'+idleHtml_(info.groupe)+' · '+idleHtml_(info.titre)+'</b></div>'+
-                  '<div style="font-size:10px;color:#7f8aa4;margin:4px 0 7px">Page '+idleEntier_(info.index)+' / '+idleEntier_(info.total)+(info.sousTitre?' · '+idleHtml_(info.sousTitre):'')+'</div>'+ 
+                  '<div style="font-size:12px;color:#7f8aa4;margin:4px 0 7px">Page '+idleEntier_(info.index)+' / '+idleEntier_(info.total)+(info.sousTitre?' · '+idleHtml_(info.sousTitre):'')+'</div>'+ 
                   '<div class="soreal-idle-info-recap-intro-v1">'+
                     info.paragraphes.map(function(texte){
                       return '<div style="margin-bottom:7px">'+idleHtml_(texte)+'</div>';
@@ -21611,18 +21611,18 @@ function pageAventureIdleV28_(j){
                   '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+targetId+'">🔊 Lire ce texte</button>'+
                 '</div>';
               }).join('')
-              :'<div style="font-size:12px;color:#5b6178">Aucune intervention disponible pour l’instant.</div>'
+              :'<div style="font-size:14px;color:#5b6178">Aucune intervention disponible pour l’instant.</div>'
             ):'')+
           '</div>'+
           htmlProfilPseudoIdleV1_(j)+
           (j&&j.classement&&j.classement.debloque
             ?'<div class="soreal-idle-section-v8">'+
               '<div class="soreal-idle-window-title-v31">🏆 Classement</div>'+
-              '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#c9d3ee">'+
+              '<label style="display:flex;align-items:center;gap:8px;font-size:15px;color:#c9d3ee">'+
                 '<input type="checkbox" '+(j.classement.visible!==false?'checked ':'')+'onchange="window.__basculerClassementVisibleIdleV1__(this.checked)"> '+
                 'Apparaître dans le classement pour les autres joueurs'+
               '</label>'+
-              '<div style="font-size:12px;color:#8b93ab;margin-top:8px">'+
+              '<div style="font-size:14px;color:#8b93ab;margin-top:8px">'+
                 'Décoché : ton nom n’apparaît plus dans le classement vu par les autres joueurs. Tu continues de voir ta propre place normalement.'+
               '</div>'+
             '</div>'
@@ -21630,14 +21630,14 @@ function pageAventureIdleV28_(j){
           (j&&j.reglages
             ?'<div class="soreal-idle-section-v8" id="sorealIdleAccesAdminV1">'+
               '<div class="soreal-idle-window-title-v31">🔑 Accès à SOREAL IDLE (administrateur)</div>'+
-              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">'+
+              '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">'+
                 'Activé : toute personne qui a déjà le trophée « Assiduité de bronze » (même si elle ne travaille plus ici) a accès à SOREAL IDLE, et le reçoit avec un popup de félicitations dans APP / TV. Désactivé : SOREAL IDLE est caché à tout le monde, sauf à toi.'+
               '</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerAccesOuvertIdleV1__()" '+
                 'style="'+(j.reglages.accesOuvert?'background:#166534;color:#fff':'background:#7f1d1d;color:#fff')+'">'+
                 (j.reglages.accesOuvert?'✅ Accès OUVERT (trophée Assiduité de bronze) — désactiver':'⛔ Accès FERMÉ — activer pour les détenteurs du trophée')+
               '</button>'+
-              '<div style="font-size:12px;color:#8b93ab;margin:14px 0 10px">'+
+              '<div style="font-size:14px;color:#8b93ab;margin:14px 0 10px">'+
                 'Accès public : activé, toute personne qui se connecte avec un compte Google peut jouer sans passer par APP / TV (elle est vue des autres sous son pseudo). Désactivé : la connexion Google est acceptée mais le jeu reste fermé.'+
               '</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerAccesPublicIdleV1__()" '+
@@ -21651,7 +21651,7 @@ function pageAventureIdleV28_(j){
           htmlReglagesAudioIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
-            '<div style="font-size:12px;color:#8b93ab">Build <b style="color:#dce5f3">Beta '+idleHtml_(notesMajIdleV1_().courante)+'</b>'+
+            '<div style="font-size:14px;color:#8b93ab">Build <b style="color:#dce5f3">Beta '+idleHtml_(notesMajIdleV1_().courante)+'</b>'+
               (notesMajIdleV1_().versions[0]?' · '+idleHtml_(notesMajIdleV1_().versions[0].nom):'')+'</div>'+
             htmlNotesMajIdleV1_()+
           '</div>'+
@@ -21659,13 +21659,13 @@ function pageAventureIdleV28_(j){
           (estAdminSorealIdle_()
             ?'<div class="soreal-idle-section-v8">'+
               '<div class="soreal-idle-window-title-v31">🧪 Outils de test (administrateur)</div>'+
-              '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Les scènes spéciales (histoires) se créent, se modifient et se revoient dans le menu <b>Admin</b>.</div>'+
+              '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Les scènes spéciales (histoires) se créent, se modifient et se revoient dans le menu <b>Admin</b>.</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__menuIdleV28__(\'admin\')">🛠️ Ouvrir le menu Admin</button>'+
             '</div>'
             :'')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Réinitialisation complète</div>'+
-            '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+
+            '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible.</div>'+
             '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTotalIdleV67__()">💣 Réinitialiser entièrement SOREAL IDLE</button>'+
           '</div>';
       }

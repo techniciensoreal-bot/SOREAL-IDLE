@@ -18,16 +18,16 @@ function style(){
     '#soreal-idle-bug-v1{position:fixed;inset:0;z-index:100002;background:rgba(4,8,18,.78);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}'+
     '#soreal-idle-bug-v1 .boite{width:min(560px,100%);max-height:100%;overflow:auto;background:#182236;border:1px solid rgba(166,188,229,.25);border-radius:16px;padding:16px;color:#dce5f3;box-shadow:0 18px 50px rgba(0,0,0,.6)}'+
     '#soreal-idle-bug-v1 h3{margin:0 0 6px;font-size:18px}'+
-    '#soreal-idle-bug-v1 .aide{font-size:12px;color:#8fa3c9;margin-bottom:10px}'+
+    '#soreal-idle-bug-v1 .aide{font-size:14px;color:#8fa3c9;margin-bottom:10px}'+
     '#soreal-idle-bug-v1 textarea{width:100%;min-height:150px;box-sizing:border-box;resize:vertical;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#0f1729;color:#eef4fc;padding:10px;font:14px/1.4 system-ui,sans-serif}'+
-    '#soreal-idle-bug-v1 .compteur{font-size:11px;color:#8fa3c9;text-align:right;margin-top:3px}'+
-    '#soreal-idle-bug-v1 .retour{min-height:18px;margin-top:8px;font-size:13px}'+
+    '#soreal-idle-bug-v1 .compteur{font-size:13px;color:#8fa3c9;text-align:right;margin-top:3px}'+
+    '#soreal-idle-bug-v1 .retour{min-height:18px;margin-top:8px;font-size:15px}'+
     '#soreal-idle-bug-v1 .retour.erreur{color:#ffb4b4}#soreal-idle-bug-v1 .retour.ok{color:#9ee6b3}'+
     '#soreal-idle-bug-v1 .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}'+
     '#soreal-idle-bug-v1 button{padding:9px 16px;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#22314d;color:#eef4fc;font:600 14px system-ui,sans-serif;cursor:pointer}'+
     '#soreal-idle-bug-v1 button.envoyer{background:#2f6fd0;border-color:#5b93e6}'+
     '#soreal-idle-bug-v1 button:disabled{opacity:.4;cursor:not-allowed}'+
-    '#soreal-idle-bug-v1 .rapport{border:1px solid rgba(166,188,229,.18);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px;white-space:pre-wrap}'+
+    '#soreal-idle-bug-v1 .rapport{border:1px solid rgba(166,188,229,.18);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:15px;white-space:pre-wrap}'+
     '#soreal-idle-bug-v1 .rapport small{display:block;color:#8fa3c9;margin-bottom:3px}';
   document.head.appendChild(st);
 }
@@ -132,7 +132,7 @@ function voirRapports(){
 function html(estAdmin){
   return '<div class="soreal-idle-section-v8">'+
     '<div class="soreal-idle-window-title-v31">🐞 Signaler un bug</div>'+
-    '<div style="font-size:12px;color:#8b93ab;margin-bottom:10px">Quelque chose ne fonctionne pas comme prévu ? Écris-le nous : ton message est envoyé à Norman.</div>'+
+    '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Quelque chose ne fonctionne pas comme prévu ? Écris-le nous : ton message est envoyé à Norman.</div>'+
     '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__bugReportOuvrirV1__()">🐞 Signaler un bug</button>'+
     (estAdmin?' <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__bugReportVoirV1__()">📥 Signalements reçus</button>':'')+
   '</div>';

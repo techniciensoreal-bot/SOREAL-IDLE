@@ -64,7 +64,7 @@ assert.ok(ui.includes("Appuie sur Fight. Une victoire tue ce boss pour le run et
 assert.equal(ui.includes("au toucher : touche l’objet puis le Coffre"), false);
 assert.ok(ui.includes("Glisse un objet réellement maxé ici pour le ranger dans sa case</div>"));
 assert.equal(ui.includes("rendreBonusEquipementAdventureIdleV1_(a);"), false, "bloc Equipment Bonuses retiré de la page Adventure");
-assert.match(css, /\.soreal-idle-bt-meta-v120\{\s*font-size:13px;/);
+assert.match(css, /\.soreal-idle-bt-meta-v120\{\s*font-size:15px;/);
 
 // Popup de nouveauté : un seul bouton
 assert.equal(ui.includes("window.__allerDepuisPopupNouveauteIdleV106__(\\''+"), false);

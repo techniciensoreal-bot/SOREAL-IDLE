@@ -224,7 +224,7 @@
         (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+
       '</div></details>':'')+
       (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin-top:8px">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'');
-    lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:12px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
+    lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:14px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
       contenuFiltre
     ));
 
@@ -232,7 +232,7 @@
     lignes.push(section('🎽 Configurations d’équipement · '+entier(s.loadoutSlots),
       los.length?('<div style="display:grid;gap:8px">'+los.map(function(lo,i){
         var contenu=lo&&lo.items&&lo.items.length?lo.items.map(function(x){return html(x.name||'objet absent');}).join(', '):'vide';
-        return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><span><b>'+(i+1)+'.</b> <span style="font-size:12px;color:#aeb5c8">'+contenu+'</span></span><span style="display:flex;gap:6px">'+
+        return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><span><b>'+(i+1)+'.</b> <span style="font-size:14px;color:#aeb5c8">'+contenu+'</span></span><span style="display:flex;gap:6px">'+
           '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'save\','+i+')">Enregistrer</button>'+
           (lo?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'apply\','+i+')">Équiper</button>':'')+
         '</span></div>';

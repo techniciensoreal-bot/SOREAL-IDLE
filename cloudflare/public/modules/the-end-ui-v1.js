@@ -21,7 +21,7 @@ function injecterStyle(){
     '.soreal-idle-the-end-v1{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}'+
     '.soreal-idle-the-end-piece-v1{min-width:44px;height:44px;padding:0 5px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:#0b0d12;color:#7d8599;font:700 8px/1.1 system-ui,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:.06em;cursor:help;box-sizing:border-box}'+
     '.soreal-idle-the-end-piece-v1.red{background:#3a0508;border-color:#ff3b3b;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 0 10px rgba(255,59,59,.55)}'+
-    '.soreal-idle-the-end-note-v1{flex-basis:100%;font-size:12px;color:#aeb5c8}'+
+    '.soreal-idle-the-end-note-v1{flex-basis:100%;font-size:14px;color:#aeb5c8}'+
     '#soreal-idle-the-end-overlay-v1{position:fixed;inset:0;z-index:100000;background:#000;color:#e9e9ee;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;cursor:pointer;font-family:Georgia,"Times New Roman",serif}'+
     '#soreal-idle-the-end-overlay-v1 .scene{max-width:640px;width:100%;max-height:100%;overflow:auto;text-align:center;font-size:19px;line-height:1.65}'+
     '#soreal-idle-the-end-overlay-v1 p{margin:0 0 1.1em;opacity:0;transition:opacity 1.4s ease}'+
@@ -57,7 +57,7 @@ function finalHackHtml(fh){
   const pct=fh.total>0?Math.max(0,Math.min(100,fh.seconds/fh.total*100)):0;
   return '<div class="soreal-idle-section-v8" style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+esc(fh.name)+'</b><span>'+(fh.done?'terminé':Math.floor(pct)+' %')+'</span></div>'+
     '<div style="height:8px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:8px;overflow:hidden"><div style="height:100%;width:'+pct.toFixed(2)+'%;background:linear-gradient(90deg,#ff3b3b,#ff9a3b)"></div></div>'+
-    '<div style="font-size:12px;color:#aeb5c8;margin-top:6px">'+(fh.done?'':'Progresse seul, sans Resource 3 · '+heures(Math.max(0,fh.total-fh.seconds))+' restantes')+'</div></div>';
+    '<div style="font-size:14px;color:#aeb5c8;margin-top:6px">'+(fh.done?'':'Progresse seul, sans Resource 3 · '+heures(Math.max(0,fh.total-fh.seconds))+' restantes')+'</div></div>';
 }
 
 /* Notification discrète à chaque nouvelle pièce (rien au premier chargement). */

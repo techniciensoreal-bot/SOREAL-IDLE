@@ -8,8 +8,22 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'8.9',
+    courante:'9.0',
     versions:[
+      {
+        version:'9.0',
+        nom:'Un jeu vivant et lisible',
+        date:'2026-10-01',
+        points:[
+          'Un bandeau « En direct » en bas de l’écran annonce ce que font les autres joueurs (boss vaincus pour la première fois, trophées, farm…) et les messages du chat. Chaque information ne passe qu’une fois, en fondu.',
+          'Le chat est maintenant une vraie page du menu, avec l’activité des joueurs au-dessus.',
+          'Une bannière t’invite à rafraîchir la page quand une nouvelle version du jeu est disponible.',
+          'Tous les menus ont leur propre décor, et les cases fixes du haut prennent les couleurs de la page ouverte.',
+          'Les textes sont plus grands et plus lisibles sur téléphone, et les barres de vie du combat n’affichent plus que les PV, en plus gros.',
+          'Une allocation d’énergie ou de magie n’est plus jamais annulée par une mise à jour plus ancienne, les boosts s’effacent tout de suite quand tu les absorbes, et un objet qui tombe apparaît sans devoir rafraîchir.',
+          'Dans l’entraînement, les compétences d’attaque (rouge) et de défense (bleu) sont clairement séparées.',
+        ]
+      },
       {
         version:'8.9',
         nom:'Les défis comme dans le jeu d’origine',
@@ -18,7 +32,7 @@
           'Le menu Défis a été refait d’après le wiki : pour chaque défi, une description, ses restrictions, sa condition de victoire et la liste de ses récompenses, en français.',
           'Un défi se termine tout seul dès que son objectif est atteint, avec une annonce des récompenses. Un défi que tu n’as pas encore ouvert n’apparaît jamais.',
           'Les restrictions sont réellement appliquées : impossible d’équiper quoi que ce soit pendant un défi sans équipement, menus fermés ou Renaissances interdites quand le défi l’exige.',
-          'Les défis à surprises frappent maintenant à intervalles réguliers, avec un coup plus sévère tous les cinq coups, et le défi aveugle masque de plus en plus de nombres au fil des réussites.'
+          'Les défis à surprises frappent maintenant à intervalles réguliers, avec un coup plus sévère tous les cinq coups, et le défi aveugle masque les nombres affichés.'
         ]
       },
       {

@@ -57,7 +57,7 @@ function contenu(etage,kills,killsSurEtage){
     '<div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;min-height:190px;padding:14px 10px 10px">'+
       avatar+
       '<div style="padding:3px 14px;border-radius:999px;background:rgba(10,16,30,.82);border:1px solid rgba(255,255,255,.25);font-weight:800;font-size:16px;color:#fff">'+esc(nom)+'</div>'+
-      '<div style="font-size:12px;color:#dce5f3;text-shadow:0 1px 3px #000">Étage '+etage+' · palier '+palier(etage)+' · ennemi '+(killsSurEtage+1)+' / 10</div>'+
+      '<div style="font-size:14px;color:#dce5f3;text-shadow:0 1px 3px #000">Étage '+etage+' · palier '+palier(etage)+' · ennemi '+(killsSurEtage+1)+' / 10</div>'+
     '</div>';
 }
 

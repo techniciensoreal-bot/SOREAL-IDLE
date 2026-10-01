@@ -157,8 +157,8 @@ function installerStyle_(){
   s.textContent=
     '.soreal-idle-adm-carte-v1{background:linear-gradient(165deg,#221116,#150c0f);border:1px solid rgba(220,38,38,.35);border-radius:14px;padding:12px 14px;margin:0 0 10px;color:#f3e6e8}'+
     '.soreal-idle-adm-carte-v1 h4{margin:0 0 4px;font-size:15px}'+
-    '.soreal-idle-adm-meta-v1{font-size:12px;color:#c9adb2;line-height:1.5}'+
-    '.soreal-idle-adm-badge-v1{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;margin-left:6px;background:rgba(255,255,255,.1)}'+
+    '.soreal-idle-adm-meta-v1{font-size:14px;color:#c9adb2;line-height:1.5}'+
+    '.soreal-idle-adm-badge-v1{display:inline-block;font-size:13px;font-weight:800;border-radius:999px;padding:2px 8px;margin-left:6px;background:rgba(255,255,255,.1)}'+
     '.soreal-idle-adm-badge-v1.ok{background:rgba(34,197,94,.22);color:#86efac}'+
     '.soreal-idle-adm-badge-v1.non{background:rgba(245,158,11,.22);color:#fcd34d}'+
     '.soreal-idle-adm-actions-v1{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}'+
@@ -170,7 +170,7 @@ function installerStyle_(){
     '#'+EDITEUR_ID+'{position:fixed;inset:0;z-index:999000;background:#0b1020;color:#eef2ff;overflow-y:auto;font:14px/1.45 system-ui,sans-serif}'+
     '#'+EDITEUR_ID+' .adm-page{max-width:760px;margin:0 auto;padding:16px 14px 90px}'+
     '#'+EDITEUR_ID+' h2{margin:0 0 12px;font-size:20px}'+
-    '#'+EDITEUR_ID+' label{display:block;font-size:12px;font-weight:800;color:#a9b6d8;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em}'+
+    '#'+EDITEUR_ID+' label{display:block;font-size:14px;font-weight:800;color:#a9b6d8;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em}'+
     '#'+EDITEUR_ID+' input[type=text],#'+EDITEUR_ID+' select,#'+EDITEUR_ID+' textarea{width:100%;box-sizing:border-box;background:#111a30;color:#fff;border:1px solid #33456f;border-radius:10px;padding:9px 10px;font:14px system-ui,sans-serif}'+
     '#'+EDITEUR_ID+' textarea{min-height:110px;resize:vertical}'+
     '.adm-etape-v1{background:#131c35;border:1px solid #2c3d66;border-radius:14px;padding:10px;margin:10px 0}'+
@@ -178,9 +178,9 @@ function installerStyle_(){
     '.adm-etape-tete-v1 b{font-size:15px}'+
     '.adm-etape-corps-v1{display:flex;gap:10px;align-items:flex-start}'+
     '.adm-vignette-v1{width:112px;height:112px;flex:0 0 112px;object-fit:cover;border-radius:10px;background:#0a1226;border:1px solid #33456f}'+
-    '.adm-vide-v1{display:flex;align-items:center;justify-content:center;color:#7d8bb0;font-size:12px;text-align:center}'+
+    '.adm-vide-v1{display:flex;align-items:center;justify-content:center;color:#7d8bb0;font-size:14px;text-align:center}'+
     '.adm-pied-v1{position:fixed;left:0;right:0;bottom:0;background:#0d1530;border-top:1px solid #2c3d66;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;z-index:1}'+
-    '.adm-etat-v1{font-size:12px;margin:8px 0;color:#a9b6d8}'+
+    '.adm-etat-v1{font-size:14px;margin:8px 0;color:#a9b6d8}'+
     '.adm-erreur-v1{color:#fca5a5;font-weight:700}'+
     '@media(max-width:520px){.adm-etape-corps-v1{flex-direction:column;align-items:stretch}.adm-vignette-v1{width:100%;height:170px;flex:none}}';
   document.head.appendChild(s);
@@ -376,8 +376,8 @@ function dessinerEditeur_(){
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="fermer">✕ Fermer</button></div>'+
       '<label>Titre (visible seulement ici)</label><input type="text" data-adm-champ="titre" value="'+esc_(edition.titre)+'" maxlength="80">'+
       '<label>Se déclenche à la mort du boss (Fight Boss)</label><select data-adm-champ="boss">'+optionsBoss_()+'</select>'+
-      '<label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px"><input type="checkbox" data-adm-champ="actif"'+(edition.actif?' checked':'')+'> Histoire active</label>'+
-      '<h3 style="margin:18px 0 0">Étapes <span style="font-weight:400;font-size:13px;color:#a9b6d8">(une image + un texte chacune)</span></h3>'+
+      '<label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:15px"><input type="checkbox" data-adm-champ="actif"'+(edition.actif?' checked':'')+'> Histoire active</label>'+
+      '<h3 style="margin:18px 0 0">Étapes <span style="font-weight:400;font-size:15px;color:#a9b6d8">(une image + un texte chacune)</span></h3>'+
       '<div id="sorealIdleAdminEtapesV1">'+etapesHtml_()+'</div>'+
       '<div class="soreal-idle-adm-actions-v1"><button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="ajouter">＋ Ajouter une étape</button>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="images">🖼 Ajouter plusieurs images d’un coup</button></div>'+
@@ -390,7 +390,7 @@ function dessinerEditeur_(){
       '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-g="enregistrer">💾 Enregistrer</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="tester">▶ Tester</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="voix" id="sorealIdleAdminBtnVoixV1">🎙 Générer les voix</button>'+
-      '<label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:12px"><input type="checkbox" id="sorealIdleAdminToutesV1"> tout régénérer</label>'+
+      '<label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" id="sorealIdleAdminToutesV1"> tout régénérer</label>'+
     '</div>';
   afficherEtat_();
 }
@@ -672,7 +672,7 @@ function genererEtape_(i){
 
 function prononciationsHtml_(){
   var liste=lirePrononciations_();
-  return '<h3 style="margin:18px 0 0">🗣 Prononciation <span style="font-weight:400;font-size:13px;color:#a9b6d8">(corriger un mot mal lu)</span></h3>'+
+  return '<h3 style="margin:18px 0 0">🗣 Prononciation <span style="font-weight:400;font-size:15px;color:#a9b6d8">(corriger un mot mal lu)</span></h3>'+
     '<div class="soreal-idle-adm-meta-v1">Écris le mot tel qu’il est dans le texte, et comment il doit se prononcer, écrit comme on le dit (ex. <b>zinzin</b> → <b>zain zain</b>). Le texte affiché ne change pas ; ensuite, régénère les cases concernées.</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
       '<input type="text" id="sorealIdleAdminPronMotV1" placeholder="Mot (ex. zinzin)" style="flex:1;min-width:120px">'+

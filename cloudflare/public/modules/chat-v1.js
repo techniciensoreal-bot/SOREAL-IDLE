@@ -187,24 +187,24 @@
     st.id='sorealIdleChatStyleV1';
     /* Norman (2026-10-01) : le chat n'est plus une fenêtre volante mais une page du menu (couleurs du thème « chat », --th-*). */
     st.textContent=
-      '.soreal-idle-chat-badge-v1{display:inline-block;margin-left:5px;min-width:18px;padding:1px 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;line-height:1.3;text-align:center}'+
+      '.soreal-idle-chat-badge-v1{display:inline-block;margin-left:5px;min-width:18px;padding:1px 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:13px;font-weight:900;line-height:1.3;text-align:center}'+
       '#sorealIdleChatV1{font-family:inherit;color:var(--th-ink,#e8fffb)}'+
       '#sorealIdleChatV1 .sic-fen{display:flex;flex-direction:column;height:min(76dvh,760px);min-height:380px;background:linear-gradient(165deg,var(--th-bg,#1d2a3a),var(--th-bg2,#0f1623));border:1px solid var(--th-line,rgba(94,234,212,.42));border-radius:22px;box-shadow:0 10px 30px -14px var(--th-glow,rgba(94,234,212,.4));overflow:hidden}'+
       '#sorealIdleChatV1 .sic-tete{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--th-line,rgba(255,255,255,.1));background:rgba(94,234,212,.08)}'+
       '#sorealIdleChatV1 .sic-titre{flex:1;font-size:15px;font-weight:900;letter-spacing:.04em}'+
       '#sorealIdleChatV1 button{cursor:pointer;font:inherit}'+
-      '#sorealIdleChatV1 .sic-btn{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--th-line,rgba(94,234,212,.4));background:rgba(94,234,212,.12);color:var(--th-ink,#cfe6f7);font-size:13px;font-weight:800}'+
+      '#sorealIdleChatV1 .sic-btn{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--th-line,rgba(94,234,212,.4));background:rgba(94,234,212,.12);color:var(--th-ink,#cfe6f7);font-size:15px;font-weight:800}'+
       '#sorealIdleChatV1 .sic-btn.actif{background:linear-gradient(180deg,#8ff7e6,#25b9a4);border-color:#8ff7e6;color:#04201b}'+
       '#sorealIdleChatV1 .sic-corps{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}'+
       '#sorealIdleChatV1 .sic-liste{flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}'+
       '#sorealIdleChatV1 .sic-msg{max-width:84%;padding:8px 12px;border-radius:18px 18px 18px 4px;background:rgba(255,255,255,.08);align-self:flex-start;word-break:break-word}'+
       '#sorealIdleChatV1 .sic-msg.moi{align-self:flex-end;border-radius:18px 18px 4px 18px;background:linear-gradient(135deg,rgba(94,234,212,.28),rgba(244,114,182,.20))}'+
-      '#sorealIdleChatV1 .sic-nom{font-size:12px;font-weight:900;margin-bottom:2px;color:#8ff7e6}'+
+      '#sorealIdleChatV1 .sic-nom{font-size:14px;font-weight:900;margin-bottom:2px;color:#8ff7e6}'+
       '#sorealIdleChatV1 .sic-msg.moi .sic-nom{color:#ffc2e0}'+
-      '#sorealIdleChatV1 .sic-heure{margin-left:6px;font-size:10px;font-weight:400;color:var(--th-dim,#8b93ab)}'+
-      '#sorealIdleChatV1 .sic-suppr{margin-left:8px;border:0;background:transparent;color:#fca5a5;font-size:12px;padding:0}'+
+      '#sorealIdleChatV1 .sic-heure{margin-left:6px;font-size:12px;font-weight:400;color:var(--th-dim,#8b93ab)}'+
+      '#sorealIdleChatV1 .sic-suppr{margin-left:8px;border:0;background:transparent;color:#fca5a5;font-size:14px;padding:0}'+
       '#sorealIdleChatV1 .sic-txt{font-size:14px;line-height:1.4;white-space:pre-wrap}'+
-      '#sorealIdleChatV1 .sic-vide{margin:auto;color:var(--th-dim,#8b93ab);font-size:13px;text-align:center}'+
+      '#sorealIdleChatV1 .sic-vide{margin:auto;color:var(--th-dim,#8b93ab);font-size:15px;text-align:center}'+
       '#sorealIdleChatV1 .sic-saisie{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--th-line,rgba(255,255,255,.1))}'+
       '#sorealIdleChatV1 textarea{flex:1;min-height:42px;max-height:110px;resize:none;padding:9px 14px;border-radius:20px;border:1px solid var(--th-line,rgba(255,255,255,.2));background:rgba(0,0,0,.35);color:#fff;font:inherit;font-size:14px}'+
       '#sorealIdleChatV1 .sic-envoyer{background:linear-gradient(180deg,#8ff7e6,#25b9a4);border:0;color:#04201b}'+
@@ -214,9 +214,9 @@
       '#sorealIdleChatV1 .sic-point{width:10px;height:10px;border-radius:50%;background:#64748b;flex:none}'+
       '#sorealIdleChatV1 .sic-point.on{background:#22c55e;box-shadow:0 0 8px #22c55e}'+
       '#sorealIdleChatV1 .sic-point.away{background:#f59e0b}'+
-      '#sorealIdleChatV1 .sic-activite{margin-left:auto;font-size:12px;color:var(--th-dim,#9fb0cf);text-align:right}'+
-      '#sorealIdleChatV1 .sic-admin{margin-left:6px;padding:1px 6px;border-radius:6px;background:#7c3aed;color:#fff;font-size:10px;font-weight:900}'+
-      '#sorealIdleChatV1 .sic-note{font-size:11px;color:var(--th-dim,#8b93ab);margin:0 0 8px}'+
+      '#sorealIdleChatV1 .sic-activite{margin-left:auto;font-size:14px;color:var(--th-dim,#9fb0cf);text-align:right}'+
+      '#sorealIdleChatV1 .sic-admin{margin-left:6px;padding:1px 6px;border-radius:6px;background:#7c3aed;color:#fff;font-size:12px;font-weight:900}'+
+      '#sorealIdleChatV1 .sic-note{font-size:13px;color:var(--th-dim,#8b93ab);margin:0 0 8px}'+
       /* Grand écran : la liste des joueurs en ligne reste affichée à droite de la conversation. */
       '@media(min-width:900px){#sorealIdleChatV1 .sic-corps{flex-direction:row}#sorealIdleChatV1 .sic-liste{flex:1}#sorealIdleChatV1 .sic-presence{position:static;inset:auto;flex:0 0 280px;border-left:1px solid var(--th-line,rgba(255,255,255,.1))}#sorealIdleChatV1 .sic-presence[hidden]{display:block}#sorealIdleChatV1 .sic-btn-presence{display:none}}';
     document.head.appendChild(st);

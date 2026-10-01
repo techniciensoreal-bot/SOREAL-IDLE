@@ -31,7 +31,8 @@ function charger(etat, dom) {
 {
   const cellules = {};
   const cree = (libelle, texte) => {
-    const valeur = { textContent: texte };
+    const classes = new Set();
+    const valeur = { textContent: texte, classes, classList: { toggle: (c, on) => (on ? classes.add(c) : classes.delete(c)) } };
     const carte = { querySelector: () => valeur };
     cellules[libelle] = valeur;
     return { textContent: libelle, parentElement: carte };
@@ -44,7 +45,12 @@ function charger(etat, dom) {
   charger(etat, dom).maj();
   assert.ok(Math.abs(Number(cellules["Rebirth Time Factor"].textContent.slice(1)) - 0.378) < 0.001);
   assert.equal(cellules["NUMBER au Rebirth"].textContent, "48");
+  // Norman (2026-10-01) : NUMBER au Rebirth vert au-dessus du NUMBER actuel, rouge en dessous.
+  assert.ok(cellules["NUMBER au Rebirth"].classes.has("hausse") && !cellules["NUMBER au Rebirth"].classes.has("baisse"));
   assert.ok(Math.abs(Number(cellules["Variation"].textContent.slice(1)) - 48.39) < 0.05);
+  etat.systemes.rebirth.number = 100;
+  charger(etat, dom).maj();
+  assert.ok(cellules["NUMBER au Rebirth"].classes.has("baisse") && !cellules["NUMBER au Rebirth"].classes.has("hausse"));
 }
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/rebirth-live-v1.js?v=1"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/rebirth-live-v1.js?v=3"));
 console.log("idle-rebirth-live-v1: OK");

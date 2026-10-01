@@ -808,34 +808,34 @@
           `.soreal-idle-exp-awning-v213{position:relative;height:30px;margin-bottom:14px;background:repeating-linear-gradient(90deg,${bleu} 0 26px,${fond1} 26px 52px)}`,
           `.soreal-idle-exp-awning-v213::after{content:"";position:absolute;left:0;right:0;top:100%;height:14px;background:radial-gradient(circle at 13px 0,${bleu} 12.5px,transparent 13.5px) 0 0/52px 14px repeat-x,radial-gradient(circle at 13px 0,${fond1} 12.5px,transparent 13.5px) 26px 0/52px 14px repeat-x;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}`,
           `.soreal-idle-exp-balance-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 14px 12px;padding:12px 14px;border-radius:14px;background:${fond1};color:#fff;border:2px solid rgba(255,255,255,.22);box-shadow:inset 0 2px 8px rgba(0,0,0,.35)}`,
-          `.soreal-idle-exp-balance-v210 span{font-size:12px;font-weight:900;letter-spacing:.03em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:6px 12px;border-radius:9px;background:#07111f;color:#7ff0c0;font-size:17px;font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em;box-shadow:inset 0 0 0 2px rgba(255,255,255,.14)}`,
-          `.soreal-idle-exp-open-v213{padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.3);color:#c9f7dd;font-size:9px;font-weight:1000;letter-spacing:.14em}`,
-          `.soreal-idle-exp-aisles-v213{display:flex;align-items:center;justify-content:space-between;margin:0 14px 4px;font-size:9px;font-weight:1000;letter-spacing:.16em;text-transform:uppercase;color:#a9cfdc}`,
+          `.soreal-idle-exp-balance-v210 span{font-size:14px;font-weight:900;letter-spacing:.03em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:6px 12px;border-radius:9px;background:#07111f;color:#7ff0c0;font-size:17px;font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em;box-shadow:inset 0 0 0 2px rgba(255,255,255,.14)}`,
+          `.soreal-idle-exp-open-v213{padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.3);color:#c9f7dd;font-size:11px;font-weight:1000;letter-spacing:.14em}`,
+          `.soreal-idle-exp-aisles-v213{display:flex;align-items:center;justify-content:space-between;margin:0 14px 4px;font-size:11px;font-weight:1000;letter-spacing:.16em;text-transform:uppercase;color:#a9cfdc}`,
           `.soreal-idle-exp-tabs-v212{display:flex;gap:7px;flex-wrap:wrap;margin:0 14px 16px;padding-top:6px}`,
-          `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;position:relative;padding:9px 13px;border-radius:4px 4px 14px 14px;border:1px solid rgba(255,255,255,.22);background:${fond1};color:#e8f4f8;font-size:12px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,
+          `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;position:relative;padding:9px 13px;border-radius:4px 4px 14px 14px;border:1px solid rgba(255,255,255,.22);background:${fond1};color:#e8f4f8;font-size:14px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,
           `.soreal-idle-exp-tab-v212::before{content:"";position:absolute;left:50%;top:-8px;width:2px;height:8px;background:rgba(255,255,255,.4);transform:translateX(-50%)}`,
           `.soreal-idle-exp-tab-v212:hover{background:color-mix(in srgb,${bleu} 72%,#0b1020)}`,
           `.soreal-idle-exp-tab-v212.actif{background:${bleu};border-color:#fff;color:#fff;box-shadow:0 5px 14px color-mix(in srgb,${bleu} 55%,transparent)}`,
-          `.soreal-idle-exp-pastille-v212{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#f5c451;color:#3a2a00;font-size:11px;font-weight:1000;display:inline-flex;align-items:center;justify-content:center}`,
+          `.soreal-idle-exp-pastille-v212{min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#f5c451;color:#3a2a00;font-size:13px;font-weight:1000;display:inline-flex;align-items:center;justify-content:center}`,
           `.soreal-idle-exp-shelves-v213{padding:0 14px 14px}`,
-          `.soreal-idle-exp-intro-v212{margin:0 0 12px;padding:11px 13px 11px 40px;position:relative;border-radius:12px;background:rgba(245,196,81,.13);border:2px dashed rgba(245,196,81,.5);color:#f7e6b0;font-size:12px;line-height:1.5;font-weight:750}.soreal-idle-exp-intro-v212::before{content:"🏷️";position:absolute;left:11px;top:9px;font-size:18px}`,
-          `.soreal-idle-exp-resource-v210{margin:16px 0 8px;padding:10px 13px;border-radius:12px;background:${fond1};color:#fff;border-left:4px solid ${bleu};font-size:13px;font-weight:1000}`,
+          `.soreal-idle-exp-intro-v212{margin:0 0 12px;padding:11px 13px 11px 40px;position:relative;border-radius:12px;background:rgba(245,196,81,.13);border:2px dashed rgba(245,196,81,.5);color:#f7e6b0;font-size:14px;line-height:1.5;font-weight:750}.soreal-idle-exp-intro-v212::before{content:"🏷️";position:absolute;left:11px;top:9px;font-size:18px}`,
+          `.soreal-idle-exp-resource-v210{margin:16px 0 8px;padding:10px 13px;border-radius:12px;background:${fond1};color:#fff;border-left:4px solid ${bleu};font-size:15px;font-weight:1000}`,
           `.soreal-idle-exp-stat-v210{position:relative;margin:0 0 16px;padding:0 0 12px;border-radius:14px 14px 4px 4px;background:${fond1};color:#f2f8fb;border:1px solid rgba(255,255,255,.14);border-bottom:7px solid ${bleu};box-shadow:0 7px 0 rgba(0,0,0,.3),0 12px 16px rgba(0,0,0,.18)}`,
           `.soreal-idle-exp-shelves-v213>.soreal-idle-exp-stat-v210:nth-of-type(even){background:${fond2};border-color:rgba(255,255,255,.14);border-bottom-color:${fond1}}`,
           `.soreal-idle-exp-stat-head-v210{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:13px 13px 0 0;background:rgba(0,0,0,.22);color:#fff;font-size:14px;font-weight:1000}.soreal-idle-exp-stat-head-v210>span{min-width:0}`,
           `.soreal-idle-exp-stat-v210>:not(.soreal-idle-exp-stat-head-v210){margin-left:12px;margin-right:12px}`,
-          `.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:4px 8px;border-radius:8px;background:#07111f;color:#fff;border:1px solid rgba(255,255,255,.14)}.soreal-idle-exp-current-v211 small{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#9fc6d3;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:13px;color:#7ff0c0}`,
-          `.soreal-idle-exp-help-v210{margin-top:8px;margin-bottom:10px;color:#c2dde6;font-size:11px;line-height:1.5;font-weight:750}`,
+          `.soreal-idle-exp-current-v211{display:flex;align-items:baseline;gap:6px;flex:0 0 auto;padding:4px 8px;border-radius:8px;background:#07111f;color:#fff;border:1px solid rgba(255,255,255,.14)}.soreal-idle-exp-current-v211 small{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9fc6d3;font-weight:900}.soreal-idle-exp-current-v211 strong{font-size:15px;color:#7ff0c0}`,
+          `.soreal-idle-exp-help-v210{margin-top:8px;margin-bottom:10px;color:#c2dde6;font-size:13px;line-height:1.5;font-weight:750}`,
           `.soreal-idle-exp-stat-v210>.soreal-idle-exp-actions-v210:first-of-type{margin-top:10px}`,
           `.soreal-idle-exp-actions-v210{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:8px}`,
           `.soreal-idle-exp-buy-v210{appearance:none;position:relative;min-height:50px;border:1px solid rgba(255,255,255,.28);border-radius:6px 12px 12px 6px;padding:8px 10px 8px 22px;background:${bleu};color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;outline:1px dashed rgba(255,255,255,.35);outline-offset:-4px}`,
           `.soreal-idle-exp-buy-v210::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:${fond2};box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}`,
-          `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 82%,#fff);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:12px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:10px;color:#e3f4fa !important;font-weight:900}`,
+          `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 82%,#fff);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:14px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:12px;color:#e3f4fa !important;font-weight:900}`,
           `.soreal-idle-exp-buy-v210:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.45);transform:none}`,
           `.soreal-idle-exp-buy-v210.primary{background:#f5c451;border-color:#fff;color:#3a2a00 !important}.soreal-idle-exp-buy-v210.primary b,.soreal-idle-exp-buy-v210.primary small{color:#3a2a00 !important}.soreal-idle-exp-buy-v210.primary:hover{background:#ffd978}.soreal-idle-exp-buy-v210.offer{background:rgba(245,196,81,.22);border-color:rgba(245,196,81,.6);color:#ffeeb5 !important}.soreal-idle-exp-buy-v210.offer b,.soreal-idle-exp-buy-v210.offer small{color:#ffeeb5 !important}`,
-          `.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:8px;align-items:end;margin-top:10px;padding-top:10px;border-top:2px dotted rgba(255,255,255,.2)}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:10px;font-weight:900;color:#b9d6e0}.soreal-idle-exp-custom-v210 input{min-width:0;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#fff;font-weight:800}`,
+          `.soreal-idle-exp-custom-v210{display:grid;grid-template-columns:minmax(120px,1fr) 90px minmax(112px,auto);gap:8px;align-items:end;margin-top:10px;padding-top:10px;border-top:2px dotted rgba(255,255,255,.2)}.soreal-idle-exp-custom-v210 label{grid-column:1/-1;font-size:12px;font-weight:900;color:#b9d6e0}.soreal-idle-exp-custom-v210 input{min-width:0;padding:9px;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#fff;font-weight:800}`,
           `.soreal-idle-exp-newbie-v210{margin-top:10px;padding:10px;border-radius:11px;background:rgba(245,196,81,.11);border:2px dashed rgba(245,196,81,.4)}.soreal-idle-exp-newbie-v210 .soreal-idle-window-title-v31{margin-bottom:5px;padding:0;background:transparent;border:0;box-shadow:none;color:#f7e6b0}.soreal-idle-exp-newbie-v210 .soreal-idle-note-v4{color:#e9d9a3}`,
-          `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:850}.soreal-idle-exp-max-v210{width:fit-content;background:rgba(52,199,89,.14);color:#a6f0bb;border:2px solid rgba(52,199,89,.5);border-radius:8px;transform:rotate(-1.5deg);letter-spacing:.04em;text-transform:uppercase}`,
+          `.soreal-idle-exp-lock-v210,.soreal-idle-exp-max-v210{padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.22);color:#cfe6ee;border:1px solid rgba(255,255,255,.12);font-size:13px;font-weight:850}.soreal-idle-exp-max-v210{width:fit-content;background:rgba(52,199,89,.14);color:#a6f0bb;border:2px solid rgba(52,199,89,.5);border-radius:8px;transform:rotate(-1.5deg);letter-spacing:.04em;text-transform:uppercase}`,
           `@media(max-width:560px){.soreal-idle-exp-stat-head-v210{align-items:flex-start}.soreal-idle-exp-current-v211{flex-direction:column;gap:1px;align-items:flex-end}.soreal-idle-exp-actions-v210{grid-template-columns:repeat(2,minmax(0,1fr))}.soreal-idle-exp-custom-v210{grid-template-columns:1fr 1fr}.soreal-idle-exp-custom-v210 .primary{grid-column:1/-1}.soreal-idle-exp-tab-v212{flex:1 1 calc(50% - 7px);justify-content:center}.soreal-idle-exp-tabs-v212,.soreal-idle-exp-aisles-v213{margin-left:10px;margin-right:10px}.soreal-idle-exp-balance-v210{margin-left:10px;margin-right:10px}.soreal-idle-exp-shelves-v213{padding:0 10px 12px}}`
         ].join('');
         return css;
@@ -1220,7 +1220,7 @@
               :(e.autoShopId?'<button type="button" class="soreal-idle-expand-button-v25" '+(exp>=(e.autoCost||0)?'':'disabled ')+'title="Cap '+ressource+' total requis : '+H.formatGrandNombreIdleV70_(e.autoRequiredCap||0)+'" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(e.autoShopId)+'\',1)">Auto-Activate · '+H.formatGrandNombreIdleV70_(e.autoCost||0)+' EXP</button>':'');
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(def.name||def.id)+'</b><span>Tier '+tier+'</span></div>'+
-              '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+
+              '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+
                 'Croissance '+H.formatterHeuresIdleV47_(growth)+' / '+H.formatterHeuresIdleV47_(H.idleEntier_(f.tier||0)*tierSec/3600)+
                 ' · activation '+(cout>0?H.formatGrandNombreIdleV70_(cout)+' '+ressource:'gratuite')+
                 (e.nextTierCost!=null?' · tier suivant '+H.formatGrandNombreIdleV70_(e.nextTierCost)+' graines':(e.nextTierCost===null?' · tier max':''))+
@@ -1230,7 +1230,7 @@
                 '<button type="button" class="soreal-idle-expand-button-v25" '+(f.active||!(f.tier>0)?'disabled':'onclick="window.__actionMetaV47__({action:\'activateYggFruit\',fruit:\''+id+'\'})"')+'>'+(f.active?(pret?'Prêt':'En croissance'):'Activer')+'</button>'+
                 '<button type="button" class="soreal-idle-expand-button-v25" '+(pret?'':'disabled ')+'onclick="window.__utiliserFruitYggIdleV1__(\''+id+'\',\'eat\')">Manger</button>'+
                 '<button type="button" class="soreal-idle-expand-button-v25" '+(pret?'':'disabled ')+'onclick="window.__utiliserFruitYggIdleV1__(\''+id+'\',\'harvest\')">Récolter</button>'+
-                '<label style="font-size:12px;display:flex;gap:4px;align-items:center"><input type="checkbox" '+(poop>0?'':'disabled ')+(yggPoopChoixIdleV1_[def.id]?'checked ':'')+'onchange="window.__basculerPoopYggIdleV1__(\''+id+'\',this.checked)">💩 Poop</label>'+
+                '<label style="font-size:14px;display:flex;gap:4px;align-items:center"><input type="checkbox" '+(poop>0?'':'disabled ')+(yggPoopChoixIdleV1_[def.id]?'checked ':'')+'onchange="window.__basculerPoopYggIdleV1__(\''+id+'\',this.checked)">💩 Poop</label>'+
                 auto+
               '</div>'+
             '</div>';
@@ -1246,7 +1246,7 @@
         const active=Object.keys(diggers).filter(function(id){return diggers[id]&&diggers[id].active;}).length;
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⛏️ Gold Diggers','Monte leur niveau maximum puis choisis le niveau actif. Les Diggers consomment le GPS produit par la Time Machine.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Slots<b>'+active+' actif(s) · '+Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(data.slots||1)-active)+' libre(s)</b></div></div>'+
-          '<div style="display:grid;gap:10px">'+defs.map(function(def){const d=diggers[def.id]||{};const run=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.runLevel||0);const max=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.maxLevel||0);return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+run+' / '+max+'</span></div><div style="font-size:12px;color:#aeb5c8;margin-top:5px">Drain base '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.drain||0)+' GPS · cap '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.cap||0)+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})">Max +1</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.max(0,run-1)+')">−</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.min(max,run+1)+')">+</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__toggleDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+(!d.active)+')">'+(d.active?'Désactiver':'Activer')+'</button></div></div>';}).join('')+'</div>';
+          '<div style="display:grid;gap:10px">'+defs.map(function(def){const d=diggers[def.id]||{};const run=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.runLevel||0);const max=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.maxLevel||0);return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+run+' / '+max+'</span></div><div style="font-size:14px;color:#aeb5c8;margin-top:5px">Drain base '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.drain||0)+' GPS · cap '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.cap||0)+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})">Max +1</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.max(0,run-1)+')">−</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.min(max,run+1)+')">+</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__toggleDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+(!d.active)+')">'+(d.active?'Désactiver':'Activer')+'</button></div></div>';}).join('')+'</div>';
       }
 
 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-303 */
@@ -1265,7 +1265,7 @@ function pagePerksIdleV1_(j){
             const cout=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(perk.cost||0);
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(perk.name||('Perk '+perk.id))+'</b><span>'+niveau+' / '+cap+'</span></div>'+
-              '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(perk.effect||'')+'</div>'+
+              '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(perk.effect||'')+'</div>'+
               '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
                 (auMax
                   ?'<span class="soreal-idle-note-v4">✔ Maximum atteint</span>'
@@ -1290,7 +1290,7 @@ function pageQuirksIdleV1_(j){
             const cout=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(quirk.cost||0);
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(quirk.name||('Quirk '+quirk.id))+'</b><span>'+niveau+' / '+cap+'</span></div>'+
-              '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(quirk.effect||'')+'</div>'+
+              '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(quirk.effect||'')+'</div>'+
               '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
                 (auMax
                   ?'<span class="soreal-idle-note-v4">✔ Maximum atteint</span>'
@@ -1393,7 +1393,7 @@ function pageChallengesIdleV1_(j){
             const peutDemarrer=Boolean(def.unlocked)&&Boolean(def.implemented)&&!actif;
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.completion||0)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.max||0)+'</span></div>'+
-              '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+statut+
+              '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+statut+
                 (def.targetBoss?' · Objectif boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.targetBoss):'')+
                 ' · Récompense '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.reward&&def.reward.experience||0)+' EXP / '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.reward&&def.reward.ap||0)+' AP'+
               '</div>'+
@@ -1896,7 +1896,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
           const label=upgrade?'⬆️ Upgrade':'💪 Augment';
           const sousTitre=upgrade?'Multiplie le bonus de l’Augment · coûte de l’Or et de l’Energy':'Bonus d’Attack et de Defense · coûte de l’Or';
-          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div><div style="font-size:11px;color:#aeb5c8;margin:3px 0 1px">'+'<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:11px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div><div style="font-size:13px;color:#aeb5c8;margin:3px 0 1px">'+'<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:13px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Renforce ton Attack et ta Defense en y investissant de l’Energy et de l’Or.')+
           carteAideMenuIdleV1_('augmentations','Chaque Augment te donne un multiplicateur d’Attack et de Defense. Les multiplicateurs de tous tes Augments s’additionnent.',[
@@ -1925,11 +1925,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               const pair=pairs[def.id]||{};
               const mainOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);
               if(!mainOk){
-                return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><div style="display:flex;justify-content:space-between;gap:8px"><b>🔒 ???????</b></div><div style="font-size:12px;color:#aeb5c8;margin-top:4px">Augment verrouillé.</div></div>';
+                return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><div style="display:flex;justify-content:space-between;gap:8px"><b>🔒 ???????</b></div><div style="font-size:14px;color:#aeb5c8;margin-top:4px">Augment verrouillé.</div></div>';
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_AUGMENTS_V1[def.id]?IDLE_ICONES_AUGMENTS_V1[def.id]+' ':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:12px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
+              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_AUGMENTS_V1[def.id]?IDLE_ICONES_AUGMENTS_V1[def.id]+' ':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
             }).join('')+'</div>';
           })();
       }
@@ -2434,7 +2434,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b>−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             barre+
-            '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:12px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
+            '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:14px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
             '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (l’active s’il ne l’est pas)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Cap</button></div>'+
           '</div>';
         }).join('');
@@ -2631,11 +2631,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}'+
             '.soreal-idle-money-action-v206{flex:1 1 0;min-width:0;box-sizing:border-box;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.5);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.28);text-align:center}'+
             '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+
-            '.soreal-idle-money-action-title-v206{font-size:13px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
-            '.soreal-idle-money-action-note-v206{font-size:10px;color:#d5e1f5;margin-top:2px}'+
+            '.soreal-idle-money-action-title-v206{font-size:15px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
+            '.soreal-idle-money-action-note-v206{font-size:12px;color:#d5e1f5;margin-top:2px}'+
             '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
-            '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:11px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
-            '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:12px}.soreal-idle-money-action-note-v206{font-size:9px}}'+
+            '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:13px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
+            '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:14px}.soreal-idle-money-action-note-v206{font-size:11px}}'+
           '</style>'+
           '<div class="soreal-idle-money-scene-v206">'+
             '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
@@ -2666,7 +2666,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">🎡 TABLE DES RÉCOMPENSES · TIER '+tier+'</div>'+
-            '<div style="font-size:11px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
+            '<div style="font-size:13px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
             '<table class="soreal-idle-reward-table-v206"><tbody>'+
               table.map(function(x){return '<tr><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x)+'</td></tr>';}).join('')+
             '</tbody></table>'+
@@ -2765,7 +2765,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           }).join('');
           return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(verrou?'.55':'1')+'">'+
             '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+H.idleHtml_(n.name)+' · Niv. '+H.formatGrandNombreIdleV70_(n.level)+'</b><span>'+H.formatGrandNombreIdleV70_(n.allocation)+' '+symbole+'</span></div>'+
-            '<div style="font-size:12px;color:#aeb5c8">'+H.idleHtml_(n.effect)+' : <b>'+(n.id==='respawn'?'-':'+')+H.formatGrandNombreIdleV70_(n.effectPct,2)+' %</b>'+
+            '<div style="font-size:14px;color:#aeb5c8">'+H.idleHtml_(n.effect)+' : <b>'+(n.id==='respawn'?'-':'+')+H.formatGrandNombreIdleV70_(n.effectPct,2)+' %</b>'+
             (n.secondsPerLevel!==null&&n.secondsPerLevel!==undefined?' · prochain niveau ≈ '+dureeLongueNguIdleV1_(n.secondsPerLevel):' · aucune allocation')+'</div>'+
             '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;background:#6366f1;transition:none"></div></div>'+
             '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+boutons+'</div></div>';
@@ -2774,7 +2774,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const magie=liste.filter(function(n){return n.resource==='magic';}).map(ligne).join('');
         return titre+
           '<div class="soreal-idle-section-v8" style="margin:0 0 10px"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>Palier</b>'+onglets+'</div>'+
-          '<div style="font-size:12px;color:#aeb5c8;margin-top:6px">Un seul palier reçoit de l\'énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</div></div>'+
+          '<div style="font-size:14px;color:#aeb5c8;margin-top:6px">Un seul palier reçoit de l\'énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</div></div>'+
           '<div class="soreal-idle-summary-grid-v28">'+resume+'</div>'+
           '<h3 style="margin:16px 0 8px">NGU Energy</h3><div style="display:grid;gap:10px">'+energie+'</div>'+
           '<h3 style="margin:16px 0 8px">NGU Magic</h3><div style="display:grid;gap:10px">'+magie+'</div>';
@@ -2853,21 +2853,21 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             const boutons=valeurs.map(function(v,i){
               return '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou?'disabled':'onclick="window.__actionMetaIdleV130__({action:\'allocateWishSlot\',slot:'+sl.index+',resource:\''+r+'\',value:'+v+'})"')+'>'+['0%','25%','50%','100%'][i]+'</button>';
             }).join('');
-            return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12px"><span>'+libelleRessourceMetaIdleV130_(r)+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
+            return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px"><span>'+libelleRessourceMetaIdleV130_(r)+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">'+boutons+'</div></div>';
           }).join('');
           return '<div class="soreal-idle-section-v8" style="margin:0">'+
             '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Slot '+numero+(sl.wish?' · '+H.idleHtml_(sl.name):'')+'</b>'+(sl.wish?'<span>Niv. '+H.idleEntier_(sl.level)+' / '+H.idleEntier_(sl.maxLevel)+'</span>':'')+'</div>'+
-            (sl.wish?'<div style="font-size:12px;color:#aeb5c8;margin-top:4px">'+H.idleHtml_(sl.effect)+'</div>':'')+
+            (sl.wish?'<div style="font-size:14px;color:#aeb5c8;margin-top:4px">'+H.idleHtml_(sl.effect)+'</div>':'')+
             choix+
             '<div class="soreal-idle-bt-track-v120" style="margin-top:8px"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;background:#c084fc;transition:none"></div></div>'+
-            '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">'+etat+'</div>'+
+            '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">'+etat+'</div>'+
             allocations+
           '</div>';
         }
         const liste=pistes.map(function(p){
           const st=p.state||{};
-          return '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>#'+H.idleHtml_(p.id)+' · '+H.idleHtml_(p.name)+'</b> · Niv. '+H.idleEntier_(st.level)+' / '+H.idleEntier_(p.levels)+(p.active?' · ▶️ en cours':'')+'<br><span style="color:#aeb5c8">'+H.idleHtml_(p.effect||'')+'</span></div>';
+          return '<div style="font-size:14px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>#'+H.idleHtml_(p.id)+' · '+H.idleHtml_(p.name)+'</b> · Niv. '+H.idleEntier_(st.level)+' / '+H.idleEntier_(p.levels)+(p.active?' · ▶️ en cours':'')+'<br><span style="color:#aeb5c8">'+H.idleHtml_(p.effect||'')+'</span></div>';
         }).join('');
         return titre+resume+
           '<div style="display:grid;gap:10px">'+slots.map(carte).join('')+'</div>'+
@@ -2899,9 +2899,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const tp=d.timeParts||{},sp=d.speedParts||{},ss=d.slotSources||{};
         const detail=
           '<details class="soreal-idle-section-v8" style="margin:0 0 10px"><summary><b>Détail des bonus</b></summary>'+
-            '<div style="font-size:12px;color:#aeb5c8;margin-top:6px">Réductions de temps (rétroactives) : Blind Normal ×'+pct(tp.blindNormal==null?1:tp.blindNormal)+' · Daycare Kitty\'s Blessing ×'+pct(tp.perks==null?1:tp.perks)+' · Daycare Speed Boost ×'+pct(tp.selloutSpeedBoost==null?1:tp.selloutSpeedBoost)+'</div>'+
-            '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">Vitesse (non rétroactive) : équipement ×'+pct(sp.gear||1)+' · Fibonacci ×'+pct(sp.fibonacci||1)+' · souhait ×'+pct(sp.wish||1)+' · Blind Evil ×'+pct(sp.blindEvil||1)+' · Blind Sadistic ×'+pct(sp.blindSadistic||1)+' · Digger ×'+pct(sp.digger||1)+' · Hack ×'+pct(sp.hack||1)+'</div>'+
-            '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">Slots : boutique EXP '+H.idleEntier_(ss.expShop||0)+'/3 · Blind Normal '+H.idleEntier_(ss.blindNormal||0)+'/1 · Troll Evil '+H.idleEntier_(ss.trollEvil||0)+'/1 · perk '+H.idleEntier_(ss.perk||0)+'/1 (6 au total)</div>'+
+            '<div style="font-size:14px;color:#aeb5c8;margin-top:6px">Réductions de temps (rétroactives) : Blind Normal ×'+pct(tp.blindNormal==null?1:tp.blindNormal)+' · Daycare Kitty\'s Blessing ×'+pct(tp.perks==null?1:tp.perks)+' · Daycare Speed Boost ×'+pct(tp.selloutSpeedBoost==null?1:tp.selloutSpeedBoost)+'</div>'+
+            '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Vitesse (non rétroactive) : équipement ×'+pct(sp.gear||1)+' · Fibonacci ×'+pct(sp.fibonacci||1)+' · souhait ×'+pct(sp.wish||1)+' · Blind Evil ×'+pct(sp.blindEvil||1)+' · Blind Sadistic ×'+pct(sp.blindSadistic||1)+' · Digger ×'+pct(sp.digger||1)+' · Hack ×'+pct(sp.hack||1)+'</div>'+
+            '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Slots : boutique EXP '+H.idleEntier_(ss.expShop||0)+'/3 · Blind Normal '+H.idleEntier_(ss.blindNormal||0)+'/1 · Troll Evil '+H.idleEntier_(ss.trollEvil||0)+'/1 · perk '+H.idleEntier_(ss.perk||0)+'/1 (6 au total)</div>'+
           '</details>';
         const enGarde=objets.length
           ?objets.map(function(x){
@@ -2912,7 +2912,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 :'prochain niveau dans '+dureeLongueNguIdleV1_(x.secondsToNextLevel)+' · niveau 100 dans '+dureeLongueNguIdleV1_(x.secondsToMax);
               return '<div class="soreal-idle-section-v8" style="margin:0">'+
                 '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+H.idleHtml_(it.name||it.definitionId||'Objet')+'</b><span>Niv. '+H.idleEntier_(it.level)+' (+'+H.idleEntier_(x.levelsGained)+')</span></div>'+
-                '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">Base : 1 niveau / '+H.formatGrandNombreIdleV70_(x.baseHours,2)+' h · effectif : 1 niveau / '+dureeLongueNguIdleV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600)+' · '+eta+'</div>'+
+                '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">Base : 1 niveau / '+H.formatGrandNombreIdleV70_(x.baseHours,2)+' h · effectif : 1 niveau / '+dureeLongueNguIdleV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600)+' · '+eta+'</div>'+
                 '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(avance/100)+');transform-origin:left center;background:#84cc16;transition:none"></div></div>'+
                 '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__daycareIdleV1__(\'daycareRemove\',\''+H.idleHtml_(it.id)+'\')">📤 Reprendre</button></div>'+
               '</div>';
@@ -2989,14 +2989,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(p/100)+');transform-origin:left center;background:#eab308;transition:none"></div></div>'+
             '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:6px">'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="'+act({mode:'toggleGenerator',mayo:m.id})+'">'+(m.active?'⏸️ Arrêter le générateur':'▶️ Lancer un générateur')+'</button>'+
-              '<span style="font-size:12px;color:#aeb5c8">'+(m.active?'1 mayo ≈ '+dureeLongueNguIdleV1_(m.secondsPerMayo):'générateur à l\'arrêt')+'</span>'+
+              '<span style="font-size:14px;color:#aeb5c8">'+(m.active?'1 mayo ≈ '+dureeLongueNguIdleV1_(m.secondsPerMayo):'générateur à l\'arrêt')+'</span>'+
             '</div></div>';
         }).join('');
 
         const blocTypes=types.map(function(t){
           return '<div class="soreal-idle-section-v8" style="margin:0">'+
             '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+H.idleHtml_(t.code)+' · '+H.idleHtml_(t.nom)+'</b><span>Tier '+H.idleEntier_(t.tier)+'</span></div>'+
-            '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">Bonus accumulé : <b>+'+pct(t.totalPct)+'</b> ('+fois(t.multiplier)+') · chance d\'apparition '+pct(H.idleNombre_(t.chance)*100)+'</div>'+
+            '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Bonus accumulé : <b>+'+pct(t.totalPct)+'</b> ('+fois(t.multiplier)+') · chance d\'apparition '+pct(H.idleNombre_(t.chance)*100)+'</div>'+
             '<div style="margin-top:6px"><button type="button" class="soreal-idle-expand-button-v25" onclick="'+act({mode:'toggleTag',type:t.id})+'">'+(t.tagged?'🏷️ Retirer le tag':'🏷️ Tagger')+'</button></div>'+
           '</div>';
         }).join('');
@@ -3006,9 +3006,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           return '<div class="soreal-idle-section-v8" style="margin:0'+(k.chonker?';border:2px solid #eab308':'')+(k.theEnd?';border:2px solid #ff3b3b':'')+'">'+
             (k.theEnd
               ?'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+'THE END</b></div>'+
-                '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>'
+                '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>'
               :'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+(k.chonker?'🍔 Big Chonker · ':'')+H.idleHtml_(k.code)+' · '+H.idleHtml_(k.nom)+'</b><span>Tier '+H.idleEntier_(k.tier)+'</span></div>'+
-                '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">Bonus <b>+'+pct(k.bonusPct,3)+'</b> · rareté '+H.idleHtml_(k.rarityLabel)+' ('+H.idleNombre_(k.rarity).toFixed(3).replace('.',',')+') · coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>')+
+                '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Bonus <b>+'+pct(k.bonusPct,3)+'</b> · rareté '+H.idleHtml_(k.rarityLabel)+' ('+H.idleNombre_(k.rarity).toFixed(3).replace('.',',')+') · coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>')+
             '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">'+
               '<button type="button" class="soreal-idle-expand-button-v25" '+(k.canCast?'onclick="'+act({mode:'cast',cardId:k.id})+'"':'disabled')+'>✨ Lancer</button>'+
               '<button type="button" class="soreal-idle-expand-button-v25" '+(k.protected?'disabled':'onclick="'+act({mode:'yeet',cardId:k.id})+'"')+'>🗑️ Jeter</button>'+
@@ -3020,8 +3020,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
         return titre+grille+
           '<h3 style="margin:16px 0 8px">Deck</h3><div style="display:grid;gap:10px">'+blocDeck+'</div>'+
-          '<h3 style="margin:16px 0 8px">Mayo</h3><div style="font-size:12px;color:#aeb5c8;margin-bottom:6px">La production totale est partagée entre les générateurs actifs.</div><div style="display:grid;gap:10px">'+blocMayo+'</div>'+
-          '<h3 style="margin:16px 0 8px">Types, tiers et tags</h3><div style="font-size:12px;color:#aeb5c8;margin-bottom:6px">Un type taggé apparaît plus souvent. Le tier s\'applique aux prochaines cartes de ce type.</div><div style="display:grid;gap:10px">'+blocTypes+'</div>';
+          '<h3 style="margin:16px 0 8px">Mayo</h3><div style="font-size:14px;color:#aeb5c8;margin-bottom:6px">La production totale est partagée entre les générateurs actifs.</div><div style="display:grid;gap:10px">'+blocMayo+'</div>'+
+          '<h3 style="margin:16px 0 8px">Types, tiers et tags</h3><div style="font-size:14px;color:#aeb5c8;margin-bottom:6px">Un type taggé apparaît plus souvent. Le tier s\'applique aux prochaines cartes de ce type.</div><div style="display:grid;gap:10px">'+blocTypes+'</div>';
       }
 
       function pageSystemeMetaIdleV130_(

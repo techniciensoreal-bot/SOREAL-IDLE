@@ -84,7 +84,7 @@
       const copies=inventaire.filter(function(x){return x.type===f.type;}).length;
       return '<div class="soreal-idle-section-v8" style="margin:0">'+
         '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(i+1)+'. '+html(nomType(f.type))+'</b><span>Niveau '+grand(f.level)+'</span></div>'+
-        '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+html(effetType(f.type))+' · au prochain Rebirth : <b>+'+pct(f.nextGainPct)+'</b> · total permanent : <b>+'+pct(snap.permanent&&snap.permanent[f.type])+'</b></div>'+
+        '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+html(effetType(f.type))+' · au prochain Rebirth : <b>+'+pct(f.nextGainPct)+'</b> · total permanent : <b>+'+pct(snap.permanent&&snap.permanent[f.type])+'</b></div>'+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
           bouton('Retirer','window.__macguffinRetirerV1__(\''+html(f.uid)+'\')')+
           (copies?bouton('Fusionner '+copies+' copie(s)','window.__macguffinFusionnerTypeV1__(\''+html(f.type)+'\')'):'')+
@@ -97,7 +97,7 @@
       const liste=groupes[type].slice().sort(function(a,b){return nombre(b.level)-nombre(a.level);});
       return '<div class="soreal-idle-section-v8" style="margin:0">'+
         '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+html(nomType(type))+'</b><span>'+liste.length+' fragment(s)</span></div>'+
-        '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+html(effetType(type))+'</div>'+
+        '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+html(effetType(type))+'</div>'+
         (liste.length>1||typesEquipes[type]?'<div style="margin-top:7px">'+bouton(typesEquipes[type]?'Tout fusionner dans l’équipé':'Tout fusionner','window.__macguffinFusionnerTypeV1__(\''+html(type)+'\')')+'</div>':'')+
         '<div style="display:grid;gap:6px;margin-top:8px">'+liste.map(function(f){
           return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>Niveau '+grand(f.level)+'</span><span style="display:flex;gap:6px">'+
@@ -108,7 +108,7 @@
     }).join('')+'</div>':'<div class="soreal-idle-note-v4">Aucun fragment en réserve.</div>');
 
     const perm=snap.permanent||{};
-    const blocBonus='<h3 style="margin:16px 0 8px">Bonus permanents</h3><div class="soreal-idle-section-v8" style="margin:0"><div style="display:grid;gap:4px;font-size:13px">'+
+    const blocBonus='<h3 style="margin:16px 0 8px">Bonus permanents</h3><div class="soreal-idle-section-v8" style="margin:0"><div style="display:grid;gap:4px;font-size:15px">'+
       (snap.types||[]).filter(function(t){
         /* ANTI-SPOIL : seuls les types déjà découverts (bonus acquis, équipé ou en réserve) sont listés. */
         return nombre(perm[t.id])>0||typesEquipes[t.id]||inventaire.some(function(x){return x.type===t.id;});
@@ -116,14 +116,14 @@
         const source=t.zone?(ZONES[t.zone]||t.zone):(TITANS[t.titan]||t.titan||'');
         return '<div style="display:flex;justify-content:space-between;gap:8px"><span>'+html(t.nom)+' <span style="color:#aeb5c8">('+html(source)+')</span></span><b>+'+pct(perm[t.id])+'</b></div>';
       }).join('')+
-    '</div><div style="font-size:12px;color:#aeb5c8;margin-top:8px">Chaque Rebirth ajoute au bonus permanent de chaque fragment équipé : gain de base selon son niveau x ratio de temps du run (x2 avec un MacGuffin Muffin).</div></div>';
+    '</div><div style="font-size:14px;color:#aeb5c8;margin-top:8px">Chaque Rebirth ajoute au bonus permanent de chaque fragment équipé : gain de base selon son niveau x ratio de temps du run (x2 avec un MacGuffin Muffin).</div></div>';
 
     const zc=snap.zoneCounter||{};
     const it=snap.itopod||{};
     const blocCompteurs='<h3 style="margin:16px 0 8px">Compteurs de drop</h3><div class="soreal-idle-section-v8" style="margin:0">'+
       '<div class="soreal-idle-note-v4">🗺️ Zone : '+(zc.type?html(ZONES[zc.zone]||zc.zone)+' → '+html(nomType(zc.type))+' : <b>'+grand(zc.kills)+' / '+grand(zc.required)+'</b> kills':'aucune zone à fragment en cours ('+grand(zc.required)+' kills par fragment)')+'</div>'+
       (it.enabled?'<div class="soreal-idle-note-v4" style="margin-top:5px">🏢 ITOPOD : <b>'+grand(it.kills)+' / '+grand(it.required)+'</b> kills (fragment aléatoire)</div>':'')+
-      '<div style="font-size:12px;color:#aeb5c8;margin-top:6px">Le compteur de zone repart de zéro quand tu quittes la zone ; celui de l’ITOPOD est conservé.</div>'+
+      '<div style="font-size:14px;color:#aeb5c8;margin-top:6px">Le compteur de zone repart de zéro quand tu quittes la zone ; celui de l’ITOPOD est conservé.</div>'+
     '</div>';
 
     const bs=snap.bloodSpells||{};
@@ -134,7 +134,7 @@
       const attente=Math.max(0,nombre(s.readyAt)-maintenant);
       const pret=attente<=0&&entier(s.levelsPreview)>0&&equipes.length>0;
       return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+nom+'</b><span>+'+entier(s.levelsPreview)+' niveau(x)</span></div>'+
-        '<div style="font-size:12px;color:#aeb5c8;margin-top:5px">'+texte+' Minimum '+grand(s.minimum)+' Blood ; consomme tout le Blood.'+(attente>0?' Recharge : '+duree(attente/1000)+'.':'')+'</div>'+
+        '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+texte+' Minimum '+grand(s.minimum)+' Blood ; consomme tout le Blood.'+(attente>0?' Recharge : '+duree(attente/1000)+'.':'')+'</div>'+
         '<div style="margin-top:9px">'+bouton('Lancer','window.__macguffinSortV1__(\''+cle+'\')',pret)+'</div></div>';
     };
     const sortsHtml=sort('alpha','Blood MacGuffin α',(bs.alpha&&bs.alpha.firstSlot?'Monte le premier fragment équipé.':'Monte un fragment équipé au hasard.'))+
@@ -142,7 +142,7 @@
     const blocSorts=sortsHtml?'<h3 style="margin:16px 0 8px">Sorts de Blood</h3><div style="display:grid;gap:10px">'+sortsHtml+'</div>':'';
 
     const sb=snap.slotBreakdown||{};
-    const blocSlots='<h3 style="margin:16px 0 8px">Emplacements ('+entier(snap.slots)+')</h3><div class="soreal-idle-section-v8" style="margin:0;font-size:13px;display:grid;gap:3px">'+
+    const blocSlots='<h3 style="margin:16px 0 8px">Emplacements ('+entier(snap.slots)+')</h3><div class="soreal-idle-section-v8" style="margin:0;font-size:15px;display:grid;gap:3px">'+
       [['Déblocage',sb.base,1],['Boutique EXP',sb.expShop,2],['Perks ITOPOD',sb.perks,3],['Quirks',sb.quirks,2],['Edgy Set',sb.edgySet,1],['Troll Challenge Evil (2e)',sb.trollEvil,1],['No Equipment Challenge Evil (5e)',sb.noEquipmentEvil,1],['4G’s Sellout Shop',sb.sellout,11]].filter(function(l){return entier(l[1])>0;}).map(function(l){
         /* ANTI-SPOIL : seules les sources déjà obtenues sont listées, sans maximum. */
         return '<div style="display:flex;justify-content:space-between"><span>'+l[0]+'</span><b>'+entier(l[1])+'</b></div>';
