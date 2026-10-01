@@ -7,7 +7,7 @@ const headEnd = html.indexOf("</head>");
 const cssPos = html.indexOf('<link rel="stylesheet" href="/soreal-idle-ui.css?v=20">');
 assert.ok(cssPos > 0 && cssPos < headEnd, "main CSS must be discovered in <head>");
 assert.equal(
-  html.match(/<link rel="stylesheet" href="\/soreal-idle-ui\.css\?v=18">/g)?.length,
+  html.match(/<link rel="stylesheet" href="\/soreal-idle-ui\.css\?v=20">/g)?.length,
   1,
   "main stylesheet must only be declared once"
 );
