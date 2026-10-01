@@ -7984,3 +7984,142 @@ body.soreal-idle-active-v47 .soreal-idle-tm-v1 b,
 body.soreal-idle-active-v47 .soreal-idle-tm-v1 strong{
   color:#111;
 }
+
+/*
+ * Blood Magic, refonte (Norman, 2026-10-01) : « les sorts en haut, des blocs côte à côte sur 2 lignes quand il y en a trop, avec un « i »
+ * pour les effets, chacun dans les tons mauve-rouge ; la page plus rouge et sanglante ; les fonds de menus sont encore bleus ».
+ * (Revient sur la sobriété voulue le 2026-09-29 : cette fois la page est franchement rouge sang.) Tout est sous .soreal-idle-bloodmagic-v1.
+ */
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1{
+  background:
+    radial-gradient(ellipse 120% 45% at 50% 0%,rgba(190,25,45,.38),transparent 70%),
+    radial-gradient(ellipse 80% 40% at 10% 100%,rgba(120,10,30,.35),transparent 70%),
+    linear-gradient(180deg,#2b0a10 0%,#1d070b 55%,#120406 100%);
+  box-shadow:inset 0 0 0 1px rgba(200,40,60,.22),inset 0 -30px 60px rgba(120,8,24,.25);
+}
+/* Gouttes de sang qui coulent du haut de la page. */
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1::before{
+  content:"";
+  position:absolute;left:0;right:0;top:0;height:22px;pointer-events:none;border-radius:16px 16px 0 0;
+  background:
+    radial-gradient(circle at 6% 0,#b0152b 0 7px,transparent 8px),
+    radial-gradient(circle at 19% 0,#8f0f22 0 5px,transparent 6px),
+    radial-gradient(circle at 33% 0,#b0152b 0 9px,transparent 10px),
+    radial-gradient(circle at 47% 0,#8f0f22 0 6px,transparent 7px),
+    radial-gradient(circle at 62% 0,#b0152b 0 8px,transparent 9px),
+    radial-gradient(circle at 78% 0,#8f0f22 0 5px,transparent 6px),
+    radial-gradient(circle at 92% 0,#b0152b 0 7px,transparent 8px);
+  opacity:.8;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-page-head-v28{
+  background:linear-gradient(135deg,#4a0f1a,#2d0a11);
+  border:1px solid rgba(220,50,70,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-page-title-v28{color:#ffd9de;text-shadow:0 0 12px rgba(220,30,60,.55)}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-page-sub-v28{color:#e3aab3}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-section-v8{
+  background:linear-gradient(165deg,#3a0f18 0%,#260a10 100%);
+  border:1px solid rgba(210,45,65,.40);
+  border-top:2px solid #c0182f;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-section-v8::before,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-section-v8::after{background:#c0182f;opacity:.8}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-summary-v28{
+  background:linear-gradient(165deg,#44111b,#2a0b11);
+  border:1px solid rgba(210,45,65,.40);
+  color:#e8b3bb;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-summary-v28 b{color:#ffe3e7}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-toolbar-v120{
+  background:rgba(70,10,22,.55);
+  border:1px solid rgba(210,45,65,.40);
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-energy-v120,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-help-v120{
+  background:#2c0a12;
+  color:#e8b3bb;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120 input{
+  background:#1a060a;color:#ffe3e7;border:1px solid rgba(210,45,65,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-actions-v120 button{
+  background:#5a1220;color:#ffe9ec;border:1px solid rgba(230,70,90,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button.clear{background:#3d0b14}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-track-v120{background:rgba(255,255,255,.08)}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-fill-v120{background:linear-gradient(90deg,#8f0f22,#e0243d)!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 h3{border-bottom:1px solid rgba(220,50,70,.6);color:#ffd9de}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-aide-v1{background:rgba(120,15,32,.35);border-color:rgba(220,50,70,.5)}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-button-v25{
+  background:linear-gradient(180deg,#d1213a,#8f0f22);color:#fff;border:1px solid rgba(255,120,140,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-button-v25:disabled{
+  background:#3d1118;color:#b98d95;border-color:rgba(160,60,75,.4);cursor:not-allowed;
+}
+
+/* Blocs de sorts : côte à côte (4 par ligne, la suite passe sur la ligne suivante), 2 par ligne sur petit écran. */
+.soreal-idle-blood-sorts-v1{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+@media (max-width:900px){.soreal-idle-blood-sorts-v1{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.soreal-idle-blood-sort-v1{
+  --sort-a:#8a1c3c;--sort-b:#4f1030;
+  position:relative;
+  display:flex;flex-direction:column;gap:6px;
+  padding:10px 10px 11px;
+  border-radius:14px;
+  color:#fff1f4;
+  background:linear-gradient(160deg,var(--sort-a),var(--sort-b));
+  border:1px solid rgba(255,150,170,.35);
+  box-shadow:0 4px 14px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18);
+  min-width:0;
+}
+.soreal-idle-blood-sort-v1[data-sort="numberBoost"]{--sort-a:#a01a45;--sort-b:#5c1033}
+.soreal-idle-blood-sort-v1[data-sort="ironPill"]{--sort-a:#a8191f;--sort-b:#640f14}
+.soreal-idle-blood-sort-v1[data-sort="bloodSpaghetti"]{--sort-a:#86205f;--sort-b:#4a1241}
+.soreal-idle-blood-sort-v1[data-sort="counterfeitGold"]{--sort-a:#6e2a86;--sort-b:#3f1456}
+.soreal-idle-blood-sort-v1[data-sort="leeches"]{--sort-a:#5b0e2d;--sort-b:#2a0716}
+.soreal-idle-blood-sort-tete-v1{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.soreal-idle-blood-sort-tete-v1 b{font-size:13px;line-height:1.25;color:#fff;overflow-wrap:anywhere}
+.soreal-idle-blood-info-v1{
+  flex:0 0 auto;width:22px;height:22px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.6);background:rgba(0,0,0,.28);color:#fff;
+  font:italic 700 13px/1 Georgia,serif;cursor:pointer;padding:0;
+}
+.soreal-idle-blood-info-v1[aria-expanded="true"]{background:#fff;color:#7a1030}
+.soreal-idle-blood-sort-actuel-v1{font-size:12px;font-weight:800;color:#ffd7de}
+.soreal-idle-blood-sort-infos-v1[hidden]{display:none}
+.soreal-idle-blood-sort-infos-v1{background:rgba(0,0,0,.28);border-radius:10px;padding:7px 8px}
+.soreal-idle-blood-sort-v1 .soreal-idle-blood-sort-desc-v1{color:#ffe3e8;margin:0}
+.soreal-idle-blood-sort-v1 .soreal-idle-blood-sort-apercu-v1{color:#ffe0a8;margin-top:5px}
+.soreal-idle-blood-sort-v1 .soreal-idle-blood-lancer-v1{margin-top:auto;width:100%;font-size:11px}
+/* Le thème sombre global impose ses fonds bleus en !important : la page Blood Magic doit donc répondre en !important. */
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-section-v8{
+  background:linear-gradient(165deg,#3a0f18 0%,#260a10 100%)!important;
+  border-color:rgba(210,45,65,.40)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-summary-v28{
+  background:linear-gradient(165deg,#44111b,#2a0b11)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-button-v25{
+  background:linear-gradient(180deg,#d1213a,#8f0f22)!important;color:#fff!important;border:1px solid rgba(255,120,140,.5)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-button-v25:disabled{
+  background:#3d1118!important;color:#b98d95!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-actions-v120 button{background:#5a1220!important;color:#ffe9ec!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button.clear{background:#3d0b14!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-toolbar-v120{background:rgba(70,10,22,.55)!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-energy-v120,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120,
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120{background:#2c0a12!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-page-head-v28{background:linear-gradient(135deg,#4a0f1a,#2d0a11)!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-aide-v1{background:rgba(120,15,32,.35)!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120 input{background:#1a060a!important;color:#ffe3e7!important}

@@ -2250,6 +2250,15 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
       window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
 
+      window.__idleBloodInfosOuvertesV1=window.__idleBloodInfosOuvertesV1||{};
+      window.__basculerInfoSortBloodIdleV1__=function(id,bouton){
+        const ouvert=!window.__idleBloodInfosOuvertesV1[id];
+        window.__idleBloodInfosOuvertesV1[id]=ouvert;
+        const zone=document.getElementById('sorealIdleBloodSortInfosV1_'+id);
+        if(zone)zone.hidden=!ouvert;
+        if(bouton)bouton.setAttribute('aria-expanded',ouvert?'true':'false');
+      };
+
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1"><div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div></div>';
@@ -2349,6 +2358,25 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>';
         }).join('');
         /*
+         * Norman (2026-10-01) : « les sorts en haut, pas sur une ligne complète : des blocs côte à côte, sur 2 lignes quand il y en a trop, avec un
+         * « i » cliquable pour les effets ; chaque bloc dans les tons mauve-rouge ». Un bloc par sort DÉCOUVERT (anti-spoil inchangé : spellDefs
+         * ne contient que les sorts découverts). L'état ouvert/fermé des « i » est gardé en mémoire (les rendus ne le referment pas).
+         */
+        const sortsHtml='<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton Blood</small></h3><div class="soreal-idle-blood-sorts-v1">'+spellDefs.map(function(sp){
+          const recharge=sp.recharge>0;
+          const peutLancer=blood>0&&!recharge;
+          const idSort=H.idleHtml_(sp.id);
+          const infos=(sp.desc?'<div class="soreal-idle-blood-sort-desc-v1">'+H.idleHtml_(sp.desc)+'</div>':'')+(sp.apercu?'<div class="soreal-idle-blood-sort-apercu-v1">'+H.idleHtml_(sp.apercu)+'</div>':'');
+          const ouvert=Boolean(window.__idleBloodInfosOuvertesV1&&window.__idleBloodInfosOuvertesV1[sp.id]);
+          return '<div class="soreal-idle-blood-sort-v1" data-sort="'+idSort+'">'+
+            '<div class="soreal-idle-blood-sort-tete-v1"><b>'+H.idleHtml_(sp.nom)+'</b>'+(infos?'<button type="button" class="soreal-idle-blood-info-v1" title="Voir les effets" aria-expanded="'+(ouvert?'true':'false')+'" onclick="window.__basculerInfoSortBloodIdleV1__(\''+idSort+'\',this)">i</button>':'')+'</div>'+
+            (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
+            (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
+            (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon Blood ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';
+        }).join('')+'</div>';
+
+        /*
          * Norman (2026-09-29) : « Décore la page blood magic pour qu'elle ait l'air plus sanglante
          * sans pour autant qu'elle soit toute rouge. » soreal-idle-bloodmagic-v1 (soreal-idle-ui.css)
          * porte tout l'habillage (fond sombre lie-de-vin très désaturé, gouttes discrètes en haut de
@@ -2363,17 +2391,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             'Le Blood est remis à zéro à chaque Rebirth. Les effets des sorts ne durent que jusqu’au prochain Rebirth, sauf ceux marqués « permanent ».'
           ])+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">Blood<b>'+H.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">Gold<b>'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
+          sortsHtml+
           toolbar+
           '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du Blood</small></h3><div style="display:grid;gap:10px">'+rituelsHtml+'</div>'+
-          '<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton Blood</small></h3><div style="display:grid;gap:10px">'+spellDefs.map(function(sp){
-            const recharge=sp.recharge>0;
-            const peutLancer=blood>0&&!recharge;
-            return '<div class="soreal-idle-section-v8 soreal-idle-blood-sort-v1" style="margin:0">'+
-              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(sp.nom)+'</b>'+(sp.actuel?'<span>'+H.idleHtml_(sp.actuel)+'</span>':'')+'</div>'+
-              (sp.desc?'<div class="soreal-idle-blood-sort-desc-v1">'+H.idleHtml_(sp.desc)+'</div>':'')+
-              (sp.apercu?'<div class="soreal-idle-blood-sort-apercu-v1">'+H.idleHtml_(sp.apercu)+'</div>':'')+
-              (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ En recharge : prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-              '<button type="button" class="soreal-idle-expand-button-v25" style="margin-top:9px" '+(peutLancer?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon Blood ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';}).join('')+'</div>'+
         '</div>';
       }
 
