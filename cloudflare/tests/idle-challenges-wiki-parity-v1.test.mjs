@@ -194,3 +194,10 @@ const start = (s, id, now = 1_000_000, bosses = 100) => applyIdleNguAction(s, { 
 }
 
 console.log("idle-challenges-wiki-parity-v1: OK");
+
+// Blind Challenge (audit 2026-10-01) : le wiki ne détaille pas ce qui disparaît à chacun des 10 niveaux -> aucune progression inventée dans le client.
+{
+  const src = readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8");
+  assert.ok(!src.includes("seuilsAveugle"), "plus de seuils de masquage par niveau inventés");
+  assert.ok(src.includes("gets blinder"), "la source wiki et ses limites sont citées à côté du masque");
+}

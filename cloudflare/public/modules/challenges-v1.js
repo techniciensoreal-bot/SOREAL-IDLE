@@ -426,10 +426,13 @@ function jouerTroll(troll,j){
 
 /* --- Blind Challenge : nombres masqués --- */
 
-/* Seuil (valeur minimale masquée) selon le nombre de réussites : « la plupart des nombres » dès le départ, puis tous. */
-var seuilsAveugle=[10,10,10,10,1,1,1,1,1,1];
+/*
+ * Wiki NGU Idle, page Challenges > Blind Challenge : « Most of the numbers displayed in the game are invisible now » ; la page précise seulement que le
+ * défi « gets blinder after each level with more stuff blanked out », SANS dire ce qui disparaît à chacun des 10 niveaux (ni le wiki, ni les guides
+ * communautaires ne le détaillent). Règle n°1 (aucune valeur inventée) : aucune progression de repli n'est fabriquée ici ; le même masque s'applique aux
+ * 10 niveaux -- tout nombre affiché devient « ??? » (la page des Défis reste lisible). À affiner quand la liste réelle sera confirmée.
+ */
 var aveugleActif=false;
-var aveugleNiveau=0;
 var observateur=null;
 
 function masquerTexte(txt){
@@ -437,8 +440,7 @@ function masquerTexte(txt){
     var suivant=txt.charAt(offset+m.length);
     var valeur=parseFloat(m.replace(/[\s,]/g,'').replace(/,/g,'.'));
     var suffixe=/[A-Za-z]/.test(suivant)&&!/^[a-z]{3,}/.test(txt.slice(offset+m.length,offset+m.length+3));
-    var seuil=seuilsAveugle[Math.min(aveugleNiveau,seuilsAveugle.length-1)];
-    if(suffixe||!isFinite(valeur)||valeur>=seuil)return '???';
+    if(suffixe||!isFinite(valeur)||valeur>=0)return '???';
     return m;
   });
 }
@@ -483,8 +485,7 @@ function surMutations(liste){
     else for(var k=0;k<r.addedNodes.length;k++)masquerNoeud(r.addedNodes[k]);
   }
 }
-function regler(aveugle,niveau){
-  aveugleNiveau=niveau;
+function regler(aveugle){
   if(aveugle===aveugleActif)return;
   aveugleActif=aveugle;
   if(aveugle){
@@ -520,11 +521,9 @@ function verifier(j){
   }
 
   if(actif==='blind'){
-    var defs=Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
-    var d=defs.filter(function(x){return x&&x.id==='blind';})[0];
-    regler(true,d?ent(d.completion):0);
+    regler(true);
   }else{
-    regler(false,0);
+    regler(false);
   }
 }
 
