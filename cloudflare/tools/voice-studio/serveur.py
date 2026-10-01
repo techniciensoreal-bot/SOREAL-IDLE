@@ -36,6 +36,17 @@ DOSSIER_VOIX = os.environ.get("SOREAL_VOIX_DOSSIER", "").strip() or os.path.join
 VOIX_ID_RE = re.compile(r"^[a-z0-9-]{1,32}$")
 
 
+def reglages_voix(voix):
+    """Réglages propres à une voix (reglages-voix.json, à côté de ce fichier) : {"exaggeration": 0.35, "cfg": 0.3}. Valeurs par défaut sinon.
+    Servent quand la requête ne précise rien (le menu Admin n'envoie que le texte et la voix)."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "reglages-voix.json"), encoding="utf-8") as f:
+            r = json.load(f).get(voix) or {}
+    except (OSError, ValueError):
+        r = {}
+    return {"exaggeration": float(r.get("exaggeration", 0.5)), "cfg": float(r.get("cfg", 0.5))}
+
+
 def voix_disponibles():
     """Identifiants des voix qui ont un extrait de référence (homme, femme et les voix nommées : voix/<identifiant>.wav)."""
     try:
@@ -288,7 +299,8 @@ class Gestionnaire(BaseHTTPRequestHandler):
             if not texte or len(texte) > MAX_TEXTE:
                 return self._json(400, {"ok": False, "error": "texte vide ou trop long"})
             voix = donnees.get("voix") if isinstance(donnees.get("voix"), str) and VOIX_ID_RE.match(donnees.get("voix")) else "homme"
-            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", 0.5), donnees.get("cfg", 0.5))
+            reglage = reglages_voix(voix)
+            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]))
             duree = float(wav.shape[-1]) / float(sr)
             audio = vers_m4a(wav, sr)
         except Exception as e:  # noqa: BLE001

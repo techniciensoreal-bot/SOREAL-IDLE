@@ -63,4 +63,11 @@ assert.match(studio, /voix = donnees\.get\("voix"\) if isinstance\(donnees\.get\
 const installeur = readFileSync("cloudflare/tools/voice-studio/installer_voix_nommees.py", "utf8");
 for (const v of reg.liste) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
 
+// Réglages propres à une voix (Folle 2 : expressivité 0,35 et cfg 0,3, choisis à l'écoute le 2026-10-01).
+const reglages = JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8"));
+assert.deepEqual(reglages["folle-2"], { exaggeration: 0.35, cfg: 0.3 });
+assert.ok(Object.keys(reglages).every((id) => reg.existe(id)), "chaque réglage vise une voix du registre");
+assert.match(studio, /def reglages_voix\(voix\)/);
+assert.match(studio, /donnees\.get\("exaggeration", reglage\["exaggeration"\]\)/, "les réglages de la voix servent quand la requête ne précise rien");
+
 console.log("idle-voix-nommees-v1: OK");
