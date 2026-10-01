@@ -876,3 +876,51 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"] .sorea
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"] .soreal-idle-adm-btn-v1.primaire{background:linear-gradient(180deg,#5dff97,#18b04e)!important;color:#012a0e!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"] .soreal-idle-adm-btn-v1.danger{background:#3a0f12!important;color:#ff9aa0!important;border-color:rgba(255,90,100,.5)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"] .soreal-idle-adm-meta-v1{color:var(--th-dim)!important;font-family:ui-monospace,Consolas,monospace}
+
+/* ====================== SHOP : la boutique AP (4G's Sellout Shop) = boutique VIP, distincte du marché EXP néon ====================== */
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1){
+  --th-a:#ffd36e;--th-b:#a855f7;--th-c:#ff4fd8;--th-bg:#26103f;--th-bg2:#0c0618;--th-line:rgba(255,211,110,.55);--th-ink:#fff1d0;--th-dim:#c4a8e6;--th-num:#fff1d0;--th-glow:rgba(255,211,110,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"]:has(.soreal-idle-shop-ap-v1){
+  --pg-deco:"💠👑";
+  --pg-bg:
+    radial-gradient(ellipse 80% 40% at 50% 0%,rgba(255,211,110,.22),transparent 70%),
+    repeating-linear-gradient(45deg,rgba(255,211,110,.035) 0 2px,transparent 2px 14px),
+    linear-gradient(180deg,#1a0b30,#09040f);
+  --pg-head:linear-gradient(110deg,#3a1666 0%,#5a2a8a 50%,#7a5a14 100%);
+  --pg-card:linear-gradient(165deg,#2b1248,#12081f);
+  --pg-btn:linear-gradient(180deg,#ffe08a,#d49a10);--pg-btn-ink:#3a2300;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-awning-v213{
+  background:
+    radial-gradient(circle at 11px 50%,#fff2b0 0 4px,#ffc933 5px,transparent 6px) 0 0/22px 100% repeat-x,
+    linear-gradient(180deg,#3a1666,#1c0a33)!important;
+  border-radius:12px 12px 0 0!important;box-shadow:0 8px 22px -6px rgba(255,211,110,.7);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 :is(.soreal-idle-exp-shop-v213,.soreal-idle-exp-stat-v210,.soreal-idle-exp-balance-v210,.soreal-idle-exp-intro-v212){
+  background:linear-gradient(165deg,#2b1248,#12081f)!important;border:1px solid rgba(255,211,110,.5)!important;border-radius:10px!important;color:#fff1d0!important;
+  outline:1px solid rgba(255,211,110,.2);outline-offset:-5px;box-shadow:0 8px 22px -12px rgba(255,211,110,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-stat-head-v210 span{color:#ffe08a!important;letter-spacing:.03em}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-tab-v212{
+  background:linear-gradient(180deg,#34165a,#1b0b33)!important;border:1px solid rgba(255,211,110,.45)!important;color:#fff1d0!important;border-radius:6px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-tab-v212.actif{
+  background:linear-gradient(180deg,#ffe08a,#d49a10)!important;color:#3a2300!important;box-shadow:0 0 16px rgba(255,211,110,.6);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-buy-v210{
+  background:linear-gradient(180deg,#ffe08a,#d49a10)!important;color:#3a2300!important;border:1px solid rgba(255,255,255,.4)!important;border-radius:6px!important;
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);box-shadow:0 0 16px rgba(255,200,60,.5)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-help-v210{color:#c4a8e6!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 :is(.soreal-idle-section-v8,.soreal-idle-card-v4){
+  background:linear-gradient(165deg,#2b1248,#12081f)!important;border:1px solid rgba(255,211,110,.5)!important;border-radius:10px!important;color:#fff1d0!important;
+}
+/* Onglets EXP / AP du menu Shop : deux enseignes. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-onglet-v1{
+  border:1px solid var(--onglet-couleur,var(--th-line))!important;border-radius:999px!important;color:var(--th-ink)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(0,0,0,.25))!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-onglet-v1.active{
+  background:linear-gradient(180deg,var(--onglet-couleur,var(--th-a)),color-mix(in srgb,var(--onglet-couleur,var(--th-a)) 55%,#000))!important;color:#fff!important;box-shadow:0 0 16px -2px var(--onglet-couleur,var(--th-glow));
+}

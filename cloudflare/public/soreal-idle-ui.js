@@ -20527,8 +20527,8 @@ function pageAventureIdleV28_(j){
         if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='ap'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.sellout+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP</button>');
         return (boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'')+
           (onglet==='ap'
-            ?'<div style="--nav-color:'+IDLE_NAV_COULEURS_V1.sellout+'">'+pageSelloutShopIdleV1_(j)+'</div>'
-            :'<div style="--nav-color:'+IDLE_NAV_COULEURS_V1.spendExp+'">'+pageSpendExpIdleV1_(j)+'</div>');
+            ?'<div class="soreal-idle-shop-ap-v1" style="--nav-color:'+IDLE_NAV_COULEURS_V1.sellout+'">'+pageSelloutShopIdleV1_(j)+'</div>'
+            :'<div class="soreal-idle-shop-exp-v1" style="--nav-color:'+IDLE_NAV_COULEURS_V1.spendExp+'">'+pageSpendExpIdleV1_(j)+'</div>');
       }
 
       /*
