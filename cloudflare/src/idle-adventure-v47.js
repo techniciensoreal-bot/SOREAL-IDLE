@@ -2220,7 +2220,7 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
   }
   return catalog;
 })());
@@ -3599,10 +3599,25 @@ function idleAdventureCubeSoftcapV1(cubeStat,base){const b=Math.max(0,N(base)),c
  * le tutorial cube ») -- IDLE_ADVENTURE_COFFRE_SPECIAUX_V1 (et la case dédiée qu'elle générait) a été retirée ; le Coffre n'accepte plus que les
  * objets « equipment » du catalogue, comme avant le 2026-09-25.
  */
+/*
+ * Norman (2026-10-01) : « On ne peut pas ranger Tuba of Time dans le coffre. Chaque objet qui peut être monté level 100 doit y avoir sa
+ * place. Rangé par zone. » Le Coffre accepte donc aussi les objets « special » qui se portent (accessoires, armes, têtes, torses...) :
+ * Tuba of Time, Cheese Grater, Looty, pendentifs... Restent exclus : le Tutorial Cube (kind "cube", retiré à la demande de Norman),
+ * les consommables et les objets de quête (slot "special" / "consumable"), qui ne se montent pas au niveau 100.
+ */
 function idleAdventureCoffreAccepteV1(definitionId){
   const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[definitionId];
-  return Boolean(def)&&def.kind==="equipment";
+  if(!def)return false;
+  if(def.kind==="equipment")return true;
+  return def.kind==="special"&&def.slot!=="special"&&def.slot!=="consumable";
 }
+/* Rang d'une case : zone de progression (set de la zone pour l'équipement, zone de butin pour un special ; sans zone connue = en dernier). */
+const IDLE_ADVENTURE_ZONE_ID_RANK_V1=Object.freeze((()=>{
+  const rang={};
+  IDLE_ADVENTURE_ZONES.forEach((z,i)=>{if(z&&z.id&&!(z.id in rang))rang[z.id]=i;});
+  return rang;
+})());
+const IDLE_ADVENTURE_SPECIAL_ORDRE_V1=Object.freeze(Object.fromEntries(Object.keys(SPECIALS).map((id,i)=>[id,i])));
 /*
  * Norman (2026-09-27) : « J'aimerai qu'on puisse trier le coffre par ordre de Zone, pièce (tete, bijoux, ...) ».
  * Rang de zone = position du set dans IDLE_ADVENTURE_ZONES (déjà dans l'ordre de progression wiki, boss croissant) ;
@@ -3618,16 +3633,23 @@ const IDLE_ADVENTURE_SET_ZONE_RANK_V1=Object.freeze((()=>{
   });
   return rang;
 })());
-function idleAdventureCoffreZoneRankV1(setId){
-  const r=IDLE_ADVENTURE_SET_ZONE_RANK_V1[setId];
+function idleAdventureCoffreZoneRankV1(setId,zoneId){
+  const r=setId?IDLE_ADVENTURE_SET_ZONE_RANK_V1[setId]:IDLE_ADVENTURE_ZONE_ID_RANK_V1[zoneId||""];
   return r!=null?r:Number.MAX_SAFE_INTEGER;
 }
 function idleAdventureCoffreSlotsV1(s){
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
     .filter(([definitionId])=>idleAdventureCoffreAccepteV1(definitionId))
     .sort(([a,da],[b,db])=>{
-      const zoneA=idleAdventureCoffreZoneRankV1(da.set),zoneB=idleAdventureCoffreZoneRankV1(db.set);
+      const zoneA=idleAdventureCoffreZoneRankV1(da.set,da.zone),zoneB=idleAdventureCoffreZoneRankV1(db.set,db.zone);
       if(zoneA!==zoneB)return zoneA-zoneB;
+      /* Dans une zone : l'équipement du set d'abord (arme, tête, torse...), puis les objets spéciaux dans l'ordre du catalogue. */
+      const specialA=da.kind==="special"?1:0,specialB=db.kind==="special"?1:0;
+      if(specialA!==specialB)return specialA-specialB;
+      if(specialA){
+        const oA=IDLE_ADVENTURE_SPECIAL_ORDRE_V1[a],oB=IDLE_ADVENTURE_SPECIAL_ORDRE_V1[b];
+        if(oA!==oB)return oA-oB;
+      }
       const slotA=idleAdventureSlotRankV1(da.slot),slotB=idleAdventureSlotRankV1(db.slot);
       if(slotA!==slotB)return slotA-slotB;
       return a<b?-1:a>b?1:0;
