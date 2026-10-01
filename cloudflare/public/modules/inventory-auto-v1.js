@@ -32,7 +32,29 @@
   function snap(j){return j&&j.systemes&&j.systemes.inventoryAuto||null;}
   function aventure(j){return j&&j.systemes&&j.systemes.adventure||null;}
 
+  /*
+   * Absorption réactive (Norman, 2026-10-01) : « ça met un long temps avant que les boosts ne soient aspirés et disparaissent de l'inventaire ».
+   * Le serveur décide de ce qui est absorbé (tirages, recyclage) et confirme après un aller-retour ; en attendant, les boosts du sac s'effacent
+   * tout de suite à l'écran (aspirés vers la cible). Si le serveur en laisse certains, ils réapparaissent à la confirmation (ou au bout de 3 s).
+   */
+  function aspirerBoostsAvecEffet_(){
+    try{
+      var a=aventure(dernierEtat);
+      var inv=a&&Array.isArray(a.inventory)?a.inventory:[];
+      var vus=[];
+      inv.forEach(function(o){
+        if(!o||o.kind!=='boost')return;
+        var n=document.querySelector('#soreal-idle-v138-bag-section [data-item-id="'+String(o.id).replace(/"/g,'')+'"]');
+        if(n){n.classList.add('soreal-idle-absorbe-v1');vus.push(n);}
+      });
+      if(vus.length){
+        setTimeout(function(){vus.forEach(function(n){if(n&&n.classList)n.classList.remove('soreal-idle-absorbe-v1');});},3000);
+      }
+    }catch(e){}
+  }
+
   function action(mode,extra){
+    if(mode==='boostAll')aspirerBoostsAvecEffet_();
     var fn=window.__actionMetaV47__;
     if(typeof fn==='function')fn(Object.assign({action:'inventoryAuto',mode:mode},extra||{}));
   }

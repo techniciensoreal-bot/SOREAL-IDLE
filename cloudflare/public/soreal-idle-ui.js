@@ -22474,6 +22474,8 @@ function pageAventureIdleV28_(j){
           protegerJoueurServeurInventaireIdleV208_(
             res.joueur
           );
+        /* Allocations voulues mais pas encore confirmées par le serveur : jamais écrasées par un état plus ancien (modules/meta-progression-v130.js). */
+        if(typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(joueurRenduProtegeV208);
 
         if(window.__SOREAL_IDLE_INVENTORY_PERF_V160__){
           window.__SOREAL_IDLE_INVENTORY_PERF_V160__.globalRenders+=1;

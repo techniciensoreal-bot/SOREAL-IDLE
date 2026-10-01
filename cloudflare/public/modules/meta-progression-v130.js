@@ -292,6 +292,24 @@
                       );
                     });
                   }
+                  /* Un drop doit se voir tout de suite : si le sac affiché ne le contient pas après le patch, on redessine la page Aventure. */
+                  const dropsVisibles=Array.isArray(res.resultat.drops)?res.resultat.drops.filter(function(o){return o&&o.id&&!o.filtered;}):[];
+                  if(dropsVisibles.length){
+                    setTimeout(function(){
+                      if(!document.getElementById('soreal-idle-v138-bag-section'))return;
+                      const H2=window.__SOREAL_IDLE_META_HOST_V130__;
+                      const av=H2.aventureMetaIdleV47_(H2.getIdleEtat());
+                      const sac=av&&Array.isArray(av.inventory)?av.inventory:[];
+                      const manque=dropsVisibles.some(function(o){
+                        /* Seulement si l'objet est bien dans le sac de l'état (un drop recyclé ou fusionné automatiquement n'y reste pas). */
+                        if(!sac.some(function(x){return String(x&&x.id||'')===String(o.id);}))return false;
+                        return !document.querySelector('#soreal-idle-v138-bag-section [data-item-id="'+String(o.id).replace(/"/g,'')+'"]');
+                      });
+                      if(manque&&!document.querySelector('.soreal-idle-dragging-v138,[data-idle-dragging]')&&typeof window.__SOREAL_IDLE_META_HOST_V130__.rafraichirMenuRacineIdleV28_==='function'){
+                        window.__SOREAL_IDLE_META_HOST_V130__.rafraichirMenuRacineIdleV28_();
+                      }
+                    },80);
+                  }
                   if(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.gold)>0){
                     window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
                       'gold',
@@ -1526,7 +1544,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        *  2. l'allocation part en différé (70 ms), UNE seule fois par cible (la dernière valeur voulue), un envoi à la fois ;
        *  3. la réponse est recollée SANS redessiner la page si elle confirme ce que l'écran montre ; sinon (refus, plafond) rendu complet.
        */
-      const IDLE_ALLOC_RAPIDE_V1={file:new Map(),timer:0,enCours:false,ancien:null};
+      const IDLE_ALLOC_RAPIDE_V1={file:new Map(),timer:0,enCours:false,ancien:null,voulu:new Map()};
       function cleAllocRapideV1_(p){
         return String(p.action)+':'+String(p.system||'')+':'+String(p.resource||p.pair||p.track||p.ritual||'')+':'+(p.upgrade?'u':'m');
       }
@@ -1545,6 +1563,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const cle=cleAllocRapideV1_(payload);
         R.file.delete(cle);
         R.file.set(cle,payload);
+        /* Ce que le joueur veut, tant que le serveur ne l'a pas confirmé : réappliqué sur tout état serveur plus ancien (voir appliquerAllocationsVoulues). */
+        if(payload.action==='allocate'||payload.action==='allocateAugment')R.voulu.set(cle,payload);
+        else if(payload.action==='clearAugmentAllocations')Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.voulu.delete(c);});
         planifierAllocRapideV1_(delai);
       }
       function viderAllocRapideV1_(){
@@ -1561,6 +1582,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           payload,
           function(res){
             R.enCours=false;
+            /* Réponse du serveur (sauf si une valeur plus récente attend dans la file) : l'intention est soldée AVANT de recoller, pour que le serveur garde la main (plafond, refus). */
+            if(res&&res.ok&&!R.file.has(cle))R.voulu.delete(cle);
             reconcilierAllocRapideV1_(res);
             if(R.file.size)planifierAllocRapideV1_(20);
           },
@@ -1591,6 +1614,46 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const pairs=s&&s.state&&s.state.data&&s.state.data.pairs||{};
         return Object.keys(pairs).map(function(k){return k+':'+pairs[k].level+'/'+pairs[k].upgradeLevel;}).join(',');
       }
+
+      /*
+       * Anti-« rollback » (Norman, 2026-10-01) : « Les menus font parfois des rollback : je mets de l'énergie et elle m'est rendue ; je dois la
+       * remettre (Time Machine…). » Cause : un état serveur calculé AVANT l'allocation (réponse d'un autre appel : combat, synchro, achat…) arrivait
+       * après le clic et écrasait l'état local. Tant que le serveur n'a pas confirmé une allocation voulue, on la réapplique donc sur tout état qui
+       * arrive (même calcul que le clic : allocation de la piste, énergie/Magic libre en conséquence). Sans effet quand l'état contient déjà la valeur.
+       */
+      function appliquerAllocationsVoulues(j){
+        const R=IDLE_ALLOC_RAPIDE_V1;
+        if(!j||!R.voulu.size)return;
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        R.voulu.forEach(function(p){
+          const val=Math.max(0,Math.floor(Number(p.value)||0));
+          if(p.action==='allocate'){
+            const sys=systemeMetaParIdIdleV130_(j,p.system);
+            if(!sys||!sys.state||!sys.state.allocation)return;
+            const actuel=Math.max(0,H.idleNombre_(sys.state.allocation[p.resource]));
+            const delta=val-actuel;
+            if(!delta)return;
+            sys.state.allocation[p.resource]=val;
+            if(p.resource==='energy')j.energie=Math.max(0,H.idleNombre_(j.energie)-delta);
+            else if(p.resource==='magic'&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic){
+              const m=j.systemes.resources.magic;
+              m.current=Math.max(0,H.idleNombre_(m.current)-delta);
+            }
+          }else if(p.action==='allocateAugment'){
+            const sys=systemeMetaParIdIdleV130_(j,'augmentations');
+            const pair=sys&&sys.state&&sys.state.data&&sys.state.data.pairs&&sys.state.data.pairs[p.pair];
+            if(!pair)return;
+            const champ=p.upgrade?'upgradeEnergy':'energy';
+            const actuel=Math.max(0,H.idleNombre_(pair[champ]));
+            const delta=val-actuel;
+            if(!delta)return;
+            pair[champ]=val;
+            if(sys.state.allocation)sys.state.allocation.energy=Math.max(0,H.idleNombre_(sys.state.allocation.energy)+delta);
+            j.energie=Math.max(0,H.idleNombre_(j.energie)-delta);
+          }
+        });
+      }
+      window.__appliquerAllocationsVouluesIdleV1__=appliquerAllocationsVoulues;
 
       /*
        * Réponse du serveur à une allocation. Une réponse plus ancienne que la valeur affichée est ignorée (la dernière réconcilie) ; une

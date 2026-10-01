@@ -8148,3 +8148,6 @@ body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1::before{z-index:-1!import
 /* Blood Magic (Norman, 2026-10-01) : le « + » des rituels est une croix renversée. */
 .soreal-idle-blood-croix-v1{display:inline-block;transform:rotate(180deg);font-weight:900;line-height:1;color:#ff4d5e;text-shadow:0 0 8px rgba(190,18,40,.8)}
 button .soreal-idle-blood-croix-v1{font-size:1.25em}
+
+/* Absorption réactive des boosts (Norman, 2026-10-01) : le boost s'efface tout de suite, aspiré, avant la confirmation du serveur. */
+.soreal-idle-absorbe-v1{transition:opacity .14s ease-in,transform .14s ease-in!important;opacity:0!important;transform:scale(.15)!important;pointer-events:none!important}

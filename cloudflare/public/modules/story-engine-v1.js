@@ -104,7 +104,7 @@ function tts_(){
 /* Voix nommées (Norman, 2026-10-01) : le registre modules/voix-nommees-v1.js donne les identifiants valides ; « (marseille) » etc. sont des balises comme « (femme) ». */
 function idsVoix_(){
   var reg=window.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
-  var ids=['homme','femme'];
+  var ids=['homme','femme','narrateur'];
   if(reg&&Array.isArray(reg.liste))reg.liste.forEach(function(v){if(v&&/^[a-z0-9-]{1,32}$/.test(v.id)&&ids.indexOf(v.id)===-1)ids.push(v.id);});
   return ids;
 }
@@ -113,7 +113,7 @@ function segmenter_(texte,parleurParDefaut){
   var ids=idsVoix_();
   var BALISE_VOIX_RE=new RegExp('\\(\\s*('+ids.join('|')+')\\s*\\)','gi');
   var defaut=String(parleurParDefaut||'').toLowerCase();
-  var voix=ids.indexOf(defaut)!==-1?defaut:'homme';
+  var voix=ids.indexOf(defaut)!==-1&&defaut!=='narrateur'?defaut:'homme';
   var segments=[];
   var dernier=0;
   var m;
@@ -124,6 +124,8 @@ function segmenter_(texte,parleurParDefaut){
   while((m=BALISE_VOIX_RE.exec(brut))){
     ajouter(m.index);
     voix=m[1].toLowerCase();
+    /* « (narrateur) » : retour à la voix du narrateur (celle d'« homme »), après une autre voix. */
+    if(voix==='narrateur')voix='homme';
     dernier=m.index+m[0].length;
   }
   ajouter(brut.length);

@@ -41,6 +41,11 @@ const segmenter = moteurWindow.__SOREAL_IDLE_STORY_ENGINE_V1__.segmenter;
   assert.equal(segmenter("Salut.", "cool").segments[0].voix, "cool", "voix nommée par défaut de l'étape");
   assert.equal(segmenter("Salut.", "narrateur").segments[0].voix, "homme");
   assert.equal(segmenter("Salut.", "femme").segments[0].voix, "femme");
+  {
+    const r = segmenter("(marseille) Té ! (narrateur) Puis il partit. (Narrateur) Fin.", "cool");
+    assert.equal(JSON.stringify(r.segments.map((x) => x.voix)), JSON.stringify(["marseille", "homme", "homme"]), "(narrateur) ramène à la voix du narrateur");
+    assert.ok(!r.affiche.includes("narrateur"), "la balise ne s'affiche jamais");
+  }
   assert.equal(segmenter("Salut.", "pas-une-voix").segments[0].voix, "homme");
   assert.equal(segmenter("(VIEILLE) Majuscules.", "narrateur").segments[0].voix, "vieille", "balises insensibles à la casse");
 }
