@@ -213,6 +213,54 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     return synthetiser_long(texte, voix, exaggeration, cfg)
 
 
+# Garde-fou contre les « dérapages » (Norman, 2026-10-01 : « la voix de marius continue à lire alors qu'il n'y a plus rien et dit n'importe quoi ») :
+# le modèle poursuit parfois sa génération après la fin du texte. Une phrase ne peut pas durer plus de DUREE_PAR_CARACTERE_S x longueur + DUREE_MARGE_S.
+DUREE_PAR_CARACTERE_S = 0.12
+DUREE_MARGE_S = 1.2
+
+
+def duree_max_segment(segment):
+    return len(segment) * DUREE_PAR_CARACTERE_S + DUREE_MARGE_S
+
+
+def couper_derapage(wav, sr, segment):
+    """Si l'audio dépasse la durée plausible du texte, le coupe au creux de volume le plus net de la fin autorisée, avec un court fondu. Renvoie (wav, coupe)."""
+    import torch
+    n = wav.shape[-1]
+    limite = int(duree_max_segment(segment) * sr)
+    if n <= limite:
+        return wav, False
+    x = wav.squeeze(0).float()
+    fenetre = max(1, int(sr * 0.02))
+    debut = int(limite * 0.6) // fenetre
+    fin = limite // fenetre
+    rms = x[: fin * fenetre].reshape(fin, fenetre).pow(2).mean(dim=1)
+    zone = rms[debut:fin]
+    i = debut + (int(zone.argmin()) if zone.numel() else fin - debut - 1)
+    pos = min(limite, (i + 1) * fenetre)
+    sortie = wav[..., :pos].clone()
+    fondu = min(pos, int(sr * 0.03))
+    if fondu > 1:
+        sortie[..., -fondu:] *= torch.linspace(1.0, 0.0, fondu)
+    return sortie, True
+
+
+def generer_segment(m, segment, kwargs):
+    """Génère un segment ; en cas de dérapage, réessaie avec des réglages plus calmes puis coupe net en dernier recours."""
+    tentatives = [kwargs, dict(kwargs, exaggeration=min(kwargs["exaggeration"], 0.35), cfg_weight=max(kwargs["cfg_weight"], 0.5)),
+                  dict(kwargs, exaggeration=0.25, cfg_weight=0.6)]
+    wav = None
+    for essai in tentatives:
+        wav = m.generate(segment, **essai).detach().cpu()
+        if wav.dim() == 1:
+            wav = wav.unsqueeze(0)
+        if wav.shape[-1] <= int(duree_max_segment(segment) * m.sr):
+            return wav
+        print("[voix] dérapage détecté (%.1f s pour %d caractères), nouvel essai" % (wav.shape[-1] / m.sr, len(segment)))
+    wav, _ = couper_derapage(wav, m.sr, segment)
+    return wav
+
+
 def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     import torch
     m = charger_modele()
@@ -224,8 +272,7 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
             reference = reference_voix(voix)
             if reference:
                 kwargs["audio_prompt_path"] = reference
-            wav = m.generate(segment, **kwargs)
-            wav = wav.detach().cpu()
+            wav = generer_segment(m, segment, kwargs)
             if torch.cuda.is_available() and os.environ.get("SOREAL_VOIX_MEMOIRE"):
                 torch.cuda.empty_cache()
             if wav.dim() == 1:

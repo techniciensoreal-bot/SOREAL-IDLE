@@ -2,5 +2,9 @@
   "folle": {
     "exaggeration": 0.35,
     "cfg": 0.3
+  },
+  "marius": {
+    "exaggeration": 0.4,
+    "cfg": 0.5
   }
 }
