@@ -22618,7 +22618,7 @@ function pageAventureIdleV28_(j){
 
             ${walderpBanniereIdleV147_(j)}
 
-            <div class="soreal-idle-page-root-v28" style="--nav-color:${idleHtml_(IDLE_NAV_COULEURS_V1[idleMenuActifV28]||'#5b6b93')}">
+            <div class="soreal-idle-page-root-v28" data-menu="${idleHtml_(idleMenuActifV28)}" style="--nav-color:${idleHtml_(IDLE_NAV_COULEURS_V1[idleMenuActifV28]||'#5b6b93')}">
               ${contenuMenuIdleV28_(j)}
             </div>
           </main>`;

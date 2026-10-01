@@ -1,0 +1,259 @@
+/*
+ * SOREAL IDLE — thèmes visuels par menu (Norman, 2026-10-01 : « retravaille chaque menu pour leur donner des interfaces vraiment jeu vidéo ;
+ * chaque interface doit être très différente »).
+ *
+ * Le conteneur .soreal-idle-page-root-v28 porte data-menu="<identifiant du menu>" (soreal-idle-ui.js) : chaque menu a sa propre section
+ * ci-dessous, sous le sélecteur  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="..."].
+ * Le thème sombre global impose ses fonds en !important : les fonds des thèmes le sont donc aussi.
+ * Blood Magic garde son habillage de sang (soreal-idle-ui.css, .soreal-idle-bloodmagic-v1) : non repris ici.
+ *
+ * Palettes : Augmentations = surtensions or / orange / magenta sur noir prune, angles coupés ;
+ *            Fight Boss    = arène : acier bleuté (joueur) contre rouge magma (boss), projecteurs et grosses barres de vie.
+ */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"],
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{
+  --t-a:#ffb300;--t-b:#ff6a1a;--t-c:#ff2d7a;
+  position:relative;
+}
+
+/* ====================== AUGMENTATIONS : surtension ====================== */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"]{
+  --t-a:#ffc21a;--t-b:#ff6a1a;--t-c:#ff2d7a;--t-ink:#1b0a12;--t-card:#1c0f1c;--t-card2:#120812;
+  padding:14px 10px 8px;
+  border-radius:4px;
+  background:
+    radial-gradient(ellipse 90% 40% at 12% 0%,rgba(255,106,26,.30),transparent 70%),
+    radial-gradient(ellipse 80% 45% at 100% 20%,rgba(255,45,122,.26),transparent 70%),
+    repeating-linear-gradient(115deg,rgba(255,194,26,.035) 0 2px,transparent 2px 16px),
+    linear-gradient(180deg,#1d0c1b 0%,#120714 60%,#0b040d 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,138,26,.22),inset 0 -40px 80px rgba(255,45,122,.10);
+}
+/* Titre : bandeau coupé en biais, texte en dégradé d'énergie. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-page-head-v28{
+  background:linear-gradient(100deg,#3a1204 0%,#5a1a16 45%,#4a0f33 100%)!important;
+  border:0!important;
+  border-radius:0!important;
+  clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px));
+  box-shadow:none;
+  padding:16px 20px;
+  position:relative;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-page-head-v28::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(115deg,transparent 0 18px,rgba(255,200,60,.10) 18px 20px);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-page-title-v28{
+  font-size:24px;letter-spacing:.06em;text-transform:uppercase;
+  background:linear-gradient(90deg,#fff2a8,#ffc21a 35%,#ff6a1a 70%,#ff2d7a);
+  -webkit-background-clip:text;background-clip:text;color:transparent!important;
+  filter:drop-shadow(0 0 10px rgba(255,120,30,.55));
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-page-sub-v28{color:#ffd9b0!important}
+/* Aide : plaque métallique. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-aide-v1{
+  background:linear-gradient(160deg,rgba(255,138,26,.14),rgba(255,45,122,.10))!important;
+  border:1px solid rgba(255,170,60,.45)!important;border-radius:2px!important;color:#ffe9d2!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-aide-etapes-v1 li::before{background:linear-gradient(135deg,#ffc21a,#ff6a1a)!important;color:#2a0c00!important}
+/* Chiffres clés : tuiles à coins coupés, valeurs lumineuses. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-summary-v28{
+  background:linear-gradient(160deg,#2b1424,#170a17)!important;
+  border:0!important;border-radius:0!important;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  color:#e8b98f!important;
+  box-shadow:inset 0 0 0 1px rgba(255,170,60,.35);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-summary-v28 b{
+  font-size:19px;color:#ffe08a!important;text-shadow:0 0 12px rgba(255,150,30,.75);
+}
+/* Réglages d'énergie : console. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-toolbar-v120{
+  background:linear-gradient(160deg,#22101f,#150915)!important;
+  border:1px solid rgba(255,138,26,.40)!important;border-radius:2px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-input-box-v120,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-presets-v120{
+  background:#0f060f!important;border-radius:0!important;border-left:3px solid #ff6a1a;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-input-box-v120 input{
+  background:#1e0d1c!important;color:#ffe9b0!important;border:1px solid rgba(255,170,60,.55)!important;border-radius:0!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-presets-v120 button{
+  background:linear-gradient(180deg,#5a2a10,#3a1608)!important;color:#ffd9a0!important;border:1px solid rgba(255,170,60,.5)!important;border-radius:0!important;
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-presets-v120 button.clear{
+  background:linear-gradient(180deg,#6a1030,#3c081c)!important;color:#ffc2d6!important;
+}
+/* Cartes d'augmentation : plaque à lisere d'énergie. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-section-v8{
+  background:linear-gradient(165deg,#2a1226 0%,#190b19 100%)!important;
+  border:1px solid rgba(255,138,26,.30)!important;
+  border-left:5px solid transparent!important;
+  border-image:linear-gradient(180deg,#ffc21a,#ff6a1a,#ff2d7a) 1;
+  border-radius:0!important;
+  box-shadow:0 6px 20px rgba(0,0,0,.45),inset 0 0 40px rgba(255,100,30,.06);
+  position:relative;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-section-v8>div:first-child b,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-aug-piste-v1>div:first-child b{
+  color:#ffe6b0;letter-spacing:.02em;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-aug-piste-v1.upgrade{
+  border-top:1px dashed rgba(255,45,122,.5);padding-top:8px;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-aug-soustitre-v1{color:#d8a98c!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-allocation-v120{color:#ffd24a!important;text-shadow:0 0 8px rgba(255,170,30,.7)}
+/* Barres : tube d'énergie, dégradé de surtension avec hachures de puissance. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-track-v120{
+  height:14px;border-radius:0;background:#0b050c!important;
+  box-shadow:inset 0 0 0 1px rgba(255,170,60,.45),inset 0 2px 6px rgba(0,0,0,.8);
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);
+  overflow:hidden;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-fill-v120{
+  background:
+    repeating-linear-gradient(115deg,rgba(255,255,255,.28) 0 5px,transparent 5px 12px),
+    linear-gradient(90deg,#ff2d7a 0%,#ff6a1a 45%,#ffc21a 80%,#fff2a8 100%)!important;
+  box-shadow:0 0 14px rgba(255,140,30,.8);
+}
+/* Boutons : + (or), − (magenta), Max (électrique). */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-actions-v120 button{
+  border:0!important;border-radius:0!important;padding:9px 10px!important;font-size:12px!important;letter-spacing:.06em;text-transform:uppercase;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  color:#220a00!important;
+  background:linear-gradient(180deg,#ffd75a,#ff9a1a)!important;
+  box-shadow:0 0 12px rgba(255,160,30,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-actions-v120 button:nth-child(2){
+  background:linear-gradient(180deg,#ff6b9a,#d4154f)!important;color:#fff!important;box-shadow:0 0 12px rgba(255,45,122,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-actions-v120 button:nth-child(3){
+  background:linear-gradient(180deg,#7be9ff,#7a4dff)!important;color:#07102a!important;box-shadow:0 0 12px rgba(120,150,255,.55);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-actions-v120 button:hover{filter:brightness(1.18)}
+
+/* ====================== FIGHT BOSS : l'arène ====================== */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{
+  padding:12px 10px 8px;border-radius:18px;
+  background:
+    radial-gradient(ellipse 60% 55% at 22% 8%,rgba(80,150,255,.20),transparent 70%),
+    radial-gradient(ellipse 60% 55% at 78% 8%,rgba(255,50,40,.28),transparent 70%),
+    linear-gradient(180deg,#0b0d1a 0%,#12080c 55%,#08070b 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28{
+  background:linear-gradient(90deg,#10264a 0%,#1a1a2e 48%,#4a0c12 100%)!important;
+  border:0!important;border-radius:0!important;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px));
+  box-shadow:none;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-title-v28{
+  font-size:25px;text-transform:uppercase;letter-spacing:.14em;color:#fff!important;
+  text-shadow:0 0 14px rgba(255,70,50,.8),0 2px 0 #000;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-sub-v28{color:#c6cdee!important}
+/* Carte de duel : scène. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35{
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%,rgba(255,255,255,.10),transparent 70%),
+    linear-gradient(180deg,#14172b 0%,#0d0a14 100%)!important;
+  border:1px solid rgba(255,255,255,.10)!important;border-radius:14px!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-label-v4{color:#ff8b7a!important;letter-spacing:.2em}
+/* Bandeaux de noms : joueur (acier bleu) / boss (rouge magma), coupés en biais. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-nameplate-v65{
+  border:0!important;border-radius:0!important;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 100%,14px 100%);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-nameplate-v65.player{
+  background:linear-gradient(90deg,#1b4a8a,#102a52)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-nameplate-v65.boss{
+  background:linear-gradient(90deg,#521019,#9a1c1c)!important;
+  clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-name-text-v65{
+  font-size:15px;text-transform:uppercase;letter-spacing:.06em;text-shadow:0 2px 6px rgba(0,0,0,.8);
+}
+/* Cadres des portraits : liseré lumineux, couleur du camp. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-portrait-v41{
+  border:2px solid rgba(255,90,70,.65)!important;border-radius:10px!important;
+  background:radial-gradient(ellipse at 50% 35%,#3a1218 0%,#150a10 75%)!important;
+  box-shadow:0 0 22px rgba(255,60,40,.40),inset 0 0 30px rgba(0,0,0,.65);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-player-portrait-v41{
+  border-color:rgba(90,170,255,.7)!important;
+  background:radial-gradient(ellipse at 50% 35%,#13304f 0%,#0a1220 75%)!important;
+  box-shadow:0 0 22px rgba(70,150,255,.40),inset 0 0 30px rgba(0,0,0,.65);
+}
+/* VS : médaillon électrique. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-vs-v41{
+  width:54px;height:54px;border-radius:50%!important;border:2px solid #ffd54a!important;
+  background:radial-gradient(circle at 50% 35%,#ff6a1a,#a3140e 70%)!important;
+  color:#fff!important;font-weight:1000;letter-spacing:.04em;text-shadow:0 2px 0 #4a0800;
+  box-shadow:0 0 0 4px rgba(0,0,0,.45),0 0 26px rgba(255,120,30,.85);
+}
+/* Points de vie : barres épaisses, repères réguliers, dégradés vert / magma. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41{
+  border-radius:0!important;border:0!important;
+  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 100%,0 100%);
+  text-shadow:0 2px 4px #000;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-playerbar-wrap-v15,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-bossbar-wrap-v7{
+  height:16px!important;border-radius:0!important;background:#07060b!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 3px 6px rgba(0,0,0,.8);
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);overflow:hidden;position:relative;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-playerbar-v15{
+  background:
+    repeating-linear-gradient(90deg,transparent 0 22px,rgba(0,0,0,.35) 22px 24px),
+    linear-gradient(180deg,#9dffb6,#19b34a 55%,#0b6a2c)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-playerbar-v15.low{
+  background:
+    repeating-linear-gradient(90deg,transparent 0 22px,rgba(0,0,0,.35) 22px 24px),
+    linear-gradient(180deg,#ffe08a,#ff9a1a 55%,#b34a08)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-bossbar-v7{
+  background:
+    repeating-linear-gradient(90deg,transparent 0 22px,rgba(0,0,0,.35) 22px 24px),
+    linear-gradient(180deg,#ff8a6a,#e02424 55%,#7a0a14)!important;
+  box-shadow:0 0 14px rgba(255,50,40,.7);
+}
+/* Commandes : gros boutons d'arcade. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-control-v39{
+  border:0!important;border-radius:0!important;padding:12px 18px!important;font-size:13px!important;letter-spacing:.12em;text-transform:uppercase;font-weight:1000;
+  clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-control-v39.start{
+  background:linear-gradient(180deg,#7dffa8,#12b34a 60%,#0a6b2d)!important;color:#02240f!important;box-shadow:0 0 22px rgba(60,255,130,.55);
+  animation:sorealCombatPulseV1 1.6s ease-in-out infinite;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-control-v39.stop{
+  background:linear-gradient(180deg,#9aa6c4,#4a546f)!important;color:#0c1020!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-control-v39.nuke{
+  background:linear-gradient(180deg,#ffd75a,#ff5a1a 60%,#b3170a)!important;color:#2a0600!important;box-shadow:0 0 22px rgba(255,100,30,.6);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-control-v39:disabled{
+  filter:grayscale(.7) brightness(.6);animation:none;box-shadow:none;
+}
+@keyframes sorealCombatPulseV1{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+@media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-control-v39.start{animation:none}}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-respawn-v100{
+  border-radius:0!important;border:1px solid rgba(255,255,255,.2)!important;background:rgba(10,10,20,.7)!important;letter-spacing:.06em;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-chip-v8{
+  background:linear-gradient(180deg,#4a3a10,#2a2008)!important;color:#ffe08a!important;border:1px solid rgba(255,200,60,.5)!important;border-radius:0!important;
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);font-weight:900;
+}
+/* Augmentations : « + » et « − » bien lisibles, « Max » en lettres. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-actions-v120 button:nth-child(1),
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .soreal-idle-bt-actions-v120 button:nth-child(2){font-size:22px!important;line-height:1;padding:6px 10px!important}
+/* Fight Boss : les longs noms de boss passent à la ligne au lieu d'être coupés. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-name-text-v65{
+  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.15;font-size:13px;
+}

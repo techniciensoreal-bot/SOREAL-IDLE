@@ -11,7 +11,7 @@ const index=fs.readFileSync(
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=339'),
+  index.includes('/soreal-idle-ui.js?v=340'),
   "Le shell doit charger une révision UI cache-bustée."
 );
 

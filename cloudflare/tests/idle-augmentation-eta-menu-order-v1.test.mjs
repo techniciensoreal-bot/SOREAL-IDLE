@@ -57,7 +57,8 @@ const def = (s) => idleNguSnapshot(s, ctx, T0).augmentations.find((d) => d.id ==
 }
 
 // --- Client : durée par niveau, coût, compte à rebours, barre figée faute d'Or, remplissage honnête ---
-assert.match(meta, /'⏱ '\+formatDureeAugmentIdleV1_\(upgrade\?def\.upgradeSecondsPerLevel:def\.secondsPerLevel\)\+' par niveau · '/);
+/* Norman (2026-10-01) : « ⏱ … par niveau » retiré (la durée dépend de l'énergie placée). */
+assert.ok(!/' par niveau · '/.test(meta), "plus de durée « par niveau » dans les Augmentations");
 assert.match(meta, /data-idle-aug-eta-v1="'\+def\.id/);
 assert.match(meta, /Niveau suivant dans /);
 assert.match(meta, /Barre pleine : il manque /);
