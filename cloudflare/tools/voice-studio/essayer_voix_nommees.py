@@ -18,9 +18,9 @@ STUDIO = os.environ.get("SOREAL_VOIX_URL", "http://127.0.0.1:8765")
 TEXTE = ("Le village dort encore, mais moi, je suis déjà debout. J'ai préparé mon sac, vérifié mon épée, et je me suis promis de ne plus "
          "jamais revenir sans la réponse que je cherche.")
 NOMS = {
-    "homme": "Narrateur actuel (Tom)", "femme": "Femme actuelle (Siwis)", "pere-de-bohort": "Père de Bohort", "asmr": "ASMR",
-    "realiste-femme": "Réaliste femme", "lecteur": "Lecteur", "marseille": "Marseille", "pd": "PD", "cool": "Cool", "gogole": "Gogole",
-    "vieille": "Vieille", "jeune-vieille": "Jeune vieille", "folle-2": "Folle 2",
+    "homme": "Narrateur actuel (Tom)", "femme": "Femme actuelle (Siwis)", "bohort": "Bohort", "asmr": "ASMR",
+    "lea": "Léa", "lecteur": "Lecteur", "marius": "Marius", "dandy": "Dandy", "cool": "Cool", "niais": "Niais",
+    "vieille": "Vieille", "mamie": "Mamie", "folle": "Folle",
 }
 
 

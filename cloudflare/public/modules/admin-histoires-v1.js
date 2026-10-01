@@ -96,7 +96,14 @@ function voixNommees_(){
 function parleurs_(){
   return [['narrateur','🎙 Narrateur'],['femme','👩 Femme']].concat(voixNommees_().map(function(v){return [v.id,'🎭 '+v.nom];}));
 }
+/* Identifiant courant d'un « Qui parle » enregistré (les anciens identifiants longs deviennent leur nom court : « gogole » -> « niais »). */
+function parleurCanon_(parleur){
+  var reg=window.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
+  var r=reg&&typeof reg.resoudre==='function'?reg.resoudre(parleur):'';
+  return r||parleur||'narrateur';
+}
 function voixStudio_(parleur){
+  parleur=parleurCanon_(parleur);
   return voixNommees_().some(function(v){return v.id===parleur;})?parleur:(parleur==='femme'?'femme':'homme');
 }
 
@@ -347,7 +354,7 @@ function etapeHtml_(e,i){
       (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
       '<div style="flex:1;min-width:0">'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer l’image':'Choisir une image')+'</button>'+
-        '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+parleurs_().map(function(p){return '<option value="'+p[0]+'"'+((e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
+        '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+parleurs_().map(function(p){return '<option value="'+p[0]+'"'+(parleurCanon_(e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
         '<label>Texte lu à voix haute</label>'+
         '<textarea data-adm-texte="'+i+'" placeholder="Colle ici le texte de cette image…">'+esc_(e.texte)+'</textarea>'+
         '<div class="soreal-idle-adm-meta-v1" style="margin-top:4px">Astuce : écris <b>(femme)</b>, <b>(homme)</b>'+voixNommees_().map(function(v){return ', <b>('+esc_(v.id)+')</b>';}).join('')+' dans le texte pour changer de voix à cet endroit. Les balises ne s’affichent pas à l’écran.</div>'+

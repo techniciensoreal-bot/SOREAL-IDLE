@@ -1,3 +1,6 @@
 {
-  "folle-2": { "exaggeration": 0.35, "cfg": 0.3 }
+  "folle": {
+    "exaggeration": 0.35,
+    "cfg": 0.3
+  }
 }

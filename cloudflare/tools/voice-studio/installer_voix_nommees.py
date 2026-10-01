@@ -16,8 +16,8 @@ CANDIDATS = os.path.join(BASE, "candidats")
 VOIX = os.path.join(BASE, "voix")
 # identifiant de la voix -> numéro dans le catalogue des candidats (V22...)
 CHOIX = {
-    "pere-de-bohort": "V22", "asmr": "V30", "realiste-femme": "V05", "lecteur": "V32", "marseille": "V31", "pd": "V28",
-    "cool": "V23", "gogole": "V21", "vieille": "V17", "jeune-vieille": "V16", "folle-2": "V14",
+    "bohort": "V22", "asmr": "V30", "lea": "V05", "lecteur": "V32", "marius": "V31", "dandy": "V28",
+    "cool": "V23", "niais": "V21", "vieille": "V17", "mamie": "V16", "folle": "V14",
 }
 
 

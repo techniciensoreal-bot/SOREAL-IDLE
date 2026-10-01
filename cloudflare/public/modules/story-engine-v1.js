@@ -101,19 +101,25 @@ function tts_(){
  * suivante ; avant la première balise, la voix par défaut de l'étape (« Qui parle »). Les balises ne s'affichent jamais à l'écran ;
  * toute autre parenthèse du texte reste un texte normal. Renvoie { affiche, segments:[{voix:'homme'|'femme', texte}] }.
  */
-/* Voix nommées (Norman, 2026-10-01) : le registre modules/voix-nommees-v1.js donne les identifiants valides ; « (marseille) » etc. sont des balises comme « (femme) ». */
-function idsVoix_(){
+/*
+ * Voix nommées (Norman, 2026-10-01) : le registre modules/voix-nommees-v1.js reconnaît « (bohort) », « (Marius) »… comme « (femme) » ; la balise est
+ * insensible à la casse, aux accents, aux espaces et aux tirets, et les anciens noms restent des alias. « (narrateur) » ramène à la voix du narrateur
+ * (« homme »). Une parenthèse inconnue reste un texte normal.
+ */
+function normaliserBalise_(t){
+  return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+}
+function resoudreVoix_(t){
+  var n=normaliserBalise_(t);
+  if(n==='homme'||n==='narrateur')return 'homme';
+  if(n==='femme')return 'femme';
   var reg=window.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
-  var ids=['homme','femme','narrateur'];
-  if(reg&&Array.isArray(reg.liste))reg.liste.forEach(function(v){if(v&&/^[a-z0-9-]{1,32}$/.test(v.id)&&ids.indexOf(v.id)===-1)ids.push(v.id);});
-  return ids;
+  return reg&&typeof reg.resoudre==='function'?reg.resoudre(t):'';
 }
 function segmenter_(texte,parleurParDefaut){
   var brut=String(texte==null?'':texte);
-  var ids=idsVoix_();
-  var BALISE_VOIX_RE=new RegExp('\\(\\s*('+ids.join('|')+')\\s*\\)','gi');
-  var defaut=String(parleurParDefaut||'').toLowerCase();
-  var voix=ids.indexOf(defaut)!==-1&&defaut!=='narrateur'?defaut:'homme';
+  var BALISE_RE=/\(\s*([^()\n]{1,40}?)\s*\)/g;
+  var voix=resoudreVoix_(parleurParDefaut)||'homme';
   var segments=[];
   var dernier=0;
   var m;
@@ -121,11 +127,11 @@ function segmenter_(texte,parleurParDefaut){
     var t=brut.slice(dernier,fin).replace(/\s+/g,' ').trim();
     if(t)segments.push({voix:voix,texte:t});
   }
-  while((m=BALISE_VOIX_RE.exec(brut))){
+  while((m=BALISE_RE.exec(brut))){
+    var v=resoudreVoix_(m[1]);
+    if(!v)continue;
     ajouter(m.index);
-    voix=m[1].toLowerCase();
-    /* « (narrateur) » : retour à la voix du narrateur (celle d'« homme »), après une autre voix. */
-    if(voix==='narrateur')voix='homme';
+    voix=v;
     dernier=m.index+m[0].length;
   }
   ajouter(brut.length);
