@@ -4,7 +4,7 @@
  *
  * Les événements viennent du serveur (src/idle-flux-v1.js) par la réponse du battement du chat (toutes les ~20 s) : aucun appel de plus.
  * Un bandeau fixe en bas de l'écran, hors du rendu du jeu (donc présent dans tous les menus et jamais effacé par un re-rendu), fait défiler
- * les nouveautés ; chaque information n'est jouée qu'une fois (2 passages), le bandeau apparaît et disparaît en fondu ; toucher/survoler met en pause.
+ * les nouveautés ; chaque information n'est jouée qu'une fois (un seul passage), le bandeau apparaît et disparaît en fondu ; toucher/survoler met en pause.
  *
  * Anti-spoil (AGENTS.md règle n°2) : chaque phrase est construite CÔTÉ LECTEUR avec ce que le lecteur a déjà découvert
  * (window.__SOREAL_IDLE_ACTIVITE_V1__().connus) : un boss, un titan ou un trophée qu'il ne connaît pas devient « un boss », « un Titan »,
@@ -15,7 +15,7 @@
 
   const MAX_ITEMS=30;
   const MAX_LOT=8;
-  const PASSAGES=2;
+  const PASSAGES=1;
   const DUREE_FONDU_MS=600;
   const PX_PAR_SEC=46;
 

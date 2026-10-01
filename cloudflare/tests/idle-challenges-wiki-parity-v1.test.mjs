@@ -201,3 +201,11 @@ console.log("idle-challenges-wiki-parity-v1: OK");
   assert.ok(!src.includes("seuilsAveugle"), "plus de seuils de masquage par niveau inventés");
   assert.ok(src.includes("gets blinder"), "la source wiki et ses limites sont citées à côté du masque");
 }
+
+// Page Défis (2026-10-01) : chaque défi présente Objectif / Description / Restrictions / Conseil / Récompenses dans des cadres titrés, et le bandeau « En direct » ne joue qu'un passage.
+{
+  const src = readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8");
+  for (const titre of ["'Objectif'", "'Description'", "'Restrictions'", "'Conseil'", "'Récompenses'"]) assert.ok(src.includes(titre), "cadre " + titre);
+  assert.ok(readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8").includes(".dfi-cadre"));
+  assert.ok(readFileSync("cloudflare/public/modules/flux-v1.js", "utf8").includes("const PASSAGES=1;"), "un seul passage dans le bandeau En direct");
+}

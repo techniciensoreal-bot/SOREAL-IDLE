@@ -224,11 +224,10 @@ function ligneRecompense(r,def,fait){
   if(typeof r.q==='number'&&def.id==='troll'){
     var boss=69+(r.q-1)*15;
     var intervalles=[120,110,100,90,85,80,75];
-    extra=' <span style="opacity:.7">(boss '+boss+', trolls toutes les '+intervalles[r.q-1]+' s)</span>';
+    extra=' <small>(boss '+boss+', trolls toutes les '+intervalles[r.q-1]+' s)</small>';
   }
-  return '<div style="display:flex;gap:6px;font-size:12px;line-height:1.4;margin-top:3px">'+
-    '<span style="min-width:18px">'+(recu?'✅':'▫️')+'</span>'+
-    '<span><b style="opacity:.75">'+h(etiquetteQuand(r,ent(def.max)))+' :</b> '+h(texte)+extra+'</span></div>';
+  return '<li class="dfi-rec'+(recu?' recu':'')+'"><span class="dfi-coche">'+(recu?'✅':'▫️')+'</span>'+
+    '<span><b>'+h(etiquetteQuand(r,ent(def.max)))+'</b> '+h(texte)+extra+'</span></li>';
 }
 
 /* ---------- Page ---------- */
@@ -243,33 +242,47 @@ function conditionVictoire(def,textes){
   return 'Vaincre le boss '+ent(def.targetBoss)+suite;
 }
 
+/* Cadre titré (Norman, 2026-10-01 : « des cadres avec de belles écritures qui séparent bien Description, restrictions, etc. »). */
+function cadre(classe,icone,titre,contenu){
+  return '<section class="dfi-cadre '+classe+'"><header><span class="dfi-ic">'+icone+'</span><span class="dfi-tt">'+titre+'</span></header><div class="dfi-corps">'+contenu+'</div></section>';
+}
+
 function carteDefi(def,actif,tier){
   var t=DEFIS[def.id];
   if(!t)return '';
   var fait=ent(def.completion),max=ent(def.max);
   var termine=fait>=max;
   var statut=def.active?'▶️ En cours':termine?'🏅 Terminé':'✅ Disponible';
+  var classeStatut=def.active?'cours':termine?'fini':'dispo';
   var peutDemarrer=Boolean(def.unlocked)&&Boolean(def.implemented)&&!actif;
   var exp=gn(def.reward&&def.reward.experience||0),ap=gn(def.reward&&def.reward.ap||0);
   var mult=t.multiplie?' × numéro de complétion':'';
   var desc=t.desc[tier]||t.desc.normal;
   var conseil=(t.conseil&&(t.conseil[tier]||t.conseil.normal))||'';
   var lignes=(t.recompenses[tier]||[]).map(function(r){return ligneRecompense(r,def,fait);}).join('');
-  return '<div class="soreal-idle-section-v8" style="margin:0'+(def.active?';border-color:#f43f5e':'')+'">'+
-    '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>'+h(t.nom)+'</b><span>'+fait+' / '+max+'</span></div>'+
-    '<div style="font-size:12px;color:#aeb5c8;margin-top:4px">'+statut+' · '+h(conditionVictoire(def,t))+'</div>'+
-    '<div style="font-size:12px;color:#aeb5c8;margin-top:3px">🎯 Chaque complétion : '+exp+' EXP · '+ap+' AP'+h(mult)+'</div>'+
-    '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px">📖 Description, restrictions et récompenses</summary>'+
-      '<div style="font-size:12px;line-height:1.5;margin-top:6px">'+h(desc)+'</div>'+
-      '<div style="font-size:12px;line-height:1.5;margin-top:6px"><b>⛔ Restrictions :</b> '+h(t.restriction)+'</div>'+
-      (conseil?'<div style="font-size:12px;line-height:1.5;margin-top:6px"><b>💡 Conseil :</b> '+h(conseil)+'</div>':'')+
-      '<div style="margin-top:8px"><b style="font-size:12px">🎁 Récompenses</b>'+(lignes||'<div style="font-size:12px;margin-top:3px;opacity:.8">Seulement de l’EXP et des AP.</div>')+'</div>'+
-      '<div style="font-size:11px;opacity:.7;margin-top:6px">Tu ne reçois plus d’EXP, d’AP ni de bonus pour les complétions au-delà du maximum.</div>'+
-    '</details>'+
+  var pct=max>0?Math.max(0,Math.min(100,Math.round(fait/max*100))):0;
+  var objectif=
+    '<p>'+h(conditionVictoire(def,t))+'</p>'+
+    '<p class="dfi-sous">À chaque complétion : <b>'+exp+' EXP</b> · <b>'+ap+' AP</b>'+h(mult)+'</p>';
+  var recompenses='<ul class="dfi-liste">'+(lignes||'<li class="dfi-rec"><span>Seulement de l’EXP et des AP.</span></li>')+'</ul>'+
+    '<p class="dfi-note">Au-delà du maximum, plus d’EXP, d’AP ni de bonus.</p>';
+  return '<article class="dfi-carte '+classeStatut+'">'+
+    '<div class="dfi-tete">'+
+      '<h3 class="dfi-nom">'+h(t.nom)+'</h3>'+
+      '<div class="dfi-meta"><span class="dfi-pastille '+classeStatut+'">'+statut+'</span><span class="dfi-compte">'+fait+' / '+max+'</span></div>'+
+      '<div class="dfi-jauge"><i style="width:'+pct+'%"></i></div>'+
+    '</div>'+
+    '<div class="dfi-cadres">'+
+      cadre('dfi-objectif','🎯','Objectif',objectif)+
+      cadre('dfi-description','📜','Description','<p>'+h(desc)+'</p>')+
+      cadre('dfi-restriction','⛔','Restrictions','<p>'+h(t.restriction)+'</p>')+
+      (conseil?cadre('dfi-conseil','💡','Conseil','<p>'+h(conseil)+'</p>'):'')+
+      cadre('dfi-recompense','🎁','Récompenses',recompenses)+
+    '</div>'+
     (peutDemarrer
-      ?'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__demarrerDefiIdleV1__(\''+h(def.id)+'\')">▶️ Démarrer</button></div>'
+      ?'<div class="dfi-actions"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__demarrerDefiIdleV1__(\''+h(def.id)+'\')">▶️ Démarrer</button></div>'
       :'')+
-  '</div>';
+  '</article>';
 }
 
 function page(j){
@@ -282,20 +295,23 @@ function page(j){
   var bandeau='';
   if(actifDef&&DEFIS[actifDef.id]){
     var t=DEFIS[actifDef.id];
-    bandeau='<div class="soreal-idle-section-v8" style="margin:0 0 10px;border-color:#f43f5e">'+
-      '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>▶️ Défi en cours : '+h(t.nom)+'</b><span>'+ent(actifDef.completion)+' / '+ent(actifDef.max)+'</span></div>'+
-      '<div style="font-size:12px;margin-top:5px">🎯 '+h(conditionVictoire(actifDef,t))+'</div>'+
-      '<div style="font-size:12px;margin-top:4px">⛔ '+h(t.restriction)+'</div>'+
-      (actifDef.id==='troll'&&etat.troll?'<div style="font-size:12px;margin-top:4px">😈 Trolls subis dans ce défi : '+ent(etat.troll.count)+'</div>':'')+
-      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__abandonnerDefiIdleV1__()">✖ Abandonner le défi</button></div>'+
-    '</div>';
+    bandeau='<article class="dfi-carte cours dfi-encours">'+
+      '<div class="dfi-tete"><h3 class="dfi-nom">▶️ Défi en cours : '+h(t.nom)+'</h3>'+
+      '<div class="dfi-meta"><span class="dfi-pastille cours">En cours</span><span class="dfi-compte">'+ent(actifDef.completion)+' / '+ent(actifDef.max)+'</span></div></div>'+
+      '<div class="dfi-cadres">'+
+        cadre('dfi-objectif','🎯','Objectif','<p>'+h(conditionVictoire(actifDef,t))+'</p>')+
+        cadre('dfi-restriction','⛔','Restrictions','<p>'+h(t.restriction)+'</p>')+
+        (actifDef.id==='troll'&&etat.troll?cadre('dfi-conseil','😈','Trolls','<p>Trolls subis dans ce défi : <b>'+ent(etat.troll.count)+'</b></p>'):'')+
+      '</div>'+
+      '<div class="dfi-actions"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__abandonnerDefiIdleV1__()">✖ Abandonner le défi</button></div>'+
+    '</article>';
   }
   var cartes=defs.map(function(def){return carteDefi(def,Boolean(actifDef),tier);}).join('');
   return entete('🏁 Défis'+(tier==='difficile'?' (Evil)':tier==='extreme'?' (Sadistic)':''),'Relève des défis à restrictions pour gagner des récompenses permanentes.')+
     '<div class="soreal-idle-note-v4" style="margin:0 0 10px">'+h(INTRO)+'</div>'+
     '<div class="soreal-idle-note-v4" style="margin:0 0 10px">'+h(d.note)+'</div>'+
     bandeau+
-    '<div style="display:grid;gap:10px" data-defi-sans-masque="1">'+(cartes||'<div class="soreal-idle-section-v8" style="text-align:center;padding:20px">Aucun défi disponible pour l’instant.</div>')+'</div>';
+    '<div class="dfi-grille" data-defi-sans-masque="1">'+(cartes||'<div class="soreal-idle-section-v8" style="text-align:center;padding:20px">Aucun défi disponible pour l’instant.</div>')+'</div>';
 }
 
 /* ---------- Effets à l'écran ---------- */
