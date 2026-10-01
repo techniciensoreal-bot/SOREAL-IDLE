@@ -3033,8 +3033,7 @@
             '❤️ '+
             (regenJoueurVisibleV176>0&&idleNombre_(idleEtat.pvJoueur)>0?formaterDecimalesFixesIdleV1_(idleEtat.pvJoueur,2):formatGrandNombreIdleV70_(idleEtat.pvJoueur))+
             ' / '+
-            formatGrandNombreIdleV70_(idleEtat.pvJoueurMax)+
-            (regenJoueurVisibleV176>0?' · ↗ +'+formaterDecimalesFixesIdleV1_(regenJoueurVisibleV176,0)+'/s':'')
+            formatGrandNombreIdleV70_(idleEtat.pvJoueurMax)
           );
         }
 
@@ -3102,16 +3101,6 @@
             ' / '+
             formatGrandNombreIdleV70_(
               idleEtat.bossPvMax
-            )+
-            (
-              bossEnRegenV174
-                ?' · ↗ +'+
-                  formaterDecimalesFixesIdleV1_(
-                    idleEtat.regenBoss,
-                    0
-                  )+
-                  '/s'
-                :''
             )
           );
         }

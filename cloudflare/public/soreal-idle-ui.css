@@ -7757,7 +7757,9 @@ html,body{overflow-x:hidden}
   text-shadow:0 1px 0 rgba(0,0,0,.65),0 0 10px rgba(120,255,180,.6);
 }
 .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
-  font-size:clamp(11px,2.7vw,17px) !important;
+  /* Norman (2026-10-01) : « les PV sont trop petits dans les barres de vie de Fight Boss » -- plus de régénération affichée, donc plus grand. */
+  font-size:clamp(15px,4.4vw,24px) !important;
+  font-weight:800;
 }
 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-wrap-v7,
 .soreal-idle-duel-hp-v41 .soreal-idle-playerbar-wrap-v15{

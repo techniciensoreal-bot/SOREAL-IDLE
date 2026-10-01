@@ -8,17 +8,8 @@ import { readFileSync } from "node:fs";
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
-// Fight Boss : les deux affichages "↗ +.../s" (joueur, boss) passent 0 décimale.
-assert.match(
-  ui,
-  /const regenJoueurVisibleV176=[\s\S]{0,600}formaterDecimalesFixesIdleV1_\(\s*regenJoueurVisibleV176,\s*0\s*\)/,
-  "regen du joueur en Fight Boss : 0 décimale"
-);
-assert.match(
-  ui,
-  /const bossEnRegenV174=[\s\S]{0,900}formaterDecimalesFixesIdleV1_\(\s*idleEtat\.regenBoss,\s*0\s*\)/,
-  "regen du boss en Fight Boss : 0 décimale"
-);
+// Fight Boss (2026-10-01) : les barres de vie n'affichent plus la régénération, seulement les PV (le texte « ↗ +.../s » est retiré).
+assert.ok(!ui.includes("↗ +"), "plus de régénération affichée dans les barres de Fight Boss");
 
 // Aventure : aucun changement -- le module dédié utilise toujours son propre formatage à 2 décimales.
 const adventureScene = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");

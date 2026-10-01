@@ -42,7 +42,8 @@ assert.match(
 
 assert.match(ui,/const bossEnRegenV174=/);
 assert.match(ui,/idleEtat\.regenBoss/);
-assert.match(ui,/↗ \+/);
+/* Norman (2026-10-01) : plus de régénération affichée dans les barres de vie de Fight Boss (seulement les PV). */
+assert.doesNotMatch(ui,/↗ \+/);
 
 assert.match(
   runtime,

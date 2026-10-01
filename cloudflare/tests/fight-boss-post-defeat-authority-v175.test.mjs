@@ -17,7 +17,7 @@ const guard=fn.slice(start,end>start?end:fn.length);
 
 assert.match(
   ui,
-  /const regenJoueurVisibleV176=[\s\S]{0,420}regenPvFightBossNguParSecondeV164_[\s\S]{0,500}↗ \+/
+  /const regenJoueurVisibleV176=[\s\S]{0,420}regenPvFightBossNguParSecondeV164_/
 );
 
 /*

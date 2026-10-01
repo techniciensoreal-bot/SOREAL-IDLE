@@ -65,8 +65,8 @@ const uiSource = readFileSync(
 assert.ok(
   uiSource.includes("const regenJoueurVisibleV176=") &&
   uiSource.includes("regenPvFightBossNguParSecondeV164_(") &&
-  uiSource.includes("' · ↗ +'"),
-  "La barre de vie joueur Fight Boss doit afficher ↗ +.../s pendant la récupération hors combat."
+  !uiSource.includes("' · ↗ +'"),
+  "La barre de vie joueur Fight Boss ne montre plus la régénération (seulement les PV) ; la récupération reste calculée."
 );
 
 // --- Comportement réel : formule instantanée de base ---
