@@ -4,7 +4,7 @@
  *
  * Les événements viennent du serveur (src/idle-flux-v1.js) par la réponse du battement du chat (toutes les ~20 s) : aucun appel de plus.
  * Un bandeau fixe en bas de l'écran, hors du rendu du jeu (donc présent dans tous les menus et jamais effacé par un re-rendu), fait défiler
- * les dernières nouvelles ; toucher/survoler le met en pause ; la croix le replie (choix mémorisé).
+ * les nouveautés ; chaque information n'est jouée qu'une fois (2 passages), le bandeau apparaît et disparaît en fondu ; toucher/survoler met en pause.
  *
  * Anti-spoil (AGENTS.md règle n°2) : chaque phrase est construite CÔTÉ LECTEUR avec ce que le lecteur a déjà découvert
  * (window.__SOREAL_IDLE_ACTIVITE_V1__().connus) : un boss, un titan ou un trophée qu'il ne connaît pas devient « un boss », « un Titan »,
@@ -13,15 +13,23 @@
 (function(){
   'use strict';
 
-  const CLE_REPLI='soreal_idle_flux_replie_v1';
   const MAX_ITEMS=30;
-  const MAX_BANDEAU=14;
+  const MAX_LOT=8;
+  const PASSAGES=2;
+  const DUREE_FONDU_MS=600;
   const PX_PAR_SEC=46;
 
   let items=[];
   let chats=[];
+  let file=[];
+  const vus=new Set();
+  let amorceFlux=false;
+  let amorceChat=false;
+  let phase='repos';
+  let tPhase=0;
+  let passes=0;
+  let largeurVue=300;
   let dernier=0;
-  let replie=false;
   let bandeau=null;
   let piste=null;
   let x=0;
@@ -35,7 +43,6 @@
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-  try{replie=localStorage.getItem(CLE_REPLI)==='1';}catch(e){}
 
   function contexte(){
     try{
@@ -121,7 +128,9 @@
       '#sorealIdleFluxV1{position:fixed;left:0;right:0;bottom:0;z-index:40;height:34px;display:flex;align-items:center;overflow:hidden;'+
         'padding-bottom:env(safe-area-inset-bottom,0);box-sizing:content-box;'+
         'background:linear-gradient(180deg,var(--th-bg,#16233a),var(--th-bg2,#0b1220));border-top:1px solid var(--th-line,rgba(94,234,212,.4));'+
-        'box-shadow:0 -6px 18px -10px var(--th-glow,rgba(94,234,212,.5));color:var(--th-ink,#e8fffb);font:700 13px/1 inherit;-webkit-user-select:none;user-select:none}'+
+        'box-shadow:0 -6px 18px -10px var(--th-glow,rgba(94,234,212,.5));color:var(--th-ink,#e8fffb);font:700 13px/1 inherit;-webkit-user-select:none;user-select:none;'+
+        'opacity:1;transition:opacity .6s ease,visibility 0s linear 0s}'+
+      '#sorealIdleFluxV1.sif-off{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility 0s linear .6s}'+
       '#sorealIdleFluxV1[hidden]{display:none}'+
       '#sorealIdleFluxV1 .sif-tag{flex:0 0 auto;z-index:2;padding:0 12px;height:100%;display:flex;align-items:center;gap:6px;font-weight:900;letter-spacing:.06em;font-size:12px;'+
         'background:linear-gradient(90deg,var(--th-a,#5eead4),var(--th-b,#25b9a4));color:#06201c;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);padding-right:20px}'+
@@ -131,14 +140,7 @@
       '#sorealIdleFluxV1 .sif-it{display:inline-flex;align-items:center;gap:6px;padding:0 18px;border-right:1px solid var(--th-line,rgba(255,255,255,.14))}'+
       '#sorealIdleFluxV1 .sif-it.moi{color:var(--th-num,#fff)}'+
       '#sorealIdleFluxV1 .sif-it .ic{font-size:15px}'+
-      '#sorealIdleFluxV1 .sif-vide{padding:0 14px;color:var(--th-dim,#9fb3c8);font-weight:600}'+
-      '#sorealIdleFluxV1 .sif-x{flex:0 0 auto;z-index:2;width:34px;height:100%;border:0;background:transparent;color:var(--th-dim,#9fb3c8);font-size:15px;cursor:pointer}'+
-      '#sorealIdleFluxV1 .sif-x:hover{color:var(--th-ink,#fff)}'+
-      '#sorealIdleFluxRouvrirV1{position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom,0));z-index:40;width:38px;height:38px;border-radius:999px;border:1px solid var(--th-line,rgba(94,234,212,.5));'+
-        'background:linear-gradient(180deg,var(--th-bg,#16233a),var(--th-bg2,#0b1220));color:var(--th-ink,#fff);font-size:17px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)}'+
-      '#sorealIdleFluxRouvrirV1[hidden]{display:none}'+
       'body.soreal-idle-flux-actif-v1 .soreal-idle-native-v4{padding-bottom:44px}'+
-      '@media (prefers-reduced-motion:reduce){#sorealIdleFluxV1 .sif-piste{transform:none!important}}'+
       /* Panneau dans la page Chat */
       '.sif-panneau{margin:0 0 10px;border:1px solid var(--th-line,rgba(255,255,255,.18));border-radius:16px;background:rgba(0,0,0,.22);overflow:hidden}'+
       '.sif-panneau .sif-ph{padding:8px 12px;font-size:13px;font-weight:900;letter-spacing:.04em;border-bottom:1px solid var(--th-line,rgba(255,255,255,.12))}'+
@@ -154,59 +156,43 @@
     css();
     bandeau=document.createElement('div');
     bandeau.id='sorealIdleFluxV1';
+    bandeau.className='sif-off';
     bandeau.setAttribute('role','marquee');
     bandeau.setAttribute('aria-label','Activité des joueurs');
-    bandeau.innerHTML='<div class="sif-tag">📰 EN DIRECT</div><div class="sif-vue"><div class="sif-piste"></div></div><button type="button" class="sif-x" aria-label="Masquer le fil d’actualité" title="Masquer">✕</button>';
+    bandeau.innerHTML='<div class="sif-tag">📰 EN DIRECT</div><div class="sif-vue"><div class="sif-piste"></div></div>';
     piste=bandeau.querySelector('.sif-piste');
-    bandeau.querySelector('.sif-x').addEventListener('click',function(){definirReplie(true);});
     ['mouseenter','touchstart','pointerdown'].forEach(function(t){bandeau.addEventListener(t,function(){enPause=true;},{passive:true});});
     ['mouseleave','touchend','touchcancel','pointerup'].forEach(function(t){bandeau.addEventListener(t,function(){enPause=false;},{passive:true});});
     document.body.appendChild(bandeau);
-    const r=document.createElement('button');
-    r.type='button';r.id='sorealIdleFluxRouvrirV1';r.hidden=true;r.title='Afficher le fil d’actualité';r.setAttribute('aria-label','Afficher le fil d’actualité');r.textContent='📰';
-    r.addEventListener('click',function(){definirReplie(false);});
-    document.body.appendChild(r);
-    majAffichage();
-  }
-
-  function definirReplie(v){
-    replie=Boolean(v);
-    try{localStorage.setItem(CLE_REPLI,replie?'1':'0');}catch(e){}
-    majAffichage();
-  }
-
-  function majAffichage(){
-    if(!bandeau)return;
-    const r=document.getElementById('sorealIdleFluxRouvrirV1');
-    bandeau.hidden=replie;
-    if(r)r.hidden=!replie;
-    document.body.classList.toggle('soreal-idle-flux-actif-v1',!replie);
   }
 
   function htmlItem(p){
     return '<span class="sif-it'+(p.moi?' moi':'')+'"><span class="ic">'+p.icone+'</span><span>'+echapper(p.texte)+'</span></span>';
   }
 
-  function rendreBandeau(){
-    if(!piste)return;
-    const liste=visibles().slice(-MAX_BANDEAU);
-    if(!liste.length){
-      piste.innerHTML='<span class="sif-vide">Les exploits des autres joueurs s’afficheront ici…</span>';
-      piste.style.transform='translateX(0)';
-      largeurPiste=0;
-      return;
-    }
-    const un=liste.map(htmlItem).join('');
-    /* Contenu répété pour un défilement sans coupure : on recule d'une largeur de copie complète. */
-    piste.innerHTML='<span class="sif-copie" style="display:inline-flex">'+un+'</span><span class="sif-copie" style="display:inline-flex" aria-hidden="true">'+un+'</span>';
-    const copie=piste.querySelector('.sif-copie');
-    largeurPiste=copie?copie.getBoundingClientRect().width:0;
-    const vue=bandeau.querySelector('.sif-vue');
-    /* Si tout tient dans la vue, rien ne défile ; sinon la copie assure la continuité. */
-    if(largeurPiste&&vue&&largeurPiste<=vue.clientWidth){
-      piste.innerHTML=un;largeurPiste=0;piste.style.transform='translateX(0)';
-    }
-    x=0;
+  /*
+   * Lecture du bandeau (Norman, 2026-10-01) : chaque information n'est jouée qu'UNE fois. Le bandeau apparaît en fondu à l'arrivée de nouveautés,
+   * les fait défiler 2 fois de suite, puis disparaît en fondu ; rien n'est rejoué ensuite (l'historique reste dans le panneau du Chat).
+   */
+  function demarrerLecture(){
+    const lot=file.splice(0,file.length).slice(-MAX_LOT);
+    piste.innerHTML=lot.map(htmlItem).join('');
+    largeurPiste=piste.getBoundingClientRect().width;
+    largeurVue=bandeau.querySelector('.sif-vue').clientWidth||300;
+    passes=0;
+    x=largeurVue;
+    piste.style.transform='translateX('+x+'px)';
+    bandeau.classList.remove('sif-off');
+    document.body.classList.add('soreal-idle-flux-actif-v1');
+    phase='entree';
+    tPhase=performance.now();
+  }
+
+  function finirLecture(){
+    bandeau.classList.add('sif-off');
+    document.body.classList.remove('soreal-idle-flux-actif-v1');
+    phase='sortie';
+    tPhase=performance.now();
   }
 
   function boucle(t){
@@ -214,51 +200,76 @@
     if(!tPrec)tPrec=t;
     const dt=Math.min(0.1,(t-tPrec)/1000);
     tPrec=t;
-    if(!piste||replie||enPause||!largeurPiste||document.visibilityState!=='visible')return;
-    x-=PX_PAR_SEC*dt;
-    if(-x>=largeurPiste)x+=largeurPiste;
-    piste.style.transform='translateX('+x.toFixed(1)+'px)';
+    if(!bandeau||document.visibilityState!=='visible')return;
+    const now=performance.now();
+    if(phase==='repos'){
+      if(file.length)demarrerLecture();
+    }else if(phase==='entree'){
+      if(now-tPhase>=DUREE_FONDU_MS)phase='defile';
+    }else if(phase==='defile'){
+      if(enPause)return;
+      x-=PX_PAR_SEC*dt;
+      if(x<=-largeurPiste){
+        passes+=1;
+        if(passes>=PASSAGES)return finirLecture();
+        x=largeurVue;
+      }
+      piste.style.transform='translateX('+x.toFixed(1)+'px)';
+    }else if(phase==='sortie'){
+      if(now-tPhase>=DUREE_FONDU_MS)phase='repos';
+    }
+  }
+
+  /* Met en file ce qui n'a jamais été joué. Au tout premier passage de chaque source (chargement), on mémorise sans rejouer l'historique. */
+  function enfiler(){
+    visibles().forEach(function(e){
+      if(vus.has(e.id))return;
+      vus.add(e.id);
+      if(e.chat?amorceChat:amorceFlux)file.push(e);
+    });
   }
 
   /* ---------- données ---------- */
   function recevoir(liste){
-    /* Le bandeau n'apparaît qu'une fois connecté : dès la première réponse du serveur (même sans nouvelle). */
-    if(!bandeau){construire();rendreBandeau();}
+    /* Le bandeau n'existe qu'une fois connecté : dès la première réponse du serveur (même sans nouvelle). */
+    if(!bandeau)construire();
     if(!raf)raf=requestAnimationFrame(boucle);
     const nouveaux=(Array.isArray(liste)?liste:[]).map(function(it){
       return {id:Number(it&&it.id)||0,at:Number(it&&it.at)||0,nom:String(it&&it.nom||'Joueur'),type:String(it&&it.type||''),donnees:(it&&it.donnees)||{},moi:Boolean(it&&it.moi)};
     }).filter(function(it){return it.id>0;});
-    if(!nouveaux.length)return false;
     const connus=new Set(items.map(function(it){return it.id;}));
     let ajoute=false;
     nouveaux.forEach(function(it){if(!connus.has(it.id)){items.push(it);ajoute=true;}});
-    if(!ajoute)return false;
-    items.sort(function(a,b){return a.id-b.id;});
-    if(items.length>MAX_ITEMS)items=items.slice(items.length-MAX_ITEMS);
-    dernier=items[items.length-1].id;
-    construire();
-    rendreBandeau();
-    majPanneaux();
-    return true;
+    if(ajoute){
+      items.sort(function(a,b){return a.id-b.id;});
+      if(items.length>MAX_ITEMS)items=items.slice(items.length-MAX_ITEMS);
+      dernier=items[items.length-1].id;
+      enfiler();
+      majPanneaux();
+    }
+    amorceFlux=true;
+    return ajoute;
   }
 
-  /* Nouveaux messages du chat (modules/chat-v1.js) : au chargement, seuls ceux des 10 dernières minutes. */
+  /* Nouveaux messages du chat (modules/chat-v1.js) : le premier lot reçu au chargement n'est pas rejoué dans le bandeau. */
   function recevoirChat(liste,initial){
-    const limite=Date.now()-10*60*1000;
+    if(!bandeau)construire();
+    if(!raf)raf=requestAnimationFrame(boucle);
     const connus=new Set(chats.map(function(m){return m.id;}));
     let ajoute=false;
     (Array.isArray(liste)?liste:[]).forEach(function(m){
-      if(!m||!m.id||connus.has(m.id)||(initial&&Number(m.at)<limite))return;
+      if(!m||!m.id||connus.has(m.id))return;
       chats.push({id:m.id,at:Number(m.at)||Date.now(),nom:String(m.nom||'Joueur'),message:String(m.message||''),moi:Boolean(m.moi)});
       ajoute=true;
     });
-    if(!ajoute)return false;
-    chats.sort(function(a,b){return a.id-b.id;});
-    if(chats.length>MAX_ITEMS)chats=chats.slice(chats.length-MAX_ITEMS);
-    if(!bandeau)construire();
-    rendreBandeau();
-    majPanneaux();
-    return true;
+    if(ajoute){
+      chats.sort(function(a,b){return a.id-b.id;});
+      if(chats.length>MAX_ITEMS)chats=chats.slice(chats.length-MAX_ITEMS);
+      enfiler();
+      majPanneaux();
+    }
+    if(initial)amorceChat=true;
+    return ajoute;
   }
 
   /* ---------- panneau dans la page Chat ---------- */
@@ -283,6 +294,7 @@
     majPanneaux:majPanneaux,
     construire:construire,
     visibles:visibles,
+    enAttente:function(){return file.length;},
     items:function(){return items.slice();}
   };
 

@@ -127,13 +127,20 @@ const stats = (o = {}) => ({
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, debutant).texte, "Mickaël farme en Aventure", "zone inconnue : générique");
   assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu viens de vaincre Gros Rat");
 
-  // Messages du chat dans le bandeau : récents seulement au chargement, texte coupé.
+  // Bandeau : chaque information n'est mise en file qu'UNE fois ; l'historique chargé au démarrage n'est pas rejoué.
   const f = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
   const now = Date.now();
-  f.recevoirChat([{ id: 1, at: now - 3_600_000, nom: "Vieux", message: "ancien" }, { id: 2, at: now - 1000, nom: "Léa", message: "salut ".repeat(40), moi: false }], true);
-  const vus = f.visibles();
-  assert.equal(vus.length, 1, "un message vieux de plus de 10 min n'est pas rejoué au chargement");
-  assert.ok(vus[0].chat && vus[0].texte.startsWith("Léa : salut") && vus[0].texte.length <= 100);
+  f.recevoir([{ id: 1, at: now - 5000, nom: "Vieux", type: "boss", donnees: { boss: 1 } }]);
+  f.recevoirChat([{ id: 1, at: now - 3_600_000, nom: "Vieux", message: "ancien" }], true);
+  assert.equal(f.enAttente(), 0, "l'historique du chargement n'est pas rejoué");
+  f.recevoir([{ id: 2, at: now, nom: "Léa", type: "boss", donnees: { boss: 2 } }]);
+  f.recevoirChat([{ id: 2, at: now, nom: "Léa", message: "salut ".repeat(40), moi: false }], false);
+  assert.equal(f.enAttente(), 2, "les nouveautés sont mises en file");
+  f.recevoir([{ id: 2, at: now, nom: "Léa", type: "boss", donnees: { boss: 2 } }]);
+  f.recevoirChat([{ id: 2, at: now, nom: "Léa", message: "salut ".repeat(40) }], false);
+  assert.equal(f.enAttente(), 2, "une information déjà vue ne repasse jamais");
+  const chat = f.visibles().find((v) => v.chat && v.id === "c2");
+  assert.ok(chat.texte.startsWith("Léa : salut") && chat.texte.length <= 100, "message coupé");
 }
 
 // 6. Câblage : contrat, index, battement, page Chat.
