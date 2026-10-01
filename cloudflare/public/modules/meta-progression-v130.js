@@ -1806,9 +1806,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         '</details>';
       }
       /* Ligne de légende sous l'aide : ce que font les boutons de la barre d'outils (Input, Cap, Idle) -- la même pour Augmentations / Time Machine / Blood Magic. */
-      function legendeAllocationIdleV1_(ressource,libre){
+      function legendeAllocationIdleV1_(ressource,libre,croix){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        return '<p class="soreal-idle-aide-legende-v1"><b>Input</b> = la quantité déplacée à chaque clic sur <b>+</b> (placer) ou <b>−</b> (retirer). '+
+        /* Blood Magic (Norman, 2026-10-01) : le « + » y est une croix renversée. */
+        const plus=croix?'<b class="soreal-idle-blood-croix-v1">✝︎</b>':'<b>+</b>';
+        return '<p class="soreal-idle-aide-legende-v1"><b>Input</b> = la quantité déplacée à chaque clic sur '+plus+' (placer) ou <b>−</b> (retirer). '+
           '<b>Cap</b> et <b>1/2</b>, <b>1/4</b> remplissent Input à partir de ton maximum de '+H.idleHtml_(ressource)+' ; <b>Idle</b> à partir de celui qui est libre. '+
           (libre?'<b>Max</b> place tout ce qui est libre.':'')+'</p>';
       }
@@ -2338,7 +2340,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         }else{
           H.getIdleEtat().__bloodMagicVisualV1=null;
         }
-        const toolbar=legendeAllocationIdleV1_('Magic',false)+'<div class="soreal-idle-bt-toolbar-v120">'+
+        const toolbar=legendeAllocationIdleV1_('Magic',false,true)+'<div class="soreal-idle-bt-toolbar-v120">'+
           '<div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">Input</label><input id="sorealIdleBloodInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
           '<div class="soreal-idle-bt-info-v1">Magic libre : <b>'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée au rituel actif : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>Magic Cap</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',1)">Cap</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.25)">1/4</button></div>'+
@@ -2370,7 +2372,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b>−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             barre+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:12px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
-            '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (l’active s’il ne l’est pas)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')">+</button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Cap</button></div>'+
+            '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (l’active s’il ne l’est pas)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Cap</button></div>'+
           '</div>';
         }).join('');
         /*

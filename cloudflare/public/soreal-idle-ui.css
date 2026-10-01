@@ -8144,3 +8144,7 @@ body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1::before{
 .soreal-idle-blood-sort-v1>*{position:relative}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1{isolation:isolate}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1::before{z-index:-1!important}
+
+/* Blood Magic (Norman, 2026-10-01) : le « + » des rituels est une croix renversée. */
+.soreal-idle-blood-croix-v1{display:inline-block;transform:rotate(180deg);font-weight:900;line-height:1;color:#ff4d5e;text-shadow:0 0 8px rgba(190,18,40,.8)}
+button .soreal-idle-blood-croix-v1{font-size:1.25em}
