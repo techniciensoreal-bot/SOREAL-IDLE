@@ -96,9 +96,15 @@
     return '🎮 En jeu';
   }
 
+  function fluxDernier(){
+    const f=window.__SOREAL_IDLE_FLUX_V1__;
+    return f&&typeof f.dernier==='function'?f.dernier():0;
+  }
+
   function battement(){
-    return appel('battementSorealIdle',[{actif:estActif(),activite:activiteActuelle()}]).then(function(res){
+    return appel('battementSorealIdle',[{actif:estActif(),activite:activiteActuelle(),apresFlux:fluxDernier()}]).then(function(res){
       if(!res||res.ok===false)return;
+      if(window.__SOREAL_IDLE_FLUX_V1__)window.__SOREAL_IDLE_FLUX_V1__.recevoir(res.flux);
       enLigne=Array.isArray(res.enLigne)?res.enLigne:[];
       estAdmin=Boolean(res.estAdmin);
       rendrePresence();
@@ -329,11 +335,13 @@
 
   /* HTML de l'emplacement réservé par la page du menu. */
   function pageHtml(){
-    return '<div id="sorealIdleChatPageV1" data-idle-chat-page="1"></div>';
+    /* Le panneau « Activité des joueurs » (modules/flux-v1.js) précède le chat ; il est rempli juste après le rendu. */
+    return '<div data-flux-panneau-v1="1"></div><div id="sorealIdleChatPageV1" data-idle-chat-page="1"></div>';
   }
 
   /* À appeler après chaque rendu de la page : monte (ou remonte) le chat dans son emplacement ; le quitte proprement si la page n'est plus affichée. */
   function apresRendu(){
+    if(window.__SOREAL_IDLE_FLUX_V1__)window.__SOREAL_IDLE_FLUX_V1__.majPanneaux();
     const place=document.getElementById('sorealIdleChatPageV1');
     if(!place){
       if(ouvert){ouvert=false;demarrerTimerListe();}

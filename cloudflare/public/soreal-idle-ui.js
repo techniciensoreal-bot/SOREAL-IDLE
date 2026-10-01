@@ -21915,7 +21915,20 @@ function pageAventureIdleV28_(j){
           if(z)farm={zoneId:z.id,zoneNom:z.nom};
         }
         const records=j.systemes&&j.systemes.records;
-        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss)};
+        /* Fil d'actualité (modules/flux-v1.js) : ce que CE joueur connaît déjà, pour ne jamais révéler à travers l'activité d'un autre. */
+        const connus={boss:{},titan:{},succes:{},menus:{}};
+        ((j.bestiaire&&Array.isArray(j.bestiaire.entrees))?j.bestiaire.entrees:[]).forEach(function(e){
+          if(e&&e.source==='boss'&&e.decouvert&&e.nom)connus.boss[idleEntier_(e.numero)]=String(e.nom);
+        });
+        ((a&&Array.isArray(a.titans))?a.titans:[]).forEach(function(t){
+          if(t&&t.progressionUnlocked!==false&&t.id)connus.titan[String(t.id)]=String(t.name||'');
+        });
+        const succesListe=j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
+        succesListe.forEach(function(x){if(x&&x.unlocked&&x.id)connus.succes[String(x.id)]=String(x.name||'');});
+        ['renaissance','challenges','titans','succes'].forEach(function(m){
+          try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
+        });
+        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus};
       };
 
       window.__menuIdleV28__=

@@ -34,6 +34,7 @@ import {
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
+import { instantaneJoueurV1, enregistrerJalonsV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
 import { battementV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
@@ -16566,6 +16567,30 @@ function battementSorealIdle(sessionToken, info) {
     activite: i.activite
   });
 
+  /* Fil d'actualité : jalons du joueur (boss, trophées, titans, défis, Rebirths) comparés au battement précédent. */
+  let flux = [];
+  try {
+    const lockFlux = LockService.getScriptLock();
+    if (lockFlux.tryLock(1800)) {
+      try {
+        const feuilleF = obtenirFeuilleJoueursSorealIdle_();
+        const ligneF = trouverLigneJoueurSorealIdle_(feuilleF, acces);
+        const cF = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+        const statsF = statsJoueurSorealIdle_(feuilleF.getRange(ligneF, cF.STATS_JSON).getValue());
+        enregistrerJalonsV1(__idleSql, {
+          email: emailProfilSorealIdle_(acces),
+          nom: identite.nomAffiche,
+          visible: statsF.classementVisible !== false,
+          instantane: instantaneJoueurV1({ bossVaincus: nombreSorealIdle_(feuilleF.getRange(ligneF, cF.BOSS_VAINCUS).getValue(), 0), stats: statsF }),
+          activite: Object.assign({}, i.activite && typeof i.activite === 'object' ? i.activite : {}, { zoneId: i.activite && i.activite.zoneId, zoneNom: i.activite && i.activite.zoneNom })
+        });
+      } finally {
+        lockFlux.releaseLock();
+      }
+    }
+    flux = lireFluxV1(__idleSql, { apresId: Math.max(0, Math.floor(Number(i.apresFlux) || 0)), email: emailProfilSorealIdle_(acces) });
+  } catch (_e) { flux = []; }
+
   if (resultat.gain > 0) {
     const lock = LockService.getScriptLock();
     if (lock.tryLock(1800)) {
@@ -16589,6 +16614,8 @@ function battementSorealIdle(sessionToken, info) {
     ok: true,
     enLigne: resultat.enLigne,
     dernierChatId: dernierIdChatV1(__idleSql),
+    flux,
+    dernierFluxId: dernierIdFluxV1(__idleSql),
     moi: identite.nomAffiche,
     estAdmin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL
   };
@@ -16624,8 +16651,16 @@ function supprimerMessageChatSorealIdle(sessionToken, id) {
   return { ok: true };
 }
 
+function lireFluxSorealIdle(sessionToken, options) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: true, items: [] };
+  const o = options && typeof options === 'object' ? options : {};
+  return { ok: true, items: lireFluxV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: emailProfilSorealIdle_(acces) }), dernierFluxId: dernierIdFluxV1(__idleSql) };
+}
+
 const IDLE_OPERATIONS={
   battementSorealIdle,
+  lireFluxSorealIdle,
   lireChatSorealIdle,
   envoyerChatSorealIdle,
   supprimerMessageChatSorealIdle,
