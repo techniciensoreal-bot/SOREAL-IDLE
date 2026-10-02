@@ -37,14 +37,63 @@
    * Le serveur décide de ce qui est absorbé (tirages, recyclage) et confirme après un aller-retour ; en attendant, les boosts du sac s'effacent
    * tout de suite à l'écran (aspirés vers la cible). Si le serveur en laisse certains, ils réapparaissent à la confirmation (ou au bout de 3 s).
    */
-  function aspirerBoostsAvecEffet_(){
+  /*
+   * Prévision de l'absorption (Norman, 2026-10-02 : « mes items ne sont pas aspirés alors qu'il y a de la place sur mon marteau »). Même règles que le
+   * serveur (idle-inventory-auto-v1.js::usableBoostIdsV1 / roomV1) : un boost verrouillé ou rangé dans une case d'automerge n'est jamais utilisé, et
+   * un boost n'entre que si la stat visée a de la marge (plafond = base × (1 + niveau/100)). Sert (1) à n'effacer à l'écran QUE les boosts qui seront
+   * vraiment absorbés, (2) à dire pourquoi rien n'a été absorbé quand le serveur répond « 0 ».
+   */
+  function prevoirBoosts_(cibleId){
+    var a=aventure(dernierEtat),s=snap(dernierEtat);
+    var inv=a&&Array.isArray(a.inventory)?a.inventory:[];
+    var cible=inv.find(function(o){return String(o.id)===String(cibleId);});
+    var r={ok:[],incertains:0,verrouilles:0,automerge:0,pleins:{},total:0,cible:cible||null};
+    if(!cible||cible.kind==='boost')return r;
+    var k=Math.max(0,entier(s&&s.mergeSlots));
+    var rangesAutomerge={};
+    (Array.isArray(a.inventorySlots)?a.inventorySlots.slice(0,k):[]).forEach(function(id){if(id)rangesAutomerge[String(id)]=true;});
+    var q=1+Math.max(0,Math.min(100,Number(cible.level)||0))/100;
+    inv.forEach(function(o){
+      if(!o||o.kind!=='boost')return;
+      r.total+=1;
+      if(o.locked){r.verrouilles+=1;return;}
+      if(rangesAutomerge[String(o.id)]){r.automerge+=1;return;}
+      var type=String(o.boostType||'');
+      if(type==='power'||type==='toughness'){
+        var base=Number(type==='power'?cible.basePower:cible.baseToughness)||0;
+        if(!(base>0)){r.incertains+=1;return;}
+        var marge=base*q-(Number(cible[type])||0);
+        if(marge>1e-9)r.ok.push(String(o.id));else r.pleins[type]=(r.pleins[type]||0)+1;
+        return;
+      }
+      var tous=Array.isArray(cible.specialsAll)?cible.specialsAll:null;
+      if(!tous||!tous.length){r.incertains+=1;return;}
+      if(tous.some(function(sv){return Number(sv.value)+1e-9<Number(sv.max);}))r.ok.push(String(o.id));else r.pleins.special=(r.pleins.special||0)+1;
+    });
+    return r;
+  }
+
+  /* Phrase affichée quand le serveur n'a rien absorbé : la vraie raison, d'après l'état affiché. */
+  function expliquerAucunBoost_(cibleId){
+    var p=prevoirBoosts_(cibleId);
+    if(!p.cible)return 'Aucun boost absorbé.';
+    var nom=p.cible.name||'Cet objet';
+    if(!p.total)return 'Aucun boost dans le sac.';
+    var raisons=[];
+    var noms={power:'Power',toughness:'Toughness',special:'Special'};
+    Object.keys(p.pleins).forEach(function(t){raisons.push(p.pleins[t]+' boost '+noms[t]+' : '+noms[t]+' déjà au maximum');});
+    if(p.verrouilles)raisons.push(p.verrouilles+' protégé'+(p.verrouilles>1?'s':''));
+    if(p.automerge)raisons.push(p.automerge+' dans les cases d’automerge');
+    if(p.ok.length)raisons.push('l’état affiché était peut-être en retard, réessaie');
+    return '🪄 '+nom+' : aucun boost absorbé'+(raisons.length?' ('+raisons.join(' · ')+')':'')+'.';
+  }
+
+  function aspirerBoostsAvecEffet_(cibleId){
     try{
-      var a=aventure(dernierEtat);
-      var inv=a&&Array.isArray(a.inventory)?a.inventory:[];
+      var p=prevoirBoosts_(cibleId);
       var vus=[];
-      inv.forEach(function(o){
-        if(!o||o.kind!=='boost')return;
-        var n=document.querySelector('#soreal-idle-v138-bag-section [data-item-id="'+String(o.id).replace(/"/g,'')+'"]');
+      p.ok.forEach(function(id){
+        var n=document.querySelector('#soreal-idle-v138-bag-section [data-item-id="'+String(id).replace(/"/g,'')+'"]');
         if(n){n.classList.add('soreal-idle-absorbe-v1');vus.push(n);}
       });
       if(vus.length){
@@ -54,7 +103,7 @@
   }
 
   function action(mode,extra){
-    if(mode==='boostAll')aspirerBoostsAvecEffet_();
+    if(mode==='boostAll'&&extra&&extra.targetId&&extra.targetId!=='cube')aspirerBoostsAvecEffet_(extra.targetId);
     var fn=window.__actionMetaV47__;
     if(typeof fn==='function')fn(Object.assign({action:'inventoryAuto',mode:mode},extra||{}));
   }
@@ -363,5 +412,5 @@
   }
   brancher();
 
-  window.__SOREAL_IDLE_INVENTORY_AUTO_V1__={panneau:panneau,rendre:rendre};
+  window.__SOREAL_IDLE_INVENTORY_AUTO_V1__={panneau:panneau,rendre:rendre,prevoirBoosts:prevoirBoosts_,expliquerAucunBoost:expliquerAucunBoost_};
 })();

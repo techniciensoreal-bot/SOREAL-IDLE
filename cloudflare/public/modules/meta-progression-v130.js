@@ -251,8 +251,14 @@
               ){
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-293 */
                 if(!estCycleCombatZoneV1){
+                  /* A + clic sans rien d'absorbé : on dit pourquoi au lieu d'un « Progression mise à jour » trompeur. */
+                  const boostVideV1=payload&&payload.action==='inventoryAuto'&&payload.mode==='boostAll'
+                    &&!(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.applied)>0||window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.cube)>0);
+                  const ia=window.__SOREAL_IDLE_INVENTORY_AUTO_V1__;
                   window.__SOREAL_IDLE_META_HOST_V130__.messageFlottantIdleV32_(
-                    '✅ Progression mise à jour'
+                    boostVideV1&&ia&&ia.expliquerAucunBoost&&payload.targetId&&payload.targetId!=='cube'
+                      ?ia.expliquerAucunBoost(payload.targetId)
+                      :'✅ Progression mise à jour'
                   );
                 }
 
@@ -3055,6 +3061,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         wandoosMagic:'Wandoos Magic Dump +'
       };
       const IDLE_AT_ORDRE_V1=['toughness','power','block','wandoosEnergy','wandoosMagic'];
+      const IDLE_AT_ICONES_V1={toughness:'🛡️',power:'⚔️',block:'🧱',wandoosEnergy:'💻',wandoosMagic:'🔮'};
       function atEnergieDePisteIdleV1_(s,id){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const pistes=(s&&s.state&&s.state.data&&s.state.data.tracks)||{};
@@ -3084,7 +3091,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const energie=atEnergieDePisteIdleV1_(s,id);
           const idH=H.idleHtml_(id);
           return '<div class="soreal-idle-at-ligne-v1" data-at-piste="'+idH+'">'+
-            '<div class="soreal-idle-at-nom-v1">'+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</div>'+
+            '<div class="soreal-idle-at-nom-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</div>'+
             '<div class="soreal-idle-at-col-v1"><span>Level</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Energy Allocated</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
             '<label class="soreal-idle-at-col-v1 cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
