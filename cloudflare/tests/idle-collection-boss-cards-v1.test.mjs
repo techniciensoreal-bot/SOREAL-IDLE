@@ -57,6 +57,8 @@ const fabrique = new Function("ctx", `
   const idleNombre_=v=>Number(v)||0;
   const idleHtml_=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const formatGrandNombreIdleV70_=v=>String(v);
+  const sansBaliseVoixIdleV1_=v=>String(v==null?'':v);
+  const attrHistoireVoixIdleV1_=()=>'';
   const urlBossR2IdleV1_=n=>'/api/idle/media/boss?id='+n;
   ${src}
   return {ouvrir:ouvrirBossCollectionIdleV1_,fermer:fermerBossCollectionIdleV1_};

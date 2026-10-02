@@ -301,14 +301,40 @@
     var out=String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
     var narration=String(histoire||'').trim();
     var m=narration.match(MOTIF_NOTE_BOSS);
-    if(m)narration=narration.slice(m[0].length).trim();
+    /* Une ligne « (marius) » seule est une balise de voix, pas une note de déblocage : elle reste. */
+    if(m&&!resoudreVoixBalise_(m[1]))narration=narration.slice(m[0].length).trim();
     out+=retirerParentheses_(narration);
     return out.replace(/\s+/g,' ').trim();
   }
 
-  /* Aucun texte entre parenthèses n'est jamais lu à voix haute (Norman, 2026-09-27), quel que soit son contenu ou sa position. */
+  /*
+   * Balises de voix (Norman, 2026-10-02 : « les placer avec des voix différentes… sur tout : popups, fenêtres explicatives ») : « (marius) », « (femme) »,
+   * « (narrateur) »… -- les mêmes balises que les histoires plein écran (modules/story-engine-v1.js, registre modules/voix-nommees-v1.js) -- ne sont
+   * JAMAIS lues ; elles changent la voix de ce qui suit, jusqu'à la balise suivante. Elles sont gardées sous forme de marqueurs invisibles (zone privée)
+   * à travers retirerParentheses_ puis planNarration_ les transforme en voix de chaque bloc. Toute autre parenthèse reste un texte non lu.
+   */
+  var VOIX_OPEN=String.fromCharCode(0xE002);
+  var VOIX_CLOSE=String.fromCharCode(0xE003);
+  function normaliserBalise_(t){
+    return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+  }
+  function resoudreVoixBalise_(t){
+    var n=normaliserBalise_(t);
+    if(!n)return '';
+    if(n==='homme'||n==='narrateur')return 'homme';
+    if(n==='femme')return 'femme';
+    try{
+      var reg=window.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
+      return reg&&typeof reg.resoudre==='function'?String(reg.resoudre(t)||''):'';
+    }catch(_){return '';}
+  }
+
+  /* Aucun texte entre parenthèses n'est jamais lu à voix haute (Norman, 2026-09-27), quel que soit son contenu ou sa position -- sauf les balises de voix, gardées en marqueur. */
   function retirerParentheses_(texte){
-    return String(texte||'').replace(/\([^)]*\)/g,' ');
+    return String(texte||'').replace(/\(([^)]*)\)/g,function(tout,dedans){
+      var voix=resoudreVoixBalise_(dedans);
+      return voix?' '+VOIX_OPEN+voix+VOIX_CLOSE+' ':' ';
+    });
   }
 
   function revokeObjectUrl_(src){
@@ -358,13 +384,23 @@
   function planNarration_(value){
     var parts=String(value||'').split(new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE));
     var steps=[];
+    /* Voix courante (balise « (marius) »…) : propre à la lecture entière, elle traverse les pauses ; absente = voix par défaut (narrateur). */
+    var voix='';
     for(var i=0;i<parts.length;i+=1){
       if(i%2===1){
         var ms=Math.max(0,Math.min(PAUSE_MAX_MS,parseInt(parts[i],10)||0));
         if(ms>0&&steps.length&&steps[steps.length-1].pause==null)steps.push({pause:ms});
         continue;
       }
-      decouperNarration_(parts[i]).forEach(function(chunk){steps.push({chunk:chunk});});
+      var morceaux=parts[i].split(new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE));
+      for(var k=0;k<morceaux.length;k+=1){
+        if(k%2===1){voix=morceaux[k];continue;}
+        decouperNarration_(morceaux[k]).forEach(function(chunk){
+          var etape={chunk:chunk};
+          if(voix)etape.voix=voix;
+          steps.push(etape);
+        });
+      }
     }
     while(steps.length&&steps[steps.length-1].pause!=null)steps.pop();
     return steps;
@@ -553,6 +589,10 @@
     }
     /* Histoire d'un boss affichée seule (fiche du boss, collection) : lue comme la chronique complète (nom en attribut). */
     if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-chronique')){
+      /* data-soreal-tts-histoire : le texte brut avec ses balises de voix (l'affichage, lui, ne les montre jamais). */
+      if(panel.hasAttribute('data-soreal-tts-histoire')){
+        return composerChronique_(panel.getAttribute('data-soreal-tts-chronique'),panel.getAttribute('data-soreal-tts-histoire'));
+      }
       return composerChronique_(panel.getAttribute('data-soreal-tts-chronique'),panel.textContent);
     }
     var clone=panel.cloneNode(true);
@@ -1094,6 +1134,8 @@
     hashBloc:hashBloc_,
     estVoixFemme:estVoixFemme_,
     composerChronique:composerChronique_,
+    retirerParentheses:retirerParentheses_,
+    resoudreVoixBalise:resoudreVoixBalise_,
     voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper};},
     isSpeaking:function(){
       return Boolean(activeReadTarget||activeAudio||activeBufferSource);

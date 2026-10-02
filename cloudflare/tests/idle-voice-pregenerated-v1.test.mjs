@@ -15,6 +15,10 @@ const code = [
   grab(/var PAUSE_OPEN=[^\n]+;/),
   grab(/var PAUSE_CLOSE=[^\n]+;/),
   grab(/var PAUSE_MAX_MS=\d+;/),
+  grab(/var VOIX_OPEN=[^\n]+;/),
+  grab(/var VOIX_CLOSE=[^\n]+;/),
+  grab(/function normaliserBalise_\(t\)\{[\s\S]*?\n  \}\n/),
+  grab(/function resoudreVoixBalise_\(t\)\{[\s\S]*?\n  \}\n/),
   grab(/var VOICE_TAG='[^']+';/),
   grab(/function hashBloc_\(text\)\{[\s\S]*?\n  \}\n/),
   grab(/function decouperNarration_\(value\)\{[\s\S]*?\n  \}\n/),
@@ -142,7 +146,7 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
     morceau("function pauseVoixIdleV1_(ms){", "function texteVoixTutorielIdleV1_("),
     morceau("function texteVoixNouveauteIdleV1_(info){", "function infoMoneyPitIdleV1_(){"),
     morceau("const TEXTES_SYSTEMES_IDLE_V1={", "/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-117 */"),
-    "return {info:infoSystemeGeneriqueIdleV1_,texte:texteVoixNouveauteIdleV1_};"
+    "return {info:infoSystemeGeneriqueBruteIdleV1_,texte:texteVoixNouveauteIdleV1_};"
   ].join(String.fromCharCode(10));
   const api = new Function(codeUi)();
   const { IDLE_NGU_SYSTEMS } = await import("../src/idle-ngu-progression.js");

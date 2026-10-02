@@ -34,6 +34,7 @@ import {
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
+import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
 import { battementV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
@@ -5213,8 +5214,9 @@ function construireBestiaireSorealIdle_(
             : 0,
         description:
           decouvert
-            ? String(
-                boss.histoire || ''
+            ? histoireBossAvecSurchargeSorealIdle_(
+                index + 1,
+                boss.histoire
               )
             : '',
         driveFileId:
@@ -6670,8 +6672,9 @@ function equilibrerBossPrincipalSorealIdleV413_(
        * bossHistoire="" et bossConseil="".
        */
       histoire:
-        String(
-          source.histoire || ""
+        histoireBossAvecSurchargeSorealIdle_(
+          i + 1,
+          source.histoire
         ),
       conseil:
         String(
@@ -7240,7 +7243,10 @@ function definitionBossSorealIdle_(
       ),
 
     histoire:
-      String(dernier.histoire || ''),
+      histoireBossAvecSurchargeSorealIdle_(
+        n + 1,
+        dernier.histoire
+      ),
     mortVivant:
       Boolean(dernier.mortVivant),
     conseil:
@@ -10972,7 +10978,10 @@ function construireEtatJoueurSorealIdle_(
             xp: definitionBossSorealIdle_(index).xp,
             pieces: boss.pieces,
             histoire:
-              String(boss.histoire || ''),
+              histoireBossAvecSurchargeSorealIdle_(
+                index + 1,
+                boss.histoire
+              ),
             mortVivant:
               Boolean(boss.mortVivant),
             conseil: '',
@@ -15332,6 +15341,15 @@ function banniereSorealIdleDriveFileId_() {
    BOSS
    ============================================================ */
 
+/*
+ * Chronique d'un boss modifiée par l'administrateur (table idle_textes, clé « boss:<numéro> », voir idle-textes-v1.js) : remplace le texte du
+ * catalogue partout où il est servi (Fight Boss, Collection, liste des boss). Sans surcharge, le texte d'origine est renvoyé tel quel.
+ */
+function histoireBossAvecSurchargeSorealIdle_(numero, defaut) {
+  const t = texteBossSurchargeV1(__idleSql, numero);
+  return t != null ? t : String(defaut || '');
+}
+
 function bossCatalogueSorealIdle_() {
   return lireTableSorealIdle_(
     'IDLE_BOSS'
@@ -16594,6 +16612,53 @@ function supprimerHistoireAdminSorealIdle(sessionToken, id) {
 }
 
 /*
+ * Textes éditables (Norman, 2026-10-02 : chroniques de boss, popups et fenêtres explicatives modifiables par l'administrateur, avec voix
+ * différentes ; voir idle-textes-v1.js). Joueur : obtenirTextesSurchargesSorealIdle (textes de popups modifiés + empreintes de voix, jamais le
+ * texte d'une chronique de boss : il arrive avec le boss). Administrateur : lister (tous les boss, texte d'origine compris) / enregistrer /
+ * supprimer. Le contrôle d'administrateur compare l'adresse RÉELLE du compte (jamais celle de la partie B) : il fonctionne dans les deux parties.
+ */
+function obtenirTextesSurchargesSorealIdle(sessionToken) {
+  exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: true, popups: {}, voix: [] };
+  return Object.assign({ ok: true }, surchargesPourJoueurV1(__idleSql));
+}
+
+function listerTextesAdminSorealIdle(sessionToken) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  const textes = lireTextesV1(__idleSql);
+  const catalogue = bossCatalogueSorealIdle_();
+  const boss = [];
+  for (const [numero, nom] of NGU_BOSS_NAMES_FR_V1) {
+    const ligne = catalogue[numero - 1];
+    const surcharge = textes.find((t) => t.cle === 'boss:' + numero) || null;
+    boss.push({ numero, nom, original: String(ligne && ligne.histoire || ''), surcharge });
+  }
+  boss.sort((a, b) => a.numero - b.numero);
+  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)) };
+}
+
+function enregistrerTexteAdminSorealIdle(sessionToken, texte) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  try {
+    const t = enregistrerTexteV1(__idleSql, texte);
+    invaliderCacheTextesBossV1();
+    return { ok: true, texte: t };
+  } catch (e) {
+    const code = String(e && e.message || e);
+    if (/^TEXTE_/.test(code)) return { ok: false, code, message: code };
+    throw e;
+  }
+}
+
+function supprimerTexteAdminSorealIdle(sessionToken, cle) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  /* La clé arrive soit en texte, soit dans un objet { cle } (le pont client ajoute la session au premier argument de type texte). */
+  supprimerTexteV1(__idleSql, cle && typeof cle === 'object' ? cle.cle : cle);
+  invaliderCacheTextesBossV1();
+  return { ok: true };
+}
+
+/*
  * Chat et présence de SOREAL IDLE (voir idle-chat-v1.js), temps de jeu ACTIF (Norman, 2026-09-30).
  *
  * battementSorealIdle : appelé par le jeu toutes les ~20 s. Il (1) marque le joueur « en ligne sur SOREAL IDLE » avec ce qu'il fait,
@@ -16714,6 +16779,10 @@ const IDLE_OPERATIONS={
   listerHistoiresAdminSorealIdle,
   enregistrerHistoireAdminSorealIdle,
   supprimerHistoireAdminSorealIdle,
+  obtenirTextesSurchargesSorealIdle,
+  listerTextesAdminSorealIdle,
+  enregistrerTexteAdminSorealIdle,
+  supprimerTexteAdminSorealIdle,
   agirProgressionSorealIdle,
   definirAllocationsEntrainementSorealIdle,
   acheterAmeliorationSorealIdle,

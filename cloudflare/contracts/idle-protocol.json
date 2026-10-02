@@ -28,6 +28,7 @@
     "definirPseudoSorealIdle",
     "enregistrerClicsSorealIdle",
     "enregistrerHistoireAdminSorealIdle",
+    "enregistrerTexteAdminSorealIdle",
     "envoyerChatSorealIdle",
     "equiperObjetsSorealIdle",
     "estAdminSorealIdle",
@@ -39,6 +40,7 @@
     "lireFluxSorealIdle",
     "listerHistoiresAdminSorealIdle",
     "listerJoueursExternesSorealIdle",
+    "listerTextesAdminSorealIdle",
     "marquerVusSorealIdle",
     "nukerBossSorealIdle",
     "obtenirAccesSorealIdle",
@@ -48,6 +50,7 @@
     "obtenirHistoireBossSorealIdle",
     "obtenirIdentiteSorealIdle",
     "obtenirPartieDevSorealIdle",
+    "obtenirTextesSurchargesSorealIdle",
     "recyclerObjetSorealIdle",
     "recyclerObjetsSorealIdle",
     "reinitialiserCompteCompletSorealIdle",
@@ -58,6 +61,7 @@
     "supprimerBugSorealIdle",
     "supprimerHistoireAdminSorealIdle",
     "supprimerMessageChatSorealIdle",
+    "supprimerTexteAdminSorealIdle",
     "synchroniserSorealIdle",
     "testerAccesSorealIdle"
   ]

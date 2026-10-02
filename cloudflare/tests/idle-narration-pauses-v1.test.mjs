@@ -15,6 +15,8 @@ const code = [
   grab(/var PAUSE_OPEN=[^\n]+;/),
   grab(/var PAUSE_CLOSE=[^\n]+;/),
   grab(/var PAUSE_MAX_MS=\d+;/),
+  grab(/var VOIX_OPEN=[^\n]+;/),
+  grab(/var VOIX_CLOSE=[^\n]+;/),
   grab(/function decouperNarration_\(value\)\{[\s\S]*?\n  \}\n/),
   grab(/function planNarration_\(value\)\{[\s\S]*?\n  \}\n/),
   "return {planNarration_:planNarration_,open:PAUSE_OPEN,close:PAUSE_CLOSE};"

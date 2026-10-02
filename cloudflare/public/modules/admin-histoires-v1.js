@@ -257,7 +257,10 @@ function charger_(){
 function page_(){
   installerStyle_();
   if(!etat.charge&&!etat.enCharge&&!etat.erreur)setTimeout(charger_,0);
-  return '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🛠️ Admin — Histoires</div><div id="'+LISTE_ID+'">'+listeHtml_()+'</div></div>';
+  /* Textes et voix des chroniques de boss et des popups (modules/textes-admin-v1.js) : même menu Admin, sous les histoires. */
+  var textes=window.__SOREAL_IDLE_TEXTES_V1__;
+  return '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🛠️ Admin — Histoires</div><div id="'+LISTE_ID+'">'+listeHtml_()+'</div></div>'+
+    (textes&&typeof textes.pageHtml==='function'?textes.pageHtml():'');
 }
 
 /* ---------- lecture / suppression depuis la liste ---------- */
@@ -829,6 +832,8 @@ window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__={
   nouvelle:nouvelle_,
   purgerVoix:purgerVoix_,
   appliquerPrononciations:appliquerPrononciations_,
+  /* Génération de voix réutilisée par l'éditeur de textes (modules/textes-admin-v1.js) : même studio, mêmes corrections de prononciation, même téléversement R2. */
+  outilsVoix:{synthetiser:synthetiser_,televerser:televerserVoix_},
   /* Outils de test. */
   urlImage:urlImage_,
   nouvelId:nouvelId_,

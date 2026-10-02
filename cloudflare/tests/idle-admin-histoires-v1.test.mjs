@@ -14,7 +14,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.match(ui, /\{id:'admin',icon:'🛠️',nom:'Admin'\}/);
 assert.match(ui, /if\(id==='admin'\)return estAdminSorealIdle_\(\);/, "menu Admin : administrateur seulement");
 assert.match(ui, /m\.id!=='admin'&&menuDisponibleIdleV28_\(m\.id,j\)/, "jamais annoncé comme menu débloqué");
-assert.match(ui, /case 'admin':\s*return window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\?window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\.page\(j\):'';/);
+assert.match(ui, /case 'admin':\s*(?:declarerTextesSystemesIdleV1_\(j\);\s*)?return window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\?window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\.page\(j\):'';/);
 assert.ok(ui.includes("IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout','shop','admin']"), "pas de clignotement ni de popup d'information");
 
 // --- Rendu réel de la page avec un faux jeu ---

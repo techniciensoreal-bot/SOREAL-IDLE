@@ -30,6 +30,8 @@
           return false;
         }
       }
+      /* Les modules d'édition (modules/textes-admin-v1.js) n'affichent leurs boutons que pour l'administrateur ; le serveur, lui, revérifie chaque opération. */
+      window.__SOREAL_IDLE_EST_ADMIN_V1__=estAdminSorealIdle_;
       function rafraichirEstAdminSorealIdle_(){
         if(idleEstAdminV1!==null||!SOREAL_SESSION)return;
         google.script.run
@@ -38,6 +40,8 @@
             idleEstAdminV1=Boolean(res&&res.ok&&res.isAdmin);
             if(idleEstAdminV1&&!estAdminAvant&&idleEtat){
               rendreIdleEtat_({ok:true,joueur:idleEtat});
+              /* Un popup déjà ouvert (tutoriel de début) reçoit son bouton « Modifier le texte » dès que le statut d'administrateur est connu. */
+              if(idleTutorielPagesEnCoursV1)rendreTutorielPagesIdleV1_();
             }
           })
           .withFailureHandler(function(){
@@ -9291,7 +9295,39 @@
       }
 
 
+      /*
+       * Textes éditables (Norman, 2026-10-02 : popups et fenêtres explicatives modifiables par l'administrateur, avec voix différentes) : chaque popup
+       * « nouveauté » passe par ici ; sans modification il est rendu tel quel, avec en plus sa clé (_cle) pour le bouton « Modifier » de l'administrateur.
+       */
+      const NOUVEAUTE_CHAMPS_TEXTES_V1=[
+        {id:'titre',label:'Titre',type:'ligne'},
+        {id:'intro',label:'Introduction',type:'texte'},
+        {id:'texte',label:'Texte',type:'texte'},
+        {id:'bullets',label:'Points (un par paragraphe)',type:'liste'}
+      ];
+      function infoSurchargeeIdleV1_(cle,libelle,infoBrute){
+        const T=window.__SOREAL_IDLE_TEXTES_V1__;
+        if(!T||!infoBrute)return infoBrute;
+        T.declarer(cle,{
+          groupe:'Popups de nouveautés',
+          libelle:libelle||String(infoBrute.titre||cle),
+          champs:NOUVEAUTE_CHAMPS_TEXTES_V1,
+          original:function(){
+            return {titre:String(infoBrute.titre||''),intro:String(infoBrute.intro||''),texte:String(infoBrute.texte||''),bullets:Array.isArray(infoBrute.bullets)?infoBrute.bullets.slice():[]};
+          },
+          texteLu:function(v){return texteVoixNouveauteIdleV1_(v);}
+        });
+        return T.appliquerInfo(cle,infoBrute);
+      }
       function definitionsNouveautesIdleV75_(){
+        const brutes=definitionsNouveautesBrutesIdleV75_();
+        const out={};
+        Object.keys(brutes).forEach(function(cle){
+          out[cle]=infoSurchargeeIdleV1_('nouveaute:'+cle,String(brutes[cle]&&brutes[cle].titre||cle),brutes[cle]);
+        });
+        return out;
+      }
+      function definitionsNouveautesBrutesIdleV75_(){
         return {
           bestiaire:{
             icon:'📖',
@@ -9585,6 +9621,9 @@
        * lit pour chaque système du catalogue. Sans cela, ces popups n'avaient pas de fichier audio : repli sur la voix locale (lourde, jeu qui rame, souvent en erreur sur téléphone).
        */
       function infoSystemeGeneriqueIdleV1_(s,menuCible){
+        return infoSurchargeeIdleV1_('nouveaute:systeme:'+s.id,String(s.name||s.id)+' (système)',infoSystemeGeneriqueBruteIdleV1_(s,menuCible));
+      }
+      function infoSystemeGeneriqueBruteIdleV1_(s,menuCible){
         /* Texte explicite du système (TEXTES_SYSTEMES_IDLE_V1) ; le texte générique ci-dessous n'est qu'un repli pour un système sans texte. */
         const t=TEXTES_SYSTEMES_IDLE_V1[s.id];
         if(t){
@@ -10356,15 +10395,20 @@
        */
       function texteVoixTutorielIdleV1_(page,precedente){
         /* Le titre « Norman & Sébastien » n'a pas de sens à l'oral (Norman, 2026-09-26) : seul le texte est lu. */
-        const titrePage=String(page&&page.titre||'');
-        const titreRepete=Boolean(precedente&&String(precedente.titre||'')===titrePage);
+        /* Texte modifié par l'administrateur : _brut garde les balises de voix « (marius) » que l'affichage ne montre jamais. */
+        const src=(page&&page._brut)||page;
+        const srcPrec=(precedente&&precedente._brut)||precedente;
+        const titrePage=String(src&&src.titre||'');
+        const titreRepete=Boolean(srcPrec&&String(srcPrec.titre||'')===titrePage);
         const titreLu=(titrePage==='Norman & Sébastien'||titreRepete)?'':titrePage;
         return (titreLu?titreLu+pauseVoixIdleV1_(450):'')+
-          (page&&page.sousTitre?String(page.sousTitre)+pauseVoixIdleV1_(450):'')+
-          (Array.isArray(page&&page.paragraphes)?page.paragraphes:[]).join(' ');
+          (src&&src.sousTitre?String(src.sousTitre)+pauseVoixIdleV1_(450):'')+
+          (Array.isArray(src&&src.paragraphes)?src.paragraphes:[]).join(' ');
       }
 
       function texteVoixNouveauteIdleV1_(info){
+        /* Texte modifié par l'administrateur : _brut garde les balises de voix. */
+        info=(info&&info._brut)||info;
         return String(info&&info.titre||'')+pauseVoixIdleV1_(450)+
           [String(info&&info.intro||''),String(info&&info.texte||'')]
             .concat(Array.isArray(info&&info.bullets)?info.bullets:[])
@@ -10373,6 +10417,9 @@
       }
 
       function infoMoneyPitIdleV1_(){
+        return infoSurchargeeIdleV1_('nouveaute:moneyPit','Money Pit & Roue journalière',infoMoneyPitBruteIdleV1_());
+      }
+      function infoMoneyPitBruteIdleV1_(){
         return {
           icon:'🕳️',
           titre:'Money Pit & Roue journalière',
@@ -10387,6 +10434,57 @@
             'Repère visuel : le bouton Money Pit devient vert quand le puits est prêt, ou jaune quand la roue journalière est disponible.'
           ]
         };
+      }
+
+      /*
+       * Les trois tutoriels de Norman & Sébastien : chaque page peut être modifiée par l'administrateur. Les tableaux ci-dessus sont des constantes
+       * dont l'IDENTITÉ compte (comparaisons plus bas) : on remplace donc leurs ÉLÉMENTS en place, par des copies portant le texte à afficher, le texte
+       * à lire (_brut) et la clé de la page (_cle). Les pages d'origine sont gardées pour l'éditeur et pour « Rétablir ».
+       */
+      const TUTORIEL_TABLEAUX_TEXTES_V1={debut:TUTORIEL_DEBUT_JEU_PAGES_V1,aventure:TUTORIEL_AVENTURE_PAGES_V1,boss:TUTORIEL_PREMIER_BOSS_PAGES_V1};
+      const TUTORIEL_LIBELLES_TEXTES_V1={debut:'Début du jeu',aventure:'Aventure & Rebirth',boss:'Premier boss'};
+      const TUTORIEL_ORIGINAUX_TEXTES_V1={};
+      const TUTORIEL_CHAMPS_TEXTES_V1=[
+        {id:'titre',label:'Titre',type:'ligne'},
+        {id:'sousTitre',label:'Sous-titre',type:'ligne'},
+        {id:'paragraphes',label:'Paragraphes',type:'liste'}
+      ];
+      function appliquerTextesTutorielsIdleV1_(){
+        const T=window.__SOREAL_IDLE_TEXTES_V1__;
+        if(!T)return;
+        Object.keys(TUTORIEL_TABLEAUX_TEXTES_V1).forEach(function(id){
+          const tableau=TUTORIEL_TABLEAUX_TEXTES_V1[id];
+          if(!TUTORIEL_ORIGINAUX_TEXTES_V1[id])TUTORIEL_ORIGINAUX_TEXTES_V1[id]=tableau.slice();
+          const originaux=TUTORIEL_ORIGINAUX_TEXTES_V1[id];
+          originaux.forEach(function(page,index){
+            const cle='tuto:'+id+':'+index;
+            T.declarer(cle,{
+              groupe:'Norman & Sébastien · '+TUTORIEL_LIBELLES_TEXTES_V1[id],
+              libelle:'Page '+(index+1)+' — '+String(page.titre||'Introduction'),
+              champs:TUTORIEL_CHAMPS_TEXTES_V1,
+              original:function(){
+                return {titre:String(page.titre||''),sousTitre:String(page.sousTitre||''),paragraphes:Array.isArray(page.paragraphes)?page.paragraphes.slice():[]};
+              },
+              texteLu:function(v){return texteVoixTutorielIdleV1_(v,index>0?tableau[index-1]:null);}
+            });
+            tableau[index]=T.appliquerPage(cle,page);
+          });
+        });
+      }
+      appliquerTextesTutorielsIdleV1_();
+      if(window.__SOREAL_IDLE_TEXTES_V1__)window.__SOREAL_IDLE_TEXTES_V1__.surChangement(appliquerTextesTutorielsIdleV1_);
+
+      /* Systèmes génériques (Perks, Quirks…) : déclarés pour l'éditeur Admin même avant d'être débloqués (l'administrateur voit tout). */
+      function declarerTextesSystemesIdleV1_(j){
+        try{
+          const T=window.__SOREAL_IDLE_TEXTES_V1__;
+          if(!T||!j||!j.systemes||!Array.isArray(j.systemes.systems))return;
+          infoMoneyPitIdleV1_();
+          definitionsNouveautesIdleV75_();
+          j.systemes.systems.forEach(function(sys){
+            if(sys&&sys.id&&sys.id!=='moneyPit'&&sys.id!=='dailySpin'&&IDLE_MENU_PAR_SYSTEME_V1[sys.id])infoSystemeGeneriqueIdleV1_(sys,IDLE_MENU_PAR_SYSTEME_V1[sys.id]);
+          });
+        }catch(_e){}
       }
 
       /* Tous les textes d'explication connus d'avance (les systèmes dont la description vient des données du jeu restent en repli). */
@@ -10459,6 +10557,7 @@
                     return '<div style="margin-bottom:10px">'+idleHtml_(p)+'</div>';
                   }).join('')+
                 '</div>'+
+                (page._cle&&window.__SOREAL_IDLE_TEXTES_V1__?'<div style="margin-top:10px">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonHtml(page._cle)+'</div>':'')+
               '</div>'+
               '<div class="soreal-idle-modal-actions-v63" style="grid-template-columns:1fr">'+
                 '<button type="button" class="soreal-idle-modal-button-v63 '+(page.bouton?'jouer':'confirm')+'" onclick="window.__tutorielPagesNaviguerV1__(1)">'+idleHtml_(page.bouton||'Continuer ▶')+'</button>'+
@@ -10491,6 +10590,7 @@
               return '<div style="margin-bottom:8px">'+idleHtml_(p)+'</div>';
             }).join('')+
           '</div>'+
+          (page._cle&&window.__SOREAL_IDLE_TEXTES_V1__?'<div style="margin:0 0 8px">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonHtml(page._cle)+'</div>':'')+
           '<div class="soreal-idle-tuto-flottant-actions-v1">'+
             '<button type="button" '+(premier?'disabled':'')+' onclick="window.__tutorielPagesNaviguerV1__(-1)">◀ Précédent</button>'+
             /* Page « il faut cliquer » (page.attendre) : ni « Passer » ni « Suivant » ; c'est le clic sur le bouton qui clignote qui fait avancer (modules/tutorial-hint-v1.js). */
@@ -10710,6 +10810,7 @@
                       '</div>'
                     :''
                 )+
+                (info._cle&&window.__SOREAL_IDLE_TEXTES_V1__?'<div style="margin-top:10px">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonHtml(info._cle)+'</div>':'')+
               '</div>'+
             '</div>'+
             /* Un seul bouton (2026-09-26, Norman : « ça n'a plus lieu d'être, il me faut juste Continuer ») : le popup s'ouvre déjà dans le menu concerné. */
@@ -11935,12 +12036,28 @@
 
       /* Notes de déblocage « (…) » en tête d'une histoire de boss + récit. Même découpage pour l'affichage et pour la voix pré-générée
          (cloudflare/tools/voice-generate.mjs recopie ce motif : un test compare les deux). */
+      /* Balises de voix (Norman, 2026-10-02) : « (marius) » dans une chronique change la voix de la lecture ; l'écran ne les montre jamais. */
+      function sansBaliseVoixIdleV1_(texte){
+        const T=window.__SOREAL_IDLE_TEXTES_V1__;
+        return T&&typeof T.sansBalises==='function'?T.sansBalises(texte):String(texte==null?'':texte);
+      }
+      /* Attribut portant le texte brut (avec ses balises) quand il en contient : la lecture le préfère au texte affiché. */
+      function attrHistoireVoixIdleV1_(texte){
+        const T=window.__SOREAL_IDLE_TEXTES_V1__;
+        return T&&typeof T.aDesBalises==='function'&&T.aDesBalises(texte)
+          ?' data-soreal-tts-histoire="'+idleHtml_(String(texte||''))+'"'
+          :'';
+      }
+      function estBaliseVoixIdleV1_(contenu){
+        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+        return Boolean(tts&&typeof tts.resoudreVoixBalise==='function'&&tts.resoudreVoixBalise(contenu));
+      }
       function separerNotesHistoireBossIdleV1_(histoire){
         const notes=[];
         let narration=String(histoire||'').trim();
         for(;;){
           const infoMatch=narration.match(/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/);
-          if(!infoMatch)break;
+          if(!infoMatch||estBaliseVoixIdleV1_(infoMatch[1]))break;
           notes.push('('+String(infoMatch[1]||'').trim()+')');
           narration=narration.slice(infoMatch[0].length).trim();
         }
@@ -11957,7 +12074,11 @@
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-147 */
         if(!histoire){
-          return '';
+          /* Boss sans chronique : l'administrateur peut quand même lui en écrire une (jamais rien pour un joueur). */
+          const Tadmin=window.__SOREAL_IDLE_TEXTES_V1__;
+          return Tadmin&&Tadmin.boutonBossHtml&&j&&j.bossId
+            ?'<div style="margin:8px 0">'+Tadmin.boutonBossHtml(j.bossId)+'</div>'
+            :'';
         }
 
         const nomBoss=
@@ -11981,8 +12102,13 @@
          * nom pour éviter toute ambiguïté ; ce panneau reste rendu en continu tant que l'écran Boss est affiché, contrairement aux popups de
          * tutoriel qui ne sont créés qu'une fois.
          */
+        /* Chronique avec balises de voix : le panneau porte le texte à lire (nom + récit brut), sinon la lecture se ferait sur le texte affiché, sans voix. */
+        const ttsChronique=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+        const attrLecture=(ttsChronique&&typeof ttsChronique.composerChronique==='function'&&attrHistoireVoixIdleV1_(histoire))
+          ?' data-soreal-tts-say="'+idleHtml_(ttsChronique.composerChronique(nomBoss,histoire))+'"'
+          :'';
         return `
-          <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}">
+          <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}"${attrLecture}>
             <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>
@@ -11990,9 +12116,10 @@
               return '<div class="soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700">'+idleHtml_(note)+'</div>';
             }).join('')}
             ${narration
-              ?'<div class="soreal-idle-boss-lore-histoire-v142">'+idleHtml_(narration)+'</div>'
+              ?'<div class="soreal-idle-boss-lore-histoire-v142">'+idleHtml_(sansBaliseVoixIdleV1_(narration))+'</div>'
               :''}
             <button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleBossChroniqueV206">🔊 Lire la chronique</button>
+            ${window.__SOREAL_IDLE_TEXTES_V1__?window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(j&&j.bossId):''}
           </div>
         `;
       }
@@ -13803,9 +13930,9 @@
                 </div>
               </div>
 
-              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91"${b.histoire?' data-soreal-tts-chronique="'+idleHtml_(b.nom||'Boss')+'"':''}>
+              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91"${b.histoire?' data-soreal-tts-chronique="'+idleHtml_(b.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(b.histoire):''}>
                 ${idleHtml_(
-                  b.histoire||
+                  sansBaliseVoixIdleV1_(b.histoire)||
                   'Aucune archive n’existe encore pour ce boss.'
                 )}
               </div>
@@ -15049,8 +15176,8 @@ let idleDialogueTimerV76=null;
                       ?'sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)
                       :'sorealIdleCollectionCreatureDescV206_'+idleEntier_(e.index))+
                     '" class="soreal-idle-bestiary-desc-v110"'+
-                    (idleEntier_(e.numero)>0?' data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"':'')+
-                    '>'+idleHtml_(e.description)+'</div>'
+                    (idleEntier_(e.numero)>0?' data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description):'')+
+                    '>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'
                   :''}
                 ${idleEntier_(e.numero)>0&&e.description
                   ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)+'">🔊 Lire cette chronique</button>'
@@ -15233,7 +15360,7 @@ let idleDialogueTimerV76=null;
               '<div class="soreal-idle-boss-fiche-stats-v1">'+stats+'</div>'+
               (e.description
                 ?'<div class="soreal-idle-boss-fiche-titre-v1">📜 Chronique</div>'+
-                  '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'">'+idleHtml_(e.description)+'</div>'+
+                  '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'+
                   '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'
                 :'')+
             '</div>'+
@@ -21293,7 +21420,9 @@ function pageAventureIdleV28_(j){
               sousTitre:String(page.sousTitre||''),
               index:index+1,
               total:pages.length,
-              paragraphes:Array.isArray(page.paragraphes)?page.paragraphes:[]
+              paragraphes:Array.isArray(page.paragraphes)?page.paragraphes:[],
+              _brut:page._brut||null,
+              _cle:page._cle||''
             });
           });
         });
@@ -21595,6 +21724,7 @@ function pageAventureIdleV28_(j){
                       '</div>'
                     :'')+
                   '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+targetId+'">🔊 Lire ce texte</button>'+
+                  (info._cle&&window.__SOREAL_IDLE_TEXTES_V1__?' '+window.__SOREAL_IDLE_TEXTES_V1__.boutonHtml(info._cle):'')+
                 '</div>';
               }).join('')
               :'<div style="font-size:14px;color:#5b6178">Aucun panneau d’information consulté pour l’instant.</div>'
@@ -21704,6 +21834,7 @@ function pageAventureIdleV28_(j){
           case 'parametres':
             return pageParametresIdleV28_(j);
           case 'admin':
+            declarerTextesSystemesIdleV1_(j);
             return window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__?window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.page(j):'';
           case 'chat':
             /* Emplacement du chat ; le module le monte juste après le rendu (il garde la saisie entre deux rendus). */

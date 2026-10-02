@@ -12,7 +12,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const debutTable = ui.indexOf("const TEXTES_SYSTEMES_IDLE_V1={");
 const finFonction = ui.indexOf("/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-117 */", debutTable);
 assert.ok(debutTable > 0 && finFonction > debutTable, "table et fonction des panneaux introuvables");
-const { T, info } = new Function(ui.slice(debutTable, finFonction) + "\nreturn {T:TEXTES_SYSTEMES_IDLE_V1, info:infoSystemeGeneriqueIdleV1_};")();
+const { T, info } = new Function(ui.slice(debutTable, finFonction) + "\nreturn {T:TEXTES_SYSTEMES_IDLE_V1, info:infoSystemeGeneriqueBruteIdleV1_};")();
 
 // Systèmes qui ouvrent un menu (IDLE_SYSTEME_PAR_MENU_V1) : chacun doit avoir SON texte (Money Pit a déjà son propre panneau, infoMoneyPitIdleV1_).
 const bloc = ui.slice(ui.indexOf("const IDLE_SYSTEME_PAR_MENU_V1={"), ui.indexOf("const IDLE_MENU_PAR_SYSTEME_V1="));
