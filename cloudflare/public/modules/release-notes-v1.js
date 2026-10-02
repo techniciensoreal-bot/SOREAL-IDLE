@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.3',
+    courante:'9.4',
     versions:[
+      {
+        version:'9.4',
+        nom:'Un entraînement comme dans le jeu d’origine',
+        date:'2026-10-02',
+        points:[
+          'Le menu d’entraînement avancé est refait comme dans le jeu d’origine : une ligne par compétence avec son niveau, son énergie allouée, son objectif (Target) et les boutons + et −, sans barres de progression.',
+          'Chaque compétence progresse avec sa propre énergie, en même temps que les autres.',
+          'Le Target retire l’énergie d’une compétence dès que le niveau voulu est atteint.',
+        ]
+      },
       {
         version:'9.3',
         nom:'Une vie qui remonte enfin',

@@ -232,6 +232,8 @@
     var page=pageActive_();
     /* Money Pit : page retirée le 2026-09-24 (voir le commentaire en tête de fichier) ; seule la page Advanced Training reste ici. */
     if(page!=='avance')return;
+    /* L'Advanced Training est maintenant rendu par la page du jeu (meta-progression-v130.js, pageAdvancedTrainingIdleV1_) : plus de barres de progression ici. */
+    if(window.__SOREAL_IDLE_AT_PAGE_V2__)return;
     var root=root_();
     if(!root)return;
     if(root.dataset.sorealIdleEarlyV49)return;

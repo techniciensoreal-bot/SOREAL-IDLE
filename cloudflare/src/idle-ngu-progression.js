@@ -1565,6 +1565,11 @@ function normalizeTracks(def, rawData) {
       permanentLevel: Math.max(0, num(src.permanentLevel, 0)),
       progress: Math.max(0, num(src.progress, 0))
     };
+    /* Advanced Training : énergie propre et Target de chaque compétence (voir advanceAdvancedTrainingV1). */
+    if (def.id === "advancedTraining") {
+      out.tracks[track.id].energy = Math.max(0, num(src.energy, 0));
+      out.tracks[track.id].target = Math.max(0, Math.floor(num(src.target, 0)));
+    }
   }
   if ((IDLE_NGU_TRACKS[def.id] || []).some(t => t.id === source.activeTrack)) {
     out.activeTrack = source.activeTrack;
@@ -2600,6 +2605,7 @@ function reclaimAllocatedResource(state,resource,context={}){
     if(amount<=0)continue;
     released+=amount;
     s.allocation[resource]=0;
+    if(def.id==="advancedTraining"&&resource==="energy")for(const t of Object.values(s.data?.tracks||{}))t.energy=0;
     if(def.id==="ngu"){clearNguAllocationsV1(s,resource);syncNguAllocationTotalsV1(s);}
     if(def.id==="wishes")clearWishSlotAllocationsV1(s,resource);
   }
@@ -3154,6 +3160,94 @@ function advanceWishTrack(state, system, trackDef, track, seconds, allocation = 
   track.progress = level >= maxLevel ? 0 : progress;
 }
 
+/*
+ * Advanced Training (Norman, 2026-10-02 : « l'interface n'est pas bonne du tout, ce sont des barres qui avancent » -- dans le jeu d'origine chaque
+ * compétence a son niveau, son énergie allouée, son Target et ses boutons + / −). Chaque compétence progresse donc avec SA propre énergie
+ * (data.tracks[id].energy) ; allocation.energy en est la somme. Ancien contrat (une seule piste active, allocation unique) conservé tant qu'aucune
+ * énergie n'est posée par compétence : l'allocation unique va alors à la piste active.
+ * Formules inchangées (wiki Advanced Training : 10 000 s / 20 000 s pour le niveau 1, racine carrée de la puissance, 50 niveaux/s).
+ */
+function atTrackEnergyV1(s, trackId) {
+  return Math.max(0, num(s.data?.tracks?.[trackId]?.energy, 0));
+}
+function atEnergyTotalV1(s) {
+  return Object.values(s.data?.tracks || {}).reduce((sum, x) => sum + Math.max(0, num(x?.energy, 0)), 0);
+}
+function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
+  const wandoosOk = Boolean(state.systems.wandoos?.unlocked);
+  const wandoosTrack = id => id === "wandoosEnergy" || id === "wandoosMagic";
+  if (wishLevelV1(state, 190) >= 1) {
+    for (const other of tracks) {
+      if (wandoosTrack(other.id) && !wandoosOk) continue;
+      const ot = s.data.tracks[other.id];
+      if (!ot) continue;
+      ot.progress = Math.max(0, num(ot.progress, 0)) + 50 * seconds;
+      let gainedFree = Math.floor(ot.progress);
+      const roomFree = challengeHundredLevelsRemaining(state);
+      if (gainedFree > roomFree) { gainedFree = roomFree; ot.progress = 0; }
+      else ot.progress -= gainedFree;
+      if (gainedFree > 0) {
+        ot.tempLevel = Math.max(0, Math.floor(num(ot.tempLevel, 0))) + gainedFree;
+        challengeHundredLevelsConsume(state, gainedFree);
+      }
+    }
+  } else {
+    const perTrack = atEnergyTotalV1(s) > 0;
+    const legacyActive = s.data.activeTrack || tracks[0].id;
+    const sqrtPower = Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power")));
+    const gearAtSpeed = gearPctV1(gearSpecialsV1(state), "advancedTrainingPct");
+    for (const trackDef of tracks) {
+      const t = s.data.tracks[trackDef.id];
+      if (!t) continue;
+      const own = atTrackEnergyV1(s, trackDef.id);
+      const alloc = own > 0 ? own : (!perTrack && trackDef.id === legacyActive ? Math.max(0, num(s.allocation.energy, 0)) : 0);
+      if (alloc <= 0) continue;
+      const baseSeconds = wandoosTrack(trackDef.id) ? 20000 : 10000;
+      const rate = (alloc * sqrtPower * gearAtSpeed) / (baseSeconds * 1000); // unités de travail par seconde
+      const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
+      const work = Math.max(0, num(t.progress, 0)) * (level + 1) + rate * seconds;
+      const step = nguLevelsFromWorkV1(level, work);
+      let gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+      const roomAt = challengeHundredLevelsRemaining(state);
+      const cappedByPool = gained > roomAt;
+      if (cappedByPool) gained = roomAt;
+      challengeHundredLevelsConsume(state, gained);
+      t.tempLevel = level + gained;
+      t.progress = cappedByPool || gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
+    }
+  }
+  s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
+  atApplyTargetsV1(state);
+}
+
+/* Champ « Target » (niveau à atteindre, 0 = aucun ; même règle que la Time Machine) : à l'atteinte, l'énergie de la compétence est retirée. */
+function atApplyTargetsV1(state) {
+  const s = state.systems.advancedTraining;
+  if (!s?.data?.tracks) return;
+  for (const [id, t] of Object.entries(s.data.tracks)) {
+    const target = Math.max(0, Math.floor(num(t.target, 0)));
+    if (target > 0 && Math.floor(num(t.tempLevel, 0)) >= target && atTrackEnergyV1(s, id) > 0) atSetTrackEnergyV1(state, id, 0, {});
+  }
+}
+
+/* Pose l'énergie d'UNE compétence (mêmes plafonds qu'une allocation ordinaire) ; allocation.energy reste la somme des compétences. */
+function atSetTrackEnergyV1(state, trackId, value, context = {}) {
+  const s = state.systems.advancedTraining;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const t = s.data?.tracks?.[trackId];
+  if (!t) throw new Error("PISTE_INCONNUE");
+  if ((trackId === "wandoosEnergy" || trackId === "wandoosMagic") && !state.systems.wandoos?.unlocked) throw new Error("PISTE_VERROUILLEE");
+  /* Ancien contrat : une allocation unique non répartie est d'abord rattachée à la piste active, jamais comptée deux fois. */
+  if (atEnergyTotalV1(s) <= 0 && Math.max(0, num(s.allocation.energy, 0)) > 0) {
+    const actif = s.data.tracks[s.data.activeTrack || ""];
+    if (actif) actif.energy = Math.max(0, num(s.allocation.energy, 0));
+  }
+  const others = atEnergyTotalV1(s) - Math.max(0, num(t.energy, 0));
+  setAllocation(state, "advancedTraining", "energy", others + Math.max(0, num(value, 0)), context);
+  t.energy = Math.max(0, num(s.allocation.energy, 0) - others);
+  s.allocation.energy = atEnergyTotalV1(s);
+}
+
 function advanceTrackSystem(state, def, seconds) {
   const s = state.systems[def.id];
   if (!s.unlocked || seconds <= 0) return;
@@ -3210,59 +3304,9 @@ function advanceTrackSystem(state, def, seconds) {
   }
 
   if (def.id === "advancedTraining") {
-    /*
-     * 2026-09-23 (audit) : wiki "Advanced Training" -- « With 1000 Energy cap,
-     * 1 Energy power ... Adventure Toughness, Adventure Power and Block Damage
-     * Reduction each need 10,000 seconds to level from level 0 to level 1.
-     * Wandoos Energy/Magic Dump+ each need 20,000 seconds. Every level requires
-     * linearly more time than the last one », Energy Power seulement par sa
-     * racine carrée, 50 niveaux/s maximum. L'ancien débit (alloc x sqrt(power) x
-     * bars / 25 000, indépendant du niveau) rendait l'entraînement ~400 fois
-     * trop rapide.
-     */
-    /*
-     * 2026-09-24 (audit de composition) : (1) souhait 190 « I wish I was f**king done with
-     * Advanced Training forever! » (page Advanced Training : « allows all abilities to run at
-     * max speed (50 levels/second) without allocating energy ») ; (2) le spécial d'équipement
-     * « Advanced Training » (objets du build Build Advanced Training : « Gain Advance Training
-     * Speed ») multiplie la vitesse ; (3) les niveaux gagnés comptent dans le plafond de 100
-     * niveaux du défi 100 Levels (note de la page Challenges : « Advanced Training levels
-     * gained during a rebirth also count towards the 100 levels »).
-     */
-    if (wishLevelV1(state, 190) >= 1) {
-      for (const other of tracks) {
-        if ((other.id === "wandoosEnergy" || other.id === "wandoosMagic") && !state.systems.wandoos?.unlocked) continue;
-        const ot = s.data.tracks[other.id];
-        if (!ot) continue;
-        ot.progress = Math.max(0, num(ot.progress, 0)) + 50 * seconds;
-        let gainedFree = Math.floor(ot.progress);
-        const roomFree = challengeHundredLevelsRemaining(state);
-        if (gainedFree > roomFree) { gainedFree = roomFree; ot.progress = 0; }
-        else ot.progress -= gainedFree;
-        if (gainedFree > 0) {
-          ot.tempLevel = Math.max(0, Math.floor(num(ot.tempLevel, 0))) + gainedFree;
-          challengeHundredLevelsConsume(state, gainedFree);
-        }
-      }
-      s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
-      return;
-    }
-    const alloc = Math.max(0, num(s.allocation.energy, 0));
-    if (alloc <= 0) return;
-    const baseSeconds = trackDef.id === "wandoosEnergy" || trackDef.id === "wandoosMagic" ? 20000 : 10000;
-    const sqrtPower = Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power")));
-    const gearAtSpeed = gearPctV1(gearSpecialsV1(state), "advancedTrainingPct");
-    const rate = (alloc * sqrtPower * gearAtSpeed) / (baseSeconds * 1000); // unités de travail par seconde
-    const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
-    const work = Math.max(0, num(t.progress, 0)) * (level + 1) + rate * seconds;
-    const step = nguLevelsFromWorkV1(level, work);
-    let gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
-    const roomAt = challengeHundredLevelsRemaining(state);
-    const cappedByPool = gained > roomAt;
-    if (cappedByPool) gained = roomAt;
-    challengeHundredLevelsConsume(state, gained);
-    t.tempLevel = level + gained;
-    t.progress = cappedByPool || gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
+    /* Chaque compétence a SA propre allocation (comme dans le jeu d'origine) : voir advanceAdvancedTrainingV1. */
+    advanceAdvancedTrainingV1(state, s, tracks, seconds);
+    return;
   } else {
   let throughput = 0;
   for (const resource of def.resources) {
@@ -6889,6 +6933,18 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     const value = Math.max(0, Math.min(1e9, Math.floor(num(payload.value, 0))));
     tm.data[track === "speed" ? "speedTarget" : "goldTarget"] = value;
     tmApplyTargets(state);
+  } else if (action === "allocateAdvancedTraining") {
+    /* Énergie d'une compétence d'Advanced Training (colonne « Energy Allocated », boutons + / −). */
+    atSetTrackEnergyV1(state, String(payload.track || ""), num(payload.value, 0), context);
+    atApplyTargetsV1(state);
+  } else if (action === "setAdvancedTrainingTarget") {
+    /* Champ « Target » d'une compétence : niveau à atteindre (0 = aucun) ; à l'atteinte son énergie est retirée. */
+    const at = state.systems.advancedTraining;
+    if (!at?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    const track = at.data?.tracks?.[String(payload.track || "")];
+    if (!track) throw new Error("PISTE_INCONNUE");
+    track.target = Math.max(0, Math.min(1e9, Math.floor(num(payload.value, 0))));
+    atApplyTargetsV1(state);
   } else if (action === "reclaimResource") {
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
   } else if (action === "allocateAugment") {
@@ -7037,6 +7093,7 @@ function resetRunSystem(def, s) {
     for (const t of Object.values(s.data.tracks || {})) {
       t.tempLevel = 0;
       t.progress = 0;
+      if (def.id === "advancedTraining") t.energy = 0;
     }
     s.tempLevel = 0;
   }

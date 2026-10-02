@@ -1570,7 +1570,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         R.file.delete(cle);
         R.file.set(cle,payload);
         /* Ce que le joueur veut, tant que le serveur ne l'a pas confirmé : réappliqué sur tout état serveur plus ancien (voir appliquerAllocationsVoulues). */
-        if(payload.action==='allocate'||payload.action==='allocateAugment')R.voulu.set(cle,payload);
+        if(payload.action==='allocate'||payload.action==='allocateAugment'||payload.action==='allocateAdvancedTraining')R.voulu.set(cle,payload);
         else if(payload.action==='clearAugmentAllocations')Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.voulu.delete(c);});
         planifierAllocRapideV1_(delai);
       }
@@ -1612,7 +1612,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const pairs=st.data&&st.data.pairs;
           const extra=pairs?Object.keys(pairs).map(function(k){return k+':'+(pairs[k]&&pairs[k].energy)+'/'+(pairs[k]&&pairs[k].upgradeEnergy);}).join(','):'';
           const rituel=st.data&&st.data.activeRitual?st.data.activeRitual:'';
-          return String(x&&x.id)+'='+JSON.stringify(st.allocation||{})+extra+rituel;
+          const pistesAt=String(x&&x.id)==='advancedTraining'&&st.data&&st.data.tracks?Object.keys(st.data.tracks).map(function(k){return k+'='+(st.data.tracks[k]&&st.data.tracks[k].energy)+'/'+(st.data.tracks[k]&&st.data.tracks[k].target);}).join(','):'';
+          return String(x&&x.id)+'='+JSON.stringify(st.allocation||{})+extra+rituel+pistesAt;
         }).join('|');
       }
       function niveauxAugmentsMetaV1_(j){
@@ -1645,6 +1646,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               const m=j.systemes.resources.magic;
               m.current=Math.max(0,H.idleNombre_(m.current)-delta);
             }
+          }else if(p.action==='allocateAdvancedTraining'){
+            const sysAt=systemeMetaParIdIdleV130_(j,'advancedTraining');
+            const pisteAt=sysAt&&sysAt.state&&sysAt.state.data&&sysAt.state.data.tracks&&sysAt.state.data.tracks[p.track];
+            if(!pisteAt)return;
+            const actuelAt=Math.max(0,H.idleNombre_(pisteAt.energy));
+            const deltaAt=val-actuelAt;
+            if(!deltaAt)return;
+            pisteAt.energy=val;
+            if(sysAt.state.allocation)sysAt.state.allocation.energy=Math.max(0,H.idleNombre_(sysAt.state.allocation.energy)+deltaAt);
+            j.energie=Math.max(0,H.idleNombre_(j.energie)-deltaAt);
           }else if(p.action==='allocateAugment'){
             const sys=systemeMetaParIdIdleV130_(j,'augmentations');
             const pair=sys&&sys.state&&sys.state.data&&sys.state.data.pairs&&sys.state.data.pairs[p.pair];
@@ -3031,6 +3042,145 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<h3 style="margin:16px 0 8px">Types, tiers et tags</h3><div style="font-size:14px;color:#aeb5c8;margin-bottom:6px">Un type taggé apparaît plus souvent. Le tier s\'applique aux prochaines cartes de ce type.</div><div style="display:grid;gap:10px">'+blocTypes+'</div>';
       }
 
+      /*
+       * Advanced Training (Norman, 2026-10-02 : « l'interface n'est pas bonne du tout, ce sont des barres qui avancent » -- capture du jeu d'origine :
+       * une ligne par compétence avec Name / Level / Energy Allocated / Target et les boutons + et −, au-dessus la barre d'outils Input + Cap/Idle).
+       * Chaque compétence a sa propre énergie (allocateAdvancedTraining) ; le Target retire l'énergie dès que le niveau voulu est atteint.
+       */
+      const IDLE_AT_NOMS_V1={
+        power:'Adventure Power +',
+        toughness:'Adventure Toughness +',
+        block:'Block Damage Reduction',
+        wandoosEnergy:'Wandoos Energy Dump +',
+        wandoosMagic:'Wandoos Magic Dump +'
+      };
+      const IDLE_AT_ORDRE_V1=['toughness','power','block','wandoosEnergy','wandoosMagic'];
+      function atEnergieDePisteIdleV1_(s,id){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const pistes=(s&&s.state&&s.state.data&&s.state.data.tracks)||{};
+        const parPiste=Object.keys(pistes).reduce(function(somme,k){return somme+Math.max(0,H.idleNombre_(pistes[k]&&pistes[k].energy));},0);
+        if(parPiste>0)return Math.max(0,H.idleNombre_(pistes[id]&&pistes[id].energy));
+        /* Ancien contrat : allocation unique rattachée à la piste active. */
+        const active=(s&&s.state&&s.state.data&&s.state.data.activeTrack)||'';
+        return active===id?Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.energy)):0;
+      }
+      function pageAdvancedTrainingIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const s=systemeMetaParIdIdleV130_(j,'advancedTraining');
+        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        const wandoos=systemeMetaParIdIdleV130_(j,'wandoos');
+        const wandoosOk=Boolean(wandoos&&wandoos.state&&wandoos.state.unlocked);
+        const pistes=(s.state.data&&s.state.data.tracks)||{};
+        const ids=IDLE_AT_ORDRE_V1.filter(function(id){
+          if(!pistes[id])return false;
+          /* Anti-spoil (règle n°2) : rien sur Wandoos tant qu'il n'est pas débloqué. */
+          return wandoosOk||!(id==='wandoosEnergy'||id==='wandoosMagic');
+        });
+        const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
+        const libre=Math.max(0,H.idleNombre_(j&&j.energie));
+        const ligne=function(id){
+          const st=pistes[id]||{};
+          const niveau=Math.floor(H.idleNombre_(st.level)+H.idleNombre_(st.tempLevel)+H.idleNombre_(st.permanentLevel));
+          const energie=atEnergieDePisteIdleV1_(s,id);
+          const idH=H.idleHtml_(id);
+          return '<div class="soreal-idle-at-ligne-v1" data-at-piste="'+idH+'">'+
+            '<div class="soreal-idle-at-nom-v1">'+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</div>'+
+            '<div class="soreal-idle-at-col-v1"><span>Level</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
+            '<div class="soreal-idle-at-col-v1"><span>Energy Allocated</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
+            '<label class="soreal-idle-at-col-v1 cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
+            '<div class="soreal-idle-at-boutons-v1">'+
+              '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'plus\')">+</button>'+
+              '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+
+            '</div>'+
+          '</div>';
+        };
+        const toolbar='<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
+          '<div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+nombre(libre)+'</b> ⚡</div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Cap</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAdvancedTrainingIdleV1__()">Tout retirer</button></div></div>';
+        return '<style>'+
+          '.soreal-idle-at-v1{display:grid;gap:10px}'+
+          '.soreal-idle-at-entete-v1{text-align:center;padding:6px 0 2px}'+
+          '.soreal-idle-at-entete-v1 h1{margin:0;font-family:Impact,"Arial Black",sans-serif;font-size:30px;letter-spacing:.04em;text-transform:uppercase}'+
+          '.soreal-idle-at-entete-v1 p{margin:2px 0 0;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.8}'+
+          '.soreal-idle-at-liste-v1{display:grid;gap:9px}'+
+          '.soreal-idle-at-ligne-v1{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(3,minmax(76px,1fr)) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.18)}'+
+          '.soreal-idle-at-nom-v1{font-weight:900;font-size:16px}'+
+          '.soreal-idle-at-col-v1{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}'+
+          '.soreal-idle-at-col-v1 span{font-size:12px;font-weight:800;letter-spacing:.04em;opacity:.75;text-transform:uppercase}'+
+          '.soreal-idle-at-col-v1 b{font-size:18px;font-variant-numeric:tabular-nums}'+
+          '.soreal-idle-at-col-v1 input{width:100%;max-width:120px;box-sizing:border-box;padding:6px 8px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(0,0,0,.35);color:inherit;font:inherit;font-weight:800;text-align:center}'+
+          '.soreal-idle-at-boutons-v1{display:flex;gap:8px}'+
+          '.soreal-idle-at-boutons-v1 button{min-width:46px;min-height:44px;border-radius:10px;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:inherit;font-size:22px;font-weight:900;cursor:pointer}'+
+          '@media(max-width:620px){.soreal-idle-at-ligne-v1{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"nom nom nom" "niv alloc cible" "btn btn btn"}.soreal-idle-at-nom-v1{grid-column:1/-1;text-align:center}.soreal-idle-at-boutons-v1{grid-column:1/-1;justify-content:center}.soreal-idle-at-boutons-v1 button{flex:1;max-width:140px}}'+
+        '</style>'+
+        '<div class="soreal-idle-at-v1">'+
+          '<header class="soreal-idle-at-entete-v1"><h1>Advanced Training</h1><p>(Time to improve your moves)</p></header>'+
+          toolbar+
+          '<div class="soreal-idle-at-liste-v1">'+ids.map(ligne).join('')+'</div>'+
+          '<div class="soreal-idle-note-v4">Chaque compétence progresse avec sa propre énergie. Les niveaux montent de plus en plus lentement, et la Puissance d’énergie ne compte que par sa racine carrée.</div>'+
+        '</div>';
+      }
+      window.__SOREAL_IDLE_AT_PAGE_V2__=true;
+
+      function atPatchLigneIdleV1_(id,valeur){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const span=document.getElementById('sorealIdleAtAlloc_'+id);
+        if(span)span.textContent=H.formatGrandNombreIdleV70_(valeur);
+        const libre=document.getElementById('sorealIdleAugEnergieLibreV1');
+        if(libre){
+          const j=H.getIdleEtat();
+          libre.textContent=H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(j&&j.energie)));
+        }
+        if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
+      }
+      function ajusterAdvancedTrainingIdleV1_(id,mode){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'advancedTraining');
+        const piste=s&&s.state&&s.state.data&&s.state.data.tracks&&s.state.data.tracks[id];
+        if(!piste)return;
+        const courant=atEnergieDePisteIdleV1_(s,id);
+        const pas=montantAugmentLireIdleV1_();
+        const libre=Math.max(0,H.idleNombre_(j&&j.energie));
+        const valeur=Math.max(0,H.idleEntier_(mode==='plus'?courant+Math.min(pas,libre):Math.max(0,courant-pas)));
+        const delta=valeur-courant;
+        if(delta!==0){
+          if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='plus'?'btPlus':'btMinus');
+          /* Ancien contrat : on matérialise d'abord l'allocation unique sur la piste active, pour ne rien compter deux fois. */
+          const dejaParPiste=Object.keys(s.state.data.tracks).some(function(k){return Math.max(0,H.idleNombre_(s.state.data.tracks[k].energy))>0;});
+          if(!dejaParPiste){
+            const actif=s.state.data.tracks[s.state.data.activeTrack||''];
+            if(actif)actif.energy=Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.energy));
+          }
+          piste.energy=valeur;
+          if(s.state.allocation)s.state.allocation.energy=Math.max(0,H.idleNombre_(s.state.allocation.energy)+delta);
+          if(j)j.energie=Math.max(0,libre-delta);
+          atPatchLigneIdleV1_(id,valeur);
+        }
+        envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:valeur});
+      }
+      window.__ajusterAdvancedTrainingIdleV1__=ajusterAdvancedTrainingIdleV1_;
+      window.__cibleAdvancedTrainingIdleV1__=function(id,valeur){
+        const n=Math.max(0,Math.floor(Number(valeur)||0));
+        envoyerAllocRapideV1_({action:'setAdvancedTrainingTarget',track:String(id),value:n});
+      };
+      window.__viderAdvancedTrainingIdleV1__=function(){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'advancedTraining');
+        const pistes=(s&&s.state&&s.state.data&&s.state.data.tracks)||{};
+        Object.keys(pistes).forEach(function(id){
+          const courant=atEnergieDePisteIdleV1_(s,id);
+          if(courant<=0)return;
+          pistes[id].energy=0;
+          if(s.state.allocation)s.state.allocation.energy=Math.max(0,H.idleNombre_(s.state.allocation.energy)-courant);
+          if(j)j.energie=Math.max(0,H.idleNombre_(j.energie)+courant);
+          atPatchLigneIdleV1_(id,0);
+          envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:0});
+        });
+      };
+
       function pageSystemeMetaIdleV130_(
         j,
         id,
@@ -3042,6 +3192,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='ngu')return pageNguIdleV1_(j);
         if(id==='wishes')return pageWishesIdleV1_(j);
         if(id==='timeMachine')return pageTimeMachineIdleV48_(j);
+        if(id==='advancedTraining')return pageAdvancedTrainingIdleV1_(j);
         if(id==='bloodMagic')return pageBloodMagicIdleV48_(j);
         if(id==='yggdrasil')return pageYggdrasilIdleV47_(j);
         if(id==='diggers')return pageDiggersIdleV47_(j);
