@@ -34,4 +34,8 @@ assert.ok(ui.includes("if(!idleCombatEnPauseApresDefaiteV1&&!idleVictoireBossLoc
   assert.equal(calc(etat, true, () => 2)({}, 0), 13000000 - 100 - 5, "fureur");
   assert.equal(calc({ attaqueBoss: 50, defense: 100 })({}, 0), 0, "défense > attaque : rien");
 }
+// 4. Fight cliqué pendant la victoire prédite (serveur pas encore confirmé) : retenu, puis lancé à la confirmation, jamais perdu en silence (Norman, 2026-10-02).
+assert.ok(ui.includes("function retenirFightApresConfirmationIdleV1_(){"));
+assert.ok(ui.includes("if(idleVictoireBossLocaleV49&&!trop)return;") && ui.includes("definirCombatBossIdleV39_(true);"), "le combat démarre quand le drapeau de victoire tombe");
+assert.ok(/actif&&\s*idleVictoireBossLocaleV49&&\s*!idleEtat\.combatBossActif&&\s*idleNombre_\(idleEtat\.pvJoueur\)>0\s*\)\{\s*retenirFightApresConfirmationIdleV1_\(\);\s*return;/.test(ui), "le clic est retenu au lieu d'être ignoré");
 console.log("idle-victoire-prediction-v1: OK");

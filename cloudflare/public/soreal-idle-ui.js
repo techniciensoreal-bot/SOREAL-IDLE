@@ -14300,6 +14300,21 @@
       }
 
 
+      /* Fight retenu pendant une victoire prédite : démarre dès que le drapeau tombe (confirmation du serveur, repli après 15 s ou rendu complet), au plus 20 s. */
+      let idleFightRetenuV1=null;
+      function retenirFightApresConfirmationIdleV1_(){
+        if(idleFightRetenuV1)return;
+        messageFlottantIdleV32_('⏳ Victoire en cours de confirmation : le combat démarre dans un instant.');
+        const debut=Date.now();
+        idleFightRetenuV1=setInterval(function(){
+          const trop=Date.now()-debut>20000;
+          if(idleVictoireBossLocaleV49&&!trop)return;
+          clearInterval(idleFightRetenuV1);
+          idleFightRetenuV1=null;
+          if(!trop&&PAGE_ACTIVE==='idle'&&idleEtat&&!idleEtat.combatBossActif)definirCombatBossIdleV39_(true);
+        },250);
+      }
+
       function definirCombatBossIdleV39_(
         actif
       ){
@@ -14307,6 +14322,21 @@
           !idleEtat ||
           !SOREAL_SESSION
         ){
+          return;
+        }
+
+        /*
+         * Fight cliqué pendant que la victoire n'est pas encore confirmée par le serveur (Norman, 2026-10-02 : « quand je tue un boss, je ne peux plus faire Fight ; je dois
+         * changer d'écran »). Le boss suivant est déjà affiché mais le serveur, plus lent (1 à 4 s par appel), n'a pas encore enregistré le kill : lui envoyer un combat
+         * maintenant serait ignoré (snapshot « obsolète »). Le clic n'est plus perdu en silence : il est RETENU et le combat démarre dès que la victoire est confirmée.
+         */
+        if(
+          actif&&
+          idleVictoireBossLocaleV49&&
+          !idleEtat.combatBossActif&&
+          idleNombre_(idleEtat.pvJoueur)>0
+        ){
+          retenirFightApresConfirmationIdleV1_();
           return;
         }
 
