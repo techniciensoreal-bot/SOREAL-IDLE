@@ -18,9 +18,7 @@ export const IDLE_CATALOGUES_CHEMINS_V1 = Object.freeze([
   "systemes.perkDefinitions",
   "systemes.quirkDefinitions",
   "systemes.selloutShop",
-  "systemes.portraits",
-  /* Mesuré en production le 2026-10-02 : 320 Ko sur les 526 Ko de CHAQUE réponse de synchro (une entrée par boss découvert, histoires comprises). La pièce est renvoyée dès que son contenu change (nouveau boss découvert). */
-  "bossCatalogue"
+  "systemes.portraits"
 ]);
 
 /*
@@ -38,7 +36,13 @@ export const IDLE_PIECES_ETAT_CHEMINS_V1 = Object.freeze([
   "systemes.expShop",
   "systemes.augmentations",
   "systemes.yggExtra",
-  "systemes.yggFruits"
+  "systemes.yggFruits",
+  /* Mesurés sur le compte réel le 2026-10-02 (stables entre deux synchros) : sac, coffre, liste d'objets, cartes, collections. */
+  "systemes.adventure.inventory",
+  "systemes.adventure.coffreSlots",
+  "systemes.adventure.itemList",
+  "systemes.cards",
+  "collections"
 ]);
 export const IDLE_PIECE_SYSTEME_TAILLE_MIN_V1 = 1000;
 
@@ -48,6 +52,15 @@ function cheminsSystemesV1(joueur) {
   if (!systems || typeof systems !== "object") return [];
   return Object.keys(systems).filter((id) => /^[A-Za-z0-9_-]+$/.test(id) && JSON.stringify(systems[id]).length > IDLE_PIECE_SYSTEME_TAILLE_MIN_V1).map((id) => "systemes.systems." + id);
 }
+
+/*
+ * Tableaux omis LIGNE PAR LIGNE (Norman, 2026-10-02) : `bossCatalogue` pèse 320 Ko (300 boss, dont 215 Ko d'histoires) mais seules quelques lignes changent
+ * d'une synchro à l'autre (ex. puissanceMinimum). Une empreinte par ligne : le client annonce `catalogHashes["<chemin>[]"]` = « h0,h1,… » (ce qu'il possède) ;
+ * les lignes identiques sont remplacées par `null` dans la réponse, qui indique en plus `tableauxGardes[<chemin>]` = indices des lignes réellement envoyées.
+ * Le pont du client remet les lignes en place (copies neuves, comme les pièces d'état) avant que le jeu ne voie la réponse.
+ */
+export const IDLE_TABLEAUX_CHEMINS_V1 = Object.freeze(["bossCatalogue", "bestiaire.entrees"]);
+export const IDLE_TABLEAU_LIGNES_MIN_V1 = 20;
 
 /* Empreinte cyrb53 : synchrone, identique côté serveur et dans les tests. */
 export function empreinteTexteV1(texte) {
@@ -91,6 +104,22 @@ function sansChemin(objet, chemin) {
   return copie;
 }
 
+/* Remplace `chemin` par `valeur` dans une COPIE (copie à l'écriture le long du chemin). */
+function avecValeur(objet, chemin, valeur) {
+  const parties = chemin.split(".");
+  const copier = (o) => (Array.isArray(o) ? o.slice() : Object.assign({}, o));
+  const copie = copier(objet);
+  let courant = copie;
+  for (let i = 0; i < parties.length - 1; i += 1) {
+    const suivant = courant[parties[i]];
+    if (!suivant || typeof suivant !== "object") return null;
+    courant[parties[i]] = copier(suivant);
+    courant = courant[parties[i]];
+  }
+  courant[parties[parties.length - 1]] = valeur;
+  return copie;
+}
+
 /*
  * Retire de `reponse.joueur` les pièces que le client possède déjà et ajoute `cataloguesHashes` (empreinte de CHAQUE pièce présente) et `cataloguesOmis`
  * (chemins retirés). Renvoie une COPIE de `reponse` (l'originale n'est jamais modifiée). Sans objet `joueur` : renvoyée telle quelle.
@@ -117,8 +146,30 @@ export function allegerCataloguesV1(reponse, hashesClient) {
       }
     }
   }
+  const gardes = {};
+  for (const chemin of IDLE_TABLEAUX_CHEMINS_V1) {
+    const tableau = lire(joueur, chemin);
+    if (!Array.isArray(tableau) || tableau.length < IDLE_TABLEAU_LIGNES_MIN_V1) continue;
+    const lignes = tableau.map((ligne) => empreinteTexteV1(JSON.stringify(ligne === undefined ? null : ligne)));
+    hashes[chemin + "[]"] = lignes.join(",");
+    const connues = typeof connus[chemin + "[]"] === "string" ? connus[chemin + "[]"].split(",") : [];
+    if (!connues.length) continue;
+    const envoyees = [];
+    const copie = tableau.map((ligne, i) => {
+      if (connues[i] === lignes[i]) return null;
+      envoyees.push(i);
+      return ligne;
+    });
+    if (envoyees.length === tableau.length) continue;
+    const allege = avecValeur(joueur, chemin, copie);
+    if (allege) {
+      joueur = allege;
+      gardes[chemin] = envoyees;
+    }
+  }
   const sortie = Object.assign({}, reponse, { joueur, cataloguesHashes: hashes });
   if (omis.length) sortie.cataloguesOmis = omis;
   if (vifs.length) sortie.cataloguesVifs = vifs;
+  if (Object.keys(gardes).length) sortie.tableauxGardes = gardes;
   return sortie;
 }

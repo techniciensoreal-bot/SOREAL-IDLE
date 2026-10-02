@@ -129,7 +129,8 @@
    * pièces omises dans la réponse AVANT de la rendre au jeu -- le reste du client voit toujours la réponse complète. Deux versions par pièce sont gardées :
    * une réponse arrivée en retard peut encore avoir été allégée par rapport à la précédente.
    */
-  const cataloguesV1={dernier:{},valeurs:{}};
+  /* lignes : tableaux omis ligne par ligne (voir idle-catalogues-v1.js) -- { chemin: { hashes:[…], textes:{ empreinte: texte JSON de la ligne } } }. */
+  const cataloguesV1={dernier:{},valeurs:{},lignes:{}};
 
   function lireCheminV1(objet,chemin){
     let courant=objet;
@@ -156,7 +157,9 @@
 
   /* Empreintes envoyées au serveur : la dernière version connue de chaque pièce. */
   function hashesCataloguesV1(){
-    return Object.assign({},cataloguesV1.dernier);
+    const h=Object.assign({},cataloguesV1.dernier);
+    Object.keys(cataloguesV1.lignes).forEach(function(chemin){h[chemin+"[]"]=cataloguesV1.lignes[chemin].hashes.join(",");});
+    return h;
   }
 
   /* Remet en place les pièces omises ; renvoie false si une pièce annoncée comme déjà connue manque (le pont redemande alors une réponse complète). */
@@ -168,8 +171,35 @@
     /* Pièces d'état : copie TEXTE gardée, copie neuve rendue (le jeu les modifie sur place ; voir idle-catalogues-v1.js). */
     const vifs=Array.isArray(data.cataloguesVifs)?data.cataloguesVifs:[];
     let complet=true;
+    const gardes=data.tableauxGardes&&typeof data.tableauxGardes==="object"?data.tableauxGardes:{};
     Object.keys(hashes).forEach(function(chemin){
       const h=hashes[chemin];
+      /* Tableau ligne par ligne : « <chemin>[] » = empreintes des lignes ; les lignes absentes de `tableauxGardes` viennent de la mémoire du pont. */
+      if(chemin.slice(-2)==="[]"){
+        const base=chemin.slice(0,-2);
+        const tableau=lireCheminV1(data.joueur,base);
+        const empreintes=String(h).split(",");
+        if(!Array.isArray(tableau))return;
+        const memoire=cataloguesV1.lignes[base]||{hashes:[],textes:{},precedents:{}};
+        const envoyees=Array.isArray(gardes[base])?new Set(gardes[base]):null;
+        const textes={};
+        let ok=true;
+        for(let i=0;i<tableau.length;i+=1){
+          const e=empreintes[i];
+          if(envoyees&&!envoyees.has(i)){
+            /* Deux générations gardées : une réponse calculée sur d'anciennes empreintes (appels simultanés) retrouve ses lignes. */
+            const texte=Object.prototype.hasOwnProperty.call(memoire.textes,e)?memoire.textes[e]:(memoire.precedents&&Object.prototype.hasOwnProperty.call(memoire.precedents,e)?memoire.precedents[e]:undefined);
+            if(texte===undefined){ok=false;break;}
+            tableau[i]=JSON.parse(texte);
+            textes[e]=texte;
+          }else{
+            textes[e]=JSON.stringify(tableau[i]);
+          }
+        }
+        if(!ok){complet=false;delete cataloguesV1.lignes[base];return;}
+        cataloguesV1.lignes[base]={hashes:empreintes,textes:textes,precedents:memoire.textes};
+        return;
+      }
       const vif=vifs.indexOf(chemin)!==-1;
       const versions=cataloguesV1.valeurs[chemin]||(cataloguesV1.valeurs[chemin]={});
       if(omis.indexOf(chemin)!==-1){

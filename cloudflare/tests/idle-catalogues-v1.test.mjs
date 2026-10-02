@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { IDLE_CATALOGUES_CHEMINS_V1, IDLE_PIECES_ETAT_CHEMINS_V1, allegerCataloguesV1, empreinteTexteV1 } from "../src/idle-catalogues-v1.js";
+import { IDLE_CATALOGUES_CHEMINS_V1, IDLE_PIECES_ETAT_CHEMINS_V1, IDLE_TABLEAUX_CHEMINS_V1, allegerCataloguesV1, empreinteTexteV1 } from "../src/idle-catalogues-v1.js";
 
 /*
  * Réponses plus légères (Norman, 2026-10-02) : le serveur n'envoie plus les catalogues que le client possède déjà ; le pont du client les remet en place.
@@ -112,17 +112,48 @@ assert.notEqual(empreinteTexteV1("a"), empreinteTexteV1("b"));
   assert.ok(coord.includes("allegerCataloguesV1(runSorealIdleOperation(") && coord.includes("payload?.catalogHashes"));
   assert.ok(readFileSync("cloudflare/tools/local-dev-server.mjs", "utf8").includes("allegerCataloguesV1("));
 }
-// 7. Catalogue des boss (320 Ko mesurés par réponse en production) : omis quand le client le connaît, renvoyé dès qu'il change.
+// 7. Catalogue des boss (320 Ko mesurés par réponse en production, 3 lignes sur 300 qui changent) : omis LIGNE PAR LIGNE.
 {
-  assert.ok(IDLE_CATALOGUES_CHEMINS_V1.includes("bossCatalogue"));
-  const avecBoss = (n) => { const x = fabriquer(); x.joueur.bossCatalogue = Array.from({ length: n }, (_, i) => ({ numero: i + 1, histoire: "Texte " + i })); return x; };
-  const complete = allegerCataloguesV1(avecBoss(3), undefined);
-  const r = allegerCataloguesV1(avecBoss(3), complete.cataloguesHashes);
-  assert.equal(r.joueur.bossCatalogue, undefined, "omis quand identique");
-  assert.ok(r.cataloguesOmis.includes("bossCatalogue"));
-  const r2 = allegerCataloguesV1(avecBoss(4), complete.cataloguesHashes);
-  assert.equal(r2.joueur.bossCatalogue.length, 4, "un boss de plus découvert : la pièce est renvoyée");
+  assert.ok(IDLE_TABLEAUX_CHEMINS_V1.includes("bossCatalogue") && !IDLE_CATALOGUES_CHEMINS_V1.includes("bossCatalogue"));
+  const avecBoss = (n, puissance = 1) => { const x = fabriquer(); x.joueur.bossCatalogue = Array.from({ length: n }, (_, i) => ({ numero: i + 1, histoire: "Texte " + i + " ".repeat(50), puissanceMinimum: i === 3 ? puissance : 7 })); return x; };
+  const complete = allegerCataloguesV1(avecBoss(30), undefined);
+  assert.equal(complete.joueur.bossCatalogue.length, 30, "premier appel : tout");
+  assert.equal(complete.tableauxGardes, undefined);
+  const r = allegerCataloguesV1(avecBoss(30), complete.cataloguesHashes);
+  assert.equal(r.tableauxGardes.bossCatalogue.length, 0, "rien n'a changé : aucune ligne envoyée");
+  assert.ok(r.joueur.bossCatalogue.every((l) => l === null) && r.joueur.bossCatalogue.length === 30);
+  const r2 = allegerCataloguesV1(avecBoss(30, 2), complete.cataloguesHashes);
+  assert.deepEqual(r2.tableauxGardes.bossCatalogue, [3], "seule la ligne modifiée est envoyée");
+  assert.equal(r2.joueur.bossCatalogue[3].puissanceMinimum, 2);
+  const r3 = allegerCataloguesV1(avecBoss(31), complete.cataloguesHashes);
+  assert.ok(r3.tableauxGardes.bossCatalogue.includes(30), "un boss de plus : la nouvelle ligne est envoyée");
+  assert.equal(allegerCataloguesV1(avecBoss(5), undefined).cataloguesHashes["bossCatalogue[]"], undefined, "petit tableau : pas concerné");
+
+  // Pont : remet les lignes en place, copies neuves.
+  const src = readFileSync("cloudflare/public/standalone-bridge.js", "utf8");
+  const debut = src.indexOf("const cataloguesV1=");
+  const fin = src.indexOf("async function callIdleV1");
+  const pont = new Function(src.slice(debut, fin) + "\nreturn {hashes:hashesCataloguesV1,restaurer:restaurerCataloguesV1};")();
+  const filaire = (rep) => JSON.parse(JSON.stringify(rep));
+  const p1 = filaire(allegerCataloguesV1(avecBoss(30), pont.hashes()));
+  assert.equal(pont.restaurer(p1), true);
+  assert.ok(typeof pont.hashes()["bossCatalogue[]"] === "string");
+  const p2 = filaire(allegerCataloguesV1(avecBoss(30, 2), pont.hashes()));
+  assert.equal(p2.joueur.bossCatalogue[0], null, "ligne inchangée : absente du fil");
+  assert.equal(pont.restaurer(p2), true);
+  assert.equal(p2.joueur.bossCatalogue.length, 30);
+  assert.equal(p2.joueur.bossCatalogue[0].numero, 1, "ligne remise en place");
+  assert.equal(p2.joueur.bossCatalogue[3].puissanceMinimum, 2, "ligne modifiée : valeur du serveur");
+  p2.joueur.bossCatalogue[0].numero = 999; // le jeu modifie sur place
+  const p3 = filaire(allegerCataloguesV1(avecBoss(30, 2), pont.hashes()));
+  assert.equal(pont.restaurer(p3), true);
+  assert.equal(p3.joueur.bossCatalogue[0].numero, 1, "copie neuve : la modification locale n'a pas contaminé la mémoire");
+  // Mémoire perdue (ligne annoncée comme connue mais absente) : réponse complète demandée.
+  const vide = new Function(src.slice(debut, fin) + "\nreturn {hashes:hashesCataloguesV1,restaurer:restaurerCataloguesV1};")();
+  assert.equal(vide.restaurer(filaire(allegerCataloguesV1(avecBoss(30), pont.hashes()))), false);
+  assert.equal(vide.hashes()["bossCatalogue[]"], undefined);
 }
+
 // 8. Pièces d'état stables (Norman, 2026-10-02 : « continue à alléger au maximum ») : omises quand identiques, copie NEUVE rendue au client (il modifie ces objets sur place).
 {
   const gros = (n) => { const x = fabriquer(); const sy = x.joueur.systemes; sy.achievements = { list: Array.from({ length: 40 }, (_, i) => ({ id: i, name: "Succès " + i })) }; sy.expShop = [{ id: "a", n }]; sy.systems = []; sy.systems[7] = { unlocked: true, data: "x".repeat(1500) }; sy.systems[8] = { petit: 1 }; for (let i = 0; i < 7; i++) sy.systems[i] = { i }; return x; };
