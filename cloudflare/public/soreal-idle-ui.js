@@ -3593,6 +3593,23 @@
           return true;
         }
 
+        /*
+         * Le SERVEUR a tué le boss (il fait foi) alors que le client, lui, se croit encore en plein combat sans avoir fini le sien (Norman, 2026-10-02 : « quand je tue un boss je ne peux plus
+         * faire Fight, je dois changer d'écran » ; reproduit en ligne : boss tué côté serveur, écran figé sur l'ancien boss avec Fight désactivé). Sa simulation locale peut retarder sur le
+         * serveur (puissance qui monte pendant l'entraînement, ordre de départ arrivé après la prédiction…). Avant, ce cas tombait dans « combat local actif : on garde l'état local » et ne
+         * se corrigeait que par un changement d'écran. On désarme le combat local et on adopte l'état du serveur.
+         */
+        if(
+          serveurConfirmeVictoireBossV167&&
+          !idleVictoireBossLocaleV49&&
+          idleEtat.combatBossActif
+        ){
+          idleCombatArmeLocalV206=false;
+          idleEtat.combatBossActif=false;
+          idleCombatEnPauseApresDefaiteV1=false;
+          return false;
+        }
+
         const memeBossServeurV167=
           bossSelectionLocaleV167===
           bossSelectionServeurV167;

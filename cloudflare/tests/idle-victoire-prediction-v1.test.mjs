@@ -38,4 +38,6 @@ assert.ok(ui.includes("if(!idleCombatEnPauseApresDefaiteV1&&!idleVictoireBossLoc
 assert.ok(ui.includes("function retenirFightApresConfirmationIdleV1_(){"));
 assert.ok(ui.includes("if(idleVictoireBossLocaleV49&&!trop)return;") && ui.includes("definirCombatBossIdleV39_(true);"), "le combat démarre quand le drapeau de victoire tombe");
 assert.ok(/actif&&\s*idleVictoireBossLocaleV49&&\s*!idleEtat\.combatBossActif&&\s*idleNombre_\(idleEtat\.pvJoueur\)>0\s*\)\{\s*retenirFightApresConfirmationIdleV1_\(\);\s*return;/.test(ui), "le clic est retenu au lieu d'être ignoré");
+// 5. Le serveur a tué le boss pendant que le client se croyait encore en combat : l'état du serveur est adopté (reproduit en ligne : écran figé, Fight désactivé).
+assert.ok(/serveurConfirmeVictoireBossV167&&\s*!idleVictoireBossLocaleV49&&\s*idleEtat\.combatBossActif\s*\)\{\s*idleCombatArmeLocalV206=false;\s*idleEtat\.combatBossActif=false;\s*idleCombatEnPauseApresDefaiteV1=false;\s*return false;/.test(ui));
 console.log("idle-victoire-prediction-v1: OK");
