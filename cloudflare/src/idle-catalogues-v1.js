@@ -18,7 +18,9 @@ export const IDLE_CATALOGUES_CHEMINS_V1 = Object.freeze([
   "systemes.perkDefinitions",
   "systemes.quirkDefinitions",
   "systemes.selloutShop",
-  "systemes.portraits"
+  "systemes.portraits",
+  /* Mesuré en production le 2026-10-02 : 320 Ko sur les 526 Ko de CHAQUE réponse de synchro (une entrée par boss découvert, histoires comprises). La pièce est renvoyée dès que son contenu change (nouveau boss découvert). */
+  "bossCatalogue"
 ]);
 
 /* Empreinte cyrb53 : synchrone, identique côté serveur et dans les tests. */

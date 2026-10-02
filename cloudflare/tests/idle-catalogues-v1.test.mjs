@@ -10,6 +10,7 @@ const fabriquer = () => ({
   joueur: {
     nom: "Norman",
     bossVaincus: 3,
+    bossCatalogue: [{ numero: 1 }],
     systemes: {
       adventure: { itemCatalog: { a: { n: 1 } }, setCatalog: { s: [1, 2] }, fight: { active: false } },
       perkDefinitions: [{ id: 1 }],
@@ -110,5 +111,16 @@ assert.notEqual(empreinteTexteV1("a"), empreinteTexteV1("b"));
   const coord = readFileSync("cloudflare/src/index-idle-coordinator-v1.js", "utf8");
   assert.ok(coord.includes("allegerCataloguesV1(runSorealIdleOperation(") && coord.includes("payload?.catalogHashes"));
   assert.ok(readFileSync("cloudflare/tools/local-dev-server.mjs", "utf8").includes("allegerCataloguesV1("));
+}
+// 7. Catalogue des boss (320 Ko mesurés par réponse en production) : omis quand le client le connaît, renvoyé dès qu'il change.
+{
+  assert.ok(IDLE_CATALOGUES_CHEMINS_V1.includes("bossCatalogue"));
+  const avecBoss = (n) => { const x = fabriquer(); x.joueur.bossCatalogue = Array.from({ length: n }, (_, i) => ({ numero: i + 1, histoire: "Texte " + i })); return x; };
+  const complete = allegerCataloguesV1(avecBoss(3), undefined);
+  const r = allegerCataloguesV1(avecBoss(3), complete.cataloguesHashes);
+  assert.equal(r.joueur.bossCatalogue, undefined, "omis quand identique");
+  assert.ok(r.cataloguesOmis.includes("bossCatalogue"));
+  const r2 = allegerCataloguesV1(avecBoss(4), complete.cataloguesHashes);
+  assert.equal(r2.joueur.bossCatalogue.length, 4, "un boss de plus découvert : la pièce est renvoyée");
 }
 console.log("idle-catalogues-v1: OK");
