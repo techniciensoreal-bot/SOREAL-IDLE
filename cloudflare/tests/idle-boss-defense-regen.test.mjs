@@ -35,7 +35,7 @@ assert.ok(
 );
 
 assert.ok(
-  /if\s*\(!combatBossActif\)\s*\{[\s\S]*?const\s+regenPv\s*=\s*regenPvIntegreeBasicTrainingSorealIdleV176_\s*\(/.test(fnBody),
+  /if\s*\(!combatBossActif\)\s*\{[\s\S]*?const\s+regenPv\s*=\s*regenPvAvecMultiplicateursSorealIdle_\s*\(\s*regenPvIntegreeBasicTrainingSorealIdleV176_\s*\(/.test(fnBody),
   "Le repos hors combat doit utiliser l'intégration temporelle V176 de la Defense pendant Basic Training."
 );
 

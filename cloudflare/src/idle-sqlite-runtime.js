@@ -7677,6 +7677,26 @@ function creerSimulateurEnergieHorsLigneSorealIdle_(
  * que la fenêtre BT (allocation enregistrée entre-temps), la portion plus
  * ancienne utilise la Defense du début — jamais celle de fin.
  */
+/*
+ * HP Regen du joueur en Fight Boss (Norman, 2026-10-02 : « dans NGU la regen finit par remplir la barre de vie ; dans SOREAL elle est toujours minuscule,
+ * comme si la regen était beaucoup plus faible que la vie qui augmente »). Wiki NGU, page Boss Fights : « HP while fighting is 10*attack, and HP regain is
+ * defense/20 » -- Attack et Defense comprenant TOUS les multiplicateurs (NUMBER, bonus). Les PV max (10 x Attack) les incluaient, mais l'intégrale ci-dessous
+ * ne porte que sur la Defense d'ENTRAÎNEMENT brute : la régénération était donc divisée par le multiplicateur total (jusqu'à 1e30 après de gros Rebirths).
+ * On reconstitue ici la Defense moyenne brute de la fenêtre, puis on lui applique le même multiplicateur que la Defense réelle :
+ *   defense = 100 + (defenseEntrainement - 100) x multiplicateur  ->  moyenne réelle = 100 + (moyenne brute - 100) x multiplicateur.
+ */
+function regenPvAvecMultiplicateursSorealIdle_(regenBruteIntegree,secondesHp,defenseTotale,defenseEntrainement){
+  const hp=Math.max(0,nombreSorealIdle_(secondesHp,0));
+  const regenBrute=Math.max(0,nombreSorealIdle_(regenBruteIntegree,0));
+  if(hp<=0)return 0;
+  const brute=Math.max(0,nombreSorealIdle_(defenseEntrainement,0))-100;
+  const reelle=Math.max(0,nombreSorealIdle_(defenseTotale,0))-100;
+  if(!(brute>0)||!(reelle>0))return regenBrute;
+  const multiplicateur=reelle/brute;
+  const moyenneBrute=regenBrute*20/hp;
+  return Math.max(0,(100+Math.max(0,moyenneBrute-100)*multiplicateur)/20*hp);
+}
+
 function regenPvIntegreeBasicTrainingSorealIdleV176_(
   avantBrut,
   apresBrut,
@@ -8218,12 +8238,17 @@ function appliquerProgressionEnergieSorealIdle_(
 
   if (!combatBossActif) {
     const regenPv =
-      regenPvIntegreeBasicTrainingSorealIdleV176_(
-        entrainementAvantV176,
-        entrainementV41.stats&&
-          entrainementV41.stats.entrainementBase,
-        entrainementV41.secondes,
-        ecoulePrisEnCompte
+      regenPvAvecMultiplicateursSorealIdle_(
+        regenPvIntegreeBasicTrainingSorealIdleV176_(
+          entrainementAvantV176,
+          entrainementV41.stats&&
+            entrainementV41.stats.entrainementBase,
+          entrainementV41.secondes,
+          ecoulePrisEnCompte
+        ),
+        ecoulePrisEnCompte,
+        entrainementV41.defense,
+        entrainementV41.defenseEntrainement
       );
 
     pvJoueur =
@@ -16782,7 +16807,8 @@ export const idleRuntimeTestHooks=Object.freeze({
   attaqueBossSorealIdle_,
   defenseBossSorealIdle_,
   pvMaxBossSorealIdle_,
-  regenPvIntegreeBasicTrainingSorealIdleV176_
+  regenPvIntegreeBasicTrainingSorealIdleV176_,
+  regenPvAvecMultiplicateursSorealIdle_
 });
 
 /*

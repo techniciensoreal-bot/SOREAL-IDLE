@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.2',
+    courante:'9.3',
     versions:[
+      {
+        version:'9.3',
+        nom:'Une vie qui remonte enfin',
+        date:'2026-10-02',
+        points:[
+          'La régénération de PV en Fight Boss tient maintenant compte de tous tes bonus (NUMBER compris), comme tes PV max : la barre de vie finit par se remplir au lieu de rester minuscule.',
+          'Les images des ennemis les plus coriaces s’affichent, avec leur variante selon la difficulté ou la forme.',
+          'Rien de ce que tu as déjà gagné n’est modifié.',
+        ]
+      },
       {
         version:'9.2',
         nom:'Un Rebirth qui compte',
