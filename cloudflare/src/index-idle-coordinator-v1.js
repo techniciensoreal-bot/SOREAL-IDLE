@@ -1,5 +1,6 @@
 import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames } from "./idle-sqlite-runtime.js";
+import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 
 /*
  * SOREAL — Idle Coordinator (Durable Object dédié, 2026-09-09).
@@ -276,12 +277,13 @@ export class SorealIdleCoordinatorV1 {
     const operation = sv(payload?.operation);
     const args = Array.isArray(payload?.args) ? payload.args : [];
 
-    return runSorealIdleOperation(
+    /* Réponse allégée des catalogues que le client a déjà (idle-catalogues-v1.js) : même contrat, moins d'octets. */
+    return allegerCataloguesV1(runSorealIdleOperation(
       this.sql,
       operation,
       args,
       session.user
-    );
+    ), payload?.catalogHashes);
   }
 
   /*

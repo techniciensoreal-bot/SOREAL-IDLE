@@ -160,7 +160,8 @@ async function idleCallV1(request, env) {
 
   const reponse = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
     method: "POST",
-    body: JSON.stringify({ sessionToken, operation, args })
+    /* catalogHashes : ce que le client possède déjà (voir idle-catalogues-v1.js) ; absent = réponse complète. */
+    body: JSON.stringify({ sessionToken, operation, args, catalogHashes: body && typeof body.catalogHashes === "object" ? body.catalogHashes : undefined })
   });
   return reponse;
 }

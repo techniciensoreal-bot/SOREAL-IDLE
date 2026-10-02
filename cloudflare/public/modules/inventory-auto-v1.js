@@ -67,7 +67,14 @@
         return;
       }
       var tous=Array.isArray(cible.specialsAll)?cible.specialsAll:null;
-      if(!tous||!tous.length){r.incertains+=1;return;}
+      if(!tous||!tous.length){
+        /* Special chiffré d'un objet de la fiche (baseSpecial) : même plafond que Power/Toughness (base × (1 + niveau/100)). Sinon on ne sait pas : jamais effacé à tort. */
+        var baseS=Number(cible.baseSpecial)||0;
+        if(baseS>0){
+          if(baseS*q-(Number(cible.special)||0)>1e-9)r.ok.push(String(o.id));else r.pleins.special=(r.pleins.special||0)+1;
+        }else r.incertains+=1;
+        return;
+      }
       if(tous.some(function(sv){return Number(sv.value)+1e-9<Number(sv.max);}))r.ok.push(String(o.id));else r.pleins.special=(r.pleins.special||0)+1;
     });
     return r;

@@ -17,6 +17,7 @@ import { DatabaseSync } from "node:sqlite";
 const REPO = fileURLToPath(new URL("../../", import.meta.url));
 const { SorealIdleCoordinatorV1 } = await import(pathToFileURL(REPO + "cloudflare/src/index-idle-coordinator-v1.js").href);
 const { runSorealIdleOperation } = await import(pathToFileURL(REPO + "cloudflare/src/idle-sqlite-runtime.js").href);
+const { allegerCataloguesV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-catalogues-v1.js").href);
 
 const db = new DatabaseSync(":memory:");
 const sql = { exec(q, ...b) { const st = db.prepare(q); if (/^\s*(select|pragma|with)/i.test(q)) return st.all(...b); st.run(...b); return []; } };
@@ -40,8 +41,8 @@ http.createServer((req, res) => {
     req.on("data", (c) => { corps += c; });
     req.on("end", () => {
       try {
-        const { operation, args } = JSON.parse(corps || "{}");
-        const resultat = runSorealIdleOperation(sql, operation, args || [], user);
+        const { operation, args, catalogHashes } = JSON.parse(corps || "{}");
+        const resultat = allegerCataloguesV1(runSorealIdleOperation(sql, operation, args || [], user), catalogHashes);
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify(resultat));
       } catch (e) {

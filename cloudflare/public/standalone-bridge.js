@@ -123,7 +123,69 @@
     return data;
   }
 
-  async function callIdleV1(operation,args){
+  /*
+   * Réponses plus légères (Norman, 2026-10-02 : « le jeu est très lent par moment »). Le serveur n'envoie plus les catalogues (objets, sets, perks…) que le
+   * client possède déjà (src/idle-catalogues-v1.js) : le pont garde la dernière version reçue de chaque pièce, dit au serveur son empreinte, et remet les
+   * pièces omises dans la réponse AVANT de la rendre au jeu -- le reste du client voit toujours la réponse complète. Deux versions par pièce sont gardées :
+   * une réponse arrivée en retard peut encore avoir été allégée par rapport à la précédente.
+   */
+  const cataloguesV1={dernier:{},valeurs:{}};
+
+  function lireCheminV1(objet,chemin){
+    let courant=objet;
+    const parties=chemin.split(".");
+    for(let i=0;i<parties.length;i+=1){
+      if(!courant||typeof courant!=="object")return undefined;
+      courant=courant[parties[i]];
+    }
+    return courant;
+  }
+
+  function poserCheminV1(objet,chemin,valeur){
+    const parties=chemin.split(".");
+    const feuille=parties.pop();
+    let courant=objet;
+    for(let i=0;i<parties.length;i+=1){
+      if(!courant||typeof courant!=="object")return false;
+      courant=courant[parties[i]];
+    }
+    if(!courant||typeof courant!=="object")return false;
+    courant[feuille]=valeur;
+    return true;
+  }
+
+  /* Empreintes envoyées au serveur : la dernière version connue de chaque pièce. */
+  function hashesCataloguesV1(){
+    return Object.assign({},cataloguesV1.dernier);
+  }
+
+  /* Remet en place les pièces omises ; renvoie false si une pièce annoncée comme déjà connue manque (le pont redemande alors une réponse complète). */
+  function restaurerCataloguesV1(data){
+    if(!data||typeof data!=="object"||!data.joueur||typeof data.joueur!=="object")return true;
+    const hashes=data.cataloguesHashes;
+    if(!hashes||typeof hashes!=="object")return true;
+    const omis=Array.isArray(data.cataloguesOmis)?data.cataloguesOmis:[];
+    let complet=true;
+    Object.keys(hashes).forEach(function(chemin){
+      const h=hashes[chemin];
+      const versions=cataloguesV1.valeurs[chemin]||(cataloguesV1.valeurs[chemin]={});
+      if(omis.indexOf(chemin)!==-1){
+        if(Object.prototype.hasOwnProperty.call(versions,h)&&poserCheminV1(data.joueur,chemin,versions[h]))return;
+        complet=false;
+        delete cataloguesV1.dernier[chemin];
+        return;
+      }
+      const valeur=lireCheminV1(data.joueur,chemin);
+      if(valeur===undefined)return;
+      versions[h]=valeur;
+      cataloguesV1.dernier[chemin]=h;
+      const cles=Object.keys(versions);
+      if(cles.length>2)delete versions[cles[0]];
+    });
+    return complet;
+  }
+
+  async function callIdleV1(operation,args,sansAllegement){
     const session=sessionV1();
     if(!session)throw new Error("SESSION_EXPIREE");
 
@@ -132,7 +194,7 @@
     if(!firstArg)liste.unshift(session);
 
     try{
-      return await jsonFetchV1("/api/v1/call",{
+      const data=await jsonFetchV1("/api/v1/call",{
         method:"POST",
         headers:{
           accept:"application/json",
@@ -141,9 +203,21 @@
         },
         body:JSON.stringify({
           operation:String(operation||""),
-          args:liste
+          args:liste,
+          catalogHashes:sansAllegement?undefined:hashesCataloguesV1()
         })
       });
+      if(!restaurerCataloguesV1(data)&&!sansAllegement){
+        /* Pièce annoncée comme déjà connue mais perdue (cas rarissime : réponse très en retard) : on la reprend dans un état complet, JAMAIS en rejouant l'action. */
+        try{
+          const complet=await callIdleV1("obtenirEtatSorealIdle",[],true);
+          (Array.isArray(data.cataloguesOmis)?data.cataloguesOmis:[]).forEach(function(chemin){
+            const v=lireCheminV1(complet&&complet.joueur,chemin);
+            if(v!==undefined)poserCheminV1(data.joueur,chemin,v);
+          });
+        }catch(_){}
+      }
+      return data;
     }catch(error){
       if(error&&error.status===401)saveSessionV1("");
       throw error;

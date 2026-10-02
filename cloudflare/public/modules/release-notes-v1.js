@@ -8,8 +8,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.4',
+    courante:'9.5',
     versions:[
+      {
+        version:'9.5',
+        nom:'Un jeu plus vif et plus vivant',
+        date:'2026-10-02',
+        points:[
+          'Le jeu répond environ deux fois plus vite : moins de calculs côté serveur et des réponses plus légères à chaque action.',
+          'Le bandeau « En direct » et le chat ne montrent plus que ce qui se passe réellement en direct : plus aucun message de rattrapage à ton retour.',
+          'Les menus sont plus colorés, avec plus d’emojis, et certains noms sont passés en français.',
+          'Pendant un défi ou après un Rebirth, les chroniques et histoires des boss que tu as déjà rencontrés ne sont plus relues automatiquement.',
+          'Quand un objet n’absorbe aucun boost, un message t’explique pourquoi.',
+        ]
+      },
       {
         version:'9.4',
         nom:'Un entraînement comme dans le jeu d’origine',
