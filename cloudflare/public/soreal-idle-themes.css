@@ -1081,3 +1081,9 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .sore
   background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 80%,#fff),var(--ac))!important;color:#06100a!important;border:2px solid color-mix(in srgb,var(--ac) 40%,#000)!important;border-radius:6px!important;
   box-shadow:0 0 14px -2px var(--ac);
 }
+
+/* Lisibilité (Norman, 2026-10-02 : « attention aux écritures sombres sur des fonds sombres ») : Time Machine, titre « À quoi ça sert ? » et légende de l'Input. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-aide-v1 > summary{color:var(--th-ink,#e8fffb)!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-input-v1 span{color:var(--th-ink,#e8fffb)!important}
+/* Lisibilité : le sous-titre d'un en-tête de page (gris-bleu clair) disparaissait sur les en-têtes dorés, verts ou lavande ; blanc avec une ombre franche (les menus aux couleurs propres gardent les leurs). */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:not(:is([data-menu="augmentations"],[data-menu="combat"],[data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"])) .soreal-idle-page-head-v28 .soreal-idle-page-sub-v28{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)}
