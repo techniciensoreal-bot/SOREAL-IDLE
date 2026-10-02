@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
-/* Norman (2026-09-25) : version Beta 1.0, puis 1.1, 1.2… avec un petit nom ; « Notes de mise à jour » dans Settings ; notes rétroactives 0.7 à 1.0. */
+/* Norman (2026-09-25) : version Beta avec un petit nom ; « Notes de mise à jour » dans Settings. Refonte 2026-10-02 : une entrée par jour (1.0 -> 1.9). */
 const window = {};
 vm.runInNewContext(readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8"), { window });
 const n = JSON.parse(JSON.stringify(window.__SOREAL_IDLE_RELEASE_NOTES_V1__));
 
-assert.equal(n.courante, "9.8");
-assert.deepEqual(n.versions.map((v) => v.version), ["9.8", "9.7", "9.6", "9.5", "9.4", "9.3", "9.2", "9.1", "9.0", "8.9", "8.8", "8.7", "8.6", "8.5", "8.4", "8.3", "8.2", "8.1", "8.0", "7.9", "7.8", "7.7", "7.6", "7.5", "7.4", "7.3", "7.2", "7.1", "7.0", "6.9", "6.8", "6.7", "6.6", "6.5", "6.4", "6.3", "6.2", "6.1", "6.0", "5.9", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0", "4.9", "4.8", "4.7", "4.6", "4.5", "4.4", "4.3", "4.2", "4.1", "4.0", "3.9", "3.8", "3.7", "3.6", "3.5", "3.4", "3.3", "3.2", "3.1", "3.0", "2.9", "2.8", "2.7", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0", "0.9", "0.8", "0.7"], "1.2, 1.1 puis rétroactif 1.0, 0.9, 0.8, 0.7 (plus récente en tête)");
+assert.equal(n.courante, "1.9");
+assert.deepEqual(n.versions.map((v) => v.version), ["1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"], "une entrée par jour : 1.0 le 2026-09-23 puis +0.1 par jour, la plus récente en tête");
+assert.deepEqual(n.versions.map((v) => v.date), ["2026-10-02", "2026-10-01", "2026-09-30", "2026-09-29", "2026-09-28", "2026-09-27", "2026-09-26", "2026-09-25", "2026-09-24", "2026-09-23"], "une seule entrée par jour");
 assert.equal(n.versions[0].version, n.courante, "la version courante est la première entrée");
 for (const v of n.versions) {
   assert.ok(v.nom && /^\d{4}-\d{2}-\d{2}$/.test(v.date) && v.points.length >= 3, "chaque version : petit nom, date, résumé : " + v.version);
