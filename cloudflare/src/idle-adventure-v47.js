@@ -3048,7 +3048,7 @@ function synchroniserCompletionsBoostAdventureV183_(s){
     attribuerCompletionBoostAdventureV183_(s,definitionId,info);
   }
 }
-function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitionId]||{maxLevel:-1};old.maxLevel=Math.max(I(old.maxLevel,-1),I(o.level));old.seen=true;old.fullyMaxed=Boolean(old.fullyMaxed||idleAdventureObjetPleinementMaxeV1(o));s.itemList[o.definitionId]=old;attribuerCompletionBoostAdventureV183_(s,o.definitionId,old);const d=defById(o.definitionId);if(d?.kind==="special"&&SPECIALS[d.id]?.maxFlag&&idleAdventureNiveauEstMaxV1(old.maxLevel))s.unlockFlags[SPECIALS[d.id].maxFlag]=true;if(o.definitionId==="tutorialCube"&&idleAdventureNiveauEstMaxV1(old.maxLevel)&&!s.unlockFlags.tutorialCubeMaxed){s.cube.unlocked=true;s.unlockFlags.tutorialCubeMaxed=true;s.setRewards.ap=N(s.setRewards.ap)+10000;
+function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitionId]||{maxLevel:-1};const prevMax=I(old.maxLevel,-1);old.maxLevel=Math.max(I(old.maxLevel,-1),I(o.level));old.seen=true;old.fullyMaxed=Boolean(old.fullyMaxed||idleAdventureObjetPleinementMaxeV1(o));s.itemList[o.definitionId]=old;attribuerCompletionBoostAdventureV183_(s,o.definitionId,old);const d=defById(o.definitionId);if(d?.kind==="special"&&SPECIALS[d.id]?.maxFlag&&idleAdventureNiveauEstMaxV1(old.maxLevel))s.unlockFlags[SPECIALS[d.id].maxFlag]=true;if(o.definitionId==="tutorialCube"&&idleAdventureNiveauEstMaxV1(old.maxLevel)&&!s.unlockFlags.tutorialCubeMaxed){s.cube.unlocked=true;s.unlockFlags.tutorialCubeMaxed=true;s.setRewards.ap=N(s.setRewards.ap)+10000;
 /*
  * Le Tutorial Cube (accessoire équipable jusqu'ici) se TRANSFORME en Cube
  * de l'infini à ce seuil (wiki : la fusion/le boost du même objet devient
@@ -3065,14 +3065,24 @@ function record(s,o){if(!o?.definitionId)return;const old=s.itemList[o.definitio
  * verrou contre un nouveau drop vit dans rollSpecialAdventureV2 (même fichier).
  */
 s.equipment.accessories=(Array.isArray(s.equipment.accessories)?s.equipment.accessories:[]).filter(accId=>{const e=s.inventory.find(x=>x.id===accId);return !(e&&e.definitionId==="tutorialCube")});
-s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}checkSets(s)}
+s.inventory=s.inventory.filter(x=>x.definitionId!=="tutorialCube")}/* Performance : la complétion des sets ne dépend que du niveau maximal vu de chaque objet ; inutile de la recalculer (2400 fois par requête) quand il n'a pas changé. */if(I(old.maxLevel,-1)!==prevMax)checkSets(s)}
 /* Crédite la récompense de complétion d'un set (SETS ou SETS_OBJETS_V1) : setRewards cumulés + bonus permanents. */
 function appliquerRecompenseSetV1(s,reward){for(const [k,v] of Object.entries(reward)){if(typeof v==="number")s.setRewards[k]=N(s.setRewards[k])+v;else if(v)s.setRewards[k]=true}if(N(reward.experience)>0)s.permanent.experience=N(s.permanent.experience)+N(reward.experience);if(N(reward.ap)>0)s.permanent.ap=N(s.permanent.ap)+N(reward.ap);if(N(reward.energySpeed)>0)s.permanent.energySpeedFlat=N(s.permanent.energySpeedFlat)+N(reward.energySpeed);if(N(reward.energyPower)>0)s.permanent.energyPowerFlat=N(s.permanent.energyPowerFlat)+N(reward.energyPower);if(N(reward.energyBars)>0)s.permanent.energyBarsFlat=N(s.permanent.energyBarsFlat)+N(reward.energyBars);if(N(reward.magicPower)>0)s.permanent.magicPowerFlat=N(s.permanent.magicPowerFlat)+N(reward.magicPower);if(N(reward.magicBars)>0)s.permanent.magicBarsFlat=N(s.permanent.magicBarsFlat)+N(reward.magicBars);if(N(reward.magicCap)>0)s.permanent.magicCapFlat=N(s.permanent.magicCapFlat)+N(reward.magicCap);for(const k of ["r3PowerFlat","r3CapFlat","r3BarsFlat"])if(N(reward[k])>0)s.permanent[k]=N(s.permanent[k])+N(reward[k])}
 const PORTRAIT_ARMOR_SLOTS_V1=["head","chest","legs","boots","weapon"];
+/* Performance : les catalogues de sets ne changent jamais en cours d'exécution ; leurs entrées sont listées UNE fois (checkSets tournait des milliers de fois par requête). */
+let SETS_ENTREES_V1=null,SETS_OBJETS_ENTREES_V1=null,SETS_TOUTES_ENTREES_V1=null;
+function entreesSetsV1(){
+  if(!SETS_ENTREES_V1){SETS_ENTREES_V1=Object.entries(SETS);SETS_OBJETS_ENTREES_V1=Object.entries(SETS_OBJETS_V1);SETS_TOUTES_ENTREES_V1=[...SETS_ENTREES_V1,...SETS_OBJETS_ENTREES_V1];}
+  return SETS_ENTREES_V1;
+}
 function checkSets(s){
-  for(const [id,d] of Object.entries(SETS)){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
+  /* Aucun objet au niveau maximal : aucun set ne peut être complet, on évite de les parcourir tous (cas de presque tous les joueurs, presque tout le temps). */
+  let auMoinsUnMax=false;
+  for(const k in s.itemList){if(idleAdventureNiveauEstMaxV1(s.itemList[k]?.maxLevel)){auMoinsUnMax=true;break}}
+  if(!auMoinsUnMax){accorderConsommablesSetsV1(s);return}
+  for(const [id,d] of entreesSetsV1()){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
   /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
-  for(const [id,d] of Object.entries(SETS_OBJETS_V1)){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
+  for(const [id,d] of SETS_OBJETS_ENTREES_V1){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
   accorderConsommablesSetsV1(s);
 }
 /*
@@ -3132,7 +3142,8 @@ const SET_REWARD_CONSUMABLES_V1=Object.freeze({energyPotionA:"energyPotionAlpha"
 function accorderConsommablesSetsV1(s){
   if(!s.setConsumablesGrantedV1||typeof s.setConsumablesGrantedV1!=="object")s.setConsumablesGrantedV1={};
   if(!s.pendingSetConsumablesV1||typeof s.pendingSetConsumablesV1!=="object")s.pendingSetConsumablesV1={};
-  for(const [id,d] of [...Object.entries(SETS),...Object.entries(SETS_OBJETS_V1)]){
+  entreesSetsV1();
+  for(const [id,d] of SETS_TOUTES_ENTREES_V1){
     if(!s.completedSets[id]||s.setConsumablesGrantedV1[id])continue;
     const lots=Object.entries(d.reward).filter(([k,v])=>SET_REWARD_CONSUMABLES_V1[k]&&I(v)>0);
     if(!lots.length)continue;

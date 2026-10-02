@@ -64,13 +64,24 @@ export const IDLE_WISH_DIFFICULTE_V1 = tableV1(
 );
 
 /* Souhaits actifs (id -> { level, ... }) : ceux dont la difficulté exigée est atteinte. Les niveaux déjà obtenus ne sont jamais perdus. */
+/*
+ * Performance (Norman, 2026-10-02 : « le jeu est très lent par moment ») : cette fonction était appelée ~700 fois par requête serveur, chaque fois en testant
+ * l'accessibilité de chaque souhait. Seule la LISTE des souhaits accessibles est gardée en mémoire (par objet « tracks », selon difficulté, Troll Challenge Evil
+ * et nombre de souhaits) ; les niveaux, eux, sont toujours relus dans les souhaits actuels.
+ */
+const cacheSouhaitsAccessiblesV1 = new WeakMap();
 export function idleWishTracksActifsV1(state) {
   const tracks = state?.systems?.wishes?.data?.tracks;
   const out = {};
   if (!tracks || typeof tracks !== "object") return out;
-  for (const [id, t] of Object.entries(tracks)) {
-    if (idleWishAccessibleV1(state, id)) out[id] = t;
+  const ids = Object.keys(tracks);
+  const cle = String(state?.difficulty) + "|" + Math.floor(Number(state?.challenge?.completionsTier?.difficile?.troll) || 0) + "|" + ids.length;
+  let accessibles = cacheSouhaitsAccessiblesV1.get(tracks);
+  if (!accessibles || accessibles.cle !== cle) {
+    accessibles = { cle, ids: ids.filter((id) => idleWishAccessibleV1(state, id)) };
+    cacheSouhaitsAccessiblesV1.set(tracks, accessibles);
   }
+  for (const id of accessibles.ids) if (id in tracks) out[id] = tracks[id];
   return out;
 }
 
