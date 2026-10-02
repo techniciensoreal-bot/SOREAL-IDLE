@@ -424,37 +424,37 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v2
   --th-a:#b79cff;--th-b:#ff9ad5;--th-c:#7be7ff;--th-bg:#1f1a44;--th-bg2:#110d2a;--th-line:rgba(183,156,255,.5);--th-ink:#f1eaff;--th-dim:#b9a9e6;--th-num:#ffffff;--th-glow:rgba(183,156,255,.5);
 }
 
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]){
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]){
   position:relative;padding:12px 10px 8px;background:var(--pg-bg);border-radius:var(--pg-radius);
   box-shadow:inset 0 0 0 1px var(--th-line);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-head-v28{
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-head-v28{
   position:relative;background:var(--pg-head)!important;border:1px solid var(--th-line)!important;border-radius:var(--pg-radius)!important;
   box-shadow:0 10px 26px -14px var(--th-glow);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-head-v28::before{
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-head-v28::before{
   content:var(--pg-deco);position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:34px;letter-spacing:6px;opacity:.32;pointer-events:none;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-title-v28{
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-title-v28{
   color:var(--th-ink)!important;font-family:var(--pg-font,inherit);letter-spacing:.04em;text-shadow:0 0 14px var(--th-glow);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-sub-v28{color:var(--th-dim)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-section-v8,.soreal-idle-card-v4,.soreal-idle-aide-v1,.soreal-idle-note-v4){
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-page-sub-v28{color:var(--th-dim)!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-section-v8,.soreal-idle-card-v4,.soreal-idle-aide-v1,.soreal-idle-note-v4){
   background:var(--pg-card)!important;border:1px solid var(--th-line)!important;border-radius:var(--pg-radius)!important;color:var(--th-ink)!important;
   box-shadow:0 8px 20px -14px var(--th-glow);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-summary-v28{
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-summary-v28{
   background:var(--pg-card)!important;border:1px solid var(--th-line)!important;border-radius:var(--pg-radius)!important;color:var(--th-dim)!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-summary-v28 b{color:var(--th-num)!important;text-shadow:0 0 10px var(--th-glow)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-expand-button-v25,.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,.soreal-idle-rebirth-button-v14){
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-summary-v28 b{color:var(--th-num)!important;text-shadow:0 0 10px var(--th-glow)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-expand-button-v25,.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,.soreal-idle-rebirth-button-v14){
   background:var(--pg-btn)!important;color:var(--pg-btn-ink,#0b1018)!important;border:1px solid rgba(255,255,255,.25)!important;font-weight:900;letter-spacing:.04em;
   box-shadow:0 0 12px -2px var(--th-glow);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-bt-toolbar-v120,.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120,.soreal-idle-bt-energy-v120,.soreal-idle-bt-help-v120){
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-bt-toolbar-v120,.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120,.soreal-idle-bt-energy-v120,.soreal-idle-bt-help-v120){
   background:rgba(0,0,0,.28)!important;border:1px solid var(--th-line)!important;border-radius:var(--pg-radius)!important;color:var(--th-ink)!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-bt-input-box-v120 input{
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-bt-input-box-v120 input{
   background:rgba(0,0,0,.4)!important;color:var(--th-num)!important;border:1px solid var(--th-line)!important;
 }
 
@@ -708,7 +708,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .idle
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .soreal-idle-window-title-v31{font-family:Georgia,"Times New Roman",serif;color:#ffe58a!important;letter-spacing:.05em}
 /* Barres de titre des sections : aux couleurs de la page (annule les bandeaux colorés d'origine). */
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-window-title-v31{
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-window-title-v31{
   background:linear-gradient(100deg,color-mix(in srgb,var(--th-a) 52%,#000),color-mix(in srgb,var(--th-b) 52%,#000))!important;
   color:var(--th-ink)!important;-webkit-text-fill-color:var(--th-ink)!important;filter:none!important;border-radius:var(--pg-radius,8px)!important;
   border:1px solid var(--th-line)!important;text-shadow:0 1px 3px rgba(0,0,0,.6);
@@ -1007,3 +1007,77 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
 /* Rebirth : le NUMBER au Rebirth garde sa couleur vert/rouge malgré le thème de la page (Norman, 2026-10-01). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] .soreal-idle-rebirth-stat-value-v14.hausse{color:#34d399!important;-webkit-text-fill-color:#34d399!important;text-shadow:0 0 12px rgba(52,211,153,.6)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] .soreal-idle-rebirth-stat-value-v14.baisse{color:#ff4d5e!important;-webkit-text-fill-color:#ff4d5e!important;text-shadow:0 0 12px rgba(255,77,94,.6)!important}
+
+
+/* ====================== ADVANCED TRAINING : la salle de musculation high-tech (Norman, 2026-10-02) ====================== */
+/* Identité propre, distincte du dojo turquoise de Basic Training : béton carbone quadrillé comme un plan, néon vert acide, bandes de chantier jaune/noir,
+   chaque machine (compétence) a sa couleur : Toughness bleu acier, Power orange feu, Block cyan, Wandoos violet. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="avance"]){
+  --th-a:#b6ff3b;--th-b:#19d3ff;--th-c:#ffb300;--th-bg:#141c14;--th-bg2:#0a100c;--th-line:rgba(182,255,59,.45);--th-ink:#efffd8;--th-dim:#9bb57a;--th-num:#ffffff;--th-glow:rgba(182,255,59,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"]{
+  --pg-radius:4px;--pg-deco:"🏋️💪";--pg-font:Impact,"Arial Black",sans-serif;
+  --pg-bg:
+    linear-gradient(rgba(182,255,59,.05) 1px,transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg,rgba(182,255,59,.05) 1px,transparent 1px) 0 0/28px 28px,
+    radial-gradient(ellipse 90% 35% at 50% 0%,rgba(182,255,59,.22),transparent 70%),
+    linear-gradient(180deg,#121a12 0%,#0a100c 100%);
+  --pg-head:linear-gradient(110deg,#1d2e12 0%,#142414 55%,#0f1a10 100%);
+  --pg-card:linear-gradient(165deg,#18241a,#0d150f);
+  --pg-btn:linear-gradient(180deg,#d4ff6a,#7fd01a);--pg-btn-ink:#0d1a00;
+  padding-top:22px;
+}
+/* Bande de chantier en haut de la page. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"]::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:10px;border-radius:4px 4px 0 0;
+  background:repeating-linear-gradient(-45deg,#ffd400 0 14px,#16160c 14px 28px);box-shadow:0 2px 10px rgba(255,212,0,.35);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-entete-v1 h1{
+  font-family:Impact,"Arial Black",sans-serif;font-size:34px;letter-spacing:.06em;
+  background:linear-gradient(90deg,#efffb0,#b6ff3b 45%,#19d3ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(182,255,59,.55));
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-entete-v1 p{color:#ffd400;letter-spacing:.14em;text-shadow:0 0 8px rgba(255,212,0,.5)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-entete-v1{
+  position:relative;padding:10px 0 14px;margin-bottom:2px;border-bottom:3px solid transparent;
+  border-image:repeating-linear-gradient(-45deg,#ffd400 0 10px,#16160c 10px 20px) 3;
+}
+/* Case Advance Energy et bouton d'aide : éléments d'appareil. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-aide-bouton-v1{
+  background:repeating-linear-gradient(-45deg,#ffd400 0 12px,#e6bd00 12px 24px)!important;color:#1a1400!important;border:2px solid #16160c!important;border-radius:4px!important;
+  text-transform:uppercase;letter-spacing:.06em;box-shadow:0 0 14px -3px rgba(255,212,0,.6);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-avance-v1{
+  padding:7px 14px;border-radius:999px;background:rgba(182,255,59,.10);border:1.5px solid var(--th-line);color:var(--th-ink);text-transform:uppercase;letter-spacing:.05em;font-size:14px;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-avance-v1 input{accent-color:#b6ff3b}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-aide-v1{
+  background:linear-gradient(160deg,rgba(182,255,59,.10),rgba(25,211,255,.06))!important;border:1.5px solid var(--th-line)!important;border-left:6px solid #ffd400!important;border-radius:4px!important;color:var(--th-ink)!important;
+}
+/* Barre d'outils : console de commande. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-bt-toolbar-v120{
+  background:linear-gradient(165deg,#0f1a12,#0a110c)!important;border:1.5px solid var(--th-line)!important;border-radius:4px!important;
+  box-shadow:inset 0 0 22px rgba(182,255,59,.08);
+}
+/* Les machines : une plaque par compétence, liseré et boutons à la couleur de la compétence. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1{
+  --ac:#b6ff3b;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--ac) 16%,#0c130e),#0c130e 62%)!important;
+  border:1.5px solid color-mix(in srgb,var(--ac) 50%,#000)!important;border-left:8px solid var(--ac)!important;border-radius:4px!important;
+  box-shadow:0 8px 20px -14px var(--ac);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="toughness"]{--ac:#3ea0ff}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="power"]{--ac:#ff6a2a}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="block"]{--ac:#19d3ff}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="wandoosEnergy"]{--ac:#b388ff}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="wandoosMagic"]{--ac:#ff4fd8}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-nom-v1{
+  font-family:Impact,"Arial Black",sans-serif;font-size:17px;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--ac) 35%,#fff);text-shadow:0 0 10px color-mix(in srgb,var(--ac) 60%,transparent);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-col-v1 span{color:var(--th-dim)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-col-v1 b{color:#fff;text-shadow:0 0 10px color-mix(in srgb,var(--ac) 55%,transparent)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-col-v1 input{border-color:color-mix(in srgb,var(--ac) 60%,#000)!important;background:rgba(0,0,0,.5)!important;color:#fff!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-boutons-v1 button{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 80%,#fff),var(--ac))!important;color:#06100a!important;border:2px solid color-mix(in srgb,var(--ac) 40%,#000)!important;border-radius:6px!important;
+  box-shadow:0 0 14px -2px var(--ac);
+}

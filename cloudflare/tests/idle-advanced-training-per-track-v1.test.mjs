@@ -129,4 +129,13 @@ assert.equal(at(r).data.tracks.power.tempLevel, 1);
   const ui = readFileSync("cloudflare/public/modules/ui.js", "utf8");
   assert.ok(ui.includes("if(window.__SOREAL_IDLE_AT_PAGE_V2__)return;"), "l'ancien rendu à barres est désactivé");
 }
+
+// Identité visuelle (2026-10-02) : thème propre à la page (menu « avance »), distinct des autres menus.
+{
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
+  assert.ok(css.includes('.soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="avance"])'), "jetons du HUD du thème");
+  assert.ok(css.includes('.soreal-idle-at-ligne-v1[data-at-piste="power"]{--ac:#ff6a2a}'), "chaque machine a sa couleur");
+  assert.ok(css.includes(':is([data-menu="avance"],[data-menu="entrainement"],'), "la page rejoint le squelette commun");
+}
 console.log("idle-advanced-training-per-track-v1: OK");
