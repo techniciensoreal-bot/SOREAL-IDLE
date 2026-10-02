@@ -2100,6 +2100,22 @@
         return n.toFixed(Math.max(0,decimales)).replace('.',',');
       }
 
+      /*
+       * Dégâts NETS que le boss inflige au joueur par seconde (mêmes facteurs que le bloc de riposte du tick de combat : fureur, défense, bouclier magique, étourdissement,
+       * régénération). Sert à savoir QUI tombe en premier : le serveur résout le combat en temps continu (les deux se frappent en même temps, le premier à 0 PV perd), le
+       * client ne doit donc jamais annoncer une victoire que le serveur résoudrait en défaite (Norman, 2026-10-02 : « le boss recule »). À garder aligné sur le bloc de riposte.
+       */
+      function degatsNetsBossParSecondeIdleV1_(effetsMagie,maintenantTick){
+        const attaqueBrute=Math.max(0,idleNombre_(idleEtat.attaqueBoss))*(idleFureurActiveV70?multiplicateurFureurLocaleIdleV70_():1);
+        const defense=Math.max(0,idleNombre_(idleEtat.defense));
+        const bossEtourdi=maintenantTick<idleNombre_(effetsMagie.bossStunJusqua);
+        const reduction=maintenantTick<idleNombre_(effetsMagie.bouclierJusqua)
+          ?Math.max(0,Math.min(.95,idleNombre_(effetsMagie.bouclierPct)/100))
+          :0;
+        const recus=bossEtourdi?0:Math.max(0,Math.max(0,attaqueBrute-defense)*(1-reduction));
+        return Math.max(0,recus-regenPvFightBossNguParSecondeV164_(defense));
+      }
+
       function regenPvFightBossNguParSecondeV164_(defense){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-31 */
         return Math.max(
@@ -2755,12 +2771,17 @@
                 );
 
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-43 */
+              /* Qui tombe en premier ? (voir degatsNetsBossParSecondeIdleV1_) : si le joueur meurt avant le boss, ses coups ne comptent que jusqu'à sa mort. */
+              const recusParSec=degatsNetsBossParSecondeIdleV1_(effetsMagie,maintenantTick);
+              const tempsAvantMortJoueur=recusParSec>0?idleNombre_(idleEtat.pvJoueur)/recusParSec:Infinity;
+              const tempsAvantMortBoss=bossAvant/dps;
+              const dtJoueurFrappe=tempsAvantMortJoueur<tempsAvantMortBoss?Math.min(dt,tempsAvantMortJoueur):dt;
               const degatsBoss=
                 Math.min(
                   bossAvant,
                   Math.max(
                     0,
-                    dps*dt
+                    dps*dtJoueurFrappe
                   )
                 );
 
@@ -2876,7 +2897,13 @@
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-46 */
 
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-47 */
-            if(!idleCombatEnPauseApresDefaiteV1){
+            /*
+             * Un boss tué dans CE tick ne riposte plus (Norman, 2026-10-02 : « le boss recule après sa mort »). Avant, le même tick enregistrait la victoire PUIS la
+             * défaite du joueur (quand les coups du boss auraient aussi tué un joueur à très peu de PV) : l'ordre « défaite » remplaçait l'ordre « démarrer le combat »
+             * encore en file (une seule action `combat` à la fois), donc le serveur ne faisait jamais le combat, ne voyait jamais la victoire, et au bout de la garde de
+             * 15 s ramenait le boss précédent à pleine vie.
+             */
+            if(!idleCombatEnPauseApresDefaiteV1&&!idleVictoireBossLocaleV49){
             const attaqueBrute=
               Math.max(
                 0,

@@ -11058,6 +11058,18 @@ function construireEtatJoueurSorealIdle_(
                   ? 'actuel'
                   : 'avenir'
           };
+        })
+        /*
+         * ANTI-SPOIL (AGENTS.md règle n°2 ; relevé le 2026-10-02 : les 300 boss — noms, statistiques ET histoires complètes — partaient chez tous les joueurs,
+         * ce qui révélait aussi le total). Seuls les boss déjà découverts sont envoyés : jusqu'au boss actuel, et jusqu'au record permanent de boss vaincu
+         * (jamais remis à zéro par un Rebirth). Le client retrouve toujours un boss par son `numero` (jamais par sa position), donc rien d'autre ne change.
+         */
+        .filter(function(boss) {
+          return boss.numero <= Math.max(
+            Math.floor(nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)) + 1,
+            bossSelectionIndex + 1,
+            Math.floor(nombreSorealIdle_(metaNguEtat.records && metaNguEtat.records.highestBoss, 0))
+          );
         }),
 
     banniereDriveFileId:
