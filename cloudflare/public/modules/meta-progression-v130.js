@@ -1952,7 +1952,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_AUGMENTS_V1[def.id]?IDLE_ICONES_AUGMENTS_V1[def.id]+' ':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
+              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_AUGMENTS_V1[def.id]?IDLE_ICONES_AUGMENTS_V1[def.id]+' ':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
             }).join('')+'</div>';
           })();
       }
@@ -2351,6 +2351,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         insideOut:'Se retourner comme un gant'
       };
       /* Dessins (émojis) pour que les menus parlent d'eux-mêmes (Norman, 2026-10-01). */
+      /* Noms français des Augments (Norman, 2026-10-02 : « traduis le menu Augmentation, les titres des barres : Safety Scissors… ») ; le moteur garde les noms du wiki. */
+      const IDLE_NOMS_AUGMENTS_V1={
+        scissors:'Ciseaux de sécurité',
+        milk:'Infusion de lait',
+        cannon:'Implant de canon',
+        minigun:'Minigun monté sur l’épaule',
+        buster:'Buster d’énergie',
+        exoskeleton:'Exosquelette avancé',
+        laserSword:'Épée laser'
+      };
       const IDLE_ICONES_AUGMENTS_V1={scissors:'✂️',milk:'🥛',cannon:'💥',minigun:'🔫',buster:'⚡',exoskeleton:'🦾',laserSword:'🗡️',insideOut:'🌀'};
       const IDLE_ICONES_SORTS_V1={numberBoost:'🔢',ironPill:'💊',bloodSpaghetti:'🍝',counterfeitGold:'💰',leeches:'🪱'};
       const IDLE_ICONES_RITUELS_V1={tack:'📍',papercuts:'📄',hickey:'💋',barbedWire:'⛓️',bloodBank:'🏦',decapitation:'💀',woodchipper:'🪵',insideOut:'🌀'};
