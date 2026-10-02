@@ -204,6 +204,29 @@ async function idlePurgerVoixAdminV1(request, env, url) {
   if (!donnees || !donnees.ok || !Array.isArray(donnees.histoires)) return idleJsonV1({ ok: false, error: "HISTOIRES_ILLISIBLES" }, 502);
   const utiles = new Set();
   for (const h of donnees.histoires) for (const hash of Array.isArray(h.voix) ? h.voix : []) utiles.add(String(hash));
+  /*
+   * Voix des textes modifiés depuis le jeu (chroniques de boss, popups : opération listerTextesAdminSorealIdle) : elles restent aussi.
+   * Si cette liste est illisible, on ne supprime RIEN plutôt que de risquer d'effacer des voix utilisées.
+   */
+  const reponseTextes = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
+    method: "POST",
+    body: JSON.stringify({ sessionToken, operation: "listerTextesAdminSorealIdle", args: [sessionToken] })
+  });
+  const textes = reponseTextes && reponseTextes.ok ? await reponseTextes.json().catch(() => null) : null;
+  if (!textes || !textes.ok) return idleJsonV1({ ok: false, error: "TEXTES_ILLISIBLES" }, 502);
+  for (const t of [].concat(Array.isArray(textes.popups) ? textes.popups : [], (Array.isArray(textes.boss) ? textes.boss : []).map((b) => b && b.surcharge).filter(Boolean))) {
+    for (const hash of Array.isArray(t.voix) ? t.voix : []) utiles.add(String(hash));
+  }
+  /*
+   * Voix pré-générées des textes du jeu (public/voice/manifest.json, stockées au même endroit sur R2) : jamais supprimées non plus. Avant ce
+   * garde, une purge effaçait aussi les ~900 voix du tutoriel et des popups, qui n'appartiennent à aucune histoire.
+   */
+  if (env?.ASSETS && typeof env.ASSETS.fetch === "function") {
+    const m = await env.ASSETS.fetch(new Request(new URL("/voice/manifest.json", request.url)));
+    const manifeste = m && m.ok ? await m.json().catch(() => null) : null;
+    if (!manifeste || !Array.isArray(manifeste.files)) return idleJsonV1({ ok: false, error: "MANIFESTE_VOIX_ILLISIBLE" }, 502);
+    for (const hash of manifeste.files) utiles.add(String(hash));
+  }
   const aSupprimer = [];
   let gardees = 0;
   let octetsLiberes = 0;

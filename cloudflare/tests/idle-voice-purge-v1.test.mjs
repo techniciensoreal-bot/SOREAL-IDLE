@@ -23,6 +23,7 @@ function fabriquerEnv({ admin }) {
           if (corps.sessionToken !== "jeton-valide") return Response.json({ ok: false, error: "IDLE_SESSION_INVALIDE" }, { status: 401 });
           if (corps.operation === "estAdminSorealIdle") return Response.json({ ok: true, isAdmin: admin });
           if (corps.operation === "listerHistoiresAdminSorealIdle") return Response.json({ ok: true, histoires: [{ voix: ["aaaaaaaaaaaaaa"] }, { voix: [] }] });
+          if (corps.operation === "listerTextesAdminSorealIdle") return Response.json({ ok: true, popups: [], boss: [] });
           return Response.json({ ok: false }, { status: 400 });
         }
       })
@@ -71,6 +72,37 @@ const purge = (env, dry, jeton = "jeton-valide") => worker.fetch(new Request("ht
   assert.match(admin, /window\.confirm\('Supprimer '\+d\.supprimees/, "confirmation avant de supprimer");
   assert.match(admin, /edition\.voix=\(edition\.voix\|\|\[\]\)\.filter\(function\(h\)\{return actuelles\[h\];\}\)/, "empreintes de textes modifiés retirées à l'enregistrement");
   assert.match(admin, /if\(tts_\(\)&&typeof tts_\(\)\.planNarration==='function'\)edition\.voix/, "jamais d'élagage sans le module de narration");
+}
+
+// 5. Voix des textes modifiés (chroniques de boss, popups) et voix pré-générées du manifeste (public/voice/manifest.json) : jamais purgées (Norman, 2026-10-02).
+{
+  const { env, supprimes } = fabriquerEnv({ admin: true });
+  const appelBase = env.SOREAL_IDLE.get().fetch;
+  env.SOREAL_IDLE.get = () => ({
+    fetch: async (req) => {
+      const copie = req.clone();
+      const corps = await copie.json().catch(() => ({}));
+      if (corps.operation === "listerTextesAdminSorealIdle") return Response.json({ ok: true, popups: [{ cle: "tuto:debut:0", voix: ["bbbbbbbbbbbbbb"] }], boss: [{ numero: 1, surcharge: null }, { numero: 2, surcharge: { voix: [] } }] });
+      return appelBase(req);
+    }
+  });
+  env.ASSETS = { fetch: async () => Response.json({ files: ["cccccccccccccc"] }) };
+  const d = await (await purge(env, false)).json();
+  assert.deepEqual({ ok: d.ok, supprimees: d.supprimees, gardees: d.gardees }, { ok: true, supprimees: 0, gardees: 3 }, "voix d'histoire + de texte modifié + du manifeste : toutes gardées");
+  assert.deepEqual(supprimes, []);
+  // Liste des textes illisible : on ne supprime rien.
+  const { env: env2, supprimes: s2 } = fabriquerEnv({ admin: true });
+  const base2 = env2.SOREAL_IDLE.get().fetch;
+  env2.SOREAL_IDLE.get = () => ({ fetch: async (req) => { const c = await req.clone().json().catch(() => ({})); return c.operation === "listerTextesAdminSorealIdle" ? Response.json({ ok: false }, { status: 500 }) : base2(req); } });
+  const r2 = await purge(env2, false);
+  assert.equal(r2.status, 502);
+  assert.deepEqual(s2, [], "textes illisibles : rien supprimé");
+  // Manifeste illisible : rien supprimé non plus.
+  const { env: env3, supprimes: s3 } = fabriquerEnv({ admin: true });
+  env3.ASSETS = { fetch: async () => new Response("nope", { status: 404 }) };
+  const r3 = await purge(env3, false);
+  assert.equal(r3.status, 502);
+  assert.deepEqual(s3, []);
 }
 
 console.log("idle-voice-purge-v1: OK");
