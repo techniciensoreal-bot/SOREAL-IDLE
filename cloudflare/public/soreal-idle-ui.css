@@ -51,13 +51,6 @@ html,body{overflow-x:hidden}
             font-weight:800;
           }
 
-          .soreal-idle-grid-v4{
-            display:grid;
-            grid-template-columns:repeat(2,minmax(0,1fr));
-            gap:14px;
-            margin-top:16px;
-          }
-
           .soreal-idle-card-v4{
             padding:18px;
             border-radius:22px;
@@ -72,14 +65,6 @@ html,body{overflow-x:hidden}
             letter-spacing:.09em;
             text-transform:uppercase;
             color:#69708a;
-          }
-
-          .soreal-idle-value-v4{
-            margin-top:5px;
-            font-size:26px;
-            line-height:1.05;
-            font-weight:950;
-            color:#17203f;
           }
 
           .soreal-idle-note-v4{
@@ -104,9 +89,6 @@ html,body{overflow-x:hidden}
             color:#8a2535;
             border-color:#efc5cb;
           }
-
-
-
 
           .soreal-idle-playerbar-wrap-v15{
             height:12px;
@@ -156,16 +138,6 @@ html,body{overflow-x:hidden}
             50%{filter:brightness(1.35);}
           }
 
-          .soreal-idle-ko-v15{
-            margin-top:8px;
-            padding:8px 10px;
-            border-radius:12px;
-            background:#fff1f1;
-            color:#9b2734;
-            font-size:14px;
-            font-weight:900;
-          }
-
           .soreal-idle-bossbar-wrap-v7{
             height:12px;
             overflow:hidden;
@@ -189,14 +161,6 @@ html,body{overflow-x:hidden}
             transition:width .35s linear;
           }
 
-          .soreal-idle-combat-note-v7{
-            margin-top:8px;
-            font-size:14px;
-            color:#747a91;
-            font-weight:700;
-          }
-
-
           .soreal-idle-section-v8{
             margin-top:16px;
             padding:18px;
@@ -204,54 +168,6 @@ html,body{overflow-x:hidden}
             background:#fff;
             border:1px solid rgba(36,54,110,.09);
             box-shadow:0 10px 26px rgba(25,40,95,.08);
-          }
-
-          .soreal-idle-section-title-v8{
-            margin:0 0 12px;
-            font-size:18px;
-            font-weight:950;
-            color:#17203f;
-          }
-
-          .soreal-idle-stats-v8{
-            display:grid;
-            grid-template-columns:repeat(3,minmax(0,1fr));
-            gap:10px;
-          }
-
-          .soreal-idle-mini-v8{
-            padding:13px;
-            border-radius:16px;
-            background:#f5f6fb;
-          }
-
-          .soreal-idle-mini-label-v8{
-            font-size:12px;
-            text-transform:uppercase;
-            letter-spacing:.08em;
-            color:#777e94;
-            font-weight:900;
-          }
-
-          .soreal-idle-mini-value-v8{
-            margin-top:5px;
-            color:#17203f;
-            font-size:18px;
-            font-weight:950;
-          }
-
-          .soreal-idle-xpbar-wrap-v8{
-            height:9px;
-            overflow:hidden;
-            margin-top:10px;
-            border-radius:999px;
-            background:#e8eaf3;
-          }
-
-          .soreal-idle-xpbar-v8{
-            height:100%;
-            border-radius:999px;
-            background:linear-gradient(90deg,#5968ee,#9d63f3);
           }
 
           .soreal-idle-reward-v8{
@@ -277,58 +193,6 @@ html,body{overflow-x:hidden}
             color:#fff;
             font-size:14px;
             font-weight:900;
-          }
-
-          .soreal-idle-road-v8{
-            display:grid;
-            gap:9px;
-          }
-
-          .soreal-idle-road-row-v8{
-            display:grid;
-            grid-template-columns:38px minmax(0,1fr);
-            gap:10px;
-            align-items:center;
-            padding:11px 12px;
-            border-radius:15px;
-            background:#f6f7fb;
-          }
-
-          .soreal-idle-road-icon-v8{
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            width:38px;
-            height:38px;
-            border-radius:12px;
-            background:#fff;
-            font-size:20px;
-          }
-
-          .soreal-idle-road-name-v8{
-            font-size:15px;
-            color:#202745;
-            font-weight:900;
-          }
-
-          .soreal-idle-road-note-v8{
-            margin-top:2px;
-            font-size:13px;
-            color:#7a8094;
-          }
-
-          @media(max-width:620px){
-            .soreal-idle-stats-v8{
-              grid-template-columns:1fr 1fr;
-            }
-          }
-
-
-          .soreal-idle-equipment-grid-v10{
-            display:grid;
-            grid-template-columns:repeat(3,minmax(0,1fr));
-            gap:10px;
-            margin-bottom:14px;
           }
 
           .soreal-idle-equip-slot-v10{
@@ -391,36 +255,6 @@ html,body{overflow-x:hidden}
             border-color:#f0d185;
           }
 
-          .soreal-idle-item-name-v10{
-            color:#17203f;
-            font-size:15px;
-            font-weight:950;
-          }
-
-          .soreal-idle-item-meta-v10{
-            margin-top:4px;
-            color:#777e94;
-            font-size:13px;
-            font-weight:700;
-          }
-
-          .soreal-idle-equip-button-v10{
-            appearance:none;
-            border:0;
-            border-radius:12px;
-            padding:9px 11px;
-            background:#202967;
-            color:#fff;
-            font-size:14px;
-            font-weight:950;
-            cursor:pointer;
-          }
-
-          .soreal-idle-equip-button-v10:disabled{
-            opacity:.45;
-            cursor:default;
-          }
-
           .soreal-idle-empty-v10{
             padding:18px;
             border-radius:15px;
@@ -430,13 +264,6 @@ html,body{overflow-x:hidden}
             font-size:15px;
             font-weight:750;
           }
-
-          @media(max-width:620px){
-            .soreal-idle-equipment-grid-v10{
-              grid-template-columns:1fr;
-            }
-          }
-
 
           .soreal-idle-energybar-wrap-v11{
             position:relative;
@@ -534,10 +361,6 @@ html,body{overflow-x:hidden}
             to{transform:translateX(280px)}
           }
 
-
-
-
-
           .soreal-idle-item-v10.commun{
             border-left:5px solid #8d929a;
           }
@@ -562,180 +385,6 @@ html,body{overflow-x:hidden}
             box-shadow:0 0 16px rgba(255,173,50,.20);
           }
 
-          .soreal-idle-item-v10.commun .soreal-idle-item-name-v10{
-            color:#737880;
-          }
-
-          .soreal-idle-item-v10.peucommun .soreal-idle-item-name-v10{
-            color:#34a85a;
-          }
-
-          .soreal-idle-item-v10.rare .soreal-idle-item-name-v10{
-            color:#2f7ee8;
-          }
-
-          .soreal-idle-item-v10.epique .soreal-idle-item-name-v10{
-            color:#8d48df;
-          }
-
-          .soreal-idle-item-v10.legendaire .soreal-idle-item-name-v10{
-            color:#e58a00;
-          }
-
-          .soreal-idle-item-actions-v20{
-            display:flex;
-            gap:6px;
-            flex-wrap:wrap;
-            justify-content:flex-end;
-          }
-
-          .soreal-idle-item-mini-v20{
-            border:0;
-            border-radius:9px;
-            padding:7px 9px;
-            font-size:12px;
-            font-weight:950;
-            cursor:pointer;
-            background:rgba(30,47,72,.10);
-          }
-
-          .soreal-idle-materials-v20{
-            display:inline-flex;
-            margin-left:7px;
-            padding:4px 8px;
-            border-radius:999px;
-            background:rgba(30,47,72,.08);
-            font-size:13px;
-            font-weight:950;
-          }
-
-
-          .soreal-idle-loot-status-v21{
-            display:none;
-            margin:0 0 10px;
-            padding:9px 11px;
-            border-radius:11px;
-            font-size:13px;
-            font-weight:900;
-          }
-          .soreal-idle-loot-status-v21.show{display:block}
-          .soreal-idle-loot-status-v21.ok{background:#edf9f1;color:#1f7c42}
-          .soreal-idle-loot-status-v21.error{background:#fff0f1;color:#9c2e3a}
-          .soreal-idle-loot-status-v21.loading{background:#f0f2ff;color:#414b99}
-
-
-          .soreal-idle-collection-v22{
-            display:grid;
-            grid-template-columns:repeat(5,minmax(0,1fr));
-            gap:8px;
-            margin-top:10px;
-          }
-
-          .soreal-idle-collection-cell-v22{
-            position:relative;
-            min-height:72px;
-            border:1px dashed rgba(38,54,84,.18);
-            border-radius:13px;
-            padding:9px 7px;
-            background:#f7f8fc;
-            text-align:center;
-            cursor:pointer;
-          }
-
-          .soreal-idle-collection-cell-v22:hover{
-            transform:translateY(-1px);
-          }
-
-          .soreal-idle-collection-icon-v22{
-            font-size:23px;
-            line-height:1;
-          }
-
-          .soreal-idle-collection-name-v22{
-            margin-top:6px;
-            font-size:12px;
-            line-height:1.2;
-            font-weight:950;
-          }
-
-          .soreal-idle-collection-cell-v22.commun{
-            border-style:solid;
-            border-color:#8d929a;
-          }
-
-          .soreal-idle-collection-cell-v22.peucommun{
-            border-style:solid;
-            border-color:#4fc873;
-          }
-
-          .soreal-idle-collection-cell-v22.rare{
-            border-style:solid;
-            border-color:#438cff;
-          }
-
-          .soreal-idle-collection-cell-v22.epique{
-            border-style:solid;
-            border-color:#a35cff;
-          }
-
-          .soreal-idle-collection-cell-v22.legendaire{
-            border-style:solid;
-            border-color:#ffad32;
-          }
-
-          .soreal-idle-collection-cell-v22.commun .soreal-idle-collection-name-v22{
-            color:#737880;
-          }
-
-          .soreal-idle-collection-cell-v22.peucommun .soreal-idle-collection-name-v22{
-            color:#34a85a;
-          }
-
-          .soreal-idle-collection-cell-v22.rare .soreal-idle-collection-name-v22{
-            color:#2f7ee8;
-          }
-
-          .soreal-idle-collection-cell-v22.epique .soreal-idle-collection-name-v22{
-            color:#8d48df;
-          }
-
-          .soreal-idle-collection-cell-v22.legendaire .soreal-idle-collection-name-v22{
-            color:#e58a00;
-          }
-
-          .soreal-idle-collection-detail-v22{
-            display:none;
-            margin-top:10px;
-            padding:13px;
-            border-radius:14px;
-            background:#f3f5fb;
-            border:1px solid rgba(38,54,84,.08);
-          }
-
-          .soreal-idle-collection-detail-v22.show{
-            display:block;
-          }
-
-          .soreal-idle-collection-detail-name-v22{
-            font-size:14px;
-            font-weight:950;
-          }
-
-          .soreal-idle-collection-detail-meta-v22{
-            margin-top:5px;
-            font-size:13px;
-            line-height:1.5;
-            color:#70768a;
-            font-weight:800;
-          }
-
-          @media(max-width:620px){
-            .soreal-idle-collection-v22{
-              grid-template-columns:repeat(auto-fit,minmax(95px,1fr));
-            }
-          }
-
-
           .soreal-idle-character-v25{
             margin-top:16px;
             padding:16px;
@@ -758,17 +407,6 @@ html,body{overflow-x:hidden}
             display:block;
             font-size:15px;
             margin-top:3px;
-          }
-          .soreal-idle-bagbar-v25{
-            height:8px;
-            border-radius:999px;
-            background:#e8ebf2;
-            overflow:hidden;
-            margin:8px 0;
-          }
-          .soreal-idle-bagbar-fill-v25{
-            height:100%;
-            background:currentColor;
           }
           .soreal-idle-forge-button-v25,
           .soreal-idle-expand-button-v25{
@@ -862,59 +500,6 @@ html,body{overflow-x:hidden}
             }
           }
 
-
-          .soreal-idle-menu-v27{
-            position:sticky;
-            top:0;
-            z-index:20;
-            display:flex;
-            gap:6px;
-            overflow-x:auto;
-            padding:8px 0 10px;
-            margin-top:12px;
-            background:rgba(255,255,255,.97);
-            backdrop-filter:blur(10px);
-          }
-
-          .soreal-idle-menu-button-v27{
-            flex:0 0 auto;
-            border:0;
-            border-radius:999px;
-            padding:9px 12px;
-            background:#edf0f6;
-            color:#3d4559;
-            font-size:13px;
-            font-weight:950;
-            cursor:pointer;
-          }
-
-          .soreal-idle-menu-button-v27.active{
-            background:#2e3a5f;
-            color:#fff;
-          }
-
-          .soreal-idle-menu-hidden-v27{
-            display:none !important;
-          }
-
-          .soreal-idle-ko-slot-v27{
-            height:40px;
-            margin-top:8px;
-            display:flex;
-            align-items:stretch;
-          }
-
-          .soreal-idle-ko-slot-v27 .soreal-idle-ko-v15{
-            width:100%;
-            min-height:40px;
-            box-sizing:border-box;
-            margin-top:0;
-          }
-
-          .soreal-idle-ko-slot-v27 .soreal-idle-ko-v15.inactive{
-            visibility:hidden;
-          }
-
           .soreal-idle-character-grid-v25{
             color:#333a4c;
           }
@@ -928,7 +513,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-character-stat-v25 b{
             color:#20263a;
           }
-
 
           .soreal-idle-nav-v28{
             position:sticky;
@@ -1079,140 +663,11 @@ html,body{overflow-x:hidden}
             color:#222a3f;
             font-size:14px;
           }
-          .soreal-idle-locked-page-v28{
-            padding:28px 18px;
-            border-radius:18px;
-            background:#f6f7fb;
-            border:1px dashed rgba(40,54,85,.16);
-            text-align:center;
-          }
-          .soreal-idle-ko-slot-v28{
-            height:42px;
-            margin-top:8px;
-          }
-          .soreal-idle-ko-slot-v28 .soreal-idle-ko-v15{
-            min-height:42px;
-            margin:0;
-            box-sizing:border-box;
-          }
-          .soreal-idle-ko-slot-v28 .soreal-idle-ko-v15.inactive{
-            visibility:hidden;
-          }
           @media(max-width:720px){
             .soreal-idle-summary-grid-v28{
               grid-template-columns:repeat(2,minmax(0,1fr));
             }
           }
-
-
-          .soreal-idle-boss-list-v29{
-            display:grid;
-            gap:7px;
-            margin-top:14px;
-          }
-
-          .soreal-idle-boss-row-v29{
-            display:grid;
-            grid-template-columns:38px minmax(150px,1fr) repeat(5,minmax(64px,auto));
-            gap:8px;
-            align-items:center;
-            padding:9px 10px;
-            border-radius:11px;
-            background:#f5f7fb;
-            border:1px solid rgba(35,50,82,.06);
-            font-size:12px;
-            font-weight:850;
-          }
-
-          .soreal-idle-boss-row-v29.actuel{
-            background:#eef2ff;
-            border-color:#8094e8;
-            box-shadow:0 0 0 1px rgba(128,148,232,.10);
-          }
-
-          .soreal-idle-boss-row-v29.vaincu{
-            opacity:.62;
-          }
-
-          .soreal-idle-boss-name-v29{
-            font-size:13px;
-            font-weight:950;
-          }
-
-          @media(max-width:720px){
-            .soreal-idle-boss-row-v29{
-              grid-template-columns:34px minmax(130px,1fr) 70px;
-            }
-
-            .soreal-idle-boss-row-v29 > :nth-child(4),
-            .soreal-idle-boss-row-v29 > :nth-child(5),
-            .soreal-idle-boss-row-v29 > :nth-child(6),
-            .soreal-idle-boss-row-v29 > :nth-child(7){
-              display:none;
-            }
-          }
-
-
-          .soreal-idle-auto-v30{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:12px;
-            margin:12px 0;
-            padding:12px 13px;
-            border-radius:14px;
-            background:#f4f6fb;
-            border:1px solid rgba(38,52,84,.08);
-          }
-
-          .soreal-idle-auto-v30.locked{
-            opacity:.62;
-          }
-
-          .soreal-idle-auto-title-v30{
-            font-size:14px;
-            font-weight:1000;
-            color:#252d43;
-          }
-
-          .soreal-idle-auto-sub-v30{
-            margin-top:3px;
-            color:#747b8d;
-            font-size:12px;
-            line-height:1.4;
-            font-weight:800;
-          }
-
-          .soreal-idle-auto-button-v30{
-            flex:0 0 auto;
-            min-width:92px;
-            border:0;
-            border-radius:11px;
-            padding:9px 11px;
-            background:#e8ebf2;
-            color:#4d5569;
-            font-size:12px;
-            font-weight:1000;
-            cursor:pointer;
-          }
-
-          .soreal-idle-auto-button-v30.on{
-            background:#dff5e6;
-            color:#237744;
-          }
-
-          .soreal-idle-auto-button-v30:disabled{
-            cursor:not-allowed;
-            opacity:.55;
-          }
-
-          .soreal-idle-auto-zone-v30{
-            margin-top:6px;
-            font-size:12px;
-            color:#536079;
-            font-weight:900;
-          }
-
 
           /* =====================================================
              SOREAL IDLE V31 — habillage plus proche de SOREAL
@@ -1281,10 +736,9 @@ html,body{overflow-x:hidden}
           }
 
           .soreal-idle-section-v8,
-          .soreal-idle-training-v5,
-          .soreal-idle-card-v4,
-          .soreal-idle-character-v25,
-          .soreal-idle-rebirth-v14{
+.soreal-idle-card-v4,
+.soreal-idle-character-v25,
+.soreal-idle-rebirth-v14{
             border:1px solid var(--idle-border);
             box-shadow:0 6px 18px rgba(39,53,86,.07);
           }
@@ -1295,15 +749,6 @@ html,body{overflow-x:hidden}
                 180deg,
                 #f8faff,
                 #eef2f9
-              ) !important;
-          }
-
-          .soreal-idle-training-v5{
-            background:
-              linear-gradient(
-                180deg,
-                #eef3fb,
-                #e5ebf6
               ) !important;
           }
 
@@ -1349,43 +794,6 @@ html,body{overflow-x:hidden}
             border-color:rgba(183,137,33,.18);
           }
 
-          /* Boss list: force text visibility and better mobile layout */
-          .soreal-idle-boss-list-v29{
-            overflow:hidden;
-          }
-
-          .soreal-idle-boss-row-v29{
-            grid-template-columns:
-              38px minmax(180px,1fr) 90px 80px 70px 70px !important;
-            color:#27314b !important;
-            background:#eef2f8 !important;
-          }
-
-          .soreal-idle-boss-row-v29 > *{
-            color:inherit !important;
-            opacity:1 !important;
-            visibility:visible !important;
-          }
-
-          .soreal-idle-boss-row-v29.actuel{
-            background:#dfe8ff !important;
-            color:#21315a !important;
-          }
-
-          .soreal-idle-boss-row-v29.vaincu{
-            background:#e8f3eb !important;
-            color:#315b3d !important;
-            opacity:.72;
-          }
-
-          .soreal-idle-boss-name-v29{
-            color:inherit !important;
-            min-width:0;
-            overflow:hidden;
-            text-overflow:ellipsis;
-            white-space:nowrap;
-          }
-
           /* NGU-like inventory grid */
           .soreal-idle-inventory-v10{
             display:grid !important;
@@ -1424,38 +832,8 @@ html,body{overflow-x:hidden}
             border:1px solid rgba(47,61,100,.08);
           }
 
-          .soreal-idle-item-name-v10{
-            text-align:center;
-            font-size:12px !important;
-            line-height:1.25;
-          }
-
-          .soreal-idle-item-meta-v10{
-            text-align:center;
-            font-size:11px !important;
-            line-height:1.25;
-          }
-
-          .soreal-idle-item-actions-v20{
-            justify-content:center !important;
-            gap:4px !important;
-          }
-
-          .soreal-idle-equip-button-v10,
-          .soreal-idle-item-mini-v20{
-            padding:6px 7px !important;
-            font-size:11px !important;
-          }
-
           .soreal-idle-empty-v10{
             grid-column:1/-1;
-          }
-
-          /* Equipment cards */
-          .soreal-idle-equipment-grid-v10{
-            grid-template-columns:
-              repeat(3,minmax(0,1fr));
-            gap:9px;
           }
 
           .soreal-idle-equip-slot-v10{
@@ -1493,17 +871,6 @@ html,body{overflow-x:hidden}
               grid-template-columns:
                 repeat(4,minmax(0,1fr));
             }
-
-            .soreal-idle-boss-row-v29{
-              grid-template-columns:
-                34px minmax(150px,1fr) 80px !important;
-            }
-
-            .soreal-idle-boss-row-v29 > :nth-child(4),
-            .soreal-idle-boss-row-v29 > :nth-child(5),
-            .soreal-idle-boss-row-v29 > :nth-child(6){
-              display:none !important;
-            }
           }
 
           @media(max-width:520px){
@@ -1511,31 +878,7 @@ html,body{overflow-x:hidden}
               grid-template-columns:
                 repeat(3,minmax(0,1fr));
             }
-
-            .soreal-idle-equipment-grid-v10{
-              grid-template-columns:1fr;
-            }
           }
-
-
-          .soreal-idle-selectionbar-v32{
-            min-height:44px;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            margin:10px 0 4px;
-            padding:8px 10px;
-            border-radius:12px;
-            background:#e9edf7;
-            border:1px solid rgba(38,52,84,.08);
-          }
-          .soreal-idle-selectionbar-v32.inactive{visibility:hidden}
-          .soreal-idle-selection-info-v32{font-size:12px;font-weight:950;color:#34405e}
-          .soreal-idle-selection-actions-v32{display:flex;gap:6px}
-          .soreal-idle-selection-button-v32{border:0;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:1000;cursor:pointer}
-          .soreal-idle-selection-button-v32.recycle{background:#dff2e5;color:#25653b}
-          .soreal-idle-selection-button-v32.cancel{background:#e2e5ec;color:#51586b}
           .soreal-idle-item-v10.selection-mode{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
           .soreal-idle-item-v10.selected{outline:3px solid #3a5baf;outline-offset:-3px;transform:translateY(-2px)}
           .soreal-idle-item-check-v32{position:absolute;top:7px;right:7px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#304d94;color:#fff;font-size:14px;font-weight:1000;z-index:3}
@@ -1556,93 +899,7 @@ html,body{overflow-x:hidden}
           .soreal-idle-collection-slots-v32{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:9px}
           .soreal-idle-collection-slot-v32{min-height:64px;border-radius:10px;border:1px dashed rgba(40,53,84,.18);background:#e1e5ed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;font-size:11px;font-weight:900;color:#737a8b}
           .soreal-idle-collection-slot-v32.found{border-style:solid;background:#f8f9fc;color:#293552;cursor:pointer}
-
-          .soreal-idle-zone-scene-v32{position:relative;height:190px;margin:10px 0;overflow:hidden;border-radius:14px;background:linear-gradient(160deg,#31405f,#172039);border:1px solid rgba(255,255,255,.09);color:#fff}
-          .soreal-idle-zone-v16.locked .soreal-idle-zone-scene-v32{background:#b9bec9;filter:grayscale(1)}
-          .soreal-idle-zone-scene-image-v32{position:absolute;inset:0;background-position:center;background-size:cover;opacity:.78}
-          .soreal-idle-zone-v16.locked .soreal-idle-zone-scene-image-v32{display:none}
-          .soreal-idle-zone-scene-shade-v32{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,22,.12),rgba(7,11,22,.72))}
-          .soreal-idle-zone-scene-label-v32{position:absolute;left:10px;top:9px;z-index:2;padding:5px 8px;border-radius:999px;background:rgba(15,23,44,.72);font-size:11px;font-weight:1000}
-          .soreal-idle-zone-v16.locked .soreal-idle-zone-scene-label-v32{background:rgba(85,90,102,.72)}
-          .soreal-idle-zone-scene-content-v32{
-            position:relative;
-            left:auto;
-            right:auto;
-            bottom:auto;
-            z-index:2;
-            min-height:112px;
-            display:flex;
-            flex-direction:column;
-            justify-content:flex-start;
-            margin-top:8px;
-            padding:9px;
-            box-sizing:border-box;
-            border-radius:12px;
-            background:#0b121f;
-            border:1px solid rgba(139,169,216,.10);
-          }
-
-          .soreal-idle-zone-combat-title-v106{
-            margin:0 0 8px;
-            color:#dce7f7;
-            font-size:12px;
-            font-weight:1000;
-            text-align:left;
-            text-transform:uppercase;
-            letter-spacing:.07em;
-          }
-
-          .soreal-idle-zone-scene-idle-v32{
-            padding:9px 10px;
-            border-radius:9px;
-            background:#111c2c;
-            color:#7f8fa8;
-            font-size:12px;
-            line-height:1.45;
-            font-weight:850;
-          }
-          .soreal-idle-zone-status-v17{min-height:38px;box-sizing:border-box}
-          .soreal-idle-fight-v19{margin:0 !important;background:rgba(8,15,28,.70) !important}
-          @media(max-width:620px){.soreal-idle-collection-slots-v32{grid-template-columns:repeat(3,minmax(0,1fr))}.soreal-idle-zone-scene-v32{height:170px}}
-
-
-          .soreal-idle-zone-v16{
-            transition:
-              transform .16s ease,
-              box-shadow .16s ease,
-              border-color .16s ease;
-          }
-
-          .soreal-idle-zone-v16.zone-active-v33{
-            border-color:#5f79d5 !important;
-            box-shadow:
-              0 0 0 3px rgba(95,121,213,.16),
-              0 12px 28px rgba(39,53,86,.13) !important;
-            transform:translateY(-2px);
-          }
-
-          .soreal-idle-zone-v16:not(.locked){
-            cursor:pointer;
-          }
-
-          .soreal-idle-zone-active-badge-v33{
-            display:inline-flex;
-            align-items:center;
-            gap:5px;
-            margin-left:6px;
-            padding:3px 7px;
-            border-radius:999px;
-            background:#dfe7ff;
-            color:#304d94;
-            font-size:11px;
-            font-weight:1000;
-            vertical-align:middle;
-          }
-
-          .soreal-idle-auto-zone-v30{
-            min-height:16px;
-          }
-
+          @media(max-width:620px){.soreal-idle-collection-slots-v32{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
           /* ===== RARETÉ ÉQUIPEMENT V34 ===== */
           .soreal-idle-equip-slot-v10.commun{
@@ -1746,7 +1003,6 @@ html,body{overflow-x:hidden}
             box-shadow:0 0 14px rgba(69,235,123,.38);
           }
 
-
           .soreal-idle-boss-current-v35{
             background:linear-gradient(145deg,#332145,#4a2f64) !important;
             color:#fff !important;
@@ -1754,9 +1010,7 @@ html,body{overflow-x:hidden}
             box-shadow:0 10px 24px rgba(49,31,68,.22) !important;
           }
           .soreal-idle-boss-current-v35 .soreal-idle-label-v4,
-          .soreal-idle-boss-current-v35 .soreal-idle-value-v4,
-          .soreal-idle-boss-current-v35 .soreal-idle-note-v4,
-          .soreal-idle-boss-current-v35 .soreal-idle-combat-note-v7{color:#fff !important}
+.soreal-idle-boss-current-v35 .soreal-idle-note-v4{color:#fff !important}
           /*
            * Norman (2026-09-09) : "les images de boss ne prennent pas toute
            * la case. Alors que l'image du joueur, elle, prend toute la
@@ -1774,28 +1028,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-player-image-v41{border-radius:14px}
           .soreal-idle-collection-slots-v32{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
 
-
-          .soreal-idle-boss-world-v37{
-            margin:12px 0 7px;
-            padding:8px 10px;
-            border-radius:10px;
-            background:#2f2542;
-            color:#fff;
-            font-size:13px;
-            font-weight:1000;
-          }
-
-          .soreal-idle-boss-row-v29.selectionnable{
-            cursor:pointer;
-          }
-
-          .soreal-idle-boss-row-v29.selectionne{
-            outline:3px solid #8c62c9;
-            outline-offset:-2px;
-            background:#eadff8 !important;
-            color:#3b2754 !important;
-          }
-
           .soreal-idle-rebirth-wall-v37{
             margin-top:10px;
             padding:9px 11px;
@@ -1805,7 +1037,6 @@ html,body{overflow-x:hidden}
             font-size:12px;
             font-weight:1000;
           }
-
 
           .soreal-idle-boss-controls-v39{
             display:grid;
@@ -1860,24 +1091,6 @@ html,body{overflow-x:hidden}
             filter:none !important;
           }
 
-          .soreal-idle-combat-state-v39{
-            margin-top:7px;
-            min-height:16px;
-            text-align:center;
-            font-size:12px;
-            font-weight:1000;
-          }
-
-          .soreal-idle-combat-state-v39.on{
-            color:#82ffae;
-          }
-
-          .soreal-idle-combat-state-v39.off{
-            color:#e7d9ef;
-          }
-
-
-
           /* ===== DUEL CÔTE À CÔTE V42 ===== */
           .soreal-idle-duel-v41{
             width:100%;
@@ -1923,10 +1136,6 @@ html,body{overflow-x:hidden}
               font-size:28px;
               letter-spacing:1px;
             }
-
-            .soreal-idle-duel-fighter-v42 .soreal-idle-duel-name-v41{
-              font-size:12px;
-            }
           }
 
           /* ===== DUEL BOSS V41 ===== */
@@ -1936,41 +1145,6 @@ html,body{overflow-x:hidden}
             align-items:center;
             gap:10px;
             margin-top:10px;
-          }
-
-          .soreal-idle-duel-scene-v41{
-            width:min(560px,100%);
-            min-height:180px;
-            border-radius:16px;
-            background:
-              linear-gradient(
-                145deg,
-                #2b2039,
-                #17111f
-              );
-            border:1px solid rgba(255,255,255,.10);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            overflow:hidden;
-          }
-
-          .soreal-idle-duel-scene-v41.rest{
-            min-height:320px;
-            background:
-              linear-gradient(
-                145deg,
-                #3a2c49,
-                #201827
-              );
-          }
-
-          .soreal-idle-rest-placeholder-v41{
-            opacity:.66;
-            font-size:14px;
-            font-weight:900;
-            text-align:center;
-            padding:20px;
           }
 
           .soreal-idle-duel-portrait-v41{
@@ -2026,85 +1200,9 @@ html,body{overflow-x:hidden}
             margin:7px 0;
           }
 
-          .soreal-idle-duel-name-v41{
-            width:min(520px,100%);
-            text-align:center;
-            font-size:14px;
-            font-weight:1000;
-            color:#fff;
-          }
-
           .soreal-idle-boss-controls-v39{
             width:min(520px,100%);
             margin-top:8px !important;
-          }
-
-          .soreal-idle-adventure-v16{
-            margin-top:16px;
-            padding:18px;
-            border-radius:22px;
-            background:linear-gradient(145deg,#172237,#243c5d);
-            color:#fff;
-            box-shadow:0 14px 34px rgba(19,35,58,.16);
-          }
-
-          .soreal-idle-adventure-head-v16{
-            display:flex;
-            justify-content:space-between;
-            gap:12px;
-            align-items:flex-start;
-          }
-
-          .soreal-idle-adventure-title-v16{
-            font-size:20px;
-            font-weight:950;
-          }
-
-          .soreal-idle-adventure-points-v16{
-            flex:0 0 auto;
-            padding:7px 10px;
-            border-radius:999px;
-            background:rgba(255,255,255,.10);
-            font-size:14px;
-            font-weight:900;
-          }
-
-          .soreal-idle-adventure-zones-v16{
-            display:grid;
-            grid-template-columns:repeat(2,minmax(0,1fr));
-            gap:10px;
-            margin-top:14px;
-          }
-
-          .soreal-idle-zone-v16{
-            padding:14px;
-            border-radius:17px;
-            background:rgba(255,255,255,.08);
-            border:1px solid rgba(255,255,255,.10);
-          }
-
-          .soreal-idle-zone-v16.locked{
-            opacity:.48;
-          }
-
-          .soreal-idle-zone-name-v16{
-            font-size:14px;
-            font-weight:950;
-          }
-
-          .soreal-idle-zone-desc-v16{
-            min-height:34px;
-            margin-top:5px;
-            font-size:13px;
-            line-height:1.45;
-            opacity:.72;
-          }
-
-          .soreal-idle-zone-meta-v16{
-            margin-top:8px;
-            font-size:13px;
-            font-weight:800;
-            opacity:.82;
           }
 
           .soreal-idle-zone-button-v16{
@@ -2124,113 +1222,6 @@ html,body{overflow-x:hidden}
             opacity:.35;
             cursor:default;
           }
-
-          .soreal-idle-zone-status-v17{
-            display:none;
-            margin-top:10px;
-            padding:10px 11px;
-            border-radius:12px;
-            background:rgba(255,255,255,.11);
-            font-size:13px;
-            line-height:1.45;
-            font-weight:850;
-          }
-
-          .soreal-idle-zone-status-v17.show{
-            display:block;
-          }
-
-          .soreal-idle-zone-status-v17.loading{
-            background:rgba(255,255,255,.13);
-          }
-
-          .soreal-idle-zone-status-v17.win{
-            background:rgba(84,204,128,.18);
-          }
-
-          .soreal-idle-zone-status-v17.lose{
-            background:rgba(255,107,107,.18);
-          }
-
-          .soreal-idle-fight-v19{
-            margin-top:10px;
-            padding:11px;
-            border-radius:13px;
-            background:rgba(8,15,28,.42);
-            border:1px solid rgba(255,255,255,.10);
-          }
-
-          .soreal-idle-fight-line-v19{
-            display:flex;
-            justify-content:space-between;
-            gap:10px;
-            margin-top:7px;
-            font-size:13px;
-            font-weight:900;
-          }
-
-          .soreal-idle-fightbar-v19{
-            height:8px;
-            margin-top:5px;
-            border-radius:999px;
-            background:rgba(255,255,255,.12);
-            overflow:hidden;
-          }
-
-          .soreal-idle-fightbar-fill-v19{
-            width:100%;
-            height:100%;
-            border-radius:999px;
-            background:#74d892;
-            transition:width .08s ease-out;
-          }
-
-          .soreal-idle-fightbar-fill-v19.enemy{
-            background:#ff7272;
-          }
-
-          .soreal-idle-fight-hit-v19{
-            min-height:16px;
-            margin-top:8px;
-            text-align:center;
-            font-size:13px;
-            font-weight:950;
-          }
-
-          .soreal-idle-fight-result-v19{
-            margin-top:8px;
-            padding:8px 10px;
-            border-radius:10px;
-            text-align:center;
-            font-size:14px;
-            font-weight:1000;
-          }
-
-          .soreal-idle-fight-result-v19.win{
-            background:rgba(84,204,128,.18);
-          }
-
-          .soreal-idle-fight-result-v19.lose{
-            background:rgba(255,107,107,.18);
-          }
-
-          .soreal-idle-adventure-result-v16{
-            display:none;
-            margin-top:12px;
-            padding:11px 12px;
-            border-radius:14px;
-            background:rgba(255,255,255,.10);
-            font-size:14px;
-            font-weight:850;
-            line-height:1.45;
-          }
-
-          @media(max-width:620px){
-            .soreal-idle-adventure-zones-v16{
-              grid-template-columns:1fr;
-            }
-          }
-
 
           .soreal-idle-rebirth-v14{
             margin-top:16px;
@@ -2282,20 +1273,6 @@ html,body{overflow-x:hidden}
             font-weight:950;
           }
 
-          .soreal-idle-rebirth-bar-wrap-v14{
-            height:10px;
-            margin-top:14px;
-            overflow:hidden;
-            border-radius:999px;
-            background:rgba(255,255,255,.12);
-          }
-
-          .soreal-idle-rebirth-bar-v14{
-            height:100%;
-            border-radius:999px;
-            background:linear-gradient(90deg,#ac75ff,#ff9ee7);
-          }
-
           .soreal-idle-rebirth-button-v14{
             width:100%;
             box-sizing:border-box;
@@ -2329,7 +1306,6 @@ html,body{overflow-x:hidden}
             }
           }
 
-
           .soreal-idle-shop-grid-v12{
             display:grid;
             gap:10px;
@@ -2346,69 +1322,10 @@ html,body{overflow-x:hidden}
             border:1px solid rgba(36,54,110,.08);
           }
 
-          /*
-           * Norman (2026-09-16) : "Sur téléphone, le sell shop est
-           * illisible. Tout se chevauche. Boutons, écritures." Cause
-           * réelle : .soreal-idle-shop-card-v12 est une grille à 2
-           * colonnes conçue pour 2 enfants (contenu, bouton) — le
-           * Sellout Shop (pageSelloutShopIdleV1_) émettait 3 enfants
-           * directs (nom, description, bouton/coût) sans les classes
-           * name/desc/cost n'ayant elles-mêmes AUCUNE règle CSS nulle
-           * part dans ce fichier — le placement automatique de grille
-           * plaçait la description dans la colonne "auto" du bouton,
-           * cassant la mise en page sur TOUTES les tailles d'écran,
-           * bien plus visible sur mobile où il y a moins de marge.
-           * Nom+description sont maintenant regroupés dans un seul
-           * conteneur (soreal-idle-shop-card-info-v12, 1er enfant de
-           * grille), le bouton/coût restant le 2e — comme le fait déjà
-           * la carte d'amélioration existante (rendreAmeliorationsIdleV12_)
-           * qui utilise la même classe partagée sans ce bug.
-           */
-          .soreal-idle-shop-card-info-v12{
-            min-width:0;
-          }
-
-          .soreal-idle-shop-card-name-v12{
-            color:#17203f;
-            font-size:15px;
-            font-weight:950;
-            line-height:1.35;
-            overflow-wrap:break-word;
-          }
-
-          .soreal-idle-shop-card-desc-v12{
-            margin-top:4px;
-            color:#777e94;
-            font-size:13px;
-            font-weight:700;
-            line-height:1.4;
-            overflow-wrap:break-word;
-          }
-
-          .soreal-idle-shop-card-cost-v12{
-            color:#9aa3b8;
-            font-size:13px;
-            font-weight:850;
-            white-space:nowrap;
-            text-align:right;
-          }
-
-          .soreal-idle-shop-card-buy-v12{
-            white-space:nowrap;
-          }
-
           @media(max-width:620px){
             .soreal-idle-shop-card-v12{
               grid-template-columns:1fr;
               justify-items:stretch;
-            }
-
-            .soreal-idle-shop-card-cost-v12{
-              text-align:left;
-            }
-
-            .soreal-idle-shop-card-buy-v12{
-              width:100%;
             }
           }
 
@@ -2443,46 +1360,6 @@ html,body{overflow-x:hidden}
             cursor:default;
           }
 
-          .soreal-idle-training-v5{
-            margin-top:16px;
-            padding:18px;
-            border-radius:22px;
-            background:#fff;
-            border:1px solid rgba(36,54,110,.09);
-            box-shadow:0 10px 26px rgba(25,40,95,.08);
-          }
-
-          .soreal-idle-training-title-v5{
-            margin:0 0 12px;
-            font-size:18px;
-            font-weight:950;
-            color:#17203f;
-          }
-
-          .soreal-idle-training-row-v5{
-            display:grid;
-            grid-template-columns:minmax(0,1fr) auto;
-            gap:12px;
-            align-items:center;
-            padding:13px 0;
-            border-top:1px solid rgba(36,54,110,.08);
-          }
-
-          .soreal-idle-training-row-v5:first-of-type{
-            border-top:0;
-          }
-
-          .soreal-idle-training-name-v5{
-            font-weight:900;
-            color:#202745;
-          }
-
-          .soreal-idle-training-meta-v5{
-            margin-top:4px;
-            color:#737a91;
-            font-size:14px;
-          }
-
           .soreal-idle-training-button-v5{
             appearance:none;
             border:0;
@@ -2498,27 +1375,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-training-button-v5:disabled{
             opacity:.42;
             cursor:default;
-          }
-
-          .soreal-idle-toast-v5{
-            display:none;
-            margin-top:12px;
-            padding:11px 13px;
-            border-radius:13px;
-            background:#eef1ff;
-            color:#202967;
-            font-size:15px;
-            font-weight:800;
-          }
-
-          .soreal-idle-toast-v5.visible{
-            display:block;
-          }
-
-          @media(max-width:620px){
-            .soreal-idle-grid-v4{
-              grid-template-columns:1fr;
-            }
           }
 
           /* ===== MOBILE PLEINE LARGEUR V44 ===== */
@@ -2547,9 +1403,8 @@ html,body{overflow-x:hidden}
             }
 
             .soreal-idle-card-v4,
-            .soreal-idle-section-v8,
-            .soreal-idle-training-v5,
-            .soreal-idle-energy-panel-v34{
+.soreal-idle-section-v8,
+.soreal-idle-energy-panel-v34{
               margin-left:0 !important;
               margin-right:0 !important;
               border-radius:8px !important;
@@ -2617,29 +1472,6 @@ html,body{overflow-x:hidden}
               object-fit:cover !important;
             }
 
-            /*
-             * Norman (2026-09-09) : "les images de boss ne prennent pas
-             * toute la case. Alors que l'image du joueur, elle, prend toute
-             * la carte. Il faut le même comportement pour les boss que pour
-             * le joueur." Cette règle forçait le portrait du boss (premier
-             * "fighter" du duel) en object-fit:contain — donc en incrustation
-             * (letterboxing) — alors que le joueur restait en cover (remplit
-             * toute la case). On aligne le boss sur le même comportement que
-             * le joueur (cover, via la règle générale juste au-dessus).
-             */
-
-            .soreal-idle-duel-fighter-v42 .soreal-idle-duel-name-v41{
-              width:100% !important;
-              min-height:24px;
-              display:flex;
-              align-items:end;
-              justify-content:center;
-              padding:0 1px;
-              font-size:11.5px !important;
-              line-height:1.12;
-              box-sizing:border-box;
-            }
-
             .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41{
               width:100% !important;
               max-width:none !important;
@@ -2701,79 +1533,6 @@ html,body{overflow-x:hidden}
             text-align:center;
           }
 
-          .soreal-idle-boss-list-v29{
-            padding:8px;
-            border-radius:14px;
-            background:#141722;
-            border:1px solid rgba(255,255,255,.06);
-            box-shadow:
-              inset 0 1px 0 rgba(255,255,255,.025),
-              0 8px 24px rgba(12,14,24,.12);
-          }
-
-          .soreal-idle-boss-world-v37{
-            background:#0e1119 !important;
-            color:#dfe6f5 !important;
-            border:1px solid rgba(255,255,255,.07);
-            letter-spacing:.025em;
-          }
-
-          .soreal-idle-boss-row-v29{
-            background:#222735 !important;
-            color:#cbd3e6 !important;
-            border:1px solid rgba(255,255,255,.055) !important;
-            box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
-          }
-
-          .soreal-idle-boss-row-v29:hover{
-            background:#292f40 !important;
-          }
-
-          .soreal-idle-boss-row-v29 .soreal-idle-boss-name-v29{
-            color:#f1f4fb !important;
-          }
-
-          .soreal-idle-boss-row-v29.actuel{
-            background:#303653 !important;
-            color:#edf0ff !important;
-            border-color:#6f78b8 !important;
-            box-shadow:
-              inset 3px 0 0 #8791e2,
-              0 0 0 1px rgba(126,137,218,.10);
-          }
-
-          .soreal-idle-boss-row-v29.vaincu{
-            background:#1b202b !important;
-            color:#8f9aad !important;
-            opacity:.78 !important;
-          }
-
-          .soreal-idle-boss-row-v29.selectionne{
-            outline:2px solid #a779e3 !important;
-            outline-offset:-2px;
-            background:#352b49 !important;
-            color:#f2eaff !important;
-          }
-
-          .soreal-idle-boss-row-v29.selectionne .soreal-idle-boss-name-v29{
-            color:#ffffff !important;
-          }
-
-          .soreal-idle-image-error-v45{
-            width:100%;
-            height:100%;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            padding:14px;
-            box-sizing:border-box;
-            text-align:center;
-            color:#d5c9dc;
-            background:#211a27;
-            font-size:13px;
-            font-weight:900;
-          }
-
           @media(max-width:700px){
             .soreal-idle-boss-controls-v39{
               max-width:300px !important;
@@ -2782,18 +1541,7 @@ html,body{overflow-x:hidden}
             .soreal-idle-boss-control-v39{
               flex-basis:125px;
             }
-
-            .soreal-idle-boss-list-v29{
-              padding:5px;
-              border-radius:10px;
-            }
-
-            .soreal-idle-boss-row-v29{
-              padding:9px 7px !important;
-              border-radius:9px !important;
-            }
           }
-
 
           /* ===== SOREAL DARK THEME + COMBAT FX V47 ===== */
 
@@ -2839,10 +1587,9 @@ html,body{overflow-x:hidden}
           }
 
           .soreal-idle-card-v4,
-          .soreal-idle-section-v8,
-          .soreal-idle-training-v5,
-          .soreal-idle-character-v25,
-          .soreal-idle-rebirth-v14{
+.soreal-idle-section-v8,
+.soreal-idle-character-v25,
+.soreal-idle-rebirth-v14{
             background:
               linear-gradient(
                 180deg,
@@ -2854,35 +1601,25 @@ html,body{overflow-x:hidden}
           }
 
           .soreal-idle-label-v4,
-          .soreal-idle-note-v4,
-          .soreal-idle-combat-note-v7,
-          .soreal-idle-training-meta-v5,
-          .soreal-idle-page-sub-v28{
+.soreal-idle-note-v4,
+.soreal-idle-page-sub-v28{
             color:#aebbd4 !important;
           }
 
-          .soreal-idle-value-v4,
-          .soreal-idle-section-title-v8,
-          .soreal-idle-training-name-v5,
-          .soreal-idle-window-title-v31,
-          .soreal-idle-duel-name-v41{
+          .soreal-idle-window-title-v31{
             color:#f4f7ff !important;
           }
 
           .soreal-idle-summary-v28,
-          .soreal-idle-mini-v8,
-          .soreal-idle-road-row-v8,
-          .soreal-idle-equip-slot-v10,
-          .soreal-idle-item-v10{
+.soreal-idle-equip-slot-v10,
+.soreal-idle-item-v10{
             background:#1c263d !important;
             border-color:rgba(177,198,239,.08) !important;
             color:#dce4f3 !important;
           }
 
           .soreal-idle-summary-v28 b,
-          .soreal-idle-mini-value-v8,
-          .soreal-idle-road-name-v8,
-          .soreal-idle-equip-slot-name-v10{
+.soreal-idle-equip-slot-name-v10{
             color:#f5f7fc !important;
           }
 
@@ -2902,20 +1639,6 @@ html,body{overflow-x:hidden}
 
           .soreal-idle-boss-current-v35 > .soreal-idle-label-v4{
             color:#d5c4ed !important;
-          }
-
-          .soreal-idle-rest-full-v47{
-            width:100% !important;
-            max-width:none !important;
-            aspect-ratio:1 / 1 !important;
-            border-radius:12px !important;
-          }
-
-          .soreal-idle-rest-full-v47 img{
-            width:100% !important;
-            height:100% !important;
-            object-fit:cover !important;
-            object-position:center !important;
           }
 
           .soreal-idle-energy-panel-v34{
@@ -3007,13 +1730,7 @@ html,body{overflow-x:hidden}
               padding:5px !important;
               border-radius:8px !important;
             }
-
-            .soreal-idle-rest-full-v47{
-              width:100% !important;
-              max-width:none !important;
-            }
           }
-
 
           /* ===== COMBAT ADVENTURE V137 (visuel du kill de zone) ===== */
           /*
@@ -3041,17 +1758,6 @@ html,body{overflow-x:hidden}
             letter-spacing:.025em;
             color:#cfd8e8;
           }
-
-          .soreal-idle-adventure-fight-player-pv-v1{
-            display:inline-block;
-            margin-left:6px;
-            padding:2px 9px;
-            border-radius:999px;
-            background:rgba(255,255,255,.08);
-            color:#aeb5c8;
-            font-size:14px;
-          }
-
 
           /* ===== INVENTORY ADVENTURE V138 (paperdoll + grille + glisser-déposer) ===== */
           /*
@@ -3678,14 +2384,6 @@ html,body{overflow-x:hidden}
             font-size:32px;
             line-height:1;
           }
-
-          .soreal-idle-v138-bag-empty{
-            grid-column:1/-1;
-            text-align:center;
-            padding:18px;
-            color:#8b93ab;
-            font-size:14px;
-          }
           .soreal-idle-v138-cube-slot{
             display:flex;
             flex-direction:column;
@@ -3742,7 +2440,6 @@ html,body{overflow-x:hidden}
             transform:scale(1.04);
           }
 
-
           /*
            * Norman (2026-09-29) : « La barre de vie des boss rame quand elle diminue. Avant elle
            * était très fluide. » Le forçage transition:none !important qu'il y avait ici sur
@@ -3769,61 +2466,6 @@ html,body{overflow-x:hidden}
             transition:none !important;
           }
 
-          /* ===== AUTO BOSS + VICTOIRE V49 ===== */
-          .soreal-idle-auto-next-v49{
-            width:min(430px,100%);
-            margin:11px auto 2px;
-            padding:10px 12px;
-            box-sizing:border-box;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            gap:9px;
-            border-radius:12px;
-            background:rgba(12,17,29,.36);
-            border:1px solid rgba(192,207,239,.10);
-            color:#dce5f5;
-            font-size:13px;
-            font-weight:900;
-            cursor:pointer;
-            user-select:none;
-          }
-
-          .soreal-idle-auto-next-v49 input{
-            width:18px;
-            height:18px;
-            margin:0;
-            accent-color:#7789d8;
-            cursor:pointer;
-          }
-
-          .soreal-idle-victory-v49{
-            width:100%;
-            height:100%;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            gap:8px;
-            box-sizing:border-box;
-            background:
-              radial-gradient(
-                circle at 50% 42%,
-                #45365d,
-                #191c2a 68%
-              );
-            color:#f4e9ff;
-            font-size:15px;
-            font-weight:1000;
-            text-align:center;
-            animation:sorealIdleVictoryV49 .32s ease-out;
-          }
-
-          .soreal-idle-victory-icon-v49{
-            font-size:48px;
-            line-height:1;
-          }
-
           @keyframes sorealIdleVictoryV49{
             0%{
               transform:scale(.86);
@@ -3835,79 +2477,6 @@ html,body{overflow-x:hidden}
               opacity:1;
               filter:brightness(1);
             }
-          }
-
-
-          /* ===== POLISH V50 ===== */
-
-          /* Salle de repos plus compacte avec HUD superposé */
-          .soreal-idle-rest-scene-v50{
-            position:relative;
-            width:min(620px,100%);
-            height:clamp(220px,44vw,330px);
-            margin:0 auto;
-            overflow:hidden;
-            border-radius:13px;
-            background:#171c2a;
-            border:1px solid rgba(255,255,255,.09);
-            box-shadow:0 12px 28px rgba(5,8,15,.24);
-          }
-
-          .soreal-idle-rest-full-v47{
-            width:100% !important;
-            height:100% !important;
-            max-width:none !important;
-            aspect-ratio:auto !important;
-            border-radius:0 !important;
-          }
-
-          .soreal-idle-rest-full-v47 img{
-            width:100% !important;
-            height:100% !important;
-            object-fit:cover !important;
-            object-position:center !important;
-          }
-
-          .soreal-idle-rest-hud-v50{
-            position:absolute;
-            z-index:8;
-            left:0;
-            right:0;
-            bottom:0;
-            padding:28px 10px 9px;
-            background:
-              linear-gradient(
-                180deg,
-                rgba(10,13,22,0),
-                rgba(10,13,22,.82) 36%,
-                rgba(10,13,22,.95)
-              );
-          }
-
-          .soreal-idle-rest-hp-text-v50{
-            color:#fff;
-            font-size:13px;
-            font-weight:1000;
-            text-align:center;
-            text-shadow:0 1px 4px rgba(0,0,0,.8);
-          }
-
-          .soreal-idle-rest-playerbar-v50{
-            height:10px !important;
-            margin:5px auto 8px !important;
-            max-width:410px;
-            background:rgba(20,27,40,.82) !important;
-            border:1px solid rgba(255,255,255,.10);
-          }
-
-          .soreal-idle-rest-controls-v50{
-            margin:0 auto !important;
-            max-width:280px !important;
-            gap:7px !important;
-          }
-
-          .soreal-idle-rest-controls-v50 .soreal-idle-boss-control-v39{
-            padding:8px 10px !important;
           }
 
           /* Les titres standards ne restent plus blanc sur fond clair */
@@ -3999,7 +2568,6 @@ html,body{overflow-x:hidden}
             content:none !important;
           }
 
-          .soreal-idle-item-icon-v50,
           .soreal-idle-equipped-icon-v50{
             display:flex;
             align-items:center;
@@ -4024,14 +2592,6 @@ html,body{overflow-x:hidden}
             width:46px;
             height:46px;
             font-size:22px;
-          }
-
-          /* Trois actions cohérentes et lisibles */
-          .soreal-idle-item-actions-v20{
-            display:grid !important;
-            grid-template-columns:1fr !important;
-            gap:5px !important;
-            width:100%;
           }
 
           .soreal-idle-action-button-v50{
@@ -4061,25 +2621,6 @@ html,body{overflow-x:hidden}
             background:#a9573d;
           }
 
-          .soreal-idle-recycle-emoji-v50{
-            font-size:14px;
-            vertical-align:-1px;
-          }
-
-          /* Combat aventure visible instantanément pendant l'appel serveur */
-          .soreal-idle-fight-pending-v50{
-            opacity:.94;
-          }
-
-          .soreal-idle-pending-bar-v50{
-            width:100% !important;
-            animation:sorealIdlePendingFightV50 .72s ease-in-out infinite alternate;
-          }
-
-          .soreal-idle-pending-bar-v50.enemy{
-            animation-delay:.18s;
-          }
-
           @keyframes sorealIdlePendingFightV50{
             from{
               opacity:.45;
@@ -4096,15 +2637,11 @@ html,body{overflow-x:hidden}
           }
 
           @media(max-width:700px){
-            .soreal-idle-rest-scene-v50{
-              height:clamp(205px,56vw,280px);
-            }
 
             .soreal-idle-item-v10{
               min-height:210px !important;
             }
           }
-
 
           /* ===== PROFIL V52 ===== */
           .soreal-idle-profile-detail-v52{
@@ -4158,126 +2695,10 @@ html,body{overflow-x:hidden}
             }
           }
 
-
-          /* ===== CHARGEMENT SOREAL IDLE V55 ===== */
-          .soreal-idle-loading-v55{
-            width:min(660px,100%);
-            margin:18px auto 0;
-            padding:18px;
-            box-sizing:border-box;
-            border-radius:18px;
-            background:
-              linear-gradient(
-                180deg,
-                rgba(24,34,56,.98),
-                rgba(15,22,38,.99)
-              );
-            border:1px solid rgba(151,192,255,.13);
-            box-shadow:
-              0 18px 46px rgba(3,7,15,.28),
-              inset 0 1px 0 rgba(255,255,255,.025);
-          }
-
-          .soreal-idle-loading-head-v55{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:12px;
-            margin-bottom:12px;
-          }
-
-          .soreal-idle-loading-title-v55{
-            color:#f3f7ff;
-            font-size:14px;
-            font-weight:1000;
-            letter-spacing:.04em;
-          }
-
-          .soreal-idle-loading-percent-v55{
-            min-width:42px;
-            color:#93e7ff;
-            font-size:14px;
-            font-weight:1000;
-            text-align:right;
-            font-variant-numeric:tabular-nums;
-          }
-
-          .soreal-idle-loading-track-v55{
-            position:relative;
-            height:16px;
-            overflow:hidden;
-            border-radius:999px;
-            background:#0c1322;
-            border:1px solid rgba(174,204,255,.10);
-            box-shadow:inset 0 2px 5px rgba(0,0,0,.34);
-          }
-
-          .soreal-idle-loading-fill-v55{
-            position:absolute;
-            inset:0 auto 0 0;
-            width:8%;
-            border-radius:999px;
-            background:
-              linear-gradient(
-                90deg,
-                #4e77d2,
-                #56c8ed 58%,
-                #8df1ff
-              );
-            box-shadow:
-              0 0 18px rgba(86,200,237,.34),
-              inset 0 1px 0 rgba(255,255,255,.26);
-            transition:width .38s ease;
-          }
-
-          .soreal-idle-loading-fill-v55::after{
-            content:'';
-            position:absolute;
-            top:0;
-            bottom:0;
-            width:70px;
-            background:
-              linear-gradient(
-                90deg,
-                rgba(255,255,255,0),
-                rgba(255,255,255,.42),
-                rgba(255,255,255,0)
-              );
-            animation:sorealIdleLoadingShineV55 1.15s linear infinite;
-          }
-
-          .soreal-idle-loading-status-v55{
-            margin-top:11px;
-            min-height:17px;
-            color:#aebbd4;
-            font-size:13px;
-            font-weight:850;
-            text-align:center;
-          }
-
-          .soreal-idle-loading-dots-v55{
-            display:inline-block;
-            min-width:18px;
-            letter-spacing:2px;
-          }
-
           @keyframes sorealIdleLoadingShineV55{
             from{transform:translateX(-90px)}
             to{transform:translateX(680px)}
           }
-
-          @media(max-width:520px){
-            .soreal-idle-loading-v55{
-              margin-top:10px;
-              padding:14px;
-              border-radius:13px;
-            }
-
-            .soreal-idle-loading-track-v55{
-              height:14px;
-            }
-          }
-
 
           /* ===== FEEDBACK CLIC V60 ===== */
           .soreal-idle-action-button-v50,
@@ -4305,7 +2726,6 @@ html,body{overflow-x:hidden}
             filter:brightness(1.18);
           }
 
-
           /* =====================================================
              POLISH VISUEL V61 — sombre partout
              ===================================================== */
@@ -4324,18 +2744,14 @@ html,body{overflow-x:hidden}
           }
 
           body.soreal-idle-active-v47 .soreal-idle-card-v4,
-          body.soreal-idle-active-v47 .soreal-idle-section-v8,
-          body.soreal-idle-active-v47 .soreal-idle-training-v5,
-          body.soreal-idle-active-v47 .soreal-idle-character-v25,
-          body.soreal-idle-active-v47 .soreal-idle-summary-v28,
-          body.soreal-idle-active-v47 .soreal-idle-mini-v8,
-          body.soreal-idle-active-v47 .soreal-idle-road-row-v8,
-          body.soreal-idle-active-v47 .soreal-idle-road-icon-v8,
-          body.soreal-idle-active-v47 .soreal-idle-equip-slot-v10,
-          body.soreal-idle-active-v47 .soreal-idle-item-v10,
-          body.soreal-idle-active-v47 .soreal-idle-item-v10.legendaire,
-          body.soreal-idle-active-v47 .soreal-idle-collection-count-v32,
-          body.soreal-idle-active-v47 .soreal-idle-character-stat-v25{
+body.soreal-idle-active-v47 .soreal-idle-section-v8,
+body.soreal-idle-active-v47 .soreal-idle-character-v25,
+body.soreal-idle-active-v47 .soreal-idle-summary-v28,
+body.soreal-idle-active-v47 .soreal-idle-equip-slot-v10,
+body.soreal-idle-active-v47 .soreal-idle-item-v10,
+body.soreal-idle-active-v47 .soreal-idle-item-v10.legendaire,
+body.soreal-idle-active-v47 .soreal-idle-collection-count-v32,
+body.soreal-idle-active-v47 .soreal-idle-character-stat-v25{
             background:#182236 !important;
             color:#dce5f3 !important;
           }
@@ -4352,8 +2768,7 @@ html,body{overflow-x:hidden}
            * juste au-dessus, jamais touchés ici).
            */
           body.soreal-idle-active-v47 .soreal-idle-card-v4,
-          body.soreal-idle-active-v47 .soreal-idle-section-v8,
-          body.soreal-idle-active-v47 .soreal-idle-training-v5{
+body.soreal-idle-active-v47 .soreal-idle-section-v8{
             border-left:3px solid color-mix(in srgb,var(--nav-color,#4b6ea8) 55%,transparent) !important;
             box-shadow:0 4px 16px color-mix(in srgb,var(--nav-color,#4b6ea8) 10%,transparent) !important;
           }
@@ -4445,30 +2860,21 @@ html,body{overflow-x:hidden}
             color:#d7e2f3 !important;
           }
 
-          body.soreal-idle-active-v47 .soreal-idle-status-v4.error,
-          body.soreal-idle-active-v47 .soreal-idle-loot-status-v21.error,
-          body.soreal-idle-active-v47 .soreal-idle-ko-v15{
+          body.soreal-idle-active-v47 .soreal-idle-status-v4.error{
             background:#3a2029 !important;
             color:#ffbec8 !important;
           }
 
           body.soreal-idle-active-v47 .soreal-idle-label-v4,
-          body.soreal-idle-active-v47 .soreal-idle-note-v4,
-          body.soreal-idle-active-v47 .soreal-idle-training-meta-v5,
-          body.soreal-idle-active-v47 .soreal-idle-zone-desc-v16,
-          body.soreal-idle-active-v47 .soreal-idle-zone-meta-v16,
-          body.soreal-idle-active-v47 .soreal-idle-rebirth-sub-v14,
-          body.soreal-idle-active-v47 .soreal-idle-profile-detail-v52 > div{
+body.soreal-idle-active-v47 .soreal-idle-note-v4,
+body.soreal-idle-active-v47 .soreal-idle-rebirth-sub-v14,
+body.soreal-idle-active-v47 .soreal-idle-profile-detail-v52 > div{
             color:#aebbd0 !important;
           }
 
-          body.soreal-idle-active-v47 .soreal-idle-value-v4,
-          body.soreal-idle-active-v47 .soreal-idle-training-name-v5,
-          body.soreal-idle-active-v47 .soreal-idle-duel-name-v41,
-          body.soreal-idle-active-v47 .soreal-idle-adventure-title-v16,
           body.soreal-idle-active-v47 .soreal-idle-rebirth-title-v14,
-          body.soreal-idle-active-v47 strong,
-          body.soreal-idle-active-v47 b{
+body.soreal-idle-active-v47 strong,
+body.soreal-idle-active-v47 b{
             color:#f0f5fd;
           }
 
@@ -4510,32 +2916,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-duel-portrait-v41{
             position:relative;
             background:#101827 !important;
-          }
-
-          /* Compte à rebours aventure auto */
-          .soreal-idle-auto-countdown-v62{
-            margin-top:6px;
-            min-height:15px;
-            color:#8fdfff;
-            font-size:12px;
-            font-weight:950;
-            font-variant-numeric:tabular-nums;
-          }
-
-          /* Toggle AUTO aventure plus lisible / réactif */
-          .soreal-idle-auto-button-v30{
-            min-width:112px;
-            background:#2c3546 !important;
-            color:#d5deec !important;
-            border:1px solid rgba(167,188,225,.12) !important;
-          }
-
-          .soreal-idle-auto-button-v30.on{
-            background:#245a4a !important;
-            color:#d8ffec !important;
-            box-shadow:
-              0 0 0 1px rgba(96,214,161,.10),
-              0 8px 18px rgba(10,42,31,.22) !important;
           }
 
           /* Popup Renaissance style trophée */
@@ -4716,31 +3096,21 @@ html,body{overflow-x:hidden}
             }
           }
 
-
           body.soreal-idle-active-v47 .soreal-idle-collection-zone-v32,
-          body.soreal-idle-active-v47 .soreal-idle-collection-zone-head-v32,
-          body.soreal-idle-active-v47 .soreal-idle-auto-v30,
-          body.soreal-idle-active-v47 .soreal-idle-zone-v16,
-          body.soreal-idle-active-v47 .soreal-idle-rebirth-stat-v14,
-          body.soreal-idle-active-v47 .soreal-idle-shop-card-v12,
-          body.soreal-idle-active-v47 .soreal-idle-profile-next-v52,
-          body.soreal-idle-active-v47 .soreal-idle-empty-v10,
-          body.soreal-idle-active-v47 .soreal-idle-collection-detail-v22,
-          body.soreal-idle-active-v47 .soreal-idle-set-v25{
+body.soreal-idle-active-v47 .soreal-idle-collection-zone-head-v32,
+body.soreal-idle-active-v47 .soreal-idle-rebirth-stat-v14,
+body.soreal-idle-active-v47 .soreal-idle-shop-card-v12,
+body.soreal-idle-active-v47 .soreal-idle-profile-next-v52,
+body.soreal-idle-active-v47 .soreal-idle-empty-v10,
+body.soreal-idle-active-v47 .soreal-idle-set-v25{
             background:#151f32 !important;
             color:#d5dfef !important;
             border-color:rgba(165,188,228,.09) !important;
           }
 
-          body.soreal-idle-active-v47 .soreal-idle-zone-v16.zone-active-v33{
-            background:#1b3048 !important;
-            border-color:rgba(91,186,230,.30) !important;
-          }
-
           body.soreal-idle-active-v47 button:disabled{
             color:#758198 !important;
           }
-
 
           /* ===== CARTOUCHES DUEL V65 ===== */
           .soreal-idle-duel-nameplate-v65{
@@ -4863,7 +3233,6 @@ html,body{overflow-x:hidden}
             }
           }
 
-
           /* ===== ZONE DANGEREUSE / RESET TOTAL V67 ===== */
           .soreal-idle-danger-zone-v67{
             margin-top:18px;
@@ -4967,7 +3336,6 @@ html,body{overflow-x:hidden}
             }
           }
 
-
           /* ===== XP / COMBAT JOURNAL / CAPACITÉS V70 ===== */
           .soreal-idle-xp-panel-v70{
             margin-top:9px;
@@ -4975,38 +3343,6 @@ html,body{overflow-x:hidden}
             border-radius:13px;
             background:#111a2b;
             border:1px solid rgba(129,164,220,.11);
-          }
-
-          .soreal-idle-xp-head-v70{
-            display:flex;
-            justify-content:space-between;
-            gap:10px;
-            align-items:center;
-            color:#aebbd1;
-            font-size:12px;
-            font-weight:950;
-          }
-
-          .soreal-idle-xp-head-v70 strong{
-            color:#dfe9fb !important;
-          }
-
-          .soreal-idle-xp-track-v70{
-            height:12px;
-            margin-top:7px;
-            overflow:hidden;
-            border-radius:999px;
-            background:#080f1b;
-            border:1px solid rgba(153,185,235,.10);
-            box-shadow:inset 0 2px 5px rgba(0,0,0,.34);
-          }
-
-          .soreal-idle-xp-fill-v70{
-            height:100%;
-            border-radius:999px;
-            background:linear-gradient(90deg,#5b58b9,#8c71db,#b88cff);
-            box-shadow:0 0 14px rgba(157,121,226,.26);
-            transition:width .28s ease;
           }
 
           .soreal-idle-boss-skills-v70{
@@ -5165,14 +3501,6 @@ html,body{overflow-x:hidden}
             }
           }
 
-          .soreal-idle-combat-log-v70{
-            margin-top:12px;
-            overflow:hidden;
-            border-radius:15px;
-            background:#0b111d;
-            border:1px solid rgba(147,178,224,.10);
-          }
-
           /*
            * Journal de combat Aventure — historique : Norman (2026-09-11,
            * référence NGU fournie en capture) avait demandé "très simple
@@ -5239,7 +3567,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-adventure-skill-cd-v3{position:absolute;right:3px;top:3px;min-width:20px;text-align:center;font-size:11px;font-weight:900;color:#ffd6a3;font-variant-numeric:tabular-nums}
           @media(max-width:700px){
             .soreal-idle-adventure-player-panel-v1{height:0!important;padding:0!important;margin:0!important}
-            .soreal-idle-adventure-player-name-v1{display:none!important}
             .soreal-idle-adventure-fight-note-v1{margin:3px 0 4px!important;min-height:24px!important;padding:3px 7px!important;font-size:11.5px!important}
             .soreal-idle-adventure-manual-v3{margin:4px 0 6px}
             .soreal-idle-adventure-idle-toggle-v3{min-height:44px;font-size:13px}
@@ -5268,34 +3595,11 @@ html,body{overflow-x:hidden}
             margin:0;
             overflow:hidden;
           }
-          .soreal-idle-adventure-player-name-v1{
-            font-size:16px;
-            font-weight:900;
-            color:#fff;
-          }
           .soreal-idle-adventure-player-pv-label-v1{
             font-size:15px;
             font-weight:700;
             color:#fff;
             margin-bottom:4px;
-          }
-          .soreal-idle-combat-log-head-v70{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:8px;
-            padding:9px 11px;
-            background:#151f31;
-            color:#dbe5f4;
-            font-size:12px;
-            font-weight:1000;
-          }
-
-          .soreal-idle-combat-log-body-v70{
-            height:178px;
-            overflow:auto;
-            padding:7px 9px;
-            scrollbar-width:thin;
           }
 
           .soreal-idle-combat-log-line-v70{
@@ -5333,17 +3637,6 @@ html,body{overflow-x:hidden}
             font-style:italic;
           }
 
-          .soreal-idle-log-clear-v70{
-            border:0;
-            border-radius:8px;
-            padding:4px 7px;
-            background:#202d43;
-            color:#aebdd4;
-            font-size:11px;
-            font-weight:900;
-            cursor:pointer;
-          }
-
           .soreal-idle-levelup-flash-v70{
             animation:sorealIdleLevelUpV70 .55s ease both;
           }
@@ -5353,77 +3646,6 @@ html,body{overflow-x:hidden}
             40%{box-shadow:0 0 30px rgba(172,132,255,.42)}
             100%{box-shadow:0 0 0 rgba(172,132,255,0)}
           }
-
-
-          /* ===== COHÉRENCE PUISSANCE AVENTURE V72 ===== */
-          .soreal-idle-zone-power-v72{
-            margin-top:8px;
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:6px;
-          }
-
-          .soreal-idle-zone-power-cell-v72{
-            padding:7px 8px;
-            border-radius:9px;
-            background:#111a2a;
-            border:1px solid rgba(139,169,216,.08);
-            color:#9facbf;
-            font-size:11px;
-            line-height:1.35;
-            font-weight:850;
-          }
-
-          .soreal-idle-zone-power-cell-v72 strong{
-            display:block;
-            margin-top:2px;
-            color:#e1e8f4 !important;
-            font-size:13px;
-          }
-
-          .soreal-idle-zone-power-cell-v72.ok{
-            background:#142920;
-            color:#94c9aa;
-          }
-
-          .soreal-idle-zone-power-cell-v72.ok strong{
-            color:#bce9cf !important;
-          }
-
-          .soreal-idle-zone-power-cell-v72.no{
-            background:#2d1b22;
-            color:#d0a2aa;
-          }
-
-          .soreal-idle-zone-power-cell-v72.no strong{
-            color:#f0b6bf !important;
-          }
-
-          .soreal-idle-zone-objective-v72{
-            grid-column:1/-1;
-            padding:8px 9px;
-            border-radius:9px;
-            background:#191b31;
-            border:1px solid rgba(172,142,231,.10);
-            color:#bcb1d4;
-            font-size:11px;
-            font-weight:900;
-          }
-
-          .soreal-idle-zone-objective-v72 strong{
-            color:#dfd4f4 !important;
-          }
-
-          @media(max-width:520px){
-            .soreal-idle-zone-power-v72{
-              grid-template-columns:1fr;
-            }
-
-            .soreal-idle-zone-objective-v72{
-              grid-column:auto;
-            }
-          }
-
 
           /* ===== POPUPS NOUVEAUTÉS / BIENVENUE V75 ===== */
           .soreal-idle-news-bullets-v75{
@@ -5509,79 +3731,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-dialogue-v76.player{right:8px}
           .soreal-idle-dialogue-v76.player::after{right:18px}
 
-          /* ===== JOURNAL AVENTURE V77 ===== */
-          .soreal-idle-adventure-log-v77{
-            margin:12px 0;
-            overflow:hidden;
-            border-radius:14px;
-            background:#0b111d;
-            border:1px solid rgba(142,174,223,.10);
-          }
-
-          .soreal-idle-adventure-log-head-v77{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:8px;
-            padding:9px 11px;
-            background:#151f31;
-            color:#dce6f5;
-            font-size:12px;
-            font-weight:1000;
-          }
-
-          .soreal-idle-adventure-log-body-v77{
-            height:150px;
-            overflow:auto;
-            padding:7px 9px;
-          }
-
-          .soreal-idle-adventure-log-line-v77{
-            padding:5px 6px;
-            border-bottom:1px solid rgba(132,157,198,.06);
-            color:#aebbd0;
-            font-size:12px;
-            line-height:1.4;
-            font-variant-numeric:tabular-nums;
-          }
-
-          .soreal-idle-adventure-log-line-v77.player{color:#9edbff}
-          .soreal-idle-adventure-log-line-v77.enemy{color:#f0a6b2}
-          .soreal-idle-adventure-log-line-v77.reward{color:#efd28a}
-          .soreal-idle-adventure-log-line-v77.system{
-            color:#a9b4c6;
-            font-style:italic;
-          }
-
-          /* ===== ZONE INCONNUE V80 ===== */
-          .soreal-idle-zone-v16.unknown-v80{
-            min-height:150px;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            text-align:center;
-            background:linear-gradient(145deg,#121925,#0e141f) !important;
-            border-style:dashed !important;
-          }
-
-          .soreal-idle-zone-unknown-name-v80{
-            color:#66758b;
-            font-size:17px;
-            font-weight:1000;
-            letter-spacing:.12em;
-          }
-
-          .soreal-idle-zone-unknown-lock-v80{
-            margin-top:13px;
-            padding:8px 11px;
-            border-radius:9px;
-            background:#1a2231;
-            color:#8e9cb1;
-            font-size:12px;
-            font-weight:950;
-          }
-
           @media(max-width:480px){
             .soreal-idle-dialogue-v76{
               top:52px;
@@ -5589,7 +3738,6 @@ html,body{overflow-x:hidden}
               font-size:11px;
             }
           }
-
 
           /* ===== INVENTAIRE À CASES V78 ===== */
           .soreal-idle-inventory-v10{
@@ -5756,14 +3904,6 @@ html,body{overflow-x:hidden}
               0 0 16px rgba(84,180,230,.14);
           }
 
-          .soreal-idle-inventory-help-v78{
-            margin:8px 0 10px;
-            color:#8292aa;
-            font-size:11px;
-            font-weight:850;
-            text-align:center;
-          }
-
           @media(max-width:760px){
             .soreal-idle-inventory-v10{
               grid-template-columns:repeat(4,minmax(0,1fr));
@@ -5779,7 +3919,6 @@ html,body{overflow-x:hidden}
               font-size:31px;
             }
           }
-
 
           /* ===== BANNIÈRE OFFICIELLE V95 ===== */
           .soreal-idle-hero-banner-v95{
@@ -5820,46 +3959,6 @@ html,body{overflow-x:hidden}
             color:#dbe5f3 !important;
             border:1px solid rgba(255,255,255,.10);
             backdrop-filter:blur(5px);
-          }
-
-          /* ===== MANA / MAGIE V90 ===== */
-          .soreal-idle-mana-panel-v90{
-            margin-top:9px;
-            padding:10px 12px;
-            border-radius:13px;
-            background:#15142a;
-            border:1px solid rgba(161,128,232,.15);
-          }
-
-          .soreal-idle-mana-head-v90{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            color:#bdb3dc;
-            font-size:12px;
-            font-weight:950;
-          }
-
-          .soreal-idle-mana-head-v90 strong{
-            color:#ebe4ff !important;
-          }
-
-          .soreal-idle-mana-track-v90{
-            height:12px;
-            margin-top:7px;
-            overflow:hidden;
-            border-radius:999px;
-            background:#080c17;
-            border:1px solid rgba(188,153,255,.11);
-          }
-
-          .soreal-idle-mana-fill-v90{
-            height:100%;
-            border-radius:999px;
-            background:linear-gradient(90deg,#5f46b0,#7654d6,#a37aef);
-            box-shadow:0 0 16px rgba(151,106,239,.25);
-            transition:width .20s linear;
           }
 
           .soreal-idle-spell-grid-v90{
@@ -6047,34 +4146,11 @@ html,body{overflow-x:hidden}
             font-weight:800;
           }
 
-          .soreal-idle-boss-advice-v91{
-            margin-top:8px;
-            padding:10px;
-            border-radius:10px;
-            background:#272039;
-            color:#d5c4ed;
-            font-size:11px;
-            line-height:1.45;
-            font-weight:900;
-          }
-
           .soreal-idle-boss-powers-v91{
             display:flex;
             flex-wrap:wrap;
             gap:6px;
             margin-top:9px;
-          }
-
-          /* ===== REPOS PLEINE LARGEUR V94 ===== */
-          .soreal-idle-rest-scene-v50{
-            width:calc(100% + 36px) !important;
-            max-width:none !important;
-            height:clamp(250px,46vw,390px) !important;
-            margin-left:-18px !important;
-            margin-right:-18px !important;
-            border-left:0 !important;
-            border-right:0 !important;
-            border-radius:0 !important;
           }
 
           @media(max-width:650px){
@@ -6085,41 +4161,6 @@ html,body{overflow-x:hidden}
             .soreal-idle-boss-card-stats-v91{
               grid-template-columns:1fr 1fr;
             }
-
-            .soreal-idle-rest-scene-v50{
-              width:calc(100% + 24px) !important;
-              margin-left:-12px !important;
-              margin-right:-12px !important;
-            }
-          }
-
-
-          /* ===== PROGRESSION / RESPAWN / AVENTURE V100 ===== */
-          .soreal-idle-rest-scene-v50{
-            height:clamp(330px,62vw,540px) !important;
-            margin-top:-2px !important;
-          }
-
-          .soreal-idle-rest-full-v47 img{
-            object-position:center center !important;
-          }
-
-          .soreal-idle-rest-title-v100{
-            position:absolute;
-            z-index:10;
-            left:14px;
-            top:14px;
-            padding:8px 13px;
-            border-radius:11px;
-            background:rgba(10,14,24,.76);
-            border:1px solid rgba(255,255,255,.13);
-            color:#f5f1ff;
-            font-size:14px;
-            font-weight:1000;
-            letter-spacing:.03em;
-            box-shadow:0 7px 18px rgba(0,0,0,.24);
-            backdrop-filter:blur(5px);
-            text-shadow:0 1px 4px rgba(0,0,0,.7);
           }
 
           .soreal-idle-boss-respawn-v100{
@@ -6129,184 +4170,6 @@ html,body{overflow-x:hidden}
             font-size:12px;
             font-weight:950;
             text-align:center;
-          }
-
-          .soreal-idle-zone-scene-content-v32{
-            position:static !important;
-            left:auto !important;
-            right:auto !important;
-            bottom:auto !important;
-            z-index:auto !important;
-            min-height:104px !important;
-            margin:8px 0 9px !important;
-            display:block !important;
-            padding:8px !important;
-            border-radius:12px;
-            background:#101929;
-            border:1px solid rgba(138,170,219,.10);
-            color:#e7edf8;
-          }
-
-          .soreal-idle-zone-scene-content-v32 .soreal-idle-zone-scene-idle-v32{
-            background:transparent !important;
-            text-align:center;
-            color:#8fa0b8;
-          }
-
-          .soreal-idle-zone-scene-content-v32 .soreal-idle-fight-v19{
-            background:#101929 !important;
-          }
-
-          .soreal-idle-adventure-cooldown-v100{
-            min-height:18px;
-            padding:6px 8px;
-            margin:-1px 0 8px;
-            border-radius:9px;
-            background:#171c2b;
-            color:#b0bdd1;
-            font-size:11px;
-            font-weight:950;
-            text-align:center;
-          }
-
-          .soreal-idle-adventure-cooldown-v100.ready{
-            color:#96d6b0;
-            background:#13251d;
-          }
-
-          .soreal-idle-boss-row-v29.inconnu-v100{
-            opacity:.58;
-            cursor:not-allowed !important;
-          }
-
-          .soreal-idle-boss-row-v29.inconnu-v100 .soreal-idle-boss-name-v29{
-            letter-spacing:.08em;
-          }
-
-          @media(max-width:620px){
-            .soreal-idle-rest-scene-v50{
-              height:clamp(310px,90vw,500px) !important;
-            }
-          }
-
-
-          .soreal-idle-boss-current-v35.resting-v100{
-            padding-top:0 !important;
-            overflow:hidden;
-          }
-
-          .soreal-idle-boss-current-v35.resting-v100
-          .soreal-idle-duel-v41{
-            margin-top:0 !important;
-          }
-
-          .soreal-idle-boss-current-v35.resting-v100
-          .soreal-idle-rest-scene-v50{
-            margin-top:0 !important;
-          }
-
-
-
-          /* ===== AVENTURE / BESTIAIRE / ETATS V37 ===== */
-          .soreal-idle-zone-scene-v32{
-            position:relative !important;
-          }
-
-          .soreal-idle-adventure-cooldown-overlay-v110{
-            position:absolute;
-            z-index:8;
-            left:50%;
-            bottom:10px;
-            transform:translateX(-50%);
-            min-width:min(310px,calc(100% - 20px));
-            box-sizing:border-box;
-            padding:8px 12px;
-            border-radius:999px;
-            background:rgba(7,12,22,.82);
-            border:1px solid rgba(255,255,255,.14);
-            box-shadow:0 8px 24px rgba(0,0,0,.28);
-            color:#e8eef8;
-            font-size:12px;
-            font-weight:1000;
-            text-align:center;
-            letter-spacing:.015em;
-            backdrop-filter:blur(6px);
-            pointer-events:none;
-          }
-
-          .soreal-idle-adventure-cooldown-overlay-v110.ready{
-            background:rgba(15,47,31,.82);
-            color:#a9e8c0;
-          }
-
-          .soreal-idle-zone-button-v16.soreal-idle-adventure-primary-v110{
-            min-height:52px !important;
-            margin-top:12px !important;
-            border:1px solid rgba(255,255,255,.18) !important;
-            border-radius:15px !important;
-            background:linear-gradient(135deg,#5f50b8,#8d68d6) !important;
-            color:#fff !important;
-            font-size:14px !important;
-            font-weight:1000 !important;
-            letter-spacing:.015em;
-            box-shadow:0 12px 30px rgba(61,43,126,.34) !important;
-            transform:translateZ(0);
-          }
-
-          .soreal-idle-zone-button-v16.soreal-idle-adventure-primary-v110:not(:disabled):hover{
-            filter:brightness(1.12);
-            transform:translateY(-1px);
-          }
-
-          .soreal-idle-zone-button-v16.soreal-idle-adventure-primary-v110:disabled{
-            opacity:.42 !important;
-            filter:saturate(.45) !important;
-          }
-
-          .soreal-idle-auto-mystery-v110{
-            position:relative;
-            overflow:hidden;
-            padding:16px !important;
-            border:1px dashed rgba(191,204,235,.19) !important;
-            background:linear-gradient(145deg,#161d2d,#111725) !important;
-          }
-
-          .soreal-idle-auto-mystery-v110::after{
-            content:'?';
-            position:absolute;
-            right:18px;
-            top:50%;
-            transform:translateY(-50%);
-            color:rgba(210,220,246,.08);
-            font-size:80px;
-            font-weight:1000;
-            pointer-events:none;
-          }
-
-          .soreal-idle-auto-mystery-title-v110{
-            color:#e4e9f4;
-            font-size:15px;
-            font-weight:1000;
-            letter-spacing:.08em;
-          }
-
-          .soreal-idle-auto-mystery-sub-v110{
-            margin-top:5px;
-            color:#818da5;
-            font-size:12px;
-            font-weight:900;
-          }
-
-          .soreal-idle-bestiary-summary-v110{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            margin-bottom:12px;
-            padding:12px 14px;
-            border-radius:14px;
-            background:#162035;
-            border:1px solid rgba(170,192,234,.10);
           }
 
           .soreal-idle-bestiary-grid-v110{
@@ -6772,20 +4635,6 @@ html,body{overflow-x:hidden}
             gap:4px;
           }
 
-          .soreal-idle-bt-energy-bar-wrap-v120{
-            width:100%;
-            height:8px;
-            border-radius:6px;
-            background:rgba(255,255,255,.08);
-            overflow:hidden;
-          }
-          .soreal-idle-bt-energy-bar-v120{
-            height:100%;
-            border-radius:6px;
-            background:linear-gradient(90deg,#f5a33b,#ffd08a);
-            transition:width .2s ease;
-          }
-
           .soreal-idle-bt-energy-v120>span,
           .soreal-idle-bt-presets-v120>span,
           .soreal-idle-bt-input-box-v120 label{
@@ -6858,17 +4707,6 @@ html,body{overflow-x:hidden}
           .soreal-idle-bt-presets-v120 button.clear{
             grid-column:1/-1;
             background:#402b39;
-          }
-
-          .soreal-idle-bt-help-v120{
-            margin-bottom:12px;
-            padding:10px 12px;
-            border-radius:12px;
-            background:#111b2d;
-            color:#9cabc2;
-            font-size:12px;
-            line-height:1.5;
-            font-weight:800;
           }
 
           .soreal-idle-bt-panel-v120{
@@ -7403,10 +5241,6 @@ html,body{overflow-x:hidden}
 .soreal-idle-tm-col-v1 input{
   width:84px;
 }
-.soreal-idle-tm-verrou-v1{
-  padding:10px 4px;
-  font-size:15px;
-}
 .soreal-idle-tm-stats-v1{
   background:#c1c1c1;
   padding:12px 14px;
@@ -7657,7 +5491,6 @@ html,body{overflow-x:hidden}
   color:#fff;
   box-shadow:0 6px 16px color-mix(in srgb,var(--onglet-couleur,#0891b2) 45%,transparent);
 }
-
 
 /*
  * Norman (2026-09-25) : « j'aime bien les étiquettes des Offres débutant, avec les traits interrompus : pareil pour tout ce que le jeu offre
@@ -8038,8 +5871,7 @@ body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-toolbar-v
 }
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-energy-v120,
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120,
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120,
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-help-v120{
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120{
   background:#2c0a12;
   color:#e8b3bb;
 }
@@ -8197,8 +6029,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
   background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.35))!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1{font-size:calc(var(--coffre-icone)*.6);min-height:var(--coffre-icone);display:flex;align-items:center;justify-content:center}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 img,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 .idle-icon-v1{width:var(--coffre-icone)!important;height:var(--coffre-icone)!important;border-radius:3px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 img{width:var(--coffre-icone)!important;height:var(--coffre-icone)!important;border-radius:3px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .idle-emoji-fallback-v1{font-size:calc(var(--coffre-icone)*.7)!important;width:var(--coffre-icone);height:var(--coffre-icone)}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{font-size:11.5px;color:#ffe9bd}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:11px;color:#d8b980}

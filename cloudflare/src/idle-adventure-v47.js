@@ -2930,11 +2930,6 @@ function idleAdventureSpecialsListV1(o){
     return{type:s.type,value:cur,max:cap,base:s.base,ratio:s.ratio};
   });
 }
-/* Compat : les pièces de set exposent leurs Specials (type, valeur, plafond) comme avant. */
-function idleAdventureSetSpecialsValuesV1(o){
-  const d=defById(o&&o.definitionId);
-  return d?.kind==="set"?idleAdventureSpecialsListV1(o).map(({type,value,max})=>({type,value,max})):[];
-}
 /* Place d'un Special Boost (en points) : vrai Special chiffré ? sinon (aucune magnitude wiki) l'ancien comportement sans plafond. */
 function idleAdventureSpecialsCappedV1(o){const l=idleAdventureSpecialsListV1(o);return l.length>0&&l[0].max>1e-12}
 function idleAdventureSpecialsRoomPointsV1(o){
@@ -3686,32 +3681,7 @@ const IDLE_ADVENTURE_COFFRE_PLACE_V1=Object.freeze((()=>{
   }
   return place;
 })());
-/* Rang d'une case : zone de progression (set de la zone pour l'équipement, zone de butin pour un special ; sans zone connue = en dernier). */
-const IDLE_ADVENTURE_ZONE_ID_RANK_V1=Object.freeze((()=>{
-  const rang={};
-  IDLE_ADVENTURE_ZONES.forEach((z,i)=>{if(z&&z.id&&!(z.id in rang))rang[z.id]=i;});
-  return rang;
-})());
 const IDLE_ADVENTURE_SPECIAL_ORDRE_V1=Object.freeze(Object.fromEntries(Object.keys(SPECIALS).map((id,i)=>[id,i])));
-/*
- * Norman (2026-09-27) : « J'aimerai qu'on puisse trier le coffre par ordre de Zone, pièce (tete, bijoux, ...) ».
- * Rang de zone = position du set dans IDLE_ADVENTURE_ZONES (déjà dans l'ordre de progression wiki, boss croissant) ;
- * un set peut appartenir à plusieurs entrées (aucun cas actuel) -- on garde la première rencontrée. Rang de pièce =
- * idleAdventureSlotRankV1, déjà utilisé pour trier les pièces d'un même set (weapon/head/chest/legs/boots puis
- * accessoires). Rien n'est révélé de plus qu'avant : seul l'ORDRE des cases change, chaque case garde son propre
- * `decouvert` (Règle n°2).
- */
-const IDLE_ADVENTURE_SET_ZONE_RANK_V1=Object.freeze((()=>{
-  const rang={};
-  IDLE_ADVENTURE_ZONES.forEach((z,i)=>{
-    if(z&&z.set&&!(z.set in rang))rang[z.set]=i;
-  });
-  return rang;
-})());
-function idleAdventureCoffreZoneRankV1(setId,zoneId){
-  const r=setId?IDLE_ADVENTURE_SET_ZONE_RANK_V1[setId]:IDLE_ADVENTURE_ZONE_ID_RANK_V1[zoneId||""];
-  return r!=null?r:Number.MAX_SAFE_INTEGER;
-}
 function idleAdventureCoffreSlotsV1(s){
   const ordreGroupe=Object.fromEntries(IDLE_ADVENTURE_COFFRE_GROUPES_V1.map((g,i)=>[g.id,i]));
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)

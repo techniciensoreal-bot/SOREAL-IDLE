@@ -13,7 +13,6 @@
       }
       const IDLE_CLIENT_PROTOCOL_VERSION=1;
       let idleAutorise=false;
-      let idleVerificationEnCours=false;
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-4 */
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-5 */
       let idleEstAdminV1=null;
@@ -113,7 +112,6 @@
           '<div style="font-size:14px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
         '</div>';
       }
-      let idleTimerSession=null;
       let idleTimerEnergie=null;
       let idleAnimationFrameJeuV214=0;
       let idleTimerJeuArrierePlanV1=0;
@@ -4472,7 +4470,6 @@
 
       let idleReserveAventureV23=0;
 
-      let idleFlushAchatsTimerV7=null;
 
       function coutBaseEntrainementIdleV73_(j){
         return Math.max(
@@ -5535,19 +5532,6 @@
       }
 
 
-      function programmerEnvoiAchatsIdleV7_(){
-        if(idleFlushAchatsTimerV7){
-          clearTimeout(
-            idleFlushAchatsTimerV7
-          );
-        }
-
-        idleFlushAchatsTimerV7=
-          setTimeout(
-            viderFileAchatsIdleV7_,
-            300
-          );
-      }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-88 */
       let idleFastNetworkBusyV60=false;
@@ -6491,81 +6475,6 @@
       }
 
 
-      function acheterEntrainementIdleV5_(type){
-        libererFocusIdleV24_();
-        if(
-          !idleEtat ||
-          ['force','endurance','organisation']
-            .indexOf(type)===-1
-        ){
-          return;
-        }
-
-        const niveauBase =
-          type === 'force'
-            ? idleEntier_(idleEtat.force) +
-              idleEntier_(idleAchatsEnvoyesV23.force) +
-              idleEntier_(
-                idleAchatsEnAttenteV7.force
-              )
-            : type === 'endurance'
-              ? idleEntier_(idleEtat.endurance) +
-                idleEntier_(idleAchatsEnvoyesV23.endurance) +
-                idleEntier_(
-                  idleAchatsEnAttenteV7.endurance
-                )
-              : idleEntier_(idleEtat.organisation) +
-                idleEntier_(idleAchatsEnvoyesV23.organisation) +
-                idleEntier_(
-                  idleAchatsEnAttenteV7.organisation
-                );
-
-        const prochainCout =
-          coutBaseEntrainementIdleV73_(
-            idleEtat
-          ) *
-          Math.max(
-            1,
-            niveauBase
-          );
-
-        if(
-          energieDisponibleIdleV9_() <
-          prochainCout
-        ){
-          rafraichirEnergieEtBoutonsIdleV9_();
-
-          toastIdleV5_(
-            'Pas assez d’énergie.'
-          );
-          return;
-        }
-
-        idleAchatsEnAttenteV7[type] += 1;
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-94 */
-        rendrePendingIdleV7_();
-        programmerEnvoiAchatsIdleV7_();
-
-        const bouton=
-          document.querySelector(
-            '[data-idle-training="'+type+'"]'
-          );
-
-        if(bouton){
-          bouton.animate(
-            [
-              {transform:'scale(1)'},
-              {transform:'scale(.94)'},
-              {transform:'scale(1)'}
-            ],
-            {
-              duration:150
-            }
-          );
-        }
-      }
-
 
       function objetEquipeIdleV10_(
         j,
@@ -6591,9 +6500,6 @@
         );
       }
 
-      function nomSlotIdleV10_(slot){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.nomSlot?a.nomSlot(slot):slot;}
-
-      function iconeSlotIdleV10_(slot){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.iconeSlot?a.iconeSlot(slot):'📦';}
 
 
       function dateIdleV25_(iso){
@@ -7128,12 +7034,6 @@
       }
 
 
-      function annulerSelectionIdleV32_(){
-        idleSelectionModeV32=false;
-        idleSelectionObjetsV32={};
-        rafraichirSelectionInventaireIdleV32_();
-      }
-
 
       function rafraichirSelectionInventaireIdleV32_(){
         const ids=
@@ -7248,12 +7148,6 @@
       }
 
 
-      function recyclerSelectionIdleV32_(){
-        recyclerObjetsOptimisteIdleV32_(
-          selectionIdsIdleV32_()
-        );
-      }
-
 
       window.__debutAppuiObjetIdleV32__=
         debutAppuiObjetIdleV32_;
@@ -7261,10 +7155,6 @@
         finAppuiObjetIdleV32_;
       window.__tapObjetIdleV32__=
         tapObjetIdleV32_;
-      window.__annulerSelectionIdleV32__=
-        annulerSelectionIdleV32_;
-      window.__recyclerSelectionIdleV32__=
-        recyclerSelectionIdleV32_;
 
 
       function casesInventaireIdleV78_(j){
@@ -8927,8 +8817,6 @@
         );
       }
 
-      window.__combattreAventureIdleV17__=
-        combattreAventureIdleV17_;
 
 
       let idleRenaissanceEnCoursV14=false;
@@ -12037,13 +11925,6 @@
       }
 
 
-      function viderJournalCombatIdleV70_(){
-        idleCombatLogV70=[];
-        idleCombatLogAutoScrollV70_=true;
-        idleCombatLogScrollMemoV70_=0;
-        dessinerJournalCombatIdleV70_();
-      }
-
 
       function journalCombatEstEnBasV70_(
         host
@@ -12166,8 +12047,6 @@
       }
 
 
-      window.__viderJournalCombatIdleV70__=
-        viderJournalCombatIdleV70_;
 
 
       function labelCapaciteBossIdleV70_(
@@ -12865,71 +12744,6 @@
         }
       }
 
-
-      function barreManaIdleV90_(j){
-        const magie=
-          j&&j.magie
-            ?j.magie
-            :null;
-
-        if(
-          !magie ||
-          !magie.debloquee
-        ){
-          return '';
-        }
-
-        const max=
-          Math.max(
-            1,
-            idleNombre_(
-              magie.manaMax
-            )
-          );
-
-        const mana=
-          Math.max(
-            0,
-            Math.min(
-              max,
-              idleNombre_(
-                magie.mana
-              )
-            )
-          );
-
-        const pct=
-          Math.max(
-            0,
-            Math.min(
-              100,
-              mana/max*100
-            )
-          );
-
-        return `
-          <div class="soreal-idle-mana-panel-v90">
-            <div class="soreal-idle-mana-head-v90">
-              <span>🔮 MANA</span>
-              <span>
-                <strong id="sorealIdleManaTextV90">
-                  ${formatGrandNombreIdleV70_(mana)}
-                  / ${formatGrandNombreIdleV70_(max)}
-                </strong>
-                · +${idleNombre_(magie.regenSeconde).toFixed(3)}/s
-              </span>
-            </div>
-
-            <div class="soreal-idle-mana-track-v90">
-              <div
-                id="sorealIdleManaFillV90"
-                class="soreal-idle-mana-fill-v90"
-                style="width:${pct}%"
-              ></div>
-            </div>
-          </div>
-        `;
-      }
 
 
       let idleSortActionV90=false;
@@ -14282,8 +14096,6 @@
         return String(idleEtat&&idleEtat.nom||'Joueur');
       };
 
-      window.__ouvrirCarteBossIdleV91__=
-        ouvrirCarteBossIdleV91_;
 
       window.__fermerCarteBossIdleV91__=
         fermerCarteBossIdleV91_;
@@ -14681,43 +14493,6 @@
       },1000);
 
 
-      function definirAutoBossSuivantIdleV49_(
-        actif
-      ){
-        if(
-          !idleEtat ||
-          !SOREAL_SESSION
-        ){
-          return;
-        }
-
-        idleEtat.autoBossSuivant=
-          Boolean(
-            actif
-          );
-
-        const checkbox=
-          document.getElementById(
-            'sorealIdleAutoBossSuivantV49'
-          );
-
-        if(checkbox){
-          checkbox.checked=
-            Boolean(
-              actif
-            );
-        }
-
-        ajouterActionRapideIdleV60_(
-          'autoBoss',
-          Boolean(actif)
-        );
-      }
-
-
-      window.__definirAutoBossSuivantIdleV49__=
-        definirAutoBossSuivantIdleV49_;
-
 
       function selectionnerBossIdleV37_(
         numero
@@ -14780,8 +14555,6 @@
       }
 
 
-      window.__selectionnerBossIdleV37__=
-        selectionnerBossIdleV37_;
 
 
 let idleDialogueTimerV76=null;
@@ -18180,11 +17953,6 @@ let idleDialogueTimerV76=null;
 
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-208 */
-      function affronterTitanAdventureIdleV47_(id,difficulty){
-        const payload={action:'titan',titan:String(id||'')};
-        if(difficulty)payload.difficulty=String(difficulty);
-        actionAdventureIdleV47_(payload);
-      }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-209 */
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-210 */
@@ -18325,11 +18093,7 @@ let idleDialogueTimerV76=null;
       window.__toggleMenuZoneAdventureIdleV1__=toggleMenuZoneAdventureIdleV1_;
 
       window.__selectionnerZoneAdventureIdleV47__=selectionnerZoneAdventureIdleV47_;
-      window.__affronterTitanAdventureIdleV47__=affronterTitanAdventureIdleV47_;
-      window.__equiperObjetAdventureIdleV47__=equiperObjetAdventureIdleV47_;
       window.__equiperParIdAdventureIdleV138__=equiperParIdAdventureIdleV138_;
-      window.__fusionnerObjetAdventureIdleV47__=fusionnerObjetAdventureIdleV47_;
-      window.__boosterCubeAdventureIdleV47__=boosterCubeAdventureIdleV47_;
       window.__actionMetaV47__=actionMetaV47_;
       window.__toastIdleV5__=toastIdleV5_;
       window.__setDiggerIdleV47__=setDiggerIdleV47_;
@@ -18374,41 +18138,6 @@ let idleDialogueTimerV76=null;
               )+
             '</div>'+
           '</div>';
-      }
-
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-224 */
-      const IDLE_TITAN_DIFFICULTY_LABELS_V145={easy:'Easy',normal:'Normal',hard:'Hard',brutal:'Brutal'};
-
-      function carteTitanAdventureIdleV145_(t,verrouille,kills){
-        const difficultes=t.difficulties&&typeof t.difficulties==='object'?t.difficulties:null;
-        const selectId='sorealIdleTitanDifficulteV145_'+idleHtml_(t.id);
-
-        const selecteur=difficultes
-          ?'<select id="'+selectId+'" class="soreal-idle-titan-difficulty-v145">'+
-            Object.keys(difficultes).map(function(cle){
-              const seuils=difficultes[cle]||{};
-              /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-225 */
-              const idleInfo=(seuils.idleP!=null&&seuils.idleT!=null)
-                ?' · Puissance Idle '+formatGrandNombreIdleV70_(seuils.idleP)+' · Endurance Idle '+formatGrandNombreIdleV70_(seuils.idleT)
-                :'';
-              return '<option value="'+idleHtml_(cle)+'" title="'+
-                'Puissance '+formatGrandNombreIdleV70_(seuils.p||0)+' · Endurance '+formatGrandNombreIdleV70_(seuils.t||0)+idleInfo+
-                '">'+idleHtml_(IDLE_TITAN_DIFFICULTY_LABELS_V145[cle]||cle)+'</option>';
-            }).join('')+
-          '</select>'
-          :'';
-
-        const onclickAffronter=difficultes
-          ?'window.__affronterTitanAdventureIdleV47__(\''+idleHtml_(t.id)+'\',document.getElementById(\''+selectId+'\').value)'
-          :'window.__affronterTitanAdventureIdleV47__(\''+idleHtml_(t.id)+'\')';
-
-        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(255,255,255,.04);opacity:'+(verrouille?'.45':'1')+'">'+
-          '<span><b>'+idleHtml_(t.name||t.id)+'</b><br><small>Boss '+idleEntier_(t.boss||0)+' · '+kills+' victoire(s)</small></span>'+
-          '<span style="display:flex;align-items:center;gap:8px">'+
-            selecteur+
-            '<button type="button" class="soreal-idle-expand-button-v25" '+(verrouille?'disabled':'onclick="'+onclickAffronter+'"')+'>Affronter</button>'+
-          '</span>'+
-        '</div>';
       }
 
 function pageAventureIdleV28_(j){
@@ -18641,121 +18370,6 @@ function pageAventureIdleV28_(j){
           '</div>';
         }).join('');
       }
-
-      function voirCollectionIdleV22_(
-        definitionId
-      ){
-        const zones=
-          idleEtat &&
-          idleEtat.collections &&
-          Array.isArray(
-            idleEtat.collections.zones
-          )
-            ?idleEtat.collections.zones
-            :[];
-
-        let objet=null;
-
-        zones.some(function(zone){
-          return (
-            Array.isArray(zone.objets)
-              ?zone.objets
-              :[]
-          ).some(function(item){
-            if(
-              String(
-                item &&
-                item.definitionId || ''
-              ) ===
-              String(
-                definitionId || ''
-              ) &&
-              item.objet
-            ){
-              objet=item.objet;
-              return true;
-            }
-
-            return false;
-          });
-        });
-
-        if(!objet){
-          return;
-        }
-
-        const detail=
-          document.getElementById(
-            'sorealIdleCollectionDetailV22'
-          );
-
-        if(!detail){
-          return;
-        }
-
-        detail.className=
-          'soreal-idle-collection-detail-v22 show';
-
-        detail.innerHTML=
-          '<div class="soreal-idle-collection-detail-name-v22">'+
-            iconeSlotIdleV10_(objet.slot)+' '+
-            idleHtml_(
-              objet.nomComplet ||
-              objet.nom ||
-              'Objet'
-            )+
-          '</div>'+
-          '<div class="soreal-idle-collection-detail-meta-v22">'+
-            idleHtml_(
-              objet.rareteNom ||
-              objet.rarete ||
-              'Commun'
-            )+
-            ' · '+
-            idleHtml_(
-              nomSlotIdleV10_(
-                objet.slot
-              )
-            )+
-            '<br>⚔️ Meilleur bonus : +'+
-            idleEntier_(
-              objet.bonusPuissance
-            )+
-            ' puissance'+
-            '<br>🔗 Meilleure fusion : +'+
-            idleEntier_(
-              objet.fusionMax
-            )+
-            (
-              objet.setNom
-                ?'<br>🧩 Set : '+
-                  idleHtml_(objet.setNom)
-                :''
-            )+
-          '</div>';
-      }
-
-
-      function voirObjetCollectionDepuisElementIdleV22_(
-        element
-      ){
-        if(!element){
-          return;
-        }
-
-        voirCollectionIdleV22_(
-          element.getAttribute(
-            'data-collection-id'
-          ) || ''
-        );
-      }
-
-
-      window.__voirObjetCollectionDepuisElementIdleV22__=
-        voirObjetCollectionDepuisElementIdleV22_;
-
-      window.__voirObjetCollectionIdleV22__=
-        voirCollectionIdleV22_;
 
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-234 */
@@ -20700,8 +20314,6 @@ function pageAventureIdleV28_(j){
       function jouerSonFermetureCoffreIdleV197_(){
         jouerEffetAudioIdleV199_('chestClose');
       }
-      window.__jouerSonOuvertureCoffreIdleV1__=jouerSonOuvertureCoffreIdleV1_;
-      window.__jouerSonFermetureCoffreIdleV197__=jouerSonFermetureCoffreIdleV197_;
 
       function toggleCoffreOuvertAdventureIdleV1_(){
         const actuel=idleCoffreOuvertV1_();
@@ -22876,7 +22488,6 @@ function pageAventureIdleV28_(j){
 
 
       /* Essai du popup « Pendant ton absence » avec un état fourni (tests, serveur de développement). */
-      window.__afficherResumeHorsLigneIdleV64__=afficherResumeHorsLigneIdleV64_;
 
       function rendreIdleEtat_(res){
         if(!res||!res.ok||!res.joueur){
@@ -23514,8 +23125,6 @@ function pageAventureIdleV28_(j){
           chargerSorealIdleNatifV4_();
         };
 
-      window.__ouvrirSorealIdleModuleV27__=
-        window.__ouvrirSorealIdleModuleV26__;
 
       window.__ouvrirSorealIdleModuleV1__=
         window.__ouvrirSorealIdleModuleV26__;
@@ -23584,8 +23193,6 @@ function pageAventureIdleV28_(j){
       }
 
 
-      window.__acheterEntrainementIdleV5__=
-        acheterEntrainementIdleV5_;
 
       window.__equiperObjetIdleV10__=
         equiperObjetIdleV10_;
@@ -23593,54 +23200,6 @@ function pageAventureIdleV28_(j){
       window.__acheterAmeliorationIdleV12__=
         acheterAmeliorationIdleV12_;
 
-      window.__ouvrirSorealIdleModuleV25__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV24__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV23__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV22__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV21__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV20__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV19__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV18__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV17__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV16__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV15__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV14__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV13__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV12__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV11__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV10__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV9__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV8__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV7__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV6__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV5__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV4__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV3__=
-        window.__ouvrirSorealIdleModuleV26__;
-      window.__ouvrirSorealIdleModuleV2__=
-        window.__ouvrirSorealIdleModuleV26__;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-348 */
     })();

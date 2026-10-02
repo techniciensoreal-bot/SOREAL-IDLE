@@ -3,10 +3,11 @@ import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
 import { verifierJetonGoogleIdleV1 } from "./idle-google-auth-v1.js";
 
 /*
- * Ce Worker n'est jamais appelé directement par un navigateur — seul le
- * binding Durable Object cross-script depuis "soreal-tv"/"soreal-app"
- * (SOREAL_IDLE) l'atteint. Aucune route publique stable n'est nécessaire
- * ici, hors le cron ci-dessous.
+ * Ce Worker a DEUX surfaces (voir AGENTS.md, section « Relation avec SOREAL-APP / SOREAL-TV »). (1) Le chemin public du frontend autonome : le shell
+ * (index.html et ses assets), /api/v1/bootstrap, /api/v1/session (ticket de lancement à usage unique), /api/v1/google-login, /api/v1/logout,
+ * /api/v1/call (authentifié par jeton de session) et les téléversements d'administration. (2) Le chemin historique par binding Durable Object
+ * cross-script depuis « soreal-tv » / « soreal-app » (SOREAL_IDLE), jamais joignable depuis l'internet. Tout autre chemin répond 404. Le cron
+ * ci-dessous ne sert qu'à garder le Durable Object chaud.
  *
  * Keep-warm (2026-09-18, Norman : "le menu Paramètres est lent") — mesuré
  * en direct : le coût n'est jamais dans le code du moteur (chaque étape
@@ -30,7 +31,7 @@ async function pingSorealIdleV1(env) {
     await stub.fetch(new Request("https://soreal-idle.invalid/__soreal-idle-v1/counts"));
   } catch (_) {
     // Un échec de keep-warm ne doit jamais faire tomber le cron en erreur visible —
-    // le prochain tick réessaiera une minute plus tard.
+    // le prochain tick réessaiera cinq minutes plus tard.
   }
 }
 
