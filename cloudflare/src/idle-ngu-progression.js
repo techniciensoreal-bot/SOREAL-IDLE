@@ -14,6 +14,7 @@ import {
   applyIdleAdventureActionV47,
   idleAdventureSnapshotV47,
   idleAdventureEquipmentStatsV47,
+  idleAdventureMemoNouvelleRequeteV1,
   idleAdventureBoostV1,
   idleAdventureAddItemV1,
   idleAdventureSpecialItemV1,
@@ -4975,11 +4976,80 @@ function convertActiveBeardOnRebirth(state, runSeconds) {
  * sur l'objet calculé ci-dessous (produits commutatifs), voir
  * macguffinApplyToBonusesV1 dans idle-macguffins-v1.js.
  */
+/*
+ * Perf (Norman, 2026-10-02 : « le serveur met 1 à 4 s à répondre à une synchro »). Profil CPU : une synchro appelait ce calcul ~207 fois, presque toujours
+ * pour lire UN seul chiffre (plafond, puissance, vitesse d'une ressource, voir idleNguEffectiveResourceStatUncappedV1), et chaque appel recalculait TOUS les
+ * bonus -- dont les statistiques d'équipement, qui re-normalisent le sac d'Aventure entier (coût proportionnel au nombre d'objets : ~3 s avec 450 objets).
+ *
+ * Mémo EXACT : les bonus sont une fonction pure du contenu de l'état ; la clé est donc le contenu complet de l'état (JSON). Un état identique (même contenu)
+ * renvoie le résultat déjà calculé ; le moindre octet de différence (un niveau gagné, un objet ramassé, une allocation) change la clé et force le recalcul.
+ * Garde-fous : le mémo est vidé au début de chaque opération du moteur (idleNguMemoNouvelleRequeteV1) et un résultat n'est jamais réutilisé plus de BONUS_MEMO_MS_V1 (filet hors moteur), et chaque lecture renvoie
+ * une COPIE (les appelants modifient parfois l'objet reçu). SOREAL_IDLE_VERIF_BONUS=1 recalcule à chaque réutilisation et échoue si les deux diffèrent
+ * (utilisé pour vérifier toute la suite de tests, voir idle-bonus-memo-v1.test.mjs).
+ */
+const BONUS_MEMO_MS_V1 = 5000;
+const __bonusMemoV1 = { cle: "", valeur: null, at: 0 };
+
+/* Durée de vie du mémo = UNE opération du moteur : remis à zéro au début de chaque opération (voir runSorealIdleOperation). Le délai ci-dessus n'est qu'un filet pour les appels hors moteur. */
+export function idleNguMemoNouvelleRequeteV1() {
+  __bonusMemoV1.valeur = null;
+  idleAdventureMemoNouvelleRequeteV1();
+}
+
+/*
+ * Portée de bonus : une région de code qui ne fait que LIRE l'état (ex. la construction de la vue du client, une fois l'état avancé) ne peut pas changer
+ * les bonus. Dans la portée, ils sont calculés une fois puis réutilisés SANS re-sérialiser l'état entier (clé exacte : ~0,9 ms par appel sur un compte
+ * avancé). Garde-fou : SOREAL_IDLE_VERIF_BONUS=1 compare l'état au début et à la fin de la portée et échoue s'il a changé (aucun test ne doit jamais le voir).
+ */
+let __porteeBonusV1 = null;
+
+function avecPorteeBonusV1(state, fn) {
+  if (__porteeBonusV1) return fn();
+  const verif = typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_BONUS === "1";
+  const cleDebut = verif ? JSON.stringify(state) : null;
+  __porteeBonusV1 = { state, valeur: null };
+  try {
+    return fn();
+  } finally {
+    __porteeBonusV1 = null;
+    if (verif && JSON.stringify(state) !== cleDebut) throw new Error("SOREAL_IDLE_BONUS_PORTEE_ETAT_MODIFIE");
+  }
+}
+
 export function idleNguBonuses(raw) {
   const state = raw && raw.version === IDLE_NGU_META_VERSION
     ? raw
     : normalizeIdleNguState(raw, {}, raw?.updatedAt || Date.now());
-  return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
+  if (__porteeBonusV1 && __porteeBonusV1.state === state) {
+    if (__porteeBonusV1.valeur === null) __porteeBonusV1.valeur = idleNguBonusesMemoV1(state);
+    return structuredClone(__porteeBonusV1.valeur);
+  }
+  return idleNguBonusesMemoV1(state);
+}
+
+function idleNguBonusesMemoV1(state) {
+  let cle = null;
+  try { cle = JSON.stringify(state); } catch (_e) { cle = null; }
+  const maintenant = Date.now();
+  if (cle !== null && __bonusMemoV1.valeur !== null && __bonusMemoV1.cle === cle && maintenant - __bonusMemoV1.at <= BONUS_MEMO_MS_V1) {
+    const copie = structuredClone(__bonusMemoV1.valeur);
+    if (typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_BONUS === "1") {
+      const frais = macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
+      if (JSON.stringify(frais) !== JSON.stringify(copie)) throw new Error("SOREAL_IDLE_BONUS_MEMO_DIVERGENT");
+    }
+    return copie;
+  }
+  const valeur = macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
+  if (cle !== null) {
+    try {
+      __bonusMemoV1.valeur = structuredClone(valeur);
+      __bonusMemoV1.cle = cle;
+      __bonusMemoV1.at = maintenant;
+    } catch (_e) {
+      __bonusMemoV1.valeur = null;
+    }
+  }
+  return valeur;
 }
 
 function idleNguBonusesSansMacguffinV1(state) {
@@ -5563,6 +5633,11 @@ function nguSnapshotV1(state, context) {
 
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   const state = syncIdleNguState(raw, context, now);
+  /* L'état est avancé : la suite ne fait que le LIRE pour construire la vue du client (portée de bonus : voir idleNguBonuses). */
+  return avecPorteeBonusV1(state, () => construireSnapshotNguV1(state, context, now));
+}
+
+function construireSnapshotNguV1(state, context, now) {
   return {
     version: state.version,
     saveSchema: state.saveSchema,

@@ -24,6 +24,7 @@ import {
   normalizeIdleNguState,
   syncIdleNguState,
   idleNguBonuses,
+  idleNguMemoNouvelleRequeteV1,
   idleNguEffectiveResourceStat,
   idleNguSnapshot,
   idleNguResourceBudget,
@@ -15452,10 +15453,26 @@ function histoireBossAvecSurchargeSorealIdle_(numero, defaut) {
   return t != null ? t : String(defaut || '');
 }
 
+/*
+ * Perf (Norman, 2026-10-02 : « le serveur met 1 à 4 s à répondre à une synchro »). Profil CPU : la moitié du temps d'une synchro partait ici -- le
+ * catalogue des 300 boss était filtré, converti et trié À CHAQUE appel, et definitionBossSorealIdle_ l'appelle plusieurs fois par boss (coût quadratique).
+ * Le résultat dépend uniquement de la table IDLE_BOSS : il est gardé tant que lireTableSorealIdle_ renvoie le MÊME tableau (mémo de table, même durée de vie ;
+ * une table rechargée ou modifiée est un autre tableau, donc le résultat est recalculé). Les appelants ne font que lire (equilibrerBossPrincipal… copie).
+ */
+let __bossCatalogueMemoV1 = { source: null, valeur: null };
+
 function bossCatalogueSorealIdle_() {
-  return lireTableSorealIdle_(
-    'IDLE_BOSS'
-  )
+  const source = lireTableSorealIdle_('IDLE_BOSS');
+  if (__bossCatalogueMemoV1.source === source && __bossCatalogueMemoV1.valeur) {
+    return __bossCatalogueMemoV1.valeur;
+  }
+  const valeur = bossCatalogueConstruireSorealIdle_(source);
+  __bossCatalogueMemoV1 = { source: source, valeur: valeur };
+  return valeur;
+}
+
+function bossCatalogueConstruireSorealIdle_(table) {
+  return table
     .filter(function(ligne) {
       return (
         String(
@@ -17062,6 +17079,9 @@ export function runSorealIdleOperation(sql,operation,args,user){
     __idleRestoreCatalogFromLegacyV2(sql);
     __idleLegacyRepairDoneV1=true;
   }
+
+  /* Mémos de bonus / d'équipement : valables pour UNE opération (idle-ngu-progression.js, idleNguBonuses). */
+  idleNguMemoNouvelleRequeteV1();
 
   const workbook=__idleBuildWorkbook(sql);
   if(!workbook.getSheetByName("JOUEURS"))throw new Error("SOREAL_IDLE_JOUEURS_ABSENT");

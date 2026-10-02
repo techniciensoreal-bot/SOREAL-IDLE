@@ -2757,7 +2757,7 @@ function migrerEdgyBootsV1(s){
   }
   return s;
 }
-export function normalizeIdleAdventureStateV47(raw){if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
+export function normalizeIdleAdventureStateV47(raw){__perfCompteursV1.normalisations+=1;if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
 /*
  * Réparation (2026-09-23) : special() pose id = definitionId, et add()
  * gardait cet id -- deux exemplaires du même objet spécial (2 Pissed Off Key,
@@ -5778,7 +5778,39 @@ function idleAdventureSpecialsByTypeV1(equipped){
   }
   return out;
 }
+/*
+ * Perf (Norman, 2026-10-02) : cette fonction normalise l'état d'Aventure ENTIER (copie profonde, nettoyage de chaque objet du sac, vérification des sets) alors
+ * qu'elle n'en lit que l'équipement ; une synchro l'appelait ~460 fois (coût proportionnel au sac : ~3 s avec 450 objets). Mémo EXACT : la clé est le contenu
+ * complet de l'état reçu (JSON) -- identique => même résultat (fonction pure de cet état), le moindre octet de différence => recalcul. Réutilisation limitée
+ * à une opération du moteur (5 s au plus hors moteur), et une COPIE est renvoyée (les appelants peuvent modifier l'objet). SOREAL_IDLE_VERIF_BONUS=1 recalcule à chaque réutilisation et échoue si les
+ * deux diffèrent (voir idle-bonus-memo-v1.test.mjs).
+ */
+const __equipStatsMemoV1={cle:"",valeur:null,at:0};
+/* Compteurs de travail (lecture seule, pour les tests de non-régression de performance : voir idle-bonus-memo-v1.test.mjs). */
+const __perfCompteursV1={normalisations:0,calculsEquipement:0};
+export function idleAdventurePerfCompteursV1(){return{...__perfCompteursV1}}
+export function idleAdventurePerfRazV1(){__perfCompteursV1.normalisations=0;__perfCompteursV1.calculsEquipement=0}
+/* Durée de vie du mémo = UNE opération du moteur : remis à zéro au début de chaque opération (voir runSorealIdleOperation). Le délai ci-dessous n'est qu'un filet pour les appels hors moteur. */
+export function idleAdventureMemoNouvelleRequeteV1(){__equipStatsMemoV1.valeur=null}
 export function idleAdventureEquipmentStatsV47(raw){
+  let cle=null;
+  try{cle=raw&&typeof raw==="object"?JSON.stringify(raw):null}catch(_e){cle=null}
+  const maintenant=Date.now();
+  if(cle!==null&&__equipStatsMemoV1.valeur!==null&&__equipStatsMemoV1.cle===cle&&maintenant-__equipStatsMemoV1.at<=5000){
+    const copie=structuredClone(__equipStatsMemoV1.valeur);
+    if(typeof process!=="undefined"&&process.env&&process.env.SOREAL_IDLE_VERIF_BONUS==="1"){
+      if(JSON.stringify(idleAdventureEquipmentStatsCalculV47(raw))!==JSON.stringify(copie))throw new Error("SOREAL_IDLE_EQUIP_MEMO_DIVERGENT");
+    }
+    return copie;
+  }
+  const valeur=idleAdventureEquipmentStatsCalculV47(raw);
+  if(cle!==null){
+    try{__equipStatsMemoV1.valeur=structuredClone(valeur);__equipStatsMemoV1.cle=cle;__equipStatsMemoV1.at=maintenant}catch(_e){__equipStatsMemoV1.valeur=null}
+  }
+  return valeur;
+}
+function idleAdventureEquipmentStatsCalculV47(raw){
+  __perfCompteursV1.calculsEquipement+=1;
   const s=normalizeIdleAdventureStateV47(raw);
   const ids=[s.equipment.head,s.equipment.chest,s.equipment.legs,s.equipment.boots,s.equipment.weapon,...(s.equipment.accessories||[])].filter(Boolean);
   const equipped=s.inventory.filter(x=>ids.includes(x.id));

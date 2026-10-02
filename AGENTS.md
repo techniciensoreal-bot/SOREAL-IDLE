@@ -149,6 +149,21 @@ décrire ce processus de mémoire, le relire si ce fichier change) :
   dire un déploiement raté visible immédiatement, pas un garde-fou
   staging.
 
+## Performance du moteur (synchro)
+
+Mesuré en production le 2026-10-02 : un appel minuscule fait ~45 ms aller-retour, une synchro 1 à 2 s -- le temps est dans le CALCUL du moteur, pas dans le
+réseau ni dans la lecture du classeur. Trois causes traitées, à ne pas réintroduire :
+- **Catalogue des boss** : `bossCatalogueSorealIdle_()` est mémorisé (clé = le tableau renvoyé par `lireTableSorealIdle_`) ; il était reconstruit à chaque appel de
+  `definitionBossSorealIdle_` (coût quadratique sur 300 boss), et le catalogue envoyé au client est filtré AVANT le calcul de `puissanceMinimum` pour les boss non découverts.
+- **Bonus et équipement** : `idleNguBonuses` et `idleAdventureEquipmentStatsV47` sont mémorisés avec le CONTENU de l'état comme clé (jamais un résultat périmé : le
+  moindre octet de différence recalcule), une COPIE est renvoyée, le mémo est remis à zéro au début de chaque opération (`idleNguMemoNouvelleRequeteV1`). Avant : ~207
+  calculs de bonus et ~460 normalisations du sac d'Aventure par synchro (~3 s avec 450 objets). `construireSnapshotNguV1` s'exécute dans une « portée de bonus » (lecture
+  seule de l'état avancé) : ne rien y MUTER qui touche les bonus.
+- **Réponses allégées** (`idle-catalogues-v1.js`) : pièces stables omises, tableaux ligne par ligne.
+Règles : pas de champ horodaté ni aléatoire dans l'état du moteur (il changerait la clé à chaque appel et annulerait le mémo) ; après TOUT changement du calcul des bonus ou de
+l'équipement, lancer toute la suite avec `SOREAL_IDLE_VERIF_BONUS=1` (chaque réutilisation du mémo est comparée à un recalcul, et la portée vérifie que l'état n'a pas changé).
+`idle-bonus-memo-v1.test.mjs` garde aussi le nombre de normalisations par synchro (non-régression de vitesse).
+
 ## Process attendu pour tout changement
 
 1. Lancer la suite complète en local avant de committer :
