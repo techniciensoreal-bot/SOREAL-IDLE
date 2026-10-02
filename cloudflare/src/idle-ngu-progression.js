@@ -7219,6 +7219,13 @@ function applyRebirthResetV56_(state,context,t,options={}) {
       syncNguAllocationTotalsV1(s);
       s.active=false;
     }
+    /*
+     * Wiki NGU, page Rebirths, « What do I lose when I rebirth? » : « Access to the Adventure, Augmentation, Time Machine, and Blood Magic tabs until
+     * their related bosses are beaten. » (Norman, 2026-10-02 : Augmentations restait ouvert après un défi ; ses points posés étaient rendus et faussaient
+     * le temps de génération.) Ces menus se referment donc à chaque Rebirth/défi/changement de difficulté ; la synchro les rouvre dès que le compteur
+     * de boss DU RUN atteint de nouveau leur seuil (unlockSatisfied).
+     */
+    if(def.id==="augmentations"||def.id==="timeMachine"||def.id==="bloodMagic")s.unlocked=false;
     if(def.id==="augmentations")s.data=createAugmentationData();
     if(def.id==="timeMachine"){
       const speedBank=Math.max(0,int(state.bank.timeMachineSpeed,0));

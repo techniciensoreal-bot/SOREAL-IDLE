@@ -3861,7 +3861,13 @@ function coffreRetirer(s,id){
  */
 function unlockedZone(z,bosses,difficulty,difficultyPeaks){
   if(!z.requiredDifficulty){
-    return I(bosses)>=I(z.boss)||I((difficultyPeaks||{}).normal)>=I(z.boss)
+    /*
+     * Norman (2026-10-02) : après un Rebirth, une zone se referme tant que le boss qui l'ouvre n'est pas retué DANS CE RUN (même s'il l'a été dans un run
+     * précédent). Seule exception, celle du wiki (page Evil difficulty) : « Normal zones remain unlocked at all times » -- en Evil/Sadistic, les zones
+     * Normal restent ouvertes grâce au pic atteint en Normal.
+     */
+    const horsNormal=difficulty==="difficile"||difficulty==="extreme";
+    return I(bosses)>=I(z.boss)||(horsNormal&&I((difficultyPeaks||{}).normal)>=I(z.boss))
   }
   return difficulty===z.requiredDifficulty&&I(bosses)>=I(z.boss)
 }

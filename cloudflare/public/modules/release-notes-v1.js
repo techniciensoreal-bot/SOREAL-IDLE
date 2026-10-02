@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.1',
+    courante:'9.2',
     versions:[
+      {
+        version:'9.2',
+        nom:'Un Rebirth qui compte',
+        date:'2026-10-02',
+        points:[
+          'Après un Rebirth ou en lançant un défi, certains menus se referment tant que tu n’as pas retué les boss qui les ouvrent, comme dans le jeu d’origine.',
+          'Les zones d’Aventure se referment aussi : il faut retuer, dans le run en cours, le boss de chaque zone pour y retourner farmer.',
+          'Les points d’énergie ou de magie posés dans un menu fermé ne sont plus rendus ni ne faussent le temps de génération.',
+        ]
+      },
       {
         version:'9.1',
         nom:'Des combats plus vivants',

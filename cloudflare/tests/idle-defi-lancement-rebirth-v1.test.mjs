@@ -65,6 +65,12 @@ assert.equal(j.bossVaincus, 0, "boss du run remis à 0");
 assert.equal(j.systemes.adventure.selectedZone, "safe", "Adventure repart en Safe Zone");
 assert.equal((j.autoAventure ?? j.aventure?.auto).actif, false, "plus de farm automatique");
 assert.equal(j.pvJoueur, j.pvJoueurMax, "PV au maximum, comme après un Rebirth");
+// Menus et zones re-verrouillés (wiki, page Rebirths) : Augmentations/Time Machine/Blood Magic fermés, plus aucune zone d'Aventure avant de retuer les boss du run.
+const etatSys = (id) => j.systemes.systems.find((x) => x.id === id).state.unlocked;
+assert.equal(etatSys("augmentations"), false);
+assert.equal(etatSys("timeMachine"), false);
+assert.equal(etatSys("bloodMagic"), false);
+assert.equal(j.systemes.adventure.zones.filter((z) => z.unlocked).length, 0, "aucune zone ouverte au boss 0 du run");
 
 const stop = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "challenge", mode: "stop" }], user);
 assert.ok(stop.ok);

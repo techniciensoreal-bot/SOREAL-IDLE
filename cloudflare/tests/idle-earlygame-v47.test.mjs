@@ -799,7 +799,7 @@ const fresh=(context={}, now=1_000_000)=>
   aug=applyIdleNguAction(aug,{action:"challenge",mode:"start",challenge:"noAugmentations"},{bosses:75},10_000).state;
   aug.systems.augmentations.data.pairs.scissors.level=999;
   assert.equal(idleNguAugmentationMultiplier(aug),1);
-  assert.throws(()=>applyIdleNguAction(aug,{action:"allocate",system:"augmentations",resource:"energy",value:1},{bosses:1},20_000),/DEFI_SANS_AUGMENTATIONS/);
+  assert.throws(()=>applyIdleNguAction(aug,{action:"allocate",system:"augmentations",resource:"energy",value:1},{bosses:30},20_000),/DEFI_SANS_AUGMENTATIONS/);  // le menu se rouvre au boss voulu DU RUN (voir idle-relock-rebirth-v1), puis le défi l'interdit
 
   let tm=fresh({bosses:100},0);
   tm.systems.diggers.unlocked=true;
