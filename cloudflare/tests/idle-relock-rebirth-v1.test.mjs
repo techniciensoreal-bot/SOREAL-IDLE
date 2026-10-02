@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { normalizeIdleNguState, applyIdleNguAction, rebirthIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
-import { idleAdventureSnapshotV47, normalizeIdleAdventureStateV47 } from "../src/idle-adventure-v47.js";
+import { idleAdventureSnapshotV47, normalizeIdleAdventureStateV47, applyIdleAdventureActionV47 } from "../src/idle-adventure-v47.js";
 
 /*
  * Re-verrouillage après Rebirth / défi (Norman, 2026-10-02). Wiki NGU, page Rebirths, « What do I lose when I rebirth? » : « Access to the Adventure,
@@ -59,5 +59,22 @@ const ouverts = (s) => ["augmentations", "timeMachine", "bloodMagic"].map((id) =
   assert.deepEqual(zones(run8), ["safe", "tutorial", "sewers"], "boss 8 : seulement les zones dont le boss est retué dans ce run");
   const evil = idleAdventureSnapshotV47(adv, 0, "difficile", { normal: 140 });
   assert.ok(zones(evil).includes("sewers") && zones(evil).includes("chocolate"), "Evil : les zones Normal restent ouvertes (wiki)");
+}
+// Zone sélectionnée avant le Rebirth et maintenant fermée (Norman, 2026-10-02 : « plus de combat en Aventure ») : la sélection retombe sur la zone ouverte la plus
+// avancée au lieu de bloquer chaque combat avec ZONE_VERROUILLEE.
+{
+  const adv = normalizeIdleAdventureStateV47({});
+  adv.selectedZone = "forest";
+  adv.lastCombatZone = "forest";
+  const snap5 = idleAdventureSnapshotV47(adv, 5, "normal", {});
+  assert.equal(snap5.selectedZone, "tutorial", "boss 5 : Forêt fermée, on retombe sur la Zone Tutoriel");
+  assert.equal(snap5.lastCombatZone, "tutorial");
+  const snap0 = idleAdventureSnapshotV47(adv, 0, "normal", {});
+  assert.equal(snap0.selectedZone, "safe", "aucune zone de combat ouverte : Zone sûre");
+  const snap20 = idleAdventureSnapshotV47(adv, 20, "normal", {});
+  assert.equal(snap20.selectedZone, "forest", "zone ouverte : jamais touchée");
+  const demarre = applyIdleAdventureActionV47(adv, { action: "startZoneFight" }, { bosses: 5, difficulty: "normal", difficultyPeaks: {}, stats: { power: 1000, hp: 1000, toughness: 1000, regen: 1 } }, T0);
+  assert.equal(demarre.state.selectedZone, "tutorial", "le combat démarre dans la zone ouverte au lieu d'échouer");
+  assert.equal(demarre.state.fight.active, true);
 }
 console.log("idle-relock-rebirth-v1: OK");
