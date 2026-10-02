@@ -110,7 +110,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
     "rangée Magic Cap: Cap/1/2/1/4"
   );
   assert.ok(
-    meta.includes("<span>Idle</span><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'idle\\',.5)\">1/2</button><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'idle\\',.25)\">1/4</button><button type=\"button\" class=\"clear\" onclick=\"window.__viderBloodMagicIdleV1__()\">Tout retirer</button>"),
+    meta.includes("<span>💤 Idle</span><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'idle\\',.5)\">1/2</button><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'idle\\',.25)\">1/4</button><button type=\"button\" class=\"clear\" onclick=\"window.__viderBloodMagicIdleV1__()\">Tout retirer</button>"),
     "rangée Idle: 1/2/1/4/Tout retirer"
   );
   assert.ok(

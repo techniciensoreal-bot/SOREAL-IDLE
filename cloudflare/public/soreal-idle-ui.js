@@ -14915,7 +14915,7 @@ let idleDialogueTimerV76=null;
           >
             <div class="soreal-idle-bt-main-v120">
               <div class="soreal-idle-bt-name-v120">
-                ${idleHtml_(skill.name)}
+                ${idleHtml_(window.__SOREAL_IDLE_ICONES_V1__?window.__SOREAL_IDLE_ICONES_V1__.avec('basicTraining',skill.id,skill.name):skill.name)}
               </div>
 
               <div class="soreal-idle-bt-track-v120">
@@ -15058,7 +15058,7 @@ let idleDialogueTimerV76=null;
             </div>
 
             <div class="soreal-idle-bt-input-box-v120">
-              <label for="sorealIdleTrainingInputV120">Input</label>
+              <label for="sorealIdleTrainingInputV120">🎚️ Input</label>
               <input
                 id="sorealIdleTrainingInputV120"
                 type="text"
@@ -15070,14 +15070,14 @@ let idleDialogueTimerV76=null;
             </div>
 
             <div class="soreal-idle-bt-presets-v120">
-              <span>Energy Cap</span>
+              <span>⚡ Energy Cap</span>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',1)">Cap</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.5)">1/2</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.25)">1/4</button>
             </div>
 
             <div class="soreal-idle-bt-presets-v120">
-              <span>Idle</span>
+              <span>💤 Idle</span>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.5)">1/2</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.25)">1/4</button>
               <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
