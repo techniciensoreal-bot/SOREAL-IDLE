@@ -1963,7 +1963,8 @@
 
       function texteCombatIdleV121_(
         element,
-        texte
+        texte,
+        regen
       ){
         if(!element)return;
 
@@ -1987,7 +1988,7 @@
           let structureChangee=false;
           if(!cur||!max){
             element.textContent='';
-            [['soreal-idle-hp-ic-v1',m[1]],['soreal-idle-hp-cur-v1',m[2]],['soreal-idle-hp-sep-v1',' / '],['soreal-idle-hp-max-v1',m[3]]].forEach(function(p){
+            [['soreal-idle-hp-ic-v1',m[1]],['soreal-idle-hp-cur-v1',m[2]],['soreal-idle-hp-sep-v1',' / '],['soreal-idle-hp-max-v1',m[3]],['soreal-idle-hp-regen-v1','']].forEach(function(p){
               const span=document.createElement('span');
               span.className=p[0];
               span.textContent=p[1];
@@ -2002,8 +2003,13 @@
             structureChangee=true;
           }
           if(cur.textContent!==m[2])cur.textContent=m[2];
-          const largeurCase=Math.max(m[3].length+3,7)+'ch'; /* au moins « 999,99 » : la regen affiche deux décimales sous 1000 */
-          if(cur.style.minWidth!==largeurCase)cur.style.minWidth=largeurCase;
+          /* Largeur constante de la case : la valeur max (même format, deux décimales) + 1 caractère de marge (« 999,99 » sous un max « 1,00K »). */
+          const largeurCase='calc('+(Math.max(m[3].length,6)+1)+'ch + .5em)';
+          if(cur.style.width!==largeurCase)cur.style.width=largeurCase;
+          /* Régénération par seconde : petit texte vert lumineux, tout à droite de la pastille (positionné en absolu : ne déplace jamais les chiffres). */
+          const regenEl=element.querySelector('.soreal-idle-hp-regen-v1');
+          const regenTexte=String(regen||'');
+          if(regenEl&&regenEl.textContent!==regenTexte)regenEl.textContent=regenTexte;
           ajusterVieDuelIdleV1_(element,structureChangee);
           return;
         }
@@ -2075,6 +2081,19 @@
        * bougent. Décimales fixes ici, suffixe toujours présent tant que la
        * regen est > 0, et chiffres tabulaires (soreal-idle-ui.css).
        */
+      /*
+       * Chiffres de vie du duel : TOUJOURS deux décimales, quelle que soit la valeur (Norman, 2026-10-02 : « de 35,04 à 35 les chiffres bougent ; 35,5 au lieu de 35,50
+       * aussi »). « 35,00 » reste « 35,00 », « 1,50K » reste « 1,50K » : le nombre de caractères ne dépend que de l'ordre de grandeur, jamais du dernier chiffre.
+       */
+      function formaterPvFixeIdleV1_(valeur){
+        const n=Math.max(0,idleNombre_(valeur));
+        if(n<1000)return n.toFixed(2).replace('.',',');
+        const suffixes=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid'];
+        const rang=Math.floor(Math.log10(n)/3);
+        if(rang>=suffixes.length)return n.toExponential(2);
+        return (n/Math.pow(1000,rang)).toFixed(2)+suffixes[rang];
+      }
+
       function formaterDecimalesFixesIdleV1_(valeur,decimales){
         const n=idleNombre_(valeur);
         if(Math.abs(n)>=1000)return formatGrandNombreIdleV70_(n,decimales);
@@ -2799,7 +2818,7 @@
                 if(bossPvFinalEl){
                   texteCombatIdleV121_(
                     bossPvFinalEl,
-                    '❤️ 0 / '+formatGrandNombreIdleV70_(idleEtat.bossPvMax)
+                    '❤️ '+formaterPvFixeIdleV1_(0)+' / '+formaterPvFixeIdleV1_(idleEtat.bossPvMax),''
                   );
                 }
                 const bossBarFinalEl=document.getElementById('sorealIdleBossBarV7');
@@ -3162,9 +3181,10 @@
           texteCombatIdleV121_(
             joueurPvEl,
             '❤️ '+
-            (regenJoueurVisibleV176>0&&idleNombre_(idleEtat.pvJoueur)>0?formaterDecimalesFixesIdleV1_(idleEtat.pvJoueur,2):formatGrandNombreIdleV70_(idleEtat.pvJoueur))+
+            formaterPvFixeIdleV1_(idleEtat.pvJoueur)+
             ' / '+
-            formatGrandNombreIdleV70_(idleEtat.pvJoueurMax)
+            formaterPvFixeIdleV1_(idleEtat.pvJoueurMax),
+            regenJoueurVisibleV176>0?'+'+formaterPvFixeIdleV1_(regenJoueurVisibleV176)+'/s':''
           );
         }
 
@@ -3224,15 +3244,10 @@
           texteCombatIdleV121_(
             bossPvEl,
             '❤️ '+
-            (
-              bossEnRegenV174
-                ?formaterDecimalesFixesIdleV1_(idleEtat.bossPv,2)
-                :formatGrandNombreIdleV70_(idleEtat.bossPv)
-            )+
+            formaterPvFixeIdleV1_(idleEtat.bossPv)+
             ' / '+
-            formatGrandNombreIdleV70_(
-              idleEtat.bossPvMax
-            )
+            formaterPvFixeIdleV1_(idleEtat.bossPvMax),
+            bossEnRegenV174?'+'+formaterPvFixeIdleV1_(idleEtat.regenBoss)+'/s':''
           );
         }
 
@@ -14859,8 +14874,8 @@ let idleDialogueTimerV76=null;
                       id="sorealIdleJoueurPvV15"
                       style="text-align:center"
                     >
-                      ❤️ ${formatGrandNombreIdleV70_(j.pvJoueur)}
-                      / ${formatGrandNombreIdleV70_(j.pvJoueurMax)}
+                      ❤️ ${formaterPvFixeIdleV1_(j.pvJoueur)}
+                      / ${formaterPvFixeIdleV1_(j.pvJoueurMax)}
                     </div>
 
                     <div class="soreal-idle-playerbar-wrap-v15">
@@ -14920,8 +14935,8 @@ let idleDialogueTimerV76=null;
                       id="sorealIdleBossPvV7"
                       style="text-align:center"
                     >
-                      ❤️ ${formatGrandNombreIdleV70_(j.bossPv)}
-                      / ${formatGrandNombreIdleV70_(j.bossPvMax)}
+                      ❤️ ${formaterPvFixeIdleV1_(j.bossPv)}
+                      / ${formaterPvFixeIdleV1_(j.bossPvMax)}
                     </div>
 
                     <div class="soreal-idle-bossbar-wrap-v7">

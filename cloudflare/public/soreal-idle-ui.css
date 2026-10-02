@@ -8225,3 +8225,40 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
   cursor:pointer;
 }
 .soreal-idle-bt-synchro-v1 input{width:auto;margin:0}
+
+/*
+ * Pastilles de vie du duel (Norman, 2026-10-02) : le cadre vert du joueur et le cadre rouge du boss font la largeur des portraits, avec les mêmes angles que le cadre du joueur
+ * (10 px, comme le portrait), et non plus une pilule arrondie. La régénération par seconde est un petit texte vert lumineux tout à droite du cadre (en absolu : il ne
+ * déplace jamais les chiffres). Le cœur, les PV actuels, « / » et le max sont sur une ligne fixe : seule la valeur change, jamais leur place.
+ */
+.soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
+  position:relative;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  width:calc(100% + 4px) !important;
+  max-width:none !important;
+  margin:8px -2px 0 !important;
+  padding:4px 74px 5px 10px;
+  border-radius:10px !important;
+  box-sizing:border-box;
+}
+.soreal-idle-note-v4 .soreal-idle-hp-ic-v1,
+.soreal-idle-note-v4 .soreal-idle-hp-sep-v1,
+.soreal-idle-note-v4 .soreal-idle-hp-max-v1{white-space:pre}
+.soreal-idle-note-v4 .soreal-idle-hp-ic-v1{margin-right:.35em}
+.soreal-idle-note-v4 .soreal-idle-hp-cur-v1{flex:none}
+.soreal-idle-note-v4 .soreal-idle-hp-regen-v1{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0;
+  color:#8dffb4;
+  text-shadow:0 0 6px rgba(70,255,140,.95),0 0 12px rgba(70,255,140,.55);
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.soreal-idle-note-v4 .soreal-idle-hp-regen-v1:empty{display:none}

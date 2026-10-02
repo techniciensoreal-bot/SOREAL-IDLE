@@ -29,7 +29,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 {
   const bloc = themes.slice(themes.indexOf("Broken Time Machine : retour à l'aspect du jeu d'origine"));
   for (const couleur of ["#5f86ab", "#a5dfb4", "#ebe89b", "#c1c1c1", "#59d08b", "#fdfba7"]) assert.ok(bloc.includes(couleur), "couleur du jeu : " + couleur);
-  assert.ok(index.includes("/soreal-idle-themes.css?v=24"));
+  assert.ok(index.includes("/soreal-idle-themes.css?v=25"));
 }
 
 // 3. Paramètres : trois barres de son, cases cochées de base.

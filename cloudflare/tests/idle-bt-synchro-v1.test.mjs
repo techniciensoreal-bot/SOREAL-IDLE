@@ -74,7 +74,7 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
 // 5. Chiffres de vie fixes : case des PV actuels à largeur constante, alignée à droite.
 {
-  assert.ok(ui.includes("soreal-idle-hp-cur-v1") && ui.includes("Math.max(m[3].length+3,7)+'ch'"), "largeur de la case = valeur max + une décimale");
+  assert.ok(ui.includes("soreal-idle-hp-cur-v1") && ui.includes("'calc('+(Math.max(m[3].length,6)+1)+'ch + .5em)'"), "largeur constante de la case des PV actuels");
   const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
   assert.ok(/\.soreal-idle-hp-cur-v1\{[^}]*display:inline-block;[^}]*text-align:right;/.test(css));
 }
