@@ -390,7 +390,7 @@ function mediaHeaders_(source,ttl){
 }
 function normaliserNomItemR2_(value){
   let s=String(value||"").trim();
-  try{s=s.normalize("NFD").replace(/[̀-ͯ]/g,"");}catch(_){}
+  try{s=s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");}catch(_){}
   return s.toLowerCase().replace(/[^a-z0-9]+/g,"");
 }
 function paramItemR2_(url,name,max){
@@ -881,7 +881,7 @@ async function clesAdventureR2_(env){
 }
 function motsR2_(value){
   let s=String(value||"").trim();
-  try{s=s.normalize("NFD").replace(/[̀-ͯ]/g,"");}catch(_){}
+  try{s=s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");}catch(_){}
   return s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 }
 function scoreCleZoneR2_(key,name){
@@ -1238,6 +1238,55 @@ async function bossImage_(request,env,url){
   return reponseObjetR2_(request,env,{key});
 }
 
+/*
+ * Image d'un titan (Norman, 2026-10-02 : « on doit voir son image ») : /api/idle/media/titan?id=t1&tier=hard&form=2. Aucun dossier de titans
+ * n'est connu d'avance (les images sont déposées directement dans R2) : on cherche, parmi les images de idle/titans/ puis idle/bosses/ puis
+ * idle/aventure/, celle dont le nom contient celui du titan (comparaison sans accents ni séparateurs). Palier (v1..v4) ou forme (Walderp 1..5)
+ * départagent quand plusieurs images existent. 404 si rien : le jeu affiche alors un emoji.
+ */
+const IDLE_TITAN_IMAGES_JETONS_V1=Object.freeze({
+  t1:["gordonramsaybolton","gordonramsay","grb"],t2:["grandcorruptedtree","gct"],t3:["jakefromaccounting","jake"],t4:["uugtheunmentionable","uug"],
+  t5:["walderp"],t6:["thebeast","beast"],nerd:["greasynerd","nerd"],godmother:["thegodmother","godmother"],t7:["theexile","exile"],
+  hungers:["ithungers","hungers"],lobster:["rocklobster","lobster"],amalgamate:["titangamation","amalgamate"],tippi:["tippithetutorialmouse","tippi"],
+  traitor:["thetraitor","traitor"]
+});
+const IDLE_TITAN_PALIERS_V1=Object.freeze({easy:"v1",normal:"v2",hard:"v3",brutal:"v4"});
+function normaliserNomR2_(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+export function choisirCleTitanR2_(keys,id,tier,form){
+  const jetons=IDLE_TITAN_IMAGES_JETONS_V1[String(id||"")];
+  if(!jetons)return "";
+  const marqueur=form>=0?String(form+1):(IDLE_TITAN_PALIERS_V1[tier]||"");
+  let meilleure="",meilleurScore=-1;
+  for(const key of keys){
+    const fichier=normaliserNomR2_(String(key).split("/").pop().replace(/\.[^.]+$/,""));
+    const rang=jetons.findIndex(j=>fichier.includes(j));
+    if(rang<0)continue;
+    let score=100-rang*10;
+    if(String(key).startsWith("idle/titans/"))score+=50;
+    else if(String(key).startsWith("idle/bosses/"))score+=10;
+    if(marqueur&&fichier.endsWith(marqueur))score+=30;
+    else if(marqueur&&/\d$/.test(fichier))score-=5;
+    if(score>meilleurScore){meilleurScore=score;meilleure=key}
+  }
+  return meilleure;
+}
+async function titanImage_(request,env,url){
+  const id=String(url.searchParams.get("id")||"").trim();
+  if(!/^[a-z0-9]{1,16}$/i.test(id))return new Response("Titan IDLE invalide",{status:400,headers:{"cache-control":"no-store"}});
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Média de titan indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const tier=String(url.searchParams.get("tier")||"").trim().toLowerCase();
+  const formBrut=String(url.searchParams.get("form")||"").trim();
+  const form=/^\d{1,2}$/.test(formBrut)?Number(formBrut):-1;
+  for(const prefixe of ["idle/titans/",IDLE_BOSSES_R2_PREFIX,"idle/aventure/"]){
+    const keys=await objetsDossierMobR2_(env,prefixe);
+    const key=choisirCleTitanR2_(keys,id,tier,form);
+    if(key)return reponseObjetR2_(request,env,{key});
+  }
+  return new Response("Image de titan introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+}
+
 async function bannerImage_(request,env,url){
   const nom=String(url.searchParams.get("name")||"").trim();
   if(!/^[A-Za-z0-9_.-]{1,120}$/.test(nom)||nom.includes("..")){
@@ -1296,6 +1345,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/safe-zone",
     "/api/idle/media/boost",
     "/api/idle/media/boss",
+    "/api/idle/media/titan",
     "/api/idle/media/player",
     "/api/idle/media/banner",
     "/api/idle/media/roster",
@@ -1321,6 +1371,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/safe-zone")return adventureSafeZone_(request,env,url);
   if(url.pathname==="/api/idle/media/boost")return boostImage_(request,env,url);
   if(url.pathname==="/api/idle/media/boss")return bossImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/titan")return titanImage_(request,env,url);
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);

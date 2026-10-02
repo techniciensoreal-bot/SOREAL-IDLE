@@ -44,6 +44,19 @@ const avant = lire().joueur;
 assert.equal(avant.systemes.adventure.selectedZone, "z3");
 assert.equal((avant.autoAventure ?? avant.aventure?.auto).actif, true);
 
+// Combat de titan (2026-10-02) : lancer un titan ne doit JAMAIS réinitialiser le run comme un défi (collision de clé « started » corrigée).
+{
+  const t = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "adventure", adventure: { action: "startTitanFight", titan: "t1" } }], user);
+  assert.ok(t.ok, JSON.stringify(t));
+  assert.equal(t.joueur.systemes.adventure.fight.active, true, "le titan est l'ennemi du combat");
+  assert.equal(t.joueur.systemes.adventure.fight.titanId, "t1");
+  assert.equal(t.joueur.bossVaincus, 70, "le run n'est pas réinitialisé par un combat de titan");
+  const perdu = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "adventure", adventure: { action: "loseZoneFight" } }], user);
+  assert.ok(perdu.ok, JSON.stringify(perdu));
+  assert.equal(perdu.joueur.systemes.adventure.fight.active, false);
+  assert.equal(perdu.joueur.bossVaincus, 70);
+}
+
 const start = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "challenge", mode: "start", challenge: "basic" }], user);
 assert.ok(start.ok, JSON.stringify(start));
 const j = start.joueur;

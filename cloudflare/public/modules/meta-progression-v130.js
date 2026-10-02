@@ -206,6 +206,12 @@
                       confirmed:true
                     }
                   );
+                }else if(
+                  payload&&payload.action==='adventure'&&payload.adventure&&
+                  payload.adventure.action==='startTitanFight'&&typeof window.__menuIdleV28__==='function'
+                ){
+                  /* Le titan est maintenant l'ennemi du combat : on ouvre la scène d'Aventure (Norman, 2026-10-02). */
+                  window.__menuIdleV28__('aventure');
                 }else{
                   window.__SOREAL_IDLE_META_HOST_V130__.rendreIdleEtat_({
                     ok:true,

@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.0',
+    courante:'9.1',
     versions:[
+      {
+        version:'9.1',
+        nom:'Des combats plus vivants',
+        date:'2026-10-02',
+        points:[
+          'Les ennemis les plus coriaces se combattent maintenant dans la scène d’Aventure, avec leur image, leur barre de vie, leurs vraies statistiques et un compte à rebours avant leur retour.',
+          'Lancer un défi te fait renaître comme un vrai Rebirth : l’Aventure repart en Safe Zone sans combat automatique et tes PV sont remis au maximum.',
+          'Les objets spéciaux de la Collection affichent leur image, et l’image du Money Pit n’est plus coupée sur les côtés.',
+          'La voix du narrateur se retrouve avec la balise (narrateur) dans les histoires.',
+        ]
+      },
       {
         version:'9.0',
         nom:'Un jeu vivant et lisible',

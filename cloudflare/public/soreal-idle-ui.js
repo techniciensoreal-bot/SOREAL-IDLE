@@ -4517,6 +4517,7 @@
       function toastIdleV5_(message){
         /* Codes d'erreur des défis -> phrase française (modules/challenges-v1.js). */
         if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof message==='string')message=window.__SOREAL_IDLE_DEFIS_V1__.traduire(message);
+        if(window.__SOREAL_IDLE_TITANS_V1__&&typeof message==='string')message=window.__SOREAL_IDLE_TITANS_V1__.traduire(message);
         const el=
           document.getElementById(
             'sorealIdleToastV5'
@@ -18087,7 +18088,7 @@ function pageAventureIdleV28_(j){
           '</div>'+
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-232 */
           (zone?rendreZoneCombatAdventureIdleV1_(a,j.nom):'')+
-          (titans.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">👹 Titans</div><div style="display:grid;gap:8px">'+titans.map(function(t){const verrouille=t.progressionUnlocked===false;const kills=idleEntier_(t.state&&t.state.kills||0);return carteTitanAdventureIdleV145_(t,verrouille,kills);}).join('')+'</div></div>':'')+
+          /* Les titans ont leur propre menu (modules/titans-v1.js) : plus de liste ici. */''+
           (deblocagesDisponibles.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🔓 Objets de déblocage</div><div style="display:grid;gap:8px">'+deblocagesDisponibles.map(function(id){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[id];return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(120,255,180,.08);border:1px solid rgba(120,255,180,.3)"><span><b>'+idleHtml_(d.nom)+'</b><br><small>Débloque '+idleHtml_(d.systeme)+'</small></span><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__consommerDeblocageAdventureIdleV47__(\''+idleHtml_(id)+'\')">Utiliser</button></div>';}).join('')+'</div></div>':'')+
           /* 2026-09-24 (Norman : « trop de menus sur téléphone ») : tout l'Inventory (équipement, sac, coffre, options) est maintenant sous la page Adventure. */
           (j.inventaireDebloque?pageInventaireIdleV28_(j):'');
@@ -21753,7 +21754,10 @@ function pageAventureIdleV28_(j){
           case 'challenges':
             return pageSystemeMetaIdleV130_(j,'challenges','Challenges');
           case 'titans':
-            return pageSystemeMetaIdleV130_(j,'titans','Titans');
+            /* Page Titans refaite (Norman, 2026-10-02) : cartes avec image, compte à rebours et combat en Aventure (modules/titans-v1.js). */
+            return window.__SOREAL_IDLE_TITANS_V1__
+              ?window.__SOREAL_IDLE_TITANS_V1__.page(j)
+              :pageSystemeMetaIdleV130_(j,'titans','Titans');
           case 'macguffins':
             return pageSystemeMetaIdleV130_(j,'macguffins','MacGuffins');
           case 'setsZones':

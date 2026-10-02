@@ -77,6 +77,14 @@
    * la même créature.
    */
   function mobUrl_(fight){
+    /* Titan (Norman, 2026-10-02) : son image est cherchée par titan, palier ou forme (route /api/idle/media/titan). */
+    if(fight&&fight.titanId){
+      var pt=new URLSearchParams();
+      pt.set('id',String(fight.titanId));
+      if(fight.titanForm>=0)pt.set('form',String(fight.titanForm));
+      else if(fight.titanTier)pt.set('tier',String(fight.titanTier));
+      return '/api/idle/media/titan?'+pt.toString();
+    }
     var p=new URLSearchParams();
     p.set('zone',String(fight&&fight.zone||''));
     p.set('boss',fight&&fight.boss?'1':'0');

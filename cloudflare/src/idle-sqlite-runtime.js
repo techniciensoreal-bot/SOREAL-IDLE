@@ -14518,7 +14518,7 @@ function agirProgressionSorealIdle(
      * automatique (invariant V186), PV du joueur remis au maximum. Avant : seuls les défis qui remettent le NUMBER à 1 réinitialisaient ces colonnes,
      * et jamais l'Aventure ni les PV ; le Laser Sword ne réinitialisait rien côté run.
      */
-    const defiLance=Boolean(!rejeuMutation&&applique.result&&(applique.result.challengeReset||applique.result.started));
+    const defiLance=Boolean(!rejeuMutation&&applique.result&&(applique.result.challengeReset||(action&&action.action==='challenge'&&applique.result.started)));
     if(defiLance){
       const maintenantDefi=Date.now();
       if(stats.metaNgu&&stats.metaNgu.adventure&&typeof stats.metaNgu.adventure==='object'){
