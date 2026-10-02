@@ -25,6 +25,22 @@ import { choisirCleTitanR2_ } from "../src/idle-media-v1.js";
   assert.equal(choisirCleTitanR2_(keys, "inconnu", "", -1), "");
 }
 
+// 1b. Noms canoniques de R2 (renommage du 2026-10-02) : <id>, <id>_<palier>, <id>_form<N> ; les fichiers annexes ne sont jamais choisis à leur place.
+{
+  const keys = [
+    "idle/Titans/t1.png", "idle/Titans/t6_easy.png", "idle/Titans/t6_normal.png", "idle/Titans/t6_hard.png", "idle/Titans/t6_brutal.png",
+    "idle/Titans/t5_form1.png", "idle/Titans/t5_form5.png", "idle/Titans/Titan_WalderpFull.png", "idle/Titans/Titan_GreasyNerd_Bucket.png",
+    "idle/Titans/nerd_easy.png", "idle/Titans/Beast_Beast_v1_hq.png", "idle/Titans/tippi.png", "idle/Titans/Titan_Greasy_Nerd's_Mom.png"
+  ];
+  assert.equal(choisirCleTitanR2_(keys, "t1", "", -1), "idle/Titans/t1.png");
+  assert.equal(choisirCleTitanR2_(keys, "t6", "brutal", -1), "idle/Titans/t6_brutal.png");
+  assert.equal(choisirCleTitanR2_(keys, "t6", "", -1), "idle/Titans/Beast_Beast_v1_hq.png" === "x" ? "" : "idle/Titans/Beast_Beast_v1_hq.png", "sans palier : repli sur le nom de l'ancien fichier");
+  assert.equal(choisirCleTitanR2_(keys, "t5", "", 4), "idle/Titans/t5_form5.png");
+  assert.equal(choisirCleTitanR2_(keys, "nerd", "easy", -1), "idle/Titans/nerd_easy.png", "pas l'image annexe Greasy Nerd's Mom");
+  assert.equal(choisirCleTitanR2_(keys, "tippi", "", -1), "idle/Titans/tippi.png");
+  assert.equal(choisirCleTitanR2_(keys, "traitor", "", -1), "", "THE TRAITOR : aucune image dans R2 pour l'instant");
+}
+
 // 2. Module client : traductions, durées, variantes, anti-spoil.
 const fenetre = { __SOREAL_IDLE_META_HOST_V130__: {} };
 const noeud = () => ({ style: {}, appendChild() {}, setAttribute() {} });
