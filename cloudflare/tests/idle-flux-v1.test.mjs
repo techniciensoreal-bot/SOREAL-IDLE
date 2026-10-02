@@ -293,4 +293,14 @@ const stats = (o = {}) => ({
   assert.deepEqual(evenementsV1({ bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 }, a1).filter((e) => e.type === "achat"), [], "ancien instantané sans achats : jamais d'annonce à tort");
 }
 
+// 9. Bandeau « En direct » (Norman, 2026-10-02) : défilement continu, chaque information entre à l'instant de son arrivée et ne passe qu'une fois.
+{
+  const m = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
+  assert.ok(m.includes("function ajouterAuBandeau(e){") && m.includes("while(file.length){"), "tout ce qui arrive est ajouté tout de suite, sans attendre la fin d'un lot");
+  assert.ok(m.includes("piste.removeChild(premier);") && m.includes("x+=w;"), "une information sortie à gauche est retirée (jamais rejouée) sans faire sauter la piste");
+  assert.ok(!m.includes("passes>=PASSAGES") && !m.includes("PASSAGES"), "plus de boucle qui rejoue un lot");
+  assert.ok(m.includes("DOUBLON_MS=120000") && m.includes("derniereVue.get(e.texte)"), "une phrase identique passée il y a moins de 2 minutes n'est pas rejouée");
+  assert.ok(m.includes("if(derniereImage&&now-derniereImage>5000&&piste.firstChild)viderBandeau();"), "retour d'onglet : la piste périmée est vidée");
+}
+
 console.log("idle-flux-v1 OK");

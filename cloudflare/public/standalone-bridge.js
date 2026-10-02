@@ -165,19 +165,22 @@
     const hashes=data.cataloguesHashes;
     if(!hashes||typeof hashes!=="object")return true;
     const omis=Array.isArray(data.cataloguesOmis)?data.cataloguesOmis:[];
+    /* Pièces d'état : copie TEXTE gardée, copie neuve rendue (le jeu les modifie sur place ; voir idle-catalogues-v1.js). */
+    const vifs=Array.isArray(data.cataloguesVifs)?data.cataloguesVifs:[];
     let complet=true;
     Object.keys(hashes).forEach(function(chemin){
       const h=hashes[chemin];
+      const vif=vifs.indexOf(chemin)!==-1;
       const versions=cataloguesV1.valeurs[chemin]||(cataloguesV1.valeurs[chemin]={});
       if(omis.indexOf(chemin)!==-1){
-        if(Object.prototype.hasOwnProperty.call(versions,h)&&poserCheminV1(data.joueur,chemin,versions[h]))return;
+        if(Object.prototype.hasOwnProperty.call(versions,h)&&poserCheminV1(data.joueur,chemin,vif?JSON.parse(versions[h]):versions[h]))return;
         complet=false;
         delete cataloguesV1.dernier[chemin];
         return;
       }
       const valeur=lireCheminV1(data.joueur,chemin);
       if(valeur===undefined)return;
-      versions[h]=valeur;
+      versions[h]=vif?JSON.stringify(valeur):valeur;
       cataloguesV1.dernier[chemin]=h;
       const cles=Object.keys(versions);
       if(cles.length>2)delete versions[cles[0]];

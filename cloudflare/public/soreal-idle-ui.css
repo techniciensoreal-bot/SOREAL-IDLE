@@ -8262,3 +8262,28 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
   font-variant-numeric:tabular-nums;
 }
 .soreal-idle-note-v4 .soreal-idle-hp-regen-v1:empty{display:none}
+
+/*
+ * Coffre épuré (Norman, 2026-10-02) : « je veux les images, et moins d'infos : juste 100, le V et le nom par-dessus l'image ; l'image doit prendre toute la case ».
+ * Case carrée ; l'image la remplit entièrement ; « 100 » en haut à gauche, ✔ en haut à droite, nom en bas sur un voile sombre.
+ */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))!important;gap:6px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-v1{
+  position:relative;aspect-ratio:1/1;padding:0!important;gap:0!important;overflow:hidden;display:block!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1{
+  position:absolute;inset:0;min-height:0;display:flex;align-items:center;justify-content:center;font-size:42px;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 :is(img,.idle-icon-v1,.idle-emoji-fallback-v1){
+  width:100%!important;height:100%!important;max-width:none!important;border-radius:0!important;object-fit:cover;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 .idle-emoji-fallback-v1{font-size:44px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;padding:12px 3px 3px;font-size:10.5px;line-height:1.1;font-weight:800;color:#fff4d6;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));text-shadow:0 1px 2px #000;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{
+  position:absolute;left:3px;top:3px;z-index:2;padding:1px 5px;border-radius:6px;font-size:11px;font-weight:900;color:#ffe9a8;
+  background:rgba(0,0,0,.65);text-shadow:0 1px 1px #000;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{z-index:3}

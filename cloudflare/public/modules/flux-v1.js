@@ -14,9 +14,6 @@
   'use strict';
 
   const MAX_ITEMS=30;
-  const MAX_LOT=8;
-  const PASSAGES=1;
-  const DUREE_FONDU_MS=600;
   const PX_PAR_SEC=46;
   /*
    * « En direct » (Norman, 2026-10-02 : « aucun message de rattrapage ») : le bandeau ne montre que ce qui vient de se passer. Une information de plus de
@@ -31,8 +28,6 @@
   let amorceFlux=false;
   let amorceChat=false;
   let phase='repos';
-  let tPhase=0;
-  let passes=0;
   let largeurVue=300;
   let dernier=0;
   let bandeau=null;
@@ -40,7 +35,6 @@
   let x=0;
   let enPause=false;
   let tPrec=0;
-  let largeurPiste=0;
   let raf=0;
 
   function echapper(v){
@@ -194,31 +188,51 @@
   }
 
   /*
-   * Lecture du bandeau (Norman, 2026-10-01) : chaque information n'est jouée qu'UNE fois. Le bandeau apparaît en fondu à l'arrivée de nouveautés,
-   * les fait défiler 2 fois de suite, puis disparaît en fondu ; rien n'est rejoué ensuite (l'historique reste dans le panneau du Chat).
+   * Lecture du bandeau (Norman, 2026-10-02 : « les informations ne doivent passer qu'une seule fois et au moment où elles arrivent uniquement ») :
+   * défilement CONTINU. Chaque information est ajoutée au bout de la piste à l'instant où elle arrive (elle entre par la droite, même si une autre est
+   * encore en train de défiler : plus d'attente de la fin d'un lot), traverse l'écran UNE seule fois, puis est retirée. Le bandeau apparaît à la première
+   * information et disparaît (fondu) quand la piste est vide. Une même phrase déjà passée il y a moins de 2 minutes n'est pas rejouée.
    */
-  function demarrerLecture(){
-    /* Ce qui a attendu trop longtemps (onglet en arrière-plan) n'est plus « en direct » : écarté. */
-    const t0=performance.now();
-    const lot=file.splice(0,file.length).filter(function(e){return !(e.recu>0)||t0-e.recu<=FRAICHEUR_MS;}).slice(-MAX_LOT);
-    if(!lot.length)return;
-    piste.innerHTML=lot.map(htmlItem).join('');
-    largeurPiste=piste.getBoundingClientRect().width;
-    largeurVue=bandeau.querySelector('.sif-vue').clientWidth||300;
-    passes=0;
-    x=largeurVue;
-    piste.style.transform='translateX('+x+'px)';
+  let derniereImage=0;
+  let derniereVue=new Map();
+  const DOUBLON_MS=120000;
+
+  function ajouterAuBandeau(e){
+    const p=e&&e.texte;
+    if(!p)return;
+    const maintenant=performance.now();
+    const vuLe=derniereVue.get(e.texte);
+    if(vuLe!==undefined&&maintenant-vuLe<DOUBLON_MS)return;
+    derniereVue.set(e.texte,maintenant);
+    if(derniereVue.size>60){derniereVue.forEach(function(t,k){if(maintenant-t>=DOUBLON_MS)derniereVue.delete(k);});}
+    largeurVue=bandeau.querySelector('.sif-vue').clientWidth||largeurVue||300;
+    const modele=document.createElement('div');
+    modele.innerHTML=htmlItem(e);
+    const noeud=modele.firstChild;
+    if(!piste.firstChild){
+      x=largeurVue;
+    }else{
+      /* La piste a déjà fini de défiler vers la gauche : un blanc la prolonge pour que la nouvelle information entre bien par la droite, au moment où elle arrive. */
+      const finPiste=x+piste.scrollWidth;
+      if(finPiste<largeurVue){
+        const blanc=document.createElement('span');
+        blanc.className='sif-blanc';
+        blanc.style.cssText='display:inline-block;flex:none;width:'+Math.ceil(largeurVue-finPiste)+'px';
+        piste.appendChild(blanc);
+      }
+    }
+    piste.appendChild(noeud);
+    piste.style.transform='translateX('+x.toFixed(1)+'px)';
     bandeau.classList.remove('sif-off');
     document.body.classList.add('soreal-idle-flux-actif-v1');
-    phase='entree';
-    tPhase=performance.now();
+    phase='defile';
   }
 
-  function finirLecture(){
-    bandeau.classList.add('sif-off');
+  function viderBandeau(){
+    if(piste)piste.innerHTML='';
+    if(bandeau)bandeau.classList.add('sif-off');
     document.body.classList.remove('soreal-idle-flux-actif-v1');
-    phase='sortie';
-    tPhase=performance.now();
+    phase='repos';
   }
 
   function boucle(t){
@@ -226,24 +240,30 @@
     if(!tPrec)tPrec=t;
     const dt=Math.min(0.1,(t-tPrec)/1000);
     tPrec=t;
-    if(!bandeau||document.visibilityState!=='visible')return;
+    if(!bandeau)return;
     const now=performance.now();
-    if(phase==='repos'){
-      if(file.length)demarrerLecture();
-    }else if(phase==='entree'){
-      if(now-tPhase>=DUREE_FONDU_MS)phase='defile';
-    }else if(phase==='defile'){
-      if(enPause)return;
-      x-=PX_PAR_SEC*dt;
-      if(x<=-largeurPiste){
-        passes+=1;
-        if(passes>=PASSAGES)return finirLecture();
-        x=largeurVue;
-      }
-      piste.style.transform='translateX('+x.toFixed(1)+'px)';
-    }else if(phase==='sortie'){
-      if(now-tPhase>=DUREE_FONDU_MS)phase='repos';
+    if(document.visibilityState!=='visible'){derniereImage=0;return;}
+    /* Retour après une absence (onglet en arrière-plan) : ce qui défilait n'est plus « en direct », la piste repart de zéro. */
+    if(derniereImage&&now-derniereImage>5000&&piste.firstChild)viderBandeau();
+    derniereImage=now;
+    /* Ce qui vient d'arriver passe tout de suite (jamais attendre) ; ce qui a trop attendu (onglet masqué) est écarté. */
+    while(file.length){
+      const e=file.shift();
+      if(e.recu>0&&now-e.recu>FRAICHEUR_MS)continue;
+      ajouterAuBandeau(e);
     }
+    if(!piste.firstChild||enPause)return;
+    x-=PX_PAR_SEC*dt;
+    /* Une information entièrement sortie à gauche est retirée : elle n'est jamais rejouée. */
+    while(piste.firstChild){
+      const premier=piste.firstChild;
+      const w=premier.getBoundingClientRect().width;
+      if(x+w>0)break;
+      piste.removeChild(premier);
+      x+=w;
+    }
+    if(!piste.firstChild)return viderBandeau();
+    piste.style.transform='translateX('+x.toFixed(1)+'px)';
   }
 
   /* Met en file ce qui n'a jamais été joué. Au tout premier passage de chaque source (chargement), on mémorise sans rejouer l'historique. */

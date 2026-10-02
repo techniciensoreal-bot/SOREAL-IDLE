@@ -207,5 +207,5 @@ console.log("idle-challenges-wiki-parity-v1: OK");
   const src = readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8");
   for (const titre of ["'Objectif'", "'Description'", "'Restrictions'", "'Conseil'", "'Récompenses'"]) assert.ok(src.includes(titre), "cadre " + titre);
   assert.ok(readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8").includes(".dfi-cadre"));
-  assert.ok(readFileSync("cloudflare/public/modules/flux-v1.js", "utf8").includes("const PASSAGES=1;"), "un seul passage dans le bandeau En direct");
+  assert.ok(readFileSync("cloudflare/public/modules/flux-v1.js", "utf8").includes("piste.removeChild(premier);"), "un seul passage dans le bandeau En direct : l'information est retirée dès qu'elle est sortie");
 }

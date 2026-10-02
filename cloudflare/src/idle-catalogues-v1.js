@@ -23,6 +23,32 @@ export const IDLE_CATALOGUES_CHEMINS_V1 = Object.freeze([
   "bossCatalogue"
 ]);
 
+/*
+ * Pièces d'ÉTAT stables d'une synchro à l'autre (mesuré en production le 2026-10-02 : identiques entre deux synchros consécutives tant que le joueur ne fait rien
+ * qui les touche). Même mécanisme que les catalogues, avec une différence : le pont du client en garde une copie TEXTE et en rend une copie neuve à chaque
+ * remise en place (le jeu modifie ces objets sur place pour répondre tout de suite aux clics ; une copie partagée garderait ces modifications locales).
+ * Un enfant de systemes.systems de plus de 1 000 caractères est lui aussi une pièce (chaque système change séparément).
+ */
+export const IDLE_PIECES_ETAT_CHEMINS_V1 = Object.freeze([
+  "systemes.adventure.zones",
+  "systemes.adventure.titans",
+  "systemes.achievements",
+  "systemes.ngus",
+  "systemes.bonuses",
+  "systemes.expShop",
+  "systemes.augmentations",
+  "systemes.yggExtra",
+  "systemes.yggFruits"
+]);
+export const IDLE_PIECE_SYSTEME_TAILLE_MIN_V1 = 1000;
+
+function cheminsSystemesV1(joueur) {
+  const systems = joueur && joueur.systemes && joueur.systemes.systems;
+  /* En production `systems` est un tableau (un élément par système) ; un objet indexé par identifiant est géré de la même façon. */
+  if (!systems || typeof systems !== "object") return [];
+  return Object.keys(systems).filter((id) => /^[A-Za-z0-9_-]+$/.test(id) && JSON.stringify(systems[id]).length > IDLE_PIECE_SYSTEME_TAILLE_MIN_V1).map((id) => "systemes.systems." + id);
+}
+
 /* Empreinte cyrb53 : synchrone, identique côté serveur et dans les tests. */
 export function empreinteTexteV1(texte) {
   let h1 = 0xdeadbeef;
@@ -50,15 +76,18 @@ function lire(objet, chemin) {
 /* Retire `chemin` d'une COPIE (copie à l'écriture le long du chemin) : les objets d'origine, peut-être partagés ou mis en cache par le moteur, ne sont jamais modifiés. */
 function sansChemin(objet, chemin) {
   const parties = chemin.split(".");
-  const copie = Object.assign({}, objet);
+  const copier = (o) => (Array.isArray(o) ? o.slice() : Object.assign({}, o));
+  const copie = copier(objet);
   let courant = copie;
   for (let i = 0; i < parties.length - 1; i += 1) {
     const suivant = courant[parties[i]];
     if (!suivant || typeof suivant !== "object") return null;
-    courant[parties[i]] = Object.assign({}, suivant);
+    courant[parties[i]] = copier(suivant);
     courant = courant[parties[i]];
   }
-  delete courant[parties[parties.length - 1]];
+  /* Dans un tableau, l'élément omis devient `null` (jamais un trou) : le pont du client le remet en place avant que le jeu ne le voie. */
+  if (Array.isArray(courant)) courant[Number(parties[parties.length - 1])] = null;
+  else delete courant[parties[parties.length - 1]];
   return copie;
 }
 
@@ -72,9 +101,12 @@ export function allegerCataloguesV1(reponse, hashesClient) {
   const connus = hashesClient && typeof hashesClient === "object" ? hashesClient : {};
   const hashes = {};
   const omis = [];
-  for (const chemin of IDLE_CATALOGUES_CHEMINS_V1) {
+  const etat = IDLE_PIECES_ETAT_CHEMINS_V1.concat(cheminsSystemesV1(joueur));
+  const vifs = [];
+  for (const chemin of IDLE_CATALOGUES_CHEMINS_V1.concat(etat)) {
     const valeur = lire(joueur, chemin);
     if (valeur === undefined) continue;
+    if (etat.includes(chemin)) vifs.push(chemin);
     const h = empreinteTexteV1(JSON.stringify(valeur));
     hashes[chemin] = h;
     if (connus[chemin] === h) {
@@ -87,5 +119,6 @@ export function allegerCataloguesV1(reponse, hashesClient) {
   }
   const sortie = Object.assign({}, reponse, { joueur, cataloguesHashes: hashes });
   if (omis.length) sortie.cataloguesOmis = omis;
+  if (vifs.length) sortie.cataloguesVifs = vifs;
   return sortie;
 }

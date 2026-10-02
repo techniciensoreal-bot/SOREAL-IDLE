@@ -20568,7 +20568,6 @@ function pageAventureIdleV28_(j){
               return titre+'<div class="soreal-idle-collection-card-v1">'+
                 '<div class="soreal-idle-collection-card-icon-v1"><span>⬜</span></div>'+
                 '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
-                '<div class="soreal-idle-collection-card-level-v1">Pas encore rangé</div>'+
               '</div>';
             }
             const item=s.item||{};
@@ -20577,10 +20576,11 @@ function pageAventureIdleV28_(j){
             return titre+'<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
               'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
               'title="Cliquer pour reprendre l’objet et pouvoir le rééquiper">'+
+              /* Coffre épuré (Norman, 2026-10-02) : l'image prend toute la case ; seuls « 100 », le ✔ et le nom (par-dessus l'image) restent. */
               '<div class="soreal-idle-collection-check-v1" title="Niveau maximum">✔</div>'+
-              '<div class="soreal-idle-collection-card-icon-v1">'+iconeObjetAdventureIdleV138_(pseudoItem)+'</div>'+
+              '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(pseudoItem)+'</div>'+
+              '<div class="soreal-idle-collection-card-level-v1" title="Niveau 100/100">100</div>'+
               '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
-              '<div class="soreal-idle-collection-card-level-v1">Niv. 100/100</div>'+
             '</div>';
           }).join('')+
         '</div>'+

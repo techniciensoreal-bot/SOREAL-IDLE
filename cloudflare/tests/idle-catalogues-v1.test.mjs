@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { IDLE_CATALOGUES_CHEMINS_V1, allegerCataloguesV1, empreinteTexteV1 } from "../src/idle-catalogues-v1.js";
+import { IDLE_CATALOGUES_CHEMINS_V1, IDLE_PIECES_ETAT_CHEMINS_V1, allegerCataloguesV1, empreinteTexteV1 } from "../src/idle-catalogues-v1.js";
 
 /*
  * Réponses plus légères (Norman, 2026-10-02) : le serveur n'envoie plus les catalogues que le client possède déjà ; le pont du client les remet en place.
@@ -122,5 +122,39 @@ assert.notEqual(empreinteTexteV1("a"), empreinteTexteV1("b"));
   assert.ok(r.cataloguesOmis.includes("bossCatalogue"));
   const r2 = allegerCataloguesV1(avecBoss(4), complete.cataloguesHashes);
   assert.equal(r2.joueur.bossCatalogue.length, 4, "un boss de plus découvert : la pièce est renvoyée");
+}
+// 8. Pièces d'état stables (Norman, 2026-10-02 : « continue à alléger au maximum ») : omises quand identiques, copie NEUVE rendue au client (il modifie ces objets sur place).
+{
+  const gros = (n) => { const x = fabriquer(); const sy = x.joueur.systemes; sy.achievements = { list: Array.from({ length: 40 }, (_, i) => ({ id: i, name: "Succès " + i })) }; sy.expShop = [{ id: "a", n }]; sy.systems = []; sy.systems[7] = { unlocked: true, data: "x".repeat(1500) }; sy.systems[8] = { petit: 1 }; for (let i = 0; i < 7; i++) sy.systems[i] = { i }; return x; };
+  const complete = allegerCataloguesV1(gros(1), undefined);
+  assert.ok(complete.cataloguesVifs.includes("systemes.achievements") && complete.cataloguesVifs.includes("systemes.expShop"));
+  assert.ok(complete.cataloguesVifs.includes("systemes.systems.7") && !complete.cataloguesVifs.includes("systemes.systems.8"), "seul un système assez gros est une pièce");
+  assert.ok(!IDLE_CATALOGUES_CHEMINS_V1.includes("systemes.achievements") && IDLE_PIECES_ETAT_CHEMINS_V1.includes("systemes.achievements"));
+  const r = allegerCataloguesV1(gros(1), complete.cataloguesHashes);
+  assert.equal(r.joueur.systemes.achievements, undefined);
+  assert.equal(r.joueur.systemes.systems[7], null, "élément omis d'un tableau : null, jamais un trou");
+  assert.ok(Array.isArray(r.joueur.systemes.systems) && r.joueur.systemes.systems.length === 9, "le tableau garde sa forme");
+  assert.deepEqual(r.joueur.systemes.systems[8], { petit: 1 }, "les petits systèmes voyagent toujours");
+  const modifie = allegerCataloguesV1(gros(2), complete.cataloguesHashes);
+  assert.deepEqual(modifie.joueur.systemes.expShop, [{ id: "a", n: 2 }], "une pièce modifiée est renvoyée");
+  assert.equal(modifie.joueur.systemes.achievements, undefined, "les autres restent omises");
+
+  // Pont : la remise en place rend une copie neuve ; modifier la copie du jeu n'abîme pas la mémoire du pont.
+  const src = readFileSync("cloudflare/public/standalone-bridge.js", "utf8");
+  const debut = src.indexOf("const cataloguesV1=");
+  const fin = src.indexOf("async function callIdleV1");
+  const pont = new Function(src.slice(debut, fin) + "\nreturn {hashes:hashesCataloguesV1,restaurer:restaurerCataloguesV1};")();
+  const rep1 = JSON.parse(JSON.stringify(allegerCataloguesV1(gros(1), pont.hashes())));
+  assert.equal(pont.restaurer(rep1), true);
+  const rep2 = JSON.parse(JSON.stringify(allegerCataloguesV1(gros(1), pont.hashes())));
+  assert.equal(rep2.joueur.systemes.achievements, undefined);
+  assert.equal(pont.restaurer(rep2), true);
+  assert.equal(rep2.joueur.systemes.achievements.list.length, 40);
+  rep2.joueur.systemes.achievements.list.length = 0; // le jeu modifie sur place
+  rep2.joueur.systemes.systems[7].unlocked = false;
+  const rep3 = JSON.parse(JSON.stringify(allegerCataloguesV1(gros(1), pont.hashes())));
+  assert.equal(pont.restaurer(rep3), true);
+  assert.equal(rep3.joueur.systemes.achievements.list.length, 40, "copie neuve : la modification locale n'a pas contaminé la mémoire");
+  assert.equal(rep3.joueur.systemes.systems[7].unlocked, true);
 }
 console.log("idle-catalogues-v1: OK");

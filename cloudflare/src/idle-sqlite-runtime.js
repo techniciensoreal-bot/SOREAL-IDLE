@@ -10749,8 +10749,15 @@ function construireEtatJoueurSorealIdle_(
       ageMois:
         ageMs/(86400000*30.4375),
 
+      /*
+       * Allègement (Norman, 2026-10-02) : `metaNgu` (le moteur NGU brut, ~36 Ko, déjà exposé sous `systemes`) n'était lu par aucun client (ni l'interface autonome,
+       * ni les snapshots APP/TV : vérifié) et repartait à CHAQUE synchro. Tout le reste de `stats` (vus, menuOrdre, lootsObtenus…) est conservé.
+       */
       stats:
-        statsEtat,
+        Object.keys(statsEtat || {}).reduce(function (sortie, cle) {
+          if (cle !== 'metaNgu') sortie[cle] = statsEtat[cle];
+          return sortie;
+        }, {}),
 
       nouveauJoueur:
         Boolean(

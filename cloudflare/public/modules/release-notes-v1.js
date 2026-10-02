@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.7',
+    courante:'9.8',
     versions:[
+      {
+        version:'9.8',
+        nom:'Un jeu allégé',
+        date:'2026-10-02',
+        points:[
+          'Le jeu envoie beaucoup moins de données à chaque action : les réponses du serveur sont environ dix fois plus légères, donc plus rapides, surtout sur téléphone.',
+          'Le Coffre est épuré : les images remplissent toute la case, avec seulement le niveau (100), la coche et le nom par-dessus.',
+          'Le bandeau « En direct » affiche chaque information à l’instant où elle arrive, une seule fois.',
+        ]
+      },
       {
         version:'9.7',
         nom:'Un son à ton goût',
