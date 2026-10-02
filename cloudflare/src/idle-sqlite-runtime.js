@@ -14511,8 +14511,24 @@ function agirProgressionSorealIdle(
 
     /* Rejeu d'un clientMutationId déjà appliqué : le résultat mémorisé est renvoyé, mais aucun effet de bord n'est rejoué. */
     const rejeuMutation=Boolean(applique.duplicate);
-    if(!rejeuMutation&&applique.result&&applique.result.challengeReset){
+    /*
+     * Wiki NGU, page Challenges : « Starting any challenge will perform a rebirth » (le Laser Sword Challenge aussi : « performs a rebirth but does
+     * not reset your number »). Le lancement d'un défi doit donc avoir les MÊMES effets de run qu'un Rebirth (Norman, 2026-10-02 : « quand je lance un
+     * défi, ça devrait me faire renaître normalement mais pas ici ») : boss du run, Basic Training, ET Adventure qui repart en Safe Zone sans combat
+     * automatique (invariant V186), PV du joueur remis au maximum. Avant : seuls les défis qui remettent le NUMBER à 1 réinitialisaient ces colonnes,
+     * et jamais l'Aventure ni les PV ; le Laser Sword ne réinitialisait rien côté run.
+     */
+    const defiLance=Boolean(!rejeuMutation&&applique.result&&(applique.result.challengeReset||applique.result.started));
+    if(defiLance){
       const maintenantDefi=Date.now();
+      if(stats.metaNgu&&stats.metaNgu.adventure&&typeof stats.metaNgu.adventure==='object'){
+        stats.metaNgu.adventure.selectedZone='safe';
+        stats.metaNgu.adventure.fight={active:false,zone:'',monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};
+      }
+      stats.autoAventure=false;
+      stats.autoAventureZone=0;
+      stats.bestiaireBossRunVersionV207=207;
+      stats.bestiaireBossRunMaxNumeroV207=0;
       stats.entrainementBase=rebirthBasicTrainingStateV411(
         stats.entrainementBase,
         maintenantDefi
@@ -14566,6 +14582,11 @@ function agirProgressionSorealIdle(
 
     feuille.getRange(ligne,c.STATS_JSON).setValue(JSON.stringify(stats));
     recalculerPuissanceCompleteSorealIdle_(feuille,ligne);
+    if(defiLance){
+      /* Comme après un Rebirth : le joueur repart avec tous ses PV. */
+      const pvMaxDefi=Math.max(1,nombreSorealIdle_(feuille.getRange(ligne,c.PV_JOUEUR_MAX).getValue(),1));
+      feuille.getRange(ligne,c.PV_JOUEUR).setValue(pvMaxDefi);
+    }
     feuille.getRange(ligne,c.DERNIERE_SYNCHRO).setValue(new Date());
     SpreadsheetApp.flush();
 
