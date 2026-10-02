@@ -2,7 +2,7 @@
  * Serveur LOCAL de développement (2026-09-25) : sert cloudflare/public tel quel et branche /api/v1/call sur le VRAI moteur (runSorealIdleOperation,
  * base SQLite en mémoire) — l'interface complète tourne donc en local, sans session ni déploiement, pour reproduire un bug ou vérifier un écran.
  *
- *   node cloudflare/tools/local-dev-server.mjs            (port 8799, variable PORT pour en changer)
+ *   node cloudflare/tools/local-dev-server.mjs            (port 8799, variable PORT pour en changer ; LATENCE_MS=400 simule la latence réelle)
  *   puis ouvrir http://localhost:8799/, exécuter dans la console  sessionStorage.setItem('soreal_idle_session_v1','local'); location.reload()
  *
  * POST /debug/js (local uniquement) exécute du JS avec { sql, run, user, db } pour préparer un état (ex. modifier la ligne joueur).
@@ -43,8 +43,12 @@ http.createServer((req, res) => {
       try {
         const { operation, args, catalogHashes } = JSON.parse(corps || "{}");
         const resultat = allegerCataloguesV1(runSorealIdleOperation(sql, operation, args || [], user), catalogHashes);
-        res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify(resultat));
+        /* LATENCE_MS : simule le réseau + le serveur réel (en local tout répond en quelques ms, et les bugs de synchronisation n'apparaissent jamais). */
+        const corpsReponse = JSON.stringify(resultat);
+        setTimeout(() => {
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(corpsReponse);
+        }, Math.max(0, Number(process.env.LATENCE_MS) || 0));
       } catch (e) {
         res.writeHead(500, { "content-type": "application/json" });
         res.end(JSON.stringify({ ok: false, error: String(e && e.message || e) }));

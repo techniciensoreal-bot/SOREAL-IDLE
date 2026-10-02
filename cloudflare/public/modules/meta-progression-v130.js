@@ -1910,7 +1910,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const boss=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
         window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().__augmentationsVisualV215={
           at:performance.now(),
-          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),seconds:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel),upgradeSeconds:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
+          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
         };
         const cap=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.resources&&snap.resources.energy&&snap.resources.energy.cap||0));
         function track(def,pair,upgrade,ok){
@@ -2030,7 +2030,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           ?current+Math.min(pas,libre)
           :mode==='moins'
             ?Math.max(0,current-pas)
-            :Math.max(current,allocationMaxMetaIdleV48_(j,'timeMachine',ressource));
+            /* MAX = tout ce qui est libre (comme le serveur), jamais le plafond théorique : Norman (2026-10-02) voyait « 124K » (énergie pas encore générée) avant la vraie valeur 62,9K. */
+            :Math.max(current,Math.min(current+libre,allocationMaxMetaIdleV48_(j,'timeMachine',ressource)));
         const delta=value-current;
 
         if(mode==='plus'&&delta<=0&&libre<=0&&H.messageFlottantIdleV32_){
@@ -2137,7 +2138,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const stat=function(libelle,valeur){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b>'+valeur+'</b></div>';};
         const factSansEffet=function(libelle,mult){return Math.abs(H.idleNombre_(mult)-1)<1e-9?'':stat(libelle,pct(mult));};
         return '<div class="soreal-idle-tm-v1">'+
-          '<header class="soreal-idle-tm-entete-v1"><h1>Broken Time Machine</h1><p>(Loot that money again and again and again and...)</p></header>'+
+          '<header class="soreal-idle-tm-entete-v1"><h1>Machine à remonter le temps cassée</h1><p>(Ramasse cet or encore, et encore, et encore, et...)</p></header>'+
           carteAideMenuIdleV1_('timeMachine','La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',[
             'Vitesse de la machine (Energy + Or) : elle accélère la barre. Jusqu’au niveau 50 chaque niveau la remplit plus vite ; au-delà, chaque niveau ajoute un multiplicateur d’Or.'
           ].concat(magicOk?['Multiplicateur d’or (Magic + Or) : il multiplie simplement l’Or produit.']:[]).concat([

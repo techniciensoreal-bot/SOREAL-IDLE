@@ -49,7 +49,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 // --- Client : l'ancien toast (sans bouton, qui disparaît seul) est bien remplacé par un vrai popup modal fermable. ---
 {
   const debut = ui.indexOf("function afficherResumeHorsLigneIdleV64_(");
-  const fin = ui.indexOf("\n\n\n      function rendreIdleEtat_(res){");
+  const fin = ui.indexOf("\n\n      /* Essai du popup");
   assert.ok(debut > 0 && fin > debut, "afficherResumeHorsLigneIdleV64_ introuvable");
   const fonction = ui.slice(debut, fin);
 

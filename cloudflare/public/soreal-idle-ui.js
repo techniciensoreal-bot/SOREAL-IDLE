@@ -1766,6 +1766,24 @@
         },400);
       }
 
+      function appliquerBossSuivantLocalIdleV1_(){
+        const n=idleEtat&&idleEtat.bossSuivant;
+        if(PAGE_ACTIVE!=='idle'||!idleVictoireBossLocaleV49||!n||!n.bossId||idleEntier_(n.bossVaincus)<=idleEntier_(idleEtat.bossVaincus))return false;
+        const vaincus=idleEntier_(n.bossVaincus);
+        Object.assign(idleEtat,n);
+        idleEtat.bossSuivant=null;
+        idleEtat.combatBossActif=false;
+        idleEtat.bossPv=idleNombre_(n.bossPvMax);
+        idleEtat.bossRespawnJusqua=0;
+        idleEtat.bossRespawnSecondesRestantes=0;
+        idleEtat.bossDisponible=true;
+        /* rendreIdleEtat_ remet à zéro le drapeau de victoire prédite : on le rétablit, avec la garde, pour que le serveur en retard ne ramène pas l'ancien boss. */
+        rendreIdleEtat_({ok:true,joueur:idleEtat});
+        idleVictoireBossLocaleV49=true;
+        idlePrevisionBossV1={actif:true,vaincus:vaincus,debut:Date.now()};
+        return true;
+      }
+
       function metaTickEnergieIdleV114_(){
         const prod=
           Math.max(
@@ -2687,6 +2705,8 @@
 
                 const apresBarreVide=function(){
                   transitionMortBossIdleV61_();
+                  /* Le boss suivant apparaît presque tout de suite (court temps pour voir la victoire), sans attendre le serveur. */
+                  setTimeout(appliquerBossSuivantLocalIdleV1_,250);
                   const synchroniserVictoire=function(){
                     synchroniserJeuIdleV7_(true);
                     surveillerConfirmationVictoireBossIdleV1_();
@@ -3305,9 +3325,26 @@
         }
       }
 
+      /*
+       * Boss suivant instantané (Norman, 2026-10-02 : « quand on bat un boss, le suivant met énormément de temps à apparaître : ça doit être instantané »).
+       * À la victoire prédite le client affiche tout de suite le boss suivant (état fourni d'avance par le serveur : bossSuivant) ; tant que le serveur
+       * n'a pas confirmé la victoire (bossVaincus du serveur >= prédit), ses réponses -- qui décrivent encore l'ancien boss -- ne remplacent PAS l'affichage.
+       * Au-delà de 15 s sans confirmation, la prévision est abandonnée et l'état du serveur fait foi (surveillerConfirmationVictoireBossIdleV1_).
+       */
+      let idlePrevisionBossV1={actif:false,vaincus:0,debut:0};
+
       function appliquerSynchroCombatSansReflowIdleV116_(
         joueurServeur
       ){
+        if(idlePrevisionBossV1.actif&&joueurServeur){
+          const confirmee=idleEntier_(joueurServeur.bossVaincus)>=idlePrevisionBossV1.vaincus;
+          if(!confirmee&&Date.now()-idlePrevisionBossV1.debut<=15000)return true;
+          idlePrevisionBossV1={actif:false,vaincus:0,debut:0};
+          idleVictoireBossLocaleV49=false;
+          arreterSurveillanceVictoireBossIdleV1_();
+          /* Confirmée : la suite compare le boss affiché (déjà le bon) au serveur ; non confirmée au bout de 15 s : le serveur fait foi. */
+          if(!confirmee)return false;
+        }
         /*
          * Norman (2026-09-26) : « je tue un petit bout de peluche, ça met Boss vaincu et au bout de 7 secondes j'ai de nouveau le même boss ».
          * Cause (lue dans le code) : le client prédit la victoire un peu AVANT le serveur (qui calcule le combat à l'heure du serveur). Tant que le
@@ -22508,17 +22545,19 @@ function pageAventureIdleV28_(j){
         const koSubis=idleEntier_(p.koSubis);
         const victoiresAuto=auto?idleEntier_(auto.victoires):0;
         const defaitesAuto=auto?idleEntier_(auto.defaites):0;
+        /* Titans tués par l'Auto-Kill pendant l'absence : [{id,n}] ; seul le nom d'un Titan DÉJÀ connu du joueur s'affiche (anti-spoil). */
+        const titansTues=Array.isArray(p.titansTues)?p.titansTues.filter(function(t){return t&&idleEntier_(t.n)>0;}):[];
 
         /* Rien de notable à raconter (juste quelques secondes d'absence, énergie nulle) : pas de popup pour rien. */
         const rienAVoir=
           produite<=0&&xp<=0&&ap<=0&&bossBattus<=0&&
-          victoiresAuto<=0&&defaitesAuto<=0&&drops.length<=0;
+          victoiresAuto<=0&&defaitesAuto<=0&&drops.length<=0&&titansTues.length<=0;
         if(rienAVoir)return;
 
         const signature=
           idleEntier_(p.secondes)+':'+Math.round(produite*10)+':'+
           Math.round(xp)+':'+Math.round(ap)+':'+bossBattus+':'+
-          victoiresAuto+':'+defaitesAuto+':'+drops.length;
+          victoiresAuto+':'+defaitesAuto+':'+drops.length+':'+titansTues.length;
 
         if(
           String(
@@ -22532,13 +22571,23 @@ function pageAventureIdleV28_(j){
           signature;
 
         const lignes=[];
-        lignes.push(ligneResumeHorsLigneIdleV64_('⚡','+'+formatEnergieIdleV50_(produite)+' énergie produite'));
+        /* Aucune énergie générée pendant l'absence : la ligne n'apparaît pas (Norman, 2026-10-02). */
+        if(produite>0)lignes.push(ligneResumeHorsLigneIdleV64_('⚡','+'+formatEnergieIdleV50_(produite)+' énergie produite'));
         if(depensee>0)lignes.push(ligneResumeHorsLigneIdleV64_('🗺️','-'+formatEnergieIdleV50_(depensee)+' dépensée en Aventure AUTO'));
         if(perdue>0)lignes.push(ligneResumeHorsLigneIdleV64_('🌊',formatEnergieIdleV50_(perdue)+' perdue au-delà du maximum'));
         if(xp>0)lignes.push(ligneResumeHorsLigneIdleV64_('✨','+'+formatGrandNombreIdleV70_(xp)+' EXP'));
         if(niveaux>0)lignes.push(ligneResumeHorsLigneIdleV64_('📈','+'+niveaux+' niveau(x) de Basic Training'));
         if(ap>0)lignes.push(ligneResumeHorsLigneIdleV64_('🎟️','+'+formatGrandNombreIdleV70_(ap)+' AP'));
         if(bossBattus>0)lignes.push(ligneResumeHorsLigneIdleV64_('👹','+'+bossBattus+' boss vaincu(s)'));
+        if(titansTues.length>0){
+          const aventure=aventureMetaIdleV47_(j);
+          const noms={};
+          ((aventure&&Array.isArray(aventure.titans))?aventure.titans:[]).forEach(function(t){if(t&&t.id&&t.name&&t.progressionUnlocked!==false)noms[String(t.id)]=String(t.name);});
+          const total=titansTues.reduce(function(a,t){return a+idleEntier_(t.n);},0);
+          const morceaux=titansTues.slice(0,4).map(function(t){return idleHtml_(noms[String(t.id)]||'un Titan')+(idleEntier_(t.n)>1?' ×'+idleEntier_(t.n):'');});
+          const reste=titansTues.length-morceaux.length;
+          lignes.push(ligneResumeHorsLigneIdleV64_('🔥',total+' Titan'+(total>1?'s':'')+' vaincu'+(total>1?'s':'')+' : '+morceaux.join(', ')+(reste>0?' et '+reste+' autre'+(reste>1?'s':''):'')));
+        }
         if(victoiresAuto>0||defaitesAuto>0){
           let texteAuto='Aventure AUTO : '+victoiresAuto+' victoire(s)';
           if(defaitesAuto>0)texteAuto+=' · '+defaitesAuto+' défaite(s)';
@@ -22548,20 +22597,29 @@ function pageAventureIdleV28_(j){
           lignes.push(ligneResumeHorsLigneIdleV64_('🗡️','Dégâts infligés '+formatGrandNombreIdleV70_(degats)+' · reçus '+formatGrandNombreIdleV70_(degatsRecus)+(koSubis>0?' · K.O. ×'+koSubis:'')));
         }
         if(drops.length>0){
-          const objets=drops.slice(0,12).map(function(objet){
-            const nom=idleHtml_((objet&&(objet.name||objet.nom))||'Objet');
-            const puissance=idleNombre_(objet&&objet.basePower);
-            const endurance=idleNombre_(objet&&objet.baseToughness);
+          /* Liste courte : les objets identiques sont regroupés (« Nom ×3 »), 5 lignes au plus, puis « et N autres ». */
+          const groupes=[];
+          const parNom={};
+          drops.forEach(function(objet){
+            const nom=String((objet&&(objet.name||objet.nom))||'Objet');
+            if(parNom[nom]){parNom[nom].n+=1;return;}
+            parNom[nom]={nom:nom,n:1,puissance:idleNombre_(objet&&objet.basePower),endurance:idleNombre_(objet&&objet.baseToughness)};
+            groupes.push(parNom[nom]);
+          });
+          const maxLignes=5;
+          const objets=groupes.slice(0,maxLignes).map(function(g){
             let details='';
-            if(puissance>0||endurance>0){
+            if(g.n===1&&(g.puissance>0||g.endurance>0)){
               const morceaux=[];
-              if(puissance>0)morceaux.push('Puissance '+formatGrandNombreIdleV70_(puissance));
-              if(endurance>0)morceaux.push('Endurance '+formatGrandNombreIdleV70_(endurance));
+              if(g.puissance>0)morceaux.push('Puissance '+formatGrandNombreIdleV70_(g.puissance));
+              if(g.endurance>0)morceaux.push('Endurance '+formatGrandNombreIdleV70_(g.endurance));
               details=' <small style="color:#8b93ab">('+morceaux.join(' · ')+')</small>';
             }
-            return '<div style="margin-left:24px">• '+nom+details+'</div>';
+            return '<div style="margin-left:24px">• '+idleHtml_(g.nom)+(g.n>1?' ×'+g.n:'')+details+'</div>';
           }).join('');
-          lignes.push(ligneResumeHorsLigneIdleV64_('🎁','+'+drops.length+' objet(s) obtenu(s) :')+objets);
+          const resteObjets=groupes.slice(maxLignes).reduce(function(a,g){return a+g.n;},0);
+          const suite=resteObjets>0?'<div style="margin-left:24px;color:#8b93ab">… et '+resteObjets+' autre'+(resteObjets>1?'s':'')+'</div>':'';
+          lignes.push(ligneResumeHorsLigneIdleV64_('🎁','+'+drops.length+' objet'+(drops.length>1?'s':'')+' obtenu'+(drops.length>1?'s':'')+' :')+objets+suite);
         }
 
         fermerResumeHorsLigneIdleV64_();
@@ -22595,6 +22653,9 @@ function pageAventureIdleV28_(j){
         );
       }
 
+
+      /* Essai du popup « Pendant ton absence » avec un état fourni (tests, serveur de développement). */
+      window.__afficherResumeHorsLigneIdleV64__=afficherResumeHorsLigneIdleV64_;
 
       function rendreIdleEtat_(res){
         if(!res||!res.ok||!res.joueur){

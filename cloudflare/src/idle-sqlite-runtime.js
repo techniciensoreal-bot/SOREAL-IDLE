@@ -7792,6 +7792,19 @@ function regenPvIntegreeBasicTrainingSorealIdleV176_(
 }
 
 
+/* Kills de chaque titan (id -> nombre) dans l'état NGU : sert au résumé « Pendant ton absence » (titans tués par l'Auto-Kill entre deux synchronisations). */
+function killsTitansMetaSorealIdleV1_(metaNgu) {
+  const titans = metaNgu && metaNgu.adventure && metaNgu.adventure.titans && typeof metaNgu.adventure.titans === 'object'
+    ? metaNgu.adventure.titans
+    : {};
+  const out = {};
+  Object.keys(titans).forEach(function(id) {
+    const k = Math.max(0, Math.floor(nombreSorealIdle_(titans[id] && titans[id].kills, 0)));
+    if (k > 0) out[id] = k;
+  });
+  return out;
+}
+
 function appliquerProgressionEnergieSorealIdle_(
   feuille,
   ligne
@@ -7848,6 +7861,8 @@ function appliquerProgressionEnergieSorealIdle_(
       {}
     );
 
+  const killsTitansAvantSyncV1 = killsTitansMetaSorealIdleV1_(statsRessourceV55.metaNgu);
+
   const metaNguRessourceV55 =
     syncIdleNguState(
       statsRessourceV55.metaNgu,
@@ -7858,6 +7873,15 @@ function appliquerProgressionEnergieSorealIdle_(
       ),
       Date.now()
     );
+
+  /* Titans tués par l'Auto-Kill depuis la dernière synchronisation : [{ id, n }] (le client n'affiche que ceux qu'il connaît). */
+  const titansTuesHorsLigneV1 = (function() {
+    const apres = killsTitansMetaSorealIdleV1_(metaNguRessourceV55);
+    return Object.keys(apres)
+      .map(function(id) { return { id: id, n: apres[id] - Math.max(0, killsTitansAvantSyncV1[id] || 0) }; })
+      .filter(function(t) { return t.n > 0; })
+      .slice(0, 40);
+  })();
 
   statsRessourceV55.metaNgu =
     metaNguRessourceV55;
@@ -9571,6 +9595,9 @@ function appliquerProgressionEnergieSorealIdle_(
         lootsAutoHorsLigne
       ),
 
+    titansTues:
+      titansTuesHorsLigneV1,
+
     autoAventureHorsLigne: {
       combats:
         combatsAutoHorsLigne,
@@ -11090,6 +11117,44 @@ function construireEtatJoueurSorealIdle_(
         row[c.BOSS_VAINCUS - 1]
       ),
 
+    /*
+     * Boss suivant, déjà prêt à afficher (Norman, 2026-10-02 : « quand on bat un boss, le suivant met énormément de temps à apparaître : ça doit être
+     * instantané »). Tout ce que le client affiche pour un boss, calculé avec les mêmes fonctions que le boss courant mais pour l'index suivant : à la
+     * victoire prédite, le client l'applique tout de suite au lieu d'attendre que le serveur confirme. Le serveur reste l'autorité : la confirmation
+     * (bossVaincus du serveur) remplace cet état par le vrai.
+     */
+    bossSuivant:
+      (function() {
+        const idx = bossSelectionIndex + 1;
+        const def = definitionBossSorealIdle_(idx, metaNguEtat.difficulty);
+        const pvMax = pvMaxBossSorealIdle_(idx, metaNguEtat.difficulty);
+        const bonus = idleNguBonuses(statsEtat.metaNgu);
+        const xpMult = Math.max(1, nombreSorealIdle_(bonus.xpMultiplier, 1));
+        return {
+          bossActuel: String(def.nom || ''),
+          bossImage: String(def.image || ''),
+          bossDriveFileId: String(def.driveFileId || ''),
+          bossId: idx + 1,
+          bossPv: pvMax,
+          bossPvMax: pvMax,
+          bossVaincus: bossVaincusEtat + 1,
+          bossSelection: idx + 1,
+          attaqueBoss: attaqueBossSorealIdle_(idx),
+          defenseBoss: defenseBossSorealIdle_(idx),
+          regenBoss: regenBossSecondeSorealIdle_(idx, Math.max(1, pvMax)),
+          degatsRecusSeconde: degatsRecusSecondeSorealIdle_(idx, defenseEtat, pvMax, pvMax),
+          bossCapacites: Array.isArray(def.capacites) ? def.capacites : [],
+          bossHistoire: String(def.histoire || ''),
+          bossMortVivant: Boolean(def.mortVivant),
+          recompenseBossActuel: {
+            xp: Math.max(0, Math.round(recompenseXpBossNiveauSorealIdle_(idx, niveauEtat) * xpMult * facteurExpBossPerkSorealIdle_(bonus, idx))),
+            xpBase: xpBossSorealIdle_(idx),
+            xpMultiplicateur: xpMult,
+            niveauRequis: 1
+          }
+        };
+      })(),
+
     recompenseBossActuel: {
       xp:
         Math.max(
@@ -11228,6 +11293,14 @@ function construireEtatJoueurSorealIdle_(
           progression.dropsRecents
         )
           ? progression.dropsRecents
+          : [],
+
+      titansTues:
+        progression &&
+        Array.isArray(
+          progression.titansTues
+        )
+          ? progression.titansTues
           : [],
 
       degatsRecus:
