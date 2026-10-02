@@ -42,4 +42,7 @@ assert.ok(ui.includes("formaterPvFixeIdleV1_(j.pvJoueur)") && ui.includes("forma
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 assert.ok(/width:calc\(100% \+ 4px\) !important;[\s\S]{0,300}border-radius:10px !important;/.test(css), "cadre vert/rouge : largeur du portrait, angles du cadre joueur");
 assert.ok(/\.soreal-idle-hp-regen-v1\{[^}]*position:absolute;[^}]*right:8px;[^}]*color:#8dffb4;[^}]*text-shadow:/.test(css), "regen : petit, vert, lumineux, tout à droite");
+// Smartphone : la régénération passe sous les PV (petite, alignée à droite), les PV gardent toute la largeur, les deux cadres ont la même taille.
+assert.ok(/@media\(max-width:700px\)\{[\s\S]*display:grid !important;[\s\S]*font-size:clamp\(12px,3\.5vw,14px\) !important;[\s\S]*\.soreal-idle-hp-regen-v1\{[\s\S]*position:static;[\s\S]*justify-self:end;/.test(css), "mobile : régénération sous les PV, à droite");
+assert.ok(/font-size:max\(9px,\.55em\);/.test(css), "la régénération est toujours plus petite que les PV");
 console.log("idle-player-pv-decimals-during-regen: OK");

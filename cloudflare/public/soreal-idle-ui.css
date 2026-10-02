@@ -8253,7 +8253,8 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
   right:8px;
   top:50%;
   transform:translateY(-50%);
-  font-size:11px;
+  /* Toujours plus petite que les PV : 55 % de leur taille (jamais moins de 9 px). */
+  font-size:max(9px,.55em);
   font-weight:800;
   letter-spacing:0;
   color:#8dffb4;
@@ -8287,3 +8288,37 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
   background:rgba(0,0,0,.65);text-shadow:0 1px 1px #000;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{z-index:3}
+
+/*
+ * Smartphone (Norman, 2026-10-02 : « sur Smartphone la regen est aussi grosse que les PV ; le jeu est avant tout fait pour le Smartphone »). Les deux cadres se partagent la largeur de
+ * l'écran (~184 px) : la régénération ne peut plus se tenir à droite des PV sans les écraser (police réduite à 8,5 px). Elle passe sur une petite ligne sous les PV, alignée à droite
+ * du cadre, toujours présente (même vide) pour que le cadre ne change jamais de hauteur ; les PV gardent toute la largeur.
+ */
+@media(max-width:700px){
+  /* Grille : cœur, PV, « / », max restent sur UNE ligne (jamais renvoyés à la ligne) ; la régénération occupe la ligne du dessous. */
+  .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
+    display:grid !important;
+    grid-template-columns:repeat(4,auto);
+    justify-content:center;
+    align-items:center;
+    padding:4px 8px 2px;
+    row-gap:0;
+    /* Même taille pour les deux cadres (joueur et boss), sinon l'un est plus haut que l'autre ; l'ajustement automatique ne fait que réduire si un très grand nombre ne tient pas. */
+    font-size:clamp(12px,3.5vw,14px) !important;
+  }
+  .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4 .soreal-idle-hp-regen-v1{
+    position:static;
+    transform:none;
+    display:block;
+    grid-column:1 / -1;
+    justify-self:end;
+    text-align:right;
+    min-height:1.15em;
+    line-height:1.15;
+    font-size:max(9px,.5em);
+  }
+  .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4 .soreal-idle-hp-regen-v1:empty{
+    display:block;
+    visibility:hidden;
+  }
+}
