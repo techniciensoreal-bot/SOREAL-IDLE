@@ -1571,6 +1571,7 @@ function normalizeTracks(def, rawData) {
       out.tracks[track.id].target = Math.max(0, Math.floor(num(src.target, 0)));
     }
   }
+  if (def.id === "advancedTraining") out.advanceEnergy = Boolean(source.advanceEnergy);
   if ((IDLE_NGU_TRACKS[def.id] || []).some(t => t.id === source.activeTrack)) {
     out.activeTrack = source.activeTrack;
   }
@@ -3221,13 +3222,34 @@ function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
 }
 
 /* Champ « Target » (niveau à atteindre, 0 = aucun ; même règle que la Time Machine) : à l'atteinte, l'énergie de la compétence est retirée. */
+const IDLE_AT_ORDRE_V1 = Object.freeze(["toughness", "power", "block", "wandoosEnergy", "wandoosMagic"]);
+function atTargetAtteintV1(t) {
+  const target = Math.max(0, Math.floor(num(t?.target, 0)));
+  return target > 0 && Math.floor(num(t.tempLevel, 0)) >= target;
+}
+/*
+ * « Advance Energy » (Norman, 2026-10-02 : « permet de faire avancer automatiquement l'énergie vers la ligne suivante ») : quand une compétence atteint
+ * son Target, son énergie passe à la compétence suivante de la liste (dans l'ordre de l'écran) qui est débloquée et n'a pas atteint son propre Target ;
+ * sans suivante, elle est simplement rendue. Désactivé : l'énergie est rendue, comme avant.
+ */
 function atApplyTargetsV1(state) {
   const s = state.systems.advancedTraining;
   if (!s?.data?.tracks) return;
-  for (const [id, t] of Object.entries(s.data.tracks)) {
-    const target = Math.max(0, Math.floor(num(t.target, 0)));
-    if (target > 0 && Math.floor(num(t.tempLevel, 0)) >= target && atTrackEnergyV1(s, id) > 0) atSetTrackEnergyV1(state, id, 0, {});
-  }
+  const pistes = s.data.tracks;
+  const wandoosOk = Boolean(state.systems.wandoos?.unlocked);
+  IDLE_AT_ORDRE_V1.forEach((id, index) => {
+    const t = pistes[id];
+    if (!t || !atTargetAtteintV1(t) || atTrackEnergyV1(s, id) <= 0) return;
+    const suivante = s.data.advanceEnergy
+      ? IDLE_AT_ORDRE_V1.slice(index + 1).find(n => pistes[n] && (wandoosOk || !(n === "wandoosEnergy" || n === "wandoosMagic")) && !atTargetAtteintV1(pistes[n]))
+      : "";
+    if (suivante) {
+      pistes[suivante].energy = atTrackEnergyV1(s, suivante) + atTrackEnergyV1(s, id);
+      t.energy = 0;
+    } else {
+      atSetTrackEnergyV1(state, id, 0, {});
+    }
+  });
 }
 
 /* Pose l'énergie d'UNE compétence (mêmes plafonds qu'une allocation ordinaire) ; allocation.energy reste la somme des compétences. */
@@ -6936,6 +6958,12 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "allocateAdvancedTraining") {
     /* Énergie d'une compétence d'Advanced Training (colonne « Energy Allocated », boutons + / −). */
     atSetTrackEnergyV1(state, String(payload.track || ""), num(payload.value, 0), context);
+    atApplyTargetsV1(state);
+  } else if (action === "setAdvancedTrainingAdvance") {
+    /* Case « Advance Energy » d'Advanced Training. */
+    const at = state.systems.advancedTraining;
+    if (!at?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    at.data.advanceEnergy = Boolean(payload.enabled);
     atApplyTargetsV1(state);
   } else if (action === "setAdvancedTrainingTarget") {
     /* Champ « Target » d'une compétence : niveau à atteindre (0 = aucun) ; à l'atteinte son énergie est retirée. */

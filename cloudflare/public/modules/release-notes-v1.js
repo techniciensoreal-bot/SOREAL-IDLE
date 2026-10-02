@@ -18,6 +18,7 @@
           'Le menu d’entraînement avancé est refait comme dans le jeu d’origine : une ligne par compétence avec son niveau, son énergie allouée, son objectif (Target) et les boutons + et −, sans barres de progression.',
           'Chaque compétence progresse avec sa propre énergie, en même temps que les autres.',
           'Le Target retire l’énergie d’une compétence dès que le niveau voulu est atteint.',
+          'La case « Advance Energy » fait passer automatiquement l’énergie à la ligne suivante quand une compétence atteint son Target, et le bouton « WTF do I do? » explique le menu.',
         ]
       },
       {

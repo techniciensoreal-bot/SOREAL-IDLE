@@ -3100,6 +3100,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<div class="soreal-idle-bt-presets-v120"><span>Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAdvancedTrainingIdleV1__()">Tout retirer</button></div></div>';
         return '<style>'+
           '.soreal-idle-at-v1{display:grid;gap:10px}'+
+          '.soreal-idle-at-haut-v1{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}'+
+          '.soreal-idle-at-aide-bouton-v1{min-height:44px;padding:6px 14px;border-radius:10px;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:inherit;font:inherit;font-weight:900;cursor:pointer}'+
+          '.soreal-idle-at-avance-v1{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;cursor:pointer}'+
+          '.soreal-idle-at-avance-v1 input{width:22px;height:22px}'+
+          '.soreal-idle-at-aide-v1{padding:12px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(0,0,0,.28);font-size:15px;line-height:1.55}'+
+          '.soreal-idle-at-aide-v1[hidden]{display:none}'+
+          '.soreal-idle-at-aide-v1 p{margin:0 0 8px}.soreal-idle-at-aide-v1 ol{margin:0;padding-left:20px;display:grid;gap:6px}'+
           '.soreal-idle-at-entete-v1{text-align:center;padding:6px 0 2px}'+
           '.soreal-idle-at-entete-v1 h1{margin:0;font-family:Impact,"Arial Black",sans-serif;font-size:30px;letter-spacing:.04em;text-transform:uppercase}'+
           '.soreal-idle-at-entete-v1 p{margin:2px 0 0;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.8}'+
@@ -3115,7 +3122,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '@media(max-width:620px){.soreal-idle-at-ligne-v1{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"nom nom nom" "niv alloc cible" "btn btn btn"}.soreal-idle-at-nom-v1{grid-column:1/-1;text-align:center}.soreal-idle-at-boutons-v1{grid-column:1/-1;justify-content:center}.soreal-idle-at-boutons-v1 button{flex:1;max-width:140px}}'+
         '</style>'+
         '<div class="soreal-idle-at-v1">'+
+          '<div class="soreal-idle-at-haut-v1">'+
+            '<button type="button" class="soreal-idle-at-aide-bouton-v1" onclick="window.__basculerAideAdvancedTrainingIdleV1__()">WTF do I do?</button>'+
+            '<label class="soreal-idle-at-avance-v1"><input type="checkbox" '+(s.state.data&&s.state.data.advanceEnergy?'checked ':'')+'onchange="window.__basculerAdvanceAdvancedTrainingIdleV1__(this.checked)"> Advance Energy</label>'+
+          '</div>'+
           '<header class="soreal-idle-at-entete-v1"><h1>Advanced Training</h1><p>(Time to improve your moves)</p></header>'+
+          '<div class="soreal-idle-at-aide-v1" id="sorealIdleAtAideV1" hidden>'+
+            '<p><b>À quoi ça sert ?</b> L’Advanced Training améliore ton Power et ta Toughness en Aventure, la réduction de dégâts du Block'+(wandoosOk?' et la vitesse des dumps de Wandoos':'')+'.</p>'+
+            '<ol>'+
+              '<li><b>Place de l’énergie</b> sur une compétence avec <b>+</b> : la quantité placée est celle de la case <b>Input</b> (les boutons Cap, 1/2 et 1/4 la remplissent). <b>−</b> la retire.</li>'+
+              '<li>Chaque compétence avance <b>avec sa propre énergie</b>, en même temps que les autres. Chaque niveau demande plus de temps que le précédent, avec des bonus qui augmentent de moins en moins.</li>'+
+              '<li>Ta <b>Puissance d’énergie</b> ne compte que par sa racine carrée ; ton <b>plafond d’énergie</b> compte à plein.</li>'+
+              '<li><b>Target</b> : le niveau à atteindre. Dès qu’il est atteint, l’énergie de la compétence est retirée (0 = aucun objectif).</li>'+
+              '<li><b>Advance Energy</b> : quand une compétence atteint son Target, son énergie passe automatiquement à la ligne suivante.</li>'+
+              '<li>Les niveaux sont remis à zéro à chaque Rebirth.</li>'+
+            '</ol>'+
+          '</div>'+
           toolbar+
           '<div class="soreal-idle-at-liste-v1">'+ids.map(ligne).join('')+'</div>'+
           '<div class="soreal-idle-note-v4">Chaque compétence progresse avec sa propre énergie. Les niveaux montent de plus en plus lentement, et la Puissance d’énergie ne compte que par sa racine carrée.</div>'+
@@ -3161,6 +3183,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:valeur});
       }
       window.__ajusterAdvancedTrainingIdleV1__=ajusterAdvancedTrainingIdleV1_;
+      window.__basculerAideAdvancedTrainingIdleV1__=function(){
+        const el=document.getElementById('sorealIdleAtAideV1');
+        if(el)el.hidden=!el.hidden;
+      };
+      window.__basculerAdvanceAdvancedTrainingIdleV1__=function(actif){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const s=systemeMetaParIdIdleV130_(j,'advancedTraining');
+        if(s&&s.state&&s.state.data)s.state.data.advanceEnergy=Boolean(actif);
+        envoyerAllocRapideV1_({action:'setAdvancedTrainingAdvance',enabled:Boolean(actif)});
+      };
       window.__cibleAdvancedTrainingIdleV1__=function(id,valeur){
         const n=Math.max(0,Math.floor(Number(valeur)||0));
         envoyerAllocRapideV1_({action:'setAdvancedTrainingTarget',track:String(id),value:n});
