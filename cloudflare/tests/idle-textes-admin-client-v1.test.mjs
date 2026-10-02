@@ -58,6 +58,19 @@ assert.equal(json(plan(retirer("Avant. (femme) Après."))), json([{ chunk: "Avan
   assert.equal(plan(retirer(sansNote)).find((e) => e.chunk === "Salut.").voix, "marius", "la balise en tête n'est pas prise pour une note");
 }
 
+// --- Défi / Rebirth (Norman, 2026-10-02) : la chronique d'un boss déjà rencontré n'est jamais lue automatiquement ---
+{
+  const motif = /function bossDejaRencontre_\(id\)\{[\s\S]*?\n  \}\n/;
+  const code2 = tts.match(motif)[0] + "\nreturn bossDejaRencontre_;";
+  const fonction = (bossMax) => new Function("window", code2)({ __SOREAL_IDLE_ACTIVITE_V1__: () => ({ bossMax }) });
+  assert.equal(fonction(60)("17"), true, "boss 17 avec un record de 60 : déjà rencontré, pas de lecture auto");
+  assert.equal(fonction(60)("60"), true);
+  assert.equal(fonction(60)("61"), false, "boss 61 : jamais rencontré, lu une fois");
+  assert.equal(fonction(0)("1"), false, "joueur neuf : tout est nouveau");
+  assert.equal(new Function("window", code2)({})("5"), false, "sans activité connue : comportement d'origine");
+  assert.ok(tts.includes("if(!id||chroniqueDejaLue_(id)||bossDejaRencontre_(id))return null;"), "câblé dans le panneau de lecture automatique");
+}
+
 // --- Module d'édition : affichage sans balises, surcharges appliquées sans toucher l'original ---
 function charger(recu) {
   const enregistrees = [];

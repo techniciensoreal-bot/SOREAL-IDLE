@@ -531,11 +531,27 @@
    * rendu) OU déjà mémorisé comme lu -- dans ce dernier cas, scan_ ne trouve alors AUCUN panneau actif et ne relance rien (comportement
    * identique à « rien à lire »), sans jamais empêcher le bouton manuel de fonctionner.
    */
+  /*
+   * Norman (2026-10-02) : « pendant un défi, les voix ne doivent pas être relues tant qu'on n'affronte pas un nouveau boss qu'on n'a jamais rencontré. »
+   * Un défi (comme un Rebirth) fait recommencer au boss 1 : tout boss dont le numéro ne dépasse pas le record permanent (records.highestBoss, jamais remis à
+   * zéro) a déjà été rencontré, sa chronique n'est donc plus lue automatiquement -- même si elle n'avait jamais été marquée « lue » (jeu sans voix, boss
+   * tué trop vite, chronique ajoutée ensuite). Le bouton « Lire la chronique » reste toujours disponible.
+   */
+  function bossDejaRencontre_(id){
+    var n=parseInt(id,10);
+    if(!(n>0))return false;
+    try{
+      var f=window.__SOREAL_IDLE_ACTIVITE_V1__;
+      var c=typeof f==='function'?f():null;
+      return n<=Math.max(0,Math.floor(Number(c&&c.bossMax)||0));
+    }catch(_){return false;}
+  }
+
   function panneauChroniqueBoss_(){
     var panel=document.getElementById(CHRONICLE_PANEL_ID);
     if(!panel)return null;
     var id=chroniqueBossId_(panel);
-    if(!id||chroniqueDejaLue_(id))return null;
+    if(!id||chroniqueDejaLue_(id)||bossDejaRencontre_(id))return null;
     return panel;
   }
 

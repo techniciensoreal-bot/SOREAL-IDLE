@@ -248,6 +248,25 @@ const HISTOIRE = {
   assert.equal(document2.body.children.length, 0, "déjà vue : jamais rejouée");
 }
 
+// 6 bis. Défi / Rebirth (Norman, 2026-10-02) : un boss déjà rencontré (sous le record permanent) ne rejoue jamais son histoire, même jamais marquée vue.
+{
+  const appels = [];
+  const window_ = { vus: [] };
+  window_.__soreal_idle_marquer_vu_v1__ = (id) => window_.vus.push(id);
+  window_.__SOREAL_IDLE_CALL_V1__ = (nom, args) => { appels.push(args[0]); return Promise.resolve({ ok: true, histoire: HISTOIRE }); };
+  const document_ = fabriquerDocument();
+  const api = charger(window_, document_, fabriquerHorloge());
+  const attendre = () => new Promise((r) => setImmediate(r));
+  const record = { systemes: { records: { highestBoss: 60 } } };
+  api.considerer({ bossSelection: 18, ...record, profil: { stats: { vus: [] } } });   // boss 17 retué en défi : record 60
+  await attendre();
+  assert.deepEqual(appels, [], "boss 17 déjà rencontré (record 60) : le serveur n'est même pas interrogé");
+  assert.equal(document_.body.children.length, 0, "aucune histoire rejouée en défi");
+  api.considerer({ bossSelection: 61, systemes: { records: { highestBoss: 60 } }, profil: { stats: { vus: [] } } });  // boss 60 : premier kill (record = 60)
+  await attendre();
+  assert.deepEqual(appels, [60], "le boss du record lui-même (premier kill) reste « nouveau »");
+}
+
 // 7. Échec réseau : on retentera (jamais marqué vu, jamais « vérifié »).
 {
   let n = 0;

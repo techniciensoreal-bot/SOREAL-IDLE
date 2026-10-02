@@ -304,6 +304,13 @@ function considerer_(j){
   if(!(selection>=2))return;
   var boss=selection-1;
   if(dejaVerifie[boss])return;
+  /*
+   * Norman (2026-10-02) : en défi (ou après un Rebirth) on retue des boss déjà rencontrés : leur histoire ne se rejoue pas, même si elle n'avait jamais été
+   * marquée vue (histoire ajoutée après coup). Seul un boss au-delà du record permanent (records.highestBoss) est « nouveau » ; au premier kill le record
+   * vaut au plus ce boss : on ne bloque donc que les boss STRICTEMENT en dessous.
+   */
+  var record=Math.floor(Number(j&&j.systemes&&j.systemes.records&&j.systemes.records.highestBoss))||0;
+  if(boss<record){dejaVerifie[boss]=true;return;}
   dejaVerifie[boss]=true;
   var appel=window.__SOREAL_IDLE_CALL_V1__;
   if(typeof appel!=='function')return;
