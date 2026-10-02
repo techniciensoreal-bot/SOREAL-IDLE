@@ -35,7 +35,7 @@ import {
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
 import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
-import { instantaneJoueurV1, enregistrerJalonsV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
+import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
 import { battementV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
@@ -16761,6 +16761,10 @@ function battementSorealIdle(sessionToken, info) {
         const ligneF = trouverLigneJoueurSorealIdle_(feuilleF, acces);
         const cF = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
         const statsF = statsJoueurSorealIdle_(feuilleF.getRange(ligneF, cF.STATS_JSON).getValue());
+        /* « X vient de se connecter » : avant les jalons, pour que le fil garde l'ordre réel. */
+        if (resultat.connexion) {
+          enregistrerConnexionFluxV1(__idleSql, { email: emailProfilSorealIdle_(acces), nom: identite.nomAffiche, visible: statsF.classementVisible !== false });
+        }
         enregistrerJalonsV1(__idleSql, {
           email: emailProfilSorealIdle_(acces),
           nom: identite.nomAffiche,

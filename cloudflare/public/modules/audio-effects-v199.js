@@ -43,6 +43,8 @@
     purchaseGem:{group:"purchase",priority:30,maxAgeMs:1300},
     menuNav:{group:"ui-nav",priority:20,maxAgeMs:400},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
+    /* Un autre joueur vient de se connecter (fil « En direct », Norman 2026-10-02) : petit carillon discret. */
+    joueurConnecte:{group:"presence",priority:18,maxAgeMs:2500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
@@ -1144,6 +1146,15 @@
     });
   }
 
+  /* Carillon de connexion : deux notes douces qui montent (do-sol aigus), volume bas -- présent mais jamais gênant. */
+  function joueurConnecte_(){
+    return jouerWebAudio_(520,function(c){
+      tonal_(c,{type:"sine",from:659,to:659,duration:.18,volume:.030});
+      tonal_(c,{type:"sine",from:988,to:988,duration:.24,volume:.026,delay:.11});
+      tonal_(c,{type:"triangle",from:1976,to:1976,duration:.12,volume:.008,delay:.13});
+    });
+  }
+
   /*
    * Absorption de TOUS les boosts possibles (2026-09-27, Norman) : plus gros événement qu'un
    * boostPower_/boostToughness_/boostSpecial_ isolé -- une charge qui monte, en écho des trois
@@ -1328,6 +1339,7 @@
     purchaseGem:gemmeJouer_,
     menuNav:menuNav_,
     achievement:succes_,
+    joueurConnecte:joueurConnecte_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
     mergeArmor:fusionArmure_,
@@ -1492,6 +1504,7 @@
     purchaseGem:function(){return demander_("purchaseGem");},
     menuNav:function(){return demander_("menuNav");},
     achievement:function(){return demander_("achievement");},
+    joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
     mergeArmor:function(){return demander_("mergeArmor");},

@@ -2008,12 +2008,20 @@
             idleEtat.energieMax
           );
 
+        /*
+         * Entier (Norman, 2026-10-02 : « 🔋 Reste à générer : 0 · ⏱ Pleine dans 1 s se met à clignoter très vite quand tout est généré »). Une allocation
+         * décimale (Time Machine, Max…) rendait ce plafond décimal (ex. 1234,6) : l'énergie, toujours arrondie à l'entier, valait 1234 puis 1234,6 puis 1234
+         * à chaque image -- le compteur alternait donc entre « pleine » et « reste 0 ». Énergie et plafond sont maintenant tous deux entiers.
+         */
         const max=
           Math.max(
             0,
-            maxTotal-
-            totalAllocationBasicTrainingIdleV120_()-
-            allocationMetaEnergieIdleV1_()
+            Math.floor(
+              maxTotal-
+              totalAllocationBasicTrainingIdleV120_()-
+              allocationMetaEnergieIdleV1_()+
+              1e-9
+            )
           );
 
         const prod=
@@ -4670,7 +4678,8 @@
         const max=idleEntier_(idleEtat&&idleEtat.energieMax);
         const reste=max-energieGenereeTotaleIdleV1_();
         if(!(max>0))return '';
-        if(reste<=0)return '✅ Énergie pleine';
+        /* Moins d'une énergie manquante (décimales d'allocation) : pleine, jamais « Pleine dans 1 s ». */
+        if(reste<1)return '✅ Énergie pleine';
         const prod=idleNombre_(idleEtat&&idleEtat.productionSeconde);
         if(!(prod>0))return '';
         return '⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/prod);
@@ -4709,10 +4718,10 @@
         const reste=m.cap-m.generee;
         let temps='';
         if(m.cap>0){
-          if(reste<=0)temps='✅ Magie pleine';
+          if(reste<1)temps='✅ Magie pleine';
           else if(m.parSeconde>0)temps='⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/m.parSeconde);
         }
-        return '🔮 Reste à générer : '+formatEnergieIdleV50_(Math.max(0,reste))+(temps?' · '+temps:'');
+        return '🔮 Reste à générer : '+formatEnergieIdleV50_(reste<1?0:Math.max(0,reste))+(temps?' · '+temps:'');
       }
 
       /* Norman (2026-10-01) : « Niveau par seconde » à la place de « Tick » et « Production », identique pour l'Énergie et la Magie. */
@@ -4727,7 +4736,8 @@
 
       function texteEnergieGenereeIdleV1_(){
         const temps=texteTempsEnergiePleineIdleV1_();
-        const reste=Math.max(0,idleEntier_(idleEtat&&idleEtat.energieMax)-energieGenereeTotaleIdleV1_());
+        const resteBrut=idleEntier_(idleEtat&&idleEtat.energieMax)-energieGenereeTotaleIdleV1_();
+        const reste=resteBrut<1?0:resteBrut;
         return '🔋 Reste à générer : '+
           formatEnergieIdleV50_(reste)+
           (temps?' · '+temps:'');
@@ -20422,7 +20432,7 @@ function pageAventureIdleV28_(j){
 
         /* Norman (2026-10-01) : cases regroupées (zones, titans, cœurs, Looty, pendentifs...) avec un titre de section ; seules les cases déjà découvertes sont listées, donc jamais de titre de groupe encore inconnu. */
         let groupePrecedent=debutPageCoffre>0&&slots[debutPageCoffre-1]?String(slots[debutPageCoffre-1].groupeNom||''):null;
-        const grille='<div class="soreal-idle-collection-grid-v1">'+
+        const grille='<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1">'+
           slotsPage.map(function(s){
             let titre='';
             const nomGroupe=String(s.groupeNom||'');
@@ -20455,11 +20465,12 @@ function pageAventureIdleV28_(j){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-282 */
         const ouvert=idleCoffreOuvertV1_();
 
-        return '<div class="soreal-idle-section-v8">'+
+        /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */
+        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+'">'+
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+
             'role="button" tabindex="0" aria-expanded="'+(ouvert?'true':'false')+'">'+
-            '<span>🗄️ Coffre ('+occupees+')</span>'+
+            '<span>🧰 Coffre ('+occupees+')</span>'+
             '<span class="soreal-idle-coffre-chevron-v1">'+(ouvert?'▲':'▼')+'</span>'+
           '</div>'+
           '<div class="soreal-idle-v138-cube-slot" data-idle-coffre-drop-v180 '+
@@ -20468,7 +20479,7 @@ function pageAventureIdleV28_(j){
             'ondrop="window.__deposerSurCoffreAdventureIdleV1__(event)" '+
             'onclick="window.__clicCoffreAdventureIdleV1__()"'+
             '>'+
-            '<div>🗄️</div>'+
+            '<div>🧰</div>'+
             '<div>Glisse un objet réellement maxé ici pour le ranger dans sa case</div>'+
           '</div>'+
           (ouvert?'<div style="margin-top:10px">'+grille+'</div>':'')+
@@ -22080,7 +22091,13 @@ function pageAventureIdleV28_(j){
         }
         const records=j.systemes&&j.systemes.records;
         /* Fil d'actualité (modules/flux-v1.js) : ce que CE joueur connaît déjà, pour ne jamais révéler à travers l'activité d'un autre. */
-        const connus={boss:{},titan:{},succes:{},menus:{}};
+        const connus={boss:{},titan:{},succes:{},menus:{},sets:{}};
+        /* Sets d'équipement que CE joueur a complétés : seuls leurs noms peuvent être cités dans le fil « En direct ». */
+        if(a&&a.completedSets&&a.setCatalog){
+          Object.keys(a.completedSets).forEach(function(id){
+            if(a.completedSets[id]&&a.setCatalog[id]&&a.setCatalog[id].name)connus.sets[id]=String(a.setCatalog[id].name);
+          });
+        }
         ((j.bestiaire&&Array.isArray(j.bestiaire.entrees))?j.bestiaire.entrees:[]).forEach(function(e){
           if(e&&e.source==='boss'&&e.decouvert&&e.nom)connus.boss[idleEntier_(e.numero)]=String(e.nom);
         });

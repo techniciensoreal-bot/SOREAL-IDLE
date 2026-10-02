@@ -11,7 +11,9 @@ import {
   IDLE_FLUX_MAX_LIGNES_V1,
   IDLE_FLUX_MAX_PAR_BATTEMENT_V1,
   IDLE_FLUX_DELAI_FARM_MS_V1,
-  IDLE_FLUX_FRAICHEUR_MS_V1
+  IDLE_FLUX_FRAICHEUR_MS_V1,
+  IDLE_FLUX_DELAI_CONNEXION_MS_V1,
+  enregistrerConnexionFluxV1
 } from "../src/idle-flux-v1.js";
 
 /*
@@ -152,6 +154,39 @@ const stats = (o = {}) => ({
   assert.ok(rt.includes("i.amorceFlux === true") && rt.includes("seulementFrais: true") && rt.includes("maintenant: Date.now()"));
 }
 
+// 7. Un fil plus vivant (Norman, 2026-10-02) : défi lancé, set complété, connexion d'un joueur.
+{
+  const avant = instantaneJoueurV1({ stats: { metaNgu: { challenge: { active: "" }, adventure: { completedSets: { training: true } } } } });
+  assert.equal(avant.defiActif, "");
+  assert.deepEqual(avant.sets, ["training"]);
+  const apres = instantaneJoueurV1({ stats: { metaNgu: { challenge: { active: "basic" }, adventure: { completedSets: { training: true, sewers: true } } } } });
+  const ev = evenementsV1(avant, apres);
+  assert.deepEqual(ev.map((e) => e.type).sort(), ["defiLance", "set"], "défi lancé + set complété (et pas le set déjà complété)");
+  assert.equal(ev.find((e) => e.type === "set").donnees.id, "sewers");
+  assert.deepEqual(evenementsV1(apres, apres), [], "rien de neuf : rien d'annoncé");
+  // Ancien instantané sans ces champs : jamais d'annonce à tort.
+  assert.deepEqual(evenementsV1({ bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 }, apres).filter((e) => e.type === "defiLance" || e.type === "set"), []);
+  // Défi déjà en cours : pas de nouvelle annonce.
+  assert.equal(evenementsV1(apres, Object.assign({}, apres, { defiActif: "troll" })).filter((e) => e.type === "defiLance").length, 0);
+
+  // Connexion : annoncée, au plus une fois toutes les 5 minutes par joueur, jamais pour un joueur masqué du classement.
+  const sql = baseVide();
+  assert.equal(enregistrerConnexionFluxV1(sql, { email: "a@x.fr", nom: "Alice", now: T0 }), 1);
+  assert.equal(enregistrerConnexionFluxV1(sql, { email: "a@x.fr", nom: "Alice", now: T0 + 60000 }), 0, "déjà annoncée il y a une minute");
+  assert.equal(enregistrerConnexionFluxV1(sql, { email: "a@x.fr", nom: "Alice", now: T0 + IDLE_FLUX_DELAI_CONNEXION_MS_V1 + 1 }), 1);
+  assert.equal(enregistrerConnexionFluxV1(sql, { email: "b@x.fr", nom: "Bob", visible: false, now: T0 }), 0, "retiré du classement : jamais annoncé");
+  const fil = lireFluxV1(sql, { seulementFrais: true, now: T0 + IDLE_FLUX_DELAI_CONNEXION_MS_V1 + 2, email: "z@x.fr" });
+  assert.deepEqual(fil.map((e) => e.type), ["connexion"]);
+  assert.equal(fil[0].nom, "Alice");
+
+  // Présence : un battement après une absence (ou le tout premier) est une connexion ; les battements rapprochés non.
+  const { battementV1 } = await import("../src/idle-chat-v1.js");
+  const p = baseVide();
+  assert.equal(battementV1(p, { email: "c@x.fr", nom: "Cat", now: T0 }).connexion, true, "première présence");
+  assert.equal(battementV1(p, { email: "c@x.fr", nom: "Cat", now: T0 + 20000 }).connexion, false, "battement normal");
+  assert.equal(battementV1(p, { email: "c@x.fr", nom: "Cat", now: T0 + 20000 + 120000 }).connexion, true, "retour après plus de 90 s");
+}
+
 // 5. Phrases côté lecteur : aucun spoil.
 {
   const noeud = () => ({ style: {}, setAttribute() {}, appendChild() {}, addEventListener() {}, querySelector() { return noeud(); }, querySelectorAll() { return []; }, getBoundingClientRect() { return { width: 0 }; }, classList: { toggle() {} } });
@@ -178,6 +213,13 @@ const stats = (o = {}) => ({
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, expert).texte, "Mickaël farme dans Égouts");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, debutant).texte, "Mickaël farme en Aventure", "zone inconnue : générique");
   assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu viens de vaincre Gros Rat");
+  // Nouveaux événements : connexion (jamais la sienne), défi lancé (menu Challenges requis), set (nom seulement si le lecteur l'a complété).
+  assert.equal(p("connexion", {}, debutant).texte, "Mickaël vient de se connecter");
+  assert.equal(p("connexion", {}, debutant, true), null);
+  assert.equal(p("defiLance", {}, debutant), null, "menu Challenges non débloqué : jamais mentionné");
+  assert.equal(p("defiLance", {}, expert).texte, "Mickaël a lancé un Challenge");
+  assert.equal(p("set", { id: "training" }, debutant).texte, "Mickaël a complété un set d’équipement");
+  assert.equal(p("set", { id: "training" }, Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { sets: { training: "Training Set" } }) })).texte, "Mickaël a complété le set Training Set");
 
   // Bandeau : chaque information n'est mise en file qu'UNE fois ; l'historique chargé au démarrage n'est pas rejoué.
   const f = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
@@ -203,6 +245,13 @@ const stats = (o = {}) => ({
   assert.ok(f.dernier() >= 3, "mais le repère avance : il n'est pas redemandé");
   f.recevoir([{ id: 4, at: now - 20000, nom: "Dylan", type: "boss", donnees: { boss: 4 } }], now);
   assert.equal(f.enAttente(), avant + 1, "20 s : en direct");
+  // Petit bruit quand un AUTRE joueur se connecte (une fois par lot, jamais pour soi).
+  let carillons = 0;
+  sandbox.window.__SOREAL_IDLE_AUDIO_V199__ = { joueurConnecte() { carillons += 1; } };
+  f.recevoir([{ id: 40, at: now, nom: "Zed", type: "connexion", donnees: {} }, { id: 41, at: now, nom: "Yan", type: "connexion", donnees: {} }], now);
+  assert.equal(carillons, 1, "un carillon pour le lot");
+  f.recevoir([{ id: 42, at: now, nom: "Moi", type: "connexion", donnees: {}, moi: true }], now);
+  assert.equal(carillons, 1, "pas de carillon pour sa propre connexion");
   f.amorcer(50);
   assert.equal(f.dernier(), 50, "repère du premier battement : tout ce qui précède l'arrivée du joueur est ignoré");
   assert.equal(f.amorce(), true);

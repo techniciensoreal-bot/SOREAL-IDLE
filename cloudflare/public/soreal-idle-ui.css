@@ -8157,3 +8157,49 @@ button .soreal-idle-blood-croix-v1{font-size:1.25em}
 /* Rebirth : NUMBER au Rebirth en vert s'il dépasse le NUMBER actuel, en rouge s'il est plus petit (Norman, 2026-10-01). */
 .soreal-idle-rebirth-stat-value-v14.hausse{color:#34d399!important;-webkit-text-fill-color:#34d399!important;background:none!important;text-shadow:0 0 12px rgba(52,211,153,.55)!important}
 .soreal-idle-rebirth-stat-value-v14.baisse{color:#ff4d5e!important;-webkit-text-fill-color:#ff4d5e!important;background:none!important;text-shadow:0 0 12px rgba(255,77,94,.55)!important}
+
+/* ====================== COFFRE : un vrai coffre (Norman, 2026-10-02 : « ça fait classeur » ; images 75 % plus petites) ====================== */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1{
+  --coffre-icone:14px; /* 56 px × 25 % : les images du Coffre sont 75 % plus petites */
+  position:relative;padding:0!important;border:3px solid #2b1a0c!important;border-radius:26px 26px 12px 12px!important;overflow:hidden;
+  background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 2px,transparent 2px 46px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 9px),
+    linear-gradient(180deg,#7a4a22,#5a3417 60%,#43260f)!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.55),inset 0 0 0 2px #b88a3a,inset 0 0 30px rgba(0,0,0,.45)!important;
+}
+/* Couvercle bombé : bande de fer cloutée en haut, avec le titre en lettres dorées. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-titre-v1{
+  margin:0!important;padding:14px 18px!important;border-radius:0!important;border:0!important;border-bottom:4px solid #1c1208!important;
+  background:
+    radial-gradient(circle at 12px 50%,#d9d9de 0 3px,#6b6b73 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 12px) 50%,#d9d9de 0 3px,#6b6b73 4px,transparent 5px),
+    linear-gradient(180deg,#4a4a53,#2c2c33 55%,#1e1e24)!important;
+  color:#ffd27a!important;text-shadow:0 2px 0 #000,0 0 12px rgba(255,190,90,.6)!important;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:22px 22px 0 0!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-chevron-v1{color:#ffd27a;opacity:1}
+/* Serrure : la zone de dépôt est la plaque de la serrure, cerclée d'or. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 [data-idle-coffre-drop-v180]{
+  margin:14px auto 4px!important;max-width:420px;border:3px solid #d8a93f!important;border-radius:12px!important;
+  background:radial-gradient(ellipse at 50% 30%,#4a2c12,#2a1608)!important;color:#ffe7b0!important;
+  box-shadow:inset 0 0 14px rgba(0,0,0,.7),0 2px 0 #1c1208;text-align:center;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 [data-idle-coffre-drop-v180] div:first-child{font-size:26px}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert>div:last-child{
+  margin:10px 12px 14px!important;padding:12px;border-radius:12px;border:3px solid #1c1208;
+  background:radial-gradient(ellipse at 50% 0%,#5b1426,#2e0a14 70%);box-shadow:inset 0 0 24px rgba(0,0,0,.75),0 0 0 2px #b88a3a;
+}
+/* Cases : petits écrins sombres cerclés d'or, images minuscules. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))!important;gap:7px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-v1{
+  padding:6px 4px!important;gap:3px!important;border-radius:9px!important;border:1.5px solid #b88a3a!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.35))!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1{font-size:calc(var(--coffre-icone)*.6);min-height:var(--coffre-icone);display:flex;align-items:center;justify-content:center}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 img,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 .idle-icon-v1{width:var(--coffre-icone)!important;height:var(--coffre-icone)!important;border-radius:3px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .idle-emoji-fallback-v1{font-size:calc(var(--coffre-icone)*.7)!important;width:var(--coffre-icone);height:var(--coffre-icone)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{font-size:11.5px;color:#ffe9bd}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:11px;color:#d8b980}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{width:15px;height:15px;font-size:10px;top:3px;right:3px;background:#d8a93f;color:#2b1a0c}

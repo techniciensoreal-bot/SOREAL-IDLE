@@ -85,6 +85,18 @@
       case 'defi':
         if(!k.menus.challenges)return null;
         return {icone:'🏁',texte:nom+verbe(' as',' a')+' réussi un Challenge'};
+      /* « X vient de se connecter » : les connexions des AUTRES joueurs (la tienne, tu la connais). */
+      case 'connexion':
+        if(it.moi)return null;
+        return {icone:'👋',texte:nom+' vient de se connecter'};
+      case 'defiLance':
+        if(!k.menus.challenges)return null;
+        return {icone:'🏁',texte:nom+verbe(' as',' a')+' lancé un Challenge'};
+      case 'set':{
+        /* Le nom d'un set n'est donné que si le lecteur l'a lui-même complété (anti-spoil) ; sinon un set d'équipement, sans nom. */
+        const nomSet=(k.sets||{})[String(d.id)];
+        return {icone:'🛡️',texte:nomSet?nom+verbe(' as',' a')+' complété le set '+nomSet:nom+verbe(' as',' a')+' complété un set d’équipement'};
+      }
       case 'rebirth':
         if(!k.menus.renaissance)return null;
         return {icone:'♻️',texte:nom+verbe(' as',' a')+' fait un Rebirth'};
@@ -255,6 +267,10 @@
     let ajoute=false;
     nouveaux.forEach(function(it){if(!connus.has(it.id)){items.push(it);ajoute=true;}});
     if(ajoute){
+      /* Petit bruit quand quelqu'un d'autre se connecte (jamais pour soi, une seule fois par lot). */
+      if(nouveaux.some(function(it){return it.type==='connexion'&&!it.moi&&!connus.has(it.id);})){
+        try{const audio=window.__SOREAL_IDLE_AUDIO_V199__;if(audio&&typeof audio.joueurConnecte==='function')audio.joueurConnecte();}catch(e){}
+      }
       items.sort(function(a,b){return a.id-b.id;});
       if(items.length>MAX_ITEMS)items=items.slice(items.length-MAX_ITEMS);
       dernier=items[items.length-1].id;

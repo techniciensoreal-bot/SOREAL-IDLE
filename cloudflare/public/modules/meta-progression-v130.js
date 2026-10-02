@@ -1917,7 +1917,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const value=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
           const pct=Math.max(0,Math.min(100,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?def.upgradeProgressPct:def.progressPct)*100));
           const level=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(upgrade?pair.upgradeLevel:pair.level);
-          const label=upgrade?'⬆️ Upgrade':'💪 Augment';
+          /* Deuxième ligne d'un Augment : le vrai nom de son Upgrade (wiki NGU Idle « Augmentations » : Danger Scissors, Drinking The Milk Too…), en français. */
+          const label=upgrade?'⬆️ '+(IDLE_NOMS_UPGRADES_AUGMENTS_V1[def.upgrade&&def.upgrade.id]||(def.upgrade&&def.upgrade.name)||'Upgrade'):'💪 Augment';
           const sousTitre=upgrade?'Multiplie le bonus de l’Augment · coûte de l’Or et de l’Energy':'Bonus d’Attack et de Defense · coûte de l’Or';
           return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+label+' · Niv. '+level+'</b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div><div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div><div style="font-size:13px;color:#aeb5c8;margin:3px 0 1px">'+'<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>💰 '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:13px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
@@ -2366,6 +2367,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         buster:'Buster d’énergie',
         exoskeleton:'Exosquelette avancé',
         laserSword:'Sabre laser'
+      };
+      /* Noms français des Upgrades d'Augments (wiki NGU Idle, page « Augmentations » : une Upgrade par Augment, dans le même ordre). */
+      const IDLE_NOMS_UPGRADES_AUGMENTS_V1={
+        dangerScissors:'Ciseaux dangereux',
+        drinkMilk:'Boire aussi le lait',
+        missileLauncher:'Lance-missiles',
+        actualAmmo:'Vraies munitions',
+        chargeShot:'Tir chargé',
+        energyShield:'Bouclier d’énergie',
+        quadLaser:'Sabre laser à quatre côtés'
       };
       const IDLE_ICONES_AUGMENTS_V1={scissors:'✂️',milk:'🥛',cannon:'💥',minigun:'🔫',buster:'⚡',exoskeleton:'🦾',laserSword:'🗡️',insideOut:'🌀'};
       const IDLE_ICONES_SORTS_V1={numberBoost:'🔢',ironPill:'💊',bloodSpaghetti:'🍝',counterfeitGold:'💰',leeches:'🪱'};

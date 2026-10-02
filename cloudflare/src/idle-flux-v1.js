@@ -17,8 +17,8 @@ import { sqlRows } from "./core/sqlite-core.js";
 export const IDLE_FLUX_MAX_LIGNES_V1 = 400;
 export const IDLE_FLUX_DUREE_MAX_MS_V1 = 48 * 3600 * 1000;
 export const IDLE_FLUX_LIMITE_LECTURE_V1 = 40;
-/* Un joueur qui change de zone de farm n'est annoncé qu'une fois toutes les 10 minutes au plus. */
-export const IDLE_FLUX_DELAI_FARM_MS_V1 = 10 * 60 * 1000;
+/* Un joueur qui change de zone de farm n'est annoncé qu'une fois toutes les 3 minutes au plus. */
+export const IDLE_FLUX_DELAI_FARM_MS_V1 = 3 * 60 * 1000;
 /* Jamais plus de ce nombre d'événements par battement et par joueur (un gros rattrapage ne doit pas inonder le fil). */
 export const IDLE_FLUX_MAX_PAR_BATTEMENT_V1 = 6;
 /*
@@ -28,6 +28,8 @@ export const IDLE_FLUX_MAX_PAR_BATTEMENT_V1 = 6;
  * que des événements de moins de 90 s : jamais ceux qui ont eu lieu avant son arrivée ou pendant son absence.
  */
 export const IDLE_FLUX_FRAICHEUR_MS_V1 = 90 * 1000;
+/* Un joueur n'est annoncé « connecté » qu'une fois toutes les 5 minutes au plus (un onglet qui se reconnecte en boucle ne doit pas inonder le bandeau). */
+export const IDLE_FLUX_DELAI_CONNEXION_MS_V1 = 5 * 60 * 1000;
 
 export function assurerFluxV1(sql) {
   sql.exec("CREATE TABLE IF NOT EXISTS idle_flux(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL, type TEXT NOT NULL, donnees TEXT NOT NULL DEFAULT '{}')");
@@ -54,7 +56,12 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   for (const tier of ["difficile", "extreme"]) {
     for (const [id, n] of Object.entries((ch.completionsTier && ch.completionsTier[tier]) || {})) if (N(n) > 0) defis[tier + ":" + id] = Math.floor(N(n));
   }
+  /* Défi en cours (Norman, 2026-10-02 : « annoncer quand quelqu'un lance un défi ») et sets d'équipement complétés (« quand il complète un set »). */
+  const defiActif = String((m.challenge && m.challenge.active) || "");
+  const sets = Object.keys((m.adventure && m.adventure.completedSets) || {}).filter((id) => m.adventure.completedSets[id]).sort();
   return {
+    defiActif,
+    sets,
     /* Record permanent (jamais remis à 0 par un Rebirth) : seul un boss JAMAIS vaincu auparavant est annoncé, pas les boss refaits à chaque run. */
     bossMax: Math.max(0, Math.floor(N(m.records && m.records.highestBoss, 0))),
     succes,
@@ -89,6 +96,13 @@ export function evenementsV1(avant, apres, noms = {}) {
       const [tier, id] = cle.split(":");
       ev.push({ type: "defi", donnees: { id, tier, completion: n } });
     }
+  }
+  /* Défi lancé : aucun défi actif au battement précédent (instantané d'avant ce jalon : pas de comparaison, rien annoncé à tort). */
+  if (typeof avant.defiActif === "string" && avant.defiActif === "" && apres.defiActif) ev.push({ type: "defiLance", donnees: { id: apres.defiActif } });
+  /* Set complété : jamais un set déjà complété avant (instantané d'avant ce jalon : pas de comparaison). */
+  if (Array.isArray(avant.sets)) {
+    const dejaFaits = new Set(avant.sets);
+    for (const id of (apres.sets || []).filter((x) => !dejaFaits.has(x)).slice(0, 2)) ev.push({ type: "set", donnees: { id, nom: nom(noms.set, id) } });
   }
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
@@ -136,6 +150,20 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     sql.exec("DELETE FROM idle_flux WHERE id <= ?", dernier - IDLE_FLUX_MAX_LIGNES_V1);
   }
   return ajoutes;
+}
+
+/*
+ * Connexion d'un joueur (Norman, 2026-10-02 : « quand quelqu'un se connecte, on doit le voir passer »). Appelée au premier battement d'une présence (voir
+ * battementV1 : nouvelle présence ou absence de plus de 90 s). Publie « connexion » sauf si ce joueur a déjà été annoncé il y a moins de 5 minutes.
+ */
+export function enregistrerConnexionFluxV1(sql, { email, nom, visible = true, now = Date.now() }) {
+  assurerFluxV1(sql);
+  const cle = String(email || "").trim().toLowerCase();
+  if (!cle || !visible) return 0;
+  const derniere = sqlRows(sql.exec("SELECT MAX(at) AS at FROM idle_flux WHERE email=? AND type='connexion'", cle))[0];
+  if (derniere && derniere.at != null && now - Number(derniere.at) < IDLE_FLUX_DELAI_CONNEXION_MS_V1) return 0;
+  sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", now, cle, String(nom || "Joueur").slice(0, 80), "connexion", "{}");
+  return 1;
 }
 
 export function lireFluxV1(sql, { apresId = 0, limite = IDLE_FLUX_LIMITE_LECTURE_V1, email = "", seulementFrais = false, now = Date.now() } = {}) {

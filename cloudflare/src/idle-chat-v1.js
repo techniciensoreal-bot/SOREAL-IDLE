@@ -62,6 +62,8 @@ export function battementV1(sql, { email, nom, admin, actif, activite, now = Dat
   const cle = String(email || "").trim().toLowerCase();
   if (!cle) throw new Error("PRESENCE_EMAIL_REQUIS");
   const precedent = sqlRows(sql.exec("SELECT vu_le FROM idle_presence WHERE email=?", cle))[0];
+  /* Nouvelle connexion : aucune présence connue, ou le dernier battement date de plus que « en ligne » (le fil « En direct » l'annonce). */
+  const connexion = !precedent || now - Number(precedent.vu_le) > IDLE_PRESENCE_EN_LIGNE_MS_V1;
   let gain = 0;
   if (precedent && actif === true) {
     const ecart = (now - Number(precedent.vu_le)) / 1000;
@@ -78,7 +80,7 @@ export function battementV1(sql, { email, nom, admin, actif, activite, now = Dat
   );
   /* Ménage : les présences très anciennes sont oubliées (la liste ne montre de toute façon que les joueurs en ligne). */
   sql.exec("DELETE FROM idle_presence WHERE vu_le < ?", now - 24 * 3600 * 1000);
-  return { gain, enLigne: listerEnLigneV1(sql, cle, now) };
+  return { gain, connexion, enLigne: listerEnLigneV1(sql, cle, now) };
 }
 
 export function listerEnLigneV1(sql, emailMoi, now = Date.now()) {
