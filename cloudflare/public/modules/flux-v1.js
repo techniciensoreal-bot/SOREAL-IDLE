@@ -18,6 +18,11 @@
   const PASSAGES=1;
   const DUREE_FONDU_MS=600;
   const PX_PAR_SEC=46;
+  /*
+   * « En direct » (Norman, 2026-10-02 : « aucun message de rattrapage ») : le bandeau ne montre que ce qui vient de se passer. Une information de plus de
+   * 90 s (arrivée après une absence, onglet resté en arrière-plan…) n'est jamais jouée, ni dans le bandeau ni dans le panneau du Chat.
+   */
+  const FRAICHEUR_MS=90000;
 
   let items=[];
   let chats=[];
@@ -110,10 +115,10 @@
     const sortie=[];
     items.forEach(function(it){
       const p=phrase(it,ctx);
-      if(p)sortie.push({id:it.id,at:it.at,icone:p.icone,texte:p.texte,moi:it.moi});
+      if(p)sortie.push({id:it.id,at:it.at,icone:p.icone,texte:p.texte,moi:it.moi,recu:it.recu});
     });
     chats.forEach(function(m){
-      if(m.message)sortie.push({id:'c'+m.id,at:m.at,icone:'💬',texte:(m.moi?'Toi':m.nom)+' : '+texteChat(m.message),moi:m.moi,chat:true});
+      if(m.message)sortie.push({id:'c'+m.id,at:m.at,icone:'💬',texte:(m.moi?'Toi':m.nom)+' : '+texteChat(m.message),moi:m.moi,chat:true,recu:m.recu});
     });
     sortie.sort(function(a,b){return a.at-b.at;});
     return sortie;
@@ -175,7 +180,10 @@
    * les fait défiler 2 fois de suite, puis disparaît en fondu ; rien n'est rejoué ensuite (l'historique reste dans le panneau du Chat).
    */
   function demarrerLecture(){
-    const lot=file.splice(0,file.length).slice(-MAX_LOT);
+    /* Ce qui a attendu trop longtemps (onglet en arrière-plan) n'est plus « en direct » : écarté. */
+    const t0=performance.now();
+    const lot=file.splice(0,file.length).filter(function(e){return !(e.recu>0)||t0-e.recu<=FRAICHEUR_MS;}).slice(-MAX_LOT);
+    if(!lot.length)return;
     piste.innerHTML=lot.map(htmlItem).join('');
     largeurPiste=piste.getBoundingClientRect().width;
     largeurVue=bandeau.querySelector('.sif-vue').clientWidth||300;
@@ -230,13 +238,19 @@
   }
 
   /* ---------- données ---------- */
-  function recevoir(liste){
+  function recevoir(liste,heureServeur){
     /* Le bandeau n'existe qu'une fois connecté : dès la première réponse du serveur (même sans nouvelle). */
     if(!bandeau)construire();
     if(!raf)raf=requestAnimationFrame(boucle);
+    const maintenant=Number(heureServeur)>0?Number(heureServeur):Date.now();
     const nouveaux=(Array.isArray(liste)?liste:[]).map(function(it){
-      return {id:Number(it&&it.id)||0,at:Number(it&&it.at)||0,nom:String(it&&it.nom||'Joueur'),type:String(it&&it.type||''),donnees:(it&&it.donnees)||{},moi:Boolean(it&&it.moi)};
-    }).filter(function(it){return it.id>0;});
+      return {id:Number(it&&it.id)||0,at:Number(it&&it.at)||0,nom:String(it&&it.nom||'Joueur'),type:String(it&&it.type||''),donnees:(it&&it.donnees)||{},moi:Boolean(it&&it.moi),recu:performance.now()};
+    }).filter(function(it){
+      if(it.id<=0)return false;
+      /* Trop ancien : on avance simplement le repère pour ne plus le redemander, sans le montrer. */
+      if(it.at>0&&maintenant-it.at>FRAICHEUR_MS){if(it.id>dernier)dernier=it.id;return false;}
+      return true;
+    });
     const connus=new Set(items.map(function(it){return it.id;}));
     let ajoute=false;
     nouveaux.forEach(function(it){if(!connus.has(it.id)){items.push(it);ajoute=true;}});
@@ -252,14 +266,17 @@
   }
 
   /* Nouveaux messages du chat (modules/chat-v1.js) : le premier lot reçu au chargement n'est pas rejoué dans le bandeau. */
-  function recevoirChat(liste,initial){
+  function recevoirChat(liste,initial,heureServeur){
     if(!bandeau)construire();
     if(!raf)raf=requestAnimationFrame(boucle);
+    const maintenant=Number(heureServeur)>0?Number(heureServeur):Date.now();
     const connus=new Set(chats.map(function(m){return m.id;}));
     let ajoute=false;
     (Array.isArray(liste)?liste:[]).forEach(function(m){
       if(!m||!m.id||connus.has(m.id))return;
-      chats.push({id:m.id,at:Number(m.at)||Date.now(),nom:String(m.nom||'Joueur'),message:String(m.message||''),moi:Boolean(m.moi)});
+      /* Premier lot (historique du chat) ou message devenu trop ancien : jamais montré dans le bandeau ; marqué « déjà vu » pour ne pas être redemandé. */
+      if(initial||(Number(m.at)>0&&maintenant-Number(m.at)>FRAICHEUR_MS)){vus.add('c'+m.id);return;}
+      chats.push({id:m.id,at:Number(m.at)||Date.now(),nom:String(m.nom||'Joueur'),message:String(m.message||''),moi:Boolean(m.moi),recu:performance.now()});
       ajoute=true;
     });
     if(ajoute){
@@ -278,7 +295,7 @@
     return '<div class="sif-panneau"><div class="sif-ph">📰 Activité des joueurs</div>'+
       (liste.length
         ?'<div class="sif-pl">'+liste.map(function(p){return '<div class="sif-pi"><span>'+p.icone+'</span><span>'+echapper(p.texte)+'</span><small>'+ilya(p.at)+'</small></div>';}).join('')+'</div>'
-        :'<div class="sif-vide">Rien pour le moment : les exploits des autres joueurs apparaîtront ici.</div>')+
+        :'<div class="sif-vide">Rien pour le moment : ce que font les autres joueurs apparaîtra ici, en direct.</div>')+
       '</div>';
   }
   function majPanneaux(){
@@ -289,6 +306,9 @@
     recevoir:recevoir,
     recevoirChat:recevoirChat,
     dernier:function(){return dernier;},
+    /* Repère du premier battement : tout ce qui date d'avant l'arrivée du joueur est ignoré. */
+    amorcer:function(id){id=Number(id)||0;if(id>dernier)dernier=id;amorceFlux=true;},
+    amorce:function(){return amorceFlux;},
     phrase:phrase,
     htmlPanneau:htmlPanneau,
     majPanneaux:majPanneaux,

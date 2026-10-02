@@ -102,9 +102,15 @@
   }
 
   function battement(){
-    return appel('battementSorealIdle',[{actif:estActif(),activite:activiteActuelle(),apresFlux:fluxDernier()}]).then(function(res){
+    const F=window.__SOREAL_IDLE_FLUX_V1__;
+    /* Premier battement de la page : on demande seulement le repère, jamais l'historique (le bandeau « En direct » ne rattrape rien). */
+    const amorce=!(F&&typeof F.amorce==='function'&&F.amorce());
+    return appel('battementSorealIdle',[{actif:estActif(),activite:activiteActuelle(),apresFlux:fluxDernier(),amorceFlux:amorce}]).then(function(res){
       if(!res||res.ok===false)return;
-      if(window.__SOREAL_IDLE_FLUX_V1__)window.__SOREAL_IDLE_FLUX_V1__.recevoir(res.flux);
+      if(F){
+        if(amorce&&typeof F.amorcer==='function')F.amorcer(res.dernierFluxId);
+        F.recevoir(res.flux,res.maintenant);
+      }
       enLigne=Array.isArray(res.enLigne)?res.enLigne:[];
       estAdmin=Boolean(res.estAdmin);
       rendrePresence();
@@ -156,7 +162,7 @@
       const recus=normaliserItems(data&&data.items);
       const premier=!dernierId;
       const change=ajouterItems(recus);
-      if(window.__SOREAL_IDLE_FLUX_V1__)window.__SOREAL_IDLE_FLUX_V1__.recevoirChat(recus,premier);
+      if(window.__SOREAL_IDLE_FLUX_V1__)window.__SOREAL_IDLE_FLUX_V1__.recevoirChat(recus,premier,data&&data.maintenant);
       if(change){
         if(ouvert){
           vuId=dernierId;ecrireVu(vuId);

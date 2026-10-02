@@ -16699,7 +16699,10 @@ function battementSorealIdle(sessionToken, info) {
         lockFlux.releaseLock();
       }
     }
-    flux = lireFluxV1(__idleSql, { apresId: Math.max(0, Math.floor(Number(i.apresFlux) || 0)), email: emailProfilSorealIdle_(acces) });
+    /* Premier battement de la page (amorceFlux) : rien n'est renvoyé, on ne reçoit que ce qui arrive APRÈS (aucun message de rattrapage). */
+    flux = i.amorceFlux === true
+      ? []
+      : lireFluxV1(__idleSql, { apresId: Math.max(0, Math.floor(Number(i.apresFlux) || 0)), email: emailProfilSorealIdle_(acces), seulementFrais: true });
   } catch (_e) { flux = []; }
 
   if (resultat.gain > 0) {
@@ -16727,6 +16730,7 @@ function battementSorealIdle(sessionToken, info) {
     dernierChatId: dernierIdChatV1(__idleSql),
     flux,
     dernierFluxId: dernierIdFluxV1(__idleSql),
+    maintenant: Date.now(),
     moi: identite.nomAffiche,
     estAdmin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL
   };
@@ -16736,7 +16740,8 @@ function lireChatSorealIdle(sessionToken, options) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleSql) return { ok: true, items: [] };
   const o = options && typeof options === 'object' ? options : {};
-  return { ok: true, items: lireChatV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: emailProfilSorealIdle_(acces) }) };
+  /* maintenant : l'heure du serveur, pour que le client juge la fraîcheur d'un message sans dépendre de sa propre horloge. */
+  return { ok: true, items: lireChatV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: emailProfilSorealIdle_(acces) }), maintenant: Date.now() };
 }
 
 function envoyerChatSorealIdle(sessionToken, message) {

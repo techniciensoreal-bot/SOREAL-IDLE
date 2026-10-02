@@ -10,7 +10,8 @@ import {
   dernierIdFluxV1,
   IDLE_FLUX_MAX_LIGNES_V1,
   IDLE_FLUX_MAX_PAR_BATTEMENT_V1,
-  IDLE_FLUX_DELAI_FARM_MS_V1
+  IDLE_FLUX_DELAI_FARM_MS_V1,
+  IDLE_FLUX_FRAICHEUR_MS_V1
 } from "../src/idle-flux-v1.js";
 
 /*
@@ -101,11 +102,17 @@ const stats = (o = {}) => ({
 
   const sql = baseVide();
   const base = { email: "a@x.fr", nom: "Alice", instantane: instantaneJoueurV1({ stats: stats() }) };
+  /* Battements réguliers (toutes les 30 s : « en direct »), l'activité donnée à chacun ; renvoie le nombre d'événements publiés. */
+  const battre = (activite, de, a) => { let n = 0; for (let t = de; t <= a; t += 30000) n += enregistrerJalonsV1(sql, { ...base, activite, now: t }); return n; };
+  const zone3 = { t: "farm", zoneId: 3, zoneNom: "Égouts" };
+  const zone4 = { t: "farm", zoneId: 4, zoneNom: "Forêt" };
   enregistrerJalonsV1(sql, { ...base, now: T0 });
-  assert.equal(enregistrerJalonsV1(sql, { ...base, activite: { t: "farm", zoneId: 3, zoneNom: "Égouts" }, now: T0 + IDLE_FLUX_DELAI_FARM_MS_V1 }), 1);
-  assert.equal(enregistrerJalonsV1(sql, { ...base, activite: { t: "farm", zoneId: 3, zoneNom: "Égouts" }, now: T0 + IDLE_FLUX_DELAI_FARM_MS_V1 * 3 }), 0, "même zone : pas de répétition");
-  assert.equal(enregistrerJalonsV1(sql, { ...base, activite: { t: "farm", zoneId: 4, zoneNom: "Forêt" }, now: T0 + IDLE_FLUX_DELAI_FARM_MS_V1 + 1000 }), 0, "changement trop rapproché : pas annoncé");
-  assert.equal(enregistrerJalonsV1(sql, { ...base, activite: { t: "farm", zoneId: 4, zoneNom: "Forêt" }, now: T0 + IDLE_FLUX_DELAI_FARM_MS_V1 * 3 }), 1);
+  const D = IDLE_FLUX_DELAI_FARM_MS_V1;
+  assert.equal(battre(zone3, T0 + 30000, T0 + D / 2), 1, "la zone de farm est annoncée une seule fois");
+  assert.equal(battre(zone3, T0 + D / 2 + 30000, T0 + D - 30000), 0, "même zone : pas de répétition");
+  assert.equal(battre(zone4, T0 + D - 30000 + 30000, T0 + D - 30000 + 30000), 0, "changement trop rapproché de la dernière annonce : pas annoncé");
+  assert.equal(battre(zone4, T0 + D + 30000, T0 + D + 60000), 1, "changement de zone assez espacé : annoncé");
+  assert.equal(battre(zone4, T0 + D + 90000, T0 + D * 3), 0, "puis plus de répétition");
 
   const s2 = baseVide();
   enregistrerJalonsV1(s2, { email: "z@x.fr", nom: "Z", instantane: instantaneJoueurV1({ stats: stats({ boss: 0 }) }), now: T0 });
@@ -115,10 +122,40 @@ const stats = (o = {}) => ({
   assert.ok(s2.exec("SELECT COUNT(*) AS n FROM idle_flux")[0].n <= IDLE_FLUX_MAX_LIGNES_V1, "le fil est borné");
 }
 
+// 6. En direct, jamais de rattrapage (Norman, 2026-10-02) : après une absence, ce qui a été accompli n'est PAS annoncé ; la lecture ne rend que du frais.
+{
+  const sql = baseVide();
+  const base = { email: "d@x.fr", nom: "Dylan" };
+  enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ stats: stats({ boss: 5 }) }), now: T0 });
+  /* Absence de 10 minutes (onglet fermé, téléphone verrouillé…) : l'état est mémorisé, rien n'est publié. */
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ stats: stats({ boss: 9, succes: { a: 1 } }) }), now: T0 + 10 * 60000 }), 0, "retour d'absence : pas de message de rattrapage");
+  /* Il rejoue : un nouveau boss, battement suivant à 20 s -> annoncé en direct. */
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ stats: stats({ boss: 10, succes: { a: 1 } }) }), now: T0 + 10 * 60000 + 20000 }), 1, "en jeu : annoncé");
+  /* Juste sous / juste au-dessus du seuil de fraîcheur entre deux battements. */
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ stats: stats({ boss: 11, succes: { a: 1 } }) }), now: T0 + 10 * 60000 + 20000 + IDLE_FLUX_FRAICHEUR_MS_V1 }), 1);
+  assert.equal(enregistrerJalonsV1(sql, { ...base, instantane: instantaneJoueurV1({ stats: stats({ boss: 12, succes: { a: 1 } }) }), now: T0 + 10 * 60000 + 20000 + IDLE_FLUX_FRAICHEUR_MS_V1 * 2 + 1 }), 0, "écart > 90 s : rattrapage, rien");
+
+  /* Lecture en direct : jamais d'historique, seulement les événements de moins de 90 s. */
+  const lecteur = baseVide();
+  const b2 = { email: "p@x.fr", nom: "Paul" };
+  enregistrerJalonsV1(lecteur, { ...b2, instantane: instantaneJoueurV1({ stats: stats({ boss: 1 }) }), now: T0 });
+  enregistrerJalonsV1(lecteur, { ...b2, instantane: instantaneJoueurV1({ stats: stats({ boss: 2 }) }), now: T0 + 10000 });   // ancien
+  enregistrerJalonsV1(lecteur, { ...b2, instantane: instantaneJoueurV1({ stats: stats({ boss: 3 }) }), now: T0 + 100000 });  // frais
+  const maintenant = T0 + 100000 + 10000;
+  const frais = lireFluxV1(lecteur, { seulementFrais: true, now: maintenant, email: "x@x.fr" });
+  assert.deepEqual(frais.map((e) => e.donnees.boss), [3], "l'événement de plus de 90 s n'est pas renvoyé");
+  assert.deepEqual(lireFluxV1(lecteur, { seulementFrais: true, apresId: frais[0].id, now: maintenant }), [], "rien de nouveau après le dernier");
+  assert.equal(lireFluxV1(lecteur, { email: "x@x.fr" }).length, 2, "la lecture ordinaire (historique) reste disponible");
+
+  /* Premier battement de la page : le serveur ne renvoie rien (amorceFlux), seulement le repère dernierFluxId. */
+  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  assert.ok(rt.includes("i.amorceFlux === true") && rt.includes("seulementFrais: true") && rt.includes("maintenant: Date.now()"));
+}
+
 // 5. Phrases côté lecteur : aucun spoil.
 {
   const noeud = () => ({ style: {}, setAttribute() {}, appendChild() {}, addEventListener() {}, querySelector() { return noeud(); }, querySelectorAll() { return []; }, getBoundingClientRect() { return { width: 0 }; }, classList: { toggle() {} } });
-  const sandbox = { window: {}, document: { readyState: "complete", addEventListener() {}, getElementById() { return null; }, querySelectorAll() { return []; }, createElement: noeud, body: { appendChild() {}, contains() { return true; }, classList: { toggle() {} } }, head: { appendChild() {} } }, localStorage: { getItem() { return null; }, setItem() {} }, requestAnimationFrame() { return 1; }, Date, Set };
+  const sandbox = { performance: { now: () => Date.now() }, window: {}, document: { readyState: "complete", addEventListener() {}, getElementById() { return null; }, querySelectorAll() { return []; }, createElement: noeud, body: { appendChild() {}, contains() { return true; }, classList: { toggle() {} } }, head: { appendChild() {} } }, localStorage: { getItem() { return null; }, setItem() {} }, requestAnimationFrame() { return 1; }, Date, Set };
   vm.runInNewContext(readFileSync("cloudflare/public/modules/flux-v1.js", "utf8"), sandbox);
   const { phrase } = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
   const debutant = { zones: [], bossMax: 0, connus: { boss: {}, titan: {}, succes: {}, menus: {} } };
@@ -156,6 +193,19 @@ const stats = (o = {}) => ({
   assert.equal(f.enAttente(), 2, "une information déjà vue ne repasse jamais");
   const chat = f.visibles().find((v) => v.chat && v.id === "c2");
   assert.ok(chat.texte.startsWith("Léa : salut") && chat.texte.length <= 100, "message coupé");
+
+  // En direct (Norman, 2026-10-02) : rien n'est rattrapé -- ni après une absence, ni à la connexion.
+  const avant = f.enAttente();
+  f.recevoir([{ id: 3, at: now - 5 * 60000, nom: "Dylan", type: "boss", donnees: { boss: 3 } }], now);
+  f.recevoirChat([{ id: 3, at: now - 5 * 60000, nom: "Dylan", message: "message arrivé pendant mon absence" }], false, now);
+  assert.equal(f.enAttente(), avant, "un événement / message de plus de 90 s (serveur) n'est jamais mis en file");
+  assert.ok(!f.visibles().some((v) => /absence/.test(v.texte)) && !f.items().some((e) => e.id === 3), "ni dans le bandeau ni dans le panneau");
+  assert.ok(f.dernier() >= 3, "mais le repère avance : il n'est pas redemandé");
+  f.recevoir([{ id: 4, at: now - 20000, nom: "Dylan", type: "boss", donnees: { boss: 4 } }], now);
+  assert.equal(f.enAttente(), avant + 1, "20 s : en direct");
+  f.amorcer(50);
+  assert.equal(f.dernier(), 50, "repère du premier battement : tout ce qui précède l'arrivée du joueur est ignoré");
+  assert.equal(f.amorce(), true);
 }
 
 // 6. Câblage : contrat, index, battement, page Chat.
@@ -167,6 +217,7 @@ const stats = (o = {}) => ({
   assert.ok(index.indexOf("/modules/flux-v1.js") < index.indexOf("/modules/chat-v1.js"));
   const chat = readFileSync("cloudflare/public/modules/chat-v1.js", "utf8");
   assert.ok(chat.includes("recevoirChat"));
+  assert.ok(chat.includes("amorceFlux:amorce") && chat.includes("F.amorcer(res.dernierFluxId)") && chat.includes("F.recevoir(res.flux,res.maintenant)") && chat.includes("recevoirChat(recus,premier,data&&data.maintenant)"), "premier battement = repère seulement ; fraîcheur jugée sur l'heure du serveur");
   assert.ok(chat.includes("apresFlux") && chat.includes("__SOREAL_IDLE_FLUX_V1__") && chat.includes("data-flux-panneau-v1"));
   const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
   assert.ok(rt.includes("enregistrerJalonsV1") && rt.includes("lireFluxSorealIdle,"));

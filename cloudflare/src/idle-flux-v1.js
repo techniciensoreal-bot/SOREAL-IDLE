@@ -21,6 +21,13 @@ export const IDLE_FLUX_LIMITE_LECTURE_V1 = 40;
 export const IDLE_FLUX_DELAI_FARM_MS_V1 = 10 * 60 * 1000;
 /* Jamais plus de ce nombre d'événements par battement et par joueur (un gros rattrapage ne doit pas inonder le fil). */
 export const IDLE_FLUX_MAX_PAR_BATTEMENT_V1 = 6;
+/*
+ * « En direct » = ce qui se passe maintenant (Norman, 2026-10-02 : « je joue, Dylan J. joue aussi… aucun message de rattrapage »). Un événement n'est
+ * publié que si le joueur était déjà en jeu au battement précédent (moins de 90 s, comme la présence « en ligne ») : au retour d'une absence
+ * (onglet fermé, jeu en arrière-plan, téléphone verrouillé), ce qu'il a accompli entre-temps est mémorisé SANS être annoncé. Et un lecteur ne reçoit
+ * que des événements de moins de 90 s : jamais ceux qui ont eu lieu avant son arrivée ou pendant son absence.
+ */
+export const IDLE_FLUX_FRAICHEUR_MS_V1 = 90 * 1000;
 
 export function assurerFluxV1(sql) {
   sql.exec("CREATE TABLE IF NOT EXISTS idle_flux(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL, type TEXT NOT NULL, donnees TEXT NOT NULL DEFAULT '{}')");
@@ -88,9 +95,9 @@ export function evenementsV1(avant, apres, noms = {}) {
 }
 
 function lireEtatV1(sql, email) {
-  const r = sqlRows(sql.exec("SELECT etat FROM idle_flux_etat WHERE email=?", email))[0];
+  const r = sqlRows(sql.exec("SELECT etat,maj FROM idle_flux_etat WHERE email=?", email))[0];
   if (!r) return null;
-  try { return JSON.parse(r.etat); } catch (_e) { return null; }
+  try { return Object.assign(JSON.parse(r.etat), { __maj: Number(r.maj) || 0 }); } catch (_e) { return null; }
 }
 
 /*
@@ -104,7 +111,9 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
   const precedent = lireEtatV1(sql, cle);
   const etat = Object.assign({}, instantane, { farmZone: precedent ? N(precedent.farmZone, 0) : 0, farmAt: precedent ? N(precedent.farmAt, 0) : 0 });
   let ajoutes = 0;
-  if (precedent && visible) {
+  /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
+  const enDirect = Boolean(precedent) && now - N(precedent.__maj, 0) <= IDLE_FLUX_FRAICHEUR_MS_V1;
+  if (precedent && visible && enDirect) {
     const evenements = evenementsV1(precedent, instantane, noms);
     /* Farm : annoncé seulement quand la zone change, au plus toutes les 10 minutes. */
     if (activite && activite.t === "farm" && N(activite.zoneId) > 0 && N(activite.zoneId) !== N(precedent.farmZone, 0) && now - N(precedent.farmAt, 0) >= IDLE_FLUX_DELAI_FARM_MS_V1) {
@@ -129,12 +138,15 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
   return ajoutes;
 }
 
-export function lireFluxV1(sql, { apresId = 0, limite = IDLE_FLUX_LIMITE_LECTURE_V1, email = "" } = {}) {
+export function lireFluxV1(sql, { apresId = 0, limite = IDLE_FLUX_LIMITE_LECTURE_V1, email = "", seulementFrais = false, now = Date.now() } = {}) {
   assurerFluxV1(sql);
   const moi = String(email || "").trim().toLowerCase();
   const after = Math.max(0, Math.floor(Number(apresId) || 0));
   const max = Math.max(1, Math.min(IDLE_FLUX_LIMITE_LECTURE_V1, Math.floor(Number(limite) || IDLE_FLUX_LIMITE_LECTURE_V1)));
-  const rows = after > 0
+  /* seulementFrais (lecture « en direct » du bandeau) : jamais d'historique, seulement ce qui date de moins de IDLE_FLUX_FRAICHEUR_MS_V1. */
+  const rows = seulementFrais
+    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND at >= ? ORDER BY id LIMIT ?", after, now - IDLE_FLUX_FRAICHEUR_MS_V1, max))
+    : after > 0
     ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? ORDER BY id LIMIT ?", after, max))
     : sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM (SELECT id,at,email,nom,type,donnees FROM idle_flux ORDER BY id DESC LIMIT ?) ORDER BY id", max));
   return rows.map((r) => {
