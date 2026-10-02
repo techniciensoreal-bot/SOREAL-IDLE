@@ -11,24 +11,33 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 
-// --- Deux curseurs, dans Paramètres, juste avant la section Version ---
+// --- Trois curseurs (voix, ambiance, sons de l'interface) avec une case à cocher chacun, dans Paramètres, juste avant la section Version ---
 {
   const i = ui.indexOf("function htmlReglagesAudioIdleV1_(){");
   assert.ok(i > 0, "section audio introuvable");
-  const bloc = ui.slice(i, i + 1600);
+  const bloc = ui.slice(i, i + 2600);
   assert.match(bloc, /🎙️ Voix/);
   assert.match(bloc, /🎶 Ambiance/);
-  assert.ok(bloc.includes("oninput=\"window.__reglerVolumeIdleV1__(\\'voix\\',this.value)\""), "curseur voix câblé");
-  assert.ok(bloc.includes("oninput=\"window.__reglerVolumeIdleV1__(\\'ambiance\\',this.value)\""), "curseur ambiance câblé");
-  assert.ok(bloc.includes('type="range" min="0" max="100"'), "deux vrais curseurs (input range)");
+  assert.match(bloc, /🔔 Sons de l’interface/);
+  assert.ok(bloc.includes("oninput=\"window.__reglerVolumeIdleV1__(\\''+type+'\\',this.value)\""), "curseur câblé");
+  assert.ok(bloc.includes("onchange=\"window.__basculerSonIdleV1__(\\''+type+'\\',this.checked)\""), "case à cocher câblée");
+  assert.ok(bloc.includes('type="range" min="0" max="100"'), "de vrais curseurs (input range)");
+  assert.ok(bloc.includes("['interface','🔔 Sons de l’interface']") && bloc.includes("['voix','🎙️ Voix']") && bloc.includes("['ambiance','🎶 Ambiance']"));
+  assert.ok(bloc.includes("(actif?'checked ':'')"), "cochée de base");
 }
 assert.match(ui, /htmlReglagesAudioIdleV1_\(\)\+\s*'<div class="soreal-idle-section-v8">'\+\s*'<div class="soreal-idle-window-title-v31">Version<\/div>'/, "la section Audio précède la section Version");
 
 // --- Le curseur ajuste le module de réglages sans re-rendre toute la page (pas de perte de focus en plein glissement) ---
 assert.match(ui, /window\.__reglerVolumeIdleV1__=function\(type,valeur\)\{/);
 assert.ok(!/window\.__reglerVolumeIdleV1__=function[\s\S]{0,600}contenuMenuIdleV28_/.test(ui), "jamais un re-rendu complet sur un simple glissement de curseur");
-assert.match(ui, /r\.setAmbiance\(v\)/);
-assert.match(ui, /r\.setVoix\(v\)/);
+assert.match(ui, /r\.setReglage\(type,v\)/);
+assert.match(ui, /window\.__basculerSonIdleV1__=function\(type,coche\)\{/);
+
+// --- Sons de l'interface : le gain maître des effets suit la barre (75 % = l'ancien gain fixe 0,78) ---
+{
+  const fx = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
+  assert.ok(fx.includes("master.gain.value=gainMaitre_();") && fx.includes("r.getInterface()*(.78/.75)"));
+}
 
 // --- Voix : les deux chemins de lecture (Web Audio et <audio> natif) appliquent le volume réglé ---
 assert.match(tts, /function volumeVoix_\(\)\{/);
@@ -37,7 +46,7 @@ assert.match(tts, /audio=new Audio\(src\);\s*audio\.preload='auto';\s*audio\.vol
 assert.match(tts, /try\{gain\.disconnect\(\);\}catch\(_\)\{\}/, "le GainNode est bien nettoyé (pas de fuite) comme le node source");
 
 // --- Chargement : audio-volume-v1.js avant tout ce qui joue du son ; ambient-audio-v1.js avant le jeu ---
-for (const m of ["/modules/audio-volume-v1.js?v=3", "/modules/ambient-audio-v1.js?v=4"]) assert.ok(index.includes(m), m);
+for (const m of ["/modules/audio-volume-v1.js?v=4", "/modules/ambient-audio-v1.js?v=4"]) assert.ok(index.includes(m), m);
 assert.ok(
   index.indexOf("/modules/audio-volume-v1.js") < index.indexOf("/modules/audio-effects-v199.js") &&
   index.indexOf("/modules/audio-volume-v1.js") < index.indexOf("/modules/tutorial-tts-v202.js"),

@@ -83,6 +83,15 @@
     dailySpin:{group:"daily-spin",priority:60,maxAgeMs:3200}
   };
 
+  /* Barre « Sons de l'interface » des Paramètres (modules/audio-volume-v1.js) : 75 % (le défaut) = l'ancien gain fixe de 0,78 ; 0 quand la case est décochée. */
+  function gainMaitre_(){
+    var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+    return r&&typeof r.getInterface==="function"?r.getInterface()*(.78/.75):.78;
+  }
+  if(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__&&typeof window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.onChange==="function"){
+    window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.onChange(function(){if(master)master.gain.value=gainMaitre_();});
+  }
+
   function contexte_(){
     if(ctx&&ctx.state!=="closed")return ctx;
     var AudioCtx=window.AudioContext||window.webkitAudioContext;
@@ -90,7 +99,7 @@
     try{
       ctx=new AudioCtx();
       master=ctx.createGain();
-      master.gain.value=.78;
+      master.gain.value=gainMaitre_();
       master.connect(ctx.destination);
       return ctx;
     }catch(_){

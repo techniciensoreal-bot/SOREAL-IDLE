@@ -59,7 +59,11 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   /* Défi en cours (Norman, 2026-10-02 : « annoncer quand quelqu'un lance un défi ») et sets d'équipement complétés (« quand il complète un set »). */
   const defiActif = String((m.challenge && m.challenge.active) || "");
   const sets = Object.keys((m.adventure && m.adventure.completedSets) || {}).filter((id) => m.adventure.completedSets[id]).sort();
+  /* Achats en boutique (Norman, 2026-10-02 : « voir quand quelqu'un effectue un achat dans 1 des boutiques ») : un compteur par boutique (EXP Shop, Boutique AP), jamais le détail. */
+  const somme = (o) => Object.values(o && typeof o === "object" ? o : {}).reduce((t, v) => t + Math.max(0, Math.floor(N(v, 0))), 0);
+  const achats = { exp: somme(m.bonuses && m.bonuses.expShop), sellout: somme(m.selloutShop && m.selloutShop.purchases) };
   return {
+    achats,
     defiActif,
     sets,
     /* Record permanent (jamais remis à 0 par un Rebirth) : seul un boss JAMAIS vaincu auparavant est annoncé, pas les boss refaits à chaque run. */
@@ -103,6 +107,12 @@ export function evenementsV1(avant, apres, noms = {}) {
   if (Array.isArray(avant.sets)) {
     const dejaFaits = new Set(avant.sets);
     for (const id of (apres.sets || []).filter((x) => !dejaFaits.has(x)).slice(0, 2)) ev.push({ type: "set", donnees: { id, nom: nom(noms.set, id) } });
+  }
+  /* Achat en boutique : un événement par boutique dont le compteur d'achats a augmenté (instantané d'avant ce jalon : pas de comparaison, rien annoncé à tort). */
+  if (avant.achats && typeof avant.achats === "object" && apres.achats) {
+    for (const boutique of ["exp", "sellout"]) {
+      if (N(apres.achats[boutique]) > N(avant.achats[boutique], 0)) ev.push({ type: "achat", donnees: { boutique } });
+    }
   }
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);

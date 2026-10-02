@@ -20,40 +20,61 @@ function fabriquer() {
   return { api: window.__SOREAL_IDLE_AUDIO_VOLUME_V1__, stock };
 }
 
-// --- Valeurs par défaut (Norman, 2026-09-27, après coup : « De base, Ambiance doit être sur 2% et voix sur 40% ») ---
+// --- Valeurs par défaut (Norman, 2026-10-02 : trois barres, toutes à 75 % de base, cases cochées) ---
 {
   const { api } = fabriquer();
-  assert.equal(api.getVoix(), 0.4, "voix : 40% par défaut");
-  assert.equal(api.getAmbiance(), 0.02, "ambiance : 2% par défaut");
+  assert.equal(api.getVoix(), 0.75, "voix : 75% par défaut");
+  assert.equal(api.getAmbiance(), 0.75, "ambiance : 75% par défaut");
+  assert.equal(api.getInterface(), 0.75, "sons de l'interface : 75% par défaut");
+  for (const t of ["voix", "ambiance", "interface"]) assert.equal(api.getActif(t), true, t + " : case cochée de base");
 }
 
-// --- Norman (même jour, après coup) : « vérifie que tout le monde ait bien Ambiance sur 2% et voix sur 40% de
-// base. Il faut que ceux qui ont déjà lancé le jeu aient aussi ces réglages. » Un ancien réglage (même déjà
-// personnalisé par le joueur) stocké sous les anciennes clés v1 ne doit plus jamais être lu : les clés sont
-// passées à v2, donc CHAQUE navigateur -- qu'il ait ou non déjà ouvert Paramètres -- repart sur les nouveaux
-// défauts, une bonne fois.
+// --- Les anciens réglages (clés v1 et v2, même personnalisés) ne sont plus lus : chaque navigateur repart sur 75 % une bonne fois. ---
 {
   const stock = new Map([
     ["soreal_idle_volume_voix_v1", "1"],
-    ["soreal_idle_volume_ambiance_v1", "0.35"]
+    ["soreal_idle_volume_ambiance_v1", "0.35"],
+    ["soreal_idle_volume_voix_v2", "0.4"],
+    ["soreal_idle_volume_ambiance_v2", "0.02"]
   ]);
   const localStorage = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
   const window = {};
   vm.runInNewContext(src, { window, localStorage });
   const api = window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
-  assert.equal(api.getVoix(), 0.4, "un ancien réglage v1 (même 100%) est ignoré -> nouveau défaut 40%");
-  assert.equal(api.getAmbiance(), 0.02, "un ancien réglage v1 (même 35%) est ignoré -> nouveau défaut 2%");
+  assert.equal(api.getVoix(), 0.75);
+  assert.equal(api.getAmbiance(), 0.75);
 }
-assert.match(src, /soreal_idle_volume_voix_v2/);
-assert.match(src, /soreal_idle_volume_ambiance_v2/);
-assert.ok(!src.includes("soreal_idle_volume_voix_v1'") && !src.includes("soreal_idle_volume_ambiance_v1'"), "plus aucune lecture/écriture sous les anciennes clés v1");
+assert.match(src, /soreal_idle_volume_voix_v3/);
+assert.match(src, /soreal_idle_volume_ambiance_v3/);
+assert.match(src, /soreal_idle_volume_interface_v3/);
+assert.ok(!/soreal_idle_volume_(voix|ambiance)_v[12]'/.test(src), "plus aucune lecture/écriture sous les anciennes clés");
+
+// --- Case décochée : le volume effectif tombe à 0, le réglage de la barre est conservé ; recochée, il revient ---
+{
+  const { api, stock } = fabriquer();
+  let appels = 0;
+  api.onChange(() => { appels += 1; });
+  api.setReglage("voix", 0.5);
+  api.setActif("voix", false);
+  assert.equal(api.getVoix(), 0, "voix coupée complètement");
+  assert.equal(api.getReglage("voix"), 0.5, "le réglage de la barre reste");
+  assert.equal(api.getAmbiance(), 0.75, "les autres options ne sont pas touchées");
+  assert.equal(stock.get("soreal_idle_son_actif_v1_voix"), "0");
+  api.setActif("voix", true);
+  assert.equal(api.getVoix(), 0.5);
+  api.setActif("interface", false);
+  assert.equal(api.getInterface(), 0);
+  assert.equal(appels, 4, "chaque changement notifie les modules");
+  api.setActif("n'importe quoi", false);
+  assert.equal(appels, 4, "type inconnu ignoré");
+}
 
 // --- Lecture/écriture, bornée à [0,1], persistée ---
 {
   const { api, stock } = fabriquer();
   api.setVoix(0.6);
   assert.equal(api.getVoix(), 0.6);
-  assert.equal(stock.get("soreal_idle_volume_voix_v2"), "0.6");
+  assert.equal(stock.get("soreal_idle_volume_voix_v3"), "0.6");
   api.setAmbiance(1.4);
   assert.equal(api.getAmbiance(), 1, "borné à 1 même si une valeur plus grande est passée");
   api.setAmbiance(-0.2);
@@ -62,11 +83,11 @@ assert.ok(!src.includes("soreal_idle_volume_voix_v1'") && !src.includes("soreal_
 
 // --- Une valeur stockée corrompue ou hors-borne ne casse jamais la lecture ---
 {
-  const stock = new Map([["soreal_idle_volume_voix_v2", "abc"]]);
+  const stock = new Map([["soreal_idle_volume_voix_v3", "abc"]]);
   const localStorage = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
   const window = {};
   vm.runInNewContext(src, { window, localStorage });
-  assert.equal(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.getVoix(), 0.4, "valeur stockée invalide -> repli sur le défaut");
+  assert.equal(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.getVoix(), 0.75, "valeur stockée invalide -> repli sur le défaut");
 }
 
 // --- Écouteurs notifiés à chaque changement (voix et ambiance) ---

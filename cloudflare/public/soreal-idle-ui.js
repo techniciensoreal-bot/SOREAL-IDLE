@@ -2042,6 +2042,26 @@
           }
         }catch(e){}
       }
+      /*
+       * Champs de quantité (Input, Target/Cible…) : un clic ou le focus sélectionne tout le contenu, pour que taper remplace le nombre au lieu
+       * de devoir l'effacer (Norman, 2026-10-02). Seuls les champs numériques / de montant des menus de jeu : pas les champs de texte libres (pseudo, admin).
+       */
+      function champQuantiteIdleV1_(el){
+        return !!(el&&el.tagName==='INPUT'&&(el.type==='number'||el.type==='text')&&!el.placeholder&&el.maxLength<0&&el.closest&&el.closest('.soreal-idle-page-root-v28'));
+      }
+      function toutSelectionnerIdleV1_(e){
+        const el=e.target;
+        if(!champQuantiteIdleV1_(el))return;
+        try{el.select();}catch(err){}
+      }
+      document.addEventListener('focusin',function(e){
+        const el=e.target;
+        if(!champQuantiteIdleV1_(el))return;
+        /* La sélection posée au focus est souvent défaite par le relâchement de la souris : on la repose juste après. */
+        setTimeout(function(){try{el.select();}catch(err){}},0);
+      },true);
+      document.addEventListener('click',toutSelectionnerIdleV1_,true);
+
       window.addEventListener('resize',function(){
         document.querySelectorAll('.soreal-idle-duel-hp-v41 > .soreal-idle-note-v4').forEach(function(el){ajusterVieDuelIdleV1_(el,true);});
       });
@@ -21623,39 +21643,45 @@ function pageAventureIdleV28_(j){
        */
       window.__reglerVolumeIdleV1__=function(type,valeur){
         const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
-        if(!r)return;
+        if(!r||!r.setReglage)return;
         const v=Math.max(0,Math.min(100,idleEntier_(valeur)))/100;
-        if(type==='ambiance'){
-          r.setAmbiance(v);
-          const label=document.getElementById('sorealIdleVolumeAmbianceValeurV1');
-          if(label)label.textContent=Math.round(v*100)+'%';
-        }else{
-          r.setVoix(v);
-          const label=document.getElementById('sorealIdleVolumeVoixValeurV1');
-          if(label)label.textContent=Math.round(v*100)+'%';
-        }
+        r.setReglage(type,v);
+        const label=document.getElementById('sorealIdleVolumeValeurV1_'+type);
+        if(label)label.textContent=Math.round(v*100)+'%';
+      };
+      /* Case à cocher d'une des trois options (voix, ambiance, sons de l'interface) : décochée = coupée complètement (Norman, 2026-10-02). */
+      window.__basculerSonIdleV1__=function(type,coche){
+        const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+        if(!r||!r.setActif)return;
+        r.setActif(type,!!coche);
+        const curseur=document.getElementById('sorealIdleVolumeCurseurV1_'+type);
+        if(curseur)curseur.disabled=!coche;
+        const ligne=document.getElementById('sorealIdleVolumeLigneV1_'+type);
+        if(ligne)ligne.style.opacity=coche?'1':'.5';
       };
       function htmlReglagesAudioIdleV1_(){
         const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
-        const voix=Math.round((r?r.getVoix():1)*100);
-        const ambiance=Math.round((r?r.getAmbiance():.35)*100);
+        const lignes=[
+          ['voix','🎙️ Voix'],
+          ['ambiance','🎶 Ambiance'],
+          ['interface','🔔 Sons de l’interface']
+        ];
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">🔊 Audio</div>'+
-          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Règle le volume de la voix (narration) et celui des sons d’ambiance en Aventure.</div>'+
-          '<div style="margin-bottom:12px">'+
-            '<label style="display:flex;justify-content:space-between;font-size:14px;color:#dce5f3;margin-bottom:4px">'+
-              '<span>🎙️ Voix</span><span id="sorealIdleVolumeVoixValeurV1">'+voix+'%</span>'+
-            '</label>'+
-            '<input type="range" min="0" max="100" value="'+voix+'" '+
-              'oninput="window.__reglerVolumeIdleV1__(\'voix\',this.value)" style="width:100%">'+
-          '</div>'+
-          '<div>'+
-            '<label style="display:flex;justify-content:space-between;font-size:14px;color:#dce5f3;margin-bottom:4px">'+
-              '<span>🎶 Ambiance</span><span id="sorealIdleVolumeAmbianceValeurV1">'+ambiance+'%</span>'+
-            '</label>'+
-            '<input type="range" min="0" max="100" value="'+ambiance+'" '+
-              'oninput="window.__reglerVolumeIdleV1__(\'ambiance\',this.value)" style="width:100%">'+
-          '</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Règle le volume des voix (narration), des sons d’ambiance et des sons de l’interface. Décoche une case pour couper complètement l’option.</div>'+
+          lignes.map(function(l){
+            const type=l[0];
+            const actif=r&&r.getActif?r.getActif(type):true;
+            const pct=Math.round((r&&r.getReglage?r.getReglage(type):.75)*100);
+            return '<div id="sorealIdleVolumeLigneV1_'+type+'" style="margin-bottom:12px;opacity:'+(actif?1:.5)+'">'+
+              '<label style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;color:#dce5f3;margin-bottom:4px">'+
+                '<span style="display:flex;align-items:center;gap:8px"><input type="checkbox" '+(actif?'checked ':'')+'onchange="window.__basculerSonIdleV1__(\''+type+'\',this.checked)" title="Décoche pour couper complètement"> '+l[1]+'</span>'+
+                '<span id="sorealIdleVolumeValeurV1_'+type+'">'+pct+'%</span>'+
+              '</label>'+
+              '<input id="sorealIdleVolumeCurseurV1_'+type+'" type="range" min="0" max="100" value="'+pct+'" '+(actif?'':'disabled ')+
+                'oninput="window.__reglerVolumeIdleV1__(\''+type+'\',this.value)" style="width:100%">'+
+            '</div>';
+          }).join('')+
         '</div>';
       }
       function htmlNotesMajIdleV1_(){
@@ -22195,7 +22221,7 @@ function pageAventureIdleV28_(j){
         });
         const succesListe=j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
         succesListe.forEach(function(x){if(x&&x.unlocked&&x.id)connus.succes[String(x.id)]=String(x.name||'');});
-        ['renaissance','challenges','titans','succes'].forEach(function(m){
+        ['renaissance','challenges','titans','succes','spendExp','sellout'].forEach(function(m){
           try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
         });
         return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus};

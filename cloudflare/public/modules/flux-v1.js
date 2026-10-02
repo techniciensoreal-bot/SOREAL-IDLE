@@ -97,6 +97,12 @@
         const nomSet=(k.sets||{})[String(d.id)];
         return {icone:'🛡️',texte:nomSet?nom+verbe(' as',' a')+' complété le set '+nomSet:nom+verbe(' as',' a')+' complété un set d’équipement'};
       }
+      /* Achat en boutique : annoncé seulement si CE lecteur a déjà débloqué cette boutique (anti-spoil), jamais le détail de l'achat. */
+      case 'achat':{
+        const ap=d.boutique==='sellout';
+        if(!k.menus[ap?'sellout':'spendExp'])return null;
+        return {icone:'🛒',texte:nom+verbe(' as',' a')+' fait un achat dans la '+(ap?'Boutique AP':'boutique EXP')};
+      }
       case 'rebirth':
         if(!k.menus.renaissance)return null;
         return {icone:'♻️',texte:nom+verbe(' as',' a')+' fait un Rebirth'};

@@ -1087,3 +1087,43 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .sor
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-input-v1 span{color:var(--th-ink,#e8fffb)!important}
 /* Lisibilité : le sous-titre d'un en-tête de page (gris-bleu clair) disparaissait sur les en-têtes dorés, verts ou lavande ; blanc avec une ombre franche (les menus aux couleurs propres gardent les leurs). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28:not(:is([data-menu="augmentations"],[data-menu="combat"],[data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"])) .soreal-idle-page-head-v28 .soreal-idle-page-sub-v28{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+
+/*
+ * Broken Time Machine : retour à l'aspect du jeu d'origine (Norman, 2026-10-02 : « elle n'a pas l'air comme dans NGU », capture à l'appui).
+ * Le thème néon cyan du menu recouvrait la palette de la capture : bandeau bleu acier, piste Machine Speed verte, piste Gold Multiplier jaune,
+ * panneau gris des facteurs, barres blanches carrées, boutons blancs cerclés de bleu nuit, texte noir. Les règles de mise en page restent celles de soreal-idle-ui.css.
+ */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1{
+  background:transparent!important;border:0!important;box-shadow:none!important;color:#111!important;border-radius:0!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 > :is(.soreal-idle-tm-entete-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-stats-v1,.soreal-idle-tm-input-v1,.soreal-idle-aide-v1){
+  border:3px solid #1d3247!important;border-radius:12px!important;color:#111!important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 2px 0 rgba(0,0,0,.35)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1{background:#5f86ab!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.vitesse{background:#a5dfb4!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.or{background:#ebe89b!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-stats-v1,.soreal-idle-tm-input-v1){background:#c1c1c1!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-aide-v1{background:#dbe6f1!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-titre-v1,.soreal-idle-tm-stats-titre-v1){
+  color:#111!important;text-shadow:none!important;letter-spacing:.02em;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-soustitre-v1,.soreal-idle-tm-eta-v1){color:#1d3247!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-barre-v1{
+  background:#fff!important;border:2px solid #1d3247!important;border-radius:0!important;box-shadow:none!important;height:26px;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-remplissage-v1{
+  background:#59d08b!important;border-radius:0!important;box-shadow:none!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1{background:#fdfba7!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{
+  background:#fff!important;color:#111!important;border:2px solid #1d3247!important;border-radius:5px!important;box-shadow:none!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button:active{background:#dfe6ee!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(b,strong,label,span,summary,li,p){color:#111!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-input-v1 span{color:#333!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(input){
+  background:#fff!important;color:#111!important;border:2px solid #1d3247!important;border-radius:4px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-aide-v1 > summary{color:#0b1622!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-input-v1 span{color:#333!important}

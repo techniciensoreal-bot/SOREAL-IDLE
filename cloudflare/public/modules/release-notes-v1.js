@@ -8,8 +8,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.6',
+    courante:'9.7',
     versions:[
+      {
+        version:'9.7',
+        nom:'Un son à ton goût',
+        date:'2026-10-02',
+        points:[
+          'Trois barres de son dans les Paramètres : voix, ambiance et sons de l’interface, toutes à 75 % de base, chacune avec une case à cocher pour la couper complètement.',
+          'Dans les champs Input et Target, un clic sélectionne tout le nombre : il suffit de taper pour le remplacer.',
+          'Le bandeau « En direct » annonce aussi les achats faits dans les boutiques que tu as débloquées.',
+          'Un menu a retrouvé les couleurs du jeu d’origine.',
+        ]
+      },
       {
         version:'9.6',
         nom:'Des entraînements en duo',

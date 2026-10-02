@@ -221,6 +221,13 @@ const stats = (o = {}) => ({
   assert.equal(p("set", { id: "training" }, debutant).texte, "Mickaël a complété un set d’équipement");
   assert.equal(p("set", { id: "training" }, Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { sets: { training: "Training Set" } }) })).texte, "Mickaël a complété le set Training Set");
 
+  // Achats en boutique (Norman, 2026-10-02) : annoncés seulement si le lecteur a débloqué cette boutique, sans détail de l'achat.
+  const boutiques = Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { menus: { spendExp: true, sellout: false } }) });
+  assert.equal(p("achat", { boutique: "exp" }, boutiques).texte, "Mickaël a fait un achat dans la boutique EXP");
+  assert.equal(p("achat", { boutique: "sellout" }, boutiques), null, "Boutique AP verrouillée chez le lecteur : jamais mentionnée");
+  assert.equal(p("achat", { boutique: "exp" }, debutant), null);
+  assert.equal(p("achat", { boutique: "sellout" }, Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { menus: { sellout: true } }) }), true).texte, "Tu as fait un achat dans la Boutique AP");
+
   // Bandeau : chaque information n'est mise en file qu'UNE fois ; l'historique chargé au démarrage n'est pas rejoué.
   const f = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
   const now = Date.now();
@@ -270,6 +277,20 @@ const stats = (o = {}) => ({
   assert.ok(chat.includes("apresFlux") && chat.includes("__SOREAL_IDLE_FLUX_V1__") && chat.includes("data-flux-panneau-v1"));
   const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
   assert.ok(rt.includes("enregistrerJalonsV1") && rt.includes("lireFluxSorealIdle,"));
+}
+
+// 8. Achats en boutique : un événement par boutique dont le compteur a augmenté, jamais à tort.
+{
+  const stats = (exp, sellout) => ({ metaNgu: { bonuses: { expShop: exp }, selloutShop: { purchases: sellout } } });
+  const a0 = instantaneJoueurV1({ stats: stats({ autoMerge: 1 }, { extraBeardSlot: 1 }) });
+  assert.deepEqual(a0.achats, { exp: 1, sellout: 1 });
+  const a1 = instantaneJoueurV1({ stats: stats({ autoMerge: 1, inventorySpace: 3 }, { extraBeardSlot: 1 }) });
+  assert.deepEqual(evenementsV1(a0, a1).map((e) => [e.type, e.donnees.boutique]), [["achat", "exp"]]);
+  const a2 = instantaneJoueurV1({ stats: stats({ autoMerge: 1, inventorySpace: 3 }, { extraBeardSlot: 2 }) });
+  assert.deepEqual(evenementsV1(a1, a2).map((e) => [e.type, e.donnees.boutique]), [["achat", "sellout"]]);
+  assert.deepEqual(evenementsV1(a2, a2), [], "aucun achat : rien d'annoncé");
+  assert.deepEqual(evenementsV1(a2, a0), [], "un compteur qui baisse (Rebirth…) n'annonce rien");
+  assert.deepEqual(evenementsV1({ bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 }, a1).filter((e) => e.type === "achat"), [], "ancien instantané sans achats : jamais d'annonce à tort");
 }
 
 console.log("idle-flux-v1 OK");
