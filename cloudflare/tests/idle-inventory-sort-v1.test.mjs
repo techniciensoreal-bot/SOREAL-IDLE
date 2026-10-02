@@ -44,7 +44,7 @@ function addBoost(s, type, strength, level = 0) {
 
 // --- 1. EXP shop : achat unique à 200 EXP, exactement le coût donné par Norman. ---
 {
-  assert.equal(IDLE_NGU_EXP_SHOP_V1.sortInventory.cost(), 200);
+  assert.equal(IDLE_NGU_EXP_SHOP_V1.sortInventory.cost(), 20);
   assert.equal(IDLE_NGU_EXP_SHOP_V1.sortInventory.max, 1, "achat unique (déblocage), pas un palier répétable");
 }
 
@@ -104,7 +104,7 @@ function addBoost(s, type, strength, level = 0) {
   assert.equal(s.inventorySlots[3], armeHors.id);
 }
 
-// --- 5. Achat réel (buyExpShop) : verrouillé par défaut, débloqué après achat, 200 EXP dépensés. ---
+// --- 5. Achat réel (buyExpShop) : verrouillé par défaut, débloqué après achat, 20 EXP dépensés. ---
 {
   const ctx = { bosses: 40 };
   let state = normalizeIdleNguState({}, ctx, 0);
@@ -112,7 +112,7 @@ function addBoost(s, type, strength, level = 0) {
   let snap = idleNguSnapshot(state, ctx, 0);
   assert.equal(snap.inventoryAuto.unlocked.sortInventory, false, "verrouillé de base, comme demandé");
   state = applyIdleNguAction(state, { action: "buyExpShop", item: "sortInventory", quantity: 1 }, ctx, 0).state;
-  assert.equal(state.currencies.experience, 300, "200 EXP dépensés, exactement le coût annoncé");
+  assert.equal(state.currencies.experience, 480, "20 EXP dépensés (Norman, 2026-10-02 : rayon Toc), exactement le coût annoncé");
   snap = idleNguSnapshot(state, ctx, 0);
   assert.equal(snap.inventoryAuto.unlocked.sortInventory, true, "débloqué après achat");
 
@@ -123,7 +123,7 @@ function addBoost(s, type, strength, level = 0) {
 // --- 6. Boutique EXP (section Débuts) : présent, avec son nom, son aide et son coût -- comme Auto Merge. ---
 {
   const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
-  assert.match(meta, /IDLE_EXP_DEBUTS_V1=\[[^\]]*'sortInventory'[^\]]*\]/, "doit apparaître dans l'onglet Débuts");
+  assert.match(meta, /IDLE_EXP_TOC_V1=\[[^\]]*'sortInventory'[^\]]*\]/, "doit apparaître dans le rayon Toc (Norman, 2026-10-02)");
   assert.match(meta, /sortInventory:'[^']*Trier l.inventaire'/, "nom affiché dans la boutique");
   assert.match(meta, /sortInventory:'Débloque un bouton « Trier »[^']*'/, "aide affichée dans la boutique");
   assert.match(meta, /sortInventory:'adventure'/, "même visibilité anti-spoil qu'Auto Merge (masqué avant Adventure)");

@@ -8203,3 +8203,25 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{font-size:11.5px;color:#ffe9bd}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:11px;color:#d8b980}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{width:15px;height:15px;font-size:10px;top:3px;right:3px;background:#d8a93f;color:#2b1a0c}
+
+/*
+ * Chiffres de vie du duel fixes (Norman, 2026-10-02) : la case des PV actuels a une largeur constante (posée par texteCombatIdleV121_), alignée à droite ; ni la pastille ni les
+ * chiffres ne bougent quand les PV gagnent ou perdent un chiffre ou une virgule.
+ */
+.soreal-idle-duel-hp-v41 .soreal-idle-note-v4 .soreal-idle-hp-cur-v1{
+  display:inline-block;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.soreal-idle-duel-hp-v41 .soreal-idle-note-v4 .soreal-idle-hp-sep-v1{white-space:pre}
+
+/* Case « Synchro » sous Input (Basic Training), offerte par l'achat de la boutique EXP (Norman, 2026-10-02). */
+.soreal-idle-bt-synchro-v1{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:6px;
+  font-weight:800;
+  cursor:pointer;
+}
+.soreal-idle-bt-synchro-v1 input{width:auto;margin:0}

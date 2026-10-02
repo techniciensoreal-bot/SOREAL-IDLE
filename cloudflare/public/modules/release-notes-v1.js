@@ -8,8 +8,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'9.5',
+    courante:'9.6',
     versions:[
+      {
+        version:'9.6',
+        nom:'Des entraînements en duo',
+        date:'2026-10-02',
+        points:[
+          'Un nouveau rayon « Toc » apparaît dans la boutique EXP : de petits outils de confort, très peu chers. Le tri de l’inventaire y a déménagé et coûte désormais 20 EXP.',
+          'Nouvel achat « Synchro Basic Training » : une case à cocher sous Input place l’énergie en même temps dans les deux compétences d’une paire (Attaque passive et Blocage, etc.), pour qu’elles progressent exactement à la même vitesse. Avec Cap, si l’énergie ne suffit pas pour les deux, elle est partagée en deux parts égales.',
+          'Les chiffres de points de vie du combat restent fixes : ils ne s’allongent ni ne rétrécissent plus selon la taille des nombres.',
+        ]
+      },
       {
         version:'9.5',
         nom:'Un jeu plus vif et plus vivant',

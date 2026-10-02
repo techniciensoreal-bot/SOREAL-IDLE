@@ -648,6 +648,7 @@
        */
       const IDLE_EXP_ONGLETS_V1=[
         {id:'debuts',icone:'🚀',nom:'Débuts'},
+        {id:'toc',icone:'🧰',nom:'Toc'},
         {id:'energy',icone:'⚡',nom:'Énergie'},
         {id:'magic',icone:'✨',nom:'Magie'},
         {id:'r3',icone:'🧪',nom:'Ressource 3'},
@@ -655,9 +656,11 @@
         {id:'slots',icone:'🎒',nom:'Slots & options'}
       ];
       /* Achats bon marché et utiles dès le début, dans l'ordre conseillé (du moins cher au plus cher). */
-      const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','boostRecycling','autoMerge','sortInventory','daycareSlot1','trainingAutoAdvance'];
+      const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','boostRecycling','autoMerge','daycareSlot1','trainingAutoAdvance'];
+      /* Rayon « Toc » (Norman, 2026-10-02) : les petits outils de confort, bon marché. */
+      const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining'];
       const IDLE_EXP_STATS_AVENTURE_V1=['adventurePower','adventureToughness','adventureHp','adventureRegen'];
-      const IDLE_EXP_NOMS_V1={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
+      const IDLE_EXP_NOMS_V1={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',syncBasicTraining:'🔗 Synchro Basic Training',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
       /* Une ligne d'explication pour les achats de l'onglet Débuts (effets déjà décrits dans le jeu : panneau d'inventaire, Basic Training). */
       const IDLE_EXP_AIDES_V1={
         inventorySpace:'Plus de places dans ton sac : les premières sont les moins chères.',
@@ -665,6 +668,7 @@
         boostRecycling:'Un boost utilisé peut revenir avec un palier de moins : +10 % de chance par achat, 50 % au maximum.',
         autoMerge:'Fusionne automatiquement les doublons de ton équipement (menu Inventory).',
         sortInventory:'Débloque un bouton « Trier » dans ton sac (menu Inventory) qui range tes objets par catégorie.',
+        syncBasicTraining:'Ajoute une case à cocher sous Input dans Basic Training : cochée, l’énergie que tu places dans une compétence est placée en même temps dans sa jumelle (Attaque passive et Blocage…), pour qu’elles montent exactement à la même vitesse.',
         daycareSlot1:'Débloque le premier slot de l’Item Daycare.',
         trainingAutoAdvance:'Basic Training passe tout seul à la compétence suivante.'
       };
@@ -677,7 +681,7 @@
        */
       const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1={
         adventurePower:'adventure',adventureToughness:'adventure',adventureHp:'adventure',adventureRegen:'adventure',
-        inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',sortInventory:'adventure',basicLootFilter:'adventure',
+        inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',sortInventory:'adventure',syncBasicTraining:'adventure',basicLootFilter:'adventure',
         loadoutSlots:'adventure',loadoutSlot3:'adventure',boostRecycling:'adventure',inventoryMergeSlot:'adventure',
         diggerSlot:'diggers',beardSlot:'beards',daycareSlot1:'daycare',daycareSlot2:'daycare',daycareSlot3:'daycare',
         macguffinSlot1:'macguffins',macguffinSlot2:'macguffins'
@@ -698,9 +702,11 @@
         const tous=Array.isArray(m.expShop)?m.expShop:[];
         const visible=function(it){return idleExpAchatVisibleIdleV1_(j,m,it);};
         const resteSlots=tous.some(function(it){
-          return visible(it)&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
+          return visible(it)&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_TOC_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
         });
+        const resteToc=tous.some(function(it){return visible(it)&&IDLE_EXP_TOC_V1.indexOf(it.id)!==-1;});
         return IDLE_EXP_ONGLETS_V1.filter(function(o){
+          if(o.id==='toc')return resteToc;
           if(o.id==='magic')return idleExpSystemeDebloqueIdleV1_(j,m,'bloodMagic');
           if(o.id==='r3')return idleExpSystemeDebloqueIdleV1_(j,m,'hacks');
           if(o.id==='aventure')return idleExpSystemeDebloqueIdleV1_(j,m,'adventure');
@@ -779,6 +785,10 @@
           const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
           return '<div class="soreal-idle-exp-intro-v212">🚀 <b>À acheter tôt.</b> Ces achats sont peu chers et rendent la partie bien plus confortable ; dans l’ordre conseillé.</div>'+cartes;
         }
+        if(onglet==='toc'){
+          const cartes=IDLE_EXP_TOC_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
+          return '<div class="soreal-idle-exp-intro-v212">🧰 <b>Petits outils.</b> Des achats de confort, très peu chers.</div>'+cartes;
+        }
         if(onglet==='energy'||onglet==='magic'||onglet==='r3'){
           /* Un onglet de ressource verrouillé n'est jamais proposé (voir idleExpOngletsVisiblesIdleV1_) : aucun message « verrouillé ». */
           const x=(m.resources||{})[onglet]||{};
@@ -796,7 +806,7 @@
         }
         /* slots : tout le reste (hors Débuts et statistiques d'aventure), puis Yggdrasil */
         const reste=tous.filter(function(it){
-          return idleExpAchatVisibleIdleV1_(j,m,it)&&!it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
+          return idleExpAchatVisibleIdleV1_(j,m,it)&&!it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_TOC_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1;
         });
         return reste.map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopYggIdleV1_(tous.filter(function(it){return it.yggFruit&&idleExpAchatVisibleIdleV1_(j,m,it);}));
       }

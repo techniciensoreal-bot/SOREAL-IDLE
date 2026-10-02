@@ -5302,6 +5302,7 @@ function idleNguBonusesSansMacguffinV1(state) {
     }),
     /* Wiki Experience > Misc « Training Auto Advance » (300 EXP) : effet dans advanceBasicTrainingStateV411. */
     basicTrainingAutoAdvance: expShopPurchasedV1(state, "trainingAutoAdvance") >= 1,
+    basicTrainingSync: expShopPurchasedV1(state, "syncBasicTraining") >= 1,
     disableEquipment: equipmentDisabled,
     numberMultiplier: number,
     augmentationMultiplier: aug,
@@ -7592,7 +7593,15 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    * du sac existe déjà côté serveur, mais aucun bouton "tout trier" n'existe dans le jeu réel) --
    * coût donné directement par Norman, jamais tiré du wiki.
    */
-  sortInventory: Object.freeze({ name: "Sort Inventory", cost: () => 200, gain: 1, max: 1 }),
+  /* Norman (2026-10-02) : le tri passe à 20 EXP et rejoint le nouveau rayon « Toc » de la boutique. */
+  sortInventory: Object.freeze({ name: "Sort Inventory", cost: () => 20, gain: 1, max: 1 }),
+  /*
+   * « Synchro Basic Training » (Norman, 2026-10-02) : case à cocher sous Input dans Basic Training ; cochée, ce qu'on place dans une compétence est placé au même
+   * instant dans sa jumelle (Attaque passive / Blocage, etc.) pour que les deux montent exactement à la même vitesse. Fonctionnalité SOREAL originale, absente
+   * du wiki NGU Idle : prix et rayon donnés par Norman (le prix n'est pas tiré du wiki). L'effet est purement côté client (les allocations des deux compétences
+   * partent ensemble) ; le serveur ne fait que mémoriser l'achat (bonus basicTrainingSync).
+   */
+  syncBasicTraining: Object.freeze({ name: "Basic Training Sync", cost: () => 50, gain: 1, max: 1 }),
   basicLootFilter: Object.freeze({ name: "Basic Loot Filter", cost: () => 20, gain: 1, max: 1 }),
   loadoutSlots: Object.freeze({ name: "2 Loadout Slots!", cost: () => 1000, gain: 2, max: 1 }),
   loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),

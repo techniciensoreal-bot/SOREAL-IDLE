@@ -10130,6 +10130,16 @@ function construireEtatJoueurSorealIdle_(
         )
     },
 
+    /* Achat « Synchro Basic Training » (rayon Toc de la boutique EXP) : le client affiche alors la case à cocher sous Input. */
+    basicTrainingSynchro:
+      nombreSorealIdle_(
+        statsEtat.metaNgu &&
+        statsEtat.metaNgu.bonuses &&
+        statsEtat.metaNgu.bonuses.expShop &&
+        statsEtat.metaNgu.bonuses.expShop.syncBasicTraining,
+        0
+      ) >= 1,
+
     basicTraining:
       basicTrainingSnapshotV411(
         normalizeBasicTrainingStateV411(

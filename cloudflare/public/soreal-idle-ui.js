@@ -950,48 +950,42 @@
             )
           );
 
-        let cible=courant;
+        /* Synchro Basic Training (Norman, 2026-10-02) : case cochée sous Input, offerte par l'achat « Synchro Basic Training » de la boutique EXP. Les compétences vont
+         * par paire (attaque ↔ défense) ; ce qu'on place dans l'une est placé au même instant dans l'autre. Fonction pure : planSynchroBasicTrainingIdleV1_. */
+        const jumelle=synchroBasicTrainingActifIdleV1_()?skillBasicTrainingParIdIdleV120_(IDLE_BT_JUMELLES_V1[id]):null;
+        const synchro=!!(jumelle&&jumelle.unlocked);
+        const entree=inputBasicTrainingIdleV120_();
+        let plan;
 
-        if(action==='plus'){
-          cible=
-            courant+
-            Math.min(
-              inputBasicTrainingIdleV120_(),
-              idleAvant
-            );
-        }else if(action==='moins'){
-          cible=
-            Math.max(
-              0,
-              courant-
-              inputBasicTrainingIdleV120_()
-            );
-        }else if(action==='cap'){
-          cible=
-            capBasicTrainingLocalIdleV120_(
-              skill
-            );
+        if(synchro){
+          plan=planSynchroBasicTrainingIdleV1_(
+            action,
+            {courant:courant,cap:capBasicTrainingLocalIdleV120_(skill)},
+            {courant:idleEntier_(jumelle.allocation),cap:capBasicTrainingLocalIdleV120_(jumelle)},
+            idleAvant,
+            entree
+          );
+        }else{
+          let cible=courant;
 
-          if(cible>courant){
-            cible=
-              courant+
-              Math.min(
-                cible-courant,
-                idleAvant
-              );
+          if(action==='plus'){
+            cible=courant+Math.min(entree,idleAvant);
+          }else if(action==='moins'){
+            cible=Math.max(0,courant-entree);
+          }else if(action==='cap'){
+            cible=capBasicTrainingLocalIdleV120_(skill);
+
+            if(cible>courant){
+              cible=courant+Math.min(cible-courant,idleAvant);
+            }
           }
+
+          plan={a:Math.max(0,idleEntier_(cible)),b:0};
         }
 
-        cible=
-          Math.max(
-            0,
-            idleEntier_(
-              cible
-            )
-          );
-
         const delta=
-          cible-courant;
+          (plan.a-courant)+
+          (synchro?plan.b-idleEntier_(jumelle.allocation):0);
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-18 */
         if(
@@ -1012,7 +1006,9 @@
         }
 
         skill.allocation=
-          cible;
+          plan.a;
+
+        if(synchro)jumelle.allocation=plan.b;
 
         idleEtat.energie=
           Math.max(
@@ -1036,6 +1032,53 @@
         programmerEnvoiBasicTrainingIdleV120_(
           70
         );
+      }
+
+      /* Paires de Basic Training : toujours ensemble (Norman, 2026-10-02). Les identifiants sont ceux du serveur (attaque ↔ défense de même ligne). */
+      const IDLE_BT_JUMELLES_V1={
+        attaque_passive:'blocage',blocage:'attaque_passive',
+        attaque_reguliere:'defense_renforcee',defense_renforcee:'attaque_reguliere',
+        attaque_renforcee:'recuperation',recuperation:'attaque_renforcee',
+        contre_palette:'boost_offensif',boost_offensif:'contre_palette',
+        percee_quai:'charge_logistique',charge_logistique:'percee_quai',
+        ultime_soreal:'ultime_logistique',ultime_logistique:'ultime_soreal'
+      };
+      const IDLE_BT_SYNCHRO_CLE_V1='soreal_idle_bt_synchro_v1';
+
+      /* La case n'existe (et ne compte) que si l'achat a été fait : le serveur l'annonce par `basicTrainingSynchro`. */
+      function synchroBasicTrainingActifIdleV1_(){
+        if(!idleEtat||!idleEtat.basicTrainingSynchro)return false;
+        try{return window.localStorage.getItem(IDLE_BT_SYNCHRO_CLE_V1)==='1';}catch(e){return false;}
+      }
+
+      window.__basculerSynchroBasicTrainingIdleV1__=function(coche){
+        try{window.localStorage.setItem(IDLE_BT_SYNCHRO_CLE_V1,coche?'1':'0');}catch(e){}
+      };
+
+      /*
+       * Nouvelle allocation des deux compétences d'une paire. `a` = celle qu'on a touchée, `b` = sa jumelle ({courant, cap} = niveau alloué, plafond).
+       *  + : chacune reçoit l'Input ; si l'énergie libre ne suffit pas pour les deux, elle est partagée en deux parts égales (le reste de la division reste libre).
+       *  − : chacune perd l'Input (jamais sous 0).
+       *  Cap : chacune monte à son plafond si l'énergie libre suffit pour les deux ; sinon l'énergie libre est coupée en deux parts égales, chaque part limitée au besoin de sa
+       *        barre. Le surplus reste dans l'énergie disponible.
+       */
+      function planSynchroBasicTrainingIdleV1_(action,a,b,libre,entree){
+        const moitie=Math.floor(Math.max(0,libre)/2);
+        if(action==='plus'){
+          const ajout=entree*2<=libre?entree:moitie;
+          return {a:a.courant+ajout,b:b.courant+ajout};
+        }
+        if(action==='moins'){
+          return {a:Math.max(0,a.courant-entree),b:Math.max(0,b.courant-entree)};
+        }
+        if(action==='cap'){
+          const besoinA=Math.max(0,a.cap-a.courant);
+          const besoinB=Math.max(0,b.cap-b.courant);
+          const donneA=besoinA+besoinB<=libre?besoinA:Math.min(besoinA,moitie);
+          const donneB=besoinA+besoinB<=libre?besoinB:Math.min(besoinB,moitie);
+          return {a:a.courant+donneA,b:b.courant+donneB};
+        }
+        return {a:a.courant,b:b.courant};
       }
 
       function presetBasicTrainingIdleV120_(
@@ -1928,6 +1971,42 @@
           String(
             texte||''
           );
+
+        /*
+         * Chiffres de vie du duel FIXES (Norman, 2026-10-02 : « ils s'allongent ou rétrécissent suivant les virgules des PV, il faut qu'ils restent fixes »).
+         * Dans la pastille, « ❤️ PV / PV MAX » est écrit en trois morceaux : les PV actuels occupent une case de largeur constante (alignés à droite,
+         * assez large pour la valeur max + une décimale de regen), si bien que ni la pastille ni les chiffres ne bougent quand les PV changent de longueur.
+         */
+        const parent=element.parentElement;
+        const m=parent&&parent.classList&&parent.classList.contains('soreal-idle-duel-hp-v41')
+          ?/^(\S+)\s+(.+?)\s+\/\s+(.+)$/.exec(valeur)
+          :null;
+        if(m){
+          let cur=element.querySelector('.soreal-idle-hp-cur-v1');
+          let max=element.querySelector('.soreal-idle-hp-max-v1');
+          let structureChangee=false;
+          if(!cur||!max){
+            element.textContent='';
+            [['soreal-idle-hp-ic-v1',m[1]],['soreal-idle-hp-cur-v1',m[2]],['soreal-idle-hp-sep-v1',' / '],['soreal-idle-hp-max-v1',m[3]]].forEach(function(p){
+              const span=document.createElement('span');
+              span.className=p[0];
+              span.textContent=p[1];
+              element.appendChild(span);
+            });
+            cur=element.querySelector('.soreal-idle-hp-cur-v1');
+            max=element.querySelector('.soreal-idle-hp-max-v1');
+            structureChangee=true;
+          }
+          if(max.textContent!==m[3]){
+            max.textContent=m[3];
+            structureChangee=true;
+          }
+          if(cur.textContent!==m[2])cur.textContent=m[2];
+          const largeurCase=Math.max(m[3].length+3,7)+'ch'; /* au moins « 999,99 » : la regen affiche deux décimales sous 1000 */
+          if(cur.style.minWidth!==largeurCase)cur.style.minWidth=largeurCase;
+          ajusterVieDuelIdleV1_(element,structureChangee);
+          return;
+        }
 
         const change=element.textContent!==valeur;
         if(change)element.textContent=valeur;
@@ -15114,6 +15193,16 @@ let idleDialogueTimerV76=null;
                 oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
                 onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
               >
+              ${j.basicTrainingSynchro?`
+              <label class="soreal-idle-bt-synchro-v1" title="Cochée : l'énergie placée dans une compétence est placée en même temps dans sa jumelle (Attaque passive ↔ Blocage…)">
+                <input
+                  type="checkbox"
+                  id="sorealIdleTrainingSynchroV1"
+                  ${synchroBasicTrainingActifIdleV1_()?'checked':''}
+                  onchange="window.__basculerSynchroBasicTrainingIdleV1__(this.checked)"
+                >
+                🔗 Synchro
+              </label>`:''}
             </div>
 
             <div class="soreal-idle-bt-presets-v120">
