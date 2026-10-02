@@ -57,3 +57,13 @@ console.log("idle-anti-spoil-collection-v1: OK");
   const ui = (await import("node:fs")).readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
   assert.ok(/def\.kind==='special'\?\{set:'',slot:def\.slot\|\|'accessory'[^}]*wikiItemId:def\.wikiItemId\|\|0,kind:'special'/.test(ui), "pseudo-objet image pour les spéciaux");
 }
+
+// Images (2026-10-02) : R2 est la source de vérité ; l'ancienne image du Drive ne passe plus avant (collègue qui voyait d'anciennes images).
+{
+  const ui = (await import("node:fs")).readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(/const url=\s*String\(\s*fallbackUrl\|\|''\s*\)\s*\|\|\s*urlDriveRapideIdleV46_\(\s*fileId\s*\)/.test(ui), "image de combat : R2 d'abord, Drive en dernier recours");
+  assert.ok(/urlBossR2IdleV1_\(\s*b&&b\.numero\s*\)\s*\|\|\s*urlDriveRapideIdleV46_/.test(ui), "cartes de boss : R2 d'abord");
+  assert.ok(ui.includes("urlBossR2IdleV1_(idImageBossCanoniqueIdleV181_(j))||j.bossImage"), "image du boss : R2 avant l'ancienne image du catalogue");
+  const media = (await import("node:fs")).readFileSync("cloudflare/src/idle-media-v1.js", "utf8");
+  assert.ok(!media.includes("stale-while-revalidate=86400"), "plus de cache périmé pendant 24 h");
+}

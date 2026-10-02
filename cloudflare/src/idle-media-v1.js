@@ -384,7 +384,8 @@ function typeMediaAdventureR2(key){
 function mediaHeaders_(source,ttl){
   const h=new Headers(source||{});
   h.delete("set-cookie");
-  h.set("cache-control","public, max-age="+String(ttl)+", stale-while-revalidate=86400");
+  /* Pas de stale-while-revalidate : une image remplacée dans R2 sous le même nom devait rester périmée jusqu'à 24 h de plus chez certains joueurs (Norman, 2026-10-02). */
+  h.set("cache-control","public, max-age="+String(ttl)+", must-revalidate");
   h.set("x-content-type-options","nosniff");
   return h;
 }

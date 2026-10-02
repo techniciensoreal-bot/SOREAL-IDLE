@@ -14,7 +14,7 @@ assert.match(
 
 assert.match(
   source,
-  /j\.bossImage\|\|urlBossR2IdleV1_\(idImageBossCanoniqueIdleV181_\(j\)\)/,
+  /urlBossR2IdleV1_\(idImageBossCanoniqueIdleV181_\(j\)\)\|\|j\.bossImage/,
   "Le rendu initial du portrait doit utiliser l'id canonique du boss."
 );
 

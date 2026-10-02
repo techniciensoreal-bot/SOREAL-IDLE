@@ -13722,12 +13722,13 @@
       function construireCarteBossIdleV91_(
         b
       ){
+        /* R2 d'abord (voir markupImageCombatIdleV61_) : l'ancienne image du Drive ne sert plus qu'à défaut. */
         const image=
-          urlDriveRapideIdleV46_(
-            b&&b.driveFileId
-          ) ||
           urlBossR2IdleV1_(
             b&&b.numero
+          ) ||
+          urlDriveRapideIdleV46_(
+            b&&b.driveFileId
           );
 
         const caps=
@@ -14552,7 +14553,7 @@ let idleDialogueTimerV76=null;
                     ${
                       markupImageCombatIdleV61_(
                         'joueur',
-                        j.apparenceJoueur&&j.apparenceJoueur.driveFileId,
+                        '',
                         '',
                         j.nom||'Joueur',
                         'soreal-idle-player-image-v41',
@@ -14631,7 +14632,7 @@ let idleDialogueTimerV76=null;
                         'boss',
                         j.bossDriveFileId,
                         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-169 */
-                        j.bossImage||urlBossR2IdleV1_(idImageBossCanoniqueIdleV181_(j)),
+                        urlBossR2IdleV1_(idImageBossCanoniqueIdleV181_(j))||j.bossImage,
                         j.bossActuel||'Boss',
                         'soreal-idle-boss-image-v35',
                         j.bossActuel||'Boss'
@@ -21996,12 +21997,17 @@ function pageAventureIdleV28_(j){
         classeBase,
         cle
       ){
+        /*
+         * Norman (2026-10-02) : « mon collègue a parfois les anciennes images, celles de mon Drive ». Cause : l'identifiant Drive du catalogue (ancien
+         * stockage) passait AVANT l'image R2 actuelle. R2 est la source de vérité : l'image R2 d'abord, le Drive seulement si aucune image R2 n'est
+         * connue (jamais pour le portrait du joueur, chargé ensuite depuis R2).
+         */
         const url=
-          urlDriveRapideIdleV46_(
-            fileId
-          ) ||
           String(
             fallbackUrl||''
+          ) ||
+          urlDriveRapideIdleV46_(
+            fileId
           );
 
         if(!url){
