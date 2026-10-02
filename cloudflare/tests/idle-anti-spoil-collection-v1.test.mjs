@@ -51,3 +51,9 @@ assert.match(ui, /if\(!vu\)return '';/, "les pièces de set non vues ne sont pas
 assert.match(ui, /return Boolean\(itemList\[id\]\)&&setsDemarres\.has\(String\(def\.set\|\|''\)\);/, "Équipement : seulement les pièces obtenues");
 
 console.log("idle-anti-spoil-collection-v1: OK");
+
+// Collection (2026-10-02) : les objets spéciaux (ex. The Tuba of Time) montrent leur image, pas seulement un ✨.
+{
+  const ui = (await import("node:fs")).readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(/def\.kind==='special'\?\{set:'',slot:def\.slot\|\|'accessory'[^}]*wikiItemId:def\.wikiItemId\|\|0,kind:'special'/.test(ui), "pseudo-objet image pour les spéciaux");
+}

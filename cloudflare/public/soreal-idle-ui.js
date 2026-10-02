@@ -15140,7 +15140,9 @@ let idleDialogueTimerV76=null;
             const estStatBearing=estEquipement||def.kind==='special'||def.kind==='cube';
             const pseudoItem=estEquipement
               ?{set:def.set,slot:def.slot,name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'equipment',level:niveau}
-              :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'cube',level:niveau}:null);
+              :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'cube',level:niveau}
+                /* Objets spéciaux (accessoires comme The Tuba of Time) : leur image existe aussi (Norman, 2026-10-02 : « dans collection, des items ne montrent pas l'image »). */
+                :(def.kind==='special'?{set:'',slot:def.slot||'accessory',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'special',level:niveau}:null));
             const puissance=estStatBearing?Math.round(idleNombre_(def.basePower)*(1+niveau/100)):0;
             const solidite=estStatBearing?Math.round(idleNombre_(def.baseToughness)*(1+niveau/100)):0;
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(def);
