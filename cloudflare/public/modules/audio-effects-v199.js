@@ -42,6 +42,8 @@
     equip:{group:"inventory-equip",priority:52,maxAgeMs:700},
     purchaseGem:{group:"purchase",priority:30,maxAgeMs:1300},
     menuNav:{group:"ui-nav",priority:20,maxAgeMs:400},
+    /* Entrée dans le Shop (Norman, 2026-10-03) : clochettes au-dessus de la porte d'un vieux magasin. Même groupe que menuNav : il le remplace pour ce menu. */
+    shopDoor:{group:"ui-nav",priority:24,maxAgeMs:600},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
     /* Un autre joueur vient de se connecter (fil « En direct », Norman 2026-10-02) : petit carillon discret. */
     joueurConnecte:{group:"presence",priority:18,maxAgeMs:2500},
@@ -537,6 +539,27 @@
       tonal_(c,{type:"sine",from:880,to:882,duration:.22,volume:.030,delay:.07});
       tonal_(c,{type:"triangle",from:1760,to:1764,duration:.12,volume:.008,delay:.07});
     });
+  }
+
+  /*
+   * Porte de vieux magasin (Norman, 2026-10-03) : « un bruit comme quand on entrait dans les vieux magasins, avec des cloches accrochées au-dessus de la porte qui tintaient quand la porte cognait
+   * contre ». Un petit coup mat du battant contre le bois, puis une grappe de clochettes de laiton : chacune est un son métallique (notes aiguës et partiels inharmoniques) qui s'éteint vite, les
+   * frappes irrégulières et de moins en moins fortes, comme un tintement qui se calme.
+   */
+  function porteMagasinConstruire_(c){
+    tonal_(c,{type:"sine",from:150,to:80,duration:.10,volume:.075});
+    bruit_(c,{duration:.07,volume:.05,filterType:"lowpass",frequency:520,decay:2.4});
+    var frappes=[[.04,2637,.034],[.11,3520,.030],[.17,3136,.028],[.26,2349,.026],[.34,3951,.024],[.47,3136,.020],[.60,2637,.016],[.78,3520,.012],[1.00,3136,.008]];
+    frappes.forEach(function(f){
+      var d=f[0],hz=f[1],v=f[2];
+      tonal_(c,{type:"sine",from:hz,to:hz*.998,duration:.55,volume:v,delay:d});
+      tonal_(c,{type:"sine",from:hz*2.76,to:hz*2.75,duration:.28,volume:v*.45,delay:d});
+      if(hz*5.4<16000)tonal_(c,{type:"triangle",from:hz*5.4,to:hz*5.38,duration:.14,volume:v*.18,delay:d});
+      bruit_(c,{duration:.025,volume:v*.35,delay:d,filterType:"highpass",frequency:5200,decay:3});
+    });
+  }
+  function porteMagasin_(){
+    return jouerWebAudio_(1700,porteMagasinConstruire_);
   }
 
   /*
@@ -1347,6 +1370,7 @@
     equip:equipJouer_,
     purchaseGem:gemmeJouer_,
     menuNav:menuNav_,
+    shopDoor:porteMagasin_,
     achievement:succes_,
     joueurConnecte:joueurConnecte_,
     chestOpen:coffreOuverture_,
@@ -1464,7 +1488,8 @@
   document.addEventListener("click",function(ev){
     var b=ev.target&&ev.target.closest?ev.target.closest(".soreal-idle-nav-button-v28"):null;
     if(!b||b.classList.contains("active")||b.closest(".edition"))return;
-    demander_("menuNav");
+    /* Le Shop a son propre son : la porte d'un vieux magasin et ses clochettes. */
+    demander_(b.getAttribute("data-menu-id-v1")==="shop"?"shopDoor":"menuNav");
   },{capture:true,passive:true});
 
   document.addEventListener("pointerdown",debloquer_,{capture:true,passive:true});
@@ -1485,6 +1510,7 @@
       skills:SONS_COMPETENCE.map(function(x){return{nom:x.id,duree:x.duree,construire:x.construire};}),
       purchaseGem:{duree:1300,construire:gemmeConstruire_},
       setComplete:{duree:1080,construire:setCompletConstruire_},
+      shopDoor:{duree:1700,construire:porteMagasinConstruire_},
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_}
     },
@@ -1512,6 +1538,7 @@
     equip:function(){return demander_("equip");},
     purchaseGem:function(){return demander_("purchaseGem");},
     menuNav:function(){return demander_("menuNav");},
+    shopDoor:function(){return demander_("shopDoor");},
     achievement:function(){return demander_("achievement");},
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
