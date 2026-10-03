@@ -3879,8 +3879,9 @@
           !joueurServeur.combatBossActif &&
           memeBossServeurV167
         ){
+          /* Au repos : la vie ne redescend pas sous ce que le serveur a déjà régénéré (les PV max montent avec les Augmentations, la régénération du serveur suit : Norman, 2026-10-03). */
           const pvJoueurLocalReposV174=
-            Math.max(0,idleNombre_(idleEtat.pvJoueur));
+            Math.max(0,idleNombre_(idleEtat.pvJoueur),Math.min(idleNombre_(joueurServeur.pvJoueur),Math.max(idleNombre_(idleEtat.pvJoueurMax),idleNombre_(joueurServeur.pvJoueurMax))));
           const bossPvLocalReposV174=
             Math.max(0,idleNombre_(idleEtat.bossPv));
           const basicTrainingReposV174=
@@ -4653,6 +4654,20 @@
             )*
             1000
           );
+
+        /*
+         * Stats à jour PENDANT un combat (Norman, 2026-10-03 : « quand je tue un boss ça ne passe pas directement au suivant ; les niveaux des Augmentations ne sont pris en compte qu'au moment d'appuyer
+         * sur Fight, et les PV ne se mettent à jour qu'à ce moment-là »). Les Augmentations montent côté serveur (jusqu'à 50 niveaux par seconde) mais le client ne reçoit leurs effets qu'à la synchro :
+         * toutes les 15 s, son combat prédit tournait avec des stats périmées, le serveur (plus fort) tuait le boss avant lui et l'écran n'avançait qu'à la synchro suivante. Pendant un combat de
+         * Fight Boss, on se resynchronise donc toutes les 4 s.
+         */
+        if(window.__sorealIdleSyncCombatV1)clearInterval(window.__sorealIdleSyncCombatV1);
+        window.__sorealIdleSyncCombatV1=setInterval(function(){
+          if(document.hidden||PAGE_ACTIVE!=='idle'||!idleEtat||!SOREAL_SESSION)return;
+          if(idleMenuActifV28!=='combat'||!idleEtat.combatBossActif)return;
+          if(typeof idleFastPendingV60_==='function'&&idleFastPendingV60_())return;
+          synchroniserJeuIdleV7_();
+        },4000);
       }
 
       let idleAchatEnCoursV5=false;
