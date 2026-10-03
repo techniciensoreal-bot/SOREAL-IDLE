@@ -2868,9 +2868,93 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="cal-titre-v1">📅 Récompenses de connexion · '+H.idleHtml_(nomMois)+'</div>'+
             '<div class="cal-sous-v1">Reviens chaque jour : plus ta série est longue, plus l’AP est gros. Un jour raté et tu repars de la case 1 !</div>'+
             '<div class="cal-stats-v1"><span>🔥 Série : <b>'+serie+' jour'+(serie>1?'s':'')+'</b></span><span>💠 Total du mois : <b>'+H.idleHtml_(H.formatGrandNombreIdleV70_(H.idleNombre_(cal.totalMois)))+' AP</b></span></div>'+
+            '<div class="cal-stats-v1"><span>🏆 Total d’AP obtenus depuis le début des récompenses : <b>'+H.idleHtml_(H.formatGrandNombreIdleV70_(H.idleNombre_(cal.totalAp)))+' AP</b></span></div>'+
             '<div class="cal-grille-v1">'+cases+'</div>'+
             bouton+
           '</div>';
+      }
+
+      /*
+       * Historiques du Money Pit et de la roue (Norman, 2026-10-03) : DEUX cadres séparés (Money Pit seulement, roue seulement), repliables, 20 lignes par page, une page de plus pour les lignes
+       * plus anciennes. L'état ouvert/fermé de chaque cadre et la page affichée sont retenus (la page se redessine souvent).
+       */
+      const IDLE_MP_PAR_PAGE_V1=20;
+      const idleMpPagesV1={pit:0,roue:0};
+
+      function lignesMoneyPitIdleV1_(pit){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const data=pit&&pit.state&&pit.state.data||{};
+        return (Array.isArray(data.history)?data.history:[]).map(function(x){
+          return {at:H.idleNombre_(x.at),entree:x,detail:'Palier '+H.idleEntier_(x.tier)+' · '+H.formatGrandNombreIdleV70_(x.cost||0)+' Or',prize:libelleRecompenseMetaV206_(x)};
+        }).sort(function(a,b){return b.at-a.at;});
+      }
+
+      function lignesRoueIdleV1_(roue){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const data=roue&&roue.state&&roue.state.data||{};
+        return (Array.isArray(data.history)?data.history:[]).map(function(x){
+          return {at:H.idleNombre_(x.at),detail:'Tier '+H.idleEntier_(x.tier),prize:libelleRecompenseMetaV206_(x)};
+        }).sort(function(a,b){return b.at-a.at;});
+      }
+
+      function dateCourteMoneyPitIdleV1_(ms){
+        if(!(ms>0))return '';
+        try{return new Date(ms).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(_e){return '';}
+      }
+
+      function cleOuvertureCadreMoneyPitIdleV1_(cle){return 'soreal_idle_mp_cadre_'+cle;}
+      function cadreMoneyPitOuvertIdleV1_(cle){
+        try{return localStorage.getItem(cleOuvertureCadreMoneyPitIdleV1_(cle))!=='0';}catch(_e){return true;}
+      }
+      window.__basculerCadreMoneyPitIdleV1__=function(cle,details){
+        try{localStorage.setItem(cleOuvertureCadreMoneyPitIdleV1_(cle),details&&details.open?'1':'0');}catch(_e){}
+      };
+
+      /* Change de page dans un cadre sans redessiner la page : montre le corps de tableau voulu, cache les autres, met à jour le compteur et les boutons. */
+      window.__pageCadreMoneyPitIdleV1__=function(cle,sens){
+        const racine=document.querySelector('[data-mp-cadre="'+cle+'"]');
+        if(!racine)return;
+        const corps=racine.querySelectorAll('[data-mp-page]');
+        const total=corps.length;
+        const cible=Math.max(0,Math.min(total-1,(idleMpPagesV1[cle]||0)+sens));
+        idleMpPagesV1[cle]=cible;
+        Array.prototype.forEach.call(corps,function(c){c.hidden=Number(c.getAttribute('data-mp-page'))!==cible;});
+        const compteur=racine.querySelector('[data-mp-compteur]');
+        if(compteur)compteur.textContent='Page '+(cible+1)+' / '+total;
+        const recent=racine.querySelector('[data-mp-recent]');
+        const ancien=racine.querySelector('[data-mp-ancien]');
+        if(recent)recent.disabled=cible<=0;
+        if(ancien)ancien.disabled=cible>=total-1;
+      };
+
+      function cadreRecompensesMoneyPitIdleV1_(cle,titre,lignes,colonneDetail,vide){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const pages=Math.max(1,Math.ceil(lignes.length/IDLE_MP_PAR_PAGE_V1));
+        const courante=Math.max(0,Math.min(pages-1,idleMpPagesV1[cle]||0));
+        idleMpPagesV1[cle]=courante;
+        let tables='';
+        for(let p=0;p<pages;p+=1){
+          tables+='<tbody data-mp-page="'+p+'"'+(p===courante?'':' hidden')+'>'+
+            lignes.slice(p*IDLE_MP_PAR_PAGE_V1,(p+1)*IDLE_MP_PAR_PAGE_V1).map(function(x){
+              return '<tr><td>'+H.idleHtml_(dateCourteMoneyPitIdleV1_(x.at))+'</td><td>'+H.idleHtml_(x.detail)+'</td><td><b>'+H.idleHtml_(x.prize)+'</b></td></tr>';
+            }).join('')+
+          '</tbody>';
+        }
+        return '<details class="mp-cadre-v1" data-mp-cadre="'+cle+'"'+(cadreMoneyPitOuvertIdleV1_(cle)?' open':'')+' ontoggle="window.__basculerCadreMoneyPitIdleV1__(\''+cle+'\',this)">'+
+          '<summary>'+H.idleHtml_(titre)+' <span class="mp-compte-v1">('+lignes.length+')</span></summary>'+
+          '<div class="mp-corps-v1">'+
+            (lignes.length
+              ?'<table class="soreal-idle-reward-table-v206"><thead><tr><th>Quand</th><th>'+H.idleHtml_(colonneDetail)+'</th><th>Prix</th></tr></thead>'+tables+'</table>'+
+                (pages>1
+                  ?'<div class="mp-pager-v1">'+
+                      '<button type="button" data-mp-recent onclick="window.__pageCadreMoneyPitIdleV1__(\''+cle+'\',-1)"'+(courante<=0?' disabled':'')+'>◀ Plus récentes</button>'+
+                      '<span data-mp-compteur>Page '+(courante+1)+' / '+pages+'</span>'+
+                      '<button type="button" data-mp-ancien onclick="window.__pageCadreMoneyPitIdleV1__(\''+cle+'\',1)"'+(courante>=pages-1?' disabled':'')+'>Plus anciennes ▶</button>'+
+                    '</div>'
+                  :'')
+              :'<div class="soreal-idle-note-v4">'+H.idleHtml_(vide)+'</div>')+
+          '</div>'+
+        '</details>';
       }
 
       function pageMoneyPitDailySpinIdleV206_(j){
@@ -2883,6 +2967,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const totalSpins=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(roueData.totalSpins||roueSt.level||0);
         const tier=tierDailySpinIdleV206_(totalSpins);
         const table=recompensesDailySpinTierIdleV206_(tier);
+        const listePit=lignesMoneyPitIdleV1_(pit);
+        const listeRoue=lignesRoueIdleV1_(roue);
         const historique=historiqueMoneyPitIdleV206_(pit,roue);
         const derniere=historique.length?historique[0]:null;
 
@@ -2904,6 +2990,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
             '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:13px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
             '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:14px}.soreal-idle-money-action-note-v206{font-size:11px}}'+
+            '.mp-cadre-v1{max-width:760px;margin:0 auto 12px;border-radius:14px;border:2px solid rgba(255,255,255,.28);background:rgba(12,18,31,.92);overflow:hidden}'+
+            '.mp-cadre-v1>summary{cursor:pointer;padding:11px 14px;font-weight:950;font-size:15px;color:#fff;text-shadow:0 1px 3px #000;list-style:none;display:flex;gap:8px;align-items:center}'+
+            '.mp-cadre-v1>summary::-webkit-details-marker{display:none}'+
+            '.mp-cadre-v1>summary::after{content:"▾";margin-left:auto;transition:transform .2s}'+
+            '.mp-cadre-v1:not([open])>summary::after{transform:rotate(-90deg)}'+
+            '.mp-compte-v1{font-weight:700;opacity:.75;font-size:13px}'+
+            '.mp-corps-v1{padding:0 12px 12px}'+
+            '.mp-cadre-v1 .soreal-idle-reward-table-v206 th,.mp-cadre-v1 .soreal-idle-reward-table-v206 td{color:#eef3ff}'+
+            '.mp-pager-v1{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;font-size:13px;color:#d5e1f5}'+
+            '.mp-pager-v1 button{padding:6px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:#253957;color:#fff;font-weight:800}'+
+            '.mp-pager-v1 button:disabled{opacity:.4}'+
           '</style>'+
           '<div class="soreal-idle-money-scene-v206">'+
             '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
@@ -2921,7 +3018,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               rendreBoutonDailySpinIdleV203_(roueSt)+
             '</div>'+
           '</div>'+
-          rendreCalendrierConnexionIdleV1_(j)+
           '<div class="soreal-idle-offre-v1">'+
             '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
             '<div class="soreal-idle-prize-v206">'+
@@ -2933,22 +3029,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 :'Aucun prix obtenu pour l’instant.')+
             '</div>'+
           '</div>'+
+          /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
+          rendreCalendrierConnexionIdleV1_(j)+
+          cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le puits.')+
+          cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">🎡 TABLE DES RÉCOMPENSES · TIER '+tier+'</div>'+
             '<div style="font-size:13px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
             '<table class="soreal-idle-reward-table-v206"><tbody>'+
               table.map(function(x){return '<tr><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x)+'</td></tr>';}).join('')+
             '</tbody></table>'+
-          '</div>'+
-          '<div class="soreal-idle-section-v8">'+
-            '<div class="soreal-idle-window-title-v31">📜 RÉCOMPENSES OBTENUES</div>'+
-            (historique.length
-              ?'<table class="soreal-idle-reward-table-v206"><thead><tr><th>Source</th><th>Palier</th><th>Prix</th></tr></thead><tbody>'+
-                historique.map(function(x){
-                  return '<tr><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x.source)+'</td><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x.detail)+'</td><td><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x.prize)+'</b></td></tr>';
-                }).join('')+
-                '</tbody></table>'
-              :'<div class="soreal-idle-note-v4">Le tableau se remplira dès ton premier lancer.</div>')+
           '</div>';
       }
 

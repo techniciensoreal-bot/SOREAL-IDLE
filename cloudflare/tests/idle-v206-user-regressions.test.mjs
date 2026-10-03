@@ -45,10 +45,10 @@ for(const token of ["victory:{group:\"combat-end\"","nuke:{group:\"combat-action
 }
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('victory')")&&ui.includes("jouerEffetAudioIdleV199_('nuke')"),"Fight Boss doit lancer victoire et NUKE.");
 
-for(const token of ["/api/idle/media/banner","const key=\"idle/banners/\"+nom","Money_Pit.jpg","function pageMoneyPitDailySpinIdleV206_(j)","Balance ton argent","Daily Spin!","TON PRIX","TABLE DES RÉCOMPENSES","RÉCOMPENSES OBTENUES"]){
+for(const token of ["/api/idle/media/banner","const key=\"idle/banners/\"+nom","Money_Pit.jpg","function pageMoneyPitDailySpinIdleV206_(j)","Balance ton argent","Daily Spin!","TON PRIX","TABLE DES RÉCOMPENSES","RÉCOMPENSES DU MONEY PIT","RÉCOMPENSES DE LA ROUE"]){
   assert.ok((media+ui+metaModule).includes(token),"Money Pit V206 manquant: "+token);
 }
-assert.ok(ngu.includes("s.data.history=historique.slice(0,20)")&&ngu.includes("history:Array.isArray(data.history)"),"Historique des prix non persistant.");
+assert.ok(ngu.includes("s.data.history=historique.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1)")&&ngu.includes("history:Array.isArray(data.history)"),"Historique des prix non persistant.");
 
 for(const token of ["readText:function(value,audioSrc,onDone)","sorealIdleBossChroniqueV206","🔊 Lire la chronique","sorealIdleCollectionBossStoryV206_","🔊 Lire cette chronique","function lireHistoireCompleteBossIdleV206_()","🔊 Lire toute l’histoire des boss débloqués","return b&&b.connu&&String(b.histoire||'').trim();"]){
   assert.ok((tts+ui).includes(token),"TTS chroniques Boss manquant: "+token);

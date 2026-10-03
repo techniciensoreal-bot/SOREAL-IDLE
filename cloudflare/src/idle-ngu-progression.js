@@ -1680,7 +1680,7 @@ function normalizeSystem(def, raw) {
       lastTossAt: Math.max(0, num(data.lastTossAt, 0)),
       totalGoldTossed: Math.max(0, num(data.totalGoldTossed, 0)),
       history:Array.isArray(data.history)
-        ?data.history.slice(0,20).map(entry=>({
+        ?data.history.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1).map(entry=>({
             at:Math.max(0,num(entry?.at,0)),
             cost:Math.max(0,num(entry?.cost,0)),
             tier:Math.max(0,int(entry?.tier,0)),
@@ -1700,7 +1700,7 @@ function normalizeSystem(def, raw) {
       readyAt: Math.max(0, num(data.readyAt, 0)),
       totalSpins: Math.max(0, int(data.totalSpins, s.level)),
       history:Array.isArray(data.history)
-        ?data.history.slice(0,20).map(entry=>({
+        ?data.history.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1).map(entry=>({
             at:Math.max(0,num(entry?.at,0)),
             tier:Math.max(0,int(entry?.tier,0)),
             reward:entry?.reward&&typeof entry.reward==="object"
@@ -3766,6 +3766,9 @@ function castBloodSpell(state, spell, now = 0) {
   }
   throw new Error("SORT_SANG_INVALIDE");
 }
+
+/* Historiques du Money Pit et de la roue (Norman, 2026-10-03) : 20 lignes par page, plusieurs pages pour les plus anciennes -> on garde 100 lignes par liste (5 pages). */
+const IDLE_MONEY_PIT_HISTORIQUE_MAX_V1 = 100;
 
 function advanceMoneyPitAndDaily(state, now) {
   const pit = state.systems.moneyPit;
@@ -6280,7 +6283,7 @@ function tossMoneyPit(state, now) {
     reward:Object.assign({},reward),
     boost:resultat.boost
   });
-  s.data.history=historique.slice(0,20);
+  s.data.history=historique.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1);
 
   return resultat;
 }
@@ -6392,7 +6395,7 @@ function spinDaily(state, now) {
     reward:Object.assign({},reward),
     totalSpins:s.data.totalSpins
   });
-  s.data.history=historique.slice(0,20);
+  s.data.history=historique.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1);
 
   return resultat;
 }

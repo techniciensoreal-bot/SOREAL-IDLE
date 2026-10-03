@@ -23,9 +23,9 @@ function jeter(s, gold, t, alea) {
   // palier 3 (2e9 d or), tirage 0 = « adventureStats +5 »
   for (let i = 0; i < 25; i++) s = jeter(s, 2e9, 10_000_000 + i * 30 * H, 0);
   const t = s.systems.moneyPit.data.rewardsTotal;
-  assert.equal(t.adventureStats, 25 * 5, "25 jets x 5 : l'historique n'en garde que 20, les totaux les gardent tous");
+  assert.equal(t.adventureStats, 25 * 5, "25 jets x 5 : les totaux les gardent tous");
   assert.ok(t.ap >= 25 * 5, "AP du jet cumulés");
-  assert.equal(s.systems.moneyPit.data.history.length, 20);
+  assert.equal(s.systems.moneyPit.data.history.length, 25, "l'historique garde jusqu'à 100 lignes (5 pages de 20)");
   // bonus uniques (1E8 cumulés) : +100 PV max
   let u = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
   u.systems.moneyPit.unlocked = true;
@@ -39,7 +39,7 @@ function jeter(s, gold, t, alea) {
   const ancien = JSON.parse(JSON.stringify(s));
   delete ancien.systems.moneyPit.data.rewardsTotal;
   const migre = normalizeIdleNguState(ancien, { bosses: 100 }, 20_000_000);
-  assert.equal(migre.systems.moneyPit.data.rewardsTotal.adventureStats, 20 * 5);
+  assert.equal(migre.systems.moneyPit.data.rewardsTotal.adventureStats, 25 * 5);
 }
 
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");

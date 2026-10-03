@@ -90,6 +90,7 @@ function etatEffectifV1(rec, maintenant) {
 /* Vue envoyée au client (jamais de donnée personnelle : que le plateau et la série). */
 export function idleLoginCalendarSnapshotV1(rec, maintenant) {
   const e = etatEffectifV1(rec, maintenant);
+  const cumul = idleLoginCalendarNormaliserV1(rec);
   const bareme = idleLoginCalendarBaremeV1(e.jours);
   return {
     mois: e.cleMois,
@@ -99,6 +100,9 @@ export function idleLoginCalendarSnapshotV1(rec, maintenant) {
     bareme,
     totalMois: IDLE_LOGIN_CALENDAR_TOTAL_AP_V1,
     serie: e.serie,
+    /* Depuis le début des récompenses de connexion (Norman, 2026-10-03) : total d'AP obtenus et nombre de récupérations (l'octroi de lancement compte dans les AP). */
+    totalAp: cumul.totalAp,
+    totalReclames: cumul.totalReclames,
     /* Cases allumées = série ; prochaine case à réclamer = série + 1 (si possible aujourd'hui). */
     reclamable: !e.dejaAujourdhui && e.serie < e.jours,
     dejaReclameAujourdhui: e.dejaAujourdhui,

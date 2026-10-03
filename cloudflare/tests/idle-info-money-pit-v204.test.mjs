@@ -42,7 +42,8 @@ for(const token of [
   "Daily Spin!",
   "Fais-moi tourner, bébé !",
   "TABLE DES RÉCOMPENSES",
-  "RÉCOMPENSES OBTENUES",
+  "RÉCOMPENSES DU MONEY PIT",
+  "RÉCOMPENSES DE LA ROUE",
   "TON PRIX"
 ]){
   assert.ok(uiEtModule.includes(token),"Money Pit / Daily Spin V206 manquant: "+token);
