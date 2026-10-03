@@ -64,7 +64,7 @@ function addBoost(s, type, strength, level = 0) {
   );
 }
 
-// --- 3. Ordre exact demandé : bijoux, armes, tête, torse, jambes, pieds, objets divers, boost (Power, Toughness, Special). ---
+// --- 3. Ordre exact demandé (Norman, 2026-10-03 : accessoires, objets divers, MacGuffins, puis équipement, puis boosts) : bijoux, objets divers, armes, tête, torse, jambes, pieds, boost (Power, Toughness, Special). ---
 {
   const s = adv();
   /* Un Tutorial Cube existe déjà dans un adventure state fraîchement créé (kind:"cube" -> "accessory" -> "bijoux", même rang que sewers:ring, ajouté avant lui donc en tête à rang égal). */
@@ -83,7 +83,7 @@ function addBoost(s, type, strength, level = 0) {
 
   applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
 
-  const idsAttendus = [cube, bijoux, armes, tete, torse, jambes, pieds, divers, boostPower, boostToughness, boostSpecial].map((o) => o.id);
+  const idsAttendus = [cube, bijoux, divers, armes, tete, torse, jambes, pieds, boostPower, boostToughness, boostSpecial].map((o) => o.id);
   const idsReels = s.inventorySlots.filter(Boolean);
   assert.deepEqual(idsReels, idsAttendus, "ordre exact demandé par Norman, quel que soit l'ordre d'ajout");
 }
@@ -96,6 +96,28 @@ function addBoost(s, type, strength, level = 0) {
   applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
   const reel = s.inventorySlots.filter(Boolean).map((id) => { const o = s.inventory.find((x) => x.id === id); return o.boostType + o.strength; });
   assert.deepEqual(reel, ["power1", "power2", "power5", "toughness1", "toughness5", "special1", "special2"], "par catégorie puis par numéro croissant");
+}
+
+// --- 3 ter. Les objets verrouillés passent en tête de LEUR catégorie (Norman, 2026-10-03). ---
+{
+  const s = adv();
+  s.inventory = [];
+  const p1 = addBoost(s, "power", 1);
+  const p2 = addBoost(s, "power", 2);
+  const p1v = addBoost(s, "power", 1);
+  const p3v = addBoost(s, "power", 5);
+  const t1 = addBoost(s, "toughness", 1);
+  const t2v = addBoost(s, "toughness", 2);
+  p1v.locked = true; p3v.locked = true; t2v.locked = true;
+  const r1 = addItem(s, "sewers:ring");
+  const r2v = addItem(s, "forest:ring");
+  r2v.locked = true;
+  const w1 = addItem(s, "sewers:weapon");
+  const w2v = addItem(s, "forest:weapon");
+  w2v.locked = true;
+  applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  const ids = s.inventorySlots.filter(Boolean);
+  assert.deepEqual(ids, [r2v, r1, w2v, w1, p1v, p3v, p1, p2, t2v, t1].map((o) => o.id), "verrouillés en tête de leur catégorie, puis l'ordre habituel (numéro croissant)");
 }
 
 // --- 4. Les slots d'automerge (réservés, curés à la main par le joueur) ne sont jamais réordonnés par le tri. ---

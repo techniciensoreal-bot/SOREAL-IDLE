@@ -490,14 +490,19 @@ function basicFilterTypeV1(o) {
  * n'est inventée. "" (boosts/consommables/objets spéciaux) devient "objets divers", juste avant les
  * boosts.
  */
-const IDLE_SORT_INVENTORY_RANK_V1 = Object.freeze({ accessory: 0, weapon: 1, head: 2, chest: 3, legs: 4, boots: 5 });
+/*
+ * Nouvel ordre (Norman, 2026-10-03) : accessoires, puis objets divers (la clé Pissed Off Key...), puis MacGuffins, puis l'équipement (armes, tête, torse, jambes, pieds), puis les boosts.
+ * Aucun MacGuffin ne vit encore dans le sac d'Aventure (les fragments ont leur propre réserve) : le rang leur est réservé pour le jour où l'un y entrera.
+ */
+const IDLE_SORT_INVENTORY_RANK_V1 = Object.freeze({ accessory: 0, weapon: 3, head: 4, chest: 5, legs: 6, boots: 7 });
 function sortRankInventoryV1(o) {
   if (o && o.kind === "boost") {
     const i = IDLE_BOOST_TYPES_V1.indexOf(String(o.boostType || ""));
-    return 7 + (i < 0 ? IDLE_BOOST_TYPES_V1.length : i);
+    return 8 + (i < 0 ? IDLE_BOOST_TYPES_V1.length : i);
   }
+  if (o && (o.kind === "macguffin" || /^macguffin/i.test(String(o.definitionId || "")))) return 2;
   const t = basicFilterTypeV1(o);
-  return t && IDLE_SORT_INVENTORY_RANK_V1[t] != null ? IDLE_SORT_INVENTORY_RANK_V1[t] : 6;
+  return t && IDLE_SORT_INVENTORY_RANK_V1[t] != null ? IDLE_SORT_INVENTORY_RANK_V1[t] : 1;
 }
 
 /*
@@ -520,7 +525,8 @@ function sortInventorySlotsV1(s) {
   ids.sort((a, b) => {
     const oa = byId.get(a);
     const ob = byId.get(b);
-    return sortRankInventoryV1(oa) - sortRankInventoryV1(ob) || forceBoost(oa) - forceBoost(ob) || premier.get(cleNom(oa)) - premier.get(cleNom(ob));
+    /* Les objets verrouillés (locked) passent toujours en tête de LEUR catégorie : le verrou prime sur le numéro ; entre objets verrouillés, l ordre habituel s applique. */
+    return sortRankInventoryV1(oa) - sortRankInventoryV1(ob) || Number(Boolean(ob && ob.locked)) - Number(Boolean(oa && oa.locked)) || forceBoost(oa) - forceBoost(ob) || premier.get(cleNom(oa)) - premier.get(cleNom(ob));
   });
   for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
   s.inventorySlots = slots;
