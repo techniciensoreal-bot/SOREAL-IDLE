@@ -37,6 +37,7 @@ const stats = (o = {}) => ({
     systems: { achievements: { data: { unlocked: o.succes || {} } } },
     adventure: { titans: o.titans || {} },
     challenge: { completions: o.defis || {}, completionsTier: {} },
+    rebirth: { lastRunSeconds: o.dureeRun || 0 },
     records: { totalRebirths: o.rebirths || 0, highestBoss: o.boss || 0 }
   },
   classementVisible: o.visible
@@ -210,6 +211,11 @@ const stats = (o = {}) => ({
   assert.equal(p("defi", {}, debutant), null);
   assert.equal(p("rebirth", {}, debutant), null);
   assert.equal(p("defi", {}, expert).texte, "Mickaël a réussi un Challenge");
+  assert.equal(p("rebirth", {}, expert).texte, "Mickaël a fait un Rebirth", "sans durée connue : rien d'inventé");
+  assert.equal(p("rebirth", { duree: 8 * 3600 }, expert).texte, "Mickaël a fait un Rebirth après 8 h de run");
+  assert.equal(p("rebirth", { duree: 8 * 3600 + 12 * 60 + 40 }, expert).texte, "Mickaël a fait un Rebirth après 8 h 12 min de run");
+  assert.equal(p("rebirth", { duree: 45 * 60 }, expert).texte, "Mickaël a fait un Rebirth après 45 min de run");
+  assert.equal(p("rebirth", { duree: 100 * 3600 + 30 * 60 }, expert).texte, "Mickaël a fait un Rebirth après 4 j 4 h de run");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, expert).texte, "Mickaël farme dans Égouts");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, debutant).texte, "Mickaël farme en Aventure", "zone inconnue : générique");
   assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu viens de vaincre Gros Rat");
@@ -269,6 +275,14 @@ const stats = (o = {}) => ({
   assert.ok(!m.includes("passes>=PASSAGES") && !m.includes("PASSAGES"), "plus de boucle qui rejoue un lot");
   assert.ok(m.includes("DOUBLON_MS=120000") && m.includes("derniereVue.get(e.texte)"), "une phrase identique passée il y a moins de 2 minutes n'est pas rejouée");
   assert.ok(m.includes("if(derniereImage&&now-derniereImage>5000&&piste.firstChild)viderBandeau();"), "retour d'onglet : la piste périmée est vidée");
+}
+
+// --- Rebirth : la durée du run est annoncée (Norman, 2026-10-03 : « Sébastien a rebirth après 8h de run »). ---
+{
+  const sn = (rebirths, dureeRun) => instantaneJoueurV1({ stats: stats({ rebirths, dureeRun }) });
+  assert.equal(sn(3, 28800).dureeRun, 28800);
+  assert.deepEqual(evenementsV1(sn(2, 100), sn(3, 28800)).filter((e) => e.type === "rebirth"), [{ type: "rebirth", donnees: { n: 3, duree: 28800 } }]);
+  assert.deepEqual(evenementsV1(sn(2, 100), sn(3, 0)).filter((e) => e.type === "rebirth"), [{ type: "rebirth", donnees: { n: 3 } }], "durée 0 (Rebirth qui change de difficulté) : pas de durée");
 }
 
 console.log("idle-flux-v1 OK");

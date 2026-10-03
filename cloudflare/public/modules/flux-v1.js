@@ -43,6 +43,19 @@
     });
   }
 
+  /* Durée d'un run : « 8 h », « 8 h 12 min », « 45 min », « 3 j 4 h » (jamais de secondes au-delà d'une minute, arrondi à la minute inférieure). */
+  function dureeRunTexte(secondes){
+    let m=Math.floor((Number(secondes)||0)/60);
+    if(!(m>0))return (Number(secondes)||0)>0?'moins d’une minute':'';
+    const j=Math.floor(m/1440);m-=j*1440;
+    const h=Math.floor(m/60);m-=h*60;
+    const parts=[];
+    if(j)parts.push(j+' j');
+    if(h)parts.push(h+' h');
+    if(m&&!j)parts.push(m+' min');
+    return parts.join(' ');
+  }
+
   function contexte(){
     try{
       const f=window.__SOREAL_IDLE_ACTIVITE_V1__;
@@ -103,7 +116,8 @@
       }
       case 'rebirth':
         if(!k.menus.renaissance)return null;
-        return {icone:'♻️',texte:nom+verbe(' as',' a')+' fait un Rebirth'};
+        const dureeRun=dureeRunTexte(d.duree);
+        return {icone:'♻️',texte:nom+verbe(' as',' a')+' fait un Rebirth'+(dureeRun?' après '+dureeRun+' de run':'')};
       case 'farm':{
         const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(d.zoneId);});
         return {icone:'⚔️',texte:connue&&d.zoneNom?nom+verbe(' farmes',' farme')+' dans '+d.zoneNom:nom+verbe(' farmes',' farme')+' en Aventure'};

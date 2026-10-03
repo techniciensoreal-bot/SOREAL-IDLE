@@ -73,7 +73,9 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     succes,
     titans,
     defis,
-    rebirths: Math.max(0, Math.floor(N(m.records && m.records.totalRebirths, 0)))
+    rebirths: Math.max(0, Math.floor(N(m.records && m.records.totalRebirths, 0))),
+    /* Durée du dernier run, fixée par le Rebirth lui-même (0 après un Rebirth qui change de difficulté ou lance un défi : alors rien n'est annoncé). */
+    dureeRun: Math.max(0, Math.round(N(m.rebirth && m.rebirth.lastRunSeconds, 0)))
   };
 }
 
@@ -121,7 +123,7 @@ export function evenementsV1(avant, apres, noms = {}) {
       }
     }
   }
-  if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: { n: apres.rebirths } });
+  if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
 }
 
