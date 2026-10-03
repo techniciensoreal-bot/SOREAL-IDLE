@@ -6184,3 +6184,83 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 /* Coffre en mannequins (Norman, 2026-10-03) : chaque set est posé comme équipé (tête, torse, jambes, bottes ; arme et accessoires à côté), les sets côte à côte puis à la ligne. Cases à la taille d'avant (56 px). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-mannequins-v1{display:flex!important;flex-wrap:wrap;gap:12px 14px;align-items:flex-start;justify-content:flex-start}
 .soreal-idle-coffre-mannequin-v1{display:grid;grid-template-columns:repeat(2,56px);grid-auto-rows:56px;gap:5px;padding:6px;border-radius:10px;background:rgba(216,169,63,.08);border:1px solid rgba(216,169,63,.28)}
+
+/* ====================== COFFRE : un cadre thématique par zone / par set ======================
+ * Norman (2026-10-03) : « les sets côte à côte et, seulement quand il n'y a plus de place, en dessous ; un cadre dédié à chaque set, qui rappelle la zone d'où il vient, avec ses couleurs et ses décorations ;
+ * un thème par set ». Chaque cadre porte data-theme-set-v1 = identifiant du set (ou du groupe d'objets) ; le thème fixe trois variables : --t1 (couleur du cadre), --t2 (couleur sombre du fond) et --deco (le décor). */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-mannequins-v1{align-items:flex-start;justify-content:flex-start;gap:12px}
+@media (max-width:700px){body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-mannequins-v1{justify-content:center}}
+.soreal-idle-coffre-cadre-v1{
+  --t1:#94a3b8;--t2:#1e293b;--deco:"📦";
+  position:relative;flex:0 0 auto;max-width:100%;box-sizing:border-box;overflow:hidden;
+  padding:0 0 10px;border-radius:14px;border:2px solid var(--t1);
+  background:
+    radial-gradient(120% 90% at 100% 100%,color-mix(in srgb,var(--t1) 24%,transparent),transparent 60%),
+    linear-gradient(165deg,color-mix(in srgb,var(--t2) 85%,#000),color-mix(in srgb,var(--t2) 55%,#05070d));
+  box-shadow:0 0 0 2px rgba(0,0,0,.45),0 8px 18px -10px var(--t1),inset 0 0 22px color-mix(in srgb,var(--t1) 16%,transparent);
+}
+/* Décor : l'emblème de la zone en grand, très discret, dans le coin du bas. */
+.soreal-idle-coffre-cadre-v1::after{content:var(--deco);position:absolute;right:-6px;bottom:-12px;font-size:56px;line-height:1;opacity:.14;pointer-events:none;filter:saturate(1.2)}
+.soreal-idle-coffre-cadre-titre-v1{
+  display:flex;align-items:center;gap:7px;padding:5px 10px;margin-bottom:8px;
+  font-weight:900;font-size:12.5px;letter-spacing:.03em;color:#fff;text-shadow:0 1px 3px #000;
+  background:linear-gradient(90deg,var(--t1),color-mix(in srgb,var(--t1) 35%,var(--t2)));
+}
+.soreal-idle-coffre-cadre-deco-v1{font-style:normal;font-size:16px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
+.soreal-idle-coffre-cadre-deco-v1::before{content:var(--deco)}
+.soreal-idle-coffre-cadre-corps-v1{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;padding:0 10px}
+/* Dans un cadre, le mannequin n'a plus son propre cadre. */
+.soreal-idle-coffre-cadre-v1 .soreal-idle-coffre-mannequin-v1{padding:0;border:0;background:none}
+.soreal-idle-coffre-libres-v1{display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;max-width:340px}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="training"]{--t1:#9ca3af;--t2:#374151;--deco:"🥋"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="sewers"]{--t1:#7cb342;--t2:#27401a;--deco:"🐀"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="forest"]{--t1:#43a047;--t2:#10441f;--deco:"🌲"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="cave"]{--t1:#e0a63a;--t2:#5c3d0c;--deco:"🧀"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="ciel"]{--t1:#64b5f6;--t2:#17306e;--deco:"☁️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="hsb"]{--t1:#38bdf8;--t2:#0b1730;--deco:"🛰️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="clock"]{--t1:#fbbf24;--t2:#5e2e0a;--deco:"🕰️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="2d"]{--t1:#a3e635;--t2:#2d4511;--deco:"🔷"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="spoopy"]{--t1:#a78bfa;--t2:#27104f;--deco:"👻"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="gaudy"]{--t1:#f472b6;--t2:#7a1b7e;--deco:"🎉"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="mega"]{--t1:#3b82f6;--t2:#16318f;--deco:"🤖"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="beardverse"]{--t1:#c2761f;--t2:#3d1c06;--deco:"🧔"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="badly"]{--t1:#e5e7eb;--t2:#4b4b55;--deco:"✏️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="stealth"]{--t1:#7c8da5;--t2:#0d1422;--deco:"🥷"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="choco"]{--t1:#a0522d;--t2:#341808;--deco:"🍫"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="edgy"]{--t1:#ef4444;--t2:#3d0808;--deco:"😈"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="edgyboots"]{--t1:#ef4444;--t2:#3d0808;--deco:"👢"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="bothedgy"]{--t1:#ef4444;--t2:#3d0808;--deco:"👢"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="pinkprincess"]{--t1:#f9a8d4;--t2:#a3135e;--deco:"👑"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="meta"]{--t1:#22d3ee;--t2:#103f52;--deco:"🔢"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="party"]{--t1:#fb923c;--t2:#5f2aa8;--deco:"🎈"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="typo"]{--t1:#9acd32;--t2:#365314;--deco:"⌨️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="fad"]{--t1:#ec4899;--t2:#5b21b6;--deco:"🌀"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="jrpg"]{--t1:#c084fc;--t2:#3b1578;--deco:"🗡️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="rad"]{--t1:#fb923c;--t2:#6a2410;--deco:"🛹"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="backtoschool"]{--t1:#60a5fa;--t2:#18358f;--deco:"🎒"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="western"]{--t1:#d9822b;--t2:#5e300c;--deco:"🤠"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="bread"]{--t1:#fcd34d;--t2:#7c3a0b;--deco:"🍞"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="disco"]{--t1:#e879f9;--t2:#4c1578;--deco:"🪩"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="halloweenie"]{--t1:#f97316;--t2:#1f1612;--deco:"🎃"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="construction"]{--t1:#facc15;--t2:#5a370c;--deco:"🚧"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="duck"]{--t1:#fde047;--t2:#1a3aa6;--deco:"🦆"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="dutch"]{--t1:#f97316;--t2:#1a3274;--deco:"🌷"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="pirate"]{--t1:#38bdf8;--t2:#17304f;--deco:"🏴‍☠️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="grb"]{--t1:#c62828;--t2:#3d0808;--deco:"🍖"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="jake"]{--t1:#94a3b8;--t2:#2c3a4d;--deco:"📎"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="scrap"]{--t1:#e7e5e4;--t2:#625c57;--deco:"📄"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="uug"]{--t1:#b8860b;--t2:#38200a;--deco:"💍"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="rerednaw"]{--t1:#8b5cf6;--t2:#191442;--deco:"🔁"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="wanderer"]{--t1:#a8a29e;--t2:#383840;--deco:"🧭"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="greasynerd"]{--t1:#8bc34a;--t2:#2d4513;--deco:"🎮"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="slimy"]{--t1:#4ade80;--t2:#103f22;--deco:"🟢"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="mobster"]{--t1:#a8a29e;--t2:#232020;--deco:"🕴️"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="space"]{--t1:#818cf8;--t2:#16143d;--deco:"🚀"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="exile"]{--t1:#f43f5e;--t2:#40061a;--deco:"🃏"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="rock"]{--t1:#8d8279;--t2:#24201d;--deco:"🪨"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="amalgamate"]{--t1:#14b8a6;--t2:#0e403d;--deco:"🧬"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="titan"]{--t1:#ff7a1a;--t2:#5f1414;--deco:"👹"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="coeur"]{--t1:#f43f5e;--t2:#6b0f2b;--deco:"💗"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="looty"]{--t1:#fbbf24;--t2:#5e2e0a;--deco:"🐱"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="pendentif"]{--t1:#facc15;--t2:#5a370c;--deco:"🏅"}
+.soreal-idle-coffre-cadre-v1[data-theme-set-v1="autre"]{--t1:#94a3b8;--t2:#2c3a4d;--deco:"📦"}

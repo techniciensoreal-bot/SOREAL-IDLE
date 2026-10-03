@@ -20772,25 +20772,39 @@ function pageAventureIdleV28_(j){
           }).join('');
           return '<div class="soreal-idle-coffre-mannequin-v1">'+cases+'</div>';
         }
-        let html='';
-        let bloc=[];
-        const viderBloc=function(){if(bloc.length){html+=mannequin(bloc);bloc=[];}};
+        /*
+         * Cadres thématiques (Norman, 2026-10-03 : « les sets côte à côte, et en dessous seulement quand il n'y a plus de place ; un cadre dédié à chaque set qui rappelle la zone d'où il vient, avec ses couleurs et
+         * ses décorations ; un thème par set »). Une zone = un cadre (son set posé en mannequin + ses objets) ; pour les titans, un cadre par set puis un cadre pour leurs autres objets. Les cadres se rangent côte à côte
+         * et passent à la ligne quand la place manque (centrés sur téléphone). Le thème (couleurs, décor) est choisi par l'identifiant du set, voir « data-theme-set-v1 » dans soreal-idle-ui.css.
+         */
+        function cadreThematique(cle,titre,corps){
+          return '<section class="soreal-idle-coffre-cadre-v1" data-theme-set-v1="'+idleHtml_(cle)+'">'+
+            '<header class="soreal-idle-coffre-cadre-titre-v1"><i class="soreal-idle-coffre-cadre-deco-v1" aria-hidden="true"></i><span>'+idleHtml_(titre)+'</span></header>'+
+            '<div class="soreal-idle-coffre-cadre-corps-v1">'+corps+'</div>'+
+          '</section>';
+        }
+        const groupesCoffre=[];
         slotsPage.forEach(function(s){
           const nomGroupe=String(s.groupeNom||'');
-          if(nomGroupe&&nomGroupe!==groupePrecedent){
-            viderBloc();
-            html+='<div class="soreal-idle-coffre-titre-groupe-v1" style="grid-column:1/-1;flex-basis:100%;font-weight:700;font-size:15px;margin:8px 0 2px;color:#dce5f3">'+idleHtml_(nomGroupe)+'</div>';
-          }
-          groupePrecedent=nomGroupe;
+          let g=groupesCoffre[groupesCoffre.length-1];
+          if(!g||g.nom!==nomGroupe){g={nom:nomGroupe,groupe:String(s.groupe||''),sets:[],libres:[]};groupesCoffre.push(g);}
           if(s.set){
-            if(bloc.length&&bloc[0].set!==s.set)viderBloc();
-            bloc.push(s);
+            let st=g.sets.find(function(x){return x.id===s.set;});
+            if(!st){st={id:s.set,nom:s.setName||nomGroupe,pieces:[]};g.sets.push(st);}
+            st.pieces.push(s);
+          }else g.libres.push(s);
+        });
+        let html='';
+        const libres=function(liste){return liste.length?'<div class="soreal-idle-coffre-libres-v1">'+liste.map(carteCoffre).join('')+'</div>':'';};
+        groupesCoffre.forEach(function(g){
+          if(g.groupe==='zone'){
+            const cle=g.sets.length?g.sets[0].id:'ciel';
+            html+=cadreThematique(cle,g.nom,g.sets.map(function(st){return mannequin(st.pieces);}).join('')+libres(g.libres));
           }else{
-            viderBloc();
-            html+=carteCoffre(s);
+            g.sets.forEach(function(st){html+=cadreThematique(st.id,st.nom,mannequin(st.pieces));});
+            if(g.libres.length)html+=cadreThematique(g.groupe||'autre',g.nom,libres(g.libres));
           }
         });
-        viderBloc();
         return '<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1 soreal-idle-coffre-mannequins-v1">'+html+'</div>'+
         rendrePaginationIdleV1_(idlePageCoffreV1,totalPagesCoffre,'window.__changerPageCoffreV1__');
       }
