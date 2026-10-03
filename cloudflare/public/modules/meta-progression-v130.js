@@ -3419,13 +3419,18 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         });
         const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
         const libre=Math.max(0,H.idleNombre_(j&&j.energie));
+        const vueAt=(j&&j.systemes&&j.systemes.advancedTrainingView)||null;
+        const ancreAt=ancreSnapshotIdleV1_(j);
         const ligne=function(id){
           const st=pistes[id]||{};
+          const infoAt=(vueAt&&vueAt.pistes&&vueAt.pistes[id])||{};
           const niveau=Math.floor(H.idleNombre_(st.level)+H.idleNombre_(st.tempLevel)+H.idleNombre_(st.permanentLevel));
           const energie=atEnergieDePisteIdleV1_(s,id);
           const idH=H.idleHtml_(id);
-          return '<div class="soreal-idle-at-ligne-v1" data-at-piste="'+idH+'">'+
-            '<div class="soreal-idle-at-nom-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</div>'+
+          /* Barre de progression de la compétence (Norman, 2026-10-03) : repère du dernier état serveur (niveau temporaire, part du niveau suivant, énergie, taux), rejoué en direct par le minuteur ci-dessous. */
+          const ancrage='data-at-n="'+Math.max(0,Math.floor(H.idleNombre_(st.tempLevel)))+'" data-at-base="'+Math.max(0,Math.floor(H.idleNombre_(st.level)+H.idleNombre_(st.permanentLevel)))+'" data-at-p="'+Math.max(0,Math.min(.999999,H.idleNombre_(st.progress)))+'" data-at-t="'+ancreAt+'" data-at-a="'+energie+'" data-at-taux="'+H.idleNombre_(infoAt.rateParEnergie)+'" data-at-gratuit="'+(vueAt&&vueAt.gratuit?1:0)+'" data-at-cible="'+H.idleEntier_(st.target)+'"';
+          return '<div class="soreal-idle-at-ligne-v1" data-at-piste="'+idH+'" '+ancrage+'>'+
+            '<div class="soreal-idle-at-nom-v1"><div class="soreal-idle-at-barre-v1"><i class="soreal-idle-at-remplissage-v1" data-at-fill></i><span class="soreal-idle-at-titre-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</span></div><div class="soreal-idle-at-detail-v1"><span data-at-bonus></span><span data-at-eta></span></div></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Level</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Energy Allocated</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
             '<label class="soreal-idle-at-col-v1 cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
@@ -3460,6 +3465,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '.soreal-idle-at-col-v1 input{width:100%;max-width:120px;box-sizing:border-box;padding:6px 8px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(0,0,0,.35);color:inherit;font:inherit;font-weight:800;text-align:center}'+
           '.soreal-idle-at-boutons-v1{display:flex;gap:8px}'+
           '.soreal-idle-at-boutons-v1 button{min-width:46px;min-height:44px;border-radius:10px;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:inherit;font-size:22px;font-weight:900;cursor:pointer}'+
+          '.soreal-idle-at-barre-v1{position:relative;overflow:hidden;min-height:44px;border-radius:12px;border:2px solid rgba(231,198,255,.7);background:linear-gradient(180deg,rgba(60,28,92,.85),rgba(34,14,56,.92));box-shadow:inset 0 2px 6px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.4)}'+
+          '.soreal-idle-at-remplissage-v1{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);background:linear-gradient(90deg,#7c3aed,#c026d3 55%,#f0abfc);box-shadow:0 0 14px rgba(192,38,211,.6);will-change:transform}'+
+          '.soreal-idle-at-remplissage-v1::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.14) 0 10px,transparent 10px 22px);mix-blend-mode:overlay}'+
+          '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1{transform:scaleX(1)!important;animation:sorealAtPulseV1 1.4s ease-in-out infinite}'+
+          '@keyframes sorealAtPulseV1{50%{filter:brightness(1.25)}}'+
+          '.soreal-idle-at-titre-v1{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:4px 10px;font-weight:900;font-size:16px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.6)}'+
+          '.soreal-idle-at-detail-v1{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;margin-top:4px;font-size:13px;font-weight:700;color:#e9d5ff;font-variant-numeric:tabular-nums}'+
           '@media(max-width:620px){.soreal-idle-at-ligne-v1{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"nom nom nom" "niv alloc cible" "btn btn btn"}.soreal-idle-at-nom-v1{grid-column:1/-1;text-align:center}.soreal-idle-at-boutons-v1{grid-column:1/-1;justify-content:center}.soreal-idle-at-boutons-v1 button{flex:1;max-width:140px}}'+
         '</style>'+
         '<div class="soreal-idle-at-v1">'+
@@ -3485,6 +3497,93 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         '</div>';
       }
       window.__SOREAL_IDLE_AT_PAGE_V2__=true;
+
+      /*
+       * Barres de l'Advanced Training, en direct (Norman, 2026-10-03). Mêmes formules que le moteur (advanceAdvancedTrainingV1) :
+       *  - travail par seconde = énergie allouée × rateParEnergie (= √Puissance × bonus équipement / (10 000 s ou 20 000 s × 1000)) ;
+       *  - passer du niveau n au suivant demande n + 1 unités de travail (coût linéaire) ; au plus 50 niveaux par seconde ; gratuit à 50 niveaux/s avec le souhait dédié ;
+       *  - bonus Power/Toughness = niveau^0,4 × 10 % ; Block = (niveau + 50) / (niveau + 100) ; Wandoos = +1 % de vitesse du dump par niveau.
+       * Le Target (niveau voulu) arrête la barre, comme le serveur retire l'énergie à ce moment.
+       */
+      function atNiveauxDepuisTravailIdleV1_(niveau,travail){
+        const L=Math.max(0,Math.floor(niveau)),W=Math.max(0,travail);
+        const a=2*L+1;
+        let k=Math.floor((2*W)/(a+Math.sqrt(a*a+8*W)));
+        const total=function(n){return n*(2*L+n+1)/2;};
+        while(k>0&&total(k)>W)k-=1;
+        while(total(k+1)<=W)k+=1;
+        return {gagnes:k,reste:Math.max(0,W-total(k))};
+      }
+      function atSimulerIdleV1_(n0,p0,dt,alloc,taux,gratuit,cible){
+        let n=n0,p=p0;
+        if(gratuit){
+          const gagnes=Math.floor(p0+50*dt);
+          n=n0+gagnes;p=(p0+50*dt)-gagnes;
+        }else if(alloc>0&&taux>0&&dt>0){
+          const travail=p0*(n0+1)+alloc*taux*dt;
+          const pas=atNiveauxDepuisTravailIdleV1_(n0,travail);
+          const gagnes=Math.min(pas.gagnes,Math.floor(50*dt)+1);
+          n=n0+gagnes;
+          p=gagnes<pas.gagnes?0:Math.min(.999999,pas.reste/(n+1));
+        }
+        if(cible>0&&n>=cible){n=Math.max(n0,cible);p=0;}
+        return {n:n,p:p};
+      }
+      function atBonusTexteIdleV1_(id,niveau){
+        const fr=function(v,d){return v.toLocaleString('fr-FR',{maximumFractionDigits:d});};
+        if(id==='power'||id==='toughness')return 'Bonus : +'+fr(Math.pow(Math.max(0,niveau),0.4)*10,2)+' %';
+        if(id==='block')return 'Réduction : '+fr((niveau+50)/(niveau+100)*100,2)+' %';
+        return 'Vitesse du dump : +'+fr(niveau,0)+' %';
+      }
+      function atTickIdleV1_(){
+        const lignes=document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]');
+        if(!lignes.length)return;
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const sys=j?systemeMetaParIdIdleV130_(j,'advancedTraining'):null;
+        const maintenant=performance.now();
+        for(let i=0;i<lignes.length;i++){
+          const el=lignes[i],id=el.getAttribute('data-at-piste'),d=el.dataset;
+          const taux=Number(d.atTaux)||0,gratuit=d.atGratuit==='1',cible=Number(d.atCible)||0;
+          const alloc=sys?atEnergieDePisteIdleV1_(sys,id):Number(d.atA)||0;
+          let n0=Number(d.atN)||0,p0=Number(d.atP)||0,t0=Number(d.atT)||maintenant;
+          /* L'énergie a changé (+ / − / Target atteint côté serveur) : on rejoue jusqu'à maintenant avec l'ancienne, puis on repart de là. */
+          if(Math.abs(alloc-(Number(d.atA)||0))>1e-9){
+            const avant=atSimulerIdleV1_(n0,p0,Math.max(0,(maintenant-t0)/1000),Number(d.atA)||0,taux,gratuit,cible);
+            n0=avant.n;p0=avant.p;t0=maintenant;
+            d.atN=String(n0);d.atP=String(p0);d.atT=String(t0);d.atA=String(alloc);
+          }
+          const etat=atSimulerIdleV1_(n0,p0,Math.max(0,(maintenant-t0)/1000),alloc,taux,gratuit,cible);
+          const niveau=(Number(d.atBase)||0)+etat.n;
+          const nivEl=document.getElementById('sorealIdleAtNiveau_'+id);
+          if(nivEl)nivEl.textContent=H.formatGrandNombreIdleV70_(niveau);
+          const barre=el.querySelector('.soreal-idle-at-barre-v1'),rempl=el.querySelector('[data-at-fill]');
+          const travailParS=gratuit?Infinity:alloc*taux;
+          const niveauxParS=gratuit?50:Math.min(50,travailParS/(etat.n+1));
+          const atteint=cible>0&&etat.n>=cible;
+          const pleine=!atteint&&niveauxParS>=49.9;
+          if(barre)barre.classList.toggle('pleine',pleine);
+          if(rempl&&!pleine)rempl.style.transform='scaleX('+(atteint?1:etat.p)+')';
+          const bonusEl=el.querySelector('[data-at-bonus]');
+          if(bonusEl)bonusEl.textContent=atBonusTexteIdleV1_(id,niveau);
+          const etaEl=el.querySelector('[data-at-eta]');
+          if(etaEl){
+            let txt;
+            if(atteint)txt='🎯 Target atteint';
+            else if(gratuit||niveauxParS>=49.9)txt='⚡ 50 niveaux par seconde (maximum)';
+            else if(!(travailParS>0))txt='Place de l’énergie pour progresser.';
+            else{
+              const reste=(1-etat.p)*((etat.n+1)/travailParS);
+              txt='Niveau suivant dans '+formatDureeAugmentIdleV1_(reste)+(niveauxParS>=1?' · '+niveauxParS.toLocaleString('fr-FR',{maximumFractionDigits:1})+' niv/s':'');
+            }
+            if(etaEl.textContent!==txt)etaEl.textContent=txt;
+          }
+        }
+      }
+      if(typeof setInterval==='function'&&!window.__SOREAL_IDLE_AT_TICK_V1__){
+        window.__SOREAL_IDLE_AT_TICK_V1__=true;
+        setInterval(atTickIdleV1_,150);
+      }
 
       function atPatchLigneIdleV1_(id,valeur){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;

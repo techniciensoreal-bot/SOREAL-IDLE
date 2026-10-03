@@ -5715,6 +5715,23 @@ function construireSnapshotNguV1(state, context, now) {
       snap.stats = idleAdventureCombatStatsV1(gear, context, idleNguBonuses(state));
       return snap;
     })(),
+    /*
+     * Advanced Training (Norman, 2026-10-03 : « il faut des barres comme dans le jeu d'origine, les calculs doivent être bons ») : de quoi animer chaque barre côté client avec LES MÊMES
+     * formules que le moteur (advanceAdvancedTrainingV1). Une compétence avance de rateParEnergie × énergie allouée unités de travail par seconde ; le niveau n (n = niveau temporaire + 1)
+     * demande n unités ; 50 niveaux par seconde au plus ; avec le souhait « I wish I was f**king done with Advanced Training forever! » (190), toutes avancent à 50 niveaux/s sans énergie.
+     */
+    advancedTrainingView: (() => {
+      const sysAt = state.systems.advancedTraining;
+      if (!sysAt?.unlocked) return null;
+      const sqrtPower = Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power")));
+      const gear = gearPctV1(gearSpecialsV1(state), "advancedTrainingPct");
+      const pistes = {};
+      for (const id of IDLE_AT_ORDRE_V1) {
+        const base = (id === "wandoosEnergy" || id === "wandoosMagic") ? 20000 : 10000;
+        pistes[id] = { baseSeconds: base, rateParEnergie: (sqrtPower * gear) / (base * 1000) };
+      }
+      return { gratuit: wishLevelV1(state, 190) >= 1, racinePuissance: sqrtPower, vitesseEquipement: gear, pistes };
+    })(),
     earlyGameTimeline: clone(IDLE_NGU_EARLY_GAME_TIMELINE),
     /*
      * Audit 2026-09-13 (Norman) : "Le menu augmentation ne possède pas de
