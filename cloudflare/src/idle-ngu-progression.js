@@ -1,3 +1,4 @@
+import { idleLoginCalendarSnapshotV1, idleLoginCalendarReclamerV1, idleLoginCalendarNormaliserV1 } from "./idle-login-calendar-v1.js";
 import {
   idleTheEndGrantV1,
   idleTheEndHasV1,
@@ -2004,10 +2005,12 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const k of Object.keys(state.records)) {
-    if (k === "newbieOffersUsed" || k === "portrait") continue;
+    if (k === "newbieOffersUsed" || k === "portrait" || k === "loginCalendar") continue;
     state.records[k] = Math.max(0, num(state.records[k], 0));
   }
   state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
+  /* Calendrier de connexion (idle-login-calendar-v1.js) : objet { mois, serie, dernierJour, totalReclames, totalAp }, jamais coercé en nombre. */
+  state.records.loginCalendar = idleLoginCalendarNormaliserV1(state.records.loginCalendar);
   /* Portrait de joueur choisi (idle-portraits-v1.js) : identifiant texte, pas un compteur. */
   state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
 
@@ -5796,6 +5799,8 @@ function construireSnapshotNguV1(state, context, now) {
     achievements: achievementsSnapshotV1(state),
     /* Écran Broken Time Machine (facteurs du GPS, barres, niveaux cibles). */
     timeMachineView: state.systems.timeMachine?.unlocked ? timeMachineViewV1(state) : null,
+    /* Calendrier de connexion (Money Pit) : seulement une fois le Money Pit découvert (idle-login-calendar-v1.js). */
+    loginCalendar: state.systems.moneyPit?.unlocked ? idleLoginCalendarSnapshotV1(state.records.loginCalendar, nowMs(now)) : null,
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
     portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0)),
     richJerks: {
@@ -7131,6 +7136,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     }
   } else if (action === "moneyPit") {
     result = tossMoneyPit(state, t);
+  } else if (action === "loginCalendar") {
+    if (!state.systems.moneyPit?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    result = idleLoginCalendarReclamerV1(state, t);
   } else if (action === "difficulty") {
     result = difficultyAction(state, payload, context, t);
   } else if (action === "buyExpShop") {
