@@ -80,7 +80,7 @@ function joueur() { return { records: {}, currencies: { ap: 0 } }; }
 
 // 4. Intégration moteur : rien avant le Money Pit (anti-spoil), puis action « loginCalendar » et vue dans le snapshot.
 {
-  const T = jourParis("2026-10-10");
+  const T = jourParis("2026-12-10");
   const etat = normalizeIdleNguState({}, { bosses: 40 }, T);
   assert.equal(idleNguSnapshot(etat, { bosses: 40 }, T).loginCalendar, null, "Money Pit pas encore découvert : aucune trace du calendrier");
   assert.throws(() => applyIdleNguAction(etat, { action: "loginCalendar" }, { bosses: 40 }, T), /SYSTEME_VERROUILLE/);

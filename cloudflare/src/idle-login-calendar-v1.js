@@ -122,7 +122,8 @@ export function idleLoginCalendarReclamerV1(state, maintenant) {
     serie,
     dernierJour: e.cleJour,
     totalReclames: Math.max(0, Math.floor(Number(avant.totalReclames) || 0)) + 1,
-    totalAp: Math.max(0, Math.floor(Number(avant.totalAp) || 0)) + ap
+    totalAp: Math.max(0, Math.floor(Number(avant.totalAp) || 0)) + ap,
+    octroi: String(avant.octroi || "")
   };
   return { ap, case: serie, serie, jours: e.jours };
 }
@@ -136,6 +137,36 @@ export function idleLoginCalendarNormaliserV1(rec) {
     serie: Math.min(31, entier(src.serie)),
     dernierJour: /^\d{4}-\d{2}-\d{2}$/.test(String(src.dernierJour || "")) ? String(src.dernierJour) : "",
     totalReclames: entier(src.totalReclames),
-    totalAp: entier(src.totalAp)
+    totalAp: entier(src.totalAp),
+    octroi: /^\d{4}-\d{2}$/.test(String(src.octroi || "")) ? String(src.octroi) : ""
   };
+}
+
+/*
+ * Octroi de lancement (Norman, 2026-10-03) : « pour la récompense d'octobre, octroie à tous les joueurs les jours 1 et 2 ; le 3e jour sera disponible pour tout le monde mais ils devront cliquer
+ * pour récupérer et valider le bonus ». Pour OCTOBRE 2026 seulement, chaque joueur qui voit le calendrier (Money Pit découvert) reçoit une seule fois les cases 1 et 2 : leurs AP sont crédités et
+ * la série passe à 2, avec la veille comme dernier jour réclamé, si bien que la case 3 est réclamable tout de suite (par un clic). Un joueur déjà plus loin ne reçoit rien ; un joueur qui avait
+ * déjà réclamé aujourd'hui garde sa journée (il ne peut pas réclamer deux fois le même jour).
+ */
+export const IDLE_LOGIN_CALENDAR_OCTROI_V1 = Object.freeze({ mois: "2026-10", cases: 2 });
+
+export function idleLoginCalendarOctroiV1(state, maintenant) {
+  const e = etatEffectifV1(state.records.loginCalendar, maintenant);
+  if (e.cleMois !== IDLE_LOGIN_CALENDAR_OCTROI_V1.mois) return 0;
+  const rec = idleLoginCalendarNormaliserV1(state.records.loginCalendar);
+  if (rec.octroi === IDLE_LOGIN_CALENDAR_OCTROI_V1.mois) return 0;
+  const cible = Math.min(e.jours, IDLE_LOGIN_CALENDAR_OCTROI_V1.cases);
+  let credit = 0;
+  if (e.serie < cible) {
+    const bareme = idleLoginCalendarBaremeV1(e.jours);
+    for (let i = e.serie; i < cible; i += 1) credit += bareme[i];
+    state.currencies.ap = Math.max(0, Number(state.currencies.ap) || 0) + credit;
+    rec.mois = e.cleMois;
+    rec.serie = cible;
+    rec.dernierJour = e.dejaAujourdhui ? e.cleJour : idleLoginCalendarCleJourV1(veilleV1(e.aujourdhui));
+    rec.totalAp += credit;
+  }
+  rec.octroi = IDLE_LOGIN_CALENDAR_OCTROI_V1.mois;
+  state.records.loginCalendar = rec;
+  return credit;
 }

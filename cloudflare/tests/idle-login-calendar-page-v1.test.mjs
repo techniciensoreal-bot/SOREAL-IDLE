@@ -28,20 +28,20 @@ const jour = (iso) => Date.parse(iso + "T12:00:00+02:00");
 
 // Money Pit pas découvert : aucune trace (anti-spoil).
 {
-  const T = jour("2026-10-10");
+  const T = jour("2026-12-10");
   const snap = idleNguSnapshot(normalizeIdleNguState({}, ctx, T), ctx, T);
   assert.equal(snap.loginCalendar, null);
 }
 
-let etat = normalizeIdleNguState({}, ctx, jour("2026-10-10"));
+let etat = normalizeIdleNguState({}, ctx, jour("2026-12-10"));
 etat.systems.moneyPit.unlocked = true;
 function pageMoneyPit(joueurSysteme) {
   return api.pageSystemeMetaIdleV130_({ systemes: joueurSysteme }, "moneyPit", "Money Pit");
 }
 {
-  const T = jour("2026-10-10");
+  const T = jour("2026-12-10");
   const html = pageMoneyPit(idleNguSnapshot(etat, ctx, T));
-  assert.match(html, /Récompenses de connexion · Octobre 2026/);
+  assert.match(html, /Récompenses de connexion · Décembre 2026/);
   assert.equal((html.match(/class="cal-case-v1 /g) || []).length, 31, "31 cases en octobre");
   assert.equal((html.match(/cal-case-v1 eteint/g) || []).length, 30, "cases grisées");
   assert.equal((html.match(/cal-case-v1 pret/g) || []).length, 1, "la case du jour est prête");
@@ -50,7 +50,7 @@ function pageMoneyPit(joueurSysteme) {
   assert.match(html, /Total du mois : <b>150000 AP/);
 }
 {
-  const T = jour("2026-10-10");
+  const T = jour("2026-12-10");
   const apres = applyIdleNguAction(etat, { action: "loginCalendar" }, ctx, T).state;
   const html = pageMoneyPit(idleNguSnapshot(apres, ctx, T));
   assert.equal((html.match(/cal-case-v1 allume/g) || []).length, 1, "une case allumée");

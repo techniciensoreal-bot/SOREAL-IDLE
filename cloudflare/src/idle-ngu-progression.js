@@ -1,4 +1,4 @@
-import { idleLoginCalendarSnapshotV1, idleLoginCalendarReclamerV1, idleLoginCalendarNormaliserV1 } from "./idle-login-calendar-v1.js";
+import { idleLoginCalendarSnapshotV1, idleLoginCalendarReclamerV1, idleLoginCalendarNormaliserV1, idleLoginCalendarOctroiV1 } from "./idle-login-calendar-v1.js";
 import {
   idleTheEndGrantV1,
   idleTheEndHasV1,
@@ -3770,6 +3770,8 @@ function castBloodSpell(state, spell, now = 0) {
 function advanceMoneyPitAndDaily(state, now) {
   const pit = state.systems.moneyPit;
   if (pit.unlocked && state.systems.dailySpin) state.systems.dailySpin.unlocked = true;
+  /* Octroi des cases 1 et 2 d'octobre 2026 (idle-login-calendar-v1.js) : seulement pour qui voit le calendrier (Money Pit découvert). */
+  if (pit.unlocked) idleLoginCalendarOctroiV1(state, nowMs(now));
   const spin = state.systems.dailySpin;
   if (spin.unlocked && !spin.data.readyAt) spin.data.readyAt = now;
 }
