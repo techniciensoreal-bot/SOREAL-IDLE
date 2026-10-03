@@ -1087,7 +1087,7 @@
         if(gold<100000){
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (100 000 Or requis, '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+' actuel)</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
+        return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
       }
 
       function rendreBoutonDailySpinIdleV203_(st){
@@ -1098,7 +1098,7 @@
           demarrerMinuteurRechargeIdleV1_();
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="spin" data-fin="'+readyAt+'">'+libelleRechargeDailySpinIdleV1_(restantS)+'</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Fais-moi tourner, bébé !</button>';
+        return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Fais-moi tourner, bébé !</button>';
       }
 
       function rendreSystemeMetaIdleV130_(
@@ -2157,6 +2157,28 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * changements »). Ils n'étaient écrits qu'au dessin de la page : meilleur Or, meilleur boss, niveaux, GPS restaient figés jusqu'à un changement de menu. Un facteur qui apparaît ou disparaît
        * (passe de « sans effet » à actif) change la liste affichée : on redessine alors la page une fois.
        */
+      /*
+       * Barre d'Or de la machine (Norman, 2026-10-03 : « la Time Machine a une barre supplémentaire dans NGU IDLE, celle du bas de la capture : c'est elle qui tique 1 fois par seconde de base »).
+       * Wiki « Broken Time Machine » : « Machine Speed: speed up how fast the bar fills » ; 1 remplissage par seconde au niveau 0, +1 par niveau jusqu'à 50 (« 1 fill per tick »). Chaque
+       * remplissage rapporte « Gold per Bar Fill ». Animation purement CSS, calée sur l'heure du SERVEUR (même phase pour tout le monde, aucun saut au redessin) ; à partir de 16
+       * remplissages par seconde l'œil ne distingue plus les cycles : la barre reste pleine et scintille.
+       */
+      function legendeBarreOrTimeMachineIdleV1_(vue){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const n=Math.max(1,H.idleNombre_(vue.barFillsPerSecond)||1);
+        return '💰 +'+H.formatGrandNombreIdleV70_(H.idleNombre_(vue.goldPerBarFill))+' Or à chaque remplissage · '+(n<=1?'1 remplissage par seconde':H.formatGrandNombreIdleV70_(n)+' remplissages par seconde');
+      }
+
+      function styleBarreOrTimeMachineIdleV1_(fills){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const n=Math.max(1,Math.min(50,H.idleNombre_(fills)||1));
+        const periode=1/n;
+        if(periode<1/16)return {classe:'rapide',style:''};
+        const maintenant=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
+        const phase=(maintenant/1000)%periode;
+        return {classe:'',style:'animation-duration:'+periode.toFixed(4)+'s;animation-delay:-'+phase.toFixed(4)+'s'};
+      }
+
       function patcherChiffresTimeMachineIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const vue=j&&j.systemes&&j.systemes.timeMachineView;
@@ -2175,6 +2197,18 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const texte=SPEC[cle](vue[cle]);
           if(el.textContent!==texte)el.textContent=texte;
         });
+        const barreOr=document.querySelector('[data-tm-or-remplissage]');
+        if(barreOr){
+          const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);
+          const cle=String(H.idleNombre_(vue.barFillsPerSecond));
+          if(barreOr.getAttribute('data-fills')!==cle){
+            barreOr.setAttribute('data-fills',cle);
+            barreOr.className='soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'');
+            barreOr.setAttribute('style',b.style);
+          }
+          const leg=document.querySelector('[data-tm-or-legende]');
+          if(leg){const t=legendeBarreOrTimeMachineIdleV1_(vue);if(leg.textContent!==t)leg.textContent=t;}
+        }
         const s=systemeMetaParIdIdleV130_(j,'timeMachine');
         const data=(s&&s.state&&s.state.data)||{};
         [['vitesse',data.speedLevel],['or',data.goldLevel]].forEach(function(x){
@@ -2281,6 +2315,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '</div>'+
             '<div class="soreal-idle-note-v4" style="margin:6px 0 2px">Les « remplissages de barre » sont ceux de la barre d’Or de la machine (elle produit l’Or). Les barres ci-dessus, elles, donnent le temps qu’il faut pour GAGNER un niveau.</div>'+
             '<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>'+
+            (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
           '</section>'+
         '</div>';
       }
@@ -2798,7 +2833,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         }).join('');
         let bouton;
         if(cal.reclamable){
-          bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'loginCalendar\'})">🎁 Récupérer la récompense du jour : +'+H.idleHtml_(H.formatGrandNombreIdleV70_(cal.prochainAp))+' AP</button>';
+          bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1 glow-dispo-v1" onclick="window.__actionMetaIdleV130__({action:\'loginCalendar\'})">🎁 Récupérer la récompense du jour : +'+H.idleHtml_(H.formatGrandNombreIdleV70_(cal.prochainAp))+' AP</button>';
         }else if(serie>=jours){
           bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1" disabled>👑 Plateau complet ! Un nouveau plateau commence le 1er du mois prochain.</button>';
         }else{

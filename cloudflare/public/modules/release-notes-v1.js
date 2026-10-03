@@ -2,7 +2,7 @@
  * Notes de mise à jour de SOREAL IDLE (Norman, 2026-09-25 ; refonte 2026-10-02).
  *
  * UNE entrée PAR JOUR, qui reprend tout ce qui a été fait ce jour-là. Numérotation : le premier jour (2026-09-23) vaut 1.0, puis +0.1 par jour
- * (1.1, 1.2, … 1.9, puis 2.0…). La plus récente est EN TÊTE de `versions`.
+ * (1.1, 1.2, … 1.9, 2.0…). La plus récente est EN TÊTE de `versions`.
  *
  * RÈGLE (Norman, 2026-10-02) : on ne touche PAS au numéro de Beta ni aux notes à chaque publication. C’est Norman qui dit quand mettre à jour :
  * alors seulement, ajouter (ou compléter) l’entrée du jour et mettre `courante` à jour. Texte destiné aux joueurs : AUCUN spoil (ne jamais nommer un
@@ -11,8 +11,24 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'1.9',
+    courante:'2.0',
     versions:[
+      {
+        version:'2.0',
+        nom:'Des chronos exacts, des combats plus vivants',
+        date:'2026-10-03',
+        points:[
+          'Le serveur répond environ dix fois plus vite à chaque synchro (de 1 à 4 secondes avant, bien moins d’une demi-seconde maintenant) : il recalcule beaucoup moins de choses à chaque appel.',
+          'Tous les chronos sont calés sur l’heure du serveur, plus sur celle de ton téléphone : barres et comptes à rebours restent exacts, ne se figent plus après une synchro, ne reculent plus quand la page se redessine, et le jeu se resynchronise dès que tu reviens sur l’onglet.',
+          'Fight Boss : les images s’animent pendant le combat (élans, secousses, halo rouge), d’autant plus fort que la vie d’un des deux combattants baisse. Barres de vie refaites avec dégradés, reflets et alertes. Le bouton Fight reste grisé tant que le serveur n’a pas validé le combat. Plus de boss sauté ni de retour en arrière après une victoire. En Aventure, la barre de l’ennemi est rouge.',
+          'Tes PV max suivent tes niveaux d’Augmentations sans attendre un Fight. L’Or d’un niveau gagné est retiré tout de suite du compteur du haut de page, qui reste le seul compteur d’Or de la page.',
+          'Basic Training : la compétence suivante apparaît en grisé avec son seul prérequis, et la case Synchro garde son état après un Rebirth.',
+          'Inventaire : le tri classe aussi les boosts par numéro croissant dans leur catégorie, et place côte à côte les objets de même nom.',
+          'Le bandeau « En direct » annonce l’article acheté par les autres joueurs et la durée du run lors d’un Rebirth ; les longs messages du chat y passent en entier. Le chat reste collé aux derniers messages.',
+          'Des récompenses de connexion mensuelles apparaissent dans un menu une fois découvert : une case par jour du mois, qui s’allument une à une. Plus tu enchaînes les jours, plus c’est généreux ; rater un jour te ramène à la première case. Les jours 1 et 2 d’octobre sont offerts à tous.',
+          'Les boutons prêts à servir brillent de façon bien visible (dans le menu comme dans la page), un nouveau son de clochettes de vieux magasin accueille dans la boutique, et la machine à Or gagne sa barre qui se remplit au rythme de ses remplissages par seconde ; ses chiffres se mettent à jour en direct.'
+        ]
+      },
       {
         version:'1.9',
         nom:'Plus léger, plus vivant, plus sonore',

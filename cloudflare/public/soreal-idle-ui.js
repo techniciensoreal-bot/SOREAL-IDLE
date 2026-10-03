@@ -3448,6 +3448,7 @@
         }
 
         actualiserAmbianceCombatIdleV1_();
+        actualiserDisponibiliteMoneyPitNavIdleV1_();
 
         const aFight=
           aventureMetaIdleV47_(idleEtat);
@@ -11300,7 +11301,52 @@
         }catch(e){}
       }
 
+      /*
+       * Disponibilité dans le menu Money Pit (Norman, 2026-10-03 : « quand le Money Pit, la roue ou le bonus AP est disponible, le bouton doit glow de manière visible »). Renvoie
+       * 'pit' (vert), 'roue' (jaune), 'calendrier' (orange) ou null ; priorité dans cet ordre. Heure du serveur pour les échéances.
+       */
+      function idleDisponibiliteMoneyPitV1_(j){
+        const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
+        if(!(pit&&pit.unlock&&pit.unlock.unlocked))return null;
+        const gold=idleNombre_(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.gold);
+        const pitData=pit.state&&pit.state.data||null;
+        if(pitData&&gold>=100000&&heureServeurIdleV1_()>=Number(pitData.nextAt||0))return 'pit';
+        const roue=systemeMetaParIdIdleV130_(j,'dailySpin');
+        const roueData=roue&&roue.state&&roue.state.data||null;
+        if(roue&&roue.unlock&&roue.unlock.unlocked&&roueData&&heureServeurIdleV1_()>=Number(roueData.readyAt||0))return 'roue';
+        const cal=j&&j.systemes&&j.systemes.loginCalendar;
+        if(cal&&cal.reclamable)return 'calendrier';
+        return null;
+      }
+      const IDLE_DISPO_MONEY_PIT_V1={pit:{couleur:'#2ecc71',classe:'soreal-idle-nav-money-green-v1'},roue:{couleur:'#f1c40f',classe:'soreal-idle-nav-money-yellow-v1'},calendrier:{couleur:'#ff9f1a',classe:'soreal-idle-nav-money-orange-v1'}};
+
+      /* Pose / retire la lueur sur le bouton du menu sans attendre un redessin (une échéance peut tomber à tout moment). */
+      let idleDispoMoneyPitDerniereV1='?';
+      let idleDispoMoneyPitVerifieV1=0;
+      function actualiserDisponibiliteMoneyPitNavIdleV1_(){
+        if(!idleEtat)return;
+        /* Une vérification par minute suffit (Norman, 2026-10-03 : « chaque seconde, ça va alourdir le site ») : une échéance n'a pas besoin d'être détectée à la seconde près. */
+        const maintenantVerif=Date.now();
+        if(maintenantVerif-idleDispoMoneyPitVerifieV1<60000)return;
+        idleDispoMoneyPitVerifieV1=maintenantVerif;
+        const dispo=idleDisponibiliteMoneyPitV1_(idleEtat)||'';
+        if(dispo===idleDispoMoneyPitDerniereV1)return;
+        const bouton=document.querySelector('.soreal-idle-nav-button-v28[data-menu-id-v1="moneyPit"]');
+        if(!bouton)return;
+        idleDispoMoneyPitDerniereV1=dispo;
+        Object.keys(IDLE_DISPO_MONEY_PIT_V1).forEach(function(k){bouton.classList.remove(IDLE_DISPO_MONEY_PIT_V1[k].classe);});
+        bouton.classList.remove('soreal-idle-nav-dispo-v1');
+        if(dispo){
+          bouton.classList.add(IDLE_DISPO_MONEY_PIT_V1[dispo].classe,'soreal-idle-nav-dispo-v1');
+          bouton.style.setProperty('--nav-color',IDLE_DISPO_MONEY_PIT_V1[dispo].couleur);
+        }else{
+          bouton.style.setProperty('--nav-color',IDLE_NAV_COULEURS_V1.moneyPit||'#9aa5bb');
+        }
+      }
+
       function idleCouleurMoneyPitNavV1_(j){
+        const dispoNav=idleDisponibiliteMoneyPitV1_(j);
+        if(dispoNav==='calendrier')return IDLE_DISPO_MONEY_PIT_V1.calendrier.couleur;
         const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
         const pitData=pit&&pit.state&&pit.state.data||null;
         const gold=idleNombre_(
@@ -11395,9 +11441,11 @@
               const classeAlerteAventure=
                 m.id==='aventure'&&idleAdventureKoAlertV1&&idleMenuActifV28!=='aventure'
                   ?' soreal-idle-nav-adventure-ko-v1':'';
+              const dispoMoneyPit=m.id==='moneyPit'?idleDisponibiliteMoneyPitV1_(j):null;
+              if(m.id==='moneyPit')idleDispoMoneyPitDerniereV1=dispoMoneyPit||'';
               const classeMoneyPit=
-                m.id==='moneyPit'&&couleurDisponibilite
-                  ?(couleurDisponibilite==='#f1c40f'?' soreal-idle-nav-money-yellow-v1':' soreal-idle-nav-money-green-v1')
+                dispoMoneyPit
+                  ?' '+IDLE_DISPO_MONEY_PIT_V1[dispoMoneyPit].classe+' soreal-idle-nav-dispo-v1'
                   :'';
               /* Yggdrasil Harvest Light (Sellout Shop) : même lueur verte que le Money Pit quand un fruit est prêt (serveur : yggExtra.harvestLight.lit). */
               const yggExtraNav=j&&j.systemes&&j.systemes.yggExtra;
