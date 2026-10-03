@@ -200,6 +200,7 @@
         };
       }
       let idleEtat=null;
+      const idleRepereVisuelsV1_={};
       /* Lecture seule de l'état courant pour les modules (panneau Détail Attack/Defense, modules/stats-detail-v1.js). */
       window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};
 
@@ -2553,6 +2554,15 @@
         }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-39 */
+        /*
+         * Norman (2026-10-03) : « le compteur de Blood Magic s'arrête (27 s) alors que la barre avance. TOUS LES COMPTEURS doivent être très précis. » Chaque synchro remplace l'état
+         * (idleEtat=joueurServeur) : les repères visuels posés au dernier rendu (barres et comptes à rebours) disparaissaient, le texte n'était plus rafraîchi alors que la barre,
+         * animée par le navigateur, continuait. On les reporte sur le nouvel état tant que la page ne les a pas redessinés (même horloge, donc aucun saut).
+         */
+        ['__augmentationsVisualV215','__bloodMagicVisualV1'].forEach(function(cle){
+          if(idleEtat[cle]===undefined){if(idleRepereVisuelsV1_[cle]!==undefined)idleEtat[cle]=idleRepereVisuelsV1_[cle];}
+          else idleRepereVisuelsV1_[cle]=idleEtat[cle];
+        });
         const augVisual=idleEtat.__augmentationsVisualV215;
         if(augVisual&&PAGE_ACTIVE==='idle'){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
