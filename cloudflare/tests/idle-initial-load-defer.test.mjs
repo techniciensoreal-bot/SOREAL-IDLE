@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 
 const headEnd = html.indexOf("</head>");
-const cssPos = html.indexOf('<link rel="stylesheet" href="/soreal-idle-ui.css?v=37">');
+const cssPos = html.indexOf('<link rel="stylesheet" href="/soreal-idle-ui.css?v=38">');
 assert.ok(cssPos > 0 && cssPos < headEnd, "main CSS must be discovered in <head>");
 assert.equal(
   html.match(/<link rel="stylesheet" href="\/soreal-idle-ui\.css\?v=37">/g)?.length,

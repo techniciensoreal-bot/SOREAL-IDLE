@@ -19809,8 +19809,8 @@ function pageAventureIdleV28_(j){
             '<img src="'+idleHtml_(urlImageCubeInfiniAdventureIdleV1_(palier))+'" alt="Infinity Cube Tier '+palier+'" style="width:92px;height:92px;object-fit:contain">'+
           '</div>'+
           '<div class="soreal-idle-v138-details-stats">'+
-            '<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>'+formatGrandNombreIdleV70_(cube.power||0)+'</b></div>'+
-            '<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>'+formatGrandNombreIdleV70_(cube.toughness||0)+'</b></div>'+
+            '<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">Puissance</span><b>'+formatGrandNombreIdleV70_(cube.power||0)+'</b></div>'+
+            '<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Endurance</span><b>'+formatGrandNombreIdleV70_(cube.toughness||0)+'</b></div>'+
             '<div class="soreal-idle-v138-details-stat"><span>Total stats</span><b>'+formatGrandNombreIdleV70_(total)+'</b></div>'+
             (suivant
               ?'<div class="soreal-idle-v138-details-stat"><span>Prochain tier</span><b>'+formatGrandNombreIdleV70_(suivant.seuil||0)+'</b></div>'
@@ -20005,28 +20005,28 @@ function pageAventureIdleV28_(j){
          */
         return '<div class="soreal-idle-v138-details-stats">'+
             (basePower>0
-              ?'<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">Puissance</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.power))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxPower)+
               '</b></div>'
               :''
             )+
             (baseHp>0
-              ?'<div class="soreal-idle-v138-details-stat"><span>PV Max</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">PV Max</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxHp)+
               '</b></div>'
               :''
             )+
             (baseToughness>0
-              ?'<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Endurance</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxToughness)+
               '</b></div>'
               :''
             )+
             (baseRegen>0
-              ?'<div class="soreal-idle-v138-details-stat"><span>Regen PV</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Regen PV</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(regenMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemRegen,2)+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxRegen,2)+
               '</b></div>'
@@ -20037,7 +20037,7 @@ function pageAventureIdleV28_(j){
               if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
                 return item.specialsAll.map(function(sv){
                   const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
-                  return '<div class="soreal-idle-v138-details-stat"><span>Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
+                  return '<div class="soreal-idle-v138-details-stat"><span class="sb-special-v1">Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
                     '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
                     ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
                   '</b></div>';
@@ -20049,7 +20049,7 @@ function pageAventureIdleV28_(j){
               const maxSpecial=baseSpecial*q;
               const specialMaxAtteint=idleNombre_(item.special)+1e-9>=maxSpecial;
               const label=idleLabelSpecialBonusV1_(item.specialType);
-              return '<div class="soreal-idle-v138-details-stat"><span>Special Bonus: '+idleHtml_(label)+'</span><b>'+
+              return '<div class="soreal-idle-v138-details-stat"><span class="sb-special-v1">Special Bonus: '+idleHtml_(label)+'</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(specialMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.special))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxSpecial)+
               '</b></div>';
@@ -20391,10 +20391,10 @@ function pageAventureIdleV28_(j){
         const specials=stats.specials||{};
 
         const lignes=
-          (power>0?'<div class="soreal-idle-v138-details-stat"><span>Puissance</span><b>+'+formatGrandNombreIdleV70_(power)+'</b></div>':'')+
-          (toughness>0?'<div class="soreal-idle-v138-details-stat"><span>Endurance</span><b>+'+formatGrandNombreIdleV70_(toughness)+'</b></div>':'')+
-          (hp>0?'<div class="soreal-idle-v138-details-stat"><span>PV Max</span><b>+'+formatGrandNombreIdleV70_(hp)+'</b></div>':'')+
-          (regen>0?'<div class="soreal-idle-v138-details-stat"><span>Regen PV/s</span><b>+'+formatGrandNombreIdleV70_(regen,2)+'</b></div>':'');
+          (power>0?'<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">Puissance</span><b>+'+formatGrandNombreIdleV70_(power)+'</b></div>':'')+
+          (toughness>0?'<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Endurance</span><b>+'+formatGrandNombreIdleV70_(toughness)+'</b></div>':'')+
+          (hp>0?'<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">PV Max</span><b>+'+formatGrandNombreIdleV70_(hp)+'</b></div>':'')+
+          (regen>0?'<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Regen PV/s</span><b>+'+formatGrandNombreIdleV70_(regen,2)+'</b></div>':'');
 
         const specialLignes=IDLE_SPECIAL_BONUS_TYPES_V1_
           .map(function(e){

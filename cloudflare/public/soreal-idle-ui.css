@@ -6165,3 +6165,9 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:8px;padding:0 3px;left:2px;top:2px;border-radius:5px}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{width:11px;height:11px;font-size:8px;top:2px;right:2px}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 .idle-emoji-fallback-v1{font-size:26px!important}
+
+/* Intitulés des statistiques d'un objet, à la couleur du boost qui les remplit (Norman, 2026-10-03 ; wiki NGU « Boost » : Power = orange et ajoute aussi à PV Max, Toughness = bleu et ajoute aussi à Regen PV,
+ * Specials = jaune). Seuls les INTITULÉS sont colorés, jamais les chiffres. */
+.soreal-idle-v138-details-stat span.sb-power-v1{color:#ff9d2f}
+.soreal-idle-v138-details-stat span.sb-toughness-v1{color:#4da3ff}
+.soreal-idle-v138-details-stat span.sb-special-v1{color:#ffd84a}
