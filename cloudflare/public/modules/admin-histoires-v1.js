@@ -593,7 +593,11 @@ function appliquerPrononciations_(texte,liste){
 }
 
 function synthetiser_(texte,parleur){
-  texte=appliquerPrononciations_(texte,lirePrononciations_());
+  return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur);
+}
+
+/* Envoie le texte TEL QUEL au studio (aucune correction de prononciation) : sert à tester une prononciation, qui est déjà écrite comme on la dit. */
+function synthetiserBrut_(texte,parleur){
   return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte,voix:voixStudio_(parleur)})})
     .then(function(r){
       if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
@@ -843,7 +847,9 @@ window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__={
   purgerVoix:purgerVoix_,
   appliquerPrononciations:appliquerPrononciations_,
   /* Génération de voix réutilisée par l'éditeur de textes (modules/textes-admin-v1.js) : même studio, mêmes corrections de prononciation, même téléversement R2. */
-  outilsVoix:{synthetiser:synthetiser_,televerser:televerserVoix_},
+  outilsVoix:{synthetiser:synthetiser_,synthetiserBrut:synthetiserBrut_,televerser:televerserVoix_,
+    /* Corrections de prononciation partagées avec l'éditeur de textes (Norman, 2026-10-03 : « pouvoir changer la prononciation des mots pour chaque écran de texte »). */
+    lirePrononciations:lirePrononciations_,ecrirePrononciations:ecrirePrononciations_,appliquerPrononciations:appliquerPrononciations_},
   /* Outils de test. */
   urlImage:urlImage_,
   nouvelId:nouvelId_,

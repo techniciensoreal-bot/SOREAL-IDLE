@@ -260,6 +260,99 @@ function blocsDeLecture_(valeurs){
   return blocs;
 }
 
+/*
+ * Corrections de prononciation dans chaque écran de texte (Norman, 2026-10-03 : « je dois pouvoir changer la prononciation des mots pour chaque écran de texte ; par exemple Alien Vert Dégoûtant,
+ * il dit « Ali un » au lieu de « Alienne » »). Même liste que l'éditeur d'histoires (gardée sur ce PC, modules/admin-histoires-v1.js) : une correction vaut pour TOUS les textes. Le remplacement se
+ * fait seulement à l'envoi au studio ; le texte affiché et l'empreinte des blocs ne changent pas, donc les blocs concernés sont marqués « à refaire » : « Générer les voix » les régénère.
+ */
+function pronOutils_(){
+  var o=outilsVoix_();
+  return o&&typeof o.lirePrononciations==='function'?o:null;
+}
+
+function prononciationsHtml_(){
+  var o=pronOutils_();
+  if(!o)return '';
+  var liste=o.lirePrononciations();
+  return '<label>🗣 Prononciation <span style="text-transform:none;letter-spacing:0;font-weight:400">(corriger un mot mal lu — vaut pour tous les textes)</span></label>'+
+    '<div class="stx-aide">Écris le mot tel qu’il est dans le texte, et comment il doit se dire, écrit comme on le prononce (ex. <b>Alien</b> → <b>Alienne</b>). Le texte affiché ne change pas ; ensuite, clique sur « Générer les voix » : les blocs concernés sont refaits.</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">'+
+      '<input type="text" id="sorealIdleTextePronMotV1" placeholder="Mot (ex. Alien)" style="flex:1;min-width:110px">'+
+      '<input type="text" id="sorealIdleTextePronDitV1" placeholder="Se prononce (ex. Alienne)" style="flex:1;min-width:130px">'+
+      '<button type="button" class="primaire" data-stx-act="pron-ajouter">＋ Ajouter</button>'+
+      '<button type="button" data-stx-act="pron-tester" title="Écouter la prononciation saisie, avec le studio">▶ Tester</button>'+
+    '</div>'+
+    (liste.length?liste.map(function(c,k){
+      return '<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="flex:1"><b>'+esc_(c.mot)+'</b> → '+esc_(c.dit)+'</span>'+
+        '<button type="button" data-stx-pron="tester" data-k="'+k+'">▶</button>'+
+        '<button type="button" class="danger" data-stx-pron="suppr" data-k="'+k+'">🗑</button></div>';
+    }).join(''):'<div class="stx-aide" style="margin-top:6px">Aucune correction pour l’instant.</div>');
+}
+
+function rafraichirPrononciations_(){
+  var el=document.getElementById('sorealIdleTextePronBlocV1');
+  if(el)el.innerHTML=prononciationsHtml_();
+}
+
+/* Marque « à refaire » les blocs de ce texte où le mot corrigé apparaît ; renvoie leur nombre. */
+function marquerBlocsConcernes_(mot,dit){
+  var o=pronOutils_();
+  if(!o||!edition)return 0;
+  var n=0;
+  if(!edition.aRefaire)edition.aRefaire={};
+  blocsDeLecture_(lireChamps_()).forEach(function(b){
+    if(o.appliquerPrononciations(b.texte,[{mot:mot,dit:dit}])!==String(b.texte||'')){edition.aRefaire[b.hash]=true;n+=1;}
+  });
+  return n;
+}
+
+function ajouterPrononciation_(){
+  var o=pronOutils_();
+  if(!o){afficherEtat_('Outils de prononciation indisponibles (module Admin non chargé).',true);return;}
+  var mot=String((document.getElementById('sorealIdleTextePronMotV1')||{}).value||'').trim();
+  var dit=String((document.getElementById('sorealIdleTextePronDitV1')||{}).value||'').trim();
+  if(!mot||!dit){afficherEtat_('Remplis le mot et sa prononciation.',true);return;}
+  var liste=o.lirePrononciations().filter(function(c){return c.mot.toLowerCase()!==mot.toLowerCase();});
+  liste.push({mot:mot,dit:dit});
+  o.ecrirePrononciations(liste);
+  var n=marquerBlocsConcernes_(mot,dit);
+  rafraichirPrononciations_();
+  afficherEtat_('✔ « '+mot+' » se lira « '+dit+' ».'+(n?' '+n+' bloc'+(n>1?'s':'')+' de ce texte concerné'+(n>1?'s':'')+' : clique sur « 🎙 Générer les voix » pour '+(n>1?'les':'le')+' refaire.':' Ce mot n’apparaît pas dans ce texte (la correction servira aux autres).'));
+}
+
+function supprimerPrononciation_(k){
+  var o=pronOutils_();
+  if(!o)return;
+  var liste=o.lirePrononciations();
+  var c=liste[k];
+  if(!c)return;
+  liste.splice(k,1);
+  o.ecrirePrononciations(liste);
+  var n=marquerBlocsConcernes_(c.mot,c.dit);
+  rafraichirPrononciations_();
+  afficherEtat_('Correction supprimée.'+(n?' '+n+' bloc'+(n>1?'s':'')+' à refaire : « 🎙 Générer les voix ».':''));
+}
+
+/* Écoute directe de la prononciation saisie (sans rien téléverser) : le texte est déjà écrit comme on le dit, aucune seconde correction. */
+var essaiPron={audio:null};
+function essayerPrononciation_(dit){
+  var o=outilsVoix_();
+  dit=String(dit||'').trim();
+  if(!o||typeof o.synthetiserBrut!=='function'){afficherEtat_('Outils de voix indisponibles.',true);return;}
+  if(!dit){afficherEtat_('Écris d’abord comment le mot se prononce.',true);return;}
+  afficherEtat_('Essai de prononciation : « '+dit+' »…');
+  o.synthetiserBrut(dit,'homme').then(function(blob){
+    try{if(essaiPron.audio)essaiPron.audio.pause();}catch(_e){}
+    var url=URL.createObjectURL(blob);
+    essaiPron.audio=new Audio(url);
+    essaiPron.audio.onended=function(){URL.revokeObjectURL(url);};
+    essaiPron.audio.play();
+    afficherEtat_('');
+  }).catch(function(e){afficherEtat_('Essai impossible : '+(e&&e.message?e.message:e),true);});
+}
+
+function lirePrononciationsListe_(){var o=pronOutils_();return o?o.lirePrononciations():[];}
+
 function statutVoix_(){
   var blocs=blocsDeLecture_(lireChamps_());
   var prets=blocs.filter(function(b){return edition.voix.indexOf(b.hash)!==-1;}).length;
@@ -293,6 +386,7 @@ function dessinerEditeur_(){
       '<label>Voix (clique dans un texte, puis choisis une voix)</label>'+
       '<div class="stx-palette">'+palette+'</div>'+
       '<div class="stx-aide">Écris par exemple : <b>(narrateur)</b> Il entre. <b>(marius)</b> Salut mon ami ! <b>(femme)</b> Bonjour. Ce qui suit une balise est lu par cette voix, jusqu’à la balise suivante. Les balises ne s’affichent jamais à l’écran.</div>'+
+      '<div id="sorealIdleTextePronBlocV1">'+prononciationsHtml_()+'</div>'+
       '<div class="stx-actions">'+
         '<button type="button" data-stx-act="ecouter" id="sorealIdleTexteEcouterV1">▶ Écouter</button>'+
         '<button type="button" data-stx-act="generer" id="sorealIdleTexteGenererV1">🎙 Générer les voix</button>'+
@@ -443,7 +537,8 @@ function generer_(){
   var blocs=blocsDeLecture_(valeurs);
   if(!blocs.length){afficherEtat_('Aucun texte à lire.',true);return;}
   var toutes=Boolean((document.getElementById('sorealIdleTexteToutesV1')||{}).checked);
-  var aFaire=blocs.filter(function(b){return toutes||edition.voix.indexOf(b.hash)===-1;});
+  /* Blocs dont une correction de prononciation vient de changer : refaits même si une voix existe déjà. */
+  var aFaire=blocs.filter(function(b){return toutes||edition.voix.indexOf(b.hash)===-1||(edition.aRefaire&&edition.aRefaire[b.hash]);});
   if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
   generation={enCours:true,annule:false};
   majBoutonGenerer_();
@@ -455,6 +550,7 @@ function generer_(){
       afficherEtat_('🎙 Génération des voix : '+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…');
       return o.synthetiser(b.texte,b.parleur).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
         if(edition.voix.indexOf(b.hash)===-1)edition.voix.push(b.hash);
+        if(edition.aRefaire)delete edition.aRefaire[b.hash];
         fait+=1;
       });
     });
@@ -482,7 +578,7 @@ function ouvrir_(cle,def,surcharge,originaux){
     var s=surcharge&&surcharge.champs?surcharge.champs[c.id]:undefined;
     courant[c.id]=s!==undefined?s:(originaux?originaux[c.id]:'');
   });
-  edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null};
+  edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{}};
   dessinerEditeur_();
   verifierStudio_();
 }
@@ -623,6 +719,13 @@ document.addEventListener('click',function(ev){
   if(racine&&edition&&racine.contains(ev.target)){
     var v=ev.target.closest('[data-stx-voix]');
     if(v){inserer_(v.getAttribute('data-stx-voix'));return;}
+    var pr=ev.target.closest('[data-stx-pron]');
+    if(pr){
+      var listePr=lirePrononciationsListe_();
+      var kPr=Number(pr.getAttribute('data-k'));
+      if(pr.getAttribute('data-stx-pron')==='tester'){if(listePr[kPr])essayerPrononciation_(listePr[kPr].dit);return;}
+      if(pr.getAttribute('data-stx-pron')==='suppr'&&listePr[kPr]){supprimerPrononciation_(kPr);return;}
+    }
     var a=ev.target.closest('[data-stx-act]');
     if(a){
       var act=a.getAttribute('data-stx-act');
@@ -637,6 +740,8 @@ document.addEventListener('click',function(ev){
       }
       if(act==='enregistrer'){arreterEcoute_();enregistrer_();return;}
       if(act==='retablir'){retablir_();return;}
+      if(act==='pron-ajouter'){ajouterPrononciation_();return;}
+      if(act==='pron-tester'){essayerPrononciation_((document.getElementById('sorealIdleTextePronDitV1')||{}).value);return;}
     }
     return;
   }
