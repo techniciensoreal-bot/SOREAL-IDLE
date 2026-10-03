@@ -13,7 +13,8 @@ const fin = ui.indexOf("Special Bonus: ", debut);
 assert.ok(fin !== -1 && fin > debut, "la fin du bloc (bonus spéciaux) a bien été trouvée");
 const bloc = ui.slice(debut, fin);
 
-const ordre = ["<span>Puissance</span>", "<span>PV Max</span>", "<span>Endurance</span>", "<span>Regen PV</span>"];
+/* Intitulés colorés à la couleur de leur boost (Norman, 2026-10-03). */
+const ordre = ["<span class=\"sb-power-v1\">Puissance</span>", "<span class=\"sb-power-v1\">PV Max</span>", "<span class=\"sb-toughness-v1\">Endurance</span>", "<span class=\"sb-toughness-v1\">Regen PV</span>"];
 let curseur = -1;
 for (const label of ordre) {
   const position = bloc.indexOf(label);
