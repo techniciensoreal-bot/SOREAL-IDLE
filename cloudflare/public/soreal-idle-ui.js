@@ -2610,6 +2610,19 @@
               const manqueOr=orLive+1e-9<idleNombre_(x[4]);
               const attenteOr=Boolean(x[3]||pleineAug)&&manqueOr;
               const attenteServeur=Boolean(x[3]||pleineAug)&&!manqueOr&&seconds>0;
+              /*
+               * Ponction d'Or INSTANTANÉE (Norman, 2026-10-03 : « à chaque nouveau level, la ponction d'or doit être visible tout de suite sur le compteur en haut de page »). Dès que la barre arrive au
+               * bout avec assez d'Or, le niveau est gagné : on retire son coût de l'Or affiché maintenant, une seule fois par niveau ; la synchro qui suit remet le chiffre exact du serveur.
+               */
+              if(attenteServeur&&!d['debite_'+x[0]]){
+                d['debite_'+x[0]]=true;
+                const coutNiveau=idleNombre_(x[4]);
+                const monnaiesLocales=idleEtat.systemes&&idleEtat.systemes.currencies;
+                if(coutNiveau>0&&monnaiesLocales){
+                  monnaiesLocales.gold=Math.max(0,idleNombre_(monnaiesLocales.gold)-coutNiveau);
+                  patcherResumeStatsIdleV28_(idleEtat);
+                }
+              }
               if(attenteServeur&&Date.now()-idleAugSyncV1>3000){
                 idleAugSyncV1=Date.now();
                 synchroniserJeuIdleV7_(true);

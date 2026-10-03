@@ -18,3 +18,11 @@ assert.ok(runtime.includes("const pvJoueurMaxEtatV1 ="));
 assert.ok(runtime.includes("pvJoueurMax: pvJoueurMaxEtatV1,"));
 assert.ok(runtime.includes("Math.max(1000, Math.round(Number(combatPrincipalEtat.pvMax)))"));
 console.log("idle-boss-saute-et-pv-max-live-v1 OK");
+
+// Augmentations : une seule jauge d'Or (celle du haut de page) ; la ponction d'un niveau y est visible aussitôt.
+{
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(!meta.includes("🪙 Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)"), "plus de second compteur d'Or dans la page Augmentations");
+  assert.ok(ui.includes("if(attenteServeur&&!d['debite_'+x[0]]){") && ui.includes("patcherResumeStatsIdleV28_(idleEtat);"), "ponction d'Or locale, une seule fois par niveau, compteur du haut mis à jour");
+}
+console.log("idle-augmentations-or-instantane OK");
