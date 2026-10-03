@@ -88,6 +88,16 @@ function addBoost(s, type, strength, level = 0) {
   assert.deepEqual(idsReels, idsAttendus, "ordre exact demandé par Norman, quel que soit l'ordre d'ajout");
 }
 
+// --- 3 bis. Boosts triés par numéro croissant DANS leur catégorie (Norman, 2026-10-03) : Power 1, 2, 5… puis Toughness 1, 2… puis Special. ---
+{
+  const s = adv();
+  s.inventory = [];
+  const b = [["special", 2], ["power", 5], ["toughness", 1], ["power", 1], ["special", 1], ["power", 2], ["toughness", 5]].map(([t, n]) => addBoost(s, t, n));
+  applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  const reel = s.inventorySlots.filter(Boolean).map((id) => { const o = s.inventory.find((x) => x.id === id); return o.boostType + o.strength; });
+  assert.deepEqual(reel, ["power1", "power2", "power5", "toughness1", "toughness5", "special1", "special2"], "par catégorie puis par numéro croissant");
+}
+
 // --- 4. Les slots d'automerge (réservés, curés à la main par le joueur) ne sont jamais réordonnés par le tri. ---
 {
   const s = adv();

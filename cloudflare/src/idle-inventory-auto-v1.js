@@ -483,7 +483,7 @@ function basicFilterTypeV1(o) {
 
 /*
  * Tri "Trier l'inventaire" (Norman, 2026-09-29) : « bijoux en premier, armes, tete, torse, jambes,
- * pieds, objets divers, boost (Power, Toughness et en dernier special) ». Réutilise EXACTEMENT la
+ * pieds, objets divers, boost (Power, Toughness et en dernier special ; dans chaque catégorie par numéro croissant). ». Réutilise EXACTEMENT la
  * classification de basicFilterTypeV1 (déjà la distinction du jeu réel entre les 5 slots d'armure/
  * arme et "accessory" -- le nom NGU pour tout ce qui n'est pas un de ces 5 slots, "bijoux" ici) :
  * aucune sous-distinction bague/amulette/breloque n'existe dans le modèle de données, donc aucune
@@ -511,7 +511,13 @@ function sortInventorySlotsV1(s) {
   const mergeSlots = Math.max(0, Math.min(cap, I(s.mergeSlots)));
   const byId = new Map((Array.isArray(s.inventory) ? s.inventory : []).map((o) => [String(o.id), o]));
   const ids = slots.slice(mergeSlots).filter(Boolean);
-  ids.sort((a, b) => sortRankInventoryV1(byId.get(a)) - sortRankInventoryV1(byId.get(b)));
+  /* Boosts (Norman, 2026-10-03) : dans leur catégorie (Power, Toughness, Special), triés par numéro croissant (1, 2, 5…). Tri stable pour tout le reste. */
+  const forceBoost = (o) => (o && o.kind === "boost" ? N(o.strength, 0) : 0);
+  ids.sort((a, b) => {
+    const oa = byId.get(a);
+    const ob = byId.get(b);
+    return sortRankInventoryV1(oa) - sortRankInventoryV1(ob) || forceBoost(oa) - forceBoost(ob);
+  });
   for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
   s.inventorySlots = slots;
   return slots;
