@@ -1330,16 +1330,25 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-
   scroll-snap-align:start;white-space:nowrap;
   transition:transform .15s ease,box-shadow .2s ease,filter .2s ease;
 }
-/* Badge illustré : forme propre à chaque menu, dégradé de sa couleur, reflet. Le cadre porte l'ombre (le clip-path de l'enfant la couperait). */
+/* Badge illustré (Norman, 2026-10-03 : « les emojis doivent être bien visibles, attention aux couleurs ») : un ANNEAU à la forme et à la couleur du menu entoure une PLAQUE sombre neutre, sur laquelle l'emoji
+ * ressort quelle que soit sa couleur (un 🩸 rouge sur un badge rouge se perdait) ; l'emoji a en plus un fin liseré clair et un reflet derrière lui. Le cadre porte l'ombre (le clip-path du badge la couperait). */
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{
-  flex:0 0 auto;width:38px;height:38px;display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.65)) drop-shadow(0 0 6px color-mix(in srgb,var(--c1) 55%,transparent));
+  flex:0 0 auto;width:44px;height:44px;display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.65)) drop-shadow(0 0 6px color-mix(in srgb,var(--c1) 55%,transparent));
 }
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-badge-v2{
-  display:grid;place-items:center;width:100%;height:100%;font-size:20px;line-height:1;
+  position:relative;isolation:isolate;display:grid;place-items:center;width:100%;height:100%;
   clip-path:var(--forme,inset(0 round 28%));
+  background:linear-gradient(150deg,color-mix(in srgb,var(--c1) 78%,#fff),var(--c1) 45%,var(--c2));
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-badge-v2::before{
+  content:"";position:absolute;inset:3.5px;z-index:-1;clip-path:var(--forme,inset(0 round 28%));
   background:
-    radial-gradient(circle at 30% 22%,rgba(255,255,255,.62),rgba(255,255,255,0) 46%),
-    linear-gradient(150deg,var(--c1),var(--c2));
+    radial-gradient(circle at 50% 44%,rgba(255,255,255,.30),rgba(255,255,255,0) 58%),
+    radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--c1) 26%,#26324f),#0b1020 82%);
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{
+  font-style:normal;font-size:24px;line-height:1;position:relative;z-index:1;
+  filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(0,0,0,.6));
 }
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{display:flex;flex-direction:column;gap:2px;line-height:1.1;min-width:0}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:13.5px;font-weight:900;letter-spacing:.01em;color:#fff}
@@ -1358,9 +1367,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-
   color:#fff!important;filter:none;
   box-shadow:0 0 0 2px color-mix(in srgb,var(--c1) 70%,#fff),0 12px 24px -8px var(--c1);
 }
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active .soreal-idle-nav-badge-v2{
-  background:radial-gradient(circle at 30% 22%,#fff,rgba(255,255,255,.78) 55%,rgba(255,255,255,.55));
-}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active .soreal-idle-nav-badge-v2{background:linear-gradient(150deg,#fff,rgba(255,255,255,.82))}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active .soreal-idle-nav-texte-v2 small{color:rgba(255,255,255,.92)}
 /* Disponibilité (Money Pit prêt…) : la carte entière prend la couleur et le badge palpite ; la lueur intérieure reste (voir plus haut). */
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1{
@@ -1389,8 +1396,8 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-new-v1 .soreal
 /* Petits écrans : cartes un peu plus compactes pour en voir plus à la fois. */
 @media (max-width:420px){
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:6px 12px 6px 7px!important;gap:8px}
-  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:34px;height:34px}
-  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-badge-v2{font-size:18px}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:40px;height:40px}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:22px}
   body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:13px}
   body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{font-size:10.5px}
 }

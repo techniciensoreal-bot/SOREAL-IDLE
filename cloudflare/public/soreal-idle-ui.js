@@ -11526,7 +11526,7 @@
                   title="${idleHtml_(m.nom+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
-                  <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2">${m.icon}</span></span>
+                  <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>
                   <span class="soreal-idle-nav-texte-v2"><b>${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>
                 </button>
               `;
