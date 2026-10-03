@@ -1,3 +1,4 @@
+import { NOMS_SPECIALS_FR_V1, NOMS_SETS_FR_V1, NOMS_SETS_OBJETS_FR_V1, NOMS_PIECES_FR_V1 } from "./idle-noms-fr-v1.js";
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
 import { idleSpecialPointsRatioV1 } from "./idle-adventure-special-points-v1.js";
 import { idleTitanCombatV1, IDLE_TITAN_COMBAT_V1 } from "./idle-titans-combat-v1.js";
@@ -1027,6 +1028,8 @@ space:{name:"Space Set",source:"hungers",slots:["head","chest","legs","boots","w
 rock:{name:"Rock Set",source:"lobster",slots:["head","chest","legs","boots","weapon","rocket","petRock","rollingStone"],p:45340800000,t:13328000000,reward:{}},
 amalgamate:{name:"Amalgamate Set",source:"amalgamate",slots:["head","chest","legs","boots","weapon","deathstick","corruptedLeaf","glued"],p:229820000000,t:55600000000,reward:{}}
 };
+/* Noms français (Norman, 2026-10-03) : seul l'affichage change, jamais les identifiants ni les valeurs du wiki. */
+for(const[id,s]of Object.entries(SETS))if(NOMS_SETS_FR_V1[id])s.name=NOMS_SETS_FR_V1[id];
 export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries(SETS).map(([id,s])=>[id,Object.freeze({id,...s})])));
 /*
  * Audit wiki par pièce (2026-09-15, Norman : "je veux que chaque item ait
@@ -1147,7 +1150,7 @@ export function idleAdventureItemStatsMaxV1(set,slot){
  * le ratio points/valeur de chaque Special (idle-adventure-special-points-v1.js). Valeurs courantes : `special` (1er) et `specialExtra` (les suivants),
  * voir idleAdventureSpecialsListV1. L'ancien choix (sExtra figés à leur Base value) est abandonné.
  */
-const SPECIALS=Object.freeze({
+const SPECIALS_EN_V1=Object.freeze({
 /*
  * Pas de fiche wiki dédiée ("Tutorial Cube" n'existe pas sur le wiki) :
  * ceci représente uniquement le déblocage SOREAL du Cube, jamais un objet
@@ -1596,6 +1599,7 @@ tripleFlubber:{name:"The Triple Flubber",zone:"",slot:"accessory",dropLevel:0,p:
 heroicSigil:{name:"Heroic Sigil",zone:"",slot:"special",dropLevel:4,p:0,t:0},
 stillBeatingHeart:{name:"A Still-Beating Heart",zone:"",slot:"special",dropLevel:4,p:0,t:0}
 });
+const SPECIALS=Object.freeze(Object.fromEntries(Object.entries(SPECIALS_EN_V1).map(([id,d])=>[id,{...d,name:NOMS_SPECIALS_FR_V1[id]||d.name}])));
 export const IDLE_ADVENTURE_SPECIALS=SPECIALS;
 /*
  * Sets d'objets hors équipement (audit des bonus de complétion, 2026-09-23) :
@@ -1706,6 +1710,7 @@ const SETS_OBJETS_V1=Object.freeze({
   /* "Still-Beating Heart (set)" : "+1% Tag Effect!" (page Cards : base 10 % ... total 16.5 % dont ce set). */
   stillBeatingHeart:{name:"Still-Beating Heart Set",items:["stillBeatingHeart"],reward:{cardTagEffect:.01}}
 });
+for(const[id,o]of Object.entries(SETS_OBJETS_V1))if(NOMS_SETS_OBJETS_FR_V1[id])Object.defineProperty(o,"name",{value:NOMS_SETS_OBJETS_FR_V1[id],enumerable:true});
 export const IDLE_ADVENTURE_ITEM_SETS_V1=SETS_OBJETS_V1;
 /*
  * Collection (2026-09-11) — Norman : "je voudrais Renommer Bestiaire en
@@ -2213,7 +2218,7 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
       const{p,t}=idleAdventureItemStatsMaxV1(setId,slot);
       const baseP=p/2,baseT=t/2;
       catalog[`${setId}:${slot}`]=Object.freeze({
-        kind:"equipment",set:setId,setName:s.name,slot,name:`${s.name} ${slot}`,
+        kind:"equipment",set:setId,setName:s.name,slot,name:NOMS_PIECES_FR_V1[`${setId}:${slot}`]||`${s.name} ${slot}`,
         wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
         basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03,
         evolutionTo:ITEM_EVOLUTIONS_V1[`${setId}:${slot}`]||""
@@ -2326,7 +2331,7 @@ export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
  * de l'objet). Ces 17 zones sont donc déjà couvertes par ce round, pas
  * seulement les 19 zones "Normal" au sens strict.
  */
-const SET_ITEM_NAMES_V1=Object.freeze({
+const SET_ITEM_NAMES_EN_V1=Object.freeze({
   "training:weapon":"Un bâton","training:head":"Chapeau en tissu","training:chest":"Chemise en tissu","training:legs":"Jambières en tissu","training:boots":"Bottes en tissu",
 
   // Sewers (set) -- ngu-idle.fandom.com/wiki/Sewers_(set)
@@ -2455,6 +2460,8 @@ const SET_ITEM_NAMES_V1=Object.freeze({
   // Amalgamate (set)
   "amalgamate:head":"Choffice Hat of Greed","amalgamate:chest":"Wooden Office Apron of Might","amalgamate:legs":"Papapapantstststs of Utility","amalgamate:boots":"A Shoe.","amalgamate:weapon":"UUG's Big Book of Insults","amalgamate:deathstick":"THE DEATHSTICK","amalgamate:corruptedLeaf":"A Corrupted Leaf","amalgamate:glued":"8 Old Accessories Glued Together"
 });
+/* Noms français (Norman, 2026-10-03) : la table anglaise ci-dessus garde les noms du wiki pour référence ; le jeu affiche la traduction. */
+export const SET_ITEM_NAMES_V1=Object.freeze({...SET_ITEM_NAMES_EN_V1,...NOMS_PIECES_FR_V1});
 /*
  * "Base value" Power/Toughness des objets (audit des objets, 2026-09-24).
  * Source : champs powervalbase / toughnessvalbase des 431 modèles
@@ -2740,6 +2747,8 @@ if(d?.kind==="set"){
   const realName=SET_ITEM_NAMES_V1[`${d.set}:${d.slot}`];
   if(realName)z.name=realName;
 }
+/* Objets spéciaux : même resynchronisation (les noms anglais déjà enregistrés passent en français, Norman 2026-10-03). */
+if((d?.kind==="special"||d?.kind==="cube")&&SPECIALS[d.id]?.name)z.name=SPECIALS[d.id].name;
 idleAdventureNormaliserSpecialsExtraV1(z);
 return z}
 /* Migration 2026-09-23 : l'ancienne pièce "edgy:boots" (BOTH Edgy Boots) devient "bothedgy:boots". */

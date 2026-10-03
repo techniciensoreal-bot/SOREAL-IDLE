@@ -3,6 +3,7 @@ import {
   normalizeIdleAdventureStateV47,
   applyIdleAdventureActionV47
 } from "../src/idle-adventure-v47.js";
+import { NOMS_PIECES_FR_V1 } from "../src/idle-noms-fr-v1.js";
 
 /*
  * Round 2 (2026-09-18, sweep "renommage des sets d'équipement") : les 35
@@ -85,9 +86,10 @@ for (const [definitionId, expectedName] of Object.entries(SAMPLES)) {
   const r = applyIdleAdventureActionV47(s, { action: "addItem", definitionId, level: 10 }, { bosses: 200 }, 1);
   const created = r.state.inventory.find((i) => i.definitionId === definitionId);
   assert.ok(created, `L'objet ${definitionId} doit avoir été créé.`);
+  /* Noms français (Norman, 2026-10-03) : SAMPLES garde les noms du wiki (référence) ; le jeu affiche la traduction de chaque pièce. */
   assert.equal(
     created.name,
-    expectedName,
+    NOMS_PIECES_FR_V1[definitionId] || expectedName,
     `wiki (${set} (set)) : le slot "${slot}" doit s'appeler "${expectedName}", pas un nom générique inventé.`
   );
 }

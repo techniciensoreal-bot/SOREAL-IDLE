@@ -161,7 +161,7 @@ function addBoost(s, type, strength, level = 0) {
   if (a1.name !== b.name) {
     applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
     const noms = s.inventorySlots.filter(Boolean).map((id) => s.inventory.find((x) => x.id === id).name);
-    assert.deepEqual(noms.filter((n) => n !== "Tutorial Cube"), [a1.name, a2.name, b.name], "les deux objets du même nom se suivent");
+    assert.deepEqual(noms.filter((n) => n !== "Cube tutoriel"), [a1.name, a2.name, b.name], "les deux objets du même nom se suivent");
   }
 }
 

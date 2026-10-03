@@ -18330,11 +18330,11 @@ let idleDialogueTimerV76=null;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-211 */
       const IDLE_ADVENTURE_UNLOCK_ITEMS_V1={
-        aNumber:{nom:'A Number',systeme:'NGU'},
-        giantSeed:{nom:'Giant Seed',systeme:'Yggdrasil'},
-        scrapPaper:{nom:'Scrap Paper',systeme:'Diggers'},
-        uugHair:{nom:'UUG Hair',systeme:'Beards'},
-        pissedOffKey:{nom:'Pissed Off Key',systeme:'la Tour'},
+        aNumber:{nom:'Un nombre',systeme:'NGU'},
+        giantSeed:{nom:'Graine géante',systeme:'Yggdrasil'},
+        scrapPaper:{nom:'Bout de papier',systeme:'Diggers'},
+        uugHair:{nom:'Poil d\'UUG',systeme:'Beards'},
+        pissedOffKey:{nom:'Clé furieuse',systeme:'la Tour'},
         wandoos98:{nom:'Wandoos 98',systeme:'Wandoos'}
       };
 

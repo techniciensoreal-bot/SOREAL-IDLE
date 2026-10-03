@@ -18,7 +18,7 @@ import { idleYggGiantSeedSeedsV1 } from "../src/idle-yggdrasil-extra-v1.js";
 {
   const d = IDLE_ADVENTURE_SPECIALS.giantSeed;
   assert.ok(d, "A Giant Seed est un objet");
-  assert.equal(d.name, "A Giant Seed");
+  assert.equal(d.name, "Une graine géante", "nom français (Norman, 2026-10-03) de « A Giant Seed »");
   assert.equal(d.slot, "special");
   assert.equal(d.p, 0);
   assert.equal(d.t, 0);

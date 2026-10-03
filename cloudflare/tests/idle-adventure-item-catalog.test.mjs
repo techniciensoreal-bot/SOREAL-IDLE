@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { NOMS_PIECES_FR_V1 } from "../src/idle-noms-fr-v1.js";
 import {
   IDLE_ADVENTURE_ITEM_CATALOG_V1,
   IDLE_ADVENTURE_SETS,
@@ -35,7 +36,8 @@ for(const[setId,def]of Object.entries(IDLE_ADVENTURE_SETS)){
     assert.ok(entree,`Catalogue manquant pour ${cle}.`);
     assert.equal(entree.kind,"equipment");
     assert.equal(entree.set,setId);
-    assert.equal(entree.name,`${def.name} ${slot}`,`Le nom catalogué doit correspondre exactement au nom donné par item() pour ${cle}.`);
+    /* Norman (2026-10-03) : le catalogue porte le vrai nom (français) de la pièce, le même qu'item(), plus un nom générique « set + emplacement ». */
+    assert.equal(entree.name,NOMS_PIECES_FR_V1[cle]||`${def.name} ${slot}`,`Le nom catalogué doit correspondre exactement au nom donné par item() pour ${cle}.`);
     const{p,t}=idleAdventureItemStatsMaxV1(setId,slot);
     assert.equal(entree.basePower,p/2,`basePower doit reproduire exactement la formule d'item() pour ${cle}.`);
     assert.equal(entree.baseToughness,t/2,`baseToughness doit reproduire exactement la formule d'item() pour ${cle}.`);

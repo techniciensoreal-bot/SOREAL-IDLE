@@ -60,7 +60,7 @@ import { normalizeIdleAdventureStateV47, IDLE_ADVENTURE_V47 } from "../src/idle-
   };
   const normalized = normalizeIdleAdventureStateV47(state);
   const cube = normalized.inventory.find((i) => i.id === "cube1");
-  assert.equal(cube.name, "Tutorial Cube", "Un objet SPECIALS ne doit jamais être touché par la resynchronisation SET_ITEM_NAMES_V1 (réservée aux objets d'équipement kind==='set').");
+  assert.equal(cube.name, "Cube tutoriel", "Un objet SPECIALS reçoit son nom français (Norman, 2026-10-03), jamais un nom de SET_ITEM_NAMES_V1 (réservée aux objets d'équipement kind==='set').");
 }
 
 console.log("idle-legacy-item-names-resync: OK");
