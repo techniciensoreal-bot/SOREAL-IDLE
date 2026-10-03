@@ -12,7 +12,7 @@ Pour chaque ligne : **Où le joueur le voit**, **Nombre**, **Exemples**, **Remar
 
 ## A. Noms de menus (barre du haut)
 
-Où : bandeau de navigation, titres de pages. Nombre : 25 menus encore en anglais sur 31.
+Où : bandeau de navigation, titres de pages. Nombre : 29 noms de menus visibles par un joueur sur 32 (hors Admin) sont en anglais ou proches de l'anglais ; seuls Classement, Collection et Augmentations sont français.
 
 | Anglais actuel | Traduction possible |
 |---|---|
@@ -24,7 +24,7 @@ Où : bandeau de navigation, titres de pages. Nombre : 25 menus encore en anglai
 | Challenges, Titans, MacGuffins, Item Daycare, Questing, Achievements | Défis, Titans, MacGuffins, Garderie d'objets, Quêtes, Succès |
 | Shop, Chat, Settings | Boutique, Chat, Paramètres |
 
-Remarque : déjà français : Classement, Collection, Augmentations. Ces noms sont aussi cités dans les aides et le patch note ; les changer demande de relire ces textes.
+Remarque : ces noms sont aussi cités dans les aides et le patch note ; les changer demande de relire ces textes.
 
 ## B. Statistiques et bonus (popups d'objets, Collection, coffre)
 
@@ -53,8 +53,8 @@ Remarque : ce sont des jeux de mots du jeu d'origine ; une traduction fidèle de
 | Catalogue | Nombre | Exemples |
 |---|---|---|
 | Boutique AP (noms côté serveur) | 81 | Energy Potion α, Beast Butter (x1), Lucky Charm, Improved Loot Filter. Déjà traduits à l'affichage : pilules bleues, nuke, wishes plus rapides (traductions faites côté client, une par une) |
-| Cards (noms de types de mayo) | 14 types, dont environ 7 en anglais | Angry, Sad, Moldy, Ayy Lmayo, Cinco de Mayo ; paliers « Pretty, Crappy, Okay, Good, Great » ; « Gold Drop Card Tier Up I » (les noms de types de cartes sont déjà français) |
-| Hearts | 10 | My Red Heart, My Rainbow Heart… (déjà traduits côté objets depuis aujourd'hui, mais pas les noms de la page Hearts) |
+| Cards | 6 types de mayo + paliers de rareté + objets de montée de palier | Angry, Sad, Moldy, Ayy Lmayo, Cinco de Mayo, Pretty ; rareté Crappy, Bad, Meh, Okay, Good, Great ; « Gold Drop Card Tier Up I ». Les 14 types de cartes sont déjà français (« Vitesse des NGU Énergie »…) |
+| Hearts | 10 | My Red Heart, My Yellow Heart… (le catalogue d'objets les a en français depuis aujourd'hui, pas ce catalogue-ci) |
 | MacGuffins | 22 | Energy Power MacGuffin Fragment… |
 | Succès | 153 | « Defeat Boss N », « Energy Power 10 », « Defeat THE BEAST V1! » |
 | NGU (16 NGU) | 16 noms + descriptions | Augments, Gold, Power α/β, Adventure α, Drop Chance, PP, Number — effets en anglais (« Attack & defense », « Multiplies Number ») |
