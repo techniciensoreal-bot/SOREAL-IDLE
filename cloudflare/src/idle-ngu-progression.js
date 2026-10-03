@@ -899,6 +899,7 @@ function defaultResource(resource = "energy") {
      * le vrai NGU.
      */
     current: key === "energy" ? cap / 2 : 0,
+    capNaturel: cap,
     fillProgress: 0,
     generatedThisRun: 0,
     spentExp: 0
@@ -1546,6 +1547,8 @@ function normalizeResource(raw, resource = "energy") {
     speed: clamp(num(src.speed, fallback.speed), 0.1, 50),
     power: clamp(num(src.power, fallback.power), 1, 1e18),
     cap,
+    /* Part « naturelle » du cap (500 de base + 1 par 20 d'énergie obtenue à chaque Rebirth, jusqu'à 100 000) : les caps ACHETÉS en EXP s'ajoutent par-dessus sans la consommer (Norman, 2026-10-03). Sauvegarde ancienne : tout le cap existant est compté comme naturel. */
+    capNaturel: clamp(num(src.capNaturel, cap), 0, cap),
     bars: clamp(num(src.bars, fallback.bars), 1, 1e18),
     current: clamp(num(src.current, fallback.current), 0, cap),
     fillProgress: clamp(num(src.fillProgress, 0), 0, 0.999999999999),
@@ -7229,7 +7232,7 @@ function resourceInfoV1(state, resource, context = {}) {
   const ticksPerFill = Math.max(1, Math.ceil(50 / speed - 1e-9));
   const capRun = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
   const generated = Math.max(0, num(r.generatedThisRun, 0));
-  const room = Math.max(0, 100000 - Math.min(100000, num(r.cap, 0)));
+  const room = Math.max(0, 100000 - Math.min(100000, num(r.capNaturel, num(r.cap, 0))));
   const capGain = resource === "energy" ? Math.min(Math.floor(generated / 20), room) : 0;
   return {
     capRun,
@@ -7247,9 +7250,10 @@ function applyNaturalEnergyCapGrowthOnRebirth(state){
   if(!r)return 0;
   const generated=Math.max(0,num(r.generatedThisRun,0));
   const rawGain=Math.floor(generated/20);
-  const room=Math.max(0,100000-Math.min(100000,num(r.cap,0)));
+  const naturel=Math.max(0,num(r.capNaturel,num(r.cap,0)));
+  const room=Math.max(0,100000-Math.min(100000,naturel));
   const gain=Math.min(rawGain,room);
-  if(gain>0)r.cap+=gain;
+  if(gain>0){r.cap+=gain;r.capNaturel=naturel+gain;}
   return gain;
 }
 

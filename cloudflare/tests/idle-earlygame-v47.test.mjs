@@ -693,7 +693,7 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(reborn.rebirth.resourceGrowth.energyCapGain,20);
 
   let capped=fresh(context,0);
-  capped.resources.energy.cap=99_995;
+  capped.resources.energy.cap=99_995;capped.resources.energy.capNaturel=99_995;
   capped.resources.energy.current=0;
   capped.resources.energy.generatedThisRun=1000;
   capped.updatedAt=3_600_000;

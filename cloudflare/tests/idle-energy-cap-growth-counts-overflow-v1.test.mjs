@@ -65,6 +65,7 @@ function jouer(secondes) {
 {
   const s = normalizeIdleNguState({}, context, T0);
   s.resources.energy.cap = 99_995;
+  s.resources.energy.capNaturel = 99_995;
   s.resources.energy.generatedThisRun = 1_000_000;
   const renaitre = rebirthIdleNguState(s, context, T0 + 3_600_000);
   assert.equal(renaitre.resources.energy.cap, 100_000);

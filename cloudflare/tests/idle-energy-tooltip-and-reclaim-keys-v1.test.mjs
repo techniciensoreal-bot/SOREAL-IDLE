@@ -36,6 +36,7 @@ const context = { bosses: 4 };
   const s = normalizeIdleNguState({}, context, 1_000_000);
   s.resources.energy.speed = 50;
   s.resources.energy.cap = 99_990;
+  s.resources.energy.capNaturel = 99_990;
   s.resources.energy.generatedThisRun = 1_000_000;
   const info = idleNguSnapshot(s, context, 1_000_000).resourceInfo.energy;
   assert.equal(info.ticksPerFill, 1);
