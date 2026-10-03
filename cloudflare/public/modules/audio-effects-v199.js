@@ -44,6 +44,8 @@
     menuNav:{group:"ui-nav",priority:20,maxAgeMs:400},
     /* Entrée dans le Shop (Norman, 2026-10-03) : clochettes au-dessus de la porte d'un vieux magasin. Même groupe que menuNav : il le remplace pour ce menu. */
     shopDoor:{group:"ui-nav",priority:24,maxAgeMs:600},
+    /* Passage d'un rayon à l'autre dans une boutique (Norman, 2026-10-03) : trois pas. Groupe à part ; l'ordonnanceur ne joue jamais deux sons à la fois, donc deux changements rapides ne se chevauchent pas. */
+    shopSteps:{group:"shop-steps",priority:22,maxAgeMs:900},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
     /* Un autre joueur vient de se connecter (fil « En direct », Norman 2026-10-02) : petit carillon discret. */
     joueurConnecte:{group:"presence",priority:18,maxAgeMs:2500},
@@ -561,6 +563,168 @@
   function porteMagasin_(){
     return jouerWebAudio_(1700,porteMagasinConstruire_);
   }
+
+  /*
+   * Trois pas (Norman, 2026-10-03) : « quand on passe d'un rayon à l'autre dans la boutique, un bruit de pas, quelqu'un qui marche, 3 pas seulement ». Chaque pas = un talon qui frappe un plancher
+   * (coup sourd qui chute), le frottement de la semelle et un léger claquement ; rythme de marche tranquille, pas alternés (un peu plus aigu, un peu plus grave).
+   */
+  function pasConstruire_(c,delay,force,hz){
+    tonal_(c,{type:"sine",from:hz*1.9,to:hz*.55,duration:.12,volume:.105*force,delay:delay});
+    bruit_(c,{duration:.075,volume:.06*force,delay:delay,filterType:"lowpass",frequency:760,decay:2.2});
+    bruit_(c,{duration:.04,volume:.032*force,delay:delay+.012,filterType:"bandpass",frequency:2300,q:.9,decay:3});
+  }
+  function pasBoutiqueConstruire_(c){
+    pasConstruire_(c,0,1,118);
+    pasConstruire_(c,.31,.92,104);
+    pasConstruire_(c,.62,1,116);
+  }
+  function pasBoutique_(){
+    return jouerWebAudio_(900,pasBoutiqueConstruire_);
+  }
+
+  /*
+   * Un son par menu (Norman, 2026-10-03 : « crée un son par menu en rapport avec le type de menu »). Tous courts (moins d'une demi-seconde) pour que la navigation reste vive, dans le même groupe que
+   * l'ancienne note unique : jamais deux à la fois, le plus récent remplace celui qui attend. Le Shop garde sa porte de vieux magasin.
+   */
+  function claquesDe_(c,hz,delais,volume,duree){
+    delais.forEach(function(d){bruit_(c,{duration:duree||.03,volume:volume,delay:d,filterType:"bandpass",frequency:hz,q:1.2,decay:3});});
+  }
+  var SONS_MENU_V1={
+    /* Sac de frappe : deux coups sourds. */
+    entrainement:{duree:420,construire:function(c){
+      [0,.17].forEach(function(d){tonal_(c,{type:"sine",from:150,to:55,duration:.12,volume:.11,delay:d});bruit_(c,{duration:.08,volume:.07,delay:d,filterType:"lowpass",frequency:600,decay:2});});
+      bruit_(c,{duration:.05,volume:.03,delay:.17,filterType:"highpass",frequency:3500,decay:3});}},
+    /* Servomoteur qui monte en régime puis deux déclics de verrouillage. */
+    augmentations:{duree:430,construire:function(c){
+      tonal_(c,{type:"sawtooth",from:160,to:640,duration:.26,volume:.022});
+      tonal_(c,{type:"square",from:2400,to:2400,duration:.03,volume:.02,delay:.27});
+      tonal_(c,{type:"square",from:3200,to:3200,duration:.03,volume:.016,delay:.32});}},
+    /* Deux lames qui s'entrechoquent. */
+    combat:{duree:450,construire:function(c){
+      [[1700,.030],[1700*2.76,.016],[1700*5.4,.008]].forEach(function(p,i){tonal_(c,{type:"sine",from:p[0],to:p[0]*.996,duration:.34-i*.08,volume:p[1]});});
+      bruit_(c,{duration:.09,volume:.05,filterType:"highpass",frequency:4500,decay:2.4});}},
+    /* Appel de cor : on part à l'aventure. */
+    aventure:{duree:480,construire:function(c){
+      nappe_(c,{type:"sawtooth",from:262,to:264,duration:.2,volume:.026,attack:.03});
+      nappe_(c,{type:"sawtooth",from:392,to:396,duration:.3,volume:.028,attack:.03,delay:.17});}},
+    /* Pièces qui tombent dans le puits, puis un écho creux. */
+    moneyPit:{duree:480,construire:function(c){
+      [[0,2600],[.07,2200],[.14,1900]].forEach(function(p){tonal_(c,{type:"triangle",from:p[1],to:p[1]*.995,duration:.11,volume:.03,delay:p[0]});tonal_(c,{type:"sine",from:p[1]*2.7,to:p[1]*2.7,duration:.05,volume:.01,delay:p[0]});});
+      tonal_(c,{type:"sine",from:95,to:60,duration:.2,volume:.08,delay:.26});}},
+    /* Renaissance : souffle qui monte et carillon. */
+    renaissance:{duree:480,construire:function(c){
+      tonal_(c,{type:"sine",from:300,to:1200,duration:.34,volume:.03});
+      tonal_(c,{type:"triangle",from:600,to:2400,duration:.34,volume:.012});
+      tonal_(c,{type:"sine",from:1568,to:1572,duration:.22,volume:.03,delay:.28});}},
+    /* Haltère : un disque de fonte qui claque. */
+    avance:{duree:420,construire:function(c){
+      tonal_(c,{type:"square",from:230,to:205,duration:.08,volume:.03});
+      bruit_(c,{duration:.16,volume:.07,filterType:"bandpass",frequency:1400,q:3,decay:2});
+      tonal_(c,{type:"sine",from:112,to:80,duration:.2,volume:.09,delay:.02});}},
+    /* Horloge : tic, tic, toc. */
+    machine:{duree:430,construire:function(c){
+      [[0,1900],[.12,1900],[.25,1250]].forEach(function(p){tonal_(c,{type:"triangle",from:p[1],to:p[1]*.97,duration:.04,volume:.04,delay:p[0]});bruit_(c,{duration:.02,volume:.03,delay:p[0],filterType:"highpass",frequency:4500,decay:3});});}},
+    /* Battements de cœur, grave. */
+    sang:{duree:480,construire:function(c){
+      tonal_(c,{type:"sine",from:78,to:44,duration:.16,volume:.12});
+      tonal_(c,{type:"sine",from:70,to:42,duration:.16,volume:.085,delay:.17});
+      bruit_(c,{duration:.3,volume:.02,filterType:"lowpass",frequency:260,decay:1.6});}},
+    /* Ordinateur qui démarre : trois bips rétro. */
+    wandoos:{duree:380,construire:function(c){
+      [[0,660],[.07,880],[.14,1320]].forEach(function(p){tonal_(c,{type:"square",from:p[1],to:p[1],duration:.06,volume:.02,delay:p[0]});});
+      tonal_(c,{type:"square",from:1760,to:1760,duration:.1,volume:.012,delay:.24});}},
+    /* Trois notes cristallines qui montent, comme une boucle sans fin. */
+    ngu:{duree:430,construire:function(c){
+      [[0,784],[.08,1047],[.16,1568]].forEach(function(p){tonal_(c,{type:"sine",from:p[1],to:p[1],duration:.2,volume:.03,delay:p[0]});tonal_(c,{type:"triangle",from:p[1]*2,to:p[1]*2,duration:.1,volume:.008,delay:p[0]});});}},
+    /* Frottement de feuilles et note de bois. */
+    yggdrasil:{duree:430,construire:function(c){
+      bruit_(c,{duration:.3,volume:.045,filterType:"bandpass",frequency:3000,q:.6,decay:1.2});
+      tonal_(c,{type:"triangle",from:330,to:326,duration:.2,volume:.03,delay:.1});}},
+    /* Pioche sur la roche. */
+    diggers:{duree:430,construire:function(c){
+      [[0,2200,1],[.17,1900,.8]].forEach(function(p){
+        tonal_(c,{type:"sine",from:p[1],to:p[1]*.95,duration:.1,volume:.035*p[2],delay:p[0]});
+        tonal_(c,{type:"triangle",from:p[1]*1.5,to:p[1]*1.5,duration:.05,volume:.012*p[2],delay:p[0]});
+        bruit_(c,{duration:.1,volume:.05*p[2],delay:p[0]+.015,filterType:"lowpass",frequency:900,decay:2.2});});}},
+    /* Brosse sur une barbe : frottement doux et petit « mmh ». */
+    beards:{duree:430,construire:function(c){
+      bruit_(c,{duration:.28,volume:.05,filterType:"lowpass",frequency:900,frequencyEnd:400,decay:1.4});
+      tonal_(c,{type:"sine",from:190,to:140,duration:.22,volume:.03,delay:.04});}},
+    /* Grand gong de la Tour. */
+    tower:{duree:480,construire:function(c){
+      [[220,.05],[220*2.4,.025],[220*3.9,.014]].forEach(function(p,i){tonal_(c,{type:"sine",from:p[0],to:p[0]*.99,duration:.46-i*.08,volume:p[1]});});
+      bruit_(c,{duration:.06,volume:.03,filterType:"lowpass",frequency:900,decay:2});}},
+    /* Étoile qui scintille : gamme pentatonique vers le haut. */
+    perks:{duree:420,construire:function(c){
+      [1047,1319,1568,2093].forEach(function(hz,i){tonal_(c,{type:"sine",from:hz,to:hz,duration:.15,volume:.026,delay:i*.06});});}},
+    /* Départ de course : deux bips graves puis un aigu. */
+    challenges:{duree:440,construire:function(c){
+      tonal_(c,{type:"square",from:440,to:440,duration:.07,volume:.02});
+      tonal_(c,{type:"square",from:440,to:440,duration:.07,volume:.02,delay:.11});
+      tonal_(c,{type:"square",from:880,to:880,duration:.16,volume:.024,delay:.22});}},
+    /* Piétinement d'un géant et grondement. */
+    titans:{duree:480,construire:function(c){
+      tonal_(c,{type:"sine",from:62,to:34,duration:.36,volume:.15});
+      bruit_(c,{duration:.34,volume:.06,filterType:"lowpass",frequency:200,decay:1.6});
+      tonal_(c,{type:"sawtooth",from:70,to:50,duration:.3,volume:.015,delay:.05});}},
+    /* Suspense : deux notes qui descendent. */
+    macguffins:{duree:460,construire:function(c){
+      tonal_(c,{type:"triangle",from:392,to:370,duration:.2,volume:.034});
+      tonal_(c,{type:"triangle",from:311,to:294,duration:.26,volume:.034,delay:.16});}},
+    /* Atelier : cliquet de clé à molette et coup de marteau. */
+    daycare:{duree:430,construire:function(c){
+      [0,.05,.10,.15].forEach(function(d){tonal_(c,{type:"triangle",from:1500,to:1400,duration:.03,volume:.025,delay:d});});
+      tonal_(c,{type:"sine",from:190,to:110,duration:.14,volume:.07,delay:.25});
+      bruit_(c,{duration:.05,volume:.03,delay:.25,filterType:"bandpass",frequency:1800,q:2,decay:3});}},
+    /* Parchemin qu'on déroule, puis deux notes de plume. */
+    questing:{duree:460,construire:function(c){
+      bruit_(c,{duration:.22,volume:.035,filterType:"highpass",frequency:2500,frequencyEnd:5000,decay:1.5});
+      tonal_(c,{type:"triangle",from:523,to:526,duration:.14,volume:.026,delay:.18});
+      tonal_(c,{type:"triangle",from:784,to:788,duration:.2,volume:.026,delay:.25});}},
+    /* Boing : un ressort de manie. */
+    quirks:{duree:430,construire:function(c){
+      tonal_(c,{type:"sine",from:300,to:900,duration:.14,volume:.04});
+      tonal_(c,{type:"sine",from:900,to:420,duration:.18,volume:.034,delay:.13});}},
+    /* Glitch numérique : rafales carrées désordonnées. */
+    hacks:{duree:380,construire:function(c){
+      [[0,880],[.04,1760],[.08,440],[.12,2200],[.18,660],[.21,1320]].forEach(function(p){tonal_(c,{type:"square",from:p[1],to:p[1],duration:.03,volume:.018,delay:p[0]});});
+      bruit_(c,{duration:.2,volume:.02,filterType:"highpass",frequency:6000,decay:1.2});}},
+    /* Harpe magique : glissando vers le haut. */
+    wishes:{duree:480,construire:function(c){
+      [523,659,784,1047,1319].forEach(function(hz,i){tonal_(c,{type:"sine",from:hz,to:hz,duration:.2,volume:.024,delay:i*.06});tonal_(c,{type:"triangle",from:hz*2,to:hz*2,duration:.1,volume:.006,delay:i*.06});});}},
+    /* Cartes qu'on bat : petits claquements rapides. */
+    cards:{duree:380,construire:function(c){
+      claquesDe_(c,4000,[0,.06,.12,.18],.05,.04);
+      tonal_(c,{type:"sine",from:220,to:150,duration:.08,volume:.04,delay:.24});}},
+    /* Poêle : grésillement et choc de casserole. */
+    cooking:{duree:460,construire:function(c){
+      bruit_(c,{duration:.36,volume:.05,filterType:"highpass",frequency:5000,decay:.8});
+      tonal_(c,{type:"triangle",from:1760,to:1740,duration:.1,volume:.03,delay:.02});}},
+    /* Trophée : ding brillant. */
+    succes:{duree:480,construire:function(c){
+      tonal_(c,{type:"triangle",from:1318,to:1320,duration:.34,volume:.036});
+      tonal_(c,{type:"sine",from:1976,to:1978,duration:.38,volume:.03,delay:.09});
+      bruit_(c,{duration:.05,volume:.02,delay:.09,filterType:"highpass",frequency:6000,decay:3});}},
+    /* Roulement de tambour puis cymbale. */
+    classement:{duree:460,construire:function(c){
+      claquesDe_(c,1800,[0,.035,.07,.105,.14,.175],.04,.03);
+      bruit_(c,{duration:.2,volume:.04,delay:.24,filterType:"highpass",frequency:6000,decay:1.6});}},
+    /* Page qu'on tourne puis note douce. */
+    bestiaire:{duree:420,construire:function(c){
+      bruit_(c,{duration:.18,volume:.04,filterType:"highpass",frequency:2500,frequencyEnd:5200,decay:1.6});
+      tonal_(c,{type:"sine",from:660,to:664,duration:.14,volume:.026,delay:.15});}},
+    /* Bulle de message : deux petits « pop ». */
+    chat:{duree:340,construire:function(c){
+      tonal_(c,{type:"sine",from:700,to:1100,duration:.06,volume:.04});
+      tonal_(c,{type:"sine",from:900,to:1400,duration:.07,volume:.036,delay:.09});}},
+    /* Molette de réglage : cliquets. */
+    parametres:{duree:340,construire:function(c){
+      [0,.06,.12].forEach(function(d){tonal_(c,{type:"triangle",from:1100,to:1050,duration:.02,volume:.03,delay:d});bruit_(c,{duration:.015,volume:.025,delay:d,filterType:"highpass",frequency:4000,decay:3});});}},
+    /* Clavier d'administration : frappes de touches. */
+    admin:{duree:340,construire:function(c){
+      claquesDe_(c,2500,[0,.07,.11],.055,.02);
+      tonal_(c,{type:"sine",from:160,to:110,duration:.05,volume:.03,delay:.15});}}
+  };
 
   /*
    * 1. Fanfare de cristal (V206) — fanfare originale très courte : sensation "coffre/victoire" sans reprendre de
@@ -1456,6 +1620,12 @@
     JOUEURS["skill_"+son.id]=jouerCompetence_(son);
   });
 
+  Object.keys(SONS_MENU_V1).forEach(function(id){
+    DEFINITIONS["menu_"+id]={group:"ui-nav",priority:20,maxAgeMs:500};
+    JOUEURS["menu_"+id]=function(){return jouerWebAudio_(SONS_MENU_V1[id].duree,SONS_MENU_V1[id].construire);};
+  });
+  JOUEURS.shopSteps=pasBoutique_;
+
   function demander_(name){
     name=String(name||"");
     var def=DEFINITIONS[name];
@@ -1489,7 +1659,15 @@
     var b=ev.target&&ev.target.closest?ev.target.closest(".soreal-idle-nav-button-v28"):null;
     if(!b||b.classList.contains("active")||b.closest(".edition"))return;
     /* Le Shop a son propre son : la porte d'un vieux magasin et ses clochettes. */
-    demander_(b.getAttribute("data-menu-id-v1")==="shop"?"shopDoor":"menuNav");
+    var idMenu=b.getAttribute("data-menu-id-v1");
+    demander_(idMenu==="shop"?"shopDoor":(DEFINITIONS["menu_"+idMenu]?"menu_"+idMenu:"menuNav"));
+  },{capture:true,passive:true});
+
+  /* Rayons des boutiques (onglets EXP et AP, bascule EXP / AP) : trois pas, jamais pour l'onglet déjà ouvert. */
+  document.addEventListener("click",function(ev){
+    var t=ev.target&&ev.target.closest?ev.target.closest(".soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1"):null;
+    if(!t||t.classList.contains("actif")||t.classList.contains("active"))return;
+    demander_("shopSteps");
   },{capture:true,passive:true});
 
   document.addEventListener("pointerdown",debloquer_,{capture:true,passive:true});
@@ -1511,6 +1689,8 @@
       purchaseGem:{duree:1300,construire:gemmeConstruire_},
       setComplete:{duree:1080,construire:setCompletConstruire_},
       shopDoor:{duree:1700,construire:porteMagasinConstruire_},
+      shopSteps:{duree:900,construire:pasBoutiqueConstruire_},
+      menus:Object.keys(SONS_MENU_V1).map(function(id){return{nom:id,duree:SONS_MENU_V1[id].duree,construire:SONS_MENU_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_}
     },
@@ -1539,6 +1719,8 @@
     purchaseGem:function(){return demander_("purchaseGem");},
     menuNav:function(){return demander_("menuNav");},
     shopDoor:function(){return demander_("shopDoor");},
+    shopSteps:function(){return demander_("shopSteps");},
+    menu:function(id){return demander_("menu_"+id);},
     achievement:function(){return demander_("achievement");},
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},

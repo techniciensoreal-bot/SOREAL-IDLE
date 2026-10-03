@@ -38,7 +38,7 @@ const joues = [];
 const original = moteur.play;
 assert.equal(typeof moteur.shopDoor, "function", "exposé comme les autres sons");
 assert.ok(clic, "écouteur de clic de navigation présent");
-assert.ok(audio.includes('demander_(b.getAttribute("data-menu-id-v1")==="shop"?"shopDoor":"menuNav");'), "le bouton Shop joue la porte, les autres menus la note habituelle");
+assert.ok(audio.includes('demander_(idMenu==="shop"?"shopDoor":(DEFINITIONS["menu_"+idMenu]?"menu_"+idMenu:"menuNav"))'), "le bouton Shop joue la porte, les autres menus leur propre son (2026-10-03), la note habituelle à défaut");
 assert.ok(audio.includes('shopDoor:{group:"ui-nav"'), "même groupe que la navigation : un seul son à la fois");
 void joues; void original;
 console.log("idle-shop-door-sound-v1 OK");
