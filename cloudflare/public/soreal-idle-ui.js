@@ -3556,6 +3556,14 @@
           if(!confirmee)return false;
         }
         /*
+         * Réponse EN RETARD (Norman, 2026-10-03 : « j'ai tué un boss et il a de nouveau été affiché : retour arrière d'un boss »). Les synchros se chevauchent (surveillance de victoire toutes les
+         * 0,4 s, battement, actions) : une réponse calculée AVANT la victoire peut arriver APRÈS celle qui l'a confirmée et remettait l'ancien boss. Un boss vaincu le reste jusqu'à la
+         * Renaissance : une réponse qui compte MOINS de boss vaincus (à nombre de Renaissances égal) est périmée, on la laisse de côté.
+         */
+        if(joueurServeur&&idleEtat&&!idlePrevisionBossV1.actif&&idleEntier_(joueurServeur.bossVaincus)<idleEntier_(idleEtat.bossVaincus)&&idleEntier_(joueurServeur.renaissance&&joueurServeur.renaissance.renaissances)===idleEntier_(idleEtat.renaissance&&idleEtat.renaissance.renaissances)){
+          return true;
+        }
+        /*
          * Norman (2026-09-26) : « je tue un petit bout de peluche, ça met Boss vaincu et au bout de 7 secondes j'ai de nouveau le même boss ».
          * Cause (lue dans le code) : le client prédit la victoire un peu AVANT le serveur (qui calcule le combat à l'heure du serveur). Tant que le
          * serveur n'a pas fini de tuer le boss, sa réponse dit « combat encore actif » alors que le client n'est plus armé : la « garde fantôme » ci-dessous
