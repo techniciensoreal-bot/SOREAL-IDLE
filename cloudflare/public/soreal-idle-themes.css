@@ -1401,3 +1401,94 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-new-v1 .soreal
   body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:13px}
   body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{font-size:10.5px}
 }
+
+/* ====================== MENU ALIMENTÉ : un effet par menu ======================
+ * Norman (2026-10-03) : « quand un menu est alimenté (on y place de l'énergie), il y a un effet dessus, par exemple une lumière qui tourne autour du bouton ; chaque bouton utilise un effet qui représente ce
+ * qu'il fait quand il est actif ». La classe « alimente-v1 » est posée par le jeu tant qu'on y place de l'énergie, de la magie ou de la ressource 3 ; data-effet-v1 = identifiant du menu.
+ * Chaque effet est pensé pour ce que fait le menu : coups pour l'entraînement, circuit lumineux pour les Augmentations, engrenage pour la Time Machine, gouttes pour le sang, balayage pour Wandoos, etc. */
+@property --soreal-ang-v1{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes sorealAlTourneV1{to{--soreal-ang-v1:360deg}}
+@keyframes sorealAlTourneEmojiV1{to{transform:rotate(360deg)}}
+
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.alimente-v1{position:relative}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.alimente-v1 .soreal-idle-nav-cadre-v2{position:relative}
+
+/* Augmentations : un circuit lumineux fait le tour de la carte (la « lumière qui tourne »). Même effet par défaut pour un menu sans effet propre. */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.alimente-v1::before{
+  content:"";position:absolute;inset:-2px;border-radius:inherit;padding:3px;pointer-events:none;z-index:2;
+  background:conic-gradient(from var(--soreal-ang-v1),transparent 0deg,transparent 250deg,var(--nav-color,#7dd3fc) 320deg,#fff 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  animation:sorealAlTourneV1 1.6s linear infinite;filter:drop-shadow(0 0 5px var(--nav-color,#7dd3fc));
+}
+/* Menus qui ont leur propre effet : le tour de lumière est remplacé. */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1:is([data-effet-v1="entrainement"],[data-effet-v1="avance"],[data-effet-v1="machine"],[data-effet-v1="sang"],[data-effet-v1="wandoos"],[data-effet-v1="ngu"],[data-effet-v1="yggdrasil"],[data-effet-v1="diggers"],[data-effet-v1="beards"],[data-effet-v1="hacks"],[data-effet-v1="wishes"])::before{display:none}
+
+/* Entraînement : des coups (le poing part vers l'avant, un éclat à l'impact). */
+@keyframes sorealAlCoupV1{0%,60%,100%{transform:translateX(0) scale(1)}70%{transform:translateX(5px) scale(1.18)}80%{transform:translateX(-1px) scale(.96)}}
+@keyframes sorealAlEclatV1{0%,64%{opacity:0;transform:scale(.2)}72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="entrainement"] .soreal-idle-nav-emoji-v2{animation:sorealAlCoupV1 .9s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="entrainement"] .soreal-idle-nav-cadre-v2::after{content:"💥";position:absolute;right:-6px;top:-4px;font-size:14px;pointer-events:none;animation:sorealAlEclatV1 .9s ease-out infinite}
+
+/* Advanced Training : on soulève de la fonte (montée lente, retombée sèche) et des flèches de niveau s'élèvent. */
+@keyframes sorealAlSouleveV1{0%{transform:translateY(2px) scale(1)}55%{transform:translateY(-4px) scale(1.12)}70%{transform:translateY(-4px) scale(1.12)}100%{transform:translateY(2px) scale(1)}}
+@keyframes sorealAlMonteV1{0%{opacity:0;transform:translateY(8px)}30%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="avance"] .soreal-idle-nav-emoji-v2{animation:sorealAlSouleveV1 1.4s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="avance"] .soreal-idle-nav-cadre-v2::after{content:"▲";position:absolute;left:50%;top:-2px;margin-left:-5px;font-size:11px;color:#fff;text-shadow:0 0 6px var(--nav-color);pointer-events:none;animation:sorealAlMonteV1 1.4s ease-out infinite}
+
+/* Time Machine : l'engrenage tourne et un reflet doré balaie la carte. */
+@keyframes sorealAlRefletV1{0%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(230%) skewX(-18deg)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="machine"] .soreal-idle-nav-emoji-v2{animation:sorealAlTourneEmojiV1 2.4s linear infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="machine"]{overflow:hidden}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="machine"]::after{content:"";position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,224,130,.55),transparent);animation:sorealAlRefletV1 1.7s ease-in-out infinite}
+
+/* Blood Magic : le cœur du badge bat et des gouttes de sang tombent. */
+@keyframes sorealAlBatV1{0%,100%{transform:scale(1)}15%{transform:scale(1.2)}30%{transform:scale(1)}45%{transform:scale(1.14)}60%{transform:scale(1)}}
+@keyframes sorealAlGoutteV1{0%{opacity:0;transform:translateY(-6px) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translateY(22px) scale(1)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="sang"] .soreal-idle-nav-emoji-v2{animation:sorealAlBatV1 1.1s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="sang"] .soreal-idle-nav-cadre-v2::after{content:"🩸";position:absolute;left:55%;top:60%;font-size:10px;pointer-events:none;animation:sorealAlGoutteV1 1.3s ease-in infinite}
+
+/* Wandoos : balayage de scanner du haut vers le bas, comme un écran qui se rafraîchit. */
+@keyframes sorealAlScanV1{0%{transform:translateY(-110%)}100%{transform:translateY(110%)}}
+@keyframes sorealAlCligneV1{0%,100%{opacity:1}50%{opacity:.82}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wandoos"] .soreal-idle-nav-cadre-v2{overflow:hidden;animation:sorealAlCligneV1 .5s steps(2) infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wandoos"] .soreal-idle-nav-cadre-v2::after{content:"";position:absolute;left:0;right:0;top:0;height:34%;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(160,255,200,.85),transparent);animation:sorealAlScanV1 1.1s linear infinite}
+
+/* NGU : une étincelle orbite autour du badge (l'infini qui tourne). */
+@keyframes sorealAlOrbiteV1{to{transform:rotate(360deg)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="ngu"] .soreal-idle-nav-cadre-v2::after{content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 50% 0,#fff 0 3px,rgba(255,255,255,0) 4px);filter:drop-shadow(0 0 5px var(--nav-color));animation:sorealAlOrbiteV1 1.3s linear infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="ngu"] .soreal-idle-nav-cadre-v2::before{content:"";position:absolute;inset:-4px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 50% 100%,#fff 0 2px,rgba(255,255,255,0) 3px);animation:sorealAlOrbiteV1 1.3s linear infinite reverse}
+
+/* Yggdrasil : l'arbre respire (pousse lente) et des feuilles montent. */
+@keyframes sorealAlPousseV1{0%,100%{transform:scale(.96)}50%{transform:scale(1.14)}}
+@keyframes sorealAlFeuilleV1{0%{opacity:0;transform:translate(0,8px) rotate(0)}30%{opacity:1}100%{opacity:0;transform:translate(6px,-16px) rotate(50deg)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="yggdrasil"] .soreal-idle-nav-emoji-v2{animation:sorealAlPousseV1 2.2s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="yggdrasil"] .soreal-idle-nav-cadre-v2::after{content:"🍃";position:absolute;right:-4px;top:2px;font-size:11px;pointer-events:none;animation:sorealAlFeuilleV1 2.2s ease-out infinite}
+
+/* Gold Diggers : coups de pioche et étincelles. */
+@keyframes sorealAlPiocheV1{0%,100%{transform:rotate(-28deg)}45%{transform:rotate(18deg)}55%{transform:rotate(18deg)}}
+@keyframes sorealAlEtincelleV1{0%,44%{opacity:0;transform:scale(.3)}52%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.4) translateY(-6px)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="diggers"] .soreal-idle-nav-emoji-v2{transform-origin:70% 80%;animation:sorealAlPiocheV1 .8s ease-in infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="diggers"] .soreal-idle-nav-cadre-v2::after{content:"✨";position:absolute;left:-3px;bottom:-3px;font-size:12px;pointer-events:none;animation:sorealAlEtincelleV1 .8s ease-out infinite}
+
+/* Beards : la barbe ondule. */
+@keyframes sorealAlOndeV1{0%,100%{transform:skewX(-10deg) rotate(-4deg)}50%{transform:skewX(10deg) rotate(4deg)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="beards"] .soreal-idle-nav-emoji-v2{transform-origin:50% 20%;animation:sorealAlOndeV1 1.1s ease-in-out infinite}
+
+/* Hacks : le texte et le badge « glitchent » (décalage et clignotement verts). */
+@keyframes sorealAlGlitchV1{0%,86%,100%{transform:translateX(0);filter:none}88%{transform:translateX(-2px);filter:drop-shadow(2px 0 #22ff88) drop-shadow(-2px 0 #ff2a6d)}92%{transform:translateX(2px);filter:drop-shadow(-2px 0 #22ff88) drop-shadow(2px 0 #ff2a6d)}96%{transform:translateX(-1px)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="hacks"] .soreal-idle-nav-cadre-v2,
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="hacks"] .soreal-idle-nav-texte-v2{animation:sorealAlGlitchV1 1.6s steps(1) infinite}
+
+/* Wishes : des étoiles scintillent tour à tour autour du badge. */
+@keyframes sorealAlScintilleV1{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(35deg)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wishes"] .soreal-idle-nav-cadre-v2::before{content:"✦";position:absolute;left:-5px;top:-3px;font-size:12px;color:#fff;text-shadow:0 0 6px #fde68a;pointer-events:none;animation:sorealAlScintilleV1 1.4s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wishes"] .soreal-idle-nav-cadre-v2::after{content:"✦";position:absolute;right:-5px;bottom:-3px;font-size:10px;color:#fff;text-shadow:0 0 6px #fde68a;pointer-events:none;animation:sorealAlScintilleV1 1.4s ease-in-out .7s infinite}
+
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1,
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1 *,
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1::before,
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1::after{animation:none!important}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1{box-shadow:0 0 0 2px var(--nav-color,#7dd3fc),0 0 12px var(--nav-color,#7dd3fc)}
+}

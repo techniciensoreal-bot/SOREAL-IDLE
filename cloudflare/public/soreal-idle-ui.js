@@ -11220,6 +11220,39 @@
        * Identité de chaque bouton du menu (Norman, 2026-10-03 : « refais les boutons du menu en haut, je ne les aime pas ; ils doivent être beaucoup plus parlants par rapport à ce qu'ils font ; une identité par
        * bouton »). Chaque menu a sa COULEUR (IDLE_NAV_COULEURS_V1), son ICÔNE, la FORME de son badge (bouclier pour le combat, goutte pour le sang, bulle pour le chat…) et un VERBE qui dit ce qu'on y fait.
        */
+      /*
+       * Menu ALIMENTÉ (Norman, 2026-10-03 : « quand un menu est alimenté, c'est-à-dire quand on y place de l'énergie, un effet dessus ; chaque bouton avec un effet qui représente ce qu'il fait ») : un menu qui
+       * consomme de l'énergie, de la magie ou de la ressource 3 reçoit la classe « alimente-v1 » tant qu'on y en place ; l'effet propre à chaque menu est dans soreal-idle-themes.css (data-effet-v1 = identifiant du menu).
+       */
+      const IDLE_MENUS_ALIMENTABLES_V1={entrainement:1,augmentations:1,avance:1,machine:1,sang:1,wandoos:1,ngu:1,yggdrasil:1,diggers:1,beards:1,hacks:1,wishes:1};
+      function idleMenuAlimenteV1_(id,j){
+        if(!j||!IDLE_MENUS_ALIMENTABLES_V1[id])return false;
+        if(id==='entrainement'){
+          const liste=j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[];
+          return liste.some(function(x){return x&&idleNombre_(x.allocation)>0;});
+        }
+        const sid=IDLE_SYSTEME_PAR_MENU_V1[id];
+        const systemes=j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+        const sys=systemes.find(function(x){return x&&x.id===sid;});
+        const etat=sys&&sys.state;
+        if(!etat)return false;
+        const a=etat.allocation;
+        if(a&&(idleNombre_(a.energy)>0||idleNombre_(a.magic)>0||idleNombre_(a.r3)>0))return true;
+        const donnees=etat.data||{};
+        const enSomme=function(objet,cles){
+          return Object.keys(objet||{}).some(function(k){const p=objet[k]||{};return cles.some(function(c){return idleNombre_(p[c])>0;});});
+        };
+        if(id==='augmentations')return enSomme(donnees.pairs,['energy','upgradeEnergy']);
+        if(id==='avance')return enSomme(donnees.tracks,['energy']);
+        return false;
+      }
+      function actualiserNavAlimenteIdleV1_(){
+        if(!idleEtat)return;
+        document.querySelectorAll('.soreal-idle-nav-button-v28[data-menu-id-v1]').forEach(function(b){
+          b.classList.toggle('alimente-v1',idleMenuAlimenteV1_(b.getAttribute('data-menu-id-v1'),idleEtat));
+        });
+      }
+      if(typeof setInterval==='function')setInterval(actualiserNavAlimenteIdleV1_,500);
       const IDLE_NAV_FORMES_V1={
         cercle:'circle(50% at 50% 50%)',
         hexagone:'polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)',
@@ -11530,11 +11563,12 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
                   data-menu-id-v1="${m.id}"
+                  data-effet-v1="${m.id}"
                   title="${idleHtml_(m.nom+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
