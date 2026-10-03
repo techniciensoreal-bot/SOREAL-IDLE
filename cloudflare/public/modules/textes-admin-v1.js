@@ -296,6 +296,8 @@ function dessinerEditeur_(){
       '<div class="stx-actions">'+
         '<button type="button" data-stx-act="ecouter" id="sorealIdleTexteEcouterV1">▶ Écouter</button>'+
         '<button type="button" data-stx-act="generer" id="sorealIdleTexteGenererV1">🎙 Générer les voix</button>'+
+        '<button type="button" data-stx-act="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
+        '<button type="button" data-stx-act="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
         '<label style="display:flex;align-items:center;gap:6px;margin:0;font-size:13px;text-transform:none"><input type="checkbox" id="sorealIdleTexteToutesV1"> tout régénérer</label>'+
       '</div>'+
       '<div class="stx-actions">'+
@@ -324,7 +326,7 @@ function verifierStudio_(){
     studio={ok:Boolean(d&&d.ok),texte:d&&d.ok?'🟢 Studio de voix connecté ('+(d.modele||'')+')':'Studio de voix : réponse inattendue.'};
     afficherEtat_(statutLigne_());
   }).catch(function(){
-    studio={ok:false,texte:'🔴 Studio de voix non détecté sur ce PC : lance « lancer.bat » (dossier cloudflare/tools/voice-studio) pour générer les voix. Écouter et enregistrer fonctionnent sans lui.'};
+    studio={ok:false,texte:'🔴 Studio de voix non détecté sur ce PC : clique sur « 🚀 Lancer le studio » (ou lance « lancer.bat » dans cloudflare/tools/voice-studio) pour générer les voix. Écouter et enregistrer fonctionnent sans lui.'};
     afficherEtat_(statutLigne_());
   });
 }
@@ -624,6 +626,12 @@ document.addEventListener('click',function(ev){
       if(act==='fermer'){fermer_();return;}
       if(act==='ecouter'){ecouter_();return;}
       if(act==='generer'){generer_();return;}
+      if(act==='studio-lancer'||act==='studio-arreter'){
+        var pilote=window.__SOREAL_IDLE_STUDIO_PILOTE_V1__;
+        if(!pilote){afficherEtat_('Module du pilote absent : recharge la page.',true);return;}
+        pilote[act==='studio-lancer'?'lancer':'arreter'](function(texte,erreur){afficherEtat_(texte,erreur);},verifierStudio_);
+        return;
+      }
       if(act==='enregistrer'){arreterEcoute_();enregistrer_();return;}
       if(act==='retablir'){retablir_();return;}
     }

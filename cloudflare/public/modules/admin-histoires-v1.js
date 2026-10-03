@@ -393,6 +393,8 @@ function dessinerEditeur_(){
       '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-g="enregistrer">💾 Enregistrer</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="tester">▶ Tester</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="voix" id="sorealIdleAdminBtnVoixV1">🎙 Générer les voix</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
       '<label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" id="sorealIdleAdminToutesV1"> tout régénérer</label>'+
     '</div>';
   afficherEtat_();
@@ -536,6 +538,13 @@ function enregistrer_(){
 
 /* ---------- voix ---------- */
 
+/* Boutons « Lancer / Arrêter le studio » (Norman, 2026-10-03) : parlent au pilote local (modules/studio-pilote-v1.js, tools/voice-studio/pilote.py). */
+function pilotageStudio_(lancer){
+  var p=window.__SOREAL_IDLE_STUDIO_PILOTE_V1__;
+  if(!p){afficherEtat_('Module du pilote absent : recharge la page.',true);return;}
+  p[lancer?'lancer':'arreter'](function(texte,erreur){afficherEtat_(texte,erreur);},verifierStudio_);
+}
+
 function verifierStudio_(){
   studio={ok:null,texte:'Studio de voix : vérification…'};
   afficherEtat_();
@@ -543,7 +552,7 @@ function verifierStudio_(){
     studio={ok:Boolean(d&&d.ok),texte:d&&d.ok?'🟢 Studio de voix connecté ('+(d.modele||'')+' · '+(d.gpu||'')+')':'Studio de voix : réponse inattendue.'};
     afficherEtat_();
   }).catch(function(){
-    studio={ok:false,texte:'🔴 Studio de voix non détecté sur ce PC : lance « lancer.bat » (dossier cloudflare/tools/voice-studio), puis rouvre cet écran. Sur iPhone/Safari, la génération est impossible.'};
+    studio={ok:false,texte:'🔴 Studio de voix non détecté sur ce PC : clique sur « 🚀 Lancer le studio » (ou lance « lancer.bat » dans cloudflare/tools/voice-studio). Sur iPhone/Safari, la génération est impossible.'};
     afficherEtat_();
   });
 }
@@ -799,6 +808,7 @@ document.addEventListener('click',function(ev){
     if(act==='enregistrer'){enregistrer_();return;}
     if(act==='tester'){lireChamps_();var err=valider_();if(err){afficherEtat_(err,true);return;}jouer_(edition);return;}
     if(act==='voix'){genererVoix_();return;}
+    if(act==='studio-lancer'||act==='studio-arreter'){pilotageStudio_(act==='studio-lancer');return;}
     if(act==='pron-ajouter'){ajouterPrononciation_();return;}
     if(act==='pron-tester'){essayerPrononciation_((document.getElementById('sorealIdleAdminPronDitV1')||{}).value);return;}
   }
