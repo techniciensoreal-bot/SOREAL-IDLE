@@ -22,10 +22,10 @@ assert.equal(state.adventure.completedSets.training,true);
 assert.equal(state.adventure.permanent.energySpeedFlat,2);
 
 // Raw Energy Speed 1 + Training Set 2 = effective speed 3.
-// NGU generation: 50 / ceil(50/3) = 50/17 fills per second at 1 bar.
+// Génération continue (Norman, 2026-10-03) : vitesse 3 = 3 remplissages par seconde à 1 barre.
 state.resources.energy.speed=1;
 state.resources.energy.bars=1;
 const rate=idleNguResourceGenerationPerSecond(state,"energy");
-assert.ok(Math.abs(rate-(50/17))<1e-9, "Training Set +2 Energy Speed must affect actual Energy generation.");
+assert.ok(Math.abs(rate-3)<1e-9, "Training Set +2 Energy Speed must affect actual Energy generation.");
 
 console.log("idle-training-set-energy-speed: OK");

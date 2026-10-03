@@ -5114,7 +5114,7 @@
           'Croissance naturelle au Rebirth : toutes les 20 énergies obtenues ajoutent 1 énergie à ton max, mais SEULEMENT cette croissance-ci s’arrête à 100 000 — au-delà, seuls le Plafond (EXP) et tes bonus la font encore grandir.',
           'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+(idleNombre_(info.perSecond)>=2?' énergies':' énergie')+' par seconde.',
           '',
-          'Vitesse d’énergie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill)+' ticks. '+
+          'Vitesse d’énergie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill,2)+' ticks. '+
             (info.nextSpeed!=null
               ?'Prochain palier de vitesse : '+nombreInfobulleIdleV1_(info.nextSpeed,1)+'.'
               :'Vitesse maximale : la barre se remplit à chaque tick.'),
@@ -5156,7 +5156,7 @@
           'Au Rebirth, tu auras '+nombreInfobulleIdleV1_(info.capAfterRebirth)+' de Magie.',
           'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+' de Magie par seconde.',
           '',
-          'Vitesse de Magie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill)+' ticks. '+
+          'Vitesse de Magie actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill,2)+' ticks. '+
             (info.nextSpeed!=null
               ?'Prochain palier de vitesse : '+nombreInfobulleIdleV1_(info.nextSpeed,1)+'.'
               :'Vitesse maximale : la barre se remplit à chaque tick.'),

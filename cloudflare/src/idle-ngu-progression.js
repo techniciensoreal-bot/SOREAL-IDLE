@@ -2526,8 +2526,8 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
   const r=state.resources[resource]||defaultResource(resource);
   const speed=clamp(idleNguEffectiveResourceStatV1(state,resource,"speed"),0.1,50);
-  const ticksPerFill=Math.max(1,Math.ceil(50/speed));
-  const fillsPerSecond=50/ticksPerFill;
+  /* Continu (Norman, 2026-10-03 : « chaque achat réduit un petit peu le temps nécessaire pour générer la ressource ») : la vitesse est le nombre de remplissages par seconde (50 = 1 par tick), plus de paliers par tick entier. */
+  const fillsPerSecond=speed;
   const bars=idleNguEffectiveResourceStatV1(state,resource,"bars");
   return fillsPerSecond*Math.max(1,bars);
 }
@@ -7229,7 +7229,7 @@ function resourceInfoV1(state, resource, context = {}) {
   const r = state.resources[resource];
   if (!r) return null;
   const speed = clamp(idleNguEffectiveResourceStatV1(state, resource, "speed"), 0.1, 50);
-  const ticksPerFill = Math.max(1, Math.ceil(50 / speed - 1e-9));
+  const ticksPerFill = Math.max(1, Math.round((50 / speed) * 100) / 100);
   const capRun = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
   const generated = Math.max(0, num(r.generatedThisRun, 0));
   const room = Math.max(0, 100000 - Math.min(100000, num(r.capNaturel, num(r.cap, 0))));
@@ -7241,7 +7241,7 @@ function resourceInfoV1(state, resource, context = {}) {
     perSecond: idleNguResourceGenerationPerSecond(state, resource),
     speed,
     ticksPerFill,
-    nextSpeed: ticksPerFill > 1 ? Math.ceil((50 / (ticksPerFill - 1)) * 10 - 1e-9) / 10 : null
+    nextSpeed: speed < 50 - 1e-9 ? Math.min(50, Math.round((speed + 0.1) * 10) / 10) : null
   };
 }
 
