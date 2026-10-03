@@ -31,6 +31,8 @@
           'Le bandeau « En direct » annonce l’article acheté par les autres joueurs, la durée du run lors d’un Rebirth et les récompenses de connexion récupérées ; les longs messages du chat y passent en entier. Le chat reste collé aux derniers messages.',
           'Des récompenses de connexion mensuelles apparaissent dans un menu une fois découvert : une case par jour du mois, qui s’allument une à une. Plus tu enchaînes les jours, plus c’est généreux ; rater un jour te ramène à la première case. Les jours 1 et 2 d’octobre sont offerts à tous.',
           'Le menu des récompenses d’Or est plus clair : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés avec le total d’AP obtenus depuis le début, puis deux cadres repliables (un par liste de récompenses), de 20 lignes par page, avec des pages pour les plus anciennes.',
+          'Les popups d’objet s’ouvrent après une demi-seconde de survol, au lieu de s’ouvrir dès que la souris passe dessus.',
+          'Le coffre a maintenant une recherche : tape un nom d’objet ou une statistique (par exemple Magic Power) et seuls les objets correspondants restent affichés.',
           'Popup des objets : l’intitulé de chaque statistique a la couleur du boost qui la remplit (orange pour la puissance et les PV max, bleu pour l’endurance et la régénération, jaune pour les spéciaux).',
           'Les boutons prêts à servir brillent de façon bien visible (dans le menu comme dans la page), un nouveau son de clochettes de vieux magasin accueille dans la boutique, et la machine à Or gagne sa barre qui se remplit au rythme de ses remplissages par seconde ; ses chiffres se mettent à jour en direct.'
         ]

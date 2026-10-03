@@ -61,12 +61,12 @@ assert.match(css, /\.soreal-idle-inv-auto-titre-v1\s*\{/, "même style que le Co
  */
 assert.match(ui, /if\(event\.detail&&event\.detail\.pointerType==='mouse'\)return;/, "le maintien du clic (souris) n'ouvre plus le popup");
 assert.match(ui, /function survolPossibleIdleV1_\(event\)\{[\s\S]{0,300}\(hover:hover\) and \(pointer:fine\)/, "seulement avec une vraie souris");
-assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,900}ouvrirSurvolIdleV1_\(element,id\)/, "survol d'un objet : ouverture directe, sans délai");
-assert.ok(!ui.includes("IDLE_SURVOL_DELAI_MS_V1"), "plus aucun délai d'ouverture au survol");
-assert.ok(!ui.includes("planifierSurvolIdleV1_"), "plus de minuteur d'ouverture différée");
-assert.ok(!ui.includes("idleSurvolEnAttenteV1"), "plus d'état 'en attente' (rien à attendre)");
-assert.ok(!/mousemove[\s\S]{0,80}idleSurvolEnAttenteV1/.test(ui), "plus besoin de relancer une attente à chaque mouvement de la souris (les autres écouteurs mousemove, glisser une fenêtre, restent)");
-assert.match(ui, /cibleDansPopupDetailsObjetAdventureIdleV207_\(cible\)\)\{\s*clearTimeout\(idleSurvolTimerFermerV1\)/, "tant que la souris est dans le popup : il reste ouvert");
+/* 2026-10-03 (Norman : « les popups s'ouvrent trop vite au passage de la souris : une demi-seconde ») : ouverture différée de 500 ms ; toujours UN seul popup (l'ancien se ferme dès qu'on change d'objet). */
+assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,2200}ouvrirSurvolIdleV1_\(element,id\);[\s\S]{0,120}IDLE_SURVOL_DELAI_OUVERTURE_MS_V1\)/, "survol d'un objet : ouverture après 500 ms");
+assert.ok(ui.includes('const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=500;'), 'délai d une demi-seconde');
+assert.ok(!ui.includes('IDLE_SURVOL_DELAI_MS_V1'), 'l ancien délai d 1 s (qui laissait deux popups) n existe plus');
+assert.ok(!ui.includes('planifierSurvolIdleV1_'), 'pas de minuteur d ouverture par mouvement de souris');
+assert.match(ui, /cibleDansPopupDetailsObjetAdventureIdleV207_\(cible\)\)\{\s*(annulerOuvertureSurvolIdleV1_\(\);\s*)?clearTimeout\(idleSurvolTimerFermerV1\)/, "tant que la souris est dans le popup : il reste ouvert (et aucune nouvelle ouverture en attente)");
 assert.match(ui, /fermerSurvolIdleV1_\(\);\s*\},200\)/, "sortie de l'objet et du popup : fermeture après un court délai de grâce (jamais un délai d'ouverture)");
 assert.match(ui, /document\.documentElement\.addEventListener\('mouseleave'/, "sortie de la fenêtre du navigateur : fermeture");
 assert.match(ui, /idleAdventureDragIdV138\|\|\s*idleAdventureGesteV196\|\|\s*idleAdventureComparerEnAttenteV183/, "pas de popup pendant un glisser-déposer ni une comparaison");

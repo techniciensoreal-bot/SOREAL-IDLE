@@ -6171,3 +6171,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 .soreal-idle-v138-details-stat span.sb-power-v1{color:#ff9d2f}
 .soreal-idle-v138-details-stat span.sb-toughness-v1{color:#4da3ff}
 .soreal-idle-v138-details-stat span.sb-special-v1{color:#ffd84a}
+
+/* Recherche dans le Coffre (Norman, 2026-10-03). */
+.soreal-idle-coffre-recherche-v1{width:100%;box-sizing:border-box;margin:0 0 10px;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(8,12,22,.85);color:#fff;font-size:15px}
+.soreal-idle-coffre-recherche-v1::placeholder{color:#8b93ab}

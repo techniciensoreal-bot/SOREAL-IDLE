@@ -19516,6 +19516,19 @@ function pageAventureIdleV28_(j){
       let idleSurvolIdV1='';
       let idleSurvolTimerFermerV1=0;
       let idleSurvolBloqueV1=false;
+      /*
+       * Délai d'ouverture (Norman, 2026-10-03 : « les fenêtres popup s'ouvrent trop vite au passage de la souris ; augmente à une demi-seconde ») : la souris doit rester 0,5 s sur l'objet.
+       * Si elle le quitte avant, rien ne s'ouvre. (Entre-temps, le délai d'une seconde de 2026-09-26 avait été retiré parce qu'il laissait coexister DEUX popups ; ici il n'y en a toujours qu'un :
+       * l'ancien se ferme dès qu'on change d'objet, et le nouveau n'apparaît qu'après le délai.)
+       */
+      const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=500;
+      let idleSurvolTimerOuvrirV1=0;
+      let idleSurvolEnAttenteIdV1='';
+      function annulerOuvertureSurvolIdleV1_(){
+        clearTimeout(idleSurvolTimerOuvrirV1);
+        idleSurvolTimerOuvrirV1=0;
+        idleSurvolEnAttenteIdV1='';
+      }
 
       function survolPossibleIdleV1_(event){
         if(!event||event.pointerType==='touch'||event.pointerType==='pen')return false;
@@ -19566,6 +19579,7 @@ function pageAventureIdleV28_(j){
         if(!survolPossibleIdleV1_(event))return;
         const cible=event.target;
         if(cibleDansPopupDetailsObjetAdventureIdleV207_(cible)){
+          annulerOuvertureSurvolIdleV1_();
           clearTimeout(idleSurvolTimerFermerV1);
           idleSurvolTimerFermerV1=0;
           return;
@@ -19576,11 +19590,20 @@ function pageAventureIdleV28_(j){
           clearTimeout(idleSurvolTimerFermerV1);
           idleSurvolTimerFermerV1=0;
           if(id===idleSurvolIdV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
-          /* Un autre objet : le popup du précédent se ferme, le nouveau s'ouvre aussitôt (plus aucun délai). */
+          if(id===idleSurvolEnAttenteIdV1)return;/* la souris est toujours sur le même objet : le délai court déjà */
+          annulerOuvertureSurvolIdleV1_();
+          /* Un autre objet : le popup du précédent se ferme tout de suite ; le nouveau s'ouvre après 0,5 s de survol. */
           if(idleSurvolIdV1&&id!==idleSurvolIdV1)fermerSurvolIdleV1_();
-          ouvrirSurvolIdleV1_(element,id);
+          idleSurvolEnAttenteIdV1=id;
+          idleSurvolTimerOuvrirV1=setTimeout(function(){
+            idleSurvolTimerOuvrirV1=0;
+            idleSurvolEnAttenteIdV1='';
+            ouvrirSurvolIdleV1_(element,id);
+          },IDLE_SURVOL_DELAI_OUVERTURE_MS_V1);
           return;
         }
+        /* La souris a quitté l'objet avant la fin du délai : rien ne s'ouvre. */
+        annulerOuvertureSurvolIdleV1_();
         /* ni objet ni popup : on ferme (avec un court délai de grâce) le popup ouvert par survol */
         if(idleSurvolIdV1&&!idleSurvolTimerFermerV1){
           idleSurvolTimerFermerV1=setTimeout(function(){
@@ -19592,6 +19615,7 @@ function pageAventureIdleV28_(j){
 
       /* La souris quitte la fenêtre du navigateur */
       document.documentElement.addEventListener('mouseleave',function(){
+        annulerOuvertureSurvolIdleV1_();
         if(!idleSurvolIdV1)return;
         clearTimeout(idleSurvolTimerFermerV1);
         idleSurvolTimerFermerV1=setTimeout(function(){
@@ -19605,6 +19629,7 @@ function pageAventureIdleV28_(j){
         if(!survolPossibleIdleV1_(event))return;
         if(!elementObjetGesteAdventureIdleV196_(event.target))return;
         idleSurvolBloqueV1=true;
+        annulerOuvertureSurvolIdleV1_();
         fermerSurvolIdleV1_();
       },true);
       document.addEventListener('pointerup',function(){
@@ -20512,10 +20537,58 @@ function pageAventureIdleV28_(j){
       }
       window.__changerPageCoffreV1__=changerPageCoffreV1_;
 
+      /*
+       * Recherche dans le Coffre (Norman, 2026-10-03 : « dans le coffre, on doit pouvoir taper une recherche, par exemple Magic power ; le filtre ne doit afficher que les items avec du Magic Power dans
+       * leurs stats ; ça doit marcher aussi pour les noms d'items »). Sans accent ni majuscule. La phrase tapée doit se retrouver ENTIÈRE dans le nom de l'objet (ou de son set / sa zone) ou dans
+       * UN SEUL intitulé de statistique : « magic power » ne ramène donc pas un objet qui a seulement « Magic Cap » et de la « Puissance ». Seules les cases déjà découvertes existent ici (anti-spoil).
+       */
+      let idleRechercheCoffreV1='';
+      function normaliserRechercheIdleV1_(t){
+        return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+      }
+      /* Intitulés (français et anglais, comme dans le jeu et sur le wiki) des statistiques d'un objet rangé au coffre. */
+      function intitulesStatsCoffreIdleV1_(item){
+        const noms=[];
+        if(!item)return noms;
+        if(idleNombre_(item.basePower)>0||idleNombre_(item.power)>0){noms.push('Puissance','Power','PV Max','Max HP','Max Health');}
+        if(idleNombre_(item.baseToughness)>0||idleNombre_(item.toughness)>0){noms.push('Endurance','Toughness','Regen PV','HP Regen','Health Regen');}
+        if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
+          item.specialsAll.forEach(function(sv){if(sv&&sv.type)noms.push(idleLabelSpecialBonusV1_(sv.type));});
+        }else if(item.specialType&&(idleNombre_(item.baseSpecial)>0||idleNombre_(item.special)>0)){
+          noms.push(idleLabelSpecialBonusV1_(item.specialType));
+        }
+        return noms;
+      }
+      function caseCoffreCorrespondIdleV1_(s,requete){
+        if(!requete)return true;
+        const champs=[s.name,s.setName,s.groupeNom].concat(s.occupe?intitulesStatsCoffreIdleV1_(s.item):[]);
+        return champs.some(function(c){return c&&normaliserRechercheIdleV1_(c).indexOf(requete)!==-1;});
+      }
+      /* Tape dans la recherche : seule la grille est redessinée (le champ garde le focus) et on revient à la page 1. */
+      window.__rechercheCoffreV1__=function(texte){
+        idleRechercheCoffreV1=String(texte==null?'':texte);
+        idlePageCoffreV1=1;
+        const conteneur=document.getElementById('sorealIdleCoffreGrilleV1');
+        const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
+        if(conteneur&&a)conteneur.innerHTML=grilleCoffreAdventureIdleV1_(Array.isArray(a.coffreSlots)?a.coffreSlots:[]);
+      };
+
       function rendreCoffreAdventureIdleV1_(slots){
         /* ANTI-SPOIL (règle n°2) : seules les cases déjà découvertes sont listées (ni « ??? », ni total). */
         slots=slots.filter(function(s){return s&&s.decouvert;});
         const occupees=slots.filter(function(s){return s&&s.occupe;}).length;
+        const grille=grilleCoffreAdventureIdleV1_(slots);
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-282 */
+        const ouvert=idleCoffreOuvertV1_();
+        return rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert);
+      }
+
+      /* Grille du coffre (cases + pagination), filtrée par la recherche. */
+      function grilleCoffreAdventureIdleV1_(slots){
+        slots=slots.filter(function(s){return s&&s.decouvert;});
+        const requete=normaliserRechercheIdleV1_(idleRechercheCoffreV1);
+        if(requete)slots=slots.filter(function(s){return caseCoffreCorrespondIdleV1_(s,requete);});
+        if(requete&&!slots.length)return '<div class="soreal-idle-note-v4" style="padding:8px 2px">Aucun objet du coffre ne correspond à « '+idleHtml_(idleRechercheCoffreV1.trim())+' ».</div>';
         const totalPagesCoffre=Math.max(1,Math.ceil(slots.length/IDLE_PAGINATION_TAILLE_V1));
         if(idlePageCoffreV1>totalPagesCoffre)idlePageCoffreV1=totalPagesCoffre;
         const debutPageCoffre=(idlePageCoffreV1-1)*IDLE_PAGINATION_TAILLE_V1;
@@ -20523,7 +20596,7 @@ function pageAventureIdleV28_(j){
 
         /* Norman (2026-10-01) : cases regroupées (zones, titans, cœurs, Looty, pendentifs...) avec un titre de section ; seules les cases déjà découvertes sont listées, donc jamais de titre de groupe encore inconnu. */
         let groupePrecedent=debutPageCoffre>0&&slots[debutPageCoffre-1]?String(slots[debutPageCoffre-1].groupeNom||''):null;
-        const grille='<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1">'+
+        return '<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1">'+
           slotsPage.map(function(s){
             let titre='';
             const nomGroupe=String(s.groupeNom||'');
@@ -20552,10 +20625,10 @@ function pageAventureIdleV28_(j){
           }).join('')+
         '</div>'+
         rendrePaginationIdleV1_(idlePageCoffreV1,totalPagesCoffre,'window.__changerPageCoffreV1__');
+      }
 
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-282 */
-        const ouvert=idleCoffreOuvertV1_();
-
+      /* Cadre du coffre : titre repliable, case de dépôt, champ de recherche et grille. */
+      function rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert){
         /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */
         return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+'">'+
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
@@ -20573,7 +20646,10 @@ function pageAventureIdleV28_(j){
             '<div>🧰</div>'+
             '<div>Glisse un objet réellement maxé ici pour le ranger dans sa case</div>'+
           '</div>'+
-          (ouvert?'<div style="margin-top:10px">'+grille+'</div>':'')+
+          (ouvert?'<div style="margin-top:10px">'+
+            '<input type="search" id="sorealIdleCoffreRechercheV1" class="soreal-idle-coffre-recherche-v1" placeholder="🔎 Rechercher : un nom, ou une stat (Magic Power…)" value="'+idleHtml_(idleRechercheCoffreV1)+'" oninput="window.__rechercheCoffreV1__(this.value)" autocomplete="off" spellcheck="false">'+
+            '<div id="sorealIdleCoffreGrilleV1">'+grille+'</div>'+
+          '</div>':'')+
         '</div>';
       }
 

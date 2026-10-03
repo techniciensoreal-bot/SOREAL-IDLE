@@ -2313,7 +2313,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 factSansEffet('Multiplicateur GPS de la Barbe',vue.beardMultiplier,'beardMultiplier')+
               '</div>'+
             '</div>'+
-            '<div class="soreal-idle-note-v4" style="margin:6px 0 2px">Les « remplissages de barre » sont ceux de la barre d’Or de la machine (elle produit l’Or). Les barres ci-dessus, elles, donnent le temps qu’il faut pour GAGNER un niveau.</div>'+
             '<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>'+
             (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
           '</section>'+
