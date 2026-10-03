@@ -2638,22 +2638,27 @@
               const ecouleAug=(performance.now()-augVisual.at)/1000;
               const orLive=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
               const pleineAug=seconds>0.0201&&(idleNombre_(x[1])*seconds+ecouleAug>=seconds-1e-9);
-              const manqueOr=orLive+1e-9<idleNombre_(x[4]);
-              const attenteOr=Boolean(x[3]||pleineAug)&&manqueOr;
-              const attenteServeur=Boolean(x[3]||pleineAug)&&!manqueOr&&seconds>0;
               /*
-               * Ponction d'Or INSTANTANÉE (Norman, 2026-10-03 : « à chaque nouveau level, la ponction d'or doit être visible tout de suite sur le compteur en haut de page »). Dès que la barre arrive au
-               * bout avec assez d'Or, le niveau est gagné : on retire son coût de l'Or affiché maintenant, une seule fois par niveau ; la synchro qui suit remet le chiffre exact du serveur.
+               * Niveaux SANS interruption (Norman, 2026-10-03 : « ça devrait simplement prendre l'Or nécessaire et commencer le niveau suivant sans interruption »). Chaque cycle de barre terminé
+               * avec assez d'Or retire tout de suite son coût de l'Or affiché et la barre repart aussitôt ; le serveur, qui compte les mêmes niveaux, remet les chiffres exacts à la synchro.
+               * La barre ne s'arrête que si l'Or manque pour le niveau suivant.
                */
-              if(attenteServeur&&!d['debite_'+x[0]]){
-                d['debite_'+x[0]]=true;
-                const coutNiveau=idleNombre_(x[4]);
+              const cyclesFaits=seconds>0.0201?Math.floor(idleNombre_(x[1])+ecouleAug/seconds+1e-9):0;
+              const cle='cycles_'+x[0];
+              let manqueOr=orLive+1e-9<idleNombre_(x[4]);
+              let debiteCeTick=false;
+              if(!manqueOr&&seconds>0.0201){
                 const monnaiesLocales=idleEtat.systemes&&idleEtat.systemes.currencies;
-                if(coutNiveau>0&&monnaiesLocales){
-                  monnaiesLocales.gold=Math.max(0,idleNombre_(monnaiesLocales.gold)-coutNiveau);
-                  patcherResumeStatsIdleV28_(idleEtat);
+                const coutNiveau=idleNombre_(x[4]);
+                while((d[cle]||0)<cyclesFaits&&monnaiesLocales&&idleNombre_(monnaiesLocales.gold)+1e-9>=coutNiveau){
+                  d[cle]=(d[cle]||0)+1;
+                  if(coutNiveau>0){monnaiesLocales.gold=Math.max(0,idleNombre_(monnaiesLocales.gold)-coutNiveau);debiteCeTick=true;}
                 }
+                if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);
+                manqueOr=(d[cle]||0)<cyclesFaits;
               }
+              const attenteOr=Boolean(x[3]||pleineAug)&&manqueOr;
+              const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!manqueOr))&&seconds>0;
               if(attenteServeur&&Date.now()-idleAugSyncV1>3000){
                 idleAugSyncV1=Date.now();
                 synchroniserJeuIdleV7_(true);
@@ -2666,12 +2671,10 @@
               /* Compte à rebours « Niveau suivant dans … » : suit la même horloge que la barre. */
               const etaEl=document.querySelector('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
               if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
-                etaEl.textContent=attenteServeur
-                  ?'⏳ Niveau en cours de validation…'
-                  :window.__texteEtaAugmentIdleV1__({seconds:seconds,progress:x[1],waiting:attenteOr,goldCost:x[4],gold:orLive},ecouleAug);
+                etaEl.textContent=window.__texteEtaAugmentIdleV1__({seconds:seconds,progress:x[1],waiting:attenteOr,goldCost:x[4],gold:orLive},ecouleAug);
               }
-              /* Barre pleine faute d'Or (ou en attente du serveur) : elle reste pleine (comme NGU) au lieu de tourner à vide. */
-              if((attenteOr||attenteServeur)&&seconds>0){
+              /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. Sinon elle continue sans s'arrêter. */
+              if(attenteOr&&seconds>0){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
                 el.style.width='100%';
                 el.style.transform='scaleX(1)';
