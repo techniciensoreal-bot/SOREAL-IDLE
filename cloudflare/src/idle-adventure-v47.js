@@ -3694,6 +3694,20 @@ const IDLE_ADVENTURE_COFFRE_PLACE_V1=Object.freeze((()=>{
   return place;
 })());
 const IDLE_ADVENTURE_SPECIAL_ORDRE_V1=Object.freeze(Object.fromEntries(Object.keys(SPECIALS).map((id,i)=>[id,i])));
+/* Types de statistiques d'un objet (Spécial et extras) pour la recherche du coffre : jamais une valeur de jeu, seulement les intitulés concernés. */
+function idleAdventureStatsTypesCoffreV1(definitionId,def){
+  const types=[];
+  if(def.kind==="equipment"){
+    for(const x of SET_ITEM_SPECIALS_V1[definitionId]||[])if(x&&x[0]&&!types.includes(x[0]))types.push(x[0]);
+  }else{
+    const sp=SPECIALS_EN_V1[definitionId];
+    if(sp){
+      if(sp.sType)types.push(sp.sType);
+      for(const e of sp.sExtra||[])if(e&&e.type&&!types.includes(e.type))types.push(e.type);
+    }
+  }
+  return types;
+}
 function idleAdventureCoffreSlotsV1(s){
   const ordreGroupe=Object.fromEntries(IDLE_ADVENTURE_COFFRE_GROUPES_V1.map((g,i)=>[g.id,i]));
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
@@ -3721,6 +3735,10 @@ function idleAdventureCoffreSlotsV1(s){
       return{
         definitionId,
         set:def.set,setName:def.setName,slot:def.slot,name:def.name,wikiItemId:def.wikiItemId||0,
+        /* Recherche du coffre (Norman, 2026-10-03 : « si je tape magic ou forest, il ne trouve rien ») : noms d'origine (anglais, jamais traduits par le choix de langue) et types de statistiques de l'objet. */
+        nameEn:def.kind==="equipment"?(SET_ITEM_NAMES_EN_V1[definitionId]||def.name):(SPECIALS_EN_V1[definitionId]?.name||def.name),
+        setNameEn:def.kind==="equipment"?(NOMS_SETS_EN_V1[def.set]||def.setName):"",
+        statsTypes:idleAdventureStatsTypesCoffreV1(definitionId,def),
         groupe:place.groupe,
         /* Titre de section : nom de la zone (équipement et butins de zone) ou du groupe ; le client ne l'affiche qu'avec une case découverte. */
         groupeNom:place.groupe==="zone"?place.zoneNom:groupe.nom,

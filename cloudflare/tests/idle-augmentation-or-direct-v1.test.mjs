@@ -7,8 +7,8 @@ import { readFileSync } from "node:fs";
  * une resynchronisation puis un nouveau rendu de la page repartent de l'état du serveur.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-assert.ok(ui.includes("const orLive=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);"));
-assert.ok(ui.includes("const pleineAug=seconds>0.0201&&(idleNombre_(x[1])*seconds+ecouleAug>=seconds-1e-9);"), "la barre arrivée au bout est détectée côté client");
-assert.ok(ui.includes("const attenteOr=Boolean(x[3]||pleineAug)&&manqueOr;") && ui.includes("const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!manqueOr))&&seconds>0;"));
+assert.ok(ui.includes("const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);"));
+assert.ok(ui.includes("while(k<200&&reste>=dureeK(k)-1e-9){"), "les niveaux terminés sont rejoués côté client (barre arrivée au bout, durée et coût de chaque niveau)");
+assert.ok(ui.includes("const attenteOr=(bloque||manqueOrServeur)&&secondes0>0;") && ui.includes("const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;"));
 assert.ok(ui.includes("Date.now()-idleAugSyncV1>3000") && ui.includes("rafraichirMenuRacineIdleV28_();"), "resynchronisation anti-rafale puis nouveau rendu");
 console.log("idle-augmentation-or-direct-v1: OK");

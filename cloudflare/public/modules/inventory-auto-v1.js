@@ -304,9 +304,7 @@
     var contenuFiltre=(u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap">'+types.map(function(t){
         return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+zoneFiltre_()+':'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
       }).join('')+'</div>':'')+
-      (u.lootFilterImproved?'<details style="margin-top:10px"><summary>Filtre amélioré ('+(s.lootFilter&&s.lootFilter.items?s.lootFilter.items.length:0)+' objet(s) filtré(s))</summary><div style="display:grid;gap:3px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px;max-height:260px;overflow:auto">'+
-        (s.filterable||[]).map(function(f){return caseACocher(html(f.name),f.filtered,'window.__inventaireAutoFiltreObjetV1__(\''+html(f.definitionId)+'\',this.checked)');}).join('')+
-      '</div></details>':'')+
+      (u.lootFilterImproved?'<div class="soreal-idle-note-v4" style="margin-top:8px">Filtre amélioré : dans le Coffre, chaque objet découvert a son bouton pour ne plus le ramasser dans cette zone.</div>':'')+
       (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin-top:8px">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'');
     lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:14px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
       contenuFiltre

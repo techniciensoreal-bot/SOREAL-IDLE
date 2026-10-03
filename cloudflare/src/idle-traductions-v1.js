@@ -71,6 +71,8 @@ function marcher_(v, table) {
   }
   let copie = null;
   for (const k of Object.keys(v)) {
+    /* Champs d'origine (nameEn, setNameEn) : jamais traduits (recherche du coffre dans les deux langues). */
+    if (k === "nameEn" || k === "setNameEn") continue;
     const x = v[k];
     const y = marcher_(x, table);
     if (y !== x) {

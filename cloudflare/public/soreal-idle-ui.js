@@ -2625,40 +2625,45 @@
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
           Object.keys(augVisual.defs||{}).forEach(function(id){
             const d=augVisual.defs[id]||{};
-            [['main',d.progress,d.seconds,d.waiting,d.goldCost],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost]].forEach(function(x){
+            [['main',d.progress,d.seconds,d.waiting,d.goldCost,d.level],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost,d.upgradeLevel]].forEach(function(x){
               const el=document.querySelector('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
               if(!el)return;
-              const seconds=idleNombre_(x[2]);
-              /*
-               * Or EN DIRECT (Norman, 2026-10-03 : « sans Or la barre avance plusieurs niveaux avant de dire ce qui manque ; avec assez d'Or elle n'avance plus »).
-               * « Il manque de l'Or » était jugé avec l'Or du dernier rendu de la page (périmé) : sans Or la barre bouclait après le 1er niveau, avec assez d'Or elle restait
-               * figée sur l'ancien état « en attente ». Ici : la barre arrivée au bout reste PLEINE ; s'il manque de l'Or (Or actuel), le message le dit ; sinon le serveur
-               * va monter le niveau, on le lui demande tout de suite (resynchronisation) au lieu d'attendre la prochaine.
-               */
+              const secondes0=idleNombre_(x[2]);
               const ecouleAug=(performance.now()-augVisual.at)/1000;
-              const orLive=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
-              const pleineAug=seconds>0.0201&&(idleNombre_(x[1])*seconds+ecouleAug>=seconds-1e-9);
+              const monnaiesLocales=idleEtat.systemes&&idleEtat.systemes.currencies;
               /*
-               * Niveaux SANS interruption (Norman, 2026-10-03 : « ça devrait simplement prendre l'Or nécessaire et commencer le niveau suivant sans interruption »). Chaque cycle de barre terminé
-               * avec assez d'Or retire tout de suite son coût de l'Or affiché et la barre repart aussitôt ; le serveur, qui compte les mêmes niveaux, remet les chiffres exacts à la synchro.
-               * La barre ne s'arrête que si l'Or manque pour le niveau suivant.
+               * Niveaux SANS interruption et chiffres instantanés (Norman, 2026-10-03 : « au moment où la barre passe, le nouveau chiffre doit être instantanément affiché et la barre
+               * continuer »). On rejoue localement, depuis le repère du dernier état serveur, les niveaux terminés : le niveau n coûte (niveau n × coût de base) en Or pour un Augment
+               * (n² × coût de base pour son Upgrade) et dure n fois plus longtemps que le premier. Chaque niveau terminé avec assez d'Or retire son coût du compteur d'Or, affiche tout de
+               * suite le niveau, le coût et la durée du suivant, et la barre repart ; elle ne s'arrête que si l'Or manque. Le serveur compte les mêmes niveaux : la synchro suivante confirme.
                */
-              const cyclesFaits=seconds>0.0201?Math.floor(idleNombre_(x[1])+ecouleAug/seconds+1e-9):0;
+              const niv0=Math.max(0,idleEntier_(x[5]));
+              const expo=x[0]==='upgrade'?2:1;
+              const cout0=idleNombre_(x[4]);
+              const rapport=function(k){return (niv0+1+k)/(niv0+1);};
+              const dureeK=function(k){return secondes0*rapport(k);};
+              const coutK=function(k){return cout0*Math.pow(rapport(k),expo);};
               const cle='cycles_'+x[0];
-              let manqueOr=orLive+1e-9<idleNombre_(x[4]);
-              let debiteCeTick=false;
-              if(!manqueOr&&seconds>0.0201){
-                const monnaiesLocales=idleEtat.systemes&&idleEtat.systemes.currencies;
-                const coutNiveau=idleNombre_(x[4]);
-                while((d[cle]||0)<cyclesFaits&&monnaiesLocales&&idleNombre_(monnaiesLocales.gold)+1e-9>=coutNiveau){
-                  d[cle]=(d[cle]||0)+1;
-                  if(coutNiveau>0){monnaiesLocales.gold=Math.max(0,idleNombre_(monnaiesLocales.gold)-coutNiveau);debiteCeTick=true;}
+              let debites=d[cle]||0;
+              let k=0,reste=idleNombre_(x[1])*secondes0+ecouleAug,bloque=false,debiteCeTick=false;
+              if(secondes0>0.0201){
+                while(k<200&&reste>=dureeK(k)-1e-9){
+                  if(k<debites){reste-=dureeK(k);k+=1;continue;}
+                  const cout=coutK(k);
+                  const orLocal=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
+                  if(Boolean(monnaiesLocales)&&orLocal+1e-9>=cout){
+                    if(cout>0)monnaiesLocales.gold=Math.max(0,orLocal-cout);
+                    debites+=1;debiteCeTick=true;reste-=dureeK(k);k+=1;
+                  }else{bloque=true;break;}
                 }
+                d[cle]=debites;
                 if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);
-                manqueOr=(d[cle]||0)<cyclesFaits;
               }
-              const attenteOr=Boolean(x[3]||pleineAug)&&manqueOr;
-              const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!manqueOr))&&seconds>0;
+              const secondes=secondes0>0.0201?dureeK(k):secondes0;
+              const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
+              const manqueOrServeur=Boolean(x[3])&&k===0&&orLive+1e-9<coutK(0);
+              const attenteOr=(bloque||manqueOrServeur)&&secondes0>0;
+              const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;
               if(attenteServeur&&Date.now()-idleAugSyncV1>3000){
                 idleAugSyncV1=Date.now();
                 synchroniserJeuIdleV7_(true);
@@ -2668,19 +2673,23 @@
                   if(racine&&racine.getAttribute('data-menu')==='augmentations'&&idleEtat)rafraichirMenuRacineIdleV28_();
                 },1500);
               }
-              /* Compte à rebours « Niveau suivant dans … » : suit la même horloge que la barre. */
+              /* Niveau, coût du prochain niveau et compte à rebours : mis à jour à l'instant où la barre passe. */
+              const nivEl=document.querySelector('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]');
+              if(nivEl)nivEl.textContent=String(niv0+k);
+              const coutEl=document.querySelector('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
+              if(coutEl&&k>0)coutEl.textContent=formatGrandNombreIdleV70_(coutK(k))+' Or';
               const etaEl=document.querySelector('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
               if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
-                etaEl.textContent=window.__texteEtaAugmentIdleV1__({seconds:seconds,progress:x[1],waiting:attenteOr,goldCost:x[4],gold:orLive},ecouleAug);
+                etaEl.textContent=window.__texteEtaAugmentIdleV1__({seconds:secondes,progress:secondes>0?Math.max(0,Math.min(1,reste/secondes)):0,waiting:attenteOr,goldCost:k>0?coutK(k):cout0,gold:orLive},0);
               }
               /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. Sinon elle continue sans s'arrêter. */
-              if(attenteOr&&seconds>0){
+              if(attenteOr){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
                 el.style.width='100%';
                 el.style.transform='scaleX(1)';
                 return;
               }
-              animerBarreCycliqueIdleV217_(el,seconds,seconds>0?((idleNombre_(x[1])+ecouleAug/seconds)%1):idleNombre_(x[1]));
+              animerBarreCycliqueIdleV217_(el,secondes,secondes>0?Math.max(0,Math.min(.999999,reste/secondes)):idleNombre_(x[1]));
             });
           });
         }
@@ -20618,12 +20627,33 @@ function pageAventureIdleV28_(j){
         }
         return noms;
       }
+      /* Types de statistiques de la case (fournis par le serveur, aussi pour une case encore vide) : intitulés anglais ET français (« magic », « magie », « puissance »…). */
+      function intitulesTypesCoffreIdleV1_(s){
+        const noms=[];
+        const tr=typeof window!=='undefined'?window.__SOREAL_IDLE_TRADUCTION_TEXTE_V1__:null;
+        (Array.isArray(s&&s.statsTypes)?s.statsTypes:[]).forEach(function(type){
+          const en=idleLabelSpecialBonusV1_(type);
+          noms.push(en);
+          if(typeof tr==='function')noms.push(tr(en));
+        });
+        if(s&&(idleNombre_(s.basePower)>0))noms.push('Power','Puissance');
+        return noms;
+      }
       function caseCoffreCorrespondIdleV1_(s,requete){
         if(!requete)return true;
-        const champs=[s.name,s.setName,s.groupeNom].concat(s.occupe?intitulesStatsCoffreIdleV1_(s.item):[]);
+        const champs=[s.name,s.nameEn,s.setName,s.setNameEn,s.groupeNom].concat(intitulesTypesCoffreIdleV1_(s)).concat(s.occupe?intitulesStatsCoffreIdleV1_(s.item):[]);
         return champs.some(function(c){return c&&normaliserRechercheIdleV1_(c).indexOf(requete)!==-1;});
       }
       /* Tape dans la recherche : seule la grille est redessinée (le champ garde le focus) et on revient à la page 1. */
+      window.__filtrerObjetCoffreIdleV1__=function(definitionId,bouton){
+        const filtre=!(bouton&&bouton.classList.contains('actif'));
+        if(bouton){
+          bouton.classList.toggle('actif',filtre);
+          bouton.textContent=filtre?'🚫':'🧹';
+          bouton.title=filtre?'Filtré : cet objet n’est plus ramassé dans cette zone. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet dans cette zone.';
+        }
+        if(typeof window.__inventaireAutoFiltreObjetV1__==='function')window.__inventaireAutoFiltreObjetV1__(definitionId,filtre);
+      };
       window.__rechercheCoffreV1__=function(texte){
         idleRechercheCoffreV1=String(texte==null?'':texte);
         idlePageCoffreV1=1;
@@ -20655,34 +20685,77 @@ function pageAventureIdleV28_(j){
 
         /* Norman (2026-10-01) : cases regroupées (zones, titans, cœurs, Looty, pendentifs...) avec un titre de section ; seules les cases déjà découvertes sont listées, donc jamais de titre de groupe encore inconnu. */
         let groupePrecedent=debutPageCoffre>0&&slots[debutPageCoffre-1]?String(slots[debutPageCoffre-1].groupeNom||''):null;
-        return '<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1">'+
-          slotsPage.map(function(s){
-            let titre='';
-            const nomGroupe=String(s.groupeNom||'');
-            if(nomGroupe&&nomGroupe!==groupePrecedent){
-              titre='<div style="grid-column:1/-1;font-weight:700;font-size:15px;margin:8px 0 2px;color:#dce5f3">'+idleHtml_(nomGroupe)+'</div>';
-            }
-            groupePrecedent=nomGroupe;
-            if(!s.occupe){
-              return titre+'<div class="soreal-idle-collection-card-v1">'+
-                '<div class="soreal-idle-collection-card-icon-v1"><span>⬜</span></div>'+
-                '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
-              '</div>';
-            }
-            const item=s.item||{};
-            const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};
-            const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
-            return titre+'<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
-              'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
-              'title="Cliquer pour reprendre l’objet et pouvoir le rééquiper">'+
-              /* Coffre épuré (Norman, 2026-10-02) : l'image prend toute la case ; seuls « 100 », le ✔ et le nom (par-dessus l'image) restent. */
-              '<div class="soreal-idle-collection-check-v1" title="Niveau maximum">✔</div>'+
-              '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(pseudoItem)+'</div>'+
-              '<div class="soreal-idle-collection-card-level-v1" title="Niveau 100/100">100</div>'+
+        /*
+         * Mannequins (Norman, 2026-10-03 : « chaque item de set comme s'il était équipé : tête, torse, jambes, bottes, comme si l'armure était posée sur un mannequin ; les sets côte à côte, et en
+         * dessous quand la ligne est occupée »). Les pièces d'un même set se rangent comme sur le personnage : colonne de gauche = tête, torse, jambes, bottes ; colonne de droite = arme puis
+         * accessoires du set. Les cases gardent leur taille. Anti-spoil : seules les pièces déjà découvertes existent ; une pièce inconnue ne laisse qu'un vide, jamais une case grisée.
+         */
+        /*
+         * Filtre de butin amélioré (Norman, 2026-10-03 : « quand on achète le filtre de loot spécial, c'est dans le coffre qu'on doit pouvoir désactiver un objet en particulier »). Une fois acheté, chaque
+         * case du coffre porte un petit bouton : un objet filtré n'est plus ramassé dans la zone en cours (chaque zone a son filtre). Il n'existe QUE pour les objets déjà découverts (les seuls du coffre).
+         */
+        const iaFiltre=idleEtat&&idleEtat.systemes&&idleEtat.systemes.inventoryAuto;
+        const filtreAmeliore=Boolean(iaFiltre&&iaFiltre.unlocked&&iaFiltre.unlocked.lootFilterImproved);
+        const defsFiltrees=filtreAmeliore&&iaFiltre.lootFilter&&Array.isArray(iaFiltre.lootFilter.items)?iaFiltre.lootFilter.items:[];
+        function boutonFiltre(s){
+          if(!filtreAmeliore)return '';
+          const filtre=defsFiltrees.indexOf(s.definitionId)!==-1;
+          return '<button type="button" class="soreal-idle-coffre-filtre-v1'+(filtre?' actif':'')+'" '+
+            'title="'+(filtre?'Filtré : cet objet n’est plus ramassé dans cette zone. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet dans cette zone.')+'" '+
+            'onclick="event.stopPropagation();window.__filtrerObjetCoffreIdleV1__(\''+idleHtml_(String(s.definitionId))+'\',this)">'+(filtre?'🚫':'🧹')+'</button>';
+        }
+        function carteCoffre(s){
+          if(!s.occupe){
+            return '<div class="soreal-idle-collection-card-v1">'+boutonFiltre(s)+
+              '<div class="soreal-idle-collection-card-icon-v1"><span>⬜</span></div>'+
               '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
             '</div>';
-          }).join('')+
-        '</div>'+
+          }
+          const item=s.item||{};
+          const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};
+          const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
+          return '<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
+            'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
+            'title="Cliquer pour reprendre l’objet et pouvoir le rééquiper">'+
+            /* Coffre épuré (Norman, 2026-10-02) : l'image prend toute la case ; seuls « 100 », le ✔ et le nom (par-dessus l'image) restent. */
+            '<div class="soreal-idle-collection-check-v1" title="Niveau maximum">✔</div>'+boutonFiltre(s)+
+            '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(pseudoItem)+'</div>'+
+            '<div class="soreal-idle-collection-card-level-v1" title="Niveau 100/100">100</div>'+
+            '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
+          '</div>';
+        }
+        const LIGNE_ARMURE={head:1,chest:2,legs:3,boots:4};
+        function mannequin(pieces){
+          let autres=1;
+          const cases=pieces.map(function(p){
+            let colonne=2,ligne;
+            if(LIGNE_ARMURE[p.slot]){colonne=1;ligne=LIGNE_ARMURE[p.slot];}
+            else if(p.slot==='weapon')ligne=1;
+            else{autres+=1;ligne=autres;}
+            return '<div style="grid-column:'+colonne+';grid-row:'+ligne+'">'+carteCoffre(p)+'</div>';
+          }).join('');
+          return '<div class="soreal-idle-coffre-mannequin-v1">'+cases+'</div>';
+        }
+        let html='';
+        let bloc=[];
+        const viderBloc=function(){if(bloc.length){html+=mannequin(bloc);bloc=[];}};
+        slotsPage.forEach(function(s){
+          const nomGroupe=String(s.groupeNom||'');
+          if(nomGroupe&&nomGroupe!==groupePrecedent){
+            viderBloc();
+            html+='<div class="soreal-idle-coffre-titre-groupe-v1" style="grid-column:1/-1;flex-basis:100%;font-weight:700;font-size:15px;margin:8px 0 2px;color:#dce5f3">'+idleHtml_(nomGroupe)+'</div>';
+          }
+          groupePrecedent=nomGroupe;
+          if(s.set){
+            if(bloc.length&&bloc[0].set!==s.set)viderBloc();
+            bloc.push(s);
+          }else{
+            viderBloc();
+            html+=carteCoffre(s);
+          }
+        });
+        viderBloc();
+        return '<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1 soreal-idle-coffre-mannequins-v1">'+html+'</div>'+
         rendrePaginationIdleV1_(idlePageCoffreV1,totalPagesCoffre,'window.__changerPageCoffreV1__');
       }
 

@@ -21,6 +21,6 @@ assert.ok(!runtime.includes("pvJoueurMaxEtatV1"), "la vie max n'est plus dériv�
 {
   const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
   assert.ok(!meta.includes("🪙 Gold<b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)"), "plus de second compteur d'Or dans la page Augmentations");
-  assert.ok(ui.includes("d[cle]=(d[cle]||0)+1;") && ui.includes("if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);"), "ponction d'Or locale, une fois par cycle terminé, compteur du haut mis à jour");
+  assert.ok(ui.includes("debites+=1;debiteCeTick=true;") && ui.includes("if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);"), "ponction d'Or locale, une fois par cycle terminé, compteur du haut mis à jour");
 }
 console.log("idle-augmentations-or-instantane OK");

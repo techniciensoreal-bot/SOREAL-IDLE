@@ -6175,3 +6175,12 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 /* Recherche dans le Coffre (Norman, 2026-10-03). */
 .soreal-idle-coffre-recherche-v1{width:100%;box-sizing:border-box;margin:0 0 10px;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(8,12,22,.85);color:#fff;font-size:15px}
 .soreal-idle-coffre-recherche-v1::placeholder{color:#8b93ab}
+
+/* Filtre de butin amélioré dans le Coffre (Norman, 2026-10-03) : petit bouton en bas à droite de chaque case découverte. */
+.soreal-idle-coffre-filtre-v1{position:absolute;right:2px;bottom:2px;z-index:4;width:18px;height:18px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(20,16,10,.78);font-size:10px;line-height:16px;text-align:center;cursor:pointer;opacity:.85}
+.soreal-idle-coffre-filtre-v1:hover{opacity:1;transform:scale(1.12)}
+.soreal-idle-coffre-filtre-v1.actif{border-color:#ef4444;background:rgba(127,29,29,.9);opacity:1}
+
+/* Coffre en mannequins (Norman, 2026-10-03) : chaque set est posé comme équipé (tête, torse, jambes, bottes ; arme et accessoires à côté), les sets côte à côte puis à la ligne. Cases à la taille d'avant (56 px). */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-mannequins-v1{display:flex!important;flex-wrap:wrap;gap:12px 14px;align-items:flex-start;justify-content:flex-start}
+.soreal-idle-coffre-mannequin-v1{display:grid;grid-template-columns:repeat(2,56px);grid-auto-rows:56px;gap:5px;padding:6px;border-radius:10px;background:rgba(216,169,63,.08);border:1px solid rgba(216,169,63,.28)}

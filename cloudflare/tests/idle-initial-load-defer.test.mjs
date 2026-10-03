@@ -4,10 +4,10 @@ import { readFileSync } from "node:fs";
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 
 const headEnd = html.indexOf("</head>");
-const cssPos = html.indexOf('<link rel="stylesheet" href="/soreal-idle-ui.css?v=39">');
+const cssPos = html.indexOf('<link rel="stylesheet" href="/soreal-idle-ui.css?v=40">');
 assert.ok(cssPos > 0 && cssPos < headEnd, "main CSS must be discovered in <head>");
 assert.equal(
-  html.match(/<link rel="stylesheet" href="\/soreal-idle-ui\.css\?v=39">/g)?.length,
+  html.match(/<link rel="stylesheet" href="\/soreal-idle-ui\.css\?v=40">/g)?.length,
   1,
   "main stylesheet must only be declared once"
 );
