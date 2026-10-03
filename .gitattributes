@@ -14,3 +14,5 @@
 * text=auto eol=lf
 *.js text eol=lf
 *.mjs text eol=lf
+# Les .bat Windows doivent garder des fins de ligne CRLF (sinon goto / labels peuvent échouer).
+*.bat text eol=crlf
