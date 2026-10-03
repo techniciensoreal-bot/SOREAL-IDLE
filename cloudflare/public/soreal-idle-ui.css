@@ -6153,3 +6153,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
     visibility:hidden;
   }
 }
+
+/* Prochaine compétence de Basic Training (verrouillée) : grisée, seul le prérequis est écrit (Norman, 2026-10-03). */
+.soreal-idle-bt-row-v120.verrouille{opacity:.55;filter:grayscale(1);pointer-events:none}
+.soreal-idle-bt-row-v120.verrouille .soreal-idle-bt-prerequis-v1{font-size:13px;font-weight:700;margin-top:4px;color:#b5bccb}

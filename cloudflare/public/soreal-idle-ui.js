@@ -14898,8 +14898,22 @@ let idleDialogueTimerV76=null;
       ){
         if(!skill)return '';
 
-        /* ANTI-SPOIL (AGENTS.md règle n°2) : une compétence encore verrouillée n'apparaît pas du tout. */
-        if(!skill.unlocked)return '';
+        /*
+         * Seule la PROCHAINE compétence à débloquer est montrée (groupeBasicTrainingIdleV120_ n'en passe jamais plus d'une), en gris, avec son seul prérequis
+         * (Norman, 2026-10-03 : « Nécessite 5K niveaux dans le menu au-dessus »). Aucune autre information (ni coût, ni effet) : règle n°2.
+         */
+        if(!skill.unlocked){
+          const liste=j&&j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[];
+          const dessus=liste.find(function(x){return x&&x.id===skill.prerequisite;});
+          const nomDessus=dessus?String(dessus.name||''):'';
+          return `
+            <div class="soreal-idle-bt-row-v120 ${idleHtml_(skill.group||'')} verrouille" data-basic-training-skill="${idleHtml_(skill.id)}" aria-disabled="true">
+              <div class="soreal-idle-bt-main-v120">
+                <div class="soreal-idle-bt-name-v120">${idleHtml_(skill.name)}</div>
+                <div class="soreal-idle-bt-prerequis-v1">Nécessite ${idleHtml_(formatGrandNombreIdleV70_(idleEntier_(skill.prerequisiteLevel)))} niveaux dans ${nomDessus?idleHtml_(nomDessus):'le menu au-dessus'}</div>
+              </div>
+            </div>`;
+        }
 
         const vitesseInitiale=
           Math.max(
