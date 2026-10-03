@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
-const debut = ui.indexOf("const IDLE_MENUS_ALIMENTABLES_V1=");
+const debut = ui.indexOf("const IDLE_MENUS_ETATS_V1=");
 const fin = ui.indexOf("function actualiserNavAlimenteIdleV1_");
 assert.ok(debut > 0 && fin > debut);
 const idleNombre_ = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };

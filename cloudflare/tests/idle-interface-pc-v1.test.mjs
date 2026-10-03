@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
-const debut = css.indexOf("@media (min-width:1100px) and (hover:hover) and (pointer:fine){");
+const debut = css.indexOf("@media (min-width:1100px) and (hover:hover) and (pointer:fine), (min-width:1500px) and (min-height:800px){");
 assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (jamais téléphone ni tablette tactile)");
 const bloc = css.slice(debut);
 assert.ok(bloc.includes("width:min(1700px,calc(100vw - 32px))"), "le jeu occupe la largeur de l'écran");

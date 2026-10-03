@@ -11224,8 +11224,69 @@
        * Menu ALIMENTÉ (Norman, 2026-10-03 : « quand un menu est alimenté, c'est-à-dire quand on y place de l'énergie, un effet dessus ; chaque bouton avec un effet qui représente ce qu'il fait ») : un menu qui
        * consomme de l'énergie, de la magie ou de la ressource 3 reçoit la classe « alimente-v1 » tant qu'on y en place ; l'effet propre à chaque menu est dans soreal-idle-themes.css (data-effet-v1 = identifiant du menu).
        */
+      /*
+       * Autres états qui animent un menu (Norman, 2026-10-03) : Aventure quand on farme dans une zone (pas en zone sûre) ; Renaissance quand le prochain NUMBER dépasse celui du dernier Rebirth ; Défis quand un défi est
+       * actif ; Titans quand un titan est prêt à être affronté ; Succès tant qu'il y en a de non vus ; Shop, Classement, Collection, Chat et Réglages tant qu'on les consulte.
+       */
+      const IDLE_MENUS_ETATS_V1={aventure:1,renaissance:1,challenges:1,titans:1,succes:1,shop:1,classement:1,bestiaire:1,chat:1,parametres:1};
+      const IDLE_MENUS_CONSULTES_V1={shop:1,classement:1,bestiaire:1,chat:1,parametres:1};
+      const CLE_SUCCES_VUS_V1='soreal_idle_succes_vus_v1';
+      function succesVusIdleV1_(){
+        try{
+          const brut=localStorage.getItem(CLE_SUCCES_VUS_V1);
+          if(brut===null)return null;
+          const liste=JSON.parse(brut);
+          return Array.isArray(liste)?liste:null;
+        }catch(_e){return null;}
+      }
+      function memoriserSuccesVusIdleV1_(ids){
+        try{localStorage.setItem(CLE_SUCCES_VUS_V1,JSON.stringify(ids));}catch(_e){}
+      }
+      /* Succès débloqués mais jamais regardés : la liste des succès vus est mémorisée sur l'appareil ; première visite = tout ce qui est déjà débloqué est considéré comme vu. Ouvrir le menu Succès les marque tous comme vus. */
+      function succesNonVusIdleV1_(j,menuActif){
+        const ach=j&&j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
+        const debloques=ach.filter(function(a){return a&&a.unlocked;}).map(function(a){return a.id;});
+        const vus=succesVusIdleV1_();
+        if(vus===null){memoriserSuccesVusIdleV1_(debloques);return false;}
+        const nonVus=debloques.filter(function(id){return vus.indexOf(id)===-1;});
+        if(menuActif==='succes'){
+          if(nonVus.length)memoriserSuccesVusIdleV1_(vus.concat(nonVus));
+          return false;
+        }
+        return nonVus.length>0;
+      }
+      function idleMenuEtatAnimeIdleV1_(id,j){
+        if(!j)return false;
+        if(IDLE_MENUS_CONSULTES_V1[id])return idleMenuActifV28===id;
+        if(id==='aventure'){
+          const a=aventureMetaIdleV47_(j);
+          return Boolean(a&&a.selectedZone&&String(a.selectedZone)!=='safe');
+        }
+        if(id==='renaissance'){
+          const r=j.renaissance||{};
+          const meta=j.systemes&&j.systemes.rebirth?j.systemes.rebirth:{};
+          const actuel=Math.max(1,idleNombre_(meta.number||r.number||1));
+          const prochain=Math.max(1,idleNombre_(meta.nextNumber||r.nextNumber||actuel));
+          return prochain>actuel*(1+1e-9);
+        }
+        if(id==='challenges'){
+          const c=j.systemes&&j.systemes.challenge;
+          return Boolean(c&&String(c.active||'')!=='');
+        }
+        if(id==='titans'){
+          const a=aventureMetaIdleV47_(j);
+          const liste=a&&Array.isArray(a.titans)?a.titans:[];
+          const maintenant=heureServeurIdleV1_();
+          return liste.some(function(t){
+            return t&&t.id&&t.progressionUnlocked!==false&&!(t.state&&t.state.hiddenPanel)&&!(idleNombre_(t.state&&t.state.nextAt)>maintenant);
+          });
+        }
+        if(id==='succes')return succesNonVusIdleV1_(j,idleMenuActifV28);
+        return false;
+      }
       const IDLE_MENUS_ALIMENTABLES_V1={entrainement:1,augmentations:1,avance:1,machine:1,sang:1,wandoos:1,ngu:1,yggdrasil:1,diggers:1,beards:1,hacks:1,wishes:1};
       function idleMenuAlimenteV1_(id,j){
+        if(IDLE_MENUS_ETATS_V1[id])return idleMenuEtatAnimeIdleV1_(id,j);
         if(!j||!IDLE_MENUS_ALIMENTABLES_V1[id])return false;
         if(id==='entrainement'){
           const liste=j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[];
