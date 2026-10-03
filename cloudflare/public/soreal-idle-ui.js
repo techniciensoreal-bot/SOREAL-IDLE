@@ -1822,9 +1822,21 @@
         },400);
       }
 
-      function appliquerBossSuivantLocalIdleV1_(){
+      /*
+       * vaincusAvant = nombre de boss vaincus AU MOMENT de la victoire. Norman (2026-10-03) : « j'ai tué le boss 45 et je suis passé au 47 ; après refresh j'étais bien au 46 ». Le serveur répond
+       * maintenant plus vite que le délai de 250 ms avant d'afficher le suivant : sa confirmation (déjà au boss 46, avec SON « boss suivant » = 47) arrivait avant, et on appliquait alors ce 47 par-dessus.
+       * On n'applique donc le boss suivant que si l'état est encore exactement celui de la victoire, et que ce boss suivant est bien le suivant immédiat.
+       */
+      function appliquerBossSuivantLocalIdleV1_(vaincusAvant){
         const n=idleEtat&&idleEtat.bossSuivant;
         if(PAGE_ACTIVE!=='idle'||!idleVictoireBossLocaleV49||!n||!n.bossId||idleEntier_(n.bossVaincus)<=idleEntier_(idleEtat.bossVaincus))return false;
+        if(vaincusAvant!==undefined&&idleEntier_(idleEtat.bossVaincus)>idleEntier_(vaincusAvant)){
+          /* Le serveur a déjà confirmé la victoire : son état fait foi, plus rien à prédire. */
+          idleVictoireBossLocaleV49=false;
+          arreterSurveillanceVictoireBossIdleV1_();
+          return false;
+        }
+        if(vaincusAvant!==undefined&&(idleEntier_(idleEtat.bossVaincus)!==idleEntier_(vaincusAvant)||idleEntier_(n.bossVaincus)!==idleEntier_(vaincusAvant)+1))return false;
         const vaincus=idleEntier_(n.bossVaincus);
         Object.assign(idleEtat,n);
         idleEtat.bossSuivant=null;
@@ -2926,10 +2938,11 @@
 
                 nettoyerImpactsIdleV50_();
 
+                const vaincusALaVictoireV1=idleEntier_(idleEtat.bossVaincus);
                 const apresBarreVide=function(){
                   transitionMortBossIdleV61_();
                   /* Le boss suivant apparaît presque tout de suite (court temps pour voir la victoire), sans attendre le serveur. */
-                  setTimeout(appliquerBossSuivantLocalIdleV1_,250);
+                  setTimeout(function(){appliquerBossSuivantLocalIdleV1_(vaincusALaVictoireV1);},250);
                   const synchroniserVictoire=function(){
                     synchroniserJeuIdleV7_(true);
                     surveillerConfirmationVictoireBossIdleV1_();

@@ -10081,6 +10081,20 @@ function construireEtatJoueurSorealIdle_(
       nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
     );
 
+  const pvJoueurMaxStockeV1 =
+    Math.max(
+      1,
+      nombreSorealIdle_(
+        row[c.PV_JOUEUR_MAX - 1],
+        CONFIG_SOREAL_IDLE.PV_JOUEUR_BASE
+      )
+    );
+
+  const pvJoueurMaxEtatV1 =
+    Number.isFinite(Number(combatPrincipalEtat && combatPrincipalEtat.pvMax)) && Number(combatPrincipalEtat.pvMax) > 0
+      ? Math.max(1000, Math.round(Number(combatPrincipalEtat.pvMax)))
+      : pvJoueurMaxStockeV1;
+
   return {
     id:
       String(
@@ -10374,23 +10388,23 @@ function construireEtatJoueurSorealIdle_(
         )
       ),
 
+    /*
+     * PV max EN DIRECT (Norman, 2026-10-03 : « quand je prends des niveaux dans Augmentations, ma barre de vie ne se met pas à jour tant que je n'ai pas fait Fight »). La valeur stockée dans la
+     * ligne n'était recalculée qu'au lancement d'un combat ; on utilise la même formule que le combat (combatPrincipalEtat.pvMax, calculé juste au-dessus avec les bonus du moment).
+     */
     pvJoueur:
-      Math.max(
-        0,
-        nombreSorealIdle_(
-          row[c.PV_JOUEUR - 1],
-          row[c.PV_JOUEUR_MAX - 1]
+      Math.min(
+        pvJoueurMaxEtatV1,
+        Math.max(
+          0,
+          nombreSorealIdle_(
+            row[c.PV_JOUEUR - 1],
+            row[c.PV_JOUEUR_MAX - 1]
+          )
         )
       ),
 
-    pvJoueurMax:
-      Math.max(
-        1,
-        nombreSorealIdle_(
-          row[c.PV_JOUEUR_MAX - 1],
-          CONFIG_SOREAL_IDLE.PV_JOUEUR_BASE
-        )
-      ),
+    pvJoueurMax: pvJoueurMaxEtatV1,
 
     defense:
       defenseEtat,

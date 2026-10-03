@@ -42,8 +42,8 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 }
 
 // 2. Client : le boss suivant s'affiche tout de suite, le serveur en retard ne ramène pas l'ancien boss.
-assert.ok(ui.includes("setTimeout(appliquerBossSuivantLocalIdleV1_,250);"), "appliqué 250 ms après la victoire prédite");
-assert.ok(ui.includes("function appliquerBossSuivantLocalIdleV1_(){") && ui.includes("Object.assign(idleEtat,n);"), "état du boss suivant appliqué localement");
+assert.ok(ui.includes("setTimeout(function(){appliquerBossSuivantLocalIdleV1_(vaincusALaVictoireV1);},250);"), "appliqué 250 ms après la victoire prédite");
+assert.ok(ui.includes("function appliquerBossSuivantLocalIdleV1_(vaincusAvant){") && ui.includes("Object.assign(idleEtat,n);"), "état du boss suivant appliqué localement");
 assert.ok(ui.includes("if(!confirmee&&Date.now()-idlePrevisionBossV1.debut<=15000)return true;"), "garde : un état serveur qui décrit encore l'ancien boss est ignoré");
 assert.ok(ui.includes("idlePrevisionBossV1.actif&&joueurServeur"), "garde en tête de la synchro de combat");
 
