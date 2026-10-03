@@ -286,3 +286,10 @@ const stats = (o = {}) => ({
 }
 
 console.log("idle-flux-v1 OK");
+
+// --- Message de chat long : passe en entier dans « En direct » (Norman, 2026-10-03). ---
+{
+  const flux = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
+  assert.ok(!flux.includes("t.slice(0,89)"), "plus de coupure à 90 caractères");
+  assert.ok(flux.includes("return String(m||'').replace(/\\s+/g,' ').trim();"), "texte du chat rendu en entier");
+}

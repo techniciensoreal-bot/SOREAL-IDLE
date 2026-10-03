@@ -134,10 +134,9 @@
     return 'il y a '+Math.round(m/60)+' h';
   }
 
-  /* Messages du chat : publics, donc sans filtre de découverte ; coupés pour tenir dans le bandeau. */
+  /* Messages du chat : publics, donc sans filtre de découverte ; passent EN ENTIER (Norman, 2026-10-03 : « quand un message est trop long, il est coupé dans En Direct ») : le bandeau défile en continu, la longueur n'est pas un problème (280 caractères au plus côté chat). */
   function texteChat(m){
-    const t=String(m||'').replace(/\s+/g,' ').trim();
-    return t.length>90?t.slice(0,89)+'…':t;
+    return String(m||'').replace(/\s+/g,' ').trim();
   }
 
   function visibles(){
