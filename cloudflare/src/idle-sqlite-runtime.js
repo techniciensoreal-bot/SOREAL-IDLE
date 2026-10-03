@@ -8283,7 +8283,8 @@ function appliquerProgressionEnergieSorealIdle_(
         ),
         ecoulePrisEnCompte,
         entrainementV41.defense,
-        entrainementV41.defenseEntrainement
+        /* URGENT 2026-10-03 : la défense d'entraînement brute vit dans entrainementV41.COMBAT (le champ de premier niveau n'existe pas) : sans elle, le multiplicateur de la régénération était perdu et le serveur régénérait ~10^35 fois trop peu (la barre montait côté client puis retombait à la synchro). */
+        entrainementV41.combat&&entrainementV41.combat.defenseEntrainement
       );
 
     pvJoueur =
