@@ -2144,8 +2144,8 @@
       function formaterPvFixeIdleV1_(valeur){
         const n=Math.max(0,idleNombre_(valeur));
         if(n<1000)return n.toFixed(2).replace('.',',');
-        const suffixes=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid'];
-        const rang=Math.floor(Math.log10(n)/3);
+        const suffixes=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid','Sxd','Spd','Ocd','Nod','Vg','Uvg','Dvg','Tvg','Qavg','Qivg','Sxvg','Spvg','Ocvg','Novg','Tg'];
+        const rang=Math.floor(Math.log10(n)/3+1e-9);
         if(rang>=suffixes.length)return n.toExponential(2);
         return (n/Math.pow(1000,rang)).toFixed(2)+suffixes[rang];
       }
