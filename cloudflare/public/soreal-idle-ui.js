@@ -11204,6 +11204,61 @@
 
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-131 */
+      /*
+       * Identité de chaque bouton du menu (Norman, 2026-10-03 : « refais les boutons du menu en haut, je ne les aime pas ; ils doivent être beaucoup plus parlants par rapport à ce qu'ils font ; une identité par
+       * bouton »). Chaque menu a sa COULEUR (IDLE_NAV_COULEURS_V1), son ICÔNE, la FORME de son badge (bouclier pour le combat, goutte pour le sang, bulle pour le chat…) et un VERBE qui dit ce qu'on y fait.
+       */
+      const IDLE_NAV_FORMES_V1={
+        cercle:'circle(50% at 50% 50%)',
+        hexagone:'polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)',
+        bouclier:'polygon(0 6%,50% 0,100% 6%,100% 58%,50% 100%,0 58%)',
+        losange:'polygon(50% 0,100% 50%,50% 100%,0 50%)',
+        octogone:'polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)',
+        etoile:'polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)',
+        goutte:'polygon(50% 0,78% 34%,94% 62%,86% 88%,50% 100%,14% 88%,6% 62%,22% 34%)',
+        triangle:'polygon(50% 2%,100% 96%,0 96%)',
+        etiquette:'polygon(0 18%,18% 0,100% 0,100% 82%,82% 100%,0 100%)',
+        bulle:'polygon(0 0,100% 0,100% 74%,62% 74%,38% 100%,38% 74%,0 74%)',
+        carte:'inset(0 round 28%)',
+        pentagone:'polygon(50% 0,100% 38%,82% 100%,18% 100%,0 38%)',
+        chevron:'polygon(0 0,70% 0,100% 50%,70% 100%,0 100%,30% 50%)',
+        engrenage:'polygon(40% 0,60% 0,66% 14%,82% 10%,90% 22%,86% 36%,100% 40%,100% 60%,86% 64%,90% 78%,82% 90%,66% 86%,60% 100%,40% 100%,34% 86%,18% 90%,10% 78%,14% 64%,0 60%,0 40%,14% 36%,10% 22%,18% 10%,34% 14%)'
+      };
+      const IDLE_NAV_IDENTITES_V1={
+        entrainement:{forme:'hexagone',verbe:'S’entraîner'},
+        augmentations:{forme:'losange',verbe:'Renforcer'},
+        combat:{forme:'bouclier',verbe:'Combattre'},
+        aventure:{forme:'pentagone',verbe:'Explorer'},
+        moneyPit:{forme:'cercle',verbe:'Jeter de l’Or'},
+        renaissance:{forme:'octogone',verbe:'Renaître'},
+        avance:{forme:'hexagone',verbe:'Perfectionner'},
+        machine:{forme:'engrenage',verbe:'Produire de l’Or'},
+        sang:{forme:'goutte',verbe:'Lancer des sorts'},
+        wandoos:{forme:'carte',verbe:'Booster'},
+        ngu:{forme:'losange',verbe:'Améliorer'},
+        yggdrasil:{forme:'pentagone',verbe:'Récolter'},
+        diggers:{forme:'hexagone',verbe:'Creuser'},
+        beards:{forme:'bouclier',verbe:'Cultiver'},
+        tower:{forme:'triangle',verbe:'Grimper'},
+        perks:{forme:'etoile',verbe:'Acheter des bonus'},
+        challenges:{forme:'chevron',verbe:'Relever des défis'},
+        titans:{forme:'octogone',verbe:'Affronter'},
+        macguffins:{forme:'pentagone',verbe:'Collecter'},
+        daycare:{forme:'carte',verbe:'Faire monter'},
+        questing:{forme:'etiquette',verbe:'Quêtes'},
+        quirks:{forme:'losange',verbe:'Bonus'},
+        hacks:{forme:'octogone',verbe:'Pirater'},
+        wishes:{forme:'etoile',verbe:'Faire un vœu'},
+        cards:{forme:'carte',verbe:'Collectionner'},
+        cooking:{forme:'cercle',verbe:'Cuisiner'},
+        succes:{forme:'etoile',verbe:'Trophées'},
+        shop:{forme:'etiquette',verbe:'Acheter'},
+        classement:{forme:'pentagone',verbe:'Se comparer'},
+        bestiaire:{forme:'hexagone',verbe:'Découvrir'},
+        chat:{forme:'bulle',verbe:'Discuter'},
+        parametres:{forme:'engrenage',verbe:'Régler'},
+        admin:{forme:'triangle',verbe:'Gérer'}
+      };
       const IDLE_NAV_COULEURS_V1={
         entrainement:'#3b82f6',
         combat:'#ef4444',
@@ -11232,6 +11287,7 @@
         wishes:'#c084fc',
         cards:'#e11d48',
         cooking:'#c2410c',
+        succes:'#cbd5e1',
         sellout:'#8b5cf6',
         spendExp:'#0891b2',
         shop:'#0891b2',
@@ -11465,11 +11521,13 @@
                   }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
-                  }"
+                  };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
                   data-menu-id-v1="${m.id}"
+                  title="${idleHtml_(m.nom+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
-                  ${m.icon} ${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}
+                  <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2">${m.icon}</span></span>
+                  <span class="soreal-idle-nav-texte-v2"><b>${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>
                 </button>
               `;
             }).join('')}

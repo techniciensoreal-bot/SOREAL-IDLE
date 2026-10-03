@@ -1303,3 +1303,94 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.sor
 @keyframes sorealTmOrRapideV1{from{filter:brightness(.95)}to{filter:brightness(1.35)}}
 .soreal-idle-tm-or-legende-v1{margin-top:5px;text-align:center;font-size:13px;font-weight:800;color:#ffe9a8;text-shadow:0 1px 3px #000}
 @media (prefers-reduced-motion:reduce){.soreal-idle-tm-or-remplissage-v1{animation:none;transform:scaleX(1)}}
+
+/* ====================== MENU DU HAUT : un bouton = une identité ======================
+ * Norman (2026-10-03) : « refais les boutons du menu en haut, je ne les aime pas ; ils doivent être beaucoup plus parlants par rapport à ce qu'ils font ; une identité par bouton ».
+ * Chaque bouton est une petite carte : un BADGE illustré (icône sur une forme propre au menu : bouclier, goutte, bulle, engrenage…, à la couleur du menu), le NOM du menu et un VERBE qui dit ce qu'on y fait.
+ * Variables posées par le jeu sur chaque bouton : --nav-color (couleur du menu, qui devient celle de la disponibilité quand quelque chose est prêt) et --forme (clip-path du badge). */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28{
+  gap:9px!important;padding:10px 9px!important;border-radius:18px!important;
+  background:linear-gradient(180deg,rgba(9,13,24,.97),rgba(14,20,36,.9))!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 10px 26px -10px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
+  scrollbar-width:thin;scroll-snap-type:x proximity;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
+  --c1:var(--nav-color,#6b7280);
+  --c2:color-mix(in srgb,var(--c1) 40%,#000);
+  display:flex!important;align-items:center;gap:9px;flex:0 0 auto;text-align:left;
+  padding:7px 15px 7px 8px!important;border-radius:15px!important;clip-path:none!important;
+  background:
+    radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 30%,transparent),transparent 62%),
+    linear-gradient(160deg,#141c30,#0b1020)!important;
+  border:1px solid color-mix(in srgb,var(--c1) 52%,transparent)!important;
+  border-bottom:3px solid var(--c1)!important;
+  color:#eaf0ff!important;font-weight:800;letter-spacing:0;text-shadow:none!important;
+  box-shadow:0 8px 16px -10px var(--c1);
+  scroll-snap-align:start;white-space:nowrap;
+  transition:transform .15s ease,box-shadow .2s ease,filter .2s ease;
+}
+/* Badge illustré : forme propre à chaque menu, dégradé de sa couleur, reflet. Le cadre porte l'ombre (le clip-path de l'enfant la couperait). */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{
+  flex:0 0 auto;width:38px;height:38px;display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.65)) drop-shadow(0 0 6px color-mix(in srgb,var(--c1) 55%,transparent));
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-badge-v2{
+  display:grid;place-items:center;width:100%;height:100%;font-size:20px;line-height:1;
+  clip-path:var(--forme,inset(0 round 28%));
+  background:
+    radial-gradient(circle at 30% 22%,rgba(255,255,255,.62),rgba(255,255,255,0) 46%),
+    linear-gradient(150deg,var(--c1),var(--c2));
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{display:flex;flex-direction:column;gap:2px;line-height:1.1;min-width:0}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:13.5px;font-weight:900;letter-spacing:.01em;color:#fff}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{
+  font-size:11px;font-weight:700;letter-spacing:.01em;color:color-mix(in srgb,var(--c1) 58%,#fff);opacity:.95;
+}
+@media (hover:hover){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28:hover{transform:translateY(-2px);box-shadow:0 12px 20px -10px var(--c1);filter:brightness(1.12)}
+}
+/* Menu ouvert : la carte se remplit de sa couleur, le badge devient clair. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active{
+  background:
+    radial-gradient(120% 140% at 0% 0%,rgba(255,255,255,.28),transparent 60%),
+    linear-gradient(150deg,var(--c1),var(--c2))!important;
+  border-color:rgba(255,255,255,.75)!important;border-bottom:3px solid #fff!important;
+  color:#fff!important;filter:none;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--c1) 70%,#fff),0 12px 24px -8px var(--c1);
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active .soreal-idle-nav-badge-v2{
+  background:radial-gradient(circle at 30% 22%,#fff,rgba(255,255,255,.78) 55%,rgba(255,255,255,.55));
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active .soreal-idle-nav-texte-v2 small{color:rgba(255,255,255,.92)}
+/* Disponibilité (Money Pit prêt…) : la carte entière prend la couleur et le badge palpite ; la lueur intérieure reste (voir plus haut). */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1{
+  background:
+    radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 55%,transparent),transparent 70%),
+    linear-gradient(160deg,color-mix(in srgb,var(--c1) 32%,#141c30),#0b1020)!important;
+  border-color:var(--c1)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-dispo-v1 .soreal-idle-nav-cadre-v2{animation:sorealNavBadgePalpiteV2 1.1s ease-in-out infinite}
+@keyframes sorealNavBadgePalpiteV2{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.16) rotate(-5deg)}}
+/* K.O. en Aventure : la carte clignote en rouge. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{
+  animation:sorealNavKoV2 .85s ease-in-out infinite!important;border-color:#ef4444!important;
+}
+@keyframes sorealNavKoV2{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.85);filter:brightness(1)}
+  50%{box-shadow:0 0 0 8px rgba(239,68,68,0),inset 0 0 18px 4px rgba(239,68,68,.75);filter:brightness(1.35)}
+}
+/* Menu fraîchement débloqué : la carte clignote (comportement d'origine), le badge aussi. */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-new-v1 .soreal-idle-nav-cadre-v2{animation:sorealNavBadgePalpiteV2 1.3s ease-in-out infinite}
+/* Rangement des boutons (appui long) : les cartes tremblent comme avant. */
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-dispo-v1 .soreal-idle-nav-cadre-v2,
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-new-v1 .soreal-idle-nav-cadre-v2{animation:none}
+}
+/* Petits écrans : cartes un peu plus compactes pour en voir plus à la fois. */
+@media (max-width:420px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:6px 12px 6px 7px!important;gap:8px}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:34px;height:34px}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-badge-v2{font-size:18px}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:13px}
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{font-size:10.5px}
+}
