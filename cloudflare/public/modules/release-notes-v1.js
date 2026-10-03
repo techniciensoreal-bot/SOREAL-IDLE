@@ -20,6 +20,7 @@
         points:[
           'Le serveur répond environ dix fois plus vite à chaque synchro (de 1 à 4 secondes avant, bien moins d’une demi-seconde maintenant) : il recalcule beaucoup moins de choses à chaque appel.',
           'Tous les chronos sont calés sur l’heure du serveur, plus sur celle de ton téléphone : barres et comptes à rebours restent exacts, ne se figent plus après une synchro, ne reculent plus quand la page se redessine, et le jeu se resynchronise dès que tu reviens sur l’onglet.',
+          'Correctif important : la régénération de ta vie tient de nouveau compte de tous tes multiplicateurs. Avant, elle était des milliards de fois trop faible côté serveur : la barre montait à l’écran puis retombait à chaque synchro. Elle monte maintenant jusqu’au bout.',
           'Fight Boss : les images s’animent pendant le combat (élans, secousses, halo rouge), d’autant plus fort que la vie d’un des deux combattants baisse. Barres de vie refaites avec dégradés, reflets et alertes. Le bouton Fight reste grisé tant que le serveur n’a pas validé le combat. Plus de boss sauté ni de retour en arrière après une victoire. En Aventure, la barre de l’ennemi est rouge.',
           'L’Or d’un niveau gagné est retiré tout de suite du compteur du haut de page, qui reste le seul compteur d’Or de la page.',
           'Basic Training : la compétence suivante apparaît en grisé avec son seul prérequis, et la case Synchro garde son état après un Rebirth.',
