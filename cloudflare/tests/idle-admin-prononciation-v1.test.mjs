@@ -36,7 +36,7 @@ assert.match(source, /data-adm-e="generer" data-i="'\+i\+'"/, "un bouton « Gén
 assert.match(source, /function genererEtape_\(i\)/);
 assert.match(source, /blocsDeEtape_\(etape\|\|\{\}\)/, "uniquement les blocs de CETTE étape");
 assert.match(source, /if\(a==='generer'\)\{genererEtape_\(i\);return;\}/);
-assert.match(source, /function synthetiser_\(texte,parleur\)\{\s*texte=appliquerPrononciations_\(texte,lirePrononciations_\(\)\);/, "correction appliquée à l'envoi au studio");
+assert.match(source, /function synthetiser_\(texte,parleur\)\{\s*return synthetiserBrut_\(appliquerPrononciations_\(texte,lirePrononciations_\(\)\),parleur\);/, "correction appliquée à l'envoi au studio (seul l'essai d'une prononciation envoie le texte brut)");
 // Le hash du bloc est calculé sur le texte d'origine (blocsDeTexte_) : aucune voix existante n'est invalidée par une correction.
 assert.match(source, /hash:t\.hashBloc\(e\.chunk\)/);
 assert.ok(!/hashBloc\(appliquerPrononciations_/.test(source), "l'empreinte ne dépend jamais de la correction");

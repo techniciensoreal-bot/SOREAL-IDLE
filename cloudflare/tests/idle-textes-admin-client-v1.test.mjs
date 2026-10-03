@@ -129,5 +129,5 @@ for (const m of ["const src=(page&&page._brut)||page;", "info=(info&&info._brut)
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.indexOf("/modules/textes-admin-v1.js") > index.indexOf("/modules/admin-histoires-v1.js") && index.indexOf("/modules/textes-admin-v1.js") < index.indexOf("/soreal-idle-ui.js"), "module chargé après l'éditeur d'histoires et avant le jeu");
 const admin = readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8");
-assert.ok(admin.includes("outilsVoix:{synthetiser:synthetiser_,televerser:televerserVoix_}") && admin.includes("textes.pageHtml()"), "menu Admin : textes sous les histoires, outils de voix partagés");
+assert.ok(admin.includes("outilsVoix:{synthetiser:synthetiser_,synthetiserBrut:synthetiserBrut_,televerser:televerserVoix_,") && admin.includes("textes.pageHtml()"), "menu Admin : textes sous les histoires, outils de voix partagés");
 console.log("idle-textes-admin-client-v1: OK");
