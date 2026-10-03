@@ -1501,7 +1501,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4{
     width:min(1700px,calc(100vw - 32px))!important;
     display:grid!important;
-    grid-template-columns:264px minmax(0,1fr);
+    grid-template-columns:288px minmax(0,1fr);
     column-gap:20px;align-items:start;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*{grid-column:2;min-width:0}
@@ -1519,11 +1519,17 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   }
   /* Money Pit : cadres, boutons et récompenses profitent de la largeur (l'image reste à sa taille). */
   body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] :is(.soreal-idle-money-actions-v206,.mp-cadre-v1,.cal-v1,.soreal-idle-money-scene-v206~.soreal-idle-offre-v1){max-width:1100px!important}
-  /* Cartes plus compactes dans la colonne : plus de menus visibles sans défiler. */
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{gap:5px!important;padding:8px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:3px 10px 3px 5px!important;gap:8px!important;border-bottom-width:2px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:34px!important;height:34px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:19px!important}
+  /*
+   * Harmonie (Norman, 2026-10-03 : « les menus sur la gauche sont minuscules comparés au reste ; réduis un peu l'interface du jeu uniquement sur PC ») : le contenu (page, énergie, chiffres) est réduit
+   * d'environ 14 % sur PC, et les cartes de la colonne de menus reprennent leur taille pleine, un peu plus grande même, pour que les deux côtés aient la même échelle.
+   */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>*:not(.soreal-idle-nav-v28):not(.soreal-idle-hero-banner-v95){zoom:.86}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{gap:7px!important;padding:10px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:6px 14px 6px 8px!important;gap:10px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:46px!important;height:46px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:25px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:14px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{font-size:12px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{flex:1 1 auto;min-width:0}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{white-space:normal}
 }

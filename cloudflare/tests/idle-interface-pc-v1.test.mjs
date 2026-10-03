@@ -9,7 +9,7 @@ const debut = css.indexOf("@media (min-width:1100px) and (hover:hover) and (poin
 assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (jamais téléphone ni tablette tactile)");
 const bloc = css.slice(debut);
 assert.ok(bloc.includes("width:min(1700px,calc(100vw - 32px))"), "le jeu occupe la largeur de l'écran");
-assert.ok(bloc.includes("grid-template-columns:264px minmax(0,1fr)"), "menu à gauche, page à droite");
+assert.ok(bloc.includes("grid-template-columns:288px minmax(0,1fr)"), "menu à gauche, page à droite");
 assert.ok(bloc.includes("flex-direction:column!important") && bloc.includes("position:sticky"), "menus en colonne, toujours visibles");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{grid-column:1/-1}"), "bandeau sur toute la largeur");
 // Équilibre des accolades (aucune règle cassée par l'ajout).
@@ -24,3 +24,7 @@ assert.ok(i > 0);
 const corps = ui.slice(i, i + 2600);
 assert.ok(corps.indexOf("navigationIdleV28_(j)") > 0 && corps.indexOf("navigationIdleV28_(j)") < corps.indexOf("soreal-idle-page-root-v28"));
 console.log("idle-interface-pc-v1: OK");
+
+// Harmonie des échelles (Norman, 2026-10-03) : contenu réduit sur PC, cartes du menu à pleine taille.
+assert.ok(bloc.includes("*:not(.soreal-idle-nav-v28):not(.soreal-idle-hero-banner-v95){zoom:.86}"), "contenu réduit d'environ 14 % sur PC seulement");
+assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:46px!important;height:46px!important}"), "badges du menu à pleine taille");
