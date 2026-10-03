@@ -6157,3 +6157,11 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 /* Prochaine compétence de Basic Training (verrouillée) : grisée, seul le prérequis est écrit (Norman, 2026-10-03). */
 .soreal-idle-bt-row-v120.verrouille{opacity:.55;filter:grayscale(1);pointer-events:none}
 .soreal-idle-bt-row-v120.verrouille .soreal-idle-bt-prerequis-v1{font-size:13px;font-weight:700;margin-top:4px;color:#b5bccb}
+
+/* Coffre : cases PETITES (Norman, 2026-10-03 : « plus petites que l'inventaire »), image pleine case. Cases de 56 px (le sac en fait 72). */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1{grid-template-columns:repeat(auto-fill,56px)!important;gap:5px!important;justify-content:start}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-v1{width:56px;height:56px;min-width:56px;max-width:56px;border-radius:7px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{font-size:7.5px;padding:8px 1px 1px;line-height:1.05}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:8px;padding:0 3px;left:2px;top:2px;border-radius:5px}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{width:11px;height:11px;font-size:8px;top:2px;right:2px}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 .idle-emoji-fallback-v1{font-size:26px!important}

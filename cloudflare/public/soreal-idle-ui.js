@@ -2614,6 +2614,35 @@
           if(el){
             const seconds=idleNombre_(bloodVisual.secondsPerCompletion);
             const progress=seconds>0?Math.max(0,Math.min(.999999,1-idleNombre_(bloodVisual.etaSeconds)/seconds)):0;
+            /*
+             * Or EN DIRECT (Norman, 2026-10-03 : « le souci avec l'Or apparaît aussi dans Blood Magic »). Un rituel qui se termine dépense de l'Or ; sans Or, la barre bouclait
+             * à vide. Comme pour les Augmentations : barre arrivée au bout = pleine ; s'il manque de l'Or (Or actuel) on le dit ; sinon on resynchronise et on redessine.
+             */
+            const rituelDef=((idleEtat.systemes&&idleEtat.systemes.bloodRituals)||[]).find(function(r){return r&&r.id===bloodVisual.ritual;});
+            const coutOrB=idleNombre_(rituelDef&&rituelDef.gold);
+            const orLiveB=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
+            const ecouleB=Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000);
+            const pleineB=seconds>0.0201&&ecouleB>=idleNombre_(bloodVisual.etaSeconds)-1e-9;
+            const manqueOrB=coutOrB>0&&orLiveB+1e-9<coutOrB;
+            const ligneBloodFixe=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
+            if(pleineB){
+              if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+              el.style.width='100%';
+              el.style.transform='scaleX(1)';
+              if(manqueOrB){
+                if(ligneBloodFixe)ligneBloodFixe.textContent='⏳ Barre pleine : il manque '+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or pour le prochain rituel.';
+              }else{
+                if(ligneBloodFixe)ligneBloodFixe.textContent='⏳ Rituel en cours de validation…';
+                if(Date.now()-idleAugSyncV1>3000){
+                  idleAugSyncV1=Date.now();
+                  synchroniserJeuIdleV7_(true);
+                  setTimeout(function(){
+                    const racine=document.querySelector('.soreal-idle-page-root-v28');
+                    if(racine&&racine.getAttribute('data-menu')==='sang'&&idleEtat)rafraichirMenuRacineIdleV28_();
+                  },1500);
+                }
+              }
+            }else{
             animerBarreCycliqueIdleV217_(el,seconds,progress);
             /* Compte à rebours « avant le prochain rituel » : suit la même horloge que la barre (mis à jour à chaque passage, plus figé). */
             const ligneBlood=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
@@ -2622,6 +2651,7 @@
               const restantBlood=(((idleNombre_(bloodVisual.etaSeconds)-ecouleBlood)%seconds)+seconds)%seconds;
               const texteBlood='⏱ '+window.__formatDureeAugmentIdleV1__(restantBlood||seconds)+' avant le prochain rituel complété';
               if(ligneBlood.textContent!==texteBlood)ligneBlood.textContent=texteBlood;
+            }
             }
           }
         }

@@ -1132,3 +1132,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .sore
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41 :is(.soreal-idle-bossbar-wrap-v7,.soreal-idle-playerbar-wrap-v15){
   clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 100%,0 100%);
 }
+
+/* Money Pit : le texte du prix était foncé sur le fond vert sombre du thème (Norman, 2026-10-03). */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-offre-v1 .soreal-idle-prize-v206{color:#fff4cc!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-offre-v1 .soreal-idle-prize-v206 .soreal-idle-prize-detail-v1{color:#ffd978!important}
