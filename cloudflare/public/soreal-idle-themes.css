@@ -1517,6 +1517,8 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
     width:100%!important;flex:0 0 auto;box-sizing:border-box;justify-content:flex-start;
   }
+  /* Money Pit : cadres, boutons et récompenses profitent de la largeur (l'image reste à sa taille). */
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] :is(.soreal-idle-money-actions-v206,.mp-cadre-v1,.cal-v1,.soreal-idle-money-scene-v206~.soreal-idle-offre-v1){max-width:1100px!important}
   /* Cartes plus compactes dans la colonne : plus de menus visibles sans défiler. */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{gap:5px!important;padding:8px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:3px 10px 3px 5px!important;gap:8px!important;border-bottom-width:2px!important}

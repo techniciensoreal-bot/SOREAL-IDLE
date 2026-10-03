@@ -115,3 +115,11 @@ assert.equal(ancien.disabled, true);
 const pageRetenue = api.pageSystemeMetaIdleV130_({ systemes: snap }, "moneyPit", "Money Pit");
 assert.ok(pageRetenue.includes("Page 3 / 3"), "la page affichée est retenue au redessin");
 console.log("idle-money-pit-mise-en-page-v1 OK");
+
+// « Ton prix » (Norman, 2026-10-03) : même largeur maximale que les autres cadres, sur PC.
+{
+  const { readFileSync } = await import("node:fs");
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(meta.includes(".soreal-idle-money-scene-v206~.soreal-idle-offre-v1{max-width:760px;margin:0 auto 14px;box-sizing:border-box}"), "Ton prix : 760 px max comme la scène, les boutons et les cadres");
+  console.log("money pit : Ton prix à la largeur des autres cadres OK");
+}

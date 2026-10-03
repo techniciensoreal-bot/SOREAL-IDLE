@@ -2986,6 +2986,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+
             '.soreal-idle-money-action-title-v206{font-size:15px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
             '.soreal-idle-money-action-note-v206{font-size:12px;color:#d5e1f5;margin-top:2px}'+
+            /* Norman (2026-10-03) : « Ton prix » était plus large que les autres cadres sur PC : même largeur maximale que la scène, les boutons et les cadres de récompenses. */
+            '.soreal-idle-money-scene-v206~.soreal-idle-offre-v1{max-width:760px;margin:0 auto 14px;box-sizing:border-box}'+
             '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
             '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:13px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
             '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:14px}.soreal-idle-money-action-note-v206{font-size:11px}}'+
