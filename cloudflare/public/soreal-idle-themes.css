@@ -629,6 +629,8 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] :is
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-money-action-note-v206{color:var(--th-dim)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-expand-button-v25{border-radius:999px!important;padding:10px 16px!important}
+/* Norman (2026-10-03) : Money Pit et Daily Spin pas encore prêts (recharge, Or insuffisant) : boutons GRISÉS. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-money-action-v206 .soreal-idle-expand-button-v25:disabled{background:#4b5160!important;color:#b4bac8!important;border-color:#667085!important;box-shadow:none!important;opacity:.8;cursor:not-allowed;text-shadow:none!important}
 
 /* ---- Challenges : la course ---- */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"]{
