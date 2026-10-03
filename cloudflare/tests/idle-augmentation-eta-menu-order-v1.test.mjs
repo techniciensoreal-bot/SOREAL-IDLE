@@ -63,7 +63,7 @@ assert.match(meta, /data-idle-aug-eta-v1="'\+def\.id/);
 assert.match(meta, /Niveau suivant dans /);
 assert.match(meta, /Barre pleine : il manque /);
 assert.match(ui, /data-idle-aug-eta-v1="'\+id\+':'\+x\[0\]/);
-assert.match(ui, /if\(x\[3\]&&seconds>0\)\{/, "barre pleine et fixe tant que l'Or manque");
+assert.ok(ui.includes("if((attenteOr||attenteServeur)&&seconds>0){"), "barre pleine et fixe tant que l'Or manque (Or en direct) ou que le serveur valide");
 assert.match(ui, /seconds>=2\s*\?\[\s*\{transform:'scaleX\(0\)',offset:0\},\s*\{transform:'scaleX\(1\)',offset:1\}/, "cycles longs : 0 -> 100 % sans plateau");
 
 // --- La fonction de durée et le texte de compte à rebours (extraits du module) ---
