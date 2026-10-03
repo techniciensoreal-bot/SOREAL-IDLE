@@ -19,6 +19,7 @@ const IDLE_ADVENTURE_MOBS_R2_PREFIX="idle/aventure/";
  * local, pas de manifeste versionné) : la liste est donc énumérée en direct par R2 .list(), jamais figée en dur.
  */
 const IDLE_AMBIANT_R2_PREFIX="idle/ambient/";
+const IDLE_SHOP_MUSIQUE_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"ShopMusic.opus";
 const IDLE_AMBIANT_R2_EXTENSIONS=Object.freeze(["mp3","ogg","m4a","wav","opus","aac"]);
 /*
  * Correctif 2026-09-17 (Norman a réorganisé idle/aventure/ avec les
@@ -676,6 +677,8 @@ async function objetsAmbianceR2_(env){
 
   objects=objects.filter(key=>{
     const ext=String(key).split(".").pop().toLowerCase();
+    /* La musique du Shop (Norman, 2026-10-03) vit dans le même dossier mais ne joue QUE dans le Shop : jamais tirée au hasard comme son d'ambiance d'Aventure. */
+    if(String(key).toLowerCase()===IDLE_SHOP_MUSIQUE_R2_CLE_V1.toLowerCase())return false;
     return IDLE_AMBIANT_R2_EXTENSIONS.includes(ext);
   }).sort();
 
