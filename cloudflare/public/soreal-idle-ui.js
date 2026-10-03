@@ -21977,6 +21977,9 @@ function pageAventureIdleV28_(j){
         const records=j.systemes&&j.systemes.records;
         /* Fil d'actualité (modules/flux-v1.js) : ce que CE joueur connaît déjà, pour ne jamais révéler à travers l'activité d'un autre. */
         const connus={boss:{},titan:{},succes:{},menus:{},sets:{}};
+        /* Noms des articles de boutique dans la langue du lecteur (catalogue EXP : table française du module ; Boutique AP : son catalogue) ; l'événement porte sinon le nom d'origine. */
+        const achatsNoms={exp:Object.assign({},window.__SOREAL_IDLE_EXP_NOMS_V1__||{}),sellout:{}};
+        ((j.systemes&&j.systemes.selloutShop&&j.systemes.selloutShop.catalog)||[]).forEach(function(it){if(it&&it.id&&it.name)achatsNoms.sellout[it.id]=String(it.name);});
         /* Sets d'équipement que CE joueur a complétés : seuls leurs noms peuvent être cités dans le fil « En direct ». */
         if(a&&a.completedSets&&a.setCatalog){
           Object.keys(a.completedSets).forEach(function(id){
@@ -21994,7 +21997,7 @@ function pageAventureIdleV28_(j){
         ['renaissance','challenges','titans','succes','spendExp','sellout'].forEach(function(m){
           try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
         });
-        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus};
+        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};
       };
 
       window.__menuIdleV28__=

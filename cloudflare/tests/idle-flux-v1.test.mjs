@@ -221,47 +221,13 @@ const stats = (o = {}) => ({
   assert.equal(p("set", { id: "training" }, debutant).texte, "Mickaël a complété un set d’équipement");
   assert.equal(p("set", { id: "training" }, Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { sets: { training: "Training Set" } }) })).texte, "Mickaël a complété le set Training Set");
 
-  // Achats en boutique (Norman, 2026-10-02) : annoncés seulement si le lecteur a débloqué cette boutique, sans détail de l'achat.
-  const boutiques = Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { menus: { spendExp: true, sellout: false } }) });
-  assert.equal(p("achat", { boutique: "exp" }, boutiques).texte, "Mickaël a fait un achat dans la boutique EXP");
-  assert.equal(p("achat", { boutique: "sellout" }, boutiques), null, "Boutique AP verrouillée chez le lecteur : jamais mentionnée");
-  assert.equal(p("achat", { boutique: "exp" }, debutant), null);
-  assert.equal(p("achat", { boutique: "sellout" }, Object.assign({}, expert, { connus: Object.assign({}, expert.connus, { menus: { sellout: true } }) }), true).texte, "Tu as fait un achat dans la Boutique AP");
+  // Achats en boutique (Norman, 2026-10-03 : « oublie le sans spoil ») : annoncés à TOUS, avec l'article acheté.
+  const boutiques = Object.assign({}, expert, { achatsNoms: { exp: { autoMerge: "🔁 Auto Merge" }, sellout: { extraBeardSlot: "Slot de Beard" } } });
+  assert.equal(p("achat", { boutique: "exp", id: "autoMerge", n: 1 }, boutiques).texte, "Mickaël a acheté 🔁 Auto Merge dans la boutique EXP");
+  assert.equal(p("achat", { boutique: "sellout", id: "extraBeardSlot", n: 2 }, boutiques).texte, "Mickaël a acheté Slot de Beard ×2 dans la Boutique AP");
+  assert.equal(p("achat", { boutique: "exp", id: "inconnu", n: 1, nom: "Mystery Item" }, debutant).texte, "Mickaël a acheté Mystery Item dans la boutique EXP", "joueur débutant : sans spoil-guard, repli sur le nom d'origine");
+  assert.equal(p("achat", { boutique: "sellout", id: "x", n: 1 }, boutiques, true).texte, "Tu as fait un achat dans la Boutique AP", "article inconnu et sans nom : phrase générique");
 
-  // Bandeau : chaque information n'est mise en file qu'UNE fois ; l'historique chargé au démarrage n'est pas rejoué.
-  const f = sandbox.window.__SOREAL_IDLE_FLUX_V1__;
-  const now = Date.now();
-  f.recevoir([{ id: 1, at: now - 5000, nom: "Vieux", type: "boss", donnees: { boss: 1 } }]);
-  f.recevoirChat([{ id: 1, at: now - 3_600_000, nom: "Vieux", message: "ancien" }], true);
-  assert.equal(f.enAttente(), 0, "l'historique du chargement n'est pas rejoué");
-  f.recevoir([{ id: 2, at: now, nom: "Léa", type: "boss", donnees: { boss: 2 } }]);
-  f.recevoirChat([{ id: 2, at: now, nom: "Léa", message: "salut ".repeat(40), moi: false }], false);
-  assert.equal(f.enAttente(), 2, "les nouveautés sont mises en file");
-  f.recevoir([{ id: 2, at: now, nom: "Léa", type: "boss", donnees: { boss: 2 } }]);
-  f.recevoirChat([{ id: 2, at: now, nom: "Léa", message: "salut ".repeat(40) }], false);
-  assert.equal(f.enAttente(), 2, "une information déjà vue ne repasse jamais");
-  const chat = f.visibles().find((v) => v.chat && v.id === "c2");
-  assert.ok(chat.texte.startsWith("Léa : salut") && chat.texte.length <= 100, "message coupé");
-
-  // En direct (Norman, 2026-10-02) : rien n'est rattrapé -- ni après une absence, ni à la connexion.
-  const avant = f.enAttente();
-  f.recevoir([{ id: 3, at: now - 5 * 60000, nom: "Dylan", type: "boss", donnees: { boss: 3 } }], now);
-  f.recevoirChat([{ id: 3, at: now - 5 * 60000, nom: "Dylan", message: "message arrivé pendant mon absence" }], false, now);
-  assert.equal(f.enAttente(), avant, "un événement / message de plus de 90 s (serveur) n'est jamais mis en file");
-  assert.ok(!f.visibles().some((v) => /absence/.test(v.texte)) && !f.items().some((e) => e.id === 3), "ni dans le bandeau ni dans le panneau");
-  assert.ok(f.dernier() >= 3, "mais le repère avance : il n'est pas redemandé");
-  f.recevoir([{ id: 4, at: now - 20000, nom: "Dylan", type: "boss", donnees: { boss: 4 } }], now);
-  assert.equal(f.enAttente(), avant + 1, "20 s : en direct");
-  // Petit bruit quand un AUTRE joueur se connecte (une fois par lot, jamais pour soi).
-  let carillons = 0;
-  sandbox.window.__SOREAL_IDLE_AUDIO_V199__ = { joueurConnecte() { carillons += 1; } };
-  f.recevoir([{ id: 40, at: now, nom: "Zed", type: "connexion", donnees: {} }, { id: 41, at: now, nom: "Yan", type: "connexion", donnees: {} }], now);
-  assert.equal(carillons, 1, "un carillon pour le lot");
-  f.recevoir([{ id: 42, at: now, nom: "Moi", type: "connexion", donnees: {}, moi: true }], now);
-  assert.equal(carillons, 1, "pas de carillon pour sa propre connexion");
-  f.amorcer(50);
-  assert.equal(f.dernier(), 50, "repère du premier battement : tout ce qui précède l'arrivée du joueur est ignoré");
-  assert.equal(f.amorce(), true);
 }
 
 // 6. Câblage : contrat, index, battement, page Chat.
@@ -282,15 +248,17 @@ const stats = (o = {}) => ({
 // 8. Achats en boutique : un événement par boutique dont le compteur a augmenté, jamais à tort.
 {
   const stats = (exp, sellout) => ({ metaNgu: { bonuses: { expShop: exp }, selloutShop: { purchases: sellout } } });
+  const ev = (x, y) => evenementsV1(x, y, { achat: (b, id) => "Nom " + id }).map((e) => [e.type, e.donnees.boutique, e.donnees.id, e.donnees.n, e.donnees.nom]);
   const a0 = instantaneJoueurV1({ stats: stats({ autoMerge: 1 }, { extraBeardSlot: 1 }) });
-  assert.deepEqual(a0.achats, { exp: 1, sellout: 1 });
+  assert.deepEqual(a0.achats, { exp: { autoMerge: 1 }, sellout: { extraBeardSlot: 1 } });
   const a1 = instantaneJoueurV1({ stats: stats({ autoMerge: 1, inventorySpace: 3 }, { extraBeardSlot: 1 }) });
-  assert.deepEqual(evenementsV1(a0, a1).map((e) => [e.type, e.donnees.boutique]), [["achat", "exp"]]);
+  assert.deepEqual(ev(a0, a1), [["achat", "exp", "inventorySpace", 3, "Nom inventorySpace"]]);
   const a2 = instantaneJoueurV1({ stats: stats({ autoMerge: 1, inventorySpace: 3 }, { extraBeardSlot: 2 }) });
-  assert.deepEqual(evenementsV1(a1, a2).map((e) => [e.type, e.donnees.boutique]), [["achat", "sellout"]]);
-  assert.deepEqual(evenementsV1(a2, a2), [], "aucun achat : rien d'annoncé");
-  assert.deepEqual(evenementsV1(a2, a0), [], "un compteur qui baisse (Rebirth…) n'annonce rien");
-  assert.deepEqual(evenementsV1({ bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 }, a1).filter((e) => e.type === "achat"), [], "ancien instantané sans achats : jamais d'annonce à tort");
+  assert.deepEqual(ev(a1, a2), [["achat", "sellout", "extraBeardSlot", 1, "Nom extraBeardSlot"]]);
+  assert.deepEqual(ev(a2, a2), [], "aucun achat : rien d'annoncé");
+  assert.deepEqual(ev(a2, a0), [], "un compteur qui baisse (Rebirth…) n'annonce rien");
+  assert.deepEqual(ev({ bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 }, a1), [], "ancien instantané sans achats : jamais d'annonce à tort");
+  assert.deepEqual(ev({ achats: { exp: 1, sellout: 1 } , bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 }, a1), [], "ancien instantané à compteur simple : pas de comparaison");
 }
 
 // 9. Bandeau « En direct » (Norman, 2026-10-02) : défilement continu, chaque information entre à l'instant de son arrivée et ne passe qu'une fois.

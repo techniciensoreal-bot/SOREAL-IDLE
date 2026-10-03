@@ -25,6 +25,7 @@ import {
   syncIdleNguState,
   idleNguBonuses,
   idleNguMemoNouvelleRequeteV1,
+  IDLE_NGU_EXP_SHOP_V1,
   idleNguEffectiveResourceStat,
   idleNguSnapshot,
   idleNguResourceBudget,
@@ -34,6 +35,7 @@ import {
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
+import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
 import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
@@ -16816,7 +16818,15 @@ function battementSorealIdle(sessionToken, info) {
           nom: identite.nomAffiche,
           visible: statsF.classementVisible !== false,
           instantane: instantaneJoueurV1({ bossVaincus: nombreSorealIdle_(feuilleF.getRange(ligneF, cF.BOSS_VAINCUS).getValue(), 0), stats: statsF }),
-          activite: Object.assign({}, i.activite && typeof i.activite === 'object' ? i.activite : {}, { zoneId: i.activite && i.activite.zoneId, zoneNom: i.activite && i.activite.zoneNom })
+          activite: Object.assign({}, i.activite && typeof i.activite === 'object' ? i.activite : {}, { zoneId: i.activite && i.activite.zoneId, zoneNom: i.activite && i.activite.zoneNom }),
+          /* Nom (anglais, celui du catalogue) d'un article acheté : sert de repli si le lecteur n'a pas le nom français dans son propre catalogue. */
+          noms: {
+            achat: function (boutique, id) {
+              if (boutique === 'exp') return (IDLE_NGU_EXP_SHOP_V1[id] && IDLE_NGU_EXP_SHOP_V1[id].name) || '';
+              const it = IDLE_SELLOUT_SHOP_CATALOG_V1.find(function (x) { return x.id === id; });
+              return (it && it.name) || '';
+            }
+          }
         });
       } finally {
         lockFlux.releaseLock();

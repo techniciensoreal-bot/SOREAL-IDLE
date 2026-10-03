@@ -91,11 +91,15 @@
         const nomSet=(k.sets||{})[String(d.id)];
         return {icone:'🛡️',texte:nomSet?nom+verbe(' as',' a')+' complété le set '+nomSet:nom+verbe(' as',' a')+' complété un set d’équipement'};
       }
-      /* Achat en boutique : annoncé seulement si CE lecteur a déjà débloqué cette boutique (anti-spoil), jamais le détail de l'achat. */
+      /* Achat en boutique (Norman, 2026-10-03 : « on voit l'achat des autres joueurs, oublie le sans spoil ») : annoncé à tous, avec l'article acheté. */
       case 'achat':{
         const ap=d.boutique==='sellout';
-        if(!k.menus[ap?'sellout':'spendExp'])return null;
-        return {icone:'🛒',texte:nom+verbe(' as',' a')+' fait un achat dans la '+(ap?'Boutique AP':'boutique EXP')};
+        const noms=(c.achatsNoms&&c.achatsNoms[ap?'sellout':'exp'])||{};
+        const article=String(noms[d.id]||d.nom||'').trim();
+        const fois=Number(d.n)>1?' ×'+Number(d.n):'';
+        return {icone:'🛒',texte:article
+          ?nom+verbe(' as',' a')+' acheté '+article+fois+' dans la '+(ap?'Boutique AP':'boutique EXP')
+          :nom+verbe(' as',' a')+' fait un achat dans la '+(ap?'Boutique AP':'boutique EXP')};
       }
       case 'rebirth':
         if(!k.menus.renaissance)return null;
