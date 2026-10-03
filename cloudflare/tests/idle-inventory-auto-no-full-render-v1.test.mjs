@@ -27,8 +27,8 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 // 1. La fonction de classification existe et couvre exactement les 6 modes concernés.
 assert.match(
   meta,
-  /var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1=\{boostAll:'boost',mergeAll:'merge',transformBoost:'',settings:'',lootFilterType:'',lootFilterItem:''\};/,
-  "boostAll/mergeAll/transformBoost/settings/lootFilterType/lootFilterItem doivent être mappés vers un patch ciblé"
+  /var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1=\{boostAll:'boost',mergeAll:'merge',transformBoost:'',settings:'',lootFilterType:'',lootFilterItem:'',sortInventory:''\};/,
+  "boostAll/mergeAll/transformBoost/settings/lootFilterType/lootFilterItem/sortInventory (Trier, Norman 2026-10-03 : on voyait le haut de la page une fraction de seconde) doivent être mappés vers un patch ciblé"
 );
 
 // 2. Comportement réel de la classification (exécutée hors navigateur).
@@ -47,6 +47,7 @@ assert.match(
   assert.equal(classifier({ action: "inventoryAuto", mode: "settings", autoMerge: true }), "", "case à cocher réglages -> patch générique, jamais le rendu complet");
   assert.equal(classifier({ action: "inventoryAuto", mode: "lootFilterType", slot: "head", filtered: true }), "", "case à cocher filtre de butin (type) -> patch générique");
   assert.equal(classifier({ action: "inventoryAuto", mode: "lootFilterItem", definitionId: "abc", filtered: true }), "", "case à cocher filtre de butin (objet) -> patch générique");
+  assert.equal(classifier({ action: "inventoryAuto", mode: "sortInventory" }), "", "Trier (Norman, 2026-10-03) : patch de la grille seulement, plus de rendu complet (flash du haut de page)");
 
   // Les configurations d'équipement rééquipent potentiellement toute la tenue : elles gardent le rendu complet.
   for (const payload of [
@@ -81,7 +82,7 @@ assert.match(
 
 // 4. Cache-bust cohérent (index.html + tests qui vérifient ce numéro).
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes("/modules/meta-progression-v130.js?v=202610035"));
+assert.ok(index.includes("/modules/meta-progression-v130.js?v=202610036"));
 assert.ok(!index.includes("/modules/meta-progression-v130.js?v=202609261"));
 
 console.log("idle-inventory-auto-no-full-render-v1: OK");

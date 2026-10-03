@@ -78,7 +78,7 @@
        * ici pour la même raison. Les configurations d'équipement (loadoutSave/loadoutApply) restent au rendu complet :
        * elles rééquipent potentiellement toute la tenue, donc changent réellement la grille/l'équipement affiché.
        */
-      var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1={boostAll:'boost',mergeAll:'merge',transformBoost:'',settings:'',lootFilterType:'',lootFilterItem:''};
+      var IDLE_INVENTORY_AUTO_ACTIONS_PATCH_V1={boostAll:'boost',mergeAll:'merge',transformBoost:'',settings:'',lootFilterType:'',lootFilterItem:'',sortInventory:''};
       function actionPatchInventaireAutoV1_(payload){
         if(!payload||payload.action!=='inventoryAuto')return null;
         const mode=String(payload.mode||'');
