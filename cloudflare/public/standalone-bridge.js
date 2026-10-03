@@ -61,6 +61,12 @@
     return "";
   }
 
+  /* Langue des items et des textes : choix du joueur dans les Réglages (localStorage), « fr » par défaut. */
+  function langueIdleV1(){
+    try{return localStorage.getItem("soreal_idle_langue_v1")==="en"?"en":"fr";}catch(_e){return "fr";}
+  }
+  window.__SOREAL_IDLE_LANGUE_V1__=langueIdleV1;
+
   function sessionV1(){
     let token="";
     try{token=String(sessionStorage.getItem(SESSION_KEY)||"").trim();}catch(_){}
@@ -260,7 +266,9 @@
         body:JSON.stringify({
           operation:String(operation||""),
           args:liste,
-          catalogHashes:sansAllegement?undefined:hashesCataloguesV1()
+          catalogHashes:sansAllegement?undefined:hashesCataloguesV1(),
+          /* Langue des items et des textes (Réglages) : « fr » par défaut, « en » = originaux. */
+          langue:langueIdleV1()
         })
       },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
       if(!restaurerCataloguesV1(data)&&!sansAllegement){

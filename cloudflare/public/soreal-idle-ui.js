@@ -21774,6 +21774,37 @@ function pageAventureIdleV28_(j){
         const ligne=document.getElementById('sorealIdleVolumeLigneV1_'+type);
         if(ligne)ligne.style.opacity=coche?'1':'.5';
       };
+      /*
+       * Langue des items et des textes (Norman, 2026-10-03) : Français (traduit) ou English (les originaux de ce qui a été traduit). Mémorisée sur cet appareil ; le serveur traduit ses réponses
+       * d'après le champ « langue » que le pont envoie (standalone-bridge.js).
+       */
+      function langueIdleV1_(){
+        try{return localStorage.getItem('soreal_idle_langue_v1')==='en'?'en':'fr';}catch(_e){return 'fr';}
+      }
+      window.__changerLangueIdleV1__=function(langue){
+        const choix=langue==='en'?'en':'fr';
+        if(choix===langueIdleV1_())return;
+        try{localStorage.setItem('soreal_idle_langue_v1',choix);}catch(_e){}
+        /* Resynchronisation complète : le serveur renvoie aussitôt les textes dans la nouvelle langue, puis la page se redessine. */
+        synchroniserJeuIdleV7_(true);
+        setTimeout(function(){
+          if(idleEtat&&document.querySelector('.soreal-idle-page-root-v28'))rafraichirMenuRacineIdleV28_();
+        },800);
+        setTimeout(function(){
+          if(idleEtat&&document.querySelector('.soreal-idle-page-root-v28'))rafraichirMenuRacineIdleV28_();
+        },2500);
+      };
+      function htmlReglagesLangueIdleV1_(){
+        const l=langueIdleV1_();
+        const bouton=function(code,libelle){
+          return '<button type="button" class="soreal-idle-expand-button-v25" aria-pressed="'+(l===code?'true':'false')+'" '+(l===code?'disabled ':'')+
+            'onclick="window.__changerLangueIdleV1__(\''+code+'\')">'+libelle+'</button>';
+        };
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🌐 Langue des objets et des textes</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">'+bouton('fr','Français')+bouton('en','English')+'</div>'+
+        '</div>';
+      }
       function htmlReglagesAudioIdleV1_(){
         const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
         const lignes=[
@@ -22060,6 +22091,7 @@ function pageAventureIdleV28_(j){
               '<div id="sorealIdleJoueursGoogleV1" style="margin-top:8px"></div>'+
             '</div>'
             :'')+
+          htmlReglagesLangueIdleV1_()+
           htmlReglagesAudioIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+

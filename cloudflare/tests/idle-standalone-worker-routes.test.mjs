@@ -109,7 +109,8 @@ function envV1() {
   assert.deepEqual(env.calls[0].body, {
     sessionToken: "ils_test",
     operation: "obtenirEtatSorealIdle",
-    args: ["ils_test"]
+    args: ["ils_test"],
+    langue: "fr"
   });
 }
 

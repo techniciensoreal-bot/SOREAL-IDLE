@@ -49,13 +49,13 @@ var TABLES={
 /* Mots du nom -> emoji, dans l'ordre (le premier trouvé gagne). Pour les longues listes (Perks, Quirks, Souhaits…). */
 var MOTS=[
   [/blood|sang/i,'🩸'],[/energy|énergie|energie/i,'⚡'],[/magic|magie/i,'🔮'],[/adventure|aventure/i,'🗺️'],
-  [/drop|loot/i,'🎲'],[/\bexp\b|experience|expérience|knowledge/i,'✨'],[/\bpp\b|perk point/i,'⭐'],[/\bqp\b|quirk point/i,'📋'],
-  [/attack|defense|défense|stat\b|stats\b|toughness|power|strength/i,'⚔️'],[/gold|\bor\b|money|coin|rich/i,'🪙'],
-  [/inventory|slot|space/i,'🎒'],[/titan/i,'👹'],[/boss/i,'👹'],[/rebirth|renaissance/i,'♻️'],[/number|nombre/i,'🔢'],
-  [/time machine|machine/i,'⏱️'],[/augment/i,'🦾'],[/wandoos/i,'💻'],[/\bngu\b/i,'♾️'],[/yggdrasil|seed|fruit/i,'🌱'],
-  [/beard|barbe/i,'🧔'],[/daycare/i,'🛠️'],[/macguffin/i,'🧩'],[/cook|food|meal|repas/i,'🍲'],[/card|carte/i,'🃏'],[/mayo/i,'🥫'],
-  [/wish|souhait/i,'🌠'],[/hack/i,'🧪'],[/quest|quête/i,'📋'],[/luck|chance/i,'🍀'],[/speed|vitesse|fast/i,'💨'],
-  [/newbie|baby|first/i,'🐣'],[/cap\b|bars?\b/i,'📏'],[/respawn/i,'⏳']
+  [/drop|loot|butin/i,'🎲'],[/\bexp\b|experience|expérience|knowledge/i,'✨'],[/\bpp\b|perk point/i,'⭐'],[/\bqp\b|quirk point/i,'📋'],
+  [/attack|attaque|defense|défense|stat\b|stats\b|toughness|endurance|power|puissance|strength|force/i,'⚔️'],[/gold|\bor\b|money|argent|coin|rich|riche/i,'🪙'],
+  [/inventory|inventaire|slot|emplacement|space|espace/i,'🎒'],[/titan/i,'👹'],[/boss/i,'👹'],[/rebirth|renaissance/i,'♻️'],[/number|nombre/i,'🔢'],
+  [/time machine|machine/i,'⏱️'],[/augment/i,'🦾'],[/wandoos/i,'💻'],[/\bngu\b/i,'♾️'],[/yggdrasil|seed|graine|fruit/i,'🌱'],
+  [/beard|barbe/i,'🧔'],[/daycare|garderie/i,'🛠️'],[/macguffin/i,'🧩'],[/cook|cuisin|food|meal|repas/i,'🍲'],[/card|carte/i,'🃏'],[/mayo/i,'🥫'],
+  [/wish|souhait/i,'🌠'],[/hack|piratage/i,'🧪'],[/quest|quête/i,'📋'],[/luck|chance|chanceu|porte-bonheur/i,'🍀'],[/speed|vitesse|fast|rapide/i,'💨'],
+  [/newbie|débutant|baby|bébé|first|premier/i,'🐣'],[/cap\b|plafond|bars?\b|barres?\b/i,'📏'],[/respawn/i,'⏳']
 ];
 
 function motsCles_(nom){

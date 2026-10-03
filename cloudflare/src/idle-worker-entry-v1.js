@@ -162,7 +162,7 @@ async function idleCallV1(request, env) {
   const reponse = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
     method: "POST",
     /* catalogHashes : ce que le client possède déjà (voir idle-catalogues-v1.js) ; absent = réponse complète. */
-    body: JSON.stringify({ sessionToken, operation, args, catalogHashes: body && typeof body.catalogHashes === "object" ? body.catalogHashes : undefined })
+    body: JSON.stringify({ sessionToken, operation, args, catalogHashes: body && typeof body.catalogHashes === "object" ? body.catalogHashes : undefined, langue: body && body.langue === "en" ? "en" : "fr" })
   });
   /* Heure du serveur (Norman, 2026-10-03 : « les chronos doivent être très précis ») : le client en déduit l'écart de son horloge (voir standalone-bridge.js, __SOREAL_IDLE_HEURE_V1__). */
   try {

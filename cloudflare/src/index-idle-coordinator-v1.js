@@ -1,6 +1,7 @@
 import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames } from "./idle-sqlite-runtime.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
+import { traduireReponseV1 } from "./idle-traductions-v1.js";
 
 /*
  * SOREAL — Idle Coordinator (Durable Object dédié, 2026-09-09).
@@ -278,12 +279,13 @@ export class SorealIdleCoordinatorV1 {
     const args = Array.isArray(payload?.args) ? payload.args : [];
 
     /* Réponse allégée des catalogues que le client a déjà (idle-catalogues-v1.js) : même contrat, moins d'octets. */
-    return allegerCataloguesV1(runSorealIdleOperation(
+    /* Langue des items et des textes (idle-traductions-v1.js) : traduction de la réponse AVANT l'allègement, donc l'empreinte des catalogues dépend de la langue. */
+    return allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation(
       this.sql,
       operation,
       args,
       session.user
-    ), payload?.catalogHashes);
+    ), payload?.langue), payload?.catalogHashes);
   }
 
   /*

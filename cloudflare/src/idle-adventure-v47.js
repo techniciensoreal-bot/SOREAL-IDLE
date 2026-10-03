@@ -1029,6 +1029,8 @@ rock:{name:"Rock Set",source:"lobster",slots:["head","chest","legs","boots","wea
 amalgamate:{name:"Amalgamate Set",source:"amalgamate",slots:["head","chest","legs","boots","weapon","deathstick","corruptedLeaf","glued"],p:229820000000,t:55600000000,reward:{}}
 };
 /* Noms français (Norman, 2026-10-03) : seul l'affichage change, jamais les identifiants ni les valeurs du wiki. */
+/* Noms d'origine (anglais) conservés pour le choix de langue (idle-traductions-v1.js). */
+export const NOMS_SETS_EN_V1=Object.freeze(Object.fromEntries(Object.entries(SETS).map(([id,s])=>[id,s.name])));
 for(const[id,s]of Object.entries(SETS))if(NOMS_SETS_FR_V1[id])s.name=NOMS_SETS_FR_V1[id];
 export const IDLE_ADVENTURE_SETS=Object.freeze(Object.fromEntries(Object.entries(SETS).map(([id,s])=>[id,Object.freeze({id,...s})])));
 /*
@@ -1150,7 +1152,7 @@ export function idleAdventureItemStatsMaxV1(set,slot){
  * le ratio points/valeur de chaque Special (idle-adventure-special-points-v1.js). Valeurs courantes : `special` (1er) et `specialExtra` (les suivants),
  * voir idleAdventureSpecialsListV1. L'ancien choix (sExtra figés à leur Base value) est abandonné.
  */
-const SPECIALS_EN_V1=Object.freeze({
+export const SPECIALS_EN_V1=Object.freeze({
 /*
  * Pas de fiche wiki dédiée ("Tutorial Cube" n'existe pas sur le wiki) :
  * ceci représente uniquement le déblocage SOREAL du Cube, jamais un objet
@@ -1710,6 +1712,7 @@ const SETS_OBJETS_V1=Object.freeze({
   /* "Still-Beating Heart (set)" : "+1% Tag Effect!" (page Cards : base 10 % ... total 16.5 % dont ce set). */
   stillBeatingHeart:{name:"Still-Beating Heart Set",items:["stillBeatingHeart"],reward:{cardTagEffect:.01}}
 });
+export const NOMS_SETS_OBJETS_EN_V1=Object.freeze(Object.fromEntries(Object.entries(SETS_OBJETS_V1).map(([id,o])=>[id,o.name])));
 for(const[id,o]of Object.entries(SETS_OBJETS_V1))if(NOMS_SETS_OBJETS_FR_V1[id])Object.defineProperty(o,"name",{value:NOMS_SETS_OBJETS_FR_V1[id],enumerable:true});
 export const IDLE_ADVENTURE_ITEM_SETS_V1=SETS_OBJETS_V1;
 /*
@@ -2331,7 +2334,7 @@ export const IDLE_ADVENTURE_BOOSTS=BOOSTS;
  * de l'objet). Ces 17 zones sont donc déjà couvertes par ce round, pas
  * seulement les 19 zones "Normal" au sens strict.
  */
-const SET_ITEM_NAMES_EN_V1=Object.freeze({
+export const SET_ITEM_NAMES_EN_V1=Object.freeze({
   "training:weapon":"Un bâton","training:head":"Chapeau en tissu","training:chest":"Chemise en tissu","training:legs":"Jambières en tissu","training:boots":"Bottes en tissu",
 
   // Sewers (set) -- ngu-idle.fandom.com/wiki/Sewers_(set)

@@ -109,7 +109,7 @@ assert.notEqual(empreinteTexteV1("a"), empreinteTexteV1("b"));
 {
   assert.ok(readFileSync("cloudflare/src/idle-worker-entry-v1.js", "utf8").includes("catalogHashes:"));
   const coord = readFileSync("cloudflare/src/index-idle-coordinator-v1.js", "utf8");
-  assert.ok(coord.includes("allegerCataloguesV1(runSorealIdleOperation(") && coord.includes("payload?.catalogHashes"));
+  assert.ok(coord.includes("allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation(") && coord.includes("payload?.catalogHashes"));
   assert.ok(readFileSync("cloudflare/tools/local-dev-server.mjs", "utf8").includes("allegerCataloguesV1("));
 }
 // 7. Catalogue des boss (320 Ko mesurés par réponse en production, 3 lignes sur 300 qui changent) : omis LIGNE PAR LIGNE.
