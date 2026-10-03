@@ -1979,14 +1979,13 @@
         if(!actif){
           if(duel.classList.contains('combat-actif')){
             duel.classList.remove('combat-actif','danger-boss','danger-joueur');
-            ['--i-joueur','--i-boss','--i-duel'].forEach(function(c){duel.style.removeProperty(c);});
+            ['--i-joueur','--i-boss'].forEach(function(c){duel.style.removeProperty(c);});
           }
           return;
         }
         const ratio=function(pv,max){return idleNombre_(max)>0?Math.max(0,Math.min(1,idleNombre_(pv)/idleNombre_(max))):1;};
         const iJoueur=Math.round((1-ratio(idleEtat.pvJoueur,idleEtat.pvJoueurMax))*50)/50;
         const iBoss=Math.round((1-ratio(idleEtat.bossPv,idleEtat.bossPvMax))*50)/50;
-        const iDuel=Math.max(iJoueur,iBoss);
         if(!duel.classList.contains('combat-actif'))duel.classList.add('combat-actif');
         duel.classList.toggle('danger-boss',iBoss>=.75);
         duel.classList.toggle('danger-joueur',iJoueur>=.75);
@@ -1996,7 +1995,6 @@
           duel.dataset.ambianceV1=cle;
           duel.style.setProperty('--i-joueur',String(iJoueur));
           duel.style.setProperty('--i-boss',String(iBoss));
-          duel.style.setProperty('--i-duel',String(iDuel));
         }
       }
 

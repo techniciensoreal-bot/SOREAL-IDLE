@@ -1206,38 +1206,59 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .sore
 }
 @keyframes sorealBarreAlerteV1{0%,100%{filter:brightness(1) saturate(1)}50%{filter:brightness(1.5) saturate(1.3)}}
 
-/* Les deux images vivent pendant le combat : secousses, élans l'un vers l'autre, halo qui rougit. Plus la vie d'un combattant baisse, plus il tremble vite et fort. */
+/* Les deux images vivent pendant le combat, CHACUNE à sa façon (Norman, 2026-10-03 : « les mouvements de cadre doivent être différents pour le boss et le joueur ; j'étais presque full vie et mon
+ * portrait bougeait comme celui du boss »). Chaque combattant n'obéit qu'à SA vie (--i-boss / --i-joueur) : plus elle baisse, plus il tremble vite et fort. Le boss est lourd et lent (élan vers la
+ * gauche, secousses amples) ; le joueur est vif et léger (élan vers la droite avec un petit saut, tremblement vertical rapide). Pleine vie : un simple élan, aucune secousse. */
 @media (prefers-reduced-motion:no-preference){
-  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-duel-portrait-v41{
-    animation:sorealHaloCombatV1 calc(1.6s - var(--i-duel,0)*1.1s) ease-in-out infinite;
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-duel-portrait-v41:not(.soreal-idle-player-portrait-v41){
+    animation:sorealHaloBossV1 calc(1.9s - var(--i-boss,0)*1.3s) ease-in-out infinite;
   }
-  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-duel-portrait-v41 > :not(.soreal-idle-boss-transition-v61){
-    animation:sorealElanBossV1 calc(1.5s - var(--i-boss,0)*1s) ease-in-out infinite,sorealSecousseV1 calc(.9s - var(--i-boss,0)*.62s) linear infinite;
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-player-portrait-v41{
+    animation:sorealHaloJoueurV1 calc(1.2s - var(--i-joueur,0)*.7s) ease-in-out infinite;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-duel-portrait-v41:not(.soreal-idle-player-portrait-v41) > :not(.soreal-idle-boss-transition-v61){
+    animation:sorealElanBossV1 calc(1.8s - var(--i-boss,0)*1.1s) ease-in-out infinite,sorealSecousseBossV1 calc(1.1s - var(--i-boss,0)*.7s) linear infinite;
     filter:saturate(calc(1 + var(--i-boss,0)*.7)) brightness(calc(1 - var(--i-boss,0)*.12)) drop-shadow(0 0 calc(var(--i-boss,0)*14px) rgba(255,60,30,.95));
   }
   body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-player-portrait-v41 > :not(.soreal-idle-boss-transition-v61){
-    animation:sorealElanJoueurV1 calc(1.5s - var(--i-joueur,0)*1s) ease-in-out infinite .35s,sorealSecousseV1 calc(.9s - var(--i-joueur,0)*.62s) linear infinite;
+    animation:sorealElanJoueurV1 calc(1.1s - var(--i-joueur,0)*.6s) ease-in-out infinite .35s,sorealSecousseJoueurV1 calc(.55s - var(--i-joueur,0)*.32s) linear infinite;
     filter:saturate(calc(1 + var(--i-joueur,0)*.7)) brightness(calc(1 - var(--i-joueur,0)*.12)) drop-shadow(0 0 calc(var(--i-joueur,0)*14px) rgba(255,60,30,.95));
   }
-  /* Mort imminente (plus de 75 % de dégâts) : clignotement rouge en plus. */
-  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif.danger-boss .soreal-idle-duel-portrait-v41:not(.soreal-idle-player-portrait-v41) > :not(.soreal-idle-boss-transition-v61),
+  /* Mort imminente (plus de 75 % de dégâts) : clignotement rouge en plus, chacun avec ses propres mouvements. */
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif.danger-boss .soreal-idle-duel-portrait-v41:not(.soreal-idle-player-portrait-v41) > :not(.soreal-idle-boss-transition-v61){
+    animation-name:sorealElanBossV1,sorealSecousseBossV1,sorealClignoteRougeV1;
+    animation-duration:.7s,.4s,.6s;animation-iteration-count:infinite;animation-timing-function:ease-in-out,linear,ease-in-out;
+  }
   body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif.danger-joueur .soreal-idle-player-portrait-v41 > :not(.soreal-idle-boss-transition-v61){
-    animation-name:sorealElanBossV1,sorealSecousseV1,sorealClignoteRougeV1;
-    animation-duration:.5s,.28s,.6s;animation-iteration-count:infinite;animation-timing-function:ease-in-out,linear,ease-in-out;
+    animation-name:sorealElanJoueurV1,sorealSecousseJoueurV1,sorealClignoteRougeV1;
+    animation-duration:.45s,.22s,.5s;animation-iteration-count:infinite;animation-timing-function:ease-in-out,linear,ease-in-out;
   }
 }
 @keyframes sorealElanBossV1{0%,100%{transform:translateX(0) scale(1)}45%{transform:translateX(calc(-6px - var(--i-boss,0)*8px)) scale(calc(1.03 + var(--i-boss,0)*.04))}}
-@keyframes sorealElanJoueurV1{0%,100%{transform:translateX(0) scale(1)}45%{transform:translateX(calc(6px + var(--i-joueur,0)*8px)) scale(calc(1.03 + var(--i-joueur,0)*.04))}}
-@keyframes sorealSecousseV1{
+@keyframes sorealElanJoueurV1{0%,100%{transform:translateX(0) translateY(0) scale(1)}45%{transform:translateX(calc(5px + var(--i-joueur,0)*7px)) translateY(calc(-3px - var(--i-joueur,0)*2px)) scale(calc(1.02 + var(--i-joueur,0)*.03))}}
+/* Boss : secousses amples et lourdes (balancement + roulis). */
+@keyframes sorealSecousseBossV1{
   0%,100%{translate:0 0;rotate:0deg}
-  20%{translate:calc(var(--i-duel,0)*-3px) calc(var(--i-duel,0)*2px);rotate:calc(var(--i-duel,0)*-1.4deg)}
-  40%{translate:calc(var(--i-duel,0)*3px) calc(var(--i-duel,0)*-2px);rotate:calc(var(--i-duel,0)*1.2deg)}
-  60%{translate:calc(var(--i-duel,0)*-2px) calc(var(--i-duel,0)*-3px);rotate:calc(var(--i-duel,0)*-1deg)}
-  80%{translate:calc(var(--i-duel,0)*2px) calc(var(--i-duel,0)*3px);rotate:calc(var(--i-duel,0)*1.4deg)}
+  25%{translate:calc(var(--i-boss,0)*-5px) calc(var(--i-boss,0)*2px);rotate:calc(var(--i-boss,0)*-1.8deg)}
+  50%{translate:calc(var(--i-boss,0)*4px) calc(var(--i-boss,0)*-1px);rotate:calc(var(--i-boss,0)*1.4deg)}
+  75%{translate:calc(var(--i-boss,0)*-3px) calc(var(--i-boss,0)*3px);rotate:calc(var(--i-boss,0)*-1deg)}
 }
-@keyframes sorealHaloCombatV1{
+/* Joueur : tremblement vif et vertical (petits sursauts rapides). */
+@keyframes sorealSecousseJoueurV1{
+  0%,100%{translate:0 0;rotate:0deg}
+  20%{translate:calc(var(--i-joueur,0)*1px) calc(var(--i-joueur,0)*-4px);rotate:calc(var(--i-joueur,0)*.5deg)}
+  40%{translate:calc(var(--i-joueur,0)*-1.5px) calc(var(--i-joueur,0)*3px);rotate:calc(var(--i-joueur,0)*-.7deg)}
+  60%{translate:calc(var(--i-joueur,0)*1.5px) calc(var(--i-joueur,0)*-3px);rotate:calc(var(--i-joueur,0)*.6deg)}
+  80%{translate:calc(var(--i-joueur,0)*-1px) calc(var(--i-joueur,0)*4px);rotate:calc(var(--i-joueur,0)*-.5deg)}
+}
+/* Halo du cadre : rouge braise pour le boss ; bleu qui vire au rouge pour le joueur à mesure que sa vie baisse. */
+@keyframes sorealHaloBossV1{
   0%,100%{box-shadow:0 0 22px rgba(255,60,40,.4),inset 0 0 30px rgba(0,0,0,.65)}
-  50%{box-shadow:0 0 calc(24px + var(--i-duel,0)*30px) rgba(255,50,30,calc(.45 + var(--i-duel,0)*.5)),inset 0 0 calc(30px + var(--i-duel,0)*26px) rgba(150,0,0,calc(var(--i-duel,0)*.7))}
+  50%{box-shadow:0 0 calc(24px + var(--i-boss,0)*30px) rgba(255,50,30,calc(.45 + var(--i-boss,0)*.5)),inset 0 0 calc(30px + var(--i-boss,0)*26px) rgba(150,0,0,calc(var(--i-boss,0)*.7))}
+}
+@keyframes sorealHaloJoueurV1{
+  0%,100%{box-shadow:0 0 22px rgba(70,150,255,.4),inset 0 0 30px rgba(0,0,0,.65)}
+  50%{box-shadow:0 0 calc(22px + var(--i-joueur,0)*26px) rgba(calc(70 + var(--i-joueur,0)*185),calc(150 - var(--i-joueur,0)*100),calc(255 - var(--i-joueur,0)*215),calc(.45 + var(--i-joueur,0)*.5)),inset 0 0 calc(30px + var(--i-joueur,0)*22px) rgba(150,0,0,calc(var(--i-joueur,0)*.6))}
 }
 @keyframes sorealClignoteRougeV1{0%,100%{opacity:1}50%{opacity:.78}}
 
