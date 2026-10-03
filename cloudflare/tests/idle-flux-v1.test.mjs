@@ -211,6 +211,11 @@ const stats = (o = {}) => ({
   assert.equal(p("defi", {}, debutant), null);
   assert.equal(p("rebirth", {}, debutant), null);
   assert.equal(p("defi", {}, expert).texte, "Mickaël a réussi un Challenge");
+  /* Récompense de connexion (Norman, 2026-10-03) : annoncée seulement à qui connaît le menu ; toi : « Tu as récupéré… ». */
+  const avecPit = { ...expert, connus: { ...expert.connus, menus: { ...expert.connus.menus, moneyPit: true } } };
+  assert.equal(p("calendrier", { jour: 12, ap: 3280 }, expert), null, "menu pas connu du lecteur : rien");
+  assert.equal(p("calendrier", { jour: 12, ap: 3280 }, avecPit).texte, "Mickaël a récupéré sa récompense de connexion du jour 12 (+" + (3280).toLocaleString("fr-FR") + " AP)");
+  assert.equal(p("calendrier", { jour: 3, ap: 1440 }, avecPit, true).texte, "Tu as récupéré ta récompense de connexion du jour 3 (+" + (1440).toLocaleString("fr-FR") + " AP)", "à la deuxième personne");
   assert.equal(p("rebirth", {}, expert).texte, "Mickaël a fait un Rebirth", "sans durée connue : rien d'inventé");
   assert.equal(p("rebirth", { duree: 8 * 3600 }, expert).texte, "Mickaël a fait un Rebirth après 8 h de run");
   assert.equal(p("rebirth", { duree: 8 * 3600 + 12 * 60 + 40 }, expert).texte, "Mickaël a fait un Rebirth après 8 h 12 min de run");
@@ -283,6 +288,18 @@ const stats = (o = {}) => ({
   assert.equal(sn(3, 28800).dureeRun, 28800);
   assert.deepEqual(evenementsV1(sn(2, 100), sn(3, 28800)).filter((e) => e.type === "rebirth"), [{ type: "rebirth", donnees: { n: 3, duree: 28800 } }]);
   assert.deepEqual(evenementsV1(sn(2, 100), sn(3, 0)).filter((e) => e.type === "rebirth"), [{ type: "rebirth", donnees: { n: 3 } }], "durée 0 (Rebirth qui change de difficulté) : pas de durée");
+}
+
+// --- Récompense de connexion récupérée : annoncée dans « En direct » (Norman, 2026-10-03). L'octroi de lancement (jours 1 et 2) n'en fait pas partie. ---
+{
+  const avecCal = (reclames, ap, serie) => instantaneJoueurV1({ stats: { classementVisible: true, metaNgu: { records: { loginCalendar: { totalReclames: reclames, totalAp: ap, serie } } } } });
+  const avant = avecCal(4, 6000, 4);
+  const evs = evenementsV1(avant, avecCal(5, 6000 + 1850, 5)).filter((e) => e.type === "calendrier");
+  assert.deepEqual(evs, [{ type: "calendrier", donnees: { jour: 5, ap: 1850 } }]);
+  assert.deepEqual(evenementsV1(avant, avecCal(4, 6000, 4)).filter((e) => e.type === "calendrier"), [], "rien sans nouvelle récupération");
+  assert.deepEqual(evenementsV1(avant, avecCal(4, 6000 + 2260, 6)).filter((e) => e.type === "calendrier"), [], "l'octroi d'AP seul n'est pas une récupération");
+  const ancien = { bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 };
+  assert.deepEqual(evenementsV1(ancien, avecCal(5, 7000, 5)).filter((e) => e.type === "calendrier"), [], "instantané d'avant ce jalon : pas de comparaison, rien annoncé à tort");
 }
 
 console.log("idle-flux-v1 OK");

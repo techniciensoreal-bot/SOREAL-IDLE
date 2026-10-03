@@ -114,6 +114,13 @@
           ?nom+verbe(' as',' a')+' acheté '+article+fois+' dans la '+(ap?'Boutique AP':'boutique EXP')
           :nom+verbe(' as',' a')+' fait un achat dans la '+(ap?'Boutique AP':'boutique EXP')};
       }
+      /* Récompense de connexion (Norman, 2026-10-03) : annoncée aux joueurs qui connaissent déjà ce menu (comme les Titans ou les Challenges). */
+      case 'calendrier':{
+        if(!k.menus.moneyPit)return null;
+        const ap=Number(d.ap)>0?' (+'+Math.round(Number(d.ap)).toLocaleString('fr-FR')+' AP)':'';
+        const jour=Number(d.jour)>0?' du jour '+Math.floor(Number(d.jour)):'';
+        return {icone:'📅',texte:nom+verbe(' as',' a')+' récupéré '+verbe('ta','sa')+' récompense de connexion'+jour+ap};
+      }
       case 'rebirth':
         if(!k.menus.renaissance)return null;
         const dureeRun=dureeRunTexte(d.duree);

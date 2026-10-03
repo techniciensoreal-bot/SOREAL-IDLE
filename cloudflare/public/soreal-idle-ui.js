@@ -22204,7 +22204,7 @@ function pageAventureIdleV28_(j){
         });
         const succesListe=j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
         succesListe.forEach(function(x){if(x&&x.unlocked&&x.id)connus.succes[String(x.id)]=String(x.name||'');});
-        ['renaissance','challenges','titans','succes','spendExp','sellout'].forEach(function(m){
+        ['renaissance','challenges','titans','succes','spendExp','sellout','moneyPit'].forEach(function(m){
           try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
         });
         return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};

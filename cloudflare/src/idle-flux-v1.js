@@ -64,8 +64,12 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   /* Un compteur PAR ARTICLE (id -> nombre acheté) : l'événement dit ce qui a été acheté (Norman, 2026-10-03 : « on voit l'achat des autres joueurs, oublie le sans spoil »). */
   const parArticle = (o) => Object.fromEntries(Object.entries(o && typeof o === "object" ? o : {}).map(([id, v]) => [id, Math.max(0, Math.floor(N(v, 0)))]).filter(([, v]) => v > 0));
   const achats = { exp: parArticle(m.bonuses && m.bonuses.expShop), sellout: parArticle(m.selloutShop && m.selloutShop.purchases) };
+  /* Récompense de connexion (Norman, 2026-10-03 : « quand quelqu'un récupère sa récompense journalière, ça doit apparaître dans En Direct »). Seuls les clics de récupération comptent (l'octroi de lancement n'incrémente pas totalReclames). */
+  const cal = (m.records && m.records.loginCalendar) || {};
+  const calendrier = { reclames: Math.max(0, Math.floor(N(cal.totalReclames, 0))), ap: Math.max(0, Math.floor(N(cal.totalAp, 0))), serie: Math.max(0, Math.floor(N(cal.serie, 0))) };
   return {
     achats,
+    calendrier,
     defiActif,
     sets,
     /* Record permanent (jamais remis à 0 par un Rebirth) : seul un boss JAMAIS vaincu auparavant est annoncé, pas les boss refaits à chaque run. */
@@ -122,6 +126,10 @@ export function evenementsV1(avant, apres, noms = {}) {
         if (n > N(a[id], 0)) ev.push({ type: "achat", donnees: { boutique, id, n: n - N(a[id], 0), nom: nom(noms.achat, [boutique, id]) } });
       }
     }
+  }
+  /* Récompense de connexion récupérée : jamais d'annonce depuis un instantané d'avant ce jalon (pas de comparaison possible). */
+  if (avant.calendrier && typeof avant.calendrier === "object" && apres.calendrier && apres.calendrier.reclames > N(avant.calendrier.reclames, 0)) {
+    ev.push({ type: "calendrier", donnees: { jour: apres.calendrier.serie, ap: Math.max(0, apres.calendrier.ap - N(avant.calendrier.ap, 0)) } });
   }
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);

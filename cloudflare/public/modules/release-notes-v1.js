@@ -28,7 +28,7 @@
           'Augmentations : « il manque de l’Or » est jugé avec ton Or du moment ; la barre reste pleine à la fin d’un niveau et repart dès que l’Or suffit. Même logique pour les autres barres qui dépensent de l’Or.',
           'Le jeu retente tout seul une synchro qui échoue (réseau instable) et force une synchro si l’état du serveur tarde trop à arriver.',
           'Détails d’affichage : cases du Coffre plus petites avec l’image pleine case, texte du prix lisible dans le menu des récompenses d’Or, et boutons de ce menu grisés tant qu’ils ne sont pas prêts.',
-          'Le bandeau « En direct » annonce l’article acheté par les autres joueurs et la durée du run lors d’un Rebirth ; les longs messages du chat y passent en entier. Le chat reste collé aux derniers messages.',
+          'Le bandeau « En direct » annonce l’article acheté par les autres joueurs, la durée du run lors d’un Rebirth et les récompenses de connexion récupérées ; les longs messages du chat y passent en entier. Le chat reste collé aux derniers messages.',
           'Des récompenses de connexion mensuelles apparaissent dans un menu une fois découvert : une case par jour du mois, qui s’allument une à une. Plus tu enchaînes les jours, plus c’est généreux ; rater un jour te ramène à la première case. Les jours 1 et 2 d’octobre sont offerts à tous.',
           'Les boutons prêts à servir brillent de façon bien visible (dans le menu comme dans la page), un nouveau son de clochettes de vieux magasin accueille dans la boutique, et la machine à Or gagne sa barre qui se remplit au rythme de ses remplissages par seconde ; ses chiffres se mettent à jour en direct.'
         ]
