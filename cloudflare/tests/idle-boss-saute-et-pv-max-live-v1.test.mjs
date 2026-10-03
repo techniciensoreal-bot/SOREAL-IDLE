@@ -13,11 +13,9 @@ assert.ok(ui.includes("const vaincusALaVictoireV1=idleEntier_(idleEtat.bossVainc
 assert.ok(ui.includes("idleEntier_(n.bossVaincus)!==idleEntier_(vaincusAvant)+1"), "boss suivant = vaincus + 1 exactement");
 assert.ok(ui.includes("idleEntier_(idleEtat.bossVaincus)>idleEntier_(vaincusAvant)"), "serveur déjà à jour : rien à prédire");
 
-// PV max en direct : calculé avec la même formule que le combat, au moment de la réponse.
-assert.ok(runtime.includes("const pvJoueurMaxEtatV1 ="));
-assert.ok(runtime.includes("pvJoueurMax: pvJoueurMaxEtatV1,"));
-assert.ok(runtime.includes("Math.max(1000, Math.round(Number(combatPrincipalEtat.pvMax)))"));
-console.log("idle-boss-saute-et-pv-max-live-v1 OK");
+// PV max : RETIRÉ le 2026-10-03 (régression) -- combatPrincipal.pvMax ne vaut PAS la vie max réellement utilisée en combat (1,7e47 au lieu de ~8e15 chez Norman) : la barre ne montait plus.
+// Le serveur renvoie de nouveau la valeur enregistrée ; une mise à jour « en direct » devra reprendre la formule exacte du combat (entrainementV41.pvMax).
+assert.ok(!runtime.includes("pvJoueurMaxEtatV1"), "la vie max n'est plus dérivée de combatPrincipal");
 
 // Augmentations : une seule jauge d'Or (celle du haut de page) ; la ponction d'un niveau y est visible aussitôt.
 {
