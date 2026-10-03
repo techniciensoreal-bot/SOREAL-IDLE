@@ -166,7 +166,8 @@
       if(change){
         if(ouvert){
           vuId=dernierId;ecrireVu(vuId);
-          rendreMessages(true);
+          /* Nouveaux messages : on reste collé en bas si le joueur y était ; s'il est remonté lire plus haut, on ne le ramène pas de force. */
+          rendreMessages(false);
         }
         recalculerNonLus();
       }
@@ -240,12 +241,33 @@
     '</div>';
   }
 
+  /*
+   * Position de lecture (Norman, 2026-10-03 : « le chat doit toujours être placé de manière à ce qu'on voie les derniers messages ; il nous remet toujours en haut »). Chaque rendu complet du jeu
+   * RE-MONTE le chat dans la page : un élément déplacé perd sa position de défilement (retour tout en haut). On retient donc ce que LE JOUEUR a fait (collé en bas, ou remonté lire plus haut) et on le
+   * rétablit après chaque rendu ; par défaut, on reste collé en bas.
+   */
+  let lectureBas=true;
+  let lectureHaut=0;
+
+  function majPositionLecture(liste){
+    if(!liste||!(liste.clientHeight>0))return;/* liste cachée ou détachée : sa position n'est pas celle du joueur */
+    lectureBas=liste.scrollHeight-liste.scrollTop-liste.clientHeight<80;
+    lectureHaut=liste.scrollTop;
+  }
+
   function rendreMessages(garderBas){
     const liste=elListe();
     if(!liste)return;
-    const proche=liste.scrollHeight-liste.scrollTop-liste.clientHeight<80;
+    const bas=garderBas===true||lectureBas;
     liste.innerHTML=items.length?items.map(htmlMessage).join(''):'<div class="sic-vide">Aucun message pour l’instant. Dis bonjour ! 👋</div>';
-    if(garderBas===true||proche)liste.scrollTop=liste.scrollHeight;
+    if(bas){
+      lectureBas=true;
+      liste.scrollTop=liste.scrollHeight;
+      /* Mise en page tardive (polices, remontage) : on recolle en bas à l'image suivante. */
+      if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){if(lectureBas)liste.scrollTop=liste.scrollHeight;});
+    }else{
+      liste.scrollTop=lectureHaut;
+    }
   }
 
   function rendrePresence(){
@@ -280,6 +302,7 @@
     appel('envoyerChatSorealIdle',[{message:message}]).then(function(res){
       if(res&&res.ok===false)throw new Error(res.message||'Message refusé.');
       champ.value='';
+      lectureBas=true;/* son propre message : toujours le voir */
       return chargerRecents();
     }).catch(function(e){
       try{window.alert('⚠️ '+(e&&e.message?e.message:e));}catch(_){}
@@ -323,6 +346,7 @@
           '<button type="button" class="sic-btn sic-envoyer" data-sic="envoyer">Envoyer</button>'+
         '</div>'+
       '</div>';
+    el.querySelector('.sic-liste').addEventListener('scroll',function(){majPositionLecture(this);},{passive:true});
     el.addEventListener('click',function(event){
       const c=event.target&&event.target.closest?event.target.closest('[data-sic]'):null;
       if(!c)return;
