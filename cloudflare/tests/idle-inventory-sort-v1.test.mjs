@@ -152,4 +152,17 @@ function addBoost(s, type, strength, level = 0) {
   );
 }
 
+// --- 8. Même nom = côte à côte (Norman, 2026-10-03) : A, B, A -> A, A, B dans la catégorie. ---
+{
+  const s = adv();
+  const a1 = addItem(s, "sewers:ring");
+  const b = addItem(s, "forest:ring");
+  const a2 = addItem(s, "sewers:ring");
+  if (a1.name !== b.name) {
+    applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+    const noms = s.inventorySlots.filter(Boolean).map((id) => s.inventory.find((x) => x.id === id).name);
+    assert.deepEqual(noms.filter((n) => n !== "Tutorial Cube"), [a1.name, a2.name, b.name], "les deux objets du même nom se suivent");
+  }
+}
+
 console.log("idle-inventory-sort-v1: OK");

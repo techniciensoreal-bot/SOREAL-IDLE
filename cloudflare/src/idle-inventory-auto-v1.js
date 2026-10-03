@@ -513,10 +513,14 @@ function sortInventorySlotsV1(s) {
   const ids = slots.slice(mergeSlots).filter(Boolean);
   /* Boosts (Norman, 2026-10-03) : dans leur catégorie (Power, Toughness, Special), triés par numéro croissant (1, 2, 5…). Tri stable pour tout le reste. */
   const forceBoost = (o) => (o && o.kind === "boost" ? N(o.strength, 0) : 0);
+  /* Objets de même nom (Norman, 2026-10-03) : côte à côte, groupes dans l'ordre de leur première apparition (tri stable, rien d'autre ne bouge). */
+  const cleNom = (o) => String((o && (o.name || o.definitionId)) || "");
+  const premier = new Map();
+  ids.forEach((id, i) => { const k = cleNom(byId.get(id)); if (!premier.has(k)) premier.set(k, i); });
   ids.sort((a, b) => {
     const oa = byId.get(a);
     const ob = byId.get(b);
-    return sortRankInventoryV1(oa) - sortRankInventoryV1(ob) || forceBoost(oa) - forceBoost(ob);
+    return sortRankInventoryV1(oa) - sortRankInventoryV1(ob) || forceBoost(oa) - forceBoost(ob) || premier.get(cleNom(oa)) - premier.get(cleNom(ob));
   });
   for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
   s.inventorySlots = slots;
