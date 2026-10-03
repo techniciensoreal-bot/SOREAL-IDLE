@@ -85,14 +85,37 @@
     return saveSessionV1(token);
   }
 
-  async function jsonFetchV1(url, options){
+  /*
+   * Heure du serveur (Norman, 2026-10-03 : « tous les compteurs doivent être très précis »). Les échéances (Money Pit, Daily Spin, cooldowns, début de run…) sont des
+   * dates du SERVEUR : comparées à l'horloge du téléphone, elles sont décalées d'autant. Chaque réponse porte l'en-tête x-soreal-now ; l'écart est estimé au milieu de
+   * l'aller-retour, en gardant la mesure au plus court aller-retour (la plus fiable), renouvelée si elle date de plus de 2 minutes.
+   */
+  const heureServeurV1={ecart:0,rtt:Infinity,quand:0,connu:false};
+  function noterHeureServeurV1(entete,debut,fin){
+    const serveur=Number(entete);
+    if(!isFinite(serveur)||serveur<=0)return;
+    const rtt=Math.max(0,fin-debut);
+    const vieux=fin-heureServeurV1.quand>120000;
+    if(!heureServeurV1.connu||vieux||rtt<=heureServeurV1.rtt*1.25){
+      heureServeurV1.ecart=serveur-(debut+rtt/2);
+      heureServeurV1.rtt=rtt;
+      heureServeurV1.quand=fin;
+      heureServeurV1.connu=true;
+    }
+  }
+  window.__SOREAL_IDLE_HEURE_V1__=function(){return Date.now()+heureServeurV1.ecart;};
+  window.__SOREAL_IDLE_RTT_V1__=function(){return heureServeurV1.connu?heureServeurV1.rtt:0;};
+
+  async function jsonFetchV1(url, options, timeoutMs){
     const controller=typeof AbortController==="function"?new AbortController():null;
-    const timer=setTimeout(function(){try{controller&&controller.abort();}catch(_){}},TIMEOUT_MS);
+    const timer=setTimeout(function(){try{controller&&controller.abort();}catch(_){}},timeoutMs||TIMEOUT_MS);
     try{
+      const debutFetch=Date.now();
       const response=await fetch(url,Object.assign({},options||{},{
         cache:"no-store",
         signal:controller?controller.signal:undefined
       }));
+      try{noterHeureServeurV1(response.headers.get("x-soreal-now"),debutFetch,Date.now());}catch(_){}
       const data=await response.json().catch(function(){return null;});
       if(!response.ok||!data||data.ok===false){
         const error=new Error(
@@ -227,7 +250,7 @@
     if(!firstArg)liste.unshift(session);
 
     try{
-      const data=await jsonFetchV1("/api/v1/call",{
+      const data=await jsonFetchRepriseV1("/api/v1/call",{
         method:"POST",
         headers:{
           accept:"application/json",
@@ -239,7 +262,7 @@
           args:liste,
           catalogHashes:sansAllegement?undefined:hashesCataloguesV1()
         })
-      });
+      },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
       if(!restaurerCataloguesV1(data)&&!sansAllegement){
         /* Pièce annoncée comme déjà connue mais perdue (cas rarissime : réponse très en retard) : on la reprend dans un état complet, JAMAIS en rejouant l'action. */
         try{
@@ -250,10 +273,28 @@
           });
         }catch(_){}
       }
+      /* Instant de réception (horloge locale) : les chronos partent de là, moins un demi aller-retour (voir meta-progression : ancreSnapshotIdleV1_). */
+      if(data&&data.joueur&&typeof data.joueur==="object")data.joueur.__recuPerfV1=performance.now();
       return data;
     }catch(error){
       if(error&&error.status===401)saveSessionV1("");
       throw error;
+    }
+  }
+
+  /*
+   * Lectures (état, synchro, battement) : délai court (15 s) et UNE reprise après 0,4 s (Norman, 2026-10-03 : audit réactivité). Avant : une requête pendante bloquait toutes les synchros
+   * jusqu'à 45 s, et un « serveur occupé » (retryable) était une erreur définitive. Jamais pour une action de jeu : la rejouer pourrait l'appliquer deux fois.
+   */
+  const OPERATIONS_LECTURE_V1={obtenirEtatSorealIdle:1,synchroniserSorealIdle:1,battementSorealIdle:1};
+  async function jsonFetchRepriseV1(url,options,lecture){
+    if(!lecture)return jsonFetchV1(url,options);
+    try{
+      return await jsonFetchV1(url,options,15000);
+    }catch(erreur){
+      if(erreur&&(erreur.status===400||erreur.status===401||erreur.status===403))throw erreur;
+      await new Promise(function(r){setTimeout(r,400);});
+      return jsonFetchV1(url,options,15000);
     }
   }
 

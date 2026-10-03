@@ -1023,18 +1023,55 @@
       }
 
 
+      /*
+       * Compte à rebours Money Pit / Daily Spin (Norman, 2026-10-03 : « tous les compteurs doivent être très précis »). Le texte était écrit une seule fois au dessin de la page :
+       * il restait figé puis le bouton restait grisé après l'échéance. Chaque bouton porte maintenant son échéance (heure du SERVEUR) ; un minuteur met le texte à jour et,
+       * à l'échéance, redessine la page une fois pour rendre le bouton actif.
+       */
+      function libelleRechargeMoneyPitIdleV1_(restantS){
+        const h=Math.floor(restantS/3600);
+        const m=Math.floor((restantS%3600)/60);
+        const sec=restantS%60;
+        return '🕳️ En recharge · '+(h>0?(h+'h '+m+'m'):(m>0?(m+'m '+sec+'s'):(sec+'s')));
+      }
+      function libelleRechargeDailySpinIdleV1_(restantS){
+        const h=Math.floor(restantS/3600);
+        const m=Math.floor((restantS%3600)/60);
+        return '🎡 Prochain tour · '+(h>0?(h+'h '+m+'m'):(m>0?(m+'m'):(restantS+'s')));
+      }
+      let minuteurRechargeIdleV1=null;
+      function demarrerMinuteurRechargeIdleV1_(){
+        if(minuteurRechargeIdleV1||typeof setInterval!=='function')return;
+        minuteurRechargeIdleV1=setInterval(function(){
+        const boutons=document.querySelectorAll('[data-idle-recharge-v1]');
+        if(!boutons.length)return;
+        const maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
+        let echu=false;
+        boutons.forEach(function(b){
+          const restantMs=Number(b.getAttribute('data-fin'))-maintenant;
+          if(restantMs>0){
+            const restantS=Math.ceil(restantMs/1000);
+            const texte=b.getAttribute('data-idle-recharge-v1')==='pit'?libelleRechargeMoneyPitIdleV1_(restantS):libelleRechargeDailySpinIdleV1_(restantS);
+            if(b.textContent!==texte)b.textContent=texte;
+          }else echu=true;
+        });
+        if(echu){
+          const racine=document.querySelector('.soreal-idle-page-root-v28');
+          const H=window.__SOREAL_IDLE_META_HOST_V130__;
+          if(racine&&H&&typeof H.rafraichirMenuRacineIdleV28_==='function'&&H.getIdleEtat())H.rafraichirMenuRacineIdleV28_();
+        }
+        },500);
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-301 */
       function rendreBoutonMoneyPitIdleV1_(j,st){
         const gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.gold);
         const nextAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.nextAt);
-        const restantMs=nextAt-Date.now();
+        const restantMs=nextAt-(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
         if(restantMs>0){
           const restantS=Math.ceil(restantMs/1000);
-          const h=Math.floor(restantS/3600);
-          const m=Math.floor((restantS%3600)/60);
-          const sec=restantS%60;
-          const libelle=h>0?(h+'h '+m+'m'):(m>0?(m+'m '+sec+'s'):(sec+'s'));
-          return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ En recharge · '+libelle+'</button>';
+          demarrerMinuteurRechargeIdleV1_();
+          return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="pit" data-fin="'+nextAt+'">'+libelleRechargeMoneyPitIdleV1_(restantS)+'</button>';
         }
         if(gold<100000){
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (100 000 Or requis, '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+' actuel)</button>';
@@ -1044,13 +1081,11 @@
 
       function rendreBoutonDailySpinIdleV203_(st){
         const readyAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.readyAt);
-        const restantMs=readyAt-Date.now();
+        const restantMs=readyAt-(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
         if(restantMs>0){
           const restantS=Math.ceil(restantMs/1000);
-          const h=Math.floor(restantS/3600);
-          const m=Math.floor((restantS%3600)/60);
-          const libelle=h>0?(h+'h '+m+'m'):(m>0?(m+'m'):(restantS+'s'));
-          return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🎡 Prochain tour · '+libelle+'</button>';
+          demarrerMinuteurRechargeIdleV1_();
+          return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="spin" data-fin="'+readyAt+'">'+libelleRechargeDailySpinIdleV1_(restantS)+'</button>';
         }
         return '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Fais-moi tourner, bébé !</button>';
       }
@@ -1731,6 +1766,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
       /* Fait avancer d'abord les barres d'Augmentations du temps écoulé, puis repart de « maintenant » : tous les repères restent cohérents. */
+      /* Instant (horloge locale, performance.now) où le serveur a produit la dernière réponse : réception moins un demi aller-retour (voir standalone-bridge.js). */
+      function ancreSnapshotIdleV1_(j){
+        const rtt=typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0;
+        const recu=j&&Number(j.__recuPerfV1);
+        return (recu>0?recu:performance.now())-rtt/2;
+      }
+
       function rebaserVisuelAugmentsIdleV1_(visual){
         if(!visual||!visual.defs)return;
         const maintenant=performance.now();
@@ -1918,10 +1960,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!sys||!sys.state||!sys.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[],pairs=(sys.state.data||{}).pairs||{};
         const boss=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
-        window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().__augmentationsVisualV215={
-          at:performance.now(),
+        /*
+         * Norman (2026-10-03) : chronos très précis. Un redessin de la page ne doit JAMAIS remettre la barre en arrière : si les chiffres du serveur n'ont pas changé depuis le dernier dessin (même tableau),
+         * on garde le repère qui tourne déjà, rebasé à maintenant. Sinon (nouvelle réponse), le repère part de l'instant où le serveur a produit ces chiffres : réception moins un demi aller-retour.
+         */
+        const etatAug=window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat();
+        const visuelAugExistant=etatAug.__augmentationsVisualV215;
+        const garderVisuelAug=Boolean(visuelAugExistant&&visuelAugExistant.src===defs&&defs.length);
+        if(garderVisuelAug)rebaserVisuelAugmentsIdleV1_(visuelAugExistant);
+        if(!garderVisuelAug){
+        etatAug.__augmentationsVisualV215={
+          src:defs,
+          at:ancreSnapshotIdleV1_(etatAug),
           defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
         };
+        rebaserVisuelAugmentsIdleV1_(etatAug.__augmentationsVisualV215);
+        }
         const cap=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.resources&&snap.resources.energy&&snap.resources.energy.cap||0));
         function track(def,pair,upgrade,ok){
           const value=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(upgrade?pair.upgradeEnergy:pair.energy));
@@ -2231,7 +2285,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         vue.etaSeconds=nouveau.seconds>0?Math.max(0,nouveau.seconds-progSec):null;
         vue.progressSeconds=progSec;
         j.__bloodMagicVisualV1=nouveau.seconds>0
-          ?{ritual:vue.activeRitual,secondsPerCompletion:nouveau.seconds,etaSeconds:vue.etaSeconds,at:maintenant}
+          ?{ritual:vue.activeRitual,secondsPerCompletion:nouveau.seconds,etaSeconds:vue.etaSeconds,at:maintenant,src:vue}
           :null;
         const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+vue.activeRitual);
         if(ligne){
@@ -2330,7 +2384,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         vue.progressSeconds=progSec;
         vue.secondsPerCompletion=calc.seconds>0?calc.seconds:null;
         vue.etaSeconds=calc.seconds>0?Math.max(0,calc.seconds-progSec):null;
-        j.__bloodMagicVisualV1=calc.seconds>0?{ritual:ritualId,secondsPerCompletion:calc.seconds,etaSeconds:vue.etaSeconds,at:performance.now()}:null;
+        j.__bloodMagicVisualV1=calc.seconds>0?{ritual:ritualId,secondsPerCompletion:calc.seconds,etaSeconds:vue.etaSeconds,at:performance.now(),src:vue}:null;
       }
 
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
@@ -2459,7 +2513,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
          * mais pour un seul élément : seul le rituel ACTIF progresse réellement (bloodMagicViewV1).
          */
         if(bmView&&bmView.secondsPerCompletion!=null){
-          H.getIdleEtat().__bloodMagicVisualV1={ritual:bmView.activeRitual,secondsPerCompletion:bmView.secondsPerCompletion,etaSeconds:bmView.etaSeconds,at:performance.now()};
+          /* Redessin sans nouvelle réponse (même vue) : on garde le repère qui tourne déjà (jamais de retour en arrière) ; sinon il part de l'instant où le serveur a produit ces chiffres. */
+          const visuelBloodExistant=H.getIdleEtat().__bloodMagicVisualV1;
+          if(!(visuelBloodExistant&&visuelBloodExistant.src===bmView&&visuelBloodExistant.ritual===bmView.activeRitual)){
+            H.getIdleEtat().__bloodMagicVisualV1={ritual:bmView.activeRitual,secondsPerCompletion:bmView.secondsPerCompletion,etaSeconds:bmView.etaSeconds,at:ancreSnapshotIdleV1_(H.getIdleEtat()),src:bmView};
+          }
         }else{
           H.getIdleEtat().__bloodMagicVisualV1=null;
         }

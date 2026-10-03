@@ -30,6 +30,34 @@
     return h>0?h+' h '+String(m).padStart(2,'0')+' min':(m>0?m+' min':s+' s');
   }
   function snap(j){return j&&j.systemes&&j.systemes.inventoryAuto||null;}
+
+  /*
+   * « prochain dans X » (Norman, 2026-10-03 : tous les compteurs précis) : écrit une fois au dessin, il restait figé. Le texte porte maintenant son repère (instant où le serveur a produit la valeur,
+   * réception moins un demi aller-retour) et un minuteur le met à jour ; le cycle recommence tout seul à chaque intervalle.
+   */
+  var minuteurAutoV1=null;
+  function minuteurAuto(){
+    if(minuteurAutoV1||typeof setInterval!=='function')return;
+    minuteurAutoV1=setInterval(function(){
+      var els=document.querySelectorAll('[data-idle-auto-v1]');
+      if(!els.length)return;
+      var now=performance.now();
+      els.forEach(function(el){
+        var cycle=Math.max(1,Number(el.getAttribute('data-cycle'))||1);
+        var reste=Number(el.getAttribute('data-rest'))-(now-Number(el.getAttribute('data-at')))/1000;
+        if(reste<=0)reste=cycle-((-reste)%cycle);
+        var t=duree(Math.ceil(reste));
+        if(el.textContent!==t)el.textContent=t;
+      });
+    },500);
+  }
+  function prochainAuto(j,s,secondes){
+    var rtt=typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0;
+    var recu=j&&Number(j.__recuPerfV1);
+    var ancre=(recu>0?recu:performance.now())-rtt/2;
+    minuteurAuto();
+    return ' · prochain dans <span data-idle-auto-v1="1" data-rest="'+Number(secondes)+'" data-at="'+ancre+'" data-cycle="'+Math.max(1,Number(s.intervalSeconds)||1)+'">'+duree(secondes)+'</span>';
+  }
   function aventure(j){return j&&j.systemes&&j.systemes.adventure||null;}
 
   /*
@@ -234,8 +262,8 @@
     var lignes=[];
 
     var autoItems=
-      (u.autoMerge?'<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?' · prochain dans '+duree(s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',true)+'</div>':'')+
-      (u.autoBoost?'<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?' · prochain dans '+duree(s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',true)+'</div>':'');
+      (u.autoMerge?'<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?prochainAuto(j,s,s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',true)+'</div>':'')+
+      (u.autoBoost?'<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?prochainAuto(j,s,s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',true)+'</div>':'');
     lignes.push(section('🤖 Automatisation',
       (autoItems?'<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+autoItems+'</div>'+
       '<div class="soreal-idle-note-v4" style="margin-top:10px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b><br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>':'')+

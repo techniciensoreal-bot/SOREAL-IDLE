@@ -101,7 +101,7 @@ function carte(t){
   registre[id]=t;
   var kills=ent(t.state&&t.state.kills);
   var retour=prochainRetour(t);
-  var maintenant=Date.now();
+  var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
   var enAttente=!cache(t)&&retour>maintenant;
   var pret=!cache(t)&&!enAttente;
   var statut=cache(t)
@@ -216,7 +216,7 @@ window.__affronterTitanV1__=function(id){
 setInterval(function(){
   var cds=document.querySelectorAll('[data-ttn-cd]');
   if(!cds.length)return;
-  var maintenant=Date.now();
+  var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
   cds.forEach(function(el){
     var fin=Number(el.getAttribute('data-ttn-cd'));
     var reste=fin-maintenant;

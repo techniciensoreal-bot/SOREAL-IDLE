@@ -201,6 +201,11 @@
       }
       let idleEtat=null;
       const idleRepereVisuelsV1_={};
+      /* Heure du SERVEUR (Norman, 2026-10-03 : « tous les compteurs doivent être très précis ») : les échéances (cooldowns, Money Pit, Daily Spin, début de run) sont des dates du serveur, jamais à comparer à l'horloge du téléphone. */
+      function heureServeurIdleV1_(){
+        return typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
+      }
+      window.__heureServeurIdleV1__=heureServeurIdleV1_;
       /* Lecture seule de l'état courant pour les modules (panneau Détail Attack/Defense, modules/stats-detail-v1.js). */
       window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};
 
@@ -1045,8 +1050,17 @@
       const IDLE_BT_SYNCHRO_CLE_V1='soreal_idle_bt_synchro_v1';
 
       /* La case n'existe (et ne compte) que si l'achat a été fait : le serveur l'annonce par `basicTrainingSynchro`. */
+      /*
+       * Norman (2026-10-03) : « le bouton Synchro doit conserver son état après un Rebirth ». L'achat est mémorisé : une réponse qui ne porte pas (encore) l'information (champ absent) ne fait ni
+       * disparaître la case ni perdre son choix ; seul un « non » explicite du serveur (partie réinitialisée) l'efface. Le choix coché/décoché reste dans le stockage local, jamais touché par un Rebirth.
+       */
+      let idleBtSynchroAcheteV1=false;
+      function synchroBasicTrainingAcheteIdleV1_(){
+        if(idleEtat&&typeof idleEtat.basicTrainingSynchro==='boolean')idleBtSynchroAcheteV1=idleEtat.basicTrainingSynchro;
+        return idleBtSynchroAcheteV1;
+      }
       function synchroBasicTrainingActifIdleV1_(){
-        if(!idleEtat||!idleEtat.basicTrainingSynchro)return false;
+        if(!idleEtat||!synchroBasicTrainingAcheteIdleV1_())return false;
         try{return window.localStorage.getItem(IDLE_BT_SYNCHRO_CLE_V1)==='1';}catch(e){return false;}
       }
 
@@ -2406,7 +2420,7 @@
         );
 
         actualiserCooldownAventureIdleV100_(
-          maintenantTick
+          heureServeurIdleV1_()
         );
 
 
@@ -2607,7 +2621,7 @@
                 el.style.transform='scaleX(1)';
                 return;
               }
-              animerBarreCycliqueIdleV217_(el,seconds,x[1]);
+              animerBarreCycliqueIdleV217_(el,seconds,seconds>0?((idleNombre_(x[1])+ecouleAug/seconds)%1):idleNombre_(x[1]));
             });
           });
         }
@@ -2623,7 +2637,8 @@
           const el=document.querySelector('[data-idle-blood-bar-v1="'+bloodVisual.ritual+'"]');
           if(el){
             const seconds=idleNombre_(bloodVisual.secondsPerCompletion);
-            const progress=seconds>0?Math.max(0,Math.min(.999999,1-idleNombre_(bloodVisual.etaSeconds)/seconds)):0;
+            /* Progression à l'instant PRÉSENT (repère + temps écoulé), jamais celle du dernier chiffre serveur : un redessin ne ramène plus la barre en arrière. */
+            const progress=seconds>0?Math.max(0,Math.min(.999999,((1-idleNombre_(bloodVisual.etaSeconds)/seconds)+Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000)/seconds)%1)):0;
             /*
              * Or EN DIRECT (Norman, 2026-10-03 : « le souci avec l'Or apparaît aussi dans Blood Magic »). Un rituel qui se termine dépense de l'Or ; sans Or, la barre bouclait
              * à vide. Comme pour les Augmentations : barre arrivée au bout = pleine ; s'il manque de l'Or (Or actuel) on le dit ; sinon on resynchronise et on redessine.
@@ -4062,7 +4077,14 @@
         document.querySelectorAll('.soreal-idle-tm-eta-v1[data-tm-eta-seconds]').forEach(function(el){
           const brut=el.dataset.tmEtaSeconds;
           if(brut==='')return;
-          if(!el.dataset.tmEtaAt)el.dataset.tmEtaAt=String(maintenant);
+          if(!el.dataset.tmEtaAt){
+            /* Le compte à rebours part de l'instant où le serveur a produit ces chiffres (réception moins un demi aller-retour), pas du premier passage du minuteur. */
+            const vueTm=idleEtat&&idleEtat.systemes&&idleEtat.systemes.timeMachineView;
+            const recuTm=idleEtat&&Number(idleEtat.__recuPerfV1);
+            const ancreTm=(vueTm&&vueTm.__ancreTmV1!==undefined)?vueTm.__ancreTmV1:(recuTm>0?recuTm-(typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0)/2:performance.now());
+            if(vueTm&&vueTm.__ancreTmV1===undefined)vueTm.__ancreTmV1=ancreTm;
+            el.dataset.tmEtaAt=String(Date.now()-(performance.now()-ancreTm));
+          }
           const base=Math.max(0,idleNombre_(brut));
           const at=idleNombre_(el.dataset.tmEtaAt)||maintenant;
           const restant=Math.max(0,base-(maintenant-at)/1000);
@@ -4144,9 +4166,17 @@
         });
       }
 
+      /*
+       * Synchro affamée (Norman, 2026-10-03 : audit réactivité) : la synchro périodique est abandonnée tant qu'une action (inventaire, entraînement, achat…) est « en cours ». Un joueur qui
+       * clique sans arrêt, ou un drapeau resté vrai, pouvait donc rester très longtemps sans l'état du serveur (chronos qui dérivent). Sans réponse réussie depuis 90 s, la synchro est forcée.
+       */
+      let idleDerniereSynchroReussieV1=Date.now();
+      const IDLE_SYNCHRO_AFFAMEE_MS_V1=90000;
+
       function synchroniserJeuIdleV7_(
         force
       ){
+        if(!force&&Date.now()-idleDerniereSynchroReussieV1>IDLE_SYNCHRO_AFFAMEE_MS_V1)force=true;
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-73 */
         if(idleSyncEnCoursV60){
           if(force)idleSyncForcePendingV167=true;
@@ -4193,6 +4223,7 @@
         google.script.run
           .withSuccessHandler(function(res){
             terminerSynchroEtRelancerForceeIdleV167_();
+            if(res&&res.ok)idleDerniereSynchroReussieV1=Date.now();
 
             if(
               PAGE_ACTIVE!=='idle' ||
@@ -4503,6 +4534,25 @@
         idleTimerJeuArrierePlanV1=setInterval(function(){
           if(document.hidden&&PAGE_ACTIVE==='idle')mettreAJourJeuIdleLocalV7_();
         },1000);
+
+        /*
+         * Retour sur l'onglet / l'appli (Norman, 2026-10-03 : audit réactivité) : caché, le navigateur ralentit les minuteries (jusqu'à 1 par minute) ; le tick local est plafonné à 1 s par passage.
+         * Au retour, barres et chronos étaient en retard jusqu'à la prochaine synchro (15 s ou plus). On resynchronise tout de suite : l'état du serveur, lui, a bien avancé.
+         */
+        if(!window.__sorealIdleRetourOngletV1){
+          window.__sorealIdleRetourOngletV1=true;
+          let dernierRetourV1=0;
+          const auRetourV1=function(){
+            if(document.hidden||PAGE_ACTIVE!=='idle'||!idleEtat||!SOREAL_SESSION)return;
+            if(Date.now()-dernierRetourV1<2000)return;
+            dernierRetourV1=Date.now();
+            idleDernierTickLocalV40=Date.now();
+            synchroniserJeuIdleV7_(true);
+          };
+          document.addEventListener('visibilitychange',auRetourV1);
+          window.addEventListener('pageshow',auRetourV1);
+          window.addEventListener('focus',auRetourV1);
+        }
 
         if(
           window.__sorealIdleSyncTimerV7
@@ -8787,7 +8837,7 @@
           0,
           (
             fin-
-            Date.now()
+            heureServeurIdleV1_()
           )/
           1000
         );
@@ -11170,7 +11220,7 @@
           pit&&pit.unlock&&pit.unlock.unlocked&&
           pitData&&
           gold>=100000&&
-          Date.now()>=Number(pitData.nextAt||0)
+          heureServeurIdleV1_()>=Number(pitData.nextAt||0)
         );
         if(pitPret)return '#2ecc71';
 
@@ -11179,7 +11229,7 @@
         const rouePrete=Boolean(
           roue&&roue.unlock&&roue.unlock.unlocked&&
           roueData&&
-          Date.now()>=Number(roueData.readyAt||0)
+          heureServeurIdleV1_()>=Number(roueData.readyAt||0)
         );
         if(rouePrete)return '#f1c40f';
 
@@ -13277,7 +13327,7 @@
             ?sort.cibles
             :[];
 
-        const now=Date.now();
+        const now=heureServeurIdleV1_();
 
         const cooldown=
           Math.max(
@@ -13609,7 +13659,7 @@
                   idleNombre_(
                     sort.cooldownJusqua
                   )-
-                  maintenant
+                  heureServeurIdleV1_()
                 )/
                 1000
               );
@@ -15162,7 +15212,7 @@ let idleDialogueTimerV76=null;
                 oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
                 onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
               >
-              ${j.basicTrainingSynchro?`
+              ${synchroBasicTrainingAcheteIdleV1_()?`
               <label class="soreal-idle-bt-synchro-v1" title="Cochée : l'énergie placée dans une compétence est placée en même temps dans sa jumelle (Attaque passive ↔ Blocage…)">
                 <input
                   type="checkbox"

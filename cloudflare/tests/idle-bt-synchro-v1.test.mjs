@@ -58,8 +58,10 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
     assert.ok(ui.includes(a + ":'" + b + "'," + "") || ui.includes(a + ":'" + b + "'\n") || ui.includes(a + ":'" + b + "',"), "paire " + a + " / " + b);
     assert.ok(ui.includes(b + ":'" + a + "'"), "paire inverse " + b + " / " + a);
   }
-  assert.ok(ui.includes("${j.basicTrainingSynchro?`") && ui.includes('id="sorealIdleTrainingSynchroV1"'), "case sous Input, seulement après l'achat");
-  assert.ok(ui.includes("if(!idleEtat||!idleEtat.basicTrainingSynchro)return false;"), "sans achat, jamais de synchro même si une ancienne préférence existe");
+  assert.ok(ui.includes("${synchroBasicTrainingAcheteIdleV1_()?`") && ui.includes('id="sorealIdleTrainingSynchroV1"'), "case sous Input, seulement après l'achat");
+  assert.ok(ui.includes("if(!idleEtat||!synchroBasicTrainingAcheteIdleV1_())return false;"), "sans achat, jamais de synchro même si une ancienne préférence existe");
+  /* Après un Rebirth (Norman, 2026-10-03) : un champ absent ne fait pas perdre l'achat ; seul un « non » explicite l'efface. */
+  assert.ok(ui.includes("if(idleEtat&&typeof idleEtat.basicTrainingSynchro==='boolean')idleBtSynchroAcheteV1=idleEtat.basicTrainingSynchro;"), "achat mémorisé, effacé seulement par un « non » explicite");
   assert.ok(ui.includes("const synchro=!!(jumelle&&jumelle.unlocked);"), "la jumelle doit être débloquée");
 }
 

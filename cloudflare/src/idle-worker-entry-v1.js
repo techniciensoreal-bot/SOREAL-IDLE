@@ -164,7 +164,14 @@ async function idleCallV1(request, env) {
     /* catalogHashes : ce que le client possède déjà (voir idle-catalogues-v1.js) ; absent = réponse complète. */
     body: JSON.stringify({ sessionToken, operation, args, catalogHashes: body && typeof body.catalogHashes === "object" ? body.catalogHashes : undefined })
   });
-  return reponse;
+  /* Heure du serveur (Norman, 2026-10-03 : « les chronos doivent être très précis ») : le client en déduit l'écart de son horloge (voir standalone-bridge.js, __SOREAL_IDLE_HEURE_V1__). */
+  try {
+    const entetes = new Headers(reponse.headers);
+    entetes.set("x-soreal-now", String(Date.now()));
+    return new Response(reponse.body, { status: reponse.status, statusText: reponse.statusText, headers: entetes });
+  } catch (_e) {
+    return reponse;
+  }
 }
 
 /*

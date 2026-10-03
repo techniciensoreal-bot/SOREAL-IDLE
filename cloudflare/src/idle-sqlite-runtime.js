@@ -193,6 +193,8 @@ class IdleSheet {
     while(this.rows.length<row)this.rows.push([]);
     const r=this.rows[row-1];
     while(r.length<col)r.push("");
+    /* Valeur identique : rien à réécrire (la ligne n'est pas marquée « sale », donc pas de réécriture de la ligne joueur en base). */
+    if(r[col-1]===value)return;
     r[col-1]=value;
     this.maxColumns=Math.max(this.maxColumns,col);
     this.dirtyRows.add(row);

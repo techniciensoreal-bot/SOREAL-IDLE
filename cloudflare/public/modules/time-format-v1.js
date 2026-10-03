@@ -13,7 +13,7 @@
   function runSecondes(j,maintenant){
     const debut=nombre(j&&j.renaissance&&j.renaissance.runDebuteA);
     if(!(debut>0))return 0;
-    const now=maintenant===undefined?Date.now():nombre(maintenant);
+    const now=maintenant===undefined?(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now()):nombre(maintenant);
     return Math.max(0,(now-debut)/1000);
   }
   function heures(v){const n=Math.max(0,nombre(v));return n.toFixed(n<10?2:1).replace('.',',')+' h';}
