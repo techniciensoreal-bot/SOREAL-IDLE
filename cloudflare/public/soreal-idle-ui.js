@@ -1692,7 +1692,8 @@
               idlePopupActifV75 ||
               idlePopupQueueV75.length ||
               idleEtat.bossBloqueRenaissance ||
-              idleNombre_(idleEtat.pvJoueur)<=0
+              idleNombre_(idleEtat.pvJoueur)<=0 ||
+              fightEnAttenteServeurIdleV1_()
             );
         }
       }
@@ -1966,6 +1967,38 @@
           pct+'%';
       }
 
+
+      /*
+       * Ambiance du duel (Norman, 2026-10-03 : « une animation aux images dans Fight Boss quand le combat commence ; plus la vie d'un des deux combattants est faible, plus l'effet s'intensifie »).
+       * 0 = pleine vie, 1 = presque mort, pour chaque combattant ; les animations CSS (soreal-idle-themes.css) en tirent leur vitesse, leur amplitude et leur halo.
+       */
+      function actualiserAmbianceCombatIdleV1_(){
+        const duel=document.querySelector('.soreal-idle-duel-v41');
+        if(!duel||!idleEtat)return;
+        const actif=Boolean(idleEtat.combatBossActif)&&!idleVictoireBossLocaleV49;
+        if(!actif){
+          if(duel.classList.contains('combat-actif')){
+            duel.classList.remove('combat-actif','danger-boss','danger-joueur');
+            ['--i-joueur','--i-boss','--i-duel'].forEach(function(c){duel.style.removeProperty(c);});
+          }
+          return;
+        }
+        const ratio=function(pv,max){return idleNombre_(max)>0?Math.max(0,Math.min(1,idleNombre_(pv)/idleNombre_(max))):1;};
+        const iJoueur=Math.round((1-ratio(idleEtat.pvJoueur,idleEtat.pvJoueurMax))*50)/50;
+        const iBoss=Math.round((1-ratio(idleEtat.bossPv,idleEtat.bossPvMax))*50)/50;
+        const iDuel=Math.max(iJoueur,iBoss);
+        if(!duel.classList.contains('combat-actif'))duel.classList.add('combat-actif');
+        duel.classList.toggle('danger-boss',iBoss>=.75);
+        duel.classList.toggle('danger-joueur',iJoueur>=.75);
+        /* Écrit seulement si ça change (les animations ne repartent pas à chaque tick). */
+        const cle=iJoueur+'|'+iBoss;
+        if(duel.dataset.ambianceV1!==cle){
+          duel.dataset.ambianceV1=cle;
+          duel.style.setProperty('--i-joueur',String(iJoueur));
+          duel.style.setProperty('--i-boss',String(iBoss));
+          duel.style.setProperty('--i-duel',String(iDuel));
+        }
+      }
 
       function largeurBarreVieCombatIdleV163_(element,pourcentage){
         if(!element)return;
@@ -3409,7 +3442,12 @@
             barre,
             pct
           );
+          /* Le boss faiblit : sa barre s'embrase (<= 50 %) puis clignote (<= 25 %), comme celle du joueur (voir soreal-idle-themes.css, Fight Boss). */
+          barre.classList.toggle('bas',pct<=50&&pct>25);
+          barre.classList.toggle('critique',pct<=25);
         }
+
+        actualiserAmbianceCombatIdleV1_();
 
         const aFight=
           aventureMetaIdleV47_(idleEtat);
@@ -5770,6 +5808,19 @@
       }
 
 
+      /*
+       * Fight grisé tant que le serveur n'a pas validé (Norman, 2026-10-03 : « tant que le combat n'a pas été validé côté serveur, le bouton Fight reste grisé et on ne peut pas cliquer »).
+       * Le serveur n'a pas fini de valider quand : une victoire prédite n'est pas confirmée, ou un ordre de combat (démarrage, fuite, défaite) est en attente d'envoi ou en vol.
+       */
+      let idleCombatLotEnVolV1=false;
+      function fightEnAttenteServeurIdleV1_(){
+        return Boolean(
+          idleVictoireBossLocaleV49||
+          idlePrevisionBossV1.actif||
+          idleCombatLotEnVolV1||
+          idleFastPendingV60.combat!==null
+        );
+      }
       function idleFastPendingV60_(){
         return Boolean(
           idleFastPendingV60.equip.length ||
@@ -6266,6 +6317,10 @@
         res
       ){
         idleFastNetworkBusyV60=false;
+        if(idleCombatLotEnVolV1){
+          idleCombatLotEnVolV1=false;
+          setTimeout(function(){try{rafraichirCommandesFightBossIdleV167_();}catch(_e){}},0);
+        }
 
         if(
           !res ||
@@ -6350,6 +6405,10 @@
         erreur
       ){
         idleFastNetworkBusyV60=false;
+        if(idleCombatLotEnVolV1){
+          idleCombatLotEnVolV1=false;
+          setTimeout(function(){try{rafraichirCommandesFightBossIdleV167_();}catch(_e){}},0);
+        }
 
         if(
           idleServeurOccupeV60_(
@@ -6430,6 +6489,7 @@
         }
 
         idleFastNetworkBusyV60=true;
+        idleCombatLotEnVolV1=lot.type==='combat';
 
         const runner=
           google.script.run
@@ -14328,6 +14388,9 @@
           return;
         }
 
+        /* Un ordre de combat précédent n'est pas encore validé par le serveur : pas de nouveau Fight (raccourci clavier compris). */
+        if(actif&&!idleEtat.combatBossActif&&(idleCombatLotEnVolV1||idleFastPendingV60.combat!==null))return;
+
         if(
           actif &&
           (
@@ -14972,7 +15035,8 @@ let idleDialogueTimerV76=null;
                 ${
                   j.combatBossActif||
                   j.bossBloqueRenaissance||
-                  idleNombre_(j.pvJoueur)<=0
+                  idleNombre_(j.pvJoueur)<=0||
+                  fightEnAttenteServeurIdleV1_()
                     ?'disabled'
                     :''
                 }
