@@ -2562,13 +2562,36 @@
               const el=document.querySelector('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
               if(!el)return;
               const seconds=idleNombre_(x[2]);
+              /*
+               * Or EN DIRECT (Norman, 2026-10-03 : « sans Or la barre avance plusieurs niveaux avant de dire ce qui manque ; avec assez d'Or elle n'avance plus »).
+               * « Il manque de l'Or » était jugé avec l'Or du dernier rendu de la page (périmé) : sans Or la barre bouclait après le 1er niveau, avec assez d'Or elle restait
+               * figée sur l'ancien état « en attente ». Ici : la barre arrivée au bout reste PLEINE ; s'il manque de l'Or (Or actuel), le message le dit ; sinon le serveur
+               * va monter le niveau, on le lui demande tout de suite (resynchronisation) au lieu d'attendre la prochaine.
+               */
+              const ecouleAug=(performance.now()-augVisual.at)/1000;
+              const orLive=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
+              const pleineAug=seconds>0.0201&&(idleNombre_(x[1])*seconds+ecouleAug>=seconds-1e-9);
+              const manqueOr=orLive+1e-9<idleNombre_(x[4]);
+              const attenteOr=Boolean(x[3]||pleineAug)&&manqueOr;
+              const attenteServeur=Boolean(x[3]||pleineAug)&&!manqueOr&&seconds>0;
+              if(attenteServeur&&Date.now()-idleAugSyncV1>3000){
+                idleAugSyncV1=Date.now();
+                synchroniserJeuIdleV7_(true);
+                /* La page ne se redessine pas toute seule après une synchro : on la refait pour repartir de l'état du serveur (niveau gagné, nouvelle barre). */
+                setTimeout(function(){
+                  const racine=document.querySelector('.soreal-idle-page-root-v28');
+                  if(racine&&racine.getAttribute('data-menu')==='augmentations'&&idleEtat)rafraichirMenuRacineIdleV28_();
+                },1500);
+              }
               /* Compte à rebours « Niveau suivant dans … » : suit la même horloge que la barre. */
               const etaEl=document.querySelector('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
               if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
-                etaEl.textContent=window.__texteEtaAugmentIdleV1__({seconds:seconds,progress:x[1],waiting:x[3],goldCost:x[4],gold:augVisual.defs[id].gold},(performance.now()-augVisual.at)/1000);
+                etaEl.textContent=attenteServeur
+                  ?'⏳ Niveau en cours de validation…'
+                  :window.__texteEtaAugmentIdleV1__({seconds:seconds,progress:x[1],waiting:attenteOr,goldCost:x[4],gold:orLive},ecouleAug);
               }
-              /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. */
-              if(x[3]&&seconds>0){
+              /* Barre pleine faute d'Or (ou en attente du serveur) : elle reste pleine (comme NGU) au lieu de tourner à vide. */
+              if((attenteOr||attenteServeur)&&seconds>0){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
                 el.style.width='100%';
                 el.style.transform='scaleX(1)';
@@ -14104,6 +14127,8 @@
         combattreDepuisCarteBossIdleV91_;
 
 
+      /* Dernière resynchronisation demandée par une barre d'Augmentation pleine (anti-rafale). */
+      let idleAugSyncV1=0;
       let idleVictoireBossLocaleV49=false;
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-158 */
       let idleCombatArmeLocalV206=false;
