@@ -397,7 +397,8 @@ function enregistrer_(){
 function miseAJourApresEcriture_(cle,surcharge){
   if(/^boss:/.test(cle)){
     var n=Number(cle.slice(5));
-    admin.boss.forEach(function(b){if(b.numero===n)b.surcharge=surcharge||null;});
+    /* nom = nom ACTUEL du boss : le nom modifié, ou l'original si la surcharge est retirée. */
+    admin.boss.forEach(function(b){if(b.numero===n){b.surcharge=surcharge||null;b.nom=(surcharge&&surcharge.champs&&surcharge.champs.nom)||b.nomOriginal||b.nom;}});
     enregistrerVoix_(surcharge?surcharge.voix:[]);
     /* Le nouveau texte du boss arrive avec la prochaine synchronisation ; on la demande tout de suite. */
     try{var rt=window.__SOREAL_IDLE_RUNTIME_V1__;if(rt&&typeof rt.invalidate==='function')rt.invalidate();}catch(_e){}
@@ -496,11 +497,13 @@ function editer_(cle){
 function defBoss_(numero,nom){
   return {
     groupe:'Boss',libelle:'Chronique — '+nom+' (boss '+numero+')',
-    champs:[{id:'texte',label:'Texte de la chronique',type:'texte'}],
-    original:function(){var b=bossParNumero_(numero);return {texte:b?b.original:''};},
+    /* Le NOM est modifiable (Norman, 2026-10-03) : il est affiché partout ET lu par la voix en tête de la chronique. */
+    champs:[{id:'nom',label:'Nom du boss (affiché et prononcé)',type:'ligne'},{id:'texte',label:'Texte de la chronique',type:'texte'}],
+    original:function(){var b=bossParNumero_(numero);return {nom:b?(b.nomOriginal||b.nom):nom,texte:b?b.original:''};},
     texteLu:function(v){
       var t=tts_();
-      return t&&typeof t.composerChronique==='function'?t.composerChronique(nom,v.texte):nom+' '+v.texte;
+      var nomLu=String(v.nom||'').replace(/\s+/g,' ').trim()||nom;
+      return t&&typeof t.composerChronique==='function'?t.composerChronique(nomLu,v.texte):nomLu+' '+v.texte;
     }
   };
 }
@@ -514,7 +517,7 @@ function editerBoss_(numero){
   var ouvrirBoss=function(){
     var b=bossParNumero_(numero);
     if(!b){window.alert('Boss introuvable.');return;}
-    ouvrir_('boss:'+numero,defBoss_(numero,b.nom),b.surcharge,{texte:b.original});
+    ouvrir_('boss:'+numero,defBoss_(numero,b.nom),b.surcharge,{nom:b.nomOriginal||b.nom,texte:b.original});
   };
   if(admin.charge){ouvrirBoss();return;}
   chargerAdmin_(ouvrirBoss);

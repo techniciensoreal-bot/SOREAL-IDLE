@@ -37,7 +37,7 @@ import {
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
-import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
+import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
 import { battementV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
@@ -6605,6 +6605,7 @@ function equilibrerBossPrincipalSorealIdleV413_(
        * sont toujours ceux de NGU, localisés en français.
        */
       nom:
+        nomBossSurchargeV1(__idleSql, i + 1) ||
         NGU_BOSS_NAMES_FR_V1.get(i + 1) ||
         String(source.nom || "Boss"),
 
@@ -10991,7 +10992,8 @@ function construireEtatJoueurSorealIdle_(
                 index %
                 bossParMondeSorealIdle_()
               ) + 1,
-            nom: boss.nom,
+            /* Nom modifié par l'administrateur (idle-textes-v1.js), sinon celui du catalogue. */
+            nom: nomBossSurchargeV1(__idleSql, index + 1) || boss.nom,
             niveauRequis:
               niveauRequisBossSorealIdle_(
                 index
@@ -16755,7 +16757,9 @@ function listerTextesAdminSorealIdle(sessionToken) {
   for (const [numero, nom] of NGU_BOSS_NAMES_FR_V1) {
     const ligne = catalogue[numero - 1];
     const surcharge = textes.find((t) => t.cle === 'boss:' + numero) || null;
-    boss.push({ numero, nom, original: String(ligne && ligne.histoire || ''), surcharge });
+    /* nom = nom ACTUEL (peut être modifié) ; nomOriginal = celui du catalogue NGU français. */
+    const nomActuel = surcharge && surcharge.champs && typeof surcharge.champs.nom === 'string' && surcharge.champs.nom ? surcharge.champs.nom : nom;
+    boss.push({ numero, nom: nomActuel, nomOriginal: nom, original: String(ligne && ligne.histoire || ''), surcharge });
   }
   boss.sort((a, b) => a.numero - b.numero);
   return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)) };

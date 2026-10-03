@@ -20,6 +20,7 @@ export const IDLE_TEXTE_BOSS_RE_V1 = /^boss:(\d{1,3})$/;
 const IDLE_TEXTE_MAX_CHAMP_V1 = 6000;
 const IDLE_TEXTE_MAX_LISTE_V1 = 40;
 const IDLE_TEXTE_MAX_CHAMPS_V1 = 12;
+const IDLE_TEXTE_MAX_NOM_BOSS_V1 = 80;
 const IDLE_TEXTE_NOM_CHAMP_RE_V1 = /^[A-Za-z][A-Za-z0-9_]{0,23}$/;
 
 function nettoyerV1(valeur, max) {
@@ -44,7 +45,10 @@ export function normaliserTexteV1(brut) {
     if (Array.isArray(v)) champs[nom] = v.slice(0, IDLE_TEXTE_MAX_LISTE_V1).map((x) => nettoyerV1(x, IDLE_TEXTE_MAX_CHAMP_V1));
     else champs[nom] = nettoyerV1(v, IDLE_TEXTE_MAX_CHAMP_V1);
   }
-  if (boss && typeof champs.texte !== "string") throw new Error("TEXTE_BOSS_CHAMP_TEXTE_REQUIS");
+  /* Boss : une chronique (champs.texte) et/ou un NOM (champs.nom, Norman 2026-10-03 : « permets-moi d'éditer le nom du boss ») ; le nom tient sur une ligne. */
+  if (boss && typeof champs.nom === "string") champs.nom = champs.nom.replace(/\s+/g, " ").trim().slice(0, IDLE_TEXTE_MAX_NOM_BOSS_V1);
+  if (boss && typeof champs.texte !== "string" && !(typeof champs.nom === "string" && champs.nom)) throw new Error("TEXTE_BOSS_CHAMP_TEXTE_REQUIS");
+  if (boss && typeof champs.nom === "string" && !champs.nom) delete champs.nom;
   const voix = Array.from(new Set((Array.isArray(t.voix) ? t.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_TEXTE_HASH_RE_V1.test(x)))).slice(0, 400);
   return { cle, champs, voix };
 }
@@ -90,14 +94,23 @@ export function texteBossSurchargeV1(sql, numero) {
     try {
       for (const t of lireTextesV1(sql)) {
         const m = IDLE_TEXTE_BOSS_RE_V1.exec(t.cle);
-        if (m && typeof t.champs.texte === "string") parNumero.set(Number(m[1]), t);
+        if (m && (typeof t.champs.texte === "string" || (typeof t.champs.nom === "string" && t.champs.nom))) parNumero.set(Number(m[1]), t);
       }
     } catch (_e) { /* base indisponible : on garde les textes d'origine */ }
     cacheBoss.sql = sql;
     cacheBoss.parNumero = parNumero;
   }
   const t = cacheBoss.parNumero.get(n);
-  return t ? t.champs.texte : null;
+  return t && typeof t.champs.texte === "string" ? t.champs.texte : null;
+}
+
+/* Nom de remplacement d'un boss (affiché ET prononcé), ou null : même cache que la chronique. */
+export function nomBossSurchargeV1(sql, numero) {
+  const n = Math.floor(Number(numero) || 0);
+  if (!sql || n < 1) return null;
+  texteBossSurchargeV1(sql, n); /* remplit le cache si besoin */
+  const t = cacheBoss.parNumero && cacheBoss.parNumero.get(n);
+  return t && typeof t.champs.nom === "string" && t.champs.nom ? t.champs.nom : null;
 }
 
 /*

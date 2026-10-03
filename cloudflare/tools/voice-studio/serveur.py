@@ -166,39 +166,77 @@ def decouper(texte):
 TEXTE_COURT = 20
 
 
-def garder_premiere_prononciation(wav, sr):
-    """Coupe l'audio de « X. X. » au silence qui sépare les deux prononciations (repli : la première moitié)."""
-    import torch
+def energie_fenetres(wav, sr, duree_fenetre=0.02):
+    """Énergie (RMS) par fenêtre de 20 ms, et durée d'une fenêtre en échantillons."""
     x = wav.squeeze(0).float()
-    n = x.shape[0]
-    fenetre = max(1, int(sr * 0.02))
-    nb = n // fenetre
-    if nb < 10:
-        return wav
+    fenetre = max(1, int(sr * duree_fenetre))
+    nb = x.shape[0] // fenetre
+    if nb < 1:
+        return None, fenetre, 0
     rms = x[: nb * fenetre].reshape(nb, fenetre).pow(2).mean(dim=1).sqrt()
-    seuil = float(rms.max()) * 0.04
-    calme = (rms < seuil).tolist()
-    parole_vue = 0
-    minimum_silence = int(0.12 / 0.02)
-    i = 0
-    coupe = None
-    while i < nb:
-        if not calme[i]:
-            parole_vue += 1
+    return rms, fenetre, nb
+
+
+def silences_interieurs(parole, minimum):
+    """Silences (début, fin) d'au moins `minimum` fenêtres entre deux paroles (ni le tout début ni la toute fin)."""
+    nb = len(parole)
+    debut_parole = next((i for i, p in enumerate(parole) if p), None)
+    if debut_parole is None:
+        return []
+    fin_parole = nb - 1 - next(i for i, p in enumerate(reversed(parole)) if p)
+    trous, i = [], debut_parole
+    while i <= fin_parole:
+        if parole[i]:
             i += 1
             continue
         j = i
-        while j < nb and calme[j]:
+        while j <= fin_parole and not parole[j]:
             j += 1
-        # un vrai silence intermédiaire : assez de parole avant, assez long, et de la parole après
-        if parole_vue >= 8 and (j - i) >= minimum_silence and j < nb - 5:
-            coupe = i
-            break
+        if (j - i) >= minimum:
+            trous.append((i, j))
         i = j
-    if coupe is None:
-        coupe = nb // 2
-    fin = min(n, (coupe + 3) * fenetre)
-    return wav[:, :fin]
+    return trous
+
+
+def garder_premiere_prononciation(wav, sr):
+    """Garde la PREMIÈRE des deux prononciations de « X. X. ». Norman, 2026-10-03 : « il répète 2 fois des passages » -- l'ancienne coupe se faisait au PREMIER silence
+    assez long, donc au milieu d'un nom (« Un Type… Bizarre ») ou trop tard : la répétition restait. Les deux prononciations ont la même durée de parole : on coupe au silence
+    dont la parole qui le précède se rapproche le plus de la MOITIÉ de la parole totale (repli : à la moitié de la parole)."""
+    import torch
+    rms, fenetre, nb = energie_fenetres(wav, sr)
+    if rms is None or nb < 10:
+        return wav
+    seuil = float(rms.max()) * 0.04
+    parole = (rms >= seuil).tolist()
+    total = sum(parole)
+    if total < 10:
+        return wav
+    cible = total / 2.0
+    meilleur, ecart = None, None
+    for debut, fin in silences_interieurs(parole, int(0.10 / 0.02)):
+        avant = sum(parole[:debut])
+        apres = total - avant
+        if avant < 5 or apres < 5:
+            continue
+        d = abs(avant - cible)
+        if ecart is None or d < ecart:
+            meilleur, ecart = (debut, fin), d
+    if meilleur is not None:
+        debut, fin = meilleur
+        coupe = debut + min(fin - debut, 3)
+    else:
+        cumul, coupe = 0, nb // 2
+        for i, p in enumerate(parole):
+            cumul += p
+            if cumul >= cible:
+                coupe = min(nb, i + 3)
+                break
+    pos = min(wav.shape[-1], coupe * fenetre)
+    sortie = wav[..., :pos].clone()
+    fondu = min(pos, int(sr * 0.03))
+    if fondu > 1:
+        sortie[..., -fondu:] *= torch.linspace(1.0, 0.0, fondu)
+    return sortie
 
 
 def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
@@ -219,8 +257,40 @@ DUREE_PAR_CARACTERE_S = 0.12
 DUREE_MARGE_S = 1.2
 
 
+# Textes courts (noms de boss, titres) : avec seulement quelques mots, Chatterbox invente facilement des syllabes à la fin (Norman, 2026-10-03 : « il prononce des choses qui n'existent
+# pas »). La marge de 1,2 s laissait passer plus d'une seconde de baratin : pour un texte court, elle tombe à 0,5 s.
+SEUIL_SEGMENT_COURT = 60
+DUREE_PAR_CARACTERE_COURT_S = 0.11
+DUREE_MARGE_COURT_S = 0.5
+
+
 def duree_max_segment(segment):
+    if len(segment) <= SEUIL_SEGMENT_COURT:
+        return len(segment) * DUREE_PAR_CARACTERE_COURT_S + DUREE_MARGE_COURT_S
     return len(segment) * DUREE_PAR_CARACTERE_S + DUREE_MARGE_S
+
+
+def retirer_queue_inventee(wav, sr, segment):
+    """Texte court : un nom se dit d'un trait. S'il y a, après un silence franc (>= 0,3 s), une nouvelle « phrase » plus courte que ce qui précède, c'est du baratin
+    inventé par le modèle : on coupe au silence (fondu de 30 ms). Renvoie (wav, coupe)."""
+    import torch
+    if len(segment) > SEUIL_SEGMENT_COURT:
+        return wav, False
+    rms, fenetre, nb = energie_fenetres(wav, sr)
+    if rms is None or nb < 20:
+        return wav, False
+    parole = (rms >= float(rms.max()) * 0.04).tolist()
+    for debut, fin in silences_interieurs(parole, int(0.30 / 0.02)):
+        avant = sum(parole[:debut])
+        apres = sum(parole[fin:])
+        if avant >= 8 and apres > 0 and apres <= avant:
+            pos = min(wav.shape[-1], (debut + 3) * fenetre)
+            sortie = wav[..., :pos].clone()
+            fondu = min(pos, int(sr * 0.03))
+            if fondu > 1:
+                sortie[..., -fondu:] *= torch.linspace(1.0, 0.0, fondu)
+            return sortie, True
+    return wav, False
 
 
 def couper_derapage(wav, sr, segment):
@@ -254,6 +324,9 @@ def generer_segment(m, segment, kwargs):
         wav = m.generate(segment, **essai).detach().cpu()
         if wav.dim() == 1:
             wav = wav.unsqueeze(0)
+        wav, queue_coupee = retirer_queue_inventee(wav, m.sr, segment)
+        if queue_coupee:
+            print("[voix] baratin inventé après un silence retiré (%d caractères)" % len(segment))
         if wav.shape[-1] <= int(duree_max_segment(segment) * m.sr):
             return wav
         print("[voix] dérapage détecté (%.1f s pour %d caractères), nouvel essai" % (wav.shape[-1] / m.sr, len(segment)))
