@@ -2152,6 +2152,41 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         envoyerAllocRapideV1_({action:'setTimeMachineTarget',track:String(piste),value:n});
       };
 
+      /*
+       * Mise à jour EN PLACE des chiffres de la page Time Machine après chaque synchro (Norman, 2026-10-03 : « vérifie que ces informations soient à jour et qu'elles se mettent à jour avec les
+       * changements »). Ils n'étaient écrits qu'au dessin de la page : meilleur Or, meilleur boss, niveaux, GPS restaient figés jusqu'à un changement de menu. Un facteur qui apparaît ou disparaît
+       * (passe de « sans effet » à actif) change la liste affichée : on redessine alors la page une fois.
+       */
+      function patcherChiffresTimeMachineIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const vue=j&&j.systemes&&j.systemes.timeMachineView;
+        if(!vue||!document.querySelector('.soreal-idle-tm-v1'))return;
+        const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
+        const pct=function(mult){return Number(H.idleNombre_(mult)*100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
+        const SPEC={goldPerBarFill:nombre,barFillsPerSecond:nombre,highestBossMultiplier:nombre,goldMultiplier:nombre,machineSpeedMultiplier:nombre,grossGps:nombre,netGps:nombre,
+          bloodMagicMultiplier:pct,nguMultiplier:pct,challengeMultiplier:pct,beardMultiplier:pct};
+        const FACULTATIFS={bloodMagicMultiplier:1,nguMultiplier:1,challengeMultiplier:1,beardMultiplier:1};
+        let structure=false;
+        Object.keys(SPEC).forEach(function(cle){
+          const el=document.querySelector('[data-tm-stat="'+cle+'"]');
+          const actif=!FACULTATIFS[cle]||Math.abs(H.idleNombre_(vue[cle])-1)>=1e-9;
+          if(FACULTATIFS[cle]&&actif!==Boolean(el)){structure=true;return;}
+          if(!el)return;
+          const texte=SPEC[cle](vue[cle]);
+          if(el.textContent!==texte)el.textContent=texte;
+        });
+        const s=systemeMetaParIdIdleV130_(j,'timeMachine');
+        const data=(s&&s.state&&s.state.data)||{};
+        [['vitesse',data.speedLevel],['or',data.goldLevel]].forEach(function(x){
+          const el=document.querySelector('[data-tm-niveau="'+x[0]+'"]');
+          if(!el)return;
+          const texte=nombre(x[1]||0);
+          if(el.textContent!==texte)el.textContent=texte;
+        });
+        if(structure&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
+      }
+      window.__patcherChiffresTimeMachineIdleV1__=patcherChiffresTimeMachineIdleV1_;
+
       function pageTimeMachineIdleV48_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'timeMachine');
@@ -2207,12 +2242,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 '</div>'+
                 '<div class="soreal-idle-tm-col-v1"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(cle==='vitesse'?'speed':'gold')+'\',this.value)"></div>'+
                 '<div class="soreal-idle-tm-col-v1"><span>'+H.idleHtml_(libelleAlloc)+'</span><b id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</b></div>'+
-                '<div class="soreal-idle-tm-col-v1"><span>Niveau</span><b>'+nombre(niveau)+'</b></div>'+
+                '<div class="soreal-idle-tm-col-v1"><span>Niveau</span><b data-tm-niveau="'+cle+'">'+nombre(niveau)+'</b></div>'+
               '</div>')+
           '</section>';
         };
-        const stat=function(libelle,valeur){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b>'+valeur+'</b></div>';};
-        const factSansEffet=function(libelle,mult){return Math.abs(H.idleNombre_(mult)-1)<1e-9?'':stat(libelle,pct(mult));};
+        const stat=function(libelle,valeur,cle){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b'+(cle?' data-tm-stat="'+cle+'"':'')+'>'+valeur+'</b></div>';};
+        const factSansEffet=function(libelle,mult,cle){return Math.abs(H.idleNombre_(mult)-1)<1e-9?'':stat(libelle,pct(mult),cle);};
         return '<div class="soreal-idle-tm-v1">'+
           '<header class="soreal-idle-tm-entete-v1"><h1>Machine à remonter le temps cassée</h1><p>(Ramasse cet or encore, et encore, et encore, et...)</p></header>'+
           carteAideMenuIdleV1_('timeMachine','La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',[
@@ -2230,21 +2265,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-tm-stats-titre-v1">🧮 Comment ton GPS est calculé</div>'+
             '<div class="soreal-idle-tm-stats-grille-v1">'+
               '<div>'+
-                stat('🪙 Or par remplissage de barre',nombre(vue.goldPerBarFill))+
-                stat('🔁 Remplissages de barre par seconde',nombre(vue.barFillsPerSecond))+
+                stat('🪙 Or par remplissage de barre',nombre(vue.goldPerBarFill),'goldPerBarFill')+
+                stat('🔁 Remplissages de barre par seconde',nombre(vue.barFillsPerSecond),'barFillsPerSecond')+
                 /* Anti-spoil : un facteur encore à 100 % (sans effet) n'est pas listé -- jamais le nom d'un système que le joueur n'a pas encore fait jouer. */
-                factSansEffet('Bonus GPS Blood Magic',vue.bloodMagicMultiplier)+
-                factSansEffet('Multiplicateur GPS NGU',vue.nguMultiplier)+
-                factSansEffet('Multiplicateur des défis',vue.challengeMultiplier)+
+                factSansEffet('Bonus GPS Blood Magic',vue.bloodMagicMultiplier,'bloodMagicMultiplier')+
+                factSansEffet('Multiplicateur GPS NGU',vue.nguMultiplier,'nguMultiplier')+
+                factSansEffet('Multiplicateur des défis',vue.challengeMultiplier,'challengeMultiplier')+
               '</div>'+
               '<div>'+
-                stat('👹 Multiplicateur du meilleur boss',nombre(vue.highestBossMultiplier))+
-                stat('🪙 Multiplicateur d’or',nombre(vue.goldMultiplier))+
-                stat('⏱️ Multiplicateur GPS de la vitesse',nombre(vue.machineSpeedMultiplier))+
-                factSansEffet('Multiplicateur GPS de la Barbe',vue.beardMultiplier)+
+                stat('👹 Multiplicateur du meilleur boss',nombre(vue.highestBossMultiplier),'highestBossMultiplier')+
+                stat('🪙 Multiplicateur d’or',nombre(vue.goldMultiplier),'goldMultiplier')+
+                stat('⏱️ Multiplicateur GPS de la vitesse',nombre(vue.machineSpeedMultiplier),'machineSpeedMultiplier')+
+                factSansEffet('Multiplicateur GPS de la Barbe',vue.beardMultiplier,'beardMultiplier')+
               '</div>'+
             '</div>'+
-            '<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b>'+nombre(vue.grossGps)+'</b></div><div>💎 GPS net : <b>'+nombre(vue.netGps)+'</b></div></div>'+
+            '<div class="soreal-idle-note-v4" style="margin:6px 0 2px">Les « remplissages de barre » sont ceux de la barre d’Or de la machine (elle produit l’Or). Les barres ci-dessus, elles, donnent le temps qu’il faut pour GAGNER un niveau.</div>'+
+            '<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>'+
           '</section>'+
         '</div>';
       }

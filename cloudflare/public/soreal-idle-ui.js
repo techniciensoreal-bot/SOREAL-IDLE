@@ -4221,13 +4221,17 @@
           if(eta){
             const etaValide=Number.isFinite(Number(entree[2]));
             eta.dataset.tmEtaSeconds=etaValide?String(Math.max(0,idleNombre_(entree[2]))):'';
-            eta.dataset.tmEtaAt=String(Date.now());
+            /* Les chiffres ont été produits par le serveur un demi aller-retour avant leur arrivée. */
+            eta.dataset.tmEtaAt=String(Date.now()-(typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0)/2);
             eta.dataset.tmEtaLast='';
             eta.textContent=etaValide
               ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])
               :'Alloue une ressource pour démarrer la barre';
           }
         });
+
+        /* Chiffres de la page (GPS, multiplicateurs, niveaux) : mis à jour en place avec la synchro. */
+        if(typeof window.__patcherChiffresTimeMachineIdleV1__==='function')window.__patcherChiffresTimeMachineIdleV1__(j);
       }
 
       /*
