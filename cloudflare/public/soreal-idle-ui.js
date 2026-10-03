@@ -11719,7 +11719,9 @@
           const cible=boutonNav(sous);
           if(!cible||cible===glisse.bouton)return;
           const r=cible.getBoundingClientRect();
-          const avant=ev.clientX<r.left+r.width/2;
+          /* Menu en colonne (interface PC) : on compare à la hauteur, pas à la largeur. */
+          const verticalNav=getComputedStyle(nav).flexDirection==='column';
+          const avant=verticalNav?ev.clientY<r.top+r.height/2:ev.clientX<r.left+r.width/2;
           nav.insertBefore(glisse.bouton,avant?cible:cible.nextSibling);
         },{passive:false});
 
