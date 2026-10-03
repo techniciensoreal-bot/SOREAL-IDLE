@@ -1506,7 +1506,9 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*{grid-column:2;min-width:0}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{grid-column:1/-1}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95 img{width:100%;max-height:240px;object-fit:cover;object-position:center}
+  /* Le cadre du bandeau suit la hauteur de l'image (au lieu de la hauteur fixe de téléphone qui la coupait). */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{height:auto!important;max-height:380px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95 img{display:block;width:100%!important;height:auto!important;max-height:380px!important;object-fit:contain!important;object-position:center!important;background:linear-gradient(180deg,#0b1020,#070b16)}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     grid-column:1;grid-row:2 / span 60;align-self:start;
     position:sticky;top:10px;margin:12px 0 14px!important;

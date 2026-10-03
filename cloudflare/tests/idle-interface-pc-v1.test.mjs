@@ -36,3 +36,8 @@ assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:46px!important;height:46
   assert.ok(bloc.includes("max-height:calc(100vh - 64px)"), "la colonne de menus s'arrête au-dessus du bandeau");
 }
 console.log("idle-interface-pc-v1 (bandeau En direct): OK");
+
+// Bannière SOREAL IDLE (Norman, 2026-10-03) : elle était coupée ; le cadre est plus haut, toute l'image apparaît, et le cadre garde la largeur de l'interface.
+assert.ok(bloc.includes(".soreal-idle-hero-banner-v95 img{display:block;width:100%!important;height:auto!important;max-height:380px!important;object-fit:contain!important"), "image entière (contain), cadre à la largeur de l'interface");
+assert.ok(!bloc.includes("object-fit:cover"), "plus de recadrage");
+assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-height:380px}"), "le cadre suit la hauteur de l'image au lieu de la hauteur fixe de téléphone");
