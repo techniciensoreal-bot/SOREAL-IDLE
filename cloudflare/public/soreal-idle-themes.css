@@ -1511,7 +1511,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     grid-column:1;grid-row:2 / span 60;align-self:start;
     position:sticky;top:10px;margin:12px 0 14px!important;
     flex-direction:column!important;flex-wrap:nowrap!important;gap:7px!important;
-    overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 20px);
+    overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 64px);
     scroll-snap-type:none!important;scrollbar-width:thin;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{

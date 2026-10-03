@@ -28,3 +28,11 @@ console.log("idle-interface-pc-v1: OK");
 // Harmonie des échelles (Norman, 2026-10-03) : contenu réduit sur PC, cartes du menu à pleine taille.
 assert.ok(bloc.includes("*:not(.soreal-idle-nav-v28):not(.soreal-idle-hero-banner-v95){zoom:.86}"), "contenu réduit d'environ 14 % sur PC seulement");
 assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:46px!important;height:46px!important}"), "badges du menu à pleine taille");
+
+// Bandeau « EN DIRECT » (Norman, 2026-10-03) : sur PC, la colonne de menus ne doit plus le recouvrir (il est au-dessus et la colonne s'arrête avant lui).
+{
+  const flux = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
+  assert.ok(flux.includes("bottom:0;z-index:55;height:34px;"), "bandeau au-dessus de la colonne de menus (z-index 50)");
+  assert.ok(bloc.includes("max-height:calc(100vh - 64px)"), "la colonne de menus s'arrête au-dessus du bandeau");
+}
+console.log("idle-interface-pc-v1 (bandeau En direct): OK");

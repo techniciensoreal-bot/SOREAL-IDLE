@@ -166,7 +166,7 @@
     const st=document.createElement('style');
     st.id='sorealIdleFluxStyleV1';
     st.textContent=
-      '#sorealIdleFluxV1{position:fixed;left:0;right:0;bottom:0;z-index:40;height:34px;display:flex;align-items:center;overflow:hidden;'+
+      '#sorealIdleFluxV1{position:fixed;left:0;right:0;bottom:0;z-index:55;height:34px;display:flex;align-items:center;overflow:hidden;'+
         'padding-bottom:env(safe-area-inset-bottom,0);box-sizing:content-box;'+
         'background:linear-gradient(180deg,var(--th-bg,#16233a),var(--th-bg2,#0b1220));border-top:1px solid var(--th-line,rgba(94,234,212,.4));'+
         'box-shadow:0 -6px 18px -10px var(--th-glow,rgba(94,234,212,.5));color:var(--th-ink,#e8fffb);font:700 13px/1 inherit;-webkit-user-select:none;user-select:none;'+
