@@ -11566,16 +11566,15 @@
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-132 */
       /*
        * Ordre par défaut = ordre dans lequel on obtient les menus (Norman, 2026-10-04 : « réarrange les menus chez tout le monde pour qu'ils suivent l'ordre où on les obtient ; les gens pourront les réarranger par la suite »).
-       * Repères réels : les menus de départ, Shop (1er boss), Adventure, Rebirth et Collection (boss 4), Money Pit (100 000 Gold), Augmentations (boss 17), Advanced Training (entraînement de base terminé),
+       * Repères réels : les menus de départ, Adventure, Rebirth et Collection (boss 4), Money Pit (100 000 Gold), Augmentations (boss 17), Advanced Training (entraînement de base terminé),
        * Time Machine (30), Blood Magic (37), ITOPOD puis Perks (clé du Ciel, boss 48), Daycare (achat d'un emplacement), Challenges et Titans (58), puis les systèmes donnés par les objets des titans :
        * NGU et Wandoos (1er titan), Yggdrasil (66), Gold Diggers (82), Beards (100), MacGuffins (116), Hacks (125), Questing puis Quirks (132), Wishes (166), Cards, Cooking.
-       * Achievements, Classement, Chat, Settings (et Admin, visible du seul administrateur) viennent TOUJOURS en dernier, donc après le dernier menu débloqué : un menu qui se débloque s'intercale avant eux (Norman, même jour).
-       * L'ordre choisi par un joueur reste prioritaire ; l'ancien rangement a été remis à zéro une fois (menuOrdreVersion 2).
+       * Shop (Boutique), Achievements, Classement, Chat, Settings (et Admin, visible du seul administrateur) viennent TOUJOURS en dernier, dans cet ordre, donc après le dernier menu débloqué : un menu qui se débloque s'intercale avant eux (Norman, même jour).
+       * L'ordre choisi par un joueur reste prioritaire ; l'ancien rangement a été remis à zéro une fois (menuOrdreVersion 3, remise à zéro de Norman du 2026-10-04 : Boutique rejoint le groupe final).
        */
       const IDLE_MENUS_V1=[
         {id:'entrainement',icon:'🥊',nom:'Basic Training'},
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
-        {id:'shop',icon:'🔮',nom:'Shop'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
         {id:'bestiaire',icon:'🏆',nom:'Collection'},
@@ -11601,6 +11600,7 @@
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
+        {id:'shop',icon:'🔮',nom:'Shop'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
         {id:'classement',icon:'📊',nom:'Classement'},
         {id:'chat',icon:'💬',nom:'Chat'},
@@ -11702,7 +11702,7 @@
       let idleMenuClicAvaleJusquaV1=0;
 
       function idleMenuOrdreCleV1_(j){
-        return 'soreal_idle_menu_ordre_v2_'+generationJoueurIdleV75_(j);
+        return 'soreal_idle_menu_ordre_v3_'+generationJoueurIdleV75_(j);
       }
 
       function idleMenuOrdreEnregistreV1_(j){

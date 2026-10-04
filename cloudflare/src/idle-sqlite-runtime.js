@@ -4704,10 +4704,10 @@ function statsJoueurSorealIdle_(valeur) {
       ? Array.from(new Set(s.vus.map(function(id){return String(id||'').trim();}).filter(function(id){return id&&id.length<=80&&/^[A-Za-z0-9_:.-]+$/.test(id);}))).slice(0,500)
       : [],
     /* Ordre des boutons du menu choisi par le joueur (« Rangement des boutons ») : identifiants de menus, dans l'ordre voulu. */
-    /* Remise à zéro unique (Norman, 2026-10-04) : les menus suivent désormais l'ordre dans lequel on les obtient, chez tout le monde. Un rangement enregistré avant la version 2 est oublié ; ensuite le rangement
-       du joueur est conservé. menuOrdreVersion vaut 2 dès la première lecture, pour tous. */
-    menuOrdreVersion:2,
-    menuOrdre:Array.isArray(s.menuOrdre)&&Math.floor(nombreSorealIdle_(s.menuOrdreVersion,0))>=2
+    /* Remises à zéro uniques (Norman, 2026-10-04, version 2 puis 3 : Boutique rejoint le groupe final Boutique, Succès, Classement, Chat, Réglages, Admin) : les menus suivent désormais l'ordre dans lequel on les obtient, chez tout le monde. Un rangement enregistré avant la version 3 est oublié ; ensuite le rangement
+       du joueur est conservé. menuOrdreVersion vaut 3 dès la première lecture, pour tous. */
+    menuOrdreVersion:3,
+    menuOrdre:Array.isArray(s.menuOrdre)&&Math.floor(nombreSorealIdle_(s.menuOrdreVersion,0))>=3
       ? Array.from(new Set(s.menuOrdre.map(function(id){return String(id||'').trim();}).filter(function(id){return id&&id.length<=40&&/^[A-Za-z0-9_-]+$/.test(id);}))).slice(0,80)
       : [],
     reposNumero:Math.max(1,Math.floor(nombreSorealIdle_(s.reposNumero,1))),
@@ -13142,7 +13142,7 @@ function definirOrdreMenusSorealIdle(
 
     stats.menuOrdre =
       statsJoueurSorealIdle_(
-        JSON.stringify({menuOrdre:Array.isArray(ordre) ? ordre : [], menuOrdreVersion: 2})
+        JSON.stringify({menuOrdre:Array.isArray(ordre) ? ordre : [], menuOrdreVersion: 3})
       ).menuOrdre;
 
     cellule.setValue(

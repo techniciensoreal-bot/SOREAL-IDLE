@@ -13,7 +13,7 @@ const pos = (id) => ids.indexOf(id);
 assert.equal(new Set(ids).size, ids.length, "aucun menu en double");
 
 // 1. Départ, puis ordre des boss réels (seuils lus dans le moteur, pas recopiés de mémoire).
-assert.deepEqual(ids.slice(0, 3), ["entrainement", "combat", "shop"]);
+assert.deepEqual(ids.slice(0, 3), ["entrainement", "combat", "aventure"]);
 const boss = Object.fromEntries(IDLE_NGU_EARLY_GAME_TIMELINE.map((t) => [t.id, t.boss]));
 const seuil = Object.fromEntries(IDLE_NGU_SYSTEMS.filter((d) => d.unlock && d.unlock.bosses).map((d) => [d.id, d.unlock.bosses]));
 assert.ok(pos("aventure") < pos("augmentations") && boss.adventure < seuil.augmentations);
@@ -28,17 +28,17 @@ assert.ok(pos("wandoos") > pos("titans") && pos("wandoos") < pos("yggdrasil"), "
 // 3. Clé du Ciel (boss 48) : ITOPOD puis Perks avant les titans (58).
 assert.ok(pos("tower") < pos("challenges") && pos("perks") === pos("tower") + 1);
 // 4. Achievements, Classement, Chat, Settings (et Admin) viennent toujours APRÈS tous les autres menus, donc après le dernier menu débloqué (Norman, 2026-10-04) ; Collection suit son déblocage (boss 4).
-assert.deepEqual(ids.slice(-5), ["succes", "classement", "chat", "parametres", "admin"]);
+assert.deepEqual(ids.slice(-6), ["shop", "succes", "classement", "chat", "parametres", "admin"], "Boutique → Succès → Classement → Chat → Réglages → Admin, toujours à la fin");
 assert.ok(pos("bestiaire") > pos("renaissance") && pos("bestiaire") < pos("augmentations"), "Collection : boss 4, avec Adventure et Rebirth");
 // Un menu qui se débloque s'intercale AVANT ce groupe final, même avec un rangement enregistré.
 const ordonner = new Function(ui.slice(ui.indexOf("function ordonnerMenusIdleV1_(defauts,ordre){"), ui.indexOf("function menusOrdonnesIdleV1_(j){")) + "return ordonnerMenusIdleV1_;")();
 const defauts = ids.map((id) => ({ id }));
-const avant = ["entrainement", "combat", "shop", "aventure", "succes", "classement", "chat", "parametres"];
+const avant = ["entrainement", "combat", "aventure", "shop", "succes", "classement", "chat", "parametres"];
 const apres = ordonner(defauts, avant).map((m) => m.id);
 assert.ok(apres.indexOf("renaissance") < apres.indexOf("succes") && apres.indexOf("augmentations") < apres.indexOf("succes"), "un menu débloqué après coup passe avant le groupe final");
 
 // 5. Remise à zéro de l'ancien rangement, une seule fois, pour tout le monde (serveur) ; le cache local change de clé.
-assert.ok(rt.includes("menuOrdreVersion:2,") && rt.includes("Math.floor(nombreSorealIdle_(s.menuOrdreVersion,0))>=2"), "un rangement d'avant la version 2 est oublié");
-assert.ok(rt.includes("menuOrdre:Array.isArray(ordre) ? ordre : [], menuOrdreVersion: 2"), "un rangement enregistré après la remise à zéro est conservé");
-assert.ok(ui.includes("'soreal_idle_menu_ordre_v2_'+generationJoueurIdleV75_(j)") && !ui.includes("'soreal_idle_menu_ordre_v1_'"), "ancien cache local abandonné");
+assert.ok(rt.includes("menuOrdreVersion:3,") && rt.includes("Math.floor(nombreSorealIdle_(s.menuOrdreVersion,0))>=3"), "un rangement d'avant la version 3 est oublié");
+assert.ok(rt.includes("menuOrdre:Array.isArray(ordre) ? ordre : [], menuOrdreVersion: 3"), "un rangement enregistré après la remise à zéro est conservé");
+assert.ok(ui.includes("'soreal_idle_menu_ordre_v3_'+generationJoueurIdleV75_(j)") && !ui.includes("'soreal_idle_menu_ordre_v2_'"), "ancien cache local abandonné");
 console.log("idle-menus-ordre-obtention-v1: OK");

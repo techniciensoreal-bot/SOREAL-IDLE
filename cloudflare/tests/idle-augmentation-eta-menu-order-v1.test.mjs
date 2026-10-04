@@ -15,7 +15,7 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
   const bloc = ui.slice(ui.indexOf("const IDLE_MENUS_V1=["), ui.indexOf("];", ui.indexOf("const IDLE_MENUS_V1=[")));
   const ids = [...bloc.matchAll(/\{id:'([A-Za-z]+)'/g)].map((m) => m[1]);
   /* 2026-10-04 : l'ordre par défaut suit l'ordre dans lequel on obtient les menus (voir idle-menus-ordre-obtention-v1.test.mjs). */
-  assert.deepEqual(ids.slice(0, 3), ["entrainement", "combat", "shop"], "menus de départ puis Shop (premier boss)");
+  assert.deepEqual(ids.slice(0, 3), ["entrainement", "combat", "aventure"], "menus de départ puis Adventure (Boutique rejoint le groupe final, Norman 2026-10-04)");
   assert.equal(ids.filter((id) => id === "augmentations").length, 1);
   /* 2026-09-25 : EXP Shop et Boutique AP sont réunis dans « Shop » ; « Classement » est juste à gauche de Settings. */
   assert.deepEqual(ids.filter((id) => id !== "admin").slice(-4), ["succes", "classement", "chat", "parametres"], "Achievements, Classement et Chat (sans effet sur la progression) juste avant Settings");
