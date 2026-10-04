@@ -81,3 +81,27 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
   assert.ok(/\.soreal-idle-hp-cur-v1\{[^}]*display:inline-block;[^}]*text-align:right;/.test(css));
 }
 console.log("idle-bt-synchro-v1: OK");
+
+/*
+ * Norman (2026-10-04) : « si j'ai mis 2000 alors que le cap est 50, quand je clique sur Max il doit me rendre l'énergie en trop et laisser ce qui est nécessaire au cap de la barre. »
+ */
+{
+  const ui2 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const debut2 = ui2.indexOf("function planSynchroBasicTrainingIdleV1_(");
+  const fin2 = ui2.indexOf("function presetBasicTrainingIdleV120_(");
+  const plan2 = new Function(ui2.slice(debut2, fin2) + "\nreturn planSynchroBasicTrainingIdleV1_;")();
+  const sk2 = (courant, cap) => ({ courant, cap });
+  // Synchro : 2000 sur une barre au cap 50 -> elle redescend à 50 ; sa jumelle (vide) monte à son cap grâce à l'énergie rendue, même sans énergie libre.
+  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(0, 50), 0, 1), { a: 50, b: 50 }, "excès rendu, jumelle complétée");
+  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(2000, 50), 0, 1), { a: 50, b: 50 }, "les deux au-dessus : les deux redescendent");
+  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(10, 50), 0, 1), { a: 50, b: 50 });
+  assert.deepEqual(plan2("cap", sk2(50, 50), sk2(50, 50), 0, 1), { a: 50, b: 50 }, "déjà au cap : rien ne bouge");
+  // Jamais plus de cap dans les cas d'excès, même avec beaucoup d'énergie libre.
+  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(0, 50), 100000, 1), { a: 50, b: 50 });
+  // Comportement d'avant conservé quand rien ne dépasse.
+  assert.deepEqual(plan2("cap", sk2(0, 241), sk2(0, 241), 200, 1), { a: 100, b: 100 });
+  // Le bouton Max d'une barre seule (sans Synchro) redescend déjà au cap : cible = cap quand la barre le dépasse ; le message « aucune énergie » ne s'affiche plus quand de l'énergie est rendue.
+  assert.ok(ui2.includes("cible=capBasicTrainingLocalIdleV120_(skill);\n\n            if(cible>courant){"), "sans Synchro : cible = cap");
+  assert.ok(ui2.includes("action!=='moins'&&\n          delta===0&&\n          idleAvant<=0"), "pas de faux message quand l'énergie est rendue");
+}
+console.log("idle-bt-synchro-v1 (Max rend l'excès): OK");

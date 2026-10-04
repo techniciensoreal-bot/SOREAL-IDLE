@@ -994,7 +994,7 @@
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-18 */
         if(
           action!=='moins'&&
-          delta<=0&&
+          delta===0&&
           idleAvant<=0
         ){
           messageFlottantIdleV32_(
@@ -1085,11 +1085,19 @@
           return {a:Math.max(0,a.courant-entree),b:Math.max(0,b.courant-entree)};
         }
         if(action==='cap'){
+          /*
+           * Max rend l'énergie EN TROP (Norman, 2026-10-04 : « si j'ai mis 2000 alors que le cap est 50, Max doit me rendre l'énergie en trop et laisser ce qui est nécessaire au cap ») : une barre au-dessus de son cap
+           * redescend à son cap, et l'énergie rendue peut servir à compléter sa jumelle. Une barre en dessous monte à son cap avec l'énergie libre (plus celle qui vient d'être rendue).
+           */
+          const rendA=Math.max(0,a.courant-a.cap);
+          const rendB=Math.max(0,b.courant-b.cap);
+          const dispo=Math.max(0,libre)+rendA+rendB;
+          const moitieDispo=Math.floor(dispo/2);
           const besoinA=Math.max(0,a.cap-a.courant);
           const besoinB=Math.max(0,b.cap-b.courant);
-          const donneA=besoinA+besoinB<=libre?besoinA:Math.min(besoinA,moitie);
-          const donneB=besoinA+besoinB<=libre?besoinB:Math.min(besoinB,moitie);
-          return {a:a.courant+donneA,b:b.courant+donneB};
+          const donneA=besoinA+besoinB<=dispo?besoinA:Math.min(besoinA,moitieDispo);
+          const donneB=besoinA+besoinB<=dispo?besoinB:Math.min(besoinB,moitieDispo);
+          return {a:rendA>0?a.cap:a.courant+donneA,b:rendB>0?b.cap:b.courant+donneB};
         }
         return {a:a.courant,b:b.courant};
       }
