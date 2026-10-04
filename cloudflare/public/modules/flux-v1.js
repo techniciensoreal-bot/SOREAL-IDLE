@@ -64,6 +64,44 @@
     }catch(e){return {zones:[],bossMax:0,connus:{boss:{},titan:{},succes:{},menus:{}}};}
   }
 
+  /* Nombre lisible : 12 345, 1,2 M, 3,4e12… (jamais plus de 4 chiffres significatifs). */
+  function nombreCourt(v){
+    const n=Number(v)||0;
+    if(Math.abs(n)<10000)return Math.round(n).toLocaleString('fr-FR');
+    const unites=[[1e15,' Qa'],[1e12,' T'],[1e9,' Md'],[1e6,' M'],[1e3,' k']];
+    for(let i=0;i<unites.length;i+=1){
+      if(Math.abs(n)>=unites[i][0])return (Math.round(n/unites[i][0]*100)/100).toLocaleString('fr-FR')+unites[i][1];
+    }
+    return String(n);
+  }
+  /*
+   * Récompense d'un jet du puits ou de la roue, dite avec les mots du lecteur : EXP, AP, statistiques d'Aventure, niveaux Wandoos, graines… Une récompense qui se rapporte à un système que le lecteur ne connaît pas
+   * encore devient « une récompense » : jamais un nom de système verrouillé (règle n°2).
+   */
+  function recompenseTexte(r,boost,k){
+    const rec=r&&typeof r==='object'?r:{};
+    const m=(k&&k.menus)||{};
+    const parties=[];
+    let inconnue=false;
+    Object.keys(rec).forEach(function(cle){
+      const v=Number(rec[cle]);
+      if(cle==='items'){parties.push('un lot d’objets');return;}
+      if(!(v>0))return;
+      if(cle==='experience'){if(m.spendExp)parties.push('+'+nombreCourt(v)+' EXP');else inconnue=true;return;}
+      if(cle==='ap'){if(m.sellout)parties.push('+'+nombreCourt(v)+' AP');else inconnue=true;return;}
+      if(cle==='adventureStats'||cle==='adventureHp'||cle==='adventureRegen'){
+        if(m.aventure)parties.push('+'+nombreCourt(v)+(cle==='adventureStats'?' stats d’Aventure':cle==='adventureHp'?' PV d’Aventure':' régénération d’Aventure'));else inconnue=true;
+        return;
+      }
+      if(cle==='wandoosLevels'){if(m.wandoos)parties.push('+'+nombreCourt(v)+' niveaux Wandoos');else inconnue=true;return;}
+      if(cle==='seeds'){if(m.yggdrasil)parties.push('+'+nombreCourt(v)+' graines');else inconnue=true;return;}
+      inconnue=true;
+    });
+    if(boost){if(m.aventure)parties.push('un boost');else inconnue=true;}
+    if(!parties.length&&inconnue)return 'une récompense';
+    return parties.join(' et ');
+  }
+
   /*
    * Phrase d'un événement, ou null si elle ne doit pas être montrée à CE lecteur. Exportée pour les tests.
    * it = { type, nom, donnees, moi } ; ctx = résultat de __SOREAL_IDLE_ACTIVITE_V1__.
@@ -97,6 +135,17 @@
         const nomSort=['','Blood NUMBER Boost','Iron Pill','Blood Spaghetti','Counterfeit Gold'][rang]||'';
         const visible=Boolean(k.sorts&&k.sorts[rang]);
         return {icone:'🩸',texte:nom+verbe(' as',' a')+' lancé '+(visible&&nomSort?'le sort '+nomSort:'un sort de Blood Magic')};
+      }
+      /* Puits sans fond et roue (Norman, 2026-10-04) : annoncés aux lecteurs qui connaissent le Money Pit ; chaque récompense n'est nommée que si le lecteur connaît le système qui s'y rapporte (anti-spoil). */
+      case 'puits':{
+        if(!k.menus.moneyPit)return null;
+        const r=recompenseTexte(d.recompense,d.boost,k);
+        return {icone:'🕳️',texte:nom+verbe(' as',' a')+' jeté '+nombreCourt(d.cout)+' d’or dans le puits'+(r?' : '+r:'')};
+      }
+      case 'roue':{
+        if(!k.menus.moneyPit)return null;
+        const r=recompenseTexte(d.recompense,false,k);
+        return {icone:'🎡',texte:nom+verbe(' as',' a')+' tourné la roue'+(r?' : '+r:'')};
       }
       case 'histoire':
         return {icone:'🎬',texte:nom+verbe(' as regardé',' a regardé')+' une cinématique'};

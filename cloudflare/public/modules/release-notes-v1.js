@@ -18,6 +18,8 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Un défi en cours a maintenant son compteur : le temps écoulé depuis son lancement, en mois, semaines, jours puis heures, minutes et secondes.',
+          'Le fil En direct raconte aussi les jets dans le puits (l’or jeté et la récompense) et les tours de roue, avec les récompenses nommées seulement si tu connais déjà le système concerné.',
           'Les menus suivent maintenant l’ordre dans lequel on les obtient, pour tout le monde. Ton ancien rangement a été remis à zéro une seule fois : tu peux réarranger les boutons à ta façon, et ton rangement sera conservé.',
           'Les tuiles du haut ont chacune leur couleur : Nombre en cyan, Rebirths en vert, Attack en rouge, Defense en bleu, Gold en or, EXP en violet, AP en rose et Run en orange, avec un style plus soigné pour les repérer d’un coup d’œil.',
           'Les trois achats du rayon Toc ont maintenant leur propre illustration.',

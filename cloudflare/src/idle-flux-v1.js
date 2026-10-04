@@ -79,7 +79,32 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const titanCombats = Math.max(0, Math.floor(N(tf.starts, 0)));
   const titanPertes = Math.max(0, Math.floor(N(tf.losses, 0)));
   const titanDernier = String(tf.last || "");
+  /*
+   * Puits sans fond et roue quotidienne (Norman, 2026-10-04 : « quand on balance son or dans le puits, ça doit être inscrit dans En direct, ainsi que la récompense ; pareil pour la roue »). Le dernier jet est lu dans
+   * l'historique du système (le plus récent d'abord) ; un jet nouveau = l'heure du dernier lancer a avancé (puits) ou le compteur de tours a augmenté (roue).
+   */
+  const puits = (m.systems && m.systems.moneyPit && m.systems.moneyPit.data) || {};
+  const roue = (m.systems && m.systems.dailySpin && m.systems.dailySpin.data) || {};
+  const recompenseSure = (r) => {
+    const o = {};
+    if (!r || typeof r !== "object") return o;
+    for (const [k, v] of Object.entries(r)) {
+      if (/^[A-Za-z0-9_]{1,30}$/.test(k) && Number.isFinite(+v)) o[k] = +v;
+      else if (k === "items" && v && typeof v === "object") o.items = Math.max(0, Math.floor(Object.values(v).reduce((t, x) => t + (Number.isFinite(+x) ? +x : 0), 0)));
+    }
+    return o;
+  };
+  const dernierPuits = Array.isArray(puits.history) && puits.history[0] ? puits.history[0] : null;
+  const dernierRoue = Array.isArray(roue.history) && roue.history[0] ? roue.history[0] : null;
+  const puitsAt = Math.max(0, Math.floor(N(puits.lastTossAt, 0)));
+  const puitsJet = dernierPuits ? { cout: Math.max(0, N(dernierPuits.cost, 0)), recompense: recompenseSure(dernierPuits.reward), boost: Boolean(dernierPuits.boost) } : null;
+  const roueN = Math.max(0, Math.floor(N(roue.totalSpins, 0)));
+  const roueJet = dernierRoue ? { recompense: recompenseSure(dernierRoue.reward) } : null;
   return {
+    puitsAt,
+    puitsJet,
+    roueN,
+    roueJet,
     titanCombats,
     titanPertes,
     titanDernier,
@@ -158,6 +183,9 @@ export function evenementsV1(avant, apres, noms = {}) {
   /* Sort de sang lancé / cinématique regardée : jamais depuis un instantané d'avant ce jalon (pas de comparaison). Le sort est identifié par son rang (1 à 5), l'affichage dépend du lecteur. */
   if (Number.isFinite(avant.titanCombats) && apres.titanCombats > avant.titanCombats) ev.push({ type: "titanCombat", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
   if (Number.isFinite(avant.titanPertes) && apres.titanPertes > avant.titanPertes) ev.push({ type: "titanPerdu", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
+  /* Puits / roue : jamais depuis un instantané d'avant ce jalon (pas de comparaison, rien annoncé à tort). */
+  if (Number.isFinite(avant.puitsAt) && apres.puitsAt > avant.puitsAt && apres.puitsJet) ev.push({ type: "puits", donnees: apres.puitsJet });
+  if (Number.isFinite(avant.roueN) && apres.roueN > avant.roueN && apres.roueJet) ev.push({ type: "roue", donnees: apres.roueJet });
   if (Number.isFinite(avant.sorts) && apres.sorts > avant.sorts) ev.push({ type: "sort", donnees: { sort: apres.sortDernier } });
   if (Number.isFinite(avant.histoires) && apres.histoires > avant.histoires) ev.push({ type: "histoire", donnees: {} });
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });

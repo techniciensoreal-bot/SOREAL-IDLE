@@ -285,6 +285,46 @@ function carteDefi(def,actif,tier){
   '</article>';
 }
 
+/*
+ * Compteur d'un défi (Norman, 2026-10-04 : « quand on en lance un, il doit y avoir un compteur, qui peut compter plusieurs jours, semaines, mois »). Temps écoulé depuis le lancement, à l'heure du serveur : mois
+ * (de 30 jours), semaines, jours puis heures:minutes:secondes ; une unité à zéro n'est pas écrite (« 2 sem. 3 j 04:05:06 »).
+ */
+function dureeLongue(ms){
+  var s=Math.max(0,Math.floor((Number(ms)||0)/1000));
+  var mois=Math.floor(s/2592000);s-=mois*2592000;
+  var sem=Math.floor(s/604800);s-=sem*604800;
+  var jours=Math.floor(s/86400);s-=jours*86400;
+  var hh=Math.floor(s/3600);s-=hh*3600;
+  var mm=Math.floor(s/60);s-=mm*60;
+  var p=function(n){return (n<10?'0':'')+n;};
+  var parts=[];
+  if(mois)parts.push(mois+' mois');
+  if(sem)parts.push(sem+' sem.');
+  if(jours)parts.push(jours+' j');
+  parts.push(p(hh)+':'+p(mm)+':'+p(s));
+  return parts.join(' ');
+}
+function maintenantServeur(){
+  return typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
+}
+function compteurDefi(debut){
+  var t=Number(debut);
+  if(!(t>0))return '<p>Le compteur démarre au prochain lancement d’un défi.</p>';
+  return '<p><b class="dfi-temps" data-dfi-temps="'+Math.floor(t)+'">'+h(dureeLongue(maintenantServeur()-t))+'</b></p><p class="dfi-note-temps">Lancé le '+h(new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</p>';
+}
+if(typeof setInterval==='function'&&typeof document!=='undefined'&&!window.__SOREAL_IDLE_DEFIS_TEMPS_V1__){
+  window.__SOREAL_IDLE_DEFIS_TEMPS_V1__=true;
+  setInterval(function(){
+    var els=document.querySelectorAll('[data-dfi-temps]');
+    if(!els.length)return;
+    var maintenant=maintenantServeur();
+    Array.prototype.forEach.call(els,function(el){
+      var texte=dureeLongue(maintenant-Number(el.getAttribute('data-dfi-temps')));
+      if(el.textContent!==texte)el.textContent=texte;
+    });
+  },1000);
+}
+
 function page(j){
   var entete=hote().entetePageIdleV28_;
   var defs=j&&j.systemes&&Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
@@ -299,6 +339,7 @@ function page(j){
       '<div class="dfi-tete"><h3 class="dfi-nom">▶️ Défi en cours : '+h(t.nom)+'</h3>'+
       '<div class="dfi-meta"><span class="dfi-pastille cours">En cours</span><span class="dfi-compte">'+ent(actifDef.completion)+' / '+ent(actifDef.max)+'</span></div></div>'+
       '<div class="dfi-cadres">'+
+        cadre('dfi-temps-ecoule','⏱️','Temps écoulé',compteurDefi(etat.startedAt))+
         cadre('dfi-objectif','🎯','Objectif','<p>'+h(conditionVictoire(actifDef,t))+'</p>')+
         cadre('dfi-restriction','⛔','Restrictions','<p>'+h(t.restriction)+'</p>')+
         (actifDef.id==='troll'&&etat.troll?cadre('dfi-conseil','😈','Trolls','<p>Trolls subis dans ce défi : <b>'+ent(etat.troll.count)+'</b></p>'):'')+
@@ -543,5 +584,5 @@ function verifier(j){
   }
 }
 
-window.__SOREAL_IDLE_DEFIS_V1__={page:page,verifier:verifier,traduire:traduire,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,traduire:traduire,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();
