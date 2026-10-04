@@ -118,7 +118,7 @@ function carte(t){
   var nom=String(t.nomComplet||t.name||id);
   var capacites=Array.isArray(t.capacites)&&t.capacites.length
     ?'<details class="ttn-details"><summary>📜 Capacités</summary><ul>'+t.capacites.map(function(c){return '<li>'+h(c)+'</li>';}).join('')+
-      '</ul><div class="ttn-note">Les capacités spéciales sont décrites ici mais pas encore simulées : le combat utilise les statistiques de base du titan.</div></details>'
+      '</ul><div class="ttn-note">'+h((window.SorealTitanComportementsV1&&window.SorealTitanComportementsV1.note(id))||'Les capacités spéciales sont décrites ici mais pas encore simulées : le combat utilise les statistiques de base du titan.')+'</div></details>'
     :'';
   return '<article class="ttn-carte '+(pret?'pret':cache(t)?'cache':'attente')+'" data-ttn-id="'+h(id)+'">'+
     '<div class="ttn-haut">'+

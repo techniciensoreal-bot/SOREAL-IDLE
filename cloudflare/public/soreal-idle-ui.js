@@ -17372,6 +17372,16 @@ let idleDialogueTimerV76=null;
       let idleAdventureFightNextEnemyHitV2=0;
       let idleAdventureFightLastRegenAtV2=0;
       let idleAdventureFightIdentityV2='';
+      /* Comportements des titans (modules/titans-comportements-v1.js) : état du combat en cours, remis à zéro à chaque nouveau combat. */
+      let idleTitanEtatV1=null;
+      function titanComportementsIdleV1_(fight){
+        const api=window.SorealTitanComportementsV1;
+        return api&&fight&&fight.titanId&&api.possede(fight.titanId)?api:null;
+      }
+      function titanJoueurParalyseIdleV1_(maintenant){
+        const api=window.SorealTitanComportementsV1;
+        return Boolean(api&&idleTitanEtatV1&&api.joueurParalyse(idleTitanEtatV1,maintenant));
+      }
       let idleAdventureResolutionPendingV2='';
       let idleAdventureRespawnAtV1=0;
       let idleAdventureRespawnTimerV165=0;
@@ -17808,6 +17818,7 @@ let idleDialogueTimerV76=null;
 
       function utiliserCompetenceAdventureIdleV3_(id){
         if(idleAdventureIdleModeV3)return;
+        if(titanJoueurParalyseIdleV1_(Date.now()))return;
         const def=definitionCompetenceAdventureIdleV3_(id);
         if(!def)return;
         const a=aventureMetaIdleV47_(idleEtat);
@@ -18293,6 +18304,18 @@ let idleDialogueTimerV76=null;
           idleAdventureFightNextEnemyHitV2=
             maintenantTick+intervalleAttaqueEnnemiAdventureIdleV2_(fight);
           idleAdventureFightLastRegenAtV2=maintenantTick;
+          idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
+        }
+        /* Fin d'une paralysie du titan : les cooldowns étaient en pause, on les repousse de la durée subie ; l'Idle Mode reprend un coup plus tard. */
+        if(idleTitanEtatV1){
+          const subie=window.SorealTitanComportementsV1.finParalysie(idleTitanEtatV1,maintenantTick);
+          if(subie>0){
+            Object.keys(idleAdventureManualStateV3.cooldownUntil).forEach(function(k){
+              if(idleAdventureManualStateV3.cooldownUntil[k]>maintenantTick-subie)idleAdventureManualStateV3.cooldownUntil[k]+=subie;
+            });
+            idleAdventureFightNextPlayerHitV2=Math.max(idleAdventureFightNextPlayerHitV2,maintenantTick+intervalleIdleAttackAdventureIdleV4_(a));
+            ajouterLogAventureIdleV1_('system','Tu peux de nouveau bouger.');
+          }
         }
 
         let evenements=0;
@@ -18302,6 +18325,7 @@ let idleDialogueTimerV76=null;
         while(evenements<MAX_EVENEMENTS_PAR_TICK){
           const joueurDu=
             idleAdventureIdleModeV3&&
+            !titanJoueurParalyseIdleV1_(maintenantTick)&&
             idleAdventureFightNextPlayerHitV2<=maintenantTick;
           if(
             idleAdventureFightNextEnemyHitV2<=maintenantTick&&
@@ -18380,6 +18404,15 @@ let idleDialogueTimerV76=null;
               facteurAleatoireDegatsAdventureIdleV2_()
             )
           );
+          /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
+          if(idleTitanEtatV1){
+            const att=window.SorealTitanComportementsV1.attaqueTitan(fight.titanId,idleTitanEtatV1,momentEvenement,Math.random());
+            if(att.multDegats!==1){
+              degats=Math.min(avant,Math.round(degats*att.multDegats));
+              ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
+            }
+            if(att.paralyse)ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 4 s !');
+          }
           if(idleAdventureManualStateV3.blockUntil>momentEvenement){
             const avantBlocage=degats;
             degats=Math.max(

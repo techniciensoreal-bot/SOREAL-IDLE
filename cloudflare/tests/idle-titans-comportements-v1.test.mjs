@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+
+/*
+ * Comportements des titans (Norman, 2026-10-04). Gordon Ramsay Bolton, wiki « Titan Skills » : Paralyze 1/7 (4 s ou 2 attaques, jamais avant 10 attaques depuis la précédente),
+ * Power Attack 2/7 (x2), Bleed 2/7 (ampleur non publiée : non simulé).
+ */
+const ctx = { window: undefined }; ctx.globalThis = ctx; vm.createContext(ctx);
+vm.runInContext(readFileSync("cloudflare/public/modules/titans-comportements-v1.js", "utf8"), ctx);
+const api = ctx.SorealTitanComportementsV1;
+assert.ok(api.possede("t1") && !api.possede("t2"));
+
+// Tirage : [0,1) paralysie, [1,3) saignement, [3,5) puissante, le reste base (sur 7).
+let e = api.neuf();
+assert.equal(api.attaqueTitan("t1", e, 1000, 0.5 / 7).type, "base", "moins de 10 attaques : attaque de base à la place de la paralysie");
+for (let i = 0; i < 9; i++) api.attaqueTitan("t1", e, 1000, 6.5 / 7);
+assert.equal(e.depuisParalysie, 10);
+let r = api.attaqueTitan("t1", e, 20000, 0.5 / 7);
+assert.equal(r.type, "paralysie"); assert.ok(r.paralyse);
+assert.ok(api.joueurParalyse(e, 21000) && api.joueurParalyse(e, 23999) && !api.joueurParalyse(e, 24000), "4 s");
+assert.equal(e.depuisParalysie, 0);
+
+// Deux attaques pendant la paralysie la terminent avant les 4 s ; pas de nouvelle paralysie pendant.
+r = api.attaqueTitan("t1", e, 21000, 0.5 / 7); assert.equal(r.type, "base");
+assert.ok(api.joueurParalyse(e, 21500));
+api.attaqueTitan("t1", e, 22000, 6.5 / 7);
+assert.ok(!api.joueurParalyse(e, 22000), "fin à la 2e attaque");
+assert.equal(api.finParalysie(e, 22000), 2000, "durée subie pour repousser les cooldowns");
+assert.equal(api.finParalysie(e, 22001), 0);
+
+// Attaque puissante x2 ; saignement : aucun effet de dégâts (ampleur non publiée).
+e = api.neuf();
+assert.equal(api.attaqueTitan("t1", e, 1, 3.5 / 7).multDegats, 2);
+assert.equal(api.attaqueTitan("t1", e, 2, 1.5 / 7).multDegats, 1);
+
+// Branchement dans le combat et note honnête sur la fiche.
+const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+assert.ok(ui.includes("window.SorealTitanComportementsV1.attaqueTitan(fight.titanId"));
+assert.ok(ui.includes("!titanJoueurParalyseIdleV1_(maintenantTick)"), "Idle Mode coupé");
+assert.ok(ui.includes("if(titanJoueurParalyseIdleV1_(Date.now()))return;"), "capacités coupées");
+assert.ok(/pas simulé/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/titans-comportements-v1.js"));
+console.log("idle-titans-comportements-v1: OK");
