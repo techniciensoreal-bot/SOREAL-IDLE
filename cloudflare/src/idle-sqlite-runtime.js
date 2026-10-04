@@ -16815,6 +16815,7 @@ function battementSorealIdle(sessionToken, info) {
     nom: identite.nomAffiche,
     admin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL,
     actif: i.actif === true,
+    connecte: i.connecte === true,
     activite: i.activite
   });
 

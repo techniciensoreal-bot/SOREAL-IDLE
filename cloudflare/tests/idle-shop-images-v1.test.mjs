@@ -29,3 +29,8 @@ for (const id of ids) {
 assert.ok(ui.includes("filter(function(item){return item&&item.effectActive===true;})"));
 assert.ok(ui.includes("imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)"));
 console.log("idle-shop-images-v1: OK");
+
+// 2026-10-04 (« je ne vois pas les images dans la boutique ») : les rendus repartent de zéro à chaque tick, donc plus de chargement différé ; toutes les images sont préchargées une fois.
+assert.ok(ui.includes('loading="eager" decoding="sync"') && !ui.includes('height="46" loading="lazy"'), "images chargées tout de suite");
+assert.ok(ui.includes("function prechargerImagesShopIdleV1_()") && ui.includes("prechargerImagesShopIdleV1_();\n        const systemes"), "préchargement au premier rendu de la boutique");
+console.log("idle-shop-images-v1 (chargement): OK");

@@ -105,7 +105,7 @@
     const F=window.__SOREAL_IDLE_FLUX_V1__;
     /* Premier battement de la page : on demande seulement le repère, jamais l'historique (le bandeau « En direct » ne rattrape rien). */
     const amorce=!(F&&typeof F.amorce==='function'&&F.amorce());
-    return appel('battementSorealIdle',[{actif:estActif(),activite:activiteActuelle(),apresFlux:fluxDernier(),amorceFlux:amorce}]).then(function(res){
+    return appel('battementSorealIdle',[{actif:estActif(),connecte:document.visibilityState==='visible',activite:activiteActuelle(),apresFlux:fluxDernier(),amorceFlux:amorce}]).then(function(res){
       if(!res||res.ok===false)return;
       if(F){
         if(amorce&&typeof F.amorcer==='function')F.amorcer(res.dernierFluxId);

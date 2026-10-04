@@ -75,9 +75,13 @@ function charger({ interaction = true, visible = true, contexte = null, appelEch
   const sansGeste = charger({ interaction: false });
   assert.equal(sansGeste.api.estActif(), false, "aucune interaction : pas actif");
   sansGeste.minuteries.find((m) => m.repete && m.ms === 20000).fn();
-  assert.equal(sansGeste.appels.filter((a) => a[0] === "battementSorealIdle").pop()[1][0].actif, false);
+  const sansGesteBattement = sansGeste.appels.filter((a) => a[0] === "battementSorealIdle").pop()[1][0];
+  assert.equal(sansGesteBattement.actif, false);
+  assert.equal(sansGesteBattement.connecte, true, "page visible sans clic : connectée (le temps de jeu compte)");
   const cachee = charger({ visible: false });
   assert.equal(cachee.api.estActif(), false, "page cachée : pas actif");
+  cachee.minuteries.find((m) => m.repete && m.ms === 20000).fn();
+  assert.equal(cachee.appels.filter((a) => a[0] === "battementSorealIdle").pop()[1][0].connecte, false, "page cachée : pas connectée");
 }
 
 // 4. Activité envoyée : farm dans la zone en combat automatique, boss combattu, sinon libre.

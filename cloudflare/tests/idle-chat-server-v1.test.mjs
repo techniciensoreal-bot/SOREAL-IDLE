@@ -41,9 +41,17 @@ const T0 = 1_700_000_000_000;
   assert.equal(battementV1(sql, { ...a, actif: true, now: T0 + 60_000 }).gain, 20, "retour d'activité : l'écart depuis le DERNIER battement");
   /* Absent 3 heures (rattrapage hors-ligne) : jamais compté -- c'était le défaut du classement. */
   assert.equal(battementV1(sql, { ...a, actif: true, now: T0 + 60_000 + 3 * 3600_000 }).gain, 0, "retour après 3 h : pas de temps compté");
-  /* Jamais plus que le plafond, même avec un écart de 59 s. */
+  /* Écart toléré : jusqu'à 90 s (un battement manqué sur un réseau instable ne fait plus perdre le temps écoulé) ; au-delà, le joueur avait quitté le jeu. */
   const r = battementV1(sql, { ...a, actif: true, now: T0 + 60_000 + 3 * 3600_000 + 59_000 });
-  assert.equal(r.gain, IDLE_PRESENCE_GAIN_MAX_S_V1, "plafonné à 45 s par battement");
+  assert.equal(r.gain, 59, "59 s écoulées = 59 s");
+  assert.equal(battementV1(sql, { ...a, actif: true, now: T0 + 60_000 + 3 * 3600_000 + 59_000 + 90_000 }).gain, IDLE_PRESENCE_GAIN_MAX_S_V1, "90 s : compté, au plafond");
+  assert.equal(battementV1(sql, { ...a, actif: true, now: T0 + 60_000 + 3 * 3600_000 + 59_000 + 90_000 + 91_000 }).gain, 0, "91 s : le joueur était parti");
+  /* Temps connecté (2026-10-04) : une page VISIBLE compte même sans clic ; une page cachée jamais. */
+  const v = baseVide();
+  battementV1(v, { ...a, actif: false, connecte: true, now: T0 });
+  assert.equal(battementV1(v, { ...a, actif: false, connecte: true, now: T0 + 20_000 }).gain, 20, "page visible sans clic : 20 s connectées");
+  assert.equal(battementV1(v, { ...a, actif: false, connecte: false, now: T0 + 40_000 }).gain, 0, "page cachée : rien");
+  assert.equal(battementV1(v, { ...a, actif: false, connecte: "oui", now: T0 + 60_000 }).gain, 0, "seul true est accepté");
   /* Un client qui spamme des battements ne gagne que le temps réellement écoulé. */
   const spam = baseVide();
   battementV1(spam, { ...a, actif: true, now: T0 });

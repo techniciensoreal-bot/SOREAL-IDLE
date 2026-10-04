@@ -17,9 +17,9 @@ import { sqlRows } from "./core/sqlite-core.js";
 /* Un battement toutes les ~20 s (un onglet en arrière-plan n'en envoie qu'environ un par minute) : en ligne tant que le dernier a moins de 90 s. */
 export const IDLE_PRESENCE_EN_LIGNE_MS_V1 = 90 * 1000;
 /* Au-delà de cet écart entre deux battements, le joueur a quitté le jeu : le temps n'est pas compté. */
-export const IDLE_PRESENCE_ECART_MAX_S_V1 = 60;
-/* Jamais plus de 45 s comptées par battement, quoi que dise le client. */
-export const IDLE_PRESENCE_GAIN_MAX_S_V1 = 45;
+export const IDLE_PRESENCE_ECART_MAX_S_V1 = 90;
+/* Jamais plus de 90 s comptées par battement, quoi que dise le client (un battement manqué sur un réseau instable n'efface plus le temps écoulé). */
+export const IDLE_PRESENCE_GAIN_MAX_S_V1 = 90;
 export const IDLE_CHAT_MAX_TEXTE_V1 = 280;
 export const IDLE_CHAT_MAX_MESSAGES_V1 = 500;
 export const IDLE_CHAT_DELAI_MIN_MS_V1 = 1500;
@@ -57,7 +57,7 @@ function texteChatNettoyeV1(valeur) {
  * gain > 0 seulement si : le client déclare une interaction récente sur page visible (actif), un battement précédent existe et il
  * date de moins de IDLE_PRESENCE_ECART_MAX_S_V1 secondes.
  */
-export function battementV1(sql, { email, nom, admin, actif, activite, now = Date.now() }) {
+export function battementV1(sql, { email, nom, admin, actif, connecte, activite, now = Date.now() }) {
   assurerChatV1(sql);
   const cle = String(email || "").trim().toLowerCase();
   if (!cle) throw new Error("PRESENCE_EMAIL_REQUIS");
@@ -65,7 +65,11 @@ export function battementV1(sql, { email, nom, admin, actif, activite, now = Dat
   /* Nouvelle connexion : aucune présence connue, ou le dernier battement date de plus que « en ligne » (le fil « En direct » l'annonce). */
   const connexion = !precedent || now - Number(precedent.vu_le) > IDLE_PRESENCE_EN_LIGNE_MS_V1;
   let gain = 0;
-  if (precedent && actif === true) {
+  /*
+   * Temps connecté (Norman, 2026-10-04 : « le temps de jeu n'a pas l'air bon, il y a un souci avec le calcul des heures connectées ») : il compte dès que la page est VISIBLE (connecte), même sans clic -- un jeu idle se regarde
+   * sans toucher l'écran, et l'ancien critère (clic dans les 2 dernières minutes) en perdait la majeure partie. Page cachée ou fermée : rien, et jamais le rattrapage hors ligne.
+   */
+  if (precedent && (connecte === true || actif === true)) {
     const ecart = (now - Number(precedent.vu_le)) / 1000;
     if (ecart > 0 && ecart <= IDLE_PRESENCE_ECART_MAX_S_V1) gain = Math.min(ecart, IDLE_PRESENCE_GAIN_MAX_S_V1);
   }
