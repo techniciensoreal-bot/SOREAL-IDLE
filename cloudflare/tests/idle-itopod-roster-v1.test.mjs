@@ -86,17 +86,12 @@ assert.equal(idleItopodCleR2V1("//shared/avatars/level-1/a.webp", "shared/avatar
   assert.ok(media.includes('"/api/idle/media/roster"') && media.includes('"/api/idle/media/shared"'));
 }
 
-// Client : Level de décor selon le palier, ennemi jamais répété deux fois de suite
+// Client : décor selon l'étage (idle/itopod/ 1 à 10), ennemi jamais répété deux fois de suite
 {
   const fenetre = {};
   vm.runInNewContext(readFileSync("cloudflare/public/modules/itopod-scene-v1.js", "utf8"), { window: fenetre, document: { querySelectorAll: () => [] }, fetch: () => Promise.reject(new Error("x")), Date });
   const api = fenetre.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
-  assert.equal(api.palier(0), 1);
-  assert.equal(api.palier(1599), 32);
-  assert.equal(api.niveauDecor(0), 1);
-  assert.equal(api.niveauDecor(1599), 6);
-  const niveaux = new Set(Array.from({ length: 32 }, (_, i) => api.niveauDecor(i * 50)));
-  assert.deepEqual([...niveaux].sort(), [1, 2, 3, 4, 5, 6], "les 32 paliers couvrent les 6 Levels");
+  assert.deepEqual([1, 10, 11, 20, 21, 1599].map((e) => api.numeroDecor(e)), [1, 10, 1, 10, 1, 9], "décor de l'étage : de 1 à 10 en boucle");
   for (const n of [2, 3, 5, 7, 12, 23, 24]) {
     let prev = -1;
     for (let k = 0; k < 200; k++) {

@@ -12,6 +12,9 @@ export const IDLE_ITOPOD_TV_ORIGIN_V1 = "https://soreal-tv.technicien-soreal.wor
 export const IDLE_ITOPOD_TV_HOTE_INTERNE_V1 = "https://soreal-tv.internal";
 export const IDLE_ITOPOD_AVATAR_PREFIX_V1 = "shared/avatars/";
 export const IDLE_ITOPOD_DECOR_PREFIX_V1 = "shared/avatar-backgrounds/";
+/* Décors de la tour (Norman, 2026-10-04) : idle/itopod/, un fichier par étage de 1 à 10 (le numéro est le premier nombre du nom de fichier). */
+export const IDLE_ITOPOD_ETAGE_PREFIX_V1 = "idle/itopod/";
+export const IDLE_ITOPOD_ETAGES_V1 = 10;
 /* Profils qui ne sont pas des personnes de l'équipe (profil d'accueil). */
 export const IDLE_ITOPOD_EXCLUS_V1 = Object.freeze(["bienvenue"]);
 /* Toujours présents dans l'ITOPOD, même sans profil (Norman : « Sébastien et moi »). */
@@ -25,7 +28,7 @@ export function idleItopodCleR2V1(url, prefix) {
   let k = text(url).split("?")[0].split("#")[0];
   try { k = decodeURIComponent(k); } catch (_) { return ""; }
   k = k.replace(/^\/+/, "").replace(/^assets\//, "");
-  if (!k.startsWith(prefix) || k.includes("..") || k.includes("//") || !/\.(webp|png|jpe?g|gif)$/i.test(k)) return "";
+  if (!k.startsWith(prefix) || k.includes("..") || k.includes("//") || !/\.(webp|png|jpe?g|gif|avif)$/i.test(k)) return "";
   return /^[\p{L}\p{N} _.\-\/()'’]{1,240}$/u.test(k) ? k : "";
 }
 
@@ -54,6 +57,18 @@ export function idleItopodDecorsParNiveauV1(cles) {
     if (out[n]) out[n].push(k);
   }
   for (const n of Object.keys(out)) out[n].sort();
+  return out;
+}
+
+/* { 1: clé, ..., 10: clé } depuis les clés R2 idle/itopod/ ; le numéro d'un fichier est le premier nombre de 1 à 10 de son nom (« 3.webp », « etage-03.png »…). À numéro égal, le premier par ordre alphabétique. */
+export function idleItopodEtagesV1(cles) {
+  const out = {};
+  for (const cle of [...(Array.isArray(cles) ? cles : [])].sort()) {
+    const k = idleItopodCleR2V1(cle, IDLE_ITOPOD_ETAGE_PREFIX_V1);
+    const m = k && k.slice(IDLE_ITOPOD_ETAGE_PREFIX_V1.length).match(/[0-9]+/);
+    const n = m ? Number(m[0]) : 0;
+    if (n >= 1 && n <= IDLE_ITOPOD_ETAGES_V1 && !out[n]) out[n] = k;
+  }
   return out;
 }
 
@@ -86,6 +101,7 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
     if (r.ok) cosmetics = await r.json();
   } catch (_) { /* liste réduite */ }
   let cles = [];
+  let clesEtages = [];
   try {
     if (env && env.SOREAL_R2 && typeof env.SOREAL_R2.list === "function") {
       let cursor;
@@ -97,8 +113,12 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
         cursor = l.truncated && l.cursor ? l.cursor : undefined;
       } while (cursor && cles.length < 3000);
     }
+    if (env && env.SOREAL_R2 && typeof env.SOREAL_R2.list === "function") {
+      const l = await env.SOREAL_R2.list({ prefix: IDLE_ITOPOD_ETAGE_PREFIX_V1, limit: 1000 });
+      clesEtages = (l.objects || []).map((o) => o.key);
+    }
   } catch (_) { /* pas de décor */ }
-  const valeur = { ok: true, workers: idleItopodRosterV1(cosmetics), decors: idleItopodDecorsParNiveauV1(cles), complete: Boolean(cosmetics) };
+  const valeur = { ok: true, workers: idleItopodRosterV1(cosmetics), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
   /* Un échec de TV n'est gardé que peu de temps. */
   cache = { at: cosmetics ? maintenant : maintenant - DUREE_CACHE_MS + 30000, valeur };
   return jsonReponse(valeur);
@@ -111,7 +131,7 @@ function jsonReponse(valeur) {
 /* Image partagée (avatar ou décor) servie depuis R2 : uniquement les dossiers shared/avatars/ et shared/avatar-backgrounds/. */
 export async function idleItopodImagePartageeV1(request, env, url) {
   const brute = text(url.searchParams.get("key"));
-  const cle = idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_DECOR_PREFIX_V1);
+  const cle = idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_DECOR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_ETAGE_PREFIX_V1);
   if (!cle) return new Response("Image invalide", { status: 400, headers: { "cache-control": "no-store" } });
   if (!env || !env.SOREAL_R2 || typeof env.SOREAL_R2.get !== "function") return new Response("Média indisponible", { status: 503, headers: { "cache-control": "no-store" } });
   const objet = await env.SOREAL_R2.get(cle);

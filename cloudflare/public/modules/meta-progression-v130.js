@@ -1454,48 +1454,65 @@ function pageQuirksIdleV1_(j){
 function pageItopodIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'tower');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const d=(s.state.data)||{};
-        const etage=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.floor);
-        const kills=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.kills);
-        const versProchainEtage=d.killsOnFloor!=null?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.killsOnFloor):kills%10;
-        const plusHaut=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.highestFloor||d.floor);
-        const optimal=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.optimalFloor);
+        const etage=H.idleEntier_(d.floor);
+        const kills=H.idleEntier_(d.kills);
+        const versProchainEtage=d.killsOnFloor!=null?H.idleEntier_(d.killsOnFloor):kills%10;
+        const plusHaut=H.idleEntier_(d.highestFloor||d.floor);
+        const optimal=H.idleEntier_(d.optimalFloor);
         const auto=d.startFloor==null||d.endFloor==null;
-        const debut=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.startFloor==null?0:d.startFloor);
-        const fin=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.endFloor==null?optimal:d.endFloor);
-        const ppProgress=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.ppProgress));
-        const pp=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.pp)||0);
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_(
+        const debut=H.idleEntier_(d.startFloor==null?0:d.startFloor);
+        const fin=H.idleEntier_(d.endFloor==null?optimal:d.endFloor);
+        const ppProgress=Math.max(0,H.idleNombre_(d.ppProgress));
+        const pp=H.idleEntier_((j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.pp)||0);
+        const pourcent=Math.max(0,Math.min(100,ppProgress/10000));
+        /* Champ de saisie « jeu vidéo » : valeur au centre, − et + de part et d'autre. */
+        const champ=function(id,libelle,valeur){
+          return '<div class="itp-champ"><label for="'+id+'">'+libelle+'</label>'+
+            '<div class="itp-pas"><button type="button" class="itp-pas-bouton" aria-label="Moins" onclick="window.__itopodPasIdleV1__(this,-1)">−</button>'+
+            '<input id="'+id+'" class="itp-saisie" type="number" inputmode="numeric" min="0" max="1600" value="'+valeur+'">'+
+            '<button type="button" class="itp-pas-bouton" aria-label="Plus" onclick="window.__itopodPasIdleV1__(this,1)">+</button></div></div>';
+        };
+        const tuile=function(icone,libelle,valeur){return '<div class="itp-tuile"><span class="itp-tuile-icone">'+icone+'</span><span class="itp-tuile-libelle">'+libelle+'</span><b>'+valeur+'</b></div>';};
+        return H.entetePageIdleV28_(
           '🏢 ITOPOD',
           'Infinite Tower of Pissed-Off Dudes — chaque 10 ennemis vaincus fait monter d’un étage ; (200 + Étage) PPP par kill (700 en Evil, 2000 en Sadistic), 1 000 000 PPP = 1 PP. Sur l’étage de fin, 10 kills te ramènent à l’étage de départ.'
         )+
-        (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(d):'')+
-        '<div class="soreal-idle-summary-grid-v28">'+
-          '<div class="soreal-idle-summary-v28">🏢 Étage<b>'+etage+'</b></div>'+
-          '<div class="soreal-idle-summary-v28">⭐ PP disponibles<b>'+pp+'</b></div>'+
-        '</div>'+
-        '<div class="soreal-idle-section-v8">'+
-          '<div class="soreal-idle-window-title-v31">📊 Progression</div>'+
-          '<div class="soreal-idle-note-v4">'+
-            '🗡️ Ennemis vaincus (total) : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(kills)+'</b>'+
-          '</div>'+
-          '<div class="soreal-idle-note-v4" style="margin-top:5px">'+
-            '⬆️ Vers le prochain étage : <b>'+versProchainEtage+' / 10</b>'+
-          '</div>'+
-          '<div class="soreal-idle-note-v4" style="margin-top:5px">'+
-            '🏔️ Étage le plus haut : <b>'+plusHaut+'</b> · Étage optimal (un coup suffit) : <b>'+optimal+'</b>'+
-          '</div>'+
-          '<div class="soreal-idle-note-v4" style="margin-top:5px">'+
-            '🔷 Progression PP : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(ppProgress)+' / 1 000 000</b>'+
-          '</div>'+
-          '<div class="soreal-idle-note-v4" style="margin-top:9px">Étages : '+(auto?'automatique (montée jusqu’à l’étage optimal)':'départ '+debut+' → fin '+fin)+'</div>'+
-          '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:6px">'+
-            'Départ <input id="itopodDebutV1" type="number" min="0" value="'+debut+'" style="width:80px"> Fin <input id="itopodFinV1" type="number" min="0" max="1600" value="'+fin+'" style="width:80px">'+
-            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__itopodEtagesIdleV1__()">Appliquer</button>'+
-            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__itopodAutoIdleV1__()">Auto</button>'+
-          '</div>'+
+        '<div class="itp-page">'+
+          (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(d):'')+
+          '<section class="itp-panneau itp-montee">'+
+            '<div class="itp-titre">🪜 Étages à gravir</div>'+
+            '<div class="itp-mode">'+(auto?'Montée automatique jusqu’à l’étage optimal':'Départ '+debut+' → fin '+fin)+'</div>'+
+            '<div class="itp-champs">'+champ('itopodDebutV1','Départ',debut)+champ('itopodFinV1','Fin',fin)+'</div>'+
+            '<div class="itp-actions">'+
+              '<button type="button" class="itp-bouton" onclick="window.__itopodEtagesIdleV1__()">Appliquer</button>'+
+              '<button type="button" class="itp-bouton itp-bouton-auto" onclick="window.__itopodAutoIdleV1__()">Auto</button>'+
+            '</div>'+
+          '</section>'+
+          '<section class="itp-panneau">'+
+            '<div class="itp-titre">📊 Progression</div>'+
+            '<div class="itp-tuiles">'+
+              tuile('🏢','Étage',etage)+
+              tuile('⭐','PP disponibles',pp)+
+              tuile('🗡️','Ennemis vaincus',H.formatGrandNombreIdleV70_(kills))+
+              tuile('⬆️','Prochain étage',versProchainEtage+' / 10')+
+              tuile('🏔️','Étage le plus haut',plusHaut)+
+              tuile('🎯','Étage optimal',optimal)+
+            '</div>'+
+            '<div class="itp-pp"><div class="itp-pp-ligne"><span>🔷 Progression PP</span><b>'+H.formatGrandNombreIdleV70_(ppProgress)+' / 1 000 000</b></div>'+
+              '<div class="itp-pp-barre"><div class="itp-pp-rempli" style="width:'+pourcent.toFixed(2)+'%"></div></div></div>'+
+          '</section>'+
         '</div>';
       }
+
+/* Boutons − et + des champs d'étage : un pas de 1, borné à 0–1600 comme la saisie. */
+function itopodPasIdleV1_(bouton,delta){
+        const el=bouton&&bouton.parentNode?bouton.parentNode.querySelector('input'):null;
+        if(!el)return;
+        el.value=String(Math.max(0,Math.min(1600,(Number(el.value)||0)+(Number(delta)||0))));
+      }
+      window.__itopodPasIdleV1__=itopodPasIdleV1_;
 
 function itopodEtagesIdleV1_(){
         const debut=document.getElementById('itopodDebutV1');
