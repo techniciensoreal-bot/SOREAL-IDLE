@@ -428,7 +428,7 @@ function ligneHtml_(e,i,k){
       '<span style="flex:1"></span>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-l="ecouter" data-i="'+i+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-l="generer" data-i="'+i+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de CETTE ligne seulement, autant de fois que tu veux">🎙 Générer cette ligne</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-l="suppr" data-i="'+i+'" data-k="'+k+'" title="Supprimer cette ligne">🗑</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-l="suppr" data-i="'+i+'" data-k="'+k+'" title="Retirer ce personnage (cette ligne)">−</button>'+
     '</div>'+
     '<textarea data-adm-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
     (blocs.length?'<div class="adm-fichiers-v1" data-adm-fv="'+cle+'"><div class="adm-fichiers-titre-v1">Fichiers de voix de cette ligne <span>(télécharger, retoucher, remplacer)</span></div>'+fichiersVoixHtml_(blocs,voix)+'</div>':'')+
@@ -455,7 +455,7 @@ function etapeHtml_(e,i){
       '</div>'+
       '<div class="adm-lignes-v1">'+
         e.lignes.map(function(l,k){return ligneHtml_(e,i,k);}).join('')+
-        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="ligne+" data-i="'+i+'">＋ Ajouter une ligne</button>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="ligne+" data-i="'+i+'" title="Ajouter un personnage (une nouvelle ligne)">＋ Ajouter un personnage</button>'+
         '<div class="soreal-idle-adm-meta-v1" style="margin-top:6px">Une ligne = un personnage qui parle. Pour une seule voix, garde une seule ligne ; les balises <b>(femme)</b>, <b>(homme)</b>… écrites dans un texte marchent toujours et sont aussi découpées en lignes à la réouverture.</div>'+
       '</div>'+
     '</div>'+

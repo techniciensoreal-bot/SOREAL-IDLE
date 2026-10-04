@@ -235,7 +235,38 @@ function voixProposees_(){
  * ligne est lue par le narrateur sauf balise, chaque cadre suivant est précédé de la balise de sa voix « (femme) », « (marius) »… exactement ce que lit le jeu. Les anciens textes avec balises sont découpés en cadres
  * à l'ouverture.
  */
-function champParle_(c){return Boolean(c&&c.type==='texte');}
+/* Les champs parlés : un « texte » (chronique de boss…) ou une « liste » de paragraphes (tutoriels, nouveautés) : dans une liste, un cadre = un paragraphe. */
+function champParle_(c){return Boolean(c&&(c.type==='texte'||c.type==='liste'));}
+/* Voix en vigueur à la fin d'un texte : celle de sa dernière balise, sinon celle avec laquelle il a commencé. */
+function voixFinale_(texte,depart){
+  var re=/\(\s*([^()\n]{1,40}?)\s*\)/g,m,voix=depart;
+  while((m=re.exec(String(texte==null?'':texte)))){var v=voixDeBalise_(m[1]);if(v)voix=parleurUi_(v);}
+  return voix;
+}
+/* Liste de paragraphes -> cadres : la voix d'un paragraphe est celle de sa balise de tête, sinon celle qui était en vigueur à la fin du paragraphe précédent. */
+function lignesDepuisListe_(liste){
+  var courant='narrateur',lignes=[];
+  (Array.isArray(liste)?liste:[]).forEach(function(p){
+    var texte=String(p==null?'':p).trim();
+    var m=/^\(\s*([^()\n]{1,40}?)\s*\)\s*/.exec(texte);
+    var voix=courant;
+    if(m){var v=voixDeBalise_(m[1]);if(v){voix=parleurUi_(v);texte=texte.slice(m[0].length);}}
+    lignes.push({parleur:voix,texte:texte});
+    courant=voixFinale_(texte,voix);
+  });
+  return lignes.length?lignes:[{parleur:'narrateur',texte:''}];
+}
+/* Cadres -> liste de paragraphes : une balise de tête seulement quand la voix change. */
+function listeDepuisLignes_(lignes){
+  var courant='narrateur',liste=[];
+  (lignes||[]).forEach(function(l){
+    var texte=String(l&&l.texte||'').trim();
+    if(!texte)return;
+    liste.push((l.parleur!==courant?'('+l.parleur+') ':'')+texte);
+    courant=voixFinale_(texte,l.parleur);
+  });
+  return liste;
+}
 function parleurUi_(v){return v==='homme'||!v?'narrateur':v;}
 function lignesDepuisTexte_(texte){
   var brut=String(texte==null?'':texte);
@@ -299,7 +330,7 @@ function cadreHtml_(champ,k,l,blocs){
       '<span style="flex:1"></span>'+
       '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
       '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de CE personnage seulement, autant de fois que tu veux">🎙 Générer cette ligne</button>'+
-      '<button type="button" class="stx-voix danger" data-stx-l="suppr" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Supprimer ce cadre">🗑</button>'+
+      '<button type="button" class="stx-voix danger" data-stx-l="suppr" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Retirer ce personnage (ce cadre)">−</button>'+
     '</div>'+
     '<textarea rows="3" data-stx-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
     '<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichiers de voix de cette ligne (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(blocs,voix):'')+'</div>'+
@@ -312,7 +343,7 @@ function cadresChampHtml_(champ){
     var blocs=[];
     r.cadres.forEach(function(c){if(c.champ===champ&&c.k===k)blocs=c.blocs;});
     return cadreHtml_(champ,k,l,blocs);
-  }).join('')+'<button type="button" data-stx-act="cadre+" data-c="'+esc_(champ)+'">＋ Ajouter un personnage</button>';
+  }).join('')+'<button type="button" data-stx-act="cadre+" data-c="'+esc_(champ)+'" title="Ajouter un personnage (un nouveau cadre)">＋ Ajouter un personnage</button>';
 }
 function rafraichirCadres_(champ){
   var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-cadres="'+champ+'"]');
@@ -346,7 +377,7 @@ function lireChamps_(){
           if(sel)l.parleur=sel.value;
         });
       }
-      valeurs[c.id]=texteDepuisLignes_(edition.lignes[c.id]);
+      valeurs[c.id]=c.type==='liste'?listeDepuisLignes_(edition.lignes[c.id]):texteDepuisLignes_(edition.lignes[c.id]);
       return;
     }
     var el=racine&&racine.querySelector('[data-stx-champ="'+c.id+'"]');
@@ -500,7 +531,7 @@ function dessinerEditeur_(){
   var champsHtml=d.champs.map(function(c){
     if(champParle_(c)&&edition.lignes&&edition.lignes[c.id]){
       return '<label>'+esc_(c.label)+'</label>'+
-        '<div class="stx-aide">Un cadre par personnage : choisis sa voix, écris sa ligne, puis génère la voix de ce cadre seulement. Ajoute un cadre pour chaque nouveau personnage.</div>'+
+        '<div class="stx-aide">'+(c.type==='liste'?'Un cadre par paragraphe : choisis sa voix, écris-le, puis génère la voix de ce cadre seulement. « ＋ » ajoute un paragraphe, « − » le retire.':'Un cadre par personnage : choisis sa voix, écris sa ligne, puis génère la voix de ce cadre seulement. « ＋ » ajoute un personnage, « − » le retire.')+'</div>'+
         '<div class="stx-cadres" data-stx-cadres="'+esc_(c.id)+'">'+cadresChampHtml_(c.id)+'</div>';
     }
     var valeur=valeurVersTexte_(c,edition.valeurs[c.id]);
@@ -805,7 +836,7 @@ function ouvrir_(cle,def,surcharge,originaux){
   });
   edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{}};
   /* Un cadre par personnage pour chaque texte parlé : les balises (marius), (femme)… du texte deviennent des cadres. */
-  def.champs.forEach(function(c){if(champParle_(c))edition.lignes[c.id]=lignesDepuisTexte_(courant[c.id]);});
+  def.champs.forEach(function(c){if(champParle_(c))edition.lignes[c.id]=c.type==='liste'?lignesDepuisListe_(courant[c.id]):lignesDepuisTexte_(courant[c.id]);});
   reduit=false;
   dessinerEditeur_();
   verifierStudio_();

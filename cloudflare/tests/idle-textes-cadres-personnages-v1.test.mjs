@@ -10,12 +10,12 @@ const debut = src.indexOf("function champParle_(c){");
 const fin = src.indexOf("function blocsParCadre_(valeurs){");
 assert.ok(debut > 0 && fin > debut);
 const voixDeBalise = (c) => { const n = String(c).toLowerCase().replace(/[^a-z0-9]/g, ""); return n === "homme" || n === "narrateur" ? "homme" : n === "femme" ? "femme" : n === "marius" ? "marius" : ""; };
-const T = new Function("voixDeBalise_", src.slice(debut, fin) + "\nreturn {champParle_,parleurUi_,lignesDepuisTexte_,texteDepuisLignes_,normaliser_};")(voixDeBalise);
+const T = new Function("voixDeBalise_", src.slice(debut, fin) + "\nreturn {champParle_,parleurUi_,lignesDepuisTexte_,texteDepuisLignes_,normaliser_,lignesDepuisListe_,listeDepuisLignes_,voixFinale_};")(voixDeBalise);
 
-// Seuls les champs « texte » deviennent des cadres.
+// Les champs « texte » et « liste » (tutoriels, nouveautés) deviennent des cadres ; une ligne simple (titre, nom) reste un champ.
 assert.equal(T.champParle_({ type: "texte" }), true);
 assert.equal(T.champParle_({ type: "ligne" }), false);
-assert.equal(T.champParle_({ type: "liste" }), false);
+assert.equal(T.champParle_({ type: "liste" }), true);
 
 // Texte sans balise : un seul cadre, le narrateur (« de base, un personnage »).
 assert.deepEqual(T.lignesDepuisTexte_("Il était une fois."), [{ parleur: "narrateur", texte: "Il était une fois." }]);
@@ -35,9 +35,26 @@ assert.equal(T.texteDepuisLignes_([{ parleur: "narrateur", texte: "" }, { parleu
 const original = "(marius) Salut. (femme) Coucou. (narrateur) Fin.";
 assert.equal(T.texteDepuisLignes_(T.lignesDepuisTexte_(original)), "(marius) Salut. (femme) Coucou. Fin.".replace("Coucou. Fin.", "Coucou. (narrateur) Fin."));
 
+// Listes de paragraphes (tutoriels, nouveautés) : un cadre par paragraphe ; la voix en vigueur se poursuit d'un paragraphe à l'autre.
+{
+  const liste = ["Bienvenue.", "(femme) Bonjour, moi c'est Léa.", "Je continue de parler.", "(narrateur) Retour au narrateur."];
+  const cadres = T.lignesDepuisListe_(liste);
+  assert.deepEqual(cadres, [{ parleur: "narrateur", texte: "Bienvenue." }, { parleur: "femme", texte: "Bonjour, moi c'est Léa." }, { parleur: "femme", texte: "Je continue de parler." }, { parleur: "narrateur", texte: "Retour au narrateur." }]);
+  // Recomposition : une balise seulement quand la voix change ; le tout redonne exactement la liste d'origine.
+  assert.deepEqual(T.listeDepuisLignes_(cadres), liste);
+  // Ajouter un personnage (cadre) en fin de liste, ou en retirer un : seules les balises nécessaires apparaissent.
+  assert.deepEqual(T.listeDepuisLignes_([...cadres, { parleur: "marius", texte: "Salut." }]), [...liste, "(marius) Salut."]);
+  assert.deepEqual(T.listeDepuisLignes_([cadres[0], cadres[2]]), ["Bienvenue.", "(femme) Je continue de parler."]);
+  assert.deepEqual(T.listeDepuisLignes_([{ parleur: "narrateur", texte: " " }]), []);
+  assert.deepEqual(T.lignesDepuisListe_([]), [{ parleur: "narrateur", texte: "" }]);
+  // Une balise au milieu d'un paragraphe garde la voix finale pour le suivant.
+  assert.deepEqual(T.lignesDepuisListe_(["Il dit (femme) oui.", "Suite."]).map((c) => c.parleur), ["narrateur", "femme"]);
+}
+
 // Câblage : une génération par cadre, écoute d'un cadre, ajout / suppression, fichiers par cadre, réduction, son de fin.
 assert.ok(src.includes("function genererCadre_(champ,k){") && src.includes("lancerGeneration_(o,blocs,'Ligne '+(k+1));"), "génération d'un seul cadre");
 assert.ok(src.includes("function ecouterCadre_(champ,k){"));
+assert.ok(src.includes("title=\"Retirer ce personnage (ce cadre)\">−</button>") && src.includes("＋ Ajouter un personnage</button>"), "boutons + et −");
 assert.ok(src.includes('data-stx-l="generer"') && src.includes('data-stx-l="ecouter"') && src.includes('data-stx-l="suppr"') && src.includes('data-stx-act="cadre+"'), "boutons de cadre : écouter, générer, supprimer, ajouter un personnage");
 assert.ok(src.includes("<select data-stx-lparleur=") || src.includes("'<select data-stx-lparleur=\"'+cle+'\""), "choix de la voix par cadre");
 assert.ok(src.includes('data-stx-fv="'), "fichiers de voix (télécharger, remplacer) dans chaque cadre");
