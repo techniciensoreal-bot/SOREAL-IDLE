@@ -2871,7 +2871,28 @@ checkSets(s);
  * 27c9514 : le complément portait ces sauvegardes à 20 EXP, contraire au wiki.
  */
 syncInventorySlotsAdventureV2(s);
+convertirDeblocagesEnObjetsV1(s);
 return s}
+/*
+ * Un déblocage de système est TOUJOURS un objet du sac (Norman, 2026-10-04 : « j'étais censée avoir un objet dans mon inventaire et non un menu à activer ; fais en sorte que ce soit bien des objets, même pour les
+ * items futurs »). Les drapeaux unlockItems (menu « Objets de déblocage ») ne sont plus qu'une créance : tant qu'un système n'est pas débloqué et que l'objet correspondant n'est pas dans le sac, le moteur le crée
+ * (A Number, Giant Seed, Scrap of Paper, UUG's Armpit Hair, Pissed Off Key, copie de Wandoos 98) dès qu'une place existe dans le sac, puis éteint le drapeau. Sac plein : la créance reste, et le jeu le dit au joueur.
+ * Tout futur objet de déblocage ajouté à UNLOCK_PAR_OBJET_V1 / unlockMap suit la même règle sans autre code.
+ */
+function convertirDeblocagesEnObjetsV1(s){
+  if(!s||!s.unlockItems||typeof s.unlockItems!=="object")return;
+  for(const [definitionId,cle] of Object.entries(UNLOCK_PAR_OBJET_V1)){
+    if(s.unlockItems[cle]!==true)continue;
+    const flag=unlockMap[cle];
+    if(s.unlockFlags&&s.unlockFlags[flag]){s.unlockItems[cle]=false;continue}
+    if(s.inventory.some(x=>x&&x.definitionId===definitionId)){s.unlockItems[cle]=false;continue}
+    const [setId,slot]=definitionId.split(":");
+    const modele=SETS[setId]&&SETS[setId].slots.includes(slot)?item("",setId,slot,0):(SPECIALS[definitionId]?special(definitionId,0):null);
+    if(!modele)continue;
+    const objet=add(s,modele);
+    if(objet)s.unlockItems[cle]=false;
+  }
+}
 const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slots.includes(slot)?{kind:"set",set,slot}:SPECIALS[id]?{kind:"special",id}:null};
 /*
  * Correctif 2026-09-13 (Phase 9, audit initial) : remake() recalculait
@@ -5056,7 +5077,9 @@ function resolveZoneFight(s,ctx,t=Date.now()){if(!s.fight?.active)throw Error("A
  * termine, exactement comme pour le Combat de boss.
  */
 /* Annule UNE victoire de titan obtenue par erreur (bug du 2026-10-04, voir COMBAT_TITAN_AUTRE) : compteurs, attente de réapparition et objet de déblocage de la première victoire (seulement s'il n'a pas encore été utilisé). Les récompenses déjà versées ne sont pas reprises. */
-export function annulerVictoireTitanV1(s,id){const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s&&s.titans&&s.titans[id];if(!d||!st||I(st.kills)<=0)throw Error("TITAN_SANS_VICTOIRE");st.kills=I(st.kills)-1;st.rebirthKills=Math.max(0,I(st.rebirthKills)-1);st.nextAt=0;st.hiddenPanel="";st.hiddenSince=0;let objetRetire="";if(st.kills===0&&d.drop&&s.unlockItems&&s.unlockItems[d.drop]){s.unlockItems[d.drop]=false;objetRetire=d.drop}if(st.kills===0)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return{id,kills:st.kills,objetRetire}}
+export function annulerVictoireTitanV1(s,id){const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s&&s.titans&&s.titans[id];if(!d||!st||I(st.kills)<=0)throw Error("TITAN_SANS_VICTOIRE");st.kills=I(st.kills)-1;st.rebirthKills=Math.max(0,I(st.rebirthKills)-1);st.nextAt=0;st.hiddenPanel="";st.hiddenSince=0;let objetRetire="";const retires=[];if(st.kills===0&&d.drop&&s.unlockItems&&s.unlockItems[d.drop]){s.unlockItems[d.drop]=false;objetRetire=d.drop}
+/* Première victoire de GRB : copie de Wandoos 98 (drapeau et objet du sac) et A Number, seulement si le système correspondant n'est pas déjà débloqué ; un seul exemplaire (le plus bas niveau) de chaque. */
+if(st.kills===0&&id==="t1"){for(const [defId,cle] of [["aNumber","aNumber"],["wandoos98","wandoos98"]]){if(s.unlockFlags&&s.unlockFlags[unlockMap[cle]])continue;if(s.unlockItems&&s.unlockItems[cle]){s.unlockItems[cle]=false;retires.push(cle+":drapeau")}const copies=(s.inventory||[]).filter(x=>x&&x.definitionId===defId&&!x.locked).sort((a,b)=>I(a.level)-I(b.level));if(copies.length){retirerObjetAdventureV1(s,copies[0].id);retires.push(defId+":objet")}}}if(st.kills===0)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return{id,kills:st.kills,objetRetire,retires}}
 function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
 function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};s.selectedZone="safe";return{defeated:true,zone}}
 function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}
@@ -5676,7 +5699,7 @@ return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,
  */
 function titanFound(s,id,t){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s.titans[id];if(!d||!st||!st.hiddenPanel)throw Error("TITAN_PAS_CACHE");st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,N(d.cooldown));s.titans[id]=st;return{id,nextAt:st.nextAt}}
 const unlockMap={aNumber:"ngu",giantSeed:"yggdrasil",scrapPaper:"diggers",uugHair:"beards",pissedOffKey:"tower",wandoos98:"wandoos"};
-function consume(s,id){const flag=unlockMap[id];if(!flag||!s.unlockItems[id])throw Error("OBJET_DEBLOCAGE_ABSENT");s.unlockFlags[flag]=true;s.unlockItems[id]=false;return{flag}}
+function consume(s,id){const flag=unlockMap[id];if(!flag)throw Error("OBJET_DEBLOCAGE_ABSENT");/* Depuis 2026-10-04 le déblocage dû est un vrai objet du sac (convertirDeblocagesEnObjetsV1) : l'ancienne action par clé utilise cet objet. */if(!s.unlockItems[id]){const defId=Object.keys(UNLOCK_PAR_OBJET_V1).find(k=>UNLOCK_PAR_OBJET_V1[k]===id);const o=defId&&s.inventory.find(x=>x&&x.definitionId===defId);if(!o)throw Error("OBJET_DEBLOCAGE_ABSENT");return useUnlockItem(s,o.id)}s.unlockFlags[flag]=true;s.unlockItems[id]=false;return{flag}}
 /*
  * Utiliser l'OBJET du sac pour débloquer un système (Norman, 2026-10-04 : « dans le jeu de base, c'est en utilisant un objet, pas avec un menu du genre »). Wiki « A Number » : « Upon acquiring A Number you are able to
  * consume it by CTRL + Left Click on it to permanently unlock NGU » ; « A Scrap of Paper » : « First time you Ctrl + Click it to unlock Gold Diggers » ; « A busted copy of Wandoos 98 » : « CTRL + Click to permanently
