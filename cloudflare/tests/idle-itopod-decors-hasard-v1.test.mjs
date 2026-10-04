@@ -59,13 +59,11 @@ assert.ok(css.includes(".itp-arene") && css.includes('input[type="number"]') && 
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/soreal-idle-jeu.css?v="), "feuille chargée");
 console.log("idle-itopod-decors-hasard-v1: OK");
 
-// 4. Avatars : tout le dossier shared/avatars/ fournit des ennemis (prénom lu dans le nom du fichier).
+// 4. Avatars : les profils de TV (prénoms) ; les fichiers de shared/avatars/ sans profil (« Avatar 01 », monstres…) ne deviennent PAS des ennemis ; comptes techniques exclus.
 {
   const { idleItopodRosterV1 } = await import("../src/idle-itopod-roster-v1.js");
-  const w = idleItopodRosterV1(null, ["shared/avatars/level-1/03-jean_pierre.webp", "shared/avatars/level-2/sebastien.webp", "shared/avatars/level-3/notes.txt"]);
-  assert.ok(w.some((x) => x.nom === "Jean Pierre" && x.avatar.endsWith("03-jean_pierre.webp")));
-  assert.ok(w.some((x) => x.nom === "Sébastien" && x.avatar === "shared/avatars/level-2/sebastien.webp"), "Sébastien garde son accent et reçoit son avatar");
-  assert.equal(w.filter((x) => x.nom === "Norman").length, 1);
+  const w = idleItopodRosterV1({ parEmail: { a: { nom: "Compte", avatarUrl: "" }, b: { nom: "CompteTV", avatarUrl: "" }, c: { nom: "Alessandro", avatarUrl: "/assets/shared/avatars/level-1/x.webp" } } });
+  assert.deepEqual(w.map((x) => x.nom), ["Alessandro", "Norman", "Sébastien"]);
 }
 
 // 5. Magasin des Perks : vitrines à part, image du wiki par achat (/perks/<id>.webp), aucun total.
