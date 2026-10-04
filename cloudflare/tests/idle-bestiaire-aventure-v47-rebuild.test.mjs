@@ -33,7 +33,7 @@ const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 // --- Verrous structurels ---
 assert.ok(
   source.includes(
-    'import {\n  IDLE_ADVENTURE_ZONES,\n  IDLE_ADVENTURE_MOB_CATALOG_V1,\n  IDLE_ADVENTURE_MOB_BESTIARY_V1,\n  normalizeIdleAdventureStateV47,\n  idleAdventureMobBestiaryEntryV1\n} from "./idle-adventure-v47.js";'
+    'import {\n  IDLE_ADVENTURE_ZONES,\n  IDLE_ADVENTURE_MOB_CATALOG_V1,\n  IDLE_ADVENTURE_MOB_BESTIARY_V1,\n  normalizeIdleAdventureStateV47,\n  idleAdventureMobBestiaryEntryV1,\n  annulerVictoireTitanV1\n} from "./idle-adventure-v47.js";'
   ),
   "Le vrai catalogue de zones ET le catalogue d'images V1 doivent être importés, pas reconstruits séparément."
 );

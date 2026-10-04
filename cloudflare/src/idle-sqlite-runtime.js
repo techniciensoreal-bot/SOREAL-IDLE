@@ -49,7 +49,8 @@ import {
   IDLE_ADVENTURE_MOB_CATALOG_V1,
   IDLE_ADVENTURE_MOB_BESTIARY_V1,
   normalizeIdleAdventureStateV47,
-  idleAdventureMobBestiaryEntryV1
+  idleAdventureMobBestiaryEntryV1,
+  annulerVictoireTitanV1
 } from "./idle-adventure-v47.js";
 
 /* SOREAL IDLE — runtime Cloudflare SQLite steady-state. */
@@ -16730,6 +16731,29 @@ function obtenirHistoireBossSorealIdle(sessionToken, boss) {
   return { ok: true, histoire: histoireDuBossV1(__idleSql, boss) };
 }
 
+/* Admin, SUR SON PROPRE COMPTE : annule une victoire de titan obtenue par un bug (Norman, 2026-10-04). Les récompenses déjà reçues restent. */
+function annulerVictoireTitanAdminSorealIdle(sessionToken, titanId) {
+  const acces = exigerAdminHistoiresSorealIdle_(sessionToken);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1800)) return { ok: false, message: 'Le jeu est occupé.' };
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+    assurerDonneesJeuSorealIdle_(feuille, ligne);
+    const cellule = feuille.getRange(ligne, CONFIG_SOREAL_IDLE.COLONNES_JOUEURS.STATS_JSON);
+    const stats = statsJoueurSorealIdle_(cellule.getValue());
+    const aventure = stats.metaNgu && stats.metaNgu.adventure;
+    if (!aventure || typeof aventure !== 'object') return { ok: false, message: 'Aucune aventure.' };
+    let resultat;
+    try { resultat = annulerVictoireTitanV1(aventure, String(titanId || 't1')); } catch (e) { return { ok: false, message: String(e && e.message || e) }; }
+    cellule.setValue(JSON.stringify(stats));
+    SpreadsheetApp.flush();
+    return Object.assign({ ok: true }, resultat);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function listerHistoiresAdminSorealIdle(sessionToken) {
   exigerAdminHistoiresSorealIdle_(sessionToken);
   const boss = [];
@@ -16936,6 +16960,7 @@ function lireFluxSorealIdle(sessionToken, options) {
 }
 
 const IDLE_OPERATIONS={
+  annulerVictoireTitanAdminSorealIdle,
   battementSorealIdle,
   lireFluxSorealIdle,
   lireChatSorealIdle,
