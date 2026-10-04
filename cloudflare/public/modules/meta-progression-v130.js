@@ -2659,6 +2659,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
          * « i » cliquable pour les effets ; chaque bloc dans les tons mauve-rouge ». Un bloc par sort DÉCOUVERT (anti-spoil inchangé : spellDefs
          * ne contient que les sorts découverts). L'état ouvert/fermé des « i » est gardé en mémoire (les rendus ne le referment pas).
          */
+        /* Rituel sonore du sort (modules/audio-effects-v199.js : sortBlood), du plus modeste au plus terrifiant. Jamais bloquant. */
+        window.__sonSortBloodIdleV1__=function(id){try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&a.sortBlood)a.sortBlood(String(id||''));}catch(e){}};
         const sortsHtml='<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton Blood</small></h3><div class="soreal-idle-blood-sorts-v1">'+spellDefs.map(function(sp){
           const recharge=sp.recharge>0;
           const peutLancer=blood>0&&!recharge;
@@ -2670,7 +2672,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon Blood ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__sonSortBloodIdleV1__(\''+sp.id+'\');window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon Blood ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';
         }).join('')+'</div>';
 
         /*

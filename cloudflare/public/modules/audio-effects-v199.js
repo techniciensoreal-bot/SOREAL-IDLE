@@ -586,6 +586,75 @@
    * Un son par menu (Norman, 2026-10-03 : « crée un son par menu en rapport avec le type de menu »). Tous courts (moins d'une demi-seconde) pour que la navigation reste vive, dans le même groupe que
    * l'ancienne note unique : jamais deux à la fois, le plus récent remplace celui qui attend. Le Shop garde sa porte de vieux magasin.
    */
+  /*
+   * Rituels de sang (Norman, 2026-10-04 : « crée des sons de rituel de plus en plus bad ass pour quand on lance un rituel avec notre blood »). Un son par sort de Blood Magic, du plus modeste au plus terrifiant :
+   * numberBoost (le premier sort) < ironPill < bloodSpaghetti < counterfeitGold < leeches (le dernier). Chaque son ajoute une couche au précédent : battement de cœur, cloche funèbre, râle, chœur dissonant,
+   * grondement de sub, éclat de métal, cri qui s'effondre. Durées : 1,1 s à 4,4 s. Aucune voix enregistrée : tout est synthétisé.
+   */
+  function coeur_(c,d,v){
+    tonal_(c,{type:"sine",from:80,to:42,duration:.17,volume:v,delay:d});
+    tonal_(c,{type:"sine",from:72,to:38,duration:.18,volume:v*.75,delay:d+.2});
+  }
+  function accordSombre_(c,notes,d,duree,vol,type){
+    notes.forEach(function(hz,i){
+      nappe_(c,{type:type||"sawtooth",from:hz,to:hz*.985,duration:duree,volume:vol,attack:duree*.45,delay:d,detune:i%2?9:-9});
+    });
+  }
+  function cloche_(c,hz,d,v,duree){
+    [[1,1],[2.76,.5],[5.4,.22],[8.9,.1]].forEach(function(p){tonal_(c,{type:"sine",from:hz*p[0],to:hz*p[0]*.998,duration:(duree||1.2)/(p[0]>3?2:1),volume:v*p[1],delay:d});});
+  }
+  var SONS_SORT_BLOOD_V1={
+    /* Une goutte, un cœur qui s'emballe, un souffle qui monte. */
+    numberBoost:{duree:1400,construire:function(c){
+      coeur_(c,0,.12);coeur_(c,.5,.15);
+      tonal_(c,{type:"sine",from:120,to:420,duration:.9,volume:.04,delay:.15});
+      bruit_(c,{duration:.7,volume:.03,delay:.2,filterType:"bandpass",frequency:900,q:.8,decay:1.2});
+      tonal_(c,{type:"triangle",from:660,to:660,duration:.5,volume:.025,delay:.85});}},
+    /* Un coup de fer sur une enclume, un glas, un cœur lourd. */
+    ironPill:{duree:1900,construire:function(c){
+      coeur_(c,0,.14);coeur_(c,.42,.16);coeur_(c,.84,.18);
+      tonal_(c,{type:"square",from:210,to:190,duration:.1,volume:.05,delay:.05});
+      bruit_(c,{duration:.3,volume:.1,delay:.05,filterType:"bandpass",frequency:2200,q:2,decay:2});
+      cloche_(c,196,.1,.06,1.5);
+      accordSombre_(c,[65.4,98],.2,1.4,.035);
+      tonal_(c,{type:"sine",from:90,to:40,duration:.6,volume:.16,delay:1.2});}},
+    /* Un râle humide qui se déchire, un accord mineur, une chute dans les graves. */
+    bloodSpaghetti:{duree:2750,construire:function(c){
+      coeur_(c,0,.16);coeur_(c,.4,.18);coeur_(c,.8,.2);coeur_(c,1.15,.22);
+      [0,.12,.26,.44].forEach(function(d,i){bruit_(c,{duration:.34,volume:.06+i*.012,delay:.1+d,filterType:"bandpass",frequency:380+i*210,q:5,decay:1.6});});
+      accordSombre_(c,[55,65.4,82.4,98],.15,2.2,.04);
+      cloche_(c,174.6,.35,.07,1.8);cloche_(c,155.6,1.1,.07,1.6);
+      tonal_(c,{type:"sawtooth",from:700,to:90,duration:.9,volume:.045,delay:1.4});
+      tonal_(c,{type:"sine",from:100,to:32,duration:.9,volume:.2,delay:1.7});
+      bruit_(c,{duration:.6,volume:.09,delay:1.7,filterType:"lowpass",frequency:200,decay:1.4});}},
+    /* Une cascade de pièces maudites, un chœur dissonant, un grondement qui fait trembler le sol. */
+    counterfeitGold:{duree:3650,construire:function(c){
+      for(var i=0;i<14;i+=1){tonal_(c,{type:"triangle",from:2400-i*70,to:(2400-i*70)*.99,duration:.12,volume:.026,delay:.05+i*.085});tonal_(c,{type:"sine",from:(2400-i*70)*2.7,to:(2400-i*70)*2.7,duration:.07,volume:.01,delay:.05+i*.085});}
+      coeur_(c,0,.18);coeur_(c,.38,.2);coeur_(c,.76,.22);coeur_(c,1.1,.24);coeur_(c,1.4,.26);
+      accordSombre_(c,[55,82.4,110,116.5,164.8],.3,2.8,.042);
+      accordSombre_(c,[220,233.1,329.6],1.1,2,.022,"square");
+      cloche_(c,130.8,.5,.09,2.4);cloche_(c,138.6,1.4,.09,2.2);
+      tonal_(c,{type:"sawtooth",from:1200,to:60,duration:1.1,volume:.05,delay:1.6});
+      bruit_(c,{duration:.9,volume:.14,delay:2,filterType:"lowpass",frequency:260,decay:1.2});
+      tonal_(c,{type:"sine",from:84,to:26,duration:1.3,volume:.24,delay:2});}},
+    /* Le rituel complet : le glas, un chœur de damnés, la terre qui s'ouvre, un cri qui s'effondre, un dernier coup de cathédrale. */
+    leeches:{duree:4750,construire:function(c){
+      coeur_(c,0,.2);coeur_(c,.36,.22);coeur_(c,.7,.25);coeur_(c,1,.28);coeur_(c,1.26,.3);coeur_(c,1.5,.32);
+      accordSombre_(c,[41.2,55,82.4,116.5,164.8,233.1],.1,3.6,.05);
+      accordSombre_(c,[329.6,349.2,493.9,523.3],1,2.8,.026,"square");
+      for(var i=0;i<4;i+=1){cloche_(c,110+i*6.9,.25+i*.55,.1,2.8);}
+      [0,.25,.5,.75,1,1.25].forEach(function(d,i){bruit_(c,{duration:.4,volume:.05+i*.012,delay:.15+d,filterType:"bandpass",frequency:300+i*260,q:6,decay:1.5});});
+      tonal_(c,{type:"sawtooth",from:180,to:1900,duration:1.8,volume:.04,delay:.8});
+      tonal_(c,{type:"square",from:240,to:2300,duration:1.8,volume:.022,delay:.8});
+      bruit_(c,{duration:1.8,volume:.07,delay:.8,filterType:"highpass",frequency:2200,decay:.8});
+      tonal_(c,{type:"sawtooth",from:2100,to:70,duration:1.5,volume:.065,delay:2.6});
+      tonal_(c,{type:"sawtooth",from:2300,to:78,duration:1.5,volume:.04,delay:2.65});
+      bruit_(c,{duration:.5,volume:.2,delay:2.6,filterType:"lowpass",frequency:900,decay:1.1});
+      tonal_(c,{type:"sine",from:78,to:22,duration:1.8,volume:.3,delay:2.6});
+      cloche_(c,98,3,.14,1.5);cloche_(c,73.4,3.05,.12,1.5);
+      bruit_(c,{duration:.7,volume:.24,delay:3,filterType:"lowpass",frequency:320,decay:1.3});}}
+  };
+
   function claquesDe_(c,hz,delais,volume,duree){
     delais.forEach(function(d){bruit_(c,{duration:duree||.03,volume:volume,delay:d,filterType:"bandpass",frequency:hz,q:1.2,decay:3});});
   }
@@ -1625,6 +1694,11 @@
     JOUEURS["menu_"+id]=function(){return jouerWebAudio_(SONS_MENU_V1[id].duree,SONS_MENU_V1[id].construire);};
   });
   JOUEURS.shopSteps=pasBoutique_;
+  /* Un rituel par sort de Blood : même groupe, le plus récent remplace celui qui attend ; maxAge long (un rituel ne se perd pas). */
+  Object.keys(SONS_SORT_BLOOD_V1).forEach(function(id){
+    DEFINITIONS["sortBlood_"+id]={group:"blood-spell",priority:62,maxAgeMs:900};
+    JOUEURS["sortBlood_"+id]=function(){return jouerWebAudio_(SONS_SORT_BLOOD_V1[id].duree,SONS_SORT_BLOOD_V1[id].construire);};
+  });
 
   function demander_(name){
     name=String(name||"");
@@ -1690,6 +1764,7 @@
       setComplete:{duree:1080,construire:setCompletConstruire_},
       shopDoor:{duree:1700,construire:porteMagasinConstruire_},
       shopSteps:{duree:900,construire:pasBoutiqueConstruire_},
+      sortsBlood:Object.keys(SONS_SORT_BLOOD_V1).map(function(id){return{nom:id,duree:SONS_SORT_BLOOD_V1[id].duree,construire:SONS_SORT_BLOOD_V1[id].construire};}),
       menus:Object.keys(SONS_MENU_V1).map(function(id){return{nom:id,duree:SONS_MENU_V1[id].duree,construire:SONS_MENU_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_}
@@ -1721,6 +1796,7 @@
     shopDoor:function(){return demander_("shopDoor");},
     shopSteps:function(){return demander_("shopSteps");},
     menu:function(id){return demander_("menu_"+id);},
+    sortBlood:function(id){return demander_("sortBlood_"+id);},
     achievement:function(){return demander_("achievement");},
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
