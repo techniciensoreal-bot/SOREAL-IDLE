@@ -23,6 +23,8 @@ function lancer(etat) {
     ADVENTURE_CORE_SLOTS_V138: ["head", "chest", "legs", "boots", "weapon"],
     aventureMetaIdleV47_: e => e.aventure,
     nettoyerEtatDragAdventureIdleV138_: () => appels.push(["nettoyer"]),
+    deblocageParObjetIdleV1_: () => null,
+    utiliserObjetDeblocageIdleV1_: (i) => appels.push(["utiliser-deblocage", i]),
     appliquerActionSlotAdventureIdleV138_: (a, b) => appels.push(["fusion-ou-slot", a, b]),
     equiperParIdAdventureIdleV138_: a => appels.push(["equiper", a]),
     String, Array
@@ -94,4 +96,12 @@ function chargerLongPress() {
   assert.equal(evenements.filter(e => e.type === "soreal-longpress").length, 1, "contextmenu tactile : reste un signal de maintien long");
 }
 
+// Objet de déblocage dont le système est verrouillé : le clic droit l'utilise au lieu de l'équiper (2026-10-04).
+{
+  const appels = [];
+  const contexte = { idleEtat: {}, ADVENTURE_CORE_SLOTS_V138: ["head"], aventureMetaIdleV47_: () => ({ inventory: [{ id: "n", definitionId: "aNumber", kind: "special" }], equipment: { accessories: [] } }), nettoyerEtatDragAdventureIdleV138_: () => {}, deblocageParObjetIdleV1_: () => ({ flag: "ngu" }), utiliserObjetDeblocageIdleV1_: (i) => appels.push(["utiliser-deblocage", i]), appliquerActionSlotAdventureIdleV138_: () => appels.push(["fusion"]), equiperParIdAdventureIdleV138_: () => appels.push(["equiper"]), String, Array };
+  const fn = vm.runInNewContext("(function(){" + source + "; return actionRapideObjetAdventureIdleV209_;})()", contexte);
+  assert.equal(fn("n"), true);
+  assert.deepEqual(appels, [["utiliser-deblocage", "n"]], "le clic droit utilise l'objet de déblocage (jamais équiper / fusionner)");
+}
 console.log("idle-inventory-quick-action-v209: OK");

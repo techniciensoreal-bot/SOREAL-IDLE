@@ -18715,12 +18715,31 @@ let idleDialogueTimerV76=null;
         wandoos98:{nom:'Wandoos 98',systeme:'Wandoos'}
       };
 
+      /* Objet réel du sac -> clé d'objet de déblocage -> drapeau du système (mêmes correspondances que le serveur : idle-adventure-v47.js, UNLOCK_PAR_OBJET_V1 et unlockMap). */
+      const IDLE_UNLOCK_PAR_OBJET_V1={aNumber:{cle:'aNumber',flag:'ngu',systeme:'NGU'},giantSeed:{cle:'giantSeed',flag:'yggdrasil',systeme:'Yggdrasil'},'scrap:paper':{cle:'scrapPaper',flag:'diggers',systeme:'Gold Diggers'},uugHair:{cle:'uugHair',flag:'beards',systeme:'Beards'},pissedOffKey:{cle:'pissedOffKey',flag:'tower',systeme:'ITOPOD'},wandoos98:{cle:'wandoos98',flag:'wandoos',systeme:'Wandoos'}};
+      /* L'objet du sac sert-il à débloquer son système (système encore verrouillé) ? Renvoie la fiche de déblocage, sinon null. */
+      function deblocageParObjetIdleV1_(a,item){
+        const d=item&&IDLE_UNLOCK_PAR_OBJET_V1[item.definitionId];
+        if(!d)return null;
+        const flags=a&&a.unlockFlags&&typeof a.unlockFlags==='object'?a.unlockFlags:{};
+        return flags[d.flag]?null:d;
+      }
+      /*
+       * Menu « Objets de déblocage » (Norman, 2026-10-04 : « dans le jeu de base c'est en utilisant un objet ») : on utilise désormais l'objet du sac (bouton « Utiliser » de sa fiche, ou clic droit). Le menu ne reste
+       * que comme secours pour un déblocage dont l'objet réel n'est plus dans le sac (anciens joueurs).
+       */
       function objetsDeblocageDisponiblesAdventureIdleV1_(a){
         const items=a&&a.unlockItems&&typeof a.unlockItems==='object'?a.unlockItems:{};
+        const sac=a&&Array.isArray(a.inventory)?a.inventory:[];
         return Object.keys(IDLE_ADVENTURE_UNLOCK_ITEMS_V1).filter(function(id){
-          return Boolean(items[id]);
+          if(!items[id])return false;
+          return !sac.some(function(o){const d=o&&IDLE_UNLOCK_PAR_OBJET_V1[o.definitionId];return d&&d.cle===id;});
         });
       }
+      function utiliserObjetDeblocageIdleV1_(id){
+        actionAdventureIdleV47_({action:'useUnlockItem',itemId:String(id||'')});
+      }
+      window.__utiliserObjetDeblocageIdleV1__=utiliserObjetDeblocageIdleV1_;
 
       function consommerDeblocageAdventureIdleV47_(id){
         actionAdventureIdleV47_({action:'consumeUnlock',item:String(id||'')});
@@ -19714,6 +19733,13 @@ function pageAventureIdleV28_(j){
         const item=items.find(function(x){return String(x&&x.id)===objet;});
         if(!item||item.kind==='boost')return false;
 
+        /* Objet de déblocage dont le système est encore verrouillé : le clic droit l'utilise (comme CTRL + clic dans le jeu d'origine). */
+        if(deblocageParObjetIdleV1_(a,item)){
+          nettoyerEtatDragAdventureIdleV138_();
+          utiliserObjetDeblocageIdleV1_(objet);
+          return true;
+        }
+
         const equipement=a.equipment||{};
         const idsEquipes=ADVENTURE_CORE_SLOTS_V138
           .map(function(slot){return String(equipement[slot]||'');})
@@ -20629,11 +20655,16 @@ function pageAventureIdleV28_(j){
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__transformerObjetAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🧪 Transformer</button>'
           :'';
         /* Copies de Wandoos 98/XL : +1 niveau d'OS (ou déblocage de Wandoos XL), action méta consumeWandoosCopy. */
-        const boutonInstallerOs=(item.definitionId==='wandoos98'||item.definitionId==='wandoosXl')
+        /* Objet de déblocage (A Number, Giant Seed, Scrap of Paper, UUG's Armpit Hair, Pissed Off Key, copie de Wandoos 98) : « Utiliser » le consomme et débloque son système pour toujours. */
+        const deblocageObjet=deblocageParObjetIdleV1_(a,item);
+        const boutonDebloquer=deblocageObjet
+          ?'<button type="button" class="soreal-idle-expand-button-v25" title="Utilise l’objet : il disparaît du sac et débloque '+idleHtml_(deblocageObjet.systeme)+' pour toujours" onclick="window.__utiliserObjetDeblocageIdleV1__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🔓 Utiliser</button>'
+          :'';
+        const boutonInstallerOs=((item.definitionId==='wandoos98'&&!deblocageObjet)||item.definitionId==='wandoosXl')
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeWandoosCopy\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">💾 Installer l’OS</button>'
           :'';
         /* A Giant Seed réutilisée (Yggdrasil débloqué) : max(1, ⌊L + L²/100⌋) graines, action méta consumeGiantSeed. */
-        const boutonSemerGraine=(item.definitionId==='giantSeed'&&!item.locked)
+        const boutonSemerGraine=(item.definitionId==='giantSeed'&&!item.locked&&!deblocageObjet)
           ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
           :'';
         const estVerrouille=Boolean(item.locked);
@@ -20653,6 +20684,7 @@ function pageAventureIdleV28_(j){
           '<div class="soreal-idle-item-popup-actions-v165">'+
             (boutonEquiper||boutonDesequiper)+
             boutonVerrouiller+
+            boutonDebloquer+
             boutonConsommer+
             boutonTransformer+
             boutonInstallerOs+
