@@ -295,11 +295,21 @@ function texteDepuisLignes_(lignes){
 }
 function normaliser_(t){return String(t==null?'':t).replace(/\([^()]*\)/g,' ').replace(/\s+/g,' ').trim().toLowerCase();}
 /* Chaque bloc de voix du texte lu appartient à un cadre : le premier cadre (à partir du précédent) qui contient le début du bloc ; un bloc sans correspondance (le nom lu en tête d'une chronique…) suit le cadre précédent, ou le premier. */
+/* Bloc de voix du titre : le premier bloc, s'il est exactement le titre (le nom lu avant la pause), est retiré des cadres. */
+function blocsDuTitre_(valeurs,blocs){
+  var def=edition&&edition.def;
+  if(!def||!def.titre||!blocs.length)return {titre:[],autres:blocs};
+  var nom=normaliser_(valeurs[def.titre]);
+  if(nom&&normaliser_(blocs[0].texte)===nom)return {titre:[blocs[0]],autres:blocs.slice(1)};
+  return {titre:[],autres:blocs};
+}
 function blocsParCadre_(valeurs){
-  var blocs=blocsDeLecture_(valeurs);
+  var tous=blocsDeLecture_(valeurs);
+  var separes=blocsDuTitre_(valeurs,tous);
+  var blocs=separes.autres;
   var cadres=[];
   Object.keys(edition.lignes||{}).forEach(function(c){(edition.lignes[c]||[]).forEach(function(l,k){cadres.push({champ:c,k:k,texte:normaliser_(l.texte),blocs:[]});});});
-  if(!cadres.length)return {cadres:[],blocs:blocs};
+  if(!cadres.length)return {cadres:[],blocs:blocs,titre:separes.titre};
   var curseur=0;
   blocs.forEach(function(b){
     var debut=normaliser_(b.texte).slice(0,30);
@@ -308,10 +318,11 @@ function blocsParCadre_(valeurs){
     if(trouve>=0)curseur=trouve;
     cadres[trouve>=0?trouve:curseur].blocs.push(b);
   });
-  return {cadres:cadres,blocs:blocs};
+  return {cadres:cadres,blocs:blocs,titre:separes.titre};
 }
 function blocsDuCadre_(champ,k,valeurs){
   var r=blocsParCadre_(valeurs||lireChamps_());
+  if(champ==='__titre')return r.titre||[];
   for(var i=0;i<r.cadres.length;i+=1){if(r.cadres[i].champ===champ&&r.cadres[i].k===k)return r.cadres[i].blocs;}
   return [];
 }
@@ -334,6 +345,21 @@ function cadreHtml_(champ,k,l,blocs){
     '</div>'+
     '<textarea rows="3" data-stx-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
     '<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichiers de voix de cette ligne (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(blocs,voix):'')+'</div>'+
+  '</div>';
+}
+/* Cadre du titre : écouter, générer (ou régénérer) et fichiers de voix du nom lu en tête de la chronique. */
+function titreCadreHtml_(blocs){
+  var o=outilsVoix_();
+  var voix=edition.voix||[];
+  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
+  var badge=!blocs.length?'':(prets>=blocs.length?'<span class="stx-badge ok">🎙 prête</span>':'<span class="stx-badge">🎙 '+prets+'/'+blocs.length+'</span>');
+  return '<div class="stx-cadre stx-cadre-titre" data-stx-cadre="__titre|0">'+
+    '<div class="stx-cadre-tete"><b>Voix du titre</b>'+badge+
+      '<span style="flex:1"></span>'+
+      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="__titre" data-k="0" title="Écouter uniquement le titre">▶ Écouter le titre</button>'+
+      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="__titre" data-k="0" title="Générer (ou régénérer) la voix du titre seulement, autant de fois que tu veux">🎙 Générer le titre</button>'+
+    '</div>'+
+    '<div class="stx-cadre-fichiers" data-stx-fv="__titre|0">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichier de voix du titre (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(blocs,voix):'')+'</div>'+
   '</div>';
 }
 function cadresChampHtml_(champ){
@@ -540,7 +566,8 @@ function dessinerEditeur_(){
     var champ=c.type==='ligne'
       ?'<input type="text" data-stx-champ="'+esc_(c.id)+'" value="'+esc_(valeur)+'">'
       :'<textarea rows="'+rows+'" data-stx-champ="'+esc_(c.id)+'">'+esc_(valeur)+'</textarea>';
-    return '<label>'+esc_(c.label)+'</label>'+champ+aide;
+    var cadreTitre=d.titre===c.id?'<div class="stx-titre-bloc" data-stx-titre-bloc="1">'+titreCadreHtml_(blocsParCadre_(edition.valeurs).titre||[])+'</div>':'';
+    return '<label>'+esc_(c.label)+'</label>'+champ+aide+cadreTitre;
   }).join('');
   var racine=document.createElement('div');
   racine.id=EDITEUR_ID;
@@ -594,6 +621,9 @@ function rafraichirFichiersVoix_(){
     var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-fv="'+c.champ+'|'+c.k+'"]');
     if(el)el.innerHTML=o&&c.blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichiers de voix de cette ligne (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(c.blocs,edition.voix):'';
   });
+  /* Cadre du titre : fichier et badge. */
+  var cadreT=document.querySelector('#'+EDITEUR_ID+' [data-stx-titre-bloc]');
+  if(cadreT&&edition.def.titre)cadreT.innerHTML=titreCadreHtml_(r.titre||[]);
   /* Badges « prête » des cadres. */
   r.cadres.forEach(function(c){
     var cadre=document.querySelector('#'+EDITEUR_ID+' [data-stx-cadre="'+c.champ+'|'+c.k+'"] .stx-cadre-tete');
@@ -677,7 +707,7 @@ function ecouterCadre_(champ,k){
   if(ecouteCle===cle){arreterEcoute_();return;}
   arreterEcoute_();
   lireChamps_();
-  var l=edition.lignes[champ]&&edition.lignes[champ][k];
+  var l=champ==='__titre'?{texte:lireChamps_()[edition.def.titre]}:(edition.lignes[champ]&&edition.lignes[champ][k]);
   var texte=String(l&&l.texte||'').replace(/\s+/g,' ').trim();
   if(!texte){afficherEtat_('Ce cadre est vide : rien à écouter.',true);return;}
   enregistrerVoix_(edition.voix);
@@ -788,8 +818,8 @@ function genererCadre_(champ,k){
   var valeurs=lireChamps_();
   edition.valeurs=valeurs;
   var blocs=blocsDuCadre_(champ,k,valeurs);
-  if(!blocs.length){afficherEtat_('Ce cadre est vide : rien à générer.',true);return;}
-  lancerGeneration_(o,blocs,'Ligne '+(k+1));
+  if(!blocs.length){afficherEtat_(champ==='__titre'?'Le titre est vide : rien à générer.':'Ce cadre est vide : rien à générer.',true);return;}
+  lancerGeneration_(o,blocs,champ==='__titre'?'Titre':'Ligne '+(k+1));
 }
 
 function lancerGeneration_(o,aFaire,libelle){
@@ -854,6 +884,8 @@ function defBoss_(numero,nom){
     groupe:'Boss',libelle:'Chronique — '+nom+' (boss '+numero+')',
     /* Le NOM est modifiable (Norman, 2026-10-03) : il est affiché partout ET lu par la voix en tête de la chronique. */
     champs:[{id:'nom',label:'Nom du boss (affiché et prononcé)',type:'ligne'},{id:'texte',label:'Texte de la chronique',type:'texte'}],
+    /* Le nom est lu en tête de la chronique (un bloc de voix à lui, avant la pause) : il se génère à part, comme un cadre. */
+    titre:'nom',
     original:function(){var b=bossParNumero_(numero);return {nom:b?(b.nomOriginal||b.nom):nom,texte:b?b.original:''};},
     texteLu:function(v){
       var t=tts_();

@@ -52,7 +52,7 @@ assert.equal(T.texteDepuisLignes_(T.lignesDepuisTexte_(original)), "(marius) Sal
 }
 
 // Câblage : une génération par cadre, écoute d'un cadre, ajout / suppression, fichiers par cadre, réduction, son de fin.
-assert.ok(src.includes("function genererCadre_(champ,k){") && src.includes("lancerGeneration_(o,blocs,'Ligne '+(k+1));"), "génération d'un seul cadre");
+assert.ok(src.includes("function genererCadre_(champ,k){") && src.includes("lancerGeneration_(o,blocs,champ==='__titre'?'Titre':'Ligne '+(k+1));"), "génération d'un seul cadre");
 assert.ok(src.includes("function ecouterCadre_(champ,k){"));
 assert.ok(src.includes("title=\"Retirer ce personnage (ce cadre)\">−</button>") && src.includes("＋ Ajouter un personnage</button>"), "boutons + et −");
 assert.ok(src.includes('data-stx-l="generer"') && src.includes('data-stx-l="ecouter"') && src.includes('data-stx-l="suppr"') && src.includes('data-stx-act="cadre+"'), "boutons de cadre : écouter, générer, supprimer, ajouter un personnage");
@@ -62,3 +62,22 @@ assert.ok(src.includes("act==='reduire'") && src.includes("act==='agrandir'") &&
 assert.ok(src.includes("son.play('voiceDone')"), "son à la fin de la génération");
 assert.ok(src.includes("function lancerGeneration_(o,aFaire,libelle){") && src.includes("lancerGeneration_(o,aFaire,'');"), "le bouton global et un cadre partagent la même génération");
 console.log("idle-textes-cadres-personnages-v1: OK");
+
+// Titre du boss (Norman, 2026-10-04 : « je dois aussi pouvoir régénérer le titre des boss ») : le nom lu en tête de la chronique est un bloc de voix à lui, qui a son propre cadre.
+{
+  const a = src.indexOf("function blocsDuTitre_(valeurs,blocs){");
+  const b = src.indexOf("function blocsParCadre_(valeurs){");
+  assert.ok(a > 0 && b > a);
+  const norm = (t) => String(t == null ? "" : t).replace(/\([^()]*\)/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+  const fabrique = (titre) => new Function("edition", "normaliser_", src.slice(a, b) + "\nreturn blocsDuTitre_;")({ def: { titre } }, norm);
+  const blocs = [{ texte: "Gros Boss", hash: "h0" }, { texte: "Il était une fois.", hash: "h1" }];
+  const r = fabrique("nom")({ nom: "Gros  Boss" }, blocs);
+  assert.deepEqual(r.titre.map((x) => x.hash), ["h0"], "le premier bloc est le titre");
+  assert.deepEqual(r.autres.map((x) => x.hash), ["h1"], "les cadres ne reçoivent plus le titre");
+  const non = fabrique("nom")({ nom: "Autre nom" }, blocs);
+  assert.deepEqual(non.titre, [], "le titre modifié n'a pas encore de bloc généré qui lui corresponde : rien n'est retiré");
+  assert.deepEqual(fabrique("")({ nom: "Gros Boss" }, blocs).titre, [], "un texte sans titre ne change pas");
+  assert.ok(src.includes("titre:'nom',") && src.includes("data-c=\"__titre\"") && src.includes("🎙 Générer le titre") && src.includes("▶ Écouter le titre"), "cadre du titre : écouter et générer");
+  assert.ok(src.includes("lancerGeneration_(o,blocs,champ==='__titre'?'Titre':'Ligne '+(k+1));") && src.includes("if(champ==='__titre')return r.titre||[];"), "génération du titre seul");
+  assert.ok(src.includes("cadreT.innerHTML=titreCadreHtml_(r.titre||[]);"), "fichier et badge du titre rafraîchis");
+}
