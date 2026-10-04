@@ -1655,3 +1655,6 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[dat
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"]{position:relative}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{content:"✦";position:absolute;right:10px;top:4px;font-size:11px;color:#fde68a;text-shadow:0 0 6px #c084fc;pointer-events:none;animation:sorealBoutiqueMagieV1 2.4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{animation:none;opacity:.8}}
+
+/* Boutique AP : image de l'article (PNG 46x46 de la page wiki, gardés nets). */
+.soreal-idle-shop-img-v1{width:46px;height:46px;image-rendering:pixelated;vertical-align:middle;margin-right:8px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}

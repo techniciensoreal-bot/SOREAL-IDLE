@@ -21670,6 +21670,16 @@ function pageAventureIdleV28_(j){
         if(idleEtat)rendreIdleEtat_({ok:true,joueur:idleEtat});
       };
 
+      /*
+       * Images de la Boutique AP (Norman, 2026-10-04 : « les mêmes images que sur la page 4G's Sellout Shop »). Les 71 PNG (46x46) de la page wiki https://ngu-idle.fandom.com/wiki/4G%27s_Sellout_Shop sont dans
+       * public/shop/ ; l'association article -> image est celle de la page (certains articles partagent la même : engrais, pilules, boutons %, emplacements d'accessoire).
+       */
+      const IDLE_SHOP_IMAGES_V1={"energyPotionAlpha":"energy-potion-alpha","energyPotionBeta":"energy-potion-beta","energyPotionDelta":"energy-potion-delta","magicPotionAlpha":"magic-potion-alpha","magicPotionBeta":"magic-potion-beta","magicPotionDelta":"magic-potion-delta","resource3PotionAlpha":"resource-3-potion-alpha","resource3PotionBeta":"resource-3-potion-beta","resource3PotionDelta":"resource-3-potion-delta","energyBarBar":"energy-bar-bar","magicBarBar":"magic-bar-bar","macguffinMuffin":"macguffin-muffin","icarusFertilizer1":"fertilizer","icarusFertilizer10":"fertilizer","icarusFertilizer100":"fertilizer","littleBluePill1000":"little-blue-pill","littleBluePill10000":"little-blue-pill","littleBluePill100000":"little-blue-pill","beastButter1":"beast-butter","beastButter10":"beast-butter","beastButter100":"beast-butter","luckyCharm":"lucky-charm","superLuckyCharm":"super-lucky-charm","mayoInfuser":"mayo-infuser","regularBlackPens":"regular-black-pens","improvedLootFilter":"improved-loot-filter","extraInventorySpace":"extra-inventory-space","autoMergeBoostTimers":"merge-and-boost-timers","instaTrainingCap":"insta-training-cap","customEnergyMagicButtons":"percent-button","moreCustomEnergyMagicButtons":"percent-button-2","yggdrasilHarvestLight":"yggdrasil-harvest-light","dailySpinTimeBank":"daily-spin-bank","loadoutSlot":"loadout-slot","extraBeardSlot":"extra-beard-slot","filterBoostsIntoCube":"infinity-cube-filter","lazyItopodFloorShifter":"lazy-itopod-floor-shifter","extraAccessorySlot1":"extra-accessory-slot","daycareSpeedBoost":"daycare-speed-bonus","extraAccessorySlot2":"extra-accessory-slot-2","diggerSlots":"digger-slot","macguffinSlot":"macguffin-slot","questReminder":"quest-reminder","fasterQuesting":"faster-questing","extendedQuestBank":"extended-quest-bank","extraAccessorySlot3":"extra-accessory-slot","customIdleEnergyMagicButtons":"percent-button","autoNuker":"auto-nuker","extraAccessorySlot4":"extra-accessory-slot-2","nguCapModifier":"ngu-cap-modifier","daycareKittyArt":"daycare-kitty-art","customResource3Button":"percent-button","anotherCustomResource3Button":"percent-button-2","customIdleResource3Button":"percent-button-3","resource3NameRandomizer":"resource-3-name-randomizer","fasterWishes":"faster-wishes","inventoryMergeSlots":"inventory-merge-slots","adventureLight":"adventure-light","adventureAdvancer":"adventure-advancer","goToQuestZoneButton":"go-to-quest-zone","extraAccessorySlotEvil":"extra-accessory-slot-2","extraDeckSize":"extra-deck-size","mayoGenerator":"mayo-generator","extraTagSlot":"extra-tag-slot","extraAccessorySlot5":"extra-accessory-slot-2","heartRed":"119-my-red-heart","heartYellow":"129-my-yellow-heart","heartBrown":"162-my-brown-heart","heartGreen":"171-my-green-heart","heartBlue":"196-my-blue-heart","heartPurple":"212-my-purple-heart","heartOrange":"293-my-orange-heart","heartGrey":"297-my-grey-heart","heartPink":"344-my-pink-heart","heartRainbow":"390-my-rainbow-heart","exp200":"200-exp","exp500":"500-exp","exp2000":"2000-exp","pp25":"25-pp","pp100":"100-pp","pp500":"500-pp"};
+      function imageArticleShopIdleV1_(id){
+        const nom=IDLE_SHOP_IMAGES_V1[String(id||'')];
+        return nom?'<img class="soreal-idle-shop-img-v1" src="/shop/'+nom+'.png" alt="" width="46" height="46" loading="lazy" onerror="this.remove()">':'';
+      }
+
       function pageSelloutShopIdleV1_(j){
         const systemes=(j&&j.systemes)||{};
         const shop=systemes.selloutShop||{catalog:[],purchases:{}};
@@ -21696,7 +21706,7 @@ function pageAventureIdleV28_(j){
           const texte=traductionSelloutIdleV210_(item);
           const compteur=item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'';
           return '<div class="soreal-idle-exp-stat-v210">'+
-            '<div class="soreal-idle-exp-stat-head-v210"><span>'+idleHtml_(texte.name)+compteur+'</span></div>'+
+            '<div class="soreal-idle-exp-stat-head-v210"><span>'+imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)+compteur+'</span></div>'+
             '<div class="soreal-idle-exp-help-v210">'+idleHtml_(texte.effect)+'</div>'+
             (auMax
                 ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
