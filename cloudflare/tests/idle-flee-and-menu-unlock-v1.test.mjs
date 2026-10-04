@@ -22,7 +22,7 @@ assert.ok(!corps("menuDebloque_").includes("[392,.18,.052,0]"), "pas la fanfare 
 assert.ok(ui.includes("void cle;") && /classeFonduImageIdleV61_\(\s*type,\s*url\s*\)/.test(ui));
 assert.ok(ui.includes("dejaAffichee.getAttribute('src')===urlAttendue"));
 assert.ok(ui.includes('onclick="window.__fuirBossIdleV1__()"'));
-assert.ok(ui.includes("if(enCombat)jouerEffetAudioIdleV199_('flee');"));
+assert.ok(ui.includes("if(enCombat){") && ui.includes("jouerEffetAudioIdleV199_('flee');"), "le son de fuite ne joue que sil y a un combat à fuir (les rires sy ajoutent depuis 2026-10-04)");
 assert.ok(ui.includes(`decoding="'+(fade?'async':'sync')+'"`), "pas d'image vide d'une image sur l'autre quand l'image ne change pas");
 
 // 3. Annonce d'un menu débloqué
@@ -32,5 +32,5 @@ assert.ok(annonce.includes("jouerEffetAudioIdleV199_('menuUnlock')") && annonce.
 assert.ok(ui.includes("annoncerNouveauxMenusIdleV1_(j);"), "appelée à chaque rendu");
 const fade = readFileSync("cloudflare/public/modules/fade-notice-v1.js", "utf8");
 assert.ok(fade.includes("pointer-events:none"), "jamais cliquable");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/audio-effects-v199.js?v=233"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/audio-effects-v199.js?v=234"));
 console.log("idle-flee-and-menu-unlock-v1: OK");

@@ -670,7 +670,7 @@
        */
       const IDLE_EXP_ONGLETS_V1=[
         {id:'debuts',icone:'🚀',nom:'Débuts'},
-        {id:'toc',icone:'🧰',nom:'J’ai des TOC, mais au moins ils sont bien rangés.'},
+        {id:'toc',icone:'🧰',nom:'Toc'},
         {id:'energy',icone:'⚡',nom:'Énergie'},
         {id:'magic',icone:'✨',nom:'Magie'},
         {id:'r3',icone:'🧪',nom:'Ressource 3'},
@@ -827,7 +827,7 @@
         }
         if(onglet==='toc'){
           const cartes=IDLE_EXP_TOC_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
-          return '<div class="soreal-idle-exp-intro-v212">🧰 <b>Petits outils.</b> Des achats de confort, très peu chers.</div>'+cartes;
+          return '<div class="soreal-idle-exp-intro-v212">🧰 <b>J’ai des TOC, mais au moins ils sont bien rangés.</b></div>'+cartes;
         }
         if(onglet==='energy'||onglet==='magic'||onglet==='r3'){
           /* Un onglet de ressource verrouillé n'est jamais proposé (voir idleExpOngletsVisiblesIdleV1_) : aucun message « verrouillé ». */

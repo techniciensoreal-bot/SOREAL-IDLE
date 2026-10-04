@@ -67,7 +67,7 @@ const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
 // 4. Boutique : rayon Toc (Trier l'inventaire + Synchro), plus dans Débuts.
 {
-  assert.ok(meta.includes("{id:'toc',icone:'🧰',nom:'J’ai des TOC, mais au moins ils sont bien rangés.'}"));
+  assert.ok(meta.includes("{id:'toc',icone:'🧰',nom:'Toc'}"));
   assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];"));
   const debuts = meta.match(/const IDLE_EXP_DEBUTS_V1=\[[^\]]*\]/)[0];
   assert.ok(!debuts.includes("sortInventory"), "Trier l'inventaire a quitté Débuts");

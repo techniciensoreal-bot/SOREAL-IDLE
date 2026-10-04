@@ -2986,6 +2986,7 @@
                 idleEtat.combatBossActif=
                   false;
                 jouerEffetAudioIdleV199_('victory');
+                if(premiereVictoireBossIdleV1_())jouerEffetAudioIdleV199_('applause');
 
                 const gainXpLocal=
                   idleNombre_(
@@ -14640,6 +14641,19 @@
       let idleCombatEnPauseApresDefaiteV1=false;
 
 
+      /*
+       * Applaudissements à la PREMIÈRE victoire sur un boss (Norman, 2026-10-04) : le boss combattu est au-delà du record permanent (records.highestBoss, mis à jour par le serveur après la victoire) et n'a pas
+       * déjà été applaudi dans cette page (le serveur peut tarder à confirmer : un même boss ne déclenche jamais deux fois la salle).
+       */
+      const idleBossApplaudisV1={};
+      function premiereVictoireBossIdleV1_(){
+        const n=idleEntier_(idleEtat&&idleEtat.bossSelection);
+        const record=idleEntier_(idleEtat&&idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.highestBoss);
+        if(!(n>0)||n<=record||idleBossApplaudisV1[n])return false;
+        idleBossApplaudisV1[n]=true;
+        return true;
+      }
+
       function jouerEffetAudioIdleV199_(nom){
         const audio=window.__SOREAL_IDLE_AUDIO_V199__;
         if(!audio)return false;
@@ -14803,7 +14817,11 @@
       window.__fuirBossIdleV1__=function(){
         const enCombat=Boolean(idleEtat&&idleEtat.combatBossActif);
         definirCombatBossIdleV39_(false);
-        if(enCombat)jouerEffetAudioIdleV199_('flee');
+        if(enCombat){
+          jouerEffetAudioIdleV199_('flee');
+          /* Les rires de la salle se jouent EN PLUS du son de fuite (Norman, 2026-10-04). */
+          jouerEffetAudioIdleV199_('laugh');
+        }
       };
 
 

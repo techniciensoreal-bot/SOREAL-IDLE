@@ -1755,8 +1755,110 @@
     JOUEURS["sortBlood_"+id]=function(){return jouerWebAudio_(SONS_SORT_BLOOD_V1[id].duree,SONS_SORT_BLOOD_V1[id].construire);};
   });
 
+  /*
+   * Sons de foule (Norman, 2026-10-04 : « un son de gens qui applaudissent quand on bat un boss pour la première fois, environ 3 secondes ; un bruit de gens qui rigolent quand on fuit, en plus du son de base »).
+   * Aucun fichier : tout est synthétisé. Ils se jouent EN PLUS du son de victoire ou de fuite, donc hors file d'attente (jamais l'un à la place de l'autre).
+   * - Applaudissements : des centaines de claquements (bruit très bref, filtré) dont la densité monte vite, tient, puis s'éteint ; durée 3,1 s.
+   * - Rires : huit voix qui lancent des « ha » en rafale (dents de scie passées dans trois formants de la voyelle A), hauteurs et départs différents, qui ralentissent et s'éteignent ; durée 2,5 s.
+   */
+  function applaudissementsConstruire_(c){
+    var duree=3.1;
+    var sr=c.sampleRate;
+    var n=Math.floor(sr*duree);
+    var buffer=c.createBuffer(1,n,sr);
+    var data=buffer.getChannelData(0);
+    /* Claquements par seconde : monte en 0,35 s, plein jusqu'à 2,2 s, puis s'éteint. */
+    function densite(t){return 280*(t<.35?t/.35:(t<2.2?1:Math.max(0,1-(t-2.2)/.9)));}
+    var t=0;
+    while(t<duree){
+      var d=densite(t);
+      if(d<10){t+=.01;continue;}
+      t+=-Math.log(1-Math.random())/d;
+      var debut=Math.floor(t*sr);
+      var longueur=Math.floor(sr*(.008+Math.random()*.02));
+      var force=.25+Math.random()*.75;
+      var raideur=3+Math.random()*3;
+      for(var k=0;k<longueur&&debut+k<n;k+=1){
+        data[debut+k]+=(Math.random()*2-1)*force*Math.exp(-raideur*k/longueur);
+      }
+    }
+    /* Murmure continu de la salle sous les claquements. */
+    for(var i=0;i<n;i+=1){
+      var u=i/n;
+      var enveloppe=u<.1?u/.1:(u<.7?1:Math.max(0,1-(u-.7)/.3));
+      data[i]+=(Math.random()*2-1)*.05*enveloppe;
+    }
+    var pic=0;
+    for(var j=0;j<n;j+=1)pic=Math.max(pic,Math.abs(data[j]));
+    if(pic>0)for(var q=0;q<n;q+=1)data[q]/=pic;
+    var src=c.createBufferSource();
+    src.buffer=buffer;
+    var filtre=c.createBiquadFilter();
+    filtre.type="bandpass";
+    filtre.frequency.setValueAtTime(2300,c.currentTime);
+    filtre.Q.setValueAtTime(.45,c.currentTime);
+    var g=c.createGain();
+    g.gain.setValueAtTime(.34,c.currentTime);
+    g.connect(master||c.destination);
+    src.connect(filtre);
+    filtre.connect(g);
+    src.start(c.currentTime);
+  }
+
+  function rireVoix_(c,f0,debut,amp,nSyl){
+    var t0=c.currentTime+debut;
+    var osc=c.createOscillator();
+    osc.type="sawtooth";
+    var g=c.createGain();
+    g.gain.setValueAtTime(.0001,t0);
+    [[800,1,9],[1250,.55,11],[2700,.22,13]].forEach(function(F){
+      var bp=c.createBiquadFilter();
+      bp.type="bandpass";
+      bp.frequency.setValueAtTime(F[0]*(.94+Math.random()*.12),t0);
+      bp.Q.setValueAtTime(F[2],t0);
+      var fg=c.createGain();
+      fg.gain.setValueAtTime(F[1],t0);
+      osc.connect(bp);
+      bp.connect(fg);
+      fg.connect(g);
+    });
+    g.connect(master||c.destination);
+    var t=t0;
+    var pas=.17+Math.random()*.035;
+    var hauteur=f0*1.3;
+    for(var i=0;i<nSyl;i+=1){
+      var a=amp*Math.pow(.88,i);
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.linearRampToValueAtTime(a,t+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,t+.12);
+      osc.frequency.setValueAtTime(hauteur*(.97+Math.random()*.06),t);
+      osc.frequency.exponentialRampToValueAtTime(hauteur*.8,t+.12);
+      hauteur*=.965;
+      t+=pas*(1+.05*i);
+    }
+    osc.start(t0);
+    osc.stop(t+.2);
+  }
+  function rireConstruire_(c){
+    [[105,0,.5],[122,.05,.55],[140,.1,.5],[165,.02,.45],[190,.08,.5],[215,.16,.45],[245,.12,.4],[270,.21,.38]].forEach(function(v){
+      rireVoix_(c,v[0]*(.97+Math.random()*.06),v[1]+Math.random()*.04,v[2],7+Math.floor(Math.random()*3));
+    });
+    bruit_(c,{duration:2.2,volume:.012,delay:.05,filterType:"bandpass",frequency:1800,q:.6,decay:.9});
+  }
+  var SONS_FOULE_V1={
+    applause:{duree:3100,construire:applaudissementsConstruire_},
+    laugh:{duree:2500,construire:rireConstruire_}
+  };
+  function jouerFoule_(id){
+    var son=SONS_FOULE_V1[id];
+    if(!son)return false;
+    jouerWebAudio_(son.duree,son.construire);
+    return true;
+  }
+
   function demander_(name){
     name=String(name||"");
+    if(SONS_FOULE_V1[name])return jouerFoule_(name);
     var def=DEFINITIONS[name];
     if(!def||typeof JOUEURS[name]!=="function")return false;
 
@@ -1822,6 +1924,7 @@
       shopStepsVariantes:VARIANTES_PAS_V1.map(function(v){return{nom:v.nom,tempo:v.tempo,construire:function(c,nb,tempo,alea){pasVarianteConstruire_(c,v,nb,tempo,alea);}};}),
       sortsBlood:Object.keys(SONS_SORT_BLOOD_V1).map(function(id){return{nom:id,duree:SONS_SORT_BLOOD_V1[id].duree,construire:SONS_SORT_BLOOD_V1[id].construire};}),
       menus:Object.keys(SONS_MENU_V1).map(function(id){return{nom:id,duree:SONS_MENU_V1[id].duree,construire:SONS_MENU_V1[id].construire};}),
+      foule:Object.keys(SONS_FOULE_V1).map(function(id){return{nom:id,duree:SONS_FOULE_V1[id].duree,construire:SONS_FOULE_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_}
     },
@@ -1834,6 +1937,8 @@
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
     flee:function(){return demander_("flee");},
+    applause:function(){return demander_("applause");},
+    laugh:function(){return demander_("laugh");},
     btPlus:function(){return demander_("btPlus");},
     btMinus:function(){return demander_("btMinus");},
     btCap:function(){return demander_("btCap");},

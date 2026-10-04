@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'La salle réagit : des applaudissements d’environ trois secondes quand tu bats un boss pour la première fois, et des rires quand tu prends la fuite, en plus des sons habituels.',
           'Les boutiques ont été remises en ordre : chaque rayon a la couleur de ses boutons, les boutons sont plus petits et ne disent plus que « Acheter », et les prix et les gains sont écrits dans le cadre de chaque article.',
           'Chaque achat de la boutique EXP a maintenant sa vignette, comme ceux de la boutique AP, et le rayon des petits outils a retrouvé son vrai nom.',
           'Les boutons du menu du haut ne s’animent plus de base. Un nouvel achat du rayon Toc de la boutique EXP (40 EXP), « Menus animés », les fait vivre quand un menu est actif.',

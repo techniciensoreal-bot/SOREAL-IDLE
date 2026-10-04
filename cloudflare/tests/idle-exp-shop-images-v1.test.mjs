@@ -12,5 +12,5 @@ assert.match(titre("🛠️ Item Daycare (1er slot)"), />🛠️<\/span><span cl
 assert.match(titre("Achat sans emoji"), />✦<\/span><span class="soreal-idle-exp-titre-v1">Achat sans emoji</, "vignette neutre");
 // Les quatre rendus de carte passent par la vignette.
 assert.equal(meta.split("idleExpTitreAvecImageIdleV1_(").length - 1, 5, "définition + 4 rendus");
-assert.ok(meta.includes(".soreal-idle-exp-img-v1{") && meta.includes("{id:'toc',icone:'🧰',nom:'J’ai des TOC, mais au moins ils sont bien rangés.'}"));
+assert.ok(meta.includes(".soreal-idle-exp-img-v1{") && meta.includes("{id:'toc',icone:'🧰',nom:'Toc'}") && meta.includes("🧰 <b>J’ai des TOC, mais au moins ils sont bien rangés.</b>"));
 console.log("idle-exp-shop-images-v1: OK");
