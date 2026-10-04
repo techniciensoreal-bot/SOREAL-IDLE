@@ -8414,6 +8414,9 @@ function appliquerProgressionEnergieSorealIdle_(
     if (pvJoueur <= 0) {
       pvJoueur=0;
       koSubis += 1;
+      /* « En direct » : compteur de défaites contre un boss (modules/flux-v1.js) ; le combat passe d'actif à inactif une seule fois. */
+      statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
+      statsCombat.fluxBossDernier=bossCombatIndex+1;
       statsCombat.combatBossActif=false;
       combatBossActif=false;
       break;
@@ -8771,6 +8774,8 @@ function appliquerProgressionEnergieSorealIdle_(
        */
       pvJoueur=0;
       koSubis += 1;
+      statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
+      statsCombat.fluxBossDernier=bossCombatIndex+1;
       statsCombat.combatBossActif=false;
       combatBossActif=false;
     }
@@ -12006,6 +12011,13 @@ function definirCombatBossSorealIdle(
         bossIndex + 1,
         bossVaincusCourant
       );
+    }
+
+    /* « En direct » : un combat actif qui s'arrête sur une défaite ou une fuite du joueur (jamais les arrêts techniques comme « garde_client »). */
+    if(!Boolean(actif)&&stats.combatBossActif&&(raisonArret==='defaite'||raisonArret==='fuite')){
+      const compteur=raisonArret==='defaite'?'fluxBossDefaites':'fluxBossFuites';
+      stats[compteur]=Math.max(0,Math.floor(nombreSorealIdle_(stats[compteur],0)))+1;
+      stats.fluxBossDernier=bossSelectionCourante;
     }
 
     stats.combatBossActif =

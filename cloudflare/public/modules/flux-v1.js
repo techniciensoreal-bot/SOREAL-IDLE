@@ -80,6 +80,16 @@
         const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
         return {icone:'👹',texte:nomBoss?nom+verbe(' viens',' vient')+' de vaincre '+nomBoss:nom+verbe(' viens',' vient')+' de vaincre un boss'};
       }
+      /* Fuite / défaite contre un boss (Norman, 2026-10-04) : le nom du boss n'est donné que si le lecteur l'a lui-même atteint (anti-spoil), comme pour la victoire. */
+      case 'fuite':
+      case 'defaite':{
+        const n=Number(d.boss)||0;
+        const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
+        const cible=nomBoss||'un boss';
+        return it.type==='fuite'
+          ?{icone:'🏃',texte:nom+verbe(' as',' a')+' pris la fuite devant '+cible}
+          :{icone:'💀',texte:nom+verbe(' as',' a')+' perdu contre '+cible};
+      }
       case 'succes':{
         const nomSucces=k.succes[String(d.id)];
         return {icone:'🏆',texte:nomSucces?nom+verbe(' as',' a')+' débloqué le trophée '+nomSucces:nom+verbe(' as',' a')+' débloqué un trophée'};

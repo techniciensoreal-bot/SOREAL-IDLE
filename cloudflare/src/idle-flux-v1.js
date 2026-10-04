@@ -67,7 +67,14 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   /* Récompense de connexion (Norman, 2026-10-03 : « quand quelqu'un récupère sa récompense journalière, ça doit apparaître dans En Direct »). Seuls les clics de récupération comptent (l'octroi de lancement n'incrémente pas totalReclames). */
   const cal = (m.records && m.records.loginCalendar) || {};
   const calendrier = { reclames: Math.max(0, Math.floor(N(cal.totalReclames, 0))), ap: Math.max(0, Math.floor(N(cal.totalAp, 0))), serie: Math.max(0, Math.floor(N(cal.serie, 0))) };
+  /* Fuites et défaites contre un boss (Norman, 2026-10-04 : « écrire quand un joueur prend la fuite ou qu'il perd contre un boss ») : compteurs tenus par le moteur de combat, jamais le détail. */
+  const bossFuites = Math.max(0, Math.floor(N(stats && stats.fluxBossFuites, 0)));
+  const bossDefaites = Math.max(0, Math.floor(N(stats && stats.fluxBossDefaites, 0)));
+  const bossDernier = Math.max(0, Math.floor(N(stats && stats.fluxBossDernier, 0)));
   return {
+    bossFuites,
+    bossDefaites,
+    bossDernier,
     achats,
     calendrier,
     defiActif,
@@ -131,6 +138,9 @@ export function evenementsV1(avant, apres, noms = {}) {
   if (avant.calendrier && typeof avant.calendrier === "object" && apres.calendrier && apres.calendrier.reclames > N(avant.calendrier.reclames, 0)) {
     ev.push({ type: "calendrier", donnees: { jour: apres.calendrier.serie, ap: Math.max(0, apres.calendrier.ap - N(avant.calendrier.ap, 0)) } });
   }
+  /* Fuite / défaite contre un boss : jamais depuis un instantané d'avant ce jalon (pas de comparaison, rien annoncé à tort). Le boss est celui du dernier combat arrêté. */
+  if (Number.isFinite(avant.bossFuites) && apres.bossFuites > avant.bossFuites) ev.push({ type: "fuite", donnees: { boss: apres.bossDernier, nom: nom(noms.boss, apres.bossDernier) } });
+  if (Number.isFinite(avant.bossDefaites) && apres.bossDefaites > avant.bossDefaites) ev.push({ type: "defaite", donnees: { boss: apres.bossDernier, nom: nom(noms.boss, apres.bossDernier) } });
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
 }
