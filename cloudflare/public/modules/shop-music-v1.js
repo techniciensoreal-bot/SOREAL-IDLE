@@ -12,13 +12,14 @@
   if(window.__SOREAL_IDLE_SHOP_MUSIC_V1__)return;
   window.__SOREAL_IDLE_SHOP_MUSIC_V1__=true;
 
-  var FONDU_MS=900;
+  /* Fondus par musique (ms). Blood Magic (Norman, 2026-10-04 : « elle doit commencer avec un long fade in, elle est trop brusque ») : 5 s à l'entrée, 1,5 s à la sortie ; le Shop garde 0,9 s. */
+  var FONDU_DEFAUT={entree:900,sortie:900};
   /* Une musique par menu : data-menu de la page -> fichier R2. */
   var MUSIQUES=[
-    {menu:'shop',cle:'idle/ambient/ShopMusic.opus'},
-    {menu:'sang',cle:'idle/ambient/BloodMagic.opus'}
+    {menu:'shop',cle:'idle/ambient/ShopMusic.opus',fondu:FONDU_DEFAUT},
+    {menu:'sang',cle:'idle/ambient/BloodMagic.opus',fondu:{entree:5000,sortie:1500}}
   ].map(function(m){
-    return {menu:m.menu,url:'/api/idle/media/ambient?key='+encodeURIComponent(m.cle),audio:null,fondu:0};
+    return {menu:m.menu,url:'/api/idle/media/ambient?key='+encodeURIComponent(m.cle),audio:null,fondu:0,cible:-1,duree:m.fondu};
   });
 
   function volume_(){
@@ -37,15 +38,23 @@
     return menuCourant_()===m.menu;
   }
 
+  /*
+   * Fondu en S (départ et arrivée très doux, pas de coup au démarrage) vers la cible, sur la durée propre à la musique et au sens (entrée / sortie). Un fondu déjà en cours vers la même cible n'est jamais relancé :
+   * le battement de 500 ms rappelle demarrer_() tant qu'on est dans le menu, et relancer le fondu à chaque fois l'aurait raccourci (la musique atteignait son volume bien avant la durée prévue).
+   */
   function fondreVers_(m,cible,apres){
     if(!m.audio)return;
+    if(m.fondu&&m.cible===cible)return;
     var a=m.audio,depart=a.volume,debut=Date.now();
+    var duree=Math.max(1,(cible>depart?m.duree.entree:m.duree.sortie)||900);
     if(m.fondu)cancelAnimationFrame(m.fondu);
+    m.cible=cible;
     function pas(){
-      var t=Math.min(1,(Date.now()-debut)/FONDU_MS);
-      try{a.volume=Math.max(0,Math.min(1,depart+(cible-depart)*t));}catch(_e){}
+      var t=Math.min(1,(Date.now()-debut)/duree);
+      var courbe=t*t*(3-2*t);
+      try{a.volume=Math.max(0,Math.min(1,depart+(cible-depart)*courbe));}catch(_e){}
       if(t<1)m.fondu=requestAnimationFrame(pas);
-      else{m.fondu=0;if(apres)apres();}
+      else{m.fondu=0;m.cible=-1;if(apres)apres();}
     }
     pas();
   }

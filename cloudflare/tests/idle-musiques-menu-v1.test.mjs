@@ -52,15 +52,26 @@ const avancer = async (ms) => {
 battement(); await avancer(200);
 assert.equal(audios.length, 0, "aucun élément audio créé hors des menus musicaux");
 
-// Entrée dans le menu Blood : la musique démarre à volume 0 puis monte (fade in).
+// Comme dans le jeu, le battement de 500 ms rappelle la musique tant qu'on est dans le menu : il ne doit JAMAIS raccourcir le fondu.
+const avancerExact = async (ms) => { for (let t = 0; t < ms; t += 100) { maintenant += 100; const copie = rafs.splice(0); copie.forEach((f) => f()); await Promise.resolve(); await Promise.resolve(); } };
+const avancerAvecBattements = async (ms) => { for (let t = 0; t < ms; t += 500) { battement(); await avancerExact(500); } };
+
+// Entrée dans le menu Blood : la musique démarre à volume 0 puis monte LONGUEMENT (fade in de 5 s, en S).
 menu = "sang";
 battement(); await avancer(100);
 const sang = audios.find((a) => a.url.includes(encodeURIComponent("idle/ambient/BloodMagic.opus")));
 assert.ok(sang, "BloodMagic.opus lue");
 assert.equal(sang.paused, false);
-assert.ok(sang.volume < 0.35, "fade in : le volume part de 0");
-await avancer(1200);
-assert.ok(Math.abs(sang.volume - 0.35) < 0.02, "fade in terminé au niveau Ambiance : " + sang.volume);
+assert.ok(sang.volume < 0.01, "fade in : le volume part de 0 (jamais de coup au démarrage) : " + sang.volume);
+await avancerAvecBattements(1000);
+assert.ok(sang.volume < 0.08, "après 1 s : encore très discrète (" + sang.volume.toFixed(3) + ")");
+await avancerAvecBattements(1500);
+assert.ok(sang.volume > 0.10 && sang.volume < 0.25, "après 2,6 s : à mi-chemin environ (" + sang.volume.toFixed(3) + ")");
+const avantFin = sang.volume;
+await avancerAvecBattements(1500);
+assert.ok(sang.volume > avantFin && sang.volume < 0.34, "après 4,1 s : monte encore (" + sang.volume.toFixed(3) + ")");
+await avancerAvecBattements(2000);
+assert.ok(Math.abs(sang.volume - 0.35) < 0.02, "fade in terminé (≈ 5 s) au niveau Ambiance : " + sang.volume);
 
 // La musique avance, on quitte : fade out puis pause, sans toucher à la position.
 sang.currentTime = 42.5;
@@ -68,7 +79,7 @@ menu = "aventure";
 battement(); await avancer(300);
 assert.equal(sang.paused, false, "pendant le fade out, elle joue encore");
 assert.ok(sang.volume < 0.35 && sang.volume > 0, "fade out en cours : " + sang.volume);
-await avancer(1200);
+await avancer(1400);
 battement(); await avancer(100);
 assert.equal(sang.paused, true, "en pause après le fade out");
 assert.equal(sang.volume, 0);
@@ -82,8 +93,11 @@ assert.equal(sang.paused, false);
 assert.equal(sang.currentTime, 42.5, "reprend là où elle s'était arrêtée");
 assert.ok(sang.volume < 0.35, "nouveau fade in");
 
-// Le Shop garde sa musique, séparée.
+// Le Shop garde sa musique, séparée, et son fondu court (0,9 s).
 menu = "shop";
 battement(); await avancer(100);
-assert.ok(audios.some((a) => a.url.includes(encodeURIComponent("idle/ambient/ShopMusic.opus")) && !a.paused), "musique du Shop");
+const boutique = audios.find((a) => a.url.includes(encodeURIComponent("idle/ambient/ShopMusic.opus")));
+assert.ok(boutique && !boutique.paused, "musique du Shop");
+await avancerAvecBattements(1500);
+assert.ok(Math.abs(boutique.volume - 0.35) < 0.02, "Shop : fondu court, déjà à son niveau après 1,5 s : " + boutique.volume);
 console.log("idle-musiques-menu-v1: OK");
