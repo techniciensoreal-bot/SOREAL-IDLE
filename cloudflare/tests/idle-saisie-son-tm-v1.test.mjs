@@ -28,7 +28,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 // 2. Time Machine : identité propre (laiton et or), l ancien aspect du jeu d origine est retiré.
 {
   assert.ok(themes.includes("TIME MACHINE : la machine d'Or") && !themes.includes("retour à l'aspect du jeu d'origine"));
-  assert.ok(index.includes("/soreal-idle-themes.css?v=47"));
+  assert.ok(index.includes("/soreal-idle-themes.css?v=48"));
 }
 
 // 3. Paramètres : trois barres de son, cases cochées de base.

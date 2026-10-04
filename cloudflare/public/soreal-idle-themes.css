@@ -1853,3 +1853,42 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .sore
 
 /* Fiche d'un boss : zone d'édition réservée à l'administrateur. */
 .soreal-idle-boss-fiche-admin-v1{display:flex;justify-content:center;margin:6px 0 4px}
+
+/* ====================== BANDEAU D'INFOS COMPACT (présent sur toutes les pages) ======================
+ * Norman (2026-10-04) : « le menu fixe de chaque page, avec les infos, est trop gros : il prend beaucoup de place dans le haut ; on ne pourrait pas le réduire tout en gardant son aspect actuel ? »
+ * Même habillage (plaques à coins, barre en trapèze, tuiles HUD, couleurs du menu) ; seule la place change : Énergie et Magie passent sur une ligne (titre et vitesse à gauche, barre à droite), les huit tuiles
+ * tiennent sur une seule ligne sur PC et sur deux lignes de quatre sur téléphone. Environ moitié moins de hauteur. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34{
+  display:grid!important;grid-template-columns:minmax(190px,.85fr) minmax(0,2fr);grid-template-rows:auto auto;column-gap:14px;row-gap:0;align-items:center;
+  margin:0 0 6px!important;padding:6px 12px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34.soreal-idle-magic-panel-v1{margin-top:0!important}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-head-v34{grid-column:1;grid-row:1;gap:8px}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-title-v34{font-size:12.5px;letter-spacing:.07em}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-number-v34{font-size:13.5px}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-speed-v34{grid-column:1;grid-row:2;margin-top:0!important;font-size:10.5px;line-height:1.3}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34 .soreal-idle-energybar-wrap-v11{grid-column:2;grid-row:1 / span 2;height:26px!important;margin-top:0!important}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34 .soreal-idle-energybar-overlay-v1{font-size:13px}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34::before,
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34::after{width:11px;height:11px}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28{
+  grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:6px;margin-bottom:8px;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28{
+  padding:4px 8px!important;font-size:10.5px;letter-spacing:.05em;line-height:1.25;border-bottom-width:2px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28 b{margin-top:1px;font-size:14px}
+@media (max-width:720px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;row-gap:4px;padding:6px 10px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-head-v34{grid-column:1;grid-row:1;flex-wrap:nowrap;min-width:0}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-title-v34{font-size:11px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-number-v34{font-size:12.5px;white-space:nowrap}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-speed-v34{grid-column:2;grid-row:1;text-align:right;font-size:10px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-energy-panel-v34 .soreal-idle-energybar-wrap-v11{grid-column:1 / -1;grid-row:2;height:24px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28{padding:3px 4px!important;font-size:9.5px;letter-spacing:.02em}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28 b{font-size:12.5px}
+}
+@media (max-width:340px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
