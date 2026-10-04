@@ -31,5 +31,5 @@ assert.ok(css.includes("grid-template-columns:352px minmax(0,1fr)"));
 // 4. Images plafonnées sur PC.
 assert.ok(css.includes("repeat(auto-fill,minmax(130px,150px))!important"), "vignettes de Collection et de Bestiaire");
 assert.ok(css.includes(".soreal-idle-duel-fighter-v42 .soreal-idle-duel-portrait-v41{width:min(320px,100%)!important"), "portraits de combat");
-assert.ok(css.includes(".soreal-idle-boss-fiche-image-v1 img{max-height:260px}"), "fiche de boss");
+assert.ok(css.includes(".soreal-idle-boss-fiche-image-v1{") && css.includes("height:min(340px,44vh)"), "fiche de boss : cadre de taille vignette, image entière (2026-10-04)");
 console.log("idle-menus-couleurs-shop-images-pc-v1: OK (" + menus.length + " menus, " + vus.size + " couleurs)");

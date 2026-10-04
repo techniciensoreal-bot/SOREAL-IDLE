@@ -578,8 +578,63 @@
     pasConstruire_(c,.31,.92,104);
     pasConstruire_(c,.62,1,116);
   }
+  /*
+   * Variantes de pas (Norman, 2026-10-04 : « plusieurs variantes des bruits de pas ; parfois 3, parfois 4 ; ils doivent avoir l'air différents, sinon le son a l'air vraiment répétitif »). Six façons de marcher, chacune
+   * avec sa matière : talon de cuir sur parquet (le pas d'origine), baskets qui couinent, grosses bottes qui écrasent du gravier, tongs qui claquent, talons qui tiquent, vieux plancher qui craque. À chaque passage
+   * d'un rayon à l'autre : une variante au hasard (jamais deux fois la même d'affilée), 3 ou 4 pas, un tempo différent (marche pressée ou traînante), chaque pas légèrement décalé dans le temps, la force et la hauteur.
+   */
+  var VARIANTES_PAS_V1=[
+    {nom:"parquet",hz:118,tempo:[.29,.34],pas:pasConstruire_},
+    {nom:"baskets",hz:150,tempo:[.24,.29],pas:function(c,d,f,hz){
+      tonal_(c,{type:"sine",from:hz*1.25,to:hz*.7,duration:.07,volume:.075*f,delay:d});
+      bruit_(c,{duration:.055,volume:.05*f,delay:d,filterType:"lowpass",frequency:520,decay:2.4});
+      tonal_(c,{type:"triangle",from:1800+hz*2,to:2700+hz*2,duration:.055,volume:.02*f,delay:d+.03});
+      bruit_(c,{duration:.03,volume:.02*f,delay:d+.02,filterType:"bandpass",frequency:3600,q:3,decay:3});
+    }},
+    {nom:"bottes",hz:78,tempo:[.36,.42],pas:function(c,d,f,hz){
+      tonal_(c,{type:"sine",from:hz*1.6,to:hz*.45,duration:.2,volume:.15*f,delay:d});
+      bruit_(c,{duration:.13,volume:.085*f,delay:d,filterType:"lowpass",frequency:430,decay:1.8});
+      [0,.025,.05,.08].forEach(function(x,i){bruit_(c,{duration:.05,volume:(.035-i*.006)*f,delay:d+.02+x,filterType:"highpass",frequency:3200+i*500,decay:2.4});});
+      tonal_(c,{type:"square",from:hz*3,to:hz*2.2,duration:.04,volume:.02*f,delay:d+.015});
+    }},
+    {nom:"tongs",hz:230,tempo:[.3,.38],pas:function(c,d,f,hz){
+      bruit_(c,{duration:.045,volume:.11*f,delay:d,filterType:"bandpass",frequency:1700,q:.7,decay:3.4});
+      tonal_(c,{type:"sine",from:hz*1.5,to:hz*.6,duration:.05,volume:.05*f,delay:d});
+      bruit_(c,{duration:.07,volume:.05*f,delay:d+.07,filterType:"bandpass",frequency:900,q:1.1,decay:2.6});
+    }},
+    {nom:"talons",hz:320,tempo:[.27,.33],pas:function(c,d,f,hz){
+      tonal_(c,{type:"triangle",from:hz*3.6,to:hz*2.9,duration:.04,volume:.07*f,delay:d});
+      bruit_(c,{duration:.02,volume:.07*f,delay:d,filterType:"bandpass",frequency:3400,q:2,decay:3.2});
+      tonal_(c,{type:"sine",from:hz*1.2,to:hz*.9,duration:.08,volume:.04*f,delay:d+.012});
+      bruit_(c,{duration:.03,volume:.03*f,delay:d+.045,filterType:"bandpass",frequency:2100,q:1.6,decay:3});
+    }},
+    {nom:"plancher",hz:100,tempo:[.38,.46],pas:function(c,d,f,hz){
+      tonal_(c,{type:"sine",from:hz*1.7,to:hz*.5,duration:.14,volume:.11*f,delay:d});
+      bruit_(c,{duration:.08,volume:.055*f,delay:d,filterType:"lowpass",frequency:640,decay:2.1});
+      tonal_(c,{type:"sawtooth",from:hz*1.9,to:hz*1.4,duration:.2,volume:.018*f,delay:d+.04});
+      tonal_(c,{type:"sawtooth",from:hz*2.05,to:hz*1.5,duration:.2,volume:.012*f,delay:d+.045});
+    }}
+  ];
+  var dernierePasVarianteV1=-1;
+
+  /* Construit les pas d'une variante : nb pas (3 ou 4), tempo en secondes, aléa injectable pour les vérifications hors ligne. */
+  function pasVarianteConstruire_(c,variante,nb,tempo,alea){
+    var hasard=typeof alea==="function"?alea:Math.random;
+    for(var i=0;i<nb;i+=1){
+      var decalage=(hasard()-.5)*.03;
+      var force=(i%2?.9:1)*(.94+hasard()*.12)*(i===nb-1?.92:1);
+      var hz=variante.hz*(i%2?.9:1)*(.93+hasard()*.14);
+      variante.pas(c,Math.max(0,i*tempo+decalage),force,hz);
+    }
+  }
   function pasBoutique_(){
-    return jouerWebAudio_(900,pasBoutiqueConstruire_);
+    var n=VARIANTES_PAS_V1.length;
+    var v=dernierePasVarianteV1<0?Math.floor(Math.random()*n):(dernierePasVarianteV1+1+Math.floor(Math.random()*(n-1)))%n;
+    dernierePasVarianteV1=v;
+    var variante=VARIANTES_PAS_V1[v];
+    var nb=Math.random()<.5?3:4;
+    var tempo=variante.tempo[0]+Math.random()*(variante.tempo[1]-variante.tempo[0]);
+    return jouerWebAudio_(Math.ceil((nb-1)*tempo*1000+320),function(c){pasVarianteConstruire_(c,variante,nb,tempo);});
   }
 
   /*
@@ -1764,6 +1819,7 @@
       setComplete:{duree:1080,construire:setCompletConstruire_},
       shopDoor:{duree:1700,construire:porteMagasinConstruire_},
       shopSteps:{duree:900,construire:pasBoutiqueConstruire_},
+      shopStepsVariantes:VARIANTES_PAS_V1.map(function(v){return{nom:v.nom,tempo:v.tempo,construire:function(c,nb,tempo,alea){pasVarianteConstruire_(c,v,nb,tempo,alea);}};}),
       sortsBlood:Object.keys(SONS_SORT_BLOOD_V1).map(function(id){return{nom:id,duree:SONS_SORT_BLOOD_V1[id].duree,construire:SONS_SORT_BLOOD_V1[id].construire};}),
       menus:Object.keys(SONS_MENU_V1).map(function(id){return{nom:id,duree:SONS_MENU_V1[id].duree,construire:SONS_MENU_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},

@@ -32,6 +32,8 @@
           'Le bandeau « En direct » annonce aussi quand un joueur prend la fuite devant un boss ou perd contre lui (le nom du boss n’est donné qu’à ceux qui l’ont déjà atteint).',
           'Sur PC, le menu de gauche tient sur deux colonnes sans défilement et les images sont moins démesurées. Chaque menu a sa propre couleur, et la boutique magique passe au mauve.',
           'Les boutons « Plafond » des barres d’allocation s’appellent « Max ».',
+          'Les pas qui se font entendre quand tu passes d’un rayon à l’autre ne se répètent plus : six façons de marcher (talons sur parquet, baskets qui couinent, grosses bottes sur du gravier, tongs, talons aiguilles, vieux plancher qui craque), trois ou quatre pas, à un rythme différent à chaque fois.',
+          'Collection : la fiche d’un boss affiche son image entière et bien centrée sur PC, et l’administrateur peut y modifier le nom et la chronique du boss.',
           'Le temps de jeu est corrigé : il compte maintenant tout le temps où le jeu est affiché à l’écran, même sans cliquer (avant, seuls les clics des deux dernières minutes comptaient, ce qui en perdait la majeure partie). Le profil affiche ce vrai temps de jeu, et l’ancienneté du compte a sa propre ligne.',
           'Les images des boutiques se chargent tout de suite et sont préchargées, pour ne plus clignoter ni manquer à l’appel.',
         ]

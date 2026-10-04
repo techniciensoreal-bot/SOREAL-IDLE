@@ -15901,6 +15901,8 @@ let idleDialogueTimerV76=null;
                   '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'+
                   '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'
                 :'')+
+              /* Administrateur : modifier le nom et la chronique de CE boss depuis la Collection (Norman, 2026-10-04) ; le bouton n'existe pas pour les autres comptes, et le serveur revérifie à l'enregistrement. */
+              (window.__SOREAL_IDLE_TEXTES_V1__&&window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml?'<div class="soreal-idle-boss-fiche-admin-v1">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(n)+'</div>':'')+
             '</div>'+
             '<div class="soreal-idle-modal-actions-v63">'+
               '<button type="button" class="soreal-idle-modal-button-v63 cancel" onclick="window.__fermerBossCollectionIdleV1__()">Fermer</button>'+
@@ -15910,6 +15912,26 @@ let idleDialogueTimerV76=null;
         document.body.appendChild(modal);
       }
       window.__ouvrirBossCollectionIdleV1__=ouvrirBossCollectionIdleV1_;
+      /*
+       * Édition depuis la fiche : le clic sur « Modifier le texte » est géré par modules/textes-admin-v1.js (éditeur plein écran, au-dessus de la fiche). Quand l'éditeur se referme, la fiche est rouverte avec le texte à jour
+       * (la synchro demandée à l'enregistrement a eu le temps d'arriver).
+       */
+      if(typeof document.addEventListener==='function')document.addEventListener('click',function(ev){
+        const bouton=ev.target&&ev.target.closest?ev.target.closest('#sorealIdleBossCollectionModalV1 [data-stx-boss]'):null;
+        if(!bouton)return;
+        const numero=idleEntier_(bouton.getAttribute('data-stx-boss'));
+        fermerBossCollectionIdleV1_();
+        let vu=false;
+        const guet=setInterval(function(){
+          const ouvert=Boolean(document.getElementById('sorealIdleTexteEditeurV1'));
+          if(ouvert){vu=true;return;}
+          if(vu||guet.__essais>40){
+            clearInterval(guet);
+            setTimeout(function(){if(vu)ouvrirBossCollectionIdleV1_(numero);},1500);
+          }
+          guet.__essais=(guet.__essais||0)+1;
+        },300);
+      },true);
       window.__fermerBossCollectionIdleV1__=fermerBossCollectionIdleV1_;
 
       function lireHistoireCompleteBossIdleV206_(){
