@@ -15442,7 +15442,7 @@ let idleDialogueTimerV76=null;
               <button
                 type="button"
                 onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','cap')"
-              >Cap</button>
+              >Max</button>
             </div>
           </div>
         `;
@@ -15548,7 +15548,7 @@ let idleDialogueTimerV76=null;
 
             <div class="soreal-idle-bt-presets-v120">
               <span>⚡ Energy Cap</span>
-              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',1)">Cap</button>
+              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',1)">Max</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.5)">1/2</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.25)">1/4</button>
             </div>
