@@ -109,6 +109,16 @@
         const nomTitan=k.titan[String(d.id)];
         return {icone:'🔥',texte:nomTitan?nom+verbe(' viens',' vient')+' de terrasser un Titan : '+nomTitan:nom+verbe(' viens',' vient')+' de terrasser un Titan'};
       }
+      /* Combat de titan lancé / perdu (Norman, 2026-10-04) : comme la victoire, seulement pour un lecteur qui connaît les Titans, nom donné s'il connaît ce titan. */
+      case 'titanCombat':
+      case 'titanPerdu':{
+        if(!k.menus.titans)return null;
+        const nomTitan=k.titan[String(d.id)];
+        const cible=nomTitan?'le Titan '+nomTitan:'un Titan';
+        return it.type==='titanCombat'
+          ?{icone:'⚔️',texte:nom+verbe(' as',' a')+' lancé le combat contre '+cible}
+          :{icone:'💀',texte:nom+verbe(' as',' a')+' perdu contre '+cible};
+      }
       case 'defi':
         if(!k.menus.challenges)return null;
         return {icone:'🏁',texte:nom+verbe(' as',' a')+' réussi un Challenge'};

@@ -75,7 +75,14 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const sorts = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellsCast, 0)));
   const sortDernier = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellLast, 0)));
   const histoires = Math.max(0, Math.floor(N(stats && stats.fluxHistoires, 0)));
+  const tf = (m.adventure && m.adventure.titanFlux) || {};
+  const titanCombats = Math.max(0, Math.floor(N(tf.starts, 0)));
+  const titanPertes = Math.max(0, Math.floor(N(tf.losses, 0)));
+  const titanDernier = String(tf.last || "");
   return {
+    titanCombats,
+    titanPertes,
+    titanDernier,
     sorts,
     sortDernier,
     histoires,
@@ -149,6 +156,8 @@ export function evenementsV1(avant, apres, noms = {}) {
   if (Number.isFinite(avant.bossFuites) && apres.bossFuites > avant.bossFuites) ev.push({ type: "fuite", donnees: { boss: apres.bossDernier, nom: nom(noms.boss, apres.bossDernier) } });
   if (Number.isFinite(avant.bossDefaites) && apres.bossDefaites > avant.bossDefaites) ev.push({ type: "defaite", donnees: { boss: apres.bossDernier, nom: nom(noms.boss, apres.bossDernier) } });
   /* Sort de sang lancé / cinématique regardée : jamais depuis un instantané d'avant ce jalon (pas de comparaison). Le sort est identifié par son rang (1 à 5), l'affichage dépend du lecteur. */
+  if (Number.isFinite(avant.titanCombats) && apres.titanCombats > avant.titanCombats) ev.push({ type: "titanCombat", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
+  if (Number.isFinite(avant.titanPertes) && apres.titanPertes > avant.titanPertes) ev.push({ type: "titanPerdu", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
   if (Number.isFinite(avant.sorts) && apres.sorts > avant.sorts) ev.push({ type: "sort", donnees: { sort: apres.sortDernier } });
   if (Number.isFinite(avant.histoires) && apres.histoires > avant.histoires) ev.push({ type: "histoire", donnees: {} });
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });

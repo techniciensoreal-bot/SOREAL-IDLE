@@ -5035,7 +5035,7 @@ function startTitanFight(s,ctx,t,id,difficulty){
   const playerHpMax=playerHpMaxForAdventureV1(stats);
   const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
   s.selectedZone="safe";
-  s.fight={active:true,zone:"safe",monsterHp:c.hp,monsterHpMax:c.hp,boss:true,playerHp,playerHpMax,monsterIndex:-1,mobAttackFactor:1,mobType:"titan",mobName:pre.formIndex>=0?nomBase+" (forme "+(pre.formIndex+1)+")":nomBase,mobPower:c.power,mobToughness:c.toughness,mobHpRegen:c.regen,mobAttackRate:c.attackRate,titanId:pre.id,titanTier:pre.tierKey||"",titanForm:pre.formIndex,titanStartedAt:t};
+  s.fight={active:true,zone:"safe",monsterHp:c.hp,monsterHpMax:c.hp,boss:true,playerHp,playerHpMax,monsterIndex:-1,mobAttackFactor:1,mobType:"titan",mobName:pre.formIndex>=0?nomBase+" (forme "+(pre.formIndex+1)+")":nomBase,mobPower:c.power,mobToughness:c.toughness,mobHpRegen:c.regen,mobAttackRate:c.attackRate,titanId:pre.id,titanTier:pre.tierKey||"",titanForm:pre.formIndex,titanStartedAt:t};/* « En direct » (Norman, 2026-10-04) : combats de titan lancés / perdus, lus par idle-flux-v1.js (la victoire vient du compteur de kills). */fluxTitanV1(s,"starts",pre.id);
   return{titanStarted:pre.id,tier:pre.tierKey||"",form:pre.formIndex,hp:c.hp};
 }
 function resolveZoneFight(s,ctx,t=Date.now()){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");if(s.fight.titanId){const f=s.fight;/*
@@ -5055,7 +5055,8 @@ function resolveZoneFight(s,ctx,t=Date.now()){if(!s.fight?.active)throw Error("A
  * côté serveur) — le client est seul juge du moment où le combat se
  * termine, exactement comme pour le Combat de boss.
  */
-function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};s.selectedZone="safe";return{defeated:true,zone}}
+function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
+function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};s.selectedZone="safe";return{defeated:true,zone}}
 function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}
 /*
  * V145 — The Beast (t6) est le premier titan avec plusieurs paliers de
