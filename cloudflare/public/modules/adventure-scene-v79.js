@@ -176,16 +176,32 @@
 
       var safeImg=safeWrap.querySelector('.soreal-idle-v79-adventure-safe-image');
       var safeUrl=safeZoneUrl_(a);
-      if(safeImg&&safeImg.getAttribute('src')!==safeUrl){
+      /*
+       * Image absente au chargement (Norman, 2026-10-04 : « j'ai ajouté idle/aventure/The_Sky/sky_safe_zone.webp mais je ne la vois pas ») : le serveur accepte déjà webp, png, jpg, jpeg et avif ; mais une image déposée dans R2
+       * APRÈS le chargement de la page n'était jamais redemandée (la même adresse n'est pas rechargée), il fallait recharger. Une image introuvable est maintenant redemandée toutes les 20 s (adresse neuve, donc jamais
+       * servie depuis un cache), 15 fois au plus, tant que la zone ne change pas.
+       */
+      if(safeImg&&safeImg.getAttribute('data-base')!==safeUrl){
+        safeImg.setAttribute('data-base',safeUrl);
+        safeImg.__essais=0;
+        clearTimeout(safeImg.__relance);
         if(fallback)fallback.style.display='grid';
         safeImg.style.display='none';
         safeImg.onload=function(){
+          clearTimeout(safeImg.__relance);
           safeImg.style.display='block';
           if(fallback)fallback.style.display='none';
         };
         safeImg.onerror=function(){
           safeImg.style.display='none';
           if(fallback)fallback.style.display='grid';
+          if((safeImg.__essais||0)>=15)return;
+          clearTimeout(safeImg.__relance);
+          safeImg.__relance=setTimeout(function(){
+            if(safeImg.getAttribute('data-base')!==safeUrl)return;
+            safeImg.__essais=(safeImg.__essais||0)+1;
+            safeImg.setAttribute('src',safeUrl+(safeUrl.indexOf('?')>=0?'&':'?')+'r='+Date.now());
+          },20000);
         };
         safeImg.setAttribute('src',safeUrl);
       }
