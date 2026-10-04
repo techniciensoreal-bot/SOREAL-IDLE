@@ -1948,3 +1948,41 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-
 @keyframes sorealPointRougeV1{50%{transform:scale(1.25);box-shadow:0 0 0 2px #fff,0 0 14px 4px rgba(255,59,48,1)}}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28>.soreal-idle-point-rouge-v1{position:absolute;right:10px;top:50%;margin:-6px 0 0}
 @media (prefers-reduced-motion:reduce){.soreal-idle-point-rouge-v1{animation:none}}
+
+/* ====================== TUILES DU HAUT : une couleur par chiffre ======================
+ * Norman (2026-10-04) : « les cadres Nombre, Rebirth, etc. devraient avoir des couleurs différentes pour qu'on puisse les identifier plus vite ; rends-les plus stylés ». Chaque tuile (data-tuile) porte sa couleur --tc :
+ * fond teinté avec un halo dans le coin, bande d'accent à gauche, trait lumineux en bas, coins asymétriques, reflet qui traverse, valeur en blanc éclairée de sa couleur. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]{
+  --tc:#9aa5bb;
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(120% 150% at 0% 0%,color-mix(in srgb,var(--tc) 42%,transparent),transparent 62%),
+    linear-gradient(165deg,color-mix(in srgb,var(--tc) 16%,#0c1222),#080d19)!important;
+  border:1px solid color-mix(in srgb,var(--tc) 62%,transparent)!important;
+  border-left:4px solid var(--tc)!important;border-bottom:3px solid var(--tc)!important;
+  border-radius:5px 14px 5px 14px!important;
+  color:color-mix(in srgb,var(--tc) 58%,#fff)!important;font-weight:900;
+  box-shadow:0 8px 18px -10px var(--tc),inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 18px -8px var(--tc);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{
+  content:"";position:absolute;top:-30%;bottom:-30%;left:-60%;width:38%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-18deg);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile] b{
+  color:#fff!important;text-shadow:0 0 12px var(--tc),0 0 3px color-mix(in srgb,var(--tc) 80%,#000);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="nombre"]{--tc:#22d3ee}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="rebirths"]{--tc:#4ade80}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="attack"]{--tc:#fb5a4b}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="defense"]{--tc:#5b8cff}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="gold"]{--tc:#fbbf24}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="exp"]{--tc:#c084fc}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="ap"]{--tc:#f472b6}
+body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="run"]{--tc:#fb923c}
+@keyframes sorealTuileReflet{0%,70%{left:-60%}100%{left:130%}}
+@media (prefers-reduced-motion:no-preference){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{animation:sorealTuileReflet 7s ease-in-out infinite}
+}
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{display:none}
+}

@@ -14250,37 +14250,37 @@
 
         return `
           <div class="soreal-idle-summary-grid-v28">
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="nombre">
               🔢 Nombre
               <b id="sorealIdleSummaryNumberV50">${formatGrandNombreIdleV70_(number)}</b>
             </div>
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="rebirths">
               ♻️ Rebirths
               <b id="sorealIdleSummaryRebirthsV210">${formatGrandNombreIdleV70_(rebirths)}</b>
             </div>
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="attack">
               ⚔️ Attack
               <b id="sorealIdleSummaryAttackV50">${formatGrandNombreIdleV70_(combat.attaque||j.puissance||0)}</b>
             </div>
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="defense">
               🛡️ Defense
               <b id="sorealIdleSummaryDefenseV50">${formatGrandNombreIdleV70_(combat.defense||j.defense||0)}</b>
             </div>
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="gold">
               🪙 Gold
               <b id="sorealIdleSummaryGoldV50">${formatGrandNombreIdleV70_(monnaies.gold||0)}</b>
             </div>
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="exp">
               ⭐ EXP
               <b id="sorealIdleSummaryExpV50">${formatGrandNombreIdleV70_(monnaies.experience||j.xp||0)}</b>
             </div>
             ${apVisible
-              ?`<div class="soreal-idle-summary-v28">
+              ?`<div class="soreal-idle-summary-v28" data-tuile="ap">
                   💠 AP
                   <b id="sorealIdleSummaryApV210">${formatGrandNombreIdleV70_(monnaies.ap||0)}</b>
                 </div>`
               :''}
-            <div class="soreal-idle-summary-v28">
+            <div class="soreal-idle-summary-v28" data-tuile="run">
               ⏱️ Run
               <b id="sorealIdleSummaryRunV1">${formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j))}</b>
             </div>
