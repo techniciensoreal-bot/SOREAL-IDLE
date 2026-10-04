@@ -16,6 +16,8 @@
     pas ajoutée dans cette passe.
   -->
   <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'">
+  <!-- Un vrai jeu, pas une page web (2026-10-04) : textes non sélectionnables ni copiables, pas de menu du navigateur ; les champs de saisie restent normaux (modules/anti-copie-v1.js). -->
+  <style id="soreal-idle-anti-copie-v1">html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select,[contenteditable=""],[contenteditable="true"],[data-copie-autorisee],[data-copie-autorisee] *{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}img{-webkit-user-drag:none}</style>
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0b1b39">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
@@ -123,6 +125,7 @@
     })();
   </script>
   <script defer src="/standalone-bridge.js?v=8"></script>
+  <script defer src="/modules/anti-copie-v1.js?v=1"></script>
   <script defer src="/modules/runtime.js"></script>
   <script defer src="/modules/ui.js?v=53"></script>
   <script defer src="/modules/adventure-scene-v79.js?v=2028"></script>
@@ -138,7 +141,7 @@
   <script defer src="/modules/text-helpers-v1.js"></script>
   <script defer src="/modules/inventory-presentation-v1.js"></script>
   <script defer src="/modules/text-transforms-v1.js"></script>
-  <script defer src="/modules/release-notes-v1.js?v=91"></script>
+  <script defer src="/modules/release-notes-v1.js?v=92"></script>
   <script defer src="/modules/flux-v1.js?v=15"></script>
   <script defer src="/modules/nouvelle-version-v1.js?v=1"></script>
   <script defer src="/modules/chat-v1.js?v=9"></script>
