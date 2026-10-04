@@ -59,4 +59,14 @@ verifier(not coupe, "texte long : intact")
 # 5. Durée plausible : plus serrée pour un nom que pour un long récit.
 verifier(serveur.duree_max_segment(nom) < 28 * 0.12 + 1.2, "marge réduite pour un nom court (%.2f s)" % serveur.duree_max_segment(nom))
 verifier(abs(serveur.duree_max_segment("x" * 200) - (200 * 0.12 + 1.2)) < 1e-9, "marge inchangée pour un long texte")
+# 6. Une RÉPLIQUE courte n'est jamais coupée (Norman, 2026-10-04 : « la génération de voix ne lit pas tout, ça génère quelques mots et ça s'arrête ») : pause naturelle de 0,45 s après la virgule,
+#    suite plus courte que le début -- l'ancien garde-fou la prenait pour du baratin et supprimait la fin.
+replique = "Bonjour, je m'appelle Marius."
+verifier(not serveur.est_nom_court(replique), "une réplique avec ponctuation n'est pas un nom court")
+verifier(serveur.est_nom_court(nom) and serveur.est_nom_court("Gros Boss") and serveur.est_nom_court("Gros Boss."), "les noms et titres restent des noms courts")
+verifier(not serveur.est_nom_court("Oui, bien sûr !") and not serveur.est_nom_court("Un, deux"), "ponctuation interne : jamais un nom")
+parle = torch.cat([parole(1.0), silence(0.45), parole(0.7)], dim=1)
+sortie, coupe = serveur.retirer_queue_inventee(parle, SR, replique)
+verifier(not coupe and duree(sortie) == duree(parle), "la fin d'une réplique après une pause de 0,45 s est conservée (%.2f s)" % duree(sortie))
+verifier(abs(serveur.duree_max_segment(replique) - (len(replique) * 0.12 + 1.2)) < 1e-9, "durée plausible généreuse pour une réplique (pas la limite serrée des noms)")
 print("TOUT EST BON")

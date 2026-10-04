@@ -244,7 +244,7 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     texte = normaliser_texte(texte)
     if not texte:
         raise ValueError("texte vide après normalisation")
-    if len(texte) < TEXTE_COURT:
+    if len(texte) < TEXTE_COURT and est_nom_court(texte):
         court = texte.rstrip(" .!?…,;:") or texte
         wav, sr = synthetiser_long(court + ". " + court + ".", voix, exaggeration, cfg)
         return garder_premiere_prononciation(wav, sr), sr
@@ -264,8 +264,20 @@ DUREE_PAR_CARACTERE_COURT_S = 0.11
 DUREE_MARGE_COURT_S = 0.5
 
 
+def est_nom_court(segment):
+    """Un NOM ou un titre (« Un Type Bizarre à Deux Têtes ») : court, sans ponctuation à l'intérieur, au plus 8 mots. Les garde-fous des textes courts (retirer le baratin inventé après un silence,
+    durée serrée, double prononciation) ne valent QUE pour eux : une réplique courte (« Bonjour, je m'appelle Marius. ») a des pauses naturelles et ne doit jamais être coupée (Norman, 2026-10-04 :
+    « la génération de voix ne lit pas tout, ça génère quelques mots et ça s'arrête » -- depuis qu'on génère ligne par ligne, les répliques courtes sont devenues fréquentes)."""
+    nu = segment.strip(" .!?…,;:")
+    if not nu or len(segment) > SEUIL_SEGMENT_COURT:
+        return False
+    if re.search(r"[,;:.!?…«»()–—-]", nu):
+        return False
+    return len(nu.split()) <= 8
+
+
 def duree_max_segment(segment):
-    if len(segment) <= SEUIL_SEGMENT_COURT:
+    if est_nom_court(segment):
         return len(segment) * DUREE_PAR_CARACTERE_COURT_S + DUREE_MARGE_COURT_S
     return len(segment) * DUREE_PAR_CARACTERE_S + DUREE_MARGE_S
 
@@ -274,7 +286,7 @@ def retirer_queue_inventee(wav, sr, segment):
     """Texte court : un nom se dit d'un trait. S'il y a, après un silence franc (>= 0,3 s), une nouvelle « phrase » plus courte que ce qui précède, c'est du baratin
     inventé par le modèle : on coupe au silence (fondu de 30 ms). Renvoie (wav, coupe)."""
     import torch
-    if len(segment) > SEUIL_SEGMENT_COURT:
+    if not est_nom_court(segment):
         return wav, False
     rms, fenetre, nb = energie_fenetres(wav, sr)
     if rms is None or nb < 20:
