@@ -437,6 +437,19 @@ export class SorealIdleCoordinatorV1 {
         return Response.json({ ok: false, error: message }, { status: 400, headers: { "cache-control": "no-store" } });
       }
     }
+    /* Prénoms des joueurs (ITOPOD : les joueurs sont des ennemis, Norman 2026-10-04). Prénom seulement, jamais d'adresse e-mail. */
+    if (path === "/__soreal-idle-v1/noms-joueurs") {
+      const noms = [];
+      try {
+        for (const l of this.sql.exec("SELECT display_name FROM idle_players ORDER BY source_row LIMIT 3000").toArray()) {
+          const brut = String(l.display_name || "").trim();
+          if (!brut || brut.includes("@")) continue;
+          const prenom = brut.split(" ")[0].slice(0, 40);
+          if (prenom && !noms.includes(prenom)) noms.push(prenom);
+        }
+      } catch (_e) { /* pas de liste */ }
+      return Response.json({ ok: true, noms }, { headers: { "cache-control": "no-store" } });
+    }
     if (path === "/__soreal-idle-v1/launch-ticket-consume") {
       const p = await request.json().catch(() => ({}));
       const result = this.consumeLaunchTicketV1(p?.ticket);

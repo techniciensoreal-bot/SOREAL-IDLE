@@ -18,7 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
-          'La tour a sa propre arène : un décor par étage, un ouvrier, un responsable ou un ancien comme ennemi (avatar grand, sans cadre, qui respire), sa barre de vie qui descend à chaque coup de poing, et le choix des étages juste en dessous. Un bouton permet d’entrer dans la tour pour combattre à la chaîne. Les zones de saisie du jeu ont aussi un nouveau look.',
+          'La tour a sa propre arène : un décor par étage, un ouvrier, un responsable ou un ancien comme ennemi (avatar grand, sans cadre, qui respire), sa barre de vie qui descend à chaque coup de poing, et le choix des étages juste en dessous. Les joueurs sont aussi des ennemis, avec un avatar chacun. Un bouton permet d’entrer dans la tour pour combattre à la chaîne. Les zones de saisie du jeu ont aussi un nouveau look.',
           'Les menus suivent l’ordre dans lequel tu les débloques ; la Boutique, les Succès, le Chat et les Réglages restent toujours à la fin, dans cet ordre (tu peux toujours les déplacer).',
           'Le magasin des Perks devient une boutique à part, en vitrines néon, avec l’image de chaque achat, une recherche et un filtre des achats abordables.',
           'Un défi en cours a maintenant son compteur : le temps écoulé depuis son lancement, en mois, semaines, jours puis heures, minutes et secondes.',

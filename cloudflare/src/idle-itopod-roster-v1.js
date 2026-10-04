@@ -33,6 +33,41 @@ export function idleItopodCleR2V1(url, prefix) {
 }
 
 /* Liste des ouvriers { nom, avatar } à partir de la réponse de /api/cosmetiques-equipe. Dédoublonnée sur le prénom, triée. */
+/* Avatars imposés (Norman, 2026-10-04 : « pour Justine trouve une femme dans les avatars ») : combattante du Level 3. */
+export const IDLE_ITOPOD_AVATARS_FIXES_V1 = Object.freeze({ justine: "shared/avatars/level-3/soreal-avatar-066-guerriere.webp" });
+/* Avatars qui ne représentent pas une personne (monstres, créatures, animaux) : jamais donnés à un joueur. */
+const MONSTRE_V1 = /(ancien|shoggoth|cthulh|profond|mi-?go|yithien|rejeton|oeil|neant|abomination|cerebral|aile|cerf|araignee|etoile|pecheur|masse|cerveau|loup|garou|dracula|nosferatu|frankenstein|gargouille|poulpe|chauve|slime|cyclope|licorne|dragon|grenouille|hibou|chien|singe|pingouin|tigre|diamant|fantome|banane|crane|bete|creature|monstre|lich|vorace|orc|saitama|mort|vampire|squelette|zombie|level6|bayron|cartman|kenny)/i;
+
+function hashNom(texte) {
+  let h = 2166136261;
+  for (const c of String(texte)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+/* Joueurs (prénoms) ajoutés à la liste des ennemis avec un avatar tiré au hasard, déterministe et DIFFÉRENT pour chacun tant qu'il en reste ; Level 1 (boules flottantes) et monstres exclus. */
+export function idleItopodAjouterJoueursV1(workers, noms, clesAvatars) {
+  const out = [...workers];
+  const connus = new Set(out.map((w) => norm(w.nom)));
+  const pris = new Set(out.map((w) => w.avatar).filter(Boolean));
+  for (const v of Object.values(IDLE_ITOPOD_AVATARS_FIXES_V1)) pris.add(v);
+  const pool = [...new Set((Array.isArray(clesAvatars) ? clesAvatars : []).map((c) => idleItopodCleR2V1(c, IDLE_ITOPOD_AVATAR_PREFIX_V1)).filter(Boolean))]
+    .filter((k) => !k.split("/").includes("level-1") && !MONSTRE_V1.test(k.split("/").pop()) && !pris.has(k)).sort();
+  const nouveaux = [...new Set((Array.isArray(noms) ? noms : []).map((n) => text(n).slice(0, 40)).filter(Boolean))]
+    .filter((n) => !connus.has(norm(n)) && !IDLE_ITOPOD_EXCLUS_V1.includes(norm(n))).sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+  for (const nom of nouveaux) {
+    const fixe = IDLE_ITOPOD_AVATARS_FIXES_V1[norm(nom)];
+    let avatar = fixe || "";
+    if (!avatar && pool.length) {
+      let i = hashNom(norm(nom)) % pool.length;
+      for (let t = 0; t < pool.length && pris.has(pool[i]); t += 1) i = (i + 1) % pool.length;
+      avatar = pool[i];
+    }
+    if (avatar) pris.add(avatar);
+    out.push({ nom, avatar });
+  }
+  return out.sort((a, b) => a.nom.localeCompare(b.nom, "fr", { sensitivity: "base" }));
+}
+
 export function idleItopodRosterV1(cosmetics) {
   const par = cosmetics && typeof cosmetics === "object" ? cosmetics.parEmail : null;
   const out = new Map();
@@ -102,6 +137,8 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
   } catch (_) { /* liste réduite */ }
   let cles = [];
   let clesEtages = [];
+  let clesAvatars = [];
+  let nomsJoueurs = [];
   try {
     if (env && env.SOREAL_R2 && typeof env.SOREAL_R2.list === "function") {
       let cursor;
@@ -114,11 +151,26 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
       } while (cursor && cles.length < 3000);
     }
     if (env && env.SOREAL_R2 && typeof env.SOREAL_R2.list === "function") {
+      let cur;
+      do {
+        const o = { prefix: IDLE_ITOPOD_AVATAR_PREFIX_V1, limit: 1000 };
+        if (cur) o.cursor = cur;
+        const la = await env.SOREAL_R2.list(o);
+        clesAvatars = clesAvatars.concat((la.objects || []).map((x) => x.key));
+        cur = la.truncated && la.cursor ? la.cursor : undefined;
+      } while (cur && clesAvatars.length < 3000);
       const l = await env.SOREAL_R2.list({ prefix: IDLE_ITOPOD_ETAGE_PREFIX_V1, limit: 1000 });
       clesEtages = (l.objects || []).map((o) => o.key);
     }
   } catch (_) { /* pas de décor */ }
-  const valeur = { ok: true, workers: idleItopodRosterV1(cosmetics), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
+  try {
+    if (env && env.SOREAL_IDLE && typeof env.SOREAL_IDLE.get === "function") {
+      const stub = env.SOREAL_IDLE.get(env.SOREAL_IDLE.idFromName("global"));
+      const r = await stub.fetch(new Request("https://soreal-idle.invalid/__soreal-idle-v1/noms-joueurs"));
+      if (r.ok) nomsJoueurs = (await r.json()).noms || [];
+    }
+  } catch (_) { /* sans les joueurs */ }
+  const valeur = { ok: true, workers: idleItopodAjouterJoueursV1(idleItopodRosterV1(cosmetics), nomsJoueurs, clesAvatars), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
   /* Un échec de TV n'est gardé que peu de temps. */
   cache = { at: cosmetics ? maintenant : maintenant - DUREE_CACHE_MS + 30000, valeur };
   return jsonReponse(valeur);

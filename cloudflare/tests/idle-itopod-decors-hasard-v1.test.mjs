@@ -112,3 +112,22 @@ console.log("idle-itopod-decors-hasard-v1 (combat): OK");
   assert.ok(!api.html({ floor: 5, kills: 57, killsOnFloor: 7 }).includes("itp-compte"), "plus de compteur en texte");
 }
 console.log("idle-itopod-decors-hasard-v1 (pastilles): OK");
+
+// 8. Joueurs (Google…) : leur prénom devient un ennemi avec un avatar tiré au hasard, différent pour chacun, jamais du Level 1 ni un monstre ; Justine a une combattante.
+{
+  const { idleItopodAjouterJoueursV1, idleItopodRosterV1 } = await import("../src/idle-itopod-roster-v1.js");
+  const cles = ["shared/avatars/level-1/orbe.webp", "shared/avatars/level-3/soreal-avatar-066-guerriere.webp", "shared/avatars/level-3/soreal-avatar-033-shoggoth.webp"];
+  for (let i = 0; i < 12; i += 1) cles.push("shared/avatars/level-2/soreal-avatar-1" + String(i).padStart(2, "0") + "-soldat.webp");
+  const base = idleItopodRosterV1({ parEmail: { a: { nom: "Alessandro", avatarUrl: "/assets/shared/avatars/level-2/soreal-avatar-100-soldat.webp" } } });
+  const w = idleItopodAjouterJoueursV1(base, ["Justine", "Alessandro", "Maria", "Paul", "Zoé"], cles);
+  const par = Object.fromEntries(w.map((x) => [x.nom, x.avatar]));
+  assert.equal(par.Justine, "shared/avatars/level-3/soreal-avatar-066-guerriere.webp");
+  const nouveaux = ["Maria", "Paul", "Zoé"].map((n) => par[n]);
+  assert.equal(new Set([...nouveaux, par.Alessandro, par.Justine]).size, 5, "un avatar différent pour chacun");
+  for (const a of nouveaux) assert.ok(a && !a.includes("level-1") && !/shoggoth/.test(a) && a !== par.Alessandro, "ni Level 1, ni monstre, ni celui d'un ouvrier");
+  assert.equal(w.filter((x) => x.nom === "Alessandro").length, 1, "un ouvrier n'est pas dédoublé");
+  assert.deepEqual(idleItopodAjouterJoueursV1(base, ["Maria"], cles), idleItopodAjouterJoueursV1(base, ["Maria"], cles), "choix stable");
+  const coord = readFileSync("cloudflare/src/index-idle-coordinator-v1.js", "utf8");
+  assert.ok(coord.includes("/__soreal-idle-v1/noms-joueurs") && !/noms-joueurs[\s\S]{0,700}email_primary/.test(coord), "prénoms seulement, jamais d'e-mail");
+}
+console.log("idle-itopod-decors-hasard-v1 (joueurs): OK");
