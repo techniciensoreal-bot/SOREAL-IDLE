@@ -11373,49 +11373,50 @@
         cards:{forme:'carte',verbe:'Collectionner'},
         cooking:{forme:'cercle',verbe:'Cuisiner'},
         succes:{forme:'etoile',verbe:'Trophées'},
-        shop:{forme:'etiquette',verbe:'Acheter'},
+        shop:{forme:'etoile',verbe:'Boutique magique'},
         classement:{forme:'pentagone',verbe:'Se comparer'},
         bestiaire:{forme:'hexagone',verbe:'Découvrir'},
         chat:{forme:'bulle',verbe:'Discuter'},
         parametres:{forme:'engrenage',verbe:'Régler'},
         admin:{forme:'triangle',verbe:'Gérer'}
       };
+      /* Une couleur DIFFÉRENTE par menu (Norman, 2026-10-04 : « chacun sa couleur pour qu'on les repère mieux »). Le Shop est mauve, comme une boutique magique. */
       const IDLE_NAV_COULEURS_V1={
         entrainement:'#3b82f6',
+        augmentations:'#f59e0b',
         combat:'#ef4444',
-        aventure:'#22c55e',
-        bestiaire:'#14b8a6',
-        renaissance:'#a855f7',
-        augmentations:'#6366f1',
-        avance:'#0ea5e9',
-        machine:'#06b6d4',
-        sang:'#dc2626',
-        wandoos:'#64748b',
-        ngu:'#8b5cf6',
-        yggdrasil:'#10b981',
-        moneyPit:'#b45309',
-        diggers:'#eab308',
-        beards:'#f97316',
-        tower:'#78716c',
+        aventure:'#16a34a',
+        moneyPit:'#ca8a04',
+        renaissance:'#fb923c',
+        avance:'#38bdf8',
+        machine:'#0f766e',
+        sang:'#be123c',
+        wandoos:'#84cc16',
+        ngu:'#6366f1',
+        yggdrasil:'#059669',
+        diggers:'#92400e',
+        beards:'#d4a373',
+        tower:'#a8a29e',
         perks:'#facc15',
-        challenges:'#f43f5e',
-        titans:'#b91c1c',
+        challenges:'#fb7185',
+        titans:'#7f1d1d',
         macguffins:'#ec4899',
-        daycare:'#84cc16',
-        questing:'#d97706',
-        quirks:'#d946ef',
-        hacks:'#059669',
-        wishes:'#c084fc',
-        cards:'#e11d48',
+        daycare:'#5eead4',
+        questing:'#22d3ee',
+        quirks:'#c026d3',
+        hacks:'#4ade80',
+        wishes:'#a78bfa',
+        cards:'#f9a8d4',
         cooking:'#c2410c',
-        succes:'#cbd5e1',
-        sellout:'#8b5cf6',
-        spendExp:'#0891b2',
-        shop:'#0891b2',
-        classement:'#f59e0b',
-        chat:'#10b981',
-        setsZones:'#0d9488',
-        parametres:'#6b7280',
+        succes:'#e2e8f0',
+        sellout:'#c084fc',
+        spendExp:'#a855f7',
+        shop:'#a855f7',
+        classement:'#fcd34d',
+        bestiaire:'#93c5fd',
+        chat:'#e879f9',
+        setsZones:'#2dd4bf',
+        parametres:'#9ca3af',
         admin:'#dc2626'
       };
 
@@ -11449,7 +11450,7 @@
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
         /* 2026-09-25 (Norman) : EXP Shop et Boutique AP réunis dans un seul menu « Shop », séparés par un onglet. */
-        {id:'shop',icon:'🛍️',nom:'Shop'},
+        {id:'shop',icon:'🔮',nom:'Shop'},
         /*
          * 2026-09-26 (Norman) : « Classement, Collection, Chat : tout à droite, juste à gauche de Settings. Ce ne sont pas des mécaniques qui apportent
          * quelque chose à la progression du jeu, elles doivent être moins proches des autres systèmes qui le permettent. » Ordre par défaut ; l'ordre
@@ -15786,13 +15787,21 @@ let idleDialogueTimerV76=null;
         rendrePaginationIdleV1_(idlePageCollectionEquipementV1,totalPagesEquipement,'window.__changerPageCollectionEquipementV1__');
 
         const grilleBoosts=idsBoosts.length
-          ?'<div class="soreal-idle-collection-sets-v1"><b>⚡ Boosts obtenus</b></div>'+
+          ?'<div class="soreal-idle-collection-sets-v1"><b>⚡ Boosts obtenus</b>'+
+            (function(){
+              const maxes=idsBoosts.filter(function(id){return itemList[id]&&idleEntier_(itemList[id].maxLevel)>=100;}).length;
+              return maxes?'<div>✔ '+maxes+' boost'+(maxes>1?'s':'')+' au niveau 100 : +'+(maxes*2)+' % d’efficacité de tous les boosts</div>':'';
+            })()+
+          '</div>'+
             '<div class="soreal-idle-collection-grid-v1">'+
             idsBoosts.map(function(id){
               const m=IDLE_COLLECTION_BOOST_RE_V1.exec(id);
               const type=m[1],force=m[2];
               const nomBoost='Boost '+type.charAt(0).toUpperCase()+type.slice(1)+' +'+force;
-              return '<div class="soreal-idle-collection-card-v1">'+
+              /* Boost fusionné jusqu'au niveau 100 (Norman, 2026-10-03) : le petit V vert comme sur les autres objets ; chaque boost maximisé donne +2 % d'efficacité à tous les boosts (récompense déjà versée par le serveur). */
+              const boostMaxe=Boolean(itemList[id]&&idleEntier_(itemList[id].maxLevel)>=100);
+              return '<div class="soreal-idle-collection-card-v1'+(boostMaxe?' maxed':'')+'">'+
+                (boostMaxe?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 : +2 % d’efficacité de tous les boosts">✔</div>':'')+
                 '<div class="soreal-idle-collection-card-icon-v1">'+
                   iconeObjetAdventureIdleV138_({kind:'boost',boostType:type,strength:force})+
                 '</div>'+

@@ -29,8 +29,9 @@ assert.match(ui, /class="soreal-idle-modal-button-v63 '\+\(page\.bouton\?'jouer'
 assert.equal((ui.match(/bouton:'JOUER'/g) || []).length, 1, "seul le premier récit a ce bouton");
 
 // --- Boutique AP : le style de la Boutique EXP, couleur du menu (mauve) ---
-assert.match(ui, /sellout:'#8b5cf6'/, "Boutique AP en mauve (Boutique EXP : cyan)");
-assert.match(ui, /spendExp:'#0891b2'/);
+/* 2026-10-04 (Norman) : le Shop est mauve, comme une boutique magique ; chaque menu a sa couleur. */
+assert.match(ui, /sellout:'#c084fc'/, "Boutique AP en mauve clair");
+assert.match(ui, /spendExp:'#a855f7'/, "Boutique EXP en mauve");
 const ap = ui.slice(ui.indexOf("function pageSelloutShopIdleV1_(j){"), ui.indexOf("function pageRenaissanceIdleV28_(j){"));
 for (const classe of ["soreal-idle-exp-shop-v213", "soreal-idle-exp-awning-v213", "soreal-idle-exp-balance-v210", "soreal-idle-exp-tabs-v212", "soreal-idle-exp-tab-v212", "soreal-idle-exp-shelves-v213", "soreal-idle-exp-stat-v210", "soreal-idle-exp-buy-v210"]) {
   assert.ok(ap.includes(classe), "Boutique AP : " + classe);

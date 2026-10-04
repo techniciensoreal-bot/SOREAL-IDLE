@@ -1502,7 +1502,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4{
     width:min(1700px,calc(100vw - 32px))!important;
     display:grid!important;
-    grid-template-columns:288px minmax(0,1fr);
+    grid-template-columns:352px minmax(0,1fr);
     column-gap:20px;align-items:start;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*{grid-column:2;min-width:0}
@@ -1510,31 +1510,43 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   /* Le cadre du bandeau suit la hauteur de l'image (au lieu de la hauteur fixe de téléphone qui la coupait). */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{height:auto!important;max-height:380px}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95 img{display:block;width:100%!important;height:auto!important;max-height:380px!important;object-fit:contain!important;object-position:center!important;background:linear-gradient(180deg,#0b1020,#070b16)}
+  /*
+   * Menu de gauche SANS défilement sur PC (Norman, 2026-10-03 : « sur PC il y a toujours un menu défilant pour les menus à gauche ») : deux colonnes de cartes compactes, lues de haut en bas ; les 32 menus tiennent
+   * dans une fenêtre d'une hauteur ordinaire. Le défilement n'existe plus qu'en secours, sur une fenêtre vraiment très basse.
+   */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     grid-column:1;grid-row:2 / span 60;align-self:start;
     position:sticky;top:10px;margin:12px 0 14px!important;
-    flex-direction:column!important;flex-wrap:nowrap!important;gap:7px!important;
+    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(16,auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
+    gap:5px!important;padding:8px!important;
     overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 64px);
     scroll-snap-type:none!important;scrollbar-width:thin;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
-    width:100%!important;flex:0 0 auto;box-sizing:border-box;justify-content:flex-start;
+    width:100%!important;box-sizing:border-box;min-width:0;padding:2px 8px 2px 4px!important;gap:7px!important;border-bottom-width:2px!important;
   }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:32px!important;height:32px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:18px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{flex:1 1 auto;min-width:0}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:none}
+  /*
+   * Images moins démesurées sur PC (Norman, 2026-10-04 : « les images des boss, des collections ne doivent pas être si grandes, elles sont démesurées ») : les cases de Collection et du Bestiaire gardent une taille
+   * de vignette (130 à 150 px) au lieu de s'étirer sur toute la largeur, le portrait des combattants est plafonné, et la fiche d'un boss reste compacte.
+   */
+  body.soreal-idle-active-v47 :is(.soreal-idle-collection-grid-v1,.soreal-idle-bestiary-grid-v110):not(.soreal-idle-coffre-grille-v1){grid-template-columns:repeat(auto-fill,minmax(130px,150px))!important;justify-content:start}
+  body.soreal-idle-active-v47 .soreal-idle-duel-portrait-v41,
+  body.soreal-idle-active-v47 .soreal-idle-duel-fighter-v42 .soreal-idle-duel-portrait-v41{width:min(320px,100%)!important;max-width:320px!important;margin-inline:auto}
+  body.soreal-idle-active-v47 .soreal-idle-boss-fiche-v1{width:min(440px,94vw)}
+  body.soreal-idle-active-v47 .soreal-idle-boss-fiche-image-v1,
+  body.soreal-idle-active-v47 .soreal-idle-boss-fiche-image-v1 img{max-height:260px}
   /* Money Pit : cadres, boutons et récompenses profitent de la largeur (l'image reste à sa taille). */
   body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] :is(.soreal-idle-money-actions-v206,.mp-cadre-v1,.cal-v1,.soreal-idle-money-scene-v206~.soreal-idle-offre-v1){max-width:1100px!important}
   /*
    * Harmonie (Norman, 2026-10-03 : « les menus sur la gauche sont minuscules comparés au reste ; réduis un peu l'interface du jeu uniquement sur PC ») : le contenu (page, énergie, chiffres) est réduit
-   * d'environ 14 % sur PC, et les cartes de la colonne de menus reprennent leur taille pleine, un peu plus grande même, pour que les deux côtés aient la même échelle.
+   * d'environ 14 % sur PC ; la colonne de menus tient sur deux colonnes de cartes compactes (voir plus haut).
    */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*:not(.soreal-idle-nav-v28):not(.soreal-idle-hero-banner-v95){zoom:.86}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{gap:7px!important;padding:10px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:6px 14px 6px 8px!important;gap:10px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:46px!important;height:46px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:25px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:14px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{font-size:12px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{flex:1 1 auto;min-width:0}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{white-space:normal}
 }
 
 /* ====================== MENUS ANIMÉS PAR UN ÉTAT (pas seulement l'énergie placée) ======================
@@ -1610,3 +1622,19 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="par
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:none}
 }
+
+/* ====================== Bouton Shop : une boutique magique ======================
+ * Norman (2026-10-04) : « le bouton de Boutique doit être mauve et doit plus faire penser à une boutique magique ». Boule de cristal sur un badge en étoile, dégradé mauve nuit étoilée, étincelles discrètes. */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"]:not(.active){
+  background:
+    radial-gradient(circle at 18% 28%,rgba(255,255,255,.55) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 78% 62%,rgba(255,255,255,.45) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 60% 20%,rgba(255,236,160,.6) 0 1px,transparent 1.6px),
+    radial-gradient(120% 140% at 0% 0%,rgba(168,85,247,.5),transparent 62%),
+    linear-gradient(160deg,#2a1450,#120a2a)!important;
+  border-color:rgba(192,132,252,.75)!important;border-bottom-color:#c084fc!important;
+}
+@keyframes sorealBoutiqueMagieV1{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(25deg)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"]{position:relative}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{content:"✦";position:absolute;right:10px;top:4px;font-size:11px;color:#fde68a;text-shadow:0 0 6px #c084fc;pointer-events:none;animation:sorealBoutiqueMagieV1 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{animation:none;opacity:.8}}
