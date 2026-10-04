@@ -37,15 +37,26 @@ assert.throws(() => agir(normalizeIdleAdventureStateV47({}), { action: "startTit
 
 // 4. Défaite : Safe Zone, délai intact, combat terminé.
 const avantKills = s.titans.t1 ? s.titans.t1.kills || 0 : 0;
-let perdu = agir(s, { action: "loseZoneFight" }, 11_000);
+const identite = { titanId: s.fight.titanId, titanStartedAt: s.fight.titanStartedAt };
+// Un combat de zone ordinaire qui se termine pendant que le titan démarre (client en retard) ne doit ni le gagner ni l'interrompre.
+assert.throws(() => agir(s, { action: "loseZoneFight" }, 11_000), /COMBAT_TITAN_AUTRE/);
+assert.throws(() => agir(s, { action: "loseZoneFight", titanId: "t2", titanStartedAt: s.fight.titanStartedAt }, 11_000), /COMBAT_TITAN_AUTRE/);
+assert.equal(s.fight.active, true, "le combat du titan continue");
+let perdu = agir(s, Object.assign({ action: "loseZoneFight" }, identite), 11_000);
 assert.equal(perdu.state.fight.active, false);
 assert.equal(perdu.state.selectedZone, "safe");
 assert.equal((perdu.state.titans.t1 || { kills: 0 }).kills || 0, avantKills, "pas de victoire comptée");
 assert.ok(!perdu.state.titans.t1 || !perdu.state.titans.t1.nextAt, "pas de délai relancé");
 
 // 5. Victoire : trop court = refusé (anti-triche minimale), puis récompenses et délai.
-assert.throws(() => agir(s, { action: "resolveZoneFight" }, 10_500), /COMBAT_TITAN_TROP_COURT/);
-let gagne = agir(s, { action: "resolveZoneFight" }, 40_000);
+assert.throws(() => agir(s, Object.assign({ action: "resolveZoneFight" }, identite), 10_500), /COMBAT_TITAN_TROP_COURT/);
+/* Le bug du titan tué sans combat (2026-10-04) : une résolution sans identité de titan, ou avec celle d'un autre combat, est refusée, même longtemps après le départ. */
+assert.throws(() => agir(s, { action: "resolveZoneFight" }, 40_000), /COMBAT_TITAN_AUTRE/, "victoire d'un combat de zone : jamais comptée contre le titan");
+assert.throws(() => agir(s, { action: "resolveZoneFight", titanId: "t1", titanStartedAt: 123 }, 40_000), /COMBAT_TITAN_AUTRE/, "autre heure de départ : refusé");
+assert.throws(() => agir(s, { action: "resolveZoneFight", titanId: "t2", titanStartedAt: s.fight.titanStartedAt }, 40_000), /COMBAT_TITAN_AUTRE/, "autre titan : refusé");
+assert.equal(s.fight.active, true);
+assert.equal((s.titans.t1 || { kills: 0 }).kills || 0, 0, "aucun titan tué par ces résolutions");
+let gagne = agir(s, Object.assign({ action: "resolveZoneFight" }, identite), 40_000);
 assert.equal(gagne.result.id, "t1");
 assert.equal(gagne.result.kills, 1);
 assert.equal(gagne.state.fight.active, false);

@@ -1519,7 +1519,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4{
     width:min(1700px,calc(100vw - 32px))!important;
     display:grid!important;
-    grid-template-columns:352px minmax(0,1fr);
+    grid-template-columns:236px minmax(0,1fr);
     column-gap:20px;align-items:start;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*{grid-column:2;min-width:0}
@@ -1531,13 +1531,17 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
    * Menu de gauche SANS défilement sur PC (Norman, 2026-10-03 : « sur PC il y a toujours un menu défilant pour les menus à gauche ») : deux colonnes de cartes compactes, lues de haut en bas ; les 32 menus tiennent
    * dans une fenêtre d'une hauteur ordinaire. Le défilement n'existe plus qu'en secours, sur une fenêtre vraiment très basse.
    */
+  /*
+   * Menu sur UNE colonne (Norman, 2026-10-04 : « sur PC je le veux sur une seule colonne avec tout superposé, et il a une barre qui apparaît et disparaît pour la hauteur ») : tous les boutons les uns sous les autres.
+   * La liste n'a plus de hauteur maximale ni de défilement propre (c'était lui qui faisait apparaître et disparaître une barre dès que la hauteur variait) : elle suit la page, qui défile normalement.
+   */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     grid-column:1;grid-row:2 / span 60;align-self:start;
-    position:sticky;top:10px;margin:12px 0 14px!important;
-    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
+    position:static;margin:12px 0 14px!important;
+    display:flex!important;flex-direction:column;
     gap:5px!important;padding:8px!important;
-    overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 64px);
-    scroll-snap-type:none!important;scrollbar-width:thin;
+    overflow:visible!important;max-height:none!important;
+    scroll-snap-type:none!important;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
     width:100%!important;box-sizing:border-box;min-width:0;padding:2px 8px 2px 4px!important;gap:7px!important;border-bottom-width:2px!important;

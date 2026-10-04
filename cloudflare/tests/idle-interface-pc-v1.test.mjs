@@ -9,8 +9,8 @@ const debut = css.indexOf("@media (min-width:1100px) and (hover:hover) and (poin
 assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (jamais téléphone ni tablette tactile)");
 const bloc = css.slice(debut);
 assert.ok(bloc.includes("width:min(1700px,calc(100vw - 32px))"), "le jeu occupe la largeur de l'écran");
-assert.ok(bloc.includes("grid-template-columns:352px minmax(0,1fr)"), "menu à gauche, page à droite");
-assert.ok(bloc.includes("grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr))") && bloc.includes("position:sticky"), "menus sur deux colonnes compactes, toujours visibles, sans défilement ordinaire");
+assert.ok(bloc.includes("grid-template-columns:236px minmax(0,1fr)"), "menu à gauche (une colonne), page à droite");
+assert.ok(bloc.includes("display:flex!important;flex-direction:column;") && bloc.includes("overflow:visible!important;max-height:none!important;") && bloc.includes("position:static;"), "menus sur UNE colonne, tout superposé, sans hauteur maximale ni défilement propre (2026-10-04)");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{grid-column:1/-1}"), "bandeau sur toute la largeur");
 // Équilibre des accolades (aucune règle cassée par l'ajout).
 let profondeur = 0;
@@ -33,7 +33,7 @@ assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:32px!important;height:32
 {
   const flux = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
   assert.ok(flux.includes("bottom:0;z-index:55;height:34px;"), "bandeau au-dessus de la colonne de menus (z-index 50)");
-  assert.ok(bloc.includes("max-height:calc(100vh - 64px)"), "la colonne de menus s'arrête au-dessus du bandeau");
+  assert.ok(bloc.includes("position:static;") && bloc.includes("max-height:none!important;"), "la colonne de menus suit la page (plus de colonne collée ni de hauteur maximale) : elle ne peut plus passer sous le bandeau fixe");
 }
 console.log("idle-interface-pc-v1 (bandeau En direct): OK");
 
@@ -51,7 +51,7 @@ assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-
   assert.ok(ui.includes("style=\"--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))}\""), "nombre de lignes = moitié des menus visibles");
   const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
   assert.ok(!css.includes("grid-template-rows:repeat(16,auto)"), "plus de 16 lignes fixes");
-  assert.equal(css.split("grid-template-rows:repeat(var(--nav-lignes,17),auto)").length - 1, 2, "PC et TV");
+  assert.equal(css.split("grid-template-rows:repeat(var(--nav-lignes,17),auto)").length - 1, 1, "TV seulement : deux colonnes ; PC : une colonne (2026-10-04)");
   // 33 menus (admin compris) : 17 lignes, deux colonnes, jamais de troisième.
   for (const n of [28, 32, 33, 34]) assert.ok(Math.ceil(n / 2) * 2 >= n, "tient sur deux colonnes : " + n);
 }

@@ -17460,6 +17460,8 @@ let idleDialogueTimerV76=null;
         return Boolean(api&&idleTitanEtatV1&&api.joueurParalyse(idleTitanEtatV1,maintenant));
       }
       let idleAdventureResolutionPendingV2='';
+      /* Identité du combat de titan terminé (id + heure de départ) : jointe à la résolution pour que le serveur la rattache au bon combat. */
+      let idleAdventureResolutionIdentiteV2={titanId:'',titanStartedAt:0};
       let idleAdventureRespawnAtV1=0;
       let idleAdventureRespawnTimerV165=0;
       let idleAdventureRespawnStartPendingV165=false;
@@ -18241,7 +18243,7 @@ let idleDialogueTimerV76=null;
         const action=idleAdventureResolutionPendingV2;
         actionMetaIdleV130_({
           action:'adventure',
-          adventure:{action:action}
+          adventure:{action:action,titanId:idleAdventureResolutionIdentiteV2.titanId,titanStartedAt:idleAdventureResolutionIdentiteV2.titanStartedAt}
         });
         if(metaOccupeIdleV130_()){
           idleAdventureResolutionPendingV2='';
@@ -18310,6 +18312,7 @@ let idleDialogueTimerV76=null;
             'system',
             'Vous avez vaincu '+nom+' !'
           );
+          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt)};
           idleAdventureResolutionPendingV2='resolveZoneFight';
           /* Les histoires ne se déclenchent plus sur un boss de zone Aventure (Norman, 2026-09-30 : « uniquement ceux de Fight Boss »). */
         }else{
@@ -18321,6 +18324,7 @@ let idleDialogueTimerV76=null;
             'enemy',
             'Vous avez été mis K.O. par '+nom+' ! Retour à la Safe Zone…'
           );
+          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt)};
           idleAdventureResolutionPendingV2='loseZoneFight';
         }
 

@@ -27,7 +27,7 @@ assert.ok(ui.includes("{id:'shop',icon:'🔮',nom:'Shop'}") && ui.includes("shop
 assert.ok(css.includes('.soreal-idle-nav-button-v28[data-menu-id-v1="shop"]:not(.active)') && css.includes("sorealBoutiqueMagieV1"), "dégradé étoilé et étincelles");
 // 3. Menu de gauche sans défilement sur PC : deux colonnes compactes.
 assert.ok(css.includes("grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);"));
-assert.ok(css.includes("grid-template-columns:352px minmax(0,1fr)"));
+assert.ok(css.includes("grid-template-columns:236px minmax(0,1fr)") && css.includes("grid-template-columns:448px minmax(0,1fr)"), "PC : une colonne (236 px) ; TV : deux colonnes (448 px)");
 // 4. Images plafonnées sur PC.
 assert.ok(css.includes("repeat(auto-fill,minmax(130px,150px))!important"), "vignettes de Collection et de Bestiaire");
 assert.ok(css.includes(".soreal-idle-duel-fighter-v42 .soreal-idle-duel-portrait-v41{width:min(320px,100%)!important"), "portraits de combat");

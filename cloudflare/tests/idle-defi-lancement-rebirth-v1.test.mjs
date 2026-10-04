@@ -51,7 +51,7 @@ assert.equal((avant.autoAventure ?? avant.aventure?.auto).actif, true);
   assert.equal(t.joueur.systemes.adventure.fight.active, true, "le titan est l'ennemi du combat");
   assert.equal(t.joueur.systemes.adventure.fight.titanId, "t1");
   assert.equal(t.joueur.bossVaincus, 70, "le run n'est pas réinitialisé par un combat de titan");
-  const perdu = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "adventure", adventure: { action: "loseZoneFight" } }], user);
+  const perdu = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "adventure", adventure: { action: "loseZoneFight", titanId: "t1", titanStartedAt: t.joueur.systemes.adventure.fight.titanStartedAt } }], user);
   assert.ok(perdu.ok, JSON.stringify(perdu));
   assert.equal(perdu.joueur.systemes.adventure.fight.active, false);
   assert.equal(perdu.joueur.bossVaincus, 70);
