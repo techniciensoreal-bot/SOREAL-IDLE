@@ -815,8 +815,8 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal
   background:linear-gradient(180deg,#ff7af2,#a21fd0)!important;color:#fff!important;box-shadow:0 0 16px var(--th-glow);
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-exp-buy-v210{
-  background:linear-gradient(180deg,#19e3d0,#0a8f9a)!important;color:#02241f!important;border:1px solid rgba(255,255,255,.35)!important;border-radius:12px!important;
-  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);box-shadow:0 0 14px rgba(25,227,208,.55)!important;
+  background:linear-gradient(180deg,var(--rayon-h,#19e3d0),var(--rayon-b,#0a8f9a))!important;color:var(--rayon-t,#02241f)!important;border:1px solid rgba(255,255,255,.35)!important;border-radius:10px!important;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,0 100%);box-shadow:0 0 12px var(--rayon-o,rgba(25,227,208,.55))!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-exp-help-v210{color:var(--th-dim)!important}
 
@@ -963,8 +963,8 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal
   background:linear-gradient(180deg,#ffe08a,#d49a10)!important;color:#3a2300!important;box-shadow:0 0 16px rgba(255,211,110,.6);
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-buy-v210{
-  background:linear-gradient(180deg,#ffe08a,#d49a10)!important;color:#3a2300!important;border:1px solid rgba(255,255,255,.4)!important;border-radius:6px!important;
-  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);box-shadow:0 0 16px rgba(255,200,60,.5)!important;
+  background:linear-gradient(180deg,var(--rayon-h,#ffe08a),var(--rayon-b,#d49a10))!important;color:var(--rayon-t,#3a2300)!important;border:1px solid rgba(255,255,255,.4)!important;border-radius:6px!important;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);box-shadow:0 0 12px var(--rayon-o,rgba(255,200,60,.5))!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 .soreal-idle-exp-help-v210{color:#c4a8e6!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1 :is(.soreal-idle-section-v8,.soreal-idle-card-v4){
@@ -1901,3 +1901,21 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28{
   scroll-snap-type:none!important;scroll-behavior:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{scroll-snap-align:none!important}
+
+/* ====================== COULEUR DES BOUTONS D'ACHAT PAR RAYON (boutiques EXP et AP) ======================
+ * Norman (2026-10-04) : « la couleur des boutons change pour chaque rayon dans EXP SHOP et AP SHOP ». Le cadre porte data-rayon = rayon affiché ; h/b = haut/bas du dégradé, t = texte, o = halo. */
+.soreal-idle-exp-shop-v213[data-rayon="debuts"]{--rayon-h:#8df08d;--rayon-b:#2e9c4a;--rayon-t:#052a10;--rayon-o:rgba(80,220,110,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="toc"]{--rayon-h:#ffc47a;--rayon-b:#d2741a;--rayon-t:#3a1d00;--rayon-o:rgba(255,160,60,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="energy"]{--rayon-h:#fff08a;--rayon-b:#d6a800;--rayon-t:#3a2c00;--rayon-o:rgba(255,220,60,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="magic"]{--rayon-h:#e0a6ff;--rayon-b:#8a3fd0;--rayon-t:#1f0436;--rayon-o:rgba(190,110,255,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="r3"]{--rayon-h:#ff9fb5;--rayon-b:#d0314f;--rayon-t:#36000f;--rayon-o:rgba(255,100,130,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="aventure"]{--rayon-h:#8fd0ff;--rayon-b:#2b78c9;--rayon-t:#02203a;--rayon-o:rgba(90,170,255,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="slots"]{--rayon-h:#19e3d0;--rayon-b:#0a8f9a;--rayon-t:#02241f;--rayon-o:rgba(25,227,208,.55)}
+.soreal-idle-exp-shop-v213[data-rayon="boosts1"]{--rayon-h:#ffe27a;--rayon-b:#d49a10;--rayon-t:#3a2300;--rayon-o:rgba(255,200,60,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="boosts2"]{--rayon-h:#9be88f;--rayon-b:#35a047;--rayon-t:#062a0e;--rayon-o:rgba(90,220,110,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="special1"]{--rayon-h:#8fd0ff;--rayon-b:#2b78c9;--rayon-t:#02203a;--rayon-o:rgba(90,170,255,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="special2"]{--rayon-h:#e0a6ff;--rayon-b:#8a3fd0;--rayon-t:#1f0436;--rayon-o:rgba(190,110,255,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="special3"]{--rayon-h:#ff9fb5;--rayon-b:#d0314f;--rayon-t:#36000f;--rayon-o:rgba(255,100,130,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="special4"]{--rayon-h:#ffb98a;--rayon-b:#d2641a;--rayon-t:#3a1700;--rayon-o:rgba(255,150,70,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="items"]{--rayon-h:#ffa8dd;--rayon-b:#c93d96;--rayon-t:#36002a;--rayon-o:rgba(255,120,200,.5)}
+.soreal-idle-exp-shop-v213[data-rayon="expPp"]{--rayon-h:#19e3d0;--rayon-b:#0a8f9a;--rayon-t:#02241f;--rayon-o:rgba(25,227,208,.5)}

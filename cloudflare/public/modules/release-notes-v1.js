@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Les boutiques ont été remises en ordre : chaque rayon a la couleur de ses boutons, les boutons sont plus petits et ne disent plus que « Acheter », et les prix et les gains sont écrits dans le cadre de chaque article.',
           'Chaque achat de la boutique EXP a maintenant sa vignette, comme ceux de la boutique AP, et le rayon des petits outils a retrouvé son vrai nom.',
           'Les boutons du menu du haut ne s’animent plus de base. Un nouvel achat du rayon Toc de la boutique EXP (40 EXP), « Menus animés », les fait vivre quand un menu est actif.',
           'Le fil « En direct » raconte deux choses de plus : quand quelqu’un lance un sort de sang (le sort n’est nommé que si tu l’as toi-même découvert), quand il regarde une cinématique, et quand il lance, perd ou gagne un combat contre un géant.',

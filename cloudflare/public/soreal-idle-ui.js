@@ -21901,12 +21901,13 @@ function pageAventureIdleV28_(j){
           return '<div class="soreal-idle-exp-stat-v210">'+
             '<div class="soreal-idle-exp-stat-head-v210"><span>'+imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)+compteur+'</span></div>'+
             '<div class="soreal-idle-exp-help-v210">'+idleHtml_(texte.effect)+'</div>'+
+            (auMax?'':'<div class="soreal-idle-exp-prix-v1"><span class="soreal-idle-exp-prix-ligne-v1"><i>Prix</i><b>'+formatGrandNombreIdleV70_(item.nextCost)+' AP</b></span></div>')+
             (auMax
                 ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
                 :'<div class="soreal-idle-exp-actions-v210">'+
                   '<button type="button" class="soreal-idle-exp-buy-v210" '+(abordable?'':'disabled ')+
                   'onclick="window.__actionMetaIdleV130__({action:\'sellShopBuy\',itemId:\''+idleHtml_(item.id)+'\'})">'+
-                  '<b>Acheter</b><small>'+formatGrandNombreIdleV70_(item.nextCost)+' AP</small></button>'+
+                  'Acheter</button>'+
                 '</div>')+
           '</div>';
         };
@@ -21924,7 +21925,7 @@ function pageAventureIdleV28_(j){
           "Dépense tes AP ici. Aucun achat ne coûte d’argent réel."
         )+
         '<style>'+css+'</style>'+
-        '<div class="soreal-idle-exp-shop-v213">'+
+        '<div class="soreal-idle-exp-shop-v213" data-rayon="'+onglet+'">'+
           '<div class="soreal-idle-exp-awning-v213" aria-hidden="true"></div>'+
           '<div class="soreal-idle-exp-balance-v210"><span>💠 Ta caisse · AP disponible</span><b>'+formatGrandNombreIdleV70_(ap)+'</b></div>'+
           '<div class="soreal-idle-exp-aisles-v213"><span>🧭 Rayons</span><span class="soreal-idle-exp-open-v213">● OUVERT</span></div>'+
