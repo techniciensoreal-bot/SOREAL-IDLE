@@ -791,11 +791,15 @@
        * (même place et même taille que les images de la boutique AP) et le titre garde le texte seul. Un achat sans emoji reçoit une vignette neutre.
        */
       const IDLE_EXP_EMOJI_DEBUT_V1=/^((?:\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*)+)\s*([\s\S]*)$/u;
-      function idleExpTitreAvecImageIdleV1_(titreHtml){
+      /* Vraies illustrations du rayon Toc (Norman, 2026-10-04 : trois images, une par achat, nommées d'après le menu qu'elles concernent) : fichiers de /shop/ ; si une image manque, la vignette à emoji reste. */
+      const IDLE_EXP_PHOTOS_V1={sortInventory:'exp-inventaire',syncBasicTraining:'exp-basic-training',menuAnimations:'exp-menus'};
+      function idleExpTitreAvecImageIdleV1_(titreHtml,id){
         const m=IDLE_EXP_EMOJI_DEBUT_V1.exec(String(titreHtml||''));
         const icone=m?m[1]:'✦';
         const texte=m?m[2]:String(titreHtml||'');
-        return '<span class="soreal-idle-exp-img-v1" aria-hidden="true">'+icone+'</span><span class="soreal-idle-exp-titre-v1">'+texte+'</span>';
+        const photo=id&&IDLE_EXP_PHOTOS_V1[id];
+        const image=photo?'<img src="/shop/'+photo+'.png" alt="" width="64" height="64" loading="eager" decoding="async" onerror="this.remove()">':'';
+        return '<span class="soreal-idle-exp-img-v1'+(photo?' avec-photo':'')+'" aria-hidden="true">'+icone+image+'</span><span class="soreal-idle-exp-titre-v1">'+texte+'</span>';
       }
       function idleExpShopItemCarteIdleV1_(it,aide){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
@@ -810,7 +814,7 @@
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
         const prixCarte=fini?'':idleExpPrixCarteIdleV1_(tiers.map(function(q){return {q:q,gain:(it.max===1&&q===1)?'':H.formatGrandNombreIdleV70_((it.gain||0)*q,2),cout:H.formatGrandNombreIdleV70_(coutTotal(q),2)};}),'EXP');
-        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name))}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
+        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name),it.id)}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
           (aide?`<div class="soreal-idle-exp-help-v210">${H.idleHtml_(aide)}</div>`:'')+prixCarte+
           (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':`<div class="soreal-idle-exp-actions-v210">${boutons}</div>`)+
           '</div>';
@@ -908,6 +912,9 @@
           `.soreal-idle-exp-aisles-v213{display:flex;align-items:center;justify-content:space-between;margin:0 14px 4px;font-size:11px;font-weight:1000;letter-spacing:.16em;text-transform:uppercase;color:#a9cfdc}`,
           `.soreal-idle-exp-titrebloc-v1{display:inline-flex;align-items:center;gap:10px;min-width:0}`,
           `.soreal-idle-exp-img-v1{flex:0 0 auto;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:27px;line-height:1;border-radius:12px;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.28),rgba(255,255,255,.04) 62%),linear-gradient(145deg,#27597a,#12304a);border:1px solid rgba(160,215,240,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 5px rgba(0,0,0,.4)}`,
+          `.soreal-idle-exp-img-v1{position:relative}`,
+          `.soreal-idle-exp-img-v1.avec-photo{width:64px;height:64px;padding:0;overflow:hidden}`,
+          `.soreal-idle-exp-img-v1 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;border-radius:inherit}`,
           `.soreal-idle-exp-titre-v1{min-width:0}`,
           `.soreal-idle-exp-tabs-v212{display:flex;gap:7px;flex-wrap:wrap;margin:0 14px 16px;padding-top:6px}`,
           `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;position:relative;padding:9px 13px;border-radius:4px 4px 14px 14px;border:1px solid rgba(255,255,255,.22);background:${fond1};color:#e8f4f8;font-size:14px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,

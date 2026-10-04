@@ -14,7 +14,7 @@ for (const fichier of Object.values(manifeste)) {
   assert.equal(readFileSync("cloudflare/public/shop/" + fichier).subarray(0, 4).toString("hex"), "89504e47", fichier + " : PNG");
   assert.ok(/^[a-z0-9-]+\.png$/.test(fichier), "nom propre : " + fichier);
 }
-assert.equal(readdirSync("cloudflare/public/shop").length, 72, "71 images + manifest");
+assert.equal(readdirSync("cloudflare/public/shop").length, 75, "71 images + manifest + 3 illustrations du rayon Toc (exp-*.png)");
 
 const carte = ui.match(/const IDLE_SHOP_IMAGES_V1=(\{[^}]*\});/);
 assert.ok(carte, "table article -> image");
