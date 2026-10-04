@@ -636,7 +636,7 @@
         if(verrouille)return '';
         return '<div class="soreal-idle-exp-stat-v210">'+
           '<div class="soreal-idle-exp-stat-head-v210">'+
-            '<span>'+stat.icone+' '+stat.nom+'</span>'+
+            '<span class="soreal-idle-exp-titrebloc-v1">'+idleExpTitreAvecImageIdleV1_(stat.icone+' '+stat.nom)+'</span>'+
             '<div class="soreal-idle-exp-current-v211"><small>Actuel</small><strong>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong></div>'+
           '</div>'+
           '<div class="soreal-idle-exp-help-v210">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat.explication||'')+'</div>'+
@@ -659,7 +659,7 @@
        */
       const IDLE_EXP_ONGLETS_V1=[
         {id:'debuts',icone:'🚀',nom:'Débuts'},
-        {id:'toc',icone:'🧰',nom:'Toc'},
+        {id:'toc',icone:'🧰',nom:'J’ai des TOC, mais au moins ils sont bien rangés.'},
         {id:'energy',icone:'⚡',nom:'Énergie'},
         {id:'magic',icone:'✨',nom:'Magie'},
         {id:'r3',icone:'🧪',nom:'Ressource 3'},
@@ -742,6 +742,17 @@
         if(H.getIdleEtat())H.rendreIdleEtat_({ok:true,joueur:H.getIdleEtat()});
       };
 
+      /*
+       * Image de chaque achat de la boutique EXP (Norman, 2026-10-04 : « je n'ai pas les images dans la boutique EXP ») : le wiki NGU Idle n'illustre pas ces achats, l'emoji du titre devient donc une vignette
+       * (même place et même taille que les images de la boutique AP) et le titre garde le texte seul. Un achat sans emoji reçoit une vignette neutre.
+       */
+      const IDLE_EXP_EMOJI_DEBUT_V1=/^((?:\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*)+)\s*([\s\S]*)$/u;
+      function idleExpTitreAvecImageIdleV1_(titreHtml){
+        const m=IDLE_EXP_EMOJI_DEBUT_V1.exec(String(titreHtml||''));
+        const icone=m?m[1]:'✦';
+        const texte=m?m[2]:String(titreHtml||'');
+        return '<span class="soreal-idle-exp-img-v1" aria-hidden="true">'+icone+'</span><span class="soreal-idle-exp-titre-v1">'+texte+'</span>';
+      }
       function idleExpShopItemCarteIdleV1_(it,aide){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const fini=it.nextCost==null;
@@ -753,7 +764,7 @@
         const boutons=tiers.map(function(q){
           return `<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',${q})"><b>+${H.formatGrandNombreIdleV70_((it.gain||0)*q,2)}</b><small>×${q} · ${restants?'total '+H.formatGrandNombreIdleV70_(coutTotal(q),2):'dès '+H.idleEntier_(it.nextCost)} EXP</small></button>`;
         }).join('');
-        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>${IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
+        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name))}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
           (aide?`<div class="soreal-idle-exp-help-v210">${H.idleHtml_(aide)}</div>`:'')+
           (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':`<div class="soreal-idle-exp-actions-v210">${boutons}</div>`)+
           '</div>';
@@ -767,7 +778,7 @@
           const boutons=[1,10,100].map(function(q){
             return `<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRichJerksIdleV1__('${stat}',${q})"><b>+${H.idleEntier_((rj.pctPerLevel||10)*q)} %</b><small>×${q} · ${H.idleEntier_((rj.cost||30)*q)} EXP</small></button>`;
           }).join('');
-          return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>${stat==='attack'?'🗡️ Attaque':'🛡️ Défense'} pour riches (Rich Jerks)</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>${H.idleEntier_(niveau||0)}</strong></div></div><div class="soreal-idle-exp-actions-v210">${boutons}</div></div>`;
+          return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_((stat==='attack'?'🗡️ Attaque':'🛡️ Défense')+' pour riches (Rich Jerks)')}</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>${H.idleEntier_(niveau||0)}</strong></div></div><div class="soreal-idle-exp-actions-v210">${boutons}</div></div>`;
         }).join('');
       }
 
@@ -778,7 +789,7 @@
         return '<div class="soreal-idle-exp-resource-v210">🌱 Yggdrasil : Auto-Activate</div>'+
           items.map(function(it){
             const fini=it.nextCost==null;
-            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span>${H.idleHtml_(it.name)}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>`+
+            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(H.idleHtml_(it.name))}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>`+
               (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':`<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',1)"><b>Acheter</b><small>${H.formatGrandNombreIdleV70_(it.nextCost)} EXP</small></button></div>`)+
               '</div>';
           }).join('');
@@ -849,6 +860,9 @@
           `.soreal-idle-exp-balance-v210 span{font-size:14px;font-weight:900;letter-spacing:.03em;color:#fff}.soreal-idle-exp-balance-v210 b{display:inline-flex;align-items:center;justify-content:center;min-width:72px;padding:6px 12px;border-radius:9px;background:#07111f;color:#7ff0c0;font-size:17px;font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em;box-shadow:inset 0 0 0 2px rgba(255,255,255,.14)}`,
           `.soreal-idle-exp-open-v213{padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.3);color:#c9f7dd;font-size:11px;font-weight:1000;letter-spacing:.14em}`,
           `.soreal-idle-exp-aisles-v213{display:flex;align-items:center;justify-content:space-between;margin:0 14px 4px;font-size:11px;font-weight:1000;letter-spacing:.16em;text-transform:uppercase;color:#a9cfdc}`,
+          `.soreal-idle-exp-titrebloc-v1{display:inline-flex;align-items:center;gap:10px;min-width:0}`,
+          `.soreal-idle-exp-img-v1{flex:0 0 auto;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:27px;line-height:1;border-radius:12px;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.28),rgba(255,255,255,.04) 62%),linear-gradient(145deg,#27597a,#12304a);border:1px solid rgba(160,215,240,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 5px rgba(0,0,0,.4)}`,
+          `.soreal-idle-exp-titre-v1{min-width:0}`,
           `.soreal-idle-exp-tabs-v212{display:flex;gap:7px;flex-wrap:wrap;margin:0 14px 16px;padding-top:6px}`,
           `.soreal-idle-exp-tab-v212{appearance:none;cursor:pointer;position:relative;padding:9px 13px;border-radius:4px 4px 14px 14px;border:1px solid rgba(255,255,255,.22);background:${fond1};color:#e8f4f8;font-size:14px;font-weight:900;display:inline-flex;align-items:center;gap:6px}`,
           `.soreal-idle-exp-tab-v212::before{content:"";position:absolute;left:50%;top:-8px;width:2px;height:8px;background:rgba(255,255,255,.4);transform:translateX(-50%)}`,
