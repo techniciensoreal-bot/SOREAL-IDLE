@@ -11325,6 +11325,7 @@
         try{localStorage.setItem(CLE_SUCCES_VUS_V1,JSON.stringify(ids));}catch(_e){}
       }
       /* Succès débloqués mais jamais regardés : la liste des succès vus est mémorisée sur l'appareil ; première visite = tout ce qui est déjà débloqué est considéré comme vu. Ouvrir le menu Succès les marque tous comme vus. */
+      let idleSuccesNouveauxV1=[];
       function succesNonVusIdleV1_(j,menuActif){
         const ach=j&&j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
         const debloques=ach.filter(function(a){return a&&a.unlocked;}).map(function(a){return a.id;});
@@ -11332,11 +11333,19 @@
         if(vus===null){memoriserSuccesVusIdleV1_(debloques);return false;}
         const nonVus=debloques.filter(function(id){return vus.indexOf(id)===-1;});
         if(menuActif==='succes'){
+          /* Point rouge dans le menu (Norman, 2026-10-04) : les trophées non vus à l'ouverture sont gardés tant qu'on reste dans le menu (sur leur catégorie et sur le trophée), puis considérés comme vus. */
+          nonVus.forEach(function(id){if(idleSuccesNouveauxV1.indexOf(id)===-1)idleSuccesNouveauxV1.push(id);});
           if(nonVus.length)memoriserSuccesVusIdleV1_(vus.concat(nonVus));
           return false;
         }
+        idleSuccesNouveauxV1=[];
         return nonVus.length>0;
       }
+      /* Trophées nouveaux à signaler d'un point rouge dans la page des succès (modules/profile-v1.js). Appelée au rendu de la page : capture ce qui n'a pas encore été vu avant de le marquer comme vu. */
+      if(typeof window!=='undefined')window.__SOREAL_IDLE_SUCCES_NOUVEAUX_V1__=function(){
+        try{succesNonVusIdleV1_(idleEtat,idleMenuActifV28);}catch(_e){}
+        return idleSuccesNouveauxV1.slice();
+      };
       function idleMenuEtatAnimeIdleV1_(id,j){
         if(!j)return false;
         if(IDLE_MENUS_CONSULTES_V1[id])return idleMenuActifV28===id;

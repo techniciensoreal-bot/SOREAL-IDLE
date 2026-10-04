@@ -60,6 +60,11 @@
       '.idle-succes-item-v1{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);border-left:4px solid var(--acc);font-size:14px;font-weight:800;color:inherit}'+
       '.idle-succes-item-v1 .ok{font-size:15px}'+
       '.idle-succes-item-v1 .bp{margin-left:auto;flex:0 0 auto;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--acc) 62%,#0b1020);color:#fff;font-size:12.5px;font-weight:950}'+
+      '.idle-succes-pt-v1{display:inline-block;flex:0 0 auto;width:12px;height:12px;border-radius:50%;background:#ff3b30;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 10px 2px rgba(255,59,48,.85);animation:idleSuccesPtV1 1.4s ease-in-out infinite}'+
+      '.idle-succes-groupe-v1>summary .idle-succes-pt-v1{margin-left:2px}'+
+      '.idle-succes-item-v1.nouveau{border-color:#ff3b30;background:rgba(255,59,48,.12)}'+
+      '@keyframes idleSuccesPtV1{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.75}}'+
+      '@media (prefers-reduced-motion:reduce){.idle-succes-pt-v1{animation:none}}'+
       '@media (max-width:520px){.idle-succes-liste-v1{grid-template-columns:1fr}}';
     document.head.appendChild(st);
   }
@@ -72,14 +77,21 @@
      * ANTI-SPOIL (Norman, 2026-09-24 : « le joueur ne doit voir que ce qu'il a débloqué ») : seuls les succès DÉJÀ obtenus sont listés ;
      * ni les objectifs à venir, ni les succès secrets (« ??? »), ni le nombre total (« n / 153 »), ni les totaux par groupe.
      */
+    /* Point rouge (Norman, 2026-10-04) : sur chaque trophée non vu et sur sa catégorie, tant qu'on reste dans le menu (la liste vient du jeu, qui les marque comme vus ensuite). */
+    let nouveaux=[];
+    try{nouveaux=typeof window.__SOREAL_IDLE_SUCCES_NOUVEAUX_V1__==='function'?window.__SOREAL_IDLE_SUCCES_NOUVEAUX_V1__():[];}catch(_e){nouveaux=[];}
+    const estNouveau=function(x){return nouveaux.indexOf(x.id)!==-1;};
     const groupes=Object.keys(GROUPES_STYLE).map(function(g){
       const items=liste.filter(function(x){return x.group===g&&x.unlocked;});
       if(!items.length)return '';
       const st=GROUPES_STYLE[g];
+      const nbNouveaux=items.filter(estNouveau).length;
       const lignes=items.map(function(x){
-        return '<div class="idle-succes-item-v1"><span class="ok">✅</span><span>'+html(x.name)+'</span><span class="bp">'+nombre(x.bp)+' BP</span></div>';
+        const neuf=estNouveau(x);
+        return '<div class="idle-succes-item-v1'+(neuf?' nouveau':'')+'"><span class="ok">✅</span><span>'+html(x.name)+'</span>'+(neuf?'<span class="idle-succes-pt-v1" title="Nouveau trophée"></span>':'')+'<span class="bp">'+nombre(x.bp)+' BP</span></div>';
       }).join('');
       return '<details class="idle-succes-groupe-v1" style="--acc:'+st.couleur+'"><summary><span class="em">'+st.emoji+'</span><span>'+html(st.nom)+'</span>'+
+        (nbNouveaux?'<span class="idle-succes-pt-v1" data-nouveaux="'+nbNouveaux+'" title="'+nbNouveaux+' nouveau'+(nbNouveaux>1?'x':'')+' trophée'+(nbNouveaux>1?'s':'')+'"></span>':'')+
         '<span class="nb">'+items.length+'</span><span class="fl">▶</span></summary><div class="idle-succes-liste-v1">'+lignes+'</div></details>';
     }).join('');
     const tuile=function(icone,libelle,valeur,fond){
