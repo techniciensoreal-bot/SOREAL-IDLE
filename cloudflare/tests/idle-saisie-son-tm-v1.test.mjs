@@ -25,11 +25,10 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
   assert.ok(ui.includes("document.addEventListener('focusin'") && ui.includes("el.select()"));
 }
 
-// 2. Time Machine : palette du jeu (bandeau bleu acier, piste verte, piste jaune, panneau gris), plus de néon cyan par-dessus.
+// 2. Time Machine : identité propre (laiton et or), l ancien aspect du jeu d origine est retiré.
 {
-  const bloc = themes.slice(themes.indexOf("Broken Time Machine : retour à l'aspect du jeu d'origine"));
-  for (const couleur of ["#5f86ab", "#a5dfb4", "#ebe89b", "#c1c1c1", "#59d08b", "#fdfba7"]) assert.ok(bloc.includes(couleur), "couleur du jeu : " + couleur);
-  assert.ok(index.includes("/soreal-idle-themes.css?v=40"));
+  assert.ok(themes.includes("TIME MACHINE : la machine d'Or") && !themes.includes("retour à l'aspect du jeu d'origine"));
+  assert.ok(index.includes("/soreal-idle-themes.css?v=41"));
 }
 
 // 3. Paramètres : trois barres de son, cases cochées de base.

@@ -2197,6 +2197,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const texte=SPEC[cle](vue[cle]);
           if(el.textContent!==texte)el.textContent=texte;
         });
+        /* Bandeau d'identité : gain d'Or par seconde en grand, mis à jour avec chaque synchro. */
+        document.querySelectorAll('[data-tm-hero]').forEach(function(el){
+          const cle=el.getAttribute('data-tm-hero');
+          if(!SPEC[cle])return;
+          const texte=SPEC[cle](vue[cle]);
+          if(el.textContent!==texte)el.textContent=texte;
+        });
         const barreOr=document.querySelector('[data-tm-or-remplissage]');
         if(barreOr){
           const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);
@@ -2284,6 +2291,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const factSansEffet=function(libelle,mult,cle){return Math.abs(H.idleNombre_(mult)-1)<1e-9?'':stat(libelle,pct(mult),cle);};
         return '<div class="soreal-idle-tm-v1">'+
           '<header class="soreal-idle-tm-entete-v1"><h1>Machine à remonter le temps cassée</h1><p>(Ramasse cet or encore, et encore, et encore, et...)</p></header>'+
+          /*
+           * Bandeau d'identité (Norman, 2026-10-04 : « retravaille le menu Machine à remonter le temps cassée pour qu'il colle plus aux autres menus ; il doit avoir sa propre identité et bien nous rappeler qu'on gagne de l'OR »).
+           * Une machine de laiton qui crache des pièces : le gain d'Or par seconde en grand, la barre d'Or qui bat à chaque remplissage et ce que rapporte un remplissage.
+           */
+          '<section class="soreal-idle-tm-hero-v1">'+
+            '<div class="soreal-idle-tm-hero-pieces-v1" aria-hidden="true"><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i></div>'+
+            '<div class="soreal-idle-tm-hero-titre-v1">💰 Ta machine fabrique de l’Or</div>'+
+            '<div class="soreal-idle-tm-hero-gps-v1"><b data-tm-hero="netGps">'+nombre(vue.netGps)+'</b><span> Or par seconde</span></div>'+
+            '<div class="soreal-idle-tm-hero-sous-v1">Brut <b data-tm-hero="grossGps">'+nombre(vue.grossGps)+'</b> /s · <b data-tm-hero="goldPerBarFill">'+nombre(vue.goldPerBarFill)+'</b> Or à chaque remplissage de barre</div>'+
+            (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
+          '</section>'+
           carteAideMenuIdleV1_('timeMachine','La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',[
             'Vitesse de la machine (Energy + Or) : elle accélère la barre. Jusqu’au niveau 50 chaque niveau la remplit plus vite ; au-delà, chaque niveau ajoute un multiplicateur d’Or.'
           ].concat(magicOk?['Multiplicateur d’or (Magic + Or) : il multiplie simplement l’Or produit.']:[]).concat([
@@ -2314,7 +2332,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               '</div>'+
             '</div>'+
             '<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>'+
-            (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
           '</section>'+
         '</div>';
       }

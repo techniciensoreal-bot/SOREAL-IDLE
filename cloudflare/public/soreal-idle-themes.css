@@ -415,7 +415,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v2
   --th-a:#27d3b4;--th-b:#2aa3ff;--th-c:#9be15d;--th-bg:#10262c;--th-bg2:#09151b;--th-line:rgba(39,211,180,.42);--th-ink:#dff7f1;--th-dim:#86b9b0;--th-num:#ffffff;--th-glow:rgba(39,211,180,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="machine"]){
-  --th-a:#38e8ff;--th-b:#7a5cff;--th-c:#ff4fd8;--th-bg:#0e1d38;--th-bg2:#070f20;--th-line:rgba(56,232,255,.45);--th-ink:#dff6ff;--th-dim:#87b4d0;--th-num:#ffffff;--th-glow:rgba(56,232,255,.5);
+  --th-a:#ffd24a;--th-b:#c98a06;--th-c:#38e8ff;--th-bg:#2e1f08;--th-bg2:#130c04;--th-line:rgba(255,205,70,.5);--th-ink:#fff3d0;--th-dim:#d8b873;--th-num:#fff0a8;--th-glow:rgba(255,205,70,.5);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="aventure"]){
   --th-a:#e2b25a;--th-b:#6aa84f;--th-c:#c46a2b;--th-bg:#2a1e12;--th-bg2:#16100a;--th-line:rgba(226,178,90,.45);--th-ink:#f6e7c8;--th-dim:#c8ad80;--th-num:#fff3d6;--th-glow:rgba(226,178,90,.4);
@@ -489,36 +489,87 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
   box-shadow:0 0 12px rgba(39,211,180,.7);
 }
 
-/* ====================== TIME MACHINE : le chrono ====================== */
+/* ====================== TIME MACHINE : la machine d'Or ======================
+ * Norman (2026-10-04) : « retravaille le menu Machine à remonter le temps cassée pour qu'il colle plus aux autres menus ; il doit avoir sa propre identité et bien nous rappeler qu'on gagne de l'OR ».
+ * Identité : une machine de laiton et de rouages qui crache des pièces. Fond de salle des machines brun doré, cadres de laiton, titres en or, barres remplies d'or fondu, un bandeau qui annonce le
+ * gain d'Or par seconde, avec la barre d'Or qui bat à chaque remplissage et des pièces qui tombent. Un reflet cyan de portail temporel rappelle qu'il s'agit d'une machine à remonter le temps. */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"]{
-  --pg-radius:18px;--pg-deco:"⏱️⚙️";--pg-font:inherit;
+  --pg-radius:18px;--pg-deco:"💰⚙️";--pg-font:inherit;
   --pg-bg:
-    radial-gradient(ellipse 70% 40% at 80% 0%,rgba(122,92,255,.28),transparent 70%),
-    radial-gradient(ellipse 70% 40% at 10% 10%,rgba(56,232,255,.18),transparent 70%),
-    linear-gradient(rgba(56,232,255,.05) 1px,transparent 1px) 0 0/26px 26px,
-    linear-gradient(90deg,rgba(56,232,255,.05) 1px,transparent 1px) 0 0/26px 26px,
-    linear-gradient(180deg,#0a1530,#060c1e);
-  --pg-head:linear-gradient(110deg,#0f2a55 0%,#25306e 55%,#3a1f6e 100%);
-  --pg-card:linear-gradient(165deg,rgba(18,40,78,.92),rgba(8,16,36,.95));
-  --pg-btn:linear-gradient(180deg,#7ff3ff,#3a8bff);--pg-btn-ink:#041226;
+    radial-gradient(ellipse 60% 38% at 88% 0%,rgba(255,205,70,.24),transparent 70%),
+    radial-gradient(ellipse 50% 34% at 6% 8%,rgba(56,232,255,.13),transparent 70%),
+    repeating-radial-gradient(circle at 50% 135%,rgba(255,205,70,.055) 0 2px,transparent 2px 26px),
+    linear-gradient(180deg,#1e1508,#0c0905);
+  --pg-head:linear-gradient(110deg,#4a3005 0%,#a8730a 50%,#4a3005 100%);
+  --pg-card:linear-gradient(165deg,rgba(62,41,8,.94),rgba(22,14,4,.96));
+  --pg-btn:linear-gradient(180deg,#ffe27a,#d99a12);--pg-btn-ink:#3a2300;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-stats-v1){
-  background:var(--pg-card)!important;border:1px solid var(--th-line)!important;border-radius:18px!important;color:var(--th-ink)!important;
-  box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(255,255,255,.03);
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-stats-v1,.soreal-idle-tm-hero-v1){
+  background:var(--pg-card)!important;border:2px solid var(--th-line)!important;border-radius:18px!important;color:var(--th-ink)!important;
+  box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(255,236,160,.06),inset 0 0 22px rgba(255,205,70,.05);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-titre-v1,.soreal-idle-tm-stats-titre-v1){color:#9ff6ff!important;text-shadow:0 0 12px rgba(56,232,255,.7);letter-spacing:.08em}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-titre-v1,.soreal-idle-tm-stats-titre-v1){color:#ffe28a!important;text-shadow:0 0 12px rgba(255,205,70,.65);letter-spacing:.08em}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-soustitre-v1,.soreal-idle-tm-eta-v1){color:var(--th-dim)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-barre-v1{
-  background:#040a18!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px rgba(56,232,255,.45),0 0 14px -4px var(--th-glow);height:16px;
+  background:#120c03!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px rgba(255,205,70,.5),0 0 14px -4px var(--th-glow);height:16px;
 }
+/* Barres de niveau : de l'or fondu (vitesse) et de l'or clair (multiplicateur), avec des rouages qui défilent. */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-remplissage-v1{
   background:
-    repeating-linear-gradient(90deg,rgba(255,255,255,.25) 0 2px,transparent 2px 14px),
-    linear-gradient(90deg,#3a8bff,#38e8ff 60%,#c9fbff)!important;border-radius:999px;box-shadow:0 0 16px rgba(56,232,255,.8);
+    repeating-linear-gradient(90deg,rgba(255,255,255,.28) 0 2px,transparent 2px 14px),
+    linear-gradient(90deg,#b86e05,#ffc83a 60%,#fff0a0)!important;border-radius:999px;box-shadow:0 0 16px rgba(255,200,58,.85);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1{
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 2px,transparent 2px 14px),
+    linear-gradient(90deg,#d9a21b,#ffe27a 60%,#ffffff)!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{border-radius:999px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 b,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 strong{color:#e6fbff!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 strong{color:#fff3c4!important}
+
+/* Bandeau d'identité : l'Or par seconde en grand, la barre d'Or, des pièces qui tombent. */
+.soreal-idle-tm-hero-v1{position:relative;overflow:hidden;text-align:center;padding:14px 14px 12px}
+.soreal-idle-tm-hero-v1::before{content:"⚙️";position:absolute;left:-14px;top:-18px;font-size:84px;opacity:.10;animation:sorealTmRouageV1 24s linear infinite;pointer-events:none}
+.soreal-idle-tm-hero-v1::after{content:"⚙️";position:absolute;right:-20px;bottom:-26px;font-size:96px;opacity:.09;animation:sorealTmRouageV1 32s linear infinite reverse;pointer-events:none}
+@keyframes sorealTmRouageV1{to{transform:rotate(360deg)}}
+.soreal-idle-tm-hero-titre-v1{position:relative;z-index:1;font-size:13px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#ffd978!important;text-shadow:0 0 10px rgba(255,205,70,.55)}
+.soreal-idle-tm-hero-gps-v1{position:relative;z-index:1;display:flex;align-items:baseline;justify-content:center;gap:8px;margin:2px 0 4px;flex-wrap:wrap}
+.soreal-idle-tm-hero-gps-v1 b{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:clamp(34px,7vw,56px);line-height:1;letter-spacing:.02em;color:#ffe27a!important;text-shadow:0 2px 0 #7a4d00,0 0 22px rgba(255,205,70,.75)}
+.soreal-idle-tm-hero-gps-v1 span{font-size:15px;font-weight:900;color:#ffd978}
+.soreal-idle-tm-hero-sous-v1{position:relative;z-index:1;font-size:13px;font-weight:800;color:var(--th-dim,#d8b873)}
+.soreal-idle-tm-hero-v1 .soreal-idle-tm-or-v1{position:relative;z-index:1}
+.soreal-idle-tm-hero-pieces-v1{position:absolute;inset:0;pointer-events:none;z-index:0}
+.soreal-idle-tm-hero-pieces-v1 i{position:absolute;top:-24px;font-style:normal;font-size:20px;opacity:0;animation:sorealTmPieceV1 4.8s linear infinite}
+.soreal-idle-tm-hero-pieces-v1 i:nth-child(1){left:12%;animation-delay:0s}
+.soreal-idle-tm-hero-pieces-v1 i:nth-child(2){left:32%;animation-delay:1.1s;font-size:16px}
+.soreal-idle-tm-hero-pieces-v1 i:nth-child(3){left:52%;animation-delay:2.2s}
+.soreal-idle-tm-hero-pieces-v1 i:nth-child(4){left:72%;animation-delay:.6s;font-size:17px}
+.soreal-idle-tm-hero-pieces-v1 i:nth-child(5){left:90%;animation-delay:3s;font-size:15px}
+@keyframes sorealTmPieceV1{0%{transform:translateY(0) rotateY(0);opacity:0}12%{opacity:.9}100%{transform:translateY(190px) rotateY(540deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .soreal-idle-tm-hero-v1::before,.soreal-idle-tm-hero-v1::after,.soreal-idle-tm-hero-pieces-v1 i{animation:none}
+  .soreal-idle-tm-hero-pieces-v1{display:none}
+}
+
+/* Machine d'Or (suite) : en-tête de laiton, saisie, aide et boutons dans la même matière. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1{background:transparent!important;border:0!important;box-shadow:none!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1{background:var(--pg-head)!important;border:2px solid var(--th-line)!important;border-radius:18px!important;color:#fff3c4!important;box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(255,236,160,.15)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1 h1{color:#ffe27a!important;text-shadow:0 2px 0 #5a3900,0 0 18px rgba(255,205,70,.6)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1 p{color:#ffe9b0!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-input-v1,.soreal-idle-aide-v1){background:var(--pg-card)!important;border:2px solid var(--th-line)!important;border-radius:16px!important;color:var(--th-ink)!important;box-shadow:0 0 18px -10px var(--th-glow)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(label,span,summary,li,p){color:var(--th-ink)!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-sous-v1,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-gps-v1 span{color:#ffd978!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-gps-v1 b{color:#ffe27a!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-titre-v1{color:#ffd978!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-legende-v1{color:#ffe9a8!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-barre-v1{background:linear-gradient(180deg,#1b1204,#0c0803)!important;border:2px solid #c98a06!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{background:var(--pg-btn)!important;color:var(--pg-btn-ink)!important;border:2px solid #7a4d00!important;box-shadow:0 2px 0 #7a4d00!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button:active{transform:translateY(1px);box-shadow:none!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 input{background:#120c03!important;color:#fff3c4!important;border:2px solid #c98a06!important;border-radius:8px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-stats-v1{background:var(--pg-card)!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-gps-v1{color:#ffe27a!important}
 
 /* ====================== ADVENTURE : le parchemin ====================== */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"]{
@@ -1090,40 +1141,6 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .sor
 /* Lisibilité : le sous-titre d'un en-tête de page (gris-bleu clair) disparaissait sur les en-têtes dorés, verts ou lavande ; blanc avec une ombre franche (les menus aux couleurs propres gardent les leurs). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28:not(:is([data-menu="augmentations"],[data-menu="combat"],[data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"])) .soreal-idle-page-head-v28 .soreal-idle-page-sub-v28{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)}
 
-/*
- * Broken Time Machine : retour à l'aspect du jeu d'origine (Norman, 2026-10-02 : « elle n'a pas l'air comme dans NGU », capture à l'appui).
- * Le thème néon cyan du menu recouvrait la palette de la capture : bandeau bleu acier, piste Machine Speed verte, piste Gold Multiplier jaune,
- * panneau gris des facteurs, barres blanches carrées, boutons blancs cerclés de bleu nuit, texte noir. Les règles de mise en page restent celles de soreal-idle-ui.css.
- */
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1{
-  background:transparent!important;border:0!important;box-shadow:none!important;color:#111!important;border-radius:0!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 > :is(.soreal-idle-tm-entete-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-stats-v1,.soreal-idle-tm-input-v1,.soreal-idle-aide-v1){
-  border:3px solid #1d3247!important;border-radius:12px!important;color:#111!important;
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 2px 0 rgba(0,0,0,.35)!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1{background:#5f86ab!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.vitesse{background:#a5dfb4!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.or{background:#ebe89b!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-stats-v1,.soreal-idle-tm-input-v1){background:#c1c1c1!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-aide-v1{background:#dbe6f1!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-titre-v1,.soreal-idle-tm-stats-titre-v1){
-  color:#111!important;text-shadow:none!important;letter-spacing:.02em;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-soustitre-v1,.soreal-idle-tm-eta-v1){color:#1d3247!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-barre-v1{
-  background:#fff!important;border:2px solid #1d3247!important;border-radius:0!important;box-shadow:none!important;height:26px;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-remplissage-v1{
-  background:#59d08b!important;border-radius:0!important;box-shadow:none!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1{background:#fdfba7!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{
-  background:#fff!important;color:#111!important;border:2px solid #1d3247!important;border-radius:5px!important;box-shadow:none!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button:active{background:#dfe6ee!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(b,strong,label,span,summary,li,p){color:#111!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-input-v1 span{color:#333!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(input){
   background:#fff!important;color:#111!important;border:2px solid #1d3247!important;border-radius:4px!important;
 }
