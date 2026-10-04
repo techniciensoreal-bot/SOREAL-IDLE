@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const mod = readFileSync("cloudflare/public/modules/shop-music-v1.js", "utf8");
 assert.ok(mod.includes("idle/ambient/ShopMusic.opus"), "bon fichier R2");
 assert.ok(mod.includes("audio.loop=true"), "en boucle");
-assert.ok(mod.includes("getAttribute('data-menu')==='shop'"), "joué seulement dans le Shop");
+assert.ok(mod.includes("{menu:'shop'"), "joué seulement dans le Shop");
 assert.ok(!mod.includes("__SOREAL_IDLE_AMBIENT_AUDIO_V1__"), "ne touche pas à l'ambiance d'Aventure : les deux se superposent");
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
