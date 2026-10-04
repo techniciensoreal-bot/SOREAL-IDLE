@@ -65,7 +65,8 @@ const item = (id, definitionId, extra = {}) => ({ id, definitionId, kind: "equip
 
 // --- Câblage : clic droit souris + double tap tactile ---
 assert.match(ui, /document\.addEventListener\('contextmenu',function\(event\)\{[\s\S]*?event\.pointerType==='mouse'[\s\S]*?actionRapideObjetAdventureIdleV209_\(/, "le clic droit souris déclenche l'action rapide");
-assert.match(ui, /if\(estDoubleTapGesteAdventureIdleV196_\(id,pointerType\)\)\{[\s\S]*?actionRapideObjetAdventureIdleV209_\(id\)[\s\S]*?ouvrirDetailsObjetParGesteAdventureIdleV196_\(id\)/, "double tap : action rapide, sinon détails");
+/* 2026-10-04 : le double tap tactile n'est plus l'action rapide de base ; il s'achète (voir idle-gestes-double-triple-tap-v1.test.mjs). L'action rapide reste au clic droit de la souris. */
+assert.ok(!/if\(estDoubleTapGesteAdventureIdleV196_\(id,pointerType\)\)\{/.test(ui), "plus de double tap de base");
 
 // --- Le composant de maintien long ignore le clic droit de la souris (sinon il ouvrirait le popup de détails) ---
 function chargerLongPress() {

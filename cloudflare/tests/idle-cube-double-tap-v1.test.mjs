@@ -22,7 +22,7 @@ let maintenant = 1000;
 const timers = [];
 const fabrique = new Function(
   "window", "Date", "setTimeout", "clearTimeout", "nettoyerEtatDragAdventureIdleV138_", "afficherDetailsCubeInfiniAdventureIdleV220_",
-  "IDLE_ADVENTURE_DOUBLE_TAP_MS_V196", "idleAdventureSelectionIdV138", "boosterCubeAdventureIdleV47_", "toastIdleV5_", "aventureMetaIdleV47_", "idleEtat",
+  "IDLE_ADVENTURE_DOUBLE_TAP_MS_V196", "idleAdventureSelectionIdV138", "boosterCubeAdventureIdleV47_", "toastIdleV5_", "aventureMetaIdleV47_", "idleEtat", "gestesAchetesIdleV1_",
   bloc + "\nreturn clicCubeAdventureIdleV138_;"
 );
 const fenetre = { __actionMetaV47__: (p) => envoyes.push(p), matchMedia: () => ({ matches: true }) };
@@ -30,7 +30,7 @@ const clic = fabrique(
   fenetre, { now: () => maintenant },
   (fn, ms) => { timers.push({ fn, ms, actif: true }); return timers.length; },
   (id) => { if (timers[id - 1]) timers[id - 1].actif = false; },
-  () => {}, () => details.push(maintenant), 420, "", () => {}, () => {}, () => null, null
+  () => {}, () => details.push(maintenant), 420, "", () => {}, () => {}, () => null, null, () => ({ double: true, triple: false })
 );
 
 // Un seul tap tactile : rien d'absorbé, détails ouverts seulement après la fenêtre de double tap.

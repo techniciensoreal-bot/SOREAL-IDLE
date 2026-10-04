@@ -52,8 +52,8 @@ assert.match(
 
 assert.match(
   ui,
-  /if\(estDoubleTapGesteAdventureIdleV196_\(id,pointerType\)\)\{[\s\S]*?ouvrirDetailsObjetParGesteAdventureIdleV196_\(id\)/,
-  "Double-tap : action rapide équiper/fusionner pour un objet du sac (2026-09-24), sinon (boost, objet équipé) le même popup de statistiques."
+  /const nTaps=compterTapsObjetIdleV1_\(id,pointerType\);[\s\S]*?executerTapObjetAdventureIdleV196_\(element,id\);/,
+  "Sans achat, chaque appui reste un appui simple (popup de statistiques) ; double et triple tap viennent des achats de la boutique EXP (2026-10-04)."
 );
 
 assert.doesNotMatch(

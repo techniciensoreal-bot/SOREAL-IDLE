@@ -7711,6 +7711,14 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    * partent ensemble) ; le serveur ne fait que mémoriser l'achat (bonus basicTrainingSync).
    */
   syncBasicTraining: Object.freeze({ name: "Basic Training Sync", cost: () => 50, gain: 1, max: 1 }),
+  /*
+   * Gestes sur les objets du sac (Norman, 2026-10-04) : « retire la fonction double tap / triple tap de base pour les joueurs ; dans le Shop, au rayon Aventure : Double tap pour 20 EXP (un objet absorbe tous les
+   * boosts de l'inventaire), Triple tap pour 30 EXP (fusion automatique avec les pièces disponibles) ». Fonctionnalités SOREAL originales, absentes du wiki NGU Idle : prix et rayon donnés par Norman. Le serveur
+   * mémorise l'achat (drapeaux doubleTap / tripleTap du bloc inventoryAuto.unlocked) ; le geste lui-même (appuis rapides, tactile) est détecté par le client, qui envoie les actions déjà existantes
+   * inventoryAuto / boostAll (Double tap) et inventoryAuto / mergeAll (Triple tap).
+   */
+  doubleTap: Object.freeze({ name: "Double Tap", cost: () => 20, gain: 1, max: 1 }),
+  tripleTap: Object.freeze({ name: "Triple Tap", cost: () => 30, gain: 1, max: 1 }),
   basicLootFilter: Object.freeze({ name: "Basic Loot Filter", cost: () => 20, gain: 1, max: 1 }),
   loadoutSlots: Object.freeze({ name: "2 Loadout Slots!", cost: () => 1000, gain: 2, max: 1 }),
   loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),
@@ -7742,6 +7750,8 @@ function inventoryAutoEnvV1(state) {
     autoMergeUnlocked: expShopPurchasedV1(state, "autoMerge") >= 1,
     equipmentLocked: state.challenge?.active === "noEquipment",
     sortInventoryUnlocked: expShopPurchasedV1(state, "sortInventory") >= 1,
+    doubleTapUnlocked: expShopPurchasedV1(state, "doubleTap") >= 1,
+    tripleTapUnlocked: expShopPurchasedV1(state, "tripleTap") >= 1,
     autoBoostUnlocked: Boolean(ch.autoBoost),
     timerMultiplier: Math.max(0, num(ch.autoMergeTimeMultiplier, 1)) * (int(sellout.autoMergeBoostTimers, 0) >= 1 ? 0.5 : 1),
     boostRecycleChance: idleInventoryBoostRecycleChanceV1(expShopPurchasedV1(state, "boostRecycling"), ch.boostRecycleChance),

@@ -25,7 +25,10 @@ const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
   assert.match(bloc, /zone!=='tutorial'\)return ''/, "l'indice ne doit s'afficher que dans la Zone Tutoriel");
   assert.match(bloc, /a&&a\.selectedZone/);
   assert.match(bloc, /a&&a\.lastCombatZone/, "doit retomber sur lastCombatZone comme safeZoneVisualZone_");
-  assert.match(bloc, /Double-tap/i, "doit expliquer le double-tap pour équiper/fusionner");
+  assert.ok(!/Double-tapez un objet du sac pour l’équiper/.test(bloc), "plus de double-tap de base (2026-10-04) : il s'achète dans la boutique EXP");
+  assert.match(bloc, /glissez-le sur un emplacement|clic droit sur PC/i, "explique les gestes de base : toucher, glisser, clic droit");
+  assert.match(bloc, /g\.double\?'[^']*Double tap/i, "le Double tap n'est rappelé que si on l'a acheté");
+  assert.match(bloc, /g\.triple\?'[^']*Triple tap/i, "le Triple tap n'est rappelé que si on l'a acheté");
   assert.match(bloc, /touche A/i, "doit expliquer la vraie mécanique de boost (touche A), jamais une touche « 1 »");
   assert.ok(!/touche\s*«?\s*1\s*»?/i.test(bloc), "ne doit jamais mentionner une touche « 1 » (mécanique inexistante)");
   assert.ok(!bloc.includes("boosts \"1\""), "ne doit jamais reprendre littéralement la formulation erronée de Norman");
@@ -41,7 +44,8 @@ assert.ok(css.includes(".soreal-idle-v138-bag-indice-v1{"), "style de l'indice m
   const debut = ui.indexOf("function indiceSacZoneTutorielIdleV1_(a){");
   const fin = ui.indexOf("\n      }\n", debut) + "\n      }\n".length;
   const source = ui.slice(debut, fin);
-  const sandbox = {};
+  let gestes = { double: false, triple: false };
+  const sandbox = { gestesAchetesIdleV1_: () => gestes };
   vm.runInNewContext(source, sandbox);
   const fn = sandbox.indiceSacZoneTutorielIdleV1_;
 
@@ -51,6 +55,12 @@ assert.ok(css.includes(".soreal-idle-v138-bag-indice-v1{"), "style de l'indice m
   assert.notEqual(fn({ selectedZone: "tutorial" }), "", "zone explicite tutoriel -> affiché");
   assert.notEqual(fn({}), "", "aucune zone connue (fallback tutorial via lastCombatZone par défaut) -> affiché");
   assert.notEqual(fn(null), "", "ne doit jamais planter sans données aventure (fallback tutorial)");
+  // Gestes achetés : rappelés seulement si achetés.
+  assert.ok(!/Double tap|Triple tap/.test(fn({ selectedZone: "tutorial" })), "sans achat : aucun rappel de geste");
+  gestes = { double: true, triple: false };
+  assert.ok(/Double tap sur un objet/.test(fn({ selectedZone: "tutorial" })) && !/Triple tap/.test(fn({ selectedZone: "tutorial" })));
+  gestes = { double: true, triple: true };
+  assert.ok(/Triple tap/.test(fn({ selectedZone: "tutorial" })));
 }
 
 console.log("idle-inventaire-indice-zone-tutoriel-v1: OK");

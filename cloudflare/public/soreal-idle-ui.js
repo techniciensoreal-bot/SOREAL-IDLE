@@ -19573,6 +19573,57 @@ function pageAventureIdleV28_(j){
         return true;
       }
 
+      /*
+       * Gestes du sac ACHETÉS (Norman, 2026-10-04) : le double tap (équiper / fusionner d'un objet du sac, absorber les boosts d'une pièce équipée) et le triple tap n'existent plus de base. Deux achats de la boutique EXP,
+       * rayon Aventure : « Double tap » (20 EXP : un objet, équipé ou non, absorbe tous les boosts du sac) et « Triple tap » (30 EXP : il fusionne automatiquement avec les pièces identiques disponibles). Les drapeaux
+       * viennent du serveur (inventoryAuto.unlocked). Tactile et stylet seulement : la souris garde « A + clic » et le clic droit.
+       */
+      function gestesAchetesIdleV1_(){
+        const u=idleEtat&&idleEtat.systemes&&idleEtat.systemes.inventoryAuto&&idleEtat.systemes.inventoryAuto.unlocked;
+        return {double:Boolean(u&&u.doubleTap),triple:Boolean(u&&u.tripleTap)};
+      }
+      let idleTapsObjetV1={id:'',n:0,ms:0};
+      let idleDoubleDiffereTimerV1=0;
+      /* Nombre d'appuis rapides consécutifs sur le même objet (1, 2 ou 3 ; au troisième le compteur repart de zéro). La souris compte toujours 1. */
+      function compterTapsObjetIdleV1_(id,pointerType){
+        if(pointerType==='mouse')return 1;
+        const maintenant=Date.now();
+        const objet=String(id||'');
+        if(objet&&objet===idleTapsObjetV1.id&&maintenant-idleTapsObjetV1.ms<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196)idleTapsObjetV1.n+=1;
+        else idleTapsObjetV1.n=1;
+        idleTapsObjetV1.id=objet;
+        idleTapsObjetV1.ms=maintenant;
+        const n=idleTapsObjetV1.n;
+        if(n>=3){idleTapsObjetV1={id:'',n:0,ms:0};}
+        return n;
+      }
+      /* Triple tap : fusion automatique de l'objet avec toutes les pièces identiques du sac (action serveur inventoryAuto / mergeAll). Prévient s'il n'y a rien à fusionner. */
+      function fusionnerAutoObjetIdleV1_(id){
+        const objet=String(id||'');
+        if(!objet||!idleEtat)return false;
+        const a=aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const item=items.find(function(x){return String(x&&x.id)===objet;});
+        if(!item||item.kind==='boost')return false;
+        const equipement=a.equipment||{};
+        const idsEquipes=ADVENTURE_CORE_SLOTS_V138
+          .map(function(slot){return String(equipement[slot]||'');})
+          .concat(Array.isArray(equipement.accessories)?equipement.accessories.map(String):[])
+          .filter(Boolean);
+        const candidats=items.filter(function(x){
+          return x&&String(x.id)!==objet&&x.kind!=='boost'&&x.definitionId===item.definitionId&&!x.locked&&idsEquipes.indexOf(String(x.id))===-1&&idleEntier_(x.level)<100;
+        });
+        if(idleEntier_(item.level)>=100||!candidats.length){
+          messageFlottantIdleV32_('Aucune pièce identique à fusionner avec cet objet.');
+          return true;
+        }
+        const envoyer=window.__actionMetaV47__;
+        if(typeof envoyer!=='function')return false;
+        nettoyerEtatDragAdventureIdleV138_();
+        envoyer({action:'inventoryAuto',mode:'mergeAll',itemId:objet});
+        return true;
+      }
+
       function estDoubleTapGesteAdventureIdleV196_(id,pointerType){
         if(pointerType==='mouse')return false;
 
@@ -19797,24 +19848,24 @@ function pageAventureIdleV28_(j){
 
         if(moved)return;
 
-        if(estDoubleTapGesteAdventureIdleV196_(id,pointerType)){
-          /* 2026-09-24 : double tap rapide (téléphone) = action rapide équiper / fusionner, comme le clic droit sur PC.
-             Les boosts et les objets déjà équipés gardent l'ancien comportement (détails ; maintien long = détails). */
-          if(
-            element&&
-            element.classList.contains('soreal-idle-v138-bag-card')&&
-            actionRapideObjetAdventureIdleV209_(id)
-          ){
-            return;
+        /*
+         * Double tap et triple tap (achats de la boutique EXP, voir gestesAchetesIdleV1_) : sans achat, chaque appui reste un appui simple. Double tap : l'objet (équipé ou non) absorbe tous les boosts du sac ; avec le Triple
+         * tap acheté, ce double tap attend la fin de la fenêtre d'appuis pour ne pas se déclencher avant le troisième. Triple tap : fusion automatique avec les pièces identiques du sac.
+         */
+        const nTaps=compterTapsObjetIdleV1_(id,pointerType);
+        const gestes=gestesAchetesIdleV1_();
+        if(nTaps>=3&&gestes.triple){
+          clearTimeout(idleDoubleDiffereTimerV1);
+          fusionnerAutoObjetIdleV1_(id);
+          return;
+        }
+        if(nTaps===2&&gestes.double){
+          if(gestes.triple){
+            clearTimeout(idleDoubleDiffereTimerV1);
+            idleDoubleDiffereTimerV1=setTimeout(function(){boosterObjetEquipeAdventureIdleV1_(id);},IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30);
+          }else{
+            boosterObjetEquipeAdventureIdleV1_(id);
           }
-          if(
-            element&&
-            !element.classList.contains('soreal-idle-v138-bag-card')&&
-            boosterObjetEquipeAdventureIdleV1_(id)
-          ){
-            return;
-          }
-          ouvrirDetailsObjetParGesteAdventureIdleV196_(id);
           return;
         }
 
@@ -20309,6 +20360,11 @@ function pageAventureIdleV28_(j){
             ?event.pointerType
             :(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches?'touch':'mouse');
           if(typePointeur==='mouse'){
+            afficherDetailsCubeInfiniAdventureIdleV220_();
+            return;
+          }
+          /* Sans l'achat « Double tap », un appui sur le Cube ouvre simplement ses détails. */
+          if(!gestesAchetesIdleV1_().double){
             afficherDetailsCubeInfiniAdventureIdleV220_();
             return;
           }
@@ -20996,9 +21052,12 @@ function pageAventureIdleV28_(j){
         const selectionnee=String((a&&a.selectedZone)||'safe').trim().toLowerCase();
         const zone=selectionnee==='safe'?(String((a&&a.lastCombatZone)||'tutorial').trim().toLowerCase()||'tutorial'):selectionnee;
         if(zone!=='tutorial')return '';
+        const g=gestesAchetesIdleV1_();
         return '<div class="soreal-idle-v138-bag-indice-v1">'+
-          '💡 Double-tapez un objet du sac pour l’équiper (ou le fusionner s’il en existe déjà un identique). '+
-          'Une fois équipé, maintenez la touche A et cliquez dessus (ou double-tapez-le sur mobile) pour lui appliquer vos boosts.'+
+          '💡 Touchez un objet du sac pour voir ses détails et l’équiper, ou glissez-le sur un emplacement (clic droit sur PC : équiper ou fusionner). '+
+          'Maintenez la touche A et cliquez sur une pièce pour lui appliquer vos boosts.'+
+          (g.double?' Double tap sur un objet : il absorbe tous les boosts du sac.':'')+
+          (g.triple?' Triple tap : il fusionne automatiquement avec les pièces identiques.':'')+
         '</div>';
       }
 

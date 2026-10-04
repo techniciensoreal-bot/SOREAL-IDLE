@@ -820,7 +820,9 @@ export function idleInventoryAutoSnapshotV1(s, env) {
       boostTransform: Boolean(env?.boostTransformUnlocked),
       boostTransformFree: Boolean(env?.boostTransformFree),
       autoTransform: Boolean(env?.boostTransformFree),
-      sortInventory: Boolean(env?.sortInventoryUnlocked)
+      sortInventory: Boolean(env?.sortInventoryUnlocked),
+      doubleTap: Boolean(env?.doubleTapUnlocked),
+      tripleTap: Boolean(env?.tripleTapUnlocked)
     },
     settings: {
       autoMerge: cfg.autoMerge,
