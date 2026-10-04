@@ -9500,7 +9500,12 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-108 */
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-109 */
-      function restaurerScrollNavIdleV28_(){
+      /*
+       * Menu du haut sur téléphone (Norman, 2026-10-04 : « j'aimerais qu'on puisse lancer le menu et qu'il continue de défiler jusqu'au bout ; là il s'arrête très vite »). Deux causes : l'aimantation du défilement
+       * (scroll-snap) qui arrêtait l'élan à chaque bouton (retirée dans soreal-idle-themes.css), et chaque rendu de la page qui recréait le menu, le ramenait au début puis le recentrait sur le bouton actif, ce qui coupait
+       * l'élan et renvoyait loin de l'endroit où on regardait. Le rendu est maintenant repoussé tant que le menu défile, et la position de défilement est conservée (scrollAvant) quand le menu actif n'a pas changé.
+       */
+      function restaurerScrollNavIdleV28_(scrollAvant){
         const actif=
           document.querySelector(
             '.soreal-idle-nav-v28 .active'
@@ -9529,7 +9534,7 @@
           Math.max(
             0,
             Math.min(
-              cible,
+              typeof scrollAvant==='number'&&Number.isFinite(scrollAvant)?scrollAvant:cible,
               nav.scrollWidth-nav.clientWidth
             )
           );
@@ -23514,11 +23519,56 @@ function pageAventureIdleV28_(j){
 
       /* Essai du popup « Pendant ton absence » avec un état fourni (tests, serveur de développement). */
 
+      /* Défilement du menu du haut en cours (doigt posé, ou élan dans la seconde qui suit le dernier mouvement). */
+      let idleNavDefilementMsV1=0;
+      let idleNavDoigtV1=false;
+      let idleRenduDiffereV1=null;
+      let idleRenduDiffereTimerV1=0;
+      let idleRenduDiffereDepuisV1=0;
+      if(typeof document.addEventListener==='function'){
+        document.addEventListener('scroll',function(e){
+          const t=e.target;
+          if(t&&t.classList&&t.classList.contains('soreal-idle-nav-v28'))idleNavDefilementMsV1=Date.now();
+        },true);
+        document.addEventListener('touchstart',function(e){
+          if(e.target&&e.target.closest&&e.target.closest('.soreal-idle-nav-v28')){idleNavDoigtV1=true;idleNavDefilementMsV1=Date.now();}
+        },{passive:true,capture:true});
+        ['touchend','touchcancel'].forEach(function(type){
+          document.addEventListener(type,function(){if(idleNavDoigtV1){idleNavDoigtV1=false;idleNavDefilementMsV1=Date.now();}},{passive:true,capture:true});
+        });
+      }
+      function navEnDefilementIdleV1_(){
+        return idleNavDoigtV1||(Date.now()-idleNavDefilementMsV1)<1200;
+      }
+
       function rendreIdleEtat_(res){
         if(!res||!res.ok||!res.joueur){
           rendreIdleErreur_('Réponse serveur invalide.');
           return;
         }
+
+        /* Pas de rendu pendant que le menu défile (4 s au plus) : le dernier état reçu est rendu juste après. Jamais repoussé si le menu actif change ou si on range les boutons. */
+        if(navEnDefilementIdleV1_()&&idleMenuRenduV179===idleMenuActifV28&&!idleMenuEditionV1){
+          const depuisDiffere=idleRenduDiffereDepuisV1||(idleRenduDiffereDepuisV1=Date.now());
+          if(Date.now()-depuisDiffere<4000){
+            idleRenduDiffereV1=res;
+            if(!idleRenduDiffereTimerV1){
+              idleRenduDiffereTimerV1=setTimeout(function(){
+                idleRenduDiffereTimerV1=0;
+                const r=idleRenduDiffereV1;
+                idleRenduDiffereV1=null;
+                if(r)rendreIdleEtat_(r);
+              },350);
+            }
+            return;
+          }
+        }
+        idleRenduDiffereDepuisV1=0;
+        /* Position de défilement du menu avant le rendu (restaurée après, tant que le menu actif ne change pas). */
+        const idleNavScrollAvantRenduV1=(function(){
+          const n=document.querySelector('.soreal-idle-nav-v28');
+          return n&&idleMenuRenduV179===idleMenuActifV28?n.scrollLeft:null;
+        })();
 
         const joueurRenduProtegeV208=
           protegerJoueurServeurInventaireIdleV208_(
@@ -23751,7 +23801,7 @@ function pageAventureIdleV28_(j){
         }
 
         try{
-          restaurerScrollNavIdleV28_();
+          restaurerScrollNavIdleV28_(idleNavScrollAvantRenduV1);
         }catch(e){
           console.error(
             'SOREAL IDLE post-render nav scroll :',

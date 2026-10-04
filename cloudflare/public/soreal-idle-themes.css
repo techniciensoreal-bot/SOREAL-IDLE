@@ -1892,3 +1892,10 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28
 @media (max-width:340px){
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Menu du haut sur téléphone : il continue de défiler jusqu'au bout (Norman, 2026-10-04 : « je lance le menu et il s'arrête très vite »). L'aimantation (scroll-snap) arrêtait l'élan à chaque bouton : retirée ;
+ * l'élan natif du doigt reste, et il ne se propage pas à la page (overscroll-behavior-x). */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28{
+  scroll-snap-type:none!important;scroll-behavior:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{scroll-snap-align:none!important}
