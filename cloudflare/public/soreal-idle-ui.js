@@ -11686,7 +11686,19 @@
         );
       }
 
+      /* Y a-t-il des achats que le joueur n'a pas encore vus dans l'une des deux boutiques ? Hors de la boutique, on oublie aussi les points de la visite précédente. */
+      function boutiqueNouveautesIdleV1_(j){
+        const B=window.__SOREAL_IDLE_BOUTIQUE_V1__;
+        if(!B||!j)return false;
+        try{
+          let neuf=false;
+          if(menuDisponibleIdleV28_('spendExp',j)&&typeof window.__SOREAL_IDLE_EXP_ACHATS_V1__==='function')neuf=B.boutiqueNonVue('exp',window.__SOREAL_IDLE_EXP_ACHATS_V1__(j));
+          if(menuDisponibleIdleV28_('sellout',j))neuf=B.boutiqueNonVue('ap',achatsApParCategorieIdleV1_(j))||neuf;
+          return neuf;
+        }catch(e){return false;}
+      }
       function navigationIdleV28_(j){
+        if(idleMenuActifV28!=='shop'&&window.__SOREAL_IDLE_BOUTIQUE_V1__)window.__SOREAL_IDLE_BOUTIQUE_V1__.reinitialiserVisite();
         const menus=menusOrdonnesIdleV1_(j);
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-134 */
@@ -11715,6 +11727,9 @@
               const classeRecolteYgg=
                 m.id==='yggdrasil'&&yggExtraNav&&yggExtraNav.harvestLight&&yggExtraNav.harvestLight.lit
                   ?' soreal-idle-nav-money-green-v1':'';
+              /* Boutique : l'étoile ne scintille que dans la boutique ou quand elle a du nouveau, signalé d'un point rouge (Norman, 2026-10-04). */
+              const nouveautesShop=m.id==='shop'?boutiqueNouveautesIdleV1_(j):false;
+              const classeShopNouveau=nouveautesShop?' soreal-idle-nav-shop-nouveau-v1':'';
 
               return `
                 <button
@@ -11727,7 +11742,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}${classeShopNouveau}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
@@ -11737,7 +11752,7 @@
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
                   <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>
-                  <span class="soreal-idle-nav-texte-v2"><b>${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>
+                  <span class="soreal-idle-nav-texte-v2"><b>${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
                 </button>
               `;
             }).join('')}
@@ -21638,12 +21653,16 @@ function pageAventureIdleV28_(j){
          * Couleurs d'origine conservées (Norman : « le shop AP devait garder ses couleurs mauves, et son bouton aussi ») : la page du menu ne
          * connaît plus que « shop » (cyan) ; chaque boutique repose donc sa propre couleur (--nav-color) et son onglet porte la sienne.
          */
-        if(expOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='exp'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.spendExp+'" onclick="window.__changerOngletShopIdleV1__(\'exp\')">✨ EXP Shop</button>');
-        if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='ap'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.sellout+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP</button>');
+        const B=window.__SOREAL_IDLE_BOUTIQUE_V1__;
+        const contenuBoutique=onglet==='ap'
+          ?'<div class="soreal-idle-shop-ap-v1" style="--nav-color:'+IDLE_NAV_COULEURS_V1.sellout+'">'+pageSelloutShopIdleV1_(j)+'</div>'
+          :'<div class="soreal-idle-shop-exp-v1" style="--nav-color:'+IDLE_NAV_COULEURS_V1.spendExp+'">'+pageSpendExpIdleV1_(j)+'</div>';
+        const pointExp=B&&expOk&&typeof window.__SOREAL_IDLE_EXP_ACHATS_V1__==='function'&&B.boutiqueNonVue('exp',window.__SOREAL_IDLE_EXP_ACHATS_V1__(j))?B.point('Nouveaux achats'):'';
+        const pointAp=B&&apOk&&B.boutiqueNonVue('ap',achatsApParCategorieIdleV1_(j))?B.point('Nouveaux achats'):'';
+        if(expOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='exp'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.spendExp+'" onclick="window.__changerOngletShopIdleV1__(\'exp\')">✨ EXP Shop'+pointExp+'</button>');
+        if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='ap'?' active':'')+'" style="--onglet-couleur:'+IDLE_NAV_COULEURS_V1.sellout+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP'+pointAp+'</button>');
         return (boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'')+
-          (onglet==='ap'
-            ?'<div class="soreal-idle-shop-ap-v1" style="--nav-color:'+IDLE_NAV_COULEURS_V1.sellout+'">'+pageSelloutShopIdleV1_(j)+'</div>'
-            :'<div class="soreal-idle-shop-exp-v1" style="--nav-color:'+IDLE_NAV_COULEURS_V1.spendExp+'">'+pageSpendExpIdleV1_(j)+'</div>');
+          contenuBoutique;
       }
 
       /*
@@ -21938,6 +21957,17 @@ function pageAventureIdleV28_(j){
         });
       }
 
+      /* Achats visibles de la boutique AP, par rayon (catégorie) : point rouge « nouveau » (modules/boutique-nouveautes-v1.js). */
+      function achatsApParCategorieIdleV1_(j){
+        const shop=(j&&j.systemes&&j.systemes.selloutShop)||{};
+        const sortie={};
+        (Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return item&&item.effectActive===true;}).forEach(function(item){
+          const cle=item.category||'autre';
+          if(!sortie[cle])sortie[cle]=[];
+          sortie[cle].push(item.id);
+        });
+        return sortie;
+      }
       function pageSelloutShopIdleV1_(j){
         prechargerImagesShopIdleV1_();
         const systemes=(j&&j.systemes)||{};
@@ -21957,6 +21987,9 @@ function pageAventureIdleV28_(j){
           return (parCategorie[cle]||[]).length>0;
         });
         const onglet=visibles.indexOf(idleApOngletV1)!==-1?idleApOngletV1:(visibles[0]||'');
+        const B=window.__SOREAL_IDLE_BOUTIQUE_V1__;
+        const parRayonAp=B?achatsApParCategorieIdleV1_(j):{};
+        if(B&&onglet)B.marquerRayon('ap',parRayonAp,onglet);
 
         const carte=function(item){
           const auMax=item.nextCost==null;
@@ -21965,7 +21998,7 @@ function pageAventureIdleV28_(j){
           const texte=traductionSelloutIdleV210_(item);
           const compteur=item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'';
           return '<div class="soreal-idle-exp-stat-v210">'+
-            '<div class="soreal-idle-exp-stat-head-v210"><span>'+imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)+compteur+'</span></div>'+
+            '<div class="soreal-idle-exp-stat-head-v210"><span>'+imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)+compteur+(B&&B.estNouveau('ap',item.id)?B.point('Nouvel achat'):'')+'</span></div>'+
             '<div class="soreal-idle-exp-help-v210">'+idleHtml_(texte.effect)+'</div>'+
             (auMax?'':'<div class="soreal-idle-exp-prix-v1"><span class="soreal-idle-exp-prix-ligne-v1"><i>Prix</i><b>'+formatGrandNombreIdleV70_(item.nextCost)+' AP</b></span></div>')+
             (auMax
@@ -21980,7 +22013,7 @@ function pageAventureIdleV28_(j){
 
         const onglets=visibles.map(function(cle){
           const actif=cle===onglet;
-          return '<button type="button" class="soreal-idle-exp-tab-v212'+(actif?' actif':'')+'" aria-pressed="'+actif+'" onclick="window.__ongletApShopIdleV1__(\''+cle+'\')">'+idleHtml_(IDLE_SELLOUT_SHOP_CATEGORIES_V1[cle])+'</button>';
+          return '<button type="button" class="soreal-idle-exp-tab-v212'+(actif?' actif':'')+'" aria-pressed="'+actif+'" onclick="window.__ongletApShopIdleV1__(\''+cle+'\')">'+idleHtml_(IDLE_SELLOUT_SHOP_CATEGORIES_V1[cle])+(B&&B.rayonNonVu('ap',parRayonAp,cle)?B.point('Nouveaux achats dans ce rayon'):'')+'</button>';
         }).join('');
 
         const api=window.__SOREAL_IDLE_META_V130__;

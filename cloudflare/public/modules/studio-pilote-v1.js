@@ -30,6 +30,9 @@
    * Le studio met du temps à devenir disponible : le texte l'explique, puis la page revérifie le studio (verifierStudio_) quand c'est prêt.
    */
   function lancer(etat,verifier){
+    /* Le studio répond déjà (lancé à la main avec lancer.bat) : inutile de passer par le pilote, qui n'a donc pas besoin d'être allumé (Norman, 2026-10-04 : « Lancer le studio ne fonctionne pas »). */
+    return fetch(STUDIO_URL+'/ping',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){return Boolean(d&&d.ok);}).catch(function(){return false;}).then(function(dejaLa){
+    if(dejaLa){etat('Le studio tourne déjà.',false);if(verifier)verifier();return;}
     etat('Lancement du studio… (le modèle se charge : compte 1 à 2 minutes)',false);
     return appel('/demarrer','POST').then(function(r){
       if(!r||r.ok===false)throw new Error(r&&r.error?r.error:'refusé');
@@ -43,6 +46,7 @@
       });
     }).catch(function(e){
       etat(e&&e.message&&e.message!=='Failed to fetch'?'Lancement impossible : '+e.message:ABSENT,true);
+    });
     });
   }
 

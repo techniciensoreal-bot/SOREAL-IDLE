@@ -34,7 +34,7 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 // 2. Boutique EXP : les deux cartes sont dans le rayon « Aventure », nommées et expliquées, et nulle part ailleurs.
 assert.ok(meta.includes("const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];"));
 assert.ok(meta.includes("IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1).map(parId)"), "dans le rayon Aventure");
-assert.equal(meta.split("IDLE_EXP_GESTES_V1.indexOf(it.id)===-1").length - 1, 2, "exclues du rayon « Slots & options »");
+assert.equal(meta.split("IDLE_EXP_GESTES_V1.indexOf(it.id)===-1").length - 1, 3, "exclues du rayon « Slots & options » (page, liste des rayons, points rouges)");
 assert.ok(meta.includes("doubleTap:'👆 Double tap',tripleTap:'👆 Triple tap'") && meta.includes("doubleTap:'adventure',tripleTap:'adventure'"), "noms, et visibles seulement avec l'Aventure (anti-spoil)");
 assert.ok(/doubleTap:'Appuie deux fois vite sur un objet[^']*absorbe tous les boosts/.test(meta) && /tripleTap:'Appuie trois fois vite[^']*fusionne automatiquement/.test(meta), "explications courtes");
 

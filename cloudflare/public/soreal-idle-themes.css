@@ -1671,8 +1671,12 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[dat
 }
 @keyframes sorealBoutiqueMagieV1{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(25deg)}}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"]{position:relative}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{content:"✦";position:absolute;right:10px;top:4px;font-size:11px;color:#fde68a;text-shadow:0 0 6px #c084fc;pointer-events:none;animation:sorealBoutiqueMagieV1 2.4s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{animation:none;opacity:.8}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after{content:"✦";position:absolute;right:10px;top:4px;font-size:11px;color:#fde68a;text-shadow:0 0 6px #c084fc;pointer-events:none;opacity:.8}
+/* L'étoile ne scintille que dans la boutique, ou quand elle a du nouveau (Norman, 2026-10-04 : « l'icône de la boutique est en mouvement alors que rien ne s'y passe »). */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"].active .soreal-idle-nav-texte-v2::after,
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"].soreal-idle-nav-shop-nouveau-v1 .soreal-idle-nav-texte-v2::after{animation:sorealBoutiqueMagieV1 2.4s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"].soreal-idle-nav-shop-nouveau-v1 .soreal-idle-nav-cadre-v2{animation:sorealNavBadgePalpiteV2 1.3s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-texte-v2::after,body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"] .soreal-idle-nav-cadre-v2{animation:none!important;opacity:.8}}
 
 /* Boutique AP : image de l'article (PNG 46x46 de la page wiki, gardés nets). */
 .soreal-idle-shop-img-v1{width:46px;height:46px;image-rendering:pixelated;vertical-align:middle;margin-right:8px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
@@ -1937,3 +1941,10 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-
 .soreal-idle-adventure-manual-v3.paralyse-v1 .soreal-idle-adventure-idle-toggle-v3>*{filter:grayscale(1);opacity:.45}
 .soreal-idle-adventure-skill-v3.paralyse-v1 .soreal-idle-adventure-skill-cd-v3{color:#ffe36a;font-weight:1000;font-size:16px}
 @media (prefers-reduced-motion:reduce){.soreal-idle-adventure-paralysie-v1{animation:none}}
+
+/* ====================== POINT ROUGE « NOUVEAU » des boutiques (modules/boutique-nouveautes-v1.js) ======================
+ * Sur le bouton du menu, sur les boutiques EXP / AP, sur les rayons et sur chaque nouvel achat ; disparaît une fois l'achat vu. */
+.soreal-idle-point-rouge-v1{display:inline-block;flex:0 0 auto;width:12px;height:12px;margin-left:6px;border-radius:50%;vertical-align:middle;background:#ff3b30;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 10px 2px rgba(255,59,48,.85);animation:sorealPointRougeV1 1.4s ease-in-out infinite}
+@keyframes sorealPointRougeV1{50%{transform:scale(1.25);box-shadow:0 0 0 2px #fff,0 0 14px 4px rgba(255,59,48,1)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28>.soreal-idle-point-rouge-v1{position:absolute;right:10px;top:50%;margin:-6px 0 0}
+@media (prefers-reduced-motion:reduce){.soreal-idle-point-rouge-v1{animation:none}}

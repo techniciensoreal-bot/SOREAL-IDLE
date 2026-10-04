@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'La boutique prévient quand il y a du nouveau : un point rouge sur le bouton du menu, sur les rayons concernés et sur chaque nouvel achat, qui disparaît une fois l’achat vu. L’étoile du bouton ne scintille plus que dans la boutique ou quand elle a du nouveau.',
           'Les objets qui débloquent un système arrivent toujours dans ton sac, jamais dans un menu à activer. Si ton sac est plein, un message te prévient qu’un objet t’attend et il arrive dès qu’une place se libère.',
           'Le chat envoie tes messages sans attendre : le message apparaît dès que tu l’envoies, avec la mention « envoi… » le temps que le serveur confirme.',
           'Quand tu es paralysé en combat, les raccourcis d’attaque et de parade se grisent avec un éclair et un bandeau jaune indique combien de temps ça dure : plus d’impression que le jeu ne répond plus.',

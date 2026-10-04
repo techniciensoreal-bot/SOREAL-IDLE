@@ -647,7 +647,7 @@
         if(verrouille)return '';
         return '<div class="soreal-idle-exp-stat-v210">'+
           '<div class="soreal-idle-exp-stat-head-v210">'+
-            '<span class="soreal-idle-exp-titrebloc-v1">'+idleExpTitreAvecImageIdleV1_(stat.icone+' '+stat.nom)+'</span>'+
+            '<span class="soreal-idle-exp-titrebloc-v1">'+idleExpTitreAvecImageIdleV1_(stat.icone+' '+stat.nom)+idleExpPointIdleV1_('res:'+res.id+':'+stat.id)+'</span>'+
             '<div class="soreal-idle-exp-current-v211"><small>Actuel</small><strong>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong></div>'+
           '</div>'+
           '<div class="soreal-idle-exp-help-v210">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat.explication||'')+'</div>'+
@@ -741,6 +741,39 @@
           return true;
         });
       }
+      /* Achats actuellement visibles de la boutique EXP, par rayon (point rouge « nouveau », modules/boutique-nouveautes-v1.js). Seuls les achats que le joueur voit déjà sont comptés. */
+      function idleExpAchatsParRayonIdleV1_(j){
+        const m=j&&j.systemes?j.systemes:null;
+        if(!m||!Array.isArray(m.expShop))return {};
+        const tous=m.expShop;
+        const parId=function(id){return tous.find(function(it){return it.id===id;});};
+        const visible=function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);};
+        const ids=function(liste){return liste.map(parId).filter(visible).map(function(it){return it.id;});};
+        const sortie={};
+        sortie.debuts=ids(IDLE_EXP_DEBUTS_V1);
+        sortie.toc=ids(IDLE_EXP_TOC_V1);
+        sortie.aventure=ids(IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1));
+        sortie.slots=tous.filter(function(it){
+          return visible(it)&&!it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_TOC_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1&&IDLE_EXP_GESTES_V1.indexOf(it.id)===-1;
+        }).map(function(it){return it.id;}).concat(tous.filter(function(it){return it.yggFruit&&visible(it);}).map(function(it){return it.id;}));
+        ['energy','magic','r3'].forEach(function(res){
+          const couts=(m.resourcePurchases||{})[res]||{};
+          const verrous=(m.resourcePurchaseUnlock||{})[res]||{};
+          sortie[res]=IDLE_SPEND_EXP_STATS_V1.filter(function(stat){
+            const achat=couts[stat.id],verrou=verrous[stat.id];
+            return !(achat&&achat.unlockBoss&&verrou&&verrou.unlocked===false);
+          }).map(function(stat){return 'res:'+res+':'+stat.id;});
+        });
+        /* Seuls les rayons que le joueur peut ouvrir comptent. */
+        const ouverts={};
+        idleExpOngletsVisiblesIdleV1_(j,m).forEach(function(o){if(sortie[o.id]&&sortie[o.id].length)ouverts[o.id]=sortie[o.id];});
+        return ouverts;
+      }
+      window.__SOREAL_IDLE_EXP_ACHATS_V1__=idleExpAchatsParRayonIdleV1_;
+      function idleExpPointIdleV1_(id){
+        const B=window.__SOREAL_IDLE_BOUTIQUE_V1__;
+        return B&&B.estNouveau('exp',id)?B.point('Nouvel achat'):'';
+      }
       function idleExpOngletCourantV1_(visibles){
         const liste=visibles||IDLE_EXP_ONGLETS_V1;
         return liste.some(function(o){return o.id===idleExpOngletV1;})?idleExpOngletV1:'debuts';
@@ -777,7 +810,7 @@
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
         const prixCarte=fini?'':idleExpPrixCarteIdleV1_(tiers.map(function(q){return {q:q,gain:(it.max===1&&q===1)?'':H.formatGrandNombreIdleV70_((it.gain||0)*q,2),cout:H.formatGrandNombreIdleV70_(coutTotal(q),2)};}),'EXP');
-        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name))}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
+        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name))}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
           (aide?`<div class="soreal-idle-exp-help-v210">${H.idleHtml_(aide)}</div>`:'')+prixCarte+
           (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':`<div class="soreal-idle-exp-actions-v210">${boutons}</div>`)+
           '</div>';
@@ -802,7 +835,7 @@
         return '<div class="soreal-idle-exp-resource-v210">🌱 Yggdrasil : Auto-Activate</div>'+
           items.map(function(it){
             const fini=it.nextCost==null;
-            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(H.idleHtml_(it.name))}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>`+
+            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(H.idleHtml_(it.name))}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>`+
               (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':idleExpPrixCarteIdleV1_([{q:1,gain:'',cout:H.formatGrandNombreIdleV70_(it.nextCost)}],'EXP')+`<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',1)">Acheter</button></div>`)+
               '</div>';
           }).join('');
@@ -920,9 +953,13 @@
         const onglet=idleExpOngletCourantV1_(onglets_visibles);
         const abordables=idleExpDebutsAbordablesIdleV1_(j,m,exp);
         const css=idleBoutiqueCssIdleV1_();
+        /* Points rouges : ouvrir un rayon marque ses nouveaux achats comme vus (les cartes gardent leur point le temps de la visite). */
+        const B=window.__SOREAL_IDLE_BOUTIQUE_V1__;
+        const parRayon=B?idleExpAchatsParRayonIdleV1_(j):{};
+        if(B)B.marquerRayon('exp',parRayon,onglet);
         const onglets=onglets_visibles.map(function(o){
           const actif=o.id===onglet;
-          const pastille=o.id==='debuts'&&abordables>0?`<span class="soreal-idle-exp-pastille-v212" title="Achats abordables">${abordables}</span>`:'';
+          const pastille=(o.id==='debuts'&&abordables>0?`<span class="soreal-idle-exp-pastille-v212" title="Achats abordables">${abordables}</span>`:'')+(B&&B.rayonNonVu('exp',parRayon,o.id)?B.point('Nouveaux achats dans ce rayon'):'');
           return `<button type="button" class="soreal-idle-exp-tab-v212${actif?' actif':''}" aria-pressed="${actif}" onclick="window.__ongletExpShopIdleV1__('${o.id}')">${o.icone} ${o.nom}${pastille}</button>`;
         }).join('');
         return H.entetePageIdleV28_(
