@@ -2062,7 +2062,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(j&&j.systemes&&j.systemes.challenge&&j.systemes.challenge.active==='noAugmentations')return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Menu interdit pendant le défi.')+'<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">🚫 No Augmentations Challenge : le menu Augmentations est interdit tant que le défi est en cours. Termine-le ou abandonne-le pour y retourner.</div>';
         if(!sys||!sys.state||!sys.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[],pairs=(sys.state.data||{}).pairs||{};
-        const boss=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
+        /*
+         * Déblocage des Augments et de leurs Upgrades (Norman, 2026-10-04 : « toute l'énergie que je place m'est rendue » ; essai en direct sur son compte : « Ciseaux dangereux » affiché comme disponible, toute l'énergie
+         * placée revenait au bout d'une seconde). Le serveur compare le seuil au boss du RUN EN COURS (context.bosses, remis à zéro à chaque Rebirth, comme tous les déblocages de systèmes) ; la page, elle, lisait le
+         * meilleur boss de tous les temps (records.highestBoss = 61 contre 32 dans le run) et proposait donc des Upgrades que le serveur refusait en bloc. Le déblocage lit maintenant le même boss que le serveur ;
+         * « Boss max » reste affiché pour information.
+         */
+        const bossMax=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0),boss=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j&&j.bossVaincus)),gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0),mult=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1);
         /*
          * Norman (2026-10-03) : chronos très précis. Un redessin de la page ne doit JAMAIS remettre la barre en arrière : si les chiffres du serveur n'ont pas changé depuis le dernier dessin (même tableau),
          * on garde le repère qui tourne déjà, rebasé à maintenant. Sinon (nouvelle réponse), le repère part de l'instant où le serveur a produit ces chiffres : réception moins un demi aller-retour.
@@ -2099,7 +2105,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             'Chaque Augment et chaque Upgrade a sa propre Energy et progresse en parallèle des autres.',
             'Tous les niveaux sont remis à zéro à chaque Rebirth.'
           ])+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+boss+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+bossMax+'</b></div></div>'+
           legendeAllocationIdleV1_('Energy',true)+
           '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>⚡ Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+

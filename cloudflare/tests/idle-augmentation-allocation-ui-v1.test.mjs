@@ -92,7 +92,7 @@ assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]
 assert.match(module_, /function rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\)\{/);
 assert.match(module_, /rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\);/);
 assert.ok(!module_.includes("H.rendreIdleEtat_({ok:true,joueur:j});"), "plus de rendu complet à chaque clic +/-/Cap");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610056"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610057"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 
@@ -132,6 +132,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   vm.runInNewContext(module_, { window, document, SOREAL_SESSION: "jeton", performance: { now: () => 0 }, console, Math, Number, Object, Array, Boolean, String, JSON, Date, setTimeout, clearTimeout });
   const fabriquerEtat = () => ({
     energie: 250,
+    bossVaincus: 40, /* boss du run : c'est lui (et non le record) qui débloque les Augments, comme côté serveur (2026-10-04) */
     systemes: {
       systems: [{ id: "augmentations", state: { unlocked: true, allocation: { energy: 100 }, data: { pairs: { scissors: { level: 3, energy: 100, upgradeLevel: 0, upgradeEnergy: 0 } } } } }],
       augmentations: [{ id: "scissors", name: "Safety Scissors", unlockBoss: 17, progressPct: 0.5, upgradeProgressPct: 0, upgrade: { unlockBoss: 37 } }],
