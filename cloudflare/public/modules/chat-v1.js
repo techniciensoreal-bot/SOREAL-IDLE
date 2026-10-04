@@ -255,11 +255,28 @@
     lectureHaut=liste.scrollTop;
   }
 
+  /*
+   * Envoi instantané (Norman, 2026-10-04 : « le chat met longtemps avant d'envoyer mon message ») : le serveur traite les requêtes une par une, un message peut donc attendre derrière une synchro de plus d'une
+   * seconde. Le message s'affiche et le champ se vide AU CLIC (bulle « envoi… »), le serveur confirme ensuite ; en cas d'échec le texte revient dans le champ. La bulle disparaît dès que le vrai message est arrivé.
+   */
+  let enAttente=null;
+  function htmlEnAttente(p){
+    return '<div class="sic-msg moi sic-attente" data-attente="1" style="opacity:.62">'+
+      '<div class="sic-nom">Moi<span class="sic-heure">envoi…</span></div>'+
+      '<div class="sic-txt">'+echapper(p.message)+'</div>'+
+    '</div>';
+  }
+  function htmlListeMessages(){
+    const vrais=items.map(htmlMessage).join('');
+    const attente=enAttente&&!(enAttente.idServeur&&items.some(function(it){return it.id===enAttente.idServeur;}))?htmlEnAttente(enAttente):'';
+    return (vrais||attente)?vrais+attente:'<div class="sic-vide">Aucun message pour l’instant. Dis bonjour ! 👋</div>';
+  }
+
   function rendreMessages(garderBas){
     const liste=elListe();
     if(!liste)return;
     const bas=garderBas===true||lectureBas;
-    liste.innerHTML=items.length?items.map(htmlMessage).join(''):'<div class="sic-vide">Aucun message pour l’instant. Dis bonjour ! 👋</div>';
+    liste.innerHTML=htmlListeMessages();
     if(bas){
       lectureBas=true;
       liste.scrollTop=liste.scrollHeight;
@@ -299,14 +316,24 @@
     if(!message)return;
     envoiEnCours=true;
     if(bouton)bouton.disabled=true;
+    /* Affichage immédiat : le champ se vide, la bulle apparaît en bas. */
+    enAttente={message:message,idServeur:0};
+    champ.value='';
+    lectureBas=true;/* son propre message : toujours le voir */
+    rendreMessages(true);
     appel('envoyerChatSorealIdle',[{message:message}]).then(function(res){
       if(res&&res.ok===false)throw new Error(res.message||'Message refusé.');
-      champ.value='';
-      lectureBas=true;/* son propre message : toujours le voir */
-      return chargerRecents();
+      if(enAttente&&res&&res.id)enAttente.idServeur=Number(res.id)||0;
+      /* Le message est parti : un échec de la relecture ne doit ni afficher d’erreur ni rendre le texte au champ. */
+      return chargerRecents().catch(function(){});
     }).catch(function(e){
+      /* Échec : la bulle disparaît et le texte revient dans le champ (sauf si le joueur a déjà commencé autre chose). */
+      enAttente=null;
+      if(!champ.value)champ.value=message;
       try{window.alert('⚠️ '+(e&&e.message?e.message:e));}catch(_){}
     }).then(function(){
+      enAttente=null;
+      rendreMessages(true);
       envoiEnCours=false;
       if(bouton)bouton.disabled=false;
       champ.focus();

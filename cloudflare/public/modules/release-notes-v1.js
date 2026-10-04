@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Le chat envoie tes messages sans attendre : le message apparaît dès que tu l’envoies, avec la mention « envoi… » le temps que le serveur confirme.',
           'Quand tu es paralysé en combat, les raccourcis d’attaque et de parade se grisent avec un éclair et un bandeau jaune indique combien de temps ça dure : plus d’impression que le jeu ne répond plus.',
           'Double tap et Triple tap servent aussi sur ordinateur : un clic droit sur un objet, au sac ou équipé, fusionne d’abord les pièces identiques, puis absorbe les boosts quand il n’y en a plus.',
           'Sur ordinateur, les boutons du menu de gauche sont plus larges et plus longs, avec des icônes et des titres plus grands, à la même échelle que le reste de l’interface.',
