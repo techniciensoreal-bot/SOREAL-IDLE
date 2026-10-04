@@ -131,3 +131,19 @@ console.log("idle-itopod-decors-hasard-v1 (pastilles): OK");
   assert.ok(coord.includes("/__soreal-idle-v1/noms-joueurs") && !/noms-joueurs[\s\S]{0,700}email_primary/.test(coord), "prénoms seulement, jamais d'e-mail");
 }
 console.log("idle-itopod-decors-hasard-v1 (joueurs): OK");
+
+// 9. Étages 5 à 6 choisis : l'écran ne monte jamais au 7 (à l'étage de fin, retour à l'étage de départ, comme le serveur).
+{
+  const sc = readFileSync("cloudflare/public/modules/itopod-scene-v1.js", "utf8");
+  const fen = {};
+  vm.runInNewContext(sc, { window: fen, document: { querySelectorAll: () => [] }, fetch: () => Promise.reject(new Error("x")), Date, Math });
+  const api = fen.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+  const etageAffiche = (d, decalage) => { api.html(d); api.combat.decalage = decalage; return Number(api.html(d).match(/<b>(\d+)<\/b><\/span>/)[1]); };
+  const d = { floor: 5, kills: 100, killsOnFloor: 0, startFloor: 5, endFloor: 6, optimalFloor: 20, hitsParKill: 1, actif: true };
+  const vus = new Set();
+  for (let k = 0; k < 60; k += 1) vus.add(etageAffiche(d, k));
+  assert.deepEqual([...vus].sort(), [5, 6], "seulement les étages 5 et 6");
+  assert.equal(etageAffiche({ ...d, floor: 6 }, 10), 5, "10 combats sur l'étage de fin : retour au départ");
+  assert.equal(etageAffiche({ floor: 5, kills: 100, killsOnFloor: 0, optimalFloor: 7, hitsParKill: 1 }, 100), 7, "automatique : jusqu'à l'étage optimal, pas au-delà");
+}
+console.log("idle-itopod-decors-hasard-v1 (étages choisis): OK");

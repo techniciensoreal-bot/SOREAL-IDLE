@@ -46,12 +46,16 @@ function indexEnnemi(n,kills,etage){
 function estFlottant(cle){return String(cle||'').split('/').indexOf('level-1')!==-1;}
 
 /* Combat de l'écran : l'ennemi encaisse les coups un par un (le nombre de coups vient du serveur : towerHitsV1, la formule de la progression) ; purement visuel, le serveur calcule les kills. */
-var combat={hits:1,intervalle:1,respawn:4,actif:false,killsServeur:-1,decalage:0,coups:0,mort:false,prochain:0};
+var combat={auto:true,debut:0,fin:0,optimal:0,hits:1,intervalle:1,respawn:4,actif:false,killsServeur:-1,decalage:0,coups:0,mort:false,prochain:0};
 
 function contenu(etage,kills,killsSurEtage){
   /* Combats gagnés sur l'étage : ceux du serveur plus ceux de l'écran depuis la dernière synchro ; à 10 on passe à l'étage suivant. */
   var total=killsSurEtage+combat.decalage;
-  etage=etage+Math.floor(total/10);
+  /* Étage suivant comme le serveur : à l'étage de fin on repart de l'étage de départ (jamais plus haut que la fin choisie) ; en automatique, jusqu'à l'étage optimal. */
+  for(var m=Math.floor(total/10);m>0;m--){
+    if(combat.auto)etage=Math.min(combat.optimal,etage+1);
+    else etage=etage>=combat.fin?combat.debut:etage+1;
+  }
   killsSurEtage=total%10;
   var n=roster&&Array.isArray(roster.workers)?roster.workers.length:0;
   var ennemi=n?roster.workers[indexEnnemi(n,kills,etage)]:null;
@@ -141,6 +145,10 @@ function html(d){
   combat.intervalle=Number(d&&d.intervalS)>0?Number(d.intervalS):1;
   combat.respawn=Number(d&&d.respawnS)>0?Number(d.respawnS):4;
   combat.actif=Boolean(d&&d.actif);
+  combat.auto=!d||d.startFloor==null||d.endFloor==null;
+  combat.debut=Math.max(0,Math.floor(Number(d&&d.startFloor)||0));
+  combat.fin=Math.max(combat.debut,Math.floor(Number(d&&d.endFloor)||0));
+  combat.optimal=Math.max(0,Math.floor(Number(d&&d.optimalFloor)||0));
   if(combat.killsServeur!==kills){combat.killsServeur=kills;combat.decalage=0;combat.coups=0;combat.mort=false;combat.prochain=0;}
   return '<section class="itp-arene '+CLASSE+'" data-etage="'+etage+'" data-kills="'+kills+'" data-sur="'+sur+'">'+contenu(etage,kills+combat.decalage,sur)+'</section>';
 }
