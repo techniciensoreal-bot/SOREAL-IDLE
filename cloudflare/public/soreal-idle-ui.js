@@ -19639,6 +19639,39 @@ function pageAventureIdleV28_(j){
         if(n>=3){idleTapsObjetV1={id:'',n:0,ms:0};}
         return n;
       }
+      /* Pièces du sac qui peuvent fusionner avec cet objet : même objet, ni verrouillées, ni équipées, ni au niveau 100. */
+      function piecesIdentiquesFusionIdleV1_(a,item){
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const equipement=(a&&a.equipment)||{};
+        const idsEquipes=ADVENTURE_CORE_SLOTS_V138
+          .map(function(slot){return String(equipement[slot]||'');})
+          .concat(Array.isArray(equipement.accessories)?equipement.accessories.map(String):[])
+          .filter(Boolean);
+        return items.filter(function(x){
+          return x&&String(x.id)!==String(item.id)&&x.kind!=='boost'&&x.definitionId===item.definitionId&&!x.locked&&idsEquipes.indexOf(String(x.id))===-1&&idleEntier_(x.level)<100;
+        });
+      }
+      /*
+       * Clic droit de la souris avec Double tap / Triple tap ACHETÉS (Norman, 2026-10-04 : « pour que l'achat serve aussi sur PC : un premier clic droit absorbe les objets identiques, et quand aucune pièce n'est
+       * disponible, il absorbe les boosts ; dans l'inventaire ou équipé »). Triple tap acheté : fusion avec les pièces identiques tant qu'il y en a ; Double tap acheté : sinon, absorption des boosts du sac.
+       * Renvoie false quand aucun des deux achats ne s'applique (l'ancienne action rapide équiper / fusionner reste alors celle du clic droit).
+       */
+      function clicDroitGestesAchetesIdleV1_(id){
+        const g=gestesAchetesIdleV1_();
+        if(!g.double&&!g.triple)return false;
+        const objet=String(id||'');
+        if(!objet||!idleEtat)return false;
+        const a=aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const item=items.find(function(x){return String(x&&x.id)===objet;});
+        if(!item||item.kind==='boost')return false;
+        if(deblocageParObjetIdleV1_(a,item))return false;
+        if(g.triple&&idleEntier_(item.level)<100&&piecesIdentiquesFusionIdleV1_(a,item).length){
+          return fusionnerAutoObjetIdleV1_(objet);
+        }
+        if(g.double)return boosterObjetEquipeAdventureIdleV1_(objet);
+        return false;
+      }
       /* Triple tap : fusion automatique de l'objet avec toutes les pièces identiques du sac (action serveur inventoryAuto / mergeAll). Prévient s'il n'y a rien à fusionner. */
       function fusionnerAutoObjetIdleV1_(id){
         const objet=String(id||'');
@@ -19647,14 +19680,7 @@ function pageAventureIdleV28_(j){
         const items=a&&Array.isArray(a.inventory)?a.inventory:[];
         const item=items.find(function(x){return String(x&&x.id)===objet;});
         if(!item||item.kind==='boost')return false;
-        const equipement=a.equipment||{};
-        const idsEquipes=ADVENTURE_CORE_SLOTS_V138
-          .map(function(slot){return String(equipement[slot]||'');})
-          .concat(Array.isArray(equipement.accessories)?equipement.accessories.map(String):[])
-          .filter(Boolean);
-        const candidats=items.filter(function(x){
-          return x&&String(x.id)!==objet&&x.kind!=='boost'&&x.definitionId===item.definitionId&&!x.locked&&idsEquipes.indexOf(String(x.id))===-1&&idleEntier_(x.level)<100;
-        });
+        const candidats=piecesIdentiquesFusionIdleV1_(a,item);
         if(idleEntier_(item.level)>=100||!candidats.length){
           messageFlottantIdleV32_('Aucune pièce identique à fusionner avec cet objet.');
           return true;
@@ -20004,8 +20030,12 @@ function pageAventureIdleV28_(j){
           const souris=
             event.pointerType==='mouse'||
             (!event.pointerType&&Date.now()-idleDernierClicDroitSourisMsV209<1500);
-          if(!souris||!element.classList.contains('soreal-idle-v138-bag-card'))return;
-          actionRapideObjetAdventureIdleV209_(idObjetGesteAdventureIdleV196_(element));
+          if(!souris)return;
+          const idObjet=idObjetGesteAdventureIdleV196_(element);
+          /* Double tap / Triple tap achetés : le clic droit fusionne puis absorbe les boosts, sur une pièce du sac comme sur une pièce équipée. */
+          if(clicDroitGestesAchetesIdleV1_(idObjet))return;
+          if(!element.classList.contains('soreal-idle-v138-bag-card'))return;
+          actionRapideObjetAdventureIdleV209_(idObjet);
         },true);
 
         document.addEventListener('click',function(event){
@@ -21113,6 +21143,7 @@ function pageAventureIdleV28_(j){
           'Maintenez la touche A et cliquez sur une pièce pour lui appliquer vos boosts.'+
           (g.double?' Double tap sur un objet : il absorbe tous les boosts du sac.':'')+
           (g.triple?' Triple tap : il fusionne automatiquement avec les pièces identiques.':'')+
+          ((g.double||g.triple)?' Sur PC, clic droit sur un objet du sac ou équipé : '+(g.triple?'il fusionne avec les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe les boosts du sac':'')+'.':'')+
         '</div>';
       }
 

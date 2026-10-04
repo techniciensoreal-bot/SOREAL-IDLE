@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Double tap et Triple tap servent aussi sur ordinateur : un clic droit sur un objet, au sac ou équipé, fusionne d’abord les pièces identiques, puis absorbe les boosts quand il n’y en a plus.',
           'Sur ordinateur, les boutons du menu de gauche sont plus larges et plus longs, avec des icônes et des titres plus grands, à la même échelle que le reste de l’interface.',
           'Là où tu affrontes les géants, tes stats d’aventure s’affichent à côté des stats conseillées : en vert quand tu as atteint le niveau conseillé, en rouge sinon, pour le combat manuel, l’idle et l’auto-kill.',
           'La salle réagit : des applaudissements d’environ trois secondes quand tu bats un boss pour la première fois, et des rires quand tu prends la fuite, en plus des sons habituels.',

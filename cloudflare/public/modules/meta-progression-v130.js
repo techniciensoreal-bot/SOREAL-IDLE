@@ -696,8 +696,8 @@
         syncBasicTraining:'Ajoute une case à cocher sous Input dans Basic Training : cochée, l’énergie que tu places dans une compétence est placée en même temps dans sa jumelle (Attaque passive et Blocage…), pour qu’elles montent exactement à la même vitesse.',
         daycareSlot1:'Débloque le premier slot de l’Item Daycare.',
         trainingAutoAdvance:'Basic Training passe tout seul à la compétence suivante.',
-        doubleTap:'Appuie deux fois vite sur un objet (équipé ou non) : il absorbe tous les boosts de ton inventaire.',
-        tripleTap:'Appuie trois fois vite sur un objet (équipé ou non) : il fusionne automatiquement avec toutes les pièces identiques disponibles.'
+        doubleTap:'Appuie deux fois vite sur un objet (équipé ou non) : il absorbe tous les boosts de ton inventaire. Sur PC : clic droit sur l’objet (au sac ou équipé) ; avec le Triple tap, le clic droit fusionne d’abord les pièces identiques, puis absorbe les boosts quand il n’y en a plus.',
+        tripleTap:'Appuie trois fois vite sur un objet (équipé ou non) : il fusionne automatiquement avec toutes les pièces identiques disponibles. Sur PC : clic droit sur l’objet (au sac ou équipé) ; avec le Double tap, quand plus aucune pièce n’est disponible, le clic droit absorbe les boosts.'
       };
       let idleExpOngletV1=(function(){try{return localStorage.getItem('soreal_idle_exp_onglet_v1')||'debuts';}catch(e){return 'debuts';}})();
 
