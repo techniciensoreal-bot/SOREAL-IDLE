@@ -4147,6 +4147,7 @@
         }
       }
 
+      let idleTmSyncNiveauV1=0;
       function actualiserCompteReboursTimeMachineIdleV1_(){
         if(idleMenuActifV28!=='machine')return;
         const maintenant=Date.now();
@@ -4163,22 +4164,49 @@
           }
           const base=Math.max(0,idleNombre_(brut));
           const at=idleNombre_(el.dataset.tmEtaAt)||maintenant;
-          const restant=Math.max(0,base-(maintenant-at)/1000);
+          const pisteEl=el.closest?el.closest('.soreal-idle-tm-piste-v1'):null;
+          const barreEl=pisteEl?pisteEl.querySelector('.soreal-idle-tm-remplissage-v1'):null;
+          const fill0=barreEl&&barreEl.dataset.tmFill0!==undefined?Math.max(0,Math.min(1,idleNombre_(barreEl.dataset.tmFill0))):1;
+          /*
+           * Niveau suivant SANS attendre la synchro (Norman, 2026-10-04 : « quand j'ajoute de l'énergie à la barre Vitesse de la machine, la barre avance plus vite, mais arrivée à la fin elle ne passe pas au niveau suivant ;
+           * j'ai dû ajouter de l'énergie pour qu'elle reprenne là où elle devait être »). Le niveau N dure N fois le niveau 1 : à 0 s, on passe au niveau suivant, plus long dans le même rapport, et la barre repart du reste.
+           * Le serveur compte les mêmes niveaux : la synchro suivante confirme (on la demande tout de suite).
+           */
+          const piste=el.getAttribute('data-tm-eta-track')||'';
+          const sysTm=idleEtat&&idleEtat.systemes&&Array.isArray(idleEtat.systemes.systems)?idleEtat.systemes.systems.find(function(x){return x&&x.id==='timeMachine';}):null;
+          const donneesTm=sysTm&&sysTm.state&&sysTm.state.data;
+          const niveau0=donneesTm?idleEntier_(piste==='or'?donneesTm.goldLevel:donneesTm.speedLevel):null;
+          let restant=base-(maintenant-at)/1000;
+          let palier=fill0<1&&base>0?base/(1-fill0):0;
+          let franchis=0;
+          if(restant<=0&&niveau0!==null&&palier>0){
+            while(restant<=0&&franchis<200){
+              franchis+=1;
+              palier=palier*(niveau0+1+franchis)/(niveau0+franchis);
+              restant+=palier;
+            }
+          }else restant=Math.max(0,restant);
+          if(franchis>0){
+            const niveauEl=document.querySelector('[data-tm-niveau="'+piste+'"]');
+            if(niveauEl)niveauEl.textContent=formatGrandNombreIdleV70_(niveau0+franchis);
+            if(Date.now()-idleTmSyncNiveauV1>2000){
+              idleTmSyncNiveauV1=Date.now();
+              synchroniserJeuIdleV7_(true);
+            }
+          }
           const secondesAffichees=Math.ceil(restant);
           if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
           }
-          /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros. */
-          const pisteEl=el.closest?el.closest('.soreal-idle-tm-piste-v1'):null;
-          const barreEl=pisteEl?pisteEl.querySelector('.soreal-idle-tm-remplissage-v1'):null;
+          /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros ; après un niveau franchi elle repart du reste du niveau suivant. */
           if(barreEl&&barreEl.dataset.tmFill0!==undefined&&base>0){
-            const fill0=Math.max(0,Math.min(1,idleNombre_(barreEl.dataset.tmFill0)));
-            if(fill0<1){
-              const fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
-              const largeurTm=(fill*100).toFixed(2)+'%';
-              if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
-            }
+            let fill;
+            if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));
+            else if(fill0<1)fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
+            else fill=1;
+            const largeurTm=(fill*100).toFixed(2)+'%';
+            if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
           }
         });
       }
