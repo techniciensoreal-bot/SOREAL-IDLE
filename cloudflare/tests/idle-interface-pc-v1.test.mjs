@@ -9,7 +9,7 @@ const debut = css.indexOf("@media (min-width:1100px) and (hover:hover) and (poin
 assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (jamais téléphone ni tablette tactile)");
 const bloc = css.slice(debut);
 assert.ok(bloc.includes("width:min(1700px,calc(100vw - 32px))"), "le jeu occupe la largeur de l'écran");
-assert.ok(bloc.includes("grid-template-columns:236px minmax(0,1fr)"), "menu à gauche (une colonne), page à droite");
+assert.ok(bloc.includes("grid-template-columns:300px minmax(0,1fr)"), "menu à gauche (une colonne), page à droite");
 assert.ok(bloc.includes("display:flex!important;flex-direction:column;") && bloc.includes("overflow:visible!important;max-height:none!important;") && bloc.includes("position:static;"), "menus sur UNE colonne, tout superposé, sans hauteur maximale ni défilement propre (2026-10-04)");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{grid-column:1/-1}"), "bandeau sur toute la largeur");
 // Équilibre des accolades (aucune règle cassée par l'ajout).
@@ -27,7 +27,7 @@ console.log("idle-interface-pc-v1: OK");
 
 // Harmonie des échelles (Norman, 2026-10-03) : contenu réduit sur PC, cartes du menu à pleine taille.
 assert.ok(bloc.includes("*:not(.soreal-idle-nav-v28):not(.soreal-idle-hero-banner-v95){zoom:.86}"), "contenu réduit d'environ 14 % sur PC seulement");
-assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:32px!important;height:32px!important}"), "cartes de menu compactes");
+assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:46px!important;height:46px!important}"), "cartes de menu à la taille de la carte de base (pastille de 46 px)");
 
 // Bandeau « EN DIRECT » (Norman, 2026-10-03) : sur PC, la colonne de menus ne doit plus le recouvrir (il est au-dessus et la colonne s'arrête avant lui).
 {
@@ -56,3 +56,12 @@ assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-
   for (const n of [28, 32, 33, 34]) assert.ok(Math.ceil(n / 2) * 2 >= n, "tient sur deux colonnes : " + n);
 }
 console.log("idle-interface-pc-v1 (lignes de menu): OK");
+
+// Boutons de menu plus grands sur PC (Norman, 2026-10-04) : pastille 46 px, emoji 26 px, titre 16 px, verbe visible ; TV (deux colonnes) un peu plus serrée.
+{
+  const pc = bloc.slice(bloc.indexOf("Boutons plus larges et plus longs"), bloc.indexOf("Images moins démesurées sur PC"));
+  assert.ok(pc.includes("min-height:60px") && pc.includes("soreal-idle-nav-emoji-v2{font-size:26px!important}") && pc.includes("soreal-idle-nav-texte-v2 b{font-size:16px!important"), "PC : boutons longs, icône et titre grands");
+  assert.ok(pc.includes("soreal-idle-nav-texte-v2 small{display:block;font-size:12px!important"), "PC : le verbe du menu est lisible");
+  const tv = bloc.slice(bloc.indexOf("Sur TV, deux colonnes"), bloc.indexOf("Bouton Shop : une boutique magique"));
+  assert.ok(tv.includes("width:40px!important;height:40px!important") && tv.includes("font-size:23px!important") && tv.includes("texte-v2 b{font-size:15px!important}"), "TV : plus grand qu'avant, resserré pour tenir sans défiler");
+}

@@ -1841,7 +1841,7 @@
   }
   function rireConstruire_(c){
     [[105,0,.5],[122,.05,.55],[140,.1,.5],[165,.02,.45],[190,.08,.5],[215,.16,.45],[245,.12,.4],[270,.21,.38]].forEach(function(v){
-      rireVoix_(c,v[0]*(.97+Math.random()*.06),v[1]+Math.random()*.04,v[2],7+Math.floor(Math.random()*3));
+      rireVoix_(c,v[0]*(.97+Math.random()*.06),v[1]+Math.random()*.04,v[2],6+Math.floor(Math.random()*3));
     });
     bruit_(c,{duration:2.2,volume:.012,delay:.05,filterType:"bandpass",frequency:1800,q:.6,decay:.9});
   }

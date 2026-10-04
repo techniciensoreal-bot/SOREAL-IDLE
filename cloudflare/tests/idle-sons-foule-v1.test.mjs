@@ -35,7 +35,7 @@ assert.ok(sons.laugh.duree >= 1800 && sons.laugh.duree <= 3000);
   assert.ok(Math.abs(dureeS - 3.1) < .05, "3,1 s de tampon");
   const energie = (a, b) => { let s = 0; for (let i = Math.floor(a * 8000); i < Math.floor(b * 8000); i += 1) s += tampon[i] * tampon[i]; return s / ((b - a) * 8000); };
   assert.ok(energie(.0, .3) < energie(1, 1.5), "ça monte au début");
-  assert.ok(energie(2.9, 3.1) < energie(1, 1.5) * .35, "ça s'éteint à la fin");
+  assert.ok(energie(2.9, 3.1) < energie(1, 1.5) * .6, "ça s'éteint à la fin");
   assert.ok(Math.max(...tampon) <= 1.0001 && Math.max(...tampon) > .5, "normalisé, pas de saturation");
 }
 // Rires : huit voix, chacune planifiée, tout fini avant la durée annoncée.

@@ -1519,7 +1519,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4{
     width:min(1700px,calc(100vw - 32px))!important;
     display:grid!important;
-    grid-template-columns:236px minmax(0,1fr);
+    grid-template-columns:300px minmax(0,1fr);
     column-gap:20px;align-items:start;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*{grid-column:2;min-width:0}
@@ -1539,18 +1539,22 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     grid-column:1;grid-row:2 / span 60;align-self:start;
     position:static;margin:12px 0 14px!important;
     display:flex!important;flex-direction:column;
-    gap:5px!important;padding:8px!important;
+    gap:8px!important;padding:10px!important;
     overflow:visible!important;max-height:none!important;
     scroll-snap-type:none!important;
   }
+  /*
+   * Boutons plus larges et plus longs, titres et icônes plus grands (Norman, 2026-10-04 : « sur PC les boutons des menus doivent être plus larges et plus longs, les titres et icônes plus grands », puis « ils ont l'air trop
+   * petits par rapport au reste de l'interface, harmonise le tout ») : mêmes proportions que la carte de base (pastille de 46 px, emoji de 26 px, titre de 16 px, verbe lisible dessous), colonne de 300 px.
+   */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
-    width:100%!important;box-sizing:border-box;min-width:0;padding:2px 8px 2px 4px!important;gap:7px!important;border-bottom-width:2px!important;
+    width:100%!important;box-sizing:border-box;min-width:0;min-height:60px;padding:7px 14px 7px 8px!important;gap:12px!important;border-bottom-width:3px!important;
   }
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:32px!important;height:32px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:18px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{flex:1 1 auto;min-width:0}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:none}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:46px!important;height:46px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:26px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{flex:1 1 auto;min-width:0;gap:3px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:16px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:block;font-size:12px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /*
    * Images moins démesurées sur PC (Norman, 2026-10-04 : « les images des boss, des collections ne doivent pas être si grandes, elles sont démesurées ») : les cases de Collection et du Bestiaire gardent une taille
    * de vignette (130 à 150 px) au lieu de s'étirer sur toute la largeur, le portrait des combattants est plafonné, et la fiche d'un boss reste compacte.
@@ -1639,17 +1643,18 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="par
  * Norman (2026-10-03) : « sur TV, les menus de gauche ne doivent pas être dans un menu déroulant ; il y a assez de place pour tous les afficher à l'écran ». Sur un grand écran de TV (au moins 1800 px de large et 1000 px de haut),
  * la colonne de menus passe sur deux colonnes de cartes compactes (lues de haut en bas) : les 32 menus tiennent sans défiler. Seuil volontairement haut (1800 x 1000) : une fenêtre de navigateur sur PC n'atteint pas cette hauteur, un écran de TV en plein écran oui. */
 @media (min-width:1800px) and (min-height:1000px){
-  body.soreal-idle-active-v47 .soreal-idle-native-v4{grid-template-columns:448px minmax(0,1fr)}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4{grid-template-columns:600px minmax(0,1fr)}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{max-height:260px}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95 img{max-height:260px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
-    overflow:visible!important;max-height:none!important;gap:5px!important;padding:8px!important;
+    overflow:visible!important;max-height:none!important;gap:6px!important;padding:10px!important;
   }
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:2px 8px 2px 4px!important;gap:7px!important;min-width:0;border-bottom-width:2px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:32px!important;height:32px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:18px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Sur TV, deux colonnes : mêmes proportions que sur PC, un peu resserrées pour que les 32 menus tiennent sans défiler. */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{min-height:50px;padding:4px 12px 4px 7px!important;gap:10px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:40px!important;height:40px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:23px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:15px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:none}
 }
 
