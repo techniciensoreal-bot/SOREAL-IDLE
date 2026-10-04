@@ -63,7 +63,7 @@ assert.match(ui, /if\(event\.detail&&event\.detail\.pointerType==='mouse'\)retur
 assert.match(ui, /function survolPossibleIdleV1_\(event\)\{[\s\S]{0,300}\(hover:hover\) and \(pointer:fine\)/, "seulement avec une vraie souris");
 /* 2026-10-03 (Norman : « les popups s'ouvrent trop vite au passage de la souris : une demi-seconde ») : ouverture différée de 500 ms ; toujours UN seul popup (l'ancien se ferme dès qu'on change d'objet). */
 assert.match(ui, /document\.addEventListener\('mouseover',function\(event\)\{[\s\S]{0,2200}ouvrirSurvolIdleV1_\(element,id\);[\s\S]{0,120}IDLE_SURVOL_DELAI_OUVERTURE_MS_V1\)/, "survol d'un objet : ouverture après 500 ms");
-assert.ok(ui.includes('const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=500;'), 'délai d une demi-seconde');
+assert.ok(ui.includes('const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=1500;'), 'délai d une seconde et demie (2026-10-04)');
 assert.ok(!ui.includes('IDLE_SURVOL_DELAI_MS_V1'), 'l ancien délai d 1 s (qui laissait deux popups) n existe plus');
 assert.ok(!ui.includes('planifierSurvolIdleV1_'), 'pas de minuteur d ouverture par mouvement de souris');
 assert.match(ui, /cibleDansPopupDetailsObjetAdventureIdleV207_\(cible\)\)\{\s*(annulerOuvertureSurvolIdleV1_\(\);\s*)?clearTimeout\(idleSurvolTimerFermerV1\)/, "tant que la souris est dans le popup : il reste ouvert (et aucune nouvelle ouverture en attente)");

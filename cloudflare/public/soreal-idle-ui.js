@@ -19906,7 +19906,8 @@ function pageAventureIdleV28_(j){
        * Si elle le quitte avant, rien ne s'ouvre. (Entre-temps, le délai d'une seconde de 2026-09-26 avait été retiré parce qu'il laissait coexister DEUX popups ; ici il n'y en a toujours qu'un :
        * l'ancien se ferme dès qu'on change d'objet, et le nouveau n'apparaît qu'après le délai.)
        */
-      const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=500;
+      /* 2026-10-04 (Norman) : « le popup de l'inventaire apparaît à 1,5 s sur PC » : 1500 ms (inventaire, Coffre et Collection partagent ce délai ; le tactile garde le maintien long). */
+      const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=1500;
       let idleSurvolTimerOuvrirV1=0;
       let idleSurvolEnAttenteIdV1='';
       function annulerOuvertureSurvolIdleV1_(){
@@ -19977,7 +19978,7 @@ function pageAventureIdleV28_(j){
           if(id===idleSurvolIdV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
           if(id===idleSurvolEnAttenteIdV1)return;/* la souris est toujours sur le même objet : le délai court déjà */
           annulerOuvertureSurvolIdleV1_();
-          /* Un autre objet : le popup du précédent se ferme tout de suite ; le nouveau s'ouvre après 0,5 s de survol. */
+          /* Un autre objet : le popup du précédent se ferme tout de suite ; le nouveau s'ouvre après 1,5 s de survol. */
           if(idleSurvolIdV1&&id!==idleSurvolIdV1)fermerSurvolIdleV1_();
           idleSurvolEnAttenteIdV1=id;
           idleSurvolTimerOuvrirV1=setTimeout(function(){

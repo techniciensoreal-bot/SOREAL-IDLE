@@ -26,7 +26,7 @@
           'Un menu est entièrement relooké : une machine de laiton qui fabrique de l’Or, avec le gain d’Or par seconde en très grand, la barre d’Or qui bat à chaque remplissage et des pièces qui tombent. Et à la fin d’une barre, le niveau suivant arrive tout de suite, sans attendre une action.',
           'Chaque sort de sang a son rituel sonore, de plus en plus intense : un cœur qui s’emballe pour le premier, puis un glas, un râle, un chœur dissonant, et pour le dernier un vrai rituel qui dure presque cinq secondes.',
           'Le menu du sang a sa propre musique, qui se fond doucement en arrivant et en partant, et qui reprend exactement là où elle s’était arrêtée quand tu y reviens.',
-          'La fiche d’objet est la même partout : le Coffre (au clic, ou en restant 0,5 seconde dessus) et la Collection ouvrent la fiche de statistiques de l’inventaire, et la reprise d’un objet se fait depuis cette fiche.',
+          'La fiche d’objet est la même partout : le Coffre (au clic, ou en restant 1,5 seconde dessus sur PC) et la Collection ouvrent la fiche de statistiques de l’inventaire, et la reprise d’un objet se fait depuis cette fiche.',
           'Collection : un V vert apparaît sur les boosts montés au niveau 100.',
           'Chaque article des boutiques a maintenant son image, la même que dans le jeu d’origine.',
           'Le bandeau « En direct » annonce aussi quand un joueur prend la fuite devant un boss ou perd contre lui (le nom du boss n’est donné qu’à ceux qui l’ont déjà atteint).',
