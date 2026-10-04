@@ -98,3 +98,13 @@ console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
   assert.ok(m2.includes("toggleSystemeMetaIdleV130_('tower')") && m2.includes("Entrer dans l’ITOPOD"), "bouton pour entrer dans la tour");
 }
 console.log("idle-itopod-decors-hasard-v1 (combat): OK");
+
+// 7. Compteur « Combat k / 10 » avant de monter d'étage (Norman, 2026-10-04).
+{
+  const sc = readFileSync("cloudflare/public/modules/itopod-scene-v1.js", "utf8");
+  const fen = {};
+  vm.runInNewContext(sc, { window: fen, document: { querySelectorAll: () => [] }, fetch: () => Promise.reject(new Error("x")), Date, Math });
+  const h = fen.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html({ floor: 5, kills: 57, killsOnFloor: 7 });
+  assert.ok(h.includes("Combat <b>8</b> / 10"), "combat en cours sur 10");
+}
+console.log("idle-itopod-decors-hasard-v1 (compteur): OK");
