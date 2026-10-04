@@ -12714,10 +12714,18 @@ function marquerVusSorealIdle(
           return String(id || '').trim();
         });
 
+    /* « En direct » : une histoire (vuId « histoire:… ») jamais vue auparavant compte comme une cinématique regardée (Norman, 2026-10-04). */
+    const dejaVus = new Set(stats.vus);
+    const nouvellesHistoires = Array.from(new Set(demandes.filter(function(id) {
+      return /^histoire:/.test(id) && !dejaVus.has(id);
+    }))).length;
     stats.vus =
       statsJoueurSorealIdle_(
         JSON.stringify({vus:stats.vus.concat(demandes)})
       ).vus;
+    if (nouvellesHistoires > 0) {
+      stats.fluxHistoires = Math.max(0, Math.floor(nombreSorealIdle_(stats.fluxHistoires, 0))) + 1;
+    }
 
     cellule.setValue(
       JSON.stringify(

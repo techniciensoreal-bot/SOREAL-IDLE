@@ -2558,6 +2558,21 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(bouton)bouton.setAttribute('aria-expanded',ouvert?'true':'false');
       };
 
+      /* Rangs (1 à 4) des sorts de Blood Magic que CE joueur a déjà découverts (mêmes conditions que la liste du menu) : le fil « En direct » ne nomme jamais un sort qu'il ne connaît pas. Le dernier sort n'est jamais nommé. */
+      window.__SOREAL_IDLE_SORTS_CONNUS_V1__=function(j){
+        const rangs={1:true};
+        try{
+          const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
+          const data=s&&s.state&&s.state.data||{};
+          const sp=data.spells||{};
+          const n=function(v){v=Number(v);return v>0?v:0;};
+          const pic=Math.max(n(data.bloodPeak),n(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.blood));
+          if(pic>=100||n(sp.ironPill)>0)rangs[2]=true;
+          if(pic>=1e4||n(sp.bloodSpaghettiBloodSpent)>0)rangs[3]=true;
+          if(pic>=1e6||n(sp.counterfeitGoldBloodSpent)>0)rangs[4]=true;
+        }catch(e){}
+        return rangs;
+      };
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1"><div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div></div>';

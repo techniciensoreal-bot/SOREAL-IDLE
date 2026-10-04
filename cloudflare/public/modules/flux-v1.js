@@ -90,6 +90,16 @@
           ?{icone:'🏃',texte:nom+verbe(' as',' a')+' pris la fuite devant '+cible}
           :{icone:'💀',texte:nom+verbe(' as',' a')+' perdu contre '+cible};
       }
+      /* Sort de Blood Magic (Norman, 2026-10-04) : seulement pour un lecteur qui a le menu ; le nom du sort n'est donné que si le lecteur l'a déjà découvert (connus.sorts) ; le dernier sort n'est jamais nommé. */
+      case 'sort':{
+        if(!k.menus.sang)return null;
+        const rang=Number(d.sort)||0;
+        const nomSort=['','Blood NUMBER Boost','Iron Pill','Blood Spaghetti','Counterfeit Gold'][rang]||'';
+        const visible=Boolean(k.sorts&&k.sorts[rang]);
+        return {icone:'🩸',texte:nom+verbe(' as',' a')+' lancé '+(visible&&nomSort?'le sort '+nomSort:'un sort de Blood Magic')};
+      }
+      case 'histoire':
+        return {icone:'🎬',texte:nom+verbe(' as regardé',' a regardé')+' une cinématique'};
       case 'succes':{
         const nomSucces=k.succes[String(d.id)];
         return {icone:'🏆',texte:nomSucces?nom+verbe(' as',' a')+' débloqué le trophée '+nomSucces:nom+verbe(' as',' a')+' débloqué un trophée'};

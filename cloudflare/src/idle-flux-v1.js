@@ -71,7 +71,14 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const bossFuites = Math.max(0, Math.floor(N(stats && stats.fluxBossFuites, 0)));
   const bossDefaites = Math.max(0, Math.floor(N(stats && stats.fluxBossDefaites, 0)));
   const bossDernier = Math.max(0, Math.floor(N(stats && stats.fluxBossDernier, 0)));
+  /* Sorts de Blood Magic lancés (records.bloodSpellsCast / bloodSpellLast) et cinématiques vues (stats.fluxHistoires, tenu par marquerVusSorealIdle) : compteurs seuls. */
+  const sorts = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellsCast, 0)));
+  const sortDernier = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellLast, 0)));
+  const histoires = Math.max(0, Math.floor(N(stats && stats.fluxHistoires, 0)));
   return {
+    sorts,
+    sortDernier,
+    histoires,
     bossFuites,
     bossDefaites,
     bossDernier,
@@ -141,6 +148,9 @@ export function evenementsV1(avant, apres, noms = {}) {
   /* Fuite / défaite contre un boss : jamais depuis un instantané d'avant ce jalon (pas de comparaison, rien annoncé à tort). Le boss est celui du dernier combat arrêté. */
   if (Number.isFinite(avant.bossFuites) && apres.bossFuites > avant.bossFuites) ev.push({ type: "fuite", donnees: { boss: apres.bossDernier, nom: nom(noms.boss, apres.bossDernier) } });
   if (Number.isFinite(avant.bossDefaites) && apres.bossDefaites > avant.bossDefaites) ev.push({ type: "defaite", donnees: { boss: apres.bossDernier, nom: nom(noms.boss, apres.bossDernier) } });
+  /* Sort de sang lancé / cinématique regardée : jamais depuis un instantané d'avant ce jalon (pas de comparaison). Le sort est identifié par son rang (1 à 5), l'affichage dépend du lecteur. */
+  if (Number.isFinite(avant.sorts) && apres.sorts > avant.sorts) ev.push({ type: "sort", donnees: { sort: apres.sortDernier } });
+  if (Number.isFinite(avant.histoires) && apres.histoires > avant.histoires) ev.push({ type: "histoire", donnees: {} });
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
 }

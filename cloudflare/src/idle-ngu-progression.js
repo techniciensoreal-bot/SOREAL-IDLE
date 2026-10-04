@@ -3727,7 +3727,15 @@ const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
  */
 const IRON_PILL_COOLDOWN_MS_V1 = Object.freeze({ normal: 11.5 * 3600000, difficile: 11.5 * 3600000, extreme: 11.5 * 3600000 });
 
+/* « En direct » (Norman, 2026-10-04 : « quand quelqu'un effectue un rituel blood, ça s'écrit dans En direct ») : compteur de sorts lancés + dernier sort (rang dans la liste), lus par idle-flux-v1.js. */
+const BLOOD_SPELLS_FLUX_V1 = Object.freeze(["numberBoost", "ironPill", "bloodSpaghetti", "counterfeitGold", "leeches"]);
 function castBloodSpell(state, spell, now = 0) {
+  const resultat = castBloodSpellSansTrace(state, spell, now);
+  state.records.bloodSpellsCast = Math.max(0, num(state.records.bloodSpellsCast, 0)) + 1;
+  state.records.bloodSpellLast = BLOOD_SPELLS_FLUX_V1.indexOf(spell) + 1;
+  return resultat;
+}
+function castBloodSpellSansTrace(state, spell, now = 0) {
   const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
   if (minimum === undefined) throw new Error("SORT_SANG_INVALIDE");
   const blood = Math.floor(state.currencies.blood);
