@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Les menus suivent maintenant l’ordre dans lequel on les obtient, pour tout le monde. Ton ancien rangement a été remis à zéro une seule fois : tu peux réarranger les boutons à ta façon, et ton rangement sera conservé.',
           'Les tuiles du haut ont chacune leur couleur : Nombre en cyan, Rebirths en vert, Attack en rouge, Defense en bleu, Gold en or, EXP en violet, AP en rose et Run en orange, avec un style plus soigné pour les repérer d’un coup d’œil.',
           'Les trois achats du rayon Toc ont maintenant leur propre illustration.',
           'La boutique prévient quand il y a du nouveau : un point rouge sur le bouton du menu, sur les rayons concernés et sur chaque nouvel achat, qui disparaît une fois l’achat vu. L’étoile du bouton ne scintille plus que dans la boutique ou quand elle a du nouveau.',

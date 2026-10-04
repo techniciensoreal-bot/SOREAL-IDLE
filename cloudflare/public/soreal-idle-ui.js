@@ -10206,7 +10206,7 @@
           Object.keys(localStorage).forEach(function(cle){
             if(
               cle.indexOf('soreal_idle_menus_ack_v1_')===0||
-              cle.indexOf('soreal_idle_menu_ordre_v1_')===0||
+              cle.indexOf('soreal_idle_menu_ordre_')===0||
               cle.indexOf('soreal_idle_bienvenue_v75_')===0||
               cle.indexOf('soreal_idle_tutoriel_')===0||
               /*
@@ -11508,47 +11508,47 @@
       };
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-132 */
+      /*
+       * Ordre par défaut = ordre dans lequel on obtient les menus (Norman, 2026-10-04 : « réarrange les menus chez tout le monde pour qu'ils suivent l'ordre où on les obtient ; les gens pourront les réarranger par la suite »).
+       * Repères réels : les menus de départ, Shop (1er boss), Adventure, Rebirth et Collection (boss 4), Money Pit (100 000 Gold), Augmentations (boss 17), Advanced Training (entraînement de base terminé),
+       * Time Machine (30), Blood Magic (37), ITOPOD puis Perks (clé du Ciel, boss 48), Daycare (achat d'un emplacement), Challenges et Titans (58), puis les systèmes donnés par les objets des titans :
+       * NGU et Wandoos (1er titan), Yggdrasil (66), Gold Diggers (82), Beards (100), MacGuffins (116), Hacks (125), Questing puis Quirks (132), Wishes (166), Cards, Cooking.
+       * Achievements, Classement, Chat, Settings (et Admin, visible du seul administrateur) viennent TOUJOURS en dernier, donc après le dernier menu débloqué : un menu qui se débloque s'intercale avant eux (Norman, même jour).
+       * L'ordre choisi par un joueur reste prioritaire ; l'ancien rangement a été remis à zéro une fois (menuOrdreVersion 2).
+       */
       const IDLE_MENUS_V1=[
         {id:'entrainement',icon:'🥊',nom:'Basic Training'},
-        {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
+        {id:'shop',icon:'🔮',nom:'Shop'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
-        {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
+        {id:'bestiaire',icon:'🏆',nom:'Collection'},
+        {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
+        {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'avance',icon:'🏋️',nom:'Advanced Training'},
         {id:'machine',icon:'⏱️',nom:'Time Machine'},
         {id:'sang',icon:'🩸',nom:'Blood Magic'},
-        {id:'wandoos',icon:'💻',nom:'Wandoos'},
+        {id:'tower',icon:'🏢',nom:'ITOPOD'},
+        {id:'perks',icon:'⭐',nom:'Perks'},
+        {id:'daycare',icon:'🛠️',nom:'Item Daycare'},
+        {id:'challenges',icon:'🏁',nom:'Challenges'},
+        {id:'titans',icon:'👹',nom:'Titans'},
         {id:'ngu',icon:'♾️',nom:'NGU'},
+        {id:'wandoos',icon:'💻',nom:'Wandoos'},
         {id:'yggdrasil',icon:'🌱',nom:'Yggdrasil'},
         {id:'diggers',icon:'⛏️',nom:'Gold Diggers'},
         {id:'beards',icon:'🧔',nom:'Beards'},
-        {id:'tower',icon:'🏢',nom:'ITOPOD'},
-        {id:'perks',icon:'⭐',nom:'Perks'},
-        {id:'challenges',icon:'🏁',nom:'Challenges'},
-        {id:'titans',icon:'👹',nom:'Titans'},
         {id:'macguffins',icon:'🧩',nom:'MacGuffins'},
-        {id:'daycare',icon:'🛠️',nom:'Item Daycare'},
+        {id:'hacks',icon:'🧪',nom:'Hacks'},
         {id:'questing',icon:'📋',nom:'Questing'},
         {id:'quirks',icon:'📚',nom:'Quirks'},
-        {id:'hacks',icon:'🧪',nom:'Hacks'},
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'succes',icon:'🎖️',nom:'Achievements'},
-        /* 2026-09-25 (Norman) : EXP Shop et Boutique AP réunis dans un seul menu « Shop », séparés par un onglet. */
-        {id:'shop',icon:'🔮',nom:'Shop'},
-        /*
-         * 2026-09-26 (Norman) : « Classement, Collection, Chat : tout à droite, juste à gauche de Settings. Ce ne sont pas des mécaniques qui apportent
-         * quelque chose à la progression du jeu, elles doivent être moins proches des autres systèmes qui le permettent. » Ordre par défaut ; l'ordre
-         * enregistré par un joueur (rangement des boutons) reste prioritaire.
-         */
         {id:'classement',icon:'📊',nom:'Classement'},
-        {id:'bestiaire',icon:'🏆',nom:'Collection'},
-        /* 2026-09-25 (Norman) : le Chat SOREAL (celui de APP/TV) dans le jeu ; ce bouton ouvre un panneau (modules/chat-v1.js), il ne change pas de page. */
         {id:'chat',icon:'💬',nom:'Chat'},
         {id:'parametres',icon:'⚙️',nom:'Settings'},
-        /* Menu Admin (2026-09-30, Norman) : visible UNIQUEMENT par l'administrateur (voir menuDisponibleIdleV28_). */
         {id:'admin',icon:'🛠️',nom:'Admin'}
       ];
 
@@ -11646,7 +11646,7 @@
       let idleMenuClicAvaleJusquaV1=0;
 
       function idleMenuOrdreCleV1_(j){
-        return 'soreal_idle_menu_ordre_v1_'+generationJoueurIdleV75_(j);
+        return 'soreal_idle_menu_ordre_v2_'+generationJoueurIdleV75_(j);
       }
 
       function idleMenuOrdreEnregistreV1_(j){
