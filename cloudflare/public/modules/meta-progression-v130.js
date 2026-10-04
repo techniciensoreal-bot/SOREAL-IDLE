@@ -1830,6 +1830,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!j)return;
         const srv=H.protegerJoueurServeurInventaireIdleV208_(res.joueur);
         if(empreinteAllocationsMetaV1_(j)!==empreinteAllocationsMetaV1_(srv)){
+          /* Diagnostic (Norman, 2026-10-04 : « toute l'énergie que je place m'est rendue ») : le serveur a une autre répartition que l'écran. On garde une trace en console et, quand il avait moins d'énergie que ce que l'écran
+             montrait, on le dit au joueur au lieu de rendre l'énergie en silence. */
+          try{
+            const locale=Math.floor(H.idleNombre_(j.energie));
+            const serveur=Math.floor(H.idleNombre_(srv.energie));
+            console.warn('[IDLE] répartition d’énergie ajustée par le serveur',{energieEcran:locale,energieServeur:serveur,repartitionEcran:empreinteAllocationsMetaV1_(j),repartitionServeur:empreinteAllocationsMetaV1_(srv)});
+            if(locale>serveur+1&&typeof H.messageFlottantIdleV32_==='function'){
+              H.messageFlottantIdleV32_('⚠️ Le serveur n’avait que '+serveur.toLocaleString('fr-FR')+' d’énergie disponible (l’écran en montrait '+locale.toLocaleString('fr-FR')+') : ta répartition a été ajustée.');
+            }
+          }catch(_e){}
           H.setIdleEtat(srv);
           H.rendreIdleEtat_({ok:true,joueur:srv});
           return;
