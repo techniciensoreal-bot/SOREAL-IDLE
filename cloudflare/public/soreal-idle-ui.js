@@ -17404,6 +17404,10 @@ let idleDialogueTimerV76=null;
         const api=window.SorealTitanComportementsV1;
         return api&&idleTitanEtatV1&&fight&&fight.titanId?api.multDegatsJoueur(fight.titanId,idleTitanEtatV1,maintenant):1;
       }
+      function titanCompetenceDesactiveeIdleV1_(competence){
+        const api=window.SorealTitanComportementsV1;
+        return Boolean(api&&idleTitanEtatV1&&api.competenceDesactivee(idleTitanEtatV1.id,idleTitanEtatV1,competence));
+      }
       function titanJoueurParalyseIdleV1_(maintenant){
         const api=window.SorealTitanComportementsV1;
         return Boolean(api&&idleTitanEtatV1&&api.joueurParalyse(idleTitanEtatV1,maintenant));
@@ -17703,7 +17707,9 @@ let idleDialogueTimerV76=null;
           const unlocked=competenceAdventureDisponibleIdleV4_(def,group,a);
           const restant=cooldownRestantAdventureIdleV3_(id,now);
           const prerequisOk=prerequisCompetenceAdventureIdleV4_(id,now);
-          btn.disabled=idleAdventureIdleModeV3||!unlocked||restant>0||!prerequisOk;
+          const desactivee=titanCompetenceDesactiveeIdleV1_(id);
+          btn.disabled=idleAdventureIdleModeV3||!unlocked||restant>0||!prerequisOk||desactivee;
+          btn.classList.toggle('titan-off',desactivee);
           btn.classList.toggle('locked',!unlocked);
           const cd=btn.querySelector('.soreal-idle-adventure-skill-cd-v3');
           if(cd)cd.textContent=restant>0?(restant/1000).toFixed(restant<10000?1:0)+'s':'';
@@ -17848,6 +17854,7 @@ let idleDialogueTimerV76=null;
       function utiliserCompetenceAdventureIdleV3_(id){
         if(idleAdventureIdleModeV3)return;
         if(titanJoueurParalyseIdleV1_(Date.now()))return;
+        if(titanCompetenceDesactiveeIdleV1_(id))return;
         const def=definitionCompetenceAdventureIdleV3_(id);
         if(!def)return;
         const a=aventureMetaIdleV47_(idleEtat);
@@ -18285,6 +18292,7 @@ let idleDialogueTimerV76=null;
         if(!fight||!fight.active){
           resetHorlogesFightAdventureIdleV2_();
           fxEtatsIdleV1_(null,maintenantTick);
+          idleTitanEtatV1=null;
 
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-205 */
           const resolutionEnAttente=idleAdventureResolutionPendingV2;
@@ -18343,6 +18351,7 @@ let idleDialogueTimerV76=null;
             maintenantTick+intervalleAttaqueEnnemiAdventureIdleV2_(fight);
           idleAdventureFightLastRegenAtV2=maintenantTick;
           idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
+          if(idleTitanEtatV1)idleTitanEtatV1.id=fight.titanId;
         }
         /* Fin d'une paralysie du titan : les cooldowns étaient en pause, on les repousse de la durée subie ; l'Idle Mode reprend un coup plus tard. */
         if(idleTitanEtatV1){
@@ -18445,12 +18454,22 @@ let idleDialogueTimerV76=null;
           );
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
           let fxTypeAttaque='degats';
+          let attTitan=null;
           if(idleTitanEtatV1){
             const att=window.SorealTitanComportementsV1.attaqueTitan(fight.titanId,idleTitanEtatV1,momentEvenement,Math.random());
-            if(att.multDegats!==1){
-              degats=Math.min(avant,Math.round(degats*att.multDegats));
+            attTitan=att;
+            if(att.multDegats!==1)degats=Math.min(avant,Math.round(degats*att.multDegats));
+            if(att.type==='puissante'){
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
               fxTypeAttaque='puissante';
+            }
+            if(att.type==='sauterelles')ajouterLogAventureIdleV1_('enemy','🦗 Les sauterelles se ruent sur toi : 10 attaques rapides !');
+            if(att.rafale)fxTypeAttaque='sauterelle';
+            if(att.suite)idleAdventureFightNextEnemyHitV2=momentEvenement+att.intervalleMs;
+            if(att.type==='chemise'){
+              fxTypeAttaque='chemise';
+              const defDes=att.desactive?definitionCompetenceAdventureIdleV3_(att.desactive):null;
+              ajouterLogAventureIdleV1_('enemy',att.nouvelle&&defDes?'👔 Jake agite sa chemise : « '+defDes.label+' » est désactivée jusqu’à la fin du combat !':'👔 Jake agite sa chemise… sans effet de plus.');
             }
             if(att.saigne){
               const apiT=window.SorealTitanComportementsV1;
@@ -18492,7 +18511,7 @@ let idleDialogueTimerV76=null;
           fight.playerHp=Math.max(0,avant-degats);
           fxIdleV1_('joueur',fxTypeAttaque,degats>0?'-'+idleEntier_(degats):'');
 
-          ajouterLogAventureIdleV1_(
+          if(!(attTitan&&attTitan.type==='chemise'))ajouterLogAventureIdleV1_(
             'enemy',
             libelleEnnemiAdventureIdleV1_(fight)+
             ' vous a attaqué pour '+idleEntier_(degats)+' dégâts !'

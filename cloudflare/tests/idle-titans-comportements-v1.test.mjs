@@ -10,7 +10,7 @@ const ctx = { window: undefined }; ctx.globalThis = ctx; vm.createContext(ctx);
 vm.runInContext(readFileSync("cloudflare/public/modules/titans-comportements-v1.js", "utf8"), ctx);
 const api = ctx.SorealTitanComportementsV1;
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-assert.ok(api.possede("t1") && api.possede("t2") && !api.possede("t3"));
+assert.ok(api.possede("t1") && api.possede("t2") && api.possede("t3") && !api.possede("t4"));
 
 // Tirage : [0,1) paralysie, [1,3) saignement, [3,5) puissante, le reste base (sur 7).
 let e = api.neuf();
@@ -54,6 +54,32 @@ assert.equal(api.attaqueTitan("t2", e, 2000, 2.5 / 7).multDegats, 1.5);
 assert.equal(api.attaqueTitan("t2", e, 2000, 5.5 / 7).multDegats, 1);
 assert.equal(api.multDegatsJoueur("t1", api.neuf(), 0), 1);
 assert.ok(ui.includes("titanMultDegatsJoueurIdleV1_(fight,maintenant)") && ui.includes("titanMultDegatsJoueurIdleV1_(fight,momentEvenement)"));
+// Jake : 1re attaque = battement de chemise (remplace l'attaque, désactive Ultimate), puis toutes les 20 ; ordre du wiki ; sauterelles 1/5 si 10 attaques d'écart ; puissante 2/5 x1,5.
+e = api.neuf();
+r = api.attaqueTitan("t3", e, 0, 0.5);
+assert.equal(r.type, "chemise"); assert.equal(r.multDegats, 0); assert.equal(r.desactive, "ultimate");
+assert.ok(api.competenceDesactivee("t3", e, "ultimate") && !api.competenceDesactivee("t3", e, "heal") && !api.competenceDesactivee("t1", e, "ultimate"));
+assert.equal(api.attaqueTitan("t3", e, 1, 0.5 / 5).type, "base", "sauterelles : pas avant 10 attaques");
+assert.equal(api.attaqueTitan("t3", e, 2, 1.5 / 5).multDegats, 1.5);
+for (let i = 0; i < 17; i++) api.attaqueTitan("t3", e, 3, 4.5 / 5);
+assert.equal(e.attaques, 20);
+r = api.attaqueTitan("t3", e, 4, 0.5 / 5);
+assert.equal(r.type, "chemise", "la 21e attaque est un battement de chemise"); assert.equal(r.desactive, "heal");
+const ordre = ["ultimate", "heal", "piercing", "ultimateBuff", "strong", "offensiveBuff"];
+for (let k = 2; k <= 5; k++) { for (let i = 0; i < 19; i++) api.attaqueTitan("t3", e, 5, 4.5 / 5); r = api.attaqueTitan("t3", e, 5, 4.5 / 5); assert.equal(r.type, "chemise"); assert.equal(r.desactive, ordre[k]); }
+for (const c of ordre) assert.ok(api.competenceDesactivee("t3", e, c), c);
+for (let i = 0; i < 19; i++) api.attaqueTitan("t3", e, 5, 4.5 / 5);
+r = api.attaqueTitan("t3", e, 5, 4.5 / 5); assert.equal(r.type, "chemise"); assert.equal(r.desactive, null, "au-delà : plus d'effet"); assert.ok(!r.nouvelle);
+// Rafale : 10 coups à demi-dégâts, 0,15 s d'écart, puis plus avant 10 attaques.
+e = api.neuf(); api.attaqueTitan("t3", e, 0, 0.5);
+for (let i = 0; i < 10; i++) api.attaqueTitan("t3", e, 1, 4.5 / 5);
+r = api.attaqueTitan("t3", e, 2, 0.5 / 5);
+assert.equal(r.type, "sauterelles"); assert.equal(r.multDegats, 0.5); assert.ok(r.suite); assert.equal(r.intervalleMs, 150);
+let coups = 1;
+while (true) { const x = api.attaqueTitan("t3", e, 3, 0.9); assert.equal(x.type, "sauterelle"); assert.equal(x.multDegats, 0.5); coups++; if (!x.suite) break; }
+assert.equal(coups, 10, "10 attaques rapides");
+assert.equal(api.attaqueTitan("t3", e, 4, 0.5 / 5).type, "base", "pas de nouvelles sauterelles avant 10 attaques");
+assert.ok(ui.includes("titanCompetenceDesactiveeIdleV1_(id)") && ui.includes("btn.classList.toggle('titan-off',desactivee)") && ui.includes("idleAdventureFightNextEnemyHitV2=momentEvenement+att.intervalleMs"));
 // Branchement dans le combat et note honnête sur la fiche.
 assert.ok(ui.includes("window.SorealTitanComportementsV1.attaqueTitan(fight.titanId"));
 assert.ok(ui.includes("!titanJoueurParalyseIdleV1_(maintenantTick)"), "Idle Mode coupé");

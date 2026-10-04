@@ -15,6 +15,12 @@
  *  - Cloud of spores « arms feel heavy » (1/7, si le malus n'est pas déjà appliqué) : tes dégâts tombent à 2/3 pendant 15 s.
  *  - Power Attack (2/7) : dégâts x1,5.
  *  - Cloud of spores « energy draining » (1/7) : « dégâts subis 1.5?/4x? » -- le wiki lui-même n'est pas sûr de l'ampleur (points d'interrogation) -> NON simulé (attaque de base).
+ *
+ * Jake From Accounting (https://ngu-idle.fandom.com/wiki/Jake_From_Accounting, « Titan skills ») :
+ *  - Locusts (1/5, au moins 10 attaques d'écart) : 10 attaques rapides à demi-dégâts, 0,15 s d'écart.
+ *  - Power attack (2/5) : dégâts x1,5.
+ *  - Shirt-flapping (remplace une attaque sur 20, à partir de la 1re) : désactive une de tes capacités jusqu'à la fin du combat, dans l'ordre Ultimate Attack -> Heal -> Piercing Attack -> Ultimate Buff -> Strong Attack -> Offensive Buff ;
+ *    les suivantes n'ont plus d'effet. L'attaque est « remplacée » : elle ne fait pas de dégâts. Le compteur des 10 attaques part de 0 au début du combat (le wiki ne précise pas). La rafale de sauterelles compte pour UNE attaque.
  */
 (function(racine){
   'use strict';
@@ -53,14 +59,39 @@
     multDegatsJoueurSpores:2/3
   };
 
+  TITANS.t3={
+    note:'Simulées dans le combat : Sauterelles, Attaque puissante et Battement de chemise (désactive tes capacités une à une dans l’ordre du wiki).',
+    /* Tirage sur 5 : [0,1) sauterelles (si 10 attaques depuis les dernières), [1,3) puissante, le reste base. */
+    tirer:function(e,tirage){
+      var t=tirage*5;
+      if(t<1&&e.depuisSauterelles>=10)return 'sauterelles';
+      if(t>=1&&t<3)return 'puissante';
+      return 'base';
+    },
+    multPuissante:1.5,
+    rafaleCoups:10,rafaleMs:150,multRafale:0.5,
+    chemiseCadence:20,
+    ordre:['ultimate','heal','piercing','ultimateBuff','strong','offensiveBuff']
+  };
+
   function neuf(){
-    return {saignements:0,affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
+    return {depuisSauterelles:0,rafaleRestante:0,chemises:0,saignements:0,affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
   }
 
   /* Décrit ce que fait l'attaque du titan. Renvoie {type, multDegats, paralyse:boolean}. L'état est modifié sur place. */
   function attaqueTitan(id,etat,maintenantMs,tirage){
     var def=TITANS[String(id||'')];
     if(!def)return {type:'base',multDegats:1,paralyse:false};
+    if(etat.rafaleRestante>0){
+      etat.rafaleRestante-=1;
+      return {type:'sauterelle',multDegats:def.multRafale,paralyse:false,rafale:true,suite:etat.rafaleRestante>0,intervalleMs:def.rafaleMs};
+    }
+    if(def.chemiseCadence&&etat.attaques%def.chemiseCadence===0){
+      etat.attaques+=1;
+      etat.depuisSauterelles+=1;
+      etat.chemises+=1;
+      return {type:'chemise',multDegats:0,paralyse:false,desactive:def.ordre[etat.chemises-1]||null,nouvelle:etat.chemises<=def.ordre.length};
+    }
     var enParalysie=etat.paralyseJusqua>maintenantMs;
     var type=def.tirer(etat,tirage,maintenantMs);
     if(enParalysie&&type==='paralysie')type='base';
@@ -77,6 +108,16 @@
       etat.paralyseJusqua=maintenantMs+def.paralysieMs;
       etat.paralysieAttaquesRestantes=def.paralysieAttaques;
       rep.paralyse=true;
+    }
+    if(def.rafaleCoups){
+      if(type==='sauterelles'){
+        etat.depuisSauterelles=0;
+        etat.rafaleRestante=def.rafaleCoups-1;
+        rep.multDegats=def.multRafale;
+        rep.rafale=true;
+        rep.suite=etat.rafaleRestante>0;
+        rep.intervalleMs=def.rafaleMs;
+      }else etat.depuisSauterelles+=1;
     }
     if(type==='saignement'){
       etat.saignements+=1;
@@ -101,6 +142,12 @@
     return def&&def.multDegatsJoueurSpores&&etat&&etat.affaibliJusqua>maintenantMs?def.multDegatsJoueurSpores:1;
   }
 
+  /* Capacité du joueur désactivée par le battement de chemise de Jake (jusqu'à la fin du combat). */
+  function competenceDesactivee(id,etat,competence){
+    var def=TITANS[String(id||'')];
+    return !!(def&&def.ordre&&etat&&def.ordre.slice(0,etat.chemises).indexOf(String(competence||''))>=0);
+  }
+
   function joueurParalyse(etat,maintenantMs){return !!etat&&etat.paralyseJusqua>maintenantMs;}
 
   /* Fin de paralysie : durée réellement subie, pour repousser d'autant les cooldowns (« met en pause les cooldowns »). Renvoie 0 tant qu'elle dure. */
@@ -114,6 +161,6 @@
   racine.SorealTitanComportementsV1={
     possede:function(id){return !!TITANS[String(id||'')];},
     note:function(id){var d=TITANS[String(id||'')];return d?d.note:'';},
-    neuf:neuf,attaqueTitan:attaqueTitan,multDegatsJoueur:multDegatsJoueur,multRegenJoueur:multRegenJoueur,joueurParalyse:joueurParalyse,finParalysie:finParalysie
+    neuf:neuf,attaqueTitan:attaqueTitan,multDegatsJoueur:multDegatsJoueur,multRegenJoueur:multRegenJoueur,competenceDesactivee:competenceDesactivee,joueurParalyse:joueurParalyse,finParalysie:finParalysie
   };
 })(typeof window!=='undefined'?window:globalThis);

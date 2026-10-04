@@ -44,6 +44,9 @@
       '.cfx-aura::before{content:"";width:100%;height:100%;border-radius:8px;box-shadow:0 0 22px 6px var(--cfx-c,#fc3),inset 0 0 14px var(--cfx-c,#fc3);animation:cfxFlash .9s ease-out forwards}',
       '.cfx-eclair::before{content:"⚡";font-size:30px;color:#ff0;text-shadow:0 0 10px #ff0,0 0 22px #fa0;animation:cfxEclair .5s ease-out forwards}',
       '.cfx-spore::before{content:"☁️";font-size:30px;filter:hue-rotate(60deg) saturate(3) brightness(.8);animation:cfxSpore 1.1s ease-out forwards}',
+      '.cfx-sauterelle::before{content:"🦗";font-size:30px;animation:cfxSaute .5s ease-out forwards}',
+      '.cfx-chemise::before{content:"👔";font-size:40px;animation:cfxBoum .8s ease-out forwards}',
+      '.titan-off{opacity:.4!important;filter:grayscale(1)!important}',
       /* Nombres flottants. */
       '.cfx-nombre{font:900 20px/1 system-ui,sans-serif;color:#fff;text-shadow:0 2px 0 #000,0 0 8px #000;animation:cfxNombre .9s ease-out forwards}',
       '.cfx-nombre.joueur{color:#ff7a7a}',
@@ -59,6 +62,7 @@
       '@keyframes cfxBoum{0%{transform:scale(.2);opacity:0}30%{opacity:1}100%{transform:scale(1.35);opacity:0}}',
       '@keyframes cfxPerce{0%{transform:translateX(-80%);opacity:0}30%{opacity:1}100%{transform:translateX(80%);opacity:0}}',
       '@keyframes cfxMeteore{0%{transform:translate(70%,-160%) scale(.6);opacity:0}30%{opacity:1}100%{transform:translate(0,0) scale(1.25);opacity:0}}',
+      '@keyframes cfxSaute{0%{transform:translateX(-90%) translateY(10px) rotate(-20deg);opacity:0}30%{opacity:1}100%{transform:translateX(90%) translateY(-6px) rotate(20deg);opacity:0}}',
       '@keyframes cfxFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}',
       '@keyframes cfxEclair{0%{transform:scale(.3) rotate(-20deg);opacity:0}25%{opacity:1}100%{transform:scale(1.4) rotate(15deg);opacity:0}}',
       '@keyframes cfxSpore{0%{transform:translateY(8px) scale(.5);opacity:0}30%{opacity:.95}100%{transform:translateY(-26px) scale(1.5);opacity:0}}',
