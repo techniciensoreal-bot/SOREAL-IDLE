@@ -65,9 +65,9 @@ function contenu(etage,kills,killsSurEtage){
     ?'<img class="itp-decor" src="'+esc(urlImage(fond))+'" alt="" onerror="this.hidden=true">'
     :'';
   var pips='';
-  for(var i=0;i<10;i++)pips+='<i class="itp-pip'+(i<killsSurEtage?' plein':'')+'"></i>';
+  for(var i=0;i<10;i++)pips+='<i class="itp-pip'+(i<=killsSurEtage?' plein':'')+'"></i>';
   var vie=combat.hits>0?Math.max(0,Math.min(100,100-combat.coups*100/combat.hits)):100;
-  return '<div class="itp-banniere"><span class="itp-etage"><small>ÉTAGE</small><b>'+etage+'</b></span><span class="itp-compte" title="Combats de cet étage avant de monter">Combat <b>'+(killsSurEtage+1)+'</b> / 10</span><span class="itp-pips" title="Ennemis vaincus sur cet étage">'+pips+'</span></div>'+
+  return '<div class="itp-banniere"><span class="itp-etage"><small>ÉTAGE</small><b>'+etage+'</b></span><span class="itp-pips" title="Ennemi en cours sur cet étage (10 par étage)">'+pips+'</span></div>'+
     '<div class="itp-cadre"><div class="itp-vitre">'+decor+'<div class="itp-ombre"></div><div class="itp-ennemi'+(combat.mort?' itp-mort':'')+'">'+avatar+'</div><div class="itp-poing" aria-hidden="true"><span>👊</span></div>'+
     '<span class="itp-braise itp-b1"></span><span class="itp-braise itp-b2"></span><span class="itp-braise itp-b3"></span></div></div>'+
     '<div class="itp-vie" title="Points de vie de l’ennemi"><div class="itp-vie-rempli" style="width:'+vie.toFixed(1)+'%"></div></div>'+

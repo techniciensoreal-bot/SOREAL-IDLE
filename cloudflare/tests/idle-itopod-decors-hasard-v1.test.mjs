@@ -47,7 +47,7 @@ assert.ok(h1.indexOf("itp-cadre") < h1.indexOf("itp-nom"), "l'image de l'ennemi 
 let avecAvatar = 0;
 for (let k = 0; k < 20; k += 1) if (html(5, k).includes("shared%2Favatars%2Flevel-2%2Fa.webp") && html(5, k).includes('class="itp-avatar"')) avecAvatar += 1;
 assert.ok(avecAvatar > 0, "avatar de l'ouvrier dans l'arène");
-assert.ok(html(5, 7).match(/itp-pip plein/g).length === 7, "pastilles : ennemis vaincus sur l'étage");
+assert.ok(html(5, 7).match(/itp-pip plein/g).length === 8, "pastilles : ennemi n° 8 en cours");
 
 // 3. Page : le choix des étages vient APRÈS l'arène ; champs de saisie « jeu » avec − et + ; la feuille de style existe et est chargée.
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
@@ -99,12 +99,16 @@ console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
 }
 console.log("idle-itopod-decors-hasard-v1 (combat): OK");
 
-// 7. Compteur « Combat k / 10 » avant de monter d'étage (Norman, 2026-10-04).
+// 7. Pastilles : la pastille k s'allume à l'APPARITION de l'ennemi n° k (la 1re dès le début, la 10e au dernier ennemi) ; pas de compteur en texte.
 {
   const sc = readFileSync("cloudflare/public/modules/itopod-scene-v1.js", "utf8");
   const fen = {};
   vm.runInNewContext(sc, { window: fen, document: { querySelectorAll: () => [] }, fetch: () => Promise.reject(new Error("x")), Date, Math });
-  const h = fen.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html({ floor: 5, kills: 57, killsOnFloor: 7 });
-  assert.ok(h.includes("Combat <b>8</b> / 10"), "combat en cours sur 10");
+  const api = fen.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+  const allumees = (sur) => (api.html({ floor: 5, kills: 50 + sur, killsOnFloor: sur }).match(/itp-pip plein/g) || []).length;
+  assert.equal(allumees(0), 1, "ennemi n° 1 : une pastille");
+  assert.equal(allumees(4), 5);
+  assert.equal(allumees(9), 10, "ennemi n° 10 : les dix pastilles");
+  assert.ok(!api.html({ floor: 5, kills: 57, killsOnFloor: 7 }).includes("itp-compte"), "plus de compteur en texte");
 }
-console.log("idle-itopod-decors-hasard-v1 (compteur): OK");
+console.log("idle-itopod-decors-hasard-v1 (pastilles): OK");
