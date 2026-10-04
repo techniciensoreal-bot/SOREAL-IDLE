@@ -10,7 +10,7 @@ assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (ja
 const bloc = css.slice(debut);
 assert.ok(bloc.includes("width:min(1700px,calc(100vw - 32px))"), "le jeu occupe la largeur de l'écran");
 assert.ok(bloc.includes("grid-template-columns:352px minmax(0,1fr)"), "menu à gauche, page à droite");
-assert.ok(bloc.includes("grid-template-rows:repeat(16,auto);grid-template-columns:repeat(2,minmax(0,1fr))") && bloc.includes("position:sticky"), "menus sur deux colonnes compactes, toujours visibles, sans défilement ordinaire");
+assert.ok(bloc.includes("grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr))") && bloc.includes("position:sticky"), "menus sur deux colonnes compactes, toujours visibles, sans défilement ordinaire");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{grid-column:1/-1}"), "bandeau sur toute la largeur");
 // Équilibre des accolades (aucune règle cassée par l'ajout).
 let profondeur = 0;
@@ -41,3 +41,18 @@ console.log("idle-interface-pc-v1 (bandeau En direct): OK");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95 img{display:block;width:100%!important;height:auto!important;max-height:380px!important;object-fit:contain!important"), "image entière (contain), cadre à la largeur de l'interface");
 assert.ok(!bloc.includes("object-fit:cover"), "plus de recadrage");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-height:380px}"), "le cadre suit la hauteur de l'image au lieu de la hauteur fixe de téléphone");
+
+/*
+ * Norman (2026-10-04) : « sur PC, Réglages et Admin sont à la droite de toutes les autres au lieu d'être en dessous » : avec 33 menus, 16 lignes fixes créaient une 3e colonne. Le nombre de lignes suit
+ * désormais le nombre de menus affichés (la moitié, arrondie au-dessus), posé par le rendu.
+ */
+{
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(ui.includes("style=\"--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))}\""), "nombre de lignes = moitié des menus visibles");
+  const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
+  assert.ok(!css.includes("grid-template-rows:repeat(16,auto)"), "plus de 16 lignes fixes");
+  assert.equal(css.split("grid-template-rows:repeat(var(--nav-lignes,17),auto)").length - 1, 2, "PC et TV");
+  // 33 menus (admin compris) : 17 lignes, deux colonnes, jamais de troisième.
+  for (const n of [28, 32, 33, 34]) assert.ok(Math.ceil(n / 2) * 2 >= n, "tient sur deux colonnes : " + n);
+}
+console.log("idle-interface-pc-v1 (lignes de menu): OK");

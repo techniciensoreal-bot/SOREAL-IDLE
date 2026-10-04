@@ -11636,7 +11636,7 @@
         });
 
         return `
-          <div class="soreal-idle-nav-v28${idleMenuEditionV1?' edition':''}">
+          <div class="soreal-idle-nav-v28${idleMenuEditionV1?' edition':''}" style="--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))}">
             ${idleMenuEditionV1?htmlBandeauRangementMenuIdleV1_():''}
             ${menusVisibles.map(function(m){
 

@@ -1534,7 +1534,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     grid-column:1;grid-row:2 / span 60;align-self:start;
     position:sticky;top:10px;margin:12px 0 14px!important;
-    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(16,auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
+    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
     gap:5px!important;padding:8px!important;
     overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 64px);
     scroll-snap-type:none!important;scrollbar-width:thin;
@@ -1630,7 +1630,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="par
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{max-height:260px}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95 img{max-height:260px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
-    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(16,auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
+    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
     overflow:visible!important;max-height:none!important;gap:5px!important;padding:8px!important;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{padding:2px 8px 2px 4px!important;gap:7px!important;min-width:0;border-bottom-width:2px!important}

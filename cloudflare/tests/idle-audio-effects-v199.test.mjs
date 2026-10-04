@@ -24,9 +24,9 @@ const worker=fs.readFileSync(
 assert.ok(
   index.includes('/modules/audio-effects-v199.js?v=232')&&
   index.includes('/modules/long-press-v200.js?v=201')&&
-  index.includes('/soreal-idle-ui.js?v=403')&&
+  index.includes('/soreal-idle-ui.js?v=404')&&
   index.indexOf('/modules/audio-effects-v199.js?v=232')<
-    index.indexOf('/soreal-idle-ui.js?v=403'),
+    index.indexOf('/soreal-idle-ui.js?v=404'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 

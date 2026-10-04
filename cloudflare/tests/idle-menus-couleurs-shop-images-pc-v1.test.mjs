@@ -26,7 +26,7 @@ for (const id of ["shop", "spendExp", "sellout"]) { const t = hexVersTeinte(coul
 assert.ok(ui.includes("{id:'shop',icon:'🔮',nom:'Shop'}") && ui.includes("shop:{forme:'etoile',verbe:'Boutique magique'}"));
 assert.ok(css.includes('.soreal-idle-nav-button-v28[data-menu-id-v1="shop"]:not(.active)') && css.includes("sorealBoutiqueMagieV1"), "dégradé étoilé et étincelles");
 // 3. Menu de gauche sans défilement sur PC : deux colonnes compactes.
-assert.ok(css.includes("grid-template-rows:repeat(16,auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);"));
+assert.ok(css.includes("grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);"));
 assert.ok(css.includes("grid-template-columns:352px minmax(0,1fr)"));
 // 4. Images plafonnées sur PC.
 assert.ok(css.includes("repeat(auto-fill,minmax(130px,150px))!important"), "vignettes de Collection et de Bestiaire");
