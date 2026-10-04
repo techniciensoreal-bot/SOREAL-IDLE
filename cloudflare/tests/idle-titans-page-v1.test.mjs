@@ -66,9 +66,28 @@ assert.equal(api.cleVariante({}, ""), "");
   assert.ok(html.includes("Gordon Ramsay Bolton") && html.includes("Prêt à être affronté") && html.includes("__affronterTitanV1__"));
   assert.ok(!html.includes("Grand Corrupted Tree"), "titan verrouillé : jamais affiché (anti-spoil)");
   assert.ok(html.includes("/api/idle/media/titan?id=t1"));
-  assert.ok(html.includes("Stats conseillées") && html.includes("Capacités"));
+  assert.ok(html.includes("Stats conseillées") && html.includes("Stats actuelles") && html.includes("Capacités"));
   const attente = api.page({ systemes: { adventure: { titans: [{ id: "t1", name: "GRB", progressionUnlocked: true, state: { kills: 1, nextAt: Date.now() + 3_600_000 }, combat: {} }] } } });
   assert.ok(attente.includes("Réapparition dans") && attente.includes("data-ttn-cd") && /<button[^>]*disabled/.test(attente), "compte à rebours + bouton désactivé");
+}
+
+// 2b. Stats actuelles (Norman, 2026-10-04) : colonne de droite, chaque chiffre vert s'il atteint la stat conseillée, rouge sinon, sur les trois lignes.
+{
+  const titan = { id: "t1", name: "GRB", progressionUnlocked: true, state: { kills: 0, nextAt: 0 }, combat: {}, p: 1000, t: 800, idleP: 2000, idleT: 1600, autoKillP: 4000, autoKillT: 3200 };
+  fenetre.__SOREAL_IDLE_LIRE_ETAT_V1__ = () => ({ systemes: { adventure: { stats: { power: 2500, toughness: 700 } } } });
+  const html = api.page({ systemes: { adventure: { titans: [titan] } } });
+  const bloc = html.slice(html.indexOf('class="ttn-reco"'), html.indexOf("</div>", html.indexOf('class="ttn-reco"')));
+  assert.ok(bloc.includes("Stats actuelles"));
+  // Manuel : Power 2500 >= 1000 (vert), Toughness 700 < 800 (rouge) ; Idle : Power 2500 >= 2000 (vert), Toughness rouge ; Auto-kill : les deux rouges.
+  const verts = (bloc.match(/ttn-ok-oui/g) || []).length;
+  const rouges = (bloc.match(/ttn-ok-non/g) || []).length;
+  assert.equal(verts, 2, "Power atteint sur Manuel et Idle");
+  assert.equal(rouges, 4, "Toughness jamais atteinte (3 lignes) + Power d'auto-kill");
+  assert.ok(/Manuel : [^<]*<\/span><span class="ttn-reco-d">⚔️ <span class="ttn-ok-oui">/.test(bloc), "la ligne Manuel commence par un Power vert");
+  fenetre.__SOREAL_IDLE_LIRE_ETAT_V1__ = () => ({ systemes: { adventure: { stats: { power: 5000, toughness: 5000 } } } });
+  assert.ok(!api.page({ systemes: { adventure: { titans: [titan] } } }).includes("ttn-ok-non"), "tout atteint : tout est vert");
+  fenetre.__SOREAL_IDLE_LIRE_ETAT_V1__ = () => null;
+  assert.ok(api.page({ systemes: { adventure: { titans: [titan] } } }).includes("Stats actuelles"), "sans état : jamais de plantage");
 }
 
 // 3. Câblage.

@@ -81,17 +81,41 @@ function htmlStats(v){
     ligneStat('💚','Régénération / s','regen',gn(v.regen,2))+
     ligneStat('⏱️','Une attaque toutes les','attackRate',String(v.attackRate).replace('.',',')+' s');
 }
+/* Stats d'aventure du joueur (celles que le serveur compare au titan : Power et Toughness), ou null si l'état n'est pas encore chargé. */
+function statsJoueur(){
+  try{
+    var etat=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;
+    var st=etat&&etat.systemes&&etat.systemes.adventure&&etat.systemes.adventure.stats;
+    if(!st)return null;
+    var p=Number(st.power),to=Number(st.toughness);
+    return {power:Number.isFinite(p)?p:0,toughness:Number.isFinite(to)?to:0};
+  }catch(e){return null;}
+}
+/* Un chiffre actuel : vert s'il atteint la stat conseillée, rouge sinon. */
+function chiffreActuel(icone,actuel,requis){
+  return icone+' <span class="ttn-ok-'+(actuel>=requis?'oui':'non')+'">'+gn(actuel,2)+'</span>';
+}
 function seuilsRecommandes(t,palier){
   var s=null;
   if(Array.isArray(t.forms)&&t.forms.length)s=t.forms[formeIndex(t)];
   else if(t.difficulties&&typeof t.difficulties==='object')s=t.difficulties[palier]||t.difficulties[Object.keys(t.difficulties)[0]];
   else s=t;
   if(!s)return '';
-  var morceaux=[];
-  if(s.p!=null&&s.t!=null)morceaux.push('Manuel : ⚔️ '+gn(s.p,2)+' · 🛡️ '+gn(s.t,2));
-  if(s.idleP!=null&&s.idleT!=null)morceaux.push('Idle : ⚔️ '+gn(s.idleP,2)+' · 🛡️ '+gn(s.idleT,2));
-  if(s.autoKillP!=null&&s.autoKillT!=null)morceaux.push('Auto-kill : ⚔️ '+gn(s.autoKillP,2)+' · 🛡️ '+gn(s.autoKillT,2));
-  return morceaux.length?'<div class="ttn-reco"><b>Stats conseillées</b><br>'+morceaux.map(h).join('<br>')+'</div>':'';
+  /*
+   * Deux colonnes (Norman, 2026-10-04) : « à droite, Stats actuelles, avec nos stats d'aventure : en rouge si on n'a pas le prérequis, en vert si on a atteint la stat conseillée, pareil pour les 3 lignes
+   * (manuel, idle, auto-kill) ». Chaque chiffre (Power, Toughness) est comparé à son propre seuil.
+   */
+  var moi=statsJoueur();
+  var lignes=[];
+  function ajouter(nom,p,tt){
+    if(p==null||tt==null)return;
+    lignes.push('<span class="ttn-reco-g">'+h(nom+' : ⚔️ '+gn(p,2)+' · 🛡️ '+gn(tt,2))+'</span>'+
+      '<span class="ttn-reco-d">'+(moi?chiffreActuel('⚔️',moi.power,p)+' · '+chiffreActuel('🛡️',moi.toughness,tt):'—')+'</span>');
+  }
+  ajouter('Manuel',s.p,s.t);
+  ajouter('Idle',s.idleP,s.idleT);
+  ajouter('Auto-kill',s.autoKillP,s.autoKillT);
+  return lignes.length?'<div class="ttn-reco"><b class="ttn-reco-g">Stats conseillées</b><b class="ttn-reco-d">Stats actuelles</b>'+lignes.join('')+'</div>':'';
 }
 
 function carte(t){
@@ -163,8 +187,10 @@ function css(){
     '.ttn-stat{display:flex;align-items:baseline;gap:7px;font-size:14px}'+
     '.ttn-stat-l{color:var(--th-dim,#c79a85)}'+
     '.ttn-stat b{margin-left:auto;color:#fff;font-variant-numeric:tabular-nums}'+
-    '.ttn-reco{margin-top:9px;font-size:13px;line-height:1.5;color:var(--th-dim,#c79a85)}'+
+    '.ttn-reco{margin-top:9px;font-size:13px;line-height:1.5;color:var(--th-dim,#c79a85);display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:2px;align-items:baseline}'+
     '.ttn-reco b{color:var(--th-ink,#ffe7d6)}'+
+    '.ttn-reco-d{text-align:right;font-variant-numeric:tabular-nums}'+
+    '.ttn-ok-oui{color:#34d399;font-weight:900}.ttn-ok-non{color:#f87171;font-weight:900}'+
     '.ttn-details{margin-top:9px;font-size:13px}'+
     '.ttn-details summary{cursor:pointer;font-weight:800}'+
     '.ttn-details ul{margin:7px 0 0;padding-left:18px;line-height:1.5}'+
