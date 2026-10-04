@@ -632,6 +632,15 @@
 
         if(!memeRun)return serveur;
 
+        /*
+         * Déblocage fait par le SERVEUR pendant que l'écran ne le savait pas encore (Norman, 2026-10-04 : « j'ai cap le premier et ajouté 10K en plus pour que l'énergie passe toute seule au suivant quand il se débloque ;
+         * l'énergie m'a été rendue et rien n'est allé au 2e menu »). Training Auto Advance : le serveur déplace alors le surplus de la prérequise vers la compétence débloquée. Garder l'allocation de l'écran (l'ancienne
+         * répartition, surplus encore dans la première) annulait ce transfert, et la répartition renvoyée ensuite au serveur effaçait le surplus. Dans ce cas la répartition du serveur fait foi pour tout le tableau.
+         */
+        const debloqueParLeServeur=serveur.skills.some(function(srv){
+          const loc=srv&&localParId.get(String(srv.id||''));
+          return Boolean(loc&&srv.unlocked&&!loc.unlocked);
+        });
         const fusion=Object.assign({},serveur);
         fusion.skills=serveur.skills.map(function(srv){
           if(!srv||!srv.id)return srv;
@@ -667,7 +676,7 @@
               Math.min(.999999999,idleNombre_(avance.progress))
             ),
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-13 */
-            allocation:idleEntier_(loc.allocation)
+            allocation:idleEntier_(debloqueParLeServeur?srv.allocation:loc.allocation)
           });
         });
         return fusion;
