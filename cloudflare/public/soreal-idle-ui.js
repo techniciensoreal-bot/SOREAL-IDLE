@@ -17395,7 +17395,8 @@ let idleDialogueTimerV76=null;
             soin:Math.max(idleFxSoinJusqua,idleAdventureManualStateV3.hyperRegenUntil),
             saigne:tit?tit.saignements:0,
             paralyse:Boolean(tit&&api.joueurParalyse(tit,maintenant)),
-            spores:Boolean(tit&&api.multDegatsJoueur(fight.titanId,tit,maintenant)!==1),
+            spores:Boolean(tit&&api.multDegatsJoueur(fight.titanId,tit,maintenant)>0&&api.multDegatsJoueur(fight.titanId,tit,maintenant)<1),
+            mobInvincible:Boolean(tit&&api.multDegatsJoueur(fight.titanId,tit,maintenant)===0),
             mobParalyse:idleAdventureManualStateV3.enemyParalyzedUntil>maintenant
           }:{});
         }catch(e){}
@@ -17403,6 +17404,18 @@ let idleDialogueTimerV76=null;
       function titanMultDegatsJoueurIdleV1_(fight,maintenant){
         const api=window.SorealTitanComportementsV1;
         return api&&idleTitanEtatV1&&fight&&fight.titanId?api.multDegatsJoueur(fight.titanId,idleTitanEtatV1,maintenant):1;
+      }
+      /* Niveau de l'Anneau d'Apathie équipé (null = aucun) : il retire l'invincibilité d'UUG et réduit sa croissance de puissance. */
+      function niveauAnneauApathieIdleV1_(a){
+        const eq=a&&a.equipment&&Array.isArray(a.equipment.accessories)?a.equipment.accessories:[];
+        const inv=Array.isArray(a&&a.inventory)?a.inventory:[];
+        for(let i=0;i<eq.length;i+=1){
+          const id=String(eq[i]||'');
+          if(!id)continue;
+          const item=inv.find(function(x){return x&&String(x.id)===id;});
+          if(item&&item.definitionId==='ringOfApathy')return Math.max(0,idleEntier_(item.level));
+        }
+        return null;
       }
       function titanCompetenceDesactiveeIdleV1_(competence){
         const api=window.SorealTitanComportementsV1;
@@ -17835,7 +17848,7 @@ let idleDialogueTimerV76=null;
         );
         fight.monsterHp=Math.max(0,avant-degats);
         impactMonstreAdventureIdleV1_();
-        fxIdleV1_('mob',({strong:'fort',piercing:'perce',ultimate:'ultime'})[def&&def.id]||'coup',idleEntier_(degats));
+        fxIdleV1_('mob',titanMultDegatsJoueurIdleV1_(fight,maintenant)===0?'invincible':({strong:'fort',piercing:'perce',ultimate:'ultime'})[def&&def.id]||'coup',idleEntier_(degats));
         /* Mode manuel, en vert -- distinct du bleu 'player' de l'attaque idle automatique (Norman, 2026-09-27). */
         ajouterLogAventureIdleV1_(
           'manual',
@@ -18353,6 +18366,7 @@ let idleDialogueTimerV76=null;
           idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
           if(idleTitanEtatV1)idleTitanEtatV1.id=fight.titanId;
         }
+        if(idleTitanEtatV1&&fight.titanId==='t4')idleTitanEtatV1.anneau=niveauAnneauApathieIdleV1_(a);
         /* Fin d'une paralysie du titan : les cooldowns étaient en pause, on les repousse de la durée subie ; l'Idle Mode reprend un coup plus tard. */
         if(idleTitanEtatV1){
           const subie=window.SorealTitanComportementsV1.finParalysie(idleTitanEtatV1,maintenantTick);
@@ -18420,7 +18434,7 @@ let idleDialogueTimerV76=null;
             fight.monsterHp=Math.max(0,avant-degats);
 
             impactMonstreAdventureIdleV1_();
-            fxIdleV1_('mob','coup',idleEntier_(degats));
+            fxIdleV1_('mob',titanMultDegatsJoueurIdleV1_(fight,momentEvenement)===0?'invincible':'coup',idleEntier_(degats));
             ajouterLogAventureIdleV1_(
               'player',
               'Vous frappez '+libelleEnnemiAdventureIdleV1_(fight)+
@@ -18463,6 +18477,7 @@ let idleDialogueTimerV76=null;
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
               fxTypeAttaque='puissante';
             }
+            if(att.invincibleDebut)ajouterLogAventureIdleV1_('enemy','🛡️ UUG devient invincible : tes coups ne le touchent plus !');
             if(att.type==='sauterelles')ajouterLogAventureIdleV1_('enemy','🦗 Les sauterelles se ruent sur toi : 10 attaques rapides !');
             if(att.rafale)fxTypeAttaque='sauterelle';
             if(att.suite)idleAdventureFightNextEnemyHitV2=momentEvenement+att.intervalleMs;

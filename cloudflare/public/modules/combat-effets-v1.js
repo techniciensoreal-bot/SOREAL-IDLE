@@ -45,6 +45,9 @@
       '.cfx-eclair::before{content:"⚡";font-size:30px;color:#ff0;text-shadow:0 0 10px #ff0,0 0 22px #fa0;animation:cfxEclair .5s ease-out forwards}',
       '.cfx-spore::before{content:"☁️";font-size:30px;filter:hue-rotate(60deg) saturate(3) brightness(.8);animation:cfxSpore 1.1s ease-out forwards}',
       '.cfx-sauterelle::before{content:"🦗";font-size:30px;animation:cfxSaute .5s ease-out forwards}',
+      '.cfx-invincible::before{content:"";width:80%;aspect-ratio:1;border-radius:50%;border:4px solid #ffd23a;box-shadow:0 0 22px #ffd23a,inset 0 0 18px #ffd23a;animation:cfxBoum .5s ease-out forwards}',
+      '.cfx-invincible::after{content:"🛡️";font-size:40px;animation:cfxBoum .5s ease-out forwards}',
+      '.cfx-mob-inv{filter:drop-shadow(0 0 12px #ffd23a) brightness(1.15)!important}',
       '.cfx-chemise::before{content:"👔";font-size:40px;animation:cfxBoum .8s ease-out forwards}',
       '.titan-off{opacity:.4!important;filter:grayscale(1)!important}',
       /* Nombres flottants. */
@@ -130,7 +133,10 @@
       bar.classList.toggle('cfx-paralyse',!!courant.paralyse);
       bar.classList.toggle('cfx-spores',!!courant.spores);
     }
-    if(mob)mob.el.classList.toggle('cfx-mob-para',!!courant.mobParalyse);
+    if(mob){
+      mob.el.classList.toggle('cfx-mob-para',!!courant.mobParalyse);
+      mob.el.classList.toggle('cfx-mob-inv',!!courant.mobInvincible);
+    }
     if(bar){
       var r=joueur.r;
       if(courant.soin>maintenant&&maintenant-dernierSoin>180){
@@ -160,7 +166,7 @@
   }
 
   function actif(){
-    return courant.soin>Date.now()||courant.saigne>0||!!courant.paralyse||!!courant.spores||!!courant.mobParalyse;
+    return courant.soin>Date.now()||courant.saigne>0||!!courant.paralyse||!!courant.spores||!!courant.mobParalyse||!!courant.mobInvincible;
   }
 
   /* États qui durent, à rappeler à chaque tick du combat. */

@@ -21,6 +21,13 @@
  *  - Power attack (2/5) : dégâts x1,5.
  *  - Shirt-flapping (remplace une attaque sur 20, à partir de la 1re) : désactive une de tes capacités jusqu'à la fin du combat, dans l'ordre Ultimate Attack -> Heal -> Piercing Attack -> Ultimate Buff -> Strong Attack -> Offensive Buff ;
  *    les suivantes n'ont plus d'effet. L'attaque est « remplacée » : elle ne fait pas de dégâts. Le compteur des 10 attaques part de 0 au début du combat (le wiki ne précise pas). La rafale de sauterelles compte pour UNE attaque.
+ *
+ * UUG, The Unmentionable (https://ngu-idle.fandom.com/wiki/UUG,_The_Unmentionable, « Titan Skills », et https://ngu-idle.fandom.com/wiki/Secrets_and_Spoilers, « Ring of Apathy ») :
+ *  - Invincibility : devient invincible après sa première attaque ; l'Anneau d'Apathie équipé (n'importe quel niveau) l'en empêche.
+ *  - Power Growth : à chaque tour sa puissance est multipliée par (2 - niveau de l'anneau / 100) (2x, 4x, 8x… sans anneau ou niveau 0 ; 1,5x niveau 50 ; 1x niveau 100 = aucune croissance) : puissance après n tours = (2 - niveau/100)^n,
+ *    n = 1 à sa première attaque (« 2x, 4x, 8x… »).
+ *  - Power attack : x1,5. Le wiki ne publie PAS sa chance : valeur CHOISIE PAR SOREAL (accord de Norman, 2026-10-04) = 2/7, comme Gordon Ramsay Bolton et le Grand Corrupted Tree.
+ *  Le niveau de l'anneau équipé est donné par le combat (etat.anneau : null = pas d'anneau équipé).
  */
 (function(racine){
   'use strict';
@@ -74,8 +81,20 @@
     ordre:['ultimate','heal','piercing','ultimateBuff','strong','offensiveBuff']
   };
 
+  TITANS.t4={
+    note:'Simulées dans le combat : Invincibilité, Croissance de puissance et Attaque puissante (sa chance n’est pas publiée : 2 sur 7, choisie par SOREAL).',
+    /* Tirage sur 7 : [0,2) puissante (chance non publiée), le reste base. */
+    tirer:function(e,tirage){return tirage*7<2?'puissante':'base';},
+    multPuissante:1.5,
+    invincible:true,
+    croissance:function(e){
+      var niveau=e.anneau==null?0:Math.min(100,Math.max(0,e.anneau));
+      return Math.pow(2-niveau/100,e.attaques);
+    }
+  };
+
   function neuf(){
-    return {depuisSauterelles:0,rafaleRestante:0,chemises:0,saignements:0,affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
+    return {anneau:null,depuisSauterelles:0,rafaleRestante:0,chemises:0,saignements:0,affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
   }
 
   /* Décrit ce que fait l'attaque du titan. Renvoie {type, multDegats, paralyse:boolean}. L'état est modifié sur place. */
@@ -102,6 +121,11 @@
       if(etat.paralysieAttaquesRestantes<=0)etat.paralyseJusqua=maintenantMs;
     }
     var rep={type:type,multDegats:type==='puissante'?def.multPuissante:1,paralyse:false};
+    if(def.croissance){
+      rep.croissance=def.croissance(etat);
+      rep.multDegats*=rep.croissance;
+      rep.invincibleDebut=!!def.invincible&&etat.attaques===1&&etat.anneau==null;
+    }
     if(type==='paralysie'){
       etat.depuisParalysie=0;
       etat.paralysieDebut=maintenantMs;
@@ -139,6 +163,7 @@
   /* Multiplicateur appliqué aux dégâts du joueur (spores des bras du Grand Corrupted Tree). */
   function multDegatsJoueur(id,etat,maintenantMs){
     var def=TITANS[String(id||'')];
+    if(def&&def.invincible&&etat&&etat.anneau==null&&etat.attaques>=1)return 0;
     return def&&def.multDegatsJoueurSpores&&etat&&etat.affaibliJusqua>maintenantMs?def.multDegatsJoueurSpores:1;
   }
 
