@@ -2224,12 +2224,14 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
         kind:"equipment",set:setId,setName:s.name,slot,name:NOMS_PIECES_FR_V1[`${setId}:${slot}`]||`${s.name} ${slot}`,
         wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
         basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03,
+        /* Specials (type, plafond au niveau 0) : le plafond au niveau n vaut plafond0 × (1 + n/100). Sert au popup d'objet unifié de la Collection (Norman, 2026-10-03). */
+        specials:(SET_ITEM_SPECIALS_V1[`${setId}:${slot}`]||[]).map(([type,,max0])=>[type,N(max0)]),
         evolutionTo:ITEM_EVOLUTIONS_V1[`${setId}:${slot}`]||""
       });
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax)],...(d.sExtra||[]).map(e=>[e.type,N(e.max0)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
   }
   return catalog;
 })());
@@ -3744,7 +3746,7 @@ function idleAdventureCoffreSlotsV1(s){
         groupeNom:place.groupe==="zone"?place.zoneNom:groupe.nom,
         decouvert:connu,
         occupe:Boolean(occupant),
-        item:occupant?{...occupant,maxed:true,basePower:def.basePower,baseToughness:def.baseToughness}:null
+        item:occupant?{...snapshotItemAdventureV1(occupant),maxed:true,basePower:def.basePower,baseToughness:def.baseToughness}:null
       };
     });
 }

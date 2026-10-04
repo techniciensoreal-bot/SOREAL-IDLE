@@ -15752,9 +15752,21 @@ let idleDialogueTimerV76=null;
             const puissance=estStatBearing?Math.round(idleNombre_(def.basePower)*(1+niveau/100)):0;
             const solidite=estStatBearing?Math.round(idleNombre_(def.baseToughness)*(1+niveau/100)):0;
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(def);
+            /* Fiche unifiée (Norman, 2026-10-03) : la Collection ouvre la même fiche d'objet que l'inventaire et le coffre, au niveau maximum enregistré. */
+            const clePopupCollection='collection:'+String(id);
+            if(estStatBearing){
+              const facteurNiveau=1+niveau/100;
+              enregistrerObjetPopupIdleV1_(clePopupCollection,{
+                kind:def.kind,name:def.name,definitionId:id,level:niveau,fullyMaxed:maxAtteint,
+                basePower:idleNombre_(def.basePower),baseToughness:idleNombre_(def.baseToughness),
+                power:idleNombre_(def.basePower)*facteurNiveau,toughness:idleNombre_(def.baseToughness)*facteurNiveau,
+                specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){return{type:sp[0],value:idleNombre_(sp[1])*facteurNiveau,max:idleNombre_(sp[1])*facteurNiveau};})
+              },'collection');
+            }
 
             return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':'')+(rareteClasse?' '+rareteClasse:'')+'" '+
-              'onclick="window.__afficherDetailsCollectionIdleV1__(\''+idleHtml_(id)+'\')">'+
+              (estStatBearing?'data-popup-objet-v1="'+idleHtml_(clePopupCollection)+'" ':'')+
+              'onclick="'+(estStatBearing?'window.__consulterObjetIdleV1__(\''+idleHtml_(clePopupCollection)+'\',this)':'window.__afficherDetailsCollectionIdleV1__(\''+idleHtml_(id)+'\')')+'">'+
               (maxAtteint?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 + statistiques boostées à 100 %">✔</div>':'')+
               '<div class="soreal-idle-collection-card-icon-v1">'+
                 (pseudoItem?iconeObjetAdventureIdleV138_(pseudoItem):'<span>'+(def.kind==='cube'?'🧊':'✨')+'</span>')+
@@ -20361,6 +20373,111 @@ function pageAventureIdleV28_(j){
         activerGlisserPopupObjetAdventureIdleV1_(root);
       }
 
+      /*
+       * Fiche d'objet UNIFIÉE (Norman, 2026-10-03 : « dans le coffre, je veux pouvoir consulter les statistiques des objets avant de décider si je le reprends ; trouve une manière uniformisée pour tous les
+       * objets, équipé, dans l'inventaire, dans le coffre ou dans les collections »). Une seule fiche (le popup d'objet de l'inventaire : titre, niveau, Puissance / PV max / Endurance / Regen / Specials avec leur
+       * plafond, mêmes couleurs) pour tous les endroits : l'inventaire et l'équipement l'ouvrent par leurs identifiants (afficherDetailsObjetAdventureIdleV138_) ; le Coffre et les Collections enregistrent
+       * ici l'objet à montrer (clé « coffre:… » ou « collection:… ») et l'ouvrent au survol (0,5 s) ou au clic. Dans le Coffre, la fiche propose « Reprendre dans l'inventaire » : plus de reprise par erreur.
+       */
+      const idleObjetsPopupVirtuelsV1=new Map();
+      function enregistrerObjetPopupIdleV1_(cle,item,contexte){
+        idleObjetsPopupVirtuelsV1.set(cle,{item:item,contexte:contexte});
+      }
+      function racinePopupObjetIdleV1_(){
+        let root=document.getElementById('soreal-idle-v138-details');
+        if(root)return root;
+        root=document.createElement('div');
+        root.className='soreal-idle-item-popup-v1';
+        root.id='soreal-idle-v138-details';
+        root.style.display='none';
+        root.innerHTML='<div class="soreal-idle-item-popup-drag-v1" id="soreal-idle-v138-details-drag"><span>⠿</span><button type="button" class="soreal-idle-item-popup-close-v1" onclick="window.__fermerDetailsObjetAdventureIdleV1__()" aria-label="Fermer">✕</button></div><div class="soreal-idle-item-popup-body-v1" id="soreal-idle-v138-details-body"></div>';
+        document.body.appendChild(root);
+        return root;
+      }
+      function positionnerPopupPresDeIdleV1_(root,element){
+        if(!element||!element.getBoundingClientRect)return;
+        const r=element.getBoundingClientRect();
+        const largeur=root.offsetWidth||320;
+        const hauteur=root.offsetHeight||160;
+        const marge=8;
+        let left=r.right+4;
+        if(left+largeur>window.innerWidth-marge)left=r.left-largeur-4;
+        left=Math.min(Math.max(marge,left),Math.max(marge,window.innerWidth-largeur-marge));
+        const top=Math.min(Math.max(marge,r.top-6),Math.max(marge,window.innerHeight-hauteur-marge));
+        idleItemPopupPositionV1_={left:Math.round(left),top:Math.round(top)};
+        root.style.left=idleItemPopupPositionV1_.left+'px';
+        root.style.top=idleItemPopupPositionV1_.top+'px';
+      }
+      function afficherPopupObjetUnifieIdleV1_(cle,ancre){
+        const e=idleObjetsPopupVirtuelsV1.get(cle);
+        if(!e||!e.item)return false;
+        const root=racinePopupObjetIdleV1_();
+        const corps=document.getElementById('soreal-idle-v138-details-body');
+        if(!corps)return false;
+        const item=e.item;
+        const niveau=idleEntier_(item.level);
+        const idObjet=idHtmlObjetIdleV1_(item);
+        const actions=e.contexte==='coffre'&&item.id
+          ?'<div class="soreal-idle-item-popup-actions-v165"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idObjet+'\');window.__fermerDetailsObjetAdventureIdleV1__();">⬅️ Reprendre dans l’inventaire</button></div>'
+          :'';
+        const mention=e.contexte==='coffre'
+          ?'Niveau '+niveau+'/100 · rangé au coffre'
+          :'Niveau '+niveau+'/100'+(item.fullyMaxed?' · tout au maximum':' · niveau maximum atteint');
+        corps.innerHTML=
+          '<div class="soreal-idle-window-title-v31">'+idleHtml_(item.name||item.nom||'Objet')+'</div>'+
+          '<div class="soreal-idle-v138-details-level">'+idleHtml_(mention)+'</div>'+
+          statsHtmlObjetAdventureIdleV138_(item)+
+          actions;
+        root.style.display='block';
+        positionnerPopupPresDeIdleV1_(root,ancre);
+        activerGlisserPopupObjetAdventureIdleV1_(root);
+        idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+        return true;
+      }
+      function idHtmlObjetIdleV1_(item){return idleHtml_(String(item&&item.id||''));}
+      window.__consulterObjetIdleV1__=function(cle,element){
+        clearTimeout(idleSurvolVirtuelTimerV1);
+        idleSurvolVirtuelTimerV1=0;
+        idleSurvolVirtuelCleV1=cle;
+        afficherPopupObjetUnifieIdleV1_(cle,element);
+      };
+      let idleSurvolVirtuelTimerV1=0;
+      let idleSurvolVirtuelFermerV1=0;
+      let idleSurvolVirtuelCleV1='';
+      document.addEventListener('mouseover',function(event){
+        if(!survolPossibleIdleV1_(event))return;
+        const cible=event.target;
+        if(cibleDansPopupDetailsObjetAdventureIdleV207_(cible)){
+          clearTimeout(idleSurvolVirtuelFermerV1);
+          idleSurvolVirtuelFermerV1=0;
+          return;
+        }
+        const element=cible&&cible.closest?cible.closest('[data-popup-objet-v1]'):null;
+        if(element){
+          clearTimeout(idleSurvolVirtuelFermerV1);
+          idleSurvolVirtuelFermerV1=0;
+          const cle=element.getAttribute('data-popup-objet-v1');
+          if(cle===idleSurvolVirtuelCleV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
+          clearTimeout(idleSurvolVirtuelTimerV1);
+          idleSurvolVirtuelTimerV1=setTimeout(function(){
+            idleSurvolVirtuelTimerV1=0;
+            if(!element.isConnected||survolOccupeIdleV1_())return;
+            idleSurvolVirtuelCleV1=cle;
+            afficherPopupObjetUnifieIdleV1_(cle,element);
+          },IDLE_SURVOL_DELAI_OUVERTURE_MS_V1);
+          return;
+        }
+        clearTimeout(idleSurvolVirtuelTimerV1);
+        idleSurvolVirtuelTimerV1=0;
+        if(idleSurvolVirtuelCleV1&&!idleSurvolVirtuelFermerV1){
+          idleSurvolVirtuelFermerV1=setTimeout(function(){
+            idleSurvolVirtuelFermerV1=0;
+            idleSurvolVirtuelCleV1='';
+            if(popupDetailsObjetAdventureIdleOuvertV207_())fermerDetailsObjetAdventureIdleV1_();
+          },250);
+        }
+      });
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-272 */
       let idleItemPopupPositionV1_=null;
       function positionnerPopupObjetAdventureIdleV1_(root){
@@ -20826,9 +20943,12 @@ function pageAventureIdleV28_(j){
           const item=s.item||{};
           const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};
           const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
+          const clePopup='coffre:'+String(s.definitionId);
+          enregistrerObjetPopupIdleV1_(clePopup,Object.assign({},item,{name:item.name||s.name}),'coffre');
           return '<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
-            'onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idleHtml_(String(item.id))+'\')" '+
-            'title="Cliquer pour reprendre l’objet et pouvoir le rééquiper">'+
+            'data-popup-objet-v1="'+idleHtml_(clePopup)+'" '+
+            'onclick="window.__consulterObjetIdleV1__(\''+idleHtml_(clePopup)+'\',this)" '+
+            'title="Clique pour voir les statistiques (et reprendre l’objet dans l’inventaire)">'+
             /* Coffre épuré (Norman, 2026-10-02) : l'image prend toute la case ; seuls « 100 », le ✔ et le nom (par-dessus l'image) restent. */
             '<div class="soreal-idle-collection-check-v1" title="Niveau maximum">✔</div>'+boutonFiltre(s)+
             '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(pseudoItem)+'</div>'+
