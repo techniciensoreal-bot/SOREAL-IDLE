@@ -7,7 +7,8 @@
  * Gordon Ramsay Bolton (https://ngu-idle.fandom.com/wiki/Gordon_Ramsay_Bolton, « Titan Skills ») :
  *  - Paralyze (1/7) : désactive les moves et l'Idle Mode, met en pause les cooldowns ; dure 4 s OU deux attaques de Ramsay. Si moins de 10 attaques depuis la dernière Paralyze, une attaque de base est faite à la place.
  *  - Power Attack (2/7) : dégâts doublés.
- *  - Bleed (2/7) : « réduit ta régénération de PV », cumul infini, mais le wiki ne publie AUCUNE ampleur par cumul -> NON simulé (tirage traité comme une attaque de base).
+ *  - Bleed (2/7) : « réduit ta régénération de PV pour le reste du combat », cumul infini, peut la rendre négative. Le wiki, Steam, les guides et les mods ne publient AUCUNE ampleur par cumul : valeur CHOISIE PAR SOREAL
+ *    (accord de Norman, 2026-10-04 : « calcule toi-même, pour que ça reste faisable mais que l'effet ait lieu ») = -10 % de la régénération de départ par cumul (au 10e cumul elle est nulle, ensuite elle fait perdre des PV).
  *  Le wiki ne dit pas si le compteur « 10 attaques » est déjà plein au début du combat : on part de 0 (la première Paralyze ne peut venir qu'à la 11e attaque).
  *
  * Grand Corrupted Tree (https://ngu-idle.fandom.com/wiki/Grand_Corrupted_Tree, « Titan Skills ») :
@@ -20,7 +21,7 @@
 
   var TITANS={
     t1:{
-      note:'Simulées dans le combat : Paralysie et Attaque puissante. Le Saignement est décrit mais pas simulé (le wiki ne publie pas son ampleur).',
+      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. Le wiki ne publie pas l’ampleur du Saignement : chaque cumul retire 10 % de ta régénération de départ (valeur choisie par SOREAL).',
       /* Tirage sur 7 : [0,1) Paralyze, [1,3) Bleed, [3,5) Power Attack, le reste attaque de base. */
       tirer:function(e,tirage){
         var t=tirage*7;
@@ -30,6 +31,8 @@
         return 'base';
       },
       multPuissante:2,
+      /* NON PUBLIÉ : constante SOREAL (voir l'en-tête). */
+      saignementParCumul:0.1,
       paralysieMs:4000,
       paralysieAttaques:2,
       minAttaquesEntreParalysies:10
@@ -51,7 +54,7 @@
   };
 
   function neuf(){
-    return {affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
+    return {saignements:0,affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
   }
 
   /* Décrit ce que fait l'attaque du titan. Renvoie {type, multDegats, paralyse:boolean}. L'état est modifié sur place. */
@@ -75,11 +78,21 @@
       etat.paralysieAttaquesRestantes=def.paralysieAttaques;
       rep.paralyse=true;
     }
+    if(type==='saignement'){
+      etat.saignements+=1;
+      rep.saigne=true;
+    }
     if(type==='sporesBras'){
       etat.affaibliJusqua=maintenantMs+def.sporesBrasMs;
       rep.spores=true;
     }
     return rep;
+  }
+
+  /* Facteur appliqué à la régénération de PV du joueur en combat (1 = intacte ; peut devenir négatif : le joueur perd alors des PV). */
+  function multRegenJoueur(id,etat){
+    var def=TITANS[String(id||'')];
+    return def&&def.saignementParCumul&&etat?1-def.saignementParCumul*etat.saignements:1;
   }
 
   /* Multiplicateur appliqué aux dégâts du joueur (spores des bras du Grand Corrupted Tree). */
@@ -101,6 +114,6 @@
   racine.SorealTitanComportementsV1={
     possede:function(id){return !!TITANS[String(id||'')];},
     note:function(id){var d=TITANS[String(id||'')];return d?d.note:'';},
-    neuf:neuf,attaqueTitan:attaqueTitan,multDegatsJoueur:multDegatsJoueur,joueurParalyse:joueurParalyse,finParalysie:finParalysie
+    neuf:neuf,attaqueTitan:attaqueTitan,multDegatsJoueur:multDegatsJoueur,multRegenJoueur:multRegenJoueur,joueurParalyse:joueurParalyse,finParalysie:finParalysie
   };
 })(typeof window!=='undefined'?window:globalThis);

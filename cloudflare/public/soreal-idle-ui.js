@@ -17378,6 +17378,28 @@ let idleDialogueTimerV76=null;
         const api=window.SorealTitanComportementsV1;
         return api&&fight&&fight.titanId&&api.possede(fight.titanId)?api:null;
       }
+      /* Effets visuels du combat (modules/combat-effets-v1.js) : jamais bloquants. */
+      let idleFxSoinJusqua=0;
+      function fxIdleV1_(cible,type,texte){
+        const fx=window.SorealCombatFxV1;
+        if(!fx)return;
+        try{fx.jouer(cible,type,texte);}catch(e){}
+      }
+      function fxEtatsIdleV1_(fight,maintenant){
+        const fx=window.SorealCombatFxV1;
+        if(!fx)return;
+        try{
+          const api=window.SorealTitanComportementsV1;
+          const tit=idleTitanEtatV1&&api&&fight&&fight.active?idleTitanEtatV1:null;
+          fx.etats(fight&&fight.active?{
+            soin:Math.max(idleFxSoinJusqua,idleAdventureManualStateV3.hyperRegenUntil),
+            saigne:tit?tit.saignements:0,
+            paralyse:Boolean(tit&&api.joueurParalyse(tit,maintenant)),
+            spores:Boolean(tit&&api.multDegatsJoueur(fight.titanId,tit,maintenant)!==1),
+            mobParalyse:idleAdventureManualStateV3.enemyParalyzedUntil>maintenant
+          }:{});
+        }catch(e){}
+      }
       function titanMultDegatsJoueurIdleV1_(fight,maintenant){
         const api=window.SorealTitanComportementsV1;
         return api&&idleTitanEtatV1&&fight&&fight.titanId?api.multDegatsJoueur(fight.titanId,idleTitanEtatV1,maintenant):1;
@@ -17742,7 +17764,9 @@ let idleDialogueTimerV76=null;
             avant+max*.15
           );
           const soigne=Math.round(fight.playerHp-avant);
+          idleFxSoinJusqua=Math.max(idleFxSoinJusqua,Date.now()+2500);
           if(soigne>0){
+            fxIdleV1_('joueur','soin','+'+soigne);
             ajouterLogAventureIdleV1_(
               'manual',
               (idleEtat&&idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Soin')+' : +'+soigne+' PV !'
@@ -17805,6 +17829,7 @@ let idleDialogueTimerV76=null;
         );
         fight.monsterHp=Math.max(0,avant-degats);
         impactMonstreAdventureIdleV1_();
+        fxIdleV1_('mob',({strong:'fort',piercing:'perce',ultimate:'ultime'})[def&&def.id]||'coup',idleEntier_(degats));
         /* Mode manuel, en vert -- distinct du bleu 'player' de l'attaque idle automatique (Norman, 2026-09-27). */
         ajouterLogAventureIdleV1_(
           'manual',
@@ -17877,14 +17902,17 @@ let idleDialogueTimerV76=null;
           idleAdventureManualStateV3.blockUntil=maintenant+3000;
         }else if(group==='defense'&&def.id==='defensiveBuff'){
           idleAdventureManualStateV3.defensiveBuffUntil=maintenant+15000;
+          fxIdleV1_('joueur','buffDef');
         }else if(group==='defense'&&def.id==='heal'){
           appliquerHealAdventureIdleV4_(a,fight,def);
         }else if(group==='defense'&&def.id==='offensiveBuff'){
           idleAdventureManualStateV3.offensiveBuffUntil=maintenant+15000;
+          fxIdleV1_('joueur','buffOff');
         }else if(group==='defense'&&def.id==='charge'){
           idleAdventureManualStateV3.charge=true;
         }else if(group==='defense'&&def.id==='ultimateBuff'){
           idleAdventureManualStateV3.ultimateBuffUntil=maintenant+15000;
+          fxIdleV1_('joueur','buffUlt');
         }else if(def.id==='paralyze'){
           appliquerParalyzeAdventureIdleV4_(maintenant);
         }else if(def.id==='hyperRegen'){
@@ -18189,8 +18217,11 @@ let idleDialogueTimerV76=null;
           0,
           (Math.min(jusqua,idleAdventureManualStateV3.hyperRegenUntil)-debutRegen)/1000
         );
+        /* Saignement du titan : facteur sur la régénération, négatif au-delà de 10 cumuls (le joueur perd alors des PV). */
+        const apiTitanRegen=window.SorealTitanComportementsV1;
+        const multSaignement=idleTitanEtatV1&&apiTitanRegen&&fight.titanId?apiTitanRegen.multRegenJoueur(fight.titanId,idleTitanEtatV1):1;
         const regenJoueur=
-          regenBaseJoueur*(secondes+hyperSecondes*4);
+          regenBaseJoueur*multSaignement*(secondes+(multSaignement>0?hyperSecondes*4:0));
         const regenEnnemi=
           Math.max(0,idleNombre_(fight.mobHpRegen));
 
@@ -18199,6 +18230,8 @@ let idleDialogueTimerV76=null;
             idleNombre_(fight.playerHpMax),
             idleNombre_(fight.playerHp)+regenJoueur
           );
+        }else if(regenJoueur<0){
+          fight.playerHp=Math.max(0,idleNombre_(fight.playerHp)+regenJoueur);
         }
         if(regenEnnemi>0){
           fight.monsterHp=Math.min(
@@ -18251,6 +18284,7 @@ let idleDialogueTimerV76=null;
 
         if(!fight||!fight.active){
           resetHorlogesFightAdventureIdleV2_();
+          fxEtatsIdleV1_(null,maintenantTick);
 
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-205 */
           const resolutionEnAttente=idleAdventureResolutionPendingV2;
@@ -18377,6 +18411,7 @@ let idleDialogueTimerV76=null;
             fight.monsterHp=Math.max(0,avant-degats);
 
             impactMonstreAdventureIdleV1_();
+            fxIdleV1_('mob','coup',idleEntier_(degats));
             ajouterLogAventureIdleV1_(
               'player',
               'Vous frappez '+libelleEnnemiAdventureIdleV1_(fight)+
@@ -18409,12 +18444,20 @@ let idleDialogueTimerV76=null;
             )
           );
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
+          let fxTypeAttaque='degats';
           if(idleTitanEtatV1){
             const att=window.SorealTitanComportementsV1.attaqueTitan(fight.titanId,idleTitanEtatV1,momentEvenement,Math.random());
             if(att.multDegats!==1){
               degats=Math.min(avant,Math.round(degats*att.multDegats));
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
+              fxTypeAttaque='puissante';
             }
+            if(att.saigne){
+              const apiT=window.SorealTitanComportementsV1;
+              ajouterLogAventureIdleV1_('enemy','🩸 Tu saignes ! Ta régénération tombe à '+Math.round(apiT.multRegenJoueur(fight.titanId,idleTitanEtatV1)*100)+' %.');
+            }
+            if(att.paralyse)fxIdleV1_('joueur','eclair');
+            if(att.spores)fxIdleV1_('joueur','spore');
             if(att.spores)ajouterLogAventureIdleV1_('enemy','🍄 « Tes bras deviennent soudain lourds » : tes dégâts tombent aux 2/3 pendant 15 s.');
             if(att.paralyse)ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 4 s !');
           }
@@ -18428,6 +18471,7 @@ let idleDialogueTimerV76=null;
             );
             const bloques=Math.max(0,avantBlocage-degats);
             if(bloques>0){
+              fxTypeAttaque='bloc';
               ajouterLogAventureIdleV1_(
                 'player',
                 '🛡️ Blocage : '+idleEntier_(bloques)+' dégâts bloqués !'
@@ -18446,6 +18490,7 @@ let idleDialogueTimerV76=null;
           }
           degats=Math.min(avant,degats);
           fight.playerHp=Math.max(0,avant-degats);
+          fxIdleV1_('joueur',fxTypeAttaque,degats>0?'-'+idleEntier_(degats):'');
 
           ajouterLogAventureIdleV1_(
             'enemy',
@@ -18478,6 +18523,7 @@ let idleDialogueTimerV76=null;
           fight,
           maintenantTick
         );
+        fxEtatsIdleV1_(fight,maintenantTick);
 
         if(modifie){
           pousserEtatVersRuntimePartageIdleV1_();

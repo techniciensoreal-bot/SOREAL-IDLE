@@ -30,10 +30,18 @@ assert.ok(!api.joueurParalyse(e, 22000), "fin à la 2e attaque");
 assert.equal(api.finParalysie(e, 22000), 2000, "durée subie pour repousser les cooldowns");
 assert.equal(api.finParalysie(e, 22001), 0);
 
-// Attaque puissante x2 ; saignement : aucun effet de dégâts (ampleur non publiée).
+// Attaque puissante x2 ; saignement : constante SOREAL (-10 % de régénération par cumul, non publiée par le wiki, accord de Norman 2026-10-04).
 e = api.neuf();
 assert.equal(api.attaqueTitan("t1", e, 1, 3.5 / 7).multDegats, 2);
 assert.equal(api.attaqueTitan("t1", e, 2, 1.5 / 7).multDegats, 1);
+assert.equal(e.saignements, 1);
+assert.ok(api.attaqueTitan("t1", e, 3, 2.5 / 7).saigne);
+assert.equal(api.multRegenJoueur("t1", api.neuf()), 1, "sans saignement : régénération intacte");
+assert.ok(Math.abs(api.multRegenJoueur("t1", e) - 0.8) < 1e-9, "2 cumuls : -20 %");
+e.saignements = 10; assert.ok(Math.abs(api.multRegenJoueur("t1", e)) < 1e-9, "10 cumuls : régénération nulle");
+e.saignements = 15; assert.ok(api.multRegenJoueur("t1", e) < 0, "au-delà : négative (perte de PV)");
+assert.equal(api.multRegenJoueur("t2", api.neuf()), 1, "pas de saignement pour les autres titans");
+assert.ok(ui.includes("multRegenJoueur(fight.titanId,idleTitanEtatV1)") && ui.includes("}else if(regenJoueur<0){"));
 
 // Grand Corrupted Tree : spores des bras (1/7, si pas déjà appliquées) -> dégâts x2/3 pendant 15 s ; puissante (2/7) x1,5 ; spores d'énergie non simulées.
 e = api.neuf();
@@ -50,6 +58,6 @@ assert.ok(ui.includes("titanMultDegatsJoueurIdleV1_(fight,maintenant)") && ui.in
 assert.ok(ui.includes("window.SorealTitanComportementsV1.attaqueTitan(fight.titanId"));
 assert.ok(ui.includes("!titanJoueurParalyseIdleV1_(maintenantTick)"), "Idle Mode coupé");
 assert.ok(ui.includes("if(titanJoueurParalyseIdleV1_(Date.now()))return;"), "capacités coupées");
-assert.ok(/pas simulé/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")));
+assert.ok(/Saignement/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")) && /SOREAL/.test(api.note("t1")));
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/titans-comportements-v1.js"));
 console.log("idle-titans-comportements-v1: OK");
