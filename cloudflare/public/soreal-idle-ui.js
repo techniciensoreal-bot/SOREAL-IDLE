@@ -1180,6 +1180,12 @@
         );
       }
 
+      /* « Training Auto Advance » acheté (la boutique EXP le publie dans les bonus du serveur) ? */
+      function autoAdvanceBasicTrainingActifIdleV1_(){
+        const b=idleEtat&&idleEtat.systemes&&idleEtat.systemes.bonuses;
+        return Boolean(b&&b.basicTrainingAutoAdvance);
+      }
+
       function actualiserDeblocagesBasicTrainingLocalIdleV120_(){
         const bt=
           basicTrainingIdleV120_();
@@ -1192,6 +1198,7 @@
         }
 
         let change=false;
+        let transfertAuto=false;
 
         bt.skills.forEach(function(skill){
           if(
@@ -1220,8 +1227,27 @@
           ){
             skill.unlocked=true;
             change=true;
+            /*
+             * Training Auto Advance (boutique EXP, wiki « Experience » > Misc : « automatically allocates energy each time a skill is unlocked while leaving the necessary cap for each skill ») : à l'instant du
+             * déblocage, l'énergie de la prérequise AU-DELÀ de son cap passe à la compétence débloquée (Norman, 2026-10-04 : « j'ai mis 2329 dans Attaque passive, capée à 89 ; au déblocage de la suivante, l'énergie
+             * en trop n'est pas passée »). Le serveur fait le même transfert, mais pendant qu'on est dans ce menu la page ne reprend pas son état (modules/basic-training-stability-v121.js) : sans ce transfert LOCAL,
+             * l'écran garde l'ancienne répartition et la renvoie au serveur au prochain clic, ce qui annulait le transfert du serveur.
+             */
+            if(autoAdvanceBasicTrainingActifIdleV1_()){
+              const surplus=Math.max(0,idleEntier_(precedent.allocation)-Math.max(1,idleEntier_(precedent.cap)));
+              if(surplus>0){
+                precedent.allocation=idleEntier_(precedent.allocation)-surplus;
+                skill.allocation=idleEntier_(skill.allocation)+surplus;
+                transfertAuto=true;
+              }
+            }
           }
         });
+
+        if(transfertAuto){
+          /* Le serveur reçoit la nouvelle répartition (l'énergie totale allouée ne change pas). */
+          programmerEnvoiBasicTrainingIdleV120_(30);
+        }
 
         if(
           change &&
