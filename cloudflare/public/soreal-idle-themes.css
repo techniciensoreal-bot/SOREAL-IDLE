@@ -1924,3 +1924,16 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-
 .soreal-idle-exp-shop-v213[data-rayon="special4"]{--rayon-h:#ffb98a;--rayon-b:#d2641a;--rayon-t:#3a1700;--rayon-o:rgba(255,150,70,.5)}
 .soreal-idle-exp-shop-v213[data-rayon="items"]{--rayon-h:#ffa8dd;--rayon-b:#c93d96;--rayon-t:#36002a;--rayon-o:rgba(255,120,200,.5)}
 .soreal-idle-exp-shop-v213[data-rayon="expPp"]{--rayon-h:#19e3d0;--rayon-b:#0a8f9a;--rayon-t:#02241f;--rayon-o:rgba(25,227,208,.5)}
+
+/* ====================== PARALYSIE : les raccourcis de combat se figent visiblement ======================
+ * Norman (2026-10-04) : « quand un titan ou un ennemi nous freeze, il faut le voir sur les raccourcis d'attaque, parade etc. ; tout grisé ou autre chose, mais visible, sinon on dirait un bug ». Classe paralyse-v1 posée par
+ * rafraichirCommandesAdventureIdleV3_ sur la zone, chaque raccourci et l'Idle Mode ; le bandeau dit la cause et le temps restant. */
+.soreal-idle-adventure-paralysie-v1{margin:0 0 8px;padding:8px 12px;border-radius:10px;text-align:center;font-weight:1000;letter-spacing:.03em;color:#2b2000;background:linear-gradient(180deg,#ffe36a,#f2b705);border:1px solid #fff3b0;box-shadow:0 0 16px rgba(255,214,60,.65);animation:sorealParalysieV1 .9s ease-in-out infinite}
+.soreal-idle-adventure-paralysie-v1[hidden]{display:none}
+@keyframes sorealParalysieV1{0%,100%{box-shadow:0 0 8px rgba(255,214,60,.4)}50%{box-shadow:0 0 22px rgba(255,214,60,.95)}}
+.soreal-idle-adventure-manual-v3.paralyse-v1 .soreal-idle-adventure-skill-v3,
+.soreal-idle-adventure-manual-v3.paralyse-v1 .soreal-idle-adventure-idle-toggle-v3{background:#22252d!important;opacity:1!important;cursor:not-allowed;border:2px dashed rgba(255,214,60,.8)!important;box-shadow:none!important}
+.soreal-idle-adventure-manual-v3.paralyse-v1 .soreal-idle-adventure-skill-v3>:not(.soreal-idle-adventure-skill-cd-v3),
+.soreal-idle-adventure-manual-v3.paralyse-v1 .soreal-idle-adventure-idle-toggle-v3>*{filter:grayscale(1);opacity:.45}
+.soreal-idle-adventure-skill-v3.paralyse-v1 .soreal-idle-adventure-skill-cd-v3{color:#ffe36a;font-weight:1000;font-size:16px}
+@media (prefers-reduced-motion:reduce){.soreal-idle-adventure-paralysie-v1{animation:none}}

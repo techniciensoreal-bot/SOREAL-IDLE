@@ -17811,6 +17811,20 @@ let idleDialogueTimerV76=null;
         if(!root)return;
         const now=Math.max(0,idleNombre_(maintenant)||Date.now());
         const a=aventureMetaIdleV47_(idleEtat);
+        /*
+         * Paralysie (Norman, 2026-10-04 : « quand un titan ou un ennemi nous freeze, il faut le voir sur les raccourcis d'attaque, parade etc. : tout devient grisé ou autre chose, sinon on dirait un bug, l'interface qui
+         * ne répond plus ») : tous les raccourcis et l'Idle Mode sont grisés, marqués d'un éclair, et un bandeau dit pourquoi et pendant combien de temps.
+         */
+        const paralyse=titanJoueurParalyseIdleV1_(now);
+        root.classList.toggle('paralyse-v1',paralyse);
+        const bandeauParalysie=root.querySelector('[data-paralysie-v1]');
+        if(bandeauParalysie){
+          bandeauParalysie.hidden=!paralyse;
+          if(paralyse){
+            const reste=Math.max(0,idleNombre_(idleTitanEtatV1&&idleTitanEtatV1.paralyseJusqua)-now);
+            bandeauParalysie.textContent='⚡ Paralysé ! Plus de capacités ni d’Idle pendant '+(reste/1000).toFixed(1).replace('.',',')+' s';
+          }
+        }
         root.classList.toggle('manual-active',!idleAdventureIdleModeV3);
         const toggle=root.querySelector('[data-adventure-idle-toggle]');
         if(toggle){
@@ -17818,6 +17832,7 @@ let idleDialogueTimerV76=null;
           toggle.setAttribute('aria-pressed',idleAdventureIdleModeV3?'true':'false');
           const value=toggle.querySelector('b');
           if(value)value.textContent=idleAdventureIdleModeV3?'ON':'OFF';
+          toggle.classList.toggle('paralyse-v1',paralyse);
         }
         root.querySelectorAll('[data-adventure-skill]').forEach(function(btn){
           const id=String(btn.getAttribute('data-adventure-skill')||'');
@@ -17828,11 +17843,12 @@ let idleDialogueTimerV76=null;
           const restant=cooldownRestantAdventureIdleV3_(id,now);
           const prerequisOk=prerequisCompetenceAdventureIdleV4_(id,now);
           const desactivee=titanCompetenceDesactiveeIdleV1_(id);
-          btn.disabled=idleAdventureIdleModeV3||!unlocked||restant>0||!prerequisOk||desactivee;
+          btn.disabled=idleAdventureIdleModeV3||!unlocked||restant>0||!prerequisOk||desactivee||paralyse;
           btn.classList.toggle('titan-off',desactivee);
+          btn.classList.toggle('paralyse-v1',paralyse);
           btn.classList.toggle('locked',!unlocked);
           const cd=btn.querySelector('.soreal-idle-adventure-skill-cd-v3');
-          if(cd)cd.textContent=restant>0?(restant/1000).toFixed(restant<10000?1:0)+'s':'';
+          if(cd)cd.textContent=paralyse?'⚡':(restant>0?(restant/1000).toFixed(restant<10000?1:0)+'s':'');
           const label=btn.querySelector('.soreal-idle-adventure-skill-label-v3');
           if(label&&id==='move69'){
             const uses=Math.max(0,idleEntier_(a&&a.skillState&&a.skillState.move69Uses));
@@ -18129,6 +18145,7 @@ let idleDialogueTimerV76=null;
         });
         return '<div id="sorealIdleAdventureManualV3" class="soreal-idle-adventure-manual-v3'+
           (idleAdventureIdleModeV3?'':' manual-active')+'">'+
+          '<div class="soreal-idle-adventure-paralysie-v1" data-paralysie-v1 role="status" hidden></div>'+
           '<button type="button" class="soreal-idle-adventure-idle-toggle-v3'+
             (idleAdventureIdleModeV3?' active':'')+'" data-adventure-idle-toggle '+
             'aria-pressed="'+(idleAdventureIdleModeV3?'true':'false')+'" '+
