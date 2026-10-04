@@ -41,5 +41,5 @@ assert.match(ui, /if\(Date\.now\(\)<idleAdventureIgnorerClicJusquaV165\)\{\s*if\
 // Liste des ouvriers : liaison de service vers TV (un Worker ne peut pas appeler un autre Worker par workers.dev : erreur 1042 en production)
 const wrangler = readFileSync("wrangler.jsonc", "utf8");
 assert.match(wrangler, /"binding": "SOREAL_TV_API",\s*"service": "soreal-tv"/);
-assert.match(readFileSync("cloudflare/src/idle-itopod-roster-v1.js", "utf8"), /env\.SOREAL_TV_API\.fetch\(new Request\(url, init\)\)/);
+assert.match(readFileSync("cloudflare/src/idle-itopod-roster-v1.js", "utf8"), /env\.SOREAL_TV_API\.fetch\(new Request\(urlInterne, init\)\)/);
 console.log("idle-fade-notice-zone-compare-v1: OK");

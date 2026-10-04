@@ -9,6 +9,7 @@
  */
 
 export const IDLE_ITOPOD_TV_ORIGIN_V1 = "https://soreal-tv.technicien-soreal.workers.dev";
+export const IDLE_ITOPOD_TV_HOTE_INTERNE_V1 = "https://soreal-tv.internal";
 export const IDLE_ITOPOD_AVATAR_PREFIX_V1 = "shared/avatars/";
 export const IDLE_ITOPOD_DECOR_PREFIX_V1 = "shared/avatar-backgrounds/";
 /* Profils qui ne sont pas des personnes de l'équipe (profil d'accueil). */
@@ -70,11 +71,17 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
      * constatée en production le 2026-09-26), il passe par la liaison. Repli sur l'adresse publique pour les tests et le développement local.
      */
     const url = IDLE_ITOPOD_TV_ORIGIN_V1 + "/api/cosmetiques-equipe";
+    /*
+     * TV est fermé aux non-connectés depuis le 2026-10-01 (verrou « session exigée » : la route publique répond 401 SESSION_EXPIREE, ce qui réduisait la liste aux deux ouvriers toujours présents, sans avatar).
+     * Les Workers qui lisent TV côté serveur passent par la liaison de service avec l'hôte interne « soreal-tv.internal », seul exempté du verrou (SOREAL-TV features/access-gate/policy.js) : ce nom n'existe que
+     * via la liaison, jamais depuis Internet.
+     */
+    const urlInterne = IDLE_ITOPOD_TV_HOTE_INTERNE_V1 + "/api/cosmetiques-equipe";
     const init = { headers: { accept: "application/json" } };
     const r = fetchFn
       ? await fetchFn(url, init)
       : env && env.SOREAL_TV_API && typeof env.SOREAL_TV_API.fetch === "function"
-        ? await env.SOREAL_TV_API.fetch(new Request(url, init))
+        ? await env.SOREAL_TV_API.fetch(new Request(urlInterne, init))
         : await fetch(url, { ...init, cf: { cacheEverything: true, cacheTtl: 300 } });
     if (r.ok) cosmetics = await r.json();
   } catch (_) { /* liste réduite */ }

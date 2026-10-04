@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Dans la tour, chaque ennemi apparaît dans un décor tiré au hasard parmi tous ceux de l’équipe, dans un cadre à la forme du décor, avec le prénom et l’avatar d’un ouvrier ou d’un responsable.',
           'Un défi en cours a maintenant son compteur : le temps écoulé depuis son lancement, en mois, semaines, jours puis heures, minutes et secondes.',
           'Le fil En direct raconte aussi les jets dans le puits (l’or jeté et la récompense) et les tours de roue, avec les récompenses nommées seulement si tu connais déjà le système concerné.',
           'Les menus suivent maintenant l’ordre dans lequel on les obtient, pour tout le monde. Ton ancien rangement a été remis à zéro une seule fois : tu peux réarranger les boutons à ta façon, et ton rangement sera conservé.',
