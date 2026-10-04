@@ -18,6 +18,7 @@
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
+          'Les boutons du menu du haut ne s’animent plus de base. Un nouvel achat du rayon Toc de la boutique EXP (40 EXP), « Menus animés », les fait vivre quand un menu est actif.',
           'Le fil « En direct » raconte deux choses de plus : quand quelqu’un lance un sort de sang (le sort n’est nommé que si tu l’as toi-même découvert), quand il regarde une cinématique, et quand il lance, perd ou gagne un combat contre un géant.',
           'Les combats se voient enfin : chaque attaque a son effet sur l’image de l’ennemi (trait, explosion, lance, météorite), chaque coup reçu a le sien sur ta barre de vie (flash, bouclier, paralysie, spores) et des nombres flottent à chaque impact. Un soin fait monter des croix vertes tant que ta vie remonte, et quand tu saignes ta barre vire au rouge sang, avec des gouttes qui coulent de plus en plus vite.',
           'Les ennemis les plus redoutables n’ont plus seulement des chiffres : leurs capacités agissent pour de bon en combat. Paralysie, saignement qui ronge ta régénération, nuages de spores, nuées de sauterelles, battement de chemise qui désactive tes capacités une à une, invincibilité et puissance qui double à chaque tour… Les premiers sont faits, les suivants arrivent. Leur fiche dit exactement ce qui est simulé.',

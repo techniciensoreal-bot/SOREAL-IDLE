@@ -11381,7 +11381,12 @@
         return false;
       }
       const IDLE_MENUS_ALIMENTABLES_V1={entrainement:1,augmentations:1,avance:1,machine:1,sang:1,wandoos:1,ngu:1,yggdrasil:1,diggers:1,beards:1,hacks:1,wishes:1};
+      /* Les boutons du menu du haut ne s'animent (« menu actif ») qu'avec l'achat « Menus animés » du rayon Toc de la boutique EXP (Norman, 2026-10-04). Le serveur l'annonce par `menusAnimes`. */
+      function menusAnimesAchetesIdleV1_(j){
+        return Boolean(j&&j.menusAnimes===true);
+      }
       function idleMenuAlimenteV1_(id,j){
+        if(!menusAnimesAchetesIdleV1_(j))return false;
         if(IDLE_MENUS_ETATS_V1[id])return idleMenuEtatAnimeIdleV1_(id,j);
         if(!j||!IDLE_MENUS_ALIMENTABLES_V1[id])return false;
         if(id==='entrainement'){

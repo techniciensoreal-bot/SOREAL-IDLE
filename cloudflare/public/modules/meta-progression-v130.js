@@ -669,11 +669,11 @@
       /* Achats bon marché et utiles dès le début, dans l'ordre conseillé (du moins cher au plus cher). */
       const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','boostRecycling','autoMerge','daycareSlot1','trainingAutoAdvance'];
       /* Rayon « Toc » (Norman, 2026-10-02) : les petits outils de confort, bon marché. */
-      const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining'];
+      const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];
       const IDLE_EXP_STATS_AVENTURE_V1=['adventurePower','adventureToughness','adventureHp','adventureRegen'];
       /* Gestes du sac, rayon « Aventure » (Norman, 2026-10-04) : Double tap 20 EXP, Triple tap 30 EXP. */
       const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];
-      const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',syncBasicTraining:'🔗 Synchro Basic Training',doubleTap:'👆 Double tap',tripleTap:'👆 Triple tap',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
+      const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',menuAnimations:'🎞️ Menus animés',syncBasicTraining:'🔗 Synchro Basic Training',doubleTap:'👆 Double tap',tripleTap:'👆 Triple tap',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
       /* Une ligne d'explication pour les achats de l'onglet Débuts (effets déjà décrits dans le jeu : panneau d'inventaire, Basic Training). */
       const IDLE_EXP_AIDES_V1={
         inventorySpace:'Plus de places dans ton sac : les premières sont les moins chères.',
@@ -681,6 +681,7 @@
         boostRecycling:'Un boost utilisé peut revenir avec un palier de moins : +10 % de chance par achat, 50 % au maximum.',
         autoMerge:'Fusionne automatiquement les doublons de ton équipement (menu Inventory).',
         sortInventory:'Débloque un bouton « Trier » dans ton sac (menu Inventory) qui range tes objets par catégorie.',
+        menuAnimations:'Les boutons du menu du haut s’animent quand le menu est actif (énergie, magie ou ressource 3 placée dedans, combat en cours…) : tu vois d’un coup d’œil ce qui travaille.',
         syncBasicTraining:'Ajoute une case à cocher sous Input dans Basic Training : cochée, l’énergie que tu places dans une compétence est placée en même temps dans sa jumelle (Attaque passive et Blocage…), pour qu’elles montent exactement à la même vitesse.',
         daycareSlot1:'Débloque le premier slot de l’Item Daycare.',
         trainingAutoAdvance:'Basic Training passe tout seul à la compétence suivante.',

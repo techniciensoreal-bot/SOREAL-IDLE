@@ -19,7 +19,10 @@ const aventureMetaIdleV47_ = (j) => (j && j.systemes && j.systemes.adventure) ||
 const heureServeurIdleV1_ = () => 1_000_000;
 const fabrique = new Function("idleNombre_", "aventureMetaIdleV47_", "heureServeurIdleV1_", "IDLE_SYSTEME_PAR_MENU_V1", "lireMenu",
   "let idleMenuActifV28;\nObject.defineProperty(this,'x',{});\n" + ui.slice(debut, fin).replace(/idleMenuActifV28/g, "lireMenu()") + "\nreturn idleMenuAlimenteV1_;");
-const anime = fabrique.call({}, idleNombre_, aventureMetaIdleV47_, heureServeurIdleV1_, {}, () => menuActif);
+const animeBrut = fabrique.call({}, idleNombre_, aventureMetaIdleV47_, heureServeurIdleV1_, {}, () => menuActif);
+/* Depuis 2026-10-04 : animations seulement avec l'achat « Menus animés » (j.menusAnimes), supposé acheté ci-dessous. */
+const anime = (menu, j) => animeBrut(menu, Object.assign({ menusAnimes: true }, j));
+assert.equal(animeBrut("aventure", { systemes: { adventure: { selectedZone: "forest" } } }), false, "sans l'achat : aucune animation");
 
 // Aventure : on farme dans une zone (pas en zone sûre).
 assert.equal(anime("aventure", { systemes: { adventure: { selectedZone: "forest" } } }), true);

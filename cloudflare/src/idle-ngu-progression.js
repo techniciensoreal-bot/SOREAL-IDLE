@@ -7719,6 +7719,8 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    * partent ensemble) ; le serveur ne fait que mémoriser l'achat (bonus basicTrainingSync).
    */
   syncBasicTraining: Object.freeze({ name: "Basic Training Sync", cost: () => 50, gain: 1, max: 1 }),
+  /* Menus animés (Norman, 2026-10-04 : « enlève les animations des menus du haut ; pour les avoir, un achat dans le rayon Toc à 40 EXP qui permet de savoir quand un menu est actif »). Fonctionnalité SOREAL absente du wiki NGU Idle : prix et rayon donnés par Norman ; le serveur ne fait que mémoriser l'achat (drapeau menusAnimes), l'animation est dessinée par le client. */
+  menuAnimations: Object.freeze({ name: "Animated Menus", cost: () => 40, gain: 1, max: 1 }),
   /*
    * Gestes sur les objets du sac (Norman, 2026-10-04) : « retire la fonction double tap / triple tap de base pour les joueurs ; dans le Shop, au rayon Aventure : Double tap pour 20 EXP (un objet absorbe tous les
    * boosts de l'inventaire), Triple tap pour 30 EXP (fusion automatique avec les pièces disponibles) ». Fonctionnalités SOREAL originales, absentes du wiki NGU Idle : prix et rayon donnés par Norman. Le serveur

@@ -10,7 +10,10 @@ const fin = ui.indexOf("function actualiserNavAlimenteIdleV1_");
 assert.ok(debut > 0 && fin > debut);
 const idleNombre_ = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 const IDLE_SYSTEME_PAR_MENU_V1 = { augmentations: "augmentations", avance: "advancedTraining", machine: "timeMachine", sang: "bloodMagic", wandoos: "wandoos", ngu: "ngu", yggdrasil: "yggdrasil", diggers: "diggers", beards: "beards", hacks: "hacks", wishes: "wishes" };
-const alimente = new Function("idleNombre_", "IDLE_SYSTEME_PAR_MENU_V1", ui.slice(debut, fin) + "\nreturn idleMenuAlimenteV1_;")(idleNombre_, IDLE_SYSTEME_PAR_MENU_V1);
+const alimenteBrut = new Function("idleNombre_", "IDLE_SYSTEME_PAR_MENU_V1", ui.slice(debut, fin) + "\nreturn idleMenuAlimenteV1_;")(idleNombre_, IDLE_SYSTEME_PAR_MENU_V1);
+/* Depuis 2026-10-04 les animations n'existent qu'avec l'achat « Menus animés » (j.menusAnimes) : les cas ci-dessous le supposent acheté. */
+const alimente = (menu, j) => alimenteBrut(menu, Object.assign({ menusAnimes: true }, j));
+assert.equal(alimenteBrut("machine", { systemes: { systems: [{ id: "timeMachine", state: { allocation: { energy: 5, magic: 0, r3: 0 }, data: {} } }] } }), false, "sans l'achat : aucune animation");
 
 const sys = (id, allocation, data) => ({ id, state: { allocation: Object.assign({ energy: 0, magic: 0, r3: 0 }, allocation), data: data || {} } });
 const joueur = (systems, skills) => ({ systemes: { systems }, basicTraining: { skills: skills || [] } });

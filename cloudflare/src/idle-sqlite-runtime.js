@@ -10143,6 +10143,16 @@ function construireEtatJoueurSorealIdle_(
         )
     },
 
+    /* Achat « Menus animés » (rayon Toc de la boutique EXP) : sans lui, aucun bouton du menu du haut ne s'anime pour montrer qu'il est actif. */
+    menusAnimes:
+      nombreSorealIdle_(
+        statsEtat.metaNgu &&
+        statsEtat.metaNgu.bonuses &&
+        statsEtat.metaNgu.bonuses.expShop &&
+        statsEtat.metaNgu.bonuses.expShop.menuAnimations,
+        0
+      ) >= 1,
+
     /* Achat « Synchro Basic Training » (rayon Toc de la boutique EXP) : le client affiche alors la case à cocher sous Input. */
     basicTrainingSynchro:
       nombreSorealIdle_(
