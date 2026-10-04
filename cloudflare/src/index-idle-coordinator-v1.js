@@ -1,5 +1,6 @@
 import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames } from "./idle-sqlite-runtime.js";
+import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
 
@@ -437,15 +438,14 @@ export class SorealIdleCoordinatorV1 {
         return Response.json({ ok: false, error: message }, { status: 400, headers: { "cache-control": "no-store" } });
       }
     }
-    /* Prénoms des joueurs (ITOPOD : les joueurs sont des ennemis, Norman 2026-10-04). Prénom seulement, jamais d'adresse e-mail. */
+    /* Noms vus des autres joueurs externes (Google) : leur pseudo, sinon le prénom de leur compte Google (ITOPOD : les joueurs sont des ennemis, Norman 2026-10-04). Jamais d'adresse e-mail. */
     if (path === "/__soreal-idle-v1/noms-joueurs") {
       const noms = [];
       try {
-        for (const l of this.sql.exec("SELECT display_name FROM idle_players ORDER BY source_row LIMIT 3000").toArray()) {
-          const brut = String(l.display_name || "").trim();
-          if (!brut || brut.includes("@")) continue;
-          const prenom = brut.split(" ")[0].slice(0, 40);
-          if (prenom && !noms.includes(prenom)) noms.push(prenom);
+        for (const profil of profilsParEmailIdleV1(this.sql).values()) {
+          if (!profil.externe) continue;
+          const nom = String(libelleJoueurIdleV1(profil, "") || "").trim().slice(0, 40);
+          if (nom && !nom.includes("@") && nom.toLowerCase() !== "joueur" && !noms.includes(nom)) noms.push(nom);
         }
       } catch (_e) { /* pas de liste */ }
       return Response.json({ ok: true, noms }, { headers: { "cache-control": "no-store" } });
