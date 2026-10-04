@@ -276,6 +276,18 @@ def est_nom_court(segment):
     return len(nu.split()) <= 8
 
 
+# Mots répétés en fin de phrase (Norman, 2026-10-04 : « la voix Marius dit 2 fois Chad dans « T'es vraiment un connard, Chad... » ») : Chatterbox s'attarde sur les points de suspension FINAUX et
+# redit le dernier mot. Deux parades : le segment est synthétisé avec un point final (les points de suspension au MILIEU d'une phrase restent), et la pénalité de répétition du modèle passe de 2,0 à 2,6
+# (réglable : variable d'environnement SOREAL_VOIX_REPETITION).
+REPETITION_PENALTY = float(os.environ.get("SOREAL_VOIX_REPETITION", "2.6"))
+
+
+def sans_suspension_finale(segment):
+    """« …, Chad... » -> « …, Chad. » : plus de points de suspension en toute fin de segment. Un segment qui ne serait que des points reste tel quel."""
+    court = re.sub(r"\s*(?:\.{2,}|…)+\s*$", ".", segment)
+    return court if court.strip(" .") else segment
+
+
 def duree_max_segment(segment):
     if est_nom_court(segment):
         return len(segment) * DUREE_PAR_CARACTERE_COURT_S + DUREE_MARGE_COURT_S
@@ -353,7 +365,8 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     silence = torch.zeros(1, int(m.sr * 0.18))
     with _verrou:
         for segment in decouper(texte):
-            kwargs = {"language_id": "fr", "exaggeration": float(exaggeration), "cfg_weight": float(cfg)}
+            segment = sans_suspension_finale(segment)
+            kwargs = {"language_id": "fr", "exaggeration": float(exaggeration), "cfg_weight": float(cfg), "repetition_penalty": REPETITION_PENALTY}
             reference = reference_voix(voix)
             if reference:
                 kwargs["audio_prompt_path"] = reference
