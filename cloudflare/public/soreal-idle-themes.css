@@ -1809,3 +1809,31 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-name-v120{font-size:16px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-name-v120{font-size:17px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-name-v120{font-size:18px!important}
+
+/* ====================== ADVANCED TRAINING : des barres à la couleur de chaque machine ======================
+ * Norman (2026-10-04) : « Advanced Training a des barres comme Basic Training ; elles doivent être en accord avec le thème de la page, de belles couleurs, différentes suivant ce que ça fait ». Les barres étaient
+ * violettes pour tout le monde (style du module) : chaque compétence a maintenant sa matière, son dégradé et son motif. Toughness : plaques d'acier bleu ; Power : flammes orange ; Block : écailles cyan ;
+ * Wandoos Energy : écran violet à lignes de balayage ; Wandoos Magic : étincelles magenta. Le cadre est sombre comme la console de la page, avec la couleur de la machine en liseré et en lueur. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1{--ac-1:#2d7a1a;--ac-3:#e8ffb0;--ac-pat:repeating-linear-gradient(115deg,rgba(255,255,255,.18) 0 10px,transparent 10px 22px)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="toughness"]{--ac-1:#14357a;--ac-3:#a8ecff;--ac-pat:repeating-linear-gradient(90deg,rgba(255,255,255,.26) 0 3px,transparent 3px 20px),linear-gradient(180deg,rgba(255,255,255,.34),transparent 52%,rgba(0,0,0,.3))}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="power"]{--ac-1:#8c1414;--ac-3:#ffe27a;--ac-pat:repeating-linear-gradient(115deg,rgba(255,244,160,.42) 0 7px,transparent 7px 16px),linear-gradient(0deg,rgba(60,0,0,.45),transparent 55%)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="block"]{--ac-1:#075a73;--ac-3:#d6fbff;--ac-pat:repeating-linear-gradient(60deg,rgba(255,255,255,.3) 0 4px,transparent 4px 13px),repeating-linear-gradient(-60deg,rgba(255,255,255,.2) 0 4px,transparent 4px 13px)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="wandoosEnergy"]{--ac-1:#3f158a;--ac-3:#efe2ff;--ac-pat:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 10px,transparent 10px 20px)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1[data-at-piste="wandoosMagic"]{--ac-1:#7a0f55;--ac-3:#ffe0f6;--ac-pat:radial-gradient(circle,rgba(255,255,255,.8) 0 1.6px,transparent 2.2px) 0 0/15px 15px,radial-gradient(circle,rgba(255,255,255,.5) 0 1.2px,transparent 1.8px) 7px 7px/15px 15px}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-barre-v1{
+  min-height:48px;border:2px solid color-mix(in srgb,var(--ac) 85%,#000)!important;border-radius:6px!important;
+  background:linear-gradient(180deg,#04080a,#0f1a14)!important;
+  box-shadow:inset 0 3px 9px rgba(0,0,0,.92),0 0 16px -4px var(--ac),0 0 0 1px #000!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-remplissage-v1{
+  background:linear-gradient(90deg,var(--ac-1),var(--ac) 58%,var(--ac-3))!important;
+  box-shadow:0 0 20px color-mix(in srgb,var(--ac) 80%,transparent),inset 0 -6px 10px rgba(0,0,0,.28)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-remplissage-v1::after{background:var(--ac-pat)!important;mix-blend-mode:overlay}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-titre-v1{
+  font-family:Impact,"Arial Black",sans-serif;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#fff;
+  text-shadow:0 2px 0 #000,0 0 10px #000,0 0 14px color-mix(in srgb,var(--ac) 70%,transparent);
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-detail-v1{color:color-mix(in srgb,var(--ac) 38%,#fff);text-shadow:0 1px 2px #000}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-detail-v1 [data-at-bonus]{font-weight:900;color:var(--ac-3)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-ligne-v1 .soreal-idle-at-barre-v1.pleine{box-shadow:inset 0 3px 9px rgba(0,0,0,.9),0 0 26px 2px var(--ac),0 0 0 1px #000!important}
