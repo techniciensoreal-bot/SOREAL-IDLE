@@ -387,6 +387,9 @@ function dessinerEditeur_(){
       '<div class="stx-palette">'+palette+'</div>'+
       '<div class="stx-aide">Écris par exemple : <b>(narrateur)</b> Il entre. <b>(marius)</b> Salut mon ami ! <b>(femme)</b> Bonjour. Ce qui suit une balise est lu par cette voix, jusqu’à la balise suivante. Les balises ne s’affichent jamais à l’écran.</div>'+
       '<div id="sorealIdleTextePronBlocV1">'+prononciationsHtml_()+'</div>'+
+      '<label>Fichiers de voix <span style="text-transform:none;letter-spacing:0;font-weight:400">(télécharger, retoucher, remplacer)</span></label>'+
+      '<div class="stx-aide">Chaque bloc de ce texte a son fichier (m4a). Télécharge-le, retouche-le, puis remplace-le : l’ancien fichier est écrasé. Les fichiers qui ne servent plus sont supprimés par le bouton « nettoyage des voix » du menu Admin.</div>'+
+      '<div id="sorealIdleTexteFichiersV1">'+fichiersVoixEditeurHtml_()+'</div>'+
       '<div class="stx-actions">'+
         '<button type="button" data-stx-act="ecouter" id="sorealIdleTexteEcouterV1">▶ Écouter</button>'+
         '<button type="button" data-stx-act="generer" id="sorealIdleTexteGenererV1">🎙 Générer les voix</button>'+
@@ -406,6 +409,18 @@ function dessinerEditeur_(){
     if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute('data-stx-champ'))edition.dernierChamp=ev.target;
   });
   afficherEtat_(statutLigne_());
+}
+
+/* Liste des fichiers de voix des blocs du texte en cours d'édition (outils partagés avec l'éditeur d'histoires). */
+function fichiersVoixEditeurHtml_(){
+  var o=outilsVoix_();
+  if(!o||typeof o.fichiersVoixHtml!=='function'||!edition)return '<div class="stx-aide">Module Admin non chargé : recharge la page.</div>';
+  var blocs=blocsDeLecture_(lireChamps_());
+  return blocs.length?o.fichiersVoixHtml(blocs,edition.voix):'<div class="stx-aide">Aucun texte à lire pour l’instant.</div>';
+}
+function rafraichirFichiersVoix_(){
+  var el=document.getElementById('sorealIdleTexteFichiersV1');
+  if(el&&edition)el.innerHTML=fichiersVoixEditeurHtml_();
 }
 
 function statutLigne_(){
@@ -467,6 +482,13 @@ function ecouter_(){
 }
 
 function charge_(valeurs){
+  /* Les empreintes d'un bloc qui n'existe plus (texte modifié) sont retirées : le « nettoyage des voix » supprimera leurs fichiers. Sans le module de narration, rien n'est touché. */
+  var blocsActuels=blocsDeLecture_(valeurs);
+  if(blocsActuels.length){
+    var actuelles={};
+    blocsActuels.forEach(function(b){actuelles[b.hash]=1;});
+    edition.voix=edition.voix.filter(function(h){return actuelles[h];});
+  }
   var o={cle:edition.cle,champs:{},voix:edition.voix.slice()};
   champsDef_().forEach(function(c){o.champs[c.id]=valeurs[c.id];});
   return o;
@@ -480,6 +502,7 @@ function enregistrer_(){
     edition.surcharge=res.texte||{champs:valeurs,voix:edition.voix};
     miseAJourApresEcriture_(edition.cle,edition.surcharge);
     afficherEtat_('✔ Enregistré. '+statutLigne_());
+    rafraichirFichiersVoix_();
     return true;
   }).catch(function(e){
     afficherEtat_('Enregistrement impossible : '+(e&&e.message?e.message:e),true);
@@ -559,6 +582,7 @@ function generer_(){
     afficherEtat_('Enregistrement des voix…');
     return enregistrer_();
   }).then(function(ok){
+    rafraichirFichiersVoix_();
     if(ok)afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Écouter » pour entendre. '+statutLigne_());
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);
@@ -717,6 +741,23 @@ function boutonBossHtml_(numero){
 document.addEventListener('click',function(ev){
   var racine=document.getElementById(EDITEUR_ID);
   if(racine&&edition&&racine.contains(ev.target)){
+    var fv=ev.target.closest('[data-fv]');
+    if(fv){
+      var o=outilsVoix_();
+      if(!o||typeof o.clicFichierVoix!=='function'){afficherEtat_('Outils de voix indisponibles (module Admin non chargé).',true);return;}
+      edition.valeurs=lireChamps_();
+      o.clicFichierVoix(fv,{
+        nomBase:String(edition.cle||'texte').replace(/[^a-z0-9]+/gi,'-'),
+        message:function(t,erreur){afficherEtat_(t,erreur);},
+        /* Le fichier remplacé garde son empreinte : on la déclare dans le texte et on l'enregistre, pour que le nettoyage ne le supprime pas. */
+        apres:function(hash){
+          if(edition.voix.indexOf(hash)===-1)edition.voix.push(hash);
+          if(edition.aRefaire)delete edition.aRefaire[hash];
+          return enregistrer_();
+        }
+      });
+      return;
+    }
     var v=ev.target.closest('[data-stx-voix]');
     if(v){inserer_(v.getAttribute('data-stx-voix'));return;}
     var pr=ev.target.closest('[data-stx-pron]');
@@ -751,8 +792,10 @@ document.addEventListener('click',function(ev){
   if(bossBtn){ev.preventDefault();ev.stopPropagation();editerBoss_(bossBtn.getAttribute('data-stx-boss'));}
 },true);
 
+var minuterieFichiers=0;
 document.addEventListener('input',function(ev){
   var el=ev.target;
+  if(edition&&el&&el.getAttribute&&el.getAttribute('data-stx-champ')){clearTimeout(minuterieFichiers);minuterieFichiers=setTimeout(rafraichirFichiersVoix_,700);}
   if(el&&el.id==='sorealIdleTextesFiltreV1'){
     admin.filtre=el.value;
     var b=document.getElementById('sorealIdleTextesBossListeV1');

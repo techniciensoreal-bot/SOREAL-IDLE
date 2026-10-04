@@ -150,7 +150,25 @@ function libelleBoss_(numero){
 
 /* ---------- style ---------- */
 
+function installerStyleFichiersVoix_(){
+  if(document.getElementById('sorealIdleFvStyleV1'))return;
+  var st=document.createElement('style');
+  st.id='sorealIdleFvStyleV1';
+  st.textContent=
+    '.fv-liste{display:grid;gap:5px;margin:6px 0}'+
+    '.fv-ligne{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 8px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.04)}'+
+    '.fv-n{min-width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);font:800 12px/1 system-ui,sans-serif}'+
+    '.fv-ex{flex:1 1 180px;min-width:0;font-size:13px;color:#c9d4ee;overflow:hidden;text-overflow:ellipsis}'+
+    '.fv-ex b{color:#ffd84a;margin-right:4px}'+
+    '.fv-badge{font-size:12px;padding:2px 8px;border-radius:999px;background:rgba(74,222,128,.18);color:#86efac;white-space:nowrap}'+
+    '.fv-badge.non{background:rgba(255,255,255,.1);color:#b8c7ea}'+
+    '.fv-btn{min-height:34px;padding:4px 10px;border-radius:9px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:700 13px/1 system-ui,sans-serif;cursor:pointer}'+
+    '.fv-btn:disabled{opacity:.4;cursor:default}';
+  document.head.appendChild(st);
+}
+
 function installerStyle_(){
+  installerStyleFichiersVoix_();
   if(document.getElementById(STYLE_ID))return;
   var s=document.createElement('style');
   s.id=STYLE_ID;
@@ -360,6 +378,7 @@ function etapeHtml_(e,i){
         '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+parleurs_().map(function(p){return '<option value="'+p[0]+'"'+(parleurCanon_(e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
         '<label>Texte lu à voix haute</label>'+
         '<textarea data-adm-texte="'+i+'" placeholder="Colle ici le texte de cette image…">'+esc_(e.texte)+'</textarea>'+
+        (blocsDeEtape_(e).length?'<label>Fichiers de voix de cette étape <span style="text-transform:none;letter-spacing:0;font-weight:400">(télécharger, retoucher, remplacer)</span></label><div data-adm-fv="'+i+'">'+fichiersVoixHtml_(blocsDeEtape_(e),edition.voix||[])+'</div>':'')+
         '<div class="soreal-idle-adm-meta-v1" style="margin-top:4px">Astuce : écris <b>(femme)</b>, <b>(homme)</b>'+voixNommees_().map(function(v){return ', <b>('+esc_(v.id)+')</b>';}).join('')+' dans le texte pour changer de voix à cet endroit. Les balises ne s’affichent pas à l’écran.</div>'+
       '</div>'+
     '</div>'+
@@ -612,6 +631,123 @@ function televerserVoix_(hash,blob){
     });});
 }
 
+/*
+ * Fichiers de voix : télécharger, modifier ailleurs, remplacer (Norman, 2026-10-04 : « je dois pouvoir télécharger le fichier de voix, le modifier et le réuploader via le menu d'édition des voix ; l'upload doit remplacer
+ * l'ancien fichier »). Un fichier de voix s'appelle idle/voix/<empreinte du bloc>.m4a : téléverser un fichier pour la MÊME empreinte écrase l'ancien (R2 remplace l'objet de même clé), donc rien ne traîne ; le jeu le
+ * relit au plus tard une minute après (cache de 60 s). Seul le format m4a (AAC, celui du fichier téléchargé) est accepté, 12 Mo au maximum.
+ */
+var FORMAT_VOIX_MESSAGE='Format attendu : m4a (AAC), comme le fichier téléchargé.';
+function urlVoix_(hash){return '/api/idle/media/voice?h='+encodeURIComponent(hash)+'&t='+Date.now();}
+
+function telechargerVoix_(hash,nom){
+  return fetch(urlVoix_(hash),{cache:'no-store'}).then(function(r){
+    if(!r.ok)throw new Error(r.status===404?'Pas encore de fichier pour ce bloc : génère d’abord la voix.':'Téléchargement refusé ('+r.status+').');
+    return r.blob();
+  }).then(function(blob){
+    var u=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=u;a.download=(nom||('voix-'+hash))+'.m4a';a.style.display='none';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){try{a.remove();URL.revokeObjectURL(u);}catch(_e){}},1500);
+    return blob.size;
+  });
+}
+
+/* Refuse tout fichier qui n'est pas un m4a : trop gros, vide, ou sans la signature « ftyp » d'un conteneur MP4/M4A. */
+function verifierFichierVoix_(fichier){
+  return new Promise(function(ok,ko){
+    if(!fichier){ko(new Error('Aucun fichier choisi.'));return;}
+    if(fichier.size>12*1024*1024){ko(new Error('Fichier trop gros (12 Mo au maximum).'));return;}
+    if(fichier.size<16){ko(new Error('Fichier vide ou illisible. '+FORMAT_VOIX_MESSAGE));return;}
+    var lecteur=new FileReader();
+    lecteur.onload=function(){
+      var b=new Uint8Array(lecteur.result);
+      if(String.fromCharCode(b[4],b[5],b[6],b[7])!=='ftyp')ko(new Error(FORMAT_VOIX_MESSAGE));else ok(fichier);
+    };
+    lecteur.onerror=function(){ko(new Error('Lecture du fichier impossible.'));};
+    lecteur.readAsArrayBuffer(fichier.slice(0,16));
+  });
+}
+
+function remplacerVoix_(hash,fichier){
+  return verifierFichierVoix_(fichier).then(function(f){return televerserVoix_(hash,f);});
+}
+
+function choisirFichierVoix_(){
+  return new Promise(function(resolve){
+    var champ=document.createElement('input');
+    champ.type='file';champ.accept='.m4a,.mp4,audio/mp4,audio/x-m4a';champ.style.display='none';
+    champ.addEventListener('change',function(){var f=champ.files&&champ.files[0]||null;champ.remove();resolve(f);});
+    document.body.appendChild(champ);
+    champ.click();
+  });
+}
+
+var ecouteFichier={audio:null,hash:''};
+function ecouterFichierVoix_(hash){
+  try{if(ecouteFichier.audio){ecouteFichier.audio.pause();ecouteFichier.audio=null;}}catch(_e){}
+  if(ecouteFichier.hash===hash){ecouteFichier.hash='';return Promise.resolve(false);}
+  ecouteFichier.hash=hash;
+  var a=new Audio(urlVoix_(hash));
+  ecouteFichier.audio=a;
+  a.onended=function(){ecouteFichier.hash='';};
+  return Promise.resolve(a.play()).then(function(){return true;});
+}
+
+function extraitBloc_(texte){
+  var t=String(texte||'').replace(/\s+/g,' ').trim();
+  return t.length>70?t.slice(0,67)+'…':t;
+}
+
+/* Liste des fichiers de voix d'un texte : une ligne par bloc (extrait, voix, état, trois boutons). blocs = [{texte,hash,parleur}], voix = empreintes prêtes. */
+function fichiersVoixHtml_(blocs,voix){
+  if(!blocs||!blocs.length)return '';
+  var prets=voix||[];
+  return '<div class="fv-liste">'+blocs.map(function(b,k){
+    var pret=prets.indexOf(b.hash)!==-1;
+    return '<div class="fv-ligne" data-fv-hash="'+esc_(b.hash)+'" data-fv-n="'+(k+1)+'">'+
+      '<span class="fv-n">'+(k+1)+'</span>'+
+      '<span class="fv-ex"><b>'+esc_(b.parleur||'')+'</b> '+esc_(extraitBloc_(b.texte))+'</span>'+
+      '<span class="fv-badge'+(pret?'':' non')+'">'+(pret?'fichier prêt':'pas de fichier')+'</span>'+
+      '<button type="button" class="fv-btn" data-fv="ecouter" title="Écouter le fichier tel qu’il est sur le serveur"'+(pret?'':' disabled')+'>▶</button>'+
+      '<button type="button" class="fv-btn" data-fv="telecharger" title="Télécharger ce fichier de voix (m4a) pour le retoucher"'+(pret?'':' disabled')+'>⬇ Télécharger</button>'+
+      '<button type="button" class="fv-btn" data-fv="remplacer" title="Choisir un fichier m4a retouché : il REMPLACE l’ancien">⬆ Remplacer</button>'+
+    '</div>';
+  }).join('')+'</div>';
+}
+
+/*
+ * Clic sur un bouton de fichier de voix. opts : { nomBase, message(texte, erreur), apres(hash) } ; apres() enregistre l'empreinte dans le texte (pour que le nettoyage ne supprime pas ce fichier) et rafraîchit la liste.
+ * Renvoie true si le clic a été traité.
+ */
+function clicFichierVoix_(bouton,opts){
+  var act=bouton&&bouton.getAttribute?bouton.getAttribute('data-fv'):'';
+  var ligne=bouton&&bouton.closest?bouton.closest('[data-fv-hash]'):null;
+  if(!act||!ligne)return false;
+  var hash=ligne.getAttribute('data-fv-hash');
+  var n=ligne.getAttribute('data-fv-n');
+  var dire=(opts&&opts.message)||function(){};
+  if(act==='ecouter'){
+    ecouterFichierVoix_(hash).catch(function(e){dire('Lecture impossible : '+(e&&e.message?e.message:e),true);});
+  }else if(act==='telecharger'){
+    dire('Téléchargement du bloc '+n+'…');
+    telechargerVoix_(hash,((opts&&opts.nomBase)||'voix')+'-bloc'+n+'-'+hash).then(function(){
+      dire('✔ Bloc '+n+' téléchargé (m4a). Retouche-le, puis clique sur « ⬆ Remplacer » pour le remettre : il écrase l’ancien fichier.');
+    }).catch(function(e){dire(e&&e.message?e.message:String(e),true);});
+  }else if(act==='remplacer'){
+    choisirFichierVoix_().then(function(fichier){
+      if(!fichier)return;
+      dire('Envoi du fichier pour le bloc '+n+'…');
+      return remplacerVoix_(hash,fichier).then(function(){
+        if(opts&&typeof opts.apres==='function')return opts.apres(hash);
+      }).then(function(){
+        dire('✔ Bloc '+n+' remplacé : l’ancien fichier est écrasé (le jeu le relit sous une minute).');
+      });
+    }).catch(function(e){dire('Remplacement impossible : '+(e&&e.message?e.message:e),true);});
+  }
+  return true;
+}
+
 function libelleBoutonsGenerer_(){
   var b=document.getElementById('sorealIdleAdminBtnVoixV1');
   if(b)b.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer les voix';
@@ -802,6 +938,21 @@ function ecouterEtape_(i){
 document.addEventListener('click',function(ev){
   var racine=document.getElementById(EDITEUR_ID);
   if(!racine||!edition||!racine.contains(ev.target))return;
+  var fv=ev.target.closest('[data-fv]');
+  if(fv){
+    lireChamps_();
+    clicFichierVoix_(fv,{
+      nomBase:'histoire-'+String(edition.id||'texte'),
+      message:function(t,erreur){afficherEtat_(t,erreur);},
+      /* Le fichier remplacé garde son empreinte : on la déclare dans l'histoire et on enregistre, pour que le nettoyage ne le supprime pas. */
+      apres:function(hash){
+        edition.voix=edition.voix||[];
+        if(edition.voix.indexOf(hash)===-1)edition.voix.push(hash);
+        return enregistrer_().then(function(){rafraichirEtapes_();});
+      }
+    });
+    return;
+  }
   var g=ev.target.closest('[data-adm-g]');
   var e=ev.target.closest('[data-adm-e]');
   if(g){
@@ -848,6 +999,8 @@ window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__={
   appliquerPrononciations:appliquerPrononciations_,
   /* Génération de voix réutilisée par l'éditeur de textes (modules/textes-admin-v1.js) : même studio, mêmes corrections de prononciation, même téléversement R2. */
   outilsVoix:{synthetiser:synthetiser_,synthetiserBrut:synthetiserBrut_,televerser:televerserVoix_,
+    /* Fichiers de voix : télécharger / remplacer / écouter (2026-10-04), communs à l'éditeur d'histoires et à celui des textes. */
+    fichiersVoixHtml:fichiersVoixHtml_,clicFichierVoix:clicFichierVoix_,telechargerVoix:telechargerVoix_,remplacerVoix:remplacerVoix_,verifierFichierVoix:verifierFichierVoix_,urlVoix:urlVoix_,
     /* Corrections de prononciation partagées avec l'éditeur de textes (Norman, 2026-10-03 : « pouvoir changer la prononciation des mots pour chaque écran de texte »). */
     lirePrononciations:lirePrononciations_,ecrirePrononciations:ecrirePrononciations_,appliquerPrononciations:appliquerPrononciations_},
   /* Outils de test. */
