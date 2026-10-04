@@ -1711,6 +1711,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           Array.from(R.file.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.file.delete(c);});
         }
         const cle=cleAllocRapideV1_(payload);
+        const O=window.__allocOrdreIdleV1__;
+        if(O&&!O.meta){O.meta=++O.n;O.metaAt=Date.now();}
         R.file.delete(cle);
         R.file.set(cle,payload);
         /* Ce que le joueur veut, tant que le serveur ne l'a pas confirmé : réappliqué sur tout état serveur plus ancien (voir appliquerAllocationsVoulues). */
@@ -1718,12 +1720,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         else if(payload.action==='clearAugmentAllocations')Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.voulu.delete(c);});
         planifierAllocRapideV1_(delai);
       }
+      function O2(){return window.__allocOrdreIdleV1__;}
       function viderAllocRapideV1_(){
         const R=IDLE_ALLOC_RAPIDE_V1;
         R.timer=0;
         if(R.enCours)return;
         const suivant=R.file.entries().next();
         if(suivant.done)return;
+        /* Une répartition de Basic Training, modifiée avant celle-ci, doit arriver au serveur d'abord (voir idleAllocOrdreV1 dans soreal-idle-ui.js). */
+        const O=window.__allocOrdreIdleV1__;
+        if(O&&O.bt&&O.bt<O.meta&&Date.now()-O.btAt<4000){planifierAllocRapideV1_(40);return;}
         const cle=suivant.value[0];
         const payload=suivant.value[1];
         R.file.delete(cle);
@@ -1736,6 +1742,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             if(res&&res.ok&&!R.file.has(cle))R.voulu.delete(cle);
             reconcilierAllocRapideV1_(res);
             if(R.file.size)planifierAllocRapideV1_(20);
+            else if(O2()&&!R.timer)O2().meta=0;
           },
           function(){
             R.enCours=false;
@@ -1830,20 +1837,24 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!j)return;
         const srv=H.protegerJoueurServeurInventaireIdleV208_(res.joueur);
         if(empreinteAllocationsMetaV1_(j)!==empreinteAllocationsMetaV1_(srv)){
-          /* Diagnostic (Norman, 2026-10-04 : « toute l'énergie que je place m'est rendue ») : le serveur a une autre répartition que l'écran. On garde une trace en console et, quand il avait moins d'énergie que ce que l'écran
-             montrait, on le dit au joueur au lieu de rendre l'énergie en silence. */
+          /* Trace en console seulement (pas de message au joueur : ce sont les chiffres qui doivent être justes, voir energieLibreCoherenteIdleV1_ dans soreal-idle-ui.js). */
           try{
-            const locale=Math.floor(H.idleNombre_(j.energie));
-            const serveur=Math.floor(H.idleNombre_(srv.energie));
-            console.warn('[IDLE] répartition d’énergie ajustée par le serveur',{energieEcran:locale,energieServeur:serveur,repartitionEcran:empreinteAllocationsMetaV1_(j),repartitionServeur:empreinteAllocationsMetaV1_(srv)});
-            if(locale>serveur+1&&typeof H.messageFlottantIdleV32_==='function'){
-              H.messageFlottantIdleV32_('⚠️ Le serveur n’avait que '+serveur.toLocaleString('fr-FR')+' d’énergie disponible (l’écran en montrait '+locale.toLocaleString('fr-FR')+') : ta répartition a été ajustée.');
-            }
+            console.warn('[IDLE] répartition d’énergie ajustée par le serveur',{energieEcran:Math.floor(H.idleNombre_(j.energie)),energieServeur:Math.floor(H.idleNombre_(srv.energie)),repartitionEcran:empreinteAllocationsMetaV1_(j),repartitionServeur:empreinteAllocationsMetaV1_(srv)});
           }catch(_e){}
-          H.setIdleEtat(srv);
+          /* Une répartition de Basic Training encore en route vers le serveur ne doit pas être écrasée par cette réponse. */
+          if(typeof window.__btAllocEnAttenteIdleV1__==='function'&&window.__btAllocEnAttenteIdleV1__()&&j.basicTraining)srv.basicTraining=j.basicTraining;
+          if(typeof window.__energieLibreCoherenteIdleV1__==='function'){
+            const libre=window.__energieLibreCoherenteIdleV1__(srv);
+            H.setIdleEtat(srv);
+            srv.energie=libre;
+          }else{
+            H.setIdleEtat(srv);
+          }
           H.rendreIdleEtat_({ok:true,joueur:srv});
           return;
         }
+        /* Confirmation : l'énergie libre affichée suit celle du serveur, corrigée de ce que l'écran a placé de son côté (Basic Training en route…). */
+        if(typeof window.__energieLibreCoherenteIdleV1__==='function')j.energie=window.__energieLibreCoherenteIdleV1__(srv);
         const niveauxAvant=niveauxAugmentsMetaV1_(j);
         const ressourcesLocales=j.systemes&&j.systemes.resources;
         j.systemes=srv.systemes;

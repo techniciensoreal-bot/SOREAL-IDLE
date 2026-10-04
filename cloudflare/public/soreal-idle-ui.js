@@ -210,6 +210,13 @@
       window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};
 
       let idleBasicTrainingSaveTimerV120=null;
+      /*
+       * Ordre d'envoi des répartitions d'énergie (Norman, 2026-10-04) : Basic Training et les autres systèmes (Augmentations, Time Machine…) partent au serveur par deux canaux différés. Une répartition de l'un qui
+       * dépend de ce que l'autre vient de libérer (ou d'occuper) doit arriver APRÈS lui, sinon le serveur la juge sur une énergie qui n'est pas encore à jour et la réduit. Chaque canal note l'instant de sa première
+       * modification en attente ; il n'envoie pas tant que l'autre canal en a une plus ancienne (et récente : une attente de plus de 4 s est ignorée, jamais de blocage).
+       */
+      const idleAllocOrdreV1={n:0,bt:0,btAt:0,meta:0,metaAt:0};
+      if(typeof window!=='undefined')window.__allocOrdreIdleV1__=idleAllocOrdreV1;
       let idleBasicTrainingSaveBusyV120=false;
       let idleBasicTrainingDirtyV120=false;
 
@@ -273,6 +280,33 @@
               )
             );
         },0);
+      }
+
+      /*
+       * Énergie libre COHÉRENTE avec ce que l'écran montre comme placé (Norman, 2026-10-04 : « le serveur n'avait que 45 472 d'énergie (l'écran en montrait 65 476) ; je ne veux pas ça, je veux que les chiffres soient justes »).
+       * Les répartitions d'énergie partent au serveur par deux canaux indépendants (Basic Training, et tous les autres systèmes), chacun en différé : une réponse de l'un arrivait avec une énergie libre calculée sans ce que
+       * l'écran venait de placer (ou de retirer) par l'autre, et l'écran affichait alors une énergie fausse que le serveur refusait ensuite. L'énergie totale générée est la même partout : libre + placé. L'énergie libre
+       * affichée est donc celle du serveur, corrigée de l'écart entre ce que le serveur sait avoir placé et ce que l'écran a placé (Basic Training et autres systèmes).
+       */
+      function sommeAllocBasicTrainingJoueurIdleV1_(joueur){
+        const bt=joueur&&joueur.basicTraining;
+        return bt&&Array.isArray(bt.skills)?bt.skills.reduce(function(t,x){return t+(x&&x.unlocked?idleEntier_(x.allocation):0);},0):0;
+      }
+      function sommeAllocMetaJoueurIdleV1_(joueur){
+        const liste=joueur&&joueur.systemes&&Array.isArray(joueur.systemes.systems)?joueur.systemes.systems:[];
+        return liste.reduce(function(t,sys){return t+Math.max(0,idleNombre_(sys&&sys.state&&sys.state.allocation&&sys.state.allocation.energy));},0);
+      }
+      function energieLibreCoherenteIdleV1_(joueur){
+        if(!joueur)return 0;
+        const libreServeur=idleNombre_(joueur.energie);
+        const ecartBT=sommeAllocBasicTrainingJoueurIdleV1_(joueur)-totalAllocationBasicTrainingIdleV120_();
+        const ecartMeta=sommeAllocMetaJoueurIdleV1_(joueur)-allocationMetaEnergieIdleV1_();
+        return Math.max(0,Math.floor(libreServeur+ecartBT+ecartMeta+1e-9));
+      }
+      if(typeof window!=='undefined'){
+        window.__energieLibreCoherenteIdleV1__=energieLibreCoherenteIdleV1_;
+        /* Une répartition de Basic Training est-elle encore en route vers le serveur (minuteur, envoi en cours, modification à renvoyer) ? */
+        window.__btAllocEnAttenteIdleV1__=function(){return Boolean(idleBasicTrainingSaveTimerV120||idleBasicTrainingSaveBusyV120||idleBasicTrainingDirtyV120);};
       }
 
       function capBasicTrainingLocalIdleV120_(skill){
@@ -700,6 +734,8 @@
           return;
         }
 
+        const energieCoherente=energieLibreCoherenteIdleV1_(joueur);
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-14 */
         if(
           idleCombatEnPauseApresDefaiteV1 &&
@@ -712,7 +748,7 @@
             'renaissances'
           ].forEach(function(cle){
             if(joueur[cle]!==undefined){
-              idleEtat[cle]=joueur[cle];
+              idleEtat[cle]=cle==='energie'?energieCoherente:joueur[cle];
             }
           });
 
@@ -753,7 +789,7 @@
             joueur[cle]!==undefined
           ){
             idleEtat[cle]=
-              joueur[cle];
+              cle==='energie'?energieCoherente:joueur[cle];
           }
         });
 
@@ -843,6 +879,12 @@
           return;
         }
 
+        /* Une répartition d'un autre système, modifiée avant celle-ci, passe d'abord. */
+        if(idleAllocOrdreV1.meta&&idleAllocOrdreV1.meta<idleAllocOrdreV1.bt&&Date.now()-idleAllocOrdreV1.metaAt<4000){
+          programmerEnvoiBasicTrainingIdleV120_(40);
+          return;
+        }
+
         idleBasicTrainingSaveBusyV120=true;
         idleBasicTrainingDirtyV120=false;
 
@@ -858,6 +900,7 @@
               appliquerEtatBasicTrainingIdleV120_(
                 res
               );
+              if(!idleBasicTrainingDirtyV120)idleAllocOrdreV1.bt=0;
             }else{
               idleBasicTrainingDirtyV120=true;
               synchroniserJeuIdleV7_(
@@ -893,6 +936,10 @@
         delai
       ){
         idleBasicTrainingDirtyV120=true;
+        if(!idleAllocOrdreV1.bt){
+          idleAllocOrdreV1.bt=++idleAllocOrdreV1.n;
+          idleAllocOrdreV1.btAt=Date.now();
+        }
 
         if(idleBasicTrainingSaveTimerV120){
           clearTimeout(
