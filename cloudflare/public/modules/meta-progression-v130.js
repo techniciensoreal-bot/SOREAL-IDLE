@@ -1517,10 +1517,15 @@ function pageItopodIdleV1_(j){
         const tuile=function(icone,libelle,valeur){return '<div class="itp-tuile"><span class="itp-tuile-icone">'+icone+'</span><span class="itp-tuile-libelle">'+libelle+'</span><b>'+valeur+'</b></div>';};
         return H.entetePageIdleV28_(
           '🏢 ITOPOD',
-          'Infinite Tower of Pissed-Off Dudes — chaque 10 ennemis vaincus fait monter d’un étage ; (200 + Étage) PPP par kill (700 en Evil, 2000 en Sadistic), 1 000 000 PPP = 1 PP. Sur l’étage de fin, 10 kills te ramènent à l’étage de départ.'
+          'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP (200 + le numéro de l’étage ; 700 en Maléfique, 2000 en Sadique). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Perks. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.'
         )+
         '<div class="itp-page">'+
-          (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(d):'')+
+          (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(Object.assign({},d,{actif:Boolean(s.state.active)})):'')+
+          '<section class="itp-panneau itp-entree">'+
+            '<button type="button" class="itp-bouton itp-bouton-entrer'+(s.state.active?' itp-en-cours':'')+'" onclick="window.__itopodBasculerIdleV1__()">'+(s.state.active?'🚪 Quitter l’ITOPOD':'⚔️ Entrer dans l’ITOPOD')+'</button>'+
+            '<div class="itp-mode">'+(s.state.active?'Tu combats les ennemis à la chaîne.':'Entre dans la tour pour combattre les ennemis à la chaîne.')+'</div>'+
+            (d.hitsParKill===0?'<div class="itp-mode itp-alerte">Tu n’es pas encore assez fort pour avancer dans la tour : monte ta Puissance d’Aventure.</div>':'')+
+          '</section>'+
           '<section class="itp-panneau itp-montee">'+
             '<div class="itp-titre">🪜 Étages à gravir</div>'+
             '<div class="itp-mode">'+(auto?'Montée automatique jusqu’à l’étage optimal':'Départ '+debut+' → fin '+fin)+'</div>'+
@@ -1545,6 +1550,12 @@ function pageItopodIdleV1_(j){
           '</section>'+
         '</div>';
       }
+
+/* Entrer dans la tour / la quitter (le combat à la chaîne ne tourne que tour ouverte). */
+function itopodBasculerIdleV1_(){
+        toggleSystemeMetaIdleV130_('tower');
+      }
+      window.__itopodBasculerIdleV1__=itopodBasculerIdleV1_;
 
 /* Boutons − et + des champs d'étage : un pas de 1, borné à 0–1600 comme la saisie. */
 function itopodPasIdleV1_(bouton,delta){

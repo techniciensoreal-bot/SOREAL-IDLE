@@ -4212,6 +4212,9 @@ function advanceTowerV1(state, seconds, context) {
   const gear = idleAdventureEquipmentStatsV47(state.adventure);
   const bonuses = idleNguBonuses(state);
   const powerRaw = idleAdventureCombatStatsV1(gear, context, bonuses).power;
+  /* Pour l'écran (Norman, 2026-10-04 : « les ennemis doivent prendre des coups, la vie descend progressivement quand on n'est pas assez fort pour les tuer d'un coup ») : coups nécessaires pour tuer un ennemi de l'étage en cours
+     (towerHitsV1, la même formule que la progression), délai de réapparition et intervalle entre deux coups. 0 = pas assez de Power pour avancer. */
+  d.hitsParKill = 0;
   if (!(powerRaw >= ITOPOD_MIN_POWER_V1)) return;
   const power = Math.max(10, powerRaw);
   const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
@@ -4231,6 +4234,9 @@ function advanceTowerV1(state, seconds, context) {
   const end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
   const auto = start === null || end === null;
   d.optimalFloor = optimal;
+  d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);
+  d.respawnS = respawn;
+  d.intervalS = interval;
 
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   const quirks = quirkBonusesV1(idleQuirkNiveauxV1(state));

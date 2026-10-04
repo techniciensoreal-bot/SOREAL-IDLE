@@ -78,3 +78,23 @@ console.log("idle-itopod-decors-hasard-v1: OK");
   assert.deepEqual(ids.filter((i) => !fichiers.has(i + ".webp")), [], "une image par perk du catalogue");
 }
 console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
+
+// 6. Avatars transparents sans cadre ; Level 1 flottants ; barre de vie qui descend coup après coup ; entrée dans la tour ; le serveur donne le nombre de coups (towerHitsV1).
+{
+  const sc = readFileSync("cloudflare/public/modules/itopod-scene-v1.js", "utf8");
+  const fen = {};
+  vm.runInNewContext(sc, { window: fen, document: { querySelectorAll: () => [] }, fetch: () => Promise.reject(new Error("x")), Date, Math });
+  const api = fen.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+  assert.equal(api.estFlottant("shared/avatars/level-1/a.webp"), true);
+  assert.equal(api.estFlottant("shared/avatars/level-2/a.webp"), false);
+  api.html({ floor: 3, kills: 30, killsOnFloor: 0, hitsParKill: 4, intervalS: 1, respawnS: 4, actif: true });
+  assert.equal(api.combat.hits, 4);
+  const css2 = readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8");
+  assert.ok(/\.itp-ennemi \.itp-avatar\{[^}]*bottom:0[^}]*border:0[^}]*background:none/.test(css2), "avatar sans cadre, collé au bas");
+  assert.ok(css2.includes(".itp-avatar.itp-flotte") && css2.includes("itpPoing") && css2.includes(".itp-vie-rempli"));
+  const prog = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+  assert.ok(prog.includes("d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);"), "coups par ennemi donnés à l'écran");
+  const m2 = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(m2.includes("toggleSystemeMetaIdleV130_('tower')") && m2.includes("Entrer dans l’ITOPOD"), "bouton pour entrer dans la tour");
+}
+console.log("idle-itopod-decors-hasard-v1 (combat): OK");

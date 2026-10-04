@@ -192,3 +192,34 @@ body.soreal-idle-active-v47 .pk-comptoir .pk-recherche{flex:1 1 180px;min-width:
 @keyframes pkAmpoules{0%{opacity:1}100%{opacity:.55}}
 @media (prefers-reduced-motion:reduce){.pk-enseigne-texte b,.pk-ampoules{animation:none}}
 @media (max-width:480px){.pk-etagere{grid-template-columns:1fr 1fr;gap:20px 10px}.pk-enseigne-texte b{font-size:22px}.pk-ampoules{display:none}.pk-vitrine{padding:8px}}
+
+/* ====================== ITOPOD : ennemi sans cadre, vie, coups ====================== */
+.itp-avatar[hidden],.itp-decor[hidden]{display:none}
+.itp-ennemi{position:absolute;inset:0;pointer-events:none;transition:opacity .5s,transform .5s}
+.itp-ennemi.itp-mort{opacity:0;transform:translateY(14%) scale(.96)}
+/* Avatar transparent coupé à la ceinture : collé au bas, grand, il respire depuis le bas (le bord bas cache la coupe). */
+.itp-ennemi .itp-avatar{position:absolute;left:50%;bottom:0;top:auto;width:auto;height:92%;max-width:96%;aspect-ratio:auto;object-fit:contain;object-position:50% 100%;
+  border:0;border-radius:0;background:none;box-shadow:none;transform:translateX(-50%);transform-origin:50% 100%;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55));animation:itpVie 3.4s ease-in-out infinite}
+.itp-ennemi .itp-avatar-vide{height:auto;font-size:96px;bottom:10%}
+/* Level 1 : boules flottantes, ni collées au bas ni agrandies. */
+.itp-ennemi .itp-avatar.itp-flotte{bottom:24%;height:56%;max-width:70%;object-position:50% 50%;transform-origin:50% 50%;animation:itpLevite 2.8s ease-in-out infinite}
+.itp-vie{height:20px;border:3px solid #000;border-radius:4px;background:#1a0a0a;box-shadow:inset 0 3px 0 rgba(0,0,0,.6),4px 4px 0 #000;overflow:hidden}
+.itp-vie-rempli{height:100%;background:repeating-linear-gradient(135deg,#ff5a4d 0 10px,#d13226 10px 20px);box-shadow:0 0 12px rgba(255,90,77,.75);transition:width .18s ease-out}
+/* Coup de poing sur l'image : secousse, éclair blanc, poing qui s'écrase. */
+.itp-vitre.itp-coup{animation:itpSecousse .28s ease-out}
+.itp-vitre.itp-coup .itp-decor{animation:itpEclair .28s ease-out}
+.itp-poing{position:absolute;z-index:3;width:0;height:0;pointer-events:none;opacity:0}
+.itp-poing span{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-size:76px;line-height:1;filter:drop-shadow(0 0 12px #fff) drop-shadow(0 4px 0 #000)}
+.itp-poing::before{content:"";position:absolute;left:0;top:0;width:150px;height:150px;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 10%,rgba(255,225,120,.95) 24%,rgba(255,120,40,.6) 48%,transparent 70%);clip-path:polygon(50% 0,60% 30%,95% 15%,72% 45%,100% 55%,68% 66%,82% 100%,50% 76%,18% 100%,32% 66%,0 55%,28% 45%,5% 15%,40% 30%)}
+.itp-poing.itp-poing-actif{animation:itpPoing .3s ease-out}
+.itp-alerte{color:#ffb4a8}
+.itp-entree{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.itp-entree .itp-mode{margin:0;text-align:center}
+.itp-bouton-entrer{flex:none;font-size:18px;background:linear-gradient(180deg,#fb5a4b,#a31f14)}
+.itp-bouton-entrer.itp-en-cours{background:linear-gradient(180deg,#64748b,#334155)}
+@keyframes itpVie{0%,100%{transform:translateX(-50%) scale(1,1) rotate(0)}30%{transform:translateX(-50%) scale(1.012,1.022) rotate(.5deg)}65%{transform:translateX(-50%) scale(.998,1.008) rotate(-.5deg)}}
+@keyframes itpLevite{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-12px)}}
+@keyframes itpSecousse{0%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}100%{transform:translate(0,0)}}
+@keyframes itpEclair{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
+@keyframes itpPoing{0%{opacity:0;transform:scale(2.4)}25%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.itp-ennemi .itp-avatar,.itp-vitre.itp-coup,.itp-vitre.itp-coup .itp-decor{animation:none}}
