@@ -33,6 +33,15 @@
       window.__SOREAL_IDLE_EST_ADMIN_V1__=estAdminSorealIdle_;
       function rafraichirEstAdminSorealIdle_(){
         if(idleEstAdminV1!==null||!SOREAL_SESSION)return;
+        /* L'état contient déjà la réponse (`reglages` n'est donné qu'à l'administrateur) : aucun appel à part (audit des appels, 2026-10-04). */
+        if(idleEtat&&idleEtat.reglages!==undefined){
+          idleEstAdminV1=Boolean(idleEtat.reglages);
+          if(idleEstAdminV1){
+            rendreIdleEtat_({ok:true,joueur:idleEtat});
+            if(idleTutorielPagesEnCoursV1)rendreTutorielPagesIdleV1_();
+          }
+          return;
+        }
         google.script.run
           .withSuccessHandler(function(res){
             const estAdminAvant=idleEstAdminV1===true;
@@ -60,6 +69,12 @@
       let idlePartieDevV1=null;
       function rafraichirPartieDevIdleV1_(){
         if(idlePartieDevV1!==null||!SOREAL_SESSION)return;
+        /* Donné dans l'état (partieDev) : aucun appel à part (audit des appels, 2026-10-04). */
+        if(idleEtat&&idleEtat.partieDev&&typeof idleEtat.partieDev==='object'){
+          idlePartieDevV1={actif:Boolean(idleEtat.partieDev.actif),partie:String(idleEtat.partieDev.partie||'a')==='b'?'b':'a',charge:true};
+          if(idlePartieDevV1.actif)rendreIdleEtat_({ok:true,joueur:idleEtat});
+          return;
+        }
         idlePartieDevV1={actif:false,partie:'a',charge:false};
         google.script.run
           .withSuccessHandler(function(res){

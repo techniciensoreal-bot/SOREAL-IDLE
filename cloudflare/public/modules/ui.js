@@ -293,8 +293,11 @@
   installerStyle_();
 
   var observer=new MutationObserver(function(mutations){
+    /* Éléments ajoutés seulement : le texte des chiffres qui défile ne relance plus rien (audit des appels, 2026-10-04). */
     var important=mutations.some(function(m){
-      return m.type==='childList'&&m.addedNodes&&m.addedNodes.length;
+      if(m.type!=='childList'||!m.addedNodes)return false;
+      for(var k=0;k<m.addedNodes.length;k++)if(m.addedNodes[k].nodeType===1)return true;
+      return false;
     });
     if(important)programmer_(false);
   });

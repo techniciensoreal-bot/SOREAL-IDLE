@@ -17,7 +17,7 @@ for (const banni of ["rendreMoney_", "moneyEtat_", "MONEY PIT + DAILY SPIN", "Le
 }
 assert.ok(meta.includes('<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg"'), "la page à image est conservée");
 assert.match(meta, /if\(id==='moneyPit'\)return pageMoneyPitDailySpinIdleV206_\(j\);/);
-assert.ok(index.includes("/modules/ui.js?v=53"));
+assert.ok(index.includes("/modules/ui.js?v=54"));
 
 // Comportement : sur la page Money Pit, ui.js ne touche plus au contenu de la page.
 {

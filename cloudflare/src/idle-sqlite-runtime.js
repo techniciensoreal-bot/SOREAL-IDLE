@@ -10754,6 +10754,12 @@ function construireEtatJoueurSorealIdle_(
         ? { accesOuvert: accesOuvertSorealIdle_(), accesPublic: accesPublicSorealIdle_() }
         : null,
 
+    /*
+     * Sélecteur « Partie B » (administrateur) : donné dans l'état pour que le client n'ait plus à le demander par un appel à part au démarrage (audit des appels, Norman 2026-10-04).
+     * Même contenu que obtenirPartieDevSorealIdle ; l'état d'administrateur, lui, se lit déjà dans `reglages` (non nul pour l'administrateur seul).
+     */
+    partieDev: { actif: idleDevSlotsAvailableV1(__idleRuntimeUser), partie: idleDevSlotForUserV1(__idleRuntimeUser) },
+
     /* Pseudo et nom affiché du joueur (Paramètres) ; voir idle-profile-v1.js. */
     identite: identiteJoueurSorealIdle_(
       { user: __idleRuntimeUser, emailAutorise: String(row[c.EMAIL_PRINCIPAL - 1] || '') }

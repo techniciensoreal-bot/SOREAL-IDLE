@@ -18,6 +18,9 @@
     try{return String(window.SOREAL_SESSION||'').trim();}catch(e){return '';}
   }
 
+  var attente=[];
+  var ATTENTE_ETAT_MS=4000;
+
   function getState_(force){
     /*
      * Le moteur principal pousse déjà son état live via pushState_().
@@ -28,9 +31,30 @@
      */
     if(!force&&state)return Promise.resolve(state);
     if(statePromise)return statePromise;
+    /*
+     * Au démarrage, le moteur principal lit déjà l'état et le pousse par pushState_ : lire le serveur une seconde fois en parallèle doublait l'appel (audit des appels, 2026-10-04).
+     * Sans force, on attend donc l'état du moteur et on ne lit le serveur qu'après ATTENTE_ETAT_MS sans nouvelle.
+     */
+    if(!force){
+      statePromise=new Promise(function(resolve){
+        attente.push(resolve);
+        setTimeout(function(){
+          if(state){return;}
+          var i=attente.indexOf(resolve);
+          if(i===-1)return;
+          attente.splice(i,1);
+          lireServeur_().then(resolve);
+        },ATTENTE_ETAT_MS);
+      }).finally(function(){statePromise=null;});
+      return statePromise;
+    }
+    return lireServeur_();
+  }
+
+  function lireServeur_(){
     var token=token_();
     if(!token||!window.google||!google.script||!google.script.run)return Promise.resolve(null);
-    statePromise=new Promise(function(resolve){
+    var lecture=new Promise(function(resolve){
       google.script.run
         .withSuccessHandler(function(res){
 var joueur=res&&res.ok&&res.joueur?res.joueur:null;
@@ -39,12 +63,16 @@ resolve(joueur);
         })
         .withFailureHandler(function(){resolve(null);})
         .obtenirEtatSorealIdle(token);
-    }).finally(function(){statePromise=null;});
+    });
+    statePromise=lecture.finally(function(){statePromise=null;});
     return statePromise;
   }
 
   function pushState_(joueur){
-    if(joueur&&typeof joueur==='object'){state=joueur;stateAt=Date.now();}
+    if(joueur&&typeof joueur==='object'){
+      state=joueur;stateAt=Date.now();
+      if(attente.length)attente.splice(0,attente.length).forEach(function(resolve){resolve(joueur);});
+    }
     schedule_();
   }
 
@@ -67,14 +95,20 @@ resolve(joueur);
     return function(){renderSubscribers.delete(fn);};
   }
 
+  function avecElement_(noeuds){
+    for(var k=0;k<noeuds.length;k++)if(noeuds[k].nodeType===1)return true;
+    return false;
+  }
+
   function observe_(){
     var host=document.getElementById('app')||document.body;
     if(!host){setTimeout(observe_,0);return;}
     observer=new MutationObserver(function(mutations){
       var active=(typeof PAGE_ACTIVE!=='undefined'&&PAGE_ACTIVE==='idle')||Boolean(document.querySelector('.soreal-idle-page-root-v28'));
       if(!active)return;
+      /* Seuls les ajouts / retraits d'éléments comptent : les chiffres des barres et des tuiles (texte remplacé ~25 fois par seconde) ne relancent plus tous les abonnés (audit, 2026-10-04). */
       for(var i=0;i<mutations.length;i++){
-        if(mutations[i].type==='childList'){schedule_();break;}
+        if(mutations[i].type==='childList'&&(avecElement_(mutations[i].addedNodes)||avecElement_(mutations[i].removedNodes))){schedule_();break;}
       }
     });
     observer.observe(host,{childList:true,subtree:true});
