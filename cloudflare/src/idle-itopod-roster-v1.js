@@ -33,7 +33,13 @@ export function idleItopodCleR2V1(url, prefix) {
 }
 
 /* Liste des ouvriers { nom, avatar } à partir de la réponse de /api/cosmetiques-equipe. Dédoublonnée sur le prénom, triée. */
-export function idleItopodRosterV1(cosmetics) {
+/* Prénom lisible d'un fichier d'avatar : « shared/avatars/level-2/03-jean_pierre.webp » → « Jean Pierre ». */
+export function idleItopodNomDepuisCleV1(cle) {
+  const base = text(cle).split("/").pop().replace(/.[A-Za-z0-9]+$/, "").replace(/^[0-9]+[-_ .]*/, "").replace(/[-_]+/g, " ").trim();
+  return base.split(" ").filter(Boolean).map((m) => m.charAt(0).toUpperCase() + m.slice(1)).join(" ").slice(0, 40);
+}
+
+export function idleItopodRosterV1(cosmetics, clesAvatars) {
   const par = cosmetics && typeof cosmetics === "object" ? cosmetics.parEmail : null;
   const out = new Map();
   for (const item of Object.values(par && typeof par === "object" ? par : {})) {
@@ -42,6 +48,17 @@ export function idleItopodRosterV1(cosmetics) {
     const avatar = idleItopodCleR2V1(item.avatarUrl, IDLE_ITOPOD_AVATAR_PREFIX_V1);
     const k = norm(nom);
     if (!out.has(k) || (!out.get(k).avatar && avatar)) out.set(k, { nom, avatar });
+  }
+  /* Norman, 2026-10-04 : « les avatars des ouvriers, responsables et anciens sont dans shared/avatars/ » : chaque image du dossier est un ennemi (prénom lu dans le nom du fichier si TV ne le donne pas). */
+  const dejaAvatar = new Set([...out.values()].map((w) => w.avatar).filter(Boolean));
+  for (const cle of Array.isArray(clesAvatars) ? clesAvatars : []) {
+    const avatar = idleItopodCleR2V1(cle, IDLE_ITOPOD_AVATAR_PREFIX_V1);
+    if (!avatar || dejaAvatar.has(avatar)) continue;
+    const lu = idleItopodNomDepuisCleV1(avatar);
+    const k = norm(lu);
+    const nom = IDLE_ITOPOD_TOUJOURS_V1.find((n) => norm(n) === k) || lu;
+    if (!nom || IDLE_ITOPOD_EXCLUS_V1.includes(k)) continue;
+    if (!out.has(k) || !out.get(k).avatar) { out.set(k, { nom: out.has(k) ? out.get(k).nom : nom, avatar }); dejaAvatar.add(avatar); }
   }
   for (const nom of IDLE_ITOPOD_TOUJOURS_V1) if (!out.has(norm(nom))) out.set(norm(nom), { nom, avatar: "" });
   return [...out.values()].sort((a, b) => a.nom.localeCompare(b.nom, "fr", { sensitivity: "base" }));
@@ -102,6 +119,7 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
   } catch (_) { /* liste réduite */ }
   let cles = [];
   let clesEtages = [];
+  let clesAvatars = [];
   try {
     if (env && env.SOREAL_R2 && typeof env.SOREAL_R2.list === "function") {
       let cursor;
@@ -114,11 +132,19 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
       } while (cursor && cles.length < 3000);
     }
     if (env && env.SOREAL_R2 && typeof env.SOREAL_R2.list === "function") {
+      let cursor;
+      do {
+        const opts = { prefix: IDLE_ITOPOD_AVATAR_PREFIX_V1, limit: 1000 };
+        if (cursor) opts.cursor = cursor;
+        const l = await env.SOREAL_R2.list(opts);
+        clesAvatars = clesAvatars.concat((l.objects || []).map((o) => o.key));
+        cursor = l.truncated && l.cursor ? l.cursor : undefined;
+      } while (cursor && clesAvatars.length < 3000);
       const l = await env.SOREAL_R2.list({ prefix: IDLE_ITOPOD_ETAGE_PREFIX_V1, limit: 1000 });
       clesEtages = (l.objects || []).map((o) => o.key);
     }
   } catch (_) { /* pas de décor */ }
-  const valeur = { ok: true, workers: idleItopodRosterV1(cosmetics), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
+  const valeur = { ok: true, workers: idleItopodRosterV1(cosmetics, clesAvatars), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
   /* Un échec de TV n'est gardé que peu de temps. */
   cache = { at: cosmetics ? maintenant : maintenant - DUREE_CACHE_MS + 30000, valeur };
   return jsonReponse(valeur);

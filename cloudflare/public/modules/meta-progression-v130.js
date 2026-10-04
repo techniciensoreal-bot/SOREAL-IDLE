@@ -1403,27 +1403,67 @@
 function pagePerksIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'perks');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.perkDefinitions)?j.systemes.perkDefinitions:[];
-        const pp=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.pp||0):0;
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⭐ Perks','Chaque Perk a son propre coût plat et son propre plafond. Dépense tes PP pour les améliorer une par une.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">⭐ PP disponibles<b>'+pp+'</b></div></div>'+
-          '<div style="display:grid;gap:10px">'+defs.map(function(perk){
-            const niveau=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(levels[perk.id]||0);
-            const cap=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(perk.cap||0);
-            const auMax=niveau>=cap;
-            const cout=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(perk.cost||0);
-            return '<div class="soreal-idle-section-v8" style="margin:0">'+
-              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(emojiNomIdleV1_('perks',perk.id,perk.name||('Perk '+perk.id)))+'</b><span>'+niveau+' / '+cap+'</span></div>'+
-              '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(perk.effect||'')+'</div>'+
-              '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
-                (auMax
-                  ?'<span class="soreal-idle-note-v4">✔ Maximum atteint</span>'
-                  :'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__acheterPerkIdleV1__('+perk.id+')">⭐ Acheter ('+cout+' PP)</button>')+
-              '</div>'+
-            '</div>';
-          }).join('')+'</div>';
+        const pp=j&&j.systemes&&j.systemes.currencies?H.idleEntier_(j.systemes.currencies.pp||0):0;
+        /*
+         * Magasin des Perks (Norman, 2026-10-04) : une boutique à part, en vitrines (néon violet et rose, étagères) et non en rayons à auvent comme les boutiques EXP et AP ;
+         * une image par achat : celle du wiki NGU Idle (https://ngu-idle.fandom.com/wiki/Perk_Points), copiée dans /perks/<numéro du perk>.webp. Aucun total (anti-spoil).
+         */
+        const filtre=window.__perkFiltreIdleV1__||{q:'',abordables:false};
+        const q=String(filtre.q||'').trim().toLowerCase();
+        const cartes=defs.map(function(perk){
+          const niveau=H.idleEntier_(levels[perk.id]||0);
+          const cap=H.idleEntier_(perk.cap||0);
+          const auMax=niveau>=cap;
+          const cout=H.idleEntier_(perk.cost||0);
+          const abordable=!auMax&&pp>=cout;
+          const nom=String(perk.name||('Perk '+perk.id));
+          if(q&&(nom+' '+String(perk.effect||'')).toLowerCase().indexOf(q)<0)return '';
+          if(filtre.abordables&&!abordable)return '';
+          const barre=cap>0?Math.min(100,niveau*100/cap):0;
+          return '<article class="pk-vitrine'+(auMax?' pk-max':abordable?' pk-abordable':'')+(niveau>0?' pk-possede':'')+'">'+
+            '<div class="pk-socle"><img class="pk-image" src="/perks/'+H.idleEntier_(perk.id)+'.webp" alt="" loading="lazy" onerror="this.hidden=true"></div>'+
+            '<div class="pk-corps">'+
+              '<div class="pk-nom">'+H.idleHtml_(nom)+'</div>'+
+              '<div class="pk-effet">'+H.idleHtml_(perk.effect||'')+'</div>'+
+              '<div class="pk-niveau"><div class="pk-jauge"><i style="width:'+barre.toFixed(1)+'%"></i></div><span>'+niveau+' / '+cap+'</span></div>'+
+            '</div>'+
+            (auMax
+              ?'<div class="pk-etiquette pk-etiquette-max">✔ Maximum</div>'
+              :'<button type="button" class="pk-acheter" onclick="window.__acheterPerkIdleV1__('+perk.id+')"><span class="pk-prix">⭐ '+cout+' PP</span><span class="pk-achat">Acheter</span></button>')+
+          '</article>';
+        }).join('');
+        return H.entetePageIdleV28_('⭐ Perks','Chaque Perk a son propre coût plat et son propre plafond. Dépense tes PP pour les améliorer une par une.')+
+          '<div class="pk-boutique">'+
+            '<div class="pk-enseigne"><span class="pk-ampoules"></span><div class="pk-enseigne-texte"><small>Boutique</small><b>Perk Emporium</b></div><span class="pk-ampoules"></span></div>'+
+            '<div class="pk-comptoir"><div class="pk-solde"><span>⭐ PP disponibles</span><b>'+pp+'</b></div>'+
+              '<input class="pk-recherche" type="search" placeholder="Chercher un perk…" value="'+H.idleHtml_(filtre.q||'')+'" oninput="window.__perkFiltrerIdleV1__(this.value,null)">'+
+              '<button type="button" class="pk-bascule'+(filtre.abordables?' actif':'')+'" onclick="window.__perkFiltrerIdleV1__(null,'+(filtre.abordables?'false':'true')+')">💰 Abordables</button>'+
+            '</div>'+
+            '<div class="pk-etagere">'+(cartes||'<div class="pk-vide">Aucun perk ne correspond.</div>')+'</div>'+
+          '</div>';
       }
+
+/* Filtre du magasin des Perks : recherche et « abordables » ; le magasin est redessiné aussitôt (la saisie garde le focus). */
+function perkFiltrerIdleV1_(q,abordables){
+        const f=window.__perkFiltreIdleV1__||(window.__perkFiltreIdleV1__={q:'',abordables:false});
+        if(q!=null)f.q=String(q);
+        if(abordables!=null)f.abordables=Boolean(abordables);
+        const racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="perks"]');
+        const ancien=racine&&racine.querySelector('.pk-boutique');
+        if(!ancien)return;
+        const actif=document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('pk-recherche');
+        const pos=actif?document.activeElement.selectionStart:0;
+        const tmp=document.createElement('div');
+        tmp.innerHTML=pagePerksIdleV1_(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat());
+        const neuf=tmp.querySelector('.pk-boutique');
+        if(!neuf)return;
+        ancien.replaceWith(neuf);
+        if(actif){const champ=racine.querySelector('.pk-recherche');if(champ){champ.focus();try{champ.setSelectionRange(pos,pos);}catch(_){}}}
+      }
+      window.__perkFiltrerIdleV1__=perkFiltrerIdleV1_;
 
 function pageQuirksIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'quirks');

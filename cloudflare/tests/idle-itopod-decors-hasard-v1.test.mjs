@@ -58,3 +58,25 @@ const css = readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8");
 assert.ok(css.includes(".itp-arene") && css.includes('input[type="number"]') && css.includes("select"), "style de la tour et zones de saisie");
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/soreal-idle-jeu.css?v="), "feuille chargée");
 console.log("idle-itopod-decors-hasard-v1: OK");
+
+// 4. Avatars : tout le dossier shared/avatars/ fournit des ennemis (prénom lu dans le nom du fichier).
+{
+  const { idleItopodRosterV1 } = await import("../src/idle-itopod-roster-v1.js");
+  const w = idleItopodRosterV1(null, ["shared/avatars/level-1/03-jean_pierre.webp", "shared/avatars/level-2/sebastien.webp", "shared/avatars/level-3/notes.txt"]);
+  assert.ok(w.some((x) => x.nom === "Jean Pierre" && x.avatar.endsWith("03-jean_pierre.webp")));
+  assert.ok(w.some((x) => x.nom === "Sébastien" && x.avatar === "shared/avatars/level-2/sebastien.webp"), "Sébastien garde son accent et reçoit son avatar");
+  assert.equal(w.filter((x) => x.nom === "Norman").length, 1);
+}
+
+// 5. Magasin des Perks : vitrines à part, image du wiki par achat (/perks/<id>.webp), aucun total.
+{
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const page = meta.slice(meta.indexOf("function pagePerksIdleV1_"), meta.indexOf("function pageQuirksIdleV1_"));
+  assert.ok(page.includes("/perks/") && page.includes("pk-vitrine") && page.includes("Perk Emporium"));
+  assert.ok(!/defs\.length/.test(page), "pas de total de perks (anti-spoil)");
+  const { readdirSync } = await import("node:fs");
+  const ids = [...readFileSync("cloudflare/src/idle-perks-v1.js", "utf8").matchAll(/\{ id: (\d+), name/g)].map((m) => m[1]);
+  const fichiers = new Set(readdirSync("cloudflare/public/perks"));
+  assert.deepEqual(ids.filter((i) => !fichiers.has(i + ".webp")), [], "une image par perk du catalogue");
+}
+console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
