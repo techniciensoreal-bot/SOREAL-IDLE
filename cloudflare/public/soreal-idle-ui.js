@@ -15389,6 +15389,12 @@ let idleDialogueTimerV76=null;
             </div>`;
         }
 
+        /*
+         * Montée en puissance (Norman, 2026-10-04 : « Attaque régulière plus bad ass que attaque passive, attaque puissante plus bad ass que attaque régulière ») : le rang de la barre dans sa section (0 à 5)
+         * pilote son habillage (soreal-idle-themes.css, « MONTÉE EN PUISSANCE ») : mêmes couleurs, de plus en plus sombre, lumineux et animé.
+         */
+        const rangBt=Math.max(0,Math.min(5,(j&&j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[]).filter(function(x){return x&&x.group===skill.group;}).findIndex(function(x){return x.id===skill.id;})));
+
         const vitesseInitiale=
           Math.max(
             0,
@@ -15408,6 +15414,7 @@ let idleDialogueTimerV76=null;
           <div
             class="soreal-idle-bt-row-v120 ${idleHtml_(skill.group||'')}"
             data-basic-training-skill="${idleHtml_(skill.id)}"
+            data-rang-v1="${rangBt}"
           >
             <div class="soreal-idle-bt-main-v120">
               <div class="soreal-idle-bt-name-v120">
