@@ -27,6 +27,7 @@ var edition=null;       // copie de travail de l'histoire éditée (jamais l'obj
 var editionEstNouvelle=false;
 var studio={ok:null,texte:'Studio de voix : vérification…'};
 var generation={enCours:false,annule:false,texte:''};
+var reduit=false;       // l'éditeur est réduit en petit menu flottant (la génération continue pendant qu'on joue)
 
 function esc_(v){
   return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -124,6 +125,40 @@ function blocsDeEtape_(etape){
   return blocs;
 }
 
+/*
+ * Lignes par personnage (Norman, 2026-10-04 : « je veux une ligne par personnage et ne générer que cette ligne ; ajouter ou supprimer des lignes par personnage ; de base il y a un personnage »). Une étape (une image) se
+ * compose de lignes { parleur, texte }. Le format enregistré ne change pas : le texte de l'étape reste une seule chaîne, la première ligne donne la voix de départ et chaque ligne suivante est précédée de la
+ * balise de sa voix « (femme) », « (narrateur) », « (bohort) »… exactement ce que lit le jeu. Les lignes vides existent seulement dans l'éditeur (elles ne laissent aucune trace à l'enregistrement).
+ */
+function parleurUi_(p){var c=parleurCanon_(p||'narrateur');return c==='homme'?'narrateur':c;}
+function etapeVide_(image){return {texte:'',image:image||'',parleur:'narrateur',lignes:[{parleur:'narrateur',texte:''}]};}
+function lignesDepuisEtape_(e){
+  var segs=segmentsDeEtape_(e);
+  if(!segs.length)return [{parleur:parleurUi_(e.parleur),texte:''}];
+  return segs.map(function(sg){return {parleur:parleurUi_(sg.voix),texte:sg.texte};});
+}
+function composerEtape_(e){
+  var lignes=(e.lignes||[]).filter(function(x){return String(x&&x.texte||'').trim();});
+  if(!lignes.length){e.texte='';e.parleur=parleurUi_((e.lignes&&e.lignes[0]&&e.lignes[0].parleur)||e.parleur);return;}
+  e.parleur=lignes[0].parleur;
+  e.texte=lignes.map(function(x,k){return (k?'('+x.parleur+') ':'')+String(x.texte).trim();}).join(' ');
+}
+function sansEspaces_(t){return String(t||'').replace(/\s+/g,' ').trim();}
+/* Après un chargement ou un enregistrement : reconstruit les lignes depuis le texte, en gardant celles qu'on était en train d'éditer (lignes vides comprises) quand elles donnent le même texte. */
+function initialiserLignes_(anciennes){
+  (edition.etapes||[]).forEach(function(e,k){
+    var avant=anciennes&&anciennes[k];
+    if(avant&&avant.length){
+      var essai={texte:'',parleur:'narrateur',lignes:avant};
+      composerEtape_(essai);
+      if(sansEspaces_(essai.texte)===sansEspaces_(e.texte)){e.lignes=avant;return;}
+    }
+    e.lignes=lignesDepuisEtape_(e);
+  });
+}
+function blocsDeLigne_(l){
+  return blocsDeTexte_(l&&l.texte).map(function(b){b.parleur=parleurUi_(l.parleur);return b;});
+}
 function statutVoixEtape_(etape,voix){
   var blocs=blocsDeEtape_(etape);
   if(!blocs.length)return {total:0,prets:0};
@@ -200,7 +235,22 @@ function installerStyle_(){
     '.adm-pied-v1{position:fixed;left:0;right:0;bottom:0;background:#0d1530;border-top:1px solid #2c3d66;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;z-index:1}'+
     '.adm-etat-v1{font-size:14px;margin:8px 0;color:#a9b6d8}'+
     '.adm-erreur-v1{color:#fca5a5;font-weight:700}'+
-    '@media(max-width:520px){.adm-etape-corps-v1{flex-direction:column;align-items:stretch}.adm-vignette-v1{width:100%;height:170px;flex:none}}';
+    '.adm-image-v1{display:flex;flex-direction:column;gap:6px;width:112px;flex:0 0 112px}'+
+    '.adm-lignes-v1{flex:1;min-width:0;display:grid;gap:8px}'+
+    '.adm-ligne-v1{background:#0f1830;border:1px solid #2c3d66;border-left:4px solid #5b8cff;border-radius:12px;padding:8px 10px}'+
+    '.adm-ligne-tete-v1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}'+
+    '.adm-ligne-tete-v1 select{width:auto;min-width:150px;padding:6px 8px}'+
+    '.adm-ligne-n-v1{min-width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#5b8cff;color:#fff;font:800 13px/1 system-ui,sans-serif}'+
+    '#'+EDITEUR_ID+' .adm-ligne-v1 textarea{min-height:64px}'+
+    '.adm-fichiers-v1{margin-top:6px}.adm-fichiers-titre-v1{font-size:12px;font-weight:800;color:#a9b6d8;text-transform:uppercase;letter-spacing:.04em}.adm-fichiers-titre-v1 span{text-transform:none;letter-spacing:0;font-weight:400}'+
+    '.adm-mini-v1{display:none}'+
+    '#'+EDITEUR_ID+'.adm-reduit{inset:auto 12px 12px auto;width:310px;max-width:calc(100vw - 24px);height:auto;overflow:visible;background:transparent;pointer-events:none}'+
+    '#'+EDITEUR_ID+'.adm-reduit .adm-page,#'+EDITEUR_ID+'.adm-reduit .adm-pied-v1{display:none}'+
+    '#'+EDITEUR_ID+'.adm-reduit .adm-mini-v1{display:block;pointer-events:auto;background:#0d1530;border:1.5px solid #5b8cff;border-radius:14px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.55)}'+
+    '.adm-mini-titre-v1{font-weight:900;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+    '.adm-mini-etat-v1{font-size:13px;color:#c9d4ee;line-height:1.4;margin-bottom:8px;max-height:4.2em;overflow:hidden}'+
+    '.adm-mini-actions-v1{display:flex;gap:8px;justify-content:flex-end}'+
+    '@media(max-width:520px){.adm-etape-corps-v1{flex-direction:column;align-items:stretch}.adm-image-v1{width:100%;flex:none}.adm-vignette-v1{width:100%;height:170px;flex:none}}';
   document.head.appendChild(s);
 }
 
@@ -325,12 +375,14 @@ document.addEventListener('click',function(ev){
 function copie_(h){return JSON.parse(JSON.stringify(h));}
 
 function nouvelle_(){
-  ouvrirEditeur_({id:nouvelId_('histoire'),titre:'',boss:null,actif:true,voix:[],etapes:[{texte:'',image:'',parleur:'narrateur'}]},true);
+  ouvrirEditeur_({id:nouvelId_('histoire'),titre:'',boss:null,actif:true,voix:[],etapes:[etapeVide_('')]},true);
 }
 
 function ouvrirEditeur_(h,estNouvelle){
   installerStyle_();
   edition=copie_(h);
+  initialiserLignes_(null);
+  reduit=false;
   editionEstNouvelle=Boolean(estNouvelle);
   var vieux=document.getElementById(EDITEUR_ID);
   if(vieux&&vieux.parentNode)vieux.parentNode.removeChild(vieux);
@@ -347,6 +399,7 @@ function fermerEditeur_(){
   var el=document.getElementById(EDITEUR_ID);
   if(el&&el.parentNode)el.parentNode.removeChild(el);
   edition=null;
+  reduit=false;
 }
 
 function optionsBoss_(){
@@ -358,28 +411,52 @@ function optionsBoss_(){
   return html;
 }
 
+function parleurOptions_(courant){
+  return parleurs_().map(function(p){return '<option value="'+p[0]+'"'+(parleurUi_(courant)===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('');
+}
+
+function ligneHtml_(e,i,k){
+  var l=e.lignes[k];
+  var blocs=blocsDeLigne_(l);
+  var voix=edition.voix||[];
+  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
+  var badge=!blocs.length?'':(prets>=blocs.length?'<span class="soreal-idle-adm-badge-v1 ok">🎙 prête</span>':'<span class="soreal-idle-adm-badge-v1 non">🎙 '+prets+'/'+blocs.length+'</span>');
+  var cle=i+'-'+k;
+  return '<div class="adm-ligne-v1" data-adm-ligne="'+cle+'">'+
+    '<div class="adm-ligne-tete-v1"><span class="adm-ligne-n-v1">'+(k+1)+'</span>'+
+      '<select data-adm-lparleur="'+cle+'" title="Le personnage qui dit cette ligne">'+parleurOptions_(l.parleur)+'</select>'+badge+
+      '<span style="flex:1"></span>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-l="ecouter" data-i="'+i+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-l="generer" data-i="'+i+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de CETTE ligne seulement, autant de fois que tu veux">🎙 Générer cette ligne</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-l="suppr" data-i="'+i+'" data-k="'+k+'" title="Supprimer cette ligne">🗑</button>'+
+    '</div>'+
+    '<textarea data-adm-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
+    (blocs.length?'<div class="adm-fichiers-v1" data-adm-fv="'+cle+'"><div class="adm-fichiers-titre-v1">Fichiers de voix de cette ligne <span>(télécharger, retoucher, remplacer)</span></div>'+fichiersVoixHtml_(blocs,voix)+'</div>':'')+
+  '</div>';
+}
+
 function etapeHtml_(e,i){
   var url=urlImage_(edition.id,e.image);
   var s=statutVoixEtape_(e,edition.voix||[]);
-  var voix=s.total===0?'':(s.prets>=s.total?'<span class="soreal-idle-adm-badge-v1 ok">🎙 voix prête</span>':'<span class="soreal-idle-adm-badge-v1 non">🎙 '+s.prets+'/'+s.total+'</span>');
+  var voix=s.total===0?'':(s.prets>=s.total?'<span class="soreal-idle-adm-badge-v1 ok">🎙 voix prêtes</span>':'<span class="soreal-idle-adm-badge-v1 non">🎙 '+s.prets+'/'+s.total+'</span>');
   return '<div class="adm-etape-v1" data-adm-etape="'+i+'">'+
     '<div class="adm-etape-tete-v1"><b>Étape '+(i+1)+'</b>'+voix+
       '<span style="flex:1"></span>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-e="ecouter" data-i="'+i+'" title="Écouter uniquement cette étape">▶ Écouter</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="generer" data-i="'+i+'" title="Générer (ou régénérer) la voix de cette étape seulement">🎙 Générer la voix</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="ecouter" data-i="'+i+'" title="Écouter toute l’étape (toutes les lignes, l’une après l’autre)">▶ Toute l’étape</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="generer" data-i="'+i+'" title="Générer (ou régénérer) toutes les lignes de cette étape">🎙 Toute l’étape</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="haut" data-i="'+i+'"'+(i===0?' disabled':'')+'>⬆</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="bas" data-i="'+i+'"'+(i===edition.etapes.length-1?' disabled':'')+'>⬇</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'">🗑</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'" title="Supprimer toute l’étape">🗑</button>'+
     '</div>'+
     '<div class="adm-etape-corps-v1">'+
-      (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
-      '<div style="flex:1;min-width:0">'+
-        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer l’image':'Choisir une image')+'</button>'+
-        '<label>Voix au début de l’étape</label><select data-adm-parleur="'+i+'">'+parleurs_().map(function(p){return '<option value="'+p[0]+'"'+(parleurCanon_(e.parleur||'narrateur')===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>'+
-        '<label>Texte lu à voix haute</label>'+
-        '<textarea data-adm-texte="'+i+'" placeholder="Colle ici le texte de cette image…">'+esc_(e.texte)+'</textarea>'+
-        (blocsDeEtape_(e).length?'<label>Fichiers de voix de cette étape <span style="text-transform:none;letter-spacing:0;font-weight:400">(télécharger, retoucher, remplacer)</span></label><div data-adm-fv="'+i+'">'+fichiersVoixHtml_(blocsDeEtape_(e),edition.voix||[])+'</div>':'')+
-        '<div class="soreal-idle-adm-meta-v1" style="margin-top:4px">Astuce : écris <b>(femme)</b>, <b>(homme)</b>'+voixNommees_().map(function(v){return ', <b>('+esc_(v.id)+')</b>';}).join('')+' dans le texte pour changer de voix à cet endroit. Les balises ne s’affichent pas à l’écran.</div>'+
+      '<div class="adm-image-v1">'+
+        (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer':'Choisir')+'</button>'+
+      '</div>'+
+      '<div class="adm-lignes-v1">'+
+        e.lignes.map(function(l,k){return ligneHtml_(e,i,k);}).join('')+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="ligne+" data-i="'+i+'">＋ Ajouter une ligne</button>'+
+        '<div class="soreal-idle-adm-meta-v1" style="margin-top:6px">Une ligne = un personnage qui parle. Pour une seule voix, garde une seule ligne ; les balises <b>(femme)</b>, <b>(homme)</b>… écrites dans un texte marchent toujours et sont aussi découpées en lignes à la réouverture.</div>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -395,11 +472,12 @@ function dessinerEditeur_(){
   racine.innerHTML=
     '<div class="adm-page">'+
       '<div style="display:flex;align-items:center;gap:10px"><h2 style="flex:1">'+(editionEstNouvelle?'Nouvelle histoire':'Modifier l’histoire')+'</h2>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="reduire" title="Réduire en petit menu flottant : tu peux continuer à jouer pendant que les voix se génèrent">➖ Réduire</button>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="fermer">✕ Fermer</button></div>'+
       '<label>Titre (visible seulement ici)</label><input type="text" data-adm-champ="titre" value="'+esc_(edition.titre)+'" maxlength="80">'+
       '<label>Se déclenche à la mort du boss (Fight Boss)</label><select data-adm-champ="boss">'+optionsBoss_()+'</select>'+
       '<label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:15px"><input type="checkbox" data-adm-champ="actif"'+(edition.actif?' checked':'')+'> Histoire active</label>'+
-      '<h3 style="margin:18px 0 0">Étapes <span style="font-weight:400;font-size:15px;color:#a9b6d8">(une image + un texte chacune)</span></h3>'+
+      '<h3 style="margin:18px 0 0">Étapes <span style="font-weight:400;font-size:15px;color:#a9b6d8">(une image et une ou plusieurs lignes, une par personnage)</span></h3>'+
       '<div id="sorealIdleAdminEtapesV1">'+etapesHtml_()+'</div>'+
       '<div class="soreal-idle-adm-actions-v1"><button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="ajouter">＋ Ajouter une étape</button>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="images">🖼 Ajouter plusieurs images d’un coup</button></div>'+
@@ -415,7 +493,16 @@ function dessinerEditeur_(){
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
       '<label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" id="sorealIdleAdminToutesV1"> tout régénérer</label>'+
+    '</div>'+
+    '<div class="adm-mini-v1" id="sorealIdleAdminMiniV1">'+
+      '<div class="adm-mini-titre-v1">🎙 Voix · <span id="sorealIdleAdminMiniTitreV1"></span></div>'+
+      '<div class="adm-mini-etat-v1" id="sorealIdleAdminMiniEtatV1"></div>'+
+      '<div class="adm-mini-actions-v1">'+
+        '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-g="arreter-gen" id="sorealIdleAdminMiniStopV1">⏹ Arrêter</button>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-g="agrandir">⤢ Rouvrir</button>'+
+      '</div>'+
     '</div>';
+  racine.classList.toggle('adm-reduit',reduit);
   afficherEtat_();
 }
 
@@ -426,11 +513,23 @@ function rafraichirEtapes_(){
 
 function afficherEtat_(message,erreur){
   var el=document.getElementById('sorealIdleAdminEtatV1');
-  if(!el)return;
   if(message!==undefined)etat.message=message?{texte:message,erreur:Boolean(erreur)}:null;
   var m=etat.message;
-  el.innerHTML=(m?'<div class="'+(m.erreur?'adm-erreur-v1':'')+'">'+esc_(m.texte)+'</div>':'')+
-    '<div>'+esc_(generation.enCours?generation.texte:studio.texte)+'</div>';
+  if(el){
+    el.innerHTML=(m?'<div class="'+(m.erreur?'adm-erreur-v1':'')+'">'+esc_(m.texte)+'</div>':'')+
+      '<div>'+esc_(generation.enCours?generation.texte:studio.texte)+'</div>';
+  }
+  /* Petit menu flottant : la même information, en plus court. */
+  var mini=document.getElementById('sorealIdleAdminMiniEtatV1');
+  if(mini){
+    var texte=generation.enCours?generation.texte:(m?m.texte:studio.texte);
+    mini.textContent=texte;
+    mini.className='adm-mini-etat-v1'+(!generation.enCours&&m&&m.erreur?' adm-erreur-v1':'');
+    var titre=document.getElementById('sorealIdleAdminMiniTitreV1');
+    if(titre&&edition)titre.textContent=String(edition.titre||'histoire');
+    var stop=document.getElementById('sorealIdleAdminMiniStopV1');
+    if(stop)stop.style.display=generation.enCours?'':'none';
+  }
 }
 
 /* Lit les champs saisis dans l'éditeur vers la copie de travail (avant toute action). */
@@ -443,14 +542,18 @@ function lireChamps_(){
   if(t)edition.titre=t.value;
   if(b)edition.boss=b.value===''?null:Math.floor(Number(b.value));
   if(a)edition.actif=Boolean(a.checked);
-  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-texte]'),function(ta){
-    var i=Number(ta.getAttribute('data-adm-texte'));
-    if(edition.etapes[i])edition.etapes[i].texte=ta.value;
+  /* Lignes : le texte et le personnage de chacune, puis le texte de chaque étape est recomposé (voix de départ + balises). */
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-ltexte]'),function(ta){
+    var c=String(ta.getAttribute('data-adm-ltexte')).split('-');
+    var l=edition.etapes[Number(c[0])]&&edition.etapes[Number(c[0])].lignes&&edition.etapes[Number(c[0])].lignes[Number(c[1])];
+    if(l)l.texte=ta.value;
   });
-  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-parleur]'),function(sel){
-    var i=Number(sel.getAttribute('data-adm-parleur'));
-    if(edition.etapes[i])edition.etapes[i].parleur=sel.value;
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-lparleur]'),function(sel){
+    var c=String(sel.getAttribute('data-adm-lparleur')).split('-');
+    var l=edition.etapes[Number(c[0])]&&edition.etapes[Number(c[0])].lignes&&edition.etapes[Number(c[0])].lignes[Number(c[1])];
+    if(l)l.parleur=sel.value;
   });
+  edition.etapes.forEach(function(e){if(e.lignes)composerEtape_(e);});
 }
 
 function deplacer_(i,delta){
@@ -510,7 +613,7 @@ function ajouterImages_(){
       suite=suite.then(function(){
         afficherEtat_('Téléversement '+(faits+1)+'/'+fichiers.length+' : '+f.name+'…');
         return televerserImage_(f).then(function(nom){
-          edition.etapes.push({texte:'',image:nom,parleur:'narrateur'});
+          edition.etapes.push(etapeVide_(nom));
           faits+=1;
           rafraichirEtapes_();
         });
@@ -540,7 +643,10 @@ function enregistrer_(){
   /* Sans le module de narration on ne peut pas recalculer les empreintes : on ne touche à rien. */
   if(tts_()&&typeof tts_().planNarration==='function')edition.voix=(edition.voix||[]).filter(function(h){return actuelles[h];});
   afficherEtat_('Enregistrement…');
-  return appel_('enregistrerHistoireAdminSorealIdle',[edition]).then(function(res){
+  var envoi=copie_(edition);
+  envoi.etapes.forEach(function(e){delete e.lignes;});
+  var lignesAvant=edition.etapes.map(function(e){return e.lignes;});
+  return appel_('enregistrerHistoireAdminSorealIdle',[envoi]).then(function(res){
     if(!res||res.ok===false){afficherEtat_((res&&res.message)||'Enregistrement refusé.',true);return false;}
     var h=res.histoire;
     var idx=-1;
@@ -548,6 +654,7 @@ function enregistrer_(){
     if(idx>=0)etat.histoires[idx]=h;else etat.histoires.push(h);
     etat.histoires.sort(function(a,b){return String(a.id).localeCompare(String(b.id));});
     edition=copie_(h);
+    initialiserLignes_(lignesAvant);
     editionEstNouvelle=false;
     rafraichirListe_();
     afficherEtat_('✔ Enregistrée.');
@@ -752,11 +859,14 @@ function libelleBoutonsGenerer_(){
   var b=document.getElementById('sorealIdleAdminBtnVoixV1');
   if(b)b.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer les voix';
   var r=document.getElementById(EDITEUR_ID);
-  if(r)Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer la voix';});
+  if(r){
+    Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Toute l’étape';});
+    Array.prototype.forEach.call(r.querySelectorAll('[data-adm-l="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer cette ligne';});
+  }
 }
 
 /* Génère (studio) puis téléverse (R2) les blocs donnés, enregistre l'histoire ; commun au bouton global et au bouton d'une étape. */
-function lancerGeneration_(aFaire){
+function lancerGeneration_(aFaire,libelle){
   generation={enCours:true,annule:false,texte:''};
   libelleBoutonsGenerer_();
   var fait=0;
@@ -765,7 +875,7 @@ function lancerGeneration_(aFaire){
   aFaire.forEach(function(b){
     suite=suite.then(function(){
       if(generation.annule)throw new Error('__annule__');
-      generation.texte='🎙 Génération des voix : '+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
+      generation.texte='🎙 '+(libelle?libelle+' : ':'Génération des voix : ')+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_();
       return synthetiser_(b.texte,b.parleur).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
         if(voix.indexOf(b.hash)===-1)voix.push(b.hash);
@@ -780,6 +890,7 @@ function lancerGeneration_(aFaire){
     return enregistrer_();
   }).then(function(){
     afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Tester » ou « Écouter » pour entendre.');
+    sonVoixPrete_();
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);
     if(msg==='__stop__')return;
@@ -790,6 +901,11 @@ function lancerGeneration_(aFaire){
     libelleBoutonsGenerer_();
     afficherEtat_();
   });
+}
+
+/* Petit son quand une génération se termine (Norman, 2026-10-04) : utile quand le menu est réduit et qu'on joue pendant ce temps. */
+function sonVoixPrete_(){
+  try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.play==='function')a.play('voiceDone');}catch(_e){}
 }
 
 function genererVoix_(){
@@ -817,7 +933,21 @@ function genererEtape_(i){
   blocsDeEtape_(etape||{}).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});
   if(!blocs.length){afficherEtat_('Étape '+(i+1)+' : pas de texte à lire.',true);return;}
   afficherEtat_('Étape '+(i+1)+' : génération de '+blocs.length+' bloc'+(blocs.length>1?'s':'')+'…');
-  lancerGeneration_(blocs);
+  lancerGeneration_(blocs,'Étape '+(i+1));
+}
+
+/* Une seule ligne (un seul personnage) : toujours régénérée, autant de fois qu'on veut, sans toucher au reste des dialogues. */
+function genererLigne_(i,k){
+  if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+  lireChamps_();
+  var erreur=valider_();
+  if(erreur){afficherEtat_(erreur,true);return;}
+  var l=edition.etapes[i]&&edition.etapes[i].lignes&&edition.etapes[i].lignes[k];
+  var vus={},blocs=[];
+  blocsDeLigne_(l).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});
+  if(!blocs.length){afficherEtat_('Étape '+(i+1)+', ligne '+(k+1)+' : pas de texte à lire.',true);return;}
+  afficherEtat_('Étape '+(i+1)+', ligne '+(k+1)+' : génération…');
+  lancerGeneration_(blocs,'Étape '+(i+1)+', ligne '+(k+1));
 }
 
 /* ---------- corrections de prononciation (écran de l'éditeur) ---------- */
@@ -881,7 +1011,7 @@ function ajouterPrononciation_(){
 
 /* ---------- écoute d'UNE étape ---------- */
 
-var ecoute={index:-1};
+var ecoute={index:-1,cle:''};
 
 function boutonEcoute_(i){
   var r=document.getElementById(EDITEUR_ID);
@@ -891,11 +1021,12 @@ function boutonEcoute_(i){
 function remettreBoutonsEcoute_(){
   var r=document.getElementById(EDITEUR_ID);
   if(!r)return;
-  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="ecouter"]'),function(b){b.textContent='▶ Écouter';});
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="ecouter"]'),function(b){b.textContent='▶ Toute l’étape';});
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-l="ecouter"]'),function(b){b.textContent='▶ Écouter';});
 }
 
 function arreterEcoute_(){
-  ecoute.index=-1;
+  ecoute.index=-1;ecoute.cle='';
   try{var t=tts_();if(t&&typeof t.stop==='function')t.stop();}catch(_e){}
   remettreBoutonsEcoute_();
 }
@@ -933,6 +1064,30 @@ function ecouterEtape_(i){
   lire(0);
 }
 
+/* Joue uniquement la ligne k de l'étape i, avec la voix générée si elle existe (sinon la voix de secours du jeu, signalée). */
+function ecouterLigne_(i,k){
+  var t=tts_();
+  if(!t||typeof t.readText!=='function'){afficherEtat_('Lecture vocale indisponible sur cet appareil.',true);return;}
+  var cle=i+'-'+k;
+  if(ecoute.cle===cle){arreterEcoute_();return;}
+  arreterEcoute_();
+  lireChamps_();
+  var l=edition.etapes[i]&&edition.etapes[i].lignes&&edition.etapes[i].lignes[k];
+  var texte=sansEspaces_(l&&l.texte);
+  if(!texte){afficherEtat_('Étape '+(i+1)+', ligne '+(k+1)+' : pas de texte à écouter.',true);return;}
+  try{if(typeof t.enregistrerVoixDynamiques==='function')t.enregistrerVoixDynamiques(edition.voix||[]);}catch(_e){}
+  var blocs=blocsDeLigne_(l);
+  var pret=blocs.length&&blocs.every(function(b){return (edition.voix||[]).indexOf(b.hash)!==-1;});
+  afficherEtat_(pret?'':'Ligne '+(k+1)+' : voix du studio pas encore générée, lecture avec la voix de secours du jeu.');
+  ecoute.cle=cle;
+  var btn=document.querySelector('#'+EDITEUR_ID+' [data-adm-l="ecouter"][data-i="'+i+'"][data-k="'+k+'"]');
+  if(btn)btn.textContent='⏹ Arrêter';
+  var fini=function(){if(ecoute.cle===cle){ecoute.cle='';remettreBoutonsEcoute_();}};
+  var demarre=false;
+  try{demarre=t.readText(texte,undefined,fini);}catch(_e){demarre=false;}
+  if(!demarre)fini();
+}
+
 /* ---------- événements de l'éditeur ---------- */
 
 document.addEventListener('click',function(ev){
@@ -958,7 +1113,10 @@ document.addEventListener('click',function(ev){
   if(g){
     var act=g.getAttribute('data-adm-g');
     if(act==='fermer'){fermerEditeur_();return;}
-    if(act==='ajouter'){lireChamps_();edition.etapes.push({texte:'',image:'',parleur:'narrateur'});rafraichirEtapes_();return;}
+    if(act==='reduire'){lireChamps_();reduit=true;racine.classList.add('adm-reduit');afficherEtat_();return;}
+    if(act==='agrandir'){reduit=false;racine.classList.remove('adm-reduit');return;}
+    if(act==='arreter-gen'){if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');}return;}
+    if(act==='ajouter'){lireChamps_();edition.etapes.push(etapeVide_(''));rafraichirEtapes_();return;}
     if(act==='images'){ajouterImages_();return;}
     if(act==='enregistrer'){enregistrer_();return;}
     if(act==='tester'){lireChamps_();var err=valider_();if(err){afficherEtat_(err,true);return;}jouer_(edition);return;}
@@ -966,6 +1124,23 @@ document.addEventListener('click',function(ev){
     if(act==='studio-lancer'||act==='studio-arreter'){pilotageStudio_(act==='studio-lancer');return;}
     if(act==='pron-ajouter'){ajouterPrononciation_();return;}
     if(act==='pron-tester'){essayerPrononciation_((document.getElementById('sorealIdleAdminPronDitV1')||{}).value);return;}
+  }
+  var lg=ev.target.closest('[data-adm-l]');
+  if(lg){
+    var iL=Number(lg.getAttribute('data-i')),kL=Number(lg.getAttribute('data-k'));
+    var aL=lg.getAttribute('data-adm-l');
+    lireChamps_();
+    if(aL==='ecouter'){ecouterLigne_(iL,kL);return;}
+    if(aL==='generer'){genererLigne_(iL,kL);return;}
+    if(aL==='suppr'){
+      var lignesE=edition.etapes[iL]&&edition.etapes[iL].lignes;
+      if(!lignesE)return;
+      /* Une étape garde au moins une ligne : supprimer la dernière la vide seulement. */
+      if(lignesE.length<=1){lignesE[0].texte='';}else{lignesE.splice(kL,1);}
+      composerEtape_(edition.etapes[iL]);
+      rafraichirEtapes_();
+      return;
+    }
   }
   var pr=ev.target.closest('[data-adm-p]');
   if(pr){
@@ -980,6 +1155,11 @@ document.addEventListener('click',function(ev){
     lireChamps_();
     if(a==='ecouter'){ecouterEtape_(i);return;}
     if(a==='generer'){genererEtape_(i);return;}
+    if(a==='ligne+'){
+      var lignesN=edition.etapes[i]&&edition.etapes[i].lignes;
+      if(lignesN){lignesN.push({parleur:lignesN.length?lignesN[lignesN.length-1].parleur:'narrateur',texte:''});rafraichirEtapes_();}
+      return;
+    }
     arreterEcoute_();
     if(a==='haut')deplacer_(i,-1);
     else if(a==='bas')deplacer_(i,1);

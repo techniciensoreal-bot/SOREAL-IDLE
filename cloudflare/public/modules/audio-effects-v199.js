@@ -1856,6 +1856,18 @@
     return true;
   }
 
+  /*
+   * Petit son quand la génération des voix est terminée (Norman, 2026-10-04) : deux notes claires qui montent (do-sol aigus), 0,55 s. Joué par le menu Admin des voix, même réduit en petit menu flottant.
+   */
+  function voixPreteConstruire_(c){
+    tonal_(c,{type:"sine",from:1046.5,to:1046.5,duration:.28,volume:.07});
+    tonal_(c,{type:"triangle",from:2093,to:2093,duration:.2,volume:.018});
+    tonal_(c,{type:"sine",from:1568,to:1568,duration:.36,volume:.07,delay:.16});
+    tonal_(c,{type:"triangle",from:3136,to:3136,duration:.24,volume:.018,delay:.16});
+  }
+  DEFINITIONS.voiceDone={group:"admin-voice",priority:40,maxAgeMs:1500};
+  JOUEURS.voiceDone=function(){return jouerWebAudio_(560,voixPreteConstruire_);};
+
   function demander_(name){
     name=String(name||"");
     if(SONS_FOULE_V1[name])return jouerFoule_(name);
@@ -1924,6 +1936,7 @@
       shopStepsVariantes:VARIANTES_PAS_V1.map(function(v){return{nom:v.nom,tempo:v.tempo,construire:function(c,nb,tempo,alea){pasVarianteConstruire_(c,v,nb,tempo,alea);}};}),
       sortsBlood:Object.keys(SONS_SORT_BLOOD_V1).map(function(id){return{nom:id,duree:SONS_SORT_BLOOD_V1[id].duree,construire:SONS_SORT_BLOOD_V1[id].construire};}),
       menus:Object.keys(SONS_MENU_V1).map(function(id){return{nom:id,duree:SONS_MENU_V1[id].duree,construire:SONS_MENU_V1[id].construire};}),
+      voiceDone:{duree:560,construire:voixPreteConstruire_},
       foule:Object.keys(SONS_FOULE_V1).map(function(id){return{nom:id,duree:SONS_FOULE_V1[id].duree,construire:SONS_FOULE_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_}
@@ -1937,6 +1950,7 @@
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
     flee:function(){return demander_("flee");},
+    voiceDone:function(){return demander_("voiceDone");},
     applause:function(){return demander_("applause");},
     laugh:function(){return demander_("laugh");},
     btPlus:function(){return demander_("btPlus");},

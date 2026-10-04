@@ -583,6 +583,7 @@ function generer_(){
     return enregistrer_();
   }).then(function(ok){
     rafraichirFichiersVoix_();
+    if(ok)try{var son=window.__SOREAL_IDLE_AUDIO_V199__;if(son&&typeof son.play==='function')son.play('voiceDone');}catch(_e){}
     if(ok)afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Écouter » pour entendre. '+statutLigne_());
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);

@@ -84,7 +84,7 @@ const m4a = (taille = 40) => { const b = new Uint8Array(taille); b.set([0, 0, 0,
 
 // 5. Câblage : les deux éditeurs (histoires, textes de boss et popups) ont la liste et les clics ; un fichier remplacé est déclaré dans le texte (le nettoyage le garde) ; les empreintes périmées sont retirées
 //    à l'enregistrement (le nettoyage supprime leurs fichiers).
-assert.ok(source.includes("fichiersVoixHtml_(blocsDeEtape_(e),edition.voix||[])") && source.includes("clicFichierVoix_(fv,{"), "éditeur d'histoires");
+assert.ok(source.includes("fichiersVoixHtml_(blocs,voix)") && source.includes("clicFichierVoix_(fv,{"), "éditeur d'histoires");
 assert.ok(textes.includes("fichiersVoixEditeurHtml_()") && textes.includes("o.clicFichierVoix(fv,{"), "éditeur des textes");
 assert.ok(textes.includes("if(edition.voix.indexOf(hash)===-1)edition.voix.push(hash);") && textes.includes("return enregistrer_();"), "le fichier remplacé est déclaré dans le texte");
 assert.ok(textes.includes("edition.voix=edition.voix.filter(function(h){return actuelles[h];});"), "empreintes périmées retirées à l'enregistrement");
