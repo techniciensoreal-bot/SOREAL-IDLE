@@ -17378,6 +17378,10 @@ let idleDialogueTimerV76=null;
         const api=window.SorealTitanComportementsV1;
         return api&&fight&&fight.titanId&&api.possede(fight.titanId)?api:null;
       }
+      function titanMultDegatsJoueurIdleV1_(fight,maintenant){
+        const api=window.SorealTitanComportementsV1;
+        return api&&idleTitanEtatV1&&fight&&fight.titanId?api.multDegatsJoueur(fight.titanId,idleTitanEtatV1,maintenant):1;
+      }
       function titanJoueurParalyseIdleV1_(maintenant){
         const api=window.SorealTitanComportementsV1;
         return Boolean(api&&idleTitanEtatV1&&api.joueurParalyse(idleTitanEtatV1,maintenant));
@@ -17795,7 +17799,7 @@ let idleDialogueTimerV76=null;
           degatsJoueurAdventureIdleV2_(
             power,
             toughness,
-            multiplier,
+            multiplier*titanMultDegatsJoueurIdleV1_(fight,maintenant),
             facteurAleatoireDegatsAdventureIdleV2_()
           )
         );
@@ -18366,7 +18370,7 @@ let idleDialogueTimerV76=null;
                 Math.max(0,idleNombre_(a&&a.stats&&a.stats.power))*
                   multiplicateurPowerManuelAdventureIdleV3_(momentEvenement,a),
                 fight.mobToughness,
-                multiplicateurIdleAttackAdventureIdleV2_(a),
+                multiplicateurIdleAttackAdventureIdleV2_(a)*titanMultDegatsJoueurIdleV1_(fight,momentEvenement),
                 facteurAleatoireDegatsAdventureIdleV2_()
               )
             );
@@ -18411,6 +18415,7 @@ let idleDialogueTimerV76=null;
               degats=Math.min(avant,Math.round(degats*att.multDegats));
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
             }
+            if(att.spores)ajouterLogAventureIdleV1_('enemy','🍄 « Tes bras deviennent soudain lourds » : tes dégâts tombent aux 2/3 pendant 15 s.');
             if(att.paralyse)ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 4 s !');
           }
           if(idleAdventureManualStateV3.blockUntil>momentEvenement){
