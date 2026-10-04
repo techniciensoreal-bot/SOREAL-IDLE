@@ -11,8 +11,26 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.0',
+    courante:'2.1',
     versions:[
+      {
+        version:'2.1',
+        nom:'Des combats qu’on voit, des barres qui montent en puissance',
+        date:'2026-10-04',
+        points:[
+          'Les combats se voient enfin : chaque attaque a son effet sur l’image de l’ennemi (trait, explosion, lance, météorite), chaque coup reçu a le sien sur ta barre de vie (flash, bouclier, paralysie, spores) et des nombres flottent à chaque impact. Un soin fait monter des croix vertes tant que ta vie remonte, et quand tu saignes ta barre vire au rouge sang, avec des gouttes qui coulent de plus en plus vite.',
+          'Les ennemis les plus redoutables n’ont plus seulement des chiffres : leurs capacités agissent pour de bon en combat. Paralysie, saignement qui ronge ta régénération, nuages de spores, nuées de sauterelles, battement de chemise qui désactive tes capacités une à une, invincibilité et puissance qui double à chaque tour… Les premiers sont faits, les suivants arrivent. Leur fiche dit exactement ce qui est simulé.',
+          'Les barres montent en puissance : dans les menus où elles se débloquent les unes après les autres, chaque barre est plus bad ass que la précédente, avec les mêmes couleurs mais de plus en plus de foncé, de lumière et de mouvement. La première reste sobre ; la dernière est noire comme l’obsidienne, avec des coins cernés de lumière et un reflet qui la traverse.',
+          'Un menu est entièrement relooké : une machine de laiton qui fabrique de l’Or, avec le gain d’Or par seconde en très grand, la barre d’Or qui bat à chaque remplissage et des pièces qui tombent. Et à la fin d’une barre, le niveau suivant arrive tout de suite, sans attendre une action.',
+          'Chaque sort de sang a son rituel sonore, de plus en plus intense : un cœur qui s’emballe pour le premier, puis un glas, un râle, un chœur dissonant, et pour le dernier un vrai rituel qui dure presque cinq secondes.',
+          'La fiche d’objet est la même partout : le Coffre (au clic, ou en restant 0,5 seconde dessus) et la Collection ouvrent la fiche de statistiques de l’inventaire, et la reprise d’un objet se fait depuis cette fiche.',
+          'Collection : un V vert apparaît sur les boosts montés au niveau 100.',
+          'Chaque article des boutiques a maintenant son image, la même que dans le jeu d’origine.',
+          'Le bandeau « En direct » annonce aussi quand un joueur prend la fuite devant un boss ou perd contre lui (le nom du boss n’est donné qu’à ceux qui l’ont déjà atteint).',
+          'Sur PC, le menu de gauche tient sur deux colonnes sans défilement et les images sont moins démesurées. Chaque menu a sa propre couleur, et la boutique magique passe au mauve.',
+          'Les boutons « Plafond » des barres d’allocation s’appellent « Max ».',
+        ]
+      },
       {
         version:'2.0',
         nom:'Des chronos exacts, des combats plus vivants',
