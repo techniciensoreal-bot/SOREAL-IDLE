@@ -52,5 +52,5 @@ function charger(etat, dom) {
   charger(etat, dom).maj();
   assert.ok(cellules["NUMBER au Rebirth"].classes.has("baisse") && !cellules["NUMBER au Rebirth"].classes.has("hausse"));
 }
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/rebirth-live-v1.js?v=3"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/rebirth-live-v1.js?v=4"));
 console.log("idle-rebirth-live-v1: OK");

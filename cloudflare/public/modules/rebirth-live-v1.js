@@ -41,6 +41,11 @@ function valeurDe(bloc,libelle){
   return null;
 }
 
+/* Audit de Renaissance (Norman, 2026-10-05) : un texte n'est réécrit que s'il change (chaque réécriture remplace le nœud de texte et relance les observateurs de la page). */
+function ecrire(el,texte){
+  if(el&&el.textContent!==texte)el.textContent=texte;
+}
+
 function maj(){
   var bloc=document.getElementById('sorealIdleBlocRenaissanceV27');
   if(!bloc)return;
@@ -54,17 +59,17 @@ function maj(){
   var nouveau=facteurTemps(secondes);
   var actuel=Math.max(1,nb(meta.number||(etat.renaissance&&etat.renaissance.number)||1));
   var prochain=Math.max(1,nb(meta.nextNumber||(etat.renaissance&&etat.renaissance.nextNumber)||actuel)*nouveau/ancien);
-  var a=valeurDe(bloc,'Rebirth Time Factor');if(a)a.textContent='×'+grand(nouveau,4);
+  var a=valeurDe(bloc,'Rebirth Time Factor');ecrire(a,'×'+grand(nouveau,4));
   var b=valeurDe(bloc,'NUMBER au Rebirth');
   if(b){
-    b.textContent=grand(prochain);
+    ecrire(b,grand(prochain));
     /* Norman (2026-10-01) : vert quand le NUMBER au Rebirth dépasse le NUMBER actuel, rouge quand il est plus petit. */
     b.classList.toggle('hausse',prochain>actuel*1.0000001);
     b.classList.toggle('baisse',prochain<actuel/1.0000001);
   }
-  var c=valeurDe(bloc,'Variation');if(c)c.textContent='×'+((prochain/actuel)>=1000?grand(prochain/actuel,3):(prochain/actuel).toFixed(3));
+  var c=valeurDe(bloc,'Variation');ecrire(c,'×'+((prochain/actuel)>=1000?grand(prochain/actuel,3):(prochain/actuel).toFixed(3)));
 }
 
 setInterval(maj,1000);
-window.__SOREAL_IDLE_REBIRTH_LIVE_V1__={facteurTemps:facteurTemps,maj:maj};
+window.__SOREAL_IDLE_REBIRTH_LIVE_V1__={facteurTemps:facteurTemps,maj:maj,ecrire:ecrire};
 })();
