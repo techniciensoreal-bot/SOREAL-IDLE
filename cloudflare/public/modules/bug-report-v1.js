@@ -135,6 +135,7 @@ function html(estAdmin){
     '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Quelque chose ne fonctionne pas comme prévu ? Écris-le nous : ton message est envoyé à Norman.</div>'+
     '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__bugReportOuvrirV1__()">🐞 Signaler un bug</button>'+
     (estAdmin?' <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__bugReportVoirV1__()">📥 Signalements reçus</button>':'')+
+    (estAdmin?' <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__diagFluiditeOuvrirV1__&&window.__diagFluiditeOuvrirV1__()">🩺 Journal de fluidité</button>':'')+
   '</div>';
 }
 
