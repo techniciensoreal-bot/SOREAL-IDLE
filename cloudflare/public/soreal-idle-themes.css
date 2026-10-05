@@ -1439,7 +1439,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.ali
   animation:sorealAlTourneV1 1.6s linear infinite;filter:drop-shadow(0 0 5px var(--nav-color,#7dd3fc));
 }
 /* Menus qui ont leur propre effet : le tour de lumière est remplacé. */
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1:is([data-effet-v1="entrainement"],[data-effet-v1="avance"],[data-effet-v1="machine"],[data-effet-v1="sang"],[data-effet-v1="wandoos"],[data-effet-v1="ngu"],[data-effet-v1="yggdrasil"],[data-effet-v1="diggers"],[data-effet-v1="beards"],[data-effet-v1="hacks"],[data-effet-v1="wishes"])::before{display:none}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1:is([data-effet-v1="entrainement"],[data-effet-v1="avance"],[data-effet-v1="machine"],[data-effet-v1="sang"],[data-effet-v1="wandoos"],[data-effet-v1="ngu"],[data-effet-v1="yggdrasil"],[data-effet-v1="diggers"],[data-effet-v1="beards"],[data-effet-v1="hacks"],[data-effet-v1="wishes"],[data-effet-v1="tower"])::before{display:none}
 
 /* Entraînement : des coups (le poing part vers l'avant, un éclat à l'impact). */
 @keyframes sorealAlCoupV1{0%,60%,100%{transform:translateX(0) scale(1)}70%{transform:translateX(5px) scale(1.18)}80%{transform:translateX(-1px) scale(.96)}}
@@ -1452,6 +1452,12 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="ent
 @keyframes sorealAlMonteV1{0%{opacity:0;transform:translateY(8px)}30%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="avance"] .soreal-idle-nav-emoji-v2{animation:sorealAlSouleveV1 1.4s ease-in-out infinite}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="avance"] .soreal-idle-nav-cadre-v2::after{content:"▲";position:absolute;left:50%;top:-2px;margin-left:-5px;font-size:11px;color:#fff;text-shadow:0 0 6px var(--nav-color);pointer-events:none;animation:sorealAlMonteV1 1.4s ease-out infinite}
+
+/* ITOPOD actif (Norman, 2026-10-05 : « l'icône du menu ITOPOD n'a pas d'animation quand il est actif ») : la tour grimpe (l'immeuble se dresse par à-coups, une flèche d'étage monte et des fenêtres s'allument). */
+@keyframes sorealAlEtageV1{0%,100%{transform:translateY(1px) scale(1)}35%{transform:translateY(-4px) scale(1.14)}55%{transform:translateY(-4px) scale(1.14)}}
+@keyframes sorealAlFenetresV1{0%,100%{filter:drop-shadow(0 0 1px #fff) brightness(1)}50%{filter:drop-shadow(0 0 3px #fde68a) brightness(1.35)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="tower"] .soreal-idle-nav-emoji-v2{animation:sorealAlEtageV1 1.2s ease-in-out infinite,sorealAlFenetresV1 .6s steps(2) infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="tower"] .soreal-idle-nav-cadre-v2::after{content:"⬆";position:absolute;left:50%;top:-2px;margin-left:-5px;font-size:11px;color:#fff;text-shadow:0 0 6px var(--nav-color);pointer-events:none;animation:sorealAlMonteV1 1.2s ease-out infinite}
 
 /* Time Machine : l'engrenage tourne et un reflet doré balaie la carte. */
 @keyframes sorealAlRefletV1{0%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(230%) skewX(-18deg)}}

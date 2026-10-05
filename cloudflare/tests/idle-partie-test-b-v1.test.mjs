@@ -70,6 +70,25 @@ assert.equal(r.applique.boss, 140);
 assert.equal(r.applique.or, 0);
 assert.equal(r.applique.energieCap, 1e12);
 
+// 4 bis. Partie B invisible (Norman, 2026-10-05 : « les joueurs ne doivent pas voir ce que tu fais ») : la session garde l'adresse RÉELLE pour la présence et « En direct », donc la partie B ne doit rien écrire.
+sql.exec("CREATE TABLE IF NOT EXISTS idle_presence(email TEXT PRIMARY KEY,nom TEXT,admin INTEGER,vu_le INTEGER,actif INTEGER,activite TEXT)");
+const nPresence = () => sql.exec("SELECT COUNT(*) AS n FROM idle_presence WHERE email=?", ADMIN)[0].n;
+const bat = appeler(norman, "battementSorealIdle", [{ actif: true, connecte: true, activite: { t: "libre" } }]);
+assert.equal(bat.ok, true);
+assert.deepEqual(bat.enLigne, [], "partie B : personne en ligne à montrer");
+assert.equal(nPresence(), 0, "partie B : aucune présence enregistrée sous l'adresse réelle");
+assert.ok(refuse(() => appeler(norman, "envoyerChatSorealIdle", ["bonjour"])), "partie B : pas de chat");
+// Nettoyage du fil : les annonces de l'adresse réelle depuis un instant donné sont effacées.
+appeler(norman, "definirPartieDevSorealIdle", ["a"]);
+appeler(norman, "battementSorealIdle", [{ actif: true, connecte: true, activite: { t: "libre" } }]);
+assert.equal(nPresence(), 1, "partie A : présence normale");
+sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", Date.now() - 1000, ADMIN, "Redrum", "boss", "{}");
+appeler(norman, "definirPartieDevSorealIdle", ["b"]);
+appeler(norman, "obtenirEtatSorealIdle");
+r = appeler(norman, "preparerPartieTestSorealIdle", [{ purgerFluxDepuis: Date.now() - 5000 }]);
+assert.equal(r.ok, true);
+assert.equal(sql.exec("SELECT COUNT(*) AS n FROM idle_flux WHERE email=?", ADMIN)[0].n, 0, "annonces de l'adresse réelle effacées depuis l'instant demandé");
+
 // 5. Contrat : l'opération existe côté serveur.
 assert.ok(JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8")).operations.includes("preparerPartieTestSorealIdle"));
 console.log("idle-partie-test-b-v1: OK");

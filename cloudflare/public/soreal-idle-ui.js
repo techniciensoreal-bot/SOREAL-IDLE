@@ -11470,7 +11470,7 @@
        * Autres états qui animent un menu (Norman, 2026-10-03) : Aventure quand on farme dans une zone (pas en zone sûre) ; Renaissance quand le prochain NUMBER dépasse celui du dernier Rebirth ; Défis quand un défi est
        * actif ; Titans quand un titan est prêt à être affronté ; Succès tant qu'il y en a de non vus ; Shop, Classement, Collection, Chat et Réglages tant qu'on les consulte.
        */
-      const IDLE_MENUS_ETATS_V1={aventure:1,renaissance:1,challenges:1,titans:1,succes:1,shop:1,classement:1,bestiaire:1,chat:1,parametres:1};
+      const IDLE_MENUS_ETATS_V1={aventure:1,renaissance:1,challenges:1,titans:1,succes:1,shop:1,classement:1,bestiaire:1,chat:1,parametres:1,tower:1};
       const IDLE_MENUS_CONSULTES_V1={shop:1,classement:1,bestiaire:1,chat:1,parametres:1};
       const CLE_SUCCES_VUS_V1='soreal_idle_succes_vus_v1';
       function succesVusIdleV1_(){
@@ -11533,6 +11533,12 @@
           });
         }
         if(id==='succes')return succesNonVusIdleV1_(j,idleMenuActifV28);
+        /* ITOPOD : animé tant que la tour tourne (système actif), comme les autres menus qui travaillent. */
+        if(id==='tower'){
+          const liste=j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+          const tour=liste.find(function(x){return x&&x.id==='tower';});
+          return Boolean(tour&&tour.state&&tour.state.active);
+        }
         return false;
       }
       const IDLE_MENUS_ALIMENTABLES_V1={entrainement:1,augmentations:1,avance:1,machine:1,sang:1,wandoos:1,ngu:1,yggdrasil:1,diggers:1,beards:1,hacks:1,wishes:1};
@@ -22205,9 +22211,14 @@ function pageAventureIdleV28_(j){
           '</div>';
         };
 
+        /* Rayon complet (Norman, 2026-10-05) : petit V vert quand tout ce que le rayon contient est acheté au maximum ; un nouvel article visible le fait disparaître. */
+        const rayonCompletAp=function(cle){
+          const liste=parCategorie[cle]||[];
+          return liste.length>0&&liste.every(function(item){return item.nextCost==null;});
+        };
         const onglets=visibles.map(function(cle){
           const actif=cle===onglet;
-          return '<button type="button" class="soreal-idle-exp-tab-v212'+(actif?' actif':'')+'" aria-pressed="'+actif+'" onclick="window.__ongletApShopIdleV1__(\''+cle+'\')">'+idleHtml_(IDLE_SELLOUT_SHOP_CATEGORIES_V1[cle])+(B&&B.rayonNonVu('ap',parRayonAp,cle)?B.point('Nouveaux achats dans ce rayon'):'')+'</button>';
+          return '<button type="button" class="soreal-idle-exp-tab-v212'+(actif?' actif':'')+'" aria-pressed="'+actif+'" onclick="window.__ongletApShopIdleV1__(\''+cle+'\')">'+idleHtml_(IDLE_SELLOUT_SHOP_CATEGORIES_V1[cle])+(B&&B.rayonNonVu('ap',parRayonAp,cle)?B.point('Nouveaux achats dans ce rayon'):'')+(rayonCompletAp(cle)?'<span class="soreal-idle-rayon-complet-v1" title="Tout est acheté dans ce rayon">✔</span>':'')+'</button>';
         }).join('');
 
         const api=window.__SOREAL_IDLE_META_V130__;

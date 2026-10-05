@@ -16777,6 +16777,12 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
 
     const o = options && typeof options === 'object' ? options : {};
     const borne = (v, min, max) => { const n = Number(v); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : null; };
+    /* Nettoyage du fil « En direct » : avant ce correctif, les essais en partie B s'enregistraient sous l'adresse réelle ; purgerFluxDepuis (ms) efface les annonces de ce compte depuis cet instant. */
+    const purge = borne(o.purgerFluxDepuis, 0, Date.now());
+    if (purge !== null && __idleSql) {
+      const reel = String(ADMIN_SOREAL_IDLE_EMAIL || '').toLowerCase();
+      __idleSql.exec('DELETE FROM idle_flux WHERE email=? AND at>=?', reel, purge);
+    }
     const boss = borne(o.boss, 0, 140);
     const or = borne(o.or, 0, 1e30);
     const cap = borne(o.energieCap, 1, 1e12);
@@ -16939,6 +16945,23 @@ function supprimerTexteAdminSorealIdle(sessionToken, cle) {
 function battementSorealIdle(sessionToken, info) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleSql) return { ok: true, enLigne: [], dernierChatId: 0 };
+  /*
+   * Partie B = partie d'ESSAI (Norman, 2026-10-05 : « les joueurs ne doivent pas voir ce que tu fais »). Seule la lecture de la ligne de jeu passe par l'adresse « partie B » (trouverLigneJoueurSorealIdle_) : pour la présence et
+   * « En direct », la session garde l'adresse RÉELLE du compte, donc la partie B se faisait passer pour la vraie partie (même clé : ses jalons alternaient avec ceux de la partie A et s'annonçaient à chaque battement). En partie B :
+   * aucune présence, aucun jalon, aucune connexion annoncée, aucun temps de jeu crédité ; la partie B ne voit que le fil des autres.
+   */
+  if (idleDevSlotForUserV1(acces.user) === 'b') {
+    return {
+      ok: true,
+      enLigne: [],
+      dernierChatId: dernierIdChatV1(__idleSql),
+      flux: [],
+      dernierFluxId: dernierIdFluxV1(__idleSql),
+      maintenant: Date.now(),
+      moi: identiteJoueurSorealIdle_(acces).nomAffiche,
+      estAdmin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL
+    };
+  }
   const identite = identiteJoueurSorealIdle_(acces);
   const i = info && typeof info === 'object' ? info : {};
   const resultat = battementV1(__idleSql, {
@@ -17031,6 +17054,8 @@ function lireChatSorealIdle(sessionToken, options) {
 function envoyerChatSorealIdle(sessionToken, message) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleSql) return { ok: false, message: 'Chat indisponible.' };
+  /* Partie d'essai : jamais de message publié sous le nom du compte réel. */
+  if (idleDevSlotForUserV1(acces.user) === 'b') return { ok: false, message: 'Le chat n\u2019est pas disponible dans la partie d\u2019essai.' };
   const identite = identiteJoueurSorealIdle_(acces);
   /* Le texte arrive soit seul, soit dans un objet { message } (le pont client ajoute la session au premier argument de type texte). */
   const texte = message && typeof message === 'object' ? message.message : message;

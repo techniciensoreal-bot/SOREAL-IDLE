@@ -961,6 +961,16 @@
         return css;
       }
 
+      /*
+       * Rayon COMPLET (Norman, 2026-10-05 : « un petit V vert comme celui des sets quand on a acheté tout ce que contient le rayon ; si je rajoute des articles, le V disparaît tant qu'on n'a pas fait ce nouvel achat »). Calculé à chaque affichage
+       * sur les achats VISIBLES du rayon : tous au maximum (plus de prix suivant). Un nouvel article qui devient visible rend donc le rayon incomplet. Les rayons de ressources (Énergie, Magie, Ressource 3) n'ont pas de maximum : jamais de V.
+       */
+      function idleExpRayonCompletIdleV1_(j,rayon,ids){
+        if(rayon==='energy'||rayon==='magic'||rayon==='r3')return false;
+        const liste=(j&&j.systemes&&Array.isArray(j.systemes.expShop))?j.systemes.expShop:[];
+        if(!Array.isArray(ids)||!ids.length)return false;
+        return ids.every(function(id){const it=liste.find(function(x){return x.id===id;});return Boolean(it)&&it.nextCost==null;});
+      }
       function pageSpendExpIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const m=j&&j.systemes?j.systemes:{};
@@ -976,7 +986,7 @@
         const onglets=onglets_visibles.map(function(o){
           const actif=o.id===onglet;
           const pastille=(o.id==='debuts'&&abordables>0?`<span class="soreal-idle-exp-pastille-v212" title="Achats abordables">${abordables}</span>`:'')+(B&&B.rayonNonVu('exp',parRayon,o.id)?B.point('Nouveaux achats dans ce rayon'):'');
-          return `<button type="button" class="soreal-idle-exp-tab-v212${actif?' actif':''}" aria-pressed="${actif}" onclick="window.__ongletExpShopIdleV1__('${o.id}')">${o.icone} ${o.nom}${pastille}</button>`;
+          return `<button type="button" class="soreal-idle-exp-tab-v212${actif?' actif':''}" aria-pressed="${actif}" onclick="window.__ongletExpShopIdleV1__('${o.id}')">${o.icone} ${o.nom}${pastille}${idleExpRayonCompletIdleV1_(j,o.id,parRayon[o.id])?'<span class="soreal-idle-rayon-complet-v1" title="Tout est acheté dans ce rayon">✔</span>':''}</button>`;
         }).join('');
         return H.entetePageIdleV28_(
           '✨ Boutique EXP',

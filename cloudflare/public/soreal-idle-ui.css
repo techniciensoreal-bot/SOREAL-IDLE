@@ -4478,6 +4478,24 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
             transform:none;
           }
 
+          /* Petit V vert d'un rayon de la boutique dont tout est acheté (même vert que le V des sets de la Collection). */
+          .soreal-idle-rayon-complet-v1{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:18px;
+            height:18px;
+            margin-left:6px;
+            border-radius:50%;
+            background:#2fbf5f;
+            color:#fff;
+            font-size:12px;
+            font-weight:900;
+            line-height:1;
+            vertical-align:middle;
+            box-shadow:0 0 0 2px rgba(0,0,0,.35);
+          }
+
           .soreal-idle-collection-check-v1{
             position:absolute;
             top:6px;
