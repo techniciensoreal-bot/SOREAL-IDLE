@@ -69,7 +69,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   assert.ok(page("Bien joué").includes("clignote:'attaque-moins'") && !page("Bien joué").includes("attendre:"), "Bien joué : − d'Attaque passive, facultatif");
   assert.ok(page("Défense").includes("clignote:'blocage-plus'") && !page("Défense").includes("attendre:"), "Défense : + de Blocage");
   for (const titre of ["Énergie Idle", "Saisie personnalisée", "Fight Boss"]) assert.equal(page(titre).includes("clignote:"), false, titre + " : rien ne clignote");
-  assert.ok(ui.includes("'<button type=\"button\" '+(page.attendre?'disabled style=\"visibility:hidden\" ':'')+'onclick=\"window.__tutorielPagesFermerV1__()\">'"), "pas de « Passer » sur la page qui attend un clic");
+  assert.ok(ui.includes("'<button type=\"button\" '+((page.attendre||(dernier&&page.seulementPrecedent))?'disabled style=\"visibility:hidden\" ':'')+'onclick=\"window.__tutorielPagesFermerV1__()\">'"), "pas de « Passer » sur la page qui attend un clic");
   assert.ok(ui.includes("((dernier||page.attendre)?'disabled style=\"visibility:hidden\"':'')"), "pas de « Suivant » non plus");
   assert.ok(ui.includes("window.__SOREAL_IDLE_TUTO_INDICE_V1__.appliquer(page.clignote||'',page.attendre||'')"));
   assert.ok(hint.includes("'attaque-plus':{groupe:'attack',rang:1}") && hint.includes("'attaque-moins':{groupe:'attack',rang:2}") && hint.includes("'blocage-plus':{groupe:'defense',rang:1}"));

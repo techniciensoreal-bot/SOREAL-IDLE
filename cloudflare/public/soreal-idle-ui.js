@@ -11182,7 +11182,7 @@
           '<div class="soreal-idle-tuto-flottant-actions-v1">'+
             '<button type="button" '+(premier?'disabled':'')+' onclick="window.__tutorielPagesNaviguerV1__(-1)">◀ Précédent</button>'+
             /* Page « il faut cliquer » (page.attendre) : ni « Passer » ni « Suivant » ; c'est le clic sur le bouton qui clignote qui fait avancer (modules/tutorial-hint-v1.js). */
-            '<button type="button" '+(page.attendre?'disabled style="visibility:hidden" ':'')+'onclick="window.__tutorielPagesFermerV1__()">'+(dernier?'Terminé ✔':'Passer')+'</button>'+
+            '<button type="button" '+((page.attendre||(dernier&&page.seulementPrecedent))?'disabled style="visibility:hidden" ':'')+'onclick="window.__tutorielPagesFermerV1__()">'+(dernier?'Terminé ✔':'Passer')+'</button>'+
             (
               (dernier&&page.seulementPrecedent)
                 ?'<button type="button" class="confirm" onclick="window.__tutorielPagesFermerV1__()">Terminé ✔</button>'
