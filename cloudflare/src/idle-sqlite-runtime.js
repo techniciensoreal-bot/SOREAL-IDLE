@@ -16755,6 +16755,65 @@ function supprimerBugSorealIdle(sessionToken, id) {
 }
 
 /*
+ * Préparation de la partie B pour les essais (Norman, 2026-10-05 : « tu ne peux pas t'ajouter des choses dans la partie B ? modifie-la comme tu veux, je ne l'utilise pas, elle est faite pour faire des tests »).
+ * Réservé à l'administrateur ET à la partie B (compte distinct de la partie A, voir idle-dev-save-slots-v1.js) : jamais la vraie partie, jamais un autre joueur. Fixe seulement des valeurs de départ bornées :
+ *   boss (boss vaincus, 0-140), or (0-1e30), energieCap (1-1e12), energiePuissance (1-1e9), energie (énergie libre, bornée au plafond).
+ */
+function preparerPartieTestSorealIdle(sessionToken, options) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!idleDevSlotsAvailableV1(acces.user) || idleDevSlotForUserV1(acces.user) !== 'b') throw new Error('PARTIE_TEST_REQUISE');
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return { ok: false, code: 'SOREAL_IDLE_OCCUPE', retryable: true, message: 'Le moteur termine encore une action. R\u00e9essaie dans un instant.' };
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+    initialiserModeleJoueurSorealIdleV41SiNecessaire_(feuille, ligne);
+    const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+    const row = feuille.getRange(ligne, 1, 1, c.STATS_JSON).getValues()[0];
+    const stats = statsJoueurSorealIdle_(row[c.STATS_JSON - 1]);
+    const meta = stats.metaNgu;
+    if (!(meta && meta.version === IDLE_NGU_META_VERSION && meta.resources && meta.resources.energy && meta.currencies)) throw new Error('PARTIE_TEST_ETAT_INCOMPLET');
+
+    const o = options && typeof options === 'object' ? options : {};
+    const borne = (v, min, max) => { const n = Number(v); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : null; };
+    const boss = borne(o.boss, 0, 140);
+    const or = borne(o.or, 0, 1e30);
+    const cap = borne(o.energieCap, 1, 1e12);
+    const puissance = borne(o.energiePuissance, 1, 1e9);
+    const libre = borne(o.energie, 0, 1e12);
+    const applique = {};
+
+    if (boss !== null) {
+      const b = Math.floor(boss);
+      feuille.getRange(ligne, c.BOSS_VAINCUS).setValue(b);
+      if (meta.records && typeof meta.records === 'object') meta.records.highestBoss = Math.max(b, nombreSorealIdle_(meta.records.highestBoss, 0));
+      applique.boss = b;
+    }
+    if (or !== null) { meta.currencies.gold = or; applique.or = or; }
+    const e = meta.resources.energy;
+    if (cap !== null) { e.cap = cap; e.capNaturel = cap; applique.energieCap = cap; }
+    if (puissance !== null) { e.power = puissance; applique.energiePuissance = puissance; }
+    if (libre !== null || cap !== null) {
+      e.current = Math.min(libre !== null ? libre : e.current, Math.max(1, nombreSorealIdle_(e.cap, 1)));
+      e.fillProgress = 0;
+      applique.energie = e.current;
+      feuille.getRange(ligne, c.ENERGIE).setValue(e.current);
+    }
+    feuille.getRange(ligne, c.STATS_JSON).setValue(JSON.stringify(stats));
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      applique,
+      joueur: construireEtatJoueurSorealIdle_(feuille, ligne, { gain: 0, secondesComptabilisees: 0, degats: 0, bossBattus: 0, xpGagnee: 0, niveauxGagnes: 0, dropsRecents: [] })
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/*
  * Histoires plein écran éditables (voir idle-histoires-v1.js). Joueur : obtenirHistoireBossSorealIdle -- UNIQUEMENT l'histoire du boss
  * demandé (jamais la liste : anti-spoil). Administrateur (technicien.soreal@gmail.com) : lister / enregistrer / supprimer.
  */
@@ -17060,6 +17119,7 @@ const IDLE_OPERATIONS={
   testerAccesSorealIdle,
   obtenirPartieDevSorealIdle,
   definirPartieDevSorealIdle,
+  preparerPartieTestSorealIdle,
   enregistrerClicsSorealIdle,
   definirClassementVisibleSorealIdle
 };
