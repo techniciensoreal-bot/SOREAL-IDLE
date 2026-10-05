@@ -806,6 +806,12 @@
         const fini=it.nextCost==null;
         const restants=Array.isArray(it.remainingCosts)?it.remainingCosts:null;
         let tiers=it.max!=null&&it.max>1?[1,5,10]:it.max===1?[1]:[1,10,100];
+        /* Jamais plus d'achats que ce qu'il en reste (Norman, 2026-10-05 : « Recyclage de boosts propose d'acheter par 10 alors que le maximum est 5 ») : les paliers qui dépassent le reste disparaissent, et le reste lui-même devient un palier s'il est inférieur à 10. */
+        if(it.max!=null&&it.max>1){
+          const reste=Math.max(1,it.max-H.idleEntier_(it.purchased));
+          tiers=tiers.filter(function(q){return q<=reste;});
+          if(reste>1&&reste<10&&tiers.indexOf(reste)===-1)tiers.push(reste);
+        }
         /* Prix variable (espaces d'inventaire) : montants réellement payés, et bouton « tout » pour les places restantes. */
         if(restants&&restants.length>10)tiers=tiers.concat([restants.length]);
         const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
