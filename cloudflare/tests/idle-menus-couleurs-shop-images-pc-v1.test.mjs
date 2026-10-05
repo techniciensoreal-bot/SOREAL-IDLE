@@ -32,3 +32,7 @@ assert.ok(css.includes("repeat(auto-fill,minmax(130px,150px))!important"), "vign
 assert.ok(css.includes(".soreal-idle-duel-fighter-v42 .soreal-idle-duel-portrait-v41{width:min(320px,100%)!important"), "portraits de combat");
 assert.ok(css.includes(".soreal-idle-boss-fiche-image-v1{") && css.includes("height:min(340px,44vh)"), "fiche de boss : cadre de taille vignette, image entière (2026-10-04)");
 console.log("idle-menus-couleurs-shop-images-pc-v1: OK (" + menus.length + " menus, " + vus.size + " couleurs)");
+
+// 5. Boutons du menu entièrement teintés de leur couleur, plus vifs une fois ouverts (Norman, 2026-10-05).
+assert.ok(css.includes(".soreal-idle-nav-button-v28:not(.active):not([data-menu-id-v1=\"shop\"]):not(.soreal-idle-nav-dispo-v1):not(.soreal-idle-nav-adventure-ko-v1){") && css.includes("linear-gradient(160deg,color-mix(in srgb,var(--c1) 42%,#0a0a14)"), "fond teinté de la couleur du menu");
+assert.ok(css.includes(".soreal-idle-nav-button-v28.active:not([data-menu-id-v1=\"shop\"]){") && css.includes("0 0 22px 2px var(--c1)"), "menu ouvert : couleur pleine et lueur");

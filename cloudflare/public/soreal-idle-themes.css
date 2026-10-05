@@ -1641,6 +1641,23 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="par
 
 /* Menu de gauche : TOUJOURS une seule colonne (Norman, 2026-10-05 : « 1920x1080, peu importe, ça doit rester sur 1 colonne »), sur PC comme sur TV. Le bloc grand écran à deux colonnes de la TV a été retiré. */
 
+/* ====================== Boutons du menu : entièrement teintés de leur couleur ======================
+ * Norman (2026-10-05) : « pour tous les boutons, le même genre de couleurs que Boutique : en gardant leur couleur de base, complètement rouges ou jaunes ; quand on sélectionne le menu, la couleur devient plus prononcée ».
+ * Même recette que Boutique : un reflet de la couleur du menu en haut à gauche et un dégradé nuit teinté de cette couleur (au lieu du fond bleu nuit neutre). Le menu ouvert (.active) passe en couleur pleine, plus vive, avec une lueur.
+ * Les états particuliers (disponible, K.O., Boutique, qui a déjà sa recette) gardent leur propre fond. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28:not(.active):not([data-menu-id-v1="shop"]):not(.soreal-idle-nav-dispo-v1):not(.soreal-idle-nav-adventure-ko-v1){
+  background:
+    radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 55%,transparent),transparent 62%),
+    linear-gradient(160deg,color-mix(in srgb,var(--c1) 42%,#0a0a14),color-mix(in srgb,var(--c1) 17%,#05050c))!important;
+  border-color:color-mix(in srgb,var(--c1) 78%,transparent)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active:not([data-menu-id-v1="shop"]){
+  background:
+    radial-gradient(120% 140% at 0% 0%,rgba(255,255,255,.34),transparent 58%),
+    linear-gradient(150deg,color-mix(in srgb,var(--c1) 92%,#fff),var(--c1) 55%,color-mix(in srgb,var(--c1) 72%,#000))!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--c1) 70%,#fff),0 0 22px 2px var(--c1),0 12px 24px -8px var(--c1);
+}
+
 /* ====================== Bouton Shop : une boutique magique ======================
  * Norman (2026-10-04) : « le bouton de Boutique doit être mauve et doit plus faire penser à une boutique magique ». Boule de cristal sur un badge en étoile, dégradé mauve nuit étoilée, étincelles discrètes. */
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[data-menu-id-v1="shop"]:not(.active){

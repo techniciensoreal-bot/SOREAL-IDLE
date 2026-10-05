@@ -1,0 +1,167 @@
+/*
+ * SOREAL IDLE — style « jeu vidéo » de toute l'application (Norman, 2026-10-04 : « je suis super fan du style graphique du menu ITOPOD ; j'aurai voulu toute l'application dans ce genre, en gardant les spécificités de chaque page »).
+ * Langage commun repris de l'ITOPOD : contour noir épais, ombre portée dure, reflet en haut et ombre en bas à l'intérieur (biseau), coins peu arrondis, libellés en majuscules espacées, boutons qui s'enfoncent au clic.
+ * Chaque page GARDE sa couleur : les fonds, dégradés et teintes existants ne sont pas touchés, seuls les contours, ombres et biseaux changent.
+ * Chargée après soreal-idle-themes.css et soreal-idle-jeu.css.
+ */
+body.soreal-idle-active-v47{
+  --jv-noir:#000;
+  --jv-c:#7c8fc4;
+  --jv-ring:color-mix(in srgb,var(--jv-c) 70%,#fff 0%);
+  --jv-ombre:0 0 0 2px var(--jv-ring),5px 5px 0 2px #000;
+  --jv-ombre-petite:0 0 0 2px color-mix(in srgb,var(--jv-c) 55%,transparent),3px 3px 0 2px #000;
+  --jv-biseau:inset 0 2px 0 rgba(255,255,255,.22),inset 0 -3px 0 rgba(0,0,0,.4);
+}
+/* Couleur de chaque page (celles des boutons du menu) : elle cerne les cases. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]{--jv-c:#3b82f6}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"]{--jv-c:#f59e0b}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{--jv-c:#ef4444}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"]{--jv-c:#16a34a}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"]{--jv-c:#ca8a04}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"]{--jv-c:#fb923c}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"]{--jv-c:#38bdf8}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"]{--jv-c:#14b8a6}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"]{--jv-c:#e11d48}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="wandoos"]{--jv-c:#84cc16}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="ngu"]{--jv-c:#6366f1}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="yggdrasil"]{--jv-c:#10b981}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="diggers"]{--jv-c:#b45309}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="beards"]{--jv-c:#d4a373}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="tower"]{--jv-c:#a78bfa}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="perks"]{--jv-c:#ff4fd8}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"]{--jv-c:#fb7185}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="titans"]{--jv-c:#b91c1c}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="macguffins"]{--jv-c:#ec4899}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="daycare"]{--jv-c:#5eead4}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="questing"]{--jv-c:#22d3ee}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="quirks"]{--jv-c:#c026d3}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="hacks"]{--jv-c:#4ade80}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="wishes"]{--jv-c:#a78bfa}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="cards"]{--jv-c:#f9a8d4}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="cooking"]{--jv-c:#ea580c}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"]{--jv-c:#e2e8f0}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"]{--jv-c:#a855f7}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="classement"]{--jv-c:#fcd34d}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"]{--jv-c:#93c5fd}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="chat"]{--jv-c:#e879f9}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{--jv-c:#9ca3af}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"]{--jv-c:#dc2626}
+
+
+/* ---- Boutons du menu ---- */
+body.soreal-idle-active-v47 .soreal-idle-nav-button-v28{
+  border:3px solid #000!important;border-radius:6px!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre-petite)!important;
+  transition:transform .08s,box-shadow .08s,filter .12s;
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-button-v28:hover{filter:brightness(1.12)}
+body.soreal-idle-active-v47 .soreal-idle-nav-button-v28:active{transform:translate(2px,2px);box-shadow:var(--jv-biseau),1px 1px 0 #000!important}
+body.soreal-idle-active-v47 .soreal-idle-nav-button-v28 strong,
+body.soreal-idle-active-v47 .soreal-idle-nav-button-v28 b{letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.65)}
+
+/* ---- Barres d'énergie et de magie ---- */
+body.soreal-idle-active-v47 :is(.soreal-idle-energy-panel-v34,.soreal-idle-magic-panel-v1){
+  border:3px solid #000!important;border-radius:6px!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre)!important;
+}
+body.soreal-idle-active-v47 :is(.soreal-idle-energy-panel-v34,.soreal-idle-magic-panel-v1) :is([class*="bar"],[class*="track"],[class*="fill"]){
+  border-radius:3px!important;
+}
+
+/* ---- Tuiles du haut (Nombre, Rebirths, Attack…) ---- */
+body.soreal-idle-active-v47 .soreal-idle-summary-v28{
+  border-color:#000!important;border-width:3px!important;border-style:solid!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre-petite)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-summary-v28[data-tuile]{box-shadow:var(--jv-biseau),var(--jv-ombre-petite),0 0 14px -4px var(--tc)!important}
+
+/* ---- Titre de page ---- */
+body.soreal-idle-active-v47 .soreal-idle-page-head-v28{
+  border:3px solid #000!important;border-radius:6px!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-title-v28{text-transform:uppercase;letter-spacing:2px;text-shadow:0 3px 0 rgba(0,0,0,.7)}
+
+/* ---- Cartes et sections ---- */
+body.soreal-idle-active-v47 :is(.soreal-idle-card-v4,.soreal-idle-section-v8){
+  border:3px solid #000!important;border-radius:6px!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-note-v4{border-radius:4px!important}
+body.soreal-idle-active-v47 :is(.soreal-idle-label-v4,.soreal-idle-window-title-v31){text-transform:uppercase;letter-spacing:2px;text-shadow:0 2px 0 rgba(0,0,0,.65)}
+
+/* ---- Boutons d'action ---- */
+body.soreal-idle-active-v47 :is(.soreal-idle-expand-button-v25,.soreal-idle-boss-control-v39){
+  border:3px solid #000!important;border-radius:6px!important;
+  font-weight:950;letter-spacing:.6px;text-shadow:0 2px 0 rgba(0,0,0,.55);
+  box-shadow:var(--jv-biseau),0 4px 0 #000!important;
+  transition:transform .08s,box-shadow .08s,filter .12s;
+}
+body.soreal-idle-active-v47 :is(.soreal-idle-expand-button-v25,.soreal-idle-boss-control-v39):hover:not(:disabled){filter:brightness(1.12)}
+body.soreal-idle-active-v47 :is(.soreal-idle-expand-button-v25,.soreal-idle-boss-control-v39):active:not(:disabled){transform:translateY(3px);box-shadow:var(--jv-biseau),0 1px 0 #000!important}
+
+/* ---- Barres de vie et de progression ---- */
+body.soreal-idle-active-v47 :is(.soreal-idle-bossbar-wrap-v7,.soreal-idle-playerbar-wrap-v15,.soreal-idle-v79-health-track-v200){
+  border:3px solid #000!important;border-radius:4px!important;
+  box-shadow:inset 0 3px 0 rgba(0,0,0,.6),var(--jv-ombre-petite)!important;overflow:hidden;
+}
+
+/* ---- Combattants (Combat de boss) ---- */
+body.soreal-idle-active-v47 :is(.soreal-idle-duel-portrait-v41,.soreal-idle-duel-nameplate-v65){
+  border:3px solid #000!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre)!important;
+}
+
+/* ====================== Toutes les pages : mêmes cases, quelles que soient leurs classes ====================== */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is([class*="-panel"],[class*="-card"],[class*="-box"],[class*="-section"],[class*="-toolbar"],[class*="-tile"],[class*="-presets"]):not([class*="-panels"]):not([class*="-cards"]):not([class*="name"]):not([class*="label"]):not([class*="title"]):not([class*="icon"]):not([class*="text"]):not(button):not(input){
+  border-width:3px!important;border-style:solid!important;border-color:#000!important;border-radius:6px!important;
+  box-shadow:var(--jv-biseau),var(--jv-ombre)!important;
+}
+/* Rangées et barres : contour noir plus fin. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is([class*="-row"]:not([class*="versus"]):not([class*="controls"]),[class*="-track"]):not(button){
+  border-width:2px!important;border-style:solid!important;border-color:#000!important;border-radius:4px!important;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.3),3px 3px 0 #000!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 [class*="-track"]:not(button){box-shadow:inset 0 3px 0 rgba(0,0,0,.55),3px 3px 0 #000!important}
+/* Tous les boutons des pages (hors boutons de menu) : même relief que ceux de l'ITOPOD. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 button:not(.itp-bouton):not(.itp-pas-bouton):not(.pk-acheter):not(.pk-bascule){
+  border:3px solid #000!important;border-radius:6px!important;
+  font-weight:950;letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.5);
+  box-shadow:var(--jv-biseau),0 4px 0 #000!important;
+  transition:transform .08s,box-shadow .08s,filter .12s;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 button:not(:disabled):hover{filter:brightness(1.12)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 button:not(.itp-bouton):not(.itp-pas-bouton):not(.pk-acheter):not(.pk-bascule):not(:disabled):active{transform:translateY(3px);box-shadow:var(--jv-biseau),0 1px 0 #000!important}
+
+/* ====================== Surfaces : fond de page teinté de la couleur de la page, cases plus claires qui se détachent ====================== */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28{
+  background:
+    radial-gradient(ellipse 70% 26% at 50% 0%,color-mix(in srgb,var(--jv-c) 34%,transparent),transparent 70%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 38px),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.3) 0 2px,transparent 2px 64px),
+    linear-gradient(180deg,color-mix(in srgb,var(--jv-c) 14%,#121626),#0a0d18 70%)!important;
+  box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px color-mix(in srgb,var(--jv-c) 38%,transparent),inset 0 0 50px rgba(0,0,0,.55)!important;
+  border-radius:6px!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is([class*="-panel"],[class*="-card"],[class*="-box"],[class*="-section"],[class*="-toolbar"],[class*="-tile"],[class*="-presets"],.soreal-idle-page-head-v28):not([class*="-panels"]):not([class*="-cards"]):not([class*="name"]):not([class*="label"]):not([class*="title"]):not([class*="icon"]):not([class*="text"]):not(button):not(input){
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--jv-c) 32%,#2b3050),color-mix(in srgb,var(--jv-c) 13%,#171b33))!important;
+}
+/* Cases imbriquées : un ton plus sombre pour garder du relief. */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is([class*="-panel"],[class*="-card"],[class*="-section"]) :is([class*="-box"],[class*="-presets"],[class*="-tile"]):not(button):not(input){
+  background:linear-gradient(180deg,color-mix(in srgb,var(--jv-c) 16%,#1b2038),color-mix(in srgb,var(--jv-c) 7%,#0f1224))!important;
+}
+
+/* ====================== Menu du haut : boutons-cases à la couleur de leur menu ====================== */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-button-v28:not(.active){
+  background:linear-gradient(180deg,color-mix(in srgb,var(--nav-color,#7c8fc4) 34%,#2b3050),color-mix(in srgb,var(--nav-color,#7c8fc4) 12%,#151930))!important;
+  border:3px solid #000!important;border-radius:6px!important;
+  box-shadow:var(--jv-biseau),0 0 0 2px var(--nav-color,#7c8fc4),4px 4px 0 2px #000!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.actif,
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28[aria-current="page"],
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--nav-color,#7c8fc4) 62%,#2b3050),color-mix(in srgb,var(--nav-color,#7c8fc4) 30%,#151930))!important;
+  box-shadow:var(--jv-biseau),0 0 0 2px #fff,4px 4px 0 2px #000,0 0 18px var(--nav-color,#7c8fc4)!important;
+}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28{padding-bottom:8px}
