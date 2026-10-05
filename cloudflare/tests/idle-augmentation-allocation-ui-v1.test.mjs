@@ -92,7 +92,7 @@ assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]
 assert.match(module_, /function rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\)\{/);
 assert.match(module_, /rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\);/);
 assert.ok(!module_.includes("H.rendreIdleEtat_({ok:true,joueur:j});"), "plus de rendu complet à chaque clic +/-/Cap");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610061"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610062"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 
@@ -179,11 +179,12 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "350 ⚡");
   assert.equal(rendus.length, 0, "toujours aucun rendu complet, même pour Cap/Max");
 
-  // Aucune énergie idle restante : un « + » sur l'Upgrade ne change rien, donc aucun son ni patch supplémentaire (mais l'action part quand même).
+  // Aucune énergie idle restante : un « + » sur l'Upgrade ne change rien, donc aucun son, aucun patch et AUCUN envoi (audit du menu Augmentations, 2026-10-05).
   const patchsAvant = patchsBarre.length;
+  const envoisAvant = sent.length;
   window.__ajusterAugmentIdleV1__("scissors", true, "plus");
   await attendreEnvoi();
-  assert.equal(sent.at(-1).value, 0, "plus d'énergie idle libre à placer");
+  assert.equal(sent.length, envoisAvant, "plus d'énergie idle libre à placer : rien n'est envoyé");
   assert.equal(patchsBarre.length, patchsAvant, "aucun patch optimiste quand rien ne change réellement");
   assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "aucun son supplémentaire quand rien ne change réellement");
 

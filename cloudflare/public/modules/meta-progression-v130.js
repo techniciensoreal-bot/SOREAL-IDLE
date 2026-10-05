@@ -1800,14 +1800,26 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(O&&O.bt&&O.bt<O.meta&&Date.now()-O.btAt<4000){planifierAllocRapideV1_(40);return;}
         const cle=suivant.value[0];
         const payload=suivant.value[1];
-        R.file.delete(cle);
+        /* Plusieurs Augments / Upgrades en attente : un seul appel pour le lot (audit du menu Augmentations, 2026-10-05), au lieu d'un appel — et d'une réponse complète — par cible. */
+        let cles=[cle];
+        let envoi=payload;
+        if(payload.action==='allocateAugment'){
+          const lot=[[cle,payload]];
+          R.file.forEach(function(p,c){if(c!==cle&&p.action==='allocateAugment')lot.push([c,p]);});
+          if(lot.length>1){
+            cles=lot.map(function(x){return x[0];});
+            envoi={action:'allocateAugments',items:lot.map(function(x){return {pair:x[1].pair,upgrade:Boolean(x[1].upgrade),value:x[1].value};})};
+          }
+        }
+        const payloads=cles.map(function(c){return c===cle?payload:R.file.get(c);});
+        cles.forEach(function(c){R.file.delete(c);});
         R.enCours=true;
         window.__SOREAL_IDLE_META_HOST_V130__.appelerProgressionIdleCloudflareV1_(
-          payload,
+          envoi,
           function(res){
             R.enCours=false;
             /* Réponse du serveur (sauf si une valeur plus récente attend dans la file) : l'intention est soldée AVANT de recoller, pour que le serveur garde la main (plafond, refus). */
-            if(res&&res.ok&&!R.file.has(cle))R.voulu.delete(cle);
+            if(res&&res.ok)cles.forEach(function(c){if(!R.file.has(c))R.voulu.delete(c);});
             reconcilierAllocRapideV1_(res);
             if(R.file.size)planifierAllocRapideV1_(20);
             else if(O2()&&!R.timer)O2().meta=0;
@@ -1815,7 +1827,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           function(){
             R.enCours=false;
             /* Échec réseau : on remet l'action (sauf si une valeur plus récente l'a déjà remplacée) et on réessaie. */
-            if(!R.file.has(cle))R.file.set(cle,payload);
+            cles.forEach(function(c,i){if(!R.file.has(c)&&payloads[i])R.file.set(c,payloads[i]);});
             planifierAllocRapideV1_(1200);
           }
         );
@@ -2002,6 +2014,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           rafraichirAllocationAugmentIdleV1_(pairId,upgrade,value);
         }
 
+        /* Rien n'a changé (plus d'énergie libre, déjà à zéro) : aucun envoi (audit du menu Augmentations, 2026-10-05) ; une intention déjà en attente pour cette cible, elle, part quand même. */
+        if(delta===0)return;
         envoyerAllocRapideV1_({action:'allocateAugment',pair:pairId,upgrade:Boolean(upgrade),value:value});
       }
       window.__ajusterAugmentIdleV1__=ajusterAugmentIdleV1_;

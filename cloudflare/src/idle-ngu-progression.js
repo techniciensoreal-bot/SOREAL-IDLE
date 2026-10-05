@@ -7097,6 +7097,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
   } else if (action === "allocateAugment") {
     setAugmentAllocationV214_(state,String(payload.pair||"scissors"),Boolean(payload.upgrade),num(payload.value,0),context);
+  } else if (action === "allocateAugments") {
+    /* Lot d'allocations (audit du menu Augmentations, Norman 2026-10-05) : plusieurs Augments / Upgrades modifiés en rafale partent en UN appel au lieu d'un par cible ; appliqués dans l'ordre demandé, chacun borné par l'énergie libre. */
+    const items = Array.isArray(payload.items) ? payload.items.slice(0, 40) : [];
+    for (const it of items) setAugmentAllocationV214_(state, String(it?.pair || "scissors"), Boolean(it?.upgrade), num(it?.value, 0), context);
   } else if (action === "clearAugmentAllocations") {
     /* « Tout retirer » (2026-09-24) : rend toute l'énergie placée dans les Augments et leurs Upgrades. */
     if (!state.systems.augmentations?.unlocked) throw new Error("SYSTEME_VERROUILLE");

@@ -2673,6 +2673,22 @@
          * qui n'a qu'un seul rituel actif à la fois, contrairement à la boucle par def d'Augmentation
          * ci-dessous. Comportement inchangé pour Augmentation (Historique V8, bloc-41).
          */
+        /*
+         * Audit du menu Augmentations (Norman, 2026-10-05) : ce passage tourne plusieurs fois par seconde pour chaque barre ; il cherchait 4 éléments dans la page et réécrivait 3 textes À CHAQUE FOIS, même identiques
+         * (chaque réécriture remplace le nœud de texte : ~190 modifications de page par seconde sans rien de nouveau, qui relançaient aussi les observateurs de la page). Les éléments sont gardés tant qu'ils sont dans la
+         * page, et un texte n'est réécrit que s'il a changé.
+         */
+        function elementAugIdleV1_(selecteur){
+          const cache=window.__idleAugElsV1__||(window.__idleAugElsV1__=new Map());
+          const garde=cache.get(selecteur);
+          if(garde&&garde.isConnected)return garde;
+          const el=document.querySelector(selecteur);
+          if(el)cache.set(selecteur,el);else cache.delete(selecteur);
+          return el;
+        }
+        function ecrireSiChangeIdleV1_(el,texte){
+          if(el&&el.textContent!==texte)el.textContent=texte;
+        }
         function animerBarreCycliqueIdleV217_(el,seconds,progress){
           if(!(seconds>0)){
             if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;}
@@ -2731,7 +2747,7 @@
           Object.keys(augVisual.defs||{}).forEach(function(id){
             const d=augVisual.defs[id]||{};
             [['main',d.progress,d.seconds,d.waiting,d.goldCost,d.level],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost,d.upgradeLevel]].forEach(function(x){
-              const el=document.querySelector('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
+              const el=elementAugIdleV1_('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
               if(!el)return;
               const secondes0=idleNombre_(x[2]);
               const ecouleAug=(performance.now()-augVisual.at)/1000;
@@ -2779,13 +2795,13 @@
                 },1500);
               }
               /* Niveau, coût du prochain niveau et compte à rebours : mis à jour à l'instant où la barre passe. */
-              const nivEl=document.querySelector('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]');
-              if(nivEl)nivEl.textContent=String(niv0+k);
-              const coutEl=document.querySelector('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
-              if(coutEl&&k>0)coutEl.textContent=formatGrandNombreIdleV70_(coutK(k))+' Or';
-              const etaEl=document.querySelector('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
+              const nivEl=elementAugIdleV1_('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]');
+              ecrireSiChangeIdleV1_(nivEl,String(niv0+k));
+              const coutEl=elementAugIdleV1_('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
+              if(coutEl&&k>0)ecrireSiChangeIdleV1_(coutEl,formatGrandNombreIdleV70_(coutK(k))+' Or');
+              const etaEl=elementAugIdleV1_('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
               if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
-                etaEl.textContent=window.__texteEtaAugmentIdleV1__({seconds:secondes,progress:secondes>0?Math.max(0,Math.min(1,reste/secondes)):0,waiting:attenteOr,goldCost:k>0?coutK(k):cout0,gold:orLive},0);
+                ecrireSiChangeIdleV1_(etaEl,window.__texteEtaAugmentIdleV1__({seconds:secondes,progress:secondes>0?Math.max(0,Math.min(1,reste/secondes)):0,waiting:attenteOr,goldCost:k>0?coutK(k):cout0,gold:orLive},0));
               }
               /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. Sinon elle continue sans s'arrêter. */
               if(attenteOr){
