@@ -71,6 +71,14 @@ assert.equal(r.joueur.systemes.currencies.experience, 123456);
 assert.equal(r.joueur.systemes.currencies.ap, 7e6);
 assert.equal(r.joueur.systemes.currencies.pp, 999);
 
+// 3 ter. Systèmes à objet consommable débloqués d'office (essais en partie B).
+r = appeler(norman, "preparerPartieTestSorealIdle", [{ systemes: true, boss: 140 }]);
+assert.equal(r.ok, true);
+assert.equal(r.applique.systemes, true);
+const debloques = r.joueur.systemes.systems.filter((x) => x.state && x.state.unlocked).map((x) => x.id);
+for (const id of ["ngu", "yggdrasil", "diggers", "beards", "tower", "wandoos"]) assert.ok(debloques.includes(id), id + " débloqué");
+
+
 // 4. Bornes : valeurs absurdes ramenées dans la plage.
 r = appeler(norman, "preparerPartieTestSorealIdle", [{ boss: 9999, or: -5, energieCap: 1e99 }]);
 assert.equal(r.ok, true);

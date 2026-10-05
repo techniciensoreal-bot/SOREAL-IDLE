@@ -16825,6 +16825,14 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
       if (meta.records && typeof meta.records === 'object') meta.records.highestBoss = Math.max(b, nombreSorealIdle_(meta.records.highestBoss, 0));
       applique.boss = b;
     }
+    /* Systèmes à objet consommable (NGU, Yggdrasil, Gold Diggers, Barbe, ITOPOD, Wandoos) : débloqués d'office pour les essais en partie B. */
+    if (o.systemes === true) {
+      if (!meta.adventure || typeof meta.adventure !== 'object') meta.adventure = {};
+      const drapeaux = (meta.adventure.unlockFlags && typeof meta.adventure.unlockFlags === 'object') ? meta.adventure.unlockFlags : {};
+      for (const k of ['ngu', 'yggdrasil', 'diggers', 'beards', 'tower', 'wandoos']) drapeaux[k] = true;
+      meta.adventure.unlockFlags = drapeaux;
+      applique.systemes = true;
+    }
     if (or !== null) { meta.currencies.gold = or; applique.or = or; }
     if (exp !== null) { meta.currencies.experience = exp; applique.exp = exp; }
     if (ap !== null) { meta.currencies.ap = ap; applique.ap = ap; }
