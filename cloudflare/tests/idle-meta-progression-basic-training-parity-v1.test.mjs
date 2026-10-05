@@ -216,7 +216,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
 
 // --- 9. La barre cyclique de Blood Magic réutilise le même moteur d'animation qu'Augmentation (patch DOM à chaque tick, jamais un rendu complet). ---
 {
-  assert.match(ui, /function animerBarreCycliqueIdleV217_\(el,seconds,progress\)\{/, "moteur d'animation partagé introuvable");
+  assert.match(ui, /function animerBarreCycliqueIdleV217_\(el,seconds,progress(?:,tenir)?\)\{/, "moteur d'animation partagé introuvable");
   assert.match(ui, /const bloodVisual=idleEtat\.__bloodMagicVisualV1;/, "le ticker principal doit lire la vue Blood Magic à chaque tick");
   assert.match(ui, /document\.querySelector\('\[data-idle-blood-bar-v1="'\+bloodVisual\.ritual\+'"\]'\)/, "le patch doit cibler la barre du rituel actif");
   assert.match(ui, /animerBarreCycliqueIdleV217_\(el,seconds,progress\);/, "le patch Blood Magic doit réutiliser le même moteur qu'Augmentation, pas une redéfinition parallèle");

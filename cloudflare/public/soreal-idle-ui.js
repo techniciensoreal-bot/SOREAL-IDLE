@@ -2700,7 +2700,12 @@
         function ecrireSiChangeIdleV1_(el,texte){
           if(el&&el.textContent!==texte)el.textContent=texte;
         }
-        function animerBarreCycliqueIdleV217_(el,seconds,progress){
+        /*
+         * `tenir` (Augments, Norman 2026-10-05 : « plus jamais de barre qui fait marche arrière quand le calcul de l'Or se fait ») : sur un cycle long, la barre s'arrête PLEINE au bout (fill forwards) au lieu de boucler. Bouclée, elle
+         * repartait à zéro d'elle-même (l'animation du navigateur, sans attendre le jeu) un instant avant que le jeu constate qu'il manque de l'Or et la remette pleine : on voyait la barre tomber à zéro puis remonter. Une barre qui
+         * a fini son cycle et dont le jeu en démarre un nouveau (niveau validé) est recréée ; les rituels de Blood Magic, eux, bouclent toujours (même durée à chaque tour).
+         */
+        function animerBarreCycliqueIdleV217_(el,seconds,progress,tenir){
           if(!(seconds>0)){
             /* Aucune ressource allouée : la barre reste à sa fraction (elle ne retombe pas à 0) et repartira de là. */
             if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
@@ -2717,7 +2722,8 @@
             return;
           }
           const duration=Math.max(20,seconds*1000);
-          if(!el.__idleAugAnimationV217||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
+          const fini=Boolean(tenir&&el.__idleAugAnimationV217&&el.__idleAugAnimationV217.playState==='finished'&&Number(progress)<0.98);
+          if(!el.__idleAugAnimationV217||fini||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
             if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
             el.style.width='100%';
             /*
@@ -2737,7 +2743,7 @@
                   {transform:'scaleX(1)',offset:.98},
                   {transform:'scaleX(0)',offset:1}
                 ],
-              {duration:duration,iterations:Infinity,easing:'linear'}
+              (tenir&&seconds>=2)?{duration:duration,iterations:1,fill:'forwards',easing:'linear'}:{duration:duration,iterations:Infinity,easing:'linear'}
             );
             animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(progress)))*duration;
             el.__idleAugAnimationV217=animation;
@@ -2824,7 +2830,7 @@
                 el.style.transform='scaleX(1)';
                 return;
               }
-              animerBarreCycliqueIdleV217_(el,secondes,secondes>0?Math.max(0,Math.min(.999999,reste/secondes)):idleNombre_(x[1]));
+              animerBarreCycliqueIdleV217_(el,secondes,secondes>0?Math.max(0,Math.min(.999999,reste/secondes)):idleNombre_(x[1]),true);
             });
           });
         }
