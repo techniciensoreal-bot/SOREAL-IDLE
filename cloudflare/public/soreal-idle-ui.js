@@ -4571,11 +4571,6 @@
               idleEtat=
                 joueurSynchronise;
 
-              /* Augmentations : la réponse du serveur devient directement le nouveau repère des barres (aucun redessin, donc aucun retour en arrière visible). */
-              if(idleMenuActifV28==='augmentations'&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
-                try{window.__adopterRepereAugmentsIdleV1__(idleEtat);}catch(_e){}
-              }
-
               if(adventureRestPvAvantSyncReposV1!=null){
                 idleEtat.adventureRestPv=
                   adventureRestPvAvantSyncReposV1;
@@ -4632,6 +4627,11 @@
                 );
               }
             }
+            /* Augmentations : la réponse du serveur devient directement le nouveau repère des barres, que la synchro passe par le chemin du combat ou non (aucun redessin, donc aucun retour en arrière visible). */
+            if(idleMenuActifV28==='augmentations'&&idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
+              try{window.__adopterRepereAugmentsIdleV1__(idleEtat);}catch(_e){}
+            }
+
             if(
               idleNombre_(
                 idleEtat.xp
