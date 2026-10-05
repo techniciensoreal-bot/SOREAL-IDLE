@@ -12932,7 +12932,7 @@
               return '<div class="soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700">'+idleHtml_(note)+'</div>';
             }).join('')}
             ${narration
-              ?'<div class="soreal-idle-boss-lore-histoire-v142">'+idleHtml_(sansBaliseVoixIdleV1_(narration))+'</div>'
+              ?'<div class="soreal-idle-boss-lore-histoire-v142" data-sans-traduction>'+idleHtml_(sansBaliseVoixIdleV1_(narration))+'</div>'
               :''}
             <button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleBossChroniqueV206">🔊 Lire la chronique</button>
             ${window.__SOREAL_IDLE_TEXTES_V1__?window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(j&&j.bossId):''}
