@@ -1144,8 +1144,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28:not(:is([data-menu="augme
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(input){
   background:#fff!important;color:#111!important;border:2px solid #1d3247!important;border-radius:4px!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-aide-v1 > summary{color:#0b1622!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-input-v1 span{color:#333!important}
+/* (Les deux règles sombres #0b1622 et #333 qui annulaient les règles « Lisibilité » plus haut ont été retirées : titre et légende de la Time Machine illisibles, Norman 2026-10-05.) */
 
 /* Fight Boss : la découpe en trapèze ne s'applique plus à toute la zone de vie mais seulement aux barres, pour que les cadres des PV (verts/rouges) aient les angles du cadre du joueur (Norman, 2026-10-02). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41{clip-path:none!important}
