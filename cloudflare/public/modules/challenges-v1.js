@@ -41,7 +41,7 @@ var DIFFICULTES={
   extreme:{nom:'Sadistic',note:'Les défis Sadistic sont débloqués en entrant en difficulté Sadistic. Ils donnent 100 fois plus d’EXP et 5 fois moins d’AP que les défis Normal.'}
 };
 
-var INTRO='Un défi te fait faire une Renaissance : ton NOMBRE revient à 1 et les banques de Time Machine, de Barbes et d’Advanced Training sont vidées (le Laser Sword Challenge fait seulement une Renaissance normale, sans rien remettre à zéro). Tu peux abandonner à tout moment, sans aucune pénalité à part le temps perdu. Le défi se termine tout seul quand sa condition de victoire est atteinte. Chaque défi peut être réussi plusieurs fois ; une fois le maximum atteint, les réussites suivantes ne donnent plus de récompense.';
+var INTRO='Un défi te fait faire une Renaissance : ton NOMBRE revient à 1 et les banques de certains systèmes sont vidées (le Laser Sword Challenge fait seulement une Renaissance normale, sans rien remettre à zéro). Tu peux abandonner à tout moment, sans aucune pénalité à part le temps perdu. Le défi se termine tout seul quand sa condition de victoire est atteinte. Chaque défi peut être réussi plusieurs fois ; une fois le maximum atteint, les réussites suivantes ne donnent plus de récompense.';
 
 /* q : 'premiere' | 'chaque' | 'finale' | numéro de complétion. s : true = récompense qui révèle un système à découvrir. */
 function R(q,t,s){return {q:q,t:t,s:Boolean(s)};}
@@ -49,7 +49,7 @@ function R(q,t,s){return {q:q,t:t,s:Boolean(s)};}
 var DEFIS={
   basic:{
     nom:'Basic Challenge',
-    desc:{normal:'Un défi simple. Ton NOMBRE revient à 1 et tu remontes du boss 1 jusqu’au boss 58. Cette perte de NOMBRE est permanente, mais tu le regagneras bien plus vite qu’il ne t’a fallu pour en arriver là. Rien d’autre n’est réinitialisé : tu gardes tes améliorations d’EXP, tes NGU, tes stats d’Aventure, etc.'},
+    desc:{normal:'Un défi simple. Ton NOMBRE revient à 1 et tu remontes du boss 1 jusqu’au boss 58. Cette perte de NOMBRE est permanente, mais tu le regagneras bien plus vite qu’il ne t’a fallu pour en arriver là. Rien d’autre n’est réinitialisé : tu gardes tes améliorations d’EXP, tes stats d’Aventure, etc.'},
     restriction:'Aucune ! Tu peux renaître autant que tu veux et tout faire.',
     conseil:{normal:'Aucune stat particulière. Laisse-toi quand même un peu de temps avant de le lancer.',difficile:'À faire dès ton entrée en Evil : il n’impose aucune restriction, et repasser de 1 à 1 ne change rien. Des stats d’Aventure gratuites !'},
     recompenses:{
@@ -62,7 +62,7 @@ var DEFIS={
     nom:'No Augmentations Challenge',
     desc:{normal:'Pas d’augmentations pour toi ! Ton NOMBRE revient à 1 et tu remontes comme d’habitude. Mais le menu Augmentations est totalement interdit pendant toute la durée du défi.'},
     restriction:'Le menu Augmentations est verrouillé pendant le défi. Tout le reste est disponible.',
-    conseil:{normal:'Un niveau de système d’exploitation Wandoos assez élevé aide à compenser l’absence d’augmentations.'},
+    conseil:{normal:'Compense l’absence d’augmentations avec tes autres sources de puissance.'},
     recompenses:{
       normal:[R('premiere','+10 % de vitesse de montée des augmentations'),R('chaque','+25 % à la puissance totale des augmentations'),R('finale','Le coût des augmentations ET de leurs améliorations est réduit de 50 %')],
       difficile:[R('chaque','+5 % de vitesse de montée des augmentations'),R('finale','+25 % de vitesse de montée des augmentations en plus')],

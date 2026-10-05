@@ -102,7 +102,7 @@
         tuile('💎','Bonus Points',nombre(a.bp)+' BP','linear-gradient(135deg,#4f6bff,#9b5cf6)')+
         tuile('💠','Bonus d’AP','+'+pct((nombre(a.apMultiplier)-1)*100),'linear-gradient(135deg,#14b8a6,#22c55e)')+
       '</div>'+
-      '<div class="soreal-idle-note-v4" style="margin:6px 0">+1 % d’AP par tranche de 100 BP (sauf kills de l’ITOPOD et Special Prize).</div>'+
+      '<div class="soreal-idle-note-v4" style="margin:6px 0">+1 % d’AP par tranche de 100 BP.</div>'+
       '<div class="idle-succes-grille-v1">'+groupes+'</div>';
   }
 
@@ -124,7 +124,7 @@
     const auto=p.auto?'<div class="soreal-idle-note-v4" style="margin-top:8px">🛡️ Les 4 pièces du set <b>'+html(p.auto.name)+'</b> sont équipées : ton héros en porte l’armure. Retire une pièce pour retrouver ton portrait choisi.</div>':'';
     return '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">🖼️ Player Portraits — '+nombre(p.unlockedCount)+'</div>'+
-        '<div class="soreal-idle-note-v4">Portrait du héros en combat (cosmétique). Un portrait par set complété, plus les souhaits Weiner, Mayo et Sneak Preview et les fragments SEXY / SMART à 250 %.</div>'+
+        '<div class="soreal-idle-note-v4">Portrait du héros en combat (cosmétique). Chaque portrait se débloque en jouant ; seuls ceux que tu as obtenus apparaissent.</div>'+
         auto+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+boutons+'</div>'+
       '</div>';

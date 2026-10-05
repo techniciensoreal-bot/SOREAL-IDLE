@@ -20,7 +20,7 @@ assert.deepEqual(nums, [...nums].sort((a, b) => b - a));
 
 // Anti-spoil : les notes visibles de tous ne nomment pas de système verrouillé ni le Classement (bouton encore réservé)
 const texte = JSON.stringify(n.versions).toLowerCase();
-for (const interdit of ["classement", "cooking", "titan", "tippi", "evil", "sadistic", "time machine", "macguffin"]) {
+for (const interdit of ["classement", "cooking", "titan", "tippi", "evil", "sadistic", "time machine", "macguffin", "yggdrasil", "wandoos", "gold digger", "mineurs d", "barbes", "souhaits", "piratages", "garderie", "itopod", "quirks", "giant seed"]) {
   assert.ok(!texte.includes(interdit), "spoil dans les notes : " + interdit);
 }
 

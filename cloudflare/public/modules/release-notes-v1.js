@@ -18,10 +18,11 @@
         nom:'Tout en direct',
         date:'2026-10-06',
         points:[
-          'Les chiffres de l’ITOPOD (étage, ennemis vaincus, PP, progression) se mettent à jour en direct sans toucher à la scène animée ni à tes champs d’étage.',
-          'Le texte de présentation de l’ITOPOD ne mentionne plus que ce que tu as déjà débloqué.',
-          'Les menus NGU, Wandoos, Yggdrasil, Gold Diggers, Barbes, Souhaits, Hacks et Garderie se mettent à jour en direct (toutes les 4 secondes) au lieu de rester figés jusqu’à la prochaine visite.',
-          'La fenêtre qui annonce les Atouts dit maintenant où les trouver : dans l’ITOPOD, avec le bouton « Atouts ».'
+          'Les pages avec des chiffres qui évoluent se mettent à jour sans toucher aux animations ni à tes champs de saisie.',
+          'Le texte de présentation d’une page ne mentionne plus que ce que tu as déjà débloqué.',
+          'Plusieurs textes d’aide, les notes de mise à jour et deux listes ne nomment plus de système que tu n’as pas encore débloqué.',
+          'Plusieurs menus qui restaient figés se mettent maintenant à jour en direct (toutes les 4 secondes) au lieu d’attendre ta prochaine visite.',
+          'La fenêtre qui annonce un système débloqué dit maintenant où le retrouver.'
         ]
       },
       {
@@ -45,7 +46,7 @@
           'Le maximum d’énergie affiché suit tout de suite un achat qui change le plafond (atout, boutique, équipement) : plus d’ancien chiffre ni de génération par à-coups jusqu’à la synchro suivante.',
           'L’énergie libre n’est plus bloquée au plafond de base : avec des bonus de plafond (atouts, équipement…), elle continue de se générer jusqu’au vrai plafond au lieu de retomber toute seule.',
           'La case « Ambiance » décochée coupe vraiment le son, y compris sur iPhone et iPad.',
-          'Le menu Atouts disparaît : sa boutique est maintenant dans la page ITOPOD, derrière un bouton « Atouts » (et « Retour à la tour » pour revenir).',
+          'Un menu a disparu : sa boutique est maintenant dans une autre page, derrière un bouton (avec « Retour » pour revenir).',
           'Augmentations : plus de petit retour en arrière du niveau ou de la barre à chaque validation du serveur (la page n’est plus redessinée en plein jeu : le serveur recale directement les barres).',
           'Le jeu ne se bloque plus quand on place d’énormes sommes d’énergie sur des barres très rapides (Augmentations) : le calcul du serveur est des centaines de fois plus rapide.',
           'Blood Magic : la Magie libre se met à jour tout de suite quand on en place.',
@@ -91,7 +92,7 @@
           'Le bandeau « En direct » annonce aussi quand un joueur prend la fuite devant un boss ou perd contre lui (le nom du boss n’est donné qu’à ceux qui l’ont déjà atteint).',
           'Sur PC, le menu de gauche est une seule colonne, tous les boutons superposés, sans barre de défilement qui apparaît et disparaît ; les images sont moins démesurées. Chaque menu a sa propre couleur, et la boutique magique passe au mauve.',
           'Les boutons « Plafond » des barres d’allocation s’appellent « Max ».',
-          'Les objets qui débloquent un système (A Number, Giant Seed, Scrap of Paper, poil d’UUG, copie de Wandoos 98…) s’utilisent comme dans le jeu d’origine : « Utiliser » sur la fiche de l’objet, ou clic droit dessus. L’objet est consommé et le système se débloque pour toujours. L’ancien menu « Objets de déblocage » ne reste qu’en secours si l’objet n’est plus dans ton sac.',
+          'Les objets qui débloquent un système s’utilisent comme dans le jeu d’origine : « Utiliser » sur la fiche de l’objet, ou clic droit dessus. L’objet est consommé et le système se débloque pour toujours. L’ancien menu « Objets de déblocage » ne reste qu’en secours si l’objet n’est plus dans ton sac.',
           'Le double tap et le triple tap sur les objets du sac ne sont plus offerts de base : ils s’achètent dans la boutique EXP, rayon Aventure. « Double tap » (20 EXP) : un objet, équipé ou non, absorbe tous les boosts de ton inventaire. « Triple tap » (30 EXP) : il fusionne automatiquement avec toutes les pièces identiques disponibles.',
           'Sur téléphone, le menu du haut se lance d’un geste et continue de défiler jusqu’au bout (avant, il s’arrêtait à chaque bouton) ; il ne revient plus au début quand la page se met à jour pendant que tu le fais défiler.',
           'Le bandeau d’infos présent sur toutes les pages prend beaucoup moins de place en haut, avec le même habillage : l’Énergie et la Magie tiennent chacune sur une ligne d’infos (titre, niveau par seconde, reste à générer et temps avant d’être plein) suivie de leur barre et les huit tuiles (Nombre, Rebirths, Attack, Defense, Gold, EXP, AP, Run) sur une seule ligne sur PC, deux lignes de quatre sur téléphone. Environ moitié moins haut, sans perdre aucune information.',

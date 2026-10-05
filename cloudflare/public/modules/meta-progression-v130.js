@@ -552,7 +552,7 @@
           nom:'Puissance',
           icone:'💪',
           /* Wiki, page « Energy » : Power = « effect of each point of Energy put into a task » ; la production d'une activité vaut points placés × Power (sauf Basic Training et Wandoos). Elle ne change pas la génération. */
-          explication:'Chaque point de cette ressource placé dans une activité (Augments, Time Machine, Blood Magic, NGU…) produit Puissance fois plus d’effet (sauf Basic Training et Wandoos). N’accélère pas la génération.'
+          explication:'Chaque point de cette ressource placé dans une activité produit Puissance fois plus d’effet (sauf Basic Training). N’accélère pas la génération.'
         },
         {
           id:'cap',
@@ -1357,7 +1357,8 @@
         const data=s.state.data||{};
         const fruits=data.fruits||{};
         const m=j&&j.systemes?j.systemes:{};
-        const defs=Array.isArray(m.yggFruits)?m.yggFruits:[];
+        /* Anti-spoil : un fruit qui porte le nom d'un système encore verrouillé n'apparaît pas. */
+        const defs=(Array.isArray(m.yggFruits)?m.yggFruits:[]).filter(function(def){return !/MacGuffin/i.test(String(def.name||def.id||''))||Boolean(systemeMetaParIdIdleV130_(j,'macguffins')&&systemeMetaParIdIdleV130_(j,'macguffins').state&&systemeMetaParIdIdleV130_(j,'macguffins').state.unlocked);});
         const x=m.yggExtra||{};
         const xf=x.fruits||{};
         const tierSec=Number(x.tierSeconds)>0?Number(x.tierSeconds):3600;
@@ -1411,7 +1412,8 @@
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
         const data=s.state.data||{};
         const diggers=data.diggers||{};
-        const defs=j&&j.systemes&&Array.isArray(j.systemes.diggerDefinitions)?j.systemes.diggerDefinitions:[];
+        /* Anti-spoil : le mineur d'un système encore verrouillé n'apparaît pas. */
+        const defs=(j&&j.systemes&&Array.isArray(j.systemes.diggerDefinitions)?j.systemes.diggerDefinitions:[]).filter(function(def){return def.id!=='daycare'||Boolean(systemeMetaParIdIdleV130_(j,'daycare')&&systemeMetaParIdIdleV130_(j,'daycare').state&&systemeMetaParIdIdleV130_(j,'daycare').state.unlocked);});
         const active=Object.keys(diggers).filter(function(id){return diggers[id]&&diggers[id].active;}).length;
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⛏️ Gold Diggers','Monte leur niveau maximum puis choisis le niveau actif. Les Diggers consomment le GPS produit par la Time Machine.')+
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🎰 Slots<b>'+active+' actif(s) · '+Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(data.slots||1)-active)+' libre(s)</b></div></div>'+
