@@ -2555,6 +2555,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const toolbarSpan=document.getElementById('sorealIdleBloodAllocV1');
         if(toolbarSpan)toolbarSpan.textContent=H.formatGrandNombreIdleV70_(value);
+        /* Compteur du rituel actif (les autres restent à 0) : mis à jour sur place, sans redessiner la page. */
+        const sys=systemeMetaParIdIdleV130_(H.getIdleEtat(),'bloodMagic');
+        const actif=sys&&sys.state&&sys.state.data&&sys.state.data.activeRitual;
+        if(actif){
+          const compteur=document.getElementById('sorealIdleBloodRitualAllocV1_'+actif);
+          const texte=H.formatGrandNombreIdleV70_(value);
+          if(compteur&&compteur.textContent!==texte)compteur.textContent=texte;
+        }
         if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
       }
 
@@ -2867,6 +2875,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b>−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             barre+
+            /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
+            '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(active?allocMagicActuelle:0)+'</b></div>'+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:14px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
             '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (l’active s’il ne l’est pas)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button></div>'+
           '</div>';

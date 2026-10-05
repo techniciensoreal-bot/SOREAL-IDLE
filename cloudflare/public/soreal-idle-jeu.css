@@ -223,3 +223,7 @@ body.soreal-idle-active-v47 .pk-comptoir .pk-recherche{flex:1 1 180px;min-width:
 @keyframes itpEclair{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
 @keyframes itpPoing{0%{opacity:0;transform:scale(2.4)}25%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
 @media (prefers-reduced-motion:reduce){.itp-ennemi .itp-avatar,.itp-vitre.itp-coup,.itp-vitre.itp-coup .itp-decor{animation:none}}
+
+/* Blood Magic : compteur de Magic allouée à chaque rituel (le chiffre gonfle via alloc-pop-v1). */
+.soreal-idle-blood-alloc-ligne-v1{margin:6px 0 2px;font-size:14px;font-weight:800;color:#e9c3cc}
+.soreal-idle-blood-alloc-ligne-v1 b{display:inline-block;font-size:18px;color:#ffd7df;text-shadow:0 0 8px rgba(225,29,72,.6)}
