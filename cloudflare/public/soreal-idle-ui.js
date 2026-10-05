@@ -10327,10 +10327,19 @@
         }catch(e){}
       }
 
+      /*
+       * Audit de Collection (Norman, 2026-10-05) : ouvrir un menu marque plusieurs choses « vues » à la suite (le menu, son tutoriel, un texte…) et chacune partait seule : deux appels serveur à la même milliseconde.
+       * Les identifiants marqués dans la même rafale partent maintenant ensemble, 400 ms après le premier (la mémoire locale, elle, est à jour tout de suite).
+       */
+      let idleVusMinuterieV1=0;
       function idleVuMarquerV1_(id){
         idleVusMemoireV1[id]=true;
         if(idleVusEnAttenteV1.indexOf(id)===-1)idleVusEnAttenteV1.push(id);
-        idleVusEnvoyerV1_();
+        if(idleVusMinuterieV1)return;
+        idleVusMinuterieV1=setTimeout(function(){
+          idleVusMinuterieV1=0;
+          idleVusEnvoyerV1_();
+        },400);
       }
 
       /*
