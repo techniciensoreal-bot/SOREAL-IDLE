@@ -2748,6 +2748,19 @@
             animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(progress)))*duration;
             el.__idleAugAnimationV217=animation;
             el.dataset.idleAugDurationV217=String(duration);
+          }else{
+            /*
+             * Recalage de phase : la barre tourne seule (animation du navigateur) pendant que le niveau affiché suit le repère du serveur ; après une synchro, les deux pouvaient différer de quelques
+             * dixièmes de seconde (la barre repartait de zéro 0,4 à 0,8 s AVANT que le numéro de niveau change). Dès que l'écart dépasse 80 ms (5 % du cycle), la barre se cale sur le repère.
+             */
+            const anim=el.__idleAugAnimationV217;
+            if(anim&&anim.playState==='running'){
+              const cible=Math.max(0,Math.min(.999999,Number(progress)||0))*duration;
+              const actuel=(Number(anim.currentTime)||0)%duration;
+              let ecart=cible-actuel;
+              if(ecart>duration/2)ecart-=duration;else if(ecart<-duration/2)ecart+=duration;
+              if(Math.abs(ecart)>Math.max(80,duration*0.05))anim.currentTime=cible;
+            }
           }
         }
 
