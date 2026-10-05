@@ -2807,12 +2807,8 @@
               const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;
               if(attenteServeur&&Date.now()-idleAugSyncV1>3000){
                 idleAugSyncV1=Date.now();
+                /* La réponse est adoptée comme nouveau repère à l'arrivée (voir la synchro) : plus de redessin différé, qui faisait repasser toute la page par les chiffres en retard du serveur. */
                 synchroniserJeuIdleV7_(true);
-                /* La page ne se redessine pas toute seule après une synchro : on la refait pour repartir de l'état du serveur (niveau gagné, nouvelle barre). */
-                setTimeout(function(){
-                  const racine=document.querySelector('.soreal-idle-page-root-v28');
-                  if(racine&&racine.getAttribute('data-menu')==='augmentations'&&idleEtat)rafraichirMenuRacineIdleV28_();
-                },1500);
               }
               /* Niveau, coût du prochain niveau et compte à rebours : mis à jour à l'instant où la barre passe. */
               const nivEl=elementAugIdleV1_('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]');
@@ -4578,6 +4574,11 @@
 
               idleEtat=
                 joueurSynchronise;
+
+              /* Augmentations : la réponse du serveur devient directement le nouveau repère des barres (aucun redessin, donc aucun retour en arrière visible). */
+              if(idleMenuActifV28==='augmentations'&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
+                try{window.__adopterRepereAugmentsIdleV1__(idleEtat);}catch(_e){}
+              }
 
               if(adventureRestPvAvantSyncReposV1!=null){
                 idleEtat.adventureRestPv=

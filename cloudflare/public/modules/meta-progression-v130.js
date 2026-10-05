@@ -2022,18 +2022,75 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return (recu>0?recu:performance.now())-rtt/2;
       }
 
+/*
+       * Repère visuel des Augments (une photo du serveur à l'instant où il l'a produite) : barres, niveaux et Or sont rejoués localement depuis ce repère (soreal-idle-ui.js, patch à chaque tick).
+       * Construit à partir d'un état serveur : défs (Augments), paires (niveaux, énergie placée) et Or. Utilisé au dessin de la page ET à chaque synchro (voir adopterRepereAugmentsIdleV1_).
+       */
+      function construireVisuelAugmentsIdleV1_(j){
+        const snap=j&&j.systemes||{},defs=Array.isArray(snap.augmentations)?snap.augmentations:[];
+        const sys=systemeMetaParIdIdleV130_(j,'augmentations');
+        const pairs=((sys&&sys.state&&sys.state.data)||{}).pairs||{};
+        const gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0);
+        const etatAug=j;
+  return {
+          src:defs,
+          at:ancreSnapshotIdleV1_(etatAug),
+          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,level:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).level),upgradeLevel:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).upgradeLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
+  };
+      }
+      /*
+       * Norman (2026-10-05) : « le menu Augmentations n'est toujours pas fluide, il fait des rollback pour s'accorder avec le serveur ». Avant, chaque niveau validé déclenchait une synchro puis un REDESSIN
+       * complet de la page 1,5 s plus tard : toutes les barres, niveaux et coûts repassaient un instant par les chiffres (en retard) du serveur. Désormais la réponse du serveur devient directement le nouveau
+       * repère (même mécanique, aucun redessin) : le niveau, la barre et l'Or restent ceux de l'écran, recalés sur le serveur à l'instant où il a calculé.
+       */
+      function adopterRepereAugmentsIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const snap=j&&j.systemes;
+        if(!snap||!Array.isArray(snap.augmentations)||!snap.augmentations.length)return;
+        j.__augmentationsVisualV215=construireVisuelAugmentsIdleV1_(j);
+        const mult=document.getElementById('sorealIdleAugMultV1');
+        const texteMult='x'+H.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1).toFixed(3);
+        if(mult&&mult.textContent!==texteMult)mult.textContent=texteMult;
+      }
+      window.__adopterRepereAugmentsIdleV1__=adopterRepereAugmentsIdleV1_;
+
+      /*
+       * Ramène le repère à « maintenant ». Les niveaux terminés depuis le repère sont REJOUÉS (niveau, coût, durée du suivant, Or débité) exactement comme le fait le tick de soreal-idle-ui.js : l'ancien
+       * calcul (reste de la division par la durée) effaçait ces niveaux sans les compter, d'où un niveau affiché qui reculait d'un cran et un Or trop haut jusqu'à la synchro suivante.
+       */
       function rebaserVisuelAugmentsIdleV1_(visual){
         if(!visual||!visual.defs)return;
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const maintenant=performance.now();
         const ecoule=Math.max(0,(maintenant-visual.at)/1000);
+        const etat=H.getIdleEtat();
+        const monnaies=etat&&etat.systemes&&etat.systemes.currencies;
         Object.keys(visual.defs).forEach(function(id){
           const d=visual.defs[id];
-          [['progress','seconds','waiting'],['upgradeProgress','upgradeSeconds','upgradeWaiting']].forEach(function(c){
-            const sec=Number(d[c[1]])||0;
-            if(sec>0&&!d[c[2]]){
-              const total=(Number(d[c[0]])||0)*sec+ecoule;
-              d[c[0]]=(total%sec)/sec;
+          [['progress','seconds','waiting','level','goldCost','main',1],['upgradeProgress','upgradeSeconds','upgradeWaiting','upgradeLevel','upgradeGoldCost','upgrade',2]].forEach(function(c){
+            const sec0=Number(d[c[1]])||0;
+            if(!(sec0>0)||d[c[2]])return;
+            if(sec0<=0.0201)return;
+            const niv0=Math.max(0,H.idleEntier_(d[c[3]]));
+            const cout0=H.idleNombre_(d[c[4]]);
+            const rapport=function(k){return (niv0+1+k)/(niv0+1);};
+            const dureeK=function(k){return sec0*rapport(k);};
+            const coutK=function(k){return cout0*Math.pow(rapport(k),c[6]);};
+            const cle='cycles_'+c[5];
+            let debites=d[cle]||0,k=0,reste=(Number(d[c[0]])||0)*sec0+ecoule;
+            while(k<200&&reste>=dureeK(k)-1e-9){
+              if(k<debites){reste-=dureeK(k);k+=1;continue;}
+              const cout=coutK(k);
+              const or=H.idleNombre_(monnaies&&monnaies.gold);
+              if(monnaies&&or+1e-9>=cout){
+                if(cout>0)monnaies.gold=Math.max(0,or-cout);
+                debites+=1;reste-=dureeK(k);k+=1;
+              }else break;
             }
+            d[cle]=Math.max(0,debites-k);
+            if(k>0){d[c[3]]=niv0+k;d[c[4]]=coutK(k);}
+            d[c[1]]=dureeK(k);
+            d[c[0]]=Math.max(0,reste/dureeK(k));
           });
         });
         visual.at=maintenant;
@@ -2127,7 +2184,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const cleW=upgrade?'upgradeWaiting':'waiting';
         const ancienSec=H.idleNombre_(d[cleS]);
         /* Fraction actuelle de la barre : celle de l'écran si la piste tournait, sinon celle du serveur ; elle ne change pas avec l'allocation (voir recalculerPisteFractionIdleV1_). */
-        const fracAvant=ancienSec>0?H.idleNombre_(d[cleP]):H.idleNombre_(upgrade?def.upgradeProgressFraction:def.progressFraction);
+        const fracAvant=ancienSec>0?Math.min(1,H.idleNombre_(d[cleP])):H.idleNombre_(upgrade?def.upgradeProgressFraction:def.progressFraction);
         const nouveau=recalculerPisteFractionIdleV1_(k,fracAvant,alloc);
         d[cleS]=nouveau.seconds;
         d[cleP]=nouveau.progress;
@@ -2226,11 +2283,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const garderVisuelAug=Boolean(visuelAugExistant&&visuelAugExistant.src===defs&&defs.length);
         if(garderVisuelAug)rebaserVisuelAugmentsIdleV1_(visuelAugExistant);
         if(!garderVisuelAug){
-        etatAug.__augmentationsVisualV215={
-          src:defs,
-          at:ancreSnapshotIdleV1_(etatAug),
-          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,level:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).level),upgradeLevel:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).upgradeLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
-        };
+        etatAug.__augmentationsVisualV215=construireVisuelAugmentsIdleV1_(j);
         rebaserVisuelAugmentsIdleV1_(etatAug.__augmentationsVisualV215);
         }
         const cap=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.resources&&snap.resources.energy&&snap.resources.energy.cap||0));
@@ -2253,7 +2306,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             'Chaque Augment et chaque Upgrade a sa propre Energy et progresse en parallèle des autres.',
             'Tous les niveaux sont remis à zéro à chaque Rebirth.'
           ])+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b>x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+bossMax+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b id="sorealIdleAugMultV1">x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+bossMax+'</b></div></div>'+
           legendeAllocationIdleV1_('Energy',true)+
           '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>⚡ Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+

@@ -34,7 +34,8 @@
           'Le maximum d’énergie affiché suit tout de suite un achat qui change le plafond (atout, boutique, équipement) : plus d’ancien chiffre ni de génération par à-coups jusqu’à la synchro suivante.',
           'L’énergie libre n’est plus bloquée au plafond de base : avec des bonus de plafond (atouts, équipement…), elle continue de se générer jusqu’au vrai plafond au lieu de retomber toute seule.',
           'La case « Ambiance » décochée coupe vraiment le son, y compris sur iPhone et iPad.',
-          'Le menu Atouts disparaît : sa boutique est maintenant dans la page ITOPOD, derrière un bouton « Atouts » (et « Retour à la tour » pour revenir).'
+          'Le menu Atouts disparaît : sa boutique est maintenant dans la page ITOPOD, derrière un bouton « Atouts » (et « Retour à la tour » pour revenir).',
+          'Augmentations : plus de petit retour en arrière du niveau ou de la barre à chaque validation du serveur (la page n’est plus redessinée en plein jeu : le serveur recale directement les barres).'
         ]
       },
       {
