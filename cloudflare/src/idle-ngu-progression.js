@@ -7079,6 +7079,11 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     /* Énergie d'une compétence d'Advanced Training (colonne « Energy Allocated », boutons + / −). */
     atSetTrackEnergyV1(state, String(payload.track || ""), num(payload.value, 0), context);
     atApplyTargetsV1(state);
+  } else if (action === "allocateAdvancedTrainings") {
+    /* Lot d'allocations d'Advanced Training (audit du menu, Norman 2026-10-05) : plusieurs compétences modifiées en rafale (ou « Tout retirer ») partent en UN appel ; appliquées dans l'ordre demandé, puis les Targets une seule fois. */
+    const items = Array.isArray(payload.items) ? payload.items.slice(0, 40) : [];
+    for (const it of items) atSetTrackEnergyV1(state, String(it?.track || ""), num(it?.value, 0), context);
+    atApplyTargetsV1(state);
   } else if (action === "setAdvancedTrainingAdvance") {
     /* Case « Advance Energy » d'Advanced Training. */
     const at = state.systems.advancedTraining;

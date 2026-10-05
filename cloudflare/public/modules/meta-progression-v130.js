@@ -1803,7 +1803,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         /* Plusieurs Augments / Upgrades en attente : un seul appel pour le lot (audit du menu Augmentations, 2026-10-05), au lieu d'un appel — et d'une réponse complète — par cible. */
         let cles=[cle];
         let envoi=payload;
-        if(payload.action==='allocateAugment'){
+        if(payload.action==='allocateAdvancedTraining'){
+          const lotAt=[[cle,payload]];
+          R.file.forEach(function(p,c){if(c!==cle&&p.action==='allocateAdvancedTraining')lotAt.push([c,p]);});
+          if(lotAt.length>1){
+            cles=lotAt.map(function(x){return x[0];});
+            envoi={action:'allocateAdvancedTrainings',items:lotAt.map(function(x){return {track:x[1].track,value:x[1].value};})};
+          }
+        }else if(payload.action==='allocateAugment'){
           const lot=[[cle,payload]];
           R.file.forEach(function(p,c){if(c!==cle&&p.action==='allocateAugment')lot.push([c,p]);});
           if(lot.length>1){
@@ -3787,16 +3794,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const etat=atSimulerIdleV1_(n0,p0,Math.max(0,(maintenant-t0)/1000),alloc,taux,gratuit,cible);
           const niveau=(Number(d.atBase)||0)+etat.n;
           const nivEl=document.getElementById('sorealIdleAtNiveau_'+id);
-          if(nivEl)nivEl.textContent=H.formatGrandNombreIdleV70_(niveau);
+          /* Audit d'Entraînement avancé (Norman, 2026-10-05) : ce passage tourne ~7 fois par seconde et réécrivait niveau et bonus de chaque piste même identiques (~40 modifications de page par seconde au repos) ; seulement s'ils changent. */
+          if(nivEl){const t=H.formatGrandNombreIdleV70_(niveau);if(nivEl.textContent!==t)nivEl.textContent=t;}
           const barre=el.querySelector('.soreal-idle-at-barre-v1'),rempl=el.querySelector('[data-at-fill]');
           const travailParS=gratuit?Infinity:alloc*taux;
           const niveauxParS=gratuit?50:Math.min(50,travailParS/(etat.n+1));
           const atteint=cible>0&&etat.n>=cible;
           const pleine=!atteint&&niveauxParS>=49.9;
           if(barre)barre.classList.toggle('pleine',pleine);
-          if(rempl&&!pleine)rempl.style.transform='scaleX('+(atteint?1:etat.p)+')';
+          if(rempl&&!pleine){const tr='scaleX('+(atteint?1:etat.p)+')';if(rempl.style.transform!==tr)rempl.style.transform=tr;}
           const bonusEl=el.querySelector('[data-at-bonus]');
-          if(bonusEl)bonusEl.textContent=atBonusTexteIdleV1_(id,niveau);
+          if(bonusEl){const t=atBonusTexteIdleV1_(id,niveau);if(bonusEl.textContent!==t)bonusEl.textContent=t;}
           const etaEl=el.querySelector('[data-at-eta]');
           if(etaEl){
             let txt;
@@ -3851,6 +3859,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           if(j)j.energie=Math.max(0,libre-delta);
           atPatchLigneIdleV1_(id,valeur);
         }
+        /* Rien n'a changé (plus d'énergie libre, déjà à zéro) : aucun envoi (audit d'Entraînement avancé, 2026-10-05). */
+        if(delta===0)return;
         envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:valeur});
       }
       window.__ajusterAdvancedTrainingIdleV1__=ajusterAdvancedTrainingIdleV1_;
