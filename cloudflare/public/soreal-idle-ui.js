@@ -2731,7 +2731,7 @@
              * ~26 % du cycle). Les paliers d'affichage ne servent qu'aux cycles très courts, échantillonnés à 15 Hz (voir V220).
              */
             const animation=el.animate(
-              seconds>=2
+              seconds>0
                 ?[
                   {transform:'scaleX(0)',offset:0},
                   {transform:'scaleX(1)',offset:1}
@@ -2808,7 +2808,14 @@
               }
               /* Niveau, coût du prochain niveau et compte à rebours : mis à jour à l'instant où la barre passe. */
               const nivEl=elementAugIdleV1_('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]');
-              ecrireSiChangeIdleV1_(nivEl,String(niv0+k));
+              /* Le niveau affiché ne recule jamais d'un cran à l'arrivée d'une réponse du serveur (écart d'horloge de quelques dixièmes de seconde sur une barre qui gagne des dizaines de niveaux par seconde) : on garde le plus haut tant que l'écart reste infime (moins de 1 % du niveau, 20 niveaux au plus). */
+              let nivAffiche=niv0+k;
+              if(nivEl){
+                const avant=nivEl.__idleNivAfficheV1;
+                if(avant!=null&&nivAffiche<avant&&avant-nivAffiche<=Math.min(20,Math.max(2,avant*0.01)))nivAffiche=avant;
+                nivEl.__idleNivAfficheV1=nivAffiche;
+              }
+              ecrireSiChangeIdleV1_(nivEl,String(nivAffiche));
               const coutEl=elementAugIdleV1_('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
               if(coutEl&&k>0)ecrireSiChangeIdleV1_(coutEl,formatGrandNombreIdleV70_(coutK(k))+' Or');
               const etaEl=elementAugIdleV1_('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');

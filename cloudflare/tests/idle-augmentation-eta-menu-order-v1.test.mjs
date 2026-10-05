@@ -66,7 +66,7 @@ assert.match(meta, /Barre pleine : il manque /);
 assert.match(ui, /data-idle-aug-eta-v1="'\+id\+':'\+x\[0\]/);
 assert.ok(ui.includes("if(attenteOr){"), "barre pleine et fixe seulement tant que l'Or manque (Or en direct) ; sinon elle continue sans interruption (Norman, 2026-10-03)");
 assert.ok(!ui.includes("Niveau en cours de validation"), "plus d'arrêt « Niveau en cours de validation » dans les Augmentations");
-assert.match(ui, /seconds>=2\s*\?\[\s*\{transform:'scaleX\(0\)',offset:0\},\s*\{transform:'scaleX\(1\)',offset:1\}/, "cycles longs : 0 -> 100 % sans plateau");
+assert.match(ui, /seconds>0\s*\?\[\s*\{transform:'scaleX\(0\)',offset:0\},\s*\{transform:'scaleX\(1\)',offset:1\}/, "cycles longs : 0 -> 100 % sans plateau");
 
 // --- La fonction de durée et le texte de compte à rebours (extraits du module) ---
 {
