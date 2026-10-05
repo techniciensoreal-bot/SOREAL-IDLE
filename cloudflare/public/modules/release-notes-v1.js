@@ -24,7 +24,8 @@
           'Quand le jeu te ramène en Zone sûre, la raison est maintenant écrite dans le journal d’Aventure.',
           'Sur PC, le clic droit absorbe les boosts de la même façon partout, sur un objet comme sur le cube.',
           'Le jeu est plus léger : quatre appels de moins au démarrage, plusieurs allocations d’un coup (Augments, entraînement avancé) envoyées en un seul appel, et les chiffres des barres, de l’entraînement, de l’aventure et du combat de boss ne sont plus réécrits quand rien ne change.',
-          'Le menu de gauche reste sur une seule colonne, même sur un grand écran, et ses boutons prennent entièrement la couleur de leur menu (comme la Boutique), avec une couleur plus vive et une lueur quand le menu est ouvert.'
+          'Le menu de gauche reste sur une seule colonne, même sur un grand écran, et ses boutons prennent entièrement la couleur de leur menu (comme la Boutique), avec une couleur plus vive et une lueur quand le menu est ouvert.',
+          'En English, toute l’interface passe vraiment en anglais : menus, boutons, infobulles, messages et annonces ; repasser en Français remet tout dans la langue d’origine.'
         ]
       },
       {

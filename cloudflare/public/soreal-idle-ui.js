@@ -22744,6 +22744,8 @@ function pageAventureIdleV28_(j){
         const choix=langue==='en'?'en':'fr';
         if(choix===langueIdleV1_())return;
         try{localStorage.setItem('soreal_idle_langue_v1',choix);}catch(_e){}
+        /* Interface en anglais : le module traduction-anglais-v1.js traduit (ou restitue) le texte affiché tout de suite. */
+        if(typeof window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__==='function')window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__(choix);
         /* Resynchronisation complète : le serveur renvoie aussitôt les textes dans la nouvelle langue, puis la page se redessine. */
         synchroniserJeuIdleV7_(true);
         setTimeout(function(){
