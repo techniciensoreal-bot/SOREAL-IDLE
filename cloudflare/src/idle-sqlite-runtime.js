@@ -16813,6 +16813,9 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     const cap = borne(o.energieCap, 1, 1e12);
     const puissance = borne(o.energiePuissance, 1, 1e9);
     const libre = borne(o.energie, 0, 1e12);
+    const magieCap = borne(o.magieCap, 1, 1e12);
+    const magiePuissance = borne(o.magiePuissance, 1, 1e9);
+    const magieLibre = borne(o.magie, 0, 1e12);
     /* Monnaies d'essai : EXP, AP, PP (boutiques, atouts), bornées. */
     const exp = borne(o.exp, 0, 1e18);
     const ap = borne(o.ap, 0, 1e18);
@@ -16840,6 +16843,12 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     const e = meta.resources.energy;
     if (cap !== null) { e.cap = cap; e.capNaturel = cap; applique.energieCap = cap; }
     if (puissance !== null) { e.power = puissance; applique.energiePuissance = puissance; }
+    const mg = meta.resources && meta.resources.magic;
+    if (mg && (magieCap !== null || magiePuissance !== null || magieLibre !== null)) {
+      if (magieCap !== null) { mg.cap = magieCap; mg.capNaturel = magieCap; applique.magieCap = magieCap; }
+      if (magiePuissance !== null) { mg.power = magiePuissance; applique.magiePuissance = magiePuissance; }
+      if (magieLibre !== null || magieCap !== null) { mg.current = Math.min(magieLibre !== null ? magieLibre : mg.current, Math.max(1, nombreSorealIdle_(mg.cap, 1))); mg.fillProgress = 0; applique.magie = mg.current; }
+    }
     if (libre !== null || cap !== null) {
       e.current = Math.min(libre !== null ? libre : e.current, Math.max(1, nombreSorealIdle_(e.cap, 1)));
       e.fillProgress = 0;

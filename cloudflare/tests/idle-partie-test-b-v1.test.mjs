@@ -79,6 +79,11 @@ const debloques = r.joueur.systemes.systems.filter((x) => x.state && x.state.unl
 for (const id of ["ngu", "yggdrasil", "diggers", "beards", "tower", "wandoos"]) assert.ok(debloques.includes(id), id + " débloqué");
 
 
+// 3 quater. Magie d'essai.
+r = appeler(norman, "preparerPartieTestSorealIdle", [{ magieCap: 5000, magiePuissance: 40, magie: 5000 }]);
+assert.equal(r.ok, true);
+assert.deepEqual(r.applique, { magieCap: 5000, magiePuissance: 40, magie: 5000 });
+
 // 4. Bornes : valeurs absurdes ramenées dans la plage.
 r = appeler(norman, "preparerPartieTestSorealIdle", [{ boss: 9999, or: -5, energieCap: 1e99 }]);
 assert.equal(r.ok, true);
