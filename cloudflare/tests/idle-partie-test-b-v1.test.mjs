@@ -63,6 +63,14 @@ assert.ok(r.joueur.systemes.currencies.gold >= 5e9 && r.joueur.systemes.currenci
 assert.equal(r.joueur.energieMax, 20000);
 assert.equal(etats()[ADMIN], avantA, "la partie A n'a pas changé");
 
+// 3 bis. Monnaies d'essai : EXP, AP, PP.
+r = appeler(norman, "preparerPartieTestSorealIdle", [{ exp: 123456, ap: 7e6, pp: 999 }]);
+assert.equal(r.ok, true);
+assert.deepEqual(r.applique, { exp: 123456, ap: 7e6, pp: 999 });
+assert.equal(r.joueur.systemes.currencies.experience, 123456);
+assert.equal(r.joueur.systemes.currencies.ap, 7e6);
+assert.equal(r.joueur.systemes.currencies.pp, 999);
+
 // 4. Bornes : valeurs absurdes ramenées dans la plage.
 r = appeler(norman, "preparerPartieTestSorealIdle", [{ boss: 9999, or: -5, energieCap: 1e99 }]);
 assert.equal(r.ok, true);

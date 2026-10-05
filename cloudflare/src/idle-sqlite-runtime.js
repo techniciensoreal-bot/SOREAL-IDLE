@@ -16757,7 +16757,7 @@ function supprimerBugSorealIdle(sessionToken, id) {
 /*
  * Préparation de la partie B pour les essais (Norman, 2026-10-05 : « tu ne peux pas t'ajouter des choses dans la partie B ? modifie-la comme tu veux, je ne l'utilise pas, elle est faite pour faire des tests »).
  * Réservé à l'administrateur ET à la partie B (compte distinct de la partie A, voir idle-dev-save-slots-v1.js) : jamais la vraie partie, jamais un autre joueur. Fixe seulement des valeurs de départ bornées :
- *   boss (boss vaincus, 0-140), or (0-1e30), energieCap (1-1e12), energiePuissance (1-1e9), energie (énergie libre, bornée au plafond).
+ *   boss (boss vaincus, 0-140), or (0-1e30), exp / ap (0-1e18), pp (0-1e15), energieCap (1-1e12), energiePuissance (1-1e9), energie (énergie libre, bornée au plafond).
  */
 function preparerPartieTestSorealIdle(sessionToken, options) {
   const acces = exigerAccesSorealIdle_(sessionToken);
@@ -16788,6 +16788,10 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     const cap = borne(o.energieCap, 1, 1e12);
     const puissance = borne(o.energiePuissance, 1, 1e9);
     const libre = borne(o.energie, 0, 1e12);
+    /* Monnaies d'essai : EXP, AP, PP (boutiques, atouts), bornées. */
+    const exp = borne(o.exp, 0, 1e18);
+    const ap = borne(o.ap, 0, 1e18);
+    const pp = borne(o.pp, 0, 1e15);
     const applique = {};
 
     if (boss !== null) {
@@ -16797,6 +16801,9 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
       applique.boss = b;
     }
     if (or !== null) { meta.currencies.gold = or; applique.or = or; }
+    if (exp !== null) { meta.currencies.experience = exp; applique.exp = exp; }
+    if (ap !== null) { meta.currencies.ap = ap; applique.ap = ap; }
+    if (pp !== null) { meta.currencies.pp = pp; applique.pp = pp; }
     const e = meta.resources.energy;
     if (cap !== null) { e.cap = cap; e.capNaturel = cap; applique.energieCap = cap; }
     if (puissance !== null) { e.power = puissance; applique.energiePuissance = puissance; }
