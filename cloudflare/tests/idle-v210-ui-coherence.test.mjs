@@ -31,7 +31,7 @@ for(const token of [
   "Les cases apparaîtront dès que tu trouveras la première pièce d’un set.",
   "const setsDemarres=new Set(",
   "Cette statistique est déjà au maximum : le boost n’est pas consommé.",
-  "Augmente la vitesse à laquelle cette ressource est générée",
+  "Vitesse de remplissage de la barre de cette ressource",
   "Quantité personnalisée",
   "🎁 Offres débutant",
   "soreal-idle-exp-current-v211",

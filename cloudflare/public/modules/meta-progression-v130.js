@@ -544,13 +544,15 @@
           id:'speed',
           nom:'Vitesse',
           icone:'⏩',
-          explication:'Augmente la vitesse à laquelle cette ressource est générée : plus la valeur est élevée, plus vite ta barre progresse.'
+          /* Wiki NGU Idle, page « Energy » (Purchase) : Speed = « rate at which you generate Energy », plafonné à 50 : 1 point par tick (50 par seconde) et par barre. */
+          explication:'Vitesse de remplissage de la barre de cette ressource : plus elle est élevée, plus vite tes points sont générés. Maximum : 50 remplissages par seconde.'
         },
         {
           id:'power',
           nom:'Puissance',
           icone:'💪',
-          explication:'Augmente la quantité de ressource produite à chaque génération.'
+          /* Wiki, page « Energy » : Power = « effect of each point of Energy put into a task » ; la production d'une activité vaut points placés × Power (sauf Basic Training et Wandoos). Elle ne change pas la génération. */
+          explication:'Chaque point de cette ressource placé dans une activité (Augments, Time Machine, Blood Magic, NGU…) produit Puissance fois plus d’effet (sauf Basic Training et Wandoos). N’accélère pas la génération.'
         },
         {
           id:'cap',
@@ -562,7 +564,8 @@
           id:'bars',
           nom:'Barres',
           icone:'📊',
-          explication:'Augmente le nombre de barres de cette ressource et donc ta capacité de progression.'
+          /* Wiki, page « Energy » : Bars = « increases the rate at which you generate Energy » ; moteur (advanceGeneratedResources) : chaque remplissage de la barre donne autant de points que de Barres, donc génération par seconde = vitesse × Barres. */
+          explication:'Chaque remplissage de la barre te donne autant de points que de Barres : avec 3 Barres, un remplissage rapporte 3 points au lieu de 1. Ça multiplie la vitesse de génération (vitesse × Barres).'
         }
       ];
 

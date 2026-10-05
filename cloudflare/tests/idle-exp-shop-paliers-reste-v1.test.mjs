@@ -17,3 +17,11 @@ assert.deepEqual(calc(5, 4), [1], "il reste 1");
 assert.deepEqual(calc(25, 0), [1, 5, 10], "grand maximum : paliers habituels");
 assert.deepEqual(calc(8, 0), [1, 5, 8], "il reste 8 : 1, 5 et le reste");
 console.log("idle-exp-shop-paliers-reste-v1: OK");
+
+// Explications de la boutique EXP (Norman, 2026-10-05) : les Barres multiplient la génération ; la Puissance n'est PAS la quantité produite à chaque génération (wiki NGU Idle, page « Energy »).
+{
+  const meta2 = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(meta2.includes("autant de points que de Barres") && meta2.includes("vitesse × Barres"), "Barres : un remplissage donne autant de points que de Barres");
+  assert.ok(!meta2.includes("Augmente la quantité de ressource produite à chaque génération"), "ancienne explication fausse de la Puissance retirée");
+  assert.ok(meta2.includes("N’accélère pas la génération"), "Puissance : n'accélère pas la génération");
+}
