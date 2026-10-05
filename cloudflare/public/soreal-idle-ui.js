@@ -505,6 +505,14 @@
         return result;
       }
 
+      /*
+       * Audit de l'entraînement de base (Norman, 2026-10-05) : ce rafraîchissement tourne ~13 fois par seconde et réécrivait les 6 textes de chaque compétence à chaque passage, même identiques (chaque réécriture remplace
+       * le nœud de texte : ~150 modifications de page par seconde sans rien de nouveau, qui relançaient aussi les observateurs de la page). Un texte n'est réécrit que s'il a changé.
+       */
+      function ecrireTexteSiChangeIdleV1_(el,texte){
+        if(el&&el.textContent!==texte)el.textContent=texte;
+      }
+
       function rafraichirBasicTrainingIdleV120_(){
         const bt=basicTrainingIdleV120_();
 
@@ -593,35 +601,35 @@
             vitesse;
 
           if(level){
-            level.textContent=
+            ecrireTexteSiChangeIdleV1_(level,
               formatGrandNombreIdleV70_(
                 skill.level
-              );
+              ));
           }
 
           if(allocation){
-            allocation.textContent=
+            ecrireTexteSiChangeIdleV1_(allocation,
               idleEntier_(
                 skill.allocation
               )+
-              ' ⚡';
+              ' ⚡');
           }
 
           if(cap){
-            cap.textContent=
+            ecrireTexteSiChangeIdleV1_(cap,
               String(
                 capValeur
-              );
+              ));
           }
 
           if(nextCap){
-            nextCap.textContent=
+            ecrireTexteSiChangeIdleV1_(nextCap,
               String(
                 idleEntier_(
                   skill.nextCap||
                   capValeur
                 )
-              );
+              ));
 
             nextCap.classList.toggle(
               'ready',
@@ -632,18 +640,18 @@
           }
 
           if(speed){
-            speed.textContent=
+            ecrireTexteSiChangeIdleV1_(speed,
               vitesse
                 .toFixed(2)
                 .replace('.',',')+
-              ' niv/s';
+              ' niv/s');
           }
 
           if(eta){
-            eta.textContent=
+            ecrireTexteSiChangeIdleV1_(eta,
               texteEtaBasicTrainingIdleV1_(
                 vitesse
-              );
+              ));
           }
 
           if(bar){
@@ -10264,12 +10272,20 @@
       function idleClicMarquerV1_(){
         idleClicsEnAttenteV1+=1;
         if(!idleClicsEnvoiMinuterieV1){
+          /* Audit de l'entraînement de base (2026-10-05) : en jouant sans arrêt, ce lot partait toutes les 4 s ; toutes les 15 s suffisent (compteur de classement), et il part aussi dès que l'onglet est quitté. */
           idleClicsEnvoiMinuterieV1=setTimeout(function(){
             idleClicsEnvoiMinuterieV1=null;
             idleClicsEnvoyerV1_();
-          },4000);
+          },15000);
         }
       }
+      document.addEventListener('visibilitychange',function(){
+        if(document.hidden&&idleClicsEnAttenteV1>0){
+          clearTimeout(idleClicsEnvoiMinuterieV1);
+          idleClicsEnvoiMinuterieV1=null;
+          idleClicsEnvoyerV1_();
+        }
+      });
 
       document.addEventListener('mousedown',function(ev){
         if(PAGE_ACTIVE!=='idle')return;
