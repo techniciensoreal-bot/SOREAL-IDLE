@@ -1945,6 +1945,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const niveauxAvant=niveauxAugmentsMetaV1_(j);
         const ressourcesLocales=j.systemes&&j.systemes.resources;
         j.systemes=srv.systemes;
+        /* Les repères des barres (Augments, rituels) partent de l'instant où le serveur a produit CETTE réponse : avec l'instant de la première réponse du chargement, la barre rattrapait tout le temps écoulé depuis à la nouvelle vitesse (Norman, 2026-10-05). */
+        if(srv.__recuPerfV1)j.__recuPerfV1=srv.__recuPerfV1;
         if(ressourcesLocales&&j.systemes)j.systemes.resources=ressourcesLocales;
         if(niveauxAugmentsMetaV1_(j)!==niveauxAvant&&typeof H.rafraichirMenuRacineIdleV28_==='function'){
           H.rafraichirMenuRacineIdleV28_();
@@ -1959,6 +1961,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * Recalcul local d'une piste à allocation A : durée d'un niveau = K / A ; la progression (en SECONDES) ne change pas quand on
        * change l'allocation, donc fraction' = secondes / durée'. Renvoie { seconds, progress } (seconds = 0 sans allocation).
        */
+      /*
+       * Barres alimentées par une ressource (Norman, 2026-10-05) : en changeant l'allocation, la barre ne rattrape pas son retard et ne perd rien : elle garde la MÊME fraction et adopte la nouvelle vitesse
+       * (durée du niveau = K / allocation). Sans ressource, la barre reste où elle est.
+       */
+      function recalculerPisteFractionIdleV1_(k,fraction,alloc){
+        const a=Math.max(0,Number(alloc)||0);
+        const frac=Math.max(0,Math.min(.999999,Number(fraction)||0));
+        if(!(k>0)||!(a>0))return {seconds:0,progress:frac};
+        return {seconds:k/a,progress:frac};
+      }
       function recalculerPisteAllocIdleV1_(k,progressSecondes,alloc){
         const a=Math.max(0,Number(alloc)||0);
         if(!(k>0)||!(a>0))return {seconds:0,progress:0};
@@ -2078,9 +2090,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const cleS=upgrade?'upgradeSeconds':'seconds';
         const cleW=upgrade?'upgradeWaiting':'waiting';
         const ancienSec=H.idleNombre_(d[cleS]);
-        /* Progression actuelle en secondes : celle de l'écran si la piste tournait, sinon celle du serveur. */
-        const progSec=ancienSec>0?H.idleNombre_(d[cleP])*ancienSec:H.idleNombre_(upgrade?def.upgradeProgressSeconds:def.progressSeconds);
-        const nouveau=recalculerPisteAllocIdleV1_(k,progSec,alloc);
+        /* Fraction actuelle de la barre : celle de l'écran si la piste tournait, sinon celle du serveur ; elle ne change pas avec l'allocation (voir recalculerPisteFractionIdleV1_). */
+        const fracAvant=ancienSec>0?H.idleNombre_(d[cleP]):H.idleNombre_(upgrade?def.upgradeProgressFraction:def.progressFraction);
+        const nouveau=recalculerPisteFractionIdleV1_(k,fracAvant,alloc);
         d[cleS]=nouveau.seconds;
         d[cleP]=nouveau.progress;
         d[cleW]=false;
@@ -2276,9 +2288,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!(k>0))return;
         rebaserVueTimeMachineIdleV1_(vue);
         const progSec=H.idleNombre_(vue[piste+'ProgressSeconds']);
-        const nouveau=recalculerPisteAllocIdleV1_(k,progSec,alloc);
+        const etaAvant=vue[piste+'EtaSeconds'];
+        /* Fraction actuelle : secondes écoulées sur durée du niveau (écoulé + reste) ; sans durée (aucune ressource), la fraction du serveur. */
+        const fracAvant=(etaAvant!==null&&etaAvant!==undefined&&Number.isFinite(Number(etaAvant))&&progSec+Number(etaAvant)>0)
+          ?progSec/(progSec+Number(etaAvant))
+          :H.idleNombre_(vue[piste+'Fraction']);
+        const nouveau=recalculerPisteFractionIdleV1_(k,fracAvant,alloc);
         vue[piste+'Fill']=nouveau.progress;
-        vue[piste+'EtaSeconds']=nouveau.seconds>0?Math.max(0,nouveau.seconds-progSec):null;
+        vue[piste+'Fraction']=nouveau.progress;
+        vue[piste+'ProgressSeconds']=nouveau.seconds>0?nouveau.progress*nouveau.seconds:progSec;
+        vue[piste+'EtaSeconds']=nouveau.seconds>0?Math.max(0,(1-nouveau.progress)*nouveau.seconds):null;
         if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j);
       }
 
@@ -2578,17 +2597,20 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!(k>0))return;
         const visuel=j.__bloodMagicVisualV1;
         const maintenant=performance.now();
-        let progSec;
+        /* Fraction actuelle de la barre (celle de l'écran si elle tournait, sinon celle du serveur) : elle ne change pas avec l'allocation. */
+        let fracAvant;
         if(visuel&&H.idleNombre_(visuel.secondsPerCompletion)>0){
           const ecoule=Math.max(0,(maintenant-(visuel.at||maintenant))/1000);
           const sec=H.idleNombre_(visuel.secondsPerCompletion);
-          progSec=Math.min(sec,(1-H.idleNombre_(visuel.etaSeconds)/sec)*sec+ecoule);
+          fracAvant=Math.min(1,(1-H.idleNombre_(visuel.etaSeconds)/sec)+ecoule/sec);
         }else{
-          progSec=H.idleNombre_(vue.progressSeconds);
+          fracAvant=H.idleNombre_(vue.progressFraction);
         }
-        const nouveau=recalculerPisteAllocIdleV1_(k,progSec,alloc);
+        const nouveau=recalculerPisteFractionIdleV1_(k,fracAvant,alloc);
+        const progSec=nouveau.seconds>0?nouveau.progress*nouveau.seconds:H.idleNombre_(vue.progressSeconds);
         vue.secondsPerCompletion=nouveau.seconds>0?nouveau.seconds:null;
-        vue.etaSeconds=nouveau.seconds>0?Math.max(0,nouveau.seconds-progSec):null;
+        vue.etaSeconds=nouveau.seconds>0?Math.max(0,(1-nouveau.progress)*nouveau.seconds):null;
+        vue.progressFraction=nouveau.progress;
         vue.progressSeconds=progSec;
         j.__bloodMagicVisualV1=nouveau.seconds>0
           ?{ritual:vue.activeRitual,secondsPerCompletion:nouveau.seconds,etaSeconds:vue.etaSeconds,at:maintenant,src:vue}
@@ -2601,8 +2623,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(nouveau.seconds>0){
           window.__bloodFigeV1=null;
         }else{
-          const secAvant=visuel?H.idleNombre_(visuel.secondsPerCompletion):0;
-          const pct=Math.max(0,Math.min(.999999,secAvant>0?progSec/secAvant:0));
+          const pct=nouveau.progress;
           window.__bloodFigeV1={ritual:vue.activeRitual,pct:pct};
           if(barreRituel){
             if(barreRituel.__idleAugAnimationV217){barreRituel.__idleAugAnimationV217.cancel();barreRituel.__idleAugAnimationV217=null;delete barreRituel.dataset.idleAugDurationV217;}
@@ -2700,13 +2721,19 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const magie=Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.magic));
         const k=H.idleNombre_(vue.secondsK)*H.idleNombre_(nouveau.baseSeconds)/H.idleNombre_(ancien.baseSeconds);
         const rit=s.state.data.rituals&&s.state.data.rituals[ritualId];
-        const progSec=Math.max(0,H.idleNombre_(rit&&rit.progress));
-        const calc=recalculerPisteAllocIdleV1_(k,progSec,magie);
+        const progBrut=Math.max(0,H.idleNombre_(rit&&rit.progress));
+        const refRit=Math.max(0,H.idleNombre_(rit&&rit.progressRef));
+        const secondesNouveau=(k>0&&magie>0)?k/magie:0;
+        /* Fraction propre à ce rituel : progression sur la durée à laquelle elle a été mesurée (sinon, sur la durée actuelle). */
+        const fracRit=refRit>0?progBrut/refRit:(secondesNouveau>0?progBrut/secondesNouveau:0);
+        const calc=recalculerPisteFractionIdleV1_(k,fracRit,magie);
+        const progSec=calc.seconds>0?calc.progress*calc.seconds:progBrut;
         vue.activeRitual=ritualId;
         vue.secondsK=k;
         vue.progressSeconds=progSec;
+        vue.progressFraction=calc.progress;
         vue.secondsPerCompletion=calc.seconds>0?calc.seconds:null;
-        vue.etaSeconds=calc.seconds>0?Math.max(0,calc.seconds-progSec):null;
+        vue.etaSeconds=calc.seconds>0?Math.max(0,(1-calc.progress)*calc.seconds):null;
         j.__bloodMagicVisualV1=calc.seconds>0?{ritual:ritualId,secondsPerCompletion:calc.seconds,etaSeconds:vue.etaSeconds,at:performance.now(),src:vue}:null;
       }
 
@@ -2874,7 +2901,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const active=data.activeRitual===def.id;
           const progressionActive=active&&bmView&&bmView.activeRitual===def.id&&bmView.secondsPerCompletion!=null;
           const figee=window.__bloodFigeV1;
-          const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(bmView.etaSeconds)/bmView.secondsPerCompletion)):(active&&figee&&figee.ritual===def.id?figee.pct:0);
+          const fractionVue=active&&bmView&&bmView.activeRitual===def.id?H.idleNombre_(bmView.progressFraction):0;
+          const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(bmView.etaSeconds)/bmView.secondsPerCompletion)):(fractionVue>0?fractionVue:(active&&figee&&figee.ritual===def.id?figee.pct:0));
           const etaTexte=active&&bmView&&bmView.activeRitual===def.id&&bmView.etaSeconds!=null
             ?'⏱ '+formatDureeAugmentIdleV1_(bmView.etaSeconds)+' avant le prochain rituel complété'
             :(active?'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.':'');

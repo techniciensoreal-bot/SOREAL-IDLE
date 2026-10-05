@@ -174,13 +174,15 @@ const passer = () => { let n = 0; while (minuteries.some((m) => m.actif) && n++ 
     defs: Object.fromEntries(snap.augmentations.map((d) => [d.id, { progress: d.progressPct, upgradeProgress: d.upgradeProgressPct, seconds: d.secondsPerLevel || 0, upgradeSeconds: d.upgradeSecondsPerLevel || 0, waiting: false, upgradeWaiting: false, goldCost: d.goldCost, upgradeGoldCost: d.upgradeGoldCost, gold: 1e30 }]))
   };
   elements.sorealIdleAugInputV1 = { value: "300" };
+  const fractionAvant = j.__augmentationsVisualV215.defs.scissors.progress;
   window_.__ajusterAugmentIdleV1__("scissors", false, "plus");
   const d = j.__augmentationsVisualV215.defs.scissors;
   const k = snap.augmentations.find((x) => x.id === "scissors").secondsK;
   const alloc = snap.systems.find((x) => x.id === "augmentations").state.data.pairs.scissors.energy;
   assert.equal(alloc, 400, "allocation locale : 100 + 300");
   proche(d.seconds, k / 400, "durée locale = K / 400, sans attendre le serveur");
-  assert.ok(Math.abs(d.progress - Math.min(0.999999, 100 / (k / 400))) < 1e-3, "barre locale recalculée sur la même progression en secondes (à quelques ms de temps écoulé près) : " + d.progress);
+  /* Norman (2026-10-05) : la barre garde sa FRACTION (elle ne rattrape pas son retard à la nouvelle vitesse). */
+  assert.ok(Math.abs(d.progress - fractionAvant) < 1e-3, "barre locale : même fraction qu'avant le changement (" + fractionAvant + " -> " + d.progress + ")");
   assert.equal(j.energie, 4700, "énergie libre mise à jour tout de suite");
   passer();
   assert.equal(appels.length, 1, "l'allocation part au serveur, une seule fois");

@@ -1609,8 +1609,10 @@ function normalizeSystem(def, raw) {
       s.data.pairs[aug.id] = {
         level: Math.max(0, int(a.level, 0)),
         progress: Math.max(0, num(a.progress, 0)),
+        progressRef: Math.max(0, num(a.progressRef, 0)),
         upgradeLevel: Math.max(0, int(a.upgradeLevel, 0)),
         upgradeProgress: Math.max(0, num(a.upgradeProgress, 0)),
+        upgradeProgressRef: Math.max(0, num(a.upgradeProgressRef, 0)),
         energy: Math.max(0, num(a.energy, 0)),
         upgradeEnergy: Math.max(0, num(a.upgradeEnergy, 0))
       };
@@ -1619,7 +1621,7 @@ function normalizeSystem(def, raw) {
     s.data.trainUpgrade = Boolean(data.trainUpgrade);
   } else if (def.id === "timeMachine") {
     s.data = Object.assign(createTimeMachineData(), src.data || {});
-    for (const key of ["speedLevel", "speedProgress", "goldLevel", "goldProgress", "speedTarget", "goldTarget", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
+    for (const key of ["speedLevel", "speedProgress", "speedProgressRef", "goldLevel", "goldProgress", "goldProgressRef", "speedTarget", "goldTarget", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
       s.data[key] = Math.max(0, num(s.data[key], 0));
     }
     s.data.speedTarget = Math.floor(s.data.speedTarget);
@@ -1632,6 +1634,7 @@ function normalizeSystem(def, raw) {
       s.data.rituals[ritual.id] = {
         level: Math.max(0, int(r.level, 0)),
         progress: Math.max(0, num(r.progress, 0)),
+        progressRef: Math.max(0, num(r.progressRef, 0)),
         completions: Math.max(0, int(r.completions, 0))
       };
     }
@@ -2666,6 +2669,26 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false, allocOverr
   return targetLevel * base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(idlePerkNiveauxV1(state)).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
 }
 
+/*
+ * Barres alimentées par une ressource (Norman, 2026-10-05) : « quand on ajoute de l'énergie dans une barre, elle ne rattrape pas son retard : elle adopte la nouvelle vitesse, elle finit donc le niveau plus vite, mais pas
+ * instantanément (sinon on mettrait une grosse somme, on remplirait le niveau en un coup et on retirerait la somme) ». La progression de ces barres est comptée en SECONDES de la durée du niveau ; quand cette durée change
+ * (allocation, puissance, bonus), les secondes déjà accumulées sont remises à l'échelle de la nouvelle durée : c'est la FRACTION de barre qui reste la même. "<clé>Ref" garde la durée à laquelle la progression a été mesurée.
+ */
+function rebaserProgressionSecondesV1(porteur, cle, duree) {
+  if (!(Number.isFinite(duree) && duree > 0)) return;
+  const cleRef = cle + "Ref";
+  const ref = num(porteur[cleRef], 0);
+  if (ref > 0 && Math.abs(ref - duree) > 1e-9 * Math.max(1, ref)) porteur[cle] = Math.max(0, num(porteur[cle], 0)) * duree / ref;
+  porteur[cleRef] = duree;
+}
+/* Fraction de barre (0 à 1), même quand la durée courante n'existe pas (aucune ressource allouée : la barre garde sa place). */
+function fractionProgressionSecondesV1(porteur, cle, duree) {
+  const ref = num(porteur[cle + "Ref"], 0);
+  const p = Math.max(0, num(porteur[cle], 0));
+  if (ref > 0) return Math.max(0, Math.min(1, p / ref));
+  return Number.isFinite(duree) && duree > 0 ? Math.max(0, Math.min(1, p / duree)) : 0;
+}
+
 function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   if(num(context.bosses,0)<def.unlockBoss)return;
   if(upgrade&&(!def.upgrade||num(context.bosses,0)<def.upgrade.unlockBoss))return;
@@ -2675,6 +2698,7 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
     const level=upgrade?pair.upgradeLevel:pair.level;
     const needed=augmentationSecondsForNextLevel(state,def,upgrade);
     if(!Number.isFinite(needed))break;
+    rebaserProgressionSecondesV1(pair,progressKey,needed);
     const missing=Math.max(0,needed-num(pair[progressKey],0));
     if(remaining+1e-9<missing){pair[progressKey]+=remaining;break;}
     const cost=augmentationGoldCost(state,def,level,upgrade);
@@ -3472,21 +3496,23 @@ function timeMachineViewV1(state) {
     beardMultiplier: beardBonusMultiplier(state, "gold"),
     grossGps: idleNguTimeMachineGrossGoldPerSecond(state),
     netGps: idleNguTimeMachineGoldPerSecond(state),
-    speedFill: fill(d.speedProgress, speedStep),
-    goldFill: fill(d.goldProgress, goldStep),
+    speedFill: fractionProgressionSecondesV1(d, "speedProgress", speedStep),
+    goldFill: fractionProgressionSecondesV1(d, "goldProgress", goldStep),
+    speedFraction: fractionProgressionSecondesV1(d, "speedProgress", speedStep),
+    goldFraction: fractionProgressionSecondesV1(d, "goldProgress", goldStep),
     speedEtaSeconds: Number.isFinite(speedStep)
-      ? Math.max(0, speedStep - Math.max(0, num(d.speedProgress, 0)))
+      ? Math.max(0, (1 - fractionProgressionSecondesV1(d, "speedProgress", speedStep)) * speedStep)
       : null,
     goldEtaSeconds: Number.isFinite(goldStep)
-      ? Math.max(0, goldStep - Math.max(0, num(d.goldProgress, 0)))
+      ? Math.max(0, (1 - fractionProgressionSecondesV1(d, "goldProgress", goldStep)) * goldStep)
       : null,
     speedTarget: Math.max(0, Math.floor(num(d.speedTarget, 0))),
     goldTarget: Math.max(0, Math.floor(num(d.goldTarget, 0))),
     /* Chantier « réactivité » : durée du niveau à 1 Energy / 1 Magic (K) et progression en secondes -> recalcul local au clic. */
     speedK: finiOuNullV1(tmLevelSeconds(state, "energy", speedLevel + 1, 1)),
     goldK: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmLevelSeconds(state, "magic", goldLevel + 1, 1)) : null,
-    speedProgressSeconds: Math.max(0, num(d.speedProgress, 0)),
-    goldProgressSeconds: Math.max(0, num(d.goldProgress, 0))
+    speedProgressSeconds: Number.isFinite(speedStep) ? fractionProgressionSecondesV1(d, "speedProgress", speedStep) * speedStep : Math.max(0, num(d.speedProgress, 0)),
+    goldProgressSeconds: Number.isFinite(goldStep) ? fractionProgressionSecondesV1(d, "goldProgress", goldStep) * goldStep : Math.max(0, num(d.goldProgress, 0))
   };
 }
 
@@ -3518,11 +3544,12 @@ function bloodMagicViewV1(state) {
     activeRitual: ritual.id,
     secondsPerCompletion,
     etaSeconds: secondsPerCompletion != null
-      ? Math.max(0, secondsPerCompletion - Math.max(0, num(rs.progress, 0)))
+      ? Math.max(0, (1 - fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion)) * secondsPerCompletion)
       : null,
+    progressFraction: fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion),
     /* Chantier « réactivité » : durée d'une complétion à 1 Magic (K) et progression en secondes -> recalcul local au clic. */
     secondsK: ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, power) / dutchSetMultiplier,
-    progressSeconds: Math.max(0, num(rs.progress, 0))
+    progressSeconds: secondsPerCompletion != null ? fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion) * secondsPerCompletion : Math.max(0, num(rs.progress, 0))
   };
 }
 
@@ -3544,6 +3571,7 @@ function advanceTimeMachine(state, seconds) {
   let guard = 0;
   let energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
   if (Number.isFinite(energyStep)) {
+    rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     d.speedProgress += seconds;
     while (d.speedProgress >= energyStep && guard < 100000 && !tmTargetReached(d.speedTarget, d.speedLevel)) {
       guard++;
@@ -3555,6 +3583,7 @@ function advanceTimeMachine(state, seconds) {
       challengeHundredLevelsConsume(state, 1);
       energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
       if (!Number.isFinite(energyStep)) break;
+      rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     }
   }
 
@@ -3562,6 +3591,7 @@ function advanceTimeMachine(state, seconds) {
     guard = 0;
     let magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
     if (Number.isFinite(magicStep)) {
+      rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       d.goldProgress += seconds;
       while (d.goldProgress >= magicStep && guard < 100000 && !tmTargetReached(d.goldTarget, d.goldLevel)) {
         guard++;
@@ -3573,6 +3603,7 @@ function advanceTimeMachine(state, seconds) {
         challengeHundredLevelsConsume(state, 1);
         magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
         if (!Number.isFinite(magicStep)) break;
+        rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       }
     }
   }
@@ -3650,6 +3681,7 @@ function advanceBloodMagic(state, seconds, context) {
    */
   const dutchSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
   const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier;
+  rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
   rs.progress += seconds;
   let completions = Math.floor(rs.progress / secondsPerCompletion);
   if (completions <= 0) return;
@@ -5771,21 +5803,25 @@ function construireSnapshotNguV1(state, context, now) {
       const upgradeGoldCost = def.upgrade ? augmentationGoldCost(state, def, num(pair.upgradeLevel, 0), true) : null;
       const gold = num(state.currencies?.gold, 0);
       const defiBloque = challengeHundredLevelsRemaining(state) <= 0;
-      const attenteOr = (needed, progress, cost) => Number.isFinite(needed) && needed > 0 && num(progress, 0) >= needed - 1e-9 && (gold + 1e-9 < cost || defiBloque);
+      const fractionMain = fractionProgressionSecondesV1(pair, "progress", neededMain);
+      const fractionUpgrade = fractionProgressionSecondesV1(pair, "upgradeProgress", neededUpgrade);
+      const attenteOr = (needed, fraction, cost) => Number.isFinite(needed) && needed > 0 && fraction >= 1 - 1e-9 && (gold + 1e-9 < cost || defiBloque);
       return Object.assign({}, def, {
         goldCost,
         upgradeGoldCost,
-        waitingGold: attenteOr(neededMain, pair.progress, goldCost),
-        upgradeWaitingGold: upgradeGoldCost != null && attenteOr(neededUpgrade, pair.upgradeProgress, upgradeGoldCost),
-        progressPct: Number.isFinite(neededMain) && neededMain > 0 ? Math.max(0, Math.min(1, num(pair.progress, 0) / neededMain)) : 0,
-        upgradeProgressPct: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.max(0, Math.min(1, num(pair.upgradeProgress, 0) / neededUpgrade)) : 0,
+        waitingGold: attenteOr(neededMain, fractionMain, goldCost),
+        upgradeWaitingGold: upgradeGoldCost != null && attenteOr(neededUpgrade, fractionUpgrade, upgradeGoldCost),
+        progressPct: fractionMain,
+        upgradeProgressPct: fractionUpgrade,
+        progressFraction: fractionMain,
+        upgradeProgressFraction: fractionUpgrade,
         secondsPerLevel: Number.isFinite(neededMain) ? neededMain : null,
         upgradeSecondsPerLevel: Number.isFinite(neededUpgrade) ? neededUpgrade : null,
         /* Chantier « réactivité » : durée du niveau à 1 Energy (K) et progression en secondes -> le client recalcule seul au clic. */
         secondsK: finiOuNullV1(augmentationSecondsForNextLevel(state, def, false, 1)),
         upgradeSecondsK: def.upgrade ? finiOuNullV1(augmentationSecondsForNextLevel(state, def, true, 1)) : null,
-        progressSeconds: Math.max(0, num(pair.progress, 0)),
-        upgradeProgressSeconds: Math.max(0, num(pair.upgradeProgress, 0)),
+        progressSeconds: Number.isFinite(neededMain) ? fractionMain * neededMain : Math.max(0, num(pair.progress, 0)),
+        upgradeProgressSeconds: Number.isFinite(neededUpgrade) ? fractionUpgrade * neededUpgrade : Math.max(0, num(pair.upgradeProgress, 0)),
         levelsPerSecond: Number.isFinite(neededMain) && neededMain > 0 ? Math.min(50,1/neededMain) : 0,
         upgradeLevelsPerSecond: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.min(50,1/neededUpgrade) : 0
       });

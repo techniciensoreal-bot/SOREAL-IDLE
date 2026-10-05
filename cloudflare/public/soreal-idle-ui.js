@@ -2702,8 +2702,11 @@
         }
         function animerBarreCycliqueIdleV217_(el,seconds,progress){
           if(!(seconds>0)){
-            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;}
-            el.style.width='0%';
+            /* Aucune ressource allouée : la barre reste à sa fraction (elle ne retombe pas à 0) et repartira de là. */
+            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+            const fraction=Math.max(0,Math.min(.999999,Number(progress)||0));
+            el.style.width='100%';
+            el.style.transform='scaleX('+fraction+')';
             return;
           }
           /* Vitesse maximale (1 niveau par tick, 50/s) : la barre est CAP, elle reste entièrement remplie au lieu de clignoter (Norman, 2026-09-25). */
@@ -19853,6 +19856,21 @@ function pageAventureIdleV28_(j){
         if(g.double)return boosterObjetEquipeAdventureIdleV1_(objet);
         return false;
       }
+      /*
+       * Clic droit (PC) sur le Cube de l'infini : même règle que sur un objet (Norman, 2026-10-05 : « le clic droit sur le cube de l'infini absorbe tous les boosts comme pour les items, pas de règle à part ») : avec Double tap acheté,
+       * il absorbe tous les boosts du sac (la même action que « A + clic » sur le cube, inventoryAuto / boostAll) ; sans cet achat, rien de plus qu'avant.
+       */
+      function clicDroitCubeIdleV1_(){
+        const g=gestesAchetesIdleV1_();
+        if(!g.double||!idleEtat)return false;
+        const a=aventureMetaIdleV47_(idleEtat);
+        if(!(a&&a.cube&&a.cube.unlocked))return false;
+        const envoyer=window.__actionMetaV47__;
+        if(typeof envoyer!=='function')return false;
+        nettoyerEtatDragAdventureIdleV138_();
+        envoyer({action:'inventoryAuto',mode:'boostAll',targetId:'cube'});
+        return true;
+      }
       /* Triple tap : fusion automatique de l'objet avec toutes les pièces identiques du sac (action serveur inventoryAuto / mergeAll). Prévient s'il n'y a rien à fusionner. */
       function fusionnerAutoObjetIdleV1_(id){
         const objet=String(id||'');
@@ -20203,6 +20221,14 @@ function pageAventureIdleV28_(j){
         },true);
 
         document.addEventListener('contextmenu',function(event){
+          /* Cube de l'infini : même clic droit que pour un objet (absorbe tous les boosts) ; la souris seulement. */
+          const cubeEl=event.target&&event.target.closest?event.target.closest('[data-idle-cube-drop-v180]'):null;
+          if(cubeEl&&cubeEl.closest('.soreal-idle-v151-inventory-columns')){
+            event.preventDefault();
+            const sourisCube=event.pointerType==='mouse'||(!event.pointerType&&Date.now()-idleDernierClicDroitSourisMsV209<1500);
+            if(sourisCube&&clicDroitCubeIdleV1_())event.stopPropagation();
+            return;
+          }
           const element=elementObjetGesteAdventureIdleV196_(event.target);
           if(!element)return;
           event.preventDefault();
