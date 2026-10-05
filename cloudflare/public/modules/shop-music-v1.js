@@ -68,6 +68,7 @@
     }
     /* Position jamais remise à zéro : une musique mise en pause à la sortie reprend à l'endroit exact où elle s'était arrêtée. */
     m.audio.volume=0;
+    try{m.audio.muted=!(volume_()>0);}catch(_e){}
     var p=m.audio.play();
     if(p&&typeof p.then==='function'){
       p.then(function(){if(dansLeMenu_(m))fondreVers_(m,volume_());}).catch(function(){/* pas encore de geste de l'utilisateur : le prochain passage réessaie */});
@@ -82,13 +83,18 @@
 
   setInterval(function(){
     MUSIQUES.forEach(function(m){
+      /* Case « Ambiance » décochée : coupure franche (muted, respecté aussi sur iPhone où volume est ignoré) ; recochée : le son revient avec le fondu. */
+      if(m.audio){try{m.audio.muted=!(volume_()>0);}catch(_e){}}
       if(dansLeMenu_(m))demarrer_(m);else arreter_(m);
     });
   },500);
 
   if(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__&&typeof window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.onChange==='function'){
     window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.onChange(function(){
-      MUSIQUES.forEach(function(m){if(m.audio&&!m.audio.paused&&dansLeMenu_(m)&&!m.fondu)m.audio.volume=volume_();});
+      MUSIQUES.forEach(function(m){
+        if(m.audio){try{m.audio.muted=!(volume_()>0);}catch(_e){}}
+        if(m.audio&&!m.audio.paused&&dansLeMenu_(m)&&!m.fondu)m.audio.volume=volume_();
+      });
     });
   }
 

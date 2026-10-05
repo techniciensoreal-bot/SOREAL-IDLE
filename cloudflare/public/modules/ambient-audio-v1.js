@@ -162,8 +162,10 @@
      qui vit dans le GainNode et ne doit pas se remettre à zéro à chaque changement de curseur. */
   function fondu_(audio,cible,duree){
     var debut=Date.now(),depart=audio?audio.volume:0;
+    /* Un changement de réglage (case « Ambiance » décochée, curseur) annule le fondu en cours : il ne doit jamais rétablir l'ancien volume après coup. */
+    var id=audio?(audio.__fonduIdV1=(audio.__fonduIdV1||0)+1):0;
     function pas(){
-      if(!audio||audio.paused)return;
+      if(!audio||audio.paused||audio.__fonduIdV1!==id)return;
       var t=Math.min(1,(Date.now()-debut)/duree);
       audio.volume=depart+(cible-depart)*t;
       if(t<1)requestAnimationFrame(pas);
@@ -224,6 +226,7 @@
       }catch(_){return;}
       audio.preload='auto';
       audio.volume=0;
+      try{audio.muted=!(volumeAmbiance_()>0);}catch(_){}
       slot.audio=audio;
       slot.cle=cle;
       var gainConnuAvant=gainConnu_(cle);
@@ -275,6 +278,12 @@
     var v=volumeAmbiance_();
     slots.forEach(function(slot){
       if(!slot.audio)return;
+      /*
+       * Coupure franche (Norman, 2026-10-05 : « j'ai désactivé le son d'ambiance mais il ne se retire pas ») : sur iPhone / iPad, le navigateur ignore `volume` (toujours 1) et un fondu en cours le remettait à l'ancienne valeur ;
+       * `muted` est respecté partout. Le fondu en cours est annulé, la piste continue en silence (le planning des pistes suit son cours) et reprend le son dès que la case est recochée.
+       */
+      slot.audio.__fonduIdV1=(slot.audio.__fonduIdV1||0)+1;
+      try{slot.audio.muted=!(v>0);}catch(_){}
       /* Le GainNode porte déjà la compensation : le curseur ne règle plus que le volume de base de l'élément. */
       slot.audio.volume=slot.gainNode?v:Math.min(1,v*(slot.gain||1));
     });
