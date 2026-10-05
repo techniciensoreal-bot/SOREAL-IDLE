@@ -10133,11 +10133,17 @@ function construireEtatJoueurSorealIdle_(
         0
       ),
 
+    /*
+     * Maximum d'énergie = le plafond EFFECTIF du moteur, jamais la colonne enregistrée (Norman, 2026-10-05 : « je viens de dépenser 2 points dans le Plafond d'Énergie : mon total est toujours à 500000, l'énergie se
+     * génère de manière étrange, toutes les X secondes »). La colonne n'était réécrite qu'à la synchro suivante : un achat (atout, boutique, équipement) laissait l'ancien maximum affiché, et le jeu local arrêtait sa génération à cet
+     * ancien plafond jusqu'à la réponse du serveur.
+     */
     energieMax:
-      nombreSorealIdle_(
-        row[c.ENERGIE_MAX - 1],
-        1000
-      ),
+      (function(){
+        let effectif=NaN;
+        try{effectif=idleNguEffectiveResourceStat(metaNguEtat,'energy','cap');}catch(_e){}
+        return Number.isFinite(effectif)&&effectif>0?effectif:nombreSorealIdle_(row[c.ENERGIE_MAX - 1],1000);
+      })(),
 
     productionSeconde:
       productionSecondeEtat,
