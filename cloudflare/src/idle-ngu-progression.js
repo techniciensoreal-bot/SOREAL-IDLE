@@ -2646,6 +2646,16 @@ function augmentationGoldCost(state,def,level,upgrade=false) {
  * client reçoit K (secondsK) et recalcule tout seul durée, barre et compte à rebours au moment du clic, sans attendre le serveur.
  */
 function augmentationSecondsForNextLevel(state, def, upgrade = false, allocOverride = null) {
+  const modele = augmentationSecondsModelV1(state, def, upgrade, allocOverride);
+  if (!modele) return Infinity;
+  const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
+  return modele(Math.max(1, int(upgrade ? pair.upgradeLevel : pair.level, 0) + 1));
+}
+/*
+ * Durée d'un niveau en fonction du niveau VISÉ, ou null sans ressource allouée. Tous les bonus (puissance, Hacks, Perks, MacGuffins, équipement) ne dépendent pas du niveau : ils sont calculés UNE fois
+ * ici. Avant, la boucle de montée de niveaux les recalculait à chaque niveau (jusqu'à 10 000 fois par barre et par appel : plus de 10 s de calcul avec de grosses sommes d'Énergie, le serveur répondait en erreur).
+ */
+function augmentationSecondsModelV1(state, def, upgrade = false, allocOverride = null) {
   const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
   const perTrack=Math.max(0,num(upgrade?pair.upgradeEnergy:pair.energy,0));
   const legacy=Math.max(0,num(state.systems.augmentations.allocation.energy,0));
@@ -2656,7 +2666,7 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false, allocOverr
       :0
   );
   if(allocOverride!=null)allocation=Math.max(0,num(allocOverride,0));
-  if (allocation <= 0) return Infinity;
+  if (allocation <= 0) return null;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier*idleCardsMultiplierV1(state,"augments"); /* + Cards AUGS */
@@ -2670,8 +2680,8 @@ function augmentationSecondsForNextLevel(state, def, upgrade = false, allocOverr
    * allocation/puissance égales, « Base Time » = 1er niveau) est multiplié par
    * le niveau visé n, pour l'Augment comme pour son Upgrade. Il était constant.
    */
-  const targetLevel = Math.max(1, int(upgrade ? pair.upgradeLevel : pair.level, 0) + 1);
-  return targetLevel * base * 1000 * difficultyDivider / Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(idlePerkNiveauxV1(state)).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
+  const denominateur = Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(idlePerkNiveauxV1(state)).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
+  return (targetLevel) => targetLevel * base * 1000 * difficultyDivider / denominateur;
 }
 
 /*
@@ -2699,15 +2709,20 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   if(upgrade&&(!def.upgrade||num(context.bosses,0)<def.upgrade.unlockBoss))return;
   let remaining=seconds,guard=0;
   const progressKey=upgrade?"upgradeProgress":"progress";
+  const modele=augmentationSecondsModelV1(state,def,upgrade);
+  if(!modele)return;
+  const multCout=challengePermanentBonuses(state).augmentationCostMultiplier;
+  const limiteDefi=state.challenge?.active==="hundredLevels";
   while(remaining>0&&guard++<10000){
     const level=upgrade?pair.upgradeLevel:pair.level;
-    const needed=augmentationSecondsForNextLevel(state,def,upgrade);
+    const needed=modele(Math.max(1,int(level,0)+1));
     if(!Number.isFinite(needed))break;
     rebaserProgressionSecondesV1(pair,progressKey,needed);
     const missing=Math.max(0,needed-num(pair[progressKey],0));
     if(remaining+1e-9<missing){pair[progressKey]+=remaining;break;}
-    const cost=augmentationGoldCost(state,def,level,upgrade);
-    if(state.currencies.gold+1e-9<cost||challengeHundredLevelsRemaining(state)<=0){
+    const n=Math.max(1,int(level,0)+1);
+    const cost=(upgrade?def.upgrade.baseGold*n*n:def.baseGold*n)*multCout;
+    if(state.currencies.gold+1e-9<cost||(limiteDefi&&challengeHundredLevelsRemaining(state)<=0)){
       pair[progressKey]=needed;break;
     }
     remaining-=missing;
@@ -3437,13 +3452,19 @@ function advanceTrackSystem(state, def, seconds) {
  * "pas de scaling par niveau" repéré par l'audit.
  */
 function tmLevelSeconds(state, resource, targetLevel, allocOverride = null) {
+  return tmSecondsFactorV1(state, resource, allocOverride) * Math.max(1, targetLevel);
+}
+/*
+ * Durée du niveau 1 (le niveau n dure n fois plus) : tous les bonus sont calculés ICI, une fois ; les boucles de montée de niveaux (advanceTimeMachine) la réutilisent au lieu de tout
+ * recalculer à chaque niveau (plus de 70 s de calcul pour 60 s de jeu avec de grosses sommes d'Énergie : le serveur dépassait son temps de calcul).
+ */
+function tmSecondsFactorV1(state, resource, allocOverride = null) {
   const alloc = allocOverride != null ? Math.max(0, num(allocOverride, 0)) : Math.max(0, num(state.systems.timeMachine.allocation[resource], 0));
   if (alloc <= 0) return Infinity;
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
-  const n = Math.max(1, targetLevel);
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "timeMachine");
-  return (1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed * challengePermanentBonuses(state).timeMachineSpeedMultiplier
-    * idleCardsMultiplierV1(state, "timeMachine") /* Cards TM */)) * n;
+  return 1e9 * difficultyDivider / Math.max(1e-12, alloc * power * hackFxV1(state).timeMachineSpeed * challengePermanentBonuses(state).timeMachineSpeedMultiplier
+    * idleCardsMultiplierV1(state, "timeMachine") /* Cards TM */);
 }
 
 /*
@@ -3574,19 +3595,22 @@ function advanceTimeMachine(state, seconds) {
    * limite défensive évite malgré tout toute boucle non bornée.
    */
   let guard = 0;
-  let energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
+  const facteurEnergie = tmSecondsFactorV1(state, "energy");
+  const facteurMagie = tmSecondsFactorV1(state, "magic");
+  const limiteDefi = state.challenge?.active === "hundredLevels";
+  let energyStep = facteurEnergie * Math.max(1, d.speedLevel + 1);
   if (Number.isFinite(energyStep)) {
     rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     d.speedProgress += seconds;
     while (d.speedProgress >= energyStep && guard < 100000 && !tmTargetReached(d.speedTarget, d.speedLevel)) {
       guard++;
       const cost = tmLevelGoldCost(d.speedLevel + 1);
-      if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) { d.speedProgress = energyStep; break; }
+      if (state.currencies.gold + 1e-9 < cost || (limiteDefi && challengeHundredLevelsRemaining(state) <= 0)) { d.speedProgress = energyStep; break; }
       state.currencies.gold -= cost;
       d.speedProgress -= energyStep;
       d.speedLevel += 1;
       challengeHundredLevelsConsume(state, 1);
-      energyStep = tmLevelSeconds(state, "energy", d.speedLevel + 1);
+      energyStep = facteurEnergie * Math.max(1, d.speedLevel + 1);
       if (!Number.isFinite(energyStep)) break;
       rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     }
@@ -3594,19 +3618,19 @@ function advanceTimeMachine(state, seconds) {
 
   if (state.systems.bloodMagic.unlocked) {
     guard = 0;
-    let magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
+    let magicStep = facteurMagie * Math.max(1, d.goldLevel + 1);
     if (Number.isFinite(magicStep)) {
       rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       d.goldProgress += seconds;
       while (d.goldProgress >= magicStep && guard < 100000 && !tmTargetReached(d.goldTarget, d.goldLevel)) {
         guard++;
         const cost = tmLevelGoldCost(d.goldLevel + 1);
-        if (state.currencies.gold + 1e-9 < cost || challengeHundredLevelsRemaining(state) <= 0) { d.goldProgress = magicStep; break; }
+        if (state.currencies.gold + 1e-9 < cost || (limiteDefi && challengeHundredLevelsRemaining(state) <= 0)) { d.goldProgress = magicStep; break; }
         state.currencies.gold -= cost;
         d.goldProgress -= magicStep;
         d.goldLevel += 1;
         challengeHundredLevelsConsume(state, 1);
-        magicStep = tmLevelSeconds(state, "magic", d.goldLevel + 1);
+        magicStep = facteurMagie * Math.max(1, d.goldLevel + 1);
         if (!Number.isFinite(magicStep)) break;
         rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       }

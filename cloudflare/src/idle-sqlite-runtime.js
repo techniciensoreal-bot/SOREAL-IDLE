@@ -459,17 +459,30 @@ const SpreadsheetApp={
  * fenêtre de concurrence possible dans ce modèle à isolate unique.
  */
 let __idleScriptLockHeldV1=false;
+let __idleScriptLockDepuisV1=0;
+/*
+ * Verrou orphelin (2026-10-05, essai en partie B avec 14 barres d'Augments très rapides) : une requête tuée par le serveur en plein calcul (temps de calcul dépassé) ne passe jamais par son
+ * `finally` : l'indicateur restait à « tenu » et TOUTES les requêtes suivantes répondaient « Finalisation des données… » tant que l'isolat vivait (partie injouable). Le cycle étant
+ * entièrement synchrone, un verrou tenu depuis plus de 20 s ne peut être que celui d'une requête morte : il est repris.
+ */
+function __idleVerrouPerimeV1_(){
+  if(__idleScriptLockHeldV1&&Date.now()-__idleScriptLockDepuisV1>20000)__idleScriptLockHeldV1=false;
+}
 const LockService={
   getScriptLock(){
     return {
       tryLock(){
+        __idleVerrouPerimeV1_();
         if(__idleScriptLockHeldV1)return false;
         __idleScriptLockHeldV1=true;
+        __idleScriptLockDepuisV1=Date.now();
         return true;
       },
       waitLock(){
+        __idleVerrouPerimeV1_();
         if(__idleScriptLockHeldV1)throw new Error("SOREAL_IDLE_LOCK_TIMEOUT");
         __idleScriptLockHeldV1=true;
+        __idleScriptLockDepuisV1=Date.now();
         return true;
       },
       releaseLock(){
