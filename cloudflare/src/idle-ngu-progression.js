@@ -5742,7 +5742,8 @@ function construireSnapshotNguV1(state, context, now) {
           max: item.max,
           qty: item.qty || 0,
           purchased,
-          effectActive: idleSelloutShopEffectActiveV1(item),
+          /* ANTI-SPOIL : un achat réservé à une difficulté supérieure (emplacement d'accessoire maléfique) n'apparaît pas tant que le joueur est en Normal (sauf s'il l'a déjà acheté) ; son texte révélerait la difficulté. */
+          effectActive: idleSelloutShopEffectActiveV1(item) && !(item.minDifficulty && (state.difficulty || "normal") === "normal" && purchased === 0),
           nextCost: idleSelloutShopNextCostV1(item, purchased)
         };
       })
