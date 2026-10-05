@@ -2774,6 +2774,10 @@
           if(idleEtat[cle]===undefined){if(idleRepereVisuelsV1_[cle]!==undefined)idleEtat[cle]=idleRepereVisuelsV1_[cle];}
           else idleRepereVisuelsV1_[cle]=idleEtat[cle];
         });
+        if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
+          idleMenuViveSyncV1=Date.now();
+          synchroniserJeuIdleV7_(true);
+        }
         const augVisual=idleEtat.__augmentationsVisualV215;
         if(augVisual&&PAGE_ACTIVE==='idle'){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
@@ -4650,6 +4654,10 @@
             /* Augmentations : la réponse du serveur devient directement le nouveau repère des barres, que la synchro passe par le chemin du combat ou non (aucun redessin, donc aucun retour en arrière visible). */
             if(idleMenuActifV28==='augmentations'&&idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
               try{window.__adopterRepereAugmentsIdleV1__(idleEtat);}catch(_e){}
+            }
+            /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
+            if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!champSaisieActifIdleV1_()){
+              try{rafraichirMenuRacineIdleV28_();}catch(_e){}
             }
 
             if(
@@ -10078,7 +10086,7 @@
         perks:{
           intro:'Les Perks sont des améliorations que tu achètes avec les points de perk gagnés dans la tour.',
           bullets:[
-            'Dépense tes points de perk dans ce menu.',
+            'Dépense tes points de perk dans la page ITOPOD, avec le bouton « Atouts ».',
             'Chaque perk a un coût et un niveau maximum.',
             'Certains perks s’achètent une seule fois, d’autres niveau par niveau.',
             'Certains perks donnent un bonus permanent.'
@@ -14832,6 +14840,17 @@
 
       /* Dernière resynchronisation demandée par une barre d'Augmentation pleine (anti-rafale). */
       let idleAugSyncV1=0;
+      /*
+       * Menus « à l'ancienne » (NGU, Wandoos, Yggdrasil, Gold Diggers, Barbes, Souhaits, Hacks, Garderie) : leurs chiffres ne venaient que de la synchro (toutes les 15 s, sinon à la prochaine visite)
+       * et restaient figés devant le joueur (Norman, 2026-10-05 : « tout doit se passer en direct »). Tant que l'un d'eux est ouvert, une synchro part toutes les 4 s et la page est redessinée à l'arrivée
+       * (sans toucher à la position de défilement, et jamais pendant qu'un champ de saisie a le focus).
+       */
+      let idleMenuViveSyncV1=0;
+      const IDLE_MENUS_VIVANTS_V1={ngu:1,wandoos:1,yggdrasil:1,diggers:1,beards:1,wishes:1,hacks:1,daycare:1};
+      function champSaisieActifIdleV1_(){
+        const a=document.activeElement;
+        return Boolean(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+      }
       let idleVictoireBossLocaleV49=false;
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-158 */
       let idleCombatArmeLocalV206=false;
