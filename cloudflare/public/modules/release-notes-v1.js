@@ -19,6 +19,7 @@
         date:'2026-10-06',
         points:[
           'Les chiffres de l’ITOPOD (étage, ennemis vaincus, PP, progression) se mettent à jour en direct sans toucher à la scène animée ni à tes champs d’étage.',
+          'Le texte de présentation de l’ITOPOD ne mentionne plus que ce que tu as déjà débloqué.',
           'Les menus NGU, Wandoos, Yggdrasil, Gold Diggers, Barbes, Souhaits, Hacks et Garderie se mettent à jour en direct (toutes les 4 secondes) au lieu de rester figés jusqu’à la prochaine visite.',
           'La fenêtre qui annonce les Atouts dit maintenant où les trouver : dans l’ITOPOD, avec le bouton « Atouts ».'
         ]

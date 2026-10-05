@@ -22,3 +22,11 @@ assert.ok(/window\.__itopodVueIdleV1_basculer__=/.test(meta));
 assert.ok(css.includes(".pk-fond{") && !css.includes('[data-menu="perks"]'));
 assert.ok(meta.includes("document.querySelector('.pk-fond')"));
 console.log("idle-atouts-dans-itopod-v1: OK");
+
+// Anti-spoil : le texte de l'ITOPOD ne nomme jamais une difficulté (récompense de la difficulté en cours seulement).
+{
+  const i = meta.indexOf("'🏢 ITOPOD',");
+  const bloc = meta.slice(i, i + 900);
+  assert.ok(!/Mal[ée]fique|Sadique|Evil|Sadistic/.test(bloc), "pas de difficulté nommée dans la présentation de l'ITOPOD");
+  assert.ok(bloc.includes("j.systemes.difficulty==='extreme'?2000"), "PPP de la difficulté en cours");
+}

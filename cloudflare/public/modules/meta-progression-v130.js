@@ -1538,7 +1538,7 @@ function pageItopodIdleV1_(j){
         const vueAtouts=atoutsOuverts&&window.__itopodVueIdleV1__==='atouts';
         return H.entetePageIdleV28_(
           '🏢 ITOPOD',
-          'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP (200 + le numéro de l’étage ; 700 en Maléfique, 2000 en Sadique). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Perks. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.'
+          'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP ('+(j&&j.systemes&&j.systemes.difficulty==='extreme'?2000:j&&j.systemes&&j.systemes.difficulty==='difficile'?700:200)+' + le numéro de l’étage). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Atouts. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.'
         )+
         (atoutsOuverts?'<div class="itp-vues"><button type="button" class="itp-bouton itp-bouton-atouts" onclick="window.__itopodVueIdleV1_basculer__()">'+(vueAtouts?'🏢 Retour à la tour':'⭐ Atouts')+'</button></div>':'')+
         (atoutsOuverts?'<div class="itp-vue-atouts"'+(vueAtouts?'':' hidden')+'>'+pagePerksIdleV1_(j)+'</div>':'')+
