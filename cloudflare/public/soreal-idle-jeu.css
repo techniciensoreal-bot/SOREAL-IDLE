@@ -136,7 +136,7 @@ body.soreal-idle-active-v47 .itp-pas .itp-saisie{flex:1;min-width:0;width:100%;t
 }
 
 /* ====================== MAGASIN DES PERKS : « Perk Emporium » (vitrines néon, étagères de bois) ====================== */
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="perks"]{
+body.soreal-idle-active-v47 .pk-fond{
   --pk-rose:#ff4fd8;--pk-violet:#9b5cff;--pk-or:#ffd34e;--pk-nuit:#150a26;
   position:relative;padding:12px 10px;border-radius:6px;
   background:
@@ -227,3 +227,8 @@ body.soreal-idle-active-v47 .pk-comptoir .pk-recherche{flex:1 1 180px;min-width:
 /* Blood Magic : compteur de Magic allouée à chaque rituel (le chiffre gonfle via alloc-pop-v1). */
 .soreal-idle-blood-alloc-ligne-v1{margin:6px 0 2px;font-size:14px;font-weight:800;color:#e9c3cc}
 .soreal-idle-blood-alloc-ligne-v1 b{display:inline-block;font-size:18px;color:#ffd7df;text-shadow:0 0 8px rgba(225,29,72,.6)}
+
+/* Bouton « Atouts » de la page ITOPOD (boutique des Atouts fusionnée dans l'ITOPOD). */
+.itp-vues{display:flex;justify-content:center;margin:0 0 10px}
+.itp-bouton-atouts{min-width:220px}
+.itp-vue-atouts[hidden],.itp-page[hidden]{display:none!important}

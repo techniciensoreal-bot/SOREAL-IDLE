@@ -26,7 +26,8 @@ const ordre = ["titans", "ngu", "yggdrasil", "diggers", "beards", "macguffins", 
 for (let i = 1; i < ordre.length; i += 1) assert.ok(pos(ordre[i - 1]) < pos(ordre[i]), `${ordre[i - 1]} avant ${ordre[i]}`);
 assert.ok(pos("wandoos") > pos("titans") && pos("wandoos") < pos("yggdrasil"), "Wandoos : copie garantie du premier titan");
 // 3. Clé du Ciel (boss 48) : ITOPOD puis Perks avant les titans (58).
-assert.ok(pos("tower") < pos("challenges") && pos("perks") === pos("tower") + 1);
+assert.ok(pos("tower") < pos("challenges"));
+assert.equal(pos("perks"), -1, "Atouts fusionnés dans ITOPOD : plus de menu à part");
 // 4. Achievements, Classement, Chat, Settings (et Admin) viennent toujours APRÈS tous les autres menus, donc après le dernier menu débloqué (Norman, 2026-10-04) ; Collection suit son déblocage (boss 4).
 assert.deepEqual(ids.slice(-6), ["shop", "succes", "classement", "chat", "parametres", "admin"], "Boutique → Succès → Classement → Chat → Réglages → Admin, toujours à la fin");
 assert.ok(pos("bestiaire") > pos("renaissance") && pos("bestiaire") < pos("augmentations"), "Collection : boss 4, avec Adventure et Rebirth");

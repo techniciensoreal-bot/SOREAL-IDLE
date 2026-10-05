@@ -9621,6 +9621,7 @@
             idleMenuActifV28=
               ancien==='inventaire'
                 ?'aventure'
+                :ancien==='perks'?'tower'
                 :(ancien==='spendExp'||ancien==='sellout'?'shop':ancien);
           }
         }catch(e){}
@@ -9710,7 +9711,6 @@
         diggers:'diggers',
         beards:'beards',
         tower:'tower',
-        perks:'perks',
         challenges:'challenges',
         titans:'titans',
         macguffins:'macguffins',
@@ -9728,6 +9728,8 @@
           return [paire[1],paire[0]];
         })
       );
+      /* Atouts : plus de menu à part, la boutique est dans la page ITOPOD. */
+      IDLE_MENU_PAR_SYSTEME_V1.perks='tower';
 
       function menuDisponibleIdleV28_(
         id,
@@ -11688,7 +11690,6 @@
         {id:'machine',icon:'⏱️',nom:'Time Machine'},
         {id:'sang',icon:'🩸',nom:'Blood Magic'},
         {id:'tower',icon:'🏢',nom:'ITOPOD'},
-        {id:'perks',icon:'⭐',nom:'Perks'},
         {id:'daycare',icon:'🛠️',nom:'Item Daycare'},
         {id:'challenges',icon:'🏁',nom:'Challenges'},
         {id:'titans',icon:'👹',nom:'Titans'},
@@ -23175,8 +23176,6 @@ function pageAventureIdleV28_(j){
             return pageSystemeMetaIdleV130_(j,'beards','Beards');
           case 'tower':
             return pageSystemeMetaIdleV130_(j,'tower','ITOPOD');
-          case 'perks':
-            return pageSystemeMetaIdleV130_(j,'perks','Perks');
           case 'challenges':
             return pageSystemeMetaIdleV130_(j,'challenges','Challenges');
           case 'titans':

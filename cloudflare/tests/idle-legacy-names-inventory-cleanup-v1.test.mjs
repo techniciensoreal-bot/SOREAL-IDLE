@@ -36,7 +36,7 @@ for (const mort of ["Essence SOREAL", "Renaissances & Essence", "Pièces & bouti
   assert.ok(!ui.includes(mort) && !meta.includes(mort), "texte de l'ancien SOREAL encore présent : " + mort);
 }
 assert.match(ui, /ton NOMBRE grandit : il multiplie ton Attaque et ta Défense/, "Renaissance : le vrai mécanisme (NOMBRE)");
-assert.match(meta, /Dépense tes PP pour les améliorer une par une/);
+assert.match(meta, /Perk Emporium/);
 assert.match(meta, /Dépense tes QP pour les améliorer une par une/);
 
 // --- Inventory : plus de bandeau ni de cadres Sac / Cube / Sets ; le sac reste dans son titre ---

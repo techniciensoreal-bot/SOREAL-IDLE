@@ -1454,15 +1454,14 @@ function pagePerksIdleV1_(j){
               :'<button type="button" class="pk-acheter" onclick="window.__acheterPerkIdleV1__('+perk.id+')"><span class="pk-prix">⭐ '+cout+' PP</span><span class="pk-achat">Acheter</span></button>')+
           '</article>';
         }).join('');
-        return H.entetePageIdleV28_('⭐ Perks','Chaque Perk a son propre coût plat et son propre plafond. Dépense tes PP pour les améliorer une par une.')+
-          '<div class="pk-boutique">'+
+        return '<div class="pk-fond"><div class="pk-boutique">'+
             '<div class="pk-enseigne"><span class="pk-ampoules"></span><div class="pk-enseigne-texte"><small>Boutique</small><b>Perk Emporium</b></div><span class="pk-ampoules"></span></div>'+
             '<div class="pk-comptoir"><div class="pk-solde"><span>⭐ PP disponibles</span><b>'+pp+'</b></div>'+
               '<input class="pk-recherche" type="search" placeholder="Chercher un perk…" value="'+H.idleHtml_(filtre.q||'')+'" oninput="window.__perkFiltrerIdleV1__(this.value,null)">'+
               '<button type="button" class="pk-bascule'+(filtre.abordables?' actif':'')+'" onclick="window.__perkFiltrerIdleV1__(null,'+(filtre.abordables?'false':'true')+')">💰 Abordables</button>'+
             '</div>'+
             '<div class="pk-etagere">'+(cartes||'<div class="pk-vide">Aucun perk ne correspond.</div>')+'</div>'+
-          '</div>';
+          '</div></div>';
       }
 
 /* Filtre du magasin des Perks : recherche et « abordables » ; le magasin est redessiné aussitôt (la saisie garde le focus). */
@@ -1470,7 +1469,7 @@ function perkFiltrerIdleV1_(q,abordables){
         const f=window.__perkFiltreIdleV1__||(window.__perkFiltreIdleV1__={q:'',abordables:false});
         if(q!=null)f.q=String(q);
         if(abordables!=null)f.abordables=Boolean(abordables);
-        const racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="perks"]');
+        const racine=document.querySelector('.pk-fond');
         const ancien=racine&&racine.querySelector('.pk-boutique');
         if(!ancien)return;
         const actif=document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('pk-recherche');
@@ -1534,11 +1533,16 @@ function pageItopodIdleV1_(j){
             '<button type="button" class="itp-pas-bouton" aria-label="Plus" onclick="window.__itopodPasIdleV1__(this,1)">+</button></div></div>';
         };
         const tuile=function(icone,libelle,valeur){return '<div class="itp-tuile"><span class="itp-tuile-icone">'+icone+'</span><span class="itp-tuile-libelle">'+libelle+'</span><b>'+valeur+'</b></div>';};
+        const atouts=systemeMetaParIdIdleV130_(j,'perks');
+        const atoutsOuverts=Boolean(atouts&&atouts.state&&atouts.state.unlocked);
+        const vueAtouts=atoutsOuverts&&window.__itopodVueIdleV1__==='atouts';
         return H.entetePageIdleV28_(
           '🏢 ITOPOD',
           'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP (200 + le numéro de l’étage ; 700 en Maléfique, 2000 en Sadique). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Perks. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.'
         )+
-        '<div class="itp-page">'+
+        (atoutsOuverts?'<div class="itp-vues"><button type="button" class="itp-bouton itp-bouton-atouts" onclick="window.__itopodVueIdleV1_basculer__()">'+(vueAtouts?'🏢 Retour à la tour':'⭐ Atouts')+'</button></div>':'')+
+        (atoutsOuverts?'<div class="itp-vue-atouts"'+(vueAtouts?'':' hidden')+'>'+pagePerksIdleV1_(j)+'</div>':'')+
+        '<div class="itp-page"'+(vueAtouts?' hidden':'')+'>'+
           (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(Object.assign({},d,{actif:Boolean(s.state.active)})):'')+
           '<section class="itp-panneau itp-entree">'+
             '<button type="button" class="itp-bouton itp-bouton-entrer'+(s.state.active?' itp-en-cours':'')+'" onclick="window.__itopodBasculerIdleV1__()">'+(s.state.active?'🚪 Quitter l’ITOPOD':'⚔️ Entrer dans l’ITOPOD')+'</button>'+
@@ -1569,6 +1573,19 @@ function pageItopodIdleV1_(j){
           '</section>'+
         '</div>';
       }
+
+/* Bouton « Atouts » de la page ITOPOD : bascule entre la tour et la boutique des Atouts (ancien menu à part), sans rien redessiner. */
+function itopodVueIdleV1_basculer_(){
+        const vers=window.__itopodVueIdleV1__==='atouts'?'tour':'atouts';
+        window.__itopodVueIdleV1__=vers;
+        const a=document.querySelector('.itp-vue-atouts');
+        const t=document.querySelector('.itp-page');
+        const b=document.querySelector('.itp-bouton-atouts');
+        if(a)a.hidden=vers!=='atouts';
+        if(t)t.hidden=vers==='atouts';
+        if(b)b.textContent=vers==='atouts'?'🏢 Retour à la tour':'⭐ Atouts';
+      }
+      window.__itopodVueIdleV1_basculer__=itopodVueIdleV1_basculer_;
 
 /* Entrer dans la tour / la quitter (le combat à la chaîne ne tourne que tour ouverte). */
 function itopodBasculerIdleV1_(){
@@ -3986,7 +4003,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='yggdrasil')return pageYggdrasilIdleV47_(j);
         if(id==='diggers')return pageDiggersIdleV47_(j);
         if(id==='tower')return pageItopodIdleV1_(j);
-        if(id==='perks')return pagePerksIdleV1_(j);
         if(id==='quirks')return pageQuirksIdleV1_(j);
         /* Questing : page dans modules/questing-v1.js. */
         if(id==='questing'&&window.__SOREAL_IDLE_QUESTING_V1__)return window.__SOREAL_IDLE_QUESTING_V1__.page(j);

@@ -23,7 +23,7 @@ assert.deepEqual(
   [],
   "chaque système qui se débloque a son panneau explicite (plus aucun panneau générique)"
 );
-assert.deepEqual(Object.keys(T).filter((id) => !systemesAvecMenu.includes(id)), [], "aucun texte pour un système sans menu");
+assert.deepEqual(Object.keys(T).filter((id) => !systemesAvecMenu.includes(id) && id !== "perks"), [], "aucun texte pour un système sans menu");
 
 const noms = IDLE_NGU_SYSTEMS.map((s) => s.name);
 const generiques = ["Une nouvelle couche de progression", "moteur partagé", "Ce système améliore ta progression", "Vérifie ce qui est conservé"];
