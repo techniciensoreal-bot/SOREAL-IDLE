@@ -1,4 +1,5 @@
 import { idlePortraitPickR2KeyV1, IDLE_PORTRAIT_KITTY_R2_KEY_V1 } from "./idle-portraits-v1.js";
+import ENNEMIS_FR_V1 from "../../design/traductions/fr/mobs.json" with { type: "json" };
 import { idleItopodRosterReponseV1, idleItopodImagePartageeV1 } from "./idle-itopod-roster-v1.js";
 const IDLE_ADVENTURE_R2_PREFIX="idle/backgrounds/adventure/";
 const IDLE_ADVENTURE_R2_EXTENSIONS=Object.freeze(["webp","png","jpg","jpeg","avif"]);
@@ -20,7 +21,7 @@ const IDLE_ADVENTURE_MOBS_R2_PREFIX="idle/aventure/";
  */
 const IDLE_AMBIANT_R2_PREFIX="idle/ambient/";
 const IDLE_SHOP_MUSIQUE_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"ShopMusic.opus";
-/* Musique du menu Blood Magic (Norman, 2026-10-04) : m�me dossier, jamais tir�e au hasard non plus. */
+/* Musique du menu Blood Magic (Norman, 2026-10-04) : m�me dossier, jamais tir�e au hasard non plus. */
 const IDLE_BLOOD_MUSIQUE_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"BloodMagic.opus";
 const IDLE_AMBIANT_R2_EXTENSIONS=Object.freeze(["mp3","ogg","m4a","wav","opus","aac"]);
 /*
@@ -632,8 +633,24 @@ export function choisirCleMobR2ParNom_(keys,nomValue){
   if(!voulu)return "";
   return keys.slice().sort().find(k=>slugFichierMobR2_(k)===voulu)||"";
 }
+/*
+ * Nom français -> nom d'origine (Norman, 2026-10-05 : « dans le ciel, certains noms ne correspondent pas aux images : le boss me met bernaches du canada alors que c'est le gros poussin jaune »). La réponse du jeu est traduite
+ * en français (idle-traductions-v1.js), donc le client demande l'image avec le nom FRANÇAIS du mob ; les fichiers R2 portent le nom d'origine : sans cette correspondance, aucun fichier ne portait ce nom et l'image retombait
+ * sur le choix par index (le boss de la zone = le plus grand identifiant = « A Bird Person »).
+ */
+const NOM_MOB_FR_VERS_EN_V1=(function(){
+  const m=new Map();
+  for(const [en,fr] of Object.entries(ENNEMIS_FR_V1)){
+    if(typeof fr==="string"&&fr&&!m.has(slugMobR2_(fr)))m.set(slugMobR2_(fr),en);
+  }
+  return m;
+})();
+export function nomMobOrigineV1_(nomValue){
+  const voulu=slugMobR2_(nomValue);
+  return voulu&&NOM_MOB_FR_VERS_EN_V1.has(voulu)?NOM_MOB_FR_VERS_EN_V1.get(voulu):String(nomValue||"");
+}
 export function choisirCleMobR2_(keys,boss,indexValue,nomValue){
-  const parNom=choisirCleMobR2ParNom_(keys,nomValue);
+  const parNom=choisirCleMobR2ParNom_(keys,nomValue)||choisirCleMobR2ParNom_(keys,nomMobOrigineV1_(nomValue));
   if(parNom)return parNom;
   return choisirCleMobR2Index_(keys,boss,indexValue);
 }
