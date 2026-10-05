@@ -1545,7 +1545,7 @@ function pageItopodIdleV1_(j){
               tuile('🏔️','Étage le plus haut',plusHaut)+
               tuile('🎯','Étage optimal',optimal)+
             '</div>'+
-            '<div class="itp-pp"><div class="itp-pp-ligne"><span>🔷 Progression PP</span><b>'+H.formatGrandNombreIdleV70_(ppProgress)+' / 1 000 000</b></div>'+
+            '<div class="itp-pp"><div class="itp-pp-ligne"><span>🔷 Progression PP</span><b>'+Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000</b></div>'+
               '<div class="itp-pp-barre"><div class="itp-pp-rempli" style="width:'+pourcent.toFixed(2)+'%"></div></div></div>'+
           '</section>'+
         '</div>';

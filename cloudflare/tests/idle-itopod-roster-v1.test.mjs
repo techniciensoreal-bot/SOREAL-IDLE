@@ -105,3 +105,9 @@ assert.equal(idleItopodCleR2V1("//shared/avatars/level-1/a.webp", "shared/avatar
   assert.ok(api.html({ floor: 12, kills: 121, killsOnFloor: 1 }).includes("Pissed Off Dude"));
 }
 console.log("idle-itopod-roster-v1: OK");
+
+// Progression PP : le chiffre complet (724 124 / 1 000 000), pas une abréviation (Norman, 2026-10-05).
+{
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(meta.includes("Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000"), "progression PP en chiffres complets");
+}
