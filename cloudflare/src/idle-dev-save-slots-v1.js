@@ -45,6 +45,14 @@ export function idleDevSlotForUserV1(user) {
   return idleDevSlotsAvailableV1(user) ? idleDevNormalizeSlotV1(user && user.slot) : "a";
 }
 
+/*
+ * La partie B est une partie d'ESSAI (Norman, 2026-10-05 : « les joueurs ne doivent pas voir ce que tu fais » ) : elle n'apparaît jamais dans « En direct », ni dans la liste des joueurs en ligne, ni au classement.
+ * Vrai pour une adresse alias « nom+partieb@… ».
+ */
+export function idleDevEstEmailPartieTestV1(email) {
+  return String(email || "").toLowerCase().indexOf("+" + IDLE_DEV_SAVE_SLOTS_V1.aliasTag + "@") !== -1;
+}
+
 /* Adresse sous laquelle la ligne de la partie B est stockée / retrouvée (la partie A garde l'adresse réelle). */
 export function idleDevAliasEmailV1(email, slot) {
   const value = String(email || "").trim().toLowerCase();

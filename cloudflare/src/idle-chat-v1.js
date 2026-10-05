@@ -13,6 +13,7 @@
  * « pseudo (prénom) » comme au classement) ; la page ne reçoit qu'un drapeau « c'est moi ».
  */
 import { sqlRows } from "./core/sqlite-core.js";
+import { idleDevEstEmailPartieTestV1 } from "./idle-dev-save-slots-v1.js";
 
 /* Un battement toutes les ~20 s (un onglet en arrière-plan n'en envoie qu'environ un par minute) : en ligne tant que le dernier a moins de 90 s. */
 export const IDLE_PRESENCE_EN_LIGNE_MS_V1 = 90 * 1000;
@@ -61,6 +62,11 @@ export function battementV1(sql, { email, nom, admin, actif, connecte, activite,
   assurerChatV1(sql);
   const cle = String(email || "").trim().toLowerCase();
   if (!cle) throw new Error("PRESENCE_EMAIL_REQUIS");
+  /* Partie d'essai (partie B) : jamais de présence, jamais « en ligne » pour les autres joueurs. */
+  if (idleDevEstEmailPartieTestV1(cle)) {
+    sql.exec("DELETE FROM idle_presence WHERE email=?", cle);
+    return { gain: 0, connexion: false, enLigne: listerEnLigneV1(sql, cle, now) };
+  }
   const precedent = sqlRows(sql.exec("SELECT vu_le FROM idle_presence WHERE email=?", cle))[0];
   /* Nouvelle connexion : aucune présence connue, ou le dernier battement date de plus que « en ligne » (le fil « En direct » l'annonce). */
   const connexion = !precedent || now - Number(precedent.vu_le) > IDLE_PRESENCE_EN_LIGNE_MS_V1;
@@ -89,7 +95,7 @@ export function battementV1(sql, { email, nom, admin, actif, connecte, activite,
 
 export function listerEnLigneV1(sql, emailMoi, now = Date.now()) {
   assurerChatV1(sql);
-  return sqlRows(sql.exec("SELECT email,nom,admin,actif,activite FROM idle_presence WHERE vu_le >= ? ORDER BY nom COLLATE NOCASE", now - IDLE_PRESENCE_EN_LIGNE_MS_V1))
+  return sqlRows(sql.exec("SELECT email,nom,admin,actif,activite FROM idle_presence WHERE vu_le >= ? AND email NOT LIKE '%+partieb@%' ORDER BY nom COLLATE NOCASE", now - IDLE_PRESENCE_EN_LIGNE_MS_V1))
     .map((r) => {
       let activite = { t: "libre" };
       try { activite = normaliserActiviteV1(JSON.parse(r.activite)); } catch (_e) { /* activité illisible : « libre » */ }

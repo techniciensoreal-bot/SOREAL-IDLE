@@ -13,6 +13,7 @@
  * le lecteur l'a déjà découvert (sinon « a vaincu un boss », « a débloqué un trophée »…), comme pour le chat.
  */
 import { sqlRows } from "./core/sqlite-core.js";
+import { idleDevEstEmailPartieTestV1 } from "./idle-dev-save-slots-v1.js";
 
 export const IDLE_FLUX_MAX_LIGNES_V1 = 400;
 export const IDLE_FLUX_DUREE_MAX_MS_V1 = 48 * 3600 * 1000;
@@ -209,6 +210,8 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
   assurerFluxV1(sql);
   const cle = String(email || "").trim().toLowerCase();
   if (!cle || !instantane) return 0;
+  /* Partie d'essai (partie B) : rien n'est jamais annoncé, et ce qui l'aurait été avant est effacé. */
+  if (idleDevEstEmailPartieTestV1(cle)) { sql.exec("DELETE FROM idle_flux WHERE email LIKE '%+partieb@%'"); return 0; }
   const precedent = lireEtatV1(sql, cle);
   const etat = Object.assign({}, instantane, { farmZone: precedent ? N(precedent.farmZone, 0) : 0, farmAt: precedent ? N(precedent.farmAt, 0) : 0 });
   let ajoutes = 0;
@@ -247,6 +250,7 @@ export function enregistrerConnexionFluxV1(sql, { email, nom, visible = true, no
   assurerFluxV1(sql);
   const cle = String(email || "").trim().toLowerCase();
   if (!cle || !visible) return 0;
+  if (idleDevEstEmailPartieTestV1(cle)) { sql.exec("DELETE FROM idle_flux WHERE email LIKE '%+partieb@%'"); return 0; }
   const derniere = sqlRows(sql.exec("SELECT MAX(at) AS at FROM idle_flux WHERE email=? AND type='connexion'", cle))[0];
   if (derniere && derniere.at != null && now - Number(derniere.at) < IDLE_FLUX_DELAI_CONNEXION_MS_V1) return 0;
   sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", now, cle, String(nom || "Joueur").slice(0, 80), "connexion", "{}");
@@ -260,10 +264,10 @@ export function lireFluxV1(sql, { apresId = 0, limite = IDLE_FLUX_LIMITE_LECTURE
   const max = Math.max(1, Math.min(IDLE_FLUX_LIMITE_LECTURE_V1, Math.floor(Number(limite) || IDLE_FLUX_LIMITE_LECTURE_V1)));
   /* seulementFrais (lecture « en direct » du bandeau) : jamais d'historique, seulement ce qui date de moins de IDLE_FLUX_FRAICHEUR_MS_V1. */
   const rows = seulementFrais
-    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND at >= ? ORDER BY id LIMIT ?", after, now - IDLE_FLUX_FRAICHEUR_MS_V1, max))
+    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND at >= ? AND email NOT LIKE '%+partieb@%' ORDER BY id LIMIT ?", after, now - IDLE_FLUX_FRAICHEUR_MS_V1, max))
     : after > 0
-    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? ORDER BY id LIMIT ?", after, max))
-    : sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM (SELECT id,at,email,nom,type,donnees FROM idle_flux ORDER BY id DESC LIMIT ?) ORDER BY id", max));
+    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND email NOT LIKE '%+partieb@%' ORDER BY id LIMIT ?", after, max))
+    : sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM (SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE email NOT LIKE '%+partieb@%' ORDER BY id DESC LIMIT ?) ORDER BY id", max));
   return rows.map((r) => {
     let donnees = {};
     try { donnees = JSON.parse(r.donnees); } catch (_e) { /* détail illisible : événement sans détail */ }
