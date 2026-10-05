@@ -37,7 +37,8 @@
           'Le menu Atouts disparaît : sa boutique est maintenant dans la page ITOPOD, derrière un bouton « Atouts » (et « Retour à la tour » pour revenir).',
           'Augmentations : plus de petit retour en arrière du niveau ou de la barre à chaque validation du serveur (la page n’est plus redessinée en plein jeu : le serveur recale directement les barres).',
           'Le jeu ne se bloque plus quand on place d’énormes sommes d’énergie sur des barres très rapides (Augmentations) : le calcul du serveur est des centaines de fois plus rapide.',
-          'Blood Magic : la Magie libre se met à jour tout de suite quand on en place.'
+          'Blood Magic : la Magie libre se met à jour tout de suite quand on en place.',
+          'Entraînement de base : l’énergie en trop placée sur une ligne passe maintenant toujours à la ligne suivante quand elle se débloque (elle pouvait revenir dans l’énergie libre).'
         ]
       },
       {

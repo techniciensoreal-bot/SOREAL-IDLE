@@ -619,7 +619,8 @@ export function applyBasicTrainingAllocationsV411(
   raw,
   desired,
   idleEnergy,
-  totalEnergyCap
+  totalEnergyCap,
+  options={}
 ){
   const state=
     normalizeBasicTrainingStateV411(
@@ -644,10 +645,29 @@ export function applyBasicTrainingAllocationsV411(
   const req=
     desired&&
     typeof desired==="object"
-      ?desired
+      ?Object.assign({},desired)
       :{};
 
   let remaining=budget;
+
+  /*
+   * Training Auto Advance : l'écran déplace le surplus vers la compétence qu'il vient de débloquer quelques dixièmes de seconde AVANT le serveur. Le serveur la jugeait encore verrouillée,
+   * remettait son énergie à zéro (l'énergie « avançait » à l'écran puis revenait dans l'énergie libre : Norman, 2026-10-05 « les points en trop n'avancent pas toujours à la ligne suivante »).
+   * Tant que le serveur ne l'a pas débloquée, cette énergie reste sur la compétence PRÉREQUISE (le total alloué est le même) ; au vrai déblocage, le surplus au-delà du cap passe tout seul.
+   */
+  if(options&&options.autoAdvance){
+    for(const def of BASIC_TRAINING_V411.skills){
+      if(!def.prerequisite)continue;
+      if(isBasicTrainingSkillUnlockedV411(state,def))continue;
+      const voulu=Math.max(0,int(req[def.id],0));
+      if(voulu<=0)continue;
+      const prerequis=BASIC_TRAINING_V411.skills.find(x=>x.id===def.prerequisite);
+      if(!prerequis||!isBasicTrainingSkillUnlockedV411(state,prerequis))continue;
+      const base=Object.prototype.hasOwnProperty.call(req,def.prerequisite)?Math.max(0,int(req[def.prerequisite],0)):int(state.skills[def.prerequisite].allocation,0);
+      req[def.prerequisite]=base+voulu;
+      req[def.id]=0;
+    }
+  }
 
   for(const def of BASIC_TRAINING_V411.skills){
     const skill=state.skills[def.id];

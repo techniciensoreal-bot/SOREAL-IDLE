@@ -14566,12 +14566,24 @@ function definirAllocationsEntrainementSorealIdle(
       nombreSorealIdle_(budgetMetaEnergie.allocated,0)
     );
 
+    /* L'entraînement est amené à l'instant présent AVANT d'appliquer la répartition : sinon les déblocages se jugeaient sur le dernier chiffre de la synchro (de quelques secondes en retard). */
+    const autoAvance = autoAvanceEntrainementSorealIdle_(stats);
+    stats.entrainementBase =
+      advanceBasicTrainingStateV411(
+        stats.entrainementBase,
+        Date.now(),
+        CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES,
+        niveauxParBarreEntrainementSorealIdle_(stats),
+        { autoAdvance: autoAvance }
+      ).state;
+
     const resultat =
       applyBasicTrainingAllocationsV411(
         stats.entrainementBase,
         allocations,
         Math.max(0,nombreSorealIdle_(row[c.ENERGIE - 1],0)),
-        Math.max(0,nombreSorealIdle_(row[c.ENERGIE_MAX - 1],0)-reserveMetaEnergie)
+        Math.max(0,nombreSorealIdle_(row[c.ENERGIE_MAX - 1],0)-reserveMetaEnergie),
+        { autoAdvance: autoAvance }
       );
 
     stats.modeleJeuVersion =
