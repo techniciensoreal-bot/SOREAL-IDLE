@@ -17927,6 +17927,17 @@ let idleDialogueTimerV76=null;
         return true;
       }
 
+      /*
+       * Audit d'Aventure (Norman, 2026-10-05) : les raccourcis sont actualisés ~15 fois par seconde et réassignaient « disabled », « hidden », « aria-pressed » et les textes à CHAQUE passage, même identiques : ~187
+       * modifications de page par seconde au repos, qui relançaient aussi les observateurs de la page. Chaque valeur n'est écrite que si elle change.
+       */
+      function posteIdleSiChangeV1_(el,propriete,valeur){
+        if(el&&el[propriete]!==valeur)el[propriete]=valeur;
+      }
+      function attributIdleSiChangeV1_(el,nom,valeur){
+        if(el&&el.getAttribute(nom)!==valeur)el.setAttribute(nom,valeur);
+      }
+
       function rafraichirCommandesAdventureIdleV3_(maintenant){
         const root=document.getElementById('sorealIdleAdventureManualV3');
         if(!root)return;
@@ -17940,19 +17951,19 @@ let idleDialogueTimerV76=null;
         root.classList.toggle('paralyse-v1',paralyse);
         const bandeauParalysie=root.querySelector('[data-paralysie-v1]');
         if(bandeauParalysie){
-          bandeauParalysie.hidden=!paralyse;
+          posteIdleSiChangeV1_(bandeauParalysie,'hidden',!paralyse);
           if(paralyse){
             const reste=Math.max(0,idleNombre_(idleTitanEtatV1&&idleTitanEtatV1.paralyseJusqua)-now);
-            bandeauParalysie.textContent='⚡ Paralysé ! Plus de capacités ni d’Idle pendant '+(reste/1000).toFixed(1).replace('.',',')+' s';
+            posteIdleSiChangeV1_(bandeauParalysie,'textContent','⚡ Paralysé ! Plus de capacités ni d’Idle pendant '+(reste/1000).toFixed(1).replace('.',',')+' s');
           }
         }
         root.classList.toggle('manual-active',!idleAdventureIdleModeV3);
         const toggle=root.querySelector('[data-adventure-idle-toggle]');
         if(toggle){
           toggle.classList.toggle('active',idleAdventureIdleModeV3);
-          toggle.setAttribute('aria-pressed',idleAdventureIdleModeV3?'true':'false');
+          attributIdleSiChangeV1_(toggle,'aria-pressed',idleAdventureIdleModeV3?'true':'false');
           const value=toggle.querySelector('b');
-          if(value)value.textContent=idleAdventureIdleModeV3?'ON':'OFF';
+          if(value)posteIdleSiChangeV1_(value,'textContent',idleAdventureIdleModeV3?'ON':'OFF');
           toggle.classList.toggle('paralyse-v1',paralyse);
         }
         root.querySelectorAll('[data-adventure-skill]').forEach(function(btn){
@@ -17964,16 +17975,16 @@ let idleDialogueTimerV76=null;
           const restant=cooldownRestantAdventureIdleV3_(id,now);
           const prerequisOk=prerequisCompetenceAdventureIdleV4_(id,now);
           const desactivee=titanCompetenceDesactiveeIdleV1_(id);
-          btn.disabled=idleAdventureIdleModeV3||!unlocked||restant>0||!prerequisOk||desactivee||paralyse;
+          posteIdleSiChangeV1_(btn,'disabled',Boolean(idleAdventureIdleModeV3||!unlocked||restant>0||!prerequisOk||desactivee||paralyse));
           btn.classList.toggle('titan-off',desactivee);
           btn.classList.toggle('paralyse-v1',paralyse);
           btn.classList.toggle('locked',!unlocked);
           const cd=btn.querySelector('.soreal-idle-adventure-skill-cd-v3');
-          if(cd)cd.textContent=paralyse?'⚡':(restant>0?(restant/1000).toFixed(restant<10000?1:0)+'s':'');
+          if(cd)posteIdleSiChangeV1_(cd,'textContent',paralyse?'⚡':(restant>0?(restant/1000).toFixed(restant<10000?1:0)+'s':''));
           const label=btn.querySelector('.soreal-idle-adventure-skill-label-v3');
           if(label&&id==='move69'){
             const uses=Math.max(0,idleEntier_(a&&a.skillState&&a.skillState.move69Uses));
-            label.textContent='Move 69 · '+uses+'/69';
+            posteIdleSiChangeV1_(label,'textContent','Move 69 · '+uses+'/69');
           }
           let active=false;
           if(id==='block')active=idleAdventureManualStateV3.blockUntil>now;

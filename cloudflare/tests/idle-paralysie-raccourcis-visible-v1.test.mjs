@@ -15,8 +15,8 @@ const fin = ui.indexOf("      function basculerIdleModeAdventureIdleV3_(){");
 const bloc = ui.slice(debut, fin);
 assert.ok(bloc.includes("const paralyse=titanJoueurParalyseIdleV1_(now);"));
 assert.ok(bloc.includes("root.classList.toggle('paralyse-v1',paralyse);") && bloc.includes("toggle.classList.toggle('paralyse-v1',paralyse);") && bloc.includes("btn.classList.toggle('paralyse-v1',paralyse);"), "zone, Idle Mode et chaque raccourci");
-assert.ok(bloc.includes("||desactivee||paralyse;"), "chaque raccourci est désactivé pendant la paralysie");
-assert.ok(bloc.includes("cd.textContent=paralyse?'⚡'"), "un éclair à la place du temps de recharge");
+assert.ok(bloc.includes("||desactivee||paralyse));"), "chaque raccourci est désactivé pendant la paralysie");
+assert.ok(bloc.includes("posteIdleSiChangeV1_(cd,'textContent',paralyse?'⚡'"), "un éclair à la place du temps de recharge");
 assert.ok(bloc.includes("Plus de capacités ni d’Idle pendant ") && bloc.includes("idleTitanEtatV1&&idleTitanEtatV1.paralyseJusqua"), "le bandeau dit la cause et le temps restant");
 // Cohérence : c'est bien la même condition que celle qui ignore le clic.
 const usage = ui.slice(ui.indexOf("      function utiliserCompetenceAdventureIdleV3_(id){"), ui.indexOf("      function utiliserCompetenceAdventureIdleV3_(id){") + 300);

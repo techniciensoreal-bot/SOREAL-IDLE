@@ -33,7 +33,7 @@ const refreshBlock=ui.slice(refreshStart,refreshEnd);
 
 assert.match(
   refreshBlock,
-  /btn\.disabled=idleAdventureIdleModeV3\|\|!unlocked\|\|restant>0\|\|!prerequisOk/,
+  /posteIdleSiChangeV1_\(btn,'disabled',Boolean\(idleAdventureIdleModeV3\|\|!unlocked\|\|restant>0\|\|!prerequisOk/,
   "En Idle Mode OFF, une compétence débloquée sans cooldown/prérequis doit être cliquable."
 );
 

@@ -244,6 +244,21 @@
     }catch(_){}
   }
 
+  /*
+   * Audit d'Aventure (Norman, 2026-10-05) : ce rendu tourne à chaque modification de la page et réécrivait tous les chiffres des cartes (nom, puissance, endurance, PV, régénération, ennemi) à chaque fois, même
+   * identiques : ~120 modifications de page par seconde en combat, qui relançaient le rendu lui-même. Un texte n'est réécrit que s'il change.
+   */
+  function ecrire_(el,texte){
+    if(el&&el.textContent!==texte)el.textContent=texte;
+  }
+  /* La police d'un nom est réajustée quand son texte OU la largeur disponible change (fenêtre redimensionnée), jamais à chaque rendu. */
+  function largeurChangee_(el){
+    var l=el.clientWidth;
+    if(el.__largeurV1===l)return false;
+    el.__largeurV1=l;
+    return true;
+  }
+
   function stats_(root,a){
     var stats=a&&a.stats||{};
     var rewards=a&&a.setRewards||{};
@@ -254,8 +269,12 @@
     if(!player||!enemy)return;
     var playerName=player.querySelector('.soreal-idle-v79-card-name');
     if(playerName){
-      playerName.textContent=typeof window.__nomJoueurIdleV1__==='function'?String(window.__nomJoueurIdleV1__()||'Joueur'):'Joueur';
-      uneLigneIdleV1_(playerName);
+      var nomTexte=typeof window.__nomJoueurIdleV1__==='function'?String(window.__nomJoueurIdleV1__()||'Joueur'):'Joueur';
+      if(playerName.textContent!==nomTexte){
+        playerName.textContent=nomTexte;
+        uneLigneIdleV1_(playerName);
+        playerName.__largeurV1=playerName.clientWidth;
+      }else if(largeurChangee_(playerName))uneLigneIdleV1_(playerName);
     }
     var basePower=10+number_(rewards.adventurePower);
     var baseToughness=10+number_(rewards.adventureToughness);
@@ -281,13 +300,13 @@
       if(!line)return;
       var cube=Math.max(0,number_(cubeContribution));
       var bonus=Math.max(0,total-base-cube);
-      line.querySelector('.soreal-idle-v79-stat-base').textContent=format_(base,precision);
+      ecrire_(line.querySelector('.soreal-idle-v79-stat-base'),format_(base,precision));
       var extra=line.querySelector('.soreal-idle-v79-stat-bonus');
       var bonusTexte=format_(bonus,precision);
-      if(extra)extra.textContent=bonus>0&&bonusTexte!=='0'?' (+'+bonusTexte+')':'';
+      if(extra)ecrire_(extra,bonus>0&&bonusTexte!=='0'?' (+'+bonusTexte+')':'');
       var cubeExtra=line.querySelector('.soreal-idle-v79-stat-cube');
       var cubeTexte=format_(cube,precision);
-      if(cubeExtra)cubeExtra.textContent=cube>0&&cubeTexte!=='0'?' (+'+cubeTexte+' cube)':'';
+      if(cubeExtra)ecrire_(cubeExtra,cube>0&&cubeTexte!=='0'?' (+'+cubeTexte+' cube)':'');
     }
     playerStat('power',basePower,number_(stats.power),0,cubePower);
     playerStat('toughness',baseToughness,number_(stats.toughness),0,cubeToughness);
@@ -297,11 +316,11 @@
       var regenValue=regenLine.querySelector('.soreal-idle-v79-stat-base');
       var regenBonus=regenLine.querySelector('.soreal-idle-v79-stat-bonus');
       if(regenValue){
-        regenValue.textContent=format_(effectiveRegen,2);
+        ecrire_(regenValue,format_(effectiveRegen,2));
         regenValue.classList.toggle('soreal-idle-v79-safe-regen',selectedZone==='safe');
       }
       if(regenBonus){
-        regenBonus.textContent=selectedZone==='safe'?' (×'+safeMultiplier+' Safe Zone)':'';
+        ecrire_(regenBonus,selectedZone==='safe'?' (×'+safeMultiplier+' Safe Zone)':'');
       }
     }
     enemy.style.visibility=active?'visible':'hidden';
@@ -314,12 +333,17 @@
      * uneLigneIdleV1_ continue de rétrécir la police si besoin, sur le nom ET la couronne (un seul bloc de texte).
      */
     var nomMonstre=enemy.querySelector('.soreal-idle-v79-card-name');
-    nomMonstre.innerHTML=(fight.boss?'<span class="soreal-idle-v79-boss-crown-v1" title="Boss de zone">👑</span>':'')+html_(fight.mobName||'Ennemi');
-    uneLigneIdleV1_(nomMonstre);
+    var nomHtml=(fight.boss?'<span class="soreal-idle-v79-boss-crown-v1" title="Boss de zone">👑</span>':'')+html_(fight.mobName||'Ennemi');
+    if(nomMonstre.getAttribute('data-nom-v1')!==nomHtml){
+      nomMonstre.setAttribute('data-nom-v1',nomHtml);
+      nomMonstre.innerHTML=nomHtml;
+      uneLigneIdleV1_(nomMonstre);
+      nomMonstre.__largeurV1=nomMonstre.clientWidth;
+    }else if(largeurChangee_(nomMonstre))uneLigneIdleV1_(nomMonstre);
     var enemyValues={power:fight.mobPower,toughness:fight.mobToughness,hp:fight.monsterHpMax,regen:fight.mobHpRegen,type:fight.mobType||'normal'};
     Object.keys(enemyValues).forEach(function(key){
       var value=enemy.querySelector('[data-enemy-stat="'+key+'"]');
-      if(value)value.textContent=key==='type'?String(enemyValues[key]):format_(enemyValues[key],key==='regen'?2:0);
+      if(value)ecrire_(value,key==='type'?String(enemyValues[key]):format_(enemyValues[key],key==='regen'?2:0));
     });
   }
 

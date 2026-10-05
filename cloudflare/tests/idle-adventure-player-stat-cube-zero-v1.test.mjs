@@ -23,12 +23,12 @@ const corps = source.slice(debut, fin);
 // La garde compare désormais le texte réellement affiché (déjà arrondi), pas seulement la valeur brute.
 assert.match(
   corps,
-  /var bonusTexte=format_\(bonus,precision\);\s*\n\s*if\(extra\)extra\.textContent=bonus>0&&bonusTexte!==['"]0['"]\?/,
+  /var bonusTexte=format_\(bonus,precision\);\s*\n\s*if\(extra\)ecrire_\(extra,bonus>0&&bonusTexte!==['"]0['"]\?/,
   "le tag bonus doit comparer le texte déjà formaté à \"0\", pas seulement bonus>0"
 );
 assert.match(
   corps,
-  /var cubeTexte=format_\(cube,precision\);\s*\n\s*if\(cubeExtra\)cubeExtra\.textContent=cube>0&&cubeTexte!==['"]0['"]\?/,
+  /var cubeTexte=format_\(cube,precision\);\s*\n\s*if\(cubeExtra\)ecrire_\(cubeExtra,cube>0&&cubeTexte!==['"]0['"]\?/,
   "le tag cube doit comparer le texte déjà formaté à \"0\", pas seulement cube>0"
 );
 
