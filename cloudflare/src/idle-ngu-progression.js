@@ -1550,7 +1550,12 @@ function normalizeResource(raw, resource = "energy") {
     /* Part « naturelle » du cap (500 de base + 1 par 20 d'énergie obtenue à chaque Rebirth, jusqu'à 100 000) : les caps ACHETÉS en EXP s'ajoutent par-dessus sans la consommer (Norman, 2026-10-03). Sauvegarde ancienne : tout le cap existant est compté comme naturel. */
     capNaturel: clamp(num(src.capNaturel, cap), 0, cap),
     bars: clamp(num(src.bars, fallback.bars), 1, 1e18),
-    current: clamp(num(src.current, fallback.current), 0, cap),
+    /*
+     * Plafond de l'énergie LIBRE = plafond EFFECTIF (bonus d'atouts, de manies, de souhaits et d'équipement compris), que cette fonction ne connaît pas : l'ancien plafonnement au seul `cap` enregistré ramenait l'énergie à ce plafond de base
+     * à CHAQUE opération (Norman, 2026-10-05 : « la génération d'énergie bloque, tourne en rond » : énergie libre bloquée à 500 000 alors que le plafond effectif était 562 118). Le vrai plafond est appliqué par reconcileResourceCurrents
+     * (plafond effectif moins ce qui est alloué), à chaque avancée du temps.
+     */
+    current: clamp(num(src.current, fallback.current), 0, 9e18),
     fillProgress: clamp(num(src.fillProgress, 0), 0, 0.999999999999),
     generatedThisRun: Math.max(0, num(src.generatedThisRun, 0)),
     spentExp: Math.max(0, num(src.spentExp, fallback.spentExp))

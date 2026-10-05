@@ -31,7 +31,9 @@
           'La boutique EXP ne propose plus d’acheter plus que le maximum (Recyclage de boosts : ×1 et ×5, plus de ×10).',
           'Boutique EXP : les explications de Puissance et de Barres sont corrigées. Les Barres multiplient la génération (chaque remplissage donne autant de points que de Barres) ; la Puissance ne change pas la génération, elle amplifie l’effet de chaque point placé.',
           'La progression PP s’affiche en chiffres complets (724 124 / 1 000 000).',
-          'Le maximum d’énergie affiché suit tout de suite un achat qui change le plafond (atout, boutique, équipement) : plus d’ancien chiffre ni de génération par à-coups jusqu’à la synchro suivante.'
+          'Le maximum d’énergie affiché suit tout de suite un achat qui change le plafond (atout, boutique, équipement) : plus d’ancien chiffre ni de génération par à-coups jusqu’à la synchro suivante.',
+          'L’énergie libre n’est plus bloquée au plafond de base : avec des bonus de plafond (atouts, équipement…), elle continue de se générer jusqu’au vrai plafond au lieu de retomber toute seule.',
+          'La case « Ambiance » décochée coupe vraiment le son, y compris sur iPhone et iPad.'
         ]
       },
       {
