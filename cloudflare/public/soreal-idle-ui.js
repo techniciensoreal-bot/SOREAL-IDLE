@@ -3311,6 +3311,13 @@
                   )-
                   degatsJoueur
                 );
+            }else if(regenPvSecJoueurBossV1>recus){
+              /* Régénération plus forte que les coups du boss : la vie remonte PENDANT le combat (Norman, 2026-10-05), jamais au-delà des PV max. */
+              idleEtat.pvJoueur=
+                Math.min(
+                  Math.max(idleNombre_(idleEtat.pvJoueurMax),idleNombre_(idleEtat.pvJoueur)),
+                  idleNombre_(idleEtat.pvJoueur)+(regenPvSecJoueurBossV1-recus)*dt
+                );
             }
 
             if(

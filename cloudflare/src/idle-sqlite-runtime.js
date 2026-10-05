@@ -8479,6 +8479,16 @@ function appliquerProgressionEnergieSorealIdle_(
      * ici, sur la même resolution regenPvSecJoueur déjà utilisée plus
      * haut/plus bas — jamais un second calcul de regen.
      */
+    /*
+     * Régénération plus forte que les coups du boss (Norman, 2026-10-05 : « ma vie diminue de plus en plus lentement, s'arrête, puis remonte malgré le combat si la régén est plus forte que les coups de l'ennemi ; ça n'arrive jamais :
+     * la barre reste statique et ne remonte qu'à la fin du combat ») : le net est signé. Positif = dégâts nets ; négatif = soin net par seconde, appliqué pendant le combat (jamais au-delà des PV max).
+     */
+    const soinJoueurSec =
+      Math.max(
+        0,
+        regenPvSecJoueur -
+        degatsRecusSec
+      );
     degatsRecusSec =
       Math.max(
         0,
@@ -8595,6 +8605,9 @@ function appliquerProgressionEnergieSorealIdle_(
         0,
         pvJoueur-dommageJoueur
       );
+    if(soinJoueurSec>0&&pvJoueur>0){
+      pvJoueur=Math.min(Math.max(pvJoueur,pvJoueurMax),pvJoueur+segment*soinJoueurSec);
+    }
 
     /*
      * La mort n'est déclenchée que sur une valeur de PV exactement 0.
