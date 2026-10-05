@@ -11,14 +11,27 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.1',
+    courante:'2.2',
     versions:[
+      {
+        version:'2.2',
+        nom:'Des barres honnêtes, un jeu plus léger',
+        date:'2026-10-05',
+        points:[
+          'Les barres alimentées par une ressource (Augments, machine à Or, rituels) ne rattrapent plus leur retard quand tu changes l’allocation : elles gardent leur place et adoptent la nouvelle vitesse. Le niveau se termine plus vite, mais plus jamais d’un coup : impossible de placer une grosse somme, de remplir le niveau et de la retirer.',
+          'Chaque rituel affiche la Magie qui lui est allouée, avec le chiffre qui gonfle quand tu en ajoutes ou en retires. Quand tu enlèves toute la Magie, la barre du rituel s’arrête au lieu de continuer à monter, et repart de là où elle était.',
+          'En combat de boss, si ta régénération dépasse les coups de l’ennemi, ta vie remonte pendant le combat : elle descend de moins en moins vite, s’arrête, puis remonte, au lieu de rester figée jusqu’à la fin.',
+          'Quand le jeu te ramène en Zone sûre, la raison est maintenant écrite dans le journal d’Aventure.',
+          'Sur PC, le clic droit absorbe les boosts de la même façon partout, sur un objet comme sur le cube.',
+          'Le jeu est plus léger : quatre appels de moins au démarrage, plusieurs allocations d’un coup (Augments, entraînement avancé) envoyées en un seul appel, et les chiffres des barres, de l’entraînement, de l’aventure et du combat de boss ne sont plus réécrits quand rien ne change.'
+        ]
+      },
       {
         version:'2.1',
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
         points:[
-          'La tour a sa propre arène : un décor par étage, un ouvrier, un responsable ou un ancien comme ennemi (avatar grand, sans cadre, qui respire), sa barre de vie qui descend à chaque coup de poing, et le choix des étages juste en dessous. Les joueurs sont aussi des ennemis, avec un avatar chacun. Un bouton permet d’entrer dans la tour pour combattre à la chaîne. Quand le jeu te ramène en Zone sûre, la raison est écrite dans le journal d’Aventure. Les zones de saisie du jeu ont aussi un nouveau look. Chaque rituel affiche maintenant la Magie qui lui est allouée, avec le chiffre qui gonfle quand tu en ajoutes. Les barres alimentées par une ressource ne rattrapent plus leur retard quand tu changes l’allocation : elles adoptent la nouvelle vitesse, sans remplir le niveau d’un coup. Sur PC, le clic droit absorbe les boosts de la même façon partout.',
+          'La tour a sa propre arène : un décor par étage, un ouvrier, un responsable ou un ancien comme ennemi (avatar grand, sans cadre, qui respire), sa barre de vie qui descend à chaque coup de poing, et le choix des étages juste en dessous. Les joueurs sont aussi des ennemis, avec un avatar chacun. Un bouton permet d’entrer dans la tour pour combattre à la chaîne. Les zones de saisie du jeu ont aussi un nouveau look.',
           'Les menus suivent l’ordre dans lequel tu les débloques ; la Boutique, les Succès, le Chat et les Réglages restent toujours à la fin, dans cet ordre (tu peux toujours les déplacer).',
           'Le magasin des Perks devient une boutique à part, en vitrines néon, avec l’image de chaque achat, une recherche et un filtre des achats abordables.',
           'Un défi en cours a maintenant son compteur : le temps écoulé depuis son lancement, en mois, semaines, jours puis heures, minutes et secondes.',
