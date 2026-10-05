@@ -1787,9 +1787,10 @@
             'sorealIdleBossRespawnV100'
           );
 
+        /* Audit de Combat de boss (Norman, 2026-10-05) : ces écritures tournaient ~20 fois par seconde, même sans rien changer, et chacune modifiait la page ; elles n'ont lieu que si la valeur change. */
         if(el){
-          el.textContent='';
-          el.classList.add('ready');
+          if(el.textContent!=='')el.textContent='';
+          if(!el.classList.contains('ready'))el.classList.add('ready');
         }
 
         const start=
@@ -1798,7 +1799,7 @@
           );
 
         if(start){
-          start.disabled=
+          const desactive=
             Boolean(
               idleEtat.combatBossActif ||
               idlePopupBloqueCombatV102 ||
@@ -1808,6 +1809,7 @@
               idleNombre_(idleEtat.pvJoueur)<=0 ||
               fightEnAttenteServeurIdleV1_()
             );
+          if(start.disabled!==desactive)start.disabled=desactive;
         }
       }
 
@@ -1821,7 +1823,8 @@
             '.soreal-idle-boss-control-v39.stop'
           );
         if(fuite){
-          fuite.disabled=!idleEtat.combatBossActif;
+          const fuiteDesactivee=!idleEtat.combatBossActif;
+          if(fuite.disabled!==fuiteDesactivee)fuite.disabled=fuiteDesactivee;
         }
 
       }
