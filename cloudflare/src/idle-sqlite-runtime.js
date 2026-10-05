@@ -14707,6 +14707,7 @@ function agirProgressionSorealIdle(
       const maintenantDefi=Date.now();
       if(stats.metaNgu&&stats.metaNgu.adventure&&typeof stats.metaNgu.adventure==='object'){
         stats.metaNgu.adventure.selectedZone='safe';
+        stats.metaNgu.adventure.retourSafe={raison:'defi',detail:'Un défi vient de commencer : ton run repart du début',at:Date.now()};
         stats.metaNgu.adventure.fight={active:false,zone:'',monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};
       }
       stats.autoAventure=false;
@@ -14960,6 +14961,7 @@ function renaitreSorealIdle(
       typeof stats.metaNgu.adventure==='object'
     ){
       stats.metaNgu.adventure.selectedZone='safe';
+      stats.metaNgu.adventure.retourSafe={raison:'renaissance',detail:'Renaissance : ton run repart du début',at:Date.now()};
       stats.metaNgu.adventure.fight={
         active:false,
         zone:'',

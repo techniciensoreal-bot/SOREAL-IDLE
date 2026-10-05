@@ -2673,7 +2673,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
  * exactement comme n'importe quel autre accessoire trouvé.
  */
 function base(){
-  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",autoPortraitTier:0,setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},autoKillTitansEnabled:false,fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
+  const s={version:IDLE_ADVENTURE_V47,revision:0,recentClientMutations:[],selectedZone:"safe",retourSafe:{raison:"",detail:"",at:0},lastCombatZone:"tutorial",inventory:[],inventorySlots:[],coffre:{},trash:null,equipment:{head:"",chest:"",legs:"",boots:"",weapon:"",weapon2:"",accessories:[]},dualWieldRatio:0,theEnd:{pieces:{},endings:0,lastEndingAt:0},itemList:{},completedSets:{},autoPortraitSet:"",autoPortraitTier:0,setRewards:{experience:0,ap:0,energySpeed:0,energyBars:0,energyPower:0,magicPower:0,magicBars:0,magicCap:0,adventurePower:0,adventureToughness:0,adventureHp:0,adventureRegen:0,respawn:0,drop:0,chargeMultiplier:1,idleAttack:false,noEquipmentChallenge:false,wandoosMeh:false,diggerSlot:0,luckyCharms:0,extraDropLevelChance:0,boostEffectiveness:0,boostCompletions:0,itopodPpPct:0,diggerGlobalBonusPct:0,bloodMagicSpeedPct:0,nguSpeedPct:0,wishSpeedPct:0},permanent:{experience:0,ap:0,gold:0,ppProgress:0,qp:0,energySpeedFlat:0,energyPowerFlat:0,energyBarsFlat:0,magicPowerFlat:0,magicBarsFlat:0,magicCapFlat:0},unlockItems:{},unlockFlags:{},skillState:{beastMode:false,move69Uses:0,endPiece481:false},cube:{power:0,toughness:0,unlocked:false},zone:{kills:{},bossKills:{},encounters:{},bossEncounters:{}},titans:{},autoKillTitansEnabled:false,fight:{active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0},serial:1};
   const cubeDepart=special("tutorialCube",0);
   cubeDepart.id=`i${s.serial++}`;
   s.inventory.push(cubeDepart);
@@ -2820,6 +2820,8 @@ s.itemList=s.itemList&&typeof s.itemList==="object"?s.itemList:{};s.completedSet
  * une nouvelle remise à zéro complète.
  */
 if(s.fight.active&&s.fight.zone&&s.fight.zone!==s.selectedZone){s.fight=X(base().fight)}
+/* Raison du dernier retour en Zone sûre (audit d'Aventure, Norman 2026-10-05 : « je gagne un combat et il me dit Zone sûre alors que je suis dans le ciel ») : affichée au joueur, jamais un retour silencieux. */
+{const r=s.retourSafe&&typeof s.retourSafe==="object"?s.retourSafe:{};s.retourSafe={raison:String(r.raison||"").slice(0,40),detail:String(r.detail||"").slice(0,160),at:Math.max(0,I(r.at))}}
 /* Seconde arme : slot toujours présent ; les secondes armes rangées en accessoires par l'ancienne version (100 % de leurs stats) sont migrées. */
 s.dualWieldRatio=Math.min(1,Math.max(0,N(s.dualWieldRatio)));
 s.theEnd=idleTheEndNormalizeV1(s.theEnd);
@@ -3893,6 +3895,8 @@ function coffreRetirer(s,id){
  * jamais reverrouillée simplement parce que le joueur est passé en Evil/
  * Sadistic entre-temps.
  */
+/* Retour en Zone sûre AVEC sa raison (lue par le client, qui l'écrit dans le journal d'Aventure). */
+export function versZoneSureV1(s,raison,detail,t=Date.now()){s.selectedZone="safe";s.retourSafe={raison:String(raison||"").slice(0,40),detail:String(detail||"").slice(0,160),at:Math.floor(N(t))}}
 function unlockedZone(z,bosses,difficulty,difficultyPeaks){
   if(!z.requiredDifficulty){
     /*
@@ -3916,7 +3920,13 @@ function repliZonesFermeesV1(s,bosses,difficulty,difficultyPeaks){
   const ouvertes=IDLE_ADVENTURE_ZONES.filter(z=>z.id!=="safe"&&unlockedZone(z,bosses,difficulty,difficultyPeaks));
   const meilleure=ouvertes.length?ouvertes[ouvertes.length-1].id:"safe";
   const fermee=id=>{const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===id);return Boolean(z)&&z.id!=="safe"&&!unlockedZone(z,bosses,difficulty,difficultyPeaks)};
-  if(fermee(s.selectedZone))s.selectedZone=meilleure;
+  if(fermee(s.selectedZone)){
+    const ferme=IDLE_ADVENTURE_ZONES.find(x=>x.id===s.selectedZone);
+    const detail=(ferme?ferme.name||ferme.id:s.selectedZone)+" : il faut avoir vaincu le boss "+I(ferme&&ferme.boss)+" dans ce run (tu en es au boss "+I(bosses)+")";
+    /* at = 0 : ce repli est recalculé à chaque réponse (sans être enregistré) ; le client le repère à son texte, pas à une heure. */
+    if(meilleure==="safe"){s.selectedZone="safe";s.retourSafe={raison:"zone_fermee",detail,at:0}}
+    else{s.selectedZone=meilleure;s.retourSafe={raison:"zone_fermee",detail,at:0}}
+  }
   if(fermee(s.lastCombatZone))s.lastCombatZone=meilleure==="safe"?"tutorial":meilleure;
   return s;
 }
@@ -5055,7 +5065,7 @@ function startTitanFight(s,ctx,t,id,difficulty){
   const stats=ctx.stats||{};
   const playerHpMax=playerHpMaxForAdventureV1(stats);
   const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
-  s.selectedZone="safe";
+  versZoneSureV1(s,"titan","Un titan t'attend : le combat se déroule en Zone sûre");
   s.fight={active:true,zone:"safe",monsterHp:c.hp,monsterHpMax:c.hp,boss:true,playerHp,playerHpMax,monsterIndex:-1,mobAttackFactor:1,mobType:"titan",mobName:pre.formIndex>=0?nomBase+" (forme "+(pre.formIndex+1)+")":nomBase,mobPower:c.power,mobToughness:c.toughness,mobHpRegen:c.regen,mobAttackRate:c.attackRate,titanId:pre.id,titanTier:pre.tierKey||"",titanForm:pre.formIndex,titanStartedAt:t};/* « En direct » (Norman, 2026-10-04) : combats de titan lancés / perdus, lus par idle-flux-v1.js (la victoire vient du compteur de kills). */fluxTitanV1(s,"starts",pre.id);
   return{titanStarted:pre.id,tier:pre.tierKey||"",form:pre.formIndex,hp:c.hp};
 }
@@ -5081,7 +5091,7 @@ export function annulerVictoireTitanV1(s,id){const d=IDLE_ADVENTURE_TITANS.find(
 /* Première victoire de GRB : copie de Wandoos 98 (drapeau et objet du sac) et A Number, seulement si le système correspondant n'est pas déjà débloqué ; un seul exemplaire (le plus bas niveau) de chaque. */
 if(st.kills===0&&id==="t1"){for(const [defId,cle] of [["aNumber","aNumber"],["wandoos98","wandoos98"]]){if(s.unlockFlags&&s.unlockFlags[unlockMap[cle]])continue;if(s.unlockItems&&s.unlockItems[cle]){s.unlockItems[cle]=false;retires.push(cle+":drapeau")}const copies=(s.inventory||[]).filter(x=>x&&x.definitionId===defId&&!x.locked).sort((a,b)=>I(a.level)-I(b.level));if(copies.length){retirerObjetAdventureV1(s,copies[0].id);retires.push(defId+":objet")}}}if(st.kills===0)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return{id,kills:st.kills,objetRetire,retires}}
 function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
-function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};s.selectedZone="safe";return{defeated:true,zone}}
+function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};versZoneSureV1(s,"defaite","Tu as été mis K.O. dans cette zone");return{defeated:true,zone}}
 function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}
 /*
  * V145 — The Beast (t6) est le premier titan avec plusieurs paliers de
@@ -5398,7 +5408,7 @@ export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
 
     if(tempsTuerJoueur<=tempsTuerMonstre){
       derniereDefaite={monstre:mobName,zone:String(z.name||z.id||""),boss,ko:true};
-      s.selectedZone="safe";
+      versZoneSureV1(s,"ko_hors_ligne","Pendant ton absence, "+(mobName||"un ennemi")+" t'a mis K.O. (simulation du farm hors ligne)");
       break;
     }
 
@@ -5993,7 +6003,7 @@ function snapshotItemAdventureV1(o){
     locked:Boolean(o&&o.locked)
   };
 }
-export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks){const s=normalizeIdleAdventureStateV47(raw);repliZonesFermeesV1(s,bosses,difficulty,difficultyPeaks);return{version:s.version,revision:Math.max(0,I(s.revision)),visualSource:"avatar-level",selectedZone:s.selectedZone,lastCombatZone:s.lastCombatZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses,difficulty,difficultyPeaks),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
+export function idleAdventureSnapshotV47(raw,bosses=0,difficulty,difficultyPeaks){const s=normalizeIdleAdventureStateV47(raw);repliZonesFermeesV1(s,bosses,difficulty,difficultyPeaks);return{version:s.version,revision:Math.max(0,I(s.revision)),visualSource:"avatar-level",selectedZone:s.selectedZone,retourSafe:s.retourSafe,lastCombatZone:s.lastCombatZone,zones:IDLE_ADVENTURE_ZONES.map(z=>({...z,unlocked:unlockedZone(z,bosses,difficulty,difficultyPeaks),visual:{source:"avatar-level",level:I(z.avatarLevel,1),fallback:"emoji"}})),/*
  * Bug trouvé en vérifiant le vrai NGU (Norman, 2026-09-10) : "je ne
  * pense pas qu'ils soient visibles dans un menu dès le début" —
  * progressionUnlocked ne vérifiait QUE la chaîne de prérequis entre

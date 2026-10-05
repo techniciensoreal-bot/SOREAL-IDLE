@@ -3766,9 +3766,32 @@
        */
       let idlePrevisionBossV1={actif:false,vaincus:0,debut:0};
 
+      /*
+       * Retour en Zone sûre expliqué (audit d'Aventure, Norman 2026-10-05 : « je gagne un combat et il me dit Zone sûre alors que je suis dans le ciel ») : le serveur dit POURQUOI il a ramené le joueur en Zone sûre (titan, K.O., zone refermée, défi,
+       * Renaissance, K.O. pendant l'absence) ; la raison est écrite une fois dans le journal d'Aventure et en console. Au premier état reçu, on ne ressort pas un vieux retour.
+       */
+      let idleRetourSafeCleV1=null;
+      function signalerRetourSafeIdleV1_(joueur){
+        const a=joueur&&aventureMetaIdleV47_(joueur);
+        const r=a&&a.retourSafe;
+        if(!r)return;
+        const at=Math.max(0,idleNombre_(r.at));
+        /* Un retour enregistré (at > 0) se repère à son heure ; un repli de zone refermée (at = 0, recalculé à chaque réponse) à son texte. */
+        const cle=(at>0?String(at):'repli')+'|'+String(r.raison||'')+'|'+String(r.detail||'');
+        if(idleRetourSafeCleV1===null){idleRetourSafeCleV1=cle;return;}
+        if(cle===idleRetourSafeCleV1)return;
+        idleRetourSafeCleV1=cle;
+        if(!(at>0||String(r.raison||'')==='zone_fermee'))return;
+        if(String(a.selectedZone||'safe')!=='safe'&&String(r.raison||'')!=='zone_fermee')return;
+        const texte=(String(a.selectedZone||'safe')==='safe'?'🛡️ Retour en Zone sûre : ':'↩️ Zone changée : ')+String(r.detail||r.raison||'raison inconnue');
+        try{console.warn('[IDLE] retour en Zone sûre',r);}catch(_e){}
+        try{ajouterLogAventureIdleV1_('system',texte);}catch(_e){}
+      }
+
       function appliquerSynchroCombatSansReflowIdleV116_(
         joueurServeur
       ){
+        signalerRetourSafeIdleV1_(joueurServeur);
         if(idlePrevisionBossV1.actif&&joueurServeur){
           const confirmee=idleEntier_(joueurServeur.bossVaincus)>=idlePrevisionBossV1.vaincus;
           if(!confirmee&&Date.now()-idlePrevisionBossV1.debut<=15000)return true;
