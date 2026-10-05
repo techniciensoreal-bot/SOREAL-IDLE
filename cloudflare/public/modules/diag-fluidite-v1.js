@@ -48,6 +48,7 @@
   var prec={};
   var orPrec=null;
   var dernierDepense=null;
+  var gainMoyen=0;/* revenu d'Or habituel entre deux échantillons : une hausse ne compte que si elle le dépasse nettement */
   var pleineDepuis={};
 
   function echantillon_(){
@@ -63,10 +64,10 @@
     if(isFinite(or)&&orPrec!==null){
       var d=or-orPrec;
       if(d<0){dernierDepense={montant:-d,t:maintenant};}
-      else if(d>0&&dernierDepense&&maintenant-dernierDepense.t<8000&&d>=0.25*dernierDepense.montant){
+      else if(d>0&&dernierDepense&&maintenant-dernierDepense.t<8000&&d>=0.25*dernierDepense.montant&&d>5*gainMoyen){
         noter_('or_remonte','or',{hausse:Math.round(d),depense:Math.round(dernierDepense.montant),apres_ms:maintenant-dernierDepense.t});
         dernierDepense=null;
-      }
+      }else if(d>0){gainMoyen=gainMoyen*0.9+d*0.1;}
     }
     if(isFinite(or))orPrec=or;
 

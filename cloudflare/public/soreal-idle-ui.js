@@ -2774,7 +2774,7 @@
           if(idleEtat[cle]===undefined){if(idleRepereVisuelsV1_[cle]!==undefined)idleEtat[cle]=idleRepereVisuelsV1_[cle];}
           else idleRepereVisuelsV1_[cle]=idleEtat[cle];
         });
-        if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
+        if((IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
           idleMenuViveSyncV1=Date.now();
           synchroniserJeuIdleV7_(true);
         }
@@ -4658,6 +4658,10 @@
             /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
             if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!champSaisieActifIdleV1_()){
               try{rafraichirMenuRacineIdleV28_();}catch(_e){}
+            }
+            /* ITOPOD : seuls les chiffres sont mis à jour (la scène animée et les champs d'étage ne sont jamais redessinés). */
+            if(idleMenuActifV28==='tower'&&idleEtat&&typeof window.__rafraichirItopodIdleV1__==='function'){
+              try{window.__rafraichirItopodIdleV1__(idleEtat);}catch(_e){}
             }
 
             if(
@@ -14847,9 +14851,26 @@
        */
       let idleMenuViveSyncV1=0;
       const IDLE_MENUS_VIVANTS_V1={ngu:1,wandoos:1,yggdrasil:1,diggers:1,beards:1,wishes:1,hacks:1,daycare:1};
+      /* Doigt ou souris enfoncé : un redessin entre l'appui et le relâchement ferait perdre le clic. */
+      let idlePointeurEnfonceV1=0;
+      try{
+        document.addEventListener('pointerdown',function(){idlePointeurEnfonceV1=Date.now();},true);
+        ['pointerup','pointercancel','click'].forEach(function(nom){document.addEventListener(nom,function(){idlePointeurEnfonceV1=0;},true);});
+      }catch(_e){}
       function champSaisieActifIdleV1_(){
+        if(idlePointeurEnfonceV1&&Date.now()-idlePointeurEnfonceV1<3000)return true;
         const a=document.activeElement;
-        return Boolean(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+        if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;
+        /* Un champ modifié mais pas encore validé (ITOPOD : étages tapés ou réglés avec − et +) ne doit jamais être remis à zéro par un redessin. */
+        const racine=document.querySelector('.soreal-idle-page-root-v28');
+        if(!racine)return false;
+        const champs=racine.querySelectorAll('input,textarea,select');
+        for(let i=0;i<champs.length;i+=1){
+          const c=champs[i];
+          if(c.type==='checkbox'||c.type==='radio'){if(c.checked!==c.defaultChecked)return true;}
+          else if(c.type!=='button'&&c.type!=='submit'&&c.value!==c.defaultValue)return true;
+        }
+        return false;
       }
       let idleVictoireBossLocaleV49=false;
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-158 */

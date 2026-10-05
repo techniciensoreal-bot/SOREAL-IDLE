@@ -1587,6 +1587,28 @@ function itopodVueIdleV1_basculer_(){
       }
       window.__itopodVueIdleV1_basculer__=itopodVueIdleV1_basculer_;
 
+/* Mise à jour en direct des chiffres de la page ITOPOD (étage, ennemis vaincus, PP, progression) sans toucher à la scène animée ni aux champs d'étage. */
+function rafraichirItopodIdleV1_(j){
+        const vivant=document.querySelector('.itp-page');
+        if(!vivant)return;
+        const tmp=document.createElement('div');
+        tmp.innerHTML=pageItopodIdleV1_(j);
+        const neuf=tmp.querySelector('.itp-page');
+        if(!neuf)return;
+        const copier=function(racineVive,racineNeuve,sel){
+          const a=racineVive.querySelectorAll(sel),b=racineNeuve.querySelectorAll(sel);
+          a.forEach(function(e,i){if(b[i]&&e.textContent!==b[i].textContent)e.textContent=b[i].textContent;});
+        };
+        copier(vivant,neuf,'.itp-tuile b');
+        copier(vivant,neuf,'.itp-pp-ligne b');
+        const barreVive=vivant.querySelector('.itp-pp-rempli'),barreNeuve=neuf.querySelector('.itp-pp-rempli');
+        if(barreVive&&barreNeuve&&barreVive.style.width!==barreNeuve.style.width)barreVive.style.width=barreNeuve.style.width;
+        /* Solde de PP de la boutique des Atouts (même page). */
+        const soldeVif=document.querySelector('.pk-solde b'),soldeNeuf=tmp.querySelector('.pk-solde b');
+        if(soldeVif&&soldeNeuf&&soldeVif.textContent!==soldeNeuf.textContent)soldeVif.textContent=soldeNeuf.textContent;
+      }
+      window.__rafraichirItopodIdleV1__=rafraichirItopodIdleV1_;
+
 /* Entrer dans la tour / la quitter (le combat à la chaîne ne tourne que tour ouverte). */
 function itopodBasculerIdleV1_(){
         toggleSystemeMetaIdleV130_('tower');

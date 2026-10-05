@@ -11,8 +11,18 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.2',
+    courante:'2.3',
     versions:[
+      {
+        version:'2.3',
+        nom:'Tout en direct',
+        date:'2026-10-06',
+        points:[
+          'Les chiffres de l’ITOPOD (étage, ennemis vaincus, PP, progression) se mettent à jour en direct sans toucher à la scène animée ni à tes champs d’étage.',
+          'Les menus NGU, Wandoos, Yggdrasil, Gold Diggers, Barbes, Souhaits, Hacks et Garderie se mettent à jour en direct (toutes les 4 secondes) au lieu de rester figés jusqu’à la prochaine visite.',
+          'La fenêtre qui annonce les Atouts dit maintenant où les trouver : dans l’ITOPOD, avec le bouton « Atouts ».'
+        ]
+      },
       {
         version:'2.2',
         nom:'Des barres honnêtes, un jeu plus léger',
