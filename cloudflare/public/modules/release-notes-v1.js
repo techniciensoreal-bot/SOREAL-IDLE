@@ -23,7 +23,8 @@
           'En combat de boss, si ta régénération dépasse les coups de l’ennemi, ta vie remonte pendant le combat : elle descend de moins en moins vite, s’arrête, puis remonte, au lieu de rester figée jusqu’à la fin.',
           'Quand le jeu te ramène en Zone sûre, la raison est maintenant écrite dans le journal d’Aventure.',
           'Sur PC, le clic droit absorbe les boosts de la même façon partout, sur un objet comme sur le cube.',
-          'Le jeu est plus léger : quatre appels de moins au démarrage, plusieurs allocations d’un coup (Augments, entraînement avancé) envoyées en un seul appel, et les chiffres des barres, de l’entraînement, de l’aventure et du combat de boss ne sont plus réécrits quand rien ne change.'
+          'Le jeu est plus léger : quatre appels de moins au démarrage, plusieurs allocations d’un coup (Augments, entraînement avancé) envoyées en un seul appel, et les chiffres des barres, de l’entraînement, de l’aventure et du combat de boss ne sont plus réécrits quand rien ne change.',
+          'Le menu de gauche reste sur une seule colonne, même sur un grand écran, et ses boutons prennent entièrement la couleur de leur menu (comme la Boutique), avec une couleur plus vive et une lueur quand le menu est ouvert.'
         ]
       },
       {
