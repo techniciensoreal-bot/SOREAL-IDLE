@@ -21,7 +21,7 @@ assert.match(bloc, /document\.addEventListener\('touchstart',function\(\)\{\s*if
 
 // Jamais un appel serveur par clic : accumulation + envoi par lot (débounce).
 assert.match(bloc, /function idleClicMarquerV1_\(\)\{\s*idleClicsEnAttenteV1\+=1;/, "chaque clic incrémente un compteur en mémoire");
-assert.match(bloc, /setTimeout\(function\(\)\{\s*idleClicsEnvoiMinuterieV1=null;\s*idleClicsEnvoyerV1_\(\);\s*\},4000\);/, "un seul envoi différé par rafale");
+assert.match(bloc, /setTimeout\(function\(\)\{\s*idleClicsEnvoiMinuterieV1=null;\s*idleClicsEnvoyerV1_\(\);\s*\},15000\);/, "un seul envoi différé par rafale");
 assert.match(bloc, /\.enregistrerClicsSorealIdle\(SOREAL_SESSION,lot\);/, "le lot accumulé est envoyé en une fois");
 // Échec réseau : le lot repart dans le compteur, jamais perdu.
 assert.match(bloc, /withFailureHandler\(function\(\)\{\s*idleClicsEnvoiEnCoursV1=false;\s*idleClicsEnAttenteV1\+=lot;\s*\}\)/);
