@@ -1639,24 +1639,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="cha
 /* Réglages : l'engrenage tourne. */
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="parametres"] .soreal-idle-nav-emoji-v2{animation:sorealAlTourneEmojiV1 3s linear infinite}
 
-/* ====================== GRAND ÉCRAN / TV : tous les menus visibles, sans défilement ======================
- * Norman (2026-10-03) : « sur TV, les menus de gauche ne doivent pas être dans un menu déroulant ; il y a assez de place pour tous les afficher à l'écran ». Sur un grand écran de TV (au moins 1800 px de large et 1000 px de haut),
- * la colonne de menus passe sur deux colonnes de cartes compactes (lues de haut en bas) : les 32 menus tiennent sans défiler. Seuil volontairement haut (1800 x 1000) : une fenêtre de navigateur sur PC n'atteint pas cette hauteur, un écran de TV en plein écran oui. */
-@media (min-width:1800px) and (min-height:1000px){
-  body.soreal-idle-active-v47 .soreal-idle-native-v4{grid-template-columns:600px minmax(0,1fr)}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{max-height:260px}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95 img{max-height:260px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
-    display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);
-    overflow:visible!important;max-height:none!important;gap:6px!important;padding:10px!important;
-  }
-  /* Sur TV, deux colonnes : mêmes proportions que sur PC, un peu resserrées pour que les 32 menus tiennent sans défiler. */
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-button-v28{min-height:50px;padding:4px 12px 4px 7px!important;gap:10px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{width:40px!important;height:40px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:23px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:15px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:none}
-}
+/* Menu de gauche : TOUJOURS une seule colonne (Norman, 2026-10-05 : « 1920x1080, peu importe, ça doit rester sur 1 colonne »), sur PC comme sur TV. Le bloc grand écran à deux colonnes de la TV a été retiré. */
 
 /* ====================== Bouton Shop : une boutique magique ======================
  * Norman (2026-10-04) : « le bouton de Boutique doit être mauve et doit plus faire penser à une boutique magique ». Boule de cristal sur un badge en étoile, dégradé mauve nuit étoilée, étincelles discrètes. */

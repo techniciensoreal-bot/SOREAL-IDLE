@@ -51,7 +51,7 @@ assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-
   assert.ok(ui.includes("style=\"--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))}\""), "nombre de lignes = moitié des menus visibles");
   const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
   assert.ok(!css.includes("grid-template-rows:repeat(16,auto)"), "plus de 16 lignes fixes");
-  assert.equal(css.split("grid-template-rows:repeat(var(--nav-lignes,17),auto)").length - 1, 1, "TV seulement : deux colonnes ; PC : une colonne (2026-10-04)");
+  assert.equal(css.split("grid-template-rows:repeat(var(--nav-lignes,17),auto)").length - 1, 0, "aucune règle à deux colonnes : une colonne partout, même en 1920x1080 (2026-10-05)");
   // 33 menus (admin compris) : 17 lignes, deux colonnes, jamais de troisième.
   for (const n of [28, 32, 33, 34]) assert.ok(Math.ceil(n / 2) * 2 >= n, "tient sur deux colonnes : " + n);
 }
@@ -62,6 +62,4 @@ console.log("idle-interface-pc-v1 (lignes de menu): OK");
   const pc = bloc.slice(bloc.indexOf("Boutons plus larges et plus longs"), bloc.indexOf("Images moins démesurées sur PC"));
   assert.ok(pc.includes("min-height:60px") && pc.includes("soreal-idle-nav-emoji-v2{font-size:26px!important}") && pc.includes("soreal-idle-nav-texte-v2 b{font-size:16px!important"), "PC : boutons longs, icône et titre grands");
   assert.ok(pc.includes("soreal-idle-nav-texte-v2 small{display:block;font-size:12px!important"), "PC : le verbe du menu est lisible");
-  const tv = bloc.slice(bloc.indexOf("Sur TV, deux colonnes"), bloc.indexOf("Bouton Shop : une boutique magique"));
-  assert.ok(tv.includes("width:40px!important;height:40px!important") && tv.includes("font-size:23px!important") && tv.includes("texte-v2 b{font-size:15px!important}"), "TV : plus grand qu'avant, resserré pour tenir sans défiler");
 }

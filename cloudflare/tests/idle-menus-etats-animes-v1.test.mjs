@@ -61,9 +61,6 @@ for (const id of ["shop", "classement", "bestiaire", "chat", "parametres"]) {
 for (const id of ["aventure", "renaissance", "challenges", "titans", "succes", "shop", "classement", "bestiaire", "chat", "parametres"]) {
   assert.ok(css.includes(`.alimente-v1[data-effet-v1="${id}"]`), "effet de " + id);
 }
-// TV : au moins 1800 x 1000, deux colonnes de cartes compactes, aucun défilement.
-const tv = css.slice(css.indexOf("@media (min-width:1800px) and (min-height:1000px){"));
-assert.ok(tv.includes("grid-template-rows:repeat(var(--nav-lignes,17),auto);grid-template-columns:repeat(2,minmax(0,1fr))"));
-assert.ok(tv.includes("overflow:visible!important;max-height:none!important"), "plus de menu déroulant");
-assert.ok(tv.includes("grid-auto-flow:column"), "lecture de haut en bas");
+// Plus de bloc grand écran à deux colonnes : le menu reste sur une colonne (2026-10-05).
+assert.ok(!css.includes("@media (min-width:1800px) and (min-height:1000px){"));
 console.log("idle-menus-etats-animes-v1: OK");
