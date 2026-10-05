@@ -2593,6 +2593,23 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         j.__bloodMagicVisualV1=nouveau.seconds>0
           ?{ritual:vue.activeRitual,secondsPerCompletion:nouveau.seconds,etaSeconds:vue.etaSeconds,at:maintenant,src:vue}
           :null;
+        /*
+         * Plus de Magic sur le rituel (Norman, 2026-10-05 : « si j'enlève toute la magie, la barre continue de monter ») : la barre tournait encore, animée par le navigateur, car plus aucun repère ne la pilotait. On la fige là où elle en
+         * était ; elle repart de ce point (donnée du serveur) dès qu'on remet de la Magic.
+         */
+        const barreRituel=document.querySelector('[data-idle-blood-bar-v1="'+vue.activeRitual+'"]');
+        if(nouveau.seconds>0){
+          window.__bloodFigeV1=null;
+        }else{
+          const secAvant=visuel?H.idleNombre_(visuel.secondsPerCompletion):0;
+          const pct=Math.max(0,Math.min(.999999,secAvant>0?progSec/secAvant:0));
+          window.__bloodFigeV1={ritual:vue.activeRitual,pct:pct};
+          if(barreRituel){
+            if(barreRituel.__idleAugAnimationV217){barreRituel.__idleAugAnimationV217.cancel();barreRituel.__idleAugAnimationV217=null;delete barreRituel.dataset.idleAugDurationV217;}
+            barreRituel.style.width='100%';
+            barreRituel.style.transform='scaleX('+pct+')';
+          }
+        }
         const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+vue.activeRitual);
         if(ligne){
           ligne.style.display='';
@@ -2856,7 +2873,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const unlocked=true;
           const active=data.activeRitual===def.id;
           const progressionActive=active&&bmView&&bmView.activeRitual===def.id&&bmView.secondsPerCompletion!=null;
-          const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(bmView.etaSeconds)/bmView.secondsPerCompletion)):0;
+          const figee=window.__bloodFigeV1;
+          const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(bmView.etaSeconds)/bmView.secondsPerCompletion)):(active&&figee&&figee.ritual===def.id?figee.pct:0);
           const etaTexte=active&&bmView&&bmView.activeRitual===def.id&&bmView.etaSeconds!=null
             ?'⏱ '+formatDureeAugmentIdleV1_(bmView.etaSeconds)+' avant le prochain rituel complété'
             :(active?'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.':'');
