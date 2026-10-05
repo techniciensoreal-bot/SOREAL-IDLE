@@ -14494,8 +14494,14 @@
             .sort()
             .join(',');
 
+        /*
+         * Le boss SÉLECTIONNÉ fait partie de l'empreinte (Norman, 2026-10-05 : « j'ai tué un boss et le suivant n'apparaît pas » : l'écran restait sur « boss 52 vaincu » alors que l'état était déjà au boss 53). Quand la victoire était déjà comptée en
+         * local (bossVaincus identique), la confirmation du serveur ne changeait que le boss sélectionné : l'empreinte restait la même, donc aucun redessin, jusqu'à un changement de menu.
+         */
         return [
           idleEntier_(j.bossVaincus),
+          idleEntier_(j.bossSelection),
+          idleEntier_(j.bossId),
           Boolean(j.combatBossActif),
           Boolean(j.bossBloqueRenaissance),
           Boolean(j.inventaireDebloque),
