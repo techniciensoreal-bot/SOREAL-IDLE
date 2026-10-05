@@ -2663,6 +2663,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const toolbarSpan=document.getElementById('sorealIdleBloodAllocV1');
         if(toolbarSpan)toolbarSpan.textContent=H.formatGrandNombreIdleV70_(value);
+        /* Magie libre (Norman, 2026-10-05 : elle restait à 100 alors que tout était placé) : suit l'état local mis à jour par le clic. */
+        const libreEl=document.getElementById('sorealIdleBloodLibreV1');
+        const etatLibre=H.getIdleEtat();
+        const magieLibre=etatLibre&&etatLibre.systemes&&etatLibre.systemes.resources&&etatLibre.systemes.resources.magic;
+        if(libreEl&&magieLibre){const t=H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(magieLibre.current)));if(libreEl.textContent!==t)libreEl.textContent=t;}
         /* Compteur du rituel actif (les autres restent à 0) : mis à jour sur place, sans redessiner la page. */
         const sys=systemeMetaParIdIdleV130_(H.getIdleEtat(),'bloodMagic');
         const actif=sys&&sys.state&&sys.state.data&&sys.state.data.activeRitual;
@@ -2977,7 +2982,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         }
         const toolbar=legendeAllocationIdleV1_('Magic',false,true)+'<div class="soreal-idle-bt-toolbar-v120">'+
           '<div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">🎚️ Input</label><input id="sorealIdleBloodInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
-          '<div class="soreal-idle-bt-info-v1">Magic libre : <b>'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée au rituel actif : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
+          '<div class="soreal-idle-bt-info-v1">Magic libre : <b id="sorealIdleBloodLibreV1">'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée au rituel actif : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>Magic Cap</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.25)">1/4</button></div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderBloodMagicIdleV1__()">Tout retirer</button></div>'+
         '</div>';

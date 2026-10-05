@@ -21,3 +21,9 @@ console.log("idle-blood-magic-compteur-rituel-v1: OK");
   assert.ok(page.includes("figee&&figee.ritual===def.id?figee.pct:0"), "un redessin garde la barre au point figé");
 }
 console.log("idle-blood-magic-barre-figee-v1: OK");
+
+// Magie libre (Norman, 2026-10-05) : le compteur se met à jour au clic, comme la Magie allouée.
+{
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(meta.includes('<b id="sorealIdleBloodLibreV1">') && meta.includes("document.getElementById('sorealIdleBloodLibreV1')"), "Magie libre mise à jour sur place");
+}
