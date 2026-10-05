@@ -2055,6 +2055,42 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       window.__adopterRepereAugmentsIdleV1__=adopterRepereAugmentsIdleV1_;
 
       /*
+       * Rejeu des niveaux terminés d'une barre d'Augment depuis son repère, EN FORMULE (et non niveau par niveau, plafonné à 200 comme avant : une barre qui gagne 5 à 12 niveaux par seconde
+       * restait figée 200 niveaux derrière le serveur jusqu'à la synchro suivante, puis sautait en arrière). Le niveau n (n = niveau + 1 + j) dure sec0 × n/n0 et coûte cout0 × (n/n0)^expo
+       * (expo 1 pour un Augment, 2 pour son Upgrade). `debites` cycles ont déjà été débités. Rend {k, reste, debites, debit, bloque} ; l'appelant retire `debit` de l'Or local.
+       */
+      function rejouerCyclesAugmentIdleV1_(p){
+        const n0=Math.max(1,p.niv0+1),sec0=p.sec0,expo=p.expo;
+        const temps=function(k){return sec0/n0*(k*n0+k*(k-1)/2);};
+        const somme1=function(a,b){return (b*(b-1)-a*(a-1))/2;};
+        const somme2=function(a,b){const f=function(m){return (m-1)*m*(2*m-1)/6;};return f(b)-f(a);};
+        const cout=function(a,b){
+          const m=b-a;
+          if(m<=0)return 0;
+          if(expo===1)return p.cout0/n0*(m*n0+somme1(a,b));
+          return p.cout0/(n0*n0)*(m*n0*n0+2*n0*somme1(a,b)+somme2(a,b));
+        };
+        const total=p.reste0;
+        let kMax=Math.floor(-(n0-0.5)+Math.sqrt((n0-0.5)*(n0-0.5)+2*total*n0/sec0));
+        if(!(kMax>=0)||!isFinite(kMax))kMax=0;
+        while(kMax>0&&temps(kMax)>total*(1+1e-12))kMax-=1;
+        while(temps(kMax+1)<=total*(1+1e-12)&&kMax<1e9)kMax+=1;
+        const d=Math.min(p.debites,kMax);
+        let k=kMax,debit=0,debites=Math.max(p.debites,0),bloque=false;
+        if(kMax>d){
+          if(cout(d,kMax)<=p.gold+1e-9){
+            debit=cout(d,kMax);debites=kMax;
+          }else{
+            let lo=d,hi=kMax;
+            while(hi-lo>1){const mid=Math.floor((lo+hi)/2);if(cout(d,mid)<=p.gold+1e-9)lo=mid;else hi=mid;}
+            k=lo;bloque=true;debit=cout(d,k);debites=Math.max(debites,k);
+          }
+        }
+        return {k:k,reste:total-temps(k),debites:debites,debit:debit,bloque:bloque,coutProchain:p.cout0*Math.pow((n0+k)/n0,expo),dureeProchaine:sec0*(n0+k)/n0};
+      }
+      window.__rejouerCyclesAugmentIdleV1__=rejouerCyclesAugmentIdleV1_;
+
+      /*
        * Ramène le repère à « maintenant ». Les niveaux terminés depuis le repère sont REJOUÉS (niveau, coût, durée du suivant, Or débité) exactement comme le fait le tick de soreal-idle-ui.js : l'ancien
        * calcul (reste de la division par la durée) effaçait ces niveaux sans les compter, d'où un niveau affiché qui reculait d'un cran et un Or trop haut jusqu'à la synchro suivante.
        */
@@ -2073,24 +2109,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             if(sec0<=0.0201)return;
             const niv0=Math.max(0,H.idleEntier_(d[c[3]]));
             const cout0=H.idleNombre_(d[c[4]]);
-            const rapport=function(k){return (niv0+1+k)/(niv0+1);};
-            const dureeK=function(k){return sec0*rapport(k);};
-            const coutK=function(k){return cout0*Math.pow(rapport(k),c[6]);};
             const cle='cycles_'+c[5];
-            let debites=d[cle]||0,k=0,reste=(Number(d[c[0]])||0)*sec0+ecoule;
-            while(k<200&&reste>=dureeK(k)-1e-9){
-              if(k<debites){reste-=dureeK(k);k+=1;continue;}
-              const cout=coutK(k);
-              const or=H.idleNombre_(monnaies&&monnaies.gold);
-              if(monnaies&&or+1e-9>=cout){
-                if(cout>0)monnaies.gold=Math.max(0,or-cout);
-                debites+=1;reste-=dureeK(k);k+=1;
-              }else break;
-            }
-            d[cle]=Math.max(0,debites-k);
-            if(k>0){d[c[3]]=niv0+k;d[c[4]]=coutK(k);}
-            d[c[1]]=dureeK(k);
-            d[c[0]]=Math.max(0,reste/dureeK(k));
+            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,cout0:cout0,expo:c[6],reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0});
+            if(monnaies&&rj.debit>0)monnaies.gold=Math.max(0,H.idleNombre_(monnaies.gold)-rj.debit);
+            d[cle]=Math.max(0,rj.debites-rj.k);
+            if(rj.k>0){d[c[3]]=niv0+rj.k;d[c[4]]=rj.coutProchain;}
+            d[c[1]]=rj.dureeProchaine;
+            d[c[0]]=Math.max(0,rj.reste/rj.dureeProchaine);
           });
         });
         visual.at=maintenant;

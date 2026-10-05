@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(ui.includes("const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);"));
-assert.ok(ui.includes("while(k<200&&reste>=dureeK(k)-1e-9){"), "les niveaux terminés sont rejoués côté client (barre arrivée au bout, durée et coût de chaque niveau)");
+assert.ok(ui.includes("window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites"), "les niveaux terminés sont rejoués côté client (barre arrivée au bout, durée et coût de chaque niveau)");
 assert.ok(ui.includes("const attenteOr=(bloque||manqueOrServeur)&&secondes0>0;") && ui.includes("const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;"));
 assert.ok(ui.includes("Date.now()-idleAugSyncV1>3000") && ui.includes("rafraichirMenuRacineIdleV28_();"), "resynchronisation anti-rafale puis nouveau rendu");
 console.log("idle-augmentation-or-direct-v1: OK");

@@ -2788,15 +2788,11 @@
               let debites=d[cle]||0;
               let k=0,reste=idleNombre_(x[1])*secondes0+ecouleAug,bloque=false,debiteCeTick=false;
               if(secondes0>0.0201){
-                while(k<200&&reste>=dureeK(k)-1e-9){
-                  if(k<debites){reste-=dureeK(k);k+=1;continue;}
-                  const cout=coutK(k);
-                  const orLocal=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                  if(Boolean(monnaiesLocales)&&orLocal+1e-9>=cout){
-                    if(cout>0)monnaiesLocales.gold=Math.max(0,orLocal-cout);
-                    debites+=1;debiteCeTick=true;reste-=dureeK(k);k+=1;
-                  }else{bloque=true;break;}
-                }
+                /* Rejeu en formule (rejouerCyclesAugmentIdleV1_, meta-progression) : aucun plafond de 200 niveaux, même pour une barre qui en gagne des dizaines par seconde. */
+                const orAvant=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
+                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0});
+                if(Boolean(monnaiesLocales)&&rj.debit>0){monnaiesLocales.gold=Math.max(0,orAvant-rj.debit);debiteCeTick=true;}
+                k=rj.k;reste=rj.reste;bloque=rj.bloque;debites=rj.debites;
                 d[cle]=debites;
                 if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);
               }

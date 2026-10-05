@@ -14,7 +14,7 @@ assert.ok(ui.includes("window.__adopterRepereAugmentsIdleV1__(idleEtat)"), "la s
 assert.ok(!/data-menu'\)==='augmentations'&&idleEtat\)rafraichirMenuRacineIdleV28_/.test(ui), "plus de redessin différé des Augments");
 assert.ok(meta.includes('id="sorealIdleAugMultV1"'), "le multiplicateur total se met à jour sans redessin");
 
-const debut = meta.indexOf("      function rebaserVisuelAugmentsIdleV1_(visual){");
+const debut = meta.indexOf("      function rejouerCyclesAugmentIdleV1_(p){");
 const fin = meta.indexOf("      function ajusterAugmentIdleV1_");
 assert.ok(debut > 0 && fin > debut);
 const etat = { systemes: { currencies: { gold: 1000 } } };
