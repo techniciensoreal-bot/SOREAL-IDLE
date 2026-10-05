@@ -56,6 +56,15 @@
     return parts.join(' ');
   }
 
+  /* Durée d'un Challenge : « 42 s », « 8 min 30 s », « 2 h 15 min » (secondes seulement sous 10 minutes). */
+  function dureeChallengeTexte(secondes){
+    const t=Math.round(Number(secondes)||0);
+    if(!(t>0))return '';
+    if(t<60)return t+' s';
+    if(t<600)return Math.floor(t/60)+' min'+(t%60?' '+(t%60)+' s':'');
+    return dureeRunTexte(t);
+  }
+
   function contexte(){
     try{
       const f=window.__SOREAL_IDLE_ACTIVITE_V1__;
@@ -170,7 +179,10 @@
       }
       case 'defi':
         if(!k.menus.challenges)return null;
-        return {icone:'🏁',texte:nom+verbe(' as',' a')+' réussi un Challenge'};
+        {
+          const dc=dureeChallengeTexte(d.duree);
+          return {icone:'🏁',texte:nom+verbe(' as',' a')+' réussi un Challenge'+(dc?' en '+dc:'')};
+        }
       /* « X vient de se connecter » : les connexions des AUTRES joueurs (la tienne, tu la connais). */
       case 'connexion':
         if(it.moi)return null;

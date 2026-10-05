@@ -211,6 +211,9 @@ const stats = (o = {}) => ({
   assert.equal(p("defi", {}, debutant), null);
   assert.equal(p("rebirth", {}, debutant), null);
   assert.equal(p("defi", {}, expert).texte, "Mickaël a réussi un Challenge");
+  assert.equal(p("defi", { duree: 42 }, expert).texte, "Mickaël a réussi un Challenge en 42 s");
+  assert.equal(p("defi", { duree: 510 }, expert).texte, "Mickaël a réussi un Challenge en 8 min 30 s");
+  assert.equal(p("defi", { duree: 8100 }, expert).texte, "Mickaël a réussi un Challenge en 2 h 15 min");
   /* Récompense de connexion (Norman, 2026-10-03) : annoncée seulement à qui connaît le menu ; toi : « Tu as récupéré… ». */
   const avecPit = { ...expert, connus: { ...expert.connus, menus: { ...expert.connus.menus, moneyPit: true } } };
   assert.equal(p("calendrier", { jour: 12, ap: 3280 }, expert), null, "menu pas connu du lecteur : rien");
@@ -309,4 +312,15 @@ console.log("idle-flux-v1 OK");
   const flux = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
   assert.ok(!flux.includes("t.slice(0,89)"), "plus de coupure à 90 caractères");
   assert.ok(flux.includes("return String(m||'').replace(/\\s+/g,' ').trim();"), "texte du chat rendu en entier");
+}
+
+// Durée du Challenge terminé (Norman, 2026-10-05) : « En direct » dit après combien de temps il a été réussi.
+{
+  const base = { bossMax: 0, succes: [], titans: {}, defis: {}, rebirths: 0 };
+  const ev = evenementsV1(base, { ...base, defis: { "normal:troll": 1 }, defiDernier: { id: "troll", tier: "normal", s: 1530 } });
+  assert.deepEqual(ev.find((e) => e.type === "defi").donnees, { id: "troll", tier: "normal", completion: 1, duree: 1530 });
+  const autre = evenementsV1(base, { ...base, defis: { "normal:troll": 1 }, defiDernier: { id: "basic", tier: "normal", s: 90 } });
+  assert.equal(autre.find((e) => e.type === "defi").donnees.duree, undefined, "durée d'un autre défi : jamais attribuée");
+  const i = instantaneJoueurV1({ stats: { metaNgu: { challenge: { completions: {}, completionsTier: {}, lastCompletion: { completed: "basic", tier: "normal", elapsedMs: 754000 } }, rebirth: {}, records: {}, adventure: {}, systems: {} } } });
+  assert.deepEqual(i.defiDernier, { id: "basic", tier: "normal", s: 754 });
 }

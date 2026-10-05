@@ -117,6 +117,8 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     achats,
     calendrier,
     defiActif,
+    /* Dernier défi terminé et le temps qu'il a fallu (Norman, 2026-10-05 : « dis après combien de temps le défi a été complété ») : durée mesurée par le moteur, en secondes. */
+    defiDernier: (ch.lastCompletion && ch.lastCompletion.completed) ? { id: String(ch.lastCompletion.completed), tier: String(ch.lastCompletion.tier || "normal"), s: Math.max(0, Math.round(N(ch.lastCompletion.elapsedMs, 0) / 1000)) } : null,
     sets,
     /* Record permanent (jamais remis à 0 par un Rebirth) : seul un boss JAMAIS vaincu auparavant est annoncé, pas les boss refaits à chaque run. */
     bossMax: Math.max(0, Math.floor(N(m.records && m.records.highestBoss, 0))),
@@ -152,7 +154,8 @@ export function evenementsV1(avant, apres, noms = {}) {
   for (const [cle, n] of Object.entries(apres.defis || {})) {
     if (n > N((avant.defis || {})[cle], 0)) {
       const [tier, id] = cle.split(":");
-      ev.push({ type: "defi", donnees: { id, tier, completion: n } });
+      const dd = apres.defiDernier;
+      ev.push({ type: "defi", donnees: Object.assign({ id, tier, completion: n }, dd && dd.id === id && dd.tier === tier && dd.s > 0 ? { duree: dd.s } : {}) });
     }
   }
   /* Défi lancé : aucun défi actif au battement précédent (instantané d'avant ce jalon : pas de comparaison, rien annoncé à tort). */
