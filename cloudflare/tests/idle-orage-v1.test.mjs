@@ -109,7 +109,7 @@ assert.ok(src.includes("prefers-reduced-motion"), "respecte la préférence de m
 assert.ok(src.includes("createAnalyser") && src.includes("hasard_()"), "éclairs calés sur la piste, sinon au hasard");
 
 // Annonce de la piste par l'ambiance, branchement dans la page.
-assert.ok(ambiant.includes("addEventListener('playing'"), "annoncée seulement quand la piste joue vraiment");
+assert.ok(ambiant.includes("audio.onplaying=function"), "annoncée seulement quand la piste joue vraiment");
 assert.ok(ambiant.includes("soreal-ambiance-v1") && ambiant.includes("signaler_(cle,slot)") && ambiant.includes("signaler_('',slot)") && ambiant.includes("signaler_('',null)"), "l'ambiance annonce la piste qui joue et son arrêt");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(/\/modules\/orage-v1\.js\?v=\d+/.test(index) && index.indexOf("orage-v1.js") > index.indexOf("ambient-audio-v1.js"), "module chargé après l'ambiance");
