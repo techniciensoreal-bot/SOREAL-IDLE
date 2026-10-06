@@ -41,7 +41,8 @@
     if(etat.manquantes[nom])return fond;
     /* Image déjà chargée pendant la visite : plus de dessin de secours (pas de clignotement au rafraîchissement des chiffres). */
     /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
-    var src=nom==='poop'?'/shop/fertilizer.png':'/api/idle/media/ygg?name='+encodeURIComponent(nom);
+    /* La graine a l'image de l'objet « A Giant Seed » (R2 idle/items/Item_0092_A_Giant_Seed.png, via la route des objets). */
+    var src=nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom);
     return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="'+src+'" alt="" loading="lazy" draggable="false" '+
       'onload="window.__SOREAL_IDLE_YGG_V1__.imageChargee(\''+html_(nom)+'\',this)" onerror="window.__SOREAL_IDLE_YGG_V1__.imageManquante(\''+html_(nom)+'\',this)">';
   }
