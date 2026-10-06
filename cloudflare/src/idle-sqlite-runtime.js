@@ -16820,7 +16820,17 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     const exp = borne(o.exp, 0, 1e18);
     const ap = borne(o.ap, 0, 1e18);
     const pp = borne(o.pp, 0, 1e15);
+    /* Puissance/robustesse d'Aventure permanentes d'essai (banc d'essai uniquement) : sans équipement, la tour ne peut pas tourner en partie B. */
+    const aventurePuissance = borne(o.aventurePuissance, 0, 1e18);
+    const aventureRobustesse = borne(o.aventureRobustesse, 0, 1e18);
     const applique = {};
+
+    if (aventurePuissance !== null || aventureRobustesse !== null) {
+      if (!meta.adventure || typeof meta.adventure !== 'object') meta.adventure = {};
+      if (!meta.adventure.permanent || typeof meta.adventure.permanent !== 'object') meta.adventure.permanent = {};
+      if (aventurePuissance !== null) { meta.adventure.permanent.adventurePower = aventurePuissance; applique.aventurePuissance = aventurePuissance; }
+      if (aventureRobustesse !== null) { meta.adventure.permanent.adventureToughness = aventureRobustesse; applique.aventureRobustesse = aventureRobustesse; }
+    }
 
     if (boss !== null) {
       const b = Math.floor(boss);

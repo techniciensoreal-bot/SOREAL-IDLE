@@ -84,6 +84,16 @@ r = appeler(norman, "preparerPartieTestSorealIdle", [{ magieCap: 5000, magiePuis
 assert.equal(r.ok, true);
 assert.deepEqual(r.applique, { magieCap: 5000, magiePuissance: 40, magie: 5000 });
 
+// 3 quinquies. Puissance d'Aventure d'essai : sans elle la tour ne peut pas tourner (650 de Power requis), donc impossible à jouer en partie B.
+r = appeler(norman, "preparerPartieTestSorealIdle", [{ systemes: true, aventurePuissance: 50000, aventureRobustesse: 50000 }]);
+assert.equal(r.ok, true);
+assert.equal(r.applique.aventurePuissance, 50000);
+assert.equal(r.applique.aventureRobustesse, 50000);
+{
+  const tour = r.joueur.systemes.systems.find((x) => x.id === "tower");
+  assert.ok(tour && tour.state && tour.state.unlocked, "tour débloquée");
+}
+
 // 4. Bornes : valeurs absurdes ramenées dans la plage.
 r = appeler(norman, "preparerPartieTestSorealIdle", [{ boss: 9999, or: -5, energieCap: 1e99 }]);
 assert.equal(r.ok, true);
