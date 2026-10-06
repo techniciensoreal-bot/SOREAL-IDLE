@@ -342,3 +342,79 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (prefers-reduced-motion:reduce){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] :is(.soreal-idle-vs-v41,button.soreal-idle-boss-control-v39.start,.soreal-idle-boss-current-v35::after){animation:none!important;}
 }
+
+/* -------------------------------------------------------------------------------------------------------------------------------------
+ * LES DEUX BORNES (Norman, 2026-10-06 : « 2 bornes d'arcade côte à côte, un peu tournées l'une vers l'autre ; sur l'une l'image du joueur, sur l'autre celle du boss »).
+ * Chaque combattant devient une borne : marquee lumineux (le nom), écran cathodique (le portrait), tableau de commandes (la barre de vie, puis joystick et boutons décoratifs).
+ * Les bornes pivotent en perspective (rotateY) vers le centre ; la structure et les identifiants ne changent pas.
+ * ------------------------------------------------------------------------------------------------------------------------------------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{perspective:1500px;perspective-origin:50% 35%;gap:14px!important;padding:0 34px 16px;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42{
+  padding:10px 10px 112px!important;border:3px solid #000!important;border-radius:18px 18px 6px 6px!important;transform-style:preserve-3d;
+  background:linear-gradient(90deg,#0d0f19,#1f2336 16%,#171a2a 84%,#0a0c15)!important;
+  box-shadow:inset 0 0 0 2px #2c3150,inset 9px 0 0 -3px var(--cote),inset -9px 0 0 -3px var(--cote),0 16px 24px rgba(0,0,0,.65),0 0 30px var(--cote-glow)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:first-child{transform:rotateY(22deg)!important;transform-origin:100% 60%;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child{transform:rotateY(-22deg)!important;transform-origin:0 60%;}
+/* Tableau de commandes en 3D isométrique, comme une borne de Street Fighter II : dalle inclinée, joystick (axe et boule) à gauche, six boutons en relief à droite (trois en haut, trois en dessous). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42::after{
+  content:"";position:absolute;left:14px;right:14px;bottom:10px;height:84px;pointer-events:none;border:2px solid #000;border-radius:10px;
+  transform:perspective(420px) rotateX(52deg);transform-origin:50% 0;
+  background:
+    radial-gradient(circle at 20% 17px,#fff 0 2px,var(--cote) 3px 9px,#05060a 10px 11px,transparent 12px),
+    linear-gradient(90deg,transparent 18.2%,#8a90a8 18.2% 19%,#cfd4e6 19% 21%,#8a90a8 21% 21.8%,transparent 21.8%) 0 20px/100% 30px no-repeat,
+    radial-gradient(circle at 20% 52px,#05060a 0 13px,#3a4060 14px 16px,transparent 17px),
+    radial-gradient(circle at 58% 19px,#fff 0 1.5px,#ff5a4a 2.5px 6px,#a01810 7px 8px,transparent 9px),
+    radial-gradient(circle at 72% 19px,#fff 0 1.5px,#ffe34a 2.5px 6px,#a07a00 7px 8px,transparent 9px),
+    radial-gradient(circle at 86% 19px,#fff 0 1.5px,#4ad0ff 2.5px 6px,#0e6aa0 7px 8px,transparent 9px),
+    radial-gradient(circle at 58% 51px,#fff 0 1.5px,#ff5a4a 2.5px 6px,#a01810 7px 8px,transparent 9px),
+    radial-gradient(circle at 72% 51px,#fff 0 1.5px,#ffe34a 2.5px 6px,#a07a00 7px 8px,transparent 9px),
+    radial-gradient(circle at 86% 51px,#fff 0 1.5px,#4ad0ff 2.5px 6px,#0e6aa0 7px 8px,transparent 9px),
+    radial-gradient(circle at 58% 25px,#05060a 0 8px,transparent 9px),
+    radial-gradient(circle at 72% 25px,#05060a 0 8px,transparent 9px),
+    radial-gradient(circle at 86% 25px,#05060a 0 8px,transparent 9px),
+    radial-gradient(circle at 58% 57px,#05060a 0 8px,transparent 9px),
+    radial-gradient(circle at 72% 57px,#05060a 0 8px,transparent 9px),
+    radial-gradient(circle at 86% 57px,#05060a 0 8px,transparent 9px),
+    linear-gradient(180deg,#3a4066,#161a30);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 7px 0 #05060a,0 11px 0 #20243c,0 0 18px var(--cote-glow);}
+/* Marquee lumineux en haut de la borne. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-nameplate-v65{
+  order:0;margin:0 0 10px!important;padding:6px 8px 7px!important;border:2px solid var(--cote)!important;border-radius:10px 10px 3px 3px!important;text-align:center!important;
+  background:linear-gradient(180deg,#05060c,#141a30)!important;box-shadow:0 0 16px var(--cote-glow),inset 0 0 14px var(--cote-glow)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-duel-nameplate-v65{text-align:center!important;}
+/* Écran cathodique : le portrait. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-portrait-v41{
+  order:1;margin:0!important;border:7px solid #05060a!important;border-radius:14px!important;
+  box-shadow:0 0 0 2px #323858,0 0 22px var(--cote-glow),inset 0 0 44px rgba(0,0,0,.7)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-portrait-v41::before{content:none!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-portrait-v41::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:4;border-radius:8px;
+  background:linear-gradient(125deg,rgba(255,255,255,.2),rgba(255,255,255,0) 34%),repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);}
+/* Barre de vie sur le tableau, à plat. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41{order:2;margin:10px 0 0!important;transform:none!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-duel-hp-v41{transform:none!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41 .soreal-idle-note-v4,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{transform:none!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dialogue-v76{order:3;}
+@media (max-width:520px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{gap:8px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42{padding:7px 7px 60px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42::after{left:8px;right:8px;bottom:7px;height:42px;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:first-child{transform:rotateY(14deg)!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child{transform:rotateY(-14deg)!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-portrait-v41{border-width:5px!important;}
+}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;align-items:start;}
+/* Téléphone (≤ 700 px, comme le moteur de mise en page) : deux bornes, le VS flotte au centre entre elles. */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;padding-left:6px;padding-right:6px;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42>.soreal-idle-vs-v41{position:absolute!important;left:50%;top:50%;margin:0!important;padding:0!important;transform:translate(-50%,-50%) skewX(-10deg);animation:none!important;}
+}
+
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] 
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{padding-left:16px!important;padding-right:16px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42{padding-bottom:88px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42::after{left:8px;right:8px;bottom:6px;height:66px;transform:perspective(300px) rotateX(52deg);}
+}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39{margin-top:34px;}

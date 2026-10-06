@@ -52,6 +52,10 @@ for (const fragment of [
   "@media (max-width:520px)", "prefers-reduced-motion"
 ]) assert.ok(arene.includes(fragment), "arène : " + fragment);
 assert.ok(!arene.includes("Bangers") && !arene.includes("areneBraisesV1"), "plus de style BD dans l'arène");
+// Deux bornes d'arcade côte à côte, tournées l'une vers l'autre : joueur à gauche, boss à droite (Norman, 2026-10-06).
+for (const f of ["LES DEUX BORNES", "rotateY(22deg)", "rotateY(-22deg)", "perspective:1500px", "minmax(0,1fr) auto minmax(0,1fr)", ".soreal-idle-duel-fighter-v42::after"]) assert.ok(arene.includes(f), "bornes : " + f);
+assert.equal((arene.match(/circle at (58|72|86)% (19|51)px,#fff/g) || []).length, 6, "six boutons en relief : trois en haut, trois en dessous");
+assert.ok(arene.includes("rotateX(52deg)") && arene.includes("transform-origin:50% 0;"), "tableau isométrique incliné autour de son bord haut (le bas vient vers le joueur)");
 for (const cible of ["soreal-idle-duel-nameplate-v65", "soreal-idle-duel-portrait-v41", "soreal-idle-duel-hp-v41", "soreal-idle-vs-v41", "soreal-idle-boss-controls-v39", "soreal-idle-boss-respawn-v100", "soreal-idle-reward-v8"]) assert.ok(arene.includes(cible), "l'arène habille " + cible);
 assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "les portraits ne sont jamais cachés");
 console.log("idle-itopod-style-v1: OK");
