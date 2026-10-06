@@ -17,7 +17,15 @@
 
   var MOTIF=/thunder|orage|storm|tonnerre/i;
   var ESPACE_MIN_MS=5000;
-  var racine=null,flash=null,eclairSvg=null;
+  var racine=null,flash=null,eclairSvg=null,blanc=null;
+  /* Lumière blanche plein écran, comme les orages du mode Halloween de l'APP : cinq façons de claquer (simple, sourd, rafale, double coup, lent). */
+  var BLANCS=[
+    {k:[{opacity:0},{opacity:.8,offset:.05},{opacity:.12,offset:.2},{opacity:0}],d:520},
+    {k:[{opacity:0},{opacity:.3,offset:.2},{opacity:.1,offset:.5},{opacity:.24,offset:.65},{opacity:0}],d:1500},
+    {k:[{opacity:0},{opacity:.6,offset:.08},{opacity:.08,offset:.18},{opacity:.5,offset:.3},{opacity:.05,offset:.42},{opacity:.75,offset:.55},{opacity:0}],d:1200},
+    {k:[{opacity:0},{opacity:.8,offset:.04},{opacity:.25,offset:.1},{opacity:.85,offset:.16},{opacity:.3,offset:.3},{opacity:0,offset:.55},{opacity:.42,offset:.62},{opacity:0}],d:1000},
+    {k:[{opacity:0},{opacity:.45,offset:.12},{opacity:.75,offset:.25},{opacity:.08,offset:.5},{opacity:0}],d:1300}
+  ];
   var actif=false,dernierEclair=0,minuteurHasard=0,minuteurAnalyse=0,analyseur=null,sourceAnalyse=null,moyenne=0;
 
   function estOrage(cle){return MOTIF.test(String(cle||''));}
@@ -42,6 +50,7 @@
       '#soreal-orage-v1 .og-pluie.og-p2{background:repeating-linear-gradient(103deg,rgba(190,210,255,0) 0 11px,rgba(190,210,255,.22) 11px 12px,rgba(190,210,255,0) 12px 29px);background-size:310px 310px;opacity:.38;animation-duration:.8s;}',
       '@keyframes og-pluie{from{background-position:0 0}to{background-position:-58px 240px}}',
       '#soreal-orage-v1 .og-flash{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at var(--og-x,50%) 0%,rgba(235,244,255,.95),rgba(170,200,255,.55) 38%,rgba(120,150,230,.12) 75%);mix-blend-mode:screen;}',
+      '#soreal-orage-v1 .og-blanc{position:absolute;inset:0;opacity:0;background:rgb(228,236,255);}',
       '#soreal-orage-v1 .og-eclair{position:absolute;inset:0;width:100%;height:100%;opacity:0;}',
       '#soreal-orage-v1 .og-eclair polyline{fill:none;stroke:#f4f8ff;vector-effect:non-scaling-stroke;stroke-width:2.6px;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 0 5px #9bc0ff) drop-shadow(0 0 14px #6a9bff);}',
       '#soreal-orage-v1 .og-eclair polyline.og-branche{stroke-width:1.4px;opacity:.8;}'
@@ -52,10 +61,10 @@
     if(racine&&racine.parentNode)return racine;
     style_();
     racine=document.createElement('div');racine.id='soreal-orage-v1';racine.setAttribute('aria-hidden','true');
-    racine.innerHTML='<div class="og-ciel"></div><div class="og-pluie"></div><div class="og-pluie og-p2"></div><div class="og-flash"></div>'+
+    racine.innerHTML='<div class="og-ciel"></div><div class="og-pluie"></div><div class="og-pluie og-p2"></div><div class="og-flash"></div><div class="og-blanc"></div>'+
       '<svg class="og-eclair" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>';
     document.body.appendChild(racine);
-    flash=racine.querySelector('.og-flash');eclairSvg=racine.querySelector('.og-eclair');
+    flash=racine.querySelector('.og-flash');blanc=racine.querySelector('.og-blanc');eclairSvg=racine.querySelector('.og-eclair');
     return racine;
   }
 
@@ -81,6 +90,7 @@
     var e=trace_();
     flash.style.setProperty('--og-x',e.x+'%');
     eclairSvg.innerHTML=e.svg;
+    if(blanc&&blanc.animate){var b=BLANCS[Math.floor(Math.random()*BLANCS.length)];try{blanc.animate(b.k,{duration:b.d,easing:'linear'});}catch(_e){}}
     var eclats=1+Math.floor(Math.random()*3);
     var cumul=0;
     for(var i=0;i<eclats;i++){
@@ -184,7 +194,7 @@
     arreterAnalyse_();
     if(racine)racine.classList.remove('actif');
     /* Après le fondu de sortie, le décor (et sa pluie animée) est retiré de la page : plus aucun coût tant qu'il n'y a pas d'orage. */
-    setTimeout(function(){if(!actif&&racine&&racine.parentNode){racine.parentNode.removeChild(racine);racine=null;flash=null;eclairSvg=null;}},2700);
+    setTimeout(function(){if(!actif&&racine&&racine.parentNode){racine.parentNode.removeChild(racine);racine=null;flash=null;eclairSvg=null;blanc=null;}},2700);
   }
 
   /* L'orage ne se montre que si on ENTEND le tonnerre : piste d'orage en cours ET volume d'ambiance au-dessus de zéro (case cochée). */
