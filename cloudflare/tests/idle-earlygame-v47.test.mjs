@@ -490,6 +490,11 @@ const fresh=(context={}, now=1_000_000)=>
    * partagée state.currencies.gold — même schéma que l'expérience.
    */
   assert.ok(result.state.currencies.gold>goldAvant,"Un kill en Aventure doit créditer de l'or dans la monnaie partagée, pas seulement dans l'état interne de l'Aventure.");
+  const verrouille=(await import('../src/idle-ngu-progression.js')).idleNguSnapshot(result.state,context,1_000_003);
+  assert.deepEqual(verrouille.yggFruits,[],"anti-spoil : pas de liste de fruits tant que le système n'est pas découvert");
+  assert.deepEqual(verrouille.diggerDefinitions,[],"anti-spoil : pas de liste de mineurs tant que le système n'est pas découvert");
+  result.state.systems.yggdrasil.unlocked=true;
+  result.state.systems.diggers.unlocked=true;
   const snapshot=(await import('../src/idle-ngu-progression.js')).idleNguSnapshot(result.state,context,1_000_003);
   assert.ok(snapshot.adventure.stats.power>=20);
   assert.ok(snapshot.adventure.stats.toughness>=20);

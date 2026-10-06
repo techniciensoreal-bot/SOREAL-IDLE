@@ -5683,7 +5683,10 @@ function nguSnapshotV1(state, context) {
   const active = nguActiveTiersV1(state.difficulty);
   const speeds = { energy: nguSpeedMultiplierV1(state, "energy"), magic: nguSpeedMultiplierV1(state, "magic") };
   const tiers = {};
+  /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : jamais un palier de difficulté inactif dans la réponse (Evil/Sadistic), ni la liste des NGU tant que le système n'est pas découvert. */
   for (const tier of IDLE_NGU_TIERS_V1) {
+    if (!active.includes(tier)) continue;
+    if (!s.unlocked) { tiers[tier] = []; continue; }
     tiers[tier] = IDLE_NGU_CATALOG_V1.map(def => {
       const n = s.data.ngus[tier][def.id];
       const params = nguParamsV1(tier, def.id);
@@ -5789,6 +5792,10 @@ function construireSnapshotNguV1(state, context, now) {
       const snap = idleAdventureSnapshotV47(state.adventure, num(context.bosses, 0), state.difficulty, state.difficultyPeaks);
       const gear = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
       snap.stats = idleAdventureCombatStatsV1(gear, context, idleNguBonuses(state));
+      /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06 : la réponse d'un joueur neuf contenait les 33 zones et les 12 titans, noms, boss et puissances compris) :
+         jamais une zone encore fermée (sauf celle en cours) ni un titan pas encore atteignable dans la réponse. */
+      if (Array.isArray(snap.zones)) snap.zones = snap.zones.filter(z => z.unlocked || z.id === snap.selectedZone || z.id === snap.lastCombatZone);
+      if (Array.isArray(snap.titans)) snap.titans = snap.titans.filter(t => t.progressionUnlocked || num(t.state && t.state.kills, 0) > 0);
       return snap;
     })(),
     /*
@@ -5863,10 +5870,11 @@ function construireSnapshotNguV1(state, context, now) {
     /* Anti-spoil (AGENTS.md règle n°2, 2026-09-29) : jamais un rituel encore verrouillé dans la liste -- sa simple présence (nom, coût, taille de la liste) révélerait ce qui reste à débloquer. */
     bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS.filter(def => ritualUnlocked(def, context, state))),
     bloodMagicView: bloodMagicViewV1(state),
-    yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => !idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0)),
+    yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0))),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
     yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost }),
-    diggerDefinitions: clone(IDLE_NGU_DIGGERS),
+    /* Anti-spoil : la liste des mineurs n'existe pas tant que le système n'est pas découvert. */
+    diggerDefinitions: state.systems.diggers?.unlocked ? clone(IDLE_NGU_DIGGERS) : [],
     /* MacGuffin Fragments : catalogue, slots, compteurs et bonus permanents (idle-macguffins-v1.js). */
     macguffins: macguffinSnapshotV1(state, nowMs(now)),
     /*
@@ -5883,8 +5891,8 @@ function construireSnapshotNguV1(state, context, now) {
      * Mêmes gabarit et clé que diggerDefinitions ci-dessus.
      */
     /* Wiki : les Perks et Quirks « Evil only » / « Sadistic only » n'existent qu'à partir de cette difficulté (déjà possédés : gardés, inactifs). */
-    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
-    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
+    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
+    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)),
     /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
@@ -5936,15 +5944,16 @@ function construireSnapshotNguV1(state, context, now) {
       catalog: clone(IDLE_NGU_NEWBIE_OFFERS),
       used: clone(state.records.newbieOffersUsed || [])
     },
-    systems: IDLE_NGU_SYSTEMS.map(def => ({
+    /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : un système encore verrouillé n'expose ni son nom, ni son icône, ni ce qui le débloque (objet, boss, Rebirths), ni ses pistes. */
+    systems: IDLE_NGU_SYSTEMS.map(def => { const ferme = !state.systems[def.id]?.unlocked; return {
       id: def.id,
-      name: def.name,
-      icon: def.icon,
+      name: ferme ? "" : def.name,
+      icon: ferme ? "" : def.icon,
       kind: def.kind,
       resources: def.resources.slice(),
-      unlock: unlockInfo(def, state, context),
+      unlock: ferme ? { unlocked: false } : unlockInfo(def, state, context),
       ...(def.id === "hacks" ? { finalHack: idleTheEndFinalHackSnapshotV1(state) } : {}),
-      tracks: (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleWishAccessibleV1(state, track.id) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
+      tracks: ferme ? [] : (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleWishAccessibleV1(state, track.id) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
@@ -5956,7 +5965,7 @@ function construireSnapshotNguV1(state, context, now) {
       })),
       /* Cooking : vue publique, sans les cibles secrètes du repas. */
       state: def.id === "cooking" ? idleCookingSystemSnapshotV1(state, nowMs(now)) : clone(state.systems[def.id])
-    }))
+    }; })
   };
 }
 

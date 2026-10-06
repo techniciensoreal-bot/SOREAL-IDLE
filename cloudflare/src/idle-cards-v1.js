@@ -964,7 +964,8 @@ export function idleCardsSnapshotV1(state) {
     chonkerProgress: data.chonkerProgress,
     secondsToNextChonker: !mods.chonkers || deckFull ? null : (1 - data.chonkerProgress) * IDLE_CARDS_BASE_V1.chonkerSeconds / mods.cardSpeed,
     stats: data.stats,
-    types: IDLE_CARDS_TYPES_V1.map((t) => ({
+    /* Anti-spoil : pas de liste de types tant que les Cartes ne sont pas découvertes. */
+    types: !unlocked ? [] : IDLE_CARDS_TYPES_V1.map((t) => ({
       id: t.id,
       code: t.code,
       nom: t.nom,

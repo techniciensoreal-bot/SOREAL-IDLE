@@ -164,6 +164,12 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
 // diggerDefinitions (déjà exposé et déjà consommé par le client).
 {
   const state = normalizeIdleNguState({ difficulty: "extreme" }, {}, 1_000_000);
+  /* Anti-spoil (règle n°2) : tant que les systèmes ne sont pas découverts, les catalogues ne sont pas envoyés (la taille d'une liste révélerait un total). */
+  const verrouille = idleNguSnapshot(state, {}, 1_000_000);
+  assert.deepEqual(verrouille.perkDefinitions, [], "perks non découverts : aucune définition envoyée");
+  assert.deepEqual(verrouille.quirkDefinitions, [], "quirks non découverts : aucune définition envoyée");
+  state.systems.perks.unlocked = true;
+  state.systems.quirks.unlocked = true;
   const snapshot = idleNguSnapshot(state, {}, 1_000_000);
   assert.ok(
     Array.isArray(snapshot.perkDefinitions) && snapshot.perkDefinitions.length === IDLE_PERKS_CATALOG_V1.length,
