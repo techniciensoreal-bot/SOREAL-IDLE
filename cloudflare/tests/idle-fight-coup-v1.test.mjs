@@ -9,8 +9,9 @@ assert.ok(/\/modules\/fight-coup-v1\.js\?v=\d+/.test(index), "module chargé par
 assert.ok(!index.includes("fight-voix"), "plus de voix « Fight »");
 assert.ok(!existsSync("cloudflare/public/modules/fight-voix-v1.js") && !existsSync("cloudflare/public/modules/fight-voix-base"), "voix et fichiers WAV retirés");
 
-// Trois couches (choc grave, claque médium, crac bref) et variation de hauteur à chaque coup.
-assert.ok(src.includes("exponentialRampToValueAtTime(46*k") && src.includes("bandpass") && src.includes("gc.gain.setValueAtTime(0.4"), "choc grave, claque, crac");
+// Onze variantes de coup ; chacune a ses couches (choc grave, claque médium, crac bref) ; la hauteur varie un peu à chaque coup.
+assert.equal((src.match(/{nom:'/g) || []).length, 11, "onze variantes");
+assert.ok(src.includes("bandpass") && src.includes("v.crac[0]") && src.includes("v.suite") && src.includes("v.anneau") && src.includes("v.souffle"), "couches, rafales, résonance, élan");
 assert.ok(src.includes("0.92+Math.random()*0.16"), "hauteur légèrement différente à chaque coup");
 assert.ok(src.includes("getInterface") && src.includes("v<=0"), "volume de la barre interface, silence si coupé");
 
@@ -32,6 +33,7 @@ fenetre.window = fenetre;
 fenetre.document = { addEventListener: (t, f) => { (ecouteurs[t] = ecouteurs[t] || []).push(f); } };
 vm.runInNewContext(src, Object.assign(fenetre, { Math, Float32Array, Promise }), { filename: "fight-coup-v1.js" });
 const api = fenetre.__SOREAL_IDLE_FIGHT_COUP_V1__;
+assert.equal(api.variantes.length, 11, "onze variantes exposées");
 assert.ok(api && typeof api.jouer === "function", "API exposée");
 const clic = (ecouteurs.click || [])[0];
 assert.ok(clic, "écouteur de clic posé");
@@ -41,6 +43,12 @@ assert.ok(apres > 0, "clic sur FIGHT : le coup est joué");
 clic({ target: { closest: () => null } });
 clic({ target: { closest: () => ({ disabled: true }) } });
 assert.equal(joues, apres, "autre clic ou bouton désactivé : silence");
+// Tirage au hasard : toutes les variantes sortent, jamais la même deux fois de suite.
+const vues = new Set();
+let precedent = api.dernier();
+for (let i = 0; i < 400; i++) { api.jouer(); const d = api.dernier(); assert.notEqual(d, precedent, "jamais deux fois la même variante de suite"); vues.add(d); precedent = d; }
+assert.equal(vues.size, 11, "les onze variantes sortent");
+api.jouer(3); // une variante précise reste possible (écoute)
 fenetre.__SOREAL_IDLE_AUDIO_VOLUME_V1__.getInterface = () => 0;
 assert.equal(api.jouer(), false, "volume à zéro : rien");
 console.log("idle-fight-coup-v1: OK");
