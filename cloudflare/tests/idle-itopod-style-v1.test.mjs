@@ -38,24 +38,26 @@ const mixes = [0, 1, 2, 3, 4].map(part);
 assert.deepEqual(mixes, mixes.slice().sort((a, b) => b - a), "le fond s'assombrit à chaque rang : " + mixes.join(' > '));
 for (const fragment of ["rgSheenV1", "rgBatV1", "rgFeuV1", "repeating-linear-gradient(135deg,rgba(0,0,0,.30)", "clip-path:polygon(0 0,16px 8px"]) assert.ok(css.includes(fragment), "effet de montée en puissance : " + fragment);
 assert.ok(css.includes(".soreal-idle-bt-panel-v120.attack .soreal-idle-bt-panel-head-v120::before") && css.includes("viewBox='0 0 64 64'"), "emblèmes d'épées et de bouclier dans les titres");
-// Combat de boss : l'arène d'arcade (Norman, 2026-10-06 : « refais la page Fight Boss » ; pas de style BD -> jeu de combat d'arcade).
+// Combat de boss : UNE borne d'arcade de face, les deux combattants sur le même grand écran (Norman, 2026-10-06).
 const arene = css.slice(css.indexOf("COMBAT DE BOSS : l'ARÈNE D'ARCADE"));
-assert.ok(arene.length > 4000, "bloc de l'arène d'arcade présent");
+assert.ok(arene.length > 6000, "bloc de l'arène d'arcade présent");
 for (const fragment of [
-  "arcadeFightV1", "arcadeVsV1", "arcadeBalayageV1",                              /* FIGHT qui pulse, VS qui bat, balayage de tube cathodique */
-  "perspective(260px) rotateX(62deg)",                                             /* sol quadrillé en perspective */
-  "transform:skewX(-12deg)",                                                       /* barres de vie inclinées face à face */
-  ".soreal-idle-bossbar-wrap-v7{transform:scaleX(-1);}",                           /* la barre du boss se vide vers le centre */
-  "repeating-linear-gradient(45deg,#ffd21e 0 11px,#17140c 11px 22px)",            /* NUKE : hachures de danger */
-  "grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)",            /* FUITE | FIGHT | NUKE */
+  "arcadeFightV1", "arcadeVsV1", "arcadeBalayageV1", "arcadeMarqueeV1",             /* FIGHT qui pulse, VS qui brille, balayage cathodique, marquee qui respire */
+  "perspective(260px) rotateX(62deg)",                                               /* sol quadrillé en perspective */
+  "transform:skewX(-12deg)",                                                         /* barres de vie inclinées face à face */
+  ".soreal-idle-bossbar-wrap-v7{transform:scaleX(-1);}",                             /* la barre du boss se vide vers le centre */
+  "repeating-linear-gradient(45deg,#ffd21e 0 11px,#17140c 11px 22px)",              /* NUKE : hachures de danger */
+  "grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)",              /* FUITE | FIGHT | NUKE */
   ".soreal-idle-boss-respawn-v100:empty{display:none!important;}",
-  "@media (max-width:520px)", "prefers-reduced-motion"
+  "@media (max-width:520px)", "@media (max-width:700px)", "prefers-reduced-motion"
 ]) assert.ok(arene.includes(fragment), "arène : " + fragment);
 assert.ok(!arene.includes("Bangers") && !arene.includes("areneBraisesV1"), "plus de style BD dans l'arène");
-// Deux bornes d'arcade côte à côte, tournées l'une vers l'autre : joueur à gauche, boss à droite (Norman, 2026-10-06).
-for (const f of ["LES DEUX BORNES", "rotateY(22deg)", "rotateY(-22deg)", "perspective:1500px", "minmax(0,1fr) auto minmax(0,1fr)", ".soreal-idle-duel-fighter-v42::after"]) assert.ok(arene.includes(f), "bornes : " + f);
-assert.equal((arene.match(/circle at (58|72|86)% (19|51)px,#fff/g) || []).length, 6, "six boutons en relief : trois en haut, trois en dessous");
-assert.ok(arene.includes("rotateX(52deg)") && arene.includes("transform-origin:50% 0;"), "tableau isométrique incliné autour de son bord haut (le bas vient vers le joueur)");
 for (const cible of ["soreal-idle-duel-nameplate-v65", "soreal-idle-duel-portrait-v41", "soreal-idle-duel-hp-v41", "soreal-idle-vs-v41", "soreal-idle-boss-controls-v39", "soreal-idle-boss-respawn-v100", "soreal-idle-reward-v8"]) assert.ok(arene.includes(cible), "l'arène habille " + cible);
 assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "les portraits ne sont jamais cachés");
+// Une seule borne : le bloc duel est le corps, la rangée est l'écran, plus de rotation de chaque combattant.
+assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  SOREAL IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
+assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seule borne de face");
+assert.equal((arene.match(/circle at \d+% (19|51)px,#fff/g) || []).length, 6, "six boutons en relief : trois en haut, trois en dessous");
+assert.equal((arene.match(/circle at 24% 17px,#fff/g) || []).length, 1, "un seul joystick");
+assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(0,1fr) auto minmax(0,1fr)"), "grand écran cathodique à deux combattants");
 console.log("idle-itopod-style-v1: OK");
