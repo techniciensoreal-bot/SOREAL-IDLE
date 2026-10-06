@@ -37,10 +37,12 @@ for (const nom of ["btPlus", "btMinus", "btCap"]) {
 assert.equal(new Set(Object.values(signatures)).size, 3, "trois sons différents");
 // sens : + monte, − descend, Cap monte en puissance puis finit haut
 const notes = (nom) => JSON.parse(signatures[nom]);
-// Norman (2026-10-06) : + = machine qui démarre (le moteur monte en tours), − = machine qui s'arrête (le moteur retombe). Le moteur = les dents de scie et les triangles.
-const moteur = (nom) => notes(nom).filter((n) => n.type === "sawtooth" || n.type === "triangle");
-assert.ok(moteur("btPlus").length >= 2 && moteur("btPlus").every((n) => n.to > n.from * 2), "+ : le moteur monte en tours");
-assert.ok(moteur("btMinus").length >= 2 && moteur("btMinus").every((n) => n.to < n.from / 2), "− : le moteur retombe");
+// Norman (2026-10-06) : + et − = un clic de clavier (la touche s'enfonce, puis se relâche) ; le − est plus grave et plus mat que le +.
+const clic = (nom) => notes(nom);
+assert.ok(clic("btPlus").length >= 3 && clic("btMinus").length >= 3, "un clic = enfoncement (thock, tintement) et relâchement");
+assert.ok(clic("btPlus").every((n) => n.from <= 700) && clic("btMinus").every((n) => n.from <= 700), "tout dans le médium grave : rien de perçant");
+assert.ok(clic("btPlus").some((n) => n.at >= 0.05) && clic("btMinus").some((n) => n.at >= 0.05), "un second temps : le relâchement de la touche");
+assert.ok(clic("btMinus")[0].from < clic("btPlus")[0].from, "− plus grave que +");
 const cap = notes("btCap");
 assert.ok(cap.some((n) => n.to > n.from * 3) && cap.some((n) => n.from >= 1500 && n.at > 0.2), "Cap : une charge qui monte, puis un « ding » aigu à la fin");
 

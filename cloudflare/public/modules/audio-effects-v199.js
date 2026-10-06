@@ -1240,91 +1240,27 @@
    *   Cap : on remplit jusqu'au plafond -> une charge qui monte en puissance, puis un « ding » de plein.
    */
   /*
-   * Norman (2026-10-06) : « quand on ajoute des points d'énergie, un bruit de machine qui démarre, avec un fade out ; quand on retire, un bruit de machine qui s'arrête. »
-   *   +   : un relais claque, le moteur prend ses tours (grave qui monte, ratés de plus en plus serrés, sifflement d'engrenage) puis s'éteint doucement (fade out) ;
-   *   −   : un claquement, le moteur retombe (grave qui descend, ratés de plus en plus espacés) et se pose sur un dernier « thud ».
-   * Le son dure environ une seconde mais ne retient la file que 300 ms : on peut enchaîner les clics sans attendre la fin.
+   * Norman (2026-10-06) : « le bruit quand on met de l'énergie n'est pas bon du tout, il faut que ce soit un bruit de clic de clavier ».
+   * Un clic de clavier mécanique, en deux temps : la touche s'ENFONCE (claquement sec du dessus, craquement du plastique, « thock » de fin de course, petit tintement du boîtier),
+   * puis se RELÂCHE (un tic plus léger, un peu plus tard). Chaque appel varie très légèrement de hauteur pour ne pas sonner comme une mitraillette. + = touche aiguë et vive ;
+   * − = touche plus grave et plus mate (même famille). Tout reste dans le médium : audible sur de petits haut-parleurs, sans aigus perçants.
    */
-  /*
-   * Moteur : une dent de scie qui monte (ou retombe) en hauteur à travers un filtre passe-bas qui s'ouvre (ou se ferme), avec un léger vibrato de rotation, et une enveloppe en
-   * crescendo / decrescendo (le « fade out »). Les petits haut-parleurs ne rendent pas les graves : toute la présence est dans le médium (150 à 3000 Hz), le grave n'est qu'un coussin.
-   */
-  function moteurSon_(c,o){
-    var debut=c.currentTime+Math.max(0,Number(o.delay)||0);
-    var d=Math.max(.1,Number(o.duration)||.9);
-    var osc=c.createOscillator();
-    osc.type=o.type||"sawtooth";
-    osc.frequency.setValueAtTime(Math.max(20,o.from),debut);
-    osc.frequency.exponentialRampToValueAtTime(Math.max(20,o.to),debut+d);
-    var filtre=c.createBiquadFilter();
-    filtre.type="lowpass";
-    filtre.Q.setValueAtTime(o.q||2.2,debut);
-    filtre.frequency.setValueAtTime(Math.max(60,o.cutFrom),debut);
-    filtre.frequency.exponentialRampToValueAtTime(Math.max(60,o.cutTo),debut+d);
-    var g=c.createGain();
-    var pic=Math.max(.04,Math.min(.9,Number(o.pic)||.5));
-    /* Montée linéaire (une rampe exponentielle ne s'entend que sur son dernier quart), puis longue queue qui s'éteint : le fade out. */
-    g.gain.setValueAtTime(.0001,debut);
-    g.gain.linearRampToValueAtTime(Math.max(.0002,o.volume),debut+d*pic);
-    g.gain.setTargetAtTime(.0001,debut+d*pic,Math.max(.05,d*(1-pic)*.30));
-    osc.connect(filtre);
-    filtre.connect(g);
-    g.connect(master||c.destination);
-    if(o.lfoFrom){
-      var lfo=c.createOscillator();
-      lfo.type="sine";
-      lfo.frequency.setValueAtTime(o.lfoFrom,debut);
-      lfo.frequency.exponentialRampToValueAtTime(Math.max(1,o.lfoTo||o.lfoFrom),debut+d);
-      var profondeur=c.createGain();
-      profondeur.gain.setValueAtTime(Math.max(0,(o.from+o.to)/2*(o.lfoDepth||.03)),debut);
-      lfo.connect(profondeur);
-      profondeur.connect(osc.frequency);
-      lfo.start(debut);
-      lfo.stop(debut+d*1.4);
-    }
-    osc.start(debut);
-    osc.stop(debut+d*1.4);
-  }
-  /* Les ratés d'un moteur qui prend ses tours (intervalles qui se resserrent) ou qui s'arrête (qui s'espacent) : petits « tac » graves avec un claquement sec. */
-  function moteurRates_(c,premier,intervalle,facteur,nombre,volume,declin){
-    var t=premier;
-    for(var i=0;i<nombre;i+=1){
-      var v=Math.max(.006,volume*(declin?Math.pow(.84,i):Math.pow(.93,i)));
-      bruit_(c,{duration:.045,volume:v,delay:t,filterType:"lowpass",frequency:900-i*30,decay:2.2});
-      bruit_(c,{duration:.014,volume:v*.7,delay:t,filterType:"bandpass",frequency:1800,decay:1.6,q:2});
-      t+=intervalle;
-      intervalle*=facteur;
-    }
-  }
-  function machineDemarre_(c){
-    /* le relais qui claque */
-    bruit_(c,{duration:.035,volume:.075,filterType:"bandpass",frequency:1200,frequencyEnd:700,decay:1.8,q:2});
-    tonal_(c,{type:"sine",from:240,to:110,duration:.08,volume:.07});
-    /* le moteur prend ses tours : médium qui monte et s'éclaircit, corps plus rond dessous */
-    moteurSon_(c,{type:"sawtooth",from:185,to:900,cutFrom:700,cutTo:4200,duration:1.05,volume:.090,pic:.58,lfoFrom:7,lfoTo:17,lfoDepth:.035,delay:.03});
-    moteurSon_(c,{type:"triangle",from:112,to:430,cutFrom:420,cutTo:2200,duration:1.05,volume:.100,pic:.55,delay:.03});
-    tonal_(c,{type:"sine",from:900,to:2900,duration:.80,volume:.012,delay:.18});
-    bruit_(c,{duration:.90,volume:.022,delay:.06,filterType:"bandpass",frequency:420,frequencyEnd:2300,decay:1.4,q:.8});
-    moteurRates_(c,.10,.115,.88,10,.040,true);
-  }
-  function machineS_arrete_(c){
-    bruit_(c,{duration:.03,volume:.060,filterType:"bandpass",frequency:900,frequencyEnd:600,decay:1.8,q:2});
-    tonal_(c,{type:"sine",from:170,to:80,duration:.07,volume:.055});
-    /* le moteur retombe : médium qui descend et s'assombrit */
-    moteurSon_(c,{type:"sawtooth",from:850,to:135,cutFrom:3800,cutTo:420,duration:.95,volume:.090,pic:.06,lfoFrom:15,lfoTo:3,lfoDepth:.04,delay:.02});
-    moteurSon_(c,{type:"triangle",from:430,to:92,cutFrom:2000,cutTo:260,duration:.95,volume:.100,pic:.06,delay:.02});
-    bruit_(c,{duration:.70,volume:.020,delay:.03,filterType:"lowpass",frequency:2300,frequencyEnd:200,decay:1.5});
-    moteurRates_(c,.05,.045,1.27,9,.040,false);
-    /* il se pose */
-    tonal_(c,{type:"sine",from:260,to:95,duration:.16,volume:.075,delay:.86});
-    bruit_(c,{duration:.06,volume:.05,delay:.86,filterType:"bandpass",frequency:700,decay:2,q:1.2});
+  function clavierClic_(c,grave){
+    var k=(grave?0.72:1)*(0.94+Math.random()*0.12);
+    var relache=.062+Math.random()*.012;
+    bruit_(c,{duration:.016,volume:grave?.085:.105,filterType:"bandpass",frequency:3300*k,decay:2.2,q:1.1});
+    bruit_(c,{duration:.024,volume:grave?.075:.065,delay:.002,filterType:"bandpass",frequency:1600*k,decay:2,q:.9});
+    tonal_(c,{type:"sine",from:210*k,to:92*k,duration:.05,volume:grave?.09:.075});
+    tonal_(c,{type:"triangle",from:560*k,to:330*k,duration:.03,volume:.032,delay:.002});
+    bruit_(c,{duration:.011,volume:grave?.035:.05,delay:relache,filterType:"bandpass",frequency:2800*k,decay:2,q:1});
+    tonal_(c,{type:"sine",from:170*k,to:120*k,duration:.022,volume:.02,delay:relache});
   }
   function btPlus_(){
-    return jouerWebAudio_(300,machineDemarre_);
+    return jouerWebAudio_(150,function(c){clavierClic_(c,false);});
   }
 
   function btMoins_(){
-    return jouerWebAudio_(300,machineS_arrete_);
+    return jouerWebAudio_(150,function(c){clavierClic_(c,true);});
   }
 
   function btCap_(){
@@ -2013,8 +1949,8 @@
       foule:Object.keys(SONS_FOULE_V1).map(function(id){return{nom:id,duree:SONS_FOULE_V1[id].duree,construire:SONS_FOULE_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_},
-      machineDemarre:{duree:1200,construire:machineDemarre_},
-      machineArrete:{duree:1100,construire:machineS_arrete_}
+      clavierClic:{duree:200,construire:function(c){clavierClic_(c,false);}},
+      clavierClicGrave:{duree:200,construire:function(c){clavierClic_(c,true);}}
     },
     fight:function(){return demander_("fight");},
     bossAppear:function(){return demander_("bossAppear");},
