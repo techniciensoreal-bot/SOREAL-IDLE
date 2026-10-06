@@ -21,6 +21,7 @@
           'Les pages avec des chiffres qui évoluent se mettent à jour sans toucher aux animations ni à tes champs de saisie.',
           'Le texte de présentation d’une page ne mentionne plus que ce que tu as déjà débloqué.',
           'Plusieurs textes d’aide, les notes de mise à jour et deux listes ne nomment plus de système que tu n’as pas encore débloqué.',
+          'La récompense de connexion du jour est donnée dès que tu te connectes, avec une annonce : jours consécutifs et AP récupérés.',
           'Plusieurs menus qui restaient figés se mettent maintenant à jour en direct (toutes les 4 secondes) au lieu d’attendre ta prochaine visite.',
           'La fenêtre qui annonce un système débloqué dit maintenant où le retrouver.'
         ]

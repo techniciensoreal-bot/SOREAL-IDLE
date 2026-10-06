@@ -386,6 +386,11 @@
                       window.__SOREAL_IDLE_AUDIO_V199__.dailySpin();
                     }
                   }catch(_e){}
+                  /* Récompense prise automatiquement à la connexion : une annonce (jour de série, AP) à la place du simple message. */
+                  if(window.__connexionRecompenseAutoV1__&&window.__SOREAL_IDLE_CONNEXION_RECOMPENSE_V1__){
+                    window.__connexionRecompenseAutoV1__=false;
+                    window.__SOREAL_IDLE_CONNEXION_RECOMPENSE_V1__.annoncer(res.resultat);
+                  }else
                   window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
                     '📅 Jour '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.case)+' : +'+
                     window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.ap))+' 💠 AP !'
