@@ -1594,7 +1594,10 @@ function rafraichirItopodIdleV1_(j){
         const vivant=document.querySelector('.itp-page');
         if(!vivant)return;
         const tmp=document.createElement('div');
-        tmp.innerHTML=pageItopodIdleV1_(j);
+        /* La scène animée est mise de côté pendant ce calcul : son HTML réinitialise le combat de l'écran (coups, ennemi suivant) ; sans cette précaution les ennemis ne défilaient plus (toujours le même, remis à zéro toutes les 4 s). */
+        const scene=window.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+        window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;
+        try{tmp.innerHTML=pageItopodIdleV1_(j);}finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;}
         const neuf=tmp.querySelector('.itp-page');
         if(!neuf)return;
         const copier=function(racineVive,racineNeuve,sel){

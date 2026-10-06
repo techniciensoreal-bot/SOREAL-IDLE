@@ -18,3 +18,12 @@ assert.ok(meta.includes("window.__rafraichirItopodIdleV1__=rafraichirItopodIdleV
 // Doigt ou souris enfoncé : pas de redessin entre l'appui et le relâchement (le clic serait perdu).
 assert.ok(ui.includes("if(idlePointeurEnfonceV1&&Date.now()-idlePointeurEnfonceV1<3000)return true;"));
 console.log("idle-menus-vivants-v1: OK");
+
+// ITOPOD : le calcul des chiffres ne touche jamais à la scène (son HTML réinitialise le combat de l'écran : les ennemis ne défilaient plus).
+{
+  const m = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const i = m.indexOf("function rafraichirItopodIdleV1_(j){");
+  const bloc = m.slice(i, i + 1400);
+  assert.ok(bloc.includes("window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;") && bloc.includes("finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;}"));
+  console.log("idle-menus-vivants-v1 (scène ITOPOD intacte): OK");
+}
