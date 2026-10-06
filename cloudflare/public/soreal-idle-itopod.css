@@ -375,17 +375,17 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Joystick en volume (Norman, 2026-10-06 : « la boule est trop grosse et coupée, un vrai effet 3D ») : posé sur la dalle par les deux pseudo-éléments de la rangée de boutons, hors de la dalle inclinée pour ne plus être coupé. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{
-  content:"";position:absolute;z-index:3;pointer-events:none;width:26px;height:26px;top:-92px;left:calc(34px + (100% - 68px) * .24 - 13px);border-radius:50%;
+  content:"";position:absolute;z-index:3;pointer-events:none;width:26px;height:26px;top:-82px;left:calc(34px + (100% - 68px) * .24 - 13px);border-radius:50%;
   background:radial-gradient(circle at 34% 28%,#fff 0 7%,#c9f0ff 14%,#37c0ff 42%,#0c5f98 76%,#052a4a 100%);
   box-shadow:inset -3px -4px 6px rgba(0,0,20,.55),0 7px 7px -3px rgba(0,0,0,.8),0 0 10px rgba(55,192,255,.55);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{
   content:"";position:absolute;z-index:2;pointer-events:none;width:46px;height:44px;top:-82px;left:calc(34px + (100% - 68px) * .24 - 23px);
   background:
-    linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 0/6px 22px no-repeat,
+    linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 0/6px 34px no-repeat,
     radial-gradient(ellipse 15px 6px at 50% 33px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
     radial-gradient(ellipse 23px 8px at 50% 36px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
     radial-gradient(ellipse 25px 7px at 54% 41px,rgba(0,0,0,.55),transparent 100%);}
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-70px;left:calc(18px + (100% - 36px) * .24 - 10px);}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-56px;left:calc(18px + (100% - 36px) * .24 - 10px);}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-62px;left:calc(18px + (100% - 36px) * .24 - 18px);}
 }
