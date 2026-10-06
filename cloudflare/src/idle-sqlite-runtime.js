@@ -16820,6 +16820,7 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     const exp = borne(o.exp, 0, 1e18);
     const ap = borne(o.ap, 0, 1e18);
     const pp = borne(o.pp, 0, 1e15);
+    const graines = borne(o.graines, 0, 1e15);
     /* Puissance/robustesse d'Aventure permanentes d'essai (banc d'essai uniquement) : sans équipement, la tour ne peut pas tourner en partie B. */
     const aventurePuissance = borne(o.aventurePuissance, 0, 1e18);
     const aventureRobustesse = borne(o.aventureRobustesse, 0, 1e18);
@@ -16850,6 +16851,7 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     if (exp !== null) { meta.currencies.experience = exp; applique.exp = exp; }
     if (ap !== null) { meta.currencies.ap = ap; applique.ap = ap; }
     if (pp !== null) { meta.currencies.pp = pp; applique.pp = pp; }
+    if (graines !== null) { meta.currencies.seeds = graines; applique.graines = graines; }
     const e = meta.resources.energy;
     if (cap !== null) { e.cap = cap; e.capNaturel = cap; applique.energieCap = cap; }
     if (puissance !== null) { e.power = puissance; applique.energiePuissance = puissance; }

@@ -94,6 +94,12 @@ assert.equal(r.applique.aventureRobustesse, 50000);
   assert.ok(tour && tour.state && tour.state.unlocked, "tour débloquée");
 }
 
+// 3 sexies. Graines d'essai (page des fruits).
+r = appeler(norman, "preparerPartieTestSorealIdle", [{ graines: 500 }]);
+assert.equal(r.ok, true);
+assert.equal(r.applique.graines, 500);
+assert.equal(r.joueur.systemes.currencies.seeds, 500);
+
 // 4. Bornes : valeurs absurdes ramenées dans la plage.
 r = appeler(norman, "preparerPartieTestSorealIdle", [{ boss: 9999, or: -5, energieCap: 1e99 }]);
 assert.equal(r.ok, true);
