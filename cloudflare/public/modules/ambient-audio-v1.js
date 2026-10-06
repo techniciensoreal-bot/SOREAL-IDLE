@@ -238,7 +238,8 @@
       slot.gain=gainConnuAvant!=null?gainConnuAvant:1;
       slot.gainNode=relierGainLecture_(audio);
       if(slot.gainNode)slot.gainNode.gain.value=slot.gain;
-      signaler_(cle,slot);
+      /* Annoncée seulement quand la piste joue vraiment (un démarrage refusé par le navigateur ne déclenche rien). */
+      audio.addEventListener('playing',function(){if(slot.audio===audio)signaler_(cle,slot);});
       audio.onended=function(){
         if(slot.audio!==audio)return;
         slot.audio=null;

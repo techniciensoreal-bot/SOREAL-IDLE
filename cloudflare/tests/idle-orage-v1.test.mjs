@@ -11,6 +11,7 @@ const src = readFileSync("cloudflare/public/modules/orage-v1.js", "utf8");
 const ambiant = readFileSync("cloudflare/public/modules/ambient-audio-v1.js", "utf8");
 
 const ecouteurs = {};
+const changements = [];
 const faux = () => {
   const el = { style: { setProperty() {} }, classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } }, innerHTML: "", children: [], setAttribute() {}, appendChild(c) { this.children.push(c); c.parentNode = this; }, querySelector(sel) { return el._q[sel] || (el._q[sel] = faux()); }, _q: {}, parentNode: null };
   return el;
@@ -33,7 +34,7 @@ const fenetre = {
   matchMedia: () => ({ matches: mouvementReduit }),
   addEventListener: (nom, fn) => { (ecouteurs[nom] = ecouteurs[nom] || []).push(fn); },
   AudioContext: function () { contextes += 1; return fauxContexte(); },
-  __SOREAL_IDLE_AUDIO_VOLUME_V1__: { getAmbiance: () => volume },
+  __SOREAL_IDLE_AUDIO_VOLUME_V1__: { getAmbiance: () => volume, onChange: (f) => { changements.push(f); } },
   setTimeout, clearTimeout, setInterval: () => 1, clearInterval: () => {}, requestAnimationFrame: (f) => f(), Date, Math, Uint8Array, Float32Array
 };
 fenetre.window = fenetre;
@@ -57,6 +58,22 @@ assert.equal(O.actif(), false, "autre piste : orage arrêté");
 emettre("Thunder.opus");
 emettre("");
 assert.equal(O.actif(), false, "silence : orage arrêté");
+
+// On ne voit l'orage que si on l'entend : volume d'ambiance à zéro (ou case décochée) = pas d'orage, même si la piste du tonnerre défile en silence.
+volume = 0;
+emettre("Thunder.opus");
+assert.equal(O.actif(), false, "ambiance coupée : pas d'orage");
+volume = 0.5;
+changements.forEach((f) => f());
+assert.equal(O.actif(), true, "ambiance rétablie pendant la piste d'orage : l'orage arrive");
+volume = 0;
+changements.forEach((f) => f());
+assert.equal(O.actif(), false, "ambiance recoupée : l'orage s'arrête");
+volume = 0.5;
+changements.forEach((f) => f());
+O.arreter();
+emettre("Birds.opus");
+assert.equal(O.actif(), false, "piste sans orage : rien, même avec le son");
 
 // Éclair : jamais deux à moins de 5 s ; rien sans orage.
 assert.equal(O.eclair(), false, "pas d'éclair sans orage");
@@ -92,6 +109,7 @@ assert.ok(src.includes("prefers-reduced-motion"), "respecte la préférence de m
 assert.ok(src.includes("createAnalyser") && src.includes("hasard_()"), "éclairs calés sur la piste, sinon au hasard");
 
 // Annonce de la piste par l'ambiance, branchement dans la page.
+assert.ok(ambiant.includes("addEventListener('playing'"), "annoncée seulement quand la piste joue vraiment");
 assert.ok(ambiant.includes("soreal-ambiance-v1") && ambiant.includes("signaler_(cle,slot)") && ambiant.includes("signaler_('',slot)") && ambiant.includes("signaler_('',null)"), "l'ambiance annonce la piste qui joue et son arrêt");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(/\/modules\/orage-v1\.js\?v=\d+/.test(index) && index.indexOf("orage-v1.js") > index.indexOf("ambient-audio-v1.js"), "module chargé après l'ambiance");

@@ -185,10 +185,20 @@
     if(racine)racine.classList.remove('actif');
   }
 
+  /* L'orage ne se montre que si on ENTEND le tonnerre : piste d'orage en cours ET volume d'ambiance au-dessus de zéro (case cochée). */
+  var courante=null;
+  function evaluer_(){
+    if(courante&&estOrage(courante.cle)&&volumeAmbiance_()>0){if(!actif)demarrer(courante);}
+    else if(actif)arreter();
+  }
   window.addEventListener('soreal-ambiance-v1',function(e){
-    var d=(e&&e.detail)||{};
-    if(estOrage(d.cle))demarrer(d);else arreter();
+    courante=(e&&e.detail)||{};
+    evaluer_();
   });
+  try{
+    var vol=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+    if(vol&&typeof vol.onChange==='function')vol.onChange(evaluer_);
+  }catch(_e){}
 
-  window.__SOREAL_IDLE_ORAGE_V1__={demarrer:function(){return demarrer(null);},arreter:arreter,eclair:eclair,actif:function(){return actif;},estOrage:estOrage,construireGrondement:construireGrondement_};
+  window.__SOREAL_IDLE_ORAGE_V1__={demarrer:function(){return demarrer(null);},arreter:arreter,eclair:eclair,actif:function(){return actif;},estOrage:estOrage,evaluer:evaluer_,construireGrondement:construireGrondement_};
 })();
