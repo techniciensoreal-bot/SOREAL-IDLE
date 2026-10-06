@@ -1378,7 +1378,7 @@
             '<div class="soreal-idle-summary-v28">💩 Poop<b>'+H.formatGrandNombreIdleV70_(poop)+'</b></div>'+
             '<div class="soreal-idle-summary-v28">⏳ Durée d’un tier<b>'+H.idleEntier_(Math.round(tierSec/60))+' min</b></div>'+
           '</div>'+
-          '<div class="soreal-idle-note-v4" style="margin:6px 0 10px">Poop : x'+H.idleHtml_(String(Math.round((Number(x.poopFactor)||1.5)*100)/100).replace('.',','))+' · tier max '+H.idleEntier_(x.maxTier||10)+H.idleHtml_(brown)+' · Poop achetable au 4G’s Sellout Shop.</div>'+
+          '<div class="soreal-idle-note-v4" style="margin:6px 0 10px">Poop : x'+H.idleHtml_(String(Math.round((Number(x.poopFactor)||1.5)*100)/100).replace('.',','))+' · tier max '+H.idleEntier_(x.maxTier||10)+H.idleHtml_(brown)+' · Poop achetable à la boutique AP, rayon Boosts.</div>'+
           '<div style="display:grid;gap:10px">'+defs.map(function(def){
             const f=fruits[def.id]||{};
             const e=xf[def.id]||{};

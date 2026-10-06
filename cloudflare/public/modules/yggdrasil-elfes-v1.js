@@ -15,7 +15,8 @@
   if(window.__SOREAL_IDLE_YGG_V1__)return;
 
   var PAR_PAGE=9;
-  var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{}};
+  var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{},pretsVus:null};
+  function son_(nom,option){var S=window.__SOREAL_IDLE_YGG_SONS_V1__;if(S&&S.jouer)S.jouer(nom,option);}
 
   function H_(){return window.__SOREAL_IDLE_META_HOST_V130__;}
   function html_(t){var H=H_();return H&&H.idleHtml_?H.idleHtml_(t):String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -49,11 +50,10 @@
     var s=document.createElement('style');s.id='ygg-style-v1';
     s.textContent=[
       '.ygg-page{--or:#f0cc62;--or2:#b8862a;--vert:#2f7a4a;--vert2:#17432a;--nuit:#0f2418;--parch:#f4edc9;container-type:inline-size;max-width:760px;margin:6px auto 18px;font-family:Georgia,"Palatino Linotype",serif;color:var(--parch);}',
-      /* Cadre général : pierre-forêt à la manière de l\'ITOPOD (gros contour noir, ombre décalée), lanternes de feuillage sur les côtés. */
-      '.ygg-cadre{position:relative;padding:3cqw 3cqw 3.4cqw;border:3px solid #000;border-radius:8px;background:radial-gradient(ellipse at 20% 0%,rgba(120,200,120,.16),transparent 55%),radial-gradient(ellipse at 90% 100%,rgba(240,204,98,.10),transparent 50%),linear-gradient(160deg,#2c5a38,#183a25 50%,#0f2418);box-shadow:inset 0 3px 0 rgba(255,255,255,.16),inset 0 -4px 0 rgba(0,0,0,.45),6px 6px 0 #000,0 0 28px rgba(80,200,120,.28);}',
-      '.ygg-cadre::before,.ygg-cadre::after{content:"";position:absolute;top:50%;width:10px;height:46px;margin-top:-23px;border:2px solid #000;border-radius:5px;background:linear-gradient(180deg,#d6ff9a,#4da35a);box-shadow:0 0 14px rgba(160,255,150,.8);animation:ygg-luciole 2.6s ease-in-out infinite;}',
-      '.ygg-cadre::before{left:-8px}.ygg-cadre::after{right:-8px;animation-delay:-1.2s}',
-      '@keyframes ygg-luciole{0%,100%{opacity:.85}50%{opacity:1;box-shadow:0 0 22px rgba(190,255,160,1)}}',
+      /* Cadre général : pierre-forêt à la manière de l'ITOPOD (gros contour noir, ombre décalée) avec quatre anneaux (noir, or, noir, vert), lierre sur les côtés et médaillons en haut et en bas : un cadre fini, sans pièce qui dépasse. */
+      '.ygg-cadre{position:relative;padding:calc(3cqw + 12px) calc(3cqw + 12px) calc(3.4cqw + 12px);border:3px solid #000;border-radius:10px;background:radial-gradient(ellipse 5px 3px at 7px 8px,rgba(130,215,130,.85) 96%,transparent) left 5px top 24px/14px 28px repeat-y,radial-gradient(ellipse 5px 3px at 7px 22px,rgba(240,204,98,.75) 96%,transparent) left 5px top 24px/14px 28px repeat-y,linear-gradient(90deg,transparent 6px,rgba(70,150,80,.9) 6px 8px,transparent 8px) left 5px top 0/14px 100% no-repeat,radial-gradient(ellipse 5px 3px at 7px 8px,rgba(130,215,130,.85) 96%,transparent) right 5px top 24px/14px 28px repeat-y,radial-gradient(ellipse 5px 3px at 7px 22px,rgba(240,204,98,.75) 96%,transparent) right 5px top 24px/14px 28px repeat-y,linear-gradient(90deg,transparent 6px,rgba(70,150,80,.9) 6px 8px,transparent 8px) right 5px top 0/14px 100% no-repeat,radial-gradient(ellipse at 20% 0%,rgba(120,200,120,.16),transparent 55%),radial-gradient(ellipse at 90% 100%,rgba(240,204,98,.10),transparent 50%),linear-gradient(160deg,#2c5a38,#183a25 50%,#0f2418);box-shadow:inset 0 0 0 3px #2f7a4a,inset 0 0 0 5px #000,inset 0 0 0 7px #e0b640,inset 0 0 0 9px #000,6px 6px 0 #000,0 0 28px rgba(80,200,120,.28);}',
+      '.ygg-cadre::before,.ygg-cadre::after{position:absolute;left:50%;transform:translateX(-50%);padding:.05em .7em;border:3px solid #000;border-radius:999px;font-size:clamp(14px,3.4cqw,22px);line-height:1.2;color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),2px 2px 0 #000;}',
+      '.ygg-cadre::before{content:"❦ ✦ ❦";top:-.7em}.ygg-cadre::after{content:"❧ ✦ ❧";bottom:-.7em}',
       /* Titre. */
       '.ygg-entete{display:flex;align-items:center;gap:2.4cqw;margin-bottom:2.4cqw;}',
       '.ygg-titre{flex:1;min-width:0;text-align:center;padding:1.2cqw 2cqw;border:3px solid #000;border-radius:4px;background:linear-gradient(180deg,#3d7a4c,#1c4a2c);box-shadow:inset 0 2px 0 rgba(255,255,255,.25),4px 4px 0 #000;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,14px 100%,0 50%);}',
@@ -63,12 +63,12 @@
       '.ygg-aide{display:none;margin:0 0 2.4cqw;padding:2cqw 2.6cqw;border:3px solid #000;border-radius:4px;background:rgba(7,22,13,.78);font-size:clamp(11px,2.2cqw,15px);line-height:1.45;box-shadow:4px 4px 0 #000;}',
       '.ygg-aide.ouvert{display:block;}',
       /* Onglets. */
-      '.ygg-onglets{display:flex;gap:1.6cqw;margin:0 0 2.2cqw;}',
-      '.ygg-onglet{min-height:44px;padding:.4em 1.4em;font:900 clamp(11px,2.4cqw,16px) Georgia,serif;letter-spacing:.06em;color:#f4edc9;border:3px solid #000;border-bottom:0;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#2a5a38,#143523);cursor:pointer;box-shadow:3px 0 0 #000;}',
+      '.ygg-onglets{display:flex;gap:1.6cqw;margin:0 0 2.4cqw;padding:0 1.4cqw;border-bottom:3px solid #000;}',
+      '.ygg-onglet{min-height:44px;padding:.4em 1.4em;font:900 clamp(11px,2.4cqw,16px) Georgia,serif;letter-spacing:.06em;color:#f4edc9;border:3px solid #000;border-bottom:0;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#2a5a38,#143523);cursor:pointer;box-shadow:inset 0 2px 0 rgba(255,255,255,.2),3px 0 0 #000;}',
       '.ygg-onglet[aria-selected="true"]{color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);text-shadow:0 1px 0 rgba(255,255,255,.5);}',
       /* Grille 3 x 3. */
       '.ygg-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2cqw;}',
-      '.ygg-carte{position:relative;display:flex;flex-direction:column;gap:1.1cqw;padding:1.6cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(56,110,70,.95),rgba(20,52,34,.97));box-shadow:inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000;min-width:0;}',
+      '.ygg-carte{position:relative;display:flex;flex-direction:column;gap:1.1cqw;padding:1.6cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(56,110,70,.95),rgba(20,52,34,.97));box-shadow:inset 0 0 0 2px rgba(240,204,98,.38),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000;min-width:0;}',
       '.ygg-carte.pret{box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000,0 0 18px rgba(240,204,98,.75);}',
       '.ygg-carte::before{content:"❦";position:absolute;top:-.55em;left:.35em;font-size:clamp(12px,3cqw,20px);color:var(--or);text-shadow:0 1px 0 #000,0 0 6px rgba(240,204,98,.7);}',
       '.ygg-nom{padding:.25em .5em;border:2px solid #000;border-radius:3px;text-align:center;font-weight:900;font-size:clamp(9px,2.1cqw,14px);line-height:1.15;color:#fff3c4;text-shadow:0 1px 0 #000;background:linear-gradient(180deg,#355f40,#1a3a26);min-height:2.4em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3em;}',
@@ -112,8 +112,8 @@
       '.ygg-solo{display:flex;align-items:center;gap:.6em;min-height:44px;font-size:clamp(9px,1.9cqw,13px);cursor:pointer;}',
       '.ygg-solo input{width:22px;height:22px;accent-color:#e0b640;flex:0 0 auto;}',
       '.ygg-note{margin-top:1.6cqw;font-size:clamp(8px,1.7cqw,12px);color:#b9d8a8;line-height:1.4;text-align:center;}',
-      '@container (max-width:520px){.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-cadre::before,.ygg-cadre::after{display:none}.ygg-grille{gap:1.6cqw}.ygg-carte{padding:1.2cqw;gap:.9cqw}}',
-      '@media (prefers-reduced-motion:reduce){.ygg-cadre::before,.ygg-cadre::after{animation:none}}'
+      '@container (max-width:520px){.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-grille{gap:1.6cqw}.ygg-carte{padding:1.2cqw;gap:.9cqw}}',
+      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -191,6 +191,9 @@
     style_();
     var d=lire_(j);
     if(!d)return '';
+    var pretsIds=d.fruits.filter(function(v){return v.pret;}).map(function(v){return v.def.id;});
+    if(etat.pretsVus!==null&&pretsIds.some(function(id){return etat.pretsVus.indexOf(id)===-1;}))son_('pret');
+    etat.pretsVus=pretsIds;
     var pages=Math.max(1,Math.ceil(d.fruits.length/PAR_PAGE));
     if(etat.page>pages)etat.page=pages;
     var debut=(etat.page-1)*PAR_PAGE;
@@ -224,7 +227,7 @@
         '</div>'+
         (b?'<div class="ygg-bonus">'+b+'</div>':'')+
       '</div>'+
-      '<div class="ygg-note">Poop ×'+html_(poopFacteur)+' · tier max '+d.maxTier+html_(brown)+' · poop achetable au 4G’s Sellout Shop.</div>'+
+      '<div class="ygg-note">Poop ×'+html_(poopFacteur)+' · tier max '+d.maxTier+html_(brown)+' · poop achetable à la boutique AP, rayon Boosts.</div>'+
     '</div></div>';
   }
 
@@ -245,24 +248,26 @@
     page:page,
     imageChargee:function(nom,img){etat.chargees[nom]=true;var f=img&&img.previousElementSibling;if(f&&f.classList&&f.classList.contains('ygg-secours'))f.style.display='none';},
     imageManquante:function(nom,img){etat.manquantes[nom]=true;if(img)img.style.display='none';},
-    activer:function(id){action_({action:'activateYggFruit',fruit:String(id)});},
-    ameliorer:function(id){action_({action:'upgradeYggFruit',fruit:String(id)});},
+    activer:function(id){son_('activer');action_({action:'activateYggFruit',fruit:String(id)});},
+    ameliorer:function(id){son_('ameliorer');action_({action:'upgradeYggFruit',fruit:String(id)});},
     utiliser:function(id){
       var c=choix_(id);var t=trouver_(id);
+      son_(c.mode==='harvest'?'recolter':'manger');
       lancerUsage_(id,Boolean(c.poop&&t&&t.d.poop>0));
       c.poop=false;
     },
-    mode:function(id,mode){choix_(id).mode=mode==='harvest'?'harvest':'eat';rafraichir_();},
-    poop:function(id){var c=choix_(id);c.poop=!c.poop;rafraichir_();},
-    aller:function(p){etat.page=Math.max(1,ent_(p));rafraichir_();},
-    aide:function(){etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
-    soloMax:function(v){etat.soloMax=Boolean(v);},
+    mode:function(id,mode){var m=mode==='harvest'?'harvest':'eat';if(choix_(id).mode!==m)son_('interrupteur',m==='harvest');choix_(id).mode=m;rafraichir_();},
+    poop:function(id){var c=choix_(id);c.poop=!c.poop;if(c.poop)son_('poop');else son_('interrupteur',false);rafraichir_();},
+    aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
+    aide:function(){son_('aide');etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
+    soloMax:function(v){etat.soloMax=Boolean(v);son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */
     tout:function(critere){
       var d=lire_(H_().getIdleEtat());
       if(!d)return 0;
       var poopRestante=d.poop;
       var cibles=d.fruits.filter(function(v){return v.pret&&(critere==='max'?v.max:v.tier>=1);});
+      if(cibles.length)son_('tout');
       cibles.forEach(function(v,i){
         var c=choix_(v.def.id);
         var avec=Boolean(c.poop&&poopRestante>0&&(!etat.soloMax||v.max));
