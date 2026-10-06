@@ -29,7 +29,11 @@
           'Quand un écran rencontre une erreur discrète, elle est maintenant notée dans le journal de fluidité au lieu d’être perdue, pour être corrigée plus vite.',
           'Une page a été entièrement refaite dans un style d’ordinateur des années 80 : écran vert qui change de couleur d’un bouton, barres à l’ancienne et un clavier dont les touches claquent.',
           'Une autre page a été entièrement refaite façon elfes : neuf éléments par page, chacun avec son image, des cadres de pierre et de feuillage et de nouveaux boutons.',
-          'Quand l’ambiance sonore est un orage, le ciel s’assombrit, la pluie tombe et des éclairs suivent les coups de tonnerre (rien du tout si ton appareil demande moins d’animations).'
+          'Quand l’ambiance sonore est un orage, le ciel s’assombrit, la pluie tombe, des éclairs suivent les coups de tonnerre et des lumières blanches éclairent tout l’écran (rien du tout si ton appareil demande moins d’animations).',
+          'L’application reprend peu à peu un nouveau style, adapté à chaque menu : couleurs propres à chacun, cadres sombres, textes façon bande dessinée.',
+          'Les barres de puissance changent d’aspect à chaque palier (fond de plus en plus sombre, reflets, lueur, flammes) et celles du sang saignent quand elles sont actives.',
+          'Dans l’entraînement, les titres sont des bandeaux de combat : lumières éteintes sans énergie, allumées comme un néon quand on en met, avec parfois un grésillement ; + et − font un clic de clavier.',
+          'La page du combat de boss devient une borne d’arcade : un grand écran où les deux combattants se font face, un joystick, six boutons, et un coup de poing différent, tiré au hasard, à chaque clic sur Fight.'
         ]
       },
       {
