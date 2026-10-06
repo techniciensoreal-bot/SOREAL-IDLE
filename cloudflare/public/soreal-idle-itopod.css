@@ -247,9 +247,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   content:"";position:absolute;left:34px;right:34px;top:100%;height:96px;margin-top:-6px;pointer-events:none;border:2px solid #000;border-radius:12px;
   transform:perspective(520px) rotateX(48deg);transform-origin:50% 0;
   background:
-    radial-gradient(circle at 24% 17px,#fff 0 2px,#37c0ff 3px 9px,#05060a 10px 11px,transparent 12px),
-    linear-gradient(90deg,#8a90a8,#cfd4e6,#8a90a8) calc(24% - 1.5px) 20px/3px 30px no-repeat,
-    radial-gradient(circle at 24% 52px,#05060a 0 13px,#3a4060 14px 16px,transparent 17px),
+    radial-gradient(ellipse 15px 22px at calc(24% - 4px) 21px,#fff 0 1.5px,#b8ecff 3px,#37c0ff 9px,#0c5f98 17px,#052a4a 22px,transparent 23px),
+    linear-gradient(90deg,#1a1e30,#4a5070,#1a1e30) calc(24% - 2px) 36px/4px 14px no-repeat,
+    radial-gradient(ellipse 17px 9px at calc(24% + 3px) 56px,rgba(0,0,0,.65),transparent 100%),
+    radial-gradient(circle at 24% 52px,#05060a 0 12px,#3a4060 13px 15px,transparent 16px),
     radial-gradient(circle at 58% 19px,#fff 0 1.5px,#ff5a4a 2.5px 6px,#a01810 7px 8px,transparent 9px),
     radial-gradient(circle at 68% 19px,#fff 0 1.5px,#ffe34a 2.5px 6px,#a07a00 7px 8px,transparent 9px),
     radial-gradient(circle at 78% 19px,#fff 0 1.5px,#4ad0ff 2.5px 6px,#0e6aa0 7px 8px,transparent 9px),

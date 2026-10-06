@@ -58,6 +58,6 @@ assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "le
 assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  SOREAL IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
 assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seule borne de face");
 assert.equal((arene.match(/circle at \d+% (19|51)px,#fff/g) || []).length, 6, "six boutons en relief : trois en haut, trois en dessous");
-assert.equal((arene.match(/circle at 24% 17px,#fff/g) || []).length, 1, "un seul joystick");
+assert.equal((arene.match(/ellipse 15px 22px at calc\(24% - 4px\) 21px,#fff/g) || []).length, 1, "un seul joystick : une belle boule ronde, axe quasi invisible");
 assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(0,1fr) auto minmax(0,1fr)"), "grand écran cathodique à deux combattants");
 console.log("idle-itopod-style-v1: OK");
