@@ -4131,6 +4131,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='cooking'&&window.__SOREAL_IDLE_COOKING_V1__)return window.__SOREAL_IDLE_COOKING_V1__.page(j);
         /* Achievements + Player Portraits : page rendue par modules/profile-v1.js (2026-09-24). */
         if(id==='achievements'&&window.__SOREAL_IDLE_PROFILE_V1__)return window.__SOREAL_IDLE_PROFILE_V1__.page(j);
+        /* Wandoos : page « ordinateur rétro » rendue par modules/wandoos-retro-v1.js (2026-10-06). */
+        if(id==='wandoos'&&window.__SOREAL_IDLE_WANDOOS_V1__){const pw=window.__SOREAL_IDLE_WANDOOS_V1__.page(j);if(pw)return pw;}
 
         const s=
           systemeMetaParIdIdleV130_(
