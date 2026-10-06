@@ -28,7 +28,8 @@
           'Sur téléphone, les boutons + et − des listes sont plus grands et plus faciles à toucher.',
           'Quand un écran rencontre une erreur discrète, elle est maintenant notée dans le journal de fluidité au lieu d’être perdue, pour être corrigée plus vite.',
           'Une page a été entièrement refaite dans un style d’ordinateur des années 80 : écran vert qui change de couleur d’un bouton, barres à l’ancienne et un clavier dont les touches claquent.',
-          'Une autre page a été entièrement refaite façon elfes : neuf éléments par page, chacun avec son image, des cadres de pierre et de feuillage et de nouveaux boutons.'
+          'Une autre page a été entièrement refaite façon elfes : neuf éléments par page, chacun avec son image, des cadres de pierre et de feuillage et de nouveaux boutons.',
+          'Quand l’ambiance sonore est un orage, le ciel s’assombrit, la pluie tombe et des éclairs suivent les coups de tonnerre (rien du tout si ton appareil demande moins d’animations).'
         ]
       },
       {

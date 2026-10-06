@@ -25,7 +25,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"]{--i-a:#e0a21a;--i-b:#8a5a06;--i-c:#ffe58a;--i-bg1:#54482a;--i-bg2:#1c1708;--i-glow:rgba(240,180,40,.38);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"]{--i-a:#ff8a1a;--i-b:#a8321a;--i-c:#ffd24a;--i-bg1:#4f3340;--i-bg2:#1a0d16;--i-glow:rgba(255,120,60,.36);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"]{--i-a:#22b8cf;--i-b:#0b5d70;--i-c:#ffe08a;--i-bg1:#2f4d55;--i-bg2:#0d1b21;--i-glow:rgba(40,190,210,.33);}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"]{--i-a:#c3153f;--i-b:#5e0720;--i-c:#ff9aa8;--i-bg1:#4d2a33;--i-bg2:#19080d;--i-glow:rgba(220,40,80,.36);}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"]{--i-a:#be192d;--i-b:#5c0a15;--i-c:#f2a1ab;--i-bg1:#3a0f17;--i-bg2:#130406;--i-glow:rgba(200,40,60,.42);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"]{--i-a:#f0801f;--i-b:#8a3d06;--i-c:#ffe08a;--i-bg1:#54402c;--i-bg2:#1d140a;--i-glow:rgba(240,130,40,.35);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="titans"]{--i-a:#b8322e;--i-b:#4e100e;--i-c:#f2b36a;--i-bg1:#4a3535;--i-bg2:#170c0c;--i-glow:rgba(200,60,50,.35);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="ngu"]{--i-a:#4e6bff;--i-b:#1c2a9a;--i-c:#9fe9ff;--i-bg1:#363c63;--i-bg2:#0f1230;--i-glow:rgba(90,110,255,.38);}
@@ -120,3 +120,24 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-summary
 html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(button,.soreal-idle-expand-button-v25,.pk-acheter,.soreal-idle-exp-buy-v210,.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1,.ygg-btn,.ygg-onglet,.ygg-aide-bouton):not(.wd-touche){
   -webkit-text-stroke:.5px #000;
 }
+
+/* =====================================================================================================================================
+ * MAGIE DU SANG : couleurs d'origine (rouge sang sur noir) dans le style ITOPOD ; la barre du rituel en cours SAIGNE (Norman, 2026-10-06 : « quand une barre est active,
+ * je veux qu'elle saigne comme la goutte dans le menu ») : elle bat comme le cœur du badge du menu, des gouttes pendent sous la barre et tombent.
+ * Le marquage (classe saigne-v1 et gouttes) est posé par la page (meta-progression-v130.js) seulement quand le rituel progresse vraiment.
+ * ===================================================================================================================================== */
+@keyframes sangBatV1{0%,100%{box-shadow:0 0 6px rgba(200,20,50,.55),inset 0 2px 0 rgba(0,0,0,.5)}15%{box-shadow:0 0 18px rgba(255,40,70,.95),inset 0 2px 0 rgba(0,0,0,.5)}30%{box-shadow:0 0 8px rgba(200,20,50,.6),inset 0 2px 0 rgba(0,0,0,.5)}45%{box-shadow:0 0 14px rgba(255,40,70,.85),inset 0 2px 0 rgba(0,0,0,.5)}}
+@keyframes sangGouttesV1{0%{opacity:0;transform:translateY(-4px) scale(.5,.3)}14%{opacity:1;transform:translateY(0) scale(1,1)}55%{opacity:1;transform:translateY(8px) scale(.95,1.15)}100%{opacity:0;transform:translateY(34px) scale(.85,1.35)}}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal-idle-bt-track-v120.saigne-v1{position:relative;overflow:visible!important;margin-bottom:26px!important;background:linear-gradient(180deg,#1b0508,#2c0a10)!important;border-color:#000!important;animation:sangBatV1 1.1s ease-in-out infinite;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal-idle-bt-track-v120.saigne-v1 .soreal-idle-bt-fill-v120{background:linear-gradient(180deg,#e0304a,#9a1226 55%,#5c0a15)!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 0 10px rgba(255,40,70,.7)!important;}
+/* Coulures qui pendent sous la barre, de longueurs et d'épaisseurs variées. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal-idle-bt-track-v120.saigne-v1::after{content:"";position:absolute;left:2px;right:2px;top:100%;height:16px;pointer-events:none;
+  background:
+    radial-gradient(ellipse 4px 11px at 9% 0,#b0152b 96%,transparent),radial-gradient(ellipse 3px 7px at 17% 0,#9a1226 96%,transparent),
+    radial-gradient(ellipse 5px 14px at 31% 0,#c01a30 96%,transparent),radial-gradient(ellipse 3px 9px at 44% 0,#9a1226 96%,transparent),
+    radial-gradient(ellipse 4px 12px at 58% 0,#b0152b 96%,transparent),radial-gradient(ellipse 3px 6px at 69% 0,#9a1226 96%,transparent),
+    radial-gradient(ellipse 5px 10px at 81% 0,#c01a30 96%,transparent),radial-gradient(ellipse 3px 8px at 93% 0,#9a1226 96%,transparent);}
+/* Gouttes qui se détachent et tombent. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .sang-g-v1{position:absolute;top:calc(100% + 6px);width:7px;height:10px;margin-left:-3px;pointer-events:none;z-index:3;opacity:0;
+  background:radial-gradient(circle at 38% 30%,#ff6b7c,#c01a30 55%,#6b0a18);border:1px solid #000;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;box-shadow:0 0 6px rgba(255,40,70,.8);animation:sangGouttesV1 1.7s ease-in infinite;}
+@media (prefers-reduced-motion:reduce){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal-idle-bt-track-v120.saigne-v1{animation:none;}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .sang-g-v1{animation:none;opacity:.9;}}

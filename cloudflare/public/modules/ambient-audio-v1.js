@@ -72,6 +72,11 @@
     return r?r.getAmbiance():0.35;
   }
 
+  /* Annonce la piste qui joue (ou « aucune ») : l'orage visuel (orage-v1.js) s'enclenche quand la piste est celle du tonnerre. */
+  function signaler_(cle,slot){
+    try{window.dispatchEvent(new CustomEvent('soreal-ambiance-v1',{detail:{cle:cle||'',gainNode:slot&&slot.gainNode||null,contexte:ctxAnalyse_||null}}));}catch(_){}
+  }
+
   function chargerListe_(){
     if(cles)return Promise.resolve(cles);
     if(chargementEnCours)return chargementEnCours;
@@ -233,16 +238,19 @@
       slot.gain=gainConnuAvant!=null?gainConnuAvant:1;
       slot.gainNode=relierGainLecture_(audio);
       if(slot.gainNode)slot.gainNode.gain.value=slot.gain;
+      signaler_(cle,slot);
       audio.onended=function(){
         if(slot.audio!==audio)return;
         slot.audio=null;
         slot.cle='';
+        signaler_('',slot);
         planifierSuivant_(slot);
       };
       audio.onerror=function(){
         if(slot.audio!==audio)return;
         slot.audio=null;
         slot.cle='';
+        signaler_('',slot);
         slot.minuterie=setTimeout(function(){slot.minuterie=0;jouerSuivant_(slot);},3000);
       };
       var jouer=audio.play();
@@ -302,6 +310,7 @@
   }
 
   function arreterTout_(){
+    signaler_('',null);
     slots.forEach(function(slot){
       if(slot.minuterie){clearTimeout(slot.minuterie);slot.minuterie=0;}
       if(slot.audio){
