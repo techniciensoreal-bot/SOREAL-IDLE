@@ -8,7 +8,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 
 // 1. Les trois sons sont réellement synthétisés (contexte audio factice qui enregistre ce qui est planifié) et diffèrent
 const enregistre = [];
-class Param { constructor(nom) { this.nom = nom; } setValueAtTime(v, t) { this.dernier = { v, t }; } exponentialRampToValueAtTime(v, t) { this.fin = { v, t }; } }
+class Param { constructor(nom) { this.nom = nom; } setValueAtTime(v, t) { this.dernier = { v, t }; } exponentialRampToValueAtTime(v, t) { this.fin = { v, t }; } linearRampToValueAtTime() {} setTargetAtTime() {} }
 class Osc { constructor() { this.frequency = new Param("f"); this.detune = new Param("d"); this.type = "sine"; } connect() {} start(t) { this.debut = t; } stop() {}
   finalise() { enregistre.push({ type: this.type, from: this.frequency.dernier.v, to: this.frequency.fin ? this.frequency.fin.v : this.frequency.dernier.v, at: Number(this.debut.toFixed(3)) }); } }
 const oscillateurs = [];
@@ -37,8 +37,10 @@ for (const nom of ["btPlus", "btMinus", "btCap"]) {
 assert.equal(new Set(Object.values(signatures)).size, 3, "trois sons différents");
 // sens : + monte, − descend, Cap monte en puissance puis finit haut
 const notes = (nom) => JSON.parse(signatures[nom]);
-assert.ok(notes("btPlus").every((n) => n.to > n.from), "+ : les glissandos montent");
-assert.ok(notes("btMinus").every((n) => n.to < n.from), "− : les glissandos descendent");
+// Norman (2026-10-06) : + = machine qui démarre (le moteur monte en tours), − = machine qui s'arrête (le moteur retombe). Le moteur = les dents de scie et les triangles.
+const moteur = (nom) => notes(nom).filter((n) => n.type === "sawtooth" || n.type === "triangle");
+assert.ok(moteur("btPlus").length >= 2 && moteur("btPlus").every((n) => n.to > n.from * 2), "+ : le moteur monte en tours");
+assert.ok(moteur("btMinus").length >= 2 && moteur("btMinus").every((n) => n.to < n.from / 2), "− : le moteur retombe");
 const cap = notes("btCap");
 assert.ok(cap.some((n) => n.to > n.from * 3) && cap.some((n) => n.from >= 1500 && n.at > 0.2), "Cap : une charge qui monte, puis un « ding » aigu à la fin");
 
