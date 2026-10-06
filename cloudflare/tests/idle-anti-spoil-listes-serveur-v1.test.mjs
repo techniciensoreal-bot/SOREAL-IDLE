@@ -32,6 +32,11 @@ for (const sys of s.systems.filter((x) => !x.state.unlocked)) {
 assert.ok(s.adventure.zones.every((z) => z.unlocked || z.id === s.adventure.selectedZone || z.id === s.adventure.lastCombatZone), "aucune zone fermée");
 assert.ok(s.adventure.titans.every((t) => t.progressionUnlocked || (t.state && t.state.kills > 0)), "aucun titan hors d'atteinte");
 
+/* Succès et portraits : seulement l'obtenu, jamais une condition ni un total. */
+assert.ok(s.achievements.list.every((a) => a.unlocked), "succès : uniquement les obtenus");
+assert.ok(s.portraits.list.every((p) => p.unlocked || p.condition === undefined), "portraits : aucune condition envoyée");
+assert.equal(s.portraits.total, s.portraits.unlockedCount, "portraits : pas de total");
+
 /* Une fois découverts, les systèmes retrouvent leurs listes. */
 for (const id of ["diggers", "yggdrasil", "perks", "quirks", "macguffins", "cards", "ngu"]) neuf.systems[id].unlocked = true;
 const d = idleNguSnapshot(neuf, {}, t0);

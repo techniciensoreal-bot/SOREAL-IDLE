@@ -12,13 +12,16 @@ const vue = (s) => B.idleNguSnapshot(s, ctx, t0).selloutShop.catalog.find((x) =>
 
 let s = B.normalizeIdleNguState({}, ctx, t0);
 assert.equal(s.difficulty || "normal", "normal");
-assert.equal(vue(s).effectActive, false, "Normal : l'achat maléfique n'apparaît pas");
+assert.deepEqual(B.idleNguSnapshot(s, ctx, t0).selloutShop.catalog, [], "boutique pas encore ouverte : aucun catalogue envoyé");
+s.selloutShop.unlockedEver = true;
+assert.equal(vue(s), undefined, "Normal : l'achat maléfique n'est même pas envoyé");
 assert.ok(B.idleNguSnapshot(s, ctx, t0).selloutShop.catalog.filter((x) => x.effectActive === true).length > 10, "les autres achats restent visibles");
 
 s.selloutShop.purchases.extraAccessorySlotEvil = 1;
 assert.equal(vue(s).effectActive, true, "déjà acheté : il reste visible (ce qui est acheté est conservé)");
 
 s = B.normalizeIdleNguState({}, ctx, t0);
+s.selloutShop.unlockedEver = true;
 s.difficulty = "difficile";
 assert.equal(vue(s).effectActive, true, "Maléfique : l'achat apparaît");
 console.log("idle-sellout-difficulte-anti-spoil-v1: OK");

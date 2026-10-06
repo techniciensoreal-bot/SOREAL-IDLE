@@ -40,11 +40,12 @@ assert.equal(prix(agir(frais(), { action: "specialPrize" }).state).choice, "ap")
 // Le choix « chaton » débloque le portrait « Joli chaton » (image R2 idle/Kitty/BadKittyDaycareBow.webp) ; le choix « AP » ne le débloque pas
 {
   const chaton = (s) => idleNguSnapshot(s, ctx, 0).portraits.list.find((p) => p.id === "kitty");
-  assert.equal(chaton(frais()).unlocked, false, "verrouillé au départ");
-  assert.equal(chaton(frais()).file, "BadKittyDaycareBow");
-  assert.equal(chaton(agir(frais(), { action: "specialPrize", choice: "ap" }).state).unlocked, false, "choix AP : pas de chaton");
+  /* Anti-spoil : un portrait verrouillé n'est pas envoyé du tout. */
+  assert.equal(chaton(frais()), undefined, "verrouillé au départ : absent de la réponse");
+  assert.equal(chaton(agir(frais(), { action: "specialPrize", choice: "ap" }).state), undefined, "choix AP : pas de chaton");
   let s = agir(frais(), { action: "specialPrize", choice: "kitty" }).state;
   assert.equal(chaton(s).unlocked, true, "choix chaton : portrait débloqué");
+  assert.equal(chaton(s).file, "BadKittyDaycareBow");
   s = normalizeIdleNguState(JSON.parse(JSON.stringify(s)), ctx, 0);
   s = agir(s, { action: "portrait", id: "kitty" }).state;
   assert.equal(idleNguSnapshot(s, ctx, 0).portraits.selected, "kitty", "sélectionnable");

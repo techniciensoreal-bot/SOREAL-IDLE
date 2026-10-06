@@ -4702,9 +4702,10 @@ function achievementsSnapshotV1(state) {
   return {
     bp: idleAchievementsBpV1(state),
     apMultiplier: idleAchievementsApMultiplierV1(state),
-    list: IDLE_ACHIEVEMENTS_V1.map(a => ({
+    /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : seuls les succès déjà obtenus sont envoyés (ni objectifs à venir, ni secrets, ni total). */
+    list: IDLE_ACHIEVEMENTS_V1.filter(a => unlocked[a.id] !== undefined).map(a => ({
       id: a.id, group: a.group, name: a.name, bp: a.bp, threshold: a.threshold,
-      tracked: a.tracked, secret: a.secret, unlocked: unlocked[a.id] !== undefined
+      tracked: a.tracked, secret: a.secret, unlocked: true
     }))
   };
 }
@@ -5759,7 +5760,8 @@ function construireSnapshotNguV1(state, context, now) {
     selloutShop: {
       purchases: clone(state.selloutShop.purchases),
       unlockedEver: Boolean(state.selloutShop.unlockedEver),
-      catalog: IDLE_SELLOUT_SHOP_CATALOG_V1.map((item) => {
+      /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : pas de catalogue tant que la boutique n'est pas ouverte ; jamais un achat réservé à une difficulté supérieure en Normal (sauf déjà acheté). */
+      catalog: IDLE_SELLOUT_SHOP_CATALOG_V1.filter((item) => state.selloutShop.unlockedEver && !(item.minDifficulty && (state.difficulty || "normal") === "normal" && int(state.selloutShop.purchases[item.id], 0) === 0)).map((item) => {
         const purchased = Math.max(0, int(state.selloutShop.purchases[item.id], 0));
         return {
           id: item.id,
@@ -7906,8 +7908,26 @@ function buyExpShopV1(state, payload) {
   return { item: id, bought, spent, purchased: expShopPurchasedV1(state, id) };
 }
 
+/*
+ * Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : la boutique EXP ne liste que les achats dont le système est découvert (même table que le client,
+ * meta-progression-v130.js IDLE_EXP_SYSTEME_DE_L_ACHAT_V1 : Aventure dès le boss 4, sinon le système doit être débloqué ; fruits Yggdrasil = Yggdrasil).
+ */
+const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1 = Object.freeze({
+  adventurePower: "adventure", adventureToughness: "adventure", adventureHp: "adventure", adventureRegen: "adventure",
+  inventorySpace: "adventure", accessorySlot1: "adventure", accessorySlot2: "adventure", autoMerge: "adventure", sortInventory: "adventure",
+  syncBasicTraining: "adventure", doubleTap: "adventure", tripleTap: "adventure", basicLootFilter: "adventure",
+  loadoutSlots: "adventure", loadoutSlot3: "adventure", boostRecycling: "adventure", inventoryMergeSlot: "adventure",
+  diggerSlot: "diggers", beardSlot: "beards", daycareSlot1: "daycare", daycareSlot2: "daycare", daycareSlot3: "daycare",
+  macguffinSlot1: "macguffins", macguffinSlot2: "macguffins"
+});
+function expShopAchatVisibleV1(state, id, def) {
+  const systeme = def.yggFruit ? "yggdrasil" : IDLE_EXP_SYSTEME_DE_L_ACHAT_V1[id];
+  if (!systeme) return true;
+  if (systeme === "adventure") return num(state.records?.highestBoss, 0) >= 4;
+  return Boolean(state.systems[systeme]?.unlocked) || expShopPurchasedV1(state, id) > 0;
+}
 function expShopSnapshotV1(state) {
-  return Object.entries(IDLE_NGU_EXP_SHOP_V1).filter(([, def]) => !(def.yggFruit && idleYggIsMayoFruitV1(def.yggFruit) && !idleYggFruitUnlockedV1(state, def.yggFruit))).map(([id, def]) => {
+  return Object.entries(IDLE_NGU_EXP_SHOP_V1).filter(([id, def]) => expShopAchatVisibleV1(state, id, def)).filter(([, def]) => !(def.yggFruit && idleYggIsMayoFruitV1(def.yggFruit) && !idleYggFruitUnlockedV1(state, def.yggFruit))).map(([id, def]) => {
     const purchased = expShopPurchasedV1(state, id);
     const entry = { id, name: def.name, gain: def.gain, max: def.max, purchased, nextCost: def.max != null && purchased >= def.max ? null : def.cost(purchased) };
     if (def.variableCost && def.max != null) {

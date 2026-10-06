@@ -57,7 +57,8 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
   assert.equal(idleAchievementsBpV1(s), 230 + 5 + 10 + 100, "Energy Power 10 et 30 + menu NGU");
   const snap = idleNguSnapshot(s, { bosses: 3 }, 4000);
   assert.equal(snap.achievements.bp, 345);
-  assert.equal(snap.achievements.list.length, 153);
+  /* Anti-spoil : seuls les succès obtenus sont envoyés (jamais les 153 du catalogue). */
+  assert.ok(snap.achievements.list.length < 153 && snap.achievements.list.every((a) => a.unlocked), "uniquement les succès obtenus");
   assert.equal(snap.achievements.list.find((a) => a.id === "secretNguMenu").unlocked, true);
 }
 

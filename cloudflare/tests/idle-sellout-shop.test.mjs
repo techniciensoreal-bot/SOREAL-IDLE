@@ -111,10 +111,10 @@ function freshState(ap) {
 // --- Snapshot : chaque entrée expose déjà son prochain coût, le client ne doit jamais le recalculer ---
 {
   const snap = idleNguSnapshot(
-    { version: IDLE_NGU_META_VERSION, saveSchema: IDLE_NGU_SAVE_SCHEMA },
+    { version: IDLE_NGU_META_VERSION, saveSchema: IDLE_NGU_SAVE_SCHEMA, currencies: { ap: 1 } },
     { adventurePower: 100, adventureToughness: 100, bosses: 0 }
   );
-  assert.ok(Array.isArray(snap.selloutShop.catalog) && snap.selloutShop.catalog.length >= 70);
+  assert.ok(Array.isArray(snap.selloutShop.catalog) && snap.selloutShop.catalog.length >= 60);
   const entry = snap.selloutShop.catalog.find((x) => x.id === "energyPotionAlpha");
   assert.equal(entry.nextCost, 5000);
   assert.equal(entry.purchased, 0);

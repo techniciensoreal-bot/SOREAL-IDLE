@@ -159,19 +159,21 @@ export function idlePortraitForEquippedSetV1(setId, tier = 0) {
 export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false, specialPrizeChoice = 0) {
   const selected = idlePortraitSelectedIdV1(selectedId, env);
   const auto = idlePortraitForEquippedSetV1(env.equippedSet, env.equippedSetTier);
-  const list = IDLE_PORTRAITS_V1.map(p => ({
+  /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : la réponse contenait chaque portrait verrouillé avec sa CONDITION et le total. Seuls les portraits obtenus (et le choisi) sont envoyés, sans condition. */
+  const complete = IDLE_PORTRAITS_V1.map(p => ({
     id: p.id,
     file: p.file,
     name: p.name,
     condition: conditionTexteV1(p.unlock),
     unlocked: idlePortraitUnlockedV1(p, env)
   }));
+  const list = complete.filter(p => p.unlocked || p.id === selected).map(p => (p.unlocked ? p : { id: p.id, file: p.file, name: p.name, unlocked: false }));
   return {
     selected,
     selectedFile: idlePortraitByIdV1(selected).file,
     auto: auto ? { id: auto.id, file: auto.file, name: auto.name, set: String(env.equippedSet) } : null,
-    unlockedCount: list.filter(p => p.unlocked).length,
-    total: list.length,
+    unlockedCount: complete.filter(p => p.unlocked).length,
+    total: complete.filter(p => p.unlocked).length,
     list,
     specialPrize: { ap: IDLE_SPECIAL_PRIZE_AP_V1, claimed: Boolean(specialPrizeClaimed), choice: Number(specialPrizeChoice) === 2 ? "kitty" : (specialPrizeClaimed ? "ap" : "") }
   };
