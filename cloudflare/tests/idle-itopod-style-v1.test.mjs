@@ -63,4 +63,7 @@ assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(
 // Téléphone (Norman, 2026-10-06) : « grand espace vide avant les barres, application non centrée, coupée à droite ».
 assert.ok(css.includes(".soreal-idle-page-root-v28>*{box-sizing:border-box;max-width:100%;}"), "page et blocs de premier niveau en border-box : plus de dépassement à droite");
 assert.ok(css.includes("Entraînement va droit aux barres") && css.includes("white-space:nowrap") && css.includes(".soreal-idle-bt-presets-v120 button{min-height:34px!important"), "Entraînement compact sur téléphone : titre sur une ligne, outils resserrés");
+// Téléphone : allègement du dessin (zones de page qui disparaissent par moments sur Chrome mobile).
+const allege = css.slice(css.indexOf("allègement du dessin"));
+assert.ok(allege.includes("@media (max-width:700px)") && allege.includes("animation:none!important;box-shadow:none!important;") && allege.includes("filter:none!important;") && allege.includes("linear-gradient(180deg,var(--i-bg1),var(--i-bg2) 70%,#0b0814)"), "mobile : torches fixes, bandeaux sans filtre, fond de page sans rayures ni halo flou");
 console.log("idle-itopod-style-v1: OK");
