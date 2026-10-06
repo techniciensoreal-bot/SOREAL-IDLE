@@ -20,6 +20,26 @@ console.log("idle-blood-magic-compteur-rituel-v1: OK");
   assert.ok(rec.includes("window.__bloodFigeV1=null;"), "repart quand on remet de la Magic");
   assert.ok(page.includes("figee&&figee.ritual===def.id?figee.pct:0"), "un redessin garde la barre au point figé");
 }
+// Norman (2026-10-06) : « quand je retire toute l'énergie d'une barre de Blood Magic, même si la barre est entamée, elle ne doit plus saigner » : sans Magic la barre se fige ET ne saigne plus ; elle saigne de nouveau avec de la Magic.
+{
+  const i = meta.indexOf("      function saignerPisteIdleV1_(barre,oui){");
+  const fn = meta.slice(i, meta.indexOf("      function ajusterBloodMagicIdleV1_(mode){"));
+  const gouttesHtml = meta.slice(meta.indexOf("const SANG_GOUTTES_HTML_V1='") + 28, meta.indexOf("';", meta.indexOf("const SANG_GOUTTES_HTML_V1='")));
+  assert.equal(gouttesHtml.split("sang-g-v1").length - 1, 6, "six gouttes");
+  const saigner = new Function("SANG_GOUTTES_HTML_V1", fn + "; return saignerPisteIdleV1_;");
+  const classes = new Set(["soreal-idle-bt-track-v120", "saigne-v1"]);
+  let gouttes = [{ parentNode: null }, { parentNode: null }];
+  const piste = { classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c) }, querySelectorAll: () => gouttes, removeChild: (g) => { gouttes = gouttes.filter((x) => x !== g); } };
+  gouttes.forEach((g) => { g.parentNode = piste; });
+  const barre = { parentNode: piste, insertAdjacentHTML: (_pos, html) => { gouttes = new Array(html.split("sang-g-v1").length - 1).fill(0).map(() => ({ parentNode: piste })); } };
+  const f = saigner(gouttesHtml);
+  f(barre, false);
+  assert.ok(!classes.has("saigne-v1") && gouttes.length === 0, "plus de Magic : la piste ne saigne plus (classe et gouttes retirées)");
+  f(barre, true);
+  assert.ok(classes.has("saigne-v1") && gouttes.length === 6, "Magic remise : la piste saigne de nouveau (classe et six gouttes)");
+  assert.ok(rec_ok(meta), "la bascule est branchée dans le recalcul local");
+  function rec_ok(m) { const r = m.slice(m.indexOf("      function recalculerBloodLocalIdleV1_(j,alloc){"), m.indexOf("      function saignerPisteIdleV1_")); return r.includes("saignerPisteIdleV1_(barreRituel,true)") && r.includes("saignerPisteIdleV1_(barreRituel,false)"); }
+}
 console.log("idle-blood-magic-barre-figee-v1: OK");
 
 // Magie libre (Norman, 2026-10-05) : le compteur se met à jour au clic, comme la Magie allouée.

@@ -2774,7 +2774,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const barreRituel=document.querySelector('[data-idle-blood-bar-v1="'+vue.activeRitual+'"]');
         if(nouveau.seconds>0){
           window.__bloodFigeV1=null;
+          saignerPisteIdleV1_(barreRituel,true);
         }else{
+          saignerPisteIdleV1_(barreRituel,false);
           const pct=nouveau.progress;
           window.__bloodFigeV1={ritual:vue.activeRitual,pct:pct};
           if(barreRituel){
@@ -2789,6 +2791,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           ligne.textContent=nouveau.seconds>0
             ?'⏱ '+formatDureeAugmentIdleV1_(vue.etaSeconds)+' avant le prochain rituel complété'
             :'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.';
+        }
+      }
+
+      /* Les gouttes de la barre qui saigne (même balisage au rendu et à la mise à jour en direct). */
+      const SANG_GOUTTES_HTML_V1='<span class="sang-g-v1" style="left:9%;animation-delay:-.1s"></span><span class="sang-g-v1" style="left:24%;animation-delay:-.9s;animation-duration:1.9s"></span><span class="sang-g-v1" style="left:41%;animation-delay:-.5s"></span><span class="sang-g-v1" style="left:57%;animation-delay:-1.3s;animation-duration:2.1s"></span><span class="sang-g-v1" style="left:73%;animation-delay:-.3s;animation-duration:1.7s"></span><span class="sang-g-v1" style="left:90%;animation-delay:-1.1s"></span>';
+      /* Norman (2026-10-06) : « quand je retire toute l'énergie d'une barre de Blood Magic, même si la barre est entamée, elle ne doit plus saigner » : la barre se fige ET cesse de saigner ; elle saigne de nouveau dès qu'on remet de la Magic. */
+      function saignerPisteIdleV1_(barre,oui){
+        const piste=barre&&barre.parentNode;
+        if(!piste||!piste.classList)return;
+        const gouttes=piste.querySelectorAll('.sang-g-v1');
+        if(oui){
+          piste.classList.add('saigne-v1');
+          if(!gouttes.length)barre.insertAdjacentHTML('afterend',SANG_GOUTTES_HTML_V1);
+        }else{
+          piste.classList.remove('saigne-v1');
+          for(let i=0;i<gouttes.length;i++)gouttes[i].parentNode.removeChild(gouttes[i]);
         }
       }
 
@@ -3067,7 +3085,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
            * (rouge sang) pour rester dans le thème de la page.
            */
           const barre=active
-            ?'<div class="soreal-idle-bt-track-v120'+(progressionActive?' saigne-v1':'')+'"><div data-idle-blood-bar-v1="'+idHtml+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;background:#9a2138;transition:none"></div>'+(progressionActive?'<span class="sang-g-v1" style="left:9%;animation-delay:-.1s"></span><span class="sang-g-v1" style="left:24%;animation-delay:-.9s;animation-duration:1.9s"></span><span class="sang-g-v1" style="left:41%;animation-delay:-.5s"></span><span class="sang-g-v1" style="left:57%;animation-delay:-1.3s;animation-duration:2.1s"></span><span class="sang-g-v1" style="left:73%;animation-delay:-.3s;animation-duration:1.7s"></span><span class="sang-g-v1" style="left:90%;animation-delay:-1.1s"></span>':'')+'</div>'
+            ?'<div class="soreal-idle-bt-track-v120'+(progressionActive?' saigne-v1':'')+'"><div data-idle-blood-bar-v1="'+idHtml+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;background:#9a2138;transition:none"></div>'+(progressionActive?SANG_GOUTTES_HTML_V1:'')+'</div>'
             :'';
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="soreal-idle-section-v8" data-rang-v1="'+rangRituel+'" style="margin:0;opacity:'+(unlocked?'1':'.55')+'">'+
             '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
