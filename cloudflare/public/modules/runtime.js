@@ -91,7 +91,7 @@ resolve(joueur);
   function onRender_(fn){
     if(typeof fn!=='function')return function(){};
     renderSubscribers.add(fn);
-    setTimeout(function(){try{fn();}catch(e){}},0);
+    setTimeout(function(){try{fn();}catch(e){var D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.signaler)D.signaler('runtime_differe',e);}},0);
     return function(){renderSubscribers.delete(fn);};
   }
 

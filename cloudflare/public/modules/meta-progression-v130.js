@@ -2020,8 +2020,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           H.rafraichirMenuRacineIdleV28_();
           return;
         }
-        try{pageAugmentationsIdleV48_(j);}catch(_e){}
-        try{if(j.systemes&&j.systemes.bloodMagicView)pageBloodMagicIdleV48_(j);}catch(_e){}
+        var signalerPageIdleV1_=function(cle,e){var D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.signaler)D.signaler(cle,e);};
+        try{pageAugmentationsIdleV48_(j);}catch(e){signalerPageIdleV1_('page_augments',e);}
+        try{if(j.systemes&&j.systemes.bloodMagicView)pageBloodMagicIdleV48_(j);}catch(e){signalerPageIdleV1_('page_blood',e);}
         if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j);
       }
 

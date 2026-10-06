@@ -163,6 +163,8 @@
     texte:texte_,
     ouvrir:ouvrir_,
     vider:function(){journal=[];dernierParCle={};sauver_();},
+    /* Une erreur avalée par un try/catch de la logique de jeu : notée sans bruit pour le joueur (une ligne par clé toutes les 5 s). */
+    signaler:function(cle,e){try{noter_('erreur_avalee',String(cle||'?'),{msg:String(e&&e.message||e).slice(0,120)});}catch(_e){}},
     /* Pour les tests : entre dans l'échantillonnage sans minuteur. */
     echantillon:echantillon_
   };

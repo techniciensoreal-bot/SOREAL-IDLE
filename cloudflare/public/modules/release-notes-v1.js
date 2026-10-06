@@ -23,7 +23,10 @@
           'Plusieurs textes d’aide, les notes de mise à jour et deux listes ne nomment plus de système que tu n’as pas encore débloqué.',
           'La récompense de connexion du jour est donnée dès que tu te connectes, avec une annonce : jours consécutifs et AP récupérés.',
           'Plusieurs menus qui restaient figés se mettent maintenant à jour en direct (toutes les 4 secondes) au lieu d’attendre ta prochaine visite.',
-          'La fenêtre qui annonce un système débloqué dit maintenant où le retrouver.'
+          'La fenêtre qui annonce un système débloqué dit maintenant où le retrouver.',
+          'Ce que le serveur envoie ne contient plus que ce que tu as déjà découvert : plus de listes complètes ni de noms de systèmes que tu n’as pas encore débloqués (vérifié avec un joueur neuf).',
+          'Sur téléphone, les boutons + et − des listes sont plus grands et plus faciles à toucher.',
+          'Quand un écran rencontre une erreur discrète, elle est maintenant notée dans le journal de fluidité au lieu d’être perdue, pour être corrigée plus vite.'
         ]
       },
       {

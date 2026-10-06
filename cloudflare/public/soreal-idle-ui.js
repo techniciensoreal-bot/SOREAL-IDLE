@@ -4653,15 +4653,15 @@
             }
             /* Augmentations : la réponse du serveur devient directement le nouveau repère des barres, que la synchro passe par le chemin du combat ou non (aucun redessin, donc aucun retour en arrière visible). */
             if(idleMenuActifV28==='augmentations'&&idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
-              try{window.__adopterRepereAugmentsIdleV1__(idleEtat);}catch(_e){}
+              try{window.__adopterRepereAugmentsIdleV1__(idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('repere_augments',e);}
             }
             /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
             if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!champSaisieActifIdleV1_()){
-              try{rafraichirMenuRacineIdleV28_();}catch(_e){}
+              try{rafraichirMenuRacineIdleV28_();}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('synchro_menu_vivant',e);}
             }
             /* ITOPOD : seuls les chiffres sont mis à jour (la scène animée et les champs d'étage ne sont jamais redessinés). */
             if(idleMenuActifV28==='tower'&&idleEtat&&typeof window.__rafraichirItopodIdleV1__==='function'){
-              try{window.__rafraichirItopodIdleV1__(idleEtat);}catch(_e){}
+              try{window.__rafraichirItopodIdleV1__(idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('itopod_chiffres',e);}
             }
 
             if(
@@ -15277,7 +15277,7 @@
           if(idleNukeEnCoursV1||j.combatBossActif||j.bossBloqueRenaissance)return;
           idleAutoNukeDernierV1=maintenant;
           nukerBossIdleV1_();
-        }catch(e){}
+        }catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('auto_nuke',e);}
       },1000);
 
 

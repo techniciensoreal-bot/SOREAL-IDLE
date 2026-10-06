@@ -86,6 +86,15 @@ maintenant += 20000; ecran.niv = 9; ecran.eta = "⏳ Barre pleine : il manque 1,
 for (let i = 0; i < 20; i += 1) pas(200);
 assert.equal(D.journal().filter((e) => e.type === "pause_validation").length, 1, "attente d'Or : pas une pause à signaler");
 
+// Erreur avalée par un try/catch de la logique de jeu : notée une fois par clé, sans bruit.
+D.signaler("page_augments", new Error("boum"));
+D.signaler("page_augments", new Error("boum"));
+D.signaler("auto_nuke", "texte");
+{
+  const avalees = D.journal().filter((e) => e.type === "erreur_avalee");
+  assert.equal(avalees.length, 2, "une ligne par clé (la répétition immédiate est ignorée)");
+  assert.equal(avalees.find((e) => e.cle === "page_augments").msg, "boum");
+}
 // Journal : texte lisible, enregistré sur l'appareil, jamais plus de 80 lignes.
 assert.ok(D.texte().startsWith("Journal de fluidité — "));
 assert.ok(JSON.parse(stockage["soreal_idle_diag_v1"]).length >= 4);

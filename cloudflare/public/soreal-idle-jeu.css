@@ -232,3 +232,6 @@ body.soreal-idle-active-v47 .pk-comptoir .pk-recherche{flex:1 1 180px;min-width:
 .itp-vues{display:flex;justify-content:center;margin:0 0 10px}
 .itp-bouton-atouts{min-width:220px}
 .itp-vue-atouts[hidden],.itp-page[hidden]{display:none!important}
+
+/* Mobile : les boutons + / − des listes (mineurs, etc.) font au moins 40 px de large et de haut (cible tactile). */
+@media (max-width:480px){body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-expand-button-v25{min-width:40px;min-height:40px}}

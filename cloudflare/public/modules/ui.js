@@ -106,7 +106,7 @@
     }
     var liste=callbacks.splice(0,callbacks.length);
     liste.forEach(function(cb){
-      try{cb(joueur||null);}catch(e){}
+      try{cb(joueur||null);}catch(e){var D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.signaler)D.signaler('abonne_joueur',e);}
     });
   }
 
