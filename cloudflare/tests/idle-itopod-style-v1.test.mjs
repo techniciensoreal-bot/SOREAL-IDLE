@@ -66,4 +66,8 @@ assert.ok(css.includes("Entraînement va droit aux barres") && css.includes("whi
 // Téléphone : allègement du dessin (zones de page qui disparaissent par moments sur Chrome mobile).
 const allege = css.slice(css.indexOf("allègement du dessin"));
 assert.ok(allege.includes("@media (max-width:700px)") && allege.includes("animation:none!important;box-shadow:none!important;") && allege.includes("filter:none!important;") && allege.includes("linear-gradient(180deg,var(--i-bg1),var(--i-bg2) 70%,#0b0814)"), "mobile : torches fixes, bandeaux sans filtre, fond de page sans rayures ni halo flou");
+// Combat de boss sur téléphone : barres de vie pleine largeur l'une sous l'autre (chiffres lisibles), écran de la borne pleine largeur.
+const tel = css.slice(css.indexOf("Combat de boss sur téléphone (Norman"));
+assert.ok(tel.includes(".soreal-idle-duel-fighter-v42{display:contents!important;}") && tel.includes("grid-column:1/-1!important") && tel.includes("grid-row:1;") && tel.includes("grid-row:2;"), "phone : les deux barres de vie sur toute la largeur, l'une sous l'autre");
+assert.ok(tel.includes("grid-row:3;") && tel.includes("grid-row:4;"), "phone : noms puis portraits côte à côte sous les barres");
 console.log("idle-itopod-style-v1: OK");

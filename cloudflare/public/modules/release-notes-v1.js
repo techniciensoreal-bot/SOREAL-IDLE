@@ -33,7 +33,7 @@
           'L’application reprend peu à peu un nouveau style, adapté à chaque menu : couleurs propres à chacun, cadres sombres, textes façon bande dessinée.',
           'Les barres de puissance changent d’aspect à chaque palier (fond de plus en plus sombre, reflets, lueur, flammes) et celles du sang saignent quand elles sont actives.',
           'Dans l’entraînement, les titres sont des bandeaux de combat : lumières éteintes sans énergie, allumées comme un néon quand on en met, avec parfois un grésillement ; + et − font un clic de clavier.',
-          'La page du combat de boss devient une borne d’arcade : un grand écran où les deux combattants se font face, un joystick, six boutons, et un coup de poing différent, tiré au hasard, à chaque clic sur Fight.'
+          'La page du combat de boss devient une borne d’arcade : un grand écran où les deux combattants se font face, un joystick et six boutons.'
         ]
       },
       {

@@ -417,3 +417,25 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] :is(.soreal-idle-vs-v41,button.soreal-idle-boss-control-v39.start,.soreal-idle-duel-v41::before,.soreal-idle-duel-versus-row-v42::after){animation:none!important;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35::before{display:none!important;}
 }
+
+/* Combat de boss sur téléphone (Norman, 2026-10-06 : « les barres de vie sont trop petites, on n'arrive pas à lire les chiffres ; l'écran de la borne doit prendre tout l'écran ; pense l'application pour téléphone »).
+ * Les deux barres de vie passent sur toute la largeur de l'écran, l'une sous l'autre (chiffres grands) ; les noms et les portraits restent côte à côte dessous ; marges réduites au minimum. */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{padding:8px 3px 12px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35{padding:38px 3px 14px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41{padding:44px 8px 12px!important;border-radius:20px 20px 6px 6px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41::before{left:22px;right:22px;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:6px!important;row-gap:8px!important;padding:10px 6px 10px!important;border-width:6px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42{display:contents!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41{grid-column:1/-1!important;margin:0 4px!important;padding:6px 14px 8px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:first-child .soreal-idle-duel-hp-v41{grid-row:1;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-duel-hp-v41{grid-row:2;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{font-size:1em!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:first-child .soreal-idle-duel-nameplate-v65{grid-column:1;grid-row:3;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-duel-nameplate-v65{grid-column:2;grid-row:3;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:first-child .soreal-idle-duel-portrait-v41{grid-column:1;grid-row:4;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-duel-portrait-v41{grid-column:2;grid-row:4;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:first-child .soreal-idle-dialogue-v76{grid-column:1;grid-row:5;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-dialogue-v76{grid-column:2;grid-row:5;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42>.soreal-idle-vs-v41{top:auto!important;bottom:20%;transform:translate(-50%,0) skewX(-10deg);}
+}
