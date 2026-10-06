@@ -40,7 +40,9 @@
     var fond='<span class="ygg-secours">'+html_(secours)+'</span>';
     if(etat.manquantes[nom])return fond;
     /* Image déjà chargée pendant la visite : plus de dessin de secours (pas de clignotement au rafraîchissement des chiffres). */
-    return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="/api/idle/media/ygg?name='+encodeURIComponent(nom)+'" alt="" loading="lazy" draggable="false" '+
+    /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
+    var src=nom==='poop'?'/shop/fertilizer.png':'/api/idle/media/ygg?name='+encodeURIComponent(nom);
+    return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="'+src+'" alt="" loading="lazy" draggable="false" '+
       'onload="window.__SOREAL_IDLE_YGG_V1__.imageChargee(\''+html_(nom)+'\',this)" onerror="window.__SOREAL_IDLE_YGG_V1__.imageManquante(\''+html_(nom)+'\',this)">';
   }
 
@@ -211,7 +213,7 @@
     var poopFacteur=String(Math.round((nb_(d.x.poopFactor)||1.5)*100)/100).replace('.',',');
     return '<div class="ygg-page"><div class="ygg-cadre">'+
       '<div class="ygg-entete"><button type="button" class="ygg-aide-bouton" onclick="window.__SOREAL_IDLE_YGG_V1__.aide()">Que faire ici ?</button>'+
-        '<div class="ygg-titre"><b>Yggdrasil, l’Arbre-Monde</b><small>(et pourtant tu le fertilises avec de la poop)</small></div></div>'+
+        '<div class="ygg-titre"><b>Yggdrasil, l’Arbre-Monde</b><small>(et pourtant tu le fertilises avec du caca)</small></div></div>'+
       '<div class="ygg-aide'+(etat.aide?' ouvert':'')+'">Chaque tier donne une heure de croissance de plus. <b>Active</b> un fruit, laisse-le pousser, puis <b>mange-le</b> pour son effet ou <b>récolte-le</b> pour doubler les graines. Les graines servent à <b>améliorer</b> les fruits. Une poop (+50 % avant arrondi) s’utilise sur le prochain fruit mangé ou récolté.</div>'+
       onglets+
       '<div class="ygg-grille">'+cartes+'</div>'+
