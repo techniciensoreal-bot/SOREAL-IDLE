@@ -183,6 +183,8 @@
     clearTimeout(minuteurHasard);minuteurHasard=0;
     arreterAnalyse_();
     if(racine)racine.classList.remove('actif');
+    /* Après le fondu de sortie, le décor (et sa pluie animée) est retiré de la page : plus aucun coût tant qu'il n'y a pas d'orage. */
+    setTimeout(function(){if(!actif&&racine&&racine.parentNode){racine.parentNode.removeChild(racine);racine=null;flash=null;eclairSvg=null;}},2700);
   }
 
   /* L'orage ne se montre que si on ENTEND le tonnerre : piste d'orage en cours ET volume d'ambiance au-dessus de zéro (case cochée). */

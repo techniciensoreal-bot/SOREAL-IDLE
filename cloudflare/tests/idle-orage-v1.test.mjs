@@ -13,7 +13,7 @@ const ambiant = readFileSync("cloudflare/public/modules/ambient-audio-v1.js", "u
 const ecouteurs = {};
 const changements = [];
 const faux = () => {
-  const el = { style: { setProperty() {} }, classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } }, innerHTML: "", children: [], setAttribute() {}, appendChild(c) { this.children.push(c); c.parentNode = this; }, querySelector(sel) { return el._q[sel] || (el._q[sel] = faux()); }, _q: {}, parentNode: null };
+  const el = { style: { setProperty() {} }, classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } }, innerHTML: "", children: [], setAttribute() {}, appendChild(c) { this.children.push(c); c.parentNode = this; }, removeChild(c) { this.children = this.children.filter((x) => x !== c); c.parentNode = null; }, querySelector(sel) { return el._q[sel] || (el._q[sel] = faux()); }, _q: {}, parentNode: null };
   return el;
 };
 const corps = faux();
@@ -104,6 +104,7 @@ assert.ok(src.includes("if(!(v>0))return false;"), "volume d'ambiance à 0 : auc
 
 // Précautions pour les yeux et les clics.
 assert.ok(src.includes("pointer-events:none"), "n'intercepte aucun clic");
+assert.ok(src.includes("removeChild(racine)"), "le décor est retiré après le fondu de sortie");
 assert.ok(src.includes("ESPACE_MIN_MS=5000") && src.includes("Math.floor(Math.random()*3)"), "espacement et au plus trois éclats");
 assert.ok(src.includes("prefers-reduced-motion"), "respecte la préférence de mouvement réduit");
 assert.ok(src.includes("createAnalyser") && src.includes("hasard_()"), "éclairs calés sur la piste, sinon au hasard");
