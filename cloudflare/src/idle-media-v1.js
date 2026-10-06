@@ -1318,6 +1318,53 @@ async function titanImage_(request,env,url){
   return new Response("Image de titan introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
 }
 
+/*
+ * Yggdrasil (page des fruits) : icones deposees par Norman dans R2, dossier idle/yggdrasil/ (ou idle/ygg/). Aucun nom de fichier impose : la cle est
+ * trouvee en comparant des noms normalises (minuscules, sans tiret ni souligne, alpha/beta/delta pour les lettres grecques), par exemple
+ * Fruit_of_Gold.png, fruit-of-gold.webp ou gold.png pour le fruit "gold". Image absente = 404 (la page garde son dessin de secours).
+ */
+const IDLE_YGG_ALIAS_V1={
+  gold:["fruitofgold"],poweralpha:["fruitofpoweralpha","fruitofpowera"],adventure:["fruitofadventure"],knowledge:["fruitofknowledge"],pomegranate:[],
+  luck:["fruitofluck"],powerbeta:["fruitofpowerbeta","fruitofpowerb"],arbitrariness:["fruitofarbitrariness"],numbers:["fruitofnumbers"],rage:["fruitofrage"],
+  macguffinalpha:["fruitofmacguffinalpha"],powerdelta:["fruitofpowerdelta","fruitofpowerd"],watermelon:[],macguffinbeta:["fruitofmacguffinbeta"],quirks:["fruitofquirks"],
+  seed:["seeds","graine","graines"],poop:["caca","fertilizer"]
+};
+function normaliserNomYggR2_(texte){
+  return String(texte||"").toLowerCase().replace(/\.[a-z0-9]+$/,"").replace(/\u03b1/g,"alpha").replace(/\u03b2/g,"beta").replace(/\u03b4/g,"delta").replace(/[^a-z0-9]/g,"");
+}
+export function choisirCleYggR2_(keys,name){
+  const id=normaliserNomYggR2_(name);
+  if(!id)return "";
+  const voulus=[id].concat(IDLE_YGG_ALIAS_V1[id]||[]);
+  const images=(Array.isArray(keys)?keys:[]).filter(k=>/\.(webp|png|jpe?g)$/i.test(String(k)));
+  for(const v of voulus){
+    const trouve=images.find(k=>normaliserNomYggR2_(String(k).split("/").pop())===v);
+    if(trouve)return trouve;
+  }
+  return "";
+}
+let yggCleCache_={at:0,keys:[]};
+async function yggImage_(request,env,url){
+  const nom=String(url.searchParams.get("name")||"").trim();
+  if(!/^[A-Za-z0-9_.-]{1,80}$/.test(nom)||nom.includes("..")){
+    return new Response("Image Yggdrasil invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"){
+    return new Response("Media Yggdrasil indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  if(Date.now()-yggCleCache_.at>60000){
+    let keys=[];
+    for(const prefix of ["idle/yggdrasil/","idle/Yggdrasil/","idle/ygg/"]){
+      const listed=await env.SOREAL_R2.list({prefix,limit:1000});
+      if(listed&&Array.isArray(listed.objects))keys=keys.concat(listed.objects.map(o=>o.key));
+    }
+    yggCleCache_={at:Date.now(),keys};
+  }
+  const key=choisirCleYggR2_(yggCleCache_.keys,nom);
+  if(!key)return new Response("Image Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  return reponseObjetR2_(request,env,{key});
+}
+
 async function bannerImage_(request,env,url){
   const nom=String(url.searchParams.get("name")||"").trim();
   if(!/^[A-Za-z0-9_.-]{1,120}$/.test(nom)||nom.includes("..")){
@@ -1379,6 +1426,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/titan",
     "/api/idle/media/player",
     "/api/idle/media/banner",
+    "/api/idle/media/ygg",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
     "/api/idle/media/story",
@@ -1405,6 +1453,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/titan")return titanImage_(request,env,url);
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/ygg")return yggImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);
   if(url.pathname==="/api/idle/media/voice")return voixHistoire_(request,env,url);

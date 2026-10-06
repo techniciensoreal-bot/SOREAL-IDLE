@@ -68,6 +68,8 @@ const LISTE_BLANCHE = [
   { fichier: "meta-progression-v130.js", contient: "' / '+H.idleEntier_(it.max)", raison: "plafond d'achat d'un article de boutique déjà affiché" },
   /* Barre d'Énergie allouée : « courant / capacité » d'une ressource que le joueur possède. */
   { fichier: "ui.js", contient: "' / '+formatNombre_(max)", raison: "capacité de la barre d'énergie du joueur" },
+  /* Page des fruits : « tier / tier max » d'un fruit déjà débloqué (plafond d'amélioration de ce fruit, aussi écrit dans la note de la page), pas un total caché. */
+  { fichier: "yggdrasil-elfes-v1.js", contient: "'/'+d.maxTier", raison: "tier / tier maximum d'un fruit déjà découvert" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
   { fichier: "textes-admin-v1.js", contient: "'/'+s.total", raison: "éditeur de textes réservé à l'administrateur (blocs de voix prêts), jamais montré à un joueur" }

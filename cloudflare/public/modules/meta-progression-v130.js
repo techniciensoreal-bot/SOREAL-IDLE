@@ -4116,6 +4116,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='timeMachine')return pageTimeMachineIdleV48_(j);
         if(id==='advancedTraining')return pageAdvancedTrainingIdleV1_(j);
         if(id==='bloodMagic')return pageBloodMagicIdleV48_(j);
+        /* Yggdrasil : page « elfique » rendue par modules/yggdrasil-elfes-v1.js (2026-10-06) ; l'ancienne liste reste en secours. */
+        if(id==='yggdrasil'&&window.__SOREAL_IDLE_YGG_V1__){const py=window.__SOREAL_IDLE_YGG_V1__.page(j);if(py)return py;}
         if(id==='yggdrasil')return pageYggdrasilIdleV47_(j);
         if(id==='diggers')return pageDiggersIdleV47_(j);
         if(id==='tower')return pageItopodIdleV1_(j);

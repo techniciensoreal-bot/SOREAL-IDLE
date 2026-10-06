@@ -27,7 +27,8 @@
           'Ce que le serveur envoie ne contient plus que ce que tu as déjà découvert : plus de listes complètes ni de noms de systèmes que tu n’as pas encore débloqués (vérifié avec un joueur neuf).',
           'Sur téléphone, les boutons + et − des listes sont plus grands et plus faciles à toucher.',
           'Quand un écran rencontre une erreur discrète, elle est maintenant notée dans le journal de fluidité au lieu d’être perdue, pour être corrigée plus vite.',
-          'Une page a été entièrement refaite dans un style d’ordinateur des années 80 : écran vert qui change de couleur d’un bouton, barres à l’ancienne et un clavier dont les touches claquent.'
+          'Une page a été entièrement refaite dans un style d’ordinateur des années 80 : écran vert qui change de couleur d’un bouton, barres à l’ancienne et un clavier dont les touches claquent.',
+          'Une autre page a été entièrement refaite façon elfes : neuf éléments par page, chacun avec son image, des cadres de pierre et de feuillage et de nouveaux boutons.'
         ]
       },
       {
