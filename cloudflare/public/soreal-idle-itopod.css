@@ -90,3 +90,33 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]::after{right:-8px!important;left:auto!important;animation-delay:-1.1s!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-window-title-v31::before{content:"◆ ";color:var(--i-a);text-shadow:0 1px 0 #000;font-size:.8em;vertical-align:.1em;}
 @media (prefers-reduced-motion:reduce){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]::after{animation:none!important;}}
+
+/* =====================================================================================================================================
+ * ÉCRITURES « BD » (Norman, 2026-10-06) : Bangers pour les titres, boutons et chiffres en gros (lettres capitales de bande dessinée, contour noir et ombre décalée),
+ * Comic Neue pour tous les textes. Polices chargées par index.html (Google Fonts) ; repli : polices comiques du système puis cursive.
+ * Exceptions voulues : l'écran de l'ordinateur rétro (Courier) et ses touches.
+ * ===================================================================================================================================== */
+html body.soreal-idle-active-v47.soreal-idle-active-v47{--f-titre:"Bangers","Comic Sans MS","Chalkboard SE","Comic Neue",cursive;--f-texte:"Comic Neue","Comic Sans MS","Chalkboard SE","Segoe Print",cursive,sans-serif;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 *:where(:not(.wd-ecran):not(.wd-ecran *):not(.wd-touche):not(.wd-touche *):not(svg *):not(code):not(pre)){font-family:var(--f-texte)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(
+  .soreal-idle-page-title-v28,.soreal-idle-window-title-v31,.soreal-idle-nav-texte-v2 b,.soreal-idle-nav-texte-v2 strong,.soreal-idle-summary-v28 b,.soreal-idle-summary-v28 strong,
+  .soreal-idle-energy-head-v34 strong,.soreal-idle-expand-button-v25,.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,
+  .pk-acheter,.pk-nom,.soreal-idle-exp-buy-v210,.soreal-idle-rebirth-button-v14,.soreal-idle-boss-control-v39,.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1,
+  .itp-titre,.itp-nom-texte,.itp-etage,.itp-etage b,.itp-etage small,.ygg-titre b,.ygg-nom,.ygg-btn,.ygg-onglet,.ygg-aide-bouton,.ygg-monnaie,.soreal-idle-tm-titre-v1,.dfi-nom,.ttn-nom,
+  .soreal-idle-duel-name-text-v65,.soreal-idle-duel-role-v65,.idle-succes-tuile-v1 b,.sic-titre,.soreal-idle-blood-titre-v1,.soreal-idle-rebirth-title-v14,h1,h2,h3
+):not(.wd-touche){
+  font-family:var(--f-titre)!important;letter-spacing:.05em!important;font-weight:400!important;-webkit-text-stroke:1px #000;paint-order:stroke fill;text-shadow:0 2px 0 #000,0 0 10px var(--i-glow,rgba(0,0,0,.4))!important;
+}
+/* Les titres en capitales de BD : un peu plus grands (Bangers est plus étroit et plus bas que les polices de texte). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-page-title-v28{font-size:1.5em!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-expand-button-v25{font-size:1.08em!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4{font-size:1.04em;}
+/* Petites étiquettes (pastilles du haut, en-têtes de barres) : lettres de BD sans contour, plus lisibles à petite taille. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-summary-v28,.soreal-idle-energy-head-v34>:first-child,.soreal-idle-bt-name-v120,.pk-niveau,.soreal-idle-exp-titre-v1,.soreal-idle-exp-prix-ligne-v1 b,.si-hp-cur-v1,.soreal-idle-hp-cur-v1){
+  font-family:var(--f-titre)!important;letter-spacing:.07em!important;font-weight:400!important;text-shadow:1px 1px 0 #000!important;
+}
+/* Boutons et onglets : contour plus fin pour que les petites lettres restent nettes. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(button,.soreal-idle-expand-button-v25,.pk-acheter,.soreal-idle-exp-buy-v210,.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1,.ygg-btn,.ygg-onglet,.ygg-aide-bouton):not(.wd-touche){
+  -webkit-text-stroke:.5px #000;
+}
