@@ -38,4 +38,20 @@ const mixes = [0, 1, 2, 3, 4].map(part);
 assert.deepEqual(mixes, mixes.slice().sort((a, b) => b - a), "le fond s'assombrit à chaque rang : " + mixes.join(' > '));
 for (const fragment of ["rgSheenV1", "rgBatV1", "rgFeuV1", "repeating-linear-gradient(135deg,rgba(0,0,0,.30)", "clip-path:polygon(0 0,16px 8px"]) assert.ok(css.includes(fragment), "effet de montée en puissance : " + fragment);
 assert.ok(css.includes(".soreal-idle-bt-panel-v120.attack .soreal-idle-bt-panel-head-v120::before") && css.includes("viewBox='0 0 64 64'"), "emblèmes d'épées et de bouclier dans les titres");
+// Combat de boss : l'arène d'arcade (Norman, 2026-10-06 : « refais la page Fight Boss » ; pas de style BD -> jeu de combat d'arcade).
+const arene = css.slice(css.indexOf("COMBAT DE BOSS : l'ARÈNE D'ARCADE"));
+assert.ok(arene.length > 4000, "bloc de l'arène d'arcade présent");
+for (const fragment of [
+  "arcadeFightV1", "arcadeVsV1", "arcadeBalayageV1",                              /* FIGHT qui pulse, VS qui bat, balayage de tube cathodique */
+  "perspective(260px) rotateX(62deg)",                                             /* sol quadrillé en perspective */
+  "transform:skewX(-12deg)",                                                       /* barres de vie inclinées face à face */
+  ".soreal-idle-bossbar-wrap-v7{transform:scaleX(-1);}",                           /* la barre du boss se vide vers le centre */
+  "repeating-linear-gradient(45deg,#ffd21e 0 11px,#17140c 11px 22px)",            /* NUKE : hachures de danger */
+  "grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)",            /* FUITE | FIGHT | NUKE */
+  ".soreal-idle-boss-respawn-v100:empty{display:none!important;}",
+  "@media (max-width:520px)", "prefers-reduced-motion"
+]) assert.ok(arene.includes(fragment), "arène : " + fragment);
+assert.ok(!arene.includes("Bangers") && !arene.includes("areneBraisesV1"), "plus de style BD dans l'arène");
+for (const cible of ["soreal-idle-duel-nameplate-v65", "soreal-idle-duel-portrait-v41", "soreal-idle-duel-hp-v41", "soreal-idle-vs-v41", "soreal-idle-boss-controls-v39", "soreal-idle-boss-respawn-v100", "soreal-idle-reward-v8"]) assert.ok(arene.includes(cible), "l'arène habille " + cible);
+assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "les portraits ne sont jamais cachés");
 console.log("idle-itopod-style-v1: OK");
