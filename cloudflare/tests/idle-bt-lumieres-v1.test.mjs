@@ -41,16 +41,15 @@ assert.ok(L && typeof L.vaciller === "function", "module exposé");
 // Motif : alterne éteint / allumé, finit allumé, jamais plus de trois éclats par seconde.
 for (let essai = 0; essai < 200; essai++) {
   const m = L.motif();
-  assert.ok(m.length >= 4, "au moins deux extinctions");
+  assert.equal(m.length, 4, "exactement deux extinctions rapides");
   assert.equal(m[0][0], true, "commence par s'éteindre");
   assert.equal(m[m.length - 1][0], false, "finit allumé");
   for (let i = 1; i < m.length; i++) assert.notEqual(m[i][0], m[i - 1][0], "alterne");
   let t = 0;
   const extinctions = [];
   m.forEach((e) => { if (e[0]) extinctions.push(t); t += e[1]; });
-  for (let i = 0; i + 3 < extinctions.length; i++) assert.ok(extinctions[i + 3] - extinctions[i] >= 1000, "pas plus de trois éclats par seconde : " + (extinctions[i + 3] - extinctions[i]));
+  assert.ok(extinctions.length === 2 && extinctions[1] < 600, "deux éclats rapprochés, jamais plus de trois par seconde : " + extinctions.join(", "));
 }
-assert.ok(Array.from({ length: 50 }, () => L.motif()).some((m) => m.length > 7), "parfois un blocage plus long avant de revenir");
 
 // Vacillement d'un bandeau : la classe s'ajoute et se retire, un son à chaque changement.
 const el = { isConnected: true, classList: { _s: new Set(), toggle(c, v) { v ? this._s.add(c) : this._s.delete(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } } };
@@ -72,12 +71,15 @@ volume = 0;
 assert.equal(L.sonner("eteint"), false);
 assert.equal(contextes, contextesAvant, "volume 0 : aucun contexte audio de plus");
 volume = 0.75;
-const a = noeuds; assert.equal(L.sonner("eteint"), true); assert.ok(noeuds - a >= 30, "« tzzt » : crépitement, « pop » et bourdonnement du ballast : " + (noeuds - a));
-const b = noeuds; assert.equal(L.sonner("allume"), true); assert.ok(noeuds - b >= 10 && noeuds - b < noeuds - a, "rallumage : plus court que l'extinction : " + (noeuds - b));
+const a = noeuds; assert.equal(L.sonner("eteint"), true); assert.ok(noeuds - a >= 12 && noeuds - a <= 30, "grésillement court : micro-crépitements, « pop », bourdonnement : " + (noeuds - a));
+assert.equal(L.sonner("allume"), false, "rien au rallumage");
 
 // Le hasard : un vacillement toutes les 7 à 22 secondes par bandeau.
-assert.ok(src.includes("7000+Math.random()*15000"), "intervalle aléatoire de 7 à 22 s");
+assert.ok(src.includes("50000+Math.random()*90000"), "rare : un vacillement toutes les 50 à 140 s, pour un seul bandeau");
 assert.ok(src.includes("prefers-reduced-motion"), "respecte la préférence de mouvement réduit");
+assert.ok(src.includes("var GAIN_MAITRE=0.8;") && src.includes("g.gain.value=0.16*") && src.includes("gb.gain.linearRampToValueAtTime(0.14"), "niveau doux : pas de souffle aigu, crépitements à 0,16, bourdonnement à 0,14");
+assert.ok(!src.includes("highpass"), "aucun filtre passe-haut : les aigus agressifs sont bannis");
+assert.ok(src.includes("for(var k=0;k<5;k++)") && src.includes("t+0.074"), "cinq micro-crépitements, bourdonnement de moins de 80 ms");
 assert.ok(src.includes(".soreal-idle-bt-panel-v120.attack .soreal-idle-bt-panel-head-v120") && src.includes(".soreal-idle-bt-panel-v120.defense .soreal-idle-bt-panel-head-v120"), "bandeaux d'attaque et de défense");
 assert.ok(css.includes(".soreal-idle-bt-panel-head-v120.lumiere-eteinte{") && css.includes("brightness(.2)"), "état éteint : bandeau assombri");
 assert.ok(/\/modules\/bt-lumieres-v1\.js\?v=\d+/.test(index), "module chargé par la page");
