@@ -60,4 +60,7 @@ assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seul
 assert.equal((arene.match(/circle at \d+% (19|51)px,#fff/g) || []).length, 6, "six boutons en relief : trois en haut, trois en dessous");
 assert.ok(arene.includes(".soreal-idle-boss-controls-v39::before{") && arene.includes(".soreal-idle-boss-controls-v39::after{") && arene.includes("circle at 34% 28%,#fff"), "un seul joystick en volume : boule sphérique éclairée, collerette et ombre, hors de la dalle (non coupé)");
 assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(0,1fr) auto minmax(0,1fr)"), "grand écran cathodique à deux combattants");
+// Téléphone (Norman, 2026-10-06) : « grand espace vide avant les barres, application non centrée, coupée à droite ».
+assert.ok(css.includes(".soreal-idle-page-root-v28>*{box-sizing:border-box;max-width:100%;}"), "page et blocs de premier niveau en border-box : plus de dépassement à droite");
+assert.ok(css.includes("Entraînement va droit aux barres") && css.includes("white-space:nowrap") && css.includes(".soreal-idle-bt-presets-v120 button{min-height:34px!important"), "Entraînement compact sur téléphone : titre sur une ligne, outils resserrés");
 console.log("idle-itopod-style-v1: OK");

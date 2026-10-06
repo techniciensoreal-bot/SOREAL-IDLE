@@ -389,3 +389,17 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-56px;left:calc(18px + (100% - 36px) * .24 - 10px);}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-62px;left:calc(18px + (100% - 36px) * .24 - 18px);}
 }
+
+/* Téléphone : la page et ses blocs de premier niveau comptent leurs bordures et marges intérieures DANS leur largeur (sinon « width:100% » + cadre épais = dépassement à droite, page décentrée). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28>*{box-sizing:border-box;max-width:100%;}
+
+/* Téléphone : Entraînement va droit aux barres. Titre de bandeau sur une seule ligne et blocs d'outils resserrés (avant : ~350 px d'outils + un bandeau de 130 px avant la première barre). */
+@media (max-width:480px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120{padding:7px 44px 6px!important;margin-bottom:8px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120 strong{font-size:1.2em!important;letter-spacing:.05em!important;white-space:nowrap}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120::after{width:28px;height:28px;margin-top:-14px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{gap:6px!important;padding:8px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 :is(.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120){padding:6px 8px!important;gap:6px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120 button{min-height:34px!important;padding:4px 6px!important}
+}
