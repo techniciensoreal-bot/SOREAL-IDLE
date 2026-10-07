@@ -405,6 +405,9 @@
                 }
 
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-297 */
+                if(payload&&payload.action==='moneyPit'&&res.resultat.rien){
+                  window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_('Tu te sens bien plus pauvre… mais rien ne s’est passé :c. Peut-être qu’il faut jeter plus d’or ?');
+                }
                 if(
                   payload&&payload.action==='moneyPit'&&
                   res.resultat.reward
@@ -1190,8 +1193,9 @@
           demarrerMinuteurRechargeIdleV1_();
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="pit" data-fin="'+nextAt+'">'+libelleRechargeMoneyPitIdleV1_(restantS)+'</button>';
         }
-        if(gold<100000){
-          return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (100 000 Or requis, '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(gold)+' actuel)</button>';
+        /* Sous 100 000 Or le puits prend quand même l'or (message « Tu te sens bien plus pauvre… », comme dans le jeu d'origine) : le bouton reste actif tant qu'il y a de l'or. */
+        if(gold<1){
+          return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (tu n’as plus d’Or)</button>';
         }
         return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
       }

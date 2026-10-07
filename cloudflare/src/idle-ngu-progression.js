@@ -6334,7 +6334,20 @@ function tossMoneyPit(state, now) {
   // NGU rule: the pit takes ALL current gold. 100k is only the minimum
   // required to receive a reward; the player cannot choose a smaller toss.
   const cost = Math.floor(Math.max(0, num(state.currencies.gold, 0)));
-  if (cost < 100000) throw new Error("OR_INSUFFISANT");
+  /*
+   * Moins que le minimum (Norman, 2026-10-08, capture du vrai jeu : « You feel a lot poorer... but nothing happened :c. Maybe you need to throw more gold? ») : le puits PREND quand même
+   * tout l'or, sans récompense, ET le jet consomme le délai du puits comme un vrai jet (précisé par Norman après vérification dans NGU Idle). Même règle d'attente que plus bas (k + 1 heures après le k-ième jet) ;
+   * le jet ne compte ni dans l'historique ni dans le total d'or jeté (aucune récompense, aucun palier de bonus unique).
+   */
+  if (cost < 1) throw new Error("OR_INSUFFISANT");
+  if (cost < 100000) {
+    const jets = Math.max(0, int(s.data.tossesThisRun, 0));
+    state.currencies.gold = 0;
+    s.data.tossesThisRun = jets + 1;
+    s.data.lastTossAt = now;
+    s.data.nextAt = now + (2 + jets) * 3600000;
+    return { rien: true, orPerdu: cost };
+  }
   const tier = moneyPitTierV48_(cost);
   const tosses = Math.max(0, int(s.data.tossesThisRun, 0));
 

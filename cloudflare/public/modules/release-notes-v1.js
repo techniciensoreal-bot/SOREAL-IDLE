@@ -50,6 +50,9 @@
           'Aventure : un adversaire qu’on vient d’affronter ne reste plus invisible quand le serveur répond dans le désordre ; il apparaît tout de suite, sans devoir rafraîchir la page.',
           'Inventaire : une pièce dont les statistiques sont pleines pour son niveau actuel reçoit maintenant le V vert, même avant le niveau 100 : inutile de lui ajouter des boosts, ils seraient refusés.',
           'Aventure : comme dans le jeu d’origine, dès qu’une attaque ou une compétence est utilisée, toutes les autres sont bloquées pendant 1 seconde (0,8 seconde avec le set Red Liquid). Fini le tir en rafale !',
+          'Money Pit : si tu jettes moins que le minimum, le puits prend quand même tout ton or, il ne se passe rien, et son délai est consommé. Tu auras le message du jeu d’origine : « Tu te sens bien plus pauvre… mais rien ne s’est passé :c. Peut-être qu’il faut jeter plus d’or ? »',
+          'Un clic sur « Beta 2.4 » en haut de l’application t’emmène directement aux notes de mise à jour.',
+          'Sac : les cases sont un peu plus petites, cinq par ligne sur téléphone, et le sac passe sur plusieurs pages de 60 cases au maximum, avec des boutons ‹ › pour changer de page.',
         ]
       },
       {

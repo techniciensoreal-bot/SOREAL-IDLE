@@ -19837,10 +19837,35 @@ function pageAventureIdleV28_(j){
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-241 */
+      /*
+       * Pages du sac (Norman, 2026-10-08) : 60 cases au plus par page (5 par ligne sur téléphone), au-delà une page de plus, comme dans NGU Idle.
+       * Les numéros d'emplacement restent ABSOLUS (data-slot-index) : glisser-déposer, tri et rangement automatique ne changent pas.
+       */
+      const IDLE_SAC_CASES_PAR_PAGE_V1=60;
+      let idlePageSacV1=1;
+      function changerPageSacV1_(page){
+        idlePageSacV1=Math.max(1,idleEntier_(page)||1);
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
+      }
+      window.__changerPageSacV1__=changerPageSacV1_;
+      function pagerSacIdleV1_(page,pages){
+        if(pages<2)return '';
+        return '<div class="soreal-idle-bag-pager-v1">'+
+          '<button type="button" '+(page<=1?'disabled ':'')+'onclick="window.__changerPageSacV1__('+(page-1)+')" aria-label="Page précédente">‹</button>'+
+          '<span>Page '+page+' / '+pages+'</span>'+
+          '<button type="button" '+(page>=pages?'disabled ':'')+'onclick="window.__changerPageSacV1__('+(page+1)+')" aria-label="Page suivante">›</button>'+
+        '</div>';
+      }
       function rendreGrilleSacAdventureIdleV1_(items,capacite){
         const total=Math.max(idleEntier_(capacite),items.length);
+        const pages=Math.max(1,Math.ceil(total/IDLE_SAC_CASES_PAR_PAGE_V1));
+        if(idlePageSacV1>pages)idlePageSacV1=pages;
+        const page=idlePageSacV1;
+        const debut=(page-1)*IDLE_SAC_CASES_PAR_PAGE_V1;
+        const fin=Math.min(total,debut+IDLE_SAC_CASES_PAR_PAGE_V1);
         const cases=[];
-        for(let i=0;i<total;i+=1){
+        for(let i=debut;i<fin;i+=1){
           const item=items[i];
           cases.push(
             item
@@ -19848,7 +19873,7 @@ function pageAventureIdleV28_(j){
               :'<div class="soreal-idle-v138-bag-card soreal-idle-v138-bag-card-vide" data-slot-index="'+i+'"></div>'
           );
         }
-        return '<div class="soreal-idle-v138-bag">'+cases.join('')+'</div>';
+        return pagerSacIdleV1_(page,pages)+'<div class="soreal-idle-v138-bag">'+cases.join('')+'</div>'+(pages>1?pagerSacIdleV1_(page,pages):'');
       }
 
       function reordonnerInventaireAdventureIdleV162_(sourceId,targetId,targetIndex){
@@ -23034,6 +23059,28 @@ function pageAventureIdleV28_(j){
         if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__basculerNotesMajIdleV1__=basculerNotesMajIdleV1_;
+      /*
+       * Clic sur « Beta x.y » en haut de l'app (Norman, 2026-10-08) : ouvre les Réglages, déplie les notes de mise à jour et les amène à l'écran.
+       */
+      window.__ouvrirNotesMajIdleV1__=function(){
+        try{localStorage.setItem('soreal_idle_notes_maj_ouvert_v1','1');}catch(e){}
+        if(idleMenuActifV28==='parametres'){
+          const root=document.querySelector('.soreal-idle-page-root-v28');
+          if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
+        }else if(typeof window.__menuIdleV28__==='function'){
+          window.__menuIdleV28__('parametres');
+        }
+        let essais=0;
+        (function montrer(){
+          const cible=document.querySelector('.soreal-idle-notes-maj-v1')||document.querySelector('.soreal-idle-notes-maj-bouton-v1');
+          if(cible){
+            /* Plusieurs passes : le rendu de la page et la remise en place du défilement peuvent annuler la première. */
+            [0,350,900].forEach(function(d){setTimeout(function(){const c=document.querySelector('.soreal-idle-notes-maj-v1')||document.querySelector('.soreal-idle-notes-maj-bouton-v1');if(c)c.scrollIntoView({block:'start',behavior:'auto'});},d);});
+            return;
+          }
+          if(++essais<20)setTimeout(montrer,150);
+        })();
+      };
 
       /*
        * Norman (2026-09-27) : « Tu dois ajouter dans paramètres, des barres de son pour régler le volume des
@@ -24433,7 +24480,7 @@ function pageAventureIdleV28_(j){
                     '" alt="SOREAL IDLE">'
                   :'<div style="height:170px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:1000">SOREAL IDLE</div>'
               }
-              <div class="soreal-idle-badge-v4">
+              <div class="soreal-idle-badge-v4" role="button" tabindex="0" style="cursor:pointer" title="Voir les notes de mise à jour" onclick="window.__ouvrirNotesMajIdleV1__()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__ouvrirNotesMajIdleV1__()}">
                 🔒 ${versionBadgeIdleV1_()}
               </div>
             </div>
