@@ -53,6 +53,7 @@
           'Money Pit : si tu jettes moins que le minimum, le puits prend quand même tout ton or, il ne se passe rien, et son délai est consommé. Tu auras le message du jeu d’origine : « Tu te sens bien plus pauvre… mais rien ne s’est passé :c. Peut-être qu’il faut jeter plus d’or ? »',
           'Un clic sur « Beta 2.4 » en haut de l’application t’emmène directement aux notes de mise à jour.',
           'Sac : les cases sont un peu plus petites, cinq par ligne sur téléphone, et le sac passe sur plusieurs pages de 60 cases au maximum, avec des boutons ‹ › pour changer de page.',
+          'Aventure : quand tu es en Zone sûre, le jeu ne farme plus en cachette ton ancienne zone pendant que tu n’es pas synchronisé. Plus de pluie de boosts surprise en rejoignant une autre zone. Le farm hors ligne ne concerne que la zone de combat sélectionnée.',
         ]
       },
       {

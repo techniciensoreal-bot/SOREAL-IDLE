@@ -5353,7 +5353,12 @@ function idleAttackMultiplierAdventureAutoV1(stats){
 export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
   const AUCUN={kills:0,gold:0,experience:0,drops:0,derniereDefaite:null};
   if(!s||!(seconds>0))return AUCUN;
-  const zoneId=String(s.lastCombatZone||"");
+  /*
+   * Seulement depuis une zone de combat (Norman, 2026-10-08 : il était en Zone sûre, a rejoint la base haute sécurité et a reçu d'un coup plein de boosts de niveau 1 : le farm simulé de la
+   * DERNIÈRE zone avait tourné pendant qu'il était en Zone sûre). Choix de Norman : en Zone sûre (K.O., Titan ou choix volontaire), aucun farm automatique ; la zone farmée est celle qui est
+   * réellement sélectionnée, jamais une ancienne zone gardée dans lastCombatZone.
+   */
+  const zoneId=String(s.selectedZone||"");
   if(!zoneId||zoneId==="safe")return AUCUN;
   const z=IDLE_ADVENTURE_ZONES.find(x=>x.id===zoneId);
   if(!z||z.id==="safe")return AUCUN;

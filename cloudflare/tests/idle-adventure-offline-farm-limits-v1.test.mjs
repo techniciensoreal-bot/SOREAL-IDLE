@@ -149,4 +149,23 @@ function stateAvecZone(zoneId, overrides = {}) {
   assert.match(runtime, /autoAventureHorsLigne:\s*\n\s*autoFarmAventureEtat/, "le champ client autoAventureHorsLigne doit venir du VRAI résumé, plus de l'ancien progression.autoAventureHorsLigne mort");
 }
 
+// --- Zone sûre avec une ancienne zone de combat gardée (Norman, 2026-10-08) : AUCUN farm simulé, sinon un butin surprise tombe en rejoignant une autre zone. ---
+{
+  const s = stateAvecZone("hsb");
+  s.selectedZone = "safe";
+  const avant = JSON.stringify(s.inventory);
+  const r = advanceAdventureZoneAutoFarmOfflineV1(s, { bosses: 120, stats: { power: 1e9, toughness: 1e9, hp: 1e9, regen: 1000 } }, 3600, 1000);
+  assert.deepEqual(r, { kills: 0, gold: 0, experience: 0, drops: 0, derniereDefaite: null }, "en Zone sûre : pas de farm, même si la dernière zone de combat était la base haute sécurité");
+  assert.equal(JSON.stringify(s.inventory), avant, "aucun objet ajouté");
+  assert.equal(s.selectedZone, "safe", "la zone sélectionnée ne change pas");
+}
+// --- La zone farmée est celle qui est sélectionnée ---
+{
+  const s = stateAvecZone("forest");
+  s.lastCombatZone = "tutorial";
+  s.zone.encounters.tutorial = 1;
+  const r = advanceAdventureZoneAutoFarmOfflineV1(s, { bosses: 30, stats: { power: 1e9, toughness: 1e9, hp: 1e9, regen: 1000 } }, 3600, 1000);
+  assert.ok(r.kills > 0, "farm dans la zone sélectionnée");
+  assert.ok((s.zone.kills.forest || 0) > 0 && !(s.zone.kills.tutorial > 0), "les kills sont dans la zone sélectionnée, pas dans l'ancienne");
+}
 console.log("idle-adventure-offline-farm-limits-v1: OK");
