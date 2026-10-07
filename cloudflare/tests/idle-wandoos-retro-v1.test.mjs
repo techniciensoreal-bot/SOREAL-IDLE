@@ -69,6 +69,8 @@ function joueur(debloque, actif, vue = {}, magieOk = true) {
   };
 }
 const dejaAllume = () => { stockage[CLE_ALLUMAGE] = "111"; };
+const CLE_SAISIE = "soreal_idle_wandoos_saisie_v1";
+const saisir = (v) => { stockage[CLE_SAISIE] = String(v); };
 
 // Anti-spoil : rien tant que le système n'est pas découvert.
 assert.equal(W.page(joueur(false, true)), "", "système verrouillé : aucune page");
@@ -114,6 +116,9 @@ assert.ok(h.includes("NIVEAU <b>812</b>") && h.includes("NIVEAU <b>422</b>"), "n
 assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("0,5"), "quantités placées/libres et vitesse en niveaux par seconde");
 assert.ok(!h.includes("wd-chargement") && !h.includes("CHARGEMENT"), "OS chargé : aucun cadre de chargement");
 assert.ok(h.includes('id="wd-saisie"') && h.includes("C:\\&gt; SAISIE"), "champ de saisie dans l'écran");
+assert.ok(/<input id="wd-saisie"[^>]*readonly[^>]*inputmode="none"/.test(h) && !h.includes("oninput"), "saisie en lecture seule : on la remplit avec les touches du clavier (pas de clavier du téléphone)");
+for (const c of "0123456789/") assert.ok(h.includes(".chiffre('" + c + "')"), "touche " + c);
+assert.ok(h.includes("wd-effacer") && h.includes("EFFACER") && !h.includes(".effacer()"), "touche EFFACER (gérée par appui prolongé, pas par un simple clic)");
 for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "plus"], ["energy", "tout"], ["magic", "zero"], ["magic", "moins"], ["magic", "plus"], ["magic", "tout"]]) {
   assert.ok(h.includes(".place('" + res + "','" + mode + "')"), "touche " + res + " " + mode);
 }
@@ -129,7 +134,8 @@ h = W.page(joueurCourant);
 assert.ok(h.includes('class="wd-chargement"') && h.includes("⏳ CHARGEMENT DE L’OS") && h.includes('id="wd-ch-pct">50 %'), "cadre de chargement avec le pourcentage");
 assert.ok(h.includes('class="wd-chargeur"') && !h.includes('class="wd-chargeur wd-barre"'), "barre de chargement d'une autre classe que les barres de dump");
 assert.ok(h.includes("Vitesse de Wandoos : <b id=\"wd-ch-vit\">50 %</b> de son maximum") && h.includes("<b id=\"wd-ch-reste\">30 min 00 s</b>"), "vitesse actuelle et temps restant");
-assert.ok(h.includes("Ce n’est pas une barre à remplir"), "le texte dit que ce n'est pas une barre où placer des ressources");
+assert.ok(!h.includes("Ce n’est pas une barre à remplir"), "plus de phrase « ce n'est pas une barre à remplir »");
+assert.ok(h.includes("Tu peux déjà placer de l’énergie et de la magie : elles prendront de la vitesse au fil du chargement."), "le cadre dit qu'on peut déjà placer");
 assert.ok(h.includes("wd-input") && h.includes(".place('energy','plus')") && h.includes("PLACÉE"), "pendant le chargement : l'énergie et la magie se placent déjà (barres du bureau visibles)");
 maintenant += 600_000;
 const plusTard = W.page(joueurCourant);
@@ -147,7 +153,7 @@ assert.ok(poste.outerHTML.includes('data-phase="bureau"') && !poste.outerHTML.in
 
 // 5. Placer : quantités ABSOLUES (plus de 100 possible), cumul immédiat sans attendre le serveur, y compris pendant le chargement.
 joueurCourant = joueur(true, true, { bootSecondes: 3600, bootEcoule: 100, bootFraction: 100 / 3600 });
-W.saisie("5000");
+saisir("5000");
 actions.length = 0;
 W.place("energy", "plus");
 assert.deepEqual(actions[0], { action: "allocate", system: "wandoos", resource: "energy", value: 5600 }, "600 déjà placés + 5000 saisis (au-delà de 100), pendant le chargement");
@@ -162,10 +168,10 @@ assert.equal(actions[4].value, 0, "0 retire tout");
 const nb = actions.length;
 W.place("energy", "zero");
 assert.equal(actions.length, nb, "déjà à zéro : rien n'est envoyé");
-W.saisie("1/4");
+saisir("1/4");
 W.place("magic", "plus");
 assert.equal(actions[actions.length - 1].value, 500000, "fraction : un quart de (libre + placé) = 2 000 000 / 4");
-W.saisie("999999999999");
+saisir("999999999999");
 W.place("magic", "plus");
 assert.equal(actions[actions.length - 1].value, 2e6, "jamais plus que ce qui est libre");
 // Pendant l'écran d'allumage, rien ne se place (quelques secondes seulement).
@@ -187,6 +193,47 @@ assert.equal(W.analyser("1/4", 1000), 250, "un quart du total");
 assert.equal(W.analyser("3/8", 800), 300);
 assert.equal(W.analyser("1/0", 800), 0, "division par zéro : rien");
 assert.equal(W.analyser("abc", 800), 0, "texte : rien");
+
+// 6b. Pavé : chiffres, « / », effacement (un appui = un caractère ; maintenu = répétition), limites.
+saisir("1000");
+W.effacer();
+assert.equal(stockage[CLE_SAISIE], "100", "effacer retire le dernier caractère");
+W.chiffre("7"); W.chiffre("5");
+assert.equal(stockage[CLE_SAISIE], "10075", "les chiffres s'ajoutent");
+W.chiffre("/"); W.chiffre("/"); W.chiffre("4");
+assert.equal(stockage[CLE_SAISIE], "10075/4", "un seul « / »");
+saisir("0"); W.chiffre("8");
+assert.equal(stockage[CLE_SAISIE], "8", "un 0 initial est remplacé par le chiffre tapé");
+// Bug signalé : « si j'efface tout et que je mets 1 il commence à 10001 » -> une saisie VIDE reste vide (elle ne retombe pas sur la valeur par défaut).
+saisir("1000");
+for (let i = 0; i < 4; i++) W.effacer();
+assert.equal(stockage[CLE_SAISIE], "", "tout effacé : la saisie est vide");
+W.chiffre("1");
+assert.equal(stockage[CLE_SAISIE], "1", "tout effacé puis 1 : la saisie vaut 1 (et non 10001)");
+delete stockage[CLE_SAISIE];
+W.chiffre("5");
+assert.equal(stockage[CLE_SAISIE], "10005", "sans saisie mémorisée : on part de la valeur proposée (1000)");
+saisir(""); W.chiffre("/");
+assert.equal(stockage[CLE_SAISIE], "", "pas de « / » en premier");
+saisir("123456789012345678"); W.chiffre("9");
+assert.equal(stockage[CLE_SAISIE], "123456789012345678", "18 caractères au plus");
+W.chiffre("x"); W.chiffre("12");
+assert.equal(stockage[CLE_SAISIE], "123456789012345678", "rien d'autre que 0-9 et « / »");
+// Maintenir EFFACER : un caractère tout de suite, puis un toutes les 70 ms après 0,4 s ; relâcher arrête.
+minuteries.length = 0;
+const delais = [];
+fenetre.setTimeout = (fn, ms) => { delais.push({ fn, ms }); return delais.length; };
+fenetre.clearTimeout = () => {};
+saisir("123456");
+W.debutEffacer();
+assert.equal(stockage[CLE_SAISIE], "12345", "dès l'appui : un caractère effacé");
+assert.equal(delais[0].ms, 400, "la répétition démarre après 0,4 s");
+delais[0].fn();
+assert.equal(minuteries.length, 1, "puis un minuteur répète l'effacement");
+minuteries[0]();
+minuteries[0]();
+assert.equal(stockage[CLE_SAISIE], "123", "chaque tic efface un caractère de plus");
+W.finEffacer();
 
 // 7. DÉMARRER / ÉTEINDRE n'activent que le système.
 dejaAllume();
@@ -252,5 +299,8 @@ assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(src), "rien n'est envoyé");
 assert.ok(!src.includes("__ajusterAllocationMetaIdleV130__"), "plus d'allocation en pourcentage (bornée à 100)");
 assert.ok(src.includes(".wd-chargeur i{") && src.includes("#ffb000") && src.includes("wd-defile"), "cadre de chargement ambre à rayures qui défilent, différent des barres à blocs");
 assert.ok(src.includes("prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}"), "rayures immobiles si l'appareil demande moins d'animations");
+assert.ok(src.includes(".wd-crt::after{") && /\.wd-crt::after\{[^}]*pointer-events:none[^}]*border-image:url/.test(src) && !/\.wd-crt\{[^}]*border-image/.test(src), "l'image du moniteur est posée PAR-DESSUS l'écran, sans intercepter un clic");
+assert.ok(src.includes(".wd-ecran{position:relative;z-index:1;"), "l'écran est sous l'image");
+assert.ok(/\.wd-input\.wd-input\{[^}]*font-family:"Courier New",Courier,monospace!important/.test(src), "la saisie a la police de l'écran");
 
 console.log("idle-wandoos-retro-v1: OK");

@@ -105,8 +105,10 @@
       '.wd-poste[data-couleur="orange"]{--wd-c:#ffb000;--wd-c2:#8a5a00;--wd-glow:rgba(255,176,0,.55);}',
       '.wd-poste[data-couleur="blanc"]{--wd-c:#f0f0f0;--wd-c2:#6d6d6d;--wd-glow:rgba(240,240,240,.45);}',
       /* L'écran de l'image : bordures en cqw = proportions de l'image (1254 px : haut 185, droite 184, bas 399, gauche 165). */
-      '.wd-crt{box-sizing:border-box;width:100%;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;border-image:url("'+BANNIERE+'") 185 184 399 165 fill / 14.75cqw 14.67cqw 31.8cqw 13.16cqw stretch;}',
-      '.wd-ecran{position:relative;box-sizing:border-box;min-height:34cqw;margin:-.8cqw -1cqw -1cqw;padding:2.6cqw 3.2cqw;border-radius:4.5cqw;overflow:hidden;background:radial-gradient(ellipse at center,#06150a 0%,#020a05 70%,#000 100%);color:var(--wd-c);font-family:"Courier New",Courier,monospace;font-size:clamp(11px,2.7cqw,19px);line-height:1.45;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 0 .35em var(--wd-glow);box-shadow:inset 0 0 3cqw rgba(0,0,0,.9),inset 0 0 .6cqw var(--wd-c2);}',
+      /* L'écran est DERRIÈRE l'image du moniteur (Norman, 2026-10-07) : l'image est posée par-dessus (son vide d'écran est transparent), sans jamais intercepter un clic. */
+      '.wd-crt{position:relative;isolation:isolate;box-sizing:border-box;width:100%;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;}',
+      '.wd-crt::after{content:"";position:absolute;z-index:3;pointer-events:none;top:-14.75cqw;right:-14.67cqw;bottom:-31.8cqw;left:-13.16cqw;box-sizing:border-box;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;border-image:url("'+BANNIERE+'") 185 184 399 165 fill / 14.75cqw 14.67cqw 31.8cqw 13.16cqw stretch;}',
+      '.wd-ecran{position:relative;z-index:1;box-sizing:border-box;min-height:34cqw;margin:-.8cqw -1cqw -1cqw;padding:4.4cqw 5.4cqw 4cqw;border-radius:4.5cqw;overflow:hidden;background:radial-gradient(ellipse at center,#06150a 0%,#020a05 70%,#000 100%);color:var(--wd-c);font-family:"Courier New",Courier,monospace;font-size:clamp(11px,2.7cqw,19px);line-height:1.45;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 0 .35em var(--wd-glow);box-shadow:inset 0 0 3cqw rgba(0,0,0,.9),inset 0 0 .6cqw var(--wd-c2);}',
       /* Lignes de balayage, léger vacillement et reflet de la vitre. */
       '.wd-ecran::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);z-index:2;}',
       '.wd-ecran::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 22% 12%,rgba(255,255,255,.10),transparent 38%);z-index:3;animation:wd-vacille 4s infinite;}',
@@ -166,11 +168,14 @@
       '.wd-petit{font-size:.82em;opacity:.9;}',
       '.wd-saisie{align-items:center;margin-top:1em;}',
       '.wd-saisie label{white-space:nowrap;}',
-      '.wd-input{flex:1;min-width:6em;box-sizing:border-box;font:inherit;letter-spacing:.04em;color:var(--wd-c);background:#010503;border:1px solid var(--wd-c2);padding:.25em .5em;text-transform:none;text-shadow:inherit;}',
-      '.wd-input:focus{outline:2px solid var(--wd-c);outline-offset:1px;}',
+      '.wd-ecran .wd-input.wd-input{flex:1;min-width:6em;box-sizing:border-box;font-family:"Courier New",Courier,monospace!important;font-size:inherit!important;font-weight:400!important;line-height:inherit;letter-spacing:.04em;color:var(--wd-c)!important;background:#010503!important;border:1px solid var(--wd-c2)!important;border-radius:0!important;padding:.25em .5em;text-transform:uppercase;text-shadow:0 0 .35em var(--wd-glow)!important;box-shadow:none!important;caret-color:transparent;cursor:default;}',
       '.wd-aide{margin-top:.9em;padding-top:.5em;border-top:1px dashed var(--wd-c2);font-size:.8em;opacity:.85;text-transform:none;letter-spacing:.02em;}',
       '.wd-bas-couleur{grid-template-columns:1fr;margin-top:1.4cqw;}',
       '.wd-touche:disabled{cursor:default;filter:brightness(.8);}',
+      '.wd-touche{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}',
+      '.wd-pave-groupe{grid-column:1/-1;}',
+      '.wd-pave{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1.2cqw;}',
+      '.wd-effacer small{display:block;}',
       '.wd-touche.wd-enfoncee{transform:translateY(.7cqw);box-shadow:0 .1cqw 0 #8b836a,0 .2cqw .3cqw rgba(0,0,0,.5),inset 0 .15cqw 0 rgba(255,255,255,.5);}',
       '@container (max-width:560px){.wd-rang-boot{grid-template-columns:1fr auto;}.wd-rang-boot .wd-lib{grid-column:1/-1;}.wd-logo{font-size:1.5em;}}',
       /* Chargement de l'OS : ambre fixe (quelle que soit la couleur de l'écran), cadre pointillé et rayures qui défilent : on voit tout de suite que ce n'est PAS une barre à remplir. */
@@ -249,7 +254,7 @@
 
   /* ---------- Saisie : un nombre (1000, 2,5M…) ou une fraction (1/4 = un quart de ce que tu possèdes pour cette ressource) ---------- */
   var CLE_SAISIE='soreal_idle_wandoos_saisie_v1';
-  function saisie_(){try{var v=localStorage.getItem(CLE_SAISIE);if(v)return v;}catch(_e){}return '1000';}
+  function saisie_(){try{var v=localStorage.getItem(CLE_SAISIE);if(v!==null)return v;}catch(_e){}return '1000';}
   function saisir_(v){try{localStorage.setItem(CLE_SAISIE,String(v));}catch(_e){}}
   function analyser_(texte,total){
     var t=String(texte==null?'':texte).trim().replace(',','.').replace(/\s+/g,'');
@@ -305,7 +310,7 @@
       '<div class="wd-ligne"><span>⏳ CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
       '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
       '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
-      '<div class="wd-petit wd-ch-note">Ce n’est pas une barre à remplir : c’est le chargement de l’OS. Tu peux déjà placer de l’énergie et de la magie, elles prendront de la vitesse au fil du chargement.</div>'+
+      '<div class="wd-petit wd-ch-note">Tu peux déjà placer de l’énergie et de la magie : elles prendront de la vitesse au fil du chargement.</div>'+
     '</div>';
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
@@ -330,7 +335,7 @@
       bloc_('ÉNERGIE','energy',e,'energieLibre','vitesseEnergie',e.data.dumpEnergyLevel,e.data.dumpEnergyProgress)+
       (e.magieOk?bloc_('MAGIE','magic',e,'magieLibre','vitesseMagie',e.data.dumpMagicLevel,e.data.dumpMagicProgress):'')+
       '<div class="wd-ligne wd-saisie"><label for="wd-saisie">C:\\&gt; SAISIE</label>'+
-        '<input id="wd-saisie" class="wd-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="'+html_(saisie_())+'" aria-label="Quantité placée ou retirée à chaque appui sur + ou − (un nombre, ou une fraction comme 1/4)" oninput="window.__SOREAL_IDLE_WANDOOS_V1__.saisie(this.value)"></div>'+
+        '<input id="wd-saisie" class="wd-input" type="text" readonly inputmode="none" tabindex="-1" autocomplete="off" spellcheck="false" value="'+html_(saisie_())+'" aria-label="Quantité placée ou retirée à chaque appui sur + ou − : tape-la avec les chiffres du clavier (un nombre, ou une fraction comme 1/4)"></div>'+
       '<div class="wd-aide">AIDE : + place la quantité saisie, − la retire, MAX place tout ce qui est libre. Wandoos ne produit que de l’Attack et de la Defense. C’est son charme.</div>';
   }
 
@@ -357,13 +362,21 @@
       }).join('')+
     '</div></div>';
   }
+  function pave_(){
+    var ch=function(c){return touche_(c,'',API+".chiffre('"+c+"')",'wd-chiffre','Chiffre '+c);};
+    return '<div class="wd-groupe wd-pave-groupe"><span class="wd-leg">Saisie</span><div class="wd-pave">'+
+      ['1','2','3','4','5','6','7','8','9','0'].map(ch).join('')+
+      touche_('/','',API+".chiffre('/')",'wd-chiffre','Barre de fraction (1/4 = un quart)')+
+      '<button type="button" class="wd-touche wd-effacer" title="Effacer (maintenir appuyé pour effacer chiffre par chiffre)" aria-label="Effacer le dernier caractère ; maintenir appuyé pour effacer chiffre par chiffre">⌫<small>EFFACER</small></button>'+
+    '</div></div>';
+  }
   function clavier_(e,phase){
     var couleur='<div class="wd-groupe"><span class="wd-leg">Écran</span><button type="button" class="wd-touche wd-touche-couleur" title="Changer la couleur de l’écran" aria-label="Changer la couleur de l’écran : vert, bleu, orange, blanc" onclick="'+API+'.couleur()">COULEUR<small class="wd-nomcouleur">'+couleur_().toUpperCase()+'</small></button></div>';
     var demarrage=e.actif
       ?touche_('■ ÉTEINDRE','',API+'.eteindre()','wd-espace','Éteindre Wandoos')
       :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos');
     var haut='';
-    if(phase==='bureau')haut=groupe_('Énergie','energy')+(e.magieOk?groupe_('Magie','magic'):'');
+    if(phase==='bureau')haut=groupe_('Énergie','energy')+(e.magieOk?groupe_('Magie','magic'):'')+pave_();
     var os=groupeOs_(e);
     return '<div class="wd-clavier"><div class="wd-plaque">'+haut+
       '<div class="wd-bas">'+(os||couleur)+'<div class="wd-groupe"><span class="wd-leg">Système</span>'+demarrage+'</div></div>'+
@@ -478,8 +491,46 @@
     rafraichirPoste_();
     meta_({action:'allocate',system:'wandoos',resource:res,value:cible});
   }
-  function saisie(v){saisir_(v);}
+  function majSaisie_(v){
+    saisir_(v);
+    var c=document.getElementById('wd-saisie');
+    if(c)c.value=v;
+  }
+  /* Saisie par les touches du clavier : 18 caractères au plus ; un seul « / », jamais en premier ; un 0 initial est remplacé par le chiffre tapé. */
+  function chiffre(c){
+    c=String(c);
+    if(!/^[0-9/]$/.test(c))return;
+    var v=saisie_();
+    if(v.length>=18)return;
+    if(c==='/'&&(v.indexOf('/')!==-1||v===''))return;
+    if(v==='0'&&c!=='/')v='';
+    majSaisie_(v+c);
+  }
+  function effacer(){
+    var v=saisie_();
+    majSaisie_(v.slice(0,-1));
+  }
+  /* EFFACER maintenu : un caractère tout de suite, puis un toutes les 70 ms après 0,4 s. */
+  var delaiEffacer=0,repeteEffacer=0;
+  function arreterEffacer_(){
+    if(delaiEffacer){clearTimeout(delaiEffacer);delaiEffacer=0;}
+    if(repeteEffacer){clearInterval(repeteEffacer);repeteEffacer=0;}
+  }
+  function debutEffacer_(){
+    arreterEffacer_();
+    effacer();
+    delaiEffacer=setTimeout(function(){delaiEffacer=0;repeteEffacer=setInterval(effacer,70);},400);
+  }
+  try{
+    var cibleEffacer_=function(e){var t=e&&e.target;return t&&t.closest?t.closest('.wd-effacer'):null;};
+    document.addEventListener('pointerdown',function(e){if(cibleEffacer_(e))debutEffacer_();},true);
+    ['pointerup','pointercancel'].forEach(function(n){document.addEventListener(n,arreterEffacer_,true);});
+    document.addEventListener('contextmenu',function(e){if(cibleEffacer_(e))e.preventDefault();},true);
+    document.addEventListener('keydown',function(e){
+      if(cibleEffacer_(e)&&(e.key==='Enter'||e.key===' ')){e.preventDefault();effacer();}
+    },true);
+  }catch(_e){}
 
   window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_,
-    demarrer:demarrer,eteindre:eteindre,os:choisirOs,place:placer,saisie:saisie,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
+    demarrer:demarrer,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
 })();
