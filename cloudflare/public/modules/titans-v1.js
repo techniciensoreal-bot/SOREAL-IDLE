@@ -71,14 +71,14 @@ function prochainRetour(t){
 function cache(t){return Boolean(t.state&&t.state.hiddenPanel);}
 
 function ligneStat(icone,libelle,cle,valeur){
-  return '<div class="ttn-stat"><span class="ttn-stat-i">'+icone+'</span><span class="ttn-stat-l">'+libelle+'</span><b data-ttn-stat="'+cle+'">'+valeur+'</b></div>';
+  return '<div class="ttn-stat"><span class="ttn-stat-i">'+icone+'</span><b data-ttn-stat="'+cle+'">'+valeur+'</b><span class="ttn-stat-l">'+libelle+'</span></div>';
 }
 function htmlStats(v){
   if(!v)return '<div class="ttn-note">Statistiques indisponibles.</div>';
   return ligneStat('❤️','PV','hp',gn(v.hp,2))+
-    ligneStat('⚔️','Power','power',gn(v.power,2))+
-    ligneStat('🛡️','Toughness','toughness',gn(v.toughness,2))+
-    ligneStat('💚','Régénération / s','regen',gn(v.regen,2))+
+    ligneStat('⚔️','Puissance','power',gn(v.power,2))+
+    ligneStat('🛡️','Endurance','toughness',gn(v.toughness,2))+
+    ligneStat('💚','Régénération par seconde','regen',gn(v.regen,2))+
     ligneStat('⏱️','Une attaque toutes les','attackRate',String(v.attackRate).replace('.',',')+' s');
 }
 /* Stats d'aventure du joueur (celles que le serveur compare au titan : Power et Toughness), ou null si l'état n'est pas encore chargé. */
@@ -92,8 +92,17 @@ function statsJoueur(){
   }catch(e){return null;}
 }
 /* Un chiffre actuel : vert s'il atteint la stat conseillée, rouge sinon. */
-function chiffreActuel(icone,actuel,requis){
-  return icone+' <span class="ttn-ok-'+(actuel>=requis?'oui':'non')+'">'+gn(actuel,2)+'</span>';
+function chiffreActuel(actuel,requis){
+  return '<span class="ttn-ok-'+(actuel>=requis?'oui':'non')+'">'+gn(actuel,2)+'</span>';
+}
+/* Une ligne (Puissance ou Endurance) : ce que le titan demande, ce que tu as, et une jauge qui se remplit jusqu'à la stat conseillée. */
+function ligneComparaison(icone,nom,requis,actuel){
+  var ok=actuel!=null&&actuel>=requis;
+  var pct=actuel==null?0:(requis>0?Math.max(0,Math.min(100,actuel/requis*100)):100);
+  return '<div class="ttn-ligne"><span class="ttn-cat">'+icone+' '+nom+'</span>'+
+    '<span class="ttn-reco-g">'+gn(requis,2)+'</span>'+
+    '<span class="ttn-reco-d">'+(actuel==null?'—':chiffreActuel(actuel,requis))+'</span>'+
+    '<div class="ttn-jauge '+(actuel==null?'':ok?'oui':'non')+'"><i style="width:'+pct.toFixed(1)+'%"></i></div></div>';
 }
 function seuilsRecommandes(t,palier){
   var s=null;
@@ -102,20 +111,34 @@ function seuilsRecommandes(t,palier){
   else s=t;
   if(!s)return '';
   /*
-   * Deux colonnes (Norman, 2026-10-04) : « à droite, Stats actuelles, avec nos stats d'aventure : en rouge si on n'a pas le prérequis, en vert si on a atteint la stat conseillée, pareil pour les 3 lignes
-   * (manuel, idle, auto-kill) ». Chaque chiffre (Power, Toughness) est comparé à son propre seuil.
+   * Comparaison très visible (Norman, 2026-10-04 puis 2026-10-07 : « les stats conseillées et actuelles doivent être plus visibles ») : pour chacun des trois modes (Manuel, Idle, Auto-kill),
+   * la Puissance et l'Endurance conseillées à gauche, les tiennes à droite (vert si tu atteins la stat, rouge sinon), une jauge de progression et un verdict clair.
    */
   var moi=statsJoueur();
-  var lignes=[];
+  var blocs=[];
   function ajouter(nom,p,tt){
     if(p==null||tt==null)return;
-    lignes.push('<span class="ttn-reco-g">'+h(nom+' : ⚔️ '+gn(p,2)+' · 🛡️ '+gn(tt,2))+'</span>'+
-      '<span class="ttn-reco-d">'+(moi?chiffreActuel('⚔️',moi.power,p)+' · '+chiffreActuel('🛡️',moi.toughness,tt):'—')+'</span>');
+    var okP=moi&&moi.power>=p,okT=moi&&moi.toughness>=tt;
+    var verdict='';
+    if(!moi)verdict='<span class="ttn-verdict">Tes stats se chargent…</span>';
+    else if(okP&&okT)verdict='<span class="ttn-verdict oui">✅ Prêt</span>';
+    else{
+      var manque=[];
+      if(!okP)manque.push('⚔️ '+gn(p-moi.power,2));
+      if(!okT)manque.push('🛡️ '+gn(tt-moi.toughness,2));
+      verdict='<span class="ttn-verdict non">❌ Pas encore : il te manque '+manque.join(' et ')+'</span>';
+    }
+    blocs.push('<div class="ttn-mode '+(!moi?'':okP&&okT?'oui':'non')+'"><div class="ttn-mode-haut"><b class="ttn-mode-nom">'+h(nom)+'</b>'+verdict+'</div>'+
+      ligneComparaison('⚔️','Puissance',p,moi?moi.power:null)+
+      ligneComparaison('🛡️','Endurance',tt,moi?moi.toughness:null)+'</div>');
   }
   ajouter('Manuel',s.p,s.t);
   ajouter('Idle',s.idleP,s.idleT);
   ajouter('Auto-kill',s.autoKillP,s.autoKillT);
-  return lignes.length?'<div class="ttn-reco"><b class="ttn-reco-g">Stats conseillées</b><b class="ttn-reco-d">Stats actuelles</b>'+lignes.join('')+'</div>':'';
+  if(!blocs.length)return '';
+  return '<div class="ttn-reco"><div class="ttn-comp-titre">⚖️ Es-tu assez costaud ?</div>'+
+    '<div class="ttn-comp-aide">À gauche : ce que ce Titan te demande. À droite : ce que tu as vraiment. Vert : tu passes. Rouge : va t’entraîner, il ne fera pas de cadeau.</div>'+
+    '<div class="ttn-tete"><b class="ttn-reco-g">Stats conseillées</b><b class="ttn-reco-d">Stats actuelles</b></div>'+blocs.join('')+'</div>';
 }
 
 function carte(t){
@@ -150,11 +173,11 @@ function carte(t){
         'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="ttn-emoji" style="display:none">👹</span></div>'+
       '<div class="ttn-id">'+
         '<h3 class="ttn-nom">'+h(nom)+(forme>=0?' <small>(forme '+(forme+1)+' / '+t.forms.length+')</small>':'')+'</h3>'+
-        '<div class="ttn-sous">'+kills+' victoire'+(kills>1?'s':'')+'</div>'+
+        '<div class="ttn-sous">💀 '+kills+' victoire'+(kills>1?'s':'')+'</div>'+
         statut+
       '</div>'+
     '</div>'+
-    '<div class="ttn-stats" id="ttnStats_'+h(id)+'">'+htmlStats(v)+'</div>'+
+    '<div class="ttn-sous-titre">Ses statistiques</div><div class="ttn-stats" id="ttnStats_'+h(id)+'">'+htmlStats(v)+'</div>'+
     '<div id="ttnReco_'+h(id)+'">'+seuilsRecommandes(t,palier)+'</div>'+
     capacites+
     '<div class="ttn-actions">'+selecteur+
@@ -183,13 +206,31 @@ function css(){
     '.ttn-etat{display:inline-block;margin-top:6px;padding:4px 11px;border-radius:999px;font-size:13px;font-weight:800;border:1px solid currentColor;background:rgba(0,0,0,.35)}'+
     '.ttn-etat.pret{color:#34d399}.ttn-etat.attente{color:#fbbf24}.ttn-etat.cache{color:#a78bfa}'+
     '.ttn-etat b{font-variant-numeric:tabular-nums;color:#fff}'+
-    '.ttn-stats{display:grid;gap:5px;margin-top:12px;padding:9px 11px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid var(--th-line,rgba(255,255,255,.12))}'+
-    '.ttn-stat{display:flex;align-items:baseline;gap:7px;font-size:14px}'+
-    '.ttn-stat-l{color:var(--th-dim,#c79a85)}'+
-    '.ttn-stat b{margin-left:auto;color:#fff;font-variant-numeric:tabular-nums}'+
-    '.ttn-reco{margin-top:9px;font-size:13px;line-height:1.5;color:var(--th-dim,#c79a85);display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:2px;align-items:baseline}'+
+    '.ttn-sous-titre{margin-top:14px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--th-dim,#c79a85)}'+
+    '.ttn-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px;margin-top:6px}'+
+    '.ttn-stat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:9px 6px;border-radius:12px;background:rgba(0,0,0,.34);border:1px solid var(--th-line,rgba(255,255,255,.14))}'+
+    '.ttn-stat-i{font-size:20px}'+
+    '.ttn-stat b{font-size:21px;line-height:1.1;color:#fff;font-variant-numeric:tabular-nums}'+
+    '.ttn-stat-l{font-size:12px;color:var(--th-dim,#c79a85);line-height:1.2}'+
+    '.ttn-reco{margin-top:16px;padding:12px 13px;border-radius:14px;background:rgba(0,0,0,.4);border:2px solid var(--th-line,rgba(255,122,26,.45))}'+
+    '.ttn-comp-titre{font-size:19px;font-weight:900;color:var(--th-c,#ffd166)}'+
+    '.ttn-comp-aide{margin:3px 0 10px;font-size:13px;line-height:1.4;color:var(--th-dim,#c79a85)}'+
+    '.ttn-tete{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase}'+
+    '.ttn-tete b:last-child{text-align:right}'+
     '.ttn-reco b{color:var(--th-ink,#ffe7d6)}'+
-    '.ttn-reco-d{text-align:right;font-variant-numeric:tabular-nums}'+
+    '.ttn-mode{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-left-width:6px}'+
+    '.ttn-mode.oui{border-left-color:#34d399}.ttn-mode.non{border-left-color:#f87171}'+
+    '.ttn-mode-haut{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;margin-bottom:6px}'+
+    '.ttn-mode-nom{font-size:17px;text-transform:uppercase;letter-spacing:.08em}'+
+    '.ttn-verdict{font-size:13px;font-weight:800;color:var(--th-dim,#c79a85)}.ttn-verdict.oui{color:#34d399}.ttn-verdict.non{color:#fca5a5}'+
+    '.ttn-ligne{display:grid;grid-template-columns:minmax(86px,auto) minmax(0,1fr) minmax(0,1fr);column-gap:10px;align-items:baseline;margin-top:5px}'+
+    '.ttn-cat{font-size:13px;color:var(--th-dim,#c79a85)}'+
+    '.ttn-reco-g{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}'+
+    '.ttn-reco-d{font-size:19px;font-weight:900;text-align:right;font-variant-numeric:tabular-nums}'+
+    '.ttn-tete .ttn-reco-g,.ttn-tete .ttn-reco-d{font-size:12px;font-weight:900}'+
+    '.ttn-jauge{grid-column:1/-1;height:8px;margin-top:3px;border-radius:999px;background:rgba(0,0,0,.55);overflow:hidden;border:1px solid rgba(255,255,255,.16)}'+
+    '.ttn-jauge i{display:block;height:100%;border-radius:999px;background:#6b7280}'+
+    '.ttn-jauge.oui i{background:linear-gradient(90deg,#059669,#34d399)}.ttn-jauge.non i{background:linear-gradient(90deg,#b91c1c,#f87171)}'+
     '.ttn-ok-oui{color:#34d399;font-weight:900}.ttn-ok-non{color:#f87171;font-weight:900}'+
     '.ttn-details{margin-top:9px;font-size:13px}'+
     '.ttn-details summary{cursor:pointer;font-weight:800}'+

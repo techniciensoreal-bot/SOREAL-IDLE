@@ -71,24 +71,41 @@ assert.equal(api.cleVariante({}, ""), "");
   assert.ok(attente.includes("Réapparition dans") && attente.includes("data-ttn-cd") && /<button[^>]*disabled/.test(attente), "compte à rebours + bouton désactivé");
 }
 
-// 2b. Stats actuelles (Norman, 2026-10-04) : colonne de droite, chaque chiffre vert s'il atteint la stat conseillée, rouge sinon, sur les trois lignes.
+// 2b. Stats conseillées / actuelles (Norman, 2026-10-04, puis 2026-10-07 : « plus visibles ») : par mode (Manuel, Idle, Auto-kill), Puissance et Endurance conseillées à gauche, les tiennes à droite
+// (vert si atteintes, rouge sinon), une jauge et un verdict clair.
 {
   const titan = { id: "t1", name: "GRB", progressionUnlocked: true, state: { kills: 0, nextAt: 0 }, combat: {}, p: 1000, t: 800, idleP: 2000, idleT: 1600, autoKillP: 4000, autoKillT: 3200 };
   fenetre.__SOREAL_IDLE_LIRE_ETAT_V1__ = () => ({ systemes: { adventure: { stats: { power: 2500, toughness: 700 } } } });
   const html = api.page({ systemes: { adventure: { titans: [titan] } } });
-  const bloc = html.slice(html.indexOf('class="ttn-reco"'), html.indexOf("</div>", html.indexOf('class="ttn-reco"')));
-  assert.ok(bloc.includes("Stats actuelles"));
-  // Manuel : Power 2500 >= 1000 (vert), Toughness 700 < 800 (rouge) ; Idle : Power 2500 >= 2000 (vert), Toughness rouge ; Auto-kill : les deux rouges.
+  const debut = html.indexOf('class="ttn-reco"');
+  assert.ok(debut > 0 && html.includes("Es-tu assez costaud"), "bloc de comparaison avec son titre");
+  const bloc = html.slice(debut, html.indexOf("</article>", debut));
+  assert.ok(bloc.includes("Stats conseillées") && bloc.includes("Stats actuelles"), "les deux colonnes sont titrées");
+  assert.equal((bloc.match(/class="ttn-mode /g) || []).length, 3, "trois modes : Manuel, Idle, Auto-kill");
+  // Manuel : Puissance 2500 >= 1000 (vert), Endurance 700 < 800 (rouge) ; Idle : Puissance 2500 >= 2000 (vert), Endurance rouge ; Auto-kill : les deux rouges.
   const verts = (bloc.match(/ttn-ok-oui/g) || []).length;
   const rouges = (bloc.match(/ttn-ok-non/g) || []).length;
-  assert.equal(verts, 2, "Power atteint sur Manuel et Idle");
-  assert.equal(rouges, 4, "Toughness jamais atteinte (3 lignes) + Power d'auto-kill");
-  assert.ok(/Manuel : [^<]*<\/span><span class="ttn-reco-d">⚔️ <span class="ttn-ok-oui">/.test(bloc), "la ligne Manuel commence par un Power vert");
+  assert.equal(verts, 2, "Puissance atteinte sur Manuel et Idle");
+  assert.equal(rouges, 4, "Endurance jamais atteinte (3 modes) + Puissance d'auto-kill");
+  assert.equal((bloc.match(/class="ttn-jauge /g) || []).length, 6, "une jauge par chiffre (3 modes x 2)");
+  assert.ok(bloc.includes("❌ Pas encore : il te manque") && bloc.includes("⚔️ 1.5K") === false && bloc.includes("🛡️ 100"), "verdict : ce qui manque, en clair (Manuel : il manque 100 d'Endurance)");
+  assert.ok(/ttn-verdict non">❌ Pas encore : il te manque 🛡️ 100/.test(bloc), "Manuel : seule l'Endurance manque");
+  assert.ok(/ttn-mode non"><div class="ttn-mode-haut"><b class="ttn-mode-nom">Auto-kill/.test(bloc), "Auto-kill : mode en rouge");
   fenetre.__SOREAL_IDLE_LIRE_ETAT_V1__ = () => ({ systemes: { adventure: { stats: { power: 5000, toughness: 5000 } } } });
-  assert.ok(!api.page({ systemes: { adventure: { titans: [titan] } } }).includes("ttn-ok-non"), "tout atteint : tout est vert");
+  const tout = api.page({ systemes: { adventure: { titans: [titan] } } });
+  assert.ok(!tout.includes("ttn-ok-non") && tout.split("✅ Prêt</span>").length - 1 === 3, "tout atteint : tout est vert, trois verdicts « Prêt »");
   fenetre.__SOREAL_IDLE_LIRE_ETAT_V1__ = () => null;
-  assert.ok(api.page({ systemes: { adventure: { titans: [titan] } } }).includes("Stats actuelles"), "sans état : jamais de plantage");
+  const sans = api.page({ systemes: { adventure: { titans: [titan] } } });
+  assert.ok(sans.includes("Stats actuelles") && sans.includes("Tes stats se chargent"), "sans état : jamais de plantage");
 }
+// Statistiques du titan : cinq tuiles à gros chiffres.
+{
+  const html = api.page({ systemes: { adventure: { titans: [{ id: "t1", name: "GRB", progressionUnlocked: true, state: { kills: 0, nextAt: 0 }, combat: { "": { hp: 3e5, power: 666, toughness: 666, regen: 66, attackRate: 2 } } }] } } });
+  assert.equal((html.match(/class="ttn-stat"/g) || []).length, 5, "cinq tuiles : PV, Puissance, Endurance, Régénération, cadence");
+  assert.ok(html.includes("Ses statistiques") && html.includes("Puissance") && html.includes("Endurance") && !html.includes("Toughness"), "libellés en français clair");
+}
+const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
+assert.ok(css.includes("TITANS : l'ARÈNE DES TITANS") && css.includes('[data-menu="titans"] .ttn-carte.ttn-carte{') && css.includes("button.ttn-bouton.ttn-bouton{"), "habillage de l'arène des Titans");
 
 // 3. Câblage.
 const index = readFileSync("cloudflare/public/index.html", "utf8");
