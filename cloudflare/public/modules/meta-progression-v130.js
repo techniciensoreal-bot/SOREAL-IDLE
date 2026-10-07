@@ -1837,7 +1837,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        */
       const IDLE_ALLOC_RAPIDE_V1={file:new Map(),timer:0,enCours:false,ancien:null,voulu:new Map()};
       function cleAllocRapideV1_(p){
-        return String(p.action)+':'+String(p.system||'')+':'+String(p.resource||p.pair||p.track||p.ritual||'')+':'+(p.upgrade?'u':'m');
+        return String(p.action)+':'+String(p.system||'')+':'+String(p.resource||p.pair||p.track||p.ritual||p.ngu||'')+':'+(p.upgrade?'u':'m');
       }
       function planifierAllocRapideV1_(delai){
         const R=IDLE_ALLOC_RAPIDE_V1;
@@ -1858,7 +1858,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         R.file.set(cle,payload);
         /* Ce que le joueur veut, tant que le serveur ne l'a pas confirmé : réappliqué sur tout état serveur plus ancien (voir appliquerAllocationsVoulues). */
         if(payload.action==='clearRitualAllocations')Array.from(R.file.keys()).forEach(function(c){if(c.indexOf('allocateRitual:')===0)R.file.delete(c);});
-        if(payload.action==='allocate'||payload.action==='allocateAugment'||payload.action==='allocateAdvancedTraining'||payload.action==='allocateRitual')R.voulu.set(cle,payload);
+        if(payload.action==='allocate'||payload.action==='allocateAugment'||payload.action==='allocateAdvancedTraining'||payload.action==='allocateRitual'||payload.action==='allocateNgu')R.voulu.set(cle,payload);
         else if(payload.action==='clearRitualAllocations'){Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateRitual:')===0)R.voulu.delete(c);});R.voulu.set(cle,payload);}
         else if(payload.action==='clearAugmentAllocations')Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.voulu.delete(c);});
         planifierAllocRapideV1_(delai);
@@ -1986,6 +1986,24 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             pisteAt.energy=val;
             if(sysAt.state.allocation)sysAt.state.allocation.energy=Math.max(0,H.idleNombre_(sysAt.state.allocation.energy)+deltaAt);
             j.energie=Math.max(0,H.idleNombre_(j.energie)-deltaAt);
+          }else if(p.action==='allocateNgu'){
+            const ng=j.systemes&&j.systemes.ngus;
+            const listeN=ng&&ng.tiers&&ng.tiers[ng.tier||'normal'];
+            const nN=Array.isArray(listeN)?listeN.filter(function(x){return x&&x.id===p.ngu;})[0]:null;
+            if(!nN)return;
+            const actuelN=Math.max(0,H.idleNombre_(nN.allocation));
+            const deltaN=val-actuelN;
+            if(!deltaN)return;
+            nN.allocation=val;
+            const sysN=systemeMetaParIdIdleV130_(j,'ngu');
+            if(sysN&&sysN.state&&sysN.state.allocation){
+              const ressN=nN.resource==='magic'?'magic':'energy';
+              sysN.state.allocation[ressN]=Math.max(0,H.idleNombre_(sysN.state.allocation[ressN])+deltaN);
+            }
+            if(nN.resource==='magic'){
+              const mN=j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+              if(mN)mN.current=Math.max(0,H.idleNombre_(mN.current)-deltaN);
+            }else j.energie=Math.max(0,H.idleNombre_(j.energie)-deltaN);
           }else if(p.action==='allocateAugment'){
             const sys=systemeMetaParIdIdleV130_(j,'augmentations');
             const pair=sys&&sys.state&&sys.state.data&&sys.state.data.pairs&&sys.state.data.pairs[p.pair];
@@ -3233,78 +3251,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         return Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.resources&&snap.resources[ressource]&&snap.resources[ressource].cap||0));
       }
 
+      /*
+       * Page NGU : « le laboratoire » (modules/ngu-labo-v1.js, Norman 2026-10-08) -- fioles verticales aux couleurs de l'écran NGU de NGU Idle, + / −, Target, Advance Energy. Les NGU de magie non débloqués n'y
+       * apparaissent pas du tout (anti-spoil) ; tant que le système n'est pas découvert : « Rien à afficher ».
+       */
       function pageNguIdleV1_(j){
-        const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const titre=H.entetePageIdleV28_('♾️ NGU','Chaque NGU a sa propre allocation et progresse en parallèle. Les niveaux persistent à travers les Rebirths ; l\'énergie et la magie allouées sont rendues au Rebirth.');
-        const sys=systemeMetaParIdIdleV130_(j,'ngu');
-        if(!sys||!sys.state||!sys.state.unlocked){
-          return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
-        }
-        const snap=(j&&j.systemes)||{};
-        const ng=snap.ngus||{};
-        const nomPalier={normal:'Normal',evil:'Evil',sadistic:'Sadistic'};
-        const paliers=Array.isArray(ng.activeTiers)?ng.activeTiers:['normal'];
-        const courant=ng.tier||'normal';
-        const liste=(ng.tiers&&ng.tiers[courant])||[];
-        const systemes=Array.isArray(snap.systems)?snap.systems:[];
-        function capDe(ressource){return capRessourceMetaIdleV1_(snap,ressource);}
-        function alloueAutres(ressource,exceptId){
-          let total=0;
-          systemes.forEach(function(x){
-            if(!x||x.id==='ngu')return;
-            total+=Math.max(0,H.idleNombre_(x.state&&x.state.allocation&&x.state.allocation[ressource]||0));
-          });
-          liste.forEach(function(n){
-            if(n.resource===ressource&&n.id!==exceptId)total+=Math.max(0,H.idleNombre_(n.allocation));
-          });
-          return total;
-        }
-        const onglets=paliers.map(function(t){
-          const actif=t===courant;
-          return '<button type="button" class="soreal-idle-expand-button-v25" style="'+(actif?'font-weight:700;outline:2px solid #6366f1':'')+'" '+(actif?'disabled':'onclick="window.__actionMetaV47__({action:\'setNguTier\',tier:\''+t+'\'})"')+'>'+nomPalier[t]+'</button>';
-        }).join('');
-        const fx=ng.effects||{};
-        const ratio=function(v){return 'x'+H.formatGrandNombreIdleV70_(Math.max(1,H.idleNombre_(v)),2);};
-        const resume=[
-          ['⚔️ Attack/Defense',ratio(fx.attackDefense)],
-          ['🗺️ Adventure',ratio(fx.adventure)],
-          ['🪙 Gold',ratio(fx.gold)],
-          ['🎲 Drop',ratio(fx.dropChance)],
-          ['✨ EXP',ratio(fx.exp)],
-          ['🔢 Number',ratio(fx.number)],
-          ['⭐ PP',ratio(fx.pp)],
-          ['🌱 Yggdrasil',ratio(fx.yggdrasil)],
-          ['⏱️ Time Machine',ratio(fx.timeMachine)],
-          ['🦾 Augments',ratio(fx.augments)],
-          ['💻 Wandoos',ratio(fx.wandoosSpeed)],
-          ['⏳ Respawn','-'+(H.idleNombre_(fx.respawnReduction)*100).toFixed(1).replace('.',',')+' %']
-        ].map(function(x){return '<div class="soreal-idle-summary-v28">'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
-        function ligne(n){
-          const cap=capDe(n.resource);
-          const dispo=Math.max(0,cap-alloueAutres(n.resource,n.id));
-          const verrou=n.resource==='magic'&&!ng.magicUnlocked;
-          if(verrou)return '';/* ANTI-SPOIL : un NGU Magic non débloqué n'apparaît pas du tout. */
-          const valeurs=[0,Math.floor(dispo*.25),Math.floor(dispo*.5),Math.floor(dispo)];
-          const pct=Math.max(0,Math.min(100,H.idleNombre_(n.progress)*100));
-          const symbole=n.resource==='magic'?'✨':'⚡';
-          const boutons=valeurs.map(function(v,i){
-            return '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou?'disabled':'onclick="window.__actionMetaV47__({action:\'allocateNgu\',ngu:\''+H.idleHtml_(n.id)+'\',value:'+v+'})"')+'>'+['0%','25%','50%','100%'][i]+'</button>';
-          }).join('');
-          return '<div class="soreal-idle-section-v8" style="margin:0;opacity:'+(verrou?'.55':'1')+'">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+H.idleHtml_(emojiNomIdleV1_('ngu',n.id,n.name))+' · Niv. '+H.formatGrandNombreIdleV70_(n.level)+'</b><span>'+H.formatGrandNombreIdleV70_(n.allocation)+' '+symbole+'</span></div>'+
-            '<div style="font-size:14px;color:#aeb5c8">'+H.idleHtml_(n.effect)+' : <b>'+(n.id==='respawn'?'-':'+')+H.formatGrandNombreIdleV70_(n.effectPct,2)+' %</b>'+
-            (n.secondsPerLevel!==null&&n.secondsPerLevel!==undefined?' · prochain niveau ≈ '+dureeLongueNguIdleV1_(n.secondsPerLevel):' · aucune allocation')+'</div>'+
-            '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;background:#6366f1;transition:none"></div></div>'+
-            '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">'+boutons+'</div></div>';
-        }
-        const energie=liste.filter(function(n){return n.resource==='energy';}).map(ligne).join('');
-        const magie=liste.filter(function(n){return n.resource==='magic';}).map(ligne).join('');
-        return titre+
-          '<div class="soreal-idle-section-v8" style="margin:0 0 10px"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>Palier</b>'+onglets+'</div>'+
-          '<div style="font-size:14px;color:#aeb5c8;margin-top:6px">Un seul palier reçoit de l\'énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</div></div>'+
-          '<div class="soreal-idle-summary-grid-v28">'+resume+'</div>'+
-          '<h3 style="margin:16px 0 8px">NGU Energy</h3><div style="display:grid;gap:10px">'+energie+'</div>'+
-          '<h3 style="margin:16px 0 8px">NGU Magic</h3><div style="display:grid;gap:10px">'+magie+'</div>';
+        const labo=window.__SOREAL_IDLE_NGU_LABO_V1__;
+        if(labo&&typeof labo.page==='function')return labo.page(j);
+        return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
       }
 
       /*

@@ -4830,9 +4830,9 @@ function createNguDataV1() {
   const ngus = {};
   for (const tier of IDLE_NGU_TIERS_V1) {
     ngus[tier] = {};
-    for (const def of IDLE_NGU_CATALOG_V1) ngus[tier][def.id] = { level: 0, work: 0, allocation: 0 };
+    for (const def of IDLE_NGU_CATALOG_V1) ngus[tier][def.id] = { level: 0, work: 0, allocation: 0, target: 0 };
   }
-  return { tier: "normal", ngus };
+  return { tier: "normal", ngus, advance: { energy: false, magic: false } };
 }
 
 function normalizeNguDataV1(raw) {
@@ -4845,10 +4845,12 @@ function normalizeNguDataV1(raw) {
       out.ngus[tier][def.id] = {
         level: clamp(Math.floor(num(n.level, 0)), 0, IDLE_NGU_MAX_LEVEL_V1),
         work: Math.max(0, num(n.work, 0)),
-        allocation: Math.max(0, num(n.allocation, 0))
+        allocation: Math.max(0, num(n.allocation, 0)),
+        target: clamp(Math.floor(num(n.target, 0)), 0, IDLE_NGU_MAX_LEVEL_V1)
       };
     }
   }
+  out.advance = { energy: Boolean(src.advance?.energy), magic: Boolean(src.advance?.magic) };
   return out;
 }
 
@@ -5001,6 +5003,62 @@ function grantNguLevelsV1(state, tier, id, gained) {
   else if (tier === "evil" && num(quirkLevels[14], 0) > 0) grantNguLevelsV1(state, "normal", id, gained);
 }
 
+/*
+ * Champ « Target » de chaque NGU et case « Advance Energy » (Norman, 2026-10-08, capture de l'écran NGU de NGU Idle : « on peut faire Advance Energy, on peut mettre une Target »). Même règle que l'Entraînement
+ * avancé, déjà validée par Norman : le Target est le niveau à atteindre (0 = aucun) ; quand un NGU l'atteint, son énergie (ou sa magie) est rendue ; avec « Advance Energy » elle passe plutôt au NGU suivant de
+ * la liste (dans l'ordre de l'écran, même ressource) qui n'a pas atteint son propre Target. Le wiki ne décrit pas ces deux champs : aucune valeur n'est inventée, seulement une règle de report.
+ */
+function nguCibleAtteinteV1(n) {
+  const cible = Math.max(0, Math.floor(num(n?.target, 0)));
+  return cible > 0 && Math.floor(num(n.level, 0)) >= cible;
+}
+function applyNguTargetsV1(state) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked || !s.data?.ngus) return;
+  const ngus = s.data.ngus[s.data.tier];
+  if (!ngus) return;
+  const magieOk = Boolean(state.systems.bloodMagic?.unlocked);
+  for (const resource of ["energy", "magic"]) {
+    if (resource === "magic" && !magieOk) continue;
+    const defs = IDLE_NGU_CATALOG_V1.filter(d => d.resource === resource);
+    defs.forEach((def, index) => {
+      const n = ngus[def.id];
+      const alloue = Math.max(0, num(n.allocation, 0));
+      if (!nguCibleAtteinteV1(n) || alloue <= 0) return;
+      const suivant = s.data.advance?.[resource]
+        ? defs.slice(index + 1).find(d => !nguCibleAtteinteV1(ngus[d.id]) && ngus[d.id].level < IDLE_NGU_MAX_LEVEL_V1)
+        : null;
+      if (suivant) {
+        ngus[suivant.id].allocation = Math.max(0, num(ngus[suivant.id].allocation, 0)) + alloue;
+        n.allocation = 0;
+      } else {
+        setNguAllocationV1(state, def.id, 0, {});
+      }
+    });
+  }
+  syncNguAllocationTotalsV1(s);
+}
+function setNguTargetV1(state, nguId, value) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const def = IDLE_NGU_CATALOG_V1.find(x => x.id === nguId);
+  if (!def) throw new Error("NGU_INVALIDE");
+  if (def.resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  const cible = clamp(Math.floor(num(value, 0)), 0, IDLE_NGU_MAX_LEVEL_V1);
+  s.data.ngus[s.data.tier][nguId].target = cible;
+  applyNguTargetsV1(state);
+  return { ngu: nguId, target: cible };
+}
+function setNguAdvanceV1(state, resource, enabled) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (resource !== "energy" && resource !== "magic") throw new Error("RESSOURCE_INVALIDE");
+  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  s.data.advance = { ...(s.data.advance || { energy: false, magic: false }), [resource]: Boolean(enabled) };
+  applyNguTargetsV1(state);
+  return { resource, advance: Boolean(enabled) };
+}
+
 function advanceNgusV1(state, seconds) {
   const s = state.systems.ngu;
   if (!s?.unlocked || seconds <= 0) return;
@@ -5030,6 +5088,7 @@ function advanceNgusV1(state, seconds) {
     if (gained > 0) grantNguLevelsV1(state, tier, def.id, gained);
   }
   syncNguAllocationTotalsV1(s);
+  applyNguTargetsV1(state);
 }
 
 function setNguAllocationV1(state, nguId, value, context = {}, tierArg) {
@@ -5807,6 +5866,7 @@ function nguSnapshotV1(state, context) {
         resource: def.resource,
         level: n.level,
         allocation: alloc,
+        target: Math.max(0, Math.floor(num(n.target, 0))),
         progress: n.level >= IDLE_NGU_MAX_LEVEL_V1 ? 0 : Math.max(0, Math.min(1, n.work / (n.level + 1))),
         effectPct: nguEffectPctV1(tier, def.id, n.level),
         secondsPerLevel: rate > 0 ? perLevel / rate : null,
@@ -5820,6 +5880,7 @@ function nguSnapshotV1(state, context) {
     maxLevel: IDLE_NGU_MAX_LEVEL_V1,
     unlocked: Boolean(s.unlocked),
     magicUnlocked: Boolean(state.systems.bloodMagic?.unlocked),
+    advance: { energy: Boolean(s.data.advance?.energy), magic: Boolean(s.data.advance?.magic) },
     speedMultiplier: speeds,
     tiers,
     effects: clone(nguFxV1(state))
@@ -7239,6 +7300,12 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = applyMacguffinActionV1(state, payload, t);
   } else if (action === "allocateNgu") {
     result = setNguAllocationV1(state, String(payload.ngu || ""), num(payload.value, 0), context, payload.tier ? String(payload.tier) : undefined);
+    /* Un NGU qui a déjà atteint son Target ne garde pas l'énergie qu'on vient d'y mettre (comme l'Entraînement avancé). */
+    applyNguTargetsV1(state);
+  } else if (action === "setNguTarget") {
+    result = setNguTargetV1(state, String(payload.ngu || ""), num(payload.value, 0));
+  } else if (action === "setNguAdvance") {
+    result = setNguAdvanceV1(state, String(payload.resource || ""), Boolean(payload.enabled));
   } else if (action === "setNguTier") {
     result = setNguTierV1(state, String(payload.tier || ""));
   } else if (action === "setWishSlot") {

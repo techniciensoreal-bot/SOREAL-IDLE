@@ -30,6 +30,8 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
   document: { getElementById() { return null; } }
 };
+/* La page NGU est celle du laboratoire (modules/ngu-labo-v1.js), appelée par la page générique. */
+vm.runInNewContext(readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8"), { window, document: window.document, setInterval: () => 1, clearInterval() {}, performance: { now: () => 5000 } });
 vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), { window, document: window.document, SOREAL_SESSION: null });
 const page = window.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_;
 
@@ -57,14 +59,33 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
   const html = page({ systemes: snap }, "ngu", "NGU");
   for (const nom of ["Augments", "Wandoos", "Respawn", "Gold", "Adventure α", "Power α", "Drop Chance", "Magic NGU", "PP",
     "Yggdrasil", "EXP", "Power β", "Number", "Time Machine", "Energy NGU", "Adventure β"]) {
-    assert.ok(html.includes("<b>" + nom + " · Niv."), "NGU manquant dans la page : " + nom);
+    assert.ok(html.includes("NGU " + nom.toUpperCase()), "NGU manquant dans la page : " + nom);
   }
-  assert.equal((html.match(/allocateNgu/g) || []).length, 16 * 4, "4 boutons d'allocation par NGU");
-  assert.ok(html.includes("NGU Energy") && html.includes("NGU Magic"));
-  assert.ok(html.includes("Niv. 120"), "niveau du NGU Power α");
+  assert.equal((html.match(/data-nl-ngu="/g) || []).length, 16, "une fiole par NGU");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 2, "boutons + et − sur chaque fiole");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par fiole");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Advance Magic");
+  assert.ok(html.includes("TO NGU MAGIC") && html.includes("WTF do I do?"), "boutons de l'écran d'origine");
+  assert.ok(html.includes("data-nl-niv>120<"), "niveau du NGU Power α");
   assert.ok(html.includes("+600 %"), "Power α niveau 120 : 120 x 5 % = 600 %");
   assert.ok(!html.includes("setNguTier"), "en difficulté Normal, un seul palier : pas de bouton de changement");
   assert.ok(html.includes("Normal"), "le palier courant est indiqué");
+  /* Couleurs de la capture de NGU Idle (échantillonnées sur l'image). */
+  for (const [id, couleur] of Object.entries({ augments: "#868686", wandoos: "#7a96f5", respawn: "#a6deb9", gold: "#ffffa9", adventureAlpha: "#f2bb6a", powerAlpha: "#ed3e3e", dropChance: "#daf11a", pp: "#cfca15" })) {
+    assert.ok(new RegExp('data-nl-ngu="' + id + '"[^>]*--nl-c:' + couleur).test(html), "couleur de " + id);
+  }
+  assert.ok(/data-nl-ngu="magicNgu"[^>]*--nl-c:#9e19f1/.test(html), "couleur de Magic NGU");
+  /* La fiole de Power α porte sa progression et son énergie pour le rejeu en direct. */
+  assert.ok(/data-nl-ngu="powerAlpha" data-nl-res="energy" data-nl-p="[0-9.e-]+" data-nl-spl="[0-9.e+-]+" data-nl-n="120" data-nl-cible="0"/.test(html), "ancrage de la progression");
+}
+// Anti-spoil : tant que la magie n'est pas découverte, aucun NGU de magie ni bouton « TO NGU MAGIC »
+{
+  const snap = idleNguSnapshot(state, context, 1_000_000);
+  snap.ngus.magicUnlocked = false;
+  const html = page({ systemes: snap }, "ngu", "NGU");
+  assert.equal((html.match(/data-nl-ngu="/g) || []).length, 9, "seulement les 9 NGU d'énergie");
+  assert.ok(!/YGGDRASIL|POWER Β|TIME MACHINE|ENERGY NGU|ADVENTURE Β/i.test(html.replace(/POWER Α|ADVENTURE Α/gi, "")), "aucun nom de NGU de magie");
+  assert.ok(!html.includes("TO NGU MAGIC") && !html.includes("Advance Magic"), "ni bouton ni case de magie");
 }
 
 // Evil : le sélecteur de palier apparaît
