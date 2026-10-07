@@ -38,7 +38,8 @@
           'Quand tu gagnes de l’or, le mot qui suit devient de plus en plus enthousiaste avec la somme : de « Bah… » jusqu’à « OH BORDEL ! », « WHOUHOU ! » et bien au-delà.',
           'Augmentations : quand tu ajoutes de l’énergie plusieurs fois de suite (par exemple 10 000 à chaque fois), la barre ne revient plus en arrière : elle garde sa place et prend simplement la nouvelle vitesse.',
           'Quand tu bats un boss, le jeu laisse d’abord partir les réglages d’énergie et de Magic en attente avant de demander confirmation au serveur, pour que le boss suivant se charge bien.',
-          'Le jeu est allégé pour les téléphones : les compteurs ne se réécrivent plus à chaque image quand leur valeur n’a pas changé (environ 175 modifications de la page par seconde en moins), la barre de menus perd un flou et des ombres invisibles, et la lueur du feu est plus légère.'
+          'Le jeu est allégé pour les téléphones : les compteurs ne se réécrivent plus à chaque image quand leur valeur n’a pas changé (environ 175 modifications de la page par seconde en moins), la barre de menus perd un flou et des ombres invisibles, et la lueur du feu est plus légère.',
+          'L’ordinateur rétro : les barres de niveau avancent maintenant petit à petit, en temps réel, et le temps avant le niveau suivant se met à jour à chaque seconde. Sur ordinateur, le moniteur ne dépasse plus la hauteur de la fenêtre.'
         ]
       },
       {

@@ -100,7 +100,8 @@
     if(document.getElementById('wd-style-v1'))return;
     var s=document.createElement('style');s.id='wd-style-v1';
     s.textContent=[
-      '.wd-poste{--wd-c:#33ff66;--wd-c2:#0f7a2c;--wd-glow:rgba(51,255,102,.55);container-type:inline-size;width:100%;max-width:900px;margin:10px auto 18px;}',
+      '.wd-poste{--wd-c:#33ff66;--wd-c2:#0f7a2c;--wd-glow:rgba(51,255,102,.55);container-type:inline-size;width:100%;max-width:min(900px,76vh);margin:10px auto 18px;}',
+      'html body .soreal-idle-page-root-v28[data-menu] .wd-poste{max-width:min(900px,76vh)!important;}',
       '.wd-poste[data-couleur="bleu"]{--wd-c:#5ab8ff;--wd-c2:#1c5a99;--wd-glow:rgba(90,184,255,.55);}',
       '.wd-poste[data-couleur="orange"]{--wd-c:#ffb000;--wd-c2:#8a5a00;--wd-glow:rgba(255,176,0,.55);}',
       '.wd-poste[data-couleur="blanc"]{--wd-c:#f0f0f0;--wd-c2:#6d6d6d;--wd-glow:rgba(240,240,240,.45);}',
@@ -210,6 +211,7 @@
   };
   var CLE_ALLUMAGE='soreal_idle_wandoos_allumage_v1';
   var allumage=null,timerTic=0,osEnAttente='';
+  function maintenant_(){return (typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();}
   /* L'avancement du chargement se poursuit entre deux réponses du serveur : on retient l'instant où chaque vue a été vue pour prolonger l'horloge localement. */
   var vues=typeof WeakMap==='function'?new WeakMap():null;
   function bootVu_(v){
@@ -249,6 +251,8 @@
     if(!NOMS_OS[os])os='98';
     var e={s:s,st:st,data:st.data||{},al:st.allocation||{},vue:vue,actif:Boolean(st.active),os:os,magieOk:magieOk,dispos:Array.isArray(vue.osDisponibles)&&vue.osDisponibles.length?vue.osDisponibles:['98']};
     e.enChargement=bootVu_(vue).fraction<0.9999;
+    /* Instant (horloge locale) où le serveur a calculé ces chiffres : les barres de niveau avancent à partir de là, jamais d'un repère périmé. */
+    e.at=(j&&Number.isFinite(j.__recuPerfV1))?j.__recuPerfV1:(vues&&vue&&typeof vue==='object'?(function(){var lu=maintenant_();if(vues.has(vue))lu=vues.get(vue);else vues.set(vue,lu);return lu;})():maintenant_());
     return e;
   }
 
@@ -320,8 +324,8 @@
     return '<div class="wd-bloc">'+
       '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b>'+html_(grand_(niveau))+'</b></span></div>'+
       '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b><span class="wd-lib">LIBRE</span><b>'+html_(grand_(libre))+'</b></div>'+
-      '<div class="wd-rang"><span class="wd-lib">NIVEAU+1</span>'+barre_(prog)+'<span class="wd-pct">'+Math.floor(prog*100)+'%</span></div>'+
-      '<div class="wd-ligne wd-petit"><span>VITESSE : <b>'+html_(vitTexte)+'</b> NIV/S'+html_(suivant)+'</span></div>'+
+      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
+      '<div class="wd-ligne wd-petit"><span>VITESSE : <b>'+html_(vitTexte)+'</b> NIV/S<span data-wd-reste data-garde="'+(vit>0&&vit<50?'1':'0')+'">'+html_(suivant)+'</span></span></div>'+
     '</div>';
   }
   function ecranBureau_(e){
@@ -395,6 +399,7 @@
     var phase=phaseDe_(e);
     var ecran=phase==='allumage'?ecranAllumage_(e):(phase==='bureau'?ecranBureau_(e):ecranEteint_(e));
     if((phase==='allumage'||(phase==='bureau'&&e.enChargement))&&!timerTic&&typeof setInterval==='function')timerTic=setInterval(tic_,250);
+    planifierVie_();
     return '<div class="wd-poste" data-couleur="'+c+'" data-phase="'+phase+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier_(e,phase)+'</div>';
   }
   function page(j){
@@ -442,6 +447,43 @@
     if(a)a.textContent=pc+' %';
     if(v)v.textContent=pc+' %';
     if(r)r.textContent=dureeTexte_(b.restant);
+  }
+  /*
+   * Barres « NIVEAU+1 » en temps réel (Norman, 2026-10-07 : « la barre doit avancer petit à petit, pas par grands à-coups ; avec le temps pour le niveau suivant qui se met à jour aussi »).
+   * Fraction = progression connue du serveur + vitesse (niveaux par seconde) × temps écoulé depuis l'instant où il l'a calculée. Au-delà de 3 niveaux par seconde, la barre boucle trop vite
+   * pour être suivie : elle reste pleine. Le texte « prochain niveau dans … » suit la même horloge.
+   */
+  var vivant=0;
+  function fractionBarre_(p0,v,at){
+    var dt=Math.max(0,(maintenant_()-at)/1000);
+    if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null};
+    if(v>=3)return {f:1,reste:null};
+    var brut=p0+v*dt;
+    var f=brut-Math.floor(brut);
+    return {f:f,reste:(1-f)/v};
+  }
+  function vivre_(){
+    vivant=0;
+    var barres=document.querySelectorAll('.wd-poste [data-wd-barre]');
+    if(!barres.length)return;
+    for(var i=0;i<barres.length;i++){
+      var b=barres[i];
+      var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')));
+      var rempl=b.querySelector('[data-wd-remplissage]');
+      if(rempl)rempl.style.width=(r.f*100).toFixed(2)+'%';
+      var pct=b.querySelector('[data-wd-pct]');
+      if(pct)pct.textContent=Math.floor(r.f*100)+'%';
+      var reste=b.parentNode&&b.nextElementSibling&&b.nextElementSibling.querySelector('[data-wd-reste]');
+      if(reste&&reste.getAttribute('data-garde')==='1'&&r.reste!=null){
+        var t=' · prochain niveau dans '+dureeTexte_(r.reste);
+        if(reste.textContent!==t)reste.textContent=t;
+      }
+    }
+    planifierVie_();
+  }
+  function planifierVie_(){
+    if(vivant||typeof requestAnimationFrame!=='function')return;
+    vivant=requestAnimationFrame(vivre_);
   }
   function demarrer(){
     var H=H_();
