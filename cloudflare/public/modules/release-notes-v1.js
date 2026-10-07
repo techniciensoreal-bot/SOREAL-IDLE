@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Menu du haut refait : fini le style « arcade », place à des boutons plus courts et plus nets, avec les mêmes emojis et les mêmes animations. Le sous-titre disparaît et le nom passe sur deux lignes, par exemple « Combat de boss ». Les boutons sont rangés sur deux rangées : tu en vois bien plus d’un coup d’œil et tu défiles bien moins.',
           'Presser une touche du clavier de l’ordinateur rétro, ou le bouton « Trier », ne fait plus bouger la page d’un poil : la page ne se recale plus sur le petit enfoncement du bouton.',
           'Plus aucun retour en arrière : quand le serveur répond dans le désordre, une réponse plus ancienne arrivée en retard n’est plus jamais appliquée. Un boss vaincu ne revient plus, les barres ne reculent plus, et le reste de l’état de jeu non plus. Quand tu fuis ou que tu perds un combat, le boss ne récupère plus de vie à cause d’un état plus ancien.',
           'Aventure : quand tu es en Zone sûre, le jeu ne farme plus en cachette ton ancienne zone pendant que tu n’es pas synchronisé. Plus de pluie de boosts surprise en rejoignant une autre zone. Le farm hors ligne ne concerne que la zone de combat sélectionnée.',
