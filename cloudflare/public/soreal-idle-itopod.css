@@ -211,7 +211,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35{
   --arc-or:#ffd24a;--arc-font:"Russo One","Impact","Arial Black",sans-serif;
-  position:relative;overflow:hidden;padding:44px 12px 22px!important;border:3px solid #000!important;border-radius:6px!important;
+  position:relative;overflow:hidden;padding:12px 12px 22px!important;border:3px solid #000!important;border-radius:6px!important;
   background:
     radial-gradient(ellipse 50% 60% at 50% 38%,rgba(120,140,255,.2),transparent 72%),
     linear-gradient(180deg,#04050c 0%,#0b0e22 55%,#190c1a 100%)!important;
@@ -230,7 +230,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35>.soreal-idle-label-v4{display:none!important;}
 /* ancien intitulé : */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35>.soreal-idle-label-v4{
-  position:absolute!important;top:12px;left:12px;right:12px;display:flex!important;align-items:center;justify-content:center;gap:12px;margin:0!important;padding:0!important;z-index:6;
+  position:absolute!important;top:12px;left:12px;right:12px;display:none!important;align-items:center;justify-content:center;gap:12px;margin:0!important;padding:0!important;z-index:6;
   font-family:var(--arc-font)!important;font-size:.95em;letter-spacing:.36em!important;color:var(--arc-or)!important;text-shadow:0 0 12px rgba(255,200,60,.75),0 2px 0 #000!important;-webkit-text-stroke:0!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35>.soreal-idle-label-v4::before,
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35>.soreal-idle-label-v4::after{content:"";flex:1;max-width:110px;height:2px;background:linear-gradient(90deg,transparent,var(--arc-or));box-shadow:0 0 8px var(--arc-or);}
@@ -437,18 +437,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{
   content:"";position:absolute;z-index:2;pointer-events:none;width:46px;height:44px;top:-82px;left:calc(34px + (100% - 68px) * .24 - 23px);
   background:
-    linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 0/6px 34px no-repeat,
-    radial-gradient(ellipse 15px 6px at 50% 33px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
-    radial-gradient(ellipse 23px 8px at 50% 36px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
-    radial-gradient(ellipse 25px 7px at 54% 41px,rgba(0,0,0,.55),transparent 100%);}
+    linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 0/6px 31px no-repeat,
+    radial-gradient(ellipse 15px 6px at 50% 30px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
+    radial-gradient(ellipse 23px 8px at 50% 33px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
+    radial-gradient(ellipse 25px 7px at 54% 38px,rgba(0,0,0,.55),transparent 100%);}
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-66px;left:calc(18px + (100% - 36px) * .24 - 10px);}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-72px;left:calc(18px + (100% - 36px) * .24 - 18px);
     background:
-      linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 20px no-repeat,
-      radial-gradient(ellipse 15px 6px at 50% 33px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
-      radial-gradient(ellipse 23px 8px at 50% 36px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
-      radial-gradient(ellipse 25px 7px at 54% 41px,rgba(0,0,0,.55),transparent 100%);}
+      linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 17px no-repeat,
+      radial-gradient(ellipse 15px 6px at 50% 30px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
+      radial-gradient(ellipse 23px 8px at 50% 33px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
+      radial-gradient(ellipse 25px 7px at 54% 38px,rgba(0,0,0,.55),transparent 100%);}
 }
 
 /* Téléphone : la page et ses blocs de premier niveau comptent leurs bordures et marges intérieures DANS leur largeur (sinon « width:100% » + cadre épais = dépassement à droite, page décentrée). */
@@ -483,7 +483,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
  * Les deux barres de vie passent sur toute la largeur de l'écran, l'une sous l'autre (chiffres grands) ; les noms et les portraits restent côte à côte dessous ; marges réduites au minimum. */
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{padding:8px 3px 12px!important;}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35{padding:38px 3px 14px!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35{padding:8px 3px 14px!important;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41{padding:44px 8px 12px!important;border-radius:20px 20px 6px 6px!important;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41::before{left:22px;right:22px;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:6px!important;row-gap:8px!important;padding:10px 6px 10px!important;border-width:6px!important;}
