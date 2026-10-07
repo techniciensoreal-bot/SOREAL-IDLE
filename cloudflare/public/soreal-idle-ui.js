@@ -1939,7 +1939,11 @@
           if(Date.now()-debut>15000){
             arreterSurveillanceVictoireBossIdleV1_();
             /* Trace pour le diagnostic : une victoire prédite que le serveur n'a pas confirmée en 15 s (voir « Diagnostic », Réglages). */
-            try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler('victoire_boss_non_confirmee','boss '+idleEntier_(idlePrevisionBossV1.vaincus)+' : 15 s sans confirmation du serveur');}catch(_e){}
+            try{
+              const srv=typeof window.__SOREAL_IDLE_DERNIER_ETAT_SERVEUR_V1__==='function'?window.__SOREAL_IDLE_DERNIER_ETAT_SERVEUR_V1__():null;
+              const pct=srv&&idleNombre_(srv.bossPvMax)>0?Math.round(100*idleNombre_(srv.bossPv)/idleNombre_(srv.bossPvMax)):'?';
+              window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler('victoire_boss_non_confirmee','boss '+idleEntier_(idlePrevisionBossV1.vaincus)+' : 15 s sans confirmation ; serveur : boss à '+pct+' % de ses PV, combat '+(srv&&srv.combatBossActif?'actif':'arrêté')+', boss vaincus '+(srv?idleEntier_(srv.bossVaincus):'?'));
+            }catch(_e){}
             google.script.run
               .withSuccessHandler(function(etat){
                 if(PAGE_ACTIVE!=='idle'||!idleVictoireBossLocaleV49||!etat||!etat.ok||!etat.joueur)return;

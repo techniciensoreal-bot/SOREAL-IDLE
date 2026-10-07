@@ -11964,6 +11964,17 @@ function definirCombatBossSorealIdle(
             )
           );
 
+        const bossPvServeur=
+          nombreSorealIdle_(
+            feuille
+              .getRange(
+                ligne,
+                c.BOSS_PV
+              )
+              .getValue(),
+            bossPvMaxCourant
+          );
+
         const bossPvSnapshot=
           Math.max(
             0,
@@ -11971,15 +11982,20 @@ function definirCombatBossSorealIdle(
               bossPvMaxCourant,
               nombreSorealIdle_(
                 snapshotCombat.bossPv,
-                feuille
-                  .getRange(
-                    ligne,
-                    c.BOSS_PV
-                  )
-                  .getValue()
+                bossPvServeur
               )
             )
           );
+
+        /*
+         * Jamais de retour en arrière sur le boss (Norman, 2026-10-08) : un instantané du client ne peut QUE faire baisser les PV du boss (ses derniers coups, pas encore connus du serveur) ; il ne lui rend
+         * jamais de vie, et un « 0 » du client (victoire prédite) ne tue pas le boss à la place du serveur : un boss à 0 PV hors combat était remis à son maximum (invariant V184), la victoire se perdait et la
+         * barre remontait d'un coup. Dans ce cas on garde les PV du serveur : le boss reste là, presque mort, et le combat suivant l'achève.
+         */
+        const bossPvRetenu=
+          bossPvSnapshot>0
+            ?Math.min(bossPvSnapshot,bossPvServeur)
+            :bossPvServeur;
 
         feuille
           .getRange(
@@ -11987,7 +12003,7 @@ function definirCombatBossSorealIdle(
             c.BOSS_PV
           )
           .setValue(
-            bossPvSnapshot
+            bossPvRetenu
           );
       }
     }

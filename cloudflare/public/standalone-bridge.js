@@ -180,6 +180,23 @@
    * sont conservés ; seul l'état périmé disparaît (celui reçu après contient déjà ses effets, le serveur ayant traité les requêtes dans l'ordre).
    */
   const gardeRetourArriereBaseV1={cle:"",at:0,joueur:null,ignorees:0};
+  /*
+   * Détecteur de retours en arrière (diagnostic, Norman, 2026-10-08) : un état reçu, PLUS RÉCENT que le précédent, dont une valeur qui ne peut que croître a reculé est noté dans le journal de diagnostic
+   * (Réglages > Diagnostic) : boss vaincus et Renaissances (le boss vaincu ne revient qu'avec une Renaissance), révision d'Aventure. Aucun effet sur le jeu : il sert à voir, chez un vrai joueur, ce que la garde
+   * ci-dessus ne peut pas empêcher (désaccord réel entre le client et le serveur).
+   */
+  function valeurV1_(o,chemin){try{return chemin.split(".").reduce(function(x,k){return x==null?undefined:x[k];},o);}catch(_){return undefined;}}
+  function detecterRecul_(avant,apres,ecartMs){
+    try{
+      const renAv=Number(valeurV1_(avant,"renaissance.renaissances")),renAp=Number(valeurV1_(apres,"renaissance.renaissances"));
+      const champs=[["renaissance.renaissances",true],["bossVaincus",renAv===renAp],["systemes.adventure.revision",renAv===renAp]];
+      champs.forEach(function(c){
+        if(!c[1])return;
+        const x=Number(valeurV1_(avant,c[0])),y=Number(valeurV1_(apres,c[0]));
+        if(isFinite(x)&&isFinite(y)&&y<x)window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler("rollback_detecte",c[0]+" : "+x+" -> "+y+" (état plus récent de "+Math.round(ecartMs)+" ms)");
+      });
+    }catch(_){}
+  }
   function gardeRetourArriereV1_(session,joueur){
     const at=Number(joueur&&joueur.__serveurAtV1);
     if(!(at>0))return {perimee:false};
@@ -189,11 +206,13 @@
       g.ignorees+=1;
       return {perimee:true,joueur:g.joueur,retardMs:Math.round(g.at-at)};
     }
+    if(g.joueur&&g.joueur!==joueur)detecterRecul_(g.joueur,joueur,at-g.at);
     g.at=Math.max(g.at,at);
     g.joueur=joueur;
     return {perimee:false};
   }
   window.__SOREAL_IDLE_GARDE_RETOUR_V1__=function(){return {ignorees:gardeRetourArriereBaseV1.ignorees,dernierAt:gardeRetourArriereBaseV1.at};};
+  window.__SOREAL_IDLE_DERNIER_ETAT_SERVEUR_V1__=function(){return gardeRetourArriereBaseV1.joueur;};
 
   /* lignes : tableaux omis ligne par ligne (voir idle-catalogues-v1.js) -- { chemin: { hashes:[…], textes:{ empreinte: texte JSON de la ligne } } }. */
   const cataloguesV1={dernier:{},valeurs:{},lignes:{}};
