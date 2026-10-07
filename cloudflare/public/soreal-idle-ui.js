@@ -16599,6 +16599,8 @@ let idleDialogueTimerV76=null;
         'accessorySlotsCapacity','stats','trash','coffreSlots','secondWeaponUnlocked','dualWieldRatio','theEnd'
       ];
 
+      const IDLE_ADVENTURE_COMBAT_FIELDS_V1=['fight','selectedZone','lastCombatZone','retourSafe'];
+
       function revisionAdventureServeurIdleV208_(a){
         return Math.max(0,idleEntier_(a&&a.revision));
       }
@@ -16666,13 +16668,17 @@ let idleDialogueTimerV76=null;
           local&&
           revision<idleAdventureRevisionServeurV208
         ){
-          return joueurAvecAdventureIdleV208_(
-            joueur,
-            fusionnerAdventureServeurAvecInventaireLocalV208_(
-              serveur,
-              local
-            )
+          const fusionPerimee=fusionnerAdventureServeurAvecInventaireLocalV208_(
+            serveur,
+            local
           );
+          /* Réponse plus ANCIENNE que celle déjà reçue : le combat et la zone viennent aussi du local. Sinon une synchro lancée juste avant « Affronter » un Titan revenait après lui, sans combat : la scène du Titan disparaissait jusqu'au rafraîchissement (Norman, 2026-10-07 : « il est apparu après un refresh »). */
+          IDLE_ADVENTURE_COMBAT_FIELDS_V1.forEach(function(cle){
+            if(Object.prototype.hasOwnProperty.call(local,cle)){
+              fusionPerimee[cle]=cloneInventaireIdleV160_(local[cle]);
+            }
+          });
+          return joueurAvecAdventureIdleV208_(joueur,fusionPerimee);
         }
 
         idleAdventureRevisionServeurV208=Math.max(
