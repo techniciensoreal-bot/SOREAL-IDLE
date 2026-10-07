@@ -49,6 +49,7 @@
           'Les touches du clavier de l’ordinateur rétro font maintenant le même clic que celles de l’entraînement avancé : un bon vieux « clac » mécanique, et un « clonc » plus grave pour la barre d’espace.',
           'Aventure : un adversaire qu’on vient d’affronter ne reste plus invisible quand le serveur répond dans le désordre ; il apparaît tout de suite, sans devoir rafraîchir la page.',
           'Inventaire : une pièce dont les statistiques sont pleines pour son niveau actuel reçoit maintenant le V vert, même avant le niveau 100 : inutile de lui ajouter des boosts, ils seraient refusés.',
+          'Aventure : comme dans le jeu d’origine, dès qu’une attaque ou une compétence est utilisée, toutes les autres sont bloquées pendant 1 seconde (0,8 seconde avec le set Red Liquid). Fini le tir en rafale !',
         ]
       },
       {

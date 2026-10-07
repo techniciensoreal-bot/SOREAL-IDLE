@@ -18229,9 +18229,22 @@ let idleDialogueTimerV76=null;
         const base=Math.max(0,idleNombre_(def&&def.cooldown));
         if(!def||def.id==='move69')return base;
         /* Specials « Move Cooldowns » de l'équipement (Ring of Might, Sands of Time, Infinity Charm : 50 % max). */
-        /* Wiki « Red Liquid (set) » : le -20 % porte sur le « global cooldown timer » (délai entre deux moves différents) et la vitesse d'Idle Attack, PAS sur le cooldown propre de chaque move. Le GCD n'a pas de valeur de base publiée : non simulé, rien de réduit ici. */
+        /* Wiki « Red Liquid (set) » : le -20 % porte sur le « global cooldown timer » (délai entre deux moves différents) et la vitesse d'Idle Attack, PAS sur le cooldown propre de chaque move. Le délai global est simulé à part (appliquerDelaiGlobalAdventureIdleV1_) : 1 s, 0,8 s avec ce set. */
         const equipement=Math.max(0,Math.min(95,idleNombre_(a&&a.stats&&a.stats.specials&&a.stats.specials.moveCooldownPct)));
         return base*(1-equipement/100);
+      }
+
+      /*
+       * Délai global entre deux actions (Norman, 2026-10-08, vérifié dans le vrai jeu : « dès qu'une action est faite, peu importe laquelle, toutes les autres ont 1 s de CD »).
+       * Wiki « Red Liquid (set) » : « -20% on the global cooldown timer [...] the cooldown between using different moves » -> 0,8 s avec ce set (même drapeau que la vitesse d'Idle Attack).
+       * Le wiki ne publie pas la durée de base : 1 s, confirmée par Norman dans NGU Idle. N'allonge jamais un délai déjà plus long.
+       */
+      function appliquerDelaiGlobalAdventureIdleV1_(idUtilise,maintenant,a){
+        const fin=maintenant+intervalleIdleAttackAdventureIdleV4_(a);
+        IDLE_ADVENTURE_MANUAL_ATTACKS_V3.concat(IDLE_ADVENTURE_MANUAL_DEFENSE_V3,IDLE_ADVENTURE_ADVANCED_SKILLS_V4).forEach(function(d){
+          if(d.id===idUtilise)return;
+          if(idleNombre_(idleAdventureManualStateV3.cooldownUntil[d.id])<fin)idleAdventureManualStateV3.cooldownUntil[d.id]=fin;
+        });
       }
 
       function cooldownRestantAdventureIdleV3_(id,maintenant){
@@ -18473,6 +18486,7 @@ let idleDialogueTimerV76=null;
 
         idleAdventureManualStateV3.cooldownUntil[def.id]=
           maintenant+cooldownDureeAdventureIdleV4_(def,a);
+        appliquerDelaiGlobalAdventureIdleV1_(def.id,maintenant,a);
         /* Un son propre à chaque bouton (modules/audio-effects-v199.js : skill_<id>). */
         jouerEffetAudioIdleV199_('skill_'+def.id);
 
