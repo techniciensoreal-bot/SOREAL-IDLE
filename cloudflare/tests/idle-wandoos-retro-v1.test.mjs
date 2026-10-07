@@ -123,6 +123,7 @@ for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "
   assert.ok(h.includes(".place('" + res + "','" + mode + "')"), "touche " + res + " " + mode);
 }
 assert.ok(h.includes("ÉTEINDRE") && h.includes(".eteindre()"), "touche espace : éteindre quand en marche");
+assert.ok(!h.includes("AIDE :") && !h.includes("wd-aide"), "plus de texte d'aide sous la saisie (Norman, 2026-10-07)");
 assert.ok(h.includes('data-couleur="vert"'), "vert par défaut");
 assert.ok(!/<script|onerror=|javascript:/i.test(h), "rien d'exécutable dans les données");
 const sansMagie = W.page(joueur(true, true, {}, false));
@@ -135,7 +136,7 @@ assert.ok(h.includes('class="wd-chargement"') && h.includes("⏳ CHARGEMENT DE L
 assert.ok(h.includes('class="wd-chargeur"') && !h.includes('class="wd-chargeur wd-barre"'), "barre de chargement d'une autre classe que les barres de dump");
 assert.ok(h.includes("Vitesse de Wandoos : <b id=\"wd-ch-vit\">50 %</b> de son maximum") && h.includes("<b id=\"wd-ch-reste\">30 min 00 s</b>"), "vitesse actuelle et temps restant");
 assert.ok(!h.includes("Ce n’est pas une barre à remplir"), "plus de phrase « ce n'est pas une barre à remplir »");
-assert.ok(h.includes("Tu peux déjà placer de l’énergie et de la magie : elles prendront de la vitesse au fil du chargement."), "le cadre dit qu'on peut déjà placer");
+assert.ok(!h.includes("Tu peux déjà placer") && !h.includes("wd-ch-note"), "le cadre de chargement ne contient aucune phrase explicative (Norman, 2026-10-07)");
 assert.ok(h.includes("wd-input") && h.includes(".place('energy','plus')") && h.includes("PLACÉE"), "pendant le chargement : l'énergie et la magie se placent déjà (barres du bureau visibles)");
 maintenant += 600_000;
 const plusTard = W.page(joueurCourant);
@@ -301,6 +302,7 @@ assert.ok(src.includes(".wd-chargeur i{") && src.includes("#ffb000") && src.incl
 assert.ok(src.includes("prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}"), "rayures immobiles si l'appareil demande moins d'animations");
 assert.ok(src.includes(".wd-crt::after{") && /\.wd-crt::after\{[^}]*pointer-events:none[^}]*border-image:url/.test(src) && !/\.wd-crt\{[^}]*border-image/.test(src), "l'image du moniteur est posée PAR-DESSUS l'écran, sans intercepter un clic");
 assert.ok(src.includes(".wd-ecran{position:relative;z-index:1;"), "l'écran est sous l'image");
+assert.ok(src.includes(".wd-titre{margin-top:2.2cqw;"), "le titre (Wandoos 98 / EN MARCHE) est descendu pour ne pas passer sous le bord de l'écran");
 assert.ok(/\.wd-input\.wd-input\{[^}]*font-family:"Courier New",Courier,monospace!important/.test(src), "la saisie a la police de l'écran");
 
 console.log("idle-wandoos-retro-v1: OK");

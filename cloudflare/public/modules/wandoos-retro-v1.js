@@ -115,7 +115,7 @@
       '@keyframes wd-vacille{0%,100%{opacity:1}50%{opacity:.82}52%{opacity:1}}',
       '.wd-ecran>*{position:relative;z-index:1;}',
       '.wd-ligne{display:flex;justify-content:space-between;gap:.8em;flex-wrap:wrap;}',
-      '.wd-titre{font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.5em;}',
+      '.wd-titre{margin-top:2.2cqw;font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.5em;}',
       '.wd-titre .wd-etat{font-weight:400;}',
       '.wd-bloc{margin-top:.8em;}',
       '.wd-ligne b{font-weight:700;}',
@@ -310,7 +310,6 @@
       '<div class="wd-ligne"><span>⏳ CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
       '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
       '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
-      '<div class="wd-petit wd-ch-note">Tu peux déjà placer de l’énergie et de la magie : elles prendront de la vitesse au fil du chargement.</div>'+
     '</div>';
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
@@ -335,8 +334,7 @@
       bloc_('ÉNERGIE','energy',e,'energieLibre','vitesseEnergie',e.data.dumpEnergyLevel,e.data.dumpEnergyProgress)+
       (e.magieOk?bloc_('MAGIE','magic',e,'magieLibre','vitesseMagie',e.data.dumpMagicLevel,e.data.dumpMagicProgress):'')+
       '<div class="wd-ligne wd-saisie"><label for="wd-saisie">C:\\&gt; SAISIE</label>'+
-        '<input id="wd-saisie" class="wd-input" type="text" readonly inputmode="none" tabindex="-1" autocomplete="off" spellcheck="false" value="'+html_(saisie_())+'" aria-label="Quantité placée ou retirée à chaque appui sur + ou − : tape-la avec les chiffres du clavier (un nombre, ou une fraction comme 1/4)"></div>'+
-      '<div class="wd-aide">AIDE : + place la quantité saisie, − la retire, MAX place tout ce qui est libre. Wandoos ne produit que de l’Attack et de la Defense. C’est son charme.</div>';
+        '<input id="wd-saisie" class="wd-input" type="text" readonly inputmode="none" tabindex="-1" autocomplete="off" spellcheck="false" value="'+html_(saisie_())+'" aria-label="Quantité placée ou retirée à chaque appui sur + ou − : tape-la avec les chiffres du clavier (un nombre, ou une fraction comme 1/4)"></div>';
   }
 
   /* ---------- Clavier ---------- */
