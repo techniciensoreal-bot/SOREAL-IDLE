@@ -216,6 +216,20 @@
         if(!k.menus.renaissance)return null;
         const dureeRun=dureeRunTexte(d.duree);
         return {icone:'♻️',texte:nom+verbe(' as',' a')+' fait un Rebirth'+(dureeRun?' après '+dureeRun+' de run':'')};
+      /* Boss en cours de combat (Norman, 2026-10-07) : même règle que la victoire -- le nom n'est donné que si le lecteur a lui-même atteint ce boss. */
+      case 'bossCombat':{
+        const n=Number(d.boss)||0;
+        const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
+        return {icone:'👹',texte:nom+verbe(' combats',' combat')+(nomBoss?' '+nomBoss:' un boss')};
+      }
+      /* Menu visité (Norman, 2026-10-07) : annoncé seulement aux lecteurs qui ont déjà ce menu (anti-spoil). */
+      case 'visite':{
+        const lieux={spendExp:['🛒','la boutique EXP'],sellout:['🛍️','la Boutique AP'],moneyPit:['🕳️','le puits sans fond'],challenges:['🏁','les Challenges'],titans:['🔥','les Titans'],sang:['🩸','Blood Magic']};
+        const l=lieux[d.menu];
+        if(!l)return null;
+        if(!k.menus[d.menu])return null;
+        return {icone:l[0],texte:nom+verbe(' visites',' visite')+' '+l[1]};
+      }
       case 'farm':{
         const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(d.zoneId);});
         return {icone:'⚔️',texte:connue&&d.zoneNom?nom+verbe(' farmes',' farme')+' dans '+d.zoneNom:nom+verbe(' farmes',' farme')+' en Aventure'};
@@ -242,7 +256,8 @@
     const sortie=[];
     items.forEach(function(it){
       const p=phrase(it,ctx);
-      if(p)sortie.push({id:it.id,at:it.at,icone:p.icone,texte:p.texte,moi:it.moi,recu:it.recu});
+      /* Chacun ne voit que ce que font les AUTRES : jamais ses propres événements (Norman, 2026-10-07). */
+      if(p&&!it.moi)sortie.push({id:it.id,at:it.at,icone:p.icone,texte:p.texte,moi:it.moi,recu:it.recu});
     });
     chats.forEach(function(m){
       if(m.message)sortie.push({id:'c'+m.id,at:m.at,icone:'💬',texte:(m.moi?'Toi':m.nom)+' : '+texteChat(m.message),moi:m.moi,chat:true,recu:m.recu});

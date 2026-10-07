@@ -39,7 +39,7 @@ import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
 import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
-import { battementV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
+import { battementV1, normaliserActiviteV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
 } from "./idle-profile-v1.js";
@@ -17099,7 +17099,7 @@ function battementSorealIdle(sessionToken, info) {
           nom: identite.nomAffiche,
           visible: statsF.classementVisible !== false,
           instantane: instantaneJoueurV1({ bossVaincus: nombreSorealIdle_(feuilleF.getRange(ligneF, cF.BOSS_VAINCUS).getValue(), 0), stats: statsF }),
-          activite: Object.assign({}, i.activite && typeof i.activite === 'object' ? i.activite : {}, { zoneId: i.activite && i.activite.zoneId, zoneNom: i.activite && i.activite.zoneNom }),
+          activite: normaliserActiviteV1(i.activite),
           /* Nom (anglais, celui du catalogue) d'un article acheté : sert de repli si le lecteur n'a pas le nom français dans son propre catalogue. */
           noms: {
             achat: function (boutique, id) {

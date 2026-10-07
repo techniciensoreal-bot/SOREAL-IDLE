@@ -29,6 +29,11 @@
     var s=Math.max(0,entier(sec));var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
     return h>0?h+' h '+String(m).padStart(2,'0')+' min':(m>0?m+' min':s+' s');
   }
+  /* Minuteurs au-dessus de l'inventaire (Norman, 2026-10-07) : en minutes uniquement, sauf la dernière minute, en secondes. */
+  function dureeMin(sec){
+    var s=Math.max(0,entier(sec));
+    return s>=60?Math.ceil(s/60)+' min':s+' s';
+  }
   function snap(j){return j&&j.systemes&&j.systemes.inventoryAuto||null;}
 
   /*
@@ -46,7 +51,7 @@
         var cycle=Math.max(1,Number(el.getAttribute('data-cycle'))||1);
         var reste=Number(el.getAttribute('data-rest'))-(now-Number(el.getAttribute('data-at')))/1000;
         if(reste<=0)reste=cycle-((-reste)%cycle);
-        var t=duree(Math.ceil(reste));
+        var t=(el.getAttribute('data-fmt')==='min'?dureeMin:duree)(Math.ceil(reste));
         if(el.textContent!==t)el.textContent=t;
       });
     },500);
@@ -59,6 +64,23 @@
     return ' · prochain dans <span data-idle-auto-v1="1" data-rest="'+Number(secondes)+'" data-at="'+ancre+'" data-cycle="'+Math.max(1,Number(s.intervalSeconds)||1)+'">'+duree(secondes)+'</span>';
   }
   function aventure(j){return j&&j.systemes&&j.systemes.adventure||null;}
+  /* Bande « Auto Merge / Auto Boost » : seulement ce qui est débloqué ET activé (anti-spoil : rien sinon). */
+  function bandeMinuteurs(j){
+    var s=snap(j);
+    if(!s)return '';
+    var u=s.unlocked||{},r=s.settings||{};
+    var rtt=typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0;
+    var recu=j&&Number(j.__recuPerfV1);
+    var ancre=(recu>0?recu:performance.now())-rtt/2;
+    var cycle=Math.max(1,Number(s.intervalSeconds)||1);
+    function pastille(actif,debloque,icone,nom,reste){
+      if(!debloque||!actif||reste==null)return '';
+      return '<span class="soreal-idle-inv-timer-v1">'+icone+' '+nom+' <b data-idle-auto-v1="1" data-fmt="min" data-rest="'+Number(reste)+'" data-at="'+ancre+'" data-cycle="'+cycle+'">'+dureeMin(reste)+'</b></span>';
+    }
+    var contenu=pastille(r.autoMerge,u.autoMerge,'🔁','Auto Merge',s.mergeRemainingSeconds)+pastille(r.autoBoost,u.autoBoost,'✨','Auto Boost',s.boostRemainingSeconds);
+    if(contenu)minuteurAuto();
+    return contenu;
+  }
 
   /*
    * Absorption réactive (Norman, 2026-10-01) : « ça met un long temps avant que les boosts ne soient aspirés et disparaissent de l'inventaire ».
@@ -348,6 +370,9 @@
        * catégories. Tout doit être clair. ») : chaque réglage dans sa propre carte, un peu de
        * respiration entre elles, un titre qui se détache clairement du contenu.
        */
+      '#soreal-idle-inv-timers-v1{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}'+
+      '.soreal-idle-inv-timer-v1{padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(166,188,229,.2);font:700 12px/1.2 "Segoe UI",system-ui;color:#dce5f3}'+
+      '.soreal-idle-inv-timer-v1 b{color:#ffd27a;font-variant-numeric:tabular-nums}'+
       '.soreal-idle-inv-auto-sections-v1{display:grid;gap:10px;margin-top:10px}'+
       '.soreal-idle-inv-auto-section-v1{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(166,188,229,.14)}'+
       '.soreal-idle-inv-auto-section-titre-v1{font:800 13px/1.25 "Segoe UI Variable Text","Segoe UI",system-ui;color:#dce5f3;margin-bottom:9px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}'+
@@ -368,6 +393,22 @@
       cases[i].classList.toggle('idle-merge-slot-v1',idx<k);
     }
     var colonnes=sac.closest('.soreal-idle-v151-inventory-columns')||sac;
+    var bande=document.getElementById('soreal-idle-inv-timers-v1');
+    var contenuBande=bandeMinuteurs(dernierEtat);
+    if(!contenuBande){
+      if(bande&&bande.parentNode)bande.parentNode.removeChild(bande);
+    }else{
+      if(!bande){
+        bande=document.createElement('div');
+        bande.id='soreal-idle-inv-timers-v1';
+        bande.setAttribute('data-morph-garder','1');
+      }
+      if(bande.parentNode!==colonnes.parentNode||bande.nextSibling!==colonnes)colonnes.parentNode.insertBefore(bande,colonnes);
+      if(bande.getAttribute('data-sig')!==contenuBande){
+        bande.innerHTML=contenuBande;
+        bande.setAttribute('data-sig',contenuBande);
+      }
+    }
     var bloc=document.getElementById('soreal-idle-inventory-auto-v1');
     /* 2026-09-24 (Norman) : le Coffre passe avant toutes les options (filtre de butin, etc.) ; sans Coffre, sous le sac. */
     var titreCoffre=document.querySelector('.soreal-idle-coffre-titre-v1');

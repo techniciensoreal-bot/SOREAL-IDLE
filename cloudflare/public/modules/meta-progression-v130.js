@@ -251,15 +251,14 @@
               ){
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-293 */
                 if(!estCycleCombatZoneV1){
-                  /* A + clic sans rien d'absorbé : on dit pourquoi au lieu d'un « Progression mise à jour » trompeur. */
+                  /* A + clic sans rien d'absorbé : on dit pourquoi. */
                   const boostVideV1=payload&&payload.action==='inventoryAuto'&&payload.mode==='boostAll'
                     &&!(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.applied)>0||window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.cube)>0);
                   const ia=window.__SOREAL_IDLE_INVENTORY_AUTO_V1__;
-                  window.__SOREAL_IDLE_META_HOST_V130__.messageFlottantIdleV32_(
-                    boostVideV1&&ia&&ia.expliquerAucunBoost&&payload.targetId&&payload.targetId!=='cube'
-                      ?ia.expliquerAucunBoost(payload.targetId)
-                      :'✅ Progression mise à jour'
-                  );
+                  /* Plus de « Progression mise à jour » (Norman, 2026-10-07) : seul reste le message qui explique pourquoi un boost n'a rien absorbé. */
+                  if(boostVideV1&&ia&&ia.expliquerAucunBoost&&payload.targetId&&payload.targetId!=='cube'){
+                    window.__SOREAL_IDLE_META_HOST_V130__.messageFlottantIdleV32_(ia.expliquerAucunBoost(payload.targetId));
+                  }
                 }
 
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-294 */

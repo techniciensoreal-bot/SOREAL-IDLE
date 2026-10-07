@@ -76,9 +76,11 @@
   function activiteActuelle(){
     const c=contexteJeu();
     if(!c)return {t:'libre'};
-    if(c.farm&&c.farm.zoneId)return {t:'farm',zoneId:c.farm.zoneId,zoneNom:c.farm.zoneNom||''};
-    if(c.boss>0)return {t:'boss',boss:c.boss};
-    return {t:'libre'};
+    /* Menu consulté : le serveur ne garde que sa liste blanche (boutiques, puits, Challenges…), pour « En direct ». */
+    const m=c.menu?{menu:c.menu}:{};
+    if(c.farm&&c.farm.zoneId)return Object.assign({t:'farm',zoneId:c.farm.zoneId,zoneNom:c.farm.zoneNom||''},m);
+    if(c.boss>0)return Object.assign({t:'boss',boss:c.boss},m);
+    return Object.assign({t:'libre'},m);
   }
 
   /* Texte montré aux autres, sans jamais révéler ce que le lecteur n'a pas encore découvert. */

@@ -31,6 +31,9 @@ export const IDLE_FLUX_MAX_PAR_BATTEMENT_V1 = 6;
 export const IDLE_FLUX_FRAICHEUR_MS_V1 = 90 * 1000;
 /* Un joueur n'est annoncé « connecté » qu'une fois toutes les 5 minutes au plus (un onglet qui se reconnecte en boucle ne doit pas inonder le bandeau). */
 export const IDLE_FLUX_DELAI_CONNEXION_MS_V1 = 5 * 60 * 1000;
+/* Boss en cours de combat / menu visité (Norman, 2026-10-07 : « plus d'informations EN DIRECT, sans que ça spam ») : un boss n'est annoncé qu'une fois toutes les 3 minutes, une visite de menu toutes les 10. */
+export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
+export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 10 * 60 * 1000;
 
 export function assurerFluxV1(sql) {
   sql.exec("CREATE TABLE IF NOT EXISTS idle_flux(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL, type TEXT NOT NULL, donnees TEXT NOT NULL DEFAULT '{}')");
@@ -38,6 +41,7 @@ export function assurerFluxV1(sql) {
 }
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
+const nom_ = (f, x) => { try { return String((typeof f === "function" ? f(x) : "") || "").slice(0, 80); } catch (_e) { return ""; } };
 
 /*
  * Instantané des jalons d'un joueur, lu dans sa ligne (record de boss + stats.metaNgu). Tout est réduit à des identifiants et des compteurs.
@@ -213,7 +217,14 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
   /* Partie d'essai (partie B) : rien n'est jamais annoncé, et ce qui l'aurait été avant est effacé. */
   if (idleDevEstEmailPartieTestV1(cle)) { sql.exec("DELETE FROM idle_flux WHERE email LIKE '%+partieb@%'"); return 0; }
   const precedent = lireEtatV1(sql, cle);
-  const etat = Object.assign({}, instantane, { farmZone: precedent ? N(precedent.farmZone, 0) : 0, farmAt: precedent ? N(precedent.farmAt, 0) : 0 });
+  const etat = Object.assign({}, instantane, {
+    farmZone: precedent ? N(precedent.farmZone, 0) : 0,
+    farmAt: precedent ? N(precedent.farmAt, 0) : 0,
+    bossVu: precedent ? N(precedent.bossVu, 0) : 0,
+    bossVuAt: precedent ? N(precedent.bossVuAt, 0) : 0,
+    menuVu: precedent ? String(precedent.menuVu || "") : "",
+    menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0
+  });
   let ajoutes = 0;
   /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
   const enDirect = Boolean(precedent) && now - N(precedent.__maj, 0) <= IDLE_FLUX_FRAICHEUR_MS_V1;
@@ -225,13 +236,32 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       etat.farmZone = N(activite.zoneId);
       etat.farmAt = now;
     }
+    /* Boss en cours de combat : annoncé quand le boss change (au plus toutes les 3 minutes) ; une victoire ou une fuite dans le même battement l'emporte. */
+    if (activite && activite.t === "boss" && N(activite.boss) > 0) {
+      if (N(activite.boss) !== N(precedent.bossVu, 0) && now - N(precedent.bossVuAt, 0) >= IDLE_FLUX_DELAI_BOSS_MS_V1 && !evenements.some((e) => e.type === "boss" || e.type === "fuite" || e.type === "defaite")) {
+        evenements.push({ type: "bossCombat", donnees: { boss: N(activite.boss), nom: nom_(noms.boss, N(activite.boss)) } });
+        etat.bossVu = N(activite.boss);
+        etat.bossVuAt = now;
+      }
+    }
+    /* Menu consulté (boutiques, puits, Challenges, Titans, sang) : annoncé quand le menu change (au plus toutes les 10 minutes). */
+    if (activite && typeof activite.menu === "string" && activite.menu && activite.menu !== String(precedent.menuVu || "") && now - N(precedent.menuVuAt, 0) >= IDLE_FLUX_DELAI_VISITE_MS_V1) {
+      evenements.push({ type: "visite", donnees: { menu: activite.menu } });
+      etat.menuVu = activite.menu;
+      etat.menuVuAt = now;
+    }
     for (const e of evenements.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1)) {
       sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", now, cle, String(nom || "Joueur").slice(0, 80), e.type, JSON.stringify(e.donnees));
       ajoutes += 1;
     }
-  } else if (activite && activite.t === "farm" && N(activite.zoneId) > 0) {
-    etat.farmZone = N(activite.zoneId);
-    etat.farmAt = now;
+  } else {
+    /* Pas d'annonce (première fois, absence, retrait du classement) : on mémorise seulement l'état courant, pour ne rien annoncer en rattrapage. */
+    if (activite && activite.t === "farm" && N(activite.zoneId) > 0) {
+      etat.farmZone = N(activite.zoneId);
+      etat.farmAt = now;
+    }
+    if (activite && activite.t === "boss" && N(activite.boss) > 0) { etat.bossVu = N(activite.boss); etat.bossVuAt = now; }
+    if (activite && typeof activite.menu === "string" && activite.menu) { etat.menuVu = activite.menu; etat.menuVuAt = now; }
   }
   sql.exec("INSERT OR REPLACE INTO idle_flux_etat(email,etat,maj) VALUES(?,?,?)", cle, JSON.stringify(etat), now);
   if (ajoutes) {

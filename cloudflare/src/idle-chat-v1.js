@@ -32,6 +32,8 @@ export function assurerChatV1(sql) {
 }
 
 /* Ce que fait le joueur, réduit au strict nécessaire (le client l'envoie, le serveur ne fait confiance à rien). */
+export const IDLE_ACTIVITE_MENUS_V1 = Object.freeze(["spendExp", "sellout", "moneyPit", "challenges", "titans", "sang"]);
+
 export function normaliserActiviteV1(brut) {
   const a = brut && typeof brut === "object" ? brut : {};
   const t = a.t === "farm" || a.t === "boss" ? a.t : "libre";
@@ -41,6 +43,8 @@ export function normaliserActiviteV1(brut) {
     sortie.zoneNom = String(a.zoneNom == null ? "" : a.zoneNom).replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 60);
   }
   if (t === "boss") sortie.boss = Math.max(0, Math.min(99999, Math.floor(Number(a.boss) || 0)));
+  /* Menu consulté (liste blanche : jamais un texte libre) -- sert au fil « En direct » (« X visite la boutique »), voir idle-flux-v1.js. */
+  if (typeof a.menu === "string" && IDLE_ACTIVITE_MENUS_V1.includes(a.menu)) sortie.menu = a.menu;
   return sortie;
 }
 

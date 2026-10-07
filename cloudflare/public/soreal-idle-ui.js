@@ -23812,7 +23812,7 @@ function pageAventureIdleV28_(j){
           try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
         });
         try{connus.sorts=typeof window.__SOREAL_IDLE_SORTS_CONNUS_V1__==='function'?window.__SOREAL_IDLE_SORTS_CONNUS_V1__(j):{};}catch(e){connus.sorts={};}
-        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};
+        return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,menu:String(idleMenuActifV28||''),zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};
       };
 
       window.__menuIdleV28__=
