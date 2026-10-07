@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 /*
- * Orage visuel (Norman, 2026-10-06) : quand la piste d'ambiance est celle du tonnerre, pluie, ciel assombri et éclairs ; éclairs calés sur les coups de tonnerre
+ * Orage visuel (Norman, 2026-10-06) : quand la piste d'ambiance est celle du tonnerre, ciel assombri et éclairs (sans pluie) ; éclairs calés sur les coups de tonnerre
  * de la piste quand l'analyse audio est possible, au hasard sinon ; grondement discret ; doux pour les yeux (espacement, pas d'éclat si mouvement réduit).
  * Magie du sang : la barre du rituel actif saigne (couleurs d'origine du menu, style ITOPOD).
  */
@@ -125,4 +125,6 @@ for (const fragment of ["sangBatV1", "sangGouttesV1", ".saigne-v1", ".sang-g-v1"
 assert.ok(meta.includes("soreal-idle-bt-track-v120'+(progressionActive?' saigne-v1':'')"), "la page marque la barre du rituel qui progresse");
 assert.ok((meta.match(/<span class=.sang-g-v1./g) || []).length >= 6, "gouttes sous la barre");
 
+// Norman (2026-10-07) : « supprimer la pluie, garder l'orage, elle est gênante ».
+assert.ok(!src.includes("og-pluie") && !src.includes("og-p2") && !src.includes("<div class=\"og-pluie"), "plus aucune pluie dans le décor de l'orage");
 console.log("idle-orage-v1: OK");

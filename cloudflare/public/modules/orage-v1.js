@@ -1,7 +1,7 @@
 /*
  * SOREAL IDLE — orage visuel (Norman, 2026-10-06 : « quand c'est le son d'ambiance avec l'orage, j'aimerais bien que tu simules de l'orage »).
  *
- * Quand la piste d'ambiance qui joue est celle du tonnerre (Thunder.opus), l'écran s'assombrit légèrement, la pluie tombe en filets fins et des éclairs
+ * Quand la piste d'ambiance qui joue est celle du tonnerre (Thunder.opus), l'écran s'assombrit légèrement, des éclairs
  * zèbrent le ciel. Les éclairs suivent le son : un coup de tonnerre dans la piste (pic d'énergie dans les graves, mesuré avec le même contexte audio que
  * l'ambiance) déclenche un éclair ; sans analyse audio possible (iPhone, iPad), des éclairs espacés au hasard prennent le relais. Après l'éclair, un grondement
  * synthétisé, discret, roule au loin, au volume de l'ambiance.
@@ -46,9 +46,6 @@
       '#soreal-orage-v1{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity 2.4s ease;overflow:hidden;}',
       '#soreal-orage-v1.actif{opacity:1;}',
       '#soreal-orage-v1 .og-ciel{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,30,.30),rgba(10,16,34,.12) 55%,rgba(6,12,30,.22));}',
-      '#soreal-orage-v1 .og-pluie{position:absolute;inset:-20% -10%;background:repeating-linear-gradient(103deg,rgba(190,210,255,.0) 0 7px,rgba(190,210,255,.30) 7px 8px,rgba(190,210,255,0) 8px 17px);background-size:240px 240px;opacity:.5;animation:og-pluie .55s linear infinite;}',
-      '#soreal-orage-v1 .og-pluie.og-p2{background:repeating-linear-gradient(103deg,rgba(190,210,255,0) 0 11px,rgba(190,210,255,.22) 11px 12px,rgba(190,210,255,0) 12px 29px);background-size:310px 310px;opacity:.38;animation-duration:.8s;}',
-      '@keyframes og-pluie{from{background-position:0 0}to{background-position:-58px 240px}}',
       '#soreal-orage-v1 .og-flash{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at var(--og-x,50%) 0%,rgba(235,244,255,.95),rgba(170,200,255,.55) 38%,rgba(120,150,230,.12) 75%);mix-blend-mode:screen;}',
       '#soreal-orage-v1 .og-blanc{position:absolute;inset:0;opacity:0;background:rgb(228,236,255);}',
       '#soreal-orage-v1 .og-eclair{position:absolute;inset:0;width:100%;height:100%;opacity:0;}',
@@ -61,7 +58,7 @@
     if(racine&&racine.parentNode)return racine;
     style_();
     racine=document.createElement('div');racine.id='soreal-orage-v1';racine.setAttribute('aria-hidden','true');
-    racine.innerHTML='<div class="og-ciel"></div><div class="og-pluie"></div><div class="og-pluie og-p2"></div><div class="og-flash"></div><div class="og-blanc"></div>'+
+    racine.innerHTML='<div class="og-ciel"></div><div class="og-flash"></div><div class="og-blanc"></div>'+
       '<svg class="og-eclair" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>';
     document.body.appendChild(racine);
     flash=racine.querySelector('.og-flash');blanc=racine.querySelector('.og-blanc');eclairSvg=racine.querySelector('.og-eclair');
@@ -193,7 +190,7 @@
     clearTimeout(minuteurHasard);minuteurHasard=0;
     arreterAnalyse_();
     if(racine)racine.classList.remove('actif');
-    /* Après le fondu de sortie, le décor (et sa pluie animée) est retiré de la page : plus aucun coût tant qu'il n'y a pas d'orage. */
+    /* Après le fondu de sortie, le décor est retiré de la page : plus aucun coût tant qu'il n'y a pas d'orage. */
     setTimeout(function(){if(!actif&&racine&&racine.parentNode){racine.parentNode.removeChild(racine);racine=null;flash=null;eclairSvg=null;blanc=null;}},2700);
   }
 
