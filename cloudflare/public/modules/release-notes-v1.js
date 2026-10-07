@@ -21,12 +21,13 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Plus aucun retour en arrière : quand le serveur répond dans le désordre, une réponse plus ancienne arrivée en retard n’est plus jamais appliquée. Un boss vaincu ne revient plus, les barres ne reculent plus, et le reste de l’état de jeu non plus.',
           'Aventure : quand tu es en Zone sûre, le jeu ne farme plus en cachette ton ancienne zone pendant que tu n’es pas synchronisé. Plus de pluie de boosts surprise en rejoignant une autre zone. Le farm hors ligne ne concerne que la zone de combat sélectionnée.',
           'Sac : les cases sont un peu plus petites, cinq par ligne sur téléphone, et le sac passe sur plusieurs pages de 60 cases au maximum, avec des boutons ‹ › pour changer de page.',
           'Un clic sur « Beta 2.4 » en haut de l’application t’emmène directement aux notes de mise à jour.',
           'Money Pit : si tu jettes moins que le minimum, le puits prend quand même tout ton or, il ne se passe rien, et son délai est consommé. Tu auras le message du jeu d’origine : « Tu te sens bien plus pauvre… mais rien ne s’est passé :c. Peut-être qu’il faut jeter plus d’or ? »',
           'Aventure : comme dans le jeu d’origine, dès qu’une attaque ou une compétence est utilisée, toutes les autres sont bloquées pendant 1 seconde (0,8 seconde avec le set Red Liquid). Fini le tir en rafale !',
-          'Inventaire : une pièce dont les statistiques sont pleines pour son niveau actuel reçoit maintenant le V vert, même avant le niveau 100 : inutile de lui ajouter des boosts, ils seraient refusés.',
+          'Inventaire : de petits points de couleur indiquent les boosts qu’il manque encore à une pièce : orange pour la Puissance, bleu pour l’Endurance, jaune pour le Spécial. Chaque point disparaît quand sa statistique est pleine, et le V vert n’apparaît qu’au niveau 100, une fois les points tous partis.',
           'Aventure : un adversaire qu’on vient d’affronter ne reste plus invisible quand le serveur répond dans le désordre ; il apparaît tout de suite, sans devoir rafraîchir la page.',
           'Les touches du clavier de l’ordinateur rétro font maintenant le même clic que celles de l’entraînement avancé : un bon vieux « clac » mécanique, et un « clonc » plus grave pour la barre d’espace.',
           'Fluidité sur téléphone : le menu du bas et les boutons « disponible » pulsent désormais sans forcer l’écran à se redessiner, et les barres de rang élevé restent belles mais ne bougent plus en continu sur petit écran. Ton téléphone respire, la batterie aussi.',

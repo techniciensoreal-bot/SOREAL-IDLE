@@ -173,6 +173,28 @@
    * pièces omises dans la réponse AVANT de la rendre au jeu -- le reste du client voit toujours la réponse complète. Deux versions par pièce sont gardées :
    * une réponse arrivée en retard peut encore avoir été allégée par rapport à la précédente.
    */
+  /*
+   * Jamais de retour en arrière (Norman, 2026-10-08 : « on traite ça pour que jamais le jeu ne subisse un rollback »). Les requêtes se chevauchent et une réponse calculée plus tôt peut ARRIVER plus tard
+   * (le serveur rend une synchro 1 à 2 s après avoir calculé) : elle remettait l'ancien boss, des barres en arrière, un titan absent. Chaque état porte l'instant où le serveur a commencé à le calculer
+   * (__serveurAtV1, croissant car le serveur traite un joueur à la fois) : un état plus ANCIEN que le dernier reçu est remplacé par ce dernier avant d'atteindre le jeu. Les messages de résultat de l'action
+   * sont conservés ; seul l'état périmé disparaît (celui reçu après contient déjà ses effets, le serveur ayant traité les requêtes dans l'ordre).
+   */
+  const gardeRetourArriereBaseV1={cle:"",at:0,joueur:null,ignorees:0};
+  function gardeRetourArriereV1_(session,joueur){
+    const at=Number(joueur&&joueur.__serveurAtV1);
+    if(!(at>0))return {perimee:false};
+    if(gardeRetourArriereBaseV1.cle!==session){gardeRetourArriereBaseV1.cle=session;gardeRetourArriereBaseV1.at=0;gardeRetourArriereBaseV1.joueur=null;}
+    const g=gardeRetourArriereBaseV1;
+    if(g.joueur&&g.joueur!==joueur&&at<g.at){
+      g.ignorees+=1;
+      return {perimee:true,joueur:g.joueur,retardMs:Math.round(g.at-at)};
+    }
+    g.at=Math.max(g.at,at);
+    g.joueur=joueur;
+    return {perimee:false};
+  }
+  window.__SOREAL_IDLE_GARDE_RETOUR_V1__=function(){return {ignorees:gardeRetourArriereBaseV1.ignorees,dernierAt:gardeRetourArriereBaseV1.at};};
+
   /* lignes : tableaux omis ligne par ligne (voir idle-catalogues-v1.js) -- { chemin: { hashes:[…], textes:{ empreinte: texte JSON de la ligne } } }. */
   const cataloguesV1={dernier:{},valeurs:{},lignes:{}};
 
@@ -297,7 +319,16 @@
         }catch(_){}
       }
       /* Instant de réception (horloge locale) : les chronos partent de là, moins un demi aller-retour (voir meta-progression : ancreSnapshotIdleV1_). */
-      if(data&&data.joueur&&typeof data.joueur==="object")data.joueur.__recuPerfV1=calerRecuPerfV1_(data.joueur,performance.now(),Date.now());
+      if(data&&data.joueur&&typeof data.joueur==="object"){
+        const garde=gardeRetourArriereV1_(session,data.joueur);
+        if(garde.perimee){
+          /* Réponse calculée AVANT un état déjà reçu : on rend au jeu le dernier état connu, jamais l'ancien. */
+          try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler("reponse_perimee_ignoree",String(operation)+" de "+garde.retardMs+" ms de retard");}catch(_){}
+          data.joueur=garde.joueur;
+        }else{
+          data.joueur.__recuPerfV1=calerRecuPerfV1_(data.joueur,performance.now(),Date.now());
+        }
+      }
       return data;
     }catch(error){
       if(error&&error.status===401)saveSessionV1("");

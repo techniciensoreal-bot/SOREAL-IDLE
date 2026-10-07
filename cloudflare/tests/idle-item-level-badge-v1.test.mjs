@@ -25,8 +25,13 @@ function extraire(debut) {
 }
 const badges = new Function(
   "idleEntier_",
-  extraire("function badgesNiveauObjetIdleV1_(item){") + "return badgesNiveauObjetIdleV1_;"
+  extraire("function pointsBoostManquantIdleV1_(item){") + extraire("function badgesNiveauObjetIdleV1_(item){") + "return badgesNiveauObjetIdleV1_;"
 )((v) => Math.max(0, Math.floor(Number(v) || 0)));
+// Points des boosts manquants (Norman, 2026-10-08) : orange Power, bleu Toughness, jaune Special ; le V vert reste réservé au niveau 100 complet
+assert.match(badges({ level: 30, boostManque: { power: true, toughness: false, special: true } }), /<b class="p"[^>]*><\/b><b class="s"/, "points orange et jaune");
+assert.ok(!badges({ level: 30, boostManque: { power: true, toughness: false, special: false } }).includes('class="t"'), "pas de point bleu si la Toughness est pleine ou absente");
+assert.ok(!badges({ level: 30, boostManque: { power: true, toughness: true, special: true } }).includes("idle-maxok-badge-v1"), "avant le niveau 100 : jamais de V vert");
+assert.ok(!badges({ level: 100, fullyMaxed: true, boostManque: { power: false, toughness: false, special: false } }).includes("idle-boostpts-v1"), "niveau 100 complet : le V vert, plus aucun point");
 
 // Niveau : affiché dès le niveau 1, doré au 100, jamais à 0
 assert.equal(badges(null), "");

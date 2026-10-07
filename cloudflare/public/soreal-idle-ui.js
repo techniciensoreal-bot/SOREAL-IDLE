@@ -1938,6 +1938,8 @@
           }
           if(Date.now()-debut>15000){
             arreterSurveillanceVictoireBossIdleV1_();
+            /* Trace pour le diagnostic : une victoire prédite que le serveur n'a pas confirmée en 15 s (voir « Diagnostic », Réglages). */
+            try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler('victoire_boss_non_confirmee','boss '+idleEntier_(idlePrevisionBossV1.vaincus)+' : 15 s sans confirmation du serveur');}catch(_e){}
             google.script.run
               .withSuccessHandler(function(etat){
                 if(PAGE_ACTIVE!=='idle'||!idleVictoireBossLocaleV49||!etat||!etat.ok||!etat.joueur)return;
@@ -19672,6 +19674,17 @@ function pageAventureIdleV28_(j){
        * joli ») et V vert quand l'objet est au maximum : niveau 100 ET statistiques comblées par les boosts — le même prérequis que le
        * Coffre (item.fullyMaxed, calculé par le serveur ; un boost, sans statistiques, l'est dès le niveau 100).
        */
+      /* Points de couleur des boosts qu'il manque encore (Norman, 2026-10-08) : orange = Power, bleu = Toughness, jaune = Special ; fournis par le serveur (boostManque), au niveau actuel de la pièce. */
+      function pointsBoostManquantIdleV1_(item){
+        const m=item&&item.boostManque;
+        if(!m||!(m.power||m.toughness||m.special))return '';
+        return '<i class="idle-boostpts-v1" aria-hidden="true">'+
+          (m.power?'<b class="p" title="Il manque des boosts de Power"></b>':'')+
+          (m.toughness?'<b class="t" title="Il manque des boosts de Toughness"></b>':'')+
+          (m.special?'<b class="s" title="Il manque des boosts Special"></b>':'')+
+        '</i>';
+      }
+
       function badgesNiveauObjetIdleV1_(item){
         if(!item)return '';
         const niveau=idleEntier_(item.level);
@@ -19680,9 +19693,7 @@ function pageAventureIdleV28_(j){
           :'')+
           (item.fullyMaxed
             ?'<i class="idle-maxok-badge-v1" title="Niveau 100 et statistiques au maximum" aria-hidden="true">✔</i>'
-            :(item.boostsPleins
-              ?'<i class="idle-maxok-badge-v1" title="Statistiques pleines pour ce niveau : inutile d’ajouter des boosts" aria-hidden="true">✔</i>'
-              :''));
+            :pointsBoostManquantIdleV1_(item));
       }
 
       function iconeObjetAdventureIdleV138_(item){
