@@ -39,7 +39,10 @@
           'Augmentations : quand tu ajoutes de l’énergie plusieurs fois de suite (par exemple 10 000 à chaque fois), la barre ne revient plus en arrière : elle garde sa place et prend simplement la nouvelle vitesse.',
           'Quand tu bats un boss, le jeu laisse d’abord partir les réglages d’énergie et de Magic en attente avant de demander confirmation au serveur, pour que le boss suivant se charge bien.',
           'Le jeu est allégé pour les téléphones : les compteurs ne se réécrivent plus à chaque image quand leur valeur n’a pas changé (environ 175 modifications de la page par seconde en moins), la barre de menus perd un flou et des ombres invisibles, et la lueur du feu est plus légère.',
-          'L’ordinateur rétro : les barres de niveau avancent maintenant petit à petit, en temps réel, et le temps avant le niveau suivant se met à jour à chaque seconde. Sur ordinateur, le moniteur ne dépasse plus la hauteur de la fenêtre.'
+          'L’ordinateur rétro : les barres de niveau avancent maintenant petit à petit, en temps réel, et le temps avant le niveau suivant se met à jour à chaque seconde. Sur ordinateur, le moniteur ne dépasse plus la hauteur de la fenêtre.',
+          'Money Pit et roue : le cadre du prix change de couleur à chaque nouvelle récompense, pour bien voir la différence avec la précédente. Les cases de connexion ne rejouent plus leur animation à chaque fois : seule une case qui vient de s’allumer s’illumine.',
+          'Régler un volume dans les Réglages avec le doigt ne change plus de page.',
+          'L’ordinateur rétro sur téléphone : l’écran garde toujours la même taille, allumé ou éteint, n’est plus étiré vers le haut et touche maintenant les bords du téléphone. Sous chaque barre, seul le temps restant est écrit, et « Niveau de l’OS » devient « Version OS ».'
         ]
       },
       {

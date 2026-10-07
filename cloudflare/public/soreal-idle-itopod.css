@@ -650,3 +650,11 @@ html body.soreal-idle-active-v47 .soreal-idle-nav-v28{backdrop-filter:none!impor
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41 :is(.soreal-idle-bossbar-v7,.soreal-idle-playerbar-v15)::after{animation:none!important;mix-blend-mode:normal!important;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-hp-ic-v1{filter:none!important;}
 }
+
+/* Cadre du prix (Money Pit et roue) : une teinte différente à chaque récompense (rang = compteur gardé sur l'appareil), pour voir le changement entre la précédente et la nouvelle. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="0"]{background:linear-gradient(180deg,#8a2a2a,#4a1010)!important;border-color:#ff7a7a!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="1"]{background:linear-gradient(180deg,#1f7a46,#0c3f23)!important;border-color:#6dffa8!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="2"]{background:linear-gradient(180deg,#2a55a8,#122a5c)!important;border-color:#7fb0ff!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="3"]{background:linear-gradient(180deg,#7a3aa8,#3a1458)!important;border-color:#d79bff!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="4"]{background:linear-gradient(180deg,#a8661a,#5a3205)!important;border-color:#ffc16a!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="5"]{background:linear-gradient(180deg,#14808a,#073c42)!important;border-color:#6af0ff!important;}

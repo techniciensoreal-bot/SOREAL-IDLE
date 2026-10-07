@@ -113,7 +113,7 @@ joueurCourant = joueur(true, true);
 h = W.page(joueurCourant);
 assert.ok(h.includes('data-phase="bureau"') && h.includes("EN MARCHE") && h.includes("wd-clavier"), "bureau");
 assert.ok(h.includes("NIVEAU <b>812</b>") && h.includes("NIVEAU <b>422</b>"), "niveaux des deux Dumps");
-assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("0,5"), "quantités placées/libres et vitesse en niveaux par seconde");
+assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("RESTE : ") && !h.includes("NIV/S") && !h.includes("prochain niveau") && h.includes("VERSION OS") && !h.includes("NIVEAU DE L"), "quantités placées/libres ; sous chaque barre seulement le temps restant (Norman, 2026-10-07) ; Version OS");
 assert.ok(!h.includes("wd-chargement") && !h.includes("CHARGEMENT"), "OS chargé : aucun cadre de chargement");
 assert.ok(h.includes('id="wd-saisie"') && h.includes('class="wd-frappe"') && h.includes('<span class="wd-invite-c">C:\\&gt;</span>'), "ligne de saisie : « C:\\> » puis ce qu'on tape, directement dans l'écran");
 assert.ok(!h.includes("<input") && !h.includes("SAISIE") && !h.includes("wd-input"), "plus de cadre de saisie ni de mot « SAISIE »");
@@ -319,7 +319,7 @@ assert.ok(src.includes(".wd-frappe{word-break:break-all;color:var(--wd-c);") && 
 // Barres NIVEAU+1 en temps réel (Norman, 2026-10-07) : fraction = progression serveur + vitesse x temps écoulé ; le temps avant le niveau suivant suit la même horloge ; écran plafonné en hauteur sur PC.
 {
   const src2 = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
-  assert.ok(src2.includes("data-wd-barre=") && src2.includes("function fractionBarre_(p0,v,at){") && src2.includes("requestAnimationFrame(vivre_)") && src2.includes("prochain niveau dans "), "barres de niveau animées en continu avec le temps restant");
+  assert.ok(src2.includes("data-wd-barre=") && src2.includes("function fractionBarre_(p0,v,at){") && src2.includes("requestAnimationFrame(vivre_)") && src2.includes("'RESTE : '") && !src2.includes("prochain niveau dans"), "barres de niveau animées en continu avec le temps restant");
   assert.ok(src2.includes("max-width:min(900px,76vh)!important"), "l écran ne dépasse jamais la hauteur du navigateur");
 }
 console.log("idle-wandoos-retro-v1: OK");

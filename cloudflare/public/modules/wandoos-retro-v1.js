@@ -102,6 +102,7 @@
     s.textContent=[
       '.wd-poste{--wd-c:#33ff66;--wd-c2:#0f7a2c;--wd-glow:rgba(51,255,102,.55);container-type:inline-size;width:100%;max-width:min(900px,76vh);margin:10px auto 18px;}',
       'html body .soreal-idle-page-root-v28[data-menu] .wd-poste{max-width:min(900px,76vh)!important;}',
+      '@media (max-width:700px){html body .soreal-idle-page-root-v28[data-menu] .wd-poste.wd-poste{max-width:none!important;width:100vw;margin-left:calc(50% - 50vw);margin-right:0;}}',
       '.wd-poste[data-couleur="bleu"]{--wd-c:#5ab8ff;--wd-c2:#1c5a99;--wd-glow:rgba(90,184,255,.55);}',
       '.wd-poste[data-couleur="orange"]{--wd-c:#ffb000;--wd-c2:#8a5a00;--wd-glow:rgba(255,176,0,.55);}',
       '.wd-poste[data-couleur="blanc"]{--wd-c:#f0f0f0;--wd-c2:#6d6d6d;--wd-glow:rgba(240,240,240,.45);}',
@@ -109,7 +110,7 @@
       /* L'écran est DERRIÈRE l'image du moniteur (Norman, 2026-10-07) : l'image est posée par-dessus (son vide d'écran est transparent), sans jamais intercepter un clic. */
       '.wd-crt{position:relative;isolation:isolate;box-sizing:border-box;width:100%;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;}',
       '.wd-crt::after{content:"";position:absolute;z-index:3;pointer-events:none;top:-14.75cqw;right:-14.67cqw;bottom:-31.8cqw;left:-13.16cqw;box-sizing:border-box;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;border-image:url("'+BANNIERE+'") 185 184 399 165 fill / 14.75cqw 14.67cqw 31.8cqw 13.16cqw stretch;}',
-      '.wd-ecran{position:relative;z-index:1;box-sizing:border-box;min-height:34cqw;margin:-.8cqw -1cqw -1cqw;padding:4.4cqw 5.4cqw 4cqw;border-radius:4.5cqw;overflow:hidden;background:radial-gradient(ellipse at center,#06150a 0%,#020a05 70%,#000 100%);color:var(--wd-c);font-family:"Courier New",Courier,monospace;font-size:clamp(11px,2.7cqw,19px);line-height:1.45;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 0 .35em var(--wd-glow);box-shadow:inset 0 0 3cqw rgba(0,0,0,.9),inset 0 0 .6cqw var(--wd-c2);}',
+      '.wd-ecran{position:relative;z-index:1;box-sizing:border-box;height:55.25cqw;margin:-.8cqw -1cqw -1cqw;padding:4.4cqw 5.4cqw 2cqw;border-radius:4.5cqw;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;background:radial-gradient(ellipse at center,#06150a 0%,#020a05 70%,#000 100%);color:var(--wd-c);font-family:"Courier New",Courier,monospace;font-size:clamp(8px,2.5cqw,19px);line-height:1.25;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 0 .35em var(--wd-glow);box-shadow:inset 0 0 3cqw rgba(0,0,0,.9),inset 0 0 .6cqw var(--wd-c2);}',
       /* Lignes de balayage, léger vacillement et reflet de la vitre. */
       '.wd-ecran::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);z-index:2;}',
       '.wd-ecran::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 22% 12%,rgba(255,255,255,.10),transparent 38%);z-index:3;animation:wd-vacille 4s infinite;}',
@@ -118,7 +119,7 @@
       '.wd-ligne{display:flex;justify-content:space-between;gap:.8em;flex-wrap:wrap;}',
       '.wd-titre{margin-top:2.2cqw;font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.5em;}',
       '.wd-titre .wd-etat{font-weight:400;}',
-      '.wd-bloc{margin-top:.8em;}',
+      '.wd-bloc{margin-top:.5em;}',
       '.wd-ligne b{font-weight:700;}',
       '.wd-rang{display:grid;grid-template-columns:5.2em 1fr 3.6em;align-items:center;gap:.6em;margin-top:.25em;}',
       '.wd-lib{color:var(--wd-c2);filter:brightness(1.6);}',
@@ -126,7 +127,7 @@
       /* Barre : cases pleines à l'ancienne (blocs de 0,8 em séparés d'un filet), qui s'allument de gauche à droite. */
       '.wd-barre{position:relative;height:1.05em;border:1px solid var(--wd-c2);padding:2px;background:#010503;}',
       '.wd-barre i{display:block;height:100%;background:var(--wd-c);box-shadow:0 0 .6em var(--wd-glow);-webkit-mask:repeating-linear-gradient(90deg,#000 0 .55em,transparent .55em .72em);mask:repeating-linear-gradient(90deg,#000 0 .55em,transparent .55em .72em);}',
-      '.wd-invite{margin-top:1em;}',
+      '.wd-invite{margin-top:.6em;}',
       '.wd-curseur{display:inline-block;width:.6em;height:1em;vertical-align:text-bottom;background:var(--wd-c);box-shadow:0 0 .5em var(--wd-glow);animation:wd-clignote 1s steps(1) infinite;}',
       '@keyframes wd-clignote{0%{opacity:1}50%{opacity:0}}',
       /* Clavier. */
@@ -167,7 +168,7 @@
       '.wd-barre-boot{height:1.5em;}',
       '.wd-boot .wd-ligne{justify-content:center;gap:1em;margin-top:.6em;}',
       '.wd-petit{font-size:.82em;opacity:.9;}',
-      '.wd-saisie{margin-top:1em;}',
+      '.wd-saisie{margin-top:.6em;}',
       '.wd-saisie{justify-content:flex-start;flex-wrap:wrap;align-items:baseline;gap:.6em;}',
       '.wd-invite-c{white-space:nowrap;}',
       '.wd-frappe{word-break:break-all;color:var(--wd-c);text-transform:uppercase;}',
@@ -316,16 +317,21 @@
       '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
     '</div>';
   }
+  /* Temps restant avant le prochain niveau, seul sous la barre (Norman, 2026-10-07 : « juste le temps restant en dessous, pas de phrase »). */
+  function texteReste_(v,p0){
+    if(!(v>0))return 'RESTE : —';
+    if(v>=3)return 'RESTE : < 1 s';
+    return 'RESTE : '+dureeTexte_((1-Math.max(0,Math.min(1,nb_(p0))))/v);
+  }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
     var placee=nb_(e.al[res]),libre=nb_(e.vue[libreCle]),vit=nb_(e.vue[vitesseCle]);
     var prog=Math.max(0,Math.min(1,nb_(progression)));
     var vitTexte=vit>=50?'50 (MAXIMUM)':format_(vit);
-    var suivant=vit>0&&vit<50?' · prochain niveau dans '+dureeTexte_(1/vit):'';
     return '<div class="wd-bloc">'+
       '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b>'+html_(grand_(niveau))+'</b></span></div>'+
       '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b><span class="wd-lib">LIBRE</span><b>'+html_(grand_(libre))+'</b></div>'+
       '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
-      '<div class="wd-ligne wd-petit"><span>VITESSE : <b>'+html_(vitTexte)+'</b> NIV/S<span data-wd-reste data-garde="'+(vit>0&&vit<50?'1':'0')+'">'+html_(suivant)+'</span></span></div>'+
+      '<div class="wd-ligne wd-petit"><span data-wd-reste>'+html_(texteReste_(vit,prog))+'</span></div>'+
     '</div>';
   }
   function ecranBureau_(e){
@@ -334,7 +340,7 @@
     return '<div class="wd-ligne wd-titre"><span>'+html_(NOMS_OS[e.os])+'</span><span class="wd-etat">[*] EN MARCHE</span></div>'+
       (e.enChargement?panneauChargement_(e):'')+
       '<div class="wd-ligne"><span>BONUS ATTACK ET DEFENSE</span><b>×'+html_(format_(Math.max(1,bonus)))+'</b></div>'+
-      '<div class="wd-ligne"><span>NIVEAU DE L’OS</span><b>'+html_(grand_(v.niveauOsTotal||0))+'</b><span class="wd-lib">VITESSE ×'+html_(grand_(v.multiplicateurOs||1))+'</span></div>'+
+      '<div class="wd-ligne"><span>VERSION OS</span><b>'+html_(grand_(v.niveauOsTotal||0))+'</b><span class="wd-lib">VITESSE ×'+html_(grand_(v.multiplicateurOs||1))+'</span></div>'+
       bloc_('ÉNERGIE','energy',e,'energieLibre','vitesseEnergie',e.data.dumpEnergyLevel,e.data.dumpEnergyProgress)+
       (e.magieOk?bloc_('MAGIE','magic',e,'magieLibre','vitesseMagie',e.data.dumpMagicLevel,e.data.dumpMagicProgress):'')+
       '<div class="wd-ligne wd-saisie" role="group" aria-label="Quantité placée ou retirée à chaque appui sur + ou − : tape-la avec les chiffres du clavier (un nombre, ou une fraction comme 1/4)"><span class="wd-invite-c">C:\\&gt;</span><span id="wd-saisie" class="wd-frappe">'+html_(saisie_())+'</span><span class="wd-curseur" aria-hidden="true"></span></div>';
@@ -451,7 +457,7 @@
   /*
    * Barres « NIVEAU+1 » en temps réel (Norman, 2026-10-07 : « la barre doit avancer petit à petit, pas par grands à-coups ; avec le temps pour le niveau suivant qui se met à jour aussi »).
    * Fraction = progression connue du serveur + vitesse (niveaux par seconde) × temps écoulé depuis l'instant où il l'a calculée. Au-delà de 3 niveaux par seconde, la barre boucle trop vite
-   * pour être suivie : elle reste pleine. Le texte « prochain niveau dans … » suit la même horloge.
+   * pour être suivie : elle reste pleine. Le temps restant écrit sous la barre suit la même horloge.
    */
   var vivant=0;
   function fractionBarre_(p0,v,at){
@@ -474,8 +480,9 @@
       var pct=b.querySelector('[data-wd-pct]');
       if(pct)pct.textContent=Math.floor(r.f*100)+'%';
       var reste=b.parentNode&&b.nextElementSibling&&b.nextElementSibling.querySelector('[data-wd-reste]');
-      if(reste&&reste.getAttribute('data-garde')==='1'&&r.reste!=null){
-        var t=' · prochain niveau dans '+dureeTexte_(r.reste);
+      if(reste){
+        var vit=nb_(b.getAttribute('data-v'));
+        var t=r.reste!=null?'RESTE : '+dureeTexte_(r.reste):(vit>=3?'RESTE : < 1 s':'RESTE : —');
         if(reste.textContent!==t)reste.textContent=t;
       }
     }

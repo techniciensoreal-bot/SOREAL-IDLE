@@ -12346,7 +12346,9 @@
               '.soreal-idle-v138-slot[data-occupant-id],'+
               '.soreal-idle-item-popup-v1'
             );
-          if(!cible||surBarreNav||surInteractionInventaireV180||!e.touches||e.touches.length!==1){
+          /* Un curseur de volume (ou tout champ de saisie) se glisse avec le doigt : ce geste n'est jamais un changement de page (Norman, 2026-10-07 : « quand on règle les barres de volume, ça nous fait swipe de page »). */
+          const surChampGlisseV1=e.target&&e.target.closest&&e.target.closest('input,select,textarea,[role="slider"],[data-no-swipe]');
+          if(!cible||surBarreNav||surInteractionInventaireV180||surChampGlisseV1||!e.touches||e.touches.length!==1){
             idleSwipeDebutXV1=null;
             idleSwipeDebutYV1=null;
             return;

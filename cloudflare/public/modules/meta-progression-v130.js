@@ -2952,6 +2952,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * grosse, couronne le mois. Les sommes viennent du serveur (idle-login-calendar-v1.js : 150 000 AP par mois, croissantes). Voulu tel quel par Norman : les cases à venir sont visibles (grisées).
        */
       const IDLE_MOIS_FR_CALENDRIER_V1=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+      /* Dernière série vue : seule une case qui vient de s'allumer rejoue l'animation d'allumage (pas toutes les cases à chaque redessin de la page). */
+      let calSerieVueV1=null;
       function rendreCalendrierConnexionIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const cal=j&&j.systemes&&j.systemes.loginCalendar;
@@ -2959,11 +2961,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const jours=cal.bareme.length;
         const serie=Math.max(0,Math.min(jours,H.idleEntier_(cal.serie)));
         const nomMois=(IDLE_MOIS_FR_CALENDRIER_V1[H.idleEntier_(cal.moisNumero)-1]||'')+' '+H.idleEntier_(cal.annee);
+        const serieAvant=calSerieVueV1;
+        calSerieVueV1=serie;
         const cases=cal.bareme.map(function(ap,i){
           const dernier=i===jours-1;
           const allume=i<serie;
           const pret=!allume&&i===serie&&Boolean(cal.reclamable);
-          const etat=allume?'allume':(pret?'pret':'eteint');
+          const etat=allume?('allume'+((serieAvant!==null&&i>=serieAvant)?' nouveau':'')):(pret?'pret':'eteint');
           const icone=dernier?'👑':(((i+1)%7===0)?'🎁':'💠');
           return '<div class="cal-case-v1 '+etat+(dernier?' dernier':'')+'" title="Jour '+(i+1)+' : '+H.idleHtml_(H.formatGrandNombreIdleV70_(ap))+' AP">'+
             '<span class="cal-jour-v1">'+(i+1)+'</span>'+
@@ -2992,7 +2996,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.cal-icone-v1{font-size:19px;line-height:1.1;margin-top:9px}'+
             '.cal-ap-v1{font-size:10px;font-weight:900;letter-spacing:.01em}'+
             '.cal-case-v1.eteint{filter:grayscale(1);opacity:.5}'+
-            '.cal-case-v1.allume{border-color:#ffd54a;background:radial-gradient(circle at 50% 30%,#ffe58a 0,#f2a91b 55%,#a8650a 100%);color:#3a2300;box-shadow:0 0 14px rgba(255,200,60,.75),inset 0 0 10px rgba(255,255,255,.45);animation:calAllumeV1 .6s ease-out}'+
+            '.cal-case-v1.allume{border-color:#ffd54a;background:radial-gradient(circle at 50% 30%,#ffe58a 0,#f2a91b 55%,#a8650a 100%);color:#3a2300;box-shadow:0 0 14px rgba(255,200,60,.75),inset 0 0 10px rgba(255,255,255,.45)}'+
+            '.cal-case-v1.allume.nouveau{animation:calAllumeV1 .6s ease-out}'+
             '.cal-case-v1.allume .cal-icone-v1{filter:drop-shadow(0 0 5px rgba(255,255,255,.9))}'+
             '.cal-coche-v1{position:absolute;right:3px;top:3px;font-size:9px;font-weight:1000;color:#15632a;background:rgba(255,255,255,.9);border-radius:50%;width:13px;height:13px;line-height:13px;text-align:center}'+
             '.cal-case-v1.pret{border:2px solid #7dffa8;background:radial-gradient(circle at 50% 30%,#26543a 0,#123222 70%);color:#eafff1;box-shadow:0 0 16px rgba(110,255,160,.8);animation:calPretV1 1.1s ease-in-out infinite}'+
@@ -3003,7 +3008,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.cal-bouton-v1{width:100%;margin-top:10px!important;white-space:normal}'+
             '@keyframes calPretV1{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}'+
             '@keyframes calAllumeV1{0%{transform:scale(.7);filter:brightness(2)}100%{transform:scale(1);filter:none}}'+
-            '@media(prefers-reduced-motion:reduce){.cal-case-v1.pret,.cal-case-v1.allume{animation:none}}'+
+            '@media(prefers-reduced-motion:reduce){.cal-case-v1.pret,.cal-case-v1.allume,.cal-case-v1.allume.nouveau{animation:none}}'+
           '</style>'+
           '<div class="cal-v1">'+
             '<div class="cal-titre-v1">📅 Récompenses de connexion · '+H.idleHtml_(nomMois)+'</div>'+
@@ -3112,6 +3117,21 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const listeRoue=lignesRoueIdleV1_(roue);
         const historique=historiqueMoneyPitIdleV206_(pit,roue);
         const derniere=historique.length?historique[0]:null;
+        /*
+         * Couleur du cadre du prix (Norman, 2026-10-07 : « le cadre doit changer de couleur à chaque récompense, sinon on ne remarque pas le changement entre la précédente et la nouvelle »).
+         * Un compteur, gardé sur l'appareil, avance d'un cran chaque fois que la dernière récompense n'est plus celle qu'on avait vue ; la couleur est le rang du compteur (6 teintes qui se suivent).
+         */
+        let couleurPrix=0;
+        try{
+          const cle=derniere?(String(derniere.at)+'|'+String(derniere.prize)):'';
+          if(cle){
+            const brut=JSON.parse(localStorage.getItem('soreal_idle_prix_couleur_v1')||'null');
+            let n=0;
+            if(brut&&typeof brut==='object'){n=brut.cle===cle?(Number(brut.n)||0):(Number(brut.n)||0)+1;}
+            if(!brut||brut.cle!==cle)localStorage.setItem('soreal_idle_prix_couleur_v1',JSON.stringify({cle:cle,n:n}));
+            couleurPrix=((n%6)+6)%6;
+          }
+        }catch(_e){}
 
         return ''+
           window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_(
@@ -3163,7 +3183,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           '<div class="soreal-idle-offre-v1">'+
             '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
-            '<div class="soreal-idle-prize-v206">'+
+            '<div class="soreal-idle-prize-v206" data-couleur="'+couleurPrix+'">'+
               (derniere
                 ?(derniere.entree
                   ?window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(phraseMoneyPitIdleV1_(derniere.entree,j))+
