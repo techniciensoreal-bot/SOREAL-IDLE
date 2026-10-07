@@ -3,8 +3,8 @@
  * l'écran de idle/banners/wandoos.webp, écritures vertes comme sur les vieux PC, un bouton pour passer en vert, bleu, orange, blanc, des touches de clavier
  * en bas pour le + et le −, et le son d'un clavier quand on les presse »).
  *
- * Rien ne change côté jeu : les touches appellent les mêmes fonctions que les anciens boutons (__ajusterAllocationMetaIdleV130__, __toggleSystemeMetaIdleV130__).
- * Les données affichées viennent de j.systemes (niveau des Dumps, progression vers le niveau suivant, allocation en %).
+ * 2026-10-07 : écran de démarrage (Wandoos 98, MEH ou XL, avec barre d'avancement), bureau accessible une fois l'OS démarré (Énergie et Magie à placer en QUANTITÉS, avec saisie), choix de l'OS.
+ * Les données viennent de j.systemes (wandoosView : OS, vitesses, démarrage du wiki ; et l'état du système : niveaux des Dumps, allocation).
  *
  * L'image de l'ordinateur est découpée en neuf zones (border-image) : les coins gardent leurs proportions, le milieu s'étire, donc l'écran peut être aussi grand
  * que nécessaire. Les bordures sont exprimées en cqw (largeur du poste) : mêmes proportions que l'image à toutes les largeurs.
@@ -144,70 +144,280 @@
       '.wd-espace{width:100%;font-size:clamp(13px,3cqw,22px);letter-spacing:.14em;}',
       /* Petit écran : un groupe de touches par ligne (4 touches de 44 px minimum ne tiennent pas côte à côte). */
       '@container (max-width:560px){.wd-plaque{grid-template-columns:1fr}.wd-clavier{width:100%;padding:3cqw}.wd-touche{min-height:48px}}',
+      /* Démarrage, bureau, saisie (2026-10-07). */
+      '.wd-rang{grid-template-columns:6.6em 1fr auto;}',
+      '.wd-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;min-height:28cqw;text-align:center;}',
+      '.wd-logo{display:flex;align-items:center;gap:.7em;font-size:1.9em;line-height:1;}',
+      '.wd-drapeau{display:grid;grid-template-columns:1fr 1fr;gap:.12em;width:1.5em;height:1.5em;transform:skewX(-8deg) rotate(-6deg);}',
+      '.wd-drapeau i{display:block;background:var(--wd-c);opacity:.95;box-shadow:0 0 .4em var(--wd-glow);}',
+      '.wd-drapeau i:nth-child(2){opacity:.7}.wd-drapeau i:nth-child(3){opacity:.55}.wd-drapeau i:nth-child(4){opacity:.85}',
+      '.wd-marque{font-weight:700;letter-spacing:.06em;}',
+      '.wd-marque b{display:inline-block;margin-left:.2em;padding:0 .25em;border:2px solid var(--wd-c);}',
+      '.wd-logo[data-os="98"] .wd-marque{font-style:italic;}',
+      '.wd-logo[data-os="meh"] .wd-marque{font-weight:400;letter-spacing:.14em;}',
+      '.wd-logo[data-os="meh"] .wd-drapeau{filter:grayscale(1) brightness(.8);transform:rotate(14deg);}',
+      '.wd-logo[data-os="xl"] .wd-marque b{border-radius:.6em;background:var(--wd-c);color:#000;text-shadow:none;}',
+      '.wd-logo[data-os="xl"] .wd-drapeau{filter:drop-shadow(0 0 .5em var(--wd-c));}',
+      '.wd-eteint{opacity:.8;letter-spacing:.2em;}',
+      '.wd-invite-centre{max-width:36em;font-size:.85em;opacity:.9;text-transform:none;letter-spacing:.02em;}',
+      '.wd-boot{width:min(100%,34em);}',
+      '.wd-barre-boot{height:1.5em;}',
+      '.wd-boot .wd-ligne{justify-content:center;gap:1em;margin-top:.6em;}',
+      '.wd-petit{font-size:.82em;opacity:.9;}',
+      '.wd-saisie{align-items:center;margin-top:1em;}',
+      '.wd-saisie label{white-space:nowrap;}',
+      '.wd-input{flex:1;min-width:6em;box-sizing:border-box;font:inherit;letter-spacing:.04em;color:var(--wd-c);background:#010503;border:1px solid var(--wd-c2);padding:.25em .5em;text-transform:none;text-shadow:inherit;}',
+      '.wd-input:focus{outline:2px solid var(--wd-c);outline-offset:1px;}',
+      '.wd-aide{margin-top:.9em;padding-top:.5em;border-top:1px dashed var(--wd-c2);font-size:.8em;opacity:.85;text-transform:none;letter-spacing:.02em;}',
+      '.wd-bas-couleur{grid-template-columns:1fr;margin-top:1.4cqw;}',
+      '.wd-touche:disabled{cursor:default;filter:brightness(.8);}',
+      '.wd-touche.wd-enfoncee{transform:translateY(.7cqw);box-shadow:0 .1cqw 0 #8b836a,0 .2cqw .3cqw rgba(0,0,0,.5),inset 0 .15cqw 0 rgba(255,255,255,.5);}',
+      '@container (max-width:560px){.wd-rang-boot{grid-template-columns:1fr auto;}.wd-rang-boot .wd-lib{grid-column:1/-1;}.wd-logo{font-size:1.5em;}}',
+      '.wd-poste[data-phase="eteint"] .wd-ecran{background:#000;box-shadow:inset 0 0 3cqw rgba(0,0,0,.95);}',
       '@media (prefers-reduced-motion:reduce){.wd-ecran::after,.wd-curseur{animation:none;}}'
     ].join('\n');
     document.head.appendChild(s);
   }
 
+  /* ===================================================================================================================================
+   * Démarrage, bureau et clavier (Norman, 2026-10-07 : « retravailler le menu pour qu'on puisse mettre de l'énergie et de la magie ; un écran de boot (Wandoos 98, MEH, XL) avec une
+   * barre d'avancement ; quand l'OS est booté, on accède aux barres »).
+   *  - Les quantités sont ABSOLUES (le serveur borne l'allocation au plafond et à ce qui est libre) : l'ancienne version envoyait un « pourcentage » de 0 à 100 et ne pouvait donc jamais
+   *    placer plus de 100 points.
+   *  - Le vrai démarrage du jeu est celui du wiki (page Wandoos, « Boot-up » : 1 h par Rebirth, vitesse linéaire de 0 à 100 %, réduit par le set XL et les défis ; mini 27 min) : il est
+   *    montré sur le bureau. L'ÉCRAN de démarrage ci-dessous est une animation SOREAL (le wiki ne donne pas de durée par OS) : plus l'OS est récent, plus il est « lourd » et long.
+   * =================================================================================================================================== */
+  var DUREE_BOOT_MS={'98':5000,meh:7000,xl:9000};
+  var NOMS_OS={'98':'Wandoos 98',meh:'Wandoos MEH',xl:'Wandoos XL'};
+  var COURT_OS={'98':'98',meh:'MEH',xl:'XL'};
+  var MESSAGES_BOOT={
+    '98':['Réveil du processeur (il dormait)…','Comptage de la mémoire : 640 Ko, ça devrait suffire…','Chargement du fond d’écran (une colline, forcément)…','Wandoos 98 est prêt. Il le dit lui-même.'],
+    meh:['Wandoos MEH démarre… sans enthousiasme.','Recherche de pilotes introuvables…','Installation de mises à jour inutiles…','Prêt. Enfin, disons prêt.'],
+    xl:['Wandoos XL se pavane…','Chargement de la grande colline verte…','Vérification que tu n’as pas copié le disque…','Prêt. Son bouton Démarrer est très brillant.']
+  };
+  var phase='',bootDebut=0,bootDuree=0,bootOs='98',timerBoot=0,osEnAttente='';
+
+  function dureeTexte_(sec){
+    var s=Math.max(0,Math.ceil(nb_(sec)));
+    if(s<60)return s+' s';
+    var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
+    if(h>0)return h+' h '+(m<10?'0':'')+m+' min';
+    return m+' min '+(s%60<10?'0':'')+(s%60)+' s';
+  }
+  function format_(v){
+    var n=nb_(v);
+    if(Math.abs(n)>=1000)return grand_(n);
+    return n.toLocaleString('fr-FR',{maximumFractionDigits:2});
+  }
   function barre_(frac){
     var p=Math.max(0,Math.min(1,nb_(frac)));
     return '<div class="wd-barre"><i style="width:'+(p*100).toFixed(1)+'%"></i></div>';
   }
-  function bloc_(titre,niveau,progression,allocation){
-    var pct=Math.round(Math.max(0,Math.min(100,nb_(allocation))));
-    var prog=Math.max(0,Math.min(1,nb_(progression)));
-    return '<div class="wd-bloc">'+
-      '<div class="wd-ligne"><span>'+titre+'</span><span>NIV <b>'+html_(grand_(niveau))+'</b></span></div>'+
-      '<div class="wd-rang"><span class="wd-lib">DUMP</span>'+barre_(prog)+'<span class="wd-pct">'+Math.floor(prog*100)+'%</span></div>'+
-      '<div class="wd-rang"><span class="wd-lib">ALLOC</span>'+barre_(pct/100)+'<span class="wd-pct">'+pct+'%</span></div>'+
+  function etat_(j){
+    var meta=window.__SOREAL_IDLE_META_V130__;
+    var s=meta&&meta.systemeMetaParIdIdleV130_?meta.systemeMetaParIdIdleV130_(j,'wandoos'):null;
+    if(!s||!s.unlock||!s.unlock.unlocked)return null;
+    var st=s.state||{};
+    var vue=(j&&j.systemes&&j.systemes.wandoosView)||{};
+    var magieOk=false;
+    try{var bm=meta.systemeMetaParIdIdleV130_(j,'bloodMagic');magieOk=Boolean(bm&&bm.unlock&&bm.unlock.unlocked);}catch(_e){}
+    var os=String(vue.os||(st.data&&st.data.os)||'98');
+    if(!NOMS_OS[os])os='98';
+    return {s:s,st:st,data:st.data||{},al:st.allocation||{},vue:vue,actif:Boolean(st.active),os:os,magieOk:magieOk,dispos:Array.isArray(vue.osDisponibles)&&vue.osDisponibles.length?vue.osDisponibles:['98']};
+  }
+
+  /* ---------- Saisie : un nombre (1000, 2,5M…) ou une fraction (1/4 = un quart de ce que tu possèdes pour cette ressource) ---------- */
+  var CLE_SAISIE='soreal_idle_wandoos_saisie_v1';
+  function saisie_(){try{var v=localStorage.getItem(CLE_SAISIE);if(v)return v;}catch(_e){}return '1000';}
+  function saisir_(v){try{localStorage.setItem(CLE_SAISIE,String(v));}catch(_e){}}
+  function analyser_(texte,total){
+    var t=String(texte==null?'':texte).trim().replace(',','.').replace(/\s+/g,'');
+    var f=/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(t);
+    if(f){var d=Number(f[2]);return d>0?Math.floor(total*Number(f[1])/d):0;}
+    var m=/^(\d+(?:\.\d+)?(?:e\d+)?)([kmbt]?)$/i.exec(t);
+    if(!m)return 0;
+    var mult={'':1,k:1e3,m:1e6,b:1e9,t:1e12}[m[2].toLowerCase()];
+    return Math.floor(Number(m[1])*mult);
+  }
+
+  /* ---------- Écrans ---------- */
+  function logo_(os){
+    return '<div class="wd-logo" data-os="'+html_(os)+'"><span class="wd-drapeau" aria-hidden="true"><i></i><i></i><i></i><i></i></span>'+
+      '<span class="wd-marque">Wandoos <b>'+html_(COURT_OS[os])+'</b></span></div>';
+  }
+  function ecranEteint_(e){
+    return '<div class="wd-centre">'+logo_(e.os)+
+      '<div class="wd-eteint">○ ORDINATEUR ÉTEINT</div>'+
+      '<div class="wd-invite-centre">'+(e.dispos.length>1?'Choisis ton système, puis appuie':'Appuie')+' sur DÉMARRER.<br>Wandoos transforme l’énergie et la magie en Attack et Defense. Lentement, mais sûrement.</div>'+
     '</div>';
   }
-  function touche_(libelle,sous,onclick,classe,titre){
-    return '<button type="button" class="wd-touche'+(classe?' '+classe:'')+'" title="'+html_(titre||'')+'" aria-label="'+html_(titre||sous||libelle)+'" onclick="'+onclick+'">'+libelle+(sous?'<small>'+html_(sous)+'</small>':'')+'</button>';
+  function ecranBoot_(os){
+    var ecoule=Math.max(0,Date.now()-bootDebut),p=bootDuree>0?Math.min(1,ecoule/bootDuree):1;
+    var msgs=MESSAGES_BOOT[os]||MESSAGES_BOOT['98'];
+    var i=Math.min(msgs.length-1,Math.floor(p*msgs.length));
+    return '<div class="wd-centre">'+logo_(os)+
+      '<div class="wd-boot"><div class="wd-barre wd-barre-boot" id="wd-boot-barre"><i style="width:'+(p*100).toFixed(1)+'%"></i></div>'+
+      '<div class="wd-ligne"><span id="wd-boot-msg">'+html_(msgs[i])+'</span><b id="wd-boot-pct">'+Math.floor(p*100)+'%</b></div></div>'+
+    '</div>';
   }
-  function alloc_(ressource,delta){return 'window.__ajusterAllocationMetaIdleV130__(\'wandoos\',\''+ressource+'\','+delta+')';}
-  function groupe_(nom,ressource){
+  function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
+    var placee=nb_(e.al[res]),libre=nb_(e.vue[libreCle]),vit=nb_(e.vue[vitesseCle]);
+    var prog=Math.max(0,Math.min(1,nb_(progression)));
+    var vitTexte=vit>=50?'50 (MAXIMUM)':format_(vit);
+    var suivant=vit>0&&vit<50?' · prochain niveau dans '+dureeTexte_(1/vit):'';
+    return '<div class="wd-bloc">'+
+      '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b>'+html_(grand_(niveau))+'</b></span></div>'+
+      '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b><span class="wd-lib">LIBRE</span><b>'+html_(grand_(libre))+'</b></div>'+
+      '<div class="wd-rang"><span class="wd-lib">NIVEAU+1</span>'+barre_(prog)+'<span class="wd-pct">'+Math.floor(prog*100)+'%</span></div>'+
+      '<div class="wd-ligne wd-petit"><span>VITESSE : <b>'+html_(vitTexte)+'</b> NIV/S'+html_(suivant)+'</span></div>'+
+    '</div>';
+  }
+  function ecranBureau_(e){
+    var v=e.vue,fb=nb_(v.bootFraction),restant=Math.max(0,nb_(v.bootSecondes)-nb_(v.bootEcoule));
+    var boot=fb>=0.9999
+      ?'<div class="wd-ligne"><span>DÉMARRAGE DE L’OS</span><b>TERMINÉ : VITESSE 100 %</b></div>'
+      :'<div class="wd-ligne"><span>DÉMARRAGE DE L’OS (CE REBIRTH)</span><b>'+Math.floor(fb*100)+' %</b></div>'+
+       '<div class="wd-rang wd-rang-boot"><span class="wd-lib">VITESSE</span>'+barre_(fb)+'<span class="wd-pct">encore '+html_(dureeTexte_(restant))+'</span></div>';
+    var bonus=nb_(v.bonusCombat);
+    return '<div class="wd-ligne wd-titre"><span>'+html_(NOMS_OS[e.os])+'</span><span class="wd-etat">● EN MARCHE</span></div>'+
+      '<div class="wd-ligne"><span>BONUS ATTACK ET DEFENSE</span><b>×'+html_(format_(Math.max(1,bonus)))+'</b></div>'+
+      '<div class="wd-ligne"><span>NIVEAU DE L’OS</span><b>'+html_(grand_(v.niveauOsTotal||0))+'</b><span class="wd-lib">VITESSE ×'+html_(grand_(v.multiplicateurOs||1))+'</span></div>'+
+      boot+
+      bloc_('ÉNERGIE','energy',e,'energieLibre','vitesseEnergie',e.data.dumpEnergyLevel,e.data.dumpEnergyProgress)+
+      (e.magieOk?bloc_('MAGIE','magic',e,'magieLibre','vitesseMagie',e.data.dumpMagicLevel,e.data.dumpMagicProgress):'')+
+      '<div class="wd-ligne wd-saisie"><label for="wd-saisie">C:\\&gt; SAISIE</label>'+
+        '<input id="wd-saisie" class="wd-input" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="'+html_(saisie_())+'" aria-label="Quantité placée ou retirée à chaque appui sur + ou − (un nombre, ou une fraction comme 1/4)" oninput="window.__SOREAL_IDLE_WANDOOS_V1__.saisie(this.value)"></div>'+
+      '<div class="wd-aide">AIDE : + place la quantité saisie, − la retire, MAX place tout ce qui est libre. Wandoos ne produit que de l’Attack et de la Defense, et il met du temps à démarrer. C’est son charme.</div>';
+  }
+
+  /* ---------- Clavier ---------- */
+  function touche_(libelle,sous,onclick,classe,titre,desactive){
+    return '<button type="button" class="wd-touche'+(classe?' '+classe:'')+'"'+(desactive?' disabled':'')+' title="'+html_(titre||'')+'" aria-label="'+html_(titre||sous||libelle)+'" onclick="'+onclick+'">'+libelle+(sous?'<small>'+sous+'</small>':'')+'</button>';
+  }
+  var API="window.__SOREAL_IDLE_WANDOOS_V1__";
+  function groupe_(nom,res){
+    var p=API+".place('"+res+"','";
     return '<div class="wd-groupe"><span class="wd-leg">'+nom+'</span><div class="wd-rangee">'+
-      touche_('0','',alloc_(ressource,-100),'',nom+' : tout retirer')+
-      touche_('−','10 %',alloc_(ressource,-10),'',nom+' : −10 %')+
-      touche_('+','10 %',alloc_(ressource,10),'',nom+' : +10 %')+
-      touche_('MAX','',alloc_(ressource,100),'',nom+' : tout placer')+
+      touche_('0','',p+"zero')",'',nom+' : tout retirer')+
+      touche_('−','',p+"moins')",'',nom+' : retirer la quantité saisie')+
+      touche_('+','',p+"plus')",'',nom+' : placer la quantité saisie')+
+      touche_('MAX','',p+"tout')",'',nom+' : tout placer')+
+    '</div></div>';
+  }
+  function groupeOs_(e){
+    if(e.dispos.length<2)return '';
+    return '<div class="wd-groupe"><span class="wd-leg">Système</span><div class="wd-rangee">'+
+      e.dispos.map(function(o){
+        var courant=o===e.os,attente=osEnAttente===o;
+        return touche_(html_(COURT_OS[o]),attente?'CONFIRMER ?':(courant?'ACTUEL':''),API+".os('"+o+"')",courant?'wd-enfoncee':'',(courant?'Système actuel : ':'Passer à ')+NOMS_OS[o]+(courant?'':' (remet à zéro les niveaux de Dump)'),courant);
+      }).join('')+
+    '</div></div>';
+  }
+  function clavier_(e){
+    var couleur='<div class="wd-groupe"><span class="wd-leg">Écran</span><button type="button" class="wd-touche wd-touche-couleur" title="Changer la couleur de l’écran" aria-label="Changer la couleur de l’écran : vert, bleu, orange, blanc" onclick="'+API+'.couleur()">COULEUR<small class="wd-nomcouleur">'+couleur_().toUpperCase()+'</small></button></div>';
+    var demarrage=phase==='boot'
+      ?touche_('DÉMARRAGE…','','','wd-espace','Démarrage en cours',true)
+      :(e.actif
+        ?touche_('■ ÉTEINDRE','',API+'.eteindre()','wd-espace','Éteindre Wandoos')
+        :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos'));
+    var haut='';
+    if(phase!=='boot'&&e.actif)haut=groupe_('Énergie','energy')+(e.magieOk?groupe_('Magie','magic'):'');
+    var os=phase==='boot'?'':groupeOs_(e);
+    return '<div class="wd-clavier"><div class="wd-plaque">'+haut+
+      '<div class="wd-bas">'+(os||couleur)+'<div class="wd-groupe"><span class="wd-leg">Système</span>'+demarrage+'</div></div>'+
+      (os?'<div class="wd-bas wd-bas-couleur">'+couleur+'</div>':'')+
     '</div></div>';
   }
 
+  function poste_(j){
+    var e=etat_(j);
+    if(!e)return '';
+    var c=couleur_();
+    var ecran=phase==='boot'?ecranBoot_(bootOs):(e.actif?ecranBureau_(e):ecranEteint_(e));
+    return '<div class="wd-poste" data-couleur="'+c+'" data-phase="'+(phase==='boot'?'boot':(e.actif?'bureau':'eteint'))+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier_(e)+'</div>';
+  }
   function page(j){
     style_();
     var H=H_();
-    var meta=window.__SOREAL_IDLE_META_V130__;
-    var s=meta&&meta.systemeMetaParIdIdleV130_?meta.systemeMetaParIdIdleV130_(j,'wandoos'):null;
-    if(!s||!s.unlock||!s.unlock.unlocked)return '';
-    var st=s.state||{};
-    var data=st.data||{};
-    var al=st.allocation||{};
-    var c=couleur_();
-    var actif=Boolean(st.active);
+    var e=etat_(j);
+    if(!e)return '';
+    var s=e.s;
     var titre=H&&H.entetePageIdleV28_?H.entetePageIdleV28_(html_((s.icon||'💻')+' '+(s.name||'Wandoos')),''):'';
-    var os=data.os!=null&&String(data.os)!==''?' '+html_(String(data.os)):'';
-    var ecran=
-      '<div class="wd-ligne wd-titre"><span>'+html_(s.name||'Wandoos')+os+'</span><span class="wd-etat">'+(actif?'● EN MARCHE':'○ ARRÊTÉ')+'</span></div>'+
-      '<div class="wd-ligne"><span>C:\\&gt; NIVEAU TOTAL</span><b>'+html_(grand_(st.level||0))+'</b></div>'+
-      bloc_('ÉNERGIE',data.dumpEnergyLevel,data.dumpEnergyProgress,al.energy)+
-      bloc_('MAGIE',data.dumpMagicLevel,data.dumpMagicProgress,al.magic)+
-      '<div class="wd-ligne wd-invite"><span>C:\\&gt; <span class="wd-curseur"></span></span></div>';
-    var clavier=
-      '<div class="wd-clavier"><div class="wd-plaque">'+
-        groupe_('Énergie','energy')+groupe_('Magie','magic')+
-        '<div class="wd-bas">'+
-          '<div class="wd-groupe"><span class="wd-leg">Écran</span>'+
-            '<button type="button" class="wd-touche wd-touche-couleur" title="Changer la couleur de l’écran" aria-label="Changer la couleur de l’écran : vert, bleu, orange, blanc" onclick="window.__SOREAL_IDLE_WANDOOS_V1__.couleur()">COLOR<small class="wd-nomcouleur">'+c.toUpperCase()+'</small></button>'+
-          '</div>'+
-          '<div class="wd-groupe"><span class="wd-leg">Système</span>'+
-            touche_(actif?'■ DÉSACTIVER':'▶ ACTIVER','','window.__toggleSystemeMetaIdleV130__(\'wandoos\')','wd-espace',actif?'Désactiver':'Activer')+
-          '</div>'+
-        '</div>'+
-      '</div></div>';
-    return titre+'<div class="wd-poste" data-couleur="'+c+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier+'</div>';
+    return titre+poste_(j);
+  }
+  function rafraichirPoste_(){
+    var H=H_();
+    var poste=document.querySelector('.wd-poste');
+    if(!poste||!H||!H.getIdleEtat)return;
+    var champ=document.getElementById('wd-saisie');
+    var garde=champ&&document.activeElement===champ?{debut:champ.selectionStart,fin:champ.selectionEnd}:null;
+    var html=poste_(H.getIdleEtat());
+    if(!html)return;
+    poste.outerHTML=html;
+    if(garde){var n=document.getElementById('wd-saisie');if(n){try{n.focus();n.setSelectionRange(garde.debut,garde.fin);}catch(_e){}}}
   }
 
-  window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_};
+  /* ---------- Actions ---------- */
+  function meta_(payload){var f=window.__actionMetaIdleV130__;if(typeof f==='function')f(payload);}
+  function arreterTimer_(){if(timerBoot){clearInterval(timerBoot);timerBoot=0;}}
+  function pasBoot_(){
+    var ecoule=Math.max(0,Date.now()-bootDebut),p=bootDuree>0?Math.min(1,ecoule/bootDuree):1;
+    var barre=document.querySelector('#wd-boot-barre i'),pct=document.getElementById('wd-boot-pct'),msg=document.getElementById('wd-boot-msg');
+    if(barre)barre.style.width=(p*100).toFixed(1)+'%';
+    if(pct)pct.textContent=Math.floor(p*100)+'%';
+    var msgs=MESSAGES_BOOT[bootOs]||MESSAGES_BOOT['98'];
+    var texte=msgs[Math.min(msgs.length-1,Math.floor(p*msgs.length))];
+    if(msg&&msg.textContent!==texte)msg.textContent=texte;
+    if(p>=1){arreterTimer_();phase='';rafraichirPoste_();}
+  }
+  function demarrer(){
+    var H=H_();
+    var e=H&&H.getIdleEtat?etat_(H.getIdleEtat()):null;
+    if(!e||e.actif||phase==='boot')return;
+    bootOs=e.os;bootDebut=Date.now();bootDuree=DUREE_BOOT_MS[bootOs]||5000;phase='boot';
+    arreterTimer_();
+    meta_({action:'toggle',system:'wandoos',active:true});
+    rafraichirPoste_();
+    timerBoot=setInterval(pasBoot_,100);
+  }
+  function eteindre(){
+    var H=H_();
+    var e=H&&H.getIdleEtat?etat_(H.getIdleEtat()):null;
+    if(!e||!e.actif)return;
+    arreterTimer_();phase='';
+    meta_({action:'toggle',system:'wandoos',active:false});
+  }
+  function choisirOs(os){
+    var H=H_();
+    var e=H&&H.getIdleEtat?etat_(H.getIdleEtat()):null;
+    if(!e||!NOMS_OS[os]||os===e.os||e.dispos.indexOf(os)===-1)return;
+    var aDesNiveaux=nb_(e.data.dumpEnergyLevel)+nb_(e.data.dumpMagicLevel)>0;
+    if(aDesNiveaux&&osEnAttente!==os){osEnAttente=os;rafraichirPoste_();return;}
+    osEnAttente='';
+    meta_({action:'selectWandoosOs',os:os});
+  }
+  function placer(res,mode){
+    var H=H_();
+    if(!H||!H.getIdleEtat)return;
+    var j=H.getIdleEtat(),e=etat_(j);
+    if(!e||!e.actif||phase==='boot'||(res!=='energy'&&res!=='magic'))return;
+    if(res==='magic'&&!e.magieOk)return;
+    var cleLibre=res==='energy'?'energieLibre':'magieLibre';
+    var libre=Math.max(0,nb_(e.vue[cleLibre])),actuelle=Math.max(0,nb_(e.al[res]));
+    var montant=analyser_(saisie_(),libre+actuelle);
+    var cible=mode==='zero'?0:mode==='tout'?actuelle+libre:mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
+    cible=Math.max(0,Math.min(actuelle+libre,cible));
+    if(cible===actuelle)return;
+    /* Mise à jour immédiate de l'écran : deux appuis rapprochés doivent s'additionner sans attendre le serveur. */
+    e.st.allocation=e.st.allocation||{};
+    e.st.allocation[res]=cible;
+    e.vue[cleLibre]=Math.max(0,libre-(cible-actuelle));
+    rafraichirPoste_();
+    meta_({action:'allocate',system:'wandoos',resource:res,value:cible});
+  }
+  /* Une réponse du serveur qui change d'OS ou de phase remet les confirmations à zéro. */
+  function saisie(v){saisir_(v);}
+
+  window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_,
+    demarrer:demarrer,eteindre:eteindre,os:choisirOs,place:placer,saisie:saisie,analyser:analyser_,dureesBoot:DUREE_BOOT_MS};
 })();

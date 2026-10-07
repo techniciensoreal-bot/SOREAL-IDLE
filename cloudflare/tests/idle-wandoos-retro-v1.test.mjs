@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 /*
- * Page Wandoos « ordinateur rétro » (Norman, 2026-10-06) : écran de l'image idle/banners/wandoos.webp, texte vert avec un bouton vert/bleu/orange/blanc,
- * barres à l'ancienne, touches de clavier (+, −, MAX…) cliquables avec le son d'un clavier.
+ * Page Wandoos « ordinateur rétro » (Norman, 2026-10-06) puis écran de démarrage, bureau et énergie/magie en QUANTITÉS (2026-10-07) :
+ * éteint -> DÉMARRER -> écran de boot (Wandoos 98 / MEH / XL, barre d'avancement) -> bureau : barres, saisie, touches 0 − + MAX pour l'énergie et la magie, choix de l'OS.
  */
 const src = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 const stockage = {};
@@ -21,21 +21,29 @@ const fauxContexte = () => ({
   resume() {}
 });
 let volume = 0.75;
-const poste = { dataset: {}, setAttribute(k, v) { poste.dataset[k.replace("data-", "")] = v; } };
+const poste = { dataset: {}, outerHTML: "", setAttribute(k, v) { poste.dataset[k.replace("data-", "")] = v; } };
 const nomCouleur = { textContent: "" };
+let maintenant = 1_000_000;
+const minuteries = [];
+const actions = [];
+let joueurCourant = null;
 const fenetre = {
   localStorage: { getItem: (k) => (k in stockage ? stockage[k] : null), setItem: (k, v) => { stockage[k] = String(v); } },
   AudioContext: function () { contextesCrees += 1; return fauxContexte(); },
   __SOREAL_IDLE_AUDIO_VOLUME_V1__: { getInterface: () => volume },
+  __actionMetaIdleV130__: (payload) => { actions.push(JSON.parse(JSON.stringify(payload))); },
   __SOREAL_IDLE_META_HOST_V130__: {
     idleHtml_: (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])),
-    formatGrandNombreIdleV70_: (v) => String(Math.floor(Number(v) || 0)),
-    entetePageIdleV28_: (t) => "<h1>" + t + "</h1>"
+    formatGrandNombreIdleV70_: (v) => { const n = Math.floor(Number(v) || 0); return n >= 1e6 ? (n / 1e6) + "M" : n >= 1e3 ? (n / 1e3) + "K" : String(n); },
+    entetePageIdleV28_: (t) => "<h1>" + t + "</h1>",
+    getIdleEtat: () => joueurCourant
   },
-  __SOREAL_IDLE_META_V130__: { systemeMetaParIdIdleV130_: (j, id) => j.systems.find((x) => x.id === id) || null }
+  __SOREAL_IDLE_META_V130__: { systemeMetaParIdIdleV130_: (j, id) => j.systems.find((x) => x.id === id) || null },
+  setInterval: (fn) => { minuteries.push(fn); return minuteries.length; },
+  clearInterval: () => {},
+  Date: { now: () => maintenant }
 };
 fenetre.window = fenetre;
-fenetre.localStorage = fenetre.localStorage;
 fenetre.document = {
   getElementById: () => null, head: { appendChild() {} }, createElement: () => ({}),
   querySelector: (sel) => (sel === ".wd-poste" ? poste : sel === ".wd-nomcouleur" ? nomCouleur : null),
@@ -45,36 +53,135 @@ vm.runInNewContext(src, Object.assign(fenetre, { localStorage: fenetre.localStor
 const W = fenetre.__SOREAL_IDLE_WANDOOS_V1__;
 assert.ok(W && typeof W.page === "function", "module exposé");
 
-const joueur = (debloque, actif = true) => ({ systems: [{ id: "wandoos", name: "Wandoos", icon: "💻", unlock: { unlocked: debloque }, state: { active: actif, level: 1234, allocation: { energy: 60, magic: 25 }, data: { os: "98", dumpEnergyLevel: 812, dumpMagicLevel: 422, dumpEnergyProgress: 0.63, dumpMagicProgress: 0.18 } } }] });
+const vueBase = { os: "98", osDisponibles: ["98"], exigence: 1e9, niveauOsTotal: 7, multiplicateurOs: 8, vitesseEnergie: 0.5, vitesseMagie: 0, bootSecondes: 3600, bootEcoule: 1800, bootFraction: 0.5, bonusCombat: 1.5, energieLibre: 1e6, magieLibre: 2e6 };
+function joueur(debloque, actif, vue = {}, magieOk = true) {
+  return {
+    systems: [
+      { id: "wandoos", name: "Wandoos", icon: "💻", unlock: { unlocked: debloque }, state: { active: actif, level: 1234, allocation: { energy: 600, magic: 0 }, data: { os: "98", dumpEnergyLevel: 812, dumpMagicLevel: 422, dumpEnergyProgress: 0.63, dumpMagicProgress: 0.25 } } },
+      { id: "bloodMagic", unlock: { unlocked: magieOk } }
+    ],
+    systemes: { wandoosView: Object.assign({}, vueBase, vue) }
+  };
+}
 
 // Anti-spoil : rien tant que le système n'est pas découvert.
-assert.equal(W.page(joueur(false)), "", "système verrouillé : aucune page");
+assert.equal(W.page(joueur(false, true)), "", "système verrouillé : aucune page");
 
-// Page : écran avec barres, touches de clavier, bouton de couleur.
-const h = W.page(joueur(true));
-assert.ok(h.includes("wd-ecran") && h.includes("wd-crt") && h.includes("wd-clavier"), "écran et clavier");
-assert.equal((h.match(/class="wd-barre"/g) || []).length, 4, "4 barres : progression et allocation, énergie et magie");
-assert.ok(h.includes("NIV <b>812</b>") && h.includes("NIV <b>422</b>"), "niveaux des deux Dumps");
-assert.ok(h.includes("63%") && h.includes("60%") && h.includes("25%"), "pourcentages");
-for (const [res, delta] of [["energy", -100], ["energy", -10], ["energy", 10], ["energy", 100], ["magic", -100], ["magic", -10], ["magic", 10], ["magic", 100]]) {
-  assert.ok(h.includes("__ajusterAllocationMetaIdleV130__('wandoos','" + res + "'," + delta + ")"), "touche " + res + " " + delta);
+// 1. Éteint : écran noir, logo, DÉMARRER ; pas de barres ni de touches d'allocation.
+joueurCourant = joueur(true, false);
+let h = W.page(joueurCourant);
+assert.ok(h.includes('data-phase="eteint"') && h.includes("ORDINATEUR ÉTEINT") && h.includes("wd-logo"), "écran éteint avec logo");
+assert.ok(h.includes("DÉMARRER") && h.includes("window.__SOREAL_IDLE_WANDOOS_V1__.demarrer()"), "touche DÉMARRER");
+assert.ok(!h.includes("wd-barre") && !h.includes("wd-input") && !h.includes(".place("), "éteint : pas de barres, de saisie ni de touches d'allocation");
+assert.ok(!h.includes("Choisis ton système"), "un seul OS : pas de choix à proposer");
+assert.ok(!/MEH|XL/.test(h.replace(/Wandoos/g, "")), "anti-spoil : MEH et XL absents tant qu'ils ne sont pas débloqués");
+
+// 2. Bureau (OS démarré) : barres, quantités, saisie, touches 0 − + MAX pour l'énergie et la magie.
+joueurCourant = joueur(true, true);
+h = W.page(joueurCourant);
+assert.ok(h.includes('data-phase="bureau"') && h.includes("EN MARCHE") && h.includes("wd-clavier"), "bureau");
+assert.ok(h.includes("NIVEAU <b>812</b>") && h.includes("NIVEAU <b>422</b>"), "niveaux des deux Dumps");
+assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("0,5"), "quantités placées/libres et vitesse en niveaux par seconde");
+assert.ok(h.includes("DÉMARRAGE DE L’OS (CE REBIRTH)") && h.includes("50 %") && h.includes("encore 30 min 00 s"), "démarrage du wiki : pourcentage et temps restant (vitesse limitée)");
+assert.ok(h.includes('id="wd-saisie"') && h.includes("C:\\&gt; SAISIE"), "champ de saisie dans l'écran");
+for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "plus"], ["energy", "tout"], ["magic", "zero"], ["magic", "moins"], ["magic", "plus"], ["magic", "tout"]]) {
+  assert.ok(h.includes(".place('" + res + "','" + mode + "')"), "touche " + res + " " + mode);
 }
-assert.ok(h.includes("__toggleSystemeMetaIdleV130__('wandoos')") && h.includes("DÉSACTIVER"), "touche espace : désactiver quand actif");
-assert.ok(W.page(joueur(true, false)).includes("ACTIVER") && !W.page(joueur(true, false)).includes("DÉSACTIVER"), "touche espace : activer quand arrêté");
+assert.ok(h.includes("ÉTEINDRE") && h.includes(".eteindre()"), "touche espace : éteindre quand en marche");
+assert.ok(W.page(joueur(true, true, { bootFraction: 1, bootEcoule: 3600 })).includes("TERMINÉ : VITESSE 100 %"), "boot terminé");
 assert.ok(h.includes('data-couleur="vert"'), "vert par défaut");
 assert.ok(!/<script|onerror=|javascript:/i.test(h), "rien d'exécutable dans les données");
+// Magie : absente (écran et clavier) tant que Blood Magic n'est pas découvert.
+const sansMagie = W.page(joueur(true, true, {}, false));
+assert.ok(!sansMagie.includes("MAGIE") && !sansMagie.includes(".place('magic'"), "anti-spoil : pas de magie avant Blood Magic");
 
-// Couleurs : vert -> bleu -> orange -> blanc -> vert, mémorisées.
+// 3. Choix de l'OS : seulement les OS débloqués (liste du serveur), jamais plus.
+const deux = W.page(joueur(true, false, { osDisponibles: ["98", "meh"] }));
+assert.ok(deux.includes(".os('98')") && deux.includes(".os('meh')") && !deux.includes(".os('xl')"), "98 et MEH proposés, XL absent");
+assert.ok(deux.includes("Choisis ton système"), "plusieurs OS : on invite à choisir");
+
+// 4. Saisie : nombres, suffixes et fractions.
+assert.equal(W.analyser("1000", 0), 1000);
+assert.equal(W.analyser("2,5k", 0), 2500);
+assert.equal(W.analyser("3M", 0), 3e6);
+assert.equal(W.analyser("1e3", 0), 1000);
+assert.equal(W.analyser("1/4", 1000), 250, "un quart du total");
+assert.equal(W.analyser("3/8", 800), 300);
+assert.equal(W.analyser("1/0", 800), 0, "division par zéro : rien");
+assert.equal(W.analyser("abc", 800), 0, "texte : rien");
+
+// 5. Placer : quantités ABSOLUES (plus de 100 possible), cumul immédiat sans attendre le serveur.
+joueurCourant = joueur(true, true);
+W.saisie("5000");
+actions.length = 0;
+W.place("energy", "plus");
+assert.deepEqual(actions[0], { action: "allocate", system: "wandoos", resource: "energy", value: 5600 }, "600 déjà placés + 5000 saisis (au-delà de 100)");
+W.place("energy", "plus");
+assert.equal(actions[1].value, 10600, "deux appuis rapprochés s'additionnent");
+W.place("energy", "moins");
+assert.equal(actions[2].value, 5600, "moins retire la quantité saisie");
+W.place("energy", "tout");
+assert.equal(actions[3].value, 1e6 + 600, "MAX place tout ce qui est libre");
+W.place("energy", "zero");
+assert.equal(actions[4].value, 0, "0 retire tout");
+const nb = actions.length;
+W.place("energy", "zero");
+assert.equal(actions.length, nb, "déjà à zéro : rien n'est envoyé");
+W.saisie("1/4");
+W.place("magic", "plus");
+assert.equal(actions[actions.length - 1].value, 500000, "fraction : un quart de (libre + placé) = 2 000 000 / 4");
+W.saisie("999999999999");
+W.place("magic", "plus");
+assert.equal(actions[actions.length - 1].value, 2e6, "jamais plus que ce qui est libre");
+
+// 6. Démarrer : écran de boot (barre d'avancement, nom de l'OS), puis bureau.
+joueurCourant = joueur(true, false, { os: "meh", osDisponibles: ["98", "meh"] });
+joueurCourant.systems[0].state.data.os = "meh";
+actions.length = 0;
+W.demarrer();
+assert.deepEqual(actions[0], { action: "toggle", system: "wandoos", active: true }, "DÉMARRER active le système");
+h = W.page(joueurCourant);
+assert.ok(h.includes('data-phase="boot"') && h.includes("wd-barre-boot") && h.includes("Wandoos <b>MEH</b>") && h.includes("DÉMARRAGE…"), "écran de boot MEH avec barre d'avancement, touche désactivée");
+assert.ok(!h.includes("wd-input") && !h.includes(".place("), "pendant le boot : pas d'accès aux barres");
+assert.equal(W.dureesBoot["98"] < W.dureesBoot.meh && W.dureesBoot.meh < W.dureesBoot.xl, true, "plus l'OS est récent, plus le démarrage est long");
+maintenant += 3500;
+assert.ok(W.page(joueurCourant).includes("Wandoos <b>MEH</b>") && /id="wd-boot-pct">(4|5)\d%/.test(W.page(joueurCourant)), "la barre avance avec le temps");
+maintenant += 10000;
+joueurCourant.systems[0].state.active = true;
+minuteries.forEach((fn) => fn());
+h = W.page(joueurCourant);
+assert.ok(h.includes('data-phase="bureau"') && h.includes("wd-input"), "boot fini : le bureau et ses barres sont accessibles");
+actions.length = 0;
+W.eteindre();
+assert.deepEqual(actions[0], { action: "toggle", system: "wandoos", active: false }, "ÉTEINDRE désactive le système");
+
+// 7. Changer d'OS : confirmation si des niveaux de Dump seraient perdus, sinon direct.
+joueurCourant = joueur(true, true, { osDisponibles: ["98", "xl"] });
+actions.length = 0;
+W.os("xl");
+assert.equal(actions.length, 0, "des niveaux de Dump existent : première pression = confirmation");
+assert.ok(W.page(joueurCourant).includes("CONFIRMER ?"), "la touche demande confirmation");
+W.os("xl");
+assert.deepEqual(actions[0], { action: "selectWandoosOs", os: "xl" }, "seconde pression : changement d'OS");
+joueurCourant.systems[0].state.data.dumpEnergyLevel = 0;
+joueurCourant.systems[0].state.data.dumpMagicLevel = 0;
+actions.length = 0;
+W.os("xl");
+assert.deepEqual(actions[0], { action: "selectWandoosOs", os: "xl" }, "aucun niveau à perdre : direct");
+W.os("meh");
+assert.equal(actions.length, 1, "un OS qui n'est pas dans la liste débloquée est refusé côté page");
+
+// 8. Couleurs : vert -> bleu -> orange -> blanc -> vert, mémorisées.
 assert.deepEqual(Array.from(W.couleurs), ["vert", "bleu", "orange", "blanc"]);
 const vues = [];
 for (let i = 0; i < 4; i++) { W.couleur(); vues.push(poste.dataset.couleur); }
 assert.deepEqual(vues, ["bleu", "orange", "blanc", "vert"]);
 W.couleur();
 assert.equal(stockage.soreal_idle_wandoos_couleur_v1, "bleu", "couleur mémorisée");
-assert.ok(W.page(joueur(true)).includes('data-couleur="bleu"'), "la page se redessine dans la couleur choisie");
+assert.ok(W.page(joueur(true, true)).includes('data-couleur="bleu"'), "la page se redessine dans la couleur choisie");
 assert.equal(nomCouleur.textContent, "BLEU");
 
-// Son : un clic de clavier au volume des sons de l'interface ; rien à volume 0.
+// 9. Son : un clic de clavier au volume des sons de l'interface ; rien à volume 0.
 volume = 0;
 assert.equal(W.son(false, false), false, "volume à 0 : pas de son");
 assert.equal(contextesCrees, 0, "volume à 0 : même pas de contexte audio");
@@ -87,7 +194,7 @@ assert.equal(W.son(true, true), true, "relâchement");
 assert.ok(noeuds.length - apres >= 4 && noeuds.length - apres < 8, "le relâchement est plus bref (sans « thock »)");
 assert.ok(ecouteurs.pointerdown && ecouteurs.pointerup, "le son s'attache à l'appui et au relâchement des touches");
 
-// Branchements.
+// 10. Branchements.
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(/\/modules\/wandoos-retro-v1\.js\?v=\d+/.test(index), "module chargé par la page");
 assert.ok(index.indexOf("wandoos-retro-v1.js") > index.indexOf("meta-progression-v130.js"), "chargé après la page générique");
@@ -95,5 +202,6 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 assert.ok(meta.includes("id==='wandoos'&&window.__SOREAL_IDLE_WANDOOS_V1__"), "la page générique délègue à la page rétro");
 assert.ok(src.includes("/api/idle/media/banner?name=wandoos.webp"), "l'écran est celui de idle/banners/wandoos.webp");
 assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(src), "rien n'est envoyé");
+assert.ok(!src.includes("__ajusterAllocationMetaIdleV130__"), "plus d'allocation en pourcentage (bornée à 100)");
 
 console.log("idle-wandoos-retro-v1: OK");

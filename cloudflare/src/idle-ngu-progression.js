@@ -1192,7 +1192,7 @@ function wandoosBootFractionV1(state, now, seconds = 0) {
   const span = Math.max(0, Math.min(end, num(seconds, 0)));
   if (span <= 1e-9) {
     const f = clamp(end / bootSeconds, 0, 1);
-    return { fraction: f, afterBootShare: end >= bootSeconds ? 1 : 0 };
+    return { fraction: f, afterBootShare: end >= bootSeconds ? 1 : 0, bootSeconds, elapsed: end };
   }
   /*
    * 2026-09-24 (audit, page Wandoos, Boot-up : « The speed increase is linear, and ranges from 0-100% speed »)
@@ -1205,12 +1205,13 @@ function wandoosBootFractionV1(state, now, seconds = 0) {
   const rampStart = Math.min(start, bootSeconds);
   const rampIntegral = (rampEnd * rampEnd - rampStart * rampStart) / (2 * bootSeconds);
   const afterBoot = Math.max(0, end - Math.max(start, bootSeconds));
-  return { fraction: clamp((rampIntegral + afterBoot) / span, 0, 1), afterBootShare: afterBoot / span };
+  return { fraction: clamp((rampIntegral + afterBoot) / span, 0, 1), afterBootShare: afterBoot / span, bootSeconds, elapsed: end };
 }
 
-function advanceWandoos(state, seconds, context, now) {
+/* Vitesses de Dump (niveaux/s) de l'OS actif, à l'instant `now` ; `seconds` = fenêtre simulée (0 = instantané, pour l'affichage). Mêmes formules que advanceWandoos. */
+function wandoosCalculVitessesV1(state, seconds, now) {
   const s = state.systems.wandoos;
-  if (!s?.unlocked || seconds <= 0) return;
+  if (!s?.unlocked) return null;
   const osId = IDLE_WANDOOS_OS_V1[s.data.os] ? s.data.os : "98";
   const os = IDLE_WANDOOS_OS_V1[osId];
   const requirement = os.requirement[state.difficulty] || os.requirement.normal;
@@ -1267,6 +1268,13 @@ function advanceWandoos(state, seconds, context, now) {
     * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier * wandoosSetMultiplier
     * macguffinEffectMultiplierV1(state, "magicWandoos"));
 
+  return { s, osId, os, requirement, totalOsLevel, osLevelMultiplier, boot, energySpeed, magicSpeed, energyAlloc, magicAlloc };
+}
+
+function advanceWandoos(state, seconds, context, now) {
+  const s = state.systems.wandoos;
+  if (!s?.unlocked || seconds <= 0) return;
+  const { energySpeed, magicSpeed } = wandoosCalculVitessesV1(state, seconds, now);
   s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
   s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
   let energyGain = Math.floor(s.data.dumpEnergyProgress);
@@ -3501,6 +3509,35 @@ function tmApplyTargets(state) {
  * Ce sont EXACTEMENT les facteurs de idleNguTimeMachineGrossGoldPerSecond, jamais une seconde formule ; les pourcentages du jeu valent
  * multiplicateur x 100. Les barres sont la progression vers le niveau suivant (temps déjà écoulé / durée du niveau).
  */
+/*
+ * Vue de la page Wandoos (Norman, 2026-10-07 : écran de boot, choix de l'OS, énergie et magie à placer). Seuls les OS DÉJÀ débloqués sont listés (anti-spoil : la taille de la liste ne révèle pas les suivants).
+ * Boot : vrai démarrage du wiki (« 1-hour boot-up », réductions du set XL et des défis, minimum 27 min) ; jamais une valeur inventée.
+ */
+function wandoosViewV1(state, now) {
+  const c = wandoosCalculVitessesV1(state, 0, now);
+  if (!c) return null;
+  const meh = Boolean(state.adventure?.setRewards?.wandoosMeh);
+  const xl = idleWandoosXlUnlockedV1(state);
+  const energy = state.resources?.energy || {};
+  const magic = state.resources?.magic || {};
+  return {
+    os: c.osId,
+    osNom: c.os.name,
+    osDisponibles: ["98"].concat(meh ? ["meh"] : [], xl ? ["xl"] : []),
+    exigence: c.requirement,
+    niveauOsTotal: c.totalOsLevel,
+    multiplicateurOs: c.osLevelMultiplier,
+    vitesseEnergie: c.energySpeed,
+    vitesseMagie: c.magicSpeed,
+    bootSecondes: c.boot.bootSeconds,
+    bootEcoule: Math.min(c.boot.bootSeconds, c.boot.elapsed),
+    bootFraction: clamp(c.boot.elapsed / c.boot.bootSeconds, 0, 1),
+    bonusCombat: wandoosCombatMultiplierV1(state),
+    energieLibre: Math.max(0, num(energy.current, 0)),
+    magieLibre: Math.max(0, num(magic.current, 0))
+  };
+}
+
 function timeMachineViewV1(state) {
   const s = state.systems.timeMachine;
   const d = s.data;
@@ -5916,6 +5953,7 @@ function construireSnapshotNguV1(state, context, now) {
     achievements: achievementsSnapshotV1(state),
     /* Écran Broken Time Machine (facteurs du GPS, barres, niveaux cibles). */
     timeMachineView: state.systems.timeMachine?.unlocked ? timeMachineViewV1(state) : null,
+    wandoosView: state.systems.wandoos?.unlocked ? wandoosViewV1(state, now) : null,
     /* Calendrier de connexion (Money Pit) : seulement une fois le Money Pit découvert (idle-login-calendar-v1.js). */
     loginCalendar: state.systems.moneyPit?.unlocked ? idleLoginCalendarSnapshotV1(state.records.loginCalendar, nowMs(now)) : null,
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
