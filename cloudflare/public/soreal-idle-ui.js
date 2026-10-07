@@ -5471,7 +5471,8 @@
         if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof message==="string")message=window.__SOREAL_IDLE_DEFIS_V1__.traduire(message);
         if(window.__SOREAL_IDLE_TITANS_V1__&&typeof message==="string")message=window.__SOREAL_IDLE_TITANS_V1__.traduire(message);
         const el=document.getElementById("sorealIdleToastV5");
-        if(!el){messageFlottantIdleV32_(String(message||""));return;}
+        /* Sans cet élément (absent de la page), ces messages restent silencieux, comme avant : les afficher faisait revenir des textes comme « Aucun combat n est en cours » en permanence (Norman, 2026-10-07). */
+        if(!el)return;
         el.textContent=
           String(message||'');
 

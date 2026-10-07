@@ -2935,6 +2935,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
         envoyerAllocRapideV1_({action:'allocateRitual',ritual:id,value:value});
       }
+      window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;
 
       function viderBloodMagicIdleV1_(){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
@@ -2956,6 +2957,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         });
         envoyerAllocRapideV1_({action:'clearRitualAllocations'});
       }
+      window.__viderBloodMagicIdleV1__=viderBloodMagicIdleV1_;
 
       /* Même raccourcis que la barre d'outils de Basic Training/Augmentation : "cap" part du plafond réel de Magic, "idle" part de la Magic actuellement libre. */
       function presetBloodMagicIdleV1_(source,fraction){
@@ -2991,6 +2993,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         }
         ajusterBloodMagicIdleV1_(mode,ritualId);
       }
+      window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
 
 
       /* Noms français des rituels de Blood Magic (Norman, 2026-10-01 : « traduits aussi le nom des rituels ») ; le moteur garde les noms du wiki. */

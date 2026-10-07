@@ -38,11 +38,11 @@
       /* pièce plus sombre sur les bords : la lumière vient du foyer, en bas */
       '#soreal-feu-v1 .fe-ombre{position:absolute;inset:0;background:radial-gradient(ellipse 120% 90% at var(--fe-x,50%) 108%,rgba(0,0,0,0) 22%,rgba(10,4,0,.26) 100%);}',
       /* la lueur chaude, qui éclaire les menus (fondue dans les couleurs de la page) */
-      '#soreal-feu-v1 .fe-lueur{position:absolute;inset:0;opacity:var(--fe-i,.8);transition:opacity 140ms ease-out;mix-blend-mode:soft-light;'+
-        'background:radial-gradient(ellipse 95% 80% at var(--fe-x,50%) 105%,rgba(255,170,60,.95) 0%,rgba(255,120,30,.7) 32%,rgba(200,70,10,.32) 62%,rgba(120,30,0,0) 90%);}',
-      '#soreal-feu-v1 .fe-chaleur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .55);transition:opacity 140ms ease-out;'+
-        'background:radial-gradient(ellipse 85% 65% at var(--fe-x,50%) 108%,rgba(255,140,40,.30),rgba(255,90,10,.12) 50%,rgba(255,60,0,0) 80%);}',
-      '#soreal-feu-v1 .fe-eclat{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(ellipse 60% 50% at var(--fe-x,50%) 110%,rgba(255,200,110,.38),rgba(255,140,40,0) 70%);}'
+      '#soreal-feu-v1 .fe-lueur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .42);transition:opacity 140ms ease-out;mix-blend-mode:soft-light;'+
+        'background:radial-gradient(ellipse 95% 80% at var(--fe-x,50%) 105%,rgba(255,175,90,.8) 0%,rgba(255,130,50,.5) 32%,rgba(200,80,20,.22) 62%,rgba(120,30,0,0) 90%);}',
+      '#soreal-feu-v1 .fe-chaleur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .5);transition:opacity 140ms ease-out;'+
+        'background:radial-gradient(ellipse 80% 55% at var(--fe-x,50%) 110%,rgba(255,140,40,.07),rgba(255,90,10,.03) 50%,rgba(255,60,0,0) 80%);}',
+      '#soreal-feu-v1 .fe-eclat{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(ellipse 60% 50% at var(--fe-x,50%) 110%,rgba(255,200,130,.14),rgba(255,140,40,0) 70%);}'
     ].join('\n');
     document.head.appendChild(s);
   }
