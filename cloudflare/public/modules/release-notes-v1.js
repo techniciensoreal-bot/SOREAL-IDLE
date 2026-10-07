@@ -11,8 +11,19 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.3',
+    courante:'2.4',
     versions:[
+      {
+        version:'2.4',
+        nom:'Orage dégagé',
+        date:'2026-10-07',
+        points:[
+          'L’orage n’a plus de pluie : il reste le ciel sombre, les éclairs, les lumières blanches et le grondement.',
+          'Le cadre rouge des objets que tu as protégés est de nouveau visible, et « Transformer » annonce tout de suite que la transformation est en cours.',
+          'Sur ordinateur, la grande image d’un écran de jeu ne dépasse plus la hauteur de l’écran et reste centrée.',
+          'Les barres d’Augmentations et de Blood Magic, ainsi que les chronos, se calent sur l’instant exact où le serveur a calculé l’état : en ligne, elles ne repartent plus en retard à chaque synchro.'
+        ]
+      },
       {
         version:'2.3',
         nom:'Tout en direct',
