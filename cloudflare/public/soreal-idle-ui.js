@@ -5140,7 +5140,7 @@
             n=parent;
           }
           if(n!==racine)return null;
-          return signatureClicIdleV1_(c.el,racine,chemin,r.top);
+          return signatureClicIdleV1_(c.el,racine,chemin,hautSansTransformIdleV1_(c.el));
         }catch(_e){return null;}
       }
       function signatureClicIdleV1_(el,racine,chemin,haut){
@@ -5157,6 +5157,25 @@
       let idlePinClicV1=null;
       function arreterPinClicIdleV1_(){
         if(idlePinClicV1){cancelAnimationFrame(idlePinClicV1.raf);idlePinClicV1=null;}
+      }
+      /*
+       * Position du bouton SANS sa transformation (Norman, 2026-10-08 : « quand je presse le clavier de Wandoos la page fait un mini mouvement ; quand on trie, aussi, très léger »). Un bouton pressé s'enfonce de
+       * quelques pixels (translate au :active, touches de Wandoos) : mesurée à l'instant du clic, sa position était décalée, et quand le doigt se levait la page « se corrigeait » de ces quelques pixels.
+       */
+      function hautSansTransformIdleV1_(e){
+        const r=e.getBoundingClientRect();
+        let ty=0;
+        try{
+          const t=window.getComputedStyle(e).transform;
+          if(t&&t!=='none'){
+            const m=t.match(/matrix(3d)?(([^)]+))/);
+            if(m){
+              const v=m[2].split(',').map(Number);
+              ty=m[1]?(v[13]||0):(v[5]||0);
+            }
+          }
+        }catch(_e){}
+        return r.top-ty;
       }
       function demarrerPinClicIdleV1_(el){
         try{
@@ -5176,7 +5195,8 @@
             chemin.unshift(Array.prototype.indexOf.call(parent.children,n));
             n=parent;
           }
-          const pin={ancre:signatureClicIdleV1_(el,racine,chemin,r.top),haut:r.top,debut:performance.now(),raf:0};
+          const hautStable=hautSansTransformIdleV1_(el);
+          const pin={ancre:signatureClicIdleV1_(el,racine,chemin,hautStable),haut:hautStable,debut:performance.now(),raf:0};
           idlePinClicV1=pin;
           (function boucle(){
             if(idlePinClicV1!==pin)return;
@@ -5187,7 +5207,7 @@
             if(e){
               const r=e.getBoundingClientRect();
               if(r.width||r.height){
-                const dy=r.top-pin.haut;
+                const dy=hautSansTransformIdleV1_(e)-pin.haut;
                 if(Math.abs(dy)>1){window.scrollBy(0,dy);pin.stables=0;}else pin.stables=(pin.stables||0)+1;
               }
             }
@@ -5234,7 +5254,7 @@
           trouve=true;
           /* Le joueur a défilé lui-même depuis notre dernier calage : on n'y touche plus. */
           if(dernierY!==null&&Math.abs((window.scrollY||0)-dernierY)>2)return;
-          const ecart=el.getBoundingClientRect().top-ancre.haut;
+          const ecart=hautSansTransformIdleV1_(el)-ancre.haut;
           if(Math.abs(ecart)>1)window.scrollTo(xAvant,(window.scrollY||0)+ecart);
           dernierY=window.scrollY||0;
         }
