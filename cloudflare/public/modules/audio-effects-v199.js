@@ -1767,53 +1767,8 @@
   /*
    * Sons de foule (Norman, 2026-10-04 : « un son de gens qui applaudissent quand on bat un boss pour la première fois, environ 3 secondes ; un bruit de gens qui rigolent quand on fuit, en plus du son de base »).
    * Aucun fichier : tout est synthétisé. Ils se jouent EN PLUS du son de victoire ou de fuite, donc hors file d'attente (jamais l'un à la place de l'autre).
-   * - Applaudissements : des centaines de claquements (bruit très bref, filtré) dont la densité monte vite, tient, puis s'éteint ; durée 3,1 s.
    * - Rires : huit voix qui lancent des « ha » en rafale (dents de scie passées dans trois formants de la voyelle A), hauteurs et départs différents, qui ralentissent et s'éteignent ; durée 2,5 s.
    */
-  function applaudissementsConstruire_(c){
-    var duree=3.1;
-    var sr=c.sampleRate;
-    var n=Math.floor(sr*duree);
-    var buffer=c.createBuffer(1,n,sr);
-    var data=buffer.getChannelData(0);
-    /* Claquements par seconde : monte en 0,35 s, plein jusqu'à 2,2 s, puis s'éteint. */
-    function densite(t){return 280*(t<.35?t/.35:(t<2.2?1:Math.max(0,1-(t-2.2)/.9)));}
-    var t=0;
-    while(t<duree){
-      var d=densite(t);
-      if(d<10){t+=.01;continue;}
-      t+=-Math.log(1-Math.random())/d;
-      var debut=Math.floor(t*sr);
-      var longueur=Math.floor(sr*(.008+Math.random()*.02));
-      var force=.25+Math.random()*.75;
-      var raideur=3+Math.random()*3;
-      for(var k=0;k<longueur&&debut+k<n;k+=1){
-        data[debut+k]+=(Math.random()*2-1)*force*Math.exp(-raideur*k/longueur);
-      }
-    }
-    /* Murmure continu de la salle sous les claquements. */
-    for(var i=0;i<n;i+=1){
-      var u=i/n;
-      var enveloppe=u<.1?u/.1:(u<.7?1:Math.max(0,1-(u-.7)/.3));
-      data[i]+=(Math.random()*2-1)*.05*enveloppe;
-    }
-    var pic=0;
-    for(var j=0;j<n;j+=1)pic=Math.max(pic,Math.abs(data[j]));
-    if(pic>0)for(var q=0;q<n;q+=1)data[q]/=pic;
-    var src=c.createBufferSource();
-    src.buffer=buffer;
-    var filtre=c.createBiquadFilter();
-    filtre.type="bandpass";
-    filtre.frequency.setValueAtTime(2300,c.currentTime);
-    filtre.Q.setValueAtTime(.45,c.currentTime);
-    var g=c.createGain();
-    g.gain.setValueAtTime(.34,c.currentTime);
-    g.connect(master||c.destination);
-    src.connect(filtre);
-    filtre.connect(g);
-    src.start(c.currentTime);
-  }
-
   function rireVoix_(c,f0,debut,amp,nSyl){
     var t0=c.currentTime+debut;
     var osc=c.createOscillator();
@@ -1855,7 +1810,6 @@
     bruit_(c,{duration:2.2,volume:.012,delay:.05,filterType:"bandpass",frequency:1800,q:.6,decay:.9});
   }
   var SONS_FOULE_V1={
-    applause:{duree:3100,construire:applaudissementsConstruire_},
     laugh:{duree:2500,construire:rireConstruire_}
   };
   function jouerFoule_(id){
@@ -1962,7 +1916,6 @@
     defeat:function(){return demander_("defeat");},
     flee:function(){return demander_("flee");},
     voiceDone:function(){return demander_("voiceDone");},
-    applause:function(){return demander_("applause");},
     laugh:function(){return demander_("laugh");},
     btPlus:function(){return demander_("btPlus");},
     btMinus:function(){return demander_("btMinus");},
