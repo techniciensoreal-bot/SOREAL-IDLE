@@ -444,3 +444,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-v138-bag-card,.soreal-idle-v138-slot).idle-item-locked-v165{
   border-color:#ff4d4d!important;
   box-shadow:0 0 0 2px rgba(255,77,77,.95),0 0 12px rgba(255,77,77,.5),3px 3px 0 #000!important;}
+
+/* ITOPOD sur PC : la scène (décor + ennemi) gardait un format 4/3 sur toute la largeur de la page (≈ 1000 × 800 px) ; elle est maintenant plafonnée en hauteur à l'écran et centrée (Norman, 2026-10-07 : « sur PC l'image est trop grande »). */
+.itp-cadre{width:100%;box-sizing:border-box;max-width:calc(min(64vh,560px) * 4 / 3 + 30px);margin-left:auto;margin-right:auto;}
