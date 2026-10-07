@@ -19,19 +19,19 @@ const segmenter = fenetre.__SOREAL_IDLE_STORY_ENGINE_V1__.segmenter;
 const debut = admin.indexOf("function parleurUi_(p){");
 const fin = admin.indexOf("function blocsDeLigne_(l){");
 assert.ok(debut > 0 && fin > debut);
-const f = new Function("segmenter", "parleurCanon_", "segmentsDeEtape_", admin.slice(debut, fin) + "\nreturn {parleurUi_,etapeVide_,lignesDepuisEtape_,composerEtape_,sansEspaces_,initialiserLignes_Brut:null};");
+const f = new Function("segmenter", "parleurCanon_", "segmentsDeEtape_", "tts_", admin.slice(debut, fin) + "\nreturn {parleurUi_,etapeVide_,lignesDepuisEtape_,composerEtape_,sansEspaces_,initialiserLignes_Brut:null};");
 const canon = (p) => (p === "homme" ? "homme" : p || "narrateur");
 const segs = (e) => segmenter(e.texte, e.parleur).segments;
-const T = f(segmenter, canon, segs);
+const T = f(segmenter, canon, segs, () => null);
 
 // De base : un seul personnage, une ligne vide.
 const vide = T.etapeVide_("img.png");
-assert.deepEqual(vide.lignes, [{ parleur: "narrateur", texte: "" }]);
+assert.deepEqual(vide.lignes, [{ parleur: "narrateur", expr: "", texte: "" }]);
 
 // Texte existant (avec balises) -> une ligne par personnage ; recomposé à l'identique côté jeu.
 const ancien = { texte: "Il était une fois. (femme) Bonjour ! (narrateur) Elle sourit.", parleur: "narrateur" };
 const lignes = T.lignesDepuisEtape_(ancien);
-assert.deepEqual(lignes, [{ parleur: "narrateur", texte: "Il était une fois." }, { parleur: "femme", texte: "Bonjour !" }, { parleur: "narrateur", texte: "Elle sourit." }]);
+assert.deepEqual(lignes, [{ parleur: "narrateur", expr: "", texte: "Il était une fois." }, { parleur: "femme", expr: "", texte: "Bonjour !" }, { parleur: "narrateur", expr: "", texte: "Elle sourit." }]);
 const recompose = { texte: "", parleur: "", lignes };
 T.composerEtape_(recompose);
 assert.equal(recompose.parleur, "narrateur");
@@ -40,14 +40,14 @@ assert.equal(recompose.texte, "Il était une fois. (femme) Bonjour ! (narrateur)
 assert.deepEqual(segmenter(recompose.texte, recompose.parleur).segments, segmenter(ancien.texte, ancien.parleur).segments);
 
 // Ajouter / supprimer des lignes : les lignes vides ne laissent aucune trace dans le texte enregistré.
-const e = { texte: "", parleur: "narrateur", lignes: [{ parleur: "narrateur", texte: "Premier." }, { parleur: "femme", texte: "" }, { parleur: "femme", texte: "Troisième." }] };
+const e = { texte: "", parleur: "narrateur", lignes: [{ parleur: "narrateur", expr: "", texte: "Premier." }, { parleur: "femme", expr: "", texte: "" }, { parleur: "femme", expr: "", texte: "Troisième." }] };
 T.composerEtape_(e);
 assert.equal(e.texte, "Premier. (femme) Troisième.");
 e.lignes.splice(0, 1);
 T.composerEtape_(e);
 assert.equal(e.parleur, "femme", "la voix de départ suit la première ligne non vide");
 assert.equal(e.texte, "Troisième.");
-const toutVide = { texte: "x", parleur: "femme", lignes: [{ parleur: "femme", texte: "  " }] };
+const toutVide = { texte: "x", parleur: "femme", lignes: [{ parleur: "femme", expr: "", texte: "  " }] };
 T.composerEtape_(toutVide);
 assert.equal(toutVide.texte, "");
 assert.equal(T.sansEspaces_("  a \n b  "), "a b");

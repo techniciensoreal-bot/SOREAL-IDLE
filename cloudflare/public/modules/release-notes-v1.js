@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Menu de création des voix repensé : une bulle par personnage, avec sa voix et son expression, un bouton pour écouter une voix avant de la choisir, des expressions (joyeux, dramatique, calme…) et des pauses plus ou moins longues à glisser dans le texte, des boutons plus évidents. Toutes les voix sont désormais modifiables, même celles qui se déclenchent sans texte à l’écran.',
           'Menu du haut refait : fini le style « arcade », place à des boutons plus courts et plus nets, avec les mêmes emojis et les mêmes animations. Le sous-titre disparaît et le nom passe sur deux lignes, par exemple « Combat de boss ». Les boutons sont rangés sur deux rangées : tu en vois bien plus d’un coup d’œil et tu défiles bien moins.',
           'Presser une touche du clavier de l’ordinateur rétro, ou le bouton « Trier », ne fait plus bouger la page d’un poil : la page ne se recale plus sur le petit enfoncement du bouton.',
           'Plus aucun retour en arrière : quand le serveur répond dans le désordre, une réponse plus ancienne arrivée en retard n’est plus jamais appliquée. Un boss vaincu ne revient plus, les barres ne reculent plus, et le reste de l’état de jeu non plus. Quand tu fuis ou que tu perds un combat, le boss ne récupère plus de vie à cause d’un état plus ancien.',

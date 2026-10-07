@@ -745,7 +745,7 @@ function rafraichirFichiersVoix_(){
 function statutLigne_(){
   var s=statutVoix_();
   if(!s.total)return '';
-  return '🎙 Voix du studio : '+s.prets+'/'+s.total+' bloc'+(s.total>1?'s':'')+' prêt'+(s.total>1?'s':'')+(s.prets<s.total?' (les autres sont lus avec la voix de secours du jeu)':'')+'.';
+  return '🎙 '+s.prets+' voix prête'+(s.prets>1?'s':'')+' sur '+s.total+(s.prets<s.total?' : les autres seront lues avec la voix de secours du jeu':'')+'.';
 }
 
 function verifierStudio_(){

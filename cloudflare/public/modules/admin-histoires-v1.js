@@ -135,17 +135,32 @@ function blocsDeEtape_(etape){
  * balise de sa voix « (femme) », « (narrateur) », « (bohort) »… exactement ce que lit le jeu. Les lignes vides existent seulement dans l'éditeur (elles ne laissent aucune trace à l'enregistrement).
  */
 function parleurUi_(p){var c=parleurCanon_(p||'narrateur');return c==='homme'?'narrateur':c;}
-function etapeVide_(image){return {texte:'',image:image||'',parleur:'narrateur',lignes:[{parleur:'narrateur',texte:''}]};}
+function etapeVide_(image){return {texte:'',image:image||'',parleur:'narrateur',lignes:[{parleur:'narrateur',expr:'',texte:''}]};}
+function exprTete_(texte){
+  var t=tts_(),reste=String(texte==null?'':texte).trim(),expr='',re=/^\(\s*([^()\n]{1,40}?)\s*\)\s*/,m;
+  while((m=re.exec(reste))){
+    var e='';
+    try{e=t&&typeof t.resoudreExpressionBalise==='function'?String(t.resoudreExpressionBalise(m[1])||''):'';}catch(_e){e='';}
+    if(!e)break;
+    expr=e==='neutre'?'':e;
+    reste=reste.slice(m[0].length);
+  }
+  return {expr:expr,reste:reste};
+}
 function lignesDepuisEtape_(e){
   var segs=segmentsDeEtape_(e);
-  if(!segs.length)return [{parleur:parleurUi_(e.parleur),texte:''}];
-  return segs.map(function(sg){return {parleur:parleurUi_(sg.voix),texte:sg.texte};});
+  if(!segs.length)return [{parleur:parleurUi_(e.parleur),expr:'',texte:''}];
+  return segs.map(function(sg){
+    var t=exprTete_(sg.texte);
+    return {parleur:parleurUi_(sg.voix),expr:t.expr,texte:t.reste};
+  });
 }
 function composerEtape_(e){
   var lignes=(e.lignes||[]).filter(function(x){return String(x&&x.texte||'').trim();});
   if(!lignes.length){e.texte='';e.parleur=parleurUi_((e.lignes&&e.lignes[0]&&e.lignes[0].parleur)||e.parleur);return;}
   e.parleur=lignes[0].parleur;
-  e.texte=lignes.map(function(x,k){return (k?'('+x.parleur+') ':'')+String(x.texte).trim();}).join(' ');
+  /* Chaque ligne : la balise de sa voix (sauf la première, qui donne la voix de départ), puis celle de son expression si elle n'est pas neutre. */
+  e.texte=lignes.map(function(x,k){return (k?'('+x.parleur+') ':'')+(x.expr?'('+x.expr+') ':'')+String(x.texte).trim();}).join(' ');
 }
 function sansEspaces_(t){return String(t||'').replace(/\s+/g,' ').trim();}
 /* Après un chargement ou un enregistrement : reconstruit les lignes depuis le texte, en gardant celles qu'on était en train d'éditer (lignes vides comprises) quand elles donnent le même texte. */
@@ -161,12 +176,17 @@ function initialiserLignes_(anciennes){
   });
 }
 function blocsDeLigne_(l){
-  return blocsDeTexte_(l&&l.texte).map(function(b){b.parleur=parleurUi_(l.parleur);return b;});
+  return blocsDeTexte_((l&&l.expr?'('+l.expr+') ':'')+(l&&l.texte)).map(function(b){b.parleur=parleurUi_(l.parleur);return b;});
 }
+/* Une voix est prête si son fichier existe ET qu'elle n'est pas à refaire (voix ou expression changée depuis). */
+function bloc_Pret_(hash){
+  return (edition&&edition.voix||[]).indexOf(hash)!==-1&&!(edition&&edition.aRefaire&&edition.aRefaire[hash]);
+}
+var etapeEnEdition_=null;
 function statutVoixEtape_(etape,voix){
   var blocs=blocsDeEtape_(etape);
   if(!blocs.length)return {total:0,prets:0};
-  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
+  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1&&!(edition&&edition.aRefaire&&edition===etapeEnEdition_&&edition.aRefaire[b.hash]);}).length;
   return {total:blocs.length,prets:prets};
 }
 
@@ -241,7 +261,12 @@ function installerStyle_(){
     '.adm-erreur-v1{color:#fca5a5;font-weight:700}'+
     '.adm-image-v1{display:flex;flex-direction:column;gap:6px;width:112px;flex:0 0 112px}'+
     '.adm-lignes-v1{flex:1;min-width:0;display:grid;gap:8px}'+
-    '.adm-ligne-v1{background:#0f1830;border:1px solid #2c3d66;border-left:4px solid #5b8cff;border-radius:12px;padding:8px 10px}'+
+    '.adm-ligne-v1{background:#0f1830;border:1px solid #2c3d66;border-left:6px solid var(--vu-c,#5b8cff);border-radius:14px;padding:8px 10px}'+
+    '.adm-ligne-pied-v1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}'+
+    '.adm-det-v1{margin-top:8px}.adm-det-v1>summary{cursor:pointer;font-size:13px;font-weight:700;color:#a9b6d8;padding:6px 2px;list-style:none}.adm-det-v1>summary::-webkit-details-marker{display:none}'+
+    '.adm-plus-v1{position:relative}.adm-plus-v1>summary{cursor:pointer;list-style:none;min-height:40px;min-width:42px;display:grid;place-items:center;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:#2a3550;font:900 20px/1 system-ui,sans-serif;color:#f1f5ff}'+
+    '.adm-plus-v1>summary::-webkit-details-marker{display:none}'+
+    '.adm-plus-menu-v1{position:absolute;right:0;bottom:50px;display:grid;gap:8px;min-width:230px;padding:10px;border-radius:14px;background:#0d1530;border:1.5px solid #4b5d85;box-shadow:0 12px 30px rgba(0,0,0,.55)}'+
     '.adm-ligne-tete-v1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}'+
     '.adm-ligne-tete-v1 select{width:auto;min-width:150px;padding:6px 8px}'+
     '.adm-ligne-n-v1{min-width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#5b8cff;color:#fff;font:800 13px/1 system-ui,sans-serif}'+
@@ -254,7 +279,7 @@ function installerStyle_(){
     '.adm-mini-titre-v1{font-weight:900;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
     '.adm-mini-etat-v1{font-size:13px;color:#c9d4ee;line-height:1.4;margin-bottom:8px;max-height:4.2em;overflow:hidden}'+
     '.adm-mini-actions-v1{display:flex;gap:8px;justify-content:flex-end}'+
-    '@media(max-width:520px){.adm-etape-corps-v1{flex-direction:column;align-items:stretch}.adm-image-v1{width:100%;flex:none}.adm-vignette-v1{width:100%;height:170px;flex:none}}';
+    '@media(max-width:520px){.adm-pied-v1{gap:6px;padding:8px 10px}.adm-pied-v1>.soreal-idle-adm-btn-v1{padding:8px 9px;font-size:12.5px}.adm-etape-corps-v1{flex-direction:column;align-items:stretch}.adm-image-v1{width:100%;flex:none}.adm-vignette-v1{width:100%;height:170px;flex:none}}';
   document.head.appendChild(s);
 }
 
@@ -385,6 +410,8 @@ function nouvelle_(){
 function ouvrirEditeur_(h,estNouvelle){
   installerStyle_();
   edition=copie_(h);
+  edition.aRefaire={};
+  etapeEnEdition_=edition;
   initialiserLignes_(null);
   reduit=false;
   editionEstNouvelle=Boolean(estNouvelle);
@@ -398,6 +425,7 @@ function ouvrirEditeur_(h,estNouvelle){
 }
 
 function fermerEditeur_(){
+  if(window.__SOREAL_IDLE_VOIX_UI_V1__)window.__SOREAL_IDLE_VOIX_UI_V1__.fermerSelecteur();
   arreterEcoute_();
   if(generation.enCours){generation.annule=true;}
   var el=document.getElementById(EDITEUR_ID);
@@ -421,24 +449,31 @@ function parleurOptions_(courant){
 
 function ligneHtml_(e,i,k){
   var l=e.lignes[k];
+  var u=window.__SOREAL_IDLE_VOIX_UI_V1__;
   var blocs=blocsDeLigne_(l);
   var voix=edition.voix||[];
-  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
-  var badge=!blocs.length?'':(prets>=blocs.length?'<span class="soreal-idle-adm-badge-v1 ok">🎙 prête</span>':'<span class="soreal-idle-adm-badge-v1 non">🎙 '+prets+'/'+blocs.length+'</span>');
+  var prets=blocs.filter(function(b){return bloc_Pret_(b.hash);}).length;
+  var badge=!blocs.length?'':(prets>=blocs.length?'<span class="soreal-idle-adm-badge-v1 ok">🎙 Voix prête</span>':'<span class="soreal-idle-adm-badge-v1 non">'+(prets?'🎙 '+prets+'/'+blocs.length+' prêtes':'○ À générer')+'</span>');
   var cle=i+'-'+k;
-  return '<div class="adm-ligne-v1" data-adm-ligne="'+cle+'">'+
-    '<div class="adm-ligne-tete-v1"><span class="adm-ligne-n-v1">'+(k+1)+'</span>'+
-      '<select data-adm-lparleur="'+cle+'" title="Le personnage qui dit cette ligne">'+parleurOptions_(l.parleur)+'</select>'+badge+
+  var couleur=u?u.couleurVoix(l.parleur):'#5b8cff';
+  return '<div class="adm-ligne-v1" data-adm-ligne="'+cle+'" data-vu-bulle="'+cle+'" style="--vu-c:'+couleur+'">'+
+    '<div class="adm-ligne-tete-v1">'+
+      (u?u.chipsHtml(cle,l):'')+
+      '<span style="flex:1"></span>'+badge+
+    '</div>'+
+    '<input type="hidden" data-adm-lparleur="'+cle+'" value="'+esc_(parleurUi_(l.parleur))+'"><input type="hidden" data-adm-lexpr="'+cle+'" value="'+esc_(l.expr||'')+'">'+
+    '<textarea data-adm-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
+    (u?u.pausesHtml(cle,'soreal-idle-adm-btn-v1'):'')+
+    '<div class="adm-ligne-pied-v1">'+
+      (u?u.pauseBoutonHtml(cle,'soreal-idle-adm-btn-v1'):'')+
       '<span style="flex:1"></span>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-l="ecouter" data-i="'+i+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-l="generer" data-i="'+i+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de CETTE ligne seulement, autant de fois que tu veux">🎙 Générer cette ligne</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-l="suppr" data-i="'+i+'" data-k="'+k+'" title="Retirer ce personnage (cette ligne)">−</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-l="generer" data-i="'+i+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de cette ligne, autant de fois que tu veux">🎙 Générer</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-l="suppr" data-i="'+i+'" data-k="'+k+'" title="Retirer ce personnage">🗑</button>'+
     '</div>'+
-    '<textarea data-adm-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
-    (blocs.length?'<div class="adm-fichiers-v1" data-adm-fv="'+cle+'"><div class="adm-fichiers-titre-v1">Fichiers de voix de cette ligne <span>(télécharger, retoucher, remplacer)</span></div>'+fichiersVoixHtml_(blocs,voix)+'</div>':'')+
+    (blocs.length?'<details class="adm-det-v1"><summary>📁 Fichiers de cette ligne</summary><div class="adm-fichiers-v1" data-adm-fv="'+cle+'"><div class="adm-fichiers-titre-v1">Télécharger, retoucher ou remplacer la voix de cette ligne</div>'+fichiersVoixHtml_(blocs,voix)+'</div></details>':'')+
   '</div>';
 }
-
 function etapeHtml_(e,i){
   var url=urlImage_(edition.id,e.image);
   var s=statutVoixEtape_(e,edition.voix||[]);
@@ -470,6 +505,32 @@ function etapesHtml_(){
   return edition.etapes.map(etapeHtml_).join('');
 }
 
+/* Choix fait dans le sélecteur partagé (modules/voix-ui-v1.js) : la ligne prend la voix ou l'expression ; ses fichiers de voix sont à refaire (la voix et l'expression se règlent à la génération). */
+function appliquerChoix_(type,cle,valeur){
+  if(!edition)return;
+  lireChamps_();
+  var c=String(cle).split('-'),i=Number(c[0]),k=Number(c[1]);
+  var etape=edition.etapes[i],l=etape&&etape.lignes&&etape.lignes[k];
+  if(!l)return;
+  var avant=blocsDeLigne_(l);
+  if(type==='voix')l.parleur=parleurUi_(valeur);
+  else l.expr=valeur==='neutre'?'':String(valeur||'');
+  edition.aRefaire=edition.aRefaire||{};
+  avant.forEach(function(b){if((edition.voix||[]).indexOf(b.hash)!==-1)edition.aRefaire[b.hash]=1;});
+  composerEtape_(etape);
+  rafraichirEtapes_();
+  afficherEtat_();
+}
+function ouvrirSelecteur_(type,cle){
+  var u=window.__SOREAL_IDLE_VOIX_UI_V1__,racine=document.getElementById(EDITEUR_ID);
+  if(!u||!racine||!edition)return;
+  lireChamps_();
+  var c=String(cle).split('-');
+  var l=edition.etapes[Number(c[0])]&&edition.etapes[Number(c[0])].lignes&&edition.etapes[Number(c[0])].lignes[Number(c[1])];
+  if(!l)return;
+  u.ouvrirSelecteur({racine:racine,type:type,ligne:l,outils:{synthetiserBrut:synthetiserBrut_},apres:function(valeur){appliquerChoix_(type,cle,valeur);}});
+}
+
 function dessinerEditeur_(){
   var racine=document.getElementById(EDITEUR_ID);
   if(!racine||!edition)return;
@@ -494,9 +555,11 @@ function dessinerEditeur_(){
       '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-g="enregistrer">💾 Enregistrer</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="tester">▶ Tester</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="voix" id="sorealIdleAdminBtnVoixV1">🎙 Générer les voix</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
-      '<label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" id="sorealIdleAdminToutesV1"> tout régénérer</label>'+
+      '<details class="adm-plus-v1"><summary title="Plus d’actions">⋯</summary><div class="adm-plus-menu-v1">'+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
+        '<label style="margin:0;display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" id="sorealIdleAdminToutesV1"> Tout régénérer</label>'+
+      '</div></details>'+
     '</div>'+
     '<div class="adm-mini-v1" id="sorealIdleAdminMiniV1">'+
       '<div class="adm-mini-titre-v1">🎙 Voix · <span id="sorealIdleAdminMiniTitreV1"></span></div>'+
@@ -507,6 +570,11 @@ function dessinerEditeur_(){
       '</div>'+
     '</div>';
   racine.classList.toggle('adm-reduit',reduit);
+  var uiPartagee=window.__SOREAL_IDLE_VOIX_UI_V1__;
+  if(uiPartagee)uiPartagee.activer(racine,{
+    surChoix:function(type,cle){ouvrirSelecteur_(type,cle);},
+    texteDe:function(cle){return racine.querySelector('[data-adm-ltexte="'+cle+'"]');}
+  });
   afficherEtat_();
 }
 
@@ -556,6 +624,11 @@ function lireChamps_(){
     var c=String(sel.getAttribute('data-adm-lparleur')).split('-');
     var l=edition.etapes[Number(c[0])]&&edition.etapes[Number(c[0])].lignes&&edition.etapes[Number(c[0])].lignes[Number(c[1])];
     if(l)l.parleur=sel.value;
+  });
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-lexpr]'),function(inp){
+    var c=String(inp.getAttribute('data-adm-lexpr')).split('-');
+    var l=edition.etapes[Number(c[0])]&&edition.etapes[Number(c[0])].lignes&&edition.etapes[Number(c[0])].lignes[Number(c[1])];
+    if(l)l.expr=inp.value;
   });
   edition.etapes.forEach(function(e){if(e.lignes)composerEtape_(e);});
 }
@@ -878,7 +951,7 @@ function libelleBoutonsGenerer_(){
   var r=document.getElementById(EDITEUR_ID);
   if(r){
     Array.prototype.forEach.call(r.querySelectorAll('[data-adm-e="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Toute l’étape';});
-    Array.prototype.forEach.call(r.querySelectorAll('[data-adm-l="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer cette ligne';});
+    Array.prototype.forEach.call(r.querySelectorAll('[data-adm-l="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer';});
   }
 }
 
@@ -897,6 +970,7 @@ function lancerGeneration_(aFaire,libelle){
       return synthetiser_(b.texte,b.parleur,b.expr).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
         if(voix.indexOf(b.hash)===-1)voix.push(b.hash);
         edition.voix=voix.slice();
+        if(edition.aRefaire)delete edition.aRefaire[b.hash];
         fait+=1;
         rafraichirEtapes_();
       });
@@ -934,7 +1008,7 @@ function genererVoix_(){
   var vus={},blocs=[];
   edition.etapes.forEach(function(e){blocsDeEtape_(e).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});});
   if(!blocs.length){afficherEtat_('Aucun texte à lire : colle d’abord le texte des étapes.',true);return;}
-  var aFaire=blocs.filter(function(b){return toutes||(edition.voix||[]).indexOf(b.hash)===-1;});
+  var aFaire=blocs.filter(function(b){return toutes||!bloc_Pret_(b.hash);});
   if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
   lancerGeneration_(aFaire);
 }
@@ -1174,7 +1248,7 @@ document.addEventListener('click',function(ev){
     if(a==='generer'){genererEtape_(i);return;}
     if(a==='ligne+'){
       var lignesN=edition.etapes[i]&&edition.etapes[i].lignes;
-      if(lignesN){lignesN.push({parleur:lignesN.length?lignesN[lignesN.length-1].parleur:'narrateur',texte:''});rafraichirEtapes_();}
+      if(lignesN){lignesN.push({parleur:lignesN.length?lignesN[lignesN.length-1].parleur:'narrateur',expr:'',texte:''});rafraichirEtapes_();}
       return;
     }
     arreterEcoute_();
