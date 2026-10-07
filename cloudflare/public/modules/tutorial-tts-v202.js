@@ -315,6 +315,23 @@
    */
   var VOIX_OPEN=String.fromCharCode(0xE002);
   var VOIX_CLOSE=String.fromCharCode(0xE003);
+  /*
+   * Expressions et pauses écrites comme balises (Norman, 2026-10-08) : « (joyeux) », « (pause 2s)… » -- registre modules/voix-expressions-v1.js. Une pause devient le même marqueur de silence que les
+   * pauses internes ; une expression devient un marqueur qui accompagne les blocs suivants (étape.expr) : elle ne change pas la lecture, seulement la GÉNÉRATION de la voix par le studio.
+   */
+  var EXPR_OPEN=String.fromCharCode(0xE004);
+  var EXPR_CLOSE=String.fromCharCode(0xE005);
+  function registreExpressions_(){
+    try{return window.__SOREAL_IDLE_EXPRESSIONS_V1__||null;}catch(_){return null;}
+  }
+  function resoudreExpressionBalise_(t){
+    var r=registreExpressions_();
+    return r&&typeof r.resoudre==='function'?String(r.resoudre(t)||''):'';
+  }
+  function resoudrePauseBalise_(t){
+    var r=registreExpressions_();
+    return r&&typeof r.pauseMs==='function'?(Number(r.pauseMs(t))||0):0;
+  }
   function normaliserBalise_(t){
     return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
   }
@@ -333,7 +350,12 @@
   function retirerParentheses_(texte){
     return String(texte||'').replace(/\(([^)]*)\)/g,function(tout,dedans){
       var voix=resoudreVoixBalise_(dedans);
-      return voix?' '+VOIX_OPEN+voix+VOIX_CLOSE+' ':' ';
+      if(voix)return ' '+VOIX_OPEN+voix+VOIX_CLOSE+' ';
+      var pause=resoudrePauseBalise_(dedans);
+      if(pause>0)return ' '+PAUSE_OPEN+pause+PAUSE_CLOSE+' ';
+      var expression=resoudreExpressionBalise_(dedans);
+      if(expression)return ' '+EXPR_OPEN+expression+EXPR_CLOSE+' ';
+      return ' ';
     });
   }
 
@@ -385,22 +407,31 @@
     var parts=String(value||'').split(new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE));
     var steps=[];
     /* Voix courante (balise « (marius) »…) : propre à la lecture entière, elle traverse les pauses ; absente = voix par défaut (narrateur). */
-    var voix='';
+    var voix='',expr='';
     for(var i=0;i<parts.length;i+=1){
       if(i%2===1){
         var ms=Math.max(0,Math.min(PAUSE_MAX_MS,parseInt(parts[i],10)||0));
         if(ms>0&&steps.length&&steps[steps.length-1].pause==null)steps.push({pause:ms});
         continue;
       }
-      var morceaux=parts[i].split(new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE));
-      for(var k=0;k<morceaux.length;k+=1){
-        if(k%2===1){voix=morceaux[k];continue;}
-        decouperNarration_(morceaux[k]).forEach(function(chunk){
+      /* Voix (« (marius) ») et expressions (« (joyeux) ») dans l'ordre du texte ; une nouvelle voix revient au ton neutre, une expression dure jusqu'à la suivante. */
+      var reMarques=new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE+'|'+EXPR_OPEN+'([a-z0-9-]+)'+EXPR_CLOSE,'g');
+      var texteBrut=parts[i],dernier=0,marque;
+      var lire=function(morceau){
+        decouperNarration_(morceau).forEach(function(chunk){
           var etape={chunk:chunk};
           if(voix)etape.voix=voix;
+          if(expr)etape.expr=expr;
           steps.push(etape);
         });
+      };
+      while((marque=reMarques.exec(texteBrut))){
+        lire(texteBrut.slice(dernier,marque.index));
+        dernier=marque.index+marque[0].length;
+        if(marque[1]!==undefined){voix=marque[1];expr='';}
+        else expr=marque[2]==='neutre'?'':marque[2];
       }
+      lire(texteBrut.slice(dernier));
     }
     while(steps.length&&steps[steps.length-1].pause!=null)steps.pop();
     return steps;
@@ -1152,6 +1183,8 @@
     composerChronique:composerChronique_,
     retirerParentheses:retirerParentheses_,
     resoudreVoixBalise:resoudreVoixBalise_,
+    resoudreExpressionBalise:resoudreExpressionBalise_,
+    resoudrePauseBalise:resoudrePauseBalise_,
     voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper};},
     isSpeaking:function(){
       return Boolean(activeReadTarget||activeAudio||activeBufferSource);

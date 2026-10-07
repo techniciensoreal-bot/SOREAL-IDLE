@@ -135,7 +135,15 @@ function segmenter_(texte,parleurParDefaut){
     dernier=m.index+m[0].length;
   }
   ajouter(brut.length);
-  return {affiche:segments.map(function(s){return s.texte;}).join(' '),segments:segments};
+  /* Expressions et pauses (« (joyeux) », « (pause 2s) ») : lues par le module de narration, jamais affichées (Norman, 2026-10-08). */
+  var affiche=segments.map(function(s){return s.texte;}).join(' ').replace(/\(\s*([^()\n]{1,40}?)\s*\)/g,function(tout,dedans){
+    try{
+      var t=tts_();
+      if(t&&((typeof t.resoudreExpressionBalise==='function'&&t.resoudreExpressionBalise(dedans))||(typeof t.resoudrePauseBalise==='function'&&t.resoudrePauseBalise(dedans)>0)))return ' ';
+    }catch(_e){}
+    return tout;
+  }).replace(/[ \t]{2,}/g,' ').trim();
+  return {affiche:affiche,segments:segments};
 }
 
 function prechaufferEtape_(etapes,i){
@@ -143,7 +151,7 @@ function prechaufferEtape_(etapes,i){
   try{
     var t=tts_();
     if(t&&typeof t.prechauffer==='function'){
-      segmenter_(etapes[i].texte,etapes[i].parleur).segments.forEach(function(s){t.prechauffer(s.texte);});
+      segmenter_(etapes[i].texte,etapes[i].parleur).segments.forEach(function(s){t.prechauffer(typeof t.retirerParentheses==='function'?t.retirerParentheses(s.texte):s.texte);});
     }
   }catch(_e){}
   /* Image de l'étape suivante chargée pendant la lecture de l'étape affichée. */
@@ -262,7 +270,7 @@ function jouer_(histoire,options){
       try{
         var t=tts_();
         if(t&&typeof t.readText==='function'){
-          ok=t.readText(decoupe.segments[k].texte,undefined,function(){lireSegment(k+1);});
+          ok=t.readText(typeof t.retirerParentheses==='function'?t.retirerParentheses(decoupe.segments[k].texte):decoupe.segments[k].texte,undefined,function(){lireSegment(k+1);});
         }
       }catch(_e){
         ok=false;

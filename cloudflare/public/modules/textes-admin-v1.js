@@ -68,16 +68,28 @@ function voixDeBalise_(contenu){
   return n==='homme'||n==='narrateur'?'homme':(n==='femme'?'femme':'');
 }
 
-/* Texte tel qu'il s'affiche : les balises de voix disparaissent, toute autre parenthèse reste. */
+/* Expression ou pause désignée par le contenu d'une parenthèse (« joyeux », « pause 2s »…) : ces balises ne sont jamais lues ni affichées, comme celles de voix. */
+function balisePauseOuExpression_(contenu){
+  var t=tts_();
+  if(!t)return false;
+  try{
+    if(typeof t.resoudreExpressionBalise==='function'&&t.resoudreExpressionBalise(contenu))return true;
+    if(typeof t.resoudrePauseBalise==='function'&&t.resoudrePauseBalise(contenu)>0)return true;
+  }catch(_e){}
+  return false;
+}
+function estBaliseDeLecture_(contenu){return Boolean(voixDeBalise_(contenu)||balisePauseOuExpression_(contenu));}
+
+/* Texte tel qu'il s'affiche : les balises de voix, d'expression et de pause disparaissent, toute autre parenthèse reste. */
 function sansBalises_(texte){
   var brut=String(texte==null?'':texte);
   /* Balise seule sur sa ligne : la ligne disparaît entièrement. */
   var sans=brut.replace(/(^|\n)[ \t]*\(\s*([^()\n]{1,40}?)\s*\)[ \t]*(\n|$)/g,function(tout,debut,dedans){
-    return voixDeBalise_(dedans)?debut:tout;
+    return estBaliseDeLecture_(dedans)?debut:tout;
   });
   /* Balise au milieu d'une phrase : remplacée par une espace. */
   sans=sans.replace(/[ \t]*\(\s*([^()\n]{1,40}?)\s*\)[ \t]*/g,function(tout,dedans){
-    return voixDeBalise_(dedans)?' ':tout;
+    return estBaliseDeLecture_(dedans)?' ':tout;
   });
   return sans.replace(/[ \t]{2,}/g,' ').replace(/ ?\n ?/g,'\n').trim();
 }
@@ -445,7 +457,9 @@ function blocsDeLecture_(valeurs){
     if(vus[hash])return;
     vus[hash]=1;
     var parleur=e.voix||(typeof t.estVoixFemme==='function'&&t.estVoixFemme(e.chunk)?'femme':'homme');
-    blocs.push({texte:e.chunk,hash:hash,parleur:parleur});
+    var bloc={texte:e.chunk,hash:hash,parleur:parleur};
+    if(e.expr)bloc.expr=e.expr;
+    blocs.push(bloc);
   });
   return blocs;
 }
@@ -832,7 +846,7 @@ function lancerGeneration_(o,aFaire,libelle){
       if(generation.annule)throw new Error('__annule__');
       generation.texte='🎙 '+(libelle?libelle+' : ':'Génération des voix : ')+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_(generation.texte);
-      return o.synthetiser(b.texte,b.parleur).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
+      return o.synthetiser(b.texte,b.parleur,b.expr).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
         if(edition.voix.indexOf(b.hash)===-1)edition.voix.push(b.hash);
         if(edition.aRefaire)delete edition.aRefaire[b.hash];
         fait+=1;

@@ -83,9 +83,13 @@ function blocsDeTexte_(texte){
   var t=tts_();
   if(!t||typeof t.planNarration!=='function'||typeof t.hashBloc!=='function')return [];
   var txt=String(texte||'').replace(/\s+/g,' ').trim();
+  /* Comme à la lecture : les parenthèses ne sont jamais lues ; pauses et expressions deviennent leurs marqueurs (l'expression suit chaque bloc, le texte du bloc ne change pas). */
+  if(typeof t.retirerParentheses==='function')txt=t.retirerParentheses(txt).replace(/\s+/g,' ').trim();
   if(!txt)return [];
   return t.planNarration(txt).filter(function(e){return e&&e.chunk!=null&&String(e.chunk).trim();}).map(function(e){
-    return {texte:e.chunk,hash:t.hashBloc(e.chunk)};
+    var b={texte:e.chunk,hash:t.hashBloc(e.chunk)};
+    if(e.expr)b.expr=e.expr;
+    return b;
   });
 }
 
@@ -718,13 +722,26 @@ function appliquerPrononciations_(texte,liste){
   return t;
 }
 
-function synthetiser_(texte,parleur){
-  return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur);
+function synthetiser_(texte,parleur,expr){
+  return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur,expr);
 }
 
 /* Envoie le texte TEL QUEL au studio (aucune correction de prononciation) : sert à tester une prononciation, qui est déjà écrite comme on la dit. */
-function synthetiserBrut_(texte,parleur){
-  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({texte:texte,voix:voixStudio_(parleur)})})
+/*
+ * Expression (Norman, 2026-10-08) : « (joyeux) »… devient les réglages « exaggeration » et « cfg » du studio (modules/voix-expressions-v1.js) ; « neutre » (ou aucune) ne les envoie pas : le studio garde
+ * les réglages propres à la voix (reglages-voix.json).
+ */
+function corpsSynthese_(texte,parleur,expr){
+  var corps={texte:texte,voix:voixStudio_(parleur)};
+  try{
+    var reg=window.__SOREAL_IDLE_EXPRESSIONS_V1__;
+    var r=expr&&reg&&typeof reg.reglages==='function'?reg.reglages(expr):null;
+    if(r){corps.exaggeration=r.exaggeration;corps.cfg=r.cfg;}
+  }catch(_e){}
+  return corps;
+}
+function synthetiserBrut_(texte,parleur,expr){
+  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(corpsSynthese_(texte,parleur,expr))})
     .then(function(r){
       if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
       return r.blob();
@@ -877,7 +894,7 @@ function lancerGeneration_(aFaire,libelle){
       if(generation.annule)throw new Error('__annule__');
       generation.texte='🎙 '+(libelle?libelle+' : ':'Génération des voix : ')+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_();
-      return synthetiser_(b.texte,b.parleur).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
+      return synthetiser_(b.texte,b.parleur,b.expr).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
         if(voix.indexOf(b.hash)===-1)voix.push(b.hash);
         edition.voix=voix.slice();
         fait+=1;

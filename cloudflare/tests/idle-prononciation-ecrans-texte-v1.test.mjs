@@ -29,7 +29,7 @@ assert.equal(JSON.stringify(outils.lire()), JSON.stringify([{ mot: "Alien", dit:
 // 2. L'éditeur d'histoires expose ces outils à l'éditeur de textes, plus un envoi « brut » (test d'une prononciation, sans seconde correction).
 assert.ok(histoires.includes("lirePrononciations:lirePrononciations_,ecrirePrononciations:ecrirePrononciations_,appliquerPrononciations:appliquerPrononciations_"));
 assert.ok(histoires.includes("synthetiserBrut:synthetiserBrut_"));
-assert.ok(histoires.includes("return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur);"), "la génération applique toujours les corrections");
+assert.ok(histoires.includes("return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur,expr);"), "la génération applique toujours les corrections");
 
 // 3. Chaque écran de texte (éditeur de textes) a le bloc « Prononciation » : ajouter, tester, lister, supprimer.
 assert.ok(textes.includes("'<div id=\"sorealIdleTextePronBlocV1\">'+prononciationsHtml_()+'</div>'+"), "bloc affiché dans chaque éditeur de texte");
