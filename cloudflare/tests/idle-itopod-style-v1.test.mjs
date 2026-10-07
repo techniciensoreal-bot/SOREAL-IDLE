@@ -70,4 +70,6 @@ assert.ok(allege.includes("@media (max-width:700px)") && allege.includes("animat
 const tel = css.slice(css.indexOf("Combat de boss sur téléphone (Norman"));
 assert.ok(tel.includes(".soreal-idle-duel-fighter-v42{display:contents!important;}") && tel.includes("grid-column:1/-1!important") && tel.includes("grid-row:1;") && tel.includes("grid-row:2;"), "phone : les deux barres de vie sur toute la largeur, l'une sous l'autre");
 assert.ok(tel.includes("grid-row:3;") && tel.includes("grid-row:4;"), "phone : noms puis portraits côte à côte sous les barres");
+// Objet verrouillé : cadre rouge toujours visible avec le style ITOPOD.
+assert.ok(css.includes(".soreal-idle-v138-slot).idle-item-locked-v165{") && css.includes("border-color:#ff4d4d!important;"), "cadre rouge des objets verrouillés conservé");
 console.log("idle-itopod-style-v1: OK");

@@ -439,3 +439,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-fighter-v42:last-child .soreal-idle-dialogue-v76{grid-column:2;grid-row:5;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-versus-row-v42>.soreal-idle-vs-v41{top:auto!important;bottom:20%;transform:translate(-50%,0) skewX(-10deg);}
 }
+
+/* Objet verrouillé : le cadre rouge reste visible malgré les cadres du style ITOPOD (Norman, 2026-10-07 : « on ne voit plus quand un objet est verrouillé »). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-v138-bag-card,.soreal-idle-v138-slot).idle-item-locked-v165{
+  border-color:#ff4d4d!important;
+  box-shadow:0 0 0 2px rgba(255,77,77,.95),0 0 12px rgba(255,77,77,.5),3px 3px 0 #000!important;}

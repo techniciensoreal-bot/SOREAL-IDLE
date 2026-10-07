@@ -19041,7 +19041,24 @@ let idleDialogueTimerV76=null;
       }
       window.__consommerObjetSkillAdventureIdleV4__=consommerObjetSkillAdventureIdleV4_;
 
+      /* Norman (2026-10-07) : « je clique sur Transformer mais rien ne se passe… ah si, mais ça a pris du temps » : la transformation attend son tour derrière les appels en cours, puis le serveur la calcule ; on le dit tout de suite. */
+      function annoncerTransformationIdleV1_(){
+        try{
+          let t=document.getElementById('sorealIdleTransformationV1');
+          if(!t){
+            t=document.createElement('div');
+            t.id='sorealIdleTransformationV1';
+            t.setAttribute('role','status');
+            t.style.cssText='position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:2147483000;padding:10px 18px;border:3px solid #000;border-radius:8px;background:#3a2a05;color:#ffd24a;font-weight:800;box-shadow:3px 3px 0 #000;pointer-events:none;';
+            document.body.appendChild(t);
+          }
+          t.textContent='🧪 Transformation en cours…';
+          clearTimeout(t.__finV1);
+          t.__finV1=setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},6000);
+        }catch(_e){}
+      }
       function transformerObjetAdventureIdleV4_(id){
+        annoncerTransformationIdleV1_();
         actionAdventureIdleV47_({action:'transformAdventureItem',id:String(id||'')});
       }
       window.__transformerObjetAdventureIdleV4__=transformerObjetAdventureIdleV4_;
