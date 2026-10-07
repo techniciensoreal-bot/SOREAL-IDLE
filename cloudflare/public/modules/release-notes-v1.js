@@ -28,7 +28,14 @@
           'L’ordinateur rétro affiche un court écran d’allumage une seule fois par Rebirth, puis un cadre à part montre le chargement du système (une heure après un Rebirth, moins avec certains bonus) : tu peux déjà y placer de l’énergie et de la magie, elles prennent de la vitesse au fil du chargement.',
           'La page des adversaires les plus coriaces est refaite : portrait en grand, statistiques en grosses tuiles et comparaison très lisible entre les stats conseillées et tes stats actuelles, avec un verdict pour chaque mode de combat.',
           'Les petites annonces (objets absorbés, erreurs, confirmations) apparaissent et disparaissent en fondu dans une plaque sombre à liseré doré : petites, mais faciles à lire.',
-          'Ouvrir ou fermer un panneau (comme le coffre) ne redessine plus toute la page : ce que tu viens de toucher reste exactement à sa place, sans saut de page.'
+          'Ouvrir ou fermer un panneau (comme le coffre) ne redessine plus toute la page : ce que tu viens de toucher reste exactement à sa place, sans saut de page.',
+          'Boutique : le rayon choisi garde un texte net et lisible, brun foncé sur fond doré, au lieu d’un contour noir qui le rendait illisible.',
+          'La borne d’arcade n’a plus que trois boutons ronds, rouge, bleu et jaune : on peut les presser directement pour combattre, fuir ou lancer un Nuke, et ils s’enfoncent aussi quand tu utilises les grosses commandes en dessous. Le socle du joystick et les boutons sont centrés sur la planche.',
+          'Automatisation de l’inventaire : les cases à cocher deviennent de vrais interrupteurs, à basculer vers le haut pour activer et vers le bas pour désactiver, avec une petite lumière verte quand c’est allumé. Le menu « Action au clic » disparaît.',
+          'Quand la piste d’ambiance est un feu qui crépite, une lueur chaude vacille sur l’écran et éclaire les menus, comme un feu de bois dans une pièce sombre.',
+          'Basic Training : quand tu places de l’énergie dans une barre qui n’en avait pas (sauf la toute première, qui allume la machine), les lumières vacillent une ou deux fois au hasard, avec le bruit d’une machine qui démarre.',
+          'Blood Magic : tu peux enfin mettre de la Magic dans plusieurs rituels en même temps ; chacun garde la sienne et avance à son rythme, comme dans le jeu d’origine.',
+          'Quand tu gagnes de l’or, le mot qui suit devient de plus en plus enthousiaste avec la somme : de « Bah… » jusqu’à « OH BORDEL ! », « WHOUHOU ! » et bien au-delà.'
         ]
       },
       {

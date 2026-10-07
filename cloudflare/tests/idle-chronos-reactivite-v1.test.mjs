@@ -42,7 +42,7 @@ assert.ok(!/OPERATIONS_LECTURE_V1=\{[^}]*(Achat|acheter|renaitre|combattre)/i.te
 
 // 6. Pas de retour en arrière au redessin (Blood Magic, Augmentations, Time Machine) et repère de réception.
 assert.ok(bridge.includes("data.joueur.__recuPerfV1=calerRecuPerfV1_(data.joueur,performance.now(),Date.now())") && bridge.includes("return perfMaintenant;"), "repère de réception : instant de calcul du serveur, repli sur la réception (2026-10-07)");
-assert.ok(meta.includes("visuelBloodExistant.src===bmView") && meta.includes("garderVisuelAug"));
+assert.ok(meta.includes("(ex&&ex.src===rv)?ex:") && meta.includes("garderVisuelAug"));
 assert.ok(ui.includes("__ancreTmV1"));
 
 // 7. Auto Merge / Auto Boost : « prochain dans » avance.

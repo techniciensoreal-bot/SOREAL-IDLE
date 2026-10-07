@@ -100,7 +100,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   assert.ok(!meta.includes("allocationMetaIdleV48_(j,'bloodMagic'"), "l'ancien helper générique ne doit plus être appelé pour Blood Magic");
   assert.ok(!/function allocationMetaIdleV48_/.test(meta), "l'ancien helper, devenu mort, doit être retiré plutôt que laissé inerte");
 
-  assert.match(meta, /function ajusterBloodMagicIdleV1_\(mode\)\{/);
+  assert.match(meta, /function ajusterBloodMagicIdleV1_\(mode,ritualId\)\{/);
   assert.match(meta, /function viderBloodMagicIdleV1_\(\)\{/);
   assert.match(meta, /function presetBloodMagicIdleV1_\(source,fraction\)\{/);
   assert.match(meta, /function ajusterRituelBloodMagicIdleV1_\(ritualId,mode\)\{/, "boutons Cap/+/- par rituel (demande explicite de Norman)");
@@ -121,19 +121,19 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
 
 // --- 6. Blood Magic : câblage optimiste réel (mutation locale + patch DOM ciblé AVANT le réseau), comme les autres écrans corrigés. ---
 {
-  const debut = meta.indexOf("function ajusterBloodMagicIdleV1_(mode){");
+  const debut = meta.indexOf("function ajusterBloodMagicIdleV1_(mode,ritualId){");
   const fin = meta.indexOf("window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;", debut);
   const handler = meta.slice(debut, fin);
-  assert.match(handler, /s\.state\.allocation\.magic=value/);
+  assert.match(handler, /data\.rituals\[id\]\.magic=value/);
   assert.match(handler, /ressourceMagie\.current=Math\.max\(0,idleAvant-delta\)/, "la Magic libre doit être décrémentée localement, comme l'énergie de Basic Training");
   // 2026-09-29 (suite) : même correctif de réactivité qu'Augmentation/Time Machine -- patch ciblé, plus de rendu complet.
   assert.ok(!handler.includes("H.rendreIdleEtat_({ok:true,joueur:j})"), "plus de rendu complet à chaque clic");
-  assert.match(handler, /rafraichirAllocationBloodMagicIdleV1_\(value\);/, "patch ciblé du chiffre alloué + de la barre principale");
-  assert.match(handler, /envoyerAllocRapideV1_\(\{action:'allocate',system:'bloodMagic',resource:'magic',value:value\}\)/, "envoi groupé en différé (chantier réactivité), plus d'attente serveur");
-  assert.match(handler, /recalculerBloodLocalIdleV1_\(j,value\)/, "durée et barre recalculées tout de suite");
+  assert.match(handler, /rafraichirAllocationBloodMagicIdleV1_\(id,value\);/, "patch ciblé du chiffre alloué + de la barre principale");
+  assert.match(handler, /envoyerAllocRapideV1_\(\{action:'allocateRitual',ritual:id,value:value\}\)/, "envoi groupé en différé (chantier réactivité), plus d'attente serveur");
+  assert.match(handler, /recalculerBloodLocalIdleV1_\(j,id,value\)/, "durée et barre recalculées tout de suite");
 
-  const debutPatch = meta.indexOf("function rafraichirAllocationBloodMagicIdleV1_(value){");
-  const finPatch = meta.indexOf("function ajusterBloodMagicIdleV1_(mode){", debutPatch);
+  const debutPatch = meta.indexOf("function rafraichirAllocationBloodMagicIdleV1_(ritualId,value){");
+  const finPatch = meta.indexOf("function ajusterBloodMagicIdleV1_(mode,ritualId){", debutPatch);
   const patch = meta.slice(debutPatch, finPatch);
   assert.match(patch, /document\.getElementById\('sorealIdleBloodAllocV1'\)/);
   assert.match(patch, /if\(typeof H\.rafraichirEnergieEtBoutonsIdleV9_==='function'\)H\.rafraichirEnergieEtBoutonsIdleV9_\(\);/);
@@ -195,9 +195,9 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   const html = window_.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_(etat, "bloodMagic", "Blood Magic");
 
   // Vue de progression posée sur idleEtat, comme __augmentationsVisualV215 -- lue à chaque tick par soreal-idle-ui.js.
-  assert.equal(etat.__bloodMagicVisualV1.ritual, "tack");
-  assert.equal(etat.__bloodMagicVisualV1.secondsPerCompletion, 2000);
-  assert.equal(etat.__bloodMagicVisualV1.etaSeconds, snap.bloodMagicView.etaSeconds);
+  assert.equal(etat.__bloodMagicVisualV1.tack.ritual, "tack");
+  assert.equal(etat.__bloodMagicVisualV1.tack.secondsPerCompletion, 2000);
+  assert.equal(etat.__bloodMagicVisualV1.tack.etaSeconds, snap.bloodMagicView.etaSeconds);
 
   // Barre visible pour le rituel actif, à la bonne classe (même famille qu'Augmentation), avec le pourcentage initial correct (25 %).
   assert.match(html, /<div class="soreal-idle-bt-track-v120( saigne-v1)?"><div data-idle-blood-bar-v1="tack" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX\(0\.25\)/);
@@ -217,7 +217,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
 // --- 9. La barre cyclique de Blood Magic réutilise le même moteur d'animation qu'Augmentation (patch DOM à chaque tick, jamais un rendu complet). ---
 {
   assert.match(ui, /function animerBarreCycliqueIdleV217_\(el,seconds,progress(?:,tenir)?\)\{/, "moteur d'animation partagé introuvable");
-  assert.match(ui, /const bloodVisual=idleEtat\.__bloodMagicVisualV1;/, "le ticker principal doit lire la vue Blood Magic à chaque tick");
+  assert.match(ui, /const bloodVisuels=idleEtat\.__bloodMagicVisualV1;/, "le ticker principal doit lire la vue Blood Magic à chaque tick");
   assert.match(ui, /document\.querySelector\('\[data-idle-blood-bar-v1="'\+bloodVisual\.ritual\+'"\]'\)/, "le patch doit cibler la barre du rituel actif");
   assert.match(ui, /animerBarreCycliqueIdleV217_\(el,seconds,progress\);/, "le patch Blood Magic doit réutiliser le même moteur qu'Augmentation, pas une redéfinition parallèle");
 }

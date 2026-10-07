@@ -47,6 +47,34 @@
     }catch(_e){return null;}
   }
 
+  /* Énergie placée dans chaque compétence (tableau), null si l'état n'est pas là. */
+  function allocations(){
+    try{
+      var H=window.__SOREAL_IDLE_META_HOST_V130__;
+      var etat=H&&typeof H.getIdleEtat==='function'?H.getIdleEtat():null;
+      var skills=etat&&etat.basicTraining&&Array.isArray(etat.basicTraining.skills)?etat.basicTraining.skills:null;
+      if(!skills)return null;
+      return skills.map(function(sk){var v=Number(sk&&sk.allocation);return Number.isFinite(v)&&v>0?v:0;});
+    }catch(_e){return null;}
+  }
+  /* Le démarrage retenu (réglable ; un son par défaut tant que Norman n'a pas choisi). */
+  var DEMARRAGE_PAR_DEFAUT='demarrage1';
+  function demarrageChoisi_(){
+    try{var c=localStorage.getItem('soreal_idle_bt_demarrage_v1');if(/^demarrage[1-6]$/.test(String(c)))return c;}catch(_e){}
+    return DEMARRAGE_PAR_DEFAUT;
+  }
+  var allocPrecedente=null,dernierDemarrage=0;
+  /* Une barre qui n'avait aucune énergie en reçoit alors que la machine tournait déjà (Norman, 2026-10-07) : un ou deux vacillements au hasard, et le bruit d'une machine qui démarre. */
+  function demarrageBarre_(){
+    if(mouvementReduit_())return false;
+    var maintenant=Date.now();
+    if(maintenant-dernierDemarrage<1500)return false;
+    dernierDemarrage=maintenant;
+    var presents=Array.prototype.slice.call(document.querySelectorAll(SELECTEUR));
+    if(presents.length)vaciller(presents[Math.floor(Math.random()*presents.length)],undefined,true);
+    sonner(demarrageChoisi_());
+    return true;
+  }
   /* Motif d'un vacillement : un ou deux coups. Deux coups = deux extinctions très rapprochées (le second arrive avant la fin du premier « tzzzzt » et le coupe). */
   function motif(alea){
     var a=typeof alea==='function'?alea:Math.random;
@@ -109,6 +137,28 @@
         g.gain.setValueAtTime(0.0001,t+decal);g.gain.linearRampToValueAtTime(gain,t+decal+0.002);g.gain.linearRampToValueAtTime(0.0001,t+decal+0.04);
         o.connect(f);f.connect(g);g.connect(sortie);o.start(t+decal);o.stop(t+decal+0.05);
       },
+      /* ton avec glissando et enveloppe (démarrages de machine) */
+      ton:function(type,f0,f1,decal,duree,gain,coupe){
+        var o=c.createOscillator();o.type=type;
+        o.frequency.setValueAtTime(f0,t+decal);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+decal+duree);
+        var f=c.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(coupe||2400,t+decal);
+        var g=c.createGain();
+        g.gain.setValueAtTime(0.0001,t+decal);g.gain.linearRampToValueAtTime(gain,t+decal+Math.min(0.06,duree*0.3));
+        g.gain.linearRampToValueAtTime(gain*0.8,t+decal+duree*0.8);g.gain.linearRampToValueAtTime(0.0001,t+decal+duree);
+        o.connect(f);f.connect(g);g.connect(sortie);o.start(t+decal);o.stop(t+decal+duree+0.02);
+      },
+      /* rafale de bruit filtré (toux d'un moteur, souffle, déclic) */
+      bruit:function(decal,duree,f0,f1,q,gain){
+        var n=Math.max(1,Math.floor(c.sampleRate*duree));
+        var tampon=c.createBuffer(1,n,c.sampleRate);var d=tampon.getChannelData(0);
+        for(var i=0;i<n;i++)d[i]=a()*2-1;
+        var src=c.createBufferSource();src.buffer=tampon;
+        var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=q;
+        f.frequency.setValueAtTime(f0,t+decal);f.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+decal+duree);
+        var g=c.createGain();
+        g.gain.setValueAtTime(0.0001,t+decal);g.gain.linearRampToValueAtTime(gain,t+decal+Math.min(0.02,duree*0.25));g.gain.exponentialRampToValueAtTime(0.0001,t+decal+duree);
+        src.connect(f);f.connect(g);g.connect(sortie);src.start(t+decal);
+      },
       /* petit « ping » de tube qui prend */
       ping:function(decal,gain){
         var o=c.createOscillator();o.type='sine';
@@ -122,6 +172,47 @@
   function construire_(c,sortie,t,type,alea){
     var a=typeof alea==='function'?alea:Math.random;
     var o=outils_(c,sortie,t,a);
+    var m=/^demarrage([1-6])$/.exec(String(type));
+    if(m){
+      var v=Number(m[1]);
+      if(v===1){
+        /* Moteur qui prend : trois toux, puis le régime qui monte et se stabilise */
+        [0,0.16,0.3].forEach(function(d,i){o.bruit(d,0.1,260,150,1.2,0.22+i*0.04);o.ton('sawtooth',40,70,d,0.1,0.10,500);});
+        o.ton('sawtooth',34,98,0.38,0.95,0.17,600);
+        o.ton('sawtooth',98,90,1.3,0.6,0.09,520);
+        o.bruit(0.4,1.2,200,420,0.8,0.05);
+      }else if(v===2){
+        /* Ordinateur : souffle de ventilateur qui monte, disque qui crépite, deux bips de fin */
+        o.bruit(0,1.0,300,3200,0.7,0.16);
+        for(var i=0;i<9;i++)o.arc(0.85+i*0.07+a()*0.03,0.03+a()*0.02);
+        o.ton('sine',880,880,1.5,0.1,0.07,4000);
+        o.ton('sine',1320,1320,1.64,0.14,0.07,4000);
+        o.ton('sine',150,150,0.2,1.6,0.05,800);
+      }else if(v===3){
+        /* Relais lourd puis transformateur qui s'établit */
+        o.bruit(0,0.07,260,110,1.0,0.5);o.ton('square',95,48,0,0.08,0.18,700);
+        o.ton('sine',100,102,0.1,1.4,0.11,1200);o.ton('sine',200,204,0.1,1.4,0.06,1600);o.ton('sine',300,306,0.1,1.4,0.04,2200);
+        o.souffle(0.5,0.25,1800,1200,0.05,0.1);
+        o.ping(0.62,0.04);
+      }else if(v===4){
+        /* Turbine : sifflement qui grimpe, souffle de fond, régime de croisière */
+        o.ton('sine',90,720,0,1.5,0.10,3200);
+        o.bruit(0,1.6,500,2600,0.6,0.09);
+        o.ton('sine',720,650,1.5,0.7,0.06,3000);
+      }else if(v===5){
+        /* Générateur : pétarades de plus en plus rapprochées, puis le ronflement régulier */
+        [0,0.24,0.42,0.56,0.66,0.74].forEach(function(d,i){o.bruit(d,0.09,300,120,1.3,0.28);o.ton('sawtooth',38+i*4,52,d,0.12,0.12,420);});
+        for(var k=0;k<14;k++)o.ton('sawtooth',52,50,0.82+k*0.07,0.07,0.12,380);
+        o.ton('sawtooth',52,50,0.82,1.0,0.07,360);
+      }else{
+        /* Console rétro : arpège qui monte, balayage d'alimentation, carillon de fin */
+        [262,330,392,523].forEach(function(f,i){o.ton('square',f,f,i*0.09,0.08,0.05,3500);});
+        o.ton('sine',110,950,0.35,0.55,0.09,3500);
+        o.ton('sine',1046,1046,0.95,0.35,0.07,4500);
+        o.ton('sine',1568,1568,1.1,0.4,0.05,4500);
+      }
+      return;
+    }
     if(type==='eteint'){
       /* « tzzzzt » : claquement d'arc, souffle haché, fond de ballast, coupure nette (≈ 0,17 s). */
       o.arc(0,0.07);
@@ -154,7 +245,7 @@
     }catch(_e){}
   }
   function sonner(type){
-    if(type!=='eteint'&&type!=='allume')return false;
+    if(type!=='eteint'&&type!=='allume'&&!/^demarrage[1-6]$/.test(String(type)))return false;
     var v=volume_();
     if(!(v>0))return false;
     var c=contexte_();
@@ -170,7 +261,7 @@
   }
 
   /* ---------- Vacillement d'un bandeau allumé ---------- */
-  function vaciller(el,alea){
+  function vaciller(el,alea,sansSon){
     if(!el||mouvementReduit_())return false;
     var etapes=motif(alea);
     var i=0,anterieur=false;
@@ -181,7 +272,7 @@
       var eteint=e[0];
       if(eteint!==anterieur){
         el.classList.toggle(CLASSE,eteint);
-        if(eteint)sonner('eteint');
+        if(eteint&&!sansSon)sonner('eteint');
         anterieur=eteint;
       }
       if(e[1]>0)setTimeout(pas,e[1]);else pas();
@@ -218,6 +309,17 @@
     if(!actif)return;
     var total=totalEnergie();
     var heads=Array.prototype.slice.call(document.querySelectorAll(SELECTEUR));
+    var allocs=allocations();
+    if(allocs&&!enAmorce){
+      if(allocPrecedente&&allocPrecedente.length===allocs.length){
+        var avant=allocPrecedente.reduce(function(x,y){return x+y;},0);
+        var nouvelle=false;
+        for(var q=0;q<allocs.length;q++){if(allocPrecedente[q]<=0&&allocs[q]>0)nouvelle=true;}
+        /* machine déjà en marche (de l'énergie avant) : la toute première barre, elle, allume la machine (néon, ci-dessous) */
+        if(nouvelle&&avant>0&&etatVide===false)demarrageBarre_();
+      }
+    }
+    if(allocs)allocPrecedente=allocs;
     if(total!==null){
       var vide=total<=0;
       if(!enAmorce){
@@ -263,6 +365,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('.'+CLASSE+',.'+CLASSE_ECLAT),function(el){el.classList.remove(CLASSE);el.classList.remove(CLASSE_ECLAT);});
   }
 
-  window.__SOREAL_IDLE_BT_LUMIERES_V1__={vaciller:vaciller,motif:motif,sonner:sonner,allumerNeon:allumerNeon,totalEnergie:totalEnergie,veiller:veiller_,demarrer:demarrer,arreter:arreter,construire:construire_,classe:CLASSE,classeEclat:CLASSE_ECLAT,selecteur:SELECTEUR,sequenceNeon:SEQUENCE_NEON};
+  window.__SOREAL_IDLE_BT_LUMIERES_V1__={demarrageBarre:demarrageBarre_,allocations:allocations,vaciller:vaciller,motif:motif,sonner:sonner,allumerNeon:allumerNeon,totalEnergie:totalEnergie,veiller:veiller_,demarrer:demarrer,arreter:arreter,construire:construire_,classe:CLASSE,classeEclat:CLASSE_ECLAT,selecteur:SELECTEUR,sequenceNeon:SEQUENCE_NEON};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',demarrer);else demarrer();
 })();

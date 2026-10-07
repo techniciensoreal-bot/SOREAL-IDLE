@@ -10,14 +10,13 @@ const mod = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8
 // 1. Un helper de section dédié existe et est utilisé pour chaque catégorie.
 assert.match(mod, /function section\(titre,contenu\)\{/, "un helper de section doit exister");
 const occurrences = (mod.match(/lignes\.push\(section\(/g) || []).length;
-assert.equal(occurrences, 6, "les 6 catégories (Automatisation, Slots d'automerge, Transformation, Action au clic, Filtre de butin, Configurations) doivent chacune être une section");
+assert.equal(occurrences, 5, "les 5 catégories (Automatisation, Slots d automerge, Transformation, Filtre de butin, Configurations) doivent chacune être une section");
 
 // 2. Chaque catégorie garde son propre titre reconnaissable.
 for (const titre of [
   "🤖 Automatisation",
   "🟦 Slots d’automerge",
   "🔀 Transformation des boosts",
-  "👆 Action au clic",
   "🧹 Filtre de butin",
   "🎽 Configurations d’équipement"
 ]) {

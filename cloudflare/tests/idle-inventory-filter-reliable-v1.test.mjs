@@ -72,11 +72,11 @@ assert.equal(serveur.actions.length, nombreEnvois, "plus aucun envoi une fois la
   const avant = serveur.actions.length;
   window.__inventaireAutoFiltreTypeV1__("chest", false);
   const html = api.panneau(etatServeur());
-  assert.match(html, /<input type="checkbox" onchange="window\.__inventaireAutoFiltreTypeV1__\('chest',this\.checked\)"> Torse/, "Torse affiché décoché tant que l'envoi est en cours");
+  assert.match(html, /<input type="checkbox" class="sw-in" onchange="window\.__inventaireAutoFiltreTypeV1__\('chest',this\.checked\)">[\s\S]*?Torse/, "Torse affiché décoché tant que l'envoi est en cours");
   for (let i = 0; i < 30; i += 1) { await avancerAsync(1500); }
   assert.equal(serveur.actions.length - avant, 8, "au plus 8 envois puis abandon, jamais de boucle infinie");
-  assert.match(api.panneau(etatServeur()), /<input type="checkbox" checked onchange="window\.__inventaireAutoFiltreTypeV1__\('chest',this\.checked\)"> Torse/, "après abandon, l'affichage reflète le serveur");
+  assert.match(api.panneau(etatServeur()), /<input type="checkbox" class="sw-in" checked onchange="window\.__inventaireAutoFiltreTypeV1__\('chest',this\.checked\)">[\s\S]*?Torse/, "après abandon, l'affichage reflète le serveur");
 }
 
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/inventory-auto-v1.js?v=17"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/inventory-auto-v1.js?v=18"));
 console.log("idle-inventory-filter-reliable-v1: OK");

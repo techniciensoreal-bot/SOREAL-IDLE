@@ -55,7 +55,7 @@ assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "le
 // Une seule borne : le bloc duel est le corps, la rangée est l'écran, plus de rotation de chaque combattant.
 assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  SOREAL IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
 assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seule borne de face");
-assert.equal(arene.split("ellipse 4.16px 5.2px at calc(").length - 1, 3, "trois boutons seulement sur la borne (rouge, bleu, jaune), sur une seule rangée");
+assert.equal(arene.split("ellipse 4.16px 5.2px at calc(50% - 3.9px)").length - 1, 3, "trois vrais boutons seulement sur la borne (rouge, bleu, jaune), sur une seule rangée");
 assert.ok(arene.includes("#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%") && arene.includes("ellipse 15.6px 19.5px"), "anneau de métal plus haut que le dessus et socle creux");
 assert.ok(arene.includes(".soreal-idle-boss-controls-v39::before{") && arene.includes(".soreal-idle-boss-controls-v39::after{") && arene.includes("circle at 34% 28%,#fff"), "un seul joystick en volume : boule sphérique éclairée, collerette et ombre, hors de la dalle (non coupé)");
 assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(0,1fr) auto minmax(0,1fr)"), "grand écran cathodique à deux combattants");
@@ -76,17 +76,22 @@ assert.ok(css.includes(".itp-cadre{width:100%;box-sizing:border-box;max-width:ca
 // Objet sélectionné (échange/fusion) : cadre doré toujours visible avec le style ITOPOD.
 assert.ok(css.includes(".soreal-idle-v138-slot).selected{") && css.includes("box-shadow:0 0 0 3px #ffd24a") && css.includes(".idle-merge-slot-v1{"), "cadre de sélection des objets conservé");
 // Joystick sur téléphone (Norman, 2026-10-07) : boule plus haute et tige qui ne dépasse plus au-dessus de la boule.
-assert.ok(css.includes(".soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-66px;") && css.includes("linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 17px no-repeat"), "téléphone : boule relevée, tige cachée derrière la boule");
+assert.ok(css.includes(".soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-78px;") && css.includes("linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 17px no-repeat"), "téléphone : boule relevée, tige cachée derrière la boule");
 // Barres de vie du Fight Boss (Norman, 2026-10-07) : chiffres bien plus visibles, barre plus belle (rail creux, verre, graduations fines).
 assert.ok(css.includes("font-size:1.28em!important;font-weight:900!important") && !css.includes("font-size:.82em!important;}"), "chiffres de vie agrandis");
 assert.ok(css.includes("-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000") && css.includes("height:32px!important;border-radius:4px!important"), "chiffres cernés de noir, barre plus haute");
 assert.ok(css.includes("repeating-linear-gradient(90deg,transparent 0 calc(5% - 1px),rgba(0,0,0,.55) calc(5% - 1px) 5%)"), "graduations fines et reflet de verre");
 // Borne (Norman, 2026-10-07) : Fight rouge, Fuite bleu, Nuke jaune ; le bouton de la borne s'enfonce avec la commande ; « Boss actuel » retiré ; régénération sur sa ligne.
-assert.ok(arene.includes("var(--bp0,0px)") && arene.includes("var(--bp1,0px)") && arene.includes("var(--bp2,0px)"), "chaque bouton de la borne peut s'enfoncer");
-assert.ok(arene.includes('[data-presse-v1="start"] .soreal-idle-duel-v41::after') && arene.includes(".soreal-idle-boss-control-v39.nuke:active:not(:disabled)"), "appuyer sur une commande enfonce son bouton");
+assert.ok(arene.includes("var(--bp,0px)") && arene.includes(".soreal-idle-dome-v1.dome-nuke"), "chaque bouton de la borne peut s'enfoncer");
+assert.ok(arene.includes('[data-presse-v1="start"] .soreal-idle-dome-v1.dome-start') && arene.includes(".soreal-idle-boss-control-v39.nuke:active:not(:disabled)"), "appuyer sur une commande enfonce son bouton");
+assert.ok(readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").includes("window.__clicDomeBorneIdleV1__=function(nom){") && arene.includes(".soreal-idle-dome-v1{position:absolute"), "les boutons de la borne sont de vrais boutons cliquables");
 assert.ok(arene.includes("grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr)") && /\.start\{\s*order:1;/.test(arene) && /\.stop\{order:2;/.test(arene), "ordre Fight, Fuite, Nuke");
 assert.ok(arene.includes(".soreal-idle-boss-current-v35>.soreal-idle-label-v4{display:none!important;}"), "« Boss actuel » retiré");
 assert.ok(arene.includes("flex:0 0 100%;display:block!important;text-align:center"), "la régénération a sa propre ligne et ne chevauche plus les PV");
 // Sélecteur de zone (Norman, 2026-10-07) : menu sombre à liseré doré, lignes à texte clair, ligne choisie en or (plus de lignes vertes au texte gris).
 assert.ok(css.includes("SÉLECTEUR DE ZONE (Aventure)") && css.includes("button.team-sort-option.team-sort-option{") && css.includes("color:#fff3d6!important;font-size:16px;font-weight:900") && css.includes("button.team-sort-option.team-sort-option.active{"), "menu de zone lisible et soigné");
+// Boutique : onglet choisi lisible (Norman, 2026-10-07) ; popups en fondu ; interrupteurs ; boutons de la borne centrés sur la planche.
+assert.ok(css.includes("color:#2b1400!important;-webkit-text-fill-color:#2b1400!important;-webkit-text-stroke:0!important"), "onglet de boutique choisi : texte net sans contour");
+assert.ok(css.includes("animation:popupFonduV1 2.5s ease-in-out forwards") && css.includes("#soreal-idle-fade-notice-v1{"), "popups en fondu");
+assert.ok(css.includes("top:-96px;") && css.includes(".soreal-idle-dome-v1{position:absolute"), "socle du joystick et boutons de la borne centrés sur la planche");
 console.log("idle-itopod-style-v1: OK");

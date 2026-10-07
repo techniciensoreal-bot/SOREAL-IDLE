@@ -198,9 +198,16 @@
   /* ---------- panneau ---------- */
   var NOMS_TYPES={head:'Casque',chest:'Torse',legs:'Jambes',boots:'Bottes',weapon:'Arme',accessory:'Accessoire'};
 
+  /*
+   * Interrupteur à bascule (Norman, 2026-10-07 : « des boutons qu'on bascule vers le haut pour activer, vers le bas pour désactiver, avec une petite lumière verte quand c'est activé »).
+   * Une vraie case à cocher (invisible) porte l'état et l'action : le clavier, le lecteur d'écran et tous les appels existants (this.checked) fonctionnent comme avant.
+   */
   function caseACocher(libelle,coche,onchange,actif){
-    return '<label style="display:flex;align-items:center;gap:7px;cursor:'+(actif===false?'default':'pointer')+';opacity:'+(actif===false?'.55':'1')+'">'+
-      '<input type="checkbox" '+(coche?'checked ':'')+(actif===false?'disabled ':'')+'onchange="'+onchange+'"> '+libelle+'</label>';
+    return '<label class="sw-v1'+(actif===false?' sw-inactif':'')+'">'+
+      '<input type="checkbox" class="sw-in" '+(coche?'checked ':'')+(actif===false?'disabled ':'')+'onchange="'+onchange+'">'+
+      '<span class="sw-boitier" aria-hidden="true"><span class="sw-levier"></span></span>'+
+      '<span class="sw-led" aria-hidden="true"></span>'+
+      '<span class="sw-texte">'+libelle+'</span></label>';
   }
   /*
    * Norman (2026-09-27) : « les améliorations qu'on peut acheter via un menu soit achetable également
@@ -264,11 +271,12 @@
     var autoItems=
       (u.autoMerge?'<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?prochainAuto(j,s,s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',true)+'</div>':'')+
       (u.autoBoost?'<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?prochainAuto(j,s,s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',true)+'</div>':'');
+    var boutonCube=a.cube&&a.cube.unlocked?'<div style="margin-top:10px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoBoosterCubeV1__()">🧊 Tous les boosts dans le Cube</button></div>':'';
     lignes.push(section('🤖 Automatisation',
       (autoItems?'<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+autoItems+'</div>'+
       '<div class="soreal-idle-note-v4" style="margin-top:10px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b><br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>':'')+
       '<div style="margin-top:10px">'+caseACocher(u.autoBoost?'♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés':'♻️ A + clic réutilise aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
-        '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Décoché : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>'
+        '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Désactivé : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>'+boutonCube
     ));
 
     /* Anti-spoil : on n'affiche que le nombre déjà obtenu, sans maximum ; rien tant qu'aucun slot n'est obtenu. */
@@ -286,16 +294,6 @@
     lignes.push(section('🔀 Transformation des boosts',
       (u.boostTransform?'<div class="soreal-idle-note-v4">Q/W/E + clic sur un boost : Puissance / Endurance / Spécial'+(u.boostTransformFree?' (sans perte de palier).':', au prix d’un palier (le niveau repart à 0).')+'</div>':'')+
       (u.autoTransform?'<label style="display:flex;gap:8px;align-items:center;margin-top:8px">Boosts reçus : <select onchange="window.__inventaireAutoReglageV1__(\'autoTransform\',this.value)">'+optionsTransfo+'</select></label>':'')
-    ));
-
-    var optionsClic=[['','Normale'],['a','A · Booster tout'],['d','D · Fusionner tout']].concat(u.boostTransform?[['q','Q · Transformer en Puissance'],['w','W · Transformer en Endurance'],['e','E · Transformer en Spécial']]:[]).map(function(o){
-      return '<option value="'+o[0]+'"'+(modeClic===o[0]?' selected':'')+'>'+o[1]+'</option>';
-    }).join('');
-    lignes.push(section('👆 Action au clic',
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
-        '<label style="display:flex;gap:8px;align-items:center"><select onchange="window.__inventaireAutoModeClicV1__(this.value)">'+optionsClic+'</select></label>'+
-        (a.cube&&a.cube.unlocked?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoBoosterCubeV1__()">🧊 Tous les boosts dans le Cube</button>':'')+
-      '</div><div class="soreal-idle-note-v4" style="margin-top:8px">Au clavier : maintiens A, D, Q, W ou E puis clique sur un objet.</div>'
     ));
 
     var types=s.lootFilterTypes||[];
@@ -335,6 +333,16 @@
     st.textContent='.idle-merge-slot-v1{outline:3px solid #3b82f6;outline-offset:-3px}'+
       '.idle-merge-slot-v1.idle-item-locked-v165{outline-color:#8b5cf6}'+
       '#soreal-idle-inventory-auto-v1 select{padding:4px 6px;border-radius:8px}'+
+      '.sw-v1{display:flex;align-items:center;gap:10px;cursor:pointer;position:relative;padding:3px 0;-webkit-tap-highlight-color:transparent}'+
+      '.sw-v1.sw-inactif{opacity:.55;cursor:default}'+
+      '.sw-v1 .sw-in{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}'+
+      '.sw-v1 .sw-boitier{position:relative;flex:0 0 auto;width:30px;height:48px;border-radius:9px;border:2px solid #000;background:linear-gradient(90deg,#0c0f1a,#2a3048 50%,#0c0f1a);box-shadow:0 0 0 2px #7d86a8,inset 0 3px 6px rgba(0,0,0,.8),0 3px 0 2px #000}'+
+      '.sw-v1 .sw-levier{position:absolute;left:3px;right:3px;height:20px;bottom:3px;border-radius:6px;border:1px solid #000;background:linear-gradient(90deg,#8c93b0,#f1f4ff 45%,#9aa1bd);box-shadow:0 3px 3px rgba(0,0,0,.7),inset 0 -3px 3px rgba(0,0,0,.25);transition:bottom .14s ease,transform .14s ease}'+
+      '.sw-v1 .sw-in:checked~.sw-boitier .sw-levier{bottom:21px}'+
+      '.sw-v1 .sw-in:focus-visible~.sw-boitier{box-shadow:0 0 0 2px #ffd24a,inset 0 3px 6px rgba(0,0,0,.8),0 3px 0 2px #000}'+
+      '.sw-v1 .sw-led{flex:0 0 auto;width:11px;height:11px;border-radius:50%;border:2px solid #000;background:radial-gradient(circle at 35% 30%,#2c5a38,#0f2415);box-shadow:inset 0 1px 2px rgba(0,0,0,.6);transition:background .15s,box-shadow .15s}'+
+      '.sw-v1 .sw-in:checked~.sw-led{background:radial-gradient(circle at 35% 30%,#d8ffe3,#38f06c 45%,#0d9a3a);box-shadow:0 0 8px 2px rgba(60,255,120,.75),0 0 18px rgba(60,255,120,.4)}'+
+      '.sw-v1 .sw-texte{font-weight:800;line-height:1.25}'+
       /*
        * Petites catégories (2026-09-27, Norman : « Tout est trop compacté. Crée des petites
        * catégories. Tout doit être clair. ») : chaque réglage dans sa propre carte, un peu de

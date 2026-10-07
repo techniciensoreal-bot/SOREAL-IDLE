@@ -1040,7 +1040,7 @@ function createTimeMachineData() {
 function createBloodMagicData() {
   const rituals = {};
   for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
-    rituals[ritual.id] = { level: 0, progress: 0, completions: 0 };
+    rituals[ritual.id] = { level: 0, progress: 0, completions: 0, magic: 0 };
   }
   return {
     rituals,
@@ -1648,7 +1648,8 @@ function normalizeSystem(def, raw) {
         level: Math.max(0, int(r.level, 0)),
         progress: Math.max(0, num(r.progress, 0)),
         progressRef: Math.max(0, num(r.progressRef, 0)),
-        completions: Math.max(0, int(r.completions, 0))
+        completions: Math.max(0, int(r.completions, 0)),
+        magic: Math.max(0, num(r.magic, 0))
       };
     }
     if (IDLE_NGU_BLOOD_RITUALS.some(r => r.id === data.activeRitual)) s.data.activeRitual = data.activeRitual;
@@ -2606,6 +2607,11 @@ function setAllocation(state, id, resource, value, context = {}) {
   if(state.challenge?.active==="noAugmentations"&&id==="augmentations")throw new Error("DEFI_SANS_AUGMENTATIONS");
   if (!def.resources.includes(resource)) throw new Error("RESSOURCE_INCOMPATIBLE");
   if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  /* Blood Magic : l'allocation de Magic est répartie par rituel ; l'ancienne action vise le rituel sélectionné. */
+  if (id === "bloodMagic" && resource === "magic") {
+    setRitualAllocationV1(state, s.data.activeRitual, value, context);
+    return;
+  }
   const r=state.resources[resource];
   const cap = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
   const previous=Math.max(0,num(s.allocation[resource],0));
@@ -2632,6 +2638,7 @@ function reclaimAllocatedResource(state,resource,context={}){
     if(def.id==="advancedTraining"&&resource==="energy")for(const t of Object.values(s.data?.tracks||{}))t.energy=0;
     if(def.id==="ngu"){clearNguAllocationsV1(s,resource);syncNguAllocationTotalsV1(s);}
     if(def.id==="wishes")clearWishSlotAllocationsV1(s,resource);
+    if(def.id==="bloodMagic"&&resource==="magic")for(const r of Object.values(s.data?.rituals||{}))r.magic=0;
   }
   const r=state.resources[resource];
   r.current=clamp(
@@ -3598,26 +3605,39 @@ function finiOuNullV1(v) {
 function bloodMagicViewV1(state) {
   const s = state.systems.bloodMagic;
   if (!s || !s.unlocked) return null;
-  const ritual = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
-  const rs = (s.data.rituals || {})[ritual.id] || { progress: 0 };
-  const magic = Math.max(0, num(s.allocation && s.allocation.magic, 0));
+  bloodMigrerAllocationV1(s);
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
   const dutchSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
-  const secondsPerCompletion = magic > 0
-    ? ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier
-    : null;
-  return {
-    activeRitual: ritual.id,
-    secondsPerCompletion,
-    etaSeconds: secondsPerCompletion != null
-      ? Math.max(0, (1 - fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion)) * secondsPerCompletion)
-      : null,
-    progressFraction: fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion),
-    /* Chantier « réactivité » : durée d'une complétion à 1 Magic (K) et progression en secondes -> recalcul local au clic. */
-    secondsK: ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, power) / dutchSetMultiplier,
-    progressSeconds: secondsPerCompletion != null ? fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion) * secondsPerCompletion : Math.max(0, num(rs.progress, 0))
+  const vueRituel = ritual => {
+    const rs = (s.data.rituals || {})[ritual.id] || { progress: 0 };
+    const magic = Math.max(0, num(rs.magic, 0));
+    const secondsPerCompletion = magic > 0
+      ? ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier
+      : null;
+    return {
+      id: ritual.id,
+      magic,
+      secondsPerCompletion,
+      etaSeconds: secondsPerCompletion != null
+        ? Math.max(0, (1 - fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion)) * secondsPerCompletion)
+        : null,
+      progressFraction: fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion),
+      /* Chantier « réactivité » : durée d'une complétion à 1 Magic (K) et progression en secondes -> recalcul local au clic. */
+      secondsK: ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, power) / dutchSetMultiplier,
+      progressSeconds: secondsPerCompletion != null ? fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion) * secondsPerCompletion : Math.max(0, num(rs.progress, 0))
+    };
   };
+  const selectionne = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
+  const vues = IDLE_NGU_BLOOD_RITUALS.filter(r => r.id === selectionne.id || bloodRitualMagicV1(s, r.id) > 0).map(vueRituel);
+  const vueSel = vues.find(v => v.id === selectionne.id);
+  return Object.assign({ activeRitual: selectionne.id, rituals: vues }, {
+    secondsPerCompletion: vueSel.secondsPerCompletion,
+    etaSeconds: vueSel.etaSeconds,
+    progressFraction: vueSel.progressFraction,
+    secondsK: vueSel.secondsK,
+    progressSeconds: vueSel.progressSeconds
+  });
 }
 
 function advanceTimeMachine(state, seconds) {
@@ -3729,17 +3749,35 @@ function ritualUnlocked(ritual, context, state) {
   return Boolean(context?.unlockFlags?.[ritual.unlockFlag]);
 }
 
+/*
+ * Magic par rituel (Norman, 2026-10-07 : « dans Blood Magic on ne peut pas mettre de la magie dans plusieurs barres en même temps ; il me semble qu'on pouvait dans le jeu de base »).
+ * Wiki NGU, page Blood Magic : le temps de chaque rituel est donné pour « 1000 magic, 1 magic power » -- chaque rituel a donc SA propre Magic allouée. Chacun progresse avec la sienne,
+ * en même temps que les autres ; s.allocation.magic reste le TOTAL (somme des rituels), lu par les plafonds communs de Magic. Anciennes sauvegardes : une seule allocation pour le
+ * rituel actif -- elle est reportée sur ce rituel au premier passage.
+ */
+function bloodMigrerAllocationV1(s) {
+  const rituals = s.data.rituals || {};
+  let somme = 0;
+  for (const r of Object.values(rituals)) somme += Math.max(0, num(r.magic, 0));
+  const total = Math.max(0, num(s.allocation?.magic, 0));
+  if (somme <= 0 && total > 0) {
+    const cible = rituals[s.data.activeRitual] || rituals[IDLE_NGU_BLOOD_RITUALS[0].id];
+    if (cible) cible.magic = total;
+    somme = total;
+  }
+  if (s.allocation) s.allocation.magic = somme;
+  return somme;
+}
+
+function bloodRitualMagicV1(s, ritualId) {
+  return Math.max(0, num(s.data.rituals?.[ritualId]?.magic, 0));
+}
+
 function advanceBloodMagic(state, seconds, context) {
   const s = state.systems.bloodMagic;
   if (!s.unlocked || seconds <= 0) return;
-  const ritual = IDLE_NGU_BLOOD_RITUALS.find(r => r.id === s.data.activeRitual) || IDLE_NGU_BLOOD_RITUALS[0];
-  if (!ritualUnlocked(ritual, context, state)) return;
-  const rs = s.data.rituals[ritual.id];
-
-  const magic = Math.max(0, num(s.allocation.magic, 0));
+  bloodMigrerAllocationV1(s);
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
-  if (magic <= 0) return;
-
   const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
   /*
    * Norman (2026-09-18) : "il faut tout faire" (équipement des 17 zones
@@ -3750,25 +3788,51 @@ function advanceBloodMagic(state, seconds, context) {
    * multiplicateur composé avec difficultyDivider).
    */
   const dutchSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
-  const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier;
-  rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
-  rs.progress += seconds;
-  let completions = Math.floor(rs.progress / secondsPerCompletion);
-  if (completions <= 0) return;
+  for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
+    if (!ritualUnlocked(ritual, context, state)) continue;
+    const magic = bloodRitualMagicV1(s, ritual.id);
+    if (magic <= 0) continue;
+    const rs = s.data.rituals[ritual.id];
+    const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier;
+    rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
+    rs.progress += seconds;
+    let completions = Math.floor(rs.progress / secondsPerCompletion);
+    if (completions <= 0) continue;
 
-  const affordable = Math.floor(state.currencies.gold / ritual.gold);
-  completions = Math.min(completions, affordable, 1000000, challengeHundredLevelsRemaining(state));
-  if (completions <= 0) return;
+    const affordable = Math.floor(state.currencies.gold / ritual.gold);
+    completions = Math.min(completions, affordable, 1000000, challengeHundredLevelsRemaining(state));
+    if (completions <= 0) continue;
 
-  rs.progress -= completions * secondsPerCompletion;
-  rs.completions += completions;
-  rs.level += completions;
-  state.currencies.gold -= completions * ritual.gold;
-  state.currencies.blood += completions * ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
-  s.data.bloodPeak = Math.max(num(s.data.bloodPeak, 0), state.currencies.blood);
-  challengeHundredLevelsConsume(state, completions);
+    rs.progress -= completions * secondsPerCompletion;
+    rs.completions += completions;
+    rs.level += completions;
+    state.currencies.gold -= completions * ritual.gold;
+    state.currencies.blood += completions * ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
+    s.data.bloodPeak = Math.max(num(s.data.bloodPeak, 0), state.currencies.blood);
+    challengeHundredLevelsConsume(state, completions);
+  }
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
+}
+
+/* Place (ou retire) de la Magic sur UN rituel, bornée par le plafond commun de Magic et par la Magic libre ; le total du système est la somme des rituels. */
+function setRitualAllocationV1(state, ritualId, value, context = {}) {
+  const s = state.systems.bloodMagic;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const ritual = IDLE_NGU_BLOOD_RITUALS.find(x => x.id === ritualId);
+  if (!ritual || !ritualUnlocked(ritual, context, state)) throw new Error("RITUEL_VERROUILLE");
+  bloodMigrerAllocationV1(s);
+  const rs = s.data.rituals[ritualId];
+  const previous = Math.max(0, num(rs.magic, 0));
+  const autres = Object.entries(s.data.rituals).reduce((sum, [id, r]) => sum + (id === ritualId ? 0 : Math.max(0, num(r.magic, 0))), 0);
+  const cap = Math.max(0, idleNguEffectiveResourceStatV1(state, "magic", "cap"));
+  const usedElsewhere = totalAllocated(state, "magic", "bloodMagic") + externalResourceAllocation(context, "magic");
+  const maxByCapacity = Math.max(0, cap - usedElsewhere - autres);
+  const maxByOwned = Math.max(0, previous + num(state.resources.magic.current, 0));
+  const target = clamp(value, 0, Math.min(maxByCapacity, maxByOwned));
+  rs.magic = target;
+  state.resources.magic.current = clamp(num(state.resources.magic.current, 0) - (target - previous), 0, Math.max(0, cap - usedElsewhere - autres - target));
+  s.allocation.magic = autres + target;
 }
 
 /*
@@ -7241,6 +7305,14 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     selectWandoosOs(state, String(payload.os || "98"));
   } else if (action === "selectRitual") {
     selectRitual(state, String(payload.ritual || "tack"), context);
+  } else if (action === "allocateRitual") {
+    /* Magic d'UN rituel (plusieurs rituels peuvent en recevoir en même temps). */
+    setRitualAllocationV1(state, String(payload.ritual || "tack"), num(payload.value, 0), context);
+  } else if (action === "clearRitualAllocations") {
+    if (!state.systems.bloodMagic?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    for (const id of Object.keys(state.systems.bloodMagic.data.rituals || {})) {
+      if (bloodRitualMagicV1(state.systems.bloodMagic, id) > 0) setRitualAllocationV1(state, id, 0, context);
+    }
   } else if (action === "castBloodSpell") {
     result = castBloodSpell(state, String(payload.spell || "numberBoost"), t);
   } else if (action === "towerFloors") {

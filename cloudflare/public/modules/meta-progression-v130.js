@@ -325,7 +325,7 @@
                   if(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.gold)>0){
                     window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
                       'gold',
-                      '+ '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.gold)+' or ! Chouette !'
+                      '+ '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.gold)+' or ! '+exclamationOrIdleV1_(res.resultat.gold)
                     );
                   }
                 }
@@ -2722,37 +2722,51 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * continue de déclencher un rendu complet dès la réponse, donc aucune perte de cohérence :
        * seul le clic lui-même devient instantané.
        */
-      function rafraichirAllocationBloodMagicIdleV1_(value){
+      function rafraichirAllocationBloodMagicIdleV1_(ritualId,value){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const sys=systemeMetaParIdIdleV130_(H.getIdleEtat(),'bloodMagic');
+        const total=Math.max(0,H.idleNombre_(sys&&sys.state&&sys.state.allocation&&sys.state.allocation.magic));
         const toolbarSpan=document.getElementById('sorealIdleBloodAllocV1');
-        if(toolbarSpan)toolbarSpan.textContent=H.formatGrandNombreIdleV70_(value);
+        if(toolbarSpan)toolbarSpan.textContent=H.formatGrandNombreIdleV70_(total);
         /* Magie libre (Norman, 2026-10-05 : elle restait à 100 alors que tout était placé) : suit l'état local mis à jour par le clic. */
         const libreEl=document.getElementById('sorealIdleBloodLibreV1');
         const etatLibre=H.getIdleEtat();
         const magieLibre=etatLibre&&etatLibre.systemes&&etatLibre.systemes.resources&&etatLibre.systemes.resources.magic;
         if(libreEl&&magieLibre){const t=H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(magieLibre.current)));if(libreEl.textContent!==t)libreEl.textContent=t;}
-        /* Compteur du rituel actif (les autres restent à 0) : mis à jour sur place, sans redessiner la page. */
-        const sys=systemeMetaParIdIdleV130_(H.getIdleEtat(),'bloodMagic');
-        const actif=sys&&sys.state&&sys.state.data&&sys.state.data.activeRitual;
-        if(actif){
-          const compteur=document.getElementById('sorealIdleBloodRitualAllocV1_'+actif);
-          const texte=H.formatGrandNombreIdleV70_(value);
-          if(compteur&&compteur.textContent!==texte)compteur.textContent=texte;
-        }
+        /* Compteur de CE rituel : mis à jour sur place, sans redessiner la page. */
+        const compteur=document.getElementById('sorealIdleBloodRitualAllocV1_'+ritualId);
+        const texte=H.formatGrandNombreIdleV70_(value);
+        if(compteur&&compteur.textContent!==texte)compteur.textContent=texte;
         if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
       }
 
       /*
-       * Blood Magic : recalcul local du rituel actif. Durée d'une complétion = K / Magic allouée (K : secondsK, fourni par le serveur).
-       * Le visuel (barre + compte à rebours) est mis à jour tout de suite ; le ticker de soreal-idle-ui.js le repeint.
+       * Blood Magic : recalcul local d'UN rituel (Norman, 2026-10-07 : plusieurs rituels reçoivent de la Magic en même temps). Durée d'une complétion = K / Magic allouée à ce rituel
+       * (K : secondsK du rituel, fourni par le serveur, ou déduit de celui du rituel sélectionné par le rapport des durées de base du catalogue).
+       * Le visuel (barre + compte à rebours) est mis à jour tout de suite ; le ticker de soreal-idle-ui.js le repeint. Les repères visuels sont rangés par rituel.
        */
-      function recalculerBloodLocalIdleV1_(j,alloc){
+      function recalculerBloodLocalIdleV1_(j,ritualId,alloc){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const vue=j&&j.systemes&&j.systemes.bloodMagicView;
         if(!vue)return;
-        const k=H.idleNombre_(vue.secondsK);
+        const catalogue=Array.isArray(j.systemes.bloodRituals)?j.systemes.bloodRituals:[];
+        let rv=(vue.rituals||[]).find(function(x){return x&&x.id===ritualId;});
+        if(!rv){
+          const sel=catalogue.find(function(r){return r&&r.id===vue.activeRitual;});
+          const cible=catalogue.find(function(r){return r&&r.id===ritualId;});
+          const kSel=H.idleNombre_(vue.secondsK);
+          if(!(kSel>0)||!sel||!cible||!(H.idleNombre_(sel.baseSeconds)>0))return;
+          const sys=systemeMetaParIdIdleV130_(j,'bloodMagic');
+          const rit=sys&&sys.state&&sys.state.data&&sys.state.data.rituals&&sys.state.data.rituals[ritualId];
+          const brut=Math.max(0,H.idleNombre_(rit&&rit.progress));
+          const ref=Math.max(0,H.idleNombre_(rit&&rit.progressRef));
+          rv={id:ritualId,magic:0,secondsPerCompletion:null,etaSeconds:null,progressFraction:ref>0?Math.min(.999999,brut/ref):0,secondsK:kSel*H.idleNombre_(cible.baseSeconds)/H.idleNombre_(sel.baseSeconds),progressSeconds:brut};
+          vue.rituals=(vue.rituals||[]).concat([rv]);
+        }
+        const k=H.idleNombre_(rv.secondsK);
         if(!(k>0))return;
-        const visuel=j.__bloodMagicVisualV1;
+        const visuels=(j.__bloodMagicVisualV1&&typeof j.__bloodMagicVisualV1==='object'&&!j.__bloodMagicVisualV1.ritual)?j.__bloodMagicVisualV1:{};
+        const visuel=visuels[ritualId];
         const maintenant=performance.now();
         /* Fraction actuelle de la barre (celle de l'écran si elle tournait, sinon celle du serveur) : elle ne change pas avec l'allocation. */
         let fracAvant;
@@ -2761,42 +2775,49 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const sec=H.idleNombre_(visuel.secondsPerCompletion);
           fracAvant=Math.min(1,(1-H.idleNombre_(visuel.etaSeconds)/sec)+ecoule/sec);
         }else{
-          fracAvant=H.idleNombre_(vue.progressFraction);
+          fracAvant=H.idleNombre_(rv.progressFraction);
         }
         const nouveau=recalculerPisteFractionIdleV1_(k,fracAvant,alloc);
-        const progSec=nouveau.seconds>0?nouveau.progress*nouveau.seconds:H.idleNombre_(vue.progressSeconds);
-        vue.secondsPerCompletion=nouveau.seconds>0?nouveau.seconds:null;
-        vue.etaSeconds=nouveau.seconds>0?Math.max(0,(1-nouveau.progress)*nouveau.seconds):null;
-        vue.progressFraction=nouveau.progress;
-        vue.progressSeconds=progSec;
-        j.__bloodMagicVisualV1=nouveau.seconds>0
-          ?{ritual:vue.activeRitual,secondsPerCompletion:nouveau.seconds,etaSeconds:vue.etaSeconds,at:maintenant,src:vue}
-          :null;
+        const progSec=nouveau.seconds>0?nouveau.progress*nouveau.seconds:H.idleNombre_(rv.progressSeconds);
+        rv.magic=alloc;
+        rv.secondsPerCompletion=nouveau.seconds>0?nouveau.seconds:null;
+        rv.etaSeconds=nouveau.seconds>0?Math.max(0,(1-nouveau.progress)*nouveau.seconds):null;
+        rv.progressFraction=nouveau.progress;
+        rv.progressSeconds=progSec;
+        if(vue.activeRitual===ritualId){
+          vue.secondsPerCompletion=rv.secondsPerCompletion;vue.etaSeconds=rv.etaSeconds;vue.progressFraction=rv.progressFraction;vue.progressSeconds=rv.progressSeconds;
+        }
+        const suivants=Object.assign({},visuels);
+        if(nouveau.seconds>0)suivants[ritualId]={ritual:ritualId,secondsPerCompletion:nouveau.seconds,etaSeconds:rv.etaSeconds,at:maintenant,src:rv};
+        else delete suivants[ritualId];
+        j.__bloodMagicVisualV1=Object.keys(suivants).length?suivants:null;
         /*
          * Plus de Magic sur le rituel (Norman, 2026-10-05 : « si j'enlève toute la magie, la barre continue de monter ») : la barre tournait encore, animée par le navigateur, car plus aucun repère ne la pilotait. On la fige là où elle en
          * était ; elle repart de ce point (donnée du serveur) dès qu'on remet de la Magic.
          */
-        const barreRituel=document.querySelector('[data-idle-blood-bar-v1="'+vue.activeRitual+'"]');
+        const barreRituel=document.querySelector('[data-idle-blood-bar-v1="'+ritualId+'"]');
+        const figees=(window.__bloodFigeV1&&typeof window.__bloodFigeV1==='object')?window.__bloodFigeV1:(window.__bloodFigeV1={});
         if(nouveau.seconds>0){
-          window.__bloodFigeV1=null;
+          delete figees[ritualId];
           saignerPisteIdleV1_(barreRituel,true);
         }else{
           saignerPisteIdleV1_(barreRituel,false);
-          const pct=nouveau.progress;
-          window.__bloodFigeV1={ritual:vue.activeRitual,pct:pct};
+          figees[ritualId]=nouveau.progress;
           if(barreRituel){
             if(barreRituel.__idleAugAnimationV217){barreRituel.__idleAugAnimationV217.cancel();barreRituel.__idleAugAnimationV217=null;delete barreRituel.dataset.idleAugDurationV217;}
             barreRituel.style.width='100%';
-            barreRituel.style.transform='scaleX('+pct+')';
+            barreRituel.style.transform='scaleX('+nouveau.progress+')';
           }
         }
-        const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+vue.activeRitual);
+        const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+ritualId);
         if(ligne){
           ligne.style.display='';
           ligne.textContent=nouveau.seconds>0
-            ?'⏱ '+formatDureeAugmentIdleV1_(vue.etaSeconds)+' avant le prochain rituel complété'
+            ?'⏱ '+formatDureeAugmentIdleV1_(rv.etaSeconds)+' avant le prochain rituel complété'
             :'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.';
         }
+        /* Un rituel qui reçoit de la Magic pour la première fois n'a pas encore de barre dans la page : un seul redessin LOCAL (sans aller-retour réseau). */
+        if(nouveau.seconds>0&&!barreRituel&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
       }
 
       /* Les gouttes de la barre qui saigne (même balisage au rendu et à la mise à jour en direct). */
@@ -2815,11 +2836,30 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         }
       }
 
-      function ajusterBloodMagicIdleV1_(mode){
+      /*
+       * Le mot qui suit un gain d'or (Norman, 2026-10-07 : « de plus en plus content quand la somme monte : Bah..., Ça se prend, Chouette, Cool, Pas mal, Wow, OH BORDEL, WHOUHOU, etc. »).
+       * Paliers sur la somme gagnée ; au-delà du dernier, la joie reste au maximum.
+       */
+      const PALIERS_OR_EXCLAMATION_V1=[
+        [10,'Bah…'],[100,'Ça se prend.'],[1e3,'Chouette !'],[1e4,'Cool !'],[1e5,'Pas mal !'],[1e6,'Wow !'],[1e8,'OH BORDEL !'],[1e10,'WHOUHOU !'],
+        [1e13,'INCROYABLE !'],[1e16,'C’EST LA FÊTE !'],[1e20,'ON EST RICHES !!']
+      ];
+      function exclamationOrIdleV1_(somme){
+        const n=Math.max(0,Number(somme)||0);
+        for(let i=0;i<PALIERS_OR_EXCLAMATION_V1.length;i+=1){
+          if(n<PALIERS_OR_EXCLAMATION_V1[i][0])return PALIERS_OR_EXCLAMATION_V1[i][1];
+        }
+        return 'LÉGENDAIRE !!!';
+      }
+
+      function ajusterBloodMagicIdleV1_(mode,ritualId){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
-        const current=Math.max(0,H.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation.magic));
+        const data=s&&s.state&&s.state.data;
+        const id=ritualId||(data&&data.activeRitual);
+        if(!data||!id||!data.rituals||!data.rituals[id])return;
+        const current=Math.max(0,H.idleNombre_(data.rituals[id].magic));
         const pas=Math.max(1,Math.floor(Number((document.getElementById('sorealIdleBloodInputV1')||{}).value)||montantAugmentIdleV1));
         if(Number.isFinite(pas)&&pas>=1)montantAugmentIdleV1=pas;
         const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
@@ -2838,31 +2878,36 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               mode==='plus'?'bloodPlus':mode==='moins'?'bloodMinus':'bloodCap'
             );
           }
-          if(s&&s.state&&s.state.allocation)s.state.allocation.magic=value;
+          data.rituals[id].magic=value;
+          if(s.state.allocation)s.state.allocation.magic=Math.max(0,H.idleNombre_(s.state.allocation.magic)+delta);
           if(ressourceMagie)ressourceMagie.current=Math.max(0,idleAvant-delta);
-          recalculerBloodLocalIdleV1_(j,value);
-          rafraichirAllocationBloodMagicIdleV1_(value);
+          recalculerBloodLocalIdleV1_(j,id,value);
+          rafraichirAllocationBloodMagicIdleV1_(id,value);
         }
 
-        envoyerAllocRapideV1_({action:'allocate',system:'bloodMagic',resource:'magic',value:value});
+        envoyerAllocRapideV1_({action:'allocateRitual',ritual:id,value:value});
       }
-      window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;
 
       function viderBloodMagicIdleV1_(){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
-        const current=Math.max(0,H.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation.magic));
-        if(current<=0)return;
+        const data=s&&s.state&&s.state.data;
+        if(!data||!data.rituals)return;
+        const ids=Object.keys(data.rituals).filter(function(id){return H.idleNombre_(data.rituals[id].magic)>0;});
+        if(!ids.length)return;
         if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_('bloodMinus');
-        if(s&&s.state&&s.state.allocation)s.state.allocation.magic=0;
         const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
-        if(ressourceMagie)ressourceMagie.current=Math.max(0,H.idleNombre_(ressourceMagie.current)+current);
-        recalculerBloodLocalIdleV1_(j,0);
-        rafraichirAllocationBloodMagicIdleV1_(0);
-        envoyerAllocRapideV1_({action:'allocate',system:'bloodMagic',resource:'magic',value:0});
+        ids.forEach(function(id){
+          const courant=Math.max(0,H.idleNombre_(data.rituals[id].magic));
+          data.rituals[id].magic=0;
+          if(s.state.allocation)s.state.allocation.magic=Math.max(0,H.idleNombre_(s.state.allocation.magic)-courant);
+          if(ressourceMagie)ressourceMagie.current=Math.max(0,H.idleNombre_(ressourceMagie.current)+courant);
+          recalculerBloodLocalIdleV1_(j,id,0);
+          rafraichirAllocationBloodMagicIdleV1_(id,0);
+        });
+        envoyerAllocRapideV1_({action:'clearRitualAllocations'});
       }
-      window.__viderBloodMagicIdleV1__=viderBloodMagicIdleV1_;
 
       /* Même raccourcis que la barre d'outils de Basic Training/Augmentation : "cap" part du plafond réel de Magic, "idle" part de la Magic actuellement libre. */
       function presetBloodMagicIdleV1_(source,fraction){
@@ -2885,50 +2930,20 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * en cliquant "Choisir ce rituel"), puis applique le même ajustement que la barre d'outils
        * principale -- aucune capacité serveur inventée, seulement le même modèle déjà réel.
        */
-      /* Bascule locale du rituel actif : la durée de base de chaque rituel est dans le catalogue, donc K(nouveau) = K(ancien) x base(nouveau) / base(ancien). */
-      function basculerRituelLocalIdleV1_(j,s,ancienId,ritualId){
-        const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const vue=j&&j.systemes&&j.systemes.bloodMagicView;
-        const catalogue=(j&&j.systemes&&Array.isArray(j.systemes.bloodRituals))?j.systemes.bloodRituals:[];
-        const ancien=catalogue.find(function(r){return r&&r.id===ancienId;});
-        const nouveau=catalogue.find(function(r){return r&&r.id===ritualId;});
-        if(!vue||!ancien||!nouveau||!(H.idleNombre_(ancien.baseSeconds)>0))return;
-        const magie=Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.magic));
-        const k=H.idleNombre_(vue.secondsK)*H.idleNombre_(nouveau.baseSeconds)/H.idleNombre_(ancien.baseSeconds);
-        const rit=s.state.data.rituals&&s.state.data.rituals[ritualId];
-        const progBrut=Math.max(0,H.idleNombre_(rit&&rit.progress));
-        const refRit=Math.max(0,H.idleNombre_(rit&&rit.progressRef));
-        const secondesNouveau=(k>0&&magie>0)?k/magie:0;
-        /* Fraction propre à ce rituel : progression sur la durée à laquelle elle a été mesurée (sinon, sur la durée actuelle). */
-        const fracRit=refRit>0?progBrut/refRit:(secondesNouveau>0?progBrut/secondesNouveau:0);
-        const calc=recalculerPisteFractionIdleV1_(k,fracRit,magie);
-        const progSec=calc.seconds>0?calc.progress*calc.seconds:progBrut;
-        vue.activeRitual=ritualId;
-        vue.secondsK=k;
-        vue.progressSeconds=progSec;
-        vue.progressFraction=calc.progress;
-        vue.secondsPerCompletion=calc.seconds>0?calc.seconds:null;
-        vue.etaSeconds=calc.seconds>0?Math.max(0,(1-calc.progress)*calc.seconds):null;
-        j.__bloodMagicVisualV1=calc.seconds>0?{ritual:ritualId,secondsPerCompletion:calc.seconds,etaSeconds:vue.etaSeconds,at:performance.now(),src:vue}:null;
-      }
-
+      /* Le bouton d'un rituel place ou retire de la Magic sur CE rituel ; les autres gardent la leur. Le rituel touché devient le « rituel sélectionné » (celui de la barre d'outils du haut). */
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
-        const ancienId=s&&s.state&&s.state.data&&s.state.data.activeRitual;
-        if(s&&s.state&&s.state.data&&ancienId!==ritualId){
-          s.state.data.activeRitual=ritualId;
-          basculerRituelLocalIdleV1_(j,s,ancienId,ritualId);
+        const data=s&&s.state&&s.state.data;
+        if(data&&data.activeRitual!==ritualId){
+          data.activeRitual=ritualId;
+          if(j.systemes&&j.systemes.bloodMagicView)j.systemes.bloodMagicView.activeRitual=ritualId;
           envoyerAllocRapideV1_({action:'selectRitual',ritual:ritualId});
-          ajusterBloodMagicIdleV1_(mode);
-          /* Un seul redessin LOCAL du menu (aucun aller-retour réseau) : la barre passe sur le nouveau rituel. */
-          if(typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
-          return;
         }
-        ajusterBloodMagicIdleV1_(mode);
+        ajusterBloodMagicIdleV1_(mode,ritualId);
       }
-      window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
+
 
       /* Noms français des rituels de Blood Magic (Norman, 2026-10-01 : « traduits aussi le nom des rituels ») ; le moteur garde les noms du wiki. */
       const IDLE_BLOOD_NOMS_RITUELS_V1={
@@ -3052,18 +3067,21 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
          * Même mécanisme que __augmentationsVisualV215 (soreal-idle-ui.js, patch ciblé à chaque tick)
          * mais pour un seul élément : seul le rituel ACTIF progresse réellement (bloodMagicViewV1).
          */
-        if(bmView&&bmView.secondsPerCompletion!=null){
-          /* Redessin sans nouvelle réponse (même vue) : on garde le repère qui tourne déjà (jamais de retour en arrière) ; sinon il part de l'instant où le serveur a produit ces chiffres. */
-          const visuelBloodExistant=H.getIdleEtat().__bloodMagicVisualV1;
-          if(!(visuelBloodExistant&&visuelBloodExistant.src===bmView&&visuelBloodExistant.ritual===bmView.activeRitual)){
-            H.getIdleEtat().__bloodMagicVisualV1={ritual:bmView.activeRitual,secondsPerCompletion:bmView.secondsPerCompletion,etaSeconds:bmView.etaSeconds,at:ancreSnapshotIdleV1_(H.getIdleEtat()),src:bmView};
-          }
-        }else{
-          H.getIdleEtat().__bloodMagicVisualV1=null;
+        {
+          /* Un repère visuel par rituel qui reçoit de la Magic ; un redessin sans nouvelle réponse garde le repère qui tourne déjà (jamais de retour en arrière). */
+          const etatB=H.getIdleEtat();
+          const exB=(etatB.__bloodMagicVisualV1&&typeof etatB.__bloodMagicVisualV1==='object'&&!etatB.__bloodMagicVisualV1.ritual)?etatB.__bloodMagicVisualV1:{};
+          const visuelsB={};
+          ((bmView&&bmView.rituals)||[]).forEach(function(rv){
+            if(!rv||rv.secondsPerCompletion==null)return;
+            const ex=exB[rv.id];
+            visuelsB[rv.id]=(ex&&ex.src===rv)?ex:{ritual:rv.id,secondsPerCompletion:rv.secondsPerCompletion,etaSeconds:rv.etaSeconds,at:ancreSnapshotIdleV1_(etatB),src:rv};
+          });
+          etatB.__bloodMagicVisualV1=Object.keys(visuelsB).length?visuelsB:null;
         }
         const toolbar=legendeAllocationIdleV1_('Magic',false,true)+'<div class="soreal-idle-bt-toolbar-v120">'+
           '<div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">🎚️ Input</label><input id="sorealIdleBloodInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
-          '<div class="soreal-idle-bt-info-v1">Magic libre : <b id="sorealIdleBloodLibreV1">'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée au rituel actif : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
+          '<div class="soreal-idle-bt-info-v1">Magic libre : <b id="sorealIdleBloodLibreV1">'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée aux rituels : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>Magic Cap</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.25)">1/4</button></div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderBloodMagicIdleV1__()">Tout retirer</button></div>'+
         '</div>';
@@ -3073,14 +3091,18 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const r=rituals[def.id]||{};
           /* Le serveur ne liste plus que les rituels débloqués (idleNguSnapshot) : plus de carte « 🔒 Verrouillé » (anti-spoil). */
           const unlocked=true;
-          const active=data.activeRitual===def.id;
-          const progressionActive=active&&bmView&&bmView.activeRitual===def.id&&bmView.secondsPerCompletion!=null;
-          const figee=window.__bloodFigeV1;
-          const fractionVue=active&&bmView&&bmView.activeRitual===def.id?H.idleNombre_(bmView.progressFraction):0;
-          const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(bmView.etaSeconds)/bmView.secondsPerCompletion)):(fractionVue>0?fractionVue:(active&&figee&&figee.ritual===def.id?figee.pct:0));
-          const etaTexte=active&&bmView&&bmView.activeRitual===def.id&&bmView.etaSeconds!=null
-            ?'⏱ '+formatDureeAugmentIdleV1_(bmView.etaSeconds)+' avant le prochain rituel complété'
-            :(active?'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.':'');
+          const selectionne=data.activeRitual===def.id;
+          const rv=((bmView&&bmView.rituals)||[]).find(function(x){return x&&x.id===def.id;})||null;
+          const magieR=rv?Math.max(0,H.idleNombre_(rv.magic)):0;
+          const active=magieR>0;
+          const progressionActive=active&&rv&&rv.secondsPerCompletion!=null;
+          const figeesB=(window.__bloodFigeV1&&typeof window.__bloodFigeV1==='object')?window.__bloodFigeV1:{};
+          const fractionVue=rv?H.idleNombre_(rv.progressFraction):0;
+          const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(rv.etaSeconds)/rv.secondsPerCompletion)):(fractionVue>0?fractionVue:(figeesB[def.id]!=null?H.idleNombre_(figeesB[def.id]):0));
+          const montrerBarre=active||figeesB[def.id]!=null;
+          const etaTexte=rv&&rv.etaSeconds!=null
+            ?'⏱ '+formatDureeAugmentIdleV1_(rv.etaSeconds)+' avant le prochain rituel complété'
+            :(montrerBarre?'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.':'');
           const idHtml=H.idleHtml_(def.id);
           /*
            * Barre de progression du rituel actif vers sa prochaine complétion (Norman, 2026-09-29 :
@@ -3089,17 +3111,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
            * continu par animerBarreCycliqueIdleV217_ (soreal-idle-ui.js) -- seule couleur distincte
            * (rouge sang) pour rester dans le thème de la page.
            */
-          const barre=active
+          const barre=montrerBarre
             ?'<div class="soreal-idle-bt-track-v120'+(progressionActive?' saigne-v1':'')+'"><div data-idle-blood-bar-v1="'+idHtml+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;background:#9a2138;transition:none"></div>'+(progressionActive?SANG_GOUTTES_HTML_V1:'')+'</div>'
             :'';
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="soreal-idle-section-v8" data-rang-v1="'+rangRituel+'" style="margin:0;opacity:'+(unlocked?'1':'.55')+'">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(active?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
+            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span>'+H.idleEntier_(r.completions||0)+' complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b>−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             barre+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
-            '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(active?allocMagicActuelle:0)+'</b></div>'+
+            '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:14px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
-            '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (l’active s’il ne l’est pas)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button></div>'+
+            '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button></div>'+
           '</div>';
         }).join('');
         /*

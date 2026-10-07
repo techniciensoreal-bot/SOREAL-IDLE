@@ -45,7 +45,7 @@ const t0 = 5_000_000;
   assert.match(html, /Configurations d’équipement · 2</);
   assert.match(html, /Casque/);
   /* 2026-09-24 : réglage « consommer les boosts recyclés » (Build History 2018, build .367), coché par défaut. */
-  assert.match(html, /<input type="checkbox" checked onchange="window\.__inventaireAutoReglageV1__\('consumeRecycled',this\.checked\)"> ♻️/);
+  assert.match(html, /<input type="checkbox" class="sw-in" checked onchange="window\.__inventaireAutoReglageV1__\('consumeRecycled',this\.checked\)">[\s\S]*♻️/);
 }
 window.__inventaireAutoReglageV1__("autoMerge", true);
 window.__inventaireAutoFiltreTypeV1__("head", true);
@@ -60,7 +60,7 @@ assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 /* 2026-09-24 : ?v=1 -> ?v=2 (case « consumeRecycled » ajoutée au panneau), puis ?v=3 (le panneau passe après le Coffre). */
-assert.ok(index.includes('<script defer src="/modules/inventory-auto-v1.js?v=17"></script>'), "module inventory-auto chargé en defer");
+assert.ok(index.includes('<script defer src="/modules/inventory-auto-v1.js?v=18"></script>'), "module inventory-auto chargé en defer");
 assert.ok(index.indexOf("/modules/inventory-auto-v1.js") < index.indexOf("/soreal-idle-ui.js"), "chargé avant le monolithe, comme les autres modules");
 
 /* 2026-09-24 (Norman) : le Coffre vient avant toutes les options (filtre de butin, etc.). */

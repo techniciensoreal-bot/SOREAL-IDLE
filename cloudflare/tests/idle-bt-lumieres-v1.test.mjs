@@ -106,6 +106,35 @@ place(10); L.veiller(); vider();
 assert.ok(noeuds - avant >= 40, "tout retiré puis remis : le son du néon revient");
 assert.deepEqual(eteints(), [false, false]);
 
+// 5b. Machine déjà en marche, une AUTRE barre reçoit de l'énergie pour la première fois (Norman, 2026-10-07) : un ou deux vacillements au hasard et un bruit de démarrage.
+//     La toute première barre, elle, allume la machine (cas 4) : pas de démarrage en plus.
+{
+  place(40); L.veiller(); vider();
+  const avantBarre = noeuds;
+  etatJeu.basicTraining.skills[1].allocation = 30;
+  L.veiller();
+  assert.ok(noeuds - avantBarre >= 8, "une nouvelle barre alimentée : un bruit de machine qui démarre");
+  /* la première coupure est immédiate : on la relève avant de dérouler les minuteries */
+  let vuCoupure = bandeaux.some((b) => b.classList.contains(L.classe)), g2 = 0;
+  while (timers.length && g2++ < 100) {
+    const t = timers.shift(); t.f();
+    if (bandeaux.some((b) => b.classList.contains(L.classe))) vuCoupure = true;
+  }
+  assert.ok(vuCoupure, "un vacillement (coupure) accompagne le démarrage");
+  assert.deepEqual(eteints(), [false, false], "les lumières reviennent");
+  const apres = noeuds;
+  L.veiller(); vider();
+  assert.equal(noeuds, apres, "pas de nouveau démarrage tant qu'aucune autre barre n'est remplie");
+  etatJeu.basicTraining.skills[1].allocation = 0;
+  L.veiller();
+  for (let i = 1; i <= 6; i++) {
+    const avantType = noeuds;
+    assert.equal(L.sonner("demarrage" + i), true, "démarrage " + i + " jouable");
+    assert.ok(noeuds - avantType >= 6, "démarrage " + i + " construit un vrai son");
+  }
+  assert.equal(L.sonner("demarrage7"), false, "type inconnu refusé");
+}
+
 // 6. Mouvement réduit : seulement l'état, sans clignotement ni son.
 mouvementReduit = true;
 place(0); L.veiller();

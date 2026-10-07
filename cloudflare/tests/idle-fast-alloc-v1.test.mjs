@@ -229,12 +229,12 @@ const passer = () => { let n = 0; while (minuteries.some((m) => m.actif) && n++ 
   for (const attendu of [
     "envoyerAllocRapideV1_({action:'allocateAugment'",
     "envoyerAllocRapideV1_({action:'allocate',system:'timeMachine'",
-    "envoyerAllocRapideV1_({action:'allocate',system:'bloodMagic'",
+    "envoyerAllocRapideV1_({action:'allocateRitual',ritual:id,value:value})",
     "envoyerAllocRapideV1_({action:'selectRitual'",
     "envoyerAllocRapideV1_({action:'clearAugmentAllocations'})",
     "recalculerAugmentLocalIdleV1_(j,pairId,upgrade,value)",
     "recalculerTimeMachineLocalIdleV1_(j,ressource,value)",
-    "recalculerBloodLocalIdleV1_(j,value)",
+    "recalculerBloodLocalIdleV1_(j,id,value)",
     "onclick=\"window.__viderAugmentsIdleV1__()\""
   ]) assert.ok(meta.includes(attendu), "câblage manquant : " + attendu);
   assert.ok(!meta.includes("action:'clearAugmentAllocations'})\"") || !meta.includes("window.__actionMetaV47__({action:\\'clearAugmentAllocations"), "plus d'aller-retour bloquant sur « Tout retirer »");

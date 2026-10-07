@@ -2225,6 +2225,13 @@
           }catch(e){}
         },true);
       }
+      /* Les trois boutons ronds de la borne déclenchent la commande de même couleur (un bouton grisé ne fait rien, comme la commande). */
+      window.__clicDomeBorneIdleV1__=function(nom){
+        try{
+          const commande=document.querySelector('.soreal-idle-boss-control-v39.'+nom);
+          if(commande&&!commande.disabled)commande.click();
+        }catch(_e){}
+      };
       function ajusterVieDuelIdleV1_(element,change){
         try{
           const parent=element.parentElement;
@@ -2886,7 +2893,9 @@
          * rituel progresse réellement à la fois (bloodMagicViewV1, idle-ngu-progression.js) : un seul
          * élément à patcher, jamais une boucle par rituel comme Augmentation.
          */
-        const bloodVisual=idleEtat.__bloodMagicVisualV1;
+        const bloodVisuels=idleEtat.__bloodMagicVisualV1;
+        Object.keys((bloodVisuels&&typeof bloodVisuels==='object'&&!bloodVisuels.ritual)?bloodVisuels:{}).forEach(function(ritualCleBlood){
+        const bloodVisual=bloodVisuels[ritualCleBlood];
         if(bloodVisual&&PAGE_ACTIVE==='idle'){
           const el=document.querySelector('[data-idle-blood-bar-v1="'+bloodVisual.ritual+'"]');
           if(el){
@@ -2934,6 +2943,7 @@
             }
           }
         }
+        });
 
         const summaryEnergieEl=
           document.getElementById(
@@ -15899,6 +15909,10 @@ let idleDialogueTimerV76=null;
               >
                 🚀 NUKE
               </button>
+
+              <button type="button" class="soreal-idle-dome-v1 dome-start" aria-label="Fight" onclick="window.__clicDomeBorneIdleV1__('start')"></button>
+              <button type="button" class="soreal-idle-dome-v1 dome-stop" aria-label="Fuite" onclick="window.__clicDomeBorneIdleV1__('stop')"></button>
+              <button type="button" class="soreal-idle-dome-v1 dome-nuke" aria-label="Nuke" onclick="window.__clicDomeBorneIdleV1__('nuke')"></button>
             </div>
 
             <!--

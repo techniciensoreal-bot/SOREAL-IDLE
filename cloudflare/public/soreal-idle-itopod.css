@@ -248,23 +248,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41::after{
   content:"";position:absolute;left:34px;right:34px;top:100%;height:96px;margin-top:-6px;pointer-events:none;border:2px solid #000;border-radius:12px;
   transform:perspective(2400px) rotateX(48deg);transform-origin:50% 0;
-  background:
-    radial-gradient(ellipse 4.16px 5.2px at calc(58% - 3.9px) calc(33.6px + var(--bp0,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
-    radial-gradient(ellipse 10.4px 14.3px at 58% calc(38.8px + var(--bp0,0px)),#ffb3a6 0,#ff3b2a 42%,#8c0f0a 90%,#2a0a08 97%,transparent 100%),
-    radial-gradient(ellipse 13px 16.9px at 58% calc(40.1px + var(--bp0,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
-    radial-gradient(ellipse 11.7px 15.6px at 58% 44px,#8c0f0a 0 90%,transparent 100%),
-    radial-gradient(ellipse 15.6px 19.5px at 58% 46.6px,#05060a 0 78%,#2b3050 88%,transparent 100%),
-    radial-gradient(ellipse 4.16px 5.2px at calc(68% - 3.9px) calc(33.6px + var(--bp1,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
-    radial-gradient(ellipse 10.4px 14.3px at 68% calc(38.8px + var(--bp1,0px)),#b3ebff 0,#2fb3ff 42%,#0a4f8c 90%,#2a0a08 97%,transparent 100%),
-    radial-gradient(ellipse 13px 16.9px at 68% calc(40.1px + var(--bp1,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
-    radial-gradient(ellipse 11.7px 15.6px at 68% 44px,#0a4f8c 0 90%,transparent 100%),
-    radial-gradient(ellipse 15.6px 19.5px at 68% 46.6px,#05060a 0 78%,#2b3050 88%,transparent 100%),
-    radial-gradient(ellipse 4.16px 5.2px at calc(78% - 3.9px) calc(33.6px + var(--bp2,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
-    radial-gradient(ellipse 10.4px 14.3px at 78% calc(38.8px + var(--bp2,0px)),#fff4a8 0,#ffd21a 42%,#8a6a00 90%,#2a0a08 97%,transparent 100%),
-    radial-gradient(ellipse 13px 16.9px at 78% calc(40.1px + var(--bp2,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
-    radial-gradient(ellipse 11.7px 15.6px at 78% 44px,#8a6a00 0 90%,transparent 100%),
-    radial-gradient(ellipse 15.6px 19.5px at 78% 46.6px,#05060a 0 78%,#2b3050 88%,transparent 100%),
-    linear-gradient(180deg,#3a4066,#161a30);
+  background:linear-gradient(180deg,#3a4066,#161a30);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 7px 0 #05060a,0 11px 0 #20243c,0 0 20px rgba(120,140,255,.25);}
 
 /* L'ÉCRAN : grand, cathodique, les deux combattants se font face dedans. */
@@ -346,20 +330,20 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   color:#ffd24a!important;-webkit-text-fill-color:#ffd24a!important;text-shadow:0 3px 0 #8a4a00,0 6px 0 #000,0 0 18px rgba(255,200,60,.8)!important;
   animation:arcadeVsV1 1.4s ease-in-out infinite;}
 
-/* Les trois boutons de la borne (rouge = Fight, bleu = Fuite, jaune = Nuke) s'enfoncent quand on appuie sur la commande qui leur correspond. */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="start"] .soreal-idle-duel-v41::after,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.start:active:not(:disabled)) .soreal-idle-duel-v41::after{--bp0:5px;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="stop"] .soreal-idle-duel-v41::after,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.stop:active:not(:disabled)) .soreal-idle-duel-v41::after{--bp1:5px;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="nuke"] .soreal-idle-duel-v41::after,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.nuke:active:not(:disabled)) .soreal-idle-duel-v41::after{--bp2:5px;}
+/* Les trois boutons de la borne (rouge = Fight, bleu = Fuite, jaune = Nuke) sont de vrais boutons : on peut les presser directement, et ils s'enfoncent aussi quand on appuie sur la commande qui leur correspond. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="start"] .soreal-idle-dome-v1.dome-start,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.start:active:not(:disabled)) .soreal-idle-dome-v1.dome-start,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="stop"] .soreal-idle-dome-v1.dome-stop,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.stop:active:not(:disabled)) .soreal-idle-dome-v1.dome-stop,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="nuke"] .soreal-idle-dome-v1.dome-nuke,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.nuke:active:not(:disabled)) .soreal-idle-dome-v1.dome-nuke{--bp:5px;}
 @media (max-width:700px){
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="start"] .soreal-idle-duel-v41::after,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.start:active:not(:disabled)) .soreal-idle-duel-v41::after{--bp0:4px;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="stop"] .soreal-idle-duel-v41::after,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.stop:active:not(:disabled)) .soreal-idle-duel-v41::after{--bp1:4px;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="nuke"] .soreal-idle-duel-v41::after,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.nuke:active:not(:disabled)) .soreal-idle-duel-v41::after{--bp2:4px;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="start"] .soreal-idle-dome-v1.dome-start,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.start:active:not(:disabled)) .soreal-idle-dome-v1.dome-start,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="stop"] .soreal-idle-dome-v1.dome-stop,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.stop:active:not(:disabled)) .soreal-idle-dome-v1.dome-stop,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35[data-presse-v1="nuke"] .soreal-idle-dome-v1.dome-nuke,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:has(.soreal-idle-boss-control-v39.nuke:active:not(:disabled)) .soreal-idle-dome-v1.dome-nuke{--bp:4px;}
 }
 /* Commandes : FIGHT (rouge) | FUITE (bleu) | NUKE (jaune), sous le tableau de la borne. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39{
@@ -396,23 +380,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41{padding:50px 12px 14px!important;margin-bottom:72px!important;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41::before{top:9px;left:20px;right:20px;height:30px;font-size:.8em;letter-spacing:.3em;}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41::after{left:18px;right:18px;height:70px;transform:perspective(1800px) rotateX(48deg);
-    background:
-    radial-gradient(ellipse 3.2px 4px at calc(58% - 3px) calc(27px + var(--bp0,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
-    radial-gradient(ellipse 8px 11px at 58% calc(31px + var(--bp0,0px)),#ffb3a6 0,#ff3b2a 42%,#8c0f0a 90%,#2a0a08 97%,transparent 100%),
-    radial-gradient(ellipse 10px 13px at 58% calc(32px + var(--bp0,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
-    radial-gradient(ellipse 9px 12px at 58% 35px,#8c0f0a 0 90%,transparent 100%),
-    radial-gradient(ellipse 12px 15px at 58% 37px,#05060a 0 78%,#2b3050 88%,transparent 100%),
-    radial-gradient(ellipse 3.2px 4px at calc(68% - 3px) calc(27px + var(--bp1,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
-    radial-gradient(ellipse 8px 11px at 68% calc(31px + var(--bp1,0px)),#b3ebff 0,#2fb3ff 42%,#0a4f8c 90%,#2a0a08 97%,transparent 100%),
-    radial-gradient(ellipse 10px 13px at 68% calc(32px + var(--bp1,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
-    radial-gradient(ellipse 9px 12px at 68% 35px,#0a4f8c 0 90%,transparent 100%),
-    radial-gradient(ellipse 12px 15px at 68% 37px,#05060a 0 78%,#2b3050 88%,transparent 100%),
-    radial-gradient(ellipse 3.2px 4px at calc(78% - 3px) calc(27px + var(--bp2,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
-    radial-gradient(ellipse 8px 11px at 78% calc(31px + var(--bp2,0px)),#fff4a8 0,#ffd21a 42%,#8a6a00 90%,#2a0a08 97%,transparent 100%),
-    radial-gradient(ellipse 10px 13px at 78% calc(32px + var(--bp2,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
-    radial-gradient(ellipse 9px 12px at 78% 35px,#8a6a00 0 90%,transparent 100%),
-    radial-gradient(ellipse 12px 15px at 78% 37px,#05060a 0 78%,#2b3050 88%,transparent 100%),
-    linear-gradient(180deg,#3a4066,#161a30);}
+    background:linear-gradient(180deg,#3a4066,#161a30);}
 }
 @media (max-width:520px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-vs-v41{font-size:2.2em!important;}
@@ -431,19 +399,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Joystick en volume (Norman, 2026-10-06 : « la boule est trop grosse et coupée, un vrai effet 3D ») : posé sur la dalle par les deux pseudo-éléments de la rangée de boutons, hors de la dalle inclinée pour ne plus être coupé. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{
-  content:"";position:absolute;z-index:3;pointer-events:none;width:26px;height:26px;top:-82px;left:calc(34px + (100% - 68px) * .24 - 13px);border-radius:50%;
+  content:"";position:absolute;z-index:3;pointer-events:none;width:26px;height:26px;top:-96px;left:calc(34px + (100% - 68px) * .24 - 13px);border-radius:50%;
   background:radial-gradient(circle at 34% 28%,#fff 0 7%,#c9f0ff 14%,#37c0ff 42%,#0c5f98 76%,#052a4a 100%);
   box-shadow:inset -3px -4px 6px rgba(0,0,20,.55),0 7px 7px -3px rgba(0,0,0,.8),0 0 10px rgba(55,192,255,.55);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{
-  content:"";position:absolute;z-index:2;pointer-events:none;width:46px;height:44px;top:-82px;left:calc(34px + (100% - 68px) * .24 - 23px);
+  content:"";position:absolute;z-index:2;pointer-events:none;width:46px;height:44px;top:-96px;left:calc(34px + (100% - 68px) * .24 - 23px);
   background:
     linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 0/6px 31px no-repeat,
     radial-gradient(ellipse 15px 6px at 50% 30px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
     radial-gradient(ellipse 23px 8px at 50% 33px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
     radial-gradient(ellipse 25px 7px at 54% 38px,rgba(0,0,0,.55),transparent 100%);}
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-66px;left:calc(18px + (100% - 36px) * .24 - 10px);}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-72px;left:calc(18px + (100% - 36px) * .24 - 18px);
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-78px;left:calc(18px + (100% - 36px) * .24 - 10px);}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-84px;left:calc(18px + (100% - 36px) * .24 - 18px);
     background:
       linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 17px no-repeat,
       radial-gradient(ellipse 15px 6px at 50% 30px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
@@ -618,3 +586,55 @@ html body #soreal-idle-fade-notice-v1{
   border:2px solid #000!important;border-radius:14px!important;background:linear-gradient(180deg,#2d2010,#120c06)!important;
   box-shadow:0 0 0 2px var(--accent-popup,#c8962f),0 14px 40px rgba(0,0,0,.6),0 0 26px rgba(255,200,60,.28),inset 0 1px 0 rgba(255,225,150,.25)!important;}
 html body #soreal-idle-fade-notice-v1 .ligne{color:#fff3d6;font-weight:800;text-shadow:0 1px 0 #000;}
+
+/* Rayons et onglets de la boutique : l'onglet choisi (fond or) a un texte brun foncé net, sans contour noir ni ombre noire (Norman, 2026-10-07 : « quand on choisit un rayon, l'écriture est illisible »). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1):is(.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1):is(.active,[aria-selected="true"],[aria-pressed="true"],.actif),
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1):is(.active,[aria-selected="true"],[aria-pressed="true"],.actif) *{
+  color:#2b1400!important;-webkit-text-fill-color:#2b1400!important;-webkit-text-stroke:0!important;text-shadow:0 1px 0 rgba(255,255,255,.6)!important;font-size:15px;letter-spacing:.04em;}
+
+/* BOUTONS DE LA BORNE, VRAIS BOUTONS (Norman, 2026-10-07 : « on doit pouvoir cliquer sur les boutons de la borne pour lancer le combat, fuir ou nuke » ; centrés sur la planche comme le socle du joystick). Fight = rouge, Fuite = bleu, Nuke = jaune. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1{position:absolute;z-index:4;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;clip-path:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:0!important;
+  width:34px;height:42px;top:-84px;background-color:transparent!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1::after{content:none!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-start{left:calc(34px + (100% - 68px) * 0.58 - 17px);background-image:
+    radial-gradient(ellipse 4.16px 5.2px at calc(50% - 3.9px) calc(10.6px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 10.4px 14.3px at 50% calc(15.8px + var(--bp,0px)),#ffb3a6 0,#ff3b2a 42%,#8c0f0a 90%,#2a0a08 97%,transparent 100%),
+    radial-gradient(ellipse 13px 16.9px at 50% calc(17.1px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
+    radial-gradient(ellipse 11.7px 15.6px at 50% 21px,#8c0f0a 0 90%,transparent 100%),
+    radial-gradient(ellipse 15.6px 19.5px at 50% 23.6px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-stop{left:calc(34px + (100% - 68px) * 0.68 - 17px);background-image:
+    radial-gradient(ellipse 4.16px 5.2px at calc(50% - 3.9px) calc(10.6px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 10.4px 14.3px at 50% calc(15.8px + var(--bp,0px)),#b3ebff 0,#2fb3ff 42%,#0a4f8c 90%,#2a0a08 97%,transparent 100%),
+    radial-gradient(ellipse 13px 16.9px at 50% calc(17.1px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
+    radial-gradient(ellipse 11.7px 15.6px at 50% 21px,#0a4f8c 0 90%,transparent 100%),
+    radial-gradient(ellipse 15.6px 19.5px at 50% 23.6px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-nuke{left:calc(34px + (100% - 68px) * 0.78 - 17px);background-image:
+    radial-gradient(ellipse 4.16px 5.2px at calc(50% - 3.9px) calc(10.6px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 10.4px 14.3px at 50% calc(15.8px + var(--bp,0px)),#fff4a8 0,#ffd21a 42%,#8a6a00 90%,#2a0a08 97%,transparent 100%),
+    radial-gradient(ellipse 13px 16.9px at 50% calc(17.1px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
+    radial-gradient(ellipse 11.7px 15.6px at 50% 21px,#8a6a00 0 90%,transparent 100%),
+    radial-gradient(ellipse 15.6px 19.5px at 50% 23.6px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39:has(.soreal-idle-boss-control-v39.start:disabled) .dome-start,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39:has(.soreal-idle-boss-control-v39.stop:disabled) .dome-stop,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39:has(.soreal-idle-boss-control-v39.nuke:disabled) .dome-nuke{filter:grayscale(.85) brightness(.55);cursor:default;}
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1{width:26px;height:32px;top:-70px;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-start{left:calc(18px + (100% - 36px) * 0.58 - 13px);background-image:
+    radial-gradient(ellipse 3.2px 4px at calc(50% - 3px) calc(8px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 8px 11px at 50% calc(12px + var(--bp,0px)),#ffb3a6 0,#ff3b2a 42%,#8c0f0a 90%,#2a0a08 97%,transparent 100%),
+    radial-gradient(ellipse 10px 13px at 50% calc(13px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
+    radial-gradient(ellipse 9px 12px at 50% 16px,#8c0f0a 0 90%,transparent 100%),
+    radial-gradient(ellipse 12px 15px at 50% 18px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-stop{left:calc(18px + (100% - 36px) * 0.68 - 13px);background-image:
+    radial-gradient(ellipse 3.2px 4px at calc(50% - 3px) calc(8px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 8px 11px at 50% calc(12px + var(--bp,0px)),#b3ebff 0,#2fb3ff 42%,#0a4f8c 90%,#2a0a08 97%,transparent 100%),
+    radial-gradient(ellipse 10px 13px at 50% calc(13px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
+    radial-gradient(ellipse 9px 12px at 50% 16px,#0a4f8c 0 90%,transparent 100%),
+    radial-gradient(ellipse 12px 15px at 50% 18px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-nuke{left:calc(18px + (100% - 36px) * 0.78 - 13px);background-image:
+    radial-gradient(ellipse 3.2px 4px at calc(50% - 3px) calc(8px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 8px 11px at 50% calc(12px + var(--bp,0px)),#fff4a8 0,#ffd21a 42%,#8a6a00 90%,#2a0a08 97%,transparent 100%),
+    radial-gradient(ellipse 10px 13px at 50% calc(13px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
+    radial-gradient(ellipse 9px 12px at 50% 16px,#8a6a00 0 90%,transparent 100%),
+    radial-gradient(ellipse 12px 15px at 50% 18px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
+}

@@ -122,4 +122,12 @@ for (const fonction of [
   assert.ok(ui.includes("function demarrerPinClicIdleV1_(el){") && ui.includes("if(Math.abs(dy)>1)window.scrollBy(0,dy);") && ui.includes("['wheel','touchstart','touchmove','keydown']"), "épingle de clic, arrêtée par un défilement du joueur");
 }
 
+// 6. Automatisation de l'inventaire en interrupteurs à bascule (Norman, 2026-10-07) ; « Action au clic » retiré.
+{
+  const auto = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8");
+  assert.ok(auto.includes('class="sw-v1') && auto.includes('class="sw-boitier"') && auto.includes('class="sw-led"') && auto.includes(".sw-v1 .sw-in:checked~.sw-led{"), "interrupteur à bascule avec lumière verte");
+  assert.ok(!auto.includes("👆 Action au clic") && auto.includes("Tous les boosts dans le Cube"), "plus de menu « Action au clic » ; le bouton du Cube reste");
+  assert.ok(!auto.includes('<input type="checkbox" \'+(coche'), "plus de case à cocher brute");
+}
+
 console.log("idle-menu-refresh-no-jump-v1: OK");
