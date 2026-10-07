@@ -4,7 +4,8 @@ import vm from "node:vm";
 
 /*
  * Page Wandoos « ordinateur rétro » (Norman, 2026-10-06) puis écran de démarrage, bureau et énergie/magie en QUANTITÉS (2026-10-07) :
- * éteint -> DÉMARRER -> écran de boot (Wandoos 98 / MEH / XL, barre d'avancement) -> bureau : barres, saisie, touches 0 − + MAX pour l'énergie et la magie, choix de l'OS.
+ * éteint -> DÉMARRER -> écran de CHARGEMENT tant que l'OS n'a pas fini de démarrer (le vrai démarrage du wiki : durée et avancement venus du serveur, barre d'avancement, Wandoos 98 / MEH / XL)
+ * -> bureau seulement ensuite : barres, saisie, touches 0 − + MAX pour l'énergie et la magie, choix de l'OS. La barre de démarrage n'est jamais à côté de l'énergie et de la magie.
  */
 const src = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 const stockage = {};
@@ -53,7 +54,7 @@ vm.runInNewContext(src, Object.assign(fenetre, { localStorage: fenetre.localStor
 const W = fenetre.__SOREAL_IDLE_WANDOOS_V1__;
 assert.ok(W && typeof W.page === "function", "module exposé");
 
-const vueBase = { os: "98", osDisponibles: ["98"], exigence: 1e9, niveauOsTotal: 7, multiplicateurOs: 8, vitesseEnergie: 0.5, vitesseMagie: 0, bootSecondes: 3600, bootEcoule: 1800, bootFraction: 0.5, bonusCombat: 1.5, energieLibre: 1e6, magieLibre: 2e6 };
+const vueBase = { os: "98", osDisponibles: ["98"], exigence: 1e9, niveauOsTotal: 7, multiplicateurOs: 8, vitesseEnergie: 0.5, vitesseMagie: 0, bootSecondes: 3600, bootEcoule: 3600, bootFraction: 1, bonusCombat: 1.5, energieLibre: 1e6, magieLibre: 2e6 };
 function joueur(debloque, actif, vue = {}, magieOk = true) {
   return {
     systems: [
@@ -82,13 +83,12 @@ h = W.page(joueurCourant);
 assert.ok(h.includes('data-phase="bureau"') && h.includes("EN MARCHE") && h.includes("wd-clavier"), "bureau");
 assert.ok(h.includes("NIVEAU <b>812</b>") && h.includes("NIVEAU <b>422</b>"), "niveaux des deux Dumps");
 assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("0,5"), "quantités placées/libres et vitesse en niveaux par seconde");
-assert.ok(h.includes("DÉMARRAGE DE L’OS (CE REBIRTH)") && h.includes("50 %") && h.includes("encore 30 min 00 s"), "démarrage du wiki : pourcentage et temps restant (vitesse limitée)");
+assert.ok(!h.includes("DÉMARRAGE DE L’OS") && !h.includes("wd-barre-boot") && !h.includes("Temps restant"), "bureau : plus aucune barre de démarrage à côté de l'énergie et de la magie");
 assert.ok(h.includes('id="wd-saisie"') && h.includes("C:\\&gt; SAISIE"), "champ de saisie dans l'écran");
 for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "plus"], ["energy", "tout"], ["magic", "zero"], ["magic", "moins"], ["magic", "plus"], ["magic", "tout"]]) {
   assert.ok(h.includes(".place('" + res + "','" + mode + "')"), "touche " + res + " " + mode);
 }
 assert.ok(h.includes("ÉTEINDRE") && h.includes(".eteindre()"), "touche espace : éteindre quand en marche");
-assert.ok(W.page(joueur(true, true, { bootFraction: 1, bootEcoule: 3600 })).includes("TERMINÉ : VITESSE 100 %"), "boot terminé");
 assert.ok(h.includes('data-couleur="vert"'), "vert par défaut");
 assert.ok(!/<script|onerror=|javascript:/i.test(h), "rien d'exécutable dans les données");
 // Magie : absente (écran et clavier) tant que Blood Magic n'est pas découvert.
@@ -134,23 +134,39 @@ W.saisie("999999999999");
 W.place("magic", "plus");
 assert.equal(actions[actions.length - 1].value, 2e6, "jamais plus que ce qui est libre");
 
-// 6. Démarrer : écran de boot (barre d'avancement, nom de l'OS), puis bureau.
-joueurCourant = joueur(true, false, { os: "meh", osDisponibles: ["98", "meh"] });
+// 6. Chargement réel : tant que l'OS démarre (wiki : 1 h après le Rebirth, durée et avancement donnés par le serveur), l'écran n'affiche QUE le chargement.
+joueurCourant = joueur(true, true, { os: "meh", osDisponibles: ["98", "meh"], bootSecondes: 3600, bootEcoule: 1800, bootFraction: 0.5 });
 joueurCourant.systems[0].state.data.os = "meh";
+h = W.page(joueurCourant);
+assert.ok(h.includes('data-phase="boot"') && h.includes("wd-barre-boot") && h.includes("Wandoos <b>MEH</b>"), "écran de chargement de l'OS actif (MEH), avec barre d'avancement");
+assert.ok(h.includes('id="wd-boot-pct">50%') && h.includes("Temps restant : <b id=\"wd-boot-reste\">30 min 00 s</b>") && h.includes("Durée totale : 1 h 00 min"), "pourcentage, temps restant et durée totale du vrai démarrage");
+assert.ok(!h.includes("wd-input") && !h.includes(".place(") && !h.includes("PLACÉE") && !h.includes("NIVEAU <b>"), "pendant le chargement : ni barres d'énergie et de magie, ni saisie, ni touches d'allocation");
+assert.ok(h.includes("ÉTEINDRE") && h.includes(".eteindre()"), "on peut éteindre pendant le chargement");
+// Le temps passe localement entre deux réponses du serveur : la barre avance toute seule.
+maintenant += 600_000;
+const plusTard = W.page(joueurCourant);
+assert.ok(plusTard.includes('id="wd-boot-pct">6') && plusTard.includes("20 min 00 s"), "dix minutes plus tard : 66 %, il reste 20 min");
+// Fin du chargement : le bureau et ses barres apparaissent.
+maintenant += 1_300_000;
+h = W.page(joueurCourant);
+assert.ok(h.includes('data-phase="bureau"') && h.includes("wd-input") && h.includes(".place('energy','plus')"), "chargement terminé : le bureau et ses barres sont accessibles");
+assert.ok(!h.includes("wd-barre-boot"), "plus de barre de démarrage sur le bureau");
+// Le minuteur du chargement : à chaque seconde il met la barre à jour, et à la fin il redessine le poste.
+minuteries.forEach((fn) => fn()); // le minuteur du chargement précédent s'arrête de lui-même une fois l'OS démarré
+minuteries.length = 0;
+joueurCourant = joueur(true, true, { bootSecondes: 3600, bootEcoule: 3590, bootFraction: 3590 / 3600 });
+W.page(joueurCourant);
+assert.ok(minuteries.length >= 1, "un minuteur suit le chargement");
+maintenant += 20_000;
+minuteries.forEach((fn) => fn());
+assert.ok(poste.outerHTML.includes('data-phase="bureau"'), "à la fin du chargement le poste est redessiné avec le bureau");
+// DÉMARRER n'active que le système (le chargement est celui du jeu, pas une animation locale).
+joueurCourant = joueur(true, false);
 actions.length = 0;
 W.demarrer();
 assert.deepEqual(actions[0], { action: "toggle", system: "wandoos", active: true }, "DÉMARRER active le système");
-h = W.page(joueurCourant);
-assert.ok(h.includes('data-phase="boot"') && h.includes("wd-barre-boot") && h.includes("Wandoos <b>MEH</b>") && h.includes("DÉMARRAGE…"), "écran de boot MEH avec barre d'avancement, touche désactivée");
-assert.ok(!h.includes("wd-input") && !h.includes(".place("), "pendant le boot : pas d'accès aux barres");
-assert.equal(W.dureesBoot["98"] < W.dureesBoot.meh && W.dureesBoot.meh < W.dureesBoot.xl, true, "plus l'OS est récent, plus le démarrage est long");
-maintenant += 3500;
-assert.ok(W.page(joueurCourant).includes("Wandoos <b>MEH</b>") && /id="wd-boot-pct">(4|5)\d%/.test(W.page(joueurCourant)), "la barre avance avec le temps");
-maintenant += 10000;
-joueurCourant.systems[0].state.active = true;
-minuteries.forEach((fn) => fn());
-h = W.page(joueurCourant);
-assert.ok(h.includes('data-phase="bureau"') && h.includes("wd-input"), "boot fini : le bureau et ses barres sont accessibles");
+assert.ok(!("dureesBoot" in W), "plus de durées d'animation inventées");
+joueurCourant = joueur(true, true);
 actions.length = 0;
 W.eteindre();
 assert.deepEqual(actions[0], { action: "toggle", system: "wandoos", active: false }, "ÉTEINDRE désactive le système");
