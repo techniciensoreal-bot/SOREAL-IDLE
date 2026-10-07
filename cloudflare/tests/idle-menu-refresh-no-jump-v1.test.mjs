@@ -31,7 +31,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
   assert.ok(
     fn.includes("const xAvant=window.scrollX||0;") &&
     fn.includes("const yAvant=window.scrollY||0;") &&
-    fn.includes("const ancreAvant=ancreSacIdleV1_();") &&
+    fn.includes("ancreSacIdleV1_()") && fn.includes("ancreClicIdleV1_()") &&
     fn.includes("document.body.style.minHeight=hauteurAvant+'px';") &&
     fn.includes("requestAnimationFrame(function(){") &&
     fn.includes("window.scrollTo(xAvant,yAvant);") &&
@@ -87,7 +87,7 @@ for (const fonction of [
   };
   const sandbox = new Function(
     "document", "window", "requestAnimationFrame", "clearTimeout", "setTimeout",
-    "idleEtat", "contenuMenuIdleV28_", "ancreSacIdleV1_", "restaurerAncreSacIdleV1_",
+    "idleEtat", "contenuMenuIdleV28_", "ancreSacIdleV1_", "restaurerAncreSacIdleV1_", "ancreClicIdleV1_", "restaurerAncreClicIdleV1_", "installerMorphIdleV1_",
     fnSrc + "\nreturn rafraichirMenuRacineIdleV28_;"
   )(
     fakeDocument,
@@ -98,7 +98,10 @@ for (const fonction of [
     { id: "joueur" },
     function(){ return "<div>nouveau contenu plus court</div>"; },
     function(){ return { haut: 42 }; },
-    function(ancre, x, y){ sandbox.dernierAncre = [ancre, x, y]; }
+    function(ancre, x, y){ sandbox.dernierAncre = [ancre, x, y]; },
+    function(){ return null; },
+    function(){ return false; },
+    function(){}
   );
 
   sandbox();
@@ -108,6 +111,15 @@ for (const fonction of [
 
   rafCallback();
   assert.deepEqual(scrollToAppels, [[12, 900]], "le défilement (X et Y) doit être restauré exactement à sa valeur d'avant remplacement");
+}
+
+// 5. Aucun saut de page au clic (Norman, 2026-10-07) : rendu sur place, blocs des autres modules gardés, ancre sur l'élément cliqué, épingle de clic.
+{
+  assert.ok(ui.includes("function morpherHtmlIdleV1_(element,html){") && ui.includes("function installerMorphIdleV1_(element){"), "rendu sur place (morph) présent");
+  assert.ok(ui.includes("installerMorphIdleV1_(root);\n        root.innerHTML=contenuMenuIdleV28_(idleEtat);") && ui.includes("installerMorphIdleV1_(document.getElementById('app'));"), "page entière et contenu de menu rendus sur place");
+  assert.ok(ui.includes('hasAttribute("data-morph-garder")'), "les blocs posés par d'autres modules sont gardés");
+  assert.ok(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes('block.setAttribute("data-morph-garder","1");') && readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8").includes("bloc.setAttribute('data-morph-garder','1');"), "scène d'aventure et bloc d'inventaire gardés");
+  assert.ok(ui.includes("function demarrerPinClicIdleV1_(el){") && ui.includes("if(Math.abs(dy)>1)window.scrollBy(0,dy);") && ui.includes("['wheel','touchstart','touchmove','keydown']"), "épingle de clic, arrêtée par un défilement du joueur");
 }
 
 console.log("idle-menu-refresh-no-jump-v1: OK");

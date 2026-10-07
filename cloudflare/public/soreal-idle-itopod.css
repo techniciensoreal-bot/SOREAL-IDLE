@@ -603,3 +603,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 button.team-sort-option.team-sort-option.active{
   border-left-color:#fff3b0!important;color:#2a1a00!important;text-shadow:0 1px 0 rgba(255,255,255,.45)!important;background:linear-gradient(180deg,#ffe28a,#e0a42a 60%,#b9791a)!important;box-shadow:0 0 12px rgba(255,200,60,.5)!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-option-arrow{color:#2a1a00!important;font-size:17px;}
+
+/* POPUPS (Norman, 2026-10-07 : « plus beaux, en fondu, petits mais on lit clairement ce qui a été absorbé ») : même plaque sombre à liseré doré partout. Petite annonce en bas (fondu d'entrée puis de sortie), grande annonce en haut (succès, déblocages) dans le même style. */
+html body .soreal-idle-toast-inline-v32{
+  position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:100002;box-sizing:border-box;width:max-content;max-width:min(440px,calc(100vw - 32px));
+  padding:9px 18px 9px 40px!important;border:2px solid #000!important;border-radius:12px!important;pointer-events:none;user-select:none;-webkit-user-select:none;text-align:left;
+  background:linear-gradient(180deg,#2d2010,#120c06)!important;color:#fff3d6!important;font-family:"Comic Neue","Comic Sans MS",system-ui,sans-serif;font-size:14px!important;font-weight:900!important;line-height:1.3;letter-spacing:.01em;text-shadow:0 1px 0 #000;
+  box-shadow:0 0 0 2px #c8962f,0 10px 26px rgba(0,0,0,.6),0 0 22px rgba(255,200,60,.28),inset 0 1px 0 rgba(255,225,150,.25)!important;
+  opacity:0;animation:popupFonduV1 2.5s ease-in-out forwards;}
+html body .soreal-idle-toast-inline-v32::before{content:"✦";position:absolute;left:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;font-size:12px;color:#2a1a00;background:linear-gradient(180deg,#ffe28a,#d79a21);box-shadow:0 1px 0 #000;}
+@keyframes popupFonduV1{0%{opacity:0;transform:translate(-50%,10px)}14%{opacity:1;transform:translate(-50%,0)}82%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+@media (prefers-reduced-motion:reduce){html body .soreal-idle-toast-inline-v32{animation:popupFonduRV1 2.5s linear forwards;}@keyframes popupFonduRV1{0%{opacity:0}10%,85%{opacity:1}100%{opacity:0}}}
+html body #soreal-idle-fade-notice-v1{
+  border:2px solid #000!important;border-radius:14px!important;background:linear-gradient(180deg,#2d2010,#120c06)!important;
+  box-shadow:0 0 0 2px var(--accent-popup,#c8962f),0 14px 40px rgba(0,0,0,.6),0 0 26px rgba(255,200,60,.28),inset 0 1px 0 rgba(255,225,150,.25)!important;}
+html body #soreal-idle-fade-notice-v1 .ligne{color:#fff3d6;font-weight:800;text-shadow:0 1px 0 #000;}

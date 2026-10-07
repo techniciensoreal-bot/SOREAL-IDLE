@@ -5063,6 +5063,144 @@
        * du sac À L'ÉCRAN (distance entre le haut de la fenêtre et le haut du sac) et on la rétablit après le rendu, puis encore quand la
        * mise en page bouge (images, 2e passe) — sans jamais contrarier un défilement fait par le joueur entre-temps.
        */
+      /*
+       * Aucun saut de page au clic (Norman, 2026-10-07 : « ouvrir ou fermer le coffre redessine toute la page, j'ai des sauts de page ; ça ne doit jamais se produire »).
+       * Cause mesurée : l'ancre du sac (ci-dessus) ramenait le sac à sa place d'avant ; or le coffre est au-dessus du sac, donc ouvrir ou fermer le coffre décalait le sac
+       * et l'ancre faisait défiler la page de plusieurs centaines de pixels (1724 -> 937). On ancre maintenant sur CE QUE LE JOUEUR A TOUCHÉ : l'élément cliqué (retrouvé
+       * après le rendu par son chemin dans la page) reste exactement au même endroit de l'écran, quoi qu'il arrive au-dessus ou en dessous. Sans clic récent, ou si le
+       * joueur a défilé depuis, on retombe sur l'ancre du sac puis sur le défilement habituel.
+       */
+      let idleDernierClicAncreV1=null;
+      try{
+        document.addEventListener('pointerdown',function(ev){
+          try{
+            const cible=ev.target&&ev.target.closest?ev.target.closest('button,[onclick],a,summary,select,label,.soreal-idle-v138-bag-card,.soreal-idle-v138-slot'):null;
+            idleDernierClicAncreV1=cible?{el:cible,t:Date.now(),y:window.scrollY||0}:null;
+          }catch(_e){}
+        },true);
+      }catch(_e){}
+      /* Éléments « jumeaux » d'un bouton : même balise, même action (onclick) et mêmes classes ; le rang parmi eux sert à le retrouver après le rendu, même si le nombre d'éléments avant lui a changé. */
+      function jumeauxClicIdleV1_(racine,tag,onclick,classes){
+        return Array.prototype.filter.call(racine.getElementsByTagName(tag),function(n){
+          /* Les classes (ON/OFF, actif...) changent avec l action : on ne s appuie que sur la balise et l action. */
+          return (n.getAttribute('onclick')||'')===onclick;
+        });
+      }
+      function ancreClicIdleV1_(){
+        try{
+          const c=idleDernierClicAncreV1;
+          if(!c||Date.now()-c.t>5000||!c.el.isConnected)return null;
+          if(Math.abs((window.scrollY||0)-c.y)>40)return null;
+          const racine=document.querySelector('.soreal-idle-page-root-v28');
+          if(!racine||!racine.contains(c.el))return null;
+          const r=c.el.getBoundingClientRect();
+          if(r.bottom<=0||r.top>=(window.innerHeight||0))return null;
+          const chemin=[];
+          let n=c.el;
+          while(n&&n!==racine){
+            const parent=n.parentElement;
+            if(!parent)return null;
+            chemin.unshift(Array.prototype.indexOf.call(parent.children,n));
+            n=parent;
+          }
+          if(n!==racine)return null;
+          return signatureClicIdleV1_(c.el,racine,chemin,r.top);
+        }catch(_e){return null;}
+      }
+      function signatureClicIdleV1_(el,racine,chemin,haut){
+        const onclick=el.getAttribute('onclick')||'';
+        const classes=String(el.className||'');
+        const rang=jumeauxClicIdleV1_(racine,el.tagName,onclick,classes).indexOf(el);
+        return {chemin:chemin,tag:el.tagName,id:el.id||'',onclick:onclick,classes:classes,rang:rang,texte:String(el.textContent||'').trim().slice(0,24),haut:haut};
+      }
+      /*
+       * Épingle de clic : pendant 5 s après un clic (assez pour une réponse lente du serveur) dans la page, ce qui a été touché reste exactement au même endroit de l'écran, quoi que le rendu, les images qui se chargent ou un
+       * bloc qui apparaît au-dessus fassent à la hauteur de la page. S'arrête dès que le joueur défile lui-même (molette, doigt, clavier). Ignorée pour les éléments fixes (fenêtres,
+       * menus flottants) et pour la barre de menus, hors de la page.
+       */
+      let idlePinClicV1=null;
+      function arreterPinClicIdleV1_(){
+        if(idlePinClicV1){cancelAnimationFrame(idlePinClicV1.raf);idlePinClicV1=null;}
+      }
+      function demarrerPinClicIdleV1_(el){
+        try{
+          arreterPinClicIdleV1_();
+          const racine=document.querySelector('.soreal-idle-page-root-v28');
+          if(!racine||!racine.contains(el))return;
+          for(let n=el;n&&n!==racine;n=n.parentElement){
+            if(window.getComputedStyle(n).position==='fixed')return;
+          }
+          const r=el.getBoundingClientRect();
+          if(r.bottom<=0||r.top>=(window.innerHeight||0))return;
+          const chemin=[];
+          let n=el;
+          while(n&&n!==racine){
+            const parent=n.parentElement;
+            if(!parent)return;
+            chemin.unshift(Array.prototype.indexOf.call(parent.children,n));
+            n=parent;
+          }
+          const pin={ancre:signatureClicIdleV1_(el,racine,chemin,r.top),haut:r.top,debut:performance.now(),raf:0};
+          idlePinClicV1=pin;
+          (function boucle(){
+            if(idlePinClicV1!==pin)return;
+            if(performance.now()-pin.debut>5000){idlePinClicV1=null;return;}
+            const e=retrouverElementClicIdleV1_(pin.ancre);
+            if(e&&(e.offsetWidth||e.offsetHeight)){
+              const dy=e.getBoundingClientRect().top-pin.haut;
+              if(Math.abs(dy)>1)window.scrollBy(0,dy);
+            }
+            pin.raf=requestAnimationFrame(boucle);
+          })();
+        }catch(_e){}
+      }
+      try{
+        ['wheel','touchstart','touchmove','keydown'].forEach(function(nom){
+          window.addEventListener(nom,arreterPinClicIdleV1_,{passive:true,capture:true});
+        });
+        /* Un appui sur la barre de défilement (à droite) est un défilement du joueur : l épingle s arrête. */
+        document.addEventListener('pointerdown',function(ev){
+          try{if(ev.clientX>=document.documentElement.clientWidth)arreterPinClicIdleV1_();}catch(_e){}
+        },true);
+        document.addEventListener('click',function(ev){
+          try{
+            const cible=ev.target&&ev.target.closest?ev.target.closest('button,[onclick],a,summary,select,label,.soreal-idle-v138-bag-card,.soreal-idle-v138-slot'):null;
+            if(cible)demarrerPinClicIdleV1_(cible);
+          }catch(_e){}
+        },true);
+      }catch(_e){}
+      function retrouverElementClicIdleV1_(ancre){
+        if(ancre.id){const parId=document.getElementById(ancre.id);if(parId)return parId;}
+        const racine=document.querySelector('.soreal-idle-page-root-v28');
+        if(!racine)return null;
+        if(ancre.onclick){
+          const jumeaux=jumeauxClicIdleV1_(racine,ancre.tag,ancre.onclick,ancre.classes);
+          if(jumeaux.length)return jumeaux[Math.min(Math.max(0,ancre.rang),jumeaux.length-1)];
+        }
+        let n=racine;
+        for(let i=0;n&&i<ancre.chemin.length;i+=1)n=n.children[ancre.chemin[i]];
+        return n&&n.tagName===ancre.tag&&String(n.textContent||'').trim().slice(0,24)===ancre.texte?n:null;
+      }
+      function restaurerAncreClicIdleV1_(ancre,xAvant){
+        if(!ancre)return false;
+        let dernierY=null;
+        let trouve=false;
+        function caler(){
+          const el=retrouverElementClicIdleV1_(ancre);
+          /* Introuvable ou devenu invisible (menu déroulant refermé, panneau replié) : on ne s appuie pas dessus. */
+          if(!el||!(el.offsetWidth||el.offsetHeight||el.getClientRects().length))return;
+          trouve=true;
+          /* Le joueur a défilé lui-même depuis notre dernier calage : on n'y touche plus. */
+          if(dernierY!==null&&Math.abs((window.scrollY||0)-dernierY)>2)return;
+          const ecart=el.getBoundingClientRect().top-ancre.haut;
+          if(Math.abs(ecart)>1)window.scrollTo(xAvant,(window.scrollY||0)+ecart);
+          dernierY=window.scrollY||0;
+        }
+        caler();
+        setTimeout(caler,120);
+        setTimeout(caler,450);
+        return trouve;
+      }
       function ancreSacIdleV1_(){
         const sac=document.getElementById('soreal-idle-v138-bag-section');
         if(!sac)return null;
@@ -5120,12 +5258,116 @@
        * navigateur avant que rien ne le rétablisse -- exactement le saut/clignotement décrit. Cette fonction applique la
        * même protection à ces remplacements locaux, au lieu de dupliquer la logique à chaque site d'appel.
        */
+      /*
+       * Rendu SANS REMPLACER la page (Norman, 2026-10-07 : « ouvrir ou fermer le coffre redessine toute la page ; des sauts de page ; ça ne doit jamais se produire »).
+       * Mesure : remplacer le contenu (innerHTML) détruit les images, le journal et tous les blocs au-dessus du clic ; ils reviennent plus petits puis regrandissent, la page
+       * bouge de plusieurs centaines de pixels et clignote. Ici le nouveau HTML est comparé à la page : seuls les textes, attributs et blocs qui changent sont touchés,
+       * tout le reste (images chargées, positions, défilements internes, animations) reste exactement en place. Même résultat final qu'un remplacement complet.
+       */
+      function morpherMemeNoeudIdleV1_(a,b){
+        if(a.nodeType!==b.nodeType)return false;
+        if(a.nodeType!==1)return true;
+        return a.tagName===b.tagName&&(a.id||'')===(b.id||'');
+      }
+      function morpherSignatureIdleV1_(n){
+        return n.tagName+"."+String(n.getAttribute("class")||"").split(" ")[0];
+      }
+      function morpherNoeudIdleV1_(a,b){
+        if(a.nodeType!==1){
+          if(a.nodeValue!==b.nodeValue)a.nodeValue=b.nodeValue;
+          return;
+        }
+        Array.prototype.slice.call(a.attributes).forEach(function(at){
+          if(!b.hasAttribute(at.name))a.removeAttribute(at.name);
+        });
+        Array.prototype.slice.call(b.attributes).forEach(function(at){
+          if(a.getAttribute(at.name)!==at.value)a.setAttribute(at.name,at.value);
+        });
+        const tag=a.tagName;
+        if(tag==='SCRIPT'||tag==='STYLE'){
+          if(a.textContent!==b.textContent)a.textContent=b.textContent;
+          return;
+        }
+        morpherEnfantsIdleV1_(a,b);
+        if(tag==='INPUT'){
+          if(a.type==='checkbox'||a.type==='radio'){if(a.checked!==b.checked)a.checked=b.checked;}
+          else if(document.activeElement!==a&&a.value!==b.value)a.value=b.value;
+        }else if(tag==='TEXTAREA'){
+          if(document.activeElement!==a&&a.value!==b.value)a.value=b.value;
+        }else if(tag==='OPTION'){
+          if(a.selected!==b.selected)a.selected=b.selected;
+        }else if(tag==='SELECT'&&document.activeElement!==a){
+          if(a.selectedIndex!==b.selectedIndex)a.selectedIndex=b.selectedIndex;
+        }
+      }
+      function morpherEnfantsIdleV1_(ancien,nouveau){
+        const cles=new Map();
+        for(let c=ancien.firstChild;c;c=c.nextSibling){if(c.nodeType===1&&c.id)cles.set(c.id,c);}
+        let o=ancien.firstChild;
+        let n=nouveau.firstChild;
+        while(n){
+          const suivantN=n.nextSibling;
+          /* Blocs posés par d autres modules (data-morph-garder) : on les laisse où ils sont. */
+          while(o&&o.nodeType===1&&o.hasAttribute("data-morph-garder"))o=o.nextSibling;
+          let cible=null;
+          if(n.nodeType===1&&n.id){
+            const k=cles.get(n.id);
+            if(k&&k.parentNode===ancien&&k.tagName===n.tagName)cible=k;
+          }else if(n.nodeType===1){
+            /* Sans identifiant : le prochain frère de même balise ET de même première classe (jusqu a 12 plus loin), sinon le frère courant de même balise. Les blocs ajoutés par d autres modules ne décalent plus tout ce qui suit. */
+            const signature=morpherSignatureIdleV1_(n);
+            let c=o;
+            for(let k=0;c&&k<12;k+=1,c=c.nextSibling){
+              if(c.nodeType===1&&!c.id&&!c.hasAttribute("data-morph-garder")&&morpherSignatureIdleV1_(c)===signature){cible=c;break;}
+            }
+            if(!cible&&o&&morpherMemeNoeudIdleV1_(o,n))cible=o;
+          }else if(o&&o.nodeType===n.nodeType){
+            cible=o;
+          }
+          if(cible){
+            if(cible===o)o=o.nextSibling;
+            else ancien.insertBefore(cible,o);
+            morpherNoeudIdleV1_(cible,n);
+          }else{
+            ancien.insertBefore(document.importNode(n,true),o);
+          }
+          n=suivantN;
+        }
+        while(o){
+          const suivant=o.nextSibling;
+          if(!(o.nodeType===1&&o.hasAttribute("data-morph-garder")))ancien.removeChild(o);
+          o=suivant;
+        }
+      }
+      function morpherHtmlIdleV1_(element,html){
+        const modele=document.createElement('template');
+        modele.innerHTML=String(html==null?'':html);
+        morpherEnfantsIdleV1_(element,modele.content);
+      }
+      /* L'affectation « element.innerHTML=… » de ces deux conteneurs (la page entière, le contenu d'un menu) devient une mise à jour sur place. */
+      function installerMorphIdleV1_(element){
+        try{
+          if(typeof Element==='undefined'||!(element instanceof Element)||element.__morphIdleV1__)return;
+          const original=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');
+          Object.defineProperty(element,'innerHTML',{
+            configurable:true,
+            get:function(){return original.get.call(this);},
+            set:function(html){
+              try{morpherHtmlIdleV1_(this,html);}
+              catch(e){original.set.call(this,html);}
+            }
+          });
+          element.__morphIdleV1__=true;
+        }catch(_e){}
+      }
+
       function rafraichirMenuRacineIdleV28_(){
         const root=document.querySelector('.soreal-idle-page-root-v28');
         if(!root||!idleEtat)return;
         const xAvant=window.scrollX||0;
         const yAvant=window.scrollY||0;
-        const ancreAvant=ancreSacIdleV1_();
+        const ancreClic=ancreClicIdleV1_();
+        const ancreAvant=ancreClic?null:ancreSacIdleV1_();
         try{
           if(document.body){
             document.body.style.minHeight='';
@@ -5137,9 +5379,12 @@
             }
           }
         }catch(_e){}
+        installerMorphIdleV1_(root);
         root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        /* Calage immédiat (avant toute image), puis de nouveau quand la mise en page a bougé. */
+        const ancre_ok=ancreClic?restaurerAncreClicIdleV1_(ancreClic,xAvant):false;
         requestAnimationFrame(function(){
-          window.scrollTo(xAvant,yAvant);
+          if(!ancre_ok)window.scrollTo(xAvant,yAvant);
           restaurerAncreSacIdleV1_(ancreAvant,xAvant,yAvant);
         });
       }
@@ -5191,16 +5436,11 @@
       }
 
       function toastIdleV5_(message){
-        /* Codes d'erreur des défis -> phrase française (modules/challenges-v1.js). */
-        if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof message==='string')message=window.__SOREAL_IDLE_DEFIS_V1__.traduire(message);
-        if(window.__SOREAL_IDLE_TITANS_V1__&&typeof message==='string')message=window.__SOREAL_IDLE_TITANS_V1__.traduire(message);
-        const el=
-          document.getElementById(
-            'sorealIdleToastV5'
-          );
-
-        if(!el)return;
-
+        /* Codes d erreur des défis -> phrase française (modules/challenges-v1.js). */
+        if(window.__SOREAL_IDLE_DEFIS_V1__&&typeof message==="string")message=window.__SOREAL_IDLE_DEFIS_V1__.traduire(message);
+        if(window.__SOREAL_IDLE_TITANS_V1__&&typeof message==="string")message=window.__SOREAL_IDLE_TITANS_V1__.traduire(message);
+        const el=document.getElementById("sorealIdleToastV5");
+        if(!el){messageFlottantIdleV32_(String(message||""));return;}
         el.textContent=
           String(message||'');
 
@@ -7643,7 +7883,7 @@
           if(el&&el.parentNode){
             el.remove();
           }
-        },1800);
+        },2500);
       }
 
 
@@ -24076,7 +24316,8 @@ function pageAventureIdleV28_(j){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-330 */
         const idleScrollXAvantRenduV1=window.scrollX||0;
         const idleScrollYAvantRenduV1=window.scrollY||0;
-        const idleAncreSacAvantRenduV1=ancreSacIdleV1_();
+        const idleAncreClicAvantRenduV1=ancreClicIdleV1_();
+        const idleAncreSacAvantRenduV1=idleAncreClicAvantRenduV1?null:ancreSacIdleV1_();
         /*
          * Aucun saut au rendu (2026-09-26, Norman : « au moment d'absorber les boosts en maintenant A, l'image fait un saut en haut avant de se
          * repositionner ; je ne veux pas de saut ») : remplacer le contenu de la page la raccourcit un instant, le navigateur ramène alors le défilement
@@ -24203,6 +24444,7 @@ function pageAventureIdleV28_(j){
             ?document.getElementById('sorealIdleMoneyPitImageV209')
             :null;
 
+        installerMorphIdleV1_(document.getElementById('app'));
         document.getElementById('app').innerHTML=
           header()+
           `<main class="soreal-idle-native-v4">
@@ -24320,7 +24562,8 @@ function pageAventureIdleV28_(j){
             restaurerScrollJournalCombatIdleV70_();
             restaurerScrollJournalAventureIdleV1_();
 
-            window.scrollTo(
+            const idleAncreClicOkV1=idleAncreClicAvantRenduV1?restaurerAncreClicIdleV1_(idleAncreClicAvantRenduV1,idleScrollXAvantRenduV1):false;
+            if(!idleAncreClicOkV1)window.scrollTo(
               idleScrollXAvantRenduV1,
               idleScrollYAvantRenduV1
             );

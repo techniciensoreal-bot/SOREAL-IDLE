@@ -369,6 +369,7 @@
       bloc=document.createElement('div');
       bloc.id='soreal-idle-inventory-auto-v1';
       bloc.className='soreal-idle-section-v8';
+      bloc.setAttribute('data-morph-garder','1');
     }
     if(bloc.parentNode!==repere.parentNode||bloc.previousSibling!==repere){
       repere.parentNode.insertBefore(bloc,repere.nextSibling);

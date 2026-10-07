@@ -33,7 +33,7 @@ const api = (doc, win) => new Function("document", "window", "setTimeout", ancre
 }
 
 // Câblage dans le rendu complet
-assert.match(ui, /const idleAncreSacAvantRenduV1=ancreSacIdleV1_\(\);/);
+assert.match(ui, /const idleAncreSacAvantRenduV1=idleAncreClicAvantRenduV1\?null:ancreSacIdleV1_\(\);/);
 assert.match(ui, /restaurerAncreSacIdleV1_\(\s*idleAncreSacAvantRenduV1,\s*idleScrollXAvantRenduV1,\s*idleScrollYAvantRenduV1\s*\);/);
 
 console.log("idle-inventory-scroll-anchor-v1: OK");
