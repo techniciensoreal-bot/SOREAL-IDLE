@@ -65,6 +65,7 @@
     "supprimerTexteAdminSorealIdle",
     "synchroniserSorealIdle",
     "testerAccesSorealIdle",
-    "preparerPartieTestSorealIdle"
+    "preparerPartieTestSorealIdle",
+    "copierPartieASurBSorealIdle"
   ]
 }

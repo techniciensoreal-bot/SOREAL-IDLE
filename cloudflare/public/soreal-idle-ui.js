@@ -108,6 +108,19 @@
           .definirPartieDevSorealIdle(SOREAL_SESSION,cible);
       }
       window.__changerPartieDevIdleV1__=changerPartieDevIdleV1_;
+      /* Partie B uniquement : recopie la partie A (lue, jamais modifiée) pour tester dans les mêmes conditions. */
+      function copierPartieADevIdleV1_(){
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||idlePartieDevV1.partie!=='b')return;
+        if(!window.confirm('Copier ta partie A sur la partie B ? La partie B actuelle sera remplacée. La partie A n’est pas modifiée.'))return;
+        google.script.run
+          .withSuccessHandler(function(res){
+            if(res&&res.ok){location.reload();}
+            else{toastIdleV5_('Copie impossible.');}
+          })
+          .withFailureHandler(function(){toastIdleV5_('Copie impossible.');})
+          .copierPartieASurBSorealIdle(SOREAL_SESSION);
+      }
+      window.__copierPartieADevIdleV1__=copierPartieADevIdleV1_;
       function rendrePartiesDevIdleV1_(){
         const p=idlePartieDevV1;
         if(!p||!p.actif)return '';
@@ -125,6 +138,7 @@
             bouton('b','Partie B','Comparaison NGU IDLE')+
           '</div>'+
           '<div style="font-size:14px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
+          (p.partie==='b'?'<div style="margin-top:10px"><button type="button" class="soreal-idle-parties-dev-bouton-v1" onclick="window.__copierPartieADevIdleV1__()"><b>Copier la partie A ici</b><span>Mêmes conditions que ta vraie partie (A n’est pas modifiée)</span></button></div>':'')+
         '</div>';
       }
       let idleTimerEnergie=null;

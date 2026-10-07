@@ -16784,6 +16784,36 @@ function supprimerBugSorealIdle(sessionToken, id) {
  * Réservé à l'administrateur ET à la partie B (compte distinct de la partie A, voir idle-dev-save-slots-v1.js) : jamais la vraie partie, jamais un autre joueur. Fixe seulement des valeurs de départ bornées :
  *   boss (boss vaincus, 0-140), or (0-1e30), exp / ap (0-1e18), pp (0-1e15), energieCap (1-1e12), energiePuissance (1-1e9), energie (énergie libre, bornée au plafond).
  */
+/*
+ * Copie la partie A (la vraie) SUR la partie B (le banc d'essai) : mêmes niveaux, mêmes objets, mêmes monnaies, pour reproduire en essai ce que Norman voit dans son vrai jeu (2026-10-07 :
+ * « copie ma partie A sur la B, comme ça tu es dans les mêmes conditions »). La partie A est seulement LUE, jamais modifiée. Les colonnes d'identité de la ligne B (id, nom « (B) », adresses
+ * alias, public, rang) sont conservées : la B reste exclue du classement et du fil « En direct ». Réservé à l'administrateur, depuis la partie B.
+ */
+function copierPartieASurBSorealIdle(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!idleDevSlotsAvailableV1(acces.user) || idleDevSlotForUserV1(acces.user) !== 'b') throw new Error('PARTIE_TEST_REQUISE');
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return { ok: false, code: 'SOREAL_IDLE_OCCUPE', retryable: true, message: 'Le moteur termine encore une action. Réessaie dans un instant.' };
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const accesA = Object.assign({}, acces, { user: Object.assign({}, acces.user, { slot: 'a' }) });
+    const ligneA = trouverLigneJoueurSorealIdle_(feuille, accesA);
+    const ligneB = trouverLigneJoueurSorealIdle_(feuille, acces);
+    if (ligneA === ligneB) throw new Error('PARTIES_IDENTIQUES');
+    const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+    const rowA = feuille.getRange(ligneA, 1, 1, c.STATS_JSON).getValues()[0];
+    const rowB = feuille.getRange(ligneB, 1, 1, c.STATS_JSON).getValues()[0];
+    const gardees = [c.ID, c.NOM, c.PUBLIC, c.RANG, c.EMAIL_PRINCIPAL, c.EMAIL_CONNEXION];
+    const neuve = rowA.map((valeur, i) => (gardees.indexOf(i + 1) !== -1 ? rowB[i] : valeur));
+    feuille.getRange(ligneB, 1, 1, c.STATS_JSON).setValues([neuve]);
+    SpreadsheetApp.flush();
+    return { ok: true, copie: true, message: 'Partie A copiée sur la partie B.' };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function preparerPartieTestSorealIdle(sessionToken, options) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!idleDevSlotsAvailableV1(acces.user) || idleDevSlotForUserV1(acces.user) !== 'b') throw new Error('PARTIE_TEST_REQUISE');
@@ -17206,6 +17236,7 @@ const IDLE_OPERATIONS={
   obtenirPartieDevSorealIdle,
   definirPartieDevSorealIdle,
   preparerPartieTestSorealIdle,
+  copierPartieASurBSorealIdle,
   enregistrerClicsSorealIdle,
   definirClassementVisibleSorealIdle
 };
