@@ -213,6 +213,12 @@ function installerStyle_(){
     '#'+EDITEUR_ID+' .stx-etat{margin-top:10px;font-size:14px;min-height:20px}'+
     '#'+EDITEUR_ID+' .stx-etat.erreur{color:#ff9d9d}'+
     '.stx-bouton{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:4px 10px;border-radius:999px;border:1.5px solid rgba(255,212,0,.7);background:rgba(255,212,0,.12);color:#ffd84a;font:800 13px/1 system-ui,sans-serif;cursor:pointer}'+
+    '.stx-groupe{border:1px solid rgba(255,255,255,.14);border-radius:12px;margin:8px 0;background:rgba(255,255,255,.03);padding:2px 10px}'+
+    '.stx-groupe>summary{cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 0;list-style:none;font-size:15px}'+
+    '.stx-groupe>summary::-webkit-details-marker{display:none}'+
+    '.stx-groupe>summary::before{content:"▸";opacity:.7}.stx-groupe[open]>summary::before{content:"▾"}'+
+    '.stx-pastille{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(255,255,255,.08);color:#b8c7ea;white-space:nowrap}'+
+    '.stx-pastille.modif{background:rgba(255,216,74,.16);color:#ffd84a}'+
     '.stx-adm-ligne{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.14);border-radius:10px;margin:6px 0;background:rgba(255,255,255,.04)}'+
     '.stx-adm-ligne .nom{flex:1;min-width:0;font-weight:700}'+
     '.stx-adm-ligne .badge{font-size:12px;padding:2px 8px;border-radius:999px;background:rgba(74,222,128,.18);color:#86efac;white-space:nowrap}'+
@@ -231,8 +237,59 @@ function installerStyle_(){
     '#'+EDITEUR_ID+'.stx-reduit .stx-mini{display:block;pointer-events:auto;background:#0d1530;border:1.5px solid #5b8cff;border-radius:14px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.55);color:#e8eefc;font:500 13px/1.4 system-ui,sans-serif}'+
     '#'+EDITEUR_ID+' .stx-mini-titre{font-weight:900;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
     '#'+EDITEUR_ID+' .stx-mini-etat{color:#c9d4ee;margin-bottom:8px;max-height:4.2em;overflow:hidden}'+
-    '#'+EDITEUR_ID+' .stx-mini-actions{display:flex;gap:8px;justify-content:flex-end}';
+    '#'+EDITEUR_ID+' .stx-mini-actions{display:flex;gap:8px;justify-content:flex-end}'+
+    /* ----- éditeur v2 (Norman, 2026-10-08) : bulles de dialogue, choix de voix avec écoute, expressions, pauses ----- */
+    '#'+EDITEUR_ID+' .stx-v2{padding:0;border-radius:18px;max-width:720px}'+
+    '#'+EDITEUR_ID+' .stx-barre{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,#1a2540,#131b2e);border-bottom:1px solid #2b3a5c;border-radius:18px 18px 0 0}'+
+    '#'+EDITEUR_ID+' .stx-barre h3{margin:0;font-size:17px;line-height:1.2}'+
+    '#'+EDITEUR_ID+' .stx-sous{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#9fb0d4;margin-top:3px}'+
+    '#'+EDITEUR_ID+' .stx-corps{padding:14px;display:grid;gap:12px}'+
+    '#'+EDITEUR_ID+' .stx-icone{min-width:42px;padding:0;font-size:18px;border-radius:12px}'+
+    '#'+EDITEUR_ID+' .stx-pastille{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(255,255,255,.08);color:#b8c7ea;white-space:nowrap}'+
+    '#'+EDITEUR_ID+' .stx-pastille.modif{background:rgba(255,216,74,.16);color:#ffd84a}'+
+    '#'+EDITEUR_ID+' .stx-champ-titre{font-weight:800;font-size:13px;color:#b8c7ea;letter-spacing:.03em;text-transform:uppercase;margin:4px 0 2px}'+
+    '#'+EDITEUR_ID+' .stx-cadre{background:#0e1626;border:1px solid #2a3858;border-left:6px solid var(--stx-c,#5b8cff);border-radius:14px;padding:10px 12px}'+
+    '#'+EDITEUR_ID+' .stx-bulle-tete{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}'+
+    '#'+EDITEUR_ID+' .stx-flex{flex:1}'+
+    '#'+EDITEUR_ID+' .stx-flex{flex:1}'+
+    '#'+EDITEUR_ID+' .stx-etat-voix{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.08);color:#b8c7ea;white-space:nowrap}'+
+    '#'+EDITEUR_ID+' .stx-etat-voix.ok{background:rgba(74,222,128,.16);color:#86efac}'+
+    '#'+EDITEUR_ID+' .stx-bulle-pied{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}'+
+    '#'+EDITEUR_ID+' details.stx-det{margin-top:8px}'+
+    '#'+EDITEUR_ID+' details.stx-det>summary{cursor:pointer;font-size:13px;font-weight:700;color:#9fb0d4;padding:6px 2px;list-style:none}'+
+    '#'+EDITEUR_ID+' details.stx-det>summary::-webkit-details-marker{display:none}'+
+    '#'+EDITEUR_ID+' button.stx-ajout{width:100%;border-style:dashed;min-height:46px;background:transparent;color:#9fc3ff}'+
+    '#'+EDITEUR_ID+' .stx-pied{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:linear-gradient(0deg,#121a2c,#151f35);border-top:1px solid #2b3a5c;border-radius:0 0 18px 18px}'+
+    '#'+EDITEUR_ID+' .stx-pied button.stx-gros{min-height:46px;padding:8px 18px;font-size:15px}'+
+    '#'+EDITEUR_ID+' .stx-plus-pied{position:relative;margin-left:auto}'+
+    '#'+EDITEUR_ID+' .stx-plus-pied>summary{cursor:pointer;list-style:none;min-height:42px;min-width:42px;display:grid;place-items:center;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;font:900 20px/1 system-ui,sans-serif}'+
+    '#'+EDITEUR_ID+' .stx-plus-pied>summary::-webkit-details-marker{display:none}'+
+    '#'+EDITEUR_ID+' .stx-plus-menu{position:absolute;right:0;bottom:50px;z-index:6;display:grid;gap:8px;min-width:230px;padding:10px;border-radius:14px;background:#10151f;border:1.5px solid #4b5d85;box-shadow:0 12px 30px rgba(0,0,0,.55)}'+
+    '#'+EDITEUR_ID+' .stx-plus-menu label{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;text-transform:none;letter-spacing:0}'+
+    '@media(max-width:600px){#'+EDITEUR_ID+'{padding:0}#'+EDITEUR_ID+' .stx-v2{border-radius:0;min-height:100%}#'+EDITEUR_ID+' .stx-barre{border-radius:0}#'+EDITEUR_ID+' .stx-pied{border-radius:0;gap:6px;padding:8px 10px}#'+EDITEUR_ID+' .stx-lib{display:none}#'+EDITEUR_ID+' .stx-pied>button[data-stx-act="ecouter"]{min-width:46px;padding:6px 0}#'+EDITEUR_ID+' .stx-pied>button,#'+EDITEUR_ID+' .stx-pied button.stx-gros{min-height:42px;padding:6px 11px;font-size:13px}}';
   document.head.appendChild(s);
+}
+
+/* ---------- voix, expressions : couleurs, noms, choix (module partagé modules/voix-ui-v1.js) ---------- */
+function VU_(){return window.__SOREAL_IDLE_VOIX_UI_V1__||null;}
+function infoVoix_(id){var u=VU_();return u?u.infoVoix(id):{id:id,nom:String(id),desc:''};}
+function infoExpr_(id){var u=VU_();return u?u.infoExpr(id):{id:id||'neutre',nom:'Neutre',emoji:'🙂',aide:''};}
+function couleurVoix_(id){var u=VU_();return u?u.couleurVoix(id):'#5b8cff';}
+/* Une voix est « prête » si son fichier existe ET qu'elle n'est pas à refaire (voix ou expression changée depuis). */
+function etatVoixHtml_(blocs){
+  if(!blocs||!blocs.length)return '';
+  var voix=edition.voix||[],aR=edition.aRefaire||{};
+  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1&&!aR[b.hash];}).length;
+  if(prets>=blocs.length)return '<span class="stx-etat-voix ok">🎙 Voix prête</span>';
+  return '<span class="stx-etat-voix">'+(prets?'🎙 '+prets+'/'+blocs.length+' prêtes':'○ À générer')+'</span>';
+}
+function puceStudioHtml_(){
+  var u=VU_();
+  return u?u.puceStudioHtml(studio.ok,'sorealIdleTexteStudioV1'):'';
+}
+function majPuceStudio_(){
+  var el=document.getElementById('sorealIdleTexteStudioV1');
+  if(el)el.outerHTML=puceStudioHtml_();
 }
 
 function voixProposees_(){
@@ -251,31 +308,58 @@ function voixProposees_(){
 function champParle_(c){return Boolean(c&&(c.type==='texte'||c.type==='liste'));}
 /* Voix en vigueur à la fin d'un texte : celle de sa dernière balise, sinon celle avec laquelle il a commencé. */
 function voixFinale_(texte,depart){
-  var re=/\(\s*([^()\n]{1,40}?)\s*\)/g,m,voix=depart;
-  while((m=re.exec(String(texte==null?'':texte)))){var v=voixDeBalise_(m[1]);if(v)voix=parleurUi_(v);}
-  return voix;
+  return etatFinal_(texte,depart,'').voix;
+}
+/* Expression désignée par le contenu d'une parenthèse (« joyeux »…), ou « » ; « neutre » désigne le ton de base (identifiant vide dans l'éditeur). */
+function exprDeBalise_(contenu){
+  var t=tts_();
+  try{return t&&typeof t.resoudreExpressionBalise==='function'?String(t.resoudreExpressionBalise(contenu)||''):'';}catch(_e){return '';}
+}
+function exprCanon_(e){return e==='neutre'?'':(e||'');}
+/* Voix et expression en vigueur à la fin d'un texte : une balise de voix ramène au ton neutre, une balise d'expression dure jusqu'à la suivante. */
+function etatFinal_(texte,voix,expr){
+  var re=/\(\s*([^()\n]{1,40}?)\s*\)/g,m;
+  while((m=re.exec(String(texte==null?'':texte)))){
+    var v=voixDeBalise_(m[1]);
+    if(v){voix=parleurUi_(v);expr='';continue;}
+    var e=exprDeBalise_(m[1]);
+    if(e)expr=exprCanon_(e);
+  }
+  return {voix:voix,expr:expr};
+}
+/* Balises de TÊTE d'un texte (voix et/ou expression, dans leur ordre) : appliquées à l'état de départ ; le reste est le texte du cadre. Les pauses restent dans le texte. */
+function teteBalises_(texte,voix,expr){
+  var reste=String(texte==null?'':texte).trim(),re=/^\(\s*([^()\n]{1,40}?)\s*\)\s*/,m;
+  while((m=re.exec(reste))){
+    var v=voixDeBalise_(m[1]);
+    if(v){voix=parleurUi_(v);expr='';reste=reste.slice(m[0].length);continue;}
+    var e=exprDeBalise_(m[1]);
+    if(e){expr=exprCanon_(e);reste=reste.slice(m[0].length);continue;}
+    break;
+  }
+  return {voix:voix,expr:expr,reste:reste};
 }
 /* Liste de paragraphes -> cadres : la voix d'un paragraphe est celle de sa balise de tête, sinon celle qui était en vigueur à la fin du paragraphe précédent. */
 function lignesDepuisListe_(liste){
-  var courant='narrateur',lignes=[];
+  var etat={voix:'narrateur',expr:''},lignes=[];
   (Array.isArray(liste)?liste:[]).forEach(function(p){
-    var texte=String(p==null?'':p).trim();
-    var m=/^\(\s*([^()\n]{1,40}?)\s*\)\s*/.exec(texte);
-    var voix=courant;
-    if(m){var v=voixDeBalise_(m[1]);if(v){voix=parleurUi_(v);texte=texte.slice(m[0].length);}}
-    lignes.push({parleur:voix,texte:texte});
-    courant=voixFinale_(texte,voix);
+    var t=teteBalises_(p,etat.voix,etat.expr);
+    lignes.push({parleur:t.voix,expr:t.expr,texte:t.reste});
+    etat=etatFinal_(t.reste,t.voix,t.expr);
   });
-  return lignes.length?lignes:[{parleur:'narrateur',texte:''}];
+  return lignes.length?lignes:[{parleur:'narrateur',expr:'',texte:''}];
 }
 /* Cadres -> liste de paragraphes : une balise de tête seulement quand la voix change. */
 function listeDepuisLignes_(lignes){
-  var courant='narrateur',liste=[];
+  var etat={voix:'narrateur',expr:''},liste=[];
   (lignes||[]).forEach(function(l){
     var texte=String(l&&l.texte||'').trim();
     if(!texte)return;
-    liste.push((l.parleur!==courant?'('+l.parleur+') ':'')+texte);
-    courant=voixFinale_(texte,l.parleur);
+    var v=l.parleur||'narrateur',e=l.expr||'',balises='';
+    if(v!==etat.voix){balises+='('+v+') ';etat={voix:v,expr:''};}
+    if(e!==etat.expr){balises+='('+(e||'neutre')+') ';etat={voix:etat.voix,expr:e};}
+    liste.push(balises+texte);
+    etat=etatFinal_(texte,etat.voix,etat.expr);
   });
   return liste;
 }
@@ -285,8 +369,8 @@ function lignesDepuisTexte_(texte){
   var re=/\(\s*([^()\n]{1,40}?)\s*\)/g;
   var voix='narrateur',dernier=0,m,lignes=[];
   function clore(fin){
-    var t=brut.slice(dernier,fin).trim();
-    if(t)lignes.push({parleur:voix,texte:t});
+    var t=teteBalises_(brut.slice(dernier,fin),voix,'');
+    if(t.reste)lignes.push({parleur:voix,expr:t.expr,texte:t.reste});
   }
   while((m=re.exec(brut))){
     var v=voixDeBalise_(m[1]);
@@ -296,12 +380,13 @@ function lignesDepuisTexte_(texte){
     dernier=m.index+m[0].length;
   }
   clore(brut.length);
-  return lignes.length?lignes:[{parleur:voix,texte:''}];
+  return lignes.length?lignes:[{parleur:voix,expr:'',texte:''}];
 }
 function texteDepuisLignes_(lignes){
   var utiles=(lignes||[]).filter(function(x){return String(x&&x.texte||'').trim();});
   return utiles.map(function(x,k){
     var balise=(k>0||x.parleur!=='narrateur')?'('+x.parleur+') ':'';
+    if(x.expr)balise+='('+x.expr+') ';
     return balise+String(x.texte).trim();
   }).join(' ');
 }
@@ -343,35 +428,40 @@ function parleurOptions_(courant){
 }
 function cadreHtml_(champ,k,l,blocs){
   var o=outilsVoix_();
+  var u=VU_();
   var voix=edition.voix||[];
-  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
-  var badge=!blocs.length?'':(prets>=blocs.length?'<span class="stx-badge ok">🎙 prête</span>':'<span class="stx-badge">🎙 '+prets+'/'+blocs.length+'</span>');
   var cle=esc_(champ)+'|'+k;
-  return '<div class="stx-cadre" data-stx-cadre="'+cle+'">'+
-    '<div class="stx-cadre-tete"><span class="stx-cadre-n">'+(k+1)+'</span>'+
-      '<select data-stx-lparleur="'+cle+'" title="La voix de ce personnage">'+parleurOptions_(l.parleur)+'</select>'+badge+
-      '<span style="flex:1"></span>'+
-      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
-      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de CE personnage seulement, autant de fois que tu veux">🎙 Générer cette ligne</button>'+
-      '<button type="button" class="stx-voix danger" data-stx-l="suppr" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Retirer ce personnage (ce cadre)">−</button>'+
+  var fichiers='<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de cette ligne.</div>'+o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>')+'</div>';
+  return '<div class="stx-cadre" data-vu-bulle="'+cle+'" data-stx-cadre="'+cle+'" style="--stx-c:'+couleurVoix_(l.parleur)+';--vu-c:'+couleurVoix_(l.parleur)+'">'+
+    '<div class="stx-bulle-tete">'+
+      (u?u.chipsHtml(cle,l):'')+
+      '<span class="stx-flex"></span>'+
+      '<span data-stx-badge="'+cle+'">'+etatVoixHtml_(blocs)+'</span>'+
     '</div>'+
+    '<input type="hidden" data-stx-lparleur="'+cle+'" value="'+esc_(parleurUi_(l.parleur))+'"><input type="hidden" data-stx-lexpr="'+cle+'" value="'+esc_(l.expr||'')+'">'+
     '<textarea rows="3" data-stx-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
-    '<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichiers de voix de cette ligne (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(blocs,voix):'')+'</div>'+
+    (u?u.pausesHtml(cle,'stx-voix'):'')+
+    '<div class="stx-bulle-pied">'+
+      (u?u.pauseBoutonHtml(cle,'stx-voix'):'')+
+      '<span class="stx-flex"></span>'+
+      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
+      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de cette ligne, autant de fois que tu veux">🎙 Générer</button>'+
+      '<button type="button" class="stx-voix danger" data-stx-l="suppr" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Retirer ce personnage">🗑</button>'+
+    '</div>'+
+    '<details class="stx-det"><summary>📁 Fichiers de cette ligne</summary>'+fichiers+'</details>'+
   '</div>';
 }
 /* Cadre du titre : écouter, générer (ou régénérer) et fichiers de voix du nom lu en tête de la chronique. */
 function titreCadreHtml_(blocs){
   var o=outilsVoix_();
   var voix=edition.voix||[];
-  var prets=blocs.filter(function(b){return voix.indexOf(b.hash)!==-1;}).length;
-  var badge=!blocs.length?'':(prets>=blocs.length?'<span class="stx-badge ok">🎙 prête</span>':'<span class="stx-badge">🎙 '+prets+'/'+blocs.length+'</span>');
-  return '<div class="stx-cadre stx-cadre-titre" data-stx-cadre="__titre|0">'+
-    '<div class="stx-cadre-tete"><b>Voix du titre</b>'+badge+
-      '<span style="flex:1"></span>'+
-      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="__titre" data-k="0" title="Écouter uniquement le titre">▶ Écouter le titre</button>'+
-      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="__titre" data-k="0" title="Générer (ou régénérer) la voix du titre seulement, autant de fois que tu veux">🎙 Générer le titre</button>'+
-    '</div>'+
-    '<div class="stx-cadre-fichiers" data-stx-fv="__titre|0">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichier de voix du titre (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(blocs,voix):'')+'</div>'+
+  return '<div class="stx-cadre stx-cadre-titre" data-stx-cadre="__titre|0" style="--stx-c:#fbbf24;--vu-c:#fbbf24">'+
+    '<div class="stx-bulle-tete"><span class="vu-chip" style="cursor:default"><span class="vu-av">T</span><span>Voix du titre</span></span><span class="stx-flex"></span>'+
+      '<span data-stx-badge="__titre|0">'+etatVoixHtml_(blocs)+'</span></div>'+
+    '<div class="stx-bulle-pied"><span class="stx-flex"></span>'+
+      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="__titre" data-k="0" title="Écouter uniquement le titre">▶ Écouter</button>'+
+      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="__titre" data-k="0" title="Générer (ou régénérer) la voix du titre, autant de fois que tu veux">🎙 Générer</button></div>'+
+    '<details class="stx-det"><summary>📁 Fichier du titre</summary><div class="stx-cadre-fichiers" data-stx-fv="__titre|0">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Aucun fichier pour l’instant.</div>')+'</div></details>'+
   '</div>';
 }
 function cadresChampHtml_(champ){
@@ -381,7 +471,7 @@ function cadresChampHtml_(champ){
     var blocs=[];
     r.cadres.forEach(function(c){if(c.champ===champ&&c.k===k)blocs=c.blocs;});
     return cadreHtml_(champ,k,l,blocs);
-  }).join('')+'<button type="button" data-stx-act="cadre+" data-c="'+esc_(champ)+'" title="Ajouter un personnage (un nouveau cadre)">＋ Ajouter un personnage</button>';
+  }).join('')+'<button type="button" class="stx-ajout" data-stx-act="cadre+" data-c="'+esc_(champ)+'" title="Ajouter un personnage (une nouvelle bulle)">＋ Ajouter un personnage</button>';
 }
 function rafraichirCadres_(champ){
   var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-cadres="'+champ+'"]');
@@ -411,8 +501,10 @@ function lireChamps_(){
           var cle=c.id+'|'+k;
           var ta=racine.querySelector('[data-stx-ltexte="'+cle+'"]');
           var sel=racine.querySelector('[data-stx-lparleur="'+cle+'"]');
+          var ex=racine.querySelector('[data-stx-lexpr="'+cle+'"]');
           if(ta)l.texte=ta.value;
           if(sel)l.parleur=sel.value;
+          if(ex)l.expr=ex.value;
         });
       }
       valeurs[c.id]=c.type==='liste'?listeDepuisLignes_(edition.lignes[c.id]):texteDepuisLignes_(edition.lignes[c.id]);
@@ -425,6 +517,7 @@ function lireChamps_(){
 }
 
 function afficherEtat_(message,erreur){
+  majPuceStudio_();
   var el=document.getElementById('sorealIdleTexteEtatV1');
   var base=studio.texte?'<div class="stx-aide">'+esc_(studio.texte)+'</div>':'';
   if(el){
@@ -559,7 +652,7 @@ function lirePrononciationsListe_(){var o=pronOutils_();return o?o.lirePrononcia
 
 function statutVoix_(){
   var blocs=blocsDeLecture_(lireChamps_());
-  var prets=blocs.filter(function(b){return edition.voix.indexOf(b.hash)!==-1;}).length;
+  var prets=blocs.filter(function(b){return edition.voix.indexOf(b.hash)!==-1&&!(edition.aRefaire&&edition.aRefaire[b.hash]);}).length;
   return {total:blocs.length,prets:prets};
 }
 
@@ -570,9 +663,9 @@ function dessinerEditeur_(){
   var d=edition.def;
   var champsHtml=d.champs.map(function(c){
     if(champParle_(c)&&edition.lignes&&edition.lignes[c.id]){
-      return '<label>'+esc_(c.label)+'</label>'+
-        '<div class="stx-aide">'+(c.type==='liste'?'Un cadre par paragraphe : choisis sa voix, écris-le, puis génère la voix de ce cadre seulement. « ＋ » ajoute un paragraphe, « − » le retire.':'Un cadre par personnage : choisis sa voix, écris sa ligne, puis génère la voix de ce cadre seulement. « ＋ » ajoute un personnage, « − » le retire.')+'</div>'+
-        '<div class="stx-cadres" data-stx-cadres="'+esc_(c.id)+'">'+cadresChampHtml_(c.id)+'</div>';
+      return '<div><div class="stx-champ-titre">'+esc_(c.label)+'</div>'+
+        '<div class="stx-aide">Une bulle par personnage : choisis sa voix et son expression, écris sa ligne, écoute, puis génère.</div>'+
+        '<div class="stx-cadres" data-stx-cadres="'+esc_(c.id)+'">'+cadresChampHtml_(c.id)+'</div></div>';
     }
     var valeur=valeurVersTexte_(c,edition.valeurs[c.id]);
     var rows=c.type==='liste'?9:7;
@@ -581,30 +674,34 @@ function dessinerEditeur_(){
       ?'<input type="text" data-stx-champ="'+esc_(c.id)+'" value="'+esc_(valeur)+'">'
       :'<textarea rows="'+rows+'" data-stx-champ="'+esc_(c.id)+'">'+esc_(valeur)+'</textarea>';
     var cadreTitre=d.titre===c.id?'<div class="stx-titre-bloc" data-stx-titre-bloc="1">'+titreCadreHtml_(blocsParCadre_(edition.valeurs).titre||[])+'</div>':'';
-    return '<label>'+esc_(c.label)+'</label>'+champ+aide+cadreTitre;
+    return '<div><div class="stx-champ-titre">'+esc_(c.label)+'</div>'+champ+aide+cadreTitre+'</div>';
   }).join('');
   var racine=document.createElement('div');
   racine.id=EDITEUR_ID;
   racine.innerHTML=
-    '<div class="stx-carte" role="dialog" aria-modal="true">'+
-      '<div style="display:flex;align-items:center;gap:8px"><h3 style="flex:1">✏️ '+esc_(d.libelle)+'</h3>'+
-        '<button type="button" data-stx-act="reduire" title="Réduire en petit menu flottant : tu peux continuer à jouer pendant que les voix se génèrent">➖ Réduire</button></div>'+
-      '<div class="stx-cle">'+esc_(edition.cle)+(edition.surcharge?' · <b style="color:#ffd84a">texte modifié</b>':' · texte d’origine')+'</div>'+
-      champsHtml+
-      '<div id="sorealIdleTextePronBlocV1">'+prononciationsHtml_()+'</div>'+
-      '<div class="stx-actions">'+
-        '<button type="button" data-stx-act="ecouter" id="sorealIdleTexteEcouterV1">▶ Tout écouter</button>'+
-        '<button type="button" data-stx-act="generer" id="sorealIdleTexteGenererV1">🎙 Générer toutes les voix</button>'+
-        '<button type="button" data-stx-act="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
-        '<button type="button" data-stx-act="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
-        '<label style="display:flex;align-items:center;gap:6px;margin:0;font-size:13px;text-transform:none"><input type="checkbox" id="sorealIdleTexteToutesV1"> tout régénérer</label>'+
+    '<div class="stx-carte stx-v2" role="dialog" aria-modal="true" title="'+esc_(edition.cle)+'">'+
+      '<div class="stx-barre">'+
+        '<div style="flex:1;min-width:0"><h3>✏️ '+esc_(d.libelle)+'</h3>'+
+          '<div class="stx-sous">'+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+puceStudioHtml_()+'</div></div>'+
+        '<button type="button" class="stx-icone" data-stx-act="reduire" title="Réduire : tu peux continuer à jouer pendant que les voix se génèrent">➖</button>'+
+        '<button type="button" class="stx-icone" data-stx-act="fermer" title="Fermer">✕</button>'+
       '</div>'+
-      '<div class="stx-actions">'+
-        '<button type="button" class="primaire" data-stx-act="enregistrer">💾 Enregistrer</button>'+
-        (edition.surcharge?'<button type="button" class="danger" data-stx-act="retablir">↩ Rétablir l’original</button>':'')+
-        '<button type="button" data-stx-act="fermer">Fermer</button>'+
+      '<div class="stx-corps">'+
+        champsHtml+
+        '<details class="stx-det"><summary>🗣 Prononciation : corriger un mot mal lu</summary><div id="sorealIdleTextePronBlocV1">'+prononciationsHtml_()+'</div></details>'+
+        '<div class="stx-etat" id="sorealIdleTexteEtatV1"></div>'+
       '</div>'+
-      '<div class="stx-etat" id="sorealIdleTexteEtatV1"></div>'+
+      '<div class="stx-pied">'+
+        '<button type="button" class="primaire stx-gros" data-stx-act="enregistrer">💾 Enregistrer</button>'+
+        '<button type="button" data-stx-act="generer" id="sorealIdleTexteGenererV1" title="Génère les voix qui ne sont pas encore prêtes">🎙 Tout générer</button>'+
+        '<button type="button" data-stx-act="ecouter" id="sorealIdleTexteEcouterV1" title="Écouter tout le texte">▶<span class="stx-lib"> Tout écouter</span></button>'+
+        '<details class="stx-plus-pied"><summary title="Plus d’actions">⋯</summary><div class="stx-plus-menu">'+
+          '<button type="button" data-stx-act="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
+          '<button type="button" data-stx-act="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
+          '<label><input type="checkbox" id="sorealIdleTexteToutesV1"> Tout régénérer</label>'+
+          (edition.surcharge?'<button type="button" class="danger" data-stx-act="retablir">↩ Rétablir l’original</button>':'')+
+        '</div></details>'+
+      '</div>'+
     '</div>'+
     '<div class="stx-mini">'+
       '<div class="stx-mini-titre">🎙 Voix · <span id="sorealIdleTexteMiniTitreV1"></span></div>'+
@@ -616,12 +713,16 @@ function dessinerEditeur_(){
     '</div>';
   document.body.appendChild(racine);
   racine.classList.toggle('stx-reduit',reduit);
+  var uiPartagee=VU_();
+  if(uiPartagee)uiPartagee.activer(racine,{
+    surChoix:function(type,cle){edition.valeurs=lireChamps_();ouvrirSelecteur_(type,cle);},
+    texteDe:function(cle){return racine.querySelector('[data-stx-ltexte="'+cle+'"]');}
+  });
   racine.addEventListener('focusin',function(ev){
     if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute('data-stx-champ'))edition.dernierChamp=ev.target;
   });
   afficherEtat_(statutLigne_());
 }
-
 /* Liste des fichiers de voix des blocs du texte en cours d'édition (outils partagés avec l'éditeur d'histoires). */
 function fichiersVoixEditeurHtml_(){
   return '';
@@ -633,27 +734,14 @@ function rafraichirFichiersVoix_(){
   var r=blocsParCadre_(valeurs);
   r.cadres.forEach(function(c){
     var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-fv="'+c.champ+'|'+c.k+'"]');
-    if(el)el.innerHTML=o&&c.blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Fichiers de voix de cette ligne (télécharger, retoucher, remplacer)</div>'+o.fichiersVoixHtml(c.blocs,edition.voix):'';
+    if(el)el.innerHTML=o&&c.blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de cette ligne.</div>'+o.fichiersVoixHtml(c.blocs,edition.voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>';
+    var badge=document.querySelector('#'+EDITEUR_ID+' [data-stx-badge="'+c.champ+'|'+c.k+'"]');
+    if(badge)badge.innerHTML=etatVoixHtml_(c.blocs);
   });
   /* Cadre du titre : fichier et badge. */
   var cadreT=document.querySelector('#'+EDITEUR_ID+' [data-stx-titre-bloc]');
   if(cadreT&&edition.def.titre)cadreT.innerHTML=titreCadreHtml_(r.titre||[]);
-  /* Badges « prête » des cadres. */
-  r.cadres.forEach(function(c){
-    var cadre=document.querySelector('#'+EDITEUR_ID+' [data-stx-cadre="'+c.champ+'|'+c.k+'"] .stx-cadre-tete');
-    if(!cadre)return;
-    var vieux=cadre.querySelector('.stx-badge');
-    if(vieux)vieux.remove();
-    if(!c.blocs.length)return;
-    var prets=c.blocs.filter(function(b){return edition.voix.indexOf(b.hash)!==-1;}).length;
-    var b=document.createElement('span');
-    b.className='stx-badge'+(prets>=c.blocs.length?' ok':'');
-    b.textContent=prets>=c.blocs.length?'🎙 prête':'🎙 '+prets+'/'+c.blocs.length;
-    var espace=cadre.querySelector('span[style]');
-    cadre.insertBefore(b,espace);
-  });
 }
-
 function statutLigne_(){
   var s=statutVoix_();
   if(!s.total)return '';
@@ -669,6 +757,41 @@ function verifierStudio_(){
     studio={ok:false,texte:'🔴 Studio de voix non détecté sur ce PC : clique sur « 🚀 Lancer le studio » (ou lance « lancer.bat » dans cloudflare/tools/voice-studio) pour générer les voix. Écouter et enregistrer fonctionnent sans lui.'};
     afficherEtat_(statutLigne_());
   });
+}
+
+/* Choix fait dans le sélecteur partagé : la bulle prend la voix ou l'expression ; ses fichiers de voix sont à refaire (la voix et l'expression se règlent à la génération). */
+function appliquerChoix_(type,cle,valeur){
+  if(!edition)return;
+  var pos=String(cle).split('|'),champ=pos[0],k=Number(pos[1]);
+  var racine=document.getElementById(EDITEUR_ID);
+  var l=edition.lignes&&edition.lignes[champ]&&edition.lignes[champ][k];
+  if(!racine||!l)return;
+  var avant=blocsDuCadre_(champ,k,lireChamps_());
+  if(type==='voix'){
+    l.parleur=parleurUi_(valeur);
+    var h=racine.querySelector('[data-stx-lparleur="'+cle+'"]');
+    if(h)h.value=l.parleur;
+  }else{
+    l.expr=exprCanon_(valeur);
+    var he=racine.querySelector('[data-stx-lexpr="'+cle+'"]');
+    if(he)he.value=l.expr;
+  }
+  if(!edition.aRefaire)edition.aRefaire={};
+  avant.forEach(function(b){if(edition.voix.indexOf(b.hash)!==-1)edition.aRefaire[b.hash]=1;});
+  var u=VU_();
+  if(u)u.appliquerAuxPuces(racine.querySelector('[data-stx-cadre="'+cle+'"]'),l);
+  rafraichirFichiersVoix_();
+  afficherEtat_(statutLigne_());
+}
+/* Ouvre le sélecteur partagé (voix ou expression, avec écoute) pour une bulle. */
+function ouvrirSelecteur_(type,cle){
+  var u=VU_(),racine=document.getElementById(EDITEUR_ID);
+  if(!u||!racine||!edition)return;
+  var pos=String(cle||'').split('|'),champ=pos[0],k=Number(pos[1]);
+  var l=edition.lignes&&edition.lignes[champ]&&edition.lignes[champ][k];
+  if(!l)return;
+  lireChamps_();
+  u.ouvrirSelecteur({racine:racine,type:type,ligne:l,outils:outilsVoix_(),apres:function(valeur){appliquerChoix_(type,cle,valeur);}});
 }
 
 function outilsVoix_(){
@@ -690,12 +813,16 @@ function inserer_(balise){
   afficherEtat_(statutLigne_());
 }
 
+/* « Tout écouter » : sur téléphone seule l'icône reste (le libellé complet est dans l'info-bulle), pour que les actions tiennent sur une ligne. */
+function majBoutonEcouter_(b,actif){
+  b.innerHTML=actif?'⏹<span class="stx-lib"> Arrêter</span>':'▶<span class="stx-lib"> Tout écouter</span>';
+}
 function arreterEcoute_(){
   ecoute=false;ecouteCle='';
   Array.prototype.forEach.call(document.querySelectorAll('#'+EDITEUR_ID+' [data-stx-l="ecouter"]'),function(x){x.textContent='▶ Écouter';});
   try{var t=tts_();if(t&&typeof t.stop==='function')t.stop();}catch(_e){}
   var b=document.getElementById('sorealIdleTexteEcouterV1');
-  if(b)b.textContent='▶ Tout écouter';
+  if(b)majBoutonEcouter_(b,false);
 }
 
 function ecouter_(){
@@ -707,10 +834,10 @@ function ecouter_(){
   enregistrerVoix_(edition.voix);
   ecoute=true;
   var b=document.getElementById('sorealIdleTexteEcouterV1');
-  if(b)b.textContent='⏹ Arrêter';
+  if(b)majBoutonEcouter_(b,true);
   var demarre=false;
-  try{demarre=t.readText(t.retirerParentheses(brut),undefined,function(){ecoute=false;var bb=document.getElementById('sorealIdleTexteEcouterV1');if(bb)bb.textContent='▶ Tout écouter';});}catch(_e){demarre=false;}
-  if(!demarre){ecoute=false;if(b)b.textContent='▶ Tout écouter';afficherEtat_('Rien à lire dans ce texte.',true);}
+  try{demarre=t.readText(t.retirerParentheses(brut),undefined,function(){ecoute=false;var bb=document.getElementById('sorealIdleTexteEcouterV1');if(bb)majBoutonEcouter_(bb,false);});}catch(_e){demarre=false;}
+  if(!demarre){ecoute=false;if(b)majBoutonEcouter_(b,false);afficherEtat_('Rien à lire dans ce texte.',true);}
 }
 
 /* Écoute uniquement la ligne d'un cadre, avec la voix générée si elle existe (sinon la voix de secours du jeu, signalée). */
@@ -795,6 +922,7 @@ function retablir_(){
 }
 
 function fermer_(){
+  if(VU_())VU_().fermerSelecteur();
   arreterEcoute_();
   if(generation.enCours)generation.annule=true;
   var r=document.getElementById(EDITEUR_ID);
@@ -805,8 +933,8 @@ function fermer_(){
 
 function majBoutonGenerer_(){
   var b=document.getElementById('sorealIdleTexteGenererV1');
-  if(b)b.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer toutes les voix';
-  Array.prototype.forEach.call(document.querySelectorAll('#'+EDITEUR_ID+' [data-stx-l="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer cette ligne';});
+  if(b)b.textContent=generation.enCours?'⏹ Arrêter':'🎙 Tout générer';
+  Array.prototype.forEach.call(document.querySelectorAll('#'+EDITEUR_ID+' [data-stx-l="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer';});
 }
 
 function generer_(){
@@ -967,23 +1095,28 @@ function listeBossHtml_(){
 }
 
 function listePopupsHtml_(){
-  var cles=Object.keys(registre).sort(function(a,b){
-    var ga=registre[a].groupe||'',gb=registre[b].groupe||'';
-    return ga===gb?(a<b?-1:1):(ga<gb?-1:1);
-  });
+  var cles=Object.keys(registre);
   if(!cles.length)return '<div class="stx-aide">Les fenêtres explicatives apparaissent ici une fois le jeu chargé.</div>';
-  var groupe='',html='';
-  cles.forEach(function(cle){
-    var d=registre[cle];
-    if(d.groupe!==groupe){groupe=d.groupe;html+='<div class="stx-aide" style="margin-top:12px;font-weight:800;color:#b8c7ea">'+esc_(groupe)+'</div>';}
-    var s=surcharge_(cle);
-    html+='<div class="stx-adm-ligne"><span class="nom">'+esc_(d.libelle)+'</span>'+
-      (s?'<span class="badge">✏️ modifié</span>':'<span class="badge non">d’origine</span>')+
-      '<button type="button" class="stx-bouton" data-stx-cle="'+esc_(cle)+'">✏️ Modifier</button></div>';
+  var groupes={};
+  cles.forEach(function(c){var g=registre[c].groupe||'Autres';(groupes[g]=groupes[g]||[]).push(c);});
+  var cache=function(g){return g.indexOf('Voix sans texte')===0;};
+  var ordre=Object.keys(groupes).sort(function(a,b){
+    var pa=cache(a)?0:1,pb=cache(b)?0:1;
+    return pa!==pb?pa-pb:(a<b?-1:1);
   });
-  return html;
+  return ordre.map(function(g){
+    var liste=groupes[g].sort(function(a,b){return a<b?-1:1;});
+    var modifs=liste.filter(function(c){return surcharge_(c);}).length;
+    return '<details class="stx-groupe"'+(cache(g)?' open':'')+'><summary><b>'+esc_(g)+'</b><span class="stx-pastille">'+liste.length+'</span>'+
+      (modifs?'<span class="stx-pastille modif">'+modifs+' modifié'+(modifs>1?'s':'')+'</span>':'')+'</summary>'+
+      liste.map(function(cle){
+        var d=registre[cle],sm=surcharge_(cle);
+        return '<div class="stx-adm-ligne"><span class="nom">'+esc_(d.libelle)+'</span>'+
+          (sm?'<span class="badge">✏️ modifié</span>':'<span class="badge non">d’origine</span>')+
+          '<button type="button" class="stx-bouton" data-stx-cle="'+esc_(cle)+'">✏️ Modifier</button></div>';
+      }).join('')+'</details>';
+  }).join('');
 }
-
 function pageHtml_(){
   if(!admin.charge&&!admin.enCharge&&!admin.erreur)setTimeout(function(){chargerAdmin_();},0);
   return '<div class="soreal-idle-section-v8" id="sorealIdleTextesAdminV1">'+
@@ -1077,7 +1210,7 @@ document.addEventListener('click',function(ev){
         var cN=a.getAttribute('data-c');
         edition.valeurs=lireChamps_();
         var lN=edition.lignes[cN];
-        if(lN){lN.push({parleur:lN.length?lN[lN.length-1].parleur:'narrateur',texte:''});rafraichirCadres_(cN);}
+        if(lN){lN.push({parleur:lN.length?lN[lN.length-1].parleur:'narrateur',expr:'',texte:''});rafraichirCadres_(cN);}
         return;
       }
       if(act==='ecouter'){ecouter_();return;}

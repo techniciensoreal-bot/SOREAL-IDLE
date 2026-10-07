@@ -49,7 +49,7 @@ for (const morceau of ["Oui, je sais…", "dessins d’enfants", "cette dame qui
 assert.ok(passage.indexOf("pauseVoixIdleV1_(900)") > passage.indexOf("À vous, madame :") && passage.indexOf("pauseVoixIdleV1_(900)") < passage.indexOf("J’ADORE"), "une pause avant la dame");
 const lancer = ui.slice(ui.indexOf("function lancerVoixArrierePlanSandwichIdleV1_(){"), ui.indexOf("function tutorielPagesFermerV1_(){"));
 assert.ok(lancer.includes("!tts.enabled()"), "respecte la voix IA automatique du joueur");
-assert.ok(lancer.includes("tts.readText(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1)"));
+assert.ok(lancer.includes("tts.readText(texteVoixSansTexteIdleV1_(CLE_VOIX_SANDWICH_IDLE_V1,VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1))"), "lit le texte modifié par l'administrateur, sinon l'origine");
 const fermer = ui.slice(ui.indexOf("function tutorielPagesFermerV1_(){"), ui.indexOf("window.__tutorielPagesNaviguerV1__="));
 assert.ok(fermer.includes("etat.pages===TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1"), "seulement après le tutoriel de début, dernière page atteinte (le sandwich)");
 assert.ok(ui.includes("textes.push(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);"), "le passage est pré-généré comme les autres textes");

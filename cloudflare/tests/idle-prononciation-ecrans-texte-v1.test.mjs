@@ -32,7 +32,7 @@ assert.ok(histoires.includes("synthetiserBrut:synthetiserBrut_"));
 assert.ok(histoires.includes("return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur,expr);"), "la génération applique toujours les corrections");
 
 // 3. Chaque écran de texte (éditeur de textes) a le bloc « Prononciation » : ajouter, tester, lister, supprimer.
-assert.ok(textes.includes("'<div id=\"sorealIdleTextePronBlocV1\">'+prononciationsHtml_()+'</div>'+"), "bloc affiché dans chaque éditeur de texte");
+assert.ok(textes.includes("<div id=\"sorealIdleTextePronBlocV1\">'+prononciationsHtml_()+'</div>"), "bloc affiché dans chaque éditeur de texte");
 for (const fragment of ['data-stx-act="pron-ajouter"', 'data-stx-act="pron-tester"', 'data-stx-pron="tester"', 'data-stx-pron="suppr"', "Mot (ex. Alien)", "Se prononce (ex. Alienne)"]) assert.ok(textes.includes(fragment), fragment);
 assert.ok(textes.includes("if(act==='pron-ajouter'){ajouterPrononciation_();return;}") && textes.includes("supprimerPrononciation_(kPr)"), "câblé");
 

@@ -11504,11 +11504,55 @@
         pauseVoixIdleV1_(900)+
         'J’ADORE SOREAL IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.';
 
+      /*
+       * Voix SANS texte à l'écran, éditables elles aussi (Norman, 2026-10-08 : « je veux absolument toutes les voix éditables, même celle qui se déclenche sans texte ») : la voix de fond du sandwich et l'introduction
+       * « Chroniques de boss. » de la lecture des chroniques. Même éditeur que tous les textes (modules/textes-admin-v1.js), sous « Voix sans texte à l'écran » ; sans modification, le texte d'origine est lu tel quel.
+       * Le texte d'origine est donné avec ses balises (pause, voix de la dame) : exactement les mêmes blocs que le texte codé ci-dessus, donc les voix déjà générées restent valables.
+       */
+      const CLE_VOIX_SANDWICH_IDLE_V1='systeme:sandwich';
+      const CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1='systeme:chroniques-intro';
+      const TEXTE_CHRONIQUES_INTRO_IDLE_V1='Chroniques de boss.';
+      function baliseursPausesIdleV1_(texte){
+        return String(texte||'').replace(/\s*\uE000(\d+)\uE001\s*/g,function(tout,ms){return ' (pause '+ms+'ms) ';}).replace(/\s+/g,' ').trim();
+      }
+      const TEXTE_VOIX_SANDWICH_EDITABLE_IDLE_V1=baliseursPausesIdleV1_(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1).replace('(pause 900ms) ','(pause 900ms) (femme) ');
+      const CHAMPS_VOIX_SIMPLE_IDLE_V1=[{id:'texte',label:'Texte lu',type:'texte'}];
+      function declarerVoixSansTexteIdleV1_(){
+        const T=window.__SOREAL_IDLE_TEXTES_V1__;
+        if(!T||typeof T.declarer!=='function')return;
+        T.declarer(CLE_VOIX_SANDWICH_IDLE_V1,{
+          groupe:'Voix sans texte à l’écran',
+          libelle:'Voix de fond après le sandwich (fin du tutoriel)',
+          champs:CHAMPS_VOIX_SIMPLE_IDLE_V1,
+          original:function(){return {texte:TEXTE_VOIX_SANDWICH_EDITABLE_IDLE_V1};},
+          texteLu:function(v){return String(v&&v.texte||'');}
+        });
+        T.declarer(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,{
+          groupe:'Voix sans texte à l’écran',
+          libelle:'Introduction de la lecture des chroniques de boss',
+          champs:CHAMPS_VOIX_SIMPLE_IDLE_V1,
+          original:function(){return {texte:TEXTE_CHRONIQUES_INTRO_IDLE_V1};},
+          texteLu:function(v){return String(v&&v.texte||'');}
+        });
+      }
+      declarerVoixSansTexteIdleV1_();
+      if(window.__SOREAL_IDLE_TEXTES_V1__&&typeof window.__SOREAL_IDLE_TEXTES_V1__.surChangement==='function')window.__SOREAL_IDLE_TEXTES_V1__.surChangement(declarerVoixSansTexteIdleV1_);
+      /* Texte à lire : la version modifiée par l'administrateur si elle existe (balises de voix, d'expression et de pause comprises), sinon l'origine. */
+      function texteVoixSansTexteIdleV1_(cle,origine){
+        try{
+          const T=window.__SOREAL_IDLE_TEXTES_V1__;
+          const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+          const sur=T&&typeof T.surcharge==='function'?T.surcharge(cle):null;
+          if(sur&&typeof sur.texte==='string'&&sur.texte.trim()&&tts&&typeof tts.retirerParentheses==='function')return tts.retirerParentheses(sur.texte).replace(/\s+/g,' ').trim();
+        }catch(_e){}
+        return origine;
+      }
+
       function lancerVoixArrierePlanSandwichIdleV1_(){
         const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
         if(!tts||typeof tts.readText!=='function'||typeof tts.enabled!=='function'||!tts.enabled())return;
         setTimeout(function(){
-          try{tts.readText(VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);}catch(e){}
+          try{tts.readText(texteVoixSansTexteIdleV1_(CLE_VOIX_SANDWICH_IDLE_V1,VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1));}catch(e){}
         },1500);
       }
 
@@ -16519,7 +16563,7 @@ let idleDialogueTimerV76=null;
           ?tts.composerChronique
           :function(nom,histoire){return nom+' '+histoire;};
         tts.readText(
-          'Chroniques de boss.'+M(1500)+
+          texteVoixSansTexteIdleV1_(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1)+M(1500)+
           connus.map(function(b){
             return composerChronique(String(b.nom||'Boss'),String(b.histoire||''));
           }).join(M(2000))
