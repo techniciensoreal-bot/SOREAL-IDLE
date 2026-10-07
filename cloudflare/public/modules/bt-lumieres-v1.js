@@ -86,11 +86,13 @@
   /* Une barre qui n'avait aucune énergie en reçoit alors que la machine tournait déjà (Norman, 2026-10-07) : un ou deux vacillements au hasard, et le bruit d'une machine qui démarre. */
   function demarrageBarre_(idBarre){
     if(mouvementReduit_())return false;
+    /* Seulement quand la page Basic Training est affichée (Norman, 2026-10-07) : l énergie qui passe à la ligne suivante pendant qu on est ailleurs ne fait aucun bruit. */
+    var presents=Array.prototype.slice.call(document.querySelectorAll(SELECTEUR));
+    if(!presents.length)return false;
     var maintenant=Date.now();
     if(maintenant-dernierDemarrage<1500)return false;
     dernierDemarrage=maintenant;
-    var presents=Array.prototype.slice.call(document.querySelectorAll(SELECTEUR));
-    if(presents.length)vaciller(presents[Math.floor(Math.random()*presents.length)],undefined,true);
+    vaciller(presents[Math.floor(Math.random()*presents.length)],undefined,true);
     sonner(variantePourBarre(idBarre));
     return true;
   }

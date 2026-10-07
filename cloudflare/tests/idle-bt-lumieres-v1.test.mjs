@@ -135,6 +135,20 @@ assert.deepEqual(eteints(), [false, false]);
   assert.equal(L.sonner("demarrage7"), false, "type inconnu refusé");
 }
 
+// 5b-bis. Hors de la page Basic Training (aucun bandeau affiché), une barre qui s alimente ne fait AUCUN bruit (Norman, 2026-10-07).
+{
+  const sauve = bandeaux;
+  bandeaux = [];
+  etatJeu.basicTraining.skills[1].allocation = 0; place(40); L.veiller(); vider();
+  const avantSilence = noeuds;
+  etatJeu.basicTraining.skills[1].allocation = 55;
+  L.veiller(); vider();
+  assert.equal(noeuds, avantSilence, "page Basic Training non affichée : silence");
+  assert.equal(L.demarrageBarre("attaque_renforcee"), false, "demarrageBarre ne joue rien sans la page");
+  bandeaux = sauve;
+  etatJeu.basicTraining.skills[1].allocation = 0; L.veiller(); vider();
+}
+
 // 5c. Un bruit de démarrage par barre (Norman, 2026-10-07) : attaque puissante et son équivalent = 2, barre suivante = 3, suivante = 5, attaque ultime = 6 (la régulière, non citée, = 1).
 {
   const v = L.variantePourBarre;
