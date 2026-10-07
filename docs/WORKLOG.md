@@ -4,6 +4,21 @@
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
 
+- **Tâche courante** : chantier de nettoyage progressif (voir `docs/CHANTIER-NETTOYAGE.md`) : lots 0, 1 et 2 faits en local ; aucun changement côté joueur.
+- **SHA `origin/main`** : `27aab22e4a0022193bb32ee678a1a57e2e7270c6` (vérifié par `git rev-parse origin/main` le 2026-10-07).
+- **Commits locaux non poussés** : barres de niveau Wandoos en temps réel, retrait des sons de disque dur (abandonnés), test des boutons, extraction du rendu sur place (`morph-v1.js`), extraction de Blood Magic (`blood-magic-v1.js`).
+- **Tests** : suite complète verte en local (≈ 596 fichiers `*.test.mjs`), dont les nouveaux `idle-handlers-boutons-v1` (145 fonctions de boutons toutes définies) et `idle-morph-comportement-v1` (comportement du rendu sur place sur mini-DOM).
+- **Build** : `node cloudflare/build-standalone.mjs` et `node --check` de tous les fichiers JS publics : OK. Attention : le build réécrit la constante `IDLE_TEST_VERSION` de `soreal-idle-ui.js` (« Ver. Beta local ») : ne pas la committer.
+- **CI** : dernier run `#833` SUCCESS sur `27aab22` (7 oct. 2026, 13h06-13h09 UTC, API publique GitHub). L'audit reçu affirmait qu'aucun run n'avait eu lieu depuis le 2 octobre : c'était faux.
+- **SHA réellement déployé** : `27aab22` (déploiement validé par le run #833, qui vérifie le SHA et le smoke Chromium).
+- **Dernière anomalie** : le 7 octobre, une extraction mal faite de Blood Magic avait supprimé trois fonctions exposées sur `window` (boutons inopérants) sans qu'aucun test ne casse ; corrigée et gardée par `idle-handlers-boutons-v1`.
+- **Problèmes ouverts** : `main` non protégée et pas de préproduction (un push = production) ; `idle-sqlite-runtime.js` reconstruit le classeur à chaque opération (chantier séparé).
+- **Prochaine action exacte** : attendre le mot « push » de Norman ; ensuite vérification manuelle (Blood Magic, Adventure, Wandoos) sur ordinateur et téléphone, puis lot 3 (cartographie en lecture seule de `meta-progression-v130.js`, Augmentations et Time Machine).
+
+### Ancien état courant (archivé le 2026-10-07)
+
+*(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
+
 - **Tâche courante** : fluidité visuelle restaurée en séparant rendu léger et simulation lourde ; correction livrée et vérifiée.
 - **SHA `main` fonctionnel vérifié** : `0e092bfa84d79b65a9876541cc57ea0a28ee5458` pour le code de fluidité ; `main` contient ensuite uniquement des mises à jour WORKLOG.
 - **Derniers commits effectués sur `fix/smooth-visual-rendering`** : `bd8056bf` (rendu visuel léger découplé du tick lourd), `351a27dd` (test de non-régression).
@@ -2425,3 +2440,16 @@ Norman : « Les boutons dans Augmentation et dans blood magic sont énormes. Je 
 - Tests : nouveau `idle-meta-progression-polish-v1.test.mjs` (variante compacte, 6 sons thématiques déclarés+synthétisés+exposés, thème visuel scopé et sans rouge vif). `idle-augmentation-allocation-ui-v1`/`idle-meta-progression-basic-training-parity-v1` mis à jour pour le patch DOM ciblé (fin du rendu complet par clic) et le nouveau libellé de classe. Suite complète : 425/425 OK.
 
 Versions : ui `320`, css `13`, méta `202609277`, audio `227`, notes `53`, Beta `6.9`.
+
+
+### Chantier de nettoyage progressif — 2026-10-07
+- `origin/main` de départ : `27aab22e4a0022193bb32ee678a1a57e2e7270c6` ; branche locale `main` en avance de plusieurs commits non poussés.
+- Prompt reçu adapté au dépôt réel : `docs/CHANTIER-NETTOYAGE.md` (CI vérifiée par l'API publique, extraction « module classique » avec objet hôte plutôt que `export`, pas de PR, push seulement sur demande).
+- **Lot 0** : suite complète verte, build standalone OK, `node --check` OK sur tous les modules, CI #833 SUCCESS.
+- **Lot 1a** (`cb5d1b7`) : `idle-handlers-boutons-v1.test.mjs` : chaque `window.__x__(` appelé par un `onclick`/`onchange` généré doit être défini. Vérifié qu'il aurait signalé la panne Blood Magic.
+- **Lot 1b** (`0e9f33a`) : mini-DOM de test (`cloudflare/tests/helpers/mini-dom.mjs`) et `idle-morph-comportement-v1.test.mjs` : identité des nœuds, blocs gardés, ordre, changement de menu, champ de saisie, installation. Test de mutation fait : retirer la protection des blocs gardés fait échouer le test.
+- **Lot 2a** (`0e9f33a`) : `morpher*`/`installerMorphIdleV1_` extraits de `soreal-idle-ui.js` (971 577 → 965 522 octets) vers `modules/morph-v1.js` ; `soreal-idle-ui.js` garde un relais de 4 lignes.
+- **Lot 2b** (`27abb41`) : Blood Magic (page, boutons de rituels, calculs locaux optimistes ; 444 lignes) extrait de `meta-progression-v130.js` (318 808 → 286 358 octets) vers `modules/blood-magic-v1.js`. Dépendances sortantes prêtées par un objet hôte : `systemeMetaParIdIdleV130_`, `envoyerAllocRapideV1_`, `recalculerPisteFractionIdleV1_`, `ancreSnapshotIdleV1_`, `formatDureeAugmentIdleV1_`, `carteAideMenuIdleV1_`, `legendeAllocationIdleV1_`, `emojiNomIdleV1_`, et la variable partagée `montantAugmentIdleV1` (lecture/écriture par fonctions). Dépendances entrantes laissées dans `meta-progression-v130.js` : `pageBloodMagicIdleV48_` et `recalculerBloodLocalIdleV1_` (relais), `exclamationOrIdleV1_` (mots d'or, hors Blood), `emojiNomIdleV1_`, constantes des Augments. 11 tests qui découpaient le source de `meta-progression-v130.js` lisent maintenant module + meta.
+- Vérifié en direct (serveur local, partie B) : Blood Magic placer / retirer / tout retirer dans plusieurs rituels, aucune erreur console ; Aventure → Entraînement → Aventure + coffre : même ordre de page et même scène.
+- **Tailles actuelles** : `soreal-idle-ui.js` 965 522 o ; `idle-adventure-v47.js` 460 455 o ; `idle-ngu-progression.js` 436 673 o ; `idle-sqlite-runtime.js` 433 809 o ; `meta-progression-v130.js` 286 358 o ; `blood-magic-v1.js` 34 452 o ; `morph-v1.js` 6 502 o.
+- **Prochaine action précise** : lot 3, cartographie écrite (sans modifier le code) d'Augmentations et de Time Machine dans `meta-progression-v130.js` (même méthode : fonctions définies, dépendances sortantes/entrantes, tests qui les lisent) avant une éventuelle extraction.
