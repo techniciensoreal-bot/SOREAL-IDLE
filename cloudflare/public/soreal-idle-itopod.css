@@ -658,3 +658,27 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="3"]{background:linear-gradient(180deg,#7a3aa8,#3a1458)!important;border-color:#d79bff!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="4"]{background:linear-gradient(180deg,#a8661a,#5a3205)!important;border-color:#ffc16a!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-prize-v206[data-couleur="5"]{background:linear-gradient(180deg,#14808a,#073c42)!important;border-color:#6af0ff!important;}
+
+/* ANIMATIONS SANS REPEINDRE (Norman, 2026-10-07 : « SOREAL IDLE est très gourmand, très peu d'images par seconde sur téléphone »). Mesure : les voyants du menu (anneau « nouveau », lueur « disponible ») et les boutons « disponible »
+ * animaient des ombres et des filtres, que le navigateur doit REDESSINER à chaque image : à eux seuls, ils représentaient plus des deux tiers du travail d'une image au repos. Même effet visible, mais seules
+ * l'échelle et l'opacité bougent (le navigateur les anime sur la carte graphique, sans rien redessiner) ; les lueurs sont fixes. */
+@keyframes sorealNavAnneauV1{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:0;transform:scale(1.1)}}
+@keyframes sorealNavDispoEchelleV1{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes sorealBoutonDispoEchelleV1{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-new-v1{animation:none!important;position:relative;}
+html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-new-v1::after{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--nav-color,#9aa5bb) 75%,transparent);will-change:opacity,transform;animation:sorealNavAnneauV1 1.3s ease-in-out infinite;}
+html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1{
+  animation:sorealNavDispoEchelleV1 1.1s ease-in-out infinite!important;will-change:transform;
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.85),inset 0 0 18px 6px var(--dispo-lueur),0 0 14px 4px var(--dispo-lueur)!important;}
+html body .glow-dispo-v1{animation:sorealBoutonDispoEchelleV1 1.1s ease-in-out infinite!important;will-change:transform;
+  box-shadow:0 0 22px 6px rgba(255,235,120,.85),0 0 0 3px rgba(255,255,255,.7)!important;}
+@media (prefers-reduced-motion:reduce){
+  html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-new-v1::after{animation:none;opacity:.8;}
+  html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1,html body .glow-dispo-v1{animation:none!important;}
+}
+/* Téléphone : les pistes de rang élevé (Augmentations, Basic Training, sang) gardent leur aspect mais ne bougent plus en continu : déplacement de fond, ombre et filtre pulsés se repeignent à chaque image et font chuter la fluidité (Norman, 2026-10-07 : « très peu d'images par seconde sur un téléphone »). */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is([data-rang-v1] , [data-rang-v1] .soreal-idle-bt-fill-v120, [data-rang-v1] .soreal-idle-bt-track-v120){animation:none!important;}
+}

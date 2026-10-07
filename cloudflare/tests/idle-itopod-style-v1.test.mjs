@@ -94,4 +94,8 @@ assert.ok(css.includes("SÉLECTEUR DE ZONE (Aventure)") && css.includes("button.
 assert.ok(css.includes("color:#2b1400!important;-webkit-text-fill-color:#2b1400!important;-webkit-text-stroke:0!important"), "onglet de boutique choisi : texte net sans contour");
 assert.ok(css.includes("animation:popupFonduV1 2.5s ease-in-out forwards") && css.includes("#soreal-idle-fade-notice-v1{"), "popups en fondu");
 assert.ok(css.includes("top:-96px;") && css.includes(".soreal-idle-dome-v1{position:absolute") && css.includes("width:36px;height:36px;top:-81px;"), "socle du joystick et boutons de la borne centrés sur la planche, boutons carrés donc ronds");
+// Fluidité sur téléphone (Norman, 2026-10-07) : animations du menu et des boutons « disponible » sans repeindre (transform/opacity), pistes de rang élevé figées sur petit écran.
+assert.ok(css.includes("@keyframes sorealNavAnneauV1{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:0;transform:scale(1.1)}}") && css.includes("@keyframes sorealNavDispoEchelleV1") && css.includes("@keyframes sorealBoutonDispoEchelleV1"), "animations du menu et des boutons disponibles : transform/opacity seulement");
+for (const nom of ["sorealNavAnneauV1", "sorealNavDispoEchelleV1", "sorealBoutonDispoEchelleV1"]) { const m = css.match(new RegExp("@keyframes " + nom + "\{((?:[^{}]|\{[^{}]*\})*)\}")); assert.ok(m && !/box-shadow|filter/.test(m[1]), "aucune ombre ni filtre animés : " + nom); }
+assert.ok(/@media \(max-width:700px\)\{\s*html body\.soreal-idle-active-v47 \.soreal-idle-page-root-v28\[data-menu\] :is\(\[data-rang-v1\]/.test(css), "pistes de rang élevé sans animation continue sur téléphone");
 console.log("idle-itopod-style-v1: OK");

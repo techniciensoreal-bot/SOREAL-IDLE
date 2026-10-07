@@ -43,6 +43,7 @@
           'Money Pit et roue : le cadre du prix change de couleur à chaque nouvelle récompense, pour bien voir la différence avec la précédente. Les cases de connexion ne rejouent plus leur animation à chaque fois : seule une case qui vient de s’allumer s’illumine.',
           'Régler un volume dans les Réglages avec le doigt ne change plus de page.',
           'L’ordinateur rétro sur téléphone : l’écran garde toujours la même taille, allumé ou éteint, n’est plus étiré vers le haut et touche maintenant les bords du téléphone. Sous chaque barre, seul le temps restant est écrit, et « Niveau de l’OS » devient « Version OS ».'
+          'Fluidité sur téléphone : le menu du bas et les boutons « disponible » pulsent désormais sans forcer l’écran à se redessiner, et les barres de rang élevé restent belles mais ne bougent plus en continu sur petit écran. Ton téléphone respire, la batterie aussi.',
         ]
       },
       {
