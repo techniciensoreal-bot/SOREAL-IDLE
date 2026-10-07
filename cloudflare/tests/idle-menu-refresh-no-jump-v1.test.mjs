@@ -144,4 +144,10 @@ for (const fonction of [
   assert.ok(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8").includes("window.__allocRapideEnAttenteIdleV1__=function(){"), "la file d'allocations rapides est lisible");
 }
 
+// 9. Les blocs posés par les modules ne suivent pas dans une autre page, et gardent leur ordre (Norman, 2026-10-07 : scène d'Aventure sous Entraînement avancé, inventaire au-dessus du combat).
+{
+  assert.ok(ui.includes("(a.getAttribute('data-menu')||'')!==(b.getAttribute('data-menu')||'')") && ui.includes("querySelectorAll('[data-morph-garder]')"), "changement de menu : les blocs gardés sont retirés");
+  assert.ok(ui.includes('g.getAttribute("data-morph-avant")') && readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes('data-morph-avant'), "la scène reste juste avant le panneau du joueur");
+}
+
 console.log("idle-menu-refresh-no-jump-v1: OK");

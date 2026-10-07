@@ -365,6 +365,7 @@
     block.dataset.zoneKey=key;
     /* Bloc posé par ce module : le rendu sur place de la page (morpherHtmlIdleV1_) ne le détruit pas, sinon 700 px de hauteur disparaissent puis reviennent. */
     block.setAttribute("data-morph-garder","1");
+    block.setAttribute("data-morph-avant",".soreal-idle-adventure-player-panel-v1");
     block.innerHTML=''
       /*
        * Norman (2026-09-14) : "dans aventure, enlève les 'Power conseillé

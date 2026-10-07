@@ -5317,6 +5317,13 @@
           if(a.nodeValue!==b.nodeValue)a.nodeValue=b.nodeValue;
           return;
         }
+        /*
+         * Changement de page (le conteneur de menu change de data-menu) : les blocs que d'autres modules avaient posés (data-morph-garder : scène d'Aventure, automatisation de l'inventaire) appartiennent à
+         * l'ancienne page ; ils sont retirés avant la mise à jour, sinon ils restaient sous la page suivante (Norman, 2026-10-07 : « le siège d'Aventure sous Entraînement avancé »).
+         */
+        if(a.classList&&a.classList.contains('soreal-idle-page-root-v28')&&(a.getAttribute('data-menu')||'')!==(b.getAttribute('data-menu')||'')){
+          Array.prototype.slice.call(a.querySelectorAll('[data-morph-garder]')).forEach(function(g){if(g.parentNode)g.parentNode.removeChild(g);});
+        }
         Array.prototype.slice.call(a.attributes).forEach(function(at){
           if(!b.hasAttribute(at.name))a.removeAttribute(at.name);
         });
@@ -5377,6 +5384,16 @@
           const suivant=o.nextSibling;
           if(!(o.nodeType===1&&o.hasAttribute("data-morph-garder")))ancien.removeChild(o);
           o=suivant;
+        }
+        for(let g=ancien.firstElementChild;g;){
+          const suiv=g.nextElementSibling;
+          const avant=g.hasAttribute&&g.hasAttribute("data-morph-avant")?g.getAttribute("data-morph-avant"):"";
+          if(avant){
+            let repere=null;
+            for(let c=ancien.firstElementChild;c;c=c.nextElementSibling){if(c!==g&&c.matches&&c.matches(avant)){repere=c;break;}}
+            if(repere&&g.nextElementSibling!==repere)ancien.insertBefore(g,repere);
+          }
+          g=suiv;
         }
       }
       function morpherHtmlIdleV1_(element,html){
