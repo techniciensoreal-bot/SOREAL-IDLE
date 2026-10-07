@@ -15,6 +15,8 @@ import { readFileSync } from "node:fs";
  * navigateur avant que rien ne le rétablisse : le saut/clignotement décrit.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+/* Le moteur de rendu sur place vit dans son module depuis le 2026-10-07 (lot 2a du chantier de nettoyage). */
+const morphSrc = readFileSync("cloudflare/public/modules/morph-v1.js", "utf8");
 
 // 1. Le seul remplacement brut de .soreal-idle-page-root-v28 restant est celui, protégé, de la fonction partagée.
 {
@@ -115,9 +117,9 @@ for (const fonction of [
 
 // 5. Aucun saut de page au clic (Norman, 2026-10-07) : rendu sur place, blocs des autres modules gardés, ancre sur l'élément cliqué, épingle de clic.
 {
-  assert.ok(ui.includes("function morpherHtmlIdleV1_(element,html){") && ui.includes("function installerMorphIdleV1_(element){"), "rendu sur place (morph) présent");
+  assert.ok(morphSrc.includes("function morpherHtmlIdleV1_(element,html){") && morphSrc.includes("function installerMorphIdleV1_(element){") && ui.includes("function installerMorphIdleV1_(element){"), "rendu sur place (morph) présent");
   assert.ok(ui.includes("installerMorphIdleV1_(root);\n        root.innerHTML=contenuMenuIdleV28_(idleEtat);") && ui.includes("installerMorphIdleV1_(document.getElementById('app'));"), "page entière et contenu de menu rendus sur place");
-  assert.ok(ui.includes('hasAttribute("data-morph-garder")'), "les blocs posés par d'autres modules sont gardés");
+  assert.ok(morphSrc.includes('hasAttribute("data-morph-garder")'), "les blocs posés par d'autres modules sont gardés");
   assert.ok(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes('block.setAttribute("data-morph-garder","1");') && readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8").includes("bloc.setAttribute('data-morph-garder','1');"), "scène d'aventure et bloc d'inventaire gardés");
   assert.ok(ui.includes("function demarrerPinClicIdleV1_(el){") && ui.includes("if(Math.abs(dy)>1){window.scrollBy(0,dy);pin.stables=0;}") && ui.includes("['wheel','touchstart','touchmove','keydown']"), "épingle de clic, arrêtée par un défilement du joueur");
 }
@@ -146,8 +148,8 @@ for (const fonction of [
 
 // 9. Les blocs posés par les modules ne suivent pas dans une autre page, et gardent leur ordre (Norman, 2026-10-07 : scène d'Aventure sous Entraînement avancé, inventaire au-dessus du combat).
 {
-  assert.ok(ui.includes("(a.getAttribute('data-menu')||'')!==(b.getAttribute('data-menu')||'')") && ui.includes("querySelectorAll('[data-morph-garder]')"), "changement de menu : les blocs gardés sont retirés");
-  assert.ok(ui.includes('g.getAttribute("data-morph-avant")') && readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes('data-morph-avant'), "la scène reste juste avant le panneau du joueur");
+  assert.ok(morphSrc.includes("(a.getAttribute('data-menu')||'')!==(b.getAttribute('data-menu')||'')") && morphSrc.includes("querySelectorAll('[data-morph-garder]')"), "changement de menu : les blocs gardés sont retirés");
+  assert.ok(morphSrc.includes('g.getAttribute("data-morph-avant")') && readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes('data-morph-avant'), "la scène reste juste avant le panneau du joueur");
 }
 
 console.log("idle-menu-refresh-no-jump-v1: OK");
