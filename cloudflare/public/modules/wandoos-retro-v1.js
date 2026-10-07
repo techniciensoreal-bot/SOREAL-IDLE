@@ -166,9 +166,10 @@
       '.wd-barre-boot{height:1.5em;}',
       '.wd-boot .wd-ligne{justify-content:center;gap:1em;margin-top:.6em;}',
       '.wd-petit{font-size:.82em;opacity:.9;}',
-      '.wd-saisie{align-items:center;margin-top:1em;}',
-      '.wd-saisie label{white-space:nowrap;}',
-      '.wd-ecran .wd-input.wd-input{flex:1;min-width:6em;box-sizing:border-box;font-family:"Courier New",Courier,monospace!important;font-size:inherit!important;font-weight:400!important;line-height:inherit;letter-spacing:.04em;color:var(--wd-c)!important;background:#010503!important;border:1px solid var(--wd-c2)!important;border-radius:0!important;padding:.25em .5em;text-transform:uppercase;text-shadow:0 0 .35em var(--wd-glow)!important;box-shadow:none!important;caret-color:transparent;cursor:default;}',
+      '.wd-saisie{margin-top:1em;}',
+      '.wd-saisie{justify-content:flex-start;flex-wrap:wrap;align-items:baseline;gap:.6em;}',
+      '.wd-invite-c{white-space:nowrap;}',
+      '.wd-frappe{word-break:break-all;color:var(--wd-c);text-transform:uppercase;}',
       '.wd-aide{margin-top:.9em;padding-top:.5em;border-top:1px dashed var(--wd-c2);font-size:.8em;opacity:.85;text-transform:none;letter-spacing:.02em;}',
       '.wd-bas-couleur{grid-template-columns:1fr;margin-top:1.4cqw;}',
       '.wd-touche:disabled{cursor:default;filter:brightness(.8);}',
@@ -183,7 +184,9 @@
       '.wd-chargeur{position:relative;height:1.25em;margin:.4em 0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
       '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);background-size:1.42em 100%;animation:wd-defile 1s linear infinite;}',
       '@keyframes wd-defile{to{background-position:1.42em 0}}',
-      '.wd-ch-note{margin-top:.3em;opacity:.9;text-transform:none;letter-spacing:.02em;}',
+      '.wd-ch-corps{display:flex;align-items:center;gap:.9em;}',
+      '.wd-sablier{margin:0;flex:0 0 auto;font:inherit;font-size:.85em;line-height:1.05;white-space:pre;color:#ffb000;text-shadow:0 0 .4em rgba(255,176,0,.55);}',
+      '.wd-ch-texte{flex:1;min-width:0;}',
       '@media (prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}}',
       '.wd-poste[data-phase="eteint"] .wd-ecran{background:#000;box-shadow:inset 0 0 3cqw rgba(0,0,0,.95);}',
       '@media (prefers-reduced-motion:reduce){.wd-ecran::after,.wd-curseur{animation:none;}}'
@@ -289,7 +292,7 @@
   function ecranEteint_(e){
     var total=nb_(e.vue.bootSecondes);
     return '<div class="wd-centre">'+logo_(e.os)+
-      '<div class="wd-eteint">○ ORDINATEUR ÉTEINT</div>'+
+      '<div class="wd-eteint">[ ] ORDINATEUR ÉTEINT</div>'+
       '<div class="wd-invite-centre">'+(e.dispos.length>1?'Choisis ton système, puis appuie':'Appuie')+' sur DÉMARRER.<br>Wandoos transforme l’énergie et la magie en Attack et Defense.'+
       (total>0?' Après chaque Rebirth, il met '+html_(dureeTexte_(total))+' à charger : en attendant, ce que tu places avance de plus en plus vite.':'')+'</div>'+
     '</div>';
@@ -303,14 +306,27 @@
       '<div class="wd-ligne"><span id="wd-boot-msg">'+html_(msgs[i])+'</span><b id="wd-boot-pct">'+Math.floor(p*100)+'%</b></div></div>'+
     '</div>';
   }
+  /* Sablier en caractères ASCII (ce genre d'écran n'affichait pas d'émojis) : le sable descend avec l'avancement du chargement. */
+  var SABLIER_TRAMES=[
+    [' _______ ',' \\:::::/ ','  \\:::/  ','   )-(   ','  /   \\  ',' /_____\\ '],
+    [' _______ ',' \\  :  / ','  \\ : /  ','   )-(   ','  / : \\  ',' /__:__\\ '],
+    [' _______ ',' \\     / ','  \\   /  ','   )-(   ','  /:::\\  ',' /:::::\\ ']
+  ];
+  function sablier_(fraction){
+    var p=Math.max(0,Math.min(1,nb_(fraction)));
+    var i=Math.min(SABLIER_TRAMES.length-1,Math.floor(p*SABLIER_TRAMES.length));
+    return SABLIER_TRAMES[i].join('\n');
+  }
   /* Le chargement de l'OS (vrai démarrage du wiki) : cadre ambre à rayures qui défilent, volontairement différent des barres de dump à remplir. */
   function panneauChargement_(e){
     var b=bootVu_(e.vue),pct=Math.floor(b.fraction*100);
-    return '<div class="wd-chargement" role="status">'+
-      '<div class="wd-ligne"><span>⏳ CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
-      '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
-      '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
-    '</div>';
+    return '<div class="wd-chargement" role="status"><div class="wd-ch-corps">'+
+      '<pre class="wd-sablier" id="wd-sablier" aria-hidden="true">'+sablier_(b.fraction)+'</pre>'+
+      '<div class="wd-ch-texte">'+
+        '<div class="wd-ligne"><span>CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
+        '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
+        '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
+      '</div></div></div>';
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
     var placee=nb_(e.al[res]),libre=nb_(e.vue[libreCle]),vit=nb_(e.vue[vitesseCle]);
@@ -327,14 +343,13 @@
   function ecranBureau_(e){
     var v=e.vue;
     var bonus=nb_(v.bonusCombat);
-    return '<div class="wd-ligne wd-titre"><span>'+html_(NOMS_OS[e.os])+'</span><span class="wd-etat">● EN MARCHE</span></div>'+
+    return '<div class="wd-ligne wd-titre"><span>'+html_(NOMS_OS[e.os])+'</span><span class="wd-etat">[*] EN MARCHE</span></div>'+
       (e.enChargement?panneauChargement_(e):'')+
       '<div class="wd-ligne"><span>BONUS ATTACK ET DEFENSE</span><b>×'+html_(format_(Math.max(1,bonus)))+'</b></div>'+
       '<div class="wd-ligne"><span>NIVEAU DE L’OS</span><b>'+html_(grand_(v.niveauOsTotal||0))+'</b><span class="wd-lib">VITESSE ×'+html_(grand_(v.multiplicateurOs||1))+'</span></div>'+
       bloc_('ÉNERGIE','energy',e,'energieLibre','vitesseEnergie',e.data.dumpEnergyLevel,e.data.dumpEnergyProgress)+
       (e.magieOk?bloc_('MAGIE','magic',e,'magieLibre','vitesseMagie',e.data.dumpMagicLevel,e.data.dumpMagicProgress):'')+
-      '<div class="wd-ligne wd-saisie"><label for="wd-saisie">C:\\&gt; SAISIE</label>'+
-        '<input id="wd-saisie" class="wd-input" type="text" readonly inputmode="none" tabindex="-1" autocomplete="off" spellcheck="false" value="'+html_(saisie_())+'" aria-label="Quantité placée ou retirée à chaque appui sur + ou − : tape-la avec les chiffres du clavier (un nombre, ou une fraction comme 1/4)"></div>';
+      '<div class="wd-ligne wd-saisie" role="group" aria-label="Quantité placée ou retirée à chaque appui sur + ou − : tape-la avec les chiffres du clavier (un nombre, ou une fraction comme 1/4)"><span class="wd-invite-c">C:\\&gt;</span><span id="wd-saisie" class="wd-frappe">'+html_(saisie_())+'</span><span class="wd-curseur" aria-hidden="true"></span></div>';
   }
 
   /* ---------- Clavier ---------- */
@@ -411,12 +426,9 @@
     var H=H_();
     var poste=document.querySelector('.wd-poste');
     if(!poste||!H||!H.getIdleEtat)return;
-    var champ=document.getElementById('wd-saisie');
-    var garde=champ&&document.activeElement===champ?{debut:champ.selectionStart,fin:champ.selectionEnd}:null;
     var html=poste_(H.getIdleEtat());
     if(!html)return;
     poste.outerHTML=html;
-    if(garde){var n=document.getElementById('wd-saisie');if(n){try{n.focus();n.setSelectionRange(garde.debut,garde.fin);}catch(_e){}}}
   }
 
   /* ---------- Actions ---------- */
@@ -442,6 +454,8 @@
     if(!e.enChargement||!fill){arreterTimer_();if(fill)rafraichirPoste_();return;}
     var b=bootVu_(e.vue),pc=Math.floor(b.fraction*100);
     fill.style.width=(b.fraction*100).toFixed(1)+'%';
+    var sa=document.getElementById('wd-sablier');
+    if(sa){var trame=sablier_(b.fraction);if(sa.textContent!==trame)sa.textContent=trame;}
     var a=document.getElementById('wd-ch-pct'),v=document.getElementById('wd-ch-vit'),r=document.getElementById('wd-ch-reste');
     if(a)a.textContent=pc+' %';
     if(v)v.textContent=pc+' %';
@@ -492,7 +506,7 @@
   function majSaisie_(v){
     saisir_(v);
     var c=document.getElementById('wd-saisie');
-    if(c)c.value=v;
+    if(c)c.textContent=v;
   }
   /* Saisie par les touches du clavier : 18 caractères au plus ; un seul « / », jamais en premier ; un 0 initial est remplacé par le chiffre tapé. */
   function chiffre(c){

@@ -80,7 +80,7 @@ joueurCourant = joueur(true, false);
 let h = W.page(joueurCourant);
 assert.ok(h.includes('data-phase="eteint"') && h.includes("ORDINATEUR ÉTEINT") && h.includes("wd-logo"), "écran éteint avec logo");
 assert.ok(h.includes("DÉMARRER") && h.includes("window.__SOREAL_IDLE_WANDOOS_V1__.demarrer()"), "touche DÉMARRER");
-assert.ok(!h.includes("wd-barre") && !h.includes("wd-input") && !h.includes(".place("), "éteint : pas de barres, de saisie ni de touches d'allocation");
+assert.ok(!h.includes("wd-barre") && !h.includes('id="wd-saisie"') && !h.includes(".place("), "éteint : pas de barres, de saisie ni de touches d'allocation");
 assert.ok(h.includes("il met 1 h 00 min à charger"), "la vraie durée du chargement est annoncée");
 assert.ok(!h.includes("vieux PC"), "plus de phrase inventée sur le vieux PC");
 assert.ok(!h.includes("Choisis ton système"), "un seul OS : pas de choix à proposer");
@@ -91,7 +91,7 @@ delete stockage[CLE_ALLUMAGE];
 joueurCourant = joueur(true, true);
 h = W.page(joueurCourant);
 assert.ok(h.includes('data-phase="allumage"') && h.includes("wd-barre-boot") && h.includes("Wandoos <b>98</b>"), "premier affichage du Rebirth : écran d'allumage avec nom de l'OS et barre");
-assert.ok(!h.includes("wd-input") && !h.includes(".place(") && !h.includes("PLACÉE"), "pendant l'allumage : pas encore de barres d'énergie et de magie");
+assert.ok(!h.includes('id="wd-saisie"') && !h.includes(".place(") && !h.includes("PLACÉE"), "pendant l'allumage : pas encore de barres d'énergie et de magie");
 assert.equal(stockage[CLE_ALLUMAGE], "111", "le Rebirth est mémorisé dès l'allumage (un rechargement de page ne le rejoue pas)");
 assert.ok(W.dureesAllumage["98"] < W.dureesAllumage.meh && W.dureesAllumage.meh < W.dureesAllumage.xl, "plus l'OS est récent, plus l'allumage est long");
 assert.ok(Math.max(...Object.values(W.dureesAllumage)) <= 5000, "allumage court (au plus 5 s)");
@@ -115,8 +115,9 @@ assert.ok(h.includes('data-phase="bureau"') && h.includes("EN MARCHE") && h.incl
 assert.ok(h.includes("NIVEAU <b>812</b>") && h.includes("NIVEAU <b>422</b>"), "niveaux des deux Dumps");
 assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("0,5"), "quantités placées/libres et vitesse en niveaux par seconde");
 assert.ok(!h.includes("wd-chargement") && !h.includes("CHARGEMENT"), "OS chargé : aucun cadre de chargement");
-assert.ok(h.includes('id="wd-saisie"') && h.includes("C:\\&gt; SAISIE"), "champ de saisie dans l'écran");
-assert.ok(/<input id="wd-saisie"[^>]*readonly[^>]*inputmode="none"/.test(h) && !h.includes("oninput"), "saisie en lecture seule : on la remplit avec les touches du clavier (pas de clavier du téléphone)");
+assert.ok(h.includes('id="wd-saisie"') && h.includes('class="wd-frappe"') && h.includes('<span class="wd-invite-c">C:\\&gt;</span>'), "ligne de saisie : « C:\\> » puis ce qu'on tape, directement dans l'écran");
+assert.ok(!h.includes("<input") && !h.includes("SAISIE") && !h.includes("wd-input"), "plus de cadre de saisie ni de mot « SAISIE »");
+assert.ok(h.includes('class="wd-curseur"'), "curseur clignotant après la frappe");
 for (const c of "0123456789/") assert.ok(h.includes(".chiffre('" + c + "')"), "touche " + c);
 assert.ok(h.includes("wd-effacer") && h.includes("EFFACER") && !h.includes(".effacer()"), "touche EFFACER (gérée par appui prolongé, pas par un simple clic)");
 for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "plus"], ["energy", "tout"], ["magic", "zero"], ["magic", "moins"], ["magic", "plus"], ["magic", "tout"]]) {
@@ -132,12 +133,26 @@ assert.ok(!sansMagie.includes("MAGIE") && !sansMagie.includes(".place('magic'"),
 // 4. CHARGEMENT de l'OS (vrai démarrage du wiki) : cadre à part, style différent des barres à remplir ; on peut déjà placer de l'énergie.
 joueurCourant = joueur(true, true, { bootSecondes: 3600, bootEcoule: 1800, bootFraction: 0.5 });
 h = W.page(joueurCourant);
-assert.ok(h.includes('class="wd-chargement"') && h.includes("⏳ CHARGEMENT DE L’OS") && h.includes('id="wd-ch-pct">50 %'), "cadre de chargement avec le pourcentage");
+assert.ok(h.includes('class="wd-chargement"') && h.includes("CHARGEMENT DE L’OS") && h.includes('id="wd-ch-pct">50 %'), "cadre de chargement avec le pourcentage");
 assert.ok(h.includes('class="wd-chargeur"') && !h.includes('class="wd-chargeur wd-barre"'), "barre de chargement d'une autre classe que les barres de dump");
+
+// Sablier en ASCII (cet écran d'époque n'affichait pas d'émojis) : le sable descend avec l'avancement ; aucun émoji sur l'écran.
+{
+  const sablier = (page) => { const i = page.indexOf('id="wd-sablier"'); return page.slice(page.indexOf(">", i) + 1, page.indexOf("</pre>", i)); };
+  const debut = sablier(W.page(joueur(true, true, { bootEcoule: 100, bootFraction: 100 / 3600 })));
+  const milieu = sablier(W.page(joueur(true, true, { bootEcoule: 1800, bootFraction: 0.5 })));
+  const fin = sablier(W.page(joueur(true, true, { bootEcoule: 3500, bootFraction: 3500 / 3600 })));
+  for (const trame of [debut, milieu, fin]) assert.ok(/^[\x20-\x7e\n]+$/.test(trame.replace(/&amp;|&lt;|&gt;/g, "")) && trame.split("\n").length === 6, "sablier : 6 lignes de caractères ASCII imprimables");
+  assert.ok(debut !== milieu && milieu !== fin && debut !== fin, "trois trames : le sable descend avec le chargement");
+  assert.ok(debut.includes(":::::") && fin.includes(":::::"), "sable en haut au début, en bas à la fin");
+  const ecranSeul = W.page(joueur(true, true, { bootEcoule: 1800, bootFraction: 0.5 }));
+  assert.ok(!/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{231A}-\u{23FF}]/u.test(ecranSeul.slice(ecranSeul.indexOf('class="wd-ecran"'), ecranSeul.indexOf('class="wd-clavier"'))), "aucun émoji sur l'écran du moniteur");
+  assert.ok(ecranSeul.includes("[*] EN MARCHE") && !ecranSeul.includes("●"), "l'état en ASCII aussi");
+}
 assert.ok(h.includes("Vitesse de Wandoos : <b id=\"wd-ch-vit\">50 %</b> de son maximum") && h.includes("<b id=\"wd-ch-reste\">30 min 00 s</b>"), "vitesse actuelle et temps restant");
 assert.ok(!h.includes("Ce n’est pas une barre à remplir"), "plus de phrase « ce n'est pas une barre à remplir »");
 assert.ok(!h.includes("Tu peux déjà placer") && !h.includes("wd-ch-note"), "le cadre de chargement ne contient aucune phrase explicative (Norman, 2026-10-07)");
-assert.ok(h.includes("wd-input") && h.includes(".place('energy','plus')") && h.includes("PLACÉE"), "pendant le chargement : l'énergie et la magie se placent déjà (barres du bureau visibles)");
+assert.ok(h.includes('id="wd-saisie"') && h.includes(".place('energy','plus')") && h.includes("PLACÉE"), "pendant le chargement : l'énergie et la magie se placent déjà (barres du bureau visibles)");
 maintenant += 600_000;
 const plusTard = W.page(joueurCourant);
 assert.ok(plusTard.includes('id="wd-ch-pct">66 %') && plusTard.includes("20 min 00 s"), "dix minutes plus tard : 66 %, il reste 20 min");
@@ -303,6 +318,6 @@ assert.ok(src.includes("prefers-reduced-motion:reduce){.wd-chargeur i{animation:
 assert.ok(src.includes(".wd-crt::after{") && /\.wd-crt::after\{[^}]*pointer-events:none[^}]*border-image:url/.test(src) && !/\.wd-crt\{[^}]*border-image/.test(src), "l'image du moniteur est posée PAR-DESSUS l'écran, sans intercepter un clic");
 assert.ok(src.includes(".wd-ecran{position:relative;z-index:1;"), "l'écran est sous l'image");
 assert.ok(src.includes(".wd-titre{margin-top:2.2cqw;"), "le titre (Wandoos 98 / EN MARCHE) est descendu pour ne pas passer sous le bord de l'écran");
-assert.ok(/\.wd-input\.wd-input\{[^}]*font-family:"Courier New",Courier,monospace!important/.test(src), "la saisie a la police de l'écran");
+assert.ok(src.includes(".wd-frappe{word-break:break-all;color:var(--wd-c);") && !src.includes(".wd-input"), "la frappe reprend la police et la couleur de l'écran (aucun champ)");
 
 console.log("idle-wandoos-retro-v1: OK");
