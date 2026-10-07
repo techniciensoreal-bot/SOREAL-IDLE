@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Menu du haut : le nouveau style en deux rangées est réservé au téléphone ; sur ordinateur, le menu redevient celui d’avant. Quand tu ranges les boutons sur téléphone, tu peux maintenant choisir de les afficher sur 1, 2 ou 3 lignes.',
           'Menu de création des voix repensé : une bulle par personnage, avec sa voix et son expression, un bouton pour écouter une voix avant de la choisir, des expressions (joyeux, dramatique, calme…) et des pauses plus ou moins longues à glisser dans le texte, des boutons plus évidents. Toutes les voix sont désormais modifiables, même celles qui se déclenchent sans texte à l’écran.',
           'Menu du haut refait : fini le style « arcade », place à des boutons plus courts et plus nets, avec les mêmes emojis et les mêmes animations. Le sous-titre disparaît et le nom passe sur deux lignes, par exemple « Combat de boss ». Les boutons sont rangés sur deux rangées : tu en vois bien plus d’un coup d’œil et tu défiles bien moins.',
           'Presser une touche du clavier de l’ordinateur rétro, ou le bouton « Trier », ne fait plus bouger la page d’un poil : la page ne se recale plus sur le petit enfoncement du bouton.',

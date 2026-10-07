@@ -703,9 +703,10 @@ html body .glow-dispo-v1{animation:sorealBoutonDispoEchelleV1 1.1s ease-in-out i
 .idle-boostpts-v1 b.t{background:#3d9bff;}
 .idle-boostpts-v1 b.s{background:#ffe14a;}
 @media (max-width:700px){.idle-boostpts-v1{left:2px;bottom:2px;gap:1px;}.idle-boostpts-v1 b{width:6px;height:6px;border-width:1px;}}
-/* ===== MENU DU HAUT v3 (Norman, 2026-10-08) : plus de style arcade ; emojis et animations conservés ; pas de sous-titre ; nom sur 2 lignes ; boutons courts sur 2 rangées pour en voir beaucoup plus sans défiler à l'infini. ===== */
+@media (max-width:700px){
+/* ===== MENU DU HAUT v3, TÉLÉPHONE SEULEMENT (Norman, 2026-10-08 : « uniquement sur APP, remets le menu comme il était pour la version PC ») : plus de style arcade ; emojis et animations conservés ; pas de sous-titre ; nom sur 2 lignes ; boutons courts sur 2 rangées pour en voir beaucoup plus sans défiler à l'infini. ===== */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28{
-  display:grid!important;grid-auto-flow:column!important;grid-template-rows:repeat(2,auto)!important;grid-auto-columns:max-content!important;
+  display:grid!important;grid-auto-flow:column!important;grid-template-rows:repeat(var(--nav-rangees,2),auto)!important;grid-auto-columns:max-content!important;
   align-items:stretch!important;gap:5px!important;height:auto!important;max-height:none!important;
   padding:10px 8px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:14px!important;
   background:rgba(13,19,32,.94)!important;box-shadow:0 6px 16px rgba(0,0,0,.4)!important;
@@ -746,3 +747,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .
   display:flex!important;flex-wrap:wrap!important;overflow:visible!important;
 }
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28.edition .soreal-idle-nav-rangement-v1{flex:1 0 100%!important;color:#ffe3a3!important;}
+}
+/* Choix du nombre de lignes du menu (1, 2 ou 3) dans le bandeau de rangement : réservé au téléphone, où le menu est sur plusieurs lignes. */
+.soreal-idle-nav-rangees-v1{display:none;align-items:center;gap:6px;font-size:13px;font-weight:800}
+.soreal-idle-nav-rangees-v1 button{min-width:38px;min-height:36px;padding:0 10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:inherit;font:900 15px/1 system-ui,sans-serif;cursor:pointer}
+.soreal-idle-nav-rangees-v1 button.actif{background:#f5c14b;color:#2b1a00;border-color:#fff}
+@media (max-width:700px){.soreal-idle-nav-rangees-v1{display:flex}}

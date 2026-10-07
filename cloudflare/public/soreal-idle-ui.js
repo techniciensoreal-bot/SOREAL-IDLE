@@ -12179,7 +12179,7 @@
         });
 
         return `
-          <div class="soreal-idle-nav-v28${idleMenuEditionV1?' edition':''}" style="--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))}">
+          <div class="soreal-idle-nav-v28${idleMenuEditionV1?' edition':''}" style="--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))};--nav-rangees:${rangeesMenuIdleV1_()}">
             ${idleMenuEditionV1?htmlBandeauRangementMenuIdleV1_():''}
             ${menusVisibles.map(function(m){
 
@@ -12242,9 +12242,35 @@
         }).map(function(m){return m.id;});
       }
 
+      /*
+       * Nombre de lignes du menu du haut sur téléphone (Norman, 2026-10-08 : « quand les gens éditent l'ordre des icônes, ils peuvent choisir 1, 2 ou 3 lignes »). Gardé sur l'appareil (le téléphone et l'ordinateur n'ont pas
+       * les mêmes besoins) ; 2 par défaut.
+       */
+      const CLE_RANGEES_MENU_IDLE_V1='soreal_idle_menu_rangees_v1';
+      function rangeesMenuIdleV1_(){
+        try{
+          const n=Number(localStorage.getItem(CLE_RANGEES_MENU_IDLE_V1));
+          return n===1||n===2||n===3?n:2;
+        }catch(e){return 2;}
+      }
+      window.__reglerRangeesMenuIdleV1__=function(n){
+        n=n===1||n===3?n:2;
+        try{localStorage.setItem(CLE_RANGEES_MENU_IDLE_V1,String(n));}catch(e){}
+        const nav=document.querySelector('.soreal-idle-nav-v28');
+        if(nav)nav.style.setProperty('--nav-rangees',String(n));
+        Array.prototype.forEach.call(document.querySelectorAll('[data-nav-rangees]'),function(b){
+          b.classList.toggle('actif',Number(b.getAttribute('data-nav-rangees'))===n);
+        });
+      };
+      function htmlRangeesMenuIdleV1_(){
+        const n=rangeesMenuIdleV1_();
+        return '<span class="soreal-idle-nav-rangees-v1">Lignes '+[1,2,3].map(function(k){
+          return '<button type="button" data-nav-rangees="'+k+'" class="'+(k===n?'actif':'')+'" onclick="window.__reglerRangeesMenuIdleV1__('+k+')" aria-label="'+k+' ligne'+(k>1?'s':'')+'">'+k+'</button>';
+        }).join('')+'</span>';
+      }
       function htmlBandeauRangementMenuIdleV1_(){
         return '<div class="soreal-idle-nav-rangement-v1" data-idle-nav-rangement-v1>'+
-          '<span>↔️ <b>Rangement des boutons</b> — glisse un bouton entre deux autres</span>'+
+          '<span>↔️ <b>Rangement des boutons</b> — glisse un bouton entre deux autres</span>'+htmlRangeesMenuIdleV1_()+
           '<button type="button" class="soreal-idle-nav-valider-v1" onclick="window.__validerRangementMenuIdleV1__()">✔ Valider</button>'+
         '</div>';
       }

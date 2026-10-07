@@ -48,7 +48,7 @@ assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-
  */
 {
   const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-  assert.ok(ui.includes("style=\"--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))}\""), "nombre de lignes = moitié des menus visibles");
+  assert.ok(ui.includes("style=\"--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))};--nav-rangees:${rangeesMenuIdleV1_()}\""), "nombre de lignes = moitié des menus visibles");
   const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
   assert.ok(!css.includes("grid-template-rows:repeat(16,auto)"), "plus de 16 lignes fixes");
   assert.equal(css.split("grid-template-rows:repeat(var(--nav-lignes,17),auto)").length - 1, 0, "aucune règle à deux colonnes : une colonne partout, même en 1920x1080 (2026-10-05)");
