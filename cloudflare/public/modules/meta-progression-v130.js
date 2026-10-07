@@ -1852,11 +1852,16 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         R.file.delete(cle);
         R.file.set(cle,payload);
         /* Ce que le joueur veut, tant que le serveur ne l'a pas confirmé : réappliqué sur tout état serveur plus ancien (voir appliquerAllocationsVoulues). */
-        if(payload.action==='allocate'||payload.action==='allocateAugment'||payload.action==='allocateAdvancedTraining')R.voulu.set(cle,payload);
+        if(payload.action==='clearRitualAllocations')Array.from(R.file.keys()).forEach(function(c){if(c.indexOf('allocateRitual:')===0)R.file.delete(c);});
+        if(payload.action==='allocate'||payload.action==='allocateAugment'||payload.action==='allocateAdvancedTraining'||payload.action==='allocateRitual')R.voulu.set(cle,payload);
+        else if(payload.action==='clearRitualAllocations'){Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateRitual:')===0)R.voulu.delete(c);});R.voulu.set(cle,payload);}
         else if(payload.action==='clearAugmentAllocations')Array.from(R.voulu.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.voulu.delete(c);});
         planifierAllocRapideV1_(delai);
       }
       function O2(){return window.__allocOrdreIdleV1__;}
+      /* La file d'allocations rapides (Augmentations, Time Machine, Blood Magic, Advanced Training) a-t-elle encore des envois en attente ou en vol ? Lu par la victoire de boss, qui attend qu'ils soient partis avant de demander confirmation au serveur. */
+      window.__allocRapideEnAttenteIdleV1__=function(){const R=IDLE_ALLOC_RAPIDE_V1;return Boolean(R.file.size||R.timer||R.enCours);};
+      window.__viderAllocRapideIdleV1__=function(){const R=IDLE_ALLOC_RAPIDE_V1;if(R.timer){clearTimeout(R.timer);R.timer=0;}viderAllocRapideV1_();};
       function viderAllocRapideV1_(){
         const R=IDLE_ALLOC_RAPIDE_V1;
         R.timer=0;
@@ -1917,7 +1922,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const st=(x&&x.state)||{};
           const pairs=st.data&&st.data.pairs;
           const extra=pairs?Object.keys(pairs).map(function(k){return k+':'+(pairs[k]&&pairs[k].energy)+'/'+(pairs[k]&&pairs[k].upgradeEnergy);}).join(','):'';
-          const rituel=st.data&&st.data.activeRitual?st.data.activeRitual:'';
+          const rituel=(st.data&&st.data.activeRitual?st.data.activeRitual:'')+(st.data&&st.data.rituals?Object.keys(st.data.rituals).map(function(k){return k+'~'+(st.data.rituals[k]&&st.data.rituals[k].magic);}).join(','):'');
           const pistesAt=String(x&&x.id)==='advancedTraining'&&st.data&&st.data.tracks?Object.keys(st.data.tracks).map(function(k){return k+'='+(st.data.tracks[k]&&st.data.tracks[k].energy)+'/'+(st.data.tracks[k]&&st.data.tracks[k].target);}).join(','):'';
           return String(x&&x.id)+'='+JSON.stringify(st.allocation||{})+extra+rituel+pistesAt;
         }).join('|');
@@ -1938,6 +1943,20 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const R=IDLE_ALLOC_RAPIDE_V1;
         if(!j||!R.voulu.size)return;
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        /*
+         * Norman (2026-10-07) : « dans Augmentations, je mets 10K, j'attends 2 secondes, je remets 10K : la barre fait un saut en arrière, à chaque fois ». Une réponse du serveur calculée AVANT le clic
+         * arrive après lui : l'allocation voulue est réappliquée (ci-dessous), mais la barre et sa durée repartaient des chiffres périmés de cette réponse. On reporte donc le visuel local, celui que le
+         * clic vient de recalculer (même fraction, nouvelle vitesse), sur l'état qui arrive, au lieu de le reconstruire depuis la réponse en retard.
+         */
+        const precedent=H.getIdleEtat();
+        const reporterVisuels=function(){
+          if(!precedent||precedent===j)return;
+          if(precedent.__augmentationsVisualV215&&!j.__augmentationsVisualV215){
+            j.__augmentationsVisualV215=precedent.__augmentationsVisualV215;
+            j.__augmentationsVisualV215.src=j.systemes&&j.systemes.augmentations;
+          }
+          if(precedent.__bloodMagicVisualV1&&!j.__bloodMagicVisualV1)j.__bloodMagicVisualV1=Object.assign({},precedent.__bloodMagicVisualV1);
+        };
         R.voulu.forEach(function(p){
           const val=Math.max(0,Math.floor(Number(p.value)||0));
           if(p.action==='allocate'){
@@ -1973,6 +1992,33 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             pair[champ]=val;
             if(sys.state.allocation)sys.state.allocation.energy=Math.max(0,H.idleNombre_(sys.state.allocation.energy)+delta);
             j.energie=Math.max(0,H.idleNombre_(j.energie)-delta);
+            reporterVisuels();
+            try{recalculerAugmentLocalIdleV1_(j,p.pair,Boolean(p.upgrade),val);}catch(_e){}
+          }else if(p.action==='allocateRitual'){
+            const sysR=systemeMetaParIdIdleV130_(j,'bloodMagic');
+            const ritR=sysR&&sysR.state&&sysR.state.data&&sysR.state.data.rituals&&sysR.state.data.rituals[p.ritual];
+            if(!ritR)return;
+            const actuelR=Math.max(0,H.idleNombre_(ritR.magic));
+            const deltaR=val-actuelR;
+            if(!deltaR)return;
+            ritR.magic=val;
+            if(sysR.state.allocation)sysR.state.allocation.magic=Math.max(0,H.idleNombre_(sysR.state.allocation.magic)+deltaR);
+            const magieR=j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+            if(magieR)magieR.current=Math.max(0,H.idleNombre_(magieR.current)-deltaR);
+            reporterVisuels();
+            try{recalculerBloodLocalIdleV1_(j,p.ritual,val,true);}catch(_e){}
+          }else if(p.action==='clearRitualAllocations'){
+            const sysC=systemeMetaParIdIdleV130_(j,'bloodMagic');
+            const rituelsC=sysC&&sysC.state&&sysC.state.data&&sysC.state.data.rituals;
+            if(!rituelsC)return;
+            const magieC=j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+            Object.keys(rituelsC).forEach(function(id){
+              const courant=Math.max(0,H.idleNombre_(rituelsC[id].magic));
+              if(!courant)return;
+              rituelsC[id].magic=0;
+              if(sysC.state.allocation)sysC.state.allocation.magic=Math.max(0,H.idleNombre_(sysC.state.allocation.magic)-courant);
+              if(magieC)magieC.current=Math.max(0,H.idleNombre_(magieC.current)+courant);
+            });
           }
         });
       }
@@ -2080,7 +2126,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const snap=j&&j.systemes;
         if(!snap||!Array.isArray(snap.augmentations)||!snap.augmentations.length)return;
-        j.__augmentationsVisualV215=construireVisuelAugmentsIdleV1_(j);
+        /* Un visuel déjà reporté sur cet état (allocation voulue, réponse en retard) est gardé : il porte la barre locale, pas les chiffres périmés du serveur. */
+        if(j.__augmentationsVisualV215&&j.__augmentationsVisualV215.src===snap.augmentations)rebaserVisuelAugmentsIdleV1_(j.__augmentationsVisualV215);
+        else j.__augmentationsVisualV215=construireVisuelAugmentsIdleV1_(j);
         const mult=document.getElementById('sorealIdleAugMultV1');
         const texteMult='x'+H.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1).toFixed(3);
         if(mult&&mult.textContent!==texteMult)mult.textContent=texteMult;
@@ -2745,7 +2793,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * (K : secondsK du rituel, fourni par le serveur, ou déduit de celui du rituel sélectionné par le rapport des durées de base du catalogue).
        * Le visuel (barre + compte à rebours) est mis à jour tout de suite ; le ticker de soreal-idle-ui.js le repeint. Les repères visuels sont rangés par rituel.
        */
-      function recalculerBloodLocalIdleV1_(j,ritualId,alloc){
+      function recalculerBloodLocalIdleV1_(j,ritualId,alloc,sansRedessin){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const vue=j&&j.systemes&&j.systemes.bloodMagicView;
         if(!vue)return;
@@ -2817,7 +2865,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             :'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.';
         }
         /* Un rituel qui reçoit de la Magic pour la première fois n'a pas encore de barre dans la page : un seul redessin LOCAL (sans aller-retour réseau). */
-        if(nouveau.seconds>0&&!barreRituel&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
+        if(!sansRedessin&&nouveau.seconds>0&&!barreRituel&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
       }
 
       /* Les gouttes de la barre qui saigne (même balisage au rendu et à la mise à jour en direct). */

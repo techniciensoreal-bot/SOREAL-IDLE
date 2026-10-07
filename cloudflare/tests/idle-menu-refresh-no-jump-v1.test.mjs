@@ -130,4 +130,18 @@ for (const fonction of [
   assert.ok(!auto.includes('<input type="checkbox" \'+(coche'), "plus de case à cocher brute");
 }
 
+// 7. Réponse du serveur en retard après un clic (Norman, 2026-10-07 : 10K, 2 s, 10K : la barre saute en arrière) : le visuel local est reporté sur l'état qui arrive.
+{
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(meta.includes("const reporterVisuels=function(){") && meta.includes("j.__augmentationsVisualV215.src=j.systemes&&j.systemes.augmentations;"), "le visuel local des Augments est reporté sur l'état en retard");
+  assert.ok(meta.includes("reporterVisuels();\n            try{recalculerAugmentLocalIdleV1_(j,p.pair,Boolean(p.upgrade),val);}catch(_e){}"), "et recalculé avec la valeur voulue");
+  assert.ok(meta.includes("payload.action==='allocateRitual')R.voulu.set(cle,payload)") && meta.includes("}else if(p.action==='allocateRitual'){"), "la Magic de rituel voulue est réappliquée aussi");
+}
+
+// 8. Victoire de boss : les allocations des autres menus partent avant la demande de confirmation (Norman, 2026-10-07 : boss suivant qui ne se charge pas).
+{
+  assert.ok(ui.includes("const apresAllocationsMeta=function(suite){") && ui.includes("apresAllocationsMeta(function(){"), "la victoire attend les allocations rapides en attente");
+  assert.ok(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8").includes("window.__allocRapideEnAttenteIdleV1__=function(){"), "la file d'allocations rapides est lisible");
+}
+
 console.log("idle-menu-refresh-no-jump-v1: OK");

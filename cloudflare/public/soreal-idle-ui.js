@@ -3204,24 +3204,42 @@
                    * les niveaux d'entraînement du moment ; si les allocations récentes ne sont pas encore parties, le serveur (qui fait foi) calcule avec
                    * d'anciennes stats et ne confirme pas la victoire. On envoie donc d'abord les allocations en attente (1,5 s au plus), puis on synchronise.
                    */
-                  if(idleBasicTrainingDirtyV120||idleBasicTrainingSaveBusyV120){
-                    if(idleBasicTrainingSaveTimerV120){
-                      clearTimeout(idleBasicTrainingSaveTimerV120);
-                      idleBasicTrainingSaveTimerV120=null;
-                    }
-                    if(!idleBasicTrainingSaveBusyV120)envoyerAllocationsBasicTrainingIdleV120_();
-                    const debutAttente=Date.now();
-                    const attendreEnvoi=function(){
-                      if((!idleBasicTrainingSaveBusyV120&&!idleBasicTrainingDirtyV120)||Date.now()-debutAttente>1500){
-                        synchroniserVictoire();
-                        return;
-                      }
-                      setTimeout(attendreEnvoi,60);
+                  /*
+                   * Norman (2026-10-07) : « le boss suivant ne se charge pas toujours ; la barre de vie de l'ancien boss reste, sans image ; j'ai refait Fight et regagné l'EXP ». Le serveur calcule la
+                   * victoire avec SES chiffres : les allocations des autres menus (Augmentations, Time Machine, Blood Magic) encore en route changent ce qu'il voit. On les laisse donc partir
+                   * d'abord (1,5 s au plus), exactement comme les allocations de Basic Training ci-dessous, puis on demande la confirmation.
+                   */
+                  const apresAllocationsMeta=function(suite){
+                    const enAttente=window.__allocRapideEnAttenteIdleV1__;
+                    if(typeof enAttente!=='function'||!enAttente()){suite();return;}
+                    if(typeof window.__viderAllocRapideIdleV1__==='function')window.__viderAllocRapideIdleV1__();
+                    const debutMeta=Date.now();
+                    const attendreMeta=function(){
+                      if(!enAttente()||Date.now()-debutMeta>1500){suite();return;}
+                      setTimeout(attendreMeta,60);
                     };
-                    attendreEnvoi();
-                  }else{
-                    synchroniserVictoire();
-                  }
+                    attendreMeta();
+                  };
+                  apresAllocationsMeta(function(){
+                    if(idleBasicTrainingDirtyV120||idleBasicTrainingSaveBusyV120){
+                      if(idleBasicTrainingSaveTimerV120){
+                        clearTimeout(idleBasicTrainingSaveTimerV120);
+                        idleBasicTrainingSaveTimerV120=null;
+                      }
+                      if(!idleBasicTrainingSaveBusyV120)envoyerAllocationsBasicTrainingIdleV120_();
+                      const debutAttente=Date.now();
+                      const attendreEnvoi=function(){
+                        if((!idleBasicTrainingSaveBusyV120&&!idleBasicTrainingDirtyV120)||Date.now()-debutAttente>1500){
+                          synchroniserVictoire();
+                          return;
+                        }
+                        setTimeout(attendreEnvoi,60);
+                      };
+                      attendreEnvoi();
+                    }else{
+                      synchroniserVictoire();
+                    }
+                  });
                 };
                 if(typeof requestAnimationFrame==='function'){
                   requestAnimationFrame(function(){
@@ -4604,6 +4622,9 @@
               appliquerSuppressionsLocalesRecycleV38_(
                 joueurServeurProtegeV208
               );
+
+            /* Allocations voulues mais pas encore confirmées : jamais écrasées par une synchro calculée avant le clic (Norman, 2026-10-07 : la barre des Augmentations sautait en arrière), et la barre locale est reportée. */
+            if(typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(joueurSynchronise);
 
             if(
               !appliquerSynchroCombatSansReflowIdleV116_(

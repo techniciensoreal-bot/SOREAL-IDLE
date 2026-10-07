@@ -15,7 +15,7 @@ console.log("idle-blood-magic-compteur-rituel-v1: OK");
 
 // Norman (2026-10-05) : « si j'enlève toute la magie, la barre continue de monter » : la barre est figée (animation annulée) dès qu'il n'y a plus de Magic, à sa progression du moment, et un redessin la garde là.
 {
-  const rec = meta.slice(meta.indexOf("      function recalculerBloodLocalIdleV1_(j,ritualId,alloc){"), meta.indexOf("      function ajusterBloodMagicIdleV1_(mode,ritualId){"));
+  const rec = meta.slice(meta.indexOf("      function recalculerBloodLocalIdleV1_(j,ritualId,alloc,sansRedessin){"), meta.indexOf("      function ajusterBloodMagicIdleV1_(mode,ritualId){"));
   assert.ok(rec.includes("figees[ritualId]=nouveau.progress;") && rec.includes("barreRituel.__idleAugAnimationV217.cancel()") && rec.includes("barreRituel.style.transform='scaleX('+nouveau.progress+')';"), "barre figée quand la Magic tombe à 0");
   assert.ok(rec.includes("delete figees[ritualId];"), "repart quand on remet de la Magic");
   assert.ok(page.includes("figeesB[def.id]!=null?H.idleNombre_(figeesB[def.id]):0"), "un redessin garde la barre au point figé");
@@ -38,7 +38,7 @@ console.log("idle-blood-magic-compteur-rituel-v1: OK");
   f(barre, true);
   assert.ok(classes.has("saigne-v1") && gouttes.length === 6, "Magic remise : la piste saigne de nouveau (classe et six gouttes)");
   assert.ok(rec_ok(meta), "la bascule est branchée dans le recalcul local");
-  function rec_ok(m) { const r = m.slice(m.indexOf("      function recalculerBloodLocalIdleV1_(j,ritualId,alloc){"), m.indexOf("      function saignerPisteIdleV1_")); return r.includes("saignerPisteIdleV1_(barreRituel,true)") && r.includes("saignerPisteIdleV1_(barreRituel,false)"); }
+  function rec_ok(m) { const r = m.slice(m.indexOf("      function recalculerBloodLocalIdleV1_(j,ritualId,alloc,sansRedessin){"), m.indexOf("      function saignerPisteIdleV1_")); return r.includes("saignerPisteIdleV1_(barreRituel,true)") && r.includes("saignerPisteIdleV1_(barreRituel,false)"); }
 }
 console.log("idle-blood-magic-barre-figee-v1: OK");
 
