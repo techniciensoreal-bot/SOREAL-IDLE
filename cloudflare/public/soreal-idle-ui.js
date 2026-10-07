@@ -2210,6 +2210,21 @@
        * ça ne dépasse jamais »). Même pastille, même taille de départ ; la police ne fait que rétrécir, par demi-pixel, tant que le texte est plus large que la pastille (cas des très grands
        * nombres ou du texte de régénération). Recalculé quand le texte ou la largeur de la carte change.
        */
+      /* Les boutons de la borne (Fight / Fuite / Nuke) s'enfoncent le temps d'un appui, même très bref. */
+      if(!window.__presseBorneIdleV1Installe){
+        window.__presseBorneIdleV1Installe=true;
+        document.addEventListener('pointerdown',function(ev){
+          try{
+            const bouton=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-boss-control-v39'):null;
+            if(!bouton||bouton.disabled)return;
+            const carte=bouton.closest('.soreal-idle-boss-current-v35');
+            if(!carte)return;
+            const nom=bouton.classList.contains('start')?'start':bouton.classList.contains('stop')?'stop':'nuke';
+            carte.setAttribute('data-presse-v1',nom);
+            setTimeout(function(){if(carte.getAttribute('data-presse-v1')===nom)carte.removeAttribute('data-presse-v1');},320);
+          }catch(e){}
+        },true);
+      }
       function ajusterVieDuelIdleV1_(element,change){
         try{
           const parent=element.parentElement;
