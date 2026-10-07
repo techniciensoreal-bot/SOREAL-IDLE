@@ -53,7 +53,7 @@ const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
 }
 
 // --- 3. Client : rendu réel des pages avec un faux hôte. ---
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 let etatClient = null;
 const hote = {
   getIdleEtat: () => etatClient,

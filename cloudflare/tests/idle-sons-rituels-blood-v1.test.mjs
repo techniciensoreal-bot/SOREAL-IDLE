@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
  * Norman (2026-10-04) : « des sons de rituel de plus en plus bad ass quand on lance un rituel avec notre blood ». Un son par sort de Blood Magic, chacun plus long et plus chargé que le précédent.
  */
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 // Faux contexte Web Audio : enregistre chaque note et chaque bruit planifiés.
 function faux() {
   const evenements = [];

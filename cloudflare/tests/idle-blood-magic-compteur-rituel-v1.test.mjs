@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-05) : « dans Blood Magic, un compteur avec la magie allouée à chaque rituel, avec l'animation sur le chiffre comme dans les autres menus quand on ajoute ou retire de la magie ». */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const page = meta.slice(meta.indexOf("      function pageBloodMagicIdleV48_(j){"), meta.indexOf("        const sortsHtml="));
 assert.ok(page.includes(`id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)`), "un compteur par rituel : chaque rituel affiche SA Magic (plusieurs peuvent en avoir, 2026-10-07)");
 // Mise à jour sur place pour le rituel actif (aucun redessin) ; l'animation vient du crochet d'alloc-pop-v1.
@@ -44,6 +44,6 @@ console.log("idle-blood-magic-barre-figee-v1: OK");
 
 // Magie libre (Norman, 2026-10-05) : le compteur se met à jour au clic, comme la Magie allouée.
 {
-  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
   assert.ok(meta.includes('<b id="sorealIdleBloodLibreV1">') && meta.includes("document.getElementById('sorealIdleBloodLibreV1')"), "Magie libre mise à jour sur place");
 }

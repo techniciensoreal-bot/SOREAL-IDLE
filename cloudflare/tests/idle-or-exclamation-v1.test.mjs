@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-07) : le mot qui suit un gain d'or est de plus en plus content quand la somme monte (Bah…, Ça se prend, Chouette, Cool, Pas mal, Wow, OH BORDEL, WHOUHOU…). */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const a = meta.indexOf("      const PALIERS_OR_EXCLAMATION_V1=[");
-const b = meta.indexOf("      function ajusterBloodMagicIdleV1_(mode,ritualId){");
+const b = meta.indexOf("      const sangIdleV1=");
 assert.ok(a > 0 && b > a, "paliers présents");
 const exclamation = new Function(meta.slice(a, b) + "\nreturn exclamationOrIdleV1_;")();
 const attendu = [[0, "Bah…"], [5, "Bah…"], [50, "Ça se prend."], [500, "Chouette !"], [5000, "Cool !"], [50000, "Pas mal !"], [500000, "Wow !"], [5e7, "OH BORDEL !"], [5e9, "WHOUHOU !"]];

@@ -92,7 +92,7 @@ const rit = (v, id) => v.rituals.find((x) => x.id === id);
 }
 // 7. Les boutons du client appellent des fonctions exposées sur window (régression du 2026-10-07 : les trois étaient perdues, plus rien ne se plaçait).
 import { readFileSync } from "node:fs";
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 for (const nom of ["__ajusterBloodMagicIdleV1__", "__viderBloodMagicIdleV1__", "__ajusterRituelBloodMagicIdleV1__", "__presetBloodMagicIdleV1__"]) assert.ok(meta.includes("window." + nom + "="), "exposé : " + nom);
 const appelles = new Set([...meta.matchAll(/window\.(__[A-Za-z0-9]*BloodMagic[A-Za-z0-9]*__)\(/g)].map((x) => x[1]));
 for (const nom of appelles) assert.ok(meta.includes("window." + nom + "="), "appelé par la page mais jamais défini : " + nom);

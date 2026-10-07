@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
  */
 const lire = (p) => readFileSync(p, "utf8");
 const ui = lire("cloudflare/public/soreal-idle-ui.js");
-const meta = lire("cloudflare/public/modules/meta-progression-v130.js");
+const meta = lire("cloudflare/public/modules/blood-magic-v1.js") + "\n" + lire("cloudflare/public/modules/meta-progression-v130.js");
 const bridge = lire("cloudflare/public/standalone-bridge.js");
 const worker = lire("cloudflare/src/idle-worker-entry-v1.js");
 const auto = lire("cloudflare/public/modules/inventory-auto-v1.js");

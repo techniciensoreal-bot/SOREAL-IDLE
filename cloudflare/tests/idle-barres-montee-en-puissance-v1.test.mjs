@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
  * attaque puissante > régulière…), en ajoutant du foncé. Le rang (0 à 5) est posé par le rendu ; le CSS fait monter l'habillage sans changer les couleurs de chaque menu.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 // Le rang est posé sur les lignes de Basic Training, les rituels de Blood et les Augments ; jamais sur la ligne qui n'est pas encore débloquée.

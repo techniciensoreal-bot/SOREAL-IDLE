@@ -119,7 +119,7 @@ assert.ok(/\/modules\/orage-v1\.js\?v=\d+/.test(index) && index.indexOf("orage-v
 
 // Magie du sang : couleurs d'origine, barre qui saigne.
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 assert.ok(css.includes('[data-menu="sang"]{--i-a:#be192d;--i-b:#5c0a15;--i-c:#f2a1ab;--i-bg1:#3a0f17;--i-bg2:#130406;'), "palette d'origine du menu (rouge sang sur noir)");
 for (const fragment of ["sangBatV1", "sangGouttesV1", ".saigne-v1", ".sang-g-v1"]) assert.ok(css.includes(fragment), "saignement : " + fragment);
 assert.ok(meta.includes("soreal-idle-bt-track-v120'+(progressionActive?' saigne-v1':'')"), "la page marque la barre du rituel qui progresse");
