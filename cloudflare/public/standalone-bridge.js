@@ -111,6 +111,21 @@
   }
   window.__SOREAL_IDLE_HEURE_V1__=function(){return Date.now()+heureServeurV1.ecart;};
   window.__SOREAL_IDLE_RTT_V1__=function(){return heureServeurV1.connu?heureServeurV1.rtt:0;};
+  /*
+   * Âge réel de l'état reçu (Norman, 2026-10-07 : « les barres d'Augmentations recalculent encore à chaque montée — en ligne »). Les chronos partaient de « réception moins un demi aller-retour », avec l'aller-retour le plus court jamais
+   * mesuré (≈ 45 ms) : or une synchro prend 1 à 2 s de calcul côté serveur, pendant lesquelles les barres, niveaux et Or du serveur sont ceux du DÉBUT du calcul. Chaque synchro posait donc les barres 1 à 2 s en retard, puis le
+   * recalage de phase les faisait sauter. Le serveur donne maintenant l'instant où il a commencé (__serveurAtV1) ; converti en horloge locale avec l'écart d'horloge connu, il donne l'âge exact de l'état. La valeur rendue est
+   * celle que la lecture habituelle (« __recuPerfV1 moins un demi aller-retour ») ramène à cet instant. Sans repère fiable (pas d'écart connu, âge négatif ou > 30 s), on garde l'ancien calcul.
+   */
+  function calerRecuPerfV1_(joueur,perfMaintenant,dateMaintenant){
+    const serveurAt=Number(joueur&&joueur.__serveurAtV1);
+    if(!heureServeurV1.connu||!(serveurAt>0))return perfMaintenant;
+    const age=dateMaintenant-(serveurAt-heureServeurV1.ecart);
+    if(!(age>=0)||age>30000)return perfMaintenant;
+    return perfMaintenant-age+heureServeurV1.rtt/2;
+  }
+  window.__SOREAL_IDLE_CALER_RECU_V1__=calerRecuPerfV1_;
+  window.__SOREAL_IDLE_ETAT_HEURE_V1__=heureServeurV1;
 
   async function jsonFetchV1(url, options, timeoutMs){
     const controller=typeof AbortController==="function"?new AbortController():null;
@@ -282,7 +297,7 @@
         }catch(_){}
       }
       /* Instant de réception (horloge locale) : les chronos partent de là, moins un demi aller-retour (voir meta-progression : ancreSnapshotIdleV1_). */
-      if(data&&data.joueur&&typeof data.joueur==="object")data.joueur.__recuPerfV1=performance.now();
+      if(data&&data.joueur&&typeof data.joueur==="object")data.joueur.__recuPerfV1=calerRecuPerfV1_(data.joueur,performance.now(),Date.now());
       return data;
     }catch(error){
       if(error&&error.status===401)saveSessionV1("");

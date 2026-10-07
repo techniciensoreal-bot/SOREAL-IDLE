@@ -483,7 +483,10 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/session-call") {
       const p = await request.json().catch(() => ({}));
       try {
+        /* Instant où le moteur commence à calculer : l'état renvoyé (barres, niveaux, Or) est celui de CET instant, pas celui de la réception (une synchro de 1 à 2 s en production). Le client en déduit l'âge exact de l'état (voir standalone-bridge.js, calerRecuPerfV1_). Ajouté à la réponse seulement, jamais à l'état du moteur (le mémo des bonus ne doit voir aucun champ horodaté). */
+        const debutCalculMsV1 = Date.now();
         const result = this.runStandaloneSessionOperationV1(p);
+        if (result && result.joueur && typeof result.joueur === "object" && !Object.isFrozen(result.joueur)) result.joueur.__serveurAtV1 = debutCalculMsV1;
         return Response.json(result, { headers: { "cache-control": "no-store" } });
       } catch (error) {
         const message = sv(error?.code || error?.message || error) || "SOREAL_IDLE_OPERATION_FAILED";

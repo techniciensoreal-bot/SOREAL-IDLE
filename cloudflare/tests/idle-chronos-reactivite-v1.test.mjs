@@ -41,7 +41,7 @@ assert.ok(bridge.includes("jsonFetchV1(url,options,15000)"));
 assert.ok(!/OPERATIONS_LECTURE_V1=\{[^}]*(Achat|acheter|renaitre|combattre)/i.test(bridge), "aucune action de jeu rejouée");
 
 // 6. Pas de retour en arrière au redessin (Blood Magic, Augmentations, Time Machine) et repère de réception.
-assert.ok(bridge.includes("data.joueur.__recuPerfV1=performance.now()"));
+assert.ok(bridge.includes("data.joueur.__recuPerfV1=calerRecuPerfV1_(data.joueur,performance.now(),Date.now())") && bridge.includes("return perfMaintenant;"), "repère de réception : instant de calcul du serveur, repli sur la réception (2026-10-07)");
 assert.ok(meta.includes("visuelBloodExistant.src===bmView") && meta.includes("garderVisuelAug"));
 assert.ok(ui.includes("__ancreTmV1"));
 
