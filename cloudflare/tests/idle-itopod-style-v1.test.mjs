@@ -57,7 +57,8 @@ assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "le
 // Une seule borne : le bloc duel est le corps, la rangée est l'écran, plus de rotation de chaque combattant.
 assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  SOREAL IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
 assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seule borne de face");
-assert.equal((arene.match(/circle at \d+% (19|51)px,#fff/g) || []).length, 6, "six boutons en relief : trois en haut, trois en dessous");
+assert.equal(arene.split("ellipse 4.16px 5.2px at calc(").length - 1, 6, "six boutons en volume (coupole, anneau en relief, fût, socle, reflet) : trois en haut, trois en dessous");
+assert.ok(arene.includes("#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%") && arene.includes("ellipse 15.6px 19.5px"), "anneau de métal plus haut que le dessus et socle creux");
 assert.ok(arene.includes(".soreal-idle-boss-controls-v39::before{") && arene.includes(".soreal-idle-boss-controls-v39::after{") && arene.includes("circle at 34% 28%,#fff"), "un seul joystick en volume : boule sphérique éclairée, collerette et ombre, hors de la dalle (non coupé)");
 assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(0,1fr) auto minmax(0,1fr)"), "grand écran cathodique à deux combattants");
 // Téléphone (Norman, 2026-10-06) : « grand espace vide avant les barres, application non centrée, coupée à droite ».
