@@ -184,9 +184,6 @@
       '.wd-chargeur{position:relative;height:1.25em;margin:.4em 0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
       '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);background-size:1.42em 100%;animation:wd-defile 1s linear infinite;}',
       '@keyframes wd-defile{to{background-position:1.42em 0}}',
-      '.wd-ch-corps{display:flex;align-items:center;gap:.9em;}',
-      '.wd-sablier{margin:0;flex:0 0 auto;font:inherit;font-size:.85em;line-height:1.05;white-space:pre;color:#ffb000;text-shadow:0 0 .4em rgba(255,176,0,.55);}',
-      '.wd-ch-texte{flex:1;min-width:0;}',
       '@media (prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}}',
       '.wd-poste[data-phase="eteint"] .wd-ecran{background:#000;box-shadow:inset 0 0 3cqw rgba(0,0,0,.95);}',
       '@media (prefers-reduced-motion:reduce){.wd-ecran::after,.wd-curseur{animation:none;}}'
@@ -306,27 +303,14 @@
       '<div class="wd-ligne"><span id="wd-boot-msg">'+html_(msgs[i])+'</span><b id="wd-boot-pct">'+Math.floor(p*100)+'%</b></div></div>'+
     '</div>';
   }
-  /* Sablier en caractères ASCII (ce genre d'écran n'affichait pas d'émojis) : le sable descend avec l'avancement du chargement. */
-  var SABLIER_TRAMES=[
-    [' _______ ',' \\:::::/ ','  \\:::/  ','   )-(   ','  /   \\  ',' /_____\\ '],
-    [' _______ ',' \\  :  / ','  \\ : /  ','   )-(   ','  / : \\  ',' /__:__\\ '],
-    [' _______ ',' \\     / ','  \\   /  ','   )-(   ','  /:::\\  ',' /:::::\\ ']
-  ];
-  function sablier_(fraction){
-    var p=Math.max(0,Math.min(1,nb_(fraction)));
-    var i=Math.min(SABLIER_TRAMES.length-1,Math.floor(p*SABLIER_TRAMES.length));
-    return SABLIER_TRAMES[i].join('\n');
-  }
   /* Le chargement de l'OS (vrai démarrage du wiki) : cadre ambre à rayures qui défilent, volontairement différent des barres de dump à remplir. */
   function panneauChargement_(e){
     var b=bootVu_(e.vue),pct=Math.floor(b.fraction*100);
-    return '<div class="wd-chargement" role="status"><div class="wd-ch-corps">'+
-      '<pre class="wd-sablier" id="wd-sablier" aria-hidden="true">'+sablier_(b.fraction)+'</pre>'+
-      '<div class="wd-ch-texte">'+
-        '<div class="wd-ligne"><span>CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
-        '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
-        '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
-      '</div></div></div>';
+    return '<div class="wd-chargement" role="status">'+
+      '<div class="wd-ligne"><span>CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
+      '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
+      '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
+    '</div>';
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
     var placee=nb_(e.al[res]),libre=nb_(e.vue[libreCle]),vit=nb_(e.vue[vitesseCle]);
@@ -454,8 +438,6 @@
     if(!e.enChargement||!fill){arreterTimer_();if(fill)rafraichirPoste_();return;}
     var b=bootVu_(e.vue),pc=Math.floor(b.fraction*100);
     fill.style.width=(b.fraction*100).toFixed(1)+'%';
-    var sa=document.getElementById('wd-sablier');
-    if(sa){var trame=sablier_(b.fraction);if(sa.textContent!==trame)sa.textContent=trame;}
     var a=document.getElementById('wd-ch-pct'),v=document.getElementById('wd-ch-vit'),r=document.getElementById('wd-ch-reste');
     if(a)a.textContent=pc+' %';
     if(v)v.textContent=pc+' %';

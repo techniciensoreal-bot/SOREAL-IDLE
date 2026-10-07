@@ -136,18 +136,14 @@ h = W.page(joueurCourant);
 assert.ok(h.includes('class="wd-chargement"') && h.includes("CHARGEMENT DE L’OS") && h.includes('id="wd-ch-pct">50 %'), "cadre de chargement avec le pourcentage");
 assert.ok(h.includes('class="wd-chargeur"') && !h.includes('class="wd-chargeur wd-barre"'), "barre de chargement d'une autre classe que les barres de dump");
 
-// Sablier en ASCII (cet écran d'époque n'affichait pas d'émojis) : le sable descend avec l'avancement ; aucun émoji sur l'écran.
+// Pas de sablier (trop gros) : la barre de chargement occupe toute la largeur du cadre ; aucun émoji sur l'écran du moniteur.
 {
-  const sablier = (page) => { const i = page.indexOf('id="wd-sablier"'); return page.slice(page.indexOf(">", i) + 1, page.indexOf("</pre>", i)); };
-  const debut = sablier(W.page(joueur(true, true, { bootEcoule: 100, bootFraction: 100 / 3600 })));
-  const milieu = sablier(W.page(joueur(true, true, { bootEcoule: 1800, bootFraction: 0.5 })));
-  const fin = sablier(W.page(joueur(true, true, { bootEcoule: 3500, bootFraction: 3500 / 3600 })));
-  for (const trame of [debut, milieu, fin]) assert.ok(/^[\x20-\x7e\n]+$/.test(trame.replace(/&amp;|&lt;|&gt;/g, "")) && trame.split("\n").length === 6, "sablier : 6 lignes de caractères ASCII imprimables");
-  assert.ok(debut !== milieu && milieu !== fin && debut !== fin, "trois trames : le sable descend avec le chargement");
-  assert.ok(debut.includes(":::::") && fin.includes(":::::"), "sable en haut au début, en bas à la fin");
-  const ecranSeul = W.page(joueur(true, true, { bootEcoule: 1800, bootFraction: 0.5 }));
-  assert.ok(!/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{231A}-\u{23FF}]/u.test(ecranSeul.slice(ecranSeul.indexOf('class="wd-ecran"'), ecranSeul.indexOf('class="wd-clavier"'))), "aucun émoji sur l'écran du moniteur");
-  assert.ok(ecranSeul.includes("[*] EN MARCHE") && !ecranSeul.includes("●"), "l'état en ASCII aussi");
+  const page = W.page(joueur(true, true, { bootEcoule: 1800, bootFraction: 0.5 }));
+  assert.ok(!page.includes("wd-sablier") && !page.includes("wd-ch-corps") && !page.includes("<pre"), "aucun sablier");
+  assert.ok(!/class="wd-chargement"[^>]*><div class="wd-ch/.test(page), "la barre n'est plus à côté d'un dessin : elle prend toute la largeur");
+  const ecranSeul = page.slice(page.indexOf('class="wd-ecran"'), page.indexOf('class="wd-clavier"'));
+  assert.ok(!/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{231A}-\u{23FF}]/u.test(ecranSeul), "aucun émoji sur l'écran du moniteur");
+  assert.ok(page.includes("[*] EN MARCHE") && !page.includes("●"), "l'état en ASCII");
 }
 assert.ok(h.includes("Vitesse de Wandoos : <b id=\"wd-ch-vit\">50 %</b> de son maximum") && h.includes("<b id=\"wd-ch-reste\">30 min 00 s</b>"), "vitesse actuelle et temps restant");
 assert.ok(!h.includes("Ce n’est pas une barre à remplir"), "plus de phrase « ce n'est pas une barre à remplir »");
