@@ -76,4 +76,6 @@ assert.ok(css.includes(".soreal-idle-v138-slot).idle-item-locked-v165{") && css.
 assert.ok(css.includes(".itp-cadre{width:100%;box-sizing:border-box;max-width:calc(min(64vh,560px) * 4 / 3 + 30px);margin-left:auto;margin-right:auto;}"), "scène ITOPOD plafonnée sur PC");
 // Objet sélectionné (échange/fusion) : cadre doré toujours visible avec le style ITOPOD.
 assert.ok(css.includes(".soreal-idle-v138-slot).selected{") && css.includes("box-shadow:0 0 0 3px #ffd24a") && css.includes(".idle-merge-slot-v1{"), "cadre de sélection des objets conservé");
+// Joystick sur téléphone (Norman, 2026-10-07) : boule plus haute et tige qui ne dépasse plus au-dessus de la boule.
+assert.ok(css.includes(".soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-66px;") && css.includes("linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 20px no-repeat"), "téléphone : boule relevée, tige cachée derrière la boule");
 console.log("idle-itopod-style-v1: OK");

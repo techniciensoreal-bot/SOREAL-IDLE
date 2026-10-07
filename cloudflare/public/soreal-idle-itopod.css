@@ -386,8 +386,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
     radial-gradient(ellipse 23px 8px at 50% 36px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
     radial-gradient(ellipse 25px 7px at 54% 41px,rgba(0,0,0,.55),transparent 100%);}
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-56px;left:calc(18px + (100% - 36px) * .24 - 10px);}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-62px;left:calc(18px + (100% - 36px) * .24 - 18px);}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-66px;left:calc(18px + (100% - 36px) * .24 - 10px);}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-72px;left:calc(18px + (100% - 36px) * .24 - 18px);
+    background:
+      linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 20px no-repeat,
+      radial-gradient(ellipse 15px 6px at 50% 33px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
+      radial-gradient(ellipse 23px 8px at 50% 36px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
+      radial-gradient(ellipse 25px 7px at 54% 41px,rgba(0,0,0,.55),transparent 100%);}
 }
 
 /* Téléphone : la page et ses blocs de premier niveau comptent leurs bordures et marges intérieures DANS leur largeur (sinon « width:100% » + cadre épais = dépassement à droite, page décentrée). */
