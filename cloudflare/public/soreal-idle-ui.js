@@ -2237,7 +2237,10 @@
           const parent=element.parentElement;
           if(!parent||!parent.classList||!parent.classList.contains('soreal-idle-duel-hp-v41'))return;
           const largeur=String(parent.clientWidth);
-          if(!change&&element.getAttribute('data-fit-largeur')===largeur)return;
+          /* Les PV bougent plusieurs fois par seconde : on ne remesure (retrait de la taille, lecture de largeur, rétrécissement) que si la largeur de la carte ou le NOMBRE de caractères change, pas à chaque chiffre. */
+          const cleFit=largeur+'|'+element.textContent.length;
+          if(element.getAttribute('data-fit-cle')===cleFit)return;
+          element.setAttribute('data-fit-cle',cleFit);
           element.setAttribute('data-fit-largeur',largeur);
           element.style.removeProperty('font-size');
           element.style.removeProperty('white-space');
@@ -5176,11 +5179,17 @@
           (function boucle(){
             if(idlePinClicV1!==pin)return;
             if(performance.now()-pin.debut>5000){idlePinClicV1=null;return;}
-            const e=retrouverElementClicIdleV1_(pin.ancre);
-            if(e&&(e.offsetWidth||e.offsetHeight)){
-              const dy=e.getBoundingClientRect().top-pin.haut;
-              if(Math.abs(dy)>1)window.scrollBy(0,dy);
+            /* L element est gardé en mémoire : on ne le cherche de nouveau (balayage de la page) que s il a quitté la page. Pin arrêtée quand tout est stable depuis 1,5 s (au moins 3 s après le clic). */
+            let e=pin.cache;
+            if(!e||!e.isConnected){e=retrouverElementClicIdleV1_(pin.ancre);pin.cache=e;}
+            if(e){
+              const r=e.getBoundingClientRect();
+              if(r.width||r.height){
+                const dy=r.top-pin.haut;
+                if(Math.abs(dy)>1){window.scrollBy(0,dy);pin.stables=0;}else pin.stables=(pin.stables||0)+1;
+              }
             }
+            if((pin.stables||0)>=90&&performance.now()-pin.debut>3000){idlePinClicV1=null;return;}
             pin.raf=requestAnimationFrame(boucle);
           })();
         }catch(_e){}

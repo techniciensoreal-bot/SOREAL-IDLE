@@ -638,3 +638,15 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
     radial-gradient(circle 8.58px at 50% 14.82px,#8a6a00 0 90%,transparent 100%),
     radial-gradient(circle 11.7px at 50% 15.6px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
 }
+
+/* ALLÈGEMENT DU DESSIN (Norman, 2026-10-07 : « l'application lagge pas mal sur mon téléphone »). Mesures : la barre de menus (collante, donc redessinée à chaque défilement) portait un flou d'arrière-plan sur un fond déjà opaque
+ * et 22 pastilles à ombres filtrées (jusqu'à trois filtres par emoji) ; la barre de vie rejouait un calque en mélange « overlay » à chaque image ; les tuiles de statistiques faisaient glisser un reflet en continu. Rien de tout cela
+ * ne se voit sur un téléphone : on le retire, sans changer couleurs, cadres ni formes. */
+html body.soreal-idle-active-v47 .soreal-idle-nav-v28{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-cadre-v2{filter:none!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{filter:none!important;text-shadow:0 0 1px #fff,0 1px 2px rgba(0,0,0,.6);}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{animation:none!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-hp-v41 :is(.soreal-idle-bossbar-v7,.soreal-idle-playerbar-v15)::after{animation:none!important;mix-blend-mode:normal!important;}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-hp-ic-v1{filter:none!important;}
+}

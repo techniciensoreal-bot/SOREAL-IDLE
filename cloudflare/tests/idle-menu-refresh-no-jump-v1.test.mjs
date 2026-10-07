@@ -119,7 +119,7 @@ for (const fonction of [
   assert.ok(ui.includes("installerMorphIdleV1_(root);\n        root.innerHTML=contenuMenuIdleV28_(idleEtat);") && ui.includes("installerMorphIdleV1_(document.getElementById('app'));"), "page entière et contenu de menu rendus sur place");
   assert.ok(ui.includes('hasAttribute("data-morph-garder")'), "les blocs posés par d'autres modules sont gardés");
   assert.ok(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes('block.setAttribute("data-morph-garder","1");') && readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8").includes("bloc.setAttribute('data-morph-garder','1');"), "scène d'aventure et bloc d'inventaire gardés");
-  assert.ok(ui.includes("function demarrerPinClicIdleV1_(el){") && ui.includes("if(Math.abs(dy)>1)window.scrollBy(0,dy);") && ui.includes("['wheel','touchstart','touchmove','keydown']"), "épingle de clic, arrêtée par un défilement du joueur");
+  assert.ok(ui.includes("function demarrerPinClicIdleV1_(el){") && ui.includes("if(Math.abs(dy)>1){window.scrollBy(0,dy);pin.stables=0;}") && ui.includes("['wheel','touchstart','touchmove','keydown']"), "épingle de clic, arrêtée par un défilement du joueur");
 }
 
 // 6. Automatisation de l'inventaire en interrupteurs à bascule (Norman, 2026-10-07) ; « Action au clic » retiré.

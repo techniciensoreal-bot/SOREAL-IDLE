@@ -37,7 +37,8 @@
           'Blood Magic : tu peux enfin mettre de la Magic dans plusieurs rituels en même temps ; chacun garde la sienne et avance à son rythme, comme dans le jeu d’origine.',
           'Quand tu gagnes de l’or, le mot qui suit devient de plus en plus enthousiaste avec la somme : de « Bah… » jusqu’à « OH BORDEL ! », « WHOUHOU ! » et bien au-delà.',
           'Augmentations : quand tu ajoutes de l’énergie plusieurs fois de suite (par exemple 10 000 à chaque fois), la barre ne revient plus en arrière : elle garde sa place et prend simplement la nouvelle vitesse.',
-          'Quand tu bats un boss, le jeu laisse d’abord partir les réglages d’énergie et de Magic en attente avant de demander confirmation au serveur, pour que le boss suivant se charge bien.'
+          'Quand tu bats un boss, le jeu laisse d’abord partir les réglages d’énergie et de Magic en attente avant de demander confirmation au serveur, pour que le boss suivant se charge bien.',
+          'Le jeu est allégé pour les téléphones : les compteurs ne se réécrivent plus à chaque image quand leur valeur n’a pas changé (environ 175 modifications de la page par seconde en moins), la barre de menus perd un flou et des ombres invisibles, et la lueur du feu est plus légère.'
         ]
       },
       {
