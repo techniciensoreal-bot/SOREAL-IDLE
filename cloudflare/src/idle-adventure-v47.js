@@ -3041,6 +3041,21 @@ export function idleAdventureNiveauEstMaxV1(niveau){return I(niveau,-1)>=MAX}
  * dépassé par la valeur COURANTE (formule + boosts déjà absorbés, voir
  * merge() : la fusion seule ne comble jamais cet écart automatiquement).
  */
+/*
+ * Statistiques comblées POUR LE NIVEAU ACTUEL, quel que soit ce niveau (Norman, 2026-10-08 : « à chaque fois qu'une pièce est remplie de boost, peu importe son niveau, elle doit avoir le V vert, pour qu'on sache que ça ne sert à rien de lui ajouter des boosts »).
+ * Même plafond que applyBoost (base x (1 + niveau/100)) et que les Specials (max0 x (1 + niveau/100)) : tant que ce plafond n'est pas atteint, un boost serait accepté ; dès qu'il l'est, applyBoost le refuse.
+ */
+function idleAdventureObjetBoostsPleinsV1(o){
+  if(!o||o.kind==="boost")return false;
+  const d=defById(o.definitionId);
+  if(!d||(d.kind!=="set"&&d.kind!=="special"))return false;
+  const base=d.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):idleAdventureSpecialBaseStatsV1(d.id);
+  const q=1+C(N(o.level),0,MAX)/100;
+  const pOk=!(N(base.baseP)>0)||N(o.power)+1e-9>=N(base.baseP)*q;
+  const tOk=!(N(base.baseT)>0)||N(o.toughness)+1e-9>=N(base.baseT)*q;
+  const sOk=!(N(base.baseS)>0)||idleAdventureSpecialsListV1(o).every(sv=>sv.value+1e-9>=sv.max);
+  return pOk&&tOk&&sOk;
+}
 function idleAdventureObjetPleinementMaxeV1(o){
   if(!idleAdventureNiveauEstMaxV1(o?.level))return false;
   const d=defById(o?.definitionId);
@@ -5994,6 +6009,7 @@ function snapshotItemAdventureV1(o){
     specialsAll:specialsPiece.length?specialsPiece:undefined,
     maxed:idleAdventureNiveauEstMaxV1(o&&o.level),
     fullyMaxed:idleAdventureObjetPleinementMaxeV1(o),
+    boostsPleins:idleAdventureObjetBoostsPleinsV1(o),
     basePower:base.baseP,
     baseToughness:base.baseT,
     baseHp:base.baseP*3,

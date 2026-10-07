@@ -19666,7 +19666,9 @@ function pageAventureIdleV28_(j){
           :'')+
           (item.fullyMaxed
             ?'<i class="idle-maxok-badge-v1" title="Niveau 100 et statistiques au maximum" aria-hidden="true">✔</i>'
-            :'');
+            :(item.boostsPleins
+              ?'<i class="idle-maxok-badge-v1" title="Statistiques pleines pour ce niveau : inutile d’ajouter des boosts" aria-hidden="true">✔</i>'
+              :''));
       }
 
       function iconeObjetAdventureIdleV138_(item){
