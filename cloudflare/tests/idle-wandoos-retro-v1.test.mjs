@@ -322,4 +322,9 @@ assert.ok(src.includes(".wd-frappe{word-break:break-all;color:var(--wd-c);") && 
   assert.ok(src2.includes("data-wd-barre=") && src2.includes("function fractionBarre_(p0,v,at){") && src2.includes("requestAnimationFrame(vivre_)") && src2.includes("'RESTE : '") && !src2.includes("prochain niveau dans"), "barres de niveau animées en continu avec le temps restant");
   assert.ok(src2.includes("max-width:min(900px,76vh)!important"), "l écran ne dépasse jamais la hauteur du navigateur");
 }
+// Touches : même clic de clavier que l'entraînement avancé (btPlus / btMinus), repli sur le bruit local.
+{
+  const src3 = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
+  assert.ok(src3.includes("A.play(grave?'btMinus':'btPlus')") && src3.includes("window.__SOREAL_IDLE_AUDIO_V199__"), "les touches de Wandoos jouent btPlus / btMinus");
+}
 console.log("idle-wandoos-retro-v1: OK");

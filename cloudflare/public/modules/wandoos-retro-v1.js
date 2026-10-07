@@ -70,9 +70,18 @@
       o.connect(og);og.connect(sortie);o.start(t);o.stop(t+0.08);
     }
   }
+  /* Même clic de clavier que l'entraînement avancé (Norman, 2026-10-07 : « pour wandoos, je veux le même bruit que entrainement avancé pour les touches du clavier ») : on réutilise ses sons « btPlus » (touche normale) et « btMinus » (barre d'espace, plus grave). Le relâchement est déjà inclus dans ce clic. Sans le module audio, repli sur le bruit de touche ci-dessus. */
+  function sonCommun_(relache,grave){
+    var A=window.__SOREAL_IDLE_AUDIO_V199__;
+    if(!A||typeof A.play!=='function')return null;
+    if(relache)return true;
+    try{A.play(grave?'btMinus':'btPlus');return true;}catch(_e){return null;}
+  }
   function sonTouche_(relache,grave){
     var v=volume_();
     if(!(v>0))return false;
+    var commun=sonCommun_(relache,grave);
+    if(commun!==null)return commun;
     var c=contexte_();
     if(!c)return false;
     try{
