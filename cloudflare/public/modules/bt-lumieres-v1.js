@@ -57,22 +57,41 @@
       return skills.map(function(sk){var v=Number(sk&&sk.allocation);return Number.isFinite(v)&&v>0?v:0;});
     }catch(_e){return null;}
   }
-  /* Le démarrage retenu (réglable ; un son par défaut tant que Norman n'a pas choisi). */
-  var DEMARRAGE_PAR_DEFAUT='demarrage1';
-  function demarrageChoisi_(){
-    try{var c=localStorage.getItem('soreal_idle_bt_demarrage_v1');if(/^demarrage[1-6]$/.test(String(c)))return c;}catch(_e){}
-    return DEMARRAGE_PAR_DEFAUT;
+  /*
+   * Un démarrage par barre (Norman, 2026-10-07) : chaque barre qui s'allume a SON bruit, et sa jumelle (défense) le même. Attaque puissante et son équivalent : le 2 (l'ordinateur) ;
+   * la barre suivante (Parade) et son équivalent : le 3 ; la suivante (Attaque perçante) : le 5 ; la dernière (Attaque ultime) : le 6. L'attaque régulière, non citée, garde le 1 (le moteur qui prend).
+   * La toute première barre (passive/blocage) allume la machine : le néon, pas un démarrage.
+   */
+  var DEMARRAGE_PAR_BARRE={
+    attaque_reguliere:'demarrage1',defense_renforcee:'demarrage1',
+    attaque_renforcee:'demarrage2',recuperation:'demarrage2',
+    contre_palette:'demarrage3',boost_offensif:'demarrage3',
+    percee_quai:'demarrage5',charge_logistique:'demarrage5',
+    ultime_soreal:'demarrage6',ultime_logistique:'demarrage6'
+  };
+  function variantePourBarre(id){return DEMARRAGE_PAR_BARRE[String(id||'')]||DEMARRAGE_PAR_DEFAUT;}
+  /* Identifiants des compétences, dans le même ordre que allocations(). */
+  function idsCompetences(){
+    try{
+      var H=window.__SOREAL_IDLE_META_HOST_V130__;
+      var etat=H&&typeof H.getIdleEtat==='function'?H.getIdleEtat():null;
+      var skills=etat&&etat.basicTraining&&Array.isArray(etat.basicTraining.skills)?etat.basicTraining.skills:null;
+      return skills?skills.map(function(sk){return String(sk&&sk.id||'');}):[];
+    }catch(_e){return [];}
   }
+  /* Le démarrage par défaut (barre inconnue) : le premier ; un choix mémorisé sur l'appareil reste prioritaire seulement pour une barre inconnue. */
+  var DEMARRAGE_PAR_DEFAUT='demarrage1';
+
   var allocPrecedente=null,dernierDemarrage=0;
   /* Une barre qui n'avait aucune énergie en reçoit alors que la machine tournait déjà (Norman, 2026-10-07) : un ou deux vacillements au hasard, et le bruit d'une machine qui démarre. */
-  function demarrageBarre_(){
+  function demarrageBarre_(idBarre){
     if(mouvementReduit_())return false;
     var maintenant=Date.now();
     if(maintenant-dernierDemarrage<1500)return false;
     dernierDemarrage=maintenant;
     var presents=Array.prototype.slice.call(document.querySelectorAll(SELECTEUR));
     if(presents.length)vaciller(presents[Math.floor(Math.random()*presents.length)],undefined,true);
-    sonner(demarrageChoisi_());
+    sonner(variantePourBarre(idBarre));
     return true;
   }
   /* Motif d'un vacillement : un ou deux coups. Deux coups = deux extinctions très rapprochées (le second arrive avant la fin du premier « tzzzzt » et le coupe). */
@@ -314,9 +333,10 @@
       if(allocPrecedente&&allocPrecedente.length===allocs.length){
         var avant=allocPrecedente.reduce(function(x,y){return x+y;},0);
         var nouvelle=false;
-        for(var q=0;q<allocs.length;q++){if(allocPrecedente[q]<=0&&allocs[q]>0)nouvelle=true;}
+        var idNouvelle='';
+        for(var q=0;q<allocs.length;q++){if(allocPrecedente[q]<=0&&allocs[q]>0){nouvelle=true;if(!idNouvelle)idNouvelle=idsCompetences()[q]||'';}}
         /* machine déjà en marche (de l'énergie avant) : la toute première barre, elle, allume la machine (néon, ci-dessous) */
-        if(nouvelle&&avant>0&&etatVide===false)demarrageBarre_();
+        if(nouvelle&&avant>0&&etatVide===false)demarrageBarre_(idNouvelle);
       }
     }
     if(allocs)allocPrecedente=allocs;
@@ -365,6 +385,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('.'+CLASSE+',.'+CLASSE_ECLAT),function(el){el.classList.remove(CLASSE);el.classList.remove(CLASSE_ECLAT);});
   }
 
-  window.__SOREAL_IDLE_BT_LUMIERES_V1__={demarrageBarre:demarrageBarre_,allocations:allocations,vaciller:vaciller,motif:motif,sonner:sonner,allumerNeon:allumerNeon,totalEnergie:totalEnergie,veiller:veiller_,demarrer:demarrer,arreter:arreter,construire:construire_,classe:CLASSE,classeEclat:CLASSE_ECLAT,selecteur:SELECTEUR,sequenceNeon:SEQUENCE_NEON};
+  window.__SOREAL_IDLE_BT_LUMIERES_V1__={variantePourBarre:variantePourBarre,demarrageBarre:demarrageBarre_,allocations:allocations,vaciller:vaciller,motif:motif,sonner:sonner,allumerNeon:allumerNeon,totalEnergie:totalEnergie,veiller:veiller_,demarrer:demarrer,arreter:arreter,construire:construire_,classe:CLASSE,classeEclat:CLASSE_ECLAT,selecteur:SELECTEUR,sequenceNeon:SEQUENCE_NEON};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',demarrer);else demarrer();
 })();

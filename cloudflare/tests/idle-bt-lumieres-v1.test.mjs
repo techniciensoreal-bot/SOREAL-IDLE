@@ -135,6 +135,21 @@ assert.deepEqual(eteints(), [false, false]);
   assert.equal(L.sonner("demarrage7"), false, "type inconnu refusé");
 }
 
+// 5c. Un bruit de démarrage par barre (Norman, 2026-10-07) : attaque puissante et son équivalent = 2, barre suivante = 3, suivante = 5, attaque ultime = 6 (la régulière, non citée, = 1).
+{
+  const v = L.variantePourBarre;
+  assert.equal(v("attaque_renforcee"), "demarrage2", "attaque puissante");
+  assert.equal(v("recuperation"), "demarrage2", "son équivalent");
+  assert.equal(v("contre_palette"), "demarrage3");
+  assert.equal(v("boost_offensif"), "demarrage3");
+  assert.equal(v("percee_quai"), "demarrage5");
+  assert.equal(v("charge_logistique"), "demarrage5");
+  assert.equal(v("ultime_soreal"), "demarrage6", "attaque ultime");
+  assert.equal(v("ultime_logistique"), "demarrage6");
+  assert.equal(v("attaque_reguliere"), "demarrage1");
+  assert.equal(v("inconnue"), "demarrage1", "barre inconnue : repli");
+}
+
 // 6. Mouvement réduit : seulement l'état, sans clignotement ni son.
 mouvementReduit = true;
 place(0); L.veiller();

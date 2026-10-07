@@ -55,8 +55,8 @@ assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "le
 // Une seule borne : le bloc duel est le corps, la rangée est l'écran, plus de rotation de chaque combattant.
 assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  SOREAL IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
 assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seule borne de face");
-assert.equal(arene.split("ellipse 4.16px 5.2px at calc(50% - 3.9px)").length - 1, 3, "trois vrais boutons seulement sur la borne (rouge, bleu, jaune), sur une seule rangée");
-assert.ok(arene.includes("#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%") && arene.includes("ellipse 15.6px 19.5px"), "anneau de métal plus haut que le dessus et socle creux");
+assert.equal(arene.split("radial-gradient(circle 4.5px at calc(50% - 4px)").length - 1, 3, "trois vrais boutons seulement sur la borne (rouge, bleu, jaune), sur une seule rangée");
+assert.ok(arene.includes("#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%") && arene.includes("circle 15px at 50%"), "anneau de métal plus haut que le dessus et socle creux");
 assert.ok(arene.includes(".soreal-idle-boss-controls-v39::before{") && arene.includes(".soreal-idle-boss-controls-v39::after{") && arene.includes("circle at 34% 28%,#fff"), "un seul joystick en volume : boule sphérique éclairée, collerette et ombre, hors de la dalle (non coupé)");
 assert.ok(arene.includes("border:10px solid #05060a") && arene.includes("minmax(0,1fr) auto minmax(0,1fr)"), "grand écran cathodique à deux combattants");
 // Téléphone (Norman, 2026-10-06) : « grand espace vide avant les barres, application non centrée, coupée à droite ».
@@ -93,5 +93,5 @@ assert.ok(css.includes("SÉLECTEUR DE ZONE (Aventure)") && css.includes("button.
 // Boutique : onglet choisi lisible (Norman, 2026-10-07) ; popups en fondu ; interrupteurs ; boutons de la borne centrés sur la planche.
 assert.ok(css.includes("color:#2b1400!important;-webkit-text-fill-color:#2b1400!important;-webkit-text-stroke:0!important"), "onglet de boutique choisi : texte net sans contour");
 assert.ok(css.includes("animation:popupFonduV1 2.5s ease-in-out forwards") && css.includes("#soreal-idle-fade-notice-v1{"), "popups en fondu");
-assert.ok(css.includes("top:-96px;") && css.includes(".soreal-idle-dome-v1{position:absolute"), "socle du joystick et boutons de la borne centrés sur la planche");
+assert.ok(css.includes("top:-96px;") && css.includes(".soreal-idle-dome-v1{position:absolute") && css.includes("width:36px;height:36px;top:-81px;"), "socle du joystick et boutons de la borne centrés sur la planche, boutons carrés donc ronds");
 console.log("idle-itopod-style-v1: OK");
