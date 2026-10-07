@@ -3522,6 +3522,8 @@ function timeMachineViewV1(state) {
     beardMultiplier: beardBonusMultiplier(state, "gold"),
     grossGps: idleNguTimeMachineGrossGoldPerSecond(state),
     netGps: idleNguTimeMachineGoldPerSecond(state),
+    /* Or par seconde retiré par les Mineurs d'or actifs (brut − net). Absent tant que ce système n'est pas débloqué (anti-spoil : le champ lui-même ne doit pas le révéler). */
+    ...(state.systems.diggers?.unlocked ? { diggerDrain: diggerDrainTotal(state) } : {}),
     speedFill: fractionProgressionSecondesV1(d, "speedProgress", speedStep),
     goldFill: fractionProgressionSecondesV1(d, "goldProgress", goldStep),
     speedFraction: fractionProgressionSecondesV1(d, "speedProgress", speedStep),

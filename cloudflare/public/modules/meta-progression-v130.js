@@ -2551,11 +2551,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!vue||!document.querySelector('.soreal-idle-tm-v1'))return;
         const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
         const pct=function(mult){return Number(H.idleNombre_(mult)*100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
-        const SPEC={goldPerBarFill:nombre,barFillsPerSecond:nombre,highestBossMultiplier:nombre,goldMultiplier:nombre,machineSpeedMultiplier:nombre,grossGps:nombre,netGps:nombre,
+        const SPEC={goldPerBarFill:nombre,barFillsPerSecond:nombre,highestBossMultiplier:nombre,goldMultiplier:nombre,machineSpeedMultiplier:nombre,grossGps:nombre,netGps:nombre,diggerDrain:nombre,
           bloodMagicMultiplier:pct,nguMultiplier:pct,challengeMultiplier:pct,beardMultiplier:pct};
         const FACULTATIFS={bloodMagicMultiplier:1,nguMultiplier:1,challengeMultiplier:1,beardMultiplier:1};
         let structure=false;
+        /* Brut / net : la ligne « Mineurs d'or » n'existe que si ce système est débloqué (champ diggerDrain envoyé) ; son apparition redessine la page. */
+        if((vue.diggerDrain!=null)!==Boolean(document.querySelector('[data-tm-stat="diggerDrain"]')))structure=true;
         Object.keys(SPEC).forEach(function(cle){
+          if(cle==='diggerDrain'&&vue.diggerDrain==null)return;
           const el=document.querySelector('[data-tm-stat="'+cle+'"]');
           const actif=!FACULTATIFS[cle]||Math.abs(H.idleNombre_(vue[cle])-1)>=1e-9;
           if(FACULTATIFS[cle]&&actif!==Boolean(el)){structure=true;return;}
@@ -2665,7 +2668,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-tm-hero-pieces-v1" aria-hidden="true"><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i></div>'+
             '<div class="soreal-idle-tm-hero-titre-v1">💰 Ta machine fabrique de l’Or</div>'+
             '<div class="soreal-idle-tm-hero-gps-v1"><b data-tm-hero="netGps">'+nombre(vue.netGps)+'</b><span> Or par seconde</span></div>'+
-            '<div class="soreal-idle-tm-hero-sous-v1">Brut <b data-tm-hero="grossGps">'+nombre(vue.grossGps)+'</b> /s · <b data-tm-hero="goldPerBarFill">'+nombre(vue.goldPerBarFill)+'</b> Or à chaque remplissage de barre</div>'+
+            '<div class="soreal-idle-tm-hero-sous-v1">'+(vue.diggerDrain!=null?'Brut <b data-tm-hero="grossGps">'+nombre(vue.grossGps)+'</b> /s − Mineurs d’or <b data-tm-hero="diggerDrain">'+nombre(vue.diggerDrain)+'</b> /s · ':'')+'<b data-tm-hero="goldPerBarFill">'+nombre(vue.goldPerBarFill)+'</b> Or à chaque remplissage de barre</div>'+
             (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
           '</section>'+
           carteAideMenuIdleV1_('timeMachine','La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',[
@@ -2697,7 +2700,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 factSansEffet('Multiplicateur GPS de la Barbe',vue.beardMultiplier,'beardMultiplier')+
               '</div>'+
             '</div>'+
-            '<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>'+
+            (vue.diggerDrain!=null
+              ?'<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b> <small>(ce que la machine fabrique)</small></div><div>⛏️ − Mineurs d’or : <b data-tm-stat="diggerDrain">'+nombre(vue.diggerDrain)+'</b> <small>(l’Or que tes Mineurs actifs dépensent chaque seconde ; 0 si aucun n’est actif)</small></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b> <small>(ce qui entre vraiment dans ta bourse)</small></div></div>'
+              :'<div class="soreal-idle-tm-gps-v1"><div>💎 GPS : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>')+
           '</section>'+
         '</div>';
       }

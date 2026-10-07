@@ -447,3 +447,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* ITOPOD sur PC : la scène (décor + ennemi) gardait un format 4/3 sur toute la largeur de la page (≈ 1000 × 800 px) ; elle est maintenant plafonnée en hauteur à l'écran et centrée (Norman, 2026-10-07 : « sur PC l'image est trop grande »). */
 .itp-cadre{width:100%;box-sizing:border-box;max-width:calc(min(64vh,560px) * 4 / 3 + 30px);margin-left:auto;margin-right:auto;}
+
+/* Objet sélectionné (échange ou fusion) : le cadre doré reste visible malgré les cadres du style ITOPOD (Norman, 2026-10-07 : « on ne voit plus le petit cadre qui signale qu'il est bien sélectionné »). Même règle pour la case choisie pour la fusion automatique. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-v138-bag-card,.soreal-idle-v138-slot).selected{
+  border-color:#ffd24a!important;
+  box-shadow:0 0 0 3px #ffd24a,0 0 14px rgba(255,210,74,.75),3px 3px 0 #000!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .idle-merge-slot-v1{
+  outline:3px solid #3b82f6!important;outline-offset:-3px;box-shadow:0 0 12px rgba(59,130,246,.7),3px 3px 0 #000!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .idle-merge-slot-v1.idle-item-locked-v165{outline-color:#8b5cf6!important;}

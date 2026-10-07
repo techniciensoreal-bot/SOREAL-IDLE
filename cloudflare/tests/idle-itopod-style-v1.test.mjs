@@ -74,4 +74,6 @@ assert.ok(tel.includes("grid-row:3;") && tel.includes("grid-row:4;"), "phone : n
 assert.ok(css.includes(".soreal-idle-v138-slot).idle-item-locked-v165{") && css.includes("border-color:#ff4d4d!important;"), "cadre rouge des objets verrouillés conservé");
 // ITOPOD sur PC : la scène est plafonnée en hauteur (elle faisait ~1000 × 800 px) et centrée.
 assert.ok(css.includes(".itp-cadre{width:100%;box-sizing:border-box;max-width:calc(min(64vh,560px) * 4 / 3 + 30px);margin-left:auto;margin-right:auto;}"), "scène ITOPOD plafonnée sur PC");
+// Objet sélectionné (échange/fusion) : cadre doré toujours visible avec le style ITOPOD.
+assert.ok(css.includes(".soreal-idle-v138-slot).selected{") && css.includes("box-shadow:0 0 0 3px #ffd24a") && css.includes(".idle-merge-slot-v1{"), "cadre de sélection des objets conservé");
 console.log("idle-itopod-style-v1: OK");
