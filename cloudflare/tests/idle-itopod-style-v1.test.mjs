@@ -79,4 +79,8 @@ assert.ok(css.includes(".itp-cadre{width:100%;box-sizing:border-box;max-width:ca
 assert.ok(css.includes(".soreal-idle-v138-slot).selected{") && css.includes("box-shadow:0 0 0 3px #ffd24a") && css.includes(".idle-merge-slot-v1{"), "cadre de sélection des objets conservé");
 // Joystick sur téléphone (Norman, 2026-10-07) : boule plus haute et tige qui ne dépasse plus au-dessus de la boule.
 assert.ok(css.includes(".soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-66px;") && css.includes("linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 20px no-repeat"), "téléphone : boule relevée, tige cachée derrière la boule");
+// Barres de vie du Fight Boss (Norman, 2026-10-07) : chiffres bien plus visibles, barre plus belle (rail creux, verre, graduations fines).
+assert.ok(css.includes("font-size:1.28em!important;font-weight:900!important") && !css.includes("font-size:.82em!important;}"), "chiffres de vie agrandis");
+assert.ok(css.includes("-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000") && css.includes("height:32px!important;border-radius:4px!important"), "chiffres cernés de noir, barre plus haute");
+assert.ok(css.includes("repeating-linear-gradient(90deg,transparent 0 calc(5% - 1px),rgba(0,0,0,.55) calc(5% - 1px) 5%)"), "graduations fines et reflet de verre");
 console.log("idle-itopod-style-v1: OK");
