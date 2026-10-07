@@ -569,3 +569,37 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="titans"] .ttn-ligne{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="titans"] .ttn-cat{grid-column:1/-1;}
 }
+
+/* SÉLECTEUR DE ZONE (Aventure) : menu déroulant lisible et soigné (Norman, 2026-10-07 : « mauvaises couleurs, illisible, beaucoup plus beau »). Fond sombre, liseré doré, lignes à texte clair, ligne choisie en or. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-picker-v1{gap:10px;margin-top:10px;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] button.soreal-idle-zone-arrow-v1{
+  width:46px;height:46px;border:2px solid #000!important;border-radius:10px!important;color:#ffd77a!important;font-size:18px;text-shadow:0 2px 0 #000!important;
+  background:linear-gradient(180deg,#3a2a14,#150e06)!important;box-shadow:0 0 0 2px #b8892b,0 4px 0 2px #000,inset 0 2px 0 rgba(255,220,140,.25)!important;transition:transform .06s;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] button.soreal-idle-zone-arrow-v1:active{transform:translateY(3px);box-shadow:0 0 0 2px #b8892b,0 1px 0 2px #000,inset 0 2px 0 rgba(255,220,140,.25)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-trigger{
+  min-height:46px;padding:6px 14px!important;border:2px solid #000!important;border-radius:10px!important;
+  background:linear-gradient(180deg,#2a1d0e,#120c06)!important;box-shadow:0 0 0 2px #b8892b,0 4px 0 2px #000,inset 0 0 14px rgba(255,190,80,.12)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1.open .team-sort-trigger{box-shadow:0 0 0 2px #ffd24a,0 0 18px rgba(255,200,60,.55),0 4px 0 2px #000,inset 0 0 14px rgba(255,190,80,.2)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-trigger-label{color:#e0a73c!important;font-size:11px;letter-spacing:.2em;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-trigger-value{color:#fff!important;font-size:17px;font-weight:900;text-shadow:0 2px 0 #000!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-arrow{
+  display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;color:#2a1a00!important;font-size:12px;background:linear-gradient(180deg,#ffe08a,#d79a21);box-shadow:0 2px 0 #000;transition:transform .15s;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1.open .team-sort-arrow{transform:rotate(180deg);}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-menu{
+  top:calc(100% + 12px);padding:8px!important;border:2px solid #000!important;border-radius:12px!important;max-height:min(60vh,380px);scrollbar-width:thin;scrollbar-color:#d79a21 #120c06;
+  background:linear-gradient(180deg,#1d140a,#0d0804)!important;box-shadow:0 0 0 2px #b8892b,0 22px 50px rgba(0,0,0,.65),0 0 24px rgba(255,190,60,.18)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1.open .team-sort-menu{animation:zoneMenuOuvreV1 .16s ease-out;}
+@keyframes zoneMenuOuvreV1{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-menu::-webkit-scrollbar{width:8px;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-menu::-webkit-scrollbar-thumb{background:#d79a21;border-radius:4px;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-menu::-webkit-scrollbar-track{background:#120c06;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 button.team-sort-option.team-sort-option{
+  min-height:44px;margin:0 0 4px;padding:8px 14px!important;border:0!important;border-left:5px solid #5a4018!important;border-radius:6px!important;clip-path:none!important;
+  color:#fff3d6!important;font-size:16px;font-weight:900;text-shadow:0 1px 0 #000!important;-webkit-text-stroke:0!important;paint-order:normal;letter-spacing:.01em;
+  background:linear-gradient(90deg,#2b1f10,#1a120a)!important;box-shadow:none!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 button.team-sort-option.team-sort-option:hover,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 button.team-sort-option.team-sort-option:focus{
+  border-left-color:#ffd24a!important;background:linear-gradient(90deg,#5a3d12,#2f200c)!important;color:#fff!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 button.team-sort-option.team-sort-option.active{
+  border-left-color:#fff3b0!important;color:#2a1a00!important;text-shadow:0 1px 0 rgba(255,255,255,.45)!important;background:linear-gradient(180deg,#ffe28a,#e0a42a 60%,#b9791a)!important;box-shadow:0 0 12px rgba(255,200,60,.5)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-zone-custom-v1 .team-sort-option-arrow{color:#2a1a00!important;font-size:17px;}

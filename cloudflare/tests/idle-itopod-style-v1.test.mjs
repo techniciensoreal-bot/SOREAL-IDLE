@@ -87,4 +87,6 @@ assert.ok(arene.includes('[data-presse-v1="start"] .soreal-idle-duel-v41::after'
 assert.ok(arene.includes("grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr)") && /\.start\{\s*order:1;/.test(arene) && /\.stop\{order:2;/.test(arene), "ordre Fight, Fuite, Nuke");
 assert.ok(arene.includes(".soreal-idle-boss-current-v35>.soreal-idle-label-v4{display:none!important;}"), "« Boss actuel » retiré");
 assert.ok(arene.includes("flex:0 0 100%;display:block!important;text-align:center"), "la régénération a sa propre ligne et ne chevauche plus les PV");
+// Sélecteur de zone (Norman, 2026-10-07) : menu sombre à liseré doré, lignes à texte clair, ligne choisie en or (plus de lignes vertes au texte gris).
+assert.ok(css.includes("SÉLECTEUR DE ZONE (Aventure)") && css.includes("button.team-sort-option.team-sort-option{") && css.includes("color:#fff3d6!important;font-size:16px;font-weight:900") && css.includes("button.team-sort-option.team-sort-option.active{"), "menu de zone lisible et soigné");
 console.log("idle-itopod-style-v1: OK");
