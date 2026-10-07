@@ -23115,6 +23115,7 @@ function pageAventureIdleV28_(j){
                   '<div class="soreal-idle-notes-maj-titre-v1"><b>Beta '+idleHtml_(v.version)+'</b> · '+idleHtml_(v.nom)+
                     '<span>'+idleHtml_(v.date)+'</span></div>'+
                   '<ul>'+v.points.map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul>'+
+                  (notes.hommage?'<div class="soreal-idle-notes-maj-hommage-v1">'+idleHtml_(notes.hommage)+'</div>':'')+
                 '</div>';
               }).join('')+
             '</div>'

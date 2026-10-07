@@ -12,6 +12,8 @@
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
     courante:'2.4',
+    /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
+    hommage:'🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.',
     versions:[
       {
         version:'2.4',
