@@ -25,7 +25,7 @@
           'Le cadre doré d’un objet sélectionné pour un échange ou une fusion est de nouveau visible.',
           'Le GPS net n’est plus affiché en double du GPS brut : il n’apparaît à part que lorsqu’une dépense vient réellement le réduire, avec l’explication de la différence.',
           'Sur la page de l’ordinateur rétro, l’énergie et la magie se placent maintenant en vraies quantités (avant, la limite était de 100 points), avec un champ de saisie : un nombre ou une fraction comme 1/4.',
-          'Un écran de démarrage avec barre d’avancement s’affiche quand tu allumes l’ordinateur rétro, et ses barres ne sont accessibles qu’une fois le système démarré.',
+          'L’ordinateur rétro affiche un court écran d’allumage une seule fois par Rebirth, puis un cadre à part montre le chargement du système (une heure après un Rebirth, moins avec certains bonus) : tu peux déjà y placer de l’énergie et de la magie, elles prennent de la vitesse au fil du chargement.',
           'La page des adversaires les plus coriaces est refaite : portrait en grand, statistiques en grosses tuiles et comparaison très lisible entre les stats conseillées et tes stats actuelles, avec un verdict pour chaque mode de combat.'
         ]
       },

@@ -3532,6 +3532,8 @@ function wandoosViewV1(state, now) {
     bootSecondes: c.boot.bootSeconds,
     bootEcoule: Math.min(c.boot.bootSeconds, c.boot.elapsed),
     bootFraction: clamp(c.boot.elapsed / c.boot.bootSeconds, 0, 1),
+    /* Identifiant du Rebirth en cours (début du run) : l'écran d'allumage de l'OS ne s'affiche qu'une fois par Rebirth. */
+    runId: Math.max(0, num(state.runStartedAt, 0)),
     bonusCombat: wandoosCombatMultiplierV1(state),
     energieLibre: Math.max(0, num(energy.current, 0)),
     magieLibre: Math.max(0, num(magic.current, 0))
