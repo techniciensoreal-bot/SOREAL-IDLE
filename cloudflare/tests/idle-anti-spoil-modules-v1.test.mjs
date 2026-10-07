@@ -72,7 +72,6 @@ const LISTE_BLANCHE = [
   { fichier: "yggdrasil-elfes-v1.js", contient: "'/'+d.maxTier", raison: "tier / tier maximum d'un fruit déjà découvert" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
-  { fichier: "textes-admin-v1.js", contient: "'/'+s.total", raison: "éditeur de textes réservé à l'administrateur (blocs de voix prêts), jamais montré à un joueur" }
 ];
 
 function autorise(fichier, texte) {
