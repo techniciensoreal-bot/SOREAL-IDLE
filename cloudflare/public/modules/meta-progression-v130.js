@@ -1527,7 +1527,8 @@ function pageItopodIdleV1_(j){
         const plusHaut=H.idleEntier_(d.highestFloor||d.floor);
         const optimal=H.idleEntier_(d.optimalFloor);
         const auto=d.startFloor==null||d.endFloor==null;
-        const debut=H.idleEntier_(d.startFloor==null?0:d.startFloor);
+        /* Mode Auto : la montée part de l étage où tu es (elle ne repart jamais de 0) ; le champ « Départ » le montre au lieu d afficher 0 (Norman, 2026-10-07 : « départ 0, arrivée 18 » semblait un redémarrage). */
+        const debut=H.idleEntier_(d.startFloor==null?etage:d.startFloor);
         const fin=H.idleEntier_(d.endFloor==null?optimal:d.endFloor);
         const ppProgress=Math.max(0,H.idleNombre_(d.ppProgress));
         const pp=H.idleEntier_((j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.pp)||0);

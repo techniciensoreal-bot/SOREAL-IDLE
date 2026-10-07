@@ -23,3 +23,5 @@ assert.ok(wd.includes("height:55.25cqw;") && !wd.includes("min-height:34cqw"), "
 assert.ok(wd.includes("max-width:none!important;width:100vw;margin-left:calc(50% - 50vw)"), "le moniteur touche les bords du téléphone");
 assert.ok(wd.includes("VERSION OS") && !wd.includes("NIVEAU DE L’OS") && wd.includes("'RESTE : '") && !wd.includes("prochain niveau dans"), "Version OS ; seul le temps restant sous les barres");
 console.log("idle-puits-roue-reglages-wandoos-v1: OK");
+// ITOPOD en mode Auto : « Départ » montre l'étage actuel, pas 0 (la montée ne repart jamais de 0 : seul l'affichage le laissait croire).
+assert.ok(meta.includes("const debut=H.idleEntier_(d.startFloor==null?etage:d.startFloor);"), "Départ = étage actuel en mode Auto");
