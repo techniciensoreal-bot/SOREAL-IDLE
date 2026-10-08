@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Entraînement avancé : quand tu places de l’énergie ou que tu changes un Target, la page ne se redessine plus de temps en temps ; seules les lignes concernées sont mises à jour. La phrase d’explication en bas de la page a aussi disparu.',
           'Lancement depuis SOREAL APP sur Android : le bouton ⚡ ouvre maintenant le jeu dans sa propre application (ou dans Chrome si elle n’est pas installée), au lieu d’une fenêtre posée par-dessus SOREAL APP, qui ramait. Le retour se fait avec le bouton « précédent » du téléphone.',
           'Money Pit : l’image du trou sans fond sur ordinateur est réduite (elle prenait la moitié de l’écran) ; elle reste entière et centrée.',
           'Sac : quand tu ranges ton inventaire avec Trier (ou après toute autre action sur le sac), il n’affiche plus que 60 cases à la fois ; le reste reste sur les autres pages. Éditeur de voix : sous le texte affiché aux joueurs (protégé contre les modifications par erreur), tu peux écrire librement comment le dire, sans changer le texte du jeu. Il est aussi pensé pour un écran de 1920 × 1080, et les respirations et silences en trop sont coupés au début et à la fin de chaque voix générée.',

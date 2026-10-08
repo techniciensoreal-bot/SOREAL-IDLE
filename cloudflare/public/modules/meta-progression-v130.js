@@ -1922,14 +1922,30 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       /* Empreinte des allocations de tous les systèmes : ce que le joueur a demandé, à comparer à ce que le serveur confirme. */
       function empreinteAllocationsMetaV1_(j){
         const liste=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
-        return liste.map(function(x){
+        return liste.map(empreinteSystemeMetaV1_).join('|');
+      }
+      /* Empreinte d'UN système : ce qu'il a d'alloué (allocation globale, énergie par paire, magie par rituel, énergie et Target par piste d'Entraînement avancé). */
+      function empreinteSystemeMetaV1_(x){
+        return (function(x){
           const st=(x&&x.state)||{};
           const pairs=st.data&&st.data.pairs;
           const extra=pairs?Object.keys(pairs).map(function(k){return k+':'+(pairs[k]&&pairs[k].energy)+'/'+(pairs[k]&&pairs[k].upgradeEnergy);}).join(','):'';
           const rituel=(st.data&&st.data.activeRitual?st.data.activeRitual:'')+(st.data&&st.data.rituals?Object.keys(st.data.rituals).map(function(k){return k+'~'+(st.data.rituals[k]&&st.data.rituals[k].magic);}).join(','):'');
           const pistesAt=String(x&&x.id)==='advancedTraining'&&st.data&&st.data.tracks?Object.keys(st.data.tracks).map(function(k){return k+'='+(st.data.tracks[k]&&st.data.tracks[k].energy)+'/'+(st.data.tracks[k]&&st.data.tracks[k].target);}).join(','):'';
           return String(x&&x.id)+'='+JSON.stringify(st.allocation||{})+extra+rituel+pistesAt;
-        }).join('|');
+        })(x);
+      }
+      /* Les seuls systèmes dont l'empreinte diffère entre l'écran et le serveur (identifiants), ou null si leurs listes ne sont pas comparables. */
+      function systemesDifferentsMetaV1_(j,srv){
+        const a=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:null;
+        const b=srv&&srv.systemes&&Array.isArray(srv.systemes.systems)?srv.systemes.systems:null;
+        if(!a||!b||a.length!==b.length)return null;
+        const diff=[];
+        for(let i=0;i<a.length;i+=1){
+          if(String(a[i]&&a[i].id)!==String(b[i]&&b[i].id))return null;
+          if(empreinteSystemeMetaV1_(a[i])!==empreinteSystemeMetaV1_(b[i]))diff.push(String(a[i]&&a[i].id));
+        }
+        return diff;
       }
       function niveauxAugmentsMetaV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'augmentations');
@@ -2059,7 +2075,13 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const j=H.getIdleEtat();
         if(!j)return;
         const srv=H.protegerJoueurServeurInventaireIdleV208_(res.joueur);
-        if(empreinteAllocationsMetaV1_(j)!==empreinteAllocationsMetaV1_(srv)){
+        /*
+         * Entraînement avancé (Norman, 2026-10-08) : « quand on place de l'énergie, la feuille se redessine parfois ». Une différence entre l'écran et la réponse (Target tapé, énergie que le serveur passe à la ligne
+         * suivante avec Advance Energy, énergie retirée au Target atteint) déclenchait le rendu COMPLET de la page. Quand seul l'Entraînement avancé diffère, on adopte son état serveur et on ne met à jour que ses lignes.
+         */
+        const differents=systemesDifferentsMetaV1_(j,srv);
+        const seulEntrainementAvance=Boolean(differents&&differents.length&&differents.every(function(id){return id==='advancedTraining';}));
+        if(!seulEntrainementAvance&&empreinteAllocationsMetaV1_(j)!==empreinteAllocationsMetaV1_(srv)){
           /* Trace en console seulement (pas de message au joueur : ce sont les chiffres qui doivent être justes, voir energieLibreCoherenteIdleV1_ dans soreal-idle-ui.js). */
           try{
             console.warn('[IDLE] répartition d’énergie ajustée par le serveur',{energieEcran:Math.floor(H.idleNombre_(j.energie)),energieServeur:Math.floor(H.idleNombre_(srv.energie)),repartitionEcran:empreinteAllocationsMetaV1_(j),repartitionServeur:empreinteAllocationsMetaV1_(srv)});
@@ -2088,6 +2110,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           H.rafraichirMenuRacineIdleV28_();
           return;
         }
+        if(seulEntrainementAvance)patcherAdvancedTrainingIdleV1_(j);
         var signalerPageIdleV1_=function(cle,e){var D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.signaler)D.signaler(cle,e);};
         try{pageAugmentationsIdleV48_(j);}catch(e){signalerPageIdleV1_('page_augments',e);}
         try{if(j.systemes&&j.systemes.bloodMagicView)pageBloodMagicIdleV48_(j);}catch(e){signalerPageIdleV1_('page_blood',e);}
@@ -3528,6 +3551,51 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const active=(s&&s.state&&s.state.data&&s.state.data.activeTrack)||'';
         return active===id?Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.energy)):0;
       }
+      /* Repère d'une compétence (niveau temporaire, base, part du niveau suivant, instant du dernier état serveur, énergie, taux, gratuité, Target) : sert au dessin ET à la mise à jour sur place. */
+      function atAncrageValeursIdleV1_(st,infoAt,vueAt,ancreAt,energie){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        return {
+          n:Math.max(0,Math.floor(H.idleNombre_(st.tempLevel))),
+          base:Math.max(0,Math.floor(H.idleNombre_(st.level)+H.idleNombre_(st.permanentLevel))),
+          p:Math.max(0,Math.min(.999999,H.idleNombre_(st.progress))),
+          t:ancreAt,
+          a:energie,
+          taux:H.idleNombre_(infoAt&&infoAt.rateParEnergie),
+          gratuit:vueAt&&vueAt.gratuit?1:0,
+          cible:H.idleEntier_(st.target)
+        };
+      }
+      /*
+       * Met à jour sur place les lignes de l'Entraînement avancé depuis l'état serveur déjà adopté (j) : énergie placée, Target, repère de la barre. Aucun nœud n'est recréé ; un champ en cours de saisie n'est pas touché.
+       */
+      function patcherAdvancedTrainingIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const s=systemeMetaParIdIdleV130_(j,'advancedTraining');
+        const pistes=(s&&s.state&&s.state.data&&s.state.data.tracks)||{};
+        const vueAt=(j&&j.systemes&&j.systemes.advancedTrainingView)||null;
+        const ancreAt=ancreSnapshotIdleV1_(j);
+        const lignes=document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]');
+        for(let i=0;i<lignes.length;i+=1){
+          const el=lignes[i],id=el.getAttribute('data-at-piste'),st=pistes[id];
+          if(!st)continue;
+          const energie=atEnergieDePisteIdleV1_(s,id);
+          const infoAt=(vueAt&&vueAt.pistes&&vueAt.pistes[id])||{};
+          const av=atAncrageValeursIdleV1_(st,infoAt,vueAt,ancreAt,energie);
+          const d=el.dataset;
+          d.atN=String(av.n);d.atBase=String(av.base);d.atP=String(av.p);d.atT=String(av.t);d.atA=String(av.a);d.atTaux=String(av.taux);d.atGratuit=String(av.gratuit);d.atCible=String(av.cible);
+          const alloc=document.getElementById('sorealIdleAtAlloc_'+id);
+          const texte=H.formatGrandNombreIdleV70_(energie);
+          if(alloc&&alloc.textContent!==texte)alloc.textContent=texte;
+          const champ=el.querySelector('input[type="number"]');
+          if(champ&&document.activeElement!==champ&&String(champ.value)!==String(av.cible))champ.value=String(av.cible);
+        }
+        const avance=document.querySelector('.soreal-idle-at-avance-v1 input');
+        if(avance&&document.activeElement!==avance)avance.checked=Boolean(s&&s.state&&s.state.data&&s.state.data.advanceEnergy);
+        const libre=document.getElementById('sorealIdleAugEnergieLibreV1');
+        if(libre)libre.textContent=H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(j&&j.energie)));
+        if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
+        if(typeof atTickIdleV1_==='function')atTickIdleV1_();
+      }
       function pageAdvancedTrainingIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'advancedTraining');
@@ -3551,7 +3619,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const energie=atEnergieDePisteIdleV1_(s,id);
           const idH=H.idleHtml_(id);
           /* Barre de progression de la compétence (Norman, 2026-10-03) : repère du dernier état serveur (niveau temporaire, part du niveau suivant, énergie, taux), rejoué en direct par le minuteur ci-dessous. */
-          const ancrage='data-at-n="'+Math.max(0,Math.floor(H.idleNombre_(st.tempLevel)))+'" data-at-base="'+Math.max(0,Math.floor(H.idleNombre_(st.level)+H.idleNombre_(st.permanentLevel)))+'" data-at-p="'+Math.max(0,Math.min(.999999,H.idleNombre_(st.progress)))+'" data-at-t="'+ancreAt+'" data-at-a="'+energie+'" data-at-taux="'+H.idleNombre_(infoAt.rateParEnergie)+'" data-at-gratuit="'+(vueAt&&vueAt.gratuit?1:0)+'" data-at-cible="'+H.idleEntier_(st.target)+'"';
+          const av=atAncrageValeursIdleV1_(st,infoAt,vueAt,ancreAt,energie);
+          const ancrage='data-at-n="'+av.n+'" data-at-base="'+av.base+'" data-at-p="'+av.p+'" data-at-t="'+av.t+'" data-at-a="'+av.a+'" data-at-taux="'+av.taux+'" data-at-gratuit="'+av.gratuit+'" data-at-cible="'+av.cible+'"';
           return '<div class="soreal-idle-at-ligne-v1" data-at-piste="'+idH+'" '+ancrage+'>'+
             '<div class="soreal-idle-at-nom-v1"><div class="soreal-idle-at-barre-v1"><i class="soreal-idle-at-remplissage-v1" data-at-fill></i><span class="soreal-idle-at-titre-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</span></div><div class="soreal-idle-at-detail-v1"><span data-at-bonus></span><span data-at-eta></span></div></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Level</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
@@ -3616,7 +3685,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           toolbar+
           '<div class="soreal-idle-at-liste-v1">'+ids.map(ligne).join('')+'</div>'+
-          '<div class="soreal-idle-note-v4">Chaque compétence progresse avec sa propre énergie. Les niveaux montent de plus en plus lentement, et la Puissance d’énergie ne compte que par sa racine carrée.</div>'+
         '</div>';
       }
       window.__SOREAL_IDLE_AT_PAGE_V2__=true;
@@ -3762,6 +3830,15 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       };
       window.__cibleAdvancedTrainingIdleV1__=function(id,valeur){
         const n=Math.max(0,Math.floor(Number(valeur)||0));
+        /* L'écran adopte le Target tout de suite : la réponse du serveur le confirme sans écart, donc sans redessiner la page. */
+        try{
+          const j=window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat();
+          const sT=systemeMetaParIdIdleV130_(j,'advancedTraining');
+          const pT=sT&&sT.state&&sT.state.data&&sT.state.data.tracks&&sT.state.data.tracks[String(id)];
+          if(pT)pT.target=n;
+          const ligneT=document.querySelector('.soreal-idle-at-ligne-v1[data-at-piste="'+String(id)+'"]');
+          if(ligneT)ligneT.dataset.atCible=String(n);
+        }catch(_e){}
         envoyerAllocRapideV1_({action:'setAdvancedTrainingTarget',track:String(id),value:n});
       };
       window.__viderAdvancedTrainingIdleV1__=function(){
