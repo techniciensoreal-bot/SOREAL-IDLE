@@ -237,6 +237,19 @@
       window.__heureServeurIdleV1__=heureServeurIdleV1_;
       /* Lecture seule de l'état courant pour les modules (panneau Détail Attack/Defense, modules/stats-detail-v1.js). */
       window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};
+      window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__=function(n){return formatGrandNombreIdleV70_(n);};
+      /* Bandeau : part de chaque barre déjà générée (disponible + dépensée), en pourcentage du plafond. */
+      window.__SOREAL_IDLE_DISPONIBLE_V2__=function(){
+        const b=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
+        const r=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resources&&idleEtat.systemes.resources.magic;
+        return {energie:energieDisponibleIdleV9_(),magie:b?idleNombre_(b.available):idleNombre_(r&&r.current)};
+      };
+      window.__SOREAL_IDLE_GENEREE_PCT_V2__=function(){
+        const e=idleEtat&&idleEtat.energieMax>0?Math.min(100,energieGenereeTotaleIdleV1_()/idleEtat.energieMax*100):0;
+        const m=typeof donneesMagieGenereeIdleV1_==='function'?donneesMagieGenereeIdleV1_():null;
+        return {energie:e,magie:m&&m.cap>0?Math.min(100,m.generee/m.cap*100):0};
+      };
+      window.__SOREAL_IDLE_TEXTE_BARRE_V2__=function(valeur,max){return formatGrandNombreIdleV70_(valeur)+' / '+formatGrandNombreIdleV70_(max);};
 
       let idleBasicTrainingSaveTimerV120=null;
       /*
@@ -14647,7 +14660,14 @@
           ?Math.max(0,Math.min(100,magicDisponible/magicCap*100))
           :0;
 
+        const ressourceR3=systemes.resources&&systemes.resources.r3?systemes.resources.r3:null;
+        /* Prototype HUD : la 3e ressource n'apparaît qu'une fois qu'on en possède (rien de verrouillé n'est montré). */
+        const r3Visible=Boolean(ressourceR3&&idleNombre_(ressourceR3.current)>0);
+        const r3Cap=ressourceR3?Math.max(1,idleNombre_(ressourceR3.cap)):1;
+        const r3Val=ressourceR3?Math.max(0,idleNombre_(ressourceR3.current)):0;
+
         return `
+          <div class="soreal-idle-hud-v2" id="sorealIdleHudV2">
           <div class="soreal-idle-energy-panel-v34">
             <div class="soreal-idle-energy-head-v34">
               <div class="soreal-idle-energy-title-v34">
@@ -14670,10 +14690,11 @@
             </div>
 
             <div class="soreal-idle-energybar-wrap-v11">
+              <i class="soreal-idle-depense-v2" id="sorealIdleDepenseEnergieV2"></i>
               <div
                 id="sorealIdleEnergyBarV11"
                 class="soreal-idle-energybar-v11"
-              ></div>
+              ><i class="soreal-idle-bulles-v2"></i></div>
               <div
                 id="sorealIdleEnergyOverlayV1"
                 class="soreal-idle-energybar-overlay-v1"
@@ -14706,11 +14727,12 @@
               </div>
 
               <div class="soreal-idle-energybar-wrap-v11 soreal-idle-magicbar-wrap-v1">
+                <i class="soreal-idle-depense-v2" id="sorealIdleDepenseMagieV2"></i>
                 <div
                   id="sorealIdleMagicBarV1"
                   class="soreal-idle-energybar-v11 soreal-idle-magicbar-v1"
                   style="width:${magicPct.toFixed(4)}%"
-                ></div>
+                ><i class="soreal-idle-bulles-v2"><b></b><b></b><b></b><b></b><b></b><b></b></i></div>
                 <div
                   id="sorealIdleMagicOverlayV1"
                   class="soreal-idle-energybar-overlay-v1"
@@ -14720,6 +14742,31 @@
               </div>
             </div>
           `:''}
+
+          ${r3Visible?`
+            <div class="soreal-idle-energy-panel-v34 soreal-idle-hud-r3-v2">
+              <div class="soreal-idle-energy-head-v34">
+                <div class="soreal-idle-energy-title-v34">🧪 Ressource 3</div>
+                <div class="soreal-idle-energy-number-v34"></div>
+              </div>
+              <div class="soreal-idle-energybar-wrap-v11">
+                <div id="sorealIdleHudR3BarV2" class="soreal-idle-energybar-v11 soreal-idle-hud-r3bar-v2" style="width:${Math.min(100,r3Val/r3Cap*100).toFixed(3)}%"><i class="soreal-idle-bulles-v2"></i></div>
+                <div id="sorealIdleHudR3TexteV2" class="soreal-idle-energybar-overlay-v1">${formatEnergieIdleV50_(r3Val)} / ${formatEnergieIdleV50_(r3Cap)}</div>
+              </div>
+            </div>
+          `:''}
+
+          <div class="soreal-idle-energy-panel-v34 soreal-idle-hud-pv-v2" id="sorealIdleHudPvV2">
+            <div class="soreal-idle-energy-head-v34">
+              <div class="soreal-idle-energy-title-v34">❤️ Vie</div>
+              <div class="soreal-idle-energy-number-v34"></div>
+            </div>
+            <div class="soreal-idle-energybar-wrap-v11">
+              <div id="sorealIdleHudPvBarV2" class="soreal-idle-energybar-v11 soreal-idle-hud-pvbar-v2" style="width:100%"><i class="soreal-idle-bulles-v2"></i></div>
+              <div id="sorealIdleHudPvTexteV2" class="soreal-idle-energybar-overlay-v1"></div>
+            </div>
+          </div>
+          </div>
         `;
       }
 

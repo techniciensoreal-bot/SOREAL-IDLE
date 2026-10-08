@@ -1991,3 +1991,150 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28
 @media (prefers-reduced-motion:reduce){
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{display:none}
 }
+
+/* ====================== BANDEAU DU HAUT FIXE (maquette téléphone) ======================
+ * Norman (2026-10-08) : « il est important qu'on voit toujours sa barre de vie, son énergie, magie, 3e ressource, comme dans NGU ; la barre de vie toujours la dernière ».
+ * Téléphone seulement : les barres (Énergie, Magie, 3e ressource si possédée, Vie en dernier) forment un bandeau collé en haut de l'écran, une ligne chacune (icône + barre + valeur).
+ * Sur PC le conteneur disparaît (display:contents) et les panneaux Vie / 3e ressource restent masqués : rien ne change. */
+body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
+@media (max-width:700px){
+  /* « overflow-x:hidden » transformait <body> et <main> en conteneurs de défilement : le bandeau ne pouvait plus rester collé. « clip » coupe pareil sans créer de conteneur. */
+  body.soreal-idle-active-v47{overflow-x:clip!important;overflow-y:visible!important}
+  body.soreal-idle-active-v47 main.soreal-idle-native-v4{overflow-x:clip!important;overflow-y:visible!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{
+    display:block;position:sticky;top:var(--hud-haut-v2,119px);z-index:49;margin:-11px -6px 6px;padding:3px 6px 2px;
+    background:var(--th-bg2,#0d1426);box-shadow:0 6px 10px -4px rgba(0,0,0,.7);
+  }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{
+    display:block!important;margin:0 0 3px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2,
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2{display:block!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34::before,
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34::after{display:none!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.soreal-idle-energy-head-v34,.soreal-idle-energy-speed-v34){display:none!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{
+    height:19px!important;margin:0!important;position:relative;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1{font-size:11.5px;padding-left:22px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11::before{
+    position:absolute;left:14px;top:0;bottom:0;z-index:3;display:flex;align-items:center;font-size:13px;filter:drop-shadow(0 0 2px #000);line-height:1;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2) .soreal-idle-energybar-wrap-v11::before{content:"⚡"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-energybar-wrap-v11::before{content:"🔮"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-energybar-wrap-v11::before{content:"🧪"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-energybar-wrap-v11::before{content:"❤️"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3bar-v2{background:linear-gradient(90deg,#9b5cff,#d59bff)!important;box-shadow:0 0 12px rgba(155,92,255,.45)!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pvbar-v2{background:linear-gradient(180deg,#d0192f 0%,#a30f22 45%,#6b0716 100%)!important;box-shadow:inset 0 6px 5px rgba(255,120,120,.40),inset 0 -6px 7px rgba(30,0,5,.55),0 0 10px rgba(160,10,30,.55)!important;transition:width .6s ease-out}
+}
+@keyframes sorealHudPvBasV2{from{opacity:1}to{opacity:.55}}
+@media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-hud-pv-v2.bas .soreal-idle-hud-pvbar-v2{animation:none}}
+
+/* ====== Barres du bandeau en tubes de verre (maquette téléphone) : capsule translucide, reflet brillant sur le dessus, liquide qui remplit, ombre de cylindre. ====== */
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{
+    height:22px!important;clip-path:none!important;border-radius:999px!important;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 45%,rgba(0,0,0,.35))!important;
+    box-shadow:inset 0 0 0 1.5px rgba(210,235,255,.55),inset 0 4px 5px rgba(255,255,255,.18),inset 0 -6px 8px rgba(0,0,0,.45),0 0 8px rgba(120,180,255,.25)!important;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-energybar-v11{
+    border-radius:999px!important;
+    box-shadow:inset 0 7px 6px rgba(255,255,255,.38),inset 0 -6px 7px rgba(0,0,0,.30),0 0 12px var(--tube-lueur,rgba(255,255,255,.4))!important;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11::after{
+    content:"";position:absolute;left:10px;right:10px;top:2px;height:36%;z-index:2;pointer-events:none;border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(255,255,255,.08));
+  }
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1{z-index:3;text-shadow:0 1px 2px #000,0 0 4px #000}
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{--tube-lueur:rgba(255,190,60,.55)}
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1{--tube-lueur:rgba(80,160,255,.6)}
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2{--tube-lueur:rgba(170,110,255,.6)}
+  body.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2{--tube-lueur:rgba(255,70,80,.6)}
+}
+
+
+/* ====== Effets des barres du bandeau (choix de Norman, 2026-10-08) : tous défilent de gauche à droite. Énergie : braises vertes ; Magie : aurore + runes + étoiles ; 3e ressource : plasma violet + code ; Vie : sang uni, bout arrondi, aucun effet. ====== */
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2{display:block;position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2::after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;background-repeat:repeat-x}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-bulles-v2{display:none}
+  /* Énergie : toujours verte, braises */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2)  .soreal-idle-energybar-v11{background:linear-gradient(90deg,#2fd86e,#7cff9e)!important;box-shadow:inset 0 7px 6px rgba(255,255,255,.38),inset 0 -6px 7px rgba(0,0,0,.30),0 0 12px rgba(60,220,110,.5)!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2) .soreal-idle-bulles-v2::before{background:radial-gradient(circle 2.4px at 9px 44px,#fff2a0 40%,transparent),radial-gradient(circle 1.3px at 22px 15px,#fff 40%,transparent),radial-gradient(circle 3px at 36px 54px,#ffcf55 40%,transparent),radial-gradient(circle 1.5px at 50px 8px,#fff 40%,transparent),radial-gradient(circle 2px at 64px 30px,#ffe27a 40%,transparent) 0 0/83px 60px;--p:83px;animation:sorealHudBgx 2.6s linear infinite}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2) .soreal-idle-bulles-v2::after{background:radial-gradient(circle 1.6px at 15px 22px,#fff 40%,transparent),radial-gradient(circle 2.6px at 45px 48px,#ffd34a 40%,transparent),radial-gradient(circle 1.2px at 60px 10px,#fff 40%,transparent) 0 0/71px 60px;--p:71px;animation:sorealHudBgx 4.2s linear infinite}
+  /* Magie : l'aurore est le liquide, runes et étoiles dessus */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1  .soreal-idle-energybar-v11{background:linear-gradient(90deg,#3a7bff,#6fe3ff,#9d7bff,#6fe3ff,#3a7bff,#6fe3ff,#9d7bff,#6fe3ff,#3a7bff);background-size:300% 100%;animation:sorealHudAurore 7s linear infinite!important}
+    body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2::after{inset:0;bottom:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='22'%3E%3Cg fill='white'%3E%3Cpath d='M12 3 L13.2 10 L20 11 L13.2 12 L12 19 L10.8 12 L4 11 L10.8 10Z'/%3E%3Cpath d='M52 5 L52.8 9.5 L57 10.5 L52.8 11.5 L52 16 L51.2 11.5 L47 10.5 L51.2 9.5Z' fill='%23e6d2ff'/%3E%3Cpath d='M78 12 L78.6 14.4 L81 15 L78.6 15.6 L78 18 L77.4 15.6 L75 15 L77.4 14.4Z'/%3E%3C/g%3E%3C/svg%3E") 20px 0/90px 22px repeat-x;--p:90px;animation:sorealHudBgx 8s linear infinite,sorealHudPulse 1.4s ease-in-out infinite alternate-reverse}
+  /* 3e ressource : plasma violet, code qui défile */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2  .soreal-idle-energybar-v11{background:linear-gradient(90deg,#8a4dff,#d070ff,#6a3df0,#e6a0ff,#8a4dff);background-size:200% 100%;animation:sorealHudPlasma 3s linear infinite!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-bulles-v2::before{inset:0;bottom:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='22'%3E%3Ctext x='2' y='9' font-family='monospace' font-size='9' fill='white' fill-opacity='.8'%3E1 0 1%3C/text%3E%3Ctext x='20' y='19' font-family='monospace' font-size='9' fill='%23f1dcff' fill-opacity='.7'%3E0 1%3C/text%3E%3Ctext x='42' y='10' font-family='monospace' font-size='9' fill='white' fill-opacity='.8'%3E0 1 1%3C/text%3E%3Ctext x='50' y='20' font-family='monospace' font-size='9' fill='%23f1dcff' fill-opacity='.6'%3E1 0%3C/text%3E%3C/svg%3E") 0 0/70px 22px repeat-x;--p:70px;animation:sorealHudBgx 3s linear infinite}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-bulles-v2::after{inset:0;bottom:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='22'%3E%3Ctext x='2' y='9' font-family='monospace' font-size='9' fill='white' fill-opacity='.8'%3E1 0 1%3C/text%3E%3Ctext x='20' y='19' font-family='monospace' font-size='9' fill='%23f1dcff' fill-opacity='.7'%3E0 1%3C/text%3E%3Ctext x='42' y='10' font-family='monospace' font-size='9' fill='white' fill-opacity='.8'%3E0 1 1%3C/text%3E%3Ctext x='50' y='20' font-family='monospace' font-size='9' fill='%23f1dcff' fill-opacity='.6'%3E1 0%3C/text%3E%3C/svg%3E") 25px 0/70px 22px repeat-x;--p:70px;animation:sorealHudBgx 5s linear infinite;opacity:.45}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2  .soreal-idle-energybar-v11{box-shadow:inset 0 7px 6px rgba(255,255,255,.38),inset 0 -6px 7px rgba(0,0,0,.30),0 0 12px rgba(170,110,255,.5)!important}
+}
+@keyframes sorealHudBgx{to{background-position-x:var(--p,79px)}}
+@keyframes sorealHudDroite{from{transform:translateX(-200px)}to{transform:translateX(0)}}
+@keyframes sorealHudPulse{from{opacity:.2}to{opacity:1}}
+@keyframes sorealHudAurore{from{background-position:100% 0}to{background-position:0 0}}
+@keyframes sorealHudPlasma{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2::after,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2  .soreal-idle-energybar-v11{animation:none!important}
+}
+
+/* Magie : les inscriptions flottent çà et là, apparaissent et disparaissent (six runes, chacune à son rythme). */
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b{position:absolute;width:11px;height:13px;opacity:0;background-repeat:no-repeat;background-position:center;background-size:contain;animation:sorealHudRune 5s ease-in-out infinite}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b:nth-child(1){left:4%;top:2px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 2 L11 14 M11 2 L3 14'/%3E%3C/g%3E%3C/svg%3E");animation-duration:5.2s;animation-delay:0s}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b:nth-child(2){left:20%;top:9px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2 V14 M4 2 L11 6 L4 10'/%3E%3C/g%3E%3C/svg%3E");animation-duration:6.1s;animation-delay:1.6s}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b:nth-child(3){left:36%;top:3px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2 V14 M4 5 L11 9'/%3E%3C/g%3E%3C/svg%3E");animation-duration:4.8s;animation-delay:3.1s}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b:nth-child(4){left:53%;top:8px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 2 L11 14 M11 2 L3 14'/%3E%3C/g%3E%3C/svg%3E");animation-duration:6.6s;animation-delay:0.8s}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b:nth-child(5){left:69%;top:2px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2 V14 M4 2 L11 6 L4 10'/%3E%3C/g%3E%3C/svg%3E");animation-duration:5.5s;animation-delay:2.4s}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b:nth-child(6){left:85%;top:9px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 16'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 2 V14 M4 5 L11 9'/%3E%3C/g%3E%3C/svg%3E");animation-duration:5.9s;animation-delay:4s}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2 b{display:none}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b{display:block}
+  /* Dépensé : la part déjà placée reste dans la fiole, en plus foncé (énergie et magie). */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-depense-v2{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;pointer-events:none}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1) .soreal-idle-depense-v2{background:linear-gradient(180deg,#1f7a42,#115a2d 45%,#093a1c);box-shadow:inset 0 6px 5px rgba(255,255,255,.12),inset 0 -6px 7px rgba(0,0,0,.35)}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-depense-v2{background:linear-gradient(180deg,#1d4f9e,#143a78 45%,#0c2350);box-shadow:inset 0 6px 5px rgba(255,255,255,.12),inset 0 -6px 7px rgba(0,0,0,.35)}
+  /* 3e ressource : mouvement ralenti de moitié */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-energybar-v11{animation-duration:6s!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-bulles-v2::before{animation-duration:6s!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-bulles-v2::after{animation-duration:10s!important}
+}
+@keyframes sorealHudRune{0%,100%{opacity:0;transform:translate(0,2px) scale(.8)}25%,65%{opacity:.95}50%{transform:translate(7px,-1px) scale(1)}}
+
+/* Menu + barres : paquet collé tout en haut (téléphone), rien ne glisse derrière ni au-dessus ni sur les côtés. */
+@media (max-width:700px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{top:0!important;box-shadow:0 0 0 8px var(--th-bg2,#0d1426),0 6px 16px rgba(0,0,0,.4)!important}
+}
+
+/* Barre entièrement dépensée : elle s'efface en fondu, puis l'espace se referme en douceur et les barres du dessous remontent ; au retour, l'espace se rouvre puis la barre réapparaît en fondu. */
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{
+    max-height:24px;transition:max-height .45s ease,margin-bottom .45s ease,opacity .45s ease .2s;
+  }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2{
+    opacity:0;max-height:0;margin-bottom:0!important;pointer-events:none;overflow:clip;overflow-clip-margin:8px;
+    transition:opacity .45s ease,max-height .45s ease .35s,margin-bottom .45s ease .35s;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34,
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2{transition:none}
+}
+
+/* ====== Bandeau des barres sur PC (grand écran) : collé en haut de la colonne de droite ; chaque barre garde son titre, sa vitesse et son texte « reste à générer », autour du tube. ====== */
+@media (min-width:701px){
+  body.soreal-idle-active-v47{overflow-x:clip!important;overflow-y:visible!important}
+  body.soreal-idle-active-v47 main.soreal-idle-native-v4{overflow-x:clip!important;overflow-y:visible!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{display:block;position:sticky;top:0;z-index:49;margin:0 0 10px;padding:8px 10px 4px;background:var(--th-bg2,#0d1426);border-radius:0 0 10px 10px;box-shadow:0 8px 14px -6px rgba(0,0,0,.7)}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{display:grid!important;grid-template-columns:260px minmax(0,1fr) minmax(0,420px);grid-template-rows:auto auto;column-gap:14px;row-gap:0;align-items:center;margin:0 0 5px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34::after{display:none!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-head-v34{display:contents}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-title-v34{grid-column:1;grid-row:1;font-size:13px;white-space:nowrap}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-speed-v34{grid-column:1;grid-row:2;font-size:10.5px;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{grid-column:2;grid-row:1 / span 2;height:24px!important;margin:0!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-number-v34{grid-column:3;grid-row:1 / span 2;font-size:12px;text-align:left;line-height:1.25}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3bar-v2{background:linear-gradient(90deg,#9b5cff,#d59bff)!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pvbar-v2{background:linear-gradient(180deg,#d0192f 0%,#a30f22 45%,#6b0716 100%)!important;box-shadow:inset 0 6px 5px rgba(255,120,120,.40),inset 0 -6px 7px rgba(30,0,5,.55),0 0 10px rgba(160,10,30,.55)!important;transition:width .6s ease-out}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{max-height:34px}
+}
