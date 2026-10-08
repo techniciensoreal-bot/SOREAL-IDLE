@@ -4755,7 +4755,10 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
   if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
   /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */
+  /* Un objet fusionné ou boosté au niveau 100 peut compléter un set : ses EXP / AP de complétion sont versés dans les monnaies (comme après une action d'Aventure), sinon ils restaient dans adventure.permanent. */
+  const avantAutoInventaire = photoRecompensesAventure(state);
   advanceIdleInventoryAutoV1(state.adventure, secs, () => inventoryAutoEnvV1(state));
+  crediterRecompensesAventure(state, avantAutoInventaire);
   /* Questing (crochet 1/4) : Major Quests gagnées avec le temps + barre d'idle. */
   if (state.systems.questing?.unlocked) advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now));
 
@@ -7502,7 +7505,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = idleCardsActionV1(state, payload);
   } else if (action === "inventoryAuto") {
     /* Auto Merge/Auto Boost, A/D + clic, transformation de boost, loadouts, filtre de butin (idle-inventory-auto-v1.js). */
+    const avantInventaireAuto = photoRecompensesAventure(state);
     result = applyIdleInventoryAutoActionV1(state, payload, inventoryAutoEnvV1(state));
+    /* A / D + clic, « tout booster »… : un set complété par ce geste verse aussitôt ses EXP / AP de complétion. */
+    crediterRecompensesAventure(state, avantInventaireAuto);
   } else {
     throw new Error("ACTION_META_INCONNUE");
   }
