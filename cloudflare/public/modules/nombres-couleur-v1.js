@@ -80,25 +80,19 @@
     generes.set(noeud,{ajoutes:ajoutes,premier:morceaux[0].texte});
   }
 
-  var attente=new Set(),planifie=false,observateur=null;
-  function vider_(){
-    planifie=false;
-    var liste=Array.from(attente);attente.clear();
-    liste.forEach(traiter_);
-    /* nos propres écritures ne doivent pas se rejouer */
-    if(observateur)observateur.takeRecords();
-  }
-  function planifier_(noeud){
-    attente.add(noeud);
-    if(!planifie){planifie=true;requestAnimationFrame(vider_);}
-  }
+  /*
+   * Aucun clignotement (Norman, 2026-10-08 : « les lettres de couleur clignotent en blanc super vite ») : quand le jeu réécrit un nombre, le texte revient un instant sans couleur. Le traitement se fait donc
+   * DANS le rappel de l'observateur (micro-tâche, toujours avant l'image suivante) et non à la prochaine image : le navigateur ne peint jamais le texte nu.
+   */
+  var observateur=null;
   function parcourir_(racine){
     if(!racine)return;
-    if(racine.nodeType===3){planifier_(racine);return;}
+    if(racine.nodeType===3){traiter_(racine);return;}
     if(racine.nodeType!==1)return;
     var marcheur=document.createTreeWalker(racine,NodeFilter.SHOW_TEXT,null);
-    var n;
-    while((n=marcheur.nextNode()))if(TEST.test(n.nodeValue))planifier_(n);
+    var n,liste=[];
+    while((n=marcheur.nextNode()))if(TEST.test(n.nodeValue))liste.push(n);
+    liste.forEach(traiter_);
   }
 
   function demarrer_(){
@@ -107,13 +101,15 @@
     observateur=new MutationObserver(function(mutations){
       for(var i=0;i<mutations.length;i++){
         var m=mutations[i];
-        if(m.type==='characterData'){planifier_(m.target);continue;}
+        if(m.type==='characterData'){traiter_(m.target);continue;}
         for(var j=0;j<m.addedNodes.length;j++){
           var a=m.addedNodes[j];
           if(a.nodeType===1&&a.classList&&a.classList.contains('nb-suf'))continue;
           parcourir_(a);
         }
       }
+      /* nos propres écritures ne doivent pas se rejouer */
+      observateur.takeRecords();
     });
     observateur.observe(app,{childList:true,subtree:true,characterData:true});
   }
