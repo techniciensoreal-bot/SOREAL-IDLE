@@ -35,14 +35,16 @@
     s.textContent=[
       '#soreal-feu-v1{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity 2.2s ease;overflow:hidden;}',
       '#soreal-feu-v1.actif{opacity:1;}',
-      /* pièce plus sombre sur les bords : la lumière vient du foyer, en bas */
-      '#soreal-feu-v1 .fe-ombre{position:absolute;inset:0;background:radial-gradient(ellipse 120% 90% at var(--fe-x,50%) 108%,rgba(0,0,0,0) 22%,rgba(10,4,0,.26) 100%);}',
-      /* la lueur chaude, qui éclaire les menus (fondue dans les couleurs de la page) */
-      '#soreal-feu-v1 .fe-lueur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .5);transition:opacity 140ms ease-out;will-change:opacity;'+
-        'background:radial-gradient(ellipse 95% 80% at var(--fe-x,50%) 105%,rgba(255,165,80,.20) 0%,rgba(255,130,50,.12) 32%,rgba(200,80,20,.05) 62%,rgba(120,30,0,0) 90%);}',
-      '#soreal-feu-v1 .fe-chaleur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .5);transition:opacity 140ms ease-out;'+
-        'background:radial-gradient(ellipse 80% 55% at var(--fe-x,50%) 110%,rgba(255,140,40,.07),rgba(255,90,10,.03) 50%,rgba(255,60,0,0) 80%);}',
-      '#soreal-feu-v1 .fe-eclat{position:absolute;inset:0;opacity:0;will-change:opacity;background:radial-gradient(ellipse 60% 50% at var(--fe-x,50%) 110%,rgba(255,200,130,.10),rgba(255,140,40,0) 70%);}'
+      /* pièce à peine assombrie : la lumière du foyer vit sur les CONTOURS de l'écran (Norman, 2026-10-08 : « moins sur le centre de l'écran, plus sur les contours ») */
+      '#soreal-feu-v1 .fe-ombre{position:absolute;inset:0;background:radial-gradient(ellipse 95% 90% at 50% 52%,rgba(0,0,0,0) 45%,rgba(10,4,0,.12) 100%);}',
+      /* la lueur chaude : vraiment les BORDS (Norman, 2026-10-08 : « un peu moins en bas au centre, vraiment les bords ») : centre et milieu du bas dégagés, lumière qui s'épaissit sur les côtés, en haut et aux coins ; jamais de blanc */
+      '#soreal-feu-v1 .fe-lueur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .8);transition:opacity 140ms ease-out;will-change:opacity;'+
+        'background:radial-gradient(ellipse 50% 68% at 50% 50%,rgba(255,140,50,0) 56%,rgba(255,130,45,.17) 80%,rgba(230,95,28,.36) 100%),'+
+        'radial-gradient(ellipse 60% 38% at var(--fe-x,50%) 114%,rgba(255,150,60,.08),rgba(255,125,40,0) 72%);}',
+      /* voile très léger, uniquement sur les bords */
+      '#soreal-feu-v1 .fe-chaleur{position:absolute;inset:0;opacity:calc(var(--fe-i,.8) * .8);transition:opacity 140ms ease-out;'+
+        'background:radial-gradient(ellipse 50% 68% at 50% 50%,rgba(255,110,30,0) 60%,rgba(255,105,28,.09) 100%);}',
+      '#soreal-feu-v1 .fe-eclat{position:absolute;inset:0;opacity:0;will-change:opacity;background:radial-gradient(ellipse 50% 68% at 50% 50%,rgba(255,170,90,0) 58%,rgba(255,150,70,.12) 100%);}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -135,10 +137,13 @@
 
   /* Le feu ne se montre que si on l'ENTEND : piste de feu en cours ET volume d'ambiance au-dessus de zéro. */
   var courante=null;
+  /* Réglages > Effets visuels : l'effet peut être coupé pour les téléphones moins puissants (mémorisé sur l'appareil, actif par défaut). */
+  function effetAutorise_(){try{return localStorage.getItem('soreal_idle_effet_feu_v1')!=='0';}catch(_e){return true;}}
   function evaluer_(){
-    if(courante&&estFeu(courante.cle)&&volumeAmbiance_()>0){if(!actif)demarrer(courante);}
+    if(courante&&estFeu(courante.cle)&&volumeAmbiance_()>0&&effetAutorise_()){if(!actif)demarrer(courante);}
     else if(actif)arreter();
   }
+  window.addEventListener('soreal-effets-v1',function(){evaluer_();});
   window.addEventListener('soreal-ambiance-v1',function(e){
     courante=(e&&e.detail)||{};
     evaluer_();

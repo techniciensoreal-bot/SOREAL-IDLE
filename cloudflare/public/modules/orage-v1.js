@@ -196,10 +196,13 @@
 
   /* L'orage ne se montre que si on ENTEND le tonnerre : piste d'orage en cours ET volume d'ambiance au-dessus de zéro (case cochée). */
   var courante=null;
+  /* Réglages > Effets visuels : l'effet peut être coupé pour les téléphones moins puissants (mémorisé sur l'appareil, actif par défaut). */
+  function effetAutorise_(){try{return localStorage.getItem('soreal_idle_effet_orage_v1')!=='0';}catch(_e){return true;}}
   function evaluer_(){
-    if(courante&&estOrage(courante.cle)&&volumeAmbiance_()>0){if(!actif)demarrer(courante);}
+    if(courante&&estOrage(courante.cle)&&volumeAmbiance_()>0&&effetAutorise_()){if(!actif)demarrer(courante);}
     else if(actif)arreter();
   }
+  window.addEventListener('soreal-effets-v1',function(){evaluer_();});
   window.addEventListener('soreal-ambiance-v1',function(e){
     courante=(e&&e.detail)||{};
     evaluer_();

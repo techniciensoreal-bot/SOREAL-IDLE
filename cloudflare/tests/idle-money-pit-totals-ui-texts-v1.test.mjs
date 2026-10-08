@@ -60,7 +60,8 @@ assert.match(meta, /Date\.now\(\)-idleMetaDernierEnvoiV1\.at<700/);
 assert.equal(meta.includes("Les récompenses affichées sont celles réellement disponibles"), false);
 assert.equal(ui.includes("Les niveaux gagnés préparent une baisse du Cap"), false);
 assert.equal(ui.includes("Appuie sur Start"), false);
-assert.ok(ui.includes("Appuie sur Fight. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant."));
+/* Le cadre d'en-tête de la page Combat de boss a été retiré le 2026-10-08. */
+assert.equal(ui.includes("Appuie sur Fight. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant."), false);
 assert.equal(ui.includes("au toucher : touche l’objet puis le Coffre"), false);
 assert.ok(ui.includes("Glisse un objet réellement maxé ici pour le ranger dans sa case</div>"));
 assert.equal(ui.includes("rendreBonusEquipementAdventureIdleV1_(a);"), false, "bloc Equipment Bonuses retiré de la page Adventure");

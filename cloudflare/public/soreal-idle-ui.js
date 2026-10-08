@@ -3688,8 +3688,8 @@
           );
         }
 
-        /* Bandeau du haut : la Vie suit la barre de Fight Boss au même instant, avec les mêmes valeurs (régénération comprise). */
-        if(idleMenuActifV28!=='aventure'){
+        /* Bandeau du haut : la Vie est TOUJOURS celle de Fight Boss, sur toutes les pages (Aventure comprise), mise à jour à chaque tick avec les mêmes valeurs (régénération comprise). */
+        {
           majHudPvIdleV2_(
             idleEtat.pvJoueur,
             idleEtat.pvJoueurMax,
@@ -15791,12 +15791,8 @@
 
 
       function pageCombatIdleV28_(j){
+        /* Plus de cadre d'en-tête « Combat de boss » sur cette page (Norman, 2026-10-08). */
         return `
-          ${entetePageIdleV28_(
-            '⚔️ Fight Boss',
-            'Appuie sur Fight. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant.'
-          )}
-
           <div class="soreal-idle-card-v4 soreal-idle-boss-current-v35">
             <div class="soreal-idle-label-v4">BOSS ACTUEL</div>
 
@@ -17055,7 +17051,7 @@
         if(idlePageSacV1>pagesSac)idlePageSacV1=pagesSac;
         const debutSac=(idlePageSacV1-1)*IDLE_SAC_CASES_PAR_PAGE_V1;
         const plan=planComplet.slice(debutSac,debutSac+IDLE_SAC_CASES_PAR_PAGE_V1);
-        const fragment=document.createDocumentFragment();
+        const noeudsFinaux=[];
 
         plan.forEach(function(desc){
           let node=null;
@@ -17091,10 +17087,20 @@
               idleInventoryPerfV160.nodesReused+=1;
             }
           }
-          if(node)fragment.appendChild(node);
+          if(node)noeudsFinaux.push(node);
         });
 
-        root.replaceChildren(fragment);
+        /*
+         * Clignotement de l'inventaire (Norman, 2026-10-08 : « l'inventaire clignote une fraction de seconde parfois »). « replaceChildren » retirait puis remettait TOUTES les cases, même celles
+         * qui ne changeaient pas : leurs animations repartaient de zéro et le navigateur les repeignait d'un coup. On ne touche maintenant qu'à ce qui a vraiment changé : rien si la page est
+         * identique, sinon seulement les cases déplacées, ajoutées ou retirées.
+         */
+        const actuels=Array.from(root.children);
+        if(actuels.length===noeudsFinaux.length&&actuels.every(function(n,i){return n===noeudsFinaux[i];}))return true;
+        noeudsFinaux.forEach(function(node,i){
+          if(root.children[i]!==node)root.insertBefore(node,root.children[i]||null);
+        });
+        while(root.children.length>noeudsFinaux.length)root.removeChild(root.lastElementChild);
         return true;
       }
 
@@ -17194,19 +17200,26 @@
           if(key)existants.set(key,node);
         });
 
-        const fragment=document.createDocumentFragment();
+        const noeudsFinaux=[];
         Array.from(vouluPaper.children).forEach(function(voulu){
           const key=cleSlotEquipementInventaireIdleV160_(voulu);
           const courant=key?existants.get(key):null;
           if(courant&&slotEquipementIdentiqueIdleV160_(courant,voulu)){
-            fragment.appendChild(courant);
+            noeudsFinaux.push(courant);
             idleInventoryPerfV160.nodesReused+=1;
           }else{
-            fragment.appendChild(voulu);
+            noeudsFinaux.push(voulu);
             idleInventoryPerfV160.nodesCreated+=1;
           }
         });
-        courantPaper.replaceChildren(fragment);
+        /* Comme pour le sac : on ne touche qu'aux emplacements qui ont changé (rien si tout est identique), pour ne rien faire clignoter. */
+        const actuelsPaper=Array.from(courantPaper.children);
+        if(!(actuelsPaper.length===noeudsFinaux.length&&actuelsPaper.every(function(n,i){return n===noeudsFinaux[i];}))){
+          noeudsFinaux.forEach(function(node,i){
+            if(courantPaper.children[i]!==node)courantPaper.insertBefore(node,courantPaper.children[i]||null);
+          });
+          while(courantPaper.children.length>noeudsFinaux.length)courantPaper.removeChild(courantPaper.lastElementChild);
+        }
 
         const courantOverflow=root.querySelector('.soreal-idle-v138-accessories');
         const vouluOverflow=virtuel.querySelector('.soreal-idle-v138-accessories');
@@ -23312,6 +23325,31 @@ function pageAventureIdleV28_(j){
           }).join('')+
         '</div>';
       }
+      /* Effets visuels (Norman, 2026-10-08) : orage (éclairs) et cheminée (lueur) peuvent être coupés pour les téléphones moins puissants ; actifs par défaut, mémorisés sur l'appareil. */
+      const EFFETS_VISUELS_IDLE_V1=[
+        {id:'orage',cle:'soreal_idle_effet_orage_v1',libelle:'⛈️ Orage : ciel sombre et éclairs (piste d’orage)'},
+        {id:'feu',cle:'soreal_idle_effet_feu_v1',libelle:'🔥 Cheminée : lueur sur les bords de l’écran (piste de feu)'}
+      ];
+      function effetVisuelActifIdleV1_(e){
+        try{return localStorage.getItem(e.cle)!=='0';}catch(_e){return true;}
+      }
+      window.__basculerEffetIdleV1__=function(id,coche){
+        const e=EFFETS_VISUELS_IDLE_V1.find(function(x){return x.id===id;});
+        if(!e)return;
+        try{localStorage.setItem(e.cle,coche?'1':'0');}catch(_e){}
+        try{window.dispatchEvent(new Event('soreal-effets-v1'));}catch(_e){}
+      };
+      function htmlReglagesEffetsIdleV1_(){
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">✨ Effets visuels</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Décoche un effet pour alléger le jeu sur un téléphone moins puissant. Ils n’apparaissent que si tu entends la piste d’ambiance correspondante.</div>'+
+          EFFETS_VISUELS_IDLE_V1.map(function(e){
+            return '<label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px">'+
+              '<input type="checkbox" '+(effetVisuelActifIdleV1_(e)?'checked ':'')+'onchange="window.__basculerEffetIdleV1__(\''+e.id+'\',this.checked)">'+
+              '<span>'+e.libelle+'</span></label>';
+          }).join('')+
+        '</div>';
+      }
       function htmlNotesMajIdleV1_(){
         const notes=notesMajIdleV1_();
         if(!notes.versions.length)return '';
@@ -23576,6 +23614,7 @@ function pageAventureIdleV28_(j){
             :'')+
           htmlReglagesLangueIdleV1_()+
           htmlReglagesAudioIdleV1_()+
+          htmlReglagesEffetsIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
             '<div style="font-size:14px;color:#8b93ab">Build <b style="color:#dce5f3">Beta '+idleHtml_(notesMajIdleV1_().courante)+'</b>'+

@@ -21,6 +21,8 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Les effets d’ambiance (orage et cheminée) peuvent être coupés dans les Réglages, section Effets visuels, pour les téléphones moins puissants ; la lueur de la cheminée éclaire maintenant le pourtour de l’écran, centre dégagé.',
+          'La barre de vie du bandeau montre toujours la vie du Combat de boss, sur toutes les pages, mise à jour en continu. Le cadre d’en-tête de la page Combat de boss a disparu, les boutons n’affichent plus de cadre bleu de sélection quand on les presse, et l’inventaire ne clignote plus à chaque mise à jour.',
           'Sur ordinateur, les barres du haut sont plus hautes et les données (Attaque, Défense, Or, EXP, AP) sont plus grandes, donc plus lisibles ; leurs cadres sont aussi plus carrés, sur téléphone comme sur ordinateur.',
           'La barre de vie du joueur a quitté la borne d’arcade : celle du bandeau du haut suffit, et elle se met à jour sur toutes les pages, pas seulement en combat de boss. Correction : une barre dont il ne reste plus rien ne réapparaît plus de temps en temps quand la page se redessine.',
           'Barres du haut : l’énergie, la magie et la vie sont plus hautes, avec des bords moins arrondis. L’icône passe devant les chiffres, le gain par seconde s’écrit à gauche et le temps restant à droite, dans la barre ; la vie affiche sa régénération en vert. Les petites particules apparaissent et disparaissent toujours en fondu. Sur ordinateur, c’est la même présentation que sur téléphone, sur toute la largeur.',

@@ -1,21 +1,9 @@
-/* Bandeau du haut (maquette téléphone) : met à jour en direct la barre de Vie et celle de la 3e ressource.
- * Énergie et Magie gardent leurs mises à jour d'origine. Rien n'est écrit si la valeur n'a pas changé. */
+/* Bandeau du haut : place, gain par seconde / temps restant, part dépensée, barre vidée en fondu et 3e ressource.
+ * La Vie est écrite par soreal-idle-ui.js (toujours celle de Fight Boss, à chaque tick). Rien n'est écrit si la valeur n'a pas changé. */
 (function(){
   'use strict';
   var dernier={pv:null,r3:null};
   function nombre(v){v=Number(v);return isFinite(v)?v:0;}
-  function pvActuels(etat){
-    var racine=document.querySelector('.soreal-idle-page-root-v28');
-    var menu=racine?racine.getAttribute('data-menu'):'';
-    var adv=etat&&etat.systemes&&etat.systemes.adventure;
-    if(menu!=='combat'&&adv){
-      var f=adv.fight;
-      if(f&&f.active&&nombre(f.playerHpMax)>0)return {pv:nombre(f.playerHp),max:nombre(f.playerHpMax)};
-      var max=nombre(adv.stats&&adv.stats.hp);
-      if(max>0){var rep=etat.adventureRestPv;return {pv:rep==null?max:Math.min(max,nombre(rep)),max:max};}
-    }
-    return {pv:nombre(etat&&etat.pvJoueur),max:nombre(etat&&etat.pvJoueurMax)};
-  }
   function formater(n){
     var f=window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__;
     return typeof f==='function'?f(n):String(Math.round(n));
@@ -79,12 +67,6 @@
     ecrire('sorealIdleHudDEnergieV2',i.energie.temps);
     ecrire('sorealIdleHudGMagieV2',i.magie.vitesse);
     ecrire('sorealIdleHudDMagieV2',i.magie.temps);
-    var g=window.__SOREAL_IDLE_REGEN_PV_V2__,ft=window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__;
-    if(typeof g==='function'&&typeof ft==='function'){
-      var racine=document.querySelector('.soreal-idle-page-root-v28');
-      var menuR=racine?racine.getAttribute('data-menu'):'';
-      if(menuR==='aventure')ecrire('sorealIdleHudDPvV2',ft(g(menuR)));
-    }
   }
   function maj(){
     placer();
@@ -93,25 +75,6 @@
     majDepense();
     var etat=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;
     if(!etat)return;
-    var barPv=document.getElementById('sorealIdleHudPvBarV2');
-    var racinePv=document.querySelector('.soreal-idle-page-root-v28');
-    var menuPv=racinePv?racinePv.getAttribute('data-menu'):'';
-    /* Hors Aventure, soreal-idle-ui.js écrit la Vie à chaque tick (mêmes valeurs que la barre de Fight Boss) : ici on ne gère que la vie d'Aventure. */
-    if(barPv&&menuPv==='aventure'){
-      var p=pvActuels(etat);
-      var cle=p.pv+':'+p.max;
-      /* Le cache est porté par l'élément lui-même : un nouveau rendu de la page recrée la barre, elle doit alors être remplie à nouveau. */
-      if(cle!==barPv.getAttribute('data-cle')){
-        barPv.setAttribute('data-cle',cle);
-        var pct=p.max>0?Math.max(0,Math.min(100,p.pv/p.max*100)):0;
-        barPv.style.width=pct.toFixed(2)+'%';
-        var t=document.getElementById('sorealIdleHudPvTexteV2');
-        var fp=window.__SOREAL_IDLE_TEXTE_PV_V2__;
-        if(t)t.textContent=typeof fp==='function'?fp(p.pv,p.max):texteBarre(p.pv,p.max);
-        var panneau=document.getElementById('sorealIdleHudPvV2');
-        if(panneau)panneau.classList.toggle('bas',pct<=25);
-      }
-    }
     var barR3=document.getElementById('sorealIdleHudR3BarV2');
     if(barR3){
       var r=etat.systemes&&etat.systemes.resources&&etat.systemes.resources.r3;
