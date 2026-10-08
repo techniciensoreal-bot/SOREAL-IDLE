@@ -2407,9 +2407,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         /* Blood Magic (Norman, 2026-10-01) : le « + » y est une croix renversée. */
         const plus=croix?'<b class="soreal-idle-blood-croix-v1">✝︎</b>':'<b>+</b>';
-        return '<p class="soreal-idle-aide-legende-v1"><b>Input</b> = la quantité déplacée à chaque clic sur '+plus+' (placer) ou <b>−</b> (retirer). '+
-          '<b>Max</b> et <b>1/2</b>, <b>1/4</b> remplissent Input à partir de ton maximum de '+H.idleHtml_(ressource)+' ; <b>Idle</b> à partir de celui qui est libre. '+
-          (libre?'<b>Max</b> place tout ce qui est libre.':'')+'</p>';
+        /* Norman, 2026-10-08 : plus de texte explicatif sous l'aide pour le champ Input. */
+        void plus;void H;void ressource;void libre;
+        return '';
       }
 
       function pageAugmentationsIdleV48_(j){
@@ -2447,7 +2447,28 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           /* Deuxième ligne d'un Augment : le vrai nom de son Upgrade (wiki NGU Idle « Augmentations » : Danger Scissors, Drinking The Milk Too…), en français. */
           const label=upgrade?'⬆️ '+(IDLE_NOMS_UPGRADES_AUGMENTS_V1[def.upgrade&&def.upgrade.id]||(def.upgrade&&def.upgrade.name)||'Upgrade'):'';
           const sousTitre='';
-          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="margin-top:8px;opacity:'+(ok?'1':'.45')+'"><div style="display:flex;justify-content:space-between"><b>'+(label?label+' · ':'')+'Niv. <span data-idle-aug-niv-v1="'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+':'+(upgrade?'upgrade':'main')+'">'+level+'</span></b><span id="sorealIdleAugAllocV1_'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(value)+'⚡</span></div>'+(sousTitre?'<div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div>':'')+'<div style="font-size:13px;color:#aeb5c8;margin:3px 0 1px">'+'<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>Coût du prochain niveau 💰 <span data-idle-aug-cout-v1="'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+':'+(upgrade?'upgrade':'main')+'">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</span></div><div data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'" style="font-size:13px;color:#c7d2fe;margin-bottom:3px">'+texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0)+'</div><div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div><div class="soreal-idle-bt-actions-v120" style="margin-top:6px">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+          /*
+           * Page Augmentations refaite (Norman, 2026-10-08) : plus d’ancienne phrase de coût ; « Prochain niveau » et la somme, en gros ; la somme est VERTE quand on a l'Or et ROUGE sinon (couleur mise à
+           * jour à chaque tick, voir soreal-idle-ui.js). Mêmes identifiants et mêmes data-* qu'avant : les compteurs, barres et boutons existants continuent de fonctionner.
+           */
+          const H=window.__SOREAL_IDLE_META_HOST_V130__;
+          const coutBrut=Number(upgrade?def.upgradeGoldCost:def.goldCost)||0;
+          const clef=H.idleHtml_(def.id)+':'+(upgrade?'upgrade':'main');
+          const etaTexte=texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0);
+          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
+            '<div class="aug-ligne-haut">'+
+              '<div class="aug-niv-bloc"><span class="aug-niv-lib">'+(label?H.idleHtml_(label):'Niveau')+'</span><b class="aug-niv-val"><span data-idle-aug-niv-v1="'+clef+'">'+level+'</span></b></div>'+
+              '<span id="sorealIdleAugAllocV1_'+H.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(value)+'⚡</span>'+
+            '</div>'+
+            (sousTitre?'<div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div>':'')+
+            '<div class="aug-cout-ligne">'+
+              '<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>'+
+              '<span class="aug-cout-lib">Prochain niveau</span>'+
+              '<span class="aug-cout-val '+(gold>=coutBrut?'ok':'non')+'" data-idle-aug-cout-v1="'+clef+'" data-cout="'+coutBrut+'">'+H.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</span>'+
+            '</div>'+
+            '<div class="aug-eta" data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'">'+etaTexte+'</div>'+
+            '<div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div>'+
+            '<div class="soreal-idle-bt-actions-v120">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Renforce ton Attack et ta Defense en y investissant de l’Energy et de l’Or.')+
           carteAideMenuIdleV1_('augmentations','Chaque Augment te donne un multiplicateur d’Attack et de Defense. Les multiplicateurs de tous tes Augments s’additionnent.',[
@@ -2480,7 +2501,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_AUGMENTS_V1[def.id]?IDLE_ICONES_AUGMENTS_V1[def.id]+' ':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id)+'</b><span>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+(upgradeOk?' · Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0):'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
+              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div class="aug-carte-tete"><b class="aug-nom">'+(IDLE_ICONES_AUGMENTS_V1[def.id]?'<i class="aug-icone">'+IDLE_ICONES_AUGMENTS_V1[def.id]+'</i>':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id)+'</b><span class="aug-pastilles"><em>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+'</em>'+(upgradeOk?'<em>Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0)+'</em>':'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
             }).join('')+'</div>';
           })();
       }

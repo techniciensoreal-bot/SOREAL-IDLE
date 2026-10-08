@@ -64,5 +64,5 @@ mouvementReduit = false;
 
 // Style : mélangé aux couleurs de la page, jamais cliquable, retiré à l'arrêt.
 assert.ok(src.includes("pointer-events:none") && !src.includes("mix-blend-mode") && !src.includes("--fe-x',(") && src.includes("removeChild(racine)"), "lueur douce et légère (aucun mélange de calques, seul l'opacité bouge), sans clic, retirée à l'arrêt");
-assert.ok(index.includes('<script defer src="/modules/feu-v1.js?v=7"></script>'), "module chargé par la page");
+assert.ok(index.includes('<script defer src="/modules/feu-v1.js?v=8"></script>'), "module chargé par la page");
 console.log("idle-feu-v1: OK");

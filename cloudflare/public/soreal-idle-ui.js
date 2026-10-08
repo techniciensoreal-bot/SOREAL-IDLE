@@ -238,6 +238,15 @@
       /* Lecture seule de l'état courant pour les modules (panneau Détail Attack/Defense, modules/stats-detail-v1.js). */
       window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};
       window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__=function(n){return formatGrandNombreIdleV70_(n);};
+      /* Augmentations : la couleur de la somme suit l'Or en direct, même sans énergie placée (un gain d'Or suffit à passer du rouge au vert). */
+      setInterval(function(){
+        if(!idleEtat||idleMenuActifV28!=='augmentations'||document.hidden)return;
+        const or=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
+        document.querySelectorAll('[data-idle-aug-cout-v1][data-cout]').forEach(function(el){
+          const assez=or>=Number(el.dataset.cout);
+          if(el.classList.contains('ok')!==assez||el.classList.contains('non')===assez){el.classList.toggle('ok',assez);el.classList.toggle('non',!assez);}
+        });
+      },800);
       /* Bandeau : part de chaque barre déjà générée (disponible + dépensée), en pourcentage du plafond. */
       window.__SOREAL_IDLE_DISPONIBLE_V2__=function(){
         const b=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
@@ -2936,6 +2945,13 @@
               ecrireSiChangeIdleV1_(nivEl,String(nivAffiche));
               const coutEl=elementAugIdleV1_('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
               if(coutEl&&k>0)ecrireSiChangeIdleV1_(coutEl,formatGrandNombreIdleV70_(coutK(k))+' Or');
+              /* La somme est verte quand on a l'Or, rouge sinon (Norman, 2026-10-08). */
+              if(coutEl){
+                const coutAffiche=k>0?coutK(k):cout0;
+                coutEl.dataset.cout=String(coutAffiche);
+                const assezOr=orLive>=coutAffiche;
+                if(coutEl.classList.contains('ok')!==assezOr||coutEl.classList.contains('non')===assezOr){coutEl.classList.toggle('ok',assezOr);coutEl.classList.toggle('non',!assezOr);}
+              }
               const etaEl=elementAugIdleV1_('[data-idle-aug-eta-v1="'+id+':'+x[0]+'"]');
               if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
                 ecrireSiChangeIdleV1_(etaEl,window.__texteEtaAugmentIdleV1__({seconds:secondes,progress:secondes>0?Math.max(0,Math.min(1,reste/secondes)):0,waiting:attenteOr,goldCost:k>0?coutK(k):cout0,gold:orLive},0));
@@ -9965,6 +9981,7 @@
                 ?'aventure'
                 :ancien==='perks'?'tower'
                 :ancien==='titans'?'aventure'
+                :ancien==='bestiaire'||ancien==='classement'||ancien==='succes'?'chroniques'
                 :(ancien==='spendExp'||ancien==='sellout'?'shop':ancien);
           }
         }catch(e){}
@@ -10075,6 +10092,7 @@
       IDLE_MENU_PAR_SYSTEME_V1.perks='tower';
       /* Titans : plus de menu à part (Norman, 2026-10-08), ils sont dans la page Adventure. */
       IDLE_MENU_PAR_SYSTEME_V1.titans='aventure';
+      IDLE_MENU_PAR_SYSTEME_V1.achievements='chroniques';
 
       function menuDisponibleIdleV28_(
         id,
@@ -10101,6 +10119,10 @@
         }
 
         if(id==='setsZones')return false;
+
+        /* Chroniques (Norman, 2026-10-08) : Collection, Classement et Succès sont réunis dans UN seul menu ; les trois anciens boutons n'existent plus. */
+        if(id==='bestiaire'||id==='classement'||id==='succes')return false;
+        if(id==='chroniques')return chroniquesOngletsIdleV1_(j).length>0;
 
         /* Titans : fusionnés avec Adventure, plus de bouton de menu. */
         if(id==='titans')return false;
@@ -10223,8 +10245,8 @@
             icon:'📖',
             titre:'Bestiaire débloqué',
             intro:'Le Bestiaire est ton carnet de rencontres : chaque créature que tu croises s’y inscrit toute seule, comme un album d’autocollants qui se remplit.',
-            menuCible:'bestiaire',
-            libelleCible:'Aller au bestiaire',
+            menuCible:'chroniques',
+            libelleCible:'Aller aux chroniques',
             bullets:[
               'Une créature reste inconnue tant que tu ne l’as jamais rencontrée : impossible de coller ce que tu n’as pas trouvé.',
               'Boss principaux et créatures d’Aventure partagent le même registre.',
@@ -10801,8 +10823,11 @@
       const IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout','shop','admin'];
 
       function idleMenuEstAcquisV1_(j,menuId){
+        const liste=idleMenusAckListeV1_(j);
+        /* Chroniques remplace Collection, Classement et Succès : un joueur qui connaissait déjà l'un d'eux ne le revoit pas comme un menu neuf. */
+        if(menuId==='chroniques'&&['bestiaire','classement','succes'].some(function(a){return liste.indexOf(a)!==-1;}))return true;
         return IDLE_MENUS_SANS_CLIGNOTEMENT_V1.indexOf(menuId)!==-1||
-          idleMenusAckListeV1_(j).indexOf(menuId)!==-1;
+          liste.indexOf(menuId)!==-1;
       }
 
       function idleMenuMarquerAcquisV1_(j,menuId){
@@ -11794,6 +11819,7 @@
           return;
         }
         const nouveaux=dispo.filter(function(m){
+          if(m.id==='chroniques'&&['bestiaire','classement','succes'].some(function(a){return idleVuConnuV1_(j,'menu-annonce:'+a);}))return false;
           return !idleVuConnuV1_(j,'menu-annonce:'+m.id);
         });
         if(!nouveaux.length)return;
@@ -11865,8 +11891,8 @@
        * Autres états qui animent un menu (Norman, 2026-10-03) : Aventure quand on farme dans une zone (pas en zone sûre) ; Renaissance quand le prochain NUMBER dépasse celui du dernier Rebirth ; Défis quand un défi est
        * actif ; Titans quand un titan est prêt à être affronté ; Succès tant qu'il y en a de non vus ; Shop, Classement, Collection, Chat et Réglages tant qu'on les consulte.
        */
-      const IDLE_MENUS_ETATS_V1={aventure:1,renaissance:1,challenges:1,titans:1,succes:1,shop:1,classement:1,bestiaire:1,chat:1,parametres:1,tower:1};
-      const IDLE_MENUS_CONSULTES_V1={shop:1,classement:1,bestiaire:1,chat:1,parametres:1};
+      const IDLE_MENUS_ETATS_V1={aventure:1,renaissance:1,challenges:1,titans:1,shop:1,chroniques:1,chat:1,parametres:1,tower:1};
+      const IDLE_MENUS_CONSULTES_V1={shop:1,chroniques:1,chat:1,parametres:1};
       const CLE_SUCCES_VUS_V1='soreal_idle_succes_vus_v1';
       function succesVusIdleV1_(){
         try{
@@ -11897,10 +11923,56 @@
         return nonVus.length>0;
       }
       /* Trophées nouveaux à signaler d'un point rouge dans la page des succès (modules/profile-v1.js). Appelée au rendu de la page : capture ce qui n'a pas encore été vu avant de le marquer comme vu. */
-      if(typeof window!=='undefined')window.__SOREAL_IDLE_SUCCES_NOUVEAUX_V1__=function(){
-        try{succesNonVusIdleV1_(idleEtat,idleMenuActifV28);}catch(_e){}
-        return idleSuccesNouveauxV1.slice();
+      /* Plus de point rouge pour les nouveaux trophées (Norman, 2026-10-08) : la liste reste vide, la page des succès n'affiche aucun repère. */
+      if(typeof window!=='undefined')window.__SOREAL_IDLE_SUCCES_NOUVEAUX_V1__=function(){return [];};
+      /*
+       * Chroniques (Norman, 2026-10-08) : Collection, Classement et Succès réunis dans UN menu, pour avoir le moins de menus possible. Chaque onglet n'apparaît qu'une fois débloqué
+       * (règle n°2 : jamais d'onglet verrouillé, ni de compteur révélateur) ; un seul onglet débloqué = pas de barre d'onglets. La page garde l'habillage de l'onglet affiché
+       * (data-menu = l'onglet), donc chaque contenu conserve ses couleurs.
+       */
+      let idleChroniquesOngletV1='';
+      function chroniquesOngletsIdleV1_(j){
+        const liste=[];
+        if(!j)return liste;
+        if(j.bestiaire&&j.bestiaire.debloquee)liste.push({nom:'Collection',icon:'🏆',id:'bestiaire'});
+        if(j.classement&&j.classement.debloque)liste.push({nom:'Classement',icon:'📊',id:'classement'});
+        if(menuSuccesVisibleIdleV1_(j))liste.push({nom:'Succès',icon:'🎖️',id:'succes'});
+        return liste;
+      }
+      function chroniquesOngletActifIdleV1_(j){
+        const onglets=chroniquesOngletsIdleV1_(j||idleEtat);
+        if(!onglets.length)return '';
+        return onglets.some(function(o){return o.id===idleChroniquesOngletV1;})?idleChroniquesOngletV1:onglets[0].id;
+      }
+      /* Menu « de style » : pour Chroniques, l'onglet affiché ; sinon le menu actif. */
+      function menuStyleIdleV1_(j){
+        return idleMenuActifV28==='chroniques'?(chroniquesOngletActifIdleV1_(j)||'bestiaire'):idleMenuActifV28;
+      }
+      if(typeof window!=='undefined')window.__chroniquesOngletIdleV1__=function(id){
+        if(!idleEtat)return;
+        idleChroniquesOngletV1=String(id||'');
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root)root.setAttribute('data-menu',menuStyleIdleV1_(idleEtat));
+        rafraichirMenuRacineIdleV28_();
       };
+      function pageChroniquesIdleV1_(j){
+        const onglets=chroniquesOngletsIdleV1_(j);
+        if(!onglets.length)return '';
+        const actif=chroniquesOngletActifIdleV1_(j);
+        const barre=onglets.length>1
+          ?'<div class="soreal-idle-chroniques-onglets-v1" role="tablist">'+
+            onglets.map(function(o){
+              return '<button type="button" role="tab" aria-selected="'+(o.id===actif?'true':'false')+'" class="soreal-idle-chroniques-onglet-v1'+(o.id===actif?' actif':'')+'" data-onglet="'+o.id+'" onclick="window.__chroniquesOngletIdleV1__(this.dataset.onglet)">'+
+                '<i>'+o.icon+'</i><b>'+o.nom+'</b></button>';
+            }).join('')+
+          '</div>'
+          :'';
+        let contenu='';
+        if(actif==='bestiaire')contenu=pageBestiaireIdleV110_(j);
+        else if(actif==='classement')contenu=pageClassementIdleV1_(j);
+        else contenu=pageSystemeMetaIdleV130_(j,'achievements','Achievements');
+        return barre+contenu;
+      }
       function idleMenuEtatAnimeIdleV1_(id,j){
         if(!j)return false;
         if(IDLE_MENUS_CONSULTES_V1[id])return idleMenuActifV28===id;
@@ -11931,7 +12003,6 @@
             return t&&t.id&&t.progressionUnlocked!==false&&!(t.state&&t.state.hiddenPanel)&&!(idleNombre_(t.state&&t.state.nextAt)>maintenant);
           });
         }
-        if(id==='succes')return succesNonVusIdleV1_(j,idleMenuActifV28);
         /* ITOPOD : animé tant que la tour tourne (système actif), comme les autres menus qui travaillent. */
         if(id==='tower'){
           const liste=j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
@@ -12018,10 +12089,8 @@
         wishes:{forme:'etoile',verbe:'Faire un vœu'},
         cards:{forme:'carte',verbe:'Collectionner'},
         cooking:{forme:'cercle',verbe:'Cuisiner'},
-        succes:{forme:'etoile',verbe:'Trophées'},
+        chroniques:{forme:'hexagone',verbe:'Parcourir'},
         shop:{forme:'etoile',verbe:'Boutique magique'},
-        classement:{forme:'pentagone',verbe:'Se comparer'},
-        bestiaire:{forme:'hexagone',verbe:'Découvrir'},
         chat:{forme:'bulle',verbe:'Discuter'},
         parametres:{forme:'engrenage',verbe:'Régler'},
         admin:{forme:'triangle',verbe:'Gérer'}
@@ -12054,12 +12123,10 @@
         wishes:'#a78bfa',
         cards:'#f9a8d4',
         cooking:'#c2410c',
-        succes:'#e2e8f0',
+        chroniques:'#d9b45a',
         sellout:'#c084fc',
         spendExp:'#a855f7',
         shop:'#a855f7',
-        classement:'#fcd34d',
-        bestiaire:'#93c5fd',
         chat:'#e879f9',
         setsZones:'#2dd4bf',
         parametres:'#9ca3af',
@@ -12080,7 +12147,7 @@
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
-        {id:'bestiaire',icon:'🏆',nom:'Collection'},
+        {id:'chroniques',icon:'📜',nom:'Chroniques'},
         {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
         {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'avance',icon:'🏋️',nom:'Advanced Training'},
@@ -12103,8 +12170,6 @@
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'shop',icon:'🔮',nom:'Shop'},
-        {id:'succes',icon:'🎖️',nom:'Achievements'},
-        {id:'classement',icon:'📊',nom:'Classement'},
         {id:'chat',icon:'💬',nom:'Chat'},
         {id:'parametres',icon:'⚙️',nom:'Settings'},
         {id:'admin',icon:'🛠️',nom:'Admin'}
@@ -15877,6 +15942,18 @@
                     }
                   </div>
 
+                  <!-- L'XP du boss s'affiche en bas à droite de son image (Norman, 2026-10-08) ; frère du portrait, pas dedans : un changement d'image ne l'efface pas. -->
+                  <div class="soreal-idle-reward-v8 soreal-idle-xp-borne-v1">
+                    <span class="soreal-idle-chip-v8">
+                      +${idleEntier_(j.recompenseBossActuel&&j.recompenseBossActuel.xp)} XP
+                      ${
+                        idleNombre_(j.recompenseBossActuel&&j.recompenseBossActuel.xpMultiplicateur)<.999
+                          ?' · '+Math.round(idleNombre_(j.recompenseBossActuel.xpMultiplicateur)*100)+' %'
+                          :''
+                      }
+                    </span>
+                  </div>
+
                   <div class="soreal-idle-duel-hp-v41">
                     <div
                       class="soreal-idle-note-v4"
@@ -15976,17 +16053,6 @@
               id="sorealIdleBossRespawnV100"
               class="soreal-idle-boss-respawn-v100 ready"
             ></div>
-
-            <div class="soreal-idle-reward-v8">
-              <span class="soreal-idle-chip-v8">
-                +${idleEntier_(j.recompenseBossActuel&&j.recompenseBossActuel.xp)} XP
-                ${
-                  idleNombre_(j.recompenseBossActuel&&j.recompenseBossActuel.xpMultiplicateur)<.999
-                    ?' · '+Math.round(idleNombre_(j.recompenseBossActuel.xpMultiplicateur)*100)+' %'
-                    :''
-                }
-              </span>
-            </div>
 
             ${
               j.bossBloqueRenaissance
@@ -22384,7 +22450,7 @@ function pageAventureIdleV28_(j){
         idleClassementV1.chargement=true;
         function rafraichirPage(){
           const root=document.querySelector('.soreal-idle-page-root-v28');
-          if(root&&idleEtat&&idleMenuActifV28==='classement')rafraichirMenuRacineIdleV28_();
+          if(root&&idleEtat&&idleMenuActifV28==='chroniques'&&menuStyleIdleV1_(idleEtat)==='classement')rafraichirMenuRacineIdleV28_();
         }
         try{
           google.script.run
@@ -22645,11 +22711,43 @@ function pageAventureIdleV28_(j){
         });
       }
 
+      /*
+       * ANTI-SPOIL (règle n°2, Norman 2026-10-08 : « on peut acheter des choses pour des menus qu'on n'a pas encore débloqués : graines, Yggdrasil… ») : un article de la boutique AP
+       * lié à un système encore verrouillé n'apparaît pas du tout (ni nom, ni prix, ni rayon qui ne contiendrait que lui).
+       */
+      const IDLE_AP_SYSTEME_DE_L_ARTICLE_V1={
+        magicPotionAlpha:'bloodMagic',magicPotionBeta:'bloodMagic',magicPotionDelta:'bloodMagic',magicBarBar:'bloodMagic',
+        resource3PotionAlpha:'hacks',resource3PotionBeta:'hacks',resource3PotionDelta:'hacks',
+        macguffinMuffin:'macguffins',
+        icarusFertilizer1:'yggdrasil',icarusFertilizer10:'yggdrasil',icarusFertilizer100:'yggdrasil',yggdrasilHarvestLight:'yggdrasil',heartBrown:'yggdrasil',
+        littleBluePill1000:'tower',littleBluePill10000:'tower',littleBluePill100000:'tower',lazyItopodFloorShifter:'tower',heartGreen:'tower',pp25:'tower',pp100:'tower',pp500:'tower',
+        beastButter1:'questing',beastButter10:'questing',beastButter100:'questing',questReminder:'questing',fasterQuesting:'questing',extendedQuestBank:'questing',goToQuestZoneButton:'questing',heartOrange:'questing',
+        mayoInfuser:'cards',regularBlackPens:'cards',mayoGenerator:'cards',extraDeckSize:'cards',extraTagSlot:'cards',heartRainbow:'cards',
+        luckyCharm:'adventure',superLuckyCharm:'adventure',improvedLootFilter:'adventure',extraInventorySpace:'adventure',autoMergeBoostTimers:'adventure',filterBoostsIntoCube:'adventure',loadoutSlot:'adventure',
+        extraAccessorySlot1:'adventure',extraAccessorySlot2:'adventure',extraAccessorySlot3:'adventure',extraAccessorySlot4:'adventure',extraAccessorySlot5:'adventure',extraAccessorySlotEvil:'adventure',
+        autoNuker:'adventure',inventoryMergeSlots:'adventure',adventureLight:'adventure',adventureAdvancer:'adventure',
+        customEnergyMagicButtons:'bloodMagic',moreCustomEnergyMagicButtons:'bloodMagic',customIdleEnergyMagicButtons:'bloodMagic',
+        dailySpinTimeBank:'dailySpin',extraBeardSlot:'beards',daycareSpeedBoost:'daycare',daycareKittyArt:'daycare',diggerSlots:'diggers',macguffinSlot:'macguffins',heartPurple:'macguffins',
+        nguCapModifier:'ngu',customResource3Button:'hacks',anotherCustomResource3Button:'hacks',customIdleResource3Button:'hacks',resource3NameRandomizer:'hacks',heartGrey:'hacks',
+        fasterWishes:'wishes',heartPink:'wishes'
+      };
+      function articleApVisibleIdleV1_(j,item){
+        if(!item||item.effectActive!==true)return false;
+        const systeme=IDLE_AP_SYSTEME_DE_L_ARTICLE_V1[item.id];
+        if(!systeme)return true;
+        if(systeme==='adventure'){
+          const rec=j&&j.systemes&&j.systemes.records;
+          return Boolean(rec&&idleNombre_(rec.highestBoss)>=4);
+        }
+        const sys=systemeMetaParIdIdleV130_(j,systeme);
+        return Boolean(sys&&sys.state&&sys.state.unlocked);
+      }
+
       /* Achats visibles de la boutique AP, par rayon (catégorie) : point rouge « nouveau » (modules/boutique-nouveautes-v1.js). */
       function achatsApParCategorieIdleV1_(j){
         const shop=(j&&j.systemes&&j.systemes.selloutShop)||{};
         const sortie={};
-        (Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return item&&item.effectActive===true;}).forEach(function(item){
+        (Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return articleApVisibleIdleV1_(j,item);}).forEach(function(item){
           const cle=item.category||'autre';
           if(!sortie[cle])sortie[cle]=[];
           sortie[cle].push(item.id);
@@ -22661,7 +22759,7 @@ function pageAventureIdleV28_(j){
         const systemes=(j&&j.systemes)||{};
         const shop=systemes.selloutShop||{catalog:[],purchases:{}};
         /* ANTI-SPOIL (règle n°2) : un achat dont l'effet n'est pas encore actif n'apparaît pas (ni cadenas, ni prix). */
-        const catalogue=(Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return item&&item.effectActive===true;});
+        const catalogue=(Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return articleApVisibleIdleV1_(j,item);});
         const ap=idleEntier_(systemes.currencies&&systemes.currencies.ap||0);
 
         const parCategorie={};
@@ -23677,6 +23775,8 @@ function pageAventureIdleV28_(j){
             return '';
           case 'aventure':
             return pageAventureIdleV28_(j);
+          case 'chroniques':
+            return pageChroniquesIdleV1_(j);
           case 'bestiaire':
             return pageBestiaireIdleV110_(j);
           case 'boutique':
@@ -23767,6 +23867,12 @@ function pageAventureIdleV28_(j){
       function menuIdleV28_(menu){
         /* Mode « Rangement des boutons » : un appui ne change pas de page ; l'appui qui suit un maintien est avalé. */
         if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1)return;
+
+        /* Anciens menus Collection / Classement / Succès : ils ouvrent Chroniques sur le bon onglet. */
+        if(menu==='bestiaire'||menu==='classement'||menu==='succes'){
+          idleChroniquesOngletV1=menu;
+          menu='chroniques';
+        }
 
         if(
           !menuDisponibleIdleV28_(
@@ -23894,6 +24000,9 @@ function pageAventureIdleV28_(j){
         ['renaissance','challenges','titans','succes','spendExp','sellout','moneyPit','sang','aventure','wandoos','yggdrasil'].forEach(function(m){
           try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
         });
+        /* Les titans et les succès n'ont plus de bouton de menu propre : « connus » veut dire débloqués. */
+        connus.menus.titans=Boolean(a&&Array.isArray(a.titans)&&a.titans.some(function(t){return t&&t.id&&t.progressionUnlocked!==false;}));
+        connus.menus.succes=chroniquesOngletsIdleV1_(j).some(function(o){return o.id==='succes';});
         try{connus.sorts=typeof window.__SOREAL_IDLE_SORTS_CONNUS_V1__==='function'?window.__SOREAL_IDLE_SORTS_CONNUS_V1__(j):{};}catch(e){connus.sorts={};}
         return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,menu:String(idleMenuActifV28||''),zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};
       };
@@ -24679,7 +24788,7 @@ function pageAventureIdleV28_(j){
 
             ${walderpBanniereIdleV147_(j)}
 
-            <div class="soreal-idle-page-root-v28" data-menu="${idleHtml_(idleMenuActifV28)}" style="--nav-color:${idleHtml_(IDLE_NAV_COULEURS_V1[idleMenuActifV28]||'#5b6b93')}">
+            <div class="soreal-idle-page-root-v28" data-menu="${idleHtml_(menuStyleIdleV1_(j))}" style="--nav-color:${idleHtml_(IDLE_NAV_COULEURS_V1[idleMenuActifV28]||'#5b6b93')}">
               ${contenuMenuIdleV28_(j)}
             </div>
           </main>`;

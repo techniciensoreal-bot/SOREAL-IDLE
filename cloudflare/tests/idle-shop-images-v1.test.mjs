@@ -26,7 +26,7 @@ for (const id of ids) {
   assert.ok(existsSync("cloudflare/public/shop/" + table[id] + ".png"), "fichier absent : " + table[id]);
 }
 // Anti-spoil : l'image n'est posée que dans la carte d'un article dont l'effet est actif (le catalogue est filtré avant).
-assert.ok(ui.includes("filter(function(item){return item&&item.effectActive===true;})"));
+assert.ok(ui.includes("filter(function(item){return articleApVisibleIdleV1_(j,item);})"));
 assert.ok(ui.includes("imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)"));
 console.log("idle-shop-images-v1: OK");
 

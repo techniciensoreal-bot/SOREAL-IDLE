@@ -37,8 +37,9 @@ var COULEURS={
 function etoilesHtml_(){
   var a=7,sortie='';
   function suite(){a=(a*9301+49297)%233280;return a/233280;}
-  for(var i=0;i<24;i+=1){
-    var x=suite()*100,y=suite()*100,t=4+Math.round(suite()*8);
+  /* Nuit étoilée (Norman, 2026-10-08 : « beaucoup plus d'étoiles ») : 240 étoiles, surtout de toutes petites ; seules quelques-unes scintillent (le reste est fixe, pour ne pas alourdir le téléphone). */
+  for(var i=0;i<240;i+=1){
+    var x=suite()*100,y=suite()*100,u=suite(),t=2+Math.round(u*u*u*10);
     sortie+='<b style="--i:'+i+';--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--s:'+t+'px"><i></i></b>';
   }
   return '<span class="nl-etoiles" aria-hidden="true">'+sortie+'</span>';
@@ -130,11 +131,11 @@ var CSS=
   '.nl-v1 *{box-sizing:border-box}'+
   '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
   /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
-  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0}'+
+  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;will-change:transform}'+
   '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s)*3);height:calc(var(--s)*3);margin:calc(var(--s)*-1.5) 0 0 calc(var(--s)*-1.5);background:radial-gradient(circle,rgba(255,255,255,.4) 0,rgba(181,138,255,.2) 38%,transparent 70%);opacity:.3}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
   '.nl-etoiles b i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-etoiles b{animation:nlEtoile calc(6s + var(--i)*.9s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-etoiles b:nth-child(4n){animation:nlEtoile calc(6s + var(--i)*.9s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
     '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
@@ -302,7 +303,24 @@ function tick_(){
     }
   });
 }
-function demarrer_(){if(!timer)timer=setInterval(tick_,100);}
+/* Profondeur (Norman, 2026-10-08) : le fond d'étoiles défile moitié moins vite que les tuyaux quand on fait défiler l'écran. */
+var parallaxeAttente=false;
+function parallaxe_(){
+  parallaxeAttente=false;
+  var racine=document.querySelector('.nl-v1');
+  var ciel=racine&&racine.querySelector('.nl-etoiles');
+  if(!ciel)return;
+  var haut=racine.getBoundingClientRect().top;
+  ciel.style.transform='translate3d(0,'+(Math.max(0,-haut)*0.5).toFixed(1)+'px,0)';
+}
+function planifierParallaxe_(){
+  if(parallaxeAttente)return;
+  if(typeof requestAnimationFrame!=='function')return;
+  parallaxeAttente=true;
+  requestAnimationFrame(parallaxe_);
+}
+if(typeof document.addEventListener==='function')document.addEventListener('scroll',planifierParallaxe_,{capture:true,passive:true});
+function demarrer_(){if(!timer)timer=setInterval(tick_,100);planifierParallaxe_();}
 function arreter_(){if(timer){clearInterval(timer);timer=0;}}
 
 /* ---------- actions ---------- */

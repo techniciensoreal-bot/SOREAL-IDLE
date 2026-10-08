@@ -40,17 +40,11 @@ assert.equal(anime("titans", titans([{ id: "t1", progressionUnlocked: true, stat
 assert.equal(anime("titans", titans([{ id: "t1", progressionUnlocked: true, state: { nextAt: 2_000_000 } }])), false, "réapparition pas encore passée");
 assert.equal(anime("titans", titans([{ id: "t1", progressionUnlocked: true, state: { nextAt: 0, hiddenPanel: true } }])), false, "titan caché");
 assert.equal(anime("titans", titans([{ id: "t1", progressionUnlocked: false, state: {} }])), false, "pas débloqué : rien (anti-spoil)");
-// Succès non vus : la première visite considère l'existant comme vu ; un nouveau succès anime le menu jusqu'à l'ouverture du menu.
+// Plus de point rouge ni d'animation « succès non vus » (Norman, 2026-10-08) : le menu Chroniques ne s'anime que quand on le consulte (voir ci-dessous).
 const succes = (ids) => ({ systemes: { achievements: { list: ids.map((id) => ({ id, unlocked: true })) } } });
-assert.equal(anime("succes", succes(["a", "b"])), false, "première visite : tout est vu");
-assert.equal(anime("succes", succes(["a", "b"])), false);
-assert.equal(anime("succes", succes(["a", "b", "c"])), true, "nouveau succès non vu");
-menuActif = "succes";
-assert.equal(anime("succes", succes(["a", "b", "c"])), false, "on regarde le menu Succès : vus");
-menuActif = "combat";
-assert.equal(anime("succes", succes(["a", "b", "c"])), false, "et ils le restent");
+assert.equal(anime("succes", succes(["a", "b", "c"])), false, "un nouveau succès n'anime plus rien");
 // Menus consultés : animés seulement quand ils sont ouverts.
-for (const id of ["shop", "classement", "bestiaire", "chat", "parametres"]) {
+for (const id of ["shop", "chroniques", "chat", "parametres"]) {
   menuActif = "combat";
   assert.equal(anime(id, {}), false, id + " fermé");
   menuActif = id;
@@ -58,9 +52,11 @@ for (const id of ["shop", "classement", "bestiaire", "chat", "parametres"]) {
 }
 
 // CSS : un effet propre à chacun de ces menus.
-for (const id of ["aventure", "renaissance", "challenges", "titans", "succes", "shop", "classement", "bestiaire", "chat", "parametres"]) {
+for (const id of ["aventure", "renaissance", "challenges", "titans", "shop", "chroniques", "chat", "parametres"]) {
   assert.ok(css.includes(`.alimente-v1[data-effet-v1="${id}"]`), "effet de " + id);
 }
+/* Les trois anciennes animations (Succès, Classement, Collection) ont disparu : une seule, celle de Chroniques. */
+for (const id of ["succes", "classement", "bestiaire"]) assert.ok(!css.includes(`.alimente-v1[data-effet-v1="${id}"]`), "plus d'effet pour " + id);
 // Plus de bloc grand écran à deux colonnes : le menu reste sur une colonne (2026-10-05).
 assert.ok(!css.includes("@media (min-width:1800px) and (min-height:1000px){"));
 console.log("idle-menus-etats-animes-v1: OK");

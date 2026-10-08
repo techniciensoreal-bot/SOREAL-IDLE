@@ -12,7 +12,7 @@ const bloc = ui.slice(ui.indexOf("const IDLE_NAV_COULEURS_V1={"));
 const table = bloc.slice(0, bloc.indexOf("};"));
 const couleurs = Object.fromEntries([...table.matchAll(/(\w+):'(#[0-9a-f]{6})'/g)].map((m) => [m[1], m[2]]));
 const menus = [...ui.matchAll(/\{id:'([a-zA-Z]+)',icon:'[^']*',nom:'[^']*'\}/g)].map((m) => m[1]).filter((id) => id !== "admin");
-assert.ok(menus.length >= 31);
+assert.ok(menus.length >= 28); /* Collection, Classement et Succès sont réunis dans « Chroniques » depuis le 2026-10-08 */
 const vus = new Map();
 for (const id of menus) {
   const c = couleurs[id];

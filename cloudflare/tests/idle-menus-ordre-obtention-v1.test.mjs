@@ -29,14 +29,14 @@ assert.ok(pos("wandoos") > pos("titans") && pos("wandoos") < pos("yggdrasil"), "
 assert.ok(pos("tower") < pos("challenges"));
 assert.equal(pos("perks"), -1, "Atouts fusionnés dans ITOPOD : plus de menu à part");
 // 4. Achievements, Classement, Chat, Settings (et Admin) viennent toujours APRÈS tous les autres menus, donc après le dernier menu débloqué (Norman, 2026-10-04) ; Collection suit son déblocage (boss 4).
-assert.deepEqual(ids.slice(-6), ["shop", "succes", "classement", "chat", "parametres", "admin"], "Boutique → Succès → Classement → Chat → Réglages → Admin, toujours à la fin");
-assert.ok(pos("bestiaire") > pos("renaissance") && pos("bestiaire") < pos("augmentations"), "Collection : boss 4, avec Adventure et Rebirth");
+assert.deepEqual(ids.slice(-4), ["shop", "chat", "parametres", "admin"], "Boutique → Chat → Réglages → Admin, toujours à la fin (Succès et Classement sont dans « Chroniques »)");
+assert.ok(pos("chroniques") > pos("renaissance") && pos("chroniques") < pos("augmentations"), "Chroniques (ex-Collection) : boss 4, avec Adventure et Rebirth");
 // Un menu qui se débloque s'intercale AVANT ce groupe final, même avec un rangement enregistré.
 const ordonner = new Function(ui.slice(ui.indexOf("function ordonnerMenusIdleV1_(defauts,ordre){"), ui.indexOf("function menusOrdonnesIdleV1_(j){")) + "return ordonnerMenusIdleV1_;")();
 const defauts = ids.map((id) => ({ id }));
-const avant = ["entrainement", "combat", "aventure", "shop", "succes", "classement", "chat", "parametres"];
+const avant = ["entrainement", "combat", "aventure", "shop", "chat", "parametres"];
 const apres = ordonner(defauts, avant).map((m) => m.id);
-assert.ok(apres.indexOf("renaissance") < apres.indexOf("succes") && apres.indexOf("augmentations") < apres.indexOf("succes"), "un menu débloqué après coup passe avant le groupe final");
+assert.ok(apres.indexOf("renaissance") < apres.indexOf("shop") && apres.indexOf("augmentations") < apres.indexOf("shop"), "un menu débloqué après coup passe avant le groupe final");
 
 // 5. Remise à zéro de l'ancien rangement, une seule fois, pour tout le monde (serveur) ; le cache local change de clé.
 assert.ok(rt.includes("menuOrdreVersion:3,") && rt.includes("Math.floor(nombreSorealIdle_(s.menuOrdreVersion,0))>=3"), "un rangement d'avant la version 3 est oublié");

@@ -14,7 +14,7 @@ const IDLE_MENUS_V1 = new Function(bloc + "return IDLE_MENUS_V1;")();
 const ids = IDLE_MENUS_V1.map((m) => m.id);
 
 // Menus : Shop remplace EXP Shop + Boutique AP ; Classement juste avant Settings
-assert.deepEqual(ids.filter((id) => id !== "admin").slice(-4), ["succes", "classement", "chat", "parametres"]); /* Shop est désormais placé selon l'ordre d'obtention (2026-10-04) */ /* « admin » (2026-09-30) : visible seulement de l'administrateur, tout à la fin */
+assert.deepEqual(ids.filter((id) => id !== "admin").slice(-4), ["cooking", "shop", "chat", "parametres"]); /* Classement et Succès sont réunis dans « Chroniques » depuis le 2026-10-08 */ /* Shop est désormais placé selon l'ordre d'obtention (2026-10-04) */ /* « admin » (2026-09-30) : visible seulement de l'administrateur, tout à la fin */
 assert.equal(ids[ids.length - 1], "admin");
 assert.ok(!ids.includes("spendExp") && !ids.includes("sellout"));
 

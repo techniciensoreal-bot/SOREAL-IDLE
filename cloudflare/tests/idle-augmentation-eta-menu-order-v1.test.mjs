@@ -18,7 +18,8 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
   assert.deepEqual(ids.slice(0, 3), ["entrainement", "combat", "aventure"], "menus de départ puis Adventure (Boutique rejoint le groupe final, Norman 2026-10-04)");
   assert.equal(ids.filter((id) => id === "augmentations").length, 1);
   /* 2026-09-25 : EXP Shop et Boutique AP sont réunis dans « Shop » ; « Classement » est juste à gauche de Settings. */
-  assert.deepEqual(ids.filter((id) => id !== "admin").slice(-4), ["succes", "classement", "chat", "parametres"], "Achievements, Classement et Chat (sans effet sur la progression) juste avant Settings");
+  /* Depuis le 2026-10-08, Achievements et Classement sont réunis dans « Chroniques » (menu placé tôt, avec Collection) : il ne reste que Chat juste avant Settings. */
+  assert.deepEqual(ids.filter((id) => id !== "admin").slice(-2), ["chat", "parametres"], "Chat (sans effet sur la progression) juste avant Settings");
   assert.ok(!ids.includes("spendExp") && !ids.includes("sellout"), "plus de boutons EXP Shop / Boutique AP séparés");
 }
 

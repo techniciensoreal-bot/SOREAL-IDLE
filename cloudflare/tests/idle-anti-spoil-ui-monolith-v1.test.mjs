@@ -55,7 +55,7 @@ for (const l of cadenas) {
 // Comportement : les cartes inconnues sont filtrées avant le rendu.
 assert.match(ui, /function rendreCollectionCreaturesIdleV1_\(entrees,vide\)\{[\s\S]{0,300}entrees=entrees\.filter\(function\(e\)\{return e&&e\.decouvert;\}\)/, "bestiaire : seules les entrées découvertes");
 assert.match(ui, /function rendreCoffreAdventureIdleV1_\(slots\)\{[\s\S]{0,300}slots=slots\.filter\(function\(s\)\{return s&&s\.decouvert;\}\)/, "coffre : seules les cases découvertes");
-assert.match(ui, /catalog\)\?shop\.catalog:\[\]\)\.filter\(function\(item\)\{return item&&item\.effectActive===true;\}\)/, "boutique AP : seuls les achats actifs");
+assert.match(ui, /catalog\)\?shop\.catalog:\[\]\)\.filter\(function\(item\)\{return articleApVisibleIdleV1_\(j,item\);\}\)/, "boutique AP : seuls les achats actifs et liés à un système débloqué");
 assert.match(ui, /const compteur=item\.purchased>0\?' \(x'\+idleEntier_\(item\.purchased\)\+'\)':'';/, "boutique AP : seul le nombre acheté");
 
 // Observer « 69 lol » : jamais de balayage complet du body à chaque mutation.

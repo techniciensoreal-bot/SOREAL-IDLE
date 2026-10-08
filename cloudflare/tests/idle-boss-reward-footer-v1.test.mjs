@@ -19,7 +19,10 @@ for (const [numero, xp] of [[2, 0], [3, 0], [6, 0], [17, 1], [18, 1], [33, 1], [
 }
 
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const bas = ui.slice(ui.indexOf('<div class="soreal-idle-reward-v8">'), ui.indexOf("j.bossBloqueRenaissance", ui.indexOf('<div class="soreal-idle-reward-v8">')));
+/* Depuis le 2026-10-08, l'XP du boss est en bas à droite de son image (dans la borne), plus en bas de la page. */
+const debutXp = ui.indexOf('<div class="soreal-idle-reward-v8 soreal-idle-xp-borne-v1">');
+assert.ok(debutXp > 0, "XP du boss présente dans la borne");
+const bas = ui.slice(debutXp, ui.indexOf('<div class="soreal-idle-duel-hp-v41">', debutXp));
 assert.match(bas, /XP/);
 assert.ok(!bas.includes("🪙") && !bas.includes("pieces"), "plus d'or affiché en bas de Fight Boss");
 

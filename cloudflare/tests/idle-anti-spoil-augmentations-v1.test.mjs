@@ -26,7 +26,7 @@ assert.match(page, /if\(!mainOk\)\{[\s\S]{0,300}🔒 \?\?\?\?\?\?\?/, "paire ver
 // 3. L'Upgrade d'une paire déjà débloquée reste lui-même masqué (nom de l'upgrade jamais montré séparément, pas de seuil) tant qu'il n'est pas atteint.
 {
   const brancheUpgrade = page.slice(page.indexOf("const upgradeOk="), page.indexOf(").join('')+'</div>';"));
-  assert.match(brancheUpgrade, /upgradeOk\?' · Upgrade '/, "\"Upgrade N\" seulement une fois l'upgrade débloqué");
+  assert.match(brancheUpgrade, /upgradeOk\?'<em>Upgrade '/, "\"Upgrade N\" seulement une fois l'upgrade débloqué");
   assert.match(brancheUpgrade, /upgradeOk\?track\(def,pair,true,true\):'<div[^']*>🔒 Upgrade verrouillé\./, "upgrade verrouillé : placeholder générique, jamais son coût/sa progression");
 }
 

@@ -1580,7 +1580,9 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     width:100%;height:calc(min(340px,44vh) - 20px);max-width:100%;max-height:none;object-fit:contain;object-position:center;border-radius:8px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6));
   }
   /* Money Pit : cadres, boutons et récompenses profitent de la largeur (l'image reste à sa taille). */
-  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] :is(.soreal-idle-money-actions-v206,.mp-cadre-v1,.cal-v1,.soreal-idle-money-scene-v206~.soreal-idle-offre-v1){max-width:1100px!important}
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] :is(.soreal-idle-money-actions-v206,.soreal-idle-money-scene-v206,.mp-cadre-v1,.cal-v1,.soreal-idle-money-scene-v206~.soreal-idle-offre-v1){max-width:1100px!important}
+  /* Norman, 2026-10-08 : « l'image de Money Pit est trop petite sur PC : elle doit faire la taille des deux boutons » : même largeur que la rangée « Balance ton argent / Daily spin », image pleine largeur (coupée en haut et en bas plutôt que sur les côtés). */
+  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-money-scene-v206>img{width:100%!important;max-width:100%!important;height:min(46vh,430px)!important;max-height:none!important;object-fit: cover!important;object-position:center 55%}
   /*
    * Harmonie (Norman, 2026-10-03 : « les menus sur la gauche sont minuscules comparés au reste ; réduis un peu l'interface du jeu uniquement sur PC ») : le contenu (page, énergie, chiffres) est réduit
    * d'environ 14 % sur PC ; la colonne de menus tient sur deux colonnes de cartes compactes (voir plus haut).
@@ -1591,7 +1593,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
 /* ====================== MENUS ANIMÉS PAR UN ÉTAT (pas seulement l'énergie placée) ======================
  * Norman (2026-10-03) : Aventure quand on farme dans une zone, Renaissance quand le prochain NUMBER dépasse celui du dernier Rebirth, Défis quand un défi est actif, Titans quand un titan est prêt, Succès non vus,
  * et Shop / Classement / Collection / Chat / Réglages tant qu'on les consulte : chacun son effet, en rapport avec ce qu'il fait. Même classe « alimente-v1 » que l'énergie. */
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1:is([data-effet-v1="aventure"],[data-effet-v1="renaissance"],[data-effet-v1="challenges"],[data-effet-v1="titans"],[data-effet-v1="succes"],[data-effet-v1="shop"],[data-effet-v1="classement"],[data-effet-v1="bestiaire"],[data-effet-v1="chat"],[data-effet-v1="parametres"])::before{display:none}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1:is([data-effet-v1="aventure"],[data-effet-v1="renaissance"],[data-effet-v1="challenges"],[data-effet-v1="titans"],[data-effet-v1="shop"],[data-effet-v1="chroniques"],[data-effet-v1="chat"],[data-effet-v1="parametres"])::before{display:none}
 
 /* Aventure : on marche (le badge se balance de pas en pas) en soulevant un peu de poussière. */
 @keyframes sorealAlMarcheV1{0%,100%{transform:translate(-2px,0) rotate(-6deg)}25%{transform:translate(0,-3px) rotate(0)}50%{transform:translate(2px,0) rotate(6deg)}75%{transform:translate(0,-3px) rotate(0)}}
@@ -1617,24 +1619,16 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="cha
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="titans"] .soreal-idle-nav-cadre-v2{animation:sorealAlTremblementV1 .35s linear infinite}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="titans"] .soreal-idle-nav-cadre-v2::after{content:"💢";position:absolute;right:-5px;top:-5px;font-size:13px;pointer-events:none;animation:sorealAlColereV1 1.1s ease-out infinite}
 
-/* Succès non vus : le trophée brille (reflet qui passe) et une étoile scintille. */
-@keyframes sorealAlBrilleV1{0%,100%{filter:brightness(1)}50%{filter:brightness(1.5) drop-shadow(0 0 6px #fde047)}}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="succes"] .soreal-idle-nav-emoji-v2{animation:sorealAlBrilleV1 1.2s ease-in-out infinite}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="succes"] .soreal-idle-nav-cadre-v2::after{content:"✦";position:absolute;right:-3px;top:-4px;font-size:13px;color:#fff;text-shadow:0 0 6px #fde047;pointer-events:none;animation:sorealAlScintilleV1 1.2s ease-in-out infinite}
-
 /* Shop : la clochette de la porte se balance et une pièce brille. */
 @keyframes sorealAlClocheV1{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(16deg)}}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="shop"] .soreal-idle-nav-emoji-v2{transform-origin:50% 0;animation:sorealAlClocheV1 .8s ease-in-out infinite}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="shop"] .soreal-idle-nav-cadre-v2::after{content:"🪙";position:absolute;right:-4px;bottom:-3px;font-size:11px;pointer-events:none;animation:sorealAlScintilleV1 1.6s ease-in-out infinite}
 
-/* Classement : le podium rebondit, une étoile tourne au-dessus. */
-@keyframes sorealAlPodiumV1{0%,100%{transform:translateY(1px) scale(1)}50%{transform:translateY(-4px) scale(1.12)}}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="classement"] .soreal-idle-nav-emoji-v2{animation:sorealAlPodiumV1 1s ease-in-out infinite}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="classement"] .soreal-idle-nav-cadre-v2::after{content:"⭐";position:absolute;left:50%;top:-8px;margin-left:-6px;font-size:11px;pointer-events:none;animation:sorealAlScintilleV1 1.2s ease-in-out infinite}
-
-/* Collection : les pages se tournent (le badge pivote comme une page de livre). */
-@keyframes sorealAlPageV1{0%,100%{transform:perspective(60px) rotateY(0)}50%{transform:perspective(60px) rotateY(75deg)}}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="bestiaire"] .soreal-idle-nav-emoji-v2{animation:sorealAlPageV1 1.6s ease-in-out infinite}
+/* Chroniques : la page du livre se tourne et une étincelle dorée s'en échappe (une seule animation pour les trois anciens menus Collection, Classement et Succès). */
+@keyframes sorealAlChroniquesPageV1{0%,100%{transform:perspective(70px) rotateY(0) scale(1)}45%{transform:perspective(70px) rotateY(-70deg) scale(1.06)}55%{transform:perspective(70px) rotateY(70deg) scale(1.06)}}
+@keyframes sorealAlChroniquesEtincelleV1{0%{opacity:0;transform:translate(0,4px) scale(.4)}35%{opacity:1}100%{opacity:0;transform:translate(3px,-14px) scale(1.15)}}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="chroniques"] .soreal-idle-nav-emoji-v2{animation:sorealAlChroniquesPageV1 2.2s ease-in-out infinite}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="chroniques"] .soreal-idle-nav-cadre-v2::after{content:"✦";position:absolute;right:-2px;top:-2px;font-size:13px;color:#ffe08a;text-shadow:0 0 6px #d9b45a;pointer-events:none;animation:sorealAlChroniquesEtincelleV1 1.5s ease-out infinite}
 
 /* Chat : trois points de saisie qui s'animent. */
 @keyframes sorealAlPointsV1{0%{content:"·"}33%{content:"··"}66%{content:"···"}100%{content:"·"}}
@@ -2229,3 +2223,13 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28{padding:9px 12px!important;font-size:15px!important;letter-spacing:.05em}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28 b{font-size:24px!important;margin-top:3px}
 }
+
+/* Barre d'onglets de Chroniques (style ITOPOD : gros contour noir, ombre dure, onglet actif cerné d'or). */
+.soreal-idle-chroniques-onglets-v1{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin:0 0 12px}
+.soreal-idle-chroniques-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;padding:7px 4px 6px;border:3px solid #000;border-radius:4px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:#cfd6f5;
+  background:linear-gradient(180deg,#2b3350,#161b30);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.4),3px 3px 0 #000;opacity:.72}
+.soreal-idle-chroniques-onglet-v1 i{font-style:normal;font-size:20px;line-height:1}
+.soreal-idle-chroniques-onglet-v1 b{font-weight:900;line-height:1.1;white-space:nowrap}
+.soreal-idle-chroniques-onglet-v1:active{transform:translate(2px,2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),1px 1px 0 #000}
+.soreal-idle-chroniques-onglet-v1.actif{opacity:1;color:#fff;background:linear-gradient(180deg,#d9b45a,#8a6a1c);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.35),3px 3px 0 #000,0 0 0 2px #ffe08a,0 0 14px rgba(217,180,90,.55);text-shadow:0 2px 0 #000}

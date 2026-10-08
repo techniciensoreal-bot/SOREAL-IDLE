@@ -61,7 +61,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   assert.ok(!meta.includes("compact-v1"), "la variante de taille réduite a été retirée : plus aucune trace dans le module");
 
   // Le chiffre d'énergie allouée gonfle désormais (alloc-pop-v1.js), comme Basic Training.
-  assert.match(meta, /<span id="sorealIdleAugAllocV1_'\+window\.__SOREAL_IDLE_META_HOST_V130__\.idleHtml_\(def\.id\)\+'_'\+\(upgrade\?'upgrade':'main'\)\+'" class="soreal-idle-bt-allocation-v120">/, "le chiffre d'énergie allouée doit porter la classe d'animation de Basic Training");
+  assert.match(meta, /<span id="sorealIdleAugAllocV1_'\+H\.idleHtml_\(def\.id\)\+'_'\+\(upgrade\?'upgrade':'main'\)\+'" class="soreal-idle-bt-allocation-v120">/, "le chiffre d'énergie allouée doit porter la classe d'animation de Basic Training");
 }
 
 // --- 3. Time Machine : garde son visuel .soreal-idle-tm-*, mais devient optimiste + gonflement, comme demandé. ---

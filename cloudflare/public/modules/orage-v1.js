@@ -203,6 +203,8 @@
     else if(actif)arreter();
   }
   window.addEventListener('soreal-effets-v1',function(){evaluer_();});
+  /* Filet de sécurité : si les sons d'ambiance sont coupés par un chemin qui ne prévient pas (autre onglet, application parente), l'effet s'éteint au plus tard 2 s après. */
+  setInterval(function(){if(!document.hidden)evaluer_();},2000);
   window.addEventListener('soreal-ambiance-v1',function(e){
     courante=(e&&e.detail)||{};
     evaluer_();

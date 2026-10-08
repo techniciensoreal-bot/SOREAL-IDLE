@@ -45,7 +45,7 @@ assert.ok(api && api.builders && api.builders.shopSteps && Array.isArray(api.bui
 
 // 2. Un son par menu : tous les menus de la barre (sauf Shop qui garde sa porte) en ont un, court, et chacun est différent.
 const menus = [...ui.matchAll(/\{id:'([a-zA-Z]+)',icon:'[^']*',nom:'[^']*'\}/g)].map((m) => m[1]).filter((id) => id !== "shop");
-assert.ok(menus.length >= 30);
+assert.ok(menus.length >= 28); /* Collection, Classement et Succès sont réunis dans « Chroniques » depuis le 2026-10-08 */
 const sons = Object.fromEntries(api.builders.menus.map((m) => [m.nom, m]));
 const signatures = new Set();
 for (const id of menus) {

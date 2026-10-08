@@ -824,19 +824,11 @@
     cooking:{duree:460,construire:function(c){
       bruit_(c,{duration:.36,volume:.05,filterType:"highpass",frequency:5000,decay:.8});
       tonal_(c,{type:"triangle",from:1760,to:1740,duration:.1,volume:.03,delay:.02});}},
-    /* Trophée : ding brillant. */
-    succes:{duree:480,construire:function(c){
-      tonal_(c,{type:"triangle",from:1318,to:1320,duration:.34,volume:.036});
-      tonal_(c,{type:"sine",from:1976,to:1978,duration:.38,volume:.03,delay:.09});
-      bruit_(c,{duration:.05,volume:.02,delay:.09,filterType:"highpass",frequency:6000,decay:3});}},
-    /* Roulement de tambour puis cymbale. */
-    classement:{duree:460,construire:function(c){
-      claquesDe_(c,1800,[0,.035,.07,.105,.14,.175],.04,.03);
-      bruit_(c,{duration:.2,volume:.04,delay:.24,filterType:"highpass",frequency:6000,decay:1.6});}},
-    /* Page qu'on tourne puis note douce. */
-    bestiaire:{duree:420,construire:function(c){
+    /* Chroniques (Collection, Classement et Succès réunis) : une page qu'on tourne, puis un ding doré. */
+    chroniques:{duree:480,construire:function(c){
       bruit_(c,{duration:.18,volume:.04,filterType:"highpass",frequency:2500,frequencyEnd:5200,decay:1.6});
-      tonal_(c,{type:"sine",from:660,to:664,duration:.14,volume:.026,delay:.15});}},
+      tonal_(c,{type:"triangle",from:1318,to:1320,duration:.28,volume:.034,delay:.14});
+      tonal_(c,{type:"sine",from:1976,to:1978,duration:.28,volume:.028,delay:.2});}},
     /* Bulle de message : deux petits « pop ». */
     chat:{duree:340,construire:function(c){
       tonal_(c,{type:"sine",from:700,to:1100,duration:.06,volume:.04});
