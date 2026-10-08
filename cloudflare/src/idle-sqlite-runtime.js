@@ -39,6 +39,7 @@ import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
 import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
+import { enregistrerGainExpV1, lireGainsExpV1, creditDejaFaitV1 } from "./idle-gains-v1.js";
 import { battementV1, normaliserActiviteV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
@@ -389,12 +390,23 @@ function __idleBuildWorkbook(sql){
   return new IdleSpreadsheet(sheets);
 }
 
+/* Opération en cours (et référence d'un crédit d'admin) : étiquette des lignes du journal d'EXP écrites par __idleCommit. */
+let __idleOperationNomV1="";
+let __idleReferenceGainV1="";
 function __idleCommit(sql,workbook){
   const now=Date.now();
   for(const [sheetName,sheet] of workbook.sheets){
     for(const rowIndex of sheet.dirtyRows){
       const row=Array.isArray(sheet.rows[rowIndex-1])?sheet.rows[rowIndex-1]:[];
       const nonEmpty=row.some(__idleNonEmpty);
+      /* Journal d'EXP : solde AVANT l'écriture (colonne XP = 4e cellule), lu par SQLite sans décoder toute la ligne. */
+      let xpAvantV1=null;
+      if(sheetName==="JOUEURS"&&rowIndex>1&&nonEmpty){
+        try{
+          const r=sqlRows(sql.exec("SELECT json_extract(row_json,'$[3]') AS xp FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?",rowIndex))[0];
+          if(r&&r.xp!=null&&Number.isFinite(Number(r.xp)))xpAvantV1=Number(r.xp);
+        }catch(_e){/* le journal ne doit jamais gêner le jeu */}
+      }
       if(nonEmpty){
         sql.exec(
           "INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?) "+
@@ -416,6 +428,11 @@ function __idleCommit(sql,workbook){
         const playerKey=emailLogin||emailPrimary||__idleKey(playerId||displayName);
         if(!playerKey)continue;
         sql.exec("DELETE FROM idle_players WHERE source_row=? AND player_key<>?",rowIndex,playerKey);
+        if(xpAvantV1!==null&&playerKey.indexOf("+partieb@")===-1){
+          try{
+            enregistrerGainExpV1(sql,{email:playerKey,nom:displayName,operation:__idleOperationNomV1+(__idleReferenceGainV1?":"+__idleReferenceGainV1:""),avant:xpAvantV1,apres:Number(row[3]),now});
+          }catch(_e){/* le journal ne doit jamais gêner le jeu */}
+        }
         sql.exec(
           "INSERT INTO idle_players(player_key,player_id,display_name,email_primary,email_login,state_json,source_row,updated_at) "+
           "VALUES(?,?,?,?,?,?,?,?) "+
@@ -16966,6 +16983,58 @@ function annulerVictoireTitanAdminSorealIdle(sessionToken, titanId) {
   }
 }
 
+/*
+ * Crédit d'EXP à un joueur par l'administrateur (Norman, 2026-10-08 : les 300 EXP du set de la Grotte non versés à Sébastien). Agit sur la ligne du joueur désigné par son adresse, jamais sur celle de l'administrateur.
+ * params = { email, montant (entier, 1 à 1 000 000 000), reference (texte unique : le même crédit ne passe qu'une fois pour un joueur) }. La variation est inscrite au journal d'EXP avec cette référence.
+ */
+function crediterExpAdminSorealIdle(sessionToken, params) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  const p = params && typeof params === 'object' ? params : {};
+  const email = String(p.email || '').trim().toLowerCase();
+  const montant = Math.floor(Number(p.montant));
+  const reference = String(p.reference || '').trim().replace(/[^\w .:@+-]/g, '').slice(0, 80);
+  if (!email || !(montant >= 1 && montant <= 1e9) || !reference) return { ok: false, code: 'PARAMETRES', message: 'email, montant (1 à 1 000 000 000) et reference sont obligatoires.' };
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1800)) return { ok: false, message: 'Le jeu est occupé.' };
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+    const dernier = Math.max(2, feuille.getLastRow());
+    const lignes = feuille.getRange(2, 1, dernier - 1, c.EMAIL_CONNEXION).getValues();
+    let ligne = 0;
+    let cle = '';
+    for (let i = 0; i < lignes.length && !ligne; i += 1) {
+      const principal = String(lignes[i][c.EMAIL_PRINCIPAL - 1] || '').trim().toLowerCase();
+      const connexion = String(lignes[i][c.EMAIL_CONNEXION - 1] || '').trim().toLowerCase();
+      if (principal === email || connexion === email) { ligne = i + 2; cle = connexion || principal; }
+    }
+    if (!ligne) return { ok: false, code: 'JOUEUR_INTROUVABLE', message: 'Aucun joueur avec cette adresse.' };
+    const etiquette = 'crediterExpAdminSorealIdle:' + reference;
+    if (creditDejaFaitV1(__idleSql, cle, etiquette)) return { ok: false, code: 'DEJA_FAIT', message: 'Ce crédit (référence « ' + reference + ' ») a déjà été fait pour ce joueur.' };
+    const cellule = feuille.getRange(ligne, c.STATS_JSON);
+    const stats = statsJoueurSorealIdle_(cellule.getValue());
+    if (!stats.metaNgu || !stats.metaNgu.currencies || typeof stats.metaNgu.currencies !== 'object') return { ok: false, code: 'ETAT_ABSENT', message: 'Ce joueur n’a pas encore d’état de jeu.' };
+    const avant = Math.max(0, nombreSorealIdle_(stats.metaNgu.currencies.experience, 0));
+    const apres = avant + montant;
+    stats.metaNgu.currencies.experience = apres;
+    cellule.setValue(JSON.stringify(stats));
+    feuille.getRange(ligne, c.XP).setValue(apres);
+    /* Étiquette lue par __idleCommit pour la ligne du journal. */
+    __idleReferenceGainV1 = reference;
+    SpreadsheetApp.flush();
+    return { ok: true, email: cle, avant, apres, montant, reference };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* Journal des variations d'EXP (administrateur) : params = { email (facultatif : sinon tous les joueurs), limite }. */
+function lireGainsExpAdminSorealIdle(sessionToken, params) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  const p = params && typeof params === 'object' ? params : {};
+  return { ok: true, lignes: lireGainsExpV1(__idleSql, { email: p.email, limite: p.limite }) };
+}
+
 function listerHistoiresAdminSorealIdle(sessionToken) {
   exigerAdminHistoiresSorealIdle_(sessionToken);
   const boss = [];
@@ -17192,6 +17261,8 @@ function lireFluxSorealIdle(sessionToken, options) {
 
 const IDLE_OPERATIONS={
   annulerVictoireTitanAdminSorealIdle,
+  crediterExpAdminSorealIdle,
+  lireGainsExpAdminSorealIdle,
   battementSorealIdle,
   lireFluxSorealIdle,
   lireChatSorealIdle,
@@ -17340,6 +17411,8 @@ export function runSorealIdleOperation(sql,operation,args,user){
   }
 
   __idleSql=sql;
+  __idleOperationNomV1=op;
+  __idleReferenceGainV1="";
   __idleAccesOuvert=__idleLireAccesOuvert(sql);
   __idleAccesPublic=__idleLireAccesPublic(sql);
 
