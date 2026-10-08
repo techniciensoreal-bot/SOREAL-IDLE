@@ -42,7 +42,7 @@
     if(m&&m.style.width!==km+'%')m.style.width=km+'%';
   }
   /* Une barre dont tout a été dépensé s'efface en fondu (opacité seulement : sa place reste réservée, rien ne bouge). Elle reparaît dès qu'il y a de nouveau de quoi la remplir. */
-  var videDepuis={energie:0,magie:0};
+  var videDepuis={energie:0,magie:0},pleinDepuis={energie:0,magie:0};
   function basculerVide(id,cle,vide){
     var el=document.getElementById(id);
     var panneau=el&&el.closest('.soreal-idle-energy-panel-v34');
@@ -51,16 +51,19 @@
     if(vide){
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
       if(maintenant-videDepuis[cle]>=1200)panneau.classList.add('soreal-idle-vide-v2');
+      pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;
-      panneau.classList.remove('soreal-idle-vide-v2');
+      if(!pleinDepuis[cle])pleinDepuis[cle]=maintenant;
+      if(maintenant-pleinDepuis[cle]>=700)panneau.classList.remove('soreal-idle-vide-v2');
     }
   }
   function majVide(){
     var f=window.__SOREAL_IDLE_DISPONIBLE_V2__;
     if(typeof f!=='function')return;
     var d=f();
-    var vE=d.energie<=0.0001,vM=d.magie<=0.0001;
+    /* Moins d'un point restant = plus rien à dépenser (les restes décimaux d'une synchro ne ramènent pas la barre). */
+    var vE=d.energie<1,vM=d.magie<1;
     basculerVide('sorealIdleDepenseEnergieV2','energie',vE);
     basculerVide('sorealIdleDepenseMagieV2','magie',vM);
   }
@@ -80,7 +83,7 @@
     if(typeof g==='function'&&typeof ft==='function'){
       var racine=document.querySelector('.soreal-idle-page-root-v28');
       var menuR=racine?racine.getAttribute('data-menu'):'';
-      if(menuR!=='combat')ecrire('sorealIdleHudDPvV2',ft(g(menuR)));
+      if(menuR==='aventure')ecrire('sorealIdleHudDPvV2',ft(g(menuR)));
     }
   }
   function maj(){
@@ -93,8 +96,8 @@
     var barPv=document.getElementById('sorealIdleHudPvBarV2');
     var racinePv=document.querySelector('.soreal-idle-page-root-v28');
     var menuPv=racinePv?racinePv.getAttribute('data-menu'):'';
-    /* En Fight Boss, soreal-idle-ui.js écrit la Vie au même instant que la barre du combat : ici on n'y touche pas. */
-    if(barPv&&menuPv!=='combat'){
+    /* Hors Aventure, soreal-idle-ui.js écrit la Vie à chaque tick (mêmes valeurs que la barre de Fight Boss) : ici on ne gère que la vie d'Aventure. */
+    if(barPv&&menuPv==='aventure'){
       var p=pvActuels(etat);
       var cle=p.pv+':'+p.max;
       /* Le cache est porté par l'élément lui-même : un nouveau rendu de la page recrée la barre, elle doit alors être remplie à nouveau. */

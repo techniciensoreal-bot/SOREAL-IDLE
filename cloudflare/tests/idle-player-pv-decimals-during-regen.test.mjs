@@ -36,7 +36,10 @@ const bossStart = ui.indexOf("const bossPvEl=");
 const bossBloc = ui.slice(bossStart, ui.indexOf("const barre=", bossStart));
 assert.ok(bossBloc.includes("formaterPvFixeIdleV1_(idleEtat.bossPv)") && bossBloc.includes("formaterPvFixeIdleV1_(idleEtat.bossPvMax)"));
 assert.ok(bossBloc.includes("bossEnRegenV174?'+'+formaterPvFixeIdleV1_(idleEtat.regenBoss)+'/s':''"), "regen du boss : petit texte séparé");
-assert.ok(ui.includes("formaterPvFixeIdleV1_(j.pvJoueur)") && ui.includes("formaterPvFixeIdleV1_(j.bossPv)"), "texte initial au même format");
+assert.ok(ui.includes("formaterPvFixeIdleV1_(j.bossPv)"), "texte initial du boss au même format");
+/* La vie du joueur s'affiche dans le bandeau du haut avec EXACTEMENT les mêmes formats (PV et régénération). */
+assert.ok(ui.includes("window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvFixeIdleV1_(pv)+' / '+formaterPvFixeIdleV1_(max);};"), "bandeau : PV au même format");
+assert.ok(ui.includes("window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__=function(r){return r>0?'+'+formaterPvFixeIdleV1_(r)+'/s':'';};"), "bandeau : régénération au même format");
 
 // Mise en page : cadres à la largeur des portraits, angles de 10 px, regen vert lumineux à droite.
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");

@@ -33,7 +33,10 @@ assert.ok(!adventure.includes('{id:"tutorial",name:"Tutoriel",'));
 for (const morceau of [".soreal-idle-duel-hp-v41 .soreal-idle-note-v4{", "#sorealIdleJoueurPvV15.soreal-idle-note-v4{", "font-variant-numeric:tabular-nums", ".soreal-idle-bossbar-v7::after", "height:17px"]) {
   assert.ok(css.includes(morceau), "style : " + morceau);
 }
-assert.ok(ui.includes('id="sorealIdleBossPvV7"') && ui.includes('id="sorealIdleJoueurPvV15"') && ui.includes('id="sorealIdleBossBarV7"'), "mêmes identifiants : le tick de combat continue de les mettre à jour");
+/* La barre de vie du joueur a quitté la borne (2026-10-08) : elle vit dans le bandeau du haut, mise à jour par le même tick. */
+assert.ok(ui.includes('id="sorealIdleBossPvV7"') && ui.includes('id="sorealIdleBossBarV7"'), "mêmes identifiants du boss : le tick de combat continue de les mettre à jour");
+assert.ok(!ui.includes('id="sorealIdleJoueurPvV15"') && !ui.includes('id="sorealIdleJoueurBarV15"'), "plus de barre de vie du joueur sur la borne");
+assert.ok(ui.includes("majHudPvIdleV2_(") && ui.includes("idleNombre_(idleEtat.pvJoueur)") , "le bandeau reçoit la vie à chaque tick");
 
 // --- K.O. en aventure : le bouton clignote en rouge ---
 assert.ok(css.includes("@keyframes sorealIdleNavKoV1") && css.includes(".soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{"), "la classe posée par le jeu a enfin un style");

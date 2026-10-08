@@ -3689,7 +3689,7 @@
         }
 
         /* Bandeau du haut : la Vie suit la barre de Fight Boss au même instant, avec les mêmes valeurs (régénération comprise). */
-        if(idleMenuActifV28==='combat'){
+        if(idleMenuActifV28!=='aventure'){
           majHudPvIdleV2_(
             idleEtat.pvJoueur,
             idleEtat.pvJoueurMax,
@@ -14740,7 +14740,7 @@
 
         return `
           <div class="soreal-idle-hud-v2" id="sorealIdleHudV2">
-          <div class="soreal-idle-energy-panel-v34">
+          <div class="soreal-idle-energy-panel-v34${energieDisponibleIdleV9_()<1?' soreal-idle-vide-v2':''}">
             <div class="soreal-idle-energy-head-v34">
               <div class="soreal-idle-energy-title-v34">
                 ⚡ Énergie d'entraînement
@@ -14779,7 +14779,7 @@
           </div>
 
           ${infoMagic&&ressourceMagic?`
-            <div class="soreal-idle-energy-panel-v34 soreal-idle-magic-panel-v1">
+            <div class="soreal-idle-energy-panel-v34 soreal-idle-magic-panel-v1${magicDisponible<1?' soreal-idle-vide-v2':''}">
               <div class="soreal-idle-energy-head-v34">
                 <div class="soreal-idle-energy-title-v34">
                   🔮 Magie
@@ -15841,28 +15841,7 @@
                     ></div>
                   </div>
 
-                  <div class="soreal-idle-duel-hp-v41">
-                    <div
-                      class="soreal-idle-note-v4"
-                      id="sorealIdleJoueurPvV15"
-                      style="text-align:center"
-                    >
-                      ❤️ ${formaterPvFixeIdleV1_(j.pvJoueur)}
-                      / ${formaterPvFixeIdleV1_(j.pvJoueurMax)}
-                    </div>
-
-                    <div class="soreal-idle-playerbar-wrap-v15">
-                      <div
-                        id="sorealIdleJoueurBarV15"
-                        class="soreal-idle-playerbar-v15${j.ko?' ko':''}"
-                        style="width:${
-                          idleNombre_(j.pvJoueurMax)>0
-                            ?Math.max(0,Math.min(100,idleNombre_(j.pvJoueur)/idleNombre_(j.pvJoueurMax)*100))
-                            :0
-                        }%"
-                      ></div>
-                    </div>
-                  </div>
+                  <!-- La barre de vie du joueur n'est plus sur la borne (Norman, 2026-10-08) : elle est dans le bandeau du haut. -->
                 </div>
 
                 <div class="soreal-idle-vs-v41">VS</div>

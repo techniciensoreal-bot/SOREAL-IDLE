@@ -2214,3 +2214,18 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28{display:grid!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin:4px 0 0!important}
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28{padding:3px 4px!important;font-size:10px!important;letter-spacing:.02em;line-height:1.25;text-align:center;white-space:nowrap;overflow:hidden;min-width:0}
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28 b{display:block;font-size:13px!important;margin-top:1px;overflow:hidden;text-overflow:ellipsis}
+
+/* Cadres des données plus carrés (Norman, 2026-10-08) ; sur PC : barres plus hautes et données plus grandes, bien lisibles. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]{border-radius:3px!important}
+@media (min-width:701px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{height:42px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{max-height:50px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1{font-size:17px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1::before{font-size:20px!important;margin-right:9px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2{font-size:14px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2.g{left:14px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2.d{right:14px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28{gap:8px!important;margin-top:8px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28{padding:9px 12px!important;font-size:15px!important;letter-spacing:.05em}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28 b{font-size:24px!important;margin-top:3px}
+}
