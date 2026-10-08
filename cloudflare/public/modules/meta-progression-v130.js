@@ -3164,7 +3164,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<style>'+
             '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
             /* Norman (2026-10-02) : l'image du trou était coupée à gauche et à droite (carré forcé + cover) : elle s'affiche maintenant en entier, à ses proportions. */
-            '.soreal-idle-money-scene-v206>img{display:block;width:100%;height:auto;object-fit:contain}'+
+            /* Norman (2026-10-08) : « l'image du trou sans fond sur PC est beaucoup trop grande » : même image entière et centrée, mais jamais plus haute que 340 px (ni que 40 % de l'écran). */
+            '.soreal-idle-money-scene-v206>img{display:block;width:auto;height:auto;max-width:100%;max-height:min(40vh,340px);margin:0 auto;object-fit:contain}'+
             '.soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}'+
             '.soreal-idle-money-action-v206{flex:1 1 0;min-width:0;box-sizing:border-box;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.5);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.28);text-align:center}'+
             '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+

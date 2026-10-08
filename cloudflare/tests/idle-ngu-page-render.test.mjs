@@ -61,9 +61,9 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
     "Yggdrasil", "EXP", "Power β", "Number", "Time Machine", "Energy NGU", "Adventure β"]) {
     assert.ok(html.includes("NGU " + nom.toUpperCase()), "NGU manquant dans la page : " + nom);
   }
-  assert.equal((html.match(/data-nl-ngu="/g) || []).length, 16, "une fiole par NGU");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 2, "boutons + et − sur chaque fiole");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par fiole");
+  assert.equal((html.match(/data-nl-ngu="/g) || []).length, 16, "un tuyau par NGU");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 2, "boutons + et − sur chaque tuyau");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par tuyau");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Advance Magic");
   assert.ok(html.includes("TO NGU MAGIC") && html.includes("WTF do I do?"), "boutons de l'écran d'origine");
   assert.ok(html.includes("data-nl-niv>120<"), "niveau du NGU Power α");
@@ -75,7 +75,7 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
     assert.ok(new RegExp('data-nl-ngu="' + id + '"[^>]*--nl-c:' + couleur).test(html), "couleur de " + id);
   }
   assert.ok(/data-nl-ngu="magicNgu"[^>]*--nl-c:#9e19f1/.test(html), "couleur de Magic NGU");
-  /* La fiole de Power α porte sa progression et son énergie pour le rejeu en direct. */
+  /* Le tuyau de Power α porte sa progression et son énergie pour le rejeu en direct. */
   assert.ok(/data-nl-ngu="powerAlpha" data-nl-res="energy" data-nl-p="[0-9.e-]+" data-nl-spl="[0-9.e+-]+" data-nl-n="120" data-nl-cible="0"/.test(html), "ancrage de la progression");
 }
 // Anti-spoil : tant que la magie n'est pas découverte, aucun NGU de magie ni bouton « TO NGU MAGIC »

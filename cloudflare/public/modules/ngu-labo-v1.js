@@ -1,11 +1,12 @@
 /*
- * SOREAL IDLE — page NGU, « le laboratoire » (Norman, 2026-10-08) : l'écran NGU reprend l'identité de l'écran NGU de NGU Idle (capture fournie par Norman) : fond gris clair, cadre en sucre d'orge rouge, vert et
- * blanc, un nom de couleur par NGU, champs blancs ; les barres y sont des FIOLES verticales, comme des alambics de laboratoire qui se remplissent.
+ * SOREAL IDLE — page NGU, « la nuit des tuyaux » (Norman, 2026-10-08) : plus de fioles. Chaque NGU est un TUYAU de verre horizontal qui se remplit d'un liquide lumineux, aux couleurs de l'écran NGU de NGU Idle ; les tuyaux
+ * brillent dans une nuit étoilée (le fond « cosmos » du cadre de chat des niveaux 30 de SOREAL APP : nuit violette, étoiles à quatre branches qui scintillent) et sont branchés sur un tronc lumineux qui reprend toutes leurs couleurs.
  *
  * Couleurs : celles de la capture (échantillonnées sur l'image) pour les 9 NGU d'énergie. Les 7 NGU de magie ne figuraient pas sur la capture : leurs couleurs sont un choix de SOREAL, dans le même esprit.
  * Contrôles, comme dans le jeu d'origine : + / − (la quantité est celle de la case « Input » partagée avec les autres menus), « Target » (niveau à atteindre) et « Advance Energy » (voir src/idle-ngu-progression.js).
  *
- * Vivant : la hauteur du liquide est la progression vers le niveau suivant, rejouée en direct à partir du dernier état du serveur (progression + secondes par niveau), uniquement en transform (aucune repeinte lourde).
+ * Vivant : le remplissage est la progression vers le niveau suivant, rejouée en direct à partir du dernier état du serveur (progression + secondes par niveau), uniquement en transform et opacité (compositeur : aucune repeinte lourde) ;
+ * un reflet lumineux parcourt les tuyaux qui reçoivent de l'énergie.
  *
  *   window.__SOREAL_IDLE_NGU_LABO_V1__ = { page(j), couleurs, aide(), ajuster(id,mode), cible(id,valeur), avance(ressource,coche), onglet(ressource), vider(ressource), preset(source,fraction) }
  */
@@ -32,10 +33,17 @@ var COULEURS={
   energyNgu:['#7ef0e0','#021a17'],
   adventureBeta:['#ff9de1','#2a0420']
 };
-/* Fiole d'alambic : contour (viewBox 100 x 150) ; les mêmes points, en pourcentages, découpent le liquide. */
-var FIOLE=[[38,8],[62,8],[62,44],[70,58],[80,78],[90,104],[94,122],[90,138],[80,146],[20,146],[10,138],[6,122],[10,104],[20,78],[30,58],[38,44]];
-var CONTOUR=FIOLE.map(function(p){return p[0]+','+p[1];}).join(' ');
-var DECOUPE='polygon('+FIOLE.map(function(p){return p[0]+'% '+(Math.round(p[1]/1.5*100)/100)+'%';}).join(',')+')';
+/* Étoiles à quatre branches (comme le cadre « cosmos » du chat de SOREAL APP) : positions fixes, pseudo-aléatoires, qui scintillent en opacité / échelle seulement. */
+function etoilesHtml_(){
+  var a=7,sortie='';
+  function suite(){a=(a*9301+49297)%233280;return a/233280;}
+  for(var i=0;i<24;i+=1){
+    var x=suite()*100,y=suite()*100,t=4+Math.round(suite()*8);
+    sortie+='<b style="--i:'+i+';--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--s:'+t+'px"><i></i></b>';
+  }
+  return '<span class="nl-etoiles" aria-hidden="true">'+sortie+'</span>';
+}
+var ETOILES=etoilesHtml_();
 
 var onglet='energy';        // 'energy' | 'magic'
 var timer=0;
@@ -83,8 +91,8 @@ function pas_(){
   return Math.max(1,Math.floor(Number(m))||125);
 }
 
-/* ---------- une fiole ---------- */
-function fioleHtml_(n,ancre){
+/* ---------- un tuyau ---------- */
+function barreHtml_(n,ancre){
   var c=COULEURS[n.id]||['#9aa5bb','#111111'];
   var niveau=Math.max(0,Math.floor(nombre_(n.level)));
   var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
@@ -94,84 +102,91 @@ function fioleHtml_(n,ancre){
   var pleine=spl>0&&spl<0.04;
   var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
   var idH=esc_(n.id);
-  return '<div class="nl-fiole'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+ancre+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+'">'+
-    '<div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div>'+
-    '<div class="nl-verre">'+
-      '<div class="nl-liq"><i class="nl-liq-in" data-nl-fill style="transform:scaleY('+(pleine?1:Math.round(p*1000)/1000)+')"></i><b class="nl-bulle b1"></b><b class="nl-bulle b2"></b><b class="nl-bulle b3"></b></div>'+
-      '<svg class="nl-contour" viewBox="0 0 100 150" aria-hidden="true">'+
-        '<polygon points="'+CONTOUR+'" fill="rgba(255,255,255,.18)" stroke="#27323a" stroke-width="3" stroke-linejoin="round"/>'+
-        '<g stroke="#27323a" stroke-width="1.6" stroke-linecap="round" opacity=".55"><line x1="12" y1="112" x2="26" y2="112"/><line x1="16" y1="92" x2="28" y2="92"/><line x1="23" y1="72" x2="33" y2="72"/><line x1="66" y1="26" x2="62" y2="26"/></g>'+
-        '<path d="M16 108 Q 14 124 20 136" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>'+
-        '<rect x="35" y="0" width="30" height="10" rx="2" fill="#8a5a2b" stroke="#27323a" stroke-width="2.5"/>'+
-      '</svg>'+
+  var rempli=pleine?1:Math.round(p*1000)/1000;
+  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+ancre+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+'">'+
+    '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-niveau">Level <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
+    '<div class="nl-tuyau">'+
+      '<i class="nl-bride g"></i>'+
+      '<div class="nl-tube"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
+      '<i class="nl-bride d"></i>'+
     '</div>'+
-    '<div class="nl-stats">'+
-      '<div class="nl-col"><span>Level</span><b data-nl-niv>'+format_(niveau)+'</b></div>'+
-      '<div class="nl-col"><span>'+(n.resource==='magic'?'Magic':'Energy')+' Allocated</span><b data-nl-alloc>'+format_(alloc)+'</b></div>'+
-    '</div>'+
-    '<div class="nl-effet" title="'+esc_(n.effect)+'">'+esc_(n.effect)+' <b>'+effet+'</b></div>'+
-    '<label class="nl-cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
-    '<div class="nl-boutons">'+
-      '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
-      '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
+    '<div class="nl-infos"><span>'+(n.resource==='magic'?'Magic':'Energy')+' Allocated <b data-nl-alloc>'+format_(alloc)+'</b></span>'+
+      '<span class="nl-effet" title="'+esc_(n.effect)+'">'+esc_(n.effect)+' <b>'+effet+'</b></span></div>'+
+    '<div class="nl-actions">'+
+      '<label class="nl-cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
+      '<div class="nl-boutons">'+
+        '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
+        '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
+      '</div>'+
     '</div>'+
   '</div>';
 }
 
 /* ---------- page ---------- */
 var CSS=
-  '.nl-v1{--nl-fond:#c6c4c7;--nl-encre:#232124;position:relative;box-sizing:border-box;margin:0 0 12px;padding:14px 12px 16px;color:var(--nl-encre);background:var(--nl-fond);border:12px solid transparent;'+
-    'border-image:repeating-linear-gradient(135deg,#e91c1f 0 11px,#f4f4f4 11px 22px,#004e03 22px 33px,#f4f4f4 33px 44px) 12;font-family:Impact,"Arial Black","Segoe UI",sans-serif}'+
+  '.nl-v1{position:relative;isolation:isolate;box-sizing:border-box;margin:0 0 12px;padding:16px 14px 22px;color:#eaf0ff;border-radius:20px;border:2px solid rgba(170,110,255,.6);overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;'+
+    'background-color:#0a0620;background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 9%,#fff 0 1px,transparent 2px),radial-gradient(circle at 55% 42%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 55%,#ffd6fb 0 1px,transparent 2px),radial-gradient(circle at 30% 66%,#d6e6ff 0 1px,transparent 2px),radial-gradient(circle at 66% 88%,#fff 0 1px,transparent 2px),radial-gradient(circle at 8% 92%,#ffd6fb 0 1px,transparent 2px),linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%);'+
+    'box-shadow:0 0 34px rgba(120,70,255,.4),inset 0 0 50px rgba(90,34,216,.28)}'+
   '.nl-v1 *{box-sizing:border-box}'+
+  '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
+  /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
+  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0}'+
+  '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s)*3);height:calc(var(--s)*3);margin:calc(var(--s)*-1.5) 0 0 calc(var(--s)*-1.5);background:radial-gradient(circle,rgba(255,255,255,.4) 0,rgba(181,138,255,.2) 38%,transparent 70%);opacity:.3}'+
+  '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
+  '.nl-etoiles b i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-etoiles b{animation:nlEtoile calc(6s + var(--i)*.9s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
+    '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
-  '.nl-btn{min-height:44px;padding:6px 14px;background:#f4f4f4;color:#111;border:3px solid #26394d;border-radius:6px;box-shadow:inset 0 0 0 2px #fff;font:800 14px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;cursor:pointer}'+
-  '.nl-btn:active{transform:translateY(1px)}'+
-  '.nl-btn.actif{background:#26394d;color:#fff}'+
-  '.nl-entete{text-align:center;padding:2px 0 6px}'+
-  '.nl-entete h1{margin:0;font-family:Impact,"Arial Black",sans-serif;font-size:44px;line-height:1;letter-spacing:.03em;color:var(--nl-encre)}'+
-  '.nl-entete p{margin:2px 0 0;font:800 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--nl-encre)}'+
-  '.nl-aide{margin:8px 0;padding:10px 12px;background:#f4f4f4;border:2px solid #26394d;border-radius:6px;font:500 14px/1.5 "Segoe UI",system-ui,sans-serif;color:#1c1c1f}'+
+  '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
+  '.nl-btn:active{transform:translateY(1px)}.nl-btn.actif{background:rgba(190,160,255,.35)}'+
+  '.nl-entete{text-align:center;padding:4px 0 8px}'+
+  '.nl-entete .nl-titre{margin:0;font:900 52px/1.1 "Segoe UI Black","Segoe UI",system-ui,sans-serif;letter-spacing:.08em;background:linear-gradient(90deg,#ff9ee8,#8fdcff 50%,#ffd34d);-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 0 10px rgba(170,110,255,.7))}'+
+  '.nl-entete p{margin:2px 0 0;font:700 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#b9c2ee}'+
+  '.nl-aide{margin:8px 0;padding:10px 12px;background:rgba(10,6,32,.7);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:500 14px/1.5 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
   '.nl-aide[hidden]{display:none}.nl-aide p{margin:0 0 6px}.nl-aide ol{margin:0;padding-left:20px;display:grid;gap:4px}'+
-  '.nl-paliers{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0;font:800 13px/1 "Segoe UI",system-ui,sans-serif;text-transform:uppercase}'+
-  '.nl-barre-outils{display:grid;gap:6px;margin:8px 0;padding:8px;background:#dcdadd;border:2px solid #9b999d;border-radius:6px;font:700 13px/1.3 "Segoe UI",system-ui,sans-serif}'+
+  '.nl-paliers{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0;font:800 13px/1 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;color:#c9d2f7}'+
+  '.nl-barre-outils{display:grid;gap:6px;margin:8px 0;padding:8px 10px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:700 13px/1.3 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
   '.nl-barre-outils .nl-ligne{display:flex;align-items:center;gap:6px;flex-wrap:wrap}'+
-  '.nl-barre-outils input[type=text]{width:120px;padding:6px 8px;background:#fff;border:2px solid #26394d;border-radius:4px;font:800 15px "Segoe UI",system-ui,sans-serif;color:#111}'+
-  '.nl-barre-outils button{min-height:36px;padding:0 10px;background:#f4f4f4;color:#111;border:2px solid #26394d;border-radius:5px;font:800 13px "Segoe UI",system-ui,sans-serif;cursor:pointer}'+
-  '.nl-avance{display:flex;align-items:center;gap:8px;font:800 16px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer;color:var(--nl-encre)}'+
-  '.nl-avance input{width:24px;height:24px;accent-color:#26394d}'+
-  '.nl-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 10px;margin-top:8px}'+
-  '.nl-fiole{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:6px 6px 8px;background:rgba(255,255,255,.35);border:2px solid #9b999d;border-radius:8px}'+
-  '.nl-fiole.actif{border-color:var(--nl-c);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--nl-c)}'+
-  '.nl-nom{padding:5px 4px;text-align:center;background:var(--nl-c);color:var(--nl-t);border:2px solid #232124;border-radius:4px;font:900 12px/1.1 "Segoe UI",system-ui,sans-serif;letter-spacing:.02em}'+
-  '.nl-verre{position:relative;width:78%;max-width:118px;margin:2px auto 0;aspect-ratio:100/150}'+
-  '.nl-liq{position:absolute;inset:0;clip-path:'+DECOUPE+';overflow:hidden}'+
-  '.nl-liq-in{position:absolute;inset:0;transform-origin:50% 100%;transform:scaleY(0);background:linear-gradient(180deg,color-mix(in srgb,var(--nl-c) 82%,#fff),var(--nl-c) 55%,color-mix(in srgb,var(--nl-c) 78%,#000));will-change:transform}'+
-  '.nl-bulle{position:absolute;bottom:6%;width:9%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.7);opacity:0}'+
-  '.nl-bulle.b1{left:30%}.nl-bulle.b2{left:50%}.nl-bulle.b3{left:68%}'+
-  '.nl-fiole.actif .nl-bulle{animation:nlBulle 2.2s ease-in infinite}'+
-  '.nl-fiole.actif .nl-bulle.b2{animation-delay:.7s;animation-duration:1.8s}.nl-fiole.actif .nl-bulle.b3{animation-delay:1.3s;animation-duration:2.6s}'+
-  '.nl-fiole.pleine .nl-bulle{animation-duration:.9s!important}'+
-  '@keyframes nlBulle{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.85}100%{transform:translateY(-520%) scale(1.1);opacity:0}}'+
-  '.nl-contour{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}'+
-  '.nl-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px}'+
-  '.nl-col{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;font-family:"Segoe UI",system-ui,sans-serif}'+
-  '.nl-fiole .nl-col span{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#3a383c!important}'+
-  '.nl-fiole .nl-col b{font-size:14px;font-weight:900;font-variant-numeric:tabular-nums;color:#111!important}'+
-  '.nl-fiole .nl-effet{font:600 11px/1.25 "Segoe UI",system-ui,sans-serif;text-align:center;color:#3a383c!important;min-height:2.5em}'+
-  '.nl-fiole .nl-effet b{color:#111!important;white-space:nowrap}'+
-  '.nl-cible{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:"Segoe UI",system-ui,sans-serif}'+
-  '.nl-cible span{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#3a383c}'+
-  '.nl-cible input{width:100%;max-width:130px;padding:5px 6px;background:#fff;color:#111;border:2px solid #26394d;border-radius:4px;font:800 14px "Segoe UI",system-ui,sans-serif;text-align:center}'+
-  '.nl-boutons{display:flex;justify-content:center;gap:8px}'+
-  '.nl-boutons button{min-width:52px;min-height:44px;background:#f4f4f4;color:#111;border:3px solid #26394d;border-radius:6px;box-shadow:inset 0 0 0 2px #fff;font:900 24px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer}'+
-  '.nl-boutons button:active{transform:translateY(1px)}'+
+  '.nl-barre-outils input[type=text]{width:120px;padding:6px 8px;background:#0b0724;border:1.5px solid rgba(170,130,255,.7);border-radius:8px;font:800 15px "Segoe UI",system-ui,sans-serif;color:#fff}'+
+  '.nl-barre-outils button{min-height:36px;padding:0 10px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(170,130,255,.6);border-radius:8px;font:800 13px "Segoe UI",system-ui,sans-serif;cursor:pointer}'+
+  '.nl-avance{display:inline-flex;align-items:center;gap:8px;margin:4px 0;font:800 16px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer;color:#fff}'+
+  '.nl-avance input{width:24px;height:24px;accent-color:#b58aff}'+
+  /* réseau : un tronc lumineux aux couleurs de tous les tuyaux, une branche par tuyau */
   '.nl-section[hidden]{display:none}'+
-  '.nl-resume{margin-top:12px;font:600 13px/1.4 "Segoe UI",system-ui,sans-serif}'+
-  '.nl-resume>summary{cursor:pointer;font-weight:800;text-transform:uppercase;letter-spacing:.03em}'+
-  '.nl-resume-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:6px}'+
-  '.nl-resume-grille div{display:flex;justify-content:space-between;gap:6px;padding:4px 8px;background:rgba(255,255,255,.55);border:1px solid #9b999d;border-radius:5px}'+
-  '@media(max-width:700px){.nl-v1{padding:10px 6px 12px;border-width:10px}.nl-entete h1{font-size:36px}.nl-grille{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 5px}.nl-fiole{padding:4px 3px 6px;gap:4px}.nl-nom{font-size:10px;padding:4px 2px}.nl-verre{width:86%}.nl-col b{font-size:12px}.nl-col span,.nl-cible span{font-size:8.5px}.nl-effet{font-size:9.5px}.nl-boutons button{min-width:40px;min-height:44px}.nl-cible input{padding:4px 2px;font-size:13px}}'+
-  '@media(prefers-reduced-motion:reduce){.nl-fiole.actif .nl-bulle{animation:none}}';
+  '.nl-grille{position:relative;display:grid;gap:16px;margin:10px auto 0;padding-left:24px;max-width:920px}'+
+  '.nl-grille::before{content:"";position:absolute;left:5px;top:10px;bottom:10px;width:8px;border-radius:8px;background:linear-gradient(180deg,#ed3e3e,#f2bb6a,#ffffa9,#daf11a,#a6deb9,#7a96f5,#9e19f1,#ff9de1,#62c0ff,#7ef0e0);box-shadow:0 0 10px 1px rgba(200,160,255,.75),0 0 28px rgba(120,80,255,.5)}'+
+  '.nl-barre{position:relative}'+
+  '.nl-barre::before{content:"";position:absolute;left:-22px;top:62px;width:24px;height:7px;border-radius:4px;background:var(--nl-c);box-shadow:0 0 10px var(--nl-c)}'+
+  '.nl-tete{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 2px 6px}'+
+  '.nl-nom{font:900 14px/1.15 "Segoe UI",system-ui,sans-serif;letter-spacing:.07em;color:color-mix(in srgb,var(--nl-c) 55%,#fff);text-shadow:0 0 9px var(--nl-c),0 0 2px #000}'+
+  '.nl-niveau{font:700 12px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#b9c2ee;white-space:nowrap}'+
+  '.nl-niveau b{font:900 20px/1 "Segoe UI",system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 8px var(--nl-c)}'+
+  /* tuyau : brides métalliques, verre, liquide lumineux, halo derrière */
+  '.nl-tuyau{position:relative;display:flex;align-items:center}'+
+  '.nl-tuyau::before{content:"";position:absolute;inset:-6px 8px;border-radius:16px;background:var(--nl-c);filter:blur(13px);opacity:.14;z-index:0}'+
+  '.nl-barre.actif .nl-tuyau::before{opacity:.5}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-barre.actif .nl-tuyau::before{animation:nlPouls 2.4s ease-in-out infinite alternate}@keyframes nlPouls{from{opacity:.3}to{opacity:.62}}}'+
+  '.nl-bride{position:relative;z-index:2;flex:0 0 auto;width:15px;height:52px;border-radius:5px;border:1px solid #0b0b1c;background:linear-gradient(90deg,#222744,#b4bae0 45%,#222744);box-shadow:0 0 6px rgba(0,0,0,.65)}'+
+  '.nl-bride::before{content:"";position:absolute;left:50%;top:5px;bottom:5px;width:4px;margin-left:-2px;background:radial-gradient(circle,#10122a 0 1.5px,transparent 2.2px) 0 0/4px 12px repeat-y}'+
+  '.nl-tube{position:relative;z-index:1;flex:1 1 auto;min-width:0;height:38px;margin:0 -4px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.5));border:2px solid color-mix(in srgb,var(--nl-c) 75%,#fff);box-shadow:0 0 12px color-mix(in srgb,var(--nl-c) 70%,transparent),inset 0 0 12px rgba(0,0,0,.7)}'+
+  '.nl-liq-in{position:absolute;inset:0;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(180deg,color-mix(in srgb,var(--nl-c) 52%,#fff) 0,var(--nl-c) 40%,color-mix(in srgb,var(--nl-c) 68%,#000) 100%);box-shadow:0 0 14px var(--nl-c);will-change:transform}'+
+  '.nl-tube::after{content:"";position:absolute;left:3px;right:3px;top:3px;height:34%;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.04));pointer-events:none;z-index:2}'+
+  '.nl-tube::before{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:translateX(-110%);opacity:0;z-index:2;pointer-events:none}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-barre.actif .nl-tube::before{opacity:1;animation:nlFlux 2.6s linear infinite}.nl-barre.pleine .nl-tube::before{animation-duration:.9s}@keyframes nlFlux{from{transform:translateX(-110%)}to{transform:translateX(250%)}}}'+
+  '.nl-pct{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:3;font:900 13px/1 "Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000}'+
+  '.nl-infos{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 14px;margin:7px 2px 0;font:600 12px/1.3 "Segoe UI",system-ui,sans-serif;color:#c7d0f2}'+
+  '.nl-infos b{color:#fff;font-variant-numeric:tabular-nums}'+
+  '.nl-actions{display:flex;align-items:center;gap:8px;margin:6px 2px 0}'+
+  '.nl-cible{display:flex;align-items:center;gap:6px;margin-right:auto;font:800 11px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#aab4dc}'+
+  '.nl-cible input{width:86px;padding:7px 6px;background:#0b0724;color:#fff;border:1.5px solid color-mix(in srgb,var(--nl-c) 70%,#fff);border-radius:8px;font:800 15px "Segoe UI",system-ui,sans-serif;text-align:center}'+
+  '.nl-boutons{display:flex;gap:8px}'+
+  '.nl-boutons button{width:52px;min-height:44px;background:rgba(255,255,255,.07);color:#fff;border:1.5px solid var(--nl-c);border-radius:12px;box-shadow:0 0 10px color-mix(in srgb,var(--nl-c) 60%,transparent);font:900 24px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer}'+
+  '.nl-boutons button:active{transform:translateY(1px)}'+
+  '.nl-resume{margin-top:14px;font:600 13px/1.4 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
+  '.nl-resume>summary{cursor:pointer;font-weight:800;text-transform:uppercase;letter-spacing:.04em}'+
+  '.nl-resume-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin-top:6px}'+
+  '.nl-resume-grille div{display:flex;justify-content:space-between;gap:6px;padding:5px 9px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.35);border-radius:8px}'+
+  '@media(max-width:700px){.nl-v1{padding:12px 8px 16px;border-radius:16px}.nl-entete .nl-titre{font-size:40px}.nl-grille{padding-left:22px;gap:14px}.nl-nom{font-size:13px}.nl-barre::before{left:-20px;width:22px;top:60px}}';
 
 function barreOutilsHtml_(j){
   var el=document.getElementById('sorealIdleAugInputV1');
@@ -216,24 +231,24 @@ function page(j){
   .map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
   var avance=ng.advance||{};
   function section(res){
-    var vials=liste.filter(function(n){return n.resource===res;}).map(function(n){return fioleHtml_(n,ancre);}).join('');
+    var tuyaux=liste.filter(function(n){return n.resource===res;}).map(function(n){return barreHtml_(n,ancre);}).join('');
     return '<div class="nl-section" data-nl-section="'+res+'"'+(onglet===res?'':' hidden')+'>'+
       '<label class="nl-avance"><input type="checkbox" '+(avance[res]?'checked ':'')+'onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.avance(\''+res+'\',this.checked)"> Advance '+(res==='magic'?'Magic':'Energy')+'</label>'+
-      '<div class="nl-grille">'+vials+'</div>'+
+      '<div class="nl-grille">'+tuyaux+'</div>'+
     '</div>';
   }
   var html=
     '<style>'+CSS+'</style>'+
-    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'">'+
+    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'">'+ETOILES+
       '<div class="nl-haut">'+
         '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">WTF do I do?</button>'+
         (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'TO NGU ENERGY':'TO NGU MAGIC')+'</button>':'')+
       '</div>'+
-      '<header class="nl-entete"><h1>NGU</h1><p>(Hey, that\'s the name of this game!)</p></header>'+
+      '<header class="nl-entete"><div class="nl-titre" role="heading" aria-level="1">NGU</div><p>(Hey, that\'s the name of this game!)</p></header>'+
       '<div class="nl-aide" id="sorealIdleNguAideV1" hidden>'+
-        '<p><b>À quoi ça sert ?</b> Chaque NGU est une fiole qui se remplit : quand elle déborde, le NGU gagne un niveau et son bonus augmente.</p>'+
+        '<p><b>À quoi ça sert ?</b> Chaque NGU est un tuyau qui se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.</p>'+
         '<ol>'+
-          '<li><b>Place de l’énergie</b> dans une fiole avec <b>+</b> : la quantité est celle de la case <b>Input</b> (Max, 1/2 et 1/4 la remplissent). <b>−</b> la retire.</li>'+
+          '<li><b>Place de l’énergie</b> dans un tuyau avec <b>+</b> : la quantité est celle de la case <b>Input</b> (Max, 1/2 et 1/4 la remplissent). <b>−</b> la retire.</li>'+
           '<li>Chaque NGU avance <b>avec sa propre énergie</b>, en même temps que les autres.</li>'+
           '<li><b>Target</b> : le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU lui est retirée (0 = aucun objectif).</li>'+
           '<li><b>Advance Energy</b> : quand un NGU atteint son Target, son énergie passe automatiquement au NGU suivant.</li>'+
@@ -251,13 +266,13 @@ function page(j){
   return html;
 }
 
-/* ---------- vie des fioles : progression rejouée en direct ---------- */
+/* ---------- vie des tuyaux : progression rejouée en direct ---------- */
 function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
   var maintenant=typeof performance!=='undefined'?performance.now():0;
   var H=H_();
-  Array.prototype.forEach.call(racine.querySelectorAll('.nl-fiole'),function(f){
+  Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){
     var d=f.dataset;
     var spl=Number(d.nlSpl);
     if(!(spl>0)||f.closest('[hidden]'))return;
@@ -273,7 +288,12 @@ function tick_(){
     var liq=f.querySelector('[data-nl-fill]');
     if(liq){
       var v=Math.round(frac*500)/500;
-      if(String(v)!==liq.getAttribute('data-nl-v')){liq.setAttribute('data-nl-v',String(v));liq.style.transform='scaleY('+v+')';}
+      if(String(v)!==liq.getAttribute('data-nl-v')){
+        liq.setAttribute('data-nl-v',String(v));
+        liq.style.transform='scaleX('+v+')';
+        var pct=f.querySelector('[data-nl-pct]');
+        if(pct)pct.textContent=Math.round(v*100)+' %';
+      }
     }
     var t=f.querySelector('[data-nl-niv]');
     if(t&&niveau!==Number(t.getAttribute('data-nl-v')||n0)){
@@ -290,7 +310,7 @@ function systemeAlloc_(j,res,delta){
   var s=systemeNgu_(j);
   if(s&&s.state&&s.state.allocation)s.state.allocation[res]=Math.max(0,nombre_(s.state.allocation[res])+delta);
 }
-/* Repart la progression d'une fiole du moment présent (après un changement d'énergie : nouvelle vitesse, même niveau de liquide). */
+/* Repart la progression d'un tuyau du moment présent (après un changement d'énergie : nouvelle vitesse, même niveau de liquide). */
 function reancrer_(f,splNouveau){
   var d=f.dataset;
   var spl=Number(d.nlSpl);
@@ -404,7 +424,7 @@ window.__SOREAL_IDLE_NGU_LABO_V1__={
   aide:function(){var el=document.getElementById('sorealIdleNguAideV1');if(el)el.hidden=!el.hidden;},
   ajuster:ajuster,cible:cible,avance:avance,onglet:changerOnglet,vider:vider,preset:preset,
   ongletCourant:function(){return onglet;},
-  /* Pour les tests : la progression d'une fiole à un instant donné (mêmes formules que tick_). */
+  /* Pour les tests : la progression d'un tuyau à un instant donné (mêmes formules que tick_). */
   progression:function(p,spl,n0,ecouleSecondes){
     var total=p+ecouleSecondes/spl,gagnes=Math.floor(total);
     return spl<0.04?{fraction:1,niveau:n0+Math.floor(ecouleSecondes*Math.min(50,1/spl))}:{fraction:total-gagnes,niveau:n0+gagnes};
