@@ -124,7 +124,7 @@
       for(var a in e)if(a!=='t'&&a!=='type'&&a!=='cle')det.push(a+'='+e[a]);
       return h+'  '+e.type+'  '+e.cle+'  '+det.join(' ');
     });
-    return tete+'\n'+lignes.join('\n');
+    return textePerf_()+tete+'\n'+lignes.join('\n');
   }
 
   function fermer_(){var o=document.getElementById('soreal-idle-diag-v1');if(o)o.remove();}
@@ -157,6 +157,68 @@
 
   setInterval(function(){try{echantillon_();}catch(_e){}},PERIODE_MS);
 
+  /*
+   * Sonde de fluidité du téléphone (Norman, 2026-10-08 : « lancé depuis SOREAL APP, le jeu rame ; depuis Chrome ou son APK, non »). Administrateur seulement, rien n'est envoyé. Toutes les 10 s elle relève :
+   *   - mode : « iframe » (jeu intégré dans une autre page, ex. SOREAL APP) ou « direct » ;
+   *   - fps / pire_ms / lentes : cadence des images (requestAnimationFrame), pire image, nombre d'images de plus de 50 ms ;
+   *   - taches / taches_ms / tache_max_ms : tâches « longues » (plus de 50 ms) qui ont bloqué le fil d'exécution (PerformanceObserver longtask).
+   * Lecture : des tâches longues = le fil est occupé par du code (le jeu ou la page qui l'héberge) ; peu de tâches longues mais peu d'images = le dessin est lent (composition de la fenêtre intégrée).
+   * Les 4 derniers relevés de chaque mode sont gardés (soreal_idle_perf_v1) et listés en tête du journal : on compare « iframe » et « direct » sans rien écrire.
+   */
+  var CLE_PERF='soreal_idle_perf_v1';
+  var modeJeu='direct';
+  try{modeJeu=window.parent!==window?'iframe':'direct';}catch(_e){modeJeu='iframe';}
+  var perf={};
+  try{var bp=localStorage.getItem(CLE_PERF);if(bp){var op=JSON.parse(bp);if(op&&typeof op==='object')perf=op;}}catch(_e){}
+  var sonde={actif:false,images:0,somme:0,pire:0,lentes:0,dernier:0,taches:0,tachesMs:0,tacheMax:0};
+  function estAdmin_(){try{return typeof window.__SOREAL_IDLE_EST_ADMIN_V1__==='function'&&window.__SOREAL_IDLE_EST_ADMIN_V1__()===true;}catch(_e){return false;}}
+  function raz_(){sonde.dernier=0;sonde.images=0;sonde.somme=0;sonde.pire=0;sonde.lentes=0;sonde.taches=0;sonde.tachesMs=0;sonde.tacheMax=0;}
+  function image_(t){
+    if(sonde.dernier){
+      var d=t-sonde.dernier;
+      /* Un onglet resté caché puis revenu donne une image « géante » qui n'est pas une lenteur : ignorée au-delà de 1 s. */
+      if(d<1000){sonde.images+=1;sonde.somme+=d;if(d>sonde.pire)sonde.pire=d;if(d>50)sonde.lentes+=1;}
+    }
+    sonde.dernier=t;
+    if(sonde.actif)requestAnimationFrame(image_);
+  }
+  function demarrerSonde_(){
+    if(sonde.actif)return;
+    sonde.actif=true;
+    try{
+      if(typeof PerformanceObserver==='function'){
+        var po=new PerformanceObserver(function(liste){
+          liste.getEntries().forEach(function(e){sonde.taches+=1;sonde.tachesMs+=e.duration;if(e.duration>sonde.tacheMax)sonde.tacheMax=e.duration;});
+        });
+        po.observe({type:'longtask',buffered:false});
+      }
+    }catch(_e){}
+    requestAnimationFrame(image_);
+  }
+  function relever_(){
+    if(!estAdmin_())return;
+    if(!sonde.actif){demarrerSonde_();return;}
+    if(document.hidden){raz_();return;}
+    if(sonde.images<20)return;
+    var releve={t:Date.now(),fps:Math.round(1000/(sonde.somme/sonde.images)),pire_ms:Math.round(sonde.pire),lentes:sonde.lentes,taches:sonde.taches,taches_ms:Math.round(sonde.tachesMs),tache_max_ms:Math.round(sonde.tacheMax)};
+    raz_();
+    sonde.dernier=0;
+    var liste=Array.isArray(perf[modeJeu])?perf[modeJeu]:[];
+    liste.push(releve);
+    perf[modeJeu]=liste.slice(-4);
+    try{localStorage.setItem(CLE_PERF,JSON.stringify(perf));}catch(_e){}
+  }
+  setInterval(function(){try{relever_();}catch(_e){}},10000);
+  function textePerf_(){
+    var lignes=[];
+    ['iframe','direct'].forEach(function(m){
+      (Array.isArray(perf[m])?perf[m]:[]).forEach(function(r){
+        lignes.push(new Date(r.t).toLocaleTimeString('fr-BE')+'  mode='+m+'  '+r.fps+' images/s · pire image '+r.pire_ms+' ms · '+r.lentes+' lentes · '+r.taches+' tâche(s) longue(s) ('+r.taches_ms+' ms au total, max '+r.tache_max_ms+' ms)');
+      });
+    });
+    return lignes.length?'Fluidité mesurée (4 derniers relevés de 10 s par mode) :\n'+lignes.join('\n')+'\n\n':'';
+  }
+
   window.__SOREAL_IDLE_DIAG_V1__={
     journal:function(){return journal.slice();},
     resume:resume_,
@@ -166,7 +228,11 @@
     /* Une erreur avalée par un try/catch de la logique de jeu : notée sans bruit pour le joueur (une ligne par clé toutes les 5 s). */
     signaler:function(cle,e){try{noter_('erreur_avalee',String(cle||'?'),{msg:String(e&&e.message||e).slice(0,120)});}catch(_e){}},
     /* Pour les tests : entre dans l'échantillonnage sans minuteur. */
-    echantillon:echantillon_
+    echantillon:echantillon_,
+    perf:function(){return JSON.parse(JSON.stringify(perf));},
+    mode:modeJeu,
+    /* Pour les tests : un relevé sans attendre 10 s ni images réelles. */
+    releverPour:function(mode,releve){perf[mode]=(Array.isArray(perf[mode])?perf[mode]:[]).concat([releve]).slice(-4);}
   };
   window.__diagFluiditeOuvrirV1__=ouvrir_;
 })();

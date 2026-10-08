@@ -37,6 +37,7 @@ ctx.window = {
   getComputedStyle: () => ({ transform: "matrix(" + ecran.f + ",0,0,1,0,0)" })
 };
 ctx.window.window = ctx.window;
+ctx.window.parent = ctx.window;
 Object.assign(ctx.window, { localStorage: ctx.localStorage, document: ctx.document, Date: ctx.Date });
 vm.createContext(ctx);
 vm.runInContext(src, ctx);
@@ -98,6 +99,17 @@ D.signaler("auto_nuke", "texte");
 // Journal : texte lisible, enregistré sur l'appareil, jamais plus de 80 lignes.
 assert.ok(D.texte().startsWith("Journal de fluidité — "));
 assert.ok(JSON.parse(stockage["soreal_idle_diag_v1"]).length >= 4);
+// Sonde de fluidité du téléphone (2026-10-08) : mode iframe / direct, images par seconde, tâches longues ; comparés dans le journal
+assert.equal(D.mode, "direct", "page de premier niveau (window.parent === window) : mode direct");
+D.releverPour("iframe", { t: maintenant, fps: 22, pire_ms: 210, lentes: 31, taches: 9, taches_ms: 880, tache_max_ms: 240 });
+D.releverPour("direct", { t: maintenant, fps: 59, pire_ms: 33, lentes: 0, taches: 0, taches_ms: 0, tache_max_ms: 0 });
+const texte = D.texte();
+assert.ok(texte.includes("mode=iframe") && texte.includes("22 images/s") && texte.includes("9 tâche(s) longue(s)"), "relevé du mode intégré lisible");
+assert.ok(texte.includes("mode=direct") && texte.includes("59 images/s"), "relevé du mode direct lisible");
+assert.ok(texte.includes("Journal de fluidité — "), "le journal reste lisible");
+for (let i = 0; i < 6; i += 1) D.releverPour("iframe", { t: maintenant + i, fps: 30, pire_ms: 100, lentes: 1, taches: 0, taches_ms: 0, tache_max_ms: 0 });
+assert.equal(D.perf().iframe.length, 4, "4 derniers relevés par mode");
+assert.ok(src.includes("estAdmin_()") && src.includes("type:'longtask'"), "sonde réservée à l'administrateur, tâches longues observées");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.includes("/modules/diag-fluidite-v1.js"), "module chargé par la page");
 assert.ok(readFileSync("cloudflare/public/modules/bug-report-v1.js", "utf8").includes("Journal de fluidité"), "bouton dans Réglages (administrateur)");
