@@ -15642,95 +15642,7 @@
 
 
 
-let idleDialogueTimerV76=null;
-
-
-      function phrasesJoueurIdleV76_(){
-        return [
-          'Même pas peur.',
-          'Ça va finir au recyclage.',
-          'Encore un effort…',
-          'Le dépôt compte sur moi.',
-          'Je vais passer ce mur.'
-        ];
-      }
-
-
-      function afficherBulleIdleV76_(id,texte){
-        const el=
-          document.getElementById(id);
-
-        if(!el)return;
-
-        el.textContent=
-          String(texte||'');
-
-        el.classList.remove('visible');
-
-        requestAnimationFrame(function(){
-          el.classList.add('visible');
-        });
-
-        setTimeout(function(){
-          el.classList.remove('visible');
-        },2700);
-      }
-
-
-      function choisirPhraseIdleV76_(liste){
-        const valeurs=
-          Array.isArray(liste)
-            ?liste
-            :[];
-
-        if(!valeurs.length){
-          return '';
-        }
-
-        return valeurs[
-          Math.floor(
-            Math.random()*valeurs.length
-          )
-        ];
-      }
-
-
-      function demarrerBullesCombatIdleV76_(j){
-        if(idleDialogueTimerV76){
-          clearInterval(idleDialogueTimerV76);
-          idleDialogueTimerV76=null;
-        }
-
-        if(!j||!j.combatBossActif){
-          return;
-        }
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-168 */
-        const faireParler=function(){
-          if(
-            !idleEtat ||
-            !idleEtat.combatBossActif
-          ){
-            return;
-          }
-
-          afficherBulleIdleV76_(
-            'sorealIdleDialogueJoueurV76',
-            choisirPhraseIdleV76_(
-              phrasesJoueurIdleV76_()
-            )
-          );
-        };
-
-        setTimeout(faireParler,850);
-
-        idleDialogueTimerV76=
-          setInterval(
-            faireParler,
-            5200
-          );
-      }
-
+/* Les bulles de phrases du joueur sur « Fight Boss » (« Même pas peur », « Ça va finir au recyclage »… : restes de la toute première version) ont été retirées (Norman, 2026-10-08). */
 
       function bossNukableIdleV198_(j){
         if(!j)return false;
@@ -15794,11 +15706,6 @@ let idleDialogueTimerV76=null;
                       class="soreal-idle-status-badges-v112"
                     ></div>
                   </div>
-
-                  <div
-                    id="sorealIdleDialogueJoueurV76"
-                    class="soreal-idle-dialogue-v76 player"
-                  ></div>
 
                   <div class="soreal-idle-duel-hp-v41">
                     <div
@@ -24712,10 +24619,6 @@ function pageAventureIdleV28_(j){
               /* 4 pièces d'un même set équipées : portrait du set (repli : portrait choisi) ; sinon le portrait choisi. */
               j.systemes&&j.systemes.portraits&&(j.systemes.portraits.auto?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile),
               j.systemes&&j.systemes.portraits&&j.systemes.portraits.auto?j.systemes.portraits.selectedFile:''
-            );
-
-            demarrerBullesCombatIdleV76_(
-              j
             );
 
             gererPopupsProgressionIdleV75_(
