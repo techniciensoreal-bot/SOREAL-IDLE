@@ -138,7 +138,8 @@
   /* Le feu ne se montre que si on l'ENTEND : piste de feu en cours ET volume d'ambiance au-dessus de zéro. */
   var courante=null;
   /* Réglages > Effets visuels : l'effet peut être coupé pour les téléphones moins puissants (mémorisé sur l'appareil, actif par défaut). */
-  function effetAutorise_(){try{return localStorage.getItem('soreal_idle_effet_feu_v1')!=='0';}catch(_e){return true;}}
+  /* Désactivée par défaut (Norman, 2026-10-08 : « ça fait ramer le téléphone ») : on ne l'active qu'en cochant l'effet dans les Réglages ('1'). */
+  function effetAutorise_(){try{return localStorage.getItem('soreal_idle_effet_feu_v1')==='1';}catch(_e){return false;}}
   function evaluer_(){
     if(courante&&estFeu(courante.cle)&&volumeAmbiance_()>0&&effetAutorise_()){if(!actif)demarrer(courante);}
     else if(actif)arreter();

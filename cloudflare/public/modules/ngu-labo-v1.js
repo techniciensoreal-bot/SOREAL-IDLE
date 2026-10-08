@@ -131,7 +131,7 @@ var CSS=
   '.nl-v1 *{box-sizing:border-box}'+
   '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
   /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
-  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;will-change:transform}'+
+  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0}'+
   '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s)*3);height:calc(var(--s)*3);margin:calc(var(--s)*-1.5) 0 0 calc(var(--s)*-1.5);background:radial-gradient(circle,rgba(255,255,255,.4) 0,rgba(181,138,255,.2) 38%,transparent 70%);opacity:.3}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
   '.nl-etoiles b i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}'+
@@ -303,24 +303,8 @@ function tick_(){
     }
   });
 }
-/* Profondeur (Norman, 2026-10-08) : le fond d'étoiles défile moitié moins vite que les tuyaux quand on fait défiler l'écran. */
-var parallaxeAttente=false;
-function parallaxe_(){
-  parallaxeAttente=false;
-  var racine=document.querySelector('.nl-v1');
-  var ciel=racine&&racine.querySelector('.nl-etoiles');
-  if(!ciel)return;
-  var haut=racine.getBoundingClientRect().top;
-  ciel.style.transform='translate3d(0,'+(Math.max(0,-haut)*0.5).toFixed(1)+'px,0)';
-}
-function planifierParallaxe_(){
-  if(parallaxeAttente)return;
-  if(typeof requestAnimationFrame!=='function')return;
-  parallaxeAttente=true;
-  requestAnimationFrame(parallaxe_);
-}
-if(typeof document.addEventListener==='function')document.addEventListener('scroll',planifierParallaxe_,{capture:true,passive:true});
-function demarrer_(){if(!timer)timer=setInterval(tick_,100);planifierParallaxe_();}
+/* Le fond d'étoiles défile avec les tuyaux (Norman, 2026-10-08 : plus de décalage de profondeur, trop gourmand en ressources). */
+function demarrer_(){if(!timer)timer=setInterval(tick_,100);}
 function arreter_(){if(timer){clearInterval(timer);timer=0;}}
 
 /* ---------- actions ---------- */

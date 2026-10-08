@@ -218,7 +218,13 @@
                   window.__SOREAL_IDLE_WANDOOS_V1__&&typeof window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir==='function'&&
                   document.querySelector('.wd-poste')
                 ){
-                  window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir();
+                  /* Sécurité : si le rafraîchissement du poste échoue pour une raison quelconque, on retombe sur le rendu complet plutôt que de laisser l'écran figé. */
+                  try{
+                    window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir();
+                    if(!document.querySelector('.wd-poste .wd-ecran'))throw new Error('poste vide');
+                  }catch(_e){
+                    window.__SOREAL_IDLE_META_HOST_V130__.rendreIdleEtat_({ok:true,joueur:joueurMetaProtegeV208});
+                  }
                 }else{
                   window.__SOREAL_IDLE_META_HOST_V130__.rendreIdleEtat_({
                     ok:true,

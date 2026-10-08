@@ -21,6 +21,8 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Menu NGU : le fond étoilé bouge avec les barres, sans décalage de profondeur (moins gourmand). La barre de vie du boss ressemble maintenant à la nôtre : un tube de verre avec les chiffres dedans, en rose-violet façon dessin animé.',
+          'La lueur de cheminée est désactivée par défaut, car elle faisait ramer les téléphones ; elle se rallume en la cochant dans les Réglages. Chaque somme en Or est maintenant verte quand tu l’as et rouge sinon (rituels de sang compris).',
           'Les boutons de la borne (Fight, Fuite, Nuke) sont plus larges et penchés en trapèze, comme le socle noir au-dessus.',
           'Borne d’arcade : le nom du boss est centré et l’XP, plus discrète, prend moins de place sur son image. Placer des points ne fait plus remonter l’écran dans l’ordinateur rétro.',
           'Page Renaissance : le fond violet reste, mais les écritures sont bien plus lisibles (étiquettes plus claires et plus grandes, chiffres en gras, titre en blanc).',

@@ -240,13 +240,53 @@
       window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__=function(n){return formatGrandNombreIdleV70_(n);};
       /* Augmentations : la couleur de la somme suit l'Or en direct, même sans énergie placée (un gain d'Or suffit à passer du rouge au vert). */
       setInterval(function(){
-        if(!idleEtat||idleMenuActifV28!=='augmentations'||document.hidden)return;
+        if(!idleEtat||document.hidden)return;
         const or=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
         document.querySelectorAll('[data-idle-aug-cout-v1][data-cout]').forEach(function(el){
           const assez=or>=Number(el.dataset.cout);
           if(el.classList.contains('ok')!==assez||el.classList.contains('non')===assez){el.classList.toggle('ok',assez);el.classList.toggle('non',!assez);}
         });
+        /* Principe unique (Norman, 2026-10-08) : toute somme en Or est VERTE quand on l'a, ROUGE sinon ; une ligne « il manque … Or » est rouge. */
+        document.querySelectorAll('[data-cout-or]').forEach(function(el){
+          const assez=or>=Number(el.dataset.coutOr);
+          if(el.classList.contains('or-ok')!==assez||el.classList.contains('or-non')===assez){el.classList.toggle('or-ok',assez);el.classList.toggle('or-non',!assez);}
+        });
+        document.querySelectorAll('[data-idle-aug-eta-v1],[id^="sorealIdleBloodEtaLineV1_"]').forEach(function(el){
+          const manque=/il manque .* Or/.test(el.textContent||'');
+          if(el.classList.contains('or-non')!==manque)el.classList.toggle('or-non',manque);
+        });
       },800);
+      /*
+       * Le contenu ne bouge plus quand une barre se vide (Norman, 2026-10-08 : « quand je mets des points, l'écran remonte ») : une barre épuisée se replie, le bandeau rétrécit de sa hauteur et tout ce qui
+       * est dessous remonte d'autant. On retient donc la plus grande hauteur vue du bandeau (cliquet) : la barre se replie dans la place réservée, sans décaler la page. Remis à zéro au changement de taille d'écran.
+       */
+      (function(){
+        let hudSuivi=null,hauteurMax=0,observateurHud=null;
+        const racine=document.documentElement;
+        /* Règle CSS portée par une variable : elle survit au remplacement de l'élément par un rendu. */
+        const st=document.createElement('style');
+        st.textContent='.soreal-idle-hud-v2{box-sizing:border-box;min-height:var(--hud-min-v2,0px)}';
+        document.head.appendChild(st);
+        function appliquer_(el){
+          const h=el.getBoundingClientRect().height;
+          if(h>hauteurMax+0.5){hauteurMax=h;racine.style.setProperty('--hud-min-v2',Math.ceil(h)+'px');}
+        }
+        function suivre_(){
+          const el=document.querySelector('.soreal-idle-hud-v2');
+          if(!el||el===hudSuivi)return;
+          hudSuivi=el;
+          appliquer_(el);
+          if(typeof ResizeObserver==='function'){
+            if(observateurHud)observateurHud.disconnect();
+            observateurHud=new ResizeObserver(function(){appliquer_(el);});
+            observateurHud.observe(el);
+          }
+        }
+        let largeur=window.innerWidth;
+        /* Seule une vraie variation de largeur (rotation, fenêtre) remet à zéro : la barre d'adresse d'un téléphone ne change que la hauteur. */
+        window.addEventListener('resize',function(){if(Math.abs(window.innerWidth-largeur)<2)return;largeur=window.innerWidth;hauteurMax=0;racine.style.removeProperty('--hud-min-v2');});
+        setInterval(suivre_,250);
+      })();
       /* Bandeau : part de chaque barre déjà générée (disponible + dépensée), en pourcentage du plafond. */
       window.__SOREAL_IDLE_DISPONIBLE_V2__=function(){
         const b=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
@@ -23426,10 +23466,10 @@ function pageAventureIdleV28_(j){
       /* Effets visuels (Norman, 2026-10-08) : orage (éclairs) et cheminée (lueur) peuvent être coupés pour les téléphones moins puissants ; actifs par défaut, mémorisés sur l'appareil. */
       const EFFETS_VISUELS_IDLE_V1=[
         {id:'orage',cle:'soreal_idle_effet_orage_v1',libelle:'⛈️ Orage : ciel sombre et éclairs (piste d’orage)'},
-        {id:'feu',cle:'soreal_idle_effet_feu_v1',libelle:'🔥 Cheminée : lueur sur les bords de l’écran (piste de feu)'}
+        {id:'feu',cle:'soreal_idle_effet_feu_v1',defaut:false,libelle:'🔥 Cheminée : lueur sur les bords de l’écran (piste de feu) — peut ralentir un téléphone'}
       ];
       function effetVisuelActifIdleV1_(e){
-        try{return localStorage.getItem(e.cle)!=='0';}catch(_e){return true;}
+        try{const v=localStorage.getItem(e.cle);return e.defaut===false?v==='1':v!=='0';}catch(_e){return e.defaut!==false;}
       }
       window.__basculerEffetIdleV1__=function(id,coche){
         const e=EFFETS_VISUELS_IDLE_V1.find(function(x){return x.id===id;});
@@ -23440,7 +23480,7 @@ function pageAventureIdleV28_(j){
       function htmlReglagesEffetsIdleV1_(){
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">✨ Effets visuels</div>'+
-          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Décoche un effet pour alléger le jeu sur un téléphone moins puissant. Ils n’apparaissent que si tu entends la piste d’ambiance correspondante.</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Décoche un effet pour alléger le jeu sur un téléphone moins puissant (la cheminée est coupée par défaut : coche-la pour l’allumer). Ils n’apparaissent que si tu entends la piste d’ambiance correspondante.</div>'+
           EFFETS_VISUELS_IDLE_V1.map(function(e){
             return '<label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px">'+
               '<input type="checkbox" '+(effetVisuelActifIdleV1_(e)?'checked ':'')+'onchange="window.__basculerEffetIdleV1__(\''+e.id+'\',this.checked)">'+

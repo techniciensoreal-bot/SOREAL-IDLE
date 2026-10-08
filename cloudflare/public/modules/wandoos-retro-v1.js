@@ -415,7 +415,7 @@
     var ecran=phase==='allumage'?ecranAllumage_(e):(phase==='bureau'?ecranBureau_(e):ecranEteint_(e));
     if((phase==='allumage'||(phase==='bureau'&&e.enChargement))&&!timerTic&&typeof setInterval==='function')timerTic=setInterval(tic_,250);
     planifierVie_();
-    return '<div class="wd-poste" data-couleur="'+c+'" data-phase="'+phase+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier_(e,phase)+'</div>';
+    return '<div class="wd-poste" data-sans-couleur-nombre="1" data-couleur="'+c+'" data-phase="'+phase+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier_(e,phase)+'</div>';
   }
   function page(j){
     style_();
@@ -432,7 +432,17 @@
     if(!poste||!H||!H.getIdleEtat)return;
     var html=poste_(H.getIdleEtat());
     if(!html)return;
+    /* L'écran ne doit jamais remonter (Norman, 2026-10-08) : la hauteur de la page est retenue pendant le remplacement du poste (sinon, plus courte un instant, elle ramène le défilement vers le haut,
+       surtout dans l'application où la page est dans un cadre), puis le défilement est remis exactement où il était. */
+    var corps=document.body,x=window.scrollX||0,y=window.scrollY||0;
+    var pose=false;
+    try{var h=document.documentElement.scrollHeight;if(corps&&!corps.style.minHeight){corps.style.minHeight=h+'px';pose=true;}}catch(_e){}
     poste.outerHTML=html;
+    if(window.scrollY!==y&&typeof window.scrollTo==='function')window.scrollTo(x,y);
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){
+      try{if(corps&&pose)corps.style.minHeight='';}catch(_e){}
+      if(Math.abs((window.scrollY||0)-y)>1&&typeof window.scrollTo==='function')window.scrollTo(x,y);
+    });
   }
 
   /* ---------- Actions ---------- */

@@ -13,7 +13,7 @@ assert.ok(ui.includes("soreal_idle_effet_orage_v1") && ui.includes("soreal_idle_
 assert.ok(ui.includes("window.__basculerEffetIdleV1__=function(id,coche)") && ui.includes("new Event('soreal-effets-v1')"), "bascule + évènement");
 assert.ok(ui.includes("htmlReglagesAudioIdleV1_()+\n          htmlReglagesEffetsIdleV1_()+"), "section dans les Réglages, sous l'audio");
 for (const [nom, src, cle] of [["orage", orage, "soreal_idle_effet_orage_v1"], ["feu", feu, "soreal_idle_effet_feu_v1"]]) {
-  assert.ok(src.includes(`localStorage.getItem('${cle}')!=='0'`), nom + " : actif par défaut, coupé seulement par '0'");
+  assert.ok(src.includes(`localStorage.getItem('${cle}')!=='0'`) || (nom === "feu" && src.includes(`localStorage.getItem('${cle}')==='1'`)), nom + " : actif par défaut (orage), ou coupé par défaut et activé par '1' (feu, trop lourd pour un téléphone)");
   assert.ok(/volumeAmbiance_\(\)>0&&effetAutorise_\(\)/.test(src), nom + " : le réglage conditionne le démarrage");
   assert.ok(src.includes("window.addEventListener('soreal-effets-v1'"), nom + " : réagit au changement de réglage");
 }

@@ -5,6 +5,7 @@ const ui = fs.readFileSync('cloudflare/public/soreal-idle-ui.js', 'utf8');
 const meta = fs.readFileSync('cloudflare/public/modules/meta-progression-v130.js', 'utf8');
 const themes = fs.readFileSync('cloudflare/public/soreal-idle-themes.css', 'utf8');
 const ngu = fs.readFileSync('cloudflare/public/modules/ngu-labo-v1.js', 'utf8');
+const itopod0 = fs.readFileSync('cloudflare/public/soreal-idle-itopod.css', 'utf8');
 const catalogue = fs.readFileSync('cloudflare/src/idle-sellout-shop-v1.js', 'utf8');
 
 /* Boutique AP : tout article lié à un système verrouillé est caché (Norman, 2026-10-08). */
@@ -33,7 +34,8 @@ assert.match(themes, /moneyPit"\] :is\(\.soreal-idle-money-actions-v206,\.soreal
 
 /* NGU : nuit étoilée dense et fond en parallaxe */
 assert.match(ngu, /i<240;/, 'beaucoup d’étoiles');
-assert.match(ngu, /\*0\.5\)\.toFixed\(1\)/, 'le fond défile moitié moins vite');
+assert.ok(!ngu.includes('parallaxe_'), 'plus de décalage de profondeur : le fond bouge avec les barres (ressources)');
+assert.match(itopod0, /soreal-idle-bossbar-v7\{\s*border-radius:999px/, 'barre de vie du boss en tube');
 console.log('idle-boutique-ap-anti-spoil-v1: OK');
 
 /* Borne : nom du boss centré, XP discrète ; Wandoos : la réponse du serveur ne reconstruit plus la page (Norman, 2026-10-08) */
@@ -43,4 +45,15 @@ assert.match(itopod, /xp-borne-v1 \.soreal-idle-chip-v8\{font-size:\.62em!import
 assert.match(meta, /payload\.action==='allocate'&&payload\.system==='wandoos'/, 'Wandoos : pas de rendu complet');
 assert.match(fs.readFileSync('cloudflare/public/modules/wandoos-retro-v1.js', 'utf8'), /rafraichir:rafraichirPoste_/, 'Wandoos expose le rafraîchissement du poste');
 console.log('idle-boutique-ap-anti-spoil-v1 (borne, Wandoos): OK');
-assert.match(itopod, /rotateX\(24deg\) scaleX\(1\.06\)/, 'boutons de la borne en trapèze penché');
+assert.match(itopod, /perspective\(1800px\) rotateX\(48deg\)/, 'boutons de la borne en trapèze penché');
+/* Or : vert/rouge partout ; cheminée coupée par défaut */
+const sang = fs.readFileSync('cloudflare/public/modules/blood-magic-v1.js', 'utf8');
+assert.ok(sang.includes("data-cout-or=") && sang.includes("'or-ok':'or-non'"), 'rituels : somme en Or verte/rouge');
+assert.match(ui, /\[data-cout-or\]/, 'mise à jour en direct de toute somme en Or');
+assert.match(itopod, /or-cout-v1\.or-cout-v1\.or-ok/, 'style vert');
+assert.ok(fs.readFileSync('cloudflare/public/modules/feu-v1.js', 'utf8').includes("getItem('soreal_idle_effet_feu_v1')==='1'"), 'cheminée désactivée par défaut');
+/* Wandoos : l'écran ne remonte plus (hauteur retenue + bandeau qui ne rétrécit pas) */
+const wd = fs.readFileSync('cloudflare/public/modules/wandoos-retro-v1.js', 'utf8');
+assert.ok(wd.includes("corps.style.minHeight=h+'px'") && wd.includes('window.scrollTo(x,y)'), 'poste : hauteur retenue, défilement rétabli');
+assert.ok(ui.includes('--hud-min-v2') && ui.includes('box-sizing:border-box;min-height:var(--hud-min-v2'), 'bandeau : cliquet de hauteur (box-sizing border-box)');
+assert.ok(meta.includes("throw new Error('poste vide')"), 'Wandoos : repli sur le rendu complet');
