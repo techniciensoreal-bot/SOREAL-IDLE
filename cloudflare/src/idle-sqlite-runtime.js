@@ -12611,17 +12611,21 @@ function nukerBossSorealIdle(
     feuille.getRange(ligne, c.BOSS_PV_MAX).setValue(bossSuivantNuke.pv);
     feuille.getRange(ligne, c.BOSS_PV).setValue(bossSuivantNuke.pv);
 
+    /*
+     * Norman (2026-10-08) : « dans Fight Boss, je suis à moitié de vie, je fais le bouton Nuke et je récupère toute ma vie ».
+     * NUKE tue le boss sans combat : il ne soigne pas le joueur. Les PV (déjà mis à jour de la régénération par
+     * appliquerProgressionEnergieSorealIdle_ plus haut) et un éventuel KO en cours restent tels quels.
+     */
     feuille.getRange(ligne, c.PV_JOUEUR).setValue(
       Math.max(
-        1,
-        nombreSorealIdle_(
-          row[c.PV_JOUEUR_MAX - 1],
-          1
+        0,
+        Math.min(
+          nombreSorealIdle_(row[c.PV_JOUEUR_MAX - 1], 1),
+          nombreSorealIdle_(row[c.PV_JOUEUR - 1], nombreSorealIdle_(row[c.PV_JOUEUR_MAX - 1], 1))
         )
       )
     );
 
-    feuille.getRange(ligne, c.KO_JUSQUA).clearContent();
     feuille.getRange(ligne, c.PIECES).setValue(pieces);
 
     feuille.getRange(ligne, c.INVENTAIRE_JSON).setValue(
