@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Les fenêtres explicatives sont toutes réécrites pour être courtes, claires et un peu drôles, sans maths : chaque système dit ce qu’il fait vraiment (les NGU, par exemple, sont présentés comme les entraîneurs de l’Entraînement). L’Entraînement avancé et les NGU passent en vrai français, avec un titre plus soigné. Nouvelle barre de volume « Musique » dans les Réglages : elle règle les musiques de menus indépendamment de l’ambiance.',
           'Entraînement avancé : quand tu places de l’énergie ou que tu changes un Target, la page ne se redessine plus de temps en temps ; seules les lignes concernées sont mises à jour. La phrase d’explication en bas de la page a aussi disparu.',
           'Lancement depuis SOREAL APP sur Android : le bouton ⚡ ouvre maintenant le jeu dans sa propre application (ou dans Chrome si elle n’est pas installée), au lieu d’une fenêtre posée par-dessus SOREAL APP, qui ramait. Le retour se fait avec le bouton « précédent » du téléphone.',
           'Money Pit : l’image du trou sans fond sur ordinateur est réduite (elle prenait la moitié de l’écran) ; elle reste entière et centrée.',

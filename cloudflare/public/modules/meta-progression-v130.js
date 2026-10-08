@@ -3534,11 +3534,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * Chaque compétence a sa propre énergie (allocateAdvancedTraining) ; le Target retire l'énergie dès que le niveau voulu est atteint.
        */
       const IDLE_AT_NOMS_V1={
-        power:'Adventure Power +',
-        toughness:'Adventure Toughness +',
-        block:'Block Damage Reduction',
-        wandoosEnergy:'Wandoos Energy Dump +',
-        wandoosMagic:'Wandoos Magic Dump +'
+        power:'Puissance d’Aventure +',
+        toughness:'Endurance d’Aventure +',
+        block:'Réduction de dégâts du Blocage',
+        wandoosEnergy:'Vidage d’énergie de Wandoos +',
+        wandoosMagic:'Vidage de magie de Wandoos +'
       };
       const IDLE_AT_ORDRE_V1=['toughness','power','block','wandoosEnergy','wandoosMagic'];
       const IDLE_AT_ICONES_V1={toughness:'🛡️',power:'⚔️',block:'🧱',wandoosEnergy:'💻',wandoosMagic:'🔮'};
@@ -3623,9 +3623,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const ancrage='data-at-n="'+av.n+'" data-at-base="'+av.base+'" data-at-p="'+av.p+'" data-at-t="'+av.t+'" data-at-a="'+av.a+'" data-at-taux="'+av.taux+'" data-at-gratuit="'+av.gratuit+'" data-at-cible="'+av.cible+'"';
           return '<div class="soreal-idle-at-ligne-v1" data-at-piste="'+idH+'" '+ancrage+'>'+
             '<div class="soreal-idle-at-nom-v1"><div class="soreal-idle-at-barre-v1"><i class="soreal-idle-at-remplissage-v1" data-at-fill></i><span class="soreal-idle-at-titre-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</span></div><div class="soreal-idle-at-detail-v1"><span data-at-bonus></span><span data-at-eta></span></div></div>'+
-            '<div class="soreal-idle-at-col-v1"><span>Level</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
-            '<div class="soreal-idle-at-col-v1"><span>Energy Allocated</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
-            '<label class="soreal-idle-at-col-v1 cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
+            '<div class="soreal-idle-at-col-v1"><span>Niveau</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
+            '<div class="soreal-idle-at-col-v1"><span>Énergie placée</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
+            '<label class="soreal-idle-at-col-v1 cible"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
             '<div class="soreal-idle-at-boutons-v1">'+
               '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'plus\')">+</button>'+
               '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+
@@ -3645,9 +3645,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '.soreal-idle-at-aide-v1{padding:12px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(0,0,0,.28);font-size:15px;line-height:1.55}'+
           '.soreal-idle-at-aide-v1[hidden]{display:none}'+
           '.soreal-idle-at-aide-v1 p{margin:0 0 8px}.soreal-idle-at-aide-v1 ol{margin:0;padding-left:20px;display:grid;gap:6px}'+
-          '.soreal-idle-at-entete-v1{text-align:center;padding:6px 0 2px}'+
-          '.soreal-idle-at-entete-v1 h1{margin:0;font-family:Impact,"Arial Black",sans-serif;font-size:30px;letter-spacing:.04em;text-transform:uppercase}'+
-          '.soreal-idle-at-entete-v1 p{margin:2px 0 0;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.8}'+
+          /* Titre de la page (Norman, 2026-10-08) : dégradé violet-rose-bleu comme les barres, halo, filet orné ; une div (le thème du jeu pose contour et ombre noirs sur les h1). */
+          '.soreal-idle-at-entete-v1{text-align:center;padding:10px 0 6px}'+
+          '.soreal-idle-at-titre-page-v1{display:inline-block;max-width:100%;margin:0;font:900 clamp(26px,8vw,42px)/1.1 "Segoe UI Black","Segoe UI",system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;background:linear-gradient(90deg,#f0abfc,#c4b5fd 45%,#7dd3fc);-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 0 12px rgba(192,38,211,.65))}'+
+          '.soreal-idle-at-ornement-v1{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px auto 4px;max-width:360px}'+
+          '.soreal-idle-at-ornement-v1 i{flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#c026d3 60%,#f0abfc)}'+
+          '.soreal-idle-at-ornement-v1 i:last-child{background:linear-gradient(270deg,transparent,#c026d3 60%,#7dd3fc)}'+
+          '.soreal-idle-at-ornement-v1 b{font-size:15px;color:#f5d0fe;text-shadow:0 0 10px #c026d3}'+
+          '.soreal-idle-at-entete-v1 p{margin:2px 0 0;font-size:14px;font-weight:700;font-style:italic;letter-spacing:.04em;color:#e9d5ff;opacity:.9}'+
           '.soreal-idle-at-liste-v1{display:grid;gap:9px}'+
           '.soreal-idle-at-ligne-v1{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(3,minmax(76px,1fr)) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.18)}'+
           '.soreal-idle-at-nom-v1{font-weight:900;font-size:16px}'+
@@ -3668,19 +3673,19 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         '</style>'+
         '<div class="soreal-idle-at-v1">'+
           '<div class="soreal-idle-at-haut-v1">'+
-            '<button type="button" class="soreal-idle-at-aide-bouton-v1" onclick="window.__basculerAideAdvancedTrainingIdleV1__()">WTF do I do?</button>'+
-            '<label class="soreal-idle-at-avance-v1"><input type="checkbox" '+(s.state.data&&s.state.data.advanceEnergy?'checked ':'')+'onchange="window.__basculerAdvanceAdvancedTrainingIdleV1__(this.checked)"> Advance Energy</label>'+
+            '<button type="button" class="soreal-idle-at-aide-bouton-v1" onclick="window.__basculerAideAdvancedTrainingIdleV1__()">Je fais quoi ?</button>'+
+            '<label class="soreal-idle-at-avance-v1"><input type="checkbox" '+(s.state.data&&s.state.data.advanceEnergy?'checked ':'')+'onchange="window.__basculerAdvanceAdvancedTrainingIdleV1__(this.checked)"> Faire suivre l’énergie</label>'+
           '</div>'+
-          '<header class="soreal-idle-at-entete-v1"><h1>Advanced Training</h1><p>(Time to improve your moves)</p></header>'+
+          '<header class="soreal-idle-at-entete-v1"><div class="soreal-idle-at-titre-page-v1" role="heading" aria-level="1">Entraînement avancé</div><div class="soreal-idle-at-ornement-v1" aria-hidden="true"><i></i><b>✦</b><i></i></div><p>(C’est l’heure de muscler tes coups)</p></header>'+
           '<div class="soreal-idle-at-aide-v1" id="sorealIdleAtAideV1" hidden>'+
-            '<p><b>À quoi ça sert ?</b> L’Advanced Training améliore ton Power et ta Toughness en Aventure, la réduction de dégâts du Block'+(wandoosOk?' et la vitesse des dumps de Wandoos':'')+'.</p>'+
+            '<p><b>C’est quoi ?</b> '+(wandoosOk?'L’Entraînement avancé, c’est la salle de sport de ton héros : tu y dépenses de l’énergie pour devenir plus fort en Aventure (plus de puissance, plus d’endurance, moins de dégâts quand tu bloques, et des dumps de Wandoos plus rapides).':'L’Entraînement avancé, c’est la salle de sport de ton héros : tu y dépenses de l’énergie pour devenir plus fort en Aventure (plus de puissance, plus d’endurance, moins de dégâts quand tu bloques).')+'</p>'+
             '<ol>'+
-              '<li><b>Place de l’énergie</b> sur une compétence avec <b>+</b> : la quantité placée est celle de la case <b>Input</b> (les boutons Cap, 1/2 et 1/4 la remplissent). <b>−</b> la retire.</li>'+
-              '<li>Chaque compétence avance <b>avec sa propre énergie</b>, en même temps que les autres. Chaque niveau demande plus de temps que le précédent, avec des bonus qui augmentent de moins en moins.</li>'+
-              '<li>Ta <b>Puissance d’énergie</b> ne compte que par sa racine carrée ; ton <b>plafond d’énergie</b> compte à plein.</li>'+
-              '<li><b>Target</b> : le niveau à atteindre. Dès qu’il est atteint, l’énergie de la compétence est retirée (0 = aucun objectif).</li>'+
-              '<li><b>Advance Energy</b> : quand une compétence atteint son Target, son énergie passe automatiquement à la ligne suivante.</li>'+
-              '<li>Les niveaux sont remis à zéro à chaque Rebirth.</li>'+
+              '<li><b>Place de l’énergie.</b> Sur une compétence, avec +. La quantité placée est celle de la case Input (les boutons Max, 1/2 et 1/4 la remplissent d’un coup), et − la retire. C’est comme mettre des pièces dans une machine.</li>'+
+              '<li><b>Chacun son énergie.</b> Les compétences s’entraînent en même temps, chacune avec sa propre énergie : plus tu en donnes, plus elle va vite. Mais chaque niveau demande plus de temps que le précédent, et les bonus grossissent de moins en moins : normal, les premiers muscles poussent vite.</li>'+
+              '<li><b>Réservoir ou moteur ?</b> Ici, ta Puissance d’énergie compte moins que son nombre ne le laisse croire (seulement par sa racine carrée), alors que ton plafond d’énergie compte à plein. Moralité : un grand réservoir vaut mieux qu’un gros moteur.</li>'+
+              '<li><b>Cible.</b> Le niveau que tu veux atteindre. Dès qu’il est atteint, l’énergie de la compétence est retirée et te revient (0 = aucun objectif). Pratique pour ne pas gaver une compétence qui a déjà fini ses pompes.</li>'+
+              '<li><b>Faire suivre l’énergie.</b> Quand une compétence atteint sa cible, son énergie passe automatiquement à la ligne suivante, comme un relais.</li>'+
+              '<li><b>Renaissance.</b> Les niveaux sont remis à zéro à chaque Renaissance : on refait ses abdos à chaque nouvelle vie.</li>'+
             '</ol>'+
           '</div>'+
           toolbar+

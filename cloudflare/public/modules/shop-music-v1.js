@@ -24,7 +24,8 @@
 
   function volume_(){
     var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
-    var v=r&&typeof r.getAmbiance==='function'?Number(r.getAmbiance()):0.35;
+    /* Barre « Musique » des Réglages (indépendante de l'ambiance) ; repli sur l'ambiance si le module de volume est plus ancien. */
+    var v=r&&typeof r.getMusique==='function'?Number(r.getMusique()):(r&&typeof r.getAmbiance==='function'?Number(r.getAmbiance()):0.35);
     return Math.max(0,Math.min(1,Number.isFinite(v)?v:0.35));
   }
 

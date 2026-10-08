@@ -104,16 +104,16 @@ function barreHtml_(n,ancre){
   var idH=esc_(n.id);
   var rempli=pleine?1:Math.round(p*1000)/1000;
   return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+ancre+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+'">'+
-    '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-niveau">Level <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
+    '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
     '<div class="nl-tuyau">'+
       '<i class="nl-bride g"></i>'+
       '<div class="nl-tube"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
       '<i class="nl-bride d"></i>'+
     '</div>'+
-    '<div class="nl-infos"><span>'+(n.resource==='magic'?'Magic':'Energy')+' Allocated <b data-nl-alloc>'+format_(alloc)+'</b></span>'+
+    '<div class="nl-infos"><span>'+(n.resource==='magic'?'Magie':'Énergie')+' placée <b data-nl-alloc>'+format_(alloc)+'</b></span>'+
       '<span class="nl-effet" title="'+esc_(n.effect)+'">'+esc_(n.effect)+' <b>'+effet+'</b></span></div>'+
     '<div class="nl-actions">'+
-      '<label class="nl-cible"><span>Target</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
+      '<label class="nl-cible"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
       '<div class="nl-boutons">'+
         '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
         '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
@@ -233,7 +233,7 @@ function page(j){
   function section(res){
     var tuyaux=liste.filter(function(n){return n.resource===res;}).map(function(n){return barreHtml_(n,ancre);}).join('');
     return '<div class="nl-section" data-nl-section="'+res+'"'+(onglet===res?'':' hidden')+'>'+
-      '<label class="nl-avance"><input type="checkbox" '+(avance[res]?'checked ':'')+'onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.avance(\''+res+'\',this.checked)"> Advance '+(res==='magic'?'Magic':'Energy')+'</label>'+
+      '<label class="nl-avance"><input type="checkbox" '+(avance[res]?'checked ':'')+'onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.avance(\''+res+'\',this.checked)"> Faire suivre '+(res==='magic'?'la magie':'l’énergie')+'</label>'+
       '<div class="nl-grille">'+tuyaux+'</div>'+
     '</div>';
   }
@@ -241,19 +241,19 @@ function page(j){
     '<style>'+CSS+'</style>'+
     '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'">'+ETOILES+
       '<div class="nl-haut">'+
-        '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">WTF do I do?</button>'+
-        (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'TO NGU ENERGY':'TO NGU MAGIC')+'</button>':'')+
+        '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
+        (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
       '</div>'+
-      '<header class="nl-entete"><div class="nl-titre" role="heading" aria-level="1">NGU</div><p>(Hey, that\'s the name of this game!)</p></header>'+
+      '<header class="nl-entete"><div class="nl-titre" role="heading" aria-level="1">NGU</div><p>(Eh, c’est le nom de ce jeu !)</p></header>'+
       '<div class="nl-aide" id="sorealIdleNguAideV1" hidden>'+
-        '<p><b>À quoi ça sert ?</b> Chaque NGU est un tuyau qui se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.</p>'+
+        '<p><b>C’est quoi ?</b> Les NGU sont des entraîneurs : tu leur confies de l’énergie (et de la magie), ils font le sport pour toi. Chaque tuyau se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.</p>'+
         '<ol>'+
-          '<li><b>Place de l’énergie</b> dans un tuyau avec <b>+</b> : la quantité est celle de la case <b>Input</b> (Max, 1/2 et 1/4 la remplissent). <b>−</b> la retire.</li>'+
-          '<li>Chaque NGU avance <b>avec sa propre énergie</b>, en même temps que les autres.</li>'+
-          '<li><b>Target</b> : le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU lui est retirée (0 = aucun objectif).</li>'+
-          '<li><b>Advance Energy</b> : quand un NGU atteint son Target, son énergie passe automatiquement au NGU suivant.</li>'+
-          '<li>Les niveaux persistent à travers les Rebirths ; l’énergie et la magie allouées sont rendues au Rebirth.</li>'+
-          (paliers.length>1?'<li>Un seul palier reçoit de l’énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</li>':'')+
+          '<li><b>Place de l’énergie.</b> Dans un tuyau, avec +. La quantité est celle de la case Input (Max, 1/2 et 1/4 la remplissent), et − la retire.</li>'+
+          '<li><b>Chacun son énergie.</b> Les NGU avancent en même temps, chacun avec sa propre énergie : plus tu en donnes, plus son tuyau se remplit vite.</li>'+
+          '<li><b>Cible.</b> Le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU te revient (0 = aucun objectif).</li>'+
+          '<li><b>Faire suivre l’énergie.</b> Quand un NGU atteint sa cible, son énergie passe automatiquement au NGU suivant, comme un relais.</li>'+
+          '<li><b>Renaissance.</b> Les niveaux persistent à travers les Renaissances ; l’énergie et la magie placées te sont rendues à la Renaissance.</li>'+
+          (paliers.length>1?'<li><b>Paliers.</b> Un seul palier reçoit de l’énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</li>':'')+
         '</ol>'+
       '</div>'+
       chips+
@@ -400,7 +400,7 @@ function changerOnglet(res){
   racine.setAttribute('data-nl-onglet',onglet);
   Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-section]'),function(s){s.hidden=s.getAttribute('data-nl-section')!==onglet;});
   var b=racine.querySelector('[data-nl-onglet-btn]');
-  if(b)b.textContent=onglet==='magic'?'TO NGU ENERGY':'TO NGU MAGIC';
+  if(b)b.textContent=onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie';
   var j=H_()&&H_().getIdleEtat?H_().getIdleEtat():null;
   var lab=racine.querySelector('[data-nl-libre-label]');
   if(lab)lab.innerHTML=(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(libre_(j,onglet))+'</b> '+(onglet==='magic'?'✨':'⚡');

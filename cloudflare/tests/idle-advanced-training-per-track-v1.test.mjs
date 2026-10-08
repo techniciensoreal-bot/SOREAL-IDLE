@@ -125,7 +125,7 @@ assert.equal(at(r).data.tracks.power.tempLevel, 1);
   const { readFileSync } = await import("node:fs");
   const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
   assert.ok(meta.includes("function pageAdvancedTrainingIdleV1_(j)") && meta.includes("if(id==='advancedTraining')return pageAdvancedTrainingIdleV1_(j);"));
-  for (const mot of ["Energy Allocated", "Target", "Level", "allocateAdvancedTraining", "setAdvancedTrainingTarget", "setAdvancedTrainingAdvance", "WTF do I do?", "Advance Energy"]) assert.ok(meta.includes(mot), mot);
+  for (const mot of ["Énergie placée", "Cible", "Niveau", "allocateAdvancedTraining", "setAdvancedTrainingTarget", "setAdvancedTrainingAdvance", "Je fais quoi ?", "Faire suivre l’énergie"]) assert.ok(meta.includes(mot), mot);
   const ui = readFileSync("cloudflare/public/modules/ui.js", "utf8");
   assert.ok(ui.includes("if(window.__SOREAL_IDLE_AT_PAGE_V2__)return;"), "l'ancien rendu à barres est désactivé");
 }

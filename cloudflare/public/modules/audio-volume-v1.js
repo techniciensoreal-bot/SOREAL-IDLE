@@ -24,10 +24,15 @@
   var CLE_VOIX='soreal_idle_volume_voix_v3';
   var CLE_AMBIANCE='soreal_idle_volume_ambiance_v3';
   var CLE_INTERFACE='soreal_idle_volume_interface_v3';
+  /*
+   * Musique (Norman, 2026-10-08) : « une barre de son supplémentaire, Musique : les musiques de Blood Magic et de la boutique EXP sont parfois trop fortes ; je veux les régler indépendamment de l'ambiance. »
+   * Tant que le joueur n'a jamais touché cette barre, la musique garde le volume de l'ambiance (rien ne change pour lui) ; dès qu'il la règle, elle devient indépendante.
+   */
+  var CLE_MUSIQUE='soreal_idle_volume_musique_v1';
   var CLE_ACTIF='soreal_idle_son_actif_v1_';
   var DEFAUT=0.75;
-  var TYPES=['voix','ambiance','interface'];
-  var CLES={voix:CLE_VOIX,ambiance:CLE_AMBIANCE,interface:CLE_INTERFACE};
+  var TYPES=['voix','ambiance','musique','interface'];
+  var CLES={voix:CLE_VOIX,ambiance:CLE_AMBIANCE,musique:CLE_MUSIQUE,interface:CLE_INTERFACE};
 
   function lire_(cle,defaut){
     try{
@@ -51,7 +56,15 @@
   function actif_(type){
     try{return localStorage.getItem(CLE_ACTIF+type)!=='0';}catch(_){return true;}
   }
-  function reglage_(type){return lire_(CLES[type],DEFAUT);}
+  function reglage_(type){
+    if(type==='musique'){
+      var brut=null;
+      try{brut=localStorage.getItem(CLE_MUSIQUE);}catch(_){}
+      /* Jamais réglée : même volume que l'ambiance. */
+      if(brut===null)return lire_(CLE_AMBIANCE,DEFAUT);
+    }
+    return lire_(CLES[type],DEFAUT);
+  }
   function effectif_(type){return actif_(type)?reglage_(type):0;}
 
   window.__SOREAL_IDLE_AUDIO_VOLUME_V1__={
@@ -60,6 +73,8 @@
     setVoix:function(v){ecrire_(CLE_VOIX,v);notifier_();},
     getAmbiance:function(){return effectif_('ambiance');},
     setAmbiance:function(v){ecrire_(CLE_AMBIANCE,v);notifier_();},
+    getMusique:function(){return effectif_('musique');},
+    setMusique:function(v){ecrire_(CLE_MUSIQUE,v);notifier_();},
     getInterface:function(){return effectif_('interface');},
     setInterface:function(v){ecrire_(CLE_INTERFACE,v);notifier_();},
     /* Pour l'écran Paramètres : le réglage de la barre (même décochée) et l'état de la case. */

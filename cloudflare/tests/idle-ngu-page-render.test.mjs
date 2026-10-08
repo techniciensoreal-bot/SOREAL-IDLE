@@ -64,8 +64,8 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
   assert.equal((html.match(/data-nl-ngu="/g) || []).length, 16, "un tuyau par NGU");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 2, "boutons + et − sur chaque tuyau");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par tuyau");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Advance Magic");
-  assert.ok(html.includes("TO NGU MAGIC") && html.includes("WTF do I do?"), "boutons de l'écran d'origine");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Faire suivre la magie");
+  assert.ok(html.includes("Vers les NGU de magie") && html.includes("Je fais quoi ?"), "boutons de l'écran d'origine");
   assert.ok(html.includes("data-nl-niv>120<"), "niveau du NGU Power α");
   assert.ok(html.includes("+600 %"), "Power α niveau 120 : 120 x 5 % = 600 %");
   assert.ok(!html.includes("setNguTier"), "en difficulté Normal, un seul palier : pas de bouton de changement");
@@ -78,14 +78,14 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
   /* Le tuyau de Power α porte sa progression et son énergie pour le rejeu en direct. */
   assert.ok(/data-nl-ngu="powerAlpha" data-nl-res="energy" data-nl-p="[0-9.e-]+" data-nl-spl="[0-9.e+-]+" data-nl-n="120" data-nl-cible="0"/.test(html), "ancrage de la progression");
 }
-// Anti-spoil : tant que la magie n'est pas découverte, aucun NGU de magie ni bouton « TO NGU MAGIC »
+// Anti-spoil : tant que la magie n'est pas découverte, aucun NGU de magie ni bouton « Vers les NGU de magie »
 {
   const snap = idleNguSnapshot(state, context, 1_000_000);
   snap.ngus.magicUnlocked = false;
   const html = page({ systemes: snap }, "ngu", "NGU");
   assert.equal((html.match(/data-nl-ngu="/g) || []).length, 9, "seulement les 9 NGU d'énergie");
   assert.ok(!/YGGDRASIL|POWER Β|TIME MACHINE|ENERGY NGU|ADVENTURE Β/i.test(html.replace(/POWER Α|ADVENTURE Α/gi, "")), "aucun nom de NGU de magie");
-  assert.ok(!html.includes("TO NGU MAGIC") && !html.includes("Advance Magic"), "ni bouton ni case de magie");
+  assert.ok(!html.includes("Vers les NGU de magie") && !html.includes("Faire suivre la magie"), "ni bouton ni case de magie");
 }
 
 // Evil : le sélecteur de palier apparaît
