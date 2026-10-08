@@ -1997,7 +1997,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28
  * Téléphone seulement : les barres (Énergie, Magie, 3e ressource si possédée, Vie en dernier) forment un bandeau collé en haut de l'écran, une ligne chacune (icône + barre + valeur).
  * Sur PC le conteneur disparaît (display:contents) et les panneaux Vie / 3e ressource restent masqués : rien ne change. */
 body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
-@media (max-width:700px){
+@media all{
   /* « overflow-x:hidden » transformait <body> et <main> en conteneurs de défilement : le bandeau ne pouvait plus rester collé. « clip » coupe pareil sans créer de conteneur. */
   body.soreal-idle-active-v47{overflow-x:clip!important;overflow-y:visible!important}
   body.soreal-idle-active-v47 main.soreal-idle-native-v4{overflow-x:clip!important;overflow-y:visible!important}
@@ -2025,7 +2025,7 @@ body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-energybar-wrap-v11::before{content:"🧪"}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-energybar-wrap-v11::before{content:"❤️"}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3bar-v2{background:linear-gradient(90deg,#9b5cff,#d59bff)!important;box-shadow:0 0 12px rgba(155,92,255,.45)!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pvbar-v2{background:linear-gradient(180deg,#d0192f 0%,#a30f22 45%,#6b0716 100%)!important;box-shadow:inset 0 6px 5px rgba(255,120,120,.40),inset 0 -6px 7px rgba(30,0,5,.55),0 0 10px rgba(160,10,30,.55)!important;transition:width .6s ease-out}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pvbar-v2{background:linear-gradient(180deg,#d0192f 0%,#a30f22 45%,#6b0716 100%)!important;box-shadow:inset 0 6px 5px rgba(255,120,120,.40),inset 0 -6px 7px rgba(30,0,5,.55),0 0 10px rgba(160,10,30,.55)!important;transition:width .28s linear,background .4s ease,box-shadow .4s ease}
 }
 @keyframes sorealHudPvBasV2{from{opacity:1}to{opacity:.55}}
 @media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-hud-pv-v2.bas .soreal-idle-hud-pvbar-v2{animation:none}}
@@ -2122,19 +2122,95 @@ body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2{transition:none}
 }
 
-/* ====== Bandeau des barres sur PC (grand écran) : collé en haut de la colonne de droite ; chaque barre garde son titre, sa vitesse et son texte « reste à générer », autour du tube. ====== */
+/* ====== Bandeau sur PC : exactement le même qu'au téléphone (une ligne par barre, tout écrit DANS la barre), sur toute la largeur de la colonne de droite, collé en haut. ====== */
 @media (min-width:701px){
-  body.soreal-idle-active-v47{overflow-x:clip!important;overflow-y:visible!important}
-  body.soreal-idle-active-v47 main.soreal-idle-native-v4{overflow-x:clip!important;overflow-y:visible!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{display:block;position:sticky;top:0;z-index:49;margin:0 0 10px;padding:8px 10px 4px;background:var(--th-bg2,#0d1426);border-radius:0 0 10px 10px;box-shadow:0 8px 14px -6px rgba(0,0,0,.7)}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{display:grid!important;grid-template-columns:260px minmax(0,1fr) minmax(0,420px);grid-template-rows:auto auto;column-gap:14px;row-gap:0;align-items:center;margin:0 0 5px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34::after{display:none!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-head-v34{display:contents}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-title-v34{grid-column:1;grid-row:1;font-size:13px;white-space:nowrap}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-speed-v34{grid-column:1;grid-row:2;font-size:10.5px;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{grid-column:2;grid-row:1 / span 2;height:24px!important;margin:0!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-number-v34{grid-column:3;grid-row:1 / span 2;font-size:12px;text-align:left;line-height:1.25}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3bar-v2{background:linear-gradient(90deg,#9b5cff,#d59bff)!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pvbar-v2{background:linear-gradient(180deg,#d0192f 0%,#a30f22 45%,#6b0716 100%)!important;box-shadow:inset 0 6px 5px rgba(255,120,120,.40),inset 0 -6px 7px rgba(30,0,5,.55),0 0 10px rgba(160,10,30,.55)!important;transition:width .6s ease-out}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{max-height:34px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{top:0;margin:0 0 10px;padding:6px 10px 4px;border-radius:0 0 10px 10px;box-shadow:0 8px 14px -6px rgba(0,0,0,.7)}
 }
+
+/* Bascule Aventure / Titans au-dessus des zones. */
+.soreal-idle-bascule-aventure-v1{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
+.soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25{opacity:.65;filter:saturate(.7)}
+.soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25.actif{opacity:1;filter:none;box-shadow:0 0 0 2px #f5c14b,0 0 12px rgba(245,193,75,.45)}
+
+/* Les petits points des barres (braises, étoiles, runes, code…) ne surgissent ni ne disparaissent jamais d'un coup : ils s'estompent progressivement aux deux bouts du liquide (fondu d'entrée à gauche, fondu de sortie à droite et quand la barre se vide). */
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);
+  }
+}
+
+/* ====== Barres plus hautes, bords moins arrondis, icône devant les chiffres, vitesse à gauche et temps restant à droite (Norman, 2026-10-08). ====== */
+.soreal-idle-hud-lat-v2{display:none}
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{height:30px!important;border-radius:8px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-v11,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-depense-v2{border-radius:8px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11::after{border-radius:5px!important;left:7px!important;right:7px!important;top:2px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{max-height:36px}
+}
+@media all{
+  /* vitesse (à gauche) et temps restant (à droite) sont écrits DANS la barre, aux deux bouts ; icône + chiffres au centre */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{display:block!important;position:relative}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2{display:block;position:absolute;top:50%;transform:translateY(-50%);z-index:7;pointer-events:none;font-size:11px;font-weight:900;line-height:1;white-space:nowrap;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2.g{left:9px;text-align:left}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2.d{right:9px;text-align:right}
+  /* l'icône passe devant les chiffres, dans la barre */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11::before{display:none!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1{padding-left:0!important;font-size:12.5px}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1::before{margin-right:6px;font-size:14px;filter:drop-shadow(0 0 2px #000)}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2) .soreal-idle-energybar-overlay-v1::before{content:"⚡"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-energybar-overlay-v1::before{content:"🔮"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-energybar-overlay-v1::before{content:"🧪"}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-energybar-overlay-v1::before{content:"❤️"}
+}
+
+/* Ombrage plus fort sur toutes les écritures des barres ; régénération de la vie en vert, sur la droite. */
+@media all{
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2{text-shadow:0 0 2px #000,0 0 4px #000,0 0 8px #000,0 2px 3px #000,0 0 12px rgba(0,0,0,.9)!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-hud-lat-v2.d{color:#5dff8a!important;text-shadow:0 0 2px #000,0 0 4px #000,0 0 8px #000,0 2px 3px #000,0 0 14px rgba(0,0,0,.95),0 0 6px rgba(40,200,90,.55)!important}
+}
+
+/* Part dépensée de la 3e ressource : violet foncé (et non le vert foncé de l'énergie) ; pas de part dépensée pour la Vie. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-depense-v2{background:linear-gradient(180deg,#4a2a8a,#331b66 45%,#1f0f45)!important;box-shadow:inset 0 6px 5px rgba(255,255,255,.12),inset 0 -6px 7px rgba(0,0,0,.35)!important}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-depense-v2{display:none}
+
+/* ====== Tuiles du bandeau : Attaque, Défense, Or, EXP, AP sur UNE ligne, collées sous les barres, dans le même bloc (Norman, 2026-10-08). Mêmes couleurs que les anciennes tuiles. ====== */
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]{
+  --tc:#9aa5bb;
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(120% 150% at 0% 0%,color-mix(in srgb,var(--tc) 42%,transparent),transparent 62%),
+    linear-gradient(165deg,color-mix(in srgb,var(--tc) 16%,#0c1222),#080d19)!important;
+  border:1px solid color-mix(in srgb,var(--tc) 62%,transparent)!important;
+  border-left:4px solid var(--tc)!important;border-bottom:3px solid var(--tc)!important;
+  border-radius:5px 14px 5px 14px!important;
+  color:color-mix(in srgb,var(--tc) 58%,#fff)!important;font-weight:900;
+  box-shadow:0 8px 18px -10px var(--tc),inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 18px -8px var(--tc);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{
+  content:"";position:absolute;top:-30%;bottom:-30%;left:-60%;width:38%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-18deg);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile] b{
+  color:#fff!important;text-shadow:0 0 12px var(--tc),0 0 3px color-mix(in srgb,var(--tc) 80%,#000);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="nombre"]{--tc:#22d3ee}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="rebirths"]{--tc:#4ade80}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="attack"]{--tc:#fb5a4b}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="defense"]{--tc:#5b8cff}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="gold"]{--tc:#fbbf24}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="exp"]{--tc:#c084fc}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="ap"]{--tc:#f472b6}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="run"]{--tc:#fb923c}
+@keyframes sorealTuileReflet{0%,70%{left:-60%}100%{left:130%}}
+@media (prefers-reduced-motion:no-preference){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{animation:sorealTuileReflet 7s ease-in-out infinite}
+}
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{display:none}
+}
+
+
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28{display:grid!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin:4px 0 0!important}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28{padding:3px 4px!important;font-size:10px!important;letter-spacing:.02em;line-height:1.25;text-align:center;white-space:nowrap;overflow:hidden;min-width:0}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28 b{display:block;font-size:13px!important;margin-top:1px;overflow:hidden;text-overflow:ellipsis}

@@ -255,6 +255,17 @@ function page(j){
   return entete+'<div class="ttn-grille">'+titans.map(carte).join('')+'</div>';
 }
 
+/* Section intégrée à la page Adventure (le menu Titans n'existe plus) : même grille de cartes, sans en-tête de page ; vide s'il n'y a aucun titan débloqué (anti-spoil). */
+function section(j){
+  css();
+  /* styles de la bascule Aventure / Titans */
+  var H=hote();
+  var a=typeof H.aventureMetaIdleV47_==='function'?H.aventureMetaIdleV47_(j):null;
+  var titans=(a&&Array.isArray(a.titans)?a.titans:[]).filter(function(t){return t&&t.progressionUnlocked!==false&&t.id;});
+  if(!titans.length)return '';
+  return '<div class="ttn-grille">'+titans.map(carte).join('')+'</div>';
+}
+
 /* ---------- interactions ---------- */
 window.__changerPalierTitanV1__=function(id,palier){
   var t=registre[id];
@@ -276,6 +287,7 @@ window.__affronterTitanV1__=function(id){
   var charge={action:'startTitanFight',titan:String(id)};
   if(sel&&sel.value)charge.difficulty=String(sel.value);
   if(etat&&etat.adventureRestPv!=null)charge.restHp=etat.adventureRestPv;
+  if(typeof window.__vueAventureIdleV1__==='function')window.__vueAventureIdleV1__('zones');
   if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:charge});
 };
 
@@ -298,5 +310,5 @@ setInterval(function(){
   });
 },1000);
 
-window.__SOREAL_IDLE_TITANS_V1__={page:page,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

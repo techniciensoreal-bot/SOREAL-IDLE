@@ -244,6 +244,49 @@
         const r=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resources&&idleEtat.systemes.resources.magic;
         return {energie:energieDisponibleIdleV9_(),magie:b?idleNombre_(b.available):idleNombre_(r&&r.current)};
       };
+      /* Bandeau : à gauche de la barre le niveau gagné par seconde, à droite le temps avant que tout soit généré (format court). */
+      function dureeCourteBandeauIdleV2_(sec){
+        let s=Math.max(0,Math.ceil(Number(sec)||0));
+        const j=Math.floor(s/86400);s-=j*86400;
+        const h=Math.floor(s/3600);s-=h*3600;
+        const m=Math.floor(s/60);s-=m*60;
+        if(j>0)return j+'j '+h+'h';
+        if(h>0)return h+'h '+m+'m';
+        if(m>0)return m+'m '+s+'s';
+        return s+'s';
+      }
+      function infoBandeauIdleV2_(parSeconde,reste){
+        const ps=Math.max(0,idleNombre_(parSeconde));
+        return {vitesse:'+'+formatGrandNombreIdleV70_(ps,2)+'/s',temps:reste<1?'✔':(ps>0?dureeCourteBandeauIdleV2_(reste/ps):'')};
+      }
+      window.__SOREAL_IDLE_BARRE_INFOS_V2__=function(){
+        const e=idleEtat?infoBandeauIdleV2_(idleEtat.productionSeconde,idleNombre_(idleEtat.energieMax)-energieGenereeTotaleIdleV1_()):{vitesse:'',temps:''};
+        const m=typeof donneesMagieGenereeIdleV1_==='function'?donneesMagieGenereeIdleV1_():null;
+        return {energie:e,magie:m?infoBandeauIdleV2_(m.parSeconde,m.cap-m.generee):{vitesse:'',temps:''}};
+      };
+      /* Bandeau : la Vie s'écrit EXACTEMENT comme la barre de Fight Boss (mêmes formats, même fonction de mise à jour). */
+      window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvFixeIdleV1_(pv)+' / '+formaterPvFixeIdleV1_(max);};
+      window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__=function(r){return r>0?'+'+formaterPvFixeIdleV1_(r)+'/s':'';};
+      function majHudPvIdleV2_(pv,max,regen){
+        const bar=document.getElementById('sorealIdleHudPvBarV2');
+        if(!bar)return;
+        const pct=idleNombre_(max)>0?Math.max(0,Math.min(100,idleNombre_(pv)/idleNombre_(max)*100)):0;
+        bar.style.width=pct.toFixed(2)+'%';
+        const t=document.getElementById('sorealIdleHudPvTexteV2');
+        const texte=window.__SOREAL_IDLE_TEXTE_PV_V2__(pv,max);
+        if(t&&t.textContent!==texte)t.textContent=texte;
+        const d=document.getElementById('sorealIdleHudDPvV2');
+        const tr=window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__(regen);
+        if(d&&d.textContent!==tr)d.textContent=tr;
+        const panneau=document.getElementById('sorealIdleHudPvV2');
+        if(panneau)panneau.classList.toggle('bas',pct<=25);
+      }
+      window.__SOREAL_IDLE_REGEN_PV_V2__=function(menu){
+        if(!idleEtat)return 0;
+        if(menu==='combat')return regenPvFightBossNguParSecondeV164_(idleEtat.defense);
+        const a=aventureMetaIdleV47_(idleEtat);
+        return a?regenReposAdventureIdleV3_(a,String(a.selectedZone||'safe')):regenPvFightBossNguParSecondeV164_(idleEtat.defense);
+      };
       window.__SOREAL_IDLE_GENEREE_PCT_V2__=function(){
         const e=idleEtat&&idleEtat.energieMax>0?Math.min(100,energieGenereeTotaleIdleV1_()/idleEtat.energieMax*100):0;
         const m=typeof donneesMagieGenereeIdleV1_==='function'?donneesMagieGenereeIdleV1_():null;
@@ -3645,6 +3688,15 @@
           );
         }
 
+        /* Bandeau du haut : la Vie suit la barre de Fight Boss au même instant, avec les mêmes valeurs (régénération comprise). */
+        if(idleMenuActifV28==='combat'){
+          majHudPvIdleV2_(
+            idleEtat.pvJoueur,
+            idleEtat.pvJoueurMax,
+            regenPvFightBossNguParSecondeV164_(idleEtat.defense)
+          );
+        }
+
 
         const bossPvEl=
           document.getElementById(
@@ -4648,10 +4700,16 @@
             /* Allocations voulues mais pas encore confirmées : jamais écrasées par une synchro calculée avant le clic (Norman, 2026-10-07 : la barre des Augmentations sautait en arrière), et la barre locale est reportée. */
             if(typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(joueurSynchronise);
 
+            const empreinteMenusAvantV1=empreinteMenusIdleV1_(idleEtat);
+            const synchroSansReflowV1=appliquerSynchroCombatSansReflowIdleV116_(
+              joueurSynchronise
+            );
+            if(synchroSansReflowV1&&idleEtat&&empreinteMenusIdleV1_(idleEtat)!==empreinteMenusAvantV1){
+              /* Un menu vient d'être débloqué par cette synchro : il doit apparaître tout de suite. */
+              rendreIdleEtat_({ok:true,joueur:idleEtat});
+            }
             if(
-              !appliquerSynchroCombatSansReflowIdleV116_(
-                joueurSynchronise
-              )
+              !synchroSansReflowV1
             ){
               const empreinteAvant=
                 empreinteStructurelleIdleV1_(
@@ -7271,7 +7329,7 @@
 
           <div class="soreal-idle-character-grid-v25">
             <div class="soreal-idle-character-stat-v25">
-              NUMBER
+              Nombre
               <b>${formatGrandNombreIdleV70_(joueur.systemes&&joueur.systemes.rebirth&&joueur.systemes.rebirth.number||1)}</b>
             </div>
 
@@ -9546,14 +9604,14 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-102 */
       const IDLE_REBIRTH_FACTOR_LABELS_V1=[
-        {id:'currentBossFactor',nom:'Boss Power Bonus'},
-        {id:'priorBossFactor',nom:'Boss Power Bonus (dernier Rebirth)'},
-        {id:'currentTimeFactor',nom:'Rebirth Time Factor'},
-        {id:'priorTimeFactor',nom:'Rebirth Time Factor (dernier Rebirth)'},
-        {id:'trainingFactor',nom:'Training level Factor'},
-        {id:'bloodMagicBonus',nom:'Bonus Blood Magic'},
-        {id:'nguNumberBonus',nom:'Bonus NGU (Attack)'},
-        {id:'beardNumberBonus',nom:'Bonus Beard'}
+        {id:'currentBossFactor',nom:'Bonus de puissance des boss'},
+        {id:'priorBossFactor',nom:'Bonus de puissance des boss (dernière Renaissance)'},
+        {id:'currentTimeFactor',nom:'Facteur de temps de Renaissance'},
+        {id:'priorTimeFactor',nom:'Facteur de temps de Renaissance (dernière Renaissance)'},
+        {id:'trainingFactor',nom:'Facteur de niveau d’entraînement'},
+        {id:'bloodMagicBonus',nom:'Bonus de Magie du sang'},
+        {id:'nguNumberBonus',nom:'Bonus NGU (Attaque)'},
+        {id:'beardNumberBonus',nom:'Bonus des Barbes'}
       ];
 
       function rendreRenaissanceIdleV14_(j){
@@ -9575,20 +9633,28 @@
           <div id="sorealIdleBlocRenaissanceV27" class="soreal-idle-rebirth-v14">
             <div class="soreal-idle-rebirth-title-v14">♻️ Rebirth</div>
             <div class="soreal-idle-rebirth-sub-v14">
-              Recommence le run. Le NUMBER obtenu multipliera Attack et Defense au prochain cycle.
+              Recommence le run. Le nombre obtenu multipliera ton Attaque et ta Défense au prochain cycle.
             </div>
             <div class="soreal-idle-rebirth-stats-v14">
               <div class="soreal-idle-rebirth-stat-v14">
-                <div class="soreal-idle-rebirth-stat-label-v14">NUMBER actuel</div>
+                <div class="soreal-idle-rebirth-stat-label-v14">Nombre actuel</div>
                 <div class="soreal-idle-rebirth-stat-value-v14">${formatGrandNombreIdleV70_(actuel)}</div>
               </div>
               <div class="soreal-idle-rebirth-stat-v14">
-                <div class="soreal-idle-rebirth-stat-label-v14">NUMBER au Rebirth</div>
+                <div class="soreal-idle-rebirth-stat-label-v14">Nombre à la Renaissance</div>
                 <div class="soreal-idle-rebirth-stat-value-v14${prochain>actuel*1.0000001?' hausse':(prochain<actuel/1.0000001?' baisse':'')}">${formatGrandNombreIdleV70_(prochain)}</div>
               </div>
               <div class="soreal-idle-rebirth-stat-v14">
                 <div class="soreal-idle-rebirth-stat-label-v14">Variation</div>
                 <div class="soreal-idle-rebirth-stat-value-v14">×${ratio>=1000?formatGrandNombreIdleV70_(ratio,3):ratio.toFixed(3)}</div>
+              </div>
+              <div class="soreal-idle-rebirth-stat-v14">
+                <div class="soreal-idle-rebirth-stat-label-v14">Renaissances effectuées</div>
+                <div class="soreal-idle-rebirth-stat-value-v14" id="sorealIdleRebirthTotalV1">${formatGrandNombreIdleV70_(Math.max(0,idleEntier_((j&&j.systemes&&j.systemes.records&&j.systemes.records.totalRebirths)||0)))}</div>
+              </div>
+              <div class="soreal-idle-rebirth-stat-v14">
+                <div class="soreal-idle-rebirth-stat-label-v14">Temps du run</div>
+                <div class="soreal-idle-rebirth-stat-value-v14" id="sorealIdleRebirthRunV1">${formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j))}</div>
               </div>
             </div>
             ${
@@ -9599,7 +9665,7 @@
             }
             <button type="button" class="soreal-idle-rebirth-button-v14"
               onclick="window.__renaitreIdleV14__()" ${(idleRenaissanceEnCoursV14||!(idleEtat&&idleEtat.renaissance&&idleEtat.renaissance.debloquee))?'disabled':''}>
-              ♻️ REBIRTH
+              ♻️ RENAISSANCE
             </button>
             ${
               (idleEtat&&idleEtat.renaissance&&!idleEtat.renaissance.debloquee)
@@ -9608,10 +9674,6 @@
                   :'<div class="soreal-idle-rebirth-warning-v14">Disponible après 3 minutes de run.</div>')
                 :''
             }
-            <div class="soreal-idle-rebirth-warning-v14">
-              Réinitialisé : boss du run, niveaux de Basic Training et progressions temporaires.
-              Conservé : EXP et achats EXP, inventaire/équipement et progressions permanentes prévues par NGU.
-            </div>
           </div>`;
       }
 
@@ -9780,7 +9842,7 @@
               '<div class="soreal-idle-modal-title-v63">Nouvelle Renaissance</div>'+
               '<div class="soreal-idle-modal-gain-v63">+'+
                 idleEntier_(gain)+
-                ' NUMBER</div>'+
+                ' nombre</div>'+
             '</div>'+
             '<div class="soreal-idle-modal-body-v63">'+
               '<div class="soreal-idle-modal-info-v63">'+
@@ -9902,6 +9964,7 @@
               ancien==='inventaire'
                 ?'aventure'
                 :ancien==='perks'?'tower'
+                :ancien==='titans'?'aventure'
                 :(ancien==='spendExp'||ancien==='sellout'?'shop':ancien);
           }
         }catch(e){}
@@ -10010,6 +10073,8 @@
       );
       /* Atouts : plus de menu à part, la boutique est dans la page ITOPOD. */
       IDLE_MENU_PAR_SYSTEME_V1.perks='tower';
+      /* Titans : plus de menu à part (Norman, 2026-10-08), ils sont dans la page Adventure. */
+      IDLE_MENU_PAR_SYSTEME_V1.titans='aventure';
 
       function menuDisponibleIdleV28_(
         id,
@@ -10036,6 +10101,9 @@
         }
 
         if(id==='setsZones')return false;
+
+        /* Titans : fusionnés avec Adventure, plus de bouton de menu. */
+        if(id==='titans')return false;
 
         /* Admin : jamais visible d'un autre joueur (le serveur refuse de toute façon chaque opération d'administration). */
         if(id==='admin')return estAdminSorealIdle_();
@@ -11838,6 +11906,10 @@
         if(IDLE_MENUS_CONSULTES_V1[id])return idleMenuActifV28===id;
         if(id==='aventure'){
           const a=aventureMetaIdleV47_(j);
+          if(a&&Array.isArray(a.titans)){
+            const maintenant=heureServeurIdleV1_();
+            if(a.titans.some(function(t){return t&&t.id&&t.progressionUnlocked!==false&&!(t.state&&t.state.hiddenPanel)&&!(idleNombre_(t.state&&t.state.nextAt)>maintenant);}))return true;
+          }
           return Boolean(a&&a.selectedZone&&String(a.selectedZone)!=='safe');
         }
         if(id==='renaissance'){
@@ -14689,6 +14761,7 @@
               ${texteNiveauParSecondeIdleV1_(j.productionSeconde)}
             </div>
 
+            <span class="soreal-idle-hud-lat-v2 g" id="sorealIdleHudGEnergieV2"></span>
             <div class="soreal-idle-energybar-wrap-v11">
               <i class="soreal-idle-depense-v2" id="sorealIdleDepenseEnergieV2"></i>
               <div
@@ -14702,6 +14775,7 @@
                 ${formatEnergieIdleV50_(energieDisponibleIdleV9_())} / ${idleEntier_(j.energieMax)}
               </div>
             </div>
+            <span class="soreal-idle-hud-lat-v2 d" id="sorealIdleHudDEnergieV2"></span>
           </div>
 
           ${infoMagic&&ressourceMagic?`
@@ -14726,6 +14800,7 @@
                 ${texteTickMagieIdleV1_()}
               </div>
 
+              <span class="soreal-idle-hud-lat-v2 g" id="sorealIdleHudGMagieV2"></span>
               <div class="soreal-idle-energybar-wrap-v11 soreal-idle-magicbar-wrap-v1">
                 <i class="soreal-idle-depense-v2" id="sorealIdleDepenseMagieV2"></i>
                 <div
@@ -14740,6 +14815,7 @@
                   ${formatEnergieIdleV50_(magicDisponible)} / ${formatEnergieIdleV50_(magicCap)}
                 </div>
               </div>
+              <span class="soreal-idle-hud-lat-v2 d" id="sorealIdleHudDMagieV2"></span>
             </div>
           `:''}
 
@@ -14749,10 +14825,12 @@
                 <div class="soreal-idle-energy-title-v34">🧪 Ressource 3</div>
                 <div class="soreal-idle-energy-number-v34"></div>
               </div>
+              <span class="soreal-idle-hud-lat-v2 g" id="sorealIdleHudGR3V2"></span>
               <div class="soreal-idle-energybar-wrap-v11">
                 <div id="sorealIdleHudR3BarV2" class="soreal-idle-energybar-v11 soreal-idle-hud-r3bar-v2" style="width:${Math.min(100,r3Val/r3Cap*100).toFixed(3)}%"><i class="soreal-idle-bulles-v2"></i></div>
                 <div id="sorealIdleHudR3TexteV2" class="soreal-idle-energybar-overlay-v1">${formatEnergieIdleV50_(r3Val)} / ${formatEnergieIdleV50_(r3Cap)}</div>
               </div>
+              <span class="soreal-idle-hud-lat-v2 d" id="sorealIdleHudDR3V2"></span>
             </div>
           `:''}
 
@@ -14761,11 +14839,14 @@
               <div class="soreal-idle-energy-title-v34">❤️ Vie</div>
               <div class="soreal-idle-energy-number-v34"></div>
             </div>
+            <span class="soreal-idle-hud-lat-v2 g" id="sorealIdleHudGPvV2"></span>
             <div class="soreal-idle-energybar-wrap-v11">
               <div id="sorealIdleHudPvBarV2" class="soreal-idle-energybar-v11 soreal-idle-hud-pvbar-v2" style="width:100%"><i class="soreal-idle-bulles-v2"></i></div>
               <div id="sorealIdleHudPvTexteV2" class="soreal-idle-energybar-overlay-v1"></div>
             </div>
+            <span class="soreal-idle-hud-lat-v2 d" id="sorealIdleHudDPvV2"></span>
           </div>
+          ${resumeStatsIdleV28_(j)}
           </div>
         `;
       }
@@ -14798,24 +14879,16 @@
 
         return `
           <div class="soreal-idle-summary-grid-v28">
-            <div class="soreal-idle-summary-v28" data-tuile="nombre">
-              🔢 Nombre
-              <b id="sorealIdleSummaryNumberV50">${formatGrandNombreIdleV70_(number)}</b>
-            </div>
-            <div class="soreal-idle-summary-v28" data-tuile="rebirths">
-              ♻️ Rebirths
-              <b id="sorealIdleSummaryRebirthsV210">${formatGrandNombreIdleV70_(rebirths)}</b>
-            </div>
             <div class="soreal-idle-summary-v28" data-tuile="attack">
-              ⚔️ Attack
+              ⚔️ Attaque
               <b id="sorealIdleSummaryAttackV50">${formatGrandNombreIdleV70_(combat.attaque||j.puissance||0)}</b>
             </div>
             <div class="soreal-idle-summary-v28" data-tuile="defense">
-              🛡️ Defense
+              🛡️ Défense
               <b id="sorealIdleSummaryDefenseV50">${formatGrandNombreIdleV70_(combat.defense||j.defense||0)}</b>
             </div>
             <div class="soreal-idle-summary-v28" data-tuile="gold">
-              🪙 Gold
+              🪙 Or
               <b id="sorealIdleSummaryGoldV50">${formatGrandNombreIdleV70_(monnaies.gold||0)}</b>
             </div>
             <div class="soreal-idle-summary-v28" data-tuile="exp">
@@ -14828,10 +14901,6 @@
                   <b id="sorealIdleSummaryApV210">${formatGrandNombreIdleV70_(monnaies.ap||0)}</b>
                 </div>`
               :''}
-            <div class="soreal-idle-summary-v28" data-tuile="run">
-              ⏱️ Run
-              <b id="sorealIdleSummaryRunV1">${formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j))}</b>
-            </div>
           </div>
         `;
       }
@@ -14856,8 +14925,8 @@
         );
         const apExistant=document.getElementById('sorealIdleSummaryApV210');
         if(apVisible&&!apExistant){
-          const numberNode=document.getElementById('sorealIdleSummaryNumberV50');
-          const grille=numberNode&&numberNode.closest('.soreal-idle-summary-grid-v28');
+          const attaqueNode=document.getElementById('sorealIdleSummaryAttackV50');
+          const grille=attaqueNode&&attaqueNode.closest('.soreal-idle-summary-grid-v28');
           if(grille){
             grille.outerHTML=resumeStatsIdleV28_(j);
           }
@@ -14868,17 +14937,34 @@
           if(el)el.textContent=texte;
         };
 
-        ecrire('sorealIdleSummaryNumberV50',formatGrandNombreIdleV70_(number));
         ecrire('sorealIdleSummaryAttackV50',formatGrandNombreIdleV70_(combat.attaque||j.puissance||0));
         ecrire('sorealIdleSummaryDefenseV50',formatGrandNombreIdleV70_(combat.defense||j.defense||0));
         ecrire('sorealIdleSummaryGoldV50',formatGrandNombreIdleV70_(monnaies.gold||0));
         ecrire('sorealIdleSummaryExpV50',formatGrandNombreIdleV70_(monnaies.experience||j.xp||0));
         ecrire('sorealIdleSummaryApV210',formatGrandNombreIdleV70_(monnaies.ap||0));
-        ecrire('sorealIdleSummaryRebirthsV210',formatGrandNombreIdleV70_(records.totalRebirths||0));
-        ecrire('sorealIdleSummaryRunV1',formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j)));
+        /* Page Renaissance : total des renaissances et temps du run (ces deux infos ont quitté les tuiles du haut). */
+        ecrire('sorealIdleRebirthTotalV1',formatGrandNombreIdleV70_(records.totalRebirths||0));
+        ecrire('sorealIdleRebirthRunV1',formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j)));
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-156 */
+      /*
+       * Menus débloqués seulement (Norman, 2026-10-08 : « j'ai tué le boss 30 et la Machine temporelle n'est pas apparue, j'ai dû rafraîchir »). La synchro « sans redessin » du combat remplace l'état
+       * par celui du serveur (qui contient le nouveau système débloqué) mais ne redessinait jamais le menu : on compare donc la liste des menus avant et après, et on redessine si elle a changé.
+       */
+      function empreinteMenusIdleV1_(j){
+        if(!j)return '';
+        const systemes=j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+        return [
+          systemes.filter(function(s){return s&&s.unlock&&s.unlock.unlocked;}).map(function(s){return String(s.id||'');}).sort().join(','),
+          Boolean(j.inventaireDebloque),
+          Boolean(j.aventure&&j.aventure.debloquee),
+          Boolean(j.bestiaire&&j.bestiaire.debloquee),
+          Boolean(j.renaissance&&j.renaissance.debloquee),
+          Boolean(j.systemes&&j.systemes.selloutShop&&j.systemes.selloutShop.unlockedEver)
+        ].join('|');
+      }
+
       function empreinteStructurelleIdleV1_(j){
         if(!j)return '';
 
@@ -19462,6 +19548,11 @@
           '</div>';
       }
 
+let idleVueAventureV1='zones';
+window.__vueAventureIdleV1__=function(v){
+  idleVueAventureV1=v==='titans'?'titans':'zones';
+  try{rafraichirMenuRacineIdleV28_();}catch(e){}
+};
 function pageAventureIdleV28_(j){
         const a=aventureMetaIdleV47_(j);
         const zones=a&&Array.isArray(a.zones)?a.zones:[];
@@ -19478,7 +19569,17 @@ function pageAventureIdleV28_(j){
         });
         const deblocagesDisponibles=objetsDeblocageDisponiblesAdventureIdleV1_(a);
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-227 */
-        return ''+
+        /* Bascule Aventure / Titans (Norman, 2026-10-08) : plus de menu Titans, un bouton au-dessus des zones ouvre la page des titans, le bouton Aventure revient aux zones. Rien n'est affiché tant qu'aucun titan n'est débloqué. */
+        const bascule=titans.length?(
+          '<div class="soreal-idle-bascule-aventure-v1">'+
+            '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?'':' actif')+'" onclick="window.__vueAventureIdleV1__(\'zones\')">🗺️ Aventure</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?' actif':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+
+          '</div>'
+        ):'';
+        if(idleVueAventureV1==='titans'&&titans.length&&window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.section){
+          return bascule+window.__SOREAL_IDLE_TITANS_V1__.section(j);
+        }
+        return bascule+''+
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-228 */
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-229 */
           '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🗺️ Zones</div>'+
@@ -19512,7 +19613,7 @@ function pageAventureIdleV28_(j){
           '</div>'+
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-232 */
           (zone?rendreZoneCombatAdventureIdleV1_(a,j.nom):'')+
-          /* Les titans ont leur propre menu (modules/titans-v1.js) : plus de liste ici. */''+
+          /* Les cartes des titans ont leur propre vue dans cette page (bouton « Titans » en haut, modules/titans-v1.js). */''+
           (deblocagesDisponibles.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🎒 Un objet t’attend : ton sac est plein</div><div style="display:grid;gap:8px">'+deblocagesDisponibles.map(function(id){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[id];return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(255,200,120,.08);border:1px solid rgba(255,200,120,.35)"><span><b>'+idleHtml_(d.nom)+'</b><br><small>Libère une place dans ton sac : l’objet y arrivera, puis utilise-le pour débloquer '+idleHtml_(d.systeme)+'.</small></span></div>';}).join('')+'</div></div>':'')+
           /* 2026-09-24 (Norman : « trop de menus sur téléphone ») : tout l'Inventory (équipement, sac, coffre, options) est maintenant sous la page Adventure. */
           (j.inventaireDebloque?pageInventaireIdleV28_(j):'');
@@ -22269,7 +22370,7 @@ function pageAventureIdleV28_(j){
         {id:'global',nom:'🏆 Global'},
         {id:'boss',nom:'👹 Boss'},
         {id:'rebirths',nom:'♻️ Rebirths'},
-        {id:'number',nom:'🔢 NUMBER'},
+        {id:'number',nom:'🔢 Nombre'},
         {id:'exp',nom:'⭐ EXP'},
         {id:'playSeconds',nom:'⏱️ Temps de jeu actif'},
         {id:'achievements',nom:'🎖️ Succès'},
@@ -24557,8 +24658,6 @@ function pageAventureIdleV28_(j){
             ${navigationIdleV28_(j)}
 
             ${rendreBarreEnergiePersistanteIdleV1_(j)}
-
-            ${resumeStatsIdleV28_(j)}
 
             ${walderpBanniereIdleV147_(j)}
 

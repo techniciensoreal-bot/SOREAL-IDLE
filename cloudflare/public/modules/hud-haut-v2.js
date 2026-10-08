@@ -64,22 +64,47 @@
     basculerVide('sorealIdleDepenseEnergieV2','energie',vE);
     basculerVide('sorealIdleDepenseMagieV2','magie',vM);
   }
+  function ecrire(id,texte){
+    var el=document.getElementById(id);
+    if(el&&el.textContent!==texte)el.textContent=texte;
+  }
+  function majInfos(){
+    var f=window.__SOREAL_IDLE_BARRE_INFOS_V2__;
+    if(typeof f!=='function')return;
+    var i=f();
+    ecrire('sorealIdleHudGEnergieV2',i.energie.vitesse);
+    ecrire('sorealIdleHudDEnergieV2',i.energie.temps);
+    ecrire('sorealIdleHudGMagieV2',i.magie.vitesse);
+    ecrire('sorealIdleHudDMagieV2',i.magie.temps);
+    var g=window.__SOREAL_IDLE_REGEN_PV_V2__,ft=window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__;
+    if(typeof g==='function'&&typeof ft==='function'){
+      var racine=document.querySelector('.soreal-idle-page-root-v28');
+      var menuR=racine?racine.getAttribute('data-menu'):'';
+      if(menuR!=='combat')ecrire('sorealIdleHudDPvV2',ft(g(menuR)));
+    }
+  }
   function maj(){
     placer();
+    majInfos();
     majVide();
     majDepense();
     var etat=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;
     if(!etat)return;
     var barPv=document.getElementById('sorealIdleHudPvBarV2');
-    if(barPv){
+    var racinePv=document.querySelector('.soreal-idle-page-root-v28');
+    var menuPv=racinePv?racinePv.getAttribute('data-menu'):'';
+    /* En Fight Boss, soreal-idle-ui.js écrit la Vie au même instant que la barre du combat : ici on n'y touche pas. */
+    if(barPv&&menuPv!=='combat'){
       var p=pvActuels(etat);
       var cle=p.pv+':'+p.max;
-      if(cle!==dernier.pv){
-        dernier.pv=cle;
+      /* Le cache est porté par l'élément lui-même : un nouveau rendu de la page recrée la barre, elle doit alors être remplie à nouveau. */
+      if(cle!==barPv.getAttribute('data-cle')){
+        barPv.setAttribute('data-cle',cle);
         var pct=p.max>0?Math.max(0,Math.min(100,p.pv/p.max*100)):0;
         barPv.style.width=pct.toFixed(2)+'%';
         var t=document.getElementById('sorealIdleHudPvTexteV2');
-        if(t)t.textContent=texteBarre(p.pv,p.max);
+        var fp=window.__SOREAL_IDLE_TEXTE_PV_V2__;
+        if(t)t.textContent=typeof fp==='function'?fp(p.pv,p.max):texteBarre(p.pv,p.max);
         var panneau=document.getElementById('sorealIdleHudPvV2');
         if(panneau)panneau.classList.toggle('bas',pct<=25);
       }
@@ -89,8 +114,8 @@
       var r=etat.systemes&&etat.systemes.resources&&etat.systemes.resources.r3;
       if(r){
         var c2=nombre(r.current)+':'+nombre(r.cap);
-        if(c2!==dernier.r3){
-          dernier.r3=c2;
+        if(c2!==barR3.getAttribute('data-cle')){
+          barR3.setAttribute('data-cle',c2);
           var cap=Math.max(1,nombre(r.cap));
           barR3.style.width=Math.min(100,nombre(r.current)/cap*100).toFixed(2)+'%';
           var t3=document.getElementById('sorealIdleHudR3TexteV2');
@@ -99,5 +124,6 @@
       }
     }
   }
+
   setInterval(function(){if(!document.hidden)maj();},250);
 })();

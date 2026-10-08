@@ -24,7 +24,7 @@ assert.ok(ui.includes('Build <b style="color:#dce5f3">Beta '));
 
 for(const token of [
   "sorealIdleSummaryApV210",
-  "sorealIdleSummaryRebirthsV210",
+  "sorealIdleRebirthTotalV1",
   "{id:'shop',icon:'🔮',nom:'Shop'}",
   "🛍️ Boutique AP",
   "systemes.selloutShop&&systemes.selloutShop.unlockedEver",

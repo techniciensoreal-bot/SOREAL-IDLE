@@ -92,12 +92,12 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   assert.ok(hint.includes("'stats-attaque-defense':{cases:['sorealIdleSummaryAttackV50','sorealIdleSummaryDefenseV50']}"));
   assert.ok(hint.includes("sorealIdleTutoIndiceCaseV1"), "clignotement doux pour les cases du résumé");
 
-  const g0 = ui.indexOf('<div class="soreal-idle-summary-grid-v28">\n            <div class="soreal-idle-summary-v28" data-tuile="nombre">\n              🔢 Nombre');
+  const g0 = ui.indexOf('<div class="soreal-idle-summary-grid-v28">\n            <div class="soreal-idle-summary-v28" data-tuile="attack">\n              ⚔️ Attaque');
   assert.ok(g0 > 0);
   const grille = ui.slice(g0, ui.indexOf("      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-155 */", g0));
-  const ordre = ["SummaryNumberV50", "SummaryRebirthsV210", "SummaryAttackV50", "SummaryDefenseV50", "SummaryGoldV50", "SummaryExpV50", "SummaryApV210", "SummaryRunV1"].map((id) => grille.indexOf("sorealIdle" + id));
+  const ordre = ["SummaryAttackV50", "SummaryDefenseV50", "SummaryGoldV50", "SummaryExpV50", "SummaryApV210"].map((id) => grille.indexOf("sorealIdle" + id));
   assert.ok(ordre.every((n) => n > 0), "toutes les cases sont présentes");
-  assert.deepEqual([...ordre].sort((a, b) => a - b), ordre, "ordre : Nombre, Rebirths, Attack, Defense, Gold, EXP, AP (si visible), Run en dernier");
+  assert.deepEqual([...ordre].sort((a, b) => a - b), ordre, "ordre : Attaque, Défense, Or, EXP, AP (si visible)");
 
   const b0 = ui.indexOf("const TUTORIEL_PREMIER_BOSS_PAGES_V1=[");
   const premierBoss = ui.slice(b0, ui.indexOf("function idleTutorielPagesDejaVuLocalV1_(cle){"));
