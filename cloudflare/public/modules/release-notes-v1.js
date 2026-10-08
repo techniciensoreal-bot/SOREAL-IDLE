@@ -21,6 +21,8 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Les boutons de la borne (Fight, Fuite, Nuke) sont plus larges et penchés en trapèze, comme le socle noir au-dessus.',
+          'Borne d’arcade : le nom du boss est centré et l’XP, plus discrète, prend moins de place sur son image. Placer des points ne fait plus remonter l’écran dans l’ordinateur rétro.',
           'Page Renaissance : le fond violet reste, mais les écritures sont bien plus lisibles (étiquettes plus claires et plus grandes, chiffres en gras, titre en blanc).',
           'La boutique ne propose plus d’articles pour des menus que tu n’as pas encore débloqués.',
           'Le menu NGU est devenu une vraie nuit étoilée : beaucoup plus d’étoiles, et le fond défile moins vite que les barres quand tu fais défiler l’écran, pour un effet de profondeur.',

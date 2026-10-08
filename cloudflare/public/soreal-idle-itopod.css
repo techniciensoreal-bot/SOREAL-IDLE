@@ -852,3 +852,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] .soreal-idle-rebirth-stat-value-v14{color:#fff!important;font-size:20px!important;font-weight:800!important;text-shadow:0 1px 2px rgba(0,0,0,.55)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] .soreal-idle-rebirth-v14 .soreal-idle-window-title-v31{color:#ffd77a!important;font-size:17px!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] .soreal-idle-rebirth-title-v14{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important;text-shadow:0 2px 3px rgba(0,0,0,.6),0 0 10px rgba(139,92,246,.5)!important}
+
+/* Borne : nom du boss centré, XP plus discrète sur l'image (Norman, 2026-10-08). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-nameplate-v65.boss{text-align:center!important;display:flex!important;flex-direction:column!important;align-items:center!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-nameplate-v65.boss :is(.soreal-idle-duel-name-text-v65,*){text-align:center!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-xp-borne-v1 .soreal-idle-chip-v8{font-size:.62em!important;padding:2px 7px 1px!important;border-width:1px!important;box-shadow:0 0 0 1px #ffd24a,0 0 6px rgba(255,200,60,.45)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-xp-borne-v1{margin:0 6px 6px 0!important}
+
+/* Boutons de la borne en trapèze penché, comme le socle noir au-dessus (Norman, 2026-10-08) : plus larges que hauts, le haut reculé (perspective) et les flancs inclinés ; appuyés, ils s'enfoncent. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39{gap:16px!important;padding:0 14px!important;perspective:520px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] button.soreal-idle-boss-control-v39.soreal-idle-boss-control-v39{border-radius:26px / 22px!important;min-height:52px!important;transform:rotateX(24deg) scaleX(1.06);transform-origin:50% 100%;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] button.soreal-idle-boss-control-v39.soreal-idle-boss-control-v39.start{min-height:72px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] button.soreal-idle-boss-control-v39.soreal-idle-boss-control-v39:active:not(:disabled){transform:rotateX(24deg) scaleX(1.06) translateY(6px)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] button.soreal-idle-boss-control-v39.soreal-idle-boss-control-v39::before{border-radius:22px / 16px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] button.soreal-idle-boss-control-v39.soreal-idle-boss-control-v39.start{font-size:1.4em!important;letter-spacing:.1em!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] button.soreal-idle-boss-control-v39.soreal-idle-boss-control-v39:not(.start){font-size:.8em!important;letter-spacing:.05em!important}

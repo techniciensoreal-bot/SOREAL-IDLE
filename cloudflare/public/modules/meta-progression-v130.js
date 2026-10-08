@@ -212,6 +212,13 @@
                 ){
                   /* Le titan est maintenant l'ennemi du combat : on ouvre la scène d'Aventure (Norman, 2026-10-02). */
                   window.__menuIdleV28__('aventure');
+                }else if(
+                  /* Wandoos (Norman, 2026-10-08 : « quand je mets des points dans Wandoos, ça remonte l'écran ») : le poste est déjà mis à jour à l'appui ; la réponse du serveur ne reconstruit plus toute la page, seulement le poste. */
+                  payload&&payload.action==='allocate'&&payload.system==='wandoos'&&
+                  window.__SOREAL_IDLE_WANDOOS_V1__&&typeof window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir==='function'&&
+                  document.querySelector('.wd-poste')
+                ){
+                  window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir();
                 }else{
                   window.__SOREAL_IDLE_META_HOST_V130__.rendreIdleEtat_({
                     ok:true,

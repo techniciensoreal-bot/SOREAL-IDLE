@@ -35,3 +35,12 @@ assert.match(themes, /moneyPit"\] :is\(\.soreal-idle-money-actions-v206,\.soreal
 assert.match(ngu, /i<240;/, 'beaucoup d’étoiles');
 assert.match(ngu, /\*0\.5\)\.toFixed\(1\)/, 'le fond défile moitié moins vite');
 console.log('idle-boutique-ap-anti-spoil-v1: OK');
+
+/* Borne : nom du boss centré, XP discrète ; Wandoos : la réponse du serveur ne reconstruit plus la page (Norman, 2026-10-08) */
+const itopod = fs.readFileSync('cloudflare/public/soreal-idle-itopod.css', 'utf8');
+assert.match(itopod, /duel-nameplate-v65\.boss\{text-align:center!important/, 'nom du boss centré');
+assert.match(itopod, /xp-borne-v1 \.soreal-idle-chip-v8\{font-size:\.62em!important/, 'XP plus petite');
+assert.match(meta, /payload\.action==='allocate'&&payload\.system==='wandoos'/, 'Wandoos : pas de rendu complet');
+assert.match(fs.readFileSync('cloudflare/public/modules/wandoos-retro-v1.js', 'utf8'), /rafraichir:rafraichirPoste_/, 'Wandoos expose le rafraîchissement du poste');
+console.log('idle-boutique-ap-anti-spoil-v1 (borne, Wandoos): OK');
+assert.match(itopod, /rotateX\(24deg\) scaleX\(1\.06\)/, 'boutons de la borne en trapèze penché');

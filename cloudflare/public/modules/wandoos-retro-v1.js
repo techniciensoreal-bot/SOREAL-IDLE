@@ -584,5 +584,5 @@
   }catch(_e){}
 
   window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_,
-    demarrer:demarrer,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
+    demarrer:demarrer,rafraichir:rafraichirPoste_,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
 })();
