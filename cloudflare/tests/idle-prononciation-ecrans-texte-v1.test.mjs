@@ -40,7 +40,7 @@ assert.ok(textes.includes("if(act==='pron-ajouter'){ajouterPrononciation_();retu
 assert.ok(textes.includes("edition.aRefaire[b.hash]=true;n+=1;"), "blocs concernés marqués");
 assert.ok(textes.includes("edition.voix.indexOf(b.hash)===-1||(edition.aRefaire&&edition.aRefaire[b.hash])"), "régénérés sans cocher « tout régénérer »");
 assert.ok(textes.includes("if(edition.aRefaire)delete edition.aRefaire[b.hash];"), "marque levée après régénération");
-assert.ok(textes.includes("aRefaire:{},lignes:{}}"), "état initialisé à chaque ouverture d'un texte");
+assert.ok(textes.includes("aRefaire:{},lignes:{},"), "état initialisé à chaque ouverture d'un texte");
 // Le nom du boss fait partie des blocs lus (composerChronique(nom, texte)) : « Alien Vert Dégoûtant » est donc concerné par la correction.
 assert.ok(textes.includes("t.composerChronique(nomLu,v.texte)"));
 console.log("idle-prononciation-ecrans-texte-v1 OK");

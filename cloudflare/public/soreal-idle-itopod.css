@@ -683,7 +683,7 @@ html body .glow-dispo-v1{animation:sorealBoutonDispoEchelleV1 1.1s ease-in-out i
   html body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is([data-rang-v1] , [data-rang-v1] .soreal-idle-bt-fill-v120, [data-rang-v1] .soreal-idle-bt-track-v120){animation:none!important;}
 }
 /* Hommage en bas de chaque note de mise à jour (Norman, 2026-10-08). */
-.soreal-idle-notes-maj-hommage-v1{margin:10px 0 2px;padding-top:8px;border-top:1px dashed rgba(166,188,229,.25);text-align:center;font-style:italic;font-size:13px;line-height:1.4;color:#c9b8e8;}
+.soreal-idle-notes-maj-hommage-v1{margin:14px 0 4px;padding:12px 14px;border:1px solid rgba(201,184,232,.4);border-radius:12px;background:rgba(201,184,232,.1);text-align:center;font-style:italic;font-size:15px;line-height:1.5;color:#efe6ff;}
 /* Sac : 5 cases par ligne sur téléphone, cases plus petites qui se partagent la largeur (Norman, 2026-10-08 : 60 cases sur une page de téléphone) ; pages de 60 cases au plus (boutons ‹ ›). */
 .soreal-idle-bag-pager-v1{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0;font-size:14px;font-weight:800;color:#dce5f3;}
 .soreal-idle-bag-pager-v1 button{min-width:44px;min-height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.35);background:#253957;color:#fff;font-size:20px;font-weight:900;line-height:1;}

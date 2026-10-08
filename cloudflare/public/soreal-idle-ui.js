@@ -16930,10 +16930,18 @@
           else vides.push(node);
         });
 
-        const plan=construirePlanSacIdleV160_(
+        /*
+         * Le sac est en pages de 60 cases (Norman, 2026-10-08 : « je ne veux que 60 cases affichées à la fois ; quand je range avec TRIER, ça en ajoute plus de 60 »). La mise à jour en place ne redessine
+         * que la page affichée : avant, elle posait TOUTES les cases du sac d'un coup (le rendu complet, lui, découpait déjà en pages). Les numéros d'emplacement restent absolus.
+         */
+        const planComplet=construirePlanSacIdleV160_(
           modele.sacItems,
           modele.capacite
         );
+        const pagesSac=Math.max(1,Math.ceil(planComplet.length/IDLE_SAC_CASES_PAR_PAGE_V1));
+        if(idlePageSacV1>pagesSac)idlePageSacV1=pagesSac;
+        const debutSac=(idlePageSacV1-1)*IDLE_SAC_CASES_PAR_PAGE_V1;
+        const plan=planComplet.slice(debutSac,debutSac+IDLE_SAC_CASES_PAR_PAGE_V1);
         const fragment=document.createDocumentFragment();
 
         plan.forEach(function(desc){

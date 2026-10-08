@@ -75,4 +75,30 @@ verifier(serveur.sans_suspension_finale("Attends... quoi ?") == "Attends... quoi
 verifier(serveur.sans_suspension_finale("Chad …") == "Chad.", "le caractère « … » final aussi")
 verifier(serveur.sans_suspension_finale("...") == "...", "un segment fait seulement de points reste tel quel")
 verifier(serveur.REPETITION_PENALTY > 2.0, "pénalité de répétition du modèle relevée (%.1f au lieu de 2,0)" % serveur.REPETITION_PENALTY)
+# 8. Respirations et temps d'arrêt (Norman, 2026-10-08) : le souffle / silence de début et de fin d'un segment est rogné ; le milieu (pauses naturelles) est conservé.
+def souffle(duree_s):
+    return 0.03 * torch.randn(1, int(SR * duree_s))      # bruit faible, comme une inspiration (≈ 8 % du pic de la parole, sous le seuil de 10 %)
+
+
+segment = torch.cat([souffle(0.50), parole(1.0), silence(0.12), parole(0.6), souffle(0.70)], dim=1)   # 0,5 + 1,0 + 0,12 + 0,6 + 0,7 = 2,92 s
+coupe = serveur.couper_bords(segment, SR)
+verifier(duree(coupe) < duree(segment) - 0.8, "le souffle de début (0,5 s) et de fin (0,7 s) est rogné (%.2f s au lieu de %.2f s)" % (duree(coupe), duree(segment)))
+verifier(1.7 < duree(coupe) < 2.2, "il reste la parole (1,72 s) et de courtes marges (%.2f s)" % duree(coupe))
+fenetre = int(SR * 0.02)
+debut_rms = coupe[0, :fenetre * 3].pow(2).mean().sqrt().item()
+verifier(debut_rms < 0.2, "début en fondu, sans claquement")
+fin_rms = coupe[0, -fenetre:].pow(2).mean().sqrt().item()
+verifier(fin_rms < 0.02, "fin en fondu, sans claquement")
+rms_apres, _, nb_apres = serveur.energie_fenetres(coupe, SR)
+verifier(nb_apres > 0, "énergie mesurable")
+sans_parole = souffle(1.0)
+verifier(serveur.couper_bords(sans_parole, SR).shape == sans_parole.shape or duree(serveur.couper_bords(sans_parole, SR)) <= duree(sans_parole), "sans parole identifiable : rien de cassé")
+verifier(duree(serveur.couper_bords(parole(0.05), SR)) <= 0.06, "segment minuscule : pas de plantage")
+# bornes (fenêtres de 20 ms) : un souffle isolé d'une seule fenêtre ne compte pas comme parole
+verifier(serveur.bornes_parole([False, True, False, False, True, True, True, True, False, True, False, False]) == (0, 12), "une fenêtre isolée n'est pas de la parole ; marges comprises : (0, 12)")
+verifier(serveur.bornes_parole([False] * 30 + [True] * 10 + [False] * 30, 4, 8) == (26, 48), "marges de 80 ms avant et 160 ms après la parole")
+verifier(serveur.bornes_parole([False] * 20) is None, "aucune parole : pas de bornes")
+fini = serveur.avec_silence_final(parole(0.5), SR)
+verifier(abs(duree(fini) - (0.5 + serveur.SILENCE_FINAL_S)) < 0.01 and fini[0, -10:].abs().max().item() == 0.0, "le fichier se termine par un vrai silence de %.2f s" % serveur.SILENCE_FINAL_S)
+verifier(serveur.RACCORD_S >= 0.2, "raccord de %.2f s entre deux segments (vrai silence)" % serveur.RACCORD_S)
 print("TOUT EST BON")

@@ -198,6 +198,64 @@ def silences_interieurs(parole, minimum):
     return trous
 
 
+# Respirations et temps d'arrêt (Norman, 2026-10-08 : « énormément de bugs à la génération : des temps d'arrêt où on entend comme des respirations »). Chatterbox ajoute au début et à la fin de CHAQUE phrase
+# générée un souffle ou un silence plus ou moins long ; recollés bout à bout (et lus l'un après l'autre dans le jeu), ils donnaient ces arrêts avec respiration. Chaque segment est donc rogné de son souffle / silence
+# de début et de fin (on ne garde qu'une courte marge naturelle), les raccords sont de VRAIS silences de durée fixe, et le fichier final se termine par un court silence propre.
+SEUIL_BORDS = 0.10          # fraction du pic d'énergie en dessous de laquelle une fenêtre de 20 ms est du souffle / du silence
+FENETRES_PAROLE_MIN = 2     # un souffle bref ne compte pas : il faut au moins 2 fenêtres (40 ms) de parole d'affilée
+MARGE_DEBUT_FEN = 4         # 80 ms gardées avant la première parole
+MARGE_FIN_FEN = 8           # 160 ms gardées après la dernière parole (la fin d'un mot s'éteint naturellement)
+RACCORD_S = 0.22            # silence propre entre deux segments d'un même fichier
+SILENCE_FINAL_S = 0.12      # silence propre à la fin du fichier (l'intervalle entre deux fichiers lus l'un après l'autre)
+
+
+def bornes_parole(parole, marge_debut=MARGE_DEBUT_FEN, marge_fin=MARGE_FIN_FEN, minimum=FENETRES_PAROLE_MIN):
+    """parole : liste de booléens, une valeur par fenêtre. Renvoie (début, fin exclue) en fenêtres, marges comprises, ou None s'il n'y a pas de parole (au moins 'minimum' fenêtres d'affilée)."""
+    nb = len(parole)
+    debut = None
+    for i in range(nb - minimum + 1):
+        if all(parole[i:i + minimum]):
+            debut = i
+            break
+    if debut is None:
+        return None
+    fin = debut
+    for j in range(nb - 1, minimum - 2, -1):
+        if all(parole[j - minimum + 1:j + 1]):
+            fin = j
+            break
+    return max(0, debut - marge_debut), min(nb, fin + 1 + marge_fin)
+
+
+def couper_bords(wav, sr):
+    """Retire le souffle / silence de début et de fin d'un segment (fondu d'entrée de 12 ms, fondu de sortie de 60 ms). Un segment sans parole identifiable est rendu tel quel."""
+    import torch
+    rms, fenetre, nb = energie_fenetres(wav, sr)
+    if rms is None or nb < 6:
+        return wav
+    parole = (rms >= float(rms.max()) * SEUIL_BORDS).tolist()
+    bornes = bornes_parole(parole)
+    if bornes is None:
+        return wav
+    debut, fin = bornes
+    pos_debut = debut * fenetre
+    pos_fin = min(wav.shape[-1], fin * fenetre)
+    sortie = wav[..., pos_debut:pos_fin].clone()
+    n = sortie.shape[-1]
+    fondu_entree = min(n // 4, int(sr * 0.012))
+    if fondu_entree > 1:
+        sortie[..., :fondu_entree] *= torch.linspace(0.0, 1.0, fondu_entree)
+    fondu_sortie = min(n // 2, int(sr * 0.06))
+    if fondu_sortie > 1:
+        sortie[..., -fondu_sortie:] *= torch.linspace(1.0, 0.0, fondu_sortie)
+    return sortie
+
+
+def avec_silence_final(wav, sr):
+    import torch
+    return torch.cat([wav, torch.zeros(wav.shape[0], int(sr * SILENCE_FINAL_S))], dim=1)
+
+
 def garder_premiere_prononciation(wav, sr):
     """Garde la PREMIÈRE des deux prononciations de « X. X. ». Norman, 2026-10-03 : « il répète 2 fois des passages » -- l'ancienne coupe se faisait au PREMIER silence
     assez long, donc au milieu d'un nom (« Un Type… Bizarre ») ou trop tard : la répétition restait. Les deux prononciations ont la même durée de parole : on coupe au silence
@@ -247,8 +305,9 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     if len(texte) < TEXTE_COURT and est_nom_court(texte):
         court = texte.rstrip(" .!?…,;:") or texte
         wav, sr = synthetiser_long(court + ". " + court + ".", voix, exaggeration, cfg)
-        return garder_premiere_prononciation(wav, sr), sr
-    return synthetiser_long(texte, voix, exaggeration, cfg)
+        return avec_silence_final(garder_premiere_prononciation(wav, sr), sr), sr
+    wav, sr = synthetiser_long(texte, voix, exaggeration, cfg)
+    return avec_silence_final(wav, sr), sr
 
 
 # Garde-fou contre les « dérapages » (Norman, 2026-10-01 : « la voix de marius continue à lire alors qu'il n'y a plus rien et dit n'importe quoi ») :
@@ -362,7 +421,7 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     import torch
     m = charger_modele()
     morceaux = []
-    silence = torch.zeros(1, int(m.sr * 0.18))
+    silence = torch.zeros(1, int(m.sr * RACCORD_S))
     with _verrou:
         for segment in decouper(texte):
             segment = sans_suspension_finale(segment)
@@ -375,6 +434,7 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
                 torch.cuda.empty_cache()
             if wav.dim() == 1:
                 wav = wav.unsqueeze(0)
+            wav = couper_bords(wav, m.sr)
             morceaux.extend([wav, silence])
     return torch.cat(morceaux[:-1], dim=1), m.sr
 

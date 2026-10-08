@@ -8,6 +8,9 @@
  *  - champs : textes remplaçant ceux d'origine ; chaque champ est un texte ou une liste de textes. Le texte peut contenir des balises de voix
  *    « (marius) », « (femme) »… : ce qui suit est lu par cette voix (registre modules/voix-nommees-v1.js), la balise ne s'affiche jamais.
  *  - voix : empreintes des blocs dont une voix a été générée depuis le jeu (fichiers R2 idle/voix/<empreinte>.m4a).
+ *  - voixTextes : { empreinte du bloc affiché -> texte de VOIX } (Norman, 2026-10-08) : comment le bloc doit se PRONONCER, écrit librement (« est-ce tes haut paix »), sans toucher au texte lu par les joueurs. L'empreinte reste celle du
+ *    texte affiché : le fichier de voix est le même, seule la phrase envoyée au studio change. Jamais envoyé aux joueurs (administrateur seulement).
+ *  - voixFaites : { empreinte -> texte de voix utilisé lors de la DERNIÈRE génération } : un bloc dont le texte de voix a changé depuis est « à refaire ».
  * Le texte d'origine reste dans le code / le catalogue : supprimer la surcharge le rétablit.
  *
  * La surcharge est GLOBALE (pas liée à une ligne JOUEURS) : la partie A et la partie B de l'administrateur voient les mêmes textes.
@@ -21,6 +24,20 @@ const IDLE_TEXTE_MAX_CHAMP_V1 = 6000;
 const IDLE_TEXTE_MAX_LISTE_V1 = 40;
 const IDLE_TEXTE_MAX_CHAMPS_V1 = 12;
 const IDLE_TEXTE_MAX_NOM_BOSS_V1 = 80;
+const IDLE_TEXTE_MAX_VOIX_TEXTE_V1 = 1500;
+const IDLE_TEXTE_MAX_VOIX_TEXTES_V1 = 400;
+
+/* { empreinte: texte } : empreintes valides seulement, textes non vides, bornés. */
+function voixTextesV1(brut) {
+  const out = {};
+  if (!brut || typeof brut !== "object" || Array.isArray(brut)) return out;
+  for (const h of Object.keys(brut).slice(0, IDLE_TEXTE_MAX_VOIX_TEXTES_V1)) {
+    if (!IDLE_TEXTE_HASH_RE_V1.test(h)) continue;
+    const v = nettoyerV1(brut[h], IDLE_TEXTE_MAX_VOIX_TEXTE_V1);
+    if (v) out[h] = v;
+  }
+  return out;
+}
 const IDLE_TEXTE_NOM_CHAMP_RE_V1 = /^[A-Za-z][A-Za-z0-9_]{0,23}$/;
 
 function nettoyerV1(valeur, max) {
@@ -50,7 +67,7 @@ export function normaliserTexteV1(brut) {
   if (boss && typeof champs.texte !== "string" && !(typeof champs.nom === "string" && champs.nom)) throw new Error("TEXTE_BOSS_CHAMP_TEXTE_REQUIS");
   if (boss && typeof champs.nom === "string" && !champs.nom) delete champs.nom;
   const voix = Array.from(new Set((Array.isArray(t.voix) ? t.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_TEXTE_HASH_RE_V1.test(x)))).slice(0, 400);
-  return { cle, champs, voix };
+  return { cle, champs, voix, voixTextes: voixTextesV1(t.voixTextes), voixFaites: voixTextesV1(t.voixFaites) };
 }
 
 export function assurerTextesV1(sql) {
@@ -71,7 +88,7 @@ export function lireTextesV1(sql) {
 export function enregistrerTexteV1(sql, brut, maintenant = Date.now()) {
   const t = normaliserTexteV1(brut);
   assurerTextesV1(sql);
-  sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", t.cle, JSON.stringify({ champs: t.champs, voix: t.voix }), maintenant);
+  sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", t.cle, JSON.stringify({ champs: t.champs, voix: t.voix, voixTextes: t.voixTextes, voixFaites: t.voixFaites }), maintenant);
   return Object.assign(t, { maj: maintenant });
 }
 

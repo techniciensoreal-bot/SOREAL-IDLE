@@ -10,6 +10,9 @@
  * jusqu'à la balise suivante (registre modules/voix-nommees-v1.js). La balise ne s'affiche jamais ; le découpage en blocs de voix est celui de la
  * lecture dans le jeu (modules/tutorial-tts-v202.js, planNarration) : les fichiers générés sont donc exactement ceux qui seront lus.
  *
+ * Texte de voix (Norman, 2026-10-08) : sous le texte AFFICHÉ de chaque bulle (verrouillé par défaut), un champ libre dit COMMENT le prononcer (« est-ce tes haut paix » pour « STOP »). Il ne modifie jamais le texte
+ * des joueurs : l'empreinte du bloc, donc le fichier de voix, reste celle du texte affiché ; seule la phrase envoyée au studio change (edition.voixTextes, enregistré avec la surcharge, jamais envoyé aux joueurs).
+ *
  * Sécurité : l'édition n'apparaît que pour l'administrateur, MAIS c'est le serveur qui décide (chaque opération vérifie le compte).
  *
  *   window.__SOREAL_IDLE_TEXTES_V1__ = { surcharge(cle), appliquerPage(cle,page), appliquerInfo(cle,info), sansBalises(texte), declarer(cle,def),
@@ -239,7 +242,7 @@ function installerStyle_(){
     '#'+EDITEUR_ID+' .stx-mini-etat{color:#c9d4ee;margin-bottom:8px;max-height:4.2em;overflow:hidden}'+
     '#'+EDITEUR_ID+' .stx-mini-actions{display:flex;gap:8px;justify-content:flex-end}'+
     /* ----- éditeur v2 (Norman, 2026-10-08) : bulles de dialogue, choix de voix avec écoute, expressions, pauses ----- */
-    '#'+EDITEUR_ID+' .stx-v2{padding:0;border-radius:18px;max-width:720px}'+
+    '#'+EDITEUR_ID+' .stx-v2{padding:0;border-radius:18px;max-width:1780px}'+
     '#'+EDITEUR_ID+' .stx-barre{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,#1a2540,#131b2e);border-bottom:1px solid #2b3a5c;border-radius:18px 18px 0 0}'+
     '#'+EDITEUR_ID+' .stx-barre h3{margin:0;font-size:17px;line-height:1.2}'+
     '#'+EDITEUR_ID+' .stx-sous{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#9fb0d4;margin-top:3px}'+
@@ -266,6 +269,18 @@ function installerStyle_(){
     '#'+EDITEUR_ID+' .stx-plus-pied>summary::-webkit-details-marker{display:none}'+
     '#'+EDITEUR_ID+' .stx-plus-menu{position:absolute;right:0;bottom:50px;z-index:6;display:grid;gap:8px;min-width:230px;padding:10px;border-radius:14px;background:#10151f;border:1.5px solid #4b5d85;box-shadow:0 12px 30px rgba(0,0,0,.55)}'+
     '#'+EDITEUR_ID+' .stx-plus-menu label{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;text-transform:none;letter-spacing:0}'+
+    /* ----- éditeur de voix pensé pour un écran de PC de 1920 x 1080 (Norman, 2026-10-08) : grande carte, deux bulles côte à côte, texte plus gros ----- */
+    '#'+EDITEUR_ID+'{padding:18px 28px}'+
+    '#'+EDITEUR_ID+' .stx-v2 textarea,#'+EDITEUR_ID+' .stx-v2 input[type=text]{font-size:17px;line-height:1.55}'+
+    '#'+EDITEUR_ID+' .stx-cadres{grid-template-columns:repeat(auto-fit,minmax(820px,1fr));gap:16px;align-items:start}'+
+    '#'+EDITEUR_ID+' .stx-corps{padding:18px 20px;gap:16px}'+
+    '#'+EDITEUR_ID+' .stx-lib-titre{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 4px;font:800 12px/1.3 system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9fb0d4}'+
+    '#'+EDITEUR_ID+' textarea.stx-verrou{background:#0b111c;color:#c3cfeb;border-style:dashed;cursor:default}'+
+    '#'+EDITEUR_ID+' .stx-voixbloc{margin-top:10px;padding:8px 10px 10px;border:1.5px solid #2f6a4d;background:#0a1813;border-radius:12px}'+
+    '#'+EDITEUR_ID+' .stx-voixbloc .stx-lib-titre{color:#86efac;margin-top:0}'+
+    '#'+EDITEUR_ID+' .stx-voixbloc textarea{background:#07120e;border-color:#2f6a4d;min-height:78px}'+
+    '#'+EDITEUR_ID+' .stx-voixbloc textarea:focus{border-color:#4ade80;outline:none}'+
+    '#'+EDITEUR_ID+' button.stx-verrou-btn{min-height:30px;padding:4px 10px;font-size:12px}'+
     '@media(max-width:600px){#'+EDITEUR_ID+'{padding:0}#'+EDITEUR_ID+' .stx-v2{border-radius:0;min-height:100%}#'+EDITEUR_ID+' .stx-barre{border-radius:0}#'+EDITEUR_ID+' .stx-pied{border-radius:0;gap:6px;padding:8px 10px}#'+EDITEUR_ID+' .stx-lib{display:none}#'+EDITEUR_ID+' .stx-pied>button[data-stx-act="ecouter"]{min-width:46px;padding:6px 0}#'+EDITEUR_ID+' .stx-pied>button,#'+EDITEUR_ID+' .stx-pied button.stx-gros{min-height:42px;padding:6px 11px;font-size:13px}}';
   document.head.appendChild(s);
 }
@@ -426,11 +441,31 @@ function blocsDuCadre_(champ,k,valeurs){
 function parleurOptions_(courant){
   return voixProposees_().map(function(p){return '<option value="'+esc_(p[0])+'"'+(parleurUi_(courant)===p[0]?' selected':'')+'>'+esc_(p[1])+'</option>';}).join('');
 }
+function abrege_(t,n){t=String(t==null?'':t).replace(/\s+/g,' ').trim();n=n||90;return t.length>n?t.slice(0,n-1)+'…':t;}
+/* Un champ « texte de voix » par bloc de voix de la bulle (en général un seul ; plusieurs au-delà de ~600 caractères). */
+function voixBlocsHtml_(champ,k,l,blocs){
+  if(!blocs||!blocs.length)return '<div class="stx-aide">Écris le texte affiché : tu pourras ensuite régler ici comment le dire.</div>';
+  var cle=esc_(champ)+'|'+k;
+  return blocs.map(function(b,i){
+    var v=String((l.voixParts||[])[i]||'');
+    var lib=blocs.length>1?' · partie '+(i+1)+'/'+blocs.length:'';
+    return '<div class="stx-voixbloc">'+
+      '<div class="stx-lib-titre"><span>🗣 Voix'+lib+' : comment le dire</span><span class="stx-flex"></span>'+
+        '<button type="button" class="stx-voix" data-stx-l="vcopier" data-c="'+esc_(champ)+'" data-k="'+k+'" data-i="'+i+'" title="Copier le texte affiché ici, pour le retoucher">📋 Copier le texte affiché</button>'+
+        '<button type="button" class="stx-voix" data-stx-l="vtest" data-c="'+esc_(champ)+'" data-k="'+k+'" data-i="'+i+'" title="Écouter CE texte de voix avec le studio, sans rien enregistrer">▶ Tester</button>'+
+      '</div>'+
+      '<textarea rows="3" data-stx-lvoix="'+cle+'#'+i+'" placeholder="Vide : la voix lit le texte affiché tel quel. Écris ici comment ça doit se prononcer, par exemple « est-ce tes haut paix » pour STOP.">'+esc_(v)+'</textarea>'+
+      (blocs.length>1?'<div class="stx-aide">Partie du texte affiché : « '+esc_(abrege_(b.texte,110))+' »</div>':'')+
+    '</div>';
+  }).join('');
+}
 function cadreHtml_(champ,k,l,blocs){
   var o=outilsVoix_();
   var u=VU_();
   var voix=edition.voix||[];
   var cle=esc_(champ)+'|'+k;
+  /* Texte affiché protégé par défaut ; une bulle encore vide (nouveau personnage) est tout de suite modifiable. */
+  var verrouille=!l.deverrouille&&Boolean(String(l.texte||'').trim());
   var fichiers='<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de cette ligne.</div>'+o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>')+'</div>';
   return '<div class="stx-cadre" data-vu-bulle="'+cle+'" data-stx-cadre="'+cle+'" style="--stx-c:'+couleurVoix_(l.parleur)+';--vu-c:'+couleurVoix_(l.parleur)+'">'+
     '<div class="stx-bulle-tete">'+
@@ -439,8 +474,11 @@ function cadreHtml_(champ,k,l,blocs){
       '<span data-stx-badge="'+cle+'">'+etatVoixHtml_(blocs)+'</span>'+
     '</div>'+
     '<input type="hidden" data-stx-lparleur="'+cle+'" value="'+esc_(parleurUi_(l.parleur))+'"><input type="hidden" data-stx-lexpr="'+cle+'" value="'+esc_(l.expr||'')+'">'+
-    '<textarea rows="3" data-stx-ltexte="'+cle+'" placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
+    '<div class="stx-lib-titre"><span>📖 Texte affiché aux joueurs</span><span class="stx-flex"></span>'+
+      '<button type="button" class="stx-voix stx-verrou-btn" data-stx-l="verrou" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Le texte des joueurs est protégé pour ne pas le changer par erreur">'+(verrouille?'✋ Protégé · modifier':'✏️ Modifiable · protéger')+'</button></div>'+
+    '<textarea rows="3" data-stx-ltexte="'+cle+'" class="'+(verrouille?'stx-verrou':'')+'"'+(verrouille?' readonly':'')+' placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
     (u?u.pausesHtml(cle,'stx-voix'):'')+
+    '<div data-stx-vz="'+cle+'">'+voixBlocsHtml_(champ,k,l,blocs)+'</div>'+
     '<div class="stx-bulle-pied">'+
       (u?u.pauseBoutonHtml(cle,'stx-voix'):'')+
       '<span class="stx-flex"></span>'+
@@ -461,6 +499,9 @@ function titreCadreHtml_(blocs){
     '<div class="stx-bulle-pied"><span class="stx-flex"></span>'+
       '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="__titre" data-k="0" title="Écouter uniquement le titre">▶ Écouter</button>'+
       '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="__titre" data-k="0" title="Générer (ou régénérer) la voix du titre, autant de fois que tu veux">🎙 Générer</button></div>'+
+    '<div class="stx-voixbloc"><div class="stx-lib-titre"><span>🗣 Voix du titre : comment le dire</span><span class="stx-flex"></span>'+
+      '<button type="button" class="stx-voix" data-stx-l="vtest" data-c="__titre" data-k="0" data-i="0" title="Écouter ce texte de voix avec le studio, sans rien enregistrer">▶ Tester</button></div>'+
+      '<textarea rows="2" data-stx-tvoix="1" placeholder="Vide : le titre est lu tel quel. Écris ici comment prononcer ce nom.">'+esc_(edition.titreVoix||'')+'</textarea></div>'+
     '<details class="stx-det"><summary>📁 Fichier du titre</summary><div class="stx-cadre-fichiers" data-stx-fv="__titre|0">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Aucun fichier pour l’instant.</div>')+'</div></details>'+
   '</div>';
 }
@@ -505,6 +546,8 @@ function lireChamps_(){
           if(ta)l.texte=ta.value;
           if(sel)l.parleur=sel.value;
           if(ex)l.expr=ex.value;
+          var vs=racine.querySelectorAll('[data-stx-lvoix^="'+cle+'#"]');
+          if(vs.length){l.voixParts=[];Array.prototype.forEach.call(vs,function(v){l.voixParts[Number(String(v.getAttribute('data-stx-lvoix')).split('#')[1])||0]=v.value;});}
         });
       }
       valeurs[c.id]=c.type==='liste'?listeDepuisLignes_(edition.lignes[c.id]):texteDepuisLignes_(edition.lignes[c.id]);
@@ -513,7 +556,41 @@ function lireChamps_(){
     var el=racine&&racine.querySelector('[data-stx-champ="'+c.id+'"]');
     valeurs[c.id]=texteVersValeur_(c,el?el.value:'');
   });
+  if(racine&&edition){var tv=racine.querySelector('[data-stx-tvoix]');if(tv)edition.titreVoix=tv.value;}
+  majVoixTextes_(valeurs);
   return valeurs;
+}
+
+/*
+ * Table { empreinte du bloc affiché -> texte de voix } reconstruite à chaque lecture des champs, et blocs « à refaire » : un bloc dont le texte de voix diffère de celui utilisé à sa dernière
+ * génération (edition.voixFaites) est refait, comme après un changement de voix ou d'expression.
+ */
+function majVoixTextes_(valeurs){
+  if(!edition||!edition.lignes)return;
+  var r=blocsParCadre_(valeurs);
+  var table={};
+  r.cadres.forEach(function(c){
+    var l=edition.lignes[c.champ]&&edition.lignes[c.champ][c.k];
+    if(!l)return;
+    c.blocs.forEach(function(b,i){var v=String((l.voixParts||[])[i]||'').trim();if(v)table[b.hash]=v;});
+  });
+  (r.titre||[]).forEach(function(b){var v=String(edition.titreVoix||'').trim();if(v)table[b.hash]=v;});
+  edition.voixTextes=table;
+  var faites=edition.voixFaites||{};
+  if(!edition.aRefaire)edition.aRefaire={};
+  var vus={};
+  r.cadres.forEach(function(c){c.blocs.forEach(function(b){vus[b.hash]=1;});});
+  (r.titre||[]).forEach(function(b){vus[b.hash]=1;});
+  Object.keys(vus).forEach(function(h){
+    if(edition.voix.indexOf(h)===-1)return;
+    if((table[h]||'')!==(faites[h]||''))edition.aRefaire[h]=true;
+  });
+}
+/* Ce qui est envoyé au studio pour un bloc : son texte de voix s'il en a un (sans aucun passage entre parenthèses), sinon le texte affiché. */
+function texteVoixDe_(b){
+  var v=edition&&edition.voixTextes&&edition.voixTextes[b.hash];
+  var t=String(v==null?'':v).replace(/\([^)]*\)/g,' ').replace(/\s+/g,' ').trim();
+  return t||b.texte;
 }
 
 function afficherEtat_(message,erreur){
@@ -733,6 +810,12 @@ function rafraichirFichiersVoix_(){
   var valeurs=lireChamps_();
   var r=blocsParCadre_(valeurs);
   r.cadres.forEach(function(c){
+    var zone=document.querySelector('#'+EDITEUR_ID+' [data-stx-vz="'+c.champ+'|'+c.k+'"]');
+    var lg=edition.lignes[c.champ]&&edition.lignes[c.champ][c.k];
+    if(zone&&lg){
+      var attendu=Math.max(c.blocs.length,0);
+      if(zone.querySelectorAll('textarea').length!==attendu)zone.innerHTML=voixBlocsHtml_(c.champ,c.k,lg,c.blocs);
+    }
     var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-fv="'+c.champ+'|'+c.k+'"]');
     if(el)el.innerHTML=o&&c.blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de cette ligne.</div>'+o.fichiersVoixHtml(c.blocs,edition.voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>';
     var badge=document.querySelector('#'+EDITEUR_ID+' [data-stx-badge="'+c.champ+'|'+c.k+'"]');
@@ -840,6 +923,49 @@ function ecouter_(){
   if(!demarre){ecoute=false;if(b)majBoutonEcouter_(b,false);afficherEtat_('Rien à lire dans ce texte.',true);}
 }
 
+/* Test direct d'un texte de voix avec le studio (rien n'est téléversé) : exactement la phrase qui sera générée, avec la voix et l'expression de la bulle. */
+var essaiVoix={audio:null};
+function testerVoix_(champ,k,i){
+  var o=outilsVoix_();
+  if(!o||typeof o.synthetiser!=='function'){afficherEtat_('Outils de voix indisponibles (module Admin non chargé).',true);return;}
+  lireChamps_();
+  var b=blocsDuCadre_(champ,k)[i];
+  if(!b){afficherEtat_('Rien à tester : écris d’abord le texte affiché.',true);return;}
+  var texte=texteVoixDe_(b);
+  afficherEtat_('Test avec le studio : « '+abrege_(texte,70)+' »…');
+  o.synthetiser(texte,b.parleur,b.expr).then(function(blob){
+    try{if(essaiVoix.audio)essaiVoix.audio.pause();}catch(_e){}
+    var url=URL.createObjectURL(blob);
+    essaiVoix.audio=new Audio(url);
+    essaiVoix.audio.onended=function(){URL.revokeObjectURL(url);};
+    essaiVoix.audio.play();
+    afficherEtat_('');
+  }).catch(function(e){afficherEtat_('Test impossible : '+(e&&e.message?e.message:e),true);});
+}
+/* Copie le texte affiché d'un bloc dans son champ de voix, pour le retoucher. */
+function copierVersVoix_(champ,k,i){
+  lireChamps_();
+  var b=blocsDuCadre_(champ,k)[i];
+  var racine=document.getElementById(EDITEUR_ID);
+  var ta=racine&&racine.querySelector('[data-stx-lvoix="'+champ+'|'+k+'#'+i+'"]');
+  if(!b||!ta)return;
+  ta.value=b.texte;
+  lireChamps_();
+  rafraichirFichiersVoix_();
+  try{ta.focus();}catch(_e){}
+}
+/* Verrou du texte affiché d'une bulle : sans re-rendu (le texte en cours de saisie reste). */
+function basculerVerrou_(champ,k){
+  var l=edition.lignes&&edition.lignes[champ]&&edition.lignes[champ][k];
+  var racine=document.getElementById(EDITEUR_ID);
+  if(!l||!racine)return;
+  l.deverrouille=!l.deverrouille;
+  var ta=racine.querySelector('[data-stx-ltexte="'+champ+'|'+k+'"]');
+  var btn=racine.querySelector('[data-stx-l="verrou"][data-c="'+champ+'"][data-k="'+k+'"]');
+  if(ta){ta.readOnly=!l.deverrouille;ta.classList.toggle('stx-verrou',!l.deverrouille);if(l.deverrouille){try{ta.focus();}catch(_e){}}}
+  if(btn)btn.textContent=l.deverrouille?'✏️ Modifiable · protéger':'✋ Protégé · modifier';
+}
+
 /* Écoute uniquement la ligne d'un cadre, avec la voix générée si elle existe (sinon la voix de secours du jeu, signalée). */
 function ecouterCadre_(champ,k){
   var t=tts_();
@@ -872,8 +998,13 @@ function charge_(valeurs){
     blocsActuels.forEach(function(b){actuelles[b.hash]=1;});
     edition.voix=edition.voix.filter(function(h){return actuelles[h];});
   }
-  var o={cle:edition.cle,champs:{},voix:edition.voix.slice()};
+  var o={cle:edition.cle,champs:{},voix:edition.voix.slice(),voixTextes:{},voixFaites:{}};
   champsDef_().forEach(function(c){o.champs[c.id]=valeurs[c.id];});
+  /* Textes de voix : seulement ceux de blocs qui existent encore (un texte affiché modifié a une autre empreinte). */
+  var presents={};
+  blocsActuels.forEach(function(b){presents[b.hash]=1;});
+  Object.keys(edition.voixTextes||{}).forEach(function(h){if(presents[h])o.voixTextes[h]=edition.voixTextes[h];});
+  Object.keys(edition.voixFaites||{}).forEach(function(h){if(presents[h]&&edition.voix.indexOf(h)!==-1)o.voixFaites[h]=edition.voixFaites[h];});
   return o;
 }
 
@@ -882,7 +1013,7 @@ function enregistrer_(){
   edition.valeurs=valeurs;
   return appel_('enregistrerTexteAdminSorealIdle',[charge_(valeurs)]).then(function(res){
     if(!res||res.ok===false){afficherEtat_((res&&res.message)||'Enregistrement refusé.',true);return false;}
-    edition.surcharge=res.texte||{champs:valeurs,voix:edition.voix};
+    edition.surcharge=res.texte||{champs:valeurs,voix:edition.voix,voixTextes:edition.voixTextes||{},voixFaites:edition.voixFaites||{}};
     miseAJourApresEcriture_(edition.cle,edition.surcharge);
     afficherEtat_('✔ Enregistré. '+statutLigne_());
     rafraichirFichiersVoix_();
@@ -905,6 +1036,9 @@ function miseAJourApresEcriture_(cle,surcharge){
     try{if(typeof window.__SOREAL_IDLE_FORCER_SYNCHRO_V1__==='function')window.__SOREAL_IDLE_FORCER_SYNCHRO_V1__();}catch(_e2){}
   }else{
     if(surcharge)surcharges.popups[cle]={champs:surcharge.champs,voix:surcharge.voix||[]};else delete surcharges.popups[cle];
+    /* Fiche complète (avec les textes de voix, jamais envoyés aux joueurs) gardée pour rouvrir l'éditeur sans perdre les textes de voix. */
+    admin.popups=(admin.popups||[]).filter(function(p){return !(p&&p.cle===cle);});
+    if(surcharge)admin.popups.push(Object.assign({cle:cle},surcharge));
     if(surcharge)enregistrerVoix_(surcharge.voix);
     notifier_();
   }
@@ -974,9 +1108,13 @@ function lancerGeneration_(o,aFaire,libelle){
       if(generation.annule)throw new Error('__annule__');
       generation.texte='🎙 '+(libelle?libelle+' : ':'Génération des voix : ')+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_(generation.texte);
-      return o.synthetiser(b.texte,b.parleur,b.expr).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
+      return o.synthetiser(texteVoixDe_(b),b.parleur,b.expr).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
         if(edition.voix.indexOf(b.hash)===-1)edition.voix.push(b.hash);
         if(edition.aRefaire)delete edition.aRefaire[b.hash];
+        /* Texte de voix utilisé pour CE fichier : tant qu'il ne change pas, le bloc n'est pas « à refaire ». */
+        if(!edition.voixFaites)edition.voixFaites={};
+        var tv=edition.voixTextes&&edition.voixTextes[b.hash];
+        if(tv)edition.voixFaites[b.hash]=tv;else delete edition.voixFaites[b.hash];
         fait+=1;
       });
     });
@@ -1006,19 +1144,43 @@ function ouvrir_(cle,def,surcharge,originaux){
     var s=surcharge&&surcharge.champs?surcharge.champs[c.id]:undefined;
     courant[c.id]=s!==undefined?s:(originaux?originaux[c.id]:'');
   });
-  edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{}};
+  edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{},
+    voixTextes:surcharge&&surcharge.voixTextes&&typeof surcharge.voixTextes==='object'?Object.assign({},surcharge.voixTextes):{},
+    voixFaites:surcharge&&surcharge.voixFaites&&typeof surcharge.voixFaites==='object'?Object.assign({},surcharge.voixFaites):{},
+    titreVoix:''};
   /* Un cadre par personnage pour chaque texte parlé : les balises (marius), (femme)… du texte deviennent des cadres. */
   def.champs.forEach(function(c){if(champParle_(c))edition.lignes[c.id]=c.type==='liste'?lignesDepuisListe_(courant[c.id]):lignesDepuisTexte_(courant[c.id]);});
+  hydraterVoix_(courant);
   reduit=false;
   dessinerEditeur_();
   verifierStudio_();
 }
 
+/* Textes de voix de l'édition : chaque bulle reprend celui de ses blocs (par empreinte du texte affiché), le titre aussi. */
+function hydraterVoix_(valeurs){
+  if(!edition)return;
+  var r=blocsParCadre_(valeurs);
+  r.cadres.forEach(function(c){
+    var l=edition.lignes[c.champ]&&edition.lignes[c.champ][c.k];
+    if(l)l.voixParts=c.blocs.map(function(b){return edition.voixTextes[b.hash]||'';});
+  });
+  edition.titreVoix=(r.titre&&r.titre[0]&&edition.voixTextes[r.titre[0].hash])||'';
+}
+
 function editer_(cle){
   var def=registre[cle];
   if(!def)return;
-  var s=surchargeComplete_(cle);
-  ouvrir_(cle,def,s?{champs:s.champs,voix:Array.isArray(s.voix)?s.voix:[]}:null,def.original());
+  /* La fiche complète d'un popup (textes de voix compris) vient de la liste Admin ; le joueur ordinaire n'en reçoit que le texte et les empreintes. */
+  var ouvrirTexte=function(){
+    var s=surchargeComplete_(cle);
+    var adm=(admin.popups||[]).filter(function(p){return p&&p.cle===cle;})[0];
+    var base=s?{champs:s.champs,voix:Array.isArray(s.voix)?s.voix:[]}:null;
+    if(base&&adm){base.voixTextes=adm.voixTextes||{};base.voixFaites=adm.voixFaites||{};}
+    ouvrir_(cle,def,base,def.original());
+  };
+  if(admin.charge){ouvrirTexte();return;}
+  chargerAdmin_(ouvrirTexte);
+  setTimeout(function(){if(!edition&&admin.erreur)window.alert(admin.erreur);},4000);
 }
 
 function defBoss_(numero,nom){
@@ -1178,6 +1340,9 @@ document.addEventListener('click',function(ev){
       var aL=lg.getAttribute('data-stx-l');
       edition.valeurs=lireChamps_();
       if(aL==='ecouter'){ecouterCadre_(cL,kL);return;}
+      if(aL==='vtest'){testerVoix_(cL,kL,Number(lg.getAttribute('data-i'))||0);return;}
+      if(aL==='vcopier'){copierVersVoix_(cL,kL,Number(lg.getAttribute('data-i'))||0);return;}
+      if(aL==='verrou'){basculerVerrou_(cL,kL);return;}
       if(aL==='generer'){genererCadre_(cL,kL);return;}
       if(aL==='suppr'){
         var liste=edition.lignes[cL];
@@ -1237,14 +1402,14 @@ document.addEventListener('click',function(ev){
 var minuterieFichiers=0;
 document.addEventListener('input',function(ev){
   var el=ev.target;
-  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte'))){clearTimeout(minuterieFichiers);minuterieFichiers=setTimeout(rafraichirFichiersVoix_,700);}
+  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-lvoix')||el.getAttribute('data-stx-tvoix'))){clearTimeout(minuterieFichiers);minuterieFichiers=setTimeout(rafraichirFichiersVoix_,700);}
   if(el&&el.id==='sorealIdleTextesFiltreV1'){
     admin.filtre=el.value;
     var b=document.getElementById('sorealIdleTextesBossListeV1');
     if(b)b.innerHTML=listeBossHtml_();
     return;
   }
-  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')))afficherEtat_(statutLigne_());
+  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-lvoix')||el.getAttribute('data-stx-tvoix')))afficherEtat_(statutLigne_());
 });
 /* Changer la voix d'un cadre change aussi ses fichiers de voix (la voix fait partie de ce qui est lu). */
 document.addEventListener('change',function(ev){

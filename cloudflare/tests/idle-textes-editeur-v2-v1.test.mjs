@@ -75,5 +75,5 @@ assert.ok(/prets=blocs\.filter\(function\(b\)\{return voix\.indexOf\(b\.hash\)!=
 // Expression envoyée au studio à la génération, jamais à la lecture
 const histoires = readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8");
 assert.ok(histoires.includes("corps.exaggeration=r.exaggeration;corps.cfg=r.cfg;"), "réglages de l'expression envoyés au studio");
-assert.ok(src.includes("o.synthetiser(b.texte,b.parleur,b.expr)"), "la génération passe l'expression du bloc");
+assert.ok(src.includes("o.synthetiser(texteVoixDe_(b),b.parleur,b.expr)"), "la génération passe l'expression du bloc");
 console.log("idle-textes-editeur-v2-v1: OK");

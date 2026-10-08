@@ -37,7 +37,22 @@ assert.throws(() => normaliserTexteV1({ cle: "boss:0", champs: { texte: "x" } })
 assert.throws(() => normaliserTexteV1({ cle: "tuto:1", champs: { "1mauvais": "x" } }), /TEXTE_CHAMP_INVALIDE/);
 {
   const t = normaliserTexteV1({ cle: "tuto:debut:2", champs: { titre: "  Salut ", paragraphes: ["a\r\nb", " c "] }, voix: ["0123456789abcd", "pas-un-hash", "0123456789abcd"] });
-  assert.deepEqual(t, { cle: "tuto:debut:2", champs: { titre: "Salut", paragraphes: ["a\nb", "c"] }, voix: ["0123456789abcd"] });
+  assert.deepEqual(t, { cle: "tuto:debut:2", champs: { titre: "Salut", paragraphes: ["a\nb", "c"] }, voix: ["0123456789abcd"], voixTextes: {}, voixFaites: {} });
+}
+// 1 bis. Textes de voix (Norman, 2026-10-08) : « comment le dire », par empreinte du texte affiché ; empreintes invalides et textes vides écartés, texte borné.
+{
+  const t = normaliserTexteV1({ cle: "boss:9", champs: { texte: "STOP !" }, voixTextes: { "0123456789abcd": "  est-ce tes haut paix  ", "zzz": "x", "aaaaaaaaaaaaaa": "   ", "bbbbbbbbbbbbbb": "y".repeat(5000) }, voixFaites: { "0123456789abcd": "est-ce tes haut paix", "pas-un-hash": "x" } });
+  assert.deepEqual(Object.keys(t.voixTextes).sort(), ["0123456789abcd", "bbbbbbbbbbbbbb"]);
+  assert.equal(t.voixTextes["0123456789abcd"], "est-ce tes haut paix");
+  assert.equal(t.voixTextes["bbbbbbbbbbbbbb"].length, 1500, "texte de voix borné");
+  assert.deepEqual(Object.keys(t.voixFaites), ["0123456789abcd"]);
+  const sql2 = baseVide();
+  enregistrerTexteV1(sql2, { cle: "boss:9", champs: { texte: "STOP !" }, voix: ["0123456789abcd"], voixTextes: { "0123456789abcd": "est-ce tes haut paix" }, voixFaites: { "0123456789abcd": "est-ce tes haut paix" } }, 5);
+  enregistrerTexteV1(sql2, { cle: "nouveaute:x", champs: { titre: "T" }, voix: ["0123456789abcd"], voixTextes: { "0123456789abcd": "secret de prononciation" } }, 6);
+  const relu = lireTextesV1(sql2).find((x) => x.cle === "boss:9");
+  assert.equal(relu.voixTextes["0123456789abcd"], "est-ce tes haut paix", "relu pour l'administrateur");
+  const pourJoueur = JSON.stringify(surchargesPourJoueurV1(sql2));
+  assert.ok(!pourJoueur.includes("haut paix") && !pourJoueur.includes("secret de prononciation"), "jamais envoyé aux joueurs");
 }
 
 // 2. Enregistrer / relire / supprimer.
