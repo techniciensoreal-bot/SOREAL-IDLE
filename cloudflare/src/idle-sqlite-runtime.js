@@ -16983,6 +16983,29 @@ function annulerVictoireTitanAdminSorealIdle(sessionToken, titanId) {
   }
 }
 
+/* Cherche un joueur par adresse OU par nom (sans accent ni majuscule, une seule correspondance exigée). */
+function trouverJoueurAdminSorealIdle_(feuille, saisie) {
+  const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+  const net = (v) => String(v == null ? '' : v).normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+  const cible = net(saisie);
+  if (!cible) return { erreur: 'PARAMETRES' };
+  const dernier = Math.max(2, feuille.getLastRow());
+  const lignes = feuille.getRange(2, 1, dernier - 1, c.EMAIL_CONNEXION).getValues();
+  const trouves = [];
+  for (let i = 0; i < lignes.length; i += 1) {
+    const principal = net(lignes[i][c.EMAIL_PRINCIPAL - 1]);
+    const connexion = net(lignes[i][c.EMAIL_CONNEXION - 1]);
+    const nom = net(lignes[i][c.NOM - 1]);
+    if (!(principal || connexion)) continue;
+    if (cible.indexOf('@') !== -1 ? (principal === cible || connexion === cible) : nom === cible) {
+      trouves.push({ ligne: i + 2, email: connexion || principal, nom: String(lignes[i][c.NOM - 1] || '') });
+    }
+  }
+  if (!trouves.length) return { erreur: 'JOUEUR_INTROUVABLE' };
+  if (trouves.length > 1) return { erreur: 'JOUEUR_AMBIGU', noms: trouves.map((x) => x.nom + ' <' + x.email + '>') };
+  return trouves[0];
+}
+
 /*
  * Crédit d'EXP à un joueur par l'administrateur (Norman, 2026-10-08 : les 300 EXP du set de la Grotte non versés à Sébastien). Agit sur la ligne du joueur désigné par son adresse, jamais sur celle de l'administrateur.
  * params = { email, montant (entier, 1 à 1 000 000 000), reference (texte unique : le même crédit ne passe qu'une fois pour un joueur) }. La variation est inscrite au journal d'EXP avec cette référence.
@@ -16990,25 +17013,20 @@ function annulerVictoireTitanAdminSorealIdle(sessionToken, titanId) {
 function crediterExpAdminSorealIdle(sessionToken, params) {
   exigerAdminHistoiresSorealIdle_(sessionToken);
   const p = params && typeof params === 'object' ? params : {};
-  const email = String(p.email || '').trim().toLowerCase();
+  const email = String(p.email || p.joueur || '').trim();
   const montant = Math.floor(Number(p.montant));
   const reference = String(p.reference || '').trim().replace(/[^\w .:@+-]/g, '').slice(0, 80);
-  if (!email || !(montant >= 1 && montant <= 1e9) || !reference) return { ok: false, code: 'PARAMETRES', message: 'email, montant (1 à 1 000 000 000) et reference sont obligatoires.' };
+  if (!email || !(montant >= 1 && montant <= 1e9) || !reference) return { ok: false, code: 'PARAMETRES', message: 'joueur (nom ou adresse), montant (1 à 1 000 000 000) et reference sont obligatoires.' };
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(1800)) return { ok: false, message: 'Le jeu est occupé.' };
   try {
     const feuille = obtenirFeuilleJoueursSorealIdle_();
     const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-    const dernier = Math.max(2, feuille.getLastRow());
-    const lignes = feuille.getRange(2, 1, dernier - 1, c.EMAIL_CONNEXION).getValues();
-    let ligne = 0;
-    let cle = '';
-    for (let i = 0; i < lignes.length && !ligne; i += 1) {
-      const principal = String(lignes[i][c.EMAIL_PRINCIPAL - 1] || '').trim().toLowerCase();
-      const connexion = String(lignes[i][c.EMAIL_CONNEXION - 1] || '').trim().toLowerCase();
-      if (principal === email || connexion === email) { ligne = i + 2; cle = connexion || principal; }
-    }
-    if (!ligne) return { ok: false, code: 'JOUEUR_INTROUVABLE', message: 'Aucun joueur avec cette adresse.' };
+    const trouve = trouverJoueurAdminSorealIdle_(feuille, email);
+    if (trouve.erreur === 'JOUEUR_AMBIGU') return { ok: false, code: 'JOUEUR_AMBIGU', message: 'Plusieurs joueurs correspondent : ' + trouve.noms.join(' ; ') + '. Utilise l’adresse e-mail.' };
+    if (trouve.erreur) return { ok: false, code: 'JOUEUR_INTROUVABLE', message: 'Aucun joueur avec ce nom ou cette adresse.' };
+    const ligne = trouve.ligne;
+    const cle = trouve.email;
     const etiquette = 'crediterExpAdminSorealIdle:' + reference;
     if (creditDejaFaitV1(__idleSql, cle, etiquette)) return { ok: false, code: 'DEJA_FAIT', message: 'Ce crédit (référence « ' + reference + ' ») a déjà été fait pour ce joueur.' };
     const cellule = feuille.getRange(ligne, c.STATS_JSON);
@@ -17032,7 +17050,14 @@ function crediterExpAdminSorealIdle(sessionToken, params) {
 function lireGainsExpAdminSorealIdle(sessionToken, params) {
   exigerAdminHistoiresSorealIdle_(sessionToken);
   const p = params && typeof params === 'object' ? params : {};
-  return { ok: true, lignes: lireGainsExpV1(__idleSql, { email: p.email, limite: p.limite }) };
+  let email = String(p.email || p.joueur || '').trim();
+  if (email) {
+    const trouve = trouverJoueurAdminSorealIdle_(obtenirFeuilleJoueursSorealIdle_(), email);
+    if (trouve.erreur === 'JOUEUR_AMBIGU') return { ok: false, code: 'JOUEUR_AMBIGU', message: 'Plusieurs joueurs correspondent : ' + trouve.noms.join(' ; ') + '.' };
+    if (trouve.erreur) return { ok: false, code: 'JOUEUR_INTROUVABLE', message: 'Aucun joueur avec ce nom ou cette adresse.' };
+    email = trouve.email;
+  }
+  return { ok: true, lignes: lireGainsExpV1(__idleSql, { email, limite: p.limite }) };
 }
 
 function listerHistoiresAdminSorealIdle(sessionToken) {

@@ -69,6 +69,16 @@ assert.equal(op("crediterExpAdminSorealIdle", { email: "inconnu@example.org", mo
 assert.ok(op("crediterExpAdminSorealIdle", { email: "seb@example.org", montant: 10, reference: "autre" }).ok);
 assert.equal(xpDe("seb@example.org").exp, 1310);
 
+// 4b. Désigné par son prénom (sans accent ni majuscule) ; nom inconnu refusé
+{
+  const parNom = op("crediterExpAdminSorealIdle", { joueur: "SEBASTIEN", montant: 5, reference: "par-nom" });
+  assert.ok(parNom.ok, JSON.stringify(parNom));
+  assert.equal(parNom.email, "seb@example.org");
+  assert.equal(xpDe("seb@example.org").exp, 1315);
+  assert.equal(op("crediterExpAdminSorealIdle", { joueur: "Personne", montant: 5, reference: "z" }).code, "JOUEUR_INTROUVABLE");
+  assert.equal(op("lireGainsExpAdminSorealIdle", { joueur: "Sébastien" }).lignes.length > 0, true, "journal lu par prénom");
+}
+
 // 5. Réservé à l'administrateur
 {
   const autre = { email: "autre@example.org", emailConnexion: "autre@example.org", emails: ["autre@example.org"], prenom: "Autre" };
@@ -78,7 +88,7 @@ assert.equal(xpDe("seb@example.org").exp, 1310);
     refuse = x && x.ok === false;
   } catch (_e) { refuse = true; }
   assert.ok(refuse, "un joueur ordinaire ne peut pas créditer");
-  assert.equal(xpDe("seb@example.org").exp, 1310);
+  assert.equal(xpDe("seb@example.org").exp, 1315);
 }
 
 // 6. Toute opération passe par __idleCommit : le journal y est écrit (colonne XP avant / après), sans jamais gêner le jeu
