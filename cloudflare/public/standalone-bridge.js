@@ -38,17 +38,25 @@
     el.classList.toggle("error",Boolean(error));
   }
 
+  /*
+   * Ticket de lancement : « #ticket=… » (fenêtre intégrée de SOREAL APP / TV) OU « ?ticket=… » (lancement par l'application Android du jeu depuis SOREAL APP : une adresse d'ouverture d'application ne peut pas porter de « # »,
+   * Norman 2026-10-08). Même ticket à usage unique, consommé par le serveur ; l'adresse est nettoyée aussitôt.
+   */
   function ticketFromHashV1(){
     try{
       const raw=String(location.hash||"").replace(/^#/,"");
-      if(!raw)return "";
-      return String(new URLSearchParams(raw).get("ticket")||"").trim();
+      const depuisHash=raw?String(new URLSearchParams(raw).get("ticket")||"").trim():"";
+      if(depuisHash)return depuisHash;
+      return String(new URLSearchParams(location.search||"").get("ticket")||"").trim();
     }catch(_){return "";}
   }
 
   function clearHashV1(){
     try{
-      history.replaceState(null,"",location.pathname+location.search);
+      const q=new URLSearchParams(location.search||"");
+      q.delete("ticket");
+      const reste=q.toString();
+      history.replaceState(null,"",location.pathname+(reste?"?"+reste:""));
     }catch(_){}
   }
 
