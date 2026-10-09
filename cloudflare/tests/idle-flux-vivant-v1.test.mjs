@@ -79,4 +79,10 @@ assert.ok(new Set(Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "vi
 const combatTextes = Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: "combat" } }, expert).texte);
 assert.ok(new Set(combatTextes).size >= 20, "Fight Boss : au moins vingt variantes");
 assert.ok(!combatTextes.some((t) => /fouille|bidouille|s’installe|traîne|mission secrète|petites affaires|coin tranquille/.test(t)), "Fight Boss : que des phrases de combat");
+// Menus de combat et d'entraînement : phrases propres uniquement (pas de « fouille » dans un endroit où l'on se bat ou s'entraîne).
+for (const m of ["combat", "challenges", "titans", "aventure", "tower", "entrainement", "avance"]) {
+  const t = Array.from({ length: 80 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: m } }, expert).texte);
+  assert.ok(new Set(t).size >= 20, m + " : au moins vingt variantes propres");
+  assert.ok(!t.some((x) => (m === "aventure" ? /bidouille|s’installe|mission secrète|petites affaires|coin tranquille|traîne dans/ : /fouille|bidouille|s’installe|mission secrète|petites affaires|coin tranquille|traîne dans/).test(x)), m + " : aucune phrase commune");
+}
 console.log("idle-flux-vivant-v1: OK");
