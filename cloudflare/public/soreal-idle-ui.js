@@ -21010,6 +21010,20 @@ function pageAventureIdleV28_(j){
           }
         },true);
 
+        document.addEventListener('pointerdown',function(event){
+          if(event.pointerType==='mouse'){idleCubeAppuiV1=null;return;}
+          const c=event.target&&event.target.closest?event.target.closest('[data-idle-cube-drop-v180]'):null;
+          idleCubeAppuiV1=c?{x:event.clientX,y:event.clientY,t:Date.now(),id:event.pointerId}:null;
+        },true);
+        document.addEventListener('pointerup',function(event){
+          const p=idleCubeAppuiV1;
+          idleCubeAppuiV1=null;
+          if(!p||p.id!==event.pointerId||event.pointerType==='mouse')return;
+          if(Math.hypot(event.clientX-p.x,event.clientY-p.y)>20||Date.now()-p.t>550)return;
+          if(idleAdventureSelectionIdV138)return;
+          toucherCubeAdventureIdleV1_();
+        },true);
+
         document.addEventListener('soreal-longpress',function(event){
           /* PC : le maintien du clic n'ouvre plus le popup (il se refermait au relâchement) — c'est le survol qui l'ouvre. */
           if(event.detail&&event.detail.pointerType==='mouse')return;
@@ -21462,6 +21476,26 @@ function pageAventureIdleV28_(j){
         envoyer({action:'inventoryAuto',mode:'boostAll',targetId:'cube'});
         return true;
       }
+      /*
+       * Un appui tactile sur le Cube (Norman, 2026-10-09 : « le double tap sur le cube n'avale plus les boosts »). Le Cube porte data-soreal-longpress (son popup s'ouvre au maintien) et le module de maintien
+       * appelle preventDefault sur touchstart : le navigateur ne produit alors plus de « click » tactile, et le double tap, compté dans le clic, ne se déclenchait jamais. Le tap est donc détecté au relâchement
+       * du doigt (pointerup) ; le clic, quand il existe quand même, passe par la même fonction (deux appels collés = un seul appui).
+       */
+      let idleCubeDernierEvtMsV1=0;
+      function toucherCubeAdventureIdleV1_(){
+        const maintenant=Date.now();
+        if(maintenant-idleCubeDernierEvtMsV1<80)return;
+        idleCubeDernierEvtMsV1=maintenant;
+        if(maintenant<idleCubeIgnorerClicJusquaV1)return;
+        if(!gestesAchetesIdleV1_().double)return;
+        if(maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
+          idleCubeDernierTapMsV1=0;
+          absorberTousBoostsCubeAdventureIdleV1_();
+          return;
+        }
+        idleCubeDernierTapMsV1=maintenant;
+      }
+      let idleCubeAppuiV1=null;
       function clicCubeAdventureIdleV138_(event){
         if(!idleAdventureSelectionIdV138){
           /* Certains Safari envoient un « click » sans pointerType : repli sur le type de pointeur principal de l'appareil. */
@@ -21476,15 +21510,7 @@ function pageAventureIdleV28_(j){
            * Téléphone (Norman, 2026-10-09 : le Cube de l'infini nécessite un appui long pour ouvrir son popup ; c'est le seul item qui fonctionnait différemment) : comme les autres objets, un appui simple n'ouvre plus
            * rien ; le popup s'ouvre au maintien (voir l'écouteur « soreal-longpress ») et le double tap absorbe tous les boosts (avec l'achat correspondant).
            */
-          if(Date.now()<idleCubeIgnorerClicJusquaV1)return;
-          if(!gestesAchetesIdleV1_().double)return;
-          const maintenant=Date.now();
-          if(maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
-            idleCubeDernierTapMsV1=0;
-            absorberTousBoostsCubeAdventureIdleV1_();
-            return;
-          }
-          idleCubeDernierTapMsV1=maintenant;
+          toucherCubeAdventureIdleV1_();
           return;
         }
         const id=idleAdventureSelectionIdV138;
