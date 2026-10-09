@@ -878,13 +878,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   display:grid!important;grid-template-columns:minmax(0,1fr);margin:0 4px 8px!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41>*{grid-area:1/1}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-wrap-v7{
-  transform:none!important;height:38px!important;border:3px solid #2a0a4a!important;border-radius:999px!important;overflow:hidden;position:relative;
+  transform:none!important;height:32px!important;border:0!important;border-radius:999px!important;overflow:hidden;position:relative;
   background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 45%,rgba(0,0,0,.4))!important;
-  box-shadow:inset 0 0 0 1.5px rgba(255,220,255,.5),inset 0 4px 5px rgba(255,255,255,.2),inset 0 -6px 8px rgba(0,0,0,.45),0 0 12px rgba(214,90,255,.55),0 3px 0 #1a0630!important;}
+  box-shadow:inset 0 0 0 1.5px rgba(210,235,255,.55),inset 0 4px 5px rgba(255,255,255,.18),inset 0 -6px 8px rgba(0,0,0,.45),0 0 8px rgba(214,90,255,.45)!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-wrap-v7::after{
-  content:"";position:absolute;left:12px;right:12px;top:3px;height:34%;z-index:2;pointer-events:none;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.08));inset:auto;}
+  content:"";position:absolute;left:10px;right:10px;top:2px;height:36%;z-index:2;pointer-events:none;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(255,255,255,.08));inset:auto;animation:none!important;mix-blend-mode:normal!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7{
   border-radius:999px!important;background:linear-gradient(180deg,#ff9be8 0%,#d94bff 48%,#8a2be2 100%)!important;
-  box-shadow:inset 0 7px 6px rgba(255,255,255,.4),inset 0 -6px 7px rgba(60,0,100,.35),0 0 14px rgba(230,100,255,.6)!important;}
+  box-shadow:inset 0 7px 6px rgba(255,255,255,.38),inset 0 -6px 7px rgba(0,0,0,.30),0 0 12px rgba(230,100,255,.6)!important;transition:width .28s linear,background .4s ease,box-shadow .4s ease!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4{
   z-index:3;align-self:center;transform:none!important;padding:0 14px!important;text-align:center;pointer-events:none;font-size:1.1em!important;}
