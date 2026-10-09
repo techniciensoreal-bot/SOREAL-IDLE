@@ -681,11 +681,27 @@
        * Quantité personnalisée (Norman, 2026-10-09) : la saisie est en UNITÉS DE LA STATISTIQUE, pas en nombre d'achats. Avec Vitesse (+0,1 pour 3 EXP) : « 1 » coûte 30 EXP, « 0,1 » coûte 3 EXP.
        * Le nombre d'achats envoyé au serveur vaut saisie ÷ gain par achat (arrondi, au moins 1).
        */
+      /* Lecture d'une saisie « 30K », « 1,5 M », « 2.4B »… (les mêmes suffixes que l'affichage des grands nombres : K, M, B, T, Qa, Qi, Sx, Sp, Oc, No, Dc, …). Rend NaN si le texte n'est pas un nombre. */
+      const IDLE_EXP_SUFFIXES_V1=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid','Sxd','Spd','Ocd','Nod','Vg','Uvg','Dvg','Tvg','Qavg','Qivg','Sxvg','Spvg','Ocvg','Novg','Tg'];
+      function idleExpLireNombreSaisieIdleV1_(texte){
+        const brut=String(texte==null?'':texte).trim().replace(/\s+/g,'');
+        const m=/^([0-9]+(?:[.,][0-9]+)?)([A-Za-z]*)$/.exec(brut);
+        if(!m)return NaN;
+        const base=Number(m[1].replace(',','.'));
+        if(!m[2])return base;
+        const rang=IDLE_EXP_SUFFIXES_V1.findIndex(function(x){return x&&x.toLowerCase()===m[2].toLowerCase();});
+        return rang>0?base*Math.pow(1000,rang):NaN;
+      }
       function idleExpAchatsDepuisSaisieIdleV1_(texte,gain){
-        const v=Number(String(texte==null?'':texte).replace(',','.'));
+        const v=idleExpLireNombreSaisieIdleV1_(texte);
         const g=Number(gain)>0?Number(gain):1;
         if(!Number.isFinite(v)||v<=0)return 1;
         return Math.max(1,Math.round(v/g+1e-9));
+      }
+      /* Quantité d'achats d'un champ : la valeur posée par −, + ou Max est gardée telle quelle (le texte affiché est arrondi), une saisie à la main est relue. */
+      function idleExpQuantiteChampIdleV1_(input,gain){
+        if(input&&input.dataset&&input.dataset.qtxt===input.value&&Number(input.dataset.qty)>=1)return Math.floor(Number(input.dataset.qty));
+        return idleExpAchatsDepuisSaisieIdleV1_(input?input.value:'',gain);
       }
       /*
        * Quantité personnalisée détaillée (Norman, 2026-10-09 : « plus détaillé, pas simplement une flèche ») : −, saisie, +, Max, puis un récapitulatif de l'achat : gain, valeur avant et après, coût, EXP restante
@@ -726,7 +742,7 @@
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const panneau=document.getElementById(idleExpShopIdInput_(res,stat)+'-panneau');
         const gain=Number(input.getAttribute('data-gain'))>0?Number(input.getAttribute('data-gain')):1;
-        const qty=idleExpAchatsDepuisSaisieIdleV1_(input.value,gain);
+        const qty=idleExpQuantiteChampIdleV1_(input,gain);
         const cout=H.idleEntier_(coutUnitaire*qty);
         apercu.textContent=H.formatGrandNombreIdleV70_(cout,2);
         if(!panneau)return;
@@ -753,13 +769,15 @@
         const cout=Number(panneau.getAttribute('data-cout'))||1;
         const actuel=Number(panneau.getAttribute('data-actuel'))||0;
         const plafond=Number(panneau.getAttribute('data-plafond'))||0;
-        let qty=idleExpAchatsDepuisSaisieIdleV1_(input.value,gain);
+        let qty=idleExpQuantiteChampIdleV1_(input,gain);
         if(sens===0){
           qty=Math.floor(idleExpExpDisponibleIdleV1_()/cout);
           if(plafond>0)qty=Math.min(qty,Math.floor((plafond-actuel)/gain+1e-9));
           qty=Math.max(1,qty);
         }else qty=Math.max(1,qty+sens);
         input.value=H.formatGrandNombreIdleV70_(Math.round(qty*gain*1e6)/1e6,2);
+        input.dataset.qtxt=input.value;
+        input.dataset.qty=String(qty);
         window.__idleExpShopApercuLotPersonnalise__(res,stat,cout);
       };
 
@@ -1202,7 +1220,7 @@
 
       function acheterRessourceLotPersonnaliseMetaIdleV130_(ressource,stat){
         const input=document.getElementById(idleExpShopIdInput_(ressource,stat));
-        const qty=input?idleExpAchatsDepuisSaisieIdleV1_(input.value,input.getAttribute('data-gain')):1;
+        const qty=input?idleExpQuantiteChampIdleV1_(input,Number(input.getAttribute('data-gain'))):1;
         acheterRessourceMetaIdleV130_(ressource,stat,qty);
       }
       window.__acheterRessourceLotPersonnaliseMetaIdleV130__=acheterRessourceLotPersonnaliseMetaIdleV130_;

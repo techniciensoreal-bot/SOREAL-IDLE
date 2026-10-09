@@ -11,14 +11,25 @@ assert.ok(meta.includes("'<u>'+l.nom+'</u><s class=\"fl\" aria-hidden=\"true\"><
 assert.ok(meta.includes("idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat,stat)") && meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat,"));
 
 // Saisie personnalisée : en unités de la statistique (saisie ÷ gain par achat).
-const debut = meta.indexOf("function idleExpAchatsDepuisSaisieIdleV1_");
-const fn = new Function(meta.slice(debut, meta.indexOf("function idleExpShopLotPersonnaliseIdleV1_")) + "\nreturn idleExpAchatsDepuisSaisieIdleV1_;")();
+const debut = meta.indexOf("const IDLE_EXP_SUFFIXES_V1");
+const corps = meta.slice(debut, meta.indexOf("function idleExpShopLotPersonnaliseIdleV1_"));
+const fn = new Function(corps + "\nreturn idleExpAchatsDepuisSaisieIdleV1_;")();
+const lire = new Function(corps + "\nreturn idleExpLireNombreSaisieIdleV1_;")();
 assert.equal(fn("0.1", 0.1), 1, "0,1 de vitesse = 1 achat = 3 EXP");
 assert.equal(fn("0,1", 0.1), 1, "virgule acceptée");
 assert.equal(fn("1", 0.1), 10, "1 de vitesse = 10 achats = 30 EXP");
 assert.equal(fn("0.3", 0.1), 3, "pas d'erreur d'arrondi flottant");
 assert.equal(fn("5", 1), 5, "statistique à gain 1 : la saisie est le nombre d'achats");
 assert.equal(fn("", 0.1), 1);
+// Saisies avec suffixe (l'affichage des grands nombres écrit « 10K », « 1,5M »…) : Norman, 2026-10-09, « quand j'augmente les quantités dans Plafond, le prix ne se met pas à jour ».
+assert.equal(lire("30K"), 30000);
+assert.equal(lire("1,5 M"), 1500000);
+assert.equal(lire("2.4b"), 2400000000);
+assert.equal(lire("950.74K"), 950740);
+assert.ok(Number.isNaN(lire("abc")) && Number.isNaN(lire("12Zz")));
+assert.equal(fn("30K", 10000), 3, "30K de Plafond = 3 achats de +10K (120 EXP, pas 40)");
+assert.equal(fn("1M", 1000000), 1);
+assert.equal(fn("100K", 10000), 10);
 assert.equal(fn("abc", 0.1), 1);
 assert.equal(fn("-4", 1), 1);
 assert.ok(!meta.includes("Quantité personnalisée ·"), "plus de libellé de traitement de texte");
@@ -39,4 +50,5 @@ assert.ok(meta.includes(".soreal-idle-exp-custom-v210 .fl::after") && !meta.incl
 assert.ok(meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat,x[stat.id])"), "valeur actuelle passée au récapitulatif");
 // « Il te restera » : EXP arrondie à l'entier (jamais 483,76).
 assert.equal(meta.split("Math.round(Math.abs(").length - 1, 2, "reste arrondi au rendu et à la mise à jour");
+assert.ok(meta.includes("function idleExpQuantiteChampIdleV1_(input,gain)") && meta.includes("input.dataset.qtxt=input.value;"), "valeur posée par −, + et Max gardée exacte");
 console.log("idle-boutique-exp-quantites-claires-v1: OK");
