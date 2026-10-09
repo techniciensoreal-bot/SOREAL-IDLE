@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Toutes les barres qui consomment de l’Or enchaînent maintenant leurs niveaux sans pause : l’Or baisse en direct à chaque niveau ou rituel terminé (rituels de sang et machine temporelle, comme les Augmentations), et la barre reste pleine en disant ce qu’il manque quand l’Or ne suffit pas.',
           'Menu NGU : le fond étoilé bouge avec les barres, sans décalage de profondeur (moins gourmand). La barre de vie du boss ressemble maintenant à la nôtre : un tube de verre avec les chiffres dedans, en rose-violet façon dessin animé.',
           'La lueur de cheminée est désactivée par défaut, car elle faisait ramer les téléphones ; elle se rallume en la cochant dans les Réglages. Chaque somme en Or est maintenant verte quand tu l’as et rouge sinon (rituels de sang compris).',
           'Les boutons de la borne (Fight, Fuite, Nuke) sont plus larges et penchés en trapèze, comme le socle noir au-dessus.',

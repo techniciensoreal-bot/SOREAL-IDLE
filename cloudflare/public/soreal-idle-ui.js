@@ -284,6 +284,34 @@
         }
         let largeur=window.innerWidth;
         /* Seule une vraie variation de largeur (rotation, fenêtre) remet à zéro : la barre d'adresse d'un téléphone ne change que la hauteur. */
+        /*
+         * Barre de vie du boss IDENTIQUE à celle du joueur du bandeau (Norman, 2026-10-09) : hauteur, rayon, ombres, police, reflet et cœur sont COPIÉS depuis la barre du joueur (styles calculés, donc
+         * exacts sur téléphone comme sur PC) dans des variables CSS que la barre du boss lit. Seule la largeur diffère.
+         */
+        function copierStylePvV1_(){
+          const w=document.querySelector('.soreal-idle-hud-pv-v2 .soreal-idle-energybar-wrap-v11');
+          const o=w&&w.querySelector('.soreal-idle-energybar-overlay-v1');
+          const f=w&&w.querySelector('.soreal-idle-hud-pvbar-v2');
+          if(!w||!o||!f)return;
+          const cw=getComputedStyle(w),co=getComputedStyle(o),af=getComputedStyle(w,'::after'),av=getComputedStyle(w,'::before');
+          const lat=w.parentElement&&w.parentElement.querySelector('.soreal-idle-hud-lat-v2.d');
+          const cl=lat?getComputedStyle(lat):null;
+          /* Le bandeau et la borne sont zoomés (zoom CSS de la page sur PC) : les dimensions mesurées à l'écran sont ramenées en pixels de mise en page avant d'être copiées. */
+          const rectW=w.getBoundingClientRect();
+          const zoomW=w.offsetWidth>0?rectW.width/w.offsetWidth:1;
+          const hauteur=rectW.height/(zoomW>0?zoomW:1);
+          if(!(hauteur>0))return;
+          const v={
+            '--pv-h':hauteur+'px','--pv-r':cw.borderRadius,'--pv-ombre':cw.boxShadow,
+            '--pv-ff':co.fontFamily,'--pv-fs':co.fontSize,'--pv-fw':co.fontWeight,'--pv-ls':co.letterSpacing,'--pv-ts':co.textShadow,
+            '--pv-reflet-g':af.left,'--pv-reflet-d':af.right,'--pv-reflet-h':af.top,'--pv-reflet-ht':af.height,'--pv-reflet-r':af.borderRadius,
+            '--pv-ic-g':av.left,'--pv-ic-fs':av.fontSize,
+            '--pv-lat-fs':cl?cl.fontSize:'11px','--pv-lat-ts':cl?cl.textShadow:'none','--pv-lat-droite':lat?Math.round((rectW.right-lat.getBoundingClientRect().right)/(zoomW>0?zoomW:1))+'px':'9px'
+          };
+          Object.keys(v).forEach(function(k){if(racine.style.getPropertyValue(k)!==v[k])racine.style.setProperty(k,v[k]);});
+        }
+        setInterval(copierStylePvV1_,700);
+        window.__SOREAL_IDLE_COPIER_STYLE_PV_V1__=copierStylePvV1_;
         window.addEventListener('resize',function(){if(Math.abs(window.innerWidth-largeur)<2)return;largeur=window.innerWidth;hauteurMax=0;racine.style.removeProperty('--hud-min-v2');});
         setInterval(suivre_,250);
       })();
@@ -3029,11 +3057,47 @@
              */
             const rituelDef=((idleEtat.systemes&&idleEtat.systemes.bloodRituals)||[]).find(function(r){return r&&r.id===bloodVisual.ritual;});
             const coutOrB=idleNombre_(rituelDef&&rituelDef.gold);
-            const orLiveB=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
+            let orLiveB=idleNombre_(idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
+            /*
+             * Les rituels s'ENCHAÎNENT (Norman, 2026-10-09 : « Blood Magic maxé n'enchaîne pas les niveaux, il s'arrête pour calculer les −30M Gold ; notre Or doit diminuer super vite ») : tant que l'Or le permet, les
+             * rituels terminés depuis le dernier repère sont rejoués ICI (Or débité, compteur augmenté, repère avancé) exactement comme le moteur (un rituel terminé = coût en Or), sans attendre la réponse du serveur ;
+             * la synchro ne fait que confirmer. Sans Or suffisant, la barre reste pleine comme avant.
+             */
+            if(seconds>0&&coutOrB>0){
+              const maintB=performance.now();
+              const ecoule0=Math.max(0,(maintB-(bloodVisual.at||maintB))/1000);
+              const eta0=idleNombre_(bloodVisual.etaSeconds);
+              if(ecoule0>=eta0-1e-9){
+                const dus=Math.floor((ecoule0-eta0)/seconds)+1;
+                const faits=Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000);
+                if(faits>0&&idleEtat.systemes&&idleEtat.systemes.currencies){
+                  orLiveB=Math.max(0,orLiveB-faits*coutOrB);
+                  idleEtat.systemes.currencies.gold=orLiveB;
+                  bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
+                  const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
+                  if(compte)compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+bloodVisual.ajoutLocal);
+                  if(faits===dus){
+                    const reste=(ecoule0-eta0)%seconds;
+                    bloodVisual.at=maintB;
+                    bloodVisual.etaSeconds=Math.max(1e-6,seconds-reste);
+                  }else{
+                    /* Or épuisé : les rituels payés sont rejoués, le suivant attend l'Or (barre pleine). */
+                    bloodVisual.at=maintB;
+                    bloodVisual.etaSeconds=0;
+                  }
+                  if(Date.now()-idleAugSyncV1>3000){idleAugSyncV1=Date.now();synchroniserJeuIdleV7_(true);}
+                }
+              }
+            }
             const ecouleB=Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000);
             const pleineB=seconds>0.0201&&ecouleB>=idleNombre_(bloodVisual.etaSeconds)-1e-9;
             const manqueOrB=coutOrB>0&&orLiveB+1e-9<coutOrB;
             const ligneBloodFixe=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
+            if(bloodVisual.ajoutLocal){
+              const compte2=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
+              const texte2=idleEntier_(idleNombre_(compte2&&compte2.getAttribute('data-n'))+bloodVisual.ajoutLocal);
+              if(compte2&&compte2.textContent!==texte2)compte2.textContent=texte2;
+            }
             if(pleineB){
               if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
               el.style.width='100%';
@@ -4552,15 +4616,41 @@
           const niveau0=donneesTm?idleEntier_(piste==='or'?donneesTm.goldLevel:donneesTm.speedLevel):null;
           let restant=base-(maintenant-at)/1000;
           let palier=fill0<1&&base>0?base/(1-fill0):0;
-          let franchis=0;
+          let franchis=0,faussesOr=false,manqueOr=0;
           if(restant<=0&&niveau0!==null&&palier>0){
-            while(restant<=0&&franchis<200){
+            /*
+             * Niveaux de la machine : ils COÛTENT de l'Or (5 000 000 × niveau visé, comme le moteur) et s'enchaînent sans pause (Norman, 2026-10-09 : « toutes les barres qui consomment de l'Or doivent enchaîner et
+             * l'Or diminuer très vite ») : chaque niveau franchi débite l'Or local tout de suite ; faute d'Or, la barre reste pleine et le dit. La synchro confirme.
+             */
+            if(el.__tmDebitesAt!==el.dataset.tmEtaAt){el.__tmDebitesAt=el.dataset.tmEtaAt;el.__tmDebites=0;}
+            let deja=el.__tmDebites||0;
+            const monnaiesTm=idleEtat&&idleEtat.systemes&&idleEtat.systemes.currencies;
+            let orTm=idleNombre_(monnaiesTm&&monnaiesTm.gold);
+            while(restant<=0&&franchis<20000){
+              const cibleNiv=niveau0+franchis+1;
+              if(franchis>=deja){
+                const coutNiv=5000000*Math.max(1,cibleNiv);
+                if(monnaiesTm&&orTm+1e-9<coutNiv){faussesOr=true;manqueOr=coutNiv-orTm;restant=0;break;}
+                if(monnaiesTm)orTm-=coutNiv;
+                deja+=1;
+              }
               franchis+=1;
               palier=palier*(niveau0+1+franchis)/(niveau0+franchis);
               restant+=palier;
             }
-          }else restant=Math.max(0,restant);
-          if(franchis>0){
+            if(monnaiesTm&&deja!==(el.__tmDebites||0)){monnaiesTm.gold=Math.max(0,orTm);patcherResumeStatsIdleV28_(idleEtat);}
+            el.__tmDebites=deja;
+          }else{
+            restant=Math.max(0,restant);
+            /* Barre déjà pleine (en attente d'Or côté serveur) : on le dit ; dès que l'Or suffit, on redemande l'état pour que le niveau suivant tombe sans attendre. */
+            if(niveau0!==null&&fill0>=1&&base<=0){
+              const coutAttente=5000000*Math.max(1,niveau0+1);
+              const orAttente=idleNombre_(idleEtat&&idleEtat.systemes&&idleEtat.systemes.currencies&&idleEtat.systemes.currencies.gold);
+              if(orAttente+1e-9<coutAttente){faussesOr=true;manqueOr=coutAttente-orAttente;}
+              else if(Date.now()-idleTmSyncNiveauV1>2000){idleTmSyncNiveauV1=Date.now();synchroniserJeuIdleV7_(true);}
+            }
+          }
+          if(franchis>0||faussesOr){
             const niveauEl=document.querySelector('[data-tm-niveau="'+piste+'"]');
             if(niveauEl)niveauEl.textContent=formatGrandNombreIdleV70_(niveau0+franchis);
             if(Date.now()-idleTmSyncNiveauV1>2000){
@@ -4569,14 +4659,19 @@
             }
           }
           const secondesAffichees=Math.ceil(restant);
-          if(el.dataset.tmEtaLast!==String(secondesAffichees)){
+          if(faussesOr){
+            const texteOr='⏳ Barre pleine : il manque '+formatGrandNombreIdleV70_(manqueOr)+' Or pour le niveau suivant.';
+            if(el.textContent!==texteOr)el.textContent=texteOr;
+            el.dataset.tmEtaLast='or';
+          }else if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
           }
           /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros ; après un niveau franchi elle repart du reste du niveau suivant. */
           if(barreEl&&barreEl.dataset.tmFill0!==undefined&&base>0){
             let fill;
-            if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));
+            if(faussesOr)fill=1;
+            else if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));
             else if(fill0<1)fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
             else fill=1;
             const largeurTm=(fill*100).toFixed(2)+'%';

@@ -900,3 +900,24 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7:not(#_):not(#_){border-radius:9px!important;background:linear-gradient(180deg,#a23fd6 0%,#7a22b4 50%,#4f1286 100%)!important;box-shadow:inset 0 -6px 7px rgba(0,0,0,.3),0 0 10px rgba(130,40,190,.55)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7:not(#_):not(#_)::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7:not(#_):not(#_)::after{display:none!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4:not(#_):not(#_){text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 2px 3px #000,0 0 6px #000!important}
+
+/* Barre de vie du boss = barre du joueur (Norman, 2026-10-09) : mêmes hauteur, rayon, ombres, police, reflet et cœur, lus dans les variables --pv-* copiées de la barre du bandeau (soreal-idle-ui.js, copierStylePvV1_) ; seule la largeur diffère. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-wrap-v7:not(#_):not(#_):not(#_){
+  height:var(--pv-h,32px)!important;border-radius:var(--pv-r,8px)!important;box-shadow:var(--pv-ombre,inset 0 0 0 1.5px rgba(210,235,255,.55))!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 45%,rgba(0,0,0,.35))!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-wrap-v7:not(#_):not(#_):not(#_)::after{
+  display:block!important;content:"";position:absolute;left:var(--pv-reflet-g,7px);right:var(--pv-reflet-d,7px);top:var(--pv-reflet-h,2px);height:var(--pv-reflet-ht,40%);z-index:2;pointer-events:none;
+  border-radius:var(--pv-reflet-r,5px);background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(255,255,255,.08))!important;inset:auto;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-bossbar-v7:not(#_):not(#_):not(#_){
+  border-radius:var(--pv-r,8px)!important;background:linear-gradient(180deg,#a23fd6 0%,#7a22b4 45%,#4f1286 100%)!important;
+  box-shadow:inset 0 6px 5px rgba(255,170,255,.40),inset 0 -6px 7px rgba(25,0,45,.55),0 0 10px rgba(130,40,190,.55)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4:not(#_):not(#_):not(#_){
+  font-family:var(--pv-ff,inherit)!important;font-size:var(--pv-fs,13px)!important;font-weight:var(--pv-fw,700)!important;letter-spacing:var(--pv-ls,0)!important;text-shadow:var(--pv-ts,0 1px 2px #000)!important;z-index:3}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4 :is(.soreal-idle-hp-cur-v1,.soreal-idle-hp-sep-v1,.soreal-idle-hp-max-v1){font-family:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important;text-shadow:inherit!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4 .soreal-idle-hp-ic-v1{left:var(--pv-ic-g,14px)!important;font-size:var(--pv-ic-fs,13px)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-duel-hp-v41 .soreal-idle-note-v4 .soreal-idle-hp-regen-v1:not(#_):not(#_){right:var(--pv-lat-droite,9px)!important;font-size:var(--pv-lat-fs,11px)!important;text-shadow:var(--pv-lat-ts,0 0 3px #000)!important}
+
+/* PC : la borne ne prend plus toute la largeur (Norman, 2026-10-09) : centrée, moins large que le menu, pour tenir en un écran en 1920×1080 avec les boutons Fight / Fuite / Nuke (images moins grandes). Le téléphone ne change pas. */
+@media (min-width:1100px) and (hover:hover){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:not(#_):not(#_){max-width:600px!important;margin-left:auto!important;margin-right:auto!important}
+}
