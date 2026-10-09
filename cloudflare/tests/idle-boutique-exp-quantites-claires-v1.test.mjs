@@ -8,7 +8,6 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 
 // Lignes de prix : « +gain Nom ➜ coût », avec le nom de la statistique.
 assert.ok(meta.includes("'<u>'+l.nom+'</u><s>➜</s><b>'+l.cout+' '+(unite||'EXP')+'</b>"), "ligne « +gain Nom ➜ coût »");
-assert.ok(meta.includes("nom:statDef?statDef.icone+' '+statDef.nom:''"), "le nom de la statistique est passé aux lignes de prix et aux offres");
 assert.ok(meta.includes("idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat,stat)") && meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat)"));
 
 // Saisie personnalisée : en unités de la statistique (saisie ÷ gain par achat).
@@ -25,6 +24,13 @@ assert.equal(fn("-4", 1), 1);
 assert.ok(!meta.includes("Quantité personnalisée ·"), "plus de libellé de traitement de texte");
 // Tuiles d'achat (« le B avec les couleurs du A ») : gain vert et prix or dans le bouton, grisée si l'EXP ne suffit pas.
 assert.ok(meta.includes("function idleExpTuileAchatIdleV1_(") && meta.includes("soreal-idle-exp-tuile-v1'+(abordable?'':' off')"));
-assert.ok(meta.includes(".soreal-idle-exp-tuile-v1 .g{font-size:19px;font-weight:1000;color:#8ff0a6}") && meta.includes(".soreal-idle-exp-tuile-v1 .p{font-size:13px;font-weight:1000;color:#ffd45e}"), "couleurs de la maquette A");
+assert.ok(meta.includes(".soreal-idle-exp-tuile-v1 .g{font-size:22px!important;font-weight:1000;color:#8ff0a6!important}") && meta.includes("color:#ffd45e!important"), "couleurs de la maquette A");
+assert.ok(meta.includes('<div class="carre">') && meta.includes(">Acheter</button></div>'"), "carré avec le bouton Acheter dessous");
+assert.ok(meta.includes("[1,10,100].forEach(function(q){if(tiers.indexOf(q)===-1)tiers.push(q);})"), "paliers +0,1 / +1 / +10");
+// Offres débutant : tickets, dans le rayon Débuts, seulement pour les ressources et achats déjà débloqués.
+assert.ok(meta.includes("soreal-idle-exp-ticket-v1") && meta.includes("idleExpShopTicketsDebutantIdleV1_(j,m)+cartes"), "tickets dans le rayon Débuts");
+assert.ok(!meta.includes("idleExpShopNewbieOffersIdleV1_(res.id,stat.id"), "plus d'offres dans chaque statistique");
+assert.ok(meta.includes("visibles.some(function(o){return o.id===r;})") && meta.includes("achat.unlockBoss&&verrou&&verrou.unlocked===false"), "anti-spoil : ressource et achat connus");
 assert.equal(meta.split("idleExpTuileAchatIdleV1_(").length - 1, 3, "définition + lots de statistiques + articles");
+assert.ok(meta.includes('class="fond" src="/shop/') && meta.includes("idleExpFondStatIdleV1_(res,statDef)"), "image en fond du carré, prix par-dessus");
 console.log("idle-boutique-exp-quantites-claires-v1: OK");

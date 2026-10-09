@@ -33,7 +33,7 @@ for(const token of [
   "Cette statistique est déjà au maximum : le boost n’est pas consommé.",
   "Vitesse de remplissage de la barre de cette ressource",
   "Quantité personnalisée",
-  "🎁 Offres débutant",
+  "🎟️ Offres débutant",
   "soreal-idle-exp-current-v211",
   "soreal-idle-exp-tab-v212",
   "var(--nav-color,#0891b2)",

@@ -19,7 +19,7 @@ for (const [nom, src] of [["meta", meta], ["ui", ui]]) {
 }
 // Le prix est écrit dans la carte.
 assert.ok(meta.includes("function idleExpPrixCarteIdleV1_(") && meta.includes("function idleExpLibelleAchatIdleV1_(q){return q>1?'Acheter ×'+q:'Acheter';}"));
-assert.equal(meta.split("idleExpPrixCarteIdleV1_(").length - 1, 4, "définition + offres, Rich Jerks, Yggdrasil (les lots et les articles de la boutique EXP utilisent les tuiles d’achat)");
+assert.equal(meta.split("idleExpPrixCarteIdleV1_(").length - 1, 3, "définition + Rich Jerks, Yggdrasil (les lots et les articles de la boutique EXP utilisent les tuiles d’achat)");
 assert.ok(ui.includes("soreal-idle-exp-prix-ligne-v1\"><i>Prix</i><b>'+formatGrandNombreIdleV70_(item.nextCost)+' AP"), "boutique AP : prix dans la carte");
 // Boutons plus petits.
 assert.ok(meta.includes(".soreal-idle-exp-buy-v210{min-height:0!important;padding:6px 14px!important"));

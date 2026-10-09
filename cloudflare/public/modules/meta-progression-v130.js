@@ -647,18 +647,33 @@
           return H.idleNombre_(e&&e.systemes&&e.systemes.currencies&&e.systemes.currencies.experience);
         }catch(err){return 0;}
       }
-      function idleExpTuileAchatIdleV1_(haut,coutTexte,coutNombre,onclick){
+      /*
+       * Le carré a l'image de l'achat en fond (Norman, 2026-10-09 : « des carrés avec l'image en fond et les prix par-dessus ») : la vraie illustration quand elle existe (dossier /shop/), sinon le grand pictogramme de
+       * l'achat ; le gain et le prix sont posés par-dessus, cernés pour rester lisibles.
+       */
+      function idleExpTuileAchatIdleV1_(haut,coutTexte,coutNombre,onclick,fond){
         const abordable=idleExpExpDisponibleIdleV1_()>=coutNombre;
-        return '<button type="button" class="soreal-idle-exp-tuile-v1'+(abordable?'':' off')+'" onclick="'+onclick+'"><span class="g">'+haut+'</span><span class="p">★ '+coutTexte+' EXP</span></button>';
+        const f=fond||{};
+        const decor=(f.emoji?'<span class="emo" aria-hidden="true">'+f.emoji+'</span>':'')+(f.img?'<img class="fond" src="/shop/'+f.img+'.png" alt="" loading="eager" decoding="async" onerror="this.remove()">':'');
+        return '<div class="soreal-idle-exp-tuile-v1'+(abordable?'':' off')+'"><div class="carre">'+decor+'<span class="g">'+haut+'</span><span class="p">★ '+coutTexte+' EXP</span></div>'+
+          '<button type="button" class="soreal-idle-exp-buy-v210" onclick="'+onclick+'">Acheter</button></div>';
       }
 
+      /* Illustrations existantes pour les statistiques de ressource : seules les Barres d'Énergie et de Magie en ont une ; les autres gardent leur pictogramme en grand. */
+      function idleExpFondStatIdleV1_(res,statDef){
+        const img=statDef&&statDef.id==='bars'?({energy:'energy-bar-bar',magic:'magic-bar-bar'}[res]||''):'';
+        return {emoji:statDef?statDef.icone:'',img:img};
+      }
       function idleExpShopBoutonsLotIdleV1_(res,stat,achat,statDef){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const tiers=Array.isArray(achat.bulkTiers)&&achat.bulkTiers.length?achat.bulkTiers:[1];
+        const tiers=(Array.isArray(achat.bulkTiers)&&achat.bulkTiers.length?achat.bulkTiers.slice():[1]);
+        /* Norman (2026-10-09) : plusieurs carrés, +0,1 / +1 / +10 pour Vitesse : toujours les paliers ×1, ×10 et ×100 (le serveur accepte n'importe quelle quantité). */
+        [1,10,100].forEach(function(q){if(tiers.indexOf(q)===-1)tiers.push(q);});
+        tiers.sort(function(a,b){return a-b;});
         return '<div class="soreal-idle-exp-tuiles-v1">'+tiers.map(function(qty){
           const cout=H.idleEntier_((achat.cost||0)*qty);
           return idleExpTuileAchatIdleV1_('+'+H.formatGrandNombreIdleV70_((achat.gain||0)*qty,2),H.formatGrandNombreIdleV70_(cout,2),cout,
-            'window.__acheterRessourceMetaIdleV130__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+qty+')');
+            'window.__acheterRessourceMetaIdleV130__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+qty+')',idleExpFondStatIdleV1_(res,statDef));
         }).join('')+'</div>';
       }
 
@@ -700,20 +715,41 @@
         apercu.textContent=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(coutUnitaire*qty);
       };
 
-      function idleExpShopNewbieOffersIdleV1_(res,stat,offres,utilisees,statDef){
+      /*
+       * Offres débutant en « ticket » (Norman, 2026-10-09), rangées dans le rayon Débuts : souche à gauche (offre unique), gain et prix au centre, bouton à droite. Une offre n'apparaît que pour une ressource déjà
+       * connue du joueur et pour un achat déjà débloqué (anti-spoil, règle n°2).
+       */
+      function idleExpShopNewbieOffersIdleV1_(res,stat,offres,utilisees,statDef,resNom){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const restantes=(offres||[]).filter(function(o){return utilisees.indexOf(o.id)===-1;});
-        if(!restantes.length)return '';
-        return '<div class="soreal-idle-exp-newbie-v210">'+
-          '<div class="soreal-idle-window-title-v31">🎁 Offres débutant</div>'+
-          '<div class="soreal-idle-note-v4">Offres à usage unique : elles disparaissent après achat.</div>'+
-          '<div class="soreal-idle-exp-actions-v210">'+
-            restantes.map(function(o){
-              return '<div class="soreal-idle-exp-offre-v1">'+idleExpPrixCarteIdleV1_([{q:1,nom:statDef?statDef.icone+' '+statDef.nom:'',gain:window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(o.gain,2),cout:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(o.cost)}],'EXP')+
-                '<button type="button" class="soreal-idle-exp-buy-v210 offer" onclick="window.__acheterNewbieOfferMetaIdleV130__(\''+
-                window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(res)+'\',\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat)+'\',\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(o.id)+'\')">Offre unique</button></div>';
-            }).join('')+
-          '</div>'+
-        '</div>';
+        const exp=idleExpExpDisponibleIdleV1_();
+        return restantes.map(function(o){
+          const abordable=exp>=H.idleEntier_(o.cost);
+          return '<div class="soreal-idle-exp-ticket-v1'+(abordable?'':' off')+'"><div class="souche"><i>🎟️</i>Offre unique</div><div class="corps">'+
+            '<div class="quoi"><small>'+H.idleHtml_(resNom||'')+'</small><b>+'+H.formatGrandNombreIdleV70_(o.gain,2)+' '+H.idleHtml_(statDef?statDef.icone+' '+statDef.nom:'')+'</b></div>'+
+            '<span class="prix">★ '+H.formatGrandNombreIdleV70_(H.idleEntier_(o.cost),2)+' EXP</span>'+
+            '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterNewbieOfferMetaIdleV130__(\''+
+            H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\',\''+H.idleHtml_(o.id)+'\')">Acheter</button></div></div>';
+        }).join('');
+      }
+      function idleExpShopTicketsDebutantIdleV1_(j,m){
+        const newbie=m.newbieOffers||{};
+        const utilisees=Array.isArray(newbie.used)?newbie.used:[];
+        const visibles=idleExpOngletsVisiblesIdleV1_(j,m);
+        const html=['energy','magic','r3'].filter(function(r){return visibles.some(function(o){return o.id===r;});}).map(function(r){
+          const catalogue=(newbie.catalog||{})[r]||{};
+          const couts=(m.resourcePurchases||{})[r]||{};
+          const verrous=(m.resourcePurchaseUnlock||{})[r]||{};
+          const onglet=IDLE_EXP_ONGLETS_V1.find(function(o){return o.id===r;});
+          return IDLE_SPEND_EXP_STATS_V1.filter(function(stat){
+            const achat=couts[stat.id],verrou=verrous[stat.id];
+            return achat&&!(achat.unlockBoss&&verrou&&verrou.unlocked===false);
+          }).map(function(stat){
+            return idleExpShopNewbieOffersIdleV1_(r,stat.id,catalogue[stat.id]||null,utilisees,stat,onglet?onglet.nom:'');
+          }).join('');
+        }).join('');
+        if(!html)return '';
+        return '<div class="soreal-idle-exp-tickets-titre-v1">🎟️ Offres débutant</div><div class="soreal-idle-exp-tickets-note-v1">Offres à usage unique : elles disparaissent après achat.</div>'+html;
       }
 
       function idleExpShopStatBlocIdleV1_(res,stat,x,achat,verrou,newbieCatalogue,newbieUtilisees){
@@ -732,8 +768,7 @@
             :auMax
               ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
               :idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat,stat)+
-                idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat)+
-                idleExpShopNewbieOffersIdleV1_(res.id,stat.id,(newbieCatalogue&&newbieCatalogue[stat.id])||null,newbieUtilisees,stat)
+                idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat)
           )+
         '</div>';
       }
@@ -892,8 +927,9 @@
         if(restants&&restants.length>10)tiers=tiers.concat([restants.length]);
         const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
         const boutons=tiers.map(function(q){
-          const haut=(it.max===1&&q===1)?'Acheter':(it.gain?'+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2):'×'+H.idleEntier_(q));
-          return idleExpTuileAchatIdleV1_(haut,H.formatGrandNombreIdleV70_(coutTotal(q),2),coutTotal(q),"window.__acheterExpShopIdleV1__('"+H.idleHtml_(it.id)+"',"+q+")");
+          const haut=(it.max===1&&q===1)?'Achat unique':(it.gain?'+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2):'×'+H.idleEntier_(q));
+          const emo=IDLE_EXP_EMOJI_DEBUT_V1.exec(String(IDLE_EXP_NOMS_V1[it.id]||it.name||''));
+          return idleExpTuileAchatIdleV1_(haut,H.formatGrandNombreIdleV70_(coutTotal(q),2),coutTotal(q),"window.__acheterExpShopIdleV1__('"+H.idleHtml_(it.id)+"',"+q+")",{emoji:emo?emo[1]:'✦',img:IDLE_EXP_PHOTOS_V1[it.id]||''});
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
         const prixCarte='';
@@ -943,7 +979,7 @@
         const parId=function(id){return tous.find(function(it){return it.id===id;});};
         if(onglet==='debuts'){
           const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
-          return '<div class="soreal-idle-exp-intro-v212">🚀 <b>À acheter tôt.</b> Ces achats sont peu chers et rendent la partie bien plus confortable ; dans l’ordre conseillé.</div>'+cartes;
+          return '<div class="soreal-idle-exp-intro-v212">🚀 <b>À acheter tôt.</b> Ces achats sont peu chers et rendent la partie bien plus confortable ; dans l’ordre conseillé.</div>'+idleExpShopTicketsDebutantIdleV1_(j,m)+cartes;
         }
         if(onglet==='toc'){
           const cartes=IDLE_EXP_TOC_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
@@ -1019,9 +1055,19 @@
           `.soreal-idle-exp-buy-v210{appearance:none;position:relative;min-height:50px;border:1px solid rgba(255,255,255,.28);border-radius:6px 12px 12px 6px;padding:8px 10px 8px 22px;background:${bleu};color:#fff !important;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;outline:1px dashed rgba(255,255,255,.35);outline-offset:-4px}`,
           `.soreal-idle-exp-buy-v210{min-height:0!important;padding:6px 14px!important;flex-direction:row!important;align-items:center;justify-content:center;gap:0!important;font-size:13px;font-weight:1000;letter-spacing:.03em;outline:none!important;border-radius:10px!important;text-align:center}`,
           `.soreal-idle-exp-buy-v210::before{display:none!important}`,
-          `.soreal-idle-exp-tuiles-v1{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:2px 0 8px}.soreal-idle-exp-tuile-v1{appearance:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:9px 6px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:#140c20;cursor:pointer;line-height:1.25;transition:transform .12s,border-color .12s,background .12s}`,
-          `.soreal-idle-exp-tuile-v1 .g{font-size:19px!important;font-weight:1000;color:#8ff0a6!important}.soreal-idle-exp-tuile-v1 .p{font-size:13px!important;font-weight:1000;color:#ffd45e!important}.soreal-idle-exp-tuile-v1:hover{border-color:#e06be3;background:#1d1030;transform:translateY(-1px)}.soreal-idle-exp-tuile-v1:active{transform:translateY(0)}`,
-          `.soreal-idle-exp-tuile-v1.off{opacity:.5;filter:grayscale(.55)}.soreal-idle-exp-tuile-v1.off:hover{border-color:rgba(255,255,255,.18);transform:none}`,
+          `.soreal-idle-exp-tuiles-v1{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:2px 0 8px}.soreal-idle-exp-tuile-v1{display:flex;flex-direction:column;gap:6px}`,
+          `.soreal-idle-exp-tuile-v1 .carre{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;aspect-ratio:1/1;min-height:96px;padding:8px 6px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:linear-gradient(160deg,#3a2160,#140c20 75%);line-height:1.2}`,
+          `.soreal-idle-exp-tuile-v1 .carre::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(10,5,20,.18),rgba(10,5,20,.1) 40%,rgba(10,5,20,.72));pointer-events:none}`,
+          `.soreal-idle-exp-tuile-v1 .emo{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-size:58px;opacity:.5;line-height:1}.soreal-idle-exp-tuile-v1 .fond{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}`,
+          `.soreal-idle-exp-tuile-v1 .g,.soreal-idle-exp-tuile-v1 .p{position:relative;z-index:1;text-shadow:0 0 3px #000,0 1px 2px #000,0 0 8px rgba(0,0,0,.9)}`,
+          `.soreal-idle-exp-tuile-v1 .g{font-size:22px!important;font-weight:1000;color:#8ff0a6!important}.soreal-idle-exp-tuile-v1 .p{font-size:13px!important;font-weight:1000;color:#ffd45e!important}`,
+          `.soreal-idle-exp-tuile-v1.off .carre{opacity:.5;filter:grayscale(.55)}.soreal-idle-exp-tuile-v1 .soreal-idle-exp-buy-v210{width:100%}`,
+          `.soreal-idle-exp-ticket-v1{--cut:78px;display:flex;align-items:stretch;margin:0 0 10px;color:#3a2a00;background:#f5c451;border-radius:10px;-webkit-mask:radial-gradient(circle at var(--cut) 0,transparent 8px,#000 8.5px) top/100% 51% no-repeat,radial-gradient(circle at var(--cut) 100%,transparent 8px,#000 8.5px) bottom/100% 51% no-repeat;mask:radial-gradient(circle at var(--cut) 0,transparent 8px,#000 8.5px) top/100% 51% no-repeat,radial-gradient(circle at var(--cut) 100%,transparent 8px,#000 8.5px) bottom/100% 51% no-repeat}`,
+          `.soreal-idle-exp-ticket-v1 .souche{flex:0 0 var(--cut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;border-right:2px dashed rgba(58,42,0,.55);font-size:11px;font-weight:1000;letter-spacing:.06em;text-transform:uppercase;text-align:center}.soreal-idle-exp-ticket-v1 .souche i{font-style:normal;font-size:22px;letter-spacing:0}`,
+          `.soreal-idle-exp-ticket-v1 .corps{flex:1;min-width:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 12px}.soreal-idle-exp-ticket-v1 .quoi{flex:1;min-width:130px;display:flex;flex-direction:column;line-height:1.25}.soreal-idle-exp-ticket-v1 .quoi small{font-size:11px;font-weight:900;opacity:.75}`,
+          `.soreal-idle-exp-ticket-v1 .quoi b{font-size:17px;font-weight:1000;color:#3a2a00}.soreal-idle-exp-ticket-v1 .prix{font-size:15px;font-weight:1000;color:#6b4500}`,
+          `.soreal-idle-exp-ticket-v1 .soreal-idle-exp-buy-v210{background:#3a2a00;color:#ffd45e!important;border-color:#3a2a00}.soreal-idle-exp-ticket-v1.off{filter:grayscale(.5);opacity:.75}`,
+          `.soreal-idle-exp-tickets-titre-v1{margin:14px 0 8px;font-size:14px;font-weight:1000;color:#f7e6b0}.soreal-idle-exp-tickets-note-v1{margin:0 0 10px;font-size:12.5px;font-weight:750;color:#c2dde6}`,
           `.soreal-idle-exp-prix-v1{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}`,
           `.soreal-idle-exp-prix-ligne-v1{display:inline-flex;align-items:baseline;gap:7px;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#e9dcff}`,
           `.soreal-idle-exp-prix-ligne-v1 i{font-style:normal;font-weight:1000;color:#cdbbf2}.soreal-idle-exp-prix-ligne-v1 em{font-style:normal;font-weight:900;color:#9df0b4}.soreal-idle-exp-prix-ligne-v1 b{font-weight:1000;color:#ffe38a}`,

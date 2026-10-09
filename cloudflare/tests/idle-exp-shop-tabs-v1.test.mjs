@@ -77,7 +77,7 @@ const TOUS = ["debuts", "toc", "energy", "magic", "r3", "aventure", "slots"];
   assert.ok(!pages.debuts.includes("Trier l’inventaire") && !pages.slots.includes("Synchro Basic Training"));
   // Les statistiques Energy (Vitesse, Puissance, Plafond, Barres) sont dans leur onglet, pas dans les autres
   assert.ok(pages.energy.includes("Vitesse") && pages.energy.includes("Barres"));
-  assert.ok(!pages.debuts.includes("Vitesse") && !pages.slots.includes("Vitesse"));
+  assert.ok(!pages.debuts.includes("Vitesse de remplissage") && !pages.slots.includes("Vitesse"));
 }
 
 // --- Navigation : les onglets s'affichent, l'actif est marqué, le choix est mémorisé et la page est redessinée ---
