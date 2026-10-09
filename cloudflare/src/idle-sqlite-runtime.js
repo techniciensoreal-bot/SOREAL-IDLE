@@ -13019,11 +13019,46 @@ function definirClassementVisibleSorealIdle(
  * Profil du joueur : pseudo, joueur externe (2026-09-26) — voir idle-profile-v1.js
  * ------------------------------------------------------------------
  */
-function emailProfilSorealIdle_(acces) {
+function emailBrutProfilSorealIdle_(acces) {
   return normaliserEmailSorealIdle_(
     (acces && acces.user && (acces.user.email || acces.user.emailConnexion)) ||
     (acces && acces.emailAutorise)
   );
+}
+
+/*
+ * Clé UNIQUE d'un joueur dans « En direct », la présence, le chat et les profils (Norman, 2026-10-09 : « Sébastien et Saka (Sébastien) sont le même compte, il ne faut afficher que Saka (Sébastien) »).
+ * Un même joueur arrive avec des adresses différentes selon le lanceur (APP ou TV : adresse principale ou adresse de connexion) et était donc compté deux fois, dont une sans pseudo. La clé est maintenant
+ * l'adresse principale de SA LIGNE de jeu, la même quel que soit le lanceur ; la partie d'essai (B) garde sa clé à part, et en cas d'échec on retombe sur l'adresse brute.
+ */
+function emailProfilSorealIdle_(acces) {
+  const brut = emailBrutProfilSorealIdle_(acces);
+  if (!acces || typeof acces !== 'object') return brut;
+  if (typeof acces.__cleJoueurV1 === 'string' && acces.__cleJoueurV1) return acces.__cleJoueurV1;
+  let cle = brut;
+  try {
+    if (__idleSql && idleDevSlotForUserV1(acces.user) !== 'b') {
+      const feuille = obtenirFeuilleJoueursSorealIdle_();
+      const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+      const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+      const principal = normaliserEmailSorealIdle_(feuille.getRange(ligne, c.EMAIL_PRINCIPAL).getValue() || feuille.getRange(ligne, c.EMAIL_CONNEXION).getValue());
+      if (principal) cle = principal;
+    }
+  } catch (_) {
+    cle = brut;
+  }
+  try { acces.__cleJoueurV1 = cle; } catch (_) { /* objet figé : pas de mémo */ }
+  return cle;
+}
+
+/* Toutes les adresses sous lesquelles ce joueur a pu être enregistré (pour retrouver un pseudo posé avant l'unification des clés). */
+function adressesJoueurSorealIdle_(acces) {
+  const liste = [emailProfilSorealIdle_(acces), emailBrutProfilSorealIdle_(acces)];
+  try {
+    extraireEmailsUtilisateurSorealIdle_(acces && acces.user).forEach(function (e) { liste.push(normaliserEmailSorealIdle_(e)); });
+    if (acces && acces.emailAutorise) liste.push(normaliserEmailSorealIdle_(acces.emailAutorise));
+  } catch (_) { /* repli : les deux premières */ }
+  return liste.filter(function (e, i) { return e && liste.indexOf(e) === i; });
 }
 
 /* Enregistre le passage du joueur (adresse, externe ou non, nom Google) ; jamais bloquant pour le jeu. */
@@ -13046,6 +13081,14 @@ function identiteJoueurSorealIdle_(acces) {
   let profil = null;
   try {
     profil = __idleSql ? lireProfilIdleV1(__idleSql, emailProfilSorealIdle_(acces)) : null;
+    /* Pseudo posé sous une autre adresse du même joueur (avant l'unification des clés) : on le retrouve. */
+    if (__idleSql && (!profil || !profil.pseudo)) {
+      adressesJoueurSorealIdle_(acces).forEach(function (e) {
+        if (profil && profil.pseudo) return;
+        const p = lireProfilIdleV1(__idleSql, e);
+        if (p && p.pseudo) profil = p;
+      });
+    }
   } catch (_) {
     profil = null;
   }
