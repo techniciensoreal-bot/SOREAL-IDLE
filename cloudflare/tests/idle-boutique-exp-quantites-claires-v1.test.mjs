@@ -23,4 +23,8 @@ assert.equal(fn("", 0.1), 1);
 assert.equal(fn("abc", 0.1), 1);
 assert.equal(fn("-4", 1), 1);
 assert.ok(!meta.includes("Quantité personnalisée ·"), "plus de libellé de traitement de texte");
+// Tuiles d'achat (« le B avec les couleurs du A ») : gain vert et prix or dans le bouton, grisée si l'EXP ne suffit pas.
+assert.ok(meta.includes("function idleExpTuileAchatIdleV1_(") && meta.includes("soreal-idle-exp-tuile-v1'+(abordable?'':' off')"));
+assert.ok(meta.includes(".soreal-idle-exp-tuile-v1 .g{font-size:19px;font-weight:1000;color:#8ff0a6}") && meta.includes(".soreal-idle-exp-tuile-v1 .p{font-size:13px;font-weight:1000;color:#ffd45e}"), "couleurs de la maquette A");
+assert.equal(meta.split("idleExpTuileAchatIdleV1_(").length - 1, 3, "définition + lots de statistiques + articles");
 console.log("idle-boutique-exp-quantites-claires-v1: OK");
