@@ -14989,6 +14989,7 @@
 
         return `
           <div class="soreal-idle-hud-v2" id="sorealIdleHudV2">
+          ${resumeStatsIdleV28_(j)}
           <div class="soreal-idle-energy-panel-v34${energieDisponibleIdleV9_()<1?' soreal-idle-vide-v2':''}">
             <div class="soreal-idle-energy-head-v34">
               <div class="soreal-idle-energy-title-v34">
@@ -15095,7 +15096,6 @@
             </div>
             <span class="soreal-idle-hud-lat-v2 d" id="sorealIdleHudDPvV2"></span>
           </div>
-          ${resumeStatsIdleV28_(j)}
           </div>
         `;
       }
