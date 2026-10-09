@@ -109,7 +109,7 @@ assert.equal(r.applique.energieCap, 1e12);
 
 // 4 bis. Partie B invisible (Norman, 2026-10-05 : « les joueurs ne doivent pas voir ce que tu fais ») : la session garde l'adresse RÉELLE pour la présence et « En direct », donc la partie B ne doit rien écrire.
 sql.exec("CREATE TABLE IF NOT EXISTS idle_presence(email TEXT PRIMARY KEY,nom TEXT,admin INTEGER,vu_le INTEGER,actif INTEGER,activite TEXT)");
-const nPresence = () => sql.exec("SELECT COUNT(*) AS n FROM idle_presence WHERE email=?", ADMIN)[0].n;
+const nPresence = () => sql.exec("SELECT COUNT(*) AS n FROM idle_presence")[0].n; /* la clé de présence est celle de la ligne de jeu (plus l'adresse) : un seul joueur dans ce test */
 const bat = appeler(norman, "battementSorealIdle", [{ actif: true, connecte: true, activite: { t: "libre" } }]);
 assert.equal(bat.ok, true);
 assert.deepEqual(bat.enLigne, [], "partie B : personne en ligne à montrer");
