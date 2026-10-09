@@ -21,6 +21,11 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          'Dans chaque menu où l’on place une ressource, chaque ligne a ses boutons + − Max, et le haut du menu a toujours deux cadres : « Plafond » (Max, 1/2, 1/4) et « Idle » (1/2, 1/4, Tout retirer).',
+          'Le popup de fin de défi apparaît dès que le défi est validé, sans attendre d’ouvrir le menu Défis.',
+          'Le bouton « Tous les boosts dans le Cube » est supprimé (le clic droit sur le Cube suffit) et le panneau d’automatisation ne parle de l’Auto Boost qu’une fois débloqué.',
+          'Le clic droit sur une pièce qui absorbe les pièces identiques joue le même son que lorsqu’on glisse une pièce sur une pièce identique.',
+          'Équipement : le troisième emplacement d’accessoire se place sous les deux premiers, à côté du pantalon, et le quatrième sous le troisième, à côté des bottes.',
           'Au survol, chaque barre du haut a son propre popup (énergie, magie, troisième ressource), et la barre de vie n’en affiche plus.',
           'Menu du jeu : les cinq derniers boutons sont toujours Boutique, Chroniques, Chat, Réglages puis, pour l’administrateur seulement, Admin tout en bas ; un menu qui se débloque ne se place plus jamais après Admin.',
           'Les lettres des grands nombres ont chacune leur couleur (Spd en vert, Qa en bleu, une couleur différente pour chaque unité) et une espace les sépare toujours des chiffres.',

@@ -315,6 +315,12 @@
         window.addEventListener('resize',function(){if(Math.abs(window.innerWidth-largeur)<2)return;largeur=window.innerWidth;hauteurMax=0;racine.style.removeProperty('--hud-min-v2');});
         setInterval(suivre_,250);
       })();
+      /* Fin de défi : annoncée dès que la synchro l'apporte, sans attendre un rendu complet de la page (modules/challenges-v1.js). */
+      setInterval(function(){
+        if(!idleEtat||document.hidden)return;
+        const defis=window.__SOREAL_IDLE_DEFIS_V1__;
+        if(defis&&typeof defis.verifierFin==='function'){try{defis.verifierFin(idleEtat);}catch(_e){}}
+      },1000);
       /* Bandeau : part de chaque barre déjà générée (disponible + dépensée), en pourcentage du plafond. */
       window.__SOREAL_IDLE_DISPONIBLE_V2__=function(){
         const b=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
@@ -16459,7 +16465,7 @@
             </div>
 
             <div class="soreal-idle-bt-presets-v120">
-              <span>⚡ Energy Cap</span>
+              <span>⚡ Plafond d’énergie</span>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',1)">Max</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.5)">1/2</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.25)">1/4</button>
@@ -20206,12 +20212,15 @@ function pageAventureIdleV28_(j){
         const vides=Math.max(0,idleEntier_(capacite,2)-objetsPortes.length);
         const tousLesSlots=objetsPortes.concat(Array(vides).fill(null));
 
-        const classesGrille=['soreal-idle-v138-slot-acc1','soreal-idle-v138-slot-acc2'];
-        const enGrille=tousLesSlots.slice(0,2).map(function(item,index){
+        /*
+         * Norman (2026-10-09) : le 3e accessoire se place SOUS les deux premiers, à côté du Pantalon ; le 4e SOUS le 3e, à côté des Bottes (colonne de gauche de la grille). Les suivants restent en dessous du paperdoll.
+         */
+        const classesGrille=['soreal-idle-v138-slot-acc1','soreal-idle-v138-slot-acc2','soreal-idle-v138-slot-acc3','soreal-idle-v138-slot-acc4'];
+        const enGrille=tousLesSlots.slice(0,4).map(function(item,index){
           return rendreEmplacementAccessoireAdventureIdleV138_(item,classesGrille[index]);
         }).join('');
 
-        const debordement=tousLesSlots.slice(2);
+        const debordement=tousLesSlots.slice(4);
         const debordementHtml=debordement.length
           ?'<div class="soreal-idle-v138-accessories">'+
             debordement.map(function(item){return rendreEmplacementAccessoireAdventureIdleV138_(item,'');}).join('')+

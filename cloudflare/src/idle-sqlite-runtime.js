@@ -16910,7 +16910,7 @@ function preparerPartieTestSorealIdle(sessionToken, options) {
     if (o.systemes === true) {
       if (!meta.adventure || typeof meta.adventure !== 'object') meta.adventure = {};
       const drapeaux = (meta.adventure.unlockFlags && typeof meta.adventure.unlockFlags === 'object') ? meta.adventure.unlockFlags : {};
-      for (const k of ['ngu', 'yggdrasil', 'diggers', 'beards', 'tower', 'wandoos']) drapeaux[k] = true;
+      for (const k of ['ngu', 'yggdrasil', 'diggers', 'beards', 'tower', 'wandoos', 'hacks', 'wishes', 'questing', 'quirks', 'cards', 'cooking', 'macguffins', 'walderpFinalDefeated', 'basicTrainingComplete']) drapeaux[k] = true; /* banc d'essai : tous les systèmes qui acceptent de l'énergie, de la magie ou de la 3e ressource (2026-10-09) */
       meta.adventure.unlockFlags = drapeaux;
       applique.systemes = true;
     }

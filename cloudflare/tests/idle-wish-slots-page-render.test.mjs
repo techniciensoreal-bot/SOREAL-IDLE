@@ -62,7 +62,9 @@ for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlo
   assert.ok(!html.includes("2 / 4"), "anti-spoil : pas de total de slots");
   assert.ok(!/🔒|Slot 3|Slot 4|verrouill/.test(html), "slots 3 et 4 encore verrouillés : absents (anti-spoil)");
   assert.equal((html.match(/action:'setWishSlot'/g) || []).length, 2, "un sélecteur par slot débloqué");
-  assert.equal((html.match(/action:'allocateWishSlot'/g) || []).length, 2 * 3 * 4, "4 boutons par ressource et par slot");
+  /* 2026-10-09 : − + MAX par ressource et par slot (Input partagé), plus les anciens 0/25/50/100 % */
+  assert.equal((html.match(/ALLOC_V1__\.ajusterVoeu\(/g) || []).length, 2 * 3 * 3, "3 boutons (− + Max) par ressource et par slot");
+  assert.equal((html.match(/action:'allocateWishSlot'/g) || []).length, 0, "plus de boutons en pourcentage");
   assert.ok(html.includes("Slot 1 · I Wish that wishes weren't so slow :c"));
   assert.ok(html.includes("Slot 2 · I wish I had more Energy Power I"));
   assert.ok(html.includes("Niveau suivant dans"), "le slot 1 a les trois ressources : durée affichée");
@@ -72,7 +74,7 @@ for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlo
   assert.ok(selects[0].includes('<option value="1" selected>'));
   assert.ok(!selects[1].includes('<option value="1"'), "souhait déjà dans un autre slot");
   // 100 % du slot 2 = cap - 100 (déjà alloué au slot 1).
-  assert.ok(html.includes("action:'allocateWishSlot',slot:1,resource:'energy',value:900"));
+  assert.ok(html.includes("ajusterVoeu(1,'energy','max',0,900)"), "Max du slot 2 : tout ce qui reste (1000 - 100 déjà au slot 1)");
   assert.ok(html.includes("Tous les souhaits (229)"), "231 souhaits moins Dual Wielding I et II, qui exigent les Troll Challenges Evil 4 et 6 (page Wishes)");
 }
 

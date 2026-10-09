@@ -208,7 +208,6 @@
   /* ---------- actions exposées au panneau ---------- */
   window.__inventaireAutoReglageV1__=function(cle,valeur){var p={};p[cle]=valeur;envoyerFiable_('r:'+cle,'settings',p);};
   window.__inventaireAutoModeClicV1__=function(v){modeClic=TOUCHES[v]?v:'';rendre();};
-  window.__inventaireAutoBoosterCubeV1__=function(){action('boostAll',{targetId:'cube'});};
   function zoneFiltre_(){var s=snap(dernierEtat);return s&&s.lootFilterZone?String(s.lootFilterZone):'';}
   window.__inventaireAutoFiltreTypeV1__=function(slot,v){var z=zoneFiltre_();var extra={slot:String(slot),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('t:'+z+':'+slot,'lootFilterType',extra);};
   window.__inventaireAutoFiltreObjetV1__=function(def,v){var z=zoneFiltre_();var extra={definitionId:String(def),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('i:'+z+':'+def,'lootFilterItem',extra);};
@@ -293,19 +292,22 @@
     var autoItems=
       (u.autoMerge?'<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?prochainAuto(j,s,s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',true)+'</div>':'')+
       (u.autoBoost?'<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?prochainAuto(j,s,s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',true)+'</div>':'');
-    var boutonCube=a.cube&&a.cube.unlocked?'<div style="margin-top:10px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoBoosterCubeV1__()">🧊 Tous les boosts dans le Cube</button></div>':'';
+    /* Bouton de versement groupé dans le Cube supprimé (Norman, 2026-10-09) : le clic droit (ou le double tap) sur le Cube suffit. */
     lignes.push(section('🤖 Automatisation',
       (autoItems?'<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+autoItems+'</div>'+
-      '<div class="soreal-idle-note-v4" style="margin-top:10px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b> · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b><br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.</div>':'')+
+      '<div class="soreal-idle-note-v4" style="margin-top:10px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b>'+
+        (u.autoBoost
+          ?' · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b><br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.'
+          :'<br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge. Les objets protégés (Shift) ne sont jamais consommés.')+'</div>':'')+
       '<div style="margin-top:10px">'+caseACocher(u.autoBoost?'♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés':'♻️ A + clic réutilise aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
-        '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Désactivé : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>'+boutonCube
+        '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Désactivé : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>'
     ));
 
     /* Anti-spoil : on n'affiche que le nombre déjà obtenu, sans maximum ; rien tant qu'aucun slot n'est obtenu. */
     lignes.push(section('🟦 Slots d’automerge · '+entier(s.mergeSlots),
       entier(s.mergeSlots)>0?('<div style="display:flex;gap:14px;flex-wrap:wrap">'+
         caseACocher('Fusion automatique',r.mergeSlotsMerge,'window.__inventaireAutoReglageV1__(\'mergeSlotsMerge\',this.checked)')+
-        caseACocher('Boost automatique',r.mergeSlotsBoost,'window.__inventaireAutoReglageV1__(\'mergeSlotsBoost\',this.checked)')+
+        (u.autoBoost?caseACocher('Boost automatique',r.mergeSlotsBoost,'window.__inventaireAutoReglageV1__(\'mergeSlotsBoost\',this.checked)'):'')+
       '</div><div class="soreal-idle-note-v4" style="margin-top:6px">Les premières cases du sac (contour bleu) : aucun butin n’y tombe, dépose-y les objets à faire monter.</div>'):
       ''
     ));

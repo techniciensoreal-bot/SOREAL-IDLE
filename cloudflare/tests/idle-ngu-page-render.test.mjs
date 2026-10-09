@@ -62,7 +62,7 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
     assert.ok(html.includes("NGU " + nom.toUpperCase()), "NGU manquant dans la page : " + nom);
   }
   assert.equal((html.match(/data-nl-ngu="/g) || []).length, 16, "un tuyau par NGU");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 2, "boutons + et − sur chaque tuyau");
+  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 3, "boutons + − et Max sur chaque tuyau (2026-10-09)");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par tuyau");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Faire suivre la magie");
   assert.ok(html.includes("Vers les NGU de magie") && html.includes("Je fais quoi ?"), "boutons de l'écran d'origine");

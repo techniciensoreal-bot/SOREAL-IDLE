@@ -128,7 +128,7 @@ for (const fonction of [
 {
   const auto = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8");
   assert.ok(auto.includes('class="sw-v1') && auto.includes('class="sw-boitier"') && auto.includes('class="sw-led"') && auto.includes(".sw-v1 .sw-in:checked~.sw-led{"), "interrupteur à bascule avec lumière verte");
-  assert.ok(!auto.includes("👆 Action au clic") && auto.includes("Tous les boosts dans le Cube"), "plus de menu « Action au clic » ; le bouton du Cube reste");
+  assert.ok(!auto.includes("👆 Action au clic") && !auto.includes("Tous les boosts dans le Cube"), "plus de menu « Action au clic » ; plus de bouton du Cube (supprimé le 2026-10-09, le clic droit suffit)");
   assert.ok(!auto.includes('<input type="checkbox" \'+(coche'), "plus de case à cocher brute");
 }
 

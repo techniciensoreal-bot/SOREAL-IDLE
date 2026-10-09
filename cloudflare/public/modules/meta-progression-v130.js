@@ -361,6 +361,27 @@
                   }catch(_e){}
                 }
 
+                /*
+                 * Fusion de toutes les pièces identiques (clic droit sur PC, double tap sur téléphone ; mode:'mergeAll') : même son que lorsqu'on glisse une pièce sur une pièce identique (Norman, 2026-10-09) :
+                 * fusion d'arme, d'armure ou d'accessoire selon l'emplacement de la pièce, joué seulement si quelque chose a réellement été fusionné.
+                 */
+                if(
+                  payload&&
+                  payload.action==='inventoryAuto'&&
+                  payload.mode==='mergeAll'&&
+                  window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.merged)>0
+                ){
+                  try{
+                    const H2=window.__SOREAL_IDLE_META_HOST_V130__;
+                    const a2=H2.aventureMetaIdleV47_(H2.getIdleEtat());
+                    const piece=((a2&&a2.inventory)||[]).find(function(x){return String(x&&x.id)===String(payload.itemId||'');});
+                    const empl=String(piece&&piece.slot||'');
+                    const cue=empl==='weapon'?'mergeWeapon':(['head','chest','legs','boots'].indexOf(empl)!==-1?'mergeArmor':'mergeAccessory');
+                    const audio=window.__SOREAL_IDLE_AUDIO_V199__;
+                    if(audio&&typeof audio[cue]==='function')audio[cue]();
+                  }catch(_e){}
+                }
+
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-296 */
                 if(
                   payload&&
@@ -1120,34 +1141,37 @@
         if(!ressources.length){
           return '';
         }
-
-        return '<div class="soreal-idle-shop-grid-v12">'+
+        const A=window.__SOREAL_IDLE_ALLOC_V1__;
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        /*
+         * Norman (2026-10-09) : dans chaque menu où l'on place une ressource, + − MAX sur chaque ligne et, en haut, deux cadres (Plafond MAX 1/2 1/4 ; IDLE 1/2 1/4 TOUT RETIRER). Les anciens boutons ±10 %
+         * envoyaient une valeur bornée à 100 : on place maintenant des quantités réelles (le serveur borne au maximum et à ce qui est libre).
+         */
+        return '<div class="soreal-idle-bt-toolbar-v120">'+
+            (A?A.entree('sorealIdleGenInputV1'):'')+
+            ressources.map(function(r){return A?A.cadres(r,s.id):'';}).join('')+
+          '</div>'+
+          '<div class="soreal-idle-shop-grid-v12">'+
           ressources.map(function(r){
             const valeur=
-              window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(
+              H.idleNombre_(
                 s.state&&
                 s.state.allocation&&
                 s.state.allocation[r]
               );
-
+            const sid=H.idleHtml_(s.id),rid=H.idleHtml_(r);
+            const act='window.__SOREAL_IDLE_ALLOC_V1__.ajuster(\''+sid+'\',\''+rid+'\',';
             return '<div class="soreal-idle-section-v8">'+
               '<div class="soreal-idle-window-title-v31">'+
                 libelleRessourceMetaIdleV130_(r)+
               '</div>'+
               '<div class="soreal-idle-note-v4">'+
-                'Allocation : <strong>'+valeur.toFixed(0)+' %</strong>'+
+                'Placé : <strong>'+H.formatGrandNombreIdleV70_(valeur)+'</strong>'+
               '</div>'+
-              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px">'+
-                '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__ajusterAllocationMetaIdleV130__(\''+
-                  window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.id)+
-                  '\',\''+
-                  window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(r)+
-                  '\',-10)">−10 %</button>'+
-                '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__ajusterAllocationMetaIdleV130__(\''+
-                  window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(s.id)+
-                  '\',\''+
-                  window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(r)+
-                  '\',10)">+10 %</button>'+
+              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:8px">'+
+                '<button type="button" class="soreal-idle-expand-button-v25" title="Retirer la valeur de Input" onclick="'+act+'\'moins\')">−</button>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" title="Placer la valeur de Input" onclick="'+act+'\'plus\')">+</button>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" title="Placer toute la ressource libre" onclick="'+act+'\'max\')">Max</button>'+
               '</div>'+
             '</div>';
           }).join('')+
@@ -2494,7 +2518,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b id="sorealIdleAugMultV1">x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+bossMax+'</b></div></div>'+
           legendeAllocationIdleV1_('Energy',true)+
           '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡</div>'+
-          '<div class="soreal-idle-bt-presets-v120"><span>⚡ Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>⚡ Plafond d’énergie</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAugmentsIdleV1__()">Tout retirer</button></div></div>'+
           /*
            * Anti-spoil (2026-09-27, Norman + AGENTS.md règle n°2) : IDLE_NGU_AUGMENTATIONS est déjà trié par unlockBoss croissant
@@ -2806,6 +2830,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             'Les niveaux sont remis à zéro à chaque Rebirth.'
           ]))+
           '<div class="soreal-idle-tm-input-v1"><label for="sorealIdleTmInputV1">🎚️ Input</label><input id="sorealIdleTmInputV1" type="text" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"><span><b>Input</b> = quantité déplacée à chaque clic sur <b>+</b> (placer) ou <b>−</b> (retirer) ; <b>Max</b> place tout ce qui est libre. <b>Cible</b> = niveau visé : l’allocation est retirée dès qu’il est atteint (0 = pas de cible).</span></div>'+
+          '<div class="soreal-idle-bt-toolbar-v120">'+(window.__SOREAL_IDLE_ALLOC_V1__?window.__SOREAL_IDLE_ALLOC_V1__.cadres('energy','timeMachine')+(magicOk?window.__SOREAL_IDLE_ALLOC_V1__.cadres('magic','timeMachine'):''):'')+'</div>'+
           piste('vitesse','⏱️ Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds)+
           /* Anti-spoil (AGENTS.md règle n°2) : tant que Blood Magic n'est pas débloqué, la piste Magic n'apparaît pas du tout (avant : « 🔒 Magic se débloque avec Blood Magic au boss 37 »). */
           (magicOk?piste('or','🪙 Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,false,vue.goldEtaSeconds):'')+
@@ -3387,10 +3412,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             const verrou=(r==='magic'&&!ws.magicUnlocked)||(r==='r3'&&!ws.r3Unlocked);
             if(verrou)return '';/* ANTI-SPOIL : une ressource non débloquée n'apparaît pas. */
             const dispo=Math.max(0,capDe(r)-alloueAilleurs(r,sl.index));
-            const valeurs=[0,Math.floor(dispo*.25),Math.floor(dispo*.5),Math.floor(dispo)];
-            const boutons=valeurs.map(function(v,i){
-              return '<button type="button" class="soreal-idle-expand-button-v25" '+(verrou?'disabled':'onclick="window.__actionMetaIdleV130__({action:\'allocateWishSlot\',slot:'+sl.index+',resource:\''+r+'\',value:'+v+'})"')+'>'+['0%','25%','50%','100%'][i]+'</button>';
-            }).join('');
+            const courantSlot=Math.floor(H.idleNombre_(sl.allocation&&sl.allocation[r]));
+            const argsVoeu=sl.index+',\''+r+'\',';
+            const finVoeu=','+courantSlot+','+Math.floor(dispo)+')';
+            /* + − MAX comme dans les autres menus (Input partagé) ; MAX place tout ce qui est libre pour ce souhait. */
+            const boutons=
+              '<button type="button" class="soreal-idle-expand-button-v25" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'moins\''+finVoeu+'">−</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'plus\''+finVoeu+'">+</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" title="Placer toute la ressource libre" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'max\''+finVoeu+'">Max</button>';
             return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px"><span>'+libelleRessourceMetaIdleV130_(r)+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">'+boutons+'</div></div>';
           }).join('');
@@ -3407,7 +3436,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const st=p.state||{};
           return '<div style="font-size:14px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)"><b>#'+H.idleHtml_(p.id)+' · '+H.idleHtml_(p.name)+'</b> · Niv. '+H.idleEntier_(st.level)+' / '+H.idleEntier_(p.levels)+(p.active?' · ▶️ en cours':'')+'<br><span style="color:#aeb5c8">'+H.idleHtml_(p.effect||'')+'</span></div>';
         }).join('');
-        return titre+resume+
+        const cadresVoeux=window.__SOREAL_IDLE_ALLOC_V1__
+          ?'<div class="soreal-idle-bt-toolbar-v120">'+window.__SOREAL_IDLE_ALLOC_V1__.entree('sorealIdleGenInputV1')+
+            ressources.filter(function(r){return !((r==='magic'&&!ws.magicUnlocked)||(r==='r3'&&!ws.r3Unlocked));}).map(function(r){return window.__SOREAL_IDLE_ALLOC_V1__.cadres(r,'wishes');}).join('')+'</div>'
+          :'';
+        return titre+resume+cadresVoeux+
           '<div style="display:grid;gap:10px">'+slots.map(carte).join('')+'</div>'+
           '<details class="soreal-idle-section-v8" style="margin-top:12px"><summary><b>Tous les souhaits ('+pistes.length+')</b></summary>'+liste+'</details>';
       }
@@ -3668,7 +3701,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         };
         const toolbar='<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
           '<div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+nombre(libre)+'</b> ⚡</div>'+
-          '<div class="soreal-idle-bt-presets-v120"><span>⚡ Energy Cap</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
+          '<div class="soreal-idle-bt-presets-v120"><span>⚡ Plafond d’énergie</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAdvancedTrainingIdleV1__()">Tout retirer</button></div></div>';
         return '<style>'+
           '.soreal-idle-at-v1{display:grid;gap:10px}'+

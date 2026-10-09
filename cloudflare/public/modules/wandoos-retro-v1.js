@@ -424,7 +424,10 @@
     if(!e)return '';
     var s=e.s;
     var titre=H&&H.entetePageIdleV28_?H.entetePageIdleV28_(html_((s.icon||'💻')+' '+(s.name||'Wandoos')),''):'';
-    return titre+poste_(j);
+    /* Les deux cadres du haut (Plafond MAX 1/2 1/4 ; IDLE 1/2 1/4 TOUT RETIRER), pour l'énergie et, si Blood Magic est débloqué, la magie : ils remplissent la saisie du clavier. */
+    var AL=window.__SOREAL_IDLE_ALLOC_V1__;
+    var cadres=AL&&e.actif?'<div class="soreal-idle-bt-toolbar-v120">'+AL.cadres('energy','wandoos')+(e.magieOk?AL.cadres('magic','wandoos'):'')+'</div>':'';
+    return titre+cadres+poste_(j);
   }
   function rafraichirPoste_(){
     var H=H_();
@@ -594,5 +597,5 @@
   }catch(_e){}
 
   window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_,
-    demarrer:demarrer,rafraichir:rafraichirPoste_,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
+    demarrer:demarrer,rafraichir:rafraichirPoste_,saisir:majSaisie_,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
 })();

@@ -555,14 +555,24 @@ function regler(aveugle){
   }
 }
 
-/* Appelé à chaque rendu (voir soreal-idle-ui.js). */
-function verifier(j){
+/*
+ * Annonce de fin de défi, DÈS que le défi est validé (Norman, 2026-10-09 : « le popup n'apparaît qu'en allant dans le menu Défis ; il doit apparaître dès que le défi est validé »). Elle n'était
+ * lancée qu'à un rendu complet de la page (changement de menu) ; une synchro qui apporte la fin du défi ne redessine pas la page. soreal-idle-ui.js la vérifie donc aussi chaque seconde.
+ */
+function verifierFin(j){
   if(!j||!j.systemes)return;
   var etat=j.systemes.challenge||{};
   var fin=etat.lastCompletion||null;
   var seqFin=fin?ent(fin.seq):0;
   if(derniereFin===null)derniereFin=seqFin;
   else if(seqFin>derniereFin){derniereFin=seqFin;annoncerFin(fin,j);}
+}
+
+/* Appelé à chaque rendu (voir soreal-idle-ui.js). */
+function verifier(j){
+  if(!j||!j.systemes)return;
+  var etat=j.systemes.challenge||{};
+  verifierFin(j);
 
   var actif=String(etat.active||'');
   var troll=etat.troll||null;
@@ -584,5 +594,5 @@ function verifier(j){
   }
 }
 
-window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,traduire:traduire,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

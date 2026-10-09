@@ -118,6 +118,7 @@ function barreHtml_(n,ancre){
       '<div class="nl-boutons">'+
         '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
         '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
+        '<button type="button" class="max" title="Placer toute l’énergie ou la magie libre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'max\')">Max</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -196,8 +197,9 @@ function barreOutilsHtml_(j){
   return '<div class="nl-barre-outils">'+
     '<div class="nl-ligne"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+
       '<span data-nl-libre-label>'+(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(lib)+'</b> '+(onglet==='magic'?'✨':'⚡')+'</span></div>'+
-    '<div class="nl-ligne"><span>'+(onglet==='magic'?'✨ Magic Cap':'⚡ Energy Cap')+'</span>'+
-      '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button>'+
+    '<div class="nl-ligne"><span>'+(onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie')+'</span>'+
+      '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button></div>'+
+    '<div class="nl-ligne">'+
       '<span>💤 Idle</span><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.25)">1/4</button>'+
       '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout retirer</button></div>'+
   '</div>';
@@ -334,10 +336,10 @@ function ajuster(id,mode){
   var res=n.resource;
   var courant=Math.max(0,Math.floor(nombre_(n.allocation)));
   var lib=libre_(j,res);
-  var valeur=mode==='plus'?courant+Math.min(pas_(),Math.floor(lib)):Math.max(0,courant-pas_());
+  var valeur=mode==='max'?courant+Math.floor(lib):(mode==='plus'?courant+Math.min(pas_(),Math.floor(lib)):Math.max(0,courant-pas_()));
   var delta=valeur-courant;
   if(delta===0)return;
-  if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='plus'?'btPlus':'btMinus');
+  if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='moins'?'btMinus':'btPlus');
   /* Vitesse proportionnelle à l'énergie : sans allocation avant, on attend la réponse du serveur pour la durée d'un niveau. */
   var f=document.querySelector('[data-nl-ngu="'+id+'"]');
   var spl=Number(n.secondsPerLevel)||0;
@@ -407,7 +409,7 @@ function changerOnglet(res){
   var lab=racine.querySelector('[data-nl-libre-label]');
   if(lab)lab.innerHTML=(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(libre_(j,onglet))+'</b> '+(onglet==='magic'?'✨':'⚡');
   var presets=racine.querySelector('.nl-barre-outils .nl-ligne:nth-child(2)>span');
-  if(presets)presets.textContent=onglet==='magic'?'✨ Magic Cap':'⚡ Energy Cap';
+  if(presets)presets.textContent=onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie';
 }
 function preset(source,fraction){
   var H=H_();

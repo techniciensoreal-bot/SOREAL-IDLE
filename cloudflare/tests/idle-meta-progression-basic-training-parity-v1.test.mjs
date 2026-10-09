@@ -48,8 +48,8 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   assert.match(helper, /j&&j\.energie\)/, "\"idle\" doit partir de l'énergie idle libre, comme Basic Training");
 
   assert.ok(
-    meta.includes("Energy Cap</span><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'cap\\',1)\">Max</button><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'cap\\',.5)\">1/2</button><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'cap\\',.25)\">1/4</button>"),
-    "rangée Energy Cap: Max/1/2/1/4"
+    meta.includes("Plafond d’énergie</span><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'cap\\',1)\">Max</button><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'cap\\',.5)\">1/2</button><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'cap\\',.25)\">1/4</button>"),
+    "rangée Plafond d’énergie: Max/1/2/1/4"
   );
   assert.ok(
     meta.includes("Idle</span><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'idle\\',.5)\">1/2</button><button type=\"button\" onclick=\"window.__presetAugmentIdleV1__(\\'idle\\',.25)\">1/4</button>"),
@@ -106,8 +106,8 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   assert.match(meta, /function ajusterRituelBloodMagicIdleV1_\(ritualId,mode\)\{/, "boutons Cap/+/- par rituel (demande explicite de Norman)");
 
   assert.ok(
-    meta.includes("Magic Cap</span><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'cap\\',1)\">Max</button>"),
-    "rangée Magic Cap: Max/1/2/1/4"
+    meta.includes("Plafond de magie</span><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'cap\\',1)\">Max</button>"),
+    "rangée Plafond de magie: Max/1/2/1/4"
   );
   assert.ok(
     meta.includes("<span>💤 Idle</span><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'idle\\',.5)\">1/2</button><button type=\"button\" onclick=\"window.__presetBloodMagicIdleV1__(\\'idle\\',.25)\">1/4</button><button type=\"button\" class=\"clear\" onclick=\"window.__viderBloodMagicIdleV1__()\">Tout retirer</button>"),

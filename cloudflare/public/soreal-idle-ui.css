@@ -1832,8 +1832,8 @@ html,body{overflow-x:hidden}
             grid-template-areas:
               "acc1 head weapon"
               "acc2 chest cube"
-              ".    legs   weapon2"
-              ".    boots  .";
+              "acc3 legs   weapon2"
+              "acc4 boots  .";
             gap:10px;
             max-width:420px;
             margin:0 auto;
@@ -2119,6 +2119,8 @@ html,body{overflow-x:hidden}
           .soreal-idle-v138-slot-cube{grid-area:cube}
           .soreal-idle-v138-slot-acc1{grid-area:acc1}
           .soreal-idle-v138-slot-acc2{grid-area:acc2}
+          .soreal-idle-v138-slot-acc3{grid-area:acc3}
+          .soreal-idle-v138-slot-acc4{grid-area:acc4}
 
           .soreal-idle-v138-slot-icon{
             font-size:34px;

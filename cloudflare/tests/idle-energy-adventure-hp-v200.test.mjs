@@ -25,7 +25,7 @@ function block(source,start,end){
 
 assert.ok(
   index.includes('/modules/adventure-scene-v79.js?v=203')&&
-  index.includes('/soreal-idle-ui.js?v=538'),
+  index.includes('/soreal-idle-ui.js?v=541'),
   "Le standalone doit charger les assets V200 de la barre Energie et des PV Aventure."
 );
 
