@@ -399,19 +399,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Joystick en volume (Norman, 2026-10-06 : « la boule est trop grosse et coupée, un vrai effet 3D ») : posé sur la dalle par les deux pseudo-éléments de la rangée de boutons, hors de la dalle inclinée pour ne plus être coupé. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{
-  content:"";position:absolute;z-index:3;pointer-events:none;width:26px;height:26px;top:-96px;left:calc(34px + (100% - 68px) * .24 - 13px);border-radius:50%;
+  content:"";position:absolute;z-index:3;pointer-events:none;width:26px;height:26px;top:-96px;left:calc(34px + (100% - 68px) * .355 - 13px);border-radius:50%;
   background:radial-gradient(circle at 34% 28%,#fff 0 7%,#c9f0ff 14%,#37c0ff 42%,#0c5f98 76%,#052a4a 100%);
   box-shadow:inset -3px -4px 6px rgba(0,0,20,.55),0 7px 7px -3px rgba(0,0,0,.8),0 0 10px rgba(55,192,255,.55);}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{
-  content:"";position:absolute;z-index:2;pointer-events:none;width:46px;height:44px;top:-96px;left:calc(34px + (100% - 68px) * .24 - 23px);
+  content:"";position:absolute;z-index:2;pointer-events:none;width:46px;height:44px;top:-96px;left:calc(34px + (100% - 68px) * .355 - 23px);
   background:
     linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 0/6px 31px no-repeat,
     radial-gradient(ellipse 10px 4px at 50% 30px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
     radial-gradient(ellipse 15px 5.5px at 50% 33px,#3a4060 0 60%,#05060a 62% 100%,transparent 101%),
     radial-gradient(ellipse 16px 4px at 50% 37px,rgba(0,0,0,.45),transparent 100%);}
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-78px;left:calc(18px + (100% - 36px) * .24 - 10px);}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-84px;left:calc(18px + (100% - 36px) * .24 - 18px);
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::before{width:20px;height:20px;top:-78px;left:calc(18px + (100% - 36px) * .355 - 10px);}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39::after{width:36px;height:36px;top:-84px;left:calc(18px + (100% - 36px) * .355 - 18px);
     background:
       linear-gradient(90deg,#141828,#6a7098 45%,#141828) 50% 14px/6px 17px no-repeat,
       radial-gradient(ellipse 8px 3.4px at 50% 30px,#6a7098 0 28%,#05060a 30% 100%,transparent 101%),
@@ -596,19 +596,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1{position:absolute;z-index:4;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;clip-path:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:0!important;
   width:36px;height:36px;top:-81px;background-color:transparent!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1::after{content:none!important;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-start{left:calc(34px + (100% - 68px) * 0.58 - 18px);background-image:
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-start{left:calc(34px + (100% - 68px) * 0.495 - 18px);background-image:
     radial-gradient(ellipse 5.31px 2.70px at calc(50% - 4px) calc(9px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
     radial-gradient(ellipse 11.80px 6.00px at 50% calc(15px + var(--bp,0px)),#ffb3a6 0,#ff3b2a 42%,#8c0f0a 90%,#2a0a08 97%,transparent 100%),
     radial-gradient(ellipse 14.75px 7.50px at 50% calc(16px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
     radial-gradient(ellipse 12.98px 6.60px at 50% 19px,#8c0f0a 0 90%,transparent 100%),
     radial-gradient(ellipse 17.70px 9.00px at 50% 20px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-stop{left:calc(34px + (100% - 68px) * 0.68 - 18px);background-image:
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-stop{left:calc(34px + (100% - 68px) * 0.585 - 18px);background-image:
     radial-gradient(ellipse 5.31px 2.70px at calc(50% - 4px) calc(9px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
     radial-gradient(ellipse 11.80px 6.00px at 50% calc(15px + var(--bp,0px)),#b3ebff 0,#2fb3ff 42%,#0a4f8c 90%,#2a0a08 97%,transparent 100%),
     radial-gradient(ellipse 14.75px 7.50px at 50% calc(16px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
     radial-gradient(ellipse 12.98px 6.60px at 50% 19px,#0a4f8c 0 90%,transparent 100%),
     radial-gradient(ellipse 17.70px 9.00px at 50% 20px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-nuke{left:calc(34px + (100% - 68px) * 0.78 - 18px);background-image:
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-nuke{left:calc(34px + (100% - 68px) * 0.675 - 18px);background-image:
     radial-gradient(ellipse 5.31px 2.70px at calc(50% - 4px) calc(9px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
     radial-gradient(ellipse 11.80px 6.00px at 50% calc(15px + var(--bp,0px)),#fff4a8 0,#ffd21a 42%,#8a6a00 90%,#2a0a08 97%,transparent 100%),
     radial-gradient(ellipse 14.75px 7.50px at 50% calc(16px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
@@ -619,19 +619,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39:has(.soreal-idle-boss-control-v39.nuke:disabled) .dome-nuke{filter:grayscale(.85) brightness(.55);cursor:default;}
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1{width:28px;height:28px;top:-68px;}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-start{left:calc(18px + (100% - 36px) * 0.58 - 14px);background-image:
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-start{left:calc(18px + (100% - 36px) * 0.495 - 14px);background-image:
     radial-gradient(ellipse 4.14px 2.11px at calc(50% - 3.12px) calc(7.02px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
     radial-gradient(ellipse 9.20px 4.68px at 50% calc(11.7px + var(--bp,0px)),#ffb3a6 0,#ff3b2a 42%,#8c0f0a 90%,#2a0a08 97%,transparent 100%),
     radial-gradient(ellipse 11.50px 5.85px at 50% calc(12.48px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
     radial-gradient(ellipse 10.12px 5.15px at 50% 14.82px,#8c0f0a 0 90%,transparent 100%),
     radial-gradient(ellipse 13.81px 7.02px at 50% 15.6px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-stop{left:calc(18px + (100% - 36px) * 0.68 - 14px);background-image:
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-stop{left:calc(18px + (100% - 36px) * 0.585 - 14px);background-image:
     radial-gradient(ellipse 4.14px 2.11px at calc(50% - 3.12px) calc(7.02px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
     radial-gradient(ellipse 9.20px 4.68px at 50% calc(11.7px + var(--bp,0px)),#b3ebff 0,#2fb3ff 42%,#0a4f8c 90%,#2a0a08 97%,transparent 100%),
     radial-gradient(ellipse 11.50px 5.85px at 50% calc(12.48px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),
     radial-gradient(ellipse 10.12px 5.15px at 50% 14.82px,#0a4f8c 0 90%,transparent 100%),
     radial-gradient(ellipse 13.81px 7.02px at 50% 15.6px,#05060a 0 78%,#2b3050 88%,transparent 100%)!important;}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-nuke{left:calc(18px + (100% - 36px) * 0.78 - 14px);background-image:
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-dome-v1.dome-nuke{left:calc(18px + (100% - 36px) * 0.675 - 14px);background-image:
     radial-gradient(ellipse 4.14px 2.11px at calc(50% - 3.12px) calc(7.02px + var(--bp,0px)),rgba(255,255,255,.95),rgba(255,255,255,0) 100%),
     radial-gradient(ellipse 9.20px 4.68px at 50% calc(11.7px + var(--bp,0px)),#fff4a8 0,#ffd21a 42%,#8a6a00 90%,#2a0a08 97%,transparent 100%),
     radial-gradient(ellipse 11.50px 5.85px at 50% calc(12.48px + var(--bp,0px)),transparent 0 68%,#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%,transparent 100%),

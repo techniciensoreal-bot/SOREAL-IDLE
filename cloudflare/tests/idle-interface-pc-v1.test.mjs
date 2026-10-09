@@ -61,5 +61,5 @@ console.log("idle-interface-pc-v1 (lignes de menu): OK");
 {
   const pc = bloc.slice(bloc.indexOf("Boutons plus larges et plus longs"), bloc.indexOf("Images moins démesurées sur PC"));
   assert.ok(pc.includes("min-height:60px") && pc.includes("soreal-idle-nav-emoji-v2{font-size:26px!important}") && pc.includes("soreal-idle-nav-texte-v2 b{font-size:16px!important"), "PC : boutons longs, icône et titre grands");
-  assert.ok(pc.includes("soreal-idle-nav-texte-v2 small{display:block;font-size:12px!important"), "PC : le verbe du menu est lisible");
+  assert.ok(pc.includes("soreal-idle-nav-texte-v2 small{display:none!important}"), "PC : plus de verbe sous le nom du menu (Norman, 2026-10-09)");
 }

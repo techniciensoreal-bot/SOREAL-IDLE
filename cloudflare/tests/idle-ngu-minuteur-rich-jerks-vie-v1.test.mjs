@@ -23,4 +23,11 @@ const dureeTexte = (s) => { s = Math.max(0, Math.ceil(s)); if (s < 60) return s 
 assert.equal(dureeTexte(42 * (1 - 0.5)), "21 s");
 assert.equal(dureeTexte(600 * 0.9), "9 min");
 assert.equal(dureeTexte(7380), "2 h 3 min");
+// NGU : étoiles qui scintillent seulement quand de l'énergie / de la magie est placée ; « Je fais quoi ? » reste ouvert.
+assert.ok(ngu.includes('.nl-v1[data-nl-actif="1"] .nl-etoiles b:nth-child(4n){animation:nlEtoile'), "étoiles : animation conditionnée");
+assert.ok(ngu.includes("racine.setAttribute('data-nl-actif',actif)"), "étoiles : mise à jour en direct");
+assert.ok(ngu.includes("var aideOuverte=false;") && ngu.includes("aideOuverte=!el.hidden;") && ngu.includes("(aideOuverte?'':' hidden')"), "aide : état conservé");
+// Borne : stick et boutons rapprochés, groupe centré (milieu entre 0,355 et 0,675 ≈ 0,515).
+const itopod = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
+assert.ok(itopod.includes("* .355 -") && itopod.includes("* 0.495 -") && itopod.includes("* 0.585 -") && itopod.includes("* 0.675 -") && !itopod.includes("* .24 -"), "borne : stick et boutons rapprochés");
 console.log("idle-ngu-minuteur-rich-jerks-vie-v1: OK");

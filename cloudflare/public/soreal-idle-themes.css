@@ -1559,7 +1559,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-emoji-v2{font-size:26px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2{flex:1 1 auto;min-width:0;gap:3px}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 b{font-size:16px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:block;font-size:12px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small{display:none!important}
   /*
    * Images moins démesurées sur PC (Norman, 2026-10-04 : « les images des boss, des collections ne doivent pas être si grandes, elles sont démesurées ») : les cases de Collection et du Bestiaire gardent une taille
    * de vignette (130 à 150 px) au lieu de s'étirer sur toute la largeur, le portrait des combattants est plafonné, et la fiche d'un boss reste compacte.

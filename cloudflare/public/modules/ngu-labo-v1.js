@@ -157,7 +157,7 @@ var CSS=
   '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s)*3);height:calc(var(--s)*3);margin:calc(var(--s)*-1.5) 0 0 calc(var(--s)*-1.5);background:radial-gradient(circle,rgba(255,255,255,.4) 0,rgba(181,138,255,.2) 38%,transparent 70%);opacity:.3}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
   '.nl-etoiles b i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-etoiles b:nth-child(4n){animation:nlEtoile calc(6s + var(--i)*.9s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-actif="1"] .nl-etoiles b:nth-child(4n){animation:nlEtoile calc(6s + var(--i)*.9s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
     '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
@@ -272,13 +272,13 @@ function page(j){
   }
   var html=
     '<style>'+CSS+'</style>'+
-    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'">'+ETOILES+
+    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'">'+ETOILES+
       '<div class="nl-haut">'+
         '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
         (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
       '</div>'+
       '<header class="nl-entete"><div class="nl-titre" role="heading" aria-level="1">NGU</div><p>(Eh, c’est le nom de ce jeu !)</p></header>'+
-      '<div class="nl-aide" id="sorealIdleNguAideV1" hidden>'+
+      '<div class="nl-aide" id="sorealIdleNguAideV1"'+(aideOuverte?'':' hidden')+'>'+
         '<p><b>C’est quoi ?</b> Les NGU sont des entraîneurs : tu leur confies de l’énergie (et de la magie), ils font le sport pour toi. Chaque tuyau se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.</p>'+
         '<ol>'+
           '<li><b>Place de l’énergie.</b> Dans un tuyau, avec +. La quantité est celle de la case Input (Max, 1/2 et 1/4 la remplissent), et − la retire.</li>'+
@@ -303,6 +303,9 @@ function page(j){
 function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
+  /* Les étoiles du fond scintillent dès qu'un tuyau reçoit de l'énergie ou de la magie. */
+  var actif=Array.prototype.some.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){return Number(f.dataset.nlSpl)>0;})?'1':'0';
+  if(racine.getAttribute('data-nl-actif')!==actif)racine.setAttribute('data-nl-actif',actif);
   var maintenant=typeof performance!=='undefined'?performance.now():0;
   var H=H_();
   Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){
@@ -343,6 +346,8 @@ function tick_(){
 /* Le fond d'étoiles défile avec les tuyaux (Norman, 2026-10-08 : plus de décalage de profondeur, trop gourmand en ressources). */
 /* Le volet « Effets de tous tes NGU » garde son état d'ouverture : la page se redessine toutes les quelques secondes et le refermait aussitôt. */
 var resumeOuvert=false;
+/* « Je fais quoi ? » reste ouvert tant qu'on ne le ferme pas : la page se redessine toutes les quelques secondes et le refermait avant la fin de la lecture. */
+var aideOuverte=false;
 function demarrer_(){if(!timer)timer=setInterval(tick_,100);}
 function arreter_(){if(timer){clearInterval(timer);timer=0;}}
 
@@ -463,7 +468,7 @@ window.__SOREAL_IDLE_NGU_LABO_V1__={
   resume:function(o){resumeOuvert=Boolean(o);},
   page:page,
   couleurs:COULEURS,
-  aide:function(){var el=document.getElementById('sorealIdleNguAideV1');if(el)el.hidden=!el.hidden;},
+  aide:function(){var el=document.getElementById('sorealIdleNguAideV1');if(el){el.hidden=!el.hidden;aideOuverte=!el.hidden;}},
   ajuster:ajuster,cible:cible,avance:avance,onglet:changerOnglet,vider:vider,preset:preset,
   ongletCourant:function(){return onglet;},
   /* Pour les tests : la progression d'un tuyau à un instant donné (mêmes formules que tick_). */
