@@ -75,4 +75,8 @@ for (const m of tousMenus) {
   assert.ok(n >= 20, m + " : " + n + " variantes");
 }
 assert.ok(new Set(Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: "ngu" } }, debutant).texte)).size >= 20, "menu inconnu : au moins vingt variantes");
+// Fight Boss : un endroit où l'on se bat, jamais « fouille », « bidouille », « s'installe »… (phrases propres, sans les phrases communes).
+const combatTextes = Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: "combat" } }, expert).texte);
+assert.ok(new Set(combatTextes).size >= 20, "Fight Boss : au moins vingt variantes");
+assert.ok(!combatTextes.some((t) => /fouille|bidouille|s’installe|traîne|mission secrète|petites affaires|coin tranquille/.test(t)), "Fight Boss : que des phrases de combat");
 console.log("idle-flux-vivant-v1: OK");

@@ -237,10 +237,12 @@
         if(it.moi)return {icone:l[0],texte:nom+' visites '+l[1]};
         /* Phrase d'humour choisie selon l'événement (stable pour un même événement, variée d'un événement à l'autre) : les phrases propres au menu, puis les phrases communes. */
         const v=l[2];
-        const total=v.length+VISITE_GENERIQUES.length;
+        /* Un menu peut avoir ses propres phrases seulement (4e élément) : on ne « fouille » pas dans Fight Boss, on s'y bat. */
+        const generiques=Array.isArray(l[3])?l[3]:VISITE_GENERIQUES;
+        const total=v.length+generiques.length;
         const n=idVar%total;
         if(n<v.length)return {icone:l[0],texte:v[n].split('{n}').join(nom)};
-        const g=VISITE_GENERIQUES[n-v.length];
+        const g=generiques[n-v.length];
         return {icone:l[0],texte:nom+' '+g[0]+l[1]+g[1]};
       }
       case 'farm':{
@@ -264,7 +266,7 @@
     titans:['🔥','les Titans',['{n} rend visite aux Titans, sans rendez-vous','{n} observe les Titans de loin, très loin','{n} prend son courage à deux mains devant les Titans']],
     sang:['🩸','Blood Magic',['{n} remue un chaudron dans Blood Magic','{n} bricole de la magie douteuse dans Blood Magic','{n} se salit les mains dans Blood Magic']],
     entrainement:['🥊','Basic Training',['{n} s’entraîne… ou fait semblant','{n} soulève de la fonte à Basic Training','{n} s’étire avant Basic Training']],
-    combat:['⚔️','Fight Boss',['{n} affûte son épée devant Fight Boss','{n} se motive devant Fight Boss','{n} jette un œil à Fight Boss, le cœur battant']],
+    combat:['⚔️','Fight Boss',['{n} affûte son épée devant Fight Boss','{n} se motive devant Fight Boss','{n} jette un œil à Fight Boss, le cœur battant','{n} entre dans l’arène de Fight Boss, déterminé','{n} fait craquer ses jointures avant Fight Boss','{n} s’échauffe avant Fight Boss, ça sent la bagarre','{n} serre les poings devant Fight Boss','{n} prépare sa plus belle grimace pour Fight Boss','{n} lance un défi du regard depuis Fight Boss','{n} passe en mode guerrier dans Fight Boss','{n} respire un grand coup avant de se battre dans Fight Boss','{n} met son casque et file à Fight Boss','{n} fixe son prochain boss dans Fight Boss, l’œil mauvais','{n} se demande s’il a assez de vie pour Fight Boss','{n} répète ses coups devant le miroir de Fight Boss','{n} s’apprête à distribuer des baffes dans Fight Boss','{n} fait semblant d’être courageux devant Fight Boss','{n} se prend pour un héros devant Fight Boss','{n} jure que cette fois, c’est la bonne, dans Fight Boss','{n} ajuste son armure avant d’affronter Fight Boss'],[]],
     aventure:['🗺️','Adventure',['{n} prépare son sac pour l’Aventure','{n} part à l’Aventure sans carte','{n} fouille son sac d’Aventure à la recherche de rien']],
     renaissance:['♻️','Rebirth',['{n} médite devant Rebirth','{n} hésite à tout recommencer','{n} regarde Rebirth d’un air songeur']],
     augmentations:['🦾','les Augmentations',['{n} bidouille ses Augmentations','{n} négocie avec ses Augmentations','{n} ajoute des rouages à ses Augmentations']],
