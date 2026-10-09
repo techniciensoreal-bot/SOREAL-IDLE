@@ -13026,12 +13026,18 @@ function emailBrutProfilSorealIdle_(acces) {
   );
 }
 
-/*
- * Clé UNIQUE d'un joueur dans « En direct », la présence, le chat et les profils (Norman, 2026-10-09 : « Sébastien et Saka (Sébastien) sont le même compte, il ne faut afficher que Saka (Sébastien) »).
- * Un même joueur arrive avec des adresses différentes selon le lanceur (APP ou TV : adresse principale ou adresse de connexion) et était donc compté deux fois, dont une sans pseudo. La clé est maintenant
- * l'adresse principale de SA LIGNE de jeu, la même quel que soit le lanceur ; la partie d'essai (B) garde sa clé à part, et en cas d'échec on retombe sur l'adresse brute.
- */
+/* Adresse propre du joueur : sert aux PROFILS (pseudo, prénom). La présence, le fil et le chat utilisent la clé de ligne ci-dessous. */
 function emailProfilSorealIdle_(acces) {
+  return emailBrutProfilSorealIdle_(acces);
+}
+
+/*
+ * Clé UNIQUE d'un joueur dans « En direct », la présence et le chat (Norman, 2026-10-09 : « Sébastien et Saka (Sébastien) sont le même compte, il ne faut afficher que Saka (Sébastien) »). Un même joueur arrive avec
+ * des adresses différentes selon le lanceur (APP ou TV) et la ligne de jeu est retrouvée par adresse OU, à défaut, adoptée d'après le prénom (ce qui réécrit les adresses de la ligne) : l'adresse n'est donc
+ * pas stable. La clé est l'identifiant de LA LIGNE de jeu (colonne ID), le même quel que soit le lanceur. La partie d'essai (B) garde sa clé à part ; en cas d'échec, on retombe sur l'adresse brute.
+ * Chaque adresse rencontrée est mémorisée avec cette clé (table idle_alias) : on retrouve ainsi le pseudo posé sous l'une des adresses du joueur.
+ */
+function cleJoueurSorealIdle_(acces) {
   const brut = emailBrutProfilSorealIdle_(acces);
   if (!acces || typeof acces !== 'object') return brut;
   if (typeof acces.__cleJoueurV1 === 'string' && acces.__cleJoueurV1) return acces.__cleJoueurV1;
@@ -13041,8 +13047,11 @@ function emailProfilSorealIdle_(acces) {
       const feuille = obtenirFeuilleJoueursSorealIdle_();
       const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
       const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-      const principal = normaliserEmailSorealIdle_(feuille.getRange(ligne, c.EMAIL_PRINCIPAL).getValue() || feuille.getRange(ligne, c.EMAIL_CONNEXION).getValue());
-      if (principal) cle = principal;
+      const id = String(feuille.getRange(ligne, c.ID).getValue() || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      if (id) {
+        cle = 'ligne-' + id + '@joueur.idle';
+        memoriserAliasJoueurSorealIdle_(cle, adressesJoueurSorealIdle_(acces));
+      }
     }
   } catch (_) {
     cle = brut;
@@ -13051,14 +13060,44 @@ function emailProfilSorealIdle_(acces) {
   return cle;
 }
 
-/* Toutes les adresses sous lesquelles ce joueur a pu être enregistré (pour retrouver un pseudo posé avant l'unification des clés). */
+/* Adresses sous lesquelles ce joueur se présente (ses adresses de session). */
 function adressesJoueurSorealIdle_(acces) {
-  const liste = [emailProfilSorealIdle_(acces), emailBrutProfilSorealIdle_(acces)];
+  const liste = [emailBrutProfilSorealIdle_(acces)];
   try {
     extraireEmailsUtilisateurSorealIdle_(acces && acces.user).forEach(function (e) { liste.push(normaliserEmailSorealIdle_(e)); });
     if (acces && acces.emailAutorise) liste.push(normaliserEmailSorealIdle_(acces.emailAutorise));
-  } catch (_) { /* repli : les deux premières */ }
+  } catch (_) { /* repli : l'adresse brute */ }
   return liste.filter(function (e, i) { return e && liste.indexOf(e) === i; });
+}
+
+function memoriserAliasJoueurSorealIdle_(cle, adresses) {
+  if (!__idleSql) return;
+  __idleSql.exec('CREATE TABLE IF NOT EXISTS idle_alias(email TEXT PRIMARY KEY, cle TEXT NOT NULL)');
+  adresses.forEach(function (e) {
+    const rows = __idleSql.exec('SELECT cle FROM idle_alias WHERE email=?', e);
+    const liste = Array.isArray(rows) ? rows : (rows && typeof rows.toArray === 'function' ? rows.toArray() : []);
+    if (liste.length && liste[0].cle === cle) return;
+    __idleSql.exec('INSERT OR REPLACE INTO idle_alias(email,cle) VALUES(?,?)', e, cle);
+  });
+}
+
+/* Profil d'une adresse ; sans pseudo, le pseudo posé sous une autre adresse du même joueur (même ligne de jeu) est repris. */
+function profilAvecAliasSorealIdle_(email) {
+  const e = normaliserEmailSorealIdle_(email);
+  if (!__idleSql || !e) return null;
+  let profil = lireProfilIdleV1(__idleSql, e);
+  if (profil && profil.pseudo) return profil;
+  try {
+    __idleSql.exec('CREATE TABLE IF NOT EXISTS idle_alias(email TEXT PRIMARY KEY, cle TEXT NOT NULL)');
+    const brut = __idleSql.exec('SELECT a2.email AS email FROM idle_alias a1 JOIN idle_alias a2 ON a2.cle=a1.cle WHERE a1.email=?', e);
+    const autres = Array.isArray(brut) ? brut : (brut && typeof brut.toArray === 'function' ? brut.toArray() : []);
+    autres.forEach(function (r) {
+      if (profil && profil.pseudo) return;
+      const p = lireProfilIdleV1(__idleSql, r.email);
+      if (p && p.pseudo) profil = Object.assign({}, p, { externe: profil ? profil.externe : p.externe, prenom: (profil && profil.prenom) || p.prenom });
+    });
+  } catch (_) { /* repli : le profil de l'adresse seule */ }
+  return profil;
 }
 
 /* Enregistre le passage du joueur (adresse, externe ou non, nom Google) ; jamais bloquant pour le jeu. */
@@ -13080,15 +13119,7 @@ function identiteJoueurSorealIdle_(acces) {
   const externe = Boolean(acces && acces.user && acces.user.externe === true);
   let profil = null;
   try {
-    profil = __idleSql ? lireProfilIdleV1(__idleSql, emailProfilSorealIdle_(acces)) : null;
-    /* Pseudo posé sous une autre adresse du même joueur (avant l'unification des clés) : on le retrouve. */
-    if (__idleSql && (!profil || !profil.pseudo)) {
-      adressesJoueurSorealIdle_(acces).forEach(function (e) {
-        if (profil && profil.pseudo) return;
-        const p = lireProfilIdleV1(__idleSql, e);
-        if (p && p.pseudo) profil = p;
-      });
-    }
+    profil = __idleSql ? profilAvecAliasSorealIdle_(emailProfilSorealIdle_(acces)) : null;
   } catch (_) {
     profil = null;
   }
@@ -13111,7 +13142,7 @@ function nomJeuDepuisLigneSorealIdle_(row, c) {
   if (!__idleSql) return nomLigne;
   try {
     const email = normaliserEmailSorealIdle_(row[c.EMAIL_PRINCIPAL - 1] || row[c.EMAIL_CONNEXION - 1] || '');
-    const profil = email ? lireProfilIdleV1(__idleSql, email) : null;
+    const profil = email ? profilAvecAliasSorealIdle_(email) : null;
     return profil ? nomJeuJoueurIdleV1(profil, nomLigne) : nomLigne;
   } catch (_) {
     return nomLigne;
@@ -17221,7 +17252,7 @@ function battementSorealIdle(sessionToken, info) {
   const identite = identiteJoueurSorealIdle_(acces);
   const i = info && typeof info === 'object' ? info : {};
   const resultat = battementV1(__idleSql, {
-    email: emailProfilSorealIdle_(acces),
+    email: cleJoueurSorealIdle_(acces),
     nom: identite.nomAffiche,
     admin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL,
     actif: i.actif === true,
@@ -17241,10 +17272,10 @@ function battementSorealIdle(sessionToken, info) {
         const statsF = statsJoueurSorealIdle_(feuilleF.getRange(ligneF, cF.STATS_JSON).getValue());
         /* « X vient de se connecter » : avant les jalons, pour que le fil garde l'ordre réel. */
         if (resultat.connexion) {
-          enregistrerConnexionFluxV1(__idleSql, { email: emailProfilSorealIdle_(acces), nom: identite.nomAffiche, visible: statsF.classementVisible !== false });
+          enregistrerConnexionFluxV1(__idleSql, { email: cleJoueurSorealIdle_(acces), nom: identite.nomAffiche, visible: statsF.classementVisible !== false });
         }
         enregistrerJalonsV1(__idleSql, {
-          email: emailProfilSorealIdle_(acces),
+          email: cleJoueurSorealIdle_(acces),
           nom: identite.nomAffiche,
           visible: statsF.classementVisible !== false,
           instantane: instantaneJoueurV1({ bossVaincus: nombreSorealIdle_(feuilleF.getRange(ligneF, cF.BOSS_VAINCUS).getValue(), 0), stats: statsF }),
@@ -17265,7 +17296,7 @@ function battementSorealIdle(sessionToken, info) {
     /* Premier battement de la page (amorceFlux) : rien n'est renvoyé, on ne reçoit que ce qui arrive APRÈS (aucun message de rattrapage). */
     flux = i.amorceFlux === true
       ? []
-      : lireFluxV1(__idleSql, { apresId: Math.max(0, Math.floor(Number(i.apresFlux) || 0)), email: emailProfilSorealIdle_(acces), seulementFrais: true });
+      : lireFluxV1(__idleSql, { apresId: Math.max(0, Math.floor(Number(i.apresFlux) || 0)), email: cleJoueurSorealIdle_(acces), seulementFrais: true });
   } catch (_e) { flux = []; }
 
   if (resultat.gain > 0) {
@@ -17304,7 +17335,7 @@ function lireChatSorealIdle(sessionToken, options) {
   if (!__idleSql) return { ok: true, items: [] };
   const o = options && typeof options === 'object' ? options : {};
   /* maintenant : l'heure du serveur, pour que le client juge la fraîcheur d'un message sans dépendre de sa propre horloge. */
-  return { ok: true, items: lireChatV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: emailProfilSorealIdle_(acces) }), maintenant: Date.now() };
+  return { ok: true, items: lireChatV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: cleJoueurSorealIdle_(acces) }), maintenant: Date.now() };
 }
 
 function envoyerChatSorealIdle(sessionToken, message) {
@@ -17316,7 +17347,7 @@ function envoyerChatSorealIdle(sessionToken, message) {
   /* Le texte arrive soit seul, soit dans un objet { message } (le pont client ajoute la session au premier argument de type texte). */
   const texte = message && typeof message === 'object' ? message.message : message;
   return envoyerChatV1(__idleSql, {
-    email: emailProfilSorealIdle_(acces),
+    email: cleJoueurSorealIdle_(acces),
     nom: identite.nomAffiche,
     admin: String(acces.emailAutorise || '').toLowerCase() === ADMIN_SOREAL_IDLE_EMAIL,
     texte
@@ -17336,7 +17367,7 @@ function lireFluxSorealIdle(sessionToken, options) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleSql) return { ok: true, items: [] };
   const o = options && typeof options === 'object' ? options : {};
-  return { ok: true, items: lireFluxV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: emailProfilSorealIdle_(acces) }), dernierFluxId: dernierIdFluxV1(__idleSql) };
+  return { ok: true, items: lireFluxV1(__idleSql, { apresId: o.apresId, limite: o.limite, email: cleJoueurSorealIdle_(acces) }), dernierFluxId: dernierIdFluxV1(__idleSql) };
 }
 
 const IDLE_OPERATIONS={

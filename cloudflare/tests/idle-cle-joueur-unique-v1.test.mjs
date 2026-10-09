@@ -42,6 +42,14 @@ const hb = (tok) => call(tok, "battementSorealIdle", { actif: true, connecte: tr
 hb(tokA); hb(tokB); hb(tokA); hb(tokB);
 import assert from "node:assert/strict";
 assert.equal(sql.exec("SELECT email FROM idle_presence").length, 1, "un seul joueur en ligne malgré deux adresses");
+assert.match(sql.exec("SELECT email FROM idle_presence")[0].email, /^ligne-j\d+@joueur\.idle$/, "clé = identifiant de la ligne de jeu, pas une adresse");
+// Pseudo posé sous l'une des adresses : retrouvé quel que soit le lanceur.
+const { definirPseudoProfilIdleV1 } = await import(pathToFileURL(process.cwd() + "/cloudflare/src/idle-profile-v1.js").href);
+assert.equal(definirPseudoProfilIdleV1(sql, ALIAS, "Saka").ok, true);
+hb(tokA); hb(tokB);
+const noms = sql.exec("SELECT nom FROM idle_presence").map((r) => r.nom);
+assert.equal(noms.length, 1);
+assert.ok(noms[0].startsWith("Saka"), "le pseudo posé sous l'autre adresse s'affiche : " + noms[0]);
 assert.equal(sql.exec("SELECT DISTINCT email FROM idle_flux").length, 1, "un seul auteur dans le fil");
 console.log("idle-cle-joueur-unique-v1: OK");
 process.exit(0);
