@@ -711,7 +711,7 @@
             '<div class="l"><span class="k">Tu gagnes</span><b class="gv" data-r="gain">+'+H.formatGrandNombreIdleV70_(gain,2)+'</b><span class="nm">'+H.idleHtml_(nom)+'</span></div>'+
             '<div class="l"><span class="k">Avant · après</span><span class="av" data-r="avant">'+H.formatGrandNombreIdleV70_(actuel||0,2)+'</span><i class="fl" aria-hidden="true"></i><b class="ap" data-r="apres">'+H.formatGrandNombreIdleV70_((Number(actuel)||0)+gain,2)+'</b></div>'+
             '<div class="l"><span class="k">Coût</span><b class="cv">★ <span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</b></div>'+
-            '<div class="l"><span class="k" data-r="restek">'+(idleExpExpDisponibleIdleV1_()>=coutUnitaire?'Il te restera':'Il te manque')+'</span><b class="rs" data-r="reste">★ '+H.formatGrandNombreIdleV70_(Math.abs(idleExpExpDisponibleIdleV1_()-coutUnitaire),2)+' EXP</b></div>'+
+            '<div class="l"><span class="k" data-r="restek">'+(idleExpExpDisponibleIdleV1_()>=coutUnitaire?'Il te restera':'Il te manque')+'</span><b class="rs" data-r="reste">★ '+H.formatGrandNombreIdleV70_(Math.round(Math.abs(idleExpExpDisponibleIdleV1_()-coutUnitaire)))+' EXP</b></div>'+
           '</div>'+
           '<button type="button" class="soreal-idle-exp-buy-v210 primary" onclick="window.__acheterRessourceLotPersonnaliseMetaIdleV130__('+args+')">Acheter</button>'+
         '</div>';
@@ -740,7 +740,7 @@
         const exp=idleExpExpDisponibleIdleV1_();
         const reste=exp-cout;
         ecrire('restek',reste>=0?'Il te restera':'Il te manque');
-        ecrire('reste','★ '+H.formatGrandNombreIdleV70_(Math.abs(reste),2)+' EXP');
+        ecrire('reste','★ '+H.formatGrandNombreIdleV70_(Math.round(Math.abs(reste)))+' EXP');
         panneau.classList.toggle('manque',reste<0);
       };
       /* −, + (un cran de la statistique) et Max (le plus grand achat que l'EXP permet, dans la limite du plafond). */

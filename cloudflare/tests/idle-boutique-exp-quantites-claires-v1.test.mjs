@@ -37,4 +37,6 @@ assert.ok(!meta.includes('class="fond" src="/shop/') && !meta.includes(".soreal-
 assert.ok(meta.includes("__idleExpShopAjusterLot__") && meta.includes('class="recap"') && meta.includes("Avant · après") && meta.includes("Il te restera") && meta.includes("Il te manque"));
 assert.ok(meta.includes(".soreal-idle-exp-custom-v210 .fl::after") && !meta.includes('<span class="soreal-idle-exp-prix-custom-v1">➜'), "plus de flèche emoji dans le panneau");
 assert.ok(meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat,x[stat.id])"), "valeur actuelle passée au récapitulatif");
+// « Il te restera » : EXP arrondie à l'entier (jamais 483,76).
+assert.equal(meta.split("Math.round(Math.abs(").length - 1, 2, "reste arrondi au rendu et à la mise à jour");
 console.log("idle-boutique-exp-quantites-claires-v1: OK");
