@@ -34,9 +34,10 @@ const ctx = { window: { __SOREAL_IDLE_ACTIVITE_V1__: () => ({ zones: [], bossMax
 ctx.globalThis = ctx;
 vm.createContext(ctx);
 const src = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
-vm.runInContext(src + "\n;globalThis.__phrase__ = (typeof phrase==='function'?phrase:null);", ctx);
-const phrase = ctx.__phrase__;
-if (phrase) {
+vm.runInContext(src, ctx);
+const phrase = ctx.window.__SOREAL_IDLE_FLUX_V1__ && ctx.window.__SOREAL_IDLE_FLUX_V1__.phrase;
+assert.ok(phrase, "phrase exportée");
+{
   const lecteur = { zones: [], bossMax: 20, connus: { boss: { 11: "Gros Méchant" }, titan: {}, succes: {}, menus: {} } };
   assert.equal(phrase({ type: "fuite", nom: "Ana", donnees: { boss: 11 } }, lecteur).texte, "Ana a pris la fuite devant Gros Méchant");
   assert.equal(phrase({ type: "defaite", nom: "Ana", donnees: { boss: 11 } }, lecteur).texte, "Ana a perdu contre Gros Méchant");

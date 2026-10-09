@@ -21,6 +21,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
+          '« En direct » raconte maintenant les fuites et les défaites face à un boss, et chaque menu visité par un autre joueur a ses phrases d’humour (jamais un menu ni un boss que tu n’as pas encore découvert).',
           'Dans chaque menu où l’on place une ressource, chaque ligne a ses boutons + − Max, et le haut du menu a toujours deux cadres : « Plafond » (Max, 1/2, 1/4) et « Idle » (1/2, 1/4, Tout retirer).',
           'Le popup de fin de défi apparaît dès que le défi est validé, sans attendre d’ouvrir le menu Défis.',
           'Le bouton « Tous les boosts dans le Cube » est supprimé (le clic droit sur le Cube suffit) et le panneau d’automatisation ne parle de l’Auto Boost qu’une fois débloqué.',

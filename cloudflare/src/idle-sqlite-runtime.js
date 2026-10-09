@@ -4721,6 +4721,14 @@ function statsJoueurSorealIdle_(valeur) {
     combatBossActif:Boolean(s.combatBossActif),
     autoBossSuivant:s.autoBossSuivant!==false,
     /*
+     * Compteurs du fil « En direct » (fuites, défaites contre un boss, cinématiques vues) : sans ces champs, la lecture des statistiques les jetait à chaque opération (liste blanche), donc une fuite ou une
+     * défaite n'était jamais annoncée aux autres joueurs (Norman, 2026-10-09 : « quand on fuit, ça n'apparaît pas dans En direct »).
+     */
+    fluxBossFuites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossFuites,0))),
+    fluxBossDefaites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDefaites,0))),
+    fluxBossDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDernier,0))),
+    fluxHistoires:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxHistoires,0))),
+    /*
      * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi. Et
      * avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Visible par défaut.
      */

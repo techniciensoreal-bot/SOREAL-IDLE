@@ -33,7 +33,7 @@ export const IDLE_FLUX_FRAICHEUR_MS_V1 = 90 * 1000;
 export const IDLE_FLUX_DELAI_CONNEXION_MS_V1 = 5 * 60 * 1000;
 /* Boss en cours de combat / menu visité (Norman, 2026-10-07 : « plus d'informations EN DIRECT, sans que ça spam ») : un boss n'est annoncé qu'une fois toutes les 3 minutes, une visite de menu toutes les 10. */
 export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
-export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 10 * 60 * 1000;
+export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 3 * 60 * 1000;
 
 export function assurerFluxV1(sql) {
   sql.exec("CREATE TABLE IF NOT EXISTS idle_flux(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL, type TEXT NOT NULL, donnees TEXT NOT NULL DEFAULT '{}')");
@@ -244,7 +244,7 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
         etat.bossVuAt = now;
       }
     }
-    /* Menu consulté (boutiques, puits, Challenges, Titans, sang) : annoncé quand le menu change (au plus toutes les 10 minutes). */
+    /* Menu consulté (boutiques, puits, Challenges, Titans, sang) : annoncé quand le menu change (au plus toutes les 3 minutes). */
     if (activite && typeof activite.menu === "string" && activite.menu && activite.menu !== String(precedent.menuVu || "") && now - N(precedent.menuVuAt, 0) >= IDLE_FLUX_DELAI_VISITE_MS_V1) {
       evenements.push({ type: "visite", donnees: { menu: activite.menu } });
       etat.menuVu = activite.menu;

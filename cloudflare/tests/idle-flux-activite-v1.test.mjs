@@ -64,7 +64,7 @@ assert.equal(normaliserActiviteV1({ t: "libre", menu: "<script>" }).menu, undefi
   const p = (type, donnees, ctx) => phrase({ type, nom: "Mickaël", donnees, moi: false }, ctx);
   assert.equal(p("bossCombat", { boss: 12 }, expert).texte, "Mickaël combat Gros Rat");
   assert.equal(p("bossCombat", { boss: 12 }, debutant).texte, "Mickaël combat un boss", "boss inconnu du lecteur : générique");
-  assert.equal(p("visite", { menu: "spendExp" }, expert).texte, "Mickaël visite la boutique EXP");
+  assert.equal(p("visite", { menu: "spendExp" }, expert).texte, "Mickaël vide son portefeuille à la boutique EXP");
   assert.equal(p("visite", { menu: "spendExp" }, debutant), null, "menu non débloqué chez le lecteur : jamais mentionné");
   assert.equal(p("visite", { menu: "sang" }, expert), null);
   assert.equal(p("visite", { menu: "n'importe quoi" }, expert), null);

@@ -32,7 +32,11 @@ export function assurerChatV1(sql) {
 }
 
 /* Ce que fait le joueur, réduit au strict nécessaire (le client l'envoie, le serveur ne fait confiance à rien). */
-export const IDLE_ACTIVITE_MENUS_V1 = Object.freeze(["spendExp", "sellout", "moneyPit", "challenges", "titans", "sang"]);
+export const IDLE_ACTIVITE_MENUS_V1 = Object.freeze([
+  "spendExp", "sellout", "shop", "moneyPit", "challenges", "titans", "sang",
+  "entrainement", "combat", "aventure", "renaissance", "augmentations", "avance", "machine", "tower", "daycare", "ngu", "wandoos", "yggdrasil", "diggers", "beards",
+  "macguffins", "hacks", "questing", "quirks", "wishes", "cards", "cooking", "chroniques", "parametres",
+]);
 
 export function normaliserActiviteV1(brut) {
   const a = brut && typeof brut === "object" ? brut : {};

@@ -133,9 +133,14 @@
         const n=Number(d.boss)||0;
         const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
         const cible=nomBoss||'un boss';
+        /* Variantes d'humour pour les AUTRES joueurs (la variante 0 reste la phrase simple) ; le nom du boss suit la même règle anti-spoil. */
+        const fuites=[nom+' a pris la fuite devant '+cible,nom+' a fui face à '+cible+', et on le comprend',nom+' a découvert que les jambes servent aussi à ça, face à '+cible,nom+' a battu en retraite devant '+cible+' (stratégique, évidemment)'];
+        const defaites=[nom+' a perdu contre '+cible,nom+' est mort contre '+cible+', paix à son âme',nom+' s’est fait écraser par '+cible,nom+' a pris une raclée par '+cible];
+        const variante=Math.abs(Number(it.id)||0);
+        if(it.moi)return it.type==='fuite'?{icone:'🏃',texte:nom+' as pris la fuite devant '+cible}:{icone:'💀',texte:nom+' as perdu contre '+cible};
         return it.type==='fuite'
-          ?{icone:'🏃',texte:nom+verbe(' as',' a')+' pris la fuite devant '+cible}
-          :{icone:'💀',texte:nom+verbe(' as',' a')+' perdu contre '+cible};
+          ?{icone:'🏃',texte:fuites[variante%fuites.length]}
+          :{icone:'💀',texte:defaites[variante%defaites.length]};
       }
       /* Sort de Blood Magic (Norman, 2026-10-04) : seulement pour un lecteur qui a le menu ; le nom du sort n'est donné que si le lecteur l'a déjà découvert (connus.sorts) ; le dernier sort n'est jamais nommé. */
       case 'sort':{
@@ -224,11 +229,13 @@
       }
       /* Menu visité (Norman, 2026-10-07) : annoncé seulement aux lecteurs qui ont déjà ce menu (anti-spoil). */
       case 'visite':{
-        const lieux={spendExp:['🛒','la boutique EXP'],sellout:['🛍️','la Boutique AP'],moneyPit:['🕳️','le puits sans fond'],challenges:['🏁','les Challenges'],titans:['🔥','les Titans'],sang:['🩸','Blood Magic']};
-        const l=lieux[d.menu];
+        const l=LIEUX_VISITE[d.menu];
         if(!l)return null;
         if(!k.menus[d.menu])return null;
-        return {icone:l[0],texte:nom+verbe(' visites',' visite')+' '+l[1]};
+        if(it.moi)return {icone:l[0],texte:nom+' visites '+l[1]};
+        /* Phrase d'humour choisie selon l'événement (stable pour un même événement, variée d'un événement à l'autre). */
+        const v=l[2];
+        return {icone:l[0],texte:v[(Math.abs(Number(it.id)||0))%v.length].split('{n}').join(nom)};
       }
       case 'farm':{
         const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(d.zoneId);});
@@ -237,6 +244,43 @@
       default:return null;
     }
   }
+
+  /*
+   * Menus visités (Norman, 2026-10-09 : « des phrases humoristiques par rapport aux menus visités »). [icône, nom pour « Tu visites … », variantes]. Seuls des lecteurs qui ont déjà le menu les voient
+   * (anti-spoil, règle n°2) : chaque phrase ne nomme que le menu lui-même et ne raconte rien de ce qu'il contient.
+   */
+  const LIEUX_VISITE={
+    spendExp:['🛒','la boutique EXP',['{n} vide son portefeuille à la boutique EXP','{n} fait les soldes de la boutique EXP','{n} regarde les prix de la boutique EXP en soupirant']],
+    sellout:['🛍️','la Boutique AP',['{n} flâne à la Boutique AP','{n} se demande si ça se négocie, à la Boutique AP','{n} dépense ses AP sans compter']],
+    shop:['🔮','la boutique',['{n} visite la boutique','{n} fait les magasins, comme un dimanche','{n} entre dans la boutique « juste pour regarder »','{n} compare les prix à la boutique, la calculette à la main']],
+    moneyPit:['🕳️','le puits sans fond',['{n} jette de l’or dans le puits sans fond','{n} crie dans le puits sans fond… pas d’écho','{n} se penche un peu trop au bord du puits']],
+    challenges:['🏁','les Challenges',['{n} s’échauffe avant les Challenges','{n} fait craquer ses doigts devant les Challenges','{n} se prépare à souffrir dans les Challenges']],
+    titans:['🔥','les Titans',['{n} rend visite aux Titans, sans rendez-vous','{n} observe les Titans de loin, très loin','{n} prend son courage à deux mains devant les Titans']],
+    sang:['🩸','Blood Magic',['{n} remue un chaudron dans Blood Magic','{n} bricole de la magie douteuse dans Blood Magic','{n} se salit les mains dans Blood Magic']],
+    entrainement:['🥊','Basic Training',['{n} s’entraîne… ou fait semblant','{n} soulève de la fonte à Basic Training','{n} s’étire avant Basic Training']],
+    combat:['⚔️','Fight Boss',['{n} affûte son épée devant Fight Boss','{n} se motive devant Fight Boss','{n} jette un œil à Fight Boss, le cœur battant']],
+    aventure:['🗺️','Adventure',['{n} prépare son sac pour l’Aventure','{n} part à l’Aventure sans carte','{n} fouille son sac d’Aventure à la recherche de rien']],
+    renaissance:['♻️','Rebirth',['{n} médite devant Rebirth','{n} hésite à tout recommencer','{n} regarde Rebirth d’un air songeur']],
+    augmentations:['🦾','les Augmentations',['{n} bidouille ses Augmentations','{n} négocie avec ses Augmentations','{n} ajoute des rouages à ses Augmentations']],
+    avance:['🏋️','Advanced Training',['{n} sue sang et eau à Advanced Training','{n} fait des pompes à Advanced Training','{n} se plaint des courbatures d’Advanced Training']],
+    machine:['⏱️','Time Machine',['{n} tripote les cadrans de Time Machine','{n} remonte le temps, ou presque, avec Time Machine','{n} règle Time Machine en croisant les doigts']],
+    tower:['🏢','ITOPOD',['{n} grimpe dans ITOPOD, étage après étage','{n} en a plein les jambes dans ITOPOD','{n} se perd dans ITOPOD']],
+    daycare:['🛠️','Item Daycare',['{n} dépose ses objets à Item Daycare','{n} câline ses objets à Item Daycare','{n} vérifie que ses objets ont bien mangé à Item Daycare']],
+    ngu:['♾️','NGU',['{n} fait chauffer NGU','{n} bichonne ses NGU','{n} observe NGU grandir, tranquillement']],
+    wandoos:['💻','Wandoos',['{n} redémarre Wandoos, en espérant le meilleur','{n} se bat avec Wandoos','{n} attend que Wandoos veuille bien répondre']],
+    yggdrasil:['🌱','Yggdrasil',['{n} arrose Yggdrasil','{n} parle à Yggdrasil, qui ne répond pas','{n} guette les fruits d’Yggdrasil']],
+    diggers:['⛏️','Gold Diggers',['{n} inspecte ses Gold Diggers','{n} met les Gold Diggers au travail','{n} compte les pelletées de ses Gold Diggers']],
+    beards:['🧔','Beards',['{n} peigne ses Beards','{n} taille ses Beards avec soin','{n} admire ses Beards dans le miroir']],
+    macguffins:['🧩','MacGuffins',['{n} range ses MacGuffins','{n} cherche à quoi servent ses MacGuffins','{n} astique ses MacGuffins']],
+    hacks:['🧪','Hacks',['{n} pirate allègrement dans Hacks','{n} tape très vite dans Hacks, l’air mystérieux','{n} bidouille Hacks en capuche']],
+    questing:['📋','Questing',['{n} épluche le tableau de Questing','{n} se demande quelle quête choisir dans Questing','{n} part en quête dans Questing']],
+    quirks:['📚','Quirks',['{n} consulte ses Quirks','{n} étudie ses Quirks, le nez dans les livres','{n} révise ses Quirks']],
+    wishes:['🌠','Wishes',['{n} fait un vœu dans Wishes','{n} lève les yeux vers Wishes','{n} espère très fort dans Wishes']],
+    cards:['🃏','Cards',['{n} bat ses Cards','{n} range ses Cards par couleur','{n} garde une carte sous la manche dans Cards']],
+    cooking:['🍲','Cooking',['{n} met la main à la pâte dans Cooking','{n} goûte sa soupe dans Cooking','{n} fait brûler quelque chose dans Cooking']],
+    chroniques:['📜','les Chroniques',['{n} feuillette les Chroniques','{n} relit ses exploits dans les Chroniques','{n} se la raconte dans les Chroniques']],
+    parametres:['⚙️','les réglages',['{n} règle ses paramètres au millimètre','{n} fouille dans les réglages','{n} tourne tous les boutons des réglages']]
+  };
 
   function ilya(at){
     const s=Math.max(0,Math.round((Date.now()-at)/1000));
@@ -482,6 +526,7 @@
     amorcer:function(id){id=Number(id)||0;if(id>dernier)dernier=id;amorceFlux=true;},
     amorce:function(){return amorceFlux;},
     phrase:phrase,
+    lieuxVisite:LIEUX_VISITE,
     htmlPanneau:htmlPanneau,
     majPanneaux:majPanneaux,
     construire:construire,

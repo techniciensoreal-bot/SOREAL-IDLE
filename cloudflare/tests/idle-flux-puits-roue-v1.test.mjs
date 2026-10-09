@@ -44,5 +44,5 @@ if (phrase) {
   assert.equal(phrase({ type: "roue", nom: "Ana", donnees: { recompense: { ap: 100 } } }, aucun), null);
 }
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-assert.ok(ui.includes("'moneyPit','sang','aventure','wandoos','yggdrasil'].forEach("), "le lecteur connaît ces menus pour l'anti-spoil");
+assert.ok(ui.includes("'moneyPit','sang','aventure','wandoos','yggdrasil',"), "le lecteur connaît ces menus pour l'anti-spoil");
 console.log("idle-flux-puits-roue-v1: OK");

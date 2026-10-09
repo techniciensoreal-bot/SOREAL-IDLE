@@ -24183,7 +24183,7 @@ function pageAventureIdleV28_(j){
         });
         const succesListe=j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
         succesListe.forEach(function(x){if(x&&x.unlocked&&x.id)connus.succes[String(x.id)]=String(x.name||'');});
-        ['renaissance','challenges','titans','succes','spendExp','sellout','moneyPit','sang','aventure','wandoos','yggdrasil'].forEach(function(m){
+        ['renaissance','challenges','titans','succes','spendExp','sellout','shop','moneyPit','sang','aventure','wandoos','yggdrasil','entrainement','combat','augmentations','avance','machine','tower','daycare','ngu','diggers','beards','macguffins','hacks','questing','quirks','wishes','cards','cooking','chroniques','parametres'].forEach(function(m){
           try{connus.menus[m]=Boolean(menuDisponibleIdleV28_(m,j));}catch(e){connus.menus[m]=false;}
         });
         /* Les titans et les succès n'ont plus de bouton de menu propre : « connus » veut dire débloqués. */

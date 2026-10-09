@@ -54,5 +54,5 @@ if (phrase) {
   assert.equal(phrase({ type: "histoire", nom: "Ana", donnees: {}, moi: true }, sansSang).texte, "Tu as regardé une cinématique");
 }
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-assert.ok(ui.includes("'moneyPit','sang','aventure','wandoos','yggdrasil'].forEach(") && ui.includes("connus.sorts="));
+assert.ok(ui.includes("'moneyPit','sang','aventure','wandoos','yggdrasil',") && ui.includes("connus.sorts="));
 console.log("idle-flux-sort-histoire-v1: OK");
