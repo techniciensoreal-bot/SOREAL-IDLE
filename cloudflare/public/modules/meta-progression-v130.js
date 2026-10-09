@@ -627,14 +627,19 @@
         const liste=(lignes||[]).filter(Boolean);
         if(!liste.length)return '';
         return '<div class="soreal-idle-exp-prix-v1">'+liste.map(function(l){
+          /* Ligne claire, façon jeu (Norman, 2026-10-09 : « 0,1 de vitesse pour 3 EXP ; 1 niveau de vitesse pour 30 EXP ») : « +gain Nom ➜ coût ». Sans nom, l'ancien format « Prix / ×q ». */
+          if(l.nom){
+            const gainTxt=l.gain!=null&&l.gain!==''?'<em>+'+l.gain+'</em>':(l.q>1?'<i>×'+H.idleEntier_(l.q)+'</i>':'');
+            return '<span class="soreal-idle-exp-prix-ligne-v1 jeu">'+gainTxt+'<u>'+l.nom+'</u><s>➜</s><b>'+l.cout+' '+(unite||'EXP')+'</b></span>';
+          }
           return '<span class="soreal-idle-exp-prix-ligne-v1">'+(l.q>1?'<i>×'+H.idleEntier_(l.q)+'</i>':'<i>Prix</i>')+(l.gain!=null&&l.gain!==''?'<em>+'+l.gain+'</em>':'')+'<b>'+l.cout+' '+(unite||'EXP')+'</b></span>';
         }).join('')+'</div>';
       }
 
-      function idleExpShopBoutonsLotIdleV1_(res,stat,achat){
+      function idleExpShopBoutonsLotIdleV1_(res,stat,achat,statDef){
         const tiers=Array.isArray(achat.bulkTiers)&&achat.bulkTiers.length?achat.bulkTiers:[1];
         const prix=idleExpPrixCarteIdleV1_(tiers.map(function(qty){
-          return {q:qty,gain:window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_((achat.gain||0)*qty,2),cout:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((achat.cost||0)*qty)};
+          return {q:qty,nom:statDef?statDef.icone+' '+statDef.nom:'',gain:window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_((achat.gain||0)*qty,2),cout:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((achat.cost||0)*qty)};
         }),'EXP');
         return prix+'<div class="soreal-idle-exp-actions-v210">'+tiers.map(function(qty){
           return '<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRessourceMetaIdleV130__(\''+
@@ -642,16 +647,29 @@
         }).join('')+'</div>';
       }
 
-      function idleExpShopLotPersonnaliseIdleV1_(res,stat,achat){
+      /*
+       * Quantité personnalisée (Norman, 2026-10-09) : la saisie est en UNITÉS DE LA STATISTIQUE, pas en nombre d'achats. Avec Vitesse (+0,1 pour 3 EXP) : « 1 » coûte 30 EXP, « 0,1 » coûte 3 EXP.
+       * Le nombre d'achats envoyé au serveur vaut saisie ÷ gain par achat (arrondi, au moins 1).
+       */
+      function idleExpAchatsDepuisSaisieIdleV1_(texte,gain){
+        const v=Number(String(texte==null?'':texte).replace(',','.'));
+        const g=Number(gain)>0?Number(gain):1;
+        if(!Number.isFinite(v)||v<=0)return 1;
+        return Math.max(1,Math.round(v/g+1e-9));
+      }
+      function idleExpShopLotPersonnaliseIdleV1_(res,stat,achat,statDef){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const idInput=idleExpShopIdInput_(res,stat);
         const idApercu=idleExpShopIdApercu_(res,stat);
-        const coutUnitaire=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(achat.cost||0);
+        const gain=Number(achat.gain)>0?Number(achat.gain):1;
+        const coutUnitaire=H.idleEntier_(achat.cost||0);
+        const nom=statDef?statDef.icone+' '+statDef.nom:'';
         return '<div class="soreal-idle-exp-custom-v210">'+
-          '<label>Quantité personnalisée · <span class="soreal-idle-exp-prix-custom-v1"><b><span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</b></span></label>'+
-          '<input type="number" min="1" step="1" value="1" id="'+idHtml_attr_(idInput)+'" '+
-            'oninput="window.__idleExpShopApercuLotPersonnalise__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(res)+'\',\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat)+'\','+coutUnitaire+')">'+
+          '<label>Quantité souhaitée'+(nom?' · <b>'+H.idleHtml_(nom)+'</b>':'')+' <span class="soreal-idle-exp-prix-custom-v1">➜ <b><span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</b></span></label>'+
+          '<input type="text" inputmode="decimal" value="'+H.formatGrandNombreIdleV70_(gain,2)+'" data-gain="'+gain+'" id="'+idHtml_attr_(idInput)+'" '+
+            'oninput="window.__idleExpShopApercuLotPersonnalise__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+coutUnitaire+')">'+
           '<button type="button" class="soreal-idle-exp-buy-v210 primary" onclick="window.__acheterRessourceLotPersonnaliseMetaIdleV130__(\''+
-            window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(res)+'\',\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat)+'\')">'+
+            H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\')">'+
             'Acheter'+
           '</button>'+
         '</div>';
@@ -663,12 +681,11 @@
         const input=document.getElementById(idleExpShopIdInput_(res,stat));
         const apercu=document.getElementById(idleExpShopIdApercu_(res,stat));
         if(!input||!apercu)return;
-        let qty=Math.floor(Number(input.value));
-        if(!Number.isFinite(qty)||qty<1)qty=1;
+        const qty=idleExpAchatsDepuisSaisieIdleV1_(input.value,input.getAttribute('data-gain'));
         apercu.textContent=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(coutUnitaire*qty);
       };
 
-      function idleExpShopNewbieOffersIdleV1_(res,stat,offres,utilisees){
+      function idleExpShopNewbieOffersIdleV1_(res,stat,offres,utilisees,statDef){
         const restantes=(offres||[]).filter(function(o){return utilisees.indexOf(o.id)===-1;});
         if(!restantes.length)return '';
         return '<div class="soreal-idle-exp-newbie-v210">'+
@@ -676,7 +693,7 @@
           '<div class="soreal-idle-note-v4">Offres à usage unique : elles disparaissent après achat.</div>'+
           '<div class="soreal-idle-exp-actions-v210">'+
             restantes.map(function(o){
-              return '<div class="soreal-idle-exp-offre-v1">'+idleExpPrixCarteIdleV1_([{q:1,gain:window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(o.gain,2),cout:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(o.cost)}],'EXP')+
+              return '<div class="soreal-idle-exp-offre-v1">'+idleExpPrixCarteIdleV1_([{q:1,nom:statDef?statDef.icone+' '+statDef.nom:'',gain:window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(o.gain,2),cout:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(o.cost)}],'EXP')+
                 '<button type="button" class="soreal-idle-exp-buy-v210 offer" onclick="window.__acheterNewbieOfferMetaIdleV130__(\''+
                 window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(res)+'\',\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat)+'\',\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(o.id)+'\')">Offre unique</button></div>';
             }).join('')+
@@ -699,9 +716,9 @@
             ?'<div class="soreal-idle-note-v4">Indisponible.</div>'
             :auMax
               ?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>'
-              :idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat)+
-                idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat)+
-                idleExpShopNewbieOffersIdleV1_(res.id,stat.id,(newbieCatalogue&&newbieCatalogue[stat.id])||null,newbieUtilisees)
+              :idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat,stat)+
+                idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat)+
+                idleExpShopNewbieOffersIdleV1_(res.id,stat.id,(newbieCatalogue&&newbieCatalogue[stat.id])||null,newbieUtilisees,stat)
           )+
         '</div>';
       }
@@ -863,7 +880,7 @@
           return `<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',${q})">${idleExpLibelleAchatIdleV1_(q)}</button>`;
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
-        const prixCarte=fini?'':idleExpPrixCarteIdleV1_(tiers.map(function(q){return {q:q,gain:(it.max===1&&q===1)?'':H.formatGrandNombreIdleV70_((it.gain||0)*q,2),cout:H.formatGrandNombreIdleV70_(coutTotal(q),2)};}),'EXP');
+        const prixCarte=fini?'':idleExpPrixCarteIdleV1_(tiers.map(function(q){return {q:q,nom:IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name),gain:(it.max===1&&q===1)?'':H.formatGrandNombreIdleV70_((it.gain||0)*q,2),cout:H.formatGrandNombreIdleV70_(coutTotal(q),2)};}),'EXP');
         return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name),it.id)}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
           (aide?`<div class="soreal-idle-exp-help-v210">${H.idleHtml_(aide)}</div>`:'')+prixCarte+
           (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':`<div class="soreal-idle-exp-actions-v210">${boutons}</div>`)+
@@ -989,6 +1006,7 @@
           `.soreal-idle-exp-prix-v1{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}`,
           `.soreal-idle-exp-prix-ligne-v1{display:inline-flex;align-items:baseline;gap:7px;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16);font-size:12.5px;color:#e9dcff}`,
           `.soreal-idle-exp-prix-ligne-v1 i{font-style:normal;font-weight:1000;color:#cdbbf2}.soreal-idle-exp-prix-ligne-v1 em{font-style:normal;font-weight:900;color:#9df0b4}.soreal-idle-exp-prix-ligne-v1 b{font-weight:1000;color:#ffe38a}`,
+          `.soreal-idle-exp-prix-ligne-v1.jeu{align-items:center;gap:8px;padding:6px 12px;font-size:14px}.soreal-idle-exp-prix-ligne-v1 u{text-decoration:none;font-weight:1000;color:#fff}.soreal-idle-exp-prix-ligne-v1 s{text-decoration:none;color:#cdbbf2;font-weight:1000}`,
           `.soreal-idle-exp-prix-custom-v1 b{color:#ffe38a}.soreal-idle-exp-offre-v1{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0}.soreal-idle-exp-offre-v1 .soreal-idle-exp-prix-v1{margin:0}`,
           `.soreal-idle-exp-buy-v210::before{content:"";position:absolute;left:7px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:${fond2};box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}`,
           `.soreal-idle-exp-buy-v210:hover{background:color-mix(in srgb,${bleu} 82%,#fff);transform:translateY(-1px)}.soreal-idle-exp-buy-v210:active{transform:translateY(0)}.soreal-idle-exp-buy-v210 b{font-size:14px;line-height:1.1;color:#fff !important}.soreal-idle-exp-buy-v210 small{font-size:12px;color:#e3f4fa !important;font-weight:900}`,
@@ -1062,8 +1080,7 @@
 
       function acheterRessourceLotPersonnaliseMetaIdleV130_(ressource,stat){
         const input=document.getElementById(idleExpShopIdInput_(ressource,stat));
-        let qty=input?Math.floor(Number(input.value)):1;
-        if(!Number.isFinite(qty)||qty<1)qty=1;
+        const qty=input?idleExpAchatsDepuisSaisieIdleV1_(input.value,input.getAttribute('data-gain')):1;
         acheterRessourceMetaIdleV130_(ressource,stat,qty);
       }
       window.__acheterRessourceLotPersonnaliseMetaIdleV130__=acheterRessourceLotPersonnaliseMetaIdleV130_;
