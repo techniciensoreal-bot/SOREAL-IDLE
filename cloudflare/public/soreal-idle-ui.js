@@ -24210,7 +24210,15 @@ function pageAventureIdleV28_(j){
         }
         const records=j.systemes&&j.systemes.records;
         /* Fil d'actualité (modules/flux-v1.js) : ce que CE joueur connaît déjà, pour ne jamais révéler à travers l'activité d'un autre. */
-        const connus={boss:{},titan:{},succes:{},menus:{},sets:{}};
+        const connus={boss:{},titan:{},succes:{},menus:{},sets:{},pieces:{}};
+        /* Cube de l'infini et pièces déjà obtenues (collection) : seuls ceux-là peuvent être nommés dans le fil « En direct ». */
+        connus.menus.cube=Boolean(a&&a.cube&&a.cube.unlocked);
+        if(a&&a.itemList&&a.itemCatalog){
+          Object.keys(a.itemList).forEach(function(id){
+            const def=a.itemCatalog[id];
+            if(def&&def.name&&(def.kind==='equipment'||def.kind==='special'))connus.pieces[id]=String(def.name);
+          });
+        }
         /* Noms des articles de boutique dans la langue du lecteur (catalogue EXP : table française du module ; Boutique AP : son catalogue) ; l'événement porte sinon le nom d'origine. */
         const achatsNoms={exp:Object.assign({},window.__SOREAL_IDLE_EXP_NOMS_V1__||{}),sellout:{}};
         ((j.systemes&&j.systemes.selloutShop&&j.systemes.selloutShop.catalog)||[]).forEach(function(it){if(it&&it.id&&it.name)achatsNoms.sellout[it.id]=String(it.name);});

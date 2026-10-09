@@ -245,6 +245,19 @@
         const g=generiques[n-v.length];
         return {icone:l[0],texte:nom+' '+g[0]+l[1]+g[1]};
       }
+      /* Boost versé dans le Cube de l'infini : seulement pour un lecteur qui l'a déjà (sinon on ne révèle pas son existence). */
+      case 'cube':{
+        if(!k.menus.cube)return null;
+        const idc=Math.abs(Number(it.id)||0);
+        return {icone:'🧊',texte:it.moi?nom+' nourris ton cube de l’infini':nom+' '+BOOST_CUBE[idc%BOOST_CUBE.length]};
+      }
+      /* Boost versé dans une pièce : le nom n'est donné que si le lecteur a lui-même obtenu cette pièce, sinon « une de ses pièces ». */
+      case 'piece':{
+        const idp=Math.abs(Number(it.id)||0);
+        const nomPiece=(k.pieces&&d.def&&k.pieces[d.def])?'« '+k.pieces[d.def]+' »':'une de ses pièces';
+        const t=BOOST_PIECE[idp%BOOST_PIECE.length];
+        return {icone:'⚡',texte:nom+' '+t[0]+nomPiece+t[1]};
+      }
       case 'farm':{
         const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(d.zoneId);});
         return {icone:'⚔️',texte:connue&&d.zoneNom?nom+verbe(' farmes',' farme')+' dans '+d.zoneNom:nom+verbe(' farmes',' farme')+' en Aventure'};
@@ -293,6 +306,9 @@
   const VISITE_GENERIQUES=[['fait un tour dans ',''],['traîne dans ',', l’air de rien'],['est entré dans ',' sans frapper'],['se perd un instant dans ',''],['bidouille dans ',', ne le dérangez pas'],['jette un œil dans ',', par curiosité'],['est en pleine réflexion dans ',''],['passe une tête dans ',', juste pour voir'],['fouille un peu dans ',''],['s’installe confortablement dans ',''],['fait semblant de comprendre ce qu’il fait dans ',''],['est en mission secrète dans ',''],['a une idée derrière la tête dans ',''],['se prend pour un expert dans ',''],['a l’air très sérieux dans ',''],['prend son temps dans ',', il n’est pas pressé'],['s’est perdu dans ',', quelqu’un a une carte ?'],['fait ses petites affaires dans ',''],['a trouvé un coin tranquille dans ','']];
   /* Visite d'un menu que le LECTEUR n'a pas encore : jamais le nom du menu (règle n°2), seulement qu'il existe un endroit à découvrir (Norman, 2026-10-09). */
   const VISITE_MYSTERE=['se promène dans un endroit que tu n’as pas encore découvert…','explore un coin du jeu qui t’est encore inconnu','est quelque part où tu n’es jamais allé','fait un tour dans un lieu mystérieux, que tu ne connais pas encore','a disparu dans un endroit que tu n’as pas encore trouvé','chuchote avec quelque chose que tu n’as pas encore croisé','visite un endroit secret… pour toi, en tout cas','est parti là où tu n’as pas encore mis les pieds','se balade dans une zone du jeu qui reste un mystère pour toi','ouvre une porte que tu n’as pas encore trouvée','fait des trucs dans un endroit dont tu ne soupçonnes rien','est dans un lieu que tu découvriras plus tard… peut-être','s’amuse quelque part où tu n’es pas encore invité','fouille un coin que tu n’as jamais vu','est en tête de peloton : il est dans un endroit que tu ne connais pas','te cache quelque chose : il est dans un endroit encore secret pour toi','est en visite privée dans un lieu inconnu de toi','traîne dans un endroit que tu n’as pas encore découvert, ça viendra','fait coucou depuis un endroit que tu n’as pas encore découvert','profite d’un endroit que tu ne connais pas encore, tu verras plus tard'];
+
+  const BOOST_CUBE=['vient de nourrir son cube de l’infini et a failli y laisser un doigt','donne à manger à son cube de l’infini, il a faim','gave son cube de l’infini de boosts','jette un boost dans son cube de l’infini, glouglou','verse un boost dans son cube de l’infini, il ronronne','fait un câlin à son cube de l’infini, avec un boost','dit « mange ! » à son cube de l’infini','remplit le cube de l’infini, sans le regarder dans les yeux','offre un goûter à son cube de l’infini','se fait presque croquer la main par son cube de l’infini','alimente son cube de l’infini, qui grossit à vue d’œil','balance un boost dans son cube de l’infini et recule prudemment','fait grandir son cube de l’infini, un boost à la fois','entend son cube de l’infini gronder de plaisir','sert un boost au cube de l’infini, bon appétit','nourrit son cube de l’infini, en gardant ses doigts','fait un cadeau à son cube de l’infini','regarde son cube de l’infini avaler un boost','recharge son cube de l’infini, il en redemande','nourrit son cube de l’infini avec un air de dompteur'];
+  const BOOST_PIECE=[['renforce ',''],['donne un coup de boost à ',''],['bichonne ',' avec amour'],['fait avaler du boost à ',''],['améliore ',', ça devient sérieux'],['astique ',' et lui offre un boost'],['offre un petit cadeau à ',''],['rend ',' encore plus costaud'],['injecte du boost dans ',''],['muscle ',' sans pitié'],['dorlote ',' avec un boost tout neuf'],['passe ',' à la salle de sport'],['équipe ',' d’un peu de puissance en plus'],['soigne ',' à coups de boost'],['chouchoute ',', la préférée du jour'],['prend soin de ',', comme d’un trésor'],['pousse ',' vers la perfection'],['gave ',' de boost'],['envoie ',' à l’entraînement intensif'],['fait briller ',', c’est du solide']];
 
   function ilya(at){
     const s=Math.max(0,Math.round((Date.now()-at)/1000));

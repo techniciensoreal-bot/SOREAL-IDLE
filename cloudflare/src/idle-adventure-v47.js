@@ -3596,6 +3596,7 @@ function applyBoost(s,boostId,targetId,ctx){
   }
   s.inventory=s.inventory.filter(x=>x.id!==b.id);
   record(s,o);
+  fluxBoostV1(s,"piece",o.definitionId);
   return o;
 }
 /*
@@ -3632,6 +3633,7 @@ function cube(s,boostId,ctx){
     s.cube[b.boostType]+=valeur*taux;
   }
   s.inventory=s.inventory.filter(x=>x.id!==b.id);
+  fluxBoostV1(s,"cube","");
   return X(s.cube);
 }
 /*
@@ -5108,6 +5110,8 @@ function resolveZoneFight(s,ctx,t=Date.now()){if(!s.fight?.active)throw Error("A
 export function annulerVictoireTitanV1(s,id){const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s&&s.titans&&s.titans[id];if(!d||!st||I(st.kills)<=0)throw Error("TITAN_SANS_VICTOIRE");st.kills=I(st.kills)-1;st.rebirthKills=Math.max(0,I(st.rebirthKills)-1);st.nextAt=0;st.hiddenPanel="";st.hiddenSince=0;let objetRetire="";const retires=[];if(st.kills===0&&d.drop&&s.unlockItems&&s.unlockItems[d.drop]){s.unlockItems[d.drop]=false;objetRetire=d.drop}
 /* Première victoire de GRB : copie de Wandoos 98 (drapeau et objet du sac) et A Number, seulement si le système correspondant n'est pas déjà débloqué ; un seul exemplaire (le plus bas niveau) de chaque. */
 if(st.kills===0&&id==="t1"){for(const [defId,cle] of [["aNumber","aNumber"],["wandoos98","wandoos98"]]){if(s.unlockFlags&&s.unlockFlags[unlockMap[cle]])continue;if(s.unlockItems&&s.unlockItems[cle]){s.unlockItems[cle]=false;retires.push(cle+":drapeau")}const copies=(s.inventory||[]).filter(x=>x&&x.definitionId===defId&&!x.locked).sort((a,b)=>I(a.level)-I(b.level));if(copies.length){retirerObjetAdventureV1(s,copies[0].id);retires.push(defId+":objet")}}}if(st.kills===0)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return{id,kills:st.kills,objetRetire,retires}}
+/* « En direct » : boosts versés dans une pièce ou dans le Cube de l'infini (compteurs seuls, lus par idle-flux-v1.js). */
+function fluxBoostV1(s,cle,id){const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f[cle]=Math.max(0,I(f[cle],0))+1;if(cle==='piece')f.last=String(id||'');s.boostFlux=f}
 function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
 function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};versZoneSureV1(s,"defaite","Tu as été mis K.O. dans cette zone");return{defeated:true,zone}}
 function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}

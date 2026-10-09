@@ -33,6 +33,8 @@ export const IDLE_FLUX_FRAICHEUR_MS_V1 = 90 * 1000;
 export const IDLE_FLUX_DELAI_CONNEXION_MS_V1 = 5 * 60 * 1000;
 /* Boss en cours de combat / menu visité (Norman, 2026-10-07 : « plus d'informations EN DIRECT, sans que ça spam ») : un boss n'est annoncé qu'une fois toutes les 3 minutes, une visite de menu toutes les 10. */
 export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
+/* Boosts versés dans une pièce ou le Cube : une annonce par minute au plus. */
+export const IDLE_FLUX_DELAI_BOOST_MS_V1 = 60 * 1000;
 export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 3 * 60 * 1000;
 
 export function assurerFluxV1(sql) {
@@ -81,6 +83,11 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const sortDernier = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellLast, 0)));
   const histoires = Math.max(0, Math.floor(N(stats && stats.fluxHistoires, 0)));
   const tf = (m.adventure && m.adventure.titanFlux) || {};
+  /* Boosts versés dans une pièce / dans le Cube de l'infini (Norman, 2026-10-09) : compteurs tenus par le moteur (adventure.boostFlux), jamais le détail. */
+  const bf = (m.adventure && m.adventure.boostFlux) || {};
+  const boostCube = Math.max(0, Math.floor(N(bf.cube, 0)));
+  const boostPieces = Math.max(0, Math.floor(N(bf.piece, 0)));
+  const boostDernier = String(bf.last || "").replace(/[^A-Za-z0-9_\-]/g, "").slice(0, 80);
   const titanCombats = Math.max(0, Math.floor(N(tf.starts, 0)));
   const titanPertes = Math.max(0, Math.floor(N(tf.losses, 0)));
   const titanDernier = String(tf.last || "");
@@ -106,6 +113,9 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const roueN = Math.max(0, Math.floor(N(roue.totalSpins, 0)));
   const roueJet = dernierRoue ? { recompense: recompenseSure(dernierRoue.reward) } : null;
   return {
+    boostCube,
+    boostPieces,
+    boostDernier,
     puitsAt,
     puitsJet,
     roueN,
@@ -191,6 +201,9 @@ export function evenementsV1(avant, apres, noms = {}) {
   /* Sort de sang lancé / cinématique regardée : jamais depuis un instantané d'avant ce jalon (pas de comparaison). Le sort est identifié par son rang (1 à 5), l'affichage dépend du lecteur. */
   if (Number.isFinite(avant.titanCombats) && apres.titanCombats > avant.titanCombats) ev.push({ type: "titanCombat", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
   if (Number.isFinite(avant.titanPertes) && apres.titanPertes > avant.titanPertes) ev.push({ type: "titanPerdu", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
+  /* Boosts : jamais depuis un instantané d'avant ce jalon. Cube : combien de boosts ; pièce : laquelle (identifiant de définition, nommé côté lecteur seulement s'il la connaît). */
+  if (Number.isFinite(avant.boostCube) && apres.boostCube > avant.boostCube) ev.push({ type: "cube", donnees: { n: apres.boostCube - avant.boostCube } });
+  if (Number.isFinite(avant.boostPieces) && apres.boostPieces > avant.boostPieces) ev.push({ type: "piece", donnees: { def: apres.boostDernier, n: apres.boostPieces - avant.boostPieces } });
   /* Puits / roue : jamais depuis un instantané d'avant ce jalon (pas de comparaison, rien annoncé à tort). */
   if (Number.isFinite(avant.puitsAt) && apres.puitsAt > avant.puitsAt && apres.puitsJet) ev.push({ type: "puits", donnees: apres.puitsJet });
   if (Number.isFinite(avant.roueN) && apres.roueN > avant.roueN && apres.roueJet) ev.push({ type: "roue", donnees: apres.roueJet });
@@ -223,7 +236,8 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     bossVu: precedent ? N(precedent.bossVu, 0) : 0,
     bossVuAt: precedent ? N(precedent.bossVuAt, 0) : 0,
     menuVu: precedent ? String(precedent.menuVu || "") : "",
-    menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0
+    menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0,
+    boostAt: precedent ? N(precedent.boostAt, 0) : 0
   });
   let ajoutes = 0;
   /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
@@ -250,6 +264,15 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       etat.menuVu = activite.menu;
       etat.menuVuAt = now;
     }
+    /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
+    const sortie = evenements.filter((e) => {
+      if (e.type !== "cube" && e.type !== "piece") return true;
+      if (now - N(precedent.boostAt, 0) < IDLE_FLUX_DELAI_BOOST_MS_V1) return false;
+      return true;
+    });
+    if (sortie.some((e) => e.type === "cube" || e.type === "piece")) etat.boostAt = now;
+    evenements.length = 0;
+    evenements.push(...sortie);
     for (const e of evenements.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1)) {
       sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", now, cle, String(nom || "Joueur").slice(0, 80), e.type, JSON.stringify(e.donnees));
       ajoutes += 1;
