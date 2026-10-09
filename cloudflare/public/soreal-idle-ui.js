@@ -1784,18 +1784,25 @@
           const cp=idleEtat&&idleEtat.combatPrincipal;
           const defs=idleEtat&&idleEtat.systemes&&Array.isArray(idleEtat.systemes.augmentations)?idleEtat.systemes.augmentations:[];
           if(!base||!cp||!defs.length)return;
+          /* Hors de la page Augmentations, aucun niveau n'est rejoué : on ne touche à rien (sinon la vie max retombait au multiplicateur de départ en changeant de menu). */
+          if(!Object.keys(niveaux).length)return;
           let additif=0;
           defs.forEach(function(d){
-            const n=niveaux[d.id+':main'];
+            /* Une piste non affichée garde le niveau du dernier repère. */
+            const vd=(visual.defs&&visual.defs[d.id])||{};
+            const n=niveaux[d.id+':main']!=null?niveaux[d.id+':main']:Math.max(0,idleEntier_(vd.level));
             if(!(n>0))return;
-            const u=niveaux[d.id+':upgrade']||0;
+            const u=niveaux[d.id+':upgrade']!=null?niveaux[d.id+':upgrade']:Math.max(0,idleEntier_(vd.upgradeLevel));
             additif+=idleNombre_(d.baseMultiplier)*Math.pow(n,idleNombre_(d.exponent)||1)*(1+u*u);
           });
-          const k=base.additif>0?(base.mult-1)/base.additif:1;
+          /* Sans niveau d'Augment au départ, on ne peut pas déduire l'effet des perks/NGU : on attend la synchro plutôt que d'inventer un saut. */
+          if(!(base.additif>0))return;
+          const k=(base.mult-1)/base.additif;
           const multMaintenant=Math.max(1,1+additif*k);
           const ratio=multMaintenant/base.mult;
           const applique=visual.appliedRatio||1;
-          if(!isFinite(ratio)||ratio<=0||Math.abs(ratio-applique)<1e-12)return;
+          /* Les niveaux ne reculent jamais : un rapport plus petit que celui déjà appliqué vient d'une donnée manquante, on l'ignore. */
+          if(!isFinite(ratio)||ratio<=0||ratio<=applique+1e-12)return;
           const atk=idleNombre_(cp.multiplicateurAttaqueTotal),def=idleNombre_(cp.multiplicateurDefenseTotal);
           if(atk>0)cp.multiplicateurAttaqueTotal=atk*ratio/applique;
           if(def>0)cp.multiplicateurDefenseTotal=def*ratio/applique;

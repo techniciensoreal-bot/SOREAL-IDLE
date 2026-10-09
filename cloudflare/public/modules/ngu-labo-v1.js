@@ -92,6 +92,25 @@ function pas_(){
   return Math.max(1,Math.floor(Number(m))||125);
 }
 
+/* ---------- minuteur : fin du niveau en cours ---------- */
+function dureeTexte_(s){
+  s=Math.max(0,Math.ceil(s));
+  if(s<60)return s+' s';
+  var m=Math.floor(s/60),r=s%60;
+  if(m<60)return m+' min'+(r?' '+r+' s':'');
+  var h=Math.floor(m/60);m=m%60;
+  if(h<24)return h+' h'+(m?' '+m+' min':'');
+  var j=Math.floor(h/24);h=h%24;
+  return j+' j'+(h?' '+h+' h':'');
+}
+/* « Niveau suivant dans … » = durée d'un niveau × ce qu'il reste à remplir ; rien à dire sans énergie ni quand la cible est atteinte. */
+function etaTexte_(spl,fraction,cibleAtteinte){
+  if(cibleAtteinte)return 'Cible atteinte';
+  if(!(spl>0))return 'Place de l’énergie pour avancer';
+  if(spl<0.04)return 'Niveaux instantanés';
+  return '⏱️ Niveau suivant dans <b>'+dureeTexte_(spl*Math.max(0,1-fraction))+'</b>';
+}
+
 /* ---------- un tuyau ---------- */
 function barreHtml_(n,ancre){
   var c=COULEURS[n.id]||['#9aa5bb','#111111'];
@@ -111,6 +130,7 @@ function barreHtml_(n,ancre){
       '<div class="nl-tube"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
       '<i class="nl-bride d"></i>'+
     '</div>'+
+    '<div class="nl-eta" data-nl-eta>'+etaTexte_(spl,rempli,cible>0&&niveau>=cible)+'</div>'+
     '<div class="nl-infos"><span>'+(n.resource==='magic'?'Magie':'Énergie')+' placée <b data-nl-alloc>'+format_(alloc)+'</b></span>'+
       '<span class="nl-effet" title="'+esc_(n.effect)+'">'+esc_(n.effect)+' <b>'+effet+'</b></span></div>'+
     '<div class="nl-actions">'+
@@ -130,6 +150,7 @@ var CSS=
     'background-color:#0a0620;background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 9%,#fff 0 1px,transparent 2px),radial-gradient(circle at 55% 42%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 55%,#ffd6fb 0 1px,transparent 2px),radial-gradient(circle at 30% 66%,#d6e6ff 0 1px,transparent 2px),radial-gradient(circle at 66% 88%,#fff 0 1px,transparent 2px),radial-gradient(circle at 8% 92%,#ffd6fb 0 1px,transparent 2px),linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%);'+
     'box-shadow:0 0 34px rgba(120,70,255,.4),inset 0 0 50px rgba(90,34,216,.28)}'+
   '.nl-v1 *{box-sizing:border-box}'+
+  '.nl-eta{margin:2px 0 4px;font-size:12.5px;font-weight:800;color:#cdbcff;letter-spacing:.02em}.nl-eta b{color:#fff}'+
   '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
   /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
   '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0}'+
@@ -272,7 +293,7 @@ function page(j){
       barreOutilsHtml_(j)+
       section('energy')+
       (magieOk?section('magic'):'')+
-      '<details class="nl-resume"><summary>Effets de tous tes NGU</summary><div class="nl-resume-grille">'+resume+'</div></details>'+
+      '<details class="nl-resume"'+(resumeOuvert?' open':'')+' ontoggle="window.__SOREAL_IDLE_NGU_LABO_V1__.resume(this.open)"><summary>Effets de tous tes NGU</summary><div class="nl-resume-grille">'+resume+'</div></details>'+
     '</div>';
   demarrer_();
   return html;
@@ -307,6 +328,11 @@ function tick_(){
         if(pct)pct.textContent=Math.round(v*100)+' %';
       }
     }
+    var eta=f.querySelector('[data-nl-eta]');
+    if(eta){
+      var texteEta=etaTexte_(spl,frac,cible>0&&niveau>=cible);
+      if(eta.__nlTexte!==texteEta){eta.__nlTexte=texteEta;eta.innerHTML=texteEta;}
+    }
     var t=f.querySelector('[data-nl-niv]');
     if(t&&niveau!==Number(t.getAttribute('data-nl-v')||n0)){
       t.setAttribute('data-nl-v',String(niveau));
@@ -315,6 +341,8 @@ function tick_(){
   });
 }
 /* Le fond d'étoiles défile avec les tuyaux (Norman, 2026-10-08 : plus de décalage de profondeur, trop gourmand en ressources). */
+/* Le volet « Effets de tous tes NGU » garde son état d'ouverture : la page se redessine toutes les quelques secondes et le refermait aussitôt. */
+var resumeOuvert=false;
 function demarrer_(){if(!timer)timer=setInterval(tick_,100);}
 function arreter_(){if(timer){clearInterval(timer);timer=0;}}
 
@@ -432,6 +460,7 @@ function preset(source,fraction){
 }
 
 window.__SOREAL_IDLE_NGU_LABO_V1__={
+  resume:function(o){resumeOuvert=Boolean(o);},
   page:page,
   couleurs:COULEURS,
   aide:function(){var el=document.getElementById('sorealIdleNguAideV1');if(el)el.hidden=!el.hidden;},

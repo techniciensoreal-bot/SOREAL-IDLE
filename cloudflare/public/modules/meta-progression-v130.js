@@ -995,7 +995,7 @@
           const boutons=[1,10,100].map(function(q){
             return `<button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterRichJerksIdleV1__('${stat}',${q})">${idleExpLibelleAchatIdleV1_(q)}</button>`;
           }).join('');
-          return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_((stat==='attack'?'🗡️ Attaque':'🛡️ Défense')+' pour riches (Rich Jerks)')}</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>${H.idleEntier_(niveau||0)}</strong></div></div>${idleExpPrixCarteIdleV1_([1,10,100].map(function(q){return {q:q,gain:H.idleEntier_((rj.pctPerLevel||10)*q)+' %',cout:H.idleEntier_((rj.cost||30)*q)};}),'EXP')}<div class="soreal-idle-exp-actions-v210">${boutons}</div></div>`;
+          return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_((stat==='attack'?'🗡️ Attaque':'🛡️ Défense')+' pour riches (Rich Jerks)')}</span><div class="soreal-idle-exp-current-v211"><small>Niveau</small><strong>${H.idleEntier_(niveau||0)}</strong></div></div><div class="soreal-idle-exp-help-v210">Conseil : n’achète ceci qu’une fois que tu as acheté tout le reste.</div>${idleExpPrixCarteIdleV1_([1,10,100].map(function(q){return {q:q,gain:H.idleEntier_((rj.pctPerLevel||10)*q)+' %',cout:H.idleEntier_((rj.cost||30)*q)};}),'EXP')}<div class="soreal-idle-exp-actions-v210">${boutons}</div></div>`;
         }).join('');
       }
 
