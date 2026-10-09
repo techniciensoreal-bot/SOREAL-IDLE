@@ -231,11 +231,17 @@
       case 'visite':{
         const l=LIEUX_VISITE[d.menu];
         if(!l)return null;
-        if(!k.menus[d.menu])return null;
+        const idVar=Math.abs(Number(it.id)||0);
+        /* Menu que le lecteur n'a pas encore : on dit seulement que quelqu'un est dans un endroit à découvrir, sans le nommer. */
+        if(!k.menus[d.menu])return {icone:'🗝️',texte:nom+' '+VISITE_MYSTERE[idVar%VISITE_MYSTERE.length]};
         if(it.moi)return {icone:l[0],texte:nom+' visites '+l[1]};
-        /* Phrase d'humour choisie selon l'événement (stable pour un même événement, variée d'un événement à l'autre). */
+        /* Phrase d'humour choisie selon l'événement (stable pour un même événement, variée d'un événement à l'autre) : les phrases propres au menu, puis les phrases communes. */
         const v=l[2];
-        return {icone:l[0],texte:v[(Math.abs(Number(it.id)||0))%v.length].split('{n}').join(nom)};
+        const total=v.length+VISITE_GENERIQUES.length;
+        const n=idVar%total;
+        if(n<v.length)return {icone:l[0],texte:v[n].split('{n}').join(nom)};
+        const g=VISITE_GENERIQUES[n-v.length];
+        return {icone:l[0],texte:nom+' '+g[0]+l[1]+g[1]};
       }
       case 'farm':{
         const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(d.zoneId);});
@@ -281,6 +287,10 @@
     chroniques:['📜','les Chroniques',['{n} feuillette les Chroniques','{n} relit ses exploits dans les Chroniques','{n} se la raconte dans les Chroniques']],
     parametres:['⚙️','les réglages',['{n} règle ses paramètres au millimètre','{n} fouille dans les réglages','{n} tourne tous les boutons des réglages']]
   };
+
+  const VISITE_GENERIQUES=[['fait un tour dans ',''],['traîne dans ',', l’air de rien'],['est entré dans ',' sans frapper'],['se perd un instant dans ',''],['bidouille dans ',', ne le dérangez pas'],['jette un œil dans ',', par curiosité'],['est en pleine réflexion dans ',''],['passe une tête dans ',', juste pour voir'],['fouille un peu dans ',''],['s’installe confortablement dans ',''],['fait semblant de comprendre ce qu’il fait dans ',''],['est en mission secrète dans ',''],['a une idée derrière la tête dans ',''],['se prend pour un expert dans ',''],['a l’air très sérieux dans ',''],['prend son temps dans ',', il n’est pas pressé'],['s’est perdu dans ',', quelqu’un a une carte ?'],['fait ses petites affaires dans ',''],['a trouvé un coin tranquille dans ','']];
+  /* Visite d'un menu que le LECTEUR n'a pas encore : jamais le nom du menu (règle n°2), seulement qu'il existe un endroit à découvrir (Norman, 2026-10-09). */
+  const VISITE_MYSTERE=['se promène dans un endroit que tu n’as pas encore découvert…','explore un coin du jeu qui t’est encore inconnu','est quelque part où tu n’es jamais allé','fait un tour dans un lieu mystérieux, que tu ne connais pas encore','a disparu dans un endroit que tu n’as pas encore trouvé','chuchote avec quelque chose que tu n’as pas encore croisé','visite un endroit secret… pour toi, en tout cas','est parti là où tu n’as pas encore mis les pieds','se balade dans une zone du jeu qui reste un mystère pour toi','ouvre une porte que tu n’as pas encore trouvée','fait des trucs dans un endroit dont tu ne soupçonnes rien','est dans un lieu que tu découvriras plus tard… peut-être','s’amuse quelque part où tu n’es pas encore invité','fouille un coin que tu n’as jamais vu','a une longueur d’avance : il est dans un endroit que tu ne connais pas','te cache quelque chose : il est dans un endroit encore secret pour toi','est en visite privée dans un lieu inconnu de toi','traîne dans un endroit que tu n’as pas encore découvert, ça viendra','fait coucou depuis un endroit que tu n’as pas encore découvert','profite d’un endroit que tu ne connais pas encore, tu verras plus tard'];
 
   function ilya(at){
     const s=Math.max(0,Math.round((Date.now()-at)/1000));

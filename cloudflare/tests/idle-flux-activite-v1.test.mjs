@@ -65,8 +65,8 @@ assert.equal(normaliserActiviteV1({ t: "libre", menu: "<script>" }).menu, undefi
   assert.equal(p("bossCombat", { boss: 12 }, expert).texte, "Mickaël combat Gros Rat");
   assert.equal(p("bossCombat", { boss: 12 }, debutant).texte, "Mickaël combat un boss", "boss inconnu du lecteur : générique");
   assert.equal(p("visite", { menu: "spendExp" }, expert).texte, "Mickaël vide son portefeuille à la boutique EXP");
-  assert.equal(p("visite", { menu: "spendExp" }, debutant), null, "menu non débloqué chez le lecteur : jamais mentionné");
-  assert.equal(p("visite", { menu: "sang" }, expert), null);
+  assert.equal(p("visite", { menu: "spendExp" }, debutant).texte, "Mickaël se promène dans un endroit que tu n’as pas encore découvert…", "menu non débloqué chez le lecteur : un endroit à découvrir, jamais son nom");
+  assert.ok(!/Blood|sang/i.test(p("visite", { menu: "sang" }, expert).texte), "menu inconnu : jamais nommé");
   assert.equal(p("visite", { menu: "n'importe quoi" }, expert), null);
   assert.ok(source.includes("if(p&&!it.moi)sortie.push("), "les annonces du joueur lui-même ne sont jamais affichées");
 }

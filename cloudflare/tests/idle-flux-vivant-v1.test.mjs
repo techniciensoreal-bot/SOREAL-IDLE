@@ -41,7 +41,8 @@ for (const m of tousMenus) {
     assert.ok(v.includes("{n}"), m + " : le nom du joueur figure dans la phrase");
     const p = phrase({ id: i, type: "visite", nom: "Afflito", donnees: { menu: m } }, expert);
     assert.ok(p && p.texte.startsWith("Afflito "), m + " : phrase lisible");
-    assert.equal(phrase({ id: i, type: "visite", nom: "Afflito", donnees: { menu: m } }, debutant), null, m + " : menu non débloqué chez le lecteur, jamais mentionné");
+    const inconnu = phrase({ id: i, type: "visite", nom: "Afflito", donnees: { menu: m } }, debutant).texte;
+    assert.ok(inconnu.startsWith("Afflito ") && !inconnu.includes(lieux[m][1]) && !new RegExp(m, "i").test(inconnu), m + " : menu non débloqué chez le lecteur, jamais nommé : " + inconnu);
   });
   // Les variantes tournent avec l'identifiant de l'événement.
   const a = phrase({ id: 0, type: "visite", nom: "A", donnees: { menu: m } }, expert).texte;
@@ -68,4 +69,10 @@ assert.ok(phrase({ id: 1, type: "fuite", nom: "Sébastien", donnees: { boss: 11 
 const distinctes = (type) => new Set(Array.from({ length: 40 }, (_, i) => phrase({ id: i, type, nom: "Ana", donnees: { boss: 11 } }, expert).texte)).size;
 assert.ok(distinctes("fuite") >= 20, "fuite : " + distinctes("fuite"));
 assert.ok(distinctes("defaite") >= 20, "défaite : " + distinctes("defaite"));
+// Vingt variantes par menu (phrases du menu + phrases communes), vingt phrases « endroit que tu n'as pas découvert ».
+for (const m of tousMenus) {
+  const n = new Set(Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: m } }, expert).texte)).size;
+  assert.ok(n >= 20, m + " : " + n + " variantes");
+}
+assert.ok(new Set(Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: "ngu" } }, debutant).texte)).size >= 20, "menu inconnu : au moins vingt variantes");
 console.log("idle-flux-vivant-v1: OK");
