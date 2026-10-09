@@ -8019,8 +8019,8 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    * mémorise l'achat (drapeaux doubleTap / tripleTap du bloc inventoryAuto.unlocked) ; le geste lui-même (appuis rapides, tactile) est détecté par le client, qui envoie les actions déjà existantes
    * inventoryAuto / boostAll (Double tap) et inventoryAuto / mergeAll (Triple tap).
    */
-  doubleTap: Object.freeze({ name: "Double Tap", cost: () => 20, gain: 1, max: 1 }),
-  tripleTap: Object.freeze({ name: "Triple Tap", cost: () => 30, gain: 1, max: 1 }),
+  doubleTap: Object.freeze({ name: "Double Tap (boosts)", cost: () => 20, gain: 1, max: 1 }),
+  tripleTap: Object.freeze({ name: "Double Tap (fusion)", cost: () => 30, gain: 1, max: 1 }),
   basicLootFilter: Object.freeze({ name: "Basic Loot Filter", cost: () => 20, gain: 1, max: 1 }),
   loadoutSlots: Object.freeze({ name: "2 Loadout Slots!", cost: () => 1000, gain: 2, max: 1 }),
   loadoutSlot3: Object.freeze({ name: "Another Loadout Slot!", cost: () => 10000, gain: 1, max: 1 }),

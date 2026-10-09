@@ -82,7 +82,7 @@ assert.match(
 
 // 4. Cache-bust cohérent (index.html + tests qui vérifient ce numéro).
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes("/modules/meta-progression-v130.js?v=202610106"));
+assert.ok(index.includes("/modules/meta-progression-v130.js?v=202610107"));
 assert.ok(!index.includes("/modules/meta-progression-v130.js?v=202609261"));
 
 console.log("idle-inventory-auto-no-full-render-v1: OK");

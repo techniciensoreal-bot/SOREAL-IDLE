@@ -46,6 +46,9 @@
     generes.delete(noeud);
   }
 
+  /* Clé de couleur d'une unité (une couleur par unité dans soreal-idle-itopod.css, [data-suf="Qa"]…) ; tout exposant (e+139) partage la clé « e ». */
+  function cleSuffixe_(texte){return /^[eE]/.test(texte)?'e':texte;}
+
   function traiter_(noeud){
     if(!noeud||noeud.nodeType!==3||!noeud.parentNode)return;
     /* déjà traité et inchangé depuis : rien à refaire (jamais de perte de texte) */
@@ -59,7 +62,7 @@
     while((m=re.exec(texte))){
       var finChiffres=m.index+m[1].length;
       morceaux.push({texte:texte.slice(dernier,finChiffres),suffixe:false});
-      morceaux.push({texte:m[2],suffixe:true});
+      morceaux.push({texte:m[2],suffixe:true,cle:cleSuffixe_(m[2])});
       dernier=finChiffres+m[2].length;
     }
     if(!morceaux.length)return;
@@ -70,7 +73,7 @@
     for(var i=1;i<morceaux.length;i++){
       var n;
       if(morceaux[i].suffixe){
-        n=document.createElement('span');n.className='nb-suf';n.textContent=morceaux[i].texte;
+        n=document.createElement('span');n.className='nb-suf';n.setAttribute('data-suf',morceaux[i].cle);n.textContent=morceaux[i].texte;
       }else{
         n=document.createTextNode(morceaux[i].texte);
       }
@@ -114,6 +117,6 @@
     observateur.observe(app,{childList:true,subtree:true,characterData:true});
   }
 
-  window.__SOREAL_IDLE_NOMBRES_COULEUR_V1__={traiter:traiter_,admissible:admissible_,motif:MOTIF};
+  window.__SOREAL_IDLE_NOMBRES_COULEUR_V1__={traiter:traiter_,admissible:admissible_,motif:MOTIF,cle:cleSuffixe_,unites:UNITES.slice()};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',demarrer_);else demarrer_();
 })();

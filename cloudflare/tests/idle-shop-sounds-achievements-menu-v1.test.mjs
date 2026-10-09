@@ -117,7 +117,7 @@ assert.ok(/function gemmeConstruire_[\s\S]*?2\.32[\s\S]*?4\.25/.test(audio) && !
   assert.ok(apres.includes("jouerEffetAudioIdleV199_('skill_'+def.id);"), "le son part quand la compétence est lancée");
   const dt = ui.slice(ui.indexOf("function boosterObjetEquipeAdventureIdleV1_(id){"), ui.indexOf("function executerTapObjetAdventureIdleV196_(element,id){"));
   assert.ok(dt.includes("action:'inventoryAuto',mode:'boostAll',targetId:objet") && dt.includes("item.kind==='boost'"), "boost de la pièce équipée (jamais un boost)");
-  assert.ok(/boosterObjetEquipeAdventureIdleV1_\(id\);/.test(ui) && ui.includes("if(nTaps===2&&gestes.double){"), "branché sur le double tap ACHETÉ (tout objet, équipé ou non)");
+  assert.ok(/boosterObjetEquipeAdventureIdleV1_\(objet\)/.test(ui) && ui.includes("if(nTaps===2&&(gestes.double||gestes.triple)){"), "branché sur le double tap ACHETÉ (tout objet, équipé ou non)");
 }
 
 // --- Zoom accessible ; plus d'éclat blanc sur la barre verte ; popup Achievements au premier succès ---

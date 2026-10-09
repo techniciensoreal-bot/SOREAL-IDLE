@@ -62,18 +62,19 @@ assert.ok(
   "même correctif que l'Énergie (2026-09-29) : le maximum de Magie affiché n'est pas non plus un mur absolu"
 );
 
-// --- Le survol détecte le panneau réellement ciblé (Magie vs Énergie), jamais un texte figé ---
+// --- Le survol détecte le panneau réellement ciblé (Énergie, Magie, 3e ressource), jamais un texte figé ; la barre de VIE n'a pas d'infobulle (Norman, 2026-10-09) ---
 assert.match(
   ui,
-  /function estPanneauMagie\(p\)\{\s*return Boolean\(p&&p\.classList&&p\.classList\.contains\('soreal-idle-magic-panel-v1'\)\);/,
-  "le panneau survolé doit être identifié par sa classe Magie"
+  /function ressourceInfobulleIdleV1_\(p\)\{[\s\S]*?soreal-idle-hud-pv-v2'\)\)return null;[\s\S]*?soreal-idle-magic-panel-v1'\)\)return 'magic';[\s\S]*?soreal-idle-hud-r3-v2'\)\)return 'r3';[\s\S]*?return 'energy';/,
+  "chaque panneau est identifié par sa classe (vie : aucune infobulle)"
 );
-assert.match(ui, /ouvrirInfobulleEnergieIdleV1_\(p,estPanneauMagie\(p\)\)/);
+assert.match(ui, /ouvrirInfobulleEnergieIdleV1_\(p,ressource\)/);
 assert.match(
   ui,
-  /const texte=estMagie\s*\?texteInfobulleMagieIdleV1_\(infoMagieIdleV1_\(\)\)\s*:texteInfobulleEnergieIdleV1_\(infoEnergieIdleV1_\(\)\);/,
-  "ouvrirInfobulleEnergieIdleV1_ doit choisir le texte selon le panneau réellement survolé"
+  /function texteInfobulleRessourceIdleV1_\(ressource\)\{[\s\S]*?texteInfobulleMagieIdleV1_\(infoMagieIdleV1_\(\)\)[\s\S]*?texteInfobulleR3IdleV1_\(infoR3IdleV1_\(\)\)[\s\S]*?texteInfobulleEnergieIdleV1_\(infoEnergieIdleV1_\(\)\)/,
+  "le texte est choisi selon le panneau réellement survolé"
 );
-assert.match(ui, /el\.dataset\.ressource=estMagie\?'magic':'energy';/, "le type de ressource affichée doit être mémorisé pour le rafraîchissement périodique");
+assert.match(ui, /el\.dataset\.ressource=ressource;/, "le type de ressource affichée est mémorisé pour le rafraîchissement périodique");
+assert.match(ui, /if\(p&&ressource&&!panneau\(ev\.relatedTarget\)\)ouvrirInfobulleEnergieIdleV1_\(p,ressource\);/, "survol : rien ouvert pour la barre de vie");
 
 console.log("idle-magic-tooltip-v1: OK");

@@ -251,3 +251,15 @@ pour pouvoir la réutiliser telle quelle :
   **append-only** : ne jamais modifier ou supprimer une entrée déjà
   déployée, seulement en ajouter une nouvelle si une future migration de
   classe est nécessaire.
+
+## Règle n°3 (barres et boucles d'animation) : aucune boucle imparfaite
+
+Demande de Norman (2026-10-09) : toute animation qui se répète dans une barre (braises, étoiles, runes, aurore, plasma, code, gouttes…) doit boucler SANS À-COUP. À appliquer d'office pour toute barre existante ou
+nouvelle, sans qu'il faille le redemander :
+- un élément qui apparaît puis disparaît (rune, goutte, étincelle) : fondu d'ENTRÉE au début du cycle, fondu de SORTIE à la fin (opacité 0 à 0 % et à 100 %), et un mouvement toujours dans le même sens (jamais un aller-retour
+  qui fait « reculer » l'icône en fin de cycle) ;
+- un motif qui défile (background-position) : TOUTES les couches ont la même taille de tuile (`background-size` explicite pour chaque couche, une valeur de taille dans un `background:` en liste ne vaut que pour la dernière
+  couche) et le glissement vaut exactement UNE période du motif (`--p` = largeur de la tuile ; un dégradé qui se répète tous les 150 % se décale de 150 %, pas de 200 %) ;
+- les points qui défilent restent masqués aux deux bouts du liquide (masque en dégradé) ;
+- `prefers-reduced-motion` coupe l'animation.
+Test de garde : `cloudflare/tests/idle-barres-boucles-parfaites-v1.test.mjs` (à étendre pour une nouvelle barre animée).

@@ -29,8 +29,7 @@ assert.ok(pos("wandoos") > pos("titans") && pos("wandoos") < pos("yggdrasil"), "
 assert.ok(pos("tower") < pos("challenges"));
 assert.equal(pos("perks"), -1, "Atouts fusionnés dans ITOPOD : plus de menu à part");
 // 4. Achievements, Classement, Chat, Settings (et Admin) viennent toujours APRÈS tous les autres menus, donc après le dernier menu débloqué (Norman, 2026-10-04) ; Collection suit son déblocage (boss 4).
-assert.deepEqual(ids.slice(-4), ["shop", "chat", "parametres", "admin"], "Boutique → Chat → Réglages → Admin, toujours à la fin (Succès et Classement sont dans « Chroniques »)");
-assert.ok(pos("chroniques") > pos("renaissance") && pos("chroniques") < pos("augmentations"), "Chroniques (ex-Collection) : boss 4, avec Adventure et Rebirth");
+assert.deepEqual(ids.slice(-5), ["shop", "chroniques", "chat", "parametres", "admin"], "Boutique → Chroniques → Chat → Réglages → Admin, toujours à la fin (Norman, 2026-10-09)");
 // Un menu qui se débloque s'intercale AVANT ce groupe final, même avec un rangement enregistré.
 const ordonner = new Function(ui.slice(ui.indexOf("function ordonnerMenusIdleV1_(defauts,ordre){"), ui.indexOf("function menusOrdonnesIdleV1_(j){")) + "return ordonnerMenusIdleV1_;")();
 const defauts = ids.map((id) => ({ id }));
@@ -42,4 +41,13 @@ assert.ok(apres.indexOf("renaissance") < apres.indexOf("shop") && apres.indexOf(
 assert.ok(rt.includes("menuOrdreVersion:3,") && rt.includes("Math.floor(nombreSorealIdle_(s.menuOrdreVersion,0))>=3"), "un rangement d'avant la version 3 est oublié");
 assert.ok(rt.includes("menuOrdre:Array.isArray(ordre) ? ordre : [], menuOrdreVersion: 3"), "un rangement enregistré après la remise à zéro est conservé");
 assert.ok(ui.includes("'soreal_idle_menu_ordre_v3_'+generationJoueurIdleV75_(j)") && !ui.includes("'soreal_idle_menu_ordre_v2_'"), "ancien cache local abandonné");
+// Admin est toujours le dernier, même avec un rangement enregistré où il est ailleurs, et un menu qui se débloque ne se place jamais après lui (Norman, 2026-10-09).
+{
+  const rang = ["entrainement", "combat", "admin", "aventure", "shop", "chat", "parametres", "augmentations"];
+  const ids2 = ordonner(defauts, rang).map((m) => m.id);
+  assert.equal(ids2[ids2.length - 1], "admin", "Admin toujours en dernier");
+  assert.ok(ids2.indexOf("avance") < ids2.length - 1 && ids2.indexOf("chroniques") === ids2.indexOf("shop") + 1, "nouveaux menus avant Admin ; Chroniques juste après la Boutique");
+  const tout = ordonner(defauts, ids).map((m) => m.id);
+  assert.deepEqual(tout.slice(-5), ["shop", "chroniques", "chat", "parametres", "admin"], "ordre par défaut des cinq derniers");
+}
 console.log("idle-menus-ordre-obtention-v1: OK");

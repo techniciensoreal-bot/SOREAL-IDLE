@@ -5882,21 +5882,59 @@
         return lignes.join('\n');
       }
 
+      /*
+       * Infobulle de la 3e ressource (Norman, 2026-10-09 : « chaque barre a son propre popup »). Mêmes données serveur que l'énergie et la magie (resourceInfo.r3 : maximum, production, vitesse), aucune règle inventée ;
+       * pas de raccourci clavier (aucun n'est documenté pour elle) et pas de croissance naturelle du maximum (propre à l'énergie).
+       */
+      function infoR3IdleV1_(){
+        return idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceInfo
+          ?idleEtat.systemes.resourceInfo.r3
+          :null;
+      }
+
+      function texteInfobulleR3IdleV1_(info){
+        if(!info)return '';
+        const lignes=[
+          'Ton maximum de 3e ressource ACTUEL sur ce Rebirth : '+nombreInfobulleIdleV1_(info.capRun)+' (pas un plafond absolu : achète du Plafond contre de l’EXP pour continuer à le faire grandir).',
+          'Au Rebirth, tu auras '+nombreInfobulleIdleV1_(info.capAfterRebirth)+' de 3e ressource.',
+          'Tu produis actuellement '+nombreInfobulleIdleV1_(info.perSecond,2)+' de 3e ressource par seconde.',
+          '',
+          'Vitesse actuelle : '+nombreInfobulleIdleV1_(info.speed,2)+', la barre se remplit tous les '+nombreInfobulleIdleV1_(info.ticksPerFill,2)+' ticks. '+
+            (info.nextSpeed!=null
+              ?'Prochain palier de vitesse : '+nombreInfobulleIdleV1_(info.nextSpeed,1)+'.'
+              :'Vitesse maximale : la barre se remplit à chaque tick.')
+        ];
+        return lignes.join('\n');
+      }
+
+      /* Ressource d'un panneau du bandeau : 'energy', 'magic' ou 'r3' ; la barre de VIE n'a pas d'infobulle (null). */
+      function ressourceInfobulleIdleV1_(p){
+        if(!p||!p.classList)return null;
+        if(p.classList.contains('soreal-idle-hud-pv-v2'))return null;
+        if(p.classList.contains('soreal-idle-magic-panel-v1'))return 'magic';
+        if(p.classList.contains('soreal-idle-hud-r3-v2'))return 'r3';
+        return 'energy';
+      }
+      function texteInfobulleRessourceIdleV1_(ressource){
+        if(ressource==='magic')return texteInfobulleMagieIdleV1_(infoMagieIdleV1_());
+        if(ressource==='r3')return texteInfobulleR3IdleV1_(infoR3IdleV1_());
+        if(ressource==='energy')return texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+        return '';
+      }
+
       function fermerInfobulleEnergieIdleV1_(){
         const el=document.getElementById('sorealIdleEnergieInfobulleV1');
         if(el)el.remove();
       }
 
-      function ouvrirInfobulleEnergieIdleV1_(ancre,estMagie){
-        const texte=estMagie
-          ?texteInfobulleMagieIdleV1_(infoMagieIdleV1_())
-          :texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+      function ouvrirInfobulleEnergieIdleV1_(ancre,ressource){
+        const texte=texteInfobulleRessourceIdleV1_(ressource);
         if(!texte||!ancre)return;
         fermerInfobulleEnergieIdleV1_();
         const el=document.createElement('div');
         el.id='sorealIdleEnergieInfobulleV1';
         el.className='soreal-idle-energie-infobulle-v1';
-        el.dataset.ressource=estMagie?'magic':'energy';
+        el.dataset.ressource=ressource;
         el.setAttribute('role','tooltip');
         el.textContent=texte;
         document.body.appendChild(el);
@@ -5912,10 +5950,8 @@
       function rafraichirInfobulleEnergieIdleV1_(){
         const el=document.getElementById('sorealIdleEnergieInfobulleV1');
         if(!el)return;
-        const estMagie=el.dataset.ressource==='magic';
-        el.textContent=estMagie
-          ?texteInfobulleMagieIdleV1_(infoMagieIdleV1_())
-          :texteInfobulleEnergieIdleV1_(infoEnergieIdleV1_());
+        const texte=texteInfobulleRessourceIdleV1_(el.dataset.ressource);
+        if(texte)el.textContent=texte;
       }
 
       function installerInfobulleEnergieIdleV1_(){
@@ -5924,14 +5960,12 @@
         function panneau(cible){
           return cible&&cible.closest?cible.closest('.soreal-idle-energy-panel-v34'):null;
         }
-        function estPanneauMagie(p){
-          return Boolean(p&&p.classList&&p.classList.contains('soreal-idle-magic-panel-v1'));
-        }
-        /* PC : l'infobulle suit le survol du panneau, comme dans NGU. */
+        /* PC : l'infobulle suit le survol du panneau, comme dans NGU ; chaque barre a la sienne, la barre de vie n'en a pas. */
         document.addEventListener('mouseover',function(ev){
           if(ev.pointerType==='touch')return;
           const p=panneau(ev.target);
-          if(p&&!panneau(ev.relatedTarget))ouvrirInfobulleEnergieIdleV1_(p,estPanneauMagie(p));
+          const ressource=ressourceInfobulleIdleV1_(p);
+          if(p&&ressource&&!panneau(ev.relatedTarget))ouvrirInfobulleEnergieIdleV1_(p,ressource);
         });
         document.addEventListener('mouseout',function(ev){
           if(panneau(ev.target)&&!panneau(ev.relatedTarget))fermerInfobulleEnergieIdleV1_();
@@ -5939,9 +5973,10 @@
         /* Téléphone : un appui sur le panneau l'ouvre, un appui ailleurs la ferme. */
         document.addEventListener('click',function(ev){
           const p=panneau(ev.target);
+          const ressource=ressourceInfobulleIdleV1_(p);
           const ouverte=document.getElementById('sorealIdleEnergieInfobulleV1');
-          if(p&&window.matchMedia&&window.matchMedia('(hover:none)').matches){
-            if(ouverte)fermerInfobulleEnergieIdleV1_();else ouvrirInfobulleEnergieIdleV1_(p,estPanneauMagie(p));
+          if(p&&ressource&&window.matchMedia&&window.matchMedia('(hover:none)').matches){
+            if(ouverte)fermerInfobulleEnergieIdleV1_();else ouvrirInfobulleEnergieIdleV1_(p,ressource);
           }else if(ouverte&&!window.matchMedia('(hover:hover)').matches){
             fermerInfobulleEnergieIdleV1_();
           }
@@ -12282,7 +12317,6 @@
         {id:'combat',icon:'⚔️',nom:'Fight Boss'},
         {id:'aventure',icon:'🗺️',nom:'Adventure'},
         {id:'renaissance',icon:'♻️',nom:'Rebirth'},
-        {id:'chroniques',icon:'📜',nom:'Chroniques'},
         {id:'moneyPit',icon:'🕳️',nom:'Money Pit'},
         {id:'augmentations',icon:'🦾',nom:'Augmentations'},
         {id:'avance',icon:'🏋️',nom:'Advanced Training'},
@@ -12305,6 +12339,7 @@
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
         {id:'shop',icon:'🔮',nom:'Shop'},
+        {id:'chroniques',icon:'📜',nom:'Chroniques'},
         {id:'chat',icon:'💬',nom:'Chat'},
         {id:'parametres',icon:'⚙️',nom:'Settings'},
         {id:'admin',icon:'🛠️',nom:'Admin'}
@@ -12423,8 +12458,15 @@
         const res=(Array.isArray(ordre)?ordre:[]).filter(function(id,i,tab){
           return ids.indexOf(id)!==-1&&tab.indexOf(id)===i;
         });
+        /*
+         * Admin est TOUJOURS le dernier (Norman, 2026-10-09 : « des menus s'ajoutent après Admin ») ; il n'apparaît que pour l'administrateur (voir menuDisponibleIdleV28_). On le met de côté pendant le placement des
+         * menus qui se débloquent (ils s'intercalent donc toujours AVANT lui) et on le remet à la fin. Par défaut, les cinq derniers boutons sont Boutique, Chroniques, Chat, Réglages puis Admin (ordre de
+         * IDLE_MENUS_V1) ; un rangement choisi par le joueur reste prioritaire pour les autres.
+         */
+        const iAdmin=res.indexOf('admin');
+        if(iAdmin!==-1)res.splice(iAdmin,1);
         ids.forEach(function(id,i){
-          if(res.indexOf(id)!==-1)return;
+          if(id==='admin'||res.indexOf(id)!==-1)return;
           let pos=0;
           for(let k=i-1;k>=0;k-=1){
             const p=res.indexOf(ids[k]);
@@ -12432,6 +12474,7 @@
           }
           res.splice(pos,0,id);
         });
+        if(ids.indexOf('admin')!==-1)res.push('admin');
         return res.map(function(id){
           return defauts.find(function(m){return m.id===id;});
         });
@@ -20534,7 +20577,8 @@ function pageAventureIdleV28_(j){
         idleTapsObjetV1.id=objet;
         idleTapsObjetV1.ms=maintenant;
         const n=idleTapsObjetV1.n;
-        if(n>=3){idleTapsObjetV1={id:'',n:0,ms:0};}
+        /* Un seul geste tactile : le double tap (Norman, 2026-10-09) ; au deuxième appui la séquence repart de zéro. */
+        if(n>=2){idleTapsObjetV1={id:'',n:0,ms:0};}
         return n;
       }
       /* Pièces du sac qui peuvent fusionner avec cet objet : même objet, ni verrouillées, ni équipées, ni au niveau 100. */
@@ -20837,24 +20881,17 @@ function pageAventureIdleV28_(j){
         if(moved)return;
 
         /*
-         * Double tap et triple tap (achats de la boutique EXP, voir gestesAchetesIdleV1_) : sans achat, chaque appui reste un appui simple. Double tap : l'objet (équipé ou non) absorbe tous les boosts du sac ; avec le Triple
-         * tap acheté, ce double tap attend la fin de la fenêtre d'appuis pour ne pas se déclencher avant le troisième. Triple tap : fusion automatique avec les pièces identiques du sac.
+         * Double tap (achats « Double tap : boosts » et « Double tap : fusion » de la boutique EXP, voir gestesAchetesIdleV1_) : sans achat, chaque appui reste un appui simple. Le geste unique est décrit juste en dessous.
+         */
+        /*
+         * UN SEUL geste tactile, le DOUBLE TAP (Norman, 2026-10-09 : sur téléphone, le double tap absorbe toutes les pièces qui peuvent fusionner ; quand il n'y en a plus, il absorbe tous les boosts ; comme le clic droit de la
+         * souris). Exactement la règle du clic droit (clicDroitGestesAchetesIdleV1_) : avec l'achat de fusion, il fusionne tant qu'il y a des pièces identiques ; avec l'achat des boosts, il absorbe les boosts sinon.
          */
         const nTaps=compterTapsObjetIdleV1_(id,pointerType);
         const gestes=gestesAchetesIdleV1_();
-        if(nTaps>=3&&gestes.triple){
+        if(nTaps===2&&(gestes.double||gestes.triple)){
           clearTimeout(idleDoubleDiffereTimerV1);
-          fusionnerAutoObjetIdleV1_(id);
-          return;
-        }
-        if(nTaps===2&&gestes.double){
-          if(gestes.triple){
-            clearTimeout(idleDoubleDiffereTimerV1);
-            idleDoubleDiffereTimerV1=setTimeout(function(){boosterObjetEquipeAdventureIdleV1_(id);},IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30);
-          }else{
-            boosterObjetEquipeAdventureIdleV1_(id);
-          }
-          return;
+          if(clicDroitGestesAchetesIdleV1_(id))return;
         }
 
         executerTapObjetAdventureIdleV196_(element,id);
@@ -20915,6 +20952,16 @@ function pageAventureIdleV28_(j){
         document.addEventListener('soreal-longpress',function(event){
           /* PC : le maintien du clic n'ouvre plus le popup (il se refermait au relâchement) — c'est le survol qui l'ouvre. */
           if(event.detail&&event.detail.pointerType==='mouse')return;
+          /* Cube de l'infini : son popup s'ouvre au maintien, comme celui des autres objets. */
+          const cubeLong=event.target&&event.target.closest?event.target.closest('[data-idle-cube-drop-v180]'):null;
+          if(cubeLong){
+            idleCubeIgnorerClicJusquaV1=Date.now()+750;
+            idleCubeDernierTapMsV1=0;
+            afficherDetailsCubeInfiniAdventureIdleV220_();
+            if(event.cancelable)event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
           const element=elementObjetGesteAdventureIdleV196_(event.target);
           const id=idObjetGesteAdventureIdleV196_(element);
           if(!element||!id)return;
@@ -21345,6 +21392,7 @@ function pageAventureIdleV28_(j){
        * écoulée : sinon il recouvrirait le Cube et le second tap tomberait dessus.
        */
       let idleCubeDernierTapMsV1=0;
+      let idleCubeIgnorerClicJusquaV1=0;
       let idleCubeDetailsTimerV1=0;
       function absorberTousBoostsCubeAdventureIdleV1_(){
         const envoyer=window.__actionMetaV47__;
@@ -21363,24 +21411,19 @@ function pageAventureIdleV28_(j){
             afficherDetailsCubeInfiniAdventureIdleV220_();
             return;
           }
-          /* Sans l'achat « Double tap », un appui sur le Cube ouvre simplement ses détails. */
-          if(!gestesAchetesIdleV1_().double){
-            afficherDetailsCubeInfiniAdventureIdleV220_();
-            return;
-          }
+          /*
+           * Téléphone (Norman, 2026-10-09 : le Cube de l'infini nécessite un appui long pour ouvrir son popup ; c'est le seul item qui fonctionnait différemment) : comme les autres objets, un appui simple n'ouvre plus
+           * rien ; le popup s'ouvre au maintien (voir l'écouteur « soreal-longpress ») et le double tap absorbe tous les boosts (avec l'achat correspondant).
+           */
+          if(Date.now()<idleCubeIgnorerClicJusquaV1)return;
+          if(!gestesAchetesIdleV1_().double)return;
           const maintenant=Date.now();
           if(maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
             idleCubeDernierTapMsV1=0;
-            clearTimeout(idleCubeDetailsTimerV1);
             absorberTousBoostsCubeAdventureIdleV1_();
             return;
           }
           idleCubeDernierTapMsV1=maintenant;
-          clearTimeout(idleCubeDetailsTimerV1);
-          idleCubeDetailsTimerV1=setTimeout(function(){
-            idleCubeDernierTapMsV1=0;
-            afficherDetailsCubeInfiniAdventureIdleV220_();
-          },IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30);
           return;
         }
         const id=idleAdventureSelectionIdV138;
@@ -22062,8 +22105,7 @@ function pageAventureIdleV28_(j){
         return '<div class="soreal-idle-v138-bag-indice-v1">'+
           '💡 Touchez un objet du sac pour voir ses détails et l’équiper, ou glissez-le sur un emplacement (clic droit sur PC : équiper ou fusionner). '+
           'Maintenez la touche A et cliquez sur une pièce pour lui appliquer vos boosts.'+
-          (g.double?' Double tap sur un objet : il absorbe tous les boosts du sac.':'')+
-          (g.triple?' Triple tap : il fusionne automatiquement avec les pièces identiques.':'')+
+          ((g.double||g.triple)?' Double tap sur un objet : '+(g.triple?'il fusionne avec toutes les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe tous les boosts du sac':'')+'. Appui long sur le Cube de l’infini pour ouvrir ses détails.':'')+
           ((g.double||g.triple)?' Sur PC, clic droit sur un objet du sac ou équipé : '+(g.triple?'il fusionne avec les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe les boosts du sac':'')+'.':'')+
         '</div>';
       }
@@ -22413,7 +22455,7 @@ function pageAventureIdleV28_(j){
           ' · Endurance '+formatGrandNombreIdleV70_(cube.toughness||0)
         );
 
-        return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-cube" data-idle-cube-drop-v180 '+
+        return '<div class="soreal-idle-v138-slot soreal-idle-v138-slot-cube" data-idle-cube-drop-v180 data-soreal-longpress="idle-cube" '+
           'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurCubeAdventureIdleV138__(event)" '+

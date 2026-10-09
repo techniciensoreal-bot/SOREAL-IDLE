@@ -33,13 +33,11 @@ const clic = fabrique(
   () => {}, () => details.push(maintenant), 420, "", () => {}, () => {}, () => null, null, () => ({ double: true, triple: false })
 );
 
-// Un seul tap tactile : rien d'absorbé, détails ouverts seulement après la fenêtre de double tap.
+// Un seul tap tactile : plus de popup (appui long requis, 2026-10-09) ; rien n'est absorbé.
 clic({ pointerType: "touch" });
 assert.equal(envoyes.length, 0, "un tap simple n'absorbe rien");
-assert.equal(details.length, 0, "détails pas encore ouverts (sinon le popup recouvrirait le Cube)");
-assert.equal(timers.filter((t) => t.actif).length, 1);
-timers.filter((t) => t.actif).forEach((t) => t.fn());
-assert.equal(details.length, 1, "détails ouverts après la fenêtre");
+assert.equal(details.length, 0, "le popup du Cube ne s'ouvre plus à l'appui simple : appui long (comme les autres objets)");
+assert.equal(timers.filter((t) => t.actif).length, 0, "plus de minuteur différé de popup");
 
 // Double tap rapide : absorbe tous les boosts, ne montre pas les détails.
 maintenant = 5000;
@@ -47,8 +45,7 @@ clic({ pointerType: "touch" });
 maintenant = 5200;
 clic({ pointerType: "touch" });
 assert.deepEqual(envoyes, [{ action: "inventoryAuto", mode: "boostAll", targetId: "cube" }]);
-timers.filter((t) => t.actif).forEach((t) => t.fn());
-assert.equal(details.length, 1, "le double tap n'ouvre pas les détails");
+assert.equal(details.length, 0, "le double tap n'ouvre pas les détails");
 
 // Deux taps trop espacés : ce ne sont pas un double tap.
 maintenant = 9000;
@@ -56,6 +53,10 @@ clic({ pointerType: "pen" });
 maintenant = 9600;
 clic({ pointerType: "pen" });
 assert.equal(envoyes.length, 1, "taps espacés de plus de 420 ms : aucune absorption");
+
+// Le popup s'ouvre au maintien (écouteur soreal-longpress) et le slot porte la cible de maintien.
+assert.ok(ui.includes('data-idle-cube-drop-v180 data-soreal-longpress="idle-cube"'), "le Cube est une cible d'appui long");
+assert.ok(/cubeLong[\s\S]{0,260}afficherDetailsCubeInfiniAdventureIdleV220_\(\)/.test(ui), "l'appui long ouvre le popup du Cube");
 
 // Souris : comportement inchangé (détails tout de suite, jamais d'absorption).
 const avant = details.length;

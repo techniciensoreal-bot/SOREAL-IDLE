@@ -35,8 +35,9 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 assert.ok(meta.includes("const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];"));
 assert.ok(meta.includes("IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1).map(parId)"), "dans le rayon Aventure");
 assert.equal(meta.split("IDLE_EXP_GESTES_V1.indexOf(it.id)===-1").length - 1, 3, "exclues du rayon « Slots & options » (page, liste des rayons, points rouges)");
-assert.ok(meta.includes("doubleTap:'👆 Double tap',tripleTap:'👆 Triple tap'") && meta.includes("doubleTap:'adventure',tripleTap:'adventure'"), "noms, et visibles seulement avec l'Aventure (anti-spoil)");
-assert.ok(/doubleTap:'Appuie deux fois vite sur un objet[^']*absorbe tous les boosts/.test(meta) && /tripleTap:'Appuie trois fois vite[^']*fusionne automatiquement/.test(meta), "explications courtes");
+// 2026-10-09 : un seul geste tactile, le double tap ; les deux achats gardent leurs identifiants, seuls les intitulés changent.
+assert.ok(meta.includes("doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion'") && meta.includes("doubleTap:'adventure',tripleTap:'adventure'"), "noms, et visibles seulement avec l'Aventure (anti-spoil)");
+assert.ok(/doubleTap:'Appuie deux fois vite sur un objet[^']*absorbe tous les boosts/.test(meta) && /tripleTap:'Appuie deux fois vite sur un objet[^']*fusionne automatiquement/.test(meta) && !/tripleTap:'Appuie trois fois/.test(meta), "explications courtes, plus de triple appui");
 
 // 3. Client : sans achat chaque appui reste simple ; le double tap absorbe les boosts (équipé ou non), le triple tap fusionne ; le double tap attend le 3e appui si le triple tap est acheté.
 const debut = ui.indexOf("      function gestesAchetesIdleV1_(){");
@@ -63,8 +64,8 @@ assert.deepEqual(avecEtat(null).gestes(), { double: false, triple: false }, "jam
 // Comptage des appuis rapides : même objet, moins de 420 ms entre deux ; la souris ne compte jamais.
 {
   const c = avecEtat(etat).compter;
-  assert.equal(c("a", "touch"), 1); maintenant += 200; assert.equal(c("a", "touch"), 2); maintenant += 200; assert.equal(c("a", "touch"), 3);
-  maintenant += 100; assert.equal(c("a", "touch"), 1, "après 3 appuis le compteur repart");
+  assert.equal(c("a", "touch"), 1); maintenant += 200; assert.equal(c("a", "touch"), 2);
+  maintenant += 100; assert.equal(c("a", "touch"), 1, "après le double tap le compteur repart (pas de triple appui)");
   maintenant += 500; assert.equal(c("a", "touch"), 1, "trop lent : un nouvel appui simple");
   maintenant += 100; assert.equal(c("b", "touch"), 1, "autre objet : repart de 1");
   assert.equal(c("b", "mouse"), 1); assert.equal(c("b", "mouse"), 1, "la souris ne fait jamais de double tap");
@@ -85,10 +86,10 @@ assert.deepEqual(avecEtat(null).gestes(), { double: false, triple: false }, "jam
 }
 
 // 4. Aiguillage dans le geste : plus de double tap de base, double tap -> boosts, triple tap -> fusion, double tap différé si le triple tap est acheté.
-assert.ok(ui.includes("const nTaps=compterTapsObjetIdleV1_(id,pointerType);") && ui.includes("if(nTaps>=3&&gestes.triple){") && ui.includes("fusionnerAutoObjetIdleV1_(id);"));
-assert.ok(ui.includes("if(nTaps===2&&gestes.double){") && ui.includes("setTimeout(function(){boosterObjetEquipeAdventureIdleV1_(id);},IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30)"), "double tap différé quand le triple tap existe");
+assert.ok(ui.includes("const nTaps=compterTapsObjetIdleV1_(id,pointerType);") && !ui.includes("if(nTaps>=3&&gestes.triple){"), "plus de triple appui");
+assert.ok(ui.includes("if(nTaps===2&&(gestes.double||gestes.triple)){") && ui.includes("if(clicDroitGestesAchetesIdleV1_(id))return;"), "le double tap suit exactement la règle du clic droit : fusion tant que possible, sinon boosts");
 assert.ok(!ui.includes("actionRapideObjetAdventureIdleV209_(id)\n          ){\n            return;"), "l'ancien double tap équiper/fusionner de base est retiré");
-assert.ok(ui.includes("if(!gestesAchetesIdleV1_().double){\n            afficherDetailsCubeInfiniAdventureIdleV220_();"), "le Cube : détails seuls sans l'achat");
+assert.ok(ui.includes("if(!gestesAchetesIdleV1_().double)return;") && ui.includes('data-soreal-longpress="idle-cube"'), "le Cube : plus de popup à l'appui simple, appui long");
 // Le clic droit de la souris (action rapide) et « A + clic » restent.
 assert.ok(ui.includes("actionRapideObjetAdventureIdleV209_(") && ui.includes("Clic droit de la souris (PC) sur un objet du sac : action rapide équiper / fusionner"));
 console.log("idle-gestes-double-triple-tap-v1: OK");

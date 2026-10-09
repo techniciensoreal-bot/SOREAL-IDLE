@@ -27,8 +27,8 @@ const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
   assert.match(bloc, /a&&a\.lastCombatZone/, "doit retomber sur lastCombatZone comme safeZoneVisualZone_");
   assert.ok(!/Double-tapez un objet du sac pour l’équiper/.test(bloc), "plus de double-tap de base (2026-10-04) : il s'achète dans la boutique EXP");
   assert.match(bloc, /glissez-le sur un emplacement|clic droit sur PC/i, "explique les gestes de base : toucher, glisser, clic droit");
-  assert.match(bloc, /g\.double\?'[^']*Double tap/i, "le Double tap n'est rappelé que si on l'a acheté");
-  assert.match(bloc, /g\.triple\?'[^']*Triple tap/i, "le Triple tap n'est rappelé que si on l'a acheté");
+  assert.match(bloc, /\(g\.double\|\|g\.triple\)\?' Double tap/i, "le Double tap n'est rappelé que si on l'a acheté (2026-10-09 : un seul geste, fusion puis boosts)");
+  assert.ok(!/Triple tap :/.test(bloc), "plus de triple appui");
   assert.match(bloc, /touche A/i, "doit expliquer la vraie mécanique de boost (touche A), jamais une touche « 1 »");
   assert.ok(!/touche\s*«?\s*1\s*»?/i.test(bloc), "ne doit jamais mentionner une touche « 1 » (mécanique inexistante)");
   assert.ok(!bloc.includes("boosts \"1\""), "ne doit jamais reprendre littéralement la formulation erronée de Norman");
@@ -58,9 +58,12 @@ assert.ok(css.includes(".soreal-idle-v138-bag-indice-v1{"), "style de l'indice m
   // Gestes achetés : rappelés seulement si achetés.
   assert.ok(!/Double tap|Triple tap/.test(fn({ selectedZone: "tutorial" })), "sans achat : aucun rappel de geste");
   gestes = { double: true, triple: false };
-  assert.ok(/Double tap sur un objet/.test(fn({ selectedZone: "tutorial" })) && !/Triple tap/.test(fn({ selectedZone: "tutorial" })));
+  assert.ok(/Double tap sur un objet : il absorbe tous les boosts/.test(fn({ selectedZone: "tutorial" })) && !/Triple tap/.test(fn({ selectedZone: "tutorial" })));
+  gestes = { double: false, triple: true };
+  assert.ok(/Double tap sur un objet : il fusionne/.test(fn({ selectedZone: "tutorial" })) && !/boosts du sac\./.test(fn({ selectedZone: "tutorial" }).split("Appui long")[0].split("Double tap sur un objet")[1] || ""));
   gestes = { double: true, triple: true };
-  assert.ok(/Triple tap/.test(fn({ selectedZone: "tutorial" })));
+  assert.ok(/Double tap sur un objet : il fusionne avec toutes les pièces identiques, puis, quand il n’y en a plus, il absorbe tous les boosts du sac/.test(fn({ selectedZone: "tutorial" })) && !/Triple tap/.test(fn({ selectedZone: "tutorial" })), "un seul geste : fusion puis boosts");
+  assert.ok(/Appui long sur le Cube/.test(fn({ selectedZone: "tutorial" })), "le popup du Cube s'ouvre à l'appui long");
 }
 
 console.log("idle-inventaire-indice-zone-tutoriel-v1: OK");

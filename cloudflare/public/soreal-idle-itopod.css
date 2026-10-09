@@ -921,3 +921,38 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (min-width:1100px) and (hover:hover){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35:not(#_):not(#_){max-width:600px!important;margin-left:auto!important;margin-right:auto!important}
 }
+
+/* Code couleur des unités des grands nombres (Norman, 2026-10-09 : « chaque combinaison de lettres a sa couleur ; Spd en vert, Qa en bleu »). Une couleur par unité, générée une fois (voir modules/nombres-couleur-v1.js, attribut data-suf) : teintes réparties sur tout le cercle, deux unités consécutives toujours très différentes. Un espace fin sépare toujours les chiffres de la lettre. */
+html body .nb-suf{margin-left:.2em}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="K"]{color:#f73b3b}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="M"]{color:#edf976}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="B"]{color:#b1fcbe}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="T"]{color:#3bc4f7}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Qa"]{color:#768ef9}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Qi"]{color:#fcb1da}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Sx"]{color:#f9be76}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Sp"]{color:#ccfcb1}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Oc"]{color:#3bf7c4}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="No"]{color:#a676f9}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Dc"]{color:#f5b1fc}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Ud"]{color:#f97676}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Dd"]{color:#f5fcb1}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Td"]{color:#3bf75d}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Qad"]{color:#76d5f9}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Qid"]{color:#ccb1fc}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Sxd"]{color:#f73ba2}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Spd"]{color:#76f98e}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Ocd"]{color:#7ff73b}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Nod"]{color:#76f9d5}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Vg"]{color:#b1befc}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Uvg"]{color:#e63bf7}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Dvg"]{color:#fcb1b1}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Tvg"]{color:#e6f73b}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Qavg"]{color:#fcdab1}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Qivg"]{color:#b1e7fc}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Sxvg"]{color:#7f3bf7}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Spvg"]{color:#f976be}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Ocvg"]{color:#f7a23b}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Novg"]{color:#a6f976}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="Tg"]{color:#b1fce7}
+html body.soreal-idle-active-v47 .nb-suf[data-suf="e"]{color:#ff8ae6}

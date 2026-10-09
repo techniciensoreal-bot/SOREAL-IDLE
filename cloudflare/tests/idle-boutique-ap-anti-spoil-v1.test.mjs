@@ -64,3 +64,8 @@ assert.ok(sang.includes('sorealIdleBloodCountV1_'), 'compteur de rituels mis à 
 assert.ok(ui.includes("5000000*Math.max(1,cibleNiv)") && ui.includes("Barre pleine : il manque '+formatGrandNombreIdleV70_(manqueOr)+' Or pour le niveau suivant."), 'Time Machine : Or débité en direct, attente d\'Or dite');
 /* Barre de vie du boss = barre du joueur : styles copiés depuis le bandeau (variables --pv-*), reflet compris */
 assert.ok(ui.includes('copierStylePvV1_') && ui.includes("'--pv-h':hauteur+'px'") && itopod.includes('height:var(--pv-h,32px)!important') && itopod.includes('left:var(--pv-reflet-g,7px)'), 'barre du boss copie hauteur, police et reflet de celle du joueur');
+/* Boucles parfaites des barres : toutes les couches des braises ont la même tuile ; les runes ne reculent plus (fondu d'entrée, dérive, fondu de sortie) ; aurore = une période */
+const themes2 = fs.readFileSync('cloudflare/public/soreal-idle-themes.css', 'utf8');
+assert.ok(themes2.includes('::before{background-size:83px 60px;background-repeat:repeat-x}') && themes2.includes('::after{background-size:71px 60px;background-repeat:repeat-x}'), 'braises : même tuile pour toutes les couches');
+assert.ok(themes2.includes('@keyframes sorealHudRune{0%{opacity:0;transform:translate(0,2px) scale(.8)}20%{opacity:.95;') && themes2.includes('100%{opacity:0;transform:translate(16px,2px) scale(.8)}'), 'runes : fondu d\'entrée, dérive dans un seul sens, fondu de sortie');
+assert.ok(themes2.includes('@keyframes sorealHudAurore{from{background-position:100% 0}to{background-position:25% 0}}'), 'aurore : un glissement égal à une période');
