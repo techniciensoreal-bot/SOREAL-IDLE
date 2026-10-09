@@ -5,16 +5,16 @@
  * Un seul gabarit pour les menus qui n'en avaient pas ou qui le dessinaient à leur façon : le champ Input est partagé (même valeur dans tous les menus), « Plafond » prend une part du maximum de la
  * ressource, « IDLE » une part de ce qui est libre, « Tout retirer » rend ce que CE menu a reçu. Les données viennent du jeu (j.energie, j.energieMax, j.systemes.resources) : rien d'inventé.
  *
- *   window.__SOREAL_IDLE_ALLOC_V1__ = { cadres(res,systeme), entree(id), preset(res,source,fraction), vider(res,systeme), ajuster(systeme,res,mode), ajusterVoeu(slot,res,mode,courant,libre) }
+ *   window.__SOREAL_IDLE_ALLOC_V1__ = { compteur(res,systeme), total(j,res,systeme), cadres(res,systeme), entree(id), preset(res,source,fraction), vider(res,systeme), ajuster(systeme,res,mode), ajusterVoeu(slot,res,mode,courant,libre) }
  */
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_ALLOC_V1__)return;
 
   var TITRES={
-    energy:{cap:'⚡ Plafond d’énergie',nom:'énergie'},
-    magic:{cap:'🔮 Plafond de magie',nom:'magie'},
-    r3:{cap:'🧪 Plafond de 3e ressource',nom:'3e ressource'}
+    energy:{cap:'⚡ Plafond d’énergie',nom:'énergie',place:'⚡ Énergie placée'},
+    magic:{cap:'🔮 Plafond de magie',nom:'magie',place:'🔮 Magie placée'},
+    r3:{cap:'🧪 Plafond de 3e ressource',nom:'3e ressource',place:'🧪 3e ressource placée'}
   };
   /* Les champs Input des différents menus (chacun garde le sien) : ils reçoivent tous la même valeur. */
   var CHAMPS=['sorealIdleAugInputV1','sorealIdleTrainingInputV120','sorealIdleBloodInputV1','sorealIdleTmInputV1','sorealIdleGenInputV1'];
@@ -72,7 +72,58 @@
     action_({action:'allocate',system:systeme,resource:res,value:0});
   }
 
-  /* Les deux cadres du haut d'un menu (une ressource) : Plafond MAX 1/2 1/4, puis IDLE 1/2 1/4 TOUT RETIRER. */
+  /*
+   * Total placé dans CE menu pour une ressource (Norman, 2026-10-09) : lu dans l'état du jeu, jamais calculé à part. Basic Training garde son propre compteur, les souhaits sont répartis par emplacement,
+   * les autres menus portent leur allocation dans systemes.systems[].state.allocation.
+   */
+  function total_(j,res,systeme){
+    if(!j)return 0;
+    if(systeme==='basicTraining')return res==='energy'?entier_(j.basicTraining&&j.basicTraining.energy&&j.basicTraining.energy.allocated):0;
+    var sy=j.systemes||{};
+    if(systeme==='wishes'){
+      var slots=sy.wishSlots&&Array.isArray(sy.wishSlots.slots)?sy.wishSlots.slots:[];
+      return slots.reduce(function(a,sl){return a+entier_(sl&&sl.allocation&&sl.allocation[res]);},0);
+    }
+    var liste=Array.isArray(sy.systems)?sy.systems:[];
+    var s=liste.filter(function(x){return x&&x.id===systeme;})[0];
+    return entier_(s&&s.state&&s.state.allocation&&s.state.allocation[res]);
+  }
+
+  /* Cadre « total placé » : même cadre que les autres de la barre d'outils (donc aux couleurs du thème de chaque page), la teinte du menu (--nav-color) en repli. */
+  function compteur(res,systeme){
+    var t=TITRES[res]||TITRES.energy;
+    var j=etat_();
+    var n=total_(j,res,systeme);
+    var info=ressource_(j,res);
+    var h=H_();
+    var texte=h&&h.formatGrandNombreIdleV70_?h.formatGrandNombreIdleV70_(n):String(n);
+    var pct=info.cap>0?Math.min(100,Math.round(n/info.cap*1000)/10):0;
+    return '<div class="soreal-idle-bt-presets-v120 soreal-idle-bt-total-v1" data-alloc-total-v1="'+res+'" data-alloc-sys-v1="'+html_(systeme)+'" title="Total placé dans ce menu">'+
+      '<span>'+t.place+'</span><b>'+texte+'</b><small>'+String(pct).replace('.',',')+' % du plafond</small></div>';
+  }
+
+  /* Les cadres déjà affichés suivent l'état du jeu sans redessiner la page (placer ou retirer de l'énergie ne refait pas toute la barre d'outils). */
+  function majTotaux_(){
+    if(typeof document.querySelectorAll!=='function')return;
+    var cadres=document.querySelectorAll('[data-alloc-total-v1]');
+    if(!cadres.length)return;
+    var j=etat_(),h=H_();
+    if(!j)return;
+    Array.prototype.forEach.call(cadres,function(el){
+      var res=el.getAttribute('data-alloc-total-v1'),sys=el.getAttribute('data-alloc-sys-v1');
+      var n=total_(j,res,sys),info=ressource_(j,res);
+      var texte=h&&h.formatGrandNombreIdleV70_?h.formatGrandNombreIdleV70_(n):String(n);
+      var pct=info.cap>0?Math.min(100,Math.round(n/info.cap*1000)/10):0;
+      var b=el.querySelector('b'),sm=el.querySelector('small');
+      if(b&&b.textContent!==texte)b.textContent=texte;
+      var t2=String(pct).replace('.',',')+' % du plafond';
+      if(sm&&sm.textContent!==t2)sm.textContent=t2;
+    });
+  }
+  var horlogeTotaux_=setInterval(majTotaux_,600);
+  if(horlogeTotaux_&&typeof horlogeTotaux_.unref==='function')horlogeTotaux_.unref();
+
+  /* Les deux cadres du haut d'un menu (une ressource) : Plafond MAX 1/2 1/4, puis IDLE 1/2 1/4 TOUT RETIRER, puis le total placé. */
   function cadres(res,systeme){
     var t=TITRES[res]||TITRES.energy;
     var A='window.__SOREAL_IDLE_ALLOC_V1__';
@@ -84,7 +135,8 @@
       '<div class="soreal-idle-bt-presets-v120" data-alloc-cadre-v1="idle-'+res+'"><span>💤 Idle</span>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'idle\',.5)">1/2</button>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'idle\',.25)">1/4</button>'+
-        '<button type="button" class="clear" onclick="'+A+'.vider('+r+','+s+')">Tout retirer</button></div>';
+        '<button type="button" class="clear" onclick="'+A+'.vider('+r+','+s+')">Tout retirer</button></div>'+
+      compteur(res,systeme);
   }
 
   /* Champ Input des menus génériques (Barbes, Hacks…) : même valeur partagée que partout. */
@@ -117,5 +169,5 @@
     action_({action:'allocateWishSlot',slot:slot,resource:res,value:valeur});
   }
 
-  window.__SOREAL_IDLE_ALLOC_V1__={cadres:cadres,entree:entree,preset:preset,vider:vider,ajuster:ajuster,ajusterVoeu:ajusterVoeu,titres:TITRES};
+  window.__SOREAL_IDLE_ALLOC_V1__={compteur:compteur,total:total_,cadres:cadres,entree:entree,preset:preset,vider:vider,ajuster:ajuster,ajusterVoeu:ajusterVoeu,titres:TITRES};
 })();

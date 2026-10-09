@@ -6289,3 +6289,15 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-manne
 @keyframes soreal-idle-titan-brille-v1{0%,100%{box-shadow:0 0 0 0 rgba(255,196,64,0),0 0 6px 1px rgba(255,196,64,.35)}50%{box-shadow:0 0 0 3px rgba(255,196,64,.28),0 0 18px 5px rgba(255,196,64,.75)}}
 .soreal-idle-titan-brille-v1{border-color:#ffc440!important;animation:soreal-idle-titan-brille-v1 1.8s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.soreal-idle-titan-brille-v1{animation:none;box-shadow:0 0 12px 3px rgba(255,196,64,.7)}}
+
+/* Cadre « total placé » des barres d'outils d'allocation (Norman, 2026-10-09) : prend le cadre de la page (classe soreal-idle-bt-presets-v120, donc le thème de chaque menu) ; la teinte du menu en repli. */
+.soreal-idle-bt-total-v1{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:8px 14px;min-width:132px;border-radius:12px;border:1px solid color-mix(in srgb,var(--nav-color,#7a6cff) 70%,transparent);background:color-mix(in srgb,var(--nav-color,#7a6cff) 20%,rgba(8,5,20,.72));box-shadow:inset 0 0 14px color-mix(in srgb,var(--nav-color,#7a6cff) 22%,transparent)}
+.soreal-idle-bt-total-v1 span{font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;opacity:.92}
+.soreal-idle-bt-total-v1 b{font-size:24px;font-weight:1000;line-height:1;color:#fff;text-shadow:0 0 8px color-mix(in srgb,var(--nav-color,#7a6cff) 80%,transparent),0 1px 2px #000}
+.soreal-idle-bt-total-v1 small{font-size:11px;font-weight:800;opacity:.75}
+.nl-totaux{display:flex;gap:6px;flex-wrap:wrap}
+/* Barre d'outils avec cadres « total placé » : tout sur la même ligne tant qu'il y a la place (Input, Plafond, Idle, totaux), sinon retour à la ligne. */
+.soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1){display:flex;flex-wrap:wrap;align-items:stretch}
+.soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1)>.soreal-idle-bt-info-v1{flex:1 1 150px}
+.soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1)>.soreal-idle-bt-input-box-v120{flex:0 1 170px}
+.soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1)>.soreal-idle-bt-total-v1{flex:0 0 auto;align-self:stretch}

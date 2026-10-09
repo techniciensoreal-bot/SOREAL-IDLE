@@ -190,6 +190,14 @@ var CSS=
   '.nl-resume-grille div{display:flex;justify-content:space-between;gap:6px;padding:5px 9px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.35);border-radius:8px}'+
   '@media(max-width:700px){.nl-v1{padding:12px 8px 16px;border-radius:16px}.nl-entete .nl-titre{font-size:40px}.nl-grille{padding-left:22px;gap:14px}.nl-nom{font-size:13px}.nl-barre::before{left:-20px;width:22px;top:60px}}';
 
+/* Totaux placés dans les NGU (Norman, 2026-10-09) : un cadre pour l'énergie, un second pour la magie quand elle est débloquée. */
+function totauxHtml_(j){
+  var AL=window.__SOREAL_IDLE_ALLOC_V1__;
+  if(!AL||typeof AL.compteur!=='function')return '';
+  var ng=ngus_(j);
+  return '<div class="nl-ligne nl-totaux">'+AL.compteur('energy','ngu')+(ng&&ng.magicUnlocked?AL.compteur('magic','ngu'):'')+'</div>';
+}
+
 function barreOutilsHtml_(j){
   var el=document.getElementById('sorealIdleAugInputV1');
   var valeur=el&&el.value?el.value:String(typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125);
@@ -202,6 +210,7 @@ function barreOutilsHtml_(j){
     '<div class="nl-ligne">'+
       '<span>💤 Idle</span><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.25)">1/4</button>'+
       '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout retirer</button></div>'+
+    totauxHtml_(j)+
   '</div>';
 }
 

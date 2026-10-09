@@ -16486,6 +16486,7 @@
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.25)">1/4</button>
               <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
             </div>
+            ${window.__SOREAL_IDLE_ALLOC_V1__&&window.__SOREAL_IDLE_ALLOC_V1__.compteur?window.__SOREAL_IDLE_ALLOC_V1__.compteur('energy','basicTraining'):''}
           </div>
 
           ${groupeBasicTrainingIdleV120_(

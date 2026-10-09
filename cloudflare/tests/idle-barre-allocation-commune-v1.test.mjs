@@ -58,4 +58,16 @@ m2.vider("magic", "wishes"); assert.equal(envois.length, 2, "Tout retirer rend c
 envois.length = 0;
 m2.ajusterVoeu(1, "energy", "max", 10, 90);  assert.deepEqual(envois.pop(), { action: "allocateWishSlot", slot: 1, resource: "energy", value: 90 });
 m2.ajusterVoeu(1, "energy", "plus", 10, 90); assert.deepEqual(envois.pop(), { action: "allocateWishSlot", slot: 1, resource: "energy", value: 135 > 90 ? 90 : 135 });
+// Cadres « total placé » (Norman, 2026-10-09) : un cadre par ressource que le menu accepte, aux couleurs du cadre de la page.
+const jt = { basicTraining: { energy: { allocated: 777 } }, energieMax: 1000, energie: 0, systemes: { systems: [{ id: "ngu", state: { allocation: { energy: 40, magic: 5 } } }], wishSlots: { slots: [{ allocation: { energy: 3, magic: 2 } }, { allocation: { energy: 4 } }] }, resources: { magic: { cap: 100, current: 0 } } } };
+assert.equal(m.total(jt, "energy", "basicTraining"), 777);
+assert.equal(m.total(jt, "magic", "basicTraining"), 0);
+assert.equal(m.total(jt, "energy", "ngu"), 40);
+assert.equal(m.total(jt, "magic", "ngu"), 5);
+assert.equal(m.total(jt, "energy", "wishes"), 7);
+assert.equal(m.total(jt, "r3", "ngu"), 0);
+assert.ok(c.includes("soreal-idle-bt-total-v1") && c.includes("Énergie placée"), "cadres() ajoute le total placé");
+assert.ok(mod.includes("compteur('energy','basicTraining')") === false && ui.includes("compteur('energy','basicTraining')"), "Basic Training");
+assert.ok(meta.includes("compteur('energy','augmentations')") && meta.includes("compteur('energy','advancedTraining')"), "Augmentations et Advanced Training");
+assert.ok(sang.includes("compteur('magic','bloodMagic')") && ngu.includes("compteur('energy','ngu')") && ngu.includes("compteur('magic','ngu')"), "Blood Magic et NGU");
 console.log("idle-barre-allocation-commune-v1: OK");
