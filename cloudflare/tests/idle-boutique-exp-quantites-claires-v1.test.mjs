@@ -7,8 +7,8 @@ import { readFileSync } from "node:fs";
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 
 // Lignes de prix : « +gain Nom ➜ coût », avec le nom de la statistique.
-assert.ok(meta.includes("'<u>'+l.nom+'</u><s>➜</s><b>'+l.cout+' '+(unite||'EXP')+'</b>"), "ligne « +gain Nom ➜ coût »");
-assert.ok(meta.includes("idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat,stat)") && meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat)"));
+assert.ok(meta.includes("'<u>'+l.nom+'</u><s class=\"fl\" aria-hidden=\"true\"></s><b>'+l.cout+' '+(unite||'EXP')+'</b>"), "ligne « +gain Nom ➜ coût »");
+assert.ok(meta.includes("idleExpShopBoutonsLotIdleV1_(res.id,stat.id,achat,stat)") && meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat,"));
 
 // Saisie personnalisée : en unités de la statistique (saisie ÷ gain par achat).
 const debut = meta.indexOf("function idleExpAchatsDepuisSaisieIdleV1_");
@@ -33,4 +33,8 @@ assert.ok(!meta.includes("idleExpShopNewbieOffersIdleV1_(res.id,stat.id"), "plus
 assert.ok(meta.includes("visibles.some(function(o){return o.id===r;})") && meta.includes("achat.unlockBoss&&verrou&&verrou.unlocked===false"), "anti-spoil : ressource et achat connus");
 assert.equal(meta.split("idleExpTuileAchatIdleV1_(").length - 1, 3, "définition + lots de statistiques + articles");
 assert.ok(meta.includes('class="fond" src="/shop/') && meta.includes("idleExpFondStatIdleV1_(res,statDef)"), "image en fond du carré, prix par-dessus");
+// Quantité personnalisée détaillée : −, +, Max, récapitulatif (gain, avant · après, coût, reste), flèche dessinée en CSS.
+assert.ok(meta.includes("__idleExpShopAjusterLot__") && meta.includes('class="recap"') && meta.includes("Avant · après") && meta.includes("Il te restera") && meta.includes("Il te manque"));
+assert.ok(meta.includes(".soreal-idle-exp-custom-v210 .fl::after") && !meta.includes('<span class="soreal-idle-exp-prix-custom-v1">➜'), "plus de flèche emoji dans le panneau");
+assert.ok(meta.includes("idleExpShopLotPersonnaliseIdleV1_(res.id,stat.id,achat,stat,x[stat.id])"), "valeur actuelle passée au récapitulatif");
 console.log("idle-boutique-exp-quantites-claires-v1: OK");
