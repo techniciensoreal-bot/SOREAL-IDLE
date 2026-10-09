@@ -134,8 +134,8 @@
         const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
         const cible=nomBoss||'un boss';
         /* Variantes d'humour pour les AUTRES joueurs (la variante 0 reste la phrase simple) ; le nom du boss suit la même règle anti-spoil. */
-        const fuites=[nom+' a pris la fuite devant '+cible,nom+' a fui face à '+cible+', et on le comprend',nom+' a découvert que les jambes servent aussi à ça, face à '+cible,nom+' a battu en retraite devant '+cible+' (stratégique, évidemment)'];
-        const defaites=[nom+' a perdu contre '+cible,nom+' est mort contre '+cible+', paix à son âme',nom+' s’est fait écraser par '+cible,nom+' a pris une raclée par '+cible];
+        const fuites=[nom+' a pris la fuite devant '+cible,nom+' a fui face à '+cible+'… la honte !',nom+' a détalé devant '+cible+', les jambes à son cou',nom+' a battu en retraite devant '+cible+' (stratégique, bien sûr 😏)'];
+        const defaites=[nom+' a perdu contre '+cible,nom+' est mort contre '+cible+', une minute de silence… ou de fou rire',nom+' s’est fait écraser par '+cible+', aïe aïe aïe',nom+' a pris une raclée par '+cible+', mais il reviendra (peut-être)'];
         const variante=Math.abs(Number(it.id)||0);
         if(it.moi)return it.type==='fuite'?{icone:'🏃',texte:nom+' as pris la fuite devant '+cible}:{icone:'💀',texte:nom+' as perdu contre '+cible};
         return it.type==='fuite'
