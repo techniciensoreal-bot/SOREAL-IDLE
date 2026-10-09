@@ -2330,7 +2330,20 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const pairs=((sys&&sys.state&&sys.state.data)||{}).pairs||{};
         const gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0);
         const etatAug=j;
+        /* Base du multiplicateur d'Augments au moment de CETTE photo du serveur : sert à répercuter tout de suite un niveau gagné sur la vie max et l'attaque (voir appliquerAugmentsSurCombatIdleV1_). */
+        const sommeAugments=function(niv){
+          return defs.reduce(function(a,d){
+            const n=niv(d,false);
+            if(!(n>0))return a;
+            const u=niv(d,true);
+            return a+window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.baseMultiplier)*Math.pow(n,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.exponent)||1)*(1+u*u);
+          },0);
+        };
+        const baseAdditif=sommeAugments(function(d,up){const p=pairs[d.id]||{};return Math.max(0,Number(up?p.upgradeLevel:p.level)||0);});
+        const baseMult=Math.max(1,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier)||1);
   return {
+          base:{mult:baseMult,additif:baseAdditif},
+          appliedRatio:1,
           src:defs,
           at:ancreSnapshotIdleV1_(etatAug),
           defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,level:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).level),upgradeLevel:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).upgradeLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))

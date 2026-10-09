@@ -1773,6 +1773,38 @@
         energieDisponibleIdleV9_;
 
 
+      /*
+       * Un niveau d'Augment gagné agit tout de suite sur l'attaque, la défense et la VIE MAX (Norman, 2026-10-09 : « quand Augmentation prend un niveau, la barre de vie ne grandit pas instantanément »).
+       * Avant, le multiplicateur ne changeait qu'à la synchro suivante. On recalcule ici le multiplicateur d'Augments depuis les niveaux rejoués localement (même formule que le moteur : somme de
+       * base × niveau^exposant × (1 + niveau d'Upgrade²), l'effet des perks/NGU est déduit du multiplicateur du serveur) et on répercute le rapport sur les multiplicateurs de combat ; la synchro corrige.
+       */
+      function appliquerAugmentsSurCombatIdleV1_(visual,niveaux){
+        try{
+          const base=visual&&visual.base;
+          const cp=idleEtat&&idleEtat.combatPrincipal;
+          const defs=idleEtat&&idleEtat.systemes&&Array.isArray(idleEtat.systemes.augmentations)?idleEtat.systemes.augmentations:[];
+          if(!base||!cp||!defs.length)return;
+          let additif=0;
+          defs.forEach(function(d){
+            const n=niveaux[d.id+':main'];
+            if(!(n>0))return;
+            const u=niveaux[d.id+':upgrade']||0;
+            additif+=idleNombre_(d.baseMultiplier)*Math.pow(n,idleNombre_(d.exponent)||1)*(1+u*u);
+          });
+          const k=base.additif>0?(base.mult-1)/base.additif:1;
+          const multMaintenant=Math.max(1,1+additif*k);
+          const ratio=multMaintenant/base.mult;
+          const applique=visual.appliedRatio||1;
+          if(!isFinite(ratio)||ratio<=0||Math.abs(ratio-applique)<1e-12)return;
+          const atk=idleNombre_(cp.multiplicateurAttaqueTotal),def=idleNombre_(cp.multiplicateurDefenseTotal);
+          if(atk>0)cp.multiplicateurAttaqueTotal=atk*ratio/applique;
+          if(def>0)cp.multiplicateurDefenseTotal=def*ratio/applique;
+          visual.appliedRatio=ratio;
+          const texteMult=document.getElementById('sorealIdleAugMultV1');
+          if(texteMult)texteMult.textContent='x'+multMaintenant.toFixed(3);
+        }catch(e){}
+      }
+
       function idleHtml_(v){
         return escapeHtml(String(v==null?'':v));
       }
@@ -2963,6 +2995,7 @@
           synchroniserJeuIdleV7_(true);
         }
         const augVisual=idleEtat.__augmentationsVisualV215;
+        const niveauxAugmentsLocaux={};
         if(augVisual&&PAGE_ACTIVE==='idle'){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
           Object.keys(augVisual.defs||{}).forEach(function(id){
@@ -3017,6 +3050,7 @@
                 nivEl.__idleNivAfficheV1=nivAffiche;
               }
               ecrireSiChangeIdleV1_(nivEl,String(nivAffiche));
+              niveauxAugmentsLocaux[id+':'+x[0]]=nivAffiche;
               const coutEl=elementAugIdleV1_('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
               if(coutEl&&k>0)ecrireSiChangeIdleV1_(coutEl,formatGrandNombreIdleV70_(coutK(k))+' Or');
               /* La somme est verte quand on a l'Or, rouge sinon (Norman, 2026-10-08). */
@@ -3040,6 +3074,7 @@
               animerBarreCycliqueIdleV217_(el,secondes,secondes>0?Math.max(0,Math.min(.999999,reste/secondes)):idleNombre_(x[1]),true);
             });
           });
+          appliquerAugmentsSurCombatIdleV1_(augVisual,niveauxAugmentsLocaux);
         }
 
         /*
@@ -16692,7 +16727,7 @@
               },'collection');
             }
 
-            return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':'')+(rareteClasse?' '+rareteClasse:'')+'" '+
+            return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':(estEquipement?' nonmax':''))+(rareteClasse?' '+rareteClasse:'')+'" '+
               (estStatBearing?'data-popup-objet-v1="'+idleHtml_(clePopupCollection)+'" ':'')+
               'onclick="'+(estStatBearing?'window.__consulterObjetIdleV1__(\''+idleHtml_(clePopupCollection)+'\',this)':'window.__afficherDetailsCollectionIdleV1__(\''+idleHtml_(id)+'\')')+'">'+
               (maxAtteint?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 + statistiques boostées à 100 %">✔</div>':'')+

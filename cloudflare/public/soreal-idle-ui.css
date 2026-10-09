@@ -6301,3 +6301,8 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-manne
 .soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1)>.soreal-idle-bt-info-v1{flex:1 1 150px}
 .soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1)>.soreal-idle-bt-input-box-v120{flex:0 1 170px}
 .soreal-idle-bt-toolbar-v120:has(.soreal-idle-bt-total-v1)>.soreal-idle-bt-total-v1{flex:0 0 auto;align-self:stretch}
+
+/* Chroniques > Équipement (Norman, 2026-10-09) : une pièce au niveau 100 avec ses statistiques boostées à 100 % est en couleur, les autres sont grisées (toujours lisibles et cliquables). */
+.soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-icon-v1{filter:grayscale(1) brightness(.78);opacity:.82}
+.soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-name-v1{opacity:.75}
+.soreal-idle-collection-card-v1.nonmax:hover .soreal-idle-collection-card-icon-v1{filter:grayscale(.6) brightness(.9);opacity:1}
