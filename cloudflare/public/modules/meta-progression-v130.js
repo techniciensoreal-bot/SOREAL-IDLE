@@ -653,17 +653,11 @@
        */
       function idleExpTuileAchatIdleV1_(haut,coutTexte,coutNombre,onclick,fond){
         const abordable=idleExpExpDisponibleIdleV1_()>=coutNombre;
-        const f=fond||{};
-        const decor=(f.emoji?'<span class="emo" aria-hidden="true">'+f.emoji+'</span>':'')+(f.img?'<img class="fond" src="/shop/'+f.img+'.png" alt="" loading="eager" decoding="async" onerror="this.remove()">':'');
-        return '<div class="soreal-idle-exp-tuile-v1'+(abordable?'':' off')+'"><div class="carre">'+decor+'<span class="g">'+haut+'</span><span class="p">★ '+coutTexte+' EXP</span></div>'+
+        /* Plus d'image ni de pictogramme géant dans le carré (Norman, 2026-10-09 : « des images énormes, il ne faut pas ces images ») : seulement le gain et le prix. */
+        return '<div class="soreal-idle-exp-tuile-v1'+(abordable?'':' off')+'"><div class="carre"><span class="g">'+haut+'</span><span class="p">★ '+coutTexte+' EXP</span></div>'+
           '<button type="button" class="soreal-idle-exp-buy-v210" onclick="'+onclick+'">Acheter</button></div>';
       }
 
-      /* Illustrations existantes pour les statistiques de ressource : seules les Barres d'Énergie et de Magie en ont une ; les autres gardent leur pictogramme en grand. */
-      function idleExpFondStatIdleV1_(res,statDef){
-        const img=statDef&&statDef.id==='bars'?({energy:'energy-bar-bar',magic:'magic-bar-bar'}[res]||''):'';
-        return {emoji:statDef?statDef.icone:'',img:img};
-      }
       function idleExpShopBoutonsLotIdleV1_(res,stat,achat,statDef){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const tiers=(Array.isArray(achat.bulkTiers)&&achat.bulkTiers.length?achat.bulkTiers.slice():[1]);
@@ -673,7 +667,7 @@
         return '<div class="soreal-idle-exp-tuiles-v1">'+tiers.map(function(qty){
           const cout=H.idleEntier_((achat.cost||0)*qty);
           return idleExpTuileAchatIdleV1_('+'+H.formatGrandNombreIdleV70_((achat.gain||0)*qty,2),H.formatGrandNombreIdleV70_(cout,2),cout,
-            'window.__acheterRessourceMetaIdleV130__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+qty+')',idleExpFondStatIdleV1_(res,statDef));
+            'window.__acheterRessourceMetaIdleV130__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+qty+')');
         }).join('')+'</div>';
       }
 
@@ -976,8 +970,7 @@
         const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
         const boutons=tiers.map(function(q){
           const haut=(it.max===1&&q===1)?'Achat unique':(it.gain?'+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2):'×'+H.idleEntier_(q));
-          const emo=IDLE_EXP_EMOJI_DEBUT_V1.exec(String(IDLE_EXP_NOMS_V1[it.id]||it.name||''));
-          return idleExpTuileAchatIdleV1_(haut,H.formatGrandNombreIdleV70_(coutTotal(q),2),coutTotal(q),"window.__acheterExpShopIdleV1__('"+H.idleHtml_(it.id)+"',"+q+")",{emoji:emo?emo[1]:'✦',img:IDLE_EXP_PHOTOS_V1[it.id]||''});
+          return idleExpTuileAchatIdleV1_(haut,H.formatGrandNombreIdleV70_(coutTotal(q),2),coutTotal(q),"window.__acheterExpShopIdleV1__('"+H.idleHtml_(it.id)+"',"+q+")");
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
         const prixCarte='';
@@ -1104,9 +1097,7 @@
           `.soreal-idle-exp-buy-v210{min-height:0!important;padding:6px 14px!important;flex-direction:row!important;align-items:center;justify-content:center;gap:0!important;font-size:13px;font-weight:1000;letter-spacing:.03em;outline:none!important;border-radius:10px!important;text-align:center}`,
           `.soreal-idle-exp-buy-v210::before{display:none!important}`,
           `.soreal-idle-exp-tuiles-v1{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:2px 0 8px}.soreal-idle-exp-tuile-v1{display:flex;flex-direction:column;gap:6px}`,
-          `.soreal-idle-exp-tuile-v1 .carre{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;aspect-ratio:1/1;min-height:96px;padding:8px 6px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:linear-gradient(160deg,#3a2160,#140c20 75%);line-height:1.2}`,
-          `.soreal-idle-exp-tuile-v1 .carre::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(10,5,20,.18),rgba(10,5,20,.1) 40%,rgba(10,5,20,.72));pointer-events:none}`,
-          `.soreal-idle-exp-tuile-v1 .emo{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-size:58px;opacity:.5;line-height:1}.soreal-idle-exp-tuile-v1 .fond{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}`,
+          `.soreal-idle-exp-tuile-v1 .carre{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;aspect-ratio:1/1;min-height:84px;padding:8px 6px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:#140c20;line-height:1.2}`,
           `.soreal-idle-exp-tuile-v1 .g,.soreal-idle-exp-tuile-v1 .p{position:relative;z-index:1;text-shadow:0 0 3px #000,0 1px 2px #000,0 0 8px rgba(0,0,0,.9)}`,
           `.soreal-idle-exp-tuile-v1 .g{font-size:22px!important;font-weight:1000;color:#8ff0a6!important}.soreal-idle-exp-tuile-v1 .p{font-size:13px!important;font-weight:1000;color:#ffd45e!important}`,
           `.soreal-idle-exp-tuile-v1.off .carre{opacity:.5;filter:grayscale(.55)}.soreal-idle-exp-tuile-v1 .soreal-idle-exp-buy-v210{width:100%}`,
