@@ -23,8 +23,8 @@ assert.equal(fn("abc", 0.1), 1);
 assert.equal(fn("-4", 1), 1);
 assert.ok(!meta.includes("Quantité personnalisée ·"), "plus de libellé de traitement de texte");
 // Tuiles d'achat (« le B avec les couleurs du A ») : gain vert et prix or dans le bouton, grisée si l'EXP ne suffit pas.
-assert.ok(meta.includes("function idleExpTuileAchatIdleV1_(") && meta.includes("soreal-idle-exp-tuile-v1'+(abordable?'':' off')"));
-assert.ok(meta.includes(".soreal-idle-exp-tuile-v1 .g{font-size:22px!important;font-weight:1000;color:#8ff0a6!important}") && meta.includes("color:#ffd45e!important"), "couleurs de la maquette A");
+assert.ok(meta.includes("function idleExpTuileAchatIdleV1_(") && meta.includes("soreal-idle-exp-tuile-v1 rang'+rang+(abordable?'':' off')"));
+assert.ok(meta.includes(".soreal-idle-exp-tuile-v1 .g{position:relative;font-size:24px!important;font-weight:1000;color:#8ff0a6!important") && meta.includes("color:#ffd45e!important"), "gain vert et prix or");
 assert.ok(meta.includes('<div class="carre">') && meta.includes(">Acheter</button></div>'"), "carré avec le bouton Acheter dessous");
 assert.ok(meta.includes("[1,10,100].forEach(function(q){if(tiers.indexOf(q)===-1)tiers.push(q);})"), "paliers +0,1 / +1 / +10");
 // Offres débutant : tickets, dans le rayon Débuts, seulement pour les ressources et achats déjà débloqués.
@@ -32,7 +32,7 @@ assert.ok(meta.includes("soreal-idle-exp-ticket-v1") && meta.includes("idleExpSh
 assert.ok(!meta.includes("idleExpShopNewbieOffersIdleV1_(res.id,stat.id"), "plus d'offres dans chaque statistique");
 assert.ok(meta.includes("visibles.some(function(o){return o.id===r;})") && meta.includes("achat.unlockBoss&&verrou&&verrou.unlocked===false"), "anti-spoil : ressource et achat connus");
 assert.equal(meta.split("idleExpTuileAchatIdleV1_(").length - 1, 3, "définition + lots de statistiques + articles");
-assert.ok(!meta.includes('class="fond" src="/shop/') && !meta.includes('class="emo"') && !meta.includes(".soreal-idle-exp-tuile-v1 .emo{"), "pas d'image ni de pictogramme géant dans les carrés d'achat");
+assert.ok(!meta.includes('class="fond" src="/shop/') && !meta.includes(".soreal-idle-exp-tuile-v1 .emo{"), "pas d'image ni de pictogramme géant dans les carrés d'achat");
 // Quantité personnalisée détaillée : −, +, Max, récapitulatif (gain, avant · après, coût, reste), flèche dessinée en CSS.
 assert.ok(meta.includes("__idleExpShopAjusterLot__") && meta.includes('class="recap"') && meta.includes("Avant · après") && meta.includes("Il te restera") && meta.includes("Il te manque"));
 assert.ok(meta.includes(".soreal-idle-exp-custom-v210 .fl::after") && !meta.includes('<span class="soreal-idle-exp-prix-custom-v1">➜'), "plus de flèche emoji dans le panneau");

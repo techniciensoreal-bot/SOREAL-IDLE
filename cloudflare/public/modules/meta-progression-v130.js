@@ -651,10 +651,16 @@
        * Le carré a l'image de l'achat en fond (Norman, 2026-10-09 : « des carrés avec l'image en fond et les prix par-dessus ») : la vraie illustration quand elle existe (dossier /shop/), sinon le grand pictogramme de
        * l'achat ; le gain et le prix sont posés par-dessus, cernés pour rester lisibles.
        */
-      function idleExpTuileAchatIdleV1_(haut,coutTexte,coutNombre,onclick,fond){
+      /*
+       * Carré d'achat « jeu » (Norman, 2026-10-09 : « un truc plus joli », sans image géante) : un petit médaillon avec le pictogramme de l'achat, le gain en grand, une étiquette de prix en pièce d'or, et un
+       * cadre bronze, argent ou or selon le palier (rang 0, 1, 2). `opts` = { icone, rang }.
+       */
+      function idleExpTuileAchatIdleV1_(haut,coutTexte,coutNombre,onclick,opts){
         const abordable=idleExpExpDisponibleIdleV1_()>=coutNombre;
-        /* Plus d'image ni de pictogramme géant dans le carré (Norman, 2026-10-09 : « des images énormes, il ne faut pas ces images ») : seulement le gain et le prix. */
-        return '<div class="soreal-idle-exp-tuile-v1'+(abordable?'':' off')+'"><div class="carre"><span class="g">'+haut+'</span><span class="p">★ '+coutTexte+' EXP</span></div>'+
+        const o=opts||{};
+        const rang=Math.max(0,Math.min(2,Number(o.rang)||0));
+        const medaillon=o.icone?'<span class="med" aria-hidden="true">'+o.icone+'</span>':'';
+        return '<div class="soreal-idle-exp-tuile-v1 rang'+rang+(abordable?'':' off')+'"><div class="carre">'+medaillon+'<span class="g">'+haut+'</span><span class="p"><i aria-hidden="true">★</i>'+coutTexte+' <small>EXP</small></span></div>'+
           '<button type="button" class="soreal-idle-exp-buy-v210" onclick="'+onclick+'">Acheter</button></div>';
       }
 
@@ -664,10 +670,10 @@
         /* Norman (2026-10-09) : plusieurs carrés, +0,1 / +1 / +10 pour Vitesse : toujours les paliers ×1, ×10 et ×100 (le serveur accepte n'importe quelle quantité). */
         [1,10,100].forEach(function(q){if(tiers.indexOf(q)===-1)tiers.push(q);});
         tiers.sort(function(a,b){return a-b;});
-        return '<div class="soreal-idle-exp-tuiles-v1">'+tiers.map(function(qty){
+        return '<div class="soreal-idle-exp-tuiles-v1">'+tiers.map(function(qty,rang){
           const cout=H.idleEntier_((achat.cost||0)*qty);
           return idleExpTuileAchatIdleV1_('+'+H.formatGrandNombreIdleV70_((achat.gain||0)*qty,2),H.formatGrandNombreIdleV70_(cout,2),cout,
-            'window.__acheterRessourceMetaIdleV130__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+qty+')');
+            'window.__acheterRessourceMetaIdleV130__(\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\','+qty+')',{icone:statDef?statDef.icone:'',rang:rang});
         }).join('')+'</div>';
       }
 
@@ -705,7 +711,7 @@
             '<div class="l"><span class="k">Tu gagnes</span><b class="gv" data-r="gain">+'+H.formatGrandNombreIdleV70_(gain,2)+'</b><span class="nm">'+H.idleHtml_(nom)+'</span></div>'+
             '<div class="l"><span class="k">Avant · après</span><span class="av" data-r="avant">'+H.formatGrandNombreIdleV70_(actuel||0,2)+'</span><i class="fl" aria-hidden="true"></i><b class="ap" data-r="apres">'+H.formatGrandNombreIdleV70_((Number(actuel)||0)+gain,2)+'</b></div>'+
             '<div class="l"><span class="k">Coût</span><b class="cv">★ <span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</b></div>'+
-            '<div class="l"><span class="k" data-r="restek">Il te restera</span><b class="rs" data-r="reste"></b></div>'+
+            '<div class="l"><span class="k" data-r="restek">'+(idleExpExpDisponibleIdleV1_()>=coutUnitaire?'Il te restera':'Il te manque')+'</span><b class="rs" data-r="reste">★ '+H.formatGrandNombreIdleV70_(Math.abs(idleExpExpDisponibleIdleV1_()-coutUnitaire),2)+' EXP</b></div>'+
           '</div>'+
           '<button type="button" class="soreal-idle-exp-buy-v210 primary" onclick="window.__acheterRessourceLotPersonnaliseMetaIdleV130__('+args+')">Acheter</button>'+
         '</div>';
@@ -968,9 +974,10 @@
         /* Prix variable (espaces d'inventaire) : montants réellement payés, et bouton « tout » pour les places restantes. */
         if(restants&&restants.length>10)tiers=tiers.concat([restants.length]);
         const coutTotal=function(q){return restants?restants.slice(0,q).reduce(function(a,b){return a+b;},0):H.idleEntier_(it.nextCost)*q;};
-        const boutons=tiers.map(function(q){
+        const emoNom=IDLE_EXP_EMOJI_DEBUT_V1.exec(String(IDLE_EXP_NOMS_V1[it.id]||it.name||''));
+        const boutons=tiers.map(function(q,rang){
           const haut=(it.max===1&&q===1)?'Achat unique':(it.gain?'+'+H.formatGrandNombreIdleV70_((it.gain||0)*q,2):'×'+H.idleEntier_(q));
-          return idleExpTuileAchatIdleV1_(haut,H.formatGrandNombreIdleV70_(coutTotal(q),2),coutTotal(q),"window.__acheterExpShopIdleV1__('"+H.idleHtml_(it.id)+"',"+q+")");
+          return idleExpTuileAchatIdleV1_(haut,H.formatGrandNombreIdleV70_(coutTotal(q),2),coutTotal(q),"window.__acheterExpShopIdleV1__('"+H.idleHtml_(it.id)+"',"+q+")",{icone:emoNom?emoNom[1]:'',rang:rang});
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
         const prixCarte='';
@@ -1097,9 +1104,13 @@
           `.soreal-idle-exp-buy-v210{min-height:0!important;padding:6px 14px!important;flex-direction:row!important;align-items:center;justify-content:center;gap:0!important;font-size:13px;font-weight:1000;letter-spacing:.03em;outline:none!important;border-radius:10px!important;text-align:center}`,
           `.soreal-idle-exp-buy-v210::before{display:none!important}`,
           `.soreal-idle-exp-tuiles-v1{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin:2px 0 8px}.soreal-idle-exp-tuile-v1{display:flex;flex-direction:column;gap:6px}`,
-          `.soreal-idle-exp-tuile-v1 .carre{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;aspect-ratio:1/1;min-height:84px;padding:8px 6px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:#140c20;line-height:1.2}`,
-          `.soreal-idle-exp-tuile-v1 .g,.soreal-idle-exp-tuile-v1 .p{position:relative;z-index:1;text-shadow:0 0 3px #000,0 1px 2px #000,0 0 8px rgba(0,0,0,.9)}`,
-          `.soreal-idle-exp-tuile-v1 .g{font-size:22px!important;font-weight:1000;color:#8ff0a6!important}.soreal-idle-exp-tuile-v1 .p{font-size:13px!important;font-weight:1000;color:#ffd45e!important}`,
+          `.soreal-idle-exp-tuile-v1{--r1:#c98a52;--r2:#8a5a2b}.soreal-idle-exp-tuile-v1.rang1{--r1:#d4e2f3;--r2:#6f86a3}.soreal-idle-exp-tuile-v1.rang2{--r1:#ffd45e;--r2:#b3801a}`,
+          `.soreal-idle-exp-tuile-v1 .carre{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;min-height:112px;padding:10px 6px 8px;border-radius:14px;border:2px solid var(--r1);background:radial-gradient(circle at 30% 12%,color-mix(in srgb,var(--r1) 30%,transparent),transparent 55%),linear-gradient(165deg,#2c1948,#140c20 80%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 0 12px color-mix(in srgb,var(--r1) 38%,transparent);line-height:1.2}`,
+          `.soreal-idle-exp-tuile-v1 .carre::before{content:"";position:absolute;left:-30%;top:-60%;width:160%;height:90%;background:linear-gradient(180deg,rgba(255,255,255,.14),transparent);transform:rotate(-8deg);pointer-events:none}`,
+          `.soreal-idle-exp-tuile-v1 .med{position:relative;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:17px;line-height:1;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--r1) 45%,#2c1948),#1b1030);border:1px solid var(--r1);box-shadow:0 0 8px color-mix(in srgb,var(--r1) 50%,transparent)}`,
+          `.soreal-idle-exp-tuile-v1 .g{position:relative;font-size:24px!important;font-weight:1000;color:#8ff0a6!important;text-shadow:0 0 10px rgba(143,240,166,.45),0 2px 2px #000}`,
+          `.soreal-idle-exp-tuile-v1 .p{position:relative;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 4px;border-radius:999px;background:#0d0716;border:1px solid var(--r2);font-size:13px!important;font-weight:1000;color:#ffd45e!important}`,
+          `.soreal-idle-exp-tuile-v1 .p i{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-style:normal;font-size:10px;color:#4a3000;background:radial-gradient(circle at 35% 30%,#fff1a8,#e0a31c)}.soreal-idle-exp-tuile-v1 .p small{font-size:10px;font-weight:900;opacity:.8}`,
           `.soreal-idle-exp-tuile-v1.off .carre{opacity:.5;filter:grayscale(.55)}.soreal-idle-exp-tuile-v1 .soreal-idle-exp-buy-v210{width:100%}`,
           `.soreal-idle-exp-ticket-v1{--cut:78px;display:flex;align-items:stretch;margin:0 0 10px;color:#3a2a00;background:#f5c451;border-radius:10px;-webkit-mask:radial-gradient(circle at var(--cut) 0,transparent 8px,#000 8.5px) top/100% 51% no-repeat,radial-gradient(circle at var(--cut) 100%,transparent 8px,#000 8.5px) bottom/100% 51% no-repeat;mask:radial-gradient(circle at var(--cut) 0,transparent 8px,#000 8.5px) top/100% 51% no-repeat,radial-gradient(circle at var(--cut) 100%,transparent 8px,#000 8.5px) bottom/100% 51% no-repeat}`,
           `.soreal-idle-exp-ticket-v1 .souche{flex:0 0 var(--cut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;border-right:2px dashed rgba(58,42,0,.55);font-size:11px;font-weight:1000;letter-spacing:.06em;text-transform:uppercase;text-align:center}.soreal-idle-exp-ticket-v1 .souche i{font-style:normal;font-size:22px;letter-spacing:0}`,
