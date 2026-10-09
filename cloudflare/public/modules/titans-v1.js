@@ -310,5 +310,13 @@ setInterval(function(){
   });
 },1000);
 
-window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
+/* Un titan est-il prêt à être affronté (débloqué, pas caché, délai écoulé) ? Sert au bouton « Titans » de la page Adventure, qui brille alors. */
+function disponible(j){
+  var H=hote();
+  var a=typeof H.aventureMetaIdleV47_==='function'?H.aventureMetaIdleV47_(j):null;
+  var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
+  return (a&&Array.isArray(a.titans)?a.titans:[]).some(function(t){return t&&t.progressionUnlocked!==false&&t.id&&!cache(t)&&!(prochainRetour(t)>maintenant);});
+}
+
+window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,disponible:disponible,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

@@ -40,9 +40,9 @@ assert.equal(o.identites.combat.verbe, "Combattre");
 
 // 4. Le bouton : badge + nom + verbe, comportements d'origine conservés (classes, couleur, gestes, nouveautés, disponibilité).
 assert.ok(ui.includes('<span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>'));
-assert.ok(ui.includes('<span class="soreal-idle-nav-texte-v2"><b>${m.nom}') && ui.includes("<small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small>"));
+assert.ok(ui.includes('<span class="soreal-idle-nav-texte-v2"><b>${idleHtml_(nomMenuIdleV1_(m,j))}') && ui.includes("<small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small>"));
 assert.ok(ui.includes("data-menu-id-v1=\"${m.id}\"") && ui.includes("onclick=\"window.__menuIdleV28__('${m.id}')\"") && ui.includes("--forme:${IDLE_NAV_FORMES_V1["));
-assert.ok(ui.includes("title=\"${idleHtml_(m.nom+"), "info-bulle : nom — verbe");
+assert.ok(ui.includes("title=\"${idleHtml_(nomMenuIdleV1_(m,j)+"), "info-bulle : nom — verbe");
 // 5. Style : badge à la forme du menu, carte pleine quand le menu est ouvert, états K.O. / disponibilité / nouveau conservés.
 // Emojis bien visibles quelle que soit leur couleur (Norman, 2026-10-03 : « les emojis doivent être bien visibles, attention aux couleurs ») : plaque sombre neutre sous l'emoji, anneau coloré autour, liseré clair.
 for (const regle of [".soreal-idle-nav-badge-v2::before{", "radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--c1) 26%,#26324f),#0b1020 82%)", ".soreal-idle-nav-emoji-v2{", "drop-shadow(0 0 1px #fff)", "width:44px;height:44px"]) assert.ok(css.includes(regle), regle);

@@ -12504,6 +12504,15 @@
           return neuf;
         }catch(e){return false;}
       }
+      /* Titans débloqués : le menu Adventure devient « Adventure & Titans » (Norman, 2026-10-09) ; tant qu'aucun titan n'est découvert, le nom reste « Adventure » (anti-spoil). */
+      function nomMenuIdleV1_(m,j){
+        if(m.id!=='aventure')return m.nom;
+        try{
+          const a=aventureMetaIdleV47_(j);
+          if(a&&Array.isArray(a.titans)&&a.titans.some(function(t){return t&&t.id&&t.progressionUnlocked!==false;}))return 'Adventure & Titans';
+        }catch(e){}
+        return m.nom;
+      }
       function navigationIdleV28_(j){
         if(idleMenuActifV28!=='shop'&&window.__SOREAL_IDLE_BOUTIQUE_V1__)window.__SOREAL_IDLE_BOUTIQUE_V1__.reinitialiserVisite();
         const menus=menusOrdonnesIdleV1_(j);
@@ -12555,11 +12564,11 @@
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
                   data-menu-id-v1="${m.id}"
                   data-effet-v1="${m.id}"
-                  title="${idleHtml_(m.nom+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
+                  title="${idleHtml_(nomMenuIdleV1_(m,j)+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
                   <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>
-                  <span class="soreal-idle-nav-texte-v2"><b>${m.nom}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
+                  <span class="soreal-idle-nav-texte-v2"><b>${idleHtml_(nomMenuIdleV1_(m,j))}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
                 </button>
               `;
             }).join('')}
@@ -19815,7 +19824,7 @@ function pageAventureIdleV28_(j){
         const bascule=titans.length?(
           '<div class="soreal-idle-bascule-aventure-v1">'+
             '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?'':' actif')+'" onclick="window.__vueAventureIdleV1__(\'zones\')">🗺️ Aventure</button>'+
-            '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?' actif':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?' actif':'')+(window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.disponible&&window.__SOREAL_IDLE_TITANS_V1__.disponible(j)?' soreal-idle-titan-brille-v1':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+
           '</div>'
         ):'';
         if(idleVueAventureV1==='titans'&&titans.length&&window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.section){
