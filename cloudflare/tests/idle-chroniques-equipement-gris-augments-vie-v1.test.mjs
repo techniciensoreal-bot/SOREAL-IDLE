@@ -8,7 +8,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 
-assert.ok(ui.includes("(maxAtteint?' maxed':(estEquipement?' nonmax':''))"), "seules les pièces d'équipement non maxées sont grisées");
+assert.ok(ui.includes("(maxAtteint?' maxed':' nonmax')") && ui.includes("(boostMaxe?' maxed':' nonmax')"), "tout objet de la collection qui n'est pas à 100 % est grisé (pièces, objets spéciaux, boosts)");
 assert.ok(css.includes(".soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-icon-v1{filter:grayscale(1)"), "gris sur l'icône, nom encore lisible");
 
 // Augments : multiplicateur recalculé depuis les niveaux rejoués, répercuté sur les multiplicateurs de combat (donc sur la vie max, qui vaut attaque × 10).

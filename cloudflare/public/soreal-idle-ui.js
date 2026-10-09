@@ -16727,7 +16727,7 @@
               },'collection');
             }
 
-            return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':(estEquipement?' nonmax':''))+(rareteClasse?' '+rareteClasse:'')+'" '+
+            return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':' nonmax')+(rareteClasse?' '+rareteClasse:'')+'" '+
               (estStatBearing?'data-popup-objet-v1="'+idleHtml_(clePopupCollection)+'" ':'')+
               'onclick="'+(estStatBearing?'window.__consulterObjetIdleV1__(\''+idleHtml_(clePopupCollection)+'\',this)':'window.__afficherDetailsCollectionIdleV1__(\''+idleHtml_(id)+'\')')+'">'+
               (maxAtteint?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 + statistiques boostées à 100 %">✔</div>':'')+
@@ -16762,7 +16762,7 @@
               const nomBoost='Boost '+type.charAt(0).toUpperCase()+type.slice(1)+' +'+force;
               /* Boost fusionné jusqu'au niveau 100 (Norman, 2026-10-03) : le petit V vert comme sur les autres objets ; chaque boost maximisé donne +2 % d'efficacité à tous les boosts (récompense déjà versée par le serveur). */
               const boostMaxe=Boolean(itemList[id]&&idleEntier_(itemList[id].maxLevel)>=100);
-              return '<div class="soreal-idle-collection-card-v1'+(boostMaxe?' maxed':'')+'">'+
+              return '<div class="soreal-idle-collection-card-v1'+(boostMaxe?' maxed':' nonmax')+'">'+
                 (boostMaxe?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 : +2 % d’efficacité de tous les boosts">✔</div>':'')+
                 '<div class="soreal-idle-collection-card-icon-v1">'+
                   iconeObjetAdventureIdleV138_({kind:'boost',boostType:type,strength:force})+
