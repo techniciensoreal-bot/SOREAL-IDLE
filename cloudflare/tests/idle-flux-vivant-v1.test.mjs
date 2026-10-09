@@ -51,7 +51,7 @@ for (const m of tousMenus) {
 assert.equal(phrase({ id: 0, type: "visite", nom: "Afflito", donnees: { menu: "shop" } }, expert).texte, "Afflito visite la boutique");
 
 // Fuite et défaite : variantes d'humour, nom du boss jamais donné à un lecteur qui ne l'a pas atteint.
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < 21; i++) {
   const f = phrase({ id: i, type: "fuite", nom: "Sébastien", donnees: { boss: 11 } }, expert).texte;
   const d = phrase({ id: i, type: "defaite", nom: "La Brute", donnees: { boss: 11 } }, expert).texte;
   assert.ok(f.startsWith("Sébastien ") && f.includes("Gros Méchant"), f);
@@ -64,4 +64,8 @@ for (let i = 0; i < 4; i++) {
 assert.ok(phrase({ id: 1, type: "defaite", nom: "La Brute", donnees: { boss: 11 } }, expert).texte.includes("est mort contre Gros Méchant"));
 assert.ok(phrase({ id: 1, type: "fuite", nom: "Sébastien", donnees: { boss: 11 } }, expert).texte.includes("a fui face à Gros Méchant"));
 
+// Au moins vingt variantes distinctes par situation (Norman, 2026-10-09 : « une vingtaine de variantes à la honte »).
+const distinctes = (type) => new Set(Array.from({ length: 40 }, (_, i) => phrase({ id: i, type, nom: "Ana", donnees: { boss: 11 } }, expert).texte)).size;
+assert.ok(distinctes("fuite") >= 20, "fuite : " + distinctes("fuite"));
+assert.ok(distinctes("defaite") >= 20, "défaite : " + distinctes("defaite"));
 console.log("idle-flux-vivant-v1: OK");
