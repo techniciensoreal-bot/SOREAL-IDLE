@@ -45,7 +45,7 @@ assert.match(itopod, /xp-borne-v1 \.soreal-idle-chip-v8\{font-size:\.62em!import
 assert.match(meta, /payload\.action==='allocate'&&payload\.system==='wandoos'/, 'Wandoos : pas de rendu complet');
 assert.match(fs.readFileSync('cloudflare/public/modules/wandoos-retro-v1.js', 'utf8'), /rafraichir:rafraichirPoste_/, 'Wandoos expose le rafraîchissement du poste');
 console.log('idle-boutique-ap-anti-spoil-v1 (borne, Wandoos): OK');
-assert.match(itopod, /perspective\(1800px\) rotateX\(48deg\)/, 'boutons de la borne en trapèze penché');
+assert.match(itopod, /dome-start\{left:[^}]*radial-gradient\(ellipse/, 'boutons de la borne (dômes) en ovale, borne penchée');
 /* Or : vert/rouge partout ; cheminée coupée par défaut */
 const sang = fs.readFileSync('cloudflare/public/modules/blood-magic-v1.js', 'utf8');
 assert.ok(sang.includes("data-cout-or=") && sang.includes("'or-ok':'or-non'"), 'rituels : somme en Or verte/rouge');
