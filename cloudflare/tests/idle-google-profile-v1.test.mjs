@@ -84,6 +84,15 @@ reinitialiserCacheClesGoogleIdleV1();
   reinitialiserCacheClesGoogleIdleV1();
 }
 
+// Audit du 2026-10-10 (SEC-013) : le nom Google, affiché tel quel sans pseudo, perd ses caractères de balisage HTML à l'entrée.
+{
+  const piege = await verifier(await jeton({ ...base, name: "<img src=x onerror=alert(1)> Zoé", given_name: "<b>Zoé\"" }));
+  assert.equal(piege.ok, true);
+  assert.ok(!/[<>"`]/.test(piege.nom) && !/[<>"`]/.test(piege.prenom), "plus de < > \" ` dans le nom ni le prénom (obtenu : " + piege.nom + " / " + piege.prenom + ")");
+  assert.ok(piege.nom.includes("Zoé"), "le reste du nom est conservé");
+  reinitialiserCacheClesGoogleIdleV1();
+}
+
 // ---------------------------------------------------------------- bout en bout (SQLite en mémoire)
 const db = new DatabaseSync(":memory:");
 const sql = {

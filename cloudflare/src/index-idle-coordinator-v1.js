@@ -240,6 +240,17 @@ export class SorealIdleCoordinatorV1 {
       now,
       expiresAt
     );
+    /*
+     * Au plus 10 sessions actives par adresse (audit du 2026-10-10, IDLE-AUDIT-SEC-009) : chaque connexion Google ouvrait une session de 14 jours sans plafond, y compris pour une adresse non autorisée ; la table pouvait grossir
+     * à volonté et un jeton volé restait valable aussi longtemps que d'autres. Les plus anciennes sont révoquées.
+     */
+    const actives = this.sqlAll(
+      "SELECT session_token FROM idle_sessions WHERE revoked_at IS NULL AND json_extract(user_json,'$.email')=? ORDER BY created_at DESC, rowid DESC",
+      email
+    );
+    for (const ancienne of actives.slice(10)) {
+      this.sql.exec("UPDATE idle_sessions SET revoked_at=? WHERE session_token=?", now, ancienne.session_token);
+    }
     return { ok: true, sessionToken, expiresAt };
   }
 
@@ -379,6 +390,14 @@ export class SorealIdleCoordinatorV1 {
       const before = this.sqlAll("SELECT COUNT(*) AS n FROM idle_catalog WHERE sheet_name=?", sheetName)[0]?.n || 0;
       this.sql.exec("DELETE FROM idle_catalog WHERE sheet_name=?", sheetName);
       deleted += before;
+      /* Vidage volontaire (remplacement par rien, confirmé) : la restauration depuis legacy_rows ne doit pas ressusciter cette feuille (IDLE-AUDIT-SEC-014). */
+      if (confirmPurge && !validRows.some(row => String(row.sheet_name).trim() === sheetName)) {
+        this.sql.exec(
+          "INSERT INTO idle_meta(meta_key,meta_value) VALUES(?,?) ON CONFLICT(meta_key) DO UPDATE SET meta_value=excluded.meta_value",
+          "catalogue_purge:" + sheetName,
+          String(Date.now())
+        );
+      }
     }
 
     let inserted = 0;

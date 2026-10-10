@@ -22,6 +22,13 @@ assert.ok(!inventaire.some((x) => x && x.definitionId === "mega:weapon"), "aucun
 const debloque = g.op("agirProgressionSorealIdle", "x", { action: "adventure", adventure: { action: "useUnlockItem", itemId: "aNumber" } });
 assert.equal(debloque.ok, false, "pas de déblocage avec un objet que le joueur n'a pas");
 
+// IDLE-AUDIT-SEC-003 : « zoneKill » (kill sans combat ni durée) est lui aussi réservé ; 100 appels ne produisent aucun butin.
+for (let i = 0; i < 100; i += 1) {
+  const kill = g.op("agirProgressionSorealIdle", "x", { action: "adventure", adventure: { action: "zoneKill" } });
+  assert.equal(kill.ok, false);
+  assert.match(String(kill.message || ""), /ACTION_RESERVEE/);
+}
+
 // Les actions ordinaires du client continuent de fonctionner (sélection de zone : accepte ou refuse selon le jeu, mais pas « réservée »).
 const zone = g.op("agirProgressionSorealIdle", "x", { action: "adventure", adventure: { action: "selectZone", zone: "safe" } });
 assert.doesNotMatch(String(zone.code || zone.error || zone.message || ""), /ACTION_RESERVEE/, "les actions normales ne sont pas bloquées");

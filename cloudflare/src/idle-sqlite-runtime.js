@@ -302,11 +302,24 @@ function __idleCatalogCountV2(sql,sheetName){
   );
 }
 
+/*
+ * Une feuille vidée VOLONTAIREMENT (remplacement avec confirmPurge, voir index-idle-coordinator-v1.js) est marquée dans idle_meta : la restauration automatique depuis legacy_rows ne la ressuscite plus au prochain démarrage
+ * à froid (audit du 2026-10-10, IDLE-AUDIT-SEC-014 : d'anciennes valeurs, éventuellement non conformes au wiki, pouvaient réapparaître).
+ */
+function __idlePurgeVolontaireV1(sql,canonical){
+  try{
+    return sqlRows(sql.exec("SELECT meta_value FROM idle_meta WHERE meta_key=?","catalogue_purge:"+canonical)).length>0;
+  }catch(_e){
+    return false;
+  }
+}
+
 function __idleRestoreCatalogFromLegacyV2(sql){
   const now=Date.now();
 
   for(const [legacy,canonical] of Object.entries(IDLE_CANONICAL_SHEET_NAMES_V1)){
     if(__idleCatalogCountV2(sql,canonical)>0)continue;
+    if(__idlePurgeVolontaireV1(sql,canonical))continue;
 
     const rows=sqlRows(sql.exec(
       "SELECT row_index,values_json,imported_at FROM legacy_rows "+
@@ -335,7 +348,7 @@ function __idleRestoreCatalogFromLegacyV2(sql){
    * Si l'ancien catalogue a été purgé mais que les joueurs spécialisés sont
    * encore là, on reconstruit une feuille JOUEURS valide sans perdre l'état.
    */
-  if(__idleCatalogCountV2(sql,"JOUEURS")===0){
+  if(__idleCatalogCountV2(sql,"JOUEURS")===0&&!__idlePurgeVolontaireV1(sql,"JOUEURS")){
     const players=sqlRows(sql.exec(
       "SELECT source_row,state_json,updated_at FROM idle_players "+
       "ORDER BY COALESCE(source_row,999999),player_key"
@@ -14832,7 +14845,11 @@ function acheterEntrainementSorealIdle(...args) {
  * Actions d'Aventure RÉSERVÉES aux tests et à l'outillage interne : jamais acceptées depuis un client (audit du 2026-10-10, IDLE-AUDIT-SEC-001). « addItem » fabriquait n'importe quel objet de n'importe quel niveau pour
  * n'importe quel joueur ; le client de production ne l'appelle jamais (les tests passent par applyIdleNguAction, directement, sans cette porte).
  */
-const ACTIONS_AVENTURE_RESERVEES_V1 = new Set(["addItem"]);
+/*
+ * « zoneKill » (IDLE-AUDIT-SEC-003) : tuait un mob sans combat ni durée : 300 appels = 300 butins. Le client de production ne l'envoie jamais (il passe par startZoneFight puis resolveZoneFight, seuls chemins gardés) ; réservé comme addItem.
+ * Reste ouvert (décision de conception) : resolveZoneFight lui-même fait confiance au client sur l'issue du combat (le serveur ne simule pas les combats de zone) ; la limitation de débit par session borne seulement la cadence.
+ */
+const ACTIONS_AVENTURE_RESERVEES_V1 = new Set(["addItem", "zoneKill"]);
 
 function assainirActionClientSorealIdleV1_(action) {
   const a = action && typeof action === 'object' ? action : {};

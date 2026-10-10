@@ -21,12 +21,12 @@ export function creerJoueurExterneV1(email = "joueur.test@example.com") {
     }
   };
   db.exec("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
-  new SorealIdleCoordinatorV1({ storage: { sql } }, {});
+  const coordinateur = new SorealIdleCoordinatorV1({ storage: { sql } }, {});
   for (let i = 0; i < 15; i += 1) sql.exec("INSERT INTO migration_sources(source_key,status) VALUES(?,?)", "idle:s" + i, "DONE");
   const feuille = (nom, lignes) => lignes.forEach((l, i) => sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", nom, i + 1, JSON.stringify(l), Date.now()));
   feuille("JOUEURS", [ENTETES]);
   feuille("IDLE_BOUTIQUE", [["Type","CoutBase","Croissance","BonusParNiveau"],["production",20,1.6,1],["capacite",20,1.6,1],["puissance",20,1.6,1]]);
   sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1')");
   const user = { email, emailConnexion: email, emails: [email], prenom: "Joueur", role: "externe", externe: true };
-  return { db, sql, user, journalSql, op: (nom, ...args) => runSorealIdleOperation(sql, nom, args, user) };
+  return { db, sql, user, journalSql, coordinateur, op: (nom, ...args) => runSorealIdleOperation(sql, nom, args, user) };
 }

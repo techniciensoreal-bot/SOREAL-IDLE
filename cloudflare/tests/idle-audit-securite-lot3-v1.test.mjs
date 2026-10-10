@@ -51,4 +51,16 @@ import { verifierJetonGoogleIdleV1, reinitialiserCacheClesGoogleIdleV1 } from ".
   assert.ok(appels <= 2, "20 jetons à kid inconnu : au plus 2 requêtes sortantes (obtenu : " + appels + ")");
   reinitialiserCacheClesGoogleIdleV1();
 }
+// --- SEC-009 : au plus 10 sessions actives par adresse, les plus anciennes sont révoquées.
+{
+  const g = creerJoueurExterneV1("sessions@example.com");
+  const jetons = [];
+  for (let i = 0; i < 13; i += 1) jetons.push(g.coordinateur.createGoogleSessionV1({ email: "Sessions@Example.com", nom: "S" + i }).sessionToken);
+  const valides = jetons.filter((t) => g.coordinateur.standaloneSessionV1(t).ok);
+  assert.equal(valides.length, 10, "10 sessions actives au plus (obtenu : " + valides.length + ")");
+  assert.deepEqual(jetons.slice(0, 3).map((t) => g.coordinateur.standaloneSessionV1(t).ok), [false, false, false], "les trois plus anciennes sont révoquées");
+  assert.equal(g.coordinateur.standaloneSessionV1(jetons[12]).ok, true, "la plus récente est valide");
+  const autre = g.coordinateur.createGoogleSessionV1({ email: "autre@example.com", nom: "A" });
+  assert.equal(g.coordinateur.standaloneSessionV1(autre.sessionToken).ok, true, "une autre adresse n'est pas touchée");
+}
 console.log("idle-audit-securite-lot3-v1: OK");

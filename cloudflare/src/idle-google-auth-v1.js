@@ -117,7 +117,8 @@ export async function verifierJetonGoogleIdleV1(jeton, options = {}) {
     ok: true,
     email,
     sub,
-    nom: String(charge.name || "").trim().slice(0, 80),
-    prenom: String(charge.given_name || "").trim().slice(0, 40)
+    /* Nom et prénom affichés tels quels dans le jeu quand le joueur n'a pas de pseudo : on retire à l'entrée les caractères de balisage HTML (audit du 2026-10-10, IDLE-AUDIT-SEC-013, défense en profondeur : le client échappe déjà). */
+    nom: String(charge.name || "").replace(/[<>"`]/g, "").trim().slice(0, 80),
+    prenom: String(charge.given_name || "").replace(/[<>"`]/g, "").trim().slice(0, 40)
   };
 }
