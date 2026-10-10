@@ -1,3 +1,5 @@
+/* Ce faux SQL ne sait pas lire une ligne à la demande (json_extract) : il joue le mode « tout décoder tout de suite ». Le mode paresseux est couvert par idle-audit-perf-lignes-paresseuses-v1. */
+process.env.SOREAL_IDLE_LIGNES_EAGER = "1";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { idleRuntimeTestHooks, runSorealIdleOperation } from "../src/idle-sqlite-runtime.js";

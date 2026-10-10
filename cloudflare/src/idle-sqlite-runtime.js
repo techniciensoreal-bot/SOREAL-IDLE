@@ -180,20 +180,37 @@ class IdleRange {
 }
 
 class IdleSheet {
-  constructor(name,rows){
+  /*
+   * Lignes PARESSEUSES (audit du 2026-10-10, IDLE-AUDIT-PERF-001) : une ligne peut être donnée sous forme de TEXTE JSON brut (avec sa longueur en colonnes, calculée par SQLite) et n'est décodée qu'au premier accès. La feuille
+   * JOUEURS contient la ligne entière de chaque joueur (57 Ko et plus) : décoder celles de tous les joueurs à chaque opération coûtait 0,17 ms par joueur et par opération, même pour un simple battement. Une ligne jamais touchée
+   * n'est ni décodée ni réécrite (elle n'est jamais « sale »).
+   */
+  constructor(name,rows,chargeur){
     this.name=String(name||"");
     this.rows=Array.isArray(rows)?rows:[];
+    /* chargeur(numeroDeLigne) : texte JSON d'une ligne différée, lu à la demande dans SQLite. */
+    this.chargeur=typeof chargeur==="function"?chargeur:null;
     this.dirtyRows=new Set();
     this.maxColumns=this.rows.reduce((m,r)=>Math.max(m,Array.isArray(r)?r.length:0),0);
   }
+  /* Ligne décodée (tableau) ; une ligne différée est lue dans SQLite, décodée et mémorisée à son premier accès. */
+  _ligne(i){
+    let r=this.rows[i];
+    if(r===__IDLE_LIGNE_DIFFEREE){
+      r=safeJson(this.chargeur?this.chargeur(i+1):"[]",[]);
+      if(!Array.isArray(r))r=[];
+      this.rows[i]=r;
+    }
+    return r;
+  }
   getName(){return this.name;}
   getCell(row,col){
-    const r=this.rows[row-1];
+    const r=this._ligne(row-1);
     return Array.isArray(r)&&col-1<r.length?(r[col-1]??""):"";
   }
   setCell(row,col,value){
     while(this.rows.length<row)this.rows.push([]);
-    const r=this.rows[row-1];
+    const r=this._ligne(row-1);
     while(r.length<col)r.push("");
     /* Valeur identique : rien à réécrire (la ligne n'est pas marquée « sale », donc pas de réécriture de la ligne joueur en base). */
     if(r[col-1]===value)return;
@@ -204,14 +221,19 @@ class IdleSheet {
   getRange(row,col,numRows=1,numCols=1){return new IdleRange(this,row,col,numRows,numCols);}
   getLastRow(){
     for(let i=this.rows.length-1;i>=0;i--){
-      const r=this.rows[i];
+      const r=this._ligne(i);
       if(Array.isArray(r)&&r.some(__idleNonEmpty))return i+1;
     }
     return 0;
   }
   getLastColumn(){
     let m=0;
-    for(const r of this.rows)if(Array.isArray(r)&&r.some(__idleNonEmpty))m=Math.max(m,r.length);
+    for(let i=0;i<this.rows.length;i++){
+      const r=this.rows[i];
+      /* Ligne différée non lue : ignorée (seule l'en-tête, toujours décodée, donne la largeur de la feuille JOUEURS). */
+      if(r===__IDLE_LIGNE_DIFFEREE)continue;
+      if(Array.isArray(r)&&r.some(__idleNonEmpty))m=Math.max(m,r.length);
+    }
     return m;
   }
   getMaxColumns(){return Math.max(this.maxColumns,this.getLastColumn());}
@@ -384,10 +406,22 @@ function __idleRestoreCatalogFromLegacyV2(sql){
   }
 }
 
+/* Lignes de joueurs paresseuses (voir IdleSheet) ; SOREAL_IDLE_LIGNES_EAGER=1 rétablit le décodage immédiat (tests d'équivalence). */
+function __idleLignesParesseusesV1(){
+  return !(typeof process!=="undefined"&&process.env&&process.env.SOREAL_IDLE_LIGNES_EAGER==="1");
+}
+
+/* Marqueur d'une ligne de JOUEURS pas encore lue (voir IdleSheet._ligne). */
+const __IDLE_LIGNE_DIFFEREE=Object.freeze({differee:true});
+
 function __idleBuildWorkbook(sql){
   const bySheet=new Map();
+  const paresseux=__idleLignesParesseusesV1();
+  /* Les lignes des joueurs (hors en-tête) ne sont PAS lues ici : seul leur numéro l'est ; chacune n'est lue et décodée que si l'opération la touche. */
   const records=sqlRows(sql.exec(
-    "SELECT sheet_name,row_index,row_json FROM idle_catalog ORDER BY sheet_name,row_index"
+    paresseux
+      ?"SELECT sheet_name,row_index,row_json FROM idle_catalog WHERE NOT (sheet_name='JOUEURS' AND row_index>1) ORDER BY sheet_name,row_index"
+      :"SELECT sheet_name,row_index,row_json FROM idle_catalog ORDER BY sheet_name,row_index"
   ));
   for(const rec of records){
     const name=String(rec.sheet_name||"");
@@ -398,8 +432,24 @@ function __idleBuildWorkbook(sql){
     while(rows.length<=idx)rows.push([]);
     rows[idx]=safeJson(rec.row_json,[])||[];
   }
+  if(paresseux){
+    const joueurs=sqlRows(sql.exec("SELECT row_index FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index>1 ORDER BY row_index"));
+    if(joueurs.length){
+      let rows=bySheet.get("JOUEURS");
+      if(!rows){rows=[];bySheet.set("JOUEURS",rows);}
+      for(const rec of joueurs){
+        const idx=Math.max(1,Number(rec.row_index)||1)-1;
+        while(rows.length<=idx)rows.push([]);
+        rows[idx]=__IDLE_LIGNE_DIFFEREE;
+      }
+    }
+  }
+  const chargeur=function(numero){
+    const r=sqlRows(sql.exec("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?",numero))[0];
+    return r&&typeof r.row_json==="string"?r.row_json:"[]";
+  };
   const sheets=new Map();
-  for(const [name,rows] of bySheet)sheets.set(name,new IdleSheet(name,rows));
+  for(const [name,rows] of bySheet)sheets.set(name,new IdleSheet(name,rows,name==="JOUEURS"?chargeur:null));
   return new IdleSpreadsheet(sheets);
 }
 
@@ -410,7 +460,8 @@ function __idleCommit(sql,workbook){
   const now=Date.now();
   for(const [sheetName,sheet] of workbook.sheets){
     for(const rowIndex of sheet.dirtyRows){
-      const row=Array.isArray(sheet.rows[rowIndex-1])?sheet.rows[rowIndex-1]:[];
+      const ligneDecodee=sheet._ligne(rowIndex-1);
+      const row=Array.isArray(ligneDecodee)?ligneDecodee:[];
       const nonEmpty=row.some(__idleNonEmpty);
       /* Journal d'EXP : solde AVANT l'écriture (colonne XP = 4e cellule), lu par SQLite sans décoder toute la ligne. */
       let xpAvantV1=null;
@@ -2238,16 +2289,6 @@ function trouverLigneJoueurSorealIdle_(
       feuille.getLastRow()
     );
 
-  const valeurs =
-    feuille
-      .getRange(
-        2,
-        1,
-        derniereLigne - 1,
-        c.AMELIORATIONS_JSON
-      )
-      .getValues();
-
   const emailsUtilisateur =
     extraireEmailsUtilisateurSorealIdle_(
       acces.user
@@ -2270,6 +2311,48 @@ function trouverLigneJoueurSorealIdle_(
       acces.user.prenom ||
       'Norman'
     ).trim();
+
+  /*
+   * Recherche par SQLite avant de décoder les lignes des autres joueurs (audit du 2026-10-10, IDLE-AUDIT-PERF-001) : SQLite lit les deux colonnes e-mail de la ligne sans la décoder et donne la première ligne qui correspond,
+   * exactement celle que la boucle ci-dessous trouverait (même ordre, même normalisation : minuscules sans espaces). Elle est VÉRIFIÉE sur la feuille en mémoire avant d'être utilisée ; sans indice sûr (aucune ligne trouvée,
+   * lignes déjà modifiées par cette opération, pas de base), la boucle complète reste le repli : jamais de ligne attribuée au mauvais joueur.
+   */
+  if (__idleSql && feuille.dirtyRows.size === 0 && emailsUtilisateur.length) {
+    try {
+      const candidats = emailsUtilisateur.map(function(e) { return normaliserEmailSorealIdle_(e); }).filter(Boolean);
+      if (candidats.length) {
+        const marques = candidats.map(function() { return '?'; }).join(',');
+        const trouve = sqlRows(__idleSql.exec(
+          "SELECT row_index FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index>=2 AND (" +
+          "lower(trim(json_extract(row_json,'$[" + (c.EMAIL_PRINCIPAL - 1) + "]'))) IN (" + marques + ") OR " +
+          "lower(trim(json_extract(row_json,'$[" + (c.EMAIL_CONNEXION - 1) + "]'))) IN (" + marques + ")) " +
+          "ORDER BY row_index LIMIT 1",
+          ...candidats, ...candidats
+        ))[0];
+        const indice = trouve ? Math.floor(Number(trouve.row_index)) : 0;
+        if (indice >= 2) {
+          const p = normaliserEmailSorealIdle_(feuille.getCell(indice, c.EMAIL_PRINCIPAL));
+          const k = normaliserEmailSorealIdle_(feuille.getCell(indice, c.EMAIL_CONNEXION));
+          if ((p && emailsUtilisateur.indexOf(p) !== -1) || (k && emailsUtilisateur.indexOf(k) !== -1)) {
+            assurerDonneesJeuSorealIdle_(feuille, indice);
+            return indice;
+          }
+        }
+      }
+    } catch (_e) {
+      /* indice indisponible : repli sur la boucle complète */
+    }
+  }
+
+  const valeurs =
+    feuille
+      .getRange(
+        2,
+        1,
+        derniereLigne - 1,
+        c.AMELIORATIONS_JSON
+      )
+      .getValues();
 
   let ligneParNom = 0;
 
@@ -17321,6 +17404,7 @@ function supprimerTexteAdminSorealIdle(sessionToken, cle) {
 /* Temps actif accumulé par joueur et pas encore versé dans sa ligne (voir battementSorealIdle) ; versé dès 120 s. */
 const __tempsActifEnAttenteV1 = new Map();
 const TEMPS_ACTIF_VERSEMENT_SEC_V1 = 120;
+export function idleReinitialiserTempsActifV1() { __tempsActifEnAttenteV1.clear(); }
 
 function battementSorealIdle(sessionToken, info) {
   const acces = exigerAccesSorealIdle_(sessionToken);
