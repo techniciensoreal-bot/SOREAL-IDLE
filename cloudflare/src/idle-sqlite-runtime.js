@@ -4728,6 +4728,8 @@ function statsJoueurSorealIdle_(valeur) {
     fluxBossDefaites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDefaites,0))),
     fluxBossDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDernier,0))),
     fluxHistoires:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxHistoires,0))),
+    fluxNukes:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukes,0))),
+    fluxNukeDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukeDernier,0))),
     /*
      * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi. Et
      * avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Visible par défaut.
@@ -12613,6 +12615,12 @@ function nukerBossSorealIdle(
     stats.bossVulnerableJusqua = 0;
     stats.bossVulnerablePct = 0;
     stats.sceauBriseBossNumero = 0;
+
+    /* « En direct » : un Nuke qui a tué au moins un boss est annoncé avec le nombre de boss tués (compteurs lus par idle-flux-v1.js). */
+    if (defeated.length > 0) {
+      stats.fluxNukes = Math.max(0, Math.floor(nombreSorealIdle_(stats.fluxNukes, 0))) + 1;
+      stats.fluxNukeDernier = defeated.length;
+    }
 
     feuille.getRange(ligne, c.BOSS_VAINCUS).setValue(bossVaincus);
     feuille.getRange(ligne, c.BOSS_ACTUEL).setValue(bossSuivantNuke.nom);
