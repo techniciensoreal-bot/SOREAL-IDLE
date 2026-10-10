@@ -1388,3 +1388,24 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .soreal-idle-boss-lore-v142 .soreal-idle-chro-lecture-v1:active{transform:translateY(2px);box-shadow:none}
 /* Le nom du boss ne se fait plus écraser par le bouton Play / Stop : il garde sa hauteur (2 lignes au plus) sur l'affiche. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte) .soreal-idle-boss-lore-name-v184{flex:0 0 auto!important;-webkit-line-clamp:2!important}
+
+/*
+ * Audit des écritures sur PC (Norman, 2026-10-10 : « elles sont parfois très petites sur PC, mais seulement pour la version PC »). Un balayage de tous les menus en largeur d'ordinateur a relevé des textes de 9 à 12 px (barres Input / Plafond /
+ * Énergie placée, niveaux et cibles des NGU, calendrier, boutique, étages de la tour, horodatages du chat…). Sur ordinateur (au-dessus de 700 px), chacun passe à 13 ou 14 px ; le téléphone n'est pas touché.
+ */
+@media (min-width:701px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-toolbar-v120 :is(label,span,small,button,b,.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1){font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1,.soreal-idle-summary-v28){font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1 :is(small,.nl-niveau,.nl-effet,.nl-niveau b,.nl-cible span,.nl-cible){font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-boss-lore-name-v184{font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .chro-lecture-txt-v1{font-size:13px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41 .soreal-idle-xp-borne-v1 .soreal-idle-chip-v8{font-size:12px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .team-sort-trigger-label{font-size:13px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-adventure-idle-toggle-v3 :is(span,b),html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-inv-timer-v1{font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="tower"] :is(small,label,.itp-tuile-libelle){font-size:13.5px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.cal-sous-v1,.cal-ap-v1){font-size:12.5px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-jour-v1{font-size:12px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-exp-open-v213,.soreal-idle-exp-aisles-v213 span,.soreal-idle-page-root-v28[data-menu="shop"] small,.soreal-idle-page-root-v28[data-menu="shop"] .k){font-size:13px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.sic-heure,.sic-admin){font-size:13px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.wd-nomcouleur,.soreal-idle-page-root-v28[data-menu="wandoos"] small){font-size:13px!important}
+}

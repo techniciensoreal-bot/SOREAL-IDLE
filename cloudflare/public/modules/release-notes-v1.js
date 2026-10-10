@@ -20,6 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          'Sur ordinateur, les petites écritures sont plus grandes (barres Input et Plafond, niveaux et cibles des NGU, calendrier, boutique, chat…) ; le téléphone ne change pas.',
           'Le combat de boss et NGU sont de nouveau fluides : l’ombre de la borne n’est plus recalculée à chaque image, ses néons et ses boutons s’animent avec la carte graphique, et le liquide des NGU avance à chaque image au lieu de dix fois par seconde.',
           'Un nouvel onglet des Chroniques, « Combat le plus long », range les joueurs selon leur plus long combat de boss mené jusqu’au bout (victoire ou défaite ; une fuite ne compte pas).',
           'La paralysie ne décale plus l’interface : plus de phrase au-dessus, seuls les raccourcis passent au jaune. Le bouton Trier de l’inventaire montre enfin son icône, et l’Or par remplissage de la machine affiché est le vrai chiffre (Or par seconde ÷ remplissages par seconde), la base étant indiquée à part.',
