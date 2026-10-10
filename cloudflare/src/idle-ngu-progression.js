@@ -4821,8 +4821,15 @@ function achievementsSnapshotV1(state) {
       return IDLE_ACHIEVEMENTS_V1.map(a => {
         const fait = unlocked[a.id] !== undefined;
         const requis = idleAchievementBossRequisV1(a);
-        const visible = fait || meilleurBoss >= requis;
-        const o = { id: a.id, group: a.group, bp: a.bp, secret: a.secret, unlocked: fait, voirApresBoss: visible ? 0 : requis };
+        /*
+         * Norman (2026-10-10) : (1) « Boss vaincus » : jamais le numéro d'un boss avant de l'avoir vaincu, que des ??? (pas de nom, pas de seuil, pas de boss à tuer : `bossMasque`) ;
+         * (2) les trophées « Débloquer le menu NGU / Yggdrasil / Barbes » ne se dévoilent qu'une fois obtenus (leur simple texte annonçait un menu que le joueur n'a pas encore).
+         */
+        const estBoss = a.group === "boss";
+        const menuSecret = a.id === "secretNguMenu" || a.id === "secretYggdrasilMenu" || a.id === "secretBeardsMenu";
+        const visible = fait || (!estBoss && !menuSecret && meilleurBoss >= requis);
+        const o = { id: a.id, group: a.group, bp: a.bp, secret: a.secret, unlocked: fait, voirApresBoss: visible ? 0 : (estBoss ? 1 : requis) };
+        if (!visible && estBoss) o.bossMasque = true;
         if (visible) { o.name = a.name; o.threshold = a.threshold; o.tracked = a.tracked; }
         return o;
       });

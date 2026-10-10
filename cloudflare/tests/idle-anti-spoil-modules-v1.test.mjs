@@ -73,6 +73,7 @@ const LISTE_BLANCHE = [
   /* Page des succès (EXCEPTION voulue par Norman, 2026-10-10) : tous les trophées sont des cases ; l'objectif est « ????? » tant que le boss indiqué n'est pas vaincu, et la case dit quel boss tuer. Le serveur n'envoie ni nom ni seuil tant que ce n'est pas visible. */
   { fichier: "profile-v1.js", exact: "?????", raison: "objectif d'un succès pas encore visible (page des succès)" },
   { fichier: "profile-v1.js", contient: "🔒 Tue le boss ", raison: "boss à tuer pour voir les infos d'un succès (page des succès)" },
+  { fichier: "profile-v1.js", exact: "???", raison: "numéro de boss caché pour « Boss vaincus » (Norman, 2026-10-10 : que des ???)" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
 ];

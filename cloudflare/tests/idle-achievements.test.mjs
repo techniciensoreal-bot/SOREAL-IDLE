@@ -74,6 +74,12 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
   assert.equal(requis("rebirth_1"), 4);
   assert.equal(requis("secretNoHitUug"), 100);
   assert.ok(IDLE_ACHIEVEMENTS_V1.every((a) => Number.isFinite(requis(a.id)) && requis(a.id) >= 0), "chaque succès a un boss requis");
+  /* Norman (2026-10-10) : « Boss vaincus » = jamais le numéro d'un boss non vaincu (que des ???) ; les trophées « menu Yggdrasil / NGU / Barbes » ne se dévoilent qu'une fois obtenus. */
+  const masques = liste.filter((a) => a.group === "boss" && !a.unlocked);
+  assert.ok(masques.length > 10 && masques.every((a) => a.bossMasque === true && a.name === undefined && a.threshold === undefined), "boss non vaincus : ni nom, ni seuil, ni numéro");
+  assert.ok(liste.filter((a) => a.group === "boss" && a.unlocked).every((a) => typeof a.name === "string" && !a.bossMasque), "un boss vaincu garde son nom");
+  const yggMenu = liste.find((a) => a.id === "secretYggdrasilMenu");
+  assert.ok(!yggMenu.unlocked && yggMenu.name === undefined, "menu Yggdrasil non débloqué : rien n'est dit");
 }
 
 // ---- Evil, Walderp, The Beast V1..V4 ----

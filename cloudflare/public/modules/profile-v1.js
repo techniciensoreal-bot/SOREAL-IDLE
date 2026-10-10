@@ -129,10 +129,12 @@
     const g=GROUPES_STYLE[x.group]||{emoji:'🏆'};
     const style='--c1:'+p.c1+';--c2:'+p.c2+';--c3:'+p.c3;
     const etat=x.unlocked?'fait':(x.voirApresBoss>0?'cache':'visible');
+    /* « Boss vaincus » : jamais le numéro d'un boss avant de l'avoir vaincu (le serveur marque bossMasque). */
+    const numeroBoss=x.bossMasque?'???':nb(x.voirApresBoss);
     const nom=etat==='cache'?'?????':html(objectif(x));
     const icone=etat==='cache'?'?':g.emoji;
     const bas=etat==='fait'?'<span class="sc-etat">✔ Débloqué</span>'
-      :(etat==='cache'?'<span class="sc-boss">🔒 Tue le boss '+nb(x.voirApresBoss)+' pour voir les infos</span>':'<span class="sc-etat">Pas encore débloqué</span>');
+      :(etat==='cache'?'<span class="sc-boss">🔒 Tue le boss '+numeroBoss+' pour voir les infos</span>':'<span class="sc-etat">Pas encore débloqué</span>');
     return '<div class="sc-case '+etat+'" style="'+style+'" title="'+p.nom+' · '+nombre(x.bp)+' BP"><span class="sc-med"><i>'+icone+'</i></span>'+
       '<span class="sc-nom">'+nom+'</span>'+bas+'<span class="sc-bp">'+nombre(x.bp)+' BP</span></div>';
   }
