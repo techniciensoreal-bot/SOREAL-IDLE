@@ -16,6 +16,8 @@ assert.ok(src.includes("data-nl-pct"), "pourcentage affiché dans le tuyau");
 assert.ok(src.includes("linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%)"), "dégradé de nuit du cadre cosmos");
 assert.ok(src.includes("clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)"), "étoiles à quatre branches");
 assert.ok(/@keyframes nlEtoile\{0%,60%,100%\{opacity:\.25;transform:scale\(\.6\)\}/.test(src), "scintillement en opacité / échelle (compositeur)");
+assert.ok(src.includes("animation:nlEtoile var(--d,5s)") && !src.includes("6s + var(--i)"), "étoiles : durée de cycle bornée (3,2 à 8,1 s), jamais proportionnelle au rang");
+assert.ok(src.includes(".nl-v1 .nl-etoiles b:nth-child(8n){animation:nlEtoile"), "étoiles : une sur huit scintille même sans énergie placée");
 assert.ok(src.includes("prefers-reduced-motion:no-preference"), "animations coupées pour qui les refuse");
 // Tuyaux qui brillent aux couleurs des barres : halo et tronc lumineux
 assert.ok(src.includes("box-shadow:0 0 12px color-mix(in srgb,var(--nl-c) 70%,transparent)") && src.includes(".nl-grille::before"), "tuyaux lumineux et tronc commun");
@@ -29,5 +31,5 @@ assert.ok(!src.includes("<h1>") && src.includes('class="nl-titre"'), "titre hors
 
 // Image du trou sans fond : plafonnée en hauteur sur PC
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
-assert.ok(meta.includes(".soreal-idle-money-scene-v206>img{display:block;width:auto;height:auto;max-width:100%;max-height:min(40vh,340px);margin:0 auto;object-fit:contain}"), "image du puits plafonnée à 340 px / 40 % de l'écran, entière et centrée");
+assert.ok(meta.includes(".soreal-idle-money-scene-v206>img{display:block;width:auto;height:auto;max-width:100%;max-height:min(40vh,340px);margin:0 auto;object-fit:contain}"), "image du trou plafonnée à 340 px / 40 % de l'écran, entière et centrée");
 console.log("idle-ngu-nuit-tuyaux-v1: OK");
