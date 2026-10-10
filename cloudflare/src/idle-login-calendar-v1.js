@@ -104,10 +104,21 @@ function etatEffectifV1(rec, maintenant) {
       reclamees = src.cases.filter((d) => d >= 1 && d <= jours);
     } else if (src.serie > 0 && src.dernierJour.slice(0, 7) === cleMois) {
       const fin = jourDuMoisDeCleV1(src.dernierJour);
-      for (let d = Math.max(1, fin - src.serie + 1); d <= fin; d += 1) reclamees.push(d);
+      const octroiAncien = src.octroi === cleMois && cleMois === IDLE_LOGIN_CALENDAR_OCTROI_V1.mois && src.serie >= IDLE_LOGIN_CALENDAR_OCTROI_V1.cases;
+      /*
+       * Anciennes sauvegardes (audit du 2026-10-10, IDLE-AUDIT-GP-005) : l'ancien octroi d'octobre avait posé « série 2 se terminant la veille » : ses deux premières cases de série sont les cases 1 et 2 (offertes), pas deux jours
+       * du calendrier. On les remplace par les jours 1 et 2 et on ne garde du reste de la série que les jours réellement réclamés ensuite ; sinon deux cases apparaissaient allumées en trop.
+       */
+      const debutSerie = Math.max(1, fin - src.serie + 1);
+      if (octroiAncien) {
+        for (let d = 1; d <= IDLE_LOGIN_CALENDAR_OCTROI_V1.cases; d += 1) reclamees.push(d);
+        for (let d = debutSerie + IDLE_LOGIN_CALENDAR_OCTROI_V1.cases; d <= fin; d += 1) reclamees.push(d);
+      } else {
+        for (let d = debutSerie; d <= fin; d += 1) reclamees.push(d);
+      }
     }
-    /* Anciennes sauvegardes seulement (sans liste de cases) : celles qui avaient reçu l'octroi d'octobre ont pris les cases 1 et 2. */
-    if (!src.cases.length && src.octroi === cleMois && cleMois === IDLE_LOGIN_CALENDAR_OCTROI_V1.mois) {
+    /* Ancienne sauvegarde avec octroi mais sans série exploitable : les cases 1 et 2 restent prises (jours passés). */
+    if (!src.cases.length && src.octroi === cleMois && cleMois === IDLE_LOGIN_CALENDAR_OCTROI_V1.mois && src.serie < IDLE_LOGIN_CALENDAR_OCTROI_V1.cases) {
       for (let d = 1; d <= IDLE_LOGIN_CALENDAR_OCTROI_V1.cases; d += 1) if (d < aujourdhui.jour) reclamees.push(d);
     }
     reclamees = [...new Set(reclamees)].sort((x, y) => x - y);
@@ -178,7 +189,12 @@ export function idleLoginCalendarReclamerV1(state, maintenant) {
   state.currencies.ap = Math.max(0, Number(state.currencies.ap) || 0) + ap;
   const avant = idleLoginCalendarNormaliserV1(state.records.loginCalendar);
   /* Jours ratés depuis la dernière connexion (la dernière récompense réclamée) : sert au remerciement du premier mois et à l'information de pénalité. */
-  const ecart = avant.dernierJour && avant.totalReclames > 0 ? Math.max(0, ecartJoursV1(avant.dernierJour, e.cleJour) - 1) : 0;
+  /*
+   * Audit du 2026-10-10 (IDLE-AUDIT-GP-006) : seuls comptent les jours ratés DU MOIS EN COURS, après la dernière récompense du mois (premier mois : tous les jours ratés ; mois payant : ceux qui retirent vraiment 10 %). Avant, les jours
+   * du mois précédent entraient dans le message (« 3 jours ratés, réduites de 19 % » alors que 3 jours donnent 27 %).
+   */
+  const dernierDuMois = avant.dernierJour.slice(0, 7) === e.cleMois ? jourDuMoisDeCleV1(avant.dernierJour) : 0;
+  const ecart = avant.dernierJour && avant.totalReclames > 0 ? (e.offert ? e.ratees : e.comptees).filter((d) => d > dernierDuMois).length : 0;
   const cases = [...new Set([...e.reclamees, jour])].sort((x, y) => x - y);
   state.records.loginCalendar = {
     mois: e.cleMois,

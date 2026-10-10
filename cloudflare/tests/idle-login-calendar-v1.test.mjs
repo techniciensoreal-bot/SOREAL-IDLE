@@ -192,4 +192,24 @@ const B31 = idleLoginCalendarBaremeV1(31);
   assert.equal(apres.reclamable, false);
   assert.throws(() => applyIdleNguAction(res.state, { action: "loginCalendar" }, { bosses: 40 }, T + 60000), /CALENDRIER_DEJA_RECLAME/);
 }
+// 9. Audit du 2026-10-10 (GP-005) : ancienne sauvegarde avec octroi d'octobre « série 2 se terminant la veille » : deux cases exactement (1 et 2), pas deux de plus.
+{
+  const s = joueur();
+  s.records.loginCalendar = { mois: "2026-10", serie: 2, dernierJour: "2026-10-04", totalReclames: 0, totalAp: 0, octroi: "2026-10" };
+  const snap = idleLoginCalendarSnapshotV1(s.records.loginCalendar, jourParis("2026-10-05"));
+  assert.deepEqual(snap.reclamees, [1, 2], "octroi seul : les cases 1 et 2, rien d'autre");
+  // Une récompense réclamée le 5 : la série ancienne (3) donne 1, 2 et le jour réclamé après l'octroi.
+  s.records.loginCalendar = { mois: "2026-10", serie: 3, dernierJour: "2026-10-05", totalReclames: 1, totalAp: 1, octroi: "2026-10" };
+  assert.deepEqual(idleLoginCalendarSnapshotV1(s.records.loginCalendar, jourParis("2026-10-05")).reclamees, [1, 2, 5]);
+}
+
+// 10. Audit du 2026-10-10 (GP-006) : le message de jours ratés ne compte que les jours du mois en cours, avec la même réduction que celle appliquée.
+{
+  const s = joueur();
+  idleLoginCalendarReclamerV1(s, jourParis("2026-10-30"));
+  const r = idleLoginCalendarReclamerV1(s, jourParis("2026-11-03"));
+  assert.equal(r.ratesDepuisConnexion, 2, "novembre : seuls les 1er et 2 comptent (pas le 31 octobre) (obtenu : " + r.ratesDepuisConnexion + ")");
+  assert.equal(r.manques, 2);
+  assert.equal(r.reduction, 19, "2 jours ratés = 19 % de réduction, cohérent avec le nombre annoncé");
+}
 console.log("idle-login-calendar-v1 OK");
