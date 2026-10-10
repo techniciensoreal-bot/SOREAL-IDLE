@@ -2989,6 +2989,23 @@
           idleMenuViveSyncV1=Date.now();
           synchroniserJeuIdleV7_(true);
         }
+        /*
+         * Or EN DIRECT (Norman, 2026-10-10 : « les soustractions d'Or posent problème dans tous les menus qui en demandent : un petit retour en arrière, un temps d'arrêt, ou la mauvaise piste qui prend le niveau ; le contrôle de l'Or ne
+         * se fait pas assez vite »). Le client retirait bien l'Or de chaque niveau acheté, mais ne le REMPLISSAIT jamais entre deux synchros : il croyait en manquer (barre pleine, « en attente d'Or ») alors que la machine en avait déjà
+         * produit, puis la synchro suivante rendait l'Or et faisait sauter les niveaux. L'Or gagné par seconde (Or net de la machine) est maintenant ajouté localement à chaque tick, comme l'énergie ; la synchro ne fait que confirmer.
+         */
+        {
+          const monnaiesOr=idleEtat.systemes&&idleEtat.systemes.currencies;
+          const vueMachine=idleEtat.systemes&&idleEtat.systemes.timeMachineView;
+          const maintOr=performance.now();
+          const dtOr=idleOrLocalAtV1===0?0:Math.max(0,Math.min(5,(maintOr-idleOrLocalAtV1)/1000));
+          idleOrLocalAtV1=maintOr;
+          const gps=idleNombre_(vueMachine&&vueMachine.netGps);
+          if(monnaiesOr&&gps>0&&dtOr>0&&PAGE_ACTIVE==='idle'){
+            monnaiesOr.gold=idleNombre_(monnaiesOr.gold)+gps*dtOr;
+            if(maintOr-idleOrLocalPatchV1>500){idleOrLocalPatchV1=maintOr;patcherResumeStatsIdleV28_(idleEtat);}
+          }
+        }
         const augVisual=idleEtat.__augmentationsVisualV215;
         const niveauxAugmentsLocaux={};
         if(augVisual&&PAGE_ACTIVE==='idle'){
@@ -15675,6 +15692,7 @@
 
       /* Dernière resynchronisation demandée par une barre d'Augmentation pleine (anti-rafale). */
       let idleAugSyncV1=0;
+      let idleOrLocalAtV1=0,idleOrLocalPatchV1=0;
       /*
        * Menus « à l'ancienne » (NGU, Wandoos, Yggdrasil, Gold Diggers, Barbes, Souhaits, Hacks, Garderie) : leurs chiffres ne venaient que de la synchro (toutes les 15 s, sinon à la prochaine visite)
        * et restaient figés devant le joueur (Norman, 2026-10-05 : « tout doit se passer en direct »). Tant que l'un d'eux est ouvert, une synchro part toutes les 4 s et la page est redessinée à l'arrivée
