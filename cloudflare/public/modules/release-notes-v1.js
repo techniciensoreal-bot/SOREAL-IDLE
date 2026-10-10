@@ -11,10 +11,22 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.4',
+    courante:'2.5',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.',
     versions:[
+      {
+        version:'2.5',
+        nom:'Tout en médailles',
+        date:'2026-10-10',
+        points:[
+          'Page des succès refaite : tous les trophées sont des cases, en couleur avec une médaille bronze, argent, or, platine ou diamant quand ils sont obtenus, grisés sinon. Un objectif reste caché derrière des points d’interrogation tant que le boss indiqué n’est pas vaincu, et chaque case dit quel boss tuer pour voir les infos.',
+          '« En direct » annonce maintenant les Nuke (avec le nombre exact de boss tués), les objets transformés et les boosts versés dans le Cube ou dans une pièce, avec des phrases d’humour. Les noms de menus y sont en français et tout existe en anglais.',
+          'Les chiffres écrits en entier ont des points entre les milliers (10.000.000 au lieu de 10000000) : barres d’énergie, de magie et de troisième ressource, Entraînement de base et niveaux d’Augmentations.',
+          'Un clic droit (ou un double tap) sur un boost le fusionne avec tous les boosts de même chiffre et de même couleur, jusqu’au niveau 100.',
+          'Le journal de combat de l’Aventure a une hauteur fixe dès l’ouverture et ne décale plus la page. L’Entraînement de base dit « Place ton énergie pour augmenter ton attaque et ta défense. ».'
+        ]
+      },
       {
         version:'2.4',
         nom:'Orage dégagé',
