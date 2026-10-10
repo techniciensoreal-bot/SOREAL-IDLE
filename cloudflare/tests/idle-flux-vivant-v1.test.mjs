@@ -85,4 +85,13 @@ for (const m of ["combat", "challenges", "titans", "aventure", "tower", "entrain
   assert.ok(new Set(t).size >= 20, m + " : au moins vingt variantes propres");
   assert.ok(!t.some((x) => (m === "aventure" ? /bidouille|s’installe|mission secrète|petites affaires|coin tranquille|traîne dans/ : /fouille|bidouille|s’installe|mission secrète|petites affaires|coin tranquille|traîne dans/).test(x)), m + " : aucune phrase commune");
 }
+// Noms de menus en français dans « En direct » (Norman, 2026-10-10) : aucun nom anglais du jeu d'origine dans les phrases.
+const anglais = /Basic Training|Advanced Training|Fight Boss|Item Daycare|Time Machine|Blood Magic|Gold Diggers|Rebirth|Questing|Challenges|Adventure|Beards|Hacks|Quirks|Wishes|Cards|Cooking|Money Pit/;
+for (const m of tousMenus) {
+  for (let i = 0; i < 60; i++) {
+    const t = phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: m } }, expert).texte;
+    assert.ok(!anglais.test(t), m + " : nom anglais dans « " + t + " »");
+  }
+}
+assert.ok(!anglais.test(phrase({ id: 0, type: "sort", nom: "Ana", donnees: { sort: 9 } }, Object.assign(expert, { connus: Object.assign({}, expert.connus, { menus: Object.assign({}, expert.connus.menus, { sang: true }), sorts: {} }) })).texte), "sort de sang : nom du menu en français");
 console.log("idle-flux-vivant-v1: OK");

@@ -88,6 +88,10 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const boostCube = Math.max(0, Math.floor(N(bf.cube, 0)));
   const boostPieces = Math.max(0, Math.floor(N(bf.piece, 0)));
   const boostDernier = String(bf.last || "").replace(/[^A-Za-z0-9_\-]/g, "").slice(0, 80);
+  const idSur = (v) => String(v || "").replace(/[^A-Za-z0-9_:\-]/g, "").slice(0, 80);
+  const transformations = Math.max(0, Math.floor(N(bf.transform, 0)));
+  const transformDe = idSur(bf.transformDe);
+  const transformVers = idSur(bf.transformVers);
   const titanCombats = Math.max(0, Math.floor(N(tf.starts, 0)));
   const titanPertes = Math.max(0, Math.floor(N(tf.losses, 0)));
   const titanDernier = String(tf.last || "");
@@ -114,6 +118,9 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const roueJet = dernierRoue ? { recompense: recompenseSure(dernierRoue.reward) } : null;
   return {
     boostCube,
+    transformations,
+    transformDe,
+    transformVers,
     boostPieces,
     boostDernier,
     puitsAt,
@@ -203,6 +210,8 @@ export function evenementsV1(avant, apres, noms = {}) {
   if (Number.isFinite(avant.titanPertes) && apres.titanPertes > avant.titanPertes) ev.push({ type: "titanPerdu", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
   /* Boosts : jamais depuis un instantané d'avant ce jalon. Cube : combien de boosts ; pièce : laquelle (identifiant de définition, nommé côté lecteur seulement s'il la connaît). */
   if (Number.isFinite(avant.boostCube) && apres.boostCube > avant.boostCube) ev.push({ type: "cube", donnees: { n: apres.boostCube - avant.boostCube } });
+  /* Objet transformé : jamais depuis un instantané d'avant ce jalon ; l'objet de départ et celui obtenu ne sont nommés que s'ils sont connus du lecteur. */
+  if (Number.isFinite(avant.transformations) && apres.transformations > avant.transformations) ev.push({ type: "transformation", donnees: { de: apres.transformDe, vers: apres.transformVers } });
   if (Number.isFinite(avant.boostPieces) && apres.boostPieces > avant.boostPieces) ev.push({ type: "piece", donnees: { def: apres.boostDernier, n: apres.boostPieces - avant.boostPieces } });
   /* Puits / roue : jamais depuis un instantané d'avant ce jalon (pas de comparaison, rien annoncé à tort). */
   if (Number.isFinite(avant.puitsAt) && apres.puitsAt > avant.puitsAt && apres.puitsJet) ev.push({ type: "puits", donnees: apres.puitsJet });

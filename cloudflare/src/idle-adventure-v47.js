@@ -5112,6 +5112,8 @@ export function annulerVictoireTitanV1(s,id){const d=IDLE_ADVENTURE_TITANS.find(
 if(st.kills===0&&id==="t1"){for(const [defId,cle] of [["aNumber","aNumber"],["wandoos98","wandoos98"]]){if(s.unlockFlags&&s.unlockFlags[unlockMap[cle]])continue;if(s.unlockItems&&s.unlockItems[cle]){s.unlockItems[cle]=false;retires.push(cle+":drapeau")}const copies=(s.inventory||[]).filter(x=>x&&x.definitionId===defId&&!x.locked).sort((a,b)=>I(a.level)-I(b.level));if(copies.length){retirerObjetAdventureV1(s,copies[0].id);retires.push(defId+":objet")}}}if(st.kills===0)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return{id,kills:st.kills,objetRetire,retires}}
 /* « En direct » : boosts versés dans une pièce ou dans le Cube de l'infini (compteurs seuls, lus par idle-flux-v1.js). */
 function fluxBoostV1(s,cle,id){const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f[cle]=Math.max(0,I(f[cle],0))+1;if(cle==='piece')f.last=String(id||'');s.boostFlux=f}
+/* « En direct » : objet transformé (ascension). Compteur + objet de départ + objet obtenu, jamais le détail. */
+function fluxTransformV1(s,de,vers){const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f.transform=Math.max(0,I(f.transform,0))+1;f.transformDe=String(de||'');f.transformVers=String(vers||'');s.boostFlux=f}
 function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
 function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};versZoneSureV1(s,"defaite","Tu as été mis K.O. dans cette zone");return{defeated:true,zone}}
 function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}
@@ -5803,8 +5805,10 @@ function transformAdventureItemV1(s,itemId,ctx){
   const piece=o?THE_END_ASCENSIONS_V1[o.definitionId]:0;
   if(piece){
     if(!idleAdventureNiveauEstMaxV1(o.level))throw Error("OBJET_NON_MAXE");
+    const defDepart=o.definitionId;
     retirerObjetAdventureV1(s,o.id);
     idleTheEndGrantV1(s,piece,Date.now());
+    fluxTransformV1(s,defDepart,"");
     return{transformed:true,theEnd:true};
   }
   if(!o||!cible)throw Error("TRANSFORMATION_INVALIDE");
@@ -5815,6 +5819,7 @@ function transformAdventureItemV1(s,itemId,ctx){
   obtenu.id=`i${s.serial++}`;
   const ajoute=add(s,obtenu);
   if(!ajoute)throw Error("INVENTAIRE_PLEIN");
+  fluxTransformV1(s,o.definitionId,cible);
   return ajoute;
 }
 function setBeastModeAdventureV1(s,enabled){

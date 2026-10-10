@@ -219,11 +219,11 @@ const stats = (o = {}) => ({
   assert.equal(p("calendrier", { jour: 12, ap: 3280 }, expert), null, "menu pas connu du lecteur : rien");
   assert.equal(p("calendrier", { jour: 12, ap: 3280 }, avecPit).texte, "Mickaël a récupéré sa récompense de connexion du jour 12 (+" + (3280).toLocaleString("fr-FR") + " AP)");
   assert.equal(p("calendrier", { jour: 3, ap: 1440 }, avecPit, true).texte, "Tu as récupéré ta récompense de connexion du jour 3 (+" + (1440).toLocaleString("fr-FR") + " AP)", "à la deuxième personne");
-  assert.equal(p("rebirth", {}, expert).texte, "Mickaël a fait un Rebirth", "sans durée connue : rien d'inventé");
-  assert.equal(p("rebirth", { duree: 8 * 3600 }, expert).texte, "Mickaël a fait un Rebirth après 8 h de run");
-  assert.equal(p("rebirth", { duree: 8 * 3600 + 12 * 60 + 40 }, expert).texte, "Mickaël a fait un Rebirth après 8 h 12 min de run");
-  assert.equal(p("rebirth", { duree: 45 * 60 }, expert).texte, "Mickaël a fait un Rebirth après 45 min de run");
-  assert.equal(p("rebirth", { duree: 100 * 3600 + 30 * 60 }, expert).texte, "Mickaël a fait un Rebirth après 4 j 4 h de run");
+  assert.equal(p("rebirth", {}, expert).texte, "Mickaël a fait une Renaissance", "sans durée connue : rien d'inventé");
+  assert.equal(p("rebirth", { duree: 8 * 3600 }, expert).texte, "Mickaël a fait une Renaissance après 8 h de run");
+  assert.equal(p("rebirth", { duree: 8 * 3600 + 12 * 60 + 40 }, expert).texte, "Mickaël a fait une Renaissance après 8 h 12 min de run");
+  assert.equal(p("rebirth", { duree: 45 * 60 }, expert).texte, "Mickaël a fait une Renaissance après 45 min de run");
+  assert.equal(p("rebirth", { duree: 100 * 3600 + 30 * 60 }, expert).texte, "Mickaël a fait une Renaissance après 4 j 4 h de run");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, expert).texte, "Mickaël farme dans Égouts");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, debutant).texte, "Mickaël farme en Aventure", "zone inconnue : générique");
   assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu viens de vaincre Gros Rat");

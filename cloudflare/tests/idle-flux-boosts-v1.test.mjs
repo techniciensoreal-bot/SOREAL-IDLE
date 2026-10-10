@@ -47,4 +47,19 @@ const n = (type, d, l) => new Set(Array.from({ length: 60 }, (_, i) => p(i, type
 assert.ok(n("cube", {}, avecCube) >= 20, "cube : " + n("cube", {}, avecCube));
 assert.ok(n("piece", { def: "magitech_boots" }, avecCube) >= 20, "pièce nommée");
 assert.ok(n("piece", { def: "x" }, sansRien) >= 20, "pièce anonyme");
+
+// Objet transformé (Norman, 2026-10-10 : « quand on transforme un objet, par exemple le pendentif de la forêt, ça doit passer En Direct »).
+assert.ok(moteur.includes("function fluxTransformV1(s,de,vers)") && moteur.includes("fluxTransformV1(s,o.definitionId,cible)") && moteur.includes("fluxTransformV1(s,defDepart,\"\")"), "le moteur compte les transformations");
+const t0 = lire({ transform: 1, transformDe: "forestPendant", transformVers: "ascendedForestPendant" });
+assert.deepEqual([t0.transformations, t0.transformDe, t0.transformVers], [1, "forestPendant", "ascendedForestPendant"]);
+const avantT = lire({});
+const apresT = lire({ transform: 1, transformDe: "forestPendant", transformVers: "ascendedForestPendant" });
+assert.deepEqual(evenementsV1(avantT, apresT, {}), [{ type: "transformation", donnees: { de: "forestPendant", vers: "ascendedForestPendant" } }]);
+assert.deepEqual(evenementsV1(apresT, apresT, {}), [], "rien n'a changé");
+const lecteurT = lecteur({ pieces: { forestPendant: "Pendentif de la forêt", ascendedForestPendant: "Pendentif de la forêt ascendant" } });
+assert.equal(p(0, "transformation", { de: "forestPendant", vers: "ascendedForestPendant" }, lecteurT).texte, "Franz transforme « Pendentif de la forêt » — elle devient « Pendentif de la forêt ascendant »");
+const peuConnu = lecteur({ pieces: { forestPendant: "Pendentif de la forêt" } });
+assert.equal(p(0, "transformation", { de: "forestPendant", vers: "ascendedForestPendant" }, peuConnu).texte, "Franz transforme « Pendentif de la forêt »", "l'objet obtenu n'est pas nommé s'il est inconnu du lecteur");
+assert.equal(p(0, "transformation", { de: "forestPendant", vers: "ascendedForestPendant" }, sansRien).texte, "Franz transforme une de ses pièces", "rien de nommé pour un lecteur qui ne les connaît pas");
+assert.ok(new Set(Array.from({ length: 60 }, (_, i) => p(i, "transformation", { de: "forestPendant" }, peuConnu).texte)).size >= 20, "vingt variantes");
 console.log("idle-flux-boosts-v1: OK");
