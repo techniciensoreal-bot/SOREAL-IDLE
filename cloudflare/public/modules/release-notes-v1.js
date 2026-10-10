@@ -20,6 +20,12 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          '« Combat de boss » devient une vraie borne d’arcade dessinée, devant un luna park de nuit : fronton lumineux, baguettes bleue et rouge qui luisent, boutons Fight, Fuite et NUKE lumineux quand ils sont disponibles et éteints sinon. La borne s’allume en clignotant, avec un bruit d’écran qui s’allume, une fois par Renaissance.',
+          'Le Trou sans fond (ancien Money Pit) est refait : image entière, roue journalière qui tourne avant d’annoncer le lot, calendrier de connexion resserré et placé en bas de page.',
+          'L’inventaire est refait : le Coffre est un coffre à pattes, à dents et à langue qui croque les objets (10 bruits d’avalement, 10 de crachat), dans son propre cadre de bois. Les icônes de l’inventaire sont dessinées.',
+          'Le Cube de l’infini annonce par une fenêtre quand il change de palier.',
+          'Plus aucune bulle d’aide du navigateur au survol ; les étoiles de NGU ne font plus ramer la page ; les barres de ressources épuisées ne laissent plus de cadre vide ; les barres d’Augmentations au maximum mettent leurs niveaux à jour en direct.',
+          'Les descriptions encore en anglais sont traduites (hors noms propres) et la version anglaise ne contient plus de français. Dans les succès, les numéros de boss restent cachés avant la victoire.',
           'Page des succès refaite : tous les trophées sont des cases, en couleur avec une médaille bronze, argent, or, platine ou diamant quand ils sont obtenus, grisés sinon. Un objectif reste caché derrière des points d’interrogation tant que le boss indiqué n’est pas vaincu, et chaque case dit quel boss tuer pour voir les infos.',
           '« En direct » annonce maintenant les Nuke (avec le nombre exact de boss tués), les objets transformés et les boosts versés dans le Cube ou dans une pièce, avec des phrases d’humour. Les noms de menus y sont en français et tout existe en anglais.',
           'Les chiffres écrits en entier ont des points entre les milliers (10.000.000 au lieu de 10000000) : barres d’énergie, de magie et de troisième ressource, Entraînement de base et niveaux d’Augmentations.',

@@ -1226,3 +1226,25 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 }
 /* L'ancien manche à balai (bille bleue du pupitre d'avant) est supprimé. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-controls-v39::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-controls-v39::after{display:none!important}
+
+/* Luna park derrière la borne (Norman, 2026-10-10) : le décor remplit la page, la borne est posée devant ; guirlandes qui scintillent tour à tour, grande roue qui tourne, ballons qui flottent. Boucles sans à-coup. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{position:relative;overflow:hidden;padding-top:120px!important;padding-bottom:70px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.bn-lunapark{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.bn-lunapark::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(4,2,16,.55) 100%)}
+.bn-lunapark-svg{display:block;width:100%;height:100%}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.borne-v2{position:relative;z-index:2}
+@keyframes lpTourne{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes lpContre{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+@keyframes lpAmp{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes lpScint{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes lpFlotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes lpFanion{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.82)}}
+@keyframes lpWagon{from{offset-distance:0%}to{offset-distance:100%}}
+.lp-roue{animation:lpTourne 120s linear infinite}
+.lp-nacelle{animation:lpContre 120s linear infinite}
+.lp-ampoule{animation:lpAmp 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}
+.lp-etoile{animation:lpScint 3.2s ease-in-out infinite;animation-delay:var(--d,0s)}
+.lp-ballon{animation:lpFlotte 5s ease-in-out infinite;animation-delay:var(--d,0s)}
+.lp-fanion{transform-box:fill-box;transform-origin:0 50%;animation:lpFanion 1.6s ease-in-out infinite}
+.lp-wagon{offset-path:path("M470 700 C520 470 560 470 600 640 C630 740 650 560 690 520 C730 480 760 640 810 560");offset-rotate:auto;animation:lpWagon 9s linear infinite}
+@media (prefers-reduced-motion:reduce){.lp-roue,.lp-nacelle,.lp-ampoule,.lp-etoile,.lp-ballon,.lp-fanion,.lp-wagon{animation:none}}
