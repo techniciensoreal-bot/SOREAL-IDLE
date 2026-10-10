@@ -1989,10 +1989,52 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           return 125;
         }
       })();
+      /*
+       * Chaque Input est PROPRE à son menu (Norman, 2026-10-10 : « chaque Input doit être propre au menu où il se trouve »). La valeur reste une variable unique (tout le code existant la lit), mais elle est
+       * échangée à chaque changement de menu : on range la valeur du menu quitté dans sa case (persistée) et on charge celle du menu atteint ; un menu qu'on n'a jamais réglé garde la valeur d'avant (héritée).
+       */
+      const CLE_MONTANTS_MENU_IDLE_V1='soreal_idle_montants_menu_v1';
+      const montantHeriteIdleV1=montantAugmentIdleV1;
+      let montantsMenuIdleV1=(function(){
+        try{const o=JSON.parse(localStorage.getItem(CLE_MONTANTS_MENU_IDLE_V1)||'{}');return o&&typeof o==='object'?o:{};}catch(_e){return {};}
+      })();
+      let menuMontantIdleV1='';
+      function menuCourantMontantIdleV1_(){
+        if(!menuMontantIdleV1){const f=window.__menuActifIdleV28__;menuMontantIdleV1=typeof f==='function'?String(f()||''):'';}
+        return menuMontantIdleV1;
+      }
+      function memoriserMontantMenuIdleV1_(){
+        const m=menuCourantMontantIdleV1_();
+        if(!m)return;
+        montantsMenuIdleV1[m]=montantAugmentIdleV1;
+        try{localStorage.setItem(CLE_MONTANTS_MENU_IDLE_V1,JSON.stringify(montantsMenuIdleV1));}catch(_e){}
+      }
+      window.__SOREAL_IDLE_INPUT_MENU_V1__={
+        /* Au démarrage : le menu affiché retrouve SA valeur. */
+        init:function(menu){
+          menu=String(menu||'');
+          if(!menu)return;
+          menuMontantIdleV1=menu;
+          const v=Math.floor(Number(montantsMenuIdleV1[menu]));
+          montantAugmentIdleV1=Number.isFinite(v)&&v>=1?v:montantHeriteIdleV1;
+        },
+        changer:function(nouveau){
+          nouveau=String(nouveau||'');
+          /* Le menu quitté est celui retenu jusqu'ici (jamais relu maintenant : le menu actif est déjà le nouveau). */
+          const ancien=menuMontantIdleV1;
+          if(!nouveau||nouveau===ancien)return;
+          if(ancien)memoriserMontantMenuIdleV1_();
+          menuMontantIdleV1=nouveau;
+          const v=Math.floor(Number(montantsMenuIdleV1[nouveau]));
+          montantAugmentIdleV1=Number.isFinite(v)&&v>=1?v:montantHeriteIdleV1;
+          try{localStorage.setItem('soreal_idle_montant_input_v1',String(montantAugmentIdleV1));}catch(_e){}
+        },
+        montantDe:function(menu){const v=Math.floor(Number(montantsMenuIdleV1[menu]));return Number.isFinite(v)&&v>=1?v:montantHeriteIdleV1;}
+      };
       function montantAugmentLireIdleV1_(){
         const el=document.getElementById('sorealIdleAugInputV1');
         const n=Math.floor(Number(el&&el.value));
-        if(Number.isFinite(n)&&n>=1)montantAugmentIdleV1=n;
+        if(Number.isFinite(n)&&n>=1){montantAugmentIdleV1=n;memoriserMontantMenuIdleV1_();}
         return montantAugmentIdleV1;
       }
       window.__saisirMontantAugmentIdleV1__=function(v){
@@ -2000,6 +2042,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(Number.isFinite(n)&&n>=1){
           montantAugmentIdleV1=n;
           try{localStorage.setItem('soreal_idle_montant_input_v1',String(n));}catch(_e){}
+          memoriserMontantMenuIdleV1_();
         }
       };
       window.__lireMontantAugmentIdleV1__=function(){return montantAugmentIdleV1;};
@@ -2847,7 +2890,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const s=systemeMetaParIdIdleV130_(j,'timeMachine');
         const current=Math.max(0,H.idleNombre_(s&&s.state&&s.state.allocation&&s.state.allocation[ressource]));
         const pas=Math.max(1,Math.floor(Number((document.getElementById('sorealIdleTmInputV1')||{}).value)||montantAugmentIdleV1));
-        if(Number.isFinite(pas)&&pas>=1)montantAugmentIdleV1=pas;
+        if(Number.isFinite(pas)&&pas>=1){montantAugmentIdleV1=pas;memoriserMontantMenuIdleV1_();}
         /*
          * Norman (2026-09-29) : « il me permet d'ajouter de l'énergie même si je n'en ai pas. elle
          * est ensuite retirée mais il ne doit même pas l'accepter. » Contrairement à
@@ -3131,7 +3174,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         legendeAllocation:function(ressource,libre,croix){return legendeAllocationIdleV1_(ressource,libre,croix);},
         emojiNom:function(famille,id,nom){return emojiNomIdleV1_(famille,id,nom);},
         montant:function(){return montantAugmentIdleV1;},
-        fixerMontant:function(v){montantAugmentIdleV1=v;}
+        fixerMontant:function(v){montantAugmentIdleV1=v;memoriserMontantMenuIdleV1_();}
       }):null;
       function pageBloodMagicIdleV48_(j){return sangIdleV1?sangIdleV1.page(j):'';}
       function recalculerBloodLocalIdleV1_(j,ritualId,alloc,sansRedessin){return sangIdleV1?sangIdleV1.recalculerLocal(j,ritualId,alloc,sansRedessin):undefined;}

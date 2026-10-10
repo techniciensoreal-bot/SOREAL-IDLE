@@ -31,6 +31,9 @@ for (const r of defilants) {
   const tuile = r.corps.match(/\/(\d+)px (\d+)px/);
   assert.ok(tuile, "tuile déclarée : " + r.sel.slice(-60));
   assert.equal(tuile[1], p[1], "glissement = une période de tuile : " + r.sel.slice(-60));
+  /* Norman (2026-10-10) : un décalage de DÉPART (« 20px 0/90px ») faisait glisser de --p depuis ce départ puis revenir d'un coup en arrière : le départ est toujours 0 (l'écart entre barres vient d'un délai négatif). */
+  const depart = r.corps.match(/\) (-?\d+(?:px)?) -?\d+(?:px)?\/\d+px \d+px/);
+  if (depart) assert.ok(/^0(px)?$/.test(depart[1]), "départ de tuile à 0 (sinon saut en arrière) : " + r.sel.slice(-60));
   const couches = (r.corps.match(/radial-gradient|url\(/g) || []).length;
   if (couches > 1) {
     const toutes = regles.some((x) => x.sel === r.sel && /background-size:\d+px \d+px/.test(x.corps) && /background-repeat:repeat-x/.test(x.corps));

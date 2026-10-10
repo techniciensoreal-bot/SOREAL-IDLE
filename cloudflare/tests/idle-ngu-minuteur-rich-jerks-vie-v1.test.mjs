@@ -24,7 +24,7 @@ assert.equal(dureeTexte(42 * (1 - 0.5)), "21 s");
 assert.equal(dureeTexte(600 * 0.9), "9 min");
 assert.equal(dureeTexte(7380), "2 h 3 min");
 // NGU : étoiles qui scintillent seulement quand de l'énergie / de la magie est placée ; « Je fais quoi ? » reste ouvert.
-assert.ok(ngu.includes('.nl-v1[data-nl-actif="1"] .nl-etoiles b:nth-child(2n){animation:nlEtoile'), "étoiles : animation conditionnée");
+assert.ok(ngu.includes('.nl-v1 .nl-etoiles b{animation:nlEtoile') && ngu.includes('.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;display:none;'), "étoiles : cachées tant qu'aucune machine n'est en route, puis scintillantes");
 assert.ok(ngu.includes("racine.setAttribute('data-nl-actif',actif)"), "étoiles : mise à jour en direct");
 assert.ok(ngu.includes("var aideOuverte=false;") && ngu.includes("aideOuverte=!el.hidden;") && ngu.includes("(aideOuverte?'':' hidden')"), "aide : état conservé");
 // Borne : stick et boutons rapprochés, groupe centré (milieu entre 0,355 et 0,675 ≈ 0,515).

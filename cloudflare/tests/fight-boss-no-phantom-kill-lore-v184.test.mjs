@@ -73,11 +73,13 @@ assert.match(
   "Après NUKE, la réponse autoritaire doit rester explicitement hors combat."
 );
 
+/* Norman (2026-10-10) : la chronique du boss est accrochée au mur derrière la borne (cadre cliquable), plus sous les trois boutons ; sans chronique, le bouton Admin garde l'ancienne place (sous les boutons). */
 const controls=ui.indexOf('<div class="soreal-idle-boss-controls-v39">');
-const lore=ui.indexOf("${histoireBossMarkupIdleV142_(j)}",controls);
+const mur=ui.indexOf("${chroniqueMur?chronique:''}");
+const ancienne=ui.indexOf("${chroniqueMur?'':chronique}",controls);
 assert.ok(
-  controls>=0&&lore>controls,
-  "La chronique du boss doit rester sous les trois boutons."
+  mur>=0&&mur<controls&&ancienne>controls,
+  "La chronique du boss est au mur, derrière la borne (et le repli Admin reste sous les boutons)."
 );
 
 /* Norman (2026-09-27) : le titre reste affiché, mais n'est plus prononcé par le narrateur (redondant avec le nom du boss juste après). */

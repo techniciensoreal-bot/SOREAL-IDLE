@@ -49,11 +49,14 @@ function etoilesHtml_(){
   return '<span class="nl-etoiles" aria-hidden="true">'+sortie+'</span>';
 }
 var ETOILES=etoilesHtml_();
-/* Étoiles fixes : une tuile SVG de 1000 px (200 étoiles, surtout toutes petites) répétée en fond du ciel. */
-function tuileEtoilesUri_(){
-  var a=31,svg='<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000">';
+/*
+ * Étoiles fixes (Norman, 2026-10-10 : « pas d'étoile tant qu'on n'a pas activé la machine ; plus on met de machines en route, plus les étoiles brillent ; le maximum quand toute l'énergie ET la magie sont cap »).
+ * Quatre tuiles SVG de 1000 px (50 étoiles chacune) : le ciel en montre 0, 1, 2, 3 ou 4 selon le niveau de lumière (data-nl-niv), et son opacité suit --nl-lueur (0 à 1).
+ */
+function tuileEtoilesUri_(graine){
+  var a=graine,svg='<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000">';
   function suite(){a=(a*9301+49297)%233280;return a/233280;}
-  for(var i=0;i<200;i+=1){
+  for(var i=0;i<50;i+=1){
     var x=suite()*1000,y=suite()*1000,u=suite(),r=0.6+u*u*u*5.4,o=(0.35+suite()*0.6).toFixed(2);
     if(r<1.6)svg+='<circle cx="'+x.toFixed(0)+'" cy="'+y.toFixed(0)+'" r="'+r.toFixed(1)+'" fill="#fff" fill-opacity="'+o+'"/>';
     else{
@@ -63,7 +66,23 @@ function tuileEtoilesUri_(){
   }
   return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
 }
-var TUILE_ETOILES=tuileEtoilesUri_();
+var TUILES_ETOILES=[31,97,173,251].map(tuileEtoilesUri_);
+function fondEtoiles_(k){
+  return TUILES_ETOILES.slice(0,k).map(function(u){return 'url("'+u+'") 0 0/1000px 1000px repeat';}).join(',');
+}
+/* Niveau de lumière du ciel : chaque machine (NGU) compte 0 si rien n'y est placé, 1/2 si elle tourne, 1 si elle est CAP (50 niveaux par seconde) ; on fait la moyenne de toutes les machines affichées. */
+function lueurDe_(parts){
+  if(!parts.length)return 0;
+  var t=0;for(var i=0;i<parts.length;i+=1)t+=parts[i];
+  return Math.max(0,Math.min(1,t/parts.length));
+}
+function nivDe_(lueur){return lueur>0?Math.max(1,Math.min(4,Math.ceil(lueur*4-1e-9))):0;}
+function partDe_(n){
+  var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
+  if(!(alloc>0))return 0;
+  var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
+  return spl>0&&spl<0.04?1:.5;
+}
 
 var onglet='energy';        // 'energy' | 'magic'
 var timer=0;
@@ -166,17 +185,22 @@ function barreHtml_(n,ancre){
 /* ---------- page ---------- */
 var CSS=
   '.nl-v1{position:relative;isolation:isolate;box-sizing:border-box;margin:0 0 12px;padding:16px 14px 22px;color:#eaf0ff;border-radius:20px;border:2px solid rgba(170,110,255,.6);overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;'+
-    'background-color:#0a0620;background-image:radial-gradient(circle at 12% 18%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 9%,#fff 0 1px,transparent 2px),radial-gradient(circle at 55% 42%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 55%,#ffd6fb 0 1px,transparent 2px),radial-gradient(circle at 30% 66%,#d6e6ff 0 1px,transparent 2px),radial-gradient(circle at 66% 88%,#fff 0 1px,transparent 2px),radial-gradient(circle at 8% 92%,#ffd6fb 0 1px,transparent 2px),linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%);'+
+    'background-color:#0a0620;background-image:linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%);'+
     'box-shadow:0 0 34px rgba(120,70,255,.4),inset 0 0 50px rgba(90,34,216,.28)}'+
   '.nl-v1 *{box-sizing:border-box}'+
   '.nl-eta{margin:2px 0 4px;font-size:12.5px;font-weight:800;color:#cdbcff;letter-spacing:.02em}.nl-eta b{color:#fff}'+
   '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
   /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
-  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;background:url("'+TUILE_ETOILES+'") 0 0/1000px 1000px repeat}'+
-  '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:.3;will-change:opacity,transform}'+
+  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;display:none;opacity:calc(.3 + var(--nl-lueur,0)*.7)}'+
+  '.nl-v1[data-nl-niv="1"] .nl-etoiles{display:block;background:'+fondEtoiles_(1)+'}'+
+  '.nl-v1[data-nl-niv="2"] .nl-etoiles{display:block;background:'+fondEtoiles_(2)+'}'+
+  '.nl-v1[data-nl-niv="3"] .nl-etoiles{display:block;background:'+fondEtoiles_(3)+'}'+
+  '.nl-v1[data-nl-niv="4"] .nl-etoiles{display:block;background:'+fondEtoiles_(4)+'}'+
+  /* étoiles à quatre branches qui scintillent : de plus en plus nombreuses et lumineuses avec le niveau */
+  '.nl-etoiles b{display:none;position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:.3;will-change:opacity,transform}'+
+  '.nl-v1[data-nl-niv="1"] .nl-etoiles b:nth-child(-n+8),.nl-v1[data-nl-niv="2"] .nl-etoiles b:nth-child(-n+16),.nl-v1[data-nl-niv="3"] .nl-etoiles b:nth-child(-n+28),.nl-v1[data-nl-niv="4"] .nl-etoiles b{display:block}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
-  /* Même sans énergie placée, une étoile sur quatre scintille doucement (la nuit n'est jamais figée) ; dès qu'un tuyau reçoit de l'énergie ou de la magie, une sur deux. */
-  '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b:nth-child(4n){animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}.nl-v1[data-nl-actif="1"] .nl-etoiles b:nth-child(2n){animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b{animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
     '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
@@ -282,6 +306,7 @@ function page(j){
   ].concat(magieOk?[['✨ EXP',ratio(fx.exp)],['🔢 Number',ratio(fx.number)],['🌱 Yggdrasil',ratio(fx.yggdrasil)],['⏱️ Time Machine',ratio(fx.timeMachine)]]:[])
   .map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
   var avance=ng.advance||{};
+  var lueurPage_=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource!=='magic'||magieOk;}).map(partDe_));
   function section(res){
     var tuyaux=liste.filter(function(n){return n.resource===res;}).map(function(n){return barreHtml_(n,ancre);}).join('');
     return '<div class="nl-section" data-nl-section="'+res+'"'+(onglet===res?'':' hidden')+'>'+
@@ -291,7 +316,7 @@ function page(j){
   }
   var html=
     '<style>'+CSS+'</style>'+
-    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'">'+ETOILES+
+    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'" data-nl-niv="'+nivDe_(lueurPage_)+'" style="--nl-lueur:'+lueurPage_.toFixed(3)+'">'+ETOILES+
       '<div class="nl-haut">'+
         '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
         (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
@@ -325,6 +350,12 @@ function tick_(){
   /* Les étoiles du fond scintillent dès qu'un tuyau reçoit de l'énergie ou de la magie. */
   var actif=Array.prototype.some.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){return Number(f.dataset.nlSpl)>0;})?'1':'0';
   if(racine.getAttribute('data-nl-actif')!==actif)racine.setAttribute('data-nl-actif',actif);
+  /* Niveau de lumière du ciel : 0 rien, 1/2 la machine tourne, 1 elle est CAP ; moyenne de toutes les machines affichées (énergie et magie). */
+  var parts=Array.prototype.map.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){return f.classList.contains('pleine')?1:(Number(f.dataset.nlSpl)>0?.5:0);});
+  var lueur=lueurDe_(parts),niv=String(nivDe_(lueur));
+  if(racine.getAttribute('data-nl-niv')!==niv)racine.setAttribute('data-nl-niv',niv);
+  var lv=lueur.toFixed(3);
+  if(racine.style.getPropertyValue('--nl-lueur')!==lv)racine.style.setProperty('--nl-lueur',lv);
   var maintenant=typeof performance!=='undefined'?performance.now():0;
   var H=H_();
   Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){

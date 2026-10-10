@@ -33,7 +33,7 @@ assert.ok(!meta.includes('la quantité déplacée à chaque clic'), 'légende In
 assert.match(themes, /moneyPit"\] :is\(\.soreal-idle-money-actions-v206,\.soreal-idle-money-scene-v206,/);
 
 /* NGU : nuit étoilée dense et fond en parallaxe */
-assert.match(ngu, /i<200;/, 'beaucoup d’étoiles (tuile SVG)');
+assert.match(ngu, /i<50;/, 'quatre tuiles de 50 étoiles (SVG)');
 assert.ok(!ngu.includes('parallaxe_'), 'plus de décalage de profondeur : le fond bouge avec les barres (ressources)');
 assert.match(itopod0, /soreal-idle-bossbar-v7\{\s*border-radius:999px/, 'barre de vie du boss en tube');
 console.log('idle-boutique-ap-anti-spoil-v1: OK');
