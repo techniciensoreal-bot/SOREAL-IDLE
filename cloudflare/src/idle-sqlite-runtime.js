@@ -4806,6 +4806,12 @@ function statsJoueurSorealIdle_(valeur) {
      * classement, records.playSeconds (temps écoulé du moteur, rattrapage hors-ligne compris).
      */
     tempsActifSec:Math.max(0,nombreSorealIdle_(s.tempsActifSec,0)),
+    /*
+     * Classement « Combat le plus long » (Norman, 2026-10-10) : durée du combat de boss en cours (secondes de combat simulées, remise à 0 à chaque lancement) et record du joueur,
+     * enregistré quand le combat se termine par une victoire ou une défaite (une fuite ou un NUKE n'est pas un combat mené à son terme).
+     */
+    combatBossDureeSec:Math.max(0,nombreSorealIdle_(s.combatBossDureeSec,0)),
+    combatBossPlusLongSec:Math.max(0,nombreSorealIdle_(s.combatBossPlusLongSec,0)),
     forge:Math.max(0,Math.floor(nombreSorealIdle_(s.forge,0))),
     materiauxDepenses:Math.max(0,Math.floor(nombreSorealIdle_(s.materiauxDepenses,0))),
     extensionsSac:Math.max(0,Math.floor(nombreSorealIdle_(s.extensionsSac,0))),
@@ -8557,6 +8563,7 @@ function appliquerProgressionEnergieSorealIdle_(
       /* « En direct » : compteur de défaites contre un boss (modules/flux-v1.js) ; le combat passe d'actif à inactif une seule fois. */
       statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
       statsCombat.fluxBossDernier=bossCombatIndex+1;
+      cloreCombatBossClassementV1_(statsCombat);
       statsCombat.combatBossActif=false;
       combatBossActif=false;
       break;
@@ -8757,6 +8764,7 @@ function appliquerProgressionEnergieSorealIdle_(
     degatsRecus += dommageJoueur;
 
     tempsRestant -= segment;
+    statsCombat.combatBossDureeSec=Math.max(0,nombreSorealIdle_(statsCombat.combatBossDureeSec,0))+segment;
     tempsSimulation +=
       segment * 1000;
 
@@ -8889,6 +8897,7 @@ function appliquerProgressionEnergieSorealIdle_(
        * cooldown de "reformation". Le prochain combat reste arrêté : le
        * joueur voit le nouveau boss et choisit quand lancer le combat.
        */
+      cloreCombatBossClassementV1_(statsCombat);
       statsCombat.combatBossActif =
         false;
 
@@ -8929,6 +8938,7 @@ function appliquerProgressionEnergieSorealIdle_(
       koSubis += 1;
       statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
       statsCombat.fluxBossDernier=bossCombatIndex+1;
+      cloreCombatBossClassementV1_(statsCombat);
       statsCombat.combatBossActif=false;
       combatBossActif=false;
     }
@@ -12211,6 +12221,8 @@ function definirCombatBossSorealIdle(
       stats.fluxBossDernier=bossSelectionCourante;
     }
 
+    /* Classement « Combat le plus long » : un nouveau combat repart de zéro (un combat interrompu par une fuite ou un NUKE n'est pas enregistré). */
+    if(Boolean(actif)&&!stats.combatBossActif)stats.combatBossDureeSec=0;
     stats.combatBossActif =
       Boolean(actif);
 
@@ -13459,7 +13471,7 @@ const CLASSEMENT_STATS_SOREAL_IDLE_V1 = Object.freeze([
  * pas fausser le classement Global (qui reflète la vraie progression). Son propre rang est bien calculé (onglet
  * dédié côté client), mais exclu de la somme de points qui fait le classement Global ci-dessous.
  */
-const CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1 = Object.freeze(['clics']);
+const CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1 = Object.freeze(['clics', 'combatLong']);
 const CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1 = Object.freeze(
   CLASSEMENT_STATS_SOREAL_IDLE_V1.concat(CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1)
 );
@@ -13473,6 +13485,13 @@ function estAdministrateurSorealIdle_(emailPrincipal, emailConnexion) {
   const emails = [emailPrincipal, emailConnexion]
     .map(function(e) { return String(e || '').trim().toLowerCase(); });
   return emails.indexOf(ADMIN_SOREAL_IDLE_EMAIL) !== -1;
+}
+
+/* Fin d'un combat de boss mené à son terme (victoire ou défaite) : sa durée entre au record du joueur, puis le compteur repart de zéro. */
+function cloreCombatBossClassementV1_(stats) {
+  const duree = Math.max(0, nombreSorealIdle_(stats.combatBossDureeSec, 0));
+  if (duree > nombreSorealIdle_(stats.combatBossPlusLongSec, 0)) stats.combatBossPlusLongSec = duree;
+  stats.combatBossDureeSec = 0;
 }
 
 function valeursClassementJoueurSorealIdle_(stats) {
@@ -13504,7 +13523,9 @@ function valeursClassementJoueurSorealIdle_(stats) {
     /* Temps de jeu ACTIF (battementSorealIdle), plus le temps écoulé du moteur : voir statsJoueurSorealIdle_.tempsActifSec. */
     playSeconds: Math.floor(positif(stats && stats.tempsActifSec)),
     achievements: succes,
-    clics: Math.floor(positif(stats && stats.clicsTotal))
+    clics: Math.floor(positif(stats && stats.clicsTotal)),
+    /* Combat de boss le plus long, en dixièmes de seconde (secondes avec une décimale). */
+    combatLong: Math.round(positif(stats && stats.combatBossPlusLongSec) * 10) / 10
   };
 }
 

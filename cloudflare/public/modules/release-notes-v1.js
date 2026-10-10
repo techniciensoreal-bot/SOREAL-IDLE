@@ -20,6 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          'Un nouvel onglet des Chroniques, « Combat le plus long », range les joueurs selon leur plus long combat de boss mené jusqu’au bout (victoire ou défaite ; une fuite ne compte pas).',
           'La paralysie ne décale plus l’interface : plus de phrase au-dessus, seuls les raccourcis passent au jaune. Le bouton Trier de l’inventaire montre enfin son icône, et l’Or par remplissage de la machine affiché est le vrai chiffre (Or par seconde ÷ remplissages par seconde), la base étant indiquée à part.',
           'Page Aventure allégée : le journal de combat n’ajoute plus que les nouvelles lignes, la note « Prochain combat », l’icône du sac et la corbeille ne sont plus redessinés à chaque mise à jour (fini le clignotement de l’inventaire), et le reflet des tuiles du haut ne ralentit plus la page. Plus de popup quand on prend la fuite. Quand une barre de ressource réapparaît, l’ordre reste toujours Énergie, Magie, 3e ressource, puis Vie.',
           'La chronique d’un boss s’affiche toute seule au moment où elle est lue pour la première fois, avec un bouton Play / Stop à la place de « Lire la chronique ». Dans la fiche d’un boss de la Collection, « Lire les chroniques à partir d’ici » enchaîne les chroniques avec un petit lecteur flottant (pause, stop) que tu peux déplacer où tu veux sur l’écran.',

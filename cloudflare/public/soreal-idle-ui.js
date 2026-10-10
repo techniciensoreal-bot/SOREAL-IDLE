@@ -22873,7 +22873,8 @@ function pageAventureIdleV28_(j){
         {id:'exp',nom:'⭐ EXP'},
         {id:'playSeconds',nom:'⏱️ Temps de jeu actif'},
         {id:'achievements',nom:'🎖️ Succès'},
-        {id:'clics',nom:'🖱️ Clics/Tap'}
+        {id:'clics',nom:'🖱️ Clics/Tap'},
+        {id:'combatLong',nom:'⚔️ Combat le plus long'}
       ];
       let idleClassementOngletV1='global';
       const idleClassementV1={donnees:null,chargement:false,erreur:'',dernier:0};
@@ -22931,6 +22932,12 @@ function pageAventureIdleV28_(j){
 
       function valeurClassementIdleV1_(stat,valeur){
         if(stat==='playSeconds')return formaterDureeJeuIdleV1_(valeur);
+        if(stat==='combatLong'){
+          const sec=Math.max(0,idleNombre_(valeur));
+          if(sec<=0)return '—';
+          if(sec<60)return sec.toFixed(1).replace('.',',')+' s';
+          return formaterDureeJeuIdleV1_(sec)+' '+Math.floor(sec%60)+' s';
+        }
         if(stat==='boss')return 'Boss '+idleEntier_(valeur);
         if(stat==='number'||stat==='exp')return formatGrandNombreIdleV70_(valeur);
         return String(idleEntier_(valeur));
