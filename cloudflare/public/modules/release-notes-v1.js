@@ -20,7 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
-          'Augmentations est refait : chaque paire montre sa version normale et sa version puissante côte à côte (badge, icône propre, tube de verre lumineux), avec une cible par piste et « Faire suivre l’énergie ». Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur.',
+          'Augmentations est refait : chaque paire montre ses deux pistes côte à côte, dans une même couleur avec une nuance plus claire pour la seconde (icône propre, tube de verre lumineux), avec une cible par piste et « Faire suivre l’énergie ». Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur.',
           'Chaque barre qui porte de l’énergie se voit d’un coup d’œil : des particules propres à chaque menu (braises, étoiles, circuits, pièces, gouttes, orbes) l’animent, même quand sa barre est pleine.',
           'Sur ordinateur, les petites écritures sont plus grandes (barres Input et Plafond, niveaux et cibles des NGU, calendrier, boutique, chat…) ; le téléphone ne change pas.',
           'Le combat de boss et NGU sont de nouveau fluides : l’ombre de la borne n’est plus recalculée à chaque image, ses néons et ses boutons s’animent avec la carte graphique, et le liquide des NGU avance à chaque image au lieu de dix fois par seconde.',

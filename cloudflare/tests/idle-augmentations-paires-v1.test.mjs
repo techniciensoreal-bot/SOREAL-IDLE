@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
-/* Norman (2026-10-10) : Augmentations refait : paires « version normale + version puissante » marquées, icône propre à chaque version puissante, Advance Energy, barres en tubes de verre. */
+/* Norman (2026-10-10) : Augmentations refait : paires marquées par la couleur (même teinte, nuance plus claire pour la seconde piste, sans texte « version normale / puissante »), icône propre à chaque version puissante, Advance Energy, barres en tubes de verre. */
 const page = meta.slice(meta.indexOf("function pageAugmentationsIdleV48_(j)"), meta.indexOf("function pageTimeMachineIdleV48_(j)"));
-for (const k of ["aug-badge-v2 puissant", "aug-badge-v2 normal", "Version puissante", "Version normale", "aug-tube-v2", "aug-liquide-v2", "aug-reflet-v2", "aug-lien-v2", "aug-paire-v2", "aug-cible-v2", "aug-avance-v2", "Faire suivre l’énergie", "__cibleAugmentIdleV1__", "__avanceAugmentsIdleV1__"]) {
+for (const k of ["aug-badge-v2 puissant", "aug-badge-v2 normal", "aug-tube-v2", "aug-liquide-v2", "aug-reflet-v2", "aug-lien-v2", "aug-paire-v2", "aug-cible-v2", "aug-avance-v2", "Faire suivre l’énergie", "__cibleAugmentIdleV1__", "__avanceAugmentsIdleV1__"]) {
   assert.ok(page.includes(k), "page : " + k);
 }
 // les identifiants lus par le moteur d'affichage existant n'ont pas bougé
@@ -18,6 +18,7 @@ assert.ok(icones.length >= 7 && new Set(icones).size === icones.length, "7 icôn
 assert.ok(meta.includes("action:'setAugmentTarget'") && meta.includes("action:'setAugmentAdvance'"));
 // style : tube de verre, reflet en boucle sans à-coup, version puissante en feu
 assert.match(css, /@keyframes augReflet\{0%\{opacity:0;transform:translateX\(-120%\)\}.*100%\{opacity:0;transform:translateX\(300%\)\}\}/);
-assert.ok(css.includes(".aug-piste-v2.upgrade{--pc:#ffb02e") && css.includes(".aug-badge-v2.puissant"));
+assert.ok(css.includes(".aug-piste-v2.upgrade{--pc:color-mix(in srgb,var(--ac) 58%,#fff)") && css.includes(".aug-badge-v2.puissant i"));
+assert.ok(!page.includes("Version puissante") && !page.includes("Version normale"), "plus de libellé « version normale / puissante »");
 assert.ok(readFileSync("cloudflare/public/modules/barres-actives-v1.js", "utf8").includes("ligne:'.aug-piste-v2',style:'etoile'"), "particules sur les nouvelles pistes");
 console.log("idle-augmentations-paires-v1: OK");

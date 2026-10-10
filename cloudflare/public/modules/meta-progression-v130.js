@@ -2806,8 +2806,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const cible=Math.max(0,H.idleEntier_(upgrade?def.upgradeTarget:def.target));
           const iconePiste=upgrade?(IDLE_ICONES_UPGRADES_AUGMENTS_V1[def.upgrade&&def.upgrade.id]||'⚡'):(IDLE_ICONES_AUGMENTS_V1[def.id]||'🦾');
           const badge=upgrade
-            ?'<span class="aug-badge-v2 puissant"><i>'+iconePiste+'</i>Version puissante</span>'
-            :'<span class="aug-badge-v2 normal"><i>'+iconePiste+'</i>Version normale</span>';
+            ?'<span class="aug-badge-v2 puissant"><i>'+iconePiste+'</i></span>'
+            :'<span class="aug-badge-v2 normal"><i>'+iconePiste+'</i></span>';
           const nomPiste=upgrade?H.idleHtml_((label||'').replace('⬆️ ','')):H.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id);
           const cleIdUp=upgrade?'true':'false';
           return (upgrade?'<span class="aug-lien-v2" aria-hidden="true">×</span>':'')+'<div class="aug-piste-v2'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
