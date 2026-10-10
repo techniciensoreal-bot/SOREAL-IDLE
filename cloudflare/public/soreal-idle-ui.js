@@ -18859,14 +18859,7 @@
          */
         const paralyse=titanJoueurParalyseIdleV1_(now);
         root.classList.toggle('paralyse-v1',paralyse);
-        const bandeauParalysie=root.querySelector('[data-paralysie-v1]');
-        if(bandeauParalysie){
-          posteIdleSiChangeV1_(bandeauParalysie,'hidden',!paralyse);
-          if(paralyse){
-            const reste=Math.max(0,idleNombre_(idleTitanEtatV1&&idleTitanEtatV1.paralyseJusqua)-now);
-            posteIdleSiChangeV1_(bandeauParalysie,'textContent','⚡ Paralysé ! Plus de capacités ni d’Idle pendant '+(reste/1000).toFixed(1).replace('.',',')+' s');
-          }
-        }
+        /* Norman (2026-10-10) : plus de phrase « Paralysé » au-dessus (elle décalait l'interface) ; seuls les raccourcis jaunes et grisés (classe paralyse-v1) le montrent. */
         root.classList.toggle('manual-active',!idleAdventureIdleModeV3);
         const toggle=root.querySelector('[data-adventure-idle-toggle]');
         if(toggle){
@@ -19188,7 +19181,6 @@
         });
         return '<div id="sorealIdleAdventureManualV3" class="soreal-idle-adventure-manual-v3'+
           (idleAdventureIdleModeV3?'':' manual-active')+'">'+
-          '<div class="soreal-idle-adventure-paralysie-v1" data-paralysie-v1 role="status" hidden></div>'+
           '<button type="button" class="soreal-idle-adventure-idle-toggle-v3'+
             (idleAdventureIdleModeV3?' active':'')+'" data-adventure-idle-toggle '+
             'aria-pressed="'+(idleAdventureIdleModeV3?'true':'false')+'" '+
@@ -19996,10 +19988,11 @@ function pageAventureIdleV28_(j){
         const deblocagesDisponibles=objetsDeblocageDisponiblesAdventureIdleV1_(a);
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-227 */
         /* Bascule Aventure / Titans (Norman, 2026-10-08) : plus de menu Titans, un bouton au-dessus des zones ouvre la page des titans, le bouton Aventure revient aux zones. Rien n'est affiché tant qu'aucun titan n'est débloqué. */
+        const iconeTitan=titans.length&&window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.icone?window.__SOREAL_IDLE_TITANS_V1__.icone(j):'';
         const bascule=titans.length?(
-          '<div class="soreal-idle-bascule-aventure-v1">'+
+          '<div class="soreal-idle-bascule-aventure-v1'+(iconeTitan?' avec-icone':'')+'">'+
             '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?'':' actif')+'" onclick="window.__vueAventureIdleV1__(\'zones\')">🗺️ Aventure</button>'+
-            '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?' actif':'')+(window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.disponible&&window.__SOREAL_IDLE_TITANS_V1__.disponible(j)?' soreal-idle-titan-brille-v1':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?' actif':'')+(window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.disponible&&window.__SOREAL_IDLE_TITANS_V1__.disponible(j)?' soreal-idle-titan-brille-v1':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+iconeTitan+
           '</div>'
         ):(Number(a.titansAccesBoss)>0?(
           /* Exception à la règle n°2 voulue par Norman (2026-10-10) : le bouton Titans se montre avant l'accès, en ???, avec le boss à vaincre ; il n'ouvre rien. */
@@ -22399,7 +22392,7 @@ function pageAventureIdleV28_(j){
                  * Shop lui-même, comme les autres achats de cette section).
                  */
                 (j.systemes&&j.systemes.inventoryAuto&&j.systemes.inventoryAuto.unlocked&&j.systemes.inventoryAuto.unlocked.sortInventory
-                  ?'<button type="button" class="soreal-idle-expand-button-v25" title="Range ton sac par catégorie : bijoux, armes, tête, torse, jambes, pieds, objets divers, puis boosts." onclick="window.__actionMetaV47__({action:\'inventoryAuto\',mode:\'sortInventory\'})">🗂️ Trier</button>'
+                  ?'<button type="button" class="soreal-idle-expand-button-v25" title="Range ton sac par catégorie : bijoux, armes, tête, torse, jambes, pieds, objets divers, puis boosts." onclick="window.__actionMetaV47__({action:\'inventoryAuto\',mode:\'sortInventory\'})"><span class="bouton-icone-sombre-v1">🗂️</span> Trier</button>'
                   :'')+
                 rendreTrashAdventureIdleV165_(a.trash)+
               '</div>'+

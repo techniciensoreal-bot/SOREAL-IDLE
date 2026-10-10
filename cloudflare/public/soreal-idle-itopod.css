@@ -1060,6 +1060,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-invent
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot{border-radius:8px!important}
 /* Boutons (trier, etc.) : relief doré. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns,.soreal-idle-coffre-v1) .soreal-idle-expand-button-v25:not(:disabled){border:0!important;border-radius:14px!important;padding:11px 14px!important;font-size:15px!important;color:#2a1700!important;background:linear-gradient(180deg,#ffe58a,#ffd24a 45%,#ff9f1c)!important;box-shadow:0 4px 0 #8a4b00!important}
+/* Une icône claire sur le bouton doré se perdait (Norman, 2026-10-10) : elle est posée sur une pastille sombre. */
+.bouton-icone-sombre-v1{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:4px;border-radius:9px;background:#2a1700;box-shadow:inset 0 0 0 1px rgba(255,214,102,.5);vertical-align:middle;line-height:1}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns,.soreal-idle-coffre-v1) .soreal-idle-expand-button-v25:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 #8a4b00!important}
 /* Coffre : le bois reste, le titre passe en Bangers sur la bande de fer. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-titre-v1{letter-spacing:.06em}
@@ -1282,21 +1284,10 @@ html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"
 
 /*
  * Chronique du boss (Norman, 2026-10-10) :
- * - PC : on voit la salle un peu plus haut au-dessus de la borne, et la chronique est POSÉE sur la borne, un peu de travers, comme un chevalet de table de restaurant : une face avant en papier et une face latérale
- *   plus sombre qui fuit sur le côté (forme « > »).
- * - Téléphone : pas la place pour le décor (il disparaît) ; la borne, puis la chronique en dessous, sous forme de cadre.
+ * - PC comme téléphone (décision du 2026-10-10) : pas de décor ; la borne, puis la chronique en dessous, sous forme de cadre.
  */
-@media (min-width:561px){
-  /* Porte-affiche DEBOUT sur le haut de la borne, décalé sur le côté et tourné (pas parallèle à la façade) : affiche épaisse (tranche visible), pied métallique, ombre portée sur la borne (Norman, 2026-10-10). */
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){left:calc(50% - 232px);top:calc(210px - 146px);width:176px;max-width:none;height:140px;min-height:0;overflow:visible;z-index:4;padding:9px 12px 22px!important;border:0!important;outline:0!important;border-radius:3px!important;
-    background:linear-gradient(90deg,rgba(25,8,0,.5) 0%,rgba(25,8,0,.18) 38%,rgba(25,8,0,0) 62%),linear-gradient(270deg,rgba(255,79,176,.42) 0%,rgba(255,79,176,.12) 34%,rgba(255,79,176,0) 60%),linear-gradient(180deg,#f9edc2,#e8d298 60%,#d9bf80)!important;
-    box-shadow:inset 0 0 0 3px #8a5a1a,inset 0 0 18px rgba(90,50,10,.28),3px 0 0 #b99a55,6px 1px 0 #8f7338,9px 2px 0 #5f4a22,22px 16px 16px -2px rgba(0,0,0,.78),44px 22px 30px rgba(0,0,0,.5),0 0 18px rgba(255,79,176,.4)!important;
-    clip-path:none;transform:perspective(560px) rotateY(-30deg) rotateZ(-1.5deg);transform-origin:50% 100%}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte)::before{content:"";display:block;position:absolute;left:-8px;right:-8px;bottom:-11px;top:auto;width:auto;height:15px;margin:0;border-radius:3px 3px 7px 7px;
-    background:linear-gradient(180deg,#9aa0ad,#555b68 45%,#262932);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),6px 4px 0 #1b1d24,20px 10px 14px rgba(0,0,0,.75),0 6px 8px rgba(0,0,0,.6);z-index:6}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte):hover{transform:perspective(560px) rotateY(-24deg) rotateZ(-1deg) scale(1.04)}
-}
-@media (max-width:560px){
+/* Norman (2026-10-10) : PC et téléphone ont la MÊME borne, avec la chronique en dessous (le porte-affiche posé sur la borne et le décor du PC sont retirés). */
+@media all{
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{display:flex;flex-direction:column;padding-top:0!important;padding-bottom:12px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.bn-lunapark{display:none}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.borne-v2{order:1}

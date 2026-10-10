@@ -181,6 +181,7 @@ function carte(t){
     '<div id="ttnReco_'+h(id)+'">'+seuilsRecommandes(t,palier)+'</div>'+
     capacites+
     '<div class="ttn-actions">'+selecteur+
+      '<label class="ttn-auto" title="Le titan est vaincu tout seul, en ligne comme hors ligne, dès que tu as les stats Auto-kill."><input type="checkbox" id="ttnAuto_'+h(id)+'" '+(t.state&&t.state.autoKill===true?'checked ':'')+'onchange="window.__autoKillTitanV1__(\''+h(id)+'\',this.checked)"> 🤖 Auto-kill</label>'+
       '<button type="button" class="soreal-idle-expand-button-v25 ttn-bouton" id="ttnBtn_'+h(id)+'" '+(pret?'':'disabled ')+'onclick="window.__affronterTitanV1__(\''+h(id)+'\')">⚔️ Affronter</button>'+
     '</div>'+
   '</article>';
@@ -237,6 +238,7 @@ function css(){
     '.ttn-details ul{margin:7px 0 0;padding-left:18px;line-height:1.5}'+
     '.ttn-note{margin-top:7px;font-size:12px;opacity:.7;font-style:italic}'+
     '.ttn-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px}'+
+    '.ttn-auto{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;cursor:pointer}.ttn-auto input{width:20px;height:20px;accent-color:var(--th-a,#ff7a1a)}'+
     '.ttn-palier{font-size:13px;display:flex;align-items:center;gap:7px}'+
     '.ttn-palier select{padding:5px 8px;border-radius:8px}'+
     '.ttn-bouton[disabled]{opacity:.45;cursor:not-allowed}';
@@ -279,6 +281,10 @@ window.__changerPalierTitanV1__=function(id,palier){
   if(img){img.style.display='';if(img.nextElementSibling)img.nextElementSibling.style.display='none';img.src=urlImage(t,palier);}
 };
 
+window.__autoKillTitanV1__=function(id,actif){
+  if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:{action:'setAutoKillTitan',id:String(id),enabled:Boolean(actif)}});
+};
+
 window.__affronterTitanV1__=function(id){
   var t=registre[id];
   if(!t)return;
@@ -310,13 +316,45 @@ setInterval(function(){
   });
 },1000);
 
+/* Ce titan sera-t-il vaincu tout seul (case Auto-kill cochée ET stats Auto-kill atteintes) ? Alors il n'y a rien à faire : ni bouton qui brille, ni icône. */
+function seTueTout(t){
+  if(!(t.state&&t.state.autoKill===true))return false;
+  var moi=statsJoueur();
+  if(!moi)return false;
+  function ok(s){return s&&Number(s.autoKillP)>0&&moi.power>=Number(s.autoKillP)&&moi.toughness>=Number(s.autoKillT);}
+  var kills=ent(t.state&&t.state.kills);
+  if(Array.isArray(t.forms)&&t.forms.length)return kills>=t.forms.length&&ok(t.forms[t.forms.length-1]);
+  if(t.difficulties&&typeof t.difficulties==='object'){
+    return Object.keys(t.difficulties).some(function(k){
+      var e=t.difficulties[k];
+      return ok(e)||(e&&e.autoKillKills&&ent((t.state.difficultyKills||{})[k])>=e.autoKillKills);
+    });
+  }
+  return ok(t);
+}
+
+/* Premier titan à affronter (prêt, pas auto-tué) : sert à l'icône animée du bandeau Aventure / Titans. */
+function premierDisponible(j){
+  var H=hote();
+  var a=typeof H.aventureMetaIdleV47_==='function'?H.aventureMetaIdleV47_(j):null;
+  var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
+  var liste=(a&&Array.isArray(a.titans)?a.titans:[]).filter(function(t){return t&&t.progressionUnlocked!==false&&t.id&&!cache(t)&&!(prochainRetour(t)>maintenant)&&!seTueTout(t);});
+  return liste[0]||null;
+}
+function icone(j){
+  var t=premierDisponible(j);
+  if(!t)return '';
+  var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
+  return '<span class="soreal-idle-titan-icone-v1" aria-hidden="true"><img src="'+h(urlImage(t,palier))+'" alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
+}
+
 /* Un titan est-il prêt à être affronté (débloqué, pas caché, délai écoulé) ? Sert au bouton « Titans » de la page Adventure, qui brille alors. */
 function disponible(j){
   var H=hote();
   var a=typeof H.aventureMetaIdleV47_==='function'?H.aventureMetaIdleV47_(j):null;
   var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
-  return (a&&Array.isArray(a.titans)?a.titans:[]).some(function(t){return t&&t.progressionUnlocked!==false&&t.id&&!cache(t)&&!(prochainRetour(t)>maintenant);});
+  return (a&&Array.isArray(a.titans)?a.titans:[]).some(function(t){return t&&t.progressionUnlocked!==false&&t.id&&!cache(t)&&!(prochainRetour(t)>maintenant)&&!seTueTout(t);});
 }
 
-window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,disponible:disponible,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,disponible:disponible,icone:icone,seTueTout:seTueTout,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

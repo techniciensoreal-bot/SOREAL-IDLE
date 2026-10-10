@@ -128,7 +128,7 @@ const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
 // 7. Client : écran fidèle à la capture, actions branchées
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const page = meta.slice(meta.indexOf("function pageTimeMachineIdleV48_(j){"), meta.indexOf("function pageBloodMagicIdleV48_(j){"));
-for (const attendu of ["Machine à remonter le temps cassée", "Vitesse de la machine", "Multiplicateur d’or", "Cible", "Niveau", "GPS brut", "GPS net", "Or par remplissage de barre", "Remplissages de barre par seconde", "Bonus GPS Blood Magic", "Multiplicateur GPS NGU", "Multiplicateur des défis", "Multiplicateur du meilleur boss", "Multiplicateur GPS de la vitesse", "Multiplicateur GPS de la Barbe"]) {
+for (const attendu of ["Machine à remonter le temps cassée", "Vitesse de la machine", "Multiplicateur d’or", "Cible", "Niveau", "GPS brut", "GPS net", "Or de base par remplissage (avant multiplicateurs)", "Remplissages de barre par seconde", "Bonus GPS Blood Magic", "Multiplicateur GPS NGU", "Multiplicateur des défis", "Multiplicateur du meilleur boss", "Multiplicateur GPS de la vitesse", "Multiplicateur GPS de la Barbe"]) {
   assert.ok(page.includes(attendu), "libellé « " + attendu + " » présent");
 }
 assert.ok(page.includes("__ajusterTimeMachineIdleV1__") && page.includes("__cibleTimeMachineIdleV1__"));

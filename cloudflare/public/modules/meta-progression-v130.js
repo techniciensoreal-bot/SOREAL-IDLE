@@ -2977,10 +2977,21 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * remplissage rapporte « Gold per Bar Fill ». Animation purement CSS, calée sur l'heure du SERVEUR (même phase pour tout le monde, aucun saut au redessin) ; à partir de 16
        * remplissages par seconde l'œil ne distingue plus les cycles : la barre reste pleine et scintille.
        */
+      /*
+       * Or RÉEL d'un remplissage (Norman, 2026-10-10 : « 206 M Or par seconde, 293 K à chaque remplissage, 8 remplissages par seconde : le calcul n'est pas bon »). goldPerBarFill n'est que la BASE
+       * (le meilleur drop d'Or) : le multiplicateur de boss, le niveau d'Or, Counterfeit Gold, la barbe, les défis et les NGU s'y appliquent ensuite. Ce que la machine verse vraiment à chaque remplissage
+       * est donc l'Or brut par seconde divisé par le nombre de remplissages par seconde (cohérent avec « Or par seconde » affiché en grand).
+       */
+      function orReelParRemplissageIdleV1_(vue){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const fills=Math.max(1,H.idleNombre_(vue.barFillsPerSecond)||1)*Math.max(1,H.idleNombre_(vue.machineSpeedMultiplier)||1);
+        const brut=H.idleNombre_(vue.grossGps);
+        return brut>0?brut/fills:H.idleNombre_(vue.goldPerBarFill);
+      }
       function legendeBarreOrTimeMachineIdleV1_(vue){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const n=Math.max(1,H.idleNombre_(vue.barFillsPerSecond)||1);
-        return '💰 +'+H.formatGrandNombreIdleV70_(H.idleNombre_(vue.goldPerBarFill))+' Or à chaque remplissage · '+(n<=1?'1 remplissage par seconde':H.formatGrandNombreIdleV70_(n)+' remplissages par seconde');
+        return '💰 +'+H.formatGrandNombreIdleV70_(orReelParRemplissageIdleV1_(vue))+' Or à chaque remplissage · '+(n<=1?'1 remplissage par seconde':H.formatGrandNombreIdleV70_(n)+' remplissages par seconde');
       }
 
       function styleBarreOrTimeMachineIdleV1_(fills){
@@ -2999,7 +3010,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(!vue||!document.querySelector('.soreal-idle-tm-v1'))return;
         const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
         const pct=function(mult){return Number(H.idleNombre_(mult)*100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
-        const SPEC={goldPerBarFill:nombre,barFillsPerSecond:nombre,highestBossMultiplier:nombre,goldMultiplier:nombre,machineSpeedMultiplier:nombre,grossGps:nombre,netGps:nombre,diggerDrain:nombre,
+        const SPEC={orReel:nombre,goldPerBarFill:nombre,barFillsPerSecond:nombre,highestBossMultiplier:nombre,goldMultiplier:nombre,machineSpeedMultiplier:nombre,grossGps:nombre,netGps:nombre,diggerDrain:nombre,
           bloodMagicMultiplier:pct,nguMultiplier:pct,challengeMultiplier:pct,beardMultiplier:pct};
         const FACULTATIFS={bloodMagicMultiplier:1,nguMultiplier:1,challengeMultiplier:1,beardMultiplier:1};
         let structure=false;
@@ -3018,7 +3029,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         document.querySelectorAll('[data-tm-hero]').forEach(function(el){
           const cle=el.getAttribute('data-tm-hero');
           if(!SPEC[cle])return;
-          const texte=SPEC[cle](vue[cle]);
+          const texte=SPEC[cle](cle==='orReel'?orReelParRemplissageIdleV1_(vue):vue[cle]);
           if(el.textContent!==texte)el.textContent=texte;
         });
         const barreOr=document.querySelector('[data-tm-or-remplissage]');
@@ -3116,7 +3127,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-tm-hero-pieces-v1" aria-hidden="true"><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i></div>'+
             '<div class="soreal-idle-tm-hero-titre-v1">💰 Ta machine fabrique de l’Or</div>'+
             '<div class="soreal-idle-tm-hero-gps-v1"><b data-tm-hero="netGps">'+nombre(vue.netGps)+'</b><span> Or par seconde</span></div>'+
-            '<div class="soreal-idle-tm-hero-sous-v1">'+(vue.diggerDrain!=null?'Brut <b data-tm-hero="grossGps">'+nombre(vue.grossGps)+'</b> /s − Mineurs d’or <b data-tm-hero="diggerDrain">'+nombre(vue.diggerDrain)+'</b> /s · ':'')+'<b data-tm-hero="goldPerBarFill">'+nombre(vue.goldPerBarFill)+'</b> Or à chaque remplissage de barre</div>'+
+            '<div class="soreal-idle-tm-hero-sous-v1">'+(vue.diggerDrain!=null?'Brut <b data-tm-hero="grossGps">'+nombre(vue.grossGps)+'</b> /s − Mineurs d’or <b data-tm-hero="diggerDrain">'+nombre(vue.diggerDrain)+'</b> /s · ':'')+'<b data-tm-hero="orReel">'+nombre(orReelParRemplissageIdleV1_(vue))+'</b> Or à chaque remplissage de barre</div>'+
             (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
           '</section>'+
           carteAideMenuIdleV1_('timeMachine','La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',[
@@ -3134,7 +3145,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-tm-stats-titre-v1">🧮 Comment ton GPS est calculé</div>'+
             '<div class="soreal-idle-tm-stats-grille-v1">'+
               '<div>'+
-                stat('🪙 Or par remplissage de barre',nombre(vue.goldPerBarFill),'goldPerBarFill')+
+                stat('🪙 Or de base par remplissage (avant multiplicateurs)',nombre(vue.goldPerBarFill),'goldPerBarFill')+
                 stat('🔁 Remplissages de barre par seconde',nombre(vue.barFillsPerSecond),'barFillsPerSecond')+
                 /* Anti-spoil : un facteur encore à 100 % (sans effet) n'est pas listé -- jamais le nom d'un système que le joueur n'a pas encore fait jouer. */
                 factSansEffet('Bonus GPS Blood Magic',vue.bloodMagicMultiplier,'bloodMagicMultiplier')+

@@ -40,7 +40,7 @@ const api = window.__SOREAL_IDLE_META_V130__;
 const page = api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine");
 assert.ok(page.includes('data-tm-or-remplissage="1" data-fills="1"'), "barre d'Or présente, 1 remplissage par seconde au niveau 0");
 assert.match(page, /animation-duration:1\.0000s;animation-delay:-0\.1230s/, "une seconde par cycle, phase prise sur l'heure du serveur");
-assert.ok(page.includes("+#36400 Or à chaque remplissage · 1 remplissage par seconde"), "légende : Or par remplissage et cadence");
+assert.ok(page.includes("+#1128400 Or à chaque remplissage · 1 remplissage par seconde"), "légende : Or par remplissage et cadence");
 // 50 remplissages par seconde (niveau 49) : l'œil ne suit plus, la barre reste pleine et scintille.
 etat.systems.timeMachine.data.speedLevel = 49;
 const page50 = api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine");

@@ -166,8 +166,8 @@ function addBoost(s, type, strength, level = 0) {
   const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
   const iGarde = ui.indexOf("j.systemes&&j.systemes.inventoryAuto&&j.systemes.inventoryAuto.unlocked&&j.systemes.inventoryAuto.unlocked.sortInventory");
   assert.ok(iGarde > 0, "le bouton Trier doit être conditionné au déblocage, jamais affiché verrouillé");
-  const iTrier = ui.indexOf("🗂️ Trier</button>", iGarde);
-  assert.ok(iTrier > iGarde && iTrier - iGarde < 400, "le bouton Trier doit se trouver juste après cette garde de déblocage");
+  const iTrier = ui.indexOf("🗂️</span> Trier</button>", iGarde);
+  assert.ok(iTrier > iGarde && iTrier - iGarde < 600, "le bouton Trier doit se trouver juste après cette garde de déblocage");
   assert.ok(
     ui.includes("onclick=\"window.__actionMetaV47__({action:\\'inventoryAuto\\',mode:\\'sortInventory\\'})\""),
     "doit envoyer exactement {action:'inventoryAuto',mode:'sortInventory'}"
