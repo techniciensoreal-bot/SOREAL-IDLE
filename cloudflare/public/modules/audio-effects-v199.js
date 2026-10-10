@@ -53,6 +53,8 @@
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
     /* Le Coffre avale / recrache un objet (Norman, 2026-10-10) : 10 sons de chaque, tirés au hasard (modules/audio-coffre-v1.js). */
     coffreAvale:{group:"chest",priority:36,maxAgeMs:1000},
+    /* La borne de Combat de boss s'allume (Norman, 2026-10-10) : une fois par Renaissance, son calé sur l'animation (modules/audio-borne-v1.js). */
+    borneAllume:{group:"borne",priority:70,maxAgeMs:1500},
     coffreRecrache:{group:"chest",priority:36,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
     mergeAccessory:{group:"inventory-merge",priority:48,maxAgeMs:1100},
@@ -1675,6 +1677,7 @@
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
     coffreAvale:function(){return coffreAvalerRecracher_("avaler");},
+    borneAllume:function(){return jouerWebAudio_(2700,function(c){var m=window.__SOREAL_IDLE_AUDIO_BORNE_V1__;if(m&&typeof m.allumer==="function")m.allumer(c,master||c.destination);});},
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
     mergeArmor:fusionArmure_,
     mergeAccessory:fusionAccessoire_,
@@ -1945,6 +1948,7 @@
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
     coffreAvale:function(){return demander_("coffreAvale");},
+    borneAllume:function(){return demander_("borneAllume");},
     coffreRecrache:function(){return demander_("coffreRecrache");},
     mergeArmor:function(){return demander_("mergeArmor");},
     mergeAccessory:function(){return demander_("mergeAccessory");},

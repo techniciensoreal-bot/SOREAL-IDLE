@@ -16076,11 +16076,37 @@
       }
 
 
+      /*
+       * LA BORNE D'ARCADE (Norman, 2026-10-10) : fronton lumineux, pupitre incliné aux trois vrais boutons, trappe à pièces. Dessins SVG originaux (source : la maquette validée) ; baguette bleue à gauche, rouge à droite,
+       * rose là où elles se rejoignent. L'écran garde le contenu du jeu (barres de vie, noms, portraits). Allumage une fois par Renaissance : etatBorneIdleV2_ (chronologie calée sur le son, audio-borne-v1.js).
+       */
+      const BORNE_FRONTON_IDLE_V2="<svg class=\"bn-fronton\" viewBox=\"0 0 520 100\" aria-hidden=\"true\"><defs><linearGradient id=\"bnFr\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#232a6a\"/><stop offset=\"1\" stop-color=\"#0a0d2a\"/></linearGradient><linearGradient id=\"bnEn\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1b2a7a\"/><stop offset=\"1\" stop-color=\"#0a1040\"/></linearGradient><linearGradient id=\"bnTx\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff2a8\"/><stop offset=\".5\" stop-color=\"#ffd24a\"/><stop offset=\"1\" stop-color=\"#ff8a1f\"/></linearGradient><linearGradient id=\"bnNeon\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7bff\"/><stop offset=\".5\" stop-color=\"#ff4fb0\"/><stop offset=\"1\" stop-color=\"#ff2a3d\"/></linearGradient><filter id=\"bnLueur\" x=\"-20%\" y=\"-60%\" width=\"140%\" height=\"220%\"><feGaussianBlur stdDeviation=\"4.5\" result=\"b\"/><feMerge><feMergeNode in=\"b\"/><feMergeNode in=\"SourceGraphic\"/></feMerge></filter><filter id=\"bnFlou\" x=\"-30%\" y=\"-80%\" width=\"160%\" height=\"260%\"><feGaussianBlur stdDeviation=\"8\"/></filter></defs><path d=\"M0 100 V28 Q0 6 22 6 H498 Q520 6 520 28 V100 Z\" fill=\"url(#bnFr)\" stroke=\"#05071a\" stroke-width=\"4\"/><!-- baguette : bleue à gauche, rouge à droite, rose là où elles se rejoignent --><g class=\"pulse\"><path d=\"M5 100 V28 Q5 11 22 11 H498 Q515 11 515 28 V100\" fill=\"none\" stroke=\"url(#bnNeon)\" stroke-width=\"12\" opacity=\".55\" filter=\"url(#bnFlou)\"/></g><path d=\"M5 100 V28 Q5 11 22 11 H498 Q515 11 515 28 V100\" fill=\"none\" stroke=\"url(#bnNeon)\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M5 100 V28 Q5 11 22 11 H498 Q515 11 515 28 V100\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" opacity=\".55\" stroke-linecap=\"round\"/><!-- enseigne --><rect x=\"52\" y=\"21\" width=\"416\" height=\"62\" rx=\"12\" fill=\"url(#bnEn)\" stroke=\"#ffd24a\" stroke-width=\"3.5\"/><rect x=\"58\" y=\"27\" width=\"404\" height=\"50\" rx=\"8\" fill=\"none\" stroke=\"#ff4fb0\" stroke-width=\"1.6\" opacity=\".8\"/><g class=\"pulse\"><text x=\"260\" y=\"66\" text-anchor=\"middle\" font-family=\"Bangers,'Russo One',Impact,sans-serif\" font-size=\"50\" letter-spacing=\"5\" fill=\"#ffb347\" filter=\"url(#bnFlou)\" opacity=\".9\">SOREAL IDLE</text></g><text x=\"260\" y=\"66\" text-anchor=\"middle\" font-family=\"Bangers,'Russo One',Impact,sans-serif\" font-size=\"50\" letter-spacing=\"5\" fill=\"url(#bnTx)\" stroke=\"#5a2a00\" stroke-width=\"4\" paint-order=\"stroke\">SOREAL IDLE</text><g stroke=\"#6a3d00\" stroke-width=\"1.2\"><polygon class=\"etoile\" style=\"--d:0s\" fill=\"#ffd24a\" points=\"76,52 80,43 84,52 93,56 84,60 80,69 76,60 67,56\"/><polygon class=\"etoile\" style=\"--d:-1.1s\" fill=\"#ffd24a\" points=\"444,52 448,43 452,52 461,56 452,60 448,69 444,60 435,56\"/></g><g fill=\"#04061a\" stroke=\"#2a3170\" stroke-width=\"1\"><rect x=\"16\" y=\"28\" width=\"26\" height=\"50\" rx=\"6\"/><rect x=\"478\" y=\"28\" width=\"26\" height=\"50\" rx=\"6\"/></g><g stroke=\"#3a438f\" stroke-width=\"2.4\" stroke-linecap=\"round\"><path d=\"M21 38 H37 M21 46 H37 M21 54 H37 M21 62 H37 M21 70 H37\"/><path d=\"M483 38 H499 M483 46 H499 M483 54 H499 M483 62 H499 M483 70 H499\"/></g><!-- filet du bas : même dégradé, sans aucun trou avec le corps --><rect x=\"0\" y=\"88\" width=\"520\" height=\"12\" fill=\"#070a20\"/><g class=\"pulse\"><path d=\"M0 91 H520\" stroke=\"url(#bnNeon)\" stroke-width=\"8\" opacity=\".6\" filter=\"url(#bnFlou)\"/></g><path d=\"M0 91 H520\" stroke=\"url(#bnNeon)\" stroke-width=\"4\"/></svg>";
+      const BORNE_PUPITRE_IDLE_V2="<svg class=\"bn-deck-svg\" viewBox=\"0 0 552 190\" aria-hidden=\"true\"><defs><linearGradient id=\"bnPl\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#454d9a\"/><stop offset=\".72\" stop-color=\"#262c66\"/><stop offset=\"1\" stop-color=\"#1a1e4c\"/></linearGradient><linearGradient id=\"bnNeonP\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7bff\"/><stop offset=\".5\" stop-color=\"#ff4fb0\"/><stop offset=\"1\" stop-color=\"#ff2a3d\"/></linearGradient><linearGradient id=\"bnLevre\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1b2060\"/><stop offset=\"1\" stop-color=\"#090c28\"/></linearGradient></defs><path d=\"M16 0 H536 L552 140 H0 Z\" fill=\"url(#bnPl)\" stroke=\"#05071a\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M16 3 H536\" stroke=\"url(#bnNeonP)\" stroke-width=\"4\"/><path d=\"M30 14 L10 130 M46 14 L28 130 M522 14 L542 130 M506 14 L524 130\" stroke=\"#ff4fb0\" stroke-width=\"5\" opacity=\".28\" stroke-linecap=\"round\"/><path d=\"M0 140 H552 V176 Q552 186 542 186 H10 Q0 186 0 176 Z\" fill=\"url(#bnLevre)\" stroke=\"#05071a\" stroke-width=\"4\"/><path d=\"M6 143 H546\" stroke=\"url(#bnNeonP)\" stroke-width=\"3\"/></svg>";
+      const BORNE_BAS_IDLE_V2="<svg class=\"bn-bas-svg\" viewBox=\"0 0 520 250\" aria-hidden=\"true\"><defs><linearGradient id=\"bnMe\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#b9c0d0\"/><stop offset=\".5\" stop-color=\"#7d8699\"/><stop offset=\"1\" stop-color=\"#4b5263\"/></linearGradient><linearGradient id=\"bnNeonB\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#2f7bff\"/><stop offset=\".5\" stop-color=\"#ff4fb0\"/><stop offset=\"1\" stop-color=\"#ff2a3d\"/></linearGradient><linearGradient id=\"bnBd\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#161b4a\"/><stop offset=\"1\" stop-color=\"#0a0d2a\"/></linearGradient></defs><rect x=\"0\" y=\"0\" width=\"520\" height=\"210\" fill=\"url(#bnBd)\"/><rect x=\"0\" y=\"0\" width=\"10\" height=\"210\" fill=\"#2f7bff\"/><rect x=\"510\" y=\"0\" width=\"10\" height=\"210\" fill=\"#ff2a3d\"/><!-- décor de flanc : bandeau d'étoiles --><g fill=\"#ffd24a\"><polygon class=\"etoile\" style=\"--d:-.4s\" points=\"40,20 43,28 52,29 45,34 47,43 40,38 33,43 35,34 28,29 37,28\"/><polygon class=\"etoile\" style=\"--d:-1.5s\" points=\"480,20 483,28 492,29 485,34 487,43 480,38 473,43 475,34 468,29 477,28\"/></g><!-- trappe --><rect x=\"76\" y=\"14\" width=\"368\" height=\"170\" rx=\"14\" fill=\"url(#bnMe)\" stroke=\"#05071a\" stroke-width=\"4\"/><rect x=\"86\" y=\"24\" width=\"348\" height=\"150\" rx=\"9\" fill=\"none\" stroke=\"#e8edf7\" stroke-width=\"2\" opacity=\".7\"/><g fill=\"#5b6475\" stroke=\"#05071a\" stroke-width=\"1.4\"><circle cx=\"94\" cy=\"32\" r=\"4\"/><circle cx=\"426\" cy=\"32\" r=\"4\"/><circle cx=\"94\" cy=\"166\" r=\"4\"/><circle cx=\"426\" cy=\"166\" r=\"4\"/></g><text x=\"260\" y=\"48\" font-family=\"Bangers,Impact,sans-serif\" font-size=\"22\" letter-spacing=\"4\" text-anchor=\"middle\" fill=\"#7a1410\">INSERT COIN</text><!-- deux monnayeurs --><g><rect x=\"110\" y=\"62\" width=\"120\" height=\"86\" rx=\"10\" fill=\"#10143a\" stroke=\"#05071a\" stroke-width=\"3\"/><rect x=\"122\" y=\"74\" width=\"96\" height=\"62\" rx=\"6\" fill=\"#1d2250\" stroke=\"#ffd24a\" stroke-width=\"2\"/><rect x=\"166\" y=\"82\" width=\"8\" height=\"34\" rx=\"3\" fill=\"#000\"/><rect x=\"164\" y=\"80\" width=\"12\" height=\"38\" rx=\"4\" fill=\"none\" stroke=\"#ffd24a\" stroke-width=\"2\"/><circle cx=\"170\" cy=\"128\" r=\"6\" fill=\"#ff3d3d\"/><circle cx=\"170\" cy=\"128\" r=\"9\" fill=\"none\" stroke=\"#ff3d3d\" stroke-width=\"1.4\" opacity=\".6\"/></g><g><rect x=\"290\" y=\"62\" width=\"120\" height=\"86\" rx=\"10\" fill=\"#10143a\" stroke=\"#05071a\" stroke-width=\"3\"/><rect x=\"302\" y=\"74\" width=\"96\" height=\"62\" rx=\"6\" fill=\"#1d2250\" stroke=\"#ffd24a\" stroke-width=\"2\"/><rect x=\"346\" y=\"82\" width=\"8\" height=\"34\" rx=\"3\" fill=\"#000\"/><rect x=\"344\" y=\"80\" width=\"12\" height=\"38\" rx=\"4\" fill=\"none\" stroke=\"#ffd24a\" stroke-width=\"2\"/><circle cx=\"350\" cy=\"128\" r=\"6\" fill=\"#ff3d3d\"/><circle cx=\"350\" cy=\"128\" r=\"9\" fill=\"none\" stroke=\"#ff3d3d\" stroke-width=\"1.4\" opacity=\".6\"/></g><!-- retour de monnaie, serrure --><rect x=\"240\" y=\"96\" width=\"40\" height=\"30\" rx=\"7\" fill=\"#2a2f66\" stroke=\"#05071a\" stroke-width=\"3\"/><rect x=\"249\" y=\"104\" width=\"22\" height=\"9\" rx=\"3\" fill=\"#ff3d3d\" stroke=\"#05071a\" stroke-width=\"2\"/><circle cx=\"260\" cy=\"150\" r=\"9\" fill=\"#d79a1f\" stroke=\"#05071a\" stroke-width=\"2.4\"/><rect x=\"258\" y=\"147\" width=\"4\" height=\"9\" rx=\"1\" fill=\"#05071a\"/><!-- soubassement et pieds --><rect x=\"0\" y=\"210\" width=\"520\" height=\"24\" fill=\"#05071a\"/><path d=\"M0 210 H520\" stroke=\"url(#bnNeonB)\" stroke-width=\"4\"/><rect x=\"24\" y=\"230\" width=\"60\" height=\"14\" rx=\"4\" fill=\"#1a1a22\" stroke=\"#05071a\" stroke-width=\"2\"/><rect x=\"436\" y=\"230\" width=\"60\" height=\"14\" rx=\"4\" fill=\"#1a1a22\" stroke=\"#05071a\" stroke-width=\"2\"/><ellipse cx=\"260\" cy=\"246\" rx=\"240\" ry=\"6\" fill=\"rgba(0,0,0,.5)\"/></svg>";
+      let borneAllumageDebutIdleV2=0;
+      const BORNE_ALLUMAGE_MS_IDLE_V2=2800;
+      function etatBorneIdleV2_(j){
+        const maintenant=Date.now();
+        if(borneAllumageDebutIdleV2&&maintenant-borneAllumageDebutIdleV2<BORNE_ALLUMAGE_MS_IDLE_V2){
+          return {classe:'allumage',t:(maintenant-borneAllumageDebutIdleV2)/1000};
+        }
+        const marque=String(idleEntier_((((j&&j.systemes)||{}).records||{}).totalRebirths||0));
+        let vu=null;
+        try{vu=localStorage.getItem('soreal_idle_borne_v1');}catch(_e){}
+        if(vu===marque)return {classe:'allume',t:0};
+        borneAllumageDebutIdleV2=maintenant;
+        try{localStorage.setItem('soreal_idle_borne_v1',marque);}catch(_e){}
+        jouerEffetAudioIdleV199_('borneAllume');
+        return {classe:'allumage',t:0};
+      }
+
       function pageCombatIdleV28_(j){
+        const borne=etatBorneIdleV2_(j);
         /* Plus de cadre d'en-tête « Combat de boss » sur cette page (Norman, 2026-10-08). */
         return `
-          <div class="soreal-idle-card-v4 soreal-idle-boss-current-v35">
+          <div class="soreal-idle-card-v4 soreal-idle-boss-current-v35 borne-v2 ${borne.classe}" style="--tt:${borne.t.toFixed(2)}s">
             <div class="soreal-idle-label-v4">BOSS ACTUEL</div>
+            ${BORNE_FRONTON_IDLE_V2}
 
             <div class="soreal-idle-duel-v41">
               <div class="soreal-idle-duel-versus-row-v42">
@@ -16214,6 +16240,7 @@
               la position bouge.
             -->
             <div class="soreal-idle-boss-controls-v39">
+              ${BORNE_PUPITRE_IDLE_V2}
               <button
                 type="button"
                 id="sorealIdleBossStartV100"
@@ -16228,7 +16255,7 @@
                     :''
                 }
               >
-                ⚔️ Fight
+                Fight
               </button>
 
               <button
@@ -16237,7 +16264,7 @@
                 onclick="window.__fuirBossIdleV1__()"
                 ${j.combatBossActif?'':'disabled'}
               >
-                🏃 Fuite
+                Fuite
               </button>
 
               <button
@@ -16253,13 +16280,11 @@
                     :''
                 }
               >
-                🚀 NUKE
+                NUKE
               </button>
 
-              <button type="button" class="soreal-idle-dome-v1 dome-start" aria-label="Fight" onclick="window.__clicDomeBorneIdleV1__('start')"></button>
-              <button type="button" class="soreal-idle-dome-v1 dome-stop" aria-label="Fuite" onclick="window.__clicDomeBorneIdleV1__('stop')"></button>
-              <button type="button" class="soreal-idle-dome-v1 dome-nuke" aria-label="Nuke" onclick="window.__clicDomeBorneIdleV1__('nuke')"></button>
             </div>
+            ${BORNE_BAS_IDLE_V2}
 
             <!--
               V168 — NGU garde le battle log pour Adventure ; Fight Boss
