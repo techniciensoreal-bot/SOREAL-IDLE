@@ -438,6 +438,17 @@
   }
 
   function updateReadButtons_(){
+    /* Bouton de la chronique de boss (affiche sur la borne et fiche ouverte) : Stop pendant la lecture, Play sinon (Norman, 2026-10-10). */
+    document.querySelectorAll('.soreal-idle-chro-lecture-v1').forEach(function(b){
+      var enCours=Boolean(activeReadTarget&&activeReadTarget===CHRONICLE_PANEL_ID);
+      var etat=enCours?'stop':'play';
+      if(b.getAttribute('data-etat')!==etat){
+        b.setAttribute('data-etat',etat);
+        b.setAttribute('aria-label',enCours?'Arrêter la lecture':'Écouter la chronique');
+        var t=b.querySelector('.chro-lecture-txt-v1');
+        if(t)t.textContent=enCours?'Stop':'Écouter';
+      }
+    });
     document.querySelectorAll('.'+READ_CLASS+'[data-soreal-tts-target]').forEach(function(button){
       if(!button.dataset.sorealTtsOriginalLabel){
         button.dataset.sorealTtsOriginalLabel=String(button.textContent||'🔊 Lire ce texte');
@@ -471,8 +482,43 @@
     }
   }
 
+  /*
+   * Pause / reprise (Norman, 2026-10-10 : lecteur flottant des chroniques) : la pause suspend le contexte audio (les blocs de voix) et met en pause l'éventuel fichier audio ; rien n'est annulé, la reprise
+   * continue exactement où la voix s'était arrêtée. Un bloc qui devrait démarrer pendant la pause attend la reprise (attendreReprise_).
+   */
+  var enPause=false;
+  var reprisesEnAttente=[];
+  function attendreReprise_(){
+    return new Promise(function(resolve){
+      if(!enPause){resolve();return;}
+      reprisesEnAttente.push(resolve);
+    });
+  }
+  function libererReprises_(){
+    var liste=reprisesEnAttente;
+    reprisesEnAttente=[];
+    liste.forEach(function(r){try{r();}catch(_){}});
+  }
+  function pause_(){
+    if(!(activeReadTarget||activeAudio||activeBufferSource))return false;
+    enPause=true;
+    try{if(activeAudio)activeAudio.pause();}catch(_){}
+    try{if(audioContext&&audioContext.state==='running')audioContext.suspend();}catch(_){}
+    return true;
+  }
+  function reprendre_(){
+    if(!enPause)return false;
+    enPause=false;
+    try{if(audioContext&&audioContext.state==='suspended')audioContext.resume();}catch(_){}
+    try{if(activeAudio){var r=activeAudio.play();if(r&&typeof r.catch==='function')r.catch(function(){});}}catch(_){}
+    libererReprises_();
+    return true;
+  }
+
   function stop_(){
     generation+=1;
+    var etaitEnPause=enPause;
+    enPause=false;
     activeReadTarget='';
     lastFingerprint='';
 
@@ -495,6 +541,8 @@
     var objectUrl=activeAudioObjectUrl;
     activeAudioObjectUrl='';
     revokeObjectUrl_(objectUrl);
+    if(etaitEnPause){try{if(audioContext&&audioContext.state==='suspended')audioContext.resume();}catch(_){}}
+    libererReprises_();
     updateReadButtons_();
     return true;
   }
@@ -772,9 +820,9 @@
         return;
       }
 
-      Promise.resolve(
-        ctx.state==='suspended'?ctx.resume():undefined
-      ).then(function(){
+      attendreReprise_().then(function(){
+        return ctx.state==='suspended'?ctx.resume():undefined;
+      }).then(function(){
         if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
         if(ctx.state!=='running')throw new Error('WEB_AUDIO_BLOQUE_'+String(ctx.state||'unknown').toUpperCase());
         return blob.arrayBuffer();
@@ -858,6 +906,8 @@
         reject(new Error('LECTURE_AUDIO_ECHOUEE'));
       };
 
+      attendreReprise_().then(function(){
+      if(expectedGeneration!==generation){done=true;clear_();reject(new Error('NARRATION_ANNULEE'));return;}
       try{
         var started=audio.play();
         if(started&&typeof started.catch==='function'){
@@ -874,6 +924,7 @@
         clear_();
         reject(error||new Error('LECTURE_AUDIO_REFUSEE'));
       }
+      });
     });
   }
 
@@ -887,7 +938,8 @@
    * reste un booléen synchrone (« a démarré »), jamais une promesse.
    */
   function narrate_(text,targetId,target,force,explicitSource,onDone){
-    var termine=function(){if(typeof onDone==='function')onDone();};
+    /* onDone(ok) : ok vaut true seulement si la lecture est allée jusqu'au bout (lecteur des chroniques : enchaîner ou s'arrêter). */
+    var termine=function(ok){if(typeof onDone==='function')onDone(ok===true);};
     if((!force&&!auto)||!text||!supported_()){
       diag.refus=(!force&&!auto?'auto-off ':'')+(!text?'texte-vide ':'')+(!supported_()?'non-supporte':'');
       termine();
@@ -921,6 +973,8 @@
      */
     var chroniqueBossIdEnCours=String(targetId||'')===CHRONICLE_PANEL_ID?chroniqueBossId_(target):'';
     if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
+    /* Le texte s'affiche tout seul au moment où il est lu (Norman, 2026-10-10) : la chronique s'ouvre dès que sa lecture démarre, première rencontre ou clic sur Écouter. */
+    if(chroniqueBossIdEnCours){try{if(typeof window.__ouvrirChroniqueIdleV1__==='function')window.__ouvrirChroniqueIdleV1__(true);}catch(_){}}
 
     var mapped=audioSourceFor_(targetId,target,explicitSource);
     var task;
@@ -977,7 +1031,7 @@
        * rappel ne serait jamais invoqué et l'appelant (le popup d'histoire) resterait bloqué
        * indéfiniment. Les effets de bord ci-dessous restent gardés par génération comme avant.
        */
-      termine();
+      termine(true);
       if(myGeneration!==generation)return;
       activeReadTarget='';
       updateReadButtons_();
@@ -1176,6 +1230,10 @@
       return narrate_(txt,'__manual_text__',null,true,audioSrc,onDone);
     },
     stop:stop_,
+    pause:pause_,
+    resume:reprendre_,
+    isPaused:function(){return enPause;},
+    lectureCible:function(id){return Boolean(activeReadTarget&&activeReadTarget===String(id||''));},
     /* Outils du générateur de voix (cloudflare/tools/voice-generate.mjs) et des tests. */
     planNarration:planNarration_,
     hashBloc:hashBloc_,

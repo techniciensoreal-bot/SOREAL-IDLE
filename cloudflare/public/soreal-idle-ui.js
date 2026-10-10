@@ -13571,6 +13571,15 @@
        * Chronique du boss accrochée au mur (Norman, 2026-10-10) : un petit cadre au fond de la salle ; un clic (ou un tap) l'agrandit, un clic dehors, sur la croix ou sur Échap la referme. L'état ouvert survit
        * au redessin de la page (window.__chroniqueOuverteIdleV1). Le panneau reste dans la page en continu : la lecture à voix haute automatique (tutorial-tts) le retrouve toujours.
        */
+      /* Bouton de lecture de la chronique (Norman, 2026-10-10) : « Stop » pendant la lecture, « Play » quand rien n'est lu ; l'état est tenu à jour par modules/tutorial-tts-v202.js (updateReadButtons_). */
+      function boutonLectureChroniqueIdleV1_(){
+        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+        const enCours=Boolean(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206'));
+        return '<button type="button" class="soreal-idle-chro-lecture-v1" data-soreal-tts-ignore data-soreal-tts-target="sorealIdleBossChroniqueV206" data-etat="'+(enCours?'stop':'play')+'" aria-label="'+(enCours?'Arrêter la lecture':'Écouter la chronique')+'">'+
+          '<svg class="chro-ico-play-v1" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg>'+
+          '<svg class="chro-ico-stop-v1" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5" fill="currentColor"/></svg>'+
+          '<span class="chro-lecture-txt-v1">'+(enCours?'Stop':'Écouter')+'</span></button>';
+      }
       /* Main qui montre la chronique : une seule fois sur l'appareil, jamais plus dès le premier clic (même après une Renaissance). */
       function mainChroniqueIdleV1_(){
         try{if(localStorage.getItem('soreal_idle_chronique_main_v1'))return '';}catch(_e){}
@@ -13583,6 +13592,7 @@
           const p=panneau();
           if(p)p.classList.toggle('ouverte',Boolean(ouvert));
         }
+        window.__ouvrirChroniqueIdleV1__=poser;
         document.addEventListener('click',function(e){
           const cible=e.target;
           const p=cible&&cible.closest?cible.closest('.soreal-idle-boss-lore-v142'):null;
@@ -13659,7 +13669,7 @@
             ${narration
               ?'<div class="soreal-idle-boss-lore-histoire-v142" data-sans-traduction>'+idleHtml_(sansBaliseVoixIdleV1_(narration))+'</div>'
               :''}
-            <button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleBossChroniqueV206">🔊 Lire la chronique</button>
+            ${boutonLectureChroniqueIdleV1_()}
             ${window.__SOREAL_IDLE_TEXTES_V1__?window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(j&&j.bossId):''}
           </div>
         `;
@@ -16890,7 +16900,8 @@
               (e.description
                 ?'<div class="soreal-idle-boss-fiche-titre-v1">📜 Chronique</div>'+
                   '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'+
-                  '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'
+                  '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'+
+                  '<button type="button" class="soreal-idle-chro-suite-v1" data-lire-chroniques-depuis="'+n+'"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg><span>Lire les chroniques à partir d’ici</span></button>'
                 :'')+
               /* Administrateur : modifier le nom et la chronique de CE boss depuis la Collection (Norman, 2026-10-04) ; le bouton n'existe pas pour les autres comptes, et le serveur revérifie à l'enregistrement. */
               (window.__SOREAL_IDLE_TEXTES_V1__&&window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml?'<div class="soreal-idle-boss-fiche-admin-v1">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(n)+'</div>':'')+
