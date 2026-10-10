@@ -35,7 +35,7 @@ assert.match(ngu, /Plafond de magie':'⚡ Plafond d’énergie'\)\+'<\/span>'\+[
 assert.ok(meta.includes("cadres('energy','timeMachine')") && meta.includes("cadres('magic','timeMachine')"), "Time Machine");
 assert.ok(meta.includes("cadres(r,s.id)"), "systèmes génériques (Barbes, Hacks)");
 assert.ok(meta.includes("cadres(r,'wishes')"), "Wishes");
-assert.ok(wd.includes("AL.cadres('energy','wandoos')") && wd.includes("saisir:majSaisie_"), "Wandoos");
+assert.ok(!wd.includes("AL.cadres(") && wd.includes("saisir:majSaisie_"), "Wandoos : plus de barre d'outils d'allocation (Norman, 2026-10-10), saisie au clavier rétro conservée");
 // 4. + − MAX sur chaque ligne : systèmes génériques, Wishes, tuyaux NGU.
 for (const mode of ["moins", "plus", "max"]) {
   assert.ok(meta.includes("ALLOC_V1__.ajuster(\\'\'+sid+\'\\',\\'\'+rid+\'\\',") && meta.includes("ajusterVoeu(\'+argsVoeu+\'\\'" + mode + "\\'\'"), "ligne " + mode);

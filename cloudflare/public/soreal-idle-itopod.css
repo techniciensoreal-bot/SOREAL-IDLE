@@ -1325,3 +1325,22 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .soreal-idle-boss-lore-v142 .chro-main-v1{position:absolute;right:6px;bottom:-4px;width:34px;height:41px;z-index:8;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6));animation:chroMain 1.1s ease-in-out infinite}
 .soreal-idle-boss-lore-v142.ouverte .chro-main-v1{display:none}
 @media (prefers-reduced-motion:reduce){.soreal-idle-boss-lore-v142 .chro-main-v1{animation:none}}
+
+/* Barre d'outils d'allocation : UNE grille propre pour tous les menus (Norman, 2026-10-10 : « pas de trous, une configuration propre appliquée partout »).
+   Ligne 1 : Input pleine largeur ; puis, pour chaque ressource, [Plafond | Idle] côte à côte (4 colonnes alignées : Max = 2, 1/2 et 1/4 = 1 ; 1/2, 1/4 = 1 et Tout retirer = 2) et le total placé pleine largeur. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-items:stretch!important;padding:10px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>*{margin:0!important;min-width:0!important;max-width:none!important;flex:none!important;width:auto!important;box-sizing:border-box}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>:not(.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1)){grid-column:1/-1}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120{display:flex!important;flex-direction:row!important;align-items:center;gap:10px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120 label{flex:0 0 auto;white-space:nowrap}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120 input{flex:1 1 auto;width:auto!important;min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;align-content:stretch!important;align-items:stretch}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1)>span{grid-column:1/-1!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1) button{grid-column:span 1!important;min-width:0;white-space:nowrap;padding:6px 4px!important;font-size:12px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>[data-alloc-cadre-v1^="cap-"] button:first-of-type{grid-column:span 2!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>[data-alloc-cadre-v1^="idle-"] button.clear{grid-column:span 2!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:10px;padding:8px 14px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1 b{margin-left:auto}
+@media (max-width:420px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{flex-wrap:wrap}}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120{flex-wrap:wrap!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120>:not(label):not(input){flex:1 1 100%!important;margin:0!important}

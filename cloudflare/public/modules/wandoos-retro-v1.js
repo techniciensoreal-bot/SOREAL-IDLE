@@ -424,10 +424,8 @@
     if(!e)return '';
     var s=e.s;
     var titre=H&&H.entetePageIdleV28_?H.entetePageIdleV28_(html_((s.icon||'💻')+' '+(s.name||'Wandoos')),''):'';
-    /* Les deux cadres du haut (Plafond MAX 1/2 1/4 ; IDLE 1/2 1/4 TOUT RETIRER), pour l'énergie et, si Blood Magic est débloqué, la magie : ils remplissent la saisie du clavier. */
-    var AL=window.__SOREAL_IDLE_ALLOC_V1__;
-    var cadres=AL&&e.actif?'<div class="soreal-idle-bt-toolbar-v120">'+AL.cadres('energy','wandoos')+(e.magieOk?AL.cadres('magic','wandoos'):'')+'</div>':'';
-    return titre+cadres+poste_(j);
+    /* Pas de barre d'outils d'allocation ici (Norman, 2026-10-10) : la saisie se fait au clavier de l'ordinateur rétro. */
+    return titre+poste_(j);
   }
   function rafraichirPoste_(){
     var H=H_();
