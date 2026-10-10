@@ -17,7 +17,7 @@ assert.ok(page.includes(".soreal-idle-money-actions-v206{display:flex;gap:8px;ma
 assert.ok(page.includes(".soreal-idle-money-action-v206{flex:1 1 0;min-width:0;"), "chaque bouton prend la moitié");
 assert.equal(/position:absolute/.test(page), false, "plus de bouton posé sur l'image");
 const iImg = page.indexOf('id="sorealIdleMoneyPitImageV209"'), iActions = page.indexOf('<div class="soreal-idle-money-actions-v206">');
-const iPit = page.indexOf("Balance ton argent</div>"), iSpin = page.indexOf("Daily Spin!</div>");
+const iPit = page.indexOf("Balance ton argent</div>"), iSpin = page.indexOf("Roue journalière !</div>");
 assert.ok(iImg > 0 && iActions > iImg && iPit > iActions && iSpin > iPit, "image, puis les deux actions : Puits à gauche, Daily Spin à droite");
 
 // 3. Phrases : les trois messages du wiki traduits, les autres dans le même ton

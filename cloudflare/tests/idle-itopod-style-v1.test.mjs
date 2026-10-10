@@ -39,7 +39,7 @@ assert.deepEqual(mixes, mixes.slice().sort((a, b) => b - a), "le fond s'assombri
 for (const fragment of ["rgSheenV1", "rgBatV1", "rgFeuV1", "repeating-linear-gradient(135deg,rgba(0,0,0,.30)", "clip-path:polygon(0 0,16px 8px"]) assert.ok(css.includes(fragment), "effet de montée en puissance : " + fragment);
 assert.ok(css.includes(".soreal-idle-bt-panel-v120.attack .soreal-idle-bt-panel-head-v120::before") && css.includes("viewBox='0 0 64 64'"), "emblèmes d'épées et de bouclier dans les titres");
 // Combat de boss : UNE borne d'arcade de face, les deux combattants sur le même grand écran (Norman, 2026-10-06).
-const arene = css.slice(css.indexOf("COMBAT DE BOSS : l'ARÈNE D'ARCADE"));
+const arene = css.slice(css.indexOf("COMBAT DE BOSS : l'ARÈNE D'ARCADE"), css.indexOf("Money Pit v2 (Norman"));
 assert.ok(arene.length > 6000, "bloc de l'arène d'arcade présent");
 for (const fragment of [
   "arcadeFightV1", "arcadeVsV1", "arcadeBalayageV1", "arcadeMarqueeV1",             /* FIGHT qui pulse, VS qui brille, balayage cathodique, marquee qui respire */

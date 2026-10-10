@@ -39,7 +39,7 @@ for(const token of [
   "imageMoneyPitAvantRenduV209",
   "/api/idle/media/banner?name=Money_Pit.jpg",
   "Balance ton argent",
-  "Daily Spin!",
+  "Roue journalière !",
   "Fais-moi tourner, bébé !",
   "TABLE DES RÉCOMPENSES",
   "RÉCOMPENSES DU MONEY PIT",

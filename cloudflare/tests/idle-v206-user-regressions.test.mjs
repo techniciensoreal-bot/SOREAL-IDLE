@@ -45,7 +45,7 @@ for(const token of ["victory:{group:\"combat-end\"","nuke:{group:\"combat-action
 }
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('victory')")&&ui.includes("jouerEffetAudioIdleV199_('nuke')"),"Fight Boss doit lancer victoire et NUKE.");
 
-for(const token of ["/api/idle/media/banner","const key=\"idle/banners/\"+nom","Money_Pit.jpg","function pageMoneyPitDailySpinIdleV206_(j)","Balance ton argent","Daily Spin!","TON PRIX","TABLE DES RÉCOMPENSES","RÉCOMPENSES DU MONEY PIT","RÉCOMPENSES DE LA ROUE"]){
+for(const token of ["/api/idle/media/banner","const key=\"idle/banners/\"+nom","Money_Pit.jpg","function pageMoneyPitDailySpinIdleV206_(j)","Balance ton argent","Roue journalière !","TON PRIX","TABLE DES RÉCOMPENSES","RÉCOMPENSES DU MONEY PIT","RÉCOMPENSES DE LA ROUE"]){
   assert.ok((media+ui+metaModule).includes(token),"Money Pit V206 manquant: "+token);
 }
 assert.ok(ngu.includes("s.data.history=historique.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1)")&&ngu.includes("history:Array.isArray(data.history)"),"Historique des prix non persistant.");

@@ -1393,6 +1393,44 @@
         return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
       }
 
+      /*
+       * Roue du Daily Spin (Norman, 2026-10-10 : « un effet de roue qui tourne ») : huit parts dessinées en CSS, repère fixe au-dessus. Prête, elle tourne doucement ; au clic elle fait un vrai tour de roue
+       * (départ rapide, ralentissement long, arrêt sur une part au hasard), PUIS la demande part au serveur : le lot s'annonce quand la roue s'arrête. Sans animation (prefers-reduced-motion), la demande part tout de suite.
+       */
+      function roueDisponibleIdleV1_(st){
+        const readyAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.readyAt);
+        return readyAt-(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now())<=0;
+      }
+      function rendreRoueIdleV1_(st){
+        return '<div class="mp2-roue-cadre-v1" aria-hidden="true"><div class="mp2-roue-v1'+(roueDisponibleIdleV1_(st)?' mp2-roue-prete-v1':'')+'"></div></div>';
+      }
+      let roueEnCoursIdleV1=false;
+      function lancerRoueIdleV1_(){
+        if(roueEnCoursIdleV1)return;
+        const roue=document.querySelector('.mp2-roue-v1');
+        let reduit=false;
+        try{reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_e){}
+        if(!roue||reduit||typeof roue.animate!=='function'){collecterSystemeMetaIdleV130_('dailySpin');return;}
+        roueEnCoursIdleV1=true;
+        roue.classList.remove('mp2-roue-prete-v1');
+        const bouton=document.querySelector('.mp2-spin-bouton-v1');
+        if(bouton)bouton.disabled=true;
+        let envoye=false;
+        const envoyer=function(){
+          if(envoye)return;
+          envoye=true;
+          roueEnCoursIdleV1=false;
+          collecterSystemeMetaIdleV130_('dailySpin');
+        };
+        try{
+          const angle=1800+Math.floor(Math.random()*8)*45+22.5;
+          const anim=roue.animate([{transform:'rotate(0deg)'},{transform:'rotate('+angle+'deg)'}],{duration:2800,easing:'cubic-bezier(.08,.7,.12,1)',fill:'forwards'});
+          anim.onfinish=function(){setTimeout(envoyer,350);};
+          setTimeout(envoyer,4000);
+        }catch(_e){envoyer();}
+      }
+      window.__lancerRoueIdleV1__=lancerRoueIdleV1_;
+
       function rendreBoutonDailySpinIdleV203_(st){
         const readyAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.readyAt);
         const restantMs=readyAt-(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
@@ -1401,7 +1439,7 @@
           demarrerMinuteurRechargeIdleV1_();
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="spin" data-fin="'+readyAt+'">'+libelleRechargeDailySpinIdleV1_(restantS)+'</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1" onclick="window.__collecterSystemeMetaIdleV130__(\'dailySpin\')">🎡 Fais-moi tourner, bébé !</button>';
+        return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1 mp2-spin-bouton-v1" onclick="window.__lancerRoueIdleV1__()">🎡 Fais-moi tourner, bébé !</button>';
       }
 
       function rendreSystemeMetaIdleV130_(
@@ -3440,9 +3478,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.mp-pager-v1 button{padding:6px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:#253957;color:#fff;font-weight:800}'+
             '.mp-pager-v1 button:disabled{opacity:.4}'+
           '</style>'+
+          /* Mise en page (Norman, 2026-10-10 : « beaucoup plus jolie », image entière et grande) : sur PC l'image à gauche, les actions et « Ton prix » à droite ; sur téléphone tout s'empile (CSS : soreal-idle-itopod.css, « Money Pit v2 »). */
+          '<div class="mp2-grille-v1">'+
           '<div class="soreal-idle-money-scene-v206">'+
-            '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Daily Spin">'+
+            '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Roue journalière">'+
           '</div>'+
+          '<div class="mp2-droite-v1">'+
           /* 2026-09-26 (Norman) : les deux boutons sous l'image, chacun sur la moitié de sa largeur. */
           '<div class="soreal-idle-money-actions-v206">'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
@@ -3451,8 +3492,11 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               rendreBoutonMoneyPitIdleV1_(j,pitSt)+
             '</div>'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
-              '<div class="soreal-idle-money-action-title-v206">Daily Spin!</div>'+
-              '<div class="soreal-idle-money-action-note-v206">Bon, ça ne « tourne » pas vraiment, mais c’est aléatoire !</div>'+
+              '<div class="mp2-spin-tete-v1">'+
+                rendreRoueIdleV1_(roueSt)+
+                '<div><div class="soreal-idle-money-action-title-v206">Roue journalière !</div>'+
+                '<div class="soreal-idle-money-action-note-v206">Bon, ça ne « tourne » pas vraiment, mais c’est aléatoire !</div></div>'+
+              '</div>'+
               rendreBoutonDailySpinIdleV203_(roueSt)+
             '</div>'+
           '</div>'+
@@ -3467,6 +3511,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 :'Aucun prix obtenu pour l’instant.')+
             '</div>'+
           '</div>'+
+          '</div></div>'+
           /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
           rendreCalendrierConnexionIdleV1_(j)+
           cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le puits.')+
