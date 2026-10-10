@@ -11,7 +11,6 @@ const interdits = [
   ["Entrée inconnue", "carte de bestiaire inconnue"],
   ["bestiary-card-v110 unknown", "carte de bestiaire inconnue"],
   ["<span>❔</span>", "case ❔ non découverte"],
-  [">???<", "case ??? non découverte"],
   [">???????<", "nom ??????? non découvert"],
   ["🔒 ???????", "compétence verrouillée"],
   ["Adventure verrouillé", "Adventure verrouillé"],
@@ -32,6 +31,10 @@ const interdits = [
 for (const [chaine, raison] of interdits) {
   assert.ok(!ui.includes(chaine), `spoil interdit (${raison}) : ${JSON.stringify(chaine)}`);
 }
+
+/* Exception voulue par Norman (2026-10-10) : le bouton Titans fermé (un seul « ??? », avec le boss à vaincre). */
+assert.equal((ui.match(/>\?\?\?</g) || []).length, 1, "un seul ??? dans l'interface : le bouton Titans fermé");
+assert.ok(ui.includes("<b>???</b><small>Vaincs le boss "), "et c'est bien lui");
 
 // Aucun « Maximum : N achats » dans les textes de la boutique AP.
 assert.ok(!/Maximum : \d+ achats/.test(ui), "aucun maximum d'achats affiché dans les textes de la boutique AP");

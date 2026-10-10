@@ -44,10 +44,10 @@ const inventaire = ui.slice(ui.indexOf("function pageInventaireIdleV28_(j){"), u
 assert.ok(!inventaire.includes("Glisse un objet pour l’équiper"), "bandeau « Inventory » retiré");
 assert.ok(!inventaire.includes("soreal-idle-summary-grid-v28") && !inventaire.includes("summary-v28"), "cadres Sac / Cube / Sets retirés");
 assert.match(inventaire, /return ''\+\s*'<div class="soreal-idle-v151-inventory-columns">'/);
-assert.match(inventaire, /🎒 Sac \('\+utilise\+' \/ '\+capacite\+'\)/, "le sac garde son compteur dans son titre");
+assert.match(inventaire, /dsn-sac" aria-hidden="true"><\/i> Sac \('\+utilise\+' \/ '\+capacite\+'\)/, "le sac garde son compteur dans son titre");
 const resume = ui.slice(ui.indexOf("function patchResumeInventaireIdleV160_(modele){"), ui.indexOf("function cleSlotEquipementInventaireIdleV160_"));
 assert.ok(!resume.includes("summary-grid"), "la mise à jour partielle ne dépend plus des cadres supprimés");
-assert.match(resume, /titreSac\.textContent='🎒 Sac \('\+modele\.utilise\+' \/ '\+modele\.capacite\+'\)'/, "et met toujours à jour le compteur du sac");
+assert.match(resume, /titreSac\.innerHTML='<i class="dsn-v1 dsn-sac" aria-hidden="true"><\/i> Sac \('\+modele\.utilise\+' \/ '\+modele\.capacite\+'\)'/, "et met toujours à jour le compteur du sac");
 
 // --- Messages informatifs Aventure / Inventaire fusionnés : l'inventaire est dans la page Aventure ---
 assert.match(ui, /que tu peux équiper dans ton INVENTAIRE, juste en dessous dans cette même page Aventure !/);

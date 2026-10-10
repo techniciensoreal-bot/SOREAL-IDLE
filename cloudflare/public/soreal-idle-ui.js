@@ -3014,6 +3014,14 @@
                 k=rj.k;reste=rj.reste;bloque=rj.bloque;debites=rj.debites;
                 d[cle]=debites;
                 if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);
+              }else if(secondes0>0&&typeof window.__rejouerCyclesAugmentPlafonneIdleV1__==='function'){
+                /* Barre CAP (50 niveaux par seconde au plus) : les niveaux, le coût et l'Or sont eux aussi rejoués en direct (Norman, 2026-10-10). */
+                const orAvantCap=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
+                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0});
+                if(Boolean(monnaiesLocales)&&rjCap.debit>0){monnaiesLocales.gold=Math.max(0,orAvantCap-rjCap.debit);debiteCeTick=true;}
+                k=rjCap.k;reste=rjCap.reste;bloque=rjCap.bloque;debites=rjCap.debites;
+                d[cle]=debites;
+                if(debiteCeTick)patcherResumeStatsIdleV28_(idleEtat);
               }
               const secondes=secondes0>0.0201?dureeK(k):secondes0;
               const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
@@ -17390,7 +17398,7 @@
           modele.itemById,
           modele.accessorySlotsCapacity
         );
-        return '<div class="soreal-idle-window-title-v31">🧍 Équipement</div>'+
+        return '<div class="soreal-idle-window-title-v31"><i class="dsn-v1 dsn-equipement" aria-hidden="true"></i> Équipement</div>'+
           '<div class="soreal-idle-v138-paperdoll">'+
             accessoiresRendu.enGrille+
             rendreSlotPaperdollAdventureIdleV138_(
@@ -17423,7 +17431,7 @@
           '#soreal-idle-v138-bag-section .soreal-idle-window-title-v31'
         );
         if(titreSac){
-          titreSac.textContent='🎒 Sac ('+modele.utilise+' / '+modele.capacite+')';
+          titreSac.innerHTML='<i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+modele.utilise+' / '+modele.capacite+')';
         }
       }
 
@@ -17898,6 +17906,7 @@
             if(slot){
               slot.occupe=true;
               slot.item=cloneInventaireIdleV160_(item);
+              jouerEffetAudioIdleV199_('coffreAvale');
             }
           }
         }else if(action==='coffreRetirer'){
@@ -17909,6 +17918,7 @@
           a.inventory.push(cloneInventaireIdleV160_(slot.item));
           slot.occupe=false;
           slot.item=null;
+          jouerEffetAudioIdleV199_('coffreRecrache');
         }else{
           return false;
         }
@@ -19847,7 +19857,13 @@ function pageAventureIdleV28_(j){
             '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?'':' actif')+'" onclick="window.__vueAventureIdleV1__(\'zones\')">🗺️ Aventure</button>'+
             '<button type="button" class="soreal-idle-expand-button-v25'+(idleVueAventureV1==='titans'?' actif':'')+(window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.disponible&&window.__SOREAL_IDLE_TITANS_V1__.disponible(j)?' soreal-idle-titan-brille-v1':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+
           '</div>'
-        ):'';
+        ):(Number(a.titansAccesBoss)>0?(
+          /* Exception à la règle n°2 voulue par Norman (2026-10-10) : le bouton Titans se montre avant l'accès, en ???, avec le boss à vaincre ; il n'ouvre rien. */
+          '<div class="soreal-idle-bascule-aventure-v1">'+
+            '<button type="button" class="soreal-idle-expand-button-v25 actif" onclick="window.__vueAventureIdleV1__(\'zones\')">🗺️ Aventure</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-titans-ferme-v1" disabled aria-disabled="true"><b>???</b><small>Vaincs le boss '+idleHtml_(String(Math.floor(Number(a.titansAccesBoss))))+'</small></button>'+
+          '</div>'
+        ):'');
         if(idleVueAventureV1==='titans'&&titans.length&&window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.section){
           return bascule+window.__SOREAL_IDLE_TITANS_V1__.section(j);
         }
@@ -21552,7 +21568,7 @@ function pageAventureIdleV28_(j){
           'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
           'ondrop="window.__deposerSurTrashAdventureIdleV138__(event)" '+
           'onclick="window.__clicTrashAdventureIdleV138__()">'+
-          (item?iconeObjetAdventureIdleV138_(item):'<span>🗑️</span>')+
+          (item?iconeObjetAdventureIdleV138_(item):'<i class="dsn-v1 dsn-corbeille" aria-hidden="true"></i>')+
         '</div>';
       }
       window.__deposerSurTrashAdventureIdleV138__=deposerSurTrashAdventureIdleV138_;
@@ -22210,7 +22226,7 @@ function pageAventureIdleV28_(j){
            (le sac s'affiche dans son titre, le Cube dans son emplacement, les sets dans la Collection). */
         return ''+
           '<div class="soreal-idle-v151-inventory-columns">'+
-            '<div class="soreal-idle-section-v8 soreal-idle-v138-equipment-sticky"><div class="soreal-idle-window-title-v31">🧍 Équipement</div>'+
+            '<div class="soreal-idle-section-v8 soreal-idle-v138-equipment-sticky"><div class="soreal-idle-window-title-v31"><i class="dsn-v1 dsn-equipement" aria-hidden="true"></i> Équipement</div>'+
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-280 */
               (function(){
                 const accessoiresRendu=rendreAccessoiresAdventureIdleV138_(equipment,itemById,idleEntier_(a.accessorySlotsCapacity||2));
@@ -22231,7 +22247,7 @@ function pageAventureIdleV28_(j){
             '<div class="soreal-idle-section-v8" id="soreal-idle-v138-bag-section">'+
               indiceSacZoneTutorielIdleV1_(a)+
               '<div class="soreal-idle-v138-bag-heading-v165">'+
-                '<div class="soreal-idle-window-title-v31">🎒 Sac ('+utilise+' / '+capacite+')</div>'+
+                '<div class="soreal-idle-window-title-v31"><i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+utilise+' / '+capacite+')</div>'+
                 /*
                  * Norman (2026-09-29) : « J'aimerai un bouton pour trier l'inventaire [...] il ne
                  * serait pas dévérouillé de base. » Achat EXP Shop (section Débuts) : jamais affiché
@@ -22433,6 +22449,33 @@ function pageAventureIdleV28_(j){
         rendrePaginationIdleV1_(idlePageCoffreV1,totalPagesCoffre,'window.__changerPageCoffreV1__');
       }
 
+      /*
+       * Le Coffre est un coffre à pattes, avec des dents et une langue, qui mange les objets pour les ranger (Norman, 2026-10-10 : « un coffre qui fait référence à Discworld »). Dessin original en SVG ; sa gueule est la zone de
+       * dépôt. Il croque (couvercle qui claque, corps qui gonfle, bulle) quand un objet est déposé : le drapeau window.__bagageAvaleIdleV1 survit au redessin de la page. Animations : voir « Inventaire v2 » dans soreal-idle-itopod.css.
+       */
+      const BAGAGE_SVG_IDLE_V1='<svg viewBox="0 0 320 260" aria-hidden="true" focusable="false"><defs>'+
+        '<linearGradient id="bgBois" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9783a"/><stop offset=".55" stop-color="#8a5122"/><stop offset="1" stop-color="#5f3414"/></linearGradient>'+
+        '<linearGradient id="bgBoisC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cf8d4c"/><stop offset="1" stop-color="#8f5626"/></linearGradient>'+
+        '<linearGradient id="bgCuivre" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe58a"/><stop offset=".5" stop-color="#d79a1f"/><stop offset="1" stop-color="#8a5a08"/></linearGradient>'+
+        '<linearGradient id="bgLangue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8fa8"/><stop offset="1" stop-color="#d94b6d"/></linearGradient>'+
+        '<radialGradient id="bgGueule" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#5a0f1c"/><stop offset="1" stop-color="#1c0309"/></radialGradient></defs>'+
+        '<ellipse cx="160" cy="246" rx="120" ry="11" fill="rgba(0,0,0,.45)"/>'+
+        '<g><g class="bg-patte"><rect x="62" y="214" width="16" height="26" rx="6" fill="#6a3a16"/><ellipse cx="68" cy="241" rx="14" ry="6" fill="#4a280e"/></g>'+
+        '<g class="bg-patte bg-b"><rect x="104" y="218" width="16" height="24" rx="6" fill="#6a3a16"/><ellipse cx="110" cy="243" rx="14" ry="6" fill="#4a280e"/></g>'+
+        '<g class="bg-patte"><rect x="200" y="218" width="16" height="24" rx="6" fill="#6a3a16"/><ellipse cx="206" cy="243" rx="14" ry="6" fill="#4a280e"/></g>'+
+        '<g class="bg-patte bg-b"><rect x="242" y="214" width="16" height="26" rx="6" fill="#6a3a16"/><ellipse cx="248" cy="241" rx="14" ry="6" fill="#4a280e"/></g></g>'+
+        '<g class="bg-corps"><path d="M44 130 L276 130 L270 100 L50 100 Z" fill="url(#bgGueule)"/>'+
+        '<path d="M40 128 H280 V214 Q280 228 266 228 H54 Q40 228 40 214 Z" fill="url(#bgBois)" stroke="#3a1d08" stroke-width="4"/>'+
+        '<path d="M40 160 H280 M40 192 H280" stroke="#4a2509" stroke-width="3" opacity=".55"/><path d="M96 130 V228 M224 130 V228" stroke="url(#bgCuivre)" stroke-width="12"/>'+
+        '<circle cx="96" cy="150" r="3.5" fill="#6a4308"/><circle cx="96" cy="206" r="3.5" fill="#6a4308"/><circle cx="224" cy="150" r="3.5" fill="#6a4308"/><circle cx="224" cy="206" r="3.5" fill="#6a4308"/>'+
+        '<rect x="140" y="166" width="40" height="34" rx="6" fill="url(#bgCuivre)" stroke="#6a4308" stroke-width="3"/><circle cx="160" cy="180" r="5" fill="#3a2300"/><rect x="158" y="182" width="4" height="10" fill="#3a2300"/>'+
+        '<g fill="#fffbe8" stroke="#6a5a3a" stroke-width="2" stroke-linejoin="round"><path d="M52 130 l10 -20 l10 20z"/><path d="M76 130 l9 -17 l9 17z"/><path d="M102 130 l9 -18 l9 18z"/><path d="M200 130 l9 -18 l9 18z"/><path d="M226 130 l9 -17 l9 17z"/><path d="M248 130 l11 -22 l11 22z"/></g>'+
+        '<g class="bg-langue"><path d="M148 126 C144 168 150 208 176 214 C202 208 208 168 204 126 Z" fill="url(#bgLangue)" stroke="#8f2a45" stroke-width="3" stroke-linejoin="round"/><path d="M176 134 L176 196" stroke="#b83a58" stroke-width="3" stroke-linecap="round"/><ellipse cx="164" cy="168" rx="4" ry="9" fill="#ffb3c4" opacity=".55"/></g>'+
+        '<g class="bg-couvercle"><path d="M40 126 V92 Q40 52 90 48 H230 Q280 52 280 92 V126 Z" fill="url(#bgBoisC)" stroke="#3a1d08" stroke-width="4"/><path d="M54 74 Q160 52 266 74" stroke="#5a3010" stroke-width="3" fill="none" opacity=".5"/>'+
+        '<path d="M96 52 V126 M224 52 V126" stroke="url(#bgCuivre)" stroke-width="12"/><circle cx="96" cy="86" r="3.5" fill="#6a4308"/><circle cx="224" cy="86" r="3.5" fill="#6a4308"/>'+
+        '<g fill="#fffbe8" stroke="#6a5a3a" stroke-width="2" stroke-linejoin="round"><path d="M56 126 l10 20 l10 -20z"/><path d="M80 126 l9 17 l9 -17z"/><path d="M108 126 l9 19 l9 -19z"/><path d="M130 126 l8 14 l8 -14z"/><path d="M174 126 l8 14 l8 -14z"/><path d="M198 126 l9 19 l9 -19z"/><path d="M228 126 l9 17 l9 -17z"/><path d="M250 126 l10 20 l10 -20z"/></g></g></g></svg>';
+      const BAGAGE_OBJETS_IDLE_V1=['🗡️','🛡️','👢','💍','🪖','📿','🧪'];
+      const BAGAGE_CRIS_IDLE_V1=['*Gloups !*','*Miam.*','*Rrrot.*','*Crounch !*','*Encore.*'];
       /* Cadre du coffre : titre repliable, case de dépôt, champ de recherche et grille. */
       function rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert){
         /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */
@@ -22440,7 +22483,7 @@ function pageAventureIdleV28_(j){
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+
             'role="button" tabindex="0" aria-expanded="'+(ouvert?'true':'false')+'">'+
-            '<span>🧰 Coffre ('+occupees+')</span>'+
+            '<span><i class="dsn-v1 dsn-coffre" aria-hidden="true"></i> Coffre ('+occupees+')</span>'+
             '<span class="soreal-idle-coffre-chevron-v1">'+(ouvert?'▲':'▼')+'</span>'+
           '</div>'+
           '<div class="soreal-idle-v138-cube-slot" data-idle-coffre-drop-v180 '+
@@ -22449,8 +22492,13 @@ function pageAventureIdleV28_(j){
             'ondrop="window.__deposerSurCoffreAdventureIdleV1__(event)" '+
             'onclick="window.__clicCoffreAdventureIdleV1__()"'+
             '>'+
-            '<div>🧰</div>'+
-            '<div>Glisse un objet réellement maxé ici pour le ranger dans sa case</div>'+
+            '<div class="bg-bagage-v1'+(Date.now()-(window.__bagageAvaleIdleV1||0)<1300?' croque':'')+'">'+
+              '<span class="bg-bulle-v1">'+BAGAGE_CRIS_IDLE_V1[Math.floor(Math.random()*BAGAGE_CRIS_IDLE_V1.length)]+'</span>'+
+              '<span class="bg-objet-v1">'+BAGAGE_OBJETS_IDLE_V1[Math.floor(Math.random()*BAGAGE_OBJETS_IDLE_V1.length)]+'</span>'+
+              BAGAGE_SVG_IDLE_V1+
+            '</div>'+
+            '<div class="bg-texte-v1"><b>Il mange les objets pour les ranger.</b>'+
+              '<span>Glisse ici un objet réellement maxé : il croque, avale, rote, puis le range quelque part là-dedans. Ne lui mets pas les doigts.</span></div>'+
           '</div>'+
           (ouvert?'<div style="margin-top:10px">'+
             '<input type="search" id="sorealIdleCoffreRechercheV1" class="soreal-idle-coffre-recherche-v1" placeholder="🔎 Rechercher : un nom, ou une stat (Magic Power…)" value="'+idleHtml_(idleRechercheCoffreV1)+'" oninput="window.__rechercheCoffreV1__(this.value)" autocomplete="off" spellcheck="false">'+
@@ -22495,7 +22543,7 @@ function pageAventureIdleV28_(j){
         if(event){event.preventDefault();event.stopPropagation();}
         const id=idSourceAdventureIdleV138_(event);
         nettoyerEtatDragAdventureIdleV138_();
-        if(id)actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});
+        if(id){window.__bagageAvaleIdleV1=Date.now();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});}
       }
       window.__deposerSurCoffreAdventureIdleV1__=deposerSurCoffreAdventureIdleV1_;
 
@@ -22506,6 +22554,7 @@ function pageAventureIdleV28_(j){
         }
         const id=idleAdventureSelectionIdV138;
         nettoyerEtatDragAdventureIdleV138_();
+        window.__bagageAvaleIdleV1=Date.now();
         actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});
       }
       window.__clicCoffreAdventureIdleV1__=clicCoffreAdventureIdleV1_;

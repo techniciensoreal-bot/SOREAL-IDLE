@@ -45,7 +45,7 @@ const user = { email: "technicien.soreal@gmail.com", emailConnexion: "technicien
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(!ui.includes("/???"), "les onglets de Collection ne montrent plus « n/??? »");
 assert.ok(!/Coffre \('\+occupees\+' \/ '\+slots\.length/.test(ui), "le Coffre ne montre plus son nombre total d'emplacements");
-assert.match(ui, /🧰 Coffre \('\+occupees\+'\)/);
+assert.match(ui, /Coffre \('\+occupees\+'\)/);
 assert.ok(!/'Découverts '\+vus\+'\/'\+total/.test(ui) && !/verts\+' \/ '\+total/.test(ui), "les sets n'affichent plus « x/6 »");
 assert.match(ui, /if\(!vu\)return '';/, "les pièces de set non vues ne sont pas dessinées");
 assert.match(ui, /return Boolean\(itemList\[id\]\)&&setsDemarres\.has\(String\(def\.set\|\|''\)\);/, "Équipement : seulement les pièces obtenues");

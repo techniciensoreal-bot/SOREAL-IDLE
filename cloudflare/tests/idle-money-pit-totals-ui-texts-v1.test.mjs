@@ -63,7 +63,7 @@ assert.equal(ui.includes("Appuie sur Start"), false);
 /* Le cadre d'en-tête de la page Combat de boss a été retiré le 2026-10-08. */
 assert.equal(ui.includes("Appuie sur Fight. Une victoire tue ce boss pour le run et sélectionne immédiatement le suivant."), false);
 assert.equal(ui.includes("au toucher : touche l’objet puis le Coffre"), false);
-assert.ok(ui.includes("Glisse un objet réellement maxé ici pour le ranger dans sa case</div>"));
+assert.ok(ui.includes("Glisse ici un objet réellement maxé : il croque, avale, rote, puis le range quelque part là-dedans. Ne lui mets pas les doigts."));
 assert.equal(ui.includes("rendreBonusEquipementAdventureIdleV1_(a);"), false, "bloc Equipment Bonuses retiré de la page Adventure");
 assert.match(css, /\.soreal-idle-bt-meta-v120\{\s*font-size:15px;/);
 

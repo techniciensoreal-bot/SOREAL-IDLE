@@ -78,5 +78,5 @@ assert.equal(serveur.actions.length, nombreEnvois, "plus aucun envoi une fois la
   assert.match(api.panneau(etatServeur()), /<input type="checkbox" class="sw-in" checked onchange="window\.__inventaireAutoFiltreTypeV1__\('chest',this\.checked\)">[\s\S]*?Torse/, "après abandon, l'affichage reflète le serveur");
 }
 
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/inventory-auto-v1.js?v=20"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/inventory-auto-v1.js?v=21"));
 console.log("idle-inventory-filter-reliable-v1: OK");

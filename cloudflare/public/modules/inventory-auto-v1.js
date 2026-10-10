@@ -346,7 +346,7 @@
 
     var estOuvert=ouvert();
     return '<div class="soreal-idle-window-title-v31 soreal-idle-inv-auto-titre-v1" onclick="window.__inventaireAutoBasculerV1__()" role="button" tabindex="0" aria-expanded="'+(estOuvert?'true':'false')+'">'+
-      '<span>⚙️ Automatisation de l’inventaire</span><span class="soreal-idle-coffre-chevron-v1">'+(estOuvert?'▲':'▼')+'</span></div>'+
+      '<span><i class="dsn-v1 dsn-engrenage" aria-hidden="true"></i> Automatisation de l’inventaire</span><span class="soreal-idle-coffre-chevron-v1">'+(estOuvert?'▲':'▼')+'</span></div>'+
       (estOuvert?'<div class="soreal-idle-inv-auto-sections-v1">'+lignes.join('')+'</div>':'');
   }
 

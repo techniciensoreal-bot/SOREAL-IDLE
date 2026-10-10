@@ -13,6 +13,7 @@
     var garde=function(valeur){
       if(this.nodeType===1){
         var s=valeur==null?'':String(valeur);
+        if(this.__dsnTexte!==undefined&&this.__dsnTexte===s&&this.innerHTML===this.__dsnHtml)return;
         var f=this.firstChild;
         if(f&&f===this.lastChild&&f.nodeType===3&&f.nodeValue===s)return;
         if(!f&&s==='')return;

@@ -2462,6 +2462,40 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       window.__rejouerCyclesAugmentIdleV1__=rejouerCyclesAugmentIdleV1_;
 
       /*
+       * Barre « CAP » (Norman, 2026-10-10 : « quand les Ciseaux de sécurité sont cap, les niveaux ne se mettent pas à jour en temps réel ; ils ne bougent qu'une fois la barre repartie ») : quand le temps d'un niveau
+       * tombe sous un tick (0,02 s, au plus 50 niveaux par seconde), le niveau, le coût et l'Or n'étaient plus rejoués en local entre deux synchros. On les rejoue ici, niveau par niveau (une barre CAP n'en gagne
+       * que 50 par seconde, donc la boucle reste courte) : le niveau n dure max(0,02 s ; durée de base × n / niveau de départ) et coûte coût de base × (n / niveau de départ)^exposant, comme le moteur.
+       * Même résultat que rejouerCyclesAugmentIdleV1_ : {k, reste, debites, debit, bloque}.
+       */
+      function rejouerCyclesAugmentPlafonneIdleV1_(p){
+        const n0=Math.max(1,p.niv0+1),expo=p.expo,sec0=p.sec0;
+        const coutNiveau=function(i){return p.cout0*Math.pow((n0+i)/n0,expo);};
+        const dureeNiveau=function(i){return Math.max(0.02,sec0*(n0+i)/n0);};
+        const total=Math.max(0,p.reste0);
+        let kMax=0,temps=0;
+        while(kMax<20000){
+          const dn=dureeNiveau(kMax);
+          if(temps+dn>total*(1+1e-12))break;
+          temps+=dn;kMax+=1;
+        }
+        const d=Math.min(Math.max(0,p.debites),kMax);
+        let k=kMax,debit=0,debites=Math.max(p.debites,0),bloque=false;
+        if(kMax>d){
+          let cumul=0,j=d;
+          while(j<kMax){
+            const c=coutNiveau(j);
+            if(cumul+c>p.gold+1e-9){bloque=true;break;}
+            cumul+=c;j+=1;
+          }
+          k=j;debit=cumul;debites=Math.max(debites,j);
+        }
+        let tempsK=0;
+        for(let i=0;i<k;i+=1)tempsK+=dureeNiveau(i);
+        return {k:k,reste:total-tempsK,debites:debites,debit:debit,bloque:bloque,coutProchain:coutNiveau(k),dureeProchaine:dureeNiveau(k)};
+      }
+      window.__rejouerCyclesAugmentPlafonneIdleV1__=rejouerCyclesAugmentPlafonneIdleV1_;
+
+      /*
        * Ramène le repère à « maintenant ». Les niveaux terminés depuis le repère sont REJOUÉS (niveau, coût, durée du suivant, Or débité) exactement comme le fait le tick de soreal-idle-ui.js : l'ancien
        * calcul (reste de la division par la durée) effaçait ces niveaux sans les compter, d'où un niveau affiché qui reculait d'un cran et un Or trop haut jusqu'à la synchro suivante.
        */

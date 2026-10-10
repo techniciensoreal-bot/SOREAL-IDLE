@@ -5978,7 +5978,12 @@ function construireSnapshotNguV1(state, context, now) {
       /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06 : la réponse d'un joueur neuf contenait les 33 zones et les 12 titans, noms, boss et puissances compris) :
          jamais une zone encore fermée (sauf celle en cours) ni un titan pas encore atteignable dans la réponse. */
       if (Array.isArray(snap.zones)) snap.zones = snap.zones.filter(z => z.unlocked || z.id === snap.selectedZone || z.id === snap.lastCombatZone);
-      if (Array.isArray(snap.titans)) snap.titans = snap.titans.filter(t => t.progressionUnlocked || num(t.state && t.state.kills, 0) > 0);
+      if (Array.isArray(snap.titans)) {
+        /* Exception décidée par Norman (2026-10-10) à la règle n°2 : le bouton « Titans » est visible avant l'accès, en « ??? », avec le seul boss à vaincre pour l'obtenir (le premier titan). Un simple nombre : la liste, elle, reste filtrée. */
+        const prochains = snap.titans.filter(t => !t.progressionUnlocked && num(t.state && t.state.kills, 0) <= 0).map(t => num(t.boss, 0)).filter(b => b > 0).sort((x, y) => x - y);
+        snap.titans = snap.titans.filter(t => t.progressionUnlocked || num(t.state && t.state.kills, 0) > 0);
+        snap.titansAccesBoss = snap.titans.length ? 0 : (prochains[0] || 0);
+      }
       return snap;
     })(),
     /*

@@ -51,6 +51,9 @@
     joueurConnecte:{group:"presence",priority:18,maxAgeMs:2500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
+    /* Le Coffre avale / recrache un objet (Norman, 2026-10-10) : 10 sons de chaque, tirés au hasard (modules/audio-coffre-v1.js). */
+    coffreAvale:{group:"chest",priority:36,maxAgeMs:1000},
+    coffreRecrache:{group:"chest",priority:36,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
     mergeAccessory:{group:"inventory-merge",priority:48,maxAgeMs:1100},
     mergeWeapon:{group:"inventory-merge",priority:50,maxAgeMs:1100},
@@ -1344,6 +1347,13 @@
     });
   }
 
+  function coffreAvalerRecracher_(sens){
+    return jouerWebAudio_(700,function(c){
+      var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
+      if(m&&typeof m.jouerAleatoire==="function")m.jouerAleatoire(sens,c,master||c.destination);
+    });
+  }
+
   function coffreFermeture_(){
     return jouerWebAudio_(410,function(c){
       tonal_(c,{type:"triangle",from:255,to:112,duration:.20,volume:.050});
@@ -1664,6 +1674,8 @@
     joueurConnecte:joueurConnecte_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
+    coffreAvale:function(){return coffreAvalerRecracher_("avaler");},
+    coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
     mergeArmor:fusionArmure_,
     mergeAccessory:fusionAccessoire_,
     mergeWeapon:fusionArme_,
@@ -1932,6 +1944,8 @@
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
+    coffreAvale:function(){return demander_("coffreAvale");},
+    coffreRecrache:function(){return demander_("coffreRecrache");},
     mergeArmor:function(){return demander_("mergeArmor");},
     mergeAccessory:function(){return demander_("mergeAccessory");},
     mergeWeapon:function(){return demander_("mergeWeapon");},
