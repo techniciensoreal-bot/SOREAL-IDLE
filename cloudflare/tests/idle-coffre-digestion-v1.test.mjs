@@ -15,7 +15,7 @@ assert.ok(html.includes("/modules/coffre-digestion-v1.js"), "module chargé");
 assert.ok(themes.includes("0 0/90px 36px repeat-x") && !themes.includes("0 0/90px 22px repeat-x"), "étoiles de la magie sur toute la hauteur de la barre");
 assert.ok(themes.includes("@keyframes sorealHudSigle{0%{opacity:0;") && /100%\{opacity:0;transform:translate\(28px/.test(themes), "grands sigles : fondu d'entrée et de sortie, un seul sens");
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
-assert.ok(dig.includes("textContent='Désolé'") && dig.includes("data-sans-traduction") && dig.includes("bg-fumee-v1"), "pet : nuage de fumée et bulle « Désolé » (toujours en français)");
+assert.ok(dig.includes("'Désolé'") && dig.includes("2 doigts de chier sur tes affaires") && dig.includes("Math.random()<.125") && dig.includes("data-sans-traduction") && dig.includes("bg-fumee-v1"), "pet : nuage de fumée et bulle « Désolé » (toujours en français)");
 assert.ok(css.includes("@keyframes bgFumee") && css.includes(".bg-desole-v1"), "styles de la fumée et de la bulle");
 assert.ok(themes.includes(".soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2::before{inset:0;bottom:0;background:url(\"data:image/svg+xml,") && themes.includes("0 0/70px 36px repeat-x;--p:70px"), "magie : deuxième couche d'étoiles sur toute la hauteur");
 assert.ok(!themes.includes('url("%3Csvg'), "URL de tuile valide (préfixe data:)");

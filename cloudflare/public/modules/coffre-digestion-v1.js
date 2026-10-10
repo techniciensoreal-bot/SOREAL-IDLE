@@ -28,9 +28,12 @@
     f.className='bg-fumee-v1';f.setAttribute('aria-hidden','true');
     f.innerHTML='<i></i><i></i><i></i>';
     var b=document.createElement('span');
-    b.className='bg-desole-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');b.textContent='Désolé';
+    /* Très rarement (1 fois sur 8), une autre réplique, plus longue : la bulle s'élargit et reste un peu plus longtemps. */
+    var rare=Math.random()<.125;
+    b.className='bg-desole-v1'+(rare?' bg-desole-rare-v1':'');b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.textContent=rare?'J’étais à 2 doigts de chier sur tes affaires':'Désolé';
     el.appendChild(f);el.appendChild(b);
-    setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);if(b.parentNode)b.parentNode.removeChild(b);},2300);
+    setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);if(b.parentNode)b.parentNode.removeChild(b);},rare?3600:2300);
   }
   function jouer_(type){
     var el=coffreVisible_();

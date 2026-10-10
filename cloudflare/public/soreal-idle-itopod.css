@@ -1363,3 +1363,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .bg-bagage-v1 .bg-desole-v1{position:absolute;left:50%;top:-30px;padding:4px 12px;border-radius:12px;background:#fff;color:#3a2208;border:2px solid #3a2208;font:400 17px/1 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.05em;white-space:nowrap;pointer-events:none;z-index:8;opacity:0;animation:bgDesole 2.2s ease-in-out 1 both}
 .bg-bagage-v1 .bg-desole-v1::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#3a2208;border-bottom:0}
 @media (prefers-reduced-motion:reduce){.bg-bagage-v1 .bg-fumee-v1 i{animation:none;opacity:.6}.bg-bagage-v1 .bg-desole-v1{animation:none;opacity:1}}
+
+/* Réplique rare du Coffre : bulle plus large sur plusieurs lignes, visible plus longtemps. */
+.bg-bagage-v1 .bg-desole-rare-v1{top:-52px;width:170px;white-space:normal;text-align:center;font-size:14px;line-height:1.15;animation-duration:3.5s}
