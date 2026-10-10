@@ -17318,6 +17318,10 @@ function supprimerTexteAdminSorealIdle(sessionToken, cle) {
  * (2) crédite le temps de jeu ACTIF -- uniquement les secondes écoulées depuis le battement précédent, et seulement si le joueur a
  * réellement interagi avec la page visible (jamais le rattrapage hors-ligne, qui faisait monter le classement sans jouer).
  */
+/* Temps actif accumulé par joueur et pas encore versé dans sa ligne (voir battementSorealIdle) ; versé dès 120 s. */
+const __tempsActifEnAttenteV1 = new Map();
+const TEMPS_ACTIF_VERSEMENT_SEC_V1 = 120;
+
 function battementSorealIdle(sessionToken, info) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleSql) return { ok: true, enLigne: [], dernierChatId: 0 };
@@ -17389,20 +17393,30 @@ function battementSorealIdle(sessionToken, info) {
   } catch (_e) { flux = []; }
 
   if (resultat.gain > 0) {
-    const lock = LockService.getScriptLock();
-    if (lock.tryLock(1800)) {
-      try {
-        const feuille = obtenirFeuilleJoueursSorealIdle_();
-        const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
-        assurerDonneesJeuSorealIdle_(feuille, ligne);
-        const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
-        const cellule = feuille.getRange(ligne, c.STATS_JSON);
-        const stats = statsJoueurSorealIdle_(cellule.getValue());
-        stats.tempsActifSec = stats.tempsActifSec + resultat.gain;
-        cellule.setValue(JSON.stringify(stats));
-        SpreadsheetApp.flush();
-      } finally {
-        lock.releaseLock();
+    /*
+     * Audit du 2026-10-10 (IDLE-AUDIT-PERF-005) : chaque battement (~20 s) réécrivait la ligne ENTIÈRE du joueur (inventaire compris, 177 Ko à 450 objets, deux fois : idle_catalog et idle_players) pour ajouter quelques secondes de
+     * temps actif. Les secondes sont maintenant accumulées en mémoire et versées dans la ligne au plus toutes les 2 minutes (la mémoire d'un redémarrage à froid ne perd au pire que ces 2 minutes de « temps de jeu » du classement).
+     */
+    const cleTemps = cleJoueurSorealIdle_(acces);
+    const enAttente = (__tempsActifEnAttenteV1.get(cleTemps) || 0) + resultat.gain;
+    __tempsActifEnAttenteV1.set(cleTemps, enAttente);
+    if (enAttente >= TEMPS_ACTIF_VERSEMENT_SEC_V1) {
+      const lock = LockService.getScriptLock();
+      if (lock.tryLock(1800)) {
+        try {
+          const feuille = obtenirFeuilleJoueursSorealIdle_();
+          const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+          assurerDonneesJeuSorealIdle_(feuille, ligne);
+          const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+          const cellule = feuille.getRange(ligne, c.STATS_JSON);
+          const stats = statsJoueurSorealIdle_(cellule.getValue());
+          stats.tempsActifSec = stats.tempsActifSec + enAttente;
+          cellule.setValue(JSON.stringify(stats));
+          SpreadsheetApp.flush();
+          __tempsActifEnAttenteV1.delete(cleTemps);
+        } finally {
+          lock.releaseLock();
+        }
       }
     }
   }
@@ -17527,6 +17541,18 @@ const IDLE_OPERATIONS={
   enregistrerClicsSorealIdle,
   definirClassementVisibleSorealIdle
 };
+
+/*
+ * Vide les mémos de catalogue de l'isolat (tables 5 min, paramètres, images de boss, CacheService) : appelé par le coordinateur après un remplacement de feuilles (audit du 2026-10-10, IDLE-AUDIT-PERF-010). Avant, un isolat chaud
+ * pouvait servir l'ancien contenu d'IDLE_BOSS, CONFIG… jusqu'à 5 minutes après un import.
+ */
+export function idleInvaliderMemosCatalogueV1(){
+  for(const k of Object.keys(__SOREAL_IDLE_TABLE_MEMO_V19__))delete __SOREAL_IDLE_TABLE_MEMO_V19__[k];
+  for(const k of Object.keys(__SOREAL_IDLE_BOSS_IMAGES_MEMO_V19__))delete __SOREAL_IDLE_BOSS_IMAGES_MEMO_V19__[k];
+  __SOREAL_IDLE_PARAMS_MEMO_V19__=null;
+  __SOREAL_IDLE_PARAMS_MEMO_TS_V19__=0;
+  __idleCacheStore.clear();
+}
 
 export function idleOperationNames(){
   return Object.keys(IDLE_OPERATIONS);
@@ -17661,7 +17687,12 @@ export function runSorealIdleOperation(sql,operation,args,user){
     const result=fn.apply(null,Array.isArray(args)?args:[]);
     /* La section critique doit rester synchrone (voir idle-run-operation-sync-critical-section.test.mjs). */
     if(result&&typeof result.then==="function")throw new Error("SOREAL_IDLE_OPERATION_ASYNC_INTERDITE");
-    __idleCommit(sql,workbook);
+    /*
+     * Le commit (idle_catalog puis idle_players, journal d'EXP) est atomique quand le coordinateur fournit transactionSync (Durable Object SQLite) : une erreur au milieu (ligne trop grosse par exemple) annule TOUT le commit
+     * au lieu de laisser les deux tables diverger (audit du 2026-10-10, IDLE-AUDIT-PERF-006 / SEC-015). Sans transactionSync (tests, autres hôtes), comportement inchangé.
+     */
+    if(sql&&typeof sql.transactionSync==="function")sql.transactionSync(function(){__idleCommit(sql,workbook);});
+    else __idleCommit(sql,workbook);
     return result;
   }finally{
     __idleRuntimeUser=null;

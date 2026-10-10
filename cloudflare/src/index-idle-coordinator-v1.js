@@ -1,5 +1,5 @@
 import { sqlRows } from "./core/sqlite-core.js";
-import { runSorealIdleOperation, idleOperationNames } from "./idle-sqlite-runtime.js";
+import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogueV1 } from "./idle-sqlite-runtime.js";
 import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
@@ -64,6 +64,15 @@ export class SorealIdleCoordinatorV1 {
     this.env = env;
     this.sql = state?.storage?.sql;
     if (!this.sql) throw new Error("SQLite Durable Object indisponible (idle)");
+    /*
+     * Handle donné au moteur : le même exec, plus transactionSync quand le stockage du Durable Object le fournit, pour que le commit d'une opération soit atomique (audit du 2026-10-10, IDLE-AUDIT-PERF-006). Seul exec est utilisé
+     * par le moteur ; le handle brut reste utilisé partout ailleurs dans ce fichier.
+     */
+    const brut = this.sql;
+    const stockage = state.storage;
+    this.sqlMoteur = typeof stockage.transactionSync === "function"
+      ? { exec: (...a) => brut.exec(...a), transactionSync: (f) => stockage.transactionSync(f) }
+      : brut;
     this.sql.exec(
       "CREATE TABLE IF NOT EXISTS idle_players (" +
       "player_key TEXT PRIMARY KEY,player_id TEXT,display_name TEXT,email_primary TEXT,email_login TEXT," +
@@ -141,7 +150,7 @@ export class SorealIdleCoordinatorV1 {
      * autoritaire vient de user, déjà vérifié par APP/TV avant l'appel.
      */
     const access = runSorealIdleOperation(
-      this.sql,
+      this.sqlMoteur,
       "obtenirAccesSorealIdle",
       ["launch-ticket"],
       user
@@ -293,7 +302,7 @@ export class SorealIdleCoordinatorV1 {
     /* Réponse allégée des catalogues que le client a déjà (idle-catalogues-v1.js) : même contrat, moins d'octets. */
     /* Langue des items et des textes (idle-traductions-v1.js) : traduction de la réponse AVANT l'allègement, donc l'empreinte des catalogues dépend de la langue. */
     return allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation(
-      this.sql,
+      this.sqlMoteur,
       operation,
       args,
       session.user
@@ -410,6 +419,8 @@ export class SorealIdleCoordinatorV1 {
       );
       inserted++;
     }
+    /* Les mémos de catalogue de l'isolat (5 min) ne doivent pas servir l'ancien contenu après un remplacement (IDLE-AUDIT-PERF-010). */
+    idleInvaliderMemosCatalogueV1();
     return { ok: true, sheets, deleted, inserted };
   }
 
@@ -439,7 +450,7 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/call") {
       const p = await request.json().catch(() => ({}));
       try {
-        const result = runSorealIdleOperation(this.sql, sv(p?.operation), Array.isArray(p?.args) ? p.args : [], p?.user);
+        const result = runSorealIdleOperation(this.sqlMoteur, sv(p?.operation), Array.isArray(p?.args) ? p.args : [], p?.user);
         return Response.json(result, { headers: { "cache-control": "no-store" } });
       } catch (error) {
         const message = sv(error?.message || error) || "SOREAL_IDLE_OPERATION_FAILED";

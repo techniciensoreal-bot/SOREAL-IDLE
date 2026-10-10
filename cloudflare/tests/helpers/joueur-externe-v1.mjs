@@ -8,7 +8,7 @@ import { runSorealIdleOperation } from "../../src/idle-sqlite-runtime.js";
  */
 const ENTETES = ["ID","Nom","Niveau","XP","Énergie","Énergie max","Prod/s","Force","Endurance","Organisation","Puissance","Boss actuel","PV boss","PV boss max","Boss vaincus","Dernière synchro","Public","Rang","Email principal","Email connexion","Pièces","Inventaire JSON","Équipement JSON","Améliorations JSON","Renaissances","Essence renaissance","PV joueur","PV joueur max","KO jusqu'à","Zone aventure","Progression aventure JSON","Points aventure","Dernière action aventure","Matériaux","Collection JSON","Date début","Capacité inventaire","Stats JSON"];
 
-export function creerJoueurExterneV1(email = "joueur.test@example.com") {
+export function creerJoueurExterneV1(email = "joueur.test@example.com", options = {}) {
   const db = new DatabaseSync(":memory:");
   const journalSql = [];
   const sql = {
@@ -21,7 +21,12 @@ export function creerJoueurExterneV1(email = "joueur.test@example.com") {
     }
   };
   db.exec("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
-  const coordinateur = new SorealIdleCoordinatorV1({ storage: { sql } }, {});
+  /* options.avecTransaction : simule storage.transactionSync du Durable Object (BEGIN / COMMIT, ROLLBACK si le rappel lève). */
+  const transactionSync = (f) => {
+    db.exec("BEGIN");
+    try { const r = f(); db.exec("COMMIT"); return r; } catch (e) { db.exec("ROLLBACK"); throw e; }
+  };
+  const coordinateur = new SorealIdleCoordinatorV1({ storage: options.avecTransaction ? { sql, transactionSync } : { sql } }, {});
   for (let i = 0; i < 15; i += 1) sql.exec("INSERT INTO migration_sources(source_key,status) VALUES(?,?)", "idle:s" + i, "DONE");
   const feuille = (nom, lignes) => lignes.forEach((l, i) => sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", nom, i + 1, JSON.stringify(l), Date.now()));
   feuille("JOUEURS", [ENTETES]);
