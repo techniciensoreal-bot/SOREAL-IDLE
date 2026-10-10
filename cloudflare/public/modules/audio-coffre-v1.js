@@ -76,6 +76,40 @@
     {id:'splat',nom:'Splat',jouer:function(c,s,t){souffle(c,s,t,{type:'lowpass',f0:2000,f1:300,d:.16,v:.4,a:.002});ton(c,s,t,{type:'sine',f0:420,f1:130,d:.2,v:.3,a:.002});ping(c,s,t+.22,.1,2400);}}
   ];
 
+  /*
+   * Rots et pets du Coffre (Norman, 2026-10-10 : « que le coffre rote et pète aléatoirement avec un son que tu vas créer ») : synthétisés comme le reste, six de chaque, tirés au hasard (jamais deux fois de suite le même).
+   * Un rot = une note grave en dents de scie qui descend, avec un vibrato lent et un filtre qui l'étouffe ; un pet = une note plus grave encore dont le vibrato rapide hache le son, doublée d'un souffle.
+   */
+  function pet(ctx,s,t,d,f0,f1,v,vib){
+    ton(ctx,s,t,{type:'sawtooth',f0:f0,f1:f1,d:d,v:v||.26,a:.012,vib:vib||[42,22],filtre:['lowpass',420,3]});
+    souffle(ctx,s,t,{type:'bandpass',f0:260,f1:150,d:d*.9,v:(v||.26)*.7,q:2,a:.012});
+  }
+  var ROTS=[
+    {id:'rot-grave',nom:'Rot grave',jouer:function(c,s,t){rot(c,s,t,.75,80,.34);}},
+    {id:'rot-aigu',nom:'Rot aigu',jouer:function(c,s,t){ton(c,s,t,{type:'sawtooth',f0:190,f1:110,d:.36,v:.26,a:.03,vib:[34,14],filtre:['lowpass',700,2]});}},
+    {id:'rot-double',nom:'Double rot',jouer:function(c,s,t){rot(c,s,t,.3,105,.3);rot(c,s,t+.34,.42,85,.32);}},
+    {id:'rot-long',nom:'Rot interminable',jouer:function(c,s,t){ton(c,s,t,{type:'sawtooth',f0:75,f1:48,d:1.1,v:.32,a:.08,vib:[22,12],filtre:['lowpass',480,2]});souffle(c,s,t,{type:'lowpass',f0:500,f1:150,d:.9,v:.14,q:1,a:.1});}},
+    {id:'rot-gazeux',nom:'Rot gazeux',jouer:function(c,s,t){souffle(c,s,t,{type:'bandpass',f0:420,f1:240,d:.45,v:.3,q:3,a:.05});rot(c,s,t+.05,.4,100,.22);}},
+    {id:'rot-pardon',nom:'Rot puis petit hoquet',jouer:function(c,s,t){rot(c,s,t,.55,92,.3);ton(c,s,t+.62,{type:'sine',f0:520,f1:260,d:.09,v:.2,a:.004});ton(c,s,t+.73,{type:'sine',f0:620,f1:300,d:.09,v:.16,a:.004});}}
+  ];
+  var PETS=[
+    {id:'pet-court',nom:'Pet sec',jouer:function(c,s,t){pet(c,s,t,.25,125,70,.3);}},
+    {id:'pet-long',nom:'Pet prolongé',jouer:function(c,s,t){pet(c,s,t,.95,95,46,.28,[38,20]);}},
+    {id:'pet-trompette',nom:'Pet trompette',jouer:function(c,s,t){ton(c,s,t,{type:'square',f0:210,f1:150,d:.5,v:.5,a:.02,vib:[58,10],filtre:['bandpass',520,3]});souffle(c,s,t,{type:'bandpass',f0:300,d:.4,v:.1,q:2,a:.02});}},
+    {id:'pet-triple',nom:'Trois petits pets',jouer:function(c,s,t){pet(c,s,t,.14,140,90,.26);pet(c,s,t+.2,.14,125,80,.26);pet(c,s,t+.4,.22,110,60,.28);}},
+    {id:'pet-siffle',nom:'Pet sifflant',jouer:function(c,s,t){souffle(c,s,t,{type:'bandpass',f0:2600,f1:900,d:.55,v:.32,q:6,a:.03});ton(c,s,t+.02,{type:'sawtooth',f0:100,f1:70,d:.5,v:.12,a:.02,vib:[50,15],filtre:['lowpass',350,2]});}},
+    {id:'pet-mouille',nom:'Pet mouillé',jouer:function(c,s,t){pet(c,s,t,.5,85,50,.26,[52,26]);for(var i=0;i<3;i+=1)glou(c,s,t+.52+i*.07,.14,200-i*30);}}
+  ];
+  var dernierDigestion={rot:-1,pet:-1};
+  /* type : 'rot' ou 'pet' ; tirage au hasard, jamais le même deux fois de suite. */
+  function jouerDigestion(type,ctx,sortie){
+    var cle=type==='pet'?'pet':'rot',liste=cle==='pet'?PETS:ROTS,n=liste.length,i=Math.floor(Math.random()*n);
+    if(i===dernierDigestion[cle])i=(i+1+Math.floor(Math.random()*(n-1)))%n;
+    dernierDigestion[cle]=i;
+    liste[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+    return liste[i];
+  }
+
   function jouer(sens,index,ctx,sortie){
     var liste=sens==='recracher'?RECRACHER:AVALER;
     var son=liste[((index%liste.length)+liste.length)%liste.length];
@@ -91,5 +125,5 @@
     dernier[cle]=i;
     return jouer(cle,i,ctx,sortie);
   }
-  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,jouer:jouer,jouerAleatoire:jouerAleatoire};
+  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion};
 })();

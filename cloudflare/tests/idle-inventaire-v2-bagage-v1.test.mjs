@@ -27,7 +27,7 @@ const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "u
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('coffreAvale')") && ui.includes("jouerEffetAudioIdleV199_('coffreRecrache')"), "sons au dépôt et à la reprise");
 assert.ok(audio.includes("coffreAvale:{group:\"chest\"") && audio.includes("jouerAleatoire"), "sons du Coffre dans le moteur audio");
 const sons = readFileSync("cloudflare/public/modules/audio-coffre-v1.js", "utf8");
-assert.equal((sons.match(/{id:'/g) || []).length, 20, "10 sons pour avaler, 10 pour recracher");
+assert.equal((sons.split('var ROTS=')[0].match(/{id:'/g) || []).length, 20, "10 sons pour avaler, 10 pour recracher");
 const cadre = css.slice(css.indexOf("Cadre propre au Coffre"));
 assert.ok(cadre.includes(".soreal-idle-section-v8.soreal-idle-coffre-v1{") && cadre.includes("#6b4a33") && cadre.includes("--cuivre"), "cadre du Coffre : bois et cuivre, plus le vert du thème");
 console.log("idle-inventaire-v2-bagage-v1: OK");

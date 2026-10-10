@@ -1344,3 +1344,22 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (max-width:420px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{flex-wrap:wrap}}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120{flex-wrap:wrap!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120>:not(label):not(input){flex:1 1 100%!important;margin:0!important}
+
+/* Le Coffre se trémousse quand il rote (il gonfle puis se tasse) ou pète (il tressaute de côté) : une seule fois, puis retour exact à l'état de départ. */
+@keyframes bgRote{0%,100%{transform:none}25%{transform:scale(1.07,.93)}50%{transform:scale(.95,1.07) translateY(-3px)}75%{transform:scale(1.03,.98)}}
+@keyframes bgPete{0%,100%{transform:none}12%{transform:translateX(-4px) rotate(-1.5deg)}28%{transform:translateX(4px) rotate(1.5deg)}44%{transform:translateX(-3px)}60%{transform:translateX(3px)}78%{transform:translateX(-1px)}}
+.bg-bagage-v1.bg-rote-v1{animation:bgRote .8s ease-in-out 1}
+.bg-bagage-v1.bg-pete-v1{animation:bgPete .8s ease-in-out 1}
+@media (prefers-reduced-motion:reduce){.bg-bagage-v1.bg-rote-v1,.bg-bagage-v1.bg-pete-v1{animation:none}}
+
+/* Après un pet : nuage de fumée (trois bouffées qui grossissent, montent et s'effacent) et bulle « Désolé » ; opacité et transform seulement, un seul passage. */
+@keyframes bgFumee{0%{opacity:0;transform:translate(0,0) scale(.35)}25%{opacity:.85}100%{opacity:0;transform:translate(var(--dx,14px),-34px) scale(1.5)}}
+.bg-bagage-v1 .bg-fumee-v1{position:absolute;right:2px;bottom:14px;width:46px;height:30px;pointer-events:none;z-index:7}
+.bg-bagage-v1 .bg-fumee-v1 i{position:absolute;bottom:0;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8efe0,#a9b79b 70%);box-shadow:0 0 6px rgba(130,150,110,.6);opacity:0;animation:bgFumee 1.4s ease-out 1 both}
+.bg-bagage-v1 .bg-fumee-v1 i:nth-child(1){left:0;--dx:-6px}
+.bg-bagage-v1 .bg-fumee-v1 i:nth-child(2){left:12px;--dx:10px;animation-delay:.18s}
+.bg-bagage-v1 .bg-fumee-v1 i:nth-child(3){left:24px;--dx:22px;animation-delay:.36s}
+@keyframes bgDesole{0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.8)}15%,80%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-4px) scale(.95)}}
+.bg-bagage-v1 .bg-desole-v1{position:absolute;left:50%;top:-30px;padding:4px 12px;border-radius:12px;background:#fff;color:#3a2208;border:2px solid #3a2208;font:400 17px/1 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.05em;white-space:nowrap;pointer-events:none;z-index:8;opacity:0;animation:bgDesole 2.2s ease-in-out 1 both}
+.bg-bagage-v1 .bg-desole-v1::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#3a2208;border-bottom:0}
+@media (prefers-reduced-motion:reduce){.bg-bagage-v1 .bg-fumee-v1 i{animation:none;opacity:.6}.bg-bagage-v1 .bg-desole-v1{animation:none;opacity:1}}

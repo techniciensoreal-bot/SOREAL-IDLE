@@ -56,6 +56,9 @@
     /* La borne de Combat de boss s'allume (Norman, 2026-10-10) : une fois par Renaissance, son calé sur l'animation (modules/audio-borne-v1.js). */
     borneAllume:{group:"borne",priority:70,maxAgeMs:1500},
     coffreRecrache:{group:"chest",priority:36,maxAgeMs:1000},
+    /* Le Coffre rote et pète de temps en temps, au hasard (Norman, 2026-10-10) : 6 rots et 6 pets synthétisés (modules/audio-coffre-v1.js). */
+    coffreRot:{group:"chest",priority:30,maxAgeMs:1500},
+    coffrePet:{group:"chest",priority:30,maxAgeMs:1500},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
     mergeAccessory:{group:"inventory-merge",priority:48,maxAgeMs:1100},
     mergeWeapon:{group:"inventory-merge",priority:50,maxAgeMs:1100},
@@ -1356,6 +1359,13 @@
     });
   }
 
+  function coffreDigestion_(type){
+    return jouerWebAudio_(1300,function(c){
+      var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
+      if(m&&typeof m.jouerDigestion==="function")m.jouerDigestion(type,c,master||c.destination);
+    });
+  }
+
   function coffreFermeture_(){
     return jouerWebAudio_(410,function(c){
       tonal_(c,{type:"triangle",from:255,to:112,duration:.20,volume:.050});
@@ -1679,6 +1689,8 @@
     coffreAvale:function(){return coffreAvalerRecracher_("avaler");},
     borneAllume:function(){return jouerWebAudio_(2700,function(c){var m=window.__SOREAL_IDLE_AUDIO_BORNE_V1__;if(m&&typeof m.allumer==="function")m.allumer(c,master||c.destination);});},
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
+    coffreRot:function(){return coffreDigestion_("rot");},
+    coffrePet:function(){return coffreDigestion_("pet");},
     mergeArmor:fusionArmure_,
     mergeAccessory:fusionAccessoire_,
     mergeWeapon:fusionArme_,
@@ -1950,6 +1962,8 @@
     coffreAvale:function(){return demander_("coffreAvale");},
     borneAllume:function(){return demander_("borneAllume");},
     coffreRecrache:function(){return demander_("coffreRecrache");},
+    coffreRot:function(){return demander_("coffreRot");},
+    coffrePet:function(){return demander_("coffrePet");},
     mergeArmor:function(){return demander_("mergeArmor");},
     mergeAccessory:function(){return demander_("mergeAccessory");},
     mergeWeapon:function(){return demander_("mergeWeapon");},
