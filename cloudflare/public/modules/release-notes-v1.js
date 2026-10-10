@@ -20,6 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          'Le combat de boss et NGU sont de nouveau fluides : l’ombre de la borne n’est plus recalculée à chaque image, ses néons et ses boutons s’animent avec la carte graphique, et le liquide des NGU avance à chaque image au lieu de dix fois par seconde.',
           'Un nouvel onglet des Chroniques, « Combat le plus long », range les joueurs selon leur plus long combat de boss mené jusqu’au bout (victoire ou défaite ; une fuite ne compte pas).',
           'La paralysie ne décale plus l’interface : plus de phrase au-dessus, seuls les raccourcis passent au jaune. Le bouton Trier de l’inventaire montre enfin son icône, et l’Or par remplissage de la machine affiché est le vrai chiffre (Or par seconde ÷ remplissages par seconde), la base étant indiquée à part.',
           'Page Aventure allégée : le journal de combat n’ajoute plus que les nouvelles lignes, la note « Prochain combat », l’icône du sac et la corbeille ne sont plus redessinés à chaque mise à jour (fini le clignotement de l’inventaire), et le reflet des tuiles du haut ne ralentit plus la page. Plus de popup quand on prend la fuite. Quand une barre de ressource réapparaît, l’ordre reste toujours Énergie, Magie, 3e ressource, puis Vie.',

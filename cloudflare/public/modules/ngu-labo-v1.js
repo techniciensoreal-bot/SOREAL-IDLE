@@ -229,7 +229,7 @@ var CSS=
   '.nl-niveau b{font:900 20px/1 "Segoe UI",system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 8px var(--nl-c)}'+
   /* tuyau : brides métalliques, verre, liquide lumineux, halo derrière */
   '.nl-tuyau{position:relative;display:flex;align-items:center}'+
-  '.nl-tuyau::before{content:"";position:absolute;inset:-6px 8px;border-radius:16px;background:var(--nl-c);filter:blur(13px);opacity:.14;z-index:0}'+
+  '.nl-tuyau::before{content:"";position:absolute;inset:-6px 8px;border-radius:16px;background:transparent;box-shadow:0 0 22px 9px var(--nl-c);opacity:.14;z-index:0}'+
   '.nl-barre.actif .nl-tuyau::before{opacity:.5}'+
   '@media(prefers-reduced-motion:no-preference){.nl-barre.actif .nl-tuyau::before{animation:nlPouls 2.4s ease-in-out infinite alternate}@keyframes nlPouls{from{opacity:.3}to{opacity:.62}}}'+
   '.nl-bride{position:relative;z-index:2;flex:0 0 auto;width:15px;height:52px;border-radius:5px;border:1px solid #0b0b1c;background:linear-gradient(90deg,#222744,#b4bae0 45%,#222744);box-shadow:0 0 6px rgba(0,0,0,.65)}'+
@@ -347,6 +347,11 @@ function page(j){
 function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
+  var maintenant=typeof performance!=='undefined'?performance.now():0;
+  /* Textes et ciel : toutes les 100 ms suffisent ; le liquide, lui, est mis à jour à chaque image. */
+  var complet=maintenant-dernierComplet>=100;
+  if(complet){
+  dernierComplet=maintenant;
   /* Les étoiles du fond scintillent dès qu'un tuyau reçoit de l'énergie ou de la magie. */
   var actif=Array.prototype.some.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){return Number(f.dataset.nlSpl)>0;})?'1':'0';
   if(racine.getAttribute('data-nl-actif')!==actif)racine.setAttribute('data-nl-actif',actif);
@@ -356,7 +361,7 @@ function tick_(){
   if(racine.getAttribute('data-nl-niv')!==niv)racine.setAttribute('data-nl-niv',niv);
   var lv=lueur.toFixed(3);
   if(racine.style.getPropertyValue('--nl-lueur')!==lv)racine.style.setProperty('--nl-lueur',lv);
-  var maintenant=typeof performance!=='undefined'?performance.now():0;
+  }
   var H=H_();
   Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){
     var d=f.dataset;
@@ -381,6 +386,7 @@ function tick_(){
         if(pct)pct.textContent=Math.round(v*100)+' %';
       }
     }
+    if(!complet)return;
     var eta=f.querySelector('[data-nl-eta]');
     if(eta){
       var texteEta=etaTexte_(spl,frac,cible>0&&niveau>=cible);
@@ -398,8 +404,27 @@ function tick_(){
 var resumeOuvert=false;
 /* « Je fais quoi ? » reste ouvert tant qu'on ne le ferme pas : la page se redessine toutes les quelques secondes et le refermait avant la fin de la lecture. */
 var aideOuverte=false;
-function demarrer_(){if(!timer)timer=setInterval(tick_,100);}
-function arreter_(){if(timer){clearInterval(timer);timer=0;}}
+/*
+ * Les tuyaux avancent à chaque image (Norman, 2026-10-10 : « dans NGU ça n'est pas fluide ») : une horloge à 10 images par seconde (setInterval 100 ms) faisait sauter le liquide par à-coups. La boucle suit maintenant
+ * l'écran (requestAnimationFrame, en pause quand la page est cachée) ; seuls le liquide se met à jour à chaque image, le reste (textes, niveau de lumière du ciel) toutes les 100 ms.
+ */
+var rafId=0,dernierComplet=0;
+function boucle_(){
+  rafId=0;
+  if(!document.querySelector('[data-nl-racine]')){timer=0;return;}
+  tick_();
+  rafId=requestAnimationFrame(boucle_);
+}
+function demarrer_(){
+  if(timer)return;
+  if(typeof requestAnimationFrame==='function'){timer=1;rafId=requestAnimationFrame(boucle_);}
+  else timer=setInterval(function(){dernierComplet=0;tick_();},100);
+}
+function arreter_(){
+  if(rafId){cancelAnimationFrame(rafId);rafId=0;}
+  else if(timer&&timer!==1)clearInterval(timer);
+  timer=0;
+}
 
 /* ---------- actions ---------- */
 function systemeAlloc_(j,res,delta){
