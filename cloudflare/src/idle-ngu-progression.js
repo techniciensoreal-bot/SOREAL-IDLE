@@ -5276,6 +5276,17 @@ export function idleNguMemoNouvelleRequeteV1() {
  */
 let __porteeBonusV1 = null;
 
+/*
+ * Anti-spoil (règle n°2, audit du 2026-10-10, IDLE-AUDIT-GP-002) : la liste des Augments envoyée au client ne contient que les paires débloquées (boss du run en cours, comme le déblocage réel et comme le client) et, pour le repère
+ * « ??? » du suivant, un marqueur opaque sans nom ni seuil. Avant, un joueur neuf recevait les 7 paires avec leur « boss N » de déblocage. IDLE_NGU_AUGMENTATIONS est trié par seuil croissant.
+ */
+function idleNguAugmentationsVisiblesV1(context) {
+  const bossRun = num(context && context.bosses, 0);
+  const premier = IDLE_NGU_AUGMENTATIONS.findIndex(def => bossRun < num(def.unlockBoss, 0));
+  if (premier < 0) return IDLE_NGU_AUGMENTATIONS;
+  return IDLE_NGU_AUGMENTATIONS.slice(0, premier).concat([{ id: "verrouille", verrouille: true, unlockBoss: 999999 }]);
+}
+
 function avecPorteeBonusV1(state, fn) {
   if (__porteeBonusV1) return fn();
   const verif = typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_BONUS === "1";
@@ -5935,7 +5946,7 @@ function construireSnapshotNguV1(state, context, now) {
     rebirth: clone(state.rebirth),
     difficulty: state.difficulty,
     difficultyPeaks: clone(state.difficultyPeaks),
-    difficultyUnlockRequirements: idleNguDifficultyUnlockRequirementsV1(state, context),
+    /* difficultyUnlockRequirements et earlyGameTimeline ne sont plus envoyés au client (audit du 2026-10-10, IDLE-AUDIT-GP-002) : le client ne les lit pas, et ils listaient les boss à battre pour débloquer chaque système. */
     challenge: clone(state.challenge),
     challengeDefinitions: challengeSnapshotDefinitions(state,context),
     challengeBonuses: challengePermanentBonuses(state),
@@ -6010,7 +6021,6 @@ function construireSnapshotNguV1(state, context, now) {
       }
       return { gratuit: wishLevelV1(state, 190) >= 1, racinePuissance: sqrtPower, vitesseEquipement: gear, pistes };
     })(),
-    earlyGameTimeline: clone(IDLE_NGU_EARLY_GAME_TIMELINE),
     /*
      * Audit 2026-09-13 (Norman) : "Le menu augmentation ne possède pas de
      * barres qui montent comme dans basic training." Basic Training expose
@@ -6022,7 +6032,9 @@ function construireSnapshotNguV1(state, context, now) {
      * (augmentationSecondsForNextLevel), jamais un second calcul inventé
      * côté client.
      */
-    augmentations: IDLE_NGU_AUGMENTATIONS.map((def) => {
+    augmentations: idleNguAugmentationsVisiblesV1(context).map((def) => {
+      /* La paire encore verrouillée montrée en dernier n'est qu'un repère opaque (le client affiche « ??? ») : aucune de ses données n'est calculée ni envoyée. */
+      if (def.verrouille) return def;
       const pair = state.systems.augmentations.data.pairs?.[def.id] || {};
       const neededMain = augmentationSecondsForNextLevel(state, def, false);
       const neededUpgrade = def.upgrade ? augmentationSecondsForNextLevel(state, def, true) : Infinity;
@@ -6063,7 +6075,8 @@ function construireSnapshotNguV1(state, context, now) {
     wishSlots: wishSlotsSnapshotV1(state),
     cards: idleCardsSnapshotV1(state),
     /* Anti-spoil (AGENTS.md règle n°2, 2026-09-29) : jamais un rituel encore verrouillé dans la liste -- sa simple présence (nom, coût, taille de la liste) révélerait ce qui reste à débloquer. */
-    bloodRituals: clone(IDLE_NGU_BLOOD_RITUALS.filter(def => ritualUnlocked(def, context, state))),
+    /* Rien tant que Blood Magic n'est pas découvert (audit du 2026-10-10, IDLE-AUDIT-GP-002) : un rituel sans drapeau de déblocage était listé même système verrouillé. */
+    bloodRituals: state.systems.bloodMagic?.unlocked ? clone(IDLE_NGU_BLOOD_RITUALS.filter(def => ritualUnlocked(def, context, state))) : [],
     bloodMagicView: bloodMagicViewV1(state),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0))),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */

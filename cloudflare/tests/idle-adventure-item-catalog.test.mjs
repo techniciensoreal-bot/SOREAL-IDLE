@@ -77,14 +77,25 @@ for(const[id,def]of Object.entries(IDLE_ADVENTURE_SPECIALS)){
   assert.equal(entree.kind,def.cube?"cube":"special");
 }
 
-// Le catalogue doit être exposé dans le snapshot envoyé au client (même
-// objet statique à chaque appel, pas recalculé par joueur).
+// Le snapshot expose le catalogue, mais SEULEMENT ce que le joueur connaît (anti-spoil, règle n°2, audit du 2026-10-10 GP-001) : objets vus ou possédés et leurs sets.
+// Les entrées exposées sont celles du catalogue statique (mêmes objets, jamais recalculés par snapshot).
 {
-  const snap1=idleAdventureSnapshotV47(createIdleAdventureStateV47(),0);
-  const snap2=idleAdventureSnapshotV47(createIdleAdventureStateV47(),50);
-  assert.ok(snap1.itemCatalog,"Le snapshot doit exposer itemCatalog.");
-  assert.equal(snap1.itemCatalog,IDLE_ADVENTURE_ITEM_CATALOG_V1,"Le catalogue est statique — jamais reconstruit par snapshot.");
-  assert.equal(snap1.itemCatalog,snap2.itemCatalog);
+  const neuf=idleAdventureSnapshotV47(createIdleAdventureStateV47(),0);
+  assert.ok(neuf.itemCatalog,"Le snapshot doit exposer itemCatalog.");
+  const ids=Object.keys(neuf.itemCatalog);
+  assert.ok(ids.length<10,"Un joueur neuf ne reçoit pas le catalogue complet ("+ids.length+" entrées, catalogue complet : "+Object.keys(IDLE_ADVENTURE_ITEM_CATALOG_V1).length+").");
+  for(const id of ids)assert.equal(neuf.itemCatalog[id],IDLE_ADVENTURE_ITEM_CATALOG_V1[id],"Entrée statique partagée : "+id);
+  assert.equal(Object.keys(neuf.setCatalog).length,0,"Aucun set révélé à un joueur qui n'a aucune pièce.");
+
+  // Un objet vu (itemList) ou possédé fait apparaître son entrée et son set, et eux seuls.
+  const etat=createIdleAdventureStateV47();
+  const [defId,def]=Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1).find(([,d])=>d&&d.set&&d.kind==="equipment");
+  etat.itemList[defId]={seen:true,maxLevel:1};
+  const connu=idleAdventureSnapshotV47(etat,0);
+  assert.ok(connu.itemCatalog[defId],"L'objet vu est dans le catalogue.");
+  assert.ok(connu.setCatalog[def.set],"Son set est dans le catalogue.");
+  assert.equal(Object.keys(connu.setCatalog).length,1,"Un seul set révélé.");
+  assert.ok(Object.keys(connu.itemCatalog).length<30,"Pas de fuite des autres objets.");
 }
 
 console.log("idle-adventure-item-catalog: OK");
